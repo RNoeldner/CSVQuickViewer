@@ -19,55 +19,50 @@ using System.IO;
 namespace CsvTools
 {
   /// <summary>
-  /// Contains all information needed to access the input or output 
+  ///   Contains all information needed to access the input or output
   /// </summary>
   public class SourceAccess
   {
-    public enum FileTypeEnum
-    {
-      FileSystem,
-      GZip,
-      Deflate,
-      Pgp,
-      Zip,
-      Stream
-    }
-
     /// <summary>
-    /// Type of the file
+    ///   Type of the file
     /// </summary>
     public readonly FileTypeEnum FileType;
 
     /// <summary>
-    /// Method to open the base stream usually the physical file
-    /// </summary>    
-    [NotNull] private readonly Func<Stream> m_OpenStream;
-
-    /// <summary>
-    /// Determine if the access is for reading or writing
+    ///   Determine if the access is for reading or writing
     /// </summary>
     public readonly bool Reading;
 
     /// <summary>
-    /// The Password or Passphrase information
+    ///   The Password or Passphrase information
     /// </summary>
     [NotNull] public string EncryptedPassphrase = string.Empty;
 
     /// <summary>
-    /// Property used for informational purpose
+    ///   Property used for informational purpose
     /// </summary>
-    [CanBeNull] public string Identifier;
+    [NotNull] public string Identifier;
 
     /// <summary>
-    /// Location or identifier in the container
+    ///   Location or identifier in the container
     /// </summary>
     [NotNull] public string IdentifierInContainer = string.Empty;
 
     /// <summary>
-    /// Information about the recipient for a encryption
+    ///   Information about the recipient for a encryption
     /// </summary>
     [NotNull] public string Recipient = string.Empty;
 
+    /// <summary>
+    ///   Method to open the base stream usually the physical file
+    /// </summary>
+    [NotNull] private readonly Func<Stream> m_OpenStream;
+
+    /// <summary>
+    /// Craete a source access based on a setting, the setting might contain information for containers like Zip of PGP
+    /// </summary>
+    /// <param name="setting">The setting of type <see cref="IFileSettingPhysicalFile"/></param>
+    /// <param name="isReading"><c>true</c> if used for reading</param>
     public SourceAccess([NotNull] IFileSettingPhysicalFile setting, bool isReading = true) : this(
       GetOpenStreamFunc(setting.FullPath, isReading), isReading, FromExtension(setting.FullPath))
     {
@@ -79,6 +74,11 @@ namespace CsvTools
       IdentifierInContainer = setting.IdentifierInContainer ?? string.Empty;
     }
 
+    /// <summary>
+    /// Craete a source access based on a file name
+    /// </summary>
+    /// <param name="fileName">Fully qualified name of the file</param>
+    /// <param name="isReading"><c>true</c> if used for reading</param>
     public SourceAccess([NotNull] string fileName, bool isReading = true) : this(GetOpenStreamFunc(fileName, isReading),
       isReading, FromExtension(fileName))
     {
@@ -95,24 +95,68 @@ namespace CsvTools
       }
     }
 
-    public SourceAccess([NotNull] Func<Stream> streamFunc, bool isReading, FileTypeEnum type)
+    /// <summary>
+    /// Craete a source access based on a stream
+    /// </summary>
+    /// <param name="stream">The source stream, it must support seek if its a read stream</param>
+    /// <param name="isReading"><c>true</c> if used for reading</param>
+    /// <param name="type">The type of the contens in the stream</param>
+    public SourceAccess([NotNull] Stream stream, bool isReading, FileTypeEnum type = FileTypeEnum.Stream) : this(() => stream, isReading, type)
+    {
+      if (isReading && !stream.CanSeek)
+        throw new ArgumentException("Source stream must support seek to be used for SourceAccess", nameof(stream));
+      LeaveOpen = true;
+      Identifier =  $"{stream.GetType().Name}_{FileType}";
+
+      // Overwite in case we can get more information
+      if (stream is FileStream fs)
+      {
+        Identifier = FileSystemUtils.GetShortDisplayFileName(fs.Name);
+        if ((type == FileTypeEnum.Stream))
+          FileType =  FromExtension(fs.Name);
+      }
+    }
+
+    /// <summary>
+    /// Craete a source access based on a function that will return a stream
+    /// </summary>
+    /// <param name="streamFunc"> A function that will return the stream</param>
+    /// <param name="isReading"><c>true</c> if used for reading</param>
+    /// <param name="type">The type of the contens in the stream</param>
+    private SourceAccess([NotNull] Func<Stream> streamFunc, bool isReading, FileTypeEnum type)
     {
       m_OpenStream = streamFunc;
       Reading = isReading;
       FileType = type;
+      LeaveOpen = false;
     }
 
-    public SourceAccess([NotNull] Stream stream, bool isReading)
+    public enum FileTypeEnum
     {
-      m_OpenStream = () => stream;
-      Reading = isReading;
-      FileType = FileTypeEnum.Stream;
+      FileSystem,
+      GZip,
+      Deflate,
+      Pgp,
+      Zip,
+      Stream
     }
 
-    private static Func<Stream> GetOpenStreamFunc(string fileName, bool isReading) => () =>
-      new FileStream(fileName.LongPathPrefix(),
-        isReading ? FileMode.Open : FileMode.Create,
-        isReading ? FileAccess.Read : FileAccess.ReadWrite, FileShare.ReadWrite);
+    public bool LeaveOpen { get; } = false;
+    /// <summary>
+    ///   Get the stream, in case of a read stream it's attempted to be at the begining of the stream
+    /// </summary>
+    /// <returns></returns>
+    public Stream OpenStream()
+    {
+      var stream = m_OpenStream.Invoke();
+      if (LeaveOpen && Reading && stream.Position!=0)
+        stream.Seek(0, SeekOrigin.Begin);
+
+      // in case the SourceAccess initialized with a function, the stream is only known now...
+      if (Identifier.Length==0)
+        Identifier = (stream is FileStream fs) ? FileSystemUtils.GetShortDisplayFileName(fs.Name) : $"{stream.GetType().Name}_{FileType}";
+      return stream;
+    }
 
     private static FileTypeEnum FromExtension([NotNull] string fileName)
     {
@@ -127,19 +171,9 @@ namespace CsvTools
       return fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ? FileTypeEnum.Zip : FileTypeEnum.FileSystem;
     }
 
-    /// <summary>
-    ///    Get the stream, in case of a read stream it's attempted to be at the begining of the stream
-    /// </summary>
-    /// <returns></returns>
-    public Stream OpenStream()
-    {
-      var stream = m_OpenStream.Invoke();
-      if (FileType == FileTypeEnum.Stream && Reading && stream.CanSeek && stream.Position!=0)
-        stream.Seek(0, SeekOrigin.Begin);
-
-      if (string.IsNullOrEmpty(Identifier))
-        Identifier = (stream is FileStream fs) ? FileSystemUtils.GetShortDisplayFileName(fs.Name) : FileType == FileTypeEnum.Stream ? stream.GetType().Name : string.Empty;
-      return stream;
-    }
+    private static Func<Stream> GetOpenStreamFunc(string fileName, bool isReading) => () =>
+              new FileStream(fileName.LongPathPrefix(),
+        isReading ? FileMode.Open : FileMode.Create,
+        isReading ? FileAccess.Read : FileAccess.ReadWrite, FileShare.ReadWrite);
   }
 }
