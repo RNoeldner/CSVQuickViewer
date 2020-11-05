@@ -23,11 +23,11 @@ namespace CsvTools
 {
   /// <summary>
   ///   A wrapper around streams to handle encryption and Compression
-  ///   As some of these additionally used stream do not support seek, someimes seek has to be started from scratch
+  ///   As some of these additionally used stream do not support seek, sometimes seek has to be started from scratch
   /// </summary>
   public class ImprovedStream : Stream, IImprovedStream
   {
-    const int c_BufferSize = 8192;    
+    const int c_BufferSize = 8192;
     protected readonly SourceAccess SourceAccess;
     private bool m_DisposedValue;
     private ICSharpCode.SharpZipLib.Zip.ZipFile m_ZipFile;
@@ -46,9 +46,11 @@ namespace CsvTools
     /// <param name="isReading"></param>
     /// <param name="type"></param>
     /// <remarks>Make sure the source stream is disposed</remarks>
-    public ImprovedStream([NotNull] Stream stream, bool isReading, SourceAccess.FileTypeEnum type = SourceAccess.FileTypeEnum.Stream)
+    // ReSharper disable once NotNullMemberIsNotInitialized
+    public ImprovedStream([NotNull] Stream stream, bool isReading,
+      SourceAccess.FileTypeEnum type = SourceAccess.FileTypeEnum.Stream)
     {
-      SourceAccess = new SourceAccess(stream, isReading, type);      
+      SourceAccess = new SourceAccess(stream, isReading, type);
       BaseOpen();
     }
 
@@ -172,12 +174,15 @@ namespace CsvTools
       if (SourceAccess.Reading)
       {
         Logger.Debug("Decompressing from GZip {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen), c_BufferSize);
+        AccessStream =
+          new BufferedStream(new GZipStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
+            c_BufferSize);
       }
       else
       {
         Logger.Debug("Compressing to GZip {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen), c_BufferSize);
+        AccessStream = new BufferedStream(new GZipStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
+          c_BufferSize);
       }
     }
 
@@ -186,12 +191,16 @@ namespace CsvTools
       if (SourceAccess.Reading)
       {
         Logger.Debug("Deflating {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen), c_BufferSize);
+        AccessStream =
+          new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
+            c_BufferSize);
       }
       else
       {
         Logger.Debug("Compressing {filename}", SourceAccess.Identifier);
-        AccessStream = new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen), c_BufferSize);
+        AccessStream =
+          new BufferedStream(new DeflateStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
+            c_BufferSize);
       }
     }
 

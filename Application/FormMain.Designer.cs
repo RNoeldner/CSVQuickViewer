@@ -159,7 +159,7 @@ namespace CsvTools
 			this.m_ToolStripButtonShowLog.Name = "m_ToolStripButtonShowLog";
 			this.m_ToolStripButtonShowLog.Size = new System.Drawing.Size(23, 22);
 			this.m_ToolStripButtonShowLog.Text = "Log";
-			this.m_ToolStripButtonShowLog.Click += new System.EventHandler(this.ToggelShowLog);
+			this.m_ToolStripButtonShowLog.Click += new System.EventHandler(this.ToggleShowLog);
 			// 
 			// m_ToolStripButtonSettings
 			// 

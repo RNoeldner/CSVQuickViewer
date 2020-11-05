@@ -31,29 +31,29 @@ namespace CsvTools
     /// <summary>
     ///   Constant: Line has fewer columns than expected
     /// </summary>
-    public const string c_LessColumns = " has fewer columns than expected";
+    public const string cLessColumns = " has fewer columns than expected";
 
     /// <summary>
     ///   Constant: Line has more columns than expected
     /// </summary>
-    public const string c_MoreColumns = " has more columns than expected";
+    public const string cMoreColumns = " has more columns than expected";
 
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
-    private const char cCr = (char) 0x0d;
+    private const char c_Cr = (char) 0x0d;
 
     /// <summary>
     ///   The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
-    private const char cLf = (char) 0x0a;
+    private const char c_Lf = (char) 0x0a;
 
     /// <summary>
     ///   A non-breaking space..
     /// </summary>
-    private const char cNbsp = (char) 0xA0;
+    private const char c_Nbsp = (char) 0xA0;
 
-    private const char cUnknownChar = (char) 0xFFFD;
+    private const char c_UnknownChar = (char) 0xFFFD;
     private readonly bool m_AllowRowCombining;
     private readonly bool m_AlternateQuoting;
     private readonly int m_CodePageId;
@@ -72,12 +72,13 @@ namespace CsvTools
     private readonly bool m_HasFieldHeader;
 
     private readonly bool m_HasQualifier;
+    private readonly string m_IdentifierInContainer;
     private readonly string m_NewLinePlaceholder;
     private readonly int m_NumWarning;
     private readonly string m_QuotePlaceholder;
 
     // Store the raw text of the record, before split into columns and trimming of the columns
-    private readonly StringBuilder m_RecordSource = new StringBuilder();    
+    private readonly StringBuilder m_RecordSource = new StringBuilder();
 
     private readonly bool m_SkipDuplicateHeader;
     private readonly bool m_SkipEmptyLines;
@@ -86,7 +87,6 @@ namespace CsvTools
     private readonly bool m_TreatLfAsSpace;
     private readonly bool m_TreatNbspAsSpace;
     private readonly string m_TreatTextAsNull;
-    private readonly string m_IdentifierInContainer;
     private readonly bool m_TreatUnknownCharacterAsSpace;
     private readonly TrimmingOption m_TrimmingOption;
     private readonly bool m_TryToSolveMoreColumns;
@@ -151,7 +151,7 @@ namespace CsvTools
       alternateQuoting, commentLine, numWarning, duplicateQuotingToEscape, newLinePlaceholder, delimiterPlaceholder,
       quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace, tryToSolveMoreColumns,
       warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
-      treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax, "")
+      treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax)
     {
       m_ImprovedStream = improvedStream;
       m_SelfOpenedStream = false;
@@ -196,13 +196,13 @@ namespace CsvTools
         m_FieldQualifierChar = fieldQualifier[0];
       }
 
-      if (m_FieldQualifierChar == cCr || m_FieldQualifierChar == cLf)
+      if (m_FieldQualifierChar == c_Cr || m_FieldQualifierChar == c_Lf)
         throw new FileReaderException(
           "The text quoting characters is invalid, please use something else than CR or LF");
 
-      if (m_FieldDelimiterChar == cCr || m_FieldDelimiterChar == cLf
-                                      || m_FieldDelimiterChar == ' '
-                                      || m_FieldDelimiterChar == '\0')
+      if (m_FieldDelimiterChar == c_Cr || m_FieldDelimiterChar == c_Lf
+                                       || m_FieldDelimiterChar == ' '
+                                       || m_FieldDelimiterChar == '\0')
         throw new FileReaderException(
           "The field delimiter character is invalid, please use something else than CR, LF or Space");
 
@@ -381,7 +381,8 @@ namespace CsvTools
         if (m_SelfOpenedStream)
         {
           m_ImprovedStream?.Dispose();
-          m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath, true) { IdentifierInContainer = m_IdentifierInContainer });
+          m_ImprovedStream =
+            FunctionalDI.OpenStream(new SourceAccess(FullPath) {IdentifierInContainer = m_IdentifierInContainer});
         }
 
         m_TextReader?.Dispose();
@@ -486,12 +487,12 @@ namespace CsvTools
       EndLineNumber++;
       if (EndOfFile) return;
       var nextChar = Peek();
-      if ((character != cCr || nextChar != cLf) && (character != cLf || nextChar != cCr)) return;
+      if ((character != c_Cr || nextChar != c_Lf) && (character != c_Lf || nextChar != c_Cr)) return;
 
       // New line sequence is either CRLF or LFCR, disregard the character
       MoveNext(nextChar);
 
-      if (character == cLf && nextChar == cCr)
+      if (character == c_Lf && nextChar == c_Cr)
         EndLineNumber++;
     }
 
@@ -573,7 +574,7 @@ namespace CsvTools
       EndOfFile = true;
 
       // return a lf to determine the end of quoting easily
-      return cLf;
+      return c_Lf;
     }
 
     /// <summary>
@@ -659,13 +660,13 @@ namespace CsvTools
         }
 
         // in case we have a single LF
-        if (!postData && m_TreatLfAsSpace && character == cLf && quoted)
+        if (!postData && m_TreatLfAsSpace && character == c_Lf && quoted)
         {
           var singleLf = true;
           if (!EndOfFile)
           {
             var nextChar = Peek();
-            if (nextChar == cCr)
+            if (nextChar == c_Cr)
               singleLf = false;
           }
 
@@ -680,7 +681,7 @@ namespace CsvTools
 
         switch (character)
         {
-          case cNbsp:
+          case c_Nbsp:
             if (!postData)
             {
               // TODO: not 100% correct in case we have a misalignment of column that is corrected afterwards
@@ -701,15 +702,15 @@ namespace CsvTools
 
             break;
 
-          case cCr:
-          case cLf:
+          case c_Cr:
+          case c_Lf:
             EndLineNumber++;
 
             var nextChar = '\0';
             if (!EndOfFile)
             {
               nextChar = Peek();
-              if ((character != cCr || nextChar != cLf) && (character != cLf || nextChar != cCr))
+              if ((character != c_Cr || nextChar != c_Lf) && (character != c_Lf || nextChar != c_Cr))
               {
                 nextChar = '\0';
               }
@@ -717,12 +718,12 @@ namespace CsvTools
               {
                 MoveNext(nextChar);
 
-                if (character == cLf && nextChar == cCr)
+                if (character == c_Lf && nextChar == c_Cr)
                   EndLineNumber++;
               }
             }
 
-            if (character == cCr && nextChar == cLf || character == cLf && nextChar == cCr)
+            if (character == c_Cr && nextChar == c_Lf || character == c_Lf && nextChar == c_Cr)
               if (quoted && !postData)
               {
                 stringBuilder.Append(character);
@@ -738,7 +739,7 @@ namespace CsvTools
           break;
 
         // Finished with reading the column by Linefeed
-        if ((character == cCr || character == cLf) && (preData || postData || !quoted))
+        if ((character == c_Cr || character == c_Lf) && (preData || postData || !quoted))
         {
           m_EndOfLine = true;
           break;
@@ -795,14 +796,14 @@ namespace CsvTools
             // handling for "" that is not only representing a " but also closes the text
             peekNextChar = Peek();
             if (m_AlternateQuoting && (peekNextChar == m_FieldDelimiterChar
-                                       || peekNextChar == cCr
-                                       || peekNextChar == cLf)) postData = true;
+                                       || peekNextChar == c_Cr
+                                       || peekNextChar == c_Lf)) postData = true;
             continue;
           }
 
           // a single " should be regarded as closing when its followed by the delimiter
           if (m_AlternateQuoting && (peekNextChar == m_FieldDelimiterChar
-                                     || peekNextChar == cCr || peekNextChar == cLf))
+                                     || peekNextChar == c_Cr || peekNextChar == c_Lf))
           {
             postData = true;
             continue;
@@ -874,7 +875,7 @@ namespace CsvTools
           {
             var character = Peek();
             MoveNext(character);
-            if (character != cCr && character != cLf)
+            if (character != c_Cr && character != c_Lf)
               continue;
             EatNextCRLF(character);
             break;
@@ -976,7 +977,7 @@ namespace CsvTools
 
           if (!m_AllowRowCombining)
           {
-            m_HandleMessageColumn(-1, $"Line {c_LessColumns} ({rowLength}/{FieldCount}).");
+            m_HandleMessageColumn(-1, $"Line {cLessColumns} ({rowLength}/{FieldCount}).");
           }
           else
           {
@@ -1004,7 +1005,7 @@ namespace CsvTools
               if (!hasWarningCombinedWarning)
               {
                 m_HandleMessageColumn(-1,
-                  $"Line {c_LessColumns}\nLines {StartLineNumber}-{EndLineNumber - 1} have been combined.");
+                  $"Line {cLessColumns}\nLines {StartLineNumber}-{EndLineNumber - 1} have been combined.");
                 hasWarningCombinedWarning = true;
               }
 
@@ -1015,7 +1016,7 @@ namespace CsvTools
             // we have an issue we went into the next Buffer there is no way back.
             HandleError(
               -1,
-              $"Line {c_LessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
+              $"Line {cLessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
           }
         }
 
@@ -1023,7 +1024,7 @@ namespace CsvTools
         // ReSharper disable once InvertIf
         if (rowLength > FieldCount)
         {
-          var text = $"Line {c_MoreColumns} ({rowLength}/{FieldCount}).";
+          var text = $"Line {cMoreColumns} ({rowLength}/{FieldCount}).";
 
           if (m_RealignColumns != null)
           {
@@ -1088,7 +1089,7 @@ namespace CsvTools
                     .AddWarningId());
             }
 
-            if (adjustedValue.IndexOf(cUnknownChar) != -1)
+            if (adjustedValue.IndexOf(c_UnknownChar) != -1)
             {
               if (m_WarnUnknownCharacter)
               {
@@ -1102,7 +1103,7 @@ namespace CsvTools
 
               if (m_TreatUnknownCharacterAsSpace)
               {
-                adjustedValue = adjustedValue.Replace(cUnknownChar, ' ');
+                adjustedValue = adjustedValue.Replace(c_UnknownChar, ' ');
 
                 // TODO: In order to use Quoted we would need to know if the column was quoted this is not possible right now
                 if (m_TrimmingOption == TrimmingOption.All)

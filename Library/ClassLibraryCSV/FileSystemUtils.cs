@@ -180,7 +180,7 @@ namespace CsvTools
           return Path.Combine(GetFullPath(basePath), fileName).RemovePrefix();
 
         // the Filename could contains wildcards, that is not supported when extending relative path
-        // the path part though ca not contain wildcards, so combie base and path
+        // the path part though ca not contain wildcards, so combine base and path
         return (GetFullPath(Path.Combine(basePath, fileName.Substring(0, split))) + fileName.Substring(split))
           .RemovePrefix();
       }
