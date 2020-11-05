@@ -46,7 +46,7 @@ namespace CsvTools.Tests
         await CsvHelper.GuessCodePageAsync(setting2, processDisplay.CancellationToken);
         Assert.AreEqual(1201, setting2.CodePageId);
 
-        var setting3 = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("UnicodeUTF8.txt") };
+        var setting3 = new CsvFile {FileName = UnitTestInitializeCsv.GetTestPath("UnicodeUTF8.txt")};
         await CsvHelper.GuessCodePageAsync(setting3, processDisplay.CancellationToken);
         Assert.AreEqual(65001, setting3.CodePageId);
       }
@@ -60,8 +60,8 @@ namespace CsvTools.Tests
         await CsvHelper.GuessDelimiterAsync(
           new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")),
           UnitTestInitializeCsv.Token));
-      
-     Assert.AreEqual(
+
+      Assert.AreEqual(
         "|",
         await CsvHelper.GuessDelimiterAsync(
           new CsvFile(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.txt")),
@@ -111,7 +111,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GuessHasHeader()
     {
-      using (var stream = new ImprovedStream(new SourceAccess( UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), true)))
+      using (var stream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"))))
       using (var reader = new ImprovedTextReader(stream))
       {
         reader.ToBeginning();
@@ -119,7 +119,7 @@ namespace CsvTools.Tests
       }
 
       using (var stream =
-        new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("HandlingDuplicateColumnNames.txt"), true)))
+        new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("HandlingDuplicateColumnNames.txt"))))
       using (var reader = new ImprovedTextReader(stream))
       {
         reader.ToBeginning();
@@ -151,7 +151,7 @@ namespace CsvTools.Tests
           file.Write("3ICC\t10/14/2010\t0e413ed0-3086-47b6-90f3-836a24f7cb2e\n");
           file.Write("3SOF\t\"3 Overview\"\taff9ed00-016e-4202-a3df-27a3ce443e80\n");
           file.Write("3T1SA\t3 Phase 1\t8d527a23-2777-4754-a73d-029f67abe715\n");
-          file.Write("3T22A\t3 Phase 2\tf9a99add-4cc2-4e41-a29f-a01f5b3b61b2\n");
+          await file.WriteAsync("3T22A\t3 Phase 2\tf9a99add-4cc2-4e41-a29f-a01f5b3b61b2\n");
           file.Write("3T25C\t3 Phase 2\tab416221-9f79-484e-a7c9-bc9a375a6147\n");
           file.Write("7S721A\t\"7 راز\"\t2b9d291f-ce76-4947-ae7b-fec3531d1766\n");
           file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\n");
@@ -335,12 +335,11 @@ namespace CsvTools.Tests
     {
       ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("LateStartRow.txt"))
       {
-        SkipRows = 10,
-        CodePageId = 20127
-      };      
+        SkipRows = 10, CodePageId = 20127
+      };
       test.FileFormat.FieldDelimiter = "|";
       test.FileFormat.FieldQualifier = "\"";
-      
+
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(test, processDisplay))
       {

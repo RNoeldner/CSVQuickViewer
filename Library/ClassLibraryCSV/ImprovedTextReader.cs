@@ -10,12 +10,12 @@ namespace CsvTools
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
-    private const char cCr = (char) 0x0d;
+    private const char c_Cr = (char) 0x0d;
 
     /// <summary>
     ///   The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
-    private const char cLf = (char) 0x0a;
+    private const char c_Lf = (char) 0x0a;
 
     private readonly int m_BomLength;
 
@@ -121,7 +121,7 @@ namespace CsvTools
     {
       var character = TextReader.Read();
 
-      if (character == cLf || character == cCr)
+      if (character == c_Lf || character == c_Cr)
         LineNumber++;
 
       return character;
@@ -143,17 +143,17 @@ namespace CsvTools
         {
           case -1:
             continue;
-          case cCr:
-          case cLf:
+          case c_Cr:
+          case c_Lf:
           {
             var nextChar = TextReader.Peek();
             switch (character)
             {
-              case cCr when nextChar == cLf:
+              case c_Cr when nextChar == c_Lf:
                 TextReader.Read();
                 break;
 
-              case cLf when nextChar == cCr:
+              case c_Lf when nextChar == c_Cr:
                 LineNumber++;
                 TextReader.Read();
                 break;

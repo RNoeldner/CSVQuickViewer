@@ -35,13 +35,12 @@ namespace CsvTools
     private JsonTextReader m_JsonTextReader;
     private StreamReader m_StreamReader;
 
-    public JsonFileReader([NotNull]
-          IImprovedStream improvedStream,
-          [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
-          long recordLimit = 0,
-          bool treatNbspAsSpace = false, bool trim = false,
-          string treatTextAsNull = null) :
-          base("stream", columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace)
+    public JsonFileReader([NotNull] IImprovedStream improvedStream,
+      [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+      long recordLimit = 0,
+      bool treatNbspAsSpace = false, bool trim = false,
+      string treatTextAsNull = null) :
+      base("stream", columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace)
     {
       m_ImprovedStream = improvedStream;
       m_SelfOpenedStream = false;
@@ -102,14 +101,15 @@ namespace CsvTools
         try
         {
           var line2 = GetNextRecord(true, token);
-          if (line2!=null && line2.Count==0)
+          if (line2 != null && line2.Count == 0)
             throw new JsonReaderException("A second entry should have contents, assuming Log file");
         }
         catch (JsonReaderException ex)
         {
           if (m_AssumeLog)
             throw;
-          Logger.Information("Initial parsing as JSON file failed {message}. Trying to read it as JSON Log output", ex.Message);
+          Logger.Information("Initial parsing as JSON file failed {message}. Trying to read it as JSON Log output",
+            ex.Message);
           m_AssumeLog = true;
           goto again;
         }
@@ -125,7 +125,8 @@ namespace CsvTools
             if (!colNames.ContainsKey(keyValue.Key))
               colNames.Add(keyValue.Key, keyValue.Value?.GetType().GetDataType() ?? DataType.String);
           }
-          if (stopwatch.ElapsedMilliseconds>200)
+
+          if (stopwatch.ElapsedMilliseconds > 200)
             break;
           line = GetNextRecord(false, token);
         }
@@ -155,7 +156,10 @@ namespace CsvTools
         HandleShowProgress("");
       }
     }
+
     public override Task<bool> ReadAsync(CancellationToken token) => Task.FromResult(Read(token));
+
+    public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
     public override bool Read(CancellationToken token)
     {
@@ -173,8 +177,6 @@ namespace CsvTools
       HandleReadFinished();
       return false;
     }
-
-    public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
     /// <summary>
     ///   Reads a data row from the JsonTextReader and stores the values and text, this will flatten
@@ -352,7 +354,7 @@ namespace CsvTools
       if (m_SelfOpenedStream)
       {
         m_ImprovedStream?.Dispose();
-        m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath, true));
+        m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath));
       }
       else
         m_ImprovedStream.Seek(0, SeekOrigin.Begin);
@@ -370,9 +372,9 @@ namespace CsvTools
 
       m_JsonTextReader?.Close();
       if (m_AssumeLog)
-        m_JsonTextReader= new JsonTextReader(new JSONLogStreamReader(m_StreamReader));
+        m_JsonTextReader = new JsonTextReader(new JSONLogStreamReader(m_StreamReader));
       else
-        m_JsonTextReader= new JsonTextReader(m_StreamReader);
+        m_JsonTextReader = new JsonTextReader(m_StreamReader);
     }
   }
 }

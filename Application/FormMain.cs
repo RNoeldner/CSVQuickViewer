@@ -208,6 +208,7 @@ namespace CsvTools
           col.PropertyChanged += AnyPropertyChangedReload;
           col.ValueFormatMutable.PropertyChanged += AnyPropertyChangedReload;
         }
+
         if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
           fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
       }
@@ -279,7 +280,7 @@ namespace CsvTools
           m_FileSetting.ColumnCollection.Clear();
           // restore header names
           foreach (var col in m_StoreColumns)
-            m_FileSetting.ColumnCollection.Add(new Column(col.Name) { ColumnOrdinal= col.ColumnOrdinal });
+            m_FileSetting.ColumnCollection.Add(new Column(col.Name) {ColumnOrdinal = col.ColumnOrdinal});
           m_ToolStripButtonAsText.Text = "Values";
         }
         else
@@ -485,7 +486,8 @@ namespace CsvTools
           DetachPropertyChanged(m_FileSetting);
 
           m_FileSetting = await CsvHelper.GetCsvFileSetting(fileName,
-            (csvFile) => ViewSettings.CopyConfiguration(m_ViewSettings, csvFile), m_ViewSettings.AllowJson, m_ViewSettings.GuessCodePage,
+            (csvFile) => ViewSettings.CopyConfiguration(m_ViewSettings, csvFile), m_ViewSettings.AllowJson,
+            m_ViewSettings.GuessCodePage,
             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine,
             m_ViewSettings.FillGuessSettings, processDisplay);
@@ -500,7 +502,7 @@ namespace CsvTools
           this.SafeInvoke(() =>
           {
             Text =
-              $"{FileSystemUtils.GetShortDisplayFileName(fileName, 40)} - {EncodingHelper.GetEncodingName(m_CodePage.Item1, true, m_CodePage.Item2)} - {AssemblyTitle}";
+              $@"{FileSystemUtils.GetShortDisplayFileName(fileName, 40)} - {EncodingHelper.GetEncodingName(m_CodePage.Item1, true, m_CodePage.Item2)} - {AssemblyTitle}";
 
             m_ToolStripButtonAsText.Visible = !m_FileSetting.JsonFormat &&
                                               m_FileSetting.ColumnCollection.Any(x =>
@@ -565,7 +567,7 @@ namespace CsvTools
           foreach (var columnName in m_Headers)
           {
             if (m_FileSetting.ColumnCollection.Get(columnName) == null)
-              m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
+              m_FileSetting.ColumnCollection.AddIfNew(new Column {Name = columnName});
           }
 
           FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);
@@ -639,7 +641,7 @@ namespace CsvTools
         using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
         {
           // Remove and Restore FileName
-          var oldFN = m_ViewSettings.FileName;
+          var oldFileName = m_ViewSettings.FileName;
           m_ViewSettings.FileName = string.Empty;
 
           m_SerializerViewSettings.Serialize(
@@ -649,7 +651,7 @@ namespace CsvTools
           Logger.Debug("Saving defaults {path}", m_SettingPath);
           File.WriteAllText(m_SettingPath, stringWriter.ToString());
 
-          m_ViewSettings.FileName = oldFN;
+          m_ViewSettings.FileName = oldFileName;
         }
       }
       catch (Exception ex)
@@ -736,7 +738,7 @@ namespace CsvTools
       }
     }
 
-    private void ToggelShowLog(object sender, EventArgs e)
+    private void ToggleShowLog(object sender, EventArgs e)
     {
       ShowTextPanel(!textPanel.Visible);
       if (textPanel.Visible)

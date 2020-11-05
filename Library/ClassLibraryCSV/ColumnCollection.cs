@@ -14,20 +14,13 @@ namespace CsvTools
     {
     }
 
-    public ColumnCollection(IEnumerable<IColumn> items)
+    public ColumnCollection([CanBeNull] IEnumerable<IColumn> items)
     {
+      if (items == null) return;
       foreach (var col in items)
         AddIfNew(col);
     }
 
-    public void CopyFrom(IEnumerable<IColumn> items)
-    {
-      CheckReentrancy();
-      ClearItems();
-      foreach (var col in items)
-        AddIfNew(col);  
-  }
-     
 
     /// <summary>
     ///   Clones this instance into a new instance of the same type
@@ -49,6 +42,15 @@ namespace CsvTools
     /// </returns>
     public bool Equals(ColumnCollection other) => Items.CollectionEqual(other);
 
+    public void CopyFrom([CanBeNull] IEnumerable<IColumn> items)
+    {
+      CheckReentrancy();
+      ClearItems();
+      if (items == null) return;
+      foreach (var col in items)
+        AddIfNew(col);
+    }
+
     /// <summary>
     ///   Adds the <see cref="Column" /> format to the column list if it does not exist yet
     /// </summary>
@@ -56,14 +58,12 @@ namespace CsvTools
     ///   If the column name already exist it does nothing but return the already defined column
     /// </remarks>
     /// <param name="columnFormat">The column format.</param>
-    [NotNull]
-    public Column AddIfNew([NotNull] IColumn columnFormat)
+    public void AddIfNew([NotNull] IColumn columnFormat)
     {
       if (columnFormat is null)
         throw new ArgumentNullException(nameof(columnFormat));
       var found = Get(columnFormat.Name);
-      if (found != null)
-        return found;
+      if (found != null) return;
       Column toAdd = null;
       switch (columnFormat)
       {
@@ -79,7 +79,6 @@ namespace CsvTools
       if (toAdd == null)
         throw new InvalidOperationException("Implementation must be of type ImmutableColumn or Column");
       Add(toAdd);
-      return toAdd;
     }
 
     /// <summary>

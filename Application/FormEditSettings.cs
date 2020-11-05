@@ -303,22 +303,31 @@ namespace CsvTools
 
     private void DomainUpDownTime_SelectedItemChanged(object sender, EventArgs e)
     {
-      if (domainUpDownTime.SelectedIndex == 4)
-        m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.Unlimited;
-      else if (domainUpDownTime.SelectedIndex == 3)
-        m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.TenSecond;
-      else if (domainUpDownTime.SelectedIndex == 2)
-        m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.TwoSecond;
-      else if (domainUpDownTime.SelectedIndex == 1)
-        m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.Second;
-      else if (domainUpDownTime.SelectedIndex == 0)
-        m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.HalfSecond;
+      switch (domainUpDownTime.SelectedIndex)
+      {
+        case 4:
+          m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.Unlimited;
+          break;
+        case 3:
+          m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.TenSecond;
+          break;
+        case 2:
+          m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.TwoSecond;
+          break;
+        case 1:
+          m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.Second;
+          break;
+        case 0:
+          m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.HalfSecond;
+          break;
+      }
     }
 
     private void ButtonGuessHeader_Click(object sender, EventArgs e)
     {
       var result = string.Empty;
-      buttonGuessHeader.RunWithHourglass(() => result = CsvHelper.GuessHeader(m_ViewSettings, m_CancellationTokenSource.Token));
+      buttonGuessHeader.RunWithHourglass(() =>
+        result = CsvHelper.GuessHeader(m_ViewSettings, m_CancellationTokenSource.Token));
       fileSettingBindingSource.ResetBindings(false);
       _MessageBox.Show(this, result, "Checking headers");
     }
