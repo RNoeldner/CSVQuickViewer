@@ -18,14 +18,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml.Serialization;
 using Timer = System.Timers.Timer;
 
 namespace CsvTools
@@ -35,12 +33,6 @@ namespace CsvTools
   /// </summary>
   public sealed partial class FormMain : ResizeForm
   {
-    private static readonly string
-      m_SettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
-
-    private static readonly string m_SettingPath = m_SettingFolder + "\\Setting.xml";
-
-    private static readonly XmlSerializer m_SerializerViewSettings = new XmlSerializer(typeof(ViewSettings));
 
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
@@ -79,7 +71,7 @@ namespace CsvTools
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
       Text = AssemblyTitle;
-      m_ViewSettings = LoadViewSettings();
+      m_ViewSettings = ViewSettingHelper.LoadViewSettings();
 
       textPanel.SuspendLayout();
       textPanel.Dock = DockStyle.Fill;
@@ -147,30 +139,6 @@ namespace CsvTools
 
         return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
       }
-    }
-
-    private static ViewSettings LoadViewSettings()
-    {
-      try
-      {
-        Logger.Debug("Loading defaults {path}", m_SettingPath);
-        if (FileSystemUtils.FileExists(m_SettingPath))
-        {
-          var serial = File.ReadAllText(m_SettingPath);
-          using (TextReader reader = new StringReader(serial))
-          {
-            var vs = (ViewSettings) m_SerializerViewSettings.Deserialize(reader);
-            ApplicationSetting.MenuDown = vs.MenuDown;
-            return vs;
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        Logger.Error(ex, "Loading defaults {path}", m_SettingPath);
-      }
-
-      return new ViewSettings();
     }
 
     private void AddWarning(object sender, WarningEventArgs args)
@@ -280,7 +248,7 @@ namespace CsvTools
           m_FileSetting.ColumnCollection.Clear();
           // restore header names
           foreach (var col in m_StoreColumns)
-            m_FileSetting.ColumnCollection.Add(new Column(col.Name) {ColumnOrdinal = col.ColumnOrdinal});
+            m_FileSetting.ColumnCollection.Add(new Column(col.Name) { ColumnOrdinal = col.ColumnOrdinal });
           m_ToolStripButtonAsText.Text = "Values";
         }
         else
@@ -406,7 +374,7 @@ namespace CsvTools
       var res = this.StoreWindowState();
       if (res != null)
         m_ViewSettings.WindowPosition = res;
-      SaveViewSettings();
+      m_ViewSettings.SaveViewSettings();
       SaveIndividualFileSetting();
     }
 
@@ -567,7 +535,7 @@ namespace CsvTools
           foreach (var columnName in m_Headers)
           {
             if (m_FileSetting.ColumnCollection.Get(columnName) == null)
-              m_FileSetting.ColumnCollection.AddIfNew(new Column {Name = columnName});
+              m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
           }
 
           FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);
@@ -626,40 +594,6 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    /// </summary>
-    private void SaveViewSettings()
-    {
-      try
-      {
-        ApplicationSetting.MenuDown = m_ViewSettings.MenuDown;
-
-        if (!FileSystemUtils.DirectoryExists(m_SettingFolder))
-          FileSystemUtils.CreateDirectory(m_SettingFolder);
-
-        FileSystemUtils.DeleteWithBackup(m_SettingPath, false);
-        using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
-        {
-          // Remove and Restore FileName
-          var oldFileName = m_ViewSettings.FileName;
-          m_ViewSettings.FileName = string.Empty;
-
-          m_SerializerViewSettings.Serialize(
-            stringWriter,
-            m_ViewSettings,
-            SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
-          Logger.Debug("Saving defaults {path}", m_SettingPath);
-          File.WriteAllText(m_SettingPath, stringWriter.ToString());
-
-          m_ViewSettings.FileName = oldFileName;
-        }
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "Save Default Settings");
-      }
-    }
-
     private void SaveIndividualFileSetting()
     {
       try
@@ -697,7 +631,7 @@ namespace CsvTools
         using (var frm = new FormEditSettings(m_ViewSettings))
         {
           frm.ShowDialog(MdiParent);
-          SaveViewSettings();
+          m_ViewSettings.SaveViewSettings();
           ApplicationSetting.MenuDown = m_ViewSettings.MenuDown;
           ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting);
 
