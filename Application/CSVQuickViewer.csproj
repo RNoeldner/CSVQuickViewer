@@ -232,6 +232,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewSettingHelper.cs" />
     <Compile Include="ViewSettings.cs" />
     <EmbeddedResource Include="FormCsvTextDisplay.resx">
       <DependentUpon>FormCsvTextDisplay.cs</DependentUpon>
