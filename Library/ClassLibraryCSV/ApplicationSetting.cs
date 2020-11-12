@@ -23,7 +23,7 @@ namespace CsvTools
   /// </summary>
   public static class ApplicationSetting
   {
-    private static bool menuDown;
+    private static bool m_MenuDown;
 
     /// <summary>
     ///   The Application wide HTMLStyle
@@ -36,10 +36,10 @@ namespace CsvTools
     /// </summary>
     public static bool MenuDown
     {
-      get => menuDown; set
+      get => m_MenuDown; set
       {
-        if (menuDown==value) return;
-        menuDown=value;
+        if (m_MenuDown==value) return;
+        m_MenuDown=value;
         PropertyChanged?.Invoke(null, new PropertyChangedEventArgs(nameof(MenuDown)));
       }
     }

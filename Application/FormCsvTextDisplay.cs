@@ -35,10 +35,7 @@ namespace CsvTools
     /// <summary>
     ///   CTOR CsvTextDisplay
     /// </summary>
-    public FormCsvTextDisplay()
-    {
-      InitializeComponent();
-    }
+    public FormCsvTextDisplay() => InitializeComponent();
 
     private void HighlightVisibleRange()
     {
@@ -67,7 +64,7 @@ namespace CsvTools
     {
       m_MemoryStream?.Dispose();
       m_MemoryStream = null;
-      m_Stream = new ImprovedStream(new SourceAccess(m_FullPath, true));
+      m_Stream = new ImprovedStream(new SourceAccess(m_FullPath));
 
       textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(m_CodePage, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
       HighlightVisibleRange();
@@ -117,7 +114,7 @@ namespace CsvTools
       }
       else
       {
-        Text   = FileSystemUtils.GetShortDisplayFileName(fullPath, 80);
+        Text   = FileSystemUtils.GetShortDisplayFileName(fullPath);
         m_FullPath = fullPath;
 
         try
@@ -131,7 +128,7 @@ namespace CsvTools
             m_HighLighter =
               new SyntaxHighlighterDelimitedText(textBox, qualifierChar, delimiterChar, escapeChar, comment);
 
-          m_Stream = new ImprovedStream(new SourceAccess(fullPath, true));
+          m_Stream = new ImprovedStream(new SourceAccess(fullPath));
           m_SkipLines = !json ? skipLines : 0;
           m_CodePage = codePage;
 
