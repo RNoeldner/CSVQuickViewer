@@ -172,7 +172,7 @@ namespace CsvTools
           var countSpecial = 0;
           foreach (var header in headerRow)
           {
-            if (headerLine.NoControlCharacters().Length < headerLine.Replace("\t","").Length)
+            if (headerLine.NoControlCharacters().Length < headerLine.Replace("\t", "").Length)
               throw new ApplicationException($"Control Characters in Column {headerLine}");
 
             if (Regex.IsMatch(header, @"^\d{2,}$"))
@@ -356,7 +356,7 @@ namespace CsvTools
       {
         display.SetProcess("Checking Json format", -1, false);
         if (await IsJsonReadableAsync(improvedStream, Encoding.GetEncoding(detection.CodePageId), display.CancellationToken).ConfigureAwait(false))
-          detection.IsJson = true;                           
+          detection.IsJson = true;
       }
 
       if (detection.IsJson)
@@ -366,7 +366,7 @@ namespace CsvTools
       }
 
       display.SetProcess("Checking delimited text file", -1, true);
-     
+
       char oldDelimiter = detection.FieldDelimiter.WrittenPunctuationToChar();
       // from here on us the encoding to read the stream again
       if (guessStartRow)
@@ -756,7 +756,7 @@ namespace CsvTools
       const int c_RecSep = 4;
       const int c_UnitSep = 5;
 
-      int[] count = {0, 0, 0, 0, 0, 0};
+      int[] count = { 0, 0, 0, 0, 0, 0 };
 
       // \r = CR (Carriage Return) \n = LF (Line Feed)
 
@@ -844,7 +844,7 @@ namespace CsvTools
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
 
       const int c_MaxLine = 30;
-      var possibleQuotes = new[] {'"', '\''};
+      var possibleQuotes = new[] { '"', '\'' };
       var counter = new int[possibleQuotes.Length];
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);

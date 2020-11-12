@@ -26,8 +26,8 @@ namespace CsvTools
   public partial class FormCsvTextDisplay : ResizeForm
   {
     private int m_CodePage;
-    private string m_FullPath;
-    private ISyntaxHighlighter m_HighLighter;
+    [NotNull] private string m_FullPath;
+    [CanBeNull] private ISyntaxHighlighter m_HighLighter;
     private MemoryStream m_MemoryStream;
     private int m_SkipLines;
     private IImprovedStream m_Stream;
@@ -50,11 +50,11 @@ namespace CsvTools
         if (startLine < endLine)
         {
           var range = new FastColoredTextBoxNS.Range(textBox, 0, startLine, 0, endLine);
-          m_HighLighter.Highlight(range);
+          m_HighLighter?.Highlight(range);
 
           if (m_SkipLines <= 0) return;
           range = new FastColoredTextBoxNS.Range(textBox, 0, 0, 0, m_SkipLines);
-          m_HighLighter.Comment(range);
+          m_HighLighter?.Comment(range);
         }
       }
       catch (Exception ex)
@@ -65,20 +65,14 @@ namespace CsvTools
 
     private void OriginalStream()
     {
-      try
-      {
-        m_MemoryStream?.Dispose();
-        m_MemoryStream = null;
-        m_Stream = new ImprovedStream(new SourceAccess(m_FullPath, true));
-        textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(m_CodePage));
-        HighlightVisibleRange();
-        prettyPrintJsonToolStripMenuItem.Checked = false;
-        originalFileToolStripMenuItem.Checked = true;
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex, "Original File");
-      }
+      m_MemoryStream?.Dispose();
+      m_MemoryStream = null;
+      m_Stream = new ImprovedStream(new SourceAccess(m_FullPath, true));
+
+      textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(m_CodePage, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
+      HighlightVisibleRange();
+      prettyPrintJsonToolStripMenuItem.Checked = false;
+      originalFileToolStripMenuItem.Checked = true;
     }
 
     private void PrettyPrintStream()
@@ -143,9 +137,10 @@ namespace CsvTools
 
           OriginalStream();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-          textBox.Text = e.Message;
+          m_HighLighter = null;
+          textBox.Text = $"Issue opening the file {m_FullPath} for display:\n\n\n{ex.Message}";
         }
       }
     }

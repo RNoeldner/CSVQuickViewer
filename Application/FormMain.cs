@@ -193,7 +193,7 @@ namespace CsvTools
     {
       // Set the filename
       var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
-      if (files.Length <= 0) return;
+      if (files.Length <= 0) return;      
       SaveIndividualFileSetting();
       await LoadCsvFile(files[0]);
     }
@@ -449,13 +449,22 @@ namespace CsvTools
     /// <returns></returns>
     private async Task LoadCsvFile(string fileName)
     {
-      if (string.IsNullOrEmpty(fileName) || !FileSystemUtils.FileExists(fileName))
-        return;
-
       if (IsDisposed)
         return;
 
       ShowTextPanel(true);
+
+      if (string.IsNullOrEmpty(fileName))
+      {
+        Logger.Warning("No file selected, you can drag and drop files.");
+        return;
+      }
+
+      if (!FileSystemUtils.FileExists(fileName))
+      {
+        Logger.Warning("Filename {filename} not found or not accessible.", fileName);
+        return;
+      }
 
       try
       {
@@ -687,6 +696,11 @@ namespace CsvTools
       {
         detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
       }
+    }
+
+    private void loggerDisplay_DragDrop(object sender, DragEventArgs e)
+    {
+
     }
   }
 }
