@@ -486,10 +486,14 @@ namespace CsvTools
     {
       if (setting == null) throw new ArgumentNullException(nameof(setting));
       if (display == null) throw new ArgumentNullException(nameof(display));
-      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting)))
+      var sourceAccess = new SourceAccess(setting);
+      using (var improvedStream = FunctionalDI.OpenStream(sourceAccess))
       {
+        if (!string.IsNullOrEmpty(sourceAccess.IdentifierInContainer))
+          setting.IdentifierInContainer=sourceAccess.IdentifierInContainer;
+
         var res = await RefreshCsvFileAsync(improvedStream, display, guessJson, guessCodePage, guessDelimiter,
-          guessQualifier, guessStartRow, guessHasHeader, guessNewLine);
+                  guessQualifier, guessStartRow, guessHasHeader, guessNewLine);
 
         if (guessJson)
           setting.JsonFormat = res.IsJson;
