@@ -247,12 +247,12 @@ namespace CsvTools
           // restore header names
           foreach (var col in m_StoreColumns)
             m_FileSetting.ColumnCollection.Add(new Column(col.Name) { ColumnOrdinal = col.ColumnOrdinal });
-          m_ToolStripButtonAsText.Text = "Values";
+          m_ToolStripButtonAsText.Text = @"Values";
         }
         else
         {
           Logger.Information("Showing columns as values");
-          m_ToolStripButtonAsText.Text = "Text";
+          m_ToolStripButtonAsText.Text = @"Text";
           m_StoreColumns.CollectionCopy(m_FileSetting.ColumnCollection);
         }
 
@@ -489,7 +489,7 @@ namespace CsvTools
             if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
               display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
 
-          Text =
+            Text =
               $@"{FileSystemUtils.GetShortDisplayFileName(display, 50)} - {EncodingHelper.GetEncodingName((EncodingHelper.CodePage) m_FileSetting.CodePageId, true, m_FileSetting.ByteOrderMark)} - {AssemblyTitle}";
 
             m_ToolStripButtonAsText.Visible = !m_FileSetting.JsonFormat &&
@@ -700,11 +700,6 @@ namespace CsvTools
       {
         detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
       }
-    }
-
-    private void loggerDisplay_DragDrop(object sender, DragEventArgs e)
-    {
-
     }
   }
 }

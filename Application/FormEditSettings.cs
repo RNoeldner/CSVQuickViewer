@@ -279,9 +279,9 @@ namespace CsvTools
       }
       else
       {
-        var delim = FileFormat.GetChar(textBoxDelimiter.Text);
+        var delimiter = FileFormat.GetChar(textBoxDelimiter.Text);
 
-        if (delim != ';' && delim != ',' && delim != '|' && delim != ':' && delim != '\t')
+        if (delimiter != ';' && delimiter != ',' && delimiter != '|' && delimiter != ':' && delimiter != '\t')
           errorProvider.SetError(textBoxDelimiter, "Unusual delimiter character");
         else
           errorProvider.SetError(textBoxDelimiter, string.Empty);
