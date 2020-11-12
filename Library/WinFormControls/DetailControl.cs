@@ -124,7 +124,10 @@ namespace CsvTools
       FilteredDataGridView.DataViewChanged += DataViewChanged;
       m_ToolStripItems.CollectionChanged += (sender, e) => MoveMenu();
       MoveMenu();
+      ApplicationSetting.PropertyChanged += (sender, e) => { if (e.PropertyName==nameof(ApplicationSetting.MenuDown)) MoveMenu(); };
     }
+
+    
 
     /// <summary>
     ///   AlternatingRowDefaultCellStyle of data grid
