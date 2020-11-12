@@ -172,7 +172,7 @@ namespace CsvTools
           var countSpecial = 0;
           foreach (var header in headerRow)
           {
-            if (headerLine.NoControlCharacters().Length < headerLine.Length)
+            if (headerLine.NoControlCharacters().Length < headerLine.Replace("\t","").Length)
               throw new ApplicationException($"Control Characters in Column {headerLine}");
 
             if (Regex.IsMatch(header, @"^\d{2,}$"))
@@ -208,7 +208,7 @@ namespace CsvTools
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting)))
       {
-        return await IsJsonReadableAsync(improvedStream, cancellationToken).ConfigureAwait(false);
+        return await IsJsonReadableAsync(improvedStream, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
       }
     }
 
@@ -341,12 +341,22 @@ namespace CsvTools
             guessNewLine))
         return detection;
 
+      if (guessCodePage)
+      {
+        if (display.CancellationToken.IsCancellationRequested)
+          return detection;
+        improvedStream.Seek(0, SeekOrigin.Begin);
+        display.SetProcess("Checking Code Page", -1, true);
+        var (codePage, bom) = await GuessCodePageAsync(improvedStream, display.CancellationToken).ConfigureAwait(false);
+        detection.CodePageId = (int) codePage;
+        detection.ByteOrderMark = bom;
+      }
 
       if (guessJson)
       {
         display.SetProcess("Checking Json format", -1, false);
-        if (await IsJsonReadableAsync(improvedStream, display.CancellationToken).ConfigureAwait(false))
-          detection.IsJson = true;
+        if (await IsJsonReadableAsync(improvedStream, Encoding.GetEncoding(detection.CodePageId), display.CancellationToken).ConfigureAwait(false))
+          detection.IsJson = true;                           
       }
 
       if (detection.IsJson)
@@ -356,18 +366,7 @@ namespace CsvTools
       }
 
       display.SetProcess("Checking delimited text file", -1, true);
-      if (guessCodePage)
-      {
-        if (display.CancellationToken.IsCancellationRequested)
-          return detection;
-        improvedStream.Seek(0, SeekOrigin.Begin);
-        display.SetProcess("Checking Code Page", -1, true);
-        var (codePage, bom) =
-          await GuessCodePageAsync(improvedStream, display.CancellationToken).ConfigureAwait(false);
-        detection.CodePageId = (int) codePage;
-        detection.ByteOrderMark = bom;
-      }
-
+     
       char oldDelimiter = detection.FieldDelimiter.WrittenPunctuationToChar();
       // from here on us the encoding to read the stream again
       if (guessStartRow)
@@ -1062,14 +1061,14 @@ namespace CsvTools
     }
 
     [NotNull]
-    private static async Task<bool> IsJsonReadableAsync([NotNull] IImprovedStream impStream,
+    private static async Task<bool> IsJsonReadableAsync([NotNull] IImprovedStream impStream, Encoding encoding,
       CancellationToken cancellationToken)
     {
       if (!(impStream is Stream stream))
         return false;
 
       impStream.Seek(0, SeekOrigin.Begin);
-      using (var streamReader = new StreamReader(stream, Encoding.UTF8, true, 4096, true))
+      using (var streamReader = new StreamReader(stream, encoding, true, 4096, true))
       using (var jsonTextReader = new JsonTextReader(streamReader))
       {
         jsonTextReader.CloseInput = false;
@@ -1078,9 +1077,14 @@ namespace CsvTools
           if (await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false))
           {
             Logger.Information("Detected Json file");
-            return jsonTextReader.TokenType == JsonToken.StartObject ||
+            if (jsonTextReader.TokenType == JsonToken.StartObject ||
                    jsonTextReader.TokenType == JsonToken.StartArray ||
-                   jsonTextReader.TokenType == JsonToken.StartConstructor;
+                   jsonTextReader.TokenType == JsonToken.StartConstructor)
+            {
+              await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+              await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+              return true;
+            }
           }
         }
         catch (JsonReaderException)

@@ -44,8 +44,6 @@ namespace CsvTools
 
     private readonly ViewSettings m_ViewSettings;
 
-    private Tuple<EncodingHelper.CodePage, bool> m_CodePage;
-
     private bool m_ConfigChanged;
 
     private bool m_FileChanged;
@@ -292,7 +290,7 @@ namespace CsvTools
             m_SourceDisplay.OpenFile(m_FileSetting.FullPath, m_FileSetting.JsonFormat,
               m_FileSetting.FileFormat.FieldQualifierChar,
               m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
-              (int) m_CodePage.Item1, m_FileSetting.SkipRows, m_FileSetting.FileFormat.CommentLine);
+              m_FileSetting.CodePageId, m_FileSetting.SkipRows, m_FileSetting.FileFormat.CommentLine);
             proc.Close();
 
             m_SourceDisplay.FormClosed += SourceDisplayClosed;
@@ -432,6 +430,18 @@ namespace CsvTools
       await OpenDataReaderAsync();
     }
 
+    private void SetFileSystemWatcher(string fileName)
+    {
+      if (m_ViewSettings.DetectFileChanges)
+      {
+        var split = FileSystemUtils.SplitPath(fileName);
+        fileSystemWatcher.Filter = split.FileName;
+        fileSystemWatcher.Path = split.DirectoryName;                
+      }
+      if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
+        fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
+    }
+
     /// <summary>
     ///   Initializes the file settings.
     /// </summary>
@@ -463,25 +473,16 @@ namespace CsvTools
           if (m_FileSetting == null)
             return;
 
-          m_CodePage = new Tuple<EncodingHelper.CodePage, bool>((EncodingHelper.CodePage) m_FileSetting.CodePageId,
-            m_FileSetting.ByteOrderMark);
-
           // update the UI
           this.SafeInvoke(() =>
           {
             Text =
-              $@"{FileSystemUtils.GetShortDisplayFileName(fileName, 40)} - {EncodingHelper.GetEncodingName(m_CodePage.Item1, true, m_CodePage.Item2)} - {AssemblyTitle}";
+              $@"{FileSystemUtils.GetShortDisplayFileName(fileName, 40)} - {EncodingHelper.GetEncodingName((EncodingHelper.CodePage) m_FileSetting.CodePageId, true, m_FileSetting.ByteOrderMark)} - {AssemblyTitle}";
 
             m_ToolStripButtonAsText.Visible = !m_FileSetting.JsonFormat &&
                                               m_FileSetting.ColumnCollection.Any(x =>
                                                 x.ValueFormat.DataType != DataType.String);
-
-            if (m_ViewSettings.DetectFileChanges)
-            {
-              var split = FileSystemUtils.SplitPath(fileName);
-              fileSystemWatcher.Filter = split.FileName;
-              fileSystemWatcher.Path = split.DirectoryName;
-            }
+            SetFileSystemWatcher(fileName);
           });
 
           await OpenDataReaderAsync();
@@ -633,6 +634,7 @@ namespace CsvTools
           frm.ShowDialog(MdiParent);
           m_ViewSettings.SaveViewSettings();
           ApplicationSetting.MenuDown = m_ViewSettings.MenuDown;
+          SetFileSystemWatcher(m_FileSetting.FileName);
           ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting);
 
           await CheckPossibleChange();

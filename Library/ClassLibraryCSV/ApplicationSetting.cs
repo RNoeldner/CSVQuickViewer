@@ -13,6 +13,7 @@
  */
 
 using JetBrains.Annotations;
+using System.ComponentModel;
 
 namespace CsvTools
 {
@@ -22,6 +23,8 @@ namespace CsvTools
   /// </summary>
   public static class ApplicationSetting
   {
+    private static bool menuDown;
+
     /// <summary>
     ///   The Application wide HTMLStyle
     /// </summary>
@@ -31,10 +34,20 @@ namespace CsvTools
     /// <summary>
     ///   General Setting that determines if the menu is display in the bottom of a detail control
     /// </summary>
-    public static bool MenuDown { get; set; }
+    public static bool MenuDown
+    {
+      get => menuDown; set
+      {
+        if (menuDown==value) return;
+        menuDown=value;
+        PropertyChanged?.Invoke(null, new PropertyChangedEventArgs(nameof(MenuDown)));
+      }
+    }
 
 
     [NotNull]
     public static string RootFolder { get; set; } = FileSystemUtils.ExecutableDirectoryName();
+
+    public static event PropertyChangedEventHandler PropertyChanged;
   }
 }
