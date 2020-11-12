@@ -68,6 +68,7 @@ namespace CsvTools
 			// 
 			// loggerDisplay
 			// 
+			this.loggerDisplay.AllowDrop = false;
 			this.loggerDisplay.AutoCompleteBracketsList = new char[] {
         '(',
         ')',
@@ -90,7 +91,6 @@ namespace CsvTools
 			this.loggerDisplay.Cursor = System.Windows.Forms.Cursors.IBeam;
 			this.loggerDisplay.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
 			this.loggerDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.loggerDisplay.Font = new System.Drawing.Font("Courier New", 9.75F);
 			this.loggerDisplay.IsReplaceMode = false;
 			this.loggerDisplay.Location = new System.Drawing.Point(0, 0);
 			this.loggerDisplay.Margin = new System.Windows.Forms.Padding(2);
@@ -125,10 +125,10 @@ namespace CsvTools
 			this.detailControl.Name = "detailControl";
 			this.detailControl.Size = new System.Drawing.Size(971, 528);
 			this.detailControl.TabIndex = 1;
-      // 
-      // toolStrip
-      // 
-      this.toolStrip.Dock = System.Windows.Forms.DockStyle.None;
+			// 
+			// toolStrip
+			// 
+			this.toolStrip.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.m_ToolStripButtonAsText,
