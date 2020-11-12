@@ -485,8 +485,12 @@ namespace CsvTools
           // update the UI
           this.SafeInvoke(() =>
           {
-            Text =
-              $@"{FileSystemUtils.GetShortDisplayFileName(fileName, 40)} - {EncodingHelper.GetEncodingName((EncodingHelper.CodePage) m_FileSetting.CodePageId, true, m_FileSetting.ByteOrderMark)} - {AssemblyTitle}";
+            var display = fileName;
+            if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
+              display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
+
+          Text =
+              $@"{FileSystemUtils.GetShortDisplayFileName(display, 50)} - {EncodingHelper.GetEncodingName((EncodingHelper.CodePage) m_FileSetting.CodePageId, true, m_FileSetting.ByteOrderMark)} - {AssemblyTitle}";
 
             m_ToolStripButtonAsText.Visible = !m_FileSetting.JsonFormat &&
                                               m_FileSetting.ColumnCollection.Any(x =>
