@@ -203,22 +203,22 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="WindowsAPICodePack">
-      <Version>1.1.1</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\FCTB\FastColoredTextBox\FastColoredTextBox.csproj">
-      <Project>{6dd14a85-ccfc-4774-bd26-0f5772512319}</Project>
-      <Name>FastColoredTextBox</Name>
+        <Project>{6dd14a85-ccfc-4774-bd26-0f5772512319}</Project>
+        <Name>FastColoredTextBox</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj">
-      <Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
-      <Name>ClassLibraryCSV</Name>
-    </ProjectReference>
+      <ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj">
+          <Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
+          <Name>ClassLibraryCSV</Name>
+      </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\DataSources\" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+    <ItemGroup>
+        <Folder Include="Properties\DataSources\"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft-WindowsAPICodePack-Shell">
+            <Version>1.1.4</Version>
+        </PackageReference>
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
 </Project>

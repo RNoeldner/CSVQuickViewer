@@ -36,10 +36,10 @@ namespace CsvTools
     private StreamReader m_StreamReader;
 
     public JsonFileReader([NotNull] IImprovedStream improvedStream,
-      [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
-      long recordLimit = 0,
-      bool treatNbspAsSpace = false, bool trim = false,
-      string treatTextAsNull = null) :
+                          [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+                          long recordLimit = 0,
+                          bool treatNbspAsSpace = false, bool trim = false,
+                          string treatTextAsNull = null) :
       base("stream", columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace)
     {
       m_ImprovedStream = improvedStream;
@@ -47,10 +47,10 @@ namespace CsvTools
     }
 
     public JsonFileReader([NotNull] string fullPath,
-      [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
-      long recordLimit = 0,
-      bool treatNbspAsSpace = false, bool trim = false,
-      string treatTextAsNull = null) :
+                          [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+                          long recordLimit = 0,
+                          bool treatNbspAsSpace = false, bool trim = false,
+                          string treatTextAsNull = null) :
       base(fullPath, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace)
     {
       if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
@@ -58,7 +58,7 @@ namespace CsvTools
     }
 
     public JsonFileReader(IFileSettingPhysicalFile fileSetting,
-      IProcessDisplay processDisplay)
+                          IProcessDisplay processDisplay)
       : this(fileSetting.FullPath,
         fileSetting.ColumnCollection, fileSetting.RecordLimit,
         fileSetting.TreatNBSPAsSpace) => SetProgressActions(processDisplay);
@@ -184,7 +184,7 @@ namespace CsvTools
     /// </summary>
     /// <returns>A collection with name and value of the properties</returns>
     private ICollection<KeyValuePair<string, object>> GetNextRecord(bool throwError,
-      CancellationToken token)
+                                                                    CancellationToken token)
     {
       try
       {
@@ -361,7 +361,7 @@ namespace CsvTools
 
       // in case we can not seek need to reopen the stream reader
       m_StreamReader?.Close();
-      m_StreamReader = new StreamReader(m_ImprovedStream as Stream, Encoding.UTF8, true, 4096, true);
+      m_StreamReader = new StreamReader(m_ImprovedStream as Stream ?? throw new InvalidOperationException(), Encoding.UTF8, true, 4096, true);
 
       // End Line should be at 1, later on as the line is read the start line s set to this value
       StartLineNumber = 1;

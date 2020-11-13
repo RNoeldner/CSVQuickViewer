@@ -20,7 +20,6 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -35,7 +34,7 @@ namespace CsvTools
   public static class ClassLibraryCsvExtensionMethods
   {
     public static async Task<long> WriteAsync([NotNull] this IFileWriter writer, [NotNull] string sqlStatement,
-      int timeout, Action<string> reportProgress, CancellationToken cancellationToken)
+                                              int timeout, Action<string> reportProgress, CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(sqlStatement))
         return 0;
@@ -43,8 +42,8 @@ namespace CsvTools
       if (FunctionalDI.SQLDataReader == null)
         throw new ArgumentException("No Async SQL Reader set");
       using (var sqlReader = await FunctionalDI
-        .SQLDataReader(sqlStatement, (sender, s) => reportProgress?.Invoke(s.Text), timeout, cancellationToken)
-        .ConfigureAwait(false))
+                                   .SQLDataReader(sqlStatement, (sender, s) => reportProgress?.Invoke(s.Text), timeout, cancellationToken)
+                                   .ConfigureAwait(false))
       {
         await sqlReader.OpenAsync(cancellationToken).ConfigureAwait(false);
         return await writer.WriteAsync(sqlReader, cancellationToken).ConfigureAwait(false);
@@ -337,13 +336,12 @@ namespace CsvTools
       const string c_DateSep = @"(\/|\.|-|_)?";
 
       const string c_Hour = @"(2[0-3]|((0|1)\d))"; // 00-09 10-19 20-23
-      const string c_MinSec = @"([0-5][0-9])"; // 00-59
+      const string c_MinSec = @"([0-5][0-9])";     // 00-59
       const string c_AmPm = @"((_| )?(AM|PM))?";
 
       const string c_Year = @"((19\d{2})|(2\d{3}))"; // 1900 - 2999
-      const string c_Month = @"(0[1-9]|1[012])"; // 01-12
+      const string c_Month = @"(0[1-9]|1[012])";     // 01-12
       const string c_Day = @"(0[1-9]|[12]\d|3[01])"; // 01 - 31
-
 
       // Replace Dates YYYYMMDD / MMDDYYYY / DDMMYYYY
       fileName = Regex.Replace(fileName,
@@ -357,7 +355,7 @@ namespace CsvTools
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
       return fileName.Trim('_', '-', ' ', '\t').Replace("__", "_").Replace("__", "_").Replace("--", "-")
-        .Replace("--", "-");
+                     .Replace("--", "-");
     }
 
     /// <summary>
@@ -412,7 +410,6 @@ namespace CsvTools
         Logger.Information("SQL Information: {message}", message);
         process?.SetProcess(message, -1, true);
       };
-
 
     /// <summary>
     ///   Get a list of column names that are not artificial
@@ -486,7 +483,7 @@ namespace CsvTools
     [DebuggerStepThrough]
     [NotNull]
     public static string PlaceholderReplace([NotNull] this string input, [NotNull] string placeholder,
-      [CanBeNull] string replacement)
+                                            [CanBeNull] string replacement)
     {
       if (string.IsNullOrEmpty(replacement)) return input;
 
@@ -527,7 +524,7 @@ namespace CsvTools
     /// <param name="fileSetting">The setting.</param>
     [NotNull]
     public static IEnumerable<string> RemoveMappingWithoutSource([CanBeNull] this IFileSetting fileSetting,
-      [CanBeNull] IEnumerable<string> columns)
+                                                                 [CanBeNull] IEnumerable<string> columns)
     {
       var notFoundColumnNames = new List<string>();
 
@@ -562,7 +559,7 @@ namespace CsvTools
     [DebuggerStepThrough]
     [NotNull]
     public static string ReplaceCaseInsensitive([NotNull] this string original, [CanBeNull] string pattern,
-      char replacement)
+                                                char replacement)
     {
       var count = 0;
       var position0 = 0;
@@ -602,7 +599,7 @@ namespace CsvTools
     [DebuggerStepThrough]
     [NotNull]
     public static string ReplaceCaseInsensitive([NotNull] this string original, [CanBeNull] string pattern,
-      [CanBeNull] string replacement)
+                                                [CanBeNull] string replacement)
     {
       if (string.IsNullOrEmpty(pattern))
         return original;
@@ -651,7 +648,7 @@ namespace CsvTools
     /// <returns></returns>
     [NotNull]
     public static string ReplaceDefaults([NotNull] this string inputValue, [CanBeNull] string old1,
-      [CanBeNull] string new1, [CanBeNull] string old2, [CanBeNull] string new2)
+                                         [CanBeNull] string new1, [CanBeNull] string old2, [CanBeNull] string new2)
     {
       if (string.IsNullOrEmpty(inputValue))
         return string.Empty;
@@ -1077,7 +1074,7 @@ namespace CsvTools
       {
         var order = 0;
         return collection.Cast<object>()
-          .Aggregate(731, (current, item) => (current * 397) ^ (item.GetHashCode() + order++));
+                         .Aggregate(731, (current, item) => (current * 397) ^ (item.GetHashCode() + order++));
       }
     }
 

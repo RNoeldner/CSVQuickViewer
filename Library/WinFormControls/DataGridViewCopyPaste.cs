@@ -90,8 +90,6 @@ namespace CsvTools
       bool addErrorInfo,
       bool cutLength)
     {
-      if (cell == null)
-        return;
       var cellValue = cell.FormattedValue?.ToString() ?? string.Empty;
       if (cellValue.Length > 500 && cutLength)
         cellValue = cellValue.Substring(0, 80) + " […] " + cellValue.Substring(cellValue.Length - 20, 20);
@@ -115,7 +113,7 @@ namespace CsvTools
     /// <param name="sbHtml">The StringBuilder for HTML.</param>
     /// <param name="errorText">The error Text</param>
     /// <param name="addErrorInfo">if set to <c>true</c> [add error info].</param>
-    private static void AppendRowError([NotNull] StringBuilder stringBuilder, [NotNull]  StringBuilder sbHtml, [CanBeNull] string errorText, bool addErrorInfo)
+    private static void AppendRowError([NotNull] StringBuilder stringBuilder, [NotNull] StringBuilder sbHtml, [CanBeNull] string errorText, bool addErrorInfo)
     {
       if (!addErrorInfo)
         return;

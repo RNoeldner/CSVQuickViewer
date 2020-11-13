@@ -8,6 +8,7 @@ namespace CsvTools
 {
   public class ManifestData
   {
+    private const string cCsvManifestExtension = ".manifest.json";
     public bool delta;
     public string desc;
     public ManifestField[] fields;
@@ -16,16 +17,14 @@ namespace CsvTools
     public string hydration;
     public string pubname;
 
-    private const string cCsvManifestExtension = ".manifest.json";
-
     public static ICsvFile ReadManifestFileSystem(string fileName)
     {
       var posExt = fileName.LastIndexOf('.');
-      if (posExt!=-1)
+      if (posExt != -1)
       {
         var manifest = fileName.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase)
-                               ? fileName
-                               : fileName.Substring(0, posExt) + cCsvManifestExtension;
+                         ? fileName
+                         : fileName.Substring(0, posExt) + cCsvManifestExtension;
         if (FileSystemUtils.FileExists(manifest))
         {
           var dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".csv");
@@ -36,8 +35,8 @@ namespace CsvTools
           if (FileSystemUtils.FileExists(dataFile))
             return ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), manifest, dataFile, string.Empty);
         }
-
       }
+
       return null;
     }
 
@@ -58,12 +57,13 @@ namespace CsvTools
             continue;
           foreach (ZipEntry entryFile in archive)
           {
-            if (entryManifest==entryFile || !entryFile.IsFile || !entryFile.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+            if (entryManifest == entryFile || !entryFile.IsFile || !entryFile.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
               continue;
             return ReadManifestFromStream(archive.GetInputStream(entryManifest), entryManifest.Name, fileName, entryFile.Name);
           }
         }
       }
+
       return null;
     }
 
@@ -77,11 +77,11 @@ namespace CsvTools
         ID = fileName,
         HasFieldHeader = false,
         IdentifierInContainer = identifierInContainer,
-        SkipRows =0
+        SkipRows = 0
       };
-      fileSettingMani.FileFormat.FieldDelimiter =",";
+      fileSettingMani.FileFormat.FieldDelimiter = ",";
       fileSettingMani.FileFormat.QualifyAlways = true;
-      fileSettingMani.FileFormat.FieldQualifier ="\"";
+      fileSettingMani.FileFormat.FieldQualifier = "\"";
       fileSettingMani.FileFormat.NewLine = RecordDelimiterType.LF;
       foreach (var fld in mani.fields)
       {
@@ -126,11 +126,13 @@ namespace CsvTools
             break;
 
           default:
-            vf = new ImmutableValueFormat(DataType.String);
+            vf = new ImmutableValueFormat();
             break;
         }
-        fileSettingMani.ColumnCollection.Add(new Column(fld.pubname, vf) { ColumnOrdinal = fld.ordinal, DestinationName= fld.pubname });
+
+        fileSettingMani.ColumnCollection.Add(new Column(fld.pubname, vf) { ColumnOrdinal = fld.ordinal, DestinationName = fld.pubname });
       }
+
       return fileSettingMani;
     }
 

@@ -12,7 +12,7 @@ namespace CsvTools
   public static class ReaderExtensionMethods
   {
     public static async Task<ICollection<string>> GetEmptyColumnHeaderAsync([NotNull] this IFileReader fileReader,
-      CancellationToken cancellationToken)
+                                                                            CancellationToken cancellationToken)
     {
       if (fileReader == null) throw new ArgumentNullException(nameof(fileReader));
       var emptyColumns = new List<string>();
@@ -58,7 +58,7 @@ namespace CsvTools
     public static DataTable GetEmptyDataTable([NotNull] this DataReaderWrapper reader)
     {
       // Special handling for DataTableWrapper, no need to build something
-      var dataTable = new DataTable {Locale = CultureInfo.CurrentCulture, CaseSensitive = false};
+      var dataTable = new DataTable { Locale = CultureInfo.CurrentCulture, CaseSensitive = false };
 
       for (var colIndex = 0; colIndex < reader.FieldCount; colIndex++)
         dataTable.Columns.Add(new DataColumn(reader.GetName(colIndex), reader.GetFieldType(colIndex)));
@@ -108,10 +108,10 @@ namespace CsvTools
     /// <param name="cancellationToken">Token to cancel the long running async method</param>
     /// <returns></returns>
     public static async Task<DataTable> GetDataTableAsync([NotNull] this IFileReader reader, long recordLimit,
-      bool restoreErrorsFromColumn, bool addStartLine,
-      bool includeRecordNo, bool includeEndLineNo, bool includeErrorField,
-      [CanBeNull] Action<long, int> progress,
-      CancellationToken cancellationToken)
+                                                          bool restoreErrorsFromColumn, bool addStartLine,
+                                                          bool includeRecordNo, bool includeEndLineNo, bool includeErrorField,
+                                                          [CanBeNull] Action<long, int> progress,
+                                                          CancellationToken cancellationToken)
     {
       if (reader is DataTableWrapper dtw)
         return dtw.DataTable;
@@ -139,9 +139,9 @@ namespace CsvTools
     }
 
     public static async Task LoadDataTable([NotNull] this DataReaderWrapper readerWrapper,
-      [NotNull] DataTable dataTable, TimeSpan maxDuration,
-      bool restoreErrorsFromColumn, [CanBeNull] Action<long, int> progress,
-      CancellationToken cancellationToken)
+                                           [NotNull] DataTable dataTable, TimeSpan maxDuration,
+                                           bool restoreErrorsFromColumn, [CanBeNull] Action<long, int> progress,
+                                           CancellationToken cancellationToken)
     {
       if (readerWrapper.EndOfFile)
         return;
@@ -174,7 +174,7 @@ namespace CsvTools
           intervalAction?.Invoke(() => progress(readerWrapper.RecordNumber, readerWrapper.Percent));
 
           // This gets the errors from the fileReader
-          if (readerWrapper.ReaderMapping.ColumnErrorDictionary.Count <= 0 ||
+          if ((readerWrapper.ReaderMapping.ColumnErrorDictionary?.Count ?? 0) <= 0 ||
               cancellationToken.IsCancellationRequested)
             continue;
 

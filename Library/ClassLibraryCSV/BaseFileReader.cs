@@ -38,7 +38,7 @@ namespace CsvTools
     /// </summary>
     protected const int c_MaxValue = 10000;
 
-    [NotNull] private readonly ICollection<IColumn> m_ColumnDefinition;
+    [NotNull] private readonly IReadOnlyCollection<IColumn> m_ColumnDefinition;
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
     protected readonly long RecordLimit;
 
@@ -46,7 +46,6 @@ namespace CsvTools
     ///   An array of associated col
     /// </summary>
     protected int[] AssociatedTimeCol;
-    protected bool m_SelfOpenedStream;
 
     /// <summary>
     ///   An array of column
@@ -74,6 +73,8 @@ namespace CsvTools
     /// </summary>
     private bool m_IsFinished;
 
+    protected bool m_SelfOpenedStream;
+
     protected EventHandler<ProgressEventArgs> ReportProgress;
     protected EventHandler<long> SetMaxProcess;
 
@@ -84,13 +85,13 @@ namespace CsvTools
     /// <param name="columnDefinition">List of column definitions</param>
     /// <param name="recordLimit">Number of records that should be read</param>
     protected BaseFileReader([CanBeNull] string fileName, [CanBeNull] IEnumerable<IColumn> columnDefinition,
-      long recordLimit)
+                             long recordLimit)
     {
       m_ColumnDefinition = columnDefinition?.Select(col => new ImmutableColumn(col, col.ColumnOrdinal)).Cast<IColumn>()
-                             .ToList() ??
+                                           .ToList() ??
                            new List<IColumn>();
 
-      RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;  
+      RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       FullPath = fileName;
       FileName = FileSystemUtils.GetFileName(fileName);
     }
@@ -199,11 +200,11 @@ namespace CsvTools
     public virtual event EventHandler<WarningEventArgs> Warning;
 
     [NotNull]
-    public static Tuple<IEnumerable<string>, int> AdjustColumnName(
+    public static Tuple<IReadOnlyCollection<string>, int> AdjustColumnName(
       [NotNull] IEnumerable<string> columns,
       int fieldCount,
       [CanBeNull] ColumnErrorDictionary warnings,
-      [CanBeNull] IEnumerable<IColumn> columnDefinitions)
+      [CanBeNull] IReadOnlyCollection<IColumn> columnDefinitions)
     {
       var issuesCounter = 0;
       var previousColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -250,7 +251,7 @@ namespace CsvTools
         }
       }
 
-      return new Tuple<IEnumerable<string>, int>(previousColumns, issuesCounter);
+      return new Tuple<IReadOnlyCollection<string>, int>(previousColumns, issuesCounter);
     }
 
     /// <summary>
@@ -602,7 +603,7 @@ namespace CsvTools
 
         schemaRow[1] = column.Name; // Column name
         schemaRow[4] = column.Name; // Column name
-        schemaRow[5] = col; // Column ordinal
+        schemaRow[5] = col;         // Column ordinal
 
         // If there is a conversion get the information
         if (column.Convert && column.ValueFormat.DataType != DataType.String)
@@ -832,7 +833,6 @@ namespace CsvTools
     /// </summary>
     protected async Task BeforeOpenAsync(string message)
     {
-
       SetMaxProcess?.Invoke(this, 0);
       HandleShowProgress(message);
 
@@ -1032,7 +1032,7 @@ namespace CsvTools
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
       ReportProgress?.Invoke(this,
-        new ProgressEventArgs($"{text}{rec}", (progress * c_MaxValue).ToInt64(), false));
+        new ProgressEventArgs($"{text}{rec}", (progress * c_MaxValue).ToInt64()));
     }
 
     /// <summary>
@@ -1054,7 +1054,7 @@ namespace CsvTools
 
     [CanBeNull]
     protected static string TreatNbspTestAsNullTrim([CanBeNull] string inputString, bool treatNbspAsSpace,
-      string treatTextAsNull, bool trim)
+                                                    string treatTextAsNull, bool trim)
     {
       if (string.IsNullOrEmpty(inputString))
         return null;
@@ -1144,15 +1144,15 @@ namespace CsvTools
     }
 
     protected void ParseColumnName([NotNull] IEnumerable<string> headerRow,
-      [CanBeNull] IEnumerable<DataType> dataType = null, bool hasFieldHeader = true)
+                                   [CanBeNull] IEnumerable<DataType> dataType = null, bool hasFieldHeader = true)
     {
       if (dataType == null)
         dataType = new List<DataType>();
 
       var issues = new ColumnErrorDictionary();
       var adjusted = hasFieldHeader
-        ? AdjustColumnName(headerRow, Column.Length, issues, m_ColumnDefinition).Item1
-        : Column.Select(x => x.Name);
+                       ? AdjustColumnName(headerRow, Column.Length, issues, m_ColumnDefinition).Item1
+                       : Column.Select(x => x.Name);
 
       using (var enumeratorType = dataType.GetEnumerator())
       using (var enumeratorNames = adjusted.GetEnumerator())
