@@ -33,7 +33,6 @@ namespace CsvTools
   /// </summary>
   public sealed partial class FormMain : ResizeForm
   {
-
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
     private readonly DetailControlLoader m_DetailControlLoader;
@@ -59,7 +58,7 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormMain" /> class.
     /// </summary>
-    /// <param name="fileName">Name of the file.</param>
+    /// <param name="viewSettings">Default view Settings</param>
     public FormMain(ViewSettings viewSettings)
     {
       InitializeComponent();
@@ -91,14 +90,6 @@ namespace CsvTools
     public DataTable DataTable
     {
       get => detailControl.DataTable;
-    }
-
-
-    // used in Unit Tests to determine when a load process is finished.
-    public bool LoadFinished
-    {
-      get;
-      private set;
     }
 
     private static string AssemblyTitle
@@ -299,12 +290,12 @@ namespace CsvTools
           m_ConfigChanged = false;
           detailControl.MoveMenu();
           if (_MessageBox.Show(
-            this,
-            "The configuration has changed do you want to reload the data?",
-            "Configuration changed",
-            MessageBoxButtons.YesNo,
-            MessageBoxIcon.Question,
-            MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                this,
+                "The configuration has changed do you want to reload the data?",
+                "Configuration changed",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             await OpenDataReaderAsync();
           else
             m_ConfigChanged = false;
@@ -313,12 +304,12 @@ namespace CsvTools
         if (!m_FileChanged) return;
         m_FileChanged = false;
         if (_MessageBox.Show(
-          this,
-          "The displayed file has changed do you want to reload the data?",
-          "File changed",
-          MessageBoxButtons.YesNo,
-          MessageBoxIcon.Question,
-          MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+              this,
+              "The displayed file has changed do you want to reload the data?",
+              "File changed",
+              MessageBoxButtons.YesNo,
+              MessageBoxIcon.Question,
+              MessageBoxDefaultButton.Button2) == DialogResult.Yes)
           await OpenDataReaderAsync();
         else
           m_FileChanged = false;
@@ -417,6 +408,7 @@ namespace CsvTools
         fileSystemWatcher.Filter = split.FileName;
         fileSystemWatcher.Path = split.DirectoryName;
       }
+
       if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
         fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
     }
@@ -451,11 +443,11 @@ namespace CsvTools
           DetachPropertyChanged(m_FileSetting);
 
           m_FileSetting = await CsvHelper.GetCsvFileSetting(fileName,
-            (csvFile) => ViewSettings.CopyConfiguration(m_ViewSettings, csvFile), m_ViewSettings.AllowJson,
-            m_ViewSettings.GuessCodePage,
-            m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
-            m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine,
-            m_ViewSettings.FillGuessSettings, processDisplay);
+                            (csvFile) => ViewSettings.CopyConfiguration(m_ViewSettings, csvFile), m_ViewSettings.AllowJson,
+                            m_ViewSettings.GuessCodePage,
+                            m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
+                            m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine,
+                            m_ViewSettings.FillGuessSettings, processDisplay);
 
           if (m_FileSetting == null)
             return;
@@ -580,8 +572,6 @@ namespace CsvTools
 
           // Re enable event watching
           AttachPropertyChanged(m_FileSetting);
-
-          LoadFinished = true;
         }
       }
     }
@@ -600,11 +590,11 @@ namespace CsvTools
             pathSetting,
             m_FileSetting,
             () => _MessageBox.Show(
-              this,
-              $"Replace changed settings in {pathSetting} ?",
-              "Settings",
-              MessageBoxButtons.YesNo,
-              MessageBoxIcon.Question) == DialogResult.Yes);
+                    this,
+                    $"Replace changed settings in {pathSetting} ?",
+                    "Settings",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question) == DialogResult.Yes);
         }
 
         m_ConfigChanged = false;
