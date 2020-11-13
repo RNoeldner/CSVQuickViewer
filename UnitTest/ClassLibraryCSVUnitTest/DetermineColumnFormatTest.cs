@@ -170,7 +170,7 @@ namespace CsvTools.Tests
             new ColumnCollection(), true, true, "<NULL>", UnitTestInitializeCsv.Token);
           Assert.AreEqual(11, columns2.Count());
           // Added 4 text columns,
-          Assert.AreEqual(9, information2.Count);
+          Assert.AreEqual(11, information2.Count);
         }
       }
     }

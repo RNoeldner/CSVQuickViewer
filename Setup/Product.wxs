@@ -15,7 +15,7 @@
     <Media Id="1" Cabinet="simple.cab" EmbedCab="yes" CompressionLevel="medium" />
     <MajorUpgrade AllowDowngrades="yes" />
     <PropertyRef Id="NETFRAMEWORK45" />
-    <Condition Message="This application requires .NET Framework 4.5">
+    <Condition Message="This application requires .NET Framework 4.72">
       <![CDATA[Installed OR NETFRAMEWORK45]]>
     </Condition>  
     <Directory Id="TARGETDIR" Name="SourceDir">

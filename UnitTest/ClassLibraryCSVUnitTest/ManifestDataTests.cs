@@ -1,56 +1,43 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CsvTools;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
-  [TestClass()]
+  [TestClass]
   public class ManifestDataTests
   {
-    [TestMethod()]
+    [TestMethod]
     public void ReadManifestPropertiesTest()
     {
-      var m = new ManifestData()
+      var m = new ManifestData
       {
-        desc="desc",
-        heading="heading",
-        pubname="pubname",
-        delta = true,
-        hasuserdefinedfields =true,
-        hydration="hydration",
-        fields = new ManifestData.ManifestField[] {
-          new ManifestData.ManifestField()
-          {
-            desc="desc2",
-            heading="heading2",
-            pubname="pubname2",
-            type="type2",
-            ordinal=1
-          }
-        }
+        Desc = "desc",
+        Heading = "heading",
+        PubName = "pubname",
+        Delta = true,
+        HasUserDefinedFields = true,
+        Hydration = "hydration",
+        Fields = new[] { new ManifestData.ManifestField("desc2", "heading2", 1, "pubname2", "type2") }
       };
 
-      Assert.AreEqual("desc", m.desc);
-      Assert.AreEqual("heading", m.heading);
-      Assert.AreEqual("pubname", m.pubname);
-      Assert.AreEqual("hydration", m.hydration);
-      Assert.IsTrue(m.delta);
-      Assert.IsTrue(m.hasuserdefinedfields);
-      Assert.AreEqual("desc2", m.fields[0].desc);
-      Assert.AreEqual("heading2", m.fields[0].heading);
-      Assert.AreEqual("pubname2", m.fields[0].pubname);
-      Assert.AreEqual("type2", m.fields[0].type);
-      Assert.AreEqual(1, m.fields[0].ordinal);
+      Assert.AreEqual("desc", m.Desc);
+      Assert.AreEqual("heading", m.Heading);
+      Assert.AreEqual("pubname", m.PubName);
+      Assert.AreEqual("hydration", m.Hydration);
+      Assert.IsTrue(m.Delta);
+      Assert.IsTrue(m.HasUserDefinedFields);
+      Assert.AreEqual("desc2", m.Fields[0].Desc);
+      Assert.AreEqual("heading2", m.Fields[0].Heading);
+      Assert.AreEqual("pubname2", m.Fields[0].PubName);
+      Assert.AreEqual("type2", m.Fields[0].Type);
+      Assert.AreEqual(1, m.Fields[0].Ordinal);
     }
 
-    [TestMethod()]
+    [TestMethod]
     public async Task ReadManifestAsync()
     {
-      var setting = ManifestData.ReadManifestFileSystem(UnitTestInitializeCsv.GetTestPath("training_relation.manifest.json"));
+      var setting =
+        ManifestData.ReadManifestFileSystem(UnitTestInitializeCsv.GetTestPath("training_relation.manifest.json"));
 
       Assert.AreEqual(false, setting.HasFieldHeader);
       Assert.AreEqual(19, setting.ColumnCollection.Count);
@@ -58,8 +45,23 @@ namespace CsvTools.Tests
       {
         await reader.OpenAsync(UnitTestInitializeCsv.Token);
         Assert.AreEqual("object_id", reader.GetColumn(0).Name);
-        reader.Read();      
+        reader.Read();
+      }
+    }
+
+    [TestMethod]
+    public async Task ReadManifestZip()
+    {
+      var setting =
+        ManifestData.ReadManifestZip(UnitTestInitializeCsv.GetTestPath("ReadManifestZip"));
+
+      Assert.AreEqual(false, setting.HasFieldHeader);
+      Assert.AreEqual(19, setting.ColumnCollection.Count);
+      using (var reader = new CsvFileReader(setting, null))
+      {
+        await reader.OpenAsync(UnitTestInitializeCsv.Token);
+        Assert.AreEqual("object_id", reader.GetColumn(0).Name);
+        reader.Read();
       }
     }
   }
-}
