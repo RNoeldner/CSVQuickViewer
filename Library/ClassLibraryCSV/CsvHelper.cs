@@ -169,22 +169,23 @@ namespace CsvTools
           // Columns are only one or two char,  does not look descriptive
           if (newHeader.Count(x => x.Length < 3) > halfTheColumns)
             throw new ApplicationException(
-              $"{newHeader.Count(x => x.Length < 3)} of {fieldCount} header are shorter then 3 character");
+              $"Headers {string.Join(", ", newHeader.Where(x => x.Length < 3))} shorter then 3 character");
 
-          var countNumeric = headerRow.Count(header => Regex.IsMatch(header, @"^\d+$"));
-          var countSpecial = headerRow.Count(header => Regex.IsMatch(header, @"[^\w\d\-_\s<>#,.*\[\]\(\)+?!]"));
+          var numerics = headerRow.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
+          var specials = headerRow.Where(header => Regex.IsMatch(header, @"[^\w\d\-_\s<>#,.*\[\]\(\)+?!]")).ToList();
 
-          if (countNumeric + countSpecial >= halfTheColumns)
+          if (numerics.Count + specials.Count >= halfTheColumns)
           {
-            var msg = string.Empty;
-            if (countNumeric > 0)
-              msg += $"{countNumeric} header numeric";
 
-            if (countSpecial > 0)
+            var msg = "Headers";
+            if (numerics.Count > 0)
+              msg += $" {string.Join(", ", numerics.ToArray())} numeric";
+
+            if (specials.Count > 0)
             {
               if (msg.Length > 0)
-                msg += " and ";
-              msg += $"{countSpecial} header with uncommon characters";
+                msg += " and Headers ";
+              msg += $" {string.Join(", ", specials.ToArray())} with uncommon characters";
             }
 
             throw new ApplicationException(msg);
@@ -540,7 +541,7 @@ namespace CsvTools
       var quoted = false;
       var firstChar = true;
       var readChar = -1;
-      var contends = new StringBuilder();
+      //var contends = new StringBuilder();
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
 
       while (dc.LastRow < dc.NumRows && !textReaderPosition.AllRead() &&
@@ -548,7 +549,7 @@ namespace CsvTools
       {
         var lastChar = readChar;
         readChar = textReader.Read();
-        contends.Append(readChar);
+        //contends.Append(readChar);
         if (lastChar == escapeCharacter)
           continue;
         switch (readChar)
@@ -600,7 +601,6 @@ namespace CsvTools
         if (firstChar && readChar != ' ')
           firstChar = false;
       }
-
       return dc;
     }
 
@@ -648,6 +648,7 @@ namespace CsvTools
       var match = '\0';
 
       var dc = GetDelimiterCounter(textReader, escapeCharacter, 300, cancellationToken);
+      var numberOfRows = dc.FilledRows;
 
       // Limit everything to 100 columns max, the sum might get too big otherwise 100 * 100
       var startRow = dc.LastRow > 60 ? 15 :
@@ -655,12 +656,13 @@ namespace CsvTools
 
       cancellationToken.ThrowIfCancellationRequested();
 
+
       var validSeparatorIndex = new List<int>();
       for (var index = 0; index < dc.Separators.Length; index++)
       {
         // only regard a delimiter if we have 75% of the rows with this delimiter we can still have
         // a lot of commented lines
-        if (dc.SeparatorRows[index] == 0 || dc.SeparatorRows[index] < dc.LastRow * .70d && dc.LastRow > 5)
+        if (dc.SeparatorRows[index] == 0 || dc.SeparatorRows[index] < numberOfRows * .70d && numberOfRows > 3)
           continue;
         validSeparatorIndex.Add(index);
       }

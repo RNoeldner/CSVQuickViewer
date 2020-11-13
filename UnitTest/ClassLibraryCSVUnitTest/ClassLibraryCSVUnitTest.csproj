@@ -303,6 +303,9 @@
     <None Include="TestFiles\AllFormatsPipe.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestFiles\ces_xxx_v879548171_lo_exempt_status_reason_approver_local_full.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="TestFiles\Larger.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

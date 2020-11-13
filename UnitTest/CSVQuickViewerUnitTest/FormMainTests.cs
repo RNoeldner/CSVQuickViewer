@@ -69,38 +69,29 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(20000)]
-    public void FormMain_BasicCSV() =>
-      Extensions.RunSTAThread(() =>
-      {
-        using (var frm = new FormMain(Path.Combine(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt.gz"))))
-        {
-          frm.Size = new Size(800, 600);
-          UnitTestWinFormHelper.ShowFormAndClose(frm, .2, f =>
-          {
-            while (!f.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
-              UnitTestWinFormHelper.WaitSomeTime(.2, UnitTestInitializeCsv.Token);
-          });
-          Assert.IsNotNull(frm.DataTable);
-          Assert.AreEqual(7, frm.DataTable.Rows.Count);
-        }
-      });
+    public async System.Threading.Tasks.Task FormMain_BasicCSVAsync()
+    {
+      using (var frm = new FormMain(new ViewSettings()))
+      {        
+        frm.Size = new Size(800, 600);
+        await UnitTestWinFormHelper.ShowFormAndCloseAsync(frm, .2, frm.LoadCsvFile(Path.Combine(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt.gz"))));
+
+        Assert.IsNotNull(frm.DataTable);
+        Assert.AreEqual(7, frm.DataTable.Rows.Count);
+      }
+    }
 
     [TestMethod]
     [Timeout(20000)]
-    public void FormMain_AllFormatsPipe() =>
-      Extensions.RunSTAThread(() =>
-      {
-        using (var frm = new FormMain(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.txt")))
-        {
-          UnitTestWinFormHelper.ShowFormAndClose(frm, .2, f =>
-          {
-            while (!f.LoadFinished && !UnitTestInitializeCsv.Token.IsCancellationRequested)
-              UnitTestWinFormHelper.WaitSomeTime(.2, UnitTestInitializeCsv.Token);
-          });
-          Assert.IsNotNull(frm.DataTable);
-          // 45 records, one of the lines has a linefeed
-          Assert.AreEqual(46, frm.DataTable.Rows.Count);
-        }
-      });
+    public async System.Threading.Tasks.Task FormMain_AllFormatsPipeAsync()
+    {
+      using (var frm = new FormMain(new ViewSettings()))
+      {        
+        await UnitTestWinFormHelper.ShowFormAndCloseAsync(frm, .1, frm.LoadCsvFile(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.txt")));
+        Assert.IsNotNull(frm.DataTable);
+        // 45 records, one of the lines has a linefeed
+        Assert.AreEqual(46, frm.DataTable.Rows.Count);
+      }
+    }
   }
 }
