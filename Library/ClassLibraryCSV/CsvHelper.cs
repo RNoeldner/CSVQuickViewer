@@ -176,7 +176,6 @@ namespace CsvTools
 
           if (numerics.Count + specials.Count >= halfTheColumns)
           {
-
             var msg = "Headers";
             if (numerics.Count > 0)
               msg += $" {string.Join(", ", numerics.ToArray())} numeric";
@@ -601,6 +600,7 @@ namespace CsvTools
         if (firstChar && readChar != ' ')
           firstChar = false;
       }
+
       return dc;
     }
 
@@ -655,7 +655,6 @@ namespace CsvTools
                      dc.LastRow > 20 ? 5 : 0;
 
       cancellationToken.ThrowIfCancellationRequested();
-
 
       var validSeparatorIndex = new List<int>();
       for (var index = 0; index < dc.Separators.Length; index++)
@@ -755,24 +754,24 @@ namespace CsvTools
                                                     CancellationToken token)
     {
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
-      const int numChars = 8192;
+      const int c_NumChars = 8192;
 
       var currentChar = 0;
       var quoted = false;
 
-      const int cr = 0;
-      const int lf = 1;
-      const int crLf = 2;
-      const int lfCr = 3;
-      const int recSep = 4;
-      const int unitSep = 5;
+      const int c_Cr = 0;
+      const int c_LF = 1;
+      const int c_CrLf = 2;
+      const int c_LFCr = 3;
+      const int c_RecSep = 4;
+      const int c_UnitSep = 5;
 
       int[] count = { 0, 0, 0, 0, 0, 0 };
 
       // \r = CR (Carriage Return) \n = LF (Line Feed)
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
-      while (currentChar < numChars && !textReaderPosition.AllRead() && !token.IsCancellationRequested)
+      while (currentChar < c_NumChars && !textReaderPosition.AllRead() && !token.IsCancellationRequested)
       {
         var readChar = textReader.Read();
         if (readChar == fieldQualifier)
@@ -796,21 +795,21 @@ namespace CsvTools
         switch (readChar)
         {
           case 30:
-            count[recSep]++;
+            count[c_RecSep]++;
             continue;
           case 31:
-            count[unitSep]++;
+            count[c_UnitSep]++;
             continue;
           case 10:
           {
             if (textReader.Peek() == 13)
             {
               textReader.MoveNext();
-              count[lfCr]++;
+              count[c_LFCr]++;
             }
             else
             {
-              count[lf]++;
+              count[c_LF]++;
             }
 
             currentChar++;
@@ -821,11 +820,11 @@ namespace CsvTools
             if (textReader.Peek() == 10)
             {
               textReader.MoveNext();
-              count[crLf]++;
+              count[c_CrLf]++;
             }
             else
             {
-              count[cr]++;
+              count[c_Cr]++;
             }
 
             break;
@@ -838,12 +837,12 @@ namespace CsvTools
       var maxCount = count.Max();
       if (maxCount == 0)
         return RecordDelimiterType.None;
-      var res = count[recSep] == maxCount ? RecordDelimiterType.RS
-                : count[unitSep] == maxCount ? RecordDelimiterType.US
-                : count[cr] == maxCount ? RecordDelimiterType.CR
-                : count[lf] == maxCount ? RecordDelimiterType.LF
-                : count[lfCr] == maxCount ? RecordDelimiterType.LFCR
-                : count[crLf] == maxCount ? RecordDelimiterType.CRLF
+      var res = count[c_RecSep] == maxCount ? RecordDelimiterType.RS
+                : count[c_UnitSep] == maxCount ? RecordDelimiterType.US
+                : count[c_Cr] == maxCount ? RecordDelimiterType.CR
+                : count[c_LF] == maxCount ? RecordDelimiterType.LF
+                : count[c_LFCr] == maxCount ? RecordDelimiterType.LFCR
+                : count[c_CrLf] == maxCount ? RecordDelimiterType.CRLF
                 : RecordDelimiterType.None;
       Logger.Information("Record Delimiter: {recorddelimiter}", res.Description());
       return res;
@@ -854,7 +853,7 @@ namespace CsvTools
     {
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
 
-      const int maxLine = 30;
+      const int c_MaxLine = 30;
       var possibleQuotes = new[] { '"', '\'' };
       var counter = new int[possibleQuotes.Length];
 
@@ -862,7 +861,7 @@ namespace CsvTools
       var max = 0;
       // skip the first line it usually a header
       for (var lineNo = 0;
-           lineNo < maxLine && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested;
+           lineNo < c_MaxLine && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested;
            lineNo++)
       {
         var line = textReader.ReadLine();
@@ -918,18 +917,18 @@ namespace CsvTools
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
       if (commentLine == null)
         throw new ArgumentNullException(nameof(commentLine));
-      const int maxRows = 50;
+      const int c_MaxRows = 50;
 
       textReader.ToBeginning();
-      var columnCount = new List<int>(maxRows);
-      var rowMapping = new Dictionary<int, int>(maxRows);
-      var colCount = new int[maxRows];
-      var isComment = new bool[maxRows];
+      var columnCount = new List<int>(c_MaxRows);
+      var rowMapping = new Dictionary<int, int>(c_MaxRows);
+      var colCount = new int[c_MaxRows];
+      var isComment = new bool[c_MaxRows];
       var quoted = false;
       var firstChar = true;
       var lastRow = 0;
 
-      while (lastRow < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
+      while (lastRow < c_MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
         var readChar = textReader.Read();
 

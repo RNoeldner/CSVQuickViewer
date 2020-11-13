@@ -16,17 +16,15 @@ using System.Globalization;
 
 namespace CsvTools
 {
-
   public class DelimiterCounter
   {
+    // Added INFORMATION SEPARATOR ONE to FOUR
+    private const string c_DefaultSeparators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
     public readonly int NumRows;
     public readonly int[] SeparatorRows;
     public readonly string Separators;
     public readonly int[,] SeparatorsCount;
     public int LastRow;
-
-    // Added INFORMATION SEPARATOR ONE to FOUR
-    private const string c_DefaultSeparators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
 
     public DelimiterCounter(int numRows)
     {
@@ -40,34 +38,35 @@ namespace CsvTools
       SeparatorRows = new int[Separators.Length];
     }
 
-    public bool RowEmpty(int line)
-    {
-      bool empty = true;
-      for (int x = 0; x<Separators.Length; x++)
-        if (SeparatorsCount[x, line]!=0)
-        {
-          empty = false;
-          break;
-        }
-      return empty;
-    }
-
     public int FilledRows
     {
       get
       {
-        while (RowEmpty(LastRow) && LastRow>0)
+        while (RowEmpty(LastRow) && LastRow > 0)
           LastRow--;
 
         int res = 0;
-        for (var line = 0; line <LastRow; line++)
+        for (var line = 0; line < LastRow; line++)
         {
           if (!RowEmpty(line))
             res++;
         }
-        return res++;
-      }
-    }   
-  }
 
+        return res;
+      }
+    }
+
+    public bool RowEmpty(int line)
+    {
+      bool empty = true;
+      for (int x = 0; x < Separators.Length; x++)
+        if (SeparatorsCount[x, line] != 0)
+        {
+          empty = false;
+          break;
+        }
+
+      return empty;
+    }
+  }
 }
