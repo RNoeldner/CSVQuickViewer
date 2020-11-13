@@ -69,7 +69,7 @@ namespace CsvTools
 
       var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
       m_ImgFilterIndicator = (Image) resources.GetObject("toolStripMenuItem2.Image");
-      
+
       DataError += FilteredDataGridView_DataError;
       toolStripMenuItemColumnVisibility.ItemCheck += CheckedListBox_ItemCheck;
       if (contextMenuStripHeader.LayoutSettings is TableLayoutSettings tableLayoutSettings)
@@ -197,7 +197,7 @@ namespace CsvTools
     internal DataView DataView { get; set; }
 
     private void FilteredDataGridView_Paint(object sender, PaintEventArgs e) => m_DefRowHeight =
-      TextRenderer.MeasureText(e.Graphics, "My Text", base.Font).Height * 120 / 100;
+                                                                                  TextRenderer.MeasureText(e.Graphics, "My Text", base.Font).Height * 120 / 100;
 
     /// <summary>
     ///   Occurs when the next result should be shown
@@ -274,7 +274,7 @@ namespace CsvTools
         if (col.Visible)
         {
           var hasData = DataView.Cast<DataRowView>()
-            .Any(dataRow => dataRow[col.DataPropertyName] != DBNull.Value);
+                                .Any(dataRow => dataRow[col.DataPropertyName] != DBNull.Value);
           if (!hasData && col.Visible)
             col.Visible = false;
           hasChanges = true;
@@ -549,17 +549,17 @@ namespace CsvTools
           toolStripMenuItemSortDescending.Enabled = e.ColumnIndex > -1;
 
           toolStripMenuItemSortAscending.Text = e.ColumnIndex > -1
-            ? string.Format(
-              CultureInfo.CurrentCulture,
-              toolStripMenuItemSortAscending.Tag.ToString(),
-              Columns[e.ColumnIndex].DataPropertyName)
-            : "Sort ascending";
+                                                  ? string.Format(
+                                                    CultureInfo.CurrentCulture,
+                                                    toolStripMenuItemSortAscending.Tag.ToString(),
+                                                    Columns[e.ColumnIndex].DataPropertyName)
+                                                  : "Sort ascending";
           toolStripMenuItemSortDescending.Text = e.ColumnIndex > -1
-            ? string.Format(
-              CultureInfo.CurrentCulture,
-              toolStripMenuItemSortDescending.Tag.ToString(),
-              Columns[e.ColumnIndex].DataPropertyName)
-            : "Sort descending";
+                                                   ? string.Format(
+                                                     CultureInfo.CurrentCulture,
+                                                     toolStripMenuItemSortDescending.Tag.ToString(),
+                                                     Columns[e.ColumnIndex].DataPropertyName)
+                                                   : "Sort descending";
           var columnFormat = GetColumnFormat(e.ColumnIndex);
           toolStripMenuItemCF.Visible = columnFormat != null;
           toolStripSeparatorCF.Visible = columnFormat != null;
@@ -598,8 +598,8 @@ namespace CsvTools
       {
         e.Column.DefaultCellStyle.ForeColor = Color.MidnightBlue;
         e.Column.DefaultCellStyle.Alignment = e.Column.ValueType == typeof(bool)
-          ? DataGridViewContentAlignment.MiddleCenter
-          : DataGridViewContentAlignment.MiddleRight;
+                                                ? DataGridViewContentAlignment.MiddleCenter
+                                                : DataGridViewContentAlignment.MiddleRight;
       }
 
       ColumnDisplayMenuItemAdd(e.Column.DataPropertyName);
@@ -761,8 +761,8 @@ namespace CsvTools
       var nbspIndex = val.IndexOf((char) 0xA0);
       var linefeedIndex = val.IndexOf('\n');
       var highlightIndex = m_HighlightText.Length > 0
-        ? val.IndexOf(m_HighlightText, StringComparison.InvariantCultureIgnoreCase)
-        : -1;
+                             ? val.IndexOf(m_HighlightText, StringComparison.InvariantCultureIgnoreCase)
+                             : -1;
 
       if (nbspIndex == -1 && highlightIndex == -1)
         return;
@@ -788,8 +788,8 @@ namespace CsvTools
           var before = val.Substring(0, nbspIndex);
           if (before.Length > 0)
             hlRect.X = e.CellBounds.X
-              + TextRenderer.MeasureText(e.Graphics, before, e.CellStyle.Font, e.CellBounds.Size)
-                .Width - 6;
+                       + TextRenderer.MeasureText(e.Graphics, before, e.CellStyle.Font, e.CellBounds.Size)
+                                     .Width - 6;
           else
             hlRect.X = e.CellBounds.X;
 
@@ -800,8 +800,7 @@ namespace CsvTools
             new[]
             {
               new Point(hlRect.X, e.CellBounds.Bottom - 10), new Point(hlRect.X, e.CellBounds.Bottom - 5),
-              new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 5),
-              new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 10)
+              new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 5), new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 10)
             });
           nbspIndex = val.IndexOf((char) 0xA0, nbspIndex + 1);
         }
@@ -831,10 +830,10 @@ namespace CsvTools
               var before = val.Substring(0, highlightIndex);
               if (before.Length > 0)
                 hlRect.X = e.CellBounds.X + TextRenderer.MeasureText(
-                  e.Graphics,
-                  before,
-                  e.CellStyle.Font,
-                  e.CellBounds.Size).Width - 4;
+                             e.Graphics,
+                             before,
+                             e.CellStyle.Font,
+                             e.CellBounds.Size).Width - 4;
               else
                 hlRect.X = e.CellBounds.X + 2;
             }
@@ -843,9 +842,9 @@ namespace CsvTools
               var after = val.Substring(highlightIndex + m_HighlightText.Length);
               if (after.Length > 0)
                 hlRect.X = e.CellBounds.X + e.CellBounds.Width
-                  - TextRenderer.MeasureText(e.Graphics, after, e.CellStyle.Font,
-                    e.CellBounds.Size).Width
-                  - hlRect.Width + 3;
+                           - TextRenderer.MeasureText(e.Graphics, after, e.CellStyle.Font,
+                             e.CellBounds.Size).Width
+                           - hlRect.Width + 3;
               else
                 hlRect.X = e.CellBounds.X + e.CellBounds.Width - hlRect.Width - 4;
             }
@@ -999,10 +998,7 @@ namespace CsvTools
 
       foreach (var item in col.ValueClusters.OrderByDescending(x => x.Sort))
       {
-        var newMenuItem = new ToolStripMenuItem(StringUtils.GetShortDisplay(item.Display, 40))
-        {
-          Tag = item, Checked = item.Active, CheckOnClick = true
-        };
+        var newMenuItem = new ToolStripMenuItem(StringUtils.GetShortDisplay(item.Display, 40)) { Tag = item, Checked = item.Active, CheckOnClick = true };
         newMenuItem.CheckStateChanged += delegate(object menuItem, EventArgs args)
         {
           if (!(menuItem is ToolStripMenuItem sendItem))
@@ -1046,7 +1042,7 @@ namespace CsvTools
               continue;
             for (var i = 0; i < toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.Count; i++)
               if (toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items[i].ToString()
-                .Equals(col.Name, StringComparison.OrdinalIgnoreCase))
+                                                   .Equals(col.Name, StringComparison.OrdinalIgnoreCase))
               {
                 if (!toolStripMenuItemColumnVisibility.CheckedListBoxControl.GetItemChecked(i))
                 {
@@ -1220,8 +1216,8 @@ namespace CsvTools
       {
         var colFirstNoFrozen =
           (from col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex)
-            where !col.Frozen
-            select col.DisplayIndex).FirstOrDefault();
+           where !col.Frozen
+           select col.DisplayIndex).FirstOrDefault();
         Columns[m_MenuItemColumnIndex].DisplayIndex = colFirstNoFrozen;
       }
 
@@ -1337,7 +1333,7 @@ namespace CsvTools
           "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
         if (!string.IsNullOrEmpty(fileName))
           using (var stream = new ImprovedStream(new SourceAccess(fileName, false)))
-          using (var writer = new StreamWriter(stream as Stream, Encoding.UTF8, 1024))
+          using (var writer = new StreamWriter((Stream) stream, Encoding.UTF8, 1024))
           {
             await writer.WriteAsync(ViewSetting.StoreViewSetting(this, m_Filter));
             await writer.FlushAsync();

@@ -30,7 +30,7 @@ namespace CsvTools
     private bool m_DisposedValue;
 
     public DataTableWrapper([NotNull] DataTable dataTable) : base(
-      dataTable?.CreateDataReader() ?? throw new ArgumentNullException(nameof(dataTable)),
+      dataTable.CreateDataReader(),
       dataTable.Rows.Count) => DataTable = dataTable;
 
     [NotNull] public DataTable DataTable { get; }
@@ -73,9 +73,9 @@ namespace CsvTools
 
     public void ResetPositionToFirstDataRow()
     {
-      base.m_DataReader.Close();
-      base.m_DataReader = DataTable.CreateDataReader();
-      base.m_RecordNumber = 0;
+      base.DataReader.Close();
+      base.DataReader = DataTable.CreateDataReader();
+      base.RecordNumber = 0;
     }
 
     protected override void Dispose(bool disposing)

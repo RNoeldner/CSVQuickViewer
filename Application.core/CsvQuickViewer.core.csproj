@@ -10,7 +10,7 @@
     <PackageIcon>csv_text.ico</PackageIcon>
     <PackageIconUrl />
     <SignAssembly>false</SignAssembly>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
 

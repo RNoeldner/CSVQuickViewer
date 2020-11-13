@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 namespace CsvTools
 {
   /// <summary>

@@ -18,7 +18,6 @@ namespace CsvTools
   using System;
   using System.Collections.Generic;
 
-
 #if !NLog
 
 #endif
@@ -65,12 +64,12 @@ namespace CsvTools
 
     static Logger()
     {
-
       var loggerConfiguration = new LoggerConfiguration()
-                          .Filter.ByExcluding(logEvent => logEvent.Exception != null
-                                                          && (logEvent.Exception.GetType() == typeof(OperationCanceledException) || logEvent.Exception.GetType() == typeof(ObjectDisposedException)))
-                          // UI Logger
-                          .WriteTo.Sink(m_UserInterfaceSink);
+                                .Filter.ByExcluding(logEvent => logEvent.Exception != null
+                                                                && (logEvent.Exception.GetType() == typeof(OperationCanceledException) ||
+                                                                    logEvent.Exception.GetType() == typeof(ObjectDisposedException)))
+                                // UI Logger
+                                .WriteTo.Sink(m_UserInterfaceSink);
       // File Logger
       var entryName = Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty;
 
@@ -86,22 +85,23 @@ namespace CsvTools
           }
           catch (Exception)
           {
-            addTextLog = false;
+            // ignored
           }
         }
+
         if (addTextLog)
         {
           loggerConfiguration = loggerConfiguration
-            // Exceptions
-            .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Exception != null).WriteTo.File(
-              folder + "ExceptionLog.txt", rollingInterval: RollingInterval.Month, retainedFileCountLimit: 3,
-              outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff}\t{Level}\t\"{Exception:l}\"{NewLine}"))
-            //CSV
-            .WriteTo.File(folder + "ApplicationLog.txt", rollingInterval: RollingInterval.Day,
-              outputTemplate: "{Timestamp:HH:mm:ss}\t{Level:w3}\t{Message:l}{NewLine}")
-            // Json
-            .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), path: folder + "ApplicationLog.json",
-              rollingInterval: RollingInterval.Day);
+                                // Exceptions
+                                .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Exception != null).WriteTo.File(
+                                  folder + "ExceptionLog.txt", rollingInterval: RollingInterval.Month, retainedFileCountLimit: 3,
+                                  outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff}\t{Level}\t\"{Exception:l}\"{NewLine}"))
+                                //CSV
+                                .WriteTo.File(folder + "ApplicationLog.txt", rollingInterval: RollingInterval.Day,
+                                  outputTemplate: "{Timestamp:HH:mm:ss}\t{Level:w3}\t{Message:l}{NewLine}")
+                                // Json
+                                .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), path: folder + "ApplicationLog.json",
+                                  rollingInterval: RollingInterval.Day);
         }
       }
 
@@ -178,16 +178,14 @@ m_Logger.Warn(exception, message, args);
 #if !NLog
     public class UserInterfaceSink : ILogEventSink
     {
-      private readonly IFormatProvider _formatProvider;
-
       // By design: Only one Action to be called you can not have two or more destinations
-      public readonly List<Action<string, Logger.Level>> Loggers = new List<Action<string, Level>>();
+      public readonly List<Action<string, Level>> Loggers = new List<Action<string, Level>>();
+      private readonly IFormatProvider m_FormatProvider;
 
       public UserInterfaceSink(IFormatProvider formatProvider)
       {
-        _formatProvider = formatProvider;
+        m_FormatProvider = formatProvider;
       }
-
 
       public void Emit(LogEvent logEvent)
       {
@@ -211,7 +209,7 @@ m_Logger.Warn(exception, message, args);
         }
 
         foreach (var logger in Loggers)
-          logger(logEvent.RenderMessage(_formatProvider), level);
+          logger(logEvent.RenderMessage(m_FormatProvider), level);
       }
     }
 #else

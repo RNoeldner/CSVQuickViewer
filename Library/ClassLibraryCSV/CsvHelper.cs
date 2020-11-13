@@ -92,7 +92,7 @@ namespace CsvTools
     /// <remarks>No Error will not be thrown.</remarks>
     [NotNull]
     public static async Task<string> GuessDelimiterAsync([NotNull] ICsvFile setting,
-      CancellationToken cancellationToken)
+                                                         CancellationToken cancellationToken)
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting)))
       using (var textReader =
@@ -109,7 +109,7 @@ namespace CsvTools
     }
 
     public static Tuple<bool, string> GuessHasHeader([NotNull] ImprovedTextReader reader, string comment,
-      char delimiter, CancellationToken cancellationToken)
+                                                     char delimiter, CancellationToken cancellationToken)
     {
       var headerLine = string.Empty;
 
@@ -125,6 +125,9 @@ namespace CsvTools
       {
         if (string.IsNullOrEmpty(headerLine))
           throw new ApplicationException("Empty Line");
+
+        if (headerLine.NoControlCharacters().Length < headerLine.Replace("\t", "").Length)
+          throw new ApplicationException($"Control Characters in Column {headerLine}");
 
         var headerRow = headerLine.Split(delimiter);
         // get the average field count looking at the header and 12 additional valid lines
@@ -157,33 +160,35 @@ namespace CsvTools
           var halfTheColumns = (int) Math.Ceiling(avgFieldCount / 2.0);
 
           // use the same routine that is used in readers to determine the names of the columns
-          var columnsAndIssues = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null, null);
+          var (newHeader, numIssues) = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null, null);
 
           // looking at the warnings raised
-          if (columnsAndIssues.Item2 >= halfTheColumns || columnsAndIssues.Item2 > 5)
-            throw new ApplicationException($"{columnsAndIssues.Item2} header where empty, duplicate or too long");
+          if (numIssues >= halfTheColumns || numIssues > 5)
+            throw new ApplicationException($"{numIssues} header where empty, duplicate or too long");
 
-          // Columns are only one or two char, that does not look descriptive
-          if (columnsAndIssues.Item1.Count(x => x.Length < 3) > halfTheColumns)
+          // Columns are only one or two char,  does not look descriptive
+          if (newHeader.Count(x => x.Length < 3) > halfTheColumns)
             throw new ApplicationException(
-              $"{columnsAndIssues.Item1.Count(x => x.Length < 3)} of {fieldCount} header are shorter then 3 character");
+              $"{newHeader.Count(x => x.Length < 3)} of {fieldCount} header are shorter then 3 character");
 
-          var countNumeric = 0;
-          var countSpecial = 0;
-          foreach (var header in headerRow)
-          {
-            if (headerLine.NoControlCharacters().Length < headerLine.Replace("\t", "").Length)
-              throw new ApplicationException($"Control Characters in Column {headerLine}");
-
-            if (Regex.IsMatch(header, @"^\d{2,}$"))
-              countNumeric++;
-            else if (Regex.IsMatch(header, @"[^\w\d\-_\s<>,.*\[\]\(\)+?!]"))
-              countSpecial++;
-          }
+          var countNumeric = headerRow.Count(header => Regex.IsMatch(header, @"^\d+$"));
+          var countSpecial = headerRow.Count(header => Regex.IsMatch(header, @"[^\w\d\-_\s<>#,.*\[\]\(\)+?!]"));
 
           if (countNumeric + countSpecial >= halfTheColumns)
-            throw new ApplicationException(
-              $"{countNumeric} header numeric and {countSpecial} header with uncommon characters");
+          {
+            var msg = string.Empty;
+            if (countNumeric > 0)
+              msg += $"{countNumeric} header numeric";
+
+            if (countSpecial > 0)
+            {
+              if (msg.Length > 0)
+                msg += " and ";
+              msg += $"{countSpecial} header with uncommon characters";
+            }
+
+            throw new ApplicationException(msg);
+          }
         }
       }
       catch (ApplicationException ex)
@@ -204,7 +209,7 @@ namespace CsvTools
     /// <returns></returns>
     [NotNull]
     public static async Task<bool> GuessJsonFileAsync([NotNull] IFileSettingPhysicalFile setting,
-      CancellationToken cancellationToken)
+                                                      CancellationToken cancellationToken)
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting)))
       {
@@ -220,7 +225,7 @@ namespace CsvTools
     /// <returns>The NewLine Combination used</returns>
     [NotNull]
     public static async Task<RecordDelimiterType> GuessNewlineAsync([NotNull] ICsvFile setting,
-      CancellationToken cancellationToken)
+                                                                    CancellationToken cancellationToken)
     {
       if (setting.CodePageId < 0)
         setting.CodePageId = (await setting.GetEncodingAsync(cancellationToken).ConfigureAwait(false)).CodePage;
@@ -241,7 +246,7 @@ namespace CsvTools
     /// <returns>The NewLine Combination used</returns>
     [NotNull]
     public static async Task<string> GuessQualifierAsync([NotNull] ICsvFile setting,
-      CancellationToken cancellationToken)
+                                                         CancellationToken cancellationToken)
     {
       if (setting.CodePageId < 0)
         setting.CodePageId = (await setting.GetEncodingAsync(cancellationToken).ConfigureAwait(false)).CodePage;
@@ -289,7 +294,7 @@ namespace CsvTools
     /// <returns><c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.</returns>
     [NotNull]
     public static async Task<bool> HasUsedQualifierAsync([NotNull] ICsvFile setting,
-      CancellationToken cancellationToken)
+                                                         CancellationToken cancellationToken)
     {
       // if we do not have a quote defined it does not matter
       if (string.IsNullOrEmpty(setting.FileFormat.FieldQualifier) || cancellationToken.IsCancellationRequested)
@@ -332,9 +337,10 @@ namespace CsvTools
     }
 
     public static async Task<DetectionResult> RefreshCsvFileAsync([NotNull] IImprovedStream improvedStream,
-      [NotNull] IProcessDisplay display,
-      bool guessJson, bool guessCodePage, bool guessDelimiter, bool guessQualifier, bool guessStartRow,
-      bool guessHasHeader, bool guessNewLine)
+                                                                  [NotNull] IProcessDisplay display,
+                                                                  bool guessJson, bool guessCodePage, bool guessDelimiter, bool guessQualifier,
+                                                                  bool guessStartRow,
+                                                                  bool guessHasHeader, bool guessNewLine)
     {
       var detection = new DetectionResult();
       if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader ||
@@ -446,7 +452,6 @@ namespace CsvTools
         {
           textReader.ToBeginning();
 
-
           display.SetProcess("Checking for Header Row", -1, false);
 
           detection.HasFieldHeader = GuessHasHeader(textReader, detection.CommentLine,
@@ -490,10 +495,10 @@ namespace CsvTools
       using (var improvedStream = FunctionalDI.OpenStream(sourceAccess))
       {
         if (!string.IsNullOrEmpty(sourceAccess.IdentifierInContainer))
-          setting.IdentifierInContainer=sourceAccess.IdentifierInContainer;
+          setting.IdentifierInContainer = sourceAccess.IdentifierInContainer;
 
         var res = await RefreshCsvFileAsync(improvedStream, display, guessJson, guessCodePage, guessDelimiter,
-                  guessQualifier, guessStartRow, guessHasHeader, guessNewLine);
+                    guessQualifier, guessStartRow, guessHasHeader, guessNewLine);
 
         if (guessJson)
           setting.JsonFormat = res.IsJson;
@@ -526,7 +531,7 @@ namespace CsvTools
 
     [NotNull]
     private static DelimiterCounter GetDelimiterCounter([NotNull] ImprovedTextReader textReader,
-      char escapeCharacter, int numRows, CancellationToken cancellationToken)
+                                                        char escapeCharacter, int numRows, CancellationToken cancellationToken)
     {
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
 
@@ -600,7 +605,7 @@ namespace CsvTools
     }
 
     private static async Task<Tuple<EncodingHelper.CodePage, bool>> GuessCodePageAsync([NotNull] IImprovedStream stream,
-      CancellationToken token)
+                                                                                       CancellationToken token)
     {
       // Read 256 kBytes
       var buff = new byte[262144];
@@ -636,7 +641,7 @@ namespace CsvTools
     /// <remarks>No Error will not be thrown.</remarks>
     [NotNull]
     private static Tuple<string, bool> GuessDelimiter([NotNull] ImprovedTextReader textReader,
-      char escapeCharacter, CancellationToken cancellationToken)
+                                                      char escapeCharacter, CancellationToken cancellationToken)
     {
       if (textReader == null)
         throw new ArgumentNullException(nameof(textReader));
@@ -646,7 +651,7 @@ namespace CsvTools
 
       // Limit everything to 100 columns max, the sum might get too big otherwise 100 * 100
       var startRow = dc.LastRow > 60 ? 15 :
-        dc.LastRow > 20 ? 5 : 0;
+                     dc.LastRow > 20 ? 5 : 0;
 
       cancellationToken.ThrowIfCancellationRequested();
 
@@ -744,28 +749,28 @@ namespace CsvTools
     }
 
     private static RecordDelimiterType GuessNewline([NotNull] ImprovedTextReader textReader,
-      char fieldQualifier,
-      CancellationToken token)
+                                                    char fieldQualifier,
+                                                    CancellationToken token)
     {
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
-      const int c_NumChars = 8192;
+      const int numChars = 8192;
 
       var currentChar = 0;
       var quoted = false;
 
-      const int c_Cr = 0;
-      const int c_Lf = 1;
-      const int c_CrLf = 2;
-      const int c_Lfcr = 3;
-      const int c_RecSep = 4;
-      const int c_UnitSep = 5;
+      const int cr = 0;
+      const int lf = 1;
+      const int crLf = 2;
+      const int lfCr = 3;
+      const int recSep = 4;
+      const int unitSep = 5;
 
       int[] count = { 0, 0, 0, 0, 0, 0 };
 
       // \r = CR (Carriage Return) \n = LF (Line Feed)
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
-      while (currentChar < c_NumChars && !textReaderPosition.AllRead() && !token.IsCancellationRequested)
+      while (currentChar < numChars && !textReaderPosition.AllRead() && !token.IsCancellationRequested)
       {
         var readChar = textReader.Read();
         if (readChar == fieldQualifier)
@@ -789,21 +794,21 @@ namespace CsvTools
         switch (readChar)
         {
           case 30:
-            count[c_RecSep]++;
+            count[recSep]++;
             continue;
           case 31:
-            count[c_UnitSep]++;
+            count[unitSep]++;
             continue;
           case 10:
           {
             if (textReader.Peek() == 13)
             {
               textReader.MoveNext();
-              count[c_Lfcr]++;
+              count[lfCr]++;
             }
             else
             {
-              count[c_Lf]++;
+              count[lf]++;
             }
 
             currentChar++;
@@ -814,11 +819,11 @@ namespace CsvTools
             if (textReader.Peek() == 10)
             {
               textReader.MoveNext();
-              count[c_CrLf]++;
+              count[crLf]++;
             }
             else
             {
-              count[c_Cr]++;
+              count[cr]++;
             }
 
             break;
@@ -831,23 +836,23 @@ namespace CsvTools
       var maxCount = count.Max();
       if (maxCount == 0)
         return RecordDelimiterType.None;
-      var res = count[c_RecSep] == maxCount ? RecordDelimiterType.RS
-        : count[c_UnitSep] == maxCount ? RecordDelimiterType.US
-        : count[c_Cr] == maxCount ? RecordDelimiterType.CR
-        : count[c_Lf] == maxCount ? RecordDelimiterType.LF
-        : count[c_Lfcr] == maxCount ? RecordDelimiterType.LFCR
-        : count[c_CrLf] == maxCount ? RecordDelimiterType.CRLF
-        : RecordDelimiterType.None;
+      var res = count[recSep] == maxCount ? RecordDelimiterType.RS
+                : count[unitSep] == maxCount ? RecordDelimiterType.US
+                : count[cr] == maxCount ? RecordDelimiterType.CR
+                : count[lf] == maxCount ? RecordDelimiterType.LF
+                : count[lfCr] == maxCount ? RecordDelimiterType.LFCR
+                : count[crLf] == maxCount ? RecordDelimiterType.CRLF
+                : RecordDelimiterType.None;
       Logger.Information("Record Delimiter: {recorddelimiter}", res.Description());
       return res;
     }
 
     private static char GuessQualifier([NotNull] ImprovedTextReader textReader, char delimiter,
-      CancellationToken cancellationToken)
+                                       CancellationToken cancellationToken)
     {
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
 
-      const int c_MaxLine = 30;
+      const int maxLine = 30;
       var possibleQuotes = new[] { '"', '\'' };
       var counter = new int[possibleQuotes.Length];
 
@@ -855,8 +860,8 @@ namespace CsvTools
       var max = 0;
       // skip the first line it usually a header
       for (var lineNo = 0;
-        lineNo < c_MaxLine && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested;
-        lineNo++)
+           lineNo < maxLine && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested;
+           lineNo++)
       {
         var line = textReader.ReadLine();
         // EOF
@@ -905,24 +910,24 @@ namespace CsvTools
     /// <returns>The number of rows to skip</returns>
     /// <exception cref="ArgumentNullException">commentLine</exception>
     private static int GuessStartRow([NotNull] ImprovedTextReader textReader, char delimiter,
-      char quoteChar,
-      string commentLine, CancellationToken cancellationToken)
+                                     char quoteChar,
+                                     string commentLine, CancellationToken cancellationToken)
     {
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
       if (commentLine == null)
         throw new ArgumentNullException(nameof(commentLine));
-      const int c_MaxRows = 50;
+      const int maxRows = 50;
 
       textReader.ToBeginning();
-      var columnCount = new List<int>(c_MaxRows);
-      var rowMapping = new Dictionary<int, int>(c_MaxRows);
-      var colCount = new int[c_MaxRows];
-      var isComment = new bool[c_MaxRows];
+      var columnCount = new List<int>(maxRows);
+      var rowMapping = new Dictionary<int, int>(maxRows);
+      var colCount = new int[maxRows];
+      var isComment = new bool[maxRows];
       var quoted = false;
       var firstChar = true;
       var lastRow = 0;
 
-      while (lastRow < c_MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
+      while (lastRow < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
         var readChar = textReader.Read();
 
@@ -1066,7 +1071,7 @@ namespace CsvTools
 
     [NotNull]
     private static async Task<bool> IsJsonReadableAsync([NotNull] IImprovedStream impStream, Encoding encoding,
-      CancellationToken cancellationToken)
+                                                        CancellationToken cancellationToken)
     {
       if (!(impStream is Stream stream))
         return false;
@@ -1082,8 +1087,8 @@ namespace CsvTools
           {
             Logger.Information("Detected Json file");
             if (jsonTextReader.TokenType == JsonToken.StartObject ||
-                   jsonTextReader.TokenType == JsonToken.StartArray ||
-                   jsonTextReader.TokenType == JsonToken.StartConstructor)
+                jsonTextReader.TokenType == JsonToken.StartArray ||
+                jsonTextReader.TokenType == JsonToken.StartConstructor)
             {
               await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false);
               await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false);
@@ -1101,10 +1106,10 @@ namespace CsvTools
     }
 
     public static async Task<ICsvFile> GetCsvFileSetting(string fileName, Action<ICsvFile> initAction, bool guessJson,
-      bool guessCodePage,
-      bool guessDelimiter, bool guessQualifier, bool guessStartRow,
-      bool guessHasHeader, bool guessNewLine,
-      [NotNull] FillGuessSettings fillGuessSettings, [NotNull] IProcessDisplay processDisplay)
+                                                         bool guessCodePage,
+                                                         bool guessDelimiter, bool guessQualifier, bool guessStartRow,
+                                                         bool guessHasHeader, bool guessNewLine,
+                                                         [NotNull] FillGuessSettings fillGuessSettings, [NotNull] IProcessDisplay processDisplay)
     {
       if (processDisplay == null) throw new ArgumentNullException(nameof(processDisplay));
       if (string.IsNullOrEmpty(fileName))
@@ -1153,7 +1158,6 @@ namespace CsvTools
         Logger.Information("Data in {filename}", settingFs.FileName);
         return settingFs;
       }
-
 
       // Determine  from file
       var fileSetting = new CsvFile();

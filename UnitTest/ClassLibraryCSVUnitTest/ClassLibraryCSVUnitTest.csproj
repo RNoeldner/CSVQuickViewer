@@ -463,10 +463,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Library\ClassLibraryValidator\ClassLibraryValidator.csproj">
-      <Project>{996BAF3B-FFE1-42D3-B2DC-1D64D3BBC0EC}</Project>
-      <Name>ClassLibraryValidator</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj">
       <Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
       <Name>ClassLibraryCSV</Name>

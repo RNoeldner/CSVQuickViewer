@@ -41,12 +41,8 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        if (control != null)
-        {
-          var frm = control.FindForm();
-          if (frm != null)
-            frm.ShowError(ex);
-        }
+        var frm = control.FindForm();
+        frm?.ShowError(ex);
       }
       finally
       {
@@ -157,7 +153,7 @@ namespace CsvTools
     }
 
     public static Binding GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>()
-      .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
+                                                                   .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
 
     public static void LoadWindowState(
       [NotNull] this Form form,
@@ -225,7 +221,7 @@ namespace CsvTools
     /// <param name="action">A delegate for the action</param>
     public static void SafeBeginInvoke([NotNull] this Control uiElement, [NotNull] Action action)
     {
-      if (uiElement == null || uiElement.IsDisposed || action == null)
+      if (uiElement.IsDisposed)
         return;
       if (uiElement.InvokeRequired)
         uiElement.BeginInvoke(action);
@@ -254,9 +250,9 @@ namespace CsvTools
     /// <param name="action">A delegate for the action</param>
     /// <param name="timeoutTicks">Timeout to finish action, default is 1/10 of a second</param>
     public static void SafeInvokeNoHandleNeeded([NotNull] this Control uiElement, [NotNull] Action action,
-      long timeoutTicks = TimeSpan.TicksPerSecond / 10)
+                                                long timeoutTicks = TimeSpan.TicksPerSecond / 10)
     {
-      if (uiElement == null || uiElement.IsDisposed || action == null)
+      if (uiElement.IsDisposed)
         return;
       if (uiElement.InvokeRequired)
       {
@@ -300,7 +296,7 @@ namespace CsvTools
     }
 
     public static WindowState StoreWindowState([NotNull] this Form form, int customInt = int.MinValue,
-      string customText = "")
+                                               string customText = "")
     {
       try
       {
@@ -373,7 +369,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation Token</param>
     /// <returns><c>True</c> if children where validated, <c>false</c> otherwise</returns>
     public static async Task<bool> ValidateChildren([NotNull] this ContainerControl container,
-      CancellationToken cancellationToken)
+                                                    CancellationToken cancellationToken)
     {
       using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
       {

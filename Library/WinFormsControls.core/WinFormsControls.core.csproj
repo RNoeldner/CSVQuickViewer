@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\WinFormControls\**\*.cs" />
@@ -14,9 +15,7 @@
     <Compile Remove="..\WinFormControls\Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="WindowsAPICodePack">
-      <Version>1.1.1</Version>
-    </PackageReference>
+    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\FCTB\FastColoredTextBox.Core\FastColoredTextBox.Core.csproj" />

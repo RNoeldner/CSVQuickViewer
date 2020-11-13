@@ -1,40 +1,32 @@
 using JetBrains.Annotations;
 using System;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CsvTools
 {
   /// <summary>
-  ///   This stream, wraps a stream into a steream satrting with '[' and trailing ']' seperating elements with ',' 
+  ///   This stream, wraps a stream into a stream starting with '[' and trailing ']' separating elements with ',' 
   ///   This way the JSON log becomes a proper formatted JSON file
   /// </summary>
   public class JSONLogStreamReader : TextReader, IDisposable
   {
     [NotNull] private readonly StreamReader m_StreamReader;
-    private bool hasStarted;
     private bool m_AtStart = true;
-    private bool m_DisposedValue = false;
+    private bool m_DisposedValue;
+    private bool m_HasStarted;
     private int m_OpenCurly;
     private int m_OpenSquare;
 
-    public JSONLogStreamReader([NotNull] StreamReader streamReader) => m_StreamReader=streamReader ?? throw new ArgumentNullException(nameof(streamReader));
+    public JSONLogStreamReader([NotNull] StreamReader streamReader) => m_StreamReader = streamReader ?? throw new ArgumentNullException(nameof(streamReader));
 
-		public bool EndOfStream { get; private set; } = false;
+    private bool EndOfStream { get; set; }
+
+    public new void Dispose() => Dispose(true);
 
     // Summary: Closes the System.IO.StreamReader object and the underlying stream, and releases any
     // system resources associated with the reader.
     public override void Close() => m_StreamReader.Close();
-
-    // Summary: Clears the internal buffer.
-    public void DiscardBufferedData()
-    {
-      m_AtStart = true;
-      EndOfStream=false;
-      m_StreamReader.DiscardBufferedData();
-    }
-    public new void Dispose() => Dispose(true);
 
     // Summary: Reads the next character from the input stream and advances the character position
     // by one character.
@@ -50,24 +42,27 @@ namespace CsvTools
 
       if (m_AtStart)
       {
-        m_AtStart=false;
+        m_AtStart = false;
         return '[';
       }
+
       if (m_StreamReader.EndOfStream)
       {
         EndOfStream = true;
         return ']';
       }
-      if (m_OpenCurly==0 && m_OpenSquare==0 && hasStarted)
+
+      if (m_OpenCurly == 0 && m_OpenSquare == 0 && m_HasStarted)
       {
-        hasStarted= false;
+        m_HasStarted = false;
         return ',';
       }
+
       var chr = m_StreamReader.Read();
       switch (chr)
       {
         case '{':
-          hasStarted=true;
+          m_HasStarted = true;
           m_OpenCurly++;
           break;
 
@@ -76,7 +71,7 @@ namespace CsvTools
           break;
 
         case '[':
-          hasStarted=true;
+          m_HasStarted = true;
           m_OpenSquare++;
           break;
 
@@ -112,19 +107,20 @@ namespace CsvTools
     // T:System.IO.IOException: An I/O error occurs, such as the stream is closed.
     public override int Read(char[] buffer, int index, int count)
     {
-      if (buffer==null) throw new ArgumentNullException(nameof(buffer));
-      if (index<0) new ArgumentOutOfRangeException(nameof(index));
-      if (count<0) new ArgumentOutOfRangeException(nameof(count));
-      if (buffer.Length-index<count) new ArgumentException(nameof(count));
+      if (buffer == null) throw new ArgumentNullException(nameof(buffer));
+      if (index < 0) throw new ArgumentOutOfRangeException(nameof(index));
+      if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
+      if (buffer.Length - index < count) throw new ArgumentException(nameof(count));
 
       int charsRead = 0;
-      for (int charPos = index; charsRead<count; charPos++)
+      for (int charPos = index; charsRead < count; charPos++)
       {
-        buffer[charPos]= (char) Read();
+        buffer[charPos] = (char) Read();
         charsRead++;
         if (EndOfStream)
           break;
       }
+
       return charsRead;
     }
 
