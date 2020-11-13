@@ -39,8 +39,16 @@ namespace CsvTools
 
       mainProcess.SetMaximum += delegate (object sender, long max)
       {
-        if (m_TaskbarManagerSupported && max < 1)
-          TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
+        try
+        {
+          if (m_TaskbarManagerSupported && max < 1)
+            TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
+        }
+        catch (Exception)
+        {
+          // Ignore
+        }
+        
       };
     }
 

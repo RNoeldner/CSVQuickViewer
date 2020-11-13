@@ -39,6 +39,35 @@ namespace CsvTools
       SeparatorsCount = new int[Separators.Length, NumRows];
       SeparatorRows = new int[Separators.Length];
     }
+
+    public bool RowEmpty(int line)
+    {
+      bool empty = true;
+      for (int x = 0; x<Separators.Length; x++)
+        if (SeparatorsCount[x, line]!=0)
+        {
+          empty = false;
+          break;
+        }
+      return empty;
+    }
+
+    public int FilledRows
+    {
+      get
+      {
+        while (RowEmpty(LastRow) && LastRow>0)
+          LastRow--;
+
+        int res = 0;
+        for (var line = 0; line <LastRow; line++)
+        {
+          if (!RowEmpty(line))
+            res++;
+        }
+        return res++;
+      }
+    }   
   }
 
 }

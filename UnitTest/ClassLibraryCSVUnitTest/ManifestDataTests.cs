@@ -53,15 +53,17 @@ namespace CsvTools.Tests
     public async Task ReadManifestZip()
     {
       var setting =
-        ManifestData.ReadManifestZip(UnitTestInitializeCsv.GetTestPath("ReadManifestZip"));
+        ManifestData.ReadManifestZip(UnitTestInitializeCsv.GetTestPath("ces_xxx_v879548171_lo_exempt_status_reason_approver_local_full.zip"));
 
       Assert.AreEqual(false, setting.HasFieldHeader);
-      Assert.AreEqual(19, setting.ColumnCollection.Count);
+      Assert.AreEqual(3, setting.ColumnCollection.Count);
       using (var reader = new CsvFileReader(setting, null))
       {
         await reader.OpenAsync(UnitTestInitializeCsv.Token);
-        Assert.AreEqual("object_id", reader.GetColumn(0).Name);
+        Assert.AreEqual("lesrlA_reason_id", reader.GetColumn(0).Name);
         reader.Read();
+        Assert.AreEqual("Other", reader.GetValue(1));        
       }
     }
   }
+}

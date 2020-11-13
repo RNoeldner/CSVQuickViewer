@@ -83,9 +83,33 @@ namespace CsvTools
       // in case we have multiple arguments assume the path was split at space
       else if (args.Length > 1)
         fileName = args.Join(" ");
+
+      var m_ViewSettings = ViewSettingHelper.LoadViewSettings();
+
+      if (string.IsNullOrEmpty(fileName) || !FileSystemUtils.FileExists(fileName))
+      {
+
+        var strFilter = "Common types|*.csv;*.txt;*.tab;*.log;*.tsv;*.dat;*.json;*.gz;*.zip|"
+                      + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
+
+        if (m_ViewSettings.StoreSettingsByFile)
+          strFilter += "Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension + "|";
+
+        strFilter +=   "Json files (*.json)|*.json|"
+                     + "Compressed files (*.gz;*.zip)|*.gz;*.zip|"
+                     + "All files (*.*)|*.*";
+
+        fileName = WindowsAPICodePackWrapper.Open(".", "File to Display", strFilter, null);
+      }
       FunctionalDI.SignalBackground = Application.DoEvents;
-      Application.Run(new FormMain(fileName));
-      Application.Exit();
+      var frm = new FormMain(m_ViewSettings);
+      frm.Show();
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+      frm.LoadCsvFile(fileName);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+      Application.Run(frm);      
     }
 
     /// <summary>

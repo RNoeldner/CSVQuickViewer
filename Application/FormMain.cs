@@ -60,7 +60,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="FormMain" /> class.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
-    public FormMain(string fileName)
+    public FormMain(ViewSettings viewSettings)
     {
       InitializeComponent();
       m_DetailControlLoader = new DetailControlLoader(detailControl);
@@ -69,7 +69,7 @@ namespace CsvTools
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
       Text = AssemblyTitle;
-      m_ViewSettings = ViewSettingHelper.LoadViewSettings();
+      m_ViewSettings = viewSettings;
 
       textPanel.SuspendLayout();
       textPanel.Dock = DockStyle.Fill;
@@ -78,28 +78,7 @@ namespace CsvTools
       textPanel.ResumeLayout();
       ShowTextPanel(true);
 
-      // in case there is no filename open a dialog
-      if (string.IsNullOrEmpty(fileName) || !FileSystemUtils.FileExists(fileName))
-      {
-        var strFilter = "Supported files|*.csv;*.txt;*.tab;*.log;*.tsv;*.dat;*.json;*.gz|"
-                        + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|"
-                        + "Json files (*.json)|*.json|"
-                        + "All files (*.*)|*.*";
-
-        if (m_ViewSettings.StoreSettingsByFile)
-          strFilter += "|Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension;
-
-        fileName = WindowsAPICodePackWrapper.Open(".", "Setting File", strFilter, null);
-      }
-
-      // Just starting the task of loading the file
-#pragma warning disable 4014
-      LoadCsvFile(fileName);
-#pragma warning restore 4014
-
       this.LoadWindowState(m_ViewSettings.WindowPosition);
-
-      detailControl.MoveMenu();
 
       m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
@@ -193,7 +172,7 @@ namespace CsvTools
     {
       // Set the filename
       var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
-      if (files.Length <= 0) return;      
+      if (files.Length <= 0) return;
       SaveIndividualFileSetting();
       await LoadCsvFile(files[0]);
     }
@@ -436,7 +415,7 @@ namespace CsvTools
       {
         var split = FileSystemUtils.SplitPath(fileName);
         fileSystemWatcher.Filter = split.FileName;
-        fileSystemWatcher.Path = split.DirectoryName;                
+        fileSystemWatcher.Path = split.DirectoryName;
       }
       if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
         fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
@@ -447,11 +426,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    private async Task LoadCsvFile(string fileName)
+    public async Task LoadCsvFile(string fileName)
     {
       if (IsDisposed)
         return;
-
       ShowTextPanel(true);
 
       if (string.IsNullOrEmpty(fileName))
@@ -555,7 +533,7 @@ namespace CsvTools
           FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);
 
           this.SafeBeginInvoke(() => { ShowTextPanel(false); });
-          FunctionalDI.SignalBackground();
+          FunctionalDI.SignalBackground?.Invoke();
 
           if (m_DisposedValue)
             return;
@@ -661,8 +639,11 @@ namespace CsvTools
 
     private void ShowTextPanel(bool visible)
     {
-      textPanel.Visible = visible;
-      detailControl.Visible = !visible;
+      textPanel.SafeInvoke(() =>
+      {
+        textPanel.Visible = visible;
+        detailControl.Visible = !visible;
+      });
     }
 
     private void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e) =>
