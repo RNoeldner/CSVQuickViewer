@@ -127,7 +127,7 @@ namespace CsvTools
       ApplicationSetting.PropertyChanged += (sender, e) => { if (e.PropertyName==nameof(ApplicationSetting.MenuDown)) MoveMenu(); };
     }
 
-    
+
 
     /// <summary>
     ///   AlternatingRowDefaultCellStyle of data grid
@@ -323,12 +323,15 @@ namespace CsvTools
       }
     }
 
-    public void AddToolStripItem(int index, ToolStripItem item)
+    public void AddToolStripItem(int index, [NotNull] ToolStripItem item)
     {
-      if (index >= m_ToolStripItems.Count)
-        m_ToolStripItems.Add(item);
-      else
-        m_ToolStripItems.Insert(index, item);
+      if (!m_ToolStripItems.Contains(item))
+      {
+        if (index >= m_ToolStripItems.Count)
+          m_ToolStripItems.Add(item);
+        else
+          m_ToolStripItems.Insert(index, item);
+      }
     }
 
     /// <summary>
@@ -361,7 +364,6 @@ namespace CsvTools
 
       source.ResumeLayout(true);
       target.ResumeLayout(true);
-      m_ToolStripContainer.TopToolStripPanelVisible = !ApplicationSetting.MenuDown;
       SetButtonVisibility();
     }
 
@@ -1046,9 +1048,10 @@ namespace CsvTools
       this.SafeBeginInvoke(() => { m_Search.Results = m_CurrentSearch.Found; });
 
     private void SetButtonVisibility() =>
-      this.SafeBeginInvoke(
-        () =>
+      this.SafeBeginInvoke(() =>
         {
+          m_ToolStripContainer.TopToolStripPanelVisible = !ApplicationSetting.MenuDown;
+
           // Need to set the control containing the buttons to visible Regular
           m_ToolStripButtonColumnLength.Visible = m_ShowButtons;
           m_ToolStripButtonDuplicates.Visible = m_ShowButtons;

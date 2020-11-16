@@ -42,7 +42,7 @@ namespace CsvTools
     {
       get
       {
-        while (RowEmpty(LastRow) && LastRow > 0)
+        while (RowEmpty(LastRow-1) && LastRow > 1)
           LastRow--;
 
         int res = 0;

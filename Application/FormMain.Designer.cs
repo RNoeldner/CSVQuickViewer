@@ -46,6 +46,9 @@ namespace CsvTools
 			this.loggerDisplay = new CsvTools.LoggerDisplay();
 			this.detailControl = new CsvTools.DetailControl();
 			this.toolStrip = new System.Windows.Forms.ToolStrip();
+			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+			this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+			this.m_ToolStripButtonLoadFile = new System.Windows.Forms.ToolStripButton();
 			this.m_ToolStripButtonAsText = new System.Windows.Forms.ToolStripButton();
 			this.m_ToolStripButtonShowLog = new System.Windows.Forms.ToolStripButton();
 			this.m_ToolStripButtonSettings = new System.Windows.Forms.ToolStripButton();
@@ -131,15 +134,43 @@ namespace CsvTools
 			this.toolStrip.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.m_ToolStripButtonAsText,
-            this.m_ToolStripButtonShowLog,
-            this.m_ToolStripButtonSettings,
-            this.m_ToolStripButtonSource});
+            this.toolStripButton1,
+            this.toolStripButton2});
 			this.toolStrip.Location = new System.Drawing.Point(4, 0);
 			this.toolStrip.Name = "toolStrip";
-			this.toolStrip.Size = new System.Drawing.Size(95, 25);
+			this.toolStrip.Size = new System.Drawing.Size(80, 25);
 			this.toolStrip.TabIndex = 5;
 			this.toolStrip.Text = "toolStrip";
+			// 
+			// toolStripButton1
+			// 
+			this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonLoadFile.Image")));
+			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButton1.Name = "toolStripButton1";
+			this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
+			this.toolStripButton1.Text = "Load File";
+			this.toolStripButton1.Click += new System.EventHandler(this.SelectFile);
+			// 
+			// toolStripButton2
+			// 
+			this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButton2.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonShowLog.Image")));
+			this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButton2.Name = "toolStripButton2";
+			this.toolStripButton2.Size = new System.Drawing.Size(23, 22);
+			this.toolStripButton2.Text = "Log";
+			this.toolStripButton2.Click += new System.EventHandler(this.ToggleShowLog);
+			// 
+			// m_ToolStripButtonLoadFile
+			// 
+			this.m_ToolStripButtonLoadFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.m_ToolStripButtonLoadFile.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonLoadFile.Image")));
+			this.m_ToolStripButtonLoadFile.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_ToolStripButtonLoadFile.Name = "m_ToolStripButtonLoadFile";
+			this.m_ToolStripButtonLoadFile.Size = new System.Drawing.Size(23, 22);
+			this.m_ToolStripButtonLoadFile.Text = "Load File";
+			this.m_ToolStripButtonLoadFile.Click += new System.EventHandler(this.SelectFile);
 			// 
 			// m_ToolStripButtonAsText
 			// 
@@ -186,7 +217,7 @@ namespace CsvTools
 			// 
 			// textPanel.BottomToolStripPanel
 			// 
-			this.textPanel.BottomToolStripPanel.Controls.Add(this.toolStrip);
+			this.textPanel.BottomToolStripPanel.Controls.Add(this.toolStrip);			
 			// 
 			// textPanel.ContentPanel
 			// 
@@ -247,6 +278,9 @@ namespace CsvTools
     private System.Windows.Forms.ToolStripButton m_ToolStripButtonSettings;
     private System.Windows.Forms.ToolStripButton m_ToolStripButtonSource;
     private System.Windows.Forms.ToolStripContainer textPanel;
+    private System.Windows.Forms.ToolStripButton m_ToolStripButtonLoadFile;
+    private System.Windows.Forms.ToolStripButton toolStripButton1;
+    private System.Windows.Forms.ToolStripButton toolStripButton2;
   }
 }
 
