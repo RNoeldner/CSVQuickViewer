@@ -550,14 +550,11 @@ namespace CsvTools
             Icon = ParentForm?.Icon
           };
         m_HierarchyDisplay.Show();
+        m_HierarchyDisplay.FormClosed +=  (ob, ar) => this.SafeInvoke(()=>m_ToolStripButtonHierarchy.Enabled = true);
       }
       catch (Exception ex)
       {
         ParentForm.ShowError(ex);
-      }
-      finally
-      {
-        m_ToolStripButtonHierarchy.Enabled = true;
       }
     }
 
