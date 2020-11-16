@@ -12,6 +12,8 @@
  *
  */
 
+using System;
+using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 
@@ -56,5 +58,22 @@ namespace CsvTools.Tests
       Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplaySeparator);
       Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplay);
     }
+
+    [TestMethod]
+    [Timeout(20000)]
+    public void DisplayTimespan()
+    {
+      Assert.AreEqual("0.10 sec",      
+      TimeToCompletion.DisplayTimespan(TimeSpan.FromSeconds(0.1), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".","",""));
+      
+      Assert.AreEqual("20 sec",      
+        TimeToCompletion.DisplayTimespan(TimeSpan.FromSeconds(20), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".","",""));
+      
+      Assert.AreEqual("20:30",      
+        TimeToCompletion.DisplayTimespan(TimeSpan.FromMinutes(20.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".","",""));
+      
+      Assert.AreEqual("", TimeToCompletion.DisplayTimespan(TimeSpan.FromSeconds(0.1), true));
+    }
+
   }
 }

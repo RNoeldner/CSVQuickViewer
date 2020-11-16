@@ -12,6 +12,8 @@
  *
  */
 
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
@@ -21,6 +23,28 @@ namespace CsvTools.Tests
   {
     [TestMethod]
     public void RowErrorCollection() => Assert.IsNotNull(new RowErrorCollection(100));
+
+    [TestMethod]
+    public async Task HandleIgnoredColumns()
+    {
+      var coll = new RowErrorCollection(5);
+
+      using (var reader = new CsvFileReader(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"), 650001, 0, true,
+        new IColumn[]
+        {
+          new ImmutableColumn("DateTime", new ImmutableValueFormat(DataType.DateTime), 0, true, "", true),
+          new ImmutableColumn("Integer", new ImmutableValueFormat(DataType.Integer), 0, true, "", true),
+        }))
+
+      {
+        await reader.OpenAsync(CancellationToken.None);
+        coll.HandleIgnoredColumns(reader);
+
+        // An error i an ignored column is not stored
+        coll.Add(this, new WarningEventArgs(1, 0, "Message1", 100, 100, "ColName"));
+        Assert.AreEqual(0, coll.CountRows);
+      }
+    }
 
     [TestMethod]
     public void Add()

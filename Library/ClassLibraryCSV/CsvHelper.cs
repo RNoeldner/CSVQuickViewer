@@ -129,8 +129,8 @@ namespace CsvTools
         if (headerLine.NoControlCharacters().Length < headerLine.Replace("\t", "").Length)
           throw new ApplicationException($"Control Characters in Column {headerLine}");
 
-        var headerRow = headerLine.Split(delimiter).Select(x=> x.Trim('\"')).ToList();
-               
+        var headerRow = headerLine.Split(delimiter).Select(x => x.Trim('\"')).ToList();
+
         // get the average field count looking at the header and 12 additional valid lines
         var fieldCount = headerRow.Count;
 
@@ -178,30 +178,33 @@ namespace CsvTools
           {
             var msg = new StringBuilder();
             if (numerics.Count > 0)
-            {             
-              msg.Append($"Headers ");
-              foreach(var header in numerics)
+            {
+              msg.Append("Headers ");
+              foreach (var header in numerics)
               {
                 msg.Append("'");
                 msg.Append(header.Trim('\"'));
                 msg.Append("',");
               }
+
               msg.Length--;
-              msg.Append($" numeric");
+              msg.Append(" numeric");
             }
+
             if (specials.Count > 0)
             {
               if (msg.Length > 0)
                 msg.Append(" and ");
-              msg.Append($"Headers ");
+              msg.Append("Headers ");
               foreach (var header in specials)
               {
                 msg.Append("'");
                 msg.Append(header.Trim('\"'));
                 msg.Append("',");
               }
+
               msg.Length--;
-              msg.Append($" with uncommon characters");
+              msg.Append(" with uncommon characters");
             }
 
             throw new ApplicationException(msg.ToString());
