@@ -129,9 +129,10 @@ namespace CsvTools
         if (headerLine.NoControlCharacters().Length < headerLine.Replace("\t", "").Length)
           throw new ApplicationException($"Control Characters in Column {headerLine}");
 
-        var headerRow = headerLine.Split(delimiter);
+        var headerRow = headerLine.Split(delimiter).Select(x=> x.Trim('\"')).ToList();
+               
         // get the average field count looking at the header and 12 additional valid lines
-        var fieldCount = headerRow.Length;
+        var fieldCount = headerRow.Count;
 
         // if there is only one column the header be number of letter and might be followed by a
         // single number
@@ -155,8 +156,8 @@ namespace CsvTools
 
           var avgFieldCount = fieldCount / (double) counter;
           // The average should not be smaller than the columns in the initial row
-          if (avgFieldCount < headerRow.Length)
-            avgFieldCount = headerRow.Length;
+          if (avgFieldCount < headerRow.Count)
+            avgFieldCount = headerRow.Count;
           var halfTheColumns = (int) Math.Ceiling(avgFieldCount / 2.0);
 
           // use the same routine that is used in readers to determine the names of the columns
@@ -173,21 +174,37 @@ namespace CsvTools
 
           var numerics = headerRow.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
           var specials = headerRow.Where(header => Regex.IsMatch(header, @"[^\w\d\-_\s<>#,.*\[\]\(\)+?!]")).ToList();
-
           if (numerics.Count + specials.Count >= halfTheColumns)
           {
-            var msg = "Headers";
+            var msg = new StringBuilder();
             if (numerics.Count > 0)
-              msg += $" {string.Join(", ", numerics.ToArray())} numeric";
-
+            {             
+              msg.Append($"Headers ");
+              foreach(var header in numerics)
+              {
+                msg.Append("'");
+                msg.Append(header.Trim('\"'));
+                msg.Append("',");
+              }
+              msg.Length--;
+              msg.Append($" numeric");
+            }
             if (specials.Count > 0)
             {
               if (msg.Length > 0)
-                msg += " and Headers ";
-              msg += $" {string.Join(", ", specials.ToArray())} with uncommon characters";
+                msg.Append(" and ");
+              msg.Append($"Headers ");
+              foreach (var header in specials)
+              {
+                msg.Append("'");
+                msg.Append(header.Trim('\"'));
+                msg.Append("',");
+              }
+              msg.Length--;
+              msg.Append($" with uncommon characters");
             }
 
-            throw new ApplicationException(msg);
+            throw new ApplicationException(msg.ToString());
           }
         }
       }

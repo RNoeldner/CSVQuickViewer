@@ -61,23 +61,22 @@ namespace CsvTools
     /// <param name="viewSettings">Default view Settings</param>
     public FormMain(ViewSettings viewSettings)
     {
+      m_ViewSettings = viewSettings;
+
       InitializeComponent();
+      Text = AssemblyTitle;
+      Logger.AddLog(loggerDisplay.AddLog);
+
       m_DetailControlLoader = new DetailControlLoader(detailControl);
+      // add the not button not visible in designer to the detail control
       detailControl.AddToolStripItem(1, m_ToolStripButtonSettings);
+      detailControl.AddToolStripItem(1, m_ToolStripButtonLoadFile);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonSource);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
-      Text = AssemblyTitle;
-      m_ViewSettings = viewSettings;
-
-      textPanel.SuspendLayout();
-      textPanel.Dock = DockStyle.Fill;
-      Logger.AddLog(loggerDisplay.AddLog);
-
-      textPanel.ResumeLayout();
-      ShowTextPanel(true);
-
+      
       this.LoadWindowState(m_ViewSettings.WindowPosition);
+      ShowTextPanel(true);
 
       m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
@@ -85,6 +84,7 @@ namespace CsvTools
       m_SettingsChangedTimerChange.AutoReset = false;
       m_SettingsChangedTimerChange.Elapsed += async (sender, args) => await OpenDataReaderAsync();
       m_SettingsChangedTimerChange.Stop();
+      
     }
 
     public DataTable DataTable
@@ -287,7 +287,7 @@ namespace CsvTools
       {
         if (m_ConfigChanged)
         {
-          m_ConfigChanged = false;
+          m_ConfigChanged = false;            
           detailControl.MoveMenu();
           if (_MessageBox.Show(
                 this,
@@ -632,7 +632,8 @@ namespace CsvTools
       textPanel.SafeInvoke(() =>
       {
         textPanel.Visible = visible;
-        detailControl.Visible = !visible;
+        textPanel.BottomToolStripPanelVisible = visible;
+        detailControl.Visible = !visible;      
       });
     }
 
@@ -660,16 +661,33 @@ namespace CsvTools
 
     private void ToggleShowLog(object sender, EventArgs e)
     {
-      ShowTextPanel(!textPanel.Visible);
-      if (textPanel.Visible)
+      ShowTextPanel(!textPanel.Visible);   
+    }
+
+    public async void SelectFile(object sender, EventArgs e)
+    {
+      try
       {
-        textPanel.BottomToolStripPanelVisible = true;
-        if (!toolStrip.Items.Contains(m_ToolStripButtonShowLog))
-          toolStrip.Items.Add(m_ToolStripButtonShowLog);
+        loggerDisplay.AddLog("Open File Dialog", Logger.Level.Info);
+        var strFilter = "Common types|*.csv;*.txt;*.tab;*.log;*.tsv;*.dat;*.json;*.gz;*.zip|"
+                   + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
+
+        if (m_ViewSettings.StoreSettingsByFile)
+          strFilter += "Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension + "|";
+
+        strFilter +=   "Json files (*.json)|*.json|"
+                     + "Compressed files (*.gz;*.zip)|*.gz;*.zip|"
+                     + "All files (*.*)|*.*";
+
+        var fileName = WindowsAPICodePackWrapper.Open(".", "File to Display", strFilter, null);
+        if (!string.IsNullOrEmpty(fileName))
+          await LoadCsvFile(fileName);
+
       }
-      else
+
+      catch (Exception ex)
       {
-        detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
+        this.ShowError(ex);
       }
     }
   }
