@@ -75,6 +75,7 @@ namespace CsvTools
 #endif
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
+      Logger.Debug("Application started {@args}", args);
 
       // read the command line parameter
       if (args.Length == 1)
@@ -88,11 +89,15 @@ namespace CsvTools
       FunctionalDI.SignalBackground = Application.DoEvents;
 
       var frm = new FormMain(m_ViewSettings);
-      frm.Show();
-      if (string.IsNullOrEmpty(fileName) || !FileSystemUtils.FileExists(fileName))     
-        frm.SelectFile(null, null);
-           
-      Application.Run(frm);      
+      frm.Show();      
+      if (string.IsNullOrEmpty(fileName))
+        frm.SelectFile("No startup file provided");
+      else if (!FileSystemUtils.FileExists(fileName))
+        frm.SelectFile($"File '{fileName}' not found");
+      else
+        frm.LoadCsvFile(fileName);
+
+      Application.Run(frm);
     }
 
     /// <summary>

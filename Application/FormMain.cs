@@ -74,7 +74,7 @@ namespace CsvTools
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonSource);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
-      
+
       this.LoadWindowState(m_ViewSettings.WindowPosition);
       ShowTextPanel(true);
 
@@ -84,7 +84,7 @@ namespace CsvTools
       m_SettingsChangedTimerChange.AutoReset = false;
       m_SettingsChangedTimerChange.Elapsed += async (sender, args) => await OpenDataReaderAsync();
       m_SettingsChangedTimerChange.Stop();
-      
+
     }
 
     public DataTable DataTable
@@ -287,7 +287,7 @@ namespace CsvTools
       {
         if (m_ConfigChanged)
         {
-          m_ConfigChanged = false;            
+          m_ConfigChanged = false;
           detailControl.MoveMenu();
           if (_MessageBox.Show(
                 this,
@@ -425,10 +425,7 @@ namespace CsvTools
       ShowTextPanel(true);
 
       if (string.IsNullOrEmpty(fileName))
-      {
-        Logger.Warning("No file selected, you can drag and drop files.");
         return;
-      }
 
       if (!FileSystemUtils.FileExists(fileName))
       {
@@ -633,7 +630,7 @@ namespace CsvTools
       {
         textPanel.Visible = visible;
         textPanel.BottomToolStripPanelVisible = visible;
-        detailControl.Visible = !visible;      
+        detailControl.Visible = !visible;
       });
     }
 
@@ -661,21 +658,21 @@ namespace CsvTools
 
     private void ToggleShowLog(object sender, EventArgs e)
     {
-      ShowTextPanel(!textPanel.Visible);   
+      ShowTextPanel(!textPanel.Visible);
     }
 
-    public async void SelectFile(object sender, EventArgs e)
+    public async Task SelectFile(string message)
     {
       try
       {
-        loggerDisplay.AddLog("Open File Dialog", Logger.Level.Info);
-        var strFilter = "Common types|*.csv;*.txt;*.tab;*.log;*.tsv;*.dat;*.json;*.gz;*.zip|"
+        loggerDisplay.AddLog(message, Logger.Level.Info);
+        var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
                    + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
 
         if (m_ViewSettings.StoreSettingsByFile)
           strFilter += "Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension + "|";
 
-        strFilter +=   "Json files (*.json)|*.json|"
+        strFilter +=   "Json files (*.json;*.ndjson)|*.json;*.ndjson|"
                      + "Compressed files (*.gz;*.zip)|*.gz;*.zip|"
                      + "All files (*.*)|*.*";
 
@@ -690,5 +687,8 @@ namespace CsvTools
         this.ShowError(ex);
       }
     }
+
+
+    private async void m_ToolStripButtonLoadFile_Click(object sender, EventArgs e) => await SelectFile("Open File Dialog");
   }
 }
