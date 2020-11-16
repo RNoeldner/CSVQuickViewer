@@ -154,22 +154,11 @@ namespace CsvTools
     /// <param name="value">The value.</param>
     /// <param name="cut2Sec">If true any value shorter than 2 seconds will be empty</param>
     /// <returns></returns>
-    public static string DisplayTimespan(TimeSpan value, bool cut2Sec = true)
+    public static string DisplayTimespan(TimeSpan value, bool cut2Sec = true) 
     {
       if (value == TimeSpan.MaxValue || cut2Sec && value.TotalSeconds < 2)
         return string.Empty;
-      if (value.TotalMinutes < 1)
-        return $"{Math.Round(value.TotalSeconds, 0, MidpointRounding.AwayFromZero):0} sec";
-      if (value.TotalHours < 1)
-        return $"{value.Minutes:D2}:{value.Seconds:D2}";
-      return value.TotalHours<24 ? $"{(int) value.TotalHours}:{value.Minutes:D2}" : $"{value.Days:N0} days {value.Hours:N0} hrs";
-    }
-
-    public static string DisplayTimespanPrecise(TimeSpan value, bool cut2Sec = true)
-    {
-      if (value == TimeSpan.MaxValue || cut2Sec && value.TotalSeconds < 2)
-        return string.Empty;
-      if (value.TotalSeconds < 2)
+      if (value.TotalSeconds < 2 && !cut2Sec)
         return $"{Math.Round(value.TotalSeconds, 2, MidpointRounding.AwayFromZero):0.00} sec";
       if (value.TotalMinutes < 1)
         return $"{Math.Round(value.TotalSeconds, 0, MidpointRounding.AwayFromZero):0} sec";
