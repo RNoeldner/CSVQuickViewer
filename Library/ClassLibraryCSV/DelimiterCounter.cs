@@ -42,7 +42,8 @@ namespace CsvTools
     {
       get
       {
-        while (RowEmpty(LastRow-1) && LastRow > 1)
+
+        while (LastRow > 1 &&  RowEmpty(LastRow-1))
           LastRow--;
 
         int res = 0;
@@ -51,7 +52,6 @@ namespace CsvTools
           if (!RowEmpty(line))
             res++;
         }
-
         return res;
       }
     }
