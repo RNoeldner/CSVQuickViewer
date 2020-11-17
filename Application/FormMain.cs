@@ -246,28 +246,25 @@ namespace CsvTools
 
     private void ShowSourceFile(object sender, EventArgs e)
     {
+      if (m_SourceDisplay != null) return;
       try
       {
-        if (m_SourceDisplay == null)
+        m_ToolStripButtonSource.Enabled=false;
+        m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting.FullPath);
+        m_SourceDisplay.FormClosed += SourceDisplayClosed;
+        m_SourceDisplay.Show();
+        using (var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token))
         {
-          m_ToolStripButtonSource.Enabled=false;
-          m_SourceDisplay = new FormCsvTextDisplay();
-          using (var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token))
-          {
-            m_SourceDisplay.Show();
-            proc.Show(this);
+          proc.Show(this);
 
-            proc.Maximum = 0;
-            proc.SetProcess("Reading source and applying color coding", 0, false);
+          proc.Maximum = 0;
+          proc.SetProcess("Reading source and applying color coding", 0, false);
 
-            m_SourceDisplay.OpenFile(m_FileSetting.FullPath, m_FileSetting.JsonFormat,
-              m_FileSetting.FileFormat.FieldQualifierChar,
-              m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
-              m_FileSetting.CodePageId, m_FileSetting.SkipRows, m_FileSetting.FileFormat.CommentLine);
-            proc.Close();
-
-            m_SourceDisplay.FormClosed += SourceDisplayClosed;
-          }
+          m_SourceDisplay.OpenFile(m_FileSetting.JsonFormat,
+            m_FileSetting.FileFormat.FieldQualifierChar,
+            m_FileSetting.FileFormat.FieldDelimiterChar, m_FileSetting.FileFormat.EscapeCharacterChar,
+            m_FileSetting.CodePageId, m_FileSetting.SkipRows, m_FileSetting.FileFormat.CommentLine);
+          proc.Close();
         }
       }
       catch (Exception ex)

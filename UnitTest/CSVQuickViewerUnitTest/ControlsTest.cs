@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
@@ -11,10 +9,10 @@ namespace CsvTools.Tests
     [Timeout(6000)]
     public void CsvTextDisplayShow()
     {
-      using (var frm = new FormCsvTextDisplay())
+      using (var frm = new FormCsvTextDisplay(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")))
       {
         UnitTestWinFormHelper.ShowFormAndClose(frm, .2,
-          (f) => f.OpenFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), false, '"', '\t', '\0', 1200, 1, "##"));
+          (f) => f.OpenFile( false, '"', '\t', '\0', 1200, 1, "##"));
       }
     }
   }
