@@ -82,6 +82,9 @@ namespace CsvTools
         !fillGuessSettings.SerialDateTime)
         return new List<string>();
 
+      // in case there is no delimiter  but its a delimted file, do nothing
+      if (fileSetting.FileFormat.FieldDelimiterChar == '\0' && fileSetting is ICsvFile)
+        return new List<string>();
       // Open the filesetting but change a few settings
       var fileSettingCopy = GetSettingForRead(fileSetting);
 
