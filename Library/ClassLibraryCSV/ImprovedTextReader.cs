@@ -5,6 +5,9 @@ using JetBrains.Annotations;
 
 namespace CsvTools
 {
+  /// <summary>
+  ///  Wrapper around a TestReader that handles BOM and Encoding and a has a method called ToBeginning to reset to the reader to the start of the stream
+  /// </summary>
   public sealed class ImprovedTextReader : IDisposable
   {
     /// <summary>
@@ -34,7 +37,7 @@ namespace CsvTools
     ///   Number of lines that should be skipped at the beginning of the file
     /// </param>
     /// <remarks>
-    ///   This routine uses a TextReader to allow character decoding, it will always read they teh
+    ///   This routine uses a TextReader to allow character decoding, it will always read they the
     ///   first few bytes of the source stream to look at a possible existing BOM if found, it will
     ///   overwrite the provided data
     /// </remarks>
@@ -72,7 +75,6 @@ namespace CsvTools
       ToBeginning();
     }
 
-
     /// <summary>
     ///   Gets or sets a value indicating whether the reader is at the end of the file.
     /// </summary>
@@ -104,7 +106,6 @@ namespace CsvTools
     /// </summary>
     /// <returns></returns>
     public int Peek() => TextReader.Peek();
-
 
     /// <summary>
     ///   Reads the next character and progresses one further, and tracks the line number
