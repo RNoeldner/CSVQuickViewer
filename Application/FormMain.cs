@@ -217,12 +217,14 @@ namespace CsvTools
           // restore header names
           foreach (var col in m_StoreColumns)
             m_FileSetting.ColumnCollection.Add(new Column(col.Name) { ColumnOrdinal = col.ColumnOrdinal });
-          m_ToolStripButtonAsText.Text = @"Values";
+          m_ToolStripButtonAsText.Text = "As Values";
+          m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;
         }
         else
         {
           Logger.Information("Showing columns as values");
-          m_ToolStripButtonAsText.Text = @"Text";
+          m_ToolStripButtonAsText.Text = "As Text";
+          m_ToolStripButtonAsText.Image = Properties.Resources.AsText;
           m_StoreColumns.CollectionCopy(m_FileSetting.ColumnCollection);
         }
 
@@ -248,6 +250,7 @@ namespace CsvTools
       {
         if (m_SourceDisplay == null)
         {
+          m_ToolStripButtonSource.Enabled=false;
           m_SourceDisplay = new FormCsvTextDisplay();
           using (var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token))
           {
@@ -272,6 +275,7 @@ namespace CsvTools
         this.ShowError(ex);
         m_SourceDisplay?.Close();
         m_SourceDisplay = null;
+        m_ToolStripButtonSource.Enabled=true;
       }
     }
 
@@ -279,6 +283,7 @@ namespace CsvTools
     {
       m_SourceDisplay?.Dispose();
       m_SourceDisplay = null;
+      m_ToolStripButtonSource.Enabled=true;
     }
 
     private async Task CheckPossibleChange()
@@ -606,6 +611,7 @@ namespace CsvTools
     {
       try
       {
+        m_ToolStripButtonSettings.Enabled=false;
         ViewSettings.CopyConfiguration(m_FileSetting, m_ViewSettings);
         using (var frm = new FormEditSettings(m_ViewSettings))
         {
@@ -621,6 +627,10 @@ namespace CsvTools
       catch (Exception ex)
       {
         this.ShowError(ex);
+      }
+      finally
+      {
+        m_ToolStripButtonSettings.Enabled=true;
       }
     }
 
@@ -663,6 +673,16 @@ namespace CsvTools
 
     public async Task SelectFile(string message)
     {
+
+
+      this.SafeInvoke(() =>
+      {
+        m_ToolStripButtonLoadFile.Enabled = false;
+        m_ToolStripButtonLoadFile2.Enabled = false;
+      });
+
+
+      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       try
       {
         loggerDisplay.AddLog(message, Logger.Level.Info);
@@ -678,13 +698,25 @@ namespace CsvTools
 
         var fileName = WindowsAPICodePackWrapper.Open(".", "File to Display", strFilter, null);
         if (!string.IsNullOrEmpty(fileName))
+        {
+
+          Cursor.Current = Cursors.WaitCursor;
           await LoadCsvFile(fileName);
+        }
 
       }
-
       catch (Exception ex)
       {
         this.ShowError(ex);
+      }
+      finally
+      {
+        Cursor.Current = oldCursor;
+        this.SafeInvoke(() =>
+        {
+          m_ToolStripButtonLoadFile.Enabled = true;
+          m_ToolStripButtonLoadFile2.Enabled = true;
+        });
       }
     }
 
