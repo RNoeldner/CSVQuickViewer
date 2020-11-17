@@ -30,7 +30,6 @@ namespace CsvTools
   /// </summary>
   public class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
-    private bool m_AssumeLog;
     private IImprovedStream m_ImprovedStream;
     private JsonTextReader m_JsonTextReader;
     private StreamReader m_StreamReader;
@@ -75,9 +74,9 @@ namespace CsvTools
 
       m_JsonTextReader?.Close();
       ((IDisposable) m_JsonTextReader)?.Dispose();
-      m_StreamReader?.Dispose();
-
       m_JsonTextReader = null;
+
+      m_StreamReader?.Dispose();
       m_StreamReader = null;
       if (!m_SelfOpenedStream) return;
       m_ImprovedStream?.Dispose();
@@ -93,26 +92,8 @@ namespace CsvTools
       Retry:
       try
       {
-        m_AssumeLog = false;
-        again:
         ResetPositionToStartOrOpen();
-
-        var line = GetNextRecord(false, token);
-        try
-        {
-          var line2 = GetNextRecord(true, token);
-          if (line2 != null && line2.Count == 0)
-            throw new JsonReaderException("A second entry should have contents, assuming Log file");
-        }
-        catch (JsonReaderException ex)
-        {
-          if (m_AssumeLog)
-            throw;
-          Logger.Information("Initial parsing as JSON file failed {message}. Trying to read it as JSON Log output",
-            ex.Message);
-          m_AssumeLog = true;
-          goto again;
-        }
+        var line = GetNextRecord(true, token);
 
         // get column names for some time
         var colNames = new Dictionary<string, DataType>();
@@ -128,7 +109,7 @@ namespace CsvTools
 
           if (stopwatch.ElapsedMilliseconds > 200)
             break;
-          line = GetNextRecord(false, token);
+          line = GetNextRecord(true, token);
         }
 
         InitColumn(colNames.Count);
@@ -371,10 +352,7 @@ namespace CsvTools
       EndOfFile = m_StreamReader.EndOfStream;
 
       m_JsonTextReader?.Close();
-      if (m_AssumeLog)
-        m_JsonTextReader = new JsonTextReader(new JSONLogStreamReader(m_StreamReader));
-      else
-        m_JsonTextReader = new JsonTextReader(m_StreamReader);
+      m_JsonTextReader = new JsonTextReader(m_StreamReader) { SupportMultipleContent = true };
     }
   }
 }
