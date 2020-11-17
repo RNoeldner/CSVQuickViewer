@@ -41,25 +41,26 @@ namespace CsvTools
 			this.components = new System.ComponentModel.Container();
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
 			this.fileSystemWatcher = new System.IO.FileSystemWatcher();
 			this.loggerDisplay = new CsvTools.LoggerDisplay();
 			this.detailControl = new CsvTools.DetailControl();
 			this.toolStrip = new System.Windows.Forms.ToolStrip();
-			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-			this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+			this.textPanel = new System.Windows.Forms.ToolStripContainer();
+			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+			this.m_ToolStripButtonLoadFile2 = new System.Windows.Forms.ToolStripButton();
+			this.m_ToolStripButtonShowLog2 = new System.Windows.Forms.ToolStripButton();
 			this.m_ToolStripButtonLoadFile = new System.Windows.Forms.ToolStripButton();
 			this.m_ToolStripButtonAsText = new System.Windows.Forms.ToolStripButton();
 			this.m_ToolStripButtonShowLog = new System.Windows.Forms.ToolStripButton();
 			this.m_ToolStripButtonSettings = new System.Windows.Forms.ToolStripButton();
 			this.m_ToolStripButtonSource = new System.Windows.Forms.ToolStripButton();
-			this.textPanel = new System.Windows.Forms.ToolStripContainer();
 			((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.loggerDisplay)).BeginInit();
 			this.toolStrip.SuspendLayout();
 			this.textPanel.BottomToolStripPanel.SuspendLayout();
 			this.textPanel.ContentPanel.SuspendLayout();
 			this.textPanel.SuspendLayout();
+			this.toolStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// fileSystemWatcher
@@ -134,90 +135,21 @@ namespace CsvTools
 			this.toolStrip.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripButton1,
-            this.toolStripButton2});
+            this.m_ToolStripButtonLoadFile2,
+            this.m_ToolStripButtonShowLog2});
 			this.toolStrip.Location = new System.Drawing.Point(4, 0);
 			this.toolStrip.Name = "toolStrip";
-			this.toolStrip.Size = new System.Drawing.Size(80, 25);
+			this.toolStrip.Size = new System.Drawing.Size(49, 25);
 			this.toolStrip.TabIndex = 5;
 			this.toolStrip.Text = "toolStrip";
-			// 
-			// toolStripButton1
-			// 
-			this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonLoadFile.Image")));
-			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton1.Name = "toolStripButton1";
-			this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
-			this.toolStripButton1.Text = "Load File";
-			this.toolStripButton1.Click += new System.EventHandler(this.m_ToolStripButtonLoadFile_Click);
-			// 
-			// toolStripButton2
-			// 
-			this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButton2.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonShowLog.Image")));
-			this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton2.Name = "toolStripButton2";
-			this.toolStripButton2.Size = new System.Drawing.Size(23, 22);
-			this.toolStripButton2.Text = "Log";
-			this.toolStripButton2.Click += new System.EventHandler(this.ToggleShowLog);
-			// 
-			// m_ToolStripButtonLoadFile
-			// 
-			this.m_ToolStripButtonLoadFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.m_ToolStripButtonLoadFile.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonLoadFile.Image")));
-			this.m_ToolStripButtonLoadFile.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_ToolStripButtonLoadFile.Name = "m_ToolStripButtonLoadFile";
-			this.m_ToolStripButtonLoadFile.Size = new System.Drawing.Size(23, 22);
-			this.m_ToolStripButtonLoadFile.Text = "Load File";
-			this.m_ToolStripButtonLoadFile.Click += new System.EventHandler(this.m_ToolStripButtonLoadFile_Click);
-			// 
-			// m_ToolStripButtonAsText
-			// 
-			this.m_ToolStripButtonAsText.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.m_ToolStripButtonAsText.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonAsText.Image")));
-			this.m_ToolStripButtonAsText.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_ToolStripButtonAsText.Name = "m_ToolStripButtonAsText";
-			this.m_ToolStripButtonAsText.Size = new System.Drawing.Size(23, 22);
-			this.m_ToolStripButtonAsText.Text = "Text";
-			this.m_ToolStripButtonAsText.Click += new System.EventHandler(this.ToggleDisplayAsText);
-			// 
-			// m_ToolStripButtonShowLog
-			// 
-			this.m_ToolStripButtonShowLog.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.m_ToolStripButtonShowLog.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonShowLog.Image")));
-			this.m_ToolStripButtonShowLog.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_ToolStripButtonShowLog.Name = "m_ToolStripButtonShowLog";
-			this.m_ToolStripButtonShowLog.Size = new System.Drawing.Size(23, 22);
-			this.m_ToolStripButtonShowLog.Text = "Log";
-			this.m_ToolStripButtonShowLog.Click += new System.EventHandler(this.ToggleShowLog);
-			// 
-			// m_ToolStripButtonSettings
-			// 
-			this.m_ToolStripButtonSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.m_ToolStripButtonSettings.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonSettings.Image")));
-			this.m_ToolStripButtonSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_ToolStripButtonSettings.Name = "m_ToolStripButtonSettings";
-			this.m_ToolStripButtonSettings.Size = new System.Drawing.Size(23, 22);
-			this.m_ToolStripButtonSettings.Text = "Setting";
-			this.m_ToolStripButtonSettings.Click += new System.EventHandler(this.ShowSettings);
-			// 
-			// m_ToolStripButtonSource
-			// 
-			this.m_ToolStripButtonSource.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.m_ToolStripButtonSource.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonSource.Image")));
-			this.m_ToolStripButtonSource.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_ToolStripButtonSource.Name = "m_ToolStripButtonSource";
-			this.m_ToolStripButtonSource.Size = new System.Drawing.Size(23, 22);
-			this.m_ToolStripButtonSource.Text = "Source";
-			this.m_ToolStripButtonSource.Click += new System.EventHandler(this.ShowSourceFile);
 			// 
 			// textPanel
 			// 
 			// 
 			// textPanel.BottomToolStripPanel
 			// 
-			this.textPanel.BottomToolStripPanel.Controls.Add(this.toolStrip);			
+			this.textPanel.BottomToolStripPanel.Controls.Add(this.toolStrip);
+			this.textPanel.BottomToolStripPanel.Controls.Add(this.toolStrip1);
 			// 
 			// textPanel.ContentPanel
 			// 
@@ -227,11 +159,97 @@ namespace CsvTools
 			this.textPanel.LeftToolStripPanelVisible = false;
 			this.textPanel.Location = new System.Drawing.Point(0, 0);
 			this.textPanel.Name = "textPanel";
-			this.textPanel.RightToolStripPanelVisible = false;
 			this.textPanel.Size = new System.Drawing.Size(971, 528);
 			this.textPanel.TabIndex = 6;
 			this.textPanel.Text = "toolStripContainer2";
 			this.textPanel.TopToolStripPanelVisible = false;
+			// 
+			// toolStrip1
+			// 
+			this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
+			this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.m_ToolStripButtonLoadFile,
+            this.m_ToolStripButtonAsText,
+            this.m_ToolStripButtonShowLog,
+            this.m_ToolStripButtonSettings,
+            this.m_ToolStripButtonSource});
+			this.toolStrip1.Location = new System.Drawing.Point(208, 0);
+			this.toolStrip1.Name = "toolStrip1";
+			this.toolStrip1.Size = new System.Drawing.Size(149, 25);
+			this.toolStrip1.TabIndex = 3;
+			this.toolStrip1.Text = "toolStrip1";
+			this.toolStrip1.Visible = false;
+			// 
+			// m_ToolStripButtonLoadFile2
+			// 
+			this.m_ToolStripButtonLoadFile2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.m_ToolStripButtonLoadFile2.Image = global::CsvTools.Properties.Resources.LoadFile;
+			this.m_ToolStripButtonLoadFile2.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_ToolStripButtonLoadFile2.Name = "m_ToolStripButtonLoadFile2";
+			this.m_ToolStripButtonLoadFile2.Size = new System.Drawing.Size(23, 22);
+			this.m_ToolStripButtonLoadFile2.Text = "Load File";
+			this.m_ToolStripButtonLoadFile2.Click += new System.EventHandler(this.m_ToolStripButtonLoadFile_Click);
+			// 
+			// m_ToolStripButtonShowLog2
+			// 
+			this.m_ToolStripButtonShowLog2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.m_ToolStripButtonShowLog2.Image = global::CsvTools.Properties.Resources.ShowLog;
+			this.m_ToolStripButtonShowLog2.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_ToolStripButtonShowLog2.Name = "m_ToolStripButtonShowLog2";
+			this.m_ToolStripButtonShowLog2.Size = new System.Drawing.Size(23, 22);
+			this.m_ToolStripButtonShowLog2.Text = "Log";
+			this.m_ToolStripButtonShowLog2.Click += new System.EventHandler(this.ToggleShowLog);
+			// 
+			// m_ToolStripButtonLoadFile
+			// 
+			this.m_ToolStripButtonLoadFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.m_ToolStripButtonLoadFile.Image = global::CsvTools.Properties.Resources.LoadFile;
+			this.m_ToolStripButtonLoadFile.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_ToolStripButtonLoadFile.Name = "m_ToolStripButtonLoadFile";
+			this.m_ToolStripButtonLoadFile.Size = new System.Drawing.Size(23, 22);
+			this.m_ToolStripButtonLoadFile.Text = "Load File";
+			this.m_ToolStripButtonLoadFile.Click += new System.EventHandler(this.m_ToolStripButtonLoadFile_Click);
+			// 
+			// m_ToolStripButtonAsText
+			// 
+			this.m_ToolStripButtonAsText.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.m_ToolStripButtonAsText.Image = global::CsvTools.Properties.Resources.AsText;
+			this.m_ToolStripButtonAsText.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_ToolStripButtonAsText.Name = "m_ToolStripButtonAsText";
+			this.m_ToolStripButtonAsText.Size = new System.Drawing.Size(23, 22);
+			this.m_ToolStripButtonAsText.Text = "Text";
+			this.m_ToolStripButtonAsText.Click += new System.EventHandler(this.ToggleDisplayAsText);
+			// 
+			// m_ToolStripButtonShowLog
+			// 
+			this.m_ToolStripButtonShowLog.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.m_ToolStripButtonShowLog.Image = global::CsvTools.Properties.Resources.ShowLog;
+			this.m_ToolStripButtonShowLog.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_ToolStripButtonShowLog.Name = "m_ToolStripButtonShowLog";
+			this.m_ToolStripButtonShowLog.Size = new System.Drawing.Size(23, 22);
+			this.m_ToolStripButtonShowLog.Text = "Log";
+			this.m_ToolStripButtonShowLog.Click += new System.EventHandler(this.ToggleShowLog);
+			// 
+			// m_ToolStripButtonSettings
+			// 
+			this.m_ToolStripButtonSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.m_ToolStripButtonSettings.Image = global::CsvTools.Properties.Resources.Settings;
+			this.m_ToolStripButtonSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_ToolStripButtonSettings.Name = "m_ToolStripButtonSettings";
+			this.m_ToolStripButtonSettings.Size = new System.Drawing.Size(23, 22);
+			this.m_ToolStripButtonSettings.Text = "Setting";
+			this.m_ToolStripButtonSettings.Click += new System.EventHandler(this.ShowSettings);
+			// 
+			// m_ToolStripButtonSource
+			// 
+			this.m_ToolStripButtonSource.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.m_ToolStripButtonSource.Image = global::CsvTools.Properties.Resources.Source;
+			this.m_ToolStripButtonSource.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_ToolStripButtonSource.Name = "m_ToolStripButtonSource";
+			this.m_ToolStripButtonSource.Size = new System.Drawing.Size(23, 22);
+			this.m_ToolStripButtonSource.Text = "Source";
+			this.m_ToolStripButtonSource.Click += new System.EventHandler(this.ShowSourceFile);
 			// 
 			// FormMain
 			// 
@@ -242,7 +260,6 @@ namespace CsvTools
 			this.Controls.Add(this.textPanel);
 			this.Controls.Add(this.detailControl);
 			this.HelpButton = true;
-			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.KeyPreview = true;
 			this.Margin = new System.Windows.Forms.Padding(2);
 			this.MinimumSize = new System.Drawing.Size(453, 119);
@@ -261,6 +278,8 @@ namespace CsvTools
 			this.textPanel.ContentPanel.ResumeLayout(false);
 			this.textPanel.ResumeLayout(false);
 			this.textPanel.PerformLayout();
+			this.toolStrip1.ResumeLayout(false);
+			this.toolStrip1.PerformLayout();
 			this.ResumeLayout(false);
 
     }
@@ -279,8 +298,9 @@ namespace CsvTools
     private System.Windows.Forms.ToolStripButton m_ToolStripButtonSource;
     private System.Windows.Forms.ToolStripContainer textPanel;
     private System.Windows.Forms.ToolStripButton m_ToolStripButtonLoadFile;
-    private System.Windows.Forms.ToolStripButton toolStripButton1;
-    private System.Windows.Forms.ToolStripButton toolStripButton2;
+    private System.Windows.Forms.ToolStripButton m_ToolStripButtonLoadFile2;
+    private System.Windows.Forms.ToolStripButton m_ToolStripButtonShowLog2;
+    private System.Windows.Forms.ToolStrip toolStrip1;
   }
 }
 
