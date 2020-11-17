@@ -89,14 +89,15 @@ namespace CsvTools
       FunctionalDI.SignalBackground = Application.DoEvents;
 
       var frm = new FormMain(m_ViewSettings);
-      frm.Show();      
+      frm.Show();
+#pragma warning disable 4014
       if (string.IsNullOrEmpty(fileName))
         frm.SelectFile("No startup file provided");
       else if (!FileSystemUtils.FileExists(fileName))
         frm.SelectFile($"File '{fileName}' not found");
       else
         frm.LoadCsvFile(fileName);
-
+#pragma warning restore 4014
       Application.Run(frm);
     }
 

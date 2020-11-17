@@ -26,7 +26,7 @@ namespace CsvTools
   public partial class FormCsvTextDisplay : ResizeForm
   {
     private int m_CodePage;
-    [NotNull] private string m_FullPath;
+    [NotNull] private readonly string m_FullPath;
     [CanBeNull] private ISyntaxHighlighter m_HighLighter;
     private MemoryStream m_MemoryStream;
     private int m_SkipLines;
@@ -35,7 +35,12 @@ namespace CsvTools
     /// <summary>
     ///   CTOR CsvTextDisplay
     /// </summary>
-    public FormCsvTextDisplay() => InitializeComponent();
+    public FormCsvTextDisplay([NotNull] string fullPath)
+    {
+      m_FullPath = fullPath ?? throw new ArgumentNullException(nameof(fullPath));
+      InitializeComponent();
+      Text = FileSystemUtils.GetShortDisplayFileName(m_FullPath);
+    }
 
     private void HighlightVisibleRange()
     {
@@ -104,18 +109,16 @@ namespace CsvTools
     /// <summary>
     ///   CSV File to display
     /// </summary>
-    public void OpenFile([NotNull] string fullPath, bool json, char qualifierChar, char delimiterChar,
+    public void OpenFile(bool json, char qualifierChar, char delimiterChar,
       char escapeChar,
       int codePage, int skipLines, string comment)
     {
-      if (!FileSystemUtils.FileExists(fullPath ?? throw new ArgumentNullException(nameof(fullPath))))
+      if (!FileSystemUtils.FileExists(m_FullPath))
       {
-        textBox.Text = $"\nThe file '{fullPath}' does not exist.";
+        textBox.Text = $"\nThe file '{m_FullPath}' does not exist.";
       }
       else
       {
-        Text   = FileSystemUtils.GetShortDisplayFileName(fullPath);
-        m_FullPath = fullPath;
 
         try
         {
@@ -128,7 +131,7 @@ namespace CsvTools
             m_HighLighter =
               new SyntaxHighlighterDelimitedText(textBox, qualifierChar, delimiterChar, escapeChar, comment);
 
-          m_Stream = new ImprovedStream(new SourceAccess(fullPath));
+          m_Stream = new ImprovedStream(new SourceAccess(m_FullPath));
           m_SkipLines = !json ? skipLines : 0;
           m_CodePage = codePage;
 
