@@ -837,14 +837,7 @@ namespace CsvTools
       HandleShowProgress(message);
 
       if (OnOpen != null)
-        await OnOpen().ConfigureAwait(false);
-
-      if (m_SelfOpenedStream && !string.IsNullOrEmpty(FullPath))
-        // as of now a physical file must exist
-        if (!FileSystemUtils.FileExists(FullPath))
-          throw new FileNotFoundException(
-            $"The file '{FileSystemUtils.GetShortDisplayFileName(FileName)}' does not exist or is not accessible.",
-            FullPath);
+        await OnOpen().ConfigureAwait(false);     
     }
 
     /// <summary>

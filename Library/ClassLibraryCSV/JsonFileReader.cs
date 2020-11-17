@@ -40,21 +40,30 @@ namespace CsvTools
                           long recordLimit = 0,
                           bool treatNbspAsSpace = false, bool trim = false,
                           string treatTextAsNull = null) :
-      base("stream", columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace)
+      this(columnDefinition, recordLimit, treatNbspAsSpace, trim, treatTextAsNull, null)
     {
       m_ImprovedStream = improvedStream;
-      m_SelfOpenedStream = false;
     }
 
-    public JsonFileReader([NotNull] string fullPath,
+    private JsonFileReader(IEnumerable<IColumn> columnDefinition,
+                           long recordLimit, bool treatNbspAsSpace, bool trim, string treatTextAsNull, string fileName) :
+         base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace)
+    {
+      m_SelfOpenedStream = !string.IsNullOrEmpty(fileName);
+    }
+
+    public JsonFileReader([NotNull] string fileName,
                           [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
                           long recordLimit = 0,
                           bool treatNbspAsSpace = false, bool trim = false,
                           string treatTextAsNull = null) :
-      base(fullPath, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace)
+      this(columnDefinition, recordLimit, treatNbspAsSpace, trim, treatTextAsNull, fileName)
     {
-      if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
-      m_SelfOpenedStream = true;
+      if (string.IsNullOrEmpty(fileName))
+        throw new ArgumentException("File can not be null or empty", nameof(fileName));
+
+      if (!FileSystemUtils.FileExists(fileName))
+        throw new FileNotFoundException($"The file '{FileSystemUtils.GetShortDisplayFileName(fileName)}' does not exist or is not accessible.", fileName);
     }
 
     public JsonFileReader(IFileSettingPhysicalFile fileSetting,
