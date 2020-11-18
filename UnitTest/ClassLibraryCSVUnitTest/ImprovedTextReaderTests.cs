@@ -12,7 +12,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ImprovedTextReaderTestBOM()
     {
-      using (var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"), true)))
+      using (var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"))))
       {
         using (var test = new ImprovedTextReader(impStream))
         {
@@ -27,7 +27,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ImprovedTextReaderTestCodePage()
     {
-      using (var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"), true)))
+      using (var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"))))
       {
         using (var test = new ImprovedTextReader(impStream, 12000))
         {
@@ -42,7 +42,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ImprovedTextReaderTestGz()
     {
-      using (var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt.gz"), true)))
+      using (var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt.gz"))))
       {
         using (var test = new ImprovedTextReader(impStream, 12000))
         {
@@ -60,26 +60,26 @@ namespace CsvTools.Tests
       // create files
       var fn = new[]
       {
-        new Tuple<string, int, byte[]>("GB18030", (int) EncodingHelper.CodePage.GB18030,
-          new[] {(byte) 0x84, (byte) 0x31, (byte) 0x95, (byte) 0x33}),
-        new Tuple<string, int, byte[]>("UTF-7_2", (int) EncodingHelper.CodePage.UTF7,
-          new[] {(byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x39}),
-        new Tuple<string, int, byte[]>("UTF-7_3", (int) EncodingHelper.CodePage.UTF7,
-          new[] {(byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x2B}),
-        new Tuple<string, int, byte[]>("UTF-7_4", (int) EncodingHelper.CodePage.UTF7,
-          new[] {(byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x2F}),
-        new Tuple<string, int, byte[]>("UTF-16 (BE)", (int) EncodingHelper.CodePage.UTF16Be,
-          new[] {(byte) 0xFE, (byte) 0xFF}),
-        new Tuple<string, int, byte[]>("UTF8", (int) EncodingHelper.CodePage.UTF8,
-          new[] {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF}),
-        new Tuple<string, int, byte[]>("UTF-16 (LE)", (int) EncodingHelper.CodePage.UTF16Le,
-          new[] {(byte) 0xFF, (byte) 0xFE}),
-        new Tuple<string, int, byte[]>("UTF-32 (BE)", (int) EncodingHelper.CodePage.UTF32Be,
-          new[] {(byte) 0, (byte) 0, (byte) 0xFE, (byte) 255}),
-        new Tuple<string, int, byte[]>("UTF-32 (LE)", (int) EncodingHelper.CodePage.UTF32Le,
-          new[] {(byte) 0xFF, (byte) 0xFE, (byte) 0, (byte) 0}),
-        new Tuple<string, int, byte[]>("UTF-7_1", (int) EncodingHelper.CodePage.UTF7,
-          new[] {(byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x38})
+        new Tuple<string, int, byte[]>("GB18030", 54936,
+          new[] { (byte) 0x84, (byte) 0x31, (byte) 0x95, (byte) 0x33 }),
+        new Tuple<string, int, byte[]>("UTF-7_2", 65000,
+          new[] { (byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x39 }),
+        new Tuple<string, int, byte[]>("UTF-7_3", 65000,
+          new[] { (byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x2B }),
+        new Tuple<string, int, byte[]>("UTF-7_4", 65000,
+          new[] { (byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x2F }),
+        new Tuple<string, int, byte[]>("UTF-16 (BE)", 1201,
+          new[] { (byte) 0xFE, (byte) 0xFF }),
+        new Tuple<string, int, byte[]>("UTF8", 65001,
+          new[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF }),
+        new Tuple<string, int, byte[]>("UTF-16 (LE)", 1200,
+          new[] { (byte) 0xFF, (byte) 0xFE }),
+        new Tuple<string, int, byte[]>("UTF-32 (BE)", 12001,
+          new[] { (byte) 0, (byte) 0, (byte) 0xFE, (byte) 255 }),
+        new Tuple<string, int, byte[]>("UTF-32 (LE)", 12000,
+          new[] { (byte) 0xFF, (byte) 0xFE, (byte) 0, (byte) 0 }),
+        new Tuple<string, int, byte[]>("UTF-7_1", 65000,
+          new[] { (byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x38 })
       };
 
       //var Text = Encoding.ASCII.GetBytes("This is a test\\r\nLine2");
@@ -101,7 +101,7 @@ namespace CsvTools.Tests
           }
         }
 
-        using (var impStream = new ImprovedStream(new SourceAccess(fileName, true)))
+        using (var impStream = new ImprovedStream(new SourceAccess(fileName)))
         {
           using (var test = new ImprovedTextReader(impStream, type.Item2))
           {
@@ -127,7 +127,7 @@ namespace CsvTools.Tests
     public void ToBeginningTest()
     {
       // use a file with a BOM
-      using (var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt"), true)))
+      using (var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt"))))
       {
         using (var test = new ImprovedTextReader(impStream))
         {

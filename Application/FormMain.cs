@@ -84,7 +84,6 @@ namespace CsvTools
       m_SettingsChangedTimerChange.AutoReset = false;
       m_SettingsChangedTimerChange.Elapsed += async (sender, args) => await OpenDataReaderAsync();
       m_SettingsChangedTimerChange.Stop();
-
     }
 
     public DataTable DataTable
@@ -249,7 +248,7 @@ namespace CsvTools
       if (m_SourceDisplay != null) return;
       try
       {
-        m_ToolStripButtonSource.Enabled=false;
+        m_ToolStripButtonSource.Enabled = false;
         m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting.FullPath);
         m_SourceDisplay.FormClosed += SourceDisplayClosed;
         m_SourceDisplay.Show();
@@ -272,7 +271,7 @@ namespace CsvTools
         this.ShowError(ex);
         m_SourceDisplay?.Close();
         m_SourceDisplay = null;
-        m_ToolStripButtonSource.Enabled=true;
+        m_ToolStripButtonSource.Enabled = true;
       }
     }
 
@@ -280,7 +279,7 @@ namespace CsvTools
     {
       m_SourceDisplay?.Dispose();
       m_SourceDisplay = null;
-      m_ToolStripButtonSource.Enabled=true;
+      m_ToolStripButtonSource.Enabled = true;
     }
 
     private async Task CheckPossibleChange()
@@ -459,7 +458,7 @@ namespace CsvTools
               display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
 
             Text =
-              $@"{FileSystemUtils.GetShortDisplayFileName(display, 50)} - {EncodingHelper.GetEncodingName((EncodingHelper.CodePage) m_FileSetting.CodePageId, true, m_FileSetting.ByteOrderMark)} - {AssemblyTitle}";
+              $@"{FileSystemUtils.GetShortDisplayFileName(display, 50)} - {EncodingHelper.GetEncodingName(m_FileSetting.CodePageId, true, m_FileSetting.ByteOrderMark)} - {AssemblyTitle}";
 
             m_ToolStripButtonAsText.Visible = !m_FileSetting.JsonFormat &&
                                               m_FileSetting.ColumnCollection.Any(x =>
@@ -608,7 +607,7 @@ namespace CsvTools
     {
       try
       {
-        m_ToolStripButtonSettings.Enabled=false;
+        m_ToolStripButtonSettings.Enabled = false;
         ViewSettings.CopyConfiguration(m_FileSetting, m_ViewSettings);
         using (var frm = new FormEditSettings(m_ViewSettings))
         {
@@ -627,7 +626,7 @@ namespace CsvTools
       }
       finally
       {
-        m_ToolStripButtonSettings.Enabled=true;
+        m_ToolStripButtonSettings.Enabled = true;
       }
     }
 
@@ -670,37 +669,32 @@ namespace CsvTools
 
     public async Task SelectFile(string message)
     {
-
-
       this.SafeInvoke(() =>
       {
         m_ToolStripButtonLoadFile.Enabled = false;
         m_ToolStripButtonLoadFile2.Enabled = false;
       });
 
-
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       try
       {
         loggerDisplay.AddLog(message, Logger.Level.Info);
         var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
-                   + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
+                        + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
 
         if (m_ViewSettings.StoreSettingsByFile)
           strFilter += "Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension + "|";
 
-        strFilter +=   "Json files (*.json;*.ndjson)|*.json;*.ndjson|"
+        strFilter += "Json files (*.json;*.ndjson)|*.json;*.ndjson|"
                      + "Compressed files (*.gz;*.zip)|*.gz;*.zip|"
                      + "All files (*.*)|*.*";
 
         var fileName = WindowsAPICodePackWrapper.Open(".", "File to Display", strFilter, null);
         if (!string.IsNullOrEmpty(fileName))
         {
-
           Cursor.Current = Cursors.WaitCursor;
           await LoadCsvFile(fileName);
         }
-
       }
       catch (Exception ex)
       {
@@ -716,7 +710,6 @@ namespace CsvTools
         });
       }
     }
-
 
     private async void m_ToolStripButtonLoadFile_Click(object sender, EventArgs e) => await SelectFile("Open File Dialog");
   }

@@ -63,9 +63,9 @@ namespace CsvTools
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting)))
       {
-        var result = await GuessCodePageAsync(improvedStream, cancellationToken).ConfigureAwait(false);
-        setting.CodePageId = (int) result.Item1;
-        setting.ByteOrderMark = result.Item2;
+        var (codepage, bom) = await GuessCodePageAsync(improvedStream, cancellationToken).ConfigureAwait(false);
+        setting.CodePageId = codepage;
+        setting.ByteOrderMark = bom;
       }
     }
 
@@ -374,7 +374,7 @@ namespace CsvTools
         improvedStream.Seek(0, SeekOrigin.Begin);
         display.SetProcess("Checking Code Page", -1, true);
         var (codePage, bom) = await GuessCodePageAsync(improvedStream, display.CancellationToken).ConfigureAwait(false);
-        detection.CodePageId = (int) codePage;
+        detection.CodePageId = codePage;
         detection.ByteOrderMark = bom;
       }
 
@@ -624,8 +624,8 @@ namespace CsvTools
       return dc;
     }
 
-    private static async Task<Tuple<EncodingHelper.CodePage, bool>> GuessCodePageAsync([NotNull] IImprovedStream stream,
-                                                                                       CancellationToken token)
+    private static async Task<Tuple<int, bool>> GuessCodePageAsync([NotNull] IImprovedStream stream,
+                                                                   CancellationToken token)
     {
       // Read 256 kBytes
       var buff = new byte[262144];
@@ -633,19 +633,19 @@ namespace CsvTools
       var length = await stream.ReadAsync(buff, 0, buff.Length, token).ConfigureAwait(false);
       if (length >= 2)
       {
-        var byBom = EncodingHelper.GetCodePageByByteOrderMark(buff);
-        if (byBom != 0)
+        var byBom = EncodingHelper.GetEncodingByByteOrderMark(buff);
+        if (byBom != null)
         {
           Logger.Information("Code Page: {encoding}", EncodingHelper.GetEncodingName(byBom, true, true));
-          return new Tuple<EncodingHelper.CodePage, bool>(byBom, true);
+          return new Tuple<int, bool>(byBom.CodePage, true);
         }
       }
 
-      var detected = EncodingHelper.GuessCodePageNoBom(buff, length);
-      if (detected == EncodingHelper.CodePage.ASCII)
-        detected = EncodingHelper.CodePage.UTF8;
+      var detected = EncodingHelper.GuessEncodingNoBom(buff);
+      if (detected.Equals(Encoding.ASCII))
+        detected = Encoding.UTF8;
       Logger.Information("Code Page: {encoding}", EncodingHelper.GetEncodingName(detected, true, false));
-      return new Tuple<EncodingHelper.CodePage, bool>(detected, false);
+      return new Tuple<int, bool>(detected.CodePage, false);
     }
 
     /// <summary>
