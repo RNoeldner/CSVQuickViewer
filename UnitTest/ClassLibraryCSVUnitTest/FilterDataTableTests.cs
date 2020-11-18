@@ -15,8 +15,8 @@ namespace CsvTools.Tests
 
       var withoutErrors = new List<DataColumn>(new[]
       {
-        new DataColumn("ColID", typeof(int)), new DataColumn("ColText1", typeof(string)),
-        new DataColumn("ColText2", typeof(string)), new DataColumn("ColTextDT", typeof(DateTime))
+        new DataColumn("ColID", typeof(int)), new DataColumn("ColText1", typeof(string)), new DataColumn("ColText2", typeof(string)),
+        new DataColumn("ColTextDT", typeof(DateTime))
       });
       dt.Columns.AddRange(withoutErrors.ToArray());
 
@@ -67,13 +67,35 @@ namespace CsvTools.Tests
     public void CancelTest()
     {
       var dt = GetDataTable(2000);
-      var test = new FilterDataTable(dt.Item1);
-      test.Cancel();
-      // No effect but no error either
-      _ = test.FilterAsync(0, FilterType.ShowErrors, UnitTestInitializeCsv.Token);
-      // Assert.IsTrue(test.Filtering);
-      test.Cancel();
-      // Assert.IsFalse(test.Filtering);
+      using (var test = new FilterDataTable(dt.Item1))
+      {
+        test.Cancel();
+        // No effect but no error either
+        _ = test.FilterAsync(0, FilterType.ShowErrors, UnitTestInitializeCsv.Token);
+        // Assert.IsTrue(test.Filtering);
+        test.Cancel();
+        // Assert.IsFalse(test.Filtering);
+      }
+    }
+
+    [TestMethod]
+    public async Task UniqueFieldName()
+    {
+      var dt = GetDataTable(10);
+      using (var test = new FilterDataTable(dt.Item1))
+      {
+        test.UniqueFieldName = new[] { "ColID" };
+        test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestInitializeCsv.Token);
+        while (test.Filtering)
+        {
+          test.WaitCompeteFilter(0.1);
+        }
+
+        Assert.IsFalse(test.Filtering);
+
+        var result1 = test.ColumnsWithoutErrors;
+        Assert.IsFalse(result1.Contains("ColID"));
+      }
     }
 
     [TestMethod]

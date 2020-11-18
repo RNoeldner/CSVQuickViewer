@@ -21,7 +21,7 @@ namespace CsvTools.Tests
   public class LoggerTest
   {
     [TestMethod]
-    public void AddLog()
+    public void UILog()
     {
       //var jsonLogFileName = m_ApplicationDirectory + "\\Log.json";
       //Logger.Configure(jsonLogFileName, Logger.Level.Info, m_ApplicationDirectory + "\\text.log");
@@ -29,10 +29,16 @@ namespace CsvTools.Tests
       Logger.UILog = (param, level) => { lastMessage = param; };
 
       Logger.Debug("MyMessage1");
+      Logger.Debug("");
+      Logger.Debug(null);
 
       Logger.Information("MyMessage1");
+      Logger.Information("");
+      Logger.Information(null);
 
       Logger.Warning("Hello {param1}", "World");
+      Logger.Warning("");
+      Logger.Warning(null);
       Assert.AreEqual("Hello \"World\"", lastMessage);
 
       Logger.Warning("Pure {param1}", 1);
@@ -40,7 +46,88 @@ namespace CsvTools.Tests
 
       Logger.Error(new Exception("Hello World"), "MyMessage2");
       Logger.Error(new Exception("This is it"));
+      Logger.Error("");
+      Logger.Error(null, null, null);
       Logger.Error("This {is} it", "was");
+    }
+
+    [TestMethod]
+    public void AddLog_RemoveLog()
+    {
+      //var jsonLogFileName = m_ApplicationDirectory + "\\Log.json";
+      //Logger.Configure(jsonLogFileName, Logger.Level.Info, m_ApplicationDirectory + "\\text.log");
+      var lastMessage = string.Empty;
+      Action<string, Logger.Level> logAction = (param, level) =>
+      {
+        lastMessage = param;
+      };
+      Logger.AddLog(logAction);
+
+      Logger.Debug("MyMessage1");
+      Logger.Debug("");
+      Logger.Debug(null);
+
+      Logger.Warning("Hello {param1}", "World");
+      Logger.Warning("");
+      Logger.Warning(null);
+      Assert.AreEqual("Hello \"World\"", lastMessage);
+
+      lastMessage = string.Empty;
+      Logger.RemoveLog(logAction);
+      Logger.Debug("MyMessage1");
+      Assert.AreEqual(string.Empty, lastMessage);
+    }
+
+    [TestMethod]
+    public void AddLog()
+    {
+      var lastMessage = string.Empty;
+      Logger.AddLog((param, level) => { lastMessage = param; });
+
+      try
+      {
+        Logger.AddLog(null);
+      }
+      catch (ArgumentNullException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail("Wrong Exception Type: " + ex.GetType());
+      }
+    }
+
+    [TestMethod]
+    public void RemoveLog()
+    {
+      Action<string, Logger.Level> logAction = (param, level) => { };
+
+      Logger.AddLog(logAction);
+      Logger.RemoveLog(logAction);
+
+      try
+      {
+        Logger.RemoveLog(null);
+      }
+      catch (ArgumentNullException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail("Wrong Exception Type: " + ex.GetType());
+      }
+
+      try
+      {
+        Logger.RemoveLog(logAction);
+      }
+      catch (ArgumentException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail("Wrong Exception Type: " + ex.GetType());
+      }
     }
   }
 }

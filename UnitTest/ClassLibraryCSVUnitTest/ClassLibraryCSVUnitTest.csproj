@@ -206,7 +206,7 @@
     <Compile Include="StringConversionTests.cs" />
     <Compile Include="MessageLocationTest.cs" />
     <Compile Include="CsvDataReaderTest.cs" />
-    <Compile Include="CsvDataReader_FilesTest.cs" />
+    <Compile Include="CsvFileReaderTest.cs"/>
     <Compile Include="MockProcessDisplay.cs" />
     <Compile Include="StringUtilsTests.cs" />
     <Compile Include="StringToDateTime.cs" />

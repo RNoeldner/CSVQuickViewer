@@ -72,7 +72,8 @@ namespace CsvTools
                                 .WriteTo.Sink(m_UserInterfaceSink);
       // File Logger
       var entryName = Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty;
-
+      if (string.IsNullOrEmpty(entryName))
+        entryName = Assembly.GetExecutingAssembly()?.GetName().Name ?? string.Empty;
       if (!string.IsNullOrEmpty(entryName))
       {
         var folder = Environment.ExpandEnvironmentVariables($"%LocalAppData%\\{entryName}\\");
@@ -82,6 +83,7 @@ namespace CsvTools
           try
           {
             FileSystemUtils.CreateDirectory(folder);
+            addTextLog = true;
           }
           catch (Exception)
           {
