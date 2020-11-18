@@ -29,12 +29,11 @@ namespace CsvTools
   /// <seealso cref="System.IDisposable" />
   public sealed class FilterDataTable : IDisposable
   {
-    [NotNull]
-    private readonly DataTable m_SourceTable;
+    [NotNull] private readonly DataTable m_SourceTable;
 
     private readonly List<string> m_UniqueFieldName = new List<string>();
-    [CanBeNull]
-    private HashSet<string> m_ColumnWithoutErrors;
+
+    [CanBeNull] private HashSet<string> m_ColumnWithoutErrors;
 
     private CancellationTokenSource m_CurrentFilterCancellationTokenSource;
 
@@ -46,7 +45,11 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
     /// </summary>
     /// <param name="init">The initial DataTable</param>
-    public FilterDataTable([NotNull] DataTable init) => m_SourceTable = init;
+    public FilterDataTable([NotNull] DataTable init)
+    {
+      m_SourceTable = init;
+      FilterTable = m_SourceTable.Clone();
+    }
 
     /// <summary>
     ///   Gets the columns without errors.
@@ -58,7 +61,7 @@ namespace CsvTools
       {
         var withoutErrors = ColumnsWithoutErrors;
 
-        return (from DataColumn col in FilterTable.Columns
+        return (from DataColumn col in m_SourceTable.Columns
                 where !col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
                 where !withoutErrors.Contains(col.ColumnName)
                 select col.ColumnName).ToList();
@@ -74,6 +77,9 @@ namespace CsvTools
     {
       get
       {
+        if (FilterTable == null)
+          return new List<string>();
+
         if (m_ColumnWithoutErrors != null) return m_ColumnWithoutErrors;
 
         // Wait until we are actually done filtering, max 60 seconds
@@ -82,6 +88,7 @@ namespace CsvTools
         m_ColumnWithoutErrors = new HashSet<string>();
 
         // m_ColumnWithoutErrors will not contain UniqueFields nor line number / error
+        Debug.Assert(FilterTable != null, nameof(FilterTable) + " != null");
         foreach (DataColumn col in FilterTable.Columns)
         {
           // Always keep the line number, error field and any uniques
@@ -133,7 +140,7 @@ namespace CsvTools
     ///   Gets the error table.
     /// </summary>
     /// <value>The error table.</value>
-    [NotNull]
+    [CanBeNull]
     public DataTable FilterTable { get; private set; }
 
     public FilterType FilterType { get; private set; } = FilterType.None;
@@ -175,6 +182,9 @@ namespace CsvTools
 
     private void Filter(int limit, FilterType type)
     {
+      if (FilterTable == null)
+        return;
+
       if (limit < 1)
         limit = int.MaxValue;
       m_ColumnWithoutErrors = null;
@@ -214,7 +224,6 @@ namespace CsvTools
 
           if (import)
             FilterTable.ImportRow(m_SourceTable.Rows[counter]);
-
           rows++;
         }
 
@@ -239,7 +248,7 @@ namespace CsvTools
       FilterTable = m_SourceTable.Clone();
 
       m_CurrentFilterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-      
+
       await Task.Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token);
     }
 

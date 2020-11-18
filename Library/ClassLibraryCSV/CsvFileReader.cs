@@ -129,52 +129,51 @@ namespace CsvTools
     /// </summary>
     private ImprovedTextReader m_TextReader;
 
-
     public CsvFileReader([NotNull] IImprovedStream improvedStream,
-      int codePageId = 650001,
-      int skipRows = 0,
-      bool hasFieldHeader = true,
-      [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
-      TrimmingOption trimmingOption = TrimmingOption.Unquoted,
-      string fieldDelimiter = "\t", string fieldQualifier = "\"", char escapeCharacterChar = '\0',
-      long recordLimit = 0,
-      bool allowRowCombining = false, bool alternateQuoting = false,
-      [NotNull] string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
-      string newLinePlaceholder = "", string delimiterPlaceholder = "", string quotePlaceholder = "",
-      bool skipDuplicateHeader = true,
-      bool treatLfAsSpace = false, bool treatUnknownCharacterAsSpace = false, bool tryToSolveMoreColumns = true,
-      bool warnDelimiterInValue = true,
-      bool warnLineFeed = false, bool warnNbsp = true, bool warnQuotes = true, bool warnUnknownCharacter = true,
-      bool warnEmptyTailingColumns = true,
-      bool treatNbspAsSpace = false,
-      string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool skipEmptyLines = true,
-      int consecutiveEmptyRowsMax = 4) : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
-        trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacterChar, recordLimit, allowRowCombining,
-        alternateQuoting, commentLine, numWarning, duplicateQuotingToEscape, newLinePlaceholder, delimiterPlaceholder,
-        quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace, tryToSolveMoreColumns,
-        warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
-        treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax, string.Empty, null)
+                         int codePageId = 650001,
+                         int skipRows = 0,
+                         bool hasFieldHeader = true,
+                         [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+                         TrimmingOption trimmingOption = TrimmingOption.Unquoted,
+                         string fieldDelimiter = "\t", string fieldQualifier = "\"", char escapeCharacterChar = '\0',
+                         long recordLimit = 0,
+                         bool allowRowCombining = false, bool alternateQuoting = false,
+                         [NotNull] string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
+                         string newLinePlaceholder = "", string delimiterPlaceholder = "", string quotePlaceholder = "",
+                         bool skipDuplicateHeader = true,
+                         bool treatLfAsSpace = false, bool treatUnknownCharacterAsSpace = false, bool tryToSolveMoreColumns = true,
+                         bool warnDelimiterInValue = true,
+                         bool warnLineFeed = false, bool warnNbsp = true, bool warnQuotes = true, bool warnUnknownCharacter = true,
+                         bool warnEmptyTailingColumns = true,
+                         bool treatNbspAsSpace = false,
+                         string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool skipEmptyLines = true,
+                         int consecutiveEmptyRowsMax = 4) : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
+      trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacterChar, recordLimit, allowRowCombining,
+      alternateQuoting, commentLine, numWarning, duplicateQuotingToEscape, newLinePlaceholder, delimiterPlaceholder,
+      quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace, tryToSolveMoreColumns,
+      warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
+      treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax, string.Empty, null)
     {
-      m_ImprovedStream = improvedStream;
+      m_ImprovedStream = improvedStream ?? throw new ArgumentNullException(nameof(improvedStream));
     }
 
     private CsvFileReader([CanBeNull] IEnumerable<IColumn> columnDefinition, int codePageId, int skipRows, bool hasFieldHeader,
-      TrimmingOption trimmingOption,
-      string fieldDelimiter, string fieldQualifier, char escapeCharacterChar,
-      long recordLimit, bool allowRowCombining, bool alternateQuoting,
-      [NotNull] string commentLine, int numWarning, bool duplicateQuotingToEscape,
-      string newLinePlaceholder, string delimiterPlaceholder, string quotePlaceholder,
-      bool skipDuplicateHeader, bool treatLfAsSpace, bool treatUnknownCharacterAsSpace, bool tryToSolveMoreColumns,
-      bool warnDelimiterInValue, bool warnLineFeed, bool warnNbsp, bool warnQuotes, bool warnUnknownCharacter,
-      bool warnEmptyTailingColumns, bool treatNbspAsSpace, string treatTextAsNull, bool skipEmptyLines,
-      int consecutiveEmptyRowsMax, string identifierInContainer, string fileName)
+                          TrimmingOption trimmingOption,
+                          string fieldDelimiter, string fieldQualifier, char escapeCharacterChar,
+                          long recordLimit, bool allowRowCombining, bool alternateQuoting,
+                          [NotNull] string commentLine, int numWarning, bool duplicateQuotingToEscape,
+                          string newLinePlaceholder, string delimiterPlaceholder, string quotePlaceholder,
+                          bool skipDuplicateHeader, bool treatLfAsSpace, bool treatUnknownCharacterAsSpace, bool tryToSolveMoreColumns,
+                          bool warnDelimiterInValue, bool warnLineFeed, bool warnNbsp, bool warnQuotes, bool warnUnknownCharacter,
+                          bool warnEmptyTailingColumns, bool treatNbspAsSpace, string treatTextAsNull, bool skipEmptyLines,
+                          int consecutiveEmptyRowsMax, string identifierInContainer, string fileName)
       : base(fileName, columnDefinition, recordLimit)
     {
       m_SelfOpenedStream = !string.IsNullOrEmpty(fileName);
       m_EscapeCharacterChar = escapeCharacterChar;
 
       m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
-      // if the wriiten text is no proper char its \0
+      // if the written text is no proper char its \0
       if (fieldDelimiter.Length > 1 && m_FieldDelimiterChar == '\0')
       {
         Logger.Warning($"Only the first character of {fieldDelimiter} is used as delimiter.", fieldDelimiter);
@@ -182,7 +181,7 @@ namespace CsvTools
       }
 
       m_FieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
-      // if the wriiten text is no proper char its \0
+      // if the writen text is no proper char its \0
       if (fieldQualifier.Length > 1 && m_FieldQualifierChar == '\0')
       {
         Logger.Warning($"Only the first character of {fieldQualifier} is be used for quoting.", fieldQualifier);
@@ -244,24 +243,24 @@ namespace CsvTools
     }
 
     public CsvFileReader([NotNull] string fileName,
-      int codePageId = 650001,
-      int skipRows = 0,
-      bool hasFieldHeader = true,
-      [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
-      TrimmingOption trimmingOption = TrimmingOption.Unquoted,
-      string fieldDelimiter = "\t", string fieldQualifier = "\"", char escapeCharacterChar = '\0',
-      long recordLimit = 0,
-      bool allowRowCombining = false, bool alternateQuoting = false,
-      [NotNull] string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
-      string newLinePlaceholder = "", string delimiterPlaceholder = "", string quotePlaceholder = "",
-      bool skipDuplicateHeader = true,
-      bool treatLfAsSpace = false, bool treatUnknownCharacterAsSpace = false, bool tryToSolveMoreColumns = true,
-      bool warnDelimiterInValue = true,
-      bool warnLineFeed = false, bool warnNbsp = true, bool warnQuotes = true, bool warnUnknownCharacter = true,
-      bool warnEmptyTailingColumns = true,
-      bool treatNbspAsSpace = false,
-      string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool skipEmptyLines = true,
-      int consecutiveEmptyRowsMax = 4, string identifierInContainer = "")
+                         int codePageId = 650001,
+                         int skipRows = 0,
+                         bool hasFieldHeader = true,
+                         [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+                         TrimmingOption trimmingOption = TrimmingOption.Unquoted,
+                         string fieldDelimiter = "\t", string fieldQualifier = "\"", char escapeCharacterChar = '\0',
+                         long recordLimit = 0,
+                         bool allowRowCombining = false, bool alternateQuoting = false,
+                         [NotNull] string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
+                         string newLinePlaceholder = "", string delimiterPlaceholder = "", string quotePlaceholder = "",
+                         bool skipDuplicateHeader = true,
+                         bool treatLfAsSpace = false, bool treatUnknownCharacterAsSpace = false, bool tryToSolveMoreColumns = true,
+                         bool warnDelimiterInValue = true,
+                         bool warnLineFeed = false, bool warnNbsp = true, bool warnQuotes = true, bool warnUnknownCharacter = true,
+                         bool warnEmptyTailingColumns = true,
+                         bool treatNbspAsSpace = false,
+                         string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool skipEmptyLines = true,
+                         int consecutiveEmptyRowsMax = 4, string identifierInContainer = "")
       : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
         trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacterChar, recordLimit, allowRowCombining,
         alternateQuoting, commentLine, numWarning, duplicateQuotingToEscape, newLinePlaceholder, delimiterPlaceholder,
@@ -269,8 +268,9 @@ namespace CsvTools
         warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
         treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax, identifierInContainer, fileName)
     {
-      if (string.IsNullOrEmpty(fileName))
-        throw new ArgumentException("File can not be null or empty", nameof(fileName));
+      if (fileName == null) throw new ArgumentNullException(nameof(fileName));
+      if (fileName.Trim().Length == 0)
+        throw new ArgumentException("File can not be empty", nameof(fileName));
 
       // as of now a physical file must exist
       if (!FileSystemUtils.FileExists(fileName))
@@ -283,7 +283,7 @@ namespace CsvTools
     /// <param name="fileSetting"></param>
     /// <param name="processDisplay">Progress and Cancellation</param>
     public CsvFileReader([NotNull] ICsvFile fileSetting,
-      [CanBeNull] IProcessDisplay processDisplay)
+                         [CanBeNull] IProcessDisplay processDisplay)
       : this(fileSetting.FullPath, fileSetting.CodePageId,
         fileSetting.SkipRows, fileSetting.HasFieldHeader,
         fileSetting.ColumnCollection, fileSetting.TrimmingOption, fileSetting.FileFormat.FieldDelimiter,
@@ -303,7 +303,7 @@ namespace CsvTools
         fileSetting.WarnEmptyTailingColumns, fileSetting.TreatNBSPAsSpace,
         fileSetting.TreatTextAsNull, fileSetting.SkipEmptyLines,
         fileSetting.ConsecutiveEmptyRows, fileSetting.IdentifierInContainer)
-    => SetProgressActions(processDisplay);
+      => SetProgressActions(processDisplay);
 
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.
@@ -846,8 +846,8 @@ namespace CsvTools
       }
 
       return m_TrimmingOption == TrimmingOption.All || !quoted && m_TrimmingOption == TrimmingOption.Unquoted
-        ? stringBuilder.ToString().Trim()
-        : stringBuilder.ToString();
+               ? stringBuilder.ToString().Trim()
+               : stringBuilder.ToString();
     }
 
     /// <summary>
@@ -1089,9 +1089,9 @@ namespace CsvTools
 
           // Handle replacements and warnings etc,
           var adjustedValue = HandleTextSpecials(CurrentRowColumnText[columnNo]
-            .ReplaceCaseInsensitive(m_NewLinePlaceholder, Environment.NewLine)
-            .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiterChar)
-            .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifierChar), columnNo);
+                                                 .ReplaceCaseInsensitive(m_NewLinePlaceholder, Environment.NewLine)
+                                                 .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiterChar)
+                                                 .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifierChar), columnNo);
 
           if (adjustedValue != null)
           {

@@ -584,7 +584,7 @@ namespace CsvTools
     public override Stream GetStream(int columnNumber) =>
       new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[columnNumber] ?? ""));
 
-    public override TextReader GetTextReader(int columnNumber) => throw new NotImplementedException();
+    public override TextReader GetTextReader(int columnNumber) => new StringReader(CurrentRowColumnText[columnNumber] ?? "");
 
     /// <summary>
     ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
@@ -837,7 +837,7 @@ namespace CsvTools
       HandleShowProgress(message);
 
       if (OnOpen != null)
-        await OnOpen().ConfigureAwait(false);     
+        await OnOpen().ConfigureAwait(false);
     }
 
     /// <summary>
