@@ -22,7 +22,7 @@ namespace CsvTools
 
     private readonly int m_BomLength;
 
-    private readonly EncodingHelper.CodePage m_CodePage;
+    private readonly int m_CodePage;
 
     private readonly Stream m_ImprovedStream;
     private readonly int m_SkipLines;
@@ -49,25 +49,25 @@ namespace CsvTools
       // read the BOM in any case
       var buff = new byte[4];
       m_ImprovedStream.Read(buff, 0, buff.Length);
-      var intCodePageByBom = EncodingHelper.GetCodePageByByteOrderMark(buff);
+      var intCodePageByBom = EncodingHelper.GetEncodingByByteOrderMark(buff);
       improvedStream.Seek(0, SeekOrigin.Begin);
       var byteOrderMark = false;
 
-      if (intCodePageByBom != EncodingHelper.CodePage.None)
+      if (intCodePageByBom != null)
       {
         byteOrderMark = true;
-        m_CodePage = intCodePageByBom;
+        m_CodePage = intCodePageByBom.CodePage;
       }
       else
       {
         try
         {
-          m_CodePage = (EncodingHelper.CodePage) codePageId;
+          m_CodePage = codePageId;
         }
         catch (Exception)
         {
           Logger.Warning("Codepage {0} not supported, using UTF8", codePageId);
-          m_CodePage = EncodingHelper.CodePage.UTF8;
+          m_CodePage = Encoding.UTF8.CodePage;
         }
       }
 
@@ -188,7 +188,7 @@ namespace CsvTools
 
       // in case we can not seek need to reopen the stream reader
       if (TextReader == null)
-        TextReader = new StreamReader(m_ImprovedStream, Encoding.GetEncoding((int) m_CodePage), false, 4096, true);
+        TextReader = new StreamReader(m_ImprovedStream, Encoding.GetEncoding(m_CodePage), false, 4096, true);
       // discard the buffer
       else
         TextReader.DiscardBufferedData();

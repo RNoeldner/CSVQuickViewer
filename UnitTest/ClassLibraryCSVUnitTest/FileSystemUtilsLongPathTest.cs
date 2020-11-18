@@ -97,7 +97,6 @@ namespace CsvTools.Tests
       Assert.IsTrue(FileSystemUtils.FileExists(fn1));
       FileSystemUtils.FileDelete(fn1);
 
-
       var fn2 = Path.Combine(m_Folder2, "Test1.txt");
       using (var fs = FileSystemUtils.OpenWrite(fn2))
       using (var sw = new StreamWriter(fs, Encoding.UTF8))
@@ -153,7 +152,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ResolvePattern()
     {
-      Assert.AreEqual(m_FileName2, FileSystemUtils.ResolvePattern(m_FileName2.Replace("TestFile", "TestF*")));
+      var fileNameX = Path.Combine(m_Folder2, "PatternTest.txt");
+      File.WriteAllText(cPre + fileNameX, cLine1);
+
+      Assert.AreEqual(fileNameX, FileSystemUtils.ResolvePattern(fileNameX.Replace("PatternTest", "Pattern*")));
+      FileSystemUtils.FileDelete(fileNameX);
     }
 
     [TestMethod]
@@ -179,7 +182,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(m_Folder1, FileSystemUtils.GetDirectoryName(m_FileName1));
       Assert.AreEqual(m_Folder2, FileSystemUtils.GetDirectoryName(m_FileName2));
     }
-
 
     [TestMethod]
     public void GetShortestPath()

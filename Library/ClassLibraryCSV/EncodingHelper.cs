@@ -15,7 +15,7 @@
 using JetBrains.Annotations;
 using System;
 using System.Text;
-using Ude;
+using UtfUnknown;
 
 namespace CsvTools
 {
@@ -25,157 +25,13 @@ namespace CsvTools
   public static class EncodingHelper
   {
     /// <summary>
-    ///   A code page is a table of values that describes the character set for encoding a
-    ///   particular language.
-    /// </summary>
-    public enum CodePage
-    {
-      /// <summary>
-      ///   Artificial CodePage to show no ode page has been determined
-      /// </summary>
-      None = 0,
-
-      /// <summary>
-      ///   The vast majority of code pages in current use are super sets of ASCII, a 7-bit code
-      ///   representing 128 control codes and printable characters.
-      /// </summary>
-      ASCII = 20127,
-
-      /// <summary>
-      ///   ANSI/OEM Traditional Chinese (Taiwan; Hong Kong SAR, PRC); Chinese Traditional (Big5)
-      /// </summary>
-      BIG5 = 10002,
-
-      /// <summary>
-      ///   EUC Japanese
-      /// </summary>
-      EUCJP = 51932,
-
-      /// <summary>
-      ///   EUC Korean
-      /// </summary>
-      EUCKR = 51949,
-
-      /// <summary>
-      ///   GB18030 Simplified Chinese (4 byte); Chinese Simplified (GB18030)
-      /// </summary>
-      GB18030 = 54936,
-
-      /// <summary>
-      ///   OEM Cyrillic (primarily Russian)
-      /// </summary>
-      IBM855 = 855,
-
-      /// <summary>
-      ///   OEM Russian; Cyrillic (DOS)
-      /// </summary>
-      IBM866 = 866,
-
-      /// <summary>
-      ///   ISO 8859-7 Greek
-      /// </summary>
-      ISO88597 = 28597,
-
-      /// <summary>
-      ///   ISO 8859-2 Central European; Central European (ISO)
-      /// </summary>
-      ISO88592 = 28592,
-
-      /// <summary>
-      ///   ISO 8859-5 Cyrillic
-      /// </summary>
-      ISO88595 = 28595,
-
-      /// <summary>
-      ///   ISO 8859-8 Hebrew; Hebrew (ISO-Visual)
-      /// </summary>
-      ISO88598 = 28598,
-
-      /// <summary>
-      ///   Russian (KOI8-R); Cyrillic (KOI8-R)
-      /// </summary>
-      KOI8R = 20866,
-
-      /// <summary>
-      ///   Cyrillic (Mac)
-      /// </summary>
-      MacCyrillic = 10007,
-
-      /// <summary>
-      ///   ANSI/OEM Japanese; Japanese (Shift-JIS)
-      /// </summary>
-      ShiftJis = 932,
-
-      /// <summary>
-      ///   Unicode UTF-16, big endian byte order;
-      /// </summary>
-      UTF16Be = 1201,
-
-      /// <summary>
-      ///   Unicode UTF-16, little endian byte order (BMP of ISO 10646);
-      /// </summary>
-      UTF16Le = 1200,
-
-      /// <summary>
-      ///   Unicode UTF-32, big endian byte order
-      /// </summary>
-      UTF32Be = 12001,
-
-      /// <summary>
-      ///   Unicode UTF-32, little endian byte order
-      /// </summary>
-      UTF32Le = 12000,
-
-      /// <summary>
-      ///   Unicode (UTF-7)
-      /// </summary>
-      UTF7 = 65000,
-
-      /// <summary>
-      ///   Unicode (UTF-8)
-      /// </summary>
-      UTF8 = 65001,
-
-      /// <summary>
-      ///   ANSI Central European; Central European (Windows)
-      /// </summary>
-      WIN1250 = 1250,
-
-      /// <summary>
-      ///   ANSI Cyrillic; Cyrillic (Windows)
-      /// </summary>
-      WIN1251 = 1251,
-
-      /// <summary>
-      ///   ANSI Latin 1; Western European (Windows)
-      /// </summary>
-      WIN1252 = 1252,
-
-      /// <summary>
-      ///   ANSI Greek; Greek (Windows)
-      /// </summary>
-      WIN1253 = 1253,
-
-      /// <summary>
-      ///   ANSI Turkish; Turkish (Windows)
-      /// </summary>
-      WIN1255 = 1254,
-
-      MSLatin = 850,
-      OEMLatin = 852,
-      MSDos = 437
-    }
-
-    /// <summary>
     ///   The suffix of an encoding that does not have a BOM
     /// </summary>
     public const string cSuffixWithoutBom = " without BOM";
 
     private static readonly Lazy<int[]> m_CommonCodePages = new Lazy<int[]>(() => new[]
     {
-      (int) CodePage.UTF8, (int) CodePage.UTF16Le, (int) CodePage.UTF16Be, (int) CodePage.UTF32Le,
-      (int) CodePage.UTF32Be, 1250, (int) CodePage.WIN1252, 1253, 1255, (int) CodePage.UTF7, 850, 852, 437, 28591,
-      10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
+      65001, 1200, 1201, 12000, 12001, 1250, 1252, 1253, 1255, 65000, 850, 852, 437, 28591, 10029, 20127, 28597, 50220, 28592, 28595, 28598, 20866, 932, 54936
     });
 
     /// <summary>
@@ -185,15 +41,14 @@ namespace CsvTools
     public static int[] CommonCodePages => m_CommonCodePages.Value;
 
     // ReSharper disable once InconsistentNaming
-    public static byte BOMLength(CodePage codePage)
+    public static byte BOMLength(int codePage)
     {
       // ReSharper disable once ConvertIfStatementToSwitchStatement
-      if (codePage == CodePage.UTF8)
+      if (codePage == Encoding.UTF8.CodePage)
         return 3;
-      if (codePage == CodePage.UTF7 || codePage == CodePage.UTF32Le || codePage == CodePage.UTF32Be ||
-          codePage == CodePage.GB18030)
+      if (codePage == Encoding.UTF7.CodePage || codePage == 12000 || codePage == 12001 || codePage == 54936)
         return 4;
-      if (codePage == CodePage.UTF16Le || codePage == CodePage.UTF16Be)
+      if (codePage == Encoding.Unicode.CodePage || codePage == Encoding.BigEndianUnicode.CodePage)
         return 2;
 
       return 0;
@@ -204,37 +59,38 @@ namespace CsvTools
     /// </summary>
     /// <param name="buff">The buff.</param>
     /// <returns>The Code page id if, if the code page could not be identified 0</returns>
-    public static CodePage GetCodePageByByteOrderMark([CanBeNull] byte[] buff)
+    [CanBeNull]
+    public static Encoding GetEncodingByByteOrderMark([CanBeNull] byte[] buff)
     {
       if (buff == null)
-        return CodePage.None;
+        return null;
 
       if (buff.Length >= 4)
       {
         // Start with longer chains, as UTF16_LE looks like UTF32_LE for the first 2 chars
         if (buff[0] == 0x00 && buff[1] == 0x00 && buff[2] == 0xFE && buff[3] == 0xFF)
-          return CodePage.UTF32Be;
+          return Encoding.GetEncoding(12001);
         if (buff[0] == 0xFF && buff[1] == 0xFE && buff[2] == 0x00 && buff[3] == 0x00)
-          return CodePage.UTF32Le;
+          return Encoding.UTF32;
         if (buff[0] == 0x84 && buff[1] == 0x31 && buff[2] == 0x95 && buff[3] == 0x33)
-          return CodePage.GB18030;
+          return Encoding.GetEncoding(54936);
         if (buff[0] == 0x2B && buff[1] == 0x2F && buff[2] == 0x76 &&
             (buff[3] == 0x38 || buff[3] == 0x39 || buff[3] == 0x2B || buff[3] == 0x2f))
-          return CodePage.UTF7;
+          return Encoding.UTF7;
       }
 
       if (buff.Length >= 3)
         if (buff[0] == 0xEF && buff[1] == 0xBB && buff[2] == 0xBF)
-          return CodePage.UTF8;
+          return Encoding.UTF8;
 
       if (buff.Length < 2)
-        return CodePage.None;
+        return null;
       if (buff[0] == 0xFE && buff[1] == 0xFF)
-        return CodePage.UTF16Be;
+        return Encoding.BigEndianUnicode;
       if (buff[0] == 0xFF && buff[1] == 0xFE)
-        return CodePage.UTF16Le;
+        return Encoding.Unicode;
 
-      return CodePage.None;
+      return null;
     }
 
     /// <summary>
@@ -248,20 +104,20 @@ namespace CsvTools
     {
       switch (codePage)
       {
-        case (int) CodePage.UTF16Le:
+        case 1200:
           return new UnicodeEncoding(false, byteOrderMark);
 
-        case (int) CodePage.UTF16Be:
+        case 1201:
           return new UnicodeEncoding(true, byteOrderMark);
 
-        case (int) CodePage.UTF8:
+        case 65001:
         case -1: // Treat Guess Code page as (UTF-8)
           return new UTF8Encoding(byteOrderMark);
 
-        case (int) CodePage.UTF32Le:
+        case 12000:
           return new UTF32Encoding(false, byteOrderMark);
 
-        case (int) CodePage.UTF32Be:
+        case 12001:
           return new UTF32Encoding(true, byteOrderMark);
 
         default:
@@ -269,8 +125,8 @@ namespace CsvTools
       }
     }
 
-    public static string GetEncodingName(CodePage codePage, bool showBom, bool hasBom) =>
-      GetEncodingName((int) codePage, showBom, hasBom);
+    public static string GetEncodingName(Encoding encoding, bool showBom, bool hasBom) =>
+      GetEncodingName(encoding.CodePage, showBom, hasBom);
 
     /// <summary>
     ///   Gets the name of the encoding.
@@ -285,7 +141,7 @@ namespace CsvTools
       const string c_SuffixWithBom = " with BOM";
       string name;
       var suffixBom = hasBom ? c_SuffixWithBom :
-        showBom ? cSuffixWithoutBom : string.Empty;
+                      showBom ? cSuffixWithoutBom : string.Empty;
       try
       {
         switch (codePage)
@@ -293,27 +149,27 @@ namespace CsvTools
           case -1:
             return "<Determine code page>";
 
-          case (int) CodePage.UTF16Le:
+          case 1200:
             name = "Unicode (UTF-16) / ISO 10646 / UCS-2 Little-Endian" + suffixBom;
             break;
 
-          case (int) CodePage.UTF16Be:
+          case 1201:
             name = "Unicode (UTF-16 Big-Endian) / UCS-2 Big-Endian" + suffixBom;
             break;
 
-          case (int) CodePage.WIN1252:
+          case 1252:
             name = Encoding.GetEncoding(codePage).EncodingName + " / Latin I";
             break;
 
-          case (int) CodePage.MSLatin:
+          case 850:
             name = "Western European (DOS) / MS-DOS Latin 1";
             break;
 
-          case (int) CodePage.OEMLatin:
+          case 852:
             name = "Central European (DOS) / OEM Latin 2";
             break;
 
-          case (int) CodePage.MSDos:
+          case 437:
             name = "OEM United States / IBM PC:default / MS-DOS";
             break;
 
@@ -334,118 +190,16 @@ namespace CsvTools
     ///   Guesses the code page.
     /// </summary>
     /// <param name="buff">The buff containing the characters.</param>
-    /// <param name="len">The length of the buffer.</param>
-    /// <returns><see cref="CodePage"/> its integer is the same a the windows code page id</returns>
-    public static CodePage GuessCodePageNoBom([CanBeNull] byte[] buff, int len)
+    /// <returns><see cref="Encoding"/></returns>
+    public static Encoding GuessEncodingNoBom([CanBeNull] byte[] buff)
     {
       if (buff == null)
-        return CodePage.UTF8;
+        return Encoding.UTF8;
 
-      var detectedCodePage = CodePage.UTF8;
-
-      var charsetDetector = new CharsetDetector();
-      charsetDetector.Feed(buff, 0, len);
-      charsetDetector.DataEnd();
-
-      if (charsetDetector.Charset == null)
-        return detectedCodePage;
-#pragma warning disable CA1308 // Normalize strings to uppercase
-      switch (charsetDetector.Charset.ToLowerInvariant())
-      {
-        case "ascii":
-          detectedCodePage = CodePage.ASCII;
-          break;
-
-        case "windows-1252":
-          detectedCodePage = CodePage.WIN1252;
-          break;
-
-        case "big-5":
-          detectedCodePage = CodePage.BIG5;
-          break;
-
-        case "euc-jp":
-          detectedCodePage = CodePage.EUCJP;
-          break;
-
-        case "euc-kr":
-          detectedCodePage = CodePage.EUCKR;
-          break;
-
-        case "gb18030":
-          detectedCodePage = CodePage.GB18030;
-          break;
-
-        case "shift-jis":
-          detectedCodePage = CodePage.ShiftJis;
-          break;
-
-        case "iso-8859-8":
-          detectedCodePage = CodePage.ISO88598;
-          break;
-
-        case "windows-1255":
-          detectedCodePage = CodePage.WIN1255;
-          break;
-
-        case "windows-1250":
-          detectedCodePage = CodePage.WIN1250;
-          break;
-
-        case "windows-1253":
-          detectedCodePage = CodePage.WIN1253;
-          break;
-
-        case "ibm866":
-          detectedCodePage = CodePage.IBM866;
-          break;
-
-        case "ibm855":
-          detectedCodePage = CodePage.IBM855;
-          break;
-
-        case "x-mac-cyrillic":
-          detectedCodePage = CodePage.MacCyrillic;
-          break;
-
-        case "iso-8859-5":
-          detectedCodePage = CodePage.ISO88595;
-          break;
-
-        case "windows-1251":
-          detectedCodePage = CodePage.WIN1251;
-          break;
-
-        case "iso-8859-7":
-          detectedCodePage = CodePage.ISO88597;
-          break;
-
-        case "iso-8859-2":
-          detectedCodePage = CodePage.ISO88592;
-          break;
-
-        case "koi8-r":
-          detectedCodePage = CodePage.KOI8R;
-          break;
-
-        case "utf-16le":
-          detectedCodePage = CodePage.UTF16Le;
-          break;
-
-        case "utf-16be":
-          detectedCodePage = CodePage.UTF16Be;
-          break;
-
-        case "utf-32be":
-          detectedCodePage = CodePage.UTF32Be;
-          break;
-
-        case "utf-32le":
-          detectedCodePage = CodePage.UTF32Le;
-          break;
-      }
-#pragma warning restore CA1308 // Normalize strings to uppercase
-      return detectedCodePage;
+      var results = CharsetDetector.DetectFromBytes(buff);
+      if (results.Detected.Confidence < 0.2)
+        return Encoding.UTF8;
+      return results.Detected.Encoding;
     }
   }
 }
