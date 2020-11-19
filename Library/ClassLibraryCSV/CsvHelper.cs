@@ -164,7 +164,7 @@ namespace CsvTools
           var (newHeader, numIssues) = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null, null);
 
           // looking at the warnings raised
-          if (numIssues >= halfTheColumns || numIssues > 1)
+          if (numIssues >= halfTheColumns || numIssues > 2)
             throw new ApplicationException($"{numIssues} header where empty, duplicate or too long");
 
           // Columns are only one or two char,  does not look descriptive
