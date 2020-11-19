@@ -49,7 +49,7 @@ namespace CsvTools.Tests
         }
       }
     }
-
+    
     [TestMethod]
     public async System.Threading.Tasks.Task AnalyseStreamAsyncGZip()
     {
