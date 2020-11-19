@@ -152,7 +152,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetFileReader()
     {
-      m_CsvFile.FileName = "BasicCSV.txt";
+      m_CsvFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt");
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var res = FunctionalDI.GetFileReader(m_CsvFile, TimeZoneInfo.Local.Id, processDisplay))
       {
