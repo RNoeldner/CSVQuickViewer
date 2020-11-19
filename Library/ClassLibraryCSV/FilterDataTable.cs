@@ -47,7 +47,7 @@ namespace CsvTools
     /// <param name="init">The initial DataTable</param>
     public FilterDataTable([NotNull] DataTable init)
     {
-      m_SourceTable = init;
+      m_SourceTable = init ?? throw new ArgumentNullException(nameof(init));
       FilterTable = m_SourceTable.Clone();
     }
 

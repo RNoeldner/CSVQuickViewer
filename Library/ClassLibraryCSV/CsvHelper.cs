@@ -164,23 +164,23 @@ namespace CsvTools
           var (newHeader, numIssues) = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null, null);
 
           // looking at the warnings raised
-          if (numIssues >= halfTheColumns || numIssues > 5)
+          if (numIssues >= halfTheColumns || numIssues > 1)
             throw new ApplicationException($"{numIssues} header where empty, duplicate or too long");
 
           // Columns are only one or two char,  does not look descriptive
           if (newHeader.Count(x => x.Length < 3) > halfTheColumns)
             throw new ApplicationException(
-              $"Headers {string.Join(", ", newHeader.Where(x => x.Length < 3))} shorter then 3 character");
+              $"Headers '{string.Join("', '", newHeader.Where(x => x.Length < 3))}' very short");
 
-          var numerics = headerRow.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
+          var numeric = headerRow.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
           var specials = headerRow.Where(header => Regex.IsMatch(header, @"[^\w\d\-_\s<>#,.*\[\]\(\)+?!]")).ToList();
-          if (numerics.Count + specials.Count >= halfTheColumns)
+          if (numeric.Count + specials.Count >= halfTheColumns)
           {
             var msg = new StringBuilder();
-            if (numerics.Count > 0)
+            if (numeric.Count > 0)
             {
               msg.Append("Headers ");
-              foreach (var header in numerics)
+              foreach (var header in numeric)
               {
                 msg.Append("'");
                 msg.Append(header.Trim('\"'));
