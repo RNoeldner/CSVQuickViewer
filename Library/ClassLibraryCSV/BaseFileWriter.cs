@@ -37,6 +37,7 @@ namespace CsvTools
     private readonly string m_Footer;
     [NotNull] private readonly string m_FullPath;
     private readonly string m_Recipient;
+    private readonly string m_IdentifierInContainer;
     private readonly Action<string> m_ReportProgress;
     private readonly Action<long> m_SetMaxProcess;
     protected readonly string NewLine;
@@ -44,7 +45,7 @@ namespace CsvTools
     private DateTime m_LastNotification = DateTime.Now;
 
     protected BaseFileWriter([NotNull] string id,
-      [NotNull] string fullPath, string recipient, bool hasFieldHeader,
+      [NotNull] string fullPath, string recipient, string identifierInContainer, bool hasFieldHeader,
       [NotNull] string footer,
       [NotNull] string header,
       [NotNull] IValueFormat valueFormat, [NotNull] IFileFormat fileFormat,
@@ -65,6 +66,7 @@ namespace CsvTools
         fileName, id);
       m_FileSettingDisplay = fileSettingDisplay;
       m_Recipient = recipient;
+      m_IdentifierInContainer = identifierInContainer;
 
       Logger.Debug("Created Writer for {filesetting}", m_FileSettingDisplay);
       if (processDisplay == null) return;
@@ -82,7 +84,7 @@ namespace CsvTools
     /// <exception cref="ArgumentNullException">fileSetting</exception>
     /// <exception cref="ArgumentException">No SQL Reader set</exception>
     protected BaseFileWriter([NotNull] IFileSettingPhysicalFile fileSetting, [CanBeNull] IProcessDisplay processDisplay)
-      : this(fileSetting.ID, fileSetting.FullPath, fileSetting.Recipient, fileSetting.HasFieldHeader,
+      : this(fileSetting.ID, fileSetting.FullPath, fileSetting.Recipient, fileSetting.IdentifierInContainer, fileSetting.HasFieldHeader,
         fileSetting.Footer, fileSetting.Header, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat,
         fileSetting.ColumnCollection.ReadonlyCopy(), fileSetting.ToString(), processDisplay)
     {
@@ -112,7 +114,11 @@ namespace CsvTools
 
       try
       {
-        using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(m_FullPath, false) { Recipient = m_Recipient }))
+        var sourceAccess = new SourceAccess(m_FullPath, false) { Recipient = m_Recipient };
+        if (!string.IsNullOrEmpty(m_IdentifierInContainer))
+          sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
+
+        using (var improvedStream = FunctionalDI.OpenStream(sourceAccess))
           await WriteReaderAsync(reader, improvedStream as Stream, token).ConfigureAwait(false);
       }
       catch (Exception exc)
