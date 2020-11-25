@@ -22,12 +22,12 @@ using System.Threading.Tasks;
 namespace CsvTools
 {
   /// <summary>
-  ///   A wrapper around streams to handle encryption and Compression
-  ///   As some of these additionally used stream do not support seek, sometimes seek has to be started from scratch
+  ///   A wrapper around streams to handle encryption and Compression As some of these additionally
+  ///   used stream do not support seek, sometimes seek has to be started from scratch
   /// </summary>
   public class ImprovedStream : Stream, IImprovedStream
   {
-    const int c_BufferSize = 8192;
+    private const int c_BufferSize = 8192;
     protected readonly SourceAccess SourceAccess;
     private bool m_DisposedValue;
     private ICSharpCode.SharpZipLib.Zip.ZipFile m_ZipFile;
@@ -40,7 +40,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Create an improved stream based on another stream
+    ///   Create an improved stream based on another stream
     /// </summary>
     /// <param name="stream">The source stream, the stream must support seek</param>
     /// <param name="isReading"></param>
@@ -57,7 +57,6 @@ namespace CsvTools
     [NotNull] protected Stream AccessStream { get; set; }
 
     [NotNull] protected Stream BaseStream { get; private set; }
-
 
     public double Percentage => (double) BaseStream.Position / BaseStream.Length;
 
@@ -104,7 +103,8 @@ namespace CsvTools
     public override long Length => BaseStream.Length;
 
     /// <summary>
-    /// This is the position in the base stream, Access stream (e.G. gZip stream) might not support a position
+    ///   This is the position in the base stream, Access stream (e.G. gZip stream) might not
+    ///   support a position
     /// </summary>
     public override long Position
     {
@@ -233,19 +233,20 @@ namespace CsvTools
         else
         {
           var entryIndex = m_ZipFile.FindEntry(SourceAccess.IdentifierInContainer, true);
-          if (entryIndex > -1)
-          {
-            Logger.Debug("Unzipping {filename} {container}", SourceAccess.Identifier,
-              SourceAccess.IdentifierInContainer);
-            AccessStream = m_ZipFile.GetInputStream(entryIndex);
-            hasFile = true;
-          }
+          if (entryIndex ==-1)
+            throw new FileNotFoundException($"Could not find {SourceAccess.IdentifierInContainer} in {SourceAccess.Identifier}");
+
+          Logger.Debug("Unzipping {filename} {container}", SourceAccess.Identifier,
+            SourceAccess.IdentifierInContainer);
+          AccessStream = m_ZipFile.GetInputStream(entryIndex);
+          hasFile = true;
         }
 
         if (!hasFile)
           Logger.Warning("No zip entry found in {filename} {container}", SourceAccess.Identifier,
             SourceAccess.IdentifierInContainer);
       }
+      // is writing
       else
       {
         var zipOutputStream = new ICSharpCode.SharpZipLib.Zip.ZipOutputStream(BaseStream, c_BufferSize);
@@ -257,8 +258,8 @@ namespace CsvTools
           SourceAccess.IdentifierInContainer = "File1.txt";
         Logger.Debug("Zipping {container} into {filename}", SourceAccess.IdentifierInContainer,
           SourceAccess.Identifier);
-
-        zipOutputStream.PutNextEntry(new ICSharpCode.SharpZipLib.Zip.ZipEntry(SourceAccess.IdentifierInContainer));
+        var cleanName = ICSharpCode.SharpZipLib.Zip.ZipEntry.CleanName(SourceAccess.IdentifierInContainer);
+        zipOutputStream.PutNextEntry(new ICSharpCode.SharpZipLib.Zip.ZipEntry(cleanName));
         AccessStream = zipOutputStream;
       }
     }
@@ -280,7 +281,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Initializes Stream that will be used for reading / writing the data (after Encryption or compression)
+    ///   Initializes Stream that will be used for reading / writing the data (after Encryption or compression)
     /// </summary>
     protected virtual void ResetStreams() => BaseOpen();
   }
