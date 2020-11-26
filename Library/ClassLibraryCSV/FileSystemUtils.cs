@@ -314,7 +314,7 @@ namespace CsvTools
       var ret = fileName.RemovePrefix();
       if (length <= 0 || string.IsNullOrEmpty(fileName) || fileName.Length <= length)
         return ret;
-      var parts = fileName.Split(new[] {'\\'}, StringSplitOptions.RemoveEmptyEntries);
+      var parts = fileName.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
       var fileNameOnly = parts[parts.Length - 1];
 
       // try to cut out directories
@@ -433,7 +433,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileName))
         return string.Empty;
-      if (fileName.IndexOfAny(new[] {'*', '?', '[', ']'}) == -1)
+      if (fileName.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
         return fileName;
 
       var split = SplitPath(fileName);
@@ -541,7 +541,7 @@ namespace CsvTools
 
       return lastIndex != -1
         ? new SplitResult(path.Substring(0, lastIndex).RemovePrefix(), path.Substring(lastIndex + 1))
-        : new SplitResult(path.RemovePrefix(), string.Empty);
+        : new SplitResult(string.Empty, path.RemovePrefix());
     }
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]

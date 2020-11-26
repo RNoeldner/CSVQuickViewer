@@ -190,14 +190,14 @@ namespace CsvTools
     ///   Guesses the code page.
     /// </summary>
     /// <param name="buff">The buff containing the characters.</param>
-    /// <returns><see cref="Encoding"/></returns>
+    /// <returns><see cref="Encoding" /></returns>
     public static Encoding GuessEncodingNoBom([CanBeNull] byte[] buff)
     {
       if (buff == null)
         return Encoding.UTF8;
 
       var results = CharsetDetector.DetectFromBytes(buff);
-      if (results.Detected.Confidence < 0.2)
+      if (results.Detected ==null || results.Detected.Confidence < 0.2)
         return Encoding.UTF8;
       return results.Detected.Encoding;
     }
