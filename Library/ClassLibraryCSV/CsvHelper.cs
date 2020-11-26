@@ -167,7 +167,7 @@ namespace CsvTools
           if (numIssues >= halfTheColumns || numIssues > 2)
             throw new ApplicationException($"{numIssues} header where empty, duplicate or too long");
 
-          // Columns are only one or two char,  does not look descriptive
+          // Columns are only one or two char, does not look descriptive
           if (newHeader.Count(x => x.Length < 3) > halfTheColumns)
             throw new ApplicationException(
               $"Headers '{string.Join("', '", newHeader.Where(x => x.Length < 3))}' very short");
@@ -213,11 +213,11 @@ namespace CsvTools
       }
       catch (ApplicationException ex)
       {
-        Logger.Information("Without Header Row {reason}", ex.Message);
+        Logger.Information("  Without Header Row {reason}", ex.Message);
         return new Tuple<bool, string>(false, ex.Message);
       }
 
-      Logger.Information("With Header Row");
+      Logger.Information("  Has Header Row");
       return new Tuple<bool, string>(true, "Header seems present");
     }
 
@@ -399,8 +399,6 @@ namespace CsvTools
       {
         if (display.CancellationToken.IsCancellationRequested)
           return detection;
-        // display.SetProcess("Checking Start Row", -1, true);
-        // improvedStream.Seek(0, SeekOrigin.Begin);
         using (var textReader = new ImprovedTextReader(improvedStream, detection.CodePageId))
         {
           textReader.ToBeginning();
@@ -450,7 +448,7 @@ namespace CsvTools
         }
       }
 
-      // find start row again , with possibly changed FieldDelimiter 
+      // find start row again , with possibly changed FieldDelimiter
       if (guessStartRow && oldDelimiter != detection.FieldDelimiter.WrittenPunctuationToChar())
       {
         if (display.CancellationToken.IsCancellationRequested)
@@ -765,7 +763,7 @@ namespace CsvTools
       }
 
       var result = match == '\t' ? "TAB" : match.ToString(CultureInfo.CurrentCulture);
-      Logger.Information("Column Delimiter: {delimiter}", result);
+      Logger.Information("  Column Delimiter: {delimiter}", result);
       return new Tuple<string, bool>(result, true);
     }
 
@@ -864,7 +862,7 @@ namespace CsvTools
                 : count[c_LFCr] == maxCount ? RecordDelimiterType.LFCR
                 : count[c_CrLf] == maxCount ? RecordDelimiterType.CRLF
                 : RecordDelimiterType.None;
-      Logger.Information("Record Delimiter: {recorddelimiter}", res.Description());
+      Logger.Information("  Record Delimiter: {recorddelimiter}", res.Description());
       return res;
     }
 
@@ -916,7 +914,9 @@ namespace CsvTools
 
       var res = max < 1 ? '\0' : possibleQuotes.Where((t, testChar) => counter[testChar] == max).FirstOrDefault();
       if (res != '\0')
-        Logger.Information("Column Qualifier: {qualifier}", res);
+        Logger.Information("  Column Qualifier: {qualifier}", res);
+      else
+        Logger.Information("  No Column Qualifier");
       return res;
     }
 
@@ -947,6 +947,7 @@ namespace CsvTools
       var quoted = false;
       var firstChar = true;
       var lastRow = 0;
+      var retValue = 0;
 
       while (lastRow < c_MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
@@ -1035,59 +1036,61 @@ namespace CsvTools
       }
 
       // if we do not more than 4 proper rows do nothing
-      if (columnCount.Count < 4)
-        return 0;
-
-      // In case we have a row that is exactly twice as long as the row before and row after, assume
-      // its missing a linefeed
-      for (var row = 1; row < columnCount.Count - 1; row++)
-        if (columnCount[row + 1] > 0 && columnCount[row] == columnCount[row + 1] * 2 &&
-            columnCount[row] == columnCount[row - 1] * 2)
-          columnCount[row] = columnCount[row + 1];
-      cancellationToken.ThrowIfCancellationRequested();
-      // Get the average of the last 15 rows
-      var num = 0;
-      var sum = 0;
-      for (var row = columnCount.Count - 1; num < 10 && row > 0; row--)
+      if (columnCount.Count > 4)
       {
-        if (columnCount[row] <= 0)
-          continue;
-        sum += columnCount[row];
-        num++;
+        // In case we have a row that is exactly twice as long as the row before and row after,
+        // assume its missing a linefeed
+        for (var row = 1; row < columnCount.Count - 1; row++)
+          if (columnCount[row + 1] > 0 && columnCount[row] == columnCount[row + 1] * 2 &&
+              columnCount[row] == columnCount[row - 1] * 2)
+            columnCount[row] = columnCount[row + 1];
+        cancellationToken.ThrowIfCancellationRequested();
+        // Get the average of the last 15 rows
+        var num = 0;
+        var sum = 0;
+        for (var row = columnCount.Count - 1; num < 10 && row > 0; row--)
+        {
+          if (columnCount[row] <= 0)
+            continue;
+          sum += columnCount[row];
+          num++;
+        }
+
+        var avg = (int) (sum / (double) (num == 0 ? 1 : num));
+        // If there are not many columns do not try to guess
+        if (avg > 1)
+        {
+          // If the first rows would be a good fit return this
+          if (columnCount[0] < avg)
+          {
+            for (var row = columnCount.Count - 1; row > 0; row--)
+              if (columnCount[row] > 0)
+              {
+                if (columnCount[row] >= avg - 1) continue;
+                retValue =  rowMapping[row];
+                break;
+              }
+              // In case we have an empty line but the next line are roughly good match take that
+              // empty line
+              else if (row + 2 < columnCount.Count && columnCount[row + 1] == columnCount[row + 2] &&
+                       columnCount[row + 1] >= avg - 1)
+              {
+                retValue = rowMapping[row + 1];
+                break;
+              }
+            if (retValue==0)
+              for (var row = 0; row < columnCount.Count; row++)
+                if (columnCount[row] > 0)
+                {
+                  Logger.Information("  Start Row: {row}", row);
+                  retValue = rowMapping[row];
+                  break;
+                }
+          }
+        }
       }
-
-      var avg = (int) (sum / (double) (num == 0 ? 1 : num));
-      // If there are not many columns do not try to guess
-      if (avg <= 1)
-        return 0;
-      {
-        // If the first rows would be a good fit return this
-        if (columnCount[0] >= avg)
-          return 0;
-
-        for (var row = columnCount.Count - 1; row > 0; row--)
-          if (columnCount[row] > 0)
-          {
-            if (columnCount[row] >= avg - 1) continue;
-            Logger.Information("Start Row: {row}", row);
-            return rowMapping[row];
-          }
-          // In case we have an empty line but the next line are roughly good match take that empty line
-          else if (row + 2 < columnCount.Count && columnCount[row + 1] == columnCount[row + 2] &&
-                   columnCount[row + 1] >= avg - 1)
-          {
-            Logger.Information("Start Row: {row}", row + 1);
-            return rowMapping[row + 1];
-          }
-
-        for (var row = 0; row < columnCount.Count; row++)
-          if (columnCount[row] > 0)
-          {
-            Logger.Information("Start Row: {row}", row);
-            return rowMapping[row];
-          }
-      }
-      return 0;
+      Logger.Information("  Start Row: {row}", retValue);
+      return retValue;
     }
 
     [NotNull]
@@ -1106,7 +1109,7 @@ namespace CsvTools
         {
           if (await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false))
           {
-            Logger.Information("Detected Json file");
+            Logger.Information("  Detected Json file");
             if (jsonTextReader.TokenType == JsonToken.StartObject ||
                 jsonTextReader.TokenType == JsonToken.StartArray ||
                 jsonTextReader.TokenType == JsonToken.StartConstructor)
@@ -1180,7 +1183,7 @@ namespace CsvTools
         return settingFs;
       }
 
-      // Determine  from file
+      // Determine from file
       var fileSetting = new CsvFile();
       initAction?.Invoke(fileSetting);
 
