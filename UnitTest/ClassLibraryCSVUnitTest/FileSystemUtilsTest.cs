@@ -29,7 +29,6 @@ namespace CsvTools.Tests
       var test1 = FileSystemUtils.GetStreamReaderForFileOrResource("DateTimeFormats.txt");
       Assert.IsNotNull(test1);
 
-
       // load a unknown resource from this DLL
       var test2 = FileSystemUtils.GetStreamReaderForFileOrResource("SampleFile2.txt");
       Assert.IsNull(test2);
@@ -46,7 +45,6 @@ namespace CsvTools.Tests
       var testFile2 = GetLongFileName("FileInfoTest2.txt", true);
       var test2 = new FileSystemUtils.FileInfo(testFile2);
       Assert.IsTrue(test2.Exists);
-
 
       var date = new DateTime(2020, 10, 17, 17, 23, 44);
       var test3 = new FileSystemUtils.FileInfo(testFile, 643788L, date);
@@ -93,7 +91,6 @@ namespace CsvTools.Tests
       var fn = GetLongFileName("CsvDataReaderUnitTestReadFiles.txt", false);
       Assert.AreEqual(fn, fn.LongPathPrefix().RemovePrefix());
     }
-
 
     [TestMethod]
     public void CreateDirectory()
@@ -176,7 +173,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void SafePath() => Assert.AreEqual("Test$Files\\Basic$CSV.txt", "Test|Files\\Basic<CSV.txt".SafePath("$"));
 
-
     [TestMethod]
     public void GetLatestFileOfPattern()
     {
@@ -218,6 +214,14 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void SplitPath_NoDirectory()
+    {
+      var dn = FileSystemUtils.SplitPath("FileName.Ext");
+      Assert.AreEqual("FileName.Ext", dn.FileName);
+      Assert.IsTrue(string.IsNullOrEmpty(dn.DirectoryName));
+    }
+
+    [TestMethod]
     public void GetFileNameWithoutExtension()
     {
       var split = FileSystemUtils.GetFileNameWithoutExtension("C:\\MyTest\\Test.dat");
@@ -230,7 +234,6 @@ namespace CsvTools.Tests
       var fn = UnitTestInitializeCsv.GetTestPath("Test2.dat");
       if (File.Exists(fn))
         File.Delete(fn);
-
 
       using (var stream = FileSystemUtils.Create(fn, 32000, FileOptions.Asynchronous))
       {
