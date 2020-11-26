@@ -11,9 +11,11 @@ namespace CsvTools
       {
         detailControl.EndOfFile = () =>
           wrapper?.EndOfFile ?? true;
-
-        detailControl.toolStripButtonNext.Visible = wrapper != null;
-        detailControl.toolStripButtonNext.Enabled = wrapper != null;
+        detailControl.SafeBeginInvoke(() =>
+        {
+          detailControl.toolStripButtonNext.Visible = wrapper != null;
+          detailControl.toolStripButtonNext.Enabled = wrapper != null;
+        });
       })
     {
     }
