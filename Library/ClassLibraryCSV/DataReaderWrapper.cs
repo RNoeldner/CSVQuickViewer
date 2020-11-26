@@ -42,7 +42,7 @@ namespace CsvTools
 
     public override bool IsClosed => DataReader.IsClosed;
 
-    public virtual int Percent => RecordNumber > 0 ? (int) (RecordNumber / (double) m_RecordLimit * 100d) : 0;
+    public virtual int Percent => (FileReader != null && FileReader.Percent != 0 && FileReader.Percent != 100) ? FileReader.Percent : RecordNumber > 0 ? (int) (RecordNumber / (double) m_RecordLimit * 100d) : 0;
 
     public long RecordNumber { get; protected set; }
 
