@@ -79,20 +79,17 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task UniqueFieldName()
+    public void UniqueFieldName()
     {
       var dt = GetDataTable(10);
       using (var test = new FilterDataTable(dt.Item1))
       {
         test.UniqueFieldName = new[] { "ColID" };
-        test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestInitializeCsv.Token);
+        var task = test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestInitializeCsv.Token).ConfigureAwait(false);
         while (test.Filtering)
-        {
           test.WaitCompeteFilter(0.1);
-        }
 
         Assert.IsFalse(test.Filtering);
-
         var result1 = test.ColumnsWithoutErrors;
         Assert.IsFalse(result1.Contains("ColID"));
       }
