@@ -36,7 +36,6 @@ namespace CsvTools
       try
       {
         control.Enabled = false;
-
         action.Invoke();
       }
       catch (Exception ex)
