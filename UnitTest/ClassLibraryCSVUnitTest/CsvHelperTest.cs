@@ -144,14 +144,12 @@ namespace CsvTools.Tests
       }
     }
 
-
     [TestMethod]
     public void GuessHeaderBasicCSV()
     {
       var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"))
       {
-        CodePageId = 1200,
-        FileFormat = new FileFormat() { FieldDelimiter = "," }
+        CodePageId = 1200, FileFormat = new FileFormat() { FieldDelimiter = "," }
       };
       var result = CsvHelper.GuessHeader(setting, UnitTestInitializeCsv.Token);
       Assert.IsTrue(setting.HasFieldHeader);
@@ -163,8 +161,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"))
       {
-        CodePageId = 65001,
-        FileFormat = new FileFormat() { FieldDelimiter = "\t" }
+        CodePageId = 65001, FileFormat = new FileFormat() { FieldDelimiter = "\t" }
       };
       var result = CsvHelper.GuessHeader(setting, UnitTestInitializeCsv.Token);
       Assert.IsTrue(setting.HasFieldHeader);
@@ -176,8 +173,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicEscapedCharacters.txt"))
       {
-        CodePageId = 65001,
-        FileFormat = new FileFormat() { FieldDelimiter = "," }
+        CodePageId = 65001, FileFormat = new FileFormat() { FieldDelimiter = "," }
       };
       var result = CsvHelper.GuessHeader(setting, UnitTestInitializeCsv.Token);
       Assert.IsFalse(setting.HasFieldHeader);
@@ -189,27 +185,24 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("LongHeaders.txt"))
       {
-        CodePageId = 65001,
-        FileFormat = new FileFormat() { FieldDelimiter = ",", CommentLine = "#"}
+        CodePageId = 65001, FileFormat = new FileFormat() { FieldDelimiter = ",", CommentLine = "#" }
       };
       var result = CsvHelper.GuessHeader(setting, UnitTestInitializeCsv.Token);
       Assert.IsFalse(setting.HasFieldHeader);
     }
-
 
     [TestMethod]
     public void GuessHeaderSkippingEmptyRowsWithDelimiter()
     {
       var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("SkippingEmptyRowsWithDelimiter.txt"))
       {
-        CodePageId = 65001,
-        FileFormat = new FileFormat() { FieldDelimiter = ",", CommentLine = "#" }
+        CodePageId = 65001, FileFormat = new FileFormat() { FieldDelimiter = ",", CommentLine = "#" }
       };
       var result = CsvHelper.GuessHeader(setting, UnitTestInitializeCsv.Token);
       Assert.IsFalse(setting.HasFieldHeader);
     }
 
-        [TestMethod]
+    [TestMethod]
     public async Task GuessNewlineTest()
     {
       // Storing Text file with given line ends is tricky, editor and source control might change
@@ -297,6 +290,15 @@ namespace CsvTools.Tests
           new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt") },
           UnitTestInitializeCsv.Token),
         "BasicCSV.txt");
+
+    [TestMethod]
+    public async Task GuessStartRowComment() =>
+      Assert.AreEqual(
+        0,
+        await CsvHelper.GuessStartRowAsync(
+          new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("TrimmingHeaders.txt"), FileFormat = new FileFormat() { CommentLine = "#" } },
+          UnitTestInitializeCsv.Token),
+        "TrimmingHeaders.txt");
 
     [TestMethod]
     public async Task GuessStartRow0Async()
