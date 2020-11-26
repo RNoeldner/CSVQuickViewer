@@ -32,7 +32,7 @@ namespace CsvTools
 #if NETCOREAPP3_1
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #else
-        CosturaUtility.Initialize();
+        // CosturaUtility.Initialize();
 #endif
       }
       catch (Exception ex)

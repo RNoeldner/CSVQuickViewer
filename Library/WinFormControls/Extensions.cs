@@ -29,8 +29,38 @@ namespace CsvTools
   /// </summary>
   public static class Extensions
   {
+    public static void RunWithHourglass([NotNull] this ToolStripItem item, [NotNull] Action action)
+    {
+      if (item is null)
+        throw new ArgumentNullException(nameof(item));
+      if (action is null)
+        throw new ArgumentNullException(nameof(action));
+      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+      try
+      {
+        item.Enabled = false;
+
+        action.Invoke();
+      }
+      catch (Exception ex)
+      {
+        var frm = item.Owner?.FindForm();
+        frm?.ShowError(ex);
+      }
+      finally
+      {
+        item.Enabled = true;
+        Cursor.Current = oldCursor;
+      }
+    }
+
     public static void RunWithHourglass([NotNull] this Control control, [NotNull] Action action)
     {
+      if (control is null)
+        throw new ArgumentNullException(nameof(control));
+      if (action is null)
+        throw new ArgumentNullException(nameof(action));
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try
@@ -50,8 +80,37 @@ namespace CsvTools
       }
     }
 
+    public static async Task RunWithHourglassAsync([NotNull] this ToolStripItem item, [NotNull] Func<Task> action)
+    {
+      if (item is null)
+        throw new ArgumentNullException(nameof(item));
+      if (action is null)
+        throw new ArgumentNullException(nameof(action));
+      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+      try
+      {
+        item.Enabled = false;
+        await action.Invoke();
+      }
+      catch (Exception ex)
+      {
+        var frm = item.Owner?.FindForm();
+        frm?.ShowError(ex);
+      }
+      finally
+      {
+        item.Enabled = true;
+        Cursor.Current = oldCursor;
+      }
+    }
+
     public static async Task RunWithHourglassAsync([NotNull] this Control control, [NotNull] Func<Task> action)
     {
+      if (control is null)
+        throw new ArgumentNullException(nameof(control));
+      if (action is null)
+        throw new ArgumentNullException(nameof(action));
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try
@@ -73,6 +132,8 @@ namespace CsvTools
 
     public static void RunSTAThread([NotNull] this Action action, int timeoutMilliseconds = 20000)
     {
+      if (action is null)
+        throw new ArgumentNullException(nameof(action));
       try
       {
         if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)

@@ -200,7 +200,7 @@ namespace CsvTools
 
     private async void ToggleDisplayAsText(object sender, EventArgs e)
     {
-      try
+      await m_ToolStripButtonAsText.RunWithHourglassAsync(async () =>
       {
         m_ToolStripButtonAsText.Enabled = false;
         detailControl.SuspendLayout();
@@ -232,21 +232,14 @@ namespace CsvTools
         ViewSetting.ReStoreViewSetting(store, detailControl.FilteredDataGridView.Columns,
           new List<ToolStripDataGridViewColumnFilter>(), null, null);
         detailControl.ResumeLayout();
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex);
-      }
-      finally
-      {
-        m_ToolStripButtonAsText.Enabled = true;
-      }
+      });
     }
 
     private void ShowSourceFile(object sender, EventArgs e)
     {
       if (m_SourceDisplay != null) return;
-      try
+      m_ToolStripButtonSource.RunWithHourglass(() =>
+
       {
         m_ToolStripButtonSource.Enabled = false;
         m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting.FullPath);
@@ -265,14 +258,7 @@ namespace CsvTools
             m_FileSetting.CodePageId, m_FileSetting.SkipRows, m_FileSetting.FileFormat.CommentLine);
           proc.Close();
         }
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex);
-        m_SourceDisplay?.Close();
-        m_SourceDisplay = null;
-        m_ToolStripButtonSource.Enabled = true;
-      }
+      });
     }
 
     private void SourceDisplayClosed(object sender, FormClosedEventArgs e)
@@ -605,7 +591,8 @@ namespace CsvTools
 
     private async void ShowSettings(object sender, EventArgs e)
     {
-      try
+      await m_ToolStripButtonSettings.RunWithHourglassAsync(async () =>
+
       {
         m_ToolStripButtonSettings.Enabled = false;
         ViewSettings.CopyConfiguration(m_FileSetting, m_ViewSettings);
@@ -619,15 +606,7 @@ namespace CsvTools
 
           await CheckPossibleChange();
         }
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex);
-      }
-      finally
-      {
-        m_ToolStripButtonSettings.Enabled = true;
-      }
+      });
     }
 
     private void ShowTextPanel(bool visible)

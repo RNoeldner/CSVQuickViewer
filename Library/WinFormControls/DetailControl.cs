@@ -127,8 +127,6 @@ namespace CsvTools
       ApplicationSetting.PropertyChanged += (sender, e) => { if (e.PropertyName==nameof(ApplicationSetting.MenuDown)) MoveMenu(); };
     }
 
-
-
     /// <summary>
     ///   AlternatingRowDefaultCellStyle of data grid
     /// </summary>
@@ -140,11 +138,6 @@ namespace CsvTools
       get => FilteredDataGridView.AlternatingRowsDefaultCellStyle;
       set => FilteredDataGridView.AlternatingRowsDefaultCellStyle = value;
     }
-
-    //public string ButtonAsTextCaption
-    //{
-    //  set => m_ToolStripButtonAsText.Text = value;
-    //}
 
     public CancellationToken CancellationToken
     {
@@ -469,10 +462,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonColumnLength_Click(object sender, EventArgs e)
     {
-      m_ToolStripButtonColumnLength.Enabled = false;
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-      try
+      m_ToolStripButtonColumnLength.RunWithHourglass(() =>
       {
         if (FilteredDataGridView.Columns.Count <= 0)
           return;
@@ -485,16 +475,7 @@ namespace CsvTools
           details.Icon = ParentForm?.Icon;
           details.ShowDialog(ParentForm);
         }
-      }
-      catch (Exception ex)
-      {
-        ParentForm.ShowError(ex, "Error trying to determine the length of the columns");
-      }
-      finally
-      {
-        m_ToolStripButtonColumnLength.Enabled = true;
-        Cursor.Current = oldCursor;
-      }
+      });
     }
 
     /// <summary>
@@ -504,8 +485,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonDuplicates_Click(object sender, EventArgs e)
     {
-      m_ToolStripButtonDuplicates.Enabled = false;
-      try
+      m_ToolStripButtonDuplicates.RunWithHourglass(() =>
       {
         if (FilteredDataGridView.Columns.Count <= 0)
           return;
@@ -521,15 +501,7 @@ namespace CsvTools
           details.Icon = ParentForm?.Icon;
           details.ShowDialog(ParentForm);
         }
-      }
-      catch (Exception ex)
-      {
-        ParentForm.ShowError(ex);
-      }
-      finally
-      {
-        m_ToolStripButtonDuplicates.Enabled = true;
-      }
+      });
     }
 
     /// <summary>
@@ -550,7 +522,7 @@ namespace CsvTools
             Icon = ParentForm?.Icon
           };
         m_HierarchyDisplay.Show();
-        m_HierarchyDisplay.FormClosed +=  (ob, ar) => this.SafeInvoke(()=>m_ToolStripButtonHierarchy.Enabled = true);
+        m_HierarchyDisplay.FormClosed +=  (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
       }
       catch (Exception ex)
       {
@@ -1120,7 +1092,6 @@ namespace CsvTools
       if (ReferenceEquals(m_BindingSource.DataSource, newDt))
         return;
 
-
       this.SafeInvokeNoHandleNeeded(() =>
       {
         FilteredDataGridView.DataSource = null;
@@ -1261,28 +1232,25 @@ namespace CsvTools
     {
       if (LoadNextBatchAsync == null || (EndOfFile?.Invoke() ?? true))
         return;
-
-      toolStripButtonNext.Enabled = false;
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-      try
+      await toolStripButtonNext.RunWithHourglassAsync(async () =>
       {
-        using (var frm = new FormProcessDisplay("Load", false, m_CancellationTokenSource.Token))
+        try
         {
-          frm.Show();
-          frm.Maximum = 100;
-          await LoadNextBatchAsync(frm);
+          using (var frm = new FormProcessDisplay("Load more...", false, m_CancellationTokenSource.Token))
+          {
+            frm.Show();
+            frm.Maximum = 100;
+            await LoadNextBatchAsync(frm);
+          }
         }
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-
-        var eof = EndOfFile.Invoke();
-        toolStripButtonNext.Enabled = !eof;
-        if (eof)
-          toolStripButtonNext.Text = @"All records have been loaded";
-      }
+        finally
+        {
+          var eof = EndOfFile.Invoke();
+          toolStripButtonNext.Enabled = !eof;
+          if (eof)
+            toolStripButtonNext.Text = @"All records have been loaded";
+        }
+      });
     }
 
     private class ProcessInformation : IDisposable
