@@ -181,7 +181,7 @@ namespace CsvTools
       }
 
       m_FieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
-      // if the writen text is no proper char its \0
+      // if the written text is no proper char its \0
       if (fieldQualifier.Length > 1 && m_FieldQualifierChar == '\0')
       {
         Logger.Warning($"Only the first character of {fieldQualifier} is be used for quoting.", fieldQualifier);
