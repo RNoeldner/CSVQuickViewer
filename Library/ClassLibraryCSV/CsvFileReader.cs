@@ -483,7 +483,7 @@ namespace CsvTools
     {
       var byFile = m_ImprovedStream?.Percentage ?? 0;
       if (RecordLimit > 0 && RecordLimit < long.MaxValue)
-        // you can either reach the record limit or the end of the stream, whatever is faster
+        // you can either reach the record limit or the end of the stream
         return Math.Max(((double) RecordNumber) / RecordLimit, byFile);
       return byFile;
     }

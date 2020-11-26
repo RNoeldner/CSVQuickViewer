@@ -45,7 +45,7 @@ namespace CsvTools
       m_FileReader = FunctionalDI.GetFileReader(fileSetting, TimeZoneInfo.Local.Id, processDisplay);
       if (m_FileReader == null)
         throw new FileReaderException($"Could not get reader for {fileSetting}");
-            
+
       RowErrorCollection warningList = null;
       if (addWarning != null)
       {
@@ -76,7 +76,6 @@ namespace CsvTools
       m_ActionFinished?.Invoke(m_DataReaderWrapper);
     }
 
-
     private async Task GetBatchByTimeSpan(TimeSpan maxDuration, bool restoreError,
       [NotNull] IProcessDisplay processDisplay)
     {
@@ -86,7 +85,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(processDisplay));
       try
       {
-        processDisplay.SetMaximum(-1);
+        processDisplay.SetMaximum(100);
         await m_DataReaderWrapper.LoadDataTable(m_GetDataTable(), maxDuration, restoreError,
           (l, i) => processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
           processDisplay.CancellationToken).ConfigureAwait(false);

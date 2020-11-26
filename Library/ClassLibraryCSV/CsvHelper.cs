@@ -451,6 +451,7 @@ namespace CsvTools
       // find start row again , with possibly changed FieldDelimiter
       if (guessStartRow && oldDelimiter != detection.FieldDelimiter.WrittenPunctuationToChar())
       {
+        Logger.Information("  Checking start row again because previously assumed delimiter has changed");
         if (display.CancellationToken.IsCancellationRequested)
           return detection;
         using (var textReader2 = new ImprovedTextReader(improvedStream, detection.CodePageId))
