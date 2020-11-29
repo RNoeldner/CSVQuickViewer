@@ -6,15 +6,15 @@ namespace CsvTools
       table => detailControl.DataTable = table,
       () => detailControl.DataTable, detailControl.RefreshDisplayAsync,
       func => detailControl.LoadNextBatchAsync = func,
-      () => detailControl.toolStripButtonNext.Enabled = false,
+      () => detailControl.ToolStripButtonNext.Enabled = false,
       wrapper =>
       {
         detailControl.EndOfFile = () =>
           wrapper?.EndOfFile ?? true;
         detailControl.SafeBeginInvoke(() =>
         {
-          detailControl.toolStripButtonNext.Visible = wrapper != null;
-          detailControl.toolStripButtonNext.Enabled = wrapper != null;
+          detailControl.ToolStripButtonNext.Visible = wrapper != null;
+          detailControl.ToolStripButtonNext.Enabled = wrapper != null;
         });
       })
     {
