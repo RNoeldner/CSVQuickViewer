@@ -32,7 +32,7 @@ namespace CsvTools
 #if NETCOREAPP3_1
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #else
-        // CosturaUtility.Initialize();
+        CosturaUtility.Initialize();
 #endif
       }
       catch (Exception ex)
@@ -110,7 +110,7 @@ namespace CsvTools
     {
       // Most likely disposing something which is still being used by a different thread its very
       // hard to track down as the stackframe is not useful, in 99% its updating progress or UI
-      if (ex is ObjectDisposedException && ex.Message == "Safe handle has been closed")
+      if (ex is ObjectDisposedException && ex.HResult==-2146232798)
       {
         // Logger.Warning(ex, "UnhandledException of type ObjectDisposedException is ignored");
         return;

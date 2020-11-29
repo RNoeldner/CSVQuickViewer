@@ -194,7 +194,7 @@ namespace CsvTools
     /// <summary>
     ///   The current DataView
     /// </summary>
-    internal DataView DataView { get; set; }
+    internal DataView DataView { get; private set; }
 
     private void FilteredDataGridView_Paint(object sender, PaintEventArgs e) => m_DefRowHeight =
                                                                                   TextRenderer.MeasureText(e.Graphics, "My Text", base.Font).Height * 120 / 100;
@@ -676,7 +676,7 @@ namespace CsvTools
       Columns.Clear();
 
       // along with the entries in the context menu
-      toolStripMenuItemColumnVisibility.CheckedListBoxControl?.Items.Clear();
+      toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.Clear();
 
       // if we do not have a BoundDataView exit now
       if (DataView == null)
@@ -967,6 +967,7 @@ namespace CsvTools
         switch (result)
         {
           case BuildValueClustersResult.Error:
+          case BuildValueClustersResult.NotRun:
             newMenuItem.Text = @"Values can not be clustered";
             newMenuItem.ToolTipText = @"Error has occurred while clustering the value";
             break;
@@ -1333,7 +1334,7 @@ namespace CsvTools
           "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
         if (!string.IsNullOrEmpty(fileName))
           using (var stream = new ImprovedStream(new SourceAccess(fileName, false)))
-          using (var writer = new StreamWriter((Stream) stream, Encoding.UTF8, 1024))
+          using (var writer = new StreamWriter(stream, Encoding.UTF8, 1024))
           {
             await writer.WriteAsync(ViewSetting.StoreViewSetting(this, m_Filter));
             await writer.FlushAsync();

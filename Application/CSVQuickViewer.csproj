@@ -596,6 +596,11 @@
       <Name>WinFormControls</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Costura.Fody">
+      <Version>4.1.0</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>CD "$(TargetDir)"
@@ -603,7 +608,7 @@ del *.pdb
 del *.log
 del *.xml
 REM Widnows 10: zipping with included tar
-tar.exe -a -c -f $(TargetName).zip *.dll $(TargetFileName)
+rem tar.exe -a -c -f $(TargetName).zip *.dll $(TargetFileName)
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

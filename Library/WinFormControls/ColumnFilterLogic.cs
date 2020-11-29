@@ -134,9 +134,6 @@ namespace CsvTools
     {
       DataPropertyName = dataPropertyName ?? throw new ArgumentNullException(nameof(dataPropertyName));
       m_ColumnDataType = columnDataType ?? throw new ArgumentNullException(nameof(columnDataType));
-
-      // m_ValueClusterCollection.CollectionChanged += delegate(object sender,
-      // System.Collections.Specialized.NotifyCollectionChangedEventArgs e) { FilterChanged(); };
     }
 
     /// <summary>
@@ -202,9 +199,11 @@ namespace CsvTools
     {
       get
       {
-        if (m_FilterExpressionOperator.Length > 0 && m_Operator != c_OperatorIsNotNull
-                                                  && m_FilterExpressionValue.Length > 0)
-          return $"{m_FilterExpressionOperator} AND {m_FilterExpressionValue}";
+        // if a Value value filer is active ignore Operator filer
+
+        //if (m_FilterExpressionOperator.Length > 0 && m_Operator != c_OperatorIsNotNull
+        //                                          && m_FilterExpressionValue.Length > 0)
+        //  return $"{m_FilterExpressionOperator} AND {m_FilterExpressionValue}";
         return m_FilterExpressionValue.Length > 0 ? m_FilterExpressionValue : m_FilterExpressionOperator;
       }
     }
