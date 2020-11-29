@@ -27,8 +27,10 @@ The application can:
 * HTML Copy and Paste for storing cut values in Excel / Word,  retaining value types
 
 This application does use various NuGet libraries:
+* Ben.Demystifier (Imprroved display of stack trace)
+* JetBrains.Annotations (ReSharper Annotations for code analysis)
 * FastColoredTextBox (Diplsay of source file with highlighting even if file is very large)
-* Ude.NetStandard  (Mozilla Universal Charset Detector for dotnet)
+* UTF.Unknown replacing Ude.NetStandard  (Detect character set for files)
 * Newtonsoft.Json (Support for Json files)
 * Costura.Fody (Embedding dll into executable)
 * Serilog (Logging Platform)
