@@ -12,74 +12,229 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
+using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class ValueClusterCollectionTests
   {
-    [TestMethod]
+    private static DataTable m_Data;
+    private static DataView m_DataView;
+
+    [ClassInitialize]
     [Timeout(5000)]
-    public void BuildValueClustersTest()
+    public static void ClassInitialize(TestContext context)
     {
-      using (var data = UnitTestStatic.GetDataTable(200))
-      using (var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows))
+      m_Data = UnitTestStatic.GetDataTable(200);
+      m_DataView = new DataView(m_Data, null, null, DataViewRowState.CurrentRows);
+    }
+
+    [ClassCleanup]
+    public static void ClassCleanup()
+    {
+      m_DataView.Dispose();
+      m_Data.Dispose();
+    }
+
+
+    [TestMethod]
+    [Timeout(1000)]
+    public void BuildValueClusters_StringListFilled()
+    {
+      var test = new ValueClusterCollection(-1);
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, test.BuildValueClusters(m_DataView, typeof(string), 0));
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, test.BuildValueClusters(m_DataView, typeof(string), 7));
+      Assert.IsNotNull(test.ValueClusters);
+    }
+
+    [TestMethod]
+    [Timeout(1000)]
+    public void BuildValueClusters_StringTooManyValues()
+    {
+      var test = new ValueClusterCollection(20);
+      Assert.AreEqual(BuildValueClustersResult.TooManyValues, test.BuildValueClusters(m_DataView, typeof(string), 0));
+      Assert.AreEqual(0, test.ValueClusters.Count());
+    }
+
+    [TestMethod]
+    [Timeout(1000)]
+    public void BuildValueClusters_int()
+    {
+      var test = new ValueClusterCollection(200);
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, test.BuildValueClusters(m_DataView, typeof(int), 1));
+    }
+
+
+    [TestMethod]
+    [Timeout(1000)]
+    public void BuildValueClusters_NoValues()
+    {
+      var test = new ValueClusterCollection(200);
+
+      using (var dataTable = new DataTable { TableName = "ArtificialTable", Locale = new CultureInfo("en-gb") })
       {
-        var test0a = new ValueClusterCollection(200);
-        Assert.AreEqual(BuildValueClustersResult.ListFilled, test0a.BuildValueClusters(dataView, typeof(string), 0));
-        Assert.IsNotNull(test0a.ValueClusters);
-
-        var test0b = new ValueClusterCollection(5);
-        Assert.AreEqual(BuildValueClustersResult.TooManyValues, test0b.BuildValueClusters(dataView, typeof(string), 0));
-        Assert.AreEqual(0, test0b.ValueClusters.Count());
-
-        var test1 = new ValueClusterCollection(200);
-        Assert.AreEqual(BuildValueClustersResult.ListFilled, test1.BuildValueClusters(dataView, typeof(int), 1));
-
-        var test2 = new ValueClusterCollection(200);
-        Assert.AreEqual(BuildValueClustersResult.ListFilled, test2.BuildValueClusters(dataView, typeof(DateTime), 2));
-
-        var test3 = new ValueClusterCollection(2);
-        Assert.AreEqual(BuildValueClustersResult.ListFilled, test3.BuildValueClusters(dataView, typeof(bool), 3));
-
-        var test4 = new ValueClusterCollection(200);
-        var res4 = test4.BuildValueClusters(dataView, typeof(double), 4);
-        Assert.AreEqual(BuildValueClustersResult.ListFilled, res4);
-        string oldSort = null;
-        foreach (var cluster in test4.ValueClusters)
+        dataTable.Columns.Add("ID", typeof(long));
+        dataTable.Columns.Add("Text", typeof(string));
+        dataTable.Columns.Add("STart", typeof(DateTime));
+        for (long i = 1; i < 20; i++)
         {
-          if (oldSort != null)
-            Assert.IsTrue(string.Compare(cluster.Sort, oldSort, StringComparison.Ordinal) > 0,
-              $"{cluster.Sort} {oldSort}");
-          oldSort = cluster.Sort;
+          var row = dataTable.NewRow();
+          dataTable.Rows.Add(row);
         }
 
-
-        var test5 = new ValueClusterCollection(200);
-        Assert.AreEqual(BuildValueClustersResult.ListFilled, test5.BuildValueClusters(dataView, typeof(decimal), 5));
-
-        var test7 = new ValueClusterCollection(200);
-        Assert.AreEqual(BuildValueClustersResult.ListFilled, test7.BuildValueClusters(dataView, typeof(string), 7));
+        using (var dataView = new DataView(dataTable, null, null, DataViewRowState.CurrentRows))
+        {
+          Assert.AreEqual(BuildValueClustersResult.NoValues, test.BuildValueClusters(dataView, typeof(long), 0));
+          Assert.AreEqual(BuildValueClustersResult.NoValues, test.BuildValueClusters(dataView, typeof(string), 1));
+          Assert.AreEqual(BuildValueClustersResult.NoValues, test.BuildValueClusters(dataView, typeof(DateTime), 2));
+        }
       }
+    }
+
+    [TestMethod]
+    [Timeout(1000)]
+    public void BuildValueClusters_LongRangeStep1()
+    {
+      var test = new ValueClusterCollection(200);
+
+      using (var dataTable = new DataTable {TableName = "ArtificialTable", Locale = new CultureInfo("en-gb")})
+      {
+        dataTable.Columns.Add("ID", typeof(long));
+        for (long i = -19; i < 20; i++)
+        {
+          var row = dataTable.NewRow();
+          row[0] = i; // random.Next(-20, 20);
+          dataTable.Rows.Add(row);
+        }
+
+        using (var dataView = new DataView(dataTable, null, null, DataViewRowState.CurrentRows))
+        {
+          test.BuildValueClusters(dataView, typeof(long), 0);
+          Assert.AreEqual(39, test.ValueClusters.Count);
+          TestSort(test.ValueClusters);
+          Assert.AreEqual("-19", test.ValueClusters.First().Display);
+          Assert.AreEqual("19", test.ValueClusters.Last().Display);
+        }
+      }
+    }
+
+    [TestMethod]
+    [Timeout(1000)]
+    public void BuildValueClusters_LongRangeStep10()
+    {
+      var test = new ValueClusterCollection(200);
+
+      using (var dataTable = new DataTable {TableName = "ArtificialTable", Locale = new CultureInfo("en-gb")})
+      {
+        dataTable.Columns.Add("ID", typeof(long));
+        for (long i = -199; i < 200; i++)
+        {
+          var row = dataTable.NewRow();
+          row[0] = i; // random.Next(-20, 20);
+          dataTable.Rows.Add(row);
+        }
+
+        using (var dataView = new DataView(dataTable, null, null, DataViewRowState.CurrentRows))
+        {
+          test.BuildValueClusters(dataView, typeof(long), 0);
+          Assert.AreEqual(40, test.ValueClusters.Count);
+          TestSort(test.ValueClusters);
+          Assert.IsTrue(test.ValueClusters.First().Display.Contains("-200") && test.ValueClusters.First().Display.Contains("-190"), test.ValueClusters.First().Display);
+          Assert.IsTrue(test.ValueClusters.Last().Display.Contains("190") && test.ValueClusters.Last().Display.Contains("200"), test.ValueClusters.Last().Display);
+        }
+      }
+    }
+
+    private static void TestSort(IEnumerable<ValueCluster> items)
+    {
+      string oldSort = null;
+
+      foreach (var cluster in items)
+      {
+        if (oldSort != null)
+          Assert.IsTrue(string.Compare(cluster.Sort, oldSort, StringComparison.Ordinal) > 0,
+            $"{cluster.Sort} {oldSort}");
+        oldSort = cluster.Sort;
+      }
+    }
+
+    [TestMethod]
+    [Timeout(1000)]
+    public void BuildValueClusters_LongRangeStep100()
+    {
+      var test = new ValueClusterCollection(200);
+
+      using (var dataTable = new DataTable {TableName = "ArtificialTable", Locale = new CultureInfo("en-gb")})
+      {
+        dataTable.Columns.Add("ID", typeof(long));
+        for (long i = -1999; i < 2000; i++)
+        {
+          var row = dataTable.NewRow();
+          row[0] = i; // random.Next(-20, 20);
+          dataTable.Rows.Add(row);
+        }
+
+        using (var dataView = new DataView(dataTable, null, null, DataViewRowState.CurrentRows))
+        {
+          var res = test.BuildValueClusters(dataView, typeof(long), 0);
+          Assert.AreEqual(39, test.ValueClusters.Count);
+          TestSort(test.ValueClusters);
+        }
+      }
+    }
+
+    [TestMethod]
+    [Timeout(1000)]
+    public void BuildValueClusters_DateTime()
+    {
+      var test = new ValueClusterCollection(200);
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, test.BuildValueClusters(m_DataView, typeof(DateTime), 2));
+    }
+
+    [TestMethod]
+    [Timeout(1000)]
+    public void BuildValueClusters_bool()
+    {
+      var test = new ValueClusterCollection(200);
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, test.BuildValueClusters(m_DataView, typeof(bool), 3));
+    }
+
+
+    [TestMethod]
+    [Timeout(5000)]
+    public void BuildValueClusters_double()
+    {
+      var test = new ValueClusterCollection(200);
+      var res = test.BuildValueClusters(m_DataView, typeof(double), 4);
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, res);
+      TestSort(test.ValueClusters);
+    }
+
+    [TestMethod]
+    [Timeout(5000)]
+    public void BuildValueClusters_decimal()
+    {
+      var test = new ValueClusterCollection(200);
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, test.BuildValueClusters(m_DataView, typeof(decimal), 5));
     }
 
     [TestMethod]
     [Timeout(5000)]
     public void GetActiveValueClusterTest()
     {
-      using (var data = UnitTestStatic.GetDataTable(200))
-      using (var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows))
-      {
-        var test0a = new ValueClusterCollection(200);
-        Assert.AreEqual(BuildValueClustersResult.ListFilled, test0a.BuildValueClusters(dataView, typeof(string), 0));
-        Assert.AreEqual(0, test0a.GetActiveValueCluster().Count());
-        foreach (var iten in test0a.ValueClusters)
-          iten.Active = true;
-        Assert.AreEqual(test0a.ValueClusters.Count(), test0a.GetActiveValueCluster().Count());
-      }
+      var test = new ValueClusterCollection(200);
+      Assert.AreEqual(BuildValueClustersResult.ListFilled, test.BuildValueClusters(m_DataView, typeof(string), 0));
+      Assert.AreEqual(0, test.GetActiveValueCluster().Count());
+      foreach (var item in test.ValueClusters)
+        item.Active = true;
+      Assert.AreEqual(test.ValueClusters.Count(), test.GetActiveValueCluster().Count());
     }
   }
 }
+
