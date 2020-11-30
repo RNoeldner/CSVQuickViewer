@@ -16,7 +16,6 @@ using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.Linq;
 
@@ -216,39 +215,36 @@ namespace CsvTools
       var clusterHundred = new HashSet<long>();
       var clusterThousand = new HashSet<long>();
       var clusterTenThousand = new HashSet<long>();
-      var hasNull = false;
-      var columnName = dataTable.Columns[columnIndex].ColumnName;
-      foreach (DataRow dataRow in dataTable.Rows)
-      {
-        if (dataRow[columnIndex] == DBNull.Value)
-        {
-          hasNull = true;
-          continue;
-        }
 
-        if (columnType == typeof(decimal) || columnType == typeof(float) || columnType == typeof(double))
+      var columnName = dataTable.Columns[columnIndex].ColumnName;
+
+      var values = dataTable.Rows.Cast<DataRow>().Select(dataRow => dataRow[columnIndex]).Where(val => val != DBNull.Value).ToList();
+
+      foreach (var value in values)
+      {
+        if (clusterFractions.Count <= m_MaxNumber && (columnType == typeof(decimal) || columnType == typeof(float) || columnType == typeof(double)))
         {
-          var rounded = Math.Floor(Convert.ToDouble(dataRow[columnIndex], CultureInfo.CurrentCulture) * 10d) / 10d;
+          var rounded = Math.Floor(Convert.ToDouble(value, CultureInfo.CurrentCulture) * 10d) / 10d;
           clusterFractions.Add(rounded);
         }
 
-        var key = Convert.ToInt64(dataRow[columnIndex], CultureInfo.CurrentCulture);
+        var key = Convert.ToInt64(value, CultureInfo.CurrentCulture);
         if (clusterOne.Count <= m_MaxNumber)
           clusterOne.Add(key);
         if (clusterTen.Count <= m_MaxNumber)
           clusterTen.Add(key / 10);
         if (clusterHundred.Count <= m_MaxNumber)
           clusterHundred.Add(key / 100);
-
-        clusterThousand.Add(key / 1000);
-
+        if (clusterThousand.Count <= m_MaxNumber)
+          clusterThousand.Add(key / 1000);
         clusterTenThousand.Add(key / 10000);
 
         // if we have more than the maximum entries stop, no value filter will be used
-        if (clusterTenThousand.Count <= m_MaxNumber)
-          continue;
-        m_ValueClusters.Clear();
-        return BuildValueClustersResult.TooManyValues;
+        if (clusterTenThousand.Count > m_MaxNumber)
+        {
+          m_ValueClusters.Clear();
+          return BuildValueClustersResult.TooManyValues;
+        }
       }
 
       if (clusterOne.Count == 0 && clusterFractions.Count == 0)
@@ -257,22 +253,33 @@ namespace CsvTools
         return BuildValueClustersResult.NoValues;
       }
 
-      if (hasNull)
+      if (dataTable.Rows.Cast<DataRow>().Any(dataRow => dataRow[columnIndex] == DBNull.Value))
         AddValueClusterNull(dataTable, columnIndex);
 
       var colNameEsc = $"[{columnName.SqlName()}]";
+
+      int counter = 0;
       if (clusterFractions.Count < m_MaxNumber && clusterFractions.Count > 0)
       {
         foreach (var dic in clusterFractions.OrderBy(x => x))
         {
+          if (dic < 0 && counter == 0)
+          {
+            var maxValue2 = dic;
+            m_ValueClusters.Add(
+              new ValueCluster($"{dic-.1:F1} - {maxValue2:F1}", // Fixed Point
+                $"({colNameEsc} >= {dic:F1} AND {colNameEsc} < {dic + .1:F1})",
+                counter.ToString("D2"),
+                values.Select(dataRow => Convert.ToDouble(dataRow, CultureInfo.CurrentCulture))
+                  .Count(value => value >= (dic - .1) && value < maxValue2)));
+          }
+          counter++;
           var maxValue = dic + .1;
           m_ValueClusters.Add(
-            new ValueCluster($"{dic:F1} - {dic + .1:F1}", // Fixed Point
+            new ValueCluster($"{dic:F1} - {maxValue:F1}", // Fixed Point
               $"({colNameEsc} >= {dic:F1} AND {colNameEsc} < {dic + .1:F1})",
-              (dic * 10d).ToInt64().ToString("D18", CultureInfo.InvariantCulture),
-              dataTable.Rows.Cast<DataRow>()
-                .Where(dataRow => dataRow[columnIndex] != DBNull.Value)
-                .Select(dataRow => Convert.ToDouble(dataRow[columnIndex], CultureInfo.CurrentCulture))
+              counter.ToString("D2"),
+              values.Select(dataRow => Convert.ToDouble(dataRow, CultureInfo.CurrentCulture))
                 .Count(value => value >= dic && value < maxValue)));
         }
       }
@@ -306,29 +313,30 @@ namespace CsvTools
           fittingCluster = clusterTenThousand;
         }
 
-        int counter = 0;
+        var valuesLong = values.Select(dataRow => Convert.ToInt64(dataRow, CultureInfo.CurrentCulture)).ToList();
         foreach (var dic in fittingCluster.OrderBy(x => x))
         {
-          counter++;
-          var minValue = dic * factor;
-          var maxValue = (dic + 1) * factor;
-          var display = (factor > 1) ? $"{minValue:D} to {maxValue:D}" : $"{dic}";
-
-          var cluster = new ValueCluster(display,
-            string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", colNameEsc, dic * factor,
-              (dic + 1) * factor),
-            counter.ToString("D2"),
-            dataTable.Rows.Cast<DataRow>()
-              .Where(dataRow => dataRow[columnIndex] != DBNull.Value)
-              .Select(dataRow => Convert.ToInt64(dataRow[columnIndex], CultureInfo.CurrentCulture))
-              .Count(value => value >= minValue && value < maxValue));
-
-          if (cluster.Count>0)
-            m_ValueClusters.Add(cluster);
+          if (dic < 0 && counter == 0)
+            AddNumericCluster(valuesLong, dic-1, factor, colNameEsc, counter++);
+          AddNumericCluster(valuesLong, dic, factor, colNameEsc, counter++);
         }
       }
-
       return BuildValueClustersResult.ListFilled;
+    }
+
+    private void AddNumericCluster(IEnumerable<long> values, long dic, int factor, string colNameEsc,
+      int counter)
+    {
+      var minValue = dic * factor;
+      var maxValue = (dic + 1) * factor;
+
+      var cluster = new ValueCluster((factor > 1) ? $"{minValue:D} to {maxValue:D}" : $"{dic}",
+        string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", colNameEsc, minValue, maxValue),
+        counter.ToString("D2"),
+        values.Count(value => value >= minValue && value < maxValue));
+
+      if (cluster.Count > 0)
+        m_ValueClusters.Add(cluster);
     }
 
     /// <summary>
@@ -349,7 +357,6 @@ namespace CsvTools
           hasNull = true;
           continue;
         }
-
         cluster.Add(dataRow[columnIndex].ToString());
 
         // if we have more than the maximum entries stop, no value filter will be used
