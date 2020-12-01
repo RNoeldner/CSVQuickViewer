@@ -128,7 +128,7 @@ namespace CsvTools
     }
 
     public static async Task<DataTable> LoadDataTable([NotNull] this DataReaderWrapper wrapper, TimeSpan maxDuration,
-      bool restoreErrorsFromColumn, [CanBeNull] Action<long, int> progress, CancellationToken cancellationToken)
+                                                      bool restoreErrorsFromColumn, [CanBeNull] Action<long, int> progress, CancellationToken cancellationToken)
     {
       var dataTable = GetEmptyDataTable(wrapper);
       if (wrapper.EndOfFile) return dataTable;
@@ -139,7 +139,7 @@ namespace CsvTools
         var errorColumn = restoreErrorsFromColumn ? dataTable.Columns[ReaderConstants.cErrorField] : null;
 
         var watch = System.Diagnostics.Stopwatch.StartNew();
-        while (!cancellationToken.IsCancellationRequested && watch.Elapsed < maxDuration &&
+        while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 90) &&
                await wrapper.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
           var dataRow = dataTable.NewRow();
@@ -179,6 +179,7 @@ namespace CsvTools
       {
         intervalAction?.Invoke(() => progress(wrapper.RecordNumber, wrapper.Percent));
       }
+
       return dataTable;
     }
   }

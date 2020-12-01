@@ -28,10 +28,9 @@ namespace CsvTools
   {
     private const long cTicksPerGroup = TimeSpan.TicksPerMinute * 30;
 
-    [NotNull]
-    private readonly List<ValueCluster> m_ValueClusters = new List<ValueCluster>();
-
     private readonly int m_MaxNumber;
+
+    [NotNull] private readonly List<ValueCluster> m_ValueClusters = new List<ValueCluster>();
 
     private BuildValueClustersResult m_Result = BuildValueClustersResult.NotRun;
 
@@ -67,7 +66,7 @@ namespace CsvTools
 
       try
       {
-        if (columnType == typeof(string) || columnType == typeof(bool) || columnType== typeof(Guid))
+        if (columnType == typeof(string) || columnType == typeof(bool) || columnType == typeof(Guid))
           m_Result = BuildValueClustersString(dataView.Table, columnIndex);
         else if (columnType == typeof(DateTime))
           m_Result = BuildValueClustersDate(dataView.Table, columnIndex);
@@ -145,9 +144,10 @@ namespace CsvTools
 
       int CountDateTime(DateTime minVal, DateTime maxVal) =>
         dataTable.Rows.Cast<DataRow>()
-          .Where(dataRow => dataRow[columnIndex] != DBNull.Value)
-          .Select(dataRow => Convert.ToDateTime(dataRow[columnIndex], CultureInfo.CurrentCulture))
-          .Count(value => value >= minVal && value < maxVal);
+                 .Where(dataRow => dataRow[columnIndex] != DBNull.Value)
+                 .Select(dataRow => Convert.ToDateTime(dataRow[columnIndex], CultureInfo.CurrentCulture))
+                 .Count(value => value >= minVal && value < maxVal);
+
       var colNameEsc = $"[{columnName.SqlName()}]";
       if (clusterDay.Count == 1)
         foreach (var dic in clusterHour.OrderBy(x => x))
@@ -155,9 +155,10 @@ namespace CsvTools
           var from = StringConversion.GetTimeFromTicks(dic * cTicksPerGroup);
           var to = StringConversion.GetTimeFromTicks((dic + 1) * cTicksPerGroup);
           var cluster = new ValueCluster($"{from:t} - {to:t}",
-            $"({colNameEsc} >= #{from:MM\\/dd\\/yyyy HH:mm}# AND {colNameEsc} < #{to:MM\\/dd\\/yyyy HH:mm}#)", dic.ToString("000000", CultureInfo.InvariantCulture),
+            $"({colNameEsc} >= #{from:MM\\/dd\\/yyyy HH:mm}# AND {colNameEsc} < #{to:MM\\/dd\\/yyyy HH:mm}#)",
+            dic.ToString("000000", CultureInfo.InvariantCulture),
             CountDateTime(from, to));
-          if (cluster.Count>0)
+          if (cluster.Count > 0)
             m_ValueClusters.Add(cluster);
         }
       else if (clusterDay.Count < m_MaxNumber)
@@ -165,9 +166,9 @@ namespace CsvTools
         {
           var cluster = new ValueCluster(dic.ToString("d", CultureInfo.CurrentCulture),
             $"({colNameEsc} >= #{dic:MM\\/dd\\/yyyy}# AND {colNameEsc} < #{dic.AddDays(1):MM\\/dd\\/yyyy}#)"
-              , dic.ToString("s", CultureInfo.CurrentCulture),
+            , dic.ToString("s", CultureInfo.CurrentCulture),
             CountDateTime(dic, dic.AddDays(1)));
-          if (cluster.Count>0)
+          if (cluster.Count > 0)
             m_ValueClusters.Add(cluster);
         }
 
@@ -178,7 +179,7 @@ namespace CsvTools
             $"({colNameEsc} >= #{dic:MM\\/dd\\/yyyy}# AND {colNameEsc} < #{dic.AddMonths(1):MM\\/dd\\/yyyy}#)",
             dic.ToString("s", CultureInfo.InvariantCulture),
             CountDateTime(dic, dic.AddMonths(1)));
-          if (cluster.Count>0)
+          if (cluster.Count > 0)
             m_ValueClusters.Add(cluster);
         }
 
@@ -189,7 +190,7 @@ namespace CsvTools
             $"({colNameEsc} >= #01/01/{dic:d4}# AND {colNameEsc} < #01/01/{dic + 1:d4}#)",
             dic.ToString("000000", CultureInfo.InvariantCulture),
             CountDateTime(new DateTime(dic, 1, 1), new DateTime(dic + 1, 1, 1)));
-          if (cluster.Count>0)
+          if (cluster.Count > 0)
             m_ValueClusters.Add(cluster);
         }
 
@@ -267,20 +268,21 @@ namespace CsvTools
           {
             var maxValue2 = dic;
             m_ValueClusters.Add(
-              new ValueCluster($"{dic-.1:F1} - {maxValue2:F1}", // Fixed Point
+              new ValueCluster($"{dic - .1:F1} - {maxValue2:F1}", // Fixed Point
                 $"({colNameEsc} >= {dic:F1} AND {colNameEsc} < {dic + .1:F1})",
-                counter.ToString("D2"),
+                counter.ToString("D3"),
                 values.Select(dataRow => Convert.ToDouble(dataRow, CultureInfo.CurrentCulture))
-                  .Count(value => value >= (dic - .1) && value < maxValue2)));
+                      .Count(value => value >= (dic - .1) && value < maxValue2)));
           }
+
           counter++;
           var maxValue = dic + .1;
           m_ValueClusters.Add(
             new ValueCluster($"{dic:F1} - {maxValue:F1}", // Fixed Point
               $"({colNameEsc} >= {dic:F1} AND {colNameEsc} < {dic + .1:F1})",
-              counter.ToString("D2"),
+              counter.ToString("D3"),
               values.Select(dataRow => Convert.ToDouble(dataRow, CultureInfo.CurrentCulture))
-                .Count(value => value >= dic && value < maxValue)));
+                    .Count(value => value >= dic && value < maxValue)));
         }
       }
       else
@@ -317,22 +319,23 @@ namespace CsvTools
         foreach (var dic in fittingCluster.OrderBy(x => x))
         {
           if (dic < 0 && counter == 0)
-            AddNumericCluster(valuesLong, dic-1, factor, colNameEsc, counter++);
+            AddNumericCluster(valuesLong, dic - 1, factor, colNameEsc, counter++);
           AddNumericCluster(valuesLong, dic, factor, colNameEsc, counter++);
         }
       }
+
       return BuildValueClustersResult.ListFilled;
     }
 
     private void AddNumericCluster(IEnumerable<long> values, long dic, int factor, string colNameEsc,
-      int counter)
+                                   int counter)
     {
       var minValue = dic * factor;
       var maxValue = (dic + 1) * factor;
 
       var cluster = new ValueCluster((factor > 1) ? $"{minValue:D} to {maxValue:D}" : $"{dic}",
         string.Format(CultureInfo.InvariantCulture, "({0} >= {1} AND {0} < {2})", colNameEsc, minValue, maxValue),
-        counter.ToString("D2"),
+        counter.ToString("D3"),
         values.Count(value => value >= minValue && value < maxValue));
 
       if (cluster.Count > 0)
@@ -357,6 +360,7 @@ namespace CsvTools
           hasNull = true;
           continue;
         }
+
         cluster.Add(dataRow[columnIndex].ToString());
 
         // if we have more than the maximum entries stop, no value filter will be used
@@ -379,9 +383,9 @@ namespace CsvTools
       foreach (var text in cluster)
         m_ValueClusters.Add(new ValueCluster(text, $"({colNameEsc} = '{text.SqlQuote()}')", text,
           dataTable.Rows.Cast<DataRow>()
-            .Where(dataRow => dataRow[columnIndex] != DBNull.Value)
-            .Count(dataRow =>
-              string.Equals(dataRow[columnIndex].ToString(), text, StringComparison.OrdinalIgnoreCase))));
+                   .Where(dataRow => dataRow[columnIndex] != DBNull.Value)
+                   .Count(dataRow =>
+                     string.Equals(dataRow[columnIndex].ToString(), text, StringComparison.OrdinalIgnoreCase))));
 
       return BuildValueClustersResult.ListFilled;
     }

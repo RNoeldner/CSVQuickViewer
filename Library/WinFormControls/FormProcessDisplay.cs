@@ -24,7 +24,7 @@ namespace CsvTools
   /// <summary>
   ///   A Po pup Form to display progress information
   /// </summary>
-  public class FormProcessDisplay : ResizeForm, IProcessDisplayTime
+  public sealed class FormProcessDisplay : ResizeForm, IProcessDisplayTime
   {
     private readonly LoggerDisplay m_LoggerDisplay;
     private readonly ProcessDisplayTime m_ProcessDisplay;
@@ -91,20 +91,8 @@ namespace CsvTools
     /// <value>The cancellation token.</value>
     private CancellationTokenSource CancellationTokenSource { get; }
 
-    public Logger.Level LoggerLevel
-    {
-      get => m_LoggerDisplay?.MinLevel ?? Logger.Level.Debug;
-
-      set
-      {
-        if (m_LoggerDisplay != null)
-          m_LoggerDisplay.MinLevel = value;
-      }
-    }
-
     public new Form Owner
     {
-      get => base.Owner;
       set
       {
         base.Owner = value;
@@ -188,19 +176,13 @@ namespace CsvTools
       }
     }
 
-    public new void Close()
-    {
-      CancellationTokenSource.Cancel();
-      base.Close();
-    }
-
     /// <summary>
     ///   Sets the process.
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
     /// <param name="log"></param>
-    public virtual void SetProcess(string text, long value, bool log)
+    public void SetProcess(string text, long value, bool log)
     {
       // if cancellation is requested do nothing
       if (CancellationToken.IsCancellationRequested)
@@ -219,12 +201,14 @@ namespace CsvTools
           if (value <= 0 || Maximum <= 1)
           {
             m_LabelEtl.Text = string.Empty;
+            m_ProgressBar.Style = ProgressBarStyle.Marquee;
           }
           else
           {
+            m_ProgressBar.Style = Maximum > 1 ? ProgressBarStyle.Marquee : ProgressBarStyle.Continuous;
             m_ProgressBar.Value = m_ProcessDisplay.TimeToCompletion.Value > m_ProgressBar.Maximum
-              ? m_ProgressBar.Maximum
-              : m_ProcessDisplay.TimeToCompletion.Value.ToInt();
+                                    ? m_ProgressBar.Maximum
+                                    : m_ProcessDisplay.TimeToCompletion.Value.ToInt();
             var sb = new StringBuilder();
             sb.Append(m_ProcessDisplay.TimeToCompletion.PercentDisplay.PadLeft(10));
 
@@ -250,12 +234,11 @@ namespace CsvTools
     /// <param name="e"></param>
     public void SetProcess(object sender, ProgressEventArgs e) => m_ProcessDisplay.SetProcess(sender, e);
 
-    /// <summary>
-    ///   Hides the form used by Events
-    /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    public void DoHide(object sender, EventArgs e) => Hide();
+    public new void Close()
+    {
+      CancellationTokenSource.Cancel();
+      base.Close();
+    }
 
     /// <summary>
     ///   Sets the process.
@@ -349,10 +332,10 @@ namespace CsvTools
       try
       {
         // if the form is closed by the user (UI) signal a cancellation
-        if (e.CloseReason== CloseReason.UserClosing && !CancellationTokenSource.IsCancellationRequested)
+        if (e.CloseReason == CloseReason.UserClosing && !CancellationTokenSource.IsCancellationRequested)
         {
           if (_MessageBox.Show(this, "Cancel running process?", "Cancel", MessageBoxButtons.YesNo,
-            MessageBoxIcon.Question) == DialogResult.Yes)
+                MessageBoxIcon.Question) == DialogResult.Yes)
           {
             CancellationTokenSource.Cancel();
             // Give it time to stop
@@ -368,7 +351,7 @@ namespace CsvTools
       }
     }
 
-    #region IDisposable Support
+#region IDisposable Support
 
     private bool m_DisposedValue; // To detect redundant calls
 
@@ -398,6 +381,7 @@ namespace CsvTools
           CancellationTokenSource?.Dispose();
           m_LoggerDisplay?.Dispose();
         }
+
         base.Dispose(disposing);
       }
       catch (Exception)
@@ -406,6 +390,6 @@ namespace CsvTools
       }
     }
 
-    #endregion IDisposable Support
+#endregion IDisposable Support
   }
 }

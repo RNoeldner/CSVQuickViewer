@@ -27,11 +27,14 @@ namespace CsvTools
   public interface IFileReader : IDataReader
   {
     /// <summary>
-    ///   Gets the end line number
+    ///   Gets the end line number, if reading form text file, otherwise <see cref="RecordNumber"/>
     /// </summary>
     /// <value>The line number in which the record ended</value>
     long EndLineNumber { get; }
 
+    /// <summary>
+    ///  Value between 0 and 100 to show teh progress of teh reader, not all readers do support this, readers based on streams usually return teh relative position in that stream. In case a <see cref="Rec"/> 
+    /// </summary>
     int Percent { get; }
 
     /// <summary>
@@ -41,17 +44,20 @@ namespace CsvTools
     bool EndOfFile { get; }
 
     /// <summary>
-    ///   Gets the record number.
+    ///   Gets the record number of athe records that just had been read (1 after the first read) 
     /// </summary>
     /// <value>The record number.</value>
     long RecordNumber { get; }
 
     /// <summary>
-    ///   Gets the start line number.
+    ///   Gets the start line number, if reading form text file, otherwise <see cref="RecordNumber"/>
     /// </summary>
     /// <value>The line number in which the record started.</value>
     long StartLineNumber { get; }
 
+    /// <summary>
+    ///   <c>True</c> if the underlying steam can be reset to start from the beginning without re-opening the reader  
+    /// </summary>
     bool SupportsReset { get; }
 
     /// <summary>
@@ -106,9 +112,9 @@ namespace CsvTools
     /// <summary>
     ///   Gets the column information for a given column number
     /// </summary>
-    /// <param name="column">The column.</param>
-    /// <returns>A <see cref="Column" /> with all information on the column</returns>
-    ImmutableColumn GetColumn(int column);
+    /// <param name="column">The column number</param>
+    /// <returns>A <see cref="IColumn" /> with all information on the column</returns>
+    IColumn GetColumn(int column);
 
     /// <summary>
     ///   Opens the text file and begins to read the meta data, like columns
@@ -117,7 +123,7 @@ namespace CsvTools
     Task OpenAsync(CancellationToken token);
 
     /// <summary>
-    ///   Resets the position and buffer to the header in case the file has a header
+    ///   Resets the position and buffer to the first data row (handing headers, and skipped rows)
     /// </summary>
     void ResetPositionToFirstDataRow();
   }
