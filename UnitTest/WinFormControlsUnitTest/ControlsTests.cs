@@ -88,7 +88,7 @@ namespace CsvTools.Tests
       });
     }
 
-   
+
     [TestMethod]
     [Timeout(5000)]
     public void ResizeForm()
@@ -275,7 +275,7 @@ namespace CsvTools.Tests
       });
     }
 
-   
+
     [TestMethod]
     [Timeout(10000)]
     public void TimedMessage()
@@ -303,32 +303,6 @@ namespace CsvTools.Tests
     [TestMethod]
     [Timeout(5000)]
     public void FillGuessSettingEditShow() => UnitTestWinFormHelper.ShowControl(new FillGuessSettingEdit());
-
-    [TestMethod]
-    [Timeout(5000)]
-    public void FilteredDataGridViewShow() => UnitTestWinFormHelper.ShowControl(new FilteredDataGridView());
-
-    [TestMethod]
-    [Timeout(6000)]
-    public void FilteredDataGridViewVariousMethods()
-    {
-      var ctrl = new FilteredDataGridView();
-      using (var data = UnitTestStatic.GetDataTable(200))
-      {
-        ctrl.DataSource = data;
-        UnitTestWinFormHelper.ShowControl(new FilteredDataGridView(), 0.5d,
-          (control, form) =>
-          {
-            if (!(control is FilteredDataGridView ctrl2))
-              return;
-            ctrl2.FrozenColumns = 1;
-            ctrl2.SetFilterMenu(0);
-            ctrl2.HighlightText = "HH";
-            ctrl2.SetRowHeight();
-            ctrl2.SetFilterMenu(1);
-          });
-      }
-    }
 
     [TestMethod]
     [Timeout(5000)]
@@ -412,7 +386,7 @@ namespace CsvTools.Tests
       }
     }
 
-   
+
 
     [TestMethod]
     [Timeout(5000)]
