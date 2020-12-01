@@ -37,7 +37,7 @@ namespace CsvTools
           }
       };
 
-      mainProcess.SetMaximum += delegate (object sender, long max)
+      mainProcess.SetMaximum += delegate(object sender, long max)
       {
         try
         {
@@ -48,7 +48,6 @@ namespace CsvTools
         {
           // Ignore
         }
-        
       };
     }
 
@@ -77,7 +76,7 @@ namespace CsvTools
     }
 
     public static string Open([NotNull] string initialDirectory, [NotNull] string title, [NotNull] string filter,
-      [CanBeNull] string preselectFileName)
+                              [CanBeNull] string preselectFileName)
     {
       if (m_CommonFileDialogSupported)
         using (var commonOpenFileDialog = new CommonOpenFileDialog(title))
@@ -115,7 +114,7 @@ namespace CsvTools
       [NotNull] string initialDirectory,
       [NotNull] string title,
       [NotNull] string filter,
-      string defaultExt,
+      //string defaultExt,
       bool overwritePrompt = true,
       [CanBeNull] string preselectFileName = null)
     {
@@ -126,7 +125,8 @@ namespace CsvTools
           var part = 0;
           while (parts.Length > part + 2)
             commonOpenFileDialog.Filters.Add(new CommonFileDialogFilter(parts[part++], parts[part++]));
-          commonOpenFileDialog.DefaultExtension = defaultExt;
+          //commonOpenFileDialog.DefaultExtension = defaultExt;
+          //commonOpenFileDialog.AlwaysAppendDefaultExtension = false;
           commonOpenFileDialog.InitialDirectory = initialDirectory.RemovePrefix();
           commonOpenFileDialog.EnsurePathExists = true;
           commonOpenFileDialog.EnsureValidNames = true;
@@ -140,7 +140,7 @@ namespace CsvTools
       else
         using (var saveFileDialog = new SaveFileDialog())
         {
-          saveFileDialog.DefaultExt = defaultExt;
+          //saveFileDialog.DefaultExt = defaultExt;
           saveFileDialog.Filter = filter;
           saveFileDialog.OverwritePrompt = overwritePrompt;
           saveFileDialog.CheckFileExists = true;

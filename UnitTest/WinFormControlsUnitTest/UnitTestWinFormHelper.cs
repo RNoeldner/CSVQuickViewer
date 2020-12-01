@@ -40,9 +40,9 @@ namespace CsvTools.Tests
       frm.ShowInTaskbar = false;
       frm.Show();
       frm.Focus();
-      WaitSomeTime(.5, UnitTestInitializeCsv.Token);
+      WaitSomeTime(.1, UnitTestInitializeCsv.Token);
       RunTaskTimeout(toDo, timeout);
-      WaitSomeTime(.5, UnitTestInitializeCsv.Token);
+      WaitSomeTime(.1, UnitTestInitializeCsv.Token);
       frm.Close();
     }
 
@@ -58,11 +58,23 @@ namespace CsvTools.Tests
       frm.Close();
     }
 
+    public static async Task ShowFormAndCloseAsync<T>(T frm, double time, [NotNull] Func<T, Task> toDo) where T : Form
+    {
+      frm.TopMost = true;
+      frm.ShowInTaskbar = false;
+      frm.Show();
+      frm.Focus();
+      WaitSomeTime(time, UnitTestInitializeCsv.Token);
+      await toDo(frm);
+      WaitSomeTime(time, UnitTestInitializeCsv.Token);
+      frm.Close();
+    }
+
     public static void ShowFormAndClose<T>(T frm, double before = .2, Action<T> toDo = null) where T : Form
       => ShowFormAndClose(frm, before, toDo, before, UnitTestInitializeCsv.Token);
 
     private static void ShowFormAndClose<T>(T typed, double before, Action<T> toDo, double after,
-      CancellationToken token) where T : Form
+                                            CancellationToken token) where T : Form
     {
       var frm = typed as Form;
       frm.TopMost = true;

@@ -325,7 +325,7 @@ namespace CsvTools
     [NotNull]
     public static string GetIdFromFileName([NotNull] this string path)
     {
-      var fileName = StringUtils.ProcessByCategory(FileSystemUtils.GetFileName(path), x =>
+      var fileName = FileSystemUtils.GetFileName(path).ProcessByCategory(x =>
         x == UnicodeCategory.UppercaseLetter || x == UnicodeCategory.LowercaseLetter ||
         x == UnicodeCategory.OtherLetter ||
         x == UnicodeCategory.ConnectorPunctuation || x == UnicodeCategory.DashPunctuation ||

@@ -189,7 +189,7 @@ namespace CsvTools
 			this.m_ToolStripButtonLoadFile2.Name = "m_ToolStripButtonLoadFile2";
 			this.m_ToolStripButtonLoadFile2.Size = new System.Drawing.Size(23, 22);
 			this.m_ToolStripButtonLoadFile2.Text = "Load File";
-			this.m_ToolStripButtonLoadFile2.Click += new System.EventHandler(this.m_ToolStripButtonLoadFile_Click);
+			this.m_ToolStripButtonLoadFile2.Click += new System.EventHandler(this.ToolStripButtonLoadFile_Click);
 			// 
 			// m_ToolStripButtonShowLog2
 			// 
@@ -209,7 +209,7 @@ namespace CsvTools
 			this.m_ToolStripButtonLoadFile.Name = "m_ToolStripButtonLoadFile";
 			this.m_ToolStripButtonLoadFile.Size = new System.Drawing.Size(23, 22);
 			this.m_ToolStripButtonLoadFile.Text = "Load File";
-			this.m_ToolStripButtonLoadFile.Click += new System.EventHandler(this.m_ToolStripButtonLoadFile_Click);
+			this.m_ToolStripButtonLoadFile.Click += new System.EventHandler(this.ToolStripButtonLoadFile_Click);
 			// 
 			// m_ToolStripButtonAsText
 			// 

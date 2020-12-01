@@ -44,6 +44,8 @@ namespace CsvTools
     private IContainer components;
     [CanBeNull] public Func<bool> EndOfFile;
 
+    public EventHandler<IFileSettingPhysicalFile> FileStored = null;
+
     [CanBeNull] public Func<IProcessDisplay, Task> LoadNextBatchAsync;
 
     // private EventHandler m_BatchSizeChangedEvent;
@@ -114,7 +116,7 @@ namespace CsvTools
     {
       InitializeComponent();
 
-      #region FilteredDataGridView
+#region FilteredDataGridView
 
       // For some reason if its part of InitializeComponent the designer will not work
       FilteredDataGridView = new FilteredDataGridView
@@ -135,7 +137,7 @@ namespace CsvTools
       FilteredDataGridView.KeyDown += DetailControl_KeyDown;
       m_ToolStripContainer.ContentPanel.Controls.Add(FilteredDataGridView);
 
-      #endregion FilteredDataGridView
+#endregion FilteredDataGridView
 
       m_ToolStripItems.Add(m_ToolStripComboBoxFilterType);
       m_ToolStripItems.Add(m_ToolStripButtonUniqueValues);
@@ -146,7 +148,10 @@ namespace CsvTools
 
       m_ToolStripItems.CollectionChanged += (sender, e) => MoveMenu();
       MoveMenu();
-      ApplicationSetting.PropertyChanged += (sender, e) => { if (e.PropertyName==nameof(ApplicationSetting.MenuDown)) MoveMenu(); };
+      ApplicationSetting.PropertyChanged += (sender, e) =>
+      {
+        if (e.PropertyName == nameof(ApplicationSetting.MenuDown)) MoveMenu();
+      };
     }
 
     /// <summary>
@@ -352,8 +357,8 @@ namespace CsvTools
       foreach (var item in m_ToolStripItems)
       {
         item.DisplayStyle = (ApplicationSetting.MenuDown)
-          ? ToolStripItemDisplayStyle.Image
-          : ToolStripItemDisplayStyle.ImageAndText;
+                              ? ToolStripItemDisplayStyle.Image
+                              : ToolStripItemDisplayStyle.ImageAndText;
         if (source.Items.Contains(item))
           source.Items.Remove(item);
         if (target.Items.Contains(item))
@@ -363,8 +368,8 @@ namespace CsvTools
       foreach (var item in m_ToolStripItems)
       {
         item.DisplayStyle = (ApplicationSetting.MenuDown)
-          ? ToolStripItemDisplayStyle.Image
-          : ToolStripItemDisplayStyle.ImageAndText;
+                              ? ToolStripItemDisplayStyle.Image
+                              : ToolStripItemDisplayStyle.ImageAndText;
         target.Items.Add(item);
       }
 
@@ -480,8 +485,8 @@ namespace CsvTools
         if (FilteredDataGridView.Columns.Count <= 0)
           return;
         var visible = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-          .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)).OrderBy(col => col.DisplayIndex)
-          .Select(col => col.DataPropertyName).ToList();
+                                          .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)).OrderBy(col => col.DisplayIndex)
+                                          .Select(col => col.DataPropertyName).ToList();
         using (var details =
           new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible))
         {
@@ -503,8 +508,8 @@ namespace CsvTools
         if (FilteredDataGridView.Columns.Count <= 0)
           return;
         var columnName = FilteredDataGridView.CurrentCell != null
-          ? FilteredDataGridView.Columns[FilteredDataGridView.CurrentCell.ColumnIndex].Name
-          : FilteredDataGridView.Columns[0].Name;
+                           ? FilteredDataGridView.Columns[FilteredDataGridView.CurrentCell.ColumnIndex].Name
+                           : FilteredDataGridView.Columns[0].Name;
 
         using (var details = new FormDuplicatesDisplay(
           m_DataTable.Clone(),
@@ -530,12 +535,9 @@ namespace CsvTools
       {
         m_HierarchyDisplay?.Close();
         m_HierarchyDisplay =
-          new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter))
-          {
-            Icon = ParentForm?.Icon
-          };
+          new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter)) { Icon = ParentForm?.Icon };
         m_HierarchyDisplay.Show();
-        m_HierarchyDisplay.FormClosed +=  (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
+        m_HierarchyDisplay.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
       }
       catch (Exception ex)
       {
@@ -556,8 +558,8 @@ namespace CsvTools
         if (FilteredDataGridView.Columns.Count <= 0)
           return;
         var columnName = FilteredDataGridView.CurrentCell != null
-          ? FilteredDataGridView.Columns[FilteredDataGridView.CurrentCell.ColumnIndex].Name
-          : FilteredDataGridView.Columns[0].Name;
+                           ? FilteredDataGridView.Columns[FilteredDataGridView.CurrentCell.ColumnIndex].Name
+                           : FilteredDataGridView.Columns[0].Name;
         using (var details = new FormUniqueDisplay(
           m_DataTable.Clone(),
           m_DataTable.Select(FilteredDataGridView.CurrentFilter),
@@ -697,13 +699,11 @@ namespace CsvTools
       this.m_ToolStripTop.Dock = System.Windows.Forms.DockStyle.None;
       this.m_ToolStripTop.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
       this.m_ToolStripTop.ImageScalingSize = new System.Drawing.Size(20, 20);
-      this.m_ToolStripTop.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.m_ToolStripComboBoxFilterType,
-            this.m_ToolStripButtonUniqueValues,
-            this.m_ToolStripButtonColumnLength,
-            this.m_ToolStripButtonDuplicates,
-            this.m_ToolStripButtonHierarchy,
-            this.m_ToolStripButtonStore});
+      this.m_ToolStripTop.Items.AddRange(new System.Windows.Forms.ToolStripItem[]
+      {
+        this.m_ToolStripComboBoxFilterType, this.m_ToolStripButtonUniqueValues, this.m_ToolStripButtonColumnLength, this.m_ToolStripButtonDuplicates,
+        this.m_ToolStripButtonHierarchy, this.m_ToolStripButtonStore
+      });
       this.m_ToolStripTop.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
       this.m_ToolStripTop.Location = new System.Drawing.Point(4, 0);
       this.m_ToolStripTop.Name = "m_ToolStripTop";
@@ -714,12 +714,8 @@ namespace CsvTools
       this.m_ToolStripComboBoxFilterType.DropDownHeight = 90;
       this.m_ToolStripComboBoxFilterType.DropDownWidth = 130;
       this.m_ToolStripComboBoxFilterType.IntegralHeight = false;
-      this.m_ToolStripComboBoxFilterType.Items.AddRange(new object[] {
-            "All Records",
-            "Error or Warning",
-            "Only Errors",
-            "Only Warning",
-            "No Error or Warning"});
+      this.m_ToolStripComboBoxFilterType.Items.AddRange(
+        new object[] { "All Records", "Error or Warning", "Only Errors", "Only Warning", "No Error or Warning" });
       this.m_ToolStripComboBoxFilterType.Name = "m_ToolStripComboBoxFilterType";
       this.m_ToolStripComboBoxFilterType.Size = new System.Drawing.Size(150, 28);
       // m_ToolStripButtonUniqueValues
@@ -786,14 +782,11 @@ namespace CsvTools
       this.m_BindingNavigator.Dock = System.Windows.Forms.DockStyle.None;
       this.m_BindingNavigator.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
       this.m_BindingNavigator.ImageScalingSize = new System.Drawing.Size(20, 20);
-      this.m_BindingNavigator.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.m_ToolStripButtonMoveFirstItem,
-            this.m_ToolStripButtonMovePreviousItem,
-            this.m_ToolStripTextBox1,
-            this.m_ToolStripLabelCount,
-            this.m_ToolStripButtonMoveNextItem,
-            this.m_ToolStripButtonMoveLastItem,
-            this.ToolStripButtonNext});
+      this.m_BindingNavigator.Items.AddRange(new System.Windows.Forms.ToolStripItem[]
+      {
+        this.m_ToolStripButtonMoveFirstItem, this.m_ToolStripButtonMovePreviousItem, this.m_ToolStripTextBox1, this.m_ToolStripLabelCount,
+        this.m_ToolStripButtonMoveNextItem, this.m_ToolStripButtonMoveLastItem, this.ToolStripButtonNext
+      });
       this.m_BindingNavigator.Location = new System.Drawing.Point(4, 0);
       this.m_BindingNavigator.MoveFirstItem = this.m_ToolStripButtonMoveFirstItem;
       this.m_BindingNavigator.MoveLastItem = this.m_ToolStripButtonMoveLastItem;
@@ -971,14 +964,14 @@ namespace CsvTools
         // DataGridViewCell>(c.FormattedValue.ToString(), c);
         m_SearchCells.Clear();
         var visible = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-          .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)).ToList();
+                                          .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)).ToList();
 
         foreach (DataGridViewRow row in FilteredDataGridView.Rows)
         {
           if (!row.Visible)
             continue;
           foreach (var cell in visible.Select(col => row.Cells[col.Index])
-            .Where(cell => !string.IsNullOrEmpty(cell.FormattedValue?.ToString())))
+                                      .Where(cell => !string.IsNullOrEmpty(cell.FormattedValue?.ToString())))
             if (cell.FormattedValue != null)
               m_SearchCells.Add(new KeyValuePair<string, DataGridViewCell>(cell.FormattedValue.ToString(), cell));
         }
@@ -1006,43 +999,44 @@ namespace CsvTools
 
     private void SetButtonVisibility() =>
       this.SafeBeginInvoke(() =>
+      {
+        m_ToolStripContainer.TopToolStripPanelVisible = !ApplicationSetting.MenuDown;
+
+        // Need to set the control containing the buttons to visible Regular
+        m_ToolStripButtonColumnLength.Visible = m_ShowButtons;
+        m_ToolStripButtonDuplicates.Visible = m_ShowButtons;
+        m_ToolStripButtonUniqueValues.Visible = m_ShowButtons;
+
+        // Extended
+        m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
+
+        if (EndOfFile?.Invoke() ?? true)
         {
-          m_ToolStripContainer.TopToolStripPanelVisible = !ApplicationSetting.MenuDown;
+          m_ToolStripLabelCount.ForeColor = SystemColors.ControlText;
+          m_ToolStripLabelCount.ToolTipText = "Total number of items";
+          ToolStripButtonNext.Visible = false;
+        }
+        else
+        {
+          m_ToolStripLabelCount.ForeColor = SystemColors.MenuHighlight;
+          m_ToolStripLabelCount.ToolTipText = "Total number of items (loaded so far)";
+          ToolStripButtonNext.Visible = m_ShowButtons;
+        }
 
-          // Need to set the control containing the buttons to visible Regular
-          m_ToolStripButtonColumnLength.Visible = m_ShowButtons;
-          m_ToolStripButtonDuplicates.Visible = m_ShowButtons;
-          m_ToolStripButtonUniqueValues.Visible = m_ShowButtons;
+        m_ToolStripButtonStore.Visible = m_ShowButtons && (FileSetting != null);
+        try
+        {
+          m_ToolStripTop.Visible = m_ShowButtons;
 
-          // Extended
-          m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
-
-          if (EndOfFile?.Invoke() ?? true)
-          {
-            m_ToolStripLabelCount.ForeColor = SystemColors.ControlText;
-            m_ToolStripLabelCount.ToolTipText = "Total number of items";
-            ToolStripButtonNext.Visible = false;
-          }
-          else
-          {
-            m_ToolStripLabelCount.ForeColor = SystemColors.MenuHighlight;
-            m_ToolStripLabelCount.ToolTipText = "Total number of items (loaded so far)";
-            ToolStripButtonNext.Visible = m_ShowButtons;
-          }
-          m_ToolStripButtonStore.Visible = m_ShowButtons && (FileSetting != null);
-          try
-          {
-            m_ToolStripTop.Visible = m_ShowButtons;
-
-            // Filter
-            m_ToolStripComboBoxFilterType.Visible = m_ShowButtons && m_ShowFilter;
-          }
-          catch (InvalidOperationException)
-          {
-            // ignore error in regards to cross thread issues, SafeBeginInvoke should have handled
-            // this though
-          }
-        });
+          // Filter
+          m_ToolStripComboBoxFilterType.Visible = m_ShowButtons && m_ShowFilter;
+        }
+        catch (InvalidOperationException)
+        {
+          // ignore error in regards to cross thread issues, SafeBeginInvoke should have handled
+          // this though
+        }
+      });
 
     /// <summary>
     ///   Sets the data source.
@@ -1136,68 +1130,83 @@ namespace CsvTools
       ThreadPool.QueueUserWorkItem(BackgroundSearchThread, processInformation);
     }
 
-    private async void ToolStripButtonStoreAsCsvAsync(object sender, EventArgs e)
+    public async Task SafeCurrentFile(string fileName, bool adjustDelimiter)
     {
-      try
+      // This will always write a delimited text file
+      ICsvFile writeFile = new CsvFile();
+      FileSetting.CopyTo(writeFile);
+      if (writeFile.JsonFormat)
+        writeFile.JsonFormat = false;
+
+      // in case the extension is changed change the delimiter accordingly
+      if (adjustDelimiter)
       {
-        FileSystemUtils.SplitResult split;
-        if ((FileSetting is IFileSettingPhysicalFile settingPhysicalFile))
-          split = FileSystemUtils.SplitPath(settingPhysicalFile.FullPath);
-        else
-          split = new FileSystemUtils.SplitResult(Directory.GetCurrentDirectory(),
-            $"{FileSetting.ID}.txt");
-
-        // This will always write a delimited text file
-        ICsvFile writeFile = new CsvFile();
-        FileSetting.CopyTo(writeFile);
-        if (writeFile.JsonFormat)
-          writeFile.JsonFormat = false;
-
-        var fileName = WindowsAPICodePackWrapper.Save(
-          split.DirectoryName,
-          "Delimited File",
-          "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*",
-          null,
-          true,
-          split.FileName);
-        if (string.IsNullOrEmpty(fileName))
-          return;
         if (fileName.EndsWith("tab", StringComparison.OrdinalIgnoreCase) ||
             fileName.EndsWith("tsv", StringComparison.OrdinalIgnoreCase))
           writeFile.FileFormat.FieldDelimiter = "\t";
 
         if (fileName.EndsWith("csv", StringComparison.OrdinalIgnoreCase))
           writeFile.FileFormat.FieldDelimiter = ",";
-        // in case we skipped lines read them as Header so we do not loose them
-        if (FileSetting is ICsvFile src && src.SkipRows > 0 && string.IsNullOrEmpty(writeFile.Header))
-        {
-          using (var iStream = FunctionalDI.OpenStream(new SourceAccess(src)))
-          using (var sr = new ImprovedTextReader(iStream, src.CodePageId))
-          {
-            sr.ToBeginning();
-            for (var i = 0; i < src.SkipRows; i++)
-              writeFile.Header += sr.ReadLine() + '\n';
-          }
-        }
+      }
 
-        writeFile.FileName = fileName;
-        using (var processDisplay = new FormProcessDisplay(writeFile.ToString(), true, m_CancellationTokenSource.Token))
+      writeFile.FileName = fileName;
+      writeFile.ID = string.Empty;
+      // in case we skipped lines read them as Header so we do not loose them
+      if (FileSetting is ICsvFile src && src.SkipRows > 0 && string.IsNullOrEmpty(writeFile.Header))
+      {
+        using (var iStream = FunctionalDI.OpenStream(new SourceAccess(src)))
+        using (var sr = new ImprovedTextReader(iStream, src.CodePageId))
         {
-          processDisplay.Show(ParentForm);
-          var writer = new CsvFileWriter(writeFile, processDisplay);
-
-          using (var dt = new DataTableWrapper(
-            FilteredDataGridView.DataView.ToTable(false,
-              // Restrict to shown data
-              FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-                .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))
-                .OrderBy(col => col.DisplayIndex)
-                .Select(col => col.DataPropertyName).ToArray())))
-          {
-            // can not use filteredDataGridView.Columns directly
-            await writer.WriteAsync(dt, processDisplay.CancellationToken);
-          }
+          sr.ToBeginning();
+          for (var i = 0; i < src.SkipRows; i++)
+            writeFile.Header += sr.ReadLine() + '\n';
         }
+      }
+
+      using (var processDisplay = new FormProcessDisplay(writeFile.ToString(), true, m_CancellationTokenSource.Token))
+      {
+        processDisplay.Show(ParentForm);
+        var writer = new CsvFileWriter(writeFile, processDisplay);
+
+        using (var dt = new DataTableWrapper(
+          FilteredDataGridView.DataView.ToTable(false,
+            // Restrict to shown data
+            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+                                .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))
+                                .OrderBy(col => col.DisplayIndex)
+                                .Select(col => col.DataPropertyName).ToArray())))
+        {
+          // can not use filteredDataGridView.Columns directly
+          await writer.WriteAsync(dt, processDisplay.CancellationToken);
+        }
+      }
+
+      FileStored?.Invoke(this, writeFile);
+    }
+
+    private async void ToolStripButtonStoreAsCsvAsync(object sender, EventArgs e)
+    {
+      try
+      {
+        FileSystemUtils.SplitResult split;
+
+        if ((FileSetting is IFileSettingPhysicalFile settingPhysicalFile))
+          split = FileSystemUtils.SplitPath(settingPhysicalFile.FullPath);
+        else
+          split = new FileSystemUtils.SplitResult(Directory.GetCurrentDirectory(),
+            $"{FileSetting.ID}.txt");
+
+        var fileName = WindowsAPICodePackWrapper.Save(
+          split.DirectoryName,
+          "Delimited File",
+          "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*",
+          false,
+          split.FileName);
+
+        if (string.IsNullOrEmpty(fileName))
+          return;
+
+        await SafeCurrentFile(fileName, !fileName.EndsWith(split.Extension, StringComparison.OrdinalIgnoreCase));
       }
       catch (Exception ex)
       {
@@ -1234,7 +1243,7 @@ namespace CsvTools
         return;
       await ToolStripButtonNext.RunWithHourglassAsync(async () =>
       {
-        m_ToolStripLabelCount.Text =" loading...";
+        m_ToolStripLabelCount.Text = " loading...";
         try
         {
           using (var frm = new FormProcessDisplay("Load more...", false, m_CancellationTokenSource.Token))
@@ -1246,13 +1255,14 @@ namespace CsvTools
         }
         finally
         {
-          var eof = EndOfFile?.Invoke() ?? true;
+          var eof = EndOfFile();
           if (eof)
           {
             ToolStripButtonNext.Text = @"All records have been loaded";
             m_ToolStripLabelCount.ForeColor = SystemColors.ControlText;
             m_ToolStripLabelCount.ToolTipText = "Total number of items";
           }
+
           ToolStripButtonNext.Visible = !eof && m_ShowButtons;
         }
       });
