@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -101,8 +102,7 @@ namespace CsvTools
     private ToolStripLabel m_ToolStripLabelCount;
 
     private ToolStripTextBox m_ToolStripTextBox1;
-
-    // private ToolStripTextBox m_ToolStripTextBoxRecSize;
+    
     private ToolStrip m_ToolStripTop;
 
     public ToolStripButton ToolStripButtonNext;
@@ -171,7 +171,7 @@ namespace CsvTools
     ///   Gets the data grid view.
     /// </summary>
     /// <value>The data grid view.</value>
-    public FilteredDataGridView FilteredDataGridView { get; private set; }
+    public FilteredDataGridView FilteredDataGridView { get; }
 
     /// <summary>
     ///   Allows setting the data table
@@ -205,7 +205,6 @@ namespace CsvTools
     public DataGridViewCellStyle DefaultCellStyle
     {
       get => FilteredDataGridView.DefaultCellStyle;
-
       set => FilteredDataGridView.DefaultCellStyle = value;
     }
 
@@ -248,7 +247,6 @@ namespace CsvTools
     public bool ReadOnly
     {
       get => FilteredDataGridView.ReadOnly;
-
       set
       {
         if (FilteredDataGridView.ReadOnly == value)
@@ -261,11 +259,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Number of Rows in the Data Table
-    /// </summary>
-    public int RowsCount => m_DataTable?.Rows.Count ?? 0;
-
-    /// <summary>
     ///   Gets or sets a value indicating whether to allow filtering.
     /// </summary>
     /// <value><c>true</c> if filter button should be shown; otherwise, <c>false</c>.</value>
@@ -275,7 +268,6 @@ namespace CsvTools
     public bool ShowFilter
     {
       get => m_ShowFilter;
-
       set
       {
         if (m_ShowFilter == value)
@@ -295,7 +287,6 @@ namespace CsvTools
     public bool ShowInfoButtons
     {
       get => m_ShowButtons;
-
       set
       {
         if (m_ShowButtons == value)
@@ -502,7 +493,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Handles the Click event of the buttonDups control.
+    ///   Handles the Click event of the duplicate control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
@@ -643,7 +634,7 @@ namespace CsvTools
         return;
       }
 
-      if (m_FilterDataTable != null && m_FilterDataTable.FilterTable != null && (m_FilterDataTable == null || m_FilterDataTable.FilterTable.Rows.Count <= 0))
+      if (m_FilterDataTable?.FilterTable != null && (m_FilterDataTable == null || m_FilterDataTable.FilterTable.Rows.Count <= 0))
         return;
       if (m_FilterDataTable != null && m_FilterDataTable.ColumnsWithoutErrors.Count == m_Columns.Count)
         return;
@@ -779,7 +770,7 @@ namespace CsvTools
 			this.m_ToolStripButtonStore.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.m_ToolStripButtonStore.Name = "m_ToolStripButtonStore";
 			this.m_ToolStripButtonStore.Size = new System.Drawing.Size(96, 25);
-			this.m_ToolStripButtonStore.Text = "&Write File";
+			this.m_ToolStripButtonStore.Text = "Write File";
 			this.m_ToolStripButtonStore.ToolTipText = "Store the currently displayed data as delimited text file";
 			this.m_ToolStripButtonStore.Click += new System.EventHandler(this.ToolStripButtonStoreAsCsvAsync);
 			// 
@@ -833,12 +824,12 @@ namespace CsvTools
 			this.m_BindingNavigator.MovePreviousItem = this.m_ToolStripButtonMovePreviousItem;
 			this.m_BindingNavigator.Name = "m_BindingNavigator";
 			this.m_BindingNavigator.PositionItem = this.m_ToolStripTextBox1;
-			this.m_BindingNavigator.Size = new System.Drawing.Size(245, 27);
+			this.m_BindingNavigator.Size = new System.Drawing.Size(284, 27);
 			this.m_BindingNavigator.TabIndex = 0;
 			// 
 			// m_ToolStripLabelCount
 			// 
-			this.m_ToolStripLabelCount.Name = "m_ToolStripLabelCount";
+      this.m_ToolStripLabelCount.Name = "m_ToolStripLabelCount";
 			this.m_ToolStripLabelCount.Size = new System.Drawing.Size(45, 24);
 			this.m_ToolStripLabelCount.Text = "of {0}";
 			this.m_ToolStripLabelCount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -865,6 +856,7 @@ namespace CsvTools
 			// m_ToolStripTextBox1
 			// 
 			this.m_ToolStripTextBox1.AccessibleName = "Position";
+			this.m_ToolStripTextBox1.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this.m_ToolStripTextBox1.Name = "m_ToolStripTextBox1";
 			this.m_ToolStripTextBox1.Size = new System.Drawing.Size(50, 27);
 			this.m_ToolStripTextBox1.Text = "0";
@@ -895,7 +887,7 @@ namespace CsvTools
 			this.ToolStripButtonNext.Image = ((System.Drawing.Image)(resources.GetObject("ToolStripButtonNext.Image")));
 			this.ToolStripButtonNext.Name = "ToolStripButtonNext";
 			this.ToolStripButtonNext.Size = new System.Drawing.Size(29, 24);
-			this.ToolStripButtonNext.Text = "Load More";
+			this.ToolStripButtonNext.Text = "Load More...";
 			this.ToolStripButtonNext.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
 			this.ToolStripButtonNext.Click += new System.EventHandler(this.ToolStripButtonNext_Click);
 			// 
@@ -1066,7 +1058,18 @@ namespace CsvTools
 
           // Extended
           m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
-          ToolStripButtonNext.Visible = m_ShowButtons && !(EndOfFile?.Invoke() ?? true);
+
+          if (EndOfFile?.Invoke() ?? true)
+          {
+            m_ToolStripLabelCount.ForeColor = SystemColors.ControlText;
+            ToolStripButtonNext.Visible = false;
+          }
+          else
+          {
+            m_ToolStripLabelCount.ForeColor= SystemColors.MenuHighlight;
+            ToolStripButtonNext.Visible = m_ShowButtons;
+          }
+
           m_ToolStripButtonStore.Visible = m_ShowButtons && (FileSetting != null);
           try
           {
@@ -1284,9 +1287,9 @@ namespace CsvTools
         finally
         {
           var eof = EndOfFile.Invoke();
-          ToolStripButtonNext.Enabled = !eof;
           if (eof)
             ToolStripButtonNext.Text = @"All records have been loaded";
+          ToolStripButtonNext.Visible = !eof;
         }
       });
     }
