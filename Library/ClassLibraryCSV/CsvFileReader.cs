@@ -169,7 +169,7 @@ namespace CsvTools
                           int consecutiveEmptyRowsMax, string identifierInContainer, string fileName)
       : base(fileName, columnDefinition, recordLimit)
     {
-      m_SelfOpenedStream = !string.IsNullOrEmpty(fileName);
+      SelfOpenedStream = !string.IsNullOrEmpty(fileName);
       m_EscapeCharacterChar = escapeCharacterChar;
 
       m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
@@ -321,7 +321,7 @@ namespace CsvTools
 
       m_TextReader?.Dispose();
       m_TextReader = null;
-      if (!m_SelfOpenedStream) return;
+      if (!SelfOpenedStream) return;
       m_ImprovedStream?.Dispose();
       m_ImprovedStream = null;
     }
@@ -402,7 +402,7 @@ namespace CsvTools
       try
       {
         // HandleShowProgress($"Opening text file {FileName}");
-        if (m_SelfOpenedStream)
+        if (SelfOpenedStream)
         {
           m_ImprovedStream?.Dispose();
           m_ImprovedStream =

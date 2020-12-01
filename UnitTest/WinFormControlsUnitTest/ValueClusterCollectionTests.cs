@@ -42,7 +42,6 @@ namespace CsvTools.Tests
       m_Data.Dispose();
     }
 
-
     [TestMethod]
     [Timeout(1000)]
     public void BuildValueClusters_StringListFilled()
@@ -69,7 +68,6 @@ namespace CsvTools.Tests
       var test = new ValueClusterCollection(200);
       Assert.AreEqual(BuildValueClustersResult.ListFilled, test.BuildValueClusters(m_DataView, typeof(int), 1));
     }
-
 
     [TestMethod]
     [Timeout(1000)]
@@ -103,7 +101,7 @@ namespace CsvTools.Tests
     {
       var test = new ValueClusterCollection(200);
 
-      using (var dataTable = new DataTable {TableName = "ArtificialTable", Locale = new CultureInfo("en-gb")})
+      using (var dataTable = new DataTable { TableName = "ArtificialTable", Locale = new CultureInfo("en-gb") })
       {
         dataTable.Columns.Add("ID", typeof(long));
         for (long i = -19; i < 20; i++)
@@ -130,7 +128,7 @@ namespace CsvTools.Tests
     {
       var test = new ValueClusterCollection(200);
 
-      using (var dataTable = new DataTable {TableName = "ArtificialTable", Locale = new CultureInfo("en-gb")})
+      using (var dataTable = new DataTable { TableName = "ArtificialTable", Locale = new CultureInfo("en-gb") })
       {
         dataTable.Columns.Add("ID", typeof(long));
         for (long i = -199; i < 200; i++)
@@ -145,8 +143,10 @@ namespace CsvTools.Tests
           test.BuildValueClusters(dataView, typeof(long), 0);
           Assert.AreEqual(40, test.ValueClusters.Count);
           TestSort(test.ValueClusters);
-          Assert.IsTrue(test.ValueClusters.First().Display.Contains("-200") && test.ValueClusters.First().Display.Contains("-190"), test.ValueClusters.First().Display);
-          Assert.IsTrue(test.ValueClusters.Last().Display.Contains("190") && test.ValueClusters.Last().Display.Contains("200"), test.ValueClusters.Last().Display);
+          Assert.IsTrue(test.ValueClusters.First().Display.Contains("-200") && test.ValueClusters.First().Display.Contains("-190"),
+            test.ValueClusters.First().Display);
+          Assert.IsTrue(test.ValueClusters.Last().Display.Contains("190") && test.ValueClusters.Last().Display.Contains("200"),
+            test.ValueClusters.Last().Display);
         }
       }
     }
@@ -159,7 +159,7 @@ namespace CsvTools.Tests
       {
         if (oldSort != null)
           Assert.IsTrue(string.Compare(cluster.Sort, oldSort, StringComparison.Ordinal) > 0,
-            $"{cluster.Sort} {oldSort}");
+            $"Text '{cluster.Sort}' is not later than '{oldSort}'");
         oldSort = cluster.Sort;
       }
     }
@@ -170,7 +170,7 @@ namespace CsvTools.Tests
     {
       var test = new ValueClusterCollection(200);
 
-      using (var dataTable = new DataTable {TableName = "ArtificialTable", Locale = new CultureInfo("en-gb")})
+      using (var dataTable = new DataTable { TableName = "ArtificialTable", Locale = new CultureInfo("en-gb") })
       {
         dataTable.Columns.Add("ID", typeof(long));
         for (long i = -1999; i < 2000; i++)
@@ -183,7 +183,7 @@ namespace CsvTools.Tests
         using (var dataView = new DataView(dataTable, null, null, DataViewRowState.CurrentRows))
         {
           var res = test.BuildValueClusters(dataView, typeof(long), 0);
-          Assert.AreEqual(39, test.ValueClusters.Count);
+          Assert.AreEqual(40, test.ValueClusters.Count);
           TestSort(test.ValueClusters);
         }
       }
@@ -204,7 +204,6 @@ namespace CsvTools.Tests
       var test = new ValueClusterCollection(200);
       Assert.AreEqual(BuildValueClustersResult.ListFilled, test.BuildValueClusters(m_DataView, typeof(bool), 3));
     }
-
 
     [TestMethod]
     [Timeout(5000)]
@@ -237,4 +236,3 @@ namespace CsvTools.Tests
     }
   }
 }
-

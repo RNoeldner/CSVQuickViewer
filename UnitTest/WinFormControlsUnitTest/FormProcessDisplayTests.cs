@@ -160,18 +160,6 @@ namespace CsvTools.Tests
       }
     }
 
-
-    [TestMethod]
-    [Timeout(2000)]
-    public void DoHideTest()
-    {
-      using (var frm = new FormProcessDisplay())
-      {
-        frm.Show();
-        frm.DoHide(this, new EventArgs());
-      }
-    }
-
     [TestMethod]
     [Timeout(2000)]
     public void SetProcessTest2()

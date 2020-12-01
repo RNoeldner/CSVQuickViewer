@@ -46,9 +46,9 @@ namespace CsvTools
 
     private JsonFileReader(IEnumerable<IColumn> columnDefinition,
                            long recordLimit, bool treatNbspAsSpace, bool trim, string treatTextAsNull, string fileName) :
-         base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace)
+      base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace)
     {
-      m_SelfOpenedStream = !string.IsNullOrEmpty(fileName);
+      SelfOpenedStream = !string.IsNullOrEmpty(fileName);
     }
 
     public JsonFileReader([NotNull] string fileName,
@@ -87,7 +87,7 @@ namespace CsvTools
 
       m_StreamReader?.Dispose();
       m_StreamReader = null;
-      if (!m_SelfOpenedStream) return;
+      if (!SelfOpenedStream) return;
       m_ImprovedStream?.Dispose();
       m_ImprovedStream = null;
     }
@@ -341,7 +341,7 @@ namespace CsvTools
     /// </summary>
     private void ResetPositionToStartOrOpen()
     {
-      if (m_SelfOpenedStream)
+      if (SelfOpenedStream)
       {
         m_ImprovedStream?.Dispose();
         m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath));
