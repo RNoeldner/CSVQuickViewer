@@ -112,7 +112,13 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    public async void ButtonGuessClick(object sender, EventArgs e)
+    private async void ButtonGuessClick(object sender, EventArgs e) => await Guess();
+
+    /// <summary>
+    /// Examine the column and guess the format
+    /// </summary>
+    /// <returns></returns>
+    public async Task Guess()
     {
       var columnName = comboBoxColumnName.Text;
       if (string.IsNullOrEmpty(columnName))
@@ -267,7 +273,7 @@ namespace CsvTools
                   {
                     m_ColumnEdit.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
                     if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
-                      AddFormatToComboBoxDateFormat(checkResult.FoundValueFormat.DateFormat);
+                      AddDateFormat(checkResult.FoundValueFormat.DateFormat);
 
                     // In case possible match has the same information as FoundValueFormat,
                     // disregard the possible match
@@ -277,7 +283,7 @@ namespace CsvTools
                   else if (checkResult.PossibleMatch && checkResult.ValueFormatPossibleMatch != null)
                   {
                     if (checkResult.ValueFormatPossibleMatch.DataType == DataType.DateTime)
-                      AddFormatToComboBoxDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
+                      AddDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
                   }
 
                   var header1 = string.Empty;
@@ -367,24 +373,27 @@ namespace CsvTools
         list.Add(value);
     }
 
-    private void AddFormatToComboBoxDateFormat(string format)
+    public void AddDateFormat(string format)
     {
+      if (string.IsNullOrEmpty(format))
+        return;
       try
       {
-        if (string.IsNullOrEmpty(format))
-          return;
+        checkedListBoxDateFormats.SafeInvoke(() =>
+        {
+          foreach (int ind in checkedListBoxDateFormats.CheckedIndices)
+            checkedListBoxDateFormats.SetItemChecked(ind, false);
 
-        foreach (int ind in checkedListBoxDateFormats.CheckedIndices)
-          checkedListBoxDateFormats.SetItemChecked(ind, false);
-        var index = checkedListBoxDateFormats.Items.IndexOf(format);
-        if (index < 0)
-          index = checkedListBoxDateFormats.Items.Add(format);
-        checkedListBoxDateFormats.SetItemChecked(index, true);
-        checkedListBoxDateFormats.TopIndex = index;
+          var index = checkedListBoxDateFormats.Items.IndexOf(format);
+          if (index < 0)
+            index = checkedListBoxDateFormats.Items.Add(format);
+          checkedListBoxDateFormats.SetItemChecked(index, true);
+          checkedListBoxDateFormats.TopIndex = index;
+        });
       }
-      catch (Exception ex)
+      catch
       {
-        this.ShowError(ex);
+        // ignore
       }
     }
 
@@ -394,38 +403,38 @@ namespace CsvTools
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonAddFormat_Click(object sender, EventArgs e) =>
-      AddFormatToComboBoxDateFormat(comboBoxDateFormat.Text);
+      AddDateFormat(comboBoxDateFormat.Text);
 
-    private async void ButtonDisplayValues_ClickAsync(object sender, EventArgs e)
+    public async Task DisplayValues()
     {
-      await buttonDisplayValues.RunWithHourglassAsync(async () =>
+      using (var processDisplay = new FormProcessDisplay("Display Values", true, m_CancellationTokenSource.Token))
       {
-        using (var processDisplay = new FormProcessDisplay("Display Values", true, m_CancellationTokenSource.Token))
+        processDisplay.Show(this);
+        var values = await GetSampleValuesAsync(comboBoxColumnName.Text, processDisplay);
+        processDisplay.Hide();
+        Cursor.Current = Cursors.Default;
+        if (values.Values.Count == 0)
         {
-          processDisplay.Show(this);
-          var values = await GetSampleValuesAsync(comboBoxColumnName.Text, processDisplay);
-          processDisplay.Hide();
-          Cursor.Current = Cursors.Default;
-          if (values.Values.Count == 0)
-          {
-            _MessageBox.Show(
-              this,
-              string.Format(CultureInfo.CurrentCulture, cNoSampleDate, values.RecordsRead),
-              comboBoxColumnName.Text,
-              MessageBoxButtons.OK,
-              MessageBoxIcon.Information);
-          }
-          else
-          {
-            _MessageBox.ShowBigHtml(this,
-              BuildHTMLText(null, null, 4, "Found values:", values.Values, 4),
-              comboBoxColumnName.Text,
-              MessageBoxButtons.OK,
-              MessageBoxIcon.Information);
-          }
+          _MessageBox.Show(
+            this,
+            string.Format(CultureInfo.CurrentCulture, cNoSampleDate, values.RecordsRead),
+            comboBoxColumnName.Text,
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information);
         }
-      });
+        else
+        {
+          _MessageBox.ShowBigHtml(this,
+            BuildHTMLText(null, null, 4, "Found values:", values.Values, 4),
+            comboBoxColumnName.Text,
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information);
+        }
+      }
     }
+
+    private async void ButtonDisplayValues_ClickAsync(object sender, EventArgs e) =>
+      await buttonDisplayValues.RunWithHourglassAsync(async () => await DisplayValues());
 
     private static string BuildHTMLText(string header, string footer, int rows, string headerList1,
                                         ICollection<string> values1, int col1, string headerList2 = null, ICollection<string> values2 = null,
@@ -703,6 +712,47 @@ namespace CsvTools
     private void ComboBoxTimePart_SelectedIndexChanged(object sender, EventArgs e) =>
       comboBoxTPFormat.Enabled = comboBoxTimePart.SelectedIndex >= 0;
 
+    public void UpdateDateLabel(ValueFormatMutable vf, bool hasTimePart, string timePartFormt, string timeZone)
+    {
+      try
+      {
+        var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
+
+        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
+          vf.DateFormat += " " + timePartFormt;
+
+        labelSampleDisplay.SafeInvoke(() =>
+        {
+          comboBoxTPFormat.Enabled = hasTimePart;
+
+          toolTip.SetToolTip(textBoxDateSeparator, FileFormat.GetDescription(vf.DateSeparator));
+          toolTip.SetToolTip(textBoxTimeSeparator, FileFormat.GetDescription(vf.TimeSeparator));
+
+          labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);
+
+          var res = timeZone.GetPossiblyConstant();
+          if (res.Item2)
+          {
+            // ReSharper disable once PossibleInvalidOperationException
+            sourceDate = m_WriteSetting
+                           ? FunctionalDI.AdjustTZExport(sourceDate, res.Item1, -1, null).Value
+                           : FunctionalDI.AdjustTZImport(sourceDate, res.Item1, -1, null).Value;
+          }
+          else
+          {
+            labelInputTZ.Text = string.Empty;
+            labelOutPutTZ.Text = string.Empty;
+          }
+
+          labelDateOutputDisplay.Text = StringConversion.DisplayDateTime(sourceDate, CultureInfo.CurrentCulture);
+        });
+      }
+      catch
+      {
+        // ignore
+      }
+    }
+
     /// <summary>
     ///   Reapply formatting to the sample date
     /// </summary>
@@ -710,48 +760,14 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void DateFormatChanged(object sender, EventArgs e)
     {
-      try
-      {
-        var hasTimePart = !string.IsNullOrEmpty(comboBoxTimePart.Text);
-        var dateFormat = sender == comboBoxDateFormat ? comboBoxDateFormat.Text : checkedListBoxDateFormats.Text;
-        if (string.IsNullOrEmpty(dateFormat)) return;
+      var dateFormat = sender == comboBoxDateFormat ? comboBoxDateFormat.Text : checkedListBoxDateFormats.Text;
+      if (string.IsNullOrEmpty(dateFormat)) return;
 
-        var vf = new ValueFormatMutable(DataType.DateTime)
+      UpdateDateLabel(
+        new ValueFormatMutable(DataType.DateTime)
         {
           DateFormat = dateFormat, DateSeparator = textBoxDateSeparator.Text, TimeSeparator = textBoxTimeSeparator.Text
-        };
-        comboBoxTPFormat.Enabled = hasTimePart;
-
-        toolTip.SetToolTip(textBoxDateSeparator, FileFormat.GetDescription(vf.DateSeparator));
-        toolTip.SetToolTip(textBoxTimeSeparator, FileFormat.GetDescription(vf.TimeSeparator));
-
-        var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
-
-        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
-          vf.DateFormat += " " + comboBoxTPFormat.Text;
-
-        labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);
-
-        var res = comboBoxTimeZone.Text.GetPossiblyConstant();
-        if (res.Item2)
-        {
-          // ReSharper disable once PossibleInvalidOperationException
-          sourceDate = m_WriteSetting
-                         ? FunctionalDI.AdjustTZExport(sourceDate, res.Item1, -1, null).Value
-                         : FunctionalDI.AdjustTZImport(sourceDate, res.Item1, -1, null).Value;
-        }
-        else
-        {
-          labelInputTZ.Text = string.Empty;
-          labelOutPutTZ.Text = string.Empty;
-        }
-
-        labelDateOutputDisplay.Text = StringConversion.DisplayDateTime(sourceDate, CultureInfo.CurrentCulture);
-      }
-      catch (Exception ex)
-      {
-        Debug.WriteLine(ex.InnerExceptionMessages());
-      }
+        }, !string.IsNullOrEmpty(comboBoxTimePart.Text), comboBoxTPFormat.Text, comboBoxTimeZone.Text);
     }
 
     /// <summary>
@@ -841,35 +857,41 @@ namespace CsvTools
       return new DetermineColumnFormat.SampleResult(new List<string>(), 0);
     }
 
+    public void UpdateNumericLabel(string textBoxDecimalSeparatorText, string comboBoxNumberFormatText, string textBoxGroupSeparatorText)
+    {
+      try
+      {
+        if (string.IsNullOrEmpty(textBoxDecimalSeparatorText))
+          return;
+        var vf = new ValueFormatMutable
+        {
+          NumberFormat = comboBoxNumberFormatText, GroupSeparator = comboBoxNumberFormatText, DecimalSeparator = textBoxGroupSeparatorText
+        };
+        var sample = StringConversion.DoubleToString(1234.567, vf);
+
+        labelNumber.SafeInvoke(() =>
+        {
+          toolTip.SetToolTip(textBoxDecimalSeparator, FileFormat.GetDescription(vf.DecimalSeparator));
+          toolTip.SetToolTip(textBoxGroupSeparator, FileFormat.GetDescription(vf.GroupSeparator));
+
+          labelNumber.Text = $@"Input: ""{sample}""";
+          labelNumberOutput.Text =
+            $@"Output: ""{StringConversion.StringToDecimal(sample, FileFormat.GetChar(vf.DecimalSeparator), FileFormat.GetChar(vf.GroupSeparator), false):N}""";
+        });
+      }
+      catch
+      {
+        // ignore
+      }
+    }
+
     /// <summary>
     ///   Reapply formatting to the sample number
     /// </summary>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void NumberFormatChanged(object sender, EventArgs e)
-    {
-      try
-      {
-        if (string.IsNullOrEmpty(textBoxDecimalSeparator.Text))
-          return;
-        var vf = new ValueFormatMutable
-        {
-          NumberFormat = comboBoxNumberFormat.Text, GroupSeparator = textBoxGroupSeparator.Text, DecimalSeparator = textBoxDecimalSeparator.Text
-        };
-
-        toolTip.SetToolTip(textBoxDecimalSeparator, FileFormat.GetDescription(vf.DecimalSeparator));
-        toolTip.SetToolTip(textBoxGroupSeparator, FileFormat.GetDescription(vf.GroupSeparator));
-
-        var sample = StringConversion.DoubleToString(1234.567, vf);
-        labelNumber.Text = $@"Input: ""{sample}""";
-        labelNumberOutput.Text =
-          $@"Output: ""{StringConversion.StringToDecimal(sample, FileFormat.GetChar(vf.DecimalSeparator), FileFormat.GetChar(vf.GroupSeparator), false):N}""";
-      }
-      catch (Exception ex)
-      {
-        Debug.WriteLine(ex.InnerExceptionMessages());
-      }
-    }
+    private void NumberFormatChanged(object sender, EventArgs e) => UpdateNumericLabel(textBoxDecimalSeparator.Text,
+      comboBoxNumberFormat.Text, textBoxDecimalSeparator.Text);
 
     private void PartValidating(object sender, CancelEventArgs e)
     {
@@ -900,9 +922,7 @@ namespace CsvTools
     private void RefreshData()
     {
       SetDateFormat();
-      var di = new List<DisplayItem<int>>();
-      foreach (DataType item in Enum.GetValues(typeof(DataType)))
-        di.Add(new DisplayItem<int>((int) item, item.DataTypeDisplay()));
+      var di = (from DataType item in Enum.GetValues(typeof(DataType)) select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
       var selValue = (int) m_ColumnEdit.ValueFormatMutable.DataType;
       comboBoxDataType.DataSource = di;
       comboBoxDataType.SelectedValue = selValue;
@@ -1008,32 +1028,30 @@ namespace CsvTools
       checkedListBoxDateFormats.EndUpdate();
     }
 
-    private void SetSamplePart(object sender, EventArgs e)
+    public void SetPartLabels(string textBoxSplitText, string textBoxPartText, bool toEnd)
     {
-      if (string.IsNullOrEmpty(textBoxSplit.Text))
+      if (string.IsNullOrEmpty(textBoxSplitText))
         return;
-
-      var split = textBoxSplit.Text[0];
+      var split = FileFormat.GetChar(textBoxSplitText);
       var sample = $"This{split}is a{split}concatenated{split}list";
 
-      toolTip.SetToolTip(textBoxSplit, FileFormat.GetDescription(textBoxSplit.Text));
-
-      var part = StringConversion.StringToInt32(textBoxPart.Text, '.', '\0');
+      var part = StringConversion.StringToInt32(textBoxPartText, '.', '\0');
       if (!part.HasValue)
         return;
       if (part.Value < 1)
-      {
-        textBoxPart.Text = @"1";
         part = 1;
-      }
 
-      if (part.Value == 1)
-        checkBoxPartToEnd.Checked = false;
-      var toEnd = checkBoxPartToEnd.Checked;
-
-      labelSamplePart.Text = $@"Input: ""{sample}""";
-      labelResultPart.Text = $@"Output: ""{StringConversion.StringToTextPart(sample, split, part.Value, toEnd)}""";
+      labelSamplePart.SafeInvoke(() =>
+      {
+        toolTip.SetToolTip(textBoxSplit, FileFormat.GetDescription(textBoxSplitText));
+        if (part.Value == 1)
+          checkBoxPartToEnd.Checked = false;
+        labelSamplePart.Text = $@"Input: ""{sample}""";
+        labelResultPart.Text = $@"Output: ""{StringConversion.StringToTextPart(sample, split, part.Value, toEnd)}""";
+      });
     }
+
+    private void SetSamplePart(object sender, EventArgs e) => SetPartLabels(textBoxSplit.Text, textBoxPart.Text, checkBoxPartToEnd.Checked);
 
     private void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
     {

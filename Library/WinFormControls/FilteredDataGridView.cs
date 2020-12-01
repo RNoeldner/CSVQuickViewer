@@ -87,7 +87,7 @@ namespace CsvTools
       DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 
       contextMenuStripFilter.Opened += ContextMenuStripFilter_Opened;
-      contextMenuStripFilter.Closing += delegate (object sender, ToolStripDropDownClosingEventArgs e)
+      contextMenuStripFilter.Closing += delegate(object sender, ToolStripDropDownClosingEventArgs e)
       {
         if (e.CloseReason != ToolStripDropDownCloseReason.AppClicked
             && e.CloseReason != ToolStripDropDownCloseReason.ItemClicked
@@ -193,7 +193,8 @@ namespace CsvTools
     internal DataView DataView { get; private set; }
 
     private void FilteredDataGridView_Paint(object sender, PaintEventArgs e) => m_DefRowHeight =
-      (TextRenderer.MeasureText(e.Graphics, "My Text", base.Font).Height * 120) / 100;
+                                                                                  (TextRenderer.MeasureText(e.Graphics, "My Text", base.Font).Height * 120) /
+                                                                                  100;
 
     /// <summary>
     ///   Occurs when the next result should be shown
@@ -214,7 +215,7 @@ namespace CsvTools
         foreach (var filterLogic in from toolStripFilter in m_Filter
                                     where toolStripFilter != null
                                     select toolStripFilter.ColumnFilterLogic
-          into filterLogic
+                                    into filterLogic
                                     where filterLogic.Active && !string.IsNullOrEmpty(filterLogic.FilterExpression)
                                     select filterLogic)
         {
@@ -267,7 +268,7 @@ namespace CsvTools
         if (col.Visible)
         {
           var hasData = DataView.Cast<DataRowView>()
-            .Any(dataRow => dataRow[col.DataPropertyName] != DBNull.Value);
+                                .Any(dataRow => dataRow[col.DataPropertyName] != DBNull.Value);
           if (!hasData && col.Visible)
             col.Visible = false;
           hasChanges = true;
@@ -283,7 +284,7 @@ namespace CsvTools
     {
       // Determine each column that could contain a text and is not hidden
       var visible = Columns.Cast<DataGridViewColumn>()
-        .Where(column => column.Visible && column.ValueType == typeof(string)).ToList();
+                           .Where(column => column.Visible && column.ValueType == typeof(string)).ToList();
 
       // Need to stop after some time, this can take a long time
       var start = DateTime.Now;
@@ -381,6 +382,7 @@ namespace CsvTools
             if (dataRow[col].ToString().Length > 15)
               return 225;
           }
+
           if (remain-- < 0)
             break;
         }
@@ -508,7 +510,6 @@ namespace CsvTools
         ((DataGridViewColumnFilterControl) op.Control).FocusInput();
     }
 
-
     public void SetToolStripMenu(int columnIndex, int rowIndex, bool right)
     {
       try
@@ -529,17 +530,17 @@ namespace CsvTools
           toolStripMenuItemSortDescending.Enabled = columnIndex > -1;
 
           toolStripMenuItemSortAscending.Text = columnIndex > -1
-            ? string.Format(
-              CultureInfo.CurrentCulture,
-              toolStripMenuItemSortAscending.Tag.ToString(),
-              Columns[columnIndex].DataPropertyName)
-            : "Sort ascending";
+                                                  ? string.Format(
+                                                    CultureInfo.CurrentCulture,
+                                                    toolStripMenuItemSortAscending.Tag.ToString(),
+                                                    Columns[columnIndex].DataPropertyName)
+                                                  : "Sort ascending";
           toolStripMenuItemSortDescending.Text = columnIndex > -1
-            ? string.Format(
-              CultureInfo.CurrentCulture,
-              toolStripMenuItemSortDescending.Tag.ToString(),
-              Columns[columnIndex].DataPropertyName)
-            : "Sort descending";
+                                                   ? string.Format(
+                                                     CultureInfo.CurrentCulture,
+                                                     toolStripMenuItemSortDescending.Tag.ToString(),
+                                                     Columns[columnIndex].DataPropertyName)
+                                                   : "Sort descending";
           var columnFormat = GetColumnFormat(columnIndex);
           toolStripMenuItemCF.Visible = columnFormat != null;
           toolStripSeparatorCF.Visible = columnFormat != null;
@@ -572,7 +573,6 @@ namespace CsvTools
     private void FilteredDataGridView_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e) =>
       SetToolStripMenu(e.ColumnIndex, e.RowIndex, e.Button == MouseButtons.Right);
 
-
     /// <summary>
     ///   Handles the ColumnAdded event of the FilteredDataGridView control.
     /// </summary>
@@ -590,8 +590,8 @@ namespace CsvTools
       {
         e.Column.DefaultCellStyle.ForeColor = Color.MidnightBlue;
         e.Column.DefaultCellStyle.Alignment = e.Column.ValueType == typeof(bool)
-          ? DataGridViewContentAlignment.MiddleCenter
-          : DataGridViewContentAlignment.MiddleRight;
+                                                ? DataGridViewContentAlignment.MiddleCenter
+                                                : DataGridViewContentAlignment.MiddleRight;
       }
 
       ColumnDisplayMenuItemAdd(e.Column.DataPropertyName);
@@ -753,8 +753,8 @@ namespace CsvTools
       var nbspIndex = val.IndexOf((char) 0xA0);
       var linefeedIndex = val.IndexOf('\n');
       var highlightIndex = m_HighlightText.Length > 0
-        ? val.IndexOf(m_HighlightText, StringComparison.InvariantCultureIgnoreCase)
-        : -1;
+                             ? val.IndexOf(m_HighlightText, StringComparison.InvariantCultureIgnoreCase)
+                             : -1;
 
       if (nbspIndex == -1 && highlightIndex == -1)
         return;
@@ -781,7 +781,7 @@ namespace CsvTools
           if (before.Length > 0)
             hlRect.X = (e.CellBounds.X
                         + TextRenderer.MeasureText(e.Graphics, before, e.CellStyle.Font, e.CellBounds.Size)
-                          .Width) - 6;
+                                      .Width) - 6;
           else
             hlRect.X = e.CellBounds.X;
 
@@ -792,8 +792,7 @@ namespace CsvTools
             new[]
             {
               new Point(hlRect.X, e.CellBounds.Bottom - 10), new Point(hlRect.X, e.CellBounds.Bottom - 5),
-              new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 5),
-              new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 10)
+              new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 5), new Point(hlRect.X + widthSpace, e.CellBounds.Bottom - 10)
             });
           nbspIndex = val.IndexOf((char) 0xA0, nbspIndex + 1);
         }
@@ -823,10 +822,10 @@ namespace CsvTools
               var before = val.Substring(0, highlightIndex);
               if (before.Length > 0)
                 hlRect.X = (e.CellBounds.X + TextRenderer.MeasureText(
-                  e.Graphics,
-                  before,
-                  e.CellStyle.Font,
-                  e.CellBounds.Size).Width) - 4;
+                              e.Graphics,
+                              before,
+                              e.CellStyle.Font,
+                              e.CellBounds.Size).Width) - 4;
               else
                 hlRect.X = e.CellBounds.X + 2;
             }
@@ -993,13 +992,8 @@ namespace CsvTools
       foreach (var item in col.ValueClusters.OrderByDescending(x => x.Sort))
       {
         var newMenuItem =
-          new ToolStripMenuItem(StringUtils.GetShortDisplay(item.Display, 40))
-          {
-            Tag = item,
-            Checked = item.Active,
-            CheckOnClick = true
-          };
-        newMenuItem.CheckStateChanged += delegate (object menuItem, EventArgs args)
+          new ToolStripMenuItem(StringUtils.GetShortDisplay(item.Display, 40)) { Tag = item, Checked = item.Active, CheckOnClick = true };
+        newMenuItem.CheckStateChanged += delegate(object menuItem, EventArgs args)
         {
           if (!(menuItem is ToolStripMenuItem sendItem))
             return;
@@ -1035,7 +1029,8 @@ namespace CsvTools
 
       var items = new Dictionary<string, bool>();
       for (var i = 0; i < toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.Count; i++)
-        items.Add(toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items[i].ToString(), toolStripMenuItemColumnVisibility.CheckedListBoxControl.GetItemChecked(i));
+        items.Add(toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items[i].ToString(),
+          toolStripMenuItemColumnVisibility.CheckedListBoxControl.GetItemChecked(i));
 
       this.SafeInvoke(() => SetColumnVisibility(items));
     }
@@ -1046,7 +1041,7 @@ namespace CsvTools
       foreach (KeyValuePair<string, bool> keyValuePair in items)
       {
         var dataGridViewColumn = Columns[keyValuePair.Key];
-        if (dataGridViewColumn== null || dataGridViewColumn.Visible == keyValuePair.Value)
+        if (dataGridViewColumn == null || dataGridViewColumn.Visible == keyValuePair.Value)
           continue;
         dataGridViewColumn.Visible = keyValuePair.Value;
         changes = true;
@@ -1155,7 +1150,6 @@ namespace CsvTools
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void ToolStripMenuItemFilterRemoveAll_Click(object sender, EventArgs e) => RemoveAllFilter();
-
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemFilterRemove control.
@@ -1332,7 +1326,7 @@ namespace CsvTools
         // Select Path
         var fileName = WindowsAPICodePackWrapper.Save(
           m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
-          "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
+          "Column Config|*.col;*.conf|All files|*.*", false, DefFileNameColSetting(m_FileSetting, ".col"));
         if (!string.IsNullOrEmpty(fileName))
           using (var stream = new ImprovedStream(new SourceAccess(fileName, false)))
           using (var writer = new StreamWriter(stream, Encoding.UTF8, 1024))

@@ -71,7 +71,7 @@
     <Compile Include="DetailControlTests.cs" />
     <Compile Include="ExtensionsTests.cs" />
     <Compile Include="FilteredDataGridViewTests.cs" />
-    <Compile Include="FormColumnUITest.cs" />
+    <Compile Include="FormColumnUITests.cs"/>
     <Compile Include="FormProcessDisplayTests.cs" />
     <Compile Include="FoundEventArgsTests.cs" />
     <Compile Include="LoggerTextBoxTests.cs" />

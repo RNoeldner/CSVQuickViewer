@@ -19,7 +19,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class SerializedFilesLibTests
   {
-    private const string fileName = @".\SerializedFilesLibCSV.xml";
+    private static string fileName = UnitTestInitializeCsv.GetTestPath("Test.csv") + CsvFile.cCsvSettingExtension;
 
     [TestMethod]
     [Timeout(2000)]
@@ -30,7 +30,7 @@ namespace CsvTools.Tests
       Assert.IsFalse(FileSystemUtils.FileExists(fileName));
       Assert.IsFalse(FileSystemUtils.FileExists(fileName + ".bak"));
 
-      SerializedFilesLib.SaveCsvFile(fileName, file, () => { return false; });
+      SerializedFilesLib.SaveSettingFile(file, () => false);
       Assert.IsTrue(FileSystemUtils.FileExists(fileName));
       FileSystemUtils.DeleteWithBackup(fileName, false);
       Assert.IsFalse(FileSystemUtils.FileExists(fileName));
@@ -49,7 +49,7 @@ namespace CsvTools.Tests
     {
       var file = GetCsvFile();
       Assert.IsFalse(FileSystemUtils.FileExists(fileName));
-      SerializedFilesLib.SaveCsvFile(fileName, file, () => { return true; });
+      SerializedFilesLib.SaveSettingFile(file, () => true);
       Assert.IsTrue(FileSystemUtils.FileExists(fileName));
       var test = SerializedFilesLib.LoadCsvFile(fileName);
 
@@ -71,10 +71,10 @@ namespace CsvTools.Tests
       var file = GetCsvFile();
       Assert.IsFalse(FileSystemUtils.FileExists(fileName));
       var asked = false;
-      SerializedFilesLib.SaveCsvFile(fileName, file, () => true);
+      SerializedFilesLib.SaveSettingFile(file, () => true);
       file.ID = "Test1000";
       Assert.IsTrue(FileSystemUtils.FileExists(fileName));
-      SerializedFilesLib.SaveCsvFile(fileName, file, () =>
+      SerializedFilesLib.SaveSettingFile(file, () =>
       {
         asked = true;
         return true;
@@ -84,7 +84,7 @@ namespace CsvTools.Tests
 
     private CsvFile GetCsvFile()
     {
-      var file = new CsvFile { ID = "TestFile", FileName = "Test.csv" };
+      var file = new CsvFile { ID = "TestFile", FileName = UnitTestInitializeCsv.GetTestPath("Test.csv") };
 
       file.MappingCollection.Add(new Mapping("Fld1", "FldA"));
       file.MappingCollection.Add(new Mapping("Fld2", "FldB"));

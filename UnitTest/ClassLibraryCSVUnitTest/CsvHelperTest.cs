@@ -34,6 +34,21 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public async Task GetCsvFileSettingAsync()
+    {
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+      {
+        var csv = await CsvHelper.GetCsvFileSetting(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), null, true, true, true,
+                    true, true, true, true, new FillGuessSettings(), processDisplay);
+        Assert.AreEqual(1200, csv.CodePageId);
+
+        var csv2 = await CsvHelper.GetCsvFileSetting(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt" + CsvFile.cCsvSettingExtension), null, true, true, true,
+                     true, true, true, true, new FillGuessSettings(), processDisplay);
+        Assert.AreEqual(1200, csv.CodePageId);
+      }
+    }
+
+    [TestMethod]
     public async Task GuessCodePageAsync()
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))

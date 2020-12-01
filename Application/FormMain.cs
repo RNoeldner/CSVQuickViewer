@@ -74,6 +74,7 @@ namespace CsvTools
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonSource);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
+      detailControl.FileStored += FileStored;
 
       this.LoadWindowState(m_ViewSettings.WindowPosition);
       ShowTextPanel(true);
@@ -106,6 +107,14 @@ namespace CsvTools
 
         return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
       }
+    }
+
+    private void FileStored(object sender, IFileSettingPhysicalFile e)
+    {
+      if (!m_ViewSettings.StoreSettingsByFile)
+        return;
+      m_ConfigChanged = false;
+      SerializedFilesLib.SaveSettingFile(e, () => true);
     }
 
     private void AddWarning(object sender, WarningEventArgs args)
@@ -566,19 +575,9 @@ namespace CsvTools
       {
         if (m_FileSetting != null && m_ConfigChanged && m_ViewSettings.StoreSettingsByFile)
         {
-          var pathSetting = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
           m_FileSetting.FileName = FileSystemUtils.GetFileName(m_FileSetting.FileName);
-
-          Logger.Debug("Saving setting {path}", pathSetting);
-          SerializedFilesLib.SaveCsvFile(
-            pathSetting,
-            m_FileSetting,
-            () => _MessageBox.Show(
-                    this,
-                    $"Replace changed settings in {pathSetting} ?",
-                    "Settings",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question) == DialogResult.Yes);
+          SerializedFilesLib.SaveSettingFile(m_FileSetting,
+            () => _MessageBox.Show(this, $"Replace changed settings?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
         }
 
         m_ConfigChanged = false;
@@ -690,6 +689,6 @@ namespace CsvTools
       }
     }
 
-    private async void m_ToolStripButtonLoadFile_Click(object sender, EventArgs e) => await SelectFile("Open File Dialog");
+    private async void ToolStripButtonLoadFile_Click(object sender, EventArgs e) => await SelectFile("Open File Dialog");
   }
 }

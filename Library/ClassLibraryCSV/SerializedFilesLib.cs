@@ -39,7 +39,7 @@ namespace CsvTools
     private static readonly Lazy<XmlSerializer> m_SerializerCurrentCsvFile =
       new Lazy<XmlSerializer>(() => new XmlSerializer(typeof(CsvFile)));
 
-    #region CSV
+#region CSV
 
     /// <summary>
     ///   Loads the CSV file.
@@ -56,16 +56,17 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Saves the CSV file.
+    /// Saves the setting for a physical file
     /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    /// <param name="csvFile">The CSV file.</param>
+    /// <param name="fileSetting">The filesetting to serialize.</param>
     /// <param name="askOverwrite">The ask overwrite.</param>
-    public static void SaveCsvFile([NotNull] string fileName, [NotNull] ICsvFile csvFile, [NotNull] Func<bool> askOverwrite)
+    public static void SaveSettingFile([NotNull] IFileSettingPhysicalFile fileSetting, [NotNull] Func<bool> askOverwrite)
     {
+      var fileName = fileSetting.FileName + CsvFile.cCsvSettingExtension;
+      Logger.Debug("Saving setting {path}", fileName);
       using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
       {
-        m_SerializerCurrentCsvFile.Value.Serialize(stringWriter, csvFile, EmptyXmlSerializerNamespaces.Value);
+        m_SerializerCurrentCsvFile.Value.Serialize(stringWriter, fileSetting, EmptyXmlSerializerNamespaces.Value);
         var delete = false;
         if (FileSystemUtils.FileExists(fileName))
         {
@@ -78,12 +79,13 @@ namespace CsvTools
           else
             return;
         }
+
         if (delete)
           FileSystemUtils.DeleteWithBackup(fileName, false);
         File.WriteAllText(fileName, stringWriter.ToString());
       }
     }
 
-    #endregion CSV
+#endregion CSV
   }
 }
