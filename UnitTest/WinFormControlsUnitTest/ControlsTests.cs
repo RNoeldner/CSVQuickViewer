@@ -169,7 +169,7 @@ namespace CsvTools.Tests
       try
       {
         UnitTestWinFormHelper.RunTaskTimeout(token => Task.Run(() =>
-          WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null), token));
+          WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", null), token));
       }
       catch (COMException)
       {
@@ -221,7 +221,7 @@ namespace CsvTools.Tests
         UnitTestWinFormHelper.RunTaskTimeout(
           token => Task.Run(() =>
           {
-            WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", "*.pdf", false,
+            WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test",  "*.pdf", false,
               "test.pdf");
           }, token));
       }
