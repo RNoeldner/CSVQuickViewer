@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-16"?>
+<CsvFile FileName="BasicCSV.txt" ID="C:\Users\r_n\source\repos\FileValidator\CSVQuickViewer\UnitTest\ClassLibraryCSVUnitTest\TestFiles\BasicCSV.txt" CodePageId="1200">
+  <Format Column="ID" />
+  <Format Column="LangCodeID" />
+  <Format Type="DateTime" DateFormat="dd/MM/yyyy" Column="ExamDate" TimePartFormat="" />
+  <Format Type="Integer" Column="Score" />
+  <Format Type="Numeric" Column="Proficiency" />
+  <Format Type="Boolean" False="N" True="Y" Column="IsNativeLang" />
+</CsvFile>
