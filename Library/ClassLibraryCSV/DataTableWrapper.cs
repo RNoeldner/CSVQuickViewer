@@ -33,12 +33,12 @@ namespace CsvTools
 
     [NotNull] public DataTable DataTable { get; }
 
-    [Obsolete("Not needed for DataTableWrapper")]
-    public event EventHandler<RetryEventArgs> OnAskRetry;
-
     public event EventHandler<IReadOnlyCollection<IColumn>> OpenFinished;
 
     public event EventHandler ReadFinished;
+
+    [Obsolete("Not needed for DataTableWrapper")]
+    public event EventHandler<RetryEventArgs> OnAskRetry;
 
     [Obsolete("Not needed for DataTableWrapper")]
     public event EventHandler<WarningEventArgs> Warning;

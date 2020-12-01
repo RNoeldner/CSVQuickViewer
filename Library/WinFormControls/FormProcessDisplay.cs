@@ -66,14 +66,6 @@ namespace CsvTools
         m_LoggerDisplay.Dock = DockStyle.Fill;
       }
 
-      // Workaround... On Windows 8 / Windows 2012 sizing is off and controls are way too big...
-      //if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
-      //{
-      //  m_LabelText.Height = (int) (m_LabelText.Font.SizeInPoints * 8);
-      //  m_ProgressBar.Height = (int) (m_LabelText.Font.SizeInPoints * 3.3);
-      //  m_LabelEtl.Height = (int) (m_LabelEtl.Font.SizeInPoints * 3.3);
-      //}
-
       m_TableLayoutPanel.ResumeLayout(false);
       m_TableLayoutPanel.PerformLayout();
       ResumeLayout(false);
@@ -205,7 +197,7 @@ namespace CsvTools
           }
           else
           {
-            m_ProgressBar.Style = Maximum > 1 ? ProgressBarStyle.Marquee : ProgressBarStyle.Continuous;
+            m_ProgressBar.Style = Maximum > 1 ? ProgressBarStyle.Continuous : ProgressBarStyle.Marquee;
             m_ProgressBar.Value = m_ProcessDisplay.TimeToCompletion.Value > m_ProgressBar.Maximum
                                     ? m_ProgressBar.Maximum
                                     : m_ProcessDisplay.TimeToCompletion.Value.ToInt();
@@ -351,7 +343,7 @@ namespace CsvTools
       }
     }
 
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool m_DisposedValue; // To detect redundant calls
 
@@ -390,6 +382,6 @@ namespace CsvTools
       }
     }
 
-#endregion IDisposable Support
+    #endregion IDisposable Support
   }
 }
