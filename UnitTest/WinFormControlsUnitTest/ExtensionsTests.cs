@@ -12,16 +12,54 @@
  *
  */
 
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class ExtensionsTests
   {
+    [TestMethod]
+    [Timeout(2000)]
+    public void CtrlATes()
+    {
+      using (var frm = new Form())
+      {
+        frm.Text = "Testing...";
+        frm.Show();
+        
+        using (TextBox tb = new TextBox())
+        {
+          frm.Controls.Add(tb);
+          tb.Text = "Some Text";
+          frm.CtrlA(tb, new KeyEventArgs(Keys.Control | Keys.A));
+          Assert.AreEqual("Some Text", tb.SelectedText);
+          frm.Controls.Remove(tb);
+        }
+
+        using (ListView lv = new ListView())
+        {
+          frm.Controls.Add(lv);
+          frm.CtrlA(lv, new KeyEventArgs(Keys.Control | Keys.A));
+        }
+      }
+    }
+
+    [TestMethod]
+    [Timeout(2000)]
+    public async Task ValidateChildrenTestAsync()
+    {
+      using (var cont = new ContainerControl())
+      {
+        await cont.ValidateChildren(UnitTestInitializeCsv.Token);
+      }
+    }
+
     [TestMethod]
     [Timeout(2000)]
     public void UpdateListViewColumnFormatTest()
@@ -43,8 +81,45 @@ namespace CsvTools.Tests
           item.Selected = true;
         }
 
-        colFmt.Add(new Column {Name = "Test"});
+        colFmt.Add(new Column { Name = "Test" });
         lv.UpdateListViewColumnFormat(colFmt);
+      }
+    }
+
+    [TestMethod]
+    [Timeout(2000)]
+    public async Task RunWithHourglassAsyncTest()
+    {
+      using (var ctrl = new ToolStripButton())
+      {
+        var done = false;
+        await ctrl.RunWithHourglassAsync(async () => await Task.Run(() => done=true));
+        Assert.IsTrue(done);
+      }
+    }
+
+    [TestMethod]
+    [Timeout(2000)]
+    public void RunWithHourglassTest()
+    {
+      using (var ctrl = new ToolStripButton())
+      {
+        var done = false;
+        ctrl.RunWithHourglass(() => done=true);
+        Assert.IsTrue(done);
+      }
+    }
+
+
+    [TestMethod]
+    [Timeout(65000)]
+    public void ShowError()
+    {
+      using (var frm = new Form())
+      {
+        frm.Text = "Testing...";
+        frm.Show();
+        frm.ShowError(new Exception(), "Text");
       }
     }
 
@@ -53,7 +128,7 @@ namespace CsvTools.Tests
     public void WriteBindingTest()
     {
       var obj = new DisplayItem<string>("15", "Text");
-      using (var bindingSource = new BindingSource {DataSource = obj})
+      using (var bindingSource = new BindingSource { DataSource = obj })
       {
         var bind = new Binding("Text", bindingSource, "ID", true);
         using (var textBoxBox = new TextBox())
@@ -96,6 +171,16 @@ namespace CsvTools.Tests
       {
         Assert.IsTrue(prc != null, "GetProcessDisplay without UI");
       }
+
+      using (var frm = new Form())
+      {
+        frm.Text = "Testing...";
+        frm.Show();
+        var csv = new CsvFile() { ShowProgress = true };
+        Assert.IsInstanceOfType(csv.GetProcessDisplay(frm, true, UnitTestInitializeCsv.Token), typeof(FormProcessDisplay));
+        csv.ShowProgress = false;
+        Assert.IsNotInstanceOfType(csv.GetProcessDisplay(frm, true, UnitTestInitializeCsv.Token), typeof(FormProcessDisplay));
+      }
     }
 
     [TestMethod]
@@ -107,7 +192,8 @@ namespace CsvTools.Tests
         value.Show();
         var state = new WindowState(new Rectangle(10, 10, 200, 200), FormWindowState.Normal)
         {
-          CustomInt = 27, CustomText = "Test"
+          CustomInt = 27,
+          CustomText = "Test"
         };
         var result1 = -1;
         var result2 = "Hello";
@@ -125,7 +211,8 @@ namespace CsvTools.Tests
       {
         value.Show();
         var state1 = new WindowState(new Rectangle(10, 10, value.Width, value.Height),
-          FormWindowState.Normal) {CustomInt = 27, CustomText = "Test"};
+          FormWindowState.Normal)
+        { CustomInt = 27, CustomText = "Test" };
         var result1 = -1;
         value.LoadWindowState(state1, val => { result1 = val; }, val => { });
 
@@ -136,6 +223,6 @@ namespace CsvTools.Tests
         Assert.AreEqual(state1.Left, state2.Left);
         Assert.AreEqual(state1.Width, state2.Width);
       }
-    }  
+    }
   }
 }
