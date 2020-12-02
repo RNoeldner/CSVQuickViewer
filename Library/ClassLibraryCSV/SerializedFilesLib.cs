@@ -39,8 +39,6 @@ namespace CsvTools
     private static readonly Lazy<XmlSerializer> m_SerializerCurrentCsvFile =
       new Lazy<XmlSerializer>(() => new XmlSerializer(typeof(CsvFile)));
 
-#region CSV
-
     /// <summary>
     ///   Loads the CSV file.
     /// </summary>
@@ -56,36 +54,44 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Saves the setting for a physical file
+    ///   Saves the setting for a physical file
     /// </summary>
     /// <param name="fileSetting">The filesetting to serialize.</param>
     /// <param name="askOverwrite">The ask overwrite.</param>
-    public static void SaveSettingFile([NotNull] IFileSettingPhysicalFile fileSetting, [NotNull] Func<bool> askOverwrite)
+    public static void SaveSettingFile([NotNull] CsvFile fileSetting, [NotNull] Func<bool> askOverwrite)
     {
+      if (fileSetting == null)
+        return;
       var fileName = fileSetting.FileName + CsvFile.cCsvSettingExtension;
+
+      var saveSetting = fileSetting.Clone() as CsvFile;
+      saveSetting.FileName = string.Empty;
+      saveSetting.ID = string.Empty;
+
       Logger.Debug("Saving setting {path}", fileName);
+      string contens = null;
       using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
       {
-        m_SerializerCurrentCsvFile.Value.Serialize(stringWriter, fileSetting, EmptyXmlSerializerNamespaces.Value);
-        var delete = false;
-        if (FileSystemUtils.FileExists(fileName))
-        {
-          var fileContend = FileSystemUtils.ReadAllText(fileName);
-          if (fileContend.Equals(stringWriter.ToString()))
-            return;
-
-          if (askOverwrite.Invoke())
-            delete = true;
-          else
-            return;
-        }
-
-        if (delete)
-          FileSystemUtils.DeleteWithBackup(fileName, false);
-        File.WriteAllText(fileName, stringWriter.ToString());
+        m_SerializerCurrentCsvFile.Value.Serialize(stringWriter, saveSetting, EmptyXmlSerializerNamespaces.Value);
+        contens= stringWriter.ToString();
       }
-    }
 
-#endregion CSV
+      var delete = false;
+      if (FileSystemUtils.FileExists(fileName))
+      {
+        var fileContend = FileSystemUtils.ReadAllText(fileName);
+        if (fileContend.Equals(contens))
+          return;
+
+        if (askOverwrite.Invoke())
+          delete = true;
+        else
+          return;
+      }
+
+      if (delete)
+        FileSystemUtils.DeleteWithBackup(fileName, false);
+      File.WriteAllText(fileName, contens);
+    }
   }
 }

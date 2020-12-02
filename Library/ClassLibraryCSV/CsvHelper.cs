@@ -392,16 +392,14 @@ namespace CsvTools
       }
 
       display.SetProcess("Checking delimited text file", -1, true);
-
       char oldDelimiter = detection.FieldDelimiter.WrittenPunctuationToChar();
       // from here on us the encoding to read the stream again
-      if (guessStartRow)
+      if (guessStartRow && oldDelimiter != 0)
       {
         if (display.CancellationToken.IsCancellationRequested)
           return detection;
         using (var textReader = new ImprovedTextReader(improvedStream, detection.CodePageId))
         {
-          textReader.ToBeginning();
           detection.SkipRows = GuessStartRow(textReader, detection.FieldDelimiter.WrittenPunctuationToChar(),
             detection.FieldQualifier.WrittenPunctuationToChar(),
             detection.CommentLine, display.CancellationToken);
@@ -451,7 +449,8 @@ namespace CsvTools
       // find start row again , with possibly changed FieldDelimiter
       if (guessStartRow && oldDelimiter != detection.FieldDelimiter.WrittenPunctuationToChar())
       {
-        Logger.Information("  Checking start row again because previously assumed delimiter has changed");
+        if (oldDelimiter != 0)
+          Logger.Information("  Checking start row again because previously assumed delimiter has changed");
         if (display.CancellationToken.IsCancellationRequested)
           return detection;
         using (var textReader2 = new ImprovedTextReader(improvedStream, detection.CodePageId))
@@ -1067,7 +1066,7 @@ namespace CsvTools
             for (var row = columnCount.Count - 1; row > 0; row--)
               if (columnCount[row] > 0)
               {
-                if (columnCount[row] >= avg - 1) continue;
+                if (columnCount[row] >= avg - avg/10) continue;
                 retValue =  rowMapping[row];
                 break;
               }
@@ -1083,7 +1082,6 @@ namespace CsvTools
               for (var row = 0; row < columnCount.Count; row++)
                 if (columnCount[row] > 0)
                 {
-                  Logger.Information("  Start Row: {row}", row);
                   retValue = rowMapping[row];
                   break;
                 }
