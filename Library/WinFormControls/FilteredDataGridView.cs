@@ -339,7 +339,7 @@ namespace CsvTools
         return;
 
       SuspendLayout();
-      if (ViewSetting.ReStoreViewSetting(File.ReadAllText(fileName.LongPathPrefix()), Columns, m_Filter, GetColumnFilter, Sort))
+      if (ViewSetting.ReStoreViewSetting(FileSystemUtils.ReadAllText(fileName), Columns, m_Filter, GetColumnFilter, Sort))
         ApplyFilters();
       ColumnVisibilityChanged();
       ResumeLayout(true);
