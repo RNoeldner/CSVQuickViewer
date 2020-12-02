@@ -114,7 +114,7 @@ namespace CsvTools
       if (!m_ViewSettings.StoreSettingsByFile)
         return;
       m_ConfigChanged = false;
-      SerializedFilesLib.SaveSettingFile(e, () => true);
+      SerializedFilesLib.SaveSettingFile(e as CsvFile, () => true);
     }
 
     private void AddWarning(object sender, WarningEventArgs args)
@@ -530,21 +530,22 @@ namespace CsvTools
 
         if (detailControl.DataTable == null)
           Logger.Information("No data to show");
-
-        // Load View Settings
-        var index = m_FileSetting.ID.LastIndexOf('.');
-        var fn = (index == -1 ? m_FileSetting.ID : m_FileSetting.ID.Substring(0, index)) + ".col";
-        var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
-        if (FileSystemUtils.FileExists(fnView))
+        else
         {
-          Logger.Information("Restoring view and filter setting {filename}...", fn);
-          detailControl.ReStoreViewSetting(fnView);
+          // Load View Settings
+          var index = m_FileSetting.FileName.LastIndexOf('.');
+          var fn = (index == -1 ? m_FileSetting.FileName : m_FileSetting.FileName.Substring(0, index)) + ".col";
+          var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
+          if (FileSystemUtils.FileExists(fnView))
+          {
+            Logger.Information("Restoring view and filter setting {filename}...", fn);
+            detailControl.ReStoreViewSetting(fnView);
+          }
         }
       }
       catch (Exception exc)
       {
         if (!m_DisposedValue)
-
           this.ShowError(exc, "Opening File");
       }
       finally
@@ -573,13 +574,11 @@ namespace CsvTools
     {
       try
       {
-        if (m_FileSetting != null && m_ConfigChanged && m_ViewSettings.StoreSettingsByFile)
+        if (m_FileSetting != null && m_ViewSettings.StoreSettingsByFile)
         {
-          m_FileSetting.FileName = FileSystemUtils.GetFileName(m_FileSetting.FileName);
-          SerializedFilesLib.SaveSettingFile(m_FileSetting,
+          SerializedFilesLib.SaveSettingFile(m_FileSetting as CsvFile,
             () => _MessageBox.Show(this, $"Replace changed settings?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
         }
-
         m_ConfigChanged = false;
       }
       catch (Exception ex)

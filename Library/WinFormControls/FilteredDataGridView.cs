@@ -33,12 +33,10 @@ namespace CsvTools
   /// </summary>
   public partial class FilteredDataGridView : DataGridView
   {
+    private static int m_DefRowHeight = -1;
     private static Image m_ImgFilterIndicator;
 
     //private static Image m_ImgNbSp;
-
-    private static int m_DefRowHeight = -1;
-
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
     private readonly List<ToolStripDataGridViewColumnFilter> m_Filter =
@@ -87,7 +85,7 @@ namespace CsvTools
       DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 
       contextMenuStripFilter.Opened += ContextMenuStripFilter_Opened;
-      contextMenuStripFilter.Closing += delegate(object sender, ToolStripDropDownClosingEventArgs e)
+      contextMenuStripFilter.Closing += delegate (object sender, ToolStripDropDownClosingEventArgs e)
       {
         if (e.CloseReason != ToolStripDropDownCloseReason.AppClicked
             && e.CloseReason != ToolStripDropDownCloseReason.ItemClicked
@@ -102,6 +100,11 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Occurs when the next result should be shown
+    /// </summary>
+    public event EventHandler DataViewChanged;
+
+    /// <summary>
     ///   Gets the current filter.
     /// </summary>
     /// <value>The current filter.</value>
@@ -112,10 +115,8 @@ namespace CsvTools
     /// </summary>
     /// <returns>The object that contains data for the <see cref="DataGridView" /> to display.</returns>
     /// <exception cref="Exception">
-    ///   An error occurred in the data source and either there is no handler for the
-    ///   <see
-    ///     cref="DataError" />
-    ///   event or the handler has set the <see cref="Exception" /> property to
+    ///   An error occurred in the data source and either there is no handler for the <see
+    ///   cref="DataError" /> event or the handler has set the <see cref="Exception" /> property to
     ///   true. The exception object can typically be cast to type <see cref="FormatException" />.
     /// </exception>
     public new object DataSource
@@ -192,15 +193,6 @@ namespace CsvTools
     /// </summary>
     internal DataView DataView { get; private set; }
 
-    private void FilteredDataGridView_Paint(object sender, PaintEventArgs e) => m_DefRowHeight =
-                                                                                  (TextRenderer.MeasureText(e.Graphics, "My Text", base.Font).Height * 120) /
-                                                                                  100;
-
-    /// <summary>
-    ///   Occurs when the next result should be shown
-    /// </summary>
-    public event EventHandler DataViewChanged;
-
     /// <summary>
     ///   Applies the filters.
     /// </summary>
@@ -254,6 +246,37 @@ namespace CsvTools
       }
     }
 
+    public void FilterCurrentCell()
+    {
+      try
+      {
+        if (CurrentCell == null)
+          return;
+
+        m_Filter[m_MenuItemColumnIndex].ColumnFilterLogic.SetFilter(CurrentCell.Value);
+        if (!m_Filter[m_MenuItemColumnIndex].ColumnFilterLogic.Active)
+          m_Filter[m_MenuItemColumnIndex].ColumnFilterLogic.Active = true;
+        ApplyFilters();
+      }
+      catch
+      {
+        // ignored
+      }
+    }
+
+    public void HideAllButOne(int visibleIndex)
+    {
+      // keep one column visible, otherwise we have an issue with the grid being empty
+      foreach (DataGridViewColumn col in Columns)
+        if (col.Visible && col.Index != visibleIndex)
+          col.Visible = false;
+
+      if (!ColumnVisibilityChanged())
+        return;
+      SetRowHeight();
+      DataViewChanged?.Invoke(this, null);
+    }
+
     /// <summary>
     ///   Hides empty columns in the Data Grid
     /// </summary>
@@ -275,6 +298,160 @@ namespace CsvTools
         }
 
       return hasChanges;
+    }
+
+    public void RefreshUI()
+    {
+      try
+      {
+        if (!HideEmptyColumns())
+          return;
+        if (!ColumnVisibilityChanged())
+          return;
+        SetRowHeight();
+        DataViewChanged?.Invoke(this, null);
+      }
+      catch
+      {
+        // ignored
+      }
+    }
+
+    public void RemoveAllFilter()
+    {
+      try
+      {
+        foreach (var toolStripFilter in m_Filter.Where(
+          toolStripFilter => toolStripFilter != null && toolStripFilter.ColumnFilterLogic.Active))
+          toolStripFilter.ColumnFilterLogic.Active = false;
+
+        ApplyFilters();
+      }
+      catch
+      {
+        // ignored
+      }
+    }
+
+    public void ReStoreViewSetting(string fileName)
+    {
+      if (string.IsNullOrEmpty(fileName) || !FileSystemUtils.FileExists(fileName) || Columns.Count==0)
+        return;
+
+      SuspendLayout();
+      if (ViewSetting.ReStoreViewSetting(File.ReadAllText(fileName.LongPathPrefix()), Columns, m_Filter, GetColumnFilter, Sort))
+        ApplyFilters();
+      ColumnVisibilityChanged();
+      ResumeLayout(true);
+    }
+
+    public void SetColumnFrozen(int colNum, bool newStatus)
+    {
+      if (newStatus)
+      {
+        var colFirstNoFrozen =
+          (from col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex)
+           where !col.Frozen
+           select col.DisplayIndex).FirstOrDefault();
+        Columns[m_MenuItemColumnIndex].DisplayIndex = colFirstNoFrozen;
+      }
+
+      Columns[colNum].Frozen = newStatus;
+    }
+
+    public void SetColumnVisibility(IDictionary<string, bool> items)
+    {
+      bool changes = false;
+      foreach (KeyValuePair<string, bool> keyValuePair in items)
+      {
+        var dataGridViewColumn = Columns[keyValuePair.Key];
+        if (dataGridViewColumn == null || dataGridViewColumn.Visible == keyValuePair.Value)
+          continue;
+        dataGridViewColumn.Visible = keyValuePair.Value;
+        changes = true;
+      }
+
+      if (!changes)
+        return;
+
+      SetRowHeight();
+      DataViewChanged?.Invoke(null, null);
+    }
+
+    /// <summary>
+    ///   Build the Column Filter the given Column
+    /// </summary>
+    /// <param name="columnIndex"></param>
+    public void SetFilterMenu(int columnIndex)
+    {
+      if (DataView == null)
+        return;
+      contextMenuStripFilter.Close();
+      contextMenuStripFilter.SuspendLayout();
+
+      if (m_Filter[columnIndex] == null)
+        GetColumnFilter(columnIndex);
+
+      while (!(contextMenuStripFilter.Items[0] is ToolStripSeparator))
+        contextMenuStripFilter.Items.RemoveAt(0);
+
+      contextMenuStripFilter.Items.Insert(0, m_Filter[columnIndex]);
+
+      var col = m_Filter[columnIndex].ValueClusterCollection;
+
+      var result = col.BuildValueClusters(DataView, Columns[columnIndex].ValueType, columnIndex);
+      {
+        var newMenuItem = new ToolStripMenuItem();
+        switch (result)
+        {
+          case BuildValueClustersResult.Error:
+          case BuildValueClustersResult.NotRun:
+            newMenuItem.Text = @"Values can not be clustered";
+            newMenuItem.ToolTipText = @"Error has occurred while clustering the value";
+            break;
+
+          case BuildValueClustersResult.WrongType:
+            newMenuItem.Text = @"Type can not be clustered";
+            newMenuItem.ToolTipText = @"This type of column can not be filter by value";
+            break;
+
+          case BuildValueClustersResult.TooManyValues:
+            newMenuItem.Text = @"More than 40 values";
+            newMenuItem.ToolTipText = @"Too many different values found to list them all";
+            break;
+
+          case BuildValueClustersResult.NoValues:
+            newMenuItem.Text = @"No values";
+            newMenuItem.ToolTipText = @"This column is empty";
+            break;
+
+          case BuildValueClustersResult.ListFilled:
+            newMenuItem.Text = @"Any of:";
+            newMenuItem.ToolTipText = @"Check all values you want to filter for";
+            break;
+        }
+
+        newMenuItem.Enabled = false;
+        contextMenuStripFilter.Items.Insert(1, newMenuItem);
+      }
+
+      foreach (var item in col.ValueClusters.OrderByDescending(x => x.Sort))
+      {
+        var newMenuItem =
+          new ToolStripMenuItem(StringUtils.GetShortDisplay(item.Display, 40)) { Tag = item, Checked = item.Active, CheckOnClick = true };
+        newMenuItem.CheckStateChanged += delegate (object menuItem, EventArgs args)
+        {
+          if (!(menuItem is ToolStripMenuItem sendItem))
+            return;
+          if (sendItem.Tag is ValueCluster itemVc)
+            itemVc.Active = sendItem.Checked;
+        };
+        if (item.Count > 0)
+          newMenuItem.ShortcutKeyDisplayString = $@"{item.Count} items";
+        contextMenuStripFilter.Items.Insert(2, newMenuItem);
+      }
+
+      contextMenuStripFilter.ResumeLayout(true);
     }
 
     /// <summary>
@@ -301,6 +478,70 @@ namespace CsvTools
 
         row.Height = GetDesiredRowHeight(row, visible);
       }
+    }
+
+    public void SetToolStripMenu(int columnIndex, int rowIndex, bool right)
+    {
+      try
+      {
+        m_MenuItemColumnIndex = columnIndex;
+        if (right && columnIndex > -1)
+        {
+          SetFilterMenu(columnIndex);
+          toolStripMenuItemRemoveOne.Enabled = m_Filter[columnIndex].ColumnFilterLogic.Active;
+        }
+
+        if (right && rowIndex == -1)
+        {
+          toolStripMenuItemFreeze.Text = Columns[columnIndex].Frozen ? "Unfreeze" : "Freeze";
+
+          toolStripMenuItemFilterAdd.Enabled = columnIndex > -1;
+          toolStripMenuItemSortAscending.Enabled = columnIndex > -1;
+          toolStripMenuItemSortDescending.Enabled = columnIndex > -1;
+
+          toolStripMenuItemSortAscending.Text = columnIndex > -1
+                                                  ? string.Format(
+                                                    CultureInfo.CurrentCulture,
+                                                    toolStripMenuItemSortAscending.Tag.ToString(),
+                                                    Columns[columnIndex].DataPropertyName)
+                                                  : "Sort ascending";
+          toolStripMenuItemSortDescending.Text = columnIndex > -1
+                                                   ? string.Format(
+                                                     CultureInfo.CurrentCulture,
+                                                     toolStripMenuItemSortDescending.Tag.ToString(),
+                                                     Columns[columnIndex].DataPropertyName)
+                                                   : "Sort descending";
+          var columnFormat = GetColumnFormat(columnIndex);
+          toolStripMenuItemCF.Visible = columnFormat != null;
+          toolStripSeparatorCF.Visible = columnFormat != null;
+          if (columnFormat != null)
+            toolStripMenuItemCF.Text = $@"Change column format: {columnFormat.ValueFormat.DataType.DataTypeDisplay()}";
+
+          toolStripMenuItemRemoveOne.Enabled &= columnIndex != -1;
+          contextMenuStripHeader.Show(Cursor.Position);
+        }
+
+        if (!right || rowIndex <= -1 || columnIndex <= -1)
+          return;
+        CurrentCell = Rows[rowIndex].Cells[columnIndex];
+        contextMenuStripCell.Show(Cursor.Position);
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "Click in DataGrid");
+      }
+    }
+
+    public void ShowAllColumns()
+    {
+      foreach (DataGridViewColumn col in Columns)
+        if (!col.Visible)
+          col.Visible = true;
+
+      if (!ColumnVisibilityChanged())
+        return;
+      SetRowHeight();
+      DataViewChanged?.Invoke(this, null);
     }
 
     /// <summary>
@@ -354,6 +595,13 @@ namespace CsvTools
       }
 
       base.Dispose(disposing);
+    }
+
+    private static string DefFileNameColSetting(IFileSetting fileSetting, string extension)
+    {
+      var defFileName = fileSetting.ID;
+      var index = defFileName.LastIndexOf('.');
+      return (index == -1 ? defFileName : defFileName.Substring(0, index)) + extension;
     }
 
     /// <summary>
@@ -510,58 +758,6 @@ namespace CsvTools
         ((DataGridViewColumnFilterControl) op.Control).FocusInput();
     }
 
-    public void SetToolStripMenu(int columnIndex, int rowIndex, bool right)
-    {
-      try
-      {
-        m_MenuItemColumnIndex = columnIndex;
-        if (right && columnIndex > -1)
-        {
-          SetFilterMenu(columnIndex);
-          toolStripMenuItemRemoveOne.Enabled = m_Filter[columnIndex].ColumnFilterLogic.Active;
-        }
-
-        if (right && rowIndex == -1)
-        {
-          toolStripMenuItemFreeze.Text = Columns[columnIndex].Frozen ? "Unfreeze" : "Freeze";
-
-          toolStripMenuItemFilterAdd.Enabled = columnIndex > -1;
-          toolStripMenuItemSortAscending.Enabled = columnIndex > -1;
-          toolStripMenuItemSortDescending.Enabled = columnIndex > -1;
-
-          toolStripMenuItemSortAscending.Text = columnIndex > -1
-                                                  ? string.Format(
-                                                    CultureInfo.CurrentCulture,
-                                                    toolStripMenuItemSortAscending.Tag.ToString(),
-                                                    Columns[columnIndex].DataPropertyName)
-                                                  : "Sort ascending";
-          toolStripMenuItemSortDescending.Text = columnIndex > -1
-                                                   ? string.Format(
-                                                     CultureInfo.CurrentCulture,
-                                                     toolStripMenuItemSortDescending.Tag.ToString(),
-                                                     Columns[columnIndex].DataPropertyName)
-                                                   : "Sort descending";
-          var columnFormat = GetColumnFormat(columnIndex);
-          toolStripMenuItemCF.Visible = columnFormat != null;
-          toolStripSeparatorCF.Visible = columnFormat != null;
-          if (columnFormat != null)
-            toolStripMenuItemCF.Text = $@"Change column format: {columnFormat.ValueFormat.DataType.DataTypeDisplay()}";
-
-          toolStripMenuItemRemoveOne.Enabled &= columnIndex != -1;
-          contextMenuStripHeader.Show(Cursor.Position);
-        }
-
-        if (!right || rowIndex <= -1 || columnIndex <= -1)
-          return;
-        CurrentCell = Rows[rowIndex].Cells[columnIndex];
-        contextMenuStripCell.Show(Cursor.Position);
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "Click in DataGrid");
-      }
-    }
-
     /// <summary>
     ///   Shows the pop up when user right-clicks a column header
     /// </summary>
@@ -649,6 +845,10 @@ namespace CsvTools
       e.Handled = true;
     }
 
+    private void FilteredDataGridView_Paint(object sender, PaintEventArgs e) => m_DefRowHeight =
+                                                                                                                                                                                                              (TextRenderer.MeasureText(e.Graphics, "My Text", base.Font).Height * 120) /
+                                                                                  100;
+
     /// <summary>
     ///   Generates the data grid view column.
     /// </summary>
@@ -704,6 +904,22 @@ namespace CsvTools
       }
 
       ColumnRemoved += FilteredDataGridView_ColumnRemoved;
+    }
+
+    private ToolStripDataGridViewColumnFilter GetColumnFilter(int columnIndex)
+    {
+      if (m_Filter[columnIndex] == null)
+      {
+        m_Filter[columnIndex] = new ToolStripDataGridViewColumnFilter(Columns[columnIndex]);
+        if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
+          m_Filter[columnIndex].Control.Font = Font;
+
+        // as the Operator is set the filter becomes active, revoke this
+        m_Filter[columnIndex].ColumnFilterLogic.Active = false;
+        m_Filter[columnIndex].ColumnFilterLogic.ColumnFilterApply += ToolStripMenuItemApply_Click;
+      }
+
+      return m_Filter[columnIndex];
     }
 
     /// <summary>
@@ -916,98 +1132,6 @@ namespace CsvTools
       }
     }
 
-    private ToolStripDataGridViewColumnFilter GetColumnFilter(int columnIndex)
-    {
-      if (m_Filter[columnIndex] == null)
-      {
-        m_Filter[columnIndex] = new ToolStripDataGridViewColumnFilter(Columns[columnIndex]);
-        if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
-          m_Filter[columnIndex].Control.Font = Font;
-
-        // as the Operator is set the filter becomes active, revoke this
-        m_Filter[columnIndex].ColumnFilterLogic.Active = false;
-        m_Filter[columnIndex].ColumnFilterLogic.ColumnFilterApply += ToolStripMenuItemApply_Click;
-      }
-
-      return m_Filter[columnIndex];
-    }
-
-    /// <summary>
-    ///   Build the Column Filter the given Column
-    /// </summary>
-    /// <param name="columnIndex"></param>
-    public void SetFilterMenu(int columnIndex)
-    {
-      if (DataView == null)
-        return;
-      contextMenuStripFilter.Close();
-      contextMenuStripFilter.SuspendLayout();
-
-      if (m_Filter[columnIndex] == null)
-        GetColumnFilter(columnIndex);
-
-      while (!(contextMenuStripFilter.Items[0] is ToolStripSeparator))
-        contextMenuStripFilter.Items.RemoveAt(0);
-
-      contextMenuStripFilter.Items.Insert(0, m_Filter[columnIndex]);
-
-      var col = m_Filter[columnIndex].ValueClusterCollection;
-
-      var result = col.BuildValueClusters(DataView, Columns[columnIndex].ValueType, columnIndex);
-      {
-        var newMenuItem = new ToolStripMenuItem();
-        switch (result)
-        {
-          case BuildValueClustersResult.Error:
-          case BuildValueClustersResult.NotRun:
-            newMenuItem.Text = @"Values can not be clustered";
-            newMenuItem.ToolTipText = @"Error has occurred while clustering the value";
-            break;
-
-          case BuildValueClustersResult.WrongType:
-            newMenuItem.Text = @"Type can not be clustered";
-            newMenuItem.ToolTipText = @"This type of column can not be filter by value";
-            break;
-
-          case BuildValueClustersResult.TooManyValues:
-            newMenuItem.Text = @"More than 40 values";
-            newMenuItem.ToolTipText = @"Too many different values found to list them all";
-            break;
-
-          case BuildValueClustersResult.NoValues:
-            newMenuItem.Text = @"No values";
-            newMenuItem.ToolTipText = @"This column is empty";
-            break;
-
-          case BuildValueClustersResult.ListFilled:
-            newMenuItem.Text = @"Any of:";
-            newMenuItem.ToolTipText = @"Check all values you want to filter for";
-            break;
-        }
-
-        newMenuItem.Enabled = false;
-        contextMenuStripFilter.Items.Insert(1, newMenuItem);
-      }
-
-      foreach (var item in col.ValueClusters.OrderByDescending(x => x.Sort))
-      {
-        var newMenuItem =
-          new ToolStripMenuItem(StringUtils.GetShortDisplay(item.Display, 40)) { Tag = item, Checked = item.Active, CheckOnClick = true };
-        newMenuItem.CheckStateChanged += delegate(object menuItem, EventArgs args)
-        {
-          if (!(menuItem is ToolStripMenuItem sendItem))
-            return;
-          if (sendItem.Tag is ValueCluster itemVc)
-            itemVc.Active = sendItem.Checked;
-        };
-        if (item.Count > 0)
-          newMenuItem.ShortcutKeyDisplayString = $@"{item.Count} items";
-        contextMenuStripFilter.Items.Insert(2, newMenuItem);
-      }
-
-      contextMenuStripFilter.ResumeLayout(true);
-    }
-
     /// <summary>
     ///   Called when the preferences are changed by a user. In case the Local was changed we need
     ///   to clear the cache so date and number are displayed correctly again
@@ -1033,25 +1157,6 @@ namespace CsvTools
           toolStripMenuItemColumnVisibility.CheckedListBoxControl.GetItemChecked(i));
 
       this.SafeInvoke(() => SetColumnVisibility(items));
-    }
-
-    public void SetColumnVisibility(IDictionary<string, bool> items)
-    {
-      bool changes = false;
-      foreach (KeyValuePair<string, bool> keyValuePair in items)
-      {
-        var dataGridViewColumn = Columns[keyValuePair.Key];
-        if (dataGridViewColumn == null || dataGridViewColumn.Visible == keyValuePair.Value)
-          continue;
-        dataGridViewColumn.Visible = keyValuePair.Value;
-        changes = true;
-      }
-
-      if (!changes)
-        return;
-
-      SetRowHeight();
-      DataViewChanged?.Invoke(null, null);
     }
 
     /// <summary>
@@ -1104,45 +1209,12 @@ namespace CsvTools
     private void ToolStripMenuItemCopyError_Click(object sender, EventArgs e) =>
       this.SelectedDataIntoClipboard(true, false, m_CancellationTokenSource.Token);
 
-    public void RefreshUI()
-    {
-      try
-      {
-        if (!HideEmptyColumns())
-          return;
-        if (!ColumnVisibilityChanged())
-          return;
-        SetRowHeight();
-        DataViewChanged?.Invoke(this, null);
-      }
-      catch
-      {
-        // ignored
-      }
-    }
-
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemFilled control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ToolStripMenuItemFilled_Click(object sender, EventArgs e) => RefreshUI();
-
-    public void RemoveAllFilter()
-    {
-      try
-      {
-        foreach (var toolStripFilter in m_Filter.Where(
-          toolStripFilter => toolStripFilter != null && toolStripFilter.ColumnFilterLogic.Active))
-          toolStripFilter.ColumnFilterLogic.Active = false;
-
-        ApplyFilters();
-      }
-      catch
-      {
-        // ignored
-      }
-    }
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemFilterRemoveAll control.
@@ -1173,44 +1245,12 @@ namespace CsvTools
       }
     }
 
-    public void FilterCurrentCell()
-    {
-      try
-      {
-        if (CurrentCell == null)
-          return;
-
-        m_Filter[m_MenuItemColumnIndex].ColumnFilterLogic.SetFilter(CurrentCell.Value);
-        if (!m_Filter[m_MenuItemColumnIndex].ColumnFilterLogic.Active)
-          m_Filter[m_MenuItemColumnIndex].ColumnFilterLogic.Active = true;
-        ApplyFilters();
-      }
-      catch
-      {
-        // ignored
-      }
-    }
-
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemFilterValue control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void ToolStripMenuItemFilterValue_Click(object sender, EventArgs e) => FilterCurrentCell();
-
-    public void SetColumnFrozen(int colNum, bool newStatus)
-    {
-      if (newStatus)
-      {
-        var colFirstNoFrozen =
-          (from col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex)
-           where !col.Frozen
-           select col.DisplayIndex).FirstOrDefault();
-        Columns[m_MenuItemColumnIndex].DisplayIndex = colFirstNoFrozen;
-      }
-
-      Columns[colNum].Frozen = newStatus;
-    }
 
     private void ToolStripMenuItemFreeze_Click(object sender, EventArgs e) =>
       SetColumnFrozen(m_MenuItemColumnIndex, !Columns[m_MenuItemColumnIndex].Frozen);
@@ -1223,69 +1263,17 @@ namespace CsvTools
     private void ToolStripMenuItemHideAllColumns_Click(object sender, EventArgs e) =>
       HideAllButOne(m_MenuItemColumnIndex);
 
-    public void HideAllButOne(int visibleIndex)
+    private void ToolStripMenuItemHideThisColumn_Click(object sender, EventArgs e)
     {
-      // keep one column visible, otherwise we have an issue with the grid being empty
-      foreach (DataGridViewColumn col in Columns)
-        if (col.Visible && col.Index != visibleIndex)
-          col.Visible = false;
-
-      if (!ColumnVisibilityChanged())
-        return;
-      SetRowHeight();
-      DataViewChanged?.Invoke(this, null);
-    }
-
-    public void ShowAllColumns()
-    {
-      foreach (DataGridViewColumn col in Columns)
-        if (!col.Visible)
-          col.Visible = true;
-
-      if (!ColumnVisibilityChanged())
-        return;
-      SetRowHeight();
-      DataViewChanged?.Invoke(this, null);
-    }
-
-    /// <summary>
-    ///   Handles the Click event of the toolStripMenuItemAllCol control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void ToolStripMenuItemShowAllColumns_Click(object sender, EventArgs e) => ShowAllColumns();
-
-    /// <summary>
-    ///   Handles the Click event of the toolStripMenuItemSortAscending control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void ToolStripMenuItemSortAscending_Click(object sender, EventArgs e) =>
-
-      // Column was set on showing context menu
-      Sort(Columns[m_MenuItemColumnIndex], ListSortDirection.Ascending);
-
-    /// <summary>
-    ///   Handles the Click event of the toolStripMenuItemSortDescending control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void ToolStripMenuItemSortDescending_Click(object sender, EventArgs e) =>
-
-      // Column was set on showing context menu
-      Sort(Columns[m_MenuItemColumnIndex], ListSortDirection.Descending);
-
-    private void ToolStripMenuItemSortRemove_Click(object sender, EventArgs e) => DataView.Sort = string.Empty;
-
-    public void ReStoreViewSetting(string fileName)
-    {
-      if (string.IsNullOrEmpty(fileName) || !FileSystemUtils.FileExists(fileName)) return;
-
-      var stream = FileSystemUtils.OpenRead(fileName);
-      using (var reader = new StreamReader(stream, Encoding.UTF8, true))
+      try
       {
-        if (ViewSetting.ReStoreViewSetting(reader.ReadToEnd(), Columns, m_Filter, GetColumnFilter, Sort))
-          ApplyFilters();
+        if (!Columns.Cast<DataGridViewColumn>().Any(col => col.Visible && col.Index != m_MenuItemColumnIndex)) return;
+        Columns[m_MenuItemColumnIndex].Visible = false;
+        ColumnVisibilityChanged();
+      }
+      catch
+      {
+        // ignored
       }
     }
 
@@ -1307,13 +1295,6 @@ namespace CsvTools
       {
         toolStripMenuItemLoadCol.Enabled = true;
       }
-    }
-
-    private static string DefFileNameColSetting(IFileSetting fileSetting, string extension)
-    {
-      var defFileName = fileSetting.ID;
-      var index = defFileName.LastIndexOf('.');
-      return (index == -1 ? defFileName : defFileName.Substring(0, index)) + extension;
     }
 
     private async void ToolStripMenuItemSaveCol_Click(object sender, EventArgs e)
@@ -1345,18 +1326,33 @@ namespace CsvTools
       }
     }
 
-    private void ToolStripMenuItemHideThisColumn_Click(object sender, EventArgs e)
-    {
-      try
-      {
-        if (!Columns.Cast<DataGridViewColumn>().Any(col => col.Visible && col.Index != m_MenuItemColumnIndex)) return;
-        Columns[m_MenuItemColumnIndex].Visible = false;
-        ColumnVisibilityChanged();
-      }
-      catch
-      {
-        // ignored
-      }
-    }
+    /// <summary>
+    ///   Handles the Click event of the toolStripMenuItemAllCol control.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+    private void ToolStripMenuItemShowAllColumns_Click(object sender, EventArgs e) => ShowAllColumns();
+
+    /// <summary>
+    ///   Handles the Click event of the toolStripMenuItemSortAscending control.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+    private void ToolStripMenuItemSortAscending_Click(object sender, EventArgs e) =>
+
+      // Column was set on showing context menu
+      Sort(Columns[m_MenuItemColumnIndex], ListSortDirection.Ascending);
+
+    /// <summary>
+    ///   Handles the Click event of the toolStripMenuItemSortDescending control.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+    private void ToolStripMenuItemSortDescending_Click(object sender, EventArgs e) =>
+
+      // Column was set on showing context menu
+      Sort(Columns[m_MenuItemColumnIndex], ListSortDirection.Descending);
+
+    private void ToolStripMenuItemSortRemove_Click(object sender, EventArgs e) => DataView.Sort = string.Empty;
   }
 }
