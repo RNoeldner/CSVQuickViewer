@@ -12,7 +12,7 @@ namespace CsvTools
       RegexOptions.Singleline | RegexCompiledOption);
 
     private readonly Regex m_JsonStringRegex =
-      new Regex(@"""([^\\""]|\\"")*""", RegexOptions.Singleline | RegexCompiledOption);
+      new Regex("\\\"((?:\\\\\\\"|(?:(?!\\\")).)*)\\\"", RegexOptions.Singleline | RegexCompiledOption);
 
     public SyntaxHighlighterJson(FastColoredTextBox fastColoredTextBox) : base(fastColoredTextBox)
     {

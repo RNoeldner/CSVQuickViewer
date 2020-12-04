@@ -14,18 +14,29 @@
 
 using FastColoredTextBoxNS;
 using JetBrains.Annotations;
+using System.Drawing;
 
 namespace CsvTools
 {
   public abstract class SyntaxHighlighterBase : SyntaxHighlighter, ISyntaxHighlighter
   {
+    protected readonly TextStyle SkipStyle = new TextStyle(Brushes.DarkGray, Brushes.LightGray, FontStyle.Regular);
+
     public SyntaxHighlighterBase([NotNull] FastColoredTextBox currentTb) : base(currentTb)
     {
     }
 
     public abstract void Highlight([NotNull] Range range);
 
-    public void Comment([NotNull] Range range)
+    public void SkipRows(int skipRows)
+    {
+      if (skipRows <= 0) return;
+      var range = new Range(currentTb, 0, 0, 0, skipRows);
+      range.ClearStyle(StyleIndex.All);
+      range.SetStyle(SkipStyle);
+    }
+
+    public virtual void Comment([NotNull] Range range)
     {
       range.ClearStyle(StyleIndex.All);
       range.SetStyle(GrayStyle);

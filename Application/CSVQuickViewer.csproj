@@ -245,6 +245,9 @@
     </Compile>
     <Compile Include="ViewSettingHelper.cs" />
     <Compile Include="ViewSettings.cs" />
+    <EmbeddedResource Include="FindSkipRows.resx">
+      <DependentUpon>FindSkipRows.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormCsvTextDisplay.resx">
       <DependentUpon>FormCsvTextDisplay.cs</DependentUpon>
     </EmbeddedResource>

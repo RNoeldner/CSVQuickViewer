@@ -30,6 +30,7 @@ namespace CsvTools
     private readonly Regex m_TabRegex = new Regex("\\t", RegexOptions.Singleline | RegexOptions.Compiled);
 
     public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, char qualifierChar, char delimiterChar,
+
       char escapeChar, string comment) : base(textBox)
     {
       m_DelimiterRegex = new Regex(
@@ -37,9 +38,9 @@ namespace CsvTools
         RegexOptions.Singleline | RegexOptions.Compiled);
       m_QuoteRegex = new Regex(
         escapeChar != '\0'
-          ? $"(?<!|\\{qualifierChar})\\{qualifierChar}"
-          : $"(?<!(\\{escapeChar}|\\{qualifierChar}))\\{qualifierChar}",
-        RegexOptions.Singleline | RegexOptions.Compiled);
+          ? $"\\{qualifierChar}((?:\\{qualifierChar}\\{qualifierChar}|(?:(?!\\{qualifierChar})).)*)\\{qualifierChar}"
+          : $"\\{qualifierChar}((?:\\{escapeChar}\\{qualifierChar}|\\{qualifierChar}\\{qualifierChar}|(?:(?!\\{qualifierChar})).)*)\\{qualifierChar}",
+        RegexOptions.Multiline | RegexOptions.Compiled);
       if (!string.IsNullOrEmpty(comment))
         m_CommentRegex = new Regex($"\\s*{comment}.*$", RegexOptions.Multiline | RegexOptions.Compiled);
     }
@@ -49,6 +50,7 @@ namespace CsvTools
       range.ClearStyle(StyleIndex.All);
       range.SetStyle(BlueStyle, m_DelimiterRegex);
       range.SetStyle(MagentaStyle, m_QuoteRegex);
+
       if (m_CommentRegex != null)
         range.SetStyle(GrayStyle, m_CommentRegex);
       range.SetStyle(m_Space, m_SpaceRegex);
