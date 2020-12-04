@@ -41,7 +41,7 @@ namespace CsvTools
     public FormEditSettings(ViewSettings viewSettings)
     {
       InitializeComponent();
-      m_ViewSettings = viewSettings;
+      m_ViewSettings = viewSettings??throw new ArgumentNullException(nameof(viewSettings));
       fillGuessSettingEdit.FillGuessSettings = viewSettings.FillGuessSettings;
 
       if (m_ViewSettings.LimitDuration == ViewSettings.DurationEnum.Unlimited)
@@ -225,7 +225,7 @@ namespace CsvTools
 
       var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));
       var di = (from RecordDelimiterType item in Enum.GetValues(typeof(RecordDelimiterType))
-        select new DisplayItem<int>((int) item, descConv.ConvertToString(item))).ToList();
+                select new DisplayItem<int>((int) item, descConv.ConvertToString(item))).ToList();
 
       var selValue = (int) m_ViewSettings.FileFormat.NewLine;
       cboRecordDelimiter.SuspendLayout();
@@ -308,15 +308,19 @@ namespace CsvTools
         case 4:
           m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.Unlimited;
           break;
+
         case 3:
           m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.TenSecond;
           break;
+
         case 2:
           m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.TwoSecond;
           break;
+
         case 1:
           m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.Second;
           break;
+
         case 0:
           m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.HalfSecond;
           break;
@@ -330,6 +334,14 @@ namespace CsvTools
         result = CsvHelper.GuessHeader(m_ViewSettings, m_CancellationTokenSource.Token));
       fileSettingBindingSource.ResetBindings(false);
       _MessageBox.Show(this, result, "Checking headers");
+    }
+
+    private void buttonInteractiveSettings_Click(object sender, EventArgs e)
+    {
+      using (var frm = new FindSkipRows(m_ViewSettings))
+      {
+        frm.ShowDialog();
+      }
     }
   }
 }

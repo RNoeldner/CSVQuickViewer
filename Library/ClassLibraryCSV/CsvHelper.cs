@@ -930,7 +930,7 @@ namespace CsvTools
     /// <param name="cancellationToken"></param>
     /// <returns>The number of rows to skip</returns>
     /// <exception cref="ArgumentNullException">commentLine</exception>
-    private static int GuessStartRow([NotNull] ImprovedTextReader textReader, char delimiter,
+    public static int GuessStartRow([NotNull] ImprovedTextReader textReader, char delimiter,
                                      char quoteChar,
                                      string commentLine, CancellationToken cancellationToken)
     {

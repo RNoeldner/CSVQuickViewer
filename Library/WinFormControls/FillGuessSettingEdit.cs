@@ -14,6 +14,7 @@
 
 namespace CsvTools
 {
+  using System;
   using System.ComponentModel;
   using System.Windows.Forms;
 
@@ -25,7 +26,8 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="FillGuessSettingEdit" /> class.
     /// </summary>
-    public FillGuessSettingEdit() => InitializeComponent();
+    public FillGuessSettingEdit() =>
+      InitializeComponent();
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -33,36 +35,7 @@ namespace CsvTools
     [Browsable(false)]
     public FillGuessSettings FillGuessSettings
     {
-      set => fillGuessSettingsBindingSource.DataSource = value;
+      set => fillGuessSettingsBindingSource.DataSource = value ?? new FillGuessSettings();
     }
-
-    /// <summary>
-    ///   Call this before close to make sure any change is stored
-    /// </summary>
-    public void BeforeClose()
-    {
-      // change the focus so data is stored.
-      if (textBoxCheckedRecords.Focused)
-        textBoxSampleValues.Focus();
-      else
-        textBoxCheckedRecords.Focus();
-    }
-
-    private void TextBoxMinSamples_Validating(object sender, CancelEventArgs e)
-    {
-      if (int.TryParse(textBoxSampleValues.Text, out var max) && int.TryParse(textBoxMinSamples.Text, out var min))
-        errorProvider.SetError(
-          textBoxMinSamples,
-          (min < max) ? "Minmum samples must be less then maximum samples" : string.Empty);
-    }
-
-    private void TextBoxSampleValues_Validating(object sender, CancelEventArgs e)
-    {
-      if (int.TryParse(textBoxSampleValues.Text, out var max) && int.TryParse(textBoxMinSamples.Text, out var min))
-        errorProvider.SetError(
-          textBoxSampleValues,
-          (max < min) ? "Maximum samples must be greater then minumu samples" : string.Empty);
-    }
-
   }
 }

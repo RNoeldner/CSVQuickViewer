@@ -69,9 +69,10 @@ namespace CsvTools
     [NotNull] public string Recipient = string.Empty;
 
     /// <summary>
-    /// Create a source access based on a setting, the setting might contain information for containers like Zip of PGP
+    ///   Create a source access based on a setting, the setting might contain information for
+    ///   containers like Zip of PGP
     /// </summary>
-    /// <param name="setting">The setting of type <see cref="IFileSettingPhysicalFile"/></param>
+    /// <param name="setting">The setting of type <see cref="IFileSettingPhysicalFile" /></param>
     /// <param name="isReading"><c>true</c> if used for reading</param>
     public SourceAccess([NotNull] IFileSettingPhysicalFile setting, bool isReading = true) : this(
       GetOpenStreamFunc(setting.FullPath, isReading), isReading, FromExtension(setting.FullPath))
@@ -85,7 +86,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Create a source access based on a file name
+    ///   Create a source access based on a file name
     /// </summary>
     /// <param name="fileName">Fully qualified name of the file</param>
     /// <param name="isReading"><c>true</c> if used for reading</param>
@@ -106,7 +107,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Create a source access based on a stream
+    ///   Create a source access based on a stream
     /// </summary>
     /// <param name="stream">The source stream, it must support seek if its a read stream</param>
     /// <param name="isReading"><c>true</c> if used for reading</param>
@@ -129,9 +130,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Create a source access based on a function that will return a stream
+    ///   Create a source access based on a function that will return a stream
     /// </summary>
-    /// <param name="streamFunc"> A function that will return the stream</param>
+    /// <param name="streamFunc">A function that will return the stream</param>
     /// <param name="isReading"><c>true</c> if used for reading</param>
     /// <param name="type">The type of the contents in the stream</param>
     private SourceAccess([NotNull] Func<Stream> streamFunc, bool isReading, FileTypeEnum type)
