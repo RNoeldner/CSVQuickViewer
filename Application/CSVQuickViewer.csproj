@@ -212,6 +212,12 @@
     <Compile Include="..\Library\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="FindSkipRows.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FindSkipRows.Designer.cs">
+      <DependentUpon>FindSkipRows.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormCsvTextDisplay.cs">
       <SubType>Form</SubType>
     </Compile>

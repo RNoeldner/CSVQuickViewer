@@ -44,7 +44,6 @@ namespace CsvTools
 			this.label4 = new System.Windows.Forms.Label();
 			this.m_LabelInfoQuoting = new System.Windows.Forms.Label();
 			this.label5 = new System.Windows.Forms.Label();
-			this.textBox2 = new System.Windows.Forms.TextBox();
 			this.checkBox2 = new System.Windows.Forms.CheckBox();
 			this.buttonSkipLine = new System.Windows.Forms.Button();
 			this.label6 = new System.Windows.Forms.Label();
@@ -57,6 +56,8 @@ namespace CsvTools
 			this.buttonGuessHeader = new System.Windows.Forms.Button();
 			this.checkBoxBOM = new System.Windows.Forms.CheckBox();
 			this.checkBoxGuessCodePage = new System.Windows.Forms.CheckBox();
+			this.buttonInteractiveSettings = new System.Windows.Forms.Button();
+			this.numericUpDownSkipRows = new System.Windows.Forms.NumericUpDown();
 			this.checkBoxDisplayStartLineNo = new System.Windows.Forms.CheckBox();
 			this.checkBoxDetectFileChanges = new System.Windows.Forms.CheckBox();
 			this.checkBoxTreatNBSPAsSpace = new System.Windows.Forms.CheckBox();
@@ -71,13 +72,13 @@ namespace CsvTools
 			this.label9 = new System.Windows.Forms.Label();
 			this.domainUpDownTime = new System.Windows.Forms.DomainUpDown();
 			this.checkBoxWarnEmptyTailingColumns = new System.Windows.Forms.CheckBox();
-			this.textBoxNumWarnings = new System.Windows.Forms.TextBox();
 			this.labelWarningLimit = new System.Windows.Forms.Label();
 			this.checkBoxWarnNBSP = new System.Windows.Forms.CheckBox();
 			this.checkBoxWarnUnknowCharater = new System.Windows.Forms.CheckBox();
 			this.checkBoxWarnDelimiterInValue = new System.Windows.Forms.CheckBox();
 			this.checkBoxWarnLineFeed = new System.Windows.Forms.CheckBox();
 			this.checkBoxWarnQuotes = new System.Windows.Forms.CheckBox();
+			this.numericUpDownNumWarnings = new System.Windows.Forms.NumericUpDown();
 			this.tabPageFormat = new System.Windows.Forms.TabPage();
 			this.fillGuessSettingEdit = new CsvTools.FillGuessSettingEdit();
 			this.tabPageWarnings = new System.Windows.Forms.TabPage();
@@ -97,8 +98,10 @@ namespace CsvTools
 			tableLayoutPanelFile.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).BeginInit();
 			tableLayoutPanelBehavior.SuspendLayout();
 			tableLayoutPanelWarnings.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumWarnings)).BeginInit();
 			this.tabPageFormat.SuspendLayout();
 			this.tabPageWarnings.SuspendLayout();
 			this.tabControl.SuspendLayout();
@@ -141,7 +144,6 @@ namespace CsvTools
 			tableLayoutPanelFile.Controls.Add(this.label4, 0, 5);
 			tableLayoutPanelFile.Controls.Add(this.m_LabelInfoQuoting, 1, 6);
 			tableLayoutPanelFile.Controls.Add(this.label5, 0, 7);
-			tableLayoutPanelFile.Controls.Add(this.textBox2, 1, 7);
 			tableLayoutPanelFile.Controls.Add(this.checkBox2, 4, 7);
 			tableLayoutPanelFile.Controls.Add(this.buttonSkipLine, 5, 7);
 			tableLayoutPanelFile.Controls.Add(this.label6, 0, 8);
@@ -154,6 +156,8 @@ namespace CsvTools
 			tableLayoutPanelFile.Controls.Add(this.buttonGuessHeader, 5, 1);
 			tableLayoutPanelFile.Controls.Add(this.checkBoxBOM, 3, 2);
 			tableLayoutPanelFile.Controls.Add(this.checkBoxGuessCodePage, 4, 2);
+			tableLayoutPanelFile.Controls.Add(this.buttonInteractiveSettings, 3, 7);
+			tableLayoutPanelFile.Controls.Add(this.numericUpDownSkipRows, 1, 7);
 			tableLayoutPanelFile.Dock = System.Windows.Forms.DockStyle.Top;
 			tableLayoutPanelFile.Location = new System.Drawing.Point(2, 2);
 			tableLayoutPanelFile.Margin = new System.Windows.Forms.Padding(2);
@@ -171,7 +175,7 @@ namespace CsvTools
 			tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			tableLayoutPanelFile.Size = new System.Drawing.Size(804, 263);
+			tableLayoutPanelFile.Size = new System.Drawing.Size(804, 259);
 			tableLayoutPanelFile.TabIndex = 48;
 			// 
 			// cboRecordDelimiter
@@ -180,7 +184,7 @@ namespace CsvTools
 			tableLayoutPanelFile.SetColumnSpan(this.cboRecordDelimiter, 3);
 			this.cboRecordDelimiter.DisplayMember = "Display";
 			this.cboRecordDelimiter.FormattingEnabled = true;
-			this.cboRecordDelimiter.Location = new System.Drawing.Point(135, 142);
+			this.cboRecordDelimiter.Location = new System.Drawing.Point(115, 142);
 			this.cboRecordDelimiter.Margin = new System.Windows.Forms.Padding(2);
 			this.cboRecordDelimiter.MinimumSize = new System.Drawing.Size(46, 0);
 			this.cboRecordDelimiter.Name = "cboRecordDelimiter";
@@ -193,10 +197,10 @@ namespace CsvTools
 			// 
 			this.labelDelimitedFile.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.labelDelimitedFile.AutoSize = true;
-			this.labelDelimitedFile.Location = new System.Drawing.Point(45, 7);
+			this.labelDelimitedFile.Location = new System.Drawing.Point(39, 8);
 			this.labelDelimitedFile.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.labelDelimitedFile.Name = "labelDelimitedFile";
-			this.labelDelimitedFile.Size = new System.Drawing.Size(86, 15);
+			this.labelDelimitedFile.Size = new System.Drawing.Size(72, 13);
 			this.labelDelimitedFile.TabIndex = 39;
 			this.labelDelimitedFile.Text = "Delimited File:";
 			// 
@@ -204,7 +208,7 @@ namespace CsvTools
 			// 
 			this.textBoxComment.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.textBoxComment.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "CommentLine", true));
-			this.textBoxComment.Location = new System.Drawing.Point(135, 118);
+			this.textBoxComment.Location = new System.Drawing.Point(115, 118);
 			this.textBoxComment.Margin = new System.Windows.Forms.Padding(2);
 			this.textBoxComment.MinimumSize = new System.Drawing.Size(46, 4);
 			this.textBoxComment.Name = "textBoxComment";
@@ -220,10 +224,10 @@ namespace CsvTools
 			// 
 			this.label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(40, 120);
+			this.label2.Location = new System.Drawing.Point(34, 121);
 			this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(91, 15);
+			this.label2.Size = new System.Drawing.Size(77, 13);
 			this.label2.TabIndex = 47;
 			this.label2.Text = "Line Comment:";
 			// 
@@ -234,7 +238,7 @@ namespace CsvTools
 			this.textBoxFile.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
 			tableLayoutPanelFile.SetColumnSpan(this.textBoxFile, 4);
 			this.textBoxFile.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "FileName", true));
-			this.textBoxFile.Location = new System.Drawing.Point(135, 4);
+			this.textBoxFile.Location = new System.Drawing.Point(115, 4);
 			this.textBoxFile.Margin = new System.Windows.Forms.Padding(2);
 			this.textBoxFile.MinimumSize = new System.Drawing.Size(46, 4);
 			this.textBoxFile.Name = "textBoxFile";
@@ -251,7 +255,7 @@ namespace CsvTools
 			// 
 			this.buttonGuessDelimiter.AutoSize = true;
 			this.buttonGuessDelimiter.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this.buttonGuessDelimiter.Location = new System.Drawing.Point(723, 89);
+			this.buttonGuessDelimiter.Location = new System.Drawing.Point(639, 89);
 			this.buttonGuessDelimiter.Margin = new System.Windows.Forms.Padding(2);
 			this.buttonGuessDelimiter.Name = "buttonGuessDelimiter";
 			this.buttonGuessDelimiter.Size = new System.Drawing.Size(158, 25);
@@ -263,7 +267,7 @@ namespace CsvTools
 			// btnOpenFile
 			// 
 			this.btnOpenFile.AutoSize = true;
-			this.btnOpenFile.Location = new System.Drawing.Point(723, 2);
+			this.btnOpenFile.Location = new System.Drawing.Point(639, 2);
 			this.btnOpenFile.Margin = new System.Windows.Forms.Padding(2);
 			this.btnOpenFile.Name = "btnOpenFile";
 			this.btnOpenFile.Size = new System.Drawing.Size(158, 25);
@@ -276,10 +280,10 @@ namespace CsvTools
 			// 
 			this.labelDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.labelDelimiter.AutoSize = true;
-			this.labelDelimiter.Location = new System.Drawing.Point(71, 94);
+			this.labelDelimiter.Location = new System.Drawing.Point(61, 95);
 			this.labelDelimiter.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.labelDelimiter.Name = "labelDelimiter";
-			this.labelDelimiter.Size = new System.Drawing.Size(60, 15);
+			this.labelDelimiter.Size = new System.Drawing.Size(50, 13);
 			this.labelDelimiter.TabIndex = 46;
 			this.labelDelimiter.Text = "Delimiter:";
 			// 
@@ -291,7 +295,7 @@ namespace CsvTools
 			this.textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
 			this.textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
 			this.textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "FieldDelimiter", true));
-			this.textBoxDelimiter.Location = new System.Drawing.Point(135, 91);
+			this.textBoxDelimiter.Location = new System.Drawing.Point(115, 91);
 			this.textBoxDelimiter.Margin = new System.Windows.Forms.Padding(2);
 			this.textBoxDelimiter.MinimumSize = new System.Drawing.Size(46, 4);
 			this.textBoxDelimiter.Name = "textBoxDelimiter";
@@ -303,12 +307,12 @@ namespace CsvTools
 			// 
 			this.checkBoxHeader.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.checkBoxHeader.AutoSize = true;
-			tableLayoutPanelFile.SetColumnSpan(this.checkBoxHeader, 3);
+			tableLayoutPanelFile.SetColumnSpan(this.checkBoxHeader, 2);
 			this.checkBoxHeader.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "HasFieldHeader", true));
-			this.checkBoxHeader.Location = new System.Drawing.Point(135, 34);
+			this.checkBoxHeader.Location = new System.Drawing.Point(115, 35);
 			this.checkBoxHeader.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxHeader.Name = "checkBoxHeader";
-			this.checkBoxHeader.Size = new System.Drawing.Size(147, 19);
+			this.checkBoxHeader.Size = new System.Drawing.Size(126, 17);
 			this.checkBoxHeader.TabIndex = 2;
 			this.checkBoxHeader.Text = "Has Column Headers";
 			this.checkBoxHeader.UseVisualStyleBackColor = true;
@@ -317,10 +321,10 @@ namespace CsvTools
 			// 
 			this.labelCodePage.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.labelCodePage.AutoSize = true;
-			this.labelCodePage.Location = new System.Drawing.Point(60, 65);
+			this.labelCodePage.Location = new System.Drawing.Point(48, 66);
 			this.labelCodePage.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.labelCodePage.Name = "labelCodePage";
-			this.labelCodePage.Size = new System.Drawing.Size(71, 15);
+			this.labelCodePage.Size = new System.Drawing.Size(63, 13);
 			this.labelCodePage.TabIndex = 44;
 			this.labelCodePage.Text = "Code Page:";
 			// 
@@ -331,7 +335,7 @@ namespace CsvTools
 			this.cboCodePage.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", this.fileSettingBindingSource, "CodePageId", true));
 			this.cboCodePage.DisplayMember = "Display";
 			this.cboCodePage.FormattingEnabled = true;
-			this.cboCodePage.Location = new System.Drawing.Point(135, 61);
+			this.cboCodePage.Location = new System.Drawing.Point(115, 62);
 			this.cboCodePage.Margin = new System.Windows.Forms.Padding(2);
 			this.cboCodePage.MinimumSize = new System.Drawing.Size(46, 0);
 			this.cboCodePage.Name = "cboCodePage";
@@ -344,7 +348,7 @@ namespace CsvTools
 			// 
 			this.buttonGuessCP.AutoSize = true;
 			this.buttonGuessCP.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this.buttonGuessCP.Location = new System.Drawing.Point(723, 60);
+			this.buttonGuessCP.Location = new System.Drawing.Point(639, 60);
 			this.buttonGuessCP.Margin = new System.Windows.Forms.Padding(2);
 			this.buttonGuessCP.Name = "buttonGuessCP";
 			this.buttonGuessCP.Size = new System.Drawing.Size(158, 25);
@@ -358,10 +362,10 @@ namespace CsvTools
 			this.checkBoxGuessHasHeader.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.checkBoxGuessHasHeader.AutoSize = true;
 			this.checkBoxGuessHasHeader.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "GuessHasHeader", true));
-			this.checkBoxGuessHasHeader.Location = new System.Drawing.Point(437, 34);
+			this.checkBoxGuessHasHeader.Location = new System.Drawing.Point(407, 35);
 			this.checkBoxGuessHasHeader.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxGuessHasHeader.Name = "checkBoxGuessHasHeader";
-			this.checkBoxGuessHasHeader.Size = new System.Drawing.Size(196, 19);
+			this.checkBoxGuessHasHeader.Size = new System.Drawing.Size(168, 17);
 			this.checkBoxGuessHasHeader.TabIndex = 3;
 			this.checkBoxGuessHasHeader.Text = "Determine if Header is present";
 			this.checkBoxGuessHasHeader.UseVisualStyleBackColor = true;
@@ -370,10 +374,10 @@ namespace CsvTools
 			// 
 			this.label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(296, 94);
+			this.label3.Location = new System.Drawing.Point(281, 95);
 			this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(51, 15);
+			this.label3.Size = new System.Drawing.Size(46, 13);
 			this.label3.TabIndex = 46;
 			this.label3.Text = "Escape:";
 			// 
@@ -385,7 +389,7 @@ namespace CsvTools
 			this.textBox1.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
 			this.textBox1.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
 			this.textBox1.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "EscapeCharacter", true));
-			this.textBox1.Location = new System.Drawing.Point(351, 91);
+			this.textBox1.Location = new System.Drawing.Point(331, 91);
 			this.textBox1.Margin = new System.Windows.Forms.Padding(2);
 			this.textBox1.MinimumSize = new System.Drawing.Size(46, 4);
 			this.textBox1.Name = "textBox1";
@@ -399,7 +403,7 @@ namespace CsvTools
 			// 
 			this.buttonNewLine.AutoSize = true;
 			this.buttonNewLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this.buttonNewLine.Location = new System.Drawing.Point(723, 142);
+			this.buttonNewLine.Location = new System.Drawing.Point(639, 142);
 			this.buttonNewLine.Margin = new System.Windows.Forms.Padding(2);
 			this.buttonNewLine.Name = "buttonNewLine";
 			tableLayoutPanelFile.SetRowSpan(this.buttonNewLine, 2);
@@ -413,10 +417,10 @@ namespace CsvTools
 			// 
 			this.label4.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(18, 146);
+			this.label4.Location = new System.Drawing.Point(12, 146);
 			this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(113, 15);
+			this.label4.Size = new System.Drawing.Size(99, 13);
 			this.label4.TabIndex = 44;
 			this.label4.Text = "Record Seperation:";
 			// 
@@ -428,10 +432,10 @@ namespace CsvTools
 			this.m_LabelInfoQuoting.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			tableLayoutPanelFile.SetColumnSpan(this.m_LabelInfoQuoting, 4);
 			this.m_LabelInfoQuoting.ForeColor = System.Drawing.SystemColors.InfoText;
-			this.m_LabelInfoQuoting.Location = new System.Drawing.Point(136, 167);
+			this.m_LabelInfoQuoting.Location = new System.Drawing.Point(116, 165);
 			this.m_LabelInfoQuoting.Name = "m_LabelInfoQuoting";
 			this.m_LabelInfoQuoting.Padding = new System.Windows.Forms.Padding(1);
-			this.m_LabelInfoQuoting.Size = new System.Drawing.Size(582, 19);
+			this.m_LabelInfoQuoting.Size = new System.Drawing.Size(511, 17);
 			this.m_LabelInfoQuoting.TabIndex = 50;
 			this.m_LabelInfoQuoting.Text = "Note: Any combination of CR and LF will be treated as record separator, no matter" +
     " what specific type is set";
@@ -440,34 +444,22 @@ namespace CsvTools
 			// 
 			this.label5.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(38, 193);
+			this.label5.Location = new System.Drawing.Point(30, 190);
 			this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(93, 15);
+			this.label5.Size = new System.Drawing.Size(81, 13);
 			this.label5.TabIndex = 120;
 			this.label5.Text = "Skip First Lines:";
-			// 
-			// textBox2
-			// 
-			this.textBox2.Anchor = System.Windows.Forms.AnchorStyles.Left;
-			this.textBox2.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "SkipRows", true));
-			this.textBox2.Location = new System.Drawing.Point(135, 190);
-			this.textBox2.Margin = new System.Windows.Forms.Padding(2);
-			this.textBox2.MinimumSize = new System.Drawing.Size(46, 4);
-			this.textBox2.Name = "textBox2";
-			this.textBox2.Size = new System.Drawing.Size(46, 20);
-			this.textBox2.TabIndex = 121;
-			this.textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// checkBox2
 			// 
 			this.checkBox2.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.checkBox2.AutoSize = true;
 			this.checkBox2.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "GuessStartRow", true));
-			this.checkBox2.Location = new System.Drawing.Point(437, 191);
+			this.checkBox2.Location = new System.Drawing.Point(407, 188);
 			this.checkBox2.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBox2.Name = "checkBox2";
-			this.checkBox2.Size = new System.Drawing.Size(143, 19);
+			this.checkBox2.Size = new System.Drawing.Size(124, 17);
 			this.checkBox2.TabIndex = 122;
 			this.checkBox2.Text = "Determine Start Row";
 			this.checkBox2.UseVisualStyleBackColor = true;
@@ -476,7 +468,7 @@ namespace CsvTools
 			// 
 			this.buttonSkipLine.AutoSize = true;
 			this.buttonSkipLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this.buttonSkipLine.Location = new System.Drawing.Point(723, 188);
+			this.buttonSkipLine.Location = new System.Drawing.Point(639, 184);
 			this.buttonSkipLine.Margin = new System.Windows.Forms.Padding(2);
 			this.buttonSkipLine.Name = "buttonSkipLine";
 			this.buttonSkipLine.Size = new System.Drawing.Size(158, 25);
@@ -489,10 +481,10 @@ namespace CsvTools
 			// 
 			this.label6.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.label6.AutoSize = true;
-			this.label6.Location = new System.Drawing.Point(2, 219);
+			this.label6.Location = new System.Drawing.Point(2, 216);
 			this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(129, 15);
+			this.label6.Size = new System.Drawing.Size(109, 13);
 			this.label6.TabIndex = 124;
 			this.label6.Text = "Delimiter Placeholder:";
 			// 
@@ -503,7 +495,7 @@ namespace CsvTools
             "{d}"});
 			this.textBox3.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
 			this.textBox3.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "DelimiterPlaceholder", true));
-			this.textBox3.Location = new System.Drawing.Point(135, 217);
+			this.textBox3.Location = new System.Drawing.Point(115, 213);
 			this.textBox3.Margin = new System.Windows.Forms.Padding(2);
 			this.textBox3.MinimumSize = new System.Drawing.Size(46, 4);
 			this.textBox3.Name = "textBox3";
@@ -514,10 +506,10 @@ namespace CsvTools
 			// 
 			this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(16, 243);
+			this.label1.Location = new System.Drawing.Point(7, 240);
 			this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(115, 15);
+			this.label1.Size = new System.Drawing.Size(104, 13);
 			this.label1.TabIndex = 128;
 			this.label1.Text = "Treat Text as NULL:";
 			// 
@@ -528,7 +520,7 @@ namespace CsvTools
             "n.a.",
             "n/a"});
 			this.textBoxTextAsNull.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "TreatTextAsNull", true));
-			this.textBoxTextAsNull.Location = new System.Drawing.Point(135, 241);
+			this.textBoxTextAsNull.Location = new System.Drawing.Point(115, 237);
 			this.textBoxTextAsNull.Margin = new System.Windows.Forms.Padding(2);
 			this.textBoxTextAsNull.MinimumSize = new System.Drawing.Size(46, 4);
 			this.textBoxTextAsNull.Name = "textBoxTextAsNull";
@@ -539,10 +531,10 @@ namespace CsvTools
 			// 
 			this.label7.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.label7.AutoSize = true;
-			this.label7.Location = new System.Drawing.Point(220, 219);
+			this.label7.Location = new System.Drawing.Point(217, 216);
 			this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(127, 15);
+			this.label7.Size = new System.Drawing.Size(110, 13);
 			this.label7.TabIndex = 126;
 			this.label7.Text = "Linefeed Placeholder:\r\n";
 			// 
@@ -554,7 +546,7 @@ namespace CsvTools
             "{n}"});
 			this.textBoxNLPlaceholder.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
 			this.textBoxNLPlaceholder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "NewLinePlaceholder", true));
-			this.textBoxNLPlaceholder.Location = new System.Drawing.Point(351, 217);
+			this.textBoxNLPlaceholder.Location = new System.Drawing.Point(331, 213);
 			this.textBoxNLPlaceholder.Margin = new System.Windows.Forms.Padding(2);
 			this.textBoxNLPlaceholder.MinimumSize = new System.Drawing.Size(46, 4);
 			this.textBoxNLPlaceholder.Name = "textBoxNLPlaceholder";
@@ -566,10 +558,10 @@ namespace CsvTools
 			this.checkBoxGuessDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.checkBoxGuessDelimiter.AutoSize = true;
 			this.checkBoxGuessDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "GuessDelimiter", true));
-			this.checkBoxGuessDelimiter.Location = new System.Drawing.Point(437, 92);
+			this.checkBoxGuessDelimiter.Location = new System.Drawing.Point(407, 93);
 			this.checkBoxGuessDelimiter.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxGuessDelimiter.Name = "checkBoxGuessDelimiter";
-			this.checkBoxGuessDelimiter.Size = new System.Drawing.Size(140, 19);
+			this.checkBoxGuessDelimiter.Size = new System.Drawing.Size(117, 17);
 			this.checkBoxGuessDelimiter.TabIndex = 9;
 			this.checkBoxGuessDelimiter.Text = "Determine Delimiter";
 			this.checkBoxGuessDelimiter.UseVisualStyleBackColor = true;
@@ -578,10 +570,10 @@ namespace CsvTools
 			// 
 			this.buttonGuessHeader.AutoSize = true;
 			this.buttonGuessHeader.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this.buttonGuessHeader.Location = new System.Drawing.Point(723, 31);
+			this.buttonGuessHeader.Location = new System.Drawing.Point(639, 31);
 			this.buttonGuessHeader.Margin = new System.Windows.Forms.Padding(2);
 			this.buttonGuessHeader.Name = "buttonGuessHeader";
-			this.buttonGuessHeader.Size = new System.Drawing.Size(158, 25);
+			this.buttonGuessHeader.Size = new System.Drawing.Size(160, 25);
 			this.buttonGuessHeader.TabIndex = 130;
 			this.buttonGuessHeader.Text = "Guess Header";
 			this.buttonGuessHeader.UseVisualStyleBackColor = true;
@@ -592,10 +584,10 @@ namespace CsvTools
 			this.checkBoxBOM.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.checkBoxBOM.AutoSize = true;
 			this.checkBoxBOM.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "ByteOrderMark", true));
-			this.checkBoxBOM.Location = new System.Drawing.Point(351, 63);
+			this.checkBoxBOM.Location = new System.Drawing.Point(331, 64);
 			this.checkBoxBOM.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxBOM.Name = "checkBoxBOM";
-			this.checkBoxBOM.Size = new System.Drawing.Size(82, 19);
+			this.checkBoxBOM.Size = new System.Drawing.Size(72, 17);
 			this.checkBoxBOM.TabIndex = 42;
 			this.checkBoxBOM.Text = "Has BOM";
 			this.toolTip.SetToolTip(this.checkBoxBOM, "Byte Order Mark");
@@ -606,13 +598,35 @@ namespace CsvTools
 			this.checkBoxGuessCodePage.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.checkBoxGuessCodePage.AutoSize = true;
 			this.checkBoxGuessCodePage.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "GuessCodePage", true));
-			this.checkBoxGuessCodePage.Location = new System.Drawing.Point(437, 63);
+			this.checkBoxGuessCodePage.Location = new System.Drawing.Point(407, 64);
 			this.checkBoxGuessCodePage.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxGuessCodePage.Name = "checkBoxGuessCodePage";
-			this.checkBoxGuessCodePage.Size = new System.Drawing.Size(151, 19);
+			this.checkBoxGuessCodePage.Size = new System.Drawing.Size(130, 17);
 			this.checkBoxGuessCodePage.TabIndex = 3;
 			this.checkBoxGuessCodePage.Text = "Determine Code Page";
 			this.checkBoxGuessCodePage.UseVisualStyleBackColor = true;
+			// 
+			// buttonInteractiveSettings
+			// 
+			this.buttonInteractiveSettings.AutoSize = true;
+			this.buttonInteractiveSettings.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.buttonInteractiveSettings.Location = new System.Drawing.Point(331, 184);
+			this.buttonInteractiveSettings.Margin = new System.Windows.Forms.Padding(2);
+			this.buttonInteractiveSettings.Name = "buttonInteractiveSettings";
+			this.buttonInteractiveSettings.Size = new System.Drawing.Size(46, 25);
+			this.buttonInteractiveSettings.TabIndex = 131;
+			this.buttonInteractiveSettings.Text = "...";
+			this.toolTip.SetToolTip(this.buttonInteractiveSettings, "Interactive Skip First Lines");
+			this.buttonInteractiveSettings.UseVisualStyleBackColor = true;
+			this.buttonInteractiveSettings.Click += new System.EventHandler(this.buttonInteractiveSettings_Click);
+			// 
+			// numericUpDownSkipRows
+			// 
+			this.numericUpDownSkipRows.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.fileSettingBindingSource, "SkipRows", true));
+			this.numericUpDownSkipRows.Location = new System.Drawing.Point(116, 185);
+			this.numericUpDownSkipRows.Name = "numericUpDownSkipRows";
+			this.numericUpDownSkipRows.Size = new System.Drawing.Size(45, 20);
+			this.numericUpDownSkipRows.TabIndex = 133;
 			// 
 			// tableLayoutPanelBehavior
 			// 
@@ -653,7 +667,7 @@ namespace CsvTools
 			tableLayoutPanelBehavior.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			tableLayoutPanelBehavior.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			tableLayoutPanelBehavior.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			tableLayoutPanelBehavior.Size = new System.Drawing.Size(804, 279);
+			tableLayoutPanelBehavior.Size = new System.Drawing.Size(804, 257);
 			tableLayoutPanelBehavior.TabIndex = 9;
 			// 
 			// checkBoxDisplayStartLineNo
@@ -663,10 +677,10 @@ namespace CsvTools
 			this.checkBoxDisplayStartLineNo.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxDisplayStartLineNo, 3);
 			this.checkBoxDisplayStartLineNo.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "DisplayRecordNo", true));
-			this.checkBoxDisplayStartLineNo.Location = new System.Drawing.Point(2, 232);
+			this.checkBoxDisplayStartLineNo.Location = new System.Drawing.Point(2, 212);
 			this.checkBoxDisplayStartLineNo.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxDisplayStartLineNo.Name = "checkBoxDisplayStartLineNo";
-			this.checkBoxDisplayStartLineNo.Size = new System.Drawing.Size(204, 19);
+			this.checkBoxDisplayStartLineNo.Size = new System.Drawing.Size(176, 17);
 			this.checkBoxDisplayStartLineNo.TabIndex = 122;
 			this.checkBoxDisplayStartLineNo.Text = "Add Column for Record Number";
 			this.checkBoxDisplayStartLineNo.UseVisualStyleBackColor = true;
@@ -679,7 +693,7 @@ namespace CsvTools
 			this.checkBoxDetectFileChanges.Location = new System.Drawing.Point(2, 2);
 			this.checkBoxDetectFileChanges.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxDetectFileChanges.Name = "checkBoxDetectFileChanges";
-			this.checkBoxDetectFileChanges.Size = new System.Drawing.Size(139, 19);
+			this.checkBoxDetectFileChanges.Size = new System.Drawing.Size(122, 17);
 			this.checkBoxDetectFileChanges.TabIndex = 0;
 			this.checkBoxDetectFileChanges.Text = "Detect File Changes";
 			this.checkBoxDetectFileChanges.UseVisualStyleBackColor = true;
@@ -689,10 +703,10 @@ namespace CsvTools
 			this.checkBoxTreatNBSPAsSpace.AutoSize = true;
 			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxTreatNBSPAsSpace, 3);
 			this.checkBoxTreatNBSPAsSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "TreatNBSPAsSpace", true));
-			this.checkBoxTreatNBSPAsSpace.Location = new System.Drawing.Point(2, 186);
+			this.checkBoxTreatNBSPAsSpace.Location = new System.Drawing.Point(2, 170);
 			this.checkBoxTreatNBSPAsSpace.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxTreatNBSPAsSpace.Name = "checkBoxTreatNBSPAsSpace";
-			this.checkBoxTreatNBSPAsSpace.Size = new System.Drawing.Size(225, 19);
+			this.checkBoxTreatNBSPAsSpace.Size = new System.Drawing.Size(198, 17);
 			this.checkBoxTreatNBSPAsSpace.TabIndex = 8;
 			this.checkBoxTreatNBSPAsSpace.Text = "Treat non-breaking Space as Space";
 			this.toolTip.SetToolTip(this.checkBoxTreatNBSPAsSpace, "Threat any non-breaking space like a regular space");
@@ -703,10 +717,10 @@ namespace CsvTools
 			this.checkBoxSkipEmptyLines.AutoSize = true;
 			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxSkipEmptyLines, 3);
 			this.checkBoxSkipEmptyLines.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "SkipEmptyLines", true));
-			this.checkBoxSkipEmptyLines.Location = new System.Drawing.Point(2, 71);
+			this.checkBoxSkipEmptyLines.Location = new System.Drawing.Point(2, 65);
 			this.checkBoxSkipEmptyLines.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxSkipEmptyLines.Name = "checkBoxSkipEmptyLines";
-			this.checkBoxSkipEmptyLines.Size = new System.Drawing.Size(123, 19);
+			this.checkBoxSkipEmptyLines.Size = new System.Drawing.Size(107, 17);
 			this.checkBoxSkipEmptyLines.TabIndex = 3;
 			this.checkBoxSkipEmptyLines.Text = "Skip Empty Lines";
 			this.checkBoxSkipEmptyLines.UseVisualStyleBackColor = true;
@@ -717,10 +731,10 @@ namespace CsvTools
 			this.checkBoxTreatUnknowCharaterAsSpace.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxTreatUnknowCharaterAsSpace, 3);
 			this.checkBoxTreatUnknowCharaterAsSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "TreatUnknownCharacterAsSpace", true));
-			this.checkBoxTreatUnknowCharaterAsSpace.Location = new System.Drawing.Point(2, 163);
+			this.checkBoxTreatUnknowCharaterAsSpace.Location = new System.Drawing.Point(2, 149);
 			this.checkBoxTreatUnknowCharaterAsSpace.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxTreatUnknowCharaterAsSpace.Name = "checkBoxTreatUnknowCharaterAsSpace";
-			this.checkBoxTreatUnknowCharaterAsSpace.Size = new System.Drawing.Size(232, 19);
+			this.checkBoxTreatUnknowCharaterAsSpace.Size = new System.Drawing.Size(207, 17);
 			this.checkBoxTreatUnknowCharaterAsSpace.TabIndex = 7;
 			this.checkBoxTreatUnknowCharaterAsSpace.Text = "Treat Unknown Character � as Space";
 			this.toolTip.SetToolTip(this.checkBoxTreatUnknowCharaterAsSpace, "Threat any unknown character like a space");
@@ -731,10 +745,10 @@ namespace CsvTools
 			this.checkBoxMenuDown.AutoSize = true;
 			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxMenuDown, 3);
 			this.checkBoxMenuDown.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "MenuDown", true));
-			this.checkBoxMenuDown.Location = new System.Drawing.Point(2, 25);
+			this.checkBoxMenuDown.Location = new System.Drawing.Point(2, 23);
 			this.checkBoxMenuDown.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxMenuDown.Name = "checkBoxMenuDown";
-			this.checkBoxMenuDown.Size = new System.Drawing.Size(207, 19);
+			this.checkBoxMenuDown.Size = new System.Drawing.Size(182, 17);
 			this.checkBoxMenuDown.TabIndex = 1;
 			this.checkBoxMenuDown.Text = "Display Actions in Navigation Bar";
 			this.checkBoxMenuDown.UseVisualStyleBackColor = true;
@@ -744,10 +758,10 @@ namespace CsvTools
 			this.checkBoxTreatLFasSpace.AutoSize = true;
 			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxTreatLFasSpace, 3);
 			this.checkBoxTreatLFasSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "TreatLFAsSpace", true));
-			this.checkBoxTreatLFasSpace.Location = new System.Drawing.Point(2, 140);
+			this.checkBoxTreatLFasSpace.Location = new System.Drawing.Point(2, 128);
 			this.checkBoxTreatLFasSpace.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxTreatLFasSpace.Name = "checkBoxTreatLFasSpace";
-			this.checkBoxTreatLFasSpace.Size = new System.Drawing.Size(128, 19);
+			this.checkBoxTreatLFasSpace.Size = new System.Drawing.Size(114, 17);
 			this.checkBoxTreatLFasSpace.TabIndex = 6;
 			this.checkBoxTreatLFasSpace.Text = "Treat LF as Space";
 			this.toolTip.SetToolTip(this.checkBoxTreatLFasSpace, "Threat a single occurrence of a LF as a space");
@@ -758,10 +772,10 @@ namespace CsvTools
 			this.chkUseFileSettings.AutoSize = true;
 			tableLayoutPanelBehavior.SetColumnSpan(this.chkUseFileSettings, 3);
 			this.chkUseFileSettings.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "StoreSettingsByFile", true));
-			this.chkUseFileSettings.Location = new System.Drawing.Point(2, 48);
+			this.chkUseFileSettings.Location = new System.Drawing.Point(2, 44);
 			this.chkUseFileSettings.Margin = new System.Windows.Forms.Padding(2);
 			this.chkUseFileSettings.Name = "chkUseFileSettings";
-			this.chkUseFileSettings.Size = new System.Drawing.Size(153, 19);
+			this.chkUseFileSettings.Size = new System.Drawing.Size(132, 17);
 			this.chkUseFileSettings.TabIndex = 2;
 			this.chkUseFileSettings.Text = "Persist Settings for File";
 			this.toolTip.SetToolTip(this.chkUseFileSettings, "Store the settings for each individual file, do not use this is structure or form" +
@@ -773,10 +787,10 @@ namespace CsvTools
 			this.checkBoxTryToSolveMoreColumns.AutoSize = true;
 			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxTryToSolveMoreColumns, 3);
 			this.checkBoxTryToSolveMoreColumns.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "TryToSolveMoreColumns", true));
-			this.checkBoxTryToSolveMoreColumns.Location = new System.Drawing.Point(2, 117);
+			this.checkBoxTryToSolveMoreColumns.Location = new System.Drawing.Point(2, 107);
 			this.checkBoxTryToSolveMoreColumns.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxTryToSolveMoreColumns.Name = "checkBoxTryToSolveMoreColumns";
-			this.checkBoxTryToSolveMoreColumns.Size = new System.Drawing.Size(485, 19);
+			this.checkBoxTryToSolveMoreColumns.Size = new System.Drawing.Size(426, 17);
 			this.checkBoxTryToSolveMoreColumns.TabIndex = 5;
 			this.checkBoxTryToSolveMoreColumns.Text = "Try to Re-Align columns / Handle records that have more than the expected columns" +
     "";
@@ -789,10 +803,10 @@ namespace CsvTools
 			this.checkBoxAllowRowCombining.AutoSize = true;
 			tableLayoutPanelBehavior.SetColumnSpan(this.checkBoxAllowRowCombining, 3);
 			this.checkBoxAllowRowCombining.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "AllowRowCombining", true));
-			this.checkBoxAllowRowCombining.Location = new System.Drawing.Point(2, 94);
+			this.checkBoxAllowRowCombining.Location = new System.Drawing.Point(2, 86);
 			this.checkBoxAllowRowCombining.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxAllowRowCombining.Name = "checkBoxAllowRowCombining";
-			this.checkBoxAllowRowCombining.Size = new System.Drawing.Size(459, 19);
+			this.checkBoxAllowRowCombining.Size = new System.Drawing.Size(405, 17);
 			this.checkBoxAllowRowCombining.TabIndex = 4;
 			this.checkBoxAllowRowCombining.Text = "Try to Combine Row / Handle records that have less than the expected columns";
 			this.toolTip.SetToolTip(this.checkBoxAllowRowCombining, resources.GetString("checkBoxAllowRowCombining.ToolTip"));
@@ -806,10 +820,10 @@ namespace CsvTools
 			this.checkBox1.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
 			tableLayoutPanelBehavior.SetColumnSpan(this.checkBox1, 3);
 			this.checkBox1.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "DisplayStartLineNo", true));
-			this.checkBox1.Location = new System.Drawing.Point(2, 209);
+			this.checkBox1.Location = new System.Drawing.Point(2, 191);
 			this.checkBox1.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBox1.Name = "checkBox1";
-			this.checkBox1.Size = new System.Drawing.Size(188, 19);
+			this.checkBox1.Size = new System.Drawing.Size(161, 17);
 			this.checkBox1.TabIndex = 121;
 			this.checkBox1.Text = "Add Column for Line Number";
 			this.checkBox1.UseVisualStyleBackColor = true;
@@ -818,9 +832,9 @@ namespace CsvTools
 			// 
 			this.label9.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.label9.AutoSize = true;
-			this.label9.Location = new System.Drawing.Point(3, 258);
+			this.label9.Location = new System.Drawing.Point(3, 237);
 			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(177, 15);
+			this.label9.Size = new System.Drawing.Size(150, 13);
 			this.label9.TabIndex = 124;
 			this.label9.Text = "Limit for processing initail open";
 			// 
@@ -831,7 +845,7 @@ namespace CsvTools
 			this.domainUpDownTime.Items.Add("2 seconds");
 			this.domainUpDownTime.Items.Add("1 second");
 			this.domainUpDownTime.Items.Add("1/2 second");
-			this.domainUpDownTime.Location = new System.Drawing.Point(186, 256);
+			this.domainUpDownTime.Location = new System.Drawing.Point(159, 234);
 			this.domainUpDownTime.Name = "domainUpDownTime";
 			this.domainUpDownTime.Size = new System.Drawing.Size(101, 20);
 			this.domainUpDownTime.TabIndex = 126;
@@ -845,13 +859,13 @@ namespace CsvTools
 			tableLayoutPanelWarnings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			tableLayoutPanelWarnings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			tableLayoutPanelWarnings.Controls.Add(this.checkBoxWarnEmptyTailingColumns, 0, 0);
-			tableLayoutPanelWarnings.Controls.Add(this.textBoxNumWarnings, 1, 6);
 			tableLayoutPanelWarnings.Controls.Add(this.labelWarningLimit, 0, 6);
 			tableLayoutPanelWarnings.Controls.Add(this.checkBoxWarnNBSP, 0, 5);
 			tableLayoutPanelWarnings.Controls.Add(this.checkBoxWarnUnknowCharater, 0, 4);
 			tableLayoutPanelWarnings.Controls.Add(this.checkBoxWarnDelimiterInValue, 0, 1);
 			tableLayoutPanelWarnings.Controls.Add(this.checkBoxWarnLineFeed, 0, 2);
 			tableLayoutPanelWarnings.Controls.Add(this.checkBoxWarnQuotes, 0, 3);
+			tableLayoutPanelWarnings.Controls.Add(this.numericUpDownNumWarnings, 1, 6);
 			tableLayoutPanelWarnings.Dock = System.Windows.Forms.DockStyle.Top;
 			tableLayoutPanelWarnings.Location = new System.Drawing.Point(0, 0);
 			tableLayoutPanelWarnings.Margin = new System.Windows.Forms.Padding(2);
@@ -864,7 +878,7 @@ namespace CsvTools
 			tableLayoutPanelWarnings.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			tableLayoutPanelWarnings.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			tableLayoutPanelWarnings.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			tableLayoutPanelWarnings.Size = new System.Drawing.Size(808, 162);
+			tableLayoutPanelWarnings.Size = new System.Drawing.Size(808, 152);
 			tableLayoutPanelWarnings.TabIndex = 58;
 			// 
 			// checkBoxWarnEmptyTailingColumns
@@ -875,33 +889,21 @@ namespace CsvTools
 			this.checkBoxWarnEmptyTailingColumns.Location = new System.Drawing.Point(2, 2);
 			this.checkBoxWarnEmptyTailingColumns.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxWarnEmptyTailingColumns.Name = "checkBoxWarnEmptyTailingColumns";
-			this.checkBoxWarnEmptyTailingColumns.Size = new System.Drawing.Size(161, 19);
+			this.checkBoxWarnEmptyTailingColumns.Size = new System.Drawing.Size(138, 17);
 			this.checkBoxWarnEmptyTailingColumns.TabIndex = 0;
 			this.checkBoxWarnEmptyTailingColumns.Text = "Warn Column Mismatch";
 			this.toolTip.SetToolTip(this.checkBoxWarnEmptyTailingColumns, "It is advised to enable warning in case the number of columns does not match the " +
         "number of expected columns");
 			this.checkBoxWarnEmptyTailingColumns.UseVisualStyleBackColor = false;
 			// 
-			// textBoxNumWarnings
-			// 
-			this.textBoxNumWarnings.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "NumWarnings", true));
-			this.textBoxNumWarnings.Location = new System.Drawing.Point(92, 140);
-			this.textBoxNumWarnings.Margin = new System.Windows.Forms.Padding(2);
-			this.textBoxNumWarnings.MinimumSize = new System.Drawing.Size(46, 4);
-			this.textBoxNumWarnings.Name = "textBoxNumWarnings";
-			this.textBoxNumWarnings.Size = new System.Drawing.Size(46, 20);
-			this.textBoxNumWarnings.TabIndex = 6;
-			this.textBoxNumWarnings.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.textBoxNumWarnings.Validating += new System.ComponentModel.CancelEventHandler(this.PositiveNumberValidating);
-			// 
 			// labelWarningLimit
 			// 
 			this.labelWarningLimit.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this.labelWarningLimit.AutoSize = true;
-			this.labelWarningLimit.Location = new System.Drawing.Point(2, 142);
+			this.labelWarningLimit.Location = new System.Drawing.Point(2, 132);
 			this.labelWarningLimit.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.labelWarningLimit.Name = "labelWarningLimit";
-			this.labelWarningLimit.Size = new System.Drawing.Size(86, 15);
+			this.labelWarningLimit.Size = new System.Drawing.Size(74, 13);
 			this.labelWarningLimit.TabIndex = 57;
 			this.labelWarningLimit.Text = "Warning Limit:";
 			// 
@@ -910,10 +912,10 @@ namespace CsvTools
 			this.checkBoxWarnNBSP.AutoSize = true;
 			tableLayoutPanelWarnings.SetColumnSpan(this.checkBoxWarnNBSP, 2);
 			this.checkBoxWarnNBSP.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "WarnNBSP", true));
-			this.checkBoxWarnNBSP.Location = new System.Drawing.Point(2, 117);
+			this.checkBoxWarnNBSP.Location = new System.Drawing.Point(2, 107);
 			this.checkBoxWarnNBSP.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxWarnNBSP.Name = "checkBoxWarnNBSP";
-			this.checkBoxWarnNBSP.Size = new System.Drawing.Size(172, 19);
+			this.checkBoxWarnNBSP.Size = new System.Drawing.Size(151, 17);
 			this.checkBoxWarnNBSP.TabIndex = 5;
 			this.checkBoxWarnNBSP.Text = "Warn non-breaking Space";
 			this.checkBoxWarnNBSP.UseVisualStyleBackColor = true;
@@ -923,10 +925,10 @@ namespace CsvTools
 			this.checkBoxWarnUnknowCharater.AutoSize = true;
 			tableLayoutPanelWarnings.SetColumnSpan(this.checkBoxWarnUnknowCharater, 2);
 			this.checkBoxWarnUnknowCharater.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "WarnUnknownCharacter", true));
-			this.checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(2, 94);
+			this.checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(2, 86);
 			this.checkBoxWarnUnknowCharater.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxWarnUnknowCharater.Name = "checkBoxWarnUnknowCharater";
-			this.checkBoxWarnUnknowCharater.Size = new System.Drawing.Size(185, 19);
+			this.checkBoxWarnUnknowCharater.Size = new System.Drawing.Size(165, 17);
 			this.checkBoxWarnUnknowCharater.TabIndex = 4;
 			this.checkBoxWarnUnknowCharater.Text = "Warn Unknown Characters �";
 			this.checkBoxWarnUnknowCharater.UseVisualStyleBackColor = true;
@@ -936,10 +938,10 @@ namespace CsvTools
 			this.checkBoxWarnDelimiterInValue.AutoSize = true;
 			tableLayoutPanelWarnings.SetColumnSpan(this.checkBoxWarnDelimiterInValue, 2);
 			this.checkBoxWarnDelimiterInValue.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "WarnDelimiterInValue", true));
-			this.checkBoxWarnDelimiterInValue.Location = new System.Drawing.Point(2, 25);
+			this.checkBoxWarnDelimiterInValue.Location = new System.Drawing.Point(2, 23);
 			this.checkBoxWarnDelimiterInValue.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxWarnDelimiterInValue.Name = "checkBoxWarnDelimiterInValue";
-			this.checkBoxWarnDelimiterInValue.Size = new System.Drawing.Size(111, 19);
+			this.checkBoxWarnDelimiterInValue.Size = new System.Drawing.Size(95, 17);
 			this.checkBoxWarnDelimiterInValue.TabIndex = 1;
 			this.checkBoxWarnDelimiterInValue.Text = "Warn Delimiter";
 			this.checkBoxWarnDelimiterInValue.UseVisualStyleBackColor = true;
@@ -949,10 +951,10 @@ namespace CsvTools
 			this.checkBoxWarnLineFeed.AutoSize = true;
 			tableLayoutPanelWarnings.SetColumnSpan(this.checkBoxWarnLineFeed, 2);
 			this.checkBoxWarnLineFeed.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "WarnLineFeed", true));
-			this.checkBoxWarnLineFeed.Location = new System.Drawing.Point(2, 48);
+			this.checkBoxWarnLineFeed.Location = new System.Drawing.Point(2, 44);
 			this.checkBoxWarnLineFeed.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxWarnLineFeed.Name = "checkBoxWarnLineFeed";
-			this.checkBoxWarnLineFeed.Size = new System.Drawing.Size(109, 19);
+			this.checkBoxWarnLineFeed.Size = new System.Drawing.Size(96, 17);
 			this.checkBoxWarnLineFeed.TabIndex = 2;
 			this.checkBoxWarnLineFeed.Text = "Warn Linefeed";
 			this.checkBoxWarnLineFeed.UseVisualStyleBackColor = true;
@@ -962,13 +964,31 @@ namespace CsvTools
 			this.checkBoxWarnQuotes.AutoSize = true;
 			tableLayoutPanelWarnings.SetColumnSpan(this.checkBoxWarnQuotes, 2);
 			this.checkBoxWarnQuotes.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "WarnQuotes", true));
-			this.checkBoxWarnQuotes.Location = new System.Drawing.Point(2, 71);
+			this.checkBoxWarnQuotes.Location = new System.Drawing.Point(2, 65);
 			this.checkBoxWarnQuotes.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxWarnQuotes.Name = "checkBoxWarnQuotes";
-			this.checkBoxWarnQuotes.Size = new System.Drawing.Size(133, 19);
+			this.checkBoxWarnQuotes.Size = new System.Drawing.Size(117, 17);
 			this.checkBoxWarnQuotes.TabIndex = 3;
 			this.checkBoxWarnQuotes.Text = "Warn Text Qualifier";
 			this.checkBoxWarnQuotes.UseVisualStyleBackColor = true;
+			// 
+			// numericUpDownNumWarnings
+			// 
+			this.numericUpDownNumWarnings.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.fileSettingBindingSource, "NumWarnings", true));
+			this.numericUpDownNumWarnings.Increment = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+			this.numericUpDownNumWarnings.Location = new System.Drawing.Point(81, 129);
+			this.numericUpDownNumWarnings.Maximum = new decimal(new int[] {
+            200,
+            0,
+            0,
+            0});
+			this.numericUpDownNumWarnings.Name = "numericUpDownNumWarnings";
+			this.numericUpDownNumWarnings.Size = new System.Drawing.Size(45, 20);
+			this.numericUpDownNumWarnings.TabIndex = 134;
 			// 
 			// tabPageFormat
 			// 
@@ -1080,10 +1100,10 @@ namespace CsvTools
 			this.checkBoxCheckQuote.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.checkBoxCheckQuote.AutoSize = true;
 			this.checkBoxCheckQuote.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.fileSettingBindingSource, "GuessQualifier", true));
-			this.checkBoxCheckQuote.Location = new System.Drawing.Point(2, 5);
+			this.checkBoxCheckQuote.Location = new System.Drawing.Point(2, 6);
 			this.checkBoxCheckQuote.Margin = new System.Windows.Forms.Padding(2);
 			this.checkBoxCheckQuote.Name = "checkBoxCheckQuote";
-			this.checkBoxCheckQuote.Size = new System.Drawing.Size(162, 19);
+			this.checkBoxCheckQuote.Size = new System.Drawing.Size(139, 17);
 			this.checkBoxCheckQuote.TabIndex = 10;
 			this.checkBoxCheckQuote.Text = "Determine Text Qualifier";
 			this.checkBoxCheckQuote.UseVisualStyleBackColor = true;
@@ -1095,7 +1115,7 @@ namespace CsvTools
 			this.buttonGuessTextQualifier.Location = new System.Drawing.Point(378, 2);
 			this.buttonGuessTextQualifier.Margin = new System.Windows.Forms.Padding(2);
 			this.buttonGuessTextQualifier.Name = "buttonGuessTextQualifier";
-			this.buttonGuessTextQualifier.Size = new System.Drawing.Size(127, 25);
+			this.buttonGuessTextQualifier.Size = new System.Drawing.Size(112, 25);
 			this.buttonGuessTextQualifier.TabIndex = 11;
 			this.buttonGuessTextQualifier.Text = "Guess Text Qualifier";
 			this.buttonGuessTextQualifier.UseVisualStyleBackColor = true;
@@ -1133,17 +1153,18 @@ namespace CsvTools
 			this.ShowInTaskbar = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Settings";
-			this.TopMost = true;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormEditSettings_FormClosing);
 			this.Load += new System.EventHandler(this.EditSettings_Load);
 			tableLayoutPanelFile.ResumeLayout(false);
 			tableLayoutPanelFile.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).EndInit();
 			tableLayoutPanelBehavior.ResumeLayout(false);
 			tableLayoutPanelBehavior.PerformLayout();
 			tableLayoutPanelWarnings.ResumeLayout(false);
 			tableLayoutPanelWarnings.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumWarnings)).EndInit();
 			this.tabPageFormat.ResumeLayout(false);
 			this.tabPageWarnings.ResumeLayout(false);
 			this.tabPageWarnings.PerformLayout();
@@ -1216,13 +1237,11 @@ namespace CsvTools
     private System.Windows.Forms.TabPage tabPageQuoting;
     private System.Windows.Forms.TabPage tabPageWarnings;
     private System.Windows.Forms.TextBox textBox1;
-    private System.Windows.Forms.TextBox textBox2;
     private System.Windows.Forms.TextBox textBox3;
     private System.Windows.Forms.TextBox textBoxComment;
     private System.Windows.Forms.TextBox textBoxDelimiter;
     private System.Windows.Forms.TextBox textBoxFile;
     private System.Windows.Forms.TextBox textBoxNLPlaceholder;
-    private System.Windows.Forms.TextBox textBoxNumWarnings;
     private System.Windows.Forms.TextBox textBoxTextAsNull;
     private System.Windows.Forms.ToolTip toolTip;
 
@@ -1231,5 +1250,8 @@ namespace CsvTools
     private System.Windows.Forms.DomainUpDown domainUpDownTime;
     private System.Windows.Forms.Button buttonGuessHeader;
     private System.Windows.Forms.CheckBox checkBoxGuessCodePage;
+    private System.Windows.Forms.Button buttonInteractiveSettings;
+    private System.Windows.Forms.NumericUpDown numericUpDownSkipRows;
+    private System.Windows.Forms.NumericUpDown numericUpDownNumWarnings;
   }
 }
