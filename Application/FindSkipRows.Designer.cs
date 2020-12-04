@@ -28,10 +28,10 @@
     /// </summary>
     private void InitializeComponent()
     {
-			this.components = new System.ComponentModel.Container();			
+			this.components = new System.ComponentModel.Container();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FindSkipRows));
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.textBoxComment = new System.Windows.Forms.TextBox();
-			this.fileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
 			this.label2 = new System.Windows.Forms.Label();
 			this.m_LabelQuote = new System.Windows.Forms.Label();
 			this.buttonSkipLine = new System.Windows.Forms.Button();
@@ -41,11 +41,12 @@
 			this.textBox = new FastColoredTextBoxNS.FastColoredTextBox();
 			this.m_TextBoxQuote = new System.Windows.Forms.TextBox();
 			this.numericUpDownSkipRows = new System.Windows.Forms.NumericUpDown();
+			this.fileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
 			this.fileSettingBindingSource = new System.Windows.Forms.BindingSource(this.components);
 			this.tableLayoutPanel1.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.textBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -89,11 +90,6 @@
 			this.textBoxComment.Size = new System.Drawing.Size(46, 20);
 			this.textBoxComment.TabIndex = 131;
 			this.textBoxComment.TextChanged += new System.EventHandler(this.DifferentSyntaxHighlighter);
-			// 
-			// fileFormatBindingSource
-			// 
-			this.fileFormatBindingSource.AllowNew = false;
-			this.fileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
 			// 
 			// label2
 			// 
@@ -201,11 +197,13 @@
 			this.textBox.Name = "textBox";
 			this.textBox.Paddings = new System.Windows.Forms.Padding(0);
 			this.textBox.ReadOnly = true;
-			this.textBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));			
+			this.textBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+			this.textBox.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("textBox.ServiceColors")));
 			this.textBox.Size = new System.Drawing.Size(609, 544);
 			this.textBox.TabIndex = 126;
 			this.textBox.WordWrap = true;
 			this.textBox.Zoom = 100;
+			this.textBox.VisibleRangeChangedDelayed += new System.EventHandler(this.textBox_VisibleRangeChangedDelayed);
 			// 
 			// m_TextBoxQuote
 			// 
@@ -226,6 +224,11 @@
 			this.numericUpDownSkipRows.TabIndex = 132;
 			this.numericUpDownSkipRows.ValueChanged += new System.EventHandler(this.numericUpDownSkipRows_ValueChanged);
 			// 
+			// fileFormatBindingSource
+			// 
+			this.fileFormatBindingSource.AllowNew = false;
+			this.fileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
+			// 
 			// fileSettingBindingSource
 			// 
 			this.fileSettingBindingSource.AllowNew = false;
@@ -242,11 +245,12 @@
 			this.ShowIcon = false;
 			this.ShowInTaskbar = false;
 			this.Text = "Skip Rows Interactive";
+			this.Load += new System.EventHandler(this.FindSkipRows_Load);
 			this.tableLayoutPanel1.ResumeLayout(false);
 			this.tableLayoutPanel1.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.textBox)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).EndInit();
 			this.ResumeLayout(false);
 

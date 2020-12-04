@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FastColoredTextBoxNS;
+using System;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -21,11 +22,9 @@ namespace CsvTools
       fileSetting = csvFile;
       fileSettingBindingSource.DataSource = csvFile;
       fileFormatBindingSource.DataSource = csvFile.FileFormat;
-      DifferentSyntaxHighlighter(this, null);
 
       m_Stream = new ImprovedStream(new SourceAccess(csvFile));
-      textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(fileSetting.CodePageId, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
-      HighlightVisibleRange(csvFile.SkipRows);
+      UpdateHighlight();
     }
 
     private void HighlightVisibleRange(int skipRows)
@@ -39,10 +38,7 @@ namespace CsvTools
         {
           var range = new FastColoredTextBoxNS.Range(textBox, 0, startLine, 0, endLine);
           m_HighLighter?.Highlight(range);
-
-          if (skipRows <= 0) return;
-          range = new FastColoredTextBoxNS.Range(textBox, 0, 0, 0, skipRows);
-          m_HighLighter?.Comment(range);
+          m_HighLighter?.SkipRows(skipRows);
         }
       }
       catch (Exception ex)
@@ -66,15 +62,30 @@ namespace CsvTools
       }
     }
 
-    private void DifferentSyntaxHighlighter(object sender, EventArgs e)
+    private void UpdateHighlight()
     {
       m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text.WrittenPunctuationToChar(), textBoxDelimiter.Text.WrittenPunctuationToChar(), fileSetting.FileFormat.EscapeCharacterChar, textBoxComment.Text);
+    }
+
+    private void DifferentSyntaxHighlighter(object sender, EventArgs e)
+    {
+      UpdateHighlight();
       HighlightVisibleRange(fileSetting.SkipRows);
     }
 
     private void numericUpDownSkipRows_ValueChanged(object sender, EventArgs e)
     {
       HighlightVisibleRange(Convert.ToInt32(numericUpDownSkipRows.Value));
+    }
+
+    private void FindSkipRows_Load(object sender, EventArgs e)
+    {
+      textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(fileSetting.CodePageId, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
+    }
+
+    private void textBox_VisibleRangeChangedDelayed(object sender, EventArgs e)
+    {
+      HighlightVisibleRange(fileSetting.SkipRows);
     }
   }
 }

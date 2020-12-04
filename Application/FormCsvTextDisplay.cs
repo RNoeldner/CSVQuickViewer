@@ -53,10 +53,7 @@ namespace CsvTools
         {
           var range = new FastColoredTextBoxNS.Range(textBox, 0, startLine, 0, endLine);
           m_HighLighter?.Highlight(range);
-
-          if (m_SkipLines <= 0) return;
-          range = new FastColoredTextBoxNS.Range(textBox, 0, 0, 0, m_SkipLines);
-          m_HighLighter?.Comment(range);
+          m_HighLighter?.SkipRows(m_SkipLines);
         }
       }
       catch (Exception ex)
@@ -119,7 +116,6 @@ namespace CsvTools
       }
       else
       {
-
         try
         {
           if (json)

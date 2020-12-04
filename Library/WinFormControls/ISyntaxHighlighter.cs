@@ -20,6 +20,8 @@ namespace CsvTools
   {
     void Highlight(Range range);
 
+    void SkipRows(int skipRows);
+
     void Comment(Range range);
   }
 }
