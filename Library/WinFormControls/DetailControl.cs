@@ -334,7 +334,7 @@ namespace CsvTools
       }
     }
 
-    public void AddToolStripItem(int index, [NotNull] ToolStripItem item)
+    public void AddToolStripItem(int index, [System.Diagnostics.CodeAnalysis.NotNull] ToolStripItem item)
     {
       if (!m_ToolStripItems.Contains(item))
       {
