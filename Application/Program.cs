@@ -19,7 +19,7 @@ namespace CsvTools
   using System.Threading;
   using System.Windows.Forms;
 
-#if NETCOREAPP3_1
+#if NETCORE
   using System.Text;
 #endif
 
@@ -29,9 +29,11 @@ namespace CsvTools
     {
       try
       {
-#if NETCOREAPP3_1
+#if NETCORE
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-#else
+#endif
+
+#if NETFRAMEWORK
         CosturaUtility.Initialize();
 #endif
       }

@@ -4,14 +4,15 @@
     <OutputType>WinExe</OutputType>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <ApplicationIcon>..\Application\csv_text.ico</ApplicationIcon>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>C:\Users\r_n\source\repos\FileValidator\CSVQuickViewer\Application\csv_text.ico</ApplicationIcon>
     <Authors>Raphael Nöldner</Authors>
     <PackageIcon>csv_text.ico</PackageIcon>
     <PackageIconUrl />
     <SignAssembly>false</SignAssembly>
     <TargetFramework>net5.0-windows</TargetFramework>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <RootNamespace>CsvTools</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -46,7 +47,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Library\ClassLibraryCSV.Standard\ClassLibraryCSV.Standard.csproj" />
