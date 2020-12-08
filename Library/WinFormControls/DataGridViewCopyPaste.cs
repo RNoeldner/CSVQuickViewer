@@ -88,7 +88,7 @@ namespace CsvTools
       [NotNull] StringBuilder sbHtml,
       bool appendTab,
       bool addErrorInfo,
-      bool cutLength)
+      bool cutLength, HTMLStyle style)
     {
       var cellValue = cell.FormattedValue?.ToString() ?? string.Empty;
       if (cellValue.Length > 500 && cutLength)
@@ -96,9 +96,8 @@ namespace CsvTools
 
       if (appendTab)
         stringBuilder.Append('\t');
-      stringBuilder.Append(EscapeTab(cellValue));
-
-      HTMLStyle.AddHtmlCell(
+      stringBuilder.Append(EscapeTab(cellValue));      
+      style.AddHtmlCell(
         sbHtml,
         cell.ValueType == typeof(string) ? m_HtmlStyle.TD : m_HtmlStyle.TDNonText,
         cellValue,
@@ -113,14 +112,16 @@ namespace CsvTools
     /// <param name="sbHtml">The StringBuilder for HTML.</param>
     /// <param name="errorText">The error Text</param>
     /// <param name="addErrorInfo">if set to <c>true</c> [add error info].</param>
-    private static void AppendRowError([NotNull] StringBuilder stringBuilder, [NotNull] StringBuilder sbHtml, [CanBeNull] string errorText, bool addErrorInfo)
+    private static void AppendRowError([NotNull] StringBuilder stringBuilder, [NotNull] StringBuilder sbHtml, [CanBeNull] string errorText, bool addErrorInfo, HTMLStyle style)
     {
       if (!addErrorInfo)
         return;
       if (string.IsNullOrEmpty(errorText))
         sbHtml.Append(m_HtmlStyle.TDEmpty);
       else
-        HTMLStyle.AddHtmlCell(sbHtml, m_HtmlStyle.TD, string.Empty, errorText, true);
+      {        
+        style.AddHtmlCell(sbHtml, m_HtmlStyle.TD, string.Empty, errorText, true);
+      }
       stringBuilder.Append('\t');
       stringBuilder.Append(EscapeTab(errorText));
     }
@@ -193,11 +194,11 @@ namespace CsvTools
           if (cancellationToken.IsCancellationRequested)
             return;
           var cell = rows[row].Cells[col.Index];
-          AddCell(cell, buffer, sbHtml, !first, addErrorInfo, cutLength);
+          AddCell(cell, buffer, sbHtml, !first, addErrorInfo, cutLength, ApplicationSetting.HTMLStyle);
           first = false;
         }
 
-        AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError);
+        AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError, ApplicationSetting.HTMLStyle);
         sbHtml.AppendLine(m_HtmlStyle.TRClose);
         buffer.AppendLine();
         if (!((DateTime.Now - lastRefresh).TotalSeconds > 0.2))
@@ -320,7 +321,7 @@ namespace CsvTools
               continue;
             if (cell.OwningColumn.DisplayIndex != col)
               continue;
-            AddCell(cell, buffer, sbHtml, col > leftCol, addErrorInfo, cutLength);
+            AddCell(cell, buffer, sbHtml, col > leftCol, addErrorInfo, cutLength, ApplicationSetting.HTMLStyle);
             written = true;
             break;
           }
@@ -331,7 +332,7 @@ namespace CsvTools
           sbHtml.Append(m_HtmlStyle.TDEmpty);
         }
 
-        AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError);
+        AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError, ApplicationSetting.HTMLStyle);
 
         sbHtml.AppendLine(m_HtmlStyle.TRClose);
         buffer.AppendLine();

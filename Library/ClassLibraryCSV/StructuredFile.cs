@@ -26,7 +26,7 @@ namespace CsvTools
   [Serializable]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 #pragma warning disable CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode()
-  public class StructuredFile : BaseSettings, IFileSettingPhysicalFile, IEquatable<StructuredFile>
+  public class StructuredFile : BaseSettingPhysicalFile, IFileSettingPhysicalFile, IEquatable<StructuredFile>
 #pragma warning restore CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode()
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
@@ -46,7 +46,7 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
     /// </summary>
-    public StructuredFile()
+    public StructuredFile() : this(string.Empty)
     {
     }
 

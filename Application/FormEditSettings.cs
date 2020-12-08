@@ -141,7 +141,7 @@ namespace CsvTools
 
     private async Task ChangeFileNameAsync(string newFileName)
     {
-      m_ViewSettings.FileName = newFileName.GetRelativePath(ApplicationSetting.RootFolder);
+      m_ViewSettings.FileName = newFileName;
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try

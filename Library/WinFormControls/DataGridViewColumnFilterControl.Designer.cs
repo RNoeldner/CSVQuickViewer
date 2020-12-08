@@ -26,10 +26,6 @@ namespace CsvTools
     /// Required method for Designer support - do not modify
     /// the contents of this method with the code editor.
     /// </summary>
-    [SuppressMessage("ReSharper", "ArrangeThisQualifier")]
-    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
-    [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
-    [SuppressMessage("ReSharper", "LocalizableElement")]
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();

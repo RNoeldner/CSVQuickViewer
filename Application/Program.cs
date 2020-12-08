@@ -16,7 +16,6 @@ namespace CsvTools
 {
   using System;
   using System.Diagnostics.CodeAnalysis;
-  using System.Threading;
   using System.Windows.Forms;
 
 #if NETCORE
@@ -44,35 +43,15 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Handles the ThreadException event of the Application control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">
-    ///   The <see cref="ThreadExceptionEventArgs" /> instance containing the event data.
-    /// </param>
-    private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e) =>
-      UnhandledException(e.Exception);
-
-    /// <summary>
-    ///   Handles the UnhandledException event of the CurrentDomain control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">
-    ///   The <see cref="UnhandledExceptionEventArgs" /> instance containing the event data.
-    /// </param>
-    private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) =>
-      UnhandledException((Exception) e.ExceptionObject);
-
-    /// <summary>
     ///   The main entry point for the application.
     /// </summary>
     [STAThread]
     private static void Main(string[] args)
     {
-      Application.ThreadException += Application_ThreadException;
-      AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+      Application.ThreadException += (s, e) => UnhandledException(e.Exception);
+      AppDomain.CurrentDomain.UnhandledException += (s, e) => UnhandledException((Exception) e.ExceptionObject);
       var fileName = string.Empty;
-#if NETCOREAPP3_1
+#if NETCORE
       Application.SetHighDpiMode(HighDpiMode.SystemAware);
 #endif
       Application.EnableVisualStyles();
@@ -98,7 +77,7 @@ namespace CsvTools
       else if (!FileSystemUtils.FileExists(fileName))
         frm.SelectFile($"File '{fileName}' not found");
       else
-        frm.LoadCsvFile(fileName);
+        frm.LoadCsvFile(FileSystemUtils.GetFullPath(fileName));
 #pragma warning restore 4014
       Application.Run(frm);
     }

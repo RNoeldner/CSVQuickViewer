@@ -20,52 +20,7 @@ namespace CsvTools.Tests
 {
   [TestClass]
   public class HTMLStyleTests
-  {
-    [TestMethod]
-    public void Properties()
-    {
-      var style = new HTMLStyle { Warning = "TestWar" };
-      Assert.AreEqual("TestWar", style.Warning);
-
-      style.BR = "TestBR";
-      Assert.AreEqual("TestBR", style.BR);
-
-      style.H1 = "TestH1";
-      Assert.AreEqual("TestH1", style.H1);
-
-      style.TDEmpty = "TestTD";
-      Assert.AreEqual("TestTD", style.TDEmpty);
-
-      style.TD = "TestTD";
-      Assert.AreEqual("TestTD", style.TD);
-
-      style.TDNonText = "TestTDNT";
-      Assert.AreEqual("TestTDNT", style.TDNonText);
-
-      style.TH = "TestTH";
-      Assert.AreEqual("TestTH", style.TH);
-
-      style.H2 = "TestH2";
-      Assert.AreEqual("TestH2", style.H2);
-
-      style.Style = "TestStyle";
-      Assert.AreEqual("TestStyle", style.Style);
-
-      style.TableClose = "TestCl";
-      Assert.AreEqual("TestCl", style.TableClose);
-
-      style.TableOpen = "TestOp";
-      Assert.AreEqual("TestOp", style.TableOpen);
-
-      style.TRClose = "TestTRCl";
-      Assert.AreEqual("TestTRCl", style.TRClose);
-
-      style.TROpen = "TestTROp";
-      Assert.AreEqual("TestTROp", style.TROpen);
-
-      style.TROpenAlt = "TestTROpA";
-      Assert.AreEqual("TestTROpA", style.TROpenAlt);
-    }
+  {    
 
     [TestMethod]
     public void ConvertToHtmlFragment()
@@ -146,14 +101,15 @@ namespace CsvTools.Tests
     [TestMethod]
     public void AddHTMLCellTest()
     {
-      HTMLStyle.AddHtmlCell(null, null, null, null, true);
+      var html = new HTMLStyle();
+      html.AddHtmlCell(null, null, null, null, true);
       var sb = new StringBuilder();
 
-      HTMLStyle.AddHtmlCell(sb, "<{0}>", "1", null, false);
+      html.AddHtmlCell(sb, "<{0}>", "1", null, false);
       Assert.AreEqual("<1>", sb.ToString());
 
       sb = new StringBuilder();
-      HTMLStyle.AddHtmlCell(sb, "<{0}>", "1", "Error", false);
+      html.AddHtmlCell(sb, "<{0}>", "1", "Error", false);
       Assert.AreEqual("<1>", sb.ToString());
     }
 
@@ -161,7 +117,7 @@ namespace CsvTools.Tests
     public void AddHTMLCellTestWarnings()
     {
       var sb = new StringBuilder();
-      HTMLStyle.AddHtmlCell(sb, "<{0}>", "Test", "Issue".AddWarningId(), true);
+      new HTMLStyle().AddHtmlCell(sb, "<{0}>", "Test", "Issue".AddWarningId(), true);
       Assert.IsTrue(sb.ToString().StartsWith("<Test"));
       Assert.IsTrue(sb.ToString().Contains("Issue"));
       Assert.IsTrue(sb.ToString().EndsWith(">"));
@@ -172,7 +128,7 @@ namespace CsvTools.Tests
     {
       var errWar = "Some Error".AddMessage("Issue".AddWarningId());
       var sb = new StringBuilder();
-      HTMLStyle.AddHtmlCell(sb, "<{0}>", "Test", errWar, true);
+      new HTMLStyle().AddHtmlCell(sb, "<{0}>", "Test", errWar, true);
       Assert.IsTrue(sb.ToString().StartsWith("<Test"));
       Assert.IsTrue(sb.ToString().EndsWith(">"));
       Assert.IsTrue(sb.ToString().Contains("Issue"));
@@ -183,7 +139,7 @@ namespace CsvTools.Tests
     public void AddHTMLCellTestError()
     {
       var sb = new StringBuilder();
-      HTMLStyle.AddHtmlCell(sb, "<{0}>", "Test", "Some Error", true);
+      new HTMLStyle().AddHtmlCell(sb, "<{0}>", "Test", "Some Error", true);
       Assert.IsTrue(sb.ToString().StartsWith("<Test"));
       Assert.IsTrue(sb.ToString().Contains("Some Error"));
       Assert.IsTrue(sb.ToString().EndsWith(">"));

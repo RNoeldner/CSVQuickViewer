@@ -14,11 +14,9 @@
 
 using JetBrains.Annotations;
 using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.Text;
-using System.Xml.Serialization;
 
 namespace CsvTools
 {
@@ -30,6 +28,23 @@ namespace CsvTools
   /// </remarks>
   public class HTMLStyle
   {
+
+    public const string c_Style = "<STYLE type=\"text/css\">\r\n" +
+                                   "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
+                                   "  h1 { style=\"color:DarkBlue; font-size : 14px; }\r\n" +
+                                   "  h2 { style=\"color:DarkBlue; font-size : 13px; }\r\n" +
+                                   "  table { border-collapse:collapse; font-size : 11px; }\r\n" +
+                                   "  td { border: 1px solid lightgrey; padding:2px; }\r\n" +
+                                   "  td.info { mso-number-format:\\@; background: #f0f8ff; font-weight:bold;}\r\n" +
+                                   "  td.inforight { mso-number-format:\\@; text-align:right; background: #f0f8ff; font-weight:bold;}\r\n" +
+                                   "  td.value { text-align:right; color:DarkBlue; }\r\n" +
+                                   "  td.text { mso-number-format:\\@; color:black; }\r\n" +
+                                   "  tr.alt { background: #EEEEEE; }\r\n" +
+                                   "  br { mso-data-placement:same-cell; }\r\n" +
+                                   "  span { background: #F7F8E0; }\r\n" +
+                                   "  span.err { color:#B40404; }\r\n" +
+                                   "  span.war { color:#2E64FE; }\r\n" +
+                                   "</STYLE>";
     /// <summary>
     ///   Adds a HTML TD cell.
     /// </summary>
@@ -38,7 +53,7 @@ namespace CsvTools
     /// <param name="regularText">The regular test for the cell.</param>
     /// <param name="errorText">Additional information displayed underneath.</param>
     /// <param name="addErrorInfo">if set to <c>true</c> add the errorText.</param>
-    public static void AddHtmlCell(StringBuilder sbHtml, string tdTemplate, string regularText, string errorText,
+    public void AddHtmlCell(StringBuilder sbHtml, string tdTemplate, string regularText, string errorText,
       bool addErrorInfo)
     {
       if (sbHtml == null)
@@ -54,38 +69,38 @@ namespace CsvTools
       {
         if (errorsAndWarnings.Item2.Length == 0 && errorsAndWarnings.Item1.Length > 0)
         {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_Error, errorsAndWarnings.Item1)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(Error, errorsAndWarnings.Item1)));
           return;
         }
 
         if (errorsAndWarnings.Item2.Length > 0 && errorsAndWarnings.Item1.Length == 0)
         {
           sbHtml.Append(
-            string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(c_Warning, errorsAndWarnings.Item2)));
+            string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(Warning, errorsAndWarnings.Item2)));
           return;
         }
 
         sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
-          AddTd(c_ErrorWarning, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
+          AddTd(ErrorWarning, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
       }
       else
       {
         if (errorsAndWarnings.Item2.Length == 0 && errorsAndWarnings.Item1.Length > 0)
         {
           sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
-            AddTd(c_ValueError, regularText, errorsAndWarnings.Item1)));
+            AddTd(ValueError, regularText, errorsAndWarnings.Item1)));
           return;
         }
 
         if (errorsAndWarnings.Item2.Length > 0 && errorsAndWarnings.Item1.Length == 0)
         {
           sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
-            AddTd(c_ValueWarning, regularText, errorsAndWarnings.Item2)));
+            AddTd(ValueWarning, regularText, errorsAndWarnings.Item2)));
           return;
         }
 
         sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
-          AddTd(c_ValueErrorWarning, regularText, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
+          AddTd(ValueErrorWarning, regularText, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
       }
     }
 
@@ -284,13 +299,13 @@ namespace CsvTools
       return "_" + allowed;
     }
 
-    public static StringBuilder StartHTMLDoc(Color back, string stile = c_Style)
+    public static StringBuilder StartHTMLDoc(Color back, string style = c_Style)
     {
       var text = new StringBuilder(500);
       text.AppendLine("<!DOCTYPE HTML public virtual \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
       text.AppendLine($"<HTML style=\"background-color: #{back.R:X2}{back.G:X2}{back.B:X2}\">");
       text.AppendLine("<HEAD>");
-      text.AppendLine(stile);
+      text.AppendLine(style);
       text.AppendLine("</HEAD>");
       text.AppendLine("<BODY>");
       return text;
@@ -324,7 +339,7 @@ namespace CsvTools
 
       var html = string.Format(CultureInfo.InvariantCulture,
         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"><HTML><HEAD>{1}</HEAD><BODY><!--StartFragment-->{0}<!--EndFragment--></BODY></HTML>",
-        fragment, m_Style);
+        fragment, Style);
       var startFragment = prefixLength + html.IndexOf(fragment, StringComparison.Ordinal);
       var endFragment = startFragment + fragment.Length;
 
@@ -332,256 +347,185 @@ namespace CsvTools
         startFragment, endFragment, c_Source, html);
     }
 
-    #region Defaults
+    public HTMLStyle() : this(c_Style)
+    {
+    }
+    public HTMLStyle(string style)
+    {
+      Style = style;
+      BR = "<br>";
+      H1 = "<h1>{0}</h1>";
+      H2 = "<h2>{0}</h2>";
+      TableOpen = "<table>\r\n";
+      TableClose = "</table>";
+      TD = "<td class='text'>{0}</td>";
+      TDEmpty = "<td/>";
+      TDNonText = "<td class='value'>{0}</td>";
+      TH = "<td class='info'>{0}</td>";
+      TRClose = "</tr>\r\n";
+      TROpen = "<tr>\r\n";
+      TROpenAlt = "<tr class='alt'>\r\n";
+      Warning = "<span class='war'>{0}</span>";
+      ValueError = "{0}<br><span class='err'>{1}</span>";
+      ValueErrorWarning = "{0}<br><span class='err'>{1}</span><br><span class='war'>{2}</span>";
+      ValueWarning = "{0}<br><span class='war'>{1}</span>";
+    }
 
-    private const string c_Br = "<br>";
-
-    private const string c_Error = "<span class='err'>{0}</span>";
-
-    private const string c_ErrorWarning = "<span class='err'>{0}<br></span><span class='war'>{1}</span>";
-
-    private const string c_H1 = "<h1>{0}</h1>";
-
-    private const string c_H2 = "<h2>{0}</h2>";
-
-    public const string c_Style = "<STYLE type=\"text/css\">\r\n" +
-                                   "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
-                                   "  h1 { style=\"color:DarkBlue; font-size : 14px; }\r\n" +
-                                   "  h2 { style=\"color:DarkBlue; font-size : 13px; }\r\n" +
-                                   "  table { border-collapse:collapse; font-size : 11px; }\r\n" +
-                                   "  td { border: 1px solid lightgrey; padding:2px; }\r\n" +
-                                   "  td.info { mso-number-format:\\@; background: #f0f8ff; font-weight:bold;}\r\n" +
-                                   "  td.inforight { mso-number-format:\\@; text-align:right; background: #f0f8ff; font-weight:bold;}\r\n" +
-                                   "  td.value { text-align:right; color:DarkBlue; }\r\n" +
-                                   "  td.text { mso-number-format:\\@; color:black; }\r\n" +
-                                   "  tr.alt { background: #EEEEEE; }\r\n" +
-                                   "  br { mso-data-placement:same-cell; }\r\n" +
-                                   "  span { background: #F7F8E0; }\r\n" +
-                                   "  span.err { color:#B40404; }\r\n" +
-                                   "  span.war { color:#2E64FE; }\r\n" +
-                                   "</STYLE>";
-
-
-
-    private const string c_TableClose = "</table>";
-    private const string c_TableOpen = "<table>\r\n";
-
-    private const string c_Td = "<td class='text'>{0}</td>";
-    private const string c_TdEmpty = "<td/>";
-    private const string c_TdNonText = "<td class='value'>{0}</td>";
-    private const string c_Th = "<td class='info'>{0}</td>";
-    private const string c_TrClose = "</tr>\r\n";
-    private const string c_TrOpen = "<tr>\r\n";
-    private const string c_TrOpenAlt = "<tr class='alt'>\r\n";
-    private const string c_ValueError = "{0}<br><span class='err'>{1}</span>";
-    private const string c_ValueErrorWarning = "{0}<br><span class='err'>{1}</span><br><span class='war'>{2}</span>";
-    private const string c_ValueWarning = "{0}<br><span class='war'>{1}</span>";
-    private const string c_Warning = "<span class='war'>{0}</span>";
-
-    #endregion Defaults
-
-    #region Private values
-
-    private string m_Br = c_Br;
-    private string m_H1 = c_H1;
-    private string m_H2 = c_H2;
-    private string m_Style = c_Style;
-    private string m_TableClose = c_TableClose;
-    private string m_TableOpen = c_TableOpen;
-    private string m_Td = c_Td;
-    private string m_TdEmpty = c_TdEmpty;
-    private string m_TdNonText = c_TdNonText;
-    private string m_Th = c_Th;
-    private string m_TrClose = c_TrClose;
-    private string m_TrOpen = c_TrOpen;
-    private string m_TrOpenAlt = c_TrOpenAlt;
-    private string m_Warning = c_Warning;
-
-    #endregion Private values
-
-    #region Properties
 
     /// <summary>
     ///   Gets or sets the TD template.
     /// </summary>
     /// <value>The TD template.</value>
-    [DefaultValue(c_Br)]
-    [XmlElement]
     public string BR
     {
-      get => m_Br;
-
-      set => m_Br = string.IsNullOrEmpty(value) ? c_Br : value;
+      get;
     }
 
     /// <summary>
     ///   Gets or sets the table template.
     /// </summary>
     /// <value>The table template.</value>
-    [DefaultValue(c_H1)]
-    [XmlElement]
     public string H1
     {
-      get => m_H1;
-
-      set => m_H1 = string.IsNullOrEmpty(value) ? c_H1 : value;
+      get;
     }
 
     /// <summary>
     ///   Gets or sets the table template.
     /// </summary>
     /// <value>The table template.</value>
-    [DefaultValue(c_H2)]
-    [XmlElement]
     public string H2
     {
-      get => m_H2;
-
-      set => m_H2 = string.IsNullOrEmpty(value) ? c_H2 : value;
+      get;
     }
 
     /// <summary>
     ///   Set the overall HTML Style Sheet.
     /// </summary>
-    [DefaultValue(c_Style)]
-    [XmlElement]
     public string Style
     {
-      get => m_Style;
-
-      set => m_Style = string.IsNullOrEmpty(value) ? c_Style : value;
+      get;
     }
 
     /// <summary>
     ///   Gets or sets the table template.
     /// </summary>
     /// <value>The table template.</value>
-    [DefaultValue(c_TableClose)]
-    [XmlElement]
     public string TableClose
     {
-      get => m_TableClose;
-
-      set => m_TableClose = string.IsNullOrEmpty(value) ? c_TableClose : value;
+      get;
     }
 
     /// <summary>
     ///   Gets or sets the table template.
     /// </summary>
     /// <value>The table template.</value>
-    [DefaultValue(c_TableOpen)]
-    [XmlElement]
     public string TableOpen
     {
-      get => m_TableOpen;
-
-      set => m_TableOpen = string.IsNullOrEmpty(value) ? c_TableOpen : value;
+      get;
     }
 
     /// <summary>
     ///   Gets or sets the TD template.
     /// </summary>
     /// <value>The TD template.</value>
-    [DefaultValue(c_Td)]
-    [XmlElement]
     public string TD
     {
-      get => m_Td;
+      get;
 
-      set => m_Td = string.IsNullOrEmpty(value) ? c_Td : value;
     }
 
     /// <summary>
     ///   Gets or sets the TD template.
     /// </summary>
     /// <value>The TD template.</value>
-    [DefaultValue(c_TdEmpty)]
-    [XmlElement]
     public string TDEmpty
     {
-      get => m_TdEmpty;
-
-      set => m_TdEmpty = string.IsNullOrEmpty(value) ? c_TdEmpty : value;
+      get;
     }
 
     /// <summary>
     ///   Gets or sets the TD template.
     /// </summary>
     /// <value>The TD template.</value>
-    [DefaultValue(c_TdNonText)]
-    [XmlElement]
     public string TDNonText
     {
-      get => m_TdNonText;
-
-      set => m_TdNonText = string.IsNullOrEmpty(value) ? c_TdNonText : value;
+      get;
     }
 
     /// <summary>
     ///   Gets or sets the TH template.
     /// </summary>
     /// <value>The TH template.</value>
-    [DefaultValue(c_Th)]
-    [XmlElement]
     public string TH
     {
-      get => m_Th;
-
-      set => m_Th = string.IsNullOrEmpty(value) ? c_Th : value;
+      get;
     }
 
     /// <summary>
     ///   Gets or sets the TR template.
     /// </summary>
     /// <value>The TR template.</value>
-    [DefaultValue(c_TrClose)]
-    [XmlElement]
     public string TRClose
     {
-      get => m_TrClose;
-
-      set => m_TrClose = string.IsNullOrEmpty(value) ? c_TrClose : value;
+      get;
     }
 
     /// <summary>
     ///   Gets or sets the TR template.
     /// </summary>
     /// <value>The TR template.</value>
-    [DefaultValue(c_TrOpen)]
-    [XmlElement]
     public string TROpen
     {
-      get => m_TrOpen;
-
-      set => m_TrOpen = string.IsNullOrEmpty(value) ? c_TrOpen : value;
+      get;
     }
 
     /// <summary>
     ///   Gets or sets the TR template alternate.
     /// </summary>
     /// <value>The TR template alternate.</value>
-    [DefaultValue(c_TrOpenAlt)]
-    [XmlElement]
     public string TROpenAlt
     {
-      get => m_TrOpenAlt;
-
-      set => m_TrOpenAlt = string.IsNullOrEmpty(value) ? c_TrOpenAlt : value;
+      get;
     }
 
     /// <summary>
     ///   Gets or sets the warning.
     /// </summary>
     /// <value>The HTML warning template</value>
-    [DefaultValue(c_Warning)]
-    [XmlElement]
     public string Warning
     {
-      get => m_Warning;
-
-      set => m_Warning = string.IsNullOrEmpty(value) ? c_Warning : value;
+      get;
     }
 
-    #endregion Properties
+    /// <summary>
+    ///   Gets or sets the warning.
+    /// </summary>
+    /// <value>The HTML warning template</value>
+    public string Error
+    {
+      get;
+    }
+    /// <summary>
+    ///   Gets or sets the warning.
+    /// </summary>
+    /// <value>The HTML warning template</value>
+    public string ErrorWarning
+    {
+      get;
+    }
+
+    public string ValueError
+    {
+      get;
+    }
+    public string ValueErrorWarning
+    {
+      get;
+    }
+    public string ValueWarning
+    {
+      get;
+    }
   }
 }

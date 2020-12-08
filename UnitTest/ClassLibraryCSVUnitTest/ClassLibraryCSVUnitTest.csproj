@@ -170,7 +170,6 @@
     <Compile Include="RealignColumnsTest.cs" />
     <Compile Include="SampleAndErrorsInformationTest.cs" />
     <Compile Include="LoggerTest.cs" />
-    <Compile Include="ApplicationSettingTest.cs" />
     <Compile Include="AAAPerfromanceTest.cs" />
     <Compile Include="CheckResultTests.cs" />
     <Compile Include="ColumnFormatTest.cs" />
@@ -206,7 +205,7 @@
     <Compile Include="StringConversionTests.cs" />
     <Compile Include="MessageLocationTest.cs" />
     <Compile Include="CsvDataReaderTest.cs" />
-    <Compile Include="CsvFileReaderTest.cs"/>
+    <Compile Include="CsvFileReaderTest.cs" />
     <Compile Include="MockProcessDisplay.cs" />
     <Compile Include="StringUtilsTests.cs" />
     <Compile Include="StringToDateTime.cs" />
@@ -294,28 +293,28 @@
     <Content Include="TestFiles\LongHeaders.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-      <Content Include="TestFiles\LessColumnsThanHeaders.txt">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="TestFiles\TrimmingHeaders.txt">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <None Include="TestFiles\AllFormatsPipe.zip">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <Content Include="TestFiles\BasicCSV.txt.setting">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <None Include="TestFiles\ces_xxx_v879548171_lo_exempt_status_reason_approver_local_full.zip">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Include="TestFiles\Larger.json">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Include="TestFiles\Jason4.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Include="TestFiles\LogFile.json">
+    <Content Include="TestFiles\LessColumnsThanHeaders.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestFiles\TrimmingHeaders.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="TestFiles\AllFormatsPipe.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="TestFiles\BasicCSV.txt.setting">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="TestFiles\ces_xxx_v879548171_lo_exempt_status_reason_approver_local_full.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\Larger.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\Jason4.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestFiles\LogFile.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestFiles\training_relation.csv">
@@ -440,23 +439,23 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-    <ItemGroup>
-        <None Include="TestFiles\BadIssues.csv">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <Content Include="TestFiles\BasicCSV.txt.gz">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
-        <Content Include="TestFiles\Jason1.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Include="TestFiles\Jason2.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Include="TestFiles\Jason3.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Include="TestFiles\Emp.json">
+  <ItemGroup>
+    <None Include="TestFiles\BadIssues.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="TestFiles\BasicCSV.txt.gz">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestFiles\Jason1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestFiles\Jason2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestFiles\Jason3.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestFiles\Emp.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

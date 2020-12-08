@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using System.Xml;
@@ -32,6 +33,7 @@ namespace CsvTools
   /// </summary>
 #pragma warning disable CS0659
 
+  [DebuggerDisplay("BaseSettings: {ID} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettings
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
@@ -45,15 +47,10 @@ namespace CsvTools
     private long m_ErrorCount;
     private ObservableCollection<SampleRecordEntry> m_Errors = new ObservableCollection<SampleRecordEntry>();
     private int m_EvidenceNumberOrIssues = -1;
-    private string m_FileName;
-    private long m_FileSize;
     private string m_Footer = string.Empty;
-    private string m_FullPath = string.Empty;
-    private bool m_FullPathInitialized;
     private bool m_HasFieldHeader = true;
     private string m_Header = string.Empty;
     private string m_Id = string.Empty;
-    private string m_IdentifierInContainer = string.Empty;
     private bool m_InOverview;
     private bool m_IsEnabled = true;
     private DateTime m_LatestSourceTimeUtc = ZeroTime;
@@ -62,7 +59,6 @@ namespace CsvTools
     private DateTime m_ProcessTimeUtc = ZeroTime;
     private string m_Recipient = string.Empty;
     private long m_RecordLimit;
-    private string m_RemoteFileName = string.Empty;
     private ObservableCollection<SampleRecordEntry> m_Samples = new ObservableCollection<SampleRecordEntry>();
     private bool m_SetLatestSourceTimeForWrite;
     private bool m_ShowProgress = true;
@@ -72,7 +68,6 @@ namespace CsvTools
     private IReadOnlyCollection<IFileSetting> m_SourceFileSettings;
     private string m_SqlStatement = string.Empty;
     private string m_TemplateName = string.Empty;
-    private bool m_ThrowErrorIfNotExists = true;
     private int m_Timeout = 90;
     private bool m_TreatNbspAsSpace;
     private string m_TreatTextAsNull = cTreatTextAsNull;
@@ -84,9 +79,8 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
     /// </summary>
     /// <param name="fileName">The filename.</param>
-    protected BaseSettings(string fileName)
+    protected BaseSettings()
     {
-      m_FileName = FileNameFix(fileName);
       // adding or removing columns should cause a property changed for ColumnCollection
       ColumnCollection.CollectionChanged += (sender, e) =>
       {
@@ -98,13 +92,6 @@ namespace CsvTools
         if (e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Add)
           NotifyPropertyChanged(nameof(MappingCollection));
       };
-    }
-
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
-    /// </summary>
-    protected BaseSettings() : this(string.Empty)
-    {
     }
 
     /// <summary>
@@ -160,69 +147,6 @@ namespace CsvTools
     /// <remarks>Used for XML Serialization</remarks>
     [UsedImplicitly]
     public bool FileLastWriteTimeUtcSpecified => ProcessTimeUtc != ZeroTime;
-
-    /// <summary>
-    ///   Gets or sets the name of the file.
-    /// </summary>
-    /// <value>The name of the file.</value>
-    [XmlAttribute]
-    [DefaultValue("")]
-    public virtual string RemoteFileName
-    {
-      [NotNull]
-      get => m_RemoteFileName;
-      [CanBeNull]
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_RemoteFileName.Equals(newVal, StringComparison.Ordinal))
-          return;
-
-        m_RemoteFileName = newVal;
-        NotifyPropertyChanged(nameof(RemoteFileName));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the name of the file.
-    /// </summary>
-    /// <value>The name of the file.</value>
-    [XmlAttribute]
-    [DefaultValue("")]
-    public virtual string IdentifierInContainer
-    {
-      [NotNull]
-      get => m_IdentifierInContainer;
-      [CanBeNull]
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_IdentifierInContainer.Equals(newVal, StringComparison.Ordinal))
-          return;
-
-        m_IdentifierInContainer = newVal;
-        NotifyPropertyChanged(nameof(IdentifierInContainer));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the name of the file.
-    /// </summary>
-    /// <value>The name of the file.</value>
-    [XmlAttribute]
-    [DefaultValue(true)]
-    public virtual bool ThrowErrorIfNotExists
-    {
-      get => m_ThrowErrorIfNotExists;
-
-      set
-      {
-        if (m_ThrowErrorIfNotExists.Equals(value))
-          return;
-        m_ThrowErrorIfNotExists = value;
-        NotifyPropertyChanged(nameof(ThrowErrorIfNotExists));
-      }
-    }
 
     [UsedImplicitly] public bool SamplesSpecified => Samples.Count > 0;
 
@@ -432,50 +356,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the name of the file.
-    /// </summary>
-    /// <value>The name of the file.</value>
-    [XmlAttribute]
-    [DefaultValue("")]
-    public virtual string FileName
-    {
-      [NotNull]
-      get => m_FileName;
-      [CanBeNull]
-      set
-      {
-        var newVal = FileNameFix(value);
-
-        if (m_FileName.Equals(newVal, StringComparison.Ordinal))
-          return;
-        var oldValue = m_FileName;
-        m_FileName = newVal;
-        m_FullPath = null;
-        NotifyPropertyChanged(nameof(FileName));
-        PropertyChangedString?.Invoke(this, new PropertyChangedEventArgs<string>(nameof(FileName), oldValue, newVal));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the date the file when it was read
-    /// </summary>
-    /// <value>The consecutive empty rows.</value>
-    [XmlAttribute]
-    [DefaultValue(0)]
-    public virtual long FileSize
-    {
-      get => m_FileSize;
-
-      set
-      {
-        if (value == m_FileSize)
-          return;
-        m_FileSize = value;
-        NotifyPropertyChanged(nameof(FileSize));
-      }
-    }
-
-    /// <summary>
     ///   Gets or sets the Footer.
     /// </summary>
     /// <value>The Footer for outbound data.</value>
@@ -495,21 +375,7 @@ namespace CsvTools
       }
     }
 
-    [XmlIgnore]
-    [NotNull]
-    public virtual string FullPath
-    {
-      get
-      {
-        if (m_FullPathInitialized) return m_FullPath ?? m_FileName;
-        m_FullPath = FileSystemUtils.ResolvePattern(m_FileName.GetAbsolutePath(ApplicationSetting.RootFolder));
-        if (m_FullPath == null)
-          m_FullPath = string.Empty;
-        else
-          m_FullPathInitialized = true;
-        return m_FullPath;
-      }
-    }
+
 
     /// <summary>
     ///   As the data is loaded and not further validation is done this will be set to true Once
@@ -580,7 +446,7 @@ namespace CsvTools
         var oldValue = m_Id;
         m_Id = newVal;
         NotifyPropertyChanged(nameof(ID));
-        PropertyChangedString?.Invoke(this, new PropertyChangedEventArgs<string>(nameof(ID), oldValue, newVal));
+        NotifyPropertyChangedString(nameof(ID), oldValue, newVal);
       }
     }
 
@@ -608,7 +474,7 @@ namespace CsvTools
     /// </summary>
     [XmlIgnore]
     [NotNull]
-    public virtual string InternalID => string.IsNullOrEmpty(ID) ? FileName : ID;
+    public virtual string InternalID => ID;
 
     /// <summary>
     ///   Gets or sets a value indicating whether this instance is enabled.
@@ -732,6 +598,8 @@ namespace CsvTools
       [CanBeNull]
       set => m_Passphrase = (value ?? string.Empty).Trim();
     }
+
+
 
     /// <summary>
     ///   Recipient for a outbound PGP encryption
@@ -1019,17 +887,6 @@ namespace CsvTools
       if (ReferenceEquals(this, other))
         return true;
 
-      if (other is IFileSettingPhysicalFile otherRemote)
-      {
-        if (otherRemote.RemoteFileName != RemoteFileName ||
-            otherRemote.ThrowErrorIfNotExists != ThrowErrorIfNotExists ||
-            otherRemote.IdentifierInContainer != IdentifierInContainer ||
-            otherRemote.FileSize != FileSize ||
-            !string.Equals(otherRemote.FileName, FileName, StringComparison.OrdinalIgnoreCase)
-        )
-          return false;
-      }
-
       if (!(other.SkipRows == SkipRows &&
             other.RecentlyLoaded == RecentlyLoaded &&
             other.NumRecords == NumRecords &&
@@ -1103,17 +960,6 @@ namespace CsvTools
       }
     }
 
-    [NotNull]
-    private static string FileNameFix([CanBeNull] string value)
-    {
-      var newVal = value ?? string.Empty;
-      if (newVal.StartsWith(".\\", StringComparison.Ordinal))
-        newVal = newVal.Substring(2);
-      return newVal;
-    }
-
-    public void ResetFullPath() => m_FullPathInitialized = false;
-
     /// <summary>
     ///   Sets the SQL statement rename.
     /// </summary>
@@ -1134,6 +980,7 @@ namespace CsvTools
         return;
       FileFormat.CopyTo(other.FileFormat);
       MappingCollection.CopyTo(other.MappingCollection);
+
       other.ConsecutiveEmptyRows = ConsecutiveEmptyRows;
       other.TrimmingOption = TrimmingOption;
       other.TemplateName = TemplateName;
@@ -1169,17 +1016,6 @@ namespace CsvTools
       other.EvidenceNumberOrIssues = EvidenceNumberOrIssues;
       Errors.CollectionCopy(other.Errors);
 
-      // FileName and ID are set at the end otherwise column collection changes will invalidate the
-      // column header cache of the source
-      if (other is IFileSettingPhysicalFile fileSettingPhysicalFile)
-      {
-        fileSettingPhysicalFile.FileSize = FileSize;
-        fileSettingPhysicalFile.FileName = FileName;
-        fileSettingPhysicalFile.RemoteFileName = RemoteFileName;
-        fileSettingPhysicalFile.IdentifierInContainer = IdentifierInContainer;
-        fileSettingPhysicalFile.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
-      }
-
       other.ID = ID;
       other.NumRecords = NumRecords;
       other.WarningCount = WarningCount;
@@ -1199,6 +1035,19 @@ namespace CsvTools
       {
         // ReSharper disable once PolymorphicFieldLikeEventInvocation
         PropertyChanged(this, new PropertyChangedEventArgs(info));
+      }
+      catch (TargetInvocationException)
+      {
+      }
+    }
+    protected void NotifyPropertyChangedString([NotNull] string info, [NotNull] string oldValue, [NotNull] string newVal)
+    {
+      if (PropertyChangedString == null)
+        return;
+      try
+      {
+        // ReSharper disable once PolymorphicFieldLikeEventInvocation
+        PropertyChangedString?.Invoke(this, new PropertyChangedEventArgs<string>(info, oldValue, newVal));
       }
       catch (TargetInvocationException)
       {

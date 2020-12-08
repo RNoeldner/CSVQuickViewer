@@ -156,10 +156,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Initializes the component.
-    /// </summary>
-    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
-    [SuppressMessage("ReSharper", "LocalizableElement")]
-    [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
+    /// </summary>    
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
@@ -880,8 +877,7 @@ namespace CsvTools
       if (e.PropertyName == nameof(CsvFile.TrimmingOption))
         SetCboTrim(m_CsvFile.TrimmingOption);
     }
-
-    [SuppressMessage("ReSharper", "LocalizableElement")]
+    
     private void SetTrimming(object sender, EventArgs e) =>
       this.SafeInvoke(
         () =>

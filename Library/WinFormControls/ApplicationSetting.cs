@@ -29,7 +29,7 @@ namespace CsvTools
     ///   The Application wide HTMLStyle
     /// </summary>
     [NotNull]
-    public static HTMLStyle HTMLStyle { get; } = new HTMLStyle();
+    public static HTMLStyle HTMLStyle { get; set; } = new HTMLStyle();
 
     /// <summary>
     ///   General Setting that determines if the menu is display in the bottom of a detail control
@@ -44,10 +44,9 @@ namespace CsvTools
       }
     }
 
-
-    [NotNull]
-    public static string RootFolder { get; set; } = FileSystemUtils.ExecutableDirectoryName();
-
+    /// <summary>
+    /// Occurs when ApplicationSetting changed.
+    /// </summary>
     public static event PropertyChangedEventHandler PropertyChanged;
   }
 }

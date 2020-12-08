@@ -32,15 +32,23 @@ namespace CsvTools
       var fieldCount = 0;
       for (var col = 0; col < dataReader.FieldCount; col++)
       {
-        var column = (fileReader == null)
-                       ? new ImmutableColumn(dataReader.GetName(col), new ImmutableValueFormat(dataReader.GetFieldType(col).GetDataType()), col)
-                       : fileReader.GetColumn(col);
+        ImmutableColumn column;
+        if (fileReader != null)
+        {
+          var icol = fileReader.GetColumn(col);
+          if (icol is ImmutableColumn imcol)
+            column=imcol;
+          else
+            column=new ImmutableColumn(icol.Name, icol.ValueFormat, col, icol.Convert, icol.DestinationName, icol.Ignore, icol.Part, icol.PartSplitter, icol.PartToEnd, icol.TimePart, icol.TimePartFormat, icol.TimeZonePart);
+        }
+        else
+          column= new ImmutableColumn(dataReader.GetName(col), new ImmutableValueFormat(dataReader.GetFieldType(col).GetDataType()), col);
 
         m_ReaderColumnsAll.Add(column.Name);
         if (column.Ignore) continue;
         m_DateTableColumns.Add(column);
         readerColumns.Add(column.Name);
-        m_Mapping.Add(column.ColumnOrdinal, fieldCount++);
+        m_Mapping.Add(col, fieldCount++);
       }
 
       // add fields
