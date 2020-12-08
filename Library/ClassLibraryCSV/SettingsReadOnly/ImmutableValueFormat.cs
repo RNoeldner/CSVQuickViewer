@@ -12,36 +12,31 @@
 //  *
 //  */
 
-using JetBrains.Annotations;
-
 namespace CsvTools
 {
   public class ImmutableValueFormat : IValueFormat
   {
     public ImmutableValueFormat(DataType dataType = DataType.String,
-      [NotNull] string dateFormat = ValueFormatExtension.cDateFormatDefault,
-      [NotNull] string dateSeparator = ValueFormatExtension.cDateSeparatorDefault, char decimalSeparatorChar = '.',
-      [NotNull] string displayNullAs = "", [NotNull] string asFalse = ValueFormatExtension.cFalseDefault,
-      char groupSeparatorChar = '\0', [NotNull] string numberFormat = ValueFormatExtension.cNumberFormatDefault,
-      [NotNull] string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
-      [NotNull] string asTrue = ValueFormatExtension.cTrueDefault)
+                                string dateFormat = ValueFormatExtension.cDateFormatDefault,
+                                string dateSeparator = ValueFormatExtension.cDateSeparatorDefault,
+                                char decimalSeparatorChar = '.',
+                                string displayNullAs = "",
+                                string asFalse = ValueFormatExtension.cFalseDefault,
+                                char groupSeparatorChar = '\0',
+                                string numberFormat = ValueFormatExtension.cNumberFormatDefault,
+                                string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
+                                string asTrue = ValueFormatExtension.cTrueDefault)
     {
       DataType = dataType;
-      DateFormat = dateFormat;
-      DateSeparator = dateSeparator;
+      DateFormat = dateFormat??throw new System.ArgumentNullException(nameof(dateFormat));
+      DateSeparator = dateSeparator??throw new System.ArgumentNullException(nameof(dateSeparator));
       DecimalSeparatorChar = decimalSeparatorChar;
-      DisplayNullAs = displayNullAs;
-      False = asFalse;
+      DisplayNullAs = displayNullAs??throw new System.ArgumentNullException(nameof(displayNullAs));
+      False = asFalse??throw new System.ArgumentNullException(nameof(asFalse));
       GroupSeparatorChar = groupSeparatorChar;
-      NumberFormat = numberFormat;
-      TimeSeparator = timeSeparator;
-      True = asTrue;
-    }
-
-    public ImmutableValueFormat(IValueFormat other) : this(other.DataType, other.DateFormat, other.DateSeparator,
-      other.DecimalSeparatorChar, other.DisplayNullAs, other.False, other.GroupSeparatorChar, other.NumberFormat,
-      other.TimeSeparator, other.True)
-    {
+      NumberFormat = numberFormat??throw new System.ArgumentNullException(nameof(numberFormat));
+      TimeSeparator = timeSeparator??throw new System.ArgumentNullException(nameof(timeSeparator));
+      True = asTrue??throw new System.ArgumentNullException(nameof(asTrue));
     }
 
     public DataType DataType { get; }

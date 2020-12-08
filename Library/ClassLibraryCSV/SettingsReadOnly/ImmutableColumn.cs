@@ -13,8 +13,6 @@
  */
 
 
-using JetBrains.Annotations;
-
 namespace CsvTools
 {
   /// <summary>
@@ -22,21 +20,20 @@ namespace CsvTools
   /// </summary>
   public class ImmutableColumn : IColumn
   {
-    private readonly bool? m_Convert;
 
-    private readonly ImmutableValueFormat m_ValueFormat;
-
-    public ImmutableColumn([NotNull] string name,
-      [NotNull] IValueFormat valueFormat, int columnOrdinal, bool? convert = null, string destinationName = "",
+    public ImmutableColumn(string name, IValueFormat valueFormat, int columnOrdinal, bool? convert = null, string destinationName = "",
       bool ignore = false, int part = 0,
       char partSplitter = '\0', bool partToEnd = true, string timePart = "", string timePartFormat = "",
       string timeZonePart = "")
     {
+      Name = name??throw new System.ArgumentNullException(nameof(name));
+      if (valueFormat is null)
+        throw new System.ArgumentNullException(nameof(valueFormat));
       ColumnOrdinal = columnOrdinal;
-      m_Convert = convert;
+      Convert = convert??valueFormat.DataType != DataType.String;
       DestinationName = destinationName;
       Ignore = ignore;
-      Name = name;
+
       Part = part;
       PartSplitter = partSplitter;
       PartToEnd = partToEnd;
@@ -44,27 +41,15 @@ namespace CsvTools
       TimePartFormat = timePartFormat;
       TimeZonePart = timeZonePart;
 
-      m_ValueFormat = valueFormat is ImmutableValueFormat immutable
+      ValueFormat = valueFormat is ImmutableValueFormat immutable
         ? immutable
-        : new ImmutableValueFormat(valueFormat);
-    }
-
-    public ImmutableColumn(IColumn other, int ordinal) : this(other.Name, other.ValueFormat,
-      ordinal, other.Convert, other.DestinationName, other.Ignore, other.Part, other.PartSplitter, other.PartToEnd,
-      other.TimePart, other.TimePartFormat, other.TimeZonePart)
-    {
-    }
-
-    public ImmutableColumn(IColumn other, IValueFormat newValueFormat) : this(other.Name, newValueFormat,
-      other.ColumnOrdinal, other.Convert, other.DestinationName, other.Ignore, other.Part, other.PartSplitter,
-      other.PartToEnd, other.TimePart, other.TimePartFormat, other.TimeZonePart)
-    {
+        : new ImmutableValueFormat(valueFormat.DataType, valueFormat.DateFormat, valueFormat.DateSeparator,
+      valueFormat.DecimalSeparatorChar, valueFormat.DisplayNullAs, valueFormat.False, valueFormat.GroupSeparatorChar, valueFormat.NumberFormat,
+      valueFormat.TimeSeparator, valueFormat.True);
     }
 
     public int ColumnOrdinal { get; }
-
-    public bool Convert => m_Convert ?? m_ValueFormat.DataType != DataType.String;
-
+    public bool Convert { get; }
     public string DestinationName { get; }
     public bool Ignore { get; }
     public string Name { get; }
@@ -74,7 +59,7 @@ namespace CsvTools
     public string TimePart { get; }
     public string TimePartFormat { get; }
     public string TimeZonePart { get; }
-    public IValueFormat ValueFormat => m_ValueFormat;
+    public IValueFormat ValueFormat { get; }
 
     public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
   }

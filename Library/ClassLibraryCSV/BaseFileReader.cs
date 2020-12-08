@@ -38,7 +38,7 @@ namespace CsvTools
     /// </summary>
     protected const int c_MaxValue = 10000;
 
-    [NotNull] private readonly IReadOnlyCollection<IColumn> m_ColumnDefinition;
+    [NotNull] private readonly IReadOnlyCollection<ImmutableColumn> m_ColumnDefinition;
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
     protected readonly long RecordLimit;
 
@@ -87,10 +87,9 @@ namespace CsvTools
     protected BaseFileReader([CanBeNull] string fileName, [CanBeNull] IEnumerable<IColumn> columnDefinition,
                              long recordLimit)
     {
-      m_ColumnDefinition = columnDefinition?.Select(col => new ImmutableColumn(col, col.ColumnOrdinal)).Cast<IColumn>()
-                                           .ToList() ??
-                           new List<IColumn>();
 
+      m_ColumnDefinition =  columnDefinition?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col.Name, col.ValueFormat, col.ColumnOrdinal, col.Convert, col.DestinationName, col.Ignore, col.Part, col.PartSplitter, col.PartToEnd, col.TimePart, col.TimePartFormat, col.TimeZonePart)).ToList() ??
+                                 new List<ImmutableColumn>();
       RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       FullPath = fileName;
       FileName = FileSystemUtils.GetFileName(fileName);
@@ -361,7 +360,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column.</param>
     /// <returns></returns>
-    public virtual IColumn GetColumn(int columnNumber) => Column[columnNumber];
+    public virtual ImmutableColumn GetColumn(int columnNumber) => Column[columnNumber];
 
     /// <summary>
     ///   Gets the date and time data value of the specified field.
@@ -1157,10 +1156,9 @@ namespace CsvTools
           var name = enumeratorNames.Current;
           if (name != null)
           {
-            var setting =
-              m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            var setting = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (setting != null)
-              Column[colIndex] = new ImmutableColumn(setting, colIndex);
+              Column[colIndex] = setting;
             else
               Column[colIndex] = new ImmutableColumn(name, new ImmutableValueFormat(type), colIndex);
           }
