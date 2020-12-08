@@ -98,6 +98,6 @@ namespace CsvTools
       Items.FirstOrDefault(column => column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
 
     public IReadOnlyCollection<IColumn> ReadonlyCopy() =>
-      Items.Select(col => new ImmutableColumn(col, col.ColumnOrdinal)).Cast<IColumn>().ToList();
+      Items.Select(col => new ImmutableColumn(col.Name,col.ValueFormat, col.ColumnOrdinal, col.Convert, col.DestinationName, col.Ignore, col.Part, col.PartSplitter, col.PartToEnd, col.TimePart, col.TimePartFormat, col.TimeZonePart)).Cast<IColumn>().ToList();
   }
 }

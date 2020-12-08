@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,7 +29,7 @@ namespace CsvTools
   /// </summary>
   public abstract class BaseFileWriter
   {
-    [NotNull] protected readonly IReadOnlyCollection<IColumn> ColumnDefinition;
+    [NotNull] protected readonly IReadOnlyCollection<ImmutableColumn> ColumnDefinition;
     protected readonly bool ColumnHeader;
     [NotNull] protected readonly List<ColumnInfo> Columns = new List<ColumnInfo>();
     [NotNull] protected readonly IFileFormat FileFormat;
@@ -49,16 +50,21 @@ namespace CsvTools
       [NotNull] string footer,
       [NotNull] string header,
       [NotNull] IValueFormat valueFormat, [NotNull] IFileFormat fileFormat,
-      [NotNull] IReadOnlyCollection<IColumn> columns,
+      [NotNull] IEnumerable<IColumn> columnDefinition,
       [NotNull] string fileSettingDisplay,
       [CanBeNull] IProcessDisplay processDisplay)
     {
       m_FullPath = fullPath;
       var fileName = FileSystemUtils.GetFileName(fullPath);
       ColumnHeader = hasFieldHeader;
-      ValueFormatGeneral = new ImmutableValueFormat(valueFormat);
-      FileFormat = new ImmutableFileFormat(fileFormat);
-      ColumnDefinition = columns;
+      ValueFormatGeneral = new ImmutableValueFormat(valueFormat.DataType, valueFormat.DateFormat, valueFormat.DateSeparator,
+      valueFormat.DecimalSeparatorChar, valueFormat.DisplayNullAs, valueFormat.False, valueFormat.GroupSeparatorChar, valueFormat.NumberFormat,
+      valueFormat.TimeSeparator, valueFormat.True);
+      FileFormat = fileFormat is ImmutableFileFormat immutable ? immutable : new ImmutableFileFormat(fileFormat.IsFixedLength, fileFormat.QualifyAlways,
+      fileFormat.QualifyOnlyIfNeeded, fileFormat.NewLinePlaceholder, fileFormat.DelimiterPlaceholder, fileFormat.FieldDelimiterChar,
+      fileFormat.FieldQualifierChar, fileFormat.QuotePlaceholder, fileFormat.NewLine);
+      ColumnDefinition =  columnDefinition?.Select(col => col is ImmutableColumn immutableColumn? immutableColumn: new ImmutableColumn(col.Name, col.ValueFormat, col.ColumnOrdinal, col.Convert, col.DestinationName, col.Ignore, col.Part, col.PartSplitter, col.PartToEnd, col.TimePart, col.TimePartFormat, col.TimeZonePart)).ToList() ??
+                           new List<ImmutableColumn>();
       NewLine = fileFormat.NewLine.NewLineString();
       Header = ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(header, NewLine), fileFormat.FieldDelimiterChar,
         fileName, id);

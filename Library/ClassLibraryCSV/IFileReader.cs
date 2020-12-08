@@ -114,7 +114,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="column">The column number</param>
     /// <returns>A <see cref="IColumn" /> with all information on the column</returns>
-    IColumn GetColumn(int column);
+    ImmutableColumn GetColumn(int column);
 
     /// <summary>
     ///   Opens the text file and begins to read the meta data, like columns

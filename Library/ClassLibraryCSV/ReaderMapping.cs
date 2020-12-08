@@ -34,7 +34,7 @@ namespace CsvTools
       {
         var column = (fileReader == null)
                        ? new ImmutableColumn(dataReader.GetName(col), new ImmutableValueFormat(dataReader.GetFieldType(col).GetDataType()), col)
-                       : new ImmutableColumn(fileReader.GetColumn(col), col);
+                       : fileReader.GetColumn(col);
 
         m_ReaderColumnsAll.Add(column.Name);
         if (column.Ignore) continue;

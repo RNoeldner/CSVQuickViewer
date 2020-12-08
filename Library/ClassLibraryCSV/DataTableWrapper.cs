@@ -47,7 +47,7 @@ namespace CsvTools
 
     public bool SupportsReset => true;
 
-    public IColumn GetColumn(int column) => ReaderMapping.Column[column];
+    public ImmutableColumn GetColumn(int column) => ReaderMapping.Column[column];
 
     [Obsolete("No need to open a DataTableWrapper")]
     public async Task OpenAsync(CancellationToken token)
