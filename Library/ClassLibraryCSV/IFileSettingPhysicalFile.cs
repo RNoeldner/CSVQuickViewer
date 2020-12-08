@@ -24,6 +24,8 @@ namespace CsvTools
     /// <value>The name of the file.</value>
     string FileName { [NotNull] get; [CanBeNull] set; }
 
+    string RootFolder { [NotNull] get; [CanBeNull] set; }
+
     /// <summary>
     ///  The Size of the file in Byte
     /// </summary>

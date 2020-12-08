@@ -33,6 +33,9 @@ namespace CsvTools
     private const string c_LongPathPrefix = @"\\?\";
     private const string c_UncLongPathPrefix = @"\\?\UNC\";
 
+    public static string FullPath([CanBeNull] this string fileName, [CanBeNull] string root) =>
+      ResolvePattern(fileName.GetAbsolutePath(root))?? string.Empty;
+
     public static void CreateDirectory([CanBeNull] string directoryName)
     {
       if (string.IsNullOrEmpty(directoryName))

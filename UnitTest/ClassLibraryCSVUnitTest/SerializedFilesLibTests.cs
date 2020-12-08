@@ -56,6 +56,9 @@ namespace CsvTools.Tests
       Assert.AreNotSame(file, test);
       Assert.IsInstanceOfType(test, typeof(CsvFile));
 
+      // FileName and ID are not serialized
+      test.FileName= file.FileName;
+      test.ID = file.ID;
       file.AllPropertiesEqual(test);
       // Test Properties that are not tested
 
@@ -69,10 +72,12 @@ namespace CsvTools.Tests
     public void SaveCsvFileTest()
     {
       var file = GetCsvFile();
+      file.ByteOrderMark = false;
       Assert.IsFalse(FileSystemUtils.FileExists(fileName));
       var asked = false;
       SerializedFilesLib.SaveSettingFile(file, () => true);
-      file.ID = "Test1000";
+      file.ByteOrderMark = true;
+
       Assert.IsTrue(FileSystemUtils.FileExists(fileName));
       SerializedFilesLib.SaveSettingFile(file, () =>
       {
@@ -84,7 +89,7 @@ namespace CsvTools.Tests
 
     private CsvFile GetCsvFile()
     {
-      var file = new CsvFile { ID = "TestFile", FileName = UnitTestInitializeCsv.GetTestPath("Test.csv") };
+      var file = new CsvFile(UnitTestInitializeCsv.GetTestPath("Test.csv")) { ID = "TestFile" };
 
       file.MappingCollection.Add(new Mapping("Fld1", "FldA"));
       file.MappingCollection.Add(new Mapping("Fld2", "FldB"));

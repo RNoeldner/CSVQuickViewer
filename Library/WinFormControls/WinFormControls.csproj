@@ -53,6 +53,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ApplicationSetting.cs" />
     <Compile Include="BuildValueClustersResult.cs" />
     <Compile Include="ColumnSetting.cs" />
     <Compile Include="DetailControlLoader.cs" />

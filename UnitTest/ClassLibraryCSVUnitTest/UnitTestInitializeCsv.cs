@@ -39,7 +39,7 @@ namespace CsvTools.Tests
       MimicSql();
       Token = context.CancellationTokenSource.Token;
 
-      ApplicationDirectory = ApplicationSetting.RootFolder + @"\TestFiles";
+      ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
 
       Logger.UILog = (s, level) => context.WriteLine($"{level} - {s}");
 

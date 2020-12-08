@@ -1183,9 +1183,9 @@ namespace CsvTools
       }
 
       // Determine from file
-      var fileSetting = new CsvFile();
+      var fileSetting = new CsvFile(fileName);
       initAction?.Invoke(fileSetting);
-
+      // initAction may overwrite filename or ID
       fileSetting.FileName = fileName;
       fileSetting.ID = fileName;
       fileSetting.HasFieldHeader = true;

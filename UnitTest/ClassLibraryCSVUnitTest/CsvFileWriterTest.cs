@@ -57,9 +57,9 @@ namespace CsvTools.Tests
       var pd = new MockProcessDisplay();
 
       var writeFile = (CsvFile) m_WriteFile.Clone();
-      writeFile.FileName = "BasicCSVOut2tzc.txt";
+      writeFile.FileName =  UnitTestInitializeCsv.GetTestPath("BasicCSVOut2tzc.txt");
 
-      FileSystemUtils.FileDelete(writeFile.FullPath);
+      FileSystemUtils.FileDelete(writeFile.FileName);
       var setting = UnitTestHelper.ReaderGetAllFormats();
 
       UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting);
@@ -73,7 +73,7 @@ namespace CsvTools.Tests
       var writer = new CsvFileWriter(writeFile, pd);
 
       var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
-      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
+      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
       Assert.AreEqual(1065, res, "Records");
     }
 
@@ -84,13 +84,13 @@ namespace CsvTools.Tests
 
       var writeFile = (CsvFile) m_WriteFile.Clone();
       writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut.txt");
-      FileSystemUtils.FileDelete(writeFile.FullPath);
+      FileSystemUtils.FileDelete(writeFile.FileName);
       writeFile.FileFormat.FieldDelimiter = "|";
 
       var writer = new CsvFileWriter(writeFile, pd);
 
       var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
-      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
+      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
       Assert.AreEqual(7, res);
     }
 
@@ -102,7 +102,7 @@ namespace CsvTools.Tests
       var writeFile = (CsvFile) m_WriteFile.Clone();
       writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut2.txt");
 
-      FileSystemUtils.FileDelete(writeFile.FullPath);
+      FileSystemUtils.FileDelete(writeFile.FileName);
       var setting = UnitTestHelper.ReaderGetAllFormats();
 
       UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting);
@@ -118,7 +118,7 @@ namespace CsvTools.Tests
       var writer = new CsvFileWriter(writeFile, pd);
 
       var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
-      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
+      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
       Assert.AreEqual(1065, res, "Records");
     }
 
@@ -137,7 +137,7 @@ namespace CsvTools.Tests
           dataTable.Rows.Add(row);
         }
 
-        var writeFile = new CsvFile {ID = "Test.txt", FileName = "Test.txt", SqlStatement = "Hello"};
+        var writeFile = new CsvFile {ID = "Test.txt", FileName =  UnitTestInitializeCsv.GetTestPath("Test.txt"), SqlStatement = "Hello"};
         using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
           var writer = new CsvFileWriter(writeFile, processDisplay);
@@ -148,7 +148,7 @@ namespace CsvTools.Tests
           }
         }
 
-        Assert.IsTrue(File.Exists(writeFile.FullPath));
+        Assert.IsTrue(File.Exists(writeFile.FileName));
       }
     }
 
@@ -167,7 +167,7 @@ namespace CsvTools.Tests
           dataTable.Rows.Add(row);
         }
 
-        var writeFile = new CsvFile {ID = "Test.txt", FileName = "Test.txt", SqlStatement = "Hello"};
+        var writeFile = new CsvFile {ID = "Test.txt", FileName =  UnitTestInitializeCsv.GetTestPath("Test.txt"), SqlStatement = "Hello"};
         writeFile.ColumnCollection.Add(new Column("Text", DataType.Integer));
         writeFile.Header = "##This is a header for {FileName}";
         writeFile.Footer = "##This is a Footer\r\n{Records} in file";
@@ -185,7 +185,7 @@ namespace CsvTools.Tests
           Assert.AreEqual(100, count, "Warnings");
         }
 
-        Assert.IsTrue(File.Exists(writeFile.FullPath));
+        Assert.IsTrue(File.Exists(writeFile.FileName));
       }
     }
 
@@ -206,10 +206,10 @@ namespace CsvTools.Tests
 
         var writeFile = new CsvFile
         {
-          ID = "Test.txt", FileName = "WriteFileLocked.txt", InOverview = false, SqlStatement = "dummy"
+          ID = "Test.txt", FileName =  UnitTestInitializeCsv.GetTestPath("WriteFileLocked.txt"), InOverview = false, SqlStatement = "dummy"
         };
-        FileSystemUtils.FileDelete(writeFile.FullPath);
-        using (var file = new StreamWriter(writeFile.FullPath))
+        FileSystemUtils.FileDelete(writeFile.FileName);
+        using (var file = new StreamWriter(writeFile.FileName))
         {
           await file.WriteLineAsync("Hello");
           try
@@ -232,7 +232,7 @@ namespace CsvTools.Tests
           await file.WriteLineAsync("World");
         }
 
-        FileSystemUtils.FileDelete(writeFile.FullPath);
+        FileSystemUtils.FileDelete(writeFile.FileName);
       }
     }
 
@@ -242,14 +242,14 @@ namespace CsvTools.Tests
       var pd = new MockProcessDisplay();
 
       var writeFile = (CsvFile) m_WriteFile.Clone();
-      writeFile.FileName = "BasicCSVOut.txt.gz";
-      FileSystemUtils.FileDelete(writeFile.FullPath);
+      writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut.txt.gz");
+      FileSystemUtils.FileDelete(writeFile.FileName);
       writeFile.FileFormat.FieldDelimiter = "|";
 
       var writer = new CsvFileWriter(writeFile, pd);
 
       var res = await writer.WriteAsync(m_WriteFile.SqlStatement, 360, null, pd.CancellationToken);
-      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FullPath));
+      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
       Assert.AreEqual(7, res);
     }
   }

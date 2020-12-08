@@ -360,7 +360,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column.</param>
     /// <returns></returns>
-    public virtual ImmutableColumn GetColumn(int columnNumber) => Column[columnNumber];
+    public virtual IColumn GetColumn(int columnNumber) => Column[columnNumber];
 
     /// <summary>
     ///   Gets the date and time data value of the specified field.

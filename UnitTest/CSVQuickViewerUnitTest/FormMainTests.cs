@@ -82,7 +82,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(20000)]
+    //[Timeout(20000)]
     public async System.Threading.Tasks.Task FormMain_AllFormatsPipeAsync()
     {
       using (var frm = new FormMain(new ViewSettings()))

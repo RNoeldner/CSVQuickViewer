@@ -116,8 +116,6 @@ namespace CsvTools
     {
       InitializeComponent();
 
-#region FilteredDataGridView
-
       // For some reason if its part of InitializeComponent the designer will not work
       FilteredDataGridView = new FilteredDataGridView
       {
@@ -136,8 +134,6 @@ namespace CsvTools
       FilteredDataGridView.CellFormatting += FilteredDataGridView_CellFormatting;
       FilteredDataGridView.KeyDown += DetailControl_KeyDown;
       m_ToolStripContainer.ContentPanel.Controls.Add(FilteredDataGridView);
-
-#endregion FilteredDataGridView
 
       m_ToolStripItems.Add(m_ToolStripComboBoxFilterType);
       m_ToolStripItems.Add(m_ToolStripButtonUniqueValues);
@@ -334,8 +330,10 @@ namespace CsvTools
       }
     }
 
-    public void AddToolStripItem(int index, [System.Diagnostics.CodeAnalysis.NotNull] ToolStripItem item)
+    public void AddToolStripItem(int index, ToolStripItem item)
     {
+      if (item is null)
+        throw new ArgumentNullException(nameof(item));
       if (!m_ToolStripItems.Contains(item))
       {
         if (index >= m_ToolStripItems.Count)
@@ -658,12 +656,7 @@ namespace CsvTools
     /// <summary>
     ///   Required method for Designer support - do not modify the contents of this method with the
     ///   code editor.
-    /// </summary>
-    [SuppressMessage("ReSharper", "ArrangeThisQualifier")]
-    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
-    [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
-    [SuppressMessage("ReSharper", "LocalizableElement")]
-    [SuppressMessage("ReSharper", "RedundantCast")]
+    /// </summary>    
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
