@@ -20,8 +20,8 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
-  [DebuggerDisplay("BaseSettingPhysicalFile: {ID} {m_FileName} ({ColumnCollection.Count()} Columns)")]
-  public abstract class BaseSettingPhysicalFile : BaseSettings
+  [DebuggerDisplay("File: {ID} {m_FileName} ({ColumnCollection.Count()} Columns)")]
+  public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
   {
     private string m_FileName;
     private long m_FileSize;
