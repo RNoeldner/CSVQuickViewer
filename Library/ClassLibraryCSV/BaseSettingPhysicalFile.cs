@@ -188,19 +188,17 @@ namespace CsvTools
 
     protected override bool BaseSettingsEquals(BaseSettings other)
     {
-      if (other is null)
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-
       if (other is IFileSettingPhysicalFile fileSettingPhysicalFile)
       {
+        if (!string.Equals(fileSettingPhysicalFile.FileName, FileName, StringComparison.OrdinalIgnoreCase))
+          return false;
+
         if (fileSettingPhysicalFile.RemoteFileName != RemoteFileName ||
-            fileSettingPhysicalFile.ThrowErrorIfNotExists != ThrowErrorIfNotExists ||
-            fileSettingPhysicalFile.IdentifierInContainer != IdentifierInContainer ||
-            fileSettingPhysicalFile.FileSize != FileSize ||
-            !string.Equals(fileSettingPhysicalFile.FileName, FileName, StringComparison.OrdinalIgnoreCase)
-        )
+            fileSettingPhysicalFile.ThrowErrorIfNotExists != ThrowErrorIfNotExists)
+          return false;
+
+        if (fileSettingPhysicalFile.IdentifierInContainer != IdentifierInContainer ||
+            fileSettingPhysicalFile.FileSize != FileSize)
           return false;
       }
       return base.BaseSettingsEquals(other);
