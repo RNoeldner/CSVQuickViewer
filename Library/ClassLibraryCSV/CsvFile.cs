@@ -413,7 +413,7 @@ namespace CsvTools
     ///   Clones this instance.
     /// </summary>
     /// <returns></returns>
-    public IFileSetting Clone()
+    public override IFileSetting Clone()
     {
       var other = new CsvFile();
       CopyTo(other);
@@ -424,7 +424,7 @@ namespace CsvTools
     ///   Copies all values to other instance
     /// </summary>
     /// <param name="other">The other.</param>
-    public void CopyTo(IFileSetting other)
+    public override  void CopyTo(IFileSetting other)
     {
       if (other == null)
         return;
@@ -452,7 +452,7 @@ namespace CsvTools
       csv.NoDelimitedFile = m_NoDelimitedFile;
     }
 
-    public bool Equals(IFileSetting other) => Equals(other as ICsvFile);
+    public override bool Equals(IFileSetting other) => Equals(other as ICsvFile);
 
     public virtual bool Equals(ICsvFile other)
     {

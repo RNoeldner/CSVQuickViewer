@@ -128,7 +128,7 @@ namespace CsvTools
     /// </summary>
     /// <returns></returns>
     [NotNull]
-    public IFileSetting Clone()
+    public override IFileSetting Clone()
     {
       var other = new StructuredFile();
       CopyTo(other);
@@ -139,7 +139,7 @@ namespace CsvTools
     ///   Copies all values to other instance
     /// </summary>
     /// <param name="other">The other.</param>
-    public void CopyTo(IFileSetting other)
+    public override void CopyTo(IFileSetting other)
     {
       if (other == null)
         return;
@@ -154,7 +154,7 @@ namespace CsvTools
       otherSwf.JSONEncode = m_JSONEncode;
     }
 
-    public bool Equals(IFileSetting other) => Equals(other as StructuredFile);
+    public override bool Equals(IFileSetting other) => Equals(other as StructuredFile);
 
     /// <summary>
     ///   Determines whether the specified object is equal to the current object.

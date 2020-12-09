@@ -33,8 +33,8 @@ namespace CsvTools
   /// </summary>
 #pragma warning disable CS0659
 
-  [DebuggerDisplay("BaseSettings: {ID} ({ColumnCollection.Count()} Columns)")]
-  public abstract class BaseSettings
+  [DebuggerDisplay("Settings: {ID} ({ColumnCollection.Count()} Columns)")]
+  public abstract class BaseSettings : IFileSetting
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
     public const string cTreatTextAsNull = "NULL";
@@ -442,11 +442,13 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_Id.Equals(newVal, StringComparison.Ordinal))
           return;
-
+        var oldValueInternal = InternalID;
         var oldValue = m_Id;
         m_Id = newVal;
         NotifyPropertyChanged(nameof(ID));
         NotifyPropertyChangedString(nameof(ID), oldValue, newVal);
+        if (oldValueInternal!= InternalID)
+          NotifyPropertyChangedString(nameof(InternalID), oldValue, newVal);
       }
     }
 
@@ -1025,7 +1027,7 @@ namespace CsvTools
     /// <summary>
     ///   Notifies the completed property changed.
     /// </summary>
-    /// <param name="info">The info.</param>
+    /// <param name="info">The property name.</param>
     [NotifyPropertyChangedInvocator]
     protected void NotifyPropertyChanged([NotNull] string info)
     {
@@ -1040,6 +1042,13 @@ namespace CsvTools
       {
       }
     }
+
+    /// <summary>
+    /// Notifies on changed property strings
+    /// </summary>
+    /// <param name="info">The property name.</param>
+    /// <param name="oldValue">The old value.</param>
+    /// <param name="newVal">The new value.</param>
     protected void NotifyPropertyChangedString([NotNull] string info, [NotNull] string oldValue, [NotNull] string newVal)
     {
       if (PropertyChangedString == null)
@@ -1054,6 +1063,12 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Converts to string.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="System.String" /> that represents this instance.
+    /// </returns>
     public override string ToString()
     {
       var stringBuilder = new StringBuilder();
@@ -1067,5 +1082,26 @@ namespace CsvTools
       stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName));
       return stringBuilder.ToString();
     }
+
+    /// <summary>
+    /// Clones this instance into a new instance of the same type
+    /// </summary>
+    /// <returns></returns>
+    public abstract IFileSetting Clone();
+
+    /// <summary>
+    /// Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
+    /// <param name="other">An object to compare with this object.</param>
+    /// <returns>
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+    /// </returns>
+    public abstract bool Equals(IFileSetting other);
+
+    /// <summary>
+    /// Copies all properties to the other instance
+    /// </summary>
+    /// <param name="other">The other instance</param>
+    public abstract void CopyTo(IFileSetting other);
   }
 }
