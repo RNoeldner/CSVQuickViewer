@@ -38,8 +38,6 @@ namespace CsvTools
     /// </summary>
     protected const int c_MaxValue = 10000;
 
-    [NotNull] private readonly IReadOnlyCollection<ImmutableColumn> m_ColumnDefinition;
-    private readonly IntervalAction m_IntervalAction = new IntervalAction();
     protected readonly long RecordLimit;
 
     /// <summary>
@@ -57,6 +55,12 @@ namespace CsvTools
     /// </summary>
     protected string[] CurrentRowColumnText;
 
+    protected EventHandler<ProgressEventArgs> ReportProgress;
+    protected bool SelfOpenedStream;
+    protected EventHandler<long> SetMaxProcess;
+    [NotNull] private readonly IReadOnlyCollection<ImmutableColumn> m_ColumnDefinition;
+    private readonly IntervalAction m_IntervalAction = new IntervalAction();
+
     /// <summary>
     ///   An array of associated col
     /// </summary>
@@ -73,11 +77,6 @@ namespace CsvTools
     /// </summary>
     private bool m_IsFinished;
 
-    protected EventHandler<ProgressEventArgs> ReportProgress;
-
-    protected bool SelfOpenedStream;
-    protected EventHandler<long> SetMaxProcess;
-
     /// <summary>
     ///   Constructor for abstract base call for <see cref="IFileReader" />
     /// </summary>
@@ -87,7 +86,6 @@ namespace CsvTools
     protected BaseFileReader([CanBeNull] string fileName, [CanBeNull] IEnumerable<IColumn> columnDefinition,
                              long recordLimit)
     {
-
       m_ColumnDefinition =  columnDefinition?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col.Name, col.ValueFormat, col.ColumnOrdinal, col.Convert, col.DestinationName, col.Ignore, col.Part, col.PartSplitter, col.PartToEnd, col.TimePart, col.TimePartFormat, col.TimeZonePart)).ToList() ??
                                  new List<ImmutableColumn>();
       RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
@@ -95,12 +93,23 @@ namespace CsvTools
       FileName = FileSystemUtils.GetFileName(fileName);
     }
 
-    public override bool HasRows => !EndOfFile;
+    /// <summary>
+    ///   Occurs when something went wrong during opening of the setting, this might be the file
+    ///   does not exist or a query ran into a timeout
+    /// </summary>
+    public virtual event EventHandler<RetryEventArgs> OnAskRetry;
 
-    public int Percent => (GetRelativePosition() * 100).ToInt();
+    public virtual event EventHandler<IReadOnlyCollection<IColumn>> OpenFinished;
 
-    protected string FullPath { get; }
-    protected string FileName { get; }
+    /// <summary>
+    ///   Event to be raised if reading the files is completed
+    /// </summary>
+    public event EventHandler ReadFinished;
+
+    /// <summary>
+    ///   Event handler called if a warning or error occurred
+    /// </summary>
+    public virtual event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
     ///   Gets a value indicating the depth of nesting for the current row.
@@ -127,10 +136,7 @@ namespace CsvTools
     /// <value>Number of field in the file.</value>
     public override int FieldCount => m_FieldCount;
 
-    public override int VisibleFieldCount
-    {
-      get => Column.Count(x => !x.Ignore);
-    }
+    public override bool HasRows => !EndOfFile;
 
     public double NotifyAfterSeconds
     {
@@ -139,6 +145,13 @@ namespace CsvTools
         if (m_IntervalAction != null) m_IntervalAction.NotifyAfterSeconds = value;
       }
     }
+
+    /// <summary>
+    ///   Occurs before the file is opened
+    /// </summary>
+    public Func<Task> OnOpen { private get; set; }
+
+    public int Percent => (GetRelativePosition() * 100).ToInt();
 
     /// <summary>
     ///   Gets the record number.
@@ -163,6 +176,14 @@ namespace CsvTools
 
     public virtual bool SupportsReset => true;
 
+    public override int VisibleFieldCount
+    {
+      get => Column.Count(x => !x.Ignore);
+    }
+
+    protected string FileName { get; }
+    protected string FullPath { get; }
+
     /// <summary>
     ///   Gets the <see cref="object" /> with the specified name.
     /// </summary>
@@ -174,29 +195,6 @@ namespace CsvTools
     /// </summary>
     /// <value></value>
     public override object this[int columnNumber] => GetValue(columnNumber);
-
-    /// <summary>
-    ///   Occurs before the file is opened
-    /// </summary>
-    public Func<Task> OnOpen { private get; set; }
-
-    /// <summary>
-    ///   Occurs when something went wrong during opening of the setting, this might be the file
-    ///   does not exist or a query ran into a timeout
-    /// </summary>
-    public virtual event EventHandler<RetryEventArgs> OnAskRetry;
-
-    /// <summary>
-    ///   Event to be raised if reading the files is completed
-    /// </summary>
-    public event EventHandler ReadFinished;
-
-    public virtual event EventHandler<IReadOnlyCollection<IColumn>> OpenFinished;
-
-    /// <summary>
-    ///   Event handler called if a warning or error occurred
-    /// </summary>
-    public virtual event EventHandler<WarningEventArgs> Warning;
 
     [NotNull]
     public static Tuple<IReadOnlyCollection<string>, int> AdjustColumnName(
@@ -363,6 +361,14 @@ namespace CsvTools
     public virtual IColumn GetColumn(int columnNumber) => Column[columnNumber];
 
     /// <summary>
+    ///   Gets the data type information for the specified field.
+    /// </summary>
+    /// <param name="i">The index of the field to find.</param>
+    /// <returns>The data type information for the specified field.</returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public override string GetDataTypeName(int i) => GetFieldType(i)?.Name;
+
+    /// <summary>
     ///   Gets the date and time data value of the specified field.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
@@ -416,14 +422,6 @@ namespace CsvTools
     }
 
     public override IEnumerator GetEnumerator() => new DbEnumerator(this, true);
-
-    /// <summary>
-    ///   Gets the data type information for the specified field.
-    /// </summary>
-    /// <param name="i">The index of the field to find.</param>
-    /// <returns>The data type information for the specified field.</returns>
-    /// <exception cref="NotImplementedException"></exception>
-    public override string GetDataTypeName(int i) => GetFieldType(i)?.Name;
 
     /// <summary>
     ///   Gets the type of the field.
@@ -580,11 +578,6 @@ namespace CsvTools
       return -1;
     }
 
-    public override Stream GetStream(int columnNumber) =>
-      new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[columnNumber] ?? ""));
-
-    public override TextReader GetTextReader(int columnNumber) => new StringReader(CurrentRowColumnText[columnNumber] ?? "");
-
     /// <summary>
     ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
     ///   cref="IDataReader" /> .
@@ -616,6 +609,9 @@ namespace CsvTools
       return dataTable;
     }
 
+    public override Stream GetStream(int columnNumber) =>
+          new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[columnNumber] ?? ""));
+
     /// <summary>
     ///   Gets the originally provided text in a column
     /// </summary>
@@ -632,6 +628,8 @@ namespace CsvTools
 
       return CurrentRowColumnText[columnNumber];
     }
+
+    public override TextReader GetTextReader(int columnNumber) => new StringReader(CurrentRowColumnText[columnNumber] ?? "");
 
     /// <summary>
     ///   Gets the value of a column
@@ -712,16 +710,6 @@ namespace CsvTools
       return FieldCount;
     }
 
-    protected WarningEventArgs GetWarningEventArgs(int columnNumber, [NotNull] string message) => new WarningEventArgs(
-      RecordNumber,
-      columnNumber,
-      message,
-      StartLineNumber,
-      EndLineNumber,
-      Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
-        ? Column[columnNumber].Name
-        : null);
-
     /// <summary>
     ///   Handles the error.
     /// </summary>
@@ -797,10 +785,6 @@ namespace CsvTools
 
     public override bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
 
-    /// <summary>
-    ///   Resets the position and buffer to the header in case the file has a header
-    /// </summary>
-#pragma warning disable 1998
     public virtual void ResetPositionToFirstDataRow()
 #pragma warning restore 1998
     {
@@ -809,21 +793,23 @@ namespace CsvTools
       EndOfFile = false;
     }
 
-    private static string GetDefaultName(int i, IEnumerable<IColumn> columnDefinitions = null)
+    [CanBeNull]
+    protected static string TreatNbspTestAsNullTrim([CanBeNull] string inputString, bool treatNbspAsSpace,
+                                                    string treatTextAsNull, bool trim)
     {
-      var cd = columnDefinitions?.FirstOrDefault(x => x.ColumnOrdinal == i && !string.IsNullOrEmpty(x.Name));
-      if (cd != null)
-        return cd.Name;
-      return $"Column{i + 1}";
-    }
+      if (string.IsNullOrEmpty(inputString))
+        return null;
 
-    protected void SetProgressActions([CanBeNull] IProcessDisplay processDisplay)
-    {
-      if (processDisplay == null) return;
-      ReportProgress = processDisplay.SetProcess;
-      if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
-      SetMaxProcess = (sender, l) => processDisplayTime.Maximum = l;
-      SetMaxProcess(this, 0);
+      if (treatNbspAsSpace && inputString.IndexOf((char) 0xA0) != -1)
+        inputString = inputString.Replace((char) 0xA0, ' ');
+
+      if (trim)
+        inputString = inputString.Trim();
+
+      if (StringUtils.ShouldBeTreatedAsNull(inputString, treatTextAsNull))
+        inputString = null;
+
+      return inputString;
     }
 
     /// <summary>
@@ -1002,6 +988,21 @@ namespace CsvTools
       return ret ?? DBNull.Value;
     }
 
+    protected WarningEventArgs GetWarningEventArgs(int columnNumber, [NotNull] string message) => new WarningEventArgs(
+                                                                          RecordNumber,
+      columnNumber,
+      message,
+      StartLineNumber,
+      EndLineNumber,
+      Column != null && columnNumber >= 0 && columnNumber < m_FieldCount && Column[columnNumber] != null
+        ? Column[columnNumber].Name
+        : null);
+
+    /// <summary>
+    ///   Resets the position and buffer to the header in case the file has a header
+    /// </summary>
+#pragma warning disable 1998
+
     /// <summary>
     ///   Handles the Event if reading the file is completed
     /// </summary>
@@ -1042,25 +1043,6 @@ namespace CsvTools
     {
       if (ReportProgress != null)
         m_IntervalAction.Invoke(() => HandleShowProgress(text, recordNumber, GetRelativePosition()));
-    }
-
-    [CanBeNull]
-    protected static string TreatNbspTestAsNullTrim([CanBeNull] string inputString, bool treatNbspAsSpace,
-                                                    string treatTextAsNull, bool trim)
-    {
-      if (string.IsNullOrEmpty(inputString))
-        return null;
-
-      if (treatNbspAsSpace && inputString.IndexOf((char) 0xA0) != -1)
-        inputString = inputString.Replace((char) 0xA0, ' ');
-
-      if (trim)
-        inputString = inputString.Trim();
-
-      if (StringUtils.ShouldBeTreatedAsNull(inputString, treatTextAsNull))
-        inputString = null;
-
-      return inputString;
     }
 
     /// <summary>
@@ -1202,6 +1184,15 @@ namespace CsvTools
         HandleWarning(warning.Key, warning.Value);
     }
 
+    protected void SetProgressActions([CanBeNull] IProcessDisplay processDisplay)
+    {
+      if (processDisplay == null) return;
+      ReportProgress = processDisplay.SetProcess;
+      if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
+      SetMaxProcess = (sender, l) => processDisplayTime.Maximum = l;
+      SetMaxProcess(this, 0);
+    }
+
     protected bool ShouldRetry(Exception ex, CancellationToken token)
     {
       if (token.IsCancellationRequested) return false;
@@ -1220,6 +1211,14 @@ namespace CsvTools
     {
       HandleError(columnNumber, message);
       return new FormatException(message);
+    }
+
+    private static string GetDefaultName(int i, IEnumerable<IColumn> columnDefinitions = null)
+    {
+      var cd = columnDefinitions?.FirstOrDefault(x => x.ColumnOrdinal == i && !string.IsNullOrEmpty(x.Name));
+      if (cd != null)
+        return cd.Name;
+      return $"Column{i + 1}";
     }
 
     private DateTime? AdjustTz(DateTime? input, IColumn column)
@@ -1269,6 +1268,19 @@ namespace CsvTools
       return null;
     }
 
+    private bool? GetBooleanNull(string inputValue, [NotNull] IColumn column)
+    {
+      var boolValue = StringConversion.StringToBoolean(
+        inputValue,
+        column.ValueFormat.True,
+        column.ValueFormat.False);
+      if (boolValue.HasValue)
+        return boolValue.Value;
+
+      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a boolean value");
+      return null;
+    }
+
     /// <summary>
     ///   Gets the decimal value or null.
     /// </summary>
@@ -1290,19 +1302,6 @@ namespace CsvTools
         return decimalValue.Value;
 
       HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a decimal value");
-      return null;
-    }
-
-    private bool? GetBooleanNull(string inputValue, [NotNull] IColumn column)
-    {
-      var boolValue = StringConversion.StringToBoolean(
-        inputValue,
-        column.ValueFormat.True,
-        column.ValueFormat.False);
-      if (boolValue.HasValue)
-        return boolValue.Value;
-
-      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a boolean value");
       return null;
     }
 

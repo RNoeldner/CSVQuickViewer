@@ -19,7 +19,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -656,7 +655,7 @@ namespace CsvTools
     /// <summary>
     ///   Required method for Designer support - do not modify the contents of this method with the
     ///   code editor.
-    /// </summary>    
+    /// </summary>
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
@@ -1239,11 +1238,11 @@ namespace CsvTools
         m_ToolStripLabelCount.Text = " loading...";
         try
         {
-          using (var frm = new FormProcessDisplay("Load more...", false, m_CancellationTokenSource.Token))
+          using (var processDisplay = new FormProcessDisplay("Load more...", false, m_CancellationTokenSource.Token))
           {
-            frm.Show();
-            frm.Maximum = 100;
-            await LoadNextBatchAsync(frm);
+            processDisplay.Show();
+            processDisplay.Maximum = 100;
+            await LoadNextBatchAsync(processDisplay);
           }
         }
         finally
@@ -1255,7 +1254,7 @@ namespace CsvTools
             m_ToolStripLabelCount.ForeColor = SystemColors.ControlText;
             m_ToolStripLabelCount.ToolTipText = "Total number of items";
           }
-
+          m_ToolStripLabelCount.Text = m_DataTable.Rows.Count.ToString();
           ToolStripButtonNext.Visible = !eof && m_ShowButtons;
         }
       });

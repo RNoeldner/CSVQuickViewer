@@ -67,14 +67,15 @@ namespace CsvTools
         fileSetting.DisplayStartLineNo, fileSetting.DisplayRecordNo, fileSetting.DisplayEndLineNo);
 
       m_ActionBegin?.Invoke();
-      await GetBatchByTimeSpan_Initial(durationInitial, includeError, processDisplay).ConfigureAwait(false);
-      
-      m_SetLoadNextBatchAsync?.Invoke(process => GetBatchByTimeSpan_Merge(TimeSpan.MaxValue, includeError, process));
+      await GetBatchByTimeSpan(durationInitial, includeError, processDisplay, m_SetDataTable).ConfigureAwait(false);
+
+      m_SetLoadNextBatchAsync?.Invoke(process => GetBatchByTimeSpan(TimeSpan.MaxValue, includeError, process, (dt) => m_GetDataTable().Merge(dt)));
 
       m_ActionFinished?.Invoke(m_DataReaderWrapper);
     }
-    private async Task GetBatchByTimeSpan_Initial(TimeSpan maxDuration, bool restoreError,
-      [NotNull] IProcessDisplay processDisplay)
+
+    private async Task GetBatchByTimeSpan(TimeSpan maxDuration, bool restoreError,
+      [NotNull] IProcessDisplay processDisplay, Action<DataTable> action)
     {
       if (m_DataReaderWrapper == null)
         return;
@@ -83,46 +84,20 @@ namespace CsvTools
       try
       {
         processDisplay.SetMaximum(100);
-        m_SetDataTable(await m_DataReaderWrapper.LoadDataTable(maxDuration, restoreError,
-          (l, i) => processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
-          processDisplay.CancellationToken).ConfigureAwait(false));
+        var dt = await m_DataReaderWrapper.LoadDataTable(maxDuration, restoreError,
+                        (l, i) => processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
+                        processDisplay.CancellationToken).ConfigureAwait(false);
+        action.Invoke(dt);
 
         await m_RefreshDisplayAsync(FilterType.All, processDisplay.CancellationToken)
-          .ConfigureAwait(false);
+                  .ConfigureAwait(false);
 
         if (m_DataReaderWrapper.EndOfFile)
           Dispose();
       }
       catch (Exception e)
       {
-        Logger.Error(e);
-      }
-    }
-
-    private async Task GetBatchByTimeSpan_Merge(TimeSpan maxDuration, bool restoreError,
-      [NotNull] IProcessDisplay processDisplay)
-    {
-      if (m_DataReaderWrapper == null)
-        return;
-      if (processDisplay == null)
-        throw new ArgumentNullException(nameof(processDisplay));
-      try
-      {
-        processDisplay.SetMaximum(100);
-
-        m_GetDataTable().Merge(await m_DataReaderWrapper.LoadDataTable(maxDuration, restoreError,
-          (l, i) => processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
-          processDisplay.CancellationToken).ConfigureAwait(false));
-
-        await m_RefreshDisplayAsync(FilterType.All, processDisplay.CancellationToken)
-          .ConfigureAwait(false);
-
-        if (m_DataReaderWrapper.EndOfFile)
-          Dispose();
-      }
-      catch (Exception e)
-      {
-        Logger.Error(e);
+        Logger.Error(e, nameof(TwoStepDataTableLoader) + "." + nameof(GetBatchByTimeSpan));
       }
     }
   }
