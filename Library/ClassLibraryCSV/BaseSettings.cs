@@ -375,8 +375,6 @@ namespace CsvTools
       }
     }
 
-
-
     /// <summary>
     ///   As the data is loaded and not further validation is done this will be set to true Once
     ///   validation is happening and validation errors are stored this is false again. This is
@@ -600,8 +598,6 @@ namespace CsvTools
       [CanBeNull]
       set => m_Passphrase = (value ?? string.Empty).Trim();
     }
-
-
 
     /// <summary>
     ///   Recipient for a outbound PGP encryption
@@ -884,50 +880,45 @@ namespace CsvTools
     /// </returns>
     protected virtual bool BaseSettingsEquals(BaseSettings other)
     {
-      if (other is null)
+      if (!other.ID.Equals(ID, StringComparison.OrdinalIgnoreCase))
         return false;
-      if (ReferenceEquals(this, other))
-        return true;
-
-      if (!(other.SkipRows == SkipRows &&
-            other.RecentlyLoaded == RecentlyLoaded &&
-            other.NumRecords == NumRecords &&
-            other.WarningCount == WarningCount &&
-            other.ErrorCount == ErrorCount &&
-            other.IsEnabled == IsEnabled &&
-            other.TreatNBSPAsSpace == TreatNBSPAsSpace &&
-            other.DisplayStartLineNo == DisplayStartLineNo &&
-            other.DisplayEndLineNo == DisplayEndLineNo &&
-            other.HasFieldHeader == HasFieldHeader &&
-            other.InOverview == InOverview &&
-            other.Validate == Validate &&
-            other.ConsecutiveEmptyRows == m_ConsecutiveEmptyRows &&
-            other.DisplayRecordNo == DisplayRecordNo &&
-            other.RecordLimit == RecordLimit &&
-            other.ShowProgress == ShowProgress &&
-            other.EvidenceNumberOrIssues == EvidenceNumberOrIssues &&
-            other.SkipEmptyLines == SkipEmptyLines &&
-            other.SkipDuplicateHeader == SkipDuplicateHeader &&
-            other.Timeout == Timeout &&
-            other.SetLatestSourceTimeForWrite == SetLatestSourceTimeForWrite &&
-            (other.ProcessTimeUtc - ProcessTimeUtc).TotalSeconds < 1 &&
-            (other.LatestSourceTimeUtc - LatestSourceTimeUtc).TotalSeconds < 1 &&
-            other.TreatTextAsNull.Equals(TreatTextAsNull, StringComparison.OrdinalIgnoreCase) &&
-            other.ID.Equals(ID, StringComparison.OrdinalIgnoreCase) &&
-            other.Passphrase.Equals(Passphrase, StringComparison.Ordinal) &&
-            other.Recipient.Equals(Recipient, StringComparison.OrdinalIgnoreCase) &&
-            other.TemplateName.Equals(TemplateName, StringComparison.OrdinalIgnoreCase) &&
-            other.SqlStatement.Equals(SqlStatement, StringComparison.OrdinalIgnoreCase) &&
-            other.Footer.Equals(Footer, StringComparison.OrdinalIgnoreCase) &&
-            other.Header.Equals(Header, StringComparison.OrdinalIgnoreCase)
-        ))
+      if (other.SkipRows != SkipRows || other.HasFieldHeader != HasFieldHeader)
         return false;
-
-      return other.TrimmingOption == TrimmingOption &&
-             other.FileFormat.Equals(FileFormat) &&
-             other.MappingCollection.Equals(MappingCollection) && Samples.CollectionEqual(other.Samples) &&
-             other.Errors.CollectionEqual(Errors) &&
-             other.ColumnCollection.Equals(ColumnCollection);
+      if (other.RecentlyLoaded != RecentlyLoaded || other.IsEnabled != IsEnabled || other.InOverview != InOverview || other.Validate != Validate || other.ShowProgress != ShowProgress)
+        return false;
+      if (other.NumRecords != NumRecords || other.WarningCount != WarningCount || other.ErrorCount != ErrorCount)
+        return false;
+      if (other.TreatNBSPAsSpace != TreatNBSPAsSpace || other.ConsecutiveEmptyRows != ConsecutiveEmptyRows)
+        return false;
+      if (other.DisplayStartLineNo != DisplayStartLineNo || other.DisplayEndLineNo != DisplayEndLineNo || other.DisplayRecordNo != DisplayRecordNo)
+        return false;
+      if (other.RecordLimit != RecordLimit || other.EvidenceNumberOrIssues != EvidenceNumberOrIssues)
+        return false;
+      if (other.SkipEmptyLines != SkipEmptyLines || other.SkipDuplicateHeader != SkipDuplicateHeader)
+        return false;
+      if (other.Timeout != Timeout || other.SetLatestSourceTimeForWrite != SetLatestSourceTimeForWrite)
+        return false;
+      if ((other.ProcessTimeUtc - ProcessTimeUtc).TotalSeconds > 1)
+        return false;
+      if ((other.LatestSourceTimeUtc - LatestSourceTimeUtc).TotalSeconds > 1)
+        return false;
+      if (!other.TreatTextAsNull.Equals(TreatTextAsNull, StringComparison.OrdinalIgnoreCase) || other.TrimmingOption != TrimmingOption)
+        return false;
+      if (!other.Passphrase.Equals(Passphrase, StringComparison.Ordinal) ||  !other.Recipient.Equals(Recipient, StringComparison.OrdinalIgnoreCase))
+        return false;
+      if (!other.TemplateName.Equals(TemplateName, StringComparison.Ordinal) ||  !other.SqlStatement.Equals(SqlStatement, StringComparison.OrdinalIgnoreCase))
+        return false;
+      if (!other.Footer.Equals(Footer, StringComparison.Ordinal) ||  !other.Header.Equals(Header, StringComparison.OrdinalIgnoreCase))
+        return false;
+      if (!other.FileFormat.Equals(FileFormat))
+        return false;
+      if (!other.MappingCollection.Equals(MappingCollection))
+        return false;
+      if (!other.Samples.CollectionEqual(Samples))
+        return false;
+      if (!other.Errors.CollectionEqual(Errors))
+        return false;
+      return other.ColumnCollection.Equals(ColumnCollection);
     }
 
     /// <summary>
@@ -1009,6 +1000,7 @@ namespace CsvTools
       other.InOverview = InOverview;
       other.Timeout = Timeout;
       other.ProcessTimeUtc = ProcessTimeUtc;
+      other.RecentlyLoaded = RecentlyLoaded;
       other.LatestSourceTimeUtc = LatestSourceTimeUtc;
 
       other.Footer = Footer;
@@ -1044,7 +1036,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Notifies on changed property strings
+    ///   Notifies on changed property strings
     /// </summary>
     /// <param name="info">The property name.</param>
     /// <param name="oldValue">The old value.</param>
@@ -1064,11 +1056,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Converts to string.
+    ///   Converts to string.
     /// </summary>
-    /// <returns>
-    /// A <see cref="System.String" /> that represents this instance.
-    /// </returns>
+    /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
     public override string ToString()
     {
       var stringBuilder = new StringBuilder();
@@ -1084,22 +1074,23 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Clones this instance into a new instance of the same type
+    ///   Clones this instance into a new instance of the same type
     /// </summary>
     /// <returns></returns>
     public abstract IFileSetting Clone();
 
     /// <summary>
-    /// Indicates whether the current object is equal to another object of the same type.
+    ///   Indicates whether the current object is equal to another object of the same type.
     /// </summary>
     /// <param name="other">An object to compare with this object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
+    ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
     public abstract bool Equals(IFileSetting other);
 
     /// <summary>
-    /// Copies all properties to the other instance
+    ///   Copies all properties to the other instance
     /// </summary>
     /// <param name="other">The other instance</param>
     public abstract void CopyTo(IFileSetting other);
