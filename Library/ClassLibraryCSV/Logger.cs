@@ -7,6 +7,7 @@ namespace CsvTools
   using System.IO;
   using System.Text;
 #else
+
   using Serilog;
   using Serilog.Core;
   using Serilog.Events;
@@ -14,13 +15,16 @@ namespace CsvTools
   using Serilog.Formatting.Json;
   using System.Diagnostics;
   using System.Reflection;
+
 #endif
+
   using System;
   using System.Collections.Generic;
 
 #if !NLog
 
 #endif
+
   /// <summary>
   ///   Abstraction to be able to switch Loggers
   /// </summary>
@@ -54,6 +58,7 @@ namespace CsvTools
     }
 
 #endif
+
     public enum Level
     {
       Debug = 30,
@@ -85,7 +90,7 @@ namespace CsvTools
             FileSystemUtils.CreateDirectory(folder);
             addTextLog = true;
           }
-          catch (Exception)
+          catch
           {
             // ignored
           }
@@ -107,7 +112,7 @@ namespace CsvTools
         }
       }
 
-      // Start logging      
+      // Start logging
       Log.Logger = loggerConfiguration.CreateLogger();
       Log.Information("Application start");
     }
@@ -163,6 +168,18 @@ WriteLog(Level.Info, null, message, args);
 #endif
     }
 
+    public static void Information(Exception ex, string message, params object[] args)
+    {
+      if (string.IsNullOrEmpty(message))
+        return;
+#if NLog
+m_Logger.Info(message, args);
+WriteLog(Level.Info, null, message, args);
+#else
+      Log.Information(ex, message, args);
+#endif
+    }
+
     public static void Warning(string message, params object[] args) => Warning(null, message, args);
 
     public static void Warning(Exception exception, string message, params object[] args)
@@ -178,10 +195,12 @@ m_Logger.Warn(exception, message, args);
     }
 
 #if !NLog
+
     public class UserInterfaceSink : ILogEventSink
     {
       // By design: Only one Action to be called you can not have two or more destinations
       public readonly List<Action<string, Level>> Loggers = new List<Action<string, Level>>();
+
       private readonly IFormatProvider m_FormatProvider;
 
       public UserInterfaceSink(IFormatProvider formatProvider)
@@ -199,12 +218,15 @@ m_Logger.Warn(exception, message, args);
           case LogEventLevel.Debug:
             level = Level.Debug;
             break;
+
           case LogEventLevel.Information:
             level = Level.Info;
             break;
+
           case LogEventLevel.Warning:
             level = Level.Warn;
             break;
+
           default:
             level = Level.Error;
             break;
@@ -214,6 +236,7 @@ m_Logger.Warn(exception, message, args);
           logger(logEvent.RenderMessage(m_FormatProvider), level);
       }
     }
+
 #else
     private static void WriteLog(Level lvl, Exception exception, string message, params object[] args)
     {
@@ -222,7 +245,6 @@ m_Logger.Warn(exception, message, args);
 
       try
       {
-
       LogLevel level;
       switch (lvl)
       {
@@ -247,7 +269,6 @@ m_Logger.Warn(exception, message, args);
       }
         var logEnvent = new LogEventInfo(level, "screen", null, message, args, exception);
         ReplaceLog.Invoke(logEnvent.FormattedMessage, lvl);
-
       }
       catch (Exception)
       {
