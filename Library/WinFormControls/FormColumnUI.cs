@@ -115,7 +115,7 @@ namespace CsvTools
     private async void ButtonGuessClick(object sender, EventArgs e) => await Guess();
 
     /// <summary>
-    /// Examine the column and guess the format
+    ///   Examine the column and guess the format
     /// </summary>
     /// <returns></returns>
     public async Task Guess()
@@ -391,9 +391,9 @@ namespace CsvTools
           checkedListBoxDateFormats.TopIndex = index;
         });
       }
-      catch
+      catch (Exception ex)
       {
-        // ignore
+        Logger.Information(ex, "AddDateFormat {format}", format);
       }
     }
 
@@ -747,9 +747,9 @@ namespace CsvTools
           labelDateOutputDisplay.Text = StringConversion.DisplayDateTime(sourceDate, CultureInfo.CurrentCulture);
         });
       }
-      catch
+      catch (Exception ex)
       {
-        // ignore
+        Logger.Information(ex, "UpdateDateLabel {format}", vf);
       }
     }
 
@@ -766,7 +766,9 @@ namespace CsvTools
       UpdateDateLabel(
         new ValueFormatMutable(DataType.DateTime)
         {
-          DateFormat = dateFormat, DateSeparator = textBoxDateSeparator.Text, TimeSeparator = textBoxTimeSeparator.Text
+          DateFormat = dateFormat,
+          DateSeparator = textBoxDateSeparator.Text,
+          TimeSeparator = textBoxTimeSeparator.Text
         }, !string.IsNullOrEmpty(comboBoxTimePart.Text), comboBoxTPFormat.Text, comboBoxTimeZone.Text);
     }
 
@@ -857,15 +859,17 @@ namespace CsvTools
       return new DetermineColumnFormat.SampleResult(new List<string>(), 0);
     }
 
-    public void UpdateNumericLabel(string textBoxDecimalSeparatorText, string comboBoxNumberFormatText, string textBoxGroupSeparatorText)
+    public void UpdateNumericLabel(string decimalSeparator, string numberFormat, string groupSeparator)
     {
       try
       {
-        if (string.IsNullOrEmpty(textBoxDecimalSeparatorText))
+        if (string.IsNullOrEmpty(decimalSeparator))
           return;
         var vf = new ValueFormatMutable
         {
-          NumberFormat = comboBoxNumberFormatText, GroupSeparator = comboBoxNumberFormatText, DecimalSeparator = textBoxGroupSeparatorText
+          NumberFormat = numberFormat,
+          GroupSeparator = numberFormat,
+          DecimalSeparator = groupSeparator
         };
         var sample = StringConversion.DoubleToString(1234.567, vf);
 
@@ -879,9 +883,9 @@ namespace CsvTools
             $@"Output: ""{StringConversion.StringToDecimal(sample, FileFormat.GetChar(vf.DecimalSeparator), FileFormat.GetChar(vf.GroupSeparator), false):N}""";
         });
       }
-      catch
+      catch (Exception ex)
       {
-        // ignore
+        Logger.Information(ex, "UpdateNumericLabel {decimalSeparator} {numberFormat} {groupSeparator}", decimalSeparator, numberFormat, groupSeparator);
       }
     }
 

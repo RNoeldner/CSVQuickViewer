@@ -77,9 +77,9 @@ namespace CsvTools
                 col.DisplayIndex = displayIndex++;
                 break;
               }
-              catch
+              catch (Exception ex)
               {
-                // ignore
+                Logger.Information(ex, "ReStoreViewSetting {text} {col}", text, col);
               }
 
         var hasFilterSet = false;

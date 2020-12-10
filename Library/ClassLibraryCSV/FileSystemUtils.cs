@@ -71,9 +71,9 @@ namespace CsvTools
 
         File.Move(fileName.LongPathPrefix(), backupName.LongPathPrefix());
       }
-      catch
+      catch (Exception ex)
       {
-        // ignored
+        Logger.Information(ex, "DeleteWithBackup {fileName}", fileName);
       }
     }
 
@@ -586,9 +586,9 @@ namespace CsvTools
           Length = m_Info.Length;
           m_LastWriteTimeUtc = m_Info.LastWriteTimeUtc;
         }
-        catch
+        catch (Exception ex)
         {
-          // ignore
+          Logger.Information(ex, "FileInfo {fileName}", fileName);
         }
       }
 
