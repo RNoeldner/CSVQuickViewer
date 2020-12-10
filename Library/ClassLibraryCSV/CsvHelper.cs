@@ -31,26 +31,91 @@ namespace CsvTools
   /// </summary>
   public static class CsvHelper
   {
-    /// <summary>
-    ///   Gets the <see cref="Encoding" /> of the textFile
-    /// </summary>
-    /// <param name="setting">The setting.</param>
-    /// <param name="token"></param>
-    /// <returns></returns>
-    private static async Task<Encoding> GetEncodingAsync([NotNull] this ICsvFile setting, CancellationToken token)
+    public static async Task<ICsvFile> GetCsvFileSetting(string fileName, Action<ICsvFile> initAction, bool guessJson,
+                                                             bool guessCodePage,
+                                                             bool guessDelimiter, bool guessQualifier, bool guessStartRow,
+                                                             bool guessHasHeader, bool guessNewLine,
+                                                             [NotNull] FillGuessSettings fillGuessSettings, [NotNull] IProcessDisplay processDisplay)
     {
-      if (setting.CodePageId < 0)
-        await GuessCodePageAsync(setting, token).ConfigureAwait(false);
-      try
+      if (processDisplay == null) throw new ArgumentNullException(nameof(processDisplay));
+      if (string.IsNullOrEmpty(fileName))
+        return null;
+
+      if (fileName.IndexOf('~') != -1)
+        fileName = fileName.LongFileName();
+
+      var fileInfo = new FileSystemUtils.FileInfo(fileName);
+
+      if (!fileInfo.Exists)
+        return null;
+      Logger.Information("Examining file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName, 40));
+      Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
+
+      // load from Setting file
+      if (fileName.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase) ||
+          FileSystemUtils.FileExists(fileName + CsvFile.cCsvSettingExtension))
       {
-        return Encoding.GetEncoding(setting.CodePageId);
+        if (!fileName.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase))
+          fileName += CsvFile.cCsvSettingExtension;
+        // we defiantly have a the extension with the name
+        var fileSettingSer = SerializedFilesLib.LoadCsvFile(fileName);
+        fileSettingSer.FileName = fileName.Substring(0, fileName.Length - CsvFile.cCsvSettingExtension.Length);
+        Logger.Information(
+          "Configuration read from setting file {filename}",
+          FileSystemUtils.GetShortDisplayFileName(fileName, 40));
+
+        // un-ignore all ignored columns
+        foreach (var col in fileSettingSer.ColumnCollection.Where(x => x.Ignore))
+          col.Ignore = false;
+
+        return fileSettingSer;
       }
-      catch (NotSupportedException)
+
+      var setting = ManifestData.ReadManifestZip(fileName);
+      if (setting != null)
       {
-        Logger.Warning("Codepage {codepage} is not supported, using UTF8", setting.CodePageId);
-        setting.CodePageId = 65001;
-        return new UTF8Encoding(true);
+        Logger.Information("Data in zip {filename}", setting.IdentifierInContainer);
+        return setting;
       }
+
+      var settingFs = ManifestData.ReadManifestFileSystem(fileName);
+      if (settingFs != null)
+      {
+        Logger.Information("Data in {filename}", settingFs.FileName);
+        return settingFs;
+      }
+
+      // Determine from file
+      var fileSetting = new CsvFile(fileName);
+      initAction?.Invoke(fileSetting);
+      // initAction may overwrite filename or ID
+      fileSetting.FileName = fileName;
+      fileSetting.ID = fileName;
+      fileSetting.HasFieldHeader = true;
+
+      await fileSetting.RefreshCsvFileAsync(
+        processDisplay,
+        guessJson,
+        guessCodePage,
+        guessDelimiter,
+        guessQualifier,
+        guessStartRow,
+        guessHasHeader,
+        guessNewLine);
+
+      if (fileSetting.JsonFormat)
+      {
+        fileSetting.SkipRows = 0;
+      }
+
+      processDisplay.SetProcess("Determining column format by reading samples", -1, true);
+
+      await fileSetting.FillGuessColumnFormatReaderAsync(
+        true,
+        false,
+        fillGuessSettings,
+        processDisplay.CancellationToken);
+      return fileSetting;
     }
 
     /// <summary>
@@ -66,18 +131,6 @@ namespace CsvTools
         var (codepage, bom) = await GuessCodePageAsync(improvedStream, cancellationToken).ConfigureAwait(false);
         setting.CodePageId = codepage;
         setting.ByteOrderMark = bom;
-      }
-    }
-
-    public static string GuessHeader([NotNull] ICsvFile setting, CancellationToken cancellationToken)
-    {
-      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting)))
-      using (var reader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
-      {
-        var (hasHeader, reason) = GuessHasHeader(reader, setting.FileFormat.CommentLine,
-          setting.FileFormat.FieldDelimiterChar, cancellationToken);
-        setting.HasFieldHeader = hasHeader;
-        return reason;
       }
     }
 
@@ -109,7 +162,7 @@ namespace CsvTools
     }
 
     public static Tuple<bool, string> GuessHasHeader([NotNull] ImprovedTextReader reader, string comment,
-                                                     char delimiter, CancellationToken cancellationToken)
+                                                         char delimiter, CancellationToken cancellationToken)
     {
       var headerLine = string.Empty;
 
@@ -221,6 +274,18 @@ namespace CsvTools
       return new Tuple<bool, string>(true, "Header seems present");
     }
 
+    public static string GuessHeader([NotNull] ICsvFile setting, CancellationToken cancellationToken)
+    {
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(setting)))
+      using (var reader = new ImprovedTextReader(improvedStream, setting.CodePageId, setting.SkipRows))
+      {
+        var (hasHeader, reason) = GuessHasHeader(reader, setting.FileFormat.CommentLine,
+          setting.FileFormat.FieldDelimiterChar, cancellationToken);
+        setting.HasFieldHeader = hasHeader;
+        return reason;
+      }
+    }
+
     /// <summary>
     ///   Guesses if the file is a json file.
     /// </summary>
@@ -282,6 +347,178 @@ namespace CsvTools
       }
 
       return null;
+    }
+
+    /// <summary>
+    ///   Guesses the start row of a CSV file Done with a rather simple csv parsing
+    /// </summary>
+    /// <param name="textReader">The stream reader with the data</param>
+    /// <param name="delimiter">The delimiter.</param>
+    /// <param name="quoteChar">The quoting char</param>
+    /// <param name="commentLine">The characters for a comment line.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>The number of rows to skip</returns>
+    /// <exception cref="ArgumentNullException">commentLine</exception>
+    public static int GuessStartRow([NotNull] ImprovedTextReader textReader, char delimiter,
+                                     char quoteChar,
+                                     string commentLine, CancellationToken cancellationToken)
+    {
+      if (textReader == null) throw new ArgumentNullException(nameof(textReader));
+      if (commentLine == null)
+        throw new ArgumentNullException(nameof(commentLine));
+      const int c_MaxRows = 50;
+
+      textReader.ToBeginning();
+      var columnCount = new List<int>(c_MaxRows);
+      var rowMapping = new Dictionary<int, int>(c_MaxRows);
+      var colCount = new int[c_MaxRows];
+      var isComment = new bool[c_MaxRows];
+      var quoted = false;
+      var firstChar = true;
+      var lastRow = 0;
+      var retValue = 0;
+
+      while (lastRow < c_MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
+      {
+        var readChar = textReader.Read();
+
+        // Handle Commented lines
+        if (firstChar && commentLine.Length > 0 && !isComment[lastRow] && readChar == commentLine[0])
+        {
+          isComment[lastRow] = true;
+
+          for (var pos = 1; pos < commentLine.Length; pos++)
+          {
+            var nextChar = textReader.Peek();
+            if (nextChar == commentLine[pos]) continue;
+            isComment[lastRow] = false;
+            break;
+          }
+        }
+
+        // Handle Quoting
+        if (readChar == quoteChar && !isComment[lastRow])
+        {
+          if (quoted)
+          {
+            if (textReader.Peek() != '"')
+              quoted = false;
+            else
+              textReader.MoveNext();
+          }
+          else
+          {
+            quoted |= firstChar;
+          }
+
+          continue;
+        }
+
+        switch (readChar)
+        {
+          // Feed and NewLines
+          case '\n':
+            if (!quoted)
+            {
+              lastRow++;
+              firstChar = true;
+              if (textReader.Peek() == '\r')
+                textReader.MoveNext();
+            }
+
+            break;
+
+          case '\r':
+            if (!quoted)
+            {
+              lastRow++;
+              firstChar = true;
+              if (textReader.Peek() == '\n')
+                textReader.MoveNext();
+            }
+
+            break;
+
+          default:
+            if (!isComment[lastRow] && !quoted && readChar == delimiter)
+            {
+              colCount[lastRow]++;
+              firstChar = true;
+              continue;
+            }
+
+            break;
+        }
+
+        // Its still the first char if its a leading space
+        if (firstChar && readChar != ' ')
+          firstChar = false;
+      }
+
+      cancellationToken.ThrowIfCancellationRequested();
+      // remove all rows that are comment lines...
+      for (var row = 0; row < lastRow; row++)
+      {
+        rowMapping[columnCount.Count] = row;
+        if (!isComment[row])
+          columnCount.Add(colCount[row]);
+      }
+
+      // if we do not more than 4 proper rows do nothing
+      if (columnCount.Count > 4)
+      {
+        // In case we have a row that is exactly twice as long as the row before and row after,
+        // assume its missing a linefeed
+        for (var row = 1; row < columnCount.Count - 1; row++)
+          if (columnCount[row + 1] > 0 && columnCount[row] == columnCount[row + 1] * 2 &&
+              columnCount[row] == columnCount[row - 1] * 2)
+            columnCount[row] = columnCount[row + 1];
+        cancellationToken.ThrowIfCancellationRequested();
+        // Get the average of the last 15 rows
+        var num = 0;
+        var sum = 0;
+        for (var row = columnCount.Count - 1; num < 10 && row > 0; row--)
+        {
+          if (columnCount[row] <= 0)
+            continue;
+          sum += columnCount[row];
+          num++;
+        }
+
+        var avg = (int) (sum / (double) (num == 0 ? 1 : num));
+        // If there are not many columns do not try to guess
+        if (avg > 1)
+        {
+          // If the first rows would be a good fit return this
+          if (columnCount[0] < avg)
+          {
+            for (var row = columnCount.Count - 1; row > 0; row--)
+              if (columnCount[row] > 0)
+              {
+                if (columnCount[row] >= avg - avg/10) continue;
+                retValue =  rowMapping[row];
+                break;
+              }
+              // In case we have an empty line but the next line are roughly good match take that
+              // empty line
+              else if (row + 2 < columnCount.Count && columnCount[row + 1] == columnCount[row + 2] &&
+                       columnCount[row + 1] >= avg - 1)
+              {
+                retValue = rowMapping[row + 1];
+                break;
+              }
+            if (retValue==0)
+              for (var row = 0; row < columnCount.Count; row++)
+                if (columnCount[row] > 0)
+                {
+                  retValue = rowMapping[row];
+                  break;
+                }
+          }
+        }
+      }
+      Logger.Information("  Start Row: {row}", retValue);
+      return retValue;
     }
 
     /// <summary>
@@ -357,10 +594,10 @@ namespace CsvTools
     }
 
     public static async Task<DetectionResult> RefreshCsvFileAsync([NotNull] IImprovedStream improvedStream,
-                                                                  [NotNull] IProcessDisplay display,
-                                                                  bool guessJson, bool guessCodePage, bool guessDelimiter, bool guessQualifier,
-                                                                  bool guessStartRow,
-                                                                  bool guessHasHeader, bool guessNewLine)
+                                                                      [NotNull] IProcessDisplay display,
+                                                                      bool guessJson, bool guessCodePage, bool guessDelimiter, bool guessQualifier,
+                                                                      bool guessStartRow,
+                                                                      bool guessHasHeader, bool guessNewLine)
     {
       var detection = new DetectionResult();
       if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader ||
@@ -549,7 +786,7 @@ namespace CsvTools
 
     [NotNull]
     private static DelimiterCounter GetDelimiterCounter([NotNull] ImprovedTextReader textReader,
-                                                        char escapeCharacter, int numRows, CancellationToken cancellationToken)
+                                                            char escapeCharacter, int numRows, CancellationToken cancellationToken)
     {
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
 
@@ -622,6 +859,28 @@ namespace CsvTools
       return dc;
     }
 
+    /// <summary>
+    ///   Gets the <see cref="Encoding" /> of the textFile
+    /// </summary>
+    /// <param name="setting">The setting.</param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    private static async Task<Encoding> GetEncodingAsync([NotNull] this ICsvFile setting, CancellationToken token)
+    {
+      if (setting.CodePageId < 0)
+        await GuessCodePageAsync(setting, token).ConfigureAwait(false);
+      try
+      {
+        return Encoding.GetEncoding(setting.CodePageId);
+      }
+      catch (NotSupportedException)
+      {
+        Logger.Warning("Codepage {codepage} is not supported, using UTF8", setting.CodePageId);
+        setting.CodePageId = 65001;
+        return new UTF8Encoding(true);
+      }
+    }
+
     private static async Task<Tuple<int, bool>> GuessCodePageAsync([NotNull] IImprovedStream stream,
                                                                    CancellationToken token)
     {
@@ -672,21 +931,38 @@ namespace CsvTools
       var startRow = dc.LastRow > 60 ? 15 :
                      dc.LastRow > 20 ? 5 : 0;
 
-      cancellationToken.ThrowIfCancellationRequested();
+      var neededRows = (((dc.FilledRows>20) ? numberOfRows * 75 : numberOfRows * 50) / 100);
 
+      cancellationToken.ThrowIfCancellationRequested();
       var validSeparatorIndex = new List<int>();
       for (var index = 0; index < dc.Separators.Length; index++)
       {
         // only regard a delimiter if we have 75% of the rows with this delimiter we can still have
         // a lot of commented lines
-        if (dc.SeparatorRows[index] == 0 || dc.SeparatorRows[index] < numberOfRows * .70d && numberOfRows > 3)
+        if (dc.SeparatorRows[index] == 0 || dc.SeparatorRows[index] < neededRows && numberOfRows > 3)
           continue;
         validSeparatorIndex.Add(index);
       }
 
-      // if only one was found done here
-      if (validSeparatorIndex.Count == 1)
+      if (validSeparatorIndex.Count == 0)
       {
+        // we can not determine by the numer of rwes That the delimiter with most occurance in general
+        int maxNum = int.MinValue;
+        for (var index = 0; index < dc.Separators.Length; index++)
+        {
+          var sumCount = 0;
+          for (var row = startRow; row < dc.LastRow; row++)
+            sumCount += dc.SeparatorsCount[index, row];
+          if (sumCount > maxNum)
+          {
+            maxNum=sumCount;
+            match = dc.Separators[index];
+          }
+        }
+      }
+      else if (validSeparatorIndex.Count == 1)
+      {
+        // if only one was found done here
         match = dc.Separators[validSeparatorIndex[0]];
       }
       else
@@ -920,178 +1196,6 @@ namespace CsvTools
       return res;
     }
 
-    /// <summary>
-    ///   Guesses the start row of a CSV file Done with a rather simple csv parsing
-    /// </summary>
-    /// <param name="textReader">The stream reader with the data</param>
-    /// <param name="delimiter">The delimiter.</param>
-    /// <param name="quoteChar">The quoting char</param>
-    /// <param name="commentLine">The characters for a comment line.</param>
-    /// <param name="cancellationToken"></param>
-    /// <returns>The number of rows to skip</returns>
-    /// <exception cref="ArgumentNullException">commentLine</exception>
-    public static int GuessStartRow([NotNull] ImprovedTextReader textReader, char delimiter,
-                                     char quoteChar,
-                                     string commentLine, CancellationToken cancellationToken)
-    {
-      if (textReader == null) throw new ArgumentNullException(nameof(textReader));
-      if (commentLine == null)
-        throw new ArgumentNullException(nameof(commentLine));
-      const int c_MaxRows = 50;
-
-      textReader.ToBeginning();
-      var columnCount = new List<int>(c_MaxRows);
-      var rowMapping = new Dictionary<int, int>(c_MaxRows);
-      var colCount = new int[c_MaxRows];
-      var isComment = new bool[c_MaxRows];
-      var quoted = false;
-      var firstChar = true;
-      var lastRow = 0;
-      var retValue = 0;
-
-      while (lastRow < c_MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
-      {
-        var readChar = textReader.Read();
-
-        // Handle Commented lines
-        if (firstChar && commentLine.Length > 0 && !isComment[lastRow] && readChar == commentLine[0])
-        {
-          isComment[lastRow] = true;
-
-          for (var pos = 1; pos < commentLine.Length; pos++)
-          {
-            var nextChar = textReader.Peek();
-            if (nextChar == commentLine[pos]) continue;
-            isComment[lastRow] = false;
-            break;
-          }
-        }
-
-        // Handle Quoting
-        if (readChar == quoteChar && !isComment[lastRow])
-        {
-          if (quoted)
-          {
-            if (textReader.Peek() != '"')
-              quoted = false;
-            else
-              textReader.MoveNext();
-          }
-          else
-          {
-            quoted |= firstChar;
-          }
-
-          continue;
-        }
-
-        switch (readChar)
-        {
-          // Feed and NewLines
-          case '\n':
-            if (!quoted)
-            {
-              lastRow++;
-              firstChar = true;
-              if (textReader.Peek() == '\r')
-                textReader.MoveNext();
-            }
-
-            break;
-
-          case '\r':
-            if (!quoted)
-            {
-              lastRow++;
-              firstChar = true;
-              if (textReader.Peek() == '\n')
-                textReader.MoveNext();
-            }
-
-            break;
-
-          default:
-            if (!isComment[lastRow] && !quoted && readChar == delimiter)
-            {
-              colCount[lastRow]++;
-              firstChar = true;
-              continue;
-            }
-
-            break;
-        }
-
-        // Its still the first char if its a leading space
-        if (firstChar && readChar != ' ')
-          firstChar = false;
-      }
-
-      cancellationToken.ThrowIfCancellationRequested();
-      // remove all rows that are comment lines...
-      for (var row = 0; row < lastRow; row++)
-      {
-        rowMapping[columnCount.Count] = row;
-        if (!isComment[row])
-          columnCount.Add(colCount[row]);
-      }
-
-      // if we do not more than 4 proper rows do nothing
-      if (columnCount.Count > 4)
-      {
-        // In case we have a row that is exactly twice as long as the row before and row after,
-        // assume its missing a linefeed
-        for (var row = 1; row < columnCount.Count - 1; row++)
-          if (columnCount[row + 1] > 0 && columnCount[row] == columnCount[row + 1] * 2 &&
-              columnCount[row] == columnCount[row - 1] * 2)
-            columnCount[row] = columnCount[row + 1];
-        cancellationToken.ThrowIfCancellationRequested();
-        // Get the average of the last 15 rows
-        var num = 0;
-        var sum = 0;
-        for (var row = columnCount.Count - 1; num < 10 && row > 0; row--)
-        {
-          if (columnCount[row] <= 0)
-            continue;
-          sum += columnCount[row];
-          num++;
-        }
-
-        var avg = (int) (sum / (double) (num == 0 ? 1 : num));
-        // If there are not many columns do not try to guess
-        if (avg > 1)
-        {
-          // If the first rows would be a good fit return this
-          if (columnCount[0] < avg)
-          {
-            for (var row = columnCount.Count - 1; row > 0; row--)
-              if (columnCount[row] > 0)
-              {
-                if (columnCount[row] >= avg - avg/10) continue;
-                retValue =  rowMapping[row];
-                break;
-              }
-              // In case we have an empty line but the next line are roughly good match take that
-              // empty line
-              else if (row + 2 < columnCount.Count && columnCount[row + 1] == columnCount[row + 2] &&
-                       columnCount[row + 1] >= avg - 1)
-              {
-                retValue = rowMapping[row + 1];
-                break;
-              }
-            if (retValue==0)
-              for (var row = 0; row < columnCount.Count; row++)
-                if (columnCount[row] > 0)
-                {
-                  retValue = rowMapping[row];
-                  break;
-                }
-          }
-        }
-      }
-      Logger.Information("  Start Row: {row}", retValue);
-      return retValue;
-    }
-
     [NotNull]
     private static async Task<bool> IsJsonReadableAsync([NotNull] IImprovedStream impStream, Encoding encoding,
                                                         CancellationToken cancellationToken)
@@ -1126,93 +1230,6 @@ namespace CsvTools
       }
 
       return false;
-    }
-
-    public static async Task<ICsvFile> GetCsvFileSetting(string fileName, Action<ICsvFile> initAction, bool guessJson,
-                                                         bool guessCodePage,
-                                                         bool guessDelimiter, bool guessQualifier, bool guessStartRow,
-                                                         bool guessHasHeader, bool guessNewLine,
-                                                         [NotNull] FillGuessSettings fillGuessSettings, [NotNull] IProcessDisplay processDisplay)
-    {
-      if (processDisplay == null) throw new ArgumentNullException(nameof(processDisplay));
-      if (string.IsNullOrEmpty(fileName))
-        return null;
-
-      if (fileName.IndexOf('~') != -1)
-        fileName = fileName.LongFileName();
-
-      var fileInfo = new FileSystemUtils.FileInfo(fileName);
-
-      if (!fileInfo.Exists)
-        return null;
-      Logger.Information("Examining file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName, 40));
-      Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
-
-      // load from Setting file
-      if (fileName.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase) ||
-          FileSystemUtils.FileExists(fileName + CsvFile.cCsvSettingExtension))
-      {
-        if (!fileName.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase))
-          fileName += CsvFile.cCsvSettingExtension;
-        // we defiantly have a the extension with the name
-        var fileSettingSer = SerializedFilesLib.LoadCsvFile(fileName);
-        fileSettingSer.FileName = fileName.Substring(0, fileName.Length - CsvFile.cCsvSettingExtension.Length);
-        Logger.Information(
-          "Configuration read from setting file {filename}",
-          FileSystemUtils.GetShortDisplayFileName(fileName, 40));
-
-        // un-ignore all ignored columns
-        foreach (var col in fileSettingSer.ColumnCollection.Where(x => x.Ignore))
-          col.Ignore = false;
-
-        return fileSettingSer;
-      }
-
-      var setting = ManifestData.ReadManifestZip(fileName);
-      if (setting != null)
-      {
-        Logger.Information("Data in zip {filename}", setting.IdentifierInContainer);
-        return setting;
-      }
-
-      var settingFs = ManifestData.ReadManifestFileSystem(fileName);
-      if (settingFs != null)
-      {
-        Logger.Information("Data in {filename}", settingFs.FileName);
-        return settingFs;
-      }
-
-      // Determine from file
-      var fileSetting = new CsvFile(fileName);
-      initAction?.Invoke(fileSetting);
-      // initAction may overwrite filename or ID
-      fileSetting.FileName = fileName;
-      fileSetting.ID = fileName;
-      fileSetting.HasFieldHeader = true;
-
-      await fileSetting.RefreshCsvFileAsync(
-        processDisplay,
-        guessJson,
-        guessCodePage,
-        guessDelimiter,
-        guessQualifier,
-        guessStartRow,
-        guessHasHeader,
-        guessNewLine);
-
-      if (fileSetting.JsonFormat)
-      {
-        fileSetting.SkipRows = 0;
-      }
-
-      processDisplay.SetProcess("Determining column format by reading samples", -1, true);
-
-      await fileSetting.FillGuessColumnFormatReaderAsync(
-        true,
-        false,
-        fillGuessSettings,
-        processDisplay.CancellationToken);
-      return fileSetting;
     }
 
     public class DetectionResult
