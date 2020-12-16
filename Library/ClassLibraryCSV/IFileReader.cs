@@ -33,7 +33,8 @@ namespace CsvTools
     long EndLineNumber { get; }
 
     /// <summary>
-    ///  Value between 0 and 100 to show teh progress of teh reader, not all readers do support this, readers based on streams usually return teh relative position in that stream. In case a <see cref="Rec"/> 
+    ///  Value between 0 and 100 to show the progress of the reader, not all readers do support this, 
+    ///  readers based on streams usually return the relative position in that stream. In case a <see cref="Rec"/>
     /// </summary>
     int Percent { get; }
 
@@ -44,7 +45,7 @@ namespace CsvTools
     bool EndOfFile { get; }
 
     /// <summary>
-    ///   Gets the record number of athe records that just had been read (1 after the first read) 
+    ///   Gets the record number of a the records that just had been read (1 after the first read)
     /// </summary>
     /// <value>The record number.</value>
     long RecordNumber { get; }
@@ -56,7 +57,7 @@ namespace CsvTools
     long StartLineNumber { get; }
 
     /// <summary>
-    ///   <c>True</c> if the underlying steam can be reset to start from the beginning without re-opening the reader  
+    ///   <c>True</c> if the underlying steam can be reset to start from the beginning without re-opening the reader
     /// </summary>
     bool SupportsReset { get; }
 
@@ -66,24 +67,31 @@ namespace CsvTools
     /// </summary>
     Func<Task> OnOpen { set; }
 
-    [Obsolete("Use ReadAsync if possible")]
-    // ReSharper disable once UnusedMemberInSuper.Global
-    new bool Read();
-
     /// <summary>
-    ///   Advances the data reader to the next result, when reading the results of batch SQL statements.
+    /// Advances the <see cref="T:System.Data.IDataReader" /> to the next record.
     /// </summary>
     /// <returns>
     ///   <see langword="true" /> if there are more rows; otherwise, <see langword="false" />.
     /// </returns>
+    [Obsolete("Use ReadAsync if possible")]
+    new bool Read();
+
+    /// <summary>
+    /// Advances the data reader to the next result, when reading the results of batch SQL statements.
+    /// </summary>
+    /// <returns>
+    ///   <see langword="true" /> if there are more results; otherwise, <see langword="false" />.
+    /// </returns>
     [Obsolete("Not supported")]
-    // ReSharper disable once UnusedMember.Global
     new bool NextResult();
 
     /// <summary>
-    ///   Reads the next record of the current result set
+    /// Reads the next record of the current result set asynchronously
     /// </summary>
-    /// <returns>Awaitable bool, if true a record was read</returns>
+    /// <param name="token">The cancellation token</param>
+    /// <returns>
+    ///   <see langword="true" /> if there are more rows; otherwise, <see langword="false" />.
+    /// </returns>
     Task<bool> ReadAsync(CancellationToken token);
 
     /// <summary>
@@ -93,18 +101,18 @@ namespace CsvTools
     event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
-    ///   Event to be raised once the reader is finished reading the file
+    /// Event to be raised once the reader is finished reading the file
     /// </summary>
     event EventHandler ReadFinished;
 
     /// <summary>
-    ///   Event to be raised once the reader opened, the column information is now known
+    /// Event to be raised once the reader opened, the column information is now known
     /// </summary>
     event EventHandler<IReadOnlyCollection<IColumn>> OpenFinished;
 
     /// <summary>
-    ///   Occurs when an open process failed, allowing the user to change the timeout or provide the
-    ///   needed file etc.
+    /// Occurs when an open process failed, allowing the user to change the timeout or provide the
+    /// needed file etc.
     /// </summary>
     [UsedImplicitly]
     event EventHandler<RetryEventArgs> OnAskRetry;
@@ -117,9 +125,12 @@ namespace CsvTools
     IColumn GetColumn(int column);
 
     /// <summary>
-    ///   Opens the text file and begins to read the meta data, like columns
+    /// Opens the text file and begins to read the meta data, like columns
     /// </summary>
-    /// <returns>Number of records in the file if known (use determineColumnSize), -1 otherwise</returns>
+    /// <param name="token">The cancellation token.</param>
+    /// <returns>
+    /// Number of records in the file if known (use determineColumnSize), -1 otherwise
+    /// </returns>
     Task OpenAsync(CancellationToken token);
 
     /// <summary>
