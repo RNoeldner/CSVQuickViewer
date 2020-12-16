@@ -1040,7 +1040,7 @@ namespace CsvTools
         {
           m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
 
-          // update the dropdown
+          // update the drop down
           if (type == FilterType.All)
             m_ToolStripComboBoxFilterType.SelectedIndex = 0;
           else if (type == FilterType.ErrorsAndWarning)
