@@ -56,6 +56,11 @@ namespace CsvTools
       OpenFinished?.Invoke(this, base.ReaderMapping.Column);
     }
 
+    /// <summary>
+    /// Asynchronous Read of next record
+    /// </summary>
+    /// <param name="token">The cancellation token.</param>
+    /// <returns></returns>
     public override async Task<bool> ReadAsync(CancellationToken token)
     {
       if (!token.IsCancellationRequested && !EndOfFile)
@@ -69,6 +74,9 @@ namespace CsvTools
       return false;
     }
 
+    /// <summary>
+    /// Resets the position and buffer to the first data row (handing headers, and skipped rows)
+    /// </summary>
     public void ResetPositionToFirstDataRow()
     {
       base.DataReader.Close();
@@ -76,6 +84,10 @@ namespace CsvTools
       base.RecordNumber = 0;
     }
 
+    /// <summary>
+    /// Releases the managed resources used by the <see cref="T:System.Data.Common.DbDataReader" /> and optionally releases the unmanaged resources.
+    /// </summary>
+    /// <param name="disposing"><see langword="true" /> to release managed and unmanaged resources; <see langword="false" /> to release only unmanaged resources.</param>
     protected override void Dispose(bool disposing)
     {
       if (m_DisposedValue) return;

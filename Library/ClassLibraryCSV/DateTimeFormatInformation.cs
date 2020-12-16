@@ -1,164 +1,105 @@
+/*s
+* Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+*
+* This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+* of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+*
+* You should have received a copy of the GNU Lesser Public License along with this program.
+* If not, see http://www.gnu.org/licenses/ .
+*
+*/
+
 using System;
 using System.Diagnostics;
-using System.Globalization;
 
 namespace CsvTools
 {
-  [DebuggerDisplay("{m_MinLength} - {m_MaxLength}")]
+  [DebuggerDisplay("{minLength} - {maxLength}")]
   public class DateTimeFormatInformation
   {
-    private static int m_MaxDayLong = int.MinValue;
-    private static int m_MaxDayMid = int.MinValue;
-    private static int m_MinDesignator = 1;
-    private static int m_MaxDesignator = 2;
-    private static int m_MaxMonthLong = int.MinValue;
-    private static int m_MaxMonthMid = int.MinValue;
-    private static int m_MinDayLong = int.MaxValue;
-    private static int m_MinDayMid = int.MaxValue;
-    private static int m_MinMonthLong = int.MaxValue;
-    private static int m_MinMonthMid = int.MaxValue;
-    private int m_MaxLength;
-    private int m_MinLength;
+    private readonly int maxLength;
+    private readonly int minLength;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DateTimeFormatInformation"/> class.
+    /// </summary>
+    /// <param name="format">The format.</param>
     public DateTimeFormatInformation(string format)
     {
-      MinLength = format.Length;
-      MaxLength = format.Length;
+      minLength = format.Length;
+      maxLength = format.Length;
       NamedDate = format.IndexOf("ddd", StringComparison.Ordinal) != -1 || format.IndexOf("MMM", StringComparison.Ordinal) != -1;
 
-      if (m_MinDayLong == int.MaxValue)
-        DetermineLength();
 
-      format = SetMinMax(format, "dddd", ref m_MinLength, ref m_MaxLength, m_MinDayLong, m_MaxDayLong);
-      format = SetMinMax(format, "ddd", ref m_MinLength, ref m_MaxLength, m_MinDayMid, m_MaxDayMid);
-      format = SetMinMax(format, "dd", ref m_MinLength, ref m_MaxLength, 2, 2);
-      format = SetMinMax(format, "d", ref m_MinLength, ref m_MaxLength, 1, 2);
+      format = SetMinMax(format, "dddd", DateTimeFormatLength.MinDayLong, DateTimeFormatLength.MaxDayLong);
+      format = SetMinMax(format, "ddd", DateTimeFormatLength.MinDayMid, DateTimeFormatLength.MaxDayMid);
+      format = SetMinMax(format, "dd", 2, 2);
+      format = SetMinMax(format, "d", 1, 2);
 
-      format = SetMinMax(format, "yyyy", ref m_MinLength, ref m_MaxLength, 4, 4);
-      format = SetMinMax(format, "yy", ref m_MinLength, ref m_MaxLength, 2, 2);
-      format = SetMinMax(format, "y", ref m_MinLength, ref m_MaxLength, 1, 2);
+      format = SetMinMax(format, "yyyy", 4, 4);
+      format = SetMinMax(format, "yy", 2, 2);
+      format = SetMinMax(format, "y", 1, 2);
 
-      format = SetMinMax(format, "HH", ref m_MinLength, ref m_MaxLength, 2, 2);
-      format = SetMinMax(format, "H", ref m_MinLength, ref m_MaxLength, 1, 2);
-      format = SetMinMax(format, "hh", ref m_MinLength, ref m_MaxLength, 2, 2);
-      format = SetMinMax(format, "h", ref m_MinLength, ref m_MaxLength, 1, 2);
+      format = SetMinMax(format, "HH", 2, 2);
+      format = SetMinMax(format, "H", 1, 2);
+      format = SetMinMax(format, "hh", 2, 2);
+      format = SetMinMax(format, "h", 1, 2);
 
-      format = SetMinMax(format, "mm", ref m_MinLength, ref m_MaxLength, 2, 2);
-      format = SetMinMax(format, "m", ref m_MinLength, ref m_MaxLength, 1, 2);
+      format = SetMinMax(format, "mm", 2, 2);
+      format = SetMinMax(format, "m", 1, 2);
 
-      format = SetMinMax(format, "MMMM", ref m_MinLength, ref m_MaxLength, m_MinMonthLong, m_MaxMonthLong);
-      format = SetMinMax(format, "MMM", ref m_MinLength, ref m_MaxLength, m_MinMonthMid, m_MaxMonthMid);
-      format = SetMinMax(format, "MM", ref m_MinLength, ref m_MaxLength, 2, 2);
-      format = SetMinMax(format, "M", ref m_MinLength, ref m_MaxLength, 1, 2);
+      format = SetMinMax(format, "MMMM", DateTimeFormatLength.MinMonthLong, DateTimeFormatLength.MaxMonthLong);
+      format = SetMinMax(format, "MMM", DateTimeFormatLength.MinMonthMid, DateTimeFormatLength.MaxMonthMid);
+      format = SetMinMax(format, "MM", 2, 2);
+      format = SetMinMax(format, "M", 1, 2);
 
-      format = SetMinMax(format, "F", ref m_MinLength, ref m_MaxLength, 0, 1);
+      format = SetMinMax(format, "F", 0, 1);
 
-      format = SetMinMax(format, "ss", ref m_MinLength, ref m_MaxLength, 2, 2);
-      format = SetMinMax(format, "s", ref m_MinLength, ref m_MaxLength, 1, 2);
+      format = SetMinMax(format, "ss", 2, 2);
+      format = SetMinMax(format, "s", 1, 2);
 
       // interpreted as a standard date and time format specifier
-      format = SetMinMax(format, "K", ref m_MinLength, ref m_MaxLength, 0, 6);
+      format = SetMinMax(format, "K", 0, 6);
 
       // signed offset of the local operating system's time zone from UTC,
-      format = SetMinMax(format, "zzz", ref m_MinLength, ref m_MaxLength, 6, 6);
-      format = SetMinMax(format, "zz", ref m_MinLength, ref m_MaxLength, 3, 3);
-      format = SetMinMax(format, "z", ref m_MinLength, ref m_MaxLength, 2, 3);
+      format = SetMinMax(format, "zzz", 6, 6);
+      format = SetMinMax(format, "zz", 3, 3);
+      format = SetMinMax(format, "z", 2, 3);
 
       // AM / PM
-      SetMinMax(format, "tt", ref m_MinLength, ref m_MaxLength, m_MinDesignator, m_MaxDesignator);
+      SetMinMax(format, "tt", DateTimeFormatLength.MinDesignator, DateTimeFormatLength.MaxDesignator);
     }
 
     // public string Format { get => m_Format; }
-    public int MaxLength
-    {
-      get => m_MaxLength;
-      private set => m_MaxLength = value;
-    }
-
-    public int MinLength
-    {
-      get => m_MinLength;
-      private set => m_MinLength = value;
-    }
-
+    public int MaxLength => maxLength;
+    public int MinLength => minLength;
     public bool NamedDate { get; }
 
-    private static void DetermineLength()
-    {
-      for (var weekday = 0; weekday < 7; weekday++)
-      {
-        var currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
-        var invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:dddd}", DateTime.Now.AddDays(weekday));
-        if (currentCulture.Length < m_MinDayLong)
-          m_MinDayLong = currentCulture.Length;
-        if (invariantCulture.Length < m_MinDayLong)
-          m_MinDayLong = invariantCulture.Length;
-        if (currentCulture.Length > m_MaxDayLong)
-          m_MaxDayLong = currentCulture.Length;
-        if (invariantCulture.Length > m_MaxDayLong)
-          m_MaxDayLong = invariantCulture.Length;
-
-        currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:ddd}", DateTime.Now.AddDays(weekday));
-        invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:ddd}", DateTime.Now.AddDays(weekday));
-        if (currentCulture.Length < m_MinDayMid)
-          m_MinDayMid = currentCulture.Length;
-        if (invariantCulture.Length < m_MinDayMid)
-          m_MinDayMid = invariantCulture.Length;
-        if (currentCulture.Length > m_MaxDayMid)
-          m_MaxDayMid = currentCulture.Length;
-        if (invariantCulture.Length > m_MaxDayMid)
-          m_MaxDayMid = invariantCulture.Length;
-      }
-
-      for (var month = 0; month < 12; month++)
-      {
-        var currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
-        var invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:MMMM}", DateTime.Now.AddMonths(month));
-        if (currentCulture.Length < m_MinMonthLong)
-          m_MinMonthLong = currentCulture.Length;
-        if (invariantCulture.Length < m_MinMonthLong)
-          m_MinMonthLong = invariantCulture.Length;
-        if (currentCulture.Length > m_MaxMonthLong)
-          m_MaxMonthLong = currentCulture.Length;
-        if (invariantCulture.Length > m_MaxMonthLong)
-          m_MaxMonthLong = invariantCulture.Length;
-
-        currentCulture = string.Format(CultureInfo.CurrentCulture, "{0:MMM}", DateTime.Now.AddMonths(month));
-        invariantCulture = string.Format(CultureInfo.InvariantCulture, "{0:MMM}", DateTime.Now.AddMonths(month));
-        if (currentCulture.Length < m_MinMonthMid)
-          m_MinMonthMid = currentCulture.Length;
-        if (invariantCulture.Length < m_MinMonthMid)
-          m_MinMonthMid = invariantCulture.Length;
-        if (currentCulture.Length > m_MaxMonthMid)
-          m_MaxMonthMid = currentCulture.Length;
-        if (invariantCulture.Length > m_MaxMonthMid)
-          m_MaxMonthMid = invariantCulture.Length;
-      }
-
-      {
-        if (CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length > m_MaxDesignator)
-          m_MaxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
-        if (CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length > m_MaxDesignator)
-          m_MaxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
-
-        if (CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length > m_MinDesignator)
-          m_MinDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
-        if (CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length > m_MinDesignator)
-          m_MinDesignator = CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length;
-      }
-    }
-
-    private static string SetMinMax(string format, string search, ref int min, ref int max, int minLength, int maxLength)
+    private static string SetMinMax(string format, string search, int minLength, int maxLength)
     {
       var pos = format.IndexOf(search, StringComparison.Ordinal);
       while (pos != -1)
       {
-        min += minLength - search.Length;
-        max += maxLength - search.Length;
+        minLength += minLength - search.Length;
+        maxLength += maxLength - search.Length;
         format = format.Remove(pos, search.Length);
         pos = format.IndexOf(search, StringComparison.Ordinal);
       }
       return format;
+    }
+
+    public override bool Equals(object obj) => obj is DateTimeFormatInformation information && MaxLength==information.MaxLength && MinLength==information.MinLength && NamedDate==information.NamedDate;
+
+    public override int GetHashCode()
+    {
+      var hashCode = -60281774;
+      hashCode=hashCode*-1521134295+MaxLength.GetHashCode();
+      hashCode=hashCode*-1521134295+MinLength.GetHashCode();
+      hashCode=hashCode*-1521134295+NamedDate.GetHashCode();
+      return hashCode;
     }
   }
 }
