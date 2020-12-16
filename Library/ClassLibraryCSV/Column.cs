@@ -73,7 +73,7 @@ namespace CsvTools
       m_Name = name;
       ValueFormatMutable = new ValueFormatMutable(valueFormat);
     }
-    
+
     public Column(string name, DataType dataType = DataType.String)
     {
       m_Name = name;
@@ -85,6 +85,58 @@ namespace CsvTools
       m_Name = name;
       ValueFormatMutable =
         new ValueFormatMutable(DataType.DateTime) { DateFormat = dateFormat, DateSeparator = dateSeparator };
+    }
+
+    /// <summary>
+    ///   Occurs when a property value changes.
+    /// </summary>
+    public virtual event PropertyChangedEventHandler PropertyChanged;
+
+    /// <summary>
+    ///   The Ordinal Position of the column
+    /// </summary>
+    [XmlIgnore]
+    public virtual int ColumnOrdinal
+    {
+      get => m_ColumnOrdinal;
+      set => m_ColumnOrdinal = value;
+    }
+
+    /// <summary>
+    ///   Gets or sets the name.
+    /// </summary>
+    /// <value>The name.</value>
+    [XmlAttribute("Column")]
+    public virtual string Name
+    {
+      get => m_Name;
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_Name.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_Name = newVal;
+        NotifyPropertyChanged(nameof(Name));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether this <see cref="Column" /> is convert. Only used
+    ///   to read a typed value as text
+    /// </summary>
+    /// <value><c>true</c> if the column should be convert; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool Convert
+    {
+      get => m_Convert ?? ValueFormatMutable.DataType != DataType.String;
+      set
+      {
+        if (m_Convert.HasValue && m_Convert.Equals(value))
+          return;
+        m_Convert = value;
+        NotifyPropertyChanged(nameof(Convert));
+      }
     }
 
     /// <summary>
@@ -170,6 +222,26 @@ namespace CsvTools
     public bool DecimalSeparatorSpecified =>
       ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric;
 
+    /// <summary>
+    ///   Gets or sets the name in a destination. This is only used for writing
+    /// </summary>
+    /// <value>The name of the column in the destination.</value>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public virtual string DestinationName
+    {
+      get => m_DestinationName;
+      [CanBeNull]
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_DestinationName.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_DestinationName = newVal;
+        NotifyPropertyChanged(nameof(DestinationName));
+      }
+    }
+
     [UsedImplicitly]
     public bool DestinationNameSpecified =>
       !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
@@ -220,6 +292,25 @@ namespace CsvTools
                                                      || ValueFormatMutable.DataType == DataType.Integer;
 
     /// <summary>
+    ///   Gets or sets a value indicating whether the column should be ignore reading a file
+    /// </summary>
+    /// <value><c>true</c> if [ignore read]; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool Ignore
+    {
+      get => m_Ignore;
+
+      set
+      {
+        if (m_Ignore.Equals(value))
+          return;
+        m_Ignore = value;
+        NotifyPropertyChanged(nameof(Ignore));
+      }
+    }
+
+    /// <summary>
     ///   Gets or sets the number format.
     /// </summary>
     /// <value>The number format.</value>
@@ -241,195 +332,6 @@ namespace CsvTools
       ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric;
 
     /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
-    public bool PartSpecified => ValueFormatMutable.DataType == DataType.TextPart;
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
-    public bool PartSplitterSpecified =>
-      ValueFormatMutable.DataType == DataType.TextPart && !m_PartSplitter.Equals(c_PartSplitterDefault);
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
-    public bool PartToEndSpecified => ValueFormatMutable.DataType == DataType.TextPart;
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
-    public bool TimePartFormatSpecified => ValueFormatMutable.DataType == DataType.DateTime;
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
-    public bool TimePartSpecified => ValueFormatMutable.DataType == DataType.DateTime;
-
-    /// <summary>
-    ///   Gets or sets the time separator.
-    /// </summary>
-    /// <value>The time separator.</value>
-    [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
-    public virtual string TimeSeparator
-    {
-      get => ValueFormatMutable.TimeSeparator;
-      set => ValueFormatMutable.TimeSeparator = value;
-    }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
-    public bool TimeSeparatorSpecified => ValueFormatMutable.DataType == DataType.DateTime;
-
-    /// <summary>
-    ///   Gets or sets the representation for true.
-    /// </summary>
-    /// <value>The true.</value>
-    [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cTrueDefault)]
-#pragma warning disable CA1716 // Identifiers should not match keywords
-    public virtual string True
-#pragma warning restore CA1716
-    {
-      // Identifiers should not match keywords
-      get => ValueFormatMutable.True;
-
-      set => ValueFormatMutable.True = value;
-    }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
-    public bool TrueSpecified => ValueFormatMutable.DataType == DataType.Boolean;
-
-    /// <summary>
-    ///   Mimics to get or sets the value format.
-    /// </summary>
-    /// <value>The value format.</value>
-
-    public ValueFormatMutable ValueFormatMutable { get; }
-
-    /// <summary>
-    ///   Clones this instance into a new instance of the same type
-    /// </summary>
-    /// <returns></returns>
-    public virtual Column Clone()
-    {
-      var other = new Column();
-      CopyTo(other);
-      return other;
-    }
-
-    /// <summary>
-    ///   The Ordinal Position of the column
-    /// </summary>
-    [XmlIgnore]
-    public virtual int ColumnOrdinal
-    {
-      get => m_ColumnOrdinal;
-      set => m_ColumnOrdinal = value;
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether this <see cref="Column" /> is convert. Only used
-    ///   to read a typed value as text
-    /// </summary>
-    /// <value><c>true</c> if the column should be convert; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public virtual bool Convert
-    {
-      get => m_Convert ?? ValueFormatMutable.DataType != DataType.String;
-      set
-      {
-        if (m_Convert.HasValue && m_Convert.Equals(value))
-          return;
-        m_Convert = value;
-        NotifyPropertyChanged(nameof(Convert));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the name in a destination. This is only used for writing
-    /// </summary>
-    /// <value>The name of the column in the destination.</value>
-    [XmlAttribute]
-    [DefaultValue("")]
-    public virtual string DestinationName
-    {
-      get => m_DestinationName;
-      [CanBeNull]
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_DestinationName.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_DestinationName = newVal;
-        NotifyPropertyChanged(nameof(DestinationName));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether the column should be ignore reading a file
-    /// </summary>
-    /// <value><c>true</c> if [ignore read]; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public virtual bool Ignore
-    {
-      get => m_Ignore;
-
-      set
-      {
-        if (m_Ignore.Equals(value))
-          return;
-        m_Ignore = value;
-        NotifyPropertyChanged(nameof(Ignore));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets the name.
-    /// </summary>
-    /// <value>The name.</value>
-    [XmlAttribute("Column")]
-    public virtual string Name
-    {
-      get => m_Name;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_Name.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_Name = newVal;
-        NotifyPropertyChanged(nameof(Name));
-      }
-    }
-
-    /// <summary>
     ///   Gets or sets the part for splitting.
     /// </summary>
     /// <value>The part starting with 1</value>
@@ -447,6 +349,14 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(Part));
       }
     }
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool PartSpecified => ValueFormatMutable.DataType == DataType.TextPart;
 
     /// <summary>
     ///   Gets or sets the splitter.
@@ -467,6 +377,15 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool PartSplitterSpecified =>
+      ValueFormatMutable.DataType == DataType.TextPart && !m_PartSplitter.Equals(c_PartSplitterDefault);
+
+    /// <summary>
     ///   Gets or sets the part for splitting.
     /// </summary>
     /// <value>The part starting with 1</value>
@@ -484,6 +403,14 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(PartToEnd));
       }
     }
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool PartToEndSpecified => ValueFormatMutable.DataType == DataType.TextPart;
 
     /// <summary>
     ///   Gets or sets the name.
@@ -525,6 +452,42 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool TimePartFormatSpecified => ValueFormatMutable.DataType == DataType.DateTime;
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool TimePartSpecified => ValueFormatMutable.DataType == DataType.DateTime;
+
+    /// <summary>
+    ///   Gets or sets the time separator.
+    /// </summary>
+    /// <value>The time separator.</value>
+    [XmlAttribute]
+    [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
+    public virtual string TimeSeparator
+    {
+      get => ValueFormatMutable.TimeSeparator;
+      set => ValueFormatMutable.TimeSeparator = value;
+    }
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool TimeSeparatorSpecified => ValueFormatMutable.DataType == DataType.DateTime;
+
+    /// <summary>
     ///   Gets or sets the name.
     /// </summary>
     /// <value>The name.</value>
@@ -544,7 +507,72 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    ///   Gets or sets the representation for true.
+    /// </summary>
+    /// <value>The true.</value>
+    [XmlAttribute]
+    [DefaultValue(ValueFormatExtension.cTrueDefault)]
+#pragma warning disable CA1716 // Identifiers should not match keywords
+    public virtual string True
+#pragma warning restore CA1716
+    {
+      // Identifiers should not match keywords
+      get => ValueFormatMutable.True;
+
+      set => ValueFormatMutable.True = value;
+    }
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [UsedImplicitly]
+    public bool TrueSpecified => ValueFormatMutable.DataType == DataType.Boolean;
+
+    /// <summary>
+    ///   Mimics to get or sets the value format.
+    /// </summary>
+    /// <value>The value format.</value>
+
     public IValueFormat ValueFormat => ValueFormatMutable;
+    public ValueFormatMutable ValueFormatMutable { get; }
+
+    /// <summary>
+    ///   Clones this instance into a new instance of the same type
+    /// </summary>
+    /// <returns></returns>
+    public virtual Column Clone()
+    {
+      var other = new Column();
+      CopyTo(other);
+      return other;
+    }
+
+    /// <summary>
+    ///   Copies to.
+    /// </summary>
+    /// <param name="other">The other.</param>
+    public virtual void CopyTo(Column other)
+    {
+      if (other == null)
+        return;
+      ValueFormatMutable.CopyTo(other.ValueFormatMutable);
+
+      // other.ValueFormatMutable = m_ValueFormatMutable;
+      other.PartSplitter = m_PartSplitter;
+      other.Part = m_Part;
+      other.PartToEnd = m_PartToEnd;
+      other.TimePartFormat = m_TimePartFormat;
+      other.TimePart = m_TimePart;
+      other.TimeZonePart = m_TimeZonePart;
+      other.ColumnOrdinal = m_ColumnOrdinal;
+      other.Name = m_Name;
+      other.Ignore = m_Ignore;
+      if (m_Convert.HasValue)
+        other.Convert = m_Convert.Value;
+    }
 
     /// <summary>
     ///   Indicates whether the current object is equal to another object of the same type.
@@ -571,35 +599,6 @@ namespace CsvTools
              && string.Equals(TimePartFormat, other.TimePartFormat, StringComparison.Ordinal)
              && string.Equals(TimeZonePart, other.TimeZonePart, StringComparison.OrdinalIgnoreCase)
              && Convert == other.Convert && ValueFormatMutable.Equals(other.ValueFormatMutable);
-    }
-
-    /// <summary>
-    ///   Occurs when a property value changes.
-    /// </summary>
-    public virtual event PropertyChangedEventHandler PropertyChanged;
-
-    /// <summary>
-    ///   Copies to.
-    /// </summary>
-    /// <param name="other">The other.</param>
-    public virtual void CopyTo(Column other)
-    {
-      if (other == null)
-        return;
-      ValueFormatMutable.CopyTo(other.ValueFormatMutable);
-
-      // other.ValueFormatMutable = m_ValueFormatMutable;
-      other.PartSplitter = m_PartSplitter;
-      other.Part = m_Part;
-      other.PartToEnd = m_PartToEnd;
-      other.TimePartFormat = m_TimePartFormat;
-      other.TimePart = m_TimePart;
-      other.TimeZonePart = m_TimeZonePart;
-      other.ColumnOrdinal = m_ColumnOrdinal;
-      other.Name = m_Name;
-      other.Ignore = m_Ignore;
-      if (m_Convert.HasValue)
-        other.Convert = m_Convert.Value;
     }
 
     /// <summary>
