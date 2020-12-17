@@ -13,72 +13,87 @@
 */
 
 using System;
-using System.Diagnostics;
 
 namespace CsvTools
 {
-  [DebuggerDisplay("{minLength} - {maxLength}")]
   public class DateTimeFormatInformation
   {
-    private readonly int maxLength;
-    private readonly int minLength;
-
     /// <summary>
-    /// Initializes a new instance of the <see cref="DateTimeFormatInformation"/> class.
+    ///   Initializes a new instance of the <see cref="DateTimeFormatInformation" /> class.
     /// </summary>
-    /// <param name="format">The format.</param>
-    public DateTimeFormatInformation(string format)
+    /// <param name="formatSpecifier">The format specifier</param>
+    /// <remarks>Please do not use literal string delimiter these are not handled properly</remarks>
+    public DateTimeFormatInformation(string formatSpecifier)
     {
-      minLength = format.Length;
-      maxLength = format.Length;
-      NamedDate = format.IndexOf("ddd", StringComparison.Ordinal) != -1 || format.IndexOf("MMM", StringComparison.Ordinal) != -1;
+      // Handle other chares like mm':'ss' minutes' or mm\:ss\ \m\i\n\u\t\e\s
 
+      // Handle escaped with \
+      formatSpecifier = formatSpecifier.Replace("\\y", ".");
+      formatSpecifier = formatSpecifier.Replace("\\M", ".");
+      formatSpecifier = formatSpecifier.Replace("\\d", ".");
 
-      format = SetMinMax(format, "dddd", DateTimeFormatLength.MinDayLong, DateTimeFormatLength.MaxDayLong);
-      format = SetMinMax(format, "ddd", DateTimeFormatLength.MinDayMid, DateTimeFormatLength.MaxDayMid);
-      format = SetMinMax(format, "dd", 2, 2);
-      format = SetMinMax(format, "d", 1, 2);
+      formatSpecifier = formatSpecifier.Replace("\\H", ".");
+      formatSpecifier = formatSpecifier.Replace("\\h", ".");
+      formatSpecifier = formatSpecifier.Replace("\\m", ".");
+      formatSpecifier = formatSpecifier.Replace("\\s", ".");
+      formatSpecifier = formatSpecifier.Replace("\\F", ".");
+      formatSpecifier = formatSpecifier.Replace("\\t", ".");
+      formatSpecifier = formatSpecifier.Replace("\\\\", ".");
+      formatSpecifier = formatSpecifier.Replace("\\", "");
 
-      format = SetMinMax(format, "yyyy", 4, 4);
-      format = SetMinMax(format, "yy", 2, 2);
-      format = SetMinMax(format, "y", 1, 2);
+      // HandleLiteral string delimiter '
 
-      format = SetMinMax(format, "HH", 2, 2);
-      format = SetMinMax(format, "H", 1, 2);
-      format = SetMinMax(format, "hh", 2, 2);
-      format = SetMinMax(format, "h", 1, 2);
+      // This is actually not precise enough as ' minutes' will not be handled properly
+      formatSpecifier = formatSpecifier.Replace("'", "");
 
-      format = SetMinMax(format, "mm", 2, 2);
-      format = SetMinMax(format, "m", 1, 2);
+      MinLength = formatSpecifier.Length;
+      MaxLength = formatSpecifier.Length;
+      NamedDate = formatSpecifier.IndexOf("ddd", StringComparison.Ordinal) != -1 || formatSpecifier.IndexOf("MMM", StringComparison.Ordinal) != -1;
 
-      format = SetMinMax(format, "MMMM", DateTimeFormatLength.MinMonthLong, DateTimeFormatLength.MaxMonthLong);
-      format = SetMinMax(format, "MMM", DateTimeFormatLength.MinMonthMid, DateTimeFormatLength.MaxMonthMid);
-      format = SetMinMax(format, "MM", 2, 2);
-      format = SetMinMax(format, "M", 1, 2);
+      SetMinMax(ref formatSpecifier, "dddd", DateTimeFormatLength.MinDayLong, DateTimeFormatLength.MaxDayLong);
+      SetMinMax(ref formatSpecifier, "ddd", DateTimeFormatLength.MinDayMid, DateTimeFormatLength.MaxDayMid);
+      SetMinMax(ref formatSpecifier, "dd", 2, 2);
+      SetMinMax(ref formatSpecifier, "d", 1, 2);
 
-      format = SetMinMax(format, "F", 0, 1);
+      SetMinMax(ref formatSpecifier, "yyyy", 4, 4);
+      SetMinMax(ref formatSpecifier, "yy", 2, 2);
+      SetMinMax(ref formatSpecifier, "y", 1, 2);
 
-      format = SetMinMax(format, "ss", 2, 2);
-      format = SetMinMax(format, "s", 1, 2);
+      SetMinMax(ref formatSpecifier, "HH", 2, 2);
+      SetMinMax(ref formatSpecifier, "H", 1, 2);
+      SetMinMax(ref formatSpecifier, "hh", 2, 2);
+      SetMinMax(ref formatSpecifier, "h", 1, 2);
+
+      SetMinMax(ref formatSpecifier, "mm", 2, 2);
+      SetMinMax(ref formatSpecifier, "m", 1, 2);
+
+      SetMinMax(ref formatSpecifier, "MMMM", DateTimeFormatLength.MinMonthLong, DateTimeFormatLength.MaxMonthLong);
+      SetMinMax(ref formatSpecifier, "MMM", DateTimeFormatLength.MinMonthMid, DateTimeFormatLength.MaxMonthMid);
+      SetMinMax(ref formatSpecifier, "MM", 2, 2);
+      SetMinMax(ref formatSpecifier, "M", 1, 2);
+
+      SetMinMax(ref formatSpecifier, "F", 0, 1);
+
+      SetMinMax(ref formatSpecifier, "ss", 2, 2);
+      SetMinMax(ref formatSpecifier, "s", 1, 2);
 
       // interpreted as a standard date and time format specifier
-      format = SetMinMax(format, "K", 0, 6);
+      SetMinMax(ref formatSpecifier, "K", 0, 6);
 
       // signed offset of the local operating system's time zone from UTC,
-      format = SetMinMax(format, "zzz", 6, 6);
-      format = SetMinMax(format, "zz", 3, 3);
-      format = SetMinMax(format, "z", 2, 3);
+      SetMinMax(ref formatSpecifier, "zzz", 6, 6);
+      SetMinMax(ref formatSpecifier, "zz", 3, 3);
+      SetMinMax(ref formatSpecifier, "z", 2, 3);
 
       // AM / PM
-      SetMinMax(format, "tt", DateTimeFormatLength.MinDesignator, DateTimeFormatLength.MaxDesignator);
+      SetMinMax(ref formatSpecifier, "tt", DateTimeFormatLength.MinDesignator, DateTimeFormatLength.MaxDesignator);
     }
 
-    // public string Format { get => m_Format; }
-    public int MaxLength => maxLength;
-    public int MinLength => minLength;
+    public int MaxLength { get; }
+    public int MinLength { get; }
     public bool NamedDate { get; }
 
-    private static string SetMinMax(string format, string search, int minLength, int maxLength)
+    private static void SetMinMax(ref string format, string search, int minLength, int maxLength)
     {
       var pos = format.IndexOf(search, StringComparison.Ordinal);
       while (pos != -1)
@@ -88,9 +103,10 @@ namespace CsvTools
         format = format.Remove(pos, search.Length);
         pos = format.IndexOf(search, StringComparison.Ordinal);
       }
-      return format;
     }
 
+    /* Not needed as its only stored never compared
+    *
     public override bool Equals(object obj) => obj is DateTimeFormatInformation information && MaxLength==information.MaxLength && MinLength==information.MinLength && NamedDate==information.NamedDate;
 
     public override int GetHashCode()
@@ -101,5 +117,6 @@ namespace CsvTools
       hashCode=hashCode*-1521134295+NamedDate.GetHashCode();
       return hashCode;
     }
+    */
   }
 }
