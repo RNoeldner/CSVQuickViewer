@@ -75,8 +75,7 @@ namespace CsvTools
     {
       using (var writer = new StreamWriter(output, new UTF8Encoding(true), 4096))
       {
-        Columns.Clear();
-        Columns.AddRange(ColumnInfo.GetWriterColumnInformation(ValueFormatGeneral, ColumnDefinition, reader));
+        SetColumns(reader);
         var numColumns = Columns.Count();
         if (numColumns == 0)
           throw new FileWriterException("No columns defined to be written.");
@@ -103,15 +102,15 @@ namespace CsvTools
         {
           var placeHolder = string.Format(CultureInfo.CurrentCulture, c_HeaderPlaceholder, colNum);
           if (m_XMLEncode)
-            withHeader = withHeader.Replace(placeHolder, HTMLStyle.XmlElementName(columnInfo.Column.Name));
+            withHeader = withHeader.Replace(placeHolder, HTMLStyle.XmlElementName(columnInfo.Name));
           else if (m_JSONEncode)
-            withHeader = withHeader.Replace(placeHolder, HTMLStyle.JsonElementName(columnInfo.Column.Name));
+            withHeader = withHeader.Replace(placeHolder, HTMLStyle.JsonElementName(columnInfo.Name));
           else
-            withHeader = withHeader.Replace(placeHolder, columnInfo.Column.Name);
+            withHeader = withHeader.Replace(placeHolder, columnInfo.Name);
 
           placeHolderLookup1.Add(colNum, string.Format(CultureInfo.CurrentCulture, c_FieldPlaceholderByNumber, colNum));
           placeHolderLookup2.Add(colNum,
-            string.Format(CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnInfo.Column.Name));
+            string.Format(CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnInfo.Name));
           colNum++;
         }
 
@@ -129,12 +128,12 @@ namespace CsvTools
           var row = withHeader;
           colNum = 0;
           foreach (var value in from columnInfo in Columns
-            let col = reader.GetValue(columnInfo.ColumnOrdinalReader)
-            select m_XMLEncode
-              ? SecurityElement.Escape(TextEncodeField(FileFormat, col, columnInfo, false,
-                reader,
-                null))
-              : JsonConvert.ToString(col))
+                                let col = reader.GetValue(columnInfo.ColumnOrdinal)
+                                select m_XMLEncode
+                                  ? SecurityElement.Escape(TextEncodeField(FileFormat, col, columnInfo, false,
+                                    reader,
+                                    null))
+                                  : JsonConvert.ToString(col))
           {
             row = row.Replace(placeHolderLookup1[colNum], value).Replace(placeHolderLookup2[colNum], value);
             colNum++;

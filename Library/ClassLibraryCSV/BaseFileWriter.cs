@@ -16,6 +16,7 @@ using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -29,9 +30,42 @@ namespace CsvTools
   /// </summary>
   public abstract class BaseFileWriter
   {
+    protected class WriterColumn : ImmutableColumn
+    {
+      public WriterColumn(string name, int colNum, IValueFormat valueFormat, int fieldLength = 0, string constantTimeZone = "", int columnOrdinalTimeZone = -1) : base(name, valueFormat, colNum)
+      {
+        FieldLength = fieldLength;
+        ConstantTimeZone = constantTimeZone ?? string.Empty;
+        ColumnOrdinalTimeZone = columnOrdinalTimeZone;
+      }
+
+      /// <summary>
+      /// Gets the column ordinal of the time zone column
+      /// </summary>
+      /// <value>
+      /// The column ordinal time zone.
+      /// </value>
+      public int ColumnOrdinalTimeZone { get; }
+
+      /// <summary>
+      /// Gets the constant time zone
+      /// </summary>
+      /// <value>
+      /// The constant time zone.
+      /// </value>
+      [NotNull]
+      public string ConstantTimeZone { get; }
+
+      /// <summary>
+      ///   Gets or sets the length of the field.
+      /// </summary>
+      /// <value>The length of the field. 0 means unrestricted length</value>
+      public int FieldLength { get; }
+    }
+
     [NotNull] protected readonly IReadOnlyCollection<ImmutableColumn> ColumnDefinition;
     protected readonly bool ColumnHeader;
-    [NotNull] protected readonly List<ColumnInfo> Columns = new List<ColumnInfo>();
+    [NotNull] protected readonly List<WriterColumn> Columns = new List<WriterColumn>();
     [NotNull] protected readonly IFileFormat FileFormat;
     protected readonly string Header;
     private readonly string m_FileSettingDisplay;
@@ -63,7 +97,7 @@ namespace CsvTools
       FileFormat = fileFormat is ImmutableFileFormat immutable ? immutable : new ImmutableFileFormat(fileFormat.IsFixedLength, fileFormat.QualifyAlways,
       fileFormat.QualifyOnlyIfNeeded, fileFormat.NewLinePlaceholder, fileFormat.DelimiterPlaceholder, fileFormat.FieldDelimiterChar,
       fileFormat.FieldQualifierChar, fileFormat.QuotePlaceholder, fileFormat.NewLine);
-      ColumnDefinition =  columnDefinition?.Select(col => col is ImmutableColumn immutableColumn? immutableColumn: new ImmutableColumn(col.Name, col.ValueFormat, col.ColumnOrdinal, col.Convert, col.DestinationName, col.Ignore, col.Part, col.PartSplitter, col.PartToEnd, col.TimePart, col.TimePartFormat, col.TimeZonePart)).ToList() ??
+      ColumnDefinition =  columnDefinition?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col.Name, col.ValueFormat, col.ColumnOrdinal, col.Convert, col.DestinationName, col.Ignore, col.Part, col.PartSplitter, col.PartToEnd, col.TimePart, col.TimePartFormat, col.TimeZonePart)).ToList() ??
                            new List<ImmutableColumn>();
       NewLine = fileFormat.NewLine.NewLineString();
       Header = ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(header, NewLine), fileFormat.FieldDelimiterChar,
@@ -80,6 +114,134 @@ namespace CsvTools
       if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
       processDisplayTime.Maximum = 0;
       m_SetMaxProcess = l => processDisplayTime.Maximum = l;
+    }
+
+    /// <summary>
+    /// Sets the columns by looking at the reader
+    /// </summary>
+    /// <param name="reader">The reader.</param>
+    protected void SetColumns([NotNull] IFileReader reader)
+    {
+      Columns.Clear();
+      using (var dt = reader.GetSchemaTable())
+        Columns.AddRange(GetColumnInformation(ValueFormatGeneral, ColumnDefinition, dt).Cast<WriterColumn>());
+    }
+
+    /// <summary>
+    ///   Gets the column information based on the SQL Source, but overwritten with the definitions
+    /// </summary>
+    /// <param name="generalFormat">general value format for not explicitly specified columns format</param>
+    /// <param name="columnDefinitions"></param>
+    /// <param name="sourceSchemaDataReader">The reader for the source.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException">reader</exception>
+    public static IEnumerable<IColumn> GetColumnInformation(IValueFormat generalFormat,
+      IReadOnlyCollection<IColumn> columnDefinitions, DataTable schemaTable)
+    {
+      if (schemaTable == null)
+        throw new ArgumentNullException(nameof(schemaTable));
+      var result = new List<WriterColumn>();
+
+      var colName = new BiDirectionalDictionary<int, string>();
+
+      // Make names unique and fill the dictionary
+      foreach (DataRow schemaRow in schemaTable.Rows)
+      {
+        var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
+        var newName =
+          StringUtils.MakeUniqueInCollection(colName.Values, schemaRow[SchemaTableColumn.ColumnName].ToString());
+
+        colName.Add(colNo, newName);
+      }
+
+      foreach (DataRow schemaRow in schemaTable.Rows)
+      {
+        var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
+        var column = columnDefinitions.FirstOrDefault(x => x.Name.Equals(colName[colNo], StringComparison.OrdinalIgnoreCase));
+
+        if (column != null && column.Ignore)
+          continue;
+
+        // Based on the data Type in the reader defined and the general format create the  value format
+        var valueFormat = column?.ValueFormat ?? new ImmutableValueFormat(
+          ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(), generalFormat.DateFormat,
+          generalFormat.DateSeparator,
+          generalFormat.DecimalSeparatorChar, generalFormat.DisplayNullAs, generalFormat.False,
+          generalFormat.GroupSeparatorChar, generalFormat.NumberFormat,
+          generalFormat.TimeSeparator, generalFormat.True);
+
+        var fieldLength = Math.Max((int) schemaRow[SchemaTableColumn.ColumnSize], 0);
+        switch (valueFormat.DataType)
+        {
+          case DataType.Integer:
+            fieldLength = 10;
+            break;
+
+          case DataType.Boolean:
+          {
+            var lenTrue = valueFormat.True.Length;
+            var lenFalse = valueFormat.False.Length;
+            fieldLength = lenTrue > lenFalse ? lenTrue : lenFalse;
+            break;
+          }
+          case DataType.Double:
+          case DataType.Numeric:
+            fieldLength = 28;
+            break;
+
+          case DataType.DateTime:
+            fieldLength = valueFormat.DateFormat.Length;
+            break;
+          case DataType.Guid:
+            fieldLength = 36;
+            break;
+          case DataType.String:
+          case DataType.TextToHtml:
+          case DataType.TextToHtmlFull:
+          case DataType.TextPart:
+            break;
+          default:
+            throw new ArgumentOutOfRangeException();
+        }
+
+        var constantTimeZone = string.Empty;
+        var columnOrdinalTimeZoneReader = -1;
+
+        // the timezone information
+        if (column != null)
+        {
+          var tz = column.TimeZonePart;
+          if (!string.IsNullOrEmpty(tz))
+          {
+            var tzInfo = tz.GetPossiblyConstant();
+            if (tzInfo.Item2)
+            {
+              constantTimeZone = tzInfo.Item1;
+            }
+            else
+            {
+              if (colName.TryGetByValue(tzInfo.Item1, out var ordinal))
+                columnOrdinalTimeZoneReader = ordinal;
+            }
+          }
+        }
+        var ci = new WriterColumn(colName[colNo], colNo, valueFormat, fieldLength, constantTimeZone, columnOrdinalTimeZoneReader);
+        result.Add(ci);
+
+        // add an extra column for the time, reading columns they get combined, writing them they get separated again
+
+        if (column == null || string.IsNullOrEmpty(column.TimePart) || colName.ContainsValue(column.TimePart))
+          continue;
+
+        if (ci.ValueFormat.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 's' }) != -1)
+          Logger.Warning(
+            $"'{ci.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.ValueFormat.DateFormat}'");
+
+        // In case we have a split column, add the second column (unless the column is also present
+        result.Add(new WriterColumn(column.TimePart, colNo, new ImmutableValueFormat(DataType.DateTime, column.TimePartFormat, timeSeparator: column.ValueFormat.TimeSeparator), column.TimePartFormat.Length, constantTimeZone, columnOrdinalTimeZoneReader));
+      }
+
+      return result;
     }
 
     /// <summary>
@@ -166,28 +328,28 @@ namespace CsvTools
     /// <param name="columnInfo">The column information.</param>
     /// <param name="reader">The reader.</param>
     /// <returns></returns>
-    protected DateTime HandleTimeZone(DateTime dataObject, [NotNull] ColumnInfo columnInfo,
+    protected DateTime HandleTimeZone(DateTime dataObject, [NotNull] WriterColumn columnInfo,
       [NotNull] IDataRecord reader)
     {
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));
       if (reader is null)
         throw new ArgumentNullException(nameof(reader));
-      if (columnInfo.ColumnOrdinalTimeZoneReader > -1)
+      if (columnInfo.ColumnOrdinalTimeZone > -1)
       {
-        var destinationTimeZoneId = reader.GetString(columnInfo.ColumnOrdinalTimeZoneReader);
+        var destinationTimeZoneId = reader.GetString(columnInfo.ColumnOrdinalTimeZone);
         if (string.IsNullOrEmpty(destinationTimeZoneId))
-          HandleWarning(columnInfo.Column.Name, "Time zone is empty, value not converted");
+          HandleWarning(columnInfo.Name, "Time zone is empty, value not converted");
         else
           // ReSharper disable once PossibleInvalidOperationException
           return FunctionalDI.AdjustTZExport(dataObject, destinationTimeZoneId, Columns.IndexOf(columnInfo),
-            (columnNo, msg) => HandleWarning(Columns[columnNo].Column.Name, msg)).Value;
+            (columnNo, msg) => HandleWarning(Columns[columnNo].Name, msg)).Value;
       }
       else if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
       {
         // ReSharper disable once PossibleInvalidOperationException
         return FunctionalDI.AdjustTZExport(dataObject, columnInfo.ConstantTimeZone,
-          Columns.IndexOf(columnInfo), (columnNo, msg) => HandleWarning(Columns[columnNo].Column.Name, msg)).Value;
+          Columns.IndexOf(columnInfo), (columnNo, msg) => HandleWarning(Columns[columnNo].Name, msg)).Value;
       }
 
       return dataObject;
@@ -227,7 +389,7 @@ namespace CsvTools
     /// </exception>
     [NotNull]
     protected string TextEncodeField([NotNull] IFileFormat fileFormat, object dataObject,
-      [NotNull] ColumnInfo columnInfo, bool isHeader,
+      [NotNull] WriterColumn columnInfo, bool isHeader,
       [CanBeNull] IDataReader reader, [CanBeNull] Func<string, DataType, IFileFormat, string> handleQualify)
     {
       if (columnInfo is null)
@@ -248,9 +410,9 @@ namespace CsvTools
         try
         {
           if (dataObject == null || dataObject is DBNull)
-            displayAs = columnInfo.Column.ValueFormat.DisplayNullAs;
+            displayAs = columnInfo.ValueFormat.DisplayNullAs;
           else
-            switch (columnInfo.Column.ValueFormat.DataType)
+            switch (columnInfo.ValueFormat.DataType)
             {
               case DataType.Integer:
                 displayAs = dataObject is long l
@@ -260,14 +422,14 @@ namespace CsvTools
 
               case DataType.Boolean:
                 displayAs = (bool) dataObject
-                  ? columnInfo.Column.ValueFormat.True
-                  : columnInfo.Column.ValueFormat.False;
+                  ? columnInfo.ValueFormat.True
+                  : columnInfo.ValueFormat.False;
                 break;
 
               case DataType.Double:
                 displayAs = StringConversion.DoubleToString(
                   dataObject is double d ? d : Convert.ToDouble(dataObject.ToString(), CultureInfo.InvariantCulture),
-                  columnInfo.Column.ValueFormat);
+                  columnInfo.ValueFormat);
                 break;
 
               case DataType.Numeric:
@@ -275,14 +437,14 @@ namespace CsvTools
                   dataObject is decimal @decimal
                     ? @decimal
                     : Convert.ToDecimal(dataObject.ToString(), CultureInfo.InvariantCulture),
-                  columnInfo.Column.ValueFormat);
+                  columnInfo.ValueFormat);
                 break;
 
               case DataType.DateTime:
                 displayAs = reader == null
-                  ? StringConversion.DateTimeToString((DateTime) dataObject, columnInfo.Column.ValueFormat)
+                  ? StringConversion.DateTimeToString((DateTime) dataObject, columnInfo.ValueFormat)
                   : StringConversion.DateTimeToString(HandleTimeZone((DateTime) dataObject, columnInfo, reader),
-                    columnInfo.Column.ValueFormat);
+                    columnInfo.ValueFormat);
                 break;
 
               case DataType.Guid:
@@ -295,7 +457,7 @@ namespace CsvTools
               case DataType.TextToHtmlFull:
               case DataType.TextPart:
                 displayAs = dataObject.ToString();
-                if (columnInfo.Column.ValueFormat.DataType == DataType.TextToHtml)
+                if (columnInfo.ValueFormat.DataType == DataType.TextToHtml)
                   displayAs = HTMLStyle.TextToHtmlEncode(displayAs);
 
                 // a new line of any kind will be replaced with the placeholder if set
@@ -321,11 +483,11 @@ namespace CsvTools
           // original value
           displayAs = dataObject?.ToString() ?? string.Empty;
           if (string.IsNullOrEmpty(displayAs))
-            HandleError(columnInfo.Column.Name, ex.Message);
+            HandleError(columnInfo.Name, ex.Message);
           else
-            HandleWarning(columnInfo.Column.Name,
+            HandleWarning(columnInfo.Name,
               "Value stored as: " + displayAs +
-              $"\nExpected {columnInfo.Column.ValueFormat.DataType} but was {dataObject?.GetType()}" + ex.Message);
+              $"\nExpected {columnInfo.ValueFormat.DataType} but was {dataObject?.GetType()}" + ex.Message);
         }
       }
 
@@ -334,14 +496,14 @@ namespace CsvTools
       {
         if (displayAs.Length <= columnInfo.FieldLength || columnInfo.FieldLength <= 0)
           return displayAs.PadRight(columnInfo.FieldLength, ' ');
-        HandleWarning(columnInfo.Column.Name,
+        HandleWarning(columnInfo.Name,
           $"Text with length of {displayAs.Length} has been cut off after {columnInfo.FieldLength} character");
         return displayAs.Substring(0, columnInfo.FieldLength);
       }
 
       // Qualify text if required
       if (fileFormat.FieldQualifierChar != '\0' && handleQualify != null)
-        return handleQualify(displayAs, columnInfo.Column.ValueFormat.DataType, fileFormat);
+        return handleQualify(displayAs, columnInfo.ValueFormat.DataType, fileFormat);
 
       return displayAs;
     }
