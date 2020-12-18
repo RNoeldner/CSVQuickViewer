@@ -50,13 +50,13 @@ namespace CsvTools
       m_FieldDelimiter = file.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture);
       if (!string.IsNullOrEmpty(file.FileFormat.EscapeCharacter))
       {
-        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d};
+        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d };
         m_FieldQualifierEscaped = file.FileFormat.EscapeCharacterChar + m_FieldQualifier;
         m_FieldDelimiterEscaped = file.FileFormat.EscapeCharacterChar + m_FieldDelimiter;
       }
       else
       {
-        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d, file.FileFormat.FieldDelimiterChar};
+        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d, file.FileFormat.FieldDelimiterChar };
         m_FieldQualifierEscaped = new string(file.FileFormat.FieldQualifierChar, 2);
         m_FieldDelimiterEscaped = new string(file.FileFormat.FieldDelimiterChar, 1);
       }
@@ -74,8 +74,7 @@ namespace CsvTools
       using (var writer = new StreamWriter(output,
         EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192))
       {
-        Columns.Clear();
-        Columns.AddRange(ColumnInfo.GetWriterColumnInformation(ValueFormatGeneral, ColumnDefinition, reader));
+        SetColumns(reader);
 
         if (Columns.Count == 0)
           throw new FileWriterException("No columns defined to be written.");
@@ -96,7 +95,7 @@ namespace CsvTools
         {
           foreach (var columnInfo in Columns)
           {
-            sb.Append(TextEncodeField(FileFormat, columnInfo.Column.Name, columnInfo, true, null, QualifyText));
+            sb.Append(TextEncodeField(FileFormat, columnInfo.Name, columnInfo, true, null, QualifyText));
             if (!FileFormat.IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
               sb.Append(FileFormat.FieldDelimiterChar);
           }
@@ -119,7 +118,7 @@ namespace CsvTools
           foreach (var columnInfo in Columns)
           {
             // Number of columns might be higher than number of reader columns
-            var col = reader.GetValue(columnInfo.ColumnOrdinalReader);
+            var col = reader.GetValue(columnInfo.ColumnOrdinal);
             if (col == DBNull.Value || (col is string text && string.IsNullOrEmpty(text)))
               emptyColumns++;
             else
@@ -147,7 +146,7 @@ namespace CsvTools
         if (sb.Length > NewLine.Length)
         {
           sb.Length -= NewLine.Length;
-          // and store teh possibly remaining data
+          // and store the possibly remaining data
           await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
         }
 

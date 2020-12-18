@@ -148,7 +148,7 @@ namespace CsvTools
               if (column == null)
               {
                 if (hasRetried)
-                  throw new ConfigurationException($"The file does not seem to contain the column {columnName}.");
+                  throw new CsvTools.FileReaderException($"The file does not seem to contain the column {columnName}.");
                 var columns = (from DataColumn col in data.Columns select col.ColumnName).ToList();
                 UpdateColumnList(columns);
                 hasRetried = true;
@@ -786,9 +786,6 @@ namespace CsvTools
     private async Task<DetermineColumnFormat.SampleResult> GetSampleValuesAsync([NotNull] string columnName,
                                                                                 [NotNull] IProcessDisplay processDisplay)
     {
-      if (m_FileSetting == null)
-        throw new ConfigurationException("FileSetting not set");
-
       try
       {
         if (m_WriteSetting)

@@ -6,15 +6,6 @@ namespace CsvTools.Tests
   public class ExceptionTest
   {
     [TestMethod]
-    public void ConfigurationException()
-    {
-      var ex1 = new ConfigurationException("MyMessage1");
-      var ex2 = new ConfigurationException("MyMessage2", ex1);
-      Assert.AreEqual(ex1, ex2.InnerException);
-      Assert.AreEqual("MyMessage2", ex2.Message);
-    }
-
-    [TestMethod]
     public void ConversionException()
     {
       var ex1 = new ConversionException("MyMessage1");
