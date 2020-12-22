@@ -31,12 +31,22 @@ namespace CsvTools
     private TreeNode m_FirstNode;
 
     /// <summary>
+    /// Gets or sets the HTML style.
+    /// </summary>
+    /// <value>
+    /// The HTML style.
+    /// </value>
+    public HTMLStyle HTMLStyle { get; set; }
+
+    /// <summary>
     ///   Gets or sets the selected tree node.
     /// </summary>
     /// <value>The selected tree node.</value>
     [Browsable(false)]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public ICollection<TreeNode> SelectedTreeNode { get; } = new HashSet<TreeNode>();
+
+    public void PressKey(Keys keyData) => OnKeyDown(new KeyEventArgs(keyData));
 
     /// <summary>
     ///   Raises Event
@@ -194,8 +204,6 @@ namespace CsvTools
         m_FirstNode = e.Node; // store begin of shift sequence
     }
 
-    public void PressKey(Keys keyData) => OnKeyDown(new KeyEventArgs(keyData));
-
     /// <summary>
     ///   Raises event.
     /// </summary>
@@ -231,13 +239,12 @@ namespace CsvTools
 
       var buffer = new StringBuilder();
       var sbHtml = new StringBuilder();
-      var style = ApplicationSetting.HTMLStyle;
 
-      sbHtml.AppendLine(style.TableOpen);
+      sbHtml.AppendLine(HTMLStyle.TableOpen);
       foreach (var item in SelectedTreeNode.OrderBy(x => x.FullPath))
       {
         var text = item.Text;
-        sbHtml.Append(style.TROpen);
+        sbHtml.Append(HTMLStyle.TROpen);
         if (item.Tag is FormHierarchyDisplay.TreeData data)
         {
           text = data.Title;
@@ -249,7 +256,7 @@ namespace CsvTools
           }
           else
           {
-            sbHtml.Append(style.TDEmpty);
+            sbHtml.Append(HTMLStyle.TDEmpty);
           }
         }
 
@@ -257,7 +264,7 @@ namespace CsvTools
         {
           buffer.Append("\t");
           if (level < item.Level)
-            sbHtml.Append(style.TDEmpty);
+            sbHtml.Append(HTMLStyle.TDEmpty);
           if (level != item.Level)
             continue;
           sbHtml.Append(
@@ -268,14 +275,14 @@ namespace CsvTools
           buffer.Append(item.Text);
         }
 
-        sbHtml.AppendLine(style.TRClose);
+        sbHtml.AppendLine(HTMLStyle.TRClose);
         buffer.AppendLine();
       }
 
-      sbHtml.AppendLine(style.TableClose);
+      sbHtml.AppendLine(HTMLStyle.TableClose);
 
       var dataObject = new DataObject();
-      dataObject.SetData(DataFormats.Html, true, style.ConvertToHtmlFragment(sbHtml.ToString()));
+      dataObject.SetData(DataFormats.Html, true, HTMLStyle.ConvertToHtmlFragment(sbHtml.ToString()));
       dataObject.SetData(DataFormats.Text, true, buffer.ToString());
 
       Clipboard.Clear();

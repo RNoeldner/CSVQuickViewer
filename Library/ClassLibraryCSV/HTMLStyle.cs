@@ -28,7 +28,6 @@ namespace CsvTools
   /// </remarks>
   public class HTMLStyle
   {
-
     public const string c_Style = "<STYLE type=\"text/css\">\r\n" +
                                    "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
                                    "  h1 { style=\"color:DarkBlue; font-size : 14px; }\r\n" +
@@ -45,63 +44,195 @@ namespace CsvTools
                                    "  span.err { color:#B40404; }\r\n" +
                                    "  span.war { color:#2E64FE; }\r\n" +
                                    "</STYLE>";
+
     /// <summary>
-    ///   Adds a HTML TD cell.
+    /// Initializes a new instance of the <see cref="HTMLStyle"/> class.
     /// </summary>
-    /// <param name="sbHtml">A StringBuilder for the HTML.</param>
-    /// <param name="tdTemplate">The table cell template.</param>
-    /// <param name="regularText">The regular test for the cell.</param>
-    /// <param name="errorText">Additional information displayed underneath.</param>
-    /// <param name="addErrorInfo">if set to <c>true</c> add the errorText.</param>
-    public void AddHtmlCell(StringBuilder sbHtml, string tdTemplate, string regularText, string errorText,
-      bool addErrorInfo)
+    public HTMLStyle() : this(c_Style)
     {
-      if (sbHtml == null)
-        return;
-      if (!addErrorInfo || string.IsNullOrEmpty(errorText))
-      {
-        sbHtml.Append(AddTd(tdTemplate, regularText));
-        return;
-      }
+    }
 
-      var errorsAndWarnings = errorText.GetErrorsAndWarnings();
-      if (string.IsNullOrEmpty(regularText))
-      {
-        if (errorsAndWarnings.Item2.Length == 0 && errorsAndWarnings.Item1.Length > 0)
-        {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(Error, errorsAndWarnings.Item1)));
-          return;
-        }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HTMLStyle"/> class.
+    /// </summary>
+    /// <param name="style">The style.</param>
+    public HTMLStyle(string style)
+    {
+      Style = style;
+      BR = "<br>";
+      H1 = "<h1>{0}</h1>";
+      H2 = "<h2>{0}</h2>";
+      TableOpen = "<table>\r\n";
+      TableClose = "</table>";
+      TD = "<td class='text'>{0}</td>";
+      TDEmpty = "<td/>";
+      TDNonText = "<td class='value'>{0}</td>";
+      TH = "<td class='info'>{0}</td>";
+      TRClose = "</tr>\r\n";
+      TROpen = "<tr>\r\n";
+      TROpenAlt = "<tr class='alt'>\r\n";
+      Warning = "<span class='war'>{0}</span>";
+      ValueError = "{0}<br><span class='err'>{1}</span>";
+      ValueErrorWarning = "{0}<br><span class='err'>{1}</span><br><span class='war'>{2}</span>";
+      ValueWarning = "{0}<br><span class='war'>{1}</span>";
+    }
 
-        if (errorsAndWarnings.Item2.Length > 0 && errorsAndWarnings.Item1.Length == 0)
-        {
-          sbHtml.Append(
-            string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(Warning, errorsAndWarnings.Item2)));
-          return;
-        }
+    /// <summary>
+    ///   Gets or sets the TD template.
+    /// </summary>
+    /// <value>The TD template.</value>
+    public string BR
+    {
+      get;
+    }
 
-        sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
-          AddTd(ErrorWarning, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
-      }
-      else
-      {
-        if (errorsAndWarnings.Item2.Length == 0 && errorsAndWarnings.Item1.Length > 0)
-        {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
-            AddTd(ValueError, regularText, errorsAndWarnings.Item1)));
-          return;
-        }
+    /// <summary>
+    ///   Gets or sets the warning.
+    /// </summary>
+    /// <value>The HTML warning template</value>
+    public string Error
+    {
+      get;
+    }
 
-        if (errorsAndWarnings.Item2.Length > 0 && errorsAndWarnings.Item1.Length == 0)
-        {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
-            AddTd(ValueWarning, regularText, errorsAndWarnings.Item2)));
-          return;
-        }
+    /// <summary>
+    ///   Gets or sets the warning.
+    /// </summary>
+    /// <value>The HTML warning template</value>
+    public string ErrorWarning
+    {
+      get;
+    }
 
-        sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
-          AddTd(ValueErrorWarning, regularText, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
-      }
+    /// <summary>
+    ///   Gets or sets the table template.
+    /// </summary>
+    /// <value>The table template.</value>
+    public string H1
+    {
+      get;
+    }
+
+    /// <summary>
+    ///   Gets or sets the table template.
+    /// </summary>
+    /// <value>The table template.</value>
+    public string H2
+    {
+      get;
+    }
+
+    /// <summary>
+    ///   Set the overall HTML Style Sheet.
+    /// </summary>
+    public string Style
+    {
+      get;
+    }
+
+    /// <summary>
+    ///   Gets or sets the table template.
+    /// </summary>
+    /// <value>The table template.</value>
+    public string TableClose
+    {
+      get;
+    }
+
+    /// <summary>
+    ///   Gets or sets the table template.
+    /// </summary>
+    /// <value>The table template.</value>
+    public string TableOpen
+    {
+      get;
+    }
+
+    /// <summary>
+    ///   Gets or sets the TD template.
+    /// </summary>
+    /// <value>The TD template.</value>
+    public string TD
+    {
+      get;
+    }
+
+    /// <summary>
+    ///   Gets or sets the TD template.
+    /// </summary>
+    /// <value>The TD template.</value>
+    public string TDEmpty
+    {
+      get;
+    }
+
+    /// <summary>
+    ///   Gets or sets the TD template.
+    /// </summary>
+    /// <value>The TD template.</value>
+    public string TDNonText
+    {
+      get;
+    }
+
+    /// <summary>
+    ///   Gets or sets the TH template.
+    /// </summary>
+    /// <value>The TH template.</value>
+    public string TH
+    {
+      get;
+    }
+
+    /// <summary>
+    ///   Gets or sets the TR template.
+    /// </summary>
+    /// <value>The TR template.</value>
+    public string TRClose
+    {
+      get;
+    }
+
+    /// <summary>
+    ///   Gets or sets the TR template.
+    /// </summary>
+    /// <value>The TR template.</value>
+    public string TROpen
+    {
+      get;
+    }
+
+    /// <summary>
+    ///   Gets or sets the TR template alternate.
+    /// </summary>
+    /// <value>The TR template alternate.</value>
+    public string TROpenAlt
+    {
+      get;
+    }
+
+    public string ValueError
+    {
+      get;
+    }
+
+    public string ValueErrorWarning
+    {
+      get;
+    }
+
+    public string ValueWarning
+    {
+      get;
+    }
+
+    /// <summary>
+    ///   Gets or sets the warning.
+    /// </summary>
+    /// <value>The HTML warning template</value>
+    public string Warning
+    {
+      get;
     }
 
     /// <summary>
@@ -253,6 +384,18 @@ namespace CsvTools
       return allowed;
     }
 
+    public static StringBuilder StartHTMLDoc(Color back, string style = c_Style)
+    {
+      var text = new StringBuilder(500);
+      text.AppendLine("<!DOCTYPE HTML public virtual \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
+      text.AppendLine($"<HTML style=\"background-color: #{back.R:X2}{back.G:X2}{back.B:X2}\">");
+      text.AppendLine("<HEAD>");
+      text.AppendLine(style);
+      text.AppendLine("</HEAD>");
+      text.AppendLine("<BODY>");
+      return text;
+    }
+
     /// <summary>
     ///   Replace special characters from an HTML text
     /// </summary>
@@ -299,18 +442,64 @@ namespace CsvTools
       return "_" + allowed;
     }
 
-    public static StringBuilder StartHTMLDoc(Color back, string style = c_Style)
+    /// <summary>
+    ///   Adds a HTML TD cell.
+    /// </summary>
+    /// <param name="sbHtml">A StringBuilder for the HTML.</param>
+    /// <param name="tdTemplate">The table cell template.</param>
+    /// <param name="regularText">The regular test for the cell.</param>
+    /// <param name="errorText">Additional information displayed underneath.</param>
+    /// <param name="addErrorInfo">if set to <c>true</c> add the errorText.</param>
+    public void AddHtmlCell(StringBuilder sbHtml, string tdTemplate, string regularText, string errorText,
+      bool addErrorInfo)
     {
-      var text = new StringBuilder(500);
-      text.AppendLine("<!DOCTYPE HTML public virtual \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
-      text.AppendLine($"<HTML style=\"background-color: #{back.R:X2}{back.G:X2}{back.B:X2}\">");
-      text.AppendLine("<HEAD>");
-      text.AppendLine(style);
-      text.AppendLine("</HEAD>");
-      text.AppendLine("<BODY>");
-      return text;
-    }
+      if (sbHtml == null)
+        return;
+      if (!addErrorInfo || string.IsNullOrEmpty(errorText))
+      {
+        sbHtml.Append(AddTd(tdTemplate, regularText));
+        return;
+      }
 
+      var errorsAndWarnings = errorText.GetErrorsAndWarnings();
+      if (string.IsNullOrEmpty(regularText))
+      {
+        if (errorsAndWarnings.Item2.Length == 0 && errorsAndWarnings.Item1.Length > 0)
+        {
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(Error, errorsAndWarnings.Item1)));
+          return;
+        }
+
+        if (errorsAndWarnings.Item2.Length > 0 && errorsAndWarnings.Item1.Length == 0)
+        {
+          sbHtml.Append(
+            string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(Warning, errorsAndWarnings.Item2)));
+          return;
+        }
+
+        sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
+          AddTd(ErrorWarning, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
+      }
+      else
+      {
+        if (errorsAndWarnings.Item2.Length == 0 && errorsAndWarnings.Item1.Length > 0)
+        {
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
+            AddTd(ValueError, regularText, errorsAndWarnings.Item1)));
+          return;
+        }
+
+        if (errorsAndWarnings.Item2.Length > 0 && errorsAndWarnings.Item1.Length == 0)
+        {
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
+            AddTd(ValueWarning, regularText, errorsAndWarnings.Item2)));
+          return;
+        }
+
+        sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
+          AddTd(ValueErrorWarning, regularText, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
+      }
+    }
     /// <summary>
     ///   Convert the fragment of HTML into the Clipboards HTML format.
     /// </summary>
@@ -345,187 +534,6 @@ namespace CsvTools
 
       return string.Format(CultureInfo.InvariantCulture, c_MarkerBlock, prefixLength, prefixLength + html.Length,
         startFragment, endFragment, c_Source, html);
-    }
-
-    public HTMLStyle() : this(c_Style)
-    {
-    }
-    public HTMLStyle(string style)
-    {
-      Style = style;
-      BR = "<br>";
-      H1 = "<h1>{0}</h1>";
-      H2 = "<h2>{0}</h2>";
-      TableOpen = "<table>\r\n";
-      TableClose = "</table>";
-      TD = "<td class='text'>{0}</td>";
-      TDEmpty = "<td/>";
-      TDNonText = "<td class='value'>{0}</td>";
-      TH = "<td class='info'>{0}</td>";
-      TRClose = "</tr>\r\n";
-      TROpen = "<tr>\r\n";
-      TROpenAlt = "<tr class='alt'>\r\n";
-      Warning = "<span class='war'>{0}</span>";
-      ValueError = "{0}<br><span class='err'>{1}</span>";
-      ValueErrorWarning = "{0}<br><span class='err'>{1}</span><br><span class='war'>{2}</span>";
-      ValueWarning = "{0}<br><span class='war'>{1}</span>";
-    }
-
-
-    /// <summary>
-    ///   Gets or sets the TD template.
-    /// </summary>
-    /// <value>The TD template.</value>
-    public string BR
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the table template.
-    /// </summary>
-    /// <value>The table template.</value>
-    public string H1
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the table template.
-    /// </summary>
-    /// <value>The table template.</value>
-    public string H2
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Set the overall HTML Style Sheet.
-    /// </summary>
-    public string Style
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the table template.
-    /// </summary>
-    /// <value>The table template.</value>
-    public string TableClose
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the table template.
-    /// </summary>
-    /// <value>The table template.</value>
-    public string TableOpen
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the TD template.
-    /// </summary>
-    /// <value>The TD template.</value>
-    public string TD
-    {
-      get;
-
-    }
-
-    /// <summary>
-    ///   Gets or sets the TD template.
-    /// </summary>
-    /// <value>The TD template.</value>
-    public string TDEmpty
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the TD template.
-    /// </summary>
-    /// <value>The TD template.</value>
-    public string TDNonText
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the TH template.
-    /// </summary>
-    /// <value>The TH template.</value>
-    public string TH
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the TR template.
-    /// </summary>
-    /// <value>The TR template.</value>
-    public string TRClose
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the TR template.
-    /// </summary>
-    /// <value>The TR template.</value>
-    public string TROpen
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the TR template alternate.
-    /// </summary>
-    /// <value>The TR template alternate.</value>
-    public string TROpenAlt
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the warning.
-    /// </summary>
-    /// <value>The HTML warning template</value>
-    public string Warning
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the warning.
-    /// </summary>
-    /// <value>The HTML warning template</value>
-    public string Error
-    {
-      get;
-    }
-    /// <summary>
-    ///   Gets or sets the warning.
-    /// </summary>
-    /// <value>The HTML warning template</value>
-    public string ErrorWarning
-    {
-      get;
-    }
-
-    public string ValueError
-    {
-      get;
-    }
-    public string ValueErrorWarning
-    {
-      get;
-    }
-    public string ValueWarning
-    {
-      get;
     }
   }
 }

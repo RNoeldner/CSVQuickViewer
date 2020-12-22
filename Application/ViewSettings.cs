@@ -24,6 +24,22 @@ namespace CsvTools
   [Serializable]
   public class ViewSettings : CsvFile
   {
+    [XmlElement]
+#pragma warning disable CA1051 // Do not declare visible instance fields
+    public WindowState WindowPosition;
+    private bool m_AllowJson = true;
+    private bool m_DetectFileChanges = true;
+    private FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
+    private bool m_GuessCodePage = true;
+    private bool m_GuessDelimiter = true;
+    private bool m_GuessHasHeader = true;
+    private bool m_GuessNewLine = true;
+    private bool m_GuessQualifier;
+    private bool m_GuessStartRow = true;
+    private HTMLStyle m_HtmlStyle = new HTMLStyle();
+    private bool m_MenuDown;
+    private bool m_StoreSettingsByFile;
+
     public enum DurationEnum
     {
       [Description("unlimited")]
@@ -41,58 +57,6 @@ namespace CsvTools
       [Description("10 seconds")]
       TenSecond,
     }
-
-    [XmlElement]
-#pragma warning disable CA1051 // Do not declare visible instance fields
-    public WindowState WindowPosition;
-
-#pragma warning restore CA1051 // Do not declare visible instance fields
-    private bool m_AllowJson = true;
-
-    private bool m_DetectFileChanges = true;
-
-    private FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
-
-    private bool m_GuessDelimiter = true;
-    private bool m_GuessCodePage = true;
-    private bool m_GuessHasHeader = true;
-    private bool m_GuessQualifier;
-    private bool m_GuessStartRow = true;
-    private bool m_GuessNewLine = true;
-    private bool m_MenuDown;
-
-    private bool m_StoreSettingsByFile;
-
-    [XmlIgnore]
-    public TimeSpan Duration
-    {
-      get
-      {
-        switch (LimitDuration)
-        {
-          case DurationEnum.HalfSecond:
-            return TimeSpan.FromSeconds(.5);
-          case DurationEnum.Second:
-            return TimeSpan.FromSeconds(1);
-
-          case DurationEnum.TwoSecond:
-            return TimeSpan.FromSeconds(2);
-          case DurationEnum.TenSecond:
-            return TimeSpan.FromSeconds(10);
-          default:
-            return TimeSpan.MaxValue;
-        }
-      }
-    }
-
-    [XmlElement]
-    [DefaultValue(DurationEnum.Second)]
-    public DurationEnum LimitDuration
-    {
-      get;
-      set;
-    } = DurationEnum.Second;
-
     [XmlAttribute]
     [DefaultValue(true)]
     public bool AllowJson
@@ -121,6 +85,31 @@ namespace CsvTools
       }
     }
 
+    [XmlIgnore]
+    public TimeSpan Duration
+    {
+      get
+      {
+        switch (LimitDuration)
+        {
+          case DurationEnum.HalfSecond:
+            return TimeSpan.FromSeconds(.5);
+
+          case DurationEnum.Second:
+            return TimeSpan.FromSeconds(1);
+
+          case DurationEnum.TwoSecond:
+            return TimeSpan.FromSeconds(2);
+
+          case DurationEnum.TenSecond:
+            return TimeSpan.FromSeconds(10);
+
+          default:
+            return TimeSpan.MaxValue;
+        }
+      }
+    }
+
     /// <summary>
     ///   Gets or sets the fill guess settings.
     /// </summary>
@@ -146,6 +135,19 @@ namespace CsvTools
     [XmlIgnore]
     public virtual bool FillGuessSettingsSpecified => !m_FillGuessSettings.Equals(new FillGuessSettings());
 
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public bool GuessCodePage
+    {
+      get => m_GuessCodePage;
+      set
+      {
+        if (m_GuessCodePage == value)
+          return;
+        m_GuessCodePage = value;
+        NotifyPropertyChanged(nameof(GuessCodePage));
+      }
+    }
 
     [XmlAttribute]
     [DefaultValue(true)]
@@ -159,6 +161,20 @@ namespace CsvTools
           return;
         m_GuessDelimiter = value;
         NotifyPropertyChanged(nameof(GuessDelimiter));
+      }
+    }
+
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public bool GuessHasHeader
+    {
+      get => m_GuessHasHeader;
+      set
+      {
+        if (m_GuessHasHeader == value)
+          return;
+        m_GuessHasHeader = value;
+        NotifyPropertyChanged(nameof(GuessHasHeader));
       }
     }
 
@@ -178,20 +194,6 @@ namespace CsvTools
     }
 
     [XmlAttribute]
-    [DefaultValue(true)]
-    public bool GuessHasHeader
-    {
-      get => m_GuessHasHeader;
-      set
-      {
-        if (m_GuessHasHeader == value)
-          return;
-        m_GuessHasHeader = value;
-        NotifyPropertyChanged(nameof(GuessHasHeader));
-      }
-    }
-
-    [XmlAttribute]
     [DefaultValue(false)]
     public bool GuessQualifier
     {
@@ -202,21 +204,6 @@ namespace CsvTools
           return;
         m_GuessQualifier = value;
         NotifyPropertyChanged(nameof(GuessQualifier));
-      }
-    }
-
-
-    [XmlAttribute]
-    [DefaultValue(true)]
-    public bool GuessCodePage
-    {
-      get => m_GuessCodePage;
-      set
-      {
-        if (m_GuessCodePage == value)
-          return;
-        GuessCodePage = value;
-        NotifyPropertyChanged(nameof(GuessCodePage));
       }
     }
 
@@ -233,6 +220,17 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(GuessStartRow));
       }
     }
+
+    [XmlIgnore]
+    public HTMLStyle HTMLStyle => m_HtmlStyle;
+
+    [XmlElement]
+    [DefaultValue(DurationEnum.Second)]
+    public DurationEnum LimitDuration
+    {
+      get;
+      set;
+    } = DurationEnum.Second;
 
     [XmlAttribute]
     [DefaultValue(false)]
@@ -262,6 +260,20 @@ namespace CsvTools
       }
     }
 
+    [XmlElement(ElementName = "HTMLStyle")]
+    public string Style
+    {
+      get => m_HtmlStyle.Style;
+      set
+      {
+        var newVal = value ?? HTMLStyle.c_Style;
+        if (m_HtmlStyle.Style.Equals(newVal))
+          return;
+        m_HtmlStyle = new HTMLStyle(newVal);
+        NotifyPropertyChanged(nameof(Style));
+      }
+    }
+#pragma warning restore CA1051 // Do not declare visible instance fields
     public static void CopyConfiguration(ICsvFile csvSrc, ICsvFile csvDest)
     {
       if (csvSrc == null || csvDest == null || ReferenceEquals(csvSrc, csvDest))

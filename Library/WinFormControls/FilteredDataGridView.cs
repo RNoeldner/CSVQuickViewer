@@ -189,6 +189,14 @@ namespace CsvTools
     }
 
     /// <summary>
+    /// Gets or sets the HTML style.
+    /// </summary>
+    /// <value>
+    /// The HTML style.
+    /// </value>
+    public HTMLStyle HTMLStyle { get; set; } = new HTMLStyle();
+
+    /// <summary>
     ///   The current DataView
     /// </summary>
     internal DataView DataView { get; private set; }
@@ -841,7 +849,8 @@ namespace CsvTools
     {
       if (!e.Control || e.KeyCode != Keys.C)
         return;
-      this.SelectedDataIntoClipboard(!e.Alt, e.Shift, m_CancellationTokenSource.Token);
+      var html = new DataGridViewCopyPaste(HTMLStyle);
+      html.SelectedDataIntoClipboard(this, !e.Alt, e.Shift, m_CancellationTokenSource.Token);
       e.Handled = true;
     }
 
@@ -1185,7 +1194,7 @@ namespace CsvTools
       var columnFormat = GetColumnFormat(m_MenuItemColumnIndex);
       if (columnFormat == null)
         return;
-      using (var form = new FormColumnUI(columnFormat, false, m_FileSetting, FillGuessSettings, false))
+      using (var form = new FormColumnUI(columnFormat, false, m_FileSetting, FillGuessSettings, false, HTMLStyle))
       {
         var result = form.ShowDialog(this);
         if (result == DialogResult.OK || result == DialogResult.Yes)
@@ -1198,16 +1207,22 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void ToolStripMenuItemCopy_Click(object sender, EventArgs e) =>
-      this.SelectedDataIntoClipboard(false, false, m_CancellationTokenSource.Token);
+    private void ToolStripMenuItemCopy_Click(object sender, EventArgs e)
+    {
+      var html = new DataGridViewCopyPaste(HTMLStyle);
+      html.SelectedDataIntoClipboard(this, false, false, m_CancellationTokenSource.Token);
+    }
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemCopyError control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void ToolStripMenuItemCopyError_Click(object sender, EventArgs e) =>
-      this.SelectedDataIntoClipboard(true, false, m_CancellationTokenSource.Token);
+    private void ToolStripMenuItemCopyError_Click(object sender, EventArgs e)
+    {
+      var html = new DataGridViewCopyPaste(HTMLStyle);
+      html.SelectedDataIntoClipboard(this, true, false, m_CancellationTokenSource.Token);
+    }
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemFilled control.

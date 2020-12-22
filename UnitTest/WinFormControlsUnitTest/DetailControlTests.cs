@@ -50,8 +50,10 @@ namespace CsvTools.Tests
 
         using (var dc = new DetailControl())
         {
+          dc.HTMLStyle = UnitTestInitializeWin.HTMLStyle;
           dc.Show();
           dc.DataTable = dt;
+          
           await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);
           dc.OnlyShowErrors = true ;
           dc.MoveMenu();
@@ -81,6 +83,7 @@ namespace CsvTools.Tests
 
         using (var dc = new DetailControl())
         {
+          dc.HTMLStyle = UnitTestInitializeWin.HTMLStyle;
           dc.Show();
           dc.DataTable = dt;
           await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);

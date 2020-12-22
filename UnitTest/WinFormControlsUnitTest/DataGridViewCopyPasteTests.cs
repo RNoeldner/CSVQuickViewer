@@ -39,7 +39,8 @@ namespace CsvTools.Tests
               frm.Controls.Add(dgv);
               frm.Show();
               dgv.SelectAll();
-              dgv.SelectedDataIntoClipboard(true, false, UnitTestInitializeCsv.Token);
+              var cp = new DataGridViewCopyPaste(UnitTestInitializeWin.HTMLStyle);
+              cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestInitializeCsv.Token);
             }
           }
         }
@@ -68,7 +69,8 @@ namespace CsvTools.Tests
               Clipboard.Clear();
               try
               {
-                dgv.SelectedDataIntoClipboard(false, true, UnitTestInitializeCsv.Token);
+                var cp = new DataGridViewCopyPaste(UnitTestInitializeWin.HTMLStyle);
+                cp.SelectedDataIntoClipboard(dgv, false, true, UnitTestInitializeCsv.Token);
 
                 var dataObject = Clipboard.GetDataObject();
                 Assert.IsNotNull(dataObject);
@@ -106,7 +108,8 @@ namespace CsvTools.Tests
               try
               {
                 Clipboard.Clear();
-                dgv.SelectedDataIntoClipboard(true, false, UnitTestInitializeCsv.Token);
+                var cp = new DataGridViewCopyPaste(UnitTestInitializeWin.HTMLStyle);
+                cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestInitializeCsv.Token);
                 var dataObject = Clipboard.GetDataObject();
                 Assert.IsNotNull(dataObject);
                 Assert.IsNotNull(dataObject.GetData(DataFormats.Text));
@@ -141,7 +144,8 @@ namespace CsvTools.Tests
               try
               {
                 Clipboard.Clear();
-                dgv.SelectedDataIntoClipboard(true, false, UnitTestInitializeCsv.Token);
+                var cp = new DataGridViewCopyPaste(UnitTestInitializeWin.HTMLStyle);
+                cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestInitializeCsv.Token);
                 var dataObject = Clipboard.GetDataObject();
                 Assert.IsNotNull(dataObject);
                 Assert.IsNotNull(dataObject.GetData(DataFormats.Text));

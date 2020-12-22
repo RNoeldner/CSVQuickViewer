@@ -24,7 +24,7 @@ namespace CsvTools
   /// <summary>
   ///   Class to provide HTML Copy and Past functionality to a DataGrid
   /// </summary>
-  public static class DataGridViewCopyPaste
+  public class DataGridViewCopyPaste
   {
     /// <summary>
     ///   The column header for error information
@@ -34,7 +34,16 @@ namespace CsvTools
     /// <summary>
     ///   The used HTML style
     /// </summary>
-    private static readonly HTMLStyle m_HtmlStyle = ApplicationSetting.HTMLStyle;
+    private readonly HTMLStyle m_HtmlStyle;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DataGridViewCopyPaste"/> class.
+    /// </summary>
+    /// <param name="htmlStyle">The HTML style.</param>
+    public DataGridViewCopyPaste(HTMLStyle htmlStyle)
+    {
+      m_HtmlStyle= htmlStyle ?? new HTMLStyle();
+    }
 
     /// <summary>
     ///   Copies the selected Cells into clipboard.
@@ -43,8 +52,8 @@ namespace CsvTools
     /// <param name="addErrorInfo">if set to <c>true</c> add error information.</param>
     /// <param name="cutLength">if set to <c>true</c> cut off long text.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    public static void SelectedDataIntoClipboard(
-      [NotNull] this DataGridView dataGridView,
+    public void SelectedDataIntoClipboard(
+      [NotNull] DataGridView dataGridView,
       bool addErrorInfo,
       bool cutLength,
       CancellationToken cancellationToken)
@@ -74,6 +83,51 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Copies the one cell to the clipboard
+    /// </summary>
+    private static void CopyOneCellIntoClipboard([NotNull] DataGridViewCell cell)
+    {
+      var dataObject = new DataObject();
+      dataObject.SetData(DataFormats.Text, true, cell.Value.ToString());
+      Clipboard.Clear();
+      Clipboard.SetDataObject(dataObject, false, 5, 200);
+    }
+
+    /// <summary>
+    ///   Escapes any tab in a text
+    /// </summary>
+    /// <param name="contents">The contents.</param>
+    /// <returns></returns>
+    private static string EscapeTab([CanBeNull] string contents)
+    {
+      if (string.IsNullOrEmpty(contents))
+        return string.Empty;
+      if (contents.Contains("\t") || contents.Contains("\n") || contents.Contains("\r"))
+        return "\"" + contents.Replace("\"", "\"\"") + "\"";
+      return contents;
+    }
+
+    /// <summary>
+    ///   Determines whether there are row errors in the specified rows.
+    /// </summary>
+    /// <param name="topRow">The top row.</param>
+    /// <param name="bottomRow">The bottom row.</param>
+    /// <param name="rows">The rows.</param>
+    /// <returns><c>true</c> if it has row errors; otherwise, <c>false</c>.</returns>
+    private static bool HasRowErrors(int topRow, int bottomRow, [NotNull] DataGridViewRowCollection rows)
+    {
+      var hasRowErrors = false;
+      for (var row = topRow; row < bottomRow; row++)
+        if (!string.IsNullOrEmpty(rows[row].ErrorText))
+        {
+          hasRowErrors = true;
+          break;
+        }
+
+      return hasRowErrors;
+    }
+
+    /// <summary>
     ///   Adds a cell value to the HTML and Text
     /// </summary>
     /// <param name="cell">The cell.</param>
@@ -82,7 +136,7 @@ namespace CsvTools
     /// <param name="appendTab">if set to <c>true</c> [append tab].</param>
     /// <param name="addErrorInfo">if set to <c>true</c> [add error info].</param>
     /// <param name="cutLength">Maximum length of the resulting text</param>
-    private static void AddCell(
+    private void AddCell(
       [NotNull] DataGridViewCell cell,
       [NotNull] StringBuilder stringBuilder,
       [NotNull] StringBuilder sbHtml,
@@ -112,7 +166,7 @@ namespace CsvTools
     /// <param name="sbHtml">The StringBuilder for HTML.</param>
     /// <param name="errorText">The error Text</param>
     /// <param name="addErrorInfo">if set to <c>true</c> [add error info].</param>
-    private static void AppendRowError([NotNull] StringBuilder stringBuilder, [NotNull] StringBuilder sbHtml, [CanBeNull] string errorText, bool addErrorInfo, HTMLStyle style)
+    private void AppendRowError([NotNull] StringBuilder stringBuilder, [NotNull] StringBuilder sbHtml, [CanBeNull] string errorText, bool addErrorInfo, HTMLStyle style)
     {
       if (!addErrorInfo)
         return;
@@ -135,7 +189,7 @@ namespace CsvTools
     /// <param name="columns">The columns.</param>
     /// <param name="rows">The rows.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    private static void CopyAllCellsIntoClipboard(
+    private  void CopyAllCellsIntoClipboard(
       bool addErrorInfo,
       bool cutLength,
       bool alternatingRows,
@@ -194,11 +248,11 @@ namespace CsvTools
           if (cancellationToken.IsCancellationRequested)
             return;
           var cell = rows[row].Cells[col.Index];
-          AddCell(cell, buffer, sbHtml, !first, addErrorInfo, cutLength, ApplicationSetting.HTMLStyle);
+          AddCell(cell, buffer, sbHtml, !first, addErrorInfo, cutLength, m_HtmlStyle);
           first = false;
         }
 
-        AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError, ApplicationSetting.HTMLStyle);
+        AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError, m_HtmlStyle);
         sbHtml.AppendLine(m_HtmlStyle.TRClose);
         buffer.AppendLine();
         if (!((DateTime.Now - lastRefresh).TotalSeconds > 0.2))
@@ -216,18 +270,6 @@ namespace CsvTools
       Clipboard.Clear();
       Clipboard.SetDataObject(dataObject, false, 5, 200);
     }
-
-    /// <summary>
-    ///   Copies the one cell to the clipboard
-    /// </summary>
-    private static void CopyOneCellIntoClipboard([NotNull] DataGridViewCell cell)
-    {
-      var dataObject = new DataObject();
-      dataObject.SetData(DataFormats.Text, true, cell.Value.ToString());
-      Clipboard.Clear();
-      Clipboard.SetDataObject(dataObject, false, 5, 200);
-    }
-
     /// <summary>
     ///   Copies the selected cells into the clipboard.
     /// </summary>
@@ -238,7 +280,7 @@ namespace CsvTools
     /// <param name="rows">The rows.</param>
     /// <param name="selectedCells">The selected cells.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    private static void CopySelectedCellsIntoClipboard(
+    private void CopySelectedCellsIntoClipboard(
       bool addErrorInfo,
       bool cutLength,
       bool alternatingRows,
@@ -321,7 +363,7 @@ namespace CsvTools
               continue;
             if (cell.OwningColumn.DisplayIndex != col)
               continue;
-            AddCell(cell, buffer, sbHtml, col > leftCol, addErrorInfo, cutLength, ApplicationSetting.HTMLStyle);
+            AddCell(cell, buffer, sbHtml, col > leftCol, addErrorInfo, cutLength, m_HtmlStyle);
             written = true;
             break;
           }
@@ -332,7 +374,7 @@ namespace CsvTools
           sbHtml.Append(m_HtmlStyle.TDEmpty);
         }
 
-        AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError, ApplicationSetting.HTMLStyle);
+        AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError, m_HtmlStyle);
 
         sbHtml.AppendLine(m_HtmlStyle.TRClose);
         buffer.AppendLine();
@@ -348,40 +390,6 @@ namespace CsvTools
 
       Clipboard.Clear();
       Clipboard.SetDataObject(dataObject, false, 5, 200);
-    }
-
-    /// <summary>
-    ///   Escapes any tab in a text
-    /// </summary>
-    /// <param name="contents">The contents.</param>
-    /// <returns></returns>
-    private static string EscapeTab([CanBeNull] string contents)
-    {
-      if (string.IsNullOrEmpty(contents))
-        return string.Empty;
-      if (contents.Contains("\t") || contents.Contains("\n") || contents.Contains("\r"))
-        return "\"" + contents.Replace("\"", "\"\"") + "\"";
-      return contents;
-    }
-
-    /// <summary>
-    ///   Determines whether there are row errors in the specified rows.
-    /// </summary>
-    /// <param name="topRow">The top row.</param>
-    /// <param name="bottomRow">The bottom row.</param>
-    /// <param name="rows">The rows.</param>
-    /// <returns><c>true</c> if it has row errors; otherwise, <c>false</c>.</returns>
-    private static bool HasRowErrors(int topRow, int bottomRow, [NotNull] DataGridViewRowCollection rows)
-    {
-      var hasRowErrors = false;
-      for (var row = topRow; row < bottomRow; row++)
-        if (!string.IsNullOrEmpty(rows[row].ErrorText))
-        {
-          hasRowErrors = true;
-          break;
-        }
-
-      return hasRowErrors;
     }
   }
 }

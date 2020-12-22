@@ -21,9 +21,6 @@ namespace CsvTools.Tests
   public class ApplicationSettingTest
   {
     [TestMethod]
-    public void ApplicationSettingStatics() => Assert.IsNotNull(ApplicationSetting.HTMLStyle);
-
-    [TestMethod]
     public void SQLDataReaderText()
     {
       try
