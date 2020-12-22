@@ -143,10 +143,21 @@ namespace CsvTools
 
       m_ToolStripItems.CollectionChanged += (sender, e) => MoveMenu();
       MoveMenu();
-      ApplicationSetting.PropertyChanged += (sender, e) =>
+    }
+
+    private bool m_MenuDown;
+
+    /// <summary>
+    ///   General Setting that determines if the menu is display in the bottom of a detail control
+    /// </summary>
+    public bool MenuDown
+    {
+      get => m_MenuDown; set
       {
-        if (e.PropertyName == nameof(ApplicationSetting.MenuDown)) MoveMenu();
-      };
+        if (m_MenuDown==value) return;
+        m_MenuDown=value;
+        MoveMenu();
+      }
     }
 
     /// <summary>
@@ -347,13 +358,13 @@ namespace CsvTools
     /// </summary>
     public void MoveMenu()
     {
-      var source = (ApplicationSetting.MenuDown) ? m_ToolStripTop : m_BindingNavigator;
-      var target = (ApplicationSetting.MenuDown) ? m_BindingNavigator : m_ToolStripTop;
+      var source = (m_MenuDown) ? m_ToolStripTop : m_BindingNavigator;
+      var target = (m_MenuDown) ? m_BindingNavigator : m_ToolStripTop;
       target.SuspendLayout();
       source.SuspendLayout();
       foreach (var item in m_ToolStripItems)
       {
-        item.DisplayStyle = (ApplicationSetting.MenuDown)
+        item.DisplayStyle = (m_MenuDown)
                               ? ToolStripItemDisplayStyle.Image
                               : ToolStripItemDisplayStyle.ImageAndText;
         if (source.Items.Contains(item))
@@ -364,7 +375,7 @@ namespace CsvTools
 
       foreach (var item in m_ToolStripItems)
       {
-        item.DisplayStyle = (ApplicationSetting.MenuDown)
+        item.DisplayStyle = (m_MenuDown)
                               ? ToolStripItemDisplayStyle.Image
                               : ToolStripItemDisplayStyle.ImageAndText;
         target.Items.Add(item);
@@ -992,7 +1003,7 @@ namespace CsvTools
     private void SetButtonVisibility() =>
       this.SafeBeginInvoke(() =>
       {
-        m_ToolStripContainer.TopToolStripPanelVisible = !ApplicationSetting.MenuDown;
+        m_ToolStripContainer.TopToolStripPanelVisible = !m_MenuDown;
 
         // Need to set the control containing the buttons to visible Regular
         m_ToolStripButtonColumnLength.Visible = m_ShowButtons;
