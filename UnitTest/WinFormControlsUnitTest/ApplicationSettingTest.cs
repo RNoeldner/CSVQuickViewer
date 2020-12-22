@@ -24,18 +24,6 @@ namespace CsvTools.Tests
     public void ApplicationSettingStatics() => Assert.IsNotNull(ApplicationSetting.HTMLStyle);
 
     [TestMethod]
-    public void ApplicationSettingMenuDown()
-    {
-      var propertyChanged = false;
-      ApplicationSetting.PropertyChanged += (sender, args) => { propertyChanged = true; };
-      ApplicationSetting.MenuDown = true;
-      Assert.IsTrue(ApplicationSetting.MenuDown);
-      ApplicationSetting.MenuDown = false;
-      Assert.IsFalse(ApplicationSetting.MenuDown);
-      Assert.IsTrue(propertyChanged);
-    }
-
-    [TestMethod]
     public void SQLDataReaderText()
     {
       try

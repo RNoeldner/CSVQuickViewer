@@ -618,7 +618,7 @@ namespace CsvTools
 			this.buttonInteractiveSettings.Text = "...";
 			this.toolTip.SetToolTip(this.buttonInteractiveSettings, "Interactive Skip First Lines");
 			this.buttonInteractiveSettings.UseVisualStyleBackColor = true;
-			this.buttonInteractiveSettings.Click += new System.EventHandler(this.buttonInteractiveSettings_Click);
+			this.buttonInteractiveSettings.Click += new System.EventHandler(this.ButtonInteractiveSettings_Click);
 			// 
 			// numericUpDownSkipRows
 			// 

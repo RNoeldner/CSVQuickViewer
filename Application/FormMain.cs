@@ -522,7 +522,7 @@ namespace CsvTools
             return;
         }
 
-        // The reader is used when data ist stored through the detailControl
+        // The reader is used when data is stored through the detailControl
         FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
           await Task.FromResult(new DataTableWrapper(detailControl.DataTable));
 
@@ -596,7 +596,7 @@ namespace CsvTools
         {
           frm.ShowDialog(MdiParent);
           m_ViewSettings.SaveViewSettings();
-          ApplicationSetting.MenuDown = m_ViewSettings.MenuDown;
+          detailControl.MenuDown = m_ViewSettings.MenuDown;
           SetFileSystemWatcher(m_FileSetting.FileName);
           ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting);
 

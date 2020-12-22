@@ -335,12 +335,9 @@ namespace CsvTools
       _MessageBox.Show(result, "Checking headers");
     }
 
-    private void buttonInteractiveSettings_Click(object sender, EventArgs e)
+    private void ButtonInteractiveSettings_Click(object sender, EventArgs e)
     {
-      using (var frm = new FindSkipRows(m_ViewSettings))
-      {
-        frm.ShowDialog();
-      }
+      using (var frm = new FindSkipRows(m_ViewSettings)) _=frm.ShowDialog();
     }
   }
 }

@@ -25,8 +25,7 @@ namespace CsvTools
           var serial = File.ReadAllText(m_SettingPath.LongPathPrefix());
           using (TextReader reader = new StringReader(serial))
           {
-            var vs = (ViewSettings) m_SerializerViewSettings.Deserialize(reader);
-            ApplicationSetting.MenuDown = vs.MenuDown;
+            var vs = (ViewSettings) m_SerializerViewSettings.Deserialize(reader);            
             return vs;
           }
         }
@@ -45,8 +44,6 @@ namespace CsvTools
     {
       try
       {
-        ApplicationSetting.MenuDown = viewSettings.MenuDown;
-
         if (!FileSystemUtils.DirectoryExists(m_SettingFolder))
           FileSystemUtils.CreateDirectory(m_SettingFolder);
 
