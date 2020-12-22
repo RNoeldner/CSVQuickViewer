@@ -80,7 +80,7 @@ namespace CsvTools
     /// <summary>
     ///   Constructor for abstract base call for <see cref="IFileReader" />
     /// </summary>
-    /// <param name="fileName">Path to to a physical file (if used)</param>
+    /// <param name="fileName">Path to a physical file (if used)</param>
     /// <param name="columnDefinition">List of column definitions</param>
     /// <param name="recordLimit">Number of records that should be read</param>
     protected BaseFileReader([CanBeNull] string fileName, [CanBeNull] IEnumerable<IColumn> columnDefinition,
@@ -151,6 +151,12 @@ namespace CsvTools
     /// </summary>
     public Func<Task> OnOpen { private get; set; }
 
+    /// <summary>
+    /// Gets the percentage as value between 0 and 100
+    /// </summary>
+    /// <value>
+    /// The percent.
+    /// </value>
     public int Percent => (GetRelativePosition() * 100).ToInt();
 
     /// <summary>
@@ -176,10 +182,7 @@ namespace CsvTools
 
     public virtual bool SupportsReset => true;
 
-    public override int VisibleFieldCount
-    {
-      get => Column.Count(x => !x.Ignore);
-    }
+    public override int VisibleFieldCount => Column.Count(x => !x.Ignore);
 
     protected string FileName { get; }
     protected string FullPath { get; }
@@ -465,10 +468,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
     /// <returns>The 16-bit signed integer value of the specified field.</returns>
-    public override short GetInt16(int columnNumber)
-    {
-      return GetInt16(CurrentRowColumnText[columnNumber], columnNumber);
-    }
+    public override short GetInt16(int columnNumber) => GetInt16(CurrentRowColumnText[columnNumber], columnNumber);
 
     /// <summary>
     ///   Gets the int32.
@@ -785,14 +785,24 @@ namespace CsvTools
 
     public override bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
 
+    /// <summary>
+    /// Resets the position to first data row.
+    /// </summary>
     public virtual void ResetPositionToFirstDataRow()
-#pragma warning restore 1998
     {
       EndLineNumber = 0;
       RecordNumber = 0;
       EndOfFile = false;
     }
 
+    /// <summary>
+    /// Handles input replacements like NBSP and NULL
+    /// </summary>
+    /// <param name="inputString">The input string.</param>
+    /// <param name="treatNbspAsSpace">if set to <c>true</c> treat NBSP as space].</param>
+    /// <param name="treatTextAsNull">The treat text as null.</param>
+    /// <param name="trim">if set to <c>true</c> [trim].</param>
+    /// <returns></returns>
     [CanBeNull]
     protected static string TreatNbspTestAsNullTrim([CanBeNull] string inputString, bool treatNbspAsSpace,
                                                     string treatTextAsNull, bool trim)
@@ -826,7 +836,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Does set EndOfFile sets the maxvalue for Progress and stores the now know reader columns
+    ///   Does set EndOfFile sets the max value for Progress and stores the now know reader columns
     /// </summary>
     protected void FinishOpen()
     {
@@ -998,10 +1008,6 @@ namespace CsvTools
         ? Column[columnNumber].Name
         : null);
 
-    /// <summary>
-    ///   Resets the position and buffer to the header in case the file has a header
-    /// </summary>
-#pragma warning disable 1998
 
     /// <summary>
     ///   Handles the Event if reading the file is completed
@@ -1117,6 +1123,12 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Parses the name of the column by looking at the header row
+    /// </summary>
+    /// <param name="headerRow">The header row.</param>
+    /// <param name="dataType">Type of the data.</param>
+    /// <param name="hasFieldHeader">if set to <c>true</c> [has field header].</param>
     protected void ParseColumnName([NotNull] IEnumerable<string> headerRow,
                                    [CanBeNull] IEnumerable<DataType> dataType = null, bool hasFieldHeader = true)
     {

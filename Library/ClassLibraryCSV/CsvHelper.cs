@@ -287,7 +287,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Guesses if the file is a json file.
+    ///   Guesses if the file is a JSON file.
     /// </summary>
     /// <param name="setting">The setting.</param>
     /// <param name="cancellationToken"></param>
@@ -724,7 +724,7 @@ namespace CsvTools
     /// <param name="setting"></param>
     /// <param name="display">The display.</param>
     /// <param name="guessJson">if true trying to determine if file is a JSOn file</param>
-    /// <param name="guessCodePage">if true, try to determine the codepage</param>
+    /// <param name="guessCodePage">if true, try to determine the code page</param>
     /// <param name="guessDelimiter">if true, try to determine the delimiter</param>
     /// <param name="guessQualifier">if true, try to determine the qualifier for text</param>
     /// <param name="guessStartRow">if true, try to determine the number of skipped rows</param>
@@ -875,7 +875,7 @@ namespace CsvTools
       }
       catch (NotSupportedException)
       {
-        Logger.Warning("Codepage {codepage} is not supported, using UTF8", setting.CodePageId);
+        Logger.Warning("Code page {codepage} is not supported, using UTF8", setting.CodePageId);
         setting.CodePageId = 65001;
         return new UTF8Encoding(true);
       }

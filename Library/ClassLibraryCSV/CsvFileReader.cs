@@ -597,7 +597,7 @@ namespace CsvTools
       if (res != -1) return (char) res;
       EndOfFile = true;
 
-      // return a lf to determine the end of quoting easily
+      // return a linefeed to determine the end of quoting easily
       return c_Lf;
     }
 

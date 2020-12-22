@@ -15,15 +15,13 @@ namespace CsvTools
     private readonly bool m_TreatNbspAsSpace;
     private readonly string m_TreatTextAsNull;
     private readonly bool m_Trim;
-#pragma warning disable CA1051 // Do not declare visible instance fields
     protected object[] CurrentValues;
-#pragma warning restore CA1051 // Do not declare visible instance fields
 
     /// <summary>
     ///   Constructor for abstract base call for <see cref="IFileReader" /> that does read typed
     ///   values like Excel, SQl
     /// </summary>
-    /// <param name="fileName">Path to to a physical file (if used)</param>
+    /// <param name="fileName">Path to a physical file (if used)</param>
     /// <param name="columnDefinition">List of column definitions</param>
     /// <param name="recordLimit">Number of records that should be read</param>
     /// <param name="trim">Trim all read text</param>
@@ -98,7 +96,7 @@ namespace CsvTools
         return dt.Value;
       // Warning was added by GetDecimalNull
       throw WarnAddFormatException(columnNumber,
-        $"'{CurrentRowColumnText[columnNumber]}' is not a datetime");
+        $"'{CurrentRowColumnText[columnNumber]}' is not a date time");
     }
 
     /// <summary>
