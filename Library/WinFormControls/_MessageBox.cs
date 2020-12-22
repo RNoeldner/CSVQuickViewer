@@ -24,7 +24,6 @@ namespace CsvTools
 #pragma warning restore IDE1006 // Naming Styles
   {
     public static DialogResult Show(
-      [CanBeNull] Form owner,
       string message,
       string title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
@@ -34,7 +33,7 @@ namespace CsvTools
     {
       using (var tm = new TimedMessage())
       {
-        return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout, null, null, null);
+        return tm.ShowDialog(message, title, buttons, icon, defaultButton, timeout, null, null, null);
       }
     }
 
@@ -42,7 +41,6 @@ namespace CsvTools
     ///   MessageBox for handling Choice for a number of dialogs, one button will be reserved to
     ///   answer for all option, if this is selected, it will be stored and returned in consecutive calls
     /// </summary>
-    /// <param name="owner">The calling from, can be null</param>
     /// <param name="message">Dialog Message</param>
     /// <param name="title">Dialog Message</param>
     /// <param name="massChoice">
@@ -52,7 +50,6 @@ namespace CsvTools
     /// <param name="button2Text">By Default "No"</param>
     /// <returns>DialogResult.Yes or DialogResult.No</returns>
     public static DialogResult PersistentChoice(
-      [CanBeNull] Form owner,
       string message,
       string title,
       [NotNull] PersistentChoice massChoice,
@@ -64,17 +61,16 @@ namespace CsvTools
 
       using (var tm = new TimedMessage())
       {
-        var result = tm.Show(
-          owner, message, title,
-          // add a third button in case we expect followup dialogs
+        var result = tm.ShowDialog(
+          message, title,           // add a third button in case we expect followup dialogs
           massChoice.NumRecs > 1 ? MessageBoxButtons.YesNoCancel : MessageBoxButtons.YesNo,
           MessageBoxIcon.Question,
           // Depending on the massChoice Result, select the right button
           massChoice.DialogResult == DialogResult.Yes ? MessageBoxDefaultButton.Button1 : MessageBoxDefaultButton.Button2,
           4.0,
           // do not overwrite Button 1 or Button 2
-          button1Text, button2Text,
-          // but set Button 3 if needed
+          button1Text,
+          button2Text,           // but set Button 3 if needed
           massChoice.NumRecs > 1 ? $"{((massChoice.DialogResult == DialogResult.Yes) ? button1Text : button2Text)} To All ({massChoice.NumRecs})" : null);
 
         // Button3 results in Cancel and is the Mass choice
@@ -88,7 +84,6 @@ namespace CsvTools
     }
 
     public static DialogResult ShowBigHtml(
-      [CanBeNull] Form owner,
       string html,
       string title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
@@ -102,12 +97,11 @@ namespace CsvTools
       {
         tm.Html = html;
         tm.Size = new Size(600, 450);
-        return tm.Show(owner, null, title, buttons, icon, defaultButton, timeout, null, null, null);
+        return tm.ShowDialog(null, title, buttons, icon, defaultButton, timeout, null, null, null);
       }
     }
 
     public static DialogResult ShowBig(
-      [CanBeNull] Form owner,
       string message,
       string title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
@@ -118,7 +112,7 @@ namespace CsvTools
       using (var tm = new TimedMessage())
       {
         tm.Size = new Size(600, 450);
-        return tm.Show(owner, message, title, buttons, icon, defaultButton, timeout, null, null, null);
+        return tm.ShowDialog(message, title, buttons, icon, defaultButton, timeout, null, null, null);
       }
     }
   }

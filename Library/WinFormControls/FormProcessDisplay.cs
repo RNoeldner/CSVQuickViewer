@@ -241,7 +241,7 @@ namespace CsvTools
     /// <summary>
     ///   Required method for Designer support - do not modify the contents of this method with the
     ///   code editor.
-    /// </summary>    
+    /// </summary>
     private void InitializeComponent()
     {
       m_ProgressBar = new System.Windows.Forms.ProgressBar();
@@ -323,8 +323,7 @@ namespace CsvTools
         // if the form is closed by the user (UI) signal a cancellation
         if (e.CloseReason == CloseReason.UserClosing && !CancellationTokenSource.IsCancellationRequested)
         {
-          if (_MessageBox.Show(this, "Cancel running process?", "Cancel", MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question) == DialogResult.Yes)
+          if (_MessageBox.Show("Cancel running process?", "Cancel", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
           {
             CancellationTokenSource.Cancel();
             // Give it time to stop

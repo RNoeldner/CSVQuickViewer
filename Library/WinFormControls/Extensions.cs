@@ -341,12 +341,11 @@ namespace CsvTools
         Logger.Warning(ex, ex.SourceExceptionMessage());
       Cursor.Current = Cursors.Default;
 #if DEBUG
-      _MessageBox.ShowBig(from, ex.ExceptionMessages() + "\n\nMethod:\n" + ex.StackTrace,
-        string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}", MessageBoxButtons.OK,
-        MessageBoxIcon.Warning, timeout: 20);
+      _MessageBox.ShowBig(ex.ExceptionMessages() + "\n\nMethod:\n" + ex.StackTrace, string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}",
+				MessageBoxButtons.OK, MessageBoxIcon.Warning,
+				timeout: 20);
 #else
       _MessageBox.Show(
-        from,
         ex.ExceptionMessages(),
         string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}",
         MessageBoxButtons.OK,
