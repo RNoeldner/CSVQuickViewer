@@ -41,28 +41,28 @@ namespace CsvTools.Tests
       Extensions.RunSTAThread(() =>
       {
         using (var tm = new TimedMessage())
-        {
+        {          
           var stringBuilder = HTMLStyle.StartHTMLDoc(SystemColors.Control, "");
-          stringBuilder.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample")));
-          stringBuilder.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample2")));
+          stringBuilder.Append(string.Format(UnitTestInitializeWin.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample")));
+          stringBuilder.Append(string.Format(UnitTestInitializeWin.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample2")));
 
-          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TableOpen);
-          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TROpen);
+          stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TableOpen);
+          stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TROpen);
           for (var index = 1; index <= 10; index++)
           {
-            stringBuilder.AppendLine(string.Format(ApplicationSetting.HTMLStyle.TD,
+            stringBuilder.AppendLine(string.Format(UnitTestInitializeWin.HTMLStyle.TD,
               HTMLStyle.TextToHtmlEncode("Test " + index.ToString())));
             if (index % 4 == 0)
             {
-              stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
+              stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TRClose);
             }
           }
 
-          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
-          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
-          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
-          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
-          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
+          stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TRClose);
+          stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TableClose);
+          stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TableClose);
+          stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TRClose);
+          stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TableClose);
           tm.Html = stringBuilder.ToString();
 
           tm.Size = new Size(600, 450);
@@ -246,6 +246,7 @@ namespace CsvTools.Tests
       {
         using (var treeView = new MultiselectTreeView())
         {
+          treeView.HTMLStyle = UnitTestInitializeWin.HTMLStyle;
           Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
           var treeNode = new TreeNode("Test") { Tag = "test" };
@@ -263,6 +264,7 @@ namespace CsvTools.Tests
           {
             if (!(control is MultiselectTreeView text))
               return;
+
             text.PressKey(Keys.Control | Keys.A);
             text.PressKey(Keys.Control | Keys.C);
             // ReSharper disable once AccessToDisposedClosure
@@ -309,7 +311,7 @@ namespace CsvTools.Tests
     public void FormHierarchyDisplay()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormHierarchyDisplay(dataTable, dataTable.Select()))
+      using (var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), UnitTestInitializeWin.HTMLStyle))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form, 0.1, (frm) =>
         {
@@ -338,7 +340,7 @@ namespace CsvTools.Tests
             var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null,
               processDisplay.CancellationToken);
 
-            using (var form = new FormHierarchyDisplay(dt, dataTable.Select()))
+            using (var form = new FormHierarchyDisplay(dt, dataTable.Select(), UnitTestInitializeWin.HTMLStyle))
             {
               UnitTestWinFormHelper.ShowFormAndClose(form, .1, (frm) =>
               {
@@ -358,7 +360,7 @@ namespace CsvTools.Tests
     public void FormDuplicatesDisplay()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormDuplicatesDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName))
+      using (var form = new FormDuplicatesDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, UnitTestInitializeWin.HTMLStyle))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form);
       }
@@ -369,7 +371,7 @@ namespace CsvTools.Tests
     public void FormUniqueDisplay()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName))
+      using (var form = new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, UnitTestInitializeWin.HTMLStyle))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form);
       }
@@ -380,7 +382,7 @@ namespace CsvTools.Tests
     public void FormShowMaxLength()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>()))
+      using (var form = new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), UnitTestInitializeWin.HTMLStyle))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form);
       }

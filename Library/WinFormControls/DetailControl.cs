@@ -145,6 +145,14 @@ namespace CsvTools
       MoveMenu();
     }
 
+    /// <summary>
+    /// Gets or sets the HTML style.
+    /// </summary>
+    /// <value>
+    /// The HTML style.
+    /// </value>
+    public HTMLStyle HTMLStyle { get => FilteredDataGridView.HTMLStyle; set => FilteredDataGridView.HTMLStyle=value; }
+
     private bool m_MenuDown;
 
     /// <summary>
@@ -496,7 +504,7 @@ namespace CsvTools
                                           .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)).OrderBy(col => col.DisplayIndex)
                                           .Select(col => col.DataPropertyName).ToList();
         using (var details =
-          new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible))
+          new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible, HTMLStyle))
         {
           details.Icon = ParentForm?.Icon;
           details.ShowDialog(ParentForm);
@@ -522,7 +530,7 @@ namespace CsvTools
         using (var details = new FormDuplicatesDisplay(
           m_DataTable.Clone(),
           m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-          columnName))
+          columnName, HTMLStyle))
         {
           details.Icon = ParentForm?.Icon;
           details.ShowDialog(ParentForm);
@@ -543,7 +551,7 @@ namespace CsvTools
       {
         m_HierarchyDisplay?.Close();
         m_HierarchyDisplay =
-          new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter)) { Icon = ParentForm?.Icon };
+          new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), HTMLStyle) { Icon = ParentForm?.Icon };
         m_HierarchyDisplay.Show();
         m_HierarchyDisplay.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
       }
@@ -571,7 +579,7 @@ namespace CsvTools
         using (var details = new FormUniqueDisplay(
           m_DataTable.Clone(),
           m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-          columnName))
+          columnName, HTMLStyle))
         {
           details.Icon = ParentForm?.Icon;
           details.ShowDialog(this);

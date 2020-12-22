@@ -34,8 +34,10 @@ namespace CsvTools
   /// </summary>
   public partial class FormColumnUI : ResizeForm
   {
+    public readonly HTMLStyle HTMLStyle;
+
     private const string cNoSampleDate =
-      "The source does not contain any sample data without warnings in the {0:N0} records read";
+          "The source does not contain any sample data without warnings in the {0:N0} records read";
 
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
@@ -47,26 +49,28 @@ namespace CsvTools
     private readonly FillGuessSettings m_FillGuessSettings;
 
     private readonly bool m_WriteSetting;
-
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FormColumnUI" /> class.
+    /// Initializes a new instance of the <see cref="FormColumnUI" /> class.
     /// </summary>
     /// <param name="column">The column.</param>
     /// <param name="writeSetting">if set to <c>true</c> this is for writing.</param>
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="showIgnore">if set to <c>true</c> [show ignore].</param>
+    /// <param name="hTMLStyle">The HTML style.</param>
     /// <exception cref="ArgumentNullException">fileSetting or fillGuessSettings NULL</exception>
     public FormColumnUI(
       [NotNull] Column column,
       bool writeSetting,
       IFileSetting fileSetting,
       FillGuessSettings fillGuessSettings,
-      bool showIgnore)
+      bool showIgnore,
+      HTMLStyle hTMLStyle)
     {
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
       m_ColumnRef = column ?? throw new ArgumentNullException(nameof(column));
+      HTMLStyle = hTMLStyle ?? throw new ArgumentNullException(nameof(hTMLStyle));
       column.CopyTo(m_ColumnEdit);
 
       m_WriteSetting = writeSetting;
@@ -100,19 +104,56 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Handles the Click event of the buttonCancel control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ButtonCancelClick(object sender, EventArgs e) => Close();
+    public void AddDateFormat(string format)
+    {
+      if (string.IsNullOrEmpty(format))
+        return;
+      try
+      {
+        checkedListBoxDateFormats.SafeInvoke(() =>
+        {
+          foreach (int ind in checkedListBoxDateFormats.CheckedIndices)
+            checkedListBoxDateFormats.SetItemChecked(ind, false);
 
-    /// <summary>
-    ///   Handles the Click event of the buttonGuess control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private async void ButtonGuessClick(object sender, EventArgs e) => await Guess();
+          var index = checkedListBoxDateFormats.Items.IndexOf(format);
+          if (index < 0)
+            index = checkedListBoxDateFormats.Items.Add(format);
+          checkedListBoxDateFormats.SetItemChecked(index, true);
+          checkedListBoxDateFormats.TopIndex = index;
+        });
+      }
+      catch (Exception ex)
+      {
+        Logger.Information(ex, "AddDateFormat {format}", format);
+      }
+    }
+
+    public async Task DisplayValues()
+    {
+      using (var processDisplay = new FormProcessDisplay("Display Values", true, m_CancellationTokenSource.Token))
+      {
+        processDisplay.Show(this);
+        var values = await GetSampleValuesAsync(comboBoxColumnName.Text, processDisplay);
+        processDisplay.Hide();
+        Cursor.Current = Cursors.Default;
+        if (values.Values.Count == 0)
+        {
+          _MessageBox.Show(
+            string.Format(CultureInfo.CurrentCulture, cNoSampleDate, values.RecordsRead),
+            comboBoxColumnName.Text,
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information);
+        }
+        else
+        {
+          _MessageBox.ShowBigHtml(
+            BuildHTMLText(null, null, 4, "Found values:", values.Values, 4),
+            comboBoxColumnName.Text,
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information);
+        }
+      }
+    }
 
     /// <summary>
     ///   Examine the column and guess the format
@@ -358,34 +399,129 @@ namespace CsvTools
       });
     }
 
+    public void SetPartLabels(string textBoxSplitText, string textBoxPartText, bool toEnd)
+    {
+      if (string.IsNullOrEmpty(textBoxSplitText))
+        return;
+      var split = FileFormat.GetChar(textBoxSplitText);
+      var sample = $"This{split}is a{split}concatenated{split}list";
+
+      var part = StringConversion.StringToInt32(textBoxPartText, '.', '\0');
+      if (!part.HasValue)
+        return;
+      if (part.Value < 1)
+        part = 1;
+
+      labelSamplePart.SafeInvoke(() =>
+      {
+        toolTip.SetToolTip(textBoxSplit, FileFormat.GetDescription(textBoxSplitText));
+        if (part.Value == 1)
+          checkBoxPartToEnd.Checked = false;
+        labelSamplePart.Text = $@"Input: ""{sample}""";
+        labelResultPart.Text = $@"Output: ""{StringConversion.StringToTextPart(sample, split, part.Value, toEnd)}""";
+      });
+    }
+
+    public void UpdateDateLabel(ValueFormatMutable vf, bool hasTimePart, string timePartFormt, string timeZone)
+    {
+      try
+      {
+        var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
+
+        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
+          vf.DateFormat += " " + timePartFormt;
+
+        labelSampleDisplay.SafeInvoke(() =>
+        {
+          comboBoxTPFormat.Enabled = hasTimePart;
+
+          toolTip.SetToolTip(textBoxDateSeparator, FileFormat.GetDescription(vf.DateSeparator));
+          toolTip.SetToolTip(textBoxTimeSeparator, FileFormat.GetDescription(vf.TimeSeparator));
+
+          labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);
+
+          var res = timeZone.GetPossiblyConstant();
+          if (res.Item2)
+          {
+            // ReSharper disable once PossibleInvalidOperationException
+            sourceDate = m_WriteSetting
+                           ? FunctionalDI.AdjustTZExport(sourceDate, res.Item1, -1, null).Value
+                           : FunctionalDI.AdjustTZImport(sourceDate, res.Item1, -1, null).Value;
+          }
+          else
+          {
+            labelInputTZ.Text = string.Empty;
+            labelOutPutTZ.Text = string.Empty;
+          }
+
+          labelDateOutputDisplay.Text = StringConversion.DisplayDateTime(sourceDate, CultureInfo.CurrentCulture);
+        });
+      }
+      catch (Exception ex)
+      {
+        Logger.Information(ex, "UpdateDateLabel {format}", vf);
+      }
+    }
+
+    public void UpdateNumericLabel(string decimalSeparator, string numberFormat, string groupSeparator)
+    {
+      try
+      {
+        if (string.IsNullOrEmpty(decimalSeparator))
+          return;
+        var vf = new ValueFormatMutable
+        {
+          NumberFormat = numberFormat,
+          GroupSeparator = numberFormat,
+          DecimalSeparator = groupSeparator
+        };
+        var sample = StringConversion.DoubleToString(1234.567, vf);
+
+        labelNumber.SafeInvoke(() =>
+        {
+          toolTip.SetToolTip(textBoxDecimalSeparator, FileFormat.GetDescription(vf.DecimalSeparator));
+          toolTip.SetToolTip(textBoxGroupSeparator, FileFormat.GetDescription(vf.GroupSeparator));
+
+          labelNumber.Text = $@"Input: ""{sample}""";
+          labelNumberOutput.Text =
+            $@"Output: ""{StringConversion.StringToDecimal(sample, FileFormat.GetChar(vf.DecimalSeparator), FileFormat.GetChar(vf.GroupSeparator), false):N}""";
+        });
+      }
+      catch (Exception ex)
+      {
+        Logger.Information(ex, "UpdateNumericLabel {decimalSeparator} {numberFormat} {groupSeparator}", decimalSeparator, numberFormat, groupSeparator);
+      }
+    }
+
     private static void AddNotExisting(List<string> list, string value, List<string> otherList = null)
     {
       if (!list.Contains(value) && (otherList == null || !otherList.Contains(value)))
         list.Add(value);
     }
 
-    public void AddDateFormat(string format)
+    private string BuildHTMLText(string header, string footer, int rows, string headerList1,
+                                            ICollection<string> values1, int col1, string headerList2 = null, ICollection<string> values2 = null,
+                                            int col2 = 2)
     {
-      if (string.IsNullOrEmpty(format))
-        return;
-      try
-      {
-        checkedListBoxDateFormats.SafeInvoke(() =>
-        {
-          foreach (int ind in checkedListBoxDateFormats.CheckedIndices)
-            checkedListBoxDateFormats.SetItemChecked(ind, false);
+      var stringBuilder = HTMLStyle.StartHTMLDoc(System.Drawing.SystemColors.Control, "<STYLE type=\"text/css\">\r\n" +
+                                                                                      "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
+                                                                                      "  h2 { color:DarkBlue; font-size : 12px; }\r\n" +
+                                                                                      "  table { border-collapse:collapse; font-size : 11px; }\r\n" +
+                                                                                      "  td { border: 2px solid lightgrey; padding:3px; }\r\n" +
+                                                                                      "</STYLE>");
 
-          var index = checkedListBoxDateFormats.Items.IndexOf(format);
-          if (index < 0)
-            index = checkedListBoxDateFormats.Items.Add(format);
-          checkedListBoxDateFormats.SetItemChecked(index, true);
-          checkedListBoxDateFormats.TopIndex = index;
-        });
-      }
-      catch (Exception ex)
-      {
-        Logger.Information(ex, "AddDateFormat {format}", format);
-      }
+      if (!string.IsNullOrEmpty(header))
+        stringBuilder.Append(string.Format(HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(header)));
+
+      ListSamples(stringBuilder, headerList1, values1, col1, rows);
+      ListSamples(stringBuilder, headerList2, values2, col2, rows);
+
+      if (!string.IsNullOrEmpty(footer))
+        stringBuilder.Append(string.Format(HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(footer)));
+
+      stringBuilder.AppendLine("</BODY>");
+      stringBuilder.AppendLine("</HTML>");
+      return stringBuilder.ToString();
     }
 
     /// <summary>
@@ -396,89 +532,22 @@ namespace CsvTools
     private void ButtonAddFormat_Click(object sender, EventArgs e) =>
       AddDateFormat(comboBoxDateFormat.Text);
 
-    public async Task DisplayValues()
-    {
-      using (var processDisplay = new FormProcessDisplay("Display Values", true, m_CancellationTokenSource.Token))
-      {
-        processDisplay.Show(this);
-        var values = await GetSampleValuesAsync(comboBoxColumnName.Text, processDisplay);
-        processDisplay.Hide();
-        Cursor.Current = Cursors.Default;
-        if (values.Values.Count == 0)
-        {
-          _MessageBox.Show(
-            string.Format(CultureInfo.CurrentCulture, cNoSampleDate, values.RecordsRead),
-            comboBoxColumnName.Text,
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Information);
-        }
-        else
-        {
-          _MessageBox.ShowBigHtml(
-            BuildHTMLText(null, null, 4, "Found values:", values.Values, 4),
-            comboBoxColumnName.Text,
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Information);
-        }
-      }
-    }
+    /// <summary>
+    ///   Handles the Click event of the buttonCancel control.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
+    private void ButtonCancelClick(object sender, EventArgs e) => Close();
 
     private async void ButtonDisplayValues_ClickAsync(object sender, EventArgs e) =>
-      await buttonDisplayValues.RunWithHourglassAsync(async () => await DisplayValues());
+          await buttonDisplayValues.RunWithHourglassAsync(async () => await DisplayValues());
 
-    private static string BuildHTMLText(string header, string footer, int rows, string headerList1,
-                                        ICollection<string> values1, int col1, string headerList2 = null, ICollection<string> values2 = null,
-                                        int col2 = 2)
-    {
-      var stringBuilder = HTMLStyle.StartHTMLDoc(System.Drawing.SystemColors.Control, "<STYLE type=\"text/css\">\r\n" +
-                                                                                      "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
-                                                                                      "  h2 { color:DarkBlue; font-size : 12px; }\r\n" +
-                                                                                      "  table { border-collapse:collapse; font-size : 11px; }\r\n" +
-                                                                                      "  td { border: 2px solid lightgrey; padding:3px; }\r\n" +
-                                                                                      "</STYLE>");
-
-      if (!string.IsNullOrEmpty(header))
-        stringBuilder.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(header)));
-
-      ListSamples(stringBuilder, headerList1, values1, col1, rows);
-      ListSamples(stringBuilder, headerList2, values2, col2, rows);
-
-      if (!string.IsNullOrEmpty(footer))
-        stringBuilder.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(footer)));
-
-      stringBuilder.AppendLine("</BODY>");
-      stringBuilder.AppendLine("</HTML>");
-      return stringBuilder.ToString();
-    }
-
-    private static void ListSamples(StringBuilder stringBuilder, string headerList, ICollection<string> values, int col,
-                                    int rows)
-    {
-      if (values != null && values.Count > 0)
-      {
-        if (!string.IsNullOrEmpty(headerList))
-          stringBuilder.Append(string.Format(ApplicationSetting.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(headerList)));
-
-        stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TableOpen);
-        var texts = values.Take(col * rows).ToArray();
-        stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TROpen);
-        for (var index = 1; index <= texts.Length; index++)
-        {
-          if (string.IsNullOrEmpty(texts[index - 1]))
-            stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TDEmpty);
-          else
-            stringBuilder.AppendLine(string.Format(ApplicationSetting.HTMLStyle.TD,
-              HTMLStyle.TextToHtmlEncode(texts[index - 1])));
-          if (index % col == 0)
-            stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
-        }
-
-        if (texts.Length % col != 0)
-          stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TRClose);
-        stringBuilder.AppendLine(ApplicationSetting.HTMLStyle.TableClose);
-      }
-    }
-
+    /// <summary>
+    ///   Handles the Click event of the buttonGuess control.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
+    private async void ButtonGuessClick(object sender, EventArgs e) => await Guess();
     /// <summary>
     ///   Handles the Click event of the buttonOK control.
     /// </summary>
@@ -702,47 +771,6 @@ namespace CsvTools
     private void ComboBoxTimePart_SelectedIndexChanged(object sender, EventArgs e) =>
       comboBoxTPFormat.Enabled = comboBoxTimePart.SelectedIndex >= 0;
 
-    public void UpdateDateLabel(ValueFormatMutable vf, bool hasTimePart, string timePartFormt, string timeZone)
-    {
-      try
-      {
-        var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
-
-        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
-          vf.DateFormat += " " + timePartFormt;
-
-        labelSampleDisplay.SafeInvoke(() =>
-        {
-          comboBoxTPFormat.Enabled = hasTimePart;
-
-          toolTip.SetToolTip(textBoxDateSeparator, FileFormat.GetDescription(vf.DateSeparator));
-          toolTip.SetToolTip(textBoxTimeSeparator, FileFormat.GetDescription(vf.TimeSeparator));
-
-          labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);
-
-          var res = timeZone.GetPossiblyConstant();
-          if (res.Item2)
-          {
-            // ReSharper disable once PossibleInvalidOperationException
-            sourceDate = m_WriteSetting
-                           ? FunctionalDI.AdjustTZExport(sourceDate, res.Item1, -1, null).Value
-                           : FunctionalDI.AdjustTZImport(sourceDate, res.Item1, -1, null).Value;
-          }
-          else
-          {
-            labelInputTZ.Text = string.Empty;
-            labelOutPutTZ.Text = string.Empty;
-          }
-
-          labelDateOutputDisplay.Text = StringConversion.DisplayDateTime(sourceDate, CultureInfo.CurrentCulture);
-        });
-      }
-      catch (Exception ex)
-      {
-        Logger.Information(ex, "UpdateDateLabel {format}", vf);
-      }
-    }
-
     /// <summary>
     ///   Reapply formatting to the sample date
     /// </summary>
@@ -846,36 +874,33 @@ namespace CsvTools
       return new DetermineColumnFormat.SampleResult(new List<string>(), 0);
     }
 
-    public void UpdateNumericLabel(string decimalSeparator, string numberFormat, string groupSeparator)
+    private void ListSamples(StringBuilder stringBuilder, string headerList, ICollection<string> values, int col,
+                                                                            int rows)
     {
-      try
+      if (values != null && values.Count > 0)
       {
-        if (string.IsNullOrEmpty(decimalSeparator))
-          return;
-        var vf = new ValueFormatMutable
-        {
-          NumberFormat = numberFormat,
-          GroupSeparator = numberFormat,
-          DecimalSeparator = groupSeparator
-        };
-        var sample = StringConversion.DoubleToString(1234.567, vf);
+        if (!string.IsNullOrEmpty(headerList))
+          stringBuilder.Append(string.Format(HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(headerList)));
 
-        labelNumber.SafeInvoke(() =>
+        stringBuilder.AppendLine(HTMLStyle.TableOpen);
+        var texts = values.Take(col * rows).ToArray();
+        stringBuilder.AppendLine(HTMLStyle.TROpen);
+        for (var index = 1; index <= texts.Length; index++)
         {
-          toolTip.SetToolTip(textBoxDecimalSeparator, FileFormat.GetDescription(vf.DecimalSeparator));
-          toolTip.SetToolTip(textBoxGroupSeparator, FileFormat.GetDescription(vf.GroupSeparator));
+          if (string.IsNullOrEmpty(texts[index - 1]))
+            stringBuilder.AppendLine(HTMLStyle.TDEmpty);
+          else
+            stringBuilder.AppendLine(string.Format(HTMLStyle.TD,
+              HTMLStyle.TextToHtmlEncode(texts[index - 1])));
+          if (index % col == 0)
+            stringBuilder.AppendLine(HTMLStyle.TRClose);
+        }
 
-          labelNumber.Text = $@"Input: ""{sample}""";
-          labelNumberOutput.Text =
-            $@"Output: ""{StringConversion.StringToDecimal(sample, FileFormat.GetChar(vf.DecimalSeparator), FileFormat.GetChar(vf.GroupSeparator), false):N}""";
-        });
-      }
-      catch (Exception ex)
-      {
-        Logger.Information(ex, "UpdateNumericLabel {decimalSeparator} {numberFormat} {groupSeparator}", decimalSeparator, numberFormat, groupSeparator);
+        if (texts.Length % col != 0)
+          stringBuilder.AppendLine(HTMLStyle.TRClose);
+        stringBuilder.AppendLine(HTMLStyle.TableClose);
       }
     }
-
     /// <summary>
     ///   Reapply formatting to the sample number
     /// </summary>
@@ -1018,30 +1043,6 @@ namespace CsvTools
 
       checkedListBoxDateFormats.EndUpdate();
     }
-
-    public void SetPartLabels(string textBoxSplitText, string textBoxPartText, bool toEnd)
-    {
-      if (string.IsNullOrEmpty(textBoxSplitText))
-        return;
-      var split = FileFormat.GetChar(textBoxSplitText);
-      var sample = $"This{split}is a{split}concatenated{split}list";
-
-      var part = StringConversion.StringToInt32(textBoxPartText, '.', '\0');
-      if (!part.HasValue)
-        return;
-      if (part.Value < 1)
-        part = 1;
-
-      labelSamplePart.SafeInvoke(() =>
-      {
-        toolTip.SetToolTip(textBoxSplit, FileFormat.GetDescription(textBoxSplitText));
-        if (part.Value == 1)
-          checkBoxPartToEnd.Checked = false;
-        labelSamplePart.Text = $@"Input: ""{sample}""";
-        labelResultPart.Text = $@"Output: ""{StringConversion.StringToTextPart(sample, split, part.Value, toEnd)}""";
-      });
-    }
-
     private void SetSamplePart(object sender, EventArgs e) => SetPartLabels(textBoxSplit.Text, textBoxPart.Text, checkBoxPartToEnd.Checked);
 
     private void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)

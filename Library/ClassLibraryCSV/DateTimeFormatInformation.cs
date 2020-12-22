@@ -25,7 +25,7 @@ namespace CsvTools
     /// <remarks>Please do not use literal string delimiter these are not handled properly</remarks>
     public DateTimeFormatInformation(string formatSpecifier)
     {
-      // Handle other chares like mm':'ss' minutes' or mm\:ss\ \m\i\n\u\t\e\s
+      // Handle other chars like mm':'ss' minutes' or mm\:ss\ \m\i\n\u\t\e\s
 
       // Handle escaped with \
       formatSpecifier = formatSpecifier.Replace("\\y", ".");
@@ -89,34 +89,20 @@ namespace CsvTools
       SetMinMax(ref formatSpecifier, "tt", DateTimeFormatLength.MinDesignator, DateTimeFormatLength.MaxDesignator);
     }
 
-    public int MaxLength { get; }
-    public int MinLength { get; }
+    public int MaxLength { get; private set; }
+    public int MinLength { get; private set; }
     public bool NamedDate { get; }
 
-    private static void SetMinMax(ref string format, string search, int minLength, int maxLength)
+    private void SetMinMax(ref string format, string search, int minLen, int maxLen)
     {
       var pos = format.IndexOf(search, StringComparison.Ordinal);
       while (pos != -1)
       {
-        minLength += minLength - search.Length;
-        maxLength += maxLength - search.Length;
+        MinLength += minLen - search.Length;
+        MaxLength += maxLen - search.Length;
         format = format.Remove(pos, search.Length);
         pos = format.IndexOf(search, StringComparison.Ordinal);
       }
-    }
-
-    /* Not needed as its only stored never compared
-    *
-    public override bool Equals(object obj) => obj is DateTimeFormatInformation information && MaxLength==information.MaxLength && MinLength==information.MinLength && NamedDate==information.NamedDate;
-
-    public override int GetHashCode()
-    {
-      var hashCode = -60281774;
-      hashCode=hashCode*-1521134295+MaxLength.GetHashCode();
-      hashCode=hashCode*-1521134295+MinLength.GetHashCode();
-      hashCode=hashCode*-1521134295+NamedDate.GetHashCode();
-      return hashCode;
-    }
-    */
+    }    
   }
 }

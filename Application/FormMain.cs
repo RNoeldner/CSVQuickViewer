@@ -75,6 +75,7 @@ namespace CsvTools
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
       detailControl.FileStored += FileStored;
+      detailControl.HTMLStyle = m_ViewSettings.HTMLStyle;
 
       this.LoadWindowState(m_ViewSettings.WindowPosition);
       ShowTextPanel(true);
@@ -286,11 +287,11 @@ namespace CsvTools
           m_ConfigChanged = false;
           detailControl.MoveMenu();
           if (_MessageBox.Show(
-								"The configuration has changed do you want to reload the data?",
-						"Configuration changed",
-						MessageBoxButtons.YesNo,
-						MessageBoxIcon.Question,
-						MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                "The configuration has changed do you want to reload the data?",
+            "Configuration changed",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question,
+            MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             await OpenDataReaderAsync();
           else
             m_ConfigChanged = false;
@@ -299,11 +300,11 @@ namespace CsvTools
         if (!m_FileChanged) return;
         m_FileChanged = false;
         if (_MessageBox.Show(
-							"The displayed file has changed do you want to reload the data?",
-					"File changed",
-					MessageBoxButtons.YesNo,
-					MessageBoxIcon.Question,
-					MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+              "The displayed file has changed do you want to reload the data?",
+          "File changed",
+          MessageBoxButtons.YesNo,
+          MessageBoxIcon.Question,
+          MessageBoxDefaultButton.Button2) == DialogResult.Yes)
           await OpenDataReaderAsync();
         else
           m_FileChanged = false;

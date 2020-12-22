@@ -35,19 +35,30 @@ namespace CsvTools
     private string m_LastDataColumnName = string.Empty;
 
     private bool m_LastIgnoreNull = true;
-    
+
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FormDuplicatesDisplay" /> class.
+    /// Initializes a new instance of the <see cref="FormDuplicatesDisplay" /> class.
     /// </summary>
     /// <param name="dataTable">The empty data table.</param>
     /// <param name="dataRows">The filtered rows.</param>
     /// <param name="initialColumn">The initial column to use</param>
-    public FormUniqueDisplay([NotNull] DataTable dataTable, [NotNull]DataRow[] dataRows, string initialColumn)
-    {
-      m_DataTable = dataTable;
-      m_DataRow = dataRows;
+    /// <param name="hTMLStyle">The h TML style.</param>
+    /// <exception cref="ArgumentNullException">
+    /// hTMLStyle
+    /// or
+    /// dataTable
+    /// or
+    /// dataRows
+    /// </exception>
+    public FormUniqueDisplay([NotNull] DataTable dataTable, [NotNull] DataRow[] dataRows, [CanBeNull] string initialColumn, HTMLStyle hTMLStyle)
+    {      
+      if (hTMLStyle is null)
+        throw new ArgumentNullException(nameof(hTMLStyle));
+      m_DataTable = dataTable??throw new ArgumentNullException(nameof(dataTable));
+      m_DataRow = dataRows??throw new ArgumentNullException(nameof(dataRows));
       m_InitialColumn = initialColumn;
-      InitializeComponent();     
+      InitializeComponent();
+      detailControl.HTMLStyle = hTMLStyle;
     }
 
     /// <summary>

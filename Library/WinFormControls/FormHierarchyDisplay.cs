@@ -12,6 +12,7 @@
  *
  */
 
+using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,7 +23,6 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
 using Timer = System.Timers.Timer;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -62,15 +62,17 @@ namespace CsvTools
     private MultiselectTreeView m_TreeView;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FormHierarchyDisplay" /> class.
+    /// Initializes a new instance of the <see cref="FormHierarchyDisplay" /> class.
     /// </summary>
     /// <param name="dataTable">The data table.</param>
     /// <param name="dataRows">The filter.</param>
-    public FormHierarchyDisplay([NotNull] DataTable dataTable, [NotNull] DataRow[] dataRows)
+    /// <param name="hTMLStyle">The HTML style.</param>
+    public FormHierarchyDisplay([NotNull] DataTable dataTable, [NotNull] DataRow[] dataRows, HTMLStyle hTMLStyle)
     {
       m_DataTable = dataTable;
       m_DataRow = dataRows;
       InitializeComponent();
+
       m_TimerSearch.Elapsed += FilterValueChangedElapsed;
       m_TimerSearch.Interval = 200;
       m_TimerSearch.AutoReset = false;
@@ -78,73 +80,8 @@ namespace CsvTools
       m_TimerDisplay.Elapsed += TimerDisplayElapsed;
       m_TimerDisplay.Interval = 1000;
       m_TimerDisplay.AutoReset = false;
-    }
 
-    /// <inheritdoc />
-    protected override void Dispose(bool disposing)
-    {
-      if (m_DisposedValue)
-        return;
-      if (disposing)
-      {
-        m_DisposedValue = true;
-        m_TimerDisplay?.Dispose();
-        m_TimerSearch?.Dispose();
-        m_BuildProcess?.Dispose();
-        m_CancellationTokenSource?.Dispose();
-      }
-
-      base.Dispose(disposing);
-    }
-
-    /// <summary>
-    ///   Adds the tree data node with child's.
-    /// </summary>
-    /// <param name="root">The root.</param>
-    /// <param name="rootNode">The root node.</param>
-    /// <param name="process">Progress display</param>
-    private void AddTreeDataNodeWithChild([NotNull] TreeData root, [CanBeNull] TreeNode rootNode,
-      [NotNull] IProcessDisplay process)
-    {
-      if (process == null) throw new ArgumentNullException(nameof(process));
-      root.Visited = true;
-      var treeNode = new TreeNode(root.NodeTitle) {Tag = root};
-      if (rootNode == null)
-        m_TreeView.Nodes.Add(treeNode);
-      else
-        rootNode.Nodes.Add(treeNode);
-      if (root.Children.Count > 0)
-        treeNode.Nodes.AddRange(BuildSubNodes(root, process));
-    }
-
-    /// <summary>
-    ///   Builds the sub nodes.
-    /// </summary>
-    /// <param name="parent">The parent ID.</param>
-    /// <param name="process">Progress display</param>
-    /// <returns></returns>
-    private TreeNode[] BuildSubNodes([NotNull] TreeData parent, IProcessDisplay process)
-    {
-      if (process == null) throw new ArgumentNullException(nameof(process));
-      var treeNodes = new List<TreeNode>();
-      foreach (var child in parent.Children)
-      {
-        process.CancellationToken.ThrowIfCancellationRequested();
-        Extensions.ProcessUIElements();
-        if (child.Visited)
-        {
-          var treeNode = new TreeNode("Cycle -> " + child.Title) {Tag = child};
-          treeNodes.Add(treeNode);
-        }
-        else
-        {
-          child.Visited = true;
-          var treeNode = new TreeNode(child.NodeTitle, BuildSubNodes(child, process)) {Tag = child};
-          treeNodes.Add(treeNode);
-        }
-      }
-
-      return treeNodes.ToArray();
+      m_TreeView.HTMLStyle= hTMLStyle;
     }
 
     /// <summary>
@@ -177,6 +114,72 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+      if (m_DisposedValue)
+        return;
+      if (disposing)
+      {
+        m_DisposedValue = true;
+        m_TimerDisplay?.Dispose();
+        m_TimerSearch?.Dispose();
+        m_BuildProcess?.Dispose();
+        m_CancellationTokenSource?.Dispose();
+      }
+
+      base.Dispose(disposing);
+    }
+
+    /// <summary>
+    ///   Adds the tree data node with child's.
+    /// </summary>
+    /// <param name="root">The root.</param>
+    /// <param name="rootNode">The root node.</param>
+    /// <param name="process">Progress display</param>
+    private void AddTreeDataNodeWithChild([NotNull] TreeData root, [CanBeNull] TreeNode rootNode,
+      [NotNull] IProcessDisplay process)
+    {
+      if (process == null) throw new ArgumentNullException(nameof(process));
+      root.Visited = true;
+      var treeNode = new TreeNode(root.NodeTitle) { Tag = root };
+      if (rootNode == null)
+        m_TreeView.Nodes.Add(treeNode);
+      else
+        rootNode.Nodes.Add(treeNode);
+      if (root.Children.Count > 0)
+        treeNode.Nodes.AddRange(BuildSubNodes(root, process));
+    }
+
+    /// <summary>
+    ///   Builds the sub nodes.
+    /// </summary>
+    /// <param name="parent">The parent ID.</param>
+    /// <param name="process">Progress display</param>
+    /// <returns></returns>
+    private TreeNode[] BuildSubNodes([NotNull] TreeData parent, IProcessDisplay process)
+    {
+      if (process == null) throw new ArgumentNullException(nameof(process));
+      var treeNodes = new List<TreeNode>();
+      foreach (var child in parent.Children)
+      {
+        process.CancellationToken.ThrowIfCancellationRequested();
+        Extensions.ProcessUIElements();
+        if (child.Visited)
+        {
+          var treeNode = new TreeNode("Cycle -> " + child.Title) { Tag = child };
+          treeNodes.Add(treeNode);
+        }
+        else
+        {
+          child.Visited = true;
+          var treeNode = new TreeNode(child.NodeTitle, BuildSubNodes(child, process)) { Tag = child };
+          treeNodes.Add(treeNode);
+        }
+      }
+
+      return treeNodes.ToArray();
+    }
     /// <summary>
     ///   Builds the tree data.
     /// </summary>
@@ -198,7 +201,7 @@ namespace CsvTools
 
       // Using a dictionary here to speed up lookups
       var treeDataDictionary = new Dictionary<string, TreeData>();
-      var rootDataParentFound = new TreeData {ID = "{R}", Title = "Parent found / No Parent"};
+      var rootDataParentFound = new TreeData { ID = "{R}", Title = "Parent found / No Parent" };
 
       treeDataDictionary.Add(rootDataParentFound.ID, rootDataParentFound);
 
@@ -240,7 +243,7 @@ namespace CsvTools
         if (!string.IsNullOrEmpty(child.ParentID) && !treeDataDictionary.ContainsKey(child.ParentID))
           additionalRootNodes.Add(child.ParentID);
 
-      var rootDataParentNotFound = new TreeData {ID = "{M}", Title = "Parent not found"};
+      var rootDataParentNotFound = new TreeData { ID = "{M}", Title = "Parent not found" };
 
       if (additionalRootNodes.Count > 0)
       {
@@ -258,7 +261,9 @@ namespace CsvTools
             counter++);
           var childData = new TreeData
           {
-            ParentID = rootDataParentNotFound.ID, ID = parentID, Title = $"{m_ComboBoxID.SelectedItem} - {parentID}"
+            ParentID = rootDataParentNotFound.ID,
+            ID = parentID,
+            Title = $"{m_ComboBoxID.SelectedItem} - {parentID}"
           };
           treeDataDictionary.Add(parentID, childData);
         }
@@ -357,6 +362,9 @@ namespace CsvTools
           }
         });
 
+    private void FormHierarchyDisplay_FormClosing(object sender, FormClosingEventArgs e) =>
+          m_CancellationTokenSource.Cancel();
+
     /// <summary>
     ///   Handles the Load event of the HierarchyDisplay control.
     /// </summary>
@@ -438,7 +446,7 @@ namespace CsvTools
       // contextMenuStrip
       contextMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
       contextMenuStrip.Items.AddRange(
-        new System.Windows.Forms.ToolStripItem[] {expandAllToolStripMenuItem, closeAllToolStripMenuItem});
+        new System.Windows.Forms.ToolStripItem[] { expandAllToolStripMenuItem, closeAllToolStripMenuItem });
       contextMenuStrip.Name = "contextMenuStrip";
       contextMenuStrip.Size = new System.Drawing.Size(150, 52);
       // expandAllToolStripMenuItem
@@ -694,10 +702,6 @@ namespace CsvTools
       m_TimerSearch.Stop();
       m_TimerSearch.Start();
     }
-
-    private void FormHierarchyDisplay_FormClosing(object sender, FormClosingEventArgs e) =>
-      m_CancellationTokenSource.Cancel();
-
     internal class TreeData
     {
       public readonly ICollection<TreeData> Children = new List<TreeData>();
@@ -706,28 +710,11 @@ namespace CsvTools
 
       public bool InCycle;
 
-      private int m_StoreIndirect = -1;
-
       public string ParentID;
-
       public string Tag;
-
       public string Title;
-
       public bool Visited;
-
-      private int DirectChildren => Children.Count;
-
-      private int InDirectChildren
-      {
-        get
-        {
-          if (m_StoreIndirect < 0)
-            m_StoreIndirect = GetInDirectChildren(this);
-          return m_StoreIndirect;
-        }
-      }
-
+      private int m_StoreIndirect = -1;
       public string NodeTitle
       {
         get
@@ -740,6 +727,17 @@ namespace CsvTools
         }
       }
 
+      private int DirectChildren => Children.Count;
+
+      private int InDirectChildren
+      {
+        get
+        {
+          if (m_StoreIndirect < 0)
+            m_StoreIndirect = GetInDirectChildren(this);
+          return m_StoreIndirect;
+        }
+      }
       private static int GetInDirectChildren(TreeData root)
       {
         if (root == null || root.InCycle)
