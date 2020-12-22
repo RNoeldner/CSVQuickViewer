@@ -123,7 +123,7 @@ namespace CsvTools
       var columnName = comboBoxColumnName.Text;
       if (string.IsNullOrEmpty(columnName))
       {
-        _MessageBox.Show(this, "Please select a column first", "Guess");
+        _MessageBox.Show("Please select a column first", "Guess");
         return;
       }
 
@@ -163,7 +163,6 @@ namespace CsvTools
 
               RefreshData();
               _MessageBox.Show(
-                this,
                 $"Based on DataType of the source column this is {m_ColumnEdit.GetTypeAndFormatDescription()}.\nPlease choose the desired output format",
                 columnName,
                 MessageBoxButtons.OK,
@@ -179,7 +178,6 @@ namespace CsvTools
             if (samples.Values.Count == 0)
             {
               _MessageBox.Show(
-                this,
                 string.Format(CultureInfo.CurrentCulture, cNoSampleDate, samples.RecordsRead),
                 "Information",
                 MessageBoxButtons.OK,
@@ -199,7 +197,6 @@ namespace CsvTools
                                                     && selectedType != DataType.TextPart)
                 {
                   var resp = _MessageBox.Show(
-                    this,
                     $"Should the system restrict detection to {selectedType}?",
                     "Selected DataType",
                     MessageBoxButtons.YesNoCancel,
@@ -257,7 +254,6 @@ namespace CsvTools
               if (checkResult.FoundValueFormat == null)
               {
                 _MessageBox.ShowBigHtml(
-                  this,
                   BuildHTMLText(
                     $"No format could be determined in {samples.Values.Count():N0} sample values of {samples.RecordsRead:N0} records.",
                     null, 4, "Examples", samples.Values, 4),
@@ -299,7 +295,6 @@ namespace CsvTools
                   if (suggestClosestMatch)
                   {
                     if (_MessageBox.ShowBigHtml(
-                          this,
                           BuildHTMLText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4,
                             "Not matching:", checkResult.ExampleNonMatch),
                           $"Column: {columnName}",
@@ -312,7 +307,6 @@ namespace CsvTools
                   else
                   {
                     _MessageBox.ShowBigHtml(
-                      this,
                       BuildHTMLText(header1, null, 4, "Samples:", samples.Values, 4, "Not matching:",
                         checkResult.ExampleNonMatch),
                       $"Column: {columnName}",
@@ -331,7 +325,6 @@ namespace CsvTools
                   if (samples.Values.Count() < m_FillGuessSettings.MinSamples)
                   {
                     _MessageBox.ShowBig(
-                      this,
                       displayMsg,
                       $"Column: {columnName}",
                       MessageBoxButtons.OK,
@@ -342,7 +335,6 @@ namespace CsvTools
                     if (m_ColumnEdit.ValueFormatMutable.DataType == DataType.String)
                     {
                       _MessageBox.ShowBig(
-                        this,
                         displayMsg,
                         $"Column: {columnName}",
                         MessageBoxButtons.OK,
@@ -351,7 +343,6 @@ namespace CsvTools
                     else
                     {
                       if (_MessageBox.ShowBig(
-                            this,
                             displayMsg + "\n\nShould this be set to text?",
                             $"Column: {columnName}",
                             MessageBoxButtons.YesNo,
@@ -416,7 +407,6 @@ namespace CsvTools
         if (values.Values.Count == 0)
         {
           _MessageBox.Show(
-            this,
             string.Format(CultureInfo.CurrentCulture, cNoSampleDate, values.RecordsRead),
             comboBoxColumnName.Text,
             MessageBoxButtons.OK,
@@ -424,7 +414,7 @@ namespace CsvTools
         }
         else
         {
-          _MessageBox.ShowBigHtml(this,
+          _MessageBox.ShowBigHtml(
             BuildHTMLText(null, null, 4, "Found values:", values.Values, 4),
             comboBoxColumnName.Text,
             MessageBoxButtons.OK,

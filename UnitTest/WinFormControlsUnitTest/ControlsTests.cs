@@ -31,7 +31,7 @@ namespace CsvTools.Tests
     public void PersistentChoice()
     {
       var pc = new PersistentChoice(DialogResult.Yes);
-      _MessageBox.PersistentChoice(null, "message", "Title", pc, "Yes", "no");
+      _MessageBox.PersistentChoice("message", "Title", pc, "Yes", "no");
     }
 
     [TestMethod]
@@ -284,14 +284,14 @@ namespace CsvTools.Tests
       {
         using (var tm = new TimedMessage())
         {
-          tm.Show(null, "This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk,
-            MessageBoxDefaultButton.Button1, 2, null, null, null);
+          tm.ShowDialog("This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1,
+						2, null, null, null);
         }
 
         using (var tm = new TimedMessage())
         {
-          tm.Show(null, "This is another message\n with a linefeed", "Title12", MessageBoxButtons.YesNo,
-            MessageBoxIcon.Error, MessageBoxDefaultButton.Button2, 2, null, null, null);
+          tm.ShowDialog("This is another message\n with a linefeed", "Title12", MessageBoxButtons.YesNo, MessageBoxIcon.Error,
+						MessageBoxDefaultButton.Button2, 2, null, null, null);
         }
       });
     }

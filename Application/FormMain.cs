@@ -286,12 +286,11 @@ namespace CsvTools
           m_ConfigChanged = false;
           detailControl.MoveMenu();
           if (_MessageBox.Show(
-                this,
-                "The configuration has changed do you want to reload the data?",
-                "Configuration changed",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+								"The configuration has changed do you want to reload the data?",
+						"Configuration changed",
+						MessageBoxButtons.YesNo,
+						MessageBoxIcon.Question,
+						MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             await OpenDataReaderAsync();
           else
             m_ConfigChanged = false;
@@ -300,12 +299,11 @@ namespace CsvTools
         if (!m_FileChanged) return;
         m_FileChanged = false;
         if (_MessageBox.Show(
-              this,
-              "The displayed file has changed do you want to reload the data?",
-              "File changed",
-              MessageBoxButtons.YesNo,
-              MessageBoxIcon.Question,
-              MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+							"The displayed file has changed do you want to reload the data?",
+					"File changed",
+					MessageBoxButtons.YesNo,
+					MessageBoxIcon.Question,
+					MessageBoxDefaultButton.Button2) == DialogResult.Yes)
           await OpenDataReaderAsync();
         else
           m_FileChanged = false;
@@ -577,7 +575,7 @@ namespace CsvTools
         if (m_FileSetting != null && m_ViewSettings.StoreSettingsByFile)
         {
           SerializedFilesLib.SaveSettingFile(m_FileSetting as CsvFile,
-            () => _MessageBox.Show(this, $"Replace changed settings?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
+            () => _MessageBox.Show($"Replace changed settings?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
         }
         m_ConfigChanged = false;
       }

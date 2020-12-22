@@ -115,8 +115,7 @@ namespace CsvTools
       if (qualifier != null)
         m_ViewSettings.FileFormat.FieldQualifier = qualifier;
       else
-        _MessageBox.Show(this, "No Column Qualifier found", "Qualifier", MessageBoxButtons.OK,
-          MessageBoxIcon.Information);
+        _MessageBox.Show("No Column Qualifier found", "Qualifier", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
     private async void ButtonSkipLine_ClickAsync(object sender, EventArgs e)
@@ -333,7 +332,7 @@ namespace CsvTools
       buttonGuessHeader.RunWithHourglass(() =>
         result = CsvHelper.GuessHeader(m_ViewSettings, m_CancellationTokenSource.Token));
       fileSettingBindingSource.ResetBindings(false);
-      _MessageBox.Show(this, result, "Checking headers");
+      _MessageBox.Show(result, "Checking headers");
     }
 
     private void buttonInteractiveSettings_Click(object sender, EventArgs e)
