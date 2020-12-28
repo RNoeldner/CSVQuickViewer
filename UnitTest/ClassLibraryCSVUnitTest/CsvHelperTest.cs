@@ -59,17 +59,17 @@ namespace CsvTools.Tests
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"))))
       {
-        Assert.AreEqual(1200, (await CsvHelper.GuessCodePageFromStrean(improvedStream, UnitTestInitializeCsv.Token)).Item1);
+        Assert.AreEqual(1200, (await CsvHelper.GuessCodePageFromStream(improvedStream, UnitTestInitializeCsv.Token)).Item1);
       }
 
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("UnicodeUTF16BE.txt"))))
       {
-        Assert.AreEqual(1201, (await CsvHelper.GuessCodePageFromStrean(improvedStream, UnitTestInitializeCsv.Token)).Item1);
+        Assert.AreEqual(1201, (await CsvHelper.GuessCodePageFromStream(improvedStream, UnitTestInitializeCsv.Token)).Item1);
       }
 
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("UnicodeUTF8.txt"))))
       {
-        Assert.AreEqual(65001, (await CsvHelper.GuessCodePageFromStrean(improvedStream, UnitTestInitializeCsv.Token)).Item1);
+        Assert.AreEqual(65001, (await CsvHelper.GuessCodePageFromStream(improvedStream, UnitTestInitializeCsv.Token)).Item1);
       }
     }
 
@@ -77,16 +77,16 @@ namespace CsvTools.Tests
     public async Task GuessDelimiterAsync()
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"))))
-        Assert.AreEqual(",", (await CsvHelper.GuessDelimiterFromStrean(improvedStream, -1, 0, '\0', UnitTestInitializeCsv.Token)).Item1);
+        Assert.AreEqual(",", (await CsvHelper.GuessDelimiterFromStream(improvedStream, -1, 0, '\0', UnitTestInitializeCsv.Token)).Item1);
 
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.txt"))))
 
-        Assert.AreEqual("|", (await CsvHelper.GuessDelimiterFromStrean(improvedStream, -1, 0, '\0', UnitTestInitializeCsv.Token)).Item1);
+        Assert.AreEqual("|", (await CsvHelper.GuessDelimiterFromStream(improvedStream, -1, 0, '\0', UnitTestInitializeCsv.Token)).Item1);
 
       ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("LateStartRow.txt")) { SkipRows = 10, CodePageId = 20127 };
       test.FileFormat.FieldQualifier = "\"";
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-        Assert.AreEqual("|", (await CsvHelper.GuessDelimiterFromStrean(improvedStream, 20127, 10, '\0', UnitTestInitializeCsv.Token)).Item1);
+        Assert.AreEqual("|", (await CsvHelper.GuessDelimiterFromStream(improvedStream, 20127, 10, '\0', UnitTestInitializeCsv.Token)).Item1);
     }
 
     [TestMethod]
@@ -95,7 +95,7 @@ namespace CsvTools.Tests
       ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")) { CodePageId = -1 };
       test.FileFormat.EscapeCharacter = "\\";
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-        Assert.AreEqual(",", (await CsvHelper.GuessDelimiterFromStrean(improvedStream, -1, 0, '\\', UnitTestInitializeCsv.Token)).Item1);
+        Assert.AreEqual(",", (await CsvHelper.GuessDelimiterFromStream(improvedStream, -1, 0, '\\', UnitTestInitializeCsv.Token)).Item1);
     }
 
     [TestMethod]
@@ -104,7 +104,7 @@ namespace CsvTools.Tests
       ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("DifferentColumnDelimiter.txt")) { CodePageId = -1 };
       test.FileFormat.EscapeCharacter = string.Empty;
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-        Assert.AreEqual("|", (await CsvHelper.GuessDelimiterFromStrean(improvedStream, -1, 0, '\0', UnitTestInitializeCsv.Token)).Item1);
+        Assert.AreEqual("|", (await CsvHelper.GuessDelimiterFromStream(improvedStream, -1, 0, '\0', UnitTestInitializeCsv.Token)).Item1);
     }
 
     [TestMethod]
@@ -113,7 +113,7 @@ namespace CsvTools.Tests
       ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("TextQualifiers.txt")) { CodePageId = -1 };
       test.FileFormat.EscapeCharacter = string.Empty;
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-        Assert.AreEqual(",", (await CsvHelper.GuessDelimiterFromStrean(improvedStream, test.CodePageId, test.SkipRows, test.FileFormat.EscapeCharacterChar, UnitTestInitializeCsv.Token)).Item1);
+        Assert.AreEqual(",", (await CsvHelper.GuessDelimiterFromStream(improvedStream, test.CodePageId, test.SkipRows, test.FileFormat.EscapeCharacterChar, UnitTestInitializeCsv.Token)).Item1);
     }
 
     [TestMethod]
@@ -122,7 +122,7 @@ namespace CsvTools.Tests
       ICsvFile test = new CsvFile(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt")) { CodePageId = -1 };
       test.FileFormat.EscapeCharacter = "\\";
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-        Assert.AreEqual("TAB", (await CsvHelper.GuessDelimiterFromStrean(improvedStream, test.CodePageId, test.SkipRows, test.FileFormat.EscapeCharacterChar, UnitTestInitializeCsv.Token)).Item1);
+        Assert.AreEqual("TAB", (await CsvHelper.GuessDelimiterFromStream(improvedStream, test.CodePageId, test.SkipRows, test.FileFormat.EscapeCharacterChar, UnitTestInitializeCsv.Token)).Item1);
     }
 
     [TestMethod]
