@@ -18,23 +18,24 @@ namespace CsvTools
 {
   public class DelimitedFileDetectionResult
   {
+    public readonly string FileName;
     public bool ByteOrderMark;
-    public int CodePageId = -1;
-    public string CommentLine = "#";
-    public char EscapeCharacterChar = '\\';
-    public string FieldDelimiter = string.Empty;
-    public string FieldQualifier = string.Empty;
-    public bool HasFieldHeader = true;
+    public int CodePageId;
+    public bool HasFieldHeader;
     public bool IsJson;
-    public RecordDelimiterType NewLine = RecordDelimiterType.None;
     public bool NoDelimitedFile;
     public int SkipRows;
-    public string IdentifierInContainer = string.Empty;
-    public readonly string FileName;
-    public bool QualifyAlways = false;
+    public string IdentifierInContainer;
+
+    public bool QualifyAlways;
+    public string CommentLine;
+    public char EscapeCharacterChar;
+    public string FieldDelimiter = string.Empty;
+    public string FieldQualifier = string.Empty;
+    public RecordDelimiterType NewLine;
 
     public DelimitedFileDetectionResult(string fileName, int skipRows = 0, int codePageId = -1, bool byteOrderMark = false, bool qualifyAlways = false,
-string identifierInContainer = null, string commentLine = "#", char escapeCharacterChar = '\\', string fieldDelimiter = null, string fieldQualifier = null, bool hasFieldHeader = true, bool isJson = false, bool noDelimitedFile = false)
+string identifierInContainer = null, string commentLine = "#", char escapeCharacterChar = '\\', string fieldDelimiter = null, string fieldQualifier = null, bool hasFieldHeader = true, bool isJson = false, bool noDelimitedFile = false, RecordDelimiterType recordDelimiterType = RecordDelimiterType.None)
     {
       FileName = fileName ?? throw new System.ArgumentNullException(nameof(fileName));
       IdentifierInContainer = identifierInContainer?? string.Empty;
@@ -49,11 +50,7 @@ string identifierInContainer = null, string commentLine = "#", char escapeCharac
       IsJson = isJson;
       NoDelimitedFile = noDelimitedFile;
       QualifyAlways= qualifyAlways;
-    }
-
-    public DelimitedFileDetectionResult(ICsvFile fileSettingSer) : this(fileSettingSer.FileName, fileSettingSer.SkipRows, fileSettingSer.CodePageId, fileSettingSer.ByteOrderMark, fileSettingSer.FileFormat.QualifyAlways, fileSettingSer.IdentifierInContainer, fileSettingSer.FileFormat.CommentLine,
-fileSettingSer.FileFormat.EscapeCharacterChar, fileSettingSer.FileFormat.FieldDelimiter, fileSettingSer.FileFormat.FieldQualifier, fileSettingSer.HasFieldHeader, fileSettingSer.JsonFormat, fileSettingSer.NoDelimitedFile)
-    {
+      NewLine= recordDelimiterType;
     }
 
     public ICsvFile CsvFile(IEnumerable<Column> columns)
@@ -74,6 +71,7 @@ fileSettingSer.FileFormat.EscapeCharacterChar, fileSettingSer.FileFormat.FieldDe
         HasFieldHeader = HasFieldHeader,
         JsonFormat= IsJson,
         NoDelimitedFile = NoDelimitedFile,
+        IdentifierInContainer = IdentifierInContainer,
         SkipRows = SkipRows
       };
       if (columns!= null)
