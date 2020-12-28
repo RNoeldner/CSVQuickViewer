@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Text;
+using System.Collections.Generic;
 
 namespace CsvTools
 {
@@ -17,7 +18,7 @@ namespace CsvTools
     public string Hydration { get; set; }
     public string PubName { get; set; }
 
-    public static ICsvFile ReadManifestFileSystem(string fileName)
+    public static Tuple<DelimitedFileDetectionResult, IEnumerable<Column>> ReadManifestFileSystem(string fileName)
     {
       var posExt = fileName.LastIndexOf('.');
       if (posExt == -1) return null;
@@ -38,7 +39,7 @@ namespace CsvTools
       return null;
     }
 
-    public static ICsvFile ReadManifestZip(string fileName)
+    public static Tuple<DelimitedFileDetectionResult, IEnumerable<Column>> ReadManifestZip(string fileName)
     {
       if (!fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
         return null;
@@ -65,22 +66,21 @@ namespace CsvTools
       return null;
     }
 
-    private static ICsvFile ReadManifestFromStream(Stream manifestStream, string manifestName, string fileName, string identifierInContainer)
+    private static Tuple<DelimitedFileDetectionResult, IEnumerable<Column>> ReadManifestFromStream(Stream manifestStream, string manifestName, string fileName, string identifierInContainer)
     {
       Logger.Information("Configuration read from manifest file {filename}", manifestName);
       var mani = JsonConvert.DeserializeObject<ManifestData>(new StreamReader(manifestStream, Encoding.UTF8, true, 4096, false).ReadToEnd());
-      var fileSettingMani = new CsvFile
+      var fileSettingMani = new DelimitedFileDetectionResult(fileName)
       {
-        FileName = fileName,
-        ID = fileName,
         HasFieldHeader = false,
         IdentifierInContainer = identifierInContainer,
         SkipRows = 0,
-        FileFormat =
-        {
-          FieldDelimiter = ",", QualifyAlways = true, FieldQualifier = "\"", NewLine = RecordDelimiterType.LF
-        }
+        FieldDelimiter = ",",
+        QualifyAlways = true,
+        FieldQualifier = "\"",
+        NewLine = RecordDelimiterType.LF
       };
+      var columnCollection = new List<Column>();
       foreach (var fld in mani.Fields)
       {
         IValueFormat vf;
@@ -128,10 +128,9 @@ namespace CsvTools
             break;
         }
 
-        fileSettingMani.ColumnCollection.Add(new Column(fld.PubName, vf) { ColumnOrdinal = fld.Ordinal, DestinationName = fld.PubName });
+        columnCollection.Add(new Column(fld.PubName, vf) { ColumnOrdinal = fld.Ordinal, DestinationName = fld.PubName });
       }
-
-      return fileSettingMani;
+      return new Tuple<DelimitedFileDetectionResult, IEnumerable<Column>>(fileSettingMani, columnCollection);
     }
 
     public class ManifestField
@@ -140,18 +139,22 @@ namespace CsvTools
       {
         get; set;
       }
+
       public string Heading
       {
         get; set;
       }
+
       public int Ordinal
       {
         get; set;
       }
+
       public string PubName
       {
         get; set;
       }
+
       public string Type
       {
         get; set;

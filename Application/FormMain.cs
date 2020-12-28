@@ -434,13 +434,12 @@ namespace CsvTools
         {
           DetachPropertyChanged(m_FileSetting);
 
-          m_FileSetting = await CsvHelper.GetCsvFileSetting(fileName,
-                            (csvFile) => ViewSettings.CopyConfiguration(m_ViewSettings, csvFile), m_ViewSettings.AllowJson,
+          var det = await CsvHelper.AnalyseFileAsync(fileName, m_ViewSettings.AllowJson,
                             m_ViewSettings.GuessCodePage,
                             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
                             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine,
                             m_ViewSettings.FillGuessSettings, processDisplay);
-
+          m_FileSetting = det.Item1.CsvFile(det.Item2);
           if (m_FileSetting == null)
             return;
 
@@ -452,7 +451,7 @@ namespace CsvTools
               display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
 
             Text =
-              $@"{FileSystemUtils.GetShortDisplayFileName(display, 50)} - {EncodingHelper.GetEncodingName(m_FileSetting.CodePageId, true, m_FileSetting.ByteOrderMark)} - {AssemblyTitle}";
+              $@"{FileSystemUtils.GetShortDisplayFileName(display, 50)} - {EncodingHelper.GetEncodingName(m_FileSetting.CodePageId, m_FileSetting.ByteOrderMark)} - {AssemblyTitle}";
 
             m_ToolStripButtonAsText.Visible = !m_FileSetting.JsonFormat &&
                                               m_FileSetting.ColumnCollection.Any(x =>

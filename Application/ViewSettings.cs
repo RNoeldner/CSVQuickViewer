@@ -27,6 +27,7 @@ namespace CsvTools
     [XmlElement]
 #pragma warning disable CA1051 // Do not declare visible instance fields
     public WindowState WindowPosition;
+
     private bool m_AllowJson = true;
     private bool m_DetectFileChanges = true;
     private FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
@@ -57,6 +58,7 @@ namespace CsvTools
       [Description("10 seconds")]
       TenSecond,
     }
+
     [XmlAttribute]
     [DefaultValue(true)]
     public bool AllowJson
@@ -273,7 +275,9 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(Style));
       }
     }
+
 #pragma warning restore CA1051 // Do not declare visible instance fields
+
     public static void CopyConfiguration(ICsvFile csvSrc, ICsvFile csvDest)
     {
       if (csvSrc == null || csvDest == null || ReferenceEquals(csvSrc, csvDest))

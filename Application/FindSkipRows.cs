@@ -47,7 +47,7 @@ namespace CsvTools
       }
     }
 
-    private void buttonSkipLine_ClickAsync(object sender, EventArgs e)
+    private void ButtonSkipLine_ClickAsync(object sender, EventArgs e)
     {
       using (var frm = new FormProcessDisplay("Check", true, CancellationToken.None))
       {
@@ -56,7 +56,7 @@ namespace CsvTools
         using (var streamReader = new ImprovedTextReader(m_Stream, fileSetting.CodePageId))
         {
           streamReader.ToBeginning();
-          fileSetting.SkipRows = CsvHelper.GuessStartRow(streamReader, textBoxDelimiter.Text.WrittenPunctuationToChar(), m_TextBoxQuote.Text.WrittenPunctuationToChar(), textBoxComment.Text, frm.CancellationToken);
+          fileSetting.SkipRows = CsvHelper.GuessStartRowFromReader(streamReader, textBoxDelimiter.Text.WrittenPunctuationToChar(), m_TextBoxQuote.Text.WrittenPunctuationToChar(), textBoxComment.Text, frm.CancellationToken);
         }
         HighlightVisibleRange(fileSetting.SkipRows);
       }

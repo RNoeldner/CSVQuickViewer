@@ -42,13 +42,13 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetEncodingName()
     {
-      Assert.IsTrue(EncodingHelper.GetEncodingName(1200, false, false).Contains("UTF-16"));
-      Assert.IsTrue(EncodingHelper.GetEncodingName(1201, true, false).Contains("UTF-16"));
-      Assert.IsTrue(EncodingHelper.GetEncodingName(12000, true, true).Contains("UTF-32"));
-      Assert.IsTrue(EncodingHelper.GetEncodingName(437, true, true).Contains("MS-DOS"));
-      Assert.IsTrue(EncodingHelper.GetEncodingName(1252, false, false).Contains("1252"));
-      Assert.IsTrue(EncodingHelper.GetEncodingName(850, false, false).Contains("Western European"));
-      Assert.IsTrue(EncodingHelper.GetEncodingName(852, false, false).Contains("Central European"));
+      Assert.IsTrue(EncodingHelper.GetEncodingName(1200, false).Contains("UTF-16"));
+      Assert.IsTrue(EncodingHelper.GetEncodingName(1201, false).Contains("UTF-16"));
+      Assert.IsTrue(EncodingHelper.GetEncodingName(12000, true).Contains("UTF-32"));
+      Assert.IsTrue(EncodingHelper.GetEncodingName(437, true).Contains("MS-DOS"));
+      Assert.IsTrue(EncodingHelper.GetEncodingName(1252, false).Contains("1252"));
+      Assert.IsTrue(EncodingHelper.GetEncodingName(850, false).Contains("Western European"));
+      Assert.IsTrue(EncodingHelper.GetEncodingName(852, false).Contains("Central European"));
     }
   }
 }

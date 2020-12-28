@@ -12,13 +12,13 @@ namespace CsvTools.Tests
     public async System.Threading.Tasks.Task AnalyseStreamAsyncFile()
     {
       var stream = FileSystemUtils.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
-      CsvHelper.DetectionResult result;
+      var result = new DelimitedFileDetectionResult("stream");
       ICollection<IColumn> determinedColumns;
       // Not closing the stream
       using (var impStream = new ImprovedStream(stream, true))
       using (IProcessDisplay process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        result = await CsvHelper.RefreshCsvFileAsync(impStream, process, false, true, true, true, true, true, false);
+        await CsvHelper.UpdateDetectionResultFromStream(impStream, result, process, false, true, true, true, true, true, false);
         impStream.Seek(0, System.IO.SeekOrigin.Begin);
 
         using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
@@ -49,19 +49,19 @@ namespace CsvTools.Tests
         }
       }
     }
-    
+
     [TestMethod]
     public async System.Threading.Tasks.Task AnalyseStreamAsyncGZip()
     {
       using (var stream = FileSystemUtils.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt.gz")))
       {
-        CsvHelper.DetectionResult result;
         ICollection<IColumn> determinedColumns;
+        var result = new DelimitedFileDetectionResult("steam");
         // Not closing the stream
         using (var impStream = new ImprovedStream(stream, true, SourceAccess.FileTypeEnum.GZip))
         using (IProcessDisplay process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
-          result = await CsvHelper.RefreshCsvFileAsync(impStream, process, false, true, true, true, true, true, false);
+          await CsvHelper.UpdateDetectionResultFromStream(impStream, result, process, false, true, true, true, true, true, false);
           impStream.Seek(0, System.IO.SeekOrigin.Begin);
 
           using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,

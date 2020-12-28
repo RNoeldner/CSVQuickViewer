@@ -25,11 +25,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetEncodingNameTest()
     {
-      Assert.IsNotNull(EncodingHelper.GetEncodingName(-1, false, false));
+      Assert.IsNotNull(EncodingHelper.GetEncodingName(-1, false));
       for (var i = 0; i < EncodingHelper.CommonCodePages.Length; i++)
-        Assert.IsNotNull(EncodingHelper.GetEncodingName(EncodingHelper.CommonCodePages[i], i % 3 == 0, i % 2 == 0));
+        Assert.IsNotNull(EncodingHelper.GetEncodingName(EncodingHelper.CommonCodePages[i], i % 2 == 0));
 
-      Assert.AreEqual("CP 1200 - Unicode (UTF-16) / ISO 10646 / UCS-2 Little-Endian with BOM", EncodingHelper.GetEncodingName(Encoding.Unicode, true, true));
+      Assert.AreEqual("CP 1200 - Unicode (UTF-16) / ISO 10646 / UCS-2 Little-Endian with BOM", EncodingHelper.GetEncodingName(Encoding.Unicode, true));
     }
 
     [TestMethod]
