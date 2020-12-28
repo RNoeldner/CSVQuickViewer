@@ -798,7 +798,7 @@ namespace CsvTools
       }
     }
 
-    private static async Task<int> CodePageResolve([NotNull] IImprovedStream improvedStream, int codePageId, CancellationToken cancellationToken)
+    public static async Task<int> CodePageResolve([NotNull] IImprovedStream improvedStream, int codePageId, CancellationToken cancellationToken)
     {
       if (codePageId < 0)
       {

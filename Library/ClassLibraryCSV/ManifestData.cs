@@ -78,7 +78,9 @@ namespace CsvTools
         FieldDelimiter = ",",
         QualifyAlways = true,
         FieldQualifier = "\"",
-        NewLine = RecordDelimiterType.LF
+        NewLine = RecordDelimiterType.LF,
+        CodePageId= Encoding.UTF8.CodePage,
+        ByteOrderMark=false
       };
       var columnCollection = new List<Column>();
       foreach (var fld in mani.Fields)
