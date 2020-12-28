@@ -32,7 +32,7 @@ namespace CsvTools
   public static partial class CsvHelper
   {
     /// <summary>
-    /// Analyses the file asynchronous.
+    ///   Analyses the file asynchronous.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="guessJson">if <c>true</c> trying to determine if file is a JSON file</param>
@@ -83,7 +83,8 @@ namespace CsvTools
         foreach (var col in fileSettingSer.ColumnCollection.Where(x => x.Ignore))
           col.Ignore = false;
 
-        return new Tuple<DelimitedFileDetectionResult, IEnumerable<Column>>(new DelimitedFileDetectionResult(fileSettingSer), fileSettingSer.ColumnCollection);
+        return new Tuple<DelimitedFileDetectionResult, IEnumerable<Column>>(new DelimitedFileDetectionResult(fileSettingSer.FileName, fileSettingSer.SkipRows, fileSettingSer.CodePageId, fileSettingSer.ByteOrderMark, fileSettingSer.FileFormat.QualifyAlways, fileSettingSer.IdentifierInContainer, fileSettingSer.FileFormat.CommentLine,
+        fileSettingSer.FileFormat.EscapeCharacterChar, fileSettingSer.FileFormat.FieldDelimiter, fileSettingSer.FileFormat.FieldQualifier, fileSettingSer.HasFieldHeader, fileSettingSer.JsonFormat, fileSettingSer.NoDelimitedFile, fileSettingSer.FileFormat.NewLine), fileSettingSer.ColumnCollection);
       }
 
       var setting = ManifestData.ReadManifestZip(fileName);
@@ -125,7 +126,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Updates the detection result from stream.
+    ///   Updates the detection result from stream.
     /// </summary>
     /// <param name="improvedStream">The improved stream.</param>
     /// <param name="detectionResult">The detection result.</param>
@@ -250,7 +251,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Guesses the code page from a stream.
+    ///   Guesses the code page from a stream.
     /// </summary>
     /// <param name="stream">The stream.</param>
     /// <param name="token">The token.</param>
@@ -279,21 +280,17 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to
-    /// find the delimiter that has the least variance in the read rows, if that is not possible
-    /// the delimiter with the highest number of occurrences.
+    ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to
+    ///   find the delimiter that has the least variance in the read rows, if that is not possible
+    ///   the delimiter with the highest number of occurrences.
     /// </summary>
     /// <param name="improvedStream">The improved stream.</param>
     /// <param name="codePageId">The code page identifier.</param>
     /// <param name="skipRows">The skip rows.</param>
     /// <param name="escapeCharacterChar">The escape character.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>
-    /// A character with the assumed delimiter for the file
-    /// </returns>
-    /// <remarks>
-    /// No Error will not be thrown.
-    /// </remarks>
+    /// <returns>A character with the assumed delimiter for the file</returns>
+    /// <remarks>No Error will not be thrown.</remarks>
     [NotNull]
     public static async Task<Tuple<string, bool>> GuessDelimiterFromStream([NotNull] IImprovedStream improvedStream, int codePageId, int skipRows, char escapeCharacterChar,
                                                          CancellationToken cancellationToken)
@@ -305,25 +302,12 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    /// Guesses the has header from reader.
-    /// </summary>
-    /// <param name="reader">The reader.</param>
-    /// <param name="comment">The comment.</param>
-    /// <param name="delimiter">The delimiter.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
-    /// <exception cref="ApplicationException">
-    /// Empty Line
-    /// or
-    /// Control Characters in Column {headerLine}
-    /// or
-    /// Only one column: {headerLine}
-    /// or
-    /// or
-    /// Headers '{string.Join("', '", newHeader.Where(x => x.Length < 3))}' very short
-    /// or
-    /// </exception>
+    /// <summary> Guesses the has header from reader. </summary> <param name="reader">The
+    /// reader.</param> <param name="comment">The comment.</param> <param name="delimiter">The
+    /// delimiter.</param> <param name="cancellationToken">The cancellation token.</param>
+    /// <returns></returns> <exception cref="ApplicationException"> Empty Line or Control Characters
+    /// in Column {headerLine} or Only one column: {headerLine} or or Headers '{string.Join("', '",
+    /// newHeader.Where(x => x.Length < 3))}' very short or </exception>
     public static Tuple<bool, string> GuessHasHeaderFromReader([NotNull] ImprovedTextReader reader, string comment,
                                                          char delimiter, CancellationToken cancellationToken)
     {
@@ -438,7 +422,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Guesses the has header from stream.
+    ///   Guesses the has header from stream.
     /// </summary>
     /// <param name="improvedStream">The improved stream.</param>
     /// <param name="codePageId">The code page identifier.</param>
@@ -454,16 +438,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Try to guess the new line sequence
+    ///   Try to guess the new line sequence
     /// </summary>
     /// <param name="improvedStream">The improved stream.</param>
     /// <param name="codePageId">The code page identifier.</param>
     /// <param name="skipRows">The skip rows.</param>
     /// <param name="fieldQualifierChar">The field qualifier character.</param>
     /// <param name="cancellationToken">A cancellation token</param>
-    /// <returns>
-    /// The NewLine Combination used
-    /// </returns>
+    /// <returns>The NewLine Combination used</returns>
     [NotNull]
     public static async Task<RecordDelimiterType> GuessNewlineFromStream([NotNull] IImprovedStream improvedStream, int codePageId, int skipRows, char fieldQualifierChar, CancellationToken cancellationToken)
     {
@@ -472,16 +454,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Try to guess the new line sequence
+    ///   Try to guess the new line sequence
     /// </summary>
     /// <param name="improvedStream">The improved stream.</param>
     /// <param name="codePageId">The code page identifier.</param>
     /// <param name="skipRows">The skip rows.</param>
     /// <param name="fieldDelimiterChar">The field delimiter character.</param>
     /// <param name="cancellationToken">A cancellation token</param>
-    /// <returns>
-    /// The NewLine Combination used
-    /// </returns>
+    /// <returns>The NewLine Combination used</returns>
     [NotNull]
     public static async Task<string> GuessQualifierFromStream([NotNull] IImprovedStream improvedStream, int codePageId, int skipRows, char fieldDelimiterChar,
                                                              CancellationToken cancellationToken)
@@ -496,16 +476,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Guesses the start row of a CSV file Done with a rather simple csv parsing
+    ///   Guesses the start row of a CSV file Done with a rather simple csv parsing
     /// </summary>
     /// <param name="textReader">The stream reader with the data</param>
     /// <param name="delimiter">The delimiter.</param>
     /// <param name="quoteChar">The quoting char</param>
     /// <param name="commentLine">The characters for a comment line.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>
-    /// The number of rows to skip
-    /// </returns>
+    /// <returns>The number of rows to skip</returns>
     /// <exception cref="ArgumentNullException">commentLine</exception>
     public static int GuessStartRowFromReader([NotNull] ImprovedTextReader textReader, char delimiter,
                                      char quoteChar,
@@ -670,7 +648,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Determines the start row in the file
+    ///   Determines the start row in the file
     /// </summary>
     /// <param name="improvedStream">The improved stream.</param>
     /// <param name="codePageID">The code page identifier.</param>
@@ -678,9 +656,7 @@ namespace CsvTools
     /// <param name="fieldQualifierChar">The field qualifier character.</param>
     /// <param name="commentLine">The comment line.</param>
     /// <param name="cancellationToken">A cancellation token</param>
-    /// <returns>
-    /// The number of rows to skip
-    /// </returns>
+    /// <returns>The number of rows to skip</returns>
     [NotNull]
     public static async Task<int> GuessStartRowFromStream([NotNull] IImprovedStream improvedStream, int codePageID, char fieldDelimiterChar, char fieldQualifierChar, string commentLine, CancellationToken cancellationToken)
     {
@@ -689,7 +665,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Does check if quoting was actually used in the file
+    ///   Does check if quoting was actually used in the file
     /// </summary>
     /// <param name="improvedStream">The improved stream.</param>
     /// <param name="codePageId">The code page identifier.</param>
@@ -697,9 +673,7 @@ namespace CsvTools
     /// <param name="fieldDelimiterChar">The field delimiter character.</param>
     /// <param name="fieldQualifierChar">The field qualifier character.</param>
     /// <param name="cancellationToken">A cancellation token</param>
-    /// <returns>
-    ///   <c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.
-    /// </returns>
+    /// <returns><c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.</returns>
     [NotNull]
     public static async Task<bool> HasUsedQualifierFromStream([NotNull] IImprovedStream improvedStream, int codePageId, int skipRows, char fieldDelimiterChar, char fieldQualifierChar,
                                                          CancellationToken cancellationToken)
@@ -741,14 +715,12 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Determines whether data in the specified stream is a JSON
+    ///   Determines whether data in the specified stream is a JSON
     /// </summary>
     /// <param name="impStream">The imp stream.</param>
     /// <param name="encoding">The encoding.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>
-    ///   <c>true</c> if json could be read from stream; otherwise, <c>false</c>.
-    /// </returns>
+    /// <returns><c>true</c> if json could be read from stream; otherwise, <c>false</c>.</returns>
     [NotNull]
     public static async Task<bool> IsJsonReadableFromStream([NotNull] IImprovedStream impStream, Encoding encoding,
                                                         CancellationToken cancellationToken)
@@ -786,8 +758,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Refreshes the settings assuming the file has changed, checks CodePage, Delimiter, Start
-    /// Row and Header
+    ///   Refreshes the settings assuming the file has changed, checks CodePage, Delimiter, Start
+    ///   Row and Header
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="display">The display.</param>
@@ -796,7 +768,9 @@ namespace CsvTools
     /// <param name="guessDelimiter">if true, try to determine the delimiter</param>
     /// <param name="guessQualifier">if true, try to determine the qualifier for text</param>
     /// <param name="guessStartRow">if true, try to determine the number of skipped rows</param>
-    /// <param name="guessHasHeader">if true, try to determine if the file does have a header row</param>
+    /// <param name="guessHasHeader">
+    ///   if true, try to determine if the file does have a header row
+    /// </param>
     /// <param name="guessNewLine">if true, try to determine what kind of new line we do use</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
