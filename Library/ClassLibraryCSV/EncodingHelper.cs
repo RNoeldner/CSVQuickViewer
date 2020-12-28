@@ -125,8 +125,8 @@ namespace CsvTools
       }
     }
 
-    public static string GetEncodingName(Encoding encoding, bool showBom, bool hasBom) =>
-      GetEncodingName(encoding.CodePage, showBom, hasBom);
+    public static string GetEncodingName(Encoding encoding, bool hasBom) =>
+      GetEncodingName(encoding.CodePage, hasBom);
 
     /// <summary>
     ///   Gets the name of the encoding.
@@ -136,12 +136,11 @@ namespace CsvTools
     /// <param name="showBom">Flag indicating that byte order mark information should be shown</param>
     /// <returns>The name</returns>
     [NotNull]
-    public static string GetEncodingName(int codePage, bool showBom, bool hasBom)
+    public static string GetEncodingName(int codePage, bool hasBom)
     {
       const string c_SuffixWithBom = " with BOM";
       string name;
-      var suffixBom = hasBom ? c_SuffixWithBom :
-                      showBom ? cSuffixWithoutBom : string.Empty;
+      var suffixBom = hasBom ? c_SuffixWithBom : cSuffixWithoutBom;
       try
       {
         switch (codePage)
@@ -193,7 +192,7 @@ namespace CsvTools
     /// <returns><see cref="Encoding" /></returns>
     public static Encoding GuessEncodingNoBom([CanBeNull] byte[] buff)
     {
-      if (buff == null)
+      if (buff == null || buff.Length < 1)
         return Encoding.UTF8;
 
       var results = CharsetDetector.DetectFromBytes(buff);

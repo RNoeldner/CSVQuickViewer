@@ -82,7 +82,7 @@ namespace CsvTools
         !fillGuessSettings.SerialDateTime)
         return new List<string>();
 
-      // in case there is no delimiter  but its a delimted file, do nothing
+      // in case there is no delimiter but its a delimted file, do nothing
       if (fileSetting.FileFormat.FieldDelimiterChar == '\0' && fileSetting is ICsvFile)
         return new List<string>();
       // Open the filesetting but change a few settings
@@ -214,7 +214,8 @@ namespace CsvTools
           continue;
         }
 
-        // no need to get types that are already found and could noe be smaller (e.G. decimal could be a integer)
+        // no need to get types that are already found and could noe be smaller (e.G. decimal could
+        // be a integer)
         if (readerColumn.ValueFormat.DataType == DataType.Guid ||
             readerColumn.ValueFormat.DataType == DataType.Integer ||
             readerColumn.ValueFormat.DataType == DataType.Boolean ||
@@ -478,7 +479,6 @@ namespace CsvTools
                   ? sampleList[colIndex + 1]
                   : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, 1, treatTextAsNull,
                     cancellationToken).ConfigureAwait(false)).First().Value;
-
 
                 foreach (var first in samples.Values)
                 {
@@ -795,7 +795,7 @@ namespace CsvTools
         if (s.Log) Logger.Debug(s.Text);
       }, timeout, token).ConfigureAwait(false))
       {
-        await data.OpenAsync(token).ConfigureAwait(false);        
+        await data.OpenAsync(token).ConfigureAwait(false);
         using (var dt = data.GetSchemaTable())
           return BaseFileWriter.GetColumnInformation(valueFormatGeneral, columnDefinitions, dt);
       }
