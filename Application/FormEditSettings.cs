@@ -96,7 +96,7 @@ namespace CsvTools
       {
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(m_ViewSettings)))
         {
-          var (codepage, bom) = await CsvHelper.GuessCodePageFromStrean(improvedStream, m_CancellationTokenSource.Token);
+          var (codepage, bom) = await CsvHelper.GuessCodePageFromStream(improvedStream, m_CancellationTokenSource.Token);
           m_ViewSettings.CodePageId = codepage;
           m_ViewSettings.ByteOrderMark = bom;
         }
@@ -110,7 +110,7 @@ namespace CsvTools
       {
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(m_ViewSettings)))
         {
-          await CsvHelper.GuessDelimiterFromStrean(improvedStream, m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.EscapeCharacterChar, m_CancellationTokenSource.Token);
+          await CsvHelper.GuessDelimiterFromStream(improvedStream, m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.EscapeCharacterChar, m_CancellationTokenSource.Token);
         }
       });
 
