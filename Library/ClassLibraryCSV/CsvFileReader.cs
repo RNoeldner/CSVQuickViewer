@@ -130,7 +130,7 @@ namespace CsvTools
     private ImprovedTextReader m_TextReader;
 
     public CsvFileReader([NotNull] IImprovedStream improvedStream,
-                         int codePageId = 650001,
+                         int codePageId = 650001, // Encoding.UTF8.CodePage
                          int skipRows = 0,
                          bool hasFieldHeader = true,
                          [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
@@ -243,7 +243,7 @@ namespace CsvTools
     }
 
     public CsvFileReader([NotNull] string fileName,
-                         int codePageId = 650001,
+                         int codePageId = 650001, // Encoding.UTF8.CodePage
                          int skipRows = 0,
                          bool hasFieldHeader = true,
                          [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
@@ -410,7 +410,7 @@ namespace CsvTools
         }
 
         m_TextReader?.Dispose();
-        m_TextReader = new ImprovedTextReader(m_ImprovedStream, m_CodePageId, m_SkipRows);
+        m_TextReader = new ImprovedTextReader(m_ImprovedStream, await CsvHelper.CodePageResolve(m_ImprovedStream, m_CodePageId, token).ConfigureAwait(false), m_SkipRows);
         ResetPositionToStartOrOpen();
 
         m_HeaderRow = ReadNextRow(false);
