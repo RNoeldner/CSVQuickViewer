@@ -152,11 +152,9 @@ namespace CsvTools
     public Func<Task> OnOpen { private get; set; }
 
     /// <summary>
-    /// Gets the percentage as value between 0 and 100
+    ///   Gets the percentage as value between 0 and 100
     /// </summary>
-    /// <value>
-    /// The percent.
-    /// </value>
+    /// <value>The percent.</value>
     public int Percent => (GetRelativePosition() * 100).ToInt();
 
     /// <summary>
@@ -244,6 +242,7 @@ namespace CsvTools
             {
               warnings?.Add(counter, $"Column title '{resultingName}' exists more than once replaced with {newName}");
               issuesCounter++;
+              resultingName= newName;
             }
           }
 
@@ -786,7 +785,7 @@ namespace CsvTools
     public override bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
 
     /// <summary>
-    /// Resets the position to first data row.
+    ///   Resets the position to first data row.
     /// </summary>
     public virtual void ResetPositionToFirstDataRow()
     {
@@ -796,7 +795,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Handles input replacements like NBSP and NULL
+    ///   Handles input replacements like NBSP and NULL
     /// </summary>
     /// <param name="inputString">The input string.</param>
     /// <param name="treatNbspAsSpace">if set to <c>true</c> treat NBSP as space].</param>
@@ -1008,7 +1007,6 @@ namespace CsvTools
         ? Column[columnNumber].Name
         : null);
 
-
     /// <summary>
     ///   Handles the Event if reading the file is completed
     /// </summary>
@@ -1124,7 +1122,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Parses the name of the column by looking at the header row
+    ///   Parses the name of the column by looking at the header row
     /// </summary>
     /// <param name="headerRow">The header row.</param>
     /// <param name="dataType">Type of the data.</param>
@@ -1132,32 +1130,24 @@ namespace CsvTools
     protected void ParseColumnName([NotNull] IEnumerable<string> headerRow,
                                    [CanBeNull] IEnumerable<DataType> dataType = null, bool hasFieldHeader = true)
     {
-      if (dataType == null)
-        dataType = new List<DataType>();
-
       var issues = new ColumnErrorDictionary();
-      var adjusted = hasFieldHeader
+      var adjusted = (hasFieldHeader
                        ? AdjustColumnName(headerRow, Column.Length, issues, m_ColumnDefinition).Item1
-                       : Column.Select(x => x.Name);
+                       : Column.Select(x => x.Name)).ToList();
+      var dataTypeL = (dataType == null) ? new List<DataType>(adjusted.Count) : dataType.ToList();
 
-      using (var enumeratorType = dataType.GetEnumerator())
-      using (var enumeratorNames = adjusted.GetEnumerator())
+      if (adjusted.Count != dataTypeL.Count())
+        throw new ApplicationException("Number of Columns and Types must match");
+      for (var colIndex = 0; colIndex<adjusted.Count; colIndex++)
       {
-        var colIndex = 0;
-        while (enumeratorNames.MoveNext())
+        var name = adjusted[colIndex];
+        if (name != null)
         {
-          var type = enumeratorType.MoveNext() ? enumeratorType.Current : Column[colIndex].ValueFormat.DataType;
-          var name = enumeratorNames.Current;
-          if (name != null)
-          {
-            var setting = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            if (setting != null)
-              Column[colIndex] = setting;
-            else
-              Column[colIndex] = new ImmutableColumn(name, new ImmutableValueFormat(type), colIndex);
-          }
-
-          colIndex++;
+          var setting = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+          if (setting != null)
+            Column[colIndex] = setting;
+          else
+            Column[colIndex] = new ImmutableColumn(name, new ImmutableValueFormat(dataTypeL[colIndex]), colIndex);
         }
       }
 

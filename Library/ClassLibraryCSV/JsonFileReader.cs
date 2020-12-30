@@ -107,7 +107,7 @@ namespace CsvTools
         // get column names for some time
         var colNames = new Dictionary<string, DataType>();
         var stopwatch = new Stopwatch();
-        // read additional rows to see if we have some extra columns        
+        // read additional rows to see if we have some extra columns
         while (line != null)
         {
           foreach (var keyValue in line)
