@@ -8,7 +8,7 @@ namespace CsvTools
 {
   public static class WindowsAPICodePackWrapper
   {
-    private static readonly bool m_CommonFileDialogSupported = CommonFileDialog.IsPlatformSupported;
+    private static bool m_CommonFileDialogSupported = CommonFileDialog.IsPlatformSupported;
 
     private static bool m_TaskbarManagerSupported = TaskbarManager.IsPlatformSupported;
 
@@ -16,7 +16,7 @@ namespace CsvTools
     {
       if (!m_TaskbarManagerSupported) return;
 
-      // Handle the TaskBarProcess 
+      // Handle the TaskBarProcess
       mainProcess.ProgressTime += (sender, args) =>
       {
         if (m_TaskbarManagerSupported)
@@ -37,7 +37,7 @@ namespace CsvTools
           }
       };
 
-      mainProcess.SetMaximum += delegate(object sender, long max)
+      mainProcess.SetMaximum += delegate (object sender, long max)
       {
         try
         {
@@ -84,7 +84,10 @@ namespace CsvTools
           var parts = filter.Split('|');
           var part = 0;
           while (parts.Length >= part + 2)
-            commonOpenFileDialog.Filters.Add(new CommonFileDialogFilter(parts[part++], parts[part++]));
+          {
+            commonOpenFileDialog.Filters.Add(new CommonFileDialogFilter(parts[part], parts[part+1]));
+            part+=2;
+          }
           commonOpenFileDialog.Multiselect = false;
           commonOpenFileDialog.EnsureFileExists = true;
           commonOpenFileDialog.EnsurePathExists = true;
@@ -118,13 +121,20 @@ namespace CsvTools
       bool overwritePrompt = true,
       [CanBeNull] string preselectFileName = null)
     {
+      Retry:
       if (m_CommonFileDialogSupported)
         using (var commonOpenFileDialog = new CommonSaveFileDialog(title))
         {
           var parts = filter.Split('|');
-          var part = 0;
-          while (parts.Length > part + 2)
-            commonOpenFileDialog.Filters.Add(new CommonFileDialogFilter(parts[part++], parts[part++]));
+          if (parts.Length>1)
+          {
+            var part = 0;
+            while (parts.Length > part + 2)
+              commonOpenFileDialog.Filters.Add(new CommonFileDialogFilter(parts[part++], parts[part++]));
+          }
+          else
+
+            commonOpenFileDialog.Filters.Add(new CommonFileDialogFilter(filter, filter));
           //commonOpenFileDialog.DefaultExtension = defaultExt;
           //commonOpenFileDialog.AlwaysAppendDefaultExtension = false;
           commonOpenFileDialog.InitialDirectory = initialDirectory.RemovePrefix();
@@ -134,8 +144,17 @@ namespace CsvTools
           commonOpenFileDialog.RestoreDirectory = true;
           if (!string.IsNullOrEmpty(preselectFileName))
             commonOpenFileDialog.DefaultFileName = preselectFileName;
-          if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
-            return commonOpenFileDialog.FileName.LongFileName();
+          try
+          {
+            if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
+              return commonOpenFileDialog.FileName.LongFileName();
+          }
+          catch (Exception exception)
+          {
+            Logger.Warning(exception, "Using CommonSaveFileDialog");
+            m_CommonFileDialogSupported = false;
+            goto Retry;
+          }
         }
       else
         using (var saveFileDialog = new SaveFileDialog())

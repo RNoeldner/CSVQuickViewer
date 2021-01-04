@@ -197,6 +197,17 @@ namespace CsvTools
     /// <value></value>
     public override object this[int columnNumber] => GetValue(columnNumber);
 
+    /// <summary>
+    ///   Does loook at the provided column names, and checks them for valid entry, makes sure teh
+    ///   column names are unique and not empty, have teh right size etc.
+    /// </summary>
+    /// <param name="columns">The columns as read / provided</param>
+    /// <param name="fieldCount">
+    ///   The maximum number of fields, if more than this number are provided, it will ignore these columns
+    /// </param>
+    /// <param name="warnings">A <see cref="ColumnErrorDictionary" /> to store possible warnings</param>
+    /// <param name="columnDefinitions"></param>
+    /// <returns></returns>
     [NotNull]
     public static Tuple<IReadOnlyCollection<string>, int> AdjustColumnName(
       [NotNull] IEnumerable<string> columns,
@@ -998,7 +1009,7 @@ namespace CsvTools
     }
 
     protected WarningEventArgs GetWarningEventArgs(int columnNumber, [NotNull] string message) => new WarningEventArgs(
-                                                                          RecordNumber,
+      RecordNumber,
       columnNumber,
       message,
       StartLineNumber,
@@ -1122,7 +1133,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Parses the name of the column by looking at the header row
+    ///   Parses the name of the columns and sets teh data types, it will handle TimePart and
+    ///   TimeZone. Column must be set before hand
     /// </summary>
     /// <param name="headerRow">The header row.</param>
     /// <param name="dataType">Type of the data.</param>
@@ -1134,55 +1146,70 @@ namespace CsvTools
       var adjusted = (hasFieldHeader
                        ? AdjustColumnName(headerRow, Column.Length, issues, m_ColumnDefinition).Item1
                        : Column.Select(x => x.Name)).ToList();
-      var dataTypeL = (dataType == null) ? new List<DataType>(adjusted.Count) : dataType.ToList();
 
-      if (adjusted.Count != dataTypeL.Count())
-        throw new ApplicationException("Number of Columns and Types must match");
-      for (var colIndex = 0; colIndex<adjusted.Count; colIndex++)
+      var dataTypeL = new DataType[adjusted.Count];
+      // Initialize as text
+      for (int col = 0; col<adjusted.Count; col++)
+        dataTypeL[col] = DataType.String;
+      // get the provided and overwrite
+      if (dataType!=null)
       {
-        var name = adjusted[colIndex];
-        if (name != null)
+        using (var enumeratorType = dataType.GetEnumerator())
         {
-          var setting = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-          if (setting != null)
-            Column[colIndex] = setting;
-          else
-            Column[colIndex] = new ImmutableColumn(name, new ImmutableValueFormat(dataTypeL[colIndex]), colIndex);
+          var col = 0;
+          while (enumeratorType.MoveNext() && col<adjusted.Count)
+            dataTypeL[col++]= enumeratorType.Current;
         }
       }
 
-      // Initialize the references for TimePart and TimeZone
-      for (var index = 0; index < Column.Length; index++)
+      // set the data types, either using the definition, or the provided DataType with defaults
+      for (var colIndex = 0; colIndex<adjusted.Count && colIndex<Column.Length; colIndex++)
       {
-        // if the original column that reference other columns is ignored, skip it
-        if (Column[index].Ignore) continue;
+        try
+        {
+          Column[colIndex] = m_ColumnDefinition.First(x => x.Name.Equals(adjusted[colIndex], StringComparison.OrdinalIgnoreCase));
+        }
+        catch (InvalidOperationException)
+        {
+          Column[colIndex] = new ImmutableColumn(adjusted[colIndex], new ImmutableValueFormat(dataTypeL[colIndex]), colIndex);
+        }
+      }
 
-        var searchedTimePart = Column[index].TimePart;
-        var searchedTimeZonePart = Column[index].TimeZonePart;
+      if (Column==null || Column.Length==0)
+        issues.Add(-1, "Column should be set before using ParseColumnName to handle TimePart and TimeZone");
+      else
+        // Initialize the references for TimePart and TimeZone
+        for (var index = 0; index < Column.Length; index++)
+        {
+          // if the original column that reference other columns is ignored, skip it
+          if (Column[index].Ignore) continue;
 
-        if (!string.IsNullOrEmpty(searchedTimePart))
+          var searchedTimePart = Column[index].TimePart;
+          var searchedTimeZonePart = Column[index].TimeZonePart;
+
+          if (!string.IsNullOrEmpty(searchedTimePart))
+            for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
+            {
+              if (indexPoint == index) continue;
+              if (!Column[indexPoint].Name.Equals(searchedTimePart, StringComparison.OrdinalIgnoreCase)) continue;
+              AssociatedTimeCol[index] = indexPoint;
+              break;
+            }
+
+          if (string.IsNullOrEmpty(searchedTimeZonePart))
+            continue;
           for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
           {
             if (indexPoint == index) continue;
-            if (!Column[indexPoint].Name.Equals(searchedTimePart, StringComparison.OrdinalIgnoreCase)) continue;
-            AssociatedTimeCol[index] = indexPoint;
+
+            if (!Column[indexPoint].Name.Equals(searchedTimeZonePart, StringComparison.OrdinalIgnoreCase)) continue;
+            m_AssociatedTimeZoneCol[index] = indexPoint;
             break;
           }
-
-        if (string.IsNullOrEmpty(searchedTimeZonePart))
-          continue;
-        for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
-        {
-          if (indexPoint == index) continue;
-
-          if (!Column[indexPoint].Name.Equals(searchedTimeZonePart, StringComparison.OrdinalIgnoreCase)) continue;
-          m_AssociatedTimeZoneCol[index] = indexPoint;
-          break;
         }
-      }
 
       // Now can handle possible warning that have been raised adjusting the names
-      foreach (var warning in issues.Where(warning => !Column[warning.Key].Ignore))
+      foreach (var warning in issues.Where(warning => (warning.Key<0 ||  warning.Key>=Column.Length) || !Column[warning.Key].Ignore))
         HandleWarning(warning.Key, warning.Value);
     }
 
@@ -1215,12 +1242,20 @@ namespace CsvTools
       return new FormatException(message);
     }
 
-    private static string GetDefaultName(int i, IEnumerable<IColumn> columnDefinitions = null)
+    /// <summary>
+    ///   Get the default names, if columnDefinitions is provided tryed to find the name looking at
+    ///   teh ColumnOrdinal, otehrweise is ColumnX (X beeing the colum number +1)
+    /// </summary>
+    /// <param name="columnNumber">The columnnumber counting from 0</param>
+    /// <param name="columnDefinitions"></param>
+    /// <returns>A string with the column name</returns>
+    [NotNull]
+    private static string GetDefaultName(int columnNumber, IEnumerable<IColumn> columnDefinitions = null)
     {
-      var cd = columnDefinitions?.FirstOrDefault(x => x.ColumnOrdinal == i && !string.IsNullOrEmpty(x.Name));
+      var cd = columnDefinitions?.FirstOrDefault(x => x.ColumnOrdinal == columnNumber && !string.IsNullOrEmpty(x.Name));
       if (cd != null)
         return cd.Name;
-      return $"Column{i + 1}";
+      return $"Column{columnNumber + 1}";
     }
 
     private DateTime? AdjustTz(DateTime? input, IColumn column)
