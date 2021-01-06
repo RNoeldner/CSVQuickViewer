@@ -291,7 +291,7 @@ namespace CsvTools
       }
       else
       {
-        var delimiter = FileFormat.GetChar(textBoxDelimiter.Text);
+        var delimiter = textBoxDelimiter.Text.WrittenPunctuationToChar();
 
         if (delimiter != ';' && delimiter != ',' && delimiter != '|' && delimiter != ':' && delimiter != '\t')
           errorProvider.SetError(textBoxDelimiter, "Unusual delimiter character");

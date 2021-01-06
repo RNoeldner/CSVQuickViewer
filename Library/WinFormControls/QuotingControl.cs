@@ -156,7 +156,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Initializes the component.
-    /// </summary>    
+    /// </summary>
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
@@ -760,7 +760,7 @@ namespace CsvTools
 
           m_ErrorProvider.SetError(m_TextBoxQuote, "");
 
-          var quote = FileFormat.GetChar(m_TextBoxQuote.Text);
+          var quote = m_TextBoxQuote.Text.WrittenPunctuationToChar();
           var delimiter = m_CsvFile?.FileFormat?.FieldDelimiterChar ?? ',';
 
           if (quote != '\0' && quote != '\''&& quote != '\"')
@@ -877,7 +877,7 @@ namespace CsvTools
       if (e.PropertyName == nameof(CsvFile.TrimmingOption))
         SetCboTrim(m_CsvFile.TrimmingOption);
     }
-    
+
     private void SetTrimming(object sender, EventArgs e) =>
       this.SafeInvoke(
         () =>

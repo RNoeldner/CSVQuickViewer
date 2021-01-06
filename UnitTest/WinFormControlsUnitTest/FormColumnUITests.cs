@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 
@@ -50,7 +51,7 @@ namespace CsvTools.Tests
     {
       var col = new Column("MyTest", DataType.DateTime) { DateFormat = "dd/MM/yyyy", DateSeparator = ".", TimeSeparator = ":" };
 
-      var df = new ValueFormatMutable(DataType.DateTime) { DateFormat = "dd/MMM/yyy", DateSeparator = "-", TimeSeparator = "#" };
+      var df = new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "dd/MMM/yyy", DateSeparator = "-", TimeSeparator = "#" };
       using (var frm = new FormColumnUI(col, false, new CsvFile(), new FillGuessSettings(), true, UnitTestInitializeWin.HTMLStyle))
         UnitTestWinFormHelper.ShowFormAndClose(frm, .1, f => f.UpdateDateLabel(df, true, "HH:mm", "[UTC]"));
 
@@ -139,6 +140,7 @@ namespace CsvTools.Tests
         UnitTestWinFormHelper.ShowFormAndClose(frm, .1, f => f.SetPartLabels(":", "2", true));
       }
     }
+
     [TestMethod]
     [Timeout(5000)]
     public void FormColumnUIGetColumnHeader2()

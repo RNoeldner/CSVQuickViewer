@@ -146,11 +146,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the HTML style.
+    ///   Gets or sets the HTML style.
     /// </summary>
-    /// <value>
-    /// The HTML style.
-    /// </value>
+    /// <value>The HTML style.</value>
     public HTMLStyle HTMLStyle { get => FilteredDataGridView.HTMLStyle; set => FilteredDataGridView.HTMLStyle=value; }
 
     private bool m_MenuDown;
@@ -1207,10 +1205,8 @@ namespace CsvTools
           split = new FileSystemUtils.SplitResult(Directory.GetCurrentDirectory(),
             $"{FileSetting.ID}.txt");
 
-        var fileName = WindowsAPICodePackWrapper.Save(
-          split.DirectoryName,
-          "Delimited File",
-          "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*",
+        var fileName = WindowsAPICodePackWrapper.Save(split.DirectoryName, "Delimited File",
+          "Text file (*.txt)|*.txt|Comma delimited (*.csv)|*.csv|Tab delimited (*.tab;*.tsv)|*.tab;*.tsv|All files (*.*)|*.*", ".csv",
           false,
           split.FileName);
 

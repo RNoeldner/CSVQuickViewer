@@ -28,12 +28,12 @@ namespace CsvTools.Tests
       var cc = new ColumnCollection();
       cc.AddIfNew(new Column("Test1", DataType.Double));
       cc.AddIfNew(
-        new Column("Test2", new ValueFormatMutable(DataType.DateTime) { DateFormat = "dd/MM/yyyy HH:mm" })
+        new Column("Test2", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
         {
           TimeZonePart = "\"UTC\""
         });
       cc.AddIfNew(
-        new Column("Test3", new ValueFormatMutable(DataType.DateTime) { DateFormat = "dd/MM/yyyy HH:mm" })
+        new Column("Test3", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
         {
           TimePart = "Test4",
           TimePartFormat = "HH:mm"
@@ -45,7 +45,7 @@ namespace CsvTools.Tests
         new DataColumn("Test1", typeof(int)), new DataColumn("Test2", typeof(string)),
         new DataColumn("Test3", typeof(DateTime))
       });
-      
+
       using (var reader = dt.CreateDataReader())
       using (var dt2 = reader.GetSchemaTable())
       {
@@ -56,7 +56,7 @@ namespace CsvTools.Tests
           "Usually it would be Integer bt is has to be double");
         Assert.AreEqual(DataType.DateTime, res[2].ValueFormat.DataType);
 
-        // The time column was added 
+        // The time column was added
         Assert.AreEqual(DataType.DateTime, res[3].ValueFormat.DataType);
         Assert.AreEqual("Test4", res[3].Name);
       }
@@ -66,7 +66,7 @@ namespace CsvTools.Tests
     public void GetSourceColumnInformation_AddedTime()
     {
       var cc = new ColumnCollection();
-      cc.AddIfNew(new Column("Test3", new ValueFormatMutable(DataType.DateTime) { DateFormat = "dd/MM/yyyy HH:mm" })
+      cc.AddIfNew(new Column("Test3", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
       {
         TimeZonePart = "\"UTC\"",
         TimePart = "Col2"

@@ -189,11 +189,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets or sets the HTML style.
+    ///   Gets or sets the HTML style.
     /// </summary>
-    /// <value>
-    /// The HTML style.
-    /// </value>
+    /// <value>The HTML style.</value>
     public HTMLStyle HTMLStyle { get; set; } = new HTMLStyle();
 
     /// <summary>
@@ -1320,9 +1318,8 @@ namespace CsvTools
       {
         toolStripMenuItemSaveCol.Enabled = false;
         // Select Path
-        var fileName = WindowsAPICodePackWrapper.Save(
-             m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
-          "Column Config|*.col;*.conf|All files|*.*", false, DefFileNameColSetting(m_FileSetting, ".col"));
+        var fileName = WindowsAPICodePackWrapper.Save(m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
+          "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
         if (!string.IsNullOrEmpty(fileName))
           using (var stream = new ImprovedStream(new SourceAccess(fileName, false)))
           using (var writer = new StreamWriter(stream, Encoding.UTF8, 1024))

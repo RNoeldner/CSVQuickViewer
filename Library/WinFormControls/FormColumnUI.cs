@@ -49,8 +49,9 @@ namespace CsvTools
     private readonly FillGuessSettings m_FillGuessSettings;
 
     private readonly bool m_WriteSetting;
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="FormColumnUI" /> class.
+    ///   Initializes a new instance of the <see cref="FormColumnUI" /> class.
     /// </summary>
     /// <param name="column">The column.</param>
     /// <param name="writeSetting">if set to <c>true</c> this is for writing.</param>
@@ -403,7 +404,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(textBoxSplitText))
         return;
-      var split = FileFormat.GetChar(textBoxSplitText);
+      var split = textBoxSplitText.WrittenPunctuationToChar();
       var sample = $"This{split}is a{split}concatenated{split}list";
 
       var part = StringConversion.StringToInt32(textBoxPartText, '.', '\0');
@@ -414,7 +415,7 @@ namespace CsvTools
 
       labelSamplePart.SafeInvoke(() =>
       {
-        toolTip.SetToolTip(textBoxSplit, FileFormat.GetDescription(textBoxSplitText));
+        toolTip.SetToolTip(textBoxSplit, FileFormat.GetDescription(textBoxSplitText.WrittenPunctuationToChar()));
         if (part.Value == 1)
           checkBoxPartToEnd.Checked = false;
         labelSamplePart.Text = $@"Input: ""{sample}""";
@@ -435,8 +436,8 @@ namespace CsvTools
         {
           comboBoxTPFormat.Enabled = hasTimePart;
 
-          toolTip.SetToolTip(textBoxDateSeparator, FileFormat.GetDescription(vf.DateSeparator));
-          toolTip.SetToolTip(textBoxTimeSeparator, FileFormat.GetDescription(vf.TimeSeparator));
+          toolTip.SetToolTip(textBoxDateSeparator, FileFormat.GetDescription(vf.DateSeparator.WrittenPunctuationToChar()));
+          toolTip.SetToolTip(textBoxTimeSeparator, FileFormat.GetDescription(vf.TimeSeparator.WrittenPunctuationToChar()));
 
           labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);
 
@@ -479,12 +480,12 @@ namespace CsvTools
 
         labelNumber.SafeInvoke(() =>
         {
-          toolTip.SetToolTip(textBoxDecimalSeparator, FileFormat.GetDescription(vf.DecimalSeparator));
-          toolTip.SetToolTip(textBoxGroupSeparator, FileFormat.GetDescription(vf.GroupSeparator));
+          toolTip.SetToolTip(textBoxDecimalSeparator, FileFormat.GetDescription(vf.DecimalSeparatorChar));
+          toolTip.SetToolTip(textBoxGroupSeparator, FileFormat.GetDescription(vf.GroupSeparatorChar));
 
           labelNumber.Text = $@"Input: ""{sample}""";
           labelNumberOutput.Text =
-            $@"Output: ""{StringConversion.StringToDecimal(sample, FileFormat.GetChar(vf.DecimalSeparator), FileFormat.GetChar(vf.GroupSeparator), false):N}""";
+            $@"Output: ""{StringConversion.StringToDecimal(sample, vf.DecimalSeparatorChar, vf.GroupSeparatorChar, false):N}""";
         });
       }
       catch (Exception ex)
@@ -548,6 +549,7 @@ namespace CsvTools
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private async void ButtonGuessClick(object sender, EventArgs e) => await Guess();
+
     /// <summary>
     ///   Handles the Click event of the buttonOK control.
     /// </summary>
@@ -782,8 +784,9 @@ namespace CsvTools
       if (string.IsNullOrEmpty(dateFormat)) return;
 
       UpdateDateLabel(
-        new ValueFormatMutable(DataType.DateTime)
+        new ValueFormatMutable()
         {
+          DataType = DataType.DateTime,
           DateFormat = dateFormat,
           DateSeparator = textBoxDateSeparator.Text,
           TimeSeparator = textBoxTimeSeparator.Text
@@ -901,6 +904,7 @@ namespace CsvTools
         stringBuilder.AppendLine(HTMLStyle.TableClose);
       }
     }
+
     /// <summary>
     ///   Reapply formatting to the sample number
     /// </summary>
@@ -1043,6 +1047,7 @@ namespace CsvTools
 
       checkedListBoxDateFormats.EndUpdate();
     }
+
     private void SetSamplePart(object sender, EventArgs e) => SetPartLabels(textBoxSplit.Text, textBoxPart.Text, checkBoxPartToEnd.Checked);
 
     private void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)

@@ -520,8 +520,8 @@ namespace CsvTools
         format = new ValueFormatMutable();
 
       return value.ToString(format.NumberFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
-        CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, format.DecimalSeparatorChar.ToString(),
-        CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, format.GroupSeparatorChar.ToString());
+        CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, format.DecimalSeparatorChar.ToStringHandle0(),
+        CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, format.GroupSeparatorChar.ToStringHandle0());
     }
 
     /// <summary>
@@ -558,8 +558,8 @@ namespace CsvTools
     public static string DoubleToString(double value, [NotNull] IValueFormat format)
     {
       return value.ToString(format.NumberFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
-        CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, format.DecimalSeparatorChar.ToString(),
-        CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, format.GroupSeparatorChar.ToString());
+        CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, format.DecimalSeparatorChar.ToStringHandle0(),
+        CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, format.GroupSeparatorChar.ToStringHandle0());
     }
 
     /// <summary>
