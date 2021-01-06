@@ -56,15 +56,15 @@ namespace CsvTools
 
     private string m_EscapeCharacter = cEscapeCharacterDefault;
 
-    private char m_EscapeCharacterChar = GetChar(cEscapeCharacterDefault);
+    private char m_EscapeCharacterChar = cEscapeCharacterDefault.WrittenPunctuationToChar();
 
     private string m_FieldDelimiter = c_FieldDelimiterDefault;
 
-    private char m_FieldDelimiterChar = GetChar(c_FieldDelimiterDefault);
+    private char m_FieldDelimiterChar = c_FieldDelimiterDefault.WrittenPunctuationToChar();
 
     private string m_FieldQualifier = c_FieldQualifierDefault;
 
-    private char m_FieldQualifierChar = GetChar(c_FieldQualifierDefault);
+    private char m_FieldQualifierChar = c_FieldQualifierDefault.WrittenPunctuationToChar();
 
     private RecordDelimiterType m_NewLine = cNewLineDefault;
 
@@ -193,7 +193,7 @@ namespace CsvTools
         var newVal = (value ?? string.Empty).Trim();
         if (m_EscapeCharacter.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_EscapeCharacterChar = GetChar(newVal);
+        m_EscapeCharacterChar = newVal.WrittenPunctuationToChar();
         m_EscapeCharacter = newVal;
         NotifyPropertyChanged(nameof(EscapeCharacter));
       }
@@ -222,7 +222,7 @@ namespace CsvTools
         var newVal = (value ?? string.Empty).Trim(StringUtils.Spaces);
         if (m_FieldDelimiter.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_FieldDelimiterChar = GetChar(newVal);
+        m_FieldDelimiterChar = newVal.WrittenPunctuationToChar();
         m_FieldDelimiter = newVal;
         NotifyPropertyChanged(nameof(FieldDelimiter));
       }
@@ -251,7 +251,7 @@ namespace CsvTools
         var newVal = (value ?? string.Empty).Trim();
         if (m_FieldQualifier.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_FieldQualifierChar = GetChar(newVal);
+        m_FieldQualifierChar = newVal.WrittenPunctuationToChar();
         m_FieldQualifier = newVal;
         NotifyPropertyChanged(nameof(FieldQualifier));
       }
@@ -399,33 +399,27 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    public virtual bool ValueFormatMutableSpecified => !m_ValueFormatMutable.Equals(new ValueFormatMutable());
+    public virtual bool ValueFormatMutableSpecified => !m_ValueFormatMutable.IsDefault;
 
     /// <summary>
     ///   Gets a char from a text
     /// </summary>
     /// <param name="value">The input string.</param>
     /// <returns></returns>
-    public static char GetChar([CanBeNull] string value)
-    {
-      if (string.IsNullOrEmpty(value))
-        return '\0';
-      var punctuation = value.WrittenPunctuationToChar();
-      return punctuation != '\0' ? punctuation : value[0];
-    }
+    public static char GetChar([CanBeNull] string value) => value.WrittenPunctuationToChar();
 
     /// <summary>
     ///   Gets a char from a text
     /// </summary>
-    /// <param name="inputString">The input string.</param>
+    /// <param name="input">The input string.</param>
     /// <returns></returns>
     [NotNull]
-    public static string GetDescription(string inputString)
+    public static string GetDescription(char input)
     {
-      if (string.IsNullOrEmpty(inputString))
+      if (input=='\0')
         return string.Empty;
 
-      switch (inputString.WrittenPunctuationToChar())
+      switch (input)
       {
         case '\t':
           return "Horizontal Tab";
@@ -484,7 +478,7 @@ namespace CsvTools
           return "File Separator: Char 28";
 
         default:
-          return inputString;
+          return input.ToString();
       }
     }
 
@@ -520,7 +514,7 @@ namespace CsvTools
       other.QualifyOnlyIfNeeded = m_QualifyOnlyIfNeeded;
       other.QualifyAlways = m_QualifyAlways;
       other.QuotePlaceholder = m_QuotePlaceholder;
-      ValueFormatMutable.CopyTo(other.ValueFormatMutable);
+      other.ValueFormatMutable.CopyFrom(ValueFormatMutable);
     }
 
     /// <summary>
@@ -551,7 +545,7 @@ namespace CsvTools
              && string.Equals(NewLinePlaceholder, other.NewLinePlaceholder, StringComparison.Ordinal)
              && QualifyAlways == other.QualifyAlways && QualifyOnlyIfNeeded == other.QualifyOnlyIfNeeded
              && string.Equals(QuotePlaceholder, other.QuotePlaceholder, StringComparison.Ordinal)
-             && Equals(ValueFormatMutable, other.ValueFormatMutable);
+             && ValueFormatMutable.Equals(other.ValueFormatMutable);
     }
 
     /// <summary>

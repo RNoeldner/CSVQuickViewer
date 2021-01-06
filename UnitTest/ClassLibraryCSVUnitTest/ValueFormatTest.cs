@@ -67,9 +67,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GroupSeparator()
     {
-      var a = new ValueFormatMutable {DataType = DataType.Numeric};
-      a.GroupSeparator = ",";
-      a.DecimalSeparator = ".";
+      var a = new ValueFormatMutable { DataType = DataType.Numeric };
+      a.GroupSeparatorChar = ',';
+      a.DecimalSeparatorChar = '.';
       Assert.AreEqual(",", a.GroupSeparator);
       a.GroupSeparator = ".";
       Assert.AreEqual(".", a.GroupSeparator);
@@ -79,30 +79,30 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DecimalSeparator()
     {
-      var a = new ValueFormatMutable {DataType = DataType.Numeric};
+      var a = new ValueFormatMutable { DataType = DataType.Numeric };
       a.GroupSeparator = ".";
       a.DecimalSeparator = ",";
       Assert.AreEqual(",", a.DecimalSeparator);
       a.DecimalSeparator = ".";
       Assert.AreEqual(".", a.DecimalSeparator);
-      Assert.AreEqual(",", a.GroupSeparator);
+      Assert.AreEqual("", a.GroupSeparator);
     }
 
     [TestMethod]
     public void GetFormatDescriptionTest()
     {
-      var a = new ValueFormatMutable {DataType = DataType.String};
+      var a = new ValueFormatMutable { DataType = DataType.String };
       Assert.IsTrue(string.IsNullOrEmpty(a.GetFormatDescription()));
-      var b = new ValueFormatMutable {DataType = DataType.DateTime};
+      var b = new ValueFormatMutable { DataType = DataType.DateTime };
       Assert.IsTrue(b.GetFormatDescription().Contains("MM/dd/yyyy"));
     }
 
     [TestMethod]
     public void GetTypeAndFormatDescriptionTest()
     {
-      var a = new ValueFormatMutable {DataType = DataType.String};
+      var a = new ValueFormatMutable { DataType = DataType.String };
       Assert.AreEqual("Text", a.GetTypeAndFormatDescription());
-      var b = new ValueFormatMutable {DataType = DataType.DateTime};
+      var b = new ValueFormatMutable { DataType = DataType.DateTime };
       Assert.IsTrue(b.GetTypeAndFormatDescription().Contains("Date Time"));
       Assert.IsTrue(b.GetTypeAndFormatDescription().Contains("MM/dd/yyyy"));
     }
@@ -110,7 +110,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void NotifyPropertyChangedTest()
     {
-      var a = new ValueFormatMutable {DataType = DataType.DateTime};
+      var a = new ValueFormatMutable { DataType = DataType.DateTime };
 
       var fired = false;
       a.PropertyChanged += delegate { fired = true; };
@@ -120,17 +120,9 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void CloneTest()
-    {
-      var clone = m_ValueFormatMutableGerman.Clone();
-      Assert.AreNotSame(clone, m_ValueFormatMutableGerman);
-      m_ValueFormatMutableGerman.AllPropertiesEqual(clone);
-    }
-
-    [TestMethod]
     public void Ctor2()
     {
-      var test2 = new ValueFormatMutable(DataType.Integer);
+      var test2 = new ValueFormatMutable() { DataType = DataType.Integer };
       Assert.AreEqual(DataType.Integer, test2.DataType);
     }
 
@@ -165,7 +157,7 @@ namespace CsvTools.Tests
     public void ValueFormatCopyFrom()
     {
       var test1 = new ImmutableValueFormat(DataType.Double, decimalSeparatorChar: ',', groupSeparatorChar: '.');
-      var test2 = new ValueFormatMutable(DataType.Boolean);
+      var test2 = new ValueFormatMutable() { DataType=DataType.Boolean };
       test2.CopyFrom(test1);
       Assert.AreEqual(DataType.Double, test2.DataType);
       Assert.AreEqual(',', test2.DecimalSeparatorChar);
@@ -173,10 +165,10 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ValueFormatCopyTo()
+    public void ValueFormatCopyFrom2()
     {
       var target = new ValueFormatMutable();
-      m_ValueFormatMutableGerman.CopyTo(target);
+      target.CopyFrom(m_ValueFormatMutableGerman);
 
       Assert.AreEqual(target.DateFormat, "dd/MM/yyyy");
       Assert.AreEqual(target.DateSeparator, ".");
@@ -186,14 +178,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(target.NumberFormat, "0.##");
       Assert.AreEqual(target.TimeSeparator, "-");
       Assert.AreEqual(target.True, "Wahr");
-    }
-
-    [TestMethod]
-    public void ValueFormatCopyToEquals()
-    {
-      var target = new ValueFormatMutable();
-      m_ValueFormatMutableGerman.CopyTo(target);
-      Assert.IsTrue(m_ValueFormatMutableGerman.Equals(target));
     }
 
     [TestMethod]

@@ -342,8 +342,8 @@ namespace CsvTools
       Cursor.Current = Cursors.Default;
 #if DEBUG
       _MessageBox.ShowBig(ex.ExceptionMessages() + "\n\nMethod:\n" + ex.StackTrace, string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}",
-				MessageBoxButtons.OK, MessageBoxIcon.Warning,
-				timeout: 20);
+        MessageBoxButtons.OK, MessageBoxIcon.Warning,
+        timeout: 20);
 #else
       _MessageBox.Show(
         ex.ExceptionMessages(),
@@ -418,26 +418,6 @@ namespace CsvTools
         }
 
         listView.EndUpdate();
-      }
-    }
-
-    /// <summary>
-    ///   Extends regular ValidateChildren with Timeout and Cancellation
-    /// </summary>
-    /// <param name="container">Control with validate able children</param>
-    /// <param name="cancellationToken">Cancellation Token</param>
-    /// <returns><c>True</c> if children where validated, <c>false</c> otherwise</returns>
-    public static async Task<bool> ValidateChildren([NotNull] this ContainerControl container,
-                                                    CancellationToken cancellationToken)
-    {
-      using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
-      {
-        var task = Task.Run(container.ValidateChildren, cts.Token);
-        var resultTask = await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(1), cts.Token));
-        if (resultTask != task)
-          return false;
-        cts.Cancel();
-        return await task;
       }
     }
 

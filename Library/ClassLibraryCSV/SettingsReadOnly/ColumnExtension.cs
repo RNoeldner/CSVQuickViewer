@@ -81,10 +81,10 @@ namespace CsvTools
       DataType = other.ValueFormat.DataType,
       DateFormat = other.ValueFormat.DateFormat,
       DateSeparator = other.ValueFormat.DateSeparator,
-      DecimalSeparator = other.ValueFormat.DecimalSeparatorChar.ToString(),
+      DecimalSeparatorChar = other.ValueFormat.DecimalSeparatorChar,
       DisplayNullAs = other.ValueFormat.DisplayNullAs,
       False = other.ValueFormat.False,
-      GroupSeparator = other.ValueFormat.GroupSeparatorChar.ToString(),
+      GroupSeparatorChar = other.ValueFormat.GroupSeparatorChar,
       NumberFormat = other.ValueFormat.NumberFormat,
       TimeSeparator = other.ValueFormat.TimeSeparator,
       True = other.ValueFormat.True

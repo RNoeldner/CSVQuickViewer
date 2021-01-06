@@ -82,8 +82,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ColumnNotEquals()
     {
-      var target1 = new Column {Name = "Hello"};
-      var target2 = new Column {Name = "World"};
+      var target1 = new Column { Name = "Hello" };
+      var target2 = new Column { Name = "World" };
       Assert.IsFalse(target1.Equals(target2));
     }
 
@@ -123,7 +123,7 @@ namespace CsvTools.Tests
     public void GetDataTypeDescriptionDateTime()
     {
       var target =
-        new Column("Test", DataType.DateTime) {TimePart = "TPart", TimePartFormat = "YYYYMMDD", TimeZonePart = "'UTC'"};
+        new Column("Test", DataType.DateTime) { TimePart = "TPart", TimePartFormat = "YYYYMMDD", TimeZonePart = "'UTC'" };
       Assert.IsTrue(target.GetTypeAndFormatDescription().Contains("TPart", StringComparison.InvariantCultureIgnoreCase),
         "TimePart");
       Assert.IsTrue(
@@ -136,7 +136,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetDataTypeDescriptionDouble()
     {
-      var target = new Column("Test", new ValueFormatMutable(DataType.Numeric) {NumberFormat = "00.000"});
+      var target = new Column("Test", new ValueFormatMutable() { DataType=DataType.Numeric, NumberFormat = "00.000" });
 
       Assert.AreEqual("Money (High Precision) (00.000)", target.GetTypeAndFormatDescription());
     }
@@ -144,7 +144,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetDataTypeDescriptionIgnore()
     {
-      var target = new Column("Test") {Ignore = true};
+      var target = new Column("Test") { Ignore = true };
 
       Assert.AreEqual("Text (Ignore)", target.GetTypeAndFormatDescription());
     }
@@ -166,7 +166,7 @@ namespace CsvTools.Tests
       };
 
       var ff = new CsvFile();
-      var col = new Column("StartDate", valueFormatGerman) {Ignore = true};
+      var col = new Column("StartDate", valueFormatGerman) { Ignore = true };
 
       ff.ColumnCollection.AddIfNew(col);
       Assert.AreEqual("StartDate", col.Name, "Name");

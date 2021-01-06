@@ -77,14 +77,14 @@ namespace CsvTools
     public Column(string name, DataType dataType = DataType.String)
     {
       m_Name = name;
-      ValueFormatMutable = new ValueFormatMutable(dataType);
+      ValueFormatMutable = new ValueFormatMutable() { DataType = dataType };
     }
 
     public Column(string name, string dateFormat, string dateSeparator = ValueFormatExtension.cDateSeparatorDefault)
     {
       m_Name = name;
       ValueFormatMutable =
-        new ValueFormatMutable(DataType.DateTime) { DateFormat = dateFormat, DateSeparator = dateSeparator };
+        new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = dateFormat, DateSeparator = dateSeparator };
     }
 
     /// <summary>
@@ -197,6 +197,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
+    [XmlIgnore]
     [UsedImplicitly]
     public bool DateSeparatorSpecified => ValueFormatMutable.DataType == DataType.DateTime;
 
@@ -205,7 +206,6 @@ namespace CsvTools
     /// </summary>
     /// <value>The decimal separator.</value>
     [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
     public virtual string DecimalSeparator
     {
       [NotNull]
@@ -218,9 +218,10 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
+    [XmlIgnore]
     [UsedImplicitly]
     public bool DecimalSeparatorSpecified =>
-      ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric;
+      (ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric) && ValueFormatMutable.DecimalSeparatorSpecified;
 
     /// <summary>
     ///   Gets or sets the name in a destination. This is only used for writing
@@ -274,7 +275,6 @@ namespace CsvTools
     /// </summary>
     /// <value>The group separator.</value>
     [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
     public virtual string GroupSeparator
     {
       get => ValueFormatMutable.GroupSeparator;
@@ -287,9 +287,8 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [UsedImplicitly]
-    public bool GroupSeparatorSpecified =>
-      ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric
-                                                     || ValueFormatMutable.DataType == DataType.Integer;
+    public bool GroupSeparatorSpecified => (ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric || ValueFormatMutable.DataType == DataType.Integer)
+              && ValueFormatMutable.GroupSeparatorSpecified;
 
     /// <summary>
     ///   Gets or sets a value indicating whether the column should be ignore reading a file
@@ -558,7 +557,7 @@ namespace CsvTools
     {
       if (other == null)
         return;
-      ValueFormatMutable.CopyTo(other.ValueFormatMutable);
+      other.ValueFormatMutable.CopyFrom(ValueFormatMutable);
 
       // other.ValueFormatMutable = m_ValueFormatMutable;
       other.PartSplitter = m_PartSplitter;

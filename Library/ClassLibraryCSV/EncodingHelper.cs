@@ -139,8 +139,24 @@ namespace CsvTools
     public static string GetEncodingName(int codePage, bool hasBom)
     {
       const string c_SuffixWithBom = " with BOM";
+      var name = GetEncodingName(codePage);
+      if (BOMLength(codePage)>0)
+        return name + (hasBom ? c_SuffixWithBom : cSuffixWithoutBom);
+      else
+        return name;
+    }
+
+    /// <summary>
+    ///   Gets the name of the encoding.
+    /// </summary>
+    /// <param name="codePage">The code page ID.</param>
+    /// <param name="hasBom">Flag indicating that byte order mark is present</param>
+    /// <param name="showBom">Flag indicating that byte order mark information should be shown</param>
+    /// <returns>The name</returns>
+    [NotNull]
+    public static string GetEncodingName(int codePage)
+    {
       string name;
-      var suffixBom = hasBom ? c_SuffixWithBom : cSuffixWithoutBom;
       try
       {
         switch (codePage)
@@ -149,11 +165,11 @@ namespace CsvTools
             return "<Determine code page>";
 
           case 1200:
-            name = "Unicode (UTF-16) / ISO 10646 / UCS-2 Little-Endian" + suffixBom;
+            name = "Unicode (UTF-16) / ISO 10646 / UCS-2 Little-Endian";
             break;
 
           case 1201:
-            name = "Unicode (UTF-16 Big-Endian) / UCS-2 Big-Endian" + suffixBom;
+            name = "Unicode (UTF-16 Big-Endian) / UCS-2 Big-Endian";
             break;
 
           case 1252:
@@ -173,7 +189,7 @@ namespace CsvTools
             break;
 
           default:
-            name = Encoding.GetEncoding(codePage).EncodingName + suffixBom;
+            name = Encoding.GetEncoding(codePage).EncodingName;
             break;
         }
       }

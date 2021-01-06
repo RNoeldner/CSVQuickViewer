@@ -40,19 +40,15 @@ namespace CsvTools
       }
 
       /// <summary>
-      /// Gets the column ordinal of the time zone column
+      ///   Gets the column ordinal of the time zone column
       /// </summary>
-      /// <value>
-      /// The column ordinal time zone.
-      /// </value>
+      /// <value>The column ordinal time zone.</value>
       public int ColumnOrdinalTimeZone { get; }
 
       /// <summary>
-      /// Gets the constant time zone
+      ///   Gets the constant time zone
       /// </summary>
-      /// <value>
-      /// The constant time zone.
-      /// </value>
+      /// <value>The constant time zone.</value>
       [NotNull]
       public string ConstantTimeZone { get; }
 
@@ -117,7 +113,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Sets the columns by looking at the reader
+    ///   Sets the columns by looking at the reader
     /// </summary>
     /// <param name="reader">The reader.</param>
     protected void SetColumns([NotNull] IFileReader reader)
@@ -130,7 +126,9 @@ namespace CsvTools
     /// <summary>
     ///   Gets the column information based on the SQL Source, but overwritten with the definitions
     /// </summary>
-    /// <param name="generalFormat">general value format for not explicitly specified columns format</param>
+    /// <param name="generalFormat">
+    ///   general value format for not explicitly specified columns format
+    /// </param>
     /// <param name="columnDefinitions"></param>
     /// <param name="sourceSchemaDataReader">The reader for the source.</param>
     /// <returns></returns>
@@ -162,7 +160,7 @@ namespace CsvTools
         if (column != null && column.Ignore)
           continue;
 
-        // Based on the data Type in the reader defined and the general format create the  value format
+        // Based on the data Type in the reader defined and the general format create the value format
         var valueFormat = column?.ValueFormat ?? new ImmutableValueFormat(
           ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(), generalFormat.DateFormat,
           generalFormat.DateSeparator,
@@ -192,14 +190,17 @@ namespace CsvTools
           case DataType.DateTime:
             fieldLength = valueFormat.DateFormat.Length;
             break;
+
           case DataType.Guid:
             fieldLength = 36;
             break;
+
           case DataType.String:
           case DataType.TextToHtml:
           case DataType.TextToHtmlFull:
           case DataType.TextPart:
             break;
+
           default:
             throw new ArgumentOutOfRangeException();
         }
@@ -228,7 +229,8 @@ namespace CsvTools
         var ci = new WriterColumn(colName[colNo], colNo, valueFormat, fieldLength, constantTimeZone, columnOrdinalTimeZoneReader);
         result.Add(ci);
 
-        // add an extra column for the time, reading columns they get combined, writing them they get separated again
+        // add an extra column for the time, reading columns they get combined, writing them they
+        // get separated again
 
         if (column == null || string.IsNullOrEmpty(column.TimePart) || colName.ContainsValue(column.TimePart))
           continue;

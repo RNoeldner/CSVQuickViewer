@@ -199,13 +199,13 @@ namespace CsvTools
 
       if (m_FieldDelimiterChar == m_EscapeCharacterChar)
         throw new FileReaderException(
-          $"The escape character is invalid, please use something else than the field delimiter character {FileFormat.GetDescription(m_EscapeCharacterChar.ToString())}.");
+          $"The escape character is invalid, please use something else than the field delimiter character {FileFormat.GetDescription(m_EscapeCharacterChar)}.");
 
       m_HasQualifier = m_FieldQualifierChar != '\0';
 
       if (m_HasQualifier && m_FieldQualifierChar == m_FieldDelimiterChar)
         throw new ArgumentOutOfRangeException(
-          $"The text quoting and the field delimiter characters of a delimited file cannot be the same character {FileFormat.GetDescription(m_FieldDelimiterChar.ToString())}");
+          $"The text quoting and the field delimiter characters of a delimited file cannot be the same character {FileFormat.GetDescription(m_FieldDelimiterChar)}");
 
       m_AllowRowCombining = allowRowCombining;
       m_AlternateQuoting = alternateQuoting;
@@ -1100,7 +1100,7 @@ namespace CsvTools
               if (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning)
                 HandleWarning(
                   columnNo,
-                  $"Field qualifier '{FileFormat.GetDescription(m_FieldQualifierChar.ToString())}' found in field"
+                  $"Field qualifier '{FileFormat.GetDescription(m_FieldQualifierChar)}' found in field"
                     .AddWarningId());
             }
 
@@ -1109,7 +1109,7 @@ namespace CsvTools
               if (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning)
                 HandleWarning(
                   columnNo,
-                  $"Field delimiter '{FileFormat.GetDescription(m_FieldDelimiterChar.ToString())}' found in field"
+                  $"Field delimiter '{FileFormat.GetDescription(m_FieldDelimiterChar)}' found in field"
                     .AddWarningId());
             }
 

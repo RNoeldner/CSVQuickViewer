@@ -63,18 +63,25 @@ namespace CsvTools
       {
         case RecordDelimiterType.LF:
           return "\n";
+
         case RecordDelimiterType.CR:
           return "\r";
+
         case RecordDelimiterType.CRLF:
           return "\r\n";
+
         case RecordDelimiterType.LFCR:
           return "\n\r";
+
         case RecordDelimiterType.RS:
           return "▲";
+
         case RecordDelimiterType.US:
           return "▼";
+
         case RecordDelimiterType.None:
           return string.Empty;
+
         default:
           return string.Empty;
       }
@@ -287,6 +294,7 @@ namespace CsvTools
         case TypeCode.Empty:
         case TypeCode.DBNull:
           return DataType.String;
+
         default:
           return DataType.String;
       }
@@ -405,7 +413,7 @@ namespace CsvTools
     /// <param name="process">The process display.</param>
     /// <returns></returns>
     public static EventHandler<string> GetLogInfoMessage(this IProcessDisplay process) =>
-      delegate(object sender, string message)
+      delegate (object sender, string message)
       {
         Logger.Information("SQL Information: {message}", message);
         process?.SetProcess(message, -1, true);
@@ -815,6 +823,8 @@ namespace CsvTools
       return value < long.MinValue ? long.MinValue : Convert.ToInt64(value);
     }
 
+    public static string ToStringHandle0(this char input) => input=='\0' ? string.Empty : input.ToString();
+
     /// <summary>
     ///   Replaces a written English punctuation to the punctuation character
     /// </summary>
@@ -822,6 +832,8 @@ namespace CsvTools
     /// <returns>return '\0' if the text was not interpreted as punctuation</returns>
     public static char WrittenPunctuationToChar([NotNull] this string inputString)
     {
+      if (string.IsNullOrEmpty(inputString))
+        return '\0';
       if (inputString.Equals("Tab", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Tabulator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Horizontal Tab", StringComparison.OrdinalIgnoreCase) ||
@@ -980,7 +992,7 @@ namespace CsvTools
           inputString.Equals("FS", StringComparison.OrdinalIgnoreCase))
         return '\u001C';
 
-      return '\0';
+      return inputString[0];
     }
 
 #if !GetHashByGUID
@@ -994,8 +1006,8 @@ namespace CsvTools
     /// <param name="other">The other collection.</param>
     /// <returns></returns>
     /// <remarks>
-    ///   Parameter is IEnumerable to make it work with ICollections, IReadOnlyCollection, Arrays and
-    ///   ObservableCollection
+    ///   Parameter is IEnumerable to make it work with ICollections, IReadOnlyCollection, Arrays
+    ///   and ObservableCollection
     /// </remarks>
     public static bool CollectionEqual<T>(this IEnumerable<T> self, IEnumerable<T> other) where T : IEquatable<T>
     {
@@ -1005,8 +1017,8 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(other, self))
         return true;
-      // ReSharper disable PossibleMultipleEnumeration
-      // Making sure the passed in IEnumerable is indeed a collection, otherwise make it one
+      // ReSharper disable PossibleMultipleEnumeration Making sure the passed in IEnumerable is
+      // indeed a collection, otherwise make it one
       if (!(self is Collection<T> || self is ICollection<T> || self is IReadOnlyCollection<T>))
         self = self.ToList();
       if (!(other is Collection<T> || other is ICollection<T> || other is IReadOnlyCollection<T>))

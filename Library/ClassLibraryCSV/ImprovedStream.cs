@@ -120,9 +120,15 @@ namespace CsvTools
       try
       {
         m_ZipFile?.Close();
-
         if (!ReferenceEquals(AccessStream, BaseStream))
-          AccessStream.Close();
+          try
+          {
+            AccessStream.Close();
+          }
+          catch (Exception ex)
+          {
+            Logger.Warning(ex, "ImprovedStream.AccessStream.Close()");
+          }
 
         if (!SourceAccess.LeaveOpen)
           BaseStream.Close();
@@ -130,7 +136,6 @@ namespace CsvTools
       catch (Exception ex)
       {
         Logger.Warning(ex, "ImprovedStream.Close()");
-        // Ignore
       }
     }
 
@@ -140,17 +145,46 @@ namespace CsvTools
       if (!disposing) return;
       m_DisposedValue = true;
       Close();
-      if (!ReferenceEquals(AccessStream, BaseStream))
-        AccessStream.Dispose();
-      if (!SourceAccess.LeaveOpen)
-        BaseStream.Dispose();
+      try
+      {
+        if (!ReferenceEquals(AccessStream, BaseStream))
+        {
+          AccessStream.Dispose();
+          AccessStream = null;
+        }
+        if (!SourceAccess.LeaveOpen)
+        {
+          BaseStream.Dispose();
+          BaseStream = null;
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "ImprovedStream.Dispose()");
+      }
+    }
+
+    public override async Task FlushAsync(CancellationToken cancellationToken)
+    {
+      try
+      {
+        if (!ReferenceEquals(AccessStream, BaseStream))
+          await AccessStream.FlushAsync(cancellationToken);
+        await BaseStream.FlushAsync(cancellationToken);
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "ImprovedStream.FlushAsync()");
+        // Ignore
+      }
     }
 
     public override void Flush()
     {
       try
       {
-        AccessStream.Flush();
+        if (!ReferenceEquals(AccessStream, BaseStream))
+          AccessStream.Flush();
         BaseStream.Flush();
       }
       catch (Exception ex)
@@ -159,9 +193,6 @@ namespace CsvTools
         // Ignore
       }
     }
-
-    public override Task FlushAsync(CancellationToken cancellationToken) =>
-      AccessStream.FlushAsync(cancellationToken);
 
     public override void SetLength(long value) => AccessStream.SetLength(value);
 

@@ -19,7 +19,7 @@ namespace CsvTools
   public interface IFileSettingPhysicalFile : IFileSetting
   {
     /// <summary>
-    ///  Gets or sets the name of the file, this value could be a relative path
+    ///   Gets or sets the name of the file, this value could be a relative path
     /// </summary>
     /// <value>The name of the file.</value>
     string FileName { [NotNull] get; [CanBeNull] set; }
@@ -27,43 +27,42 @@ namespace CsvTools
     string RootFolder { [NotNull] get; [CanBeNull] set; }
 
     /// <summary>
-    ///  The Size of the file in Byte
+    ///   The Size of the file in Byte
     /// </summary>
     long FileSize { get; set; }
 
     /// <summary>
-    ///  Gets the full path of the Filename
+    ///   Gets the full path of the Filename
     /// </summary>
-    /// <value>
-    ///  The full path of the file <see cref="FileName"/> />
-    /// </value>
+    /// <value>The full path of the file <see cref="FileName" /> /&gt;</value>
     [NotNull]
     string FullPath { get; }
 
     /// <summary>
-    /// Force the refresh of full path information, a filename with placeholders might need to check again if there is a new file
+    ///   Force the refresh of full path information, a filename with placeholders might need to
+    ///   check again if there is a new file
     /// </summary>
     void ResetFullPath();
 
     /// <summary>
-    ///  Path to the file on sFTP Server
+    ///   Path to the file on sFTP Server
     /// </summary>
     string RemoteFileName { [NotNull] get; [CanBeNull] set; }
 
     string IdentifierInContainer { [NotNull] get; [CanBeNull] set; }
 
     /// <summary>
-    /// In case of creating a file, should the time of the latest source be used?
-    /// Default: <c>false</c> - Use the current datetime for the file, otherwise use the time of the latest source
+    ///   In case of creating a file, should the time of the latest source be used?
+    ///   Default: <c>false</c> - Use the current datetime for the file, otherwise use the time of
+    ///   the latest source
     /// </summary>
-    bool SetLatestSourceTimeForWrite { get; }
+    bool SetLatestSourceTimeForWrite { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether tho throw an error if the remote file could not be found .
+    ///   Gets or sets a value indicating whether tho throw an error if the remote file could not be
+    ///   found .
     /// </summary>
-    /// <value>
-    ///  <c>true</c> if throw an error if not exists; otherwise, <c>false</c>.
-    /// </value>
+    /// <value><c>true</c> if throw an error if not exists; otherwise, <c>false</c>.</value>
     bool ThrowErrorIfNotExists { get; set; }
   }
 }

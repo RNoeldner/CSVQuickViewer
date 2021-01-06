@@ -41,7 +41,7 @@ namespace CsvTools.Tests
       Extensions.RunSTAThread(() =>
       {
         using (var tm = new TimedMessage())
-        {          
+        {
           var stringBuilder = HTMLStyle.StartHTMLDoc(SystemColors.Control, "");
           stringBuilder.Append(string.Format(UnitTestInitializeWin.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample")));
           stringBuilder.Append(string.Format(UnitTestInitializeWin.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample2")));
@@ -87,7 +87,6 @@ namespace CsvTools.Tests
         }
       });
     }
-
 
     [TestMethod]
     [Timeout(5000)]
@@ -169,7 +168,7 @@ namespace CsvTools.Tests
       try
       {
         UnitTestWinFormHelper.RunTaskTimeout(token => Task.Run(() =>
-          WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", null), token));
+          WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", null, null), token));
       }
       catch (COMException)
       {
@@ -221,7 +220,7 @@ namespace CsvTools.Tests
         UnitTestWinFormHelper.RunTaskTimeout(
           token => Task.Run(() =>
           {
-            WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test",  "*.pdf", false,
+            WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", ".pdf", false,
               "test.pdf");
           }, token));
       }
@@ -277,7 +276,6 @@ namespace CsvTools.Tests
       });
     }
 
-
     [TestMethod]
     [Timeout(10000)]
     public void TimedMessage()
@@ -287,13 +285,13 @@ namespace CsvTools.Tests
         using (var tm = new TimedMessage())
         {
           tm.ShowDialog("This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1,
-						2, null, null, null);
+            2, null, null, null);
         }
 
         using (var tm = new TimedMessage())
         {
           tm.ShowDialog("This is another message\n with a linefeed", "Title12", MessageBoxButtons.YesNo, MessageBoxIcon.Error,
-						MessageBoxDefaultButton.Button2, 2, null, null, null);
+            MessageBoxDefaultButton.Button2, 2, null, null, null);
         }
       });
     }
@@ -387,8 +385,6 @@ namespace CsvTools.Tests
         UnitTestWinFormHelper.ShowFormAndClose(form);
       }
     }
-
-
 
     [TestMethod]
     [Timeout(5000)]

@@ -51,16 +51,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Ignore]
-    public async Task ValidateChildrenTestAsync()
-    {
-      using (var cont = new ContainerControl())
-      {
-        await cont.ValidateChildren(UnitTestInitializeCsv.Token);
-      }
-    }
-
-    [TestMethod]
     [Timeout(2000)]
     public void UpdateListViewColumnFormatTest()
     {
@@ -198,7 +188,8 @@ namespace CsvTools.Tests
       {
         value.Show();
         var state1 = new WindowState(new Rectangle(10, 10, value.Width, value.Height),
-          FormWindowState.Normal) { CustomInt = 27, CustomText = "Test" };
+          FormWindowState.Normal)
+        { CustomInt = 27, CustomText = "Test" };
         var result1 = -1;
         value.LoadWindowState(state1, val => { result1 = val; }, val => { });
 

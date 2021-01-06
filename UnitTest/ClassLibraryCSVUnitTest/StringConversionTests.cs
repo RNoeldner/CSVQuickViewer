@@ -40,30 +40,25 @@ namespace CsvTools.Tests
     public void DecimalToString()
     {
       Assert.AreEqual("53.336,24",
-        StringConversion.DecimalToString((decimal) 53336.2373,
-          new ValueFormatMutable { GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.00" }));
+        StringConversion.DecimalToString((decimal) 53336.2373, new ImmutableValueFormat(groupSeparatorChar: '.', decimalSeparatorChar: ',', numberFormat: "#,####.00")));
 
       Assert.AreEqual("20-000-000-000",
-        StringConversion.DecimalToString((decimal) 2E10,
-          new ValueFormatMutable { GroupSeparator = "-", NumberFormat = "#,####" }));
+        StringConversion.DecimalToString((decimal) 2E10, new ImmutableValueFormat(groupSeparatorChar: '-', numberFormat: "#,####")));
+
+      Assert.AreEqual("1237,6",
+        StringConversion.DecimalToString(1237.6m, new ImmutableValueFormat(groupSeparatorChar: '\0', decimalSeparatorChar: ',', numberFormat: "#,####.0")));
+      Assert.AreEqual("17,6",
+        StringConversion.DecimalToString(17.6m, new ImmutableValueFormat(groupSeparatorChar: '.', decimalSeparatorChar: ',', numberFormat: "#,####.0")));
     }
 
     [TestMethod]
     public void DoubleToString()
     {
       Assert.AreEqual("1.237,6",
-        StringConversion.DoubleToString(1237.6,
-          new ValueFormatMutable { GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.0" }));
-      Assert.AreEqual("1.237,6",
-        StringConversion.DecimalToString(1237.6m,
-          new ValueFormatMutable { GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.0" }));
+        StringConversion.DoubleToString(1237.6, new ImmutableValueFormat(DataType.Double, groupSeparatorChar: '.', decimalSeparatorChar: ',', numberFormat: "#,####.0")));
 
       Assert.AreEqual("17,6",
-        StringConversion.DoubleToString(17.6,
-          new ValueFormatMutable { GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.0" }));
-      Assert.AreEqual("17,6",
-        StringConversion.DecimalToString(17.6m,
-          new ValueFormatMutable { GroupSeparator = ".", DecimalSeparator = ",", NumberFormat = "#,####.0" }));
+        StringConversion.DoubleToString(17.6, new ImmutableValueFormat(DataType.Double, groupSeparatorChar: '.', decimalSeparatorChar: ',', numberFormat: "#,####.0")));
     }
 
     [TestMethod]
@@ -195,7 +190,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DateTimeToStringOK()
     {
-      //      Assert.AreEqual("01/01/2010", StringConversion.DateTimeToString(new DateTime(2010, 01, 1), null));
+      // Assert.AreEqual("01/01/2010", StringConversion.DateTimeToString(new DateTime(2010, 01, 1), null));
       Assert.AreEqual("13/01/2010 10:11", StringConversion.DateTimeToString(new DateTime(2010, 1, 13, 10, 11, 14, 0),
         new ValueFormatMutable { DateFormat = @"dd/MM/yyyy HH:mm" }));
       // Make sure exchanging the default separators do not mess with the result
