@@ -30,21 +30,17 @@ namespace CsvTools
     /// <summary>
     ///   The default time part format
     /// </summary>
-    public const string cDefaultTimePartFormat = "HH:mm:ss";
-
-    private const int c_PartDefault = 2;
-    private const char c_PartSplitterDefault = ':';
-    private const bool c_PartToEnd = true;
     private int m_ColumnOrdinal;
+
     private bool? m_Convert;
     private string m_DestinationName = string.Empty;
     private bool m_Ignore;
     private string m_Name;
-    private int m_Part = c_PartDefault;
-    private char m_PartSplitter = c_PartSplitterDefault;
-    private bool m_PartToEnd = c_PartToEnd;
+    private int m_Part = ImmutableColumn.cPartDefault;
+    private string m_PartSplitter = ImmutableColumn.cPartSplitterDefault;
+    private bool m_PartToEnd = ImmutableColumn.cPartToEnd;
     private string m_TimePart = string.Empty;
-    private string m_TimePartFormat = cDefaultTimePartFormat;
+    private string m_TimePartFormat = ImmutableColumn.cDefaultTimePartFormat;
     private string m_TimeZonePart = string.Empty;
 
     public Column()
@@ -335,7 +331,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The part starting with 1</value>
     [XmlAttribute]
-    [DefaultValue(c_PartDefault)]
+    [DefaultValue(ImmutableColumn.cPartDefault)]
     public virtual int Part
     {
       get => m_Part;
@@ -361,16 +357,17 @@ namespace CsvTools
     ///   Gets or sets the splitter.
     /// </summary>
     /// <value>The splitter.</value>
-    [DefaultValue(c_PartSplitterDefault)]
-    public virtual char PartSplitter
+    [DefaultValue(ImmutableColumn.cPartSplitterDefault)]
+    public virtual string PartSplitter
     {
       get => m_PartSplitter;
 
       set
       {
-        if (m_PartSplitter.Equals(value))
+        var newVal = (value??string.Empty).WrittenPunctuation();
+        if (m_PartSplitter.Equals(newVal))
           return;
-        m_PartSplitter = value;
+        m_PartSplitter = newVal;
         NotifyPropertyChanged(nameof(PartSplitter));
       }
     }
@@ -382,14 +379,14 @@ namespace CsvTools
     /// <remarks>Used for XML Serialization</remarks>
     [UsedImplicitly]
     public bool PartSplitterSpecified =>
-      ValueFormatMutable.DataType == DataType.TextPart && !m_PartSplitter.Equals(c_PartSplitterDefault);
+      ValueFormatMutable.DataType == DataType.TextPart && !m_PartSplitter.Equals(ImmutableColumn.cPartSplitterDefault);
 
     /// <summary>
     ///   Gets or sets the part for splitting.
     /// </summary>
     /// <value>The part starting with 1</value>
     [XmlAttribute]
-    [DefaultValue(c_PartToEnd)]
+    [DefaultValue(ImmutableColumn.cPartToEnd)]
     public virtual bool PartToEnd
     {
       get => m_PartToEnd;
@@ -436,13 +433,13 @@ namespace CsvTools
     /// </summary>
     /// <value>The name.</value>
     [XmlAttribute]
-    [DefaultValue(cDefaultTimePartFormat)]
+    [DefaultValue(ImmutableColumn.cDefaultTimePartFormat)]
     public virtual string TimePartFormat
     {
       get => m_TimePartFormat;
       set
       {
-        var newVal = value ?? cDefaultTimePartFormat;
+        var newVal = value ?? ImmutableColumn.cDefaultTimePartFormat;
         if (m_TimePartFormat.Equals(newVal, StringComparison.Ordinal))
           return;
         m_TimePartFormat = newVal;

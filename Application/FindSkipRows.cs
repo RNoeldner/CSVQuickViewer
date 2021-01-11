@@ -56,7 +56,7 @@ namespace CsvTools
         using (var streamReader = new ImprovedTextReader(m_Stream, fileSetting.CodePageId))
         {
           streamReader.ToBeginning();
-          fileSetting.SkipRows = CsvHelper.GuessStartRowFromReader(streamReader, textBoxDelimiter.Text.WrittenPunctuationToChar(), m_TextBoxQuote.Text.WrittenPunctuationToChar(), textBoxComment.Text, frm.CancellationToken);
+          fileSetting.SkipRows = CsvHelper.GuessStartRowFromReader(streamReader, textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxComment.Text, frm.CancellationToken);
         }
         HighlightVisibleRange(fileSetting.SkipRows);
       }
@@ -64,7 +64,7 @@ namespace CsvTools
 
     private void UpdateHighlight()
     {
-      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text.WrittenPunctuationToChar(), textBoxDelimiter.Text.WrittenPunctuationToChar(), fileSetting.FileFormat.EscapeCharacterChar, textBoxComment.Text);
+      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, fileSetting.FileFormat.EscapeCharacter, textBoxComment.Text);
     }
 
     private void DifferentSyntaxHighlighter(object sender, EventArgs e)

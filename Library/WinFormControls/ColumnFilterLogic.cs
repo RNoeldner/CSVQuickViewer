@@ -374,9 +374,9 @@ namespace CsvTools
         case TypeCode.UInt64:
           var decValue = StringConversion.StringToDecimal(
                            value,
-                           CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.GetFirstChar(),
-                           CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.GetFirstChar(),
-                           true) ?? StringConversion.StringToDecimal(value, '.', '\0', true);
+                           CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator,
+                           CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator,
+                           true) ?? StringConversion.StringToDecimal(value, ".", "", true);
           return string.Format(CultureInfo.InvariantCulture, "{0}", decValue);
 
         case TypeCode.Boolean:

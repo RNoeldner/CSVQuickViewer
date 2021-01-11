@@ -40,52 +40,52 @@ namespace CsvTools.Tests
     public void DecimalToString()
     {
       Assert.AreEqual("53.336,24",
-        StringConversion.DecimalToString((decimal) 53336.2373, new ImmutableValueFormat(groupSeparatorChar: '.', decimalSeparatorChar: ',', numberFormat: "#,####.00")));
+        StringConversion.DecimalToString((decimal) 53336.2373, new ImmutableValueFormat(groupSeparator: ".", decimalSeparator: ",", numberFormat: "#,####.00")));
 
       Assert.AreEqual("20-000-000-000",
-        StringConversion.DecimalToString((decimal) 2E10, new ImmutableValueFormat(groupSeparatorChar: '-', numberFormat: "#,####")));
+        StringConversion.DecimalToString((decimal) 2E10, new ImmutableValueFormat(numberFormat: "#,####", groupSeparator: "-")));
 
       Assert.AreEqual("1237,6",
-        StringConversion.DecimalToString(1237.6m, new ImmutableValueFormat(groupSeparatorChar: '\0', decimalSeparatorChar: ',', numberFormat: "#,####.0")));
+        StringConversion.DecimalToString(1237.6m, new ImmutableValueFormat(groupSeparator: "", decimalSeparator: ",", numberFormat: "#,####.0")));
       Assert.AreEqual("17,6",
-        StringConversion.DecimalToString(17.6m, new ImmutableValueFormat(groupSeparatorChar: '.', decimalSeparatorChar: ',', numberFormat: "#,####.0")));
+        StringConversion.DecimalToString(17.6m, new ImmutableValueFormat(groupSeparator: ".", decimalSeparator: ",", numberFormat: "#,####.0")));
     }
 
     [TestMethod]
     public void DoubleToString()
     {
       Assert.AreEqual("1.237,6",
-        StringConversion.DoubleToString(1237.6, new ImmutableValueFormat(DataType.Double, groupSeparatorChar: '.', decimalSeparatorChar: ',', numberFormat: "#,####.0")));
+        StringConversion.DoubleToString(1237.6, new ImmutableValueFormat(DataType.Double, groupSeparator: ".", decimalSeparator: ",", numberFormat: "#,####.0")));
 
       Assert.AreEqual("17,6",
-        StringConversion.DoubleToString(17.6, new ImmutableValueFormat(DataType.Double, groupSeparatorChar: '.', decimalSeparatorChar: ',', numberFormat: "#,####.0")));
+        StringConversion.DoubleToString(17.6, new ImmutableValueFormat(DataType.Double, groupSeparator: ".", decimalSeparator: ",", numberFormat: "#,####.0")));
     }
 
     [TestMethod]
     public void StringToDecimal()
     {
-      Assert.IsNull(StringConversion.StringToDecimal("", ',', '.', true));
-      Assert.AreEqual(-17m, StringConversion.StringToDecimal("-17", ',', '.', true));
-      Assert.AreEqual(-17m, StringConversion.StringToDecimal("(17)", ',', '.', true));
-      Assert.AreEqual(53336.7m, StringConversion.StringToDecimal("53336,7", ',', '.', true));
-      Assert.AreEqual(52333m, StringConversion.StringToDecimal("52.333", ',', '.', true));
-      Assert.AreEqual(2.33m, StringConversion.StringToDecimal("233%", ',', '.', true));
+      Assert.IsNull(StringConversion.StringToDecimal("", ",", ".", true));
+      Assert.AreEqual(-17m, StringConversion.StringToDecimal("-17", ",", ".", true));
+      Assert.AreEqual(-17m, StringConversion.StringToDecimal("(17)", ",", ".", true));
+      Assert.AreEqual(53336.7m, StringConversion.StringToDecimal("53336,7", ",", ".", true));
+      Assert.AreEqual(52333m, StringConversion.StringToDecimal("52.333", ",", ".", true));
+      Assert.AreEqual(2.33m, StringConversion.StringToDecimal("233%", ",", ".", true));
     }
 
     [TestMethod]
     public void StringToInt32()
     {
-      Assert.AreEqual(-17, StringConversion.StringToInt32("-17", ',', '.'));
-      Assert.AreEqual(53337, StringConversion.StringToInt32("53336,7", ',', '.'));
-      Assert.AreEqual(52333, StringConversion.StringToInt32("52.333", ',', '.'));
+      Assert.AreEqual(-17, StringConversion.StringToInt32("-17", ",", "."));
+      Assert.AreEqual(53337, StringConversion.StringToInt32("53336,7", ",", "."));
+      Assert.AreEqual(52333, StringConversion.StringToInt32("52.333", ",", "."));
     }
 
     [TestMethod]
     public void StringToInt16()
     {
-      Assert.AreEqual((short) -17, StringConversion.StringToInt16("-17", ',', '.'));
-      Assert.AreEqual((short) 5337, StringConversion.StringToInt16("5336,7", ',', '.'));
-      Assert.AreEqual((short) 5333, StringConversion.StringToInt16("5.333", ',', '.'));
+      Assert.AreEqual((short) 5333, StringConversion.StringToInt16("5.333", ",", "."));
+      Assert.AreEqual((short) -17, StringConversion.StringToInt16("-17", ",", "."));
+      Assert.AreEqual((short) 5337, StringConversion.StringToInt16("5336,7", ",", "."));
     }
 
     [TestMethod]
@@ -258,14 +258,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public void StringToInt64()
     {
-      Assert.AreEqual(null, StringConversion.StringToInt64(null, '.', '\0'));
-      Assert.AreEqual(17, StringConversion.StringToInt64("17.4", '.', ','));
-      Assert.AreEqual(18, StringConversion.StringToInt64("17.6", '.', ','));
-      Assert.AreEqual(-18, StringConversion.StringToInt64("-17.6", '.', ','));
+      Assert.AreEqual(null, StringConversion.StringToInt64(null, ".", ""));
+      Assert.AreEqual(17, StringConversion.StringToInt64("17.4", ".", ","));
+      Assert.AreEqual(18, StringConversion.StringToInt64("17.6", ".", ","));
+      Assert.AreEqual(-18, StringConversion.StringToInt64("-17.6", ".", ","));
       Assert.AreEqual(null,
-        StringConversion.StringToInt64("99999999999999999999999999999999999999999999999999", '.', ','));
-      Assert.AreEqual(null, StringConversion.StringToInt64("AB", '.', ','));
-      Assert.AreEqual(null, StringConversion.StringToInt64("", '.', ','));
+        StringConversion.StringToInt64("99999999999999999999999999999999999999999999999999", ".", ","));
+      Assert.AreEqual(null, StringConversion.StringToInt64("AB", ".", ","));
+      Assert.AreEqual(null, StringConversion.StringToInt64("", ".", ","));
     }
 
     [TestMethod]
@@ -437,14 +437,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CheckNumberTest()
     {
-      Assert.IsFalse(StringConversion.CheckNumber(new string[] { }, '.', '\0', false, false).FoundValueFormat != null);
-      Assert.IsTrue(StringConversion.CheckNumber(new[] { "16673" }, '.', '\0', false, false).FoundValueFormat != null);
+      Assert.IsFalse(StringConversion.CheckNumber(new string[] { }, ".", "", false, false).FoundValueFormat != null);
+      Assert.IsTrue(StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false).FoundValueFormat != null);
       Assert.AreEqual(DataType.Integer,
-        StringConversion.CheckNumber(new[] { "16673" }, '.', '\0', false, false).FoundValueFormat.DataType);
+        StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false).FoundValueFormat.DataType);
       Assert.IsFalse(
-        StringConversion.CheckNumber(new[] { "16673", "A Test" }, '.', '\0', false, false).FoundValueFormat != null);
+        StringConversion.CheckNumber(new[] { "16673", "A Test" }, ".", "", false, false).FoundValueFormat != null);
       Assert.AreEqual(DataType.Numeric,
-        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, '.', '\0', false, false).FoundValueFormat.DataType);
+        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, ".", "", false, false).FoundValueFormat.DataType);
     }
 
     [TestMethod]

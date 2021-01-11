@@ -68,8 +68,8 @@ namespace CsvTools.Tests
     public void GroupSeparator()
     {
       var a = new ValueFormatMutable { DataType = DataType.Numeric };
-      a.GroupSeparatorChar = ',';
-      a.DecimalSeparatorChar = '.';
+      a.GroupSeparator = ",";
+      a.DecimalSeparator = ".";
       Assert.AreEqual(",", a.GroupSeparator);
       a.GroupSeparator = ".";
       Assert.AreEqual(".", a.GroupSeparator);
@@ -156,12 +156,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ValueFormatCopyFrom()
     {
-      var test1 = new ImmutableValueFormat(DataType.Double, decimalSeparatorChar: ',', groupSeparatorChar: '.');
+      var test1 = new ImmutableValueFormat(DataType.Double, groupSeparator: ".", decimalSeparator: ",");
       var test2 = new ValueFormatMutable() { DataType=DataType.Boolean };
       test2.CopyFrom(test1);
       Assert.AreEqual(DataType.Double, test2.DataType);
-      Assert.AreEqual(',', test2.DecimalSeparatorChar);
-      Assert.AreEqual('.', test2.GroupSeparatorChar);
+      Assert.AreEqual(",", test2.DecimalSeparator);
+      Assert.AreEqual(".", test2.GroupSeparator);
     }
 
     [TestMethod]

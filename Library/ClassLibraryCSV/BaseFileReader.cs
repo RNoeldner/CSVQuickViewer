@@ -491,8 +491,8 @@ namespace CsvTools
 
       var parsed = StringConversion.StringToInt32(
         CurrentRowColumnText[columnNumber],
-        column.ValueFormat.DecimalSeparatorChar,
-        column.ValueFormat.GroupSeparatorChar);
+        column.ValueFormat.DecimalSeparator,
+        column.ValueFormat.GroupSeparator);
       if (parsed.HasValue)
         return parsed.Value;
 
@@ -510,8 +510,8 @@ namespace CsvTools
     {
       var ret = StringConversion.StringToInt32(
         inputValue,
-        column.ValueFormat.DecimalSeparatorChar,
-        column.ValueFormat.GroupSeparatorChar);
+        column.ValueFormat.DecimalSeparator,
+        column.ValueFormat.GroupSeparator);
       if (ret.HasValue)
         return ret.Value;
 
@@ -530,8 +530,8 @@ namespace CsvTools
 
       var parsed = StringConversion.StringToInt64(
         CurrentRowColumnText[columnNumber],
-        column.ValueFormat.DecimalSeparatorChar,
-        column.ValueFormat.GroupSeparatorChar);
+        column.ValueFormat.DecimalSeparator,
+        column.ValueFormat.GroupSeparator);
       if (parsed.HasValue)
         return parsed.Value;
 
@@ -549,8 +549,8 @@ namespace CsvTools
       Debug.Assert(column != null);
       var ret = StringConversion.StringToInt64(
         inputValue,
-        column.ValueFormat.DecimalSeparatorChar,
-        column.ValueFormat.GroupSeparatorChar);
+        column.ValueFormat.DecimalSeparator,
+        column.ValueFormat.GroupSeparator);
       if (ret.HasValue)
         return ret.Value;
 
@@ -1093,7 +1093,7 @@ namespace CsvTools
         else if (column.ValueFormat.DataType == DataType.TextPart)
         {
           var output =
-            StringConversion.StringToTextPart(inputString, column.PartSplitter, column.Part, column.PartToEnd);
+            StringConversion.StringToTextPart(inputString, column.PartSplitter.StringToChar(), column.Part, column.PartToEnd);
           if (output == null)
             HandleWarning(columnNumber, $"Part {column.Part} of text {inputString} is empty.");
           return output;
@@ -1332,8 +1332,8 @@ namespace CsvTools
       Debug.Assert(column != null);
       var decimalValue = StringConversion.StringToDecimal(
         inputValue,
-        column.ValueFormat.DecimalSeparatorChar,
-        column.ValueFormat.GroupSeparatorChar,
+        column.ValueFormat.DecimalSeparator,
+        column.ValueFormat.GroupSeparator,
         true);
       if (decimalValue.HasValue)
         return decimalValue.Value;
@@ -1414,8 +1414,8 @@ namespace CsvTools
 
       var parsed = StringConversion.StringToInt16(
         value,
-        column.ValueFormat.DecimalSeparatorChar,
-        column.ValueFormat.GroupSeparatorChar);
+        column.ValueFormat.DecimalSeparator,
+        column.ValueFormat.GroupSeparator);
       if (parsed.HasValue)
         return parsed.Value;
 

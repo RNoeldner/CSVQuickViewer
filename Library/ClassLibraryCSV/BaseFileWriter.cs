@@ -88,17 +88,17 @@ namespace CsvTools
       var fileName = FileSystemUtils.GetFileName(fullPath);
       ColumnHeader = hasFieldHeader;
       ValueFormatGeneral = new ImmutableValueFormat(valueFormat.DataType, valueFormat.DateFormat, valueFormat.DateSeparator,
-      valueFormat.DecimalSeparatorChar, valueFormat.DisplayNullAs, valueFormat.False, valueFormat.GroupSeparatorChar, valueFormat.NumberFormat,
-      valueFormat.TimeSeparator, valueFormat.True);
+        valueFormat.TimeSeparator, valueFormat.NumberFormat, valueFormat.GroupSeparator, valueFormat.DecimalSeparator, valueFormat.True,
+        valueFormat.False, valueFormat.DisplayNullAs);
       FileFormat = fileFormat is ImmutableFileFormat immutable ? immutable : new ImmutableFileFormat(fileFormat.IsFixedLength, fileFormat.QualifyAlways,
       fileFormat.QualifyOnlyIfNeeded, fileFormat.NewLinePlaceholder, fileFormat.DelimiterPlaceholder, fileFormat.FieldDelimiterChar,
       fileFormat.FieldQualifierChar, fileFormat.QuotePlaceholder, fileFormat.NewLine);
       ColumnDefinition =  columnDefinition?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col.Name, col.ValueFormat, col.ColumnOrdinal, col.Convert, col.DestinationName, col.Ignore, col.Part, col.PartSplitter, col.PartToEnd, col.TimePart, col.TimePartFormat, col.TimeZonePart)).ToList() ??
                            new List<ImmutableColumn>();
       NewLine = fileFormat.NewLine.NewLineString();
-      Header = ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(header, NewLine), fileFormat.FieldDelimiterChar,
+      Header = ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(header, NewLine), fileFormat.FieldDelimiterChar.GetDescription(),
         fileName, id);
-      m_Footer = ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(footer, NewLine), fileFormat.FieldDelimiterChar,
+      m_Footer = ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(footer, NewLine), fileFormat.FieldDelimiterChar.GetDescription(),
         fileName, id);
       m_FileSettingDisplay = fileSettingDisplay;
       m_Recipient = recipient;
@@ -164,9 +164,9 @@ namespace CsvTools
         var valueFormat = column?.ValueFormat ?? new ImmutableValueFormat(
           ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(), generalFormat.DateFormat,
           generalFormat.DateSeparator,
-          generalFormat.DecimalSeparatorChar, generalFormat.DisplayNullAs, generalFormat.False,
-          generalFormat.GroupSeparatorChar, generalFormat.NumberFormat,
-          generalFormat.TimeSeparator, generalFormat.True);
+          generalFormat.TimeSeparator, generalFormat.NumberFormat, generalFormat.GroupSeparator,
+          generalFormat.DecimalSeparator, generalFormat.True,
+          generalFormat.False, generalFormat.DisplayNullAs);
 
         var fieldLength = Math.Max((int) schemaRow[SchemaTableColumn.ColumnSize], 0);
         switch (valueFormat.DataType)
@@ -306,10 +306,10 @@ namespace CsvTools
       return Records;
     }
 
-    private static string ReplacePlaceHolder([NotNull] string input, char fieldDelimiterChar, string fileName,
+    private static string ReplacePlaceHolder([NotNull] string input, string fieldDelimiter, string fileName,
       string replacement) => input.PlaceholderReplace("ID", replacement)
       .PlaceholderReplace("FileName", fileName)
-      .PlaceholderReplace("Delim", fieldDelimiterChar.ToString(CultureInfo.CurrentCulture))
+      .PlaceholderReplace("Delim", fieldDelimiter)
       .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
       .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
 
@@ -466,12 +466,12 @@ namespace CsvTools
                 if (fileFormat.NewLinePlaceholder.Length > 0)
                   displayAs = StringUtils.HandleCRLFCombinations(displayAs, fileFormat.NewLinePlaceholder);
 
-                if (fileFormat.DelimiterPlaceholder.Length > 0)
-                  displayAs = displayAs.Replace(fileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture),
+                if (fileFormat.DelimiterPlaceholder.Length > 0 &&  fileFormat.FieldDelimiterChar != '\0')
+                  displayAs = displayAs.Replace(fileFormat.FieldDelimiterChar.ToStringHandle0(),
                     fileFormat.DelimiterPlaceholder);
 
                 if (fileFormat.QuotePlaceholder.Length > 0 && fileFormat.FieldQualifierChar != '\0')
-                  displayAs = displayAs.Replace(fileFormat.FieldQualifierChar.ToString(), fileFormat.QuotePlaceholder);
+                  displayAs = displayAs.Replace(fileFormat.FieldQualifierChar.ToStringHandle0(), fileFormat.QuotePlaceholder);
                 break;
 
               default:

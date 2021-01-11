@@ -12,6 +12,7 @@
  *
  */
 
+using JetBrains.Annotations;
 using System.Collections.Generic;
 
 namespace CsvTools
@@ -25,17 +26,18 @@ namespace CsvTools
     public bool IsJson;
     public bool NoDelimitedFile;
     public int SkipRows;
-    public string IdentifierInContainer;
+    [NotNull] public string IdentifierInContainer;
 
     public bool QualifyAlways;
-    public string CommentLine;
-    public char EscapeCharacterChar;
-    public string FieldDelimiter = string.Empty;
-    public string FieldQualifier = string.Empty;
+    [NotNull] public string CommentLine;
+    [NotNull] public string EscapeCharacter;
+    [NotNull] public string FieldDelimiter;
+    [NotNull] public string FieldQualifier;
     public RecordDelimiterType NewLine;
 
     public DelimitedFileDetectionResult(string fileName, int skipRows = 0, int codePageId = -1, bool byteOrderMark = false, bool qualifyAlways = false,
-string identifierInContainer = null, string commentLine = "#", char escapeCharacterChar = '\\', string fieldDelimiter = null, string fieldQualifier = null, bool hasFieldHeader = true, bool isJson = false, bool noDelimitedFile = false, RecordDelimiterType recordDelimiterType = RecordDelimiterType.None)
+                                        string identifierInContainer = "", string commentLine = "#", string escapeCharacter = "\\", string fieldDelimiter = "",
+                                        string fieldQualifier = "", bool hasFieldHeader = true, bool isJson = false, bool noDelimitedFile = false, RecordDelimiterType recordDelimiterType = RecordDelimiterType.None)
     {
       FileName = fileName ?? throw new System.ArgumentNullException(nameof(fileName));
       IdentifierInContainer = identifierInContainer?? string.Empty;
@@ -43,9 +45,9 @@ string identifierInContainer = null, string commentLine = "#", char escapeCharac
       CodePageId = codePageId<1 ? -1 : codePageId;
       ByteOrderMark= byteOrderMark;
       CommentLine = commentLine;
-      EscapeCharacterChar= escapeCharacterChar;
-      FieldDelimiter = fieldDelimiter?? string.Empty;
-      FieldQualifier = fieldQualifier?? string.Empty;
+      EscapeCharacter = (escapeCharacter ?? string.Empty).WrittenPunctuation();
+      FieldDelimiter = (fieldDelimiter ?? string.Empty).WrittenPunctuation();
+      FieldQualifier = (fieldQualifier ?? string.Empty).WrittenPunctuation();
       HasFieldHeader = hasFieldHeader;
       IsJson = isJson;
       NoDelimitedFile = noDelimitedFile;
@@ -61,7 +63,7 @@ string identifierInContainer = null, string commentLine = "#", char escapeCharac
         {
           QualifyAlways= QualifyAlways,
           CommentLine = CommentLine,
-          EscapeCharacter= EscapeCharacterChar.ToString(),
+          EscapeCharacter= EscapeCharacter,
           FieldDelimiter = FieldDelimiter,
           FieldQualifier = FieldQualifier,
           NewLine =  NewLine

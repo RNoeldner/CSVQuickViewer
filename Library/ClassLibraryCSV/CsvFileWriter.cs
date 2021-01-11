@@ -46,19 +46,19 @@ namespace CsvTools
       m_CodePageId = file.CodePageId;
       m_ByteOrderMark = file.ByteOrderMark;
 
-      m_FieldQualifier = file.FileFormat.FieldQualifierChar.ToString(CultureInfo.CurrentCulture);
-      m_FieldDelimiter = file.FileFormat.FieldDelimiterChar.ToString(CultureInfo.CurrentCulture);
+      m_FieldQualifier = file.FileFormat.FieldQualifier.WrittenPunctuation();
+      m_FieldDelimiter = file.FileFormat.FieldDelimiter.WrittenPunctuation();
       if (!string.IsNullOrEmpty(file.FileFormat.EscapeCharacter))
       {
         m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d };
-        m_FieldQualifierEscaped = file.FileFormat.EscapeCharacterChar + m_FieldQualifier;
-        m_FieldDelimiterEscaped = file.FileFormat.EscapeCharacterChar + m_FieldDelimiter;
+        m_FieldQualifierEscaped = file.FileFormat.EscapeCharacter.WrittenPunctuation() + m_FieldQualifier;
+        m_FieldDelimiterEscaped = file.FileFormat.EscapeCharacter.WrittenPunctuation() + m_FieldDelimiter;
       }
       else
       {
-        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d, file.FileFormat.FieldDelimiterChar };
-        m_FieldQualifierEscaped = new string(file.FileFormat.FieldQualifierChar, 2);
-        m_FieldDelimiterEscaped = new string(file.FileFormat.FieldDelimiterChar, 1);
+        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d, file.FileFormat.FieldDelimiter.WrittenPunctuationToChar() };
+        m_FieldQualifierEscaped = m_FieldQualifier + m_FieldQualifier;
+        m_FieldDelimiterEscaped = m_FieldDelimiter + m_FieldDelimiter;
       }
     }
 

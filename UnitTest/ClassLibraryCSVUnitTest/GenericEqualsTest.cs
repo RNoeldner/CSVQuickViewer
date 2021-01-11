@@ -44,10 +44,11 @@ namespace CsvTools.Tests
           if (properties.Length == 0)
             continue;
           var ignore = new List<PropertyInfo>();
+          char start = 'a';
           // Set some properties that should not match the default
           foreach (var prop in properties)
           {
-            if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long))
+            if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long) || prop.PropertyType == typeof(byte))
             {
               prop.SetValue(obj1, 13);
               if (Convert.ToInt32(prop.GetValue(obj1)) != 13)
@@ -64,8 +65,32 @@ namespace CsvTools.Tests
 
             if (prop.PropertyType == typeof(string))
             {
-              prop.SetValue(obj1, "Raphael");
-              if ((string) prop.GetValue(obj1) != "Raphael")
+              prop.SetValue(obj1, start + "_Raphael");
+              if ((string) prop.GetValue(obj1) != start++ + "_Raphael")
+                ignore.Add(prop);
+            }
+
+            if (prop.PropertyType == typeof(decimal))
+            {
+              var newVal = 1.56m;
+              prop.SetValue(obj1, newVal);
+              if ((decimal) prop.GetValue(obj1) != newVal)
+                ignore.Add(prop);
+            }
+
+            if (prop.PropertyType == typeof(float))
+            {
+              var newVal = 31.7f;
+              prop.SetValue(obj1, newVal);
+              if ((float) prop.GetValue(obj1) != newVal)
+                ignore.Add(prop);
+            }
+
+            if (prop.PropertyType == typeof(double))
+            {
+              var newVal = 31.7d;
+              prop.SetValue(obj1, newVal);
+              if ((double) prop.GetValue(obj1) != newVal)
                 ignore.Add(prop);
             }
 
@@ -137,7 +162,6 @@ namespace CsvTools.Tests
                   }
                   d++;
                 }
-
               }
             }
             catch (Exception ex)
@@ -152,7 +176,8 @@ namespace CsvTools.Tests
         }
         catch (Exception e)
         {
-          Assert.Fail($"Issue with {type.FullName} {e.Message}");
+          Logger.Error(e, "Issue with {@type}", type);
+          Assert.Fail($"Issue with {type.FullName}\n{e.Message}");
         }
 
       if (sb.Length > 0)
@@ -171,6 +196,5 @@ namespace CsvTools.Tests
         .Where(@t1 => @t1.i.IsGenericType && @t1.i.GetGenericTypeDefinition() == typeof(IEquatable<>))
         .Select(@t1 => @t1.@t1.t);
     }
-
   }
 }

@@ -34,11 +34,10 @@ namespace CsvTools.Tests
         .Where(t1 => t1.i.IsGenericType && t1.i.GetGenericTypeDefinition() == typeof(ICloneable<>))
         .Select(t1 => t1.t1.t);
 
-
     public static void RunCopyTo([NotNull] IEnumerable<Type> list)
     {
       if (list == null) throw new ArgumentNullException(nameof(list));
-      foreach (var type in GetAllICloneable("ClassLibraryCSV"))
+      foreach (var type in list)
         try
         {
           var obj1 = Activator.CreateInstance(type);
@@ -52,20 +51,32 @@ namespace CsvTools.Tests
                                            )).ToArray();
           if (properties.Length == 0)
             continue;
-
+          char start = 'a';
           foreach (var prop1 in properties)
           {
-            if (prop1.PropertyType == typeof(int))
+            if (prop1.PropertyType == typeof(int) || prop1.PropertyType == typeof(long) || prop1.PropertyType == typeof(byte))
               prop1.SetValue(obj1, 17);
 
             if (prop1.PropertyType == typeof(bool))
               prop1.SetValue(obj1, !(bool) prop1.GetValue(obj1));
 
+            if (prop1.PropertyType == typeof(char))
+              prop1.SetValue(obj1, start++);
+
             if (prop1.PropertyType == typeof(string))
-              prop1.SetValue(obj1, "Raphael");
+              prop1.SetValue(obj1, start++ + "_Raphael");
 
             if (prop1.PropertyType == typeof(DateTime))
               prop1.SetValue(obj1, new DateTime(2014, 12, 24));
+
+            if (prop1.PropertyType == typeof(decimal))
+              prop1.SetValue(obj1, 1.56m);
+
+            if (prop1.PropertyType == typeof(float))
+              prop1.SetValue(obj1, 22.7f);
+
+            if (prop1.PropertyType == typeof(double))
+              prop1.SetValue(obj1, 31.7d);
           }
 
           var methodClone = type.GetMethod("Clone", BindingFlags.Public | BindingFlags.Instance);
@@ -100,7 +111,7 @@ namespace CsvTools.Tests
           catch (Exception ex)
           {
             // Ignore all NotImplementedException these are cause by compatibility setting or mocks
-            Debug.Write(ex.ExceptionMessages());
+            Logger.Warning(ex.ExceptionMessages());
           }
         }
         catch (MissingMethodException)
@@ -113,11 +124,17 @@ namespace CsvTools.Tests
         }
         catch (Exception e)
         {
-          Assert.Fail($"Issue with {type.FullName} {e.Message}");
+          Logger.Error(e, "Issue with {@type}", type);
+          Assert.Fail($"Issue with {type.FullName}\n{e.Message}");
         }
     }
 
     [TestMethod]
     public void RunCopyTo() => RunCopyTo(GetAllICloneable("ClassLibraryCSV"));
+
+    /*
+       [TestMethod]
+       public void TestSingleClass() => RunCopyTo(new[] { typeof(Column) });
+    */
   }
 }

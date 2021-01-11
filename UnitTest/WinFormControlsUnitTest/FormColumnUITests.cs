@@ -134,7 +134,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void FormColumnUI_TextPart()
     {
-      var col = new Column("MyTest", DataType.TextPart) { PartSplitter = ':', Part = 2, PartToEnd = true };
+      var col = new Column("MyTest", DataType.TextPart) { PartSplitter = ":", Part = 2, PartToEnd = true };
       using (var frm = new FormColumnUI(col, false, new CsvFile(), new FillGuessSettings(), true, UnitTestInitializeWin.HTMLStyle))
       {
         UnitTestWinFormHelper.ShowFormAndClose(frm, .1, f => f.SetPartLabels(":", "2", true));

@@ -200,13 +200,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the escape character char.
-    /// </summary>
-    /// <value>The escape character char.</value>
-    [XmlIgnore]
-    public virtual char EscapeCharacterChar => m_EscapeCharacterChar;
-
-    /// <summary>
     ///   Gets or sets the field delimiter.
     /// </summary>
     /// <value>The field delimiter.</value>
@@ -399,88 +392,7 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    public virtual bool ValueFormatMutableSpecified => !m_ValueFormatMutable.IsDefault;
-
-    /// <summary>
-    ///   Gets a char from a text
-    /// </summary>
-    /// <param name="value">The input string.</param>
-    /// <returns></returns>
-    public static char GetChar([CanBeNull] string value) => value.WrittenPunctuationToChar();
-
-    /// <summary>
-    ///   Gets a char from a text
-    /// </summary>
-    /// <param name="input">The input string.</param>
-    /// <returns></returns>
-    [NotNull]
-    public static string GetDescription(char input)
-    {
-      if (input=='\0')
-        return string.Empty;
-
-      switch (input)
-      {
-        case '\t':
-          return "Horizontal Tab";
-
-        case ' ':
-          return "Space";
-
-        case (char) 0xA0:
-          return "Non-breaking space";
-
-        case '\\':
-          return "Backslash: \\";
-
-        case '/':
-          return "Slash: /";
-
-        case ',':
-          return "Comma: ,";
-
-        case ';':
-          return "Semicolon: ;";
-        case ':':
-          return "Colon: :";
-
-        case '|':
-          return "Pipe: |";
-
-        case '\"':
-          return "Quotation marks: \"";
-
-        case '\'':
-          return "Apostrophe: \'";
-
-        case '&':
-          return "Ampersand: &";
-
-        case '*':
-          return "Asterisk: *";
-
-        case '`':
-          return "Tick Mark: `";
-
-        case '✓':
-          return "Check mark: ✓";
-
-        case '\u001F':
-          return "Unit Separator: Char 31";
-
-        case '\u001E':
-          return "Record Separator: Char 30";
-
-        case '\u001D':
-          return "Group Separator: Char 29";
-
-        case '\u001C':
-          return "File Separator: Char 28";
-
-        default:
-          return input.ToString();
-      }
-    }
+    public virtual bool ValueFormatMutableSpecified => !m_ValueFormatMutable.Specified;
 
     /// <summary>
     ///   Clones this instance into a new instance of the same type
@@ -536,7 +448,6 @@ namespace CsvTools
              && string.Equals(CommentLine, other.CommentLine, StringComparison.Ordinal)
              && string.Equals(DelimiterPlaceholder, other.DelimiterPlaceholder, StringComparison.Ordinal)
              && string.Equals(EscapeCharacter, other.EscapeCharacter, StringComparison.Ordinal)
-             && EscapeCharacterChar == other.EscapeCharacterChar
              && string.Equals(FieldDelimiter, other.FieldDelimiter, StringComparison.Ordinal)
              && FieldDelimiterChar == other.FieldDelimiterChar
              && string.Equals(FieldQualifier, other.FieldQualifier, StringComparison.Ordinal)
