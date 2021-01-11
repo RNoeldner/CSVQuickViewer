@@ -29,17 +29,19 @@ namespace CsvTools
     private readonly Style m_Tab = new SyntaxHighlightStyleTab(Pens.Blue, Brushes.AntiqueWhite);
     private readonly Regex m_TabRegex = new Regex("\\t", RegexOptions.Singleline | RegexOptions.Compiled);
 
-    public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, char qualifierChar, char delimiterChar,
-
-      char escapeChar, string comment) : base(textBox)
+    public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, string qualifier, string delimiter, string escape, string comment) : base(textBox)
     {
+      qualifier=(qualifier??string.Empty).WrittenPunctuation();
+      delimiter=(delimiter??string.Empty).WrittenPunctuation();
+      escape=(escape??string.Empty).WrittenPunctuation();
+
       m_DelimiterRegex = new Regex(
-        escapeChar != '\0' ? $"\\{delimiterChar}" : $"(?<!\\{escapeChar})\\{delimiterChar}",
+        string.IsNullOrEmpty(escape) ? $"\\{delimiter}" : $"(?<!\\{escape})\\{delimiter}",
         RegexOptions.Singleline | RegexOptions.Compiled);
       m_QuoteRegex = new Regex(
-        escapeChar != '\0'
-          ? $"\\{qualifierChar}((?:\\{qualifierChar}\\{qualifierChar}|(?:(?!\\{qualifierChar})).)*)\\{qualifierChar}"
-          : $"\\{qualifierChar}((?:\\{escapeChar}\\{qualifierChar}|\\{qualifierChar}\\{qualifierChar}|(?:(?!\\{qualifierChar})).)*)\\{qualifierChar}",
+        string.IsNullOrEmpty(escape)
+          ? $"\\{qualifier}((?:\\{qualifier}\\{qualifier}|(?:(?!\\{qualifier})).)*)\\{qualifier}"
+          : $"\\{qualifier}((?:\\{escape}\\{qualifier}|\\{qualifier}\\{qualifier}|(?:(?!\\{qualifier})).)*)\\{qualifier}",
         RegexOptions.Multiline | RegexOptions.Compiled);
       if (!string.IsNullOrEmpty(comment))
         m_CommentRegex = new Regex($"\\s*{comment}.*$", RegexOptions.Multiline | RegexOptions.Compiled);

@@ -98,7 +98,7 @@ namespace CsvTools
           case "decimal":
           case "single":
           case "double":
-            vf = new ImmutableValueFormat(DataType.Numeric, decimalSeparatorChar: '.');
+            vf = new ImmutableValueFormat(DataType.Numeric, decimalSeparator: ".");
             break;
 
           case "uuid":

@@ -291,7 +291,7 @@ namespace CsvTools.Tests
     {
       var column = new Column
       {
-        ValueFormatMutable = { DataType = DataType.Integer, GroupSeparatorChar = ',', DecimalSeparatorChar = '.' }
+        ValueFormatMutable = { DataType = DataType.Integer, GroupSeparator = ",", DecimalSeparator = "." }
       };
 
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))

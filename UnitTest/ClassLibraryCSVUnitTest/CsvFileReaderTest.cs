@@ -1766,7 +1766,7 @@ Line "Test"", "22",23,"  24"
     public async Task TestStartRowAndFooter()
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("LateStartRow.txt"))))
-        Assert.AreEqual(10, await CsvHelper.GuessStartRowFromStream(improvedStream, 20127, '|', '"', "#", UnitTestInitializeCsv.Token));
+        Assert.AreEqual(10, await CsvHelper.GuessStartRowFromStream(improvedStream, 20127, "|", "\"", "#", UnitTestInitializeCsv.Token));
     }
 
     [TestMethod]

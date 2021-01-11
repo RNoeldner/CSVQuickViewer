@@ -172,9 +172,9 @@ namespace CsvTools
         case TypeCode.UInt64:
           var nvalue = StringConversion.StringToDecimal(
                          textBoxValue.Text,
-                         CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator.GetFirstChar(),
-                         CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.GetFirstChar(),
-                         true) ?? StringConversion.StringToDecimal(textBoxValue.Text, '.', '\0', true);
+                         CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator,
+                         CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator,
+                         true) ?? StringConversion.StringToDecimal(textBoxValue.Text, ".", "", true);
           if (!nvalue.HasValue)
           {
             textBoxValue.Width = dateTimePickerValue.Width - 20;

@@ -9,7 +9,7 @@
 // * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for
 // more details. *
 // * You should have received a copy of the GNU Lesser Public License along with this program.
-// * If not, see http://www.gnu.org/licenses/ . *
+// * If not, see http://www.gnu.org/licenses/
 // */
 
 namespace CsvTools
@@ -17,23 +17,23 @@ namespace CsvTools
   public class ImmutableValueFormat : IValueFormat
   {
     public ImmutableValueFormat(DataType dataType = DataType.String,
-                                string dateFormat = ValueFormatExtension.cDateFormatDefault,
-                                string dateSeparator = ValueFormatExtension.cDateSeparatorDefault,
-                                char decimalSeparatorChar = ValueFormatExtension.cDecimalSeparatorDefault,
-                                string displayNullAs = "",
-                                string asFalse = ValueFormatExtension.cFalseDefault,
-                                char groupSeparatorChar = ValueFormatExtension.cGroupSeparatorDefault,
-                                string numberFormat = ValueFormatExtension.cNumberFormatDefault,
-                                string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
-                                string asTrue = ValueFormatExtension.cTrueDefault)
+      string dateFormat = ValueFormatExtension.cDateFormatDefault,
+      string dateSeparator = ValueFormatExtension.cDateSeparatorDefault,
+      string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
+      string numberFormat = ValueFormatExtension.cNumberFormatDefault,
+      string groupSeparator = ValueFormatExtension.cGroupSeparatorDefault,
+      string decimalSeparator = ValueFormatExtension.cDecimalSeparatorDefault,
+      string asTrue = ValueFormatExtension.cTrueDefault,
+      string asFalse = ValueFormatExtension.cFalseDefault,
+      string displayNullAs = "")
     {
-      if (decimalSeparatorChar == groupSeparatorChar && decimalSeparatorChar!='\0')
-        throw new FileReaderException("Decimal and Group Sperator character must be different");
+      if (!string.IsNullOrEmpty(decimalSeparator) && decimalSeparator.Equals(groupSeparator))
+        throw new FileReaderException("Decimal and Group Sperator must be different");
       DataType = dataType;
       DateFormat = dateFormat??throw new System.ArgumentNullException(nameof(dateFormat));
-      DateSeparator = dateSeparator??throw new System.ArgumentNullException(nameof(dateSeparator));
-      DecimalSeparatorChar = decimalSeparatorChar;
-      GroupSeparatorChar = groupSeparatorChar;
+      DateSeparator = (dateSeparator??throw new System.ArgumentNullException(nameof(dateSeparator))).WrittenPunctuation();
+      DecimalSeparator = (decimalSeparator??throw new System.ArgumentNullException(nameof(decimalSeparator))).WrittenPunctuation();
+      GroupSeparator = (groupSeparator??throw new System.ArgumentNullException(nameof(groupSeparator))).WrittenPunctuation();
       DisplayNullAs = displayNullAs??throw new System.ArgumentNullException(nameof(displayNullAs));
       False = asFalse??throw new System.ArgumentNullException(nameof(asFalse));
       NumberFormat = numberFormat??throw new System.ArgumentNullException(nameof(numberFormat));
@@ -44,27 +44,31 @@ namespace CsvTools
     /// <summary>
     ///   Used in Serialization to determine if something needs to be stored
     /// </summary>
-    public bool IsDefault =>
+    public bool Specified =>
       DataType == DataType.String &&
-      DisplayNullAs == string.Empty &&
       DateFormat == ValueFormatExtension.cDateFormatDefault &&
       DateSeparator == ValueFormatExtension.cDateSeparatorDefault &&
       TimeSeparator == ValueFormatExtension.cTimeSeparatorDefault &&
+      NumberFormat == ValueFormatExtension.cNumberFormatDefault &&
+      DecimalSeparator == ValueFormatExtension.cDecimalSeparatorDefault &&
+      GroupSeparator == ValueFormatExtension.cGroupSeparatorDefault &&
       True == ValueFormatExtension.cTrueDefault &&
       False == ValueFormatExtension.cFalseDefault &&
-      NumberFormat == ValueFormatExtension.cNumberFormatDefault &&
-      DecimalSeparatorChar == ValueFormatExtension.cDecimalSeparatorDefault &&
-      GroupSeparatorChar == ValueFormatExtension.cGroupSeparatorDefault;
+      DisplayNullAs == string.Empty;
 
     public DataType DataType { get; }
+
     public string DateFormat { get; }
     public string DateSeparator { get; }
-    public char DecimalSeparatorChar { get; }
-    public string DisplayNullAs { get; }
-    public string False { get; }
-    public char GroupSeparatorChar { get; }
-    public string NumberFormat { get; }
     public string TimeSeparator { get; }
+
+    public string NumberFormat { get; }
+    public string DecimalSeparator { get; }
+    public string GroupSeparator { get; }
+
     public string True { get; }
+    public string False { get; }
+
+    public string DisplayNullAs { get; }
   }
 }

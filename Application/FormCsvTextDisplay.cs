@@ -106,8 +106,8 @@ namespace CsvTools
     /// <summary>
     ///   CSV File to display
     /// </summary>
-    public void OpenFile(bool json, char qualifierChar, char delimiterChar,
-      char escapeChar,
+    public void OpenFile(bool json, string qualifier, string delimiter,
+      string escape,
       int codePage, int skipLines, string comment)
     {
       if (!FileSystemUtils.FileExists(m_FullPath))
@@ -125,7 +125,7 @@ namespace CsvTools
           }
           else
             m_HighLighter =
-              new SyntaxHighlighterDelimitedText(textBox, qualifierChar, delimiterChar, escapeChar, comment);
+              new SyntaxHighlighterDelimitedText(textBox, qualifier.WrittenPunctuation(), delimiter.WrittenPunctuation(), escape.WrittenPunctuation(), comment);
 
           m_Stream = new ImprovedStream(new SourceAccess(m_FullPath));
           m_SkipLines = !json ? skipLines : 0;

@@ -119,15 +119,21 @@ namespace CsvTools
     {
       try
       {
-        m_ZipFile?.Close();
+        try
+        {
+          m_ZipFile?.Close();
+        }
+        catch
+        {
+        }
+
         if (!ReferenceEquals(AccessStream, BaseStream))
           try
           {
-            AccessStream.Close();
+            AccessStream?.Close();
           }
-          catch (Exception ex)
+          catch
           {
-            Logger.Warning(ex, "ImprovedStream.AccessStream.Close()");
           }
 
         if (!SourceAccess.LeaveOpen)
@@ -144,38 +150,29 @@ namespace CsvTools
       if (m_DisposedValue) return;
       if (!disposing) return;
       m_DisposedValue = true;
-      Close();
-      try
+
+      if (AccessStream !=null &&  !ReferenceEquals(AccessStream, BaseStream))
       {
-        if (!ReferenceEquals(AccessStream, BaseStream))
+        try
         {
-          AccessStream.Dispose();
+          AccessStream?.Dispose();
+        }
+        finally
+        {
           AccessStream = null;
         }
-        if (!SourceAccess.LeaveOpen)
+      }
+
+      if (!SourceAccess.LeaveOpen)
+      {
+        try
         {
-          BaseStream.Dispose();
+          BaseStream?.Dispose();
+        }
+        finally
+        {
           BaseStream = null;
         }
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "ImprovedStream.Dispose()");
-      }
-    }
-
-    public override async Task FlushAsync(CancellationToken cancellationToken)
-    {
-      try
-      {
-        if (!ReferenceEquals(AccessStream, BaseStream))
-          await AccessStream.FlushAsync(cancellationToken);
-        await BaseStream.FlushAsync(cancellationToken);
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "ImprovedStream.FlushAsync()");
-        // Ignore
       }
     }
 

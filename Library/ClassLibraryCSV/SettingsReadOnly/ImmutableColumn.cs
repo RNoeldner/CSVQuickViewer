@@ -12,7 +12,6 @@
  *
  */
 
-
 namespace CsvTools
 {
   /// <summary>
@@ -20,10 +19,14 @@ namespace CsvTools
   /// </summary>
   public class ImmutableColumn : IColumn
   {
+    public const int cPartDefault = 2;
+    public const string cPartSplitterDefault = ":";
+    public const string cDefaultTimePartFormat = "HH:mm:ss";
+    public const bool cPartToEnd = true;
 
     public ImmutableColumn(string name, IValueFormat valueFormat, int columnOrdinal, bool? convert = null, string destinationName = "",
-      bool ignore = false, int part = 0,
-      char partSplitter = '\0', bool partToEnd = true, string timePart = "", string timePartFormat = "",
+      bool ignore = false, int part = cPartDefault,
+      string partSplitter = cPartSplitterDefault, bool partToEnd = cPartToEnd, string timePart = "", string timePartFormat = "",
       string timeZonePart = "")
     {
       Name = name??throw new System.ArgumentNullException(nameof(name));
@@ -35,7 +38,7 @@ namespace CsvTools
       Ignore = ignore;
 
       Part = part;
-      PartSplitter = partSplitter;
+      PartSplitter = (partSplitter??string.Empty).WrittenPunctuation();
       PartToEnd = partToEnd;
       TimePart = timePart;
       TimePartFormat = timePartFormat;
@@ -44,8 +47,8 @@ namespace CsvTools
       ValueFormat = valueFormat is ImmutableValueFormat immutable
         ? immutable
         : new ImmutableValueFormat(valueFormat.DataType, valueFormat.DateFormat, valueFormat.DateSeparator,
-      valueFormat.DecimalSeparatorChar, valueFormat.DisplayNullAs, valueFormat.False, valueFormat.GroupSeparatorChar, valueFormat.NumberFormat,
-      valueFormat.TimeSeparator, valueFormat.True);
+          valueFormat.TimeSeparator, valueFormat.NumberFormat, valueFormat.GroupSeparator, valueFormat.DecimalSeparator, valueFormat.True,
+          valueFormat.False, valueFormat.DisplayNullAs);
     }
 
     public int ColumnOrdinal { get; }
@@ -54,7 +57,7 @@ namespace CsvTools
     public bool Ignore { get; }
     public string Name { get; }
     public int Part { get; }
-    public char PartSplitter { get; }
+    public string PartSplitter { get; }
     public bool PartToEnd { get; }
     public string TimePart { get; }
     public string TimePartFormat { get; }

@@ -23,9 +23,9 @@ namespace CsvTools
   {
     public const string cDateFormatDefault = "MM/dd/yyyy";
     public const string cDateSeparatorDefault = "/";
-    public const char cDecimalSeparatorDefault = '.';
+    public const string cDecimalSeparatorDefault = ".";
     public const string cFalseDefault = "False";
-    public const char cGroupSeparatorDefault = '\0';
+    public const string cGroupSeparatorDefault = "";
     public const string cNumberFormatDefault = "0.#####";
     public const string cTimeSeparatorDefault = ":";
     public const string cTrueDefault = "True";
@@ -73,8 +73,8 @@ namespace CsvTools
       if ((other.DataType == DataType.Numeric || other.DataType == DataType.Double) &&
           (one.DataType == DataType.Numeric || one.DataType == DataType.Double))
         return other.NumberFormat.Equals(one.NumberFormat, StringComparison.Ordinal) &&
-               other.DecimalSeparatorChar.Equals(one.DecimalSeparatorChar) &&
-               other.GroupSeparatorChar.Equals(one.GroupSeparatorChar);
+               other.DecimalSeparator.Equals(one.DecimalSeparator) &&
+               other.GroupSeparator.Equals(one.GroupSeparator);
       // For everything else assume its wrong
       return false;
     }
@@ -90,7 +90,7 @@ namespace CsvTools
       {
         case DataType.Integer:
           return one.NumberFormat.Replace(CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
-            one.GroupSeparatorChar.ToString());
+            one.GroupSeparator.ToString());
 
         case DataType.DateTime:
           return one.DateFormat.ReplaceDefaults(CultureInfo.InvariantCulture.DateTimeFormat.DateSeparator,
@@ -100,8 +100,8 @@ namespace CsvTools
         case DataType.Numeric:
         case DataType.Double:
           return one.NumberFormat.ReplaceDefaults(CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
-            one.DecimalSeparatorChar.ToString(),
-            CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, one.GroupSeparatorChar.ToString());
+            one.DecimalSeparator.ToString(),
+            CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, one.GroupSeparator.ToString());
 
         default:
           return string.Empty;

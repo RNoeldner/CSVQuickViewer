@@ -12,7 +12,7 @@ namespace CsvTools.Tests
     {
       using (var textBox = new FastColoredTextBox())
       {
-        var highlighter = new SyntaxHighlighterDelimitedText(textBox, '"', ',', '\\', "##");
+        var highlighter = new SyntaxHighlighterDelimitedText(textBox, "\"", ",", "\\", "##");
         textBox.TextChangedDelayed += (sender, e) =>
         {
           if (!(sender is FastColoredTextBox text))

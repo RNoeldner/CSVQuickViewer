@@ -522,8 +522,8 @@ namespace CsvTools.Tests
         "Is Numeric");
 
       Assert.AreEqual(
-        ',',
-        setting.ColumnCollection.Get(@"Betrag Brutto (2 Nachkommastellen)")?.ValueFormat?.DecimalSeparatorChar,
+        ",",
+        setting.ColumnCollection.Get(@"Betrag Brutto (2 Nachkommastellen)")?.ValueFormat?.DecimalSeparator,
         "Decimal Separator found");
 
       Assert.AreEqual(DataType.DateTime, setting.ColumnCollection.Get(@"Erstelldatum Rechnung")?.ValueFormat?.DataType);
@@ -1142,7 +1142,7 @@ namespace CsvTools.Tests
         null,
         UnitTestInitializeCsv.Token);
       Assert.AreEqual(DataType.Numeric, res.FoundValueFormat?.DataType);
-      Assert.AreEqual('.', res.FoundValueFormat?.DecimalSeparatorChar);
+      Assert.AreEqual(".", res.FoundValueFormat?.DecimalSeparator);
     }
 
     [TestMethod]
@@ -1165,8 +1165,8 @@ namespace CsvTools.Tests
         null,
         UnitTestInitializeCsv.Token);
       Assert.AreEqual(DataType.Numeric, res.FoundValueFormat?.DataType);
-      Assert.AreEqual('.', res.FoundValueFormat?.GroupSeparatorChar);
-      Assert.AreEqual(',', res.FoundValueFormat?.DecimalSeparatorChar);
+      Assert.AreEqual(".", res.FoundValueFormat?.GroupSeparator);
+      Assert.AreEqual(",", res.FoundValueFormat?.DecimalSeparator);
     }
 
     [TestMethod]

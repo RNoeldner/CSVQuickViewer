@@ -135,7 +135,7 @@ namespace CsvTools
                          bool hasFieldHeader = true,
                          [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
                          TrimmingOption trimmingOption = TrimmingOption.Unquoted,
-                         string fieldDelimiter = "\t", string fieldQualifier = "\"", char escapeCharacterChar = '\0',
+                         string fieldDelimiter = "\t", string fieldQualifier = "\"", string escapeCharacter = "",
                          long recordLimit = 0,
                          bool allowRowCombining = false, bool alternateQuoting = false,
                          [NotNull] string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
@@ -148,7 +148,7 @@ namespace CsvTools
                          bool treatNbspAsSpace = false,
                          string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool skipEmptyLines = true,
                          int consecutiveEmptyRowsMax = 4) : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
-      trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacterChar, recordLimit, allowRowCombining,
+      trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
       alternateQuoting, commentLine, numWarning, duplicateQuotingToEscape, newLinePlaceholder, delimiterPlaceholder,
       quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace, tryToSolveMoreColumns,
       warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
@@ -159,7 +159,7 @@ namespace CsvTools
 
     private CsvFileReader([CanBeNull] IEnumerable<IColumn> columnDefinition, int codePageId, int skipRows, bool hasFieldHeader,
                           TrimmingOption trimmingOption,
-                          string fieldDelimiter, string fieldQualifier, char escapeCharacterChar,
+                          string fieldDelimiter, string fieldQualifier, string escapeCharacter,
                           long recordLimit, bool allowRowCombining, bool alternateQuoting,
                           [NotNull] string commentLine, int numWarning, bool duplicateQuotingToEscape,
                           string newLinePlaceholder, string delimiterPlaceholder, string quotePlaceholder,
@@ -170,23 +170,9 @@ namespace CsvTools
       : base(fileName, columnDefinition, recordLimit)
     {
       SelfOpenedStream = !string.IsNullOrEmpty(fileName);
-      m_EscapeCharacterChar = escapeCharacterChar;
-
+      m_EscapeCharacterChar = escapeCharacter.WrittenPunctuationToChar();
       m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
-      // if the written text is no proper char its \0
-      if (fieldDelimiter.Length > 1 && m_FieldDelimiterChar == '\0')
-      {
-        Logger.Warning($"Only the first character of {fieldDelimiter} is used as delimiter.", fieldDelimiter);
-        m_FieldDelimiterChar = fieldDelimiter[0];
-      }
-
       m_FieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
-      // if the written text is no proper char its \0
-      if (fieldQualifier.Length > 1 && m_FieldQualifierChar == '\0')
-      {
-        Logger.Warning($"Only the first character of {fieldQualifier} is be used for quoting.", fieldQualifier);
-        m_FieldQualifierChar = fieldQualifier[0];
-      }
 
       if (m_FieldQualifierChar == c_Cr || m_FieldQualifierChar == c_Lf)
         throw new FileReaderException(
@@ -199,13 +185,22 @@ namespace CsvTools
 
       if (m_FieldDelimiterChar == m_EscapeCharacterChar)
         throw new FileReaderException(
-          $"The escape character is invalid, please use something else than the field delimiter character {FileFormat.GetDescription(m_EscapeCharacterChar)}.");
+          $"The escape character is invalid, please use something else than the field delimiter character {m_EscapeCharacterChar.GetDescription()}.");
+
+      if (escapeCharacter.Length > 1)
+        Logger.Warning("Escape {text} converted to {char}", escapeCharacter, m_EscapeCharacterChar);
+
+      if (fieldDelimiter.Length > 1)
+        Logger.Warning("Delimiter {text} converted to {char}", fieldDelimiter, m_FieldDelimiterChar);
+
+      if (fieldDelimiter.Length > 1)
+        Logger.Warning("Quoting {text} converted to {char}", fieldQualifier, m_FieldQualifierChar);
 
       m_HasQualifier = m_FieldQualifierChar != '\0';
 
       if (m_HasQualifier && m_FieldQualifierChar == m_FieldDelimiterChar)
         throw new ArgumentOutOfRangeException(
-          $"The text quoting and the field delimiter characters of a delimited file cannot be the same character {FileFormat.GetDescription(m_FieldDelimiterChar)}");
+          $"The text quoting and the field delimiter characters of a delimited file cannot be the same character {m_FieldDelimiterChar.GetDescription()}");
 
       m_AllowRowCombining = allowRowCombining;
       m_AlternateQuoting = alternateQuoting;
@@ -248,7 +243,7 @@ namespace CsvTools
                          bool hasFieldHeader = true,
                          [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
                          TrimmingOption trimmingOption = TrimmingOption.Unquoted,
-                         string fieldDelimiter = "\t", string fieldQualifier = "\"", char escapeCharacterChar = '\0',
+                         string fieldDelimiter = "\t", string fieldQualifier = "\"", string escapeCharacter = "",
                          long recordLimit = 0,
                          bool allowRowCombining = false, bool alternateQuoting = false,
                          [NotNull] string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
@@ -262,7 +257,7 @@ namespace CsvTools
                          string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool skipEmptyLines = true,
                          int consecutiveEmptyRowsMax = 4, string identifierInContainer = "")
       : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
-        trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacterChar, recordLimit, allowRowCombining,
+        trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
         alternateQuoting, commentLine, numWarning, duplicateQuotingToEscape, newLinePlaceholder, delimiterPlaceholder,
         quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace, tryToSolveMoreColumns,
         warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
@@ -288,7 +283,7 @@ namespace CsvTools
         fileSetting.SkipRows, fileSetting.HasFieldHeader,
         fileSetting.ColumnCollection, fileSetting.TrimmingOption, fileSetting.FileFormat.FieldDelimiter,
         fileSetting.FileFormat.FieldQualifier,
-        fileSetting.FileFormat.EscapeCharacterChar, fileSetting.RecordLimit, fileSetting.AllowRowCombining,
+        fileSetting.FileFormat.EscapeCharacter, fileSetting.RecordLimit, fileSetting.AllowRowCombining,
         fileSetting.FileFormat.AlternateQuoting, fileSetting.FileFormat.CommentLine, fileSetting.NumWarnings,
         fileSetting.FileFormat.DuplicateQuotingToEscape,
         fileSetting.FileFormat.NewLinePlaceholder,
@@ -1100,7 +1095,7 @@ namespace CsvTools
               if (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning)
                 HandleWarning(
                   columnNo,
-                  $"Field qualifier '{FileFormat.GetDescription(m_FieldQualifierChar)}' found in field"
+                  $"Field qualifier '{m_FieldQualifierChar.GetDescription()}' found in field"
                     .AddWarningId());
             }
 
@@ -1109,7 +1104,7 @@ namespace CsvTools
               if (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning)
                 HandleWarning(
                   columnNo,
-                  $"Field delimiter '{FileFormat.GetDescription(m_FieldDelimiterChar)}' found in field"
+                  $"Field delimiter '{m_FieldDelimiterChar.GetDescription()}' found in field"
                     .AddWarningId());
             }
 

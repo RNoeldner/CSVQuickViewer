@@ -910,18 +910,14 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(samples));
       var checkResult = new CheckResult();
       // Determine which decimalGrouping could be used
-      var possibleGrouping = StringConversion.DecimalGroupings.Where(character => character != '\0'
-          && samples.Any(
-            smp => smp.IndexOf(character) > -1))
+      var possibleGrouping = StringConversion.DecimalGroupings.Where(decGroup => !string.IsNullOrEmpty(decGroup) && samples.Any(smp => smp.IndexOf(decGroup) > -1))
         .ToList();
-
-      possibleGrouping.Add('\0');
-      var possibleDecimal = StringConversion.DecimalSeparators.Where(character => character != '\0')
-        .Where(character => samples.Any(smp => smp.IndexOf(character) > -1)).ToList();
+      possibleGrouping.Add(string.Empty);
+      var possibleDecimal = StringConversion.DecimalSeparators.Where(decSep => !string.IsNullOrEmpty(decSep) && samples.Any(smp => smp.IndexOf(decSep) > -1)).ToList();
 
       // Need to have at least one decimal separator
       if (possibleDecimal.Count == 0)
-        possibleDecimal.Add('.');
+        possibleDecimal.Add(".");
 
       foreach (var thousandSeparator in possibleGrouping)
         // Try Numbers: Int and Decimal

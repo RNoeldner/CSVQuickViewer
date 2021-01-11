@@ -154,6 +154,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="ClassLibraryCsvExtensionMethodsTest.cs" />
     <Compile Include="ColumnErrorDictionaryTests.cs" />
     <Compile Include="DataReaderWrapperTests.cs" />
     <Compile Include="DataTableReaderTests.cs" />

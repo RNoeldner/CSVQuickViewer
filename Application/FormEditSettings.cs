@@ -110,7 +110,7 @@ namespace CsvTools
       {
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(m_ViewSettings)))
         {
-          await CsvHelper.GuessDelimiterFromStream(improvedStream, m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.EscapeCharacterChar, m_CancellationTokenSource.Token);
+          await CsvHelper.GuessDelimiterFromStream(improvedStream, m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.EscapeCharacter, m_CancellationTokenSource.Token);
         }
       });
 
@@ -124,7 +124,7 @@ namespace CsvTools
       await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
       {
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(m_ViewSettings)))
-          qualifier = await CsvHelper.GuessQualifierFromStream(improvedStream, m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.FieldDelimiterChar, m_CancellationTokenSource.Token);
+          qualifier = await CsvHelper.GuessQualifierFromStream(improvedStream, m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.FieldDelimiter, m_CancellationTokenSource.Token);
       });
       if (qualifier != null)
         m_ViewSettings.FileFormat.FieldQualifier = qualifier;
@@ -137,7 +137,7 @@ namespace CsvTools
       await buttonSkipLine.RunWithHourglassAsync(async () =>
       {
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(m_ViewSettings)))
-          m_ViewSettings.SkipRows = await CsvHelper.GuessStartRowFromStream(improvedStream, m_ViewSettings.CodePageId, m_ViewSettings.FileFormat.FieldDelimiterChar, m_ViewSettings.FileFormat.FieldQualifierChar, m_ViewSettings.FileFormat.CommentLine, m_CancellationTokenSource.Token);
+          m_ViewSettings.SkipRows = await CsvHelper.GuessStartRowFromStream(improvedStream, m_ViewSettings.CodePageId, m_ViewSettings.FileFormat.FieldDelimiter, m_ViewSettings.FileFormat.FieldQualifier, m_ViewSettings.FileFormat.CommentLine, m_CancellationTokenSource.Token);
       });
     }
 
@@ -260,7 +260,7 @@ namespace CsvTools
       await buttonNewLine.RunWithHourglassAsync(async () =>
       {
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(m_ViewSettings)))
-          cboRecordDelimiter.SelectedValue = (int) await CsvHelper.GuessNewlineFromStream(improvedStream, m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.FieldQualifierChar, m_CancellationTokenSource.Token);
+          cboRecordDelimiter.SelectedValue = (int) await CsvHelper.GuessNewlineFromStream(improvedStream, m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.FieldQualifier, m_CancellationTokenSource.Token);
       });
     }
 
@@ -345,7 +345,7 @@ namespace CsvTools
       {
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(m_ViewSettings)))
         {
-          var res = await CsvHelper.GuessHasHeaderFromStream(improvedStream, m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.CommentLine, m_ViewSettings.FileFormat.FieldDelimiterChar, m_CancellationTokenSource.Token);
+          var res = await CsvHelper.GuessHasHeaderFromStream(improvedStream, m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.CommentLine, m_ViewSettings.FileFormat.FieldDelimiter, m_CancellationTokenSource.Token);
           m_ViewSettings.HasFieldHeader= res.Item1;
           fileSettingBindingSource.ResetBindings(false);
           _MessageBox.Show(res.Item2, "Checking headers");

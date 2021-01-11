@@ -323,8 +323,6 @@ namespace CsvTools
       return source;
     }
 
-    public static char GetFirstChar([CanBeNull] this string text) => string.IsNullOrEmpty(text) ? '\0' : text[0];
-
     /// <summary>
     ///   Gets a suitable ID for a filename
     /// </summary>
@@ -825,173 +823,260 @@ namespace CsvTools
 
     public static string ToStringHandle0(this char input) => input=='\0' ? string.Empty : input.ToString();
 
+    [NotNull]
+    public static string GetDescription(this char input) => input.ToStringHandle0().GetDescription();
+
     /// <summary>
-    ///   Replaces a written English punctuation to the punctuation character
+    ///   Gets a char from a text
     /// </summary>
-    /// <param name="inputString">The source</param>
-    /// <returns>return '\0' if the text was not interpreted as punctuation</returns>
-    public static char WrittenPunctuationToChar([NotNull] this string inputString)
+    /// <param name="input">The input string.</param>
+    /// <returns></returns>
+    [NotNull]
+    public static string GetDescription(this string input)
+    {
+      if (string.IsNullOrEmpty(input))
+        return string.Empty;
+
+      switch (input.WrittenPunctuationToChar())
+      {
+        case '\t':
+          return "Horizontal Tab";
+
+        case ' ':
+          return "Space";
+
+        case (char) 0xA0:
+          return "Non-breaking space";
+
+        case '\\':
+          return "Backslash: \\";
+
+        case '/':
+          return "Slash: /";
+
+        case ',':
+          return "Comma: ,";
+
+        case ';':
+          return "Semicolon: ;";
+        case ':':
+          return "Colon: :";
+
+        case '|':
+          return "Pipe: |";
+
+        case '\"':
+          return "Quotation marks: \"";
+
+        case '\'':
+          return "Apostrophe: \'";
+
+        case '&':
+          return "Ampersand: &";
+
+        case '*':
+          return "Asterisk: *";
+
+        case '`':
+          return "Tick Mark: `";
+
+        case '✓':
+          return "Check mark: ✓";
+
+        case '\u001F':
+          return "Unit Separator: Char 31";
+
+        case '\u001E':
+          return "Record Separator: Char 30";
+
+        case '\u001D':
+          return "Group Separator: Char 29";
+
+        case '\u001C':
+          return "File Separator: Char 28";
+
+        default:
+          return input.ToString();
+      }
+    }
+
+    /// <summary>
+    ///   Return a string resolving written puctuation
+    /// </summary>
+    /// <param name="inputString"></param>
+    /// <returns>A string of length 1 or empty</returns>
+    [NotNull]
+    public static string WrittenPunctuation(this string inputString)
     {
       if (string.IsNullOrEmpty(inputString))
-        return '\0';
-      if (inputString.Equals("Tab", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Tabulator", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Horizontal Tab", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("HorizontalTab", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("\t", StringComparison.Ordinal))
-        return '\t';
+        return string.Empty;
 
-      if (inputString.Equals("Space", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals(" ", StringComparison.Ordinal))
-        return ' ';
+      if (inputString.Length==1)
+      {
+        if (inputString.Equals("␍", StringComparison.Ordinal))
+          return "\r";
+        if (inputString.Equals("␊", StringComparison.Ordinal))
+          return "\n";
+        return inputString;
+      }
+
+      if (inputString.Equals("Tab", StringComparison.OrdinalIgnoreCase) ||
+            inputString.Equals("Tabulator", StringComparison.OrdinalIgnoreCase) ||
+            inputString.Equals("Horizontal Tab", StringComparison.OrdinalIgnoreCase) ||
+            inputString.Equals("HorizontalTab", StringComparison.OrdinalIgnoreCase))
+        return "\t";
+
+      if (inputString.Equals("Space", StringComparison.OrdinalIgnoreCase))
+        return " ";
 
       if (inputString.Equals("hash", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("sharp", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("#", StringComparison.Ordinal))
-        return '#';
+          inputString.Equals("sharp", StringComparison.OrdinalIgnoreCase))
+        return "#";
 
       if (inputString.Equals("whirl", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("at", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("monkey", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("@", StringComparison.Ordinal))
-        return '@';
+          inputString.Equals("monkey", StringComparison.OrdinalIgnoreCase))
+        return "@";
 
       if (inputString.Equals("underbar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("underscore", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("understrike", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("_", StringComparison.Ordinal))
-        return '_';
+          inputString.Equals("understrike", StringComparison.OrdinalIgnoreCase))
+        return "_";
 
       if (inputString.Equals("Comma", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Comma: ,", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals(",", StringComparison.Ordinal))
-        return ',';
+          inputString.Equals("Comma: ,", StringComparison.OrdinalIgnoreCase))
+        return ",";
 
       if (inputString.Equals("Dot", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Point", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Full Stop", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals(".", StringComparison.Ordinal))
-        return '.';
+          inputString.Equals("Full Stop", StringComparison.OrdinalIgnoreCase))
+        return ".";
 
       if (inputString.Equals("amper", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("ampersand", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Ampersand: &", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("&", StringComparison.Ordinal))
-        return '&';
+          inputString.Equals("Ampersand: &", StringComparison.OrdinalIgnoreCase))
+        return "&";
 
       if (inputString.Equals("Pipe", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Vertical bar", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("VerticalBar", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Pipe: |", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("|", StringComparison.Ordinal))
-        return '|';
+          inputString.Equals("Pipe: |", StringComparison.OrdinalIgnoreCase))
+        return "|";
 
       if (inputString.Equals("broken bar", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("BrokenBar", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("¦", StringComparison.Ordinal))
-        return '¦';
+          inputString.Equals("BrokenBar", StringComparison.OrdinalIgnoreCase))
+        return "¦";
 
       if (inputString.Equals("fullwidth broken bar", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("FullwidthBrokenBar", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("￤", StringComparison.Ordinal))
-        return '￤';
+          inputString.Equals("FullwidthBrokenBar", StringComparison.OrdinalIgnoreCase))
+        return "￤";
 
       if (inputString.Equals("Semicolon", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Semicolon: ;", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals(";", StringComparison.Ordinal))
-        return ';';
+          inputString.Equals("Semicolon: ;", StringComparison.OrdinalIgnoreCase))
+        return ";";
 
       if (inputString.Equals("Colon", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Colon: :", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals(":", StringComparison.Ordinal))
-        return ':';
+          inputString.Equals("Colon: :", StringComparison.OrdinalIgnoreCase))
+        return ":";
 
       if (inputString.Equals("Doublequote", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Doublequotes", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Quote", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Quotation marks", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Quotation marks: \"", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("\"", StringComparison.Ordinal))
-        return '"';
+          inputString.Equals("Quotation marks: \"", StringComparison.OrdinalIgnoreCase))
+        return "\"";
 
       if (inputString.Equals("Apostrophe", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Singlequote", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("tick", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Apostrophe: \'", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("'", StringComparison.Ordinal))
-        return '\'';
+          inputString.Equals("Apostrophe: \'", StringComparison.OrdinalIgnoreCase))
+        return "'";
 
       if (inputString.Equals("Slash", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Stroke", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("forward slash", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Slash: /", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("/", StringComparison.Ordinal))
-        return '/';
+          inputString.Equals("Slash: /", StringComparison.OrdinalIgnoreCase))
+        return "/";
 
       if (inputString.Equals("backslash", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("backslant", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Backslash: \\", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("\\", StringComparison.Ordinal))
-        return '\\';
+          inputString.Equals("Backslash: \\", StringComparison.OrdinalIgnoreCase))
+        return "\\";
 
       if (inputString.Equals("Tick", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Tick Mark", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("`", StringComparison.Ordinal))
-        return '`';
+          inputString.Equals("Tick Mark", StringComparison.OrdinalIgnoreCase))
+        return "`";
 
       if (inputString.Equals("Star", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Asterisk", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Asterisk: *", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("*", StringComparison.Ordinal))
-        return '*';
+          inputString.Equals("Asterisk: *", StringComparison.OrdinalIgnoreCase))
+        return "*";
 
       if (inputString.Equals("NBSP", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Non-breaking space", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("Non breaking space", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("NonBreakingSpace", StringComparison.OrdinalIgnoreCase))
-        return '\u00A0';
+        return "\u00A0";
 
       if (inputString.Equals("Return", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("CarriageReturn", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("CR", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("␍", StringComparison.Ordinal) ||
           inputString.Equals("Carriage return", StringComparison.OrdinalIgnoreCase))
-        return '\r';
+        return "\r";
 
       if (inputString.Equals("Check mark", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Check", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("✓", StringComparison.OrdinalIgnoreCase))
-        return '✓';
+          inputString.Equals("Check", StringComparison.OrdinalIgnoreCase))
+        return "✓";
 
       if (inputString.Equals("Feed", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("LineFeed", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("LF", StringComparison.OrdinalIgnoreCase) ||
           inputString.Equals("␊", StringComparison.Ordinal) ||
           inputString.Equals("Line feed", StringComparison.OrdinalIgnoreCase))
-        return '\n';
+        return "\n";
 
       if (inputString.StartsWith("Unit separator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Contains("31") ||
           inputString.Equals("␟", StringComparison.Ordinal) ||
           inputString.Equals("US", StringComparison.OrdinalIgnoreCase))
-        return '\u001F';
+        return "\u001F";
 
       if (inputString.StartsWith("Record separator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Contains("30") ||
           inputString.Equals("␞", StringComparison.Ordinal) ||
           inputString.Equals("RS", StringComparison.OrdinalIgnoreCase))
-        return '\u001E';
+        return "\u001E";
 
       if (inputString.StartsWith("Group separator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Contains("29") ||
           inputString.Equals("GS", StringComparison.OrdinalIgnoreCase))
-        return '\u001D';
+        return "\u001D";
 
       if (inputString.StartsWith("File separator", StringComparison.OrdinalIgnoreCase) ||
           inputString.Contains("28") ||
           inputString.Equals("FS", StringComparison.OrdinalIgnoreCase))
-        return '\u001C';
+        return "\u001C";
 
+      return inputString.Substring(0, 1);
+    }
+
+    /// <summary>
+    ///   Replaces a written English punctuation to the punctuation character
+    /// </summary>
+    /// <param name="inputString">The source</param>
+    /// <returns>return '\0' if the text was not interpreted as punctuation</returns>
+    public static char WrittenPunctuationToChar(this string inputString)
+    {
+      if (string.IsNullOrEmpty(inputString))
+        return '\0';
+      return WrittenPunctuation(inputString)[0];
+    }
+
+    public static char StringToChar([NotNull] this string inputString)
+    {
+      if (string.IsNullOrEmpty(inputString))
+        return '\0';
       return inputString[0];
     }
 

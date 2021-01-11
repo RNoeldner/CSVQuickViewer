@@ -23,7 +23,7 @@ namespace CsvTools.Tests
 
         using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
           new ColumnCollection(), TrimmingOption.Unquoted, result.FieldDelimiter, result.FieldQualifier,
-          result.EscapeCharacterChar, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+          result.EscapeCharacter, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
           string.Empty, true, false, true, false, false, false, false, false, false, true, true))
         {
           await reader.OpenAsync(process.CancellationToken);
@@ -41,7 +41,7 @@ namespace CsvTools.Tests
       {
         using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
           determinedColumns, TrimmingOption.Unquoted, result.FieldDelimiter, result.FieldQualifier,
-          result.EscapeCharacterChar, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+          result.EscapeCharacter, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
           string.Empty, true, false, true, false, false, false, false, false, false, true, true))
         {
           await reader.OpenAsync(process.CancellationToken);
@@ -66,7 +66,7 @@ namespace CsvTools.Tests
 
           using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
             new ColumnCollection(), TrimmingOption.Unquoted, result.FieldDelimiter, result.FieldQualifier,
-            result.EscapeCharacterChar, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+            result.EscapeCharacter, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
             string.Empty, true, false, true, false, false, false, false, false, false, true, true))
           {
             await reader.OpenAsync(process.CancellationToken);
@@ -84,7 +84,7 @@ namespace CsvTools.Tests
         {
           using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
             determinedColumns, TrimmingOption.Unquoted, result.FieldDelimiter, result.FieldQualifier,
-            result.EscapeCharacterChar, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+            result.EscapeCharacter, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
             string.Empty, true, false, true, false, false, false, false, false, false, true, true))
           {
             await reader.OpenAsync(process.CancellationToken);
