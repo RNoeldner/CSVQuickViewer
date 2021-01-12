@@ -97,9 +97,9 @@ namespace CsvTools
     ///   Occurs when something went wrong during opening of the setting, this might be the file
     ///   does not exist or a query ran into a timeout
     /// </summary>
-    public virtual event EventHandler<RetryEventArgs> OnAskRetry;
+    public event EventHandler<RetryEventArgs> OnAskRetry;
 
-    public virtual event EventHandler<IReadOnlyCollection<IColumn>> OpenFinished;
+    public event EventHandler<IReadOnlyCollection<IColumn>> OpenFinished;
 
     /// <summary>
     ///   Event to be raised if reading the files is completed
@@ -109,7 +109,7 @@ namespace CsvTools
     /// <summary>
     ///   Event handler called if a warning or error occurred
     /// </summary>
-    public virtual event EventHandler<WarningEventArgs> Warning;
+    public event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
     ///   Gets a value indicating the depth of nesting for the current row.
@@ -791,7 +791,7 @@ namespace CsvTools
     ///   Overrides the column format from setting.
     /// </summary>
     [UsedImplicitly]
-    public virtual bool Read(CancellationToken token) => ReadAsync(token).Wait(2000);
+    public virtual bool Read(CancellationToken token) => ReadAsync(token).Wait(2000, token);
 
     public override bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
 

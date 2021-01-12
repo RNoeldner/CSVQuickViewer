@@ -268,7 +268,7 @@ namespace CsvTools
     /// <summary>
     ///   Event handler called if a warning or error occurred
     /// </summary>
-    public virtual event EventHandler<WarningEventArgs> Warning;
+    public event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
     ///   Event to be raised if writing is finished
