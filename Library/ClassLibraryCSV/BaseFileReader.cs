@@ -535,7 +535,7 @@ namespace CsvTools
       if (parsed.HasValue)
         return parsed.Value;
 
-      throw WarnAddFormatException(columnNumber, $"'{CurrentRowColumnText[columnNumber]}' is not an long integer");
+      throw WarnAddFormatException(columnNumber, $"'{CurrentRowColumnText[columnNumber]}' is not a long integer");
     }
 
     /// <summary>
@@ -1164,16 +1164,8 @@ namespace CsvTools
 
       // set the data types, either using the definition, or the provided DataType with defaults
       for (var colIndex = 0; colIndex<adjusted.Count && colIndex<Column.Length; colIndex++)
-      {
-        try
-        {
-          Column[colIndex] = m_ColumnDefinition.First(x => x.Name.Equals(adjusted[colIndex], StringComparison.OrdinalIgnoreCase));
-        }
-        catch (InvalidOperationException)
-        {
-          Column[colIndex] = new ImmutableColumn(adjusted[colIndex], new ImmutableValueFormat(dataTypeL[colIndex]), colIndex);
-        }
-      }
+        Column[colIndex] = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(adjusted[colIndex], StringComparison.OrdinalIgnoreCase)) ??
+                           new ImmutableColumn(adjusted[colIndex], new ImmutableValueFormat(dataTypeL[colIndex]), colIndex);
 
       if (Column==null || Column.Length==0)
         issues.Add(-1, "Column should be set before using ParseColumnName to handle TimePart and TimeZone");
@@ -1264,7 +1256,7 @@ namespace CsvTools
         return null;
       string timeZone = null;
 
-      if (m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
+      if (m_AssociatedTimeZoneCol.Length>column.ColumnOrdinal &&  m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
       {
         timeZone = GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]);
       }
