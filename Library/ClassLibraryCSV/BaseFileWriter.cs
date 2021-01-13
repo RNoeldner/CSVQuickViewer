@@ -294,7 +294,7 @@ namespace CsvTools
       catch (Exception exc)
       {
         Logger.Error(exc, "Could not write file {filename}", FileSystemUtils.GetShortDisplayFileName(m_FullPath));
-        throw new FileWriterException($"Could not write file '{FileSystemUtils.GetShortDisplayFileName(m_FullPath)}'",
+        throw new FileWriterException($"Could not write file '{FileSystemUtils.GetShortDisplayFileName(m_FullPath)}'\n{exc.SourceExceptionMessage()}",
           exc);
       }
       finally
@@ -417,9 +417,8 @@ namespace CsvTools
             switch (columnInfo.ValueFormat.DataType)
             {
               case DataType.Integer:
-                displayAs = dataObject is long l
-                  ? l.ToString("0", CultureInfo.InvariantCulture)
-                  : ((int) dataObject).ToString("0", CultureInfo.InvariantCulture);
+                displayAs = Convert.ToInt64(dataObject).ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
+                    CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, columnInfo.ValueFormat.GroupSeparator);
                 break;
 
               case DataType.Boolean:
