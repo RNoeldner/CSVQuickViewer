@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Security;
 using System.Text;
 
 namespace CsvTools
@@ -385,20 +384,6 @@ namespace CsvTools
     [NotNull]
     public static string SqlQuote([CanBeNull] this string contents) =>
       string.IsNullOrEmpty(contents) ? string.Empty : contents.Replace("'", "''");
-
-    [NotNull]
-    public static SecureString ToSecureString([NotNull] this string text)
-    {
-      if (text is null)
-        throw new ArgumentNullException(nameof(text));
-      var securePassword = new SecureString();
-
-      foreach (var c in text)
-        securePassword.AppendChar(c);
-
-      securePassword.MakeReadOnly();
-      return securePassword;
-    }
 
     /// <summary>
     ///   Check if a text would match a filter value,
