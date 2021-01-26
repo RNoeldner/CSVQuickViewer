@@ -22,7 +22,7 @@
   <ItemGroup>
     <Compile Remove="CsvFileReaderAsync.cs" />
     <Compile Remove="DataTableReaderAsync.cs" />
-    <Compile Remove="SettingsReadOnly\SettingReadOnly.cs" />
+    <Compile Remove="Immutable\SettingReadOnly.cs" />
   </ItemGroup>
 
   <ItemGroup>

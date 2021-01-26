@@ -20,20 +20,20 @@ namespace CsvTools
   public class DelimitedFileDetectionResult
   {
     public readonly string FileName;
-    public bool ByteOrderMark;
-    public int CodePageId;
-    public bool HasFieldHeader;
-    public bool IsJson;
-    public bool NoDelimitedFile;
-    public int SkipRows;
-    [NotNull] public string IdentifierInContainer;
+    public readonly bool ByteOrderMark;
+    public readonly int CodePageId;
+    public readonly bool HasFieldHeader;
+    public readonly bool IsJson;
+    public readonly bool NoDelimitedFile;
+    public readonly int SkipRows;
+    [NotNull] public readonly string IdentifierInContainer;
 
-    public bool QualifyAlways;
-    [NotNull] public string CommentLine;
-    [NotNull] public string EscapeCharacter;
-    [NotNull] public string FieldDelimiter;
-    [NotNull] public string FieldQualifier;
-    public RecordDelimiterType NewLine;
+    public readonly bool QualifyAlways;
+    [NotNull] public readonly string CommentLine;
+    [NotNull] public readonly string EscapeCharacter;
+    [NotNull] public readonly string FieldDelimiter;
+    [NotNull] public readonly string FieldQualifier;
+    public readonly RecordDelimiterType NewLine;
 
     public DelimitedFileDetectionResult(string fileName, int skipRows = 0, int codePageId = -1, bool byteOrderMark = false, bool qualifyAlways = false,
                                         string identifierInContainer = "", string commentLine = "#", string escapeCharacter = "\\", string fieldDelimiter = "",

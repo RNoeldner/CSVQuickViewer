@@ -70,18 +70,8 @@ namespace CsvTools
     {
       Logger.Information("Configuration read from manifest file {filename}", manifestName);
       var mani = JsonConvert.DeserializeObject<ManifestData>(new StreamReader(manifestStream, Encoding.UTF8, true, 4096, false).ReadToEnd());
-      var fileSettingMani = new DelimitedFileDetectionResult(fileName)
-      {
-        HasFieldHeader = false,
-        IdentifierInContainer = identifierInContainer,
-        SkipRows = 0,
-        FieldDelimiter = ",",
-        QualifyAlways = true,
-        FieldQualifier = "\"",
-        NewLine = RecordDelimiterType.LF,
-        CodePageId= Encoding.UTF8.CodePage,
-        ByteOrderMark=false
-      };
+      var fileSettingMani = new DelimitedFileDetectionResult(fileName, 0, Encoding.UTF8.CodePage, false, true, identifierInContainer, "#", "\\", ",", "\"", false, false, false, RecordDelimiterType.LF);
+
       var columnCollection = new List<Column>();
       foreach (var fld in mani.Fields)
       {

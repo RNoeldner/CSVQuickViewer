@@ -405,7 +405,7 @@ namespace CsvTools
         }
 
         m_TextReader?.Dispose();
-        m_TextReader = new ImprovedTextReader(m_ImprovedStream, await CsvHelper.CodePageResolve(m_ImprovedStream, m_CodePageId, token).ConfigureAwait(false), m_SkipRows);
+        m_TextReader = new ImprovedTextReader(m_ImprovedStream, await m_ImprovedStream.CodePageResolve(m_CodePageId, token).ConfigureAwait(false), m_SkipRows);
         ResetPositionToStartOrOpen();
 
         m_HeaderRow = ReadNextRow(false);
