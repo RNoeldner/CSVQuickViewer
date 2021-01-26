@@ -56,7 +56,7 @@ namespace CsvTools
         using (var streamReader = new ImprovedTextReader(m_Stream, fileSetting.CodePageId))
         {
           streamReader.ToBeginning();
-          fileSetting.SkipRows = CsvHelper.GuessStartRowFromReader(streamReader, textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxComment.Text, frm.CancellationToken);
+          fileSetting.SkipRows = streamReader.GuessStartRow(textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxComment.Text, frm.CancellationToken);
         }
         HighlightVisibleRange(fileSetting.SkipRows);
       }
