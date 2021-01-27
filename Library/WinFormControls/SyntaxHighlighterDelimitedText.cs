@@ -31,18 +31,25 @@ namespace CsvTools
 
     public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, string qualifier, string delimiter, string escape, string comment) : base(textBox)
     {
-      qualifier=(qualifier??string.Empty).WrittenPunctuation();
-      delimiter=(delimiter??string.Empty).WrittenPunctuation();
-      escape=(escape??string.Empty).WrittenPunctuation();
+      var qualifierChar = (qualifier??string.Empty).WrittenPunctuation();
+      var delimiterChar = (delimiter??string.Empty).WrittenPunctuation();
+      if (string.IsNullOrEmpty(delimiterChar))
+        delimiterChar= "\t";
+
+      var escapeChar = (escape??string.Empty).WrittenPunctuation();
 
       m_DelimiterRegex = new Regex(
-        string.IsNullOrEmpty(escape) ? $"\\{delimiter}" : $"(?<!\\{escape})\\{delimiter}",
+        string.IsNullOrEmpty(escapeChar) ? $"\\{delimiterChar}" : $"(?<!\\{escapeChar})\\{delimiterChar}",
         RegexOptions.Singleline | RegexOptions.Compiled);
-      m_QuoteRegex = new Regex(
-        string.IsNullOrEmpty(escape)
-          ? $"\\{qualifier}((?:\\{qualifier}\\{qualifier}|(?:(?!\\{qualifier})).)*)\\{qualifier}"
-          : $"\\{qualifier}((?:\\{escape}\\{qualifier}|\\{qualifier}\\{qualifier}|(?:(?!\\{qualifier})).)*)\\{qualifier}",
-        RegexOptions.Multiline | RegexOptions.Compiled);
+
+      if (!string.IsNullOrEmpty(qualifierChar))
+      {
+        m_QuoteRegex = new Regex(
+          string.IsNullOrEmpty(escapeChar)
+            ? $"\\{qualifierChar}((?:\\{qualifierChar}\\{qualifierChar}|(?:(?!\\{qualifierChar})).)*)\\{qualifierChar}"
+            : $"\\{qualifierChar}((?:\\{escapeChar}\\{qualifierChar}|\\{qualifierChar}\\{qualifierChar}|(?:(?!\\{qualifierChar})).)*)\\{qualifierChar}",
+          RegexOptions.Multiline | RegexOptions.Compiled);
+      }
       if (!string.IsNullOrEmpty(comment))
         m_CommentRegex = new Regex($"\\s*{comment}.*$", RegexOptions.Multiline | RegexOptions.Compiled);
     }
@@ -50,11 +57,15 @@ namespace CsvTools
     public override void Highlight(FastColoredTextBoxNS.Range range)
     {
       range.ClearStyle(StyleIndex.All);
-      range.SetStyle(BlueStyle, m_DelimiterRegex);
-      range.SetStyle(MagentaStyle, m_QuoteRegex);
+      if (m_DelimiterRegex != null)
+        range.SetStyle(BlueStyle, m_DelimiterRegex);
+
+      if (m_QuoteRegex != null)
+        range.SetStyle(MagentaStyle, m_QuoteRegex);
 
       if (m_CommentRegex != null)
         range.SetStyle(GrayStyle, m_CommentRegex);
+
       range.SetStyle(m_Space, m_SpaceRegex);
       range.SetStyle(m_Tab, m_TabRegex);
     }

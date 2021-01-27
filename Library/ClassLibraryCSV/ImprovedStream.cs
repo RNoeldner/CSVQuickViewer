@@ -137,7 +137,7 @@ namespace CsvTools
           }
 
         if (!SourceAccess.LeaveOpen)
-          BaseStream.Close();
+          BaseStream?.Close();
       }
       catch (Exception ex)
       {

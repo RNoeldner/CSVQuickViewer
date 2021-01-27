@@ -125,7 +125,7 @@ namespace CsvTools
           }
           else
             m_HighLighter =
-              new SyntaxHighlighterDelimitedText(textBox, qualifier.WrittenPunctuation(), delimiter.WrittenPunctuation(), escape.WrittenPunctuation(), comment);
+              new SyntaxHighlighterDelimitedText(textBox, qualifier, delimiter, escape, comment);
 
           m_Stream = new ImprovedStream(new SourceAccess(m_FullPath));
           m_SkipLines = !json ? skipLines : 0;
