@@ -29,7 +29,7 @@ namespace CsvTools
   /// <summary>
   ///   Helper class
   /// </summary>
-  public static partial class CsvHelper
+  public static class CsvHelper
   {
     /// <summary>
     ///   Analyses the file asynchronous.
@@ -48,7 +48,7 @@ namespace CsvTools
     /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">processDisplay</exception>
-    public static async Task<Tuple<DelimitedFileDetectionResult, IEnumerable<Column>>> AnalyseFileAsync(string fileName, bool guessJson,
+    public static async Task<Tuple<DelimitedFileDetectionResult, IEnumerable<Column>>> AnalyseFileAsync(this string fileName, bool guessJson,
                                                          bool guessCodePage, bool guessDelimiter, bool guessQualifier, bool guessStartRow,
                                                          bool guessHasHeader, bool guessNewLine, [NotNull] FillGuessSettings fillGuessSettings,
                                                          [NotNull] IProcessDisplay processDisplay)
@@ -783,7 +783,7 @@ namespace CsvTools
     /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
     [NotNull]
     public static async Task<DelimitedFileDetectionResult> GetDetectionResultFromFile(
-      [NotNull] string fileName,
+      [NotNull] this string fileName,
       [NotNull] IProcessDisplay display,
       bool guessJson = false,
       bool guessCodePage = true,

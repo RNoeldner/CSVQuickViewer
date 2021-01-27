@@ -524,38 +524,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Remove all mapping that do not have a source
-    /// </summary>
-    /// <param name="columns">List of columns</param>
-    /// <param name="fileSetting">The setting.</param>
-    [NotNull]
-    public static IEnumerable<string> RemoveMappingWithoutSource([CanBeNull] this IFileSetting fileSetting,
-                                                                 [CanBeNull] IEnumerable<string> columns)
-    {
-      var notFoundColumnNames = new List<string>();
-
-      if (fileSetting == null || columns == null)
-        return notFoundColumnNames;
-      notFoundColumnNames.AddRange(
-        from map in fileSetting.MappingCollection
-        where !columns.Any(col => col.Equals(map.FileColumn, StringComparison.OrdinalIgnoreCase))
-        select map.FileColumn);
-
-      if (notFoundColumnNames.Count <= 0)
-        return notFoundColumnNames;
-
-      foreach (var notFound in notFoundColumnNames)
-      {
-        Logger.Warning(
-          "Column {columnname} was expected but was not found in {filesetting}. The invalid column mapping will be removed.",
-          notFound, fileSetting.ToString());
-        fileSetting.MappingCollection.RemoveColumn(notFound);
-      }
-
-      return notFoundColumnNames;
-    }
-
-    /// <summary>
     ///   String replace function that is Case Insensitive
     /// </summary>
     /// <param name="original">The source</param>
@@ -1084,7 +1052,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Check if a collection is equal, the items can be in any order as long as all exist in the
-    ///   th other
+    ///   other collection
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="self">The collection.</param>
