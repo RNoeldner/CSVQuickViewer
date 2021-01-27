@@ -28,664 +28,664 @@ using Timer = System.Timers.Timer;
 
 namespace CsvTools
 {
-  /// <summary>
-  ///   Form to Display a CSV File
-  /// </summary>
-  public sealed partial class FormMain : ResizeForm
-  {
-    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
-
-    private readonly DetailControlLoader m_DetailControlLoader;
-
-    private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
-
-    private readonly Collection<Column> m_StoreColumns = new Collection<Column>();
-
-    private readonly ViewSettings m_ViewSettings;
-
-    private bool m_ConfigChanged;
-
-    private bool m_FileChanged;
-
-    private ICsvFile m_FileSetting;
-
-    private ICollection<string> m_Headers;
-
-    private FormCsvTextDisplay m_SourceDisplay;
-
-    private int m_WarningCount;
-
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="FormMain" /> class.
-    /// </summary>
-    /// <param name="viewSettings">Default view Settings</param>
-    public FormMain(ViewSettings viewSettings)
-    {
-      m_ViewSettings = viewSettings;
-
-      InitializeComponent();
-      Text = AssemblyTitle;
-      Logger.AddLog(loggerDisplay.AddLog);
-
-      m_DetailControlLoader = new DetailControlLoader(detailControl);
-      // add the not button not visible in designer to the detail control
-      detailControl.AddToolStripItem(1, m_ToolStripButtonSettings);
-      detailControl.AddToolStripItem(1, m_ToolStripButtonLoadFile);
-      detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonSource);
-      detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
-      detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
-      detailControl.FileStored += FileStored;
-      detailControl.HTMLStyle = m_ViewSettings.HTMLStyle;
-
-      this.LoadWindowState(m_ViewSettings.WindowPosition);
-      ShowTextPanel(true);
-
-      m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
-      SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
-      SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
-      m_SettingsChangedTimerChange.AutoReset = false;
-      m_SettingsChangedTimerChange.Elapsed += async (sender, args) => await OpenDataReaderAsync();
-      m_SettingsChangedTimerChange.Stop();
-    }
-
-    public DataTable DataTable
-    {
-      get => detailControl.DataTable;
-    }
-
-    private static string AssemblyTitle
-    {
-      get
-      {
-        var assembly = Assembly.GetExecutingAssembly();
-        var version = assembly.GetName().Version;
-        var attributes = assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
-        if (attributes.Length <= 0)
-          return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
-        var titleAttribute = (AssemblyTitleAttribute) attributes[0];
-        if (titleAttribute.Title.Length != 0)
-          return titleAttribute.Title + " " + version;
-
-        return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
-      }
-    }
-
-    private void FileStored(object sender, IFileSettingPhysicalFile e)
-    {
-      if (!m_ViewSettings.StoreSettingsByFile)
-        return;
-      m_ConfigChanged = false;
-      SerializedFilesLib.SaveSettingFile(e as CsvFile, () => true);
-    }
-
-    private void AddWarning(object sender, WarningEventArgs args)
-    {
-      if (string.IsNullOrEmpty(args.Message))
-        return;
-      if (++m_WarningCount == m_FileSetting.NumWarnings)
-        Logger.Warning("No further warnings displayed");
-      else if (m_WarningCount < m_FileSetting.NumWarnings)
-        Logger.Warning(args.Display(true, true));
-    }
-
-    /// <summary>
-    ///   As any property is changed this will cause a reload from file
-    /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="e">
-    ///   The <see cref="PropertyChangedEventArgs" /> instance containing the event data.
-    /// </param>
-    /// <remarks>Called by ViewSettings.FillGuessSetting or Columns</remarks>
-    private void AnyPropertyChangedReload(object sender, PropertyChangedEventArgs e) => m_ConfigChanged = true;
-
-    /// <summary>
-    ///   Attaches the property changed handlers for the file Settings
-    /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    private void AttachPropertyChanged(IFileSetting fileSetting)
-    {
-      try
-      {
-        fileSetting.PropertyChanged += FileSetting_PropertyChanged;
-        fileSetting.FileFormat.PropertyChanged += AnyPropertyChangedReload;
-        foreach (var col in fileSetting.ColumnCollection)
-        {
-          col.PropertyChanged += AnyPropertyChangedReload;
-          col.ValueFormatMutable.PropertyChanged += AnyPropertyChangedReload;
-        }
-
-        if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
-          fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
-      }
-      catch
-      {
-        Logger.Information("Adding file system watcher failed");
-      }
-    }
-
-    /// <summary>
-    ///   Handles the DragDrop event of the dataGridView control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
-    private async void FileDragDrop(object sender, DragEventArgs e)
-    {
-      // Set the filename
-      var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
-      if (files.Length <= 0) return;
-      SaveIndividualFileSetting();
-      await LoadCsvFile(files[0]);
-    }
-
-    /// <summary>
-    ///   Handles the DragEnter event of the dataGridView control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
-    private void FileDragEnter(object sender, DragEventArgs e)
-    {
-      if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
-        e.Effect = DragDropEffects.All;
-    }
-
-    /// <summary>
-    ///   Detaches the property changed handlers for the file Setting
-    /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    private void DetachPropertyChanged(IFileSetting fileSetting)
-    {
-      m_SettingsChangedTimerChange.Stop();
-      fileSystemWatcher.EnableRaisingEvents = false;
-
-      if (fileSetting == null) return;
-
-      fileSetting.PropertyChanged -= FileSetting_PropertyChanged;
-      fileSetting.FileFormat.PropertyChanged -= AnyPropertyChangedReload;
-      foreach (var col in fileSetting.ColumnCollection)
-      {
-        col.PropertyChanged -= AnyPropertyChangedReload;
-        col.ValueFormatMutable.PropertyChanged -= AnyPropertyChangedReload;
-      }
-    }
-
-    private async void ToggleDisplayAsText(object sender, EventArgs e)
-    {
-      await m_ToolStripButtonAsText.RunWithHourglassAsync(async () =>
-      {
-        m_ToolStripButtonAsText.Enabled = false;
-        detailControl.SuspendLayout();
-
-        var store = ViewSetting.StoreViewSetting(detailControl.FilteredDataGridView,
-          new List<ToolStripDataGridViewColumnFilter>());
-        // Assume data type is not recognize
-        if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String))
-        {
-          Logger.Information("Showing columns as text");
-          m_FileSetting.ColumnCollection.CollectionCopy(m_StoreColumns);
-          m_FileSetting.ColumnCollection.Clear();
-          // restore header names
-          foreach (var col in m_StoreColumns)
-            m_FileSetting.ColumnCollection.Add(new Column(col.Name) { ColumnOrdinal = col.ColumnOrdinal });
-          m_ToolStripButtonAsText.Text = "As Values";
-          m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;
-        }
-        else
-        {
-          Logger.Information("Showing columns as values");
-          m_ToolStripButtonAsText.Text = "As Text";
-          m_ToolStripButtonAsText.Image = Properties.Resources.AsText;
-          m_StoreColumns.CollectionCopy(m_FileSetting.ColumnCollection);
-        }
-
-        await OpenDataReaderAsync();
-
-        ViewSetting.ReStoreViewSetting(store, detailControl.FilteredDataGridView.Columns,
-          new List<ToolStripDataGridViewColumnFilter>(), null, null);
-        detailControl.ResumeLayout();
-      });
-    }
-
-    private void ShowSourceFile(object sender, EventArgs e)
-    {
-      if (m_SourceDisplay != null) return;
-      m_ToolStripButtonSource.RunWithHourglass(() =>
-
-      {
-        m_ToolStripButtonSource.Enabled = false;
-        m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting.FileName);
-        m_SourceDisplay.FormClosed += SourceDisplayClosed;
-        m_SourceDisplay.Show();
-        using (var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token))
-        {
-          proc.Show(this);
-
-          proc.Maximum = 0;
-          proc.SetProcess("Reading source and applying color coding", 0, false);
-
-          m_SourceDisplay.OpenFile(m_FileSetting.JsonFormat,
-            m_FileSetting.FileFormat.FieldQualifier,
-            m_FileSetting.FileFormat.FieldDelimiter, m_FileSetting.FileFormat.EscapeCharacter,
-            m_FileSetting.CodePageId, m_FileSetting.SkipRows, m_FileSetting.FileFormat.CommentLine);
-          proc.Close();
-        }
-      });
-    }
-
-    private void SourceDisplayClosed(object sender, FormClosedEventArgs e)
-    {
-      m_SourceDisplay?.Dispose();
-      m_SourceDisplay = null;
-      m_ToolStripButtonSource.Enabled = true;
-    }
-
-    private async Task CheckPossibleChange()
-    {
-      try
-      {
-        if (m_ConfigChanged)
-        {
-          m_ConfigChanged = false;
-          detailControl.MoveMenu();
-          if (_MessageBox.Show(
-                "The configuration has changed do you want to reload the data?",
-            "Configuration changed",
-            MessageBoxButtons.YesNo,
-            MessageBoxIcon.Question,
-            MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-            await OpenDataReaderAsync();
-          else
-            m_ConfigChanged = false;
-        }
-
-        if (!m_FileChanged) return;
-        m_FileChanged = false;
-        if (_MessageBox.Show(
-              "The displayed file has changed do you want to reload the data?",
-          "File changed",
-          MessageBoxButtons.YesNo,
-          MessageBoxIcon.Question,
-          MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-          await OpenDataReaderAsync();
-        else
-          m_FileChanged = false;
-      }
-      catch (Exception exception)
-      {
-        Logger.Warning(exception, "Checking for changes");
-      }
-    }
-
-    /// <summary>
-    ///   Handles the Activated event of the Display control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private async void FormMain_Activated(object sender, EventArgs e) => await CheckPossibleChange();
-
-    private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
-    {
-      if (!m_CancellationTokenSource.IsCancellationRequested)
-      {
-        m_CancellationTokenSource.Cancel();
-        // Give the possibly running threads some time to exit
-        Thread.Sleep(100);
-      }
-
-      if (e.CloseReason != CloseReason.UserClosing) return;
-      Logger.Debug("Closing Form");
-
-      var res = this.StoreWindowState();
-      if (res != null)
-        m_ViewSettings.WindowPosition = res;
-      m_ViewSettings.SaveViewSettings();
-      SaveIndividualFileSetting();
-    }
-
-    /// <summary>
-    ///   Handles the PropertyChanged event of the FileSetting control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">
-    ///   The <see cref="PropertyChangedEventArgs" /> instance containing the event data.
-    /// </param>
-    private void FileSetting_PropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-      if (e.PropertyName == nameof(ICsvFile.AllowRowCombining)
-          || e.PropertyName == nameof(ICsvFile.ByteOrderMark)
-          || e.PropertyName == nameof(ICsvFile.CodePageId)
-          || e.PropertyName == nameof(ICsvFile.ConsecutiveEmptyRows)
-          || e.PropertyName == nameof(ICsvFile.DoubleDecode)
-          || e.PropertyName == nameof(ICsvFile.HasFieldHeader)
-          || e.PropertyName == nameof(ICsvFile.NumWarnings)
-          || e.PropertyName == nameof(ICsvFile.SkipEmptyLines)
-          || e.PropertyName == nameof(ICsvFile.SkipRows)
-          || e.PropertyName == nameof(ICsvFile.TreatLFAsSpace)
-          || e.PropertyName == nameof(ICsvFile.TreatNBSPAsSpace)
-          || e.PropertyName == nameof(ICsvFile.TreatTextAsNull)
-          || e.PropertyName == nameof(ICsvFile.TreatUnknownCharacterAsSpace)
-          || e.PropertyName == nameof(ICsvFile.TryToSolveMoreColumns)
-          || e.PropertyName == nameof(ICsvFile.WarnDelimiterInValue)
-          || e.PropertyName == nameof(ICsvFile.WarnEmptyTailingColumns)
-          || e.PropertyName == nameof(ICsvFile.WarnLineFeed)
-          || e.PropertyName == nameof(ICsvFile.WarnNBSP)
-          || e.PropertyName == nameof(ICsvFile.WarnQuotes)
-          || e.PropertyName == nameof(ICsvFile.WarnQuotesInQuotes)
-          || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)
-          || e.PropertyName == nameof(ICsvFile.DisplayStartLineNo)
-          || e.PropertyName == nameof(ICsvFile.DisplayRecordNo)
-          || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)
-          || e.PropertyName == nameof(ICsvFile.FileName))
-        m_ConfigChanged = true;
-    }
-
-    /// <summary>
-    ///   Handles the Changed event of the fileSystemWatcher control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">
-    ///   The <see cref="FileSystemEventArgs" /> instance containing the event data.
-    /// </param>
-    private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e) =>
-      m_FileChanged |= e.FullPath == m_FileSetting.FileName && e.ChangeType == WatcherChangeTypes.Changed;
-
-    private async void FormMain_KeyUpAsync(object sender, KeyEventArgs e)
-    {
-      if (e.KeyCode != Keys.F5 && (!e.Control || e.KeyCode != Keys.R)) return;
-      e.Handled = true;
-      await OpenDataReaderAsync();
-    }
-
-    private void SetFileSystemWatcher(string fileName)
-    {
-      if (m_ViewSettings.DetectFileChanges)
-      {
-        var split = FileSystemUtils.SplitPath(fileName);
-        fileSystemWatcher.Filter = split.FileName;
-        fileSystemWatcher.Path = split.DirectoryName;
-      }
-
-      if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
-        fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
-    }
-
-    /// <summary>
-    ///   Initializes the file settings.
-    /// </summary>
-    /// <param name="fileName"></param>
-    /// <returns></returns>
-    public async Task LoadCsvFile(string fileName)
-    {
-      if (IsDisposed)
-        return;
-      ShowTextPanel(true);
-
-      if (string.IsNullOrEmpty(fileName))
-        return;
-
-      if (!FileSystemUtils.FileExists(fileName))
-      {
-        Logger.Warning("Filename {filename} not found or not accessible.", fileName);
-        return;
-      }
-
-      try
-      {
-        using (var processDisplay = new CustomProcessDisplay(m_CancellationTokenSource.Token))
-        {
-          DetachPropertyChanged(m_FileSetting);
-
-          var det = await CsvHelper.AnalyseFileAsync(fileName, m_ViewSettings.AllowJson,
-                            m_ViewSettings.GuessCodePage,
-                            m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
-                            m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine,
-                            m_ViewSettings.FillGuessSettings, processDisplay);
-          m_FileSetting = det.Item1.CsvFile(det.Item2);
-          if (m_FileSetting == null)
-            return;
-
-          // update the UI
-          this.SafeInvoke(() =>
-          {
-            var display = fileName;
-            if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
-              display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
-
-            Text =
-              $@"{FileSystemUtils.GetShortDisplayFileName(display, 50)} - {EncodingHelper.GetEncodingName(m_FileSetting.CodePageId, m_FileSetting.ByteOrderMark)} - {AssemblyTitle}";
-
-            m_ToolStripButtonAsText.Visible = !m_FileSetting.JsonFormat &&
-                                              m_FileSetting.ColumnCollection.Any(x =>
-                                                x.ValueFormat.DataType != DataType.String);
-            SetFileSystemWatcher(fileName);
-          });
-
-          await OpenDataReaderAsync();
-
-          ShowTextPanel(false);
-        }
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex, "Examining File");
-      }
-    }
-
-    /// <summary>
-    ///   Opens the data reader.
-    /// </summary>
-    private async Task OpenDataReaderAsync()
-    {
-      if (m_FileSetting == null)
-        return;
-
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-
-      // Stop Property changed events for the time this is processed We might store data in the FileSetting
-      DetachPropertyChanged(m_FileSetting);
-
-      try
-      {
-        var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
-
-        using (var processDisplay = new FormProcessDisplay(fileNameShort, false, m_CancellationTokenSource.Token))
-        {
-          processDisplay.AttachTaskbarProgress();
-          processDisplay.Show();
-          processDisplay.SetProcess("Reading data...", -1, false);
-          processDisplay.Maximum = 100;
-
-          this.SafeInvoke(() =>
-          {
-            detailControl.FileSetting = m_FileSetting;
-            detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
-            detailControl.CancellationToken = m_CancellationTokenSource.Token;
-            detailControl.ShowInfoButtons = false;
-          });
-
-          await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.Duration, processDisplay,
-            AddWarning);
-
-          m_Headers = detailControl.DataTable.GetRealColumns().ToArray();
-          foreach (var columnName in m_Headers)
-          {
-            if (m_FileSetting.ColumnCollection.Get(columnName) == null)
-              m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
-          }
-
-          FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);
-
-          this.SafeBeginInvoke(() => { ShowTextPanel(false); });
-          FunctionalDI.SignalBackground?.Invoke();
-
-          if (m_DisposedValue)
-            return;
-        }
-
-        // The reader is used when data is stored through the detailControl
-        FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
-          await Task.FromResult(new DataTableWrapper(detailControl.DataTable));
-
-        if (detailControl.DataTable == null)
-          Logger.Information("No data to show");
-        else
-        {
-          // Load View Settings
-          var index = m_FileSetting.FileName.LastIndexOf('.');
-          var fn = (index == -1 ? m_FileSetting.FileName : m_FileSetting.FileName.Substring(0, index)) + ".col";
-          var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
-          if (FileSystemUtils.FileExists(fnView))
-          {
-            Logger.Information("Restoring view and filter setting {filename}...", fn);
-            detailControl.ReStoreViewSetting(fnView);
-          }
-        }
-      }
-      catch (Exception exc)
-      {
-        if (!m_DisposedValue)
-          this.ShowError(exc, "Opening File");
-      }
-      finally
-      {
-        if (!m_DisposedValue)
-        {
-          if (detailControl.DataTable == null)
-            Logger.Information("No data...");
-          else
-            // if (!m_FileSetting.NoDelimitedFile)
-            ShowTextPanel(false);
-
-          detailControl.ShowInfoButtons = true;
-          Cursor.Current = oldCursor;
-
-          m_ConfigChanged = false;
-          m_FileChanged = false;
-
-          // Re enable event watching
-          AttachPropertyChanged(m_FileSetting);
-        }
-      }
-    }
-
-    private void SaveIndividualFileSetting()
-    {
-      try
-      {
-        if (m_FileSetting != null && m_ViewSettings.StoreSettingsByFile)
-        {
-          SerializedFilesLib.SaveSettingFile(m_FileSetting as CsvFile,
-            () => _MessageBox.Show($"Replace changed settings?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
-        }
-        m_ConfigChanged = false;
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex, "Storing Settings");
-      }
-    }
-
-    private async void ShowSettings(object sender, EventArgs e)
-    {
-      await m_ToolStripButtonSettings.RunWithHourglassAsync(async () =>
-
-      {
-        m_ToolStripButtonSettings.Enabled = false;
-        ViewSettings.CopyConfiguration(m_FileSetting, m_ViewSettings);
-        using (var frm = new FormEditSettings(m_ViewSettings))
-        {
-          frm.ShowDialog(MdiParent);
-          m_ViewSettings.SaveViewSettings();
-          detailControl.MenuDown = m_ViewSettings.MenuDown;
-          SetFileSystemWatcher(m_FileSetting.FileName);
-          ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting);
-
-          await CheckPossibleChange();
-        }
-      });
-    }
-
-    private void ShowTextPanel(bool visible)
-    {
-      textPanel.SafeInvoke(() =>
-      {
-        textPanel.Visible = visible;
-        textPanel.BottomToolStripPanelVisible = visible;
-        detailControl.Visible = !visible;
-      });
-    }
-
-    private void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e) =>
-      this.LoadWindowState(m_ViewSettings.WindowPosition);
-
-    private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
-    {
-      switch (e.Mode)
-      {
-        case PowerModes.Suspend:
-          Logger.Debug("Power Event Suspend");
-          var res = this.StoreWindowState();
-          if (res == null)
-            return;
-          m_ViewSettings.WindowPosition = res;
-          break;
-
-        case PowerModes.Resume:
-          Logger.Debug("Power Event Resume");
-          this.LoadWindowState(m_ViewSettings.WindowPosition);
-          break;
-      }
-    }
-
-    private void ToggleShowLog(object sender, EventArgs e)
-    {
-      ShowTextPanel(!textPanel.Visible);
-    }
-
-    public async Task SelectFile(string message)
-    {
-      this.SafeInvoke(() =>
-      {
-        m_ToolStripButtonLoadFile.Enabled = false;
-        m_ToolStripButtonLoadFile2.Enabled = false;
-      });
-
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
-      try
-      {
-        loggerDisplay.AddLog(message, Logger.Level.Info);
-        var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
-                        + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
-
-        if (m_ViewSettings.StoreSettingsByFile)
-          strFilter += "Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension + "|";
-
-        strFilter += "Json files (*.json;*.ndjson)|*.json;*.ndjson|"
-                     + "Compressed files (*.gz;*.zip)|*.gz;*.zip|"
-                     + "All files (*.*)|*.*";
-
-        var fileName = WindowsAPICodePackWrapper.Open(".", "File to Display", strFilter, null);
-        if (!string.IsNullOrEmpty(fileName))
-        {
-          Cursor.Current = Cursors.WaitCursor;
-          await LoadCsvFile(fileName);
-        }
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex);
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-        this.SafeInvoke(() =>
-        {
-          m_ToolStripButtonLoadFile.Enabled = true;
-          m_ToolStripButtonLoadFile2.Enabled = true;
-        });
-      }
-    }
-
-    private async void ToolStripButtonLoadFile_Click(object sender, EventArgs e) => await SelectFile("Open File Dialog");
-  }
+	/// <summary>
+	///   Form to Display a CSV File
+	/// </summary>
+	public sealed partial class FormMain : ResizeForm
+	{
+		private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
+
+		private readonly DetailControlLoader m_DetailControlLoader;
+
+		private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
+
+		private readonly Collection<Column> m_StoreColumns = new Collection<Column>();
+
+		private readonly ViewSettings m_ViewSettings;
+
+		private bool m_ConfigChanged;
+
+		private bool m_FileChanged;
+
+		private ICsvFile m_FileSetting;
+
+		private ICollection<string> m_Headers;
+
+		private FormCsvTextDisplay m_SourceDisplay;
+
+		private int m_WarningCount;
+
+		/// <summary>
+		///   Initializes a new instance of the <see cref="FormMain" /> class.
+		/// </summary>
+		/// <param name="viewSettings">Default view Settings</param>
+		public FormMain(ViewSettings viewSettings)
+		{
+			m_ViewSettings = viewSettings;
+
+			InitializeComponent();
+			Text = AssemblyTitle;
+			Logger.AddLog(loggerDisplay.AddLog);
+
+			m_DetailControlLoader = new DetailControlLoader(detailControl);
+			// add the not button not visible in designer to the detail control
+			detailControl.AddToolStripItem(1, m_ToolStripButtonSettings);
+			detailControl.AddToolStripItem(1, m_ToolStripButtonLoadFile);
+			detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonSource);
+			detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
+			detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
+			detailControl.FileStored += FileStored;
+			detailControl.HTMLStyle = m_ViewSettings.HTMLStyle;
+
+			this.LoadWindowState(m_ViewSettings.WindowPosition);
+			ShowTextPanel(true);
+
+			m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
+			SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
+			SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
+			m_SettingsChangedTimerChange.AutoReset = false;
+			m_SettingsChangedTimerChange.Elapsed += async (sender, args) => await OpenDataReaderAsync();
+			m_SettingsChangedTimerChange.Stop();
+		}
+
+		public DataTable DataTable
+		{
+			get => detailControl.DataTable;
+		}
+
+		private static string AssemblyTitle
+		{
+			get
+			{
+				var assembly = Assembly.GetExecutingAssembly();
+				var version = assembly.GetName().Version;
+				var attributes = assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
+				if (attributes.Length <= 0)
+					return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+				var titleAttribute = (AssemblyTitleAttribute) attributes[0];
+				if (titleAttribute.Title.Length != 0)
+					return titleAttribute.Title + " " + version;
+
+				return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+			}
+		}
+
+		private void FileStored(object sender, IFileSettingPhysicalFile e)
+		{
+			if (!m_ViewSettings.StoreSettingsByFile)
+				return;
+			m_ConfigChanged = false;
+			SerializedFilesLib.SaveSettingFile(e as CsvFile, () => true);
+		}
+
+		private void AddWarning(object sender, WarningEventArgs args)
+		{
+			if (string.IsNullOrEmpty(args.Message))
+				return;
+			if (++m_WarningCount == m_FileSetting.NumWarnings)
+				Logger.Warning("No further warnings displayed");
+			else if (m_WarningCount < m_FileSetting.NumWarnings)
+				Logger.Warning(args.Display(true, true));
+		}
+
+		/// <summary>
+		///   As any property is changed this will cause a reload from file
+		/// </summary>
+		/// <param name="sender">The sender.</param>
+		/// <param name="e">
+		///   The <see cref="PropertyChangedEventArgs" /> instance containing the event data.
+		/// </param>
+		/// <remarks>Called by ViewSettings.FillGuessSetting or Columns</remarks>
+		private void AnyPropertyChangedReload(object sender, PropertyChangedEventArgs e) => m_ConfigChanged = true;
+
+		/// <summary>
+		///   Attaches the property changed handlers for the file Settings
+		/// </summary>
+		/// <param name="fileSetting">The file setting.</param>
+		private void AttachPropertyChanged(IFileSetting fileSetting)
+		{
+			try
+			{
+				fileSetting.PropertyChanged += FileSetting_PropertyChanged;
+				fileSetting.FileFormat.PropertyChanged += AnyPropertyChangedReload;
+				foreach (var col in fileSetting.ColumnCollection)
+				{
+					col.PropertyChanged += AnyPropertyChangedReload;
+					col.ValueFormatMutable.PropertyChanged += AnyPropertyChangedReload;
+				}
+
+				if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
+					fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
+			}
+			catch
+			{
+				Logger.Information("Adding file system watcher failed");
+			}
+		}
+
+		/// <summary>
+		///   Handles the DragDrop event of the dataGridView control.
+		/// </summary>
+		/// <param name="sender">The source of the event.</param>
+		/// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
+		private async void FileDragDrop(object sender, DragEventArgs e)
+		{
+			// Set the filename
+			var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
+			if (files.Length <= 0) return;
+			SaveIndividualFileSetting();
+			await LoadCsvFile(files[0]);
+		}
+
+		/// <summary>
+		///   Handles the DragEnter event of the dataGridView control.
+		/// </summary>
+		/// <param name="sender">The source of the event.</param>
+		/// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
+		private void FileDragEnter(object sender, DragEventArgs e)
+		{
+			if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
+				e.Effect = DragDropEffects.All;
+		}
+
+		/// <summary>
+		///   Detaches the property changed handlers for the file Setting
+		/// </summary>
+		/// <param name="fileSetting">The file setting.</param>
+		private void DetachPropertyChanged(IFileSetting fileSetting)
+		{
+			m_SettingsChangedTimerChange.Stop();
+			fileSystemWatcher.EnableRaisingEvents = false;
+
+			if (fileSetting == null) return;
+
+			fileSetting.PropertyChanged -= FileSetting_PropertyChanged;
+			fileSetting.FileFormat.PropertyChanged -= AnyPropertyChangedReload;
+			foreach (var col in fileSetting.ColumnCollection)
+			{
+				col.PropertyChanged -= AnyPropertyChangedReload;
+				col.ValueFormatMutable.PropertyChanged -= AnyPropertyChangedReload;
+			}
+		}
+
+		private async void ToggleDisplayAsText(object sender, EventArgs e)
+		{
+			await m_ToolStripButtonAsText.RunWithHourglassAsync(async () =>
+			{
+				m_ToolStripButtonAsText.Enabled = false;
+				detailControl.SuspendLayout();
+
+				var store = ViewSetting.StoreViewSetting(detailControl.FilteredDataGridView,
+					new List<ToolStripDataGridViewColumnFilter>());
+				// Assume data type is not recognize
+				if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String))
+				{
+					Logger.Information("Showing columns as text");
+					m_FileSetting.ColumnCollection.CollectionCopy(m_StoreColumns);
+					m_FileSetting.ColumnCollection.Clear();
+					// restore header names
+					foreach (var col in m_StoreColumns)
+						m_FileSetting.ColumnCollection.Add(new Column(col.Name) { ColumnOrdinal = col.ColumnOrdinal });
+					m_ToolStripButtonAsText.Text = "As Values";
+					m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;
+				}
+				else
+				{
+					Logger.Information("Showing columns as values");
+					m_ToolStripButtonAsText.Text = "As Text";
+					m_ToolStripButtonAsText.Image = Properties.Resources.AsText;
+					m_StoreColumns.CollectionCopy(m_FileSetting.ColumnCollection);
+				}
+
+				await OpenDataReaderAsync();
+
+				ViewSetting.ReStoreViewSetting(store, detailControl.FilteredDataGridView.Columns,
+					new List<ToolStripDataGridViewColumnFilter>(), null, null);
+				detailControl.ResumeLayout();
+			});
+		}
+
+		private void ShowSourceFile(object sender, EventArgs e)
+		{
+			if (m_SourceDisplay != null) return;
+			m_ToolStripButtonSource.RunWithHourglass(() =>
+
+			{
+				m_ToolStripButtonSource.Enabled = false;
+				m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting.FileName);
+				m_SourceDisplay.FormClosed += SourceDisplayClosed;
+				m_SourceDisplay.Show();
+				using (var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token))
+				{
+					proc.Show(this);
+
+					proc.Maximum = 0;
+					proc.SetProcess("Reading source and applying color coding", 0, false);
+
+					m_SourceDisplay.OpenFile(m_FileSetting.JsonFormat,
+						m_FileSetting.FileFormat.FieldQualifier,
+						m_FileSetting.FileFormat.FieldDelimiter, m_FileSetting.FileFormat.EscapeCharacter,
+						m_FileSetting.CodePageId, m_FileSetting.SkipRows, m_FileSetting.FileFormat.CommentLine);
+					proc.Close();
+				}
+			});
+		}
+
+		private void SourceDisplayClosed(object sender, FormClosedEventArgs e)
+		{
+			m_SourceDisplay?.Dispose();
+			m_SourceDisplay = null;
+			m_ToolStripButtonSource.Enabled = true;
+		}
+
+		private async Task CheckPossibleChange()
+		{
+			try
+			{
+				if (m_ConfigChanged)
+				{
+					m_ConfigChanged = false;
+					detailControl.MoveMenu();
+					if (_MessageBox.Show(
+								"The configuration has changed do you want to reload the data?",
+						"Configuration changed",
+						MessageBoxButtons.YesNo,
+						MessageBoxIcon.Question,
+						MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+						await OpenDataReaderAsync();
+					else
+						m_ConfigChanged = false;
+				}
+
+				if (!m_FileChanged) return;
+				m_FileChanged = false;
+				if (_MessageBox.Show(
+							"The displayed file has changed do you want to reload the data?",
+					"File changed",
+					MessageBoxButtons.YesNo,
+					MessageBoxIcon.Question,
+					MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+					await OpenDataReaderAsync();
+				else
+					m_FileChanged = false;
+			}
+			catch (Exception exception)
+			{
+				Logger.Warning(exception, "Checking for changes");
+			}
+		}
+
+		/// <summary>
+		///   Handles the Activated event of the Display control.
+		/// </summary>
+		/// <param name="sender">The source of the event.</param>
+		/// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+		private async void FormMain_Activated(object sender, EventArgs e) => await CheckPossibleChange();
+
+		private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			if (!m_CancellationTokenSource.IsCancellationRequested)
+			{
+				m_CancellationTokenSource.Cancel();
+				// Give the possibly running threads some time to exit
+				Thread.Sleep(100);
+			}
+
+			if (e.CloseReason != CloseReason.UserClosing) return;
+			Logger.Debug("Closing Form");
+
+			var res = this.StoreWindowState();
+			if (res != null)
+				m_ViewSettings.WindowPosition = res;
+			m_ViewSettings.SaveViewSettings();
+			SaveIndividualFileSetting();
+		}
+
+		/// <summary>
+		///   Handles the PropertyChanged event of the FileSetting control.
+		/// </summary>
+		/// <param name="sender">The source of the event.</param>
+		/// <param name="e">
+		///   The <see cref="PropertyChangedEventArgs" /> instance containing the event data.
+		/// </param>
+		private void FileSetting_PropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == nameof(ICsvFile.AllowRowCombining)
+					|| e.PropertyName == nameof(ICsvFile.ByteOrderMark)
+					|| e.PropertyName == nameof(ICsvFile.CodePageId)
+					|| e.PropertyName == nameof(ICsvFile.ConsecutiveEmptyRows)
+					|| e.PropertyName == nameof(ICsvFile.DoubleDecode)
+					|| e.PropertyName == nameof(ICsvFile.HasFieldHeader)
+					|| e.PropertyName == nameof(ICsvFile.NumWarnings)
+					|| e.PropertyName == nameof(ICsvFile.SkipEmptyLines)
+					|| e.PropertyName == nameof(ICsvFile.SkipRows)
+					|| e.PropertyName == nameof(ICsvFile.TreatLFAsSpace)
+					|| e.PropertyName == nameof(ICsvFile.TreatNBSPAsSpace)
+					|| e.PropertyName == nameof(ICsvFile.TreatTextAsNull)
+					|| e.PropertyName == nameof(ICsvFile.TreatUnknownCharacterAsSpace)
+					|| e.PropertyName == nameof(ICsvFile.TryToSolveMoreColumns)
+					|| e.PropertyName == nameof(ICsvFile.WarnDelimiterInValue)
+					|| e.PropertyName == nameof(ICsvFile.WarnEmptyTailingColumns)
+					|| e.PropertyName == nameof(ICsvFile.WarnLineFeed)
+					|| e.PropertyName == nameof(ICsvFile.WarnNBSP)
+					|| e.PropertyName == nameof(ICsvFile.WarnQuotes)
+					|| e.PropertyName == nameof(ICsvFile.WarnQuotesInQuotes)
+					|| e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)
+					|| e.PropertyName == nameof(ICsvFile.DisplayStartLineNo)
+					|| e.PropertyName == nameof(ICsvFile.DisplayRecordNo)
+					|| e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)
+					|| e.PropertyName == nameof(ICsvFile.FileName))
+				m_ConfigChanged = true;
+		}
+
+		/// <summary>
+		///   Handles the Changed event of the fileSystemWatcher control.
+		/// </summary>
+		/// <param name="sender">The source of the event.</param>
+		/// <param name="e">
+		///   The <see cref="FileSystemEventArgs" /> instance containing the event data.
+		/// </param>
+		private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e) =>
+			m_FileChanged |= e.FullPath == m_FileSetting.FileName && e.ChangeType == WatcherChangeTypes.Changed;
+
+		private async void FormMain_KeyUpAsync(object sender, KeyEventArgs e)
+		{
+			if (e.KeyCode != Keys.F5 && (!e.Control || e.KeyCode != Keys.R)) return;
+			e.Handled = true;
+			await OpenDataReaderAsync();
+		}
+
+		private void SetFileSystemWatcher(string fileName)
+		{
+			if (m_ViewSettings.DetectFileChanges)
+			{
+				var split = FileSystemUtils.SplitPath(fileName);
+				fileSystemWatcher.Filter = split.FileName;
+				fileSystemWatcher.Path = split.DirectoryName;
+			}
+
+			if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
+				fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
+		}
+
+		/// <summary>
+		///   Initializes the file settings.
+		/// </summary>
+		/// <param name="fileName"></param>
+		/// <returns></returns>
+		public async Task LoadCsvFile(string fileName)
+		{
+			if (IsDisposed)
+				return;
+			ShowTextPanel(true);
+
+			if (string.IsNullOrEmpty(fileName))
+				return;
+
+			if (!FileSystemUtils.FileExists(fileName))
+			{
+				Logger.Warning("Filename {filename} not found or not accessible.", fileName);
+				return;
+			}
+
+			try
+			{
+				using (var processDisplay = new CustomProcessDisplay(m_CancellationTokenSource.Token))
+				{
+					DetachPropertyChanged(m_FileSetting);
+
+					var det = await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
+														m_ViewSettings.GuessCodePage,
+														m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
+														m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine,
+														m_ViewSettings.FillGuessSettings, processDisplay);
+					m_FileSetting = det.Item1.CsvFile(det.Item2);
+					if (m_FileSetting == null)
+						return;
+
+					// update the UI
+					this.SafeInvoke(() =>
+					{
+						var display = fileName;
+						if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
+							display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
+
+						Text =
+							$@"{FileSystemUtils.GetShortDisplayFileName(display, 50)} - {EncodingHelper.GetEncodingName(m_FileSetting.CodePageId, m_FileSetting.ByteOrderMark)} - {AssemblyTitle}";
+
+						m_ToolStripButtonAsText.Visible = !m_FileSetting.JsonFormat &&
+																							m_FileSetting.ColumnCollection.Any(x =>
+																								x.ValueFormat.DataType != DataType.String);
+						SetFileSystemWatcher(fileName);
+					});
+
+					await OpenDataReaderAsync();
+
+					ShowTextPanel(false);
+				}
+			}
+			catch (Exception ex)
+			{
+				this.ShowError(ex, "Examining File");
+			}
+		}
+
+		/// <summary>
+		///   Opens the data reader.
+		/// </summary>
+		private async Task OpenDataReaderAsync()
+		{
+			if (m_FileSetting == null)
+				return;
+
+			var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+			Cursor.Current = Cursors.WaitCursor;
+
+			// Stop Property changed events for the time this is processed We might store data in the FileSetting
+			DetachPropertyChanged(m_FileSetting);
+
+			try
+			{
+				var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
+
+				using (var processDisplay = new FormProcessDisplay(fileNameShort, false, m_CancellationTokenSource.Token))
+				{
+					processDisplay.AttachTaskbarProgress();
+					processDisplay.Show();
+					processDisplay.SetProcess("Reading data...", -1, false);
+					processDisplay.Maximum = 100;
+
+					this.SafeInvoke(() =>
+					{
+						detailControl.FileSetting = m_FileSetting;
+						detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
+						detailControl.CancellationToken = m_CancellationTokenSource.Token;
+						detailControl.ShowInfoButtons = false;
+					});
+
+					await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.Duration, processDisplay,
+						AddWarning);
+
+					m_Headers = detailControl.DataTable.GetRealColumns().ToArray();
+					foreach (var columnName in m_Headers)
+					{
+						if (m_FileSetting.ColumnCollection.Get(columnName) == null)
+							m_FileSetting.ColumnCollection.AddIfNew(new Column { Name = columnName });
+					}
+
+					FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);
+
+					this.SafeBeginInvoke(() => { ShowTextPanel(false); });
+					FunctionalDI.SignalBackground?.Invoke();
+
+					if (m_DisposedValue)
+						return;
+				}
+
+				// The reader is used when data is stored through the detailControl
+				FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
+					await Task.FromResult(new DataTableWrapper(detailControl.DataTable));
+
+				if (detailControl.DataTable == null)
+					Logger.Information("No data to show");
+				else
+				{
+					// Load View Settings
+					var index = m_FileSetting.FileName.LastIndexOf('.');
+					var fn = (index == -1 ? m_FileSetting.FileName : m_FileSetting.FileName.Substring(0, index)) + ".col";
+					var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
+					if (FileSystemUtils.FileExists(fnView))
+					{
+						Logger.Information("Restoring view and filter setting {filename}...", fn);
+						detailControl.ReStoreViewSetting(fnView);
+					}
+				}
+			}
+			catch (Exception exc)
+			{
+				if (!m_DisposedValue)
+					this.ShowError(exc, "Opening File");
+			}
+			finally
+			{
+				if (!m_DisposedValue)
+				{
+					if (detailControl.DataTable == null)
+						Logger.Information("No data...");
+					else
+						// if (!m_FileSetting.NoDelimitedFile)
+						ShowTextPanel(false);
+
+					detailControl.ShowInfoButtons = true;
+					Cursor.Current = oldCursor;
+
+					m_ConfigChanged = false;
+					m_FileChanged = false;
+
+					// Re enable event watching
+					AttachPropertyChanged(m_FileSetting);
+				}
+			}
+		}
+
+		private void SaveIndividualFileSetting()
+		{
+			try
+			{
+				if (m_FileSetting != null && m_ViewSettings.StoreSettingsByFile)
+				{
+					SerializedFilesLib.SaveSettingFile(m_FileSetting as CsvFile,
+						() => _MessageBox.Show($"Replace changed settings?", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
+				}
+				m_ConfigChanged = false;
+			}
+			catch (Exception ex)
+			{
+				this.ShowError(ex, "Storing Settings");
+			}
+		}
+
+		private async void ShowSettings(object sender, EventArgs e)
+		{
+			await m_ToolStripButtonSettings.RunWithHourglassAsync(async () =>
+
+			{
+				m_ToolStripButtonSettings.Enabled = false;
+				ViewSettings.CopyConfiguration(m_FileSetting, m_ViewSettings);
+				using (var frm = new FormEditSettings(m_ViewSettings))
+				{
+					frm.ShowDialog(MdiParent);
+					m_ViewSettings.SaveViewSettings();
+					detailControl.MenuDown = m_ViewSettings.MenuDown;
+					SetFileSystemWatcher(m_FileSetting.FileName);
+					ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting);
+
+					await CheckPossibleChange();
+				}
+			});
+		}
+
+		private void ShowTextPanel(bool visible)
+		{
+			textPanel.SafeInvoke(() =>
+			{
+				textPanel.Visible = visible;
+				textPanel.BottomToolStripPanelVisible = visible;
+				detailControl.Visible = !visible;
+			});
+		}
+
+		private void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e) =>
+			this.LoadWindowState(m_ViewSettings.WindowPosition);
+
+		private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
+		{
+			switch (e.Mode)
+			{
+				case PowerModes.Suspend:
+					Logger.Debug("Power Event Suspend");
+					var res = this.StoreWindowState();
+					if (res == null)
+						return;
+					m_ViewSettings.WindowPosition = res;
+					break;
+
+				case PowerModes.Resume:
+					Logger.Debug("Power Event Resume");
+					this.LoadWindowState(m_ViewSettings.WindowPosition);
+					break;
+			}
+		}
+
+		private void ToggleShowLog(object sender, EventArgs e)
+		{
+			ShowTextPanel(!textPanel.Visible);
+		}
+
+		public async Task SelectFile(string message)
+		{
+			this.SafeInvoke(() =>
+			{
+				m_ToolStripButtonLoadFile.Enabled = false;
+				m_ToolStripButtonLoadFile2.Enabled = false;
+			});
+
+			var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+			try
+			{
+				loggerDisplay.AddLog(message, Logger.Level.Info);
+				var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
+												+ "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
+
+				if (m_ViewSettings.StoreSettingsByFile)
+					strFilter += "Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension + "|";
+
+				strFilter += "Json files (*.json;*.ndjson)|*.json;*.ndjson|"
+										 + "Compressed files (*.gz;*.zip)|*.gz;*.zip|"
+										 + "All files (*.*)|*.*";
+
+				var fileName = WindowsAPICodePackWrapper.Open(".", "File to Display", strFilter, null);
+				if (!string.IsNullOrEmpty(fileName))
+				{
+					Cursor.Current = Cursors.WaitCursor;
+					await LoadCsvFile(fileName);
+				}
+			}
+			catch (Exception ex)
+			{
+				this.ShowError(ex);
+			}
+			finally
+			{
+				Cursor.Current = oldCursor;
+				this.SafeInvoke(() =>
+				{
+					m_ToolStripButtonLoadFile.Enabled = true;
+					m_ToolStripButtonLoadFile2.Enabled = true;
+				});
+			}
+		}
+
+		private async void ToolStripButtonLoadFile_Click(object sender, EventArgs e) => await SelectFile("Open File Dialog");
+	}
 }
