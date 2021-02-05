@@ -15,7 +15,6 @@
 using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -24,7 +23,7 @@ namespace CsvTools
   /// <summary>
   ///   Setting file for CSV files, its an implementation of <see cref="BaseSettings" />
   /// </summary>
-  [Serializable]  
+  [Serializable]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class CsvFile : BaseSettingPhysicalFile, ICsvFile
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
@@ -80,8 +79,10 @@ namespace CsvTools
     [XmlIgnore]
     public virtual Encoding CurrentEncoding
     {
-      [NotNull] get => m_CurrentEncoding;
-      [CanBeNull] set => m_CurrentEncoding = value ?? Encoding.UTF8;
+      [NotNull]
+      get => m_CurrentEncoding;
+      [CanBeNull]
+      set => m_CurrentEncoding = value ?? Encoding.UTF8;
     }
 
     /// <summary>
@@ -424,7 +425,7 @@ namespace CsvTools
     ///   Copies all values to other instance
     /// </summary>
     /// <param name="other">The other.</param>
-    public override  void CopyTo(IFileSetting other)
+    public override void CopyTo(IFileSetting other)
     {
       if (other == null)
         return;

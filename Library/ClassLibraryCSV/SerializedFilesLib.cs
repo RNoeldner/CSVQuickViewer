@@ -20,86 +20,86 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
-	/// <summary>
-	///   A static class to help with Serialization of classes in the library
-	/// </summary>
-	public static class SerializedFilesLib
-	{
-		/// <summary>
-		///   The a XML serialize namespace, used for all serialization
-		/// </summary>
-		public static readonly Lazy<XmlSerializerNamespaces> EmptyXmlSerializerNamespaces =
-			new Lazy<XmlSerializerNamespaces>(() =>
-			{
-				var xmlSerializerNamespaces = new XmlSerializerNamespaces();
-				xmlSerializerNamespaces.Add(string.Empty, string.Empty);
-				return xmlSerializerNamespaces;
-			});
+  /// <summary>
+  ///   A static class to help with Serialization of classes in the library
+  /// </summary>
+  public static class SerializedFilesLib
+  {
+    /// <summary>
+    ///   The a XML serialize namespace, used for all serialization
+    /// </summary>
+    public static readonly Lazy<XmlSerializerNamespaces> EmptyXmlSerializerNamespaces =
+      new Lazy<XmlSerializerNamespaces>(() =>
+      {
+        var xmlSerializerNamespaces = new XmlSerializerNamespaces();
+        xmlSerializerNamespaces.Add(string.Empty, string.Empty);
+        return xmlSerializerNamespaces;
+      });
 
-		private static readonly Lazy<XmlSerializer> m_SerializerCurrentCsvFile =
-			new Lazy<XmlSerializer>(() => new XmlSerializer(typeof(CsvFile)));
+    private static readonly Lazy<XmlSerializer> m_SerializerCurrentCsvFile =
+      new Lazy<XmlSerializer>(() => new XmlSerializer(typeof(CsvFile)));
 
-		/// <summary>
-		///   Loads the CSV file.
-		/// </summary>
-		/// <param name="fileName">Name of the file.</param>
-		/// <returns></returns>
-		public static CsvFile LoadCsvFile([NotNull] string fileName)
-		{
-			var serial = FileSystemUtils.ReadAllText(fileName);
-			using (TextReader reader = new StringReader(serial))
-			{
-				return (CsvFile) m_SerializerCurrentCsvFile.Value.Deserialize(reader);
-			}
-		}
+    /// <summary>
+    ///   Loads the CSV file.
+    /// </summary>
+    /// <param name="fileName">Name of the file.</param>
+    /// <returns></returns>
+    public static CsvFile LoadCsvFile([NotNull] string fileName)
+    {
+      var serial = FileSystemUtils.ReadAllText(fileName);
+      using (TextReader reader = new StringReader(serial))
+      {
+        return (CsvFile) m_SerializerCurrentCsvFile.Value.Deserialize(reader);
+      }
+    }
 
-		/// <summary>
-		///   Saves the setting for a physical file
-		/// </summary>
-		/// <param name="fileSetting">The filesetting to serialize.</param>
-		/// <param name="askOverwrite">The ask overwrite.</param>
-		public static void SaveSettingFile([NotNull] CsvFile fileSetting, [NotNull] Func<bool> askOverwrite)
-		{
-			if (fileSetting == null)
-				return;
-			var fileName = fileSetting.FileName + CsvFile.cCsvSettingExtension;
+    /// <summary>
+    ///   Saves the setting for a physical file
+    /// </summary>
+    /// <param name="fileSetting">The filesetting to serialize.</param>
+    /// <param name="askOverwrite">The ask overwrite.</param>
+    public static void SaveSettingFile([NotNull] ICsvFile fileSetting, [NotNull] Func<bool> askOverwrite)
+    {
+      if (fileSetting == null)
+        return;
+      var fileName = fileSetting.FileName + CsvFile.cCsvSettingExtension;
 
-			var saveSetting = fileSetting.Clone() as CsvFile;
-			saveSetting.FileName = string.Empty;
-			saveSetting.ID = string.Empty;
+      var saveSetting = fileSetting.Clone() as CsvFile;
+      saveSetting.FileName = string.Empty;
+      saveSetting.ID = string.Empty;
 
-			// remove not needed Columns
-			saveSetting.ColumnCollection.Clear();
-			foreach (var col in fileSetting.ColumnCollection)
-			{
-				if (col.Ignore || col.DataType== DataType.String && col.Convert || col.DataType!= DataType.String)
-					saveSetting.ColumnCollection.AddIfNew(col);
-			}
+      // remove not needed Columns
+      saveSetting.ColumnCollection.Clear();
+      foreach (var col in fileSetting.ColumnCollection)
+      {
+        if (col.Ignore || col.DataType== DataType.String && col.Convert || col.DataType!= DataType.String)
+          saveSetting.ColumnCollection.AddIfNew(col);
+      }
 
-			Logger.Debug("Saving setting {path}", fileName);
-			string contens = null;
-			using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
-			{
-				m_SerializerCurrentCsvFile.Value.Serialize(stringWriter, saveSetting, EmptyXmlSerializerNamespaces.Value);
-				contens= stringWriter.ToString();
-			}
+      Logger.Debug("Saving setting {path}", fileName);
+      string contens = null;
+      using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
+      {
+        m_SerializerCurrentCsvFile.Value.Serialize(stringWriter, saveSetting, EmptyXmlSerializerNamespaces.Value);
+        contens= stringWriter.ToString();
+      }
 
-			var delete = false;
-			if (FileSystemUtils.FileExists(fileName))
-			{
-				var fileContend = FileSystemUtils.ReadAllText(fileName);
-				if (fileContend.Equals(contens))
-					return;
+      var delete = false;
+      if (FileSystemUtils.FileExists(fileName))
+      {
+        var fileContend = FileSystemUtils.ReadAllText(fileName);
+        if (fileContend.Equals(contens))
+          return;
 
-				if (askOverwrite.Invoke())
-					delete = true;
-				else
-					return;
-			}
+        if (askOverwrite.Invoke())
+          delete = true;
+        else
+          return;
+      }
 
-			if (delete)
-				FileSystemUtils.DeleteWithBackup(fileName, false);
-			File.WriteAllText(fileName, contens);
-		}
-	}
+      if (delete)
+        FileSystemUtils.DeleteWithBackup(fileName, false);
+      File.WriteAllText(fileName, contens);
+    }
+  }
 }

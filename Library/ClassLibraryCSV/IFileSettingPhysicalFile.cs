@@ -49,6 +49,11 @@ namespace CsvTools
     /// </summary>
     string RemoteFileName { [NotNull] get; [CanBeNull] set; }
 
+    /// <summary>
+    ///   May store information on columns to show, filtering and sorting
+    /// </summary>
+    string ColumnFile { [NotNull] get; [CanBeNull] set; }
+
     string IdentifierInContainer { [NotNull] get; [CanBeNull] set; }
 
     /// <summary>

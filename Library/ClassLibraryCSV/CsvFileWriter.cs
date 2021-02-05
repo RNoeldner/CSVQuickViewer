@@ -14,6 +14,7 @@
 
 using JetBrains.Annotations;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -35,31 +36,42 @@ namespace CsvTools
     [NotNull] private readonly string m_FieldQualifierEscaped;
     [NotNull] private readonly char[] m_QualifyCharArray;
 
+    public CsvFileWriter([NotNull] string id, [NotNull] string fullPath, string recipient, string identifierInContainer,
+      bool hasFieldHeader, [NotNull] string footer, [NotNull] string header, [NotNull] IValueFormat valueFormat, [NotNull] IFileFormat fileFormat,
+      [NotNull] IEnumerable<IColumn> columnDefinition, [NotNull] string fileSettingDisplay, int codePageId, bool byteOrderMark,
+      [NotNull] string fieldQualifier, [NotNull] string fieldDelimiter, [NotNull] string escapeCharacter, [CanBeNull] IProcessDisplay processDisplay)
+      : base(id, fullPath, recipient, identifierInContainer, hasFieldHeader, footer, header, valueFormat, fileFormat, columnDefinition, fileSettingDisplay, processDisplay)
+    {
+      m_CodePageId = codePageId;
+      m_ByteOrderMark = byteOrderMark;
+
+      m_FieldQualifier = fieldQualifier.WrittenPunctuation();
+      m_FieldDelimiter = fieldDelimiter.WrittenPunctuation();
+      if (!string.IsNullOrEmpty(escapeCharacter))
+      {
+        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d };
+        m_FieldQualifierEscaped = escapeCharacter.WrittenPunctuation() + m_FieldQualifier;
+        m_FieldDelimiterEscaped = escapeCharacter.WrittenPunctuation() + m_FieldDelimiter;
+      }
+      else
+      {
+        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d, fieldDelimiter.WrittenPunctuationToChar() };
+        m_FieldQualifierEscaped = m_FieldQualifier + m_FieldQualifier;
+        m_FieldDelimiterEscaped = m_FieldDelimiter + m_FieldDelimiter;
+      }
+    }
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="CsvFileWriter" /> class.
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="processDisplay">The process display.</param>
-    public CsvFileWriter([NotNull] ICsvFile file, [CanBeNull] IProcessDisplay processDisplay)
-      : base(file, processDisplay)
+    public CsvFileWriter([NotNull] ICsvFile fileSetting, [CanBeNull] IProcessDisplay processDisplay)
+      : this(fileSetting.ID, fileSetting.FullPath, fileSetting.Recipient, fileSetting.IdentifierInContainer, fileSetting.HasFieldHeader,
+        fileSetting.Footer, fileSetting.Header, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, fileSetting.ColumnCollection.ReadonlyCopy(), fileSetting.ToString(),
+        fileSetting.CodePageId, fileSetting.ByteOrderMark, fileSetting.FileFormat.FieldQualifier, fileSetting.FileFormat.FieldDelimiter, fileSetting.FileFormat.EscapeCharacter,
+        processDisplay)
     {
-      m_CodePageId = file.CodePageId;
-      m_ByteOrderMark = file.ByteOrderMark;
-
-      m_FieldQualifier = file.FileFormat.FieldQualifier.WrittenPunctuation();
-      m_FieldDelimiter = file.FileFormat.FieldDelimiter.WrittenPunctuation();
-      if (!string.IsNullOrEmpty(file.FileFormat.EscapeCharacter))
-      {
-        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d };
-        m_FieldQualifierEscaped = file.FileFormat.EscapeCharacter.WrittenPunctuation() + m_FieldQualifier;
-        m_FieldDelimiterEscaped = file.FileFormat.EscapeCharacter.WrittenPunctuation() + m_FieldDelimiter;
-      }
-      else
-      {
-        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d, file.FileFormat.FieldDelimiter.WrittenPunctuationToChar() };
-        m_FieldQualifierEscaped = m_FieldQualifier + m_FieldQualifier;
-        m_FieldDelimiterEscaped = m_FieldDelimiter + m_FieldDelimiter;
-      }
     }
 
     /// <summary>

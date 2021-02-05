@@ -478,6 +478,28 @@ namespace CsvTools
       }
     }
 
+    [NotNull]
+    public static string PlaceholderReplaceFormat([NotNull] this string input, [NotNull] string placeholder, [CanBeNull] object replacement)
+    {
+      if (replacement == null) return input;
+      // in case we have a placeholder with a formating part e.G. {date:yyyy-MM-dd} we us
+      // string.Format to process {0:...
+
+      // General regex without mathcing the placeholder name is: (?:[{#])([^:\s}#]*)(:[^}]*)?(?:[}#\s])
+
+      // Needs to strat with # or { Ends with #, space or } May contain a Format desciption starting
+      // with : ending with }
+      var regEx = new Regex(@"(?:[{#])(" + Regex.Escape(placeholder) +  @")(:[^}]*)?(?:[}#\s])", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+      if (regEx.IsMatch(input))
+      {
+        var withformat = regEx.Replace(input, "{0$2}");
+        return string.Format(withformat, replacement);
+      }
+      // using string format but replace the placeholer text with 0 as only argument
+      else
+        return PlaceholderReplace(input, placeholder, replacement.ToString());
+    }
+
     /// <summary>
     ///   Replaces a placeholders with a text. The placeholder are identified surrounding { or a
     ///   leading #
@@ -505,7 +527,7 @@ namespace CsvTools
             return input;
         }
       }
-
+      // TODO: Not sure why this is in the code, where was it needed?
       if (input.IndexOf(" - " + type, StringComparison.OrdinalIgnoreCase) != -1)
       {
         type = " - " + type;
