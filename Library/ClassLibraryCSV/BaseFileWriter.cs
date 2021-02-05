@@ -77,11 +77,9 @@ namespace CsvTools
 
     protected BaseFileWriter([NotNull] string id,
       [NotNull] string fullPath, string recipient, string identifierInContainer, bool hasFieldHeader,
-      [NotNull] string footer,
-      [NotNull] string header,
+      [NotNull] string footer, [NotNull] string header,
       [NotNull] IValueFormat valueFormat, [NotNull] IFileFormat fileFormat,
-      [NotNull] IEnumerable<IColumn> columnDefinition,
-      [NotNull] string fileSettingDisplay,
+      [NotNull] IEnumerable<IColumn> columnDefinition, [NotNull] string fileSettingDisplay,
       [CanBeNull] IProcessDisplay processDisplay)
     {
       m_FullPath = fullPath;

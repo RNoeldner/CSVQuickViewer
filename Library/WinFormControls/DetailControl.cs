@@ -158,7 +158,8 @@ namespace CsvTools
     /// </summary>
     public bool MenuDown
     {
-      get => m_MenuDown; set
+      get => m_MenuDown;
+      set
       {
         if (m_MenuDown==value) return;
         m_MenuDown=value;

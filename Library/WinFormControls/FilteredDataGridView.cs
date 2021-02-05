@@ -343,7 +343,8 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileName) || !FileSystemUtils.FileExists(fileName) || Columns.Count==0)
         return;
-
+      if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
+        basePhysical.ColumnFile = fileName;
       SuspendLayout();
       if (ViewSetting.ReStoreViewSetting(FileSystemUtils.ReadAllText(fileName), Columns, m_Filter, GetColumnFilter, Sort))
         ApplyFilters();
@@ -1320,12 +1321,16 @@ namespace CsvTools
         // Select Path
         var fileName = WindowsAPICodePackWrapper.Save(m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
           "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
+
         if (!string.IsNullOrEmpty(fileName))
           using (var stream = new ImprovedStream(new SourceAccess(fileName, false)))
           using (var writer = new StreamWriter(stream, Encoding.UTF8, 1024))
           {
             await writer.WriteAsync(ViewSetting.StoreViewSetting(this, m_Filter));
             await writer.FlushAsync();
+
+            if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
+              basePhysical.ColumnFile = fileName;
           }
       }
       catch (Exception ex)

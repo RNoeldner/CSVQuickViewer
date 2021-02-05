@@ -30,6 +30,7 @@ namespace CsvTools
     private string m_IdentifierInContainer = string.Empty;
     private string m_RemoteFileName = string.Empty;
     private bool m_ThrowErrorIfNotExists = true;
+    private string m_ColumnFile = string.Empty;
 
     public BaseSettingPhysicalFile(string fileName)
     {
@@ -92,6 +93,20 @@ namespace CsvTools
           m_FullPathInitialized = true;
         return m_FullPath;
       }
+    }
+
+    /// <summary>
+    ///   Gets or sets the name of the file.
+    /// </summary>
+    /// <value>The name of the file.</value>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public virtual string ColumnFile
+    {
+      [NotNull]
+      get => m_ColumnFile;
+      [CanBeNull]
+      set => m_ColumnFile = value ?? string.Empty;
     }
 
     /// <summary>
@@ -179,6 +194,7 @@ namespace CsvTools
       if (other is IFileSettingPhysicalFile fileSettingPhysicalFile)
       {
         fileSettingPhysicalFile.FileSize = FileSize;
+        fileSettingPhysicalFile.ColumnFile = ColumnFile;
         fileSettingPhysicalFile.FileName = FileName;
         fileSettingPhysicalFile.RemoteFileName = RemoteFileName;
         fileSettingPhysicalFile.IdentifierInContainer = IdentifierInContainer;
@@ -199,6 +215,9 @@ namespace CsvTools
 
         if (fileSettingPhysicalFile.IdentifierInContainer != IdentifierInContainer ||
             fileSettingPhysicalFile.FileSize != FileSize)
+          return false;
+
+        if (!string.Equals(fileSettingPhysicalFile.ColumnFile, ColumnFile, StringComparison.OrdinalIgnoreCase))
           return false;
       }
       return base.BaseSettingsEquals(other);
