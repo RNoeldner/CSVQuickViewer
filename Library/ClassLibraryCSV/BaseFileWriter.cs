@@ -68,6 +68,7 @@ namespace CsvTools
     private readonly string m_Footer;
     [NotNull] private readonly string m_FullPath;
     private readonly string m_Recipient;
+    private readonly bool m_KeepUnencrypted;
     private readonly string m_IdentifierInContainer;
     private readonly Action<string> m_ReportProgress;
     private readonly Action<long> m_SetMaxProcess;
@@ -76,31 +77,46 @@ namespace CsvTools
     private DateTime m_LastNotification = DateTime.Now;
 
     protected BaseFileWriter([NotNull] string id,
-      [NotNull] string fullPath, string recipient, string identifierInContainer, bool hasFieldHeader,
-      [NotNull] string footer, [NotNull] string header,
-      [NotNull] IValueFormat valueFormat, [NotNull] IFileFormat fileFormat,
-      [NotNull] IEnumerable<IColumn> columnDefinition, [NotNull] string fileSettingDisplay,
-      [CanBeNull] IProcessDisplay processDisplay)
+      [NotNull] string fullPath, bool hasFieldHeader, [CanBeNull] IValueFormat valueFormatGeneral = null, [CanBeNull] IFileFormat fileFormat = null, [CanBeNull] string recipient = null,
+      bool unencrypted = false, [CanBeNull] string identifierInContainer = null,
+      [CanBeNull] string footer = null, [CanBeNull] string header = null,
+      [CanBeNull] IEnumerable<IColumn> columnDefinition = null, [NotNull] string fileSettingDisplay = null,
+      [CanBeNull] IProcessDisplay processDisplay = null)
     {
       m_FullPath = fullPath;
       var fileName = FileSystemUtils.GetFileName(fullPath);
       ColumnHeader = hasFieldHeader;
-      ValueFormatGeneral = new ImmutableValueFormat(valueFormat.DataType, valueFormat.DateFormat, valueFormat.DateSeparator,
-        valueFormat.TimeSeparator, valueFormat.NumberFormat, valueFormat.GroupSeparator, valueFormat.DecimalSeparator, valueFormat.True,
-        valueFormat.False, valueFormat.DisplayNullAs);
-      FileFormat = fileFormat is ImmutableFileFormat immutable ? immutable : new ImmutableFileFormat(fileFormat.IsFixedLength, fileFormat.QualifyAlways,
-      fileFormat.QualifyOnlyIfNeeded, fileFormat.NewLinePlaceholder, fileFormat.DelimiterPlaceholder, fileFormat.FieldDelimiterChar,
-      fileFormat.FieldQualifierChar, fileFormat.QuotePlaceholder, fileFormat.NewLine);
+      if (valueFormatGeneral!=null)
+        ValueFormatGeneral = new ImmutableValueFormat(valueFormatGeneral.DataType, valueFormatGeneral.DateFormat, valueFormatGeneral.DateSeparator,
+            valueFormatGeneral.TimeSeparator, valueFormatGeneral.NumberFormat, valueFormatGeneral.GroupSeparator, valueFormatGeneral.DecimalSeparator, valueFormatGeneral.True,
+            valueFormatGeneral.False, valueFormatGeneral.DisplayNullAs);
+      else
+        ValueFormatGeneral =new ImmutableValueFormat();
+
+      if (fileFormat!=null)
+        FileFormat = new ImmutableFileFormat(fileFormat.IsFixedLength, fileFormat.QualifyAlways,
+          fileFormat.QualifyOnlyIfNeeded, fileFormat.EscapeChar, fileFormat.FieldDelimiterChar, fileFormat.DelimiterPlaceholder,
+          fileFormat.FieldQualifierChar, fileFormat.QuotePlaceholder, fileFormat.NewLine, fileFormat.NewLinePlaceholder);
+      else
+        FileFormat = new ImmutableFileFormat();
+
       ColumnDefinition =  columnDefinition?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col.Name, col.ValueFormat, col.ColumnOrdinal, col.Convert, col.DestinationName, col.Ignore, col.Part, col.PartSplitter, col.PartToEnd, col.TimePart, col.TimePartFormat, col.TimeZonePart)).ToList() ??
                            new List<ImmutableColumn>();
       NewLine = fileFormat.NewLine.NewLineString();
-      Header = ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(header, NewLine), fileFormat.FieldDelimiterChar.GetDescription(),
+      if (!string.IsNullOrEmpty(header))
+        Header = ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(header, NewLine), fileFormat.FieldDelimiterChar.GetDescription(),
         fileName, id);
-      m_Footer = ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(footer, NewLine), fileFormat.FieldDelimiterChar.GetDescription(),
-        fileName, id);
-      m_FileSettingDisplay = fileSettingDisplay;
-      m_Recipient = recipient;
-      m_IdentifierInContainer = identifierInContainer;
+      else
+        Header = string.Empty;
+      if (!string.IsNullOrEmpty(footer))
+        m_Footer = ReplacePlaceHolder(StringUtils.HandleCRLFCombinations(footer, NewLine), fileFormat.FieldDelimiterChar.GetDescription(),
+          fileName, id);
+      else
+        m_Footer = string.Empty;
+      m_FileSettingDisplay = fileSettingDisplay ?? string.Empty;
+      m_Recipient = recipient?? string.Empty;
+      m_KeepUnencrypted = unencrypted;
+      m_IdentifierInContainer = identifierInContainer?? string.Empty;
 
       Logger.Debug("Created Writer for {filesetting}", m_FileSettingDisplay);
       if (processDisplay == null) return;
@@ -252,8 +268,8 @@ namespace CsvTools
     /// <exception cref="ArgumentNullException">fileSetting</exception>
     /// <exception cref="ArgumentException">No SQL Reader set</exception>
     protected BaseFileWriter([NotNull] IFileSettingPhysicalFile fileSetting, [CanBeNull] IProcessDisplay processDisplay)
-      : this(fileSetting.ID, fileSetting.FullPath, fileSetting.Recipient, fileSetting.IdentifierInContainer, fileSetting.HasFieldHeader,
-        fileSetting.Footer, fileSetting.Header, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat,
+      : this(fileSetting.ID, fileSetting.FullPath, fileSetting.HasFieldHeader, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, fileSetting.Recipient,
+        fileSetting.KeepUnencrypted, fileSetting.IdentifierInContainer, fileSetting.Footer, fileSetting.Header,
         fileSetting.ColumnCollection.ReadonlyCopy(), fileSetting.ToString(), processDisplay)
     {
     }
@@ -282,7 +298,7 @@ namespace CsvTools
 
       try
       {
-        var sourceAccess = new SourceAccess(m_FullPath, false) { Recipient = m_Recipient };
+        var sourceAccess = new SourceAccess(m_FullPath, false, recipient: m_Recipient, keepEnencyrpted: m_KeepUnencrypted);
         if (!string.IsNullOrEmpty(m_IdentifierInContainer))
           sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
 

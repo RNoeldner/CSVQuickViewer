@@ -33,12 +33,13 @@ namespace CsvTools
     ///   match the base file readers HandleWarning the validation library will overwrite this is an
     ///   implementation using Noda Time
     /// </summary>
-    [NotNull] public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZImport =
+    [NotNull]
+    public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZImport =
       (input, srcTimeZone, columnOrdinal, handleWarning) =>
         ChangeTimeZone(input, srcTimeZone, TimeZoneInfo.Local.Id, columnOrdinal, handleWarning);
 
-
-    [NotNull] public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZExport =
+    [NotNull]
+    public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZExport =
       (input, destTimeZone, columnOrdinal, handleWarning) =>
         ChangeTimeZone(input, TimeZoneInfo.Local.Id, destTimeZone, columnOrdinal, handleWarning);
 
@@ -55,7 +56,7 @@ namespace CsvTools
     /// <summary>
     ///   Retrieve the passphrase for a setting
     /// </summary>
-    public static Func<IFileSetting, string> GetEncryptedPassphrase = s => s.Passphrase;
+    public static Func<IFileSettingPhysicalFile, string> GetEncryptedPassphrase = s => s.Passphrase;
 
     /// <summary>
     ///   Open a file for reading, it will take care of things like compression and encryption

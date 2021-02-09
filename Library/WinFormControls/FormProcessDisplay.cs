@@ -370,7 +370,7 @@ namespace CsvTools
           m_LoggerDisplay?.Dispose();
         }
 
-        base.Dispose(disposing);
+        this.SafeBeginInvoke(() => base.Dispose(disposing));
       }
       catch (Exception)
       {

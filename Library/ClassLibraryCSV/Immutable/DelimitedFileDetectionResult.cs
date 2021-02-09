@@ -55,31 +55,24 @@ namespace CsvTools
       NewLine= recordDelimiterType;
     }
 
-    public ICsvFile CsvFile(IEnumerable<Column> columns)
+    public virtual ICsvFile CsvFile() => new CsvFile(FileName)
     {
-      var ret = new CsvFile(FileName)
+      FileFormat = new FileFormat()
       {
-        FileFormat = new FileFormat()
-        {
-          QualifyAlways= QualifyAlways,
-          CommentLine = CommentLine,
-          EscapeCharacter= EscapeCharacter,
-          FieldDelimiter = FieldDelimiter,
-          FieldQualifier = FieldQualifier,
-          NewLine =  NewLine
-        },
-        ByteOrderMark = ByteOrderMark,
-        CodePageId = CodePageId,
-        HasFieldHeader = HasFieldHeader,
-        JsonFormat= IsJson,
-        NoDelimitedFile = NoDelimitedFile,
-        IdentifierInContainer = IdentifierInContainer,
-        SkipRows = SkipRows
-      };
-      if (columns!= null)
-        foreach (var col in columns)
-          ret.ColumnCollection.Add(col);
-      return ret;
-    }
+        QualifyAlways= QualifyAlways,
+        CommentLine = CommentLine,
+        EscapeCharacter= EscapeCharacter,
+        FieldDelimiter = FieldDelimiter,
+        FieldQualifier = FieldQualifier,
+        NewLine =  NewLine
+      },
+      ByteOrderMark = ByteOrderMark,
+      CodePageId = CodePageId,
+      HasFieldHeader = HasFieldHeader,
+      JsonFormat= IsJson,
+      NoDelimitedFile = NoDelimitedFile,
+      IdentifierInContainer = IdentifierInContainer,
+      SkipRows = SkipRows
+    };
   }
 }
