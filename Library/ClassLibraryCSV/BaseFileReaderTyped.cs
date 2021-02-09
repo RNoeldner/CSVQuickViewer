@@ -83,7 +83,7 @@ namespace CsvTools
       object timePart = null;
       string timePartText = null;
       EnsureTextFilled(columnNumber);
-      
+
       if (AssociatedTimeCol[columnNumber] > -1)
       {
         timePart = CurrentValues[AssociatedTimeCol[columnNumber]];
