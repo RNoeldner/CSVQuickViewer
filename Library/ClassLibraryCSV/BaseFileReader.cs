@@ -225,7 +225,7 @@ namespace CsvTools
           string resultingName;
           if (string.IsNullOrEmpty(columnName))
           {
-            resultingName = GetDefaultName(counter, columnDefinitions);
+            resultingName = GetDefaultName(counter);
             issuesCounter++;
             warnings?.Add(counter, $"Column title was empty, set to {resultingName}.".AddWarningId());
           }
@@ -1125,7 +1125,7 @@ namespace CsvTools
       m_AssociatedTimeZoneCol = new int[fieldCount];
       for (var counter = 0; counter < fieldCount; counter++)
       {
-        Column[counter] = new ImmutableColumn(GetDefaultName(counter, m_ColumnDefinition), new ImmutableValueFormat(),
+        Column[counter] = new ImmutableColumn(GetDefaultName(counter), new ImmutableValueFormat(),
           counter);
         AssociatedTimeCol[counter] = -1;
         m_AssociatedTimeZoneCol[counter] = -1;
@@ -1242,13 +1242,7 @@ namespace CsvTools
     /// <param name="columnDefinitions"></param>
     /// <returns>A string with the column name</returns>
     [NotNull]
-    private static string GetDefaultName(int columnNumber, IEnumerable<IColumn> columnDefinitions = null)
-    {
-      var cd = columnDefinitions?.FirstOrDefault(x => x.ColumnOrdinal == columnNumber && !string.IsNullOrEmpty(x.Name));
-      if (cd != null)
-        return cd.Name;
-      return $"Column{columnNumber + 1}";
-    }
+    private static string GetDefaultName(int columnNumber) => $"Column{columnNumber + 1}";
 
     private DateTime? AdjustTz(DateTime? input, IColumn column)
     {
