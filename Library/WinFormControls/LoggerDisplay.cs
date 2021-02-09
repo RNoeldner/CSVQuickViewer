@@ -105,7 +105,7 @@ namespace CsvTools
 
       try
       {
-        base.Dispose(disposing);
+        this.SafeBeginInvoke(() => base.Dispose(disposing));
       }
       catch (Exception)
       {

@@ -39,6 +39,19 @@ namespace CsvTools
     string FullPath { get; }
 
     /// <summary>
+    ///   Gets the root folder of the Tool Setting
+    /// </summary>
+    /// <value>The root folder.</value>
+    string Recipient { [NotNull] get; [CanBeNull] set; }
+
+    /// <summary>
+    ///   Passphrase for Decryption
+    /// </summary>
+    string Passphrase { [NotNull] get; [CanBeNull] set; }
+
+    bool KeepUnencrypted { get; set; }
+
+    /// <summary>
     ///   Force the refresh of full path information, a filename with placeholders might need to
     ///   check again if there is a new file
     /// </summary>

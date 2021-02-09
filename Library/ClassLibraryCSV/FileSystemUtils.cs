@@ -436,14 +436,17 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileName))
         return string.Empty;
+
+      // Handle date Placeholders
+      fileName = fileName.PlaceholderReplaceFormat("date", DateTime.Now)
+                         .PlaceholderReplaceFormat("utc", DateTime.UtcNow);
+
+      // only if we have wildcards carry on
       if (fileName.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
         return fileName;
 
       var split = SplitPath(fileName);
-      var folder = split.DirectoryName;
-      var searchPattern = split.FileName;
-
-      return GetLatestFileOfPattern(folder, searchPattern);
+      return GetLatestFileOfPattern(split.DirectoryName, split.FileName);
     }
 
     /// <summary>

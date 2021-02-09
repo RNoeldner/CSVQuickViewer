@@ -55,9 +55,7 @@ namespace CsvTools
     private bool m_IsEnabled = true;
     private DateTime m_LatestSourceTimeUtc = ZeroTime;
     private long m_NumRecords;
-    private string m_Passphrase = string.Empty;
     private DateTime m_ProcessTimeUtc = ZeroTime;
-    private string m_Recipient = string.Empty;
     private long m_RecordLimit;
     private ObservableCollection<SampleRecordEntry> m_Samples = new ObservableCollection<SampleRecordEntry>();
     private bool m_SetLatestSourceTimeForWrite;
@@ -587,39 +585,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Passphrase for Decryption, will not be stored
-    /// </summary>
-    [XmlIgnore]
-    [DefaultValue("")]
-    public virtual string Passphrase
-    {
-      [NotNull]
-      get => m_Passphrase;
-      [CanBeNull]
-      set => m_Passphrase = (value ?? string.Empty).Trim();
-    }
-
-    /// <summary>
-    ///   Recipient for a outbound PGP encryption
-    /// </summary>
-    [XmlAttribute]
-    [DefaultValue("")]
-    public virtual string Recipient
-    {
-      [NotNull]
-      get => m_Recipient;
-      [CanBeNull]
-      set
-      {
-        var newVal = (value ?? string.Empty).Trim();
-        if (m_Recipient.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_Recipient = newVal;
-        NotifyPropertyChanged(nameof(Recipient));
-      }
-    }
-
-    /// <summary>
     ///   Gets or sets the record limit.
     /// </summary>
     /// <value>The record limit.</value>
@@ -904,8 +869,6 @@ namespace CsvTools
         return false;
       if (!other.TreatTextAsNull.Equals(TreatTextAsNull, StringComparison.OrdinalIgnoreCase) || other.TrimmingOption != TrimmingOption)
         return false;
-      if (!other.Passphrase.Equals(Passphrase, StringComparison.Ordinal) ||  !other.Recipient.Equals(Recipient, StringComparison.OrdinalIgnoreCase))
-        return false;
       if (!other.TemplateName.Equals(TemplateName, StringComparison.Ordinal) ||  !other.SqlStatement.Equals(SqlStatement, StringComparison.OrdinalIgnoreCase))
         return false;
       if (!other.Footer.Equals(Footer, StringComparison.Ordinal) ||  !other.Header.Equals(Header, StringComparison.OrdinalIgnoreCase))
@@ -992,8 +955,6 @@ namespace CsvTools
       other.SkipEmptyLines = SkipEmptyLines;
       other.SkipDuplicateHeader = SkipDuplicateHeader;
 
-      other.Passphrase = Passphrase;
-      other.Recipient = Recipient;
       other.TreatNBSPAsSpace = TreatNBSPAsSpace;
       ColumnCollection.CopyTo(other.ColumnCollection);
       other.SqlStatement = SqlStatement;

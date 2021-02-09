@@ -434,13 +434,12 @@ namespace CsvTools
         using (var processDisplay = new CustomProcessDisplay(m_CancellationTokenSource.Token))
         {
           DetachPropertyChanged(m_FileSetting);
-
-          var det = await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
+          m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
                             m_ViewSettings.GuessCodePage,
                             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
                             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine,
-                            m_ViewSettings.FillGuessSettings, processDisplay);
-          m_FileSetting = det.Item1.CsvFile(det.Item2);
+                            m_ViewSettings.FillGuessSettings, processDisplay)).CsvFile();
+
           if (m_FileSetting == null)
             return;
 
@@ -534,7 +533,6 @@ namespace CsvTools
           // Load View Settings
           if (m_FileSetting is BaseSettingPhysicalFile basePhys && FileSystemUtils.FileExists(basePhys.ColumnFile))
           {
-            ;
             Logger.Information("Restoring view and filter setting {filename}...", basePhys.ColumnFile);
             detailControl.ReStoreViewSetting(basePhys.ColumnFile);
           }
