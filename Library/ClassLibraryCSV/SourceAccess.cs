@@ -174,8 +174,8 @@ namespace CsvTools
     }
 
     private static Func<Stream> GetOpenStreamFunc(string fileName, bool isReading) => () =>
-      new FileStream(fileName.LongPathPrefix(),
-        isReading ? FileMode.Open : FileMode.Create,
-        isReading ? FileAccess.Read : FileAccess.ReadWrite, FileShare.ReadWrite);
+         new FileStream(fileName.LongPathPrefix(),
+           isReading ? FileMode.Open : FileMode.OpenOrCreate,
+           isReading ? FileAccess.Read : FileAccess.ReadWrite, FileShare.ReadWrite);
   }
 }

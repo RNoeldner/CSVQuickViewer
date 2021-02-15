@@ -59,7 +59,6 @@ namespace CsvTools.Tests
       }
     }
 
-
     [TestMethod]
     public void OpenReadTestZipSmallRead()
     {
@@ -92,13 +91,12 @@ namespace CsvTools.Tests
         Assert.AreEqual(result1[5], result2[5]);
       }
 
-      // now sourceAccess.IdentifierInContainer is set, 
+      // now sourceAccess.IdentifierInContainer is set,
       using (var res = new ImprovedStream(sourceAccess))
       {
         Assert.IsNotNull(res);
       }
     }
-
 
     [TestMethod]
     public void OpenReadTestGZipLargeRead()
@@ -141,7 +139,7 @@ namespace CsvTools.Tests
       }
     }
 
-    private void WriteFile(string fileName, string password)
+    private void WriteFile(string fileName, string password, string internalName, bool remove = false)
     {
       var fullname = UnitTestInitializeCsv.GetTestPath(fileName);
 
@@ -153,6 +151,8 @@ namespace CsvTools.Tests
       var sourceAccsss = new SourceAccess(fullname, false);
       if (string.IsNullOrEmpty(password))
         sourceAccsss.EncryptedPassphrase=password;
+      if (!string.IsNullOrEmpty(internalName))
+        sourceAccsss.IdentifierInContainer=internalName;
 
       using (var improvedStream = new ImprovedStream(sourceAccsss))
       {
@@ -186,19 +186,58 @@ namespace CsvTools.Tests
 
         improvedStream.Close();
       }
+
+      if (remove)
+        FileSystemUtils.FileDelete(fullname);
     }
 
     [TestMethod]
-    public void OpenWriteTestGZip() => WriteFile("WriteText.gz", null);
+    public void OpenWriteTestGZip() => WriteFile("WriteText.gz", null, null, true);
 
     [TestMethod]
-    public void OpenWriteTestRegular() => WriteFile("WriteText.txt", null);
+    public void OpenWriteTestRegular() => WriteFile("WriteText.txt", null, null, true);
 
     [TestMethod]
-    public void OpenWriteTestZip() => WriteFile("WriteText.Zip", null);
+    public void OpenWriteTestZip() => WriteFile("WriteText.Zip", null, null, true);
 
     [TestMethod]
-    public void OpenWriteTestZipPassword() => WriteFile("WriteText2.Zip", "Test");
+    public void OpenWriteTestZipPassword() => WriteFile("WriteText2.Zip", "Test", null, true);
+
+    [TestMethod]
+    public void OpenWriteTestZipAddUpdate()
+    {
+      var fn = "WriteText3.Zip";
+      var path = UnitTestInitializeCsv.GetTestPath(fn);
+
+      // Create
+      WriteFile(fn, "Test", "Test.txt", false);
+      WriteFile(fn, "Test", "Test2.txt", false);
+      // Update
+      WriteFile(fn, "Test", "Test.txt", false);
+
+      using (var zipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(File.OpenRead(path)))
+      {
+        Assert.AreEqual(2, zipFile.Count);
+      }
+      FileSystemUtils.FileDelete(path);
+    }
+
+    [TestMethod]
+    public void OpenWriteTestZipAddTwo()
+    {
+      var fn = "WriteText4.Zip";
+      var path = UnitTestInitializeCsv.GetTestPath(fn);
+
+      // Create two files
+      WriteFile(fn, "Test", "Test.txt", false);
+      WriteFile(fn, "Test", "Test2.txt", false);
+
+      using (var zipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(File.OpenRead(path)))
+      {
+        Assert.AreEqual(2, zipFile.Count);
+      }
+      FileSystemUtils.FileDelete(path);
+    }
 
     [TestMethod]
     public void CloseTest()
