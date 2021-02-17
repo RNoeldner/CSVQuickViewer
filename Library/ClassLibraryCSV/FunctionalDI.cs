@@ -84,7 +84,7 @@ namespace CsvTools
     /// </summary>
     [NotNull]
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, IProcessDisplay, IFileWriter> GetFileWriter = DefaultFileWriter;
+    public static Func<IFileSettingPhysicalFile, IProcessDisplay, IFileWriter> GetFileWriter = DefaultFileWriter;
 
     /// <summary>
     ///   Gets or sets a data reader
@@ -132,11 +132,11 @@ namespace CsvTools
     }
 
     [NotNull]
-    private static IFileWriter DefaultFileWriter([NotNull] IFileSetting setting,
+    private static IFileWriter DefaultFileWriter([NotNull] IFileSettingPhysicalFile physicalFile,
       [CanBeNull] IProcessDisplay processDisplay)
     {
       IFileWriter writer = null;
-      switch (setting)
+      switch (physicalFile)
       {
         case ICsvFile csv when !csv.JsonFormat:
           writer = new CsvFileWriter(csv, processDisplay);
@@ -148,14 +148,13 @@ namespace CsvTools
       }
 
       if (writer == null)
-        throw new NotImplementedException($"Writer for {setting} not found");
+        throw new NotImplementedException($"Writer for {physicalFile} not found");
 
       writer.WriteFinished += (sender, args) =>
       {
-        setting.ProcessTimeUtc = DateTime.UtcNow;
-        if (!(setting is IFileSettingPhysicalFile physicalFile) ||
-            !physicalFile.SetLatestSourceTimeForWrite) return;
-        new FileSystemUtils.FileInfo(physicalFile.FullPath).LastWriteTimeUtc = setting.LatestSourceTimeUtc;
+        physicalFile.ProcessTimeUtc = DateTime.UtcNow;
+        if (physicalFile.SetLatestSourceTimeForWrite)
+          new FileSystemUtils.FileInfo(physicalFile.FullPath).LastWriteTimeUtc = physicalFile.LatestSourceTimeUtc;
       };
       return writer;
     }
