@@ -640,9 +640,9 @@ namespace CsvTools.Tests
               dummy.CancellationToken);
 
             if (col.ColumnName != "AllEmpty")
-              Assert.IsTrue(res[col.Ordinal].Values.Count > 0, col.ColumnName);
+              Assert.AreNotEqual(0, res[col.Ordinal].Values.Count, col.ColumnName);
             else
-              Assert.IsTrue(res[col.Ordinal].Values.Count == 0, col.ColumnName);
+              Assert.AreEqual(0, res[col.Ordinal].Values.Count, col.ColumnName);
           }
         }
       }

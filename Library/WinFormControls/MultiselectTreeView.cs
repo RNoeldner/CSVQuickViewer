@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
@@ -31,11 +30,9 @@ namespace CsvTools
     private TreeNode m_FirstNode;
 
     /// <summary>
-    /// Gets or sets the HTML style.
+    ///   Gets or sets the HTML style.
     /// </summary>
-    /// <value>
-    /// The HTML style.
-    /// </value>
+    /// <value>The HTML style.</value>
     public HTMLStyle HTMLStyle { get; set; }
 
     /// <summary>
@@ -204,27 +201,19 @@ namespace CsvTools
         m_FirstNode = e.Node; // store begin of shift sequence
     }
 
-    /// <summary>
-    ///   Raises event.
-    /// </summary>
-    /// <param name="e">A <see cref="KeyEventArgs" /> that contains the event data.</param>
-    protected override void OnKeyDown(KeyEventArgs e)
+    public void SelectAll()
     {
-      base.OnKeyDown(e);
+      SelectedTreeNode.Clear();
+      foreach (TreeNode item in Nodes)
+        AddNodeWithSubnodes(item);
 
-      // Handle CRTL -A
-      if (e.Control && e.KeyCode == Keys.A)
-      {
-        SelectedTreeNode.Clear();
-        foreach (TreeNode item in Nodes)
-          AddNodeWithSubnodes(item);
+      PaintSelectedNodes();
+    }
 
-        PaintSelectedNodes();
-      }
-
-      // Handle CRTL -C
-      if (!e.Control || e.KeyCode != Keys.C || SelectedTreeNode.Count == 0)
-        return;
+    public string SelectedToClipboard()
+    {
+      if (SelectedTreeNode.Count == 0)
+        return string.Empty;
 
       var minLevel = int.MaxValue;
       var maxLevel = int.MinValue;
@@ -241,16 +230,21 @@ namespace CsvTools
       var sbHtml = new StringBuilder();
 
       sbHtml.AppendLine(HTMLStyle.TableOpen);
-      foreach (var item in SelectedTreeNode.OrderBy(x => x.FullPath))
+      // Should follow display of nodes...
+      foreach (var item in SelectedTreeNode)
       {
         var text = item.Text;
+
         sbHtml.Append(HTMLStyle.TROpen);
+        // TreeData Tag is teh first column
         if (item.Tag is FormHierarchyDisplay.TreeData data)
         {
           text = data.Title;
           if (!string.IsNullOrEmpty(data.Tag))
           {
             sbHtml.Append(HTMLStyle.AddTd("<td>{0}</td>", data.Tag));
+            buffer.Append(data.Tag);
+            buffer.Append("\t");
             if (text.StartsWith(data.Tag, StringComparison.Ordinal))
               text = text.Substring(data.Tag.Length).TrimStart(' ', '-');
           }
@@ -259,22 +253,27 @@ namespace CsvTools
             sbHtml.Append(HTMLStyle.TDEmpty);
           }
         }
-
-        for (var level = minLevel; level <= maxLevel; level++)
+        // Depending on Level add columns
+        for (var level = minLevel; level < item.Level; level++)
         {
           buffer.Append("\t");
-          if (level < item.Level)
-            sbHtml.Append(HTMLStyle.TDEmpty);
-          if (level != item.Level)
-            continue;
-          sbHtml.Append(
-            HTMLStyle.AddTd(
-              "<td colspan='{0}'>{1}</td>",
-              ((maxLevel - level) + 1).ToString(CultureInfo.InvariantCulture),
-              text));
-          buffer.Append(item.Text);
+          sbHtml.Append(HTMLStyle.TDEmpty);
         }
 
+        sbHtml.Append(
+          HTMLStyle.AddTd(
+            "<td colspan='{0}'>{1}</td>",
+            ((maxLevel - item.Level) + 1).ToString(CultureInfo.InvariantCulture),
+            text));
+        buffer.Append(text);
+        for (var level = item.Level+1; level < maxLevel; level++)
+          buffer.Append("\t");
+        // TreeData Children Count is the last column
+        if (item.Tag is FormHierarchyDisplay.TreeData data2)
+        {
+          sbHtml.Append(HTMLStyle.AddTd("<td>{0}</td>", data2.Children.Count));
+          buffer.Append(data2.Children.Count);
+        }
         sbHtml.AppendLine(HTMLStyle.TRClose);
         buffer.AppendLine();
       }
@@ -287,6 +286,27 @@ namespace CsvTools
 
       Clipboard.Clear();
       Clipboard.SetDataObject(dataObject, false, 5, 200);
+
+      return buffer.ToString();
+    }
+
+    /// <summary>
+    ///   Raises event.
+    /// </summary>
+    /// <param name="e">A <see cref="KeyEventArgs" /> that contains the event data.</param>
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+      base.OnKeyDown(e);
+
+      // Handle CRTL -A
+      if (e.Control && e.KeyCode == Keys.A)
+      {
+        SelectAll();
+      }
+
+      // Handle CRTL -C
+      if (e.Control && e.KeyCode == Keys.C)
+        SelectedToClipboard();
     }
 
     /// <summary>

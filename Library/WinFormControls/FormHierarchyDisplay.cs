@@ -62,7 +62,7 @@ namespace CsvTools
     private MultiselectTreeView m_TreeView;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="FormHierarchyDisplay" /> class.
+    ///   Initializes a new instance of the <see cref="FormHierarchyDisplay" /> class.
     /// </summary>
     /// <param name="dataTable">The data table.</param>
     /// <param name="dataRows">The filter.</param>
@@ -180,6 +180,7 @@ namespace CsvTools
 
       return treeNodes.ToArray();
     }
+
     /// <summary>
     ///   Builds the tree data.
     /// </summary>
@@ -190,18 +191,18 @@ namespace CsvTools
 
       var dataColumnParent = m_DataTable.Columns[parentCol];
       if (dataColumnParent == null)
-        throw new ArgumentException("Could not find column {parentCol}");
+        throw new ArgumentException($"Could not find column {parentCol}");
 
       var dataColumnID = m_DataTable.Columns[idCol];
       if (dataColumnID == null)
-        throw new ArgumentException("Could not find column {idCol}");
+        throw new ArgumentException($"Could not find column {idCol}");
 
       var dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null : m_DataTable.Columns[display1];
       var dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2];
 
       // Using a dictionary here to speed up lookups
       var treeDataDictionary = new Dictionary<string, TreeData>();
-      var rootDataParentFound = new TreeData { ID = "{R}", Title = "Parent found / No Parent" };
+      var rootDataParentFound = new TreeData("{R}", "Parent found / No Parent");
 
       treeDataDictionary.Add(rootDataParentFound.ID, rootDataParentFound);
 
@@ -218,17 +219,7 @@ namespace CsvTools
         var id = dataRow[dataColumnID.Ordinal].ToString();
         if (string.IsNullOrEmpty(id))
           continue;
-        var treeData = new TreeData
-        {
-          ID = id,
-          Title = dataColumnDisplay1 != null
-            ? dataColumnDisplay2 != null
-              ? dataRow[dataColumnDisplay1.Ordinal] + " - "
-                                                    + dataRow[dataColumnDisplay2.Ordinal]
-              : dataRow[dataColumnDisplay1.Ordinal].ToString()
-            : id,
-          ParentID = dataRow[dataColumnParent.Ordinal].ToString()
-        };
+        var treeData = new TreeData(id, dataColumnDisplay1 != null ? dataColumnDisplay2 != null ? dataRow[dataColumnDisplay1.Ordinal] + " - " + dataRow[dataColumnDisplay2.Ordinal] : dataRow[dataColumnDisplay1.Ordinal].ToString() : id, dataRow[dataColumnParent.Ordinal].ToString());
         if (dataColumnDisplay1 != null)
           treeData.Tag = dataRow[dataColumnDisplay1.Ordinal].ToString();
 
@@ -243,7 +234,7 @@ namespace CsvTools
         if (!string.IsNullOrEmpty(child.ParentID) && !treeDataDictionary.ContainsKey(child.ParentID))
           additionalRootNodes.Add(child.ParentID);
 
-      var rootDataParentNotFound = new TreeData { ID = "{M}", Title = "Parent not found" };
+      var rootDataParentNotFound = new TreeData("{M}", "Parent not found");
 
       if (additionalRootNodes.Count > 0)
       {
@@ -259,12 +250,7 @@ namespace CsvTools
           intervalAction.Invoke(
             count => process.SetProcess($"Parent not found (Step 1) {count}/{max} ", count, false),
             counter++);
-          var childData = new TreeData
-          {
-            ParentID = rootDataParentNotFound.ID,
-            ID = parentID,
-            Title = $"{m_ComboBoxID.SelectedItem} - {parentID}"
-          };
+          var childData = new TreeData(parentID, $"{parentID}", rootDataParentNotFound.ID);
           treeDataDictionary.Add(parentID, childData);
         }
       }
@@ -301,6 +287,8 @@ namespace CsvTools
       m_TreeData = treeDataDictionary.Values;
     }
 
+    public void CloseAll() => CloseAllToolStripMenuItem_Click(this, null);
+
     private void CloseAllToolStripMenuItem_Click(object sender, EventArgs e)
     {
       try
@@ -317,14 +305,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Handles the SelectionChangeCommitted event of the comboBox control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ComboBox_SelectionChangeCommitted(object sender, EventArgs e)
-    {
-    }
+    public void ExpandAll() => ExpandAllToolStripMenuItem_Click(this, null);
 
     private void ExpandAllToolStripMenuItem_Click(object sender, EventArgs e)
     {
@@ -507,7 +488,7 @@ namespace CsvTools
       this.m_ComboBoxID.Size = new System.Drawing.Size(422, 21);
       this.m_ComboBoxID.TabIndex = 0;
       this.m_ComboBoxID.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
-      this.m_ComboBoxID.SelectionChangeCommitted += new System.EventHandler(this.ComboBox_SelectionChangeCommitted);
+
       // m_ComboBoxParentID
       this.m_TableLayoutPanel1.SetColumnSpan(this.m_ComboBoxParentID, 2);
       this.m_ComboBoxParentID.Dock = System.Windows.Forms.DockStyle.Top;
@@ -518,8 +499,6 @@ namespace CsvTools
       this.m_ComboBoxParentID.Size = new System.Drawing.Size(422, 21);
       this.m_ComboBoxParentID.TabIndex = 1;
       this.m_ComboBoxParentID.SelectedIndexChanged += new System.EventHandler(this.TimeDisplayRestart);
-      this.m_ComboBoxParentID.SelectionChangeCommitted +=
-        new System.EventHandler(this.ComboBox_SelectionChangeCommitted);
       // m_TreeView
       this.m_TableLayoutPanel1.SetColumnSpan(this.m_TreeView, 3);
       this.m_TreeView.ContextMenuStrip = contextMenuStrip;
@@ -702,19 +681,29 @@ namespace CsvTools
       m_TimerSearch.Stop();
       m_TimerSearch.Start();
     }
-    internal class TreeData
+
+    public class TreeData
     {
       public readonly ICollection<TreeData> Children = new List<TreeData>();
-
-      public string ID;
-
-      public bool InCycle;
-
+      public readonly string ID;
       public string ParentID;
+      public readonly string Title;
+      public bool InCycle;
       public string Tag;
-      public string Title;
       public bool Visited;
       private int m_StoreIndirect = -1;
+
+      public TreeData(string id, string title, string parentID = null)
+      {
+        if (string.IsNullOrEmpty(id))
+          throw new ArgumentException("ID can not be empty", nameof(id));
+        if (string.IsNullOrEmpty(title))
+          throw new ArgumentException("Title can not be empty", nameof(title));
+        ID= id;
+        Title = title;
+        ParentID = parentID;
+      }
+
       public string NodeTitle
       {
         get
@@ -738,6 +727,7 @@ namespace CsvTools
           return m_StoreIndirect;
         }
       }
+
       private static int GetInDirectChildren(TreeData root)
       {
         if (root == null || root.InCycle)
