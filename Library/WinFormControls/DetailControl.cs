@@ -42,7 +42,7 @@ namespace CsvTools
     private readonly ObservableCollection<ToolStripItem> m_ToolStripItems = new ObservableCollection<ToolStripItem>();
     private IContainer components;
     [CanBeNull] public Func<bool> EndOfFile;
-
+    public EventHandler<IFileSettingPhysicalFile> BeforeFileStored = null;
     public EventHandler<IFileSettingPhysicalFile> FileStored = null;
 
     [CanBeNull] public Func<IProcessDisplay, Task> LoadNextBatchAsync;
@@ -1175,23 +1175,34 @@ namespace CsvTools
 
       using (var processDisplay = new FormProcessDisplay(writeFile.ToString(), true, m_CancellationTokenSource.Token))
       {
-        processDisplay.Show(ParentForm);
-        var writer = new CsvFileWriter(writeFile, processDisplay);
-
-        using (var dt = new DataTableWrapper(
-          FilteredDataGridView.DataView.ToTable(false,
-            // Restrict to shown data
-            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-                                .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))
-                                .OrderBy(col => col.DisplayIndex)
-                                .Select(col => col.DataPropertyName).ToArray())))
+        try
         {
-          // can not use filteredDataGridView.Columns directly
-          await writer.WriteAsync(dt, processDisplay.CancellationToken);
+          processDisplay.Show(ParentForm);
+
+          BeforeFileStored?.Invoke(this, writeFile);
+          var writer = new CsvFileWriter(writeFile, processDisplay);
+
+          using (var dt = new DataTableWrapper(
+            FilteredDataGridView.DataView.ToTable(false,
+              // Restrict to shown data
+              FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+                                  .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))
+                                  .OrderBy(col => col.DisplayIndex)
+                                  .Select(col => col.DataPropertyName).ToArray())))
+          {
+            // can not use filteredDataGridView.Columns directly
+            await writer.WriteAsync(dt, processDisplay.CancellationToken);
+          }
+        }
+        catch (Exception ex)
+        {
+          ParentForm.ShowError(ex);
+        }
+        finally
+        {
+          FileStored?.Invoke(this, writeFile);
         }
       }
-
-      FileStored?.Invoke(this, writeFile);
     }
 
     private async void ToolStripButtonStoreAsCsvAsync(object sender, EventArgs e)

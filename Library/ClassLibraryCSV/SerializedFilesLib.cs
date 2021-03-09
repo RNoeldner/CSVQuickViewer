@@ -56,21 +56,27 @@ namespace CsvTools
     /// <summary>
     ///   Saves the setting for a physical file
     /// </summary>
-    /// <param name="fileSetting">The filesetting to serialize.</param>
-    /// <param name="askOverwrite">The ask overwrite.</param>
-    public static void SaveSettingFile([NotNull] ICsvFile fileSetting, [NotNull] Func<bool> askOverwrite)
+    /// <param name="fileSettingPhysicalFile">The file setting to serialize.</param>
+    /// <param name="askOverwrite">
+    ///   The function to decide if we want to overwrite, usually a user propmpt
+    /// </param>
+    public static void SaveSettingFile([NotNull] IFileSettingPhysicalFile fileSettingPhysicalFile, [NotNull] Func<bool> askOverwrite)
     {
-      if (fileSetting == null)
+      if (fileSettingPhysicalFile == null)
         return;
-      var fileName = fileSetting.FileName + CsvFile.cCsvSettingExtension;
+      var fileName = fileSettingPhysicalFile.FileName + CsvFile.cCsvSettingExtension;
 
-      var saveSetting = fileSetting.Clone() as CsvFile;
+      var saveSetting = fileSettingPhysicalFile.Clone() as CsvFile;
+
+      // Remove possibly set but irrelevant properties for reading
       saveSetting.FileName = string.Empty;
       saveSetting.ID = string.Empty;
+      saveSetting.Header = string.Empty;
+      saveSetting.Footer = string.Empty;
 
-      // remove not needed Columns
+      // remove not needed Columns so they do not play into comparison
       saveSetting.ColumnCollection.Clear();
-      foreach (var col in fileSetting.ColumnCollection)
+      foreach (var col in fileSettingPhysicalFile.ColumnCollection)
       {
         if (col.Ignore || col.DataType== DataType.String && col.Convert || col.DataType!= DataType.String)
           saveSetting.ColumnCollection.AddIfNew(col);
@@ -88,12 +94,15 @@ namespace CsvTools
       if (FileSystemUtils.FileExists(fileName))
       {
         var fileContend = FileSystemUtils.ReadAllText(fileName);
-        if (fileContend.Equals(contens))
+        // Check if we have actual changes
+        if (fileContend.Equals(contens, StringComparison.OrdinalIgnoreCase))
+          // what we want to write and what is written does mach, exit here do not save
           return;
 
         if (askOverwrite.Invoke())
           delete = true;
         else
+          // Exit here no overwrite allowed
           return;
       }
 

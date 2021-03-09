@@ -238,45 +238,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
-    public void MultiselectTreeView()
-    {
-      Extensions.RunSTAThread(() =>
-      {
-        using (var treeView = new MultiselectTreeView())
-        {
-          treeView.HTMLStyle = UnitTestInitializeWin.HTMLStyle;
-          Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
-
-          var treeNode = new TreeNode("Test") { Tag = "test" };
-          treeView.Nodes.Add(treeNode);
-
-          var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
-          treeNode.Nodes.Add(treeNode2);
-
-          var firedAfter = false;
-          var firedBefore = false;
-          treeView.AfterSelect += (s, args) => { firedAfter = true; };
-          treeView.BeforeSelect += (s, args) => { firedBefore = true; };
-
-          UnitTestWinFormHelper.ShowControl(treeView, .2, (control, form) =>
-          {
-            if (!(control is MultiselectTreeView text))
-              return;
-
-            text.PressKey(Keys.Control | Keys.A);
-            text.PressKey(Keys.Control | Keys.C);
-            // ReSharper disable once AccessToDisposedClosure
-            treeView.SelectedNode = treeNode2;
-            treeNode.ExpandAll();
-          });
-          Assert.IsTrue(firedAfter);
-          Assert.IsTrue(firedBefore);
-        }
-      });
-    }
-
-    [TestMethod]
     [Timeout(10000)]
     public void TimedMessage()
     {
@@ -303,55 +264,6 @@ namespace CsvTools.Tests
     [TestMethod]
     [Timeout(5000)]
     public void FillGuessSettingEditShow() => UnitTestWinFormHelper.ShowControl(new FillGuessSettingEdit());
-
-    [TestMethod]
-    [Timeout(5000)]
-    public void FormHierarchyDisplay()
-    {
-      using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), UnitTestInitializeWin.HTMLStyle))
-      {
-        UnitTestWinFormHelper.ShowFormAndClose(form, 0.1, (frm) =>
-        {
-          if (!(frm is FormHierarchyDisplay hd))
-            return;
-          hd.BuildTree("int", "ID");
-        });
-      }
-    }
-
-    [TestMethod]
-    [Timeout(5000)]
-    public async Task FormHierarchyDisplay_DataWithCycleAsync()
-    {
-      using (var dataTable = UnitTestStatic.GetDataTable(60))
-      {
-        // load the csvFile FileWithHierarchy
-        using (var processDisplay = new FormProcessDisplay("FileWithHierarchy"))
-        {
-          processDisplay.Show();
-          var cvsSetting = new CsvFile(Path.Combine(FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles",
-            "FileWithHierarchy_WithCyle.txt"))
-          { FileFormat = { FieldDelimiter = "\t" } };
-          using (var csvDataReader = new CsvFileReader(cvsSetting, processDisplay))
-          {
-            var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null,
-              processDisplay.CancellationToken);
-
-            using (var form = new FormHierarchyDisplay(dt, dataTable.Select(), UnitTestInitializeWin.HTMLStyle))
-            {
-              UnitTestWinFormHelper.ShowFormAndClose(form, .1, (frm) =>
-              {
-                if (!(frm is FormHierarchyDisplay hd))
-                  return;
-                hd.BuildTree("ReferenceID1", "ID");
-              });
-              form.Close();
-            }
-          }
-        }
-      }
-    }
 
     [TestMethod]
     [Timeout(5000)]

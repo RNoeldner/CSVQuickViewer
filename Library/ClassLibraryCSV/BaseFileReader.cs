@@ -1143,13 +1143,32 @@ namespace CsvTools
                                    [CanBeNull] IEnumerable<DataType> dataType = null, bool hasFieldHeader = true)
     {
       var issues = new ColumnErrorDictionary();
-      var adjusted = (hasFieldHeader
-                       ? AdjustColumnName(headerRow, Column.Length, issues, m_ColumnDefinition).Item1
-                       : Column.Select(x => x.Name)).ToList();
+      var adjustedNames = new List<string>();
+      if (hasFieldHeader)
+        adjustedNames.AddRange(AdjustColumnName(headerRow, Column.Length, issues, m_ColumnDefinition).Item1);
+      else
+      {
+        for (var colIndex = 0; colIndex<Column.Length; colIndex++)
+        {
+          if (Column[colIndex].Name.Equals(GetDefaultName(colIndex)))
+          {
+            // Might have passed in the column names in m_ColumnDefinition (used with Manifest data
+            // accompaning a file withot header)
+            var newDef = m_ColumnDefinition.FirstOrDefault(x => x.ColumnOrdinal==colIndex);
+            if (newDef!= null)
+            {
+              issues.Add(colIndex, "Using column name from definition");
+              adjustedNames.Add(newDef.Name);
+              continue;
+            }
+          }
+          adjustedNames.Add(Column[colIndex].Name);
+        }
+      }
 
-      var dataTypeL = new DataType[adjusted.Count];
+      var dataTypeL = new DataType[adjustedNames.Count];
       // Initialize as text
-      for (int col = 0; col<adjusted.Count; col++)
+      for (int col = 0; col<adjustedNames.Count; col++)
         dataTypeL[col] = DataType.String;
       // get the provided and overwrite
       if (dataType!=null)
@@ -1157,15 +1176,15 @@ namespace CsvTools
         using (var enumeratorType = dataType.GetEnumerator())
         {
           var col = 0;
-          while (enumeratorType.MoveNext() && col<adjusted.Count)
+          while (enumeratorType.MoveNext() && col<adjustedNames.Count)
             dataTypeL[col++]= enumeratorType.Current;
         }
       }
 
       // set the data types, either using the definition, or the provided DataType with defaults
-      for (var colIndex = 0; colIndex<adjusted.Count && colIndex<Column.Length; colIndex++)
-        Column[colIndex] = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(adjusted[colIndex], StringComparison.OrdinalIgnoreCase)) ??
-                           new ImmutableColumn(adjusted[colIndex], new ImmutableValueFormat(dataTypeL[colIndex]), colIndex);
+      for (var colIndex = 0; colIndex<adjustedNames.Count && colIndex<Column.Length; colIndex++)
+        Column[colIndex] = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ??
+                           new ImmutableColumn(adjustedNames[colIndex], new ImmutableValueFormat(dataTypeL[colIndex]), colIndex);
 
       if (Column==null || Column.Length==0)
         issues.Add(-1, "Column should be set before using ParseColumnName to handle TimePart and TimeZone");
