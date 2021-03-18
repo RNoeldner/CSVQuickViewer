@@ -309,16 +309,17 @@ namespace CsvTools
       // if its not SQL or has a Where condition do nothing
       if (!source.Contains("SELECT", StringComparison.OrdinalIgnoreCase))
         return source;
-
-      if (source.Contains(" WHERE ", StringComparison.OrdinalIgnoreCase))
-        return source.Replace(" WHERE ", " WHERE 1=0 AND ");
-
-      // Remove Order By and Add a WHERE
-      var indexOf = source.IndexOf("ORDER BY", StringComparison.OrdinalIgnoreCase);
-      if (indexOf == -1)
-        source += " WHERE 1=0";
+      var whereRegEx = new Regex("\\sWHERE\\s", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+      var matchWhere = whereRegEx.Match(source);
+      if (matchWhere.Length>0)
+        return whereRegEx.Replace(source, " WHERE 1=0 AND ");
+      var orderRegEx = new Regex("\\sORDER\\sBY\\s", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+      var matchOrder = orderRegEx.Match(source);
+      if (matchOrder.Index<1)
+        // Remove Order By and Add a WHERE
+        source += "\nWHERE 1=0";
       else
-        source = source.Substring(0, indexOf) + "WHERE 1=0";
+        source = source.Substring(0, matchOrder.Index) + "\nWHERE 1=0";
 
       return source;
     }
