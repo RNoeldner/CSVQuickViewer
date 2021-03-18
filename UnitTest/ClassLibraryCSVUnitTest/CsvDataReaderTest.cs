@@ -125,7 +125,7 @@ namespace CsvTools.Tests
         TryToSolveMoreColumns = true,
         AllowRowCombining = true,
         FileName = UnitTestInitializeCsv.GetTestPath("BadIssues.csv"),
-        FileFormat = { FieldDelimiter = "TAB", FieldQualifier = string.Empty }
+        FileFormat = { FieldDelimiter = "Tab", FieldQualifier = string.Empty }
       };
       basIssues.ColumnCollection.AddIfNew(new Column("effectiveDate", "yyyy/MM/dd", "-"));
       basIssues.ColumnCollection.AddIfNew(new Column("timestamp", "yyyy/MM/ddTHH:mm:ss", "-"));

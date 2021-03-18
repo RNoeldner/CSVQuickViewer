@@ -401,7 +401,7 @@ namespace CsvTools
       // Warning was added by GetDecimalNull
       throw WarnAddFormatException(
         columnNumber,
-        $"'{CurrentRowColumnText[columnNumber]}' is not a date of the format {GetColumn(columnNumber).ValueFormat.DateFormat}");
+        $"'{CurrentRowColumnText[columnNumber]}' is not a date of the format '{GetColumn(columnNumber).ValueFormat.DateFormat}'");
     }
 
     /// <summary>
@@ -916,8 +916,8 @@ namespace CsvTools
           HandleWarning(
             column.ColumnOrdinal,
             !string.IsNullOrEmpty(strInputTime)
-              ? $"'{strInputDate} {strInputTime}' is not a date of the format {display} {column.TimePartFormat}, used '{inputDateNew} {strInputTime}'"
-              : $"'{strInputDate}' is not a date of the format {display}, used '{inputDateNew}' ");
+              ? $"'{strInputDate} {strInputTime}' is not a date of the format '{display}' '{column.TimePartFormat}', used '{inputDateNew} {strInputTime}'"
+              : $"'{strInputDate}' is not a date of the format '{display}', used '{inputDateNew}' ");
         }
       }
 
@@ -1183,8 +1183,9 @@ namespace CsvTools
 
       // set the data types, either using the definition, or the provided DataType with defaults
       for (var colIndex = 0; colIndex<adjustedNames.Count && colIndex<Column.Length; colIndex++)
-        Column[colIndex] = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ??
-                           new ImmutableColumn(adjustedNames[colIndex], new ImmutableValueFormat(dataTypeL[colIndex]), colIndex);
+        Column[colIndex] =new ImmutableColumn(adjustedNames[colIndex],
+m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase))?.ValueFormat ?? new ImmutableValueFormat(dataTypeL[colIndex]),
+colIndex);
 
       if (Column==null || Column.Length==0)
         issues.Add(-1, "Column should be set before using ParseColumnName to handle TimePart and TimeZone");

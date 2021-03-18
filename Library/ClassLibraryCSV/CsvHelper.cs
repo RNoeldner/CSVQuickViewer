@@ -370,6 +370,11 @@ namespace CsvTools
             avgFieldCount = headerRow.Count;
           var halfTheColumns = (int) Math.Ceiling(avgFieldCount / 2.0);
 
+          // Columns are only one or two char, does not look descriptive
+          if (headerRow.Count(x => x.Length < 3) > halfTheColumns)
+            throw new ApplicationException(
+              $"Headers '{string.Join("', '", headerRow.Where(x => x.Length < 3))}' very short");
+
           // use the same routine that is used in readers to determine the names of the columns
           var (newHeader, numIssues) = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null, null);
 
@@ -377,14 +382,10 @@ namespace CsvTools
           if (numIssues >= halfTheColumns || numIssues > 2)
             throw new ApplicationException($"{numIssues} header where empty, duplicate or too long");
 
-          // Columns are only one or two char, does not look descriptive
-          if (newHeader.Count(x => x.Length < 3) > halfTheColumns)
-            throw new ApplicationException(
-              $"Headers '{string.Join("', '", newHeader.Where(x => x.Length < 3))}' very short");
-
           var numeric = headerRow.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
+          var boolHead = headerRow.Where(header => StringConversion.StringToBooleanStrict(header, "1", "0") != null).ToList();
           var specials = headerRow.Where(header => Regex.IsMatch(header, @"[^\w\d\-_\s<>#,.*\[\]\(\)+?!]")).ToList();
-          if (numeric.Count + specials.Count >= halfTheColumns)
+          if (numeric.Count + boolHead.Count +  specials.Count >= halfTheColumns)
           {
             var msg = new StringBuilder();
             if (numeric.Count > 0)
@@ -400,7 +401,21 @@ namespace CsvTools
               msg.Length--;
               msg.Append(" numeric");
             }
+            if (boolHead.Count > 0)
+            {
+              if (msg.Length > 0)
+                msg.Append(" and ");
+              msg.Append("Headers ");
+              foreach (var header in boolHead)
+              {
+                msg.Append("'");
+                msg.Append(header.Trim('\"'));
+                msg.Append("',");
+              }
 
+              msg.Length--;
+              msg.Append(" boolean");
+            }
             if (specials.Count > 0)
             {
               if (msg.Length > 0)
@@ -1029,10 +1044,10 @@ namespace CsvTools
       if (!hasDelimiter)
       {
         Logger.Information("Not a delimited file");
-        return new Tuple<string, bool>("TAB", false);
+        return new Tuple<string, bool>("Tab", false);
       }
 
-      var result = match == '\t' ? "TAB" : match.ToString(CultureInfo.CurrentCulture);
+      var result = match == '\t' ? "Tab" : match.ToString(CultureInfo.CurrentCulture);
       Logger.Information("  Column Delimiter: {delimiter}", result);
       return new Tuple<string, bool>(result, true);
     }

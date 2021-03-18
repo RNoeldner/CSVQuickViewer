@@ -13,7 +13,6 @@
  */
 
 using JetBrains.Annotations;
-using System.Collections.Generic;
 
 namespace CsvTools
 {
@@ -35,6 +34,37 @@ namespace CsvTools
     [NotNull] public readonly string FieldQualifier;
     public readonly RecordDelimiterType NewLine;
 
+    private string GetShortDisplay(string input)
+    {
+      if (string.IsNullOrEmpty(input))
+        return string.Empty;
+
+      input = input.WrittenPunctuation();
+      switch (input)
+      {
+        case "\t":
+          return "Tab";
+
+        case " ":
+          return "Space";
+
+        case "\u00A0":
+          return "NBSP";
+
+        case ",":
+          return "Comma";
+
+        case ";":
+          return "Semicolon";
+
+        case "|":
+          return "Pipe";
+
+        default:
+          return input;
+      }
+    }
+
     public DelimitedFileDetectionResult(string fileName, int skipRows = 0, int codePageId = -1, bool byteOrderMark = false, bool qualifyAlways = false,
                                         string identifierInContainer = "", string commentLine = "#", string escapeCharacter = "\\", string fieldDelimiter = "",
                                         string fieldQualifier = "", bool hasFieldHeader = true, bool isJson = false, bool noDelimitedFile = false, RecordDelimiterType recordDelimiterType = RecordDelimiterType.None)
@@ -45,9 +75,9 @@ namespace CsvTools
       CodePageId = codePageId<1 ? -1 : codePageId;
       ByteOrderMark= byteOrderMark;
       CommentLine = commentLine;
-      EscapeCharacter = (escapeCharacter ?? string.Empty).WrittenPunctuation();
-      FieldDelimiter = (fieldDelimiter ?? string.Empty).WrittenPunctuation();
-      FieldQualifier = (fieldQualifier ?? string.Empty).WrittenPunctuation();
+      EscapeCharacter = GetShortDisplay((escapeCharacter ?? string.Empty));
+      FieldDelimiter = GetShortDisplay((fieldDelimiter ?? string.Empty));
+      FieldQualifier = GetShortDisplay((fieldQualifier ?? string.Empty));
       HasFieldHeader = hasFieldHeader;
       IsJson = isJson;
       NoDelimitedFile = noDelimitedFile;
@@ -61,9 +91,9 @@ namespace CsvTools
       {
         QualifyAlways= QualifyAlways,
         CommentLine = CommentLine,
-        EscapeCharacter= EscapeCharacter,
-        FieldDelimiter = FieldDelimiter,
-        FieldQualifier = FieldQualifier,
+        EscapeCharacter=  GetShortDisplay(EscapeCharacter),
+        FieldDelimiter =  GetShortDisplay(FieldDelimiter),
+        FieldQualifier =  GetShortDisplay(FieldQualifier),
         NewLine =  NewLine
       },
       ByteOrderMark = ByteOrderMark,
