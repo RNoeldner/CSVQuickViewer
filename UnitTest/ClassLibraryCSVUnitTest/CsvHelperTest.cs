@@ -364,7 +364,7 @@ namespace CsvTools.Tests
       {
         var det = await CsvHelper.GetDetectionResultFromFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), display);
         Assert.AreEqual(0, det.SkipRows);
-        Assert.AreEqual(",", det.FieldDelimiter);
+        Assert.AreEqual(",".WrittenPunctuationToChar(), det.FieldDelimiter.WrittenPunctuationToChar());
         Assert.AreEqual(1200, det.CodePageId); // UTF16_LE
       }
     }
@@ -393,7 +393,7 @@ namespace CsvTools.Tests
       {
         var det = await CsvHelper.GetDetectionResultFromFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), processDisplay);
         Assert.AreEqual(1200, det.CodePageId);
-        Assert.AreEqual(",", det.FieldDelimiter);
+        Assert.AreEqual(",".WrittenPunctuationToChar(), det.FieldDelimiter.WrittenPunctuationToChar());
       }
 
       foreach (var fileName in Directory.EnumerateFiles(UnitTestInitializeCsv.ApplicationDirectory.LongPathPrefix(),
