@@ -317,9 +317,9 @@ namespace CsvTools
       var matchOrder = orderRegEx.Match(source);
       if (matchOrder.Index<1)
         // Remove Order By and Add a WHERE
-        source += "\nWHERE 1=0";
+        source += " WHERE 1=0";
       else
-        source = source.Substring(0, matchOrder.Index) + "\nWHERE 1=0";
+        source = source.Substring(0, matchOrder.Index) + " WHERE 1=0";
 
       return source;
     }
