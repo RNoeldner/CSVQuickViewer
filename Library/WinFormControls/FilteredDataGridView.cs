@@ -97,6 +97,13 @@ namespace CsvTools
       };
       contextMenuStripFilter.KeyPress += ContextMenuStripFilter_KeyPress;
       SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
+
+      FontChanged += (s, e) =>
+      {
+        AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
+        AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+        AutoSize = true;
+      };
     }
 
     /// <summary>

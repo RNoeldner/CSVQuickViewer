@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Compile Remove="..\**\ClassLibraryCSV.AssemblyInfo.cs" />
+    <Compile Remove="..\ClassLibraryCSV\obj\**" />
     <Compile Remove="obj\**" />
     <EmbeddedResource Remove="..\ClassLibraryCSV\obj\**" />
     <EmbeddedResource Remove="obj\**" />
