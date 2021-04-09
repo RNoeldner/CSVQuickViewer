@@ -221,8 +221,11 @@ namespace CsvTools
     [CanBeNull]
     public static string GetLatestFileOfPattern([NotNull] string folder, [NotNull] string searchPattern)
     {
-      if (!DirectoryExists(folder))
-        return null;
+      if (string.IsNullOrEmpty(folder))
+        folder=".";
+      else
+        if (!DirectoryExists(folder))
+          return null;
 
       // If a pattern is present in the folder this is not going to work
       var newSet = new DateTime(0);
@@ -271,7 +274,8 @@ namespace CsvTools
     {
       if (otherDir.Equals(basePath, StringComparison.OrdinalIgnoreCase))
         return ".\\";
-
+      if (string.IsNullOrEmpty(otherDir))
+        return ".\\";
       if (basePath[basePath.Length - 1] != Path.DirectorySeparatorChar)
         basePath += Path.DirectorySeparatorChar;
       if (otherDir[otherDir.Length - 1] != Path.DirectorySeparatorChar)

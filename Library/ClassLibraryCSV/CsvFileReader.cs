@@ -174,6 +174,9 @@ namespace CsvTools
       m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
       m_FieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
 
+      if (m_FieldDelimiterChar == '\0')
+        throw new FileReaderException("All delimted text files do need a delimiter.");
+
       if (m_FieldQualifierChar == c_Cr || m_FieldQualifierChar == c_Lf)
         throw new FileReaderException(
           "The text quoting characters is invalid, please use something else than CR or LF");
@@ -183,7 +186,7 @@ namespace CsvTools
         throw new FileReaderException(
           "The field delimiter character is invalid, please use something else than CR, LF or Space");
 
-      if (m_FieldDelimiterChar == m_EscapeCharacterChar)
+      if (m_FieldDelimiterChar == m_EscapeCharacterChar && m_EscapeCharacterChar!='\0')
         throw new FileReaderException(
           $"The escape character is invalid, please use something else than the field delimiter character {m_EscapeCharacterChar.GetDescription()}.");
 
@@ -1015,18 +1018,18 @@ namespace CsvTools
               // NumWarningsLinefeed otherwise as this is important information
               m_NumWarningsLinefeed++;
               m_HandleMessageColumn(rowLength - 1,
-                $"Added first column from line {EndLineNumber}, assuming a linefeed has split the rows into an additional line.");
+                $"Combined with line {EndLineNumber}, assuming a linefeed has split the column into additional line.");
               combined[rowLength - 1] += '\n' + nextLine[0];
 
               for (var col = 1; col < nextLine.Length; col++)
                 combined.Add(nextLine[col]);
 
-              if (!hasWarningCombinedWarning)
-              {
-                m_HandleMessageColumn(-1,
-                  $"Line {cLessColumns}\nLines {StartLineNumber}-{EndLineNumber - 1} have been combined.");
-                hasWarningCombinedWarning = true;
-              }
+              //if (!hasWarningCombinedWarning)
+              //{
+              //  m_HandleMessageColumn(-1,
+              //    $"Line {cLessColumns}\nLines {StartLineNumber}-{EndLineNumber - 1} have been combined.");
+              //  hasWarningCombinedWarning = true;
+              //}
 
               CurrentRowColumnText = combined.ToArray();
               goto Restart2;

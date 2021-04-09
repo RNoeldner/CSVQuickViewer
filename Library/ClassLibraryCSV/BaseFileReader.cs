@@ -401,7 +401,7 @@ namespace CsvTools
       // Warning was added by GetDecimalNull
       throw WarnAddFormatException(
         columnNumber,
-        $"'{CurrentRowColumnText[columnNumber]}' is not a date of the format {GetColumn(columnNumber).ValueFormat.DateFormat}");
+        $"'{CurrentRowColumnText[columnNumber]}' is not a date of the format '{GetColumn(columnNumber).ValueFormat.DateFormat}'");
     }
 
     /// <summary>
@@ -916,8 +916,8 @@ namespace CsvTools
           HandleWarning(
             column.ColumnOrdinal,
             !string.IsNullOrEmpty(strInputTime)
-              ? $"'{strInputDate} {strInputTime}' is not a date of the format {display} {column.TimePartFormat}, used '{inputDateNew} {strInputTime}'"
-              : $"'{strInputDate}' is not a date of the format {display}, used '{inputDateNew}' ");
+              ? $"'{strInputDate} {strInputTime}' is not a date of the format '{display}' '{column.TimePartFormat}', used '{inputDateNew} {strInputTime}'"
+              : $"'{strInputDate}' is not a date of the format '{display}', used '{inputDateNew}' ");
         }
       }
 
@@ -1183,8 +1183,11 @@ namespace CsvTools
 
       // set the data types, either using the definition, or the provided DataType with defaults
       for (var colIndex = 0; colIndex<adjustedNames.Count && colIndex<Column.Length; colIndex++)
-        Column[colIndex] = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ??
-                           new ImmutableColumn(adjustedNames[colIndex], new ImmutableValueFormat(dataTypeL[colIndex]), colIndex);
+      {
+        var defined = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ??  new ImmutableColumn(adjustedNames[colIndex], new ImmutableValueFormat(dataTypeL[colIndex]), colIndex);
+        Column[colIndex] =new ImmutableColumn(adjustedNames[colIndex], defined.ValueFormat, colIndex, defined.Convert, defined.DestinationName,
+                defined.Ignore, defined.Part, defined.PartSplitter, defined.PartToEnd, defined.TimePart, defined.TimePartFormat, defined.TimeZonePart);
+      }
 
       if (Column==null || Column.Length==0)
         issues.Add(-1, "Column should be set before using ParseColumnName to handle TimePart and TimeZone");
@@ -1319,7 +1322,7 @@ namespace CsvTools
       if (boolValue.HasValue)
         return boolValue.Value;
 
-      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a boolean value");
+      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a boolean");
       return null;
     }
 
@@ -1343,7 +1346,7 @@ namespace CsvTools
       if (decimalValue.HasValue)
         return decimalValue.Value;
 
-      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a decimal value");
+      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a decimal");
       return null;
     }
 
@@ -1378,7 +1381,7 @@ namespace CsvTools
       if (decimalValue.HasValue)
         return decimal.ToDouble(decimalValue.Value);
 
-      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a double value");
+      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a double");
       return null;
     }
 

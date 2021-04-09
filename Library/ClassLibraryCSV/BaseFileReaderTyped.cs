@@ -165,8 +165,8 @@ namespace CsvTools
 
     private void EnsureTextFilled(int columnNumber)
     {
-      if (CurrentValues[columnNumber] is string s)
-        CurrentRowColumnText[columnNumber] = s;
+      if (string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]) && CurrentValues[columnNumber] != null)
+        CurrentRowColumnText[columnNumber] = CurrentValues[columnNumber].ToString();
     }
 
     /// <summary>
