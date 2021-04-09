@@ -23,7 +23,7 @@ namespace CsvTools.Tests
     private readonly CsvFile m_ValidSetting = new CsvFile
     {
       FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
-      FileFormat = {FieldDelimiter = ",", CommentLine = "#"}
+      FileFormat = { FieldDelimiter = ",", CommentLine = "#" }
     };
 
     [TestInitialize]
@@ -36,7 +36,6 @@ namespace CsvTools.Tests
       cf.ValueFormatMutable.DateFormat = @"dd/MM/yyyy";
       m_ValidSetting.ColumnCollection.AddIfNew(cf);
     }
-
 
     [TestMethod]
     public async Task GetEmptyColumnHeaderAsyncTest()
@@ -77,9 +76,9 @@ namespace CsvTools.Tests
       {
         var test3 = new CsvFile(UnitTestInitializeCsv.GetTestPath("WithEoFChar.txt"))
         {
-          FileFormat = {FieldDelimiter = "TAB"}
+          FileFormat = { FieldDelimiter = "Tab" }
         };
-        test3.ColumnCollection.Add(new Column("Memo") {Ignore = true});
+        test3.ColumnCollection.Add(new Column("Memo") { Ignore = true });
         using (var test = new CsvFileReader(test3, processDisplay))
         {
           await test.OpenAsync(processDisplay.CancellationToken);

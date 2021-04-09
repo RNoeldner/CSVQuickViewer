@@ -140,7 +140,7 @@
 			// 
 			this.textBoxDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.textBoxDelimiter.AutoCompleteCustomSource.AddRange(new string[] {
-            "TAB"});
+            "Tab"});
 			this.textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
 			this.textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
 			this.textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "FieldDelimiter", true));
