@@ -11,6 +11,12 @@
     <EmbeddedResource Include="..\WinFormControls\**\*.resx" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="..\WinFormControls\obj\**" />
+    <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <None Remove="obj\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Remove="..\WinFormControls\FolderTree.cs" />
     <Compile Remove="..\WinFormControls\Properties\AssemblyInfo.cs" />
   </ItemGroup>
