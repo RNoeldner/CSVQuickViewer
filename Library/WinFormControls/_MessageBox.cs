@@ -49,6 +49,7 @@ namespace CsvTools
     /// <param name="button1Text">By Default "Yes"</param>
     /// <param name="button2Text">By Default "No"</param>
     /// <returns>DialogResult.Yes or DialogResult.No</returns>
+
     public static DialogResult PersistentChoice(
       string message,
       string title,

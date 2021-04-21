@@ -1,5 +1,4 @@
-﻿using FastColoredTextBoxNS;
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Threading;

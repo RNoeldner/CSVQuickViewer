@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <ApplicationIcon>C:\Users\r_n\source\repos\FileValidator\CSVQuickViewer\Application\csv_text.ico</ApplicationIcon>
+    <ApplicationIcon>..\..\CSVQuickViewer\Application\csv_text.ico</ApplicationIcon>
     <Authors>Raphael Nöldner</Authors>
     <PackageIcon>csv_text.ico</PackageIcon>
     <PackageIconUrl />
