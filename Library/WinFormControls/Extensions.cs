@@ -130,6 +130,15 @@ namespace CsvTools
       }
     }
 
+    public static void SetClipboard(this DataObject dataObject, int timeoutMilliseconds = 120000)
+    => RunSTAThread(() =>
+      {
+        Clipboard.Clear();
+        Clipboard.SetDataObject(dataObject, false, 5, 200);
+      }, timeoutMilliseconds);
+
+    public static void SetClipboard(this string text) => RunSTAThread(() => Clipboard.SetText(text));
+
     public static void RunSTAThread([NotNull] this Action action, int timeoutMilliseconds = 20000)
     {
       if (action is null)

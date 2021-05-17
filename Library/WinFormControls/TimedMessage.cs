@@ -448,6 +448,4 @@ namespace CsvTools
       m_LabelDefault.Text = text.Replace("&&", "￼").Replace("&", "").Replace("￼", "&");
     }
   }
-
-#pragma warning disable CA1707 // Identifiers should not contain underscores
 }

@@ -37,7 +37,7 @@ namespace CsvTools
     private readonly HTMLStyle m_HtmlStyle;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DataGridViewCopyPaste"/> class.
+    ///   Initializes a new instance of the <see cref="DataGridViewCopyPaste" /> class.
     /// </summary>
     /// <param name="htmlStyle">The HTML style.</param>
     public DataGridViewCopyPaste(HTMLStyle htmlStyle)
@@ -89,8 +89,7 @@ namespace CsvTools
     {
       var dataObject = new DataObject();
       dataObject.SetData(DataFormats.Text, true, cell.Value.ToString());
-      Clipboard.Clear();
-      Clipboard.SetDataObject(dataObject, false, 5, 200);
+      dataObject.SetClipboard();
     }
 
     /// <summary>
@@ -150,7 +149,7 @@ namespace CsvTools
 
       if (appendTab)
         stringBuilder.Append('\t');
-      stringBuilder.Append(EscapeTab(cellValue));      
+      stringBuilder.Append(EscapeTab(cellValue));
       style.AddHtmlCell(
         sbHtml,
         cell.ValueType == typeof(string) ? m_HtmlStyle.TD : m_HtmlStyle.TDNonText,
@@ -173,7 +172,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(errorText))
         sbHtml.Append(m_HtmlStyle.TDEmpty);
       else
-      {        
+      {
         style.AddHtmlCell(sbHtml, m_HtmlStyle.TD, string.Empty, errorText, true);
       }
       stringBuilder.Append('\t');
@@ -189,7 +188,7 @@ namespace CsvTools
     /// <param name="columns">The columns.</param>
     /// <param name="rows">The rows.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    private  void CopyAllCellsIntoClipboard(
+    private void CopyAllCellsIntoClipboard(
       bool addErrorInfo,
       bool cutLength,
       bool alternatingRows,
@@ -266,10 +265,9 @@ namespace CsvTools
       var dataObject = new DataObject();
       dataObject.SetData(DataFormats.Html, true, m_HtmlStyle.ConvertToHtmlFragment(sbHtml.ToString()));
       dataObject.SetData(DataFormats.Text, true, buffer.ToString());
-
-      Clipboard.Clear();
-      Clipboard.SetDataObject(dataObject, false, 5, 200);
+      dataObject.SetClipboard();
     }
+
     /// <summary>
     ///   Copies the selected cells into the clipboard.
     /// </summary>
@@ -387,9 +385,7 @@ namespace CsvTools
       sbHtml.AppendLine(m_HtmlStyle.TableClose);
       dataObject.SetData(DataFormats.Html, true, m_HtmlStyle.ConvertToHtmlFragment(sbHtml.ToString()));
       dataObject.SetData(DataFormats.Text, true, buffer.ToString());
-
-      Clipboard.Clear();
-      Clipboard.SetDataObject(dataObject, false, 5, 200);
+      dataObject.SetClipboard();
     }
   }
 }
