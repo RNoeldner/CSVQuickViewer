@@ -22,17 +22,6 @@ namespace CsvTools.Tests
   public class StringUtilsTests
   {
     [TestMethod]
-    public void SplitDistinct()
-    {
-      var test = "This,is,a,test".SplitDistinct("test");
-      Assert.AreEqual(4, test.Count);
-      var test2 = "This,is,this,test".SplitDistinct("is");
-      Assert.AreEqual(3, test2.Count);
-      var test3 = "Hello,Great".SplitDistinct("World");
-      Assert.AreEqual(3, test3.Count);
-    }
-
-    [TestMethod]
     public void Join()
     {
       var test = new[] { "this", "is", "a" }.Join();
@@ -115,26 +104,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GetTrimmedUpperValue()
-    {
-      Assert.AreEqual(string.Empty, StringUtils.GetTrimmedUpperValue(null));
-      Assert.AreEqual(string.Empty, StringUtils.GetTrimmedUpperValue(" "));
-      Assert.AreEqual("AABB", StringUtils.GetTrimmedUpperValue("aabb"));
-      Assert.AreEqual("AA BB", StringUtils.GetTrimmedUpperValue(" aa bb  "));
-    }
-
-    [TestMethod]
-    public void GetTrimmedUpperValueTest()
-    {
-      Assert.AreEqual("", StringUtils.GetTrimmedUpperValue(null));
-      Assert.AreEqual("", StringUtils.GetTrimmedUpperValue(DBNull.Value));
-      Assert.AreEqual("", StringUtils.GetTrimmedUpperValue(string.Empty));
-      Assert.AreEqual("", StringUtils.GetTrimmedUpperValue(" "));
-      Assert.AreEqual("12", StringUtils.GetTrimmedUpperValue(12));
-      Assert.AreEqual("A TEST", StringUtils.GetTrimmedUpperValue(" a Test "));
-    }
-
-    [TestMethod]
     public void HandleCRLFCombinationsTest()
     {
       Assert.AreEqual("+#+", "\r#\n".HandleCRLFCombinations("+"));
@@ -207,15 +176,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void OnlyText() => Assert.AreEqual("Noldner", "Nöldner".OnlyText());
-
-    [TestMethod]
-    public void OnlyTextNull()
-    {
-      Assert.AreEqual(string.Empty, string.Empty.OnlyText());
-    }
-
-    [TestMethod]
     public void SafeFileName()
     {
       Assert.AreEqual(@"", @"".SafePath());
@@ -227,17 +187,6 @@ namespace CsvTools.Tests
         @"c:\Users\rnoldner\Documents\Kunden\Sample\Set:tings.Validation*Task".SafePath());
       Assert.AreEqual(@"c:\Users\rnoldner\Documents\Kunden\Sample\Settings.ValidationTask",
         @"c:\Users\rno>ldner\Documents\Kunden\Sample\Set:tings.Validat?ionTask".SafePath());
-    }
-
-    [TestMethod]
-    public void SemicolonSplit()
-    {
-      Assert.AreEqual(0, StringUtils.SplitValidValues(null).Length);
-      Assert.AreEqual(0, StringUtils.SplitValidValues("").Length);
-      Assert.AreEqual(1, StringUtils.SplitValidValues("A,B").Length);
-      Assert.AreEqual(2, StringUtils.SplitValidValues("A;B").Length);
-      Assert.AreEqual("A", StringUtils.SplitValidValues("A;B")[0]);
-      Assert.AreEqual("B", StringUtils.SplitValidValues("A;B")[1]);
     }
 
     [TestMethod]

@@ -341,11 +341,13 @@ namespace CsvTools
       other.TrueValue = TrueValue;
     }
 
-    /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+    /// <summary>
+    ///   Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
     /// <param name="other">An object to compare with this object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
-    ///   <see langword="false" />.
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
+    ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
     public bool Equals(FillGuessSettings other)
     {
@@ -364,20 +366,20 @@ namespace CsvTools
              string.Equals(TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>Determines whether the specified object is equal to the current object.</summary>
-    /// <param name="obj">The object to compare with the current object. </param>
+    /// <summary>
+    ///   Determines whether the specified object is equal to the current object.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+    ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
+    ///   <see langword="false" />.
     /// </returns>
-#pragma warning disable 659
     public override bool Equals(object obj) => Equals(obj as FillGuessSettings);
-#pragma warning restore 659
 
     /// <summary>
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
     public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
-
   }
 }

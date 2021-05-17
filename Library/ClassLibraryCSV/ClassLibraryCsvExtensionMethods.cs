@@ -31,6 +31,7 @@ namespace CsvTools
   /// <summary>
   ///   Class with extensions used in the class Library
   /// </summary>
+
   public static class ClassLibraryCsvExtensionMethods
   {
     public static async Task<long> WriteAsync([NotNull] this IFileWriter writer, [NotNull] string sqlStatement,

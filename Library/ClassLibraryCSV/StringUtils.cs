@@ -40,11 +40,6 @@ namespace CsvTools
     private static readonly char[] m_DelimiterChar = { ';', '|', '\r', '\n', '\t' };
 
     /// <summary>
-    ///   ; CR LF
-    /// </summary>
-    private static readonly char[] m_SplitChars = { ';', '\r', '\n' };
-
-    /// <summary>
     ///   Checks whether a column name text ends on the text ID or Ref
     /// </summary>
     /// <param name="columnName">The column name</param>
@@ -105,24 +100,6 @@ namespace CsvTools
         return withoutLineFeed.Substring(0, spaceIndex) + "…";
 
       return withoutLineFeed + "…";
-    }
-
-    /// <summary>
-    ///   Gets the trimmed value.
-    /// </summary>
-    /// <param name="val">The value.</param>
-    /// <returns>
-    ///   An upper case version without leading or tailing space, if the input is null it returns an
-    ///   empty string.
-    /// </returns>
-    [NotNull]
-    public static string GetTrimmedUpperValue([CanBeNull] object val)
-    {
-      if (val == null || val == DBNull.Value)
-        return string.Empty;
-
-      var strVal = val.ToString();
-      return string.IsNullOrEmpty(strVal) ? string.Empty : strVal.Trim().ToUpperInvariant();
     }
 
     /// <summary>
@@ -268,19 +245,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Used to get only text representation without umlaut or accents, allowing only upper and
-    ///   lower case characters no numbers
-    /// </summary>
-    /// <param name="original">The original text.</param>
-    /// <returns>The text but Only Letters</returns>
-    [NotNull]
-    public static string OnlyText([NotNull] this string original)
-    {
-      return ProcessByCategory(original,
-        x => x == UnicodeCategory.UppercaseLetter || x == UnicodeCategory.LowercaseLetter);
-    }
-
-    /// <summary>
     ///   Processes the each charter of the string by category, if the test function return false,
     ///   the charter is omitted
     /// </summary>
@@ -335,37 +299,6 @@ namespace CsvTools
         ? new string[] { }
         : inputValue.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
     }
-
-    /// <summary>
-    ///   Splits the text into distinct texts, always adding the alwaysInclude Value.
-    /// </summary>
-    /// <param name="inputValue">The input value.</param>
-    /// <param name="alwaysInclude">This text will always be included in the result.</param>
-    /// <returns>A list of distinct value</returns>
-    [NotNull]
-    public static HashSet<string> SplitDistinct([NotNull] this string inputValue, [CanBeNull] string alwaysInclude)
-    {
-      var keyColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      if (!string.IsNullOrWhiteSpace(alwaysInclude))
-        keyColumns.Add(alwaysInclude);
-
-      foreach (var keyColumn in inputValue.Split(','))
-        if (!string.IsNullOrWhiteSpace(keyColumn))
-          keyColumns.Add(keyColumn.Trim());
-
-      return keyColumns;
-    }
-
-    /// <summary>
-    ///   Splits the given string at the semicolon
-    /// </summary>
-    /// <param name="inputValue">The string to be split.</param>
-    /// <returns>String array with substrings, empty elements are removed</returns>
-    [NotNull]
-    [ItemNotNull]
-    public static string[] SplitValidValues([CanBeNull] string inputValue) => string.IsNullOrEmpty(inputValue)
-      ? new string[] { }
-      : inputValue.Split(m_SplitChars, StringSplitOptions.RemoveEmptyEntries);
 
     /// <summary>
     ///   Escapes SQL names; does not include the brackets or quotes

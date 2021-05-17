@@ -19,7 +19,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class SerializedFilesLibTests
   {
-    private static string fileName = UnitTestInitializeCsv.GetTestPath("Test.csv") + CsvFile.cCsvSettingExtension;
+    private static readonly string fileName = UnitTestInitializeCsv.GetTestPath("Test.csv") + CsvFile.cCsvSettingExtension;
 
     [TestMethod]
     [Timeout(2000)]

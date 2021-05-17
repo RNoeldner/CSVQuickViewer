@@ -225,7 +225,7 @@ namespace CsvTools
         folder=".";
       else
         if (!DirectoryExists(folder))
-          return null;
+        return null;
 
       // If a pattern is present in the folder this is not going to work
       var newSet = new DateTime(0);
@@ -623,10 +623,7 @@ namespace CsvTools
       public long Length { get; }
     }
 
-#pragma warning disable CA1034 // Nested types should not be visible
-
     public class SplitResult
-#pragma warning restore CA1034
     {
       // Nested types should not be visible
       public SplitResult(string dir, string file)
@@ -661,11 +658,9 @@ namespace CsvTools
         }
       }
 
-#pragma warning disable CA1051 // Do not declare visible instance fields
       public readonly string DirectoryName;
 
       public readonly string FileName;
-#pragma warning restore CA1051 // Do not declare visible instance fields
     }
   }
 }

@@ -72,7 +72,7 @@ namespace CsvTools
       HighlightVisibleRange(fileSetting.SkipRows);
     }
 
-    private void numericUpDownSkipRows_ValueChanged(object sender, EventArgs e)
+    private void NumericUpDownSkipRows_ValueChanged(object sender, EventArgs e)
     {
       HighlightVisibleRange(Convert.ToInt32(numericUpDownSkipRows.Value));
     }
@@ -82,7 +82,7 @@ namespace CsvTools
       textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(fileSetting.CodePageId, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
     }
 
-    private void textBox_VisibleRangeChangedDelayed(object sender, EventArgs e)
+    private void TextBox_VisibleRangeChangedDelayed(object sender, EventArgs e)
     {
       HighlightVisibleRange(fileSetting.SkipRows);
     }

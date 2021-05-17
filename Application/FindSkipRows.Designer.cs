@@ -203,7 +203,7 @@
 			this.textBox.TabIndex = 126;
 			this.textBox.WordWrap = true;
 			this.textBox.Zoom = 100;
-			this.textBox.VisibleRangeChangedDelayed += new System.EventHandler(this.textBox_VisibleRangeChangedDelayed);
+			this.textBox.VisibleRangeChangedDelayed += new System.EventHandler(this.TextBox_VisibleRangeChangedDelayed);
 			// 
 			// m_TextBoxQuote
 			// 
@@ -222,7 +222,7 @@
 			this.numericUpDownSkipRows.Name = "numericUpDownSkipRows";
 			this.numericUpDownSkipRows.Size = new System.Drawing.Size(45, 20);
 			this.numericUpDownSkipRows.TabIndex = 132;
-			this.numericUpDownSkipRows.ValueChanged += new System.EventHandler(this.numericUpDownSkipRows_ValueChanged);
+			this.numericUpDownSkipRows.ValueChanged += new System.EventHandler(this.NumericUpDownSkipRows_ValueChanged);
 			// 
 			// fileFormatBindingSource
 			// 

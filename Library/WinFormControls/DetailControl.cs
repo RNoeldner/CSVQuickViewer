@@ -66,7 +66,10 @@ namespace CsvTools
 
     [CanBeNull] private FilterDataTable m_FilterDataTable;
 
-    private FormHierarchyDisplay m_HierarchyDisplay;
+    private FormHierarchyDisplay m_HierarchyDisplay = null;
+    private FormShowMaxLength m_FormShowMaxLength = null;
+    private FormDuplicatesDisplay m_FormDuplicatesDisplay = null;
+    private FormUniqueDisplay m_FormUniqueDisplay = null;
 
     private Form m_ParentForm;
 
@@ -420,6 +423,9 @@ namespace CsvTools
       {
         m_DisposedValue = true;
         components?.Dispose();
+        m_FormShowMaxLength?.Dispose();
+        m_FormDuplicatesDisplay?.Dispose();
+        m_FormUniqueDisplay?.Dispose();
         m_CurrentSearch?.Dispose();
         m_DataTable?.Dispose();
         m_FilterDataTable?.Dispose();
@@ -495,20 +501,21 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonColumnLength_Click(object sender, EventArgs e)
     {
+      if (FilteredDataGridView.Columns.Count <= 0)
+        return;
       m_ToolStripButtonColumnLength.RunWithHourglass(() =>
       {
-        if (FilteredDataGridView.Columns.Count <= 0)
-          return;
         var visible = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
                                           .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)).OrderBy(col => col.DisplayIndex)
                                           .Select(col => col.DataPropertyName).ToList();
-        using (var details =
-          new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible, HTMLStyle))
-        {
-          details.Icon = ParentForm?.Icon;
-          details.ShowDialog(ParentForm);
-        }
+        m_FormShowMaxLength?.Close();
+        m_FormShowMaxLength =new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible, HTMLStyle)
+        { Icon = ParentForm?.Icon };
+        m_FormShowMaxLength.Show(ParentForm);
+
+        m_FormShowMaxLength.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
       });
+      m_ToolStripButtonColumnLength.Enabled = false;
     }
 
     /// <summary>
@@ -518,23 +525,27 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonDuplicates_Click(object sender, EventArgs e)
     {
+      if (FilteredDataGridView.Columns.Count <= 0)
+        return;
       m_ToolStripButtonDuplicates.RunWithHourglass(() =>
       {
-        if (FilteredDataGridView.Columns.Count <= 0)
-          return;
         var columnName = FilteredDataGridView.CurrentCell != null
                            ? FilteredDataGridView.Columns[FilteredDataGridView.CurrentCell.ColumnIndex].Name
                            : FilteredDataGridView.Columns[0].Name;
-
-        using (var details = new FormDuplicatesDisplay(
-          m_DataTable.Clone(),
-          m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-          columnName, HTMLStyle))
+        try
         {
-          details.Icon = ParentForm?.Icon;
-          details.ShowDialog(ParentForm);
+          m_FormDuplicatesDisplay?.Close();
+          m_FormDuplicatesDisplay = new FormDuplicatesDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), columnName, HTMLStyle)
+          { Icon = ParentForm?.Icon };
+          m_FormDuplicatesDisplay.Show(ParentForm);
+          m_FormDuplicatesDisplay.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
+        }
+        catch (Exception ex)
+        {
+          ParentForm.ShowError(ex);
         }
       });
+      m_ToolStripButtonDuplicates.Enabled = false;
     }
 
     /// <summary>
@@ -544,20 +555,22 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonHierarchy_Click(object sender, EventArgs e)
     {
+      m_ToolStripButtonHierarchy.RunWithHourglass(() =>
+      {
+        try
+        {
+          m_HierarchyDisplay?.Close();
+          m_HierarchyDisplay =
+            new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), HTMLStyle) { Icon = ParentForm?.Icon };
+          m_HierarchyDisplay.Show(ParentForm);
+          m_HierarchyDisplay.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
+        }
+        catch (Exception ex)
+        {
+          ParentForm.ShowError(ex);
+        }
+      });
       m_ToolStripButtonHierarchy.Enabled = false;
-
-      try
-      {
-        m_HierarchyDisplay?.Close();
-        m_HierarchyDisplay =
-          new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), HTMLStyle) { Icon = ParentForm?.Icon };
-        m_HierarchyDisplay.Show();
-        m_HierarchyDisplay.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
-      }
-      catch (Exception ex)
-      {
-        ParentForm.ShowError(ex);
-      }
     }
 
     /// <summary>
@@ -567,31 +580,29 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonUniqueValues_Click(object sender, EventArgs e)
     {
-      m_ToolStripButtonUniqueValues.Enabled = false;
-      try
+      if (FilteredDataGridView.Columns.Count <= 0)
+        return;
+      m_ToolStripButtonUniqueValues.RunWithHourglass(() =>
       {
-        if (FilteredDataGridView.Columns.Count <= 0)
-          return;
-        var columnName = FilteredDataGridView.CurrentCell != null
-                           ? FilteredDataGridView.Columns[FilteredDataGridView.CurrentCell.ColumnIndex].Name
-                           : FilteredDataGridView.Columns[0].Name;
-        using (var details = new FormUniqueDisplay(
-          m_DataTable.Clone(),
-          m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-          columnName, HTMLStyle))
+        try
         {
-          details.Icon = ParentForm?.Icon;
-          details.ShowDialog(this);
+          var columnName = FilteredDataGridView.CurrentCell != null
+                             ? FilteredDataGridView.Columns[FilteredDataGridView.CurrentCell.ColumnIndex].Name
+                             : FilteredDataGridView.Columns[0].Name;
+          m_FormUniqueDisplay?.Close();
+          m_FormUniqueDisplay = new FormUniqueDisplay(
+           m_DataTable.Clone(),
+           m_DataTable.Select(FilteredDataGridView.CurrentFilter),
+           columnName, HTMLStyle)
+          { Icon = ParentForm?.Icon };
+          m_FormUniqueDisplay.ShowDialog(ParentForm);
         }
-      }
-      catch (Exception ex)
-      {
-        ParentForm.ShowError(ex);
-      }
-      finally
-      {
-        m_ToolStripButtonUniqueValues.Enabled = true;
-      }
+        catch (Exception ex)
+        {
+          ParentForm.ShowError(ex);
+        }
+      });
+      m_ToolStripButtonUniqueValues.Enabled = false;
     }
 
     private void ClearSearch(object sender, EventArgs e)
