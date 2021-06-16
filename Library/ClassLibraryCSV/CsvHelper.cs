@@ -185,7 +185,7 @@ namespace CsvTools
       display.SetProcess("Checking comment line", -1, true);
       using (var streamReader = await improvedStream.GetStreamReaderAtStart(detectionResult.CodePageId, detectionResult.SkipRows, display.CancellationToken))
       {
-        detectionResult = new DelimitedFileDetectionResult(detectionResult.FileName, detectionResult.SkipRows, detectionResult.CodePageId, detectionResult.ByteOrderMark, detectionResult.QualifyAlways, detectionResult.IdentifierInContainer, streamReader.GuessComment(display.CancellationToken), detectionResult.EscapeCharacter, detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.HasFieldHeader, false, detectionResult.NoDelimitedFile, detectionResult.NewLine);
+        detectionResult = new DelimitedFileDetectionResult(detectionResult.FileName, detectionResult.SkipRows, detectionResult.CodePageId, detectionResult.ByteOrderMark, detectionResult.QualifyAlways, detectionResult.IdentifierInContainer, streamReader.GuessLineComment(display.CancellationToken), detectionResult.EscapeCharacter, detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.HasFieldHeader, false, detectionResult.NoDelimitedFile, detectionResult.NewLine);
       }
 
       display.SetProcess("Checking delimited text file", -1, true);
@@ -680,7 +680,16 @@ namespace CsvTools
       return retValue;
     }
 
-    public static string GuessComment([NotNull] this ImprovedTextReader textReader, CancellationToken cancellationToken)
+    [NotNull]
+    public static async Task<string> GuessLineComment([NotNull] this IImprovedStream improvedStream, int codePageId, int skipRows, CancellationToken cancellationToken)
+    {
+      using (var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken))
+      {
+        return textReader.GuessLineComment(cancellationToken);
+      }
+    }
+
+    public static string GuessLineComment([NotNull] this ImprovedTextReader textReader, CancellationToken cancellationToken)
     {
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
       const int c_MaxRows = 50;
