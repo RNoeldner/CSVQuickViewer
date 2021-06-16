@@ -26,6 +26,7 @@ namespace CsvTools
   {
     [XmlElement]
     public WindowState WindowPosition;
+
     private bool m_AllowJson = true;
     private bool m_DetectFileChanges = true;
     private FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
@@ -33,6 +34,7 @@ namespace CsvTools
     private bool m_GuessDelimiter = true;
     private bool m_GuessHasHeader = true;
     private bool m_GuessNewLine = true;
+    private bool m_GuessComment = true;
     private bool m_GuessQualifier;
     private bool m_GuessStartRow = true;
     private HTMLStyle m_HtmlStyle = new HTMLStyle();
@@ -190,6 +192,21 @@ namespace CsvTools
           return;
         m_GuessNewLine = value;
         NotifyPropertyChanged(nameof(GuessNewLine));
+      }
+    }
+
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public bool GuessComment
+    {
+      get => m_GuessComment;
+
+      set
+      {
+        if (m_GuessComment == value)
+          return;
+        m_GuessComment = value;
+        NotifyPropertyChanged(nameof(GuessComment));
       }
     }
 

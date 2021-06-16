@@ -54,10 +54,6 @@ namespace CsvTools
     public Search()
     {
       InitializeComponent();
-
-      // m_TimerChange.Elapsed += FilterValueChangedElapsed;
-      // m_TimerChange.Interval = 10;
-      // m_TimerChange.AutoReset = false;
       Results = 0;
     }
 
@@ -146,7 +142,7 @@ namespace CsvTools
     /// <summary>
     ///   Required method for Designer support - do not modify the contents of this method with the
     ///   code editor.
-    /// </summary>    
+    /// </summary>
     private void InitializeComponent()
     {
       System.Windows.Forms.Label label1;
@@ -160,9 +156,7 @@ namespace CsvTools
       label1 = new System.Windows.Forms.Label();
       m_TableLayoutPanel.SuspendLayout();
       SuspendLayout();
-      // 
       // label1
-      // 
       label1.Anchor = System.Windows.Forms.AnchorStyles.Left;
       label1.AutoSize = true;
       label1.ForeColor = System.Drawing.SystemColors.InfoText;
@@ -171,9 +165,7 @@ namespace CsvTools
       label1.Size = new System.Drawing.Size(72, 17);
       label1.TabIndex = 0;
       label1.Text = "Find what:";
-      // 
       // m_BtnCancel
-      // 
       m_BtnCancel.Anchor = System.Windows.Forms.AnchorStyles.Left;
       m_BtnCancel.BackColor = System.Drawing.SystemColors.Info;
       m_BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
@@ -187,9 +179,7 @@ namespace CsvTools
       m_BtnCancel.TabIndex = 4;
       m_BtnCancel.UseVisualStyleBackColor = false;
       m_BtnCancel.Click += new System.EventHandler(Cancel_Click);
-      // 
       // m_SearchTextBoxText
-      // 
       m_SearchTextBoxText.Anchor = System.Windows.Forms.AnchorStyles.Left;
       m_SearchTextBoxText.BackColor = System.Drawing.SystemColors.Info;
       m_SearchTextBoxText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -200,9 +190,7 @@ namespace CsvTools
       m_SearchTextBoxText.Size = new System.Drawing.Size(95, 22);
       m_SearchTextBoxText.TabIndex = 1;
       m_SearchTextBoxText.TextChanged += new System.EventHandler(SearchText_TextChanged);
-      // 
       // m_LblResults
-      // 
       m_LblResults.Anchor = System.Windows.Forms.AnchorStyles.Left;
       m_LblResults.AutoSize = true;
       m_LblResults.ForeColor = System.Drawing.SystemColors.InfoText;
@@ -212,9 +200,7 @@ namespace CsvTools
       m_LblResults.TabIndex = 0;
       m_LblResults.Text = "0 of 0";
       m_LblResults.TextChanged += new System.EventHandler(LblResultsTextChanged);
-      // 
       // m_BtnNext
-      // 
       m_BtnNext.Anchor = System.Windows.Forms.AnchorStyles.Left;
       m_BtnNext.BackColor = System.Drawing.SystemColors.Info;
       m_BtnNext.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
@@ -228,9 +214,7 @@ namespace CsvTools
       m_BtnNext.TabIndex = 6;
       m_BtnNext.UseVisualStyleBackColor = false;
       m_BtnNext.Click += new System.EventHandler(Next_Click);
-      // 
       // m_BtnPrevious
-      // 
       m_BtnPrevious.Anchor = System.Windows.Forms.AnchorStyles.Left;
       m_BtnPrevious.BackColor = System.Drawing.SystemColors.Info;
       m_BtnPrevious.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
@@ -244,9 +228,7 @@ namespace CsvTools
       m_BtnPrevious.TabIndex = 5;
       m_BtnPrevious.UseVisualStyleBackColor = false;
       m_BtnPrevious.Click += new System.EventHandler(Previous_Click);
-      // 
       // m_TableLayoutPanel
-      // 
       m_TableLayoutPanel.ColumnCount = 6;
       m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -267,9 +249,7 @@ namespace CsvTools
       m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
       m_TableLayoutPanel.Size = new System.Drawing.Size(364, 35);
       m_TableLayoutPanel.TabIndex = 7;
-      // 
       // Search
-      // 
       BackColor = System.Drawing.SystemColors.Info;
       Controls.Add(m_TableLayoutPanel);
       Name = "Search";
@@ -277,7 +257,6 @@ namespace CsvTools
       m_TableLayoutPanel.ResumeLayout(false);
       m_TableLayoutPanel.PerformLayout();
       ResumeLayout(false);
-
     }
 
     private void LblResultsTextChanged(object sender, EventArgs e)
@@ -301,7 +280,7 @@ namespace CsvTools
     private void SearchChanged() => OnSearchChanged?.Invoke(this, new SearchEventArgs(m_SearchTextBoxText.Text));
 
     private void SearchText_TextChanged(object sender, EventArgs e) =>
-      FilterValueChangedElapsed(); // m_TimerChange.Stop();//m_TimerChange.Start();
+      FilterValueChangedElapsed();
 
     private void UpdateDisplay()
     {

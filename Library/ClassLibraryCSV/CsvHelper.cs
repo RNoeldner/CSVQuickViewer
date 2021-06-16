@@ -50,7 +50,7 @@ namespace CsvTools
     /// <exception cref="ArgumentNullException">processDisplay</exception>
     public static async Task<DelimitedFileDetectionResultWithColumns> AnalyseFileAsync(this string fileName, bool guessJson,
                                                          bool guessCodePage, bool guessDelimiter, bool guessQualifier, bool guessStartRow,
-                                                         bool guessHasHeader, bool guessNewLine, [NotNull] FillGuessSettings fillGuessSettings,
+                                                         bool guessHasHeader, bool guessNewLine, bool guessCommentLine, [NotNull] FillGuessSettings fillGuessSettings,
                                                          [NotNull] IProcessDisplay processDisplay)
     {
       if (processDisplay == null) throw new ArgumentNullException(nameof(processDisplay));
@@ -113,7 +113,8 @@ namespace CsvTools
         guessQualifier,
         guessStartRow,
         guessHasHeader,
-        guessNewLine);
+        guessNewLine,
+        guessCommentLine);
 
       processDisplay.SetProcess("Determining column format by reading samples", -1, true);
       var csv = detectionResult.CsvFile();
@@ -143,7 +144,7 @@ namespace CsvTools
     /// <param name="guessNewLine">if set to <c>true</c> determine combination of new line.</param>
     public static async Task<DelimitedFileDetectionResult> GetDetectionResult([NotNull] this IImprovedStream improvedStream, [NotNull] string fileName, [NotNull] IProcessDisplay display,
                                                                 bool guessJson, bool guessCodePage, bool guessDelimiter, bool guessQualifier,
-                                                                bool guessStartRow, bool guessHasHeader, bool guessNewLine)
+                                                                bool guessStartRow, bool guessHasHeader, bool guessNewLine, bool guessCommentLine)
     {
       if (improvedStream is null)
         throw new ArgumentNullException(nameof(improvedStream));
@@ -153,7 +154,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(display));
 
       var detectionResult = new DelimitedFileDetectionResult(fileName);
-      if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader ||
+      if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader || guessCommentLine ||
             guessNewLine))
         return detectionResult;
 
@@ -164,20 +165,27 @@ namespace CsvTools
         improvedStream.Seek(0, SeekOrigin.Begin);
         display.SetProcess("Checking Code Page", -1, true);
         var (codePage, bom) = await improvedStream.GuessCodePage(display.CancellationToken).ConfigureAwait(false);
-        detectionResult = new DelimitedFileDetectionResult(detectionResult.FileName, detectionResult.SkipRows, codePage, bom, detectionResult.QualifyAlways, detectionResult.IdentifierInContainer, detectionResult.CommentLine, detectionResult.EscapeCharacter, detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.HasFieldHeader, detectionResult.IsJson, detectionResult.NoDelimitedFile, detectionResult.NewLine);
+        detectionResult = new DelimitedFileDetectionResult(detectionResult.FileName, detectionResult.SkipRows, codePage, bom, detectionResult.QualifyAlways, detectionResult.IdentifierInContainer, detectionResult.CommentLine, detectionResult.EscapeCharacter, detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.HasFieldHeader, false, detectionResult.NoDelimitedFile, detectionResult.NewLine);
       }
 
       if (guessJson)
       {
         display.SetProcess("Checking Json format", -1, false);
         if (await improvedStream.IsJsonReadable(Encoding.GetEncoding(detectionResult.CodePageId), display.CancellationToken).ConfigureAwait(false))
-          detectionResult = new DelimitedFileDetectionResult(detectionResult.FileName, 0, detectionResult.CodePageId, detectionResult.ByteOrderMark, detectionResult.QualifyAlways, detectionResult.IdentifierInContainer, detectionResult.CommentLine, detectionResult.EscapeCharacter, detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.HasFieldHeader, true, detectionResult.NoDelimitedFile, detectionResult.NewLine);
+          detectionResult = new DelimitedFileDetectionResult(detectionResult.FileName, 0, detectionResult.CodePageId, detectionResult.ByteOrderMark, detectionResult.QualifyAlways, detectionResult.IdentifierInContainer, detectionResult.CommentLine,
+            detectionResult.EscapeCharacter, detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.HasFieldHeader, true, detectionResult.NoDelimitedFile, detectionResult.NewLine);
       }
 
       if (detectionResult.IsJson)
       {
         display.SetProcess("Detected Json file", -1, false);
         return detectionResult;
+      }
+
+      display.SetProcess("Checking comment line", -1, true);
+      using (var streamReader = await improvedStream.GetStreamReaderAtStart(detectionResult.CodePageId, detectionResult.SkipRows, display.CancellationToken))
+      {
+        detectionResult = new DelimitedFileDetectionResult(detectionResult.FileName, detectionResult.SkipRows, detectionResult.CodePageId, detectionResult.ByteOrderMark, detectionResult.QualifyAlways, detectionResult.IdentifierInContainer, streamReader.GuessComment(display.CancellationToken), detectionResult.EscapeCharacter, detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.HasFieldHeader, false, detectionResult.NoDelimitedFile, detectionResult.NewLine);
       }
 
       display.SetProcess("Checking delimited text file", -1, true);
@@ -672,6 +680,46 @@ namespace CsvTools
       return retValue;
     }
 
+    public static string GuessComment([NotNull] this ImprovedTextReader textReader, CancellationToken cancellationToken)
+    {
+      if (textReader == null) throw new ArgumentNullException(nameof(textReader));
+      const int c_MaxRows = 50;
+      int lastRow = 0;
+      Dictionary<string, int> starts = new Dictionary<string, int>();
+      foreach (var test in new[] { "##", "//", "\\\\", "''", "#", "/", "\\", "'" })
+        starts.Add(test, 0);
+      textReader.ToBeginning();
+      while (lastRow < c_MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
+      {
+        var line = textReader.ReadLine().TrimStart();
+        if (line.Length==0)
+          continue;
+        lastRow++;
+        foreach (var test in starts.Keys)
+        {
+          if (line.StartsWith(test, StringComparison.Ordinal))
+            starts[test]++;
+        }
+      }
+      cancellationToken.ThrowIfCancellationRequested();
+      int maxCount = starts.Max(x => x.Value);
+      string retValue = string.Empty;
+      if (maxCount>0)
+      {
+        var longer = starts.FirstOrDefault(x => x.Value== maxCount && x.Key.Length>1);
+        if (longer.Equals(default))
+          retValue = starts.First(x => x.Value== maxCount).Key;
+        else
+          retValue = longer.Key;
+        Logger.Information("  Comment Line: {comment}", retValue);
+      }
+      else
+      {
+        Logger.Information("  No Comment Line");
+      }
+      return retValue;
+    }
+
     /// <summary>
     ///   Determines the start row in the file
     /// </summary>
@@ -810,7 +858,8 @@ namespace CsvTools
       bool guessQualifier = true,
       bool guessStartRow = true,
       bool guessHasHeader = true,
-      bool guessNewLine = true)
+      bool guessNewLine = true,
+      bool guessCommentLine = true)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("file name can not be empty", nameof(fileName));
@@ -819,7 +868,7 @@ namespace CsvTools
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName)))
       {
         return await improvedStream.GetDetectionResult(fileName, display, guessJson, guessCodePage, guessDelimiter,
-                    guessQualifier, guessStartRow, guessHasHeader, guessNewLine);
+                    guessQualifier, guessStartRow, guessHasHeader, guessNewLine, guessCommentLine);
       }
     }
 

@@ -69,6 +69,7 @@ namespace CsvTools
       m_ImgFilterIndicator = (Image) resources.GetObject("toolStripMenuItem2.Image");
 
       DataError += FilteredDataGridView_DataError;
+      toolStripTextBoxColFilter.TextChanged += (o, a) => { timerColumsFilterText.Stop(); timerColumsFilterText.Start(); };
       toolStripMenuItemColumnVisibility.ItemCheck += CheckedListBox_ItemCheck;
       if (contextMenuStripHeader.LayoutSettings is TableLayoutSettings tableLayoutSettings)
         tableLayoutSettings.ColumnCount = 3;
@@ -683,8 +684,8 @@ namespace CsvTools
     /// <param name="e">The <see cref="ItemCheckEventArgs" /> instance containing the event data.</param>
     private void CheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e)
     {
-      timerColumsFilter.Stop();
-      timerColumsFilter.Start();
+      timerColumsFilterChecked.Stop();
+      timerColumsFilterChecked.Start();
     }
 
     /// <summary>
@@ -1164,7 +1165,7 @@ namespace CsvTools
 
     private void TimerColumnsFilter_Tick(object sender, EventArgs e)
     {
-      timerColumsFilter.Stop();
+      timerColumsFilterChecked.Stop();
 
       var items = new Dictionary<string, bool>();
       for (var i = 0; i < toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.Count; i++)
@@ -1378,5 +1379,37 @@ namespace CsvTools
       Sort(Columns[m_MenuItemColumnIndex], ListSortDirection.Descending);
 
     private void ToolStripMenuItemSortRemove_Click(object sender, EventArgs e) => DataView.Sort = string.Empty;
+
+    private void timerColumsFilterText_Tick(object sender, EventArgs e)
+    {
+      timerColumsFilterText.Stop();
+      if (toolStripTextBoxColFilter.Text.Length>1)
+      {
+        toolStripTextBoxColFilter.RunWithHourglass(() =>
+        {
+          bool allVisible = true;
+          foreach (DataGridViewColumn col in Columns)
+          {
+            if (!col.Visible)
+            {
+              allVisible = false;
+              break;
+            }
+          }
+
+          foreach (DataGridViewColumn col in Columns)
+            if (col.DataPropertyName.IndexOf(toolStripTextBoxColFilter.Text, StringComparison.OrdinalIgnoreCase)!=-1)
+              col.Visible = true;
+            else if (allVisible)
+              col.Visible = false;
+
+          if (!ColumnVisibilityChanged())
+            return;
+
+          SetRowHeight();
+        });
+        toolStripTextBoxColFilter.Focus();
+      }
+    }
   }
 }
