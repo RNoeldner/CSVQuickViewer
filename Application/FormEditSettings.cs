@@ -94,7 +94,7 @@ namespace CsvTools
     {
       await buttonGuessCP.RunWithHourglassAsync(async () =>
       {
-        using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(m_ViewSettings)))
+        using (var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings)))
         {
           var (codepage, bom) = await improvedStream.GuessCodePage(m_CancellationTokenSource.Token);
           m_ViewSettings.CodePageId = codepage;
@@ -108,7 +108,7 @@ namespace CsvTools
     {
       await buttonGuessDelimiter.RunWithHourglassAsync(async () =>
       {
-        using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(m_ViewSettings)))
+        using (var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings)))
         {
           await improvedStream.GuessDelimiter(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.EscapeCharacter, m_CancellationTokenSource.Token);
         }
@@ -123,7 +123,7 @@ namespace CsvTools
       var qualifier = string.Empty;
       await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
       {
-        using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(m_ViewSettings)))
+        using (var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings)))
           qualifier = await improvedStream.GuessQualifier(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.FieldDelimiter, m_CancellationTokenSource.Token);
       });
       if (qualifier != null)
@@ -136,7 +136,7 @@ namespace CsvTools
     {
       await buttonSkipLine.RunWithHourglassAsync(async () =>
       {
-        using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(m_ViewSettings)))
+        using (var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings)))
           m_ViewSettings.SkipRows = await improvedStream.GuessStartRow(m_ViewSettings.CodePageId, m_ViewSettings.FileFormat.FieldDelimiter, m_ViewSettings.FileFormat.FieldQualifier, m_ViewSettings.FileFormat.CommentLine, m_CancellationTokenSource.Token);
       });
     }
@@ -259,7 +259,7 @@ namespace CsvTools
     {
       await buttonNewLine.RunWithHourglassAsync(async () =>
       {
-        using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(m_ViewSettings)))
+        using (var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings)))
           cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.FieldQualifier, m_CancellationTokenSource.Token);
       });
     }
@@ -343,7 +343,7 @@ namespace CsvTools
     {
       await buttonGuessHeader.RunWithHourglassAsync(async () =>
       {
-        using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(m_ViewSettings)))
+        using (var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings)))
         {
           var res = await improvedStream.GuessHasHeader(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.CommentLine, m_ViewSettings.FileFormat.FieldDelimiter, m_CancellationTokenSource.Token);
           m_ViewSettings.HasFieldHeader= res.Item1;
@@ -356,6 +356,20 @@ namespace CsvTools
     private void ButtonInteractiveSettings_Click(object sender, EventArgs e)
     {
       using (var frm = new FindSkipRows(m_ViewSettings)) _=frm.ShowDialog();
+    }
+
+    private async void buttonGuessLineComment_Click(object sender, EventArgs e)
+    {
+      await buttonGuessLineComment.RunWithHourglassAsync(async () =>
+      {
+        using (var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings)))
+        {
+          m_ViewSettings.FileFormat.CommentLine = await improvedStream.GuessLineComment(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_CancellationTokenSource.Token);
+        }
+      });
+
+      // GuessDelimiterAsync does set the values, refresh them
+      fileFormatBindingSource.ResetBindings(false);
     }
   }
 }
