@@ -38,7 +38,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         var tuple = await CsvHelper.AnalyseFileAsync(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), true, true, true,
-                    true, true, true, true, new FillGuessSettings(), processDisplay);
+                    true, true, true, true, true, new FillGuessSettings(), processDisplay);
         Assert.AreEqual(1200, tuple.CodePageId);
       }
     }
@@ -49,7 +49,7 @@ namespace CsvTools.Tests
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
         var tuple = await CsvHelper.AnalyseFileAsync(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt" + CsvFile.cCsvSettingExtension), true, true, true,
-                     true, true, true, true, new FillGuessSettings(), processDisplay);
+                     true, true, true, true, true, new FillGuessSettings(), processDisplay);
         Assert.AreEqual(1200, tuple.CodePageId);
       }
     }
@@ -156,7 +156,7 @@ namespace CsvTools.Tests
     {
       using (IProcessDisplay process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        var result = await CsvHelper.AnalyseFileAsync(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), true, true, true, true, true, true, false,
+        var result = await CsvHelper.AnalyseFileAsync(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), true, true, true, true, true, true, false, true,
                        new FillGuessSettings(), process);
         Assert.IsTrue(result.HasFieldHeader);
         Assert.AreEqual(1200, result.CodePageId);

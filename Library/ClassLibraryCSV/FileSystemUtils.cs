@@ -30,9 +30,6 @@ namespace CsvTools
   /// </summary>
   public static class FileSystemUtils
   {
-    private const string c_LongPathPrefix = @"\\?\";
-    private const string c_UncLongPathPrefix = @"\\?\UNC\";
-
     public static string FullPath([CanBeNull] this string fileName, [CanBeNull] string root) =>
       ResolvePattern(fileName.GetAbsolutePath(root))?? string.Empty;
 
@@ -214,7 +211,7 @@ namespace CsvTools
         return fileOrDirectory;
 
       // get the directory from under it
-      var lastIndex = fileOrDirectory.LastIndexOf('\\');
+      var lastIndex = fileOrDirectory.LastIndexOf(Path.DirectorySeparatorChar);
       return lastIndex > 0 ? fileOrDirectory.Substring(0, lastIndex).RemovePrefix() : null;
     }
 
@@ -321,7 +318,7 @@ namespace CsvTools
       var ret = fileName.RemovePrefix();
       if (length <= 0 || string.IsNullOrEmpty(fileName) || fileName.Length <= length)
         return ret;
-      var parts = fileName.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
+      var parts = fileName.Split(new[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
       var fileNameOnly = parts[parts.Length - 1];
 
       // try to cut out directories
@@ -354,10 +351,6 @@ namespace CsvTools
       var relative = fileName.GetRelativePath(basePath);
       return relative.Length < absolute.Length ? relative : absolute;
     }
-
-    public static string GetFileNameWithoutExtension([NotNull] string path) => Path.GetFileNameWithoutExtension(path);
-
-    public static string PathCombine([NotNull] string path1, [NotNull] string path2) => Path.Combine(path1, path2);
 
     public static string GetFullPath([NotNull] string path) => Path.GetFullPath(path.LongPathPrefix()).RemovePrefix();
 
@@ -413,6 +406,16 @@ namespace CsvTools
       return shortPath.Contains(".\\") ? Path.GetFullPath(shortPath) : shortPath;
     }
 
+#if Windows
+
+    /// <summary>
+    ///   On windows we need to take care of filenames that might exceed 248 chancters, they need to
+    ///   be escaped.
+    /// </summary>
+    private const string c_LongPathPrefix = @"\\?\";
+
+    private const string c_UncLongPathPrefix = @"\\?\UNC\";
+
     [NotNull]
     public static string LongPathPrefix([NotNull] this string path)
     {
@@ -434,6 +437,11 @@ namespace CsvTools
         ? path.Substring(c_UncLongPathPrefix.Length)
         : path;
     }
+
+#else
+  public static string RemovePrefix([NotNull] this string path) => path;
+  public static string LongPathPrefix([NotNull] this string path) => path;
+#endif
 
     [CanBeNull]
     public static string ResolvePattern([NotNull] string fileName)
@@ -512,7 +520,7 @@ namespace CsvTools
       {
         var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, c_BufferSize);
         if (length > 0)
-          return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length - 1] == '\\' ? string.Empty : "\\") +
+          return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length - 1] == Path.DirectorySeparatorChar ? string.Empty : Path.DirectorySeparatorChar.ToString()) +
                   fi.Name)
             .RemovePrefix();
       }
@@ -577,7 +585,7 @@ namespace CsvTools
     public class FileInfo
     {
       private readonly System.IO.FileInfo m_Info;
-      private DateTime m_LastWriteTimeUtc = BaseSettings.ZeroTime;
+      private DateTime m_LastWriteTimeUtc = new DateTime(0, DateTimeKind.Utc);
 
       public FileInfo([CanBeNull] string fileName)
       {

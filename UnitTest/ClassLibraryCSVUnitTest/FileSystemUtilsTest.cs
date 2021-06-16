@@ -164,7 +164,8 @@ namespace CsvTools.Tests
       var root = FileSystemUtils.ExecutableDirectoryName();
       Assert.AreEqual("TestFiles\\SubFolder\\", (root + "\\TestFiles\\SubFolder").GetRelativeFolder(root));
       Assert.AreEqual("TestFiles\\SubFolder\\", (root + "\\TestFiles\\SubFolder\\").GetRelativeFolder(root));
-      // Assert.AreEqual("Debug\\TestFiles\\SubFolder\\", (root + "\\TestFiles\\SubFolder").GetRelativeFolder(root +"\\.."));
+      // Assert.AreEqual("Debug\\TestFiles\\SubFolder\\", (root +
+      // "\\TestFiles\\SubFolder").GetRelativeFolder(root +"\\.."));
       Assert.AreEqual("..\\Debug\\TestFiles\\SubFolder\\",
         (root + "\\..\\Debug\\TestFiles\\SubFolder").GetRelativeFolder(root));
     }
@@ -218,13 +219,6 @@ namespace CsvTools.Tests
       var dn = FileSystemUtils.SplitPath("FileName.Ext");
       Assert.AreEqual("FileName.Ext", dn.FileName);
       Assert.IsTrue(string.IsNullOrEmpty(dn.DirectoryName));
-    }
-
-    [TestMethod]
-    public void GetFileNameWithoutExtension()
-    {
-      var split = FileSystemUtils.GetFileNameWithoutExtension("C:\\MyTest\\Test.dat");
-      Assert.AreEqual("Test", split);
     }
 
     [TestMethod]
