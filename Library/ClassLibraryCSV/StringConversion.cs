@@ -152,52 +152,54 @@ namespace CsvTools
     /// <param name="allowPercentage">Allows Percentages</param>
     /// <param name="allowStartingZero">if set to <c>true</c> [allow starting zero].</param>
     /// <returns><c>true</c> if all values can be interpreted as numbers, <c>false</c> otherwise.</returns>
-    public static CheckResult CheckNumber([NotNull] IEnumerable<string> samples, string decimalSeparator, string thousandSeparator,
-      bool allowPercentage, bool allowStartingZero)
+    public static CheckResult CheckNumber([NotNull] ICollection<string> samples, string decimalSeparator, string thousandSeparator,
+      bool allowPercentage, bool allowStartingZero, int minSamples)
     {
       var checkResult = new CheckResult();
-
-      var allParsed = true;
-      var assumeInteger = true;
-      var counter = 0;
-      var positiveMatches = 0;
-
-      foreach (var value in samples)
+      if (samples.Count>0)
       {
-        counter++;
-        var ret = StringToDecimal(value, decimalSeparator, thousandSeparator, allowPercentage);
-        // Any number with leading 0 should not be treated as numeric this is to avoid problems with
-        // 0002 etc.
-        if (!ret.HasValue || !allowStartingZero && value.StartsWith("0", StringComparison.Ordinal) &&
-          Math.Floor(ret.Value) != 0)
+        var allParsed = true;
+        var assumeInteger = true;
+        var counter = 0;
+        var positiveMatches = 0;
+
+        foreach (var value in samples)
         {
-          allParsed = false;
-          checkResult.ExampleNonMatch.Add(value);
-          // try to get some positive matches, in case the first record is invalid
-          if (counter >= 3)
-            break;
-        }
-        else
-        {
-          positiveMatches++;
-          if (positiveMatches > 5 && !checkResult.PossibleMatch)
+          counter++;
+          var ret = StringToDecimal(value, decimalSeparator, thousandSeparator, allowPercentage);
+          // Any number with leading 0 should not be treated as numeric this is to avoid problems with
+          // 0002 etc.
+          if (!ret.HasValue || !allowStartingZero && value.StartsWith("0", StringComparison.Ordinal) &&
+            Math.Floor(ret.Value) != 0)
           {
-            checkResult.PossibleMatch = true;
-            checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(assumeInteger ? DataType.Integer : DataType.Numeric, groupSeparator: thousandSeparator, decimalSeparator: decimalSeparator);
+            allParsed = false;
+            checkResult.ExampleNonMatch.Add(value);
+            // try to get some positive matches, in case the first record is invalid
+            if (counter >= 3)
+              break;
           }
-
-          // if the value contains the decimal separator or is too large to be an integer, its not
-          // an integer
-          if (value.IndexOf(decimalSeparator) != -1)
-            assumeInteger = false;
           else
-            assumeInteger = assumeInteger && ret.Value == Math.Truncate(ret.Value) && ret.Value <= int.MaxValue &&
-                            ret.Value >= int.MinValue;
-        }
-      }
+          {
+            positiveMatches++;
+            if (positiveMatches >= minSamples && !checkResult.PossibleMatch)
+            {
+              checkResult.PossibleMatch = true;
+              checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(assumeInteger ? DataType.Integer : DataType.Numeric, groupSeparator: thousandSeparator, decimalSeparator: decimalSeparator);
+            }
 
-      if (allParsed && counter > 0)
-        checkResult.FoundValueFormat = new ImmutableValueFormat(assumeInteger ? DataType.Integer : DataType.Numeric, groupSeparator: thousandSeparator, decimalSeparator: decimalSeparator);
+            // if the value contains the decimal separator or is too large to be an integer, its not
+            // an integer
+            if (value.IndexOf(decimalSeparator) != -1)
+              assumeInteger = false;
+            else
+              assumeInteger = assumeInteger && ret.Value == Math.Truncate(ret.Value) && ret.Value <= int.MaxValue &&
+                              ret.Value >= int.MinValue;
+          }
+        }
+
+        if (allParsed)
+          checkResult.FoundValueFormat = new ImmutableValueFormat(assumeInteger ? DataType.Integer : DataType.Numeric, groupSeparator: thousandSeparator, decimalSeparator: decimalSeparator);
+      }
       return checkResult;
     }
 
@@ -814,12 +816,16 @@ namespace CsvTools
           hadDecimalSep=true;
         }
 
-        if (grpChar == '\0' || value[pos] != grpChar)
-          continue;
-        if (pos - lastPos < 4)
-          return null;
-        lastPos = pos;
+        if (grpChar != '\0' && value[pos] == grpChar)
+        {
+          if (pos - lastPos < 4)
+            return null;
+          lastPos = pos;
+        }
       }
+
+      if (lastPos>0 && value.Length - lastPos != 4)
+        return null;
 
       var numberFormatProvider = new NumberFormatInfo
       {

@@ -64,7 +64,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void StringToDecimal()
     {
+      Assert.AreNotEqual(53m, StringConversion.StringToDecimal("5,3", ".", ",", true));
+      Assert.AreNotEqual(53m, StringConversion.StringToDecimal("5,30", ".", ",", true));      
+      Assert.AreNotEqual(53m, StringConversion.StringToDecimal("5,3000", ".", ",", true));
+
       Assert.IsNull(StringConversion.StringToDecimal("", ",", ".", true));
+      Assert.AreEqual(5.3m, StringConversion.StringToDecimal("5,3", ",", ".", true));      
       Assert.AreEqual(-17m, StringConversion.StringToDecimal("-17", ",", ".", true));
       Assert.AreEqual(-17m, StringConversion.StringToDecimal("(17)", ",", ".", true));
       Assert.AreEqual(53336.7m, StringConversion.StringToDecimal("53336,7", ",", ".", true));
@@ -437,14 +442,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CheckNumberTest()
     {
-      Assert.IsFalse(StringConversion.CheckNumber(new string[] { }, ".", "", false, false).FoundValueFormat != null);
-      Assert.IsTrue(StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false).FoundValueFormat != null);
+      Assert.IsFalse(StringConversion.CheckNumber(new string[] { }, ".", "", false, false, 1).FoundValueFormat != null);
+      Assert.IsTrue(StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, 0).FoundValueFormat != null);
       Assert.AreEqual(DataType.Integer,
-        StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false).FoundValueFormat.DataType);
+        StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, 1).FoundValueFormat.DataType);
       Assert.IsFalse(
-        StringConversion.CheckNumber(new[] { "16673", "A Test" }, ".", "", false, false).FoundValueFormat != null);
+        StringConversion.CheckNumber(new[] { "16673", "A Test" }, ".", "", false, false, 2).FoundValueFormat != null);
       Assert.AreEqual(DataType.Numeric,
-        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, ".", "", false, false).FoundValueFormat.DataType);
+        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, ".", "", false, false, 5).FoundValueFormat.DataType);
     }
 
     [TestMethod]
