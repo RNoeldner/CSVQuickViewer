@@ -374,7 +374,7 @@ namespace CsvTools
             var samples = sampleList[colIndex + 1];
 
             if (samples.Values.Count <= 0) continue;
-            var checkResult = GuessNumeric(samples.Values, false, true, cancellationToken);
+            var checkResult = GuessNumeric(samples.Values, false, true, fillGuessSettings.MinSamples, cancellationToken);
             if (checkResult.FoundValueFormat != null && checkResult.FoundValueFormat.DataType != DataType.Double)
             {
               var existingColumn = columnCollection.Get(readerColumn.Name);
@@ -904,7 +904,7 @@ namespace CsvTools
     /// </returns>
     /// <exception cref="ArgumentNullException">samples is null or empty</exception>
     public static CheckResult GuessNumeric(ICollection<string> samples, bool guessPercentage,
-      bool allowStartingZero, CancellationToken cancellationToken)
+      bool allowStartingZero, int minSamples,  CancellationToken cancellationToken)
     {
       if (samples == null || samples.Count == 0)
         throw new ArgumentNullException(nameof(samples));
@@ -928,7 +928,7 @@ namespace CsvTools
           if (decimalSeparator.Equals(thousandSeparator))
             continue;
           var res = StringConversion.CheckNumber(samples, decimalSeparator, thousandSeparator, guessPercentage,
-            allowStartingZero);
+            allowStartingZero, minSamples);
           if (res.FoundValueFormat != null)
             return res;
 
@@ -1074,7 +1074,7 @@ namespace CsvTools
         // ---------------- Decimal / Integer --------------------------
         if (guessNumeric)
         {
-          var checkResultNumeric = GuessNumeric(samples, guessPercentage, false, cancellationToken);
+          var checkResultNumeric = GuessNumeric(samples, guessPercentage, false, minRequiredSamples, cancellationToken);
           if (checkResultNumeric.FoundValueFormat != null)
             return checkResultNumeric;
           checkResult.KeepBestPossibleMatch(checkResultNumeric);
