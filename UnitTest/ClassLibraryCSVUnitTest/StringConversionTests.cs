@@ -449,7 +449,7 @@ namespace CsvTools.Tests
       Assert.IsFalse(
         StringConversion.CheckNumber(new[] { "16673", "A Test" }, ".", "", false, false, 2).FoundValueFormat != null);
       Assert.AreEqual(DataType.Numeric,
-        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, ".", "", false, false, 5).FoundValueFormat.DataType);
+        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, ".", "", false, false, 3).FoundValueFormat.DataType);
     }
 
     [TestMethod]

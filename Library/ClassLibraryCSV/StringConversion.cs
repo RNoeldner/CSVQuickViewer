@@ -156,16 +156,14 @@ namespace CsvTools
       bool allowPercentage, bool allowStartingZero, int minSamples)
     {
       var checkResult = new CheckResult();
-      if (samples.Count>0)
+      if (samples.Count >= minSamples)
       {
         var allParsed = true;
         var assumeInteger = true;
-        var counter = 0;
         var positiveMatches = 0;
 
         foreach (var value in samples)
         {
-          counter++;
           var ret = StringToDecimal(value, decimalSeparator, thousandSeparator, allowPercentage);
           // Any number with leading 0 should not be treated as numeric this is to avoid problems with
           // 0002 etc.
@@ -175,7 +173,7 @@ namespace CsvTools
             allParsed = false;
             checkResult.ExampleNonMatch.Add(value);
             // try to get some positive matches, in case the first record is invalid
-            if (counter >= 3)
+            if (checkResult.ExampleNonMatch.Count > 2)
               break;
           }
           else
