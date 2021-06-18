@@ -2,20 +2,17 @@
 
   <PropertyGroup>
     <Authors>Raphael Nöldner</Authors>
+    <Description>Functionality to read and write delimited text files</Description>
+    <PackageTags>delimited Text;csv;json</PackageTags>
+    <PackageProjectUrl>https://github.com/RNoeldner/CSVQuickViewer</PackageProjectUrl>
     <RootNamespace>CsvTools</RootNamespace>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Copyright>Copyright © 2017</Copyright>
     <ProductName>CsvTools</ProductName>
     <OutputType>Library</OutputType>
-    <ApplicationIcon />
-    <StartupObject />
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <AssemblyVersion>1.6.6.458</AssemblyVersion>
-    <FileVersion>1.6.6.458</FileVersion>
-    <Version>1.6.6.458</Version>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <SignAssembly>false</SignAssembly>
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
     <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>
