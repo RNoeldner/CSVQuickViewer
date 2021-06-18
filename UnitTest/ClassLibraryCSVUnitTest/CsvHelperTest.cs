@@ -441,5 +441,30 @@ namespace CsvTools.Tests
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"))))
         Assert.AreEqual(0, await improvedStream.GuessStartRow(65001, "\t", "\"", string.Empty, UnitTestInitializeCsv.Token));
     }
+
+    [TestMethod]
+    public async Task TestGuessLineCommentAsync()
+    {
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("ComplexDataDelimiter.txt"))))
+        Assert.AreEqual("#", await improvedStream.GuessLineComment(65001, 0, UnitTestInitializeCsv.Token));
+    }
+
+    [TestMethod]
+
+    public void TestValidateLineComment()
+    {
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt"))))
+      using (var textReader = new ImprovedTextReader(improvedStream, 65001, 0))
+      {
+        Assert.IsFalse(CsvHelper.CheckLineCommentIsValid(textReader, "#", "Tab", UnitTestInitializeCsv.Token));
+      }
+
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("ComplexDataDelimiter.txt"))))
+      using (var textReader = new ImprovedTextReader(improvedStream, 65001, 0))
+      {
+        Assert.IsFalse(CsvHelper.CheckLineCommentIsValid(textReader, "#", "Tab", UnitTestInitializeCsv.Token));
+      }
+    }
+
   }
 }
