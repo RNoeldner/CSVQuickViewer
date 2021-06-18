@@ -798,7 +798,7 @@ namespace CsvTools
 
       // since we did not properly parse the delimited text accounting for quoting (delimiter in column or newline splitting columns)
       // apply some variance to it
-      return partsComment >= Math.Round(parts * .9/row) && partsComment <= Math.Round(parts * 1.1/row);
+      return partsComment < Math.Round(parts * .9/row) || partsComment > Math.Round(parts * 1.1/row);
     }
 
     /// <summary>

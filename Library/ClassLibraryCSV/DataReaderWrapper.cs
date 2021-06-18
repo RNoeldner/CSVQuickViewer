@@ -14,11 +14,10 @@ namespace CsvTools
   /// <remarks>Introduced to allow a stream into SQLBulkCopy and possibly replace CopyToDataTableInfo</remarks>
   public class DataReaderWrapper : DbDataReader
   {
-    [CanBeNull] protected readonly IFileReader FileReader;
-    private readonly long m_RecordLimit;
     [NotNull] public readonly ReaderMapping ReaderMapping;
+    [CanBeNull] protected readonly IFileReader FileReader;
     [NotNull] protected IDataReader DataReader;
-
+    private readonly long m_RecordLimit;
     public DataReaderWrapper([NotNull] IDataReader reader, long recordLimit = 0, bool addErrorField = false,
                              bool addStartLine = false, bool addEndLine = false, bool addRecNum = false)
     {
