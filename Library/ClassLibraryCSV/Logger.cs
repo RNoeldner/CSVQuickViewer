@@ -1,4 +1,16 @@
-using JetBrains.Annotations;
+/*
+ * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
 
 namespace CsvTools
 {
@@ -21,10 +33,6 @@ namespace CsvTools
   using System;
   using System.Collections.Generic;
 
-#if !NLog
-
-#endif
-
   /// <summary>
   ///   Abstraction to be able to switch Loggers
   /// </summary>
@@ -45,13 +53,13 @@ namespace CsvTools
       }
     }
 
-    public static void AddLog([NotNull] Action<string, Level> value)
+    public static void AddLog(Action<string, Level> value)
     {
       if (value == null) throw new ArgumentNullException(nameof(value));
       m_UserInterfaceSink.Loggers.Add(value);
     }
 
-    public static void RemoveLog([NotNull] Action<string, Level> value)
+    public static void RemoveLog(Action<string, Level> value)
     {
       if (value == null) throw new ArgumentNullException(nameof(value));
       m_UserInterfaceSink.Loggers.Remove(value);
@@ -75,6 +83,7 @@ namespace CsvTools
                                                                     logEvent.Exception.GetType() == typeof(ObjectDisposedException)))
                                 // UI Logger
                                 .WriteTo.Sink(m_UserInterfaceSink);
+#if Windows
       // File Logger
       var entryName = Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty;
       if (string.IsNullOrEmpty(entryName))
@@ -111,7 +120,7 @@ namespace CsvTools
                                   rollingInterval: RollingInterval.Day);
         }
       }
-
+#endif
       // Start logging
       Log.Logger = loggerConfiguration.CreateLogger();
       Log.Information("Application start");
