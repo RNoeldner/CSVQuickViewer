@@ -182,10 +182,13 @@ namespace CsvTools
         return detectionResult;
       }
 
-      display.SetProcess("Checking comment line", -1, true);
-      using (var streamReader = await improvedStream.GetStreamReaderAtStart(detectionResult.CodePageId, detectionResult.SkipRows, display.CancellationToken))
+      if (guessCommentLine)
       {
-        detectionResult = new DelimitedFileDetectionResult(detectionResult.FileName, detectionResult.SkipRows, detectionResult.CodePageId, detectionResult.ByteOrderMark, detectionResult.QualifyAlways, detectionResult.IdentifierInContainer, streamReader.GuessLineComment(display.CancellationToken), detectionResult.EscapeCharacter, detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.HasFieldHeader, false, detectionResult.NoDelimitedFile, detectionResult.NewLine);
+        display.SetProcess("Checking comment line", -1, true);
+        using (var streamReader = await improvedStream.GetStreamReaderAtStart(detectionResult.CodePageId, detectionResult.SkipRows, display.CancellationToken))
+        {
+          detectionResult = new DelimitedFileDetectionResult(detectionResult.FileName, detectionResult.SkipRows, detectionResult.CodePageId, detectionResult.ByteOrderMark, detectionResult.QualifyAlways, detectionResult.IdentifierInContainer, streamReader.GuessLineComment(display.CancellationToken), detectionResult.EscapeCharacter, detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.HasFieldHeader, false, detectionResult.NoDelimitedFile, detectionResult.NewLine);
+        }
       }
 
       display.SetProcess("Checking delimited text file", -1, true);
@@ -201,7 +204,6 @@ namespace CsvTools
             detectionResult.CommentLine, display.CancellationToken), detectionResult.CodePageId, detectionResult.ByteOrderMark, detectionResult.QualifyAlways, detectionResult.IdentifierInContainer, detectionResult.CommentLine, detectionResult.EscapeCharacter, detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.HasFieldHeader, true, detectionResult.NoDelimitedFile, detectionResult.NewLine);
         }
       }
-
       if (guessQualifier || guessDelimiter || guessNewLine)
       {
         using (var textReader = await improvedStream.GetStreamReaderAtStart(detectionResult.CodePageId, detectionResult.SkipRows, display.CancellationToken))
@@ -235,6 +237,16 @@ namespace CsvTools
             if (qualifier != '\0')
               detectionResult = new DelimitedFileDetectionResult(detectionResult.FileName, detectionResult.SkipRows, detectionResult.CodePageId, detectionResult.ByteOrderMark, detectionResult.QualifyAlways, detectionResult.IdentifierInContainer, detectionResult.CommentLine, detectionResult.EscapeCharacter, detectionResult.FieldDelimiter, char.ToString(qualifier), detectionResult.HasFieldHeader, detectionResult.IsJson, detectionResult.NoDelimitedFile, detectionResult.NewLine);
           }
+        }
+      }
+
+      if (!string.IsNullOrEmpty(detectionResult.CommentLine) && !detectionResult.NoDelimitedFile)
+      {
+        display.SetProcess("Validating comment line", -1, true);
+        using (var streamReader = await improvedStream.GetStreamReaderAtStart(detectionResult.CodePageId, detectionResult.SkipRows, display.CancellationToken))
+        {
+          if (!CheckLineCommentIsValid(streamReader, detectionResult.CommentLine, detectionResult.FieldDelimiter, display.CancellationToken))
+            detectionResult = new DelimitedFileDetectionResult(detectionResult.FileName, detectionResult.SkipRows, detectionResult.CodePageId, detectionResult.ByteOrderMark, detectionResult.QualifyAlways, detectionResult.IdentifierInContainer, string.Empty, detectionResult.EscapeCharacter, detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.HasFieldHeader, false, detectionResult.NoDelimitedFile, detectionResult.NewLine);
         }
       }
 
@@ -513,7 +525,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="textReader">The stream reader with the data</param>
     /// <param name="delimiter">The delimiter.</param>
-    /// <param name="quoteChar">The quoting char</param>
+    /// <param name="quote">The quoting char</param>
     /// <param name="commentLine">The characters for a comment line.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The number of rows to skip</returns>
@@ -697,9 +709,12 @@ namespace CsvTools
       Dictionary<string, int> starts = new Dictionary<string, int>();
       foreach (var test in new[] { "##", "//", "\\\\", "''", "#", "/", "\\", "'" })
         starts.Add(test, 0);
+
       textReader.ToBeginning();
+      // COunt teh number of rows that start with teh checked comment chars
       while (lastRow < c_MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
+        cancellationToken.ThrowIfCancellationRequested();
         var line = textReader.ReadLine().TrimStart();
         if (line.Length==0)
           continue;
@@ -707,26 +722,83 @@ namespace CsvTools
         foreach (var test in starts.Keys)
         {
           if (line.StartsWith(test, StringComparison.Ordinal))
+          {
             starts[test]++;
+            // do not check further once a line is counted, by having ## before # a line starting with ## will not be counted twice
+            break;
+          }
         }
       }
-      cancellationToken.ThrowIfCancellationRequested();
+
       int maxCount = starts.Max(x => x.Value);
-      string retValue = string.Empty;
-      if (maxCount>0)
+      if (maxCount > 0)
       {
-        var longer = starts.FirstOrDefault(x => x.Value== maxCount && x.Key.Length>1);
-        if (longer.Equals(default))
-          retValue = starts.First(x => x.Value== maxCount).Key;
+        var check = starts.First(x => x.Value == maxCount);
+        Logger.Information("  Comment Line: {comment}", check.Key);
+        return check.Key;
+      }
+
+      Logger.Information("  No Comment Line");
+      return string.Empty;
+    }
+
+    /// <summary>
+    ///  Checks if teh commnet line does make sense, or if its possibly better regarded as header row  
+    /// </summary>
+    /// <param name="textReader">The stream reader with the data</param>
+    /// <param name="delimiter">The delimiter.</param>    
+    /// <param name="commentLine">The characters for a comment line.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>true if the comment line seems to ne ok </returns>
+    public static bool CheckLineCommentIsValid([NotNull] this ImprovedTextReader textReader, string commentLine, string delimiter, CancellationToken cancellationToken)
+    {
+      // if there is no commentLine it can not be wrong
+      // if there is no delimiter it can not be wrong
+      if (string.IsNullOrEmpty(commentLine) || string.IsNullOrEmpty(delimiter))
+        return true;
+
+      if (textReader == null) throw new ArgumentNullException(nameof(textReader));
+
+      const int c_MaxRows = 100;
+      int row = 0;
+      int lineCommneted = 0;
+      var delim = delimiter.WrittenPunctuationToChar();
+      var parts = 0;
+      var partsComment = -1;
+      while (row < c_MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
+      {
+        var line = textReader.ReadLine().TrimStart();
+        if (string.IsNullOrEmpty(line))
+          continue;
+
+        if (line.StartsWith(commentLine, StringComparison.Ordinal))
+        {
+          lineCommneted++;
+          if (partsComment==-1)
+            partsComment=line.Count(x => x==delim);
+        }
         else
-          retValue = longer.Key;
-        Logger.Information("  Comment Line: {comment}", retValue);
+        {
+          if (line.IndexOf(delim)!=-1)
+          {
+            parts += line.Count(x => x==delim);
+            row++;
+          }
+        }
       }
-      else
-      {
-        Logger.Information("  No Comment Line");
-      }
-      return retValue;
+
+      // if we could not find a commneted line exit ans asume the commet line is wrong.
+      if (lineCommneted==0)
+        return false;
+
+      // in case we have 3 or more commneted lines 
+      // assume the commnet was ok
+      if (lineCommneted>2)
+        return true;
+
+      // since we did not properly parse the delimited text accounting for quoting (delimiter in column or newline splitting columns)
+      // apply some variance to it
+      return partsComment >= Math.Round(parts * .9/row) && partsComment <= Math.Round(parts * 1.1/row);
     }
 
     /// <summary>
