@@ -451,20 +451,31 @@ namespace CsvTools.Tests
 
     [TestMethod]
 
-    public void TestValidateLineComment()
+    public void TestValidateLineCommentInvalid()
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt"))))
       using (var textReader = new ImprovedTextReader(improvedStream, 65001, 0))
       {
         Assert.IsFalse(CsvHelper.CheckLineCommentIsValid(textReader, "#", "Tab", UnitTestInitializeCsv.Token));
-      }
+      }      
+    }
 
+    [TestMethod]
+
+    public void TestValidateLineCommentValid()
+    {  
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("ComplexDataDelimiter.txt"))))
       using (var textReader = new ImprovedTextReader(improvedStream, 65001, 0))
       {
-        Assert.IsFalse(CsvHelper.CheckLineCommentIsValid(textReader, "#", "Tab", UnitTestInitializeCsv.Token));
+        Assert.IsTrue(CsvHelper.CheckLineCommentIsValid(textReader, "#", ",", UnitTestInitializeCsv.Token));
       }
-    }
 
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("ReadingInHeaderAfterComments.txt"))))
+      using (var textReader = new ImprovedTextReader(improvedStream, 65001, 0))
+      {
+        Assert.IsTrue(CsvHelper.CheckLineCommentIsValid(textReader, "#", ",", UnitTestInitializeCsv.Token));
+      }
+
+    }
   }
 }
