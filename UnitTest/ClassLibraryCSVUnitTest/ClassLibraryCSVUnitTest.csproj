@@ -159,6 +159,7 @@
     <Compile Include="DataReaderWrapperTests.cs" />
     <Compile Include="DataTableReaderTests.cs" />
     <Compile Include="DataTableWrapperTests.cs" />
+    <Compile Include="DynamicDataRecordText.cs" />
     <Compile Include="EnumDescriptionConverterTests.cs" />
     <Compile Include="FileSystemUtilsTest.cs" />
     <Compile Include="FilterDataTableTests.cs" />
@@ -166,6 +167,7 @@
     <Compile Include="ImprovedTextReaderPositionStoreTests.cs" />
     <Compile Include="ImprovedTextReaderTests.cs" />
     <Compile Include="ManifestDataTests.cs" />
+    <Compile Include="PagedFileReaderTest.cs" />
     <Compile Include="ProgressEventArgsTimeTests.cs" />
     <Compile Include="ReaderExtensionMethodsTest.cs" />
     <Compile Include="RealignColumnsTest.cs" />

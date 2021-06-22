@@ -18,6 +18,16 @@ namespace CsvTools
     [CanBeNull] protected readonly IFileReader FileReader;
     [NotNull] protected IDataReader DataReader;
     private readonly long m_RecordLimit;
+
+    /// <summary>
+    /// Constructor for a DataReaderWrapper, this wrapper adds atrifical fields like Error, start and end Line or record number    
+    /// </summary>
+    /// <param name="reader">A readder, this can be a regualr IDataRaeder or a IFileReader</param>
+    /// <param name="recordLimit">Number of maximum records to read, 0 if there is no limit</param>
+    /// <param name="addErrorField">Add artifical field Error</param>
+    /// <param name="addStartLine">Add artifical field Start Line</param>
+    /// <param name="addEndLine">Add artifical field End Line</param>
+    /// <param name="addRecNum">Add artifical field Records Number</param>
     public DataReaderWrapper([NotNull] IDataReader reader, long recordLimit = 0, bool addErrorField = false,
                              bool addStartLine = false, bool addEndLine = false, bool addRecNum = false)
     {
@@ -28,6 +38,8 @@ namespace CsvTools
       m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       ReaderMapping = new ReaderMapping(DataReader, addStartLine, addRecNum, addEndLine, addErrorField);
     }
+
+    // public void ResetPositionToFirstDataRow() => FileReader.ResetPositionToFirstDataRow();
 
     public override int Depth => FieldCount;
 
@@ -116,9 +128,10 @@ namespace CsvTools
       }
 
       return -1;
-    }
+    }    
+    
 
-    [NotNull]
+       [NotNull]
     public override DataTable GetSchemaTable()
     {
       var dataTable = ReaderConstants.GetEmptySchemaTable();
