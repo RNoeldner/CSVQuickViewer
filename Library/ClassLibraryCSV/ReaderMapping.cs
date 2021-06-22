@@ -37,9 +37,9 @@ namespace CsvTools
         {
           var icol = fileReader.GetColumn(col);
           if (icol is ImmutableColumn imcol)
-            column=imcol;
+            column = imcol;
           else
-            column=new ImmutableColumn(icol.Name, icol.ValueFormat, col, icol.Convert, icol.DestinationName, icol.Ignore, icol.Part, icol.PartSplitter, icol.PartToEnd, icol.TimePart, icol.TimePartFormat, icol.TimeZonePart);
+            column = new ImmutableColumn(icol.Name, icol.ValueFormat, col, icol.Convert, icol.DestinationName, icol.Ignore, icol.Part, icol.PartSplitter, icol.PartToEnd, icol.TimePart, icol.TimePartFormat, icol.TimeZonePart);
         }
         else
           column= new ImmutableColumn(dataReader.GetName(col), new ImmutableValueFormat(dataReader.GetFieldType(col).GetDataType()), col);

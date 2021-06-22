@@ -41,7 +41,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="reader"></param>
     /// <returns></returns>
-    public static IEnumerable<IColumn> GetColumnsOfReader([NotNull] this IFileReader reader)
+    public static IReadOnlyCollection<IColumn> GetColumnsOfReader([NotNull] this IFileReader reader)
     {
       if (reader == null) throw new ArgumentNullException(nameof(reader));
       var retList = new List<IColumn>();
