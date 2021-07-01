@@ -12,12 +12,10 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
-using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -107,7 +105,7 @@ namespace CsvTools
 
     private string[] m_HeaderRow;
 
-    private IImprovedStream m_ImprovedStream;
+    private IImprovedStream? m_ImprovedStream;
 
     /// <summary>
     ///   Number of Records in the text file, only set if all records have been read
@@ -122,23 +120,22 @@ namespace CsvTools
 
     private ushort m_NumWarningsUnknownChar;
 
-    private ReAlignColumns m_RealignColumns;
+    private ReAlignColumns? m_RealignColumns;
 
     /// <summary>
     ///   The TextReader to read the file
     /// </summary>
-    private ImprovedTextReader m_TextReader;
+    private ImprovedTextReader? m_TextReader;
 
-    public CsvFileReader([NotNull] IImprovedStream improvedStream,
-                         int codePageId = 650001, // Encoding.UTF8.CodePage
-                         int skipRows = 0,
+    public CsvFileReader(IImprovedStream improvedStream,
+                         int codePageId = 650001, int skipRows = 0,
                          bool hasFieldHeader = true,
-                         [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+                         IEnumerable<IColumn>? columnDefinition = null,
                          TrimmingOption trimmingOption = TrimmingOption.Unquoted,
                          string fieldDelimiter = "\t", string fieldQualifier = "\"", string escapeCharacter = "",
                          long recordLimit = 0,
                          bool allowRowCombining = false, bool alternateQuoting = false,
-                         [NotNull] string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
+                         string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
                          string newLinePlaceholder = "", string delimiterPlaceholder = "", string quotePlaceholder = "",
                          bool skipDuplicateHeader = true,
                          bool treatLfAsSpace = false, bool treatUnknownCharacterAsSpace = false, bool tryToSolveMoreColumns = true,
@@ -147,35 +144,38 @@ namespace CsvTools
                          bool warnEmptyTailingColumns = true,
                          bool treatNbspAsSpace = false,
                          string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool skipEmptyLines = true,
-                         int consecutiveEmptyRowsMax = 4) : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
-      trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
-      alternateQuoting, commentLine, numWarning, duplicateQuotingToEscape, newLinePlaceholder, delimiterPlaceholder,
-      quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace, tryToSolveMoreColumns,
-      warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
-      treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax, string.Empty, null)
+                         int consecutiveEmptyRowsMax = 4)
+      : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
+        trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
+        alternateQuoting, commentLine, numWarning, duplicateQuotingToEscape, newLinePlaceholder, delimiterPlaceholder,
+        quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace, tryToSolveMoreColumns,
+        warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
+        treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax, string.Empty, string.Empty)
     {
       m_ImprovedStream = improvedStream ?? throw new ArgumentNullException(nameof(improvedStream));
     }
 
-    private CsvFileReader([CanBeNull] IEnumerable<IColumn> columnDefinition, int codePageId, int skipRows, bool hasFieldHeader,
-                          TrimmingOption trimmingOption,
-                          string fieldDelimiter, string fieldQualifier, string escapeCharacter,
-                          long recordLimit, bool allowRowCombining, bool alternateQuoting,
-                          [NotNull] string commentLine, int numWarning, bool duplicateQuotingToEscape,
-                          string newLinePlaceholder, string delimiterPlaceholder, string quotePlaceholder,
-                          bool skipDuplicateHeader, bool treatLfAsSpace, bool treatUnknownCharacterAsSpace, bool tryToSolveMoreColumns,
-                          bool warnDelimiterInValue, bool warnLineFeed, bool warnNbsp, bool warnQuotes, bool warnUnknownCharacter,
-                          bool warnEmptyTailingColumns, bool treatNbspAsSpace, string treatTextAsNull, bool skipEmptyLines,
-                          int consecutiveEmptyRowsMax, string identifierInContainer, string fileName)
+
+    private CsvFileReader(IEnumerable<IColumn>? columnDefinition, int codePageId, int skipRows, bool hasFieldHeader,
+      TrimmingOption trimmingOption,
+      string fieldDelimiter, string fieldQualifier, string escapeCharacter,
+      long recordLimit, bool allowRowCombining, bool alternateQuoting,
+      string commentLine, int numWarning, bool duplicateQuotingToEscape,
+      string newLinePlaceholder, string delimiterPlaceholder, string quotePlaceholder,
+      bool skipDuplicateHeader, bool treatLfAsSpace, bool treatUnknownCharacterAsSpace, bool tryToSolveMoreColumns,
+      bool warnDelimiterInValue, bool warnLineFeed, bool warnNbsp, bool warnQuotes, bool warnUnknownCharacter,
+      bool warnEmptyTailingColumns, bool treatNbspAsSpace, string treatTextAsNull, bool skipEmptyLines,
+      int consecutiveEmptyRowsMax, string identifierInContainer, string fileName)
       : base(fileName, columnDefinition, recordLimit)
     {
       SelfOpenedStream = !string.IsNullOrEmpty(fileName);
+      m_HeaderRow = Array.Empty<string>();
       m_EscapeCharacterChar = escapeCharacter.WrittenPunctuationToChar();
       m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
       m_FieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
 
       if (m_FieldDelimiterChar == '\0')
-        throw new FileReaderException("All delimted text files do need a delimiter.");
+        throw new FileReaderException("All delimited text files do need a delimiter.");
 
       if (m_FieldQualifierChar == c_Cr || m_FieldQualifierChar == c_Lf)
         throw new FileReaderException(
@@ -240,16 +240,17 @@ namespace CsvTools
         m_HandleMessageColumn = (i, s) => Logger.Warning(GetWarningEventArgs(i, s).Display(true, true));
     }
 
-    public CsvFileReader([NotNull] string fileName,
+
+    public CsvFileReader(string fileName,
                          int codePageId = 650001, // Encoding.UTF8.CodePage
                          int skipRows = 0,
                          bool hasFieldHeader = true,
-                         [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+                         IEnumerable<IColumn>? columnDefinition = null,
                          TrimmingOption trimmingOption = TrimmingOption.Unquoted,
                          string fieldDelimiter = "\t", string fieldQualifier = "\"", string escapeCharacter = "",
                          long recordLimit = 0,
                          bool allowRowCombining = false, bool alternateQuoting = false,
-                         [NotNull] string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
+                         string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
                          string newLinePlaceholder = "", string delimiterPlaceholder = "", string quotePlaceholder = "",
                          bool skipDuplicateHeader = true,
                          bool treatLfAsSpace = false, bool treatUnknownCharacterAsSpace = false, bool tryToSolveMoreColumns = true,
@@ -272,7 +273,7 @@ namespace CsvTools
 
       // as of now a physical file must exist
       if (!FileSystemUtils.FileExists(fileName))
-        throw new FileNotFoundException($"The file '{FileSystemUtils.GetShortDisplayFileName(fileName)}' does not exist or is not accessible.", fileName);
+        throw new System.IO.FileNotFoundException($"The file '{FileSystemUtils.GetShortDisplayFileName(fileName)}' does not exist or is not accessible.", fileName);
     }
 
     /// <summary>
@@ -280,8 +281,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileSetting"></param>
     /// <param name="processDisplay">Progress and Cancellation</param>
-    public CsvFileReader([NotNull] ICsvFile fileSetting,
-                         [CanBeNull] IProcessDisplay processDisplay)
+    public CsvFileReader(ICsvFile fileSetting,
+                         IProcessDisplay? processDisplay)
       : this(fileSetting.FullPath, fileSetting.CodePageId,
         fileSetting.SkipRows, fileSetting.HasFieldHeader,
         fileSetting.ColumnCollection, fileSetting.TrimmingOption, fileSetting.FileFormat.FieldDelimiter,
@@ -377,7 +378,7 @@ namespace CsvTools
       return GetTypedValueFromString(
         CurrentRowColumnText[columnNumber],
         GetTimeValue(columnNumber),
-        GetColumn(columnNumber));
+        Column[columnNumber]);
     }
 
     /// <summary>
@@ -395,7 +396,7 @@ namespace CsvTools
       //  HandleWarning(-1, $"Only the first character of '{m_FieldDelimiter}' is used as delimiter.");
       Logger.Information("Opening delimited file {filename}", FileName);
       Retry:
-      await BeforeOpenAsync($"Opening delimited file \"{FileSystemUtils.GetShortDisplayFileName(FileName)}\"")
+      await BeforeOpenAsync($"Opening delimited file \"{FileSystemUtils.GetShortDisplayFileName(FullPath)}\"")
         .ConfigureAwait(false);
       try
       {
@@ -403,8 +404,12 @@ namespace CsvTools
         if (SelfOpenedStream)
         {
           m_ImprovedStream?.Dispose();
-          m_ImprovedStream =
-            FunctionalDI.OpenStream(new SourceAccess(FullPath) { IdentifierInContainer = m_IdentifierInContainer });
+          m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath) { IdentifierInContainer = m_IdentifierInContainer });
+        }
+        else
+        {
+          if (m_ImprovedStream == null)
+            throw new FileReaderException("Stream for reading is not provided");
         }
 
         m_TextReader?.Dispose();
@@ -486,7 +491,7 @@ namespace CsvTools
       return byFile;
     }
 
-    private bool AllEmptyAndCountConsecutiveEmptyRows(IReadOnlyList<string> columns)
+    private bool AllEmptyAndCountConsecutiveEmptyRows(IReadOnlyList<string>? columns)
     {
       if (columns != null)
       {
@@ -536,9 +541,9 @@ namespace CsvTools
       return CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.SpaceSeparator;
     }
 
-    private int ParseFieldCount(IList<string> headerRow)
+    private int ParseFieldCount(IReadOnlyList<string> headerRow)
     {
-      if (headerRow == null || headerRow.Count == 0 || string.IsNullOrEmpty(headerRow[0]))
+      if (headerRow.Count == 0 || string.IsNullOrEmpty(headerRow[0]))
         return 0;
 
       var fields = headerRow.Count;
@@ -591,7 +596,7 @@ namespace CsvTools
     /// <returns>The next char</returns>
     private char Peek()
     {
-      var res = m_TextReader.Peek();
+      var res = m_TextReader?.Peek() ?? -1;
       if (res != -1) return (char) res;
       EndOfFile = true;
 
@@ -607,7 +612,7 @@ namespace CsvTools
     {
       if (m_RealignColumns != null)
         m_RecordSource.Append(current);
-      m_TextReader.MoveNext();
+      m_TextReader?.MoveNext();
     }
 
     /// <summary>
@@ -618,7 +623,7 @@ namespace CsvTools
     /// <remarks>
     ///   If NULL is returned we are at the end of the file, an empty column is read as empty string
     /// </remarks>
-    private string ReadNextColumn(int columnNo)
+    private string? ReadNextColumn(int columnNo)
     {
       if (EndOfFile)
         return null;
@@ -867,7 +872,7 @@ namespace CsvTools
 
       // If already at end of file, return null
       if (EndOfFile || m_TextReader == null)
-        return null;
+        return new string[FieldCount];
 
       var item = ReadNextColumn(0);
 
@@ -886,7 +891,7 @@ namespace CsvTools
 
       // Skip commented lines
       if (m_CommentLine.Length > 0 && !string.IsNullOrEmpty(item) &&
-          item.StartsWith(m_CommentLine, StringComparison.Ordinal))
+          item!.StartsWith(m_CommentLine, StringComparison.Ordinal))
       {
         // A commented line does start with the comment
         if (m_EndOfLine)
@@ -924,11 +929,7 @@ namespace CsvTools
         {
           item = null;
         }
-        else
-        {
-        }
-
-        columns.Add(item);
+        columns.Add(item!);
 
         col++;
         item = ReadNextColumn(col);
@@ -962,7 +963,7 @@ namespace CsvTools
         if (rowLength == FieldCount)
         {
           // Check if we have row that matches the header row
-          if (m_HeaderRow != null && m_HasFieldHeader && !hasWarningCombinedWarning)
+          if (m_HasFieldHeader && !hasWarningCombinedWarning)
           {
             var isRepeatedHeader = true;
             for (var col = 0; col < FieldCount; col++)
@@ -1010,7 +1011,7 @@ namespace CsvTools
             StartLineNumber = startLine;
 
             // allow up to two extra columns they can be combined later
-            if (nextLine != null && nextLine.Length > 0 && nextLine.Length + rowLength < FieldCount + 4)
+            if (nextLine.Length > 0 && nextLine.Length + rowLength < FieldCount + 4)
             {
               var combined = new List<string>(CurrentRowColumnText);
 
@@ -1082,7 +1083,7 @@ namespace CsvTools
 
         for (int columnNo = 0; columnNo < FieldCount && columnNo < CurrentRowColumnText.Length; columnNo++)
         {
-          if (GetColumn(columnNo).Ignore || CurrentRowColumnText[columnNo] == null)
+          if (GetColumn(columnNo).Ignore || string.IsNullOrEmpty(CurrentRowColumnText[columnNo]))
             continue;
 
           // Handle replacements and warnings etc,
@@ -1091,7 +1092,7 @@ namespace CsvTools
                                                  .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiterChar)
                                                  .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifierChar), columnNo);
 
-          if (adjustedValue != null)
+          if (adjustedValue.Length > 0)
           {
             if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifierChar) != -1)
             {
@@ -1162,7 +1163,7 @@ namespace CsvTools
               WarnLinefeed(columnNo);
 
             if (StringUtils.ShouldBeTreatedAsNull(adjustedValue, m_TreatTextAsNull))
-              adjustedValue = null;
+              adjustedValue = string.Empty;
           }
 
           CurrentRowColumnText[columnNo] = adjustedValue;
@@ -1185,7 +1186,7 @@ namespace CsvTools
     /// </summary>
     private void ResetPositionToStartOrOpen()
     {
-      m_TextReader.ToBeginning();
+      m_TextReader!.ToBeginning();
 
       EndLineNumber = 1 + m_SkipRows;
       StartLineNumber = EndLineNumber;

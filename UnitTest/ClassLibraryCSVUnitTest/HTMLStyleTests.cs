@@ -102,10 +102,9 @@ namespace CsvTools.Tests
     public void AddHTMLCellTest()
     {
       var html = new HTMLStyle();
-      html.AddHtmlCell(null, null, null, null, true);
       var sb = new StringBuilder();
 
-      html.AddHtmlCell(sb, "<{0}>", "1", null, false);
+      html.AddHtmlCell(sb, "<{0}>", "1", string.Empty, false);
       Assert.AreEqual("<1>", sb.ToString());
 
       sb = new StringBuilder();

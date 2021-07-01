@@ -1191,7 +1191,7 @@ namespace CsvTools
           processDisplay.Show(ParentForm);
 
           BeforeFileStored?.Invoke(this, writeFile);
-          var writer = new CsvFileWriter(writeFile, processDisplay);
+          var writer = new CsvFileWriter(writeFile);
 
           using (var dt = new DataTableWrapper(
             FilteredDataGridView.DataView.ToTable(false,

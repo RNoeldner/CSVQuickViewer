@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -22,9 +21,9 @@ namespace CsvTools
     ///   Gets or sets the name of the file, this value could be a relative path
     /// </summary>
     /// <value>The name of the file.</value>
-    string FileName { [NotNull] get; [CanBeNull] set; }
+    string FileName { get; set; }
 
-    string RootFolder { [NotNull] get; [CanBeNull] set; }
+    string RootFolder { get; set; }
 
     /// <summary>
     ///   The Size of the file in Byte
@@ -35,19 +34,18 @@ namespace CsvTools
     ///   Gets the full path of the Filename
     /// </summary>
     /// <value>The full path of the file <see cref="FileName" /> /&gt;</value>
-    [NotNull]
     string FullPath { get; }
 
     /// <summary>
     ///   Gets the root folder of the Tool Setting
     /// </summary>
     /// <value>The root folder.</value>
-    string Recipient { [NotNull] get; [CanBeNull] set; }
+    string Recipient { get; set; }
 
     /// <summary>
     ///   Passphrase for Decryption
     /// </summary>
-    string Passphrase { [NotNull] get; [CanBeNull] set; }
+    string Passphrase { get; set; }
 
     bool KeepUnencrypted { get; set; }
 
@@ -60,14 +58,14 @@ namespace CsvTools
     /// <summary>
     ///   Path to the file on sFTP Server
     /// </summary>
-    string RemoteFileName { [NotNull] get; [CanBeNull] set; }
+    string RemoteFileName { get; set; }
 
     /// <summary>
     ///   May store information on columns to show, filtering and sorting
     /// </summary>
-    string ColumnFile { [NotNull] get; [CanBeNull] set; }
+    string ColumnFile { get; set; }
 
-    string IdentifierInContainer { [NotNull] get; [CanBeNull] set; }
+    string IdentifierInContainer { get; set; }
 
     /// <summary>
     ///   In case of creating a file, should the time of the latest source be used?

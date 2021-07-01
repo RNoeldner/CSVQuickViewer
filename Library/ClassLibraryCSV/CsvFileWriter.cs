@@ -12,7 +12,7 @@
  *
  */
 
-using JetBrains.Annotations;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,28 +29,27 @@ namespace CsvTools
   {
     private readonly bool m_ByteOrderMark;
     private readonly int m_CodePageId;
-    [NotNull] private readonly string m_FieldDelimiter;
-    [NotNull] private readonly string m_FieldDelimiterEscaped;
-    [NotNull] private readonly string m_FieldQualifier;
-    [NotNull] private readonly string m_FieldQualifierEscaped;
-    [NotNull] private readonly char[] m_QualifyCharArray;
+    private readonly string m_FieldDelimiter;
+    private readonly string m_FieldDelimiterEscaped;
+    private readonly string m_FieldQualifier;
+    private readonly string m_FieldQualifierEscaped;
+    private readonly char[] m_QualifyCharArray;
 
-    public CsvFileWriter([NotNull] string id, [NotNull] string fullPath, bool hasFieldHeader, [CanBeNull] IValueFormat valueFormat = null, [CanBeNull] IFileFormat fileFormat = null,
-      int codePageId = 65001, bool byteOrderMark = true, [CanBeNull] string fileSettingDisplay = null, [CanBeNull] IEnumerable<IColumn> columnDefinition = null, [CanBeNull] string recipient = null,
-      bool unencyrpted = false, [CanBeNull] string identifierInContainer = null, [CanBeNull] string header = null, [CanBeNull] string footer = null,
-      [CanBeNull] IProcessDisplay processDisplay = null)
-      : base(id, fullPath, hasFieldHeader, valueFormat, fileFormat, recipient, unencyrpted, identifierInContainer, footer, header, columnDefinition, fileSettingDisplay, processDisplay)
+    public CsvFileWriter(string id, string fullPath, bool hasFieldHeader, IValueFormat? valueFormat = null, IFileFormat? fileFormat = null,
+      int codePageId = 65001, bool byteOrderMark = true, IEnumerable<IColumn>? columnDefinition = null, string? recipient = null,
+      bool unencyrpted = false, string? identifierInContainer = null, string? header = null, string? footer = null)
+      : base(id, fullPath, hasFieldHeader, valueFormat, fileFormat, recipient, unencyrpted, identifierInContainer, footer, header, columnDefinition)
     {
       m_CodePageId = codePageId;
       m_ByteOrderMark = byteOrderMark;
-      m_FieldQualifier =  fileFormat.FieldQualifierChar.ToStringHandle0();
-      m_FieldDelimiter =  fileFormat.FieldDelimiterChar.ToStringHandle0();
+      m_FieldQualifier =  fileFormat?.FieldQualifierChar.ToStringHandle0() ?? string.Empty;
+      m_FieldDelimiter =  fileFormat?.FieldDelimiterChar.ToStringHandle0() ?? string.Empty;
 
-      if (fileFormat.EscapeChar!='\0')
+      if (fileFormat?.EscapeChar!='\0')
       {
         m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d };
-        m_FieldQualifierEscaped = fileFormat.EscapeChar + m_FieldQualifier;
-        m_FieldDelimiterEscaped = fileFormat.EscapeChar + m_FieldDelimiter;
+        m_FieldQualifierEscaped = fileFormat?.EscapeChar + m_FieldQualifier;
+        m_FieldDelimiterEscaped = fileFormat?.EscapeChar + m_FieldDelimiter;
       }
       else
       {
@@ -67,12 +66,11 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="CsvFileWriter" /> class.
     /// </summary>
-    /// <param name="file">The file.</param>
-    /// <param name="processDisplay">The process display.</param>
-    public CsvFileWriter([NotNull] ICsvFile fileSetting, [CanBeNull] IProcessDisplay processDisplay)
+    /// <param name="fileSetting">The file.</param>
+    public CsvFileWriter(ICsvFile fileSetting)
       : this(fileSetting.ID, fileSetting.FullPath, fileSetting.HasFieldHeader, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, fileSetting.CodePageId,
-        fileSetting.ByteOrderMark, fileSetting.ToString(), fileSetting.ColumnCollection.ReadonlyCopy(), fileSetting.Recipient, fileSetting.KeepUnencrypted, fileSetting.IdentifierInContainer,
-        fileSetting.Header, fileSetting.Footer, processDisplay)
+        fileSetting.ByteOrderMark, fileSetting.ColumnCollection.ReadonlyCopy(), fileSetting.Recipient, fileSetting.KeepUnencrypted, fileSetting.IdentifierInContainer,
+        fileSetting.Header, fileSetting.Footer)
     {
     }
 
@@ -82,8 +80,7 @@ namespace CsvTools
     /// <param name="reader">A Data Reader with the data</param>
     /// <param name="output">The output.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    protected override async Task WriteReaderAsync([NotNull] IFileReader reader, [NotNull] Stream output,
-      CancellationToken cancellationToken)
+    protected override async Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken)
     {
       using (var writer = new StreamWriter(output,
         EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192))
@@ -168,8 +165,7 @@ namespace CsvTools
       }
     }
 
-    [NotNull]
-    private string QualifyText([NotNull] string displayAs, DataType dataType, [NotNull] IFileFormat fileFormat)
+    private string QualifyText(string displayAs, DataType dataType, IFileFormat fileFormat)
     {
       var qualifyThis = fileFormat.QualifyAlways;
       if (!qualifyThis)

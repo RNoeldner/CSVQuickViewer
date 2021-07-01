@@ -159,9 +159,8 @@ namespace CsvTools.Tests
         {
         }
       }
-      catch (ArgumentNullException)
-      {
-      }
+      catch (ArgumentNullException) { }
+      catch (ArgumentException) { }
       catch (Exception ex)
       {
         Assert.Fail("Wrong Exception Type: " + ex.GetType());

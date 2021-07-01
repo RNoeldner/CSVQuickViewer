@@ -22,7 +22,7 @@ namespace CsvTools
   /// </summary>
   public sealed class ColumnErrorDictionary : Dictionary<int, string>
   {
-    private readonly ICollection<int> m_IgnoredColumns;
+    private readonly ICollection<int> m_IgnoredColumns = new HashSet<int>();
 
     public ColumnErrorDictionary()
     {
@@ -32,13 +32,10 @@ namespace CsvTools
     {
       if (reader == null)
         throw new ArgumentNullException(nameof(reader));
-
       for (var col = 0; col < reader.FieldCount; col++)
       {
         var column = reader.GetColumn(col);
         if (!column.Ignore) continue;
-        if (m_IgnoredColumns == null)
-          m_IgnoredColumns = new HashSet<int>();
         m_IgnoredColumns.Add(col);
       }
 
@@ -58,7 +55,7 @@ namespace CsvTools
     /// <param name="message">The message.</param>
     public new void Add(int columnNumber, string message)
     {
-      if (m_IgnoredColumns != null && m_IgnoredColumns.Contains(columnNumber) || string.IsNullOrEmpty(message))
+      if (m_IgnoredColumns.Contains(columnNumber) || string.IsNullOrEmpty(message))
         return;
 
       if (TryGetValue(columnNumber, out var old))

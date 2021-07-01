@@ -14,7 +14,7 @@
 
 namespace CsvTools
 {
-  using JetBrains.Annotations;
+
   using System;
   using System.ComponentModel;
   using System.Xml.Serialization;
@@ -81,7 +81,7 @@ namespace CsvTools
     /// <summary>
     ///   Occurs when a property value changes.
     /// </summary>
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
@@ -125,9 +125,7 @@ namespace CsvTools
     [DefaultValue(c_CommentLineDefault)]
     public virtual string CommentLine
     {
-      [NotNull]
       get => m_CommentLine;
-      [CanBeNull]
       set
       {
         var newVal = (value ?? string.Empty).Trim();
@@ -146,9 +144,7 @@ namespace CsvTools
     [DefaultValue(c_DelimiterPlaceholderDefault)]
     public virtual string DelimiterPlaceholder
     {
-      [NotNull]
       get => m_DelimiterPlaceholder;
-
       set
       {
         var newVal = (value ?? string.Empty).Trim();
@@ -191,9 +187,7 @@ namespace CsvTools
     [DefaultValue(cEscapeCharacterDefault)]
     public virtual string EscapeCharacter
     {
-      [NotNull]
       get => m_EscapeCharacter;
-
       set
       {
         var newVal = (value ?? string.Empty).Trim();
@@ -213,9 +207,7 @@ namespace CsvTools
     [DefaultValue(c_FieldDelimiterDefault)]
     public virtual string FieldDelimiter
     {
-      [NotNull]
       get => m_FieldDelimiter;
-
       set
       {
         var newVal = (value ?? string.Empty).Trim(StringUtils.Spaces);
@@ -242,9 +234,7 @@ namespace CsvTools
     [DefaultValue(c_FieldQualifierDefault)]
     public virtual string FieldQualifier
     {
-      [NotNull]
       get => m_FieldQualifier;
-
       set
       {
         var newVal = (value ?? string.Empty).Trim();
@@ -297,9 +287,7 @@ namespace CsvTools
     [DefaultValue(c_NewLinePlaceholderDefault)]
     public virtual string NewLinePlaceholder
     {
-      [NotNull]
       get => m_NewLinePlaceholder;
-
       set
       {
         var newVal = value ?? c_NewLinePlaceholderDefault;
@@ -359,9 +347,7 @@ namespace CsvTools
     [DefaultValue(c_QuotePlaceholderDefault)]
     public virtual string QuotePlaceholder
     {
-      [NotNull]
       get => m_QuotePlaceholder;
-
       set
       {
         var newVal = (value ?? string.Empty).Trim();
@@ -379,9 +365,7 @@ namespace CsvTools
     [XmlElement]
     public virtual ValueFormatMutable ValueFormatMutable
     {
-      [NotNull]
       get => m_ValueFormatMutable;
-      [CanBeNull]
       set
       {
         var newVal = value ?? new ValueFormatMutable();
@@ -417,9 +401,6 @@ namespace CsvTools
     /// <param name="other">The other.</param>
     public virtual void CopyTo(FileFormat other)
     {
-      if (other == null)
-        return;
-
       other.CommentLine = m_CommentLine;
       other.AlternateQuoting = m_AlternateQuoting;
       other.DuplicateQuotingToEscape = m_DuplicateQuotingToEscape;
@@ -443,7 +424,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
     ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
-    public bool Equals(FileFormat other)
+    public bool Equals(FileFormat? other)
     {
       if (other is null)
         return false;
@@ -473,7 +454,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
     ///   <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj) => Equals(obj as FileFormat);
+    public override bool Equals(object? obj) => Equals(obj as FileFormat);
 
     /// <summary>
     ///   Notifies the property changed.

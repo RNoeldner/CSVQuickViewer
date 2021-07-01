@@ -12,7 +12,7 @@
  *
  */
 
-using JetBrains.Annotations;
+
 
 namespace CsvTools
 {
@@ -25,13 +25,13 @@ namespace CsvTools
     public readonly bool IsJson;
     public readonly bool NoDelimitedFile;
     public readonly int SkipRows;
-    [NotNull] public readonly string IdentifierInContainer;
+    public readonly string IdentifierInContainer;
 
     public readonly bool QualifyAlways;
-    [NotNull] public readonly string CommentLine;
-    [NotNull] public readonly string EscapeCharacter;
-    [NotNull] public readonly string FieldDelimiter;
-    [NotNull] public readonly string FieldQualifier;
+    public readonly string CommentLine;
+    public readonly string EscapeCharacter;
+    public readonly string FieldDelimiter;
+    public readonly string FieldQualifier;
     public readonly RecordDelimiterType NewLine;
 
     private string GetShortDisplay(string input)

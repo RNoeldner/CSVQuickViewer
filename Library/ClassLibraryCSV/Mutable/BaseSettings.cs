@@ -12,10 +12,8 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -45,8 +43,10 @@ namespace CsvTools
     private bool m_DisplayRecordNo;
     private bool m_DisplayStartLineNo = true;
     private long m_ErrorCount;
-    private ObservableCollection<SampleRecordEntry> m_Errors = new ObservableCollection<SampleRecordEntry>();
-    private int m_EvidenceNumberOrIssues = -1;
+    /// <summary>
+    /// This information is only used by the Validator but since we can not extend classes with new properties, it needs to be defined here
+    /// </summary>
+    private SampleAndErrorsInformation m_SamplesErrors = new SampleAndErrorsInformation();
     private string m_Footer = string.Empty;
     private bool m_HasFieldHeader = true;
     private string m_Header = string.Empty;
@@ -57,13 +57,12 @@ namespace CsvTools
     private long m_NumRecords;
     private DateTime m_ProcessTimeUtc = ZeroTime;
     private long m_RecordLimit;
-    private ObservableCollection<SampleRecordEntry> m_Samples = new ObservableCollection<SampleRecordEntry>();
     private bool m_SetLatestSourceTimeForWrite;
     private bool m_ShowProgress = true;
     private bool m_SkipDuplicateHeader;
     private bool m_SkipEmptyLines = true;
     private int m_SkipRows;
-    private IReadOnlyCollection<IFileSetting> m_SourceFileSettings;
+    private IReadOnlyCollection<IFileSetting>? m_SourceFileSettings;
     private string m_SqlStatement = string.Empty;
     private string m_TemplateName = string.Empty;
     private int m_Timeout = 90;
@@ -76,7 +75,6 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
     /// </summary>
-    /// <param name="fileName">The filename.</param>
     protected BaseSettings()
     {
       // adding or removing columns should cause a property changed for ColumnCollection
@@ -97,10 +95,8 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
-    public bool MappingSpecified => MappingCollection.Count > 0;
 
-    [UsedImplicitly] public bool ErrorsSpecified => Errors.Count > 0;
+    public bool MappingSpecified => MappingCollection.Count > 0;
 
     /// <summary>
     ///   Storage for the settings used as direct or indirect sources.
@@ -114,8 +110,7 @@ namespace CsvTools
     ///   {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}
     /// </example>
     [XmlIgnore]
-    [CanBeNull]
-    public IReadOnlyCollection<IFileSetting> SourceFileSettings
+    public IReadOnlyCollection<IFileSetting>? SourceFileSettings
     {
       get => m_SourceFileSettings;
       set
@@ -135,7 +130,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
+
     public bool FileFormatSpecified => !FileFormat.Equals(new FileFormat());
 
     /// <summary>
@@ -143,10 +138,9 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
+
     public bool FileLastWriteTimeUtcSpecified => ProcessTimeUtc != ZeroTime;
 
-    [UsedImplicitly] public bool SamplesSpecified => Samples.Count > 0;
 
     /// <summary>
     ///   Utility calls to get or set the SQL Statement as CDataSection
@@ -167,7 +161,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
+
     public bool SqlStatementCDataSpecified => !string.IsNullOrEmpty(SqlStatement);
 
     /// <summary>
@@ -196,14 +190,13 @@ namespace CsvTools
     /// </summary>
     /// <value>The column options</value>
     [XmlElement("Format")]
-    [NotNull]
     public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
     /// <summary>
     ///   Gets a value indicating whether column format specified.
     /// </summary>
     /// <value><c>true</c> if column format specified; otherwise, <c>false</c>.</value>
-    [UsedImplicitly]
+
     public bool ColumnSpecified => ColumnCollection.Count > 0;
 
     /// <summary>
@@ -278,22 +271,19 @@ namespace CsvTools
       }
     }
 
-    public ObservableCollection<SampleRecordEntry> Errors
+    /// <summary>
+    /// Storage for validation and samples record, only used in the validator but as we can not extend classes it has to live here
+    /// </summary>
+    [XmlElement]
+    public SampleAndErrorsInformation SamplesAndErrors
     {
-      [NotNull]
-      get => m_Errors;
-      [CanBeNull]
-      set
-      {
-        var newVal = value ?? new ObservableCollection<SampleRecordEntry>();
-        if (m_Errors.CollectionEqualWithOrder(newVal))
-          return;
-        m_Errors = newVal;
-        NotifyPropertyChanged(nameof(Errors));
-        if (m_EvidenceNumberOrIssues > 0 && Errors.Count > m_EvidenceNumberOrIssues)
-          EvidenceNumberOrIssues = Errors.Count;
-      }
+      get => m_SamplesErrors;
+      set => m_SamplesErrors = value;
     }
+
+    public bool SampleAndErrorsInformationSpecified => m_SamplesErrors.ErrorsSpecified ||
+                                                       m_SamplesErrors.SamplesSpecified ||
+                                                       m_SamplesErrors.NumErrors != -1;
 
     /// <summary>
     ///   Gets or sets the file format.
@@ -302,10 +292,8 @@ namespace CsvTools
     [XmlElement]
     public virtual FileFormat FileFormat
     {
-      [NotNull]
       get => m_FileFormat;
-      [CanBeNull]
-      set => value?.CopyTo(m_FileFormat);
+      set => value.CopyTo(m_FileFormat);
     }
 
     /// <summary>
@@ -327,7 +315,7 @@ namespace CsvTools
       }
     }
 
-    [UsedImplicitly] public bool ProcessTimeUtcSpecified => m_ProcessTimeUtc != ZeroTime;
+    public bool ProcessTimeUtcSpecified => m_ProcessTimeUtc != ZeroTime;
 
     /// <summary>
     ///   The time of the source, either a file time, or in case the setting is dependent on
@@ -360,9 +348,7 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Footer
     {
-      [NotNull]
       get => m_Footer;
-      [CanBeNull]
       set
       {
         var newVal = (value ?? string.Empty).HandleCRLFCombinations(Environment.NewLine);
@@ -409,9 +395,7 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string Header
     {
-      [NotNull]
       get => m_Header;
-      [CanBeNull]
       set
       {
         var newVal = (value ?? string.Empty).HandleCRLFCombinations(Environment.NewLine);
@@ -430,9 +414,7 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string ID
     {
-      [NotNull]
       get => m_Id;
-      [CanBeNull]
       set
       {
         var newVal = value ?? string.Empty;
@@ -471,7 +453,6 @@ namespace CsvTools
     ///   The identified to find this specific instance
     /// </summary>
     [XmlIgnore]
-    [NotNull]
     public virtual string InternalID => ID;
 
     /// <summary>
@@ -499,33 +480,6 @@ namespace CsvTools
     /// <value>The field mapping.</value>
     [XmlElement("Mapping")]
     public MappingCollection MappingCollection { get; } = new MappingCollection();
-
-    /// <summary>
-    ///   Gets or sets the ID.
-    /// </summary>
-    /// <value>The ID.</value>
-    [XmlAttribute("NumErrors")]
-    [DefaultValue(-1)]
-    public virtual int EvidenceNumberOrIssues
-    {
-      get
-      {
-        if (m_EvidenceNumberOrIssues == -1 && Errors.Count > 0)
-          m_EvidenceNumberOrIssues = Errors.Count;
-        return m_EvidenceNumberOrIssues;
-      }
-
-      set
-      {
-        // can not be smaller than the number of named errors
-        if (Errors.Count > 0 && value < Errors.Count)
-          value = Errors.Count;
-        if (m_EvidenceNumberOrIssues == value)
-          return;
-        m_EvidenceNumberOrIssues = value;
-        NotifyPropertyChanged(nameof(EvidenceNumberOrIssues));
-      }
-    }
 
     /// <summary>
     ///   Gets or sets the ID.
@@ -600,21 +554,6 @@ namespace CsvTools
           return;
         m_RecordLimit = value;
         NotifyPropertyChanged(nameof(RecordLimit));
-      }
-    }
-
-    public ObservableCollection<SampleRecordEntry> Samples
-    {
-      [NotNull]
-      get => m_Samples;
-      [CanBeNull]
-      set
-      {
-        var newVal = value ?? new ObservableCollection<SampleRecordEntry>();
-        if (m_Samples.CollectionEqualWithOrder(newVal))
-          return;
-        m_Samples = newVal;
-        NotifyPropertyChanged(nameof(Samples));
       }
     }
 
@@ -699,7 +638,6 @@ namespace CsvTools
     public virtual string SqlStatement
     {
       get => m_SqlStatement;
-      [CanBeNull]
       set
       {
         var newVal = value == null ? string.Empty : value.NoControlCharacters().HandleCRLFCombinations();
@@ -741,9 +679,7 @@ namespace CsvTools
     [DefaultValue("")]
     public virtual string TemplateName
     {
-      [NotNull]
       get => m_TemplateName;
-      [CanBeNull]
       set
       {
         var newVal = value ?? string.Empty;
@@ -780,9 +716,7 @@ namespace CsvTools
     [DefaultValue(cTreatTextAsNull)]
     public virtual string TreatTextAsNull
     {
-      [NotNull]
       get => m_TreatTextAsNull;
-      [CanBeNull]
       set
       {
         var newVal = value ?? string.Empty;
@@ -843,8 +777,10 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
     ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
-    protected virtual bool BaseSettingsEquals(BaseSettings other)
+    protected virtual bool BaseSettingsEquals(BaseSettings? other)
     {
+      if (other==null)
+        return false;
       if (!other.ID.Equals(ID, StringComparison.OrdinalIgnoreCase))
         return false;
       if (other.SkipRows != SkipRows || other.HasFieldHeader != HasFieldHeader)
@@ -857,7 +793,7 @@ namespace CsvTools
         return false;
       if (other.DisplayStartLineNo != DisplayStartLineNo || other.DisplayEndLineNo != DisplayEndLineNo || other.DisplayRecordNo != DisplayRecordNo)
         return false;
-      if (other.RecordLimit != RecordLimit || other.EvidenceNumberOrIssues != EvidenceNumberOrIssues)
+      if (other.RecordLimit != RecordLimit)
         return false;
       if (other.SkipEmptyLines != SkipEmptyLines || other.SkipDuplicateHeader != SkipDuplicateHeader)
         return false;
@@ -877,22 +813,21 @@ namespace CsvTools
         return false;
       if (!other.MappingCollection.Equals(MappingCollection))
         return false;
-      if (!other.Samples.CollectionEqual(Samples))
+      if (!other.SamplesAndErrors.Equals(SamplesAndErrors))
         return false;
-      if (!other.Errors.CollectionEqual(Errors))
-        return false;
+
       return other.ColumnCollection.Equals(ColumnCollection);
     }
 
     /// <summary>
     ///   Occurs after a property value changes.
     /// </summary>
-    public virtual event PropertyChangedEventHandler PropertyChanged;
+    public virtual event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     ///   Occurs when a string value property changed providing information on old and new value
     /// </summary>
-    public virtual event EventHandler<PropertyChangedEventArgs<string>> PropertyChangedString;
+    public virtual event EventHandler<PropertyChangedEventArgs<string>>? PropertyChangedString;
 
     /// <summary>
     ///   As this might be a time consuming process, do this only if the time was not determined before
@@ -932,8 +867,6 @@ namespace CsvTools
     /// <param name="other">The other.</param>
     protected virtual void BaseSettingsCopyTo(BaseSettings other)
     {
-      if (other == null)
-        return;
       FileFormat.CopyTo(other.FileFormat);
       MappingCollection.CopyTo(other.MappingCollection);
 
@@ -966,10 +899,7 @@ namespace CsvTools
 
       other.Footer = Footer;
       other.Header = Header;
-      Samples.CollectionCopy(other.Samples);
-
-      other.EvidenceNumberOrIssues = EvidenceNumberOrIssues;
-      Errors.CollectionCopy(other.Errors);
+      SamplesAndErrors.CopyTo(other.SamplesAndErrors);
 
       other.ID = ID;
       other.NumRecords = NumRecords;
@@ -981,8 +911,7 @@ namespace CsvTools
     ///   Notifies the completed property changed.
     /// </summary>
     /// <param name="info">The property name.</param>
-    [NotifyPropertyChangedInvocator]
-    protected void NotifyPropertyChanged([NotNull] string info)
+    protected void NotifyPropertyChanged(string info)
     {
       if (PropertyChanged == null)
         return;
@@ -1002,7 +931,7 @@ namespace CsvTools
     /// <param name="info">The property name.</param>
     /// <param name="oldValue">The old value.</param>
     /// <param name="newVal">The new value.</param>
-    protected void NotifyPropertyChangedString([NotNull] string info, [NotNull] string oldValue, [NotNull] string newVal)
+    protected void NotifyPropertyChangedString(string info, string oldValue, string newVal)
     {
       if (PropertyChangedString == null)
         return;
@@ -1048,7 +977,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
     ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
-    public abstract bool Equals(IFileSetting other);
+    public abstract bool Equals(IFileSetting? other);
 
     /// <summary>
     ///   Copies all properties to the other instance

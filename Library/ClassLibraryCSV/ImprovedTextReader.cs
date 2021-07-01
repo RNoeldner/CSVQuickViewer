@@ -1,7 +1,7 @@
+
 using System;
 using System.IO;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -41,7 +41,9 @@ namespace CsvTools
     ///   first few bytes of the source stream to look at a possible existing BOM if found, it will
     ///   overwrite the provided data
     /// </remarks>
-    public ImprovedTextReader([NotNull] IImprovedStream improvedStream, int codePageId = 65001, int skipLines = 0)
+#pragma warning disable 8618
+    public ImprovedTextReader(IImprovedStream improvedStream, int codePageId = 65001, int skipLines = 0)
+#pragma warning restore 8618
     {
       m_SkipLines = skipLines;
       m_ImprovedStream = improvedStream as Stream ?? throw new ArgumentNullException(nameof(improvedStream));
@@ -168,8 +170,10 @@ namespace CsvTools
         }
       }
 
-      return sb.Length > 0 ? sb.ToString() : null;
+      return sb.ToString();
     }
+
+    private bool m_Init = true;
 
     /// <summary>
     ///   Resets the position of the stream to the beginning, without opening the stream from
@@ -187,8 +191,11 @@ namespace CsvTools
         m_ImprovedStream.Read(new byte[m_BomLength], 0, m_BomLength);
 
       // in case we can not seek need to reopen the stream reader
-      if (TextReader == null)
+      if (m_Init)
+      {
         TextReader = new StreamReader(m_ImprovedStream, Encoding.GetEncoding(m_CodePage), false, 4096, true);
+        m_Init = true;
+      }
       // discard the buffer
       else
         TextReader.DiscardBufferedData();
@@ -201,7 +208,7 @@ namespace CsvTools
     {
       if (m_DisposedValue) return;
       if (disposing)
-        TextReader?.Dispose();
+        TextReader.Dispose();
       m_DisposedValue = true;
     }
   }

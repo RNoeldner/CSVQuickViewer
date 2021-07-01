@@ -123,7 +123,7 @@ namespace CsvTools.Tests
       m_CsvFile.SqlStatementCData = doc.CreateCDataSection("Hello World");
 
       Assert.AreEqual("Hello World", m_CsvFile.SqlStatement);
-      m_CsvFile.SqlStatement = null;
+      m_CsvFile.SqlStatement = string.Empty;
       Assert.AreEqual(string.Empty, m_CsvFile.SqlStatementCData.Value);
     }
 
@@ -262,13 +262,13 @@ namespace CsvTools.Tests
     [TestMethod]
     public void EvidenceNumberOrIssues()
     {
-      Assert.AreEqual(-1, m_CsvFile.EvidenceNumberOrIssues);
-      Assert.IsFalse(m_CsvFile.ErrorsSpecified);
-      Assert.AreEqual(0, m_CsvFile.Errors.Count);
-      m_CsvFile.Errors.Add(new SampleRecordEntry(177, "Error"));
-      Assert.AreEqual(1, m_CsvFile.EvidenceNumberOrIssues);
-      m_CsvFile.EvidenceNumberOrIssues = 100;
-      Assert.AreEqual(100, m_CsvFile.EvidenceNumberOrIssues);
+      Assert.AreEqual(-1, m_CsvFile.SamplesAndErrors.NumErrors);
+      Assert.IsFalse(m_CsvFile.SamplesAndErrors.ErrorsSpecified);
+      Assert.AreEqual(0, m_CsvFile.SamplesAndErrors.Errors.Count);
+      m_CsvFile.SamplesAndErrors.Errors.Add(new SampleRecordEntry(177, "Error"));
+      Assert.AreEqual(1, m_CsvFile.SamplesAndErrors.NumErrors);
+      m_CsvFile.SamplesAndErrors.NumErrors = 100;
+      Assert.AreEqual(100, m_CsvFile.SamplesAndErrors.NumErrors);
     }
 
     [TestInitialize]

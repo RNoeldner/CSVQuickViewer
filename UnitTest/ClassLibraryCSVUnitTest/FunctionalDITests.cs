@@ -15,7 +15,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GetFileReaderTest()
+    public void GetFileReaderTestCsv()
     {
       var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt") };
       using (var test =
@@ -24,7 +24,16 @@ namespace CsvTools.Tests
         Assert.IsInstanceOfType(test, typeof(CsvFileReader));
       }
 
-      setting.JsonFormat = true;
+    }
+
+    [TestMethod]
+    public void GetFileReaderTestJson()
+    {
+      var setting = new CsvFile
+        {
+          FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt"), 
+          JsonFormat = true
+        };
       using (var test2 =
         FunctionalDI.GetFileReader(setting, null, new CustomProcessDisplay(UnitTestInitializeCsv.Token)))
       {

@@ -286,7 +286,7 @@ namespace CsvTools
         var newVal = value ?? HTMLStyle.c_Style;
         if (m_HtmlStyle.Style.Equals(newVal))
           return;
-        m_HtmlStyle = new HTMLStyle(newVal);
+        m_HtmlStyle = new HTMLStyle(newVal, string.Empty, string.Empty);
         NotifyPropertyChanged(nameof(Style));
       }
     }

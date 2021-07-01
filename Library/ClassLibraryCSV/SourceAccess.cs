@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.IO;
 
@@ -43,7 +42,7 @@ namespace CsvTools
     /// <summary>
     ///   Method to open the base stream usually the physical file
     /// </summary>
-    [NotNull] private readonly Func<Stream> m_OpenStream;
+    private readonly Func<Stream> m_OpenStream;
 
     /// <summary>
     ///   Determine if the access is for reading or writing
@@ -53,48 +52,69 @@ namespace CsvTools
     /// <summary>
     ///   The Password or Passphrase information
     /// </summary>
-    [NotNull] public string EncryptedPassphrase = string.Empty;
+    public string EncryptedPassphrase;
 
     /// <summary>
     ///   Property used for informational purpose
     /// </summary>
-    [NotNull] public string Identifier;
+    public string Identifier;
 
     /// <summary>
     ///   Location or identifier in the container
     /// </summary>
-    [NotNull] public string IdentifierInContainer = string.Empty;
+    public string IdentifierInContainer;
 
     /// <summary>
     ///   Information about the recipient for a encryption
     /// </summary>
-    [NotNull] public string Recipient = string.Empty;
+    public readonly string Recipient;
 
-    public bool KeepEnencyrpted = false;
+    /// <summary>
+    /// Flag <c>true</c> if the not encrypted files should be keept after encryption
+    /// </summary>
+    public readonly bool KeepEncyrpted;
 
-    public SourceAccess([NotNull] string fileName, bool isReading = true, [CanBeNull] string id = null,
-                        [CanBeNull] string recipient = null, bool keepEnencyrpted = false)
+    /// <summary>
+    /// Get a new SourceAccess helper class
+    /// </summary>
+    /// <param name="fileName">Name of teh file</param>
+    /// <param name="isReading"><c>true</c> if the files is for reading</param>
+    /// <param name="id">The identifier for the file for logging etc</param>
+    /// <param name="recipient">Recipient for PGP encryption</param>
+    /// <param name="keepEncrypted">Do not remove teh not encrypted files once teh encrypted one is created, needed in for debugging in case teh private key is not known and the file can not be decrypted</param>
+    public SourceAccess(string fileName, bool isReading = true, string? id = null,
+                        string? recipient = null, bool keepEncrypted = false)
     {
+      if (string.IsNullOrWhiteSpace(fileName))
+        throw new ArgumentException("File can not be empty", nameof(fileName));
+
+      // as of now a physical file must exist
+      if (isReading && !FileSystemUtils.FileExists(fileName))
+        throw new FileNotFoundException($"The file '{FileSystemUtils.GetShortDisplayFileName(fileName)}' does not exist or is not accessible.", fileName);
+
       FullPath= fileName;
       Reading = isReading;
       Identifier = id ?? FileSystemUtils.GetShortDisplayFileName(fileName, 40);
       Recipient = recipient ?? string.Empty;
-      KeepEnencyrpted = keepEnencyrpted;
+      KeepEncyrpted = keepEncrypted;
       LeaveOpen = false;
       FileType =  FromExtension(fileName);
+      EncryptedPassphrase = string.Empty;
+      IdentifierInContainer = string.Empty;
       switch (FileType)
       {
         case FileTypeEnum.Zip when !isReading:
           IdentifierInContainer = FileSystemUtils.GetFileName(fileName).ReplaceCaseInsensitive(".zip", "");
+          
           break;
-        // for PGP we need a password/ passphrase for Zip we might need one later
+        // for PGP we need a password/ pass phrase for Zip we might need one later
         case FileTypeEnum.Pgp when isReading:
           EncryptedPassphrase = FunctionalDI.GetEncryptedPassphraseForFile(fileName);
           break;
       }
-      if (!isReading && KeepEnencyrpted)
+      if (!isReading && KeepEncyrpted)
       {
-        // remove entension
+        // remove extension
         var split = FileSystemUtils.SplitPath(fileName);
         var fn = Path.Combine(split.DirectoryName, split.FileNameWithoutExtension);
         m_OpenStream = GetOpenStreamFunc(fn, false);
@@ -109,7 +129,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="setting">The setting of type <see cref="IFileSettingPhysicalFile" /></param>
     /// <param name="isReading"><c>true</c> if used for reading</param>
-    public SourceAccess([NotNull] IFileSettingPhysicalFile setting, bool isReading = true) : this(setting.FullPath, isReading, setting.ID, setting.Recipient, setting.KeepUnencrypted)
+    public SourceAccess(IFileSettingPhysicalFile setting, bool isReading = true) : this(setting.FullPath, isReading, setting.ID, setting.Recipient, setting.KeepUnencrypted)
     {
     }
 
@@ -117,9 +137,8 @@ namespace CsvTools
     ///   Create a source access based on a stream
     /// </summary>
     /// <param name="stream">The source stream, it must support seek if its a read stream</param>
-    /// <param name="isReading"><c>true</c> if used for reading</param>
     /// <param name="type">The type of the contents in the stream</param>
-    public SourceAccess([NotNull] Stream stream, FileTypeEnum type = FileTypeEnum.Stream)
+    public SourceAccess(Stream stream, FileTypeEnum type = FileTypeEnum.Stream)
     {
       if (!stream.CanSeek)
         throw new ArgumentException("Source stream must support seek to be used for SourceAccess", nameof(stream));
@@ -128,7 +147,9 @@ namespace CsvTools
       FileType = type;
       Reading = true;
       FullPath= string.Empty;
-
+      EncryptedPassphrase = string.Empty;
+      IdentifierInContainer = string.Empty;
+      Recipient = string.Empty;
       // Overwrite in case we can get more information
       if (stream is FileStream fs)
       {
@@ -160,7 +181,7 @@ namespace CsvTools
       return stream;
     }
 
-    private static FileTypeEnum FromExtension([NotNull] string fileName)
+    private static FileTypeEnum FromExtension(string fileName)
     {
       if (fileName.AssumeGZip())
         return FileTypeEnum.GZip;

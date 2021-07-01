@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
 using System.Text;
@@ -79,10 +78,8 @@ namespace CsvTools
     [XmlIgnore]
     public virtual Encoding CurrentEncoding
     {
-      [NotNull]
       get => m_CurrentEncoding;
-      [CanBeNull]
-      set => m_CurrentEncoding = value ?? Encoding.UTF8;
+      set => m_CurrentEncoding = value;
     }
 
     /// <summary>
@@ -427,8 +424,6 @@ namespace CsvTools
     /// <param name="other">The other.</param>
     public override void CopyTo(IFileSetting other)
     {
-      if (other == null)
-        return;
       BaseSettingsCopyTo((BaseSettings) other);
 
       if (!(other is ICsvFile csv))
@@ -453,9 +448,9 @@ namespace CsvTools
       csv.NoDelimitedFile = m_NoDelimitedFile;
     }
 
-    public override bool Equals(IFileSetting other) => Equals(other as ICsvFile);
+    public override bool Equals(IFileSetting? other) => Equals(other as ICsvFile);
 
-    public virtual bool Equals(ICsvFile other)
+    public virtual bool Equals(ICsvFile? other)
     {
       if (other is null)
         return false;
@@ -485,6 +480,6 @@ namespace CsvTools
     ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
     ///   <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj) => Equals(obj as ICsvFile);
+    public override bool Equals(object? obj) => Equals(obj as ICsvFile);
   }
 }

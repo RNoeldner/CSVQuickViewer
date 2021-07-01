@@ -486,7 +486,7 @@ namespace CsvTools
           FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);
 
           this.SafeBeginInvoke(() => { ShowTextPanel(false); });
-          FunctionalDI.SignalBackground?.Invoke();
+          FunctionalDI.SignalBackground.Invoke();
 
           if (m_DisposedValue)
             return;

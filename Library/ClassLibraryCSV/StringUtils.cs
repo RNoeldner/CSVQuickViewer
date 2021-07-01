@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -46,12 +45,12 @@ namespace CsvTools
     /// <returns>
     ///   The number of charters at the end that did match, 0 if it does not end on ID
     /// </returns>
-    public static int AssumeIDColumn([CanBeNull] string columnName)
+    public static int AssumeIDColumn(string? columnName)
     {
       if (string.IsNullOrWhiteSpace(columnName))
         return 0;
 
-      if (columnName.EndsWith(" Text", StringComparison.OrdinalIgnoreCase))
+      if (columnName!.EndsWith(" Text", StringComparison.OrdinalIgnoreCase))
         return 5;
       if (columnName.EndsWith("Text", StringComparison.Ordinal))
         return 4;
@@ -76,7 +75,7 @@ namespace CsvTools
     /// <param name="toCheck">To text find.</param>
     /// <param name="comp">The comparison.</param>
     /// <returns><c>true</c> if the text does contains the check; otherwise, <c>false</c>.</returns>
-    public static bool Contains([CanBeNull] this string text, [NotNull] string toCheck, StringComparison comp) =>
+    public static bool Contains(this string? text, string toCheck, StringComparison comp) =>
       text?.IndexOf(toCheck, comp) >= 0;
 
     /// <summary>
@@ -85,11 +84,10 @@ namespace CsvTools
     /// <param name="text">The text.</param>
     /// <param name="length">The length.</param>
     /// <returns>The text with the maximum length, in case it has been cut off a … is added</returns>
-    [NotNull]
-    public static string GetShortDisplay([CanBeNull] string text, int length)
+    public static string GetShortDisplay(string? text, int length)
     {
       var withoutLineFeed = text?.Replace('\r', ' ').Replace('\n', ' ').Replace('\t', ' ').Replace("  ", " ")
-        .Replace("  ", " ");
+        .Replace("  ", " ")?? string.Empty;
       if (string.IsNullOrWhiteSpace(withoutLineFeed))
         return string.Empty;
       if (length<1 || withoutLineFeed.Length <= length)
@@ -110,18 +108,17 @@ namespace CsvTools
     /// <returns>
     ///   The text with every combination of line feed replaced with <see cref="replace" />
     /// </returns>
-    [NotNull]
-    public static string HandleCRLFCombinations([NotNull] this string text, [NotNull] string replace = "\n")
+    public static string HandleCRLFCombinations(this string text, string replace = "\n")
     {
       // Replace everything Unicode LINE SEPARATOR
-      const string c_PlaceholderStr = "\u2028";
-      const char c_PlaceholderChar = '\u2028';
-      text = text.Replace("\r\n", c_PlaceholderStr);
-      text = text.Replace("\n\r", c_PlaceholderStr);
-      text = text.Replace('\r', c_PlaceholderChar);
-      text = text.Replace('\n', c_PlaceholderChar);
+      const string placeholderStr = "\u2028";
+      const char placeholderChar = '\u2028';
+      text = text.Replace("\r\n", placeholderStr);
+      text = text.Replace("\n\r", placeholderStr);
+      text = text.Replace('\r', placeholderChar);
+      text = text.Replace('\n', placeholderChar);
       // now replace this with the desired replace (no matter if string or char)
-      return text.Replace(c_PlaceholderStr, replace);
+      return text.Replace(placeholderStr, replace);
     }
 
     /// <summary>
@@ -134,9 +131,6 @@ namespace CsvTools
     /// <returns>A string</returns>
     public static string Join(this IEnumerable<string> parts, string joinWith = ", ")
     {
-      if (parts == null)
-        return string.Empty;
-
       var sb = new StringBuilder();
       foreach (var part in parts)
       {
@@ -160,9 +154,6 @@ namespace CsvTools
     /// <returns>A string</returns>
     public static string JoinChar(this IEnumerable<string> parts, char joinWith = ',')
     {
-      if (parts == null)
-        return string.Empty;
-
       var sb = new StringBuilder();
       foreach (var part in parts)
       {
@@ -182,9 +173,7 @@ namespace CsvTools
     /// <param name="previousColumns">A collection of already used names, these will not be changed</param>
     /// <param name="nameToAdd">The default name</param>
     /// <returns>The unique name</returns>
-    [NotNull]
-    public static string MakeUniqueInCollection([NotNull] ICollection<string> previousColumns,
-      [NotNull] string nameToAdd)
+    public static string MakeUniqueInCollection(ICollection<string> previousColumns, string nameToAdd)
     {
       if (nameToAdd is null)
         throw new ArgumentNullException(nameof(nameToAdd));
@@ -213,12 +202,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="original">The original text.</param>
     /// <returns>The original text without control characters</returns>
-    [NotNull]
-    public static string NoControlCharacters([NotNull] this string original)
+    public static string NoControlCharacters(this string original)
     {
-      if (original is null)
-        throw new ArgumentNullException(nameof(original));
-
       var chars = new char[original.Length];
       var count = 0;
       foreach (var c in from c in original
@@ -236,8 +221,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="original">The original text.</param>
     /// <returns>The Text without special characters</returns>
-    [NotNull]
-    public static string NoSpecials([NotNull] this string original)
+    public static string NoSpecials(this string original)
     {
       return ProcessByCategory(original,
         x => x == UnicodeCategory.LowercaseLetter || x == UnicodeCategory.UppercaseLetter ||
@@ -251,9 +235,8 @@ namespace CsvTools
     /// <param name="original">The original.</param>
     /// <param name="testFunction">The test function called on each individual char</param>
     /// <returns>A test with only allowed characters</returns>
-    [NotNull]
-    public static string ProcessByCategory([NotNull] this string original,
-      [NotNull] Func<UnicodeCategory, bool> testFunction)
+    public static string ProcessByCategory(this string original,
+      Func<UnicodeCategory, bool> testFunction)
     {
       if (string.IsNullOrEmpty(original))
         return string.Empty;
@@ -278,12 +261,12 @@ namespace CsvTools
     ///   A semicolon separated list of texts that should be treated as NULL
     /// </param>
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
-    public static bool ShouldBeTreatedAsNull([CanBeNull] string value, [CanBeNull] string treatAsNull)
+    public static bool ShouldBeTreatedAsNull(string? value, string? treatAsNull)
     {
       if (string.IsNullOrEmpty(treatAsNull))
         return false;
       return string.IsNullOrEmpty(value) || SplitByDelimiter(treatAsNull)
-        .Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
+        .Any(part => value!.Equals(part, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -291,13 +274,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputValue">The string to be split.</param>
     /// <returns>String array with substrings, empty elements are removed</returns>
-    [NotNull]
-    [ItemNotNull]
-    public static string[] SplitByDelimiter([CanBeNull] string inputValue)
+    public static string[] SplitByDelimiter(string? inputValue)
     {
       return string.IsNullOrEmpty(inputValue)
         ? new string[] { }
-        : inputValue.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
+        : inputValue!.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
     }
 
     /// <summary>
@@ -305,18 +286,15 @@ namespace CsvTools
     /// </summary>
     /// <param name="contents">The column or table name.</param>
     /// <returns>The names as it can be placed into brackets</returns>
-    [NotNull]
-    public static string SqlName([CanBeNull] this string contents) =>
-      string.IsNullOrEmpty(contents) ? string.Empty : contents.Replace("]", "]]");
+    public static string SqlName(this string? contents) =>
+      string.IsNullOrEmpty(contents) ? string.Empty : contents!.Replace("]", "]]");
 
     /// <summary>
     ///   SQLs the quote, does not include the outer quotes
     /// </summary>
     /// <param name="contents">The contents.</param>
     /// <returns></returns>
-    [NotNull]
-    public static string SqlQuote([CanBeNull] this string contents) =>
-      string.IsNullOrEmpty(contents) ? string.Empty : contents.Replace("'", "''");
+    public static string SqlQuote(this string? contents) => string.IsNullOrEmpty(contents) ? string.Empty : contents!.Replace("'", "''");
 
     /// <summary>
     ///   Check if a text would match a filter value,
@@ -328,7 +306,7 @@ namespace CsvTools
     /// <param name="stringComparison"></param>
     /// <Note>In case the filter is empty there is no filter it will always return true</Note>
     /// <returns>True if text matches</returns>
-    public static bool PassesFilter([CanBeNull] this string item, [CanBeNull] string filter,
+    public static bool PassesFilter(this string? item, string? filter,
       StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
     {
       if (string.IsNullOrEmpty(filter))
@@ -336,15 +314,15 @@ namespace CsvTools
       if (string.IsNullOrEmpty(item))
         return false;
 
-      if (filter.IndexOf('+') <= -1)
+      if (filter!.IndexOf('+') <= -1)
         return filter.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-          .Any(part => item.IndexOf(part, stringComparison) != -1);
+          .Any(part => item!.IndexOf(part, stringComparison) != -1);
       var parts = filter.Split(new[] { '+', ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
       if (parts.Length==0)
         return true;
 
       // 1st part
-      var all = item.IndexOf(parts[0], stringComparison) > -1;
+      var all = item!.IndexOf(parts[0], stringComparison) > -1;
 
       // and all other parts
       for (var index = 1; index < parts.Length && all; index++)
@@ -353,12 +331,11 @@ namespace CsvTools
       return all;
     }
 
-    [NotNull]
-    public static Tuple<string, bool> GetPossiblyConstant([CanBeNull] this string value)
+    public static Tuple<string, bool> GetPossiblyConstant(this string? value)
     {
       if (string.IsNullOrEmpty(value))
         return new Tuple<string, bool>(string.Empty, false);
-      if (value.Length > 2 && (
+      if (value!.Length > 2 && (
         value.StartsWith("\"", StringComparison.Ordinal) &&  value.EndsWith("\"", StringComparison.Ordinal))
         || (value.StartsWith("'", StringComparison.Ordinal) &&  value.EndsWith("'", StringComparison.Ordinal)))
         return new Tuple<string, bool>(value.Substring(1, value.Length - 2), true);

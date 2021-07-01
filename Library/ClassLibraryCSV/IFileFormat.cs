@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
@@ -20,14 +19,14 @@ namespace CsvTools
   {
     /// <summary>
     ///   Gets or sets the new delimiter placeholder, the placeholder substitutes a delimiter, its
-    ///   similar to escaping but could replace a Quote with something completly different or a
+    ///   similar to escaping but could replace a Quote with something completely different or a
     ///   longer text, e.G. {Delimiter}
     /// </summary>
     /// <value>The new line placeholder.</value>
-    string DelimiterPlaceholder { [NotNull] get; }
+    string DelimiterPlaceholder { get; }
 
     /// <summary>
-    ///   Gets the esacape character, in order to include a deliter or qute in the text, these could
+    ///   Gets the escape character, in order to include a delimiter or quote in the text, these could
     ///   be escaped and would not be recognized a end of the text.
     /// </summary>
     /// <value>The field delimiter char.</value>
@@ -59,7 +58,7 @@ namespace CsvTools
     ///   Gets or sets the new line placeholder, the placeholder substitutes a linefeed
     /// </summary>
     /// <value>The new line placeholder.</value>
-    string NewLinePlaceholder { [NotNull] get; }
+    string NewLinePlaceholder { get; }
 
     /// <summary>
     ///   Gets a value indicating whether to qualify every text even if number or empty.
@@ -79,6 +78,6 @@ namespace CsvTools
     ///   longer text, e.G. {Quote}
     /// </summary>
     /// <value>The quote placeholder.</value>
-    string QuotePlaceholder { [NotNull] get; }
+    string QuotePlaceholder { get; }
   }
 }

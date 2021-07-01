@@ -11,7 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-using JetBrains.Annotations;
+
 using System;
 using System.Text;
 
@@ -31,8 +31,8 @@ namespace CsvTools
     /// <param name="lineNumberEnd">Line Number where the record ended</param>
     /// <param name="lineNumberStart">Line Number where the record started</param>
     /// <param name="columnName">Name of the column</param>
-    public WarningEventArgs(long recordNumber, int columnNumber, [NotNull] string warningMessage, long lineNumberStart,
-      long lineNumberEnd, [CanBeNull] string columnName)
+    public WarningEventArgs(long recordNumber, int columnNumber, string warningMessage, long lineNumberStart,
+      long lineNumberEnd, string? columnName)
     {
       if (string.IsNullOrEmpty(warningMessage))
       {
@@ -51,8 +51,7 @@ namespace CsvTools
     ///  Gets or sets the name of the column.
     /// </summary>
     /// <value>The name of the column.</value>
-    [CanBeNull]
-    public string ColumnName { get; set; }
+    public string? ColumnName { get; set; }
 
     /// <summary>
     ///  Gets or sets the column number.
@@ -76,7 +75,6 @@ namespace CsvTools
     ///  Gets or sets the Message to be stored for the column.
     /// </summary>
     /// <value>The message.</value>
-    [NotNull]
     public string Message { get; set; }
 
     /// <summary>
@@ -116,7 +114,7 @@ namespace CsvTools
           sb.Append(" ");
 
         sb.Append("Column [");
-        if (ColumnName.Length > 40)
+        if (ColumnName?.Length > 40)
         {
           sb.Append(ColumnName.Substring(0, 39));
           sb.Append("…");

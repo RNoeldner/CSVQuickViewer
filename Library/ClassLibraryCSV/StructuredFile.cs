@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -26,7 +25,7 @@ namespace CsvTools
   [Serializable]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 #pragma warning disable CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode()
-  public class StructuredFile : BaseSettingPhysicalFile, IFileSettingPhysicalFile, IEquatable<StructuredFile>
+  public class StructuredFile : BaseSettingPhysicalFile, IEquatable<StructuredFile>
 #pragma warning restore CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode()
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
@@ -111,7 +110,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
     ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
-    public bool Equals(StructuredFile other)
+    public bool Equals(StructuredFile? other)
     {
       if (other is null)
         return false;
@@ -127,7 +126,6 @@ namespace CsvTools
     ///   Clones this instance.
     /// </summary>
     /// <returns></returns>
-    [NotNull]
     public override IFileSetting Clone()
     {
       var other = new StructuredFile();
@@ -141,9 +139,6 @@ namespace CsvTools
     /// <param name="other">The other.</param>
     public override void CopyTo(IFileSetting other)
     {
-      if (other == null)
-        return;
-
       BaseSettingsCopyTo((BaseSettings) other);
 
       if (!(other is StructuredFile otherSwf))
@@ -165,7 +160,7 @@ namespace CsvTools
     ///   <see langword="false" />.
     /// </returns>
 #pragma warning disable 659
-    public override bool Equals(object obj) => Equals(obj as StructuredFile);
+    public override bool Equals(object? obj) => Equals(obj as StructuredFile);
 #pragma warning restore 659
 
     public static bool operator ==(StructuredFile file1, StructuredFile file2) =>

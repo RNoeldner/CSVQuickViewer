@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
 using System.Globalization;
@@ -33,7 +32,7 @@ namespace CsvTools
     ///   A <see cref="T:System.Type" /> that represents the type of enumeration to associate with this
     ///   enumeration converter.
     /// </param>
-    public EnumDescriptionConverter([NotNull] Type enumType)
+    public EnumDescriptionConverter(Type enumType)
       : base(enumType) => m_EnumType = enumType;
 
     /// <summary>
@@ -71,9 +70,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(value));
       foreach (var fi in m_EnumType.GetFields())
       {
-        var dna = (DescriptionAttribute) Attribute.GetCustomAttribute(fi, typeof(DescriptionAttribute));
-
-        if (dna != null && (string) value == dna.Description)
+        if (Attribute.GetCustomAttribute(fi, typeof(DescriptionAttribute)) is DescriptionAttribute dna && (string) value == dna.Description)
           return Enum.Parse(m_EnumType, fi.Name);
       }
 
@@ -95,12 +92,11 @@ namespace CsvTools
       if (value == null)
         throw new ArgumentNullException(nameof(value));
       var fi = m_EnumType.GetField(Enum.GetName(m_EnumType, value));
-      var dna = (DescriptionAttribute) Attribute.GetCustomAttribute(fi, typeof(DescriptionAttribute));
 
-      if (dna != null)
+      if (Attribute.GetCustomAttribute(fi, typeof(DescriptionAttribute)) is DescriptionAttribute dna)
         return dna.Description;
       // most enumeration have an underlying integer
-      return value is int i ? i.ToString(culture) : value.ToString();
+      return value is int i ? i.ToString(culture) : value.ToString() ?? string.Empty;
     }
   }
 }
