@@ -9,7 +9,7 @@ namespace CsvTools
   ///   Wrapper around another FileReader adding artificial fields, removing ignored columns, and having paging on the usually forward only IFileReader
   ///   Returned is a list of DynamicDataRecords for the current page
   /// </summary>
-  public partial class PagedFileReader : List<DynamicDataRecord>, INotifyCollectionChanged
+  public  class PagedFileReader : List<DynamicDataRecord>, INotifyCollectionChanged
   {
     private readonly IFileReader m_FileReader;
     private readonly List<ICollection<DynamicDataRecord>> m_PagedDataCache = null;

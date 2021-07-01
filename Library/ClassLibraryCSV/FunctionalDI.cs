@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -33,12 +32,10 @@ namespace CsvTools
     ///   match the base file readers HandleWarning the validation library will overwrite this is an
     ///   implementation using Noda Time
     /// </summary>
-    [NotNull]
     public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZImport =
       (input, srcTimeZone, columnOrdinal, handleWarning) =>
         ChangeTimeZone(input, srcTimeZone, TimeZoneInfo.Local.Id, columnOrdinal, handleWarning);
 
-    [NotNull]
     public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZExport =
       (input, destTimeZone, columnOrdinal, handleWarning) =>
         ChangeTimeZone(input, TimeZoneInfo.Local.Id, destTimeZone, columnOrdinal, handleWarning);
@@ -46,7 +43,7 @@ namespace CsvTools
     /// <summary>
     ///   Function to retrieve the column in a setting file
     /// </summary>
-    [CanBeNull] public static Func<IFileSetting, CancellationToken, Task<ICollection<string>>> GetColumnHeader;
+    public static Func<IFileSetting, CancellationToken, Task<ICollection<string>>>? GetColumnHeader;
 
     /// <summary>
     ///   Retrieve the passphrase for a files
@@ -61,49 +58,46 @@ namespace CsvTools
     /// <summary>
     ///   Open a file for reading, it will take care of things like compression and encryption
     /// </summary>
-    [NotNull]
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<SourceAccess, IImprovedStream> OpenStream = (fileAccess) => new ImprovedStream(fileAccess);
+    public static Func<SourceAccess, IImprovedStream> OpenStream = fileAccess => new ImprovedStream(fileAccess);
 
     /// <summary>
     ///   Action to be performed while waiting on a background process, do something like handing
     ///   message queues (WinForms =&gt; DoEvents) call a Dispatcher to take care of the UI or send
     ///   signals that the application is not stale
     /// </summary>
-    public static Action SignalBackground = null;
+    public static Action SignalBackground = () => { };
 
     /// <summary>
     ///   Return the right reader for a file setting
     /// </summary>
-    [NotNull]
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, string, IProcessDisplay, IFileReader> GetFileReader = DefaultFileReader;
+    public static Func<IFileSetting, string, IProcessDisplay?, IFileReader> GetFileReader = DefaultFileReader;
 
     /// <summary>
     ///   Return a right writer for a file setting
     /// </summary>
-    [NotNull]
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSettingPhysicalFile, IProcessDisplay, IFileWriter> GetFileWriter = DefaultFileWriter;
+    public static Func<IFileSettingPhysicalFile, IProcessDisplay?, IFileWriter> GetFileWriter = DefaultFileWriter;
 
     /// <summary>
     ///   Gets or sets a data reader
     /// </summary>
     /// <value>The statement for reader the data.</value>
     /// <remarks>Make sure the returned reader is open when needed</remarks>
-    public static Func<string, EventHandler<ProgressEventArgs>, int, CancellationToken, Task<IFileReader>>
-      SQLDataReader;
+    public static Func<string, EventHandler<ProgressEventArgs>?, int, CancellationToken, Task<IFileReader>>
+      SQLDataReader = (sql, eh, limit, token) => throw new FileWriterException("SQL Reader not specified");
 
-    private static DateTime? ChangeTimeZone(DateTime? input, [CanBeNull] string srcTimeZone,
-      [CanBeNull] string destTimeZone, int columnOrdinal, [CanBeNull] Action<int, string> handleWarning)
+    private static DateTime? ChangeTimeZone(DateTime? input, string? srcTimeZone,
+      string? destTimeZone, int columnOrdinal, Action<int, string>? handleWarning)
     {
       if (!input.HasValue || string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) ||
-          destTimeZone.Equals(srcTimeZone))
+          destTimeZone!.Equals(srcTimeZone))
         return input;
       try
       {
         // default implementation will convert using the .NET library
-        return TimeZoneInfo.ConvertTime(input.Value, TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone),
+        return TimeZoneInfo.ConvertTime(input.Value, TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone!),
           TimeZoneInfo.FindSystemTimeZoneById(destTimeZone));
       }
       catch (Exception ex)
@@ -114,9 +108,8 @@ namespace CsvTools
       }
     }
 
-    [NotNull]
-    private static IFileReader DefaultFileReader([NotNull] IFileSetting setting, [CanBeNull] string timeZone,
-      [CanBeNull] IProcessDisplay processDisplay)
+    private static IFileReader DefaultFileReader(IFileSetting setting, string? timeZone,
+      IProcessDisplay? processDisplay)
     {
       switch (setting)
       {
@@ -131,15 +124,14 @@ namespace CsvTools
       }
     }
 
-    [NotNull]
-    private static IFileWriter DefaultFileWriter([NotNull] IFileSettingPhysicalFile physicalFile,
-      [CanBeNull] IProcessDisplay processDisplay)
+    private static IFileWriter DefaultFileWriter(IFileSettingPhysicalFile physicalFile,
+      IProcessDisplay? processDisplay)
     {
-      IFileWriter writer = null;
+      IFileWriter? writer = null;
       switch (physicalFile)
       {
-        case ICsvFile csv when !csv.JsonFormat:
-          writer = new CsvFileWriter(csv, processDisplay);
+        case ICsvFile { JsonFormat: false } csv:
+          writer = new CsvFileWriter(csv);
           break;
 
         case StructuredFile structuredFile:

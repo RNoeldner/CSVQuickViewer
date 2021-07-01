@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -29,13 +28,13 @@ namespace CsvTools
   /// <seealso cref="System.IDisposable" />
   public sealed class FilterDataTable : IDisposable
   {
-    [NotNull] private readonly DataTable m_SourceTable;
+    private readonly DataTable m_SourceTable;
 
     private readonly List<string> m_UniqueFieldName = new List<string>();
 
-    [CanBeNull] private HashSet<string> m_ColumnWithoutErrors;
+    private HashSet<string>? m_ColumnWithoutErrors;
 
-    private CancellationTokenSource m_CurrentFilterCancellationTokenSource;
+    private CancellationTokenSource? m_CurrentFilterCancellationTokenSource;
 
     private bool m_DisposedValue; // To detect redundant calls
 
@@ -45,7 +44,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
     /// </summary>
     /// <param name="init">The initial DataTable</param>
-    public FilterDataTable([NotNull] DataTable init)
+    public FilterDataTable(DataTable init)
     {
       m_SourceTable = init ?? throw new ArgumentNullException(nameof(init));
       FilterTable = m_SourceTable.Clone();
@@ -72,7 +71,6 @@ namespace CsvTools
     ///   Gets the columns without errors.
     /// </summary>
     /// <value>The columns without errors.</value>
-    [NotNull]
     public ICollection<string> ColumnsWithoutErrors
     {
       get
@@ -89,7 +87,7 @@ namespace CsvTools
 
         // m_ColumnWithoutErrors will not contain UniqueFields nor line number / error
         Debug.Assert(FilterTable != null, nameof(FilterTable) + " != null");
-        foreach (DataColumn col in FilterTable.Columns)
+        foreach (DataColumn col in FilterTable!.Columns)
         {
           // Always keep the line number, error field and any uniques
           if (col.ColumnName.Equals(ReaderConstants.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase)
@@ -140,8 +138,7 @@ namespace CsvTools
     ///   Gets the error table.
     /// </summary>
     /// <value>The error table.</value>
-    [CanBeNull]
-    public DataTable FilterTable { get; private set; }
+    public DataTable? FilterTable { get; private set; }
 
     public FilterType FilterType { get; private set; } = FilterType.None;
 
@@ -155,7 +152,7 @@ namespace CsvTools
       set
       {
         m_UniqueFieldName.Clear();
-        if (value != null && value.Any())
+        if (value.Any())
           m_UniqueFieldName.AddRange(value);
       }
     }
@@ -259,10 +256,10 @@ namespace CsvTools
       stopwatch?.Start();
       while (m_Filtering)
       {
-        FunctionalDI.SignalBackground?.Invoke();
+        FunctionalDI.SignalBackground.Invoke();
         if (!(stopwatch?.Elapsed.TotalSeconds > timeoutInSeconds)) continue;
         // can not call Cancel as this method is called by cancel
-        m_CurrentFilterCancellationTokenSource.Cancel();
+        m_CurrentFilterCancellationTokenSource?.Cancel();
         break;
       }
     }

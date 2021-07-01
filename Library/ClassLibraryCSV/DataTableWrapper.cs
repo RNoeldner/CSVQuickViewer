@@ -12,7 +12,6 @@
 *
 */
 
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -29,21 +28,21 @@ namespace CsvTools
   {
     private bool m_DisposedValue;
 
-    public DataTableWrapper([NotNull] DataTable dataTable) : base(dataTable?.CreateDataReader(), dataTable?.Rows.Count ?? 0) => DataTable = dataTable;
+    public DataTableWrapper(DataTable dataTable) : base(dataTable?.CreateDataReader() ?? throw new ArgumentNullException(nameof(dataTable)), dataTable.Rows.Count) => DataTable = dataTable;
 
-    [NotNull] public DataTable DataTable { get; }
+    public DataTable DataTable { get; }
 
-    public event EventHandler<IReadOnlyCollection<IColumn>> OpenFinished;
+    public event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
 
-    public event EventHandler ReadFinished;
-
-    [Obsolete("Not needed for DataTableWrapper")]
-    public event EventHandler<RetryEventArgs> OnAskRetry;
+    public event EventHandler? ReadFinished;
 
     [Obsolete("Not needed for DataTableWrapper")]
-    public event EventHandler<WarningEventArgs> Warning;
+    public event EventHandler<RetryEventArgs>? OnAskRetry;
 
-    public Func<Task> OnOpen { get; set; }
+    [Obsolete("Not needed for DataTableWrapper")]
+    public event EventHandler<WarningEventArgs>? Warning;
+
+    public Func<Task>? OnOpen { get; set; }
 
     public bool SupportsReset => true;
 
@@ -70,7 +69,7 @@ namespace CsvTools
           return true;
       }
 
-      ReadFinished?.Invoke(this, new EventArgs());
+      ReadFinished?.Invoke(this, EventArgs.Empty);
       return false;
     }
 

@@ -53,9 +53,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FileFormatCopyToNUll() => m_FileFormat.CopyTo(null); // NO ERror !
-
-    [TestMethod]
     public void FileFormatCopyToEquals()
     {
       var target = new FileFormat();
@@ -131,7 +128,6 @@ namespace CsvTools.Tests
       m_FileFormat.QualifyOnlyIfNeeded = false;
       m_FileFormat.QualifyAlways = true;
       m_FileFormat.QuotePlaceholder = "{q}";
-      m_FileFormat.ValueFormatMutable = null;
 
       Assert.IsFalse(m_FileFormat.QualifyOnlyIfNeeded, "QualifyOnlyIfNeeded");
       Assert.IsTrue(m_FileFormat.QualifyAlways, "QualifyAlways");

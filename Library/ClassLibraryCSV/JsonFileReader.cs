@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -30,32 +29,32 @@ namespace CsvTools
   /// </summary>
   public class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
-    private IImprovedStream m_ImprovedStream;
-    private JsonTextReader m_JsonTextReader;
-    private StreamReader m_StreamReader;
+    private IImprovedStream? m_ImprovedStream;
+    private JsonTextReader? m_JsonTextReader;
+    private StreamReader? m_StreamReader;
 
-    public JsonFileReader([NotNull] IImprovedStream improvedStream,
-                          [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+    public JsonFileReader(IImprovedStream improvedStream,
+                          IEnumerable<IColumn>? columnDefinition = null,
                           long recordLimit = 0,
                           bool treatNbspAsSpace = false, bool trim = false,
-                          string treatTextAsNull = null) :
-      this(columnDefinition, recordLimit, treatNbspAsSpace, trim, treatTextAsNull, null)
+                          string treatTextAsNull = "") :
+      this(columnDefinition, recordLimit, treatNbspAsSpace, trim, treatTextAsNull, string.Empty)
     {
       m_ImprovedStream = improvedStream;
     }
 
-    private JsonFileReader(IEnumerable<IColumn> columnDefinition,
+    private JsonFileReader(IEnumerable<IColumn>? columnDefinition,
                            long recordLimit, bool treatNbspAsSpace, bool trim, string treatTextAsNull, string fileName) :
       base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace)
     {
       SelfOpenedStream = !string.IsNullOrEmpty(fileName);
     }
 
-    public JsonFileReader([NotNull] string fileName,
-                          [CanBeNull] IEnumerable<IColumn> columnDefinition = null,
+    public JsonFileReader(string fileName,
+                          IEnumerable<IColumn>? columnDefinition = null,
                           long recordLimit = 0,
                           bool treatNbspAsSpace = false, bool trim = false,
-                          string treatTextAsNull = null) :
+                          string treatTextAsNull = "") :
       this(columnDefinition, recordLimit, treatNbspAsSpace, trim, treatTextAsNull, fileName)
     {
       if (string.IsNullOrEmpty(fileName))
@@ -66,7 +65,7 @@ namespace CsvTools
     }
 
     public JsonFileReader(IFileSettingPhysicalFile fileSetting,
-                          IProcessDisplay processDisplay)
+                          IProcessDisplay? processDisplay)
       : this(fileSetting.FullPath,
         fileSetting.ColumnCollection, fileSetting.RecordLimit,
         fileSetting.TreatNBSPAsSpace) => SetProgressActions(processDisplay);
@@ -80,9 +79,8 @@ namespace CsvTools
     public override void Close()
     {
       base.Close();
-
       m_JsonTextReader?.Close();
-      ((IDisposable) m_JsonTextReader)?.Dispose();
+      (m_JsonTextReader as IDisposable)?.Dispose();
       m_JsonTextReader = null;
 
       m_StreamReader?.Dispose();
@@ -173,14 +171,13 @@ namespace CsvTools
     ///   the structure of the Json file
     /// </summary>
     /// <returns>A collection with name and value of the properties</returns>
-    private ICollection<KeyValuePair<string, object>> GetNextRecord(bool throwError,
-                                                                    CancellationToken token)
+    private ICollection<KeyValuePair<string, object?>>? GetNextRecord(bool throwError, CancellationToken token)
     {
       try
       {
         var headers = new Dictionary<string, bool>();
-        var keyValuePairs = new Dictionary<string, object>();
-        while (m_JsonTextReader.TokenType != JsonToken.StartObject
+        var keyValuePairs = new Dictionary<string, object?>();
+        while (m_JsonTextReader!.TokenType != JsonToken.StartObject
                // && m_JsonTextReader.TokenType != JsonToken.PropertyName
                && m_JsonTextReader.TokenType != JsonToken.StartArray)
           if (!m_JsonTextReader.Read())
@@ -239,7 +236,7 @@ namespace CsvTools
 
               // in case we are in an array combine all values but separate them with linefeed
               if (inArray && keyValuePairs[key] != null)
-                keyValuePairs[key] = keyValuePairs[key].ToString() + '\n' + m_JsonTextReader.Value;
+                keyValuePairs[key] = keyValuePairs[key]?.ToString() ?? string.Empty + '\n' + m_JsonTextReader.Value;
               else
                 keyValuePairs[key] = m_JsonTextReader.Value;
               break;
@@ -278,22 +275,22 @@ namespace CsvTools
 
         // store the information into our fixed structure, even if the tokens in Json change order
         // they will aligned
-        if (Column == null || Column.Length == 0) return keyValuePairs;
+        if (Column.Length == 0) return keyValuePairs;
         var columnNumber = 0;
         foreach (var col in Column)
         {
           if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[columnNumber]))
           {
             if (CurrentValues[columnNumber] == null)
-              CurrentRowColumnText[columnNumber] = null;
+              CurrentRowColumnText[columnNumber] = string.Empty;
             else
             {
-              var orgVal = CurrentValues[columnNumber].ToString();
+              var orgVal = CurrentValues[columnNumber]?.ToString() ?? string.Empty;
               CurrentRowColumnText[columnNumber] = orgVal;
 
               if (!string.IsNullOrEmpty(orgVal) && !col.Ignore && col.ValueFormat.DataType >= DataType.String)
               {
-                CurrentRowColumnText[columnNumber] = TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal, columnNumber));
+                CurrentRowColumnText[columnNumber] = TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal, columnNumber)) ?? String.Empty;
                 CurrentValues[columnNumber] = CurrentRowColumnText[columnNumber];
               }
             }
@@ -347,7 +344,7 @@ namespace CsvTools
         m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath));
       }
       else
-        m_ImprovedStream.Seek(0, SeekOrigin.Begin);
+        m_ImprovedStream!.Seek(0, SeekOrigin.Begin);
 
       // in case we can not seek need to reopen the stream reader
       m_StreamReader?.Close();

@@ -88,7 +88,7 @@ namespace CsvTools.Tests
           setting.FileFormat.ValueFormatMutable, setting.ColumnCollection.ReadonlyCopy(),
           processDisplay.CancellationToken);
         Assert.AreEqual(6, res1.Count());
-        setting.SqlStatement = null;
+        setting.SqlStatement = string.Empty;
 
         var res2 = await DetermineColumnFormat.GetSqlColumnNamesAsync(setting.SqlStatement, setting.Timeout,
           processDisplay.CancellationToken);
@@ -202,7 +202,7 @@ namespace CsvTools.Tests
         var backup = FunctionalDI.SQLDataReader;
         try
         {
-          FunctionalDI.SQLDataReader = null;
+          FunctionalDI.SQLDataReader = (sql, eh, limit, token) => throw new FileWriterException("SQL Reader not specified"); ;
           await DetermineColumnFormat.GetSqlColumnNamesAsync("Nonsense SQL", 60, dummy.CancellationToken);
 
           Assert.Fail("Expected Exception not thrown");

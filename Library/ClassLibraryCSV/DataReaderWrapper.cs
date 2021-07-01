@@ -1,4 +1,17 @@
-using JetBrains.Annotations;
+/*
+ * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
+
 using System;
 using System.Collections;
 using System.Data;
@@ -14,21 +27,21 @@ namespace CsvTools
   /// <remarks>Introduced to allow a stream into SQLBulkCopy and possibly replace CopyToDataTableInfo</remarks>
   public class DataReaderWrapper : DbDataReader
   {
-    [NotNull] public readonly ReaderMapping ReaderMapping;
-    [CanBeNull] protected readonly IFileReader FileReader;
-    [NotNull] protected IDataReader DataReader;
+    public readonly ReaderMapping ReaderMapping;
+    protected readonly IFileReader? FileReader;
+    protected IDataReader DataReader;
     private readonly long m_RecordLimit;
 
     /// <summary>
-    /// Constructor for a DataReaderWrapper, this wrapper adds atrifical fields like Error, start and end Line or record number    
+    /// Constructor for a DataReaderWrapper, this wrapper adds artificial fields like Error, start and end Line or record number    
     /// </summary>
-    /// <param name="reader">A readder, this can be a regualr IDataRaeder or a IFileReader</param>
+    /// <param name="reader">A reader, this can be a regular IDataReader or a IFileReader</param>
     /// <param name="recordLimit">Number of maximum records to read, 0 if there is no limit</param>
-    /// <param name="addErrorField">Add artifical field Error</param>
-    /// <param name="addStartLine">Add artifical field Start Line</param>
-    /// <param name="addEndLine">Add artifical field End Line</param>
-    /// <param name="addRecNum">Add artifical field Records Number</param>
-    public DataReaderWrapper([NotNull] IDataReader reader, long recordLimit = 0, bool addErrorField = false,
+    /// <param name="addErrorField">Add artificial field Error</param>
+    /// <param name="addStartLine">Add artificial field Start Line</param>
+    /// <param name="addEndLine">Add artificial field End Line</param>
+    /// <param name="addRecNum">Add artificial field Records Number</param>
+    public DataReaderWrapper(IDataReader reader, long recordLimit = 0, bool addErrorField = false,
                              bool addStartLine = false, bool addEndLine = false, bool addRecNum = false)
     {
       DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
@@ -83,9 +96,8 @@ namespace CsvTools
     public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) =>
       DataReader.GetChars(ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
 
-    public new IDataReader GetData(int i) => DataReader.GetData(i);
+    public new IDataReader? GetData(int i) => DataReader.GetData(i);
 
-    [NotNull]
     public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
 
     public override DateTime GetDateTime(int ordinal) => DataReader.GetDateTime(ReaderMapping.DataTableToReader(ordinal));
@@ -96,7 +108,6 @@ namespace CsvTools
 
     public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
 
-    [NotNull]
     public override Type GetFieldType(int ordinal) => ReaderMapping.Column[ordinal].ValueFormat.DataType.GetNetType();
 
     public override float GetFloat(int ordinal) => DataReader.GetFloat(ReaderMapping.DataTableToReader(ordinal));
@@ -117,7 +128,7 @@ namespace CsvTools
 
     public override int GetOrdinal(string columnName)
     {
-      if (string.IsNullOrEmpty(columnName) || ReaderMapping.Column == null)
+      if (string.IsNullOrEmpty(columnName))
         return -1;
       var count = 0;
       foreach (var column in ReaderMapping.Column)
@@ -131,8 +142,7 @@ namespace CsvTools
     }    
     
 
-       [NotNull]
-    public override DataTable GetSchemaTable()
+       public override DataTable GetSchemaTable()
     {
       var dataTable = ReaderConstants.GetEmptySchemaTable();
       var schemaRow = ReaderConstants.GetDefaultSchemaRowArray();
@@ -165,7 +175,7 @@ namespace CsvTools
       return dataTable;
     }
 
-    public override string GetString(int columnNumber) => GetValue(columnNumber).ToString();
+    public override string GetString(int columnNumber) => GetValue(columnNumber).ToString() ?? string.Empty;
 
     public override object GetValue(int columnNumber)
     {
@@ -176,7 +186,7 @@ namespace CsvTools
       if (columnNumber == ReaderMapping.DataTableRecNum)
         return RecordNumber;
       if (columnNumber == ReaderMapping.DataTableErrorField)
-        return ReaderMapping.RowErrorInformation;
+        return ReaderMapping.RowErrorInformation ?? string.Empty;
 
       return DataReader.GetValue(ReaderMapping.DataTableToReader(columnNumber));
     }

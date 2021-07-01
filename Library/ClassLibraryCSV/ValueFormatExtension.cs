@@ -12,7 +12,6 @@
 // * If not, see http://www.gnu.org/licenses/ . *
 // */
 
-using JetBrains.Annotations;
 using System;
 using System.Globalization;
 using System.Text;
@@ -42,7 +41,7 @@ namespace CsvTools
     ///   Is matching only looks at data type and some formats, it is assumed that we do not
     ///   distinguish between numeric formats, it is O.K. to expect a money value but have a integer
     /// </remarks>
-    public static bool IsMatching([NotNull] this IValueFormat one, [NotNull] IValueFormat other)
+    public static bool IsMatching(this IValueFormat one, IValueFormat other)
     {
       if (other.DataType == one.DataType)
         return true;
@@ -83,14 +82,13 @@ namespace CsvTools
     ///   Gets the a description of the Date or Number format
     /// </summary>
     /// <returns></returns>
-    [NotNull]
-    public static string GetFormatDescription([NotNull] this IValueFormat one)
+    public static string GetFormatDescription(this IValueFormat one)
     {
       switch (one.DataType)
       {
         case DataType.Integer:
           return one.NumberFormat.Replace(CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
-            one.GroupSeparator.ToString());
+            one.GroupSeparator);
 
         case DataType.DateTime:
           return one.DateFormat.ReplaceDefaults(CultureInfo.InvariantCulture.DateTimeFormat.DateSeparator,
@@ -100,8 +98,8 @@ namespace CsvTools
         case DataType.Numeric:
         case DataType.Double:
           return one.NumberFormat.ReplaceDefaults(CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
-            one.DecimalSeparator.ToString(),
-            CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, one.GroupSeparator.ToString());
+            one.DecimalSeparator,
+            CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, one.GroupSeparator);
 
         default:
           return string.Empty;
@@ -112,8 +110,7 @@ namespace CsvTools
     ///   Gets the description.
     /// </summary>
     /// <returns></returns>
-    [NotNull]
-    public static string GetTypeAndFormatDescription([NotNull] this IValueFormat one)
+    public static string GetTypeAndFormatDescription(this IValueFormat one)
     {
       var sbText = new StringBuilder(one.DataType.DataTypeDisplay());
 

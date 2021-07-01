@@ -20,7 +20,7 @@ namespace CsvTools.Tests
       while (sw.Elapsed.TotalSeconds < seconds && !token.IsCancellationRequested)
       {
         Application.DoEvents();
-        FunctionalDI.SignalBackground?.Invoke();
+        FunctionalDI.SignalBackground.Invoke();
         Thread.Sleep(10);
       }
     }

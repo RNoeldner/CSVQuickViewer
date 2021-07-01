@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -20,271 +19,256 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
-	[DebuggerDisplay("File: {ID} {m_FileName} ({ColumnCollection.Count()} Columns)")]
-	public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
-	{
-		private string m_FileName;
-		private long m_FileSize;
-		private string m_FullPath = string.Empty;
-		private bool m_FullPathInitialized;
-		private string m_IdentifierInContainer = string.Empty;
-		private string m_RemoteFileName = string.Empty;
-		private bool m_ThrowErrorIfNotExists = true;
-		private string m_ColumnFile = string.Empty;
-		private string m_Passphrase = string.Empty;
-		private string m_Recipient = string.Empty;
-		private bool m_KeepUnencrypted = false;
+  [DebuggerDisplay("File: {ID} {m_FileName} ({ColumnCollection.Count()} Columns)")]
+  public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
+  {
+    private string m_FileName;
+    private long m_FileSize;
+    private string m_FullPath = string.Empty;
+    private bool m_FullPathInitialized;
+    private string m_IdentifierInContainer = string.Empty;
+    private string m_RemoteFileName = string.Empty;
+    private bool m_ThrowErrorIfNotExists = true;
+    private string m_ColumnFile = string.Empty;
+    private string m_PassPhrase = string.Empty;
+    private string m_Recipient = string.Empty;
+    private bool m_KeepUnencrypted;
 
-		public BaseSettingPhysicalFile(string fileName)
-		{
-			m_FileName = FileNameFix(fileName);
-		}
+    public BaseSettingPhysicalFile(string fileName)
+    {
+      m_FileName = FileNameFix(fileName);
+    }
 
-		/// <summary>
-		///   Gets or sets the name of the file.
-		/// </summary>
-		/// <value>The name of the file.</value>
-		[XmlAttribute]
-		[DefaultValue("")]
-		public virtual string FileName
-		{
-			[NotNull]
-			get => m_FileName;
-			[CanBeNull]
-			set
-			{
-				var newVal = FileNameFix(value);
-				if (m_FileName.Equals(newVal, StringComparison.Ordinal))
-					return;
-				var oldValue = m_FileName;
-				m_FileName = newVal;
-				NotifyPropertyChanged(nameof(FileName));
-				NotifyPropertyChangedString(nameof(FileName), oldValue, newVal);
-			}
-		}
+    /// <summary>
+    ///   Gets or sets the name of the file.
+    /// </summary>
+    /// <value>The name of the file.</value>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public virtual string FileName
+    {
+      get => m_FileName;
+      set
+      {
+        var newVal = FileNameFix(value);
+        if (m_FileName.Equals(newVal, StringComparison.Ordinal))
+          return;
+        var oldValue = m_FileName;
+        m_FileName = newVal;
+        NotifyPropertyChanged(nameof(FileName));
+        NotifyPropertyChangedString(nameof(FileName), oldValue, newVal);
+      }
+    }
 
-		/// <summary>
-		///   Gets or sets the date the file when it was read
-		/// </summary>
-		/// <value>The consecutive empty rows.</value>
-		[XmlAttribute]
-		[DefaultValue(0)]
-		public virtual long FileSize
-		{
-			get => m_FileSize;
+    /// <summary>
+    ///   Gets or sets the date the file when it was read
+    /// </summary>
+    /// <value>The consecutive empty rows.</value>
+    [XmlAttribute]
+    [DefaultValue(0)]
+    public virtual long FileSize
+    {
+      get => m_FileSize;
 
-			set
-			{
-				if (value == m_FileSize)
-					return;
-				m_FileSize = value;
-				NotifyPropertyChanged(nameof(FileSize));
-			}
-		}
+      set
+      {
+        if (value == m_FileSize)
+          return;
+        m_FileSize = value;
+        NotifyPropertyChanged(nameof(FileSize));
+      }
+    }
 
-		[XmlIgnore]
-		[NotNull]
-		public virtual string FullPath
-		{
-			get
-			{
-				if (m_FullPathInitialized) return m_FullPath ?? FileName;
-				m_FullPath = FileName.FullPath(RootFolder);
-				if (m_FullPath.Length==0)
-					m_FullPath = string.Empty;
-				else
-					m_FullPathInitialized = true;
-				return m_FullPath;
-			}
-		}
+    [XmlIgnore]
+    public virtual string FullPath
+    {
+      get
+      {
+        if (m_FullPathInitialized)
+          return m_FullPath;
+        m_FullPath = FileName.FullPath(RootFolder);
+        if (m_FullPath.Length==0)
+          m_FullPath = string.Empty;
+        else
+          m_FullPathInitialized = true;
+        return m_FullPath;
+      }
+    }
 
-		/// <summary>
-		///   Gets or sets the name of the file.
-		/// </summary>
-		/// <value>The name of the file.</value>
-		[XmlAttribute]
-		[DefaultValue("")]
-		public virtual string ColumnFile
-		{
-			[NotNull]
-			get => m_ColumnFile;
-			[CanBeNull]
-			set => m_ColumnFile = value ?? string.Empty;
-		}
+    /// <summary>
+    ///   Gets or sets the name of the file.
+    /// </summary>
+    /// <value>The name of the file.</value>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public virtual string ColumnFile
+    {
+      get => m_ColumnFile;
+      set => m_ColumnFile = value ?? string.Empty;
+    }
 
-		/// <summary>
-		///   Gets or sets the name of the file.
-		/// </summary>
-		/// <value>The name of the file.</value>
-		[XmlAttribute]
-		[DefaultValue("")]
-		public virtual string IdentifierInContainer
-		{
-			[NotNull]
-			get => m_IdentifierInContainer;
-			[CanBeNull]
-			set
-			{
-				var newVal = value ?? string.Empty;
-				if (m_IdentifierInContainer.Equals(newVal, StringComparison.Ordinal))
-					return;
+    /// <summary>
+    ///   Gets or sets the name of the file.
+    /// </summary>
+    /// <value>The name of the file.</value>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public virtual string IdentifierInContainer
+    {
+      get => m_IdentifierInContainer;
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_IdentifierInContainer.Equals(newVal, StringComparison.Ordinal))
+          return;
 
-				m_IdentifierInContainer = newVal;
-				NotifyPropertyChanged(nameof(IdentifierInContainer));
-			}
-		}
+        m_IdentifierInContainer = newVal;
+        NotifyPropertyChanged(nameof(IdentifierInContainer));
+      }
+    }
 
-		/// <summary>
-		///   The identified to find this specific instance
-		/// </summary>
-		[XmlIgnore]
-		[NotNull]
-		public override string InternalID => string.IsNullOrEmpty(ID) ? FileName : ID;
+    /// <summary>
+    ///   The identified to find this specific instance
+    /// </summary>
+    [XmlIgnore]
+    public override string InternalID => string.IsNullOrEmpty(ID) ? FileName : ID;
 
-		/// <summary>
-		///   Gets or sets the name of the file.
-		/// </summary>
-		/// <value>The name of the file.</value>
-		[XmlAttribute]
-		[DefaultValue("")]
-		public virtual string RemoteFileName
-		{
-			[NotNull]
-			get => m_RemoteFileName;
-			[CanBeNull]
-			set
-			{
-				var newVal = value ?? string.Empty;
-				if (m_RemoteFileName.Equals(newVal, StringComparison.Ordinal))
-					return;
+    /// <summary>
+    ///   Gets or sets the name of the file.
+    /// </summary>
+    /// <value>The name of the file.</value>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public virtual string RemoteFileName
+    {
+      get => m_RemoteFileName;
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_RemoteFileName.Equals(newVal, StringComparison.Ordinal))
+          return;
 
-				m_RemoteFileName = newVal;
-				NotifyPropertyChanged(nameof(RemoteFileName));
-			}
-		}
+        m_RemoteFileName = newVal;
+        NotifyPropertyChanged(nameof(RemoteFileName));
+      }
+    }
 
-		[XmlIgnore]
-		[DefaultValue("")]
-		public string RootFolder { get; set; } = string.Empty;
+    [XmlIgnore]
+    [DefaultValue("")]
+    public string RootFolder { get; set; } = string.Empty;
 
-		/// <summary>
-		///   Gets or sets the name of the file.
-		/// </summary>
-		/// <value>The name of the file.</value>
-		[XmlAttribute]
-		[DefaultValue(true)]
-		public virtual bool ThrowErrorIfNotExists
-		{
-			get => m_ThrowErrorIfNotExists;
+    /// <summary>
+    ///   Gets or sets the name of the file.
+    /// </summary>
+    /// <value>The name of the file.</value>
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public virtual bool ThrowErrorIfNotExists
+    {
+      get => m_ThrowErrorIfNotExists;
 
-			set
-			{
-				if (m_ThrowErrorIfNotExists.Equals(value))
-					return;
-				m_ThrowErrorIfNotExists = value;
-				NotifyPropertyChanged(nameof(ThrowErrorIfNotExists));
-			}
-		}
+      set
+      {
+        if (m_ThrowErrorIfNotExists.Equals(value))
+          return;
+        m_ThrowErrorIfNotExists = value;
+        NotifyPropertyChanged(nameof(ThrowErrorIfNotExists));
+      }
+    }
 
-		public void ResetFullPath() => m_FullPathInitialized = false;
+    public void ResetFullPath() => m_FullPathInitialized = false;
 
-		protected override void BaseSettingsCopyTo(BaseSettings other)
-		{
-			if (other == null)
-				return;
-			base.BaseSettingsCopyTo(other);
+    protected override void BaseSettingsCopyTo(BaseSettings other)
+    {
+      base.BaseSettingsCopyTo(other);
 
-			if (other is IFileSettingPhysicalFile fileSettingPhysicalFile)
-			{
-				fileSettingPhysicalFile.FileSize = FileSize;
-				fileSettingPhysicalFile.ColumnFile = ColumnFile;
-				fileSettingPhysicalFile.FileName = FileName;
-				fileSettingPhysicalFile.RemoteFileName = RemoteFileName;
-				fileSettingPhysicalFile.IdentifierInContainer = IdentifierInContainer;
-				fileSettingPhysicalFile.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
-				fileSettingPhysicalFile.Passphrase = Passphrase;
-				fileSettingPhysicalFile.Recipient = Recipient;
-				fileSettingPhysicalFile.KeepUnencrypted = KeepUnencrypted;
-			}
-		}
+      if (other is IFileSettingPhysicalFile fileSettingPhysicalFile)
+      {
+        fileSettingPhysicalFile.FileSize = FileSize;
+        fileSettingPhysicalFile.ColumnFile = ColumnFile;
+        fileSettingPhysicalFile.FileName = FileName;
+        fileSettingPhysicalFile.RemoteFileName = RemoteFileName;
+        fileSettingPhysicalFile.IdentifierInContainer = IdentifierInContainer;
+        fileSettingPhysicalFile.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
+        fileSettingPhysicalFile.Passphrase = Passphrase;
+        fileSettingPhysicalFile.Recipient = Recipient;
+        fileSettingPhysicalFile.KeepUnencrypted = KeepUnencrypted;
+      }
+    }
 
-		protected override bool BaseSettingsEquals(BaseSettings other)
-		{
-			if (other is IFileSettingPhysicalFile fileSettingPhysicalFile)
-			{
-				if (!string.Equals(fileSettingPhysicalFile.FileName, FileName, StringComparison.OrdinalIgnoreCase))
-					return false;
+    protected override bool BaseSettingsEquals(BaseSettings? other)
+    {
+      if (!(other is IFileSettingPhysicalFile fileSettingPhysicalFile))
+        return base.BaseSettingsEquals(other);
 
-				if (fileSettingPhysicalFile.RemoteFileName != RemoteFileName ||
-						fileSettingPhysicalFile.ThrowErrorIfNotExists != ThrowErrorIfNotExists)
-					return false;
+      if (!string.Equals(fileSettingPhysicalFile.FileName, FileName, StringComparison.OrdinalIgnoreCase))
+        return false;
 
-				if (fileSettingPhysicalFile.IdentifierInContainer != IdentifierInContainer ||
-						fileSettingPhysicalFile.FileSize != FileSize)
-					return false;
+      if (fileSettingPhysicalFile.RemoteFileName != RemoteFileName ||
+          fileSettingPhysicalFile.ThrowErrorIfNotExists != ThrowErrorIfNotExists)
+        return false;
 
-				if (!fileSettingPhysicalFile.Passphrase.Equals(Passphrase, StringComparison.Ordinal) ||  !fileSettingPhysicalFile.Recipient.Equals(Recipient, StringComparison.OrdinalIgnoreCase) || fileSettingPhysicalFile.KeepUnencrypted != KeepUnencrypted)
-					return false;
+      if (fileSettingPhysicalFile.IdentifierInContainer != IdentifierInContainer ||
+          fileSettingPhysicalFile.FileSize != FileSize)
+        return false;
 
-				if (!string.Equals(fileSettingPhysicalFile.ColumnFile, ColumnFile, StringComparison.OrdinalIgnoreCase))
-					return false;
-			}
-			return base.BaseSettingsEquals(other);
-		}
+      if (!fileSettingPhysicalFile.Passphrase.Equals(Passphrase, StringComparison.Ordinal) ||  !fileSettingPhysicalFile.Recipient.Equals(Recipient, StringComparison.OrdinalIgnoreCase) || fileSettingPhysicalFile.KeepUnencrypted != KeepUnencrypted)
+        return false;
 
-		/// <summary>
-		///   Recipient for a outbound PGP encryption
-		/// </summary>
-		[XmlAttribute]
-		[DefaultValue("")]
-		public virtual string Recipient
-		{
-			[NotNull]
-			get => m_Recipient;
-			[CanBeNull]
-			set
-			{
-				var newVal = (value ?? string.Empty).Trim();
-				if (m_Recipient.Equals(newVal, StringComparison.Ordinal))
-					return;
-				m_Recipient = newVal;
-				NotifyPropertyChanged(nameof(Recipient));
-			}
-		}
+      if (!string.Equals(fileSettingPhysicalFile.ColumnFile, ColumnFile, StringComparison.OrdinalIgnoreCase))
+        return false;
+      return base.BaseSettingsEquals(other);
+    }
 
-		/// <summary>
-		///   Passphrase for Decryption, will not be stored
-		/// </summary>
-		[XmlIgnore]
-		[DefaultValue("")]
-		public virtual string Passphrase
-		{
-			[NotNull]
-			get => m_Passphrase;
-			[CanBeNull]
-			set => m_Passphrase = (value ?? string.Empty).Trim();
-		}
+    /// <summary>
+    ///   Recipient for a outbound PGP encryption
+    /// </summary>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public virtual string Recipient
+    {
+      get => m_Recipient;
+      set
+      {
+        var newVal = (value ?? string.Empty).Trim();
+        if (m_Recipient.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_Recipient = newVal;
+        NotifyPropertyChanged(nameof(Recipient));
+      }
+    }
 
-		[XmlAttribute]
-		[DefaultValue(false)]
-		public bool KeepUnencrypted
-		{
-			get => m_KeepUnencrypted; set
-			{
-				if (m_KeepUnencrypted==value)
-					return;
-				m_KeepUnencrypted=value;
-				NotifyPropertyChanged(nameof(KeepUnencrypted));
-			}
-		}
+    /// <summary>
+    ///   PassPhrase for Decryption, will not be stored
+    /// </summary>
+    [XmlIgnore]
+    [DefaultValue("")]
+    public virtual string Passphrase
+    {
 
-		[NotNull]
-		private static string FileNameFix([CanBeNull] string value)
-		{
-			var newVal = value ?? string.Empty;
-			if (newVal.StartsWith(".\\", StringComparison.Ordinal))
-				newVal = newVal.Substring(2);
-			return newVal;
-		}
-	}
+      get => m_PassPhrase;
+      set => m_PassPhrase = (value ?? string.Empty).Trim();
+    }
+
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public bool KeepUnencrypted
+    {
+      get => m_KeepUnencrypted; set
+      {
+        if (m_KeepUnencrypted==value)
+          return;
+        m_KeepUnencrypted=value;
+        NotifyPropertyChanged(nameof(KeepUnencrypted));
+      }
+    }
+
+    private static string FileNameFix(string? value)
+    {
+      var newVal = value ?? string.Empty;
+      if (newVal.StartsWith(".\\", StringComparison.Ordinal))
+        newVal = newVal.Substring(2);
+      return newVal;
+    }
+  }
 }

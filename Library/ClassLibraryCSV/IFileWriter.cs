@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Data;
 using System.Threading;
@@ -41,6 +40,6 @@ namespace CsvTools
     /// <param name="source">The data that should be written in a <see cref="DataTable" /></param>
     /// <param name="token">A cancellation toke to stop a long running process</param>
     /// <returns>Number of records written</returns>
-    Task<long> WriteAsync([CanBeNull] IFileReader source, CancellationToken token);
+    Task<long> WriteAsync(IFileReader? source, CancellationToken token);
   }
 }

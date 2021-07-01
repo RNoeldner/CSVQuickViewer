@@ -23,7 +23,8 @@ namespace CsvTools.Tests
     public void CopyToCloneEquals()
     {
       var col = new Column();
-      col.CopyTo(null);
+      var col3 = new Column();
+      col.CopyTo(col3);
       var col2 = col.Clone();
       Assert.IsTrue(col2.Equals(col));
     }

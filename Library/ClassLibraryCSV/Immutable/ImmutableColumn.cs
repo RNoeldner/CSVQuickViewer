@@ -24,6 +24,12 @@ namespace CsvTools
     public const string cDefaultTimePartFormat = "HH:mm:ss";
     public const bool cPartToEnd = true;
 
+    public ImmutableColumn(IColumn col) : this(col.Name, col.ValueFormat, col.ColumnOrdinal, col.Convert,
+      col.DestinationName, col.Ignore, col.Part, col.PartSplitter, col.PartToEnd, col.TimePart, col.TimePartFormat,
+      col.TimeZonePart)
+    {
+    }
+
     public ImmutableColumn(string name, IValueFormat valueFormat, int columnOrdinal, bool? convert = null, string destinationName = "",
       bool ignore = false, int part = cPartDefault,
       string partSplitter = cPartSplitterDefault, bool partToEnd = cPartToEnd, string timePart = "", string timePartFormat = "",
@@ -33,7 +39,7 @@ namespace CsvTools
       if (valueFormat is null)
         throw new System.ArgumentNullException(nameof(valueFormat));
       ColumnOrdinal = columnOrdinal;
-      Convert = convert??valueFormat.DataType != DataType.String;
+      Convert = convert?? valueFormat.DataType != DataType.String;
       DestinationName = destinationName;
       Ignore = ignore;
 
@@ -63,7 +69,6 @@ namespace CsvTools
     public string TimePartFormat { get; }
     public string TimeZonePart { get; }
     public IValueFormat ValueFormat { get; }
-
     public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
   }
 }

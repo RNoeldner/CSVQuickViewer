@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Drawing;
 using System.Globalization;
@@ -48,7 +47,7 @@ namespace CsvTools
     /// <summary>
     /// Initializes a new instance of the <see cref="HTMLStyle"/> class.
     /// </summary>
-    public HTMLStyle() : this(c_Style)
+    public HTMLStyle() : this(c_Style, string.Empty, string.Empty)
     {
     }
 
@@ -56,9 +55,11 @@ namespace CsvTools
     /// Initializes a new instance of the <see cref="HTMLStyle"/> class.
     /// </summary>
     /// <param name="style">The style.</param>
-    public HTMLStyle(string style)
+    public HTMLStyle(string style, string error, string errorWarning)
     {
       Style = style;
+      Error = error;
+      ErrorWarning = errorWarning;
       BR = "<br>";
       H1 = "<h1>{0}</h1>";
       H2 = "<h2>{0}</h2>";
@@ -241,7 +242,7 @@ namespace CsvTools
     /// <param name="template">The template.</param>
     /// <param name="contents">The contents.</param>
     /// <returns></returns>
-    public static string AddTd(string template, params object[] contents)
+    public static string? AddTd(string? template, params object?[]? contents)
     {
       if (template == null || contents == null)
         return null;
@@ -249,7 +250,7 @@ namespace CsvTools
         return string.Empty;
       for (var i = 0; i < contents.Length; i++)
         if (contents[i]!=null)
-          contents[i] = HtmlEncode(contents[i].ToString()).Replace("�", "<span style=\"color:Red; font-size:larger\">&diams;</span>");
+          contents[i] = HtmlEncode(contents[i]?.ToString() ?? String.Empty).Replace("�", "<span style=\"color:Red; font-size:larger\">&diams;</span>");
 
       return string.Format(CultureInfo.CurrentCulture, template, contents);
     }
@@ -260,10 +261,9 @@ namespace CsvTools
     /// <param name="text">The text string to encode.</param>
     /// <returns>The HTML-encoded text.</returns>
     /// <remarks>Taken from http://www.west-wind.com/weblog/posts/2009/Feb/05/Html-and-Uri-String-Encoding-without-SystemWeb</remarks>
-    [NotNull]
-    public static string HtmlEncode([NotNull] string text)
+    public static string HtmlEncode(string text)
     {
-      text = StringUtils.HandleCRLFCombinations(text);
+      text = text.HandleCRLFCombinations();
 
       var sb = new StringBuilder(text.Length);
       var len = text.Length;
@@ -315,7 +315,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <returns></returns>
-    public static string HtmlEncodeShort(string text)
+    public static string? HtmlEncodeShort(string? text)
     {
       if (text == null)
         return null;
@@ -358,8 +358,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <returns></returns>
-    [NotNull]
-    public static string JsonElementName([NotNull] string text)
+    public static string JsonElementName(string text)
     {
       var allowed = StringUtils.ProcessByCategory(text, x => x == UnicodeCategory.TitlecaseLetter ||
                                                              x == UnicodeCategory.LowercaseLetter ||
@@ -401,8 +400,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text possibly containing HTML codes.</param>
     /// <returns>The same text with HTML Tags for linefeed, tab and quote</returns>
-    [NotNull]
-    public static string TextToHtmlEncode([NotNull] string text)
+    public static string TextToHtmlEncode(string text)
     {
       if (text == null) throw new ArgumentNullException(nameof(text));
 
@@ -424,8 +422,7 @@ namespace CsvTools
     ///   Element names cannot start with the letters xml(or XML, or Xml, etc), Element names can
     ///   contain letters, digits, hyphens, underscores, and periods, Element names cannot contain spaces
     /// </remarks>
-    [NotNull]
-    public static string XmlElementName([NotNull] string text)
+    public static string XmlElementName(string text)
     {
       var allowed = StringUtils.ProcessByCategory(text, x => x == UnicodeCategory.DashPunctuation ||
                                                              x == UnicodeCategory.LowercaseLetter ||
@@ -453,8 +450,6 @@ namespace CsvTools
     public void AddHtmlCell(StringBuilder sbHtml, string tdTemplate, string regularText, string errorText,
       bool addErrorInfo)
     {
-      if (sbHtml == null)
-        return;
       if (!addErrorInfo || string.IsNullOrEmpty(errorText))
       {
         sbHtml.Append(AddTd(tdTemplate, regularText));
@@ -507,8 +502,7 @@ namespace CsvTools
     /// <returns>A string that can be put onto the clipboard and will be recognized as HTML</returns>
     /// <exception cref="ArgumentException">Parameter can not be empty;fragment</exception>
     /// <remarks>The HTML format is found here http://msdn2.microsoft.com/en-us/library/aa767917.aspx</remarks>
-    [NotNull]
-    public string ConvertToHtmlFragment([NotNull] string fragment)
+    public string ConvertToHtmlFragment(string fragment)
     {
       // Minimal implementation of HTML clipboard format
       const string c_Source = "http://www.csvquickviewer.com/";

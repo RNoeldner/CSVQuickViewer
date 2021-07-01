@@ -12,10 +12,8 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 namespace CsvTools
@@ -28,14 +26,13 @@ namespace CsvTools
 		/// <summary>
 		///   Occurs when a string value property changed providing information on old and new value
 		/// </summary>
-		event EventHandler<PropertyChangedEventArgs<string>> PropertyChangedString;
+		event EventHandler<PropertyChangedEventArgs<string>>? PropertyChangedString;
 
 		/// <summary>
 		///   Gets or sets the column formats
 		/// </summary>
 		/// <value>The column format.</value>
-		[NotNull]
-		ColumnCollection ColumnCollection { get; }
+    ColumnCollection ColumnCollection { get; }
 
 		/// <summary>
 		///   Gets or sets the consecutive empty rows.
@@ -61,14 +58,11 @@ namespace CsvTools
 		/// <value><c>true</c> if line no should be displayed; otherwise, <c>false</c>.</value>
 		bool DisplayStartLineNo { get; set; }
 
-		ObservableCollection<SampleRecordEntry> Errors { [NotNull] get; [CanBeNull] set; }
-
 		/// <summary>
 		///   Gets or sets the file format.
 		/// </summary>
 		/// <value>The file format.</value>
-		[NotNull]
-		FileFormat FileFormat { get; }
+    FileFormat FileFormat { get; }
 
 		/// <summary>
 		///   Gets or sets the Last Write Time of the files that has been read for this Setting
@@ -80,7 +74,7 @@ namespace CsvTools
 		///   Gets or sets the Footer.
 		/// </summary>
 		/// <value>The Footer for outbound data.</value>
-		string Footer { [NotNull] get; [CanBeNull] set; }
+		string Footer { get; set; }
 
 		/// <summary>
 		///   Gets or sets a value indicating whether this instance has field header.
@@ -92,14 +86,13 @@ namespace CsvTools
 		///   Gets or sets the Header.
 		/// </summary>
 		/// <value>The Header for outbound data.</value>
-		string Header { [NotNull] get; [CanBeNull] set; }
+		string Header { get; set; }
 
 		/// <summary>
 		///   Gets or sets the ID.
 		/// </summary>
 		/// <value>The ID.</value>
-		[NotNull]
-		string ID { get; set; }
+    string ID { get; set; }
 
 		/// <summary>
 		///   Gets or sets a value indicating whether this setting is critical for the export, meaning
@@ -112,8 +105,7 @@ namespace CsvTools
 		/// <summary>
 		///   The identified to find this specific instance
 		/// </summary>
-		[NotNull]
-		string InternalID { get; }
+    string InternalID { get; }
 
 		/// <summary>
 		///   Gets or sets a value indicating whether this instance is enabled.
@@ -125,15 +117,9 @@ namespace CsvTools
 		///   Gets or sets the field mapping.
 		/// </summary>
 		/// <value>The field mapping.</value>
-		[NotNull]
 		MappingCollection MappingCollection { get; }
 
-		/// <summary>
-		///   Number of records with errors, -1 to indicate not known
-		/// </summary>
-		int EvidenceNumberOrIssues { get; set; }
-
-		/// <summary>
+    /// <summary>
 		///   Gets or sets the number records that have been processed
 		/// </summary>
 		/// <value>The number of processed records.</value>
@@ -164,11 +150,6 @@ namespace CsvTools
 		/// <value>The record limit. if set to 0 there is no limit</value>
 		long RecordLimit { get; set; }
 
-		/// <summary>
-		///   SAmple records for validation and reporting
-		/// </summary>
-
-		ObservableCollection<SampleRecordEntry> Samples { [NotNull] get; [CanBeNull] set; }
 
 		/// <summary>
 		///   Gets or sets a value indicating whether to show progress.
@@ -205,15 +186,14 @@ namespace CsvTools
 		///   A setting A using setting B that is dependent on C1 and C2 both dependent on D-&gt; A is
 		///   {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}
 		/// </example>
-		[CanBeNull]
-		IReadOnlyCollection<IFileSetting> SourceFileSettings { get; set; }
+		IReadOnlyCollection<IFileSetting>? SourceFileSettings { get; set; }
 
 		/// <summary>
 		///   Gets or sets the SQL statement.
 		/// </summary>
 		/// <value>The SQL statement.</value>
 
-		string SqlStatement { [NotNull] get; [CanBeNull]set; }
+		string SqlStatement { get; set; }
 
 		/// <summary>
 		///   Gets or sets the timeout value mainly used in Web or SQL Calls.
@@ -225,7 +205,7 @@ namespace CsvTools
 		///   Gets or sets the name of the template.
 		/// </summary>
 		/// <value>The name of the template.</value>
-		string TemplateName { [NotNull] get; [CanBeNull] set; }
+		string TemplateName { get; set; }
 
 		/// <summary>
 		///   Gets or sets a value indicating whether to treat NBSP as space.
@@ -236,7 +216,7 @@ namespace CsvTools
 		/// <summary>
 		///   Gets or sets a value indicating whether this instance should treat any text listed here as Null
 		/// </summary>
-		string TreatTextAsNull { [NotNull] get; [CanBeNull] set; }
+		string TreatTextAsNull { get; set; }
 
 		/// <summary>
 		///   Gets or sets a value indicating of and if training and leading spaces should be trimmed.

@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,7 +54,7 @@ namespace CsvTools
     ///   Adds a new row assuming the data is well aligned
     /// </summary>
     /// <param name="newRow">Array with the columns of that row</param>
-    public void AddRow([NotNull] string[] newRow)
+    public void AddRow(string[] newRow)
     {
       if (newRow.Length != m_ExpectedColumns)
         return;
@@ -73,7 +72,7 @@ namespace CsvTools
     /// <param name="handleWarning">Action to be called to store a warning</param>
     /// <param name="rawText">The raw text of the file before splitting it into columns</param>
     /// <returns>A new list of columns</returns>
-    public string[] RealignColumn([NotNull] string[] row, [NotNull] Action<int, string> handleWarning, [NotNull] string rawText)
+    public string[] RealignColumn(string[] row, Action<int, string> handleWarning, string rawText)
     {
       if (row == null) throw new ArgumentNullException(nameof(row));
       if (handleWarning == null) throw new ArgumentNullException(nameof(handleWarning));
@@ -163,7 +162,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The column information, best is trimmed</param>
     /// <returns>The appropriate column options</returns>
-    private static ColumnOption GetColumnOption([CanBeNull] string text)
+    private static ColumnOption GetColumnOption(string? text)
     {
       if (string.IsNullOrEmpty(text))
         return ColumnOption.Empty;
@@ -176,7 +175,7 @@ namespace CsvTools
         all |= ColumnOption.Boolean;
       }
 
-      if (text.Length <= 30)
+      if (text!.Length <= 30)
         all |= ColumnOption.ShortText;
       if (text.Length <= 10)
         all |= ColumnOption.VeryShortText;
@@ -205,13 +204,13 @@ namespace CsvTools
     /// </summary>
     /// <param name="colNum">The Column Number in the array</param>
     /// <param name="rows">All rows to look at</param>
-    private static ColumnOption GetColumnOptionAllRows(int colNum, [NotNull] IEnumerable<string[]> rows)
+    private static ColumnOption GetColumnOptionAllRows(int colNum, IEnumerable<string?[]> rows)
     {
       var overall = ColumnOption.Empty;
       foreach (var row in rows)
       {
-        if (row.Length <= colNum || row[colNum] == null) continue;
-        var oneColOption = GetColumnOption(row[colNum].Trim());
+        if (row.Length <= colNum || row[colNum]==null) continue;
+        var oneColOption = GetColumnOption(row[colNum]!.Trim());
         if (oneColOption == ColumnOption.Empty)
           continue;
 

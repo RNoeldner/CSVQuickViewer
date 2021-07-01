@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -31,10 +30,9 @@ namespace CsvTools
   /// </summary>
   public static class DetermineColumnFormat
   {
-    [CanBeNull]
-    public static IValueFormat CommonDateFormat([CanBeNull] IEnumerable<IColumn> columns)
+    public static IValueFormat? CommonDateFormat(IEnumerable<IColumn>? columns)
     {
-      IValueFormat best = null;
+      IValueFormat? best = null;
       if (columns == null) return null;
       var counterByFormat = new Dictionary<IValueFormat, int>();
       var maxValue = int.MinValue;
@@ -64,10 +62,9 @@ namespace CsvTools
     /// <param name="cancellationToken"></param>
     /// <returns>A list of columns with new format that have been changed</returns>
     /// <exception cref="ArgumentNullException">processDisplay</exception>
-    [ItemNotNull]
-    public static async Task<IList<string>> FillGuessColumnFormatReaderAsync([NotNull] this IFileSetting fileSetting,
+    public static async Task<IList<string>> FillGuessColumnFormatReaderAsync(this IFileSetting fileSetting,
       bool addTextColumns,
-      bool checkDoubleToBeInteger, [NotNull] FillGuessSettings fillGuessSettings,
+      bool checkDoubleToBeInteger, FillGuessSettings fillGuessSettings,
       CancellationToken cancellationToken)
     {
       if (fileSetting == null)
@@ -82,7 +79,7 @@ namespace CsvTools
         !fillGuessSettings.SerialDateTime)
         return new List<string>();
 
-      // in case there is no delimiter but its a delimted file, do nothing
+      // in case there is no delimiter but its a delimited file, do nothing
       if (fileSetting.FileFormat.FieldDelimiterChar == '\0' && fileSetting is ICsvFile)
         return new List<string>();
       // Open the filesetting but change a few settings
@@ -90,7 +87,7 @@ namespace CsvTools
 
       // need a dummy process display to have pass in Cancellation token to reader
       using (var prc2 = new CustomProcessDisplay(cancellationToken))
-      using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, prc2))
+      using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, string.Empty, prc2))
       {
         await fileReader.OpenAsync(prc2.CancellationToken).ConfigureAwait(false);
         var res = await FillGuessColumnFormatReaderAsyncReader(fileReader, fillGuessSettings,
@@ -102,7 +99,7 @@ namespace CsvTools
       }
     }
 
-    public static IFileSetting GetSettingForRead([NotNull] this IFileSetting fileSetting)
+    public static IFileSetting GetSettingForRead(this IFileSetting fileSetting)
     {
       if (fileSetting == null)
         throw new ArgumentNullException(nameof(fileSetting));
@@ -143,10 +140,9 @@ namespace CsvTools
     /// <param name="treatTextAsNull">A text that should be regarded as empty</param>
     /// <param name="cancellationToken">Cancellation support</param>
     /// <returns>A text with the changes that have been made</returns>
-    [ItemNotNull]
     public static async Task<Tuple<IList<string>, IEnumerable<IColumn>>> FillGuessColumnFormatReaderAsyncReader(
-      [NotNull] this IFileReader fileReader,
-      [NotNull] FillGuessSettings fillGuessSettings, [CanBeNull] IEnumerable<IColumn> columnCollectionInput,
+      this IFileReader fileReader,
+      FillGuessSettings fillGuessSettings, IEnumerable<IColumn>? columnCollectionInput,
       bool addTextColumns,
       bool checkDoubleToBeInteger,
       string treatTextAsNull,
@@ -558,9 +554,8 @@ namespace CsvTools
 
       columnCollection.Clear();
       // ReSharper disable once InvertIf
-      if (existing != null)
-        foreach (var column in existing)
-          columnCollection.AddIfNew(column);
+      foreach (var column in existing)
+        columnCollection.AddIfNew(column);
 
       return new Tuple<IList<string>, IEnumerable<IColumn>>(result, columnCollection.ReadonlyCopy());
     }
@@ -572,8 +567,8 @@ namespace CsvTools
     /// <param name="all">if set to <c>true</c> event string columns are added.</param>
     /// <param name="processDisplay">The process display.</param>
     /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
-    public static async Task FillGuessColumnFormatWriterAsync([NotNull] this IFileSetting fileSettings, bool all,
-      [NotNull] IProcessDisplay processDisplay)
+    public static async Task FillGuessColumnFormatWriterAsync(this IFileSetting fileSettings, bool all,
+      IProcessDisplay processDisplay)
     {
       if (string.IsNullOrEmpty(fileSettings.SqlStatement))
         throw new FileWriterException("No SQL Statement given");
@@ -608,9 +603,8 @@ namespace CsvTools
     /// <param name="value">The value.</param>
     /// <param name="culture">The culture.</param>
     /// <returns></returns>
-    [NotNull]
-    public static IEnumerable<IValueFormat> GetAllPossibleFormats([NotNull] string value,
-      [CanBeNull] CultureInfo culture = null)
+    public static IEnumerable<IValueFormat> GetAllPossibleFormats(string value,
+      CultureInfo? culture = null)
     {
       if (culture == null)
         culture = CultureInfo.CurrentCulture;
@@ -638,10 +632,9 @@ namespace CsvTools
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">dataReader</exception>
     /// <exception cref="ArgumentOutOfRangeException">no valid columns provided</exception>
-    [ItemNotNull]
-    public static async Task<IDictionary<int, SampleResult>> GetSampleValuesAsync([NotNull] IFileReader fileReader,
+    public static async Task<IDictionary<int, SampleResult>> GetSampleValuesAsync(IFileReader fileReader,
       long maxRecords,
-      [NotNull] IEnumerable<int> columns, int enoughSamples, string treatAsNull, CancellationToken cancellationToken)
+      IEnumerable<int> columns, int enoughSamples, string treatAsNull, CancellationToken cancellationToken)
     {
       if (fileReader == null)
         throw new ArgumentNullException(nameof(fileReader));
@@ -667,7 +660,7 @@ namespace CsvTools
       var hasWarning = false;
       var remainingShows = 10;
 
-      void WarningEvent(object sender, WarningEventArgs args)
+      void WarningEvent(object? sender, WarningEventArgs args)
       {
         if (args.ColumnNumber != -1 && !samples.ContainsKey(args.ColumnNumber))
           return;
@@ -777,10 +770,9 @@ namespace CsvTools
     /// <param name="columnDefinitions">Definition for individual columns</param>
     /// <param name="token"></param>
     /// <returns></returns>
-    [ItemNotNull]
     public static async Task<IEnumerable<IColumn>> GetWriterColumnInformationAsync(
-      [CanBeNull] string sqlStatement, int timeout,
-      [NotNull] IValueFormat valueFormatGeneral, [NotNull] IReadOnlyCollection<IColumn> columnDefinitions,
+      string? sqlStatement, int timeout,
+      IValueFormat valueFormatGeneral, IReadOnlyCollection<IColumn> columnDefinitions,
       CancellationToken token)
     {
       if (valueFormatGeneral == null) throw new ArgumentNullException(nameof(valueFormatGeneral));
@@ -791,28 +783,28 @@ namespace CsvTools
       if (FunctionalDI.SQLDataReader == null)
         throw new FileWriterException("No SQL Reader set");
 
-      using (var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), (sender, s) =>
+      using (var data = await FunctionalDI.SQLDataReader(sqlStatement!.NoRecordSQL(), (sender, s) =>
       {
         if (s.Log) Logger.Debug(s.Text);
       }, timeout, token).ConfigureAwait(false))
       {
         await data.OpenAsync(token).ConfigureAwait(false);
         using (var dt = data.GetSchemaTable())
+        {
+          if (dt == null)
+            throw new FileWriterException("Could not get source schema");
           return BaseFileWriter.GetColumnInformation(valueFormatGeneral, columnDefinitions, dt);
+        }
       }
     }
 
-    [ItemNotNull]
     public static async Task<IEnumerable<string>> GetSqlColumnNamesAsync(
-      [CanBeNull] string sqlStatement, int timeout, CancellationToken token)
+      string? sqlStatement, int timeout, CancellationToken token)
     {
       if (string.IsNullOrEmpty(sqlStatement))
         return new List<string>();
 
-      if (FunctionalDI.SQLDataReader == null)
-        throw new FileWriterException("No SQL Reader set");
-
-      using (var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), null, timeout, token)
+      using (var data = await FunctionalDI.SQLDataReader(sqlStatement!.NoRecordSQL(), null, timeout, token)
         .ConfigureAwait(false))
       {
         await data.OpenAsync(token).ConfigureAwait(false);
@@ -845,11 +837,11 @@ namespace CsvTools
       var length = samples.Aggregate<string, long>(0, (current, sample) => current + sample.Length);
       var commonLength = (int) (length / samples.Count);
 
-      ICollection<string> possibleDateSeparators = null;
+      ICollection<string>? possibleDateSeparators = null;
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(commonLength, checkNamedDates))
       {
         if (cancellationToken.IsCancellationRequested)
-          return null;
+          return checkResult;
 
         if (fmt.IndexOf('/') > 0)
         {
@@ -897,6 +889,7 @@ namespace CsvTools
     /// <param name="samples">The sample texts.</param>
     /// <param name="guessPercentage">True to find number between 0% and 100%</param>
     /// <param name="allowStartingZero">True if a leading zero should be considered as number</param>
+    /// <param name="minSamples">Number of samples needed to be sure</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>
     ///   Result of a format check, if the samples match a value type this is set, if not an example
@@ -904,16 +897,16 @@ namespace CsvTools
     /// </returns>
     /// <exception cref="ArgumentNullException">samples is null or empty</exception>
     public static CheckResult GuessNumeric(ICollection<string> samples, bool guessPercentage,
-      bool allowStartingZero, int minSamples,  CancellationToken cancellationToken)
+      bool allowStartingZero, int minSamples, CancellationToken cancellationToken)
     {
       if (samples == null || samples.Count == 0)
         throw new ArgumentNullException(nameof(samples));
       var checkResult = new CheckResult();
       // Determine which decimalGrouping could be used
-      var possibleGrouping = StringConversion.DecimalGroupings.Where(decGroup => !string.IsNullOrEmpty(decGroup) && samples.Any(smp => smp.IndexOf(decGroup) > -1))
+      var possibleGrouping = StringConversion.DecimalGroupings.Where(decGroup => !string.IsNullOrEmpty(decGroup) && samples.Any(smp => smp.IndexOf(decGroup, StringComparison.Ordinal) > -1))
         .ToList();
       possibleGrouping.Add(string.Empty);
-      var possibleDecimal = StringConversion.DecimalSeparators.Where(decSep => !string.IsNullOrEmpty(decSep) && samples.Any(smp => smp.IndexOf(decSep) > -1)).ToList();
+      var possibleDecimal = StringConversion.DecimalSeparators.Where(decSep => !string.IsNullOrEmpty(decSep) && samples.Any(smp => smp.IndexOf(decSep, StringComparison.Ordinal) > -1)).ToList();
 
       // Need to have at least one decimal separator
       if (possibleDecimal.Count == 0)
@@ -924,7 +917,7 @@ namespace CsvTools
         foreach (var decimalSeparator in possibleDecimal)
         {
           if (cancellationToken.IsCancellationRequested)
-            return null;
+            return checkResult;
           if (decimalSeparator.Equals(thousandSeparator))
             continue;
           var res = StringConversion.CheckNumber(samples, decimalSeparator, thousandSeparator, guessPercentage,
@@ -958,10 +951,9 @@ namespace CsvTools
     ///   columns, we do not need that many samples
     /// </param>
     /// <exception cref="ArgumentNullException">samples is null or empty</exception>
-    [NotNull]
-    public static CheckResult GuessValueFormat([NotNull] ICollection<string> samples, int minRequiredSamples,
+    public static CheckResult GuessValueFormat(ICollection<string> samples, int minRequiredSamples,
       string trueValue, string falseValue, bool guessBoolean, bool guessGuid, bool guessNumeric, bool guessDateTime,
-      bool guessPercentage, bool serialDateTime, bool checkNamedDates, [CanBeNull] IValueFormat othersValueFormatDate,
+      bool guessPercentage, bool serialDateTime, bool checkNamedDates, IValueFormat? othersValueFormatDate,
       CancellationToken cancellationToken)
     {
       if (samples == null || samples.Count == 0)
@@ -1128,7 +1120,7 @@ namespace CsvTools
     [DebuggerDisplay("SampleResult: {Values.Count} of {RecordsRead}")]
     public class SampleResult
     {
-      public SampleResult([NotNull] IEnumerable<string> samples, int records)
+      public SampleResult(IEnumerable<string> samples, int records)
       {
         var source = new List<string>(samples);
         Values = new HashSet<string>();
@@ -1145,7 +1137,7 @@ namespace CsvTools
 
       public int RecordsRead { get; }
 
-      [NotNull] public ICollection<string> Values { get; }
+      public ICollection<string> Values { get; }
     }
   }
 }

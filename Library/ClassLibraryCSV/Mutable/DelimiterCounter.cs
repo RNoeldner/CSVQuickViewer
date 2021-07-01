@@ -12,6 +12,7 @@
 //  *
 //  */
 
+
 using System.Globalization;
 
 namespace CsvTools

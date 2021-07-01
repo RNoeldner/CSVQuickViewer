@@ -1,4 +1,4 @@
-using JetBrains.Annotations;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,7 +11,7 @@ namespace CsvTools
   /// </summary>
   public class ReaderMapping
   {
-    [CanBeNull] public readonly ColumnErrorDictionary ColumnErrorDictionary;
+    public readonly ColumnErrorDictionary? ColumnErrorDictionary;
 
     public readonly int DataTableEndLine;
     public readonly int DataTableErrorField;
@@ -35,11 +35,11 @@ namespace CsvTools
         ImmutableColumn column;
         if (fileReader != null)
         {
-          var icol = fileReader.GetColumn(col);
-          if (icol is ImmutableColumn imcol)
+          var iColumn = fileReader.GetColumn(col);
+          if (iColumn is ImmutableColumn imcol)
             column = imcol;
           else
-            column = new ImmutableColumn(icol.Name, icol.ValueFormat, col, icol.Convert, icol.DestinationName, icol.Ignore, icol.Part, icol.PartSplitter, icol.PartToEnd, icol.TimePart, icol.TimePartFormat, icol.TimeZonePart);
+            column = new ImmutableColumn(iColumn);
         }
         else
           column= new ImmutableColumn(dataReader.GetName(col), new ImmutableValueFormat(dataReader.GetFieldType(col).GetDataType()), col);
@@ -97,7 +97,7 @@ namespace CsvTools
       }
     }
 
-    public string RowErrorInformation =>
+    public string? RowErrorInformation =>
       ColumnErrorDictionary == null || ColumnErrorDictionary.Count == 0
         ? null
         : ErrorInformation.ReadErrorInformation(ColumnErrorDictionary, m_ReaderColumnsAll);

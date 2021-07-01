@@ -12,7 +12,7 @@
 // * If not, see http://www.gnu.org/licenses/ . *
 // */
 
-using JetBrains.Annotations;
+
 
 namespace CsvTools
 {
@@ -21,31 +21,31 @@ namespace CsvTools
     int ColumnOrdinal { get; }
     bool Convert { get; }
 
-    [NotNull]
-    string DestinationName { [NotNull] get; }
+
+    string DestinationName { get; }
 
     bool Ignore { get; }
 
-    [NotNull]
-    string Name { [NotNull] get; }
+
+    string Name { get; }
 
     int Part { get; }
 
-    [NotNull]
-    string PartSplitter { [NotNull] get; }
 
-    bool PartToEnd { [NotNull] get; }
+    string PartSplitter { get; }
 
-    [NotNull]
-    string TimePart { [NotNull] get; }
+    bool PartToEnd { get; }
 
-    [NotNull]
-    string TimePartFormat { [NotNull]get; }
 
-    [NotNull]
-    string TimeZonePart { [NotNull]get; }
+    string TimePart { get; }
 
-    [NotNull]
-    IValueFormat ValueFormat { [NotNull] get; }
+
+    string TimePartFormat { get; }
+
+
+    string TimeZonePart { get; }
+
+
+    IValueFormat ValueFormat { get; }
   }
 }

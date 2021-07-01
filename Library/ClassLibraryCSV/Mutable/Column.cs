@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
@@ -102,7 +101,7 @@ namespace CsvTools
     /// <summary>
     ///   Occurs when a property value changes.
     /// </summary>
-    public virtual event PropertyChangedEventHandler PropertyChanged;
+    public virtual event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     ///   The Ordinal Position of the column
@@ -124,10 +123,9 @@ namespace CsvTools
       get => m_Name;
       set
       {
-        var newVal = value ?? string.Empty;
-        if (m_Name.Equals(newVal, StringComparison.Ordinal))
+        if (m_Name.Equals(value, StringComparison.Ordinal))
           return;
-        m_Name = newVal;
+        m_Name = value;
         NotifyPropertyChanged(nameof(Name));
       }
     }
@@ -156,7 +154,6 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
     public bool ConvertSpecified => m_Convert.HasValue;
 
     /// <summary>
@@ -188,7 +185,6 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
     public bool DateFormatSpecified => ValueFormatMutable.DataType == DataType.DateTime;
 
     /// <summary>
@@ -199,7 +195,6 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
     public virtual string DateSeparator
     {
-      [NotNull]
       get => ValueFormatMutable.DateSeparator;
       set => ValueFormatMutable.DateSeparator = value;
     }
@@ -210,7 +205,6 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    [UsedImplicitly]
     public bool DateSeparatorSpecified => ValueFormatMutable.DataType == DataType.DateTime;
 
     /// <summary>
@@ -220,7 +214,6 @@ namespace CsvTools
     [XmlAttribute]
     public virtual string DecimalSeparator
     {
-      [NotNull]
       get => ValueFormatMutable.DecimalSeparator;
       set => ValueFormatMutable.DecimalSeparator = value;
     }
@@ -231,7 +224,6 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    [UsedImplicitly]
     public bool DecimalSeparatorSpecified =>
       (ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric) && ValueFormatMutable.DecimalSeparatorSpecified;
 
@@ -244,18 +236,16 @@ namespace CsvTools
     public virtual string DestinationName
     {
       get => m_DestinationName;
-      [CanBeNull]
       set
       {
-        var newVal = value ?? string.Empty;
-        if (m_DestinationName.Equals(newVal, StringComparison.Ordinal))
+
+        if (m_DestinationName.Equals(value, StringComparison.Ordinal))
           return;
-        m_DestinationName = newVal;
+        m_DestinationName = value;
         NotifyPropertyChanged(nameof(DestinationName));
       }
     }
 
-    [UsedImplicitly]
     public bool DestinationNameSpecified =>
       !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
 
@@ -277,7 +267,6 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
     public bool FalseSpecified => ValueFormatMutable.DataType == DataType.Boolean;
 
     /// <summary>
@@ -296,7 +285,6 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
     public bool GroupSeparatorSpecified => (ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric || ValueFormatMutable.DataType == DataType.Integer)
               && ValueFormatMutable.GroupSeparatorSpecified;
 
@@ -336,7 +324,6 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if number format is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
     public bool NumberFormatSpecified =>
       ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric;
 
@@ -364,7 +351,6 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
     public bool PartSpecified => ValueFormatMutable.DataType == DataType.TextPart;
 
     /// <summary>
@@ -378,7 +364,7 @@ namespace CsvTools
 
       set
       {
-        var newVal = (value??string.Empty).WrittenPunctuation();
+        var newVal = value.WrittenPunctuation();
         if (m_PartSplitter.Equals(newVal))
           return;
         m_PartSplitter = newVal;
@@ -391,7 +377,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
+    
     public bool PartSplitterSpecified =>
       ValueFormatMutable.DataType == DataType.TextPart && !m_PartSplitter.Equals(ImmutableColumn.cPartSplitterDefault);
 
@@ -419,7 +405,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
+    
     public bool PartToEndSpecified => ValueFormatMutable.DataType == DataType.TextPart;
 
     /// <summary>
@@ -434,10 +420,9 @@ namespace CsvTools
 
       set
       {
-        var newVal = value ?? string.Empty;
-        if (m_TimePart.Equals(newVal, StringComparison.Ordinal))
+        if (m_TimePart.Equals(value, StringComparison.Ordinal))
           return;
-        m_TimePart = newVal;
+        m_TimePart = value;
         NotifyPropertyChanged(nameof(TimePart));
       }
     }
@@ -453,10 +438,9 @@ namespace CsvTools
       get => m_TimePartFormat;
       set
       {
-        var newVal = value ?? ImmutableColumn.cDefaultTimePartFormat;
-        if (m_TimePartFormat.Equals(newVal, StringComparison.Ordinal))
+        if (m_TimePartFormat.Equals(value, StringComparison.Ordinal))
           return;
-        m_TimePartFormat = newVal;
+        m_TimePartFormat = value;
         NotifyPropertyChanged(nameof(TimePartFormat));
       }
     }
@@ -466,7 +450,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
+    
     public bool TimePartFormatSpecified => ValueFormatMutable.DataType == DataType.DateTime;
 
     /// <summary>
@@ -474,7 +458,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
+    
     public bool TimePartSpecified => ValueFormatMutable.DataType == DataType.DateTime;
 
     /// <summary>
@@ -494,7 +478,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
+    
     public bool TimeSeparatorSpecified => ValueFormatMutable.DataType == DataType.DateTime;
 
     /// <summary>
@@ -509,10 +493,9 @@ namespace CsvTools
 
       set
       {
-        var newVal = value ?? string.Empty;
-        if (m_TimeZonePart.Equals(newVal, StringComparison.Ordinal))
+        if (m_TimeZonePart.Equals(value, StringComparison.Ordinal))
           return;
-        m_TimeZonePart = newVal;
+        m_TimeZonePart = value;
         NotifyPropertyChanged(nameof(TimeZonePart));
       }
     }
@@ -536,7 +519,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    [UsedImplicitly]
+    
     public bool TrueSpecified => ValueFormatMutable.DataType == DataType.Boolean;
 
     /// <summary>
@@ -564,8 +547,6 @@ namespace CsvTools
     /// <param name="other">The other.</param>
     public virtual void CopyTo(Column other)
     {
-      if (other == null)
-        return;
       other.ValueFormatMutable.CopyFrom(ValueFormatMutable);
 
       // other.ValueFormatMutable = m_ValueFormatMutable;
@@ -590,7 +571,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
     ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
-    public bool Equals(Column other)
+    public bool Equals(Column? other)
     {
       if (other is null)
         return false;

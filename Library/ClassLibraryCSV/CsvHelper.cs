@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -32,7 +31,7 @@ namespace CsvTools
   public static class CsvHelper
   {
     /// <summary>
-    ///   Analyses the file asynchronous.
+    ///   Check the file asynchronous
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="guessJson">if <c>true</c> trying to determine if file is a JSON file</param>
@@ -44,14 +43,15 @@ namespace CsvTools
     ///   if true, try to determine if the file does have a header row
     /// </param>
     /// <param name="guessNewLine">if set to <c>true</c> determine combination of new line.</param>
+    /// <param name="guessCommentLine"></param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">processDisplay</exception>
-    public static async Task<DelimitedFileDetectionResultWithColumns> AnalyseFileAsync(this string fileName, bool guessJson,
+    public static async Task<DelimitedFileDetectionResultWithColumns?> AnalyseFileAsync(this string fileName, bool guessJson,
                                                          bool guessCodePage, bool guessDelimiter, bool guessQualifier, bool guessStartRow,
-                                                         bool guessHasHeader, bool guessNewLine, bool guessCommentLine, [NotNull] FillGuessSettings fillGuessSettings,
-                                                         [NotNull] IProcessDisplay processDisplay)
+                                                         bool guessHasHeader, bool guessNewLine, bool guessCommentLine, FillGuessSettings fillGuessSettings,
+                                                         IProcessDisplay processDisplay)
     {
       if (processDisplay == null) throw new ArgumentNullException(nameof(processDisplay));
       if (string.IsNullOrEmpty(fileName))
@@ -60,18 +60,19 @@ namespace CsvTools
       if (fileName.IndexOf('~') != -1)
         fileName = fileName.LongFileName();
 
-      fileName = FileSystemUtils.ResolvePattern(fileName);
-      var fileInfo = new FileSystemUtils.FileInfo(fileName);
+      var fileName2 = FileSystemUtils.ResolvePattern(fileName);
+      var fileInfo = new FileSystemUtils.FileInfo(fileName2);
       if (!fileInfo.Exists)
         return null;
-      Logger.Information("Examining file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName, 40));
+
+      Logger.Information("Examining file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName2!, 40));
       Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
 
       // load from Setting file
-      if (fileName.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase) ||
-          FileSystemUtils.FileExists(fileName + CsvFile.cCsvSettingExtension))
+      if (fileName2!.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase) ||
+          FileSystemUtils.FileExists(fileName2 + CsvFile.cCsvSettingExtension))
       {
-        var fileNameSetting = (!fileName.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase)) ? fileName + CsvFile.cCsvSettingExtension : fileName;
+        var fileNameSetting = (!fileName2.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase)) ? fileName2 + CsvFile.cCsvSettingExtension : fileName2;
         var fileNameFile = fileNameSetting.Substring(0, fileNameSetting.Length-CsvFile.cCsvSettingExtension.Length);
 
         // we defiantly have a the extension with the name
@@ -91,14 +92,14 @@ namespace CsvTools
           (fileSettingSer is BaseSettingPhysicalFile bas) ? bas.ColumnFile : string.Empty);
       }
 
-      var setting = ManifestData.ReadManifestZip(fileName);
+      var setting = ManifestData.ReadManifestZip(fileName2);
       if (setting != null)
       {
         Logger.Information("Data in zip {filename}", setting.IdentifierInContainer);
         return setting;
       }
 
-      var settingFs = ManifestData.ReadManifestFileSystem(fileName);
+      var settingFs = ManifestData.ReadManifestFileSystem(fileName2);
       if (settingFs != null)
       {
         Logger.Information("Data in {filename}", settingFs.FileName);
@@ -106,7 +107,7 @@ namespace CsvTools
       }
 
       // Determine from file
-      var detectionResult = await GetDetectionResultFromFile(fileName, processDisplay,
+      var detectionResult = await GetDetectionResultFromFile(fileName2, processDisplay,
         guessJson,
         guessCodePage,
         guessDelimiter,
@@ -131,7 +132,7 @@ namespace CsvTools
     ///   Updates the detection result from stream.
     /// </summary>
     /// <param name="improvedStream">The improved stream.</param>
-    /// <param name="detectionResult">The detection result.</param>
+    /// <param name="fileName"></param>
     /// <param name="display">The display.</param>
     /// <param name="guessJson">if <c>true</c> trying to determine if file is a JSON file</param>
     /// <param name="guessCodePage">if <c>true</c>, try to determine the code page</param>
@@ -142,7 +143,8 @@ namespace CsvTools
     ///   if true, try to determine if the file does have a header row
     /// </param>
     /// <param name="guessNewLine">if set to <c>true</c> determine combination of new line.</param>
-    public static async Task<DelimitedFileDetectionResult> GetDetectionResult([NotNull] this IImprovedStream improvedStream, [NotNull] string fileName, [NotNull] IProcessDisplay display,
+    /// <param name="guessCommentLine"></param>
+    public static async Task<DelimitedFileDetectionResult> GetDetectionResult(this IImprovedStream improvedStream, string fileName, IProcessDisplay display,
                                                                 bool guessJson, bool guessCodePage, bool guessDelimiter, bool guessQualifier,
                                                                 bool guessStartRow, bool guessHasHeader, bool guessNewLine, bool guessCommentLine)
     {
@@ -282,7 +284,7 @@ namespace CsvTools
     /// <param name="stream">The stream.</param>
     /// <param name="token">The token.</param>
     /// <returns></returns>
-    public static async Task<Tuple<int, bool>> GuessCodePage([NotNull] this IImprovedStream stream,
+    public static async Task<Tuple<int, bool>> GuessCodePage(this IImprovedStream stream,
                                                                        CancellationToken token)
     {
       // Read 256 kBytes
@@ -313,12 +315,11 @@ namespace CsvTools
     /// <param name="improvedStream">The improved stream.</param>
     /// <param name="codePageId">The code page identifier.</param>
     /// <param name="skipRows">The skip rows.</param>
-    /// <param name="escapeCharacterChar">The escape character.</param>
+    /// <param name="escapeCharacter">The escape character.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <remarks>No Error will not be thrown.</remarks>
-    [NotNull]
-    public static async Task<Tuple<string, bool>> GuessDelimiter([NotNull] this IImprovedStream improvedStream,
+    public static async Task<Tuple<string, bool>> GuessDelimiter(this IImprovedStream improvedStream,
                                                                            int codePageId, int skipRows,
                                                                            string escapeCharacter,
                                                                            CancellationToken cancellationToken)
@@ -336,9 +337,8 @@ namespace CsvTools
     /// reader.</param> <param name="comment">The comment.</param> <param name="delimiter">The
     /// delimiter.</param> <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns> <exception cref="ApplicationException"> Empty Line or Control Characters
-    /// in Column {headerLine} or Only one column: {headerLine} or or Headers '{string.Join("', '",
-    /// newHeader.Where(x => x.Length < 3))}' very short or </exception>
-    public static Tuple<bool, string> GuessHasHeader([NotNull] this ImprovedTextReader reader, string comment,
+    /// in Column {headerLine} or Only one column: {headerLine}</exception>
+    public static Tuple<bool, string> GuessHasHeader(this ImprovedTextReader reader, string comment,
                                                                string delimiter, CancellationToken cancellationToken)
     {
       var headerLine = string.Empty;
@@ -396,7 +396,7 @@ namespace CsvTools
               $"Headers '{string.Join("', '", headerRow.Where(x => x.Length < 3))}' very short");
 
           // use the same routine that is used in readers to determine the names of the columns
-          var (newHeader, numIssues) = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null, null);
+          var (_, numIssues) = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null, null);
 
           // looking at the warnings raised
           if (numIssues >= halfTheColumns || numIssues > 2)
@@ -473,10 +473,10 @@ namespace CsvTools
     /// <param name="codePageId">The code page identifier.</param>
     /// <param name="skipRows">The skip rows.</param>
     /// <param name="commentLine">The comment line.</param>
-    /// <param name="fieldDelimiterChar">The field delimiter character.</param>
+    /// <param name="fieldDelimiter">The field delimiter.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    public static async Task<Tuple<bool, string>> GuessHasHeader([NotNull] this IImprovedStream improvedStream, int codePageId, int skipRows, string commentLine, string fieldDelimiter, CancellationToken cancellationToken)
+    public static async Task<Tuple<bool, string>> GuessHasHeader(this IImprovedStream improvedStream, int codePageId, int skipRows, string commentLine, string fieldDelimiter, CancellationToken cancellationToken)
     {
       using (var reader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken))
         return GuessHasHeader(reader, commentLine, fieldDelimiter, cancellationToken);
@@ -488,11 +488,10 @@ namespace CsvTools
     /// <param name="improvedStream">The improved stream.</param>
     /// <param name="codePageId">The code page identifier.</param>
     /// <param name="skipRows">The skip rows.</param>
-    /// <param name="fieldQualifierChar">The field qualifier character.</param>
+    /// <param name="fieldQualifier">The field qualifier.</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>The NewLine Combination used</returns>
-    [NotNull]
-    public static async Task<RecordDelimiterType> GuessNewline([NotNull] this IImprovedStream improvedStream, int codePageId, int skipRows, string fieldQualifier, CancellationToken cancellationToken)
+    public static async Task<RecordDelimiterType> GuessNewline(this IImprovedStream improvedStream, int codePageId, int skipRows, string fieldQualifier, CancellationToken cancellationToken)
     {
       using (var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken))
         return textReader.GuessNewline(fieldQualifier, cancellationToken);
@@ -504,11 +503,10 @@ namespace CsvTools
     /// <param name="improvedStream">The improved stream.</param>
     /// <param name="codePageId">The code page identifier.</param>
     /// <param name="skipRows">The skip rows.</param>
-    /// <param name="fieldDelimiterChar">The field delimiter character.</param>
+    /// <param name="fieldDelimiter">The field delimiter.</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>The NewLine Combination used</returns>
-    [NotNull]
-    public static async Task<string> GuessQualifier([NotNull] this IImprovedStream improvedStream, int codePageId, int skipRows, string fieldDelimiter,
+    public static async Task<string?> GuessQualifier(this IImprovedStream improvedStream, int codePageId, int skipRows, string fieldDelimiter,
                                                              CancellationToken cancellationToken)
     {
       using (var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken))
@@ -530,7 +528,7 @@ namespace CsvTools
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The number of rows to skip</returns>
     /// <exception cref="ArgumentNullException">commentLine</exception>
-    public static int GuessStartRow([NotNull] this ImprovedTextReader textReader, string delimiter,
+    public static int GuessStartRow(this ImprovedTextReader textReader, string delimiter,
                                      string quote, string commentLine, CancellationToken cancellationToken)
     {
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
@@ -692,8 +690,7 @@ namespace CsvTools
       return retValue;
     }
 
-    [NotNull]
-    public static async Task<string> GuessLineComment([NotNull] this IImprovedStream improvedStream, int codePageId, int skipRows, CancellationToken cancellationToken)
+    public static async Task<string> GuessLineComment(this IImprovedStream improvedStream, int codePageId, int skipRows, CancellationToken cancellationToken)
     {
       using (var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken))
       {
@@ -701,7 +698,7 @@ namespace CsvTools
       }
     }
 
-    public static string GuessLineComment([NotNull] this ImprovedTextReader textReader, CancellationToken cancellationToken)
+    public static string GuessLineComment(this ImprovedTextReader textReader, CancellationToken cancellationToken)
     {
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
       const int c_MaxRows = 50;
@@ -750,7 +747,7 @@ namespace CsvTools
     /// <param name="commentLine">The characters for a comment line.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>true if the comment line seems to ne ok </returns>
-    public static bool CheckLineCommentIsValid([NotNull] this ImprovedTextReader textReader, string commentLine, string delimiter, CancellationToken cancellationToken)
+    public static bool CheckLineCommentIsValid(this ImprovedTextReader textReader, string commentLine, string delimiter, CancellationToken cancellationToken)
     {
       // if there is no commentLine it can not be wrong
       // if there is no delimiter it can not be wrong
@@ -761,7 +758,7 @@ namespace CsvTools
 
       const int c_MaxRows = 100;
       int row = 0;
-      int lineCommneted = 0;
+      int lineCommented = 0;
       var delim = delimiter.WrittenPunctuationToChar();
       var parts = 0;
       var partsComment = -1;
@@ -773,7 +770,7 @@ namespace CsvTools
 
         if (line.StartsWith(commentLine, StringComparison.Ordinal))
         {
-          lineCommneted++;
+          lineCommented++;
           if (partsComment==-1)
             partsComment=line.Count(x => x==delim);
         }
@@ -788,12 +785,12 @@ namespace CsvTools
       }
 
       // if we could not find a commneted line exit ans asume the commet line is wrong.
-      if (lineCommneted==0)
+      if (lineCommented==0)
         return false;
 
       // in case we have 3 or more commneted lines 
       // assume the commnet was ok
-      if (lineCommneted>2)
+      if (lineCommented>2)
         return true;
 
       // since we did not properly parse the delimited text accounting for quoting (delimiter in column or newline splitting columns)
@@ -806,13 +803,12 @@ namespace CsvTools
     /// </summary>
     /// <param name="improvedStream">The improved stream.</param>
     /// <param name="codePageID">The code page identifier.</param>
-    /// <param name="fieldDelimiterChar">The field delimiter character.</param>
-    /// <param name="fieldQualifierChar">The field qualifier character.</param>
+    /// <param name="fieldDelimiter">The field delimiter character.</param>
+    /// <param name="fieldQualifier">The field qualifier character.</param>
     /// <param name="commentLine">The comment line.</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>The number of rows to skip</returns>
-    [NotNull]
-    public static async Task<int> GuessStartRow([NotNull] this IImprovedStream improvedStream, int codePageID, string fieldDelimiter, string fieldQualifier, string commentLine, CancellationToken cancellationToken)
+    public static async Task<int> GuessStartRow(this IImprovedStream improvedStream, int codePageID, string fieldDelimiter, string fieldQualifier, string commentLine, CancellationToken cancellationToken)
     {
       using (var streamReader = await improvedStream.GetStreamReaderAtStart(codePageID, 0, cancellationToken))
         return streamReader.GuessStartRow(fieldDelimiter, fieldQualifier, commentLine, cancellationToken);
@@ -824,12 +820,11 @@ namespace CsvTools
     /// <param name="improvedStream">The improved stream.</param>
     /// <param name="codePageId">The code page identifier.</param>
     /// <param name="skipRows">The skip rows.</param>
-    /// <param name="fieldDelimiterChar">The field delimiter character.</param>
-    /// <param name="fieldQualifierChar">The field qualifier character.</param>
+    /// <param name="fieldDelimiter">The field delimiter character.</param>
+    /// <param name="fieldQualifier">The field qualifier character.</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns><c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.</returns>
-    [NotNull]
-    public static async Task<bool> HasUsedQualifier([NotNull] this IImprovedStream improvedStream, int codePageId, int skipRows, string fieldDelimiter, string fieldQualifier,
+    public static async Task<bool> HasUsedQualifier(this IImprovedStream improvedStream, int codePageId, int skipRows, string fieldDelimiter, string fieldQualifier,
                                                          CancellationToken cancellationToken)
     {
       // if we do not have a quote defined it does not matter
@@ -876,8 +871,7 @@ namespace CsvTools
     /// <param name="encoding">The encoding.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns><c>true</c> if json could be read from stream; otherwise, <c>false</c>.</returns>
-    [NotNull]
-    public static async Task<bool> IsJsonReadable([NotNull] this IImprovedStream impStream, Encoding encoding,
+    public static async Task<bool> IsJsonReadable(this IImprovedStream impStream, Encoding encoding,
                                                         CancellationToken cancellationToken)
     {
       if (!(impStream is Stream stream))
@@ -927,12 +921,12 @@ namespace CsvTools
     ///   if true, try to determine if the file does have a header row
     /// </param>
     /// <param name="guessNewLine">if true, try to determine what kind of new line we do use</param>
+    /// <param name="guessCommentLine"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
-    [NotNull]
     public static async Task<DelimitedFileDetectionResult> GetDetectionResultFromFile(
-      [NotNull] this string fileName,
-      [NotNull] IProcessDisplay display,
+      this string fileName,
+      IProcessDisplay display,
       bool guessJson = false,
       bool guessCodePage = true,
       bool guessDelimiter = true,
@@ -953,7 +947,7 @@ namespace CsvTools
       }
     }
 
-    public static async Task<int> CodePageResolve([NotNull] this IImprovedStream improvedStream, int codePageId, CancellationToken cancellationToken)
+    public static async Task<int> CodePageResolve(this IImprovedStream improvedStream, int codePageId, CancellationToken cancellationToken)
     {
       if (codePageId < 0)
       {
@@ -963,8 +957,7 @@ namespace CsvTools
       return codePageId;
     }
 
-    [NotNull]
-    private static DelimiterCounter GetDelimiterCounter([NotNull] this ImprovedTextReader textReader, string escape, int numRows, CancellationToken cancellationToken)
+    private static DelimiterCounter GetDelimiterCounter(this ImprovedTextReader textReader, string escape, int numRows, CancellationToken cancellationToken)
     {
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
 
@@ -1055,8 +1048,7 @@ namespace CsvTools
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <exception cref="ArgumentNullException">streamReader</exception>
     /// <remarks>No Error will not be thrown.</remarks>
-    [NotNull]
-    private static Tuple<string, bool> GuessDelimiter([NotNull] this ImprovedTextReader textReader, string escapeCharacter,
+    private static Tuple<string, bool> GuessDelimiter(this ImprovedTextReader textReader, string escapeCharacter,
                       CancellationToken cancellationToken)
     {
       if (textReader == null)
@@ -1182,7 +1174,7 @@ namespace CsvTools
       return new Tuple<string, bool>(result, true);
     }
 
-    private static RecordDelimiterType GuessNewline([NotNull] this ImprovedTextReader textReader,
+    private static RecordDelimiterType GuessNewline(this ImprovedTextReader textReader,
                                                     string fieldQualifier,
                                                     CancellationToken token)
     {
@@ -1281,7 +1273,7 @@ namespace CsvTools
       return res;
     }
 
-    private static char GuessQualifier([NotNull] this ImprovedTextReader textReader, string delimiter, CancellationToken cancellationToken)
+    private static char GuessQualifier(this ImprovedTextReader textReader, string delimiter, CancellationToken cancellationToken)
     {
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
       var delimiterChar = delimiter.WrittenPunctuationToChar();
@@ -1297,12 +1289,11 @@ namespace CsvTools
            lineNo++)
       {
         var line = textReader.ReadLine();
-        // EOF
-        if (line == null)
+        if (string.IsNullOrEmpty(line))
         {
-          if (textReaderPosition.CanStartFromBeginning())
-            continue;
-          break;
+          if (textReader.EndOfStream && !textReaderPosition.CanStartFromBeginning())
+            break;
+          continue;
         }
 
         var cols = line.Split(delimiterChar);

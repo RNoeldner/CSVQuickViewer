@@ -1,4 +1,17 @@
-using JetBrains.Annotations;
+/*
+ * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,7 +22,7 @@ namespace CsvTools
 
 	public sealed class MappingCollection : ObservableCollection<Mapping>, ICloneable<MappingCollection>, IEquatable<MappingCollection>
 	{
-		public bool AddIfNew(Mapping fieldMapping)
+		public bool AddIfNew(Mapping? fieldMapping)
 		{
 			if (fieldMapping == null)
 				return false;
@@ -47,7 +60,7 @@ namespace CsvTools
 		/// <returns>
 		///   true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
 		/// </returns>
-		public bool Equals(MappingCollection other) => Items.CollectionEqual(other);
+		public bool Equals(MappingCollection? other) => Items.CollectionEqual(other);
 
 		public IEnumerable<Mapping> GetByColumn(string columnName) =>
 			Items.Where(mapping => mapping.FileColumn.Equals(columnName, StringComparison.OrdinalIgnoreCase));
@@ -57,15 +70,14 @@ namespace CsvTools
 		/// </summary>
 		/// <param name="templateFieldName">The template column.</param>
 		/// <returns>Null if the template table field is not mapped</returns>
-		public Mapping GetByField(string templateFieldName)
+		public Mapping? GetByField(string templateFieldName)
 		{
 			if (string.IsNullOrEmpty(templateFieldName)) return null;
 			return Items.FirstOrDefault(
 				map => map.TemplateField.Equals(templateFieldName, StringComparison.OrdinalIgnoreCase));
 		}
 
-		[CanBeNull]
-		public string GetColumnName(string templateFieldName) => GetByField(templateFieldName)?.FileColumn;
+		public string? GetColumnName(string templateFieldName) => GetByField(templateFieldName)?.FileColumn;
 
 		/// <summary>
 		///   Remove a Fields mapping.

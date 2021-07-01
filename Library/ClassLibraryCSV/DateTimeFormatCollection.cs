@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System.Collections.Generic;
 
 
@@ -62,7 +61,6 @@ namespace CsvTools
     /// <param name="length">The length.</param>
     /// <param name="checkNamedDates">if set to <c>true</c> check named dates e.g. January, February</param>
     /// <returns></returns>
-    [NotNull]
     public IEnumerable<string> MatchingForLength(int length, bool checkNamedDates) =>
       from kvFormatInformation in m_DateLengthMinMax
       where (checkNamedDates || !kvFormatInformation.Value.NamedDate) && length >= kvFormatInformation.Value.MinLength

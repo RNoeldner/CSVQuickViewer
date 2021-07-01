@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -33,7 +32,7 @@ namespace CsvTools
     {
     }
 
-    public Mapping([NotNull] string fileColumn, [NotNull] string templateField, bool update = false,
+    public Mapping(string fileColumn, string templateField, bool update = false,
       bool attention = false)
     {
       FileColumn = fileColumn;
@@ -72,7 +71,6 @@ namespace CsvTools
     /// <value>The source.</value>
     /// <remarks>The set operator is only present to allow serialization</remarks>
     [XmlAttribute("Column")]
-    [NotNull]
     public string FileColumn { get; set; }
 
     /// <summary>
@@ -81,7 +79,6 @@ namespace CsvTools
     /// <value>The destination.</value>
     /// <remarks>The set operator is only present to allow serialization</remarks>
     [XmlAttribute("Field")]
-    [NotNull]
     public string TemplateField { get; set; }
 
     /// <summary>
@@ -98,7 +95,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
     ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
-    public bool Equals(Mapping other)
+    public bool Equals(Mapping? other)
     {
       if (other is null)
         return false;
@@ -117,7 +114,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
     ///   <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj) => Equals(obj as Mapping);
+    public override bool Equals(object? obj) => Equals(obj as Mapping);
 
     /// <summary>
     ///   Serves as the default hash function.

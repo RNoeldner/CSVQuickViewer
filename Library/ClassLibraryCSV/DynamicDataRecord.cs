@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
@@ -7,20 +8,20 @@ namespace CsvTools
 {
   public class DynamicDataRecord : DynamicObject
   {
-    private readonly Dictionary<string, object> properties = null;
+    private readonly Dictionary<string, object> m_Properties;
 
     public DynamicDataRecord(IDataRecord dataRecord)
     {
-      properties = new Dictionary<string, object>(dataRecord?.FieldCount ??  throw new ArgumentNullException(nameof(dataRecord)));
+      m_Properties = new Dictionary<string, object>(dataRecord?.FieldCount ??  throw new ArgumentNullException(nameof(dataRecord)));
       for (var i = 0; i < dataRecord.FieldCount; i++)
-        properties.Add(dataRecord.GetName(i), dataRecord.GetValue(i));
+        m_Properties.Add(dataRecord.GetName(i), dataRecord.GetValue(i));
     }
 
-    public override bool TryGetMember(GetMemberBinder binder, out object result) => properties.TryGetValue(binder.Name, out result);
+    public override bool TryGetMember(GetMemberBinder binder, out object result) => m_Properties.TryGetValue(binder.Name, out result);
 
     public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
     {
-      dynamic method = properties[binder.Name];
+      dynamic method = m_Properties[binder.Name];
       result = method(args[0].ToString(), args[1].ToString());
       return true;
     }
@@ -29,7 +30,7 @@ namespace CsvTools
     {
       try
       {
-        properties[binder.Name] = value;
+        m_Properties[binder.Name] = value;
         return true;
       }
       catch (Exception)

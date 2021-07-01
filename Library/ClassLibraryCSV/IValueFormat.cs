@@ -12,27 +12,26 @@
 // * If not, see http://www.gnu.org/licenses/ . *
 // */
 
-using JetBrains.Annotations;
 
 namespace CsvTools
 {
   public interface IValueFormat
   {
-    DataType DataType { [NotNull] get; }
+    DataType DataType { get; }
 
-    string DateFormat { [NotNull] get; }
+    string DateFormat { get; }
 
     /// <summary>
     ///   The value will return the resulted Seperator, passing in "Colon" will return ":"
     /// </summary>
-    string DateSeparator { [NotNull] get; }
+    string DateSeparator { get; }
 
     /// <summary>
     ///   The value will return the resulted Seperator, passing in "Dot" will return "."
     /// </summary>
-    string TimeSeparator { [NotNull] get; }
+    string TimeSeparator { get; }
 
-    string NumberFormat { [NotNull] get; }
+    string NumberFormat { get; }
 
     /// <summary>
     ///   The value will return the resulted Seperator, passing in "Dot" will return "."
@@ -44,8 +43,8 @@ namespace CsvTools
     /// </summary>
     string GroupSeparator { get; }
 
-    string True { [NotNull] get; }
-    string False { [NotNull] get; }
-    string DisplayNullAs { [NotNull] get; }
+    string True { get; }
+    string False { get; }
+    string DisplayNullAs { get; }
   }
 }

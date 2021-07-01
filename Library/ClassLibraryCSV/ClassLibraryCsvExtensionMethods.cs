@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -34,14 +33,12 @@ namespace CsvTools
 
   public static class ClassLibraryCsvExtensionMethods
   {
-    public static async Task<long> WriteAsync([NotNull] this IFileWriter writer, [NotNull] string sqlStatement,
-                                              int timeout, Action<string> reportProgress, CancellationToken cancellationToken)
+    public static async Task<long> WriteAsync(this IFileWriter writer, string sqlStatement,
+                                              int timeout, Action<string>? reportProgress, CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(sqlStatement))
         return 0;
 
-      if (FunctionalDI.SQLDataReader == null)
-        throw new ArgumentException("No SQL Reader set");
       using (var sqlReader = await FunctionalDI
                                    .SQLDataReader(sqlStatement, (sender, s) => reportProgress?.Invoke(s.Text), timeout, cancellationToken)
                                    .ConfigureAwait(false))
@@ -54,10 +51,9 @@ namespace CsvTools
     public static string Description(this RecordDelimiterType item)
     {
       var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));
-      return descConv.ConvertToString(item);
+      return descConv.ConvertToString(item) ?? string.Empty;
     }
 
-    [NotNull]
     public static string NewLineString(this RecordDelimiterType type)
     {
       switch (type)
@@ -93,11 +89,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumeGZip([NotNull] this string fileName) =>
+    public static bool AssumeGZip(this string fileName) =>
       fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) ||
       fileName.EndsWith(".gzip", StringComparison.OrdinalIgnoreCase);
 
-    public static bool AssumeDeflate([NotNull] this string fileName) =>
+    public static bool AssumeDeflate(this string fileName) =>
       fileName.EndsWith(".cmp", StringComparison.OrdinalIgnoreCase) ||
       fileName.EndsWith(".dfl", StringComparison.OrdinalIgnoreCase);
 
@@ -106,7 +102,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumePgp([NotNull] this string fileName) =>
+    public static bool AssumePgp(this string fileName) =>
       fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase) ||
       fileName.EndsWith(".gpg", StringComparison.OrdinalIgnoreCase);
 
@@ -115,7 +111,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumeZip([NotNull] this string fileName) =>
+    public static bool AssumeZip(this string fileName) =>
       fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
@@ -125,7 +121,7 @@ namespace CsvTools
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
     [DebuggerStepThrough]
-    public static void CollectionCopy<T>([NotNull] this IEnumerable<T> self, [CanBeNull] ICollection<T> other)
+    public static void CollectionCopy<T>(this IEnumerable<T> self, ICollection<T>? other)
       where T : ICloneable<T>
     {
       if (other == null) return;
@@ -141,7 +137,7 @@ namespace CsvTools
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
     [DebuggerStepThrough]
-    public static void CollectionCopyStruct<T>([NotNull] this IEnumerable<T> self, [CanBeNull] ICollection<T> other)
+    public static void CollectionCopyStruct<T>(this IEnumerable<T> self, ICollection<T>? other)
       where T : struct
     {
       if (other == null)
@@ -158,19 +154,14 @@ namespace CsvTools
     /// <param name="items">The items.</param>
     /// <returns></returns>
     [DebuggerStepThrough]
-    public static int Count([CanBeNull] this IEnumerable items)
+    public static int Count(this IEnumerable? items)
     {
-      switch (items)
+      return items switch
       {
-        case null:
-          return 0;
-
-        case ICollection col:
-          return col.Count;
-
-        default:
-          return Enumerable.Count(items.Cast<object>());
-      }
+        null => 0,
+        ICollection col => col.Count,
+        _ => Enumerable.Count(items.Cast<object>())
+      };
     }
 
     /// <summary>
@@ -178,7 +169,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="dt">The <see cref="DataType" />.</param>
     /// <returns>A text representing the dataType</returns>
-    [NotNull]
     public static string DataTypeDisplay(this DataType dt)
     {
       switch (dt)
@@ -225,8 +215,7 @@ namespace CsvTools
     /// <param name="maxDepth">The maximum depth.</param>
     /// <returns>A string with all messages in the error stack</returns>
     [DebuggerStepThrough]
-    [NotNull]
-    public static string ExceptionMessages([NotNull] this Exception exception, int maxDepth = 3)
+    public static string ExceptionMessages(this Exception exception, int maxDepth = 3)
     {
       var sb = new StringBuilder();
 
@@ -256,7 +245,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="type">The type.</param>
     /// <returns>The matching <see cref="DataType" />.</returns>
-    public static DataType GetDataType([NotNull] this Type type)
+    public static DataType GetDataType(this Type type)
     {
       switch (Type.GetTypeCode(type))
       {
@@ -301,8 +290,7 @@ namespace CsvTools
       }
     }
 
-    [NotNull]
-    public static string NoRecordSQL([CanBeNull] this string source)
+    public static string NoRecordSQL(this string source)
     {
       if (string.IsNullOrEmpty(source))
         return string.Empty;
@@ -330,8 +318,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="path">The complete path to a file</param>
     /// <returns>The filename without special characters</returns>
-    [NotNull]
-    public static string GetIdFromFileName([NotNull] this string path)
+    public static string GetIdFromFileName(this string path)
     {
       var fileName = FileSystemUtils.GetFileName(path).ProcessByCategory(x =>
         x == UnicodeCategory.UppercaseLetter || x == UnicodeCategory.LowercaseLetter ||
@@ -412,8 +399,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="process">The process display.</param>
     /// <returns></returns>
-    public static EventHandler<string> GetLogInfoMessage(this IProcessDisplay process) =>
-      delegate (object sender, string message)
+    public static EventHandler<string> GetLogInfoMessage(this IProcessDisplay? process) =>
+      delegate (object? sender, string message)
       {
         Logger.Information("SQL Information: {message}", message);
         process?.SetProcess(message, -1, true);
@@ -424,8 +411,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable" /> containing the columns</param>
     /// <returns>A enumeration of ColumnNames</returns>
-    [NotNull]
-    public static IEnumerable<string> GetRealColumns([CanBeNull] this DataTable dataTable) =>
+    public static IEnumerable<string> GetRealColumns(this DataTable? dataTable) =>
       GetRealDataColumns(dataTable).Select(x => x.ColumnName);
 
     /// <summary>
@@ -433,8 +419,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable" /> containing the columns</param>
     /// <returns>A enumeration of <see cref="DataColumn" /></returns>
-    [NotNull]
-    public static IEnumerable<DataColumn> GetRealDataColumns([CanBeNull] this DataTable dataTable)
+    public static IEnumerable<DataColumn> GetRealDataColumns(this DataTable? dataTable)
     {
       if (dataTable == null)
         yield break;
@@ -450,8 +435,7 @@ namespace CsvTools
     /// <param name="maxDepth">The maximum depth.</param>
     /// <returns>A string with all inner messages of the error stack</returns>
     [DebuggerStepThrough]
-    [NotNull]
-    public static string InnerExceptionMessages([CanBeNull] this Exception exception, int maxDepth = 2)
+    public static string InnerExceptionMessages(this Exception? exception, int maxDepth = 2)
     {
       if (exception == null)
         return string.Empty;
@@ -480,24 +464,23 @@ namespace CsvTools
       }
     }
 
-    [NotNull]
-    public static string PlaceholderReplaceFormat([NotNull] this string input, [NotNull] string placeholder, [CanBeNull] object replacement)
+    public static string PlaceholderReplaceFormat(this string input, string placeholder, object? replacement)
     {
       if (replacement == null) return input;
-      // in case we have a placeholder with a formating part e.G. {date:yyyy-MM-dd} we us
+      // in case we have a placeholder with a formatting part e.G. {date:yyyy-MM-dd} we us
       // string.Format to process {0:...
 
-      // General regex without mathcing the placeholder name is: (?:[{#])([^:\s}#]*)(:[^}]*)?(?:[}#\s])
+      // General regex without matching the placeholder name is: (?:[{#])([^:\s}#]*)(:[^}]*)?(?:[}#\s])
 
-      // Needs to strat with # or { Ends with #, space or } May contain a Format desciption starting
+      // Needs to start with # or { Ends with #, space or } May contain a Format description starting
       // with : ending with }
       var regEx = new Regex(@"(?:[{#])(" + Regex.Escape(placeholder) +  @")(:[^}]*)?(?:[}#\s])", RegexOptions.IgnoreCase | RegexOptions.Singleline);
       if (regEx.IsMatch(input))
       {
-        var withformat = regEx.Replace(input, "{0$2}");
-        return string.Format(withformat, replacement);
+        var withFormat = regEx.Replace(input, "{0$2}");
+        return string.Format(withFormat, replacement);
       }
-      // using string format but replace the placeholer text with 0 as only argument
+      // using string format but replace the placeholder text with 0 as only argument
       else
         return PlaceholderReplace(input, placeholder, replacement.ToString());
     }
@@ -511,9 +494,8 @@ namespace CsvTools
     /// <param name="replacement">The replacement.</param>
     /// <returns>The new text based on input</returns>
     [DebuggerStepThrough]
-    [NotNull]
-    public static string PlaceholderReplace([NotNull] this string input, [NotNull] string placeholder,
-                                            [CanBeNull] string replacement)
+    public static string PlaceholderReplace(this string input, string placeholder,
+                                            string? replacement)
     {
       if (string.IsNullOrEmpty(replacement)) return input;
 
@@ -555,8 +537,7 @@ namespace CsvTools
     /// <param name="replacement">the character to which it should be changed</param>
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
-    [NotNull]
-    public static string ReplaceCaseInsensitive([NotNull] this string original, [CanBeNull] string pattern,
+    public static string ReplaceCaseInsensitive(this string original, string? pattern,
                                                 char replacement)
     {
       var count = 0;
@@ -567,7 +548,7 @@ namespace CsvTools
         return original;
 
       var upperString = original.ToUpperInvariant();
-      var upperPattern = pattern.ToUpperInvariant();
+      var upperPattern = pattern!.ToUpperInvariant();
 
       var inc = original.Length / pattern.Length * (1 - pattern.Length);
       var chars = new char[original.Length + Math.Max(0, inc)];
@@ -595,15 +576,14 @@ namespace CsvTools
     /// <param name="replacement">the text to which it should be changed</param>
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
-    [NotNull]
-    public static string ReplaceCaseInsensitive([NotNull] this string original, [CanBeNull] string pattern,
-                                                [CanBeNull] string replacement)
+    public static string ReplaceCaseInsensitive(this string original, string? pattern,
+                                                string? replacement)
     {
       if (string.IsNullOrEmpty(pattern))
         return original;
 
-      if (replacement == null)
-        replacement = string.Empty;
+      replacement ??= string.Empty;
+      pattern ??= string.Empty;
 
       // if pattern matches replacement exit
       if (replacement.Equals(pattern, StringComparison.Ordinal))
@@ -644,9 +624,8 @@ namespace CsvTools
     /// <param name="old2">The old2.</param>
     /// <param name="new2">The new2.</param>
     /// <returns></returns>
-    [NotNull]
-    public static string ReplaceDefaults([NotNull] this string inputValue, [CanBeNull] string old1,
-                                         [CanBeNull] string new1, [CanBeNull] string old2, [CanBeNull] string new2)
+    public static string ReplaceDefaults(this string inputValue, string? old1,
+                                         string? new1, string? old2, string? new2)
     {
       if (string.IsNullOrEmpty(inputValue))
         return string.Empty;
@@ -655,15 +634,15 @@ namespace CsvTools
       var exchange2 = !string.IsNullOrEmpty(old2) && string.Compare(old2, new2, StringComparison.Ordinal) != 0;
       if (exchange1 && exchange2 && string.Equals(new1, old2))
       {
-        inputValue = inputValue.Replace(old1, "{\0}");
-        inputValue = inputValue.Replace(old2, new2);
+        inputValue = inputValue.Replace(old1!, "{\0}");
+        inputValue = inputValue.Replace(old2!, new2);
         return inputValue.Replace("{\0}", new1);
       }
 
       if (exchange1)
-        inputValue = inputValue.Replace(old1, new1);
+        inputValue = inputValue.Replace(old1!, new1);
       if (exchange2)
-        inputValue = inputValue.Replace(old2, new2);
+        inputValue = inputValue.Replace(old2!, new2);
 
       return inputValue;
     }
@@ -675,8 +654,7 @@ namespace CsvTools
     /// <param name="obj">The object that is used to look at the properties</param>
     /// <returns>Any found property placeholder is replaced by the property value</returns>
     [DebuggerStepThrough]
-    [NotNull]
-    public static string ReplacePlaceholderWithPropertyValues([NotNull] this string template, object obj)
+    public static string ReplacePlaceholderWithPropertyValues(this string template, object obj)
     {
       if (template.IndexOf('{') == -1)
         return template;
@@ -713,8 +691,7 @@ namespace CsvTools
     /// </param>
     /// <returns>Any found property placeholder is replaced by the provide text</returns>
     [DebuggerStepThrough]
-    [NotNull]
-    public static string ReplacePlaceholderWithText([NotNull] this string template, params string[] values)
+    public static string ReplacePlaceholderWithText(this string template, params string[] values)
     {
       if (template.IndexOf('{') == -1)
         return template;
@@ -738,8 +715,7 @@ namespace CsvTools
       return template.Replace("  ", " ");
     }
 
-    [CanBeNull]
-    public static string CsvToolsStackTrace([NotNull] this Exception exception)
+    public static string? CsvToolsStackTrace(this Exception exception)
     {
       if (string.IsNullOrEmpty(exception.StackTrace))
         return null;
@@ -755,8 +731,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="exception">Any exception <see cref="Exception" /></param>
     [DebuggerStepThrough]
-    [NotNull]
-    public static string SourceExceptionMessage([NotNull] this Exception exception)
+    public static string SourceExceptionMessage(this Exception exception)
     {
       var loop = exception;
       while (loop.InnerException != null)
@@ -765,18 +740,13 @@ namespace CsvTools
       return loop.Message;
     }
 
-    public static void SetMaximum([CanBeNull] this IProcessDisplay processDisplay, long maximum)
+    public static void SetMaximum(this IProcessDisplay? processDisplay, long maximum)
     {
       if (processDisplay is IProcessDisplayTime processDisplayTime)
         processDisplayTime.Maximum = maximum;
     }
 
-    public static int ToInt(this ulong value)
-    {
-      if (value > int.MaxValue)
-        return int.MaxValue;
-      return Convert.ToInt32(value);
-    }
+    public static int ToInt(this ulong value) => value > int.MaxValue ? int.MaxValue : Convert.ToInt32(value);
 
     public static int ToInt(this long value)
     {
@@ -815,7 +785,6 @@ namespace CsvTools
 
     public static string ToStringHandle0(this char input) => input=='\0' ? string.Empty : input.ToString();
 
-    [NotNull]
     public static string GetDescription(this char input) => input.ToStringHandle0().GetDescription();
 
     /// <summary>
@@ -823,7 +792,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="input">The input string.</param>
     /// <returns></returns>
-    [NotNull]
     public static string GetDescription(this string input)
     {
       if (string.IsNullOrEmpty(input))
@@ -888,16 +856,15 @@ namespace CsvTools
           return "File Separator: Char 28";
 
         default:
-          return input.ToString();
+          return input;
       }
     }
 
     /// <summary>
-    ///   Return a string resolving written puctuation
+    ///   Return a string resolving written punctuation
     /// </summary>
     /// <param name="inputString"></param>
     /// <returns>A string of length 1 or empty</returns>
-    [NotNull]
     public static string WrittenPunctuation(this string inputString)
     {
       if (string.IsNullOrEmpty(inputString))
@@ -1065,7 +1032,7 @@ namespace CsvTools
       return WrittenPunctuation(inputString)[0];
     }
 
-    public static char StringToChar([NotNull] this string inputString)
+    public static char StringToChar(this string inputString)
     {
       if (string.IsNullOrEmpty(inputString))
         return '\0';
@@ -1086,10 +1053,8 @@ namespace CsvTools
     ///   Parameter is IEnumerable to make it work with ICollections, IReadOnlyCollection, Arrays
     ///   and ObservableCollection
     /// </remarks>
-    public static bool CollectionEqual<T>(this IEnumerable<T> self, IEnumerable<T> other) where T : IEquatable<T>
+    public static bool CollectionEqual<T>(this IEnumerable<T> self, IEnumerable<T>? other) where T : IEquatable<T>
     {
-      if (self == null)
-        throw new ArgumentNullException(nameof(self));
       if (other == null)
         return false;
       if (ReferenceEquals(other, self))
@@ -1116,7 +1081,7 @@ namespace CsvTools
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
     /// <returns></returns>
-    public static bool CollectionEqualWithOrder<T>([NotNull] this IEnumerable<T> self, [CanBeNull] IEnumerable<T> other)
+    public static bool CollectionEqualWithOrder<T>(this IEnumerable<T> self, IEnumerable<T>? other)
       where T : IEquatable<T>
     {
       if (self == null)
@@ -1134,21 +1099,19 @@ namespace CsvTools
 
       // use Enumerators to compare the two collections
       var comparer = EqualityComparer<T>.Default;
-      using (var selfEnum = self.GetEnumerator())
-      using (var otherEnum = other.GetEnumerator())
+      using var selfEnum = self.GetEnumerator();
+      using var otherEnum = other.GetEnumerator();
+      while (true)
       {
-        while (true)
-        {
-          // move to the next item
-          var s = selfEnum.MoveNext();
-          var o = otherEnum.MoveNext();
-          if (!s && !o)
-            return true;
-          if (!s || !o)
-            return false;
-          if (!comparer.Equals(selfEnum.Current, otherEnum.Current))
-            return false;
-        }
+        // move to the next item
+        var s = selfEnum.MoveNext();
+        var o = otherEnum.MoveNext();
+        if (!s && !o)
+          return true;
+        if (!s || !o)
+          return false;
+        if (!comparer.Equals(selfEnum.Current, otherEnum.Current))
+          return false;
       }
     }
 

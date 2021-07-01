@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -79,9 +78,9 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="culture">the culture to check (important for named Days or month)</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
-    [NotNull]
-    public static CheckResult CheckDate([NotNull] ICollection<string> samples, [NotNull] string shortDateFormat, [NotNull] string dateSeparator,
-      [NotNull] string timeSeparator, CultureInfo culture)
+
+    public static CheckResult CheckDate(ICollection<string> samples, string shortDateFormat, string dateSeparator,
+       string timeSeparator, CultureInfo culture)
     {
       var checkResult = new CheckResult();
       if (samples.Count == 0)
@@ -129,7 +128,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <returns><c>true</c> if all values can be interpreted as Guid, <c>false</c> otherwise.</returns>
-    public static bool CheckGuid([NotNull] IEnumerable<string> samples)
+    public static bool CheckGuid(IEnumerable<string> samples)
     {
       var isEmpty = true;
       foreach (var value in samples)
@@ -151,53 +150,55 @@ namespace CsvTools
     /// <param name="thousandSeparator">The thousand separator.</param>
     /// <param name="allowPercentage">Allows Percentages</param>
     /// <param name="allowStartingZero">if set to <c>true</c> [allow starting zero].</param>
+    /// <param name="minSamples"></param>
     /// <returns><c>true</c> if all values can be interpreted as numbers, <c>false</c> otherwise.</returns>
-    public static CheckResult CheckNumber([NotNull] ICollection<string> samples, string decimalSeparator, string thousandSeparator,
+    public static CheckResult CheckNumber(ICollection<string> samples, string decimalSeparator, string thousandSeparator,
       bool allowPercentage, bool allowStartingZero, int minSamples)
     {
       var checkResult = new CheckResult();
-      if (samples.Count >= minSamples)
+      if (samples.Count < minSamples) return checkResult;
+      var allParsed = true;
+      var assumeInteger = true;
+      var positiveMatches = 0;
+
+      foreach (var value in samples)
       {
-        var allParsed = true;
-        var assumeInteger = true;
-        var positiveMatches = 0;
+        if (value is null)
+          continue;
 
-        foreach (var value in samples)
+        var ret = StringToDecimal(value, decimalSeparator, thousandSeparator, allowPercentage);
+        // Any number with leading 0 should not be treated as numeric this is to avoid problems with
+        // 0002 etc.
+        if (!ret.HasValue || !allowStartingZero && value.StartsWith("0", StringComparison.Ordinal) &&
+          Math.Floor(ret.Value) != 0)
         {
-          var ret = StringToDecimal(value, decimalSeparator, thousandSeparator, allowPercentage);
-          // Any number with leading 0 should not be treated as numeric this is to avoid problems with
-          // 0002 etc.
-          if (!ret.HasValue || !allowStartingZero && value.StartsWith("0", StringComparison.Ordinal) &&
-            Math.Floor(ret.Value) != 0)
-          {
-            allParsed = false;
-            checkResult.ExampleNonMatch.Add(value);
-            // try to get some positive matches, in case the first record is invalid
-            if (checkResult.ExampleNonMatch.Count > 2)
-              break;
-          }
-          else
-          {
-            positiveMatches++;
-            if (positiveMatches >= minSamples && !checkResult.PossibleMatch)
-            {
-              checkResult.PossibleMatch = true;
-              checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(assumeInteger ? DataType.Integer : DataType.Numeric, groupSeparator: thousandSeparator, decimalSeparator: decimalSeparator);
-            }
-
-            // if the value contains the decimal separator or is too large to be an integer, its not
-            // an integer
-            if (value.IndexOf(decimalSeparator) != -1)
-              assumeInteger = false;
-            else
-              assumeInteger = assumeInteger && ret.Value == Math.Truncate(ret.Value) && ret.Value <= int.MaxValue &&
-                              ret.Value >= int.MinValue;
-          }
+          allParsed = false;
+          checkResult.ExampleNonMatch.Add(value);
+          // try to get some positive matches, in case the first record is invalid
+          if (checkResult.ExampleNonMatch.Count > 2)
+            break;
         }
+        else
+        {
+          positiveMatches++;
+          if (positiveMatches >= minSamples && !checkResult.PossibleMatch)
+          {
+            checkResult.PossibleMatch = true;
+            checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(assumeInteger ? DataType.Integer : DataType.Numeric, groupSeparator: thousandSeparator, decimalSeparator: decimalSeparator);
+          }
 
-        if (allParsed)
-          checkResult.FoundValueFormat = new ImmutableValueFormat(assumeInteger ? DataType.Integer : DataType.Numeric, groupSeparator: thousandSeparator, decimalSeparator: decimalSeparator);
+          // if the value contains the decimal separator or is too large to be an integer, its not
+          // an integer
+          if (value.IndexOf(decimalSeparator, StringComparison.Ordinal) != -1)
+            assumeInteger = false;
+          else
+            assumeInteger = assumeInteger && ret.Value == Math.Truncate(ret.Value) && ret.Value <= int.MaxValue &&
+                            ret.Value >= int.MinValue;
+        }
       }
+
+      if (allParsed)
+        checkResult.FoundValueFormat = new ImmutableValueFormat(assumeInteger ? DataType.Integer : DataType.Numeric, groupSeparator: thousandSeparator, decimalSeparator: decimalSeparator);
       return checkResult;
     }
 
@@ -210,7 +211,7 @@ namespace CsvTools
     ///   (-80 +20 years)
     /// </param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
-    public static CheckResult CheckSerialDate([NotNull] IEnumerable<string> samples, bool isCloseToNow)
+    public static CheckResult CheckSerialDate(IEnumerable<string> samples, bool isCloseToNow)
     {
       var checkResult = new CheckResult();
 
@@ -265,7 +266,7 @@ namespace CsvTools
     ///   <c>true</c> if all values can be interpreted as time and the list is not empty,
     ///   <c>false</c> otherwise.
     /// </returns>
-    public static bool CheckTime(IEnumerable<string> samples, string timeSeparator)
+    public static bool CheckTime(IEnumerable<string>? samples, string timeSeparator)
     {
       if (samples == null)
         return false;
@@ -293,7 +294,7 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="serialDateTime">Allow Date Time values in serial format</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
-    public static bool CheckTimeSpan(IEnumerable<string> samples, string timeSeparator, bool serialDateTime)
+    public static bool CheckTimeSpan(IEnumerable<string>? samples, string timeSeparator, bool serialDateTime)
     {
       if (samples == null)
         return false;
@@ -328,7 +329,7 @@ namespace CsvTools
     /// </param>
     /// <returns>A combined date from a date and a time column</returns>
     /// <remarks>This does not have time zone adjustments yet</remarks>
-    public static DateTime? CombineObjectsToDateTime(object dateColumn, string dateColumnText, object timeColumn,
+    public static DateTime? CombineObjectsToDateTime(object? dateColumn, string dateColumnText, object? timeColumn,
       string timeColumnText, bool serialDateTime, IValueFormat valueFormat, out bool timeColumnIssues)
     {
       var dateValue = m_FirstDateTime;
@@ -345,7 +346,7 @@ namespace CsvTools
       // if we did not convert yet and we have a text use it
       if (dateValue == m_FirstDateTime && !string.IsNullOrEmpty(dateColumnText))
       {
-        var val = CombineStringsToDateTime(dateColumnText, valueFormat.DateFormat, null, valueFormat.DateSeparator,
+        var val = CombineStringsToDateTime(dateColumnText, valueFormat.DateFormat, string.Empty, valueFormat.DateSeparator,
           valueFormat.TimeSeparator,
           serialDateTime);
         if (val.HasValue)
@@ -406,7 +407,7 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="serialDateTime">Allow Date Time values ion serial format</param>
     /// <returns></returns>
-    public static DateTime? CombineStringsToDateTime(string datePart, [CanBeNull] string dateFormat, string timePart,
+    public static DateTime? CombineStringsToDateTime(string datePart, string? dateFormat, string timePart,
       string dateSeparator, string timeSeparator, bool serialDateTime)
     {
       //DateTime? date = null;
@@ -414,7 +415,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(dateFormat))
         return null;
 
-      var date = StringToDateTime(datePart, dateFormat, dateSeparator, timeSeparator, serialDateTime);
+      var date = StringToDateTime(datePart, dateFormat!, dateSeparator, timeSeparator, serialDateTime);
 
       // In case a value is read that just is a time, need to adjust c# and Excel behavior the
       // application assumes all dates on cFirstDatetime is a time only
@@ -438,7 +439,7 @@ namespace CsvTools
     ///   <c>true</c> if this could possibly be correct, <c>false</c> if the text is too short or
     ///   too long
     /// </returns>
-    public static bool DateLengthMatches(int length, [NotNull] string dateFormat)
+    public static bool DateLengthMatches(int length, string dateFormat)
     {
       // Either the format is known then use the determined length restrictions
       if (StandardDateTimeFormats.TryGetValue(dateFormat, out var lengthMinMax))
@@ -452,8 +453,8 @@ namespace CsvTools
     /// <param name="dateTime">The date time.</param>
     /// <param name="format">The <see cref="IValueFormat" />.</param>
     /// <returns>Formatted value</returns>
-    [NotNull]
-    public static string DateTimeToString(DateTime dateTime, [NotNull] IValueFormat format)
+
+    public static string DateTimeToString(DateTime dateTime, IValueFormat format)
     {
       if (!format.DateFormat.Contains("HHH"))
         return dateTime.ToString(format.DateFormat, CultureInfo.InvariantCulture)
@@ -495,7 +496,7 @@ namespace CsvTools
     /// <param name="dateSeparator">The date separator.</param>
     /// <param name="timeSeparator">The time separator.</param>
     /// <returns>Formatted value</returns>
-    [NotNull]
+
     public static string DateTimeToString(DateTime dateTime, string format, string dateSeparator, string timeSeparator)
     {
       return DateTimeToString(dateTime, new ValueFormatMutable
@@ -512,8 +513,8 @@ namespace CsvTools
     /// <param name="value">The value.</param>
     /// <param name="format">The <see cref="ValueFormatMutable" />.</param>
     /// <returns>Formatted value</returns>
-    [NotNull]
-    public static string DecimalToString(decimal value, [NotNull] IValueFormat format)
+
+    public static string DecimalToString(decimal value, IValueFormat format)
     {
       if (string.IsNullOrEmpty(format.NumberFormat))
         // Get the default format
@@ -530,7 +531,7 @@ namespace CsvTools
     /// <param name="dateTime">The date time.</param>
     /// <param name="culture">The culture.</param>
     /// <returns></returns>
-    [NotNull]
+
     public static string DisplayDateTime(DateTime dateTime, CultureInfo culture)
     {
       // if we only have a time:
@@ -554,8 +555,8 @@ namespace CsvTools
     /// <param name="value">The value.</param>
     /// <param name="format">The <see cref="ValueFormatMutable" />.</param>
     /// <returns>Formatted value</returns>
-    [NotNull]
-    public static string DoubleToString(double value, [NotNull] IValueFormat format)
+
+    public static string DoubleToString(double value, IValueFormat format)
     {
       return value.ToString(format.NumberFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
         CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, format.DecimalSeparator,
@@ -568,7 +569,7 @@ namespace CsvTools
     /// <param name="length">Storage size in Bytes</param>
     /// <returns>String representation as binary prefix</returns>
     /// <example>1048576 is 1 MB</example>
-    [NotNull]
+
     public static string DynamicStorageSize(long length)
     {
       if (length < 1024L)
@@ -620,7 +621,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="value">The Value as string</param>
     /// <returns></returns>
-    private static DateTime? SerialStringToDateTime(string value)
+    private static DateTime? SerialStringToDateTime(string? value)
     {
       var stringDateValue = value?.Trim() ?? string.Empty;
       try
@@ -658,14 +659,14 @@ namespace CsvTools
     ///   <c>Null</c> if the value is empty, other wise <c>true</c> if identified as boolean or
     ///   <c>false</c> otherwise
     /// </returns>
-    public static bool? StringToBoolean([CanBeNull] string value, [CanBeNull] string trueValue, [CanBeNull] string falseValue)
+    public static bool? StringToBoolean(string? value, string? trueValue, string? falseValue)
     {
       if (string.IsNullOrEmpty(value))
         return null;
 
       var strictBool = StringToBooleanStrict(value, trueValue, falseValue);
 
-      return strictBool != null && strictBool.Item1;
+      return strictBool?.Item1;
     }
 
     /// <summary>
@@ -678,27 +679,27 @@ namespace CsvTools
     ///   <c>Null</c> if the value can not be identified as boolean, other wise a tuple with
     ///   <c>true</c> or <c>false</c> and the value that had been used
     /// </returns>
-    public static Tuple<bool, string> StringToBooleanStrict([CanBeNull] string value, [CanBeNull] string trueValue, [CanBeNull] string falseValue)
+    public static Tuple<bool, string>? StringToBooleanStrict(string? value, string? trueValue, string? falseValue)
     {
       if (string.IsNullOrEmpty(value))
         return null;
 
-      if (StringUtils.SplitByDelimiter(trueValue).Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
+      if (StringUtils.SplitByDelimiter(trueValue).Any(test => value!.Equals(test, StringComparison.OrdinalIgnoreCase)))
       {
-        return new Tuple<bool, string>(true, value);
+        return new Tuple<bool, string>(true, value!);
       }
 
-      if (StringUtils.SplitByDelimiter(falseValue).Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
+      if (StringUtils.SplitByDelimiter(falseValue).Any(test => value!.Equals(test, StringComparison.OrdinalIgnoreCase)))
       {
-        return new Tuple<bool, string>(false, value);
+        return new Tuple<bool, string>(false, value!);
       }
 
-      if (m_TrueValues.Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)))
+      if (m_TrueValues.Any(test => value!.Equals(test, StringComparison.OrdinalIgnoreCase)))
       {
-        return new Tuple<bool, string>(true, value);
+        return new Tuple<bool, string>(true, value!);
       }
 
-      return m_FalseValues.Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase)) ? new Tuple<bool, string>(false, value) : null;
+      return m_FalseValues.Any(test => value!.Equals(test, StringComparison.OrdinalIgnoreCase)) ? new Tuple<bool, string>(false, value!) : null;
     }
 
     /// <summary>
@@ -714,12 +715,11 @@ namespace CsvTools
     ///   An <see cref="DateTime" /> if the value could be interpreted, <c>null</c> otherwise
     /// </returns>
     /// <remarks>If the date part is not filled its the 1/1/1</remarks>
-    public static DateTime? StringToDateTime([CanBeNull] string originalValue, [NotNull] string dateFormat, [NotNull] string dateSeparator,
-      [NotNull] string timeSeparator, bool serialDateTime, [CanBeNull] CultureInfo culture = null)
+    public static DateTime? StringToDateTime(string? originalValue, string dateFormat, string dateSeparator,
+       string timeSeparator, bool serialDateTime, CultureInfo? culture = null)
     {
       var stringDateValue = originalValue?.Trim() ?? string.Empty;
-      if (culture == null)
-        culture = CultureInfo.CurrentCulture;
+      culture ??= CultureInfo.CurrentCulture;
 
       var result = StringToDateTimeExact(originalValue, dateFormat, dateSeparator, timeSeparator, culture);
       if (result.HasValue)
@@ -756,8 +756,8 @@ namespace CsvTools
     ///   Similar to <see cref="StringToDateTimeByCulture" /> but checks if we have a format that
     ///   would fit the length of the value.
     /// </remarks>
-    public static DateTime? StringToDateTimeExact([CanBeNull] string originalValue, [NotNull] string dateFormats, [NotNull] string dateSeparator,
-      [NotNull] string timeSeparator, [NotNull] CultureInfo culture)
+    public static DateTime? StringToDateTimeExact(string? originalValue, string dateFormats, string dateSeparator,
+       string timeSeparator, CultureInfo culture)
     {
       var stringDateValue = originalValue?.Trim() ?? string.Empty;
 
@@ -787,7 +787,7 @@ namespace CsvTools
     /// <param name="groupSeparator">The thousand separator. Do not pass in written punctuation</param>
     /// <param name="allowPercentage">If set to true, a % will be recognized</param>
     /// <returns>An decimal if the value could be interpreted, <c>null</c> otherwise</returns>
-    public static decimal? StringToDecimal([CanBeNull] string value, string decimalSeparator, string groupSeparator,
+    public static decimal? StringToDecimal(string? value, string decimalSeparator, string groupSeparator,
       bool allowPercentage)
     {
       // in case nothing is passed in we are already done here
@@ -798,7 +798,7 @@ namespace CsvTools
       var grpChar = groupSeparator.StringToChar();
 
       // Remove any white space
-      var stringFieldValue = value.Trim();
+      var stringFieldValue = value!.Trim();
 
       bool hadDecimalSep = false;
       var lastPos = -3;
@@ -876,7 +876,7 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="serialDateTime">Allow Date Time values ion serial format</param>
     /// <returns></returns>
-    public static double StringToDurationInDays([CanBeNull] string originalValue, [CanBeNull] string timeSeparator, bool serialDateTime)
+    public static double StringToDurationInDays(string? originalValue, string? timeSeparator, bool serialDateTime)
     {
       var parsed = StringToTimeSpan(originalValue, timeSeparator, serialDateTime);
       return parsed?.TotalDays ?? 0D;
@@ -887,10 +887,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="originalValue">The original value.</param>
     /// <returns>An <see cref="Guid" /> if the value could be interpreted, <c>null</c> otherwise</returns>
-    public static Guid? StringToGuid([CanBeNull] string originalValue)
+    public static Guid? StringToGuid(string? originalValue)
     {
       // only try to do this if we have the right length
-      if (string.IsNullOrEmpty(originalValue) || originalValue.Length < 32 || originalValue.Length > 38)
+      if (string.IsNullOrEmpty(originalValue) || originalValue!.Length < 32 || originalValue.Length > 38)
         return null;
       try
       {
@@ -934,7 +934,7 @@ namespace CsvTools
     /// <param name="decimalSeparator">The decimal separator.</param>
     /// <param name="thousandSeparator">The thousand separator.</param>
     /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
-    public static int? StringToInt32([CanBeNull] string value, string decimalSeparator, string thousandSeparator)
+    public static int? StringToInt32(string? value, string decimalSeparator, string thousandSeparator)
     {
       if (string.IsNullOrEmpty(value))
         return null;
@@ -959,7 +959,7 @@ namespace CsvTools
     /// <param name="decimalSeparator">The decimal separator.</param>
     /// <param name="thousandSeparator">The thousand separator.</param>
     /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
-    public static long? StringToInt64([CanBeNull] string value, string decimalSeparator, string thousandSeparator)
+    public static long? StringToInt64(string? value, string decimalSeparator, string thousandSeparator)
     {
       if (string.IsNullOrEmpty(value))
         return null;
@@ -988,13 +988,12 @@ namespace CsvTools
     ///   <c>Null</c> if the value is empty or the part can not be found. If the desired part is 1
     ///   and the splitter is not contained the whole value is returned.
     /// </returns>
-    [CanBeNull]
-    public static string StringToTextPart([CanBeNull] string value, char splitter, int part, bool toEnd)
+    public static string? StringToTextPart(string? value, char splitter, int part, bool toEnd)
     {
       if (string.IsNullOrEmpty(value) || part < 1)
         return null;
 
-      var indexOfSplitter = value.IndexOf(splitter);
+      var indexOfSplitter = value!.IndexOf(splitter);
 
       // In case we want the first part but the splitter is not part of the text return the whole value
       if (part == 1 && (indexOfSplitter == -1 || toEnd))
@@ -1028,13 +1027,13 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="serialDateTime">Allow Date Time values in serial format</param>
     /// <returns></returns>
-    public static TimeSpan? StringToTimeSpan([CanBeNull] string originalValue, [CanBeNull] string timeSeparator, bool serialDateTime)
+    public static TimeSpan? StringToTimeSpan(string? originalValue, string? timeSeparator, bool serialDateTime)
     {
-      var stringTimeValue = originalValue?.Trim();
+      var stringTimeValue = originalValue?.Trim() ?? string.Empty;
       if (string.IsNullOrEmpty(stringTimeValue))
         return null;
 
-      var separator = string.IsNullOrEmpty(timeSeparator) ? ':' : timeSeparator[0];
+      var separator = string.IsNullOrEmpty(timeSeparator) ? ':' : timeSeparator![0];
 
       var min = 0;
       var sec = 0;
@@ -1074,13 +1073,13 @@ namespace CsvTools
       // Handle am / pm
 
       // 12:00 AM - 12:59 AM --> 00:00 - 00:59
-      if (hours == 12 && originalValue.EndsWith("am", StringComparison.OrdinalIgnoreCase))
+      if (hours == 12 && stringTimeValue.EndsWith("am", StringComparison.OrdinalIgnoreCase))
         hours -= 12;
 
       // 12:00 PM - 12:59 PM 12:00 - 12:59 No change
 
       // 01:00 pm - 11:59 PM --> 13:00 - 23:59
-      if (hours < 12 && originalValue.EndsWith("pm", StringComparison.OrdinalIgnoreCase))
+      if (hours < 12 && stringTimeValue.EndsWith("pm", StringComparison.OrdinalIgnoreCase))
         hours += 12;
 
       return new TimeSpan(0, hours, min, sec);
@@ -1091,8 +1090,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="dateFormat">The date format, possibly separated by delimiter</param>
     /// <returns>An array of formats</returns>
-    [NotNull]
-    private static IEnumerable<string> GetDateFormats([NotNull] string dateFormat)
+
+    private static IEnumerable<string> GetDateFormats(string dateFormat)
     {
       var dateTimeFormats = StringUtils.SplitByDelimiter(dateFormat);
 
@@ -1121,8 +1120,8 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="culture">The culture.</param>
     /// <returns></returns>
-    private static DateTime? StringToDateTimeByCulture([NotNull] string stringDateValue, [NotNull] string[] dateTimeFormats,
-      [NotNull] string dateSeparator, [NotNull] string timeSeparator, [NotNull] CultureInfo culture)
+    private static DateTime? StringToDateTimeByCulture(string stringDateValue, string[] dateTimeFormats,
+       string dateSeparator, string timeSeparator, CultureInfo culture)
     {
       while (true)
       {

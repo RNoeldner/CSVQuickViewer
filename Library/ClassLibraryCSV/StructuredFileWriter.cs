@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -55,8 +54,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="processDisplay">The process display.</param>
-    public StructuredFileWriter([NotNull] StructuredFile file,
-      [CanBeNull] IProcessDisplay processDisplay)
+    public StructuredFileWriter(StructuredFile file,
+      IProcessDisplay? processDisplay)
       : base(file, processDisplay)
     {
       m_Row = file.Row;
@@ -70,91 +69,89 @@ namespace CsvTools
     /// <param name="reader">A Data Reader with the data</param>
     /// <param name="output">The output.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    protected override async Task WriteReaderAsync([NotNull] IFileReader reader, [NotNull] Stream output,
+    protected override async Task WriteReaderAsync(IFileReader reader, Stream output,
       CancellationToken cancellationToken)
     {
-      using (var writer = new StreamWriter(output, new UTF8Encoding(true), 4096))
+      using var writer = new StreamWriter(output, new UTF8Encoding(true), 4096);
+      SetColumns(reader);
+      var numColumns = Columns.Count();
+      if (numColumns == 0)
+        throw new FileWriterException("No columns defined to be written.");
+      var recordEnd = NewLine;
+      HandleWriteStart();
+
+      // Header
+      if (!string.IsNullOrEmpty(Header))
       {
-        SetColumns(reader);
-        var numColumns = Columns.Count();
-        if (numColumns == 0)
-          throw new FileWriterException("No columns defined to be written.");
-        var recordEnd = NewLine;
-        HandleWriteStart();
+        var sbH = new StringBuilder();
+        sbH.Append(Header);
+        if (!Header.EndsWith(recordEnd, StringComparison.Ordinal))
+          sbH.Append(recordEnd);
+        await writer.WriteAsync(sbH.ToString()).ConfigureAwait(false);
+      }
 
-        // Header
-        if (!string.IsNullOrEmpty(Header))
+      // Static template for the row, built once
+      var withHeader = m_Row;
+      var colNum = 0;
+      var placeHolderLookup1 = new Dictionary<int, string>();
+      var placeHolderLookup2 = new Dictionary<int, string>();
+
+      foreach (var columnInfo in Columns)
+      {
+        var placeHolder = string.Format(CultureInfo.CurrentCulture, c_HeaderPlaceholder, colNum);
+        if (m_XMLEncode)
+          withHeader = withHeader.Replace(placeHolder, HTMLStyle.XmlElementName(columnInfo.Name));
+        else if (m_JSONEncode)
+          withHeader = withHeader.Replace(placeHolder, HTMLStyle.JsonElementName(columnInfo.Name));
+        else
+          withHeader = withHeader.Replace(placeHolder, columnInfo.Name);
+
+        placeHolderLookup1.Add(colNum, string.Format(CultureInfo.CurrentCulture, c_FieldPlaceholderByNumber, colNum));
+        placeHolderLookup2.Add(colNum,
+          string.Format(CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnInfo.Name));
+        colNum++;
+      }
+
+      withHeader = withHeader.Trim();
+      var
+        sb = new StringBuilder(
+          1024); // Assume a capacity of 1024 characters to start, data is flushed every 512 chars
+      while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) &&
+             !cancellationToken.IsCancellationRequested)
+      {
+        NextRecord();
+
+        // Start a new line
+        sb.Append(recordEnd);
+        var row = withHeader;
+        colNum = 0;
+        foreach (var value in from columnInfo in Columns
+          let col = reader.GetValue(columnInfo.ColumnOrdinal)
+          select m_XMLEncode
+            ? SecurityElement.Escape(TextEncodeField(FileFormat, col, columnInfo, false,
+              reader,
+              null))
+            : JsonConvert.ToString(col))
         {
-          var sbH = new StringBuilder();
-          sbH.Append(Header);
-          if (!Header.EndsWith(recordEnd, StringComparison.Ordinal))
-            sbH.Append(recordEnd);
-          await writer.WriteAsync(sbH.ToString()).ConfigureAwait(false);
-        }
-
-        // Static template for the row, built once
-        var withHeader = m_Row;
-        var colNum = 0;
-        var placeHolderLookup1 = new Dictionary<int, string>();
-        var placeHolderLookup2 = new Dictionary<int, string>();
-
-        foreach (var columnInfo in Columns)
-        {
-          var placeHolder = string.Format(CultureInfo.CurrentCulture, c_HeaderPlaceholder, colNum);
-          if (m_XMLEncode)
-            withHeader = withHeader.Replace(placeHolder, HTMLStyle.XmlElementName(columnInfo.Name));
-          else if (m_JSONEncode)
-            withHeader = withHeader.Replace(placeHolder, HTMLStyle.JsonElementName(columnInfo.Name));
-          else
-            withHeader = withHeader.Replace(placeHolder, columnInfo.Name);
-
-          placeHolderLookup1.Add(colNum, string.Format(CultureInfo.CurrentCulture, c_FieldPlaceholderByNumber, colNum));
-          placeHolderLookup2.Add(colNum,
-            string.Format(CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnInfo.Name));
+          row = row.Replace(placeHolderLookup1[colNum], value).Replace(placeHolderLookup2[colNum], value);
           colNum++;
         }
 
-        withHeader = withHeader.Trim();
-        var
-          sb = new StringBuilder(
-            1024); // Assume a capacity of 1024 characters to start, data is flushed every 512 chars
-        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) &&
-               !cancellationToken.IsCancellationRequested)
-        {
-          NextRecord();
+        sb.Append(row);
 
-          // Start a new line
-          sb.Append(recordEnd);
-          var row = withHeader;
-          colNum = 0;
-          foreach (var value in from columnInfo in Columns
-                                let col = reader.GetValue(columnInfo.ColumnOrdinal)
-                                select m_XMLEncode
-                                  ? SecurityElement.Escape(TextEncodeField(FileFormat, col, columnInfo, false,
-                                    reader,
-                                    null))
-                                  : JsonConvert.ToString(col))
-          {
-            row = row.Replace(placeHolderLookup1[colNum], value).Replace(placeHolderLookup2[colNum], value);
-            colNum++;
-          }
-
-          sb.Append(row);
-
-          if (sb.Length <= 512) continue;
-          await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
-          sb.Length = 0;
-        }
-
-        if (sb.Length > 0)
-          await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
-
-        // Footer
-        if (!string.IsNullOrEmpty(Footer()))
-          await writer.WriteAsync(Footer()).ConfigureAwait(false);
-
-        await writer.FlushAsync();
+        if (sb.Length <= 512) continue;
+        await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
+        sb.Length = 0;
       }
+
+      if (sb.Length > 0)
+        await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
+
+      // Footer
+      if (!string.IsNullOrEmpty(Footer()))
+        await writer.WriteAsync(Footer()).ConfigureAwait(false);
+
+      await writer.FlushAsync();
     }
   }
 }

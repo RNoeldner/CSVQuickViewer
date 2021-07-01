@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Globalization;
 using System.IO;
@@ -44,7 +43,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static CsvFile LoadCsvFile([NotNull] string fileName)
+    public static CsvFile LoadCsvFile(string fileName)
     {
       var serial = FileSystemUtils.ReadAllText(fileName);
       using (TextReader reader = new StringReader(serial))
@@ -58,16 +57,15 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileSettingPhysicalFile">The file setting to serialize.</param>
     /// <param name="askOverwrite">
-    ///   The function to decide if we want to overwrite, usually a user propmpt
+    ///   The function to decide if we want to overwrite, usually a user prompt
     /// </param>
-    public static void SaveSettingFile([NotNull] IFileSettingPhysicalFile fileSettingPhysicalFile, [NotNull] Func<bool> askOverwrite)
+    public static void SaveSettingFile(IFileSettingPhysicalFile fileSettingPhysicalFile, Func<bool> askOverwrite)
     {
-      if (fileSettingPhysicalFile == null)
-        return;
       var fileName = fileSettingPhysicalFile.FileName + CsvFile.cCsvSettingExtension;
 
       var saveSetting = fileSettingPhysicalFile.Clone() as CsvFile;
-
+      if (saveSetting is null)  
+          return;
       // Remove possibly set but irrelevant properties for reading
       saveSetting.FileName = string.Empty;
       saveSetting.ID = string.Empty;
@@ -83,7 +81,7 @@ namespace CsvTools
       }
 
       Logger.Debug("Saving setting {path}", fileName);
-      string contens = null;
+      string contens;
       using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
       {
         m_SerializerCurrentCsvFile.Value.Serialize(stringWriter, saveSetting, EmptyXmlSerializerNamespaces.Value);

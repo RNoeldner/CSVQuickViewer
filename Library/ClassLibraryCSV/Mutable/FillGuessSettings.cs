@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
@@ -45,7 +44,7 @@ namespace CsvTools
     /// <summary>
     ///   Occurs when a property value changes.
     /// </summary>
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     ///   Number of records to parse to get the sample values, default is <c>30000</c>
@@ -200,7 +199,6 @@ namespace CsvTools
     [XmlElement]
     public virtual string FalseValue
     {
-      [NotNull]
       get => m_FalseValue;
       set
       {
@@ -220,7 +218,6 @@ namespace CsvTools
     public virtual bool IgnoreIdColumns
     {
       get => m_IgnoreIdColumns;
-
       set
       {
         if (m_IgnoreIdColumns == value)
@@ -291,9 +288,7 @@ namespace CsvTools
     [XmlElement]
     public virtual string TrueValue
     {
-      [NotNull]
       get => m_TrueValue;
-
       set
       {
         var newVal = value ?? string.Empty;
@@ -308,7 +303,6 @@ namespace CsvTools
     ///   Clones this instance into a new instance of the same type
     /// </summary>
     /// <returns></returns>
-    [NotNull]
     public virtual FillGuessSettings Clone()
     {
       var other = new FillGuessSettings();
@@ -322,9 +316,6 @@ namespace CsvTools
     /// <param name="other"></param>
     public virtual void CopyTo(FillGuessSettings other)
     {
-      if (other == null)
-        return;
-
       other.CheckedRecords = CheckedRecords;
       other.CheckNamedDates = CheckNamedDates;
       other.DetectNumbers = DetectNumbers;
@@ -349,7 +340,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
     ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
-    public bool Equals(FillGuessSettings other)
+    public bool Equals(FillGuessSettings? other)
     {
       if (other is null)
         return false;
@@ -374,7 +365,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
     ///   <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj) => Equals(obj as FillGuessSettings);
+    public override bool Equals(object? obj) => Equals(obj as FillGuessSettings);
 
     /// <summary>
     ///   Notifies the property changed.

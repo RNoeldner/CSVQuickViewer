@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Text;
 using UtfUnknown;
@@ -59,8 +58,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="buff">The buff.</param>
     /// <returns>The Code page id if, if the code page could not be identified 0</returns>
-    [CanBeNull]
-    public static Encoding GetEncodingByByteOrderMark([CanBeNull] byte[] buff)
+    public static Encoding? GetEncodingByByteOrderMark(byte[]? buff)
     {
       if (buff == null)
         return null;
@@ -99,7 +97,6 @@ namespace CsvTools
     /// <param name="codePage">The code page ID.</param>
     /// <param name="byteOrderMark">if set to <c>true</c> [byte order mark].</param>
     /// <returns></returns>
-    [NotNull]
     public static Encoding GetEncoding(int codePage, bool byteOrderMark)
     {
       switch (codePage)
@@ -133,9 +130,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="codePage">The code page ID.</param>
     /// <param name="hasBom">Flag indicating that byte order mark is present</param>
-    /// <param name="showBom">Flag indicating that byte order mark information should be shown</param>
     /// <returns>The name</returns>
-    [NotNull]
     public static string GetEncodingName(int codePage, bool hasBom)
     {
       const string c_SuffixWithBom = " with BOM";
@@ -150,10 +145,8 @@ namespace CsvTools
     ///   Gets the name of the encoding.
     /// </summary>
     /// <param name="codePage">The code page ID.</param>
-    /// <param name="hasBom">Flag indicating that byte order mark is present</param>
     /// <param name="showBom">Flag indicating that byte order mark information should be shown</param>
     /// <returns>The name</returns>
-    [NotNull]
     public static string GetEncodingName(int codePage)
     {
       string name;
@@ -206,7 +199,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="buff">The buff containing the characters.</param>
     /// <returns><see cref="Encoding" /></returns>
-    public static Encoding GuessEncodingNoBom([CanBeNull] byte[] buff)
+    public static Encoding GuessEncodingNoBom(byte[]? buff)
     {
       if (buff == null || buff.Length < 1)
         return Encoding.UTF8;
