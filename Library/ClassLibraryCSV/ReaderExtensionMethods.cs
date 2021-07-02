@@ -39,7 +39,7 @@ namespace CsvTools
     ///   Gets all not ignored columns from the reader, an ignored column is present in as columns
     ///   but should not be regarded
     /// </summary>
-    /// <param name="reader"></param>
+    /// <param name="reader">A file reader</param>
     /// <returns></returns>
     public static IReadOnlyCollection<IColumn> GetColumnsOfReader(this IFileReader reader)
     {
@@ -55,7 +55,7 @@ namespace CsvTools
       return retList;
     }
 
-    private static DataTable GetEmptyDataTable(this DataReaderWrapper reader)
+    private static DataTable GetEmptyDataTable(this IDataRecord reader)
     {
       // Special handling for DataTableWrapper, no need to build something
       var dataTable = new DataTable { Locale = CultureInfo.CurrentCulture, CaseSensitive = false };

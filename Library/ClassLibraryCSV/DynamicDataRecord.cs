@@ -19,12 +19,12 @@ namespace CsvTools
 
     public override bool TryGetMember(GetMemberBinder binder, out object result) => m_Properties.TryGetValue(binder.Name, out result);
 
-    public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
-    {
-      dynamic method = m_Properties[binder.Name];
-      result = method(args[0].ToString(), args[1].ToString());
-      return true;
-    }
+    //public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
+    //{
+    //  dynamic method = m_Properties[binder.Name];
+    //  result = method(args[0].ToString(), args[1].ToString());
+    //  return true;
+    //}
 
     public override bool TrySetMember(SetMemberBinder binder, object value)
     {

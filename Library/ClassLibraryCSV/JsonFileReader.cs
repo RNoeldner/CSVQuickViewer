@@ -36,39 +36,29 @@ namespace CsvTools
     public JsonFileReader(IImprovedStream improvedStream,
                           IEnumerable<IColumn>? columnDefinition = null,
                           long recordLimit = 0,
-                          bool treatNbspAsSpace = false, bool trim = false,
-                          string treatTextAsNull = "") :
-      this(columnDefinition, recordLimit, treatNbspAsSpace, trim, treatTextAsNull, string.Empty)
+                          bool trim = false,
+                          string treatTextAsNull = "",
+                          bool treatNbspAsSpace = false,
+                          IProcessDisplay? processDisplay = null) :
+      base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, processDisplay)
     {
       m_ImprovedStream = improvedStream;
-    }
-
-    private JsonFileReader(IEnumerable<IColumn>? columnDefinition,
-                           long recordLimit, bool treatNbspAsSpace, bool trim, string treatTextAsNull, string fileName) :
-      base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace)
-    {
-      SelfOpenedStream = !string.IsNullOrEmpty(fileName);
     }
 
     public JsonFileReader(string fileName,
                           IEnumerable<IColumn>? columnDefinition = null,
                           long recordLimit = 0,
-                          bool treatNbspAsSpace = false, bool trim = false,
-                          string treatTextAsNull = "") :
-      this(columnDefinition, recordLimit, treatNbspAsSpace, trim, treatTextAsNull, fileName)
+                          bool trim = false,
+                          string treatTextAsNull = "",
+                          bool treatNbspAsSpace = false,
+                          IProcessDisplay? processDisplay = null) :
+      base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, processDisplay)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("File can not be null or empty", nameof(fileName));
-
       if (!FileSystemUtils.FileExists(fileName))
         throw new FileNotFoundException($"The file '{FileSystemUtils.GetShortDisplayFileName(fileName)}' does not exist or is not accessible.", fileName);
     }
-
-    public JsonFileReader(IFileSettingPhysicalFile fileSetting,
-                          IProcessDisplay? processDisplay)
-      : this(fileSetting.FullPath,
-        fileSetting.ColumnCollection, fileSetting.RecordLimit,
-        fileSetting.TreatNBSPAsSpace) => SetProgressActions(processDisplay);
 
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.
@@ -100,7 +90,7 @@ namespace CsvTools
       try
       {
         ResetPositionToStartOrOpen();
-        var line = GetNextRecord(true, token);
+        var line = GetNextRecord(token);
 
         // get column names for some time
         var colNames = new Dictionary<string, DataType>();
@@ -116,7 +106,7 @@ namespace CsvTools
 
           if (stopwatch.ElapsedMilliseconds > 200)
             break;
-          line = GetNextRecord(true, token);
+          line = GetNextRecord(token);
         }
 
         InitColumn(colNames.Count);
@@ -153,7 +143,7 @@ namespace CsvTools
     {
       if (!EndOfFile && !token.IsCancellationRequested)
       {
-        var couldRead = GetNextRecord(false, token) != null;
+        var couldRead = GetNextRecord(token) != null;
         if (couldRead) RecordNumber++;
         InfoDisplay(couldRead);
 
@@ -171,7 +161,7 @@ namespace CsvTools
     ///   the structure of the Json file
     /// </summary>
     /// <returns>A collection with name and value of the properties</returns>
-    private ICollection<KeyValuePair<string, object?>>? GetNextRecord(bool throwError, CancellationToken token)
+    private ICollection<KeyValuePair<string, object?>>? GetNextRecord(CancellationToken token)
     {
       try
       {
@@ -310,8 +300,6 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        if (throwError)
-          throw;
         // A serious error will be logged and its assume the file is ended
         HandleError(-1, ex.Message);
         EndOfFile = true;

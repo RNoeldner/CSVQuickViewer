@@ -54,9 +54,9 @@ namespace CsvTools
     /// </summary>
     protected string[] CurrentRowColumnText = Array.Empty<string>();
 
-    protected EventHandler<ProgressEventArgs>? ReportProgress;
+    protected readonly EventHandler<ProgressEventArgs>? ReportProgress;
     protected bool SelfOpenedStream;
-    protected EventHandler<long>? SetMaxProcess;
+    protected readonly EventHandler<long>? SetMaxProcess;
     private readonly IReadOnlyCollection<ImmutableColumn> m_ColumnDefinition;
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
 
@@ -82,14 +82,26 @@ namespace CsvTools
     /// <param name="fileName">Path to a physical file (if used)</param>
     /// <param name="columnDefinition">List of column definitions</param>
     /// <param name="recordLimit">Number of records that should be read</param>
+    /// <param name="processDisplay">Reporting Progress information</param>
     protected BaseFileReader(string? fileName, IEnumerable<IColumn>? columnDefinition,
-                             long recordLimit)
+                             long recordLimit, IProcessDisplay? processDisplay)
     {
       m_ColumnDefinition =  columnDefinition?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList() ??
                                  new List<ImmutableColumn>();
       RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       FullPath = fileName??string.Empty;
+      SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
       FileName = FileSystemUtils.GetFileName(fileName);
+
+      if (processDisplay != null)
+      {
+        ReportProgress = processDisplay.SetProcess;
+        if (processDisplay is IProcessDisplayTime processDisplayTime)
+        {
+          SetMaxProcess = (sender, l) => processDisplayTime.Maximum = l;
+          SetMaxProcess(this, 0);
+        }
+      }
     }
 
     /// <summary>
@@ -1199,15 +1211,6 @@ namespace CsvTools
         HandleWarning(warning.Key, warning.Value);
     }
 
-    protected void SetProgressActions(IProcessDisplay? processDisplay)
-    {
-      if (processDisplay == null) return;
-      ReportProgress = processDisplay.SetProcess;
-      if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
-      SetMaxProcess = (sender, l) => processDisplayTime.Maximum = l;
-      SetMaxProcess(this, 0);
-    }
-
     protected bool ShouldRetry(Exception ex, CancellationToken token)
     {
       if (token.IsCancellationRequested) return false;
@@ -1240,21 +1243,11 @@ namespace CsvTools
     {
       if (!input.HasValue)
         return null;
-      string? timeZone = null;
 
       if (m_AssociatedTimeZoneCol.Length>column.ColumnOrdinal &&  m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
-      {
-        timeZone = GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]);
-      }
-      else
-      {
-        var res = column.TimeZonePart.GetPossiblyConstant();
-        // Constant value
-        if (res.Item2)
-          timeZone = res.Item1;
-      }
+        return FunctionalDI.AdjustTZImport(input, GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]), column.ColumnOrdinal, HandleWarning);
 
-      return FunctionalDI.AdjustTZImport(input, timeZone, column.ColumnOrdinal, HandleWarning);
+      return column.TimeZonePart.TryGetConstant(out var timeZone) ? FunctionalDI.AdjustTZImport(input, timeZone, column.ColumnOrdinal, HandleWarning) : input;
     }
 
     /// <summary>
