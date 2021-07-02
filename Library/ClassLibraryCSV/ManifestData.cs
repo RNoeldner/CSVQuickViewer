@@ -4,6 +4,7 @@ using System.IO;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Text;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -11,14 +12,14 @@ namespace CsvTools
   {
     private const string cCsvManifestExtension = ".manifest.json";
     public bool Delta { get; set; }
-    public string Desc { get; set; }
-    public ManifestField[] Fields { get; set; }
+    public string Desc { get; set; } = string.Empty;
+    public ManifestField[]? Fields { get; set; }
     public bool HasUserDefinedFields { get; set; }
-    public string Heading { get; set; }
-    public string Hydration { get; set; }
-    public string PubName { get; set; }
+    public string Heading { get; set; } = string.Empty;
+    public string Hydration { get; set; } = string.Empty;
+    public string PubName { get; set; } = string.Empty;
 
-    public static DelimitedFileDetectionResultWithColumns ReadManifestFileSystem(string fileName)
+    public static async Task<DelimitedFileDetectionResultWithColumns?> ReadManifestFileSystem(string fileName)
     {
       var posExt = fileName.LastIndexOf('.');
       if (posExt == -1) return null;
@@ -28,18 +29,20 @@ namespace CsvTools
       if (FileSystemUtils.FileExists(manifest))
       {
         var dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".csv");
+        Logger.Information("Configuration read from manifest file {filename}", manifest);
+
         if (FileSystemUtils.FileExists(dataFile))
-          return ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), manifest, dataFile, string.Empty);
+          return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
 
         dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".txt");
         if (FileSystemUtils.FileExists(dataFile))
-          return ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), manifest, dataFile, string.Empty);
+          return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
       }
 
       return null;
     }
 
-    public static DelimitedFileDetectionResultWithColumns ReadManifestZip(string fileName)
+    public static async Task<DelimitedFileDetectionResultWithColumns?> ReadManifestZip(string fileName)
     {
       if (!fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
         return null;
@@ -58,7 +61,8 @@ namespace CsvTools
           {
             if (entryManifest == entryFile || !entryFile.IsFile || !entryFile.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
               continue;
-            return ReadManifestFromStream(archive.GetInputStream(entryManifest), entryManifest.Name, fileName, entryFile.Name);
+            Logger.Information("Configuration read from manifest file {filename}", entryManifest.Name);
+            return await ReadManifestFromStream(archive.GetInputStream(entryManifest), fileName, entryFile.Name);
           }
         }
       }
@@ -66,10 +70,12 @@ namespace CsvTools
       return null;
     }
 
-    private static DelimitedFileDetectionResultWithColumns ReadManifestFromStream(Stream manifestStream, string manifestName, string fileName, string identifierInContainer)
+    private static async Task<DelimitedFileDetectionResultWithColumns?> ReadManifestFromStream(Stream manifestStream, string fileName, string identifierInContainer)
     {
-      Logger.Information("Configuration read from manifest file {filename}", manifestName);
-      var mani = JsonConvert.DeserializeObject<ManifestData>(new StreamReader(manifestStream, Encoding.UTF8, true, 4096, false).ReadToEnd());
+      var strContend = await new StreamReader(manifestStream, Encoding.UTF8, true, 4096, false).ReadToEndAsync();
+      var mani = JsonConvert.DeserializeObject<ManifestData>(strContend);
+      if (mani == null && mani.Fields !=null)
+        return null;
       var fileSettingMani = new DelimitedFileDetectionResult(fileName, 0, Encoding.UTF8.CodePage, false, true, identifierInContainer, "#", "\\", ",", "\"", false, false, false, RecordDelimiterType.LF);
 
       var columnCollection = new List<Column>();
@@ -129,40 +135,41 @@ namespace CsvTools
     {
       public string Desc
       {
-        get; set;
-      }
+        get;
+      } = string.Empty;
 
       public string Heading
       {
-        get; set;
-      }
+        get;
+      } = string.Empty;
 
       public int Ordinal
       {
-        get; set;
+        get;
       }
 
       public string PubName
       {
-        get; set;
-      }
+        get;
+      } = string.Empty;
 
       public string Type
       {
-        get; set;
-      }
+        get;
+      } = string.Empty;
 
       public ManifestField()
       {
       }
 
-      public ManifestField(string desc, string heading, int ordinal, string pubName, string type)
+      [JsonConstructor]
+      public ManifestField(string? desc, string? heading, int ordinal, string? pubName, string? type)
       {
-        Desc = desc;
-        Heading = heading;
+        Desc = desc ?? string.Empty;
+        Heading = heading?? string.Empty;
         Ordinal = ordinal;
-        PubName = pubName;
-        Type = type;
+        PubName = pubName?? string.Empty;
+        Type = type?? string.Empty;
       }
     }
   }

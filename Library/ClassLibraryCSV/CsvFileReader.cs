@@ -356,14 +356,6 @@ namespace CsvTools
     /// </summary>
     public override async Task OpenAsync(CancellationToken token)
     {
-      //if (m_FieldQualifier.Length > 1
-      //    && m_FieldQualifier.WrittenPunctuationToChar() == '\0')
-      //  HandleWarning(
-      //    -1,
-      //    $"Only the first character of '{m_FieldQualifier}' is be used for quoting.");
-      //if (m_FieldDelimiter.Length > 1
-      //    && m_FieldDelimiter.WrittenPunctuationToChar() == '\0')
-      //  HandleWarning(-1, $"Only the first character of '{m_FieldDelimiter}' is used as delimiter.");
       Logger.Information("Opening delimited file {filename}", FileName);
       Retry:
       await BeforeOpenAsync($"Opening delimited file \"{FileSystemUtils.GetShortDisplayFileName(FullPath)}\"")

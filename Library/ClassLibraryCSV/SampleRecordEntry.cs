@@ -81,7 +81,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
     ///   <see langword="false" />.
     /// </returns>
-    public bool Equals(SampleRecordEntry other)
+    public bool Equals(SampleRecordEntry? other)
     {
       if (other is null)
         return false;
@@ -102,7 +102,7 @@ namespace CsvTools
     /// <returns>
     ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj) => Equals(obj as SampleRecordEntry);
+    public override bool Equals(object? obj) => Equals(obj as SampleRecordEntry);
 
     /// <summary>Serves as the default hash function. </summary>
     /// <returns>A hash code for the current object.</returns>

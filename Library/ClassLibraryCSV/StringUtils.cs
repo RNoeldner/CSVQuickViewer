@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace CsvTools
 {
@@ -339,15 +340,22 @@ namespace CsvTools
     /// <returns><c>true</c> if a constant was found</returns>
     public static bool TryGetConstant(this string? entry, out string result)
     {
-      if (!string.IsNullOrEmpty(entry) && (entry!.Length > 2) && ((entry.StartsWith("\"", StringComparison.Ordinal) && entry.EndsWith("\"", StringComparison.Ordinal))
-                                                                  || (entry.StartsWith("'", StringComparison.Ordinal) && entry.EndsWith("'", StringComparison.Ordinal))))
+      result = string.Empty;
+      if (string.IsNullOrEmpty(entry))
+        return false;
+
+      if (entry!.Length > 2 && ((entry.StartsWith("\"", StringComparison.Ordinal) && entry.EndsWith("\"", StringComparison.Ordinal))
+                             || (entry.StartsWith("'", StringComparison.Ordinal) && entry.EndsWith("'", StringComparison.Ordinal))))
       {
         result = entry.Substring(1, entry.Length - 2);
         return true;
       }
 
-      result = string.Empty;
-      return false;
+      if (!Regex.IsMatch(entry, @"-?[0-9]+\.?[0-9]*")) 
+        return false;
+
+      result = entry;
+      return true;
     }
   }
 }

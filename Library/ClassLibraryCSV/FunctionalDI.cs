@@ -114,7 +114,7 @@ namespace CsvTools
       switch (setting)
       {
         case ICsvFile csv when csv.JsonFormat:
-          return new JsonFileReader(csv.FullPath, csv.ColumnCollection, csv.RecordLimit, trim: csv.TrimmingOption == TrimmingOption.All, treatTextAsNull: csv.TreatTextAsNull, treatNbspAsSpace: csv.TreatNBSPAsSpace, processDisplay: processDisplay);
+          return new JsonFileReader(csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.TrimmingOption == TrimmingOption.All, csv.TreatTextAsNull, csv.TreatNBSPAsSpace, processDisplay);
 
         case ICsvFile csv:
           return new CsvFileReader(csv.FullPath, csv.CodePageId, csv.SkipRows, csv.HasFieldHeader, csv.ColumnCollection, csv.TrimmingOption, csv.FileFormat.FieldDelimiter, csv.FileFormat.FieldQualifier, csv.FileFormat.EscapeCharacter, csv.RecordLimit, csv.AllowRowCombining, csv.FileFormat.AlternateQuoting, csv.FileFormat.CommentLine, csv.NumWarnings, csv.FileFormat.DuplicateQuotingToEscape, csv.FileFormat.NewLinePlaceholder, csv.FileFormat.DelimiterPlaceholder, csv.FileFormat.QuotePlaceholder, csv.SkipDuplicateHeader, csv.TreatLFAsSpace, csv.TreatUnknownCharacterAsSpace, csv.TryToSolveMoreColumns, csv.WarnDelimiterInValue, csv.WarnLineFeed, csv.WarnNBSP, csv.WarnQuotes, csv.WarnUnknownCharacter, csv.WarnEmptyTailingColumns, csv.TreatNBSPAsSpace, csv.TreatTextAsNull, csv.SkipEmptyLines, csv.ConsecutiveEmptyRows, csv.IdentifierInContainer, processDisplay);

@@ -36,7 +36,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ReadManifestAsync()
     {
-      var manifest = ManifestData.ReadManifestFileSystem(UnitTestInitializeCsv.GetTestPath("training_relation.manifest.json"));
+      var manifest = await  ManifestData.ReadManifestFileSystem(UnitTestInitializeCsv.GetTestPath("training_relation.manifest.json"));
       var setting = manifest.CsvFile();
       Assert.AreEqual(false, manifest.HasFieldHeader);
       Assert.AreEqual(19, manifest.Columns.Count());
@@ -51,7 +51,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ReadManifestZip()
     {
-      var manifest = ManifestData.ReadManifestZip(UnitTestInitializeCsv.GetTestPath("ces_xxx_v879548171_lo_exempt_status_reason_approver_local_full.zip"));
+      var manifest = await  ManifestData.ReadManifestZip(UnitTestInitializeCsv.GetTestPath("ces_xxx_v879548171_lo_exempt_status_reason_approver_local_full.zip"));
       var setting = manifest.CsvFile();
       Assert.AreEqual(false, manifest.HasFieldHeader);
       Assert.AreEqual(3, manifest.Columns.Count());
