@@ -33,14 +33,14 @@ namespace CsvTools
 
     public virtual long Maximum { get; set; } = -1;
 
-    public void SetProcess(object sender, ProgressEventArgs e)
+    public void SetProcess(object sender, ProgressEventArgs? e)
     {
       if (e == null)
         return;
       Handle(sender, e.Text, e.Value, e.Log);
     }
 
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
 
     public void SetProcess(string text, long value, bool log) => Handle(this, text, value, log);
 

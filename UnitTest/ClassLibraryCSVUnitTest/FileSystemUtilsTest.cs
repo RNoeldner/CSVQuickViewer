@@ -37,14 +37,16 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileInfo()
     {
-      var testFile = GetLongFileName("FileInfoTest.txt", false);
+      var testFile = GetLongFileName("InfoTest.txt", false);
 
       var test = new FileSystemUtils.FileInfo(testFile);
       Assert.AreEqual(testFile, test.Name);
 
-      var testFile2 = GetLongFileName("FileInfoTest2.txt", true);
+      var testFile2 = GetLongFileName("InfoTest2.txt", true);
       var test2 = new FileSystemUtils.FileInfo(testFile2);
       Assert.IsTrue(test2.Exists);
+      FileSystemUtils.FileDelete(testFile2);
+
 
       var date = new DateTime(2020, 10, 17, 17, 23, 44);
       var test3 = new FileSystemUtils.FileInfo(testFile, 643788L, date);

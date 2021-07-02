@@ -34,12 +34,12 @@ namespace CsvTools
     public readonly string FieldQualifier;
     public readonly RecordDelimiterType NewLine;
 
-    private string GetShortDisplay(string input)
+    private static string GetShortDisplay(string? input)
     {
       if (string.IsNullOrEmpty(input))
         return string.Empty;
 
-      input = input.WrittenPunctuation();
+      input = input!.WrittenPunctuation();
       switch (input)
       {
         case "\t":
@@ -66,8 +66,8 @@ namespace CsvTools
     }
 
     public DelimitedFileDetectionResult(string fileName, int skipRows = 0, int codePageId = -1, bool byteOrderMark = false, bool qualifyAlways = false,
-                                        string identifierInContainer = "", string commentLine = "#", string escapeCharacter = "\\", string fieldDelimiter = "",
-                                        string fieldQualifier = "", bool hasFieldHeader = true, bool isJson = false, bool noDelimitedFile = false, RecordDelimiterType recordDelimiterType = RecordDelimiterType.None)
+                                        string? identifierInContainer = "", string commentLine = "#", string? escapeCharacter = "\\", string? fieldDelimiter = "",
+                                        string? fieldQualifier = "", bool hasFieldHeader = true, bool isJson = false, bool noDelimitedFile = false, RecordDelimiterType recordDelimiterType = RecordDelimiterType.None)
     {
       FileName = fileName ?? throw new System.ArgumentNullException(nameof(fileName));
       IdentifierInContainer = identifierInContainer?? string.Empty;
@@ -75,9 +75,9 @@ namespace CsvTools
       CodePageId = codePageId<1 ? -1 : codePageId;
       ByteOrderMark= byteOrderMark;
       CommentLine = commentLine;
-      EscapeCharacter = GetShortDisplay((escapeCharacter ?? string.Empty));
-      FieldDelimiter = GetShortDisplay((fieldDelimiter ?? string.Empty));
-      FieldQualifier = GetShortDisplay((fieldQualifier ?? string.Empty));
+      EscapeCharacter = GetShortDisplay(escapeCharacter);
+      FieldDelimiter = GetShortDisplay(fieldDelimiter);
+      FieldQualifier = GetShortDisplay(fieldQualifier);
       HasFieldHeader = hasFieldHeader;
       IsJson = isJson;
       NoDelimitedFile = noDelimitedFile;

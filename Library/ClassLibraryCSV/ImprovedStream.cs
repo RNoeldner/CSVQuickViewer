@@ -132,7 +132,7 @@ namespace CsvTools
 				if (!ReferenceEquals(AccessStream, BaseStream))
 					try
 					{
-						AccessStream.Close();
+						AccessStream?.Close();
 					}
 					catch
 					{
@@ -154,7 +154,7 @@ namespace CsvTools
 			if (!disposing) return;
 
 			if (!ReferenceEquals(AccessStream, BaseStream))
-				AccessStream.Dispose();
+				AccessStream?.Dispose();
 
 			if (!SourceAccess.LeaveOpen)
 				BaseStream.Dispose();

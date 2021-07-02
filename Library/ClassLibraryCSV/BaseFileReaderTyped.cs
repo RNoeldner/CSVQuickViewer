@@ -43,12 +43,12 @@ namespace CsvTools
     protected BaseFileReaderTyped(string? fileName,
                                   IEnumerable<IColumn>? columnDefinition,
                                   long recordLimit, bool trim,
-                                  string treatTextAsNull, bool treatNbspAsSpace , IProcessDisplay? processDisplay) :
+                                  string? treatTextAsNull, bool treatNbspAsSpace , IProcessDisplay? processDisplay) :
       base(fileName, columnDefinition, recordLimit, processDisplay)
     {
       m_TreatNbspAsSpace = treatNbspAsSpace;
       m_Trim = trim;
-      m_TreatTextAsNull = treatTextAsNull;
+      m_TreatTextAsNull = treatTextAsNull ?? string.Empty;
       CurrentValues = Array.Empty<object>();
     }
 

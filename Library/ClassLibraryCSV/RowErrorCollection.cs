@@ -31,7 +31,7 @@ namespace CsvTools
     private readonly IDictionary<long, ColumnErrorDictionary> m_RowErrorCollection =
       new Dictionary<long, ColumnErrorDictionary>();
 
-    private ICollection<int> m_IgnoredColumns;
+    private ICollection<int>? m_IgnoredColumns;
 
     /// <summary>
     ///   Attach the error collection to the reader
@@ -119,7 +119,7 @@ namespace CsvTools
       }
     }
 
-    public event EventHandler<WarningEventArgs> PassWarning;
+    public event EventHandler<WarningEventArgs>? PassWarning;
 
     /// <summary>
     ///   Add a warning to the list of warnings

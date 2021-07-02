@@ -92,14 +92,14 @@ namespace CsvTools
           (fileSettingSer is BaseSettingPhysicalFile bas) ? bas.ColumnFile : string.Empty);
       }
 
-      var setting = ManifestData.ReadManifestZip(fileName2);
+      var setting = await ManifestData.ReadManifestZip(fileName2);
       if (setting != null)
       {
         Logger.Information("Data in zip {filename}", setting.IdentifierInContainer);
         return setting;
       }
 
-      var settingFs = ManifestData.ReadManifestFileSystem(fileName2);
+      var settingFs = await ManifestData.ReadManifestFileSystem(fileName2);
       if (settingFs != null)
       {
         Logger.Information("Data in {filename}", settingFs.FileName);

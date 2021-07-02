@@ -40,10 +40,11 @@ namespace CsvTools
       }
     }
 
-    public event EventHandler<ProgressEventArgsTime> ProgressTime;
+    public event EventHandler<ProgressEventArgsTime>? ProgressTime;
 
     public TimeToCompletion TimeToCompletion { get; }
-    public event EventHandler<long> SetMaximum;
+
+    public event EventHandler<long>? SetMaximum;
 
     protected override void Handle(object sender, string text, long value, bool log)
     {

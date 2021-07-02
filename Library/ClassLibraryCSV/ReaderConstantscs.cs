@@ -63,8 +63,8 @@ namespace CsvTools
     ///   Gets the default schema row array.
     /// </summary>
     /// <returns>an Array of objects for a new row in a Schema Table</returns>
-    public static object[] GetDefaultSchemaRowArray() =>
-      new object[]
+    public static object?[] GetDefaultSchemaRowArray() =>
+      new object?[]
       {
         true, // 00- AllowDBNull
         null, // 01- BaseColumnName

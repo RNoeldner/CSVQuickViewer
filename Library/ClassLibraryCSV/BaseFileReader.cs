@@ -82,14 +82,14 @@ namespace CsvTools
     /// <param name="fileName">Path to a physical file (if used)</param>
     /// <param name="columnDefinition">List of column definitions</param>
     /// <param name="recordLimit">Number of records that should be read</param>
-    /// <param name="processDisplay">Reporting Progress information</param>
+    /// <param name="processDisplay">Reporting progress information</param>
     protected BaseFileReader(string? fileName, IEnumerable<IColumn>? columnDefinition,
                              long recordLimit, IProcessDisplay? processDisplay)
     {
       m_ColumnDefinition =  columnDefinition?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList() ??
                                  new List<ImmutableColumn>();
       RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
-      FullPath = fileName??string.Empty;
+      FullPath = fileName ?? string.Empty;
       SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
       FileName = FileSystemUtils.GetFileName(fileName);
 
@@ -1141,7 +1141,7 @@ namespace CsvTools
             // Might have passed in the column names in m_ColumnDefinition (used with Manifest data
             // accompanying a file without header)
             var newDef = m_ColumnDefinition.FirstOrDefault(x => x.ColumnOrdinal==colIndex);
-            if (newDef!= null)
+            if (newDef!= null && !string.IsNullOrEmpty(newDef.Name))
             {
               issues.Add(colIndex, "Using column name from definition");
               adjustedNames.Add(newDef.Name);

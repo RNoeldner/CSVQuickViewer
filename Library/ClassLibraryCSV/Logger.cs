@@ -87,7 +87,7 @@ namespace CsvTools
       // File Logger
       var entryName = Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty;
       if (string.IsNullOrEmpty(entryName))
-        entryName = Assembly.GetExecutingAssembly()?.GetName().Name ?? string.Empty;
+        entryName = Assembly.GetExecutingAssembly().GetName().Name ?? string.Empty;
       if (!string.IsNullOrEmpty(entryName))
       {
         var folder = Environment.ExpandEnvironmentVariables($"%LocalAppData%\\{entryName}\\");
@@ -151,7 +151,7 @@ WriteLog(Level.Error, null, message, args);
 #endif
     }
 
-    public static void Error(Exception exception, string message, params object[] args)
+    public static void Error(Exception? exception, string? message, params object[] args)
     {
       if (string.IsNullOrEmpty(message) && exception == null)
         return;
@@ -165,7 +165,7 @@ WriteLog(Level.Error, exception, message, args);
 
     public static void Error(Exception exception) => Error(exception, exception.Message);
 
-    public static void Information(string message, params object[] args)
+    public static void Information(string? message, params object[] args)
     {
       if (string.IsNullOrEmpty(message))
         return;
@@ -177,7 +177,7 @@ WriteLog(Level.Info, null, message, args);
 #endif
     }
 
-    public static void Information(Exception ex, string message, params object[] args)
+    public static void Information(Exception? ex, string? message, params object[] args)
     {
       if (string.IsNullOrEmpty(message))
         return;
@@ -189,9 +189,9 @@ WriteLog(Level.Info, null, message, args);
 #endif
     }
 
-    public static void Warning(string message, params object[] args) => Warning(null, message, args);
+    public static void Warning(string? message, params object[] args) => Warning(null, message, args);
 
-    public static void Warning(Exception exception, string message, params object[] args)
+    public static void Warning(Exception? exception, string? message, params object[] args)
     {
       if (string.IsNullOrEmpty(message) && exception == null)
         return;

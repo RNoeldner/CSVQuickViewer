@@ -149,7 +149,7 @@ namespace CsvTools
       otherSwf.JSONEncode = m_JSONEncode;
     }
 
-    public override bool Equals(IFileSetting other) => Equals(other as StructuredFile);
+    public override bool Equals(IFileSetting? other) => Equals(other as StructuredFile);
 
     /// <summary>
     ///   Determines whether the specified object is equal to the current object.
