@@ -391,7 +391,7 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        var det = await CsvHelper.GetDetectionResultFromFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), processDisplay);
+        var det = await UnitTestInitializeCsv.GetTestPath("BasicCSV.txt").GetDetectionResultFromFile(processDisplay);
         Assert.AreEqual(1200, det.CodePageId);
         Assert.AreEqual(",".WrittenPunctuationToChar(), det.FieldDelimiter.WrittenPunctuationToChar());
       }
@@ -401,7 +401,7 @@ namespace CsvTools.Tests
       {
         using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
-          var det = await CsvHelper.GetDetectionResultFromFile(fileName, processDisplay);
+          var det = await fileName.GetDetectionResultFromFile(processDisplay);
         }
       }
     }
@@ -414,7 +414,7 @@ namespace CsvTools.Tests
       test.FileFormat.FieldQualifier = "\"";
 
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      using (var reader = new CsvFileReader(test, processDisplay))
+      using (var reader = new CsvFileReader(test.FullPath, test.CodePageId, test.SkipRows, test.HasFieldHeader, test.ColumnCollection, test.TrimmingOption, test.FileFormat.FieldDelimiter, test.FileFormat.FieldQualifier, test.FileFormat.EscapeCharacter, test.RecordLimit, test.AllowRowCombining, test.FileFormat.AlternateQuoting, test.FileFormat.CommentLine, test.NumWarnings, test.FileFormat.DuplicateQuotingToEscape, test.FileFormat.NewLinePlaceholder, test.FileFormat.DelimiterPlaceholder, test.FileFormat.QuotePlaceholder, test.SkipDuplicateHeader, test.TreatLFAsSpace, test.TreatUnknownCharacterAsSpace, test.TryToSolveMoreColumns, test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, test.WarnUnknownCharacter, test.WarnEmptyTailingColumns, test.TreatNBSPAsSpace, test.TreatTextAsNull, test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer, processDisplay))
       {
         await reader.OpenAsync(processDisplay.CancellationToken);
         Assert.AreEqual("RecordNumber", reader.GetName(0));
@@ -457,13 +457,13 @@ namespace CsvTools.Tests
       using (var textReader = new ImprovedTextReader(improvedStream, 65001, 0))
       {
         Assert.IsFalse(CsvHelper.CheckLineCommentIsValid(textReader, "#", "Tab", UnitTestInitializeCsv.Token));
-      }      
+      }
     }
 
     [TestMethod]
 
     public void TestValidateLineCommentValid()
-    {  
+    {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("ComplexDataDelimiter.txt"))))
       using (var textReader = new ImprovedTextReader(improvedStream, 65001, 0))
       {

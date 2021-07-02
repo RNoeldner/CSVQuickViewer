@@ -48,7 +48,7 @@ namespace CsvTools
       ///   Gets the constant time zone
       /// </summary>
       /// <value>The constant time zone.</value>
-      
+
       public string ConstantTimeZone { get; }
 
       /// <summary>
@@ -137,7 +137,7 @@ namespace CsvTools
       {
         Columns.AddRange(GetColumnInformation(ValueFormatGeneral, ColumnDefinition, dt ?? throw new ArgumentException("GetSchemaTable did not return information for reader")).Cast<WriterColumn>());
       }
-        
+
     }
 
     /// <summary>
@@ -231,14 +231,9 @@ namespace CsvTools
           var tz = column.TimeZonePart;
           if (!string.IsNullOrEmpty(tz))
           {
-            var tzInfo = tz.GetPossiblyConstant();
-            if (tzInfo.Item2)
+            if (!tz.TryGetConstant(out constantTimeZone))
             {
-              constantTimeZone = tzInfo.Item1;
-            }
-            else
-            {
-              if (colName.TryGetByValue(tzInfo.Item1, out var ordinal))
+              if (colName.TryGetByValue(tz, out var ordinal))
                 columnOrdinalTimeZoneReader = ordinal;
             }
           }
@@ -257,7 +252,7 @@ namespace CsvTools
             $"'{ci.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.ValueFormat.DateFormat}'");
 
         // In case we have a split column, add the second column (unless the column is also present
-        result.Add(new WriterColumn(column.TimePart, colNo, new ImmutableValueFormat(DataType.DateTime, column.TimePartFormat, timeSeparator: column.ValueFormat?.TimeSeparator), column.TimePartFormat.Length, constantTimeZone, columnOrdinalTimeZoneReader));
+        result.Add(new WriterColumn(column.TimePart, colNo, new ImmutableValueFormat(DataType.DateTime, column.TimePartFormat, timeSeparator: column.ValueFormat?.TimeSeparator ?? ":"), column.TimePartFormat.Length, constantTimeZone, columnOrdinalTimeZoneReader));
       }
 
       return result;
@@ -420,7 +415,7 @@ namespace CsvTools
       {
         if (dataObject is null)
           throw new ArgumentNullException(nameof(dataObject));
-        displayAs = dataObject!.ToString();
+        displayAs = dataObject.ToString();
       }
       else
       {
@@ -472,7 +467,7 @@ namespace CsvTools
               case DataType.TextToHtml:
               case DataType.TextToHtmlFull:
               case DataType.TextPart:
-                displayAs = dataObject!.ToString();
+                displayAs = dataObject.ToString();
                 if (columnInfo.ValueFormat.DataType == DataType.TextToHtml)
                   displayAs = HTMLStyle.TextToHtmlEncode(displayAs);
 

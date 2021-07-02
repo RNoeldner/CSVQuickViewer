@@ -143,7 +143,7 @@ namespace CsvTools.Tests
           processDisplay.Show();
           var cvsSetting = new CsvFile(UnitTestInitializeCsv.GetTestPath("FileWithHierarchy_WithCyle.txt"))
           { FileFormat = { FieldDelimiter = "\t" } };
-          using (var csvDataReader = new CsvFileReader(cvsSetting, processDisplay))
+          using (var csvDataReader = new CsvFileReader(cvsSetting.FullPath, cvsSetting.CodePageId, cvsSetting.SkipRows, cvsSetting.HasFieldHeader, cvsSetting.ColumnCollection, cvsSetting.TrimmingOption, cvsSetting.FileFormat.FieldDelimiter, cvsSetting.FileFormat.FieldQualifier, cvsSetting.FileFormat.EscapeCharacter, cvsSetting.RecordLimit, cvsSetting.AllowRowCombining, cvsSetting.FileFormat.AlternateQuoting, cvsSetting.FileFormat.CommentLine, cvsSetting.NumWarnings, cvsSetting.FileFormat.DuplicateQuotingToEscape, cvsSetting.FileFormat.NewLinePlaceholder, cvsSetting.FileFormat.DelimiterPlaceholder, cvsSetting.FileFormat.QuotePlaceholder, cvsSetting.SkipDuplicateHeader, cvsSetting.TreatLFAsSpace, cvsSetting.TreatUnknownCharacterAsSpace, cvsSetting.TryToSolveMoreColumns, cvsSetting.WarnDelimiterInValue, cvsSetting.WarnLineFeed, cvsSetting.WarnNBSP, cvsSetting.WarnQuotes, cvsSetting.WarnUnknownCharacter, cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull, cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows, cvsSetting.IdentifierInContainer, processDisplay))
           {
             var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null,
               processDisplay.CancellationToken);

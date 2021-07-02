@@ -39,11 +39,12 @@ namespace CsvTools
     /// <param name="trim">Trim all read text</param>
     /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
     /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
+    /// <param name="processDisplay">Process Display</param>
     protected BaseFileReaderTyped(string? fileName,
                                   IEnumerable<IColumn>? columnDefinition,
-                                  long recordLimit, bool trim = false,
-                                  string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool treatNbspAsSpace = false) :
-      base(fileName, columnDefinition, recordLimit)
+                                  long recordLimit, bool trim,
+                                  string treatTextAsNull, bool treatNbspAsSpace , IProcessDisplay? processDisplay) :
+      base(fileName, columnDefinition, recordLimit, processDisplay)
     {
       m_TreatNbspAsSpace = treatNbspAsSpace;
       m_Trim = trim;

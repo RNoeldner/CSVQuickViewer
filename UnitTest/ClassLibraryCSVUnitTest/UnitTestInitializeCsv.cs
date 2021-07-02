@@ -47,7 +47,8 @@ namespace CsvTools.Tests
 
       AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs args)
       {
-        context.Write(args.ExceptionObject.ToString());
+        if (!context.CancellationTokenSource.IsCancellationRequested)
+          context.Write(args.ExceptionObject.ToString());
       };
     }
   }

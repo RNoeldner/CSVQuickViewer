@@ -331,15 +331,23 @@ namespace CsvTools
       return all;
     }
 
-    public static Tuple<string, bool> GetPossiblyConstant(this string? value)
+    /// <summary>
+    /// Read the value and determine if this could be a constant value (surrounded by " or ') if not its assume is a reference to another field
+    /// </summary>
+    /// <param name="entry">A text that refers to another column or is possibly a constant</param>
+    /// <param name="result">The constant value</param>
+    /// <returns><c>true</c> if a constant was found</returns>
+    public static bool TryGetConstant(this string? entry, out string result)
     {
-      if (string.IsNullOrEmpty(value))
-        return new Tuple<string, bool>(string.Empty, false);
-      if (value!.Length > 2 && (
-        value.StartsWith("\"", StringComparison.Ordinal) &&  value.EndsWith("\"", StringComparison.Ordinal))
-        || (value.StartsWith("'", StringComparison.Ordinal) &&  value.EndsWith("'", StringComparison.Ordinal)))
-        return new Tuple<string, bool>(value.Substring(1, value.Length - 2), true);
-      return new Tuple<string, bool>(value, false);
+      if (!string.IsNullOrEmpty(entry) && (entry!.Length > 2) && ((entry.StartsWith("\"", StringComparison.Ordinal) && entry.EndsWith("\"", StringComparison.Ordinal))
+                                                                  || (entry.StartsWith("'", StringComparison.Ordinal) && entry.EndsWith("'", StringComparison.Ordinal))))
+      {
+        result = entry.Substring(1, entry.Length - 2);
+        return true;
+      }
+
+      result = string.Empty;
+      return false;
     }
   }
 }

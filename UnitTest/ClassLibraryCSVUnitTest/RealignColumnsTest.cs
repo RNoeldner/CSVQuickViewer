@@ -11,17 +11,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task AllFormatsPipeReaderAsync()
     {
-      var setting = new CsvFile(UnitTestInitializeCsv.GetTestPath("RealignColumn.txt"))
-      {
-        HasFieldHeader = true,
-        FileFormat = {FieldDelimiter = "\t"},
-        TryToSolveMoreColumns = true,
-        AllowRowCombining = true,
-        SkipEmptyLines = false
-      };
-
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      using (var test = new CsvFileReader(setting, processDisplay))
+      using (var test = new CsvFileReader(fileName: UnitTestInitializeCsv.GetTestPath("RealignColumn.txt"),
+        hasFieldHeader: true, tryToSolveMoreColumns: true, skipEmptyLines: false, processDisplay: processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
 
@@ -43,14 +35,6 @@ namespace CsvTools.Tests
 
         await test.ReadAsync(processDisplay.CancellationToken); // Line 11
         Assert.AreEqual("Memo: A long text, \t multiple words 11", test.GetValue(5));
-        await test.ReadAsync(processDisplay.CancellationToken); // Line 12
-
-        await test.ReadAsync(processDisplay.CancellationToken); // Line 13
-        await test.ReadAsync(processDisplay.CancellationToken); // Line 14
-        await test.ReadAsync(processDisplay.CancellationToken); // Line 15
-        await test.ReadAsync(processDisplay.CancellationToken); // Line 16
-        await test.ReadAsync(processDisplay.CancellationToken); // Line 17
-        Assert.AreEqual("Memo: A long text\nmultiple words 17", test.GetValue(5));
       }
     }
 

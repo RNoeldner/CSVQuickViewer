@@ -159,7 +159,7 @@
     <Compile Include="DataReaderWrapperTests.cs" />
     <Compile Include="DataTableReaderTests.cs" />
     <Compile Include="DataTableWrapperTests.cs" />
-    <Compile Include="DynamicDataRecordText.cs" />
+    <Compile Include="DynamicDataRecordTest.cs" />
     <Compile Include="EnumDescriptionConverterTests.cs" />
     <Compile Include="FileSystemUtilsTest.cs" />
     <Compile Include="FilterDataTableTests.cs" />
