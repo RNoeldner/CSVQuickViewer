@@ -11,13 +11,27 @@ namespace CsvTools
   public class ManifestData
   {
     private const string cCsvManifestExtension = ".manifest.json";
-    public bool Delta { get; set; }
-    public string Desc { get; set; } = string.Empty;
-    public ManifestField[]? Fields { get; set; }
-    public bool HasUserDefinedFields { get; set; }
-    public string Heading { get; set; } = string.Empty;
-    public string Hydration { get; set; } = string.Empty;
-    public string PubName { get; set; } = string.Empty;
+
+    [JsonConstructor]
+    public ManifestData(string? pubName, string? heading, string? desc, bool delta, string? hydration,
+                        bool hasUserDefinedFields, ManifestField[]? fields)
+    {
+      PubName= pubName?? string.Empty;
+      Desc = desc ?? string.Empty;
+      Heading = heading ?? string.Empty;
+      Hydration = hydration ?? string.Empty;
+      Fields = fields ?? Array.Empty<ManifestField>();
+      HasUserDefinedFields= hasUserDefinedFields;
+      Delta = delta;
+    }
+
+    public bool Delta { get; }
+    public string Desc { get; }
+    public ManifestField[] Fields { get; }
+    public bool HasUserDefinedFields { get; }
+    public string Heading { get; }
+    public string Hydration { get; }
+    public string PubName { get; }
 
     public static async Task<DelimitedFileDetectionResultWithColumns?> ReadManifestFileSystem(string fileName)
     {
@@ -74,11 +88,11 @@ namespace CsvTools
     {
       var strContend = await new StreamReader(manifestStream, Encoding.UTF8, true, 4096, false).ReadToEndAsync();
       var mani = JsonConvert.DeserializeObject<ManifestData>(strContend);
-      if (mani == null && mani.Fields !=null)
+      if (mani == null)
         return null;
       var fileSettingMani = new DelimitedFileDetectionResult(fileName, 0, Encoding.UTF8.CodePage, false, true, identifierInContainer, "#", "\\", ",", "\"", false, false, false, RecordDelimiterType.LF);
 
-      var columnCollection = new List<Column>();
+      var columnCollection = new List<IColumn>();
       foreach (var fld in mani.Fields)
       {
         IValueFormat vf;
@@ -126,44 +140,21 @@ namespace CsvTools
             break;
         }
 
-        columnCollection.Add(new Column(fld.PubName, vf) { ColumnOrdinal = fld.Ordinal, DestinationName = fld.PubName });
+        columnCollection.Add(new ImmutableColumn(fld.PubName, vf, fld.Ordinal, destinationName: fld.PubName));
       }
       return new DelimitedFileDetectionResultWithColumns(fileSettingMani, columnCollection, string.Empty);
     }
 
     public class ManifestField
     {
-      public string Desc
-      {
-        get;
-      } = string.Empty;
-
-      public string Heading
-      {
-        get;
-      } = string.Empty;
-
-      public int Ordinal
-      {
-        get;
-      }
-
-      public string PubName
-      {
-        get;
-      } = string.Empty;
-
-      public string Type
-      {
-        get;
-      } = string.Empty;
-
-      public ManifestField()
-      {
-      }
+      public string Desc { get; }
+      public string Heading { get; }
+      public int Ordinal { get; }
+      public string PubName { get; }
+      public string Type { get; }
 
       [JsonConstructor]
-      public ManifestField(string? desc, string? heading, int ordinal, string? pubName, string? type)
+      public ManifestField(string? pubName, string? heading, string? desc, string? type, int ordinal)
       {
         Desc = desc ?? string.Empty;
         Heading = heading?? string.Empty;
