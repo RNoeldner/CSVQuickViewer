@@ -86,17 +86,14 @@ namespace CsvTools
       var fileSettingCopy = GetSettingForRead(fileSetting);
 
       // need a dummy process display to have pass in Cancellation token to reader
-      using (var prc2 = new CustomProcessDisplay(cancellationToken))
-      using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, string.Empty, prc2))
-      {
-        await fileReader.OpenAsync(prc2.CancellationToken).ConfigureAwait(false);
-        var res = await FillGuessColumnFormatReaderAsyncReader(fileReader, fillGuessSettings,
-          fileSetting.ColumnCollection,
-          addTextColumns, checkDoubleToBeInteger, fileSetting.TreatTextAsNull, prc2.CancellationToken);
-        fileSetting.ColumnCollection.CopyFrom(res.Item2);
-
-        return res.Item1;
-      }
+      using var prc2 = new CustomProcessDisplay(cancellationToken);
+      using var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, string.Empty, prc2);
+      await fileReader.OpenAsync(prc2.CancellationToken).ConfigureAwait(false);
+      var (informationList, newColumnCollection) = await FillGuessColumnFormatReaderAsyncReader(fileReader, fillGuessSettings,
+        fileSetting.ColumnCollection,
+        addTextColumns, checkDoubleToBeInteger, fileSetting.TreatTextAsNull, prc2.CancellationToken);
+      fileSetting.ColumnCollection.CopyFrom(newColumnCollection);
+      return informationList;
     }
 
     public static IFileSetting GetSettingForRead(this IFileSetting fileSetting)
@@ -290,8 +287,7 @@ namespace CsvTools
 
           // if nothing is found take what was configured before, as the reader could possibly
           // provide typed data (Json, Excel...)
-          if (checkResult.FoundValueFormat == null)
-            checkResult.FoundValueFormat = readerColumn.ValueFormat;
+          checkResult.FoundValueFormat ??= readerColumn.ValueFormat;
 
           var settingColumn = columnCollection.Get(readerColumn.Name);
           // if we have a mapping to a template that expects a integer and we only have integers but
@@ -335,9 +331,7 @@ namespace CsvTools
           // new Column
           else
           {
-            var format = (checkResult.FoundValueFormat == null && checkResult.PossibleMatch
-                           ? checkResult.ValueFormatPossibleMatch
-                           : checkResult.FoundValueFormat) ??
+            var format = (checkResult.PossibleMatch ? checkResult.ValueFormatPossibleMatch : checkResult.FoundValueFormat) ??
                          new ImmutableValueFormat();
 
             if (!addTextColumns && format.DataType == DataType.String) continue;
@@ -575,25 +569,25 @@ namespace CsvTools
       if (FunctionalDI.SQLDataReader == null)
         throw new FileWriterException("No Async SQL Reader set");
 
-      using (var fileReader =
+      using var fileReader =
         await FunctionalDI.SQLDataReader(fileSettings.SqlStatement, processDisplay.SetProcess, fileSettings.Timeout,
             processDisplay.CancellationToken)
-          .ConfigureAwait(false))
+          .ConfigureAwait(false);
+      await fileReader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
+      // Put the information into the list
+      var dataRowCollection = fileReader.GetSchemaTable()?.Rows;
+      if (dataRowCollection == null) return;
+      foreach (DataRow schemaRow in dataRowCollection)
       {
-        await fileReader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
-        // Put the information into the list
-        var dataRowCollection = fileReader.GetSchemaTable()?.Rows;
-        if (dataRowCollection == null) return;
-        foreach (DataRow schemaRow in dataRowCollection)
-        {
-          var header = schemaRow[SchemaTableColumn.ColumnName].ToString();
-          var colType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType();
+        var header = Convert.ToString(schemaRow[SchemaTableColumn.ColumnName]);
+        if (string.IsNullOrEmpty(header))
+          continue;
+        var colType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType();
 
-          if (!all && colType == DataType.String)
-            continue;
+        if (!all && colType == DataType.String)
+          continue;
 
-          fileSettings.ColumnCollection.AddIfNew(new Column(header, colType));
-        }
+        fileSettings.ColumnCollection.AddIfNew(new Column(header, colType));
       }
     }
 
@@ -606,8 +600,7 @@ namespace CsvTools
     public static IEnumerable<IValueFormat> GetAllPossibleFormats(string value,
       CultureInfo? culture = null)
     {
-      if (culture == null)
-        culture = CultureInfo.CurrentCulture;
+      culture ??= CultureInfo.CurrentCulture;
 
       // Standard Date Time formats
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(value.Length, true))
@@ -783,19 +776,15 @@ namespace CsvTools
       if (FunctionalDI.SQLDataReader == null)
         throw new FileWriterException("No SQL Reader set");
 
-      using (var data = await FunctionalDI.SQLDataReader(sqlStatement!.NoRecordSQL(), (sender, s) =>
+      using var data = await FunctionalDI.SQLDataReader(sqlStatement!.NoRecordSQL(), (sender, s) =>
       {
         if (s.Log) Logger.Debug(s.Text);
-      }, timeout, token).ConfigureAwait(false))
-      {
-        await data.OpenAsync(token).ConfigureAwait(false);
-        using (var dt = data.GetSchemaTable())
-        {
-          if (dt == null)
-            throw new FileWriterException("Could not get source schema");
-          return BaseFileWriter.GetColumnInformation(valueFormatGeneral, columnDefinitions, dt);
-        }
-      }
+      }, timeout, token).ConfigureAwait(false);
+      await data.OpenAsync(token).ConfigureAwait(false);
+      using var dt = data.GetSchemaTable();
+      if (dt == null)
+        throw new FileWriterException("Could not get source schema");
+      return BaseFileWriter.GetColumnInformation(valueFormatGeneral, columnDefinitions, dt);
     }
 
     public static async Task<IEnumerable<string>> GetSqlColumnNamesAsync(
@@ -804,15 +793,13 @@ namespace CsvTools
       if (string.IsNullOrEmpty(sqlStatement))
         return new List<string>();
 
-      using (var data = await FunctionalDI.SQLDataReader(sqlStatement!.NoRecordSQL(), null, timeout, token)
-        .ConfigureAwait(false))
-      {
-        await data.OpenAsync(token).ConfigureAwait(false);
-        var list = new List<string>();
-        for (var index = 0; index < data.FieldCount; index++)
-          list.Add(data.GetColumn(index).Name);
-        return list;
-      }
+      using var data = await FunctionalDI.SQLDataReader(sqlStatement!.NoRecordSQL(), null, timeout, token)
+        .ConfigureAwait(false);
+      await data.OpenAsync(token).ConfigureAwait(false);
+      var list = new List<string>();
+      for (var index = 0; index < data.FieldCount; index++)
+        list.Add(data.GetColumn(index).Name);
+      return list;
     }
 
     /// <summary>

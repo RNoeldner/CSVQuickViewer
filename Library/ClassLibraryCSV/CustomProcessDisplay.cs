@@ -27,15 +27,15 @@ namespace CsvTools
     {
     }
 
-    public event EventHandler<ProgressEventArgs> Progress;
+    public event EventHandler<ProgressEventArgs>? Progress;
 
     public CancellationToken CancellationToken { get; }
 
     public virtual long Maximum { get; set; } = -1;
 
-    public void SetProcess(object sender, ProgressEventArgs? e)
+    public void SetProcess(object? sender, ProgressEventArgs? e)
     {
-      if (e == null)
+      if (e == null || Progress==null)
         return;
       Handle(sender, e.Text, e.Value, e.Log);
     }
@@ -44,7 +44,7 @@ namespace CsvTools
 
     public void SetProcess(string text, long value, bool log) => Handle(this, text, value, log);
 
-    protected virtual void Handle(object sender, string text, long value, bool log)
+    protected virtual void Handle(object? sender, string text, long value, bool log)
     {
       if (log)
         Logger.Information(text);

@@ -46,7 +46,7 @@ namespace CsvTools
 
     public event EventHandler<long>? SetMaximum;
 
-    protected override void Handle(object sender, string text, long value, bool log)
+    protected override void Handle(object? sender, string text, long value, bool log)
     {
       base.Handle(sender, text, value, log);
       ProgressTime?.Invoke(sender,

@@ -28,7 +28,7 @@ namespace CsvTools
   {
     private bool m_DisposedValue;
 
-    public DataTableWrapper(DataTable dataTable) : base(dataTable?.CreateDataReader() ?? throw new ArgumentNullException(nameof(dataTable)), dataTable.Rows.Count) => DataTable = dataTable;
+    public DataTableWrapper(DataTable? dataTable) : base(dataTable?.CreateDataReader() ?? throw new ArgumentNullException(nameof(dataTable)), dataTable.Rows.Count) => DataTable = dataTable;
 
     public DataTable DataTable { get; }
 

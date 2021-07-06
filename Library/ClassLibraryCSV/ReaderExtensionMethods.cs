@@ -107,7 +107,7 @@ namespace CsvTools
     /// </param>
     /// <param name="cancellationToken">Token to cancel the long running async method</param>
     /// <returns></returns>
-    public static async Task<DataTable> GetDataTableAsync(this IFileReader reader, long recordLimit,
+    public static async Task<DataTable?> GetDataTableAsync(this IFileReader reader, long recordLimit,
                                                           bool restoreErrorsFromColumn, bool addStartLine,
                                                           bool includeRecordNo, bool includeEndLineNo, bool includeErrorField,
                                                           Action<long, int>? progress,
@@ -120,11 +120,9 @@ namespace CsvTools
       if (reader.IsClosed)
         await reader.OpenAsync(cancellationToken);
 
-      using (var wrapper = new DataReaderWrapper(reader, recordLimit, includeErrorField, addStartLine, includeEndLineNo,
-        includeRecordNo))
-      {
-        return await LoadDataTable(wrapper, TimeSpan.MaxValue, restoreErrorsFromColumn, progress, cancellationToken);
-      }
+      using var wrapper = new DataReaderWrapper(reader, recordLimit, includeErrorField, addStartLine, includeEndLineNo,
+        includeRecordNo);
+      return await LoadDataTable(wrapper, TimeSpan.MaxValue, restoreErrorsFromColumn, progress, cancellationToken);
     }
 
     public static async Task<DataTable> LoadDataTable(this DataReaderWrapper wrapper, TimeSpan maxDuration,

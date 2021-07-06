@@ -598,7 +598,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
     ///   <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj) => Equals(obj as Column);
+    public override bool Equals(object? obj) => Equals(obj as Column);
 
     /// <summary>
     ///   Notifies the property changed.

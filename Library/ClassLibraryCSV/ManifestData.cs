@@ -40,18 +40,16 @@ namespace CsvTools
       var manifest = fileName.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase)
         ? fileName
         : fileName.Substring(0, posExt) + cCsvManifestExtension;
-      if (FileSystemUtils.FileExists(manifest))
-      {
-        var dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".csv");
-        Logger.Information("Configuration read from manifest file {filename}", manifest);
+      if (!FileSystemUtils.FileExists(manifest)) return null;
+      var dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".csv");
+      Logger.Information("Configuration read from manifest file {filename}", manifest);
 
-        if (FileSystemUtils.FileExists(dataFile))
-          return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
+      if (FileSystemUtils.FileExists(dataFile))
+        return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
 
-        dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".txt");
-        if (FileSystemUtils.FileExists(dataFile))
-          return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
-      }
+      dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".txt");
+      if (FileSystemUtils.FileExists(dataFile))
+        return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
 
       return null;
     }
@@ -63,21 +61,19 @@ namespace CsvTools
 
       Logger.Debug("Opening Zip file {filename}", fileName);
 
-      using (var archive = new ZipFile(fileName.LongPathPrefix()))
-      {
-        // find Text and Manifest
+      using var archive = new ZipFile(fileName.LongPathPrefix());
+      // find Text and Manifest
 
-        foreach (ZipEntry entryManifest in archive)
+      foreach (ZipEntry entryManifest in archive)
+      {
+        if (!entryManifest.IsFile || !entryManifest.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase))
+          continue;
+        foreach (ZipEntry entryFile in archive)
         {
-          if (!entryManifest.IsFile || !entryManifest.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase))
+          if (entryManifest == entryFile || !entryFile.IsFile || !entryFile.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
             continue;
-          foreach (ZipEntry entryFile in archive)
-          {
-            if (entryManifest == entryFile || !entryFile.IsFile || !entryFile.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
-              continue;
-            Logger.Information("Configuration read from manifest file {filename}", entryManifest.Name);
-            return await ReadManifestFromStream(archive.GetInputStream(entryManifest), fileName, entryFile.Name);
-          }
+          Logger.Information("Configuration read from manifest file {filename}", entryManifest.Name);
+          return await ReadManifestFromStream(archive.GetInputStream(entryManifest), fileName, entryFile.Name);
         }
       }
 

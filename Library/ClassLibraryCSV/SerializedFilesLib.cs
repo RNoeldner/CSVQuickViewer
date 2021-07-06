@@ -46,10 +46,8 @@ namespace CsvTools
     public static CsvFile LoadCsvFile(string fileName)
     {
       var serial = FileSystemUtils.ReadAllText(fileName);
-      using (TextReader reader = new StringReader(serial))
-      {
-        return (CsvFile) m_SerializerCurrentCsvFile.Value.Deserialize(reader);
-      }
+      using TextReader reader = new StringReader(serial);
+      return (CsvFile) m_SerializerCurrentCsvFile.Value.Deserialize(reader);
     }
 
     /// <summary>
@@ -63,9 +61,8 @@ namespace CsvTools
     {
       var fileName = fileSettingPhysicalFile.FileName + CsvFile.cCsvSettingExtension;
 
-      var saveSetting = fileSettingPhysicalFile.Clone() as CsvFile;
-      if (saveSetting is null)  
-          return;
+      if (!(fileSettingPhysicalFile.Clone() is CsvFile saveSetting))
+        return;
       // Remove possibly set but irrelevant properties for reading
       saveSetting.FileName = string.Empty;
       saveSetting.ID = string.Empty;
@@ -81,11 +78,11 @@ namespace CsvTools
       }
 
       Logger.Debug("Saving setting {path}", fileName);
-      string contens;
+      string contend;
       using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
       {
         m_SerializerCurrentCsvFile.Value.Serialize(stringWriter, saveSetting, EmptyXmlSerializerNamespaces.Value);
-        contens= stringWriter.ToString();
+        contend = stringWriter.ToString();
       }
 
       var delete = false;
@@ -93,7 +90,7 @@ namespace CsvTools
       {
         var fileContend = FileSystemUtils.ReadAllText(fileName);
         // Check if we have actual changes
-        if (fileContend.Equals(contens, StringComparison.OrdinalIgnoreCase))
+        if (fileContend.Equals(contend, StringComparison.OrdinalIgnoreCase))
           // what we want to write and what is written does mach, exit here do not save
           return;
 
@@ -106,7 +103,7 @@ namespace CsvTools
 
       if (delete)
         FileSystemUtils.DeleteWithBackup(fileName, false);
-      File.WriteAllText(fileName, contens);
+      File.WriteAllText(fileName, contend);
     }
   }
 }

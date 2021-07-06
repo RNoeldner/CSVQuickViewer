@@ -74,7 +74,7 @@ namespace CsvTools
           return Enum.Parse(m_EnumType, fi.Name);
       }
 
-      return Enum.Parse(m_EnumType, value.ToString());
+      return Enum.Parse(m_EnumType, Convert.ToString(value));
     }
 
     /// <inheritdoc />
@@ -96,7 +96,7 @@ namespace CsvTools
       if (Attribute.GetCustomAttribute(fi, typeof(DescriptionAttribute)) is DescriptionAttribute dna)
         return dna.Description;
       // most enumeration have an underlying integer
-      return value is int i ? i.ToString(culture) : value.ToString() ?? string.Empty;
+      return value is int i ? i.ToString(culture) : Convert.ToString(value);
     }
   }
 }

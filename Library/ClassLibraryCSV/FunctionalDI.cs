@@ -32,11 +32,11 @@ namespace CsvTools
     ///   match the base file readers HandleWarning the validation library will overwrite this is an
     ///   implementation using Noda Time
     /// </summary>
-    public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZImport =
+    public static Func<DateTime, string, int, Action<int, string>?, DateTime> AdjustTZImport =
       (input, srcTimeZone, columnOrdinal, handleWarning) =>
         ChangeTimeZone(input, srcTimeZone, TimeZoneInfo.Local.Id, columnOrdinal, handleWarning);
 
-    public static Func<DateTime?, string, int, Action<int, string>, DateTime?> AdjustTZExport =
+    public static Func<DateTime, string, int, Action<int, string>?, DateTime> AdjustTZExport =
       (input, destTimeZone, columnOrdinal, handleWarning) =>
         ChangeTimeZone(input, TimeZoneInfo.Local.Id, destTimeZone, columnOrdinal, handleWarning);
 
@@ -72,7 +72,7 @@ namespace CsvTools
     ///   Return the right reader for a file setting
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, string, IProcessDisplay?, IFileReader> GetFileReader = DefaultFileReader;
+    public static Func<IFileSetting, string?, IProcessDisplay?, IFileReader> GetFileReader = DefaultFileReader;
 
     /// <summary>
     ///   Return a right writer for a file setting
@@ -88,40 +88,44 @@ namespace CsvTools
     public static Func<string, EventHandler<ProgressEventArgs>?, int, CancellationToken, Task<IFileReader>>
       SQLDataReader = (sql, eh, limit, token) => throw new FileWriterException("SQL Reader not specified");
 
-    private static DateTime? ChangeTimeZone(DateTime? input, string? srcTimeZone,
-      string? destTimeZone, int columnOrdinal, Action<int, string>? handleWarning)
+    private static DateTime ChangeTimeZone(DateTime input, string srcTimeZone,
+      string destTimeZone, int columnOrdinal, Action<int, string>? handleWarning)
     {
-      if (!input.HasValue || string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) ||
-          destTimeZone!.Equals(srcTimeZone))
+      if (string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) ||
+          destTimeZone.Equals(srcTimeZone))
         return input;
       try
       {
         // default implementation will convert using the .NET library
-        return TimeZoneInfo.ConvertTime(input.Value, TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone!),
+        return TimeZoneInfo.ConvertTime(input, TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone),
           TimeZoneInfo.FindSystemTimeZoneById(destTimeZone));
       }
       catch (Exception ex)
       {
         if (handleWarning == null) throw;
         handleWarning.Invoke(columnOrdinal, ex.Message);
-        return null;
+        return new DateTime();
       }
     }
 
     private static IFileReader DefaultFileReader(IFileSetting setting, string? timeZone,
       IProcessDisplay? processDisplay)
     {
-      switch (setting)
+      return setting switch
       {
-        case ICsvFile csv when csv.JsonFormat:
-          return new JsonFileReader(csv.FullPath, csv.ColumnCollection, csv.RecordLimit, csv.TrimmingOption == TrimmingOption.All, csv.TreatTextAsNull, csv.TreatNBSPAsSpace, processDisplay);
-
-        case ICsvFile csv:
-          return new CsvFileReader(csv.FullPath, csv.CodePageId, csv.SkipRows, csv.HasFieldHeader, csv.ColumnCollection, csv.TrimmingOption, csv.FileFormat.FieldDelimiter, csv.FileFormat.FieldQualifier, csv.FileFormat.EscapeCharacter, csv.RecordLimit, csv.AllowRowCombining, csv.FileFormat.AlternateQuoting, csv.FileFormat.CommentLine, csv.NumWarnings, csv.FileFormat.DuplicateQuotingToEscape, csv.FileFormat.NewLinePlaceholder, csv.FileFormat.DelimiterPlaceholder, csv.FileFormat.QuotePlaceholder, csv.SkipDuplicateHeader, csv.TreatLFAsSpace, csv.TreatUnknownCharacterAsSpace, csv.TryToSolveMoreColumns, csv.WarnDelimiterInValue, csv.WarnLineFeed, csv.WarnNBSP, csv.WarnQuotes, csv.WarnUnknownCharacter, csv.WarnEmptyTailingColumns, csv.TreatNBSPAsSpace, csv.TreatTextAsNull, csv.SkipEmptyLines, csv.ConsecutiveEmptyRows, csv.IdentifierInContainer, processDisplay);
-
-        default:
-          throw new NotImplementedException($"Reader for {setting} not found");
-      }
+        ICsvFile {JsonFormat: true} csv => new JsonFileReader(csv.FullPath, csv.ColumnCollection, csv.RecordLimit,
+          csv.TrimmingOption == TrimmingOption.All, csv.TreatTextAsNull, csv.TreatNBSPAsSpace, processDisplay),
+        ICsvFile csv => new CsvFileReader(csv.FullPath, csv.CodePageId, csv.SkipRows, csv.HasFieldHeader,
+          csv.ColumnCollection, csv.TrimmingOption, csv.FileFormat.FieldDelimiter, csv.FileFormat.FieldQualifier,
+          csv.FileFormat.EscapeCharacter, csv.RecordLimit, csv.AllowRowCombining, csv.FileFormat.AlternateQuoting,
+          csv.FileFormat.CommentLine, csv.NumWarnings, csv.FileFormat.DuplicateQuotingToEscape,
+          csv.FileFormat.NewLinePlaceholder, csv.FileFormat.DelimiterPlaceholder, csv.FileFormat.QuotePlaceholder,
+          csv.SkipDuplicateHeader, csv.TreatLFAsSpace, csv.TreatUnknownCharacterAsSpace, csv.TryToSolveMoreColumns,
+          csv.WarnDelimiterInValue, csv.WarnLineFeed, csv.WarnNBSP, csv.WarnQuotes, csv.WarnUnknownCharacter,
+          csv.WarnEmptyTailingColumns, csv.TreatNBSPAsSpace, csv.TreatTextAsNull, csv.SkipEmptyLines,
+          csv.ConsecutiveEmptyRows, csv.IdentifierInContainer, processDisplay),
+        _ => throw new NotImplementedException($"Reader for {setting} not found")
+      };
     }
 
     private static IFileWriter DefaultFileWriter(IFileSettingPhysicalFile physicalFile,

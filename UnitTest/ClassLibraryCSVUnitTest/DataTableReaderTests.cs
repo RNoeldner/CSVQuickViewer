@@ -18,7 +18,7 @@ namespace CsvTools.Tests
       {
         using (var test = new DataTableWrapper(m_DataTable))
         {
-          var dt = await test.GetDataTableAsync(200, false, true, false, false, false, null,
+          DataTable dt = await test.GetDataTableAsync(200, false, true, false, false, false, null,
             pd.CancellationToken);
           Assert.AreEqual(m_DataTable, dt);
         }

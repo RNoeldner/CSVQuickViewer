@@ -12,6 +12,7 @@
  *
  */
 
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -33,6 +34,24 @@ namespace CsvTools.Tests
 
     public static void MimicSql() => FunctionalDI.SQLDataReader = MimicSQLReader.ReadDataAsync;
 
+    private class TestLogger : ILogger
+    {
+      private readonly TestContext Context;
+
+      public TestLogger(TestContext context)
+      {
+        Context = context;
+      }
+
+      public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+      {
+        Context.WriteLine($"{logLevel} - {formatter(state, exception)}");
+      }
+
+      public bool IsEnabled(LogLevel logLevel) => true;
+
+      public IDisposable BeginScope<TState>(TState state) => default;
+    }
     [AssemblyInitialize]
     public static void AssemblyInitialize(TestContext context)
     {
@@ -41,8 +60,8 @@ namespace CsvTools.Tests
 
       ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
 
-      Logger.UILog = (s, level) => context.WriteLine($"{level} - {s}");
-
+      Logger.LoggerInstance = new TestLogger(context);
+      
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
 
       AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs args)

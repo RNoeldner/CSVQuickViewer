@@ -46,7 +46,7 @@ namespace CsvTools
     public int CustomInt = int.MinValue;
 
     /// <summary>
-    ///   Store form specific values like a filetrText
+    ///   Store form specific values like a filterText
     /// </summary>
     [XmlAttribute]
     [DefaultValue("")]

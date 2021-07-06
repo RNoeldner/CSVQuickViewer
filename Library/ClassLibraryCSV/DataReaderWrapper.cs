@@ -175,7 +175,7 @@ namespace CsvTools
       return dataTable;
     }
 
-    public override string GetString(int columnNumber) => GetValue(columnNumber).ToString() ?? string.Empty;
+    public override string GetString(int columnNumber) => Convert.ToString(GetValue(columnNumber));
 
     public override object GetValue(int columnNumber)
     {

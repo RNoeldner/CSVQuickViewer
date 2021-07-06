@@ -14,7 +14,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -352,7 +351,7 @@ namespace CsvTools
     public static void WriteAllText(string fileName, string contents) =>
       File.WriteAllText(fileName.LongPathPrefix(), contents);
 
-    public static StreamReader? GetStreamReaderForFileOrResource(string file)
+    public static StreamReader GetStreamReaderForFileOrResource(string file)
     {
       var fileName = ExecutableDirectoryName() + "\\" + file;
       try
@@ -377,11 +376,10 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Debug.WriteLine("Error reading  " + fileName);
-        Debug.WriteLine(ex.Message);
+        Logger.Error(ex);
       }
 
-      return null;
+      throw new ArgumentException($"Could not locate stream for {file}");
     }
 
     public static string LongFileName(this string shortPath)
@@ -396,30 +394,30 @@ namespace CsvTools
 #if Windows
 
     /// <summary>
-    ///   On windows we need to take care of filenames that might exceed 248 chancters, they need to
+    ///   On windows we need to take care of filename that might exceed 248 characters, they need to
     ///   be escaped.
     /// </summary>
-    private const string c_LongPathPrefix = @"\\?\";
+    private const string cLongPathPrefix = @"\\?\";
 
-    private const string c_UncLongPathPrefix = @"\\?\UNC\";
+    private const string cUncLongPathPrefix = @"\\?\UNC\";
 
     public static string LongPathPrefix(this string path)
     {
       // In case the directory is 248 we need long path as well
-      if (string.IsNullOrEmpty(path) || path.Length < 248 || path.StartsWith(c_LongPathPrefix, StringComparison.Ordinal)
-          || path.StartsWith(c_UncLongPathPrefix, StringComparison.Ordinal))
+      if (string.IsNullOrEmpty(path) || path.Length < 248 || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal)
+          || path.StartsWith(cUncLongPathPrefix, StringComparison.Ordinal))
         return path;
       return path.StartsWith(@"\\", StringComparison.Ordinal)
-        ? c_UncLongPathPrefix + path.Substring(2)
-        : c_LongPathPrefix + path;
+        ? cUncLongPathPrefix + path.Substring(2)
+        : cLongPathPrefix + path;
     }
 
     public static string RemovePrefix(this string path)
     {
-      if (path.StartsWith(c_LongPathPrefix, StringComparison.Ordinal))
-        return path.Substring(c_LongPathPrefix.Length);
-      return path.StartsWith(c_UncLongPathPrefix, StringComparison.Ordinal)
-        ? path.Substring(c_UncLongPathPrefix.Length)
+      if (path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
+        return path.Substring(cLongPathPrefix.Length);
+      return path.StartsWith(cUncLongPathPrefix, StringComparison.Ordinal)
+        ? path.Substring(cUncLongPathPrefix.Length)
         : path;
     }
 
@@ -487,20 +485,20 @@ namespace CsvTools
       if (string.IsNullOrEmpty(longPath))
         return longPath;
       var fi = new System.IO.FileInfo(longPath);
-      const uint c_BufferSize = 512;
-      var shortNameBuffer = new StringBuilder((int) c_BufferSize);
+      const uint bufferSize = 512;
+      var shortNameBuffer = new StringBuilder((int) bufferSize);
 
       // we might be asked to build a short path when the file does not exist yet, this would fail
       if (fi.Exists)
       {
-        var length = GetShortPathName(longPath, shortNameBuffer, c_BufferSize);
+        var length = GetShortPathName(longPath, shortNameBuffer, bufferSize);
         if (length > 0) return shortNameBuffer.ToString().RemovePrefix();
       }
 
       // if we have at least the directory shorten this
       if (!(fi.Directory?.Exists ?? false)) throw new Exception($"Could not get a short path for the file ${longPath}");
       {
-        var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, c_BufferSize);
+        var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, bufferSize);
         if (length > 0)
           return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length - 1] == Path.DirectorySeparatorChar ? string.Empty : Path.DirectorySeparatorChar.ToString()) +
                   fi.Name)
@@ -571,12 +569,12 @@ namespace CsvTools
       {
         Name = fileName?.RemovePrefix() ?? string.Empty;
 
-        if (string.IsNullOrEmpty(fileName)) 
+        if (string.IsNullOrEmpty(fileName))
           return;
         try
         {
           m_Info = new System.IO.FileInfo(fileName!.LongPathPrefix());
-          if (!m_Info.Exists) 
+          if (!m_Info.Exists)
             return;
 
           Exists = true;

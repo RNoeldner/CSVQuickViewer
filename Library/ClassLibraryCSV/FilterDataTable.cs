@@ -44,7 +44,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
     /// </summary>
     /// <param name="init">The initial DataTable</param>
-    public FilterDataTable(DataTable init)
+    public FilterDataTable(DataTable? init)
     {
       m_SourceTable = init ?? throw new ArgumentNullException(nameof(init));
       FilterTable = m_SourceTable.Clone();
@@ -75,9 +75,6 @@ namespace CsvTools
     {
       get
       {
-        if (FilterTable == null)
-          return new List<string>();
-
         if (m_ColumnWithoutErrors != null) return m_ColumnWithoutErrors;
 
         // Wait until we are actually done filtering, max 60 seconds
@@ -138,7 +135,7 @@ namespace CsvTools
     ///   Gets the error table.
     /// </summary>
     /// <value>The error table.</value>
-    public DataTable? FilterTable { get; private set; }
+    public DataTable FilterTable { get; private set; }
 
     public FilterType FilterType { get; private set; } = FilterType.None;
 
@@ -177,11 +174,8 @@ namespace CsvTools
       m_CurrentFilterCancellationTokenSource = null;
     }
 
-    private void Filter(int limit, FilterType type)
+    public void Filter(int limit, FilterType type)
     {
-      if (FilterTable == null)
-        return;
-
       if (limit < 1)
         limit = int.MaxValue;
       m_ColumnWithoutErrors = null;
@@ -272,7 +266,7 @@ namespace CsvTools
       if (!disposing) return;
       m_DisposedValue = true;
       m_CurrentFilterCancellationTokenSource?.Dispose();
-      FilterTable?.Dispose();
+      FilterTable.Dispose();
     }
   }
 }

@@ -44,14 +44,12 @@ namespace CsvTools
     ///   Gets the data grid view column filter.
     /// </summary>
     /// <value>The data grid view column filter.</value>
-    [NotNull]
     public ColumnFilterLogic ColumnFilterLogic => ((DataGridViewColumnFilterControl) Control).ColumnFilterLogic;
 
     /// <summary>
     ///   Gets the value cluster collection.
     /// </summary>
     /// <value>The value cluster collection.</value>
-    [NotNull]
     public ValueClusterCollection ValueClusterCollection => ((DataGridViewColumnFilterControl) Control).ColumnFilterLogic.ValueClusterCollection;
   }
 }

@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -30,7 +29,7 @@ namespace CsvTools
 
     private readonly int m_MaxNumber;
 
-    [NotNull] private readonly List<ValueCluster> m_ValueClusters = new List<ValueCluster>();
+    private readonly List<ValueCluster> m_ValueClusters = new List<ValueCluster>();
 
     private BuildValueClustersResult m_Result = BuildValueClustersResult.NotRun;
 
@@ -41,7 +40,6 @@ namespace CsvTools
     ///   Gets the values.
     /// </summary>
     /// <value>The values.</value>
-    [NotNull]
     public ICollection<ValueCluster> ValueClusters
     {
       get
@@ -58,7 +56,7 @@ namespace CsvTools
     /// <param name="columnIndex">Index of the column.</param>
     /// <returns></returns>
     public BuildValueClustersResult BuildValueClusters(
-      [NotNull] DataView dataView,
+      DataView dataView,
       Type columnType,
       int columnIndex)
     {
@@ -91,7 +89,6 @@ namespace CsvTools
     ///   Gets the active value cluster.
     /// </summary>
     /// <returns></returns>
-    [NotNull]
     public IEnumerable<ValueCluster> GetActiveValueCluster() => m_ValueClusters.Where(value => !string.IsNullOrEmpty(value.Display) && value.Active);
 
     /// <summary>
@@ -100,7 +97,7 @@ namespace CsvTools
     /// <param name="dataTable">The data view.</param>
     /// <param name="columnIndex">Index of the column.</param>
     /// <returns></returns>
-    private BuildValueClustersResult BuildValueClustersDate([NotNull] DataTable dataTable, int columnIndex)
+    private BuildValueClustersResult BuildValueClustersDate(DataTable dataTable, int columnIndex)
     {
       // Get the distinct values and their counts
       var clusterYear = new HashSet<int>();
@@ -205,7 +202,7 @@ namespace CsvTools
     /// <param name="columnType">Type of the column.</param>
     /// <returns></returns>
     private BuildValueClustersResult BuildValueClustersNumeric(
-      [NotNull] DataTable dataTable,
+      DataTable dataTable,
       int columnIndex,
       Type columnType)
     {
@@ -348,7 +345,7 @@ namespace CsvTools
     /// <param name="dataTable">The data view.</param>
     /// <param name="columnIndex">Index of the column.</param>
     /// <returns></returns>
-    private BuildValueClustersResult BuildValueClustersString([NotNull] DataTable dataTable, int columnIndex)
+    private BuildValueClustersResult BuildValueClustersString(DataTable dataTable, int columnIndex)
     {
       // Get the distinct values and their counts
       var cluster = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -390,7 +387,7 @@ namespace CsvTools
       return BuildValueClustersResult.ListFilled;
     }
 
-    private void AddValueClusterNull([NotNull] DataTable dataTable, int columnIndex)
+    private void AddValueClusterNull(DataTable dataTable, int columnIndex)
     {
       m_ValueClusters.Add(
         new ValueCluster(ColumnFilterLogic.OperatorIsNull,

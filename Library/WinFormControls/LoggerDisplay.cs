@@ -13,6 +13,7 @@
  */
 
 using FastColoredTextBoxNS;
+using Microsoft.Extensions.Logging;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -22,7 +23,7 @@ namespace CsvTools
   /// <summary>
   ///   Only the most recently created Logger Display will get the log messages
   /// </summary>
-  public class LoggerDisplay : FastColoredTextBox
+  public class LoggerDisplay : FastColoredTextBox, ILogger
   {
     private readonly TextStyle errorStyle = new TextStyle(Brushes.Red, null, FontStyle.Regular);
     private readonly TextStyle infoStyle = new TextStyle(Brushes.Gray, null, FontStyle.Regular);
@@ -36,12 +37,19 @@ namespace CsvTools
 
     private string m_LastMessage = string.Empty;
 
+    [DefaultValue(LogLevel.Information)]
+    public LogLevel MinLevel
+    {
+      get;
+      set;
+    } = LogLevel.Debug;
+
     public LoggerDisplay()
     {
       Multiline = true;
       ReadOnly = true;
       ShowLineNumbers = false;
-      Logger.AddLog(AddLog);
+      WinAppLogging.AddLog(this);
     }
 
     [DefaultValue(120)]
@@ -51,12 +59,23 @@ namespace CsvTools
       set;
     } = 120;
 
-    public Logger.Level MinLevel { get; set; } = Logger.Level.Debug;
+    public IDisposable BeginScope<TState>(TState state) => default!;
 
-    public void AddLog(string text, Logger.Level level)
+    public new void Clear()
     {
-      if (string.IsNullOrWhiteSpace(text) || m_LastMessage.Equals(text, StringComparison.Ordinal)
-                                          || level < MinLevel) return;
+      this.SafeBeginInvoke(() => { Text = string.Empty; });
+      Extensions.ProcessUIElements();
+    }
+
+    public bool IsEnabled(LogLevel logLevel) => logLevel >= MinLevel;
+
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    {
+      if (!IsEnabled(logLevel))
+        return;
+
+      var text = formatter(state, exception);
+      if (string.IsNullOrWhiteSpace(text) || m_LastMessage.Equals(text, StringComparison.Ordinal)) return;
       try
       {
         var appended = false;
@@ -66,17 +85,17 @@ namespace CsvTools
           StringComparison.Ordinal))
         {
           // add to previous item,
-          AppendText(text.Substring(posSlash - 1), false, level);
+          AppendText(text.Substring(posSlash - 1), false, logLevel);
           appended = true;
         }
 
         m_LastMessage = text;
         if (!appended)
         {
-          if (level < Logger.Level.Warn)
-            text = StringUtils.GetShortDisplay(StringUtils.HandleCRLFCombinations(text, " "), LimitLength);
+          if (logLevel < LogLevel.Warning)
+            text = StringUtils.GetShortDisplay(text.HandleCRLFCombinations(" "), LimitLength);
           if (!string.IsNullOrEmpty(text) && text != "\"\"")
-            AppendText(text, true, level);
+            AppendText(text, true, logLevel);
         }
 
         m_Initial = false;
@@ -87,12 +106,6 @@ namespace CsvTools
       }
     }
 
-    public new void Clear()
-    {
-      this.SafeBeginInvoke(() => { Text = string.Empty; });
-      Extensions.ProcessUIElements();
-    }
-
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
@@ -100,7 +113,7 @@ namespace CsvTools
       if (disposing)
       {
         m_Disposed = true;
-        Logger.RemoveLog(AddLog);
+        WinAppLogging.RemoveLog(this);
       }
 
       try
@@ -113,7 +126,7 @@ namespace CsvTools
       }
     }
 
-    private void AppendText(string text, bool timestamp, Logger.Level level)
+    private void AppendText(string text, bool timestamp, LogLevel level)
     {
       this.SafeBeginInvoke(() =>
       {
@@ -128,19 +141,16 @@ namespace CsvTools
           TextSource.CurrentTB = this;
 
           var style = regStyle;
-          if (level < Logger.Level.Info)
+          if (level < LogLevel.Information)
             style = infoStyle;
-          else if (level >= Logger.Level.Error)
+          else if (level >= LogLevel.Error)
             style = errorStyle;
-          else if (level >= Logger.Level.Warn)
+          else if (level >= LogLevel.Warning)
             style = warningStyle;
 
           if (timestamp)
           {
-            if (m_Initial)
-              AppendText($"{DateTime.Now:HH:mm:ss}", timestampStyle);
-            else
-              AppendText($"\n{DateTime.Now:HH:mm:ss}", timestampStyle);
+            AppendText(m_Initial ? $"{DateTime.Now:HH:mm:ss}" : $"\n{DateTime.Now:HH:mm:ss}", timestampStyle);
             AppendText(" ");
           }
 

@@ -11,10 +11,9 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+#nullable enable
 namespace CsvTools
 {
-  using JetBrains.Annotations;
   using System;
   using System.Collections.Generic;
   using System.ComponentModel;
@@ -30,7 +29,7 @@ namespace CsvTools
 
     private readonly DataTable m_DataTable;
 
-    private readonly string m_InitialColumn;
+    private readonly string? m_InitialColumn;
 
     private string m_LastDataColumnName = string.Empty;
 
@@ -50,8 +49,8 @@ namespace CsvTools
     /// or
     /// dataRows
     /// </exception>
-    public FormUniqueDisplay([NotNull] DataTable dataTable, [NotNull] DataRow[] dataRows, [CanBeNull] string initialColumn, HTMLStyle hTMLStyle)
-    {      
+    public FormUniqueDisplay(DataTable dataTable, DataRow[] dataRows, string? initialColumn, HTMLStyle hTMLStyle)
+    {
       if (hTMLStyle is null)
         throw new ArgumentNullException(nameof(hTMLStyle));
       m_DataTable = dataTable??throw new ArgumentNullException(nameof(dataTable));
@@ -120,66 +119,64 @@ namespace CsvTools
         var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var intervalAction = new IntervalAction();
 
-        using (var display = new FormProcessDisplay(
+        using var display = new FormProcessDisplay(
           $"Processing {dataColumnName}",
           false,
-          m_CancellationTokenSource.Token))
+          m_CancellationTokenSource.Token);
+        display.Maximum = m_DataRow.Length;
+        display.Show(this);
+
+        for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
         {
-          display.Maximum = m_DataRow.Length;
-          display.Show(this);
-
-          for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
-          {
-            if (display.CancellationToken.IsCancellationRequested)
-              return;
-            intervalAction.Invoke(row => { display.SetProcess("Getting Unique values", row, true); }, rowIndex);
-            var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
-            if (ignoreNull && string.IsNullOrEmpty(id))
-              continue;
-            if (!dictIDToRow.ContainsKey(id))
-              dictIDToRow.Add(id, rowIndex);
-          }
-
-          this.SafeInvoke(
-            () => Text = $@"Unique Values Display - {dataColumnName} - Rows {dictIDToRow.Count}/{m_DataRow.Length}");
-
-          m_DataTable.BeginLoadData();
-          m_DataTable.Clear();
-          display.Maximum = dictIDToRow.Count;
-
-          var counter = 0;
-          foreach (var rowIndex in dictIDToRow.Values)
-          {
-            if (display.CancellationToken.IsCancellationRequested)
-              return;
-            counter++;
-            if (counter % 100 == 0)
-              intervalAction.Invoke(c => { display.SetProcess("Importing Rows to Grid", c, true); }, counter);
-            m_DataTable.ImportRow(m_DataRow[rowIndex]);
-          }
-
-          m_DataTable.EndLoadData();
-          detailControl.CancellationToken = m_CancellationTokenSource.Token;
-          display.Maximum = 0;
-          display.SetProcess("Sorting");
-          detailControl.SafeInvoke(
-            () =>
-              {
-                try
-                {
-                  foreach (DataGridViewColumn col in detailControl.FilteredDataGridView.Columns)
-                    if (col.DataPropertyName == dataColumnName)
-                    {
-                      detailControl.FilteredDataGridView.Sort(col, ListSortDirection.Ascending);
-                      break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                  Logger.Warning(ex, "Processing Unique Sorting {exception}", ex.InnerExceptionMessages());
-                }
-              });
+          if (display.CancellationToken.IsCancellationRequested)
+            return;
+          intervalAction.Invoke(row => { display.SetProcess("Getting Unique values", row, true); }, rowIndex);
+          var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
+          if (ignoreNull && string.IsNullOrEmpty(id))
+            continue;
+          if (!dictIDToRow.ContainsKey(id))
+            dictIDToRow.Add(id, rowIndex);
         }
+
+        this.SafeInvoke(
+          () => Text = $@"Unique Values Display - {dataColumnName} - Rows {dictIDToRow.Count}/{m_DataRow.Length}");
+
+        m_DataTable.BeginLoadData();
+        m_DataTable.Clear();
+        display.Maximum = dictIDToRow.Count;
+
+        var counter = 0;
+        foreach (var rowIndex in dictIDToRow.Values)
+        {
+          if (display.CancellationToken.IsCancellationRequested)
+            return;
+          counter++;
+          if (counter % 100 == 0)
+            intervalAction.Invoke(c => { display.SetProcess("Importing Rows to Grid", c, true); }, counter);
+          m_DataTable.ImportRow(m_DataRow[rowIndex]);
+        }
+
+        m_DataTable.EndLoadData();
+        detailControl.CancellationToken = m_CancellationTokenSource.Token;
+        display.Maximum = 0;
+        display.SetProcess("Sorting");
+        detailControl.SafeInvoke(
+          () =>
+            {
+              try
+              {
+                foreach (DataGridViewColumn col in detailControl.FilteredDataGridView.Columns)
+                  if (col.DataPropertyName == dataColumnName)
+                  {
+                    detailControl.FilteredDataGridView.Sort(col, ListSortDirection.Ascending);
+                    break;
+                  }
+              }
+              catch (Exception ex)
+              {
+                Logger.Warning(ex, "Processing Unique Sorting {exception}", ex.InnerExceptionMessages());
+              }
+            });
       }
       catch (Exception ex)
       {

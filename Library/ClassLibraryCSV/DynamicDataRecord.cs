@@ -17,7 +17,7 @@ namespace CsvTools
         m_Properties.Add(dataRecord.GetName(i), dataRecord.GetValue(i));
     }
 
-    public override bool TryGetMember(GetMemberBinder binder, out object result) => m_Properties.TryGetValue(binder.Name, out result);
+    public override bool TryGetMember(GetMemberBinder binder, out object? result) => m_Properties.TryGetValue(binder.Name, out result);
 
     //public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
     //{

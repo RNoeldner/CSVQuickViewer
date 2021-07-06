@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +8,14 @@ namespace CsvTools
   {
     public class ValueFilter
     {
-      public ValueFilter([NotNull]  string sQlCondition, [NotNull] string display)
+      public ValueFilter(string sQlCondition, string display)
       {
         SQLCondition = sQlCondition;
         Display = display;
       }
 
-      [NotNull]
       public string SQLCondition { get; set; }
 
-      [NotNull]
       public string Display { get; set; }
 
       public override int GetHashCode()
@@ -31,7 +28,7 @@ namespace CsvTools
       }
     }
 
-    public ColumnSetting([NotNull] string dataPropertyName, bool visible, int sorted, int displayIndex, int width)
+    public ColumnSetting(string dataPropertyName, bool visible, int sorted, int displayIndex, int width)
     {
       DataPropertyName = dataPropertyName;
       Visible = visible;
@@ -40,7 +37,6 @@ namespace CsvTools
       Width = width;
     }
 
-    [NotNull]
     public string DataPropertyName { get; set; }
 
     public bool Visible { get; set; }
@@ -48,10 +44,8 @@ namespace CsvTools
     public int Width { get; set; }
     public int DisplayIndex { get; set; }
 
-    [NotNull]
     public string Operator { get; set; } = string.Empty;
 
-    [NotNull]
     public string ValueText { get; set; } = string.Empty;
 
     public DateTime ValueDate { get; set; }

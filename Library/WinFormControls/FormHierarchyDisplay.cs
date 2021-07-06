@@ -11,8 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
-using JetBrains.Annotations;
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,26 +39,26 @@ namespace CsvTools
     private readonly Timer m_TimerDisplay = new Timer();
 
     private readonly Timer m_TimerSearch = new Timer();
-    private System.ComponentModel.IContainer components;
+    private System.ComponentModel.IContainer? components;
 
-    private FormProcessDisplay m_BuildProcess;
+    private FormProcessDisplay? m_BuildProcess;
 
-    private ComboBox m_ComboBoxDisplay1;
+    private ComboBox? m_ComboBoxDisplay1;
 
-    private ComboBox m_ComboBoxDisplay2;
+    private ComboBox? m_ComboBoxDisplay2;
 
-    private ComboBox m_ComboBoxID;
+    private ComboBox? m_ComboBoxID;
 
-    private ComboBox m_ComboBoxParentID;
+    private ComboBox? m_ComboBoxParentID;
 
     private bool m_DisposedValue; // To detect redundant calls
 
-    private TableLayoutPanel m_TableLayoutPanel1;
+    private TableLayoutPanel? m_TableLayoutPanel1;
 
-    private TextBox m_TextBoxValue;
+    private TextBox? m_TextBoxValue;
 
     private IEnumerable<TreeData> m_TreeData = new List<TreeData>();
-    private MultiselectTreeView m_TreeView;
+    private MultiselectTreeView m_TreeView = new MultiselectTreeView();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormHierarchyDisplay" /> class.
@@ -67,9 +66,9 @@ namespace CsvTools
     /// <param name="dataTable">The data table.</param>
     /// <param name="dataRows">The filter.</param>
     /// <param name="hTMLStyle">The HTML style.</param>
-    public FormHierarchyDisplay([NotNull] DataTable dataTable, [NotNull] DataRow[] dataRows, HTMLStyle hTMLStyle)
+    public FormHierarchyDisplay(DataTable dataTable, DataRow[] dataRows, HTMLStyle hTMLStyle)
     {
-      m_DataTable = dataTable;
+      m_DataTable = dataTable ??throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows;
       InitializeComponent();
 
@@ -81,13 +80,13 @@ namespace CsvTools
       m_TimerDisplay.Interval = 1000;
       m_TimerDisplay.AutoReset = false;
 
-      m_TreeView.HTMLStyle= hTMLStyle;
+      m_TreeView.HTMLStyle = hTMLStyle;
     }
 
     /// <summary>
     ///   Builds the tree.
     /// </summary>
-    public void BuildTree(string parent, string id, string display1 = null, string display2 = null)
+    public void BuildTree(string parent, string id, string? display1 = null, string? display2 = null)
     {
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
@@ -108,7 +107,7 @@ namespace CsvTools
       }
       finally
       {
-        m_BuildProcess.Dispose();
+        m_BuildProcess?.Dispose();
         m_BuildProcess = null;
         Cursor.Current = oldCursor;
       }
@@ -122,10 +121,10 @@ namespace CsvTools
       if (disposing)
       {
         m_DisposedValue = true;
-        m_TimerDisplay?.Dispose();
-        m_TimerSearch?.Dispose();
+        m_TimerDisplay.Dispose();
+        m_TimerSearch.Dispose();
         m_BuildProcess?.Dispose();
-        m_CancellationTokenSource?.Dispose();
+        m_CancellationTokenSource.Dispose();
       }
 
       base.Dispose(disposing);
@@ -137,8 +136,8 @@ namespace CsvTools
     /// <param name="root">The root.</param>
     /// <param name="rootNode">The root node.</param>
     /// <param name="process">Progress display</param>
-    private void AddTreeDataNodeWithChild([NotNull] TreeData root, [CanBeNull] TreeNode rootNode,
-      [NotNull] IProcessDisplay process)
+    private void AddTreeDataNodeWithChild(TreeData root, TreeNode? rootNode,
+      IProcessDisplay process)
     {
       if (process == null) throw new ArgumentNullException(nameof(process));
       root.Visited = true;
@@ -157,7 +156,7 @@ namespace CsvTools
     /// <param name="parent">The parent ID.</param>
     /// <param name="process">Progress display</param>
     /// <returns></returns>
-    private TreeNode[] BuildSubNodes([NotNull] TreeData parent, IProcessDisplay process)
+    private TreeNode[] BuildSubNodes(TreeData parent, IProcessDisplay process)
     {
       if (process == null) throw new ArgumentNullException(nameof(process));
       var treeNodes = new List<TreeNode>();
@@ -184,7 +183,7 @@ namespace CsvTools
     /// <summary>
     ///   Builds the tree data.
     /// </summary>
-    private void BuildTreeData(string parentCol, string idCol, string display1, string display2,
+    private void BuildTreeData(string parentCol, string idCol, string? display1, string? display2,
       IProcessDisplay process)
     {
       var intervalAction = new IntervalAction();
@@ -197,8 +196,8 @@ namespace CsvTools
       if (dataColumnID == null)
         throw new ArgumentException($"Could not find column {idCol}");
 
-      var dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null : m_DataTable.Columns[display1];
-      var dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2];
+      var dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null : m_DataTable.Columns[display1!];
+      var dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2!];
 
       // Using a dictionary here to speed up lookups
       var treeDataDictionary = new Dictionary<string, TreeData>();
@@ -287,7 +286,7 @@ namespace CsvTools
       m_TreeData = treeDataDictionary.Values;
     }
 
-    public void CloseAll() => CloseAllToolStripMenuItem_Click(this, null);
+    public void CloseAll() => CloseAllToolStripMenuItem_Click(this, EventArgs.Empty);
 
     private void CloseAllToolStripMenuItem_Click(object sender, EventArgs e)
     {
@@ -305,7 +304,7 @@ namespace CsvTools
       }
     }
 
-    public void ExpandAll() => ExpandAllToolStripMenuItem_Click(this, null);
+    public void ExpandAll() => ExpandAllToolStripMenuItem_Click(this, EventArgs.Empty);
 
     private void ExpandAllToolStripMenuItem_Click(object sender, EventArgs e)
     {
@@ -326,16 +325,14 @@ namespace CsvTools
     private void FilterValueChangedElapsed(object sender, ElapsedEventArgs e) =>
 
       // go to UI Main thread
-      m_TextBoxValue.Invoke(
+      m_TextBoxValue!.Invoke(
         (MethodInvoker) delegate
         {
           try
           {
-            using (var processDisplay = new FormProcessDisplay("Searching", false, m_CancellationTokenSource.Token))
-            {
-              processDisplay.Show(this);
-              Search(m_TextBoxValue.Text, m_TreeView.Nodes, processDisplay.CancellationToken);
-            }
+            using var processDisplay = new FormProcessDisplay("Searching", false, m_CancellationTokenSource.Token);
+            processDisplay.Show(this);
+            Search(m_TextBoxValue.Text, m_TreeView.Nodes, processDisplay.CancellationToken);
           }
           catch (Exception ex)
           {
@@ -357,10 +354,10 @@ namespace CsvTools
       {
         foreach (DataColumn col in m_DataTable.Columns)
         {
-          m_ComboBoxID.Items.Add(col.ColumnName);
-          m_ComboBoxDisplay1.Items.Add(col.ColumnName);
-          m_ComboBoxDisplay2.Items.Add(col.ColumnName);
-          m_ComboBoxParentID.Items.Add(col.ColumnName);
+          m_ComboBoxID!.Items.Add(col.ColumnName);
+          m_ComboBoxDisplay1!.Items.Add(col.ColumnName);
+          m_ComboBoxDisplay2!.Items.Add(col.ColumnName);
+          m_ComboBoxParentID!.Items.Add(col.ColumnName);
         }
       }
       catch (Exception ex)
@@ -547,7 +544,7 @@ namespace CsvTools
       this.ResumeLayout(false);
     }
 
-    private bool MarkInCycle([NotNull] TreeData treeData, [NotNull] ICollection<TreeData> visitedEntries)
+    private bool MarkInCycle(TreeData treeData, ICollection<TreeData> visitedEntries)
     {
       if (visitedEntries.Contains(treeData))
       {
@@ -573,7 +570,7 @@ namespace CsvTools
       foreach (TreeNode node in nodes)
         if (node.Text.Contains(text))
         {
-          m_TreeView.Select();
+          m_TreeView!.Select();
           node.EnsureVisible();
           m_TreeView.SelectedNode = node;
           return;
@@ -588,12 +585,12 @@ namespace CsvTools
     /// </summary>
     private void ShowTree(IProcessDisplay process)
     {
+      if (m_TreeView == null)
+        return;
       m_TreeView.BeginUpdate();
       try
       {
         m_TreeView.Nodes.Clear();
-        if (m_TreeData == null)
-          return;
 
         foreach (var treeData in m_TreeData)
           treeData.Visited = false;
@@ -668,11 +665,11 @@ namespace CsvTools
         this.SafeBeginInvoke(
           () =>
           {
-            if (m_ComboBoxID.SelectedItem != null && m_ComboBoxParentID.SelectedItem != null)
+            if (m_ComboBoxID!.SelectedItem != null && m_ComboBoxParentID!.SelectedItem != null)
               BuildTree(m_ComboBoxParentID.Text,
                 m_ComboBoxID.Text,
-                m_ComboBoxDisplay1.Text,
-                m_ComboBoxDisplay2.Text);
+                m_ComboBoxDisplay1!.Text,
+                m_ComboBoxDisplay2!.Text);
           });
       }, m_CancellationTokenSource.Token);
 
@@ -693,7 +690,7 @@ namespace CsvTools
       public bool Visited;
       private int m_StoreIndirect = -1;
 
-      public TreeData(string id, string title, string parentID = null)
+      public TreeData(string id, string title, string? parentID = null)
       {
         if (string.IsNullOrEmpty(id))
           throw new ArgumentException("ID can not be empty", nameof(id));
@@ -701,7 +698,8 @@ namespace CsvTools
           throw new ArgumentException("Title can not be empty", nameof(title));
         ID= id;
         Title = title;
-        ParentID = parentID;
+        ParentID = parentID ?? string.Empty;
+        Tag = string.Empty;
       }
 
       public string NodeTitle
@@ -730,7 +728,7 @@ namespace CsvTools
 
       private static int GetInDirectChildren(TreeData root)
       {
-        if (root == null || root.InCycle)
+        if (root.InCycle)
           return 0;
 
         return root.Children.Count + root.Children.Where(child => child.Children.Count > 0)

@@ -32,18 +32,14 @@ namespace CsvTools
     /// <param name="file">The file.</param>
     public DateTimeFormatCollection(string file)
     {
-      using (var reader = FileSystemUtils.GetStreamReaderForFileOrResource(file))
+      using var reader = FileSystemUtils.GetStreamReaderForFileOrResource(file);
+      
+      while (!reader.EndOfStream)
       {
-        if (reader == null)
-          return;
-
-        while (!reader.EndOfStream)
-        {
-          var entry = reader.ReadLine();
-          if (string.IsNullOrEmpty(entry) || entry[0] == '#')
-            continue;
-          Add(entry);
-        }
+        var entry = reader.ReadLine();
+        if (string.IsNullOrEmpty(entry) || entry[0] == '#')
+          continue;
+        Add(entry);
       }
     }
 

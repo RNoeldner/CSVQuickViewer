@@ -12,278 +12,68 @@
  *
  */
 
+using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics;
+
 namespace CsvTools
 {
-#if NLog
-  using NLog;
-  using System.IO;
-  using System.Text;
-#else
-
-  using Serilog;
-  using Serilog.Core;
-  using Serilog.Events;
-  using System.Globalization;
-  using Serilog.Formatting.Json;
-  using System.Diagnostics;
-  using System.Reflection;
-
-#endif
-
-  using System;
-  using System.Collections.Generic;
-
   /// <summary>
-  ///   Abstraction to be able to switch Loggers
+  ///   Central point for logging ILogger needs to be set once
   /// </summary>
   public static class Logger
   {
-#if NLog
-    private static readonly NLog.Logger m_Logger = LogManager.GetCurrentClassLogger();
-#else
-    private static readonly UserInterfaceSink m_UserInterfaceSink = new UserInterfaceSink(CultureInfo.CurrentCulture);
-
-    public static Action<string, Level> UILog
+    public static ILogger? LoggerInstance
     {
-      set
-      {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-        m_UserInterfaceSink.Loggers.Clear();
-        m_UserInterfaceSink.Loggers.Add(value);
-      }
+      get;
+      set;
     }
 
-    public static void AddLog(Action<string, Level> value)
-    {
-      if (value == null) throw new ArgumentNullException(nameof(value));
-      m_UserInterfaceSink.Loggers.Add(value);
-    }
-
-    public static void RemoveLog(Action<string, Level> value)
-    {
-      if (value == null) throw new ArgumentNullException(nameof(value));
-      m_UserInterfaceSink.Loggers.Remove(value);
-    }
-
-#endif
-
-    public enum Level
-    {
-      Debug = 30,
-      Info = 40,
-      Warn = 50,
-      Error = 60
-    }
-
-    static Logger()
-    {
-      var loggerConfiguration = new LoggerConfiguration()
-                                .Filter.ByExcluding(logEvent => logEvent.Exception != null
-                                                                && (logEvent.Exception.GetType() == typeof(OperationCanceledException) ||
-                                                                    logEvent.Exception.GetType() == typeof(ObjectDisposedException)))
-                                // UI Logger
-                                .WriteTo.Sink(m_UserInterfaceSink);
-#if Windows
-      // File Logger
-      var entryName = Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty;
-      if (string.IsNullOrEmpty(entryName))
-        entryName = Assembly.GetExecutingAssembly().GetName().Name ?? string.Empty;
-      if (!string.IsNullOrEmpty(entryName))
-      {
-        var folder = Environment.ExpandEnvironmentVariables($"%LocalAppData%\\{entryName}\\");
-        var addTextLog = FileSystemUtils.DirectoryExists(folder);
-        if (!addTextLog)
-        {
-          try
-          {
-            FileSystemUtils.CreateDirectory(folder);
-            addTextLog = true;
-          }
-          catch
-          {
-            // ignored
-          }
-        }
-
-        if (addTextLog)
-        {
-          loggerConfiguration = loggerConfiguration
-                                // Exceptions
-                                .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Exception != null).WriteTo.File(
-                                  folder + "ExceptionLog.txt", rollingInterval: RollingInterval.Month, retainedFileCountLimit: 3,
-                                  outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff}\t{Level}\t\"{Exception:l}\"{NewLine}"))
-                                //CSV
-                                .WriteTo.File(folder + "ApplicationLog.txt", rollingInterval: RollingInterval.Day,
-                                  outputTemplate: "{Timestamp:HH:mm:ss}\t{Level:w3}\t{Message:l}{NewLine}")
-                                // Json
-                                .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), path: folder + "ApplicationLog.json",
-                                  rollingInterval: RollingInterval.Day);
-        }
-      }
-#endif
-      // Start logging
-      Log.Logger = loggerConfiguration.CreateLogger();
-      Log.Information("Application start");
-    }
-
-    public static void Debug(string message, params object[] args)
+    public static void Debug(string? message, params object[] args)
     {
       if (string.IsNullOrEmpty(message))
         return;
-
-#if NLog
-      m_Logger.Debug(message, args);
-WriteLog(Level.Debug, null, message, args);
-#else
-      Log.Debug(message, args);
-#endif
+      LoggerInstance?.LogDebug(message!, args);
     }
 
-    public static void Error(string message, params object[] args)
+    public static void Error(string? message, params object[] args)
     {
       if (string.IsNullOrEmpty(message))
         return;
-#if NLog
-m_Logger.Error(message, args);
-WriteLog(Level.Error, null, message, args);
-#else
-      Log.Error(message, args);
-#endif
+      LoggerInstance?.LogError(message!, args);
     }
 
-    public static void Error(Exception? exception, string? message, params object[] args)
+    public static void Error(Exception exception, string? message = null, params object[] args)
     {
-      if (string.IsNullOrEmpty(message) && exception == null)
-        return;
-#if NLog
-m_Logger.Error(exception, message, args);
-WriteLog(Level.Error, exception, message, args);
-#else
-      Log.Error(exception?.Demystify(), message, args);
-#endif
+      var ex = exception.Demystify();
+      LoggerInstance?.LogError(ex, message!, args);
     }
-
-    public static void Error(Exception exception) => Error(exception, exception.Message);
 
     public static void Information(string? message, params object[] args)
     {
       if (string.IsNullOrEmpty(message))
         return;
-#if NLog
-m_Logger.Info(message, args);
-WriteLog(Level.Info, null, message, args);
-#else
-      Log.Information(message, args);
-#endif
+      LoggerInstance?.LogInformation(message!, args);
     }
 
-    public static void Information(Exception? ex, string? message, params object[] args)
+    public static void Information(Exception exception, string? message, params object[] args)
     {
       if (string.IsNullOrEmpty(message))
         return;
-#if NLog
-m_Logger.Info(message, args);
-WriteLog(Level.Info, null, message, args);
-#else
-      Log.Information(ex, message, args);
-#endif
+      LoggerInstance?.LogInformation(exception, message!, args);
     }
 
-    public static void Warning(string? message, params object[] args) => Warning(null, message, args);
-
-    public static void Warning(Exception? exception, string? message, params object[] args)
+    public static void Warning(string? message, params object[] args)
     {
-      if (string.IsNullOrEmpty(message) && exception == null)
+      if (string.IsNullOrEmpty(message))
         return;
-#if NLog
-m_Logger.Warn(exception, message, args);
- WriteLog(Level.Warn, exception, message, args);
-#else
-      Log.Warning(exception?.Demystify(), message, args);
-#endif
+      LoggerInstance?.LogWarning(message!, args);
     }
 
-#if !NLog
-
-    public class UserInterfaceSink : ILogEventSink
+    public static void Warning(Exception exception, string? message, params object[] args)
     {
-      // By design: Only one Action to be called you can not have two or more destinations
-      public readonly List<Action<string, Level>> Loggers = new List<Action<string, Level>>();
-
-      private readonly IFormatProvider m_FormatProvider;
-
-      public UserInterfaceSink(IFormatProvider formatProvider)
-      {
-        m_FormatProvider = formatProvider;
-      }
-
-      public void Emit(LogEvent logEvent)
-      {
-        if (Loggers.Count <= 0) return;
-        Level level;
-        switch (logEvent.Level)
-        {
-          case LogEventLevel.Verbose:
-          case LogEventLevel.Debug:
-            level = Level.Debug;
-            break;
-
-          case LogEventLevel.Information:
-            level = Level.Info;
-            break;
-
-          case LogEventLevel.Warning:
-            level = Level.Warn;
-            break;
-
-          default:
-            level = Level.Error;
-            break;
-        }
-
-        foreach (var logger in Loggers)
-          logger(logEvent.RenderMessage(m_FormatProvider), level);
-      }
+      var ex = exception.Demystify();
+      LoggerInstance?.LogWarning(ex, message!, args);
     }
-
-#else
-    private static void WriteLog(Level lvl, Exception exception, string message, params object[] args)
-    {
-      if (ReplaceLog == null)
-        return;
-
-      try
-      {
-      LogLevel level;
-      switch (lvl)
-      {
-        case Level.Debug:
-          level = LogLevel.Debug;
-          break;
-
-        case Level.Info:
-          level = LogLevel.Info;
-          break;
-
-        case Level.Warn:
-          level = LogLevel.Warn;
-          break;
-
-        case Level.Error:
-          level = LogLevel.Error;
-          break;
-
-        default:
-          throw new ArgumentOutOfRangeException(nameof(lvl), lvl, null);
-      }
-        var logEnvent = new LogEventInfo(level, "screen", null, message, args, exception);
-        ReplaceLog.Invoke(logEnvent.FormattedMessage, lvl);
-      }
-      catch (Exception)
-      {
-        // ignore
-      }
-    }
-#endif
   }
 }

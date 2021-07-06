@@ -15,7 +15,6 @@
 namespace CsvTools
 {
   using System;
-  using System.Diagnostics.CodeAnalysis;
   using System.Windows.Forms;
 
 #if NETCORE
@@ -56,6 +55,7 @@ namespace CsvTools
 #endif
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
+      WinAppLogging.Init();
       Logger.Debug("Application started {@args}", args);
 
       // read the command line parameter
@@ -66,10 +66,10 @@ namespace CsvTools
       else if (args.Length > 1)
         fileName = args.Join(" ");
 
-      var m_ViewSettings = ViewSettingHelper.LoadViewSettings();
+      var viewSettings = ViewSettingHelper.LoadViewSettings();
       FunctionalDI.SignalBackground = Application.DoEvents;
 
-      var frm = new FormMain(m_ViewSettings);
+      var frm = new FormMain(viewSettings);
       frm.Show();
 #pragma warning disable 4014
       if (string.IsNullOrEmpty(fileName))

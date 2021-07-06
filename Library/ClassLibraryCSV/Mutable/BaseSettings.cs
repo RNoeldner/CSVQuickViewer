@@ -153,7 +153,7 @@ namespace CsvTools
         var doc = new XmlDocument();
         return doc.CreateCDataSection(SqlStatement);
       }
-      set => SetSqlStatementRename(value.Value);
+      set => SetSqlStatementRename(value.Value ?? string.Empty);
     }
 
     /// <summary>

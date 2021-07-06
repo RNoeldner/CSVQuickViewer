@@ -224,14 +224,14 @@ namespace CsvTools
         throw new FileReaderException(
           $"The escape character is invalid, please use something else than the field delimiter character {m_EscapeCharacterChar.GetDescription()}.");
 
-      if (escapeCharacter.Length > 1)
-        Logger.Warning("Escape {text} converted to {char}", escapeCharacter, m_EscapeCharacterChar);
+      //if (escapeCharacter.Length > 1)
+      //  Logger.Warning("Escape {text} converted to {char}", escapeCharacter, m_EscapeCharacterChar);
 
-      if (fieldDelimiter.Length > 1)
-        Logger.Warning("Delimiter {text} converted to {char}", fieldDelimiter, m_FieldDelimiterChar);
+      //if (fieldDelimiter.Length > 1)
+      //  Logger.Warning("Delimiter {text} converted to {char}", fieldDelimiter, m_FieldDelimiterChar);
 
-      if (fieldDelimiter.Length > 1)
-        Logger.Warning("Quoting {text} converted to {char}", fieldQualifier, m_FieldQualifierChar);
+      //if (fieldQualifier.Length > 1)
+      //  Logger.Warning("Quoting {text} converted to {char}", fieldQualifier, m_FieldQualifierChar);
 
       m_HasQualifier = m_FieldQualifierChar != '\0';
 
@@ -345,10 +345,52 @@ namespace CsvTools
       if (IsDBNull(columnNumber))
         return DBNull.Value;
 
-      return GetTypedValueFromString(
-        CurrentRowColumnText[columnNumber],
-        GetTimeValue(columnNumber),
-        Column[columnNumber]);
+      var value = CurrentRowColumnText[columnNumber];
+      var column = Column[columnNumber];
+      object? ret;
+
+      // Get Column Format for Column
+      switch (column.ValueFormat.DataType)
+      {
+        case DataType.DateTime:
+          ret = GetDateTimeNull(null, value, null, GetTimeValue(columnNumber), column, true);
+          break;
+
+        case DataType.Integer:
+          ret = IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column);
+          break;
+
+        case DataType.Double:
+          ret = GetDoubleNull(value, columnNumber);
+          break;
+
+        case DataType.Numeric:
+          ret = GetDecimalNull(value, columnNumber);
+          break;
+
+        case DataType.Boolean:
+          ret = GetBooleanNull(value, columnNumber);
+          break;
+
+        case DataType.Guid:
+          ret = GetGuidNull(value, column.ColumnOrdinal);
+          break;
+
+        case DataType.String:
+        case DataType.TextToHtml:
+        case DataType.TextToHtmlFull:
+        case DataType.TextPart:
+          /* TextToHTML and TextToHTMLFull and TextPart have been handled in the CSV Reader as the length of the fields would change */
+          ret = value;
+          break;
+
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
+
+      return ret ?? DBNull.Value;
+
+
     }
 
     /// <summary>

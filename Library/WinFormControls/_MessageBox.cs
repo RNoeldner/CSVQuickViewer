@@ -31,10 +31,8 @@ namespace CsvTools
       MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1,
       double timeout = 4.0)
     {
-      using (var tm = new TimedMessage())
-      {
-        return tm.ShowDialog(message, title, buttons, icon, defaultButton, timeout, null, null, null);
-      }
+      using var tm = new TimedMessage();
+      return tm.ShowDialog(message, title, buttons, icon, defaultButton, timeout, null, null, null);
     }
 
     /// <summary>
@@ -53,35 +51,33 @@ namespace CsvTools
     public static DialogResult PersistentChoice(
       string message,
       string title,
-      [NotNull] PersistentChoice massChoice,
+      PersistentChoice massChoice,
       string button1Text = "Yes",
       string button2Text = "No")
     {
       if (massChoice.Chosen)
         return massChoice.DialogResult;
 
-      using (var tm = new TimedMessage())
-      {
-        var result = tm.ShowDialog(
-          message, title,           // add a third button in case we expect followup dialogs
-          massChoice.NumRecs > 1 ? MessageBoxButtons.YesNoCancel : MessageBoxButtons.YesNo,
-          MessageBoxIcon.Question,
-          // Depending on the massChoice Result, select the right button
-          massChoice.DialogResult == DialogResult.Yes ? MessageBoxDefaultButton.Button1 : MessageBoxDefaultButton.Button2,
-          4.0,
-          // do not overwrite Button 1 or Button 2
-          button1Text,
-          button2Text,           // but set Button 3 if needed
-          massChoice.NumRecs > 1 ? $"{((massChoice.DialogResult == DialogResult.Yes) ? button1Text : button2Text)} To All ({massChoice.NumRecs})" : null);
+      using var tm = new TimedMessage();
+      var result = tm.ShowDialog(
+        message, title,           // add a third button in case we expect followup dialogs
+        massChoice.NumRecs > 1 ? MessageBoxButtons.YesNoCancel : MessageBoxButtons.YesNo,
+        MessageBoxIcon.Question,
+        // Depending on the massChoice Result, select the right button
+        massChoice.DialogResult == DialogResult.Yes ? MessageBoxDefaultButton.Button1 : MessageBoxDefaultButton.Button2,
+        4.0,
+        // do not overwrite Button 1 or Button 2
+        button1Text,
+        button2Text,           // but set Button 3 if needed
+        massChoice.NumRecs > 1 ? $"{((massChoice.DialogResult == DialogResult.Yes) ? button1Text : button2Text)} To All ({massChoice.NumRecs})" : null);
 
-        // Button3 results in Cancel and is the Mass choice
-        if (result == DialogResult.Cancel)
-        {
-          massChoice.Chosen = true;
-          return massChoice.DialogResult;
-        }
-        return result;
+      // Button3 results in Cancel and is the Mass choice
+      if (result == DialogResult.Cancel)
+      {
+        massChoice.Chosen = true;
+        return massChoice.DialogResult;
       }
+      return result;
     }
 
     public static DialogResult ShowBigHtml(
@@ -94,12 +90,10 @@ namespace CsvTools
     {
       if (html is null)
         throw new System.ArgumentNullException(nameof(html));
-      using (var tm = new TimedMessage())
-      {
-        tm.Html = html;
-        tm.Size = new Size(600, 450);
-        return tm.ShowDialog(null, title, buttons, icon, defaultButton, timeout, null, null, null);
-      }
+      using var tm = new TimedMessage();
+      tm.Html = html;
+      tm.Size = new Size(600, 450);
+      return tm.ShowDialog(string.Empty, title, buttons, icon, defaultButton, timeout, null, null, null);
     }
 
     public static DialogResult ShowBig(
@@ -110,11 +104,9 @@ namespace CsvTools
       MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1,
       double timeout = 4.0)
     {
-      using (var tm = new TimedMessage())
-      {
-        tm.Size = new Size(600, 450);
-        return tm.ShowDialog(message, title, buttons, icon, defaultButton, timeout, null, null, null);
-      }
+      using var tm = new TimedMessage();
+      tm.Size = new Size(600, 450);
+      return tm.ShowDialog(message, title, buttons, icon, defaultButton, timeout, null, null, null);
     }
   }
 }

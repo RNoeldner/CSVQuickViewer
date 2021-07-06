@@ -133,11 +133,8 @@ namespace CsvTools
     protected void SetColumns(IFileReader reader)
     {
       Columns.Clear();
-      using (var dt = reader.GetSchemaTable())
-      {
-        Columns.AddRange(GetColumnInformation(ValueFormatGeneral, ColumnDefinition, dt ?? throw new ArgumentException("GetSchemaTable did not return information for reader")).Cast<WriterColumn>());
-      }
-
+      using var dt = reader.GetSchemaTable();
+      Columns.AddRange(GetColumnInformation(ValueFormatGeneral, ColumnDefinition, dt ?? throw new ArgumentException("GetSchemaTable did not return information for reader")).Cast<WriterColumn>());
     }
 
     /// <summary>
@@ -157,24 +154,25 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(schemaTable));
       var result = new List<WriterColumn>();
 
-      var colName = new BiDirectionalDictionary<int, string>();
+      var colNames = new BiDirectionalDictionary<int, string>();
 
       // Make names unique and fill the dictionary
       foreach (DataRow schemaRow in schemaTable.Rows)
       {
         var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
-        var newName =
-          StringUtils.MakeUniqueInCollection(colName.Values, schemaRow[SchemaTableColumn.ColumnName].ToString());
-
-        colName.Add(colNo, newName);
+        var colName = schemaRow[SchemaTableColumn.ColumnName] as string;
+        if (string.IsNullOrEmpty(colName))
+          continue;
+        var newName = StringUtils.MakeUniqueInCollection(colNames.Values, colName!);
+        colNames.Add(colNo, newName);
       }
 
       foreach (DataRow schemaRow in schemaTable.Rows)
       {
         var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
-        var column = columnDefinitions.FirstOrDefault(x => x.Name.Equals(colName[colNo], StringComparison.OrdinalIgnoreCase));
+        var column = columnDefinitions.FirstOrDefault(x => x.Name.Equals(colNames[colNo], StringComparison.OrdinalIgnoreCase));
 
-        if (column != null && column.Ignore)
+        if (column is { Ignore: true })
           continue;
 
         // Based on the data Type in the reader defined and the general format create the value format
@@ -233,18 +231,18 @@ namespace CsvTools
           {
             if (!tz.TryGetConstant(out constantTimeZone))
             {
-              if (colName.TryGetByValue(tz, out var ordinal))
+              if (colNames.TryGetByValue(tz, out var ordinal))
                 columnOrdinalTimeZoneReader = ordinal;
             }
           }
         }
-        var ci = new WriterColumn(colName[colNo], colNo, valueFormat, fieldLength, constantTimeZone, columnOrdinalTimeZoneReader);
+        var ci = new WriterColumn(colNames[colNo], colNo, valueFormat, fieldLength, constantTimeZone, columnOrdinalTimeZoneReader);
         result.Add(ci);
 
         // add an extra column for the time, reading columns they get combined, writing them they
         // get separated again
 
-        if (column == null || string.IsNullOrEmpty(column.TimePart) || colName.ContainsValue(column.TimePart))
+        if (column == null || string.IsNullOrEmpty(column.TimePart) || colNames.ContainsValue(column.TimePart))
           continue;
 
         if (ci.ValueFormat.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 's' }) != -1)
@@ -268,7 +266,7 @@ namespace CsvTools
     protected BaseFileWriter(IFileSettingPhysicalFile fileSetting, IProcessDisplay? processDisplay)
       : this(fileSetting.ID, fileSetting.FullPath, fileSetting.HasFieldHeader, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, recipient: fileSetting.Recipient,
         unencrypted: fileSetting.KeepUnencrypted, identifierInContainer: fileSetting.IdentifierInContainer, footer: fileSetting.Footer, header: fileSetting.Header,
-        columnDefinition: fileSetting.ColumnCollection.ReadonlyCopy(), fileSettingDisplay: fileSetting.ToString(), processDisplay: processDisplay)
+        columnDefinition: fileSetting.ColumnCollection.ReadonlyCopy(), fileSettingDisplay: Convert.ToString(fileSetting), processDisplay: processDisplay)
     {
     }
 
@@ -355,14 +353,12 @@ namespace CsvTools
           HandleWarning(columnInfo.Name, "Time zone is empty, value not converted");
         else
           // ReSharper disable once PossibleInvalidOperationException
-          return FunctionalDI.AdjustTZExport(dataObject, destinationTimeZoneId, Columns.IndexOf(columnInfo),
-            (columnNo, msg) => HandleWarning(Columns[columnNo].Name, msg)).Value;
+          return FunctionalDI.AdjustTZExport(dataObject, destinationTimeZoneId, Columns.IndexOf(columnInfo), (columnNo, msg) => HandleWarning(Columns[columnNo].Name, msg));
       }
       else if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
       {
         // ReSharper disable once PossibleInvalidOperationException
-        return FunctionalDI.AdjustTZExport(dataObject, columnInfo.ConstantTimeZone,
-          Columns.IndexOf(columnInfo), (columnNo, msg) => HandleWarning(Columns[columnNo].Name, msg)).Value;
+        return FunctionalDI.AdjustTZExport(dataObject, columnInfo.ConstantTimeZone, Columns.IndexOf(columnInfo), (columnNo, msg) => HandleWarning(Columns[columnNo].Name, msg));
       }
 
       return dataObject;
@@ -415,7 +411,7 @@ namespace CsvTools
       {
         if (dataObject is null)
           throw new ArgumentNullException(nameof(dataObject));
-        displayAs = dataObject.ToString();
+        displayAs = Convert.ToString(dataObject) ?? string.Empty;
       }
       else
       {
@@ -439,7 +435,7 @@ namespace CsvTools
 
               case DataType.Double:
                 displayAs = StringConversion.DoubleToString(
-                  dataObject is double d ? d : Convert.ToDouble(dataObject.ToString(), CultureInfo.InvariantCulture),
+                  dataObject is double d ? d : Convert.ToDouble(Convert.ToString(dataObject), CultureInfo.InvariantCulture),
                   columnInfo.ValueFormat);
                 break;
 
@@ -447,7 +443,7 @@ namespace CsvTools
                 displayAs = StringConversion.DecimalToString(
                   dataObject is decimal @decimal
                     ? @decimal
-                    : Convert.ToDecimal(dataObject.ToString(), CultureInfo.InvariantCulture),
+                    : Convert.ToDecimal(Convert.ToString(dataObject), CultureInfo.InvariantCulture),
                   columnInfo.ValueFormat);
                 break;
 
@@ -467,7 +463,7 @@ namespace CsvTools
               case DataType.TextToHtml:
               case DataType.TextToHtmlFull:
               case DataType.TextPart:
-                displayAs = dataObject.ToString();
+                displayAs = Convert.ToString(dataObject) ?? string.Empty;
                 if (columnInfo.ValueFormat.DataType == DataType.TextToHtml)
                   displayAs = HTMLStyle.TextToHtmlEncode(displayAs);
 
@@ -492,7 +488,7 @@ namespace CsvTools
         {
           // In case a cast did fail (eg.g trying to format as integer and providing a text, use the
           // original value
-          displayAs = dataObject?.ToString() ?? string.Empty;
+          displayAs = Convert.ToString(dataObject) ?? string.Empty;
           if (string.IsNullOrEmpty(displayAs))
             HandleError(columnInfo.Name, ex.Message);
           else

@@ -12,8 +12,11 @@
  *
  */
 
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CsvTools.Tests
 {
@@ -25,9 +28,7 @@ namespace CsvTools.Tests
     {
       //var jsonLogFileName = m_ApplicationDirectory + "\\Log.json";
       //Logger.Configure(jsonLogFileName, Logger.Level.Info, m_ApplicationDirectory + "\\text.log");
-      var lastMessage = string.Empty;
-      Logger.UILog = (param, level) => { lastMessage = param; };
-
+      
       Logger.Debug("MyMessage1");
       Logger.Debug("");
       Logger.Debug(null);
@@ -39,11 +40,9 @@ namespace CsvTools.Tests
       Logger.Warning("Hello {param1}", "World");
       Logger.Warning("");
       Logger.Warning(null);
-      Assert.AreEqual("Hello \"World\"", lastMessage);
-
+      
       Logger.Warning("Pure {param1}", 1);
-      Assert.AreEqual("Pure 1", lastMessage);
-
+      
       Logger.Error(new Exception("Hello World"), "MyMessage2");
       Logger.Error(new Exception("This is it"));
       Logger.Error("");
@@ -51,17 +50,36 @@ namespace CsvTools.Tests
       Logger.Error("This {is} it", "was");
     }
 
+    private class TestLogger : ILogger
+    {
+      public IDisposable BeginScope<TState>(TState state) => default;
+      public bool IsEnabled(LogLevel logLevel) => true;
+      
+      public readonly List<string> Messages = new List<string>();
+
+      public void Log<TState>(
+        LogLevel logLevel,
+        EventId eventId,
+        TState state,
+        Exception exception,
+        Func<TState, Exception, string> formatter)
+      {
+        if (!IsEnabled(logLevel))
+        {
+          return;
+        }
+        Messages.Add(formatter(state, exception));
+      }
+    }
+
     [TestMethod]
     public void AddLog_RemoveLog()
     {
       //var jsonLogFileName = m_ApplicationDirectory + "\\Log.json";
       //Logger.Configure(jsonLogFileName, Logger.Level.Info, m_ApplicationDirectory + "\\text.log");
-      var lastMessage = string.Empty;
-      Action<string, Logger.Level> logAction = (param, level) =>
-      {
-        lastMessage = param;
-      };
-      Logger.AddLog(logAction);
+      
+      var logAction = new TestLogger();
+      WinAppLogging.AddLog(logAction);
 
       Logger.Debug("MyMessage1");
       Logger.Debug("");
@@ -70,64 +88,16 @@ namespace CsvTools.Tests
       Logger.Warning("Hello {param1}", "World");
       Logger.Warning("");
       Logger.Warning(null);
-      Assert.AreEqual("Hello \"World\"", lastMessage);
+      Assert.AreEqual(2, logAction.Messages.Count);
+      Assert.AreEqual("Hello \"World\"", logAction.Messages.Last());
+      
+      logAction.Messages.Clear();
 
-      lastMessage = string.Empty;
-      Logger.RemoveLog(logAction);
+      WinAppLogging.RemoveLog(logAction);
       Logger.Debug("MyMessage1");
-      Assert.AreEqual(string.Empty, lastMessage);
+      Assert.AreEqual(0, logAction.Messages.Count);
     }
 
-    [TestMethod]
-    public void AddLog()
-    {
-      var lastMessage = string.Empty;
-      Logger.AddLog((param, level) => { lastMessage = param; });
-
-      try
-      {
-        Logger.AddLog(null);
-      }
-      catch (ArgumentNullException)
-      {
-      }
-      catch (Exception ex)
-      {
-        Assert.Fail("Wrong Exception Type: " + ex.GetType());
-      }
-    }
-
-    [TestMethod]
-    public void RemoveLog()
-    {
-      Action<string, Logger.Level> logAction = (param, level) => { };
-
-      Logger.AddLog(logAction);
-      Logger.RemoveLog(logAction);
-
-      try
-      {
-        Logger.RemoveLog(null);
-      }
-      catch (ArgumentNullException)
-      {
-      }
-      catch (Exception ex)
-      {
-        Assert.Fail("Wrong Exception Type: " + ex.GetType());
-      }
-
-      try
-      {
-        Logger.RemoveLog(logAction);
-      }
-      catch (ArgumentException)
-      {
-      }
-      catch (Exception ex)
-      {
-        Assert.Fail("Wrong Exception Type: " + ex.GetType());
-      }
-    }
+    
   }
 }

@@ -21,9 +21,9 @@ namespace CsvTools
 {
   public class SyntaxHighlighterDelimitedText : SyntaxHighlighterBase
   {
-    private readonly Regex m_CommentRegex;
+    private readonly Regex? m_CommentRegex;
     private readonly Regex m_DelimiterRegex;
-    private readonly Regex m_QuoteRegex;
+    private readonly Regex? m_QuoteRegex;
     private readonly Style m_Space = new SyntaxHighlightStyleStyleSpace(Brushes.Blue, Brushes.AntiqueWhite);
     private readonly Regex m_SpaceRegex = new Regex(" ", RegexOptions.Singleline | RegexOptions.Compiled);
     private readonly Style m_Tab = new SyntaxHighlightStyleTab(Pens.Blue, Brushes.AntiqueWhite);
@@ -57,8 +57,7 @@ namespace CsvTools
     public override void Highlight(FastColoredTextBoxNS.Range range)
     {
       range.ClearStyle(StyleIndex.All);
-      if (m_DelimiterRegex != null)
-        range.SetStyle(BlueStyle, m_DelimiterRegex);
+      range.SetStyle(BlueStyle, m_DelimiterRegex);
 
       if (m_QuoteRegex != null)
         range.SetStyle(MagentaStyle, m_QuoteRegex);

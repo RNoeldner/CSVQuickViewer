@@ -12,7 +12,6 @@
  *
  */
 
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -23,11 +22,10 @@ using System.Windows.Forms;
 namespace CsvTools
 {
   public static class ViewSetting
-  {
-    [CanBeNull]
-    private static ToolStripDataGridViewColumnFilter GetFilter([NotNull] string dataPropertyName,
-      [NotNull] IList<ToolStripDataGridViewColumnFilter> columnFilters, [NotNull] DataGridViewColumnCollection columns,
-      [CanBeNull] Func<int, ToolStripDataGridViewColumnFilter> createFilterColumn)
+  {    
+    private static ToolStripDataGridViewColumnFilter? GetFilter(string dataPropertyName,
+      IList<ToolStripDataGridViewColumnFilter?> columnFilters, DataGridViewColumnCollection columns,
+      Func<int, ToolStripDataGridViewColumnFilter>? createFilterColumn)
     {
       // look in already existing Filters
       foreach (var columnFilter in columnFilters)
@@ -47,17 +45,17 @@ namespace CsvTools
       return null;
     }
 
-    public static bool ReStoreViewSetting([NotNull] string text, [NotNull] DataGridViewColumnCollection columns,
-      [NotNull] IList<ToolStripDataGridViewColumnFilter> columnFilters,
-      [CanBeNull] Func<int, ToolStripDataGridViewColumnFilter> createFilterColumn,
-      [CanBeNull] Action<DataGridViewColumn, ListSortDirection> doSort)
+    public static bool ReStoreViewSetting(string text, DataGridViewColumnCollection columns,
+      IList<ToolStripDataGridViewColumnFilter?> columnFilters,
+      Func<int, ToolStripDataGridViewColumnFilter>? createFilterColumn,
+      Action<DataGridViewColumn, ListSortDirection>? doSort)
     {
       try
       {
         var vst = JsonConvert.DeserializeObject<List<ColumnSetting>>(text);
 
         var displayIndex = 0;
-        foreach (var storedColumn in vst.OrderBy(x => x.DisplayIndex))
+        foreach (var storedColumn in (vst ?? throw new InvalidOperationException()).OrderBy(x => x.DisplayIndex))
           foreach (DataGridViewColumn col in columns)
             if (col.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase))
               try
@@ -85,7 +83,7 @@ namespace CsvTools
         var hasFilterSet = false;
         foreach (var storedFilterSetting in vst)
         {
-          ToolStripDataGridViewColumnFilter columnFilter = null;
+          ToolStripDataGridViewColumnFilter? columnFilter = null;
 
           if (storedFilterSetting.ValueFilters.Count > 0)
           {
@@ -129,11 +127,11 @@ namespace CsvTools
       }
     }
 
-    public static string StoreViewSetting([NotNull] DataGridView ctrl,
-      [NotNull] ICollection<ToolStripDataGridViewColumnFilter> columnFilters) => StoreViewSetting(ctrl.Columns, columnFilters, ctrl.SortedColumn, ctrl.SortOrder);
+    public static string StoreViewSetting(DataGridView ctrl,
+      ICollection<ToolStripDataGridViewColumnFilter?> columnFilters) => StoreViewSetting(ctrl.Columns, columnFilters, ctrl.SortedColumn, ctrl.SortOrder);
 
-    private static string StoreViewSetting([NotNull] DataGridViewColumnCollection columns,
-      [NotNull] ICollection<ToolStripDataGridViewColumnFilter> columnFilters, [CanBeNull] DataGridViewColumn sortedColumn,
+    private static string StoreViewSetting(DataGridViewColumnCollection columns,
+      ICollection<ToolStripDataGridViewColumnFilter?> columnFilters, DataGridViewColumn? sortedColumn,
       SortOrder sortOrder)
     {
       var vst = (from DataGridViewColumn col in columns

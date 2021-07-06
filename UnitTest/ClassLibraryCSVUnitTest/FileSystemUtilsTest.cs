@@ -22,6 +22,32 @@ namespace CsvTools.Tests
   [TestClass]
   public class FileSystemUtilsTest
   {
+
+
+    [TestMethod]
+    public void UtilsCreate()
+    {
+      var fn = UnitTestInitializeCsv.GetTestPath("out1.txt");
+      using (var result = FileSystemUtils.Create(fn, 512, FileOptions.Asynchronous))
+      {
+        Assert.IsNotNull(result);
+        result.Close();
+      }
+      FileSystemUtils.FileDelete(fn);
+    }
+
+    [TestMethod]
+    public void UtilsCreateText()
+    {
+      var fn = UnitTestInitializeCsv.GetTestPath("out2.txt");
+      using (var result = FileSystemUtils.CreateText(fn))
+      {
+        Assert.IsNotNull(result);
+        result.Close();
+      }
+      FileSystemUtils.FileDelete(fn);
+    }
+
     [TestMethod]
     public void GetStreamReaderForFileOrResource()
     {
@@ -29,9 +55,19 @@ namespace CsvTools.Tests
       var test1 = FileSystemUtils.GetStreamReaderForFileOrResource("DateTimeFormats.txt");
       Assert.IsNotNull(test1);
 
-      // load a unknown resource from this DLL
-      var test2 = FileSystemUtils.GetStreamReaderForFileOrResource("SampleFile2.txt");
-      Assert.IsNull(test2);
+
+      try
+      {
+        // load a unknown resource from this DLL
+        var test2 = FileSystemUtils.GetStreamReaderForFileOrResource("SampleFile2.txt");
+      }
+      catch (ArgumentException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail("Wrong Exception Type: " + ex.GetType());
+      }
     }
 
     [TestMethod]

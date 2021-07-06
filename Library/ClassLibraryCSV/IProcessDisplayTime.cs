@@ -30,7 +30,7 @@ namespace CsvTools
     /// </value>
     long Maximum { get; set; }
     TimeToCompletion TimeToCompletion { get; }
-    event EventHandler<ProgressEventArgsTime> ProgressTime;
-    event EventHandler<long> SetMaximum;
+    event EventHandler<ProgressEventArgsTime>? ProgressTime;
+    event EventHandler<long>? SetMaximum;
   }
 }

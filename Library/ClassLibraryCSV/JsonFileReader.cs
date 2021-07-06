@@ -226,7 +226,7 @@ namespace CsvTools
 
               // in case we are in an array combine all values but separate them with linefeed
               if (inArray && keyValuePairs[key] != null)
-                keyValuePairs[key] = keyValuePairs[key]?.ToString() ?? string.Empty + '\n' + m_JsonTextReader.Value;
+                keyValuePairs[key] = (Convert.ToString(keyValuePairs[key]) ?? string.Empty) + '\n' + m_JsonTextReader.Value;
               else
                 keyValuePairs[key] = m_JsonTextReader.Value;
               break;
@@ -275,7 +275,7 @@ namespace CsvTools
               CurrentRowColumnText[columnNumber] = string.Empty;
             else
             {
-              var orgVal = CurrentValues[columnNumber]?.ToString() ?? string.Empty;
+              var orgVal = Convert.ToString(CurrentValues[columnNumber]) ?? string.Empty;
               CurrentRowColumnText[columnNumber] = orgVal;
 
               if (!string.IsNullOrEmpty(orgVal) && !col.Ignore && col.ValueFormat.DataType >= DataType.String)

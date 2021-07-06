@@ -11,10 +11,9 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+#nullable enable
 namespace CsvTools
 {
-  using JetBrains.Annotations;
   using System;
   using System.Collections.Generic;
   using System.ComponentModel;
@@ -53,13 +52,13 @@ namespace CsvTools
     /// or
     /// dataRows
     /// </exception>
-    public FormDuplicatesDisplay([NotNull] DataTable dataTable, [NotNull] DataRow[] dataRows, [CanBeNull] string initialColumn, [NotNull] HTMLStyle hTMLStyle)
+    public FormDuplicatesDisplay(DataTable dataTable, DataRow[] dataRows, string? initialColumn, HTMLStyle hTMLStyle)
     {
       if (hTMLStyle is null)
         throw new ArgumentNullException(nameof(hTMLStyle));
       m_DataTable = dataTable??throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows??throw new ArgumentNullException(nameof(dataRows));
-      m_InitialColumn = initialColumn;
+      m_InitialColumn = initialColumn ?? string.Empty;
       InitializeComponent();
       detailControl.HTMLStyle = hTMLStyle;
     }
@@ -124,83 +123,81 @@ namespace CsvTools
         this.SafeInvoke(() => Text = $@"Duplicate Display - {dataColumnName}");
 
         var intervalAction = new IntervalAction();
-        using (var display = new FormProcessDisplay(
+        using var display = new FormProcessDisplay(
           $"Processing {dataColumnName}",
           false,
-          m_CancellationTokenSource.Token))
+          m_CancellationTokenSource.Token);
+        display.Maximum = m_DataRow.Length;
+        display.Show(this);
+        for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
         {
-          display.Maximum = m_DataRow.Length;
-          display.Show(this);
-          for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
+          if (display.CancellationToken.IsCancellationRequested)
+            return;
+          // ReSharper disable once AccessToDisposedClosure
+          intervalAction.Invoke(row => display.SetProcess("Getting duplicate values", row, false), rowIndex);
+
+          var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
+
+          // if (id != null) id = id.Trim();
+          if (ignoreNull && string.IsNullOrEmpty(id))
+            continue;
+          if (dictIDToRow.TryGetValue(id, out var duplicateRowIndex))
           {
-            if (display.CancellationToken.IsCancellationRequested)
-              return;
-            // ReSharper disable once AccessToDisposedClosure
-            intervalAction.Invoke(row => display.SetProcess("Getting duplicate values", row, false), rowIndex);
-
-            var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
-
-            // if (id != null) id = id.Trim();
-            if (ignoreNull && string.IsNullOrEmpty(id))
-              continue;
-            if (dictIDToRow.TryGetValue(id, out var duplicateRowIndex))
+            if (!dictFirstIDStored.Contains(duplicateRowIndex))
             {
-              if (!dictFirstIDStored.Contains(duplicateRowIndex))
-              {
-                dupliacteList.Add(duplicateRowIndex);
-                dictFirstIDStored.Add(duplicateRowIndex);
-              }
+              dupliacteList.Add(duplicateRowIndex);
+              dictFirstIDStored.Add(duplicateRowIndex);
+            }
 
-              dupliacteList.Add(rowIndex);
-            }
-            else
-            {
-              dictIDToRow.Add(id, rowIndex);
-            }
+            dupliacteList.Add(rowIndex);
           }
-
-          dictFirstIDStored.Clear();
-          dictIDToRow.Clear();
-
-          this.SafeInvoke(
-            () => Text = $@"Duplicate Display - {dataColumnName} - Rows {dupliacteList.Count} / {m_DataRow.Length}");
-
-          m_DataTable.BeginLoadData();
-          m_DataTable.Clear();
-          var counter = 0;
-
-          display.Maximum = dupliacteList.Count;
-
-          foreach (var rowIndex in dupliacteList)
+          else
           {
-            if (display.CancellationToken.IsCancellationRequested)
-              return;
-            intervalAction.Invoke(row => display.SetProcess("Importing Rows to Grid", row, false), counter++);
-            m_DataTable.ImportRow(m_DataRow[rowIndex]);
+            dictIDToRow.Add(id, rowIndex);
           }
-
-          m_DataTable.EndLoadData();
-          display.Maximum = 0;
-          display.SetProcess("Sorting");
-
-          detailControl.SafeInvoke(
-            () =>
-              {
-                try
-                {
-                  foreach (DataGridViewColumn col in detailControl.FilteredDataGridView.Columns)
-                    if (col.DataPropertyName == dataColumnName)
-                    {
-                      detailControl.FilteredDataGridView.Sort(col, ListSortDirection.Ascending);
-                      break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                  Logger.Warning(ex, "Sorting duplicate list {exception}", ex.SourceExceptionMessage());
-                }
-              });
         }
+
+        dictFirstIDStored.Clear();
+        dictIDToRow.Clear();
+
+        this.SafeInvoke(
+          () => Text = $@"Duplicate Display - {dataColumnName} - Rows {dupliacteList.Count} / {m_DataRow.Length}");
+
+        m_DataTable.BeginLoadData();
+        m_DataTable.Clear();
+        var counter = 0;
+
+        display.Maximum = dupliacteList.Count;
+
+        foreach (var rowIndex in dupliacteList)
+        {
+          if (display.CancellationToken.IsCancellationRequested)
+            return;
+          intervalAction.Invoke(row => display.SetProcess("Importing Rows to Grid", row, false), counter++);
+          m_DataTable.ImportRow(m_DataRow[rowIndex]);
+        }
+
+        m_DataTable.EndLoadData();
+        display.Maximum = 0;
+        display.SetProcess("Sorting");
+
+        detailControl.SafeInvoke(
+          () =>
+          {
+            try
+            {
+              foreach (DataGridViewColumn col in detailControl.FilteredDataGridView.Columns)
+                if (col.DataPropertyName == dataColumnName)
+                {
+                  detailControl.FilteredDataGridView.Sort(col, ListSortDirection.Ascending);
+                  break;
+                }
+            }
+            catch (Exception ex)
+            {
+              Logger.Warning(ex, "Sorting duplicate list {exception}", ex.SourceExceptionMessage());
+            }
+          });
       }
       finally
       {
