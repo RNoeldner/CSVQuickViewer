@@ -48,7 +48,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="container">A container control like a form or panel</param>
     /// <param name="font"></param>
-    public static void SetFonts([NotNull] Control container, [NotNull] Font font)
+    public static void SetFonts(Control container, Font font)
     {
       if (!Equals(container.Font, font)) container.Font = font;
 

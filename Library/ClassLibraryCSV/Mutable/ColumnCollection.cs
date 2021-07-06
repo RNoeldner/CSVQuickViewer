@@ -53,7 +53,7 @@ namespace CsvTools
     /// <returns>
     ///   true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
     /// </returns>
-    public bool Equals(ColumnCollection other) => Items.CollectionEqual(other);
+    public bool Equals(ColumnCollection? other) => Items.CollectionEqual(other);
 
     public void CopyFrom(IEnumerable<IColumn>? items)
     {

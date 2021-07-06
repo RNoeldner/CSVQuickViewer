@@ -14,7 +14,6 @@
 
 namespace CsvTools
 {
-  using System;
   using System.ComponentModel;
   using System.Windows.Forms;
 

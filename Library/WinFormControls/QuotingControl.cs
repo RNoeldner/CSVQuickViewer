@@ -11,11 +11,10 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+#nullable enable
 using FastColoredTextBoxNS;
 using System;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Text.RegularExpressions;
@@ -35,46 +34,45 @@ namespace CsvTools
 		private readonly Style m_EscapedQuote = new TextStyle(Brushes.Black, Brushes.LightSteelBlue, FontStyle.Regular);
 		private readonly Style m_Space = new SyntaxHighlighterDelimitedText.SyntaxHighlightStyleStyleSpace(Brushes.Blue, Brushes.AntiqueWhite);
 		private readonly Regex m_SpaceRegex = new Regex(" ", RegexOptions.Singleline | RegexOptions.Compiled);
-		private CheckBox checkBoxAlternateQuoting;
-		private CheckBox checkBoxDuplicateQuotingToEscape;
-		private CheckBox checkBoxQualifyAlways;
-		private CheckBox checkBoxQualifyOnlyNeeded;
-		private ComboBox comboBoxTrim;
-		private IContainer components;
+		private CheckBox? checkBoxAlternateQuoting;
+		private CheckBox? checkBoxDuplicateQuotingToEscape;
+		private CheckBox? checkBoxQualifyAlways;
+		private CheckBox? checkBoxQualifyOnlyNeeded;
+    private ComboBox? comboBoxTrim;
+    private IContainer? components;			
+		private FastColoredTextBox? fastColoredTextBox;
+		private FastColoredTextBox? fastColoredTextBox00;
+		private FastColoredTextBox? fastColoredTextBox01;
+		private FastColoredTextBox? fastColoredTextBox02;
+		private FastColoredTextBox? fastColoredTextBox10;
+		private FastColoredTextBox? fastColoredTextBox11;
+		private FastColoredTextBox? fastColoredTextBox12;
+		private Label? label1;
+		private Label? label2;
+		private Label? label3;
+		private Label? label4;
+		private Label? label5;
+		private Label? labelNoQuotes;
+		private ICsvFile? m_CsvFile;
 
-		private FastColoredTextBox fastColoredTextBox;
-		private FastColoredTextBox fastColoredTextBox00;
-		private FastColoredTextBox fastColoredTextBox01;
-		private FastColoredTextBox fastColoredTextBox02;
-		private FastColoredTextBox fastColoredTextBox10;
-		private FastColoredTextBox fastColoredTextBox11;
-		private FastColoredTextBox fastColoredTextBox12;
-		private Label label1;
-		private Label label2;
-		private Label label3;
-		private Label label4;
-		private Label label5;
-		private Label labelNoQuotes;
-		private ICsvFile m_CsvFile;
+		private ErrorProvider? m_ErrorProvider;
 
-		private ErrorProvider m_ErrorProvider;
-
-		private BindingSource m_FileFormatBindingSource;
+		private BindingSource? m_FileFormatBindingSource;
 
 		private bool m_IsDisposed;
 
 		private bool m_IsWriteSetting;
-		private Label m_LabelEscapeCharacter;
-		private Label m_LabelInfoQuoting;
-		private Label m_LabelQuote;
-		private Label m_LabelQuotePlaceholder;
-		private Label m_LabelTrim;
-		private TableLayoutPanel m_TableLayoutPanel;
-		private TextBox m_TextBoxEscape;
-		private TextBox m_TextBoxQuote;
-		private TextBox m_TextBoxQuotePlaceHolder;
-		private Label label6;
-		private ToolTip m_ToolTip;
+		private Label? m_LabelEscapeCharacter;
+		private Label? m_LabelInfoQuoting;
+		private Label? m_LabelQuote;
+		private Label? m_LabelQuotePlaceholder;
+		private Label? m_LabelTrim;
+		private TableLayoutPanel? m_TableLayoutPanel;
+		private TextBox? m_TextBoxEscape;
+		private TextBox? m_TextBoxQuote;
+		private TextBox? m_TextBoxQuotePlaceHolder;
+		private Label? label6;
+		private ToolTip? m_ToolTip;
 
 		/// <summary>
 		///   CTOR of QuotingControl
@@ -82,18 +80,18 @@ namespace CsvTools
 		public QuotingControl()
 		{
 			InitializeComponent();
-			comboBoxTrim.Items.Add(new DisplayItem<int>(0, "None"));
+			comboBoxTrim!.Items.Add(new DisplayItem<int>(0, "None"));
 			comboBoxTrim.Items.Add(new DisplayItem<int>(1, "Unquoted"));
 			comboBoxTrim.Items.Add(new DisplayItem<int>(3, "All"));
 			UpdateUI();
-			QuoteOrDelimiterChnage();
+			QuoteOrDelimiterChange();
 		}
 
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		[EditorBrowsable(EditorBrowsableState.Never)]
 		[Bindable(false)]
 		[Browsable(false)]
-		public ICsvFile CsvFile
+		public ICsvFile? CsvFile
 		{
 			get => m_CsvFile;
 
@@ -103,7 +101,7 @@ namespace CsvTools
 				if (m_CsvFile == null)
 					return;
 
-				m_FileFormatBindingSource.DataSource = m_CsvFile.FileFormat;
+				m_FileFormatBindingSource!.DataSource = m_CsvFile.FileFormat;
 
 				m_CsvFile.FileFormat.PropertyChanged += FormatPropertyChanged;
 				m_CsvFile.PropertyChanged += SettingPropertyChanged;
@@ -121,15 +119,12 @@ namespace CsvTools
 
 			set
 			{
-				Contract.Assume(m_LabelInfoQuoting != null);
-				Contract.Assume(comboBoxTrim != null);
-				Contract.Assume(checkBoxAlternateQuoting != null);
 				m_IsWriteSetting = value;
-				m_LabelInfoQuoting.Visible = !value;
-				comboBoxTrim.Enabled = !value;
-				checkBoxAlternateQuoting.Visible = !value;
-				checkBoxQualifyAlways.Visible = value;
-				checkBoxQualifyOnlyNeeded.Visible = value;
+				m_LabelInfoQuoting!.Visible = !value;
+				comboBoxTrim!.Enabled = !value;
+				checkBoxAlternateQuoting!.Visible = !value;
+				checkBoxQualifyAlways!.Visible = value;
+				checkBoxQualifyOnlyNeeded!.Visible = value;
 			}
 		}
 
@@ -151,7 +146,7 @@ namespace CsvTools
 		{
 			if (e.PropertyName == nameof(FileFormat.FieldDelimiter) ||
 					e.PropertyName == nameof(FileFormat.DuplicateQuotingToEscape))
-				QuoteOrDelimiterChnage();
+				QuoteOrDelimiterChange();
 		}
 
 		/// <summary>
@@ -166,7 +161,8 @@ namespace CsvTools
 			this.checkBoxDuplicateQuotingToEscape = new System.Windows.Forms.CheckBox();
 			this.labelNoQuotes = new System.Windows.Forms.Label();
 			this.checkBoxAlternateQuoting = new System.Windows.Forms.CheckBox();
-			this.comboBoxTrim = new System.Windows.Forms.ComboBox();
+      comboBoxTrim = new ComboBox();
+
 			this.m_TextBoxQuotePlaceHolder = new System.Windows.Forms.TextBox();
 			this.m_TextBoxQuote = new System.Windows.Forms.TextBox();
 			this.m_ErrorProvider = new System.Windows.Forms.ErrorProvider(this.components);
@@ -747,20 +743,22 @@ namespace CsvTools
 		private void QuoteChanged(object sender, EventArgs e)
 		{
 			SetTrimming(sender, e);
-			QuoteOrDelimiterChnage();
+			QuoteOrDelimiterChange();
 		}
 
-		private void QuoteOrDelimiterChnage() =>
+		private void QuoteOrDelimiterChange() =>
 			this.SafeInvoke(
 				() =>
-				{
-					labelNoQuotes.Visible = !(m_CsvFile.FileFormat.AlternateQuoting
+        {
+          if (m_CsvFile == null)
+            return;
+					labelNoQuotes!.Visible = !(m_CsvFile!.FileFormat.AlternateQuoting
 																		|| m_CsvFile.FileFormat.DuplicateQuotingToEscape
 																		|| !string.IsNullOrEmpty(m_CsvFile.FileFormat.EscapeCharacter));
 
-					m_ErrorProvider.SetError(m_TextBoxQuote, "");
+					m_ErrorProvider!.SetError(m_TextBoxQuote!, "");
 
-					var quote = m_TextBoxQuote.Text.WrittenPunctuationToChar();
+					var quote = m_TextBoxQuote!.Text.WrittenPunctuationToChar();
 					var delimiter = m_CsvFile?.FileFormat?.FieldDelimiterChar ?? ',';
 
 					if (quote != '\0' && quote != '\''&& quote != '\"')
@@ -772,27 +770,27 @@ namespace CsvTools
 					var delim = (delimiter=='\t') ? m_DelimiterTab : m_Delimiter;
 					if (quote == '\0')
 					{
-						m_ErrorProvider.SetError(fastColoredTextBox10, "Without quoting a delimiter can not be part of a column");
-						m_ErrorProvider.SetError(fastColoredTextBox12, "Without quoting a linefeed can not be part of a column");
+						m_ErrorProvider.SetError(fastColoredTextBox10!, "Without quoting a delimiter can not be part of a column");
+						m_ErrorProvider.SetError(fastColoredTextBox12!, "Without quoting a linefeed can not be part of a column");
 					}
 					else
 					{
-						m_ErrorProvider.SetError(fastColoredTextBox10, null);
-						m_ErrorProvider.SetError(fastColoredTextBox12, null);
+						m_ErrorProvider.SetError(fastColoredTextBox10!, null);
+						m_ErrorProvider.SetError(fastColoredTextBox12!, null);
 					}
-					fastColoredTextBox10.Text = $"Column with:";
+					fastColoredTextBox10!.Text = $"Column with:";
 					fastColoredTextBox10.AppendText(delimiter.ToString(), delim);
 					fastColoredTextBox10.AppendText(" Delimiter");
 
-					fastColoredTextBox12.Text = "Column with ";
+					fastColoredTextBox12!.Text = "Column with ";
 					fastColoredTextBox12.AppendText("¶", m_Pilcrow);
 					fastColoredTextBox12.AppendText("\r\nLinefeed");
 
-					fastColoredTextBox11.Text = "Column with: ";
+					fastColoredTextBox11!.Text = "Column with: ";
 					fastColoredTextBox11.AppendText(quote.ToString(), m_Quote);
 					fastColoredTextBox11.AppendText(" Quote");
 
-					fastColoredTextBox.Clear();
+					fastColoredTextBox!.Clear();
 					var newToolTip = m_IsWriteSetting
 						? "Start the column with a quote, if a quote is part of the text the quote is replaced with a placeholder."
 						: "If the placeholder is part of the text it will be replaced with the quoting character.";
@@ -815,7 +813,7 @@ namespace CsvTools
 					fastColoredTextBox.AppendText(quote.ToString(), m_Quote);
 					fastColoredTextBox.AppendText("Column with: ");
 
-					if (string.IsNullOrEmpty(m_TextBoxQuotePlaceHolder.Text) && !m_CsvFile.FileFormat.DuplicateQuotingToEscape && string.IsNullOrEmpty(m_TextBoxEscape.Text) && !m_CsvFile.FileFormat.AlternateQuoting)
+					if (string.IsNullOrEmpty(m_TextBoxQuotePlaceHolder!.Text) && !m_CsvFile!.FileFormat!.DuplicateQuotingToEscape && string.IsNullOrEmpty(m_TextBoxEscape!.Text) && !m_CsvFile.FileFormat.AlternateQuoting)
 						m_ErrorProvider.SetError(fastColoredTextBox11, "The contained quote would lead to closing of the column unless placeholder, repeated quotes or context sensitive quoting is used.");
 					else
 						m_ErrorProvider.SetError(fastColoredTextBox11, null);
@@ -829,10 +827,10 @@ namespace CsvTools
 					}
 					else
 					{
-						if (m_CsvFile.FileFormat.DuplicateQuotingToEscape)
+						if (m_CsvFile!.FileFormat!.DuplicateQuotingToEscape)
 							fastColoredTextBox.AppendText(new string(quote, 2), m_EscapedQuote);
 						else
-						if (m_CsvFile.FileFormat.AlternateQuoting || string.IsNullOrEmpty(m_TextBoxEscape.Text))
+						if (m_CsvFile.FileFormat.AlternateQuoting || string.IsNullOrEmpty(m_TextBoxEscape!.Text))
 							fastColoredTextBox.AppendText(new string(quote, 1), m_EscapedQuote);
 						else
 							fastColoredTextBox.AppendText(m_TextBoxEscape.Text + quote, m_EscapedQuote);
@@ -854,70 +852,68 @@ namespace CsvTools
 					fastColoredTextBox11.Range.SetStyle(m_Space, m_SpaceRegex);
 					fastColoredTextBox12.Range.SetStyle(m_Space, m_SpaceRegex);
 
-					m_ToolTip.SetToolTip(m_TextBoxQuotePlaceHolder, newToolTip);
+					m_ToolTip!.SetToolTip(m_TextBoxQuotePlaceHolder, newToolTip);
 				});
 
 		private void SetCboTrim(TrimmingOption trim) =>
-					comboBoxTrim.SafeInvokeNoHandleNeeded(
+					comboBoxTrim!.SafeInvokeNoHandleNeeded(
 				() =>
 				{
-					foreach (var ite in comboBoxTrim.Items)
+					foreach (var ite in comboBoxTrim!.Items)
 					{
 						var item = (DisplayItem<int>) ite;
-						if (item.ID == (int) trim)
-						{
-							comboBoxTrim.SelectedItem = ite;
-							break;
-						}
-					}
+            if (item.ID != (int) trim) continue;
+            comboBoxTrim.SelectedItem = ite;
+            break;
+          }
 				});
 
 		private void SettingPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if (e.PropertyName == nameof(CsvFile.TrimmingOption))
-				SetCboTrim(m_CsvFile.TrimmingOption);
+				SetCboTrim(m_CsvFile!.TrimmingOption);
 		}
 
-		private void SetTrimming(object sender, EventArgs e) =>
+		private void SetTrimming(object? sender, EventArgs e) =>
 			this.SafeInvoke(
 				() =>
 				{
 					Contract.Requires(comboBoxTrim != null);
-					if (comboBoxTrim.SelectedItem == null)
+					if (comboBoxTrim!.SelectedItem == null)
 						return;
 
-					checkBoxAlternateQuoting.Enabled = !string.IsNullOrEmpty(m_TextBoxQuote.Text);
+					checkBoxAlternateQuoting!.Enabled = !string.IsNullOrEmpty(m_TextBoxQuote!.Text);
 
 					switch (((DisplayItem<int>) comboBoxTrim.SelectedItem).ID)
 					{
 						case 1:
-							m_CsvFile.TrimmingOption = TrimmingOption.Unquoted;
-							m_LabelInfoQuoting.Text =
+							m_CsvFile!.TrimmingOption = TrimmingOption.Unquoted;
+							m_LabelInfoQuoting!.Text =
 								"Import of leading or training spaces possible, but the field has to be quoted";
 							break;
 
 						case 3:
-							m_CsvFile.TrimmingOption = TrimmingOption.All;
+							m_CsvFile!.TrimmingOption = TrimmingOption.All;
 							break;
 
 						default:
-							m_CsvFile.TrimmingOption = TrimmingOption.None;
-							m_LabelInfoQuoting.Text = "Leading or training spaces will stay as they are";
+							m_CsvFile!.TrimmingOption = TrimmingOption.None;
+							m_LabelInfoQuoting!.Text = "Leading or training spaces will stay as they are";
 							break;
 					}
 
-					fastColoredTextBox00.Text = "This is";
+					fastColoredTextBox00!.Text = "This is";
 					if (m_CsvFile.TrimmingOption == TrimmingOption.Unquoted || m_CsvFile.TrimmingOption == TrimmingOption.None)
 						fastColoredTextBox00.AppendText(" ");
 
-					fastColoredTextBox01.Clear();
+					fastColoredTextBox01!.Clear();
 					if (m_CsvFile.TrimmingOption == TrimmingOption.Unquoted || m_CsvFile.TrimmingOption == TrimmingOption.None)
 						fastColoredTextBox01.AppendText(" ");
 					fastColoredTextBox01.AppendText("a Trimming");
 					if (m_CsvFile.TrimmingOption == TrimmingOption.Unquoted || m_CsvFile.TrimmingOption == TrimmingOption.None)
 						fastColoredTextBox01.AppendText(" ");
 
-					fastColoredTextBox02.Text = "Example";
+					fastColoredTextBox02!.Text = "Example";
 					if (m_CsvFile.TrimmingOption == TrimmingOption.None)
 						fastColoredTextBox02.AppendText(" ");
 
@@ -929,8 +925,8 @@ namespace CsvTools
 		private void UpdateUI()
 		{
 			SetCboTrim(m_CsvFile?.TrimmingOption ?? TrimmingOption.Unquoted);
-			QuoteOrDelimiterChnage();
-			SetTrimming(null, new EventArgs());
+			QuoteOrDelimiterChange();
+			SetTrimming(null, EventArgs.Empty);
 		}
 	}
 }

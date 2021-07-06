@@ -39,13 +39,11 @@ namespace CsvTools
       if (string.IsNullOrEmpty(sqlStatement))
         return 0;
 
-      using (var sqlReader = await FunctionalDI
-                                   .SQLDataReader(sqlStatement, (sender, s) => reportProgress?.Invoke(s.Text), timeout, cancellationToken)
-                                   .ConfigureAwait(false))
-      {
-        await sqlReader.OpenAsync(cancellationToken).ConfigureAwait(false);
-        return await writer.WriteAsync(sqlReader, cancellationToken).ConfigureAwait(false);
-      }
+      using var sqlReader = await FunctionalDI
+        .SQLDataReader(sqlStatement, (sender, s) => reportProgress?.Invoke(s.Text), timeout, cancellationToken)
+        .ConfigureAwait(false);
+      await sqlReader.OpenAsync(cancellationToken).ConfigureAwait(false);
+      return await writer.WriteAsync(sqlReader, cancellationToken).ConfigureAwait(false);
     }
 
     public static string Description(this RecordDelimiterType item)
@@ -56,32 +54,17 @@ namespace CsvTools
 
     public static string NewLineString(this RecordDelimiterType type)
     {
-      switch (type)
+      return type switch
       {
-        case RecordDelimiterType.LF:
-          return "\n";
-
-        case RecordDelimiterType.CR:
-          return "\r";
-
-        case RecordDelimiterType.CRLF:
-          return "\r\n";
-
-        case RecordDelimiterType.LFCR:
-          return "\n\r";
-
-        case RecordDelimiterType.RS:
-          return "▲";
-
-        case RecordDelimiterType.US:
-          return "▼";
-
-        case RecordDelimiterType.None:
-          return string.Empty;
-
-        default:
-          return string.Empty;
-      }
+        RecordDelimiterType.LF => "\n",
+        RecordDelimiterType.CR => "\r",
+        RecordDelimiterType.CRLF => "\r\n",
+        RecordDelimiterType.LFCR => "\n\r",
+        RecordDelimiterType.RS => "▲",
+        RecordDelimiterType.US => "▼",
+        RecordDelimiterType.None => string.Empty,
+        _ => string.Empty
+      };
     }
 
     /// <summary>
@@ -171,41 +154,20 @@ namespace CsvTools
     /// <returns>A text representing the dataType</returns>
     public static string DataTypeDisplay(this DataType dt)
     {
-      switch (dt)
+      return dt switch
       {
-        case DataType.DateTime:
-          return "Date Time";
-
-        case DataType.Integer:
-          return "Integer";
-
-        case DataType.Double:
-          return "Floating  Point (High Range)";
-
-        case DataType.Numeric:
-          return "Money (High Precision)";
-
-        case DataType.Boolean:
-          return "Boolean";
-
-        case DataType.Guid:
-          return "Guid";
-
-        case DataType.TextPart:
-          return "Text Part";
-
-        case DataType.TextToHtml:
-          return "Encode HTML (Linefeed and CData Tags)";
-
-        case DataType.TextToHtmlFull:
-          return "Encode HTML ('<' -> '&lt;')";
-
-        case DataType.String:
-          return "Text";
-
-        default:
-          throw new ArgumentOutOfRangeException(nameof(dt), dt, "Data Type not known");
-      }
+        DataType.DateTime => "Date Time",
+        DataType.Integer => "Integer",
+        DataType.Double => "Floating  Point (High Range)",
+        DataType.Numeric => "Money (High Precision)",
+        DataType.Boolean => "Boolean",
+        DataType.Guid => "Guid",
+        DataType.TextPart => "Text Part",
+        DataType.TextToHtml => "Encode HTML (Linefeed and CData Tags)",
+        DataType.TextToHtmlFull => "Encode HTML ('<' -> '&lt;')",
+        DataType.String => "Text",
+        _ => throw new ArgumentOutOfRangeException(nameof(dt), dt, "Data Type not known")
+      };
     }
 
     /// <summary>
@@ -327,26 +289,26 @@ namespace CsvTools
         x == UnicodeCategory.OtherPunctuation ||
         x == UnicodeCategory.DecimalDigitNumber);
 
-      const string c_TimeSep = @"(:|-|_)?";
-      const string c_DateSep = @"(\/|\.|-|_)?";
+      const string timeSep = @"(:|-|_)?";
+      const string dateSep = @"(\/|\.|-|_)?";
 
-      const string c_Hour = @"(2[0-3]|((0|1)\d))"; // 00-09 10-19 20-23
-      const string c_MinSec = @"([0-5][0-9])";     // 00-59
-      const string c_AmPm = @"((_| )?(AM|PM))?";
+      const string hour = @"(2[0-3]|((0|1)\d))"; // 00-09 10-19 20-23
+      const string minSec = @"([0-5][0-9])";     // 00-59
+      const string amPm = @"((_| )?(AM|PM))?";
 
-      const string c_Year = @"((19\d{2})|(2\d{3}))"; // 1900 - 2999
-      const string c_Month = @"(0[1-9]|1[012])";     // 01-12
-      const string c_Day = @"(0[1-9]|[12]\d|3[01])"; // 01 - 31
+      const string year = @"((19\d{2})|(2\d{3}))"; // 1900 - 2999
+      const string month = @"(0[1-9]|1[012])";     // 01-12
+      const string day = @"(0[1-9]|[12]\d|3[01])"; // 01 - 31
 
       // Replace Dates YYYYMMDD / MMDDYYYY / DDMMYYYY
       fileName = Regex.Replace(fileName,
-        "(" + c_DateSep + c_Year + c_DateSep + c_Month + c_DateSep + c_Day + ")|(" + c_DateSep + c_Month + c_DateSep +
-        c_Day + c_DateSep + c_Year + ")|(" + c_DateSep + c_Day + c_DateSep + c_Month + c_DateSep + c_Year + ")",
+        "(" + dateSep + year + dateSep + month + dateSep + day + ")|(" + dateSep + month + dateSep +
+        day + dateSep + year + ")|(" + dateSep + day + dateSep + month + dateSep + year + ")",
         string.Empty, RegexOptions.Singleline);
 
       // Replace Times 3_53_34_AM
       fileName = Regex.Replace(fileName,
-        c_DateSep + c_Hour + c_TimeSep + c_MinSec + c_TimeSep + c_MinSec + "?" + c_AmPm, string.Empty,
+        dateSep + hour + timeSep + minSec + timeSep + minSec + "?" + amPm, string.Empty,
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
       return fileName.Trim('_', '-', ' ', '\t').Replace("__", "_").Replace("__", "_").Replace("--", "-")
@@ -399,11 +361,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="process">The process display.</param>
     /// <returns></returns>
-    public static EventHandler<string> GetLogInfoMessage(this IProcessDisplay? process) =>
+    public static EventHandler<string> GetLogInfoMessage(this IProcessDisplay process) =>
       delegate (object? sender, string message)
       {
         Logger.Information("SQL Information: {message}", message);
-        process?.SetProcess(message, -1, true);
+        process.SetProcess(message, -1, true);
       };
 
     /// <summary>
@@ -411,7 +373,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable" /> containing the columns</param>
     /// <returns>A enumeration of ColumnNames</returns>
-    public static IEnumerable<string> GetRealColumns(this DataTable? dataTable) =>
+    public static IEnumerable<string> GetRealColumns(this DataTable dataTable) =>
       GetRealDataColumns(dataTable).Select(x => x.ColumnName);
 
     /// <summary>
@@ -419,10 +381,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable" /> containing the columns</param>
     /// <returns>A enumeration of <see cref="DataColumn" /></returns>
-    public static IEnumerable<DataColumn> GetRealDataColumns(this DataTable? dataTable)
+    public static IEnumerable<DataColumn> GetRealDataColumns(this DataTable dataTable)
     {
-      if (dataTable == null)
-        yield break;
       foreach (DataColumn col in dataTable.Columns)
         if (!ReaderConstants.ArtificialFields.Contains(col.ColumnName))
           yield return col;
@@ -482,7 +442,7 @@ namespace CsvTools
       }
       // using string format but replace the placeholder text with 0 as only argument
       else
-        return PlaceholderReplace(input, placeholder, replacement.ToString());
+        return PlaceholderReplace(input, placeholder, Convert.ToString(replacement));
     }
 
     /// <summary>
@@ -666,14 +626,19 @@ namespace CsvTools
       var props = obj.GetType().GetProperties().Where(prop => prop.GetMethod != null).ToList();
 
       foreach (Match match in rgx.Matches(template))
-        if (!placeholder.ContainsKey(match.Value))
-        {
-          var prop = props.FirstOrDefault(
-            x => x.Name.Equals(match.Value.Substring(1, match.Value.Length - 2), StringComparison.OrdinalIgnoreCase));
+      {
+        if (string.IsNullOrEmpty(match.Value) || placeholder.ContainsKey(match.Value) || match.Value.Length<2)
+          continue;
 
-          if (prop != null)
-            placeholder.Add(match.Value, prop.GetValue(obj).ToString());
-        }
+        var prop = props.FirstOrDefault(
+          x => x.Name.Equals(match.Value.Substring(1, match.Value.Length - 2), StringComparison.OrdinalIgnoreCase));
+
+        if (prop == null) continue;
+        var val = Convert.ToString(prop.GetValue(obj));
+        if (!string.IsNullOrEmpty(val))
+          placeholder.Add(match.Value, val);
+      }
+
 
       // replace them with the property value from setting
       template = placeholder.Aggregate(template, (current, pro) => current.ReplaceCaseInsensitive(pro.Key, pro.Value));
@@ -797,67 +762,29 @@ namespace CsvTools
       if (string.IsNullOrEmpty(input))
         return string.Empty;
 
-      switch (input.WrittenPunctuationToChar())
+      return input.WrittenPunctuationToChar() switch
       {
-        case '\t':
-          return "Horizontal Tab";
-
-        case ' ':
-          return "Space";
-
-        case (char) 0xA0:
-          return "Non-breaking space";
-
-        case '\\':
-          return "Backslash: \\";
-
-        case '/':
-          return "Slash: /";
-
-        case ',':
-          return "Comma: ,";
-
-        case ';':
-          return "Semicolon: ;";
-        case ':':
-          return "Colon: :";
-
-        case '|':
-          return "Pipe: |";
-
-        case '\"':
-          return "Quotation marks: \"";
-
-        case '\'':
-          return "Apostrophe: \'";
-
-        case '&':
-          return "Ampersand: &";
-
-        case '*':
-          return "Asterisk: *";
-
-        case '`':
-          return "Tick Mark: `";
-
-        case '✓':
-          return "Check mark: ✓";
-
-        case '\u001F':
-          return "Unit Separator: Char 31";
-
-        case '\u001E':
-          return "Record Separator: Char 30";
-
-        case '\u001D':
-          return "Group Separator: Char 29";
-
-        case '\u001C':
-          return "File Separator: Char 28";
-
-        default:
-          return input;
-      }
+        '\t' => "Horizontal Tab",
+        ' ' => "Space",
+        (char) 0xA0 => "Non-breaking space",
+        '\\' => "Backslash: \\",
+        '/' => "Slash: /",
+        ',' => "Comma: ,",
+        ';' => "Semicolon: ;",
+        ':' => "Colon: :",
+        '|' => "Pipe: |",
+        '\"' => "Quotation marks: \"",
+        '\'' => "Apostrophe: \'",
+        '&' => "Ampersand: &",
+        '*' => "Asterisk: *",
+        '`' => "Tick Mark: `",
+        '✓' => "Check mark: ✓",
+        '\u001F' => "Unit Separator: Char 31",
+        '\u001E' => "Record Separator: Char 30",
+        '\u001D' => "Group Separator: Char 29",
+        '\u001C' => "File Separator: Char 28",
+        _ => input
+      };
     }
 
     /// <summary>
@@ -1025,19 +952,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputString">The source</param>
     /// <returns>return '\0' if the text was not interpreted as punctuation</returns>
-    public static char WrittenPunctuationToChar(this string inputString)
-    {
-      if (string.IsNullOrEmpty(inputString))
-        return '\0';
-      return WrittenPunctuation(inputString)[0];
-    }
+    public static char WrittenPunctuationToChar(this string inputString) => string.IsNullOrEmpty(inputString) ? '\0' : WrittenPunctuation(inputString)[0];
 
-    public static char StringToChar(this string inputString)
-    {
-      if (string.IsNullOrEmpty(inputString))
-        return '\0';
-      return inputString[0];
-    }
+    public static char StringToChar(this string inputString) => string.IsNullOrEmpty(inputString) ? '\0' : inputString[0];
 
 #if !GetHashByGUID
 

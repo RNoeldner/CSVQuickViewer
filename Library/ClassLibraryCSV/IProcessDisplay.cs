@@ -25,7 +25,7 @@ namespace CsvTools
     /// <summary>
     ///  Event handler called as progress should be displayed
     /// </summary>
-    event EventHandler<ProgressEventArgs> Progress;
+    event EventHandler<ProgressEventArgs>? Progress;
 
     /// <summary>
     ///  Gets or sets the cancellation token.
@@ -41,7 +41,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    void SetProcess(object sender, ProgressEventArgs e);
+    void SetProcess(object? sender, ProgressEventArgs? e);
 
     string Title { get; set; }
 

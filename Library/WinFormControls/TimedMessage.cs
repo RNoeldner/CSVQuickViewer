@@ -3,29 +3,30 @@ namespace CsvTools
   using System;
   using System.ComponentModel;
   using System.Windows.Forms;
+#nullable enable
 
   public class TimedMessage : ResizeForm
   {
-    private IContainer components;
-    private Button m_Button1;
+    private IContainer? components;
+    private Button? m_Button1;
 
-    private Button m_Button2;
+    private Button? m_Button2;
 
-    private Button m_Button3;
+    private Button? m_Button3;
 
     private int m_Counter;
 
-    private ImageList m_ImageList;
+    private ImageList? m_ImageList;
 
-    private Label m_LabelDefault;
+    private Label? m_LabelDefault;
 
-    private PictureBox m_PictureBox;
+    private PictureBox? m_PictureBox;
 
-    private TableLayoutPanel m_TableLayoutPanel;
+    private TableLayoutPanel? m_TableLayoutPanel;
 
-    private TextBox m_TextBox;
-    private Timer m_Timer;
-    private WebBrowser m_WebBrowser;
+    private TextBox? m_TextBox;
+    private Timer m_Timer = new Timer();
+    private WebBrowser? m_WebBrowser;
 
     public TimedMessage() => InitializeComponent();
 
@@ -33,17 +34,14 @@ namespace CsvTools
 
     public string Message
     {
-      set
-      {
-        m_TextBox.Text = value.HandleCRLFCombinations(Environment.NewLine);
-      }
+      set => m_TextBox!.Text = value.HandleCRLFCombinations(Environment.NewLine);
     }
 
     public string Html
     {
       set
       {
-        m_TableLayoutPanel.Controls.Remove(m_TextBox);
+        m_TableLayoutPanel!.Controls.Remove(m_TextBox!);
         // this need to happen here
         Extensions.RunSTAThread(() =>
         {
@@ -80,9 +78,9 @@ namespace CsvTools
       MessageBoxIcon icon,
       MessageBoxDefaultButton defaultButton,
       double timeout,
-      string button1Text,
-      string button2Text,
-      string button3Text)
+      string? button1Text,
+      string? button2Text,
+      string? button3Text)
     {
       Text = title;
       if (!string.IsNullOrEmpty(message))
@@ -94,8 +92,8 @@ namespace CsvTools
       {
         HideColumn(3, false);
         HideColumn(4, false);
-        m_Button2.Visible = false;
-        m_Button3.Visible = false;
+        m_Button2!.Visible = false;
+        m_Button3!.Visible = false;
       }
 
       // Two Button
@@ -103,49 +101,49 @@ namespace CsvTools
                                              || buttons == MessageBoxButtons.RetryCancel)
       {
         HideColumn(4, false);
-        m_Button3.Visible = false;
+        m_Button3!.Visible = false;
       }
 
       if ((buttons == MessageBoxButtons.OK || buttons == MessageBoxButtons.OKCancel))
       {
-        m_Button1.Text = @"&OK";
+        m_Button1!.Text = @"&OK";
         m_Button1.DialogResult = DialogResult.OK;
       }
 
       if ((buttons == MessageBoxButtons.YesNo || buttons == MessageBoxButtons.YesNoCancel))
       {
-        m_Button1.Text = @"&Yes";
+        m_Button1!.Text = @"&Yes";
         m_Button1.DialogResult = DialogResult.Yes;
       }
 
       if ((buttons == MessageBoxButtons.AbortRetryIgnore))
       {
-        m_Button1.Text = @"&Abort";
+        m_Button1!.Text = @"&Abort";
         m_Button1.DialogResult = DialogResult.Abort;
       }
 
       if ((buttons == MessageBoxButtons.RetryCancel))
       {
-        m_Button1.Text = @"&Retry";
+        m_Button1!.Text = @"&Retry";
         m_Button1.DialogResult = DialogResult.Retry;
       }
 
       // Button 2
       if ((buttons == MessageBoxButtons.YesNo || buttons == MessageBoxButtons.YesNoCancel))
       {
-        m_Button2.Text = @"&No";
+        m_Button2!.Text = @"&No";
         m_Button2.DialogResult = DialogResult.No;
       }
 
       if ((buttons == MessageBoxButtons.AbortRetryIgnore))
       {
-        m_Button2.Text = @"&Retry";
+        m_Button2!.Text = @"&Retry";
         m_Button2.DialogResult = DialogResult.Retry;
       }
 
       if ((buttons == MessageBoxButtons.RetryCancel || buttons == MessageBoxButtons.OKCancel))
       {
-        m_Button2.Text = @"&Cancel";
+        m_Button2!.Text = @"&Cancel";
         m_Button2.DialogResult = DialogResult.Cancel;
         CancelButton = m_Button2;
       }
@@ -153,75 +151,64 @@ namespace CsvTools
       // Button 3
       if (buttons == MessageBoxButtons.AbortRetryIgnore)
       {
-        m_Button3.Text = @"&Ignore";
+        m_Button3!.Text = @"&Ignore";
         m_Button3.DialogResult = DialogResult.Ignore;
       }
 
       if (buttons == MessageBoxButtons.YesNoCancel)
       {
-        m_Button3.Text = @"&Cancel";
+        m_Button3!.Text = @"&Cancel";
         m_Button3.DialogResult = DialogResult.Cancel;
         CancelButton = m_Button3;
       }
 
       if (!string.IsNullOrEmpty(button1Text))
-        m_Button1.Text = button1Text;
+        m_Button1!.Text = button1Text;
 
       if (!string.IsNullOrEmpty(button2Text))
-        m_Button2.Text = button2Text;
+        m_Button2!.Text = button2Text;
 
       if (!string.IsNullOrEmpty(button3Text))
-        m_Button3.Text = button3Text;
+        m_Button3!.Text = button3Text;
 
-      switch (defaultButton)
+      AcceptButton = defaultButton switch
       {
-        case MessageBoxDefaultButton.Button1:
-          AcceptButton = m_Button1;
-          break;
-
-        case MessageBoxDefaultButton.Button2:
-          AcceptButton = m_Button2;
-          break;
-
-        case MessageBoxDefaultButton.Button3:
-          AcceptButton = m_Button3;
-          break;
-
-        default:
-          AcceptButton = m_Button1;
-          break;
-      }
+        MessageBoxDefaultButton.Button1 => m_Button1,
+        MessageBoxDefaultButton.Button2 => m_Button2,
+        MessageBoxDefaultButton.Button3 => m_Button3,
+        _ => m_Button1
+      };
       if (icon != MessageBoxIcon.None)
       {
         switch (icon)
         {
           case MessageBoxIcon.Error:
-            m_PictureBox.Image = m_ImageList.Images[3];
+            m_PictureBox!.Image = m_ImageList!.Images[3];
             break;
 
           case MessageBoxIcon.Information:
-            m_PictureBox.Image = m_ImageList.Images[0];
+            m_PictureBox!.Image = m_ImageList!.Images[0];
             break;
 
           case MessageBoxIcon.Warning:
-            m_PictureBox.Image = m_ImageList.Images[1];
+            m_PictureBox!.Image = m_ImageList!.Images[1];
             break;
 
           case MessageBoxIcon.Question:
-            m_PictureBox.Image = m_ImageList.Images[2];
+            m_PictureBox!.Image = m_ImageList!.Images[2];
             break;
         }
       }
       TopLevel = true;
 
-      var result = AcceptButton.DialogResult;
+      var result = AcceptButton!.DialogResult;
       Extensions.RunSTAThread(() => result = ShowDialog());
       return result;
     }
 
     private void HideColumn(int colNumber, bool visible)
     {
-      var styles = m_TableLayoutPanel.ColumnStyles;
+      var styles = m_TableLayoutPanel!.ColumnStyles;
       if (visible)
       {
         styles[colNumber].SizeType = SizeType.AutoSize;
@@ -445,7 +432,7 @@ namespace CsvTools
       }
 
       // Handle & that is used for shortcuts
-      m_LabelDefault.Text = text.Replace("&&", "￼").Replace("&", "").Replace("￼", "&");
+      m_LabelDefault!.Text = text.Replace("&&", "￼").Replace("&", "").Replace("￼", "&");
     }
   }
 }

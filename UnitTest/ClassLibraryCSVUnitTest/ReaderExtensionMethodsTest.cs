@@ -13,6 +13,7 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Data;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
@@ -74,7 +75,7 @@ namespace CsvTools.Tests
         {
           await test.OpenAsync(processDisplay.CancellationToken);
 
-          var dt = await test.GetDataTableAsync(-1, false, false, false, false, false, null,
+          DataTable dt = await test.GetDataTableAsync(-1, false, false, false, false, false, null,
             processDisplay.CancellationToken);
           Assert.AreEqual(test2.RecordLimit, dt.Rows.Count);
         }
@@ -95,7 +96,7 @@ namespace CsvTools.Tests
         {
           await test.OpenAsync(processDisplay.CancellationToken);
 
-          var dt = await test.GetDataTableAsync(-1, true, true, true, true, true, null,
+          DataTable dt = await test.GetDataTableAsync(-1, true, true, true, true, true, null,
             processDisplay.CancellationToken);
           // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one
           // for Line end

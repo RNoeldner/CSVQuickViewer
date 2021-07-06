@@ -14,7 +14,6 @@
 
 namespace CsvTools
 {
-  using JetBrains.Annotations;
   using System;
   using System.ComponentModel;
   using System.Globalization;
@@ -25,7 +24,6 @@ namespace CsvTools
   /// </summary>
   public partial class DataGridViewColumnFilterControl : UserControl
   {
-    [NotNull]
     private readonly ColumnFilterLogic m_DataGridViewColumnFilter;
 
     /// <summary>
@@ -57,7 +55,6 @@ namespace CsvTools
     ///   Gets the filter logic.
     /// </summary>
     /// <value>The filter logic.</value>
-    [NotNull]
     public ColumnFilterLogic ColumnFilterLogic => m_DataGridViewColumnFilter;
 
     /// <summary>

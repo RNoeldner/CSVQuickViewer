@@ -12,7 +12,7 @@
  *
  */
 
-using System.Diagnostics.CodeAnalysis;
+#nullable enable
 
 namespace CsvTools
 {
@@ -29,24 +29,24 @@ namespace CsvTools
     /// <summary>
     ///   Required designer variable.
     /// </summary>
-    private readonly IContainer components = null;
+    private readonly IContainer? components = null;
 
     // private read only System.Timers.Timer m_TimerChange = new System.Timers.Timer();
-    private Button m_BtnCancel;
+    private Button m_BtnCancel = new Button();
 
-    private Button m_BtnNext;
+    private Button m_BtnNext = new Button();
 
-    private Button m_BtnPrevious;
+    private Button m_BtnPrevious = new Button();
 
     private int m_CurrentResult = -1;
 
-    private Label m_LblResults;
+    private Label m_LblResults = new Label();
 
     private int m_Results;
 
-    private TextBox m_SearchTextBoxText;
+    private TextBox m_SearchTextBoxText = new TextBox();
 
-    private TableLayoutPanel m_TableLayoutPanel;
+    private readonly TableLayoutPanel m_TableLayoutPanel = new TableLayoutPanel();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="Search" /> class.
@@ -60,17 +60,17 @@ namespace CsvTools
     /// <summary>
     ///   Occurs when the next result should be shown
     /// </summary>
-    public event EventHandler<SearchEventArgs> OnResultChanged;
+    public event EventHandler<SearchEventArgs>? OnResultChanged;
 
     /// <summary>
     ///   Occurs when the search text is changed.
     /// </summary>
-    public event EventHandler<SearchEventArgs> OnSearchChanged;
+    public event EventHandler<SearchEventArgs>? OnSearchChanged;
 
     /// <summary>
     ///   Occurs when the search should be cleared.
     /// </summary>
-    public event EventHandler OnSearchClear;
+    public event EventHandler? OnSearchClear;
 
     /// <summary>
     ///   Gets or sets the number of found results.
@@ -152,7 +152,7 @@ namespace CsvTools
       m_LblResults = new System.Windows.Forms.Label();
       m_BtnNext = new System.Windows.Forms.Button();
       m_BtnPrevious = new System.Windows.Forms.Button();
-      m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+      
       label1 = new System.Windows.Forms.Label();
       m_TableLayoutPanel.SuspendLayout();
       SuspendLayout();
@@ -277,7 +277,7 @@ namespace CsvTools
         CurrentResult--;
     }
 
-    private void SearchChanged() => OnSearchChanged?.Invoke(this, new SearchEventArgs(m_SearchTextBoxText.Text));
+    private void SearchChanged() => OnSearchChanged?.Invoke(this, new SearchEventArgs(m_SearchTextBoxText!.Text));
 
     private void SearchText_TextChanged(object sender, EventArgs e) =>
       FilterValueChangedElapsed();

@@ -179,8 +179,8 @@ namespace CsvTools
 
     private void EnsureTextFilled(int columnNumber)
     {
-      if (string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]) && CurrentValues[columnNumber] != null)
-        CurrentRowColumnText[columnNumber] = CurrentValues[columnNumber]?.ToString() ?? string.Empty;
+      if (string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]))
+        CurrentRowColumnText[columnNumber] = Convert.ToString(CurrentValues[columnNumber]);
     }
 
     /// <summary>
@@ -282,7 +282,7 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
 
-      return CurrentValues![columnNumber]?.ToString() ?? string.Empty;
+      return Convert.ToString(CurrentValues![columnNumber]) ?? string.Empty;
     }
 
     public override int GetValues(object[] values)

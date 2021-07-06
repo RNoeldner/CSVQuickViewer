@@ -55,11 +55,11 @@ namespace CsvTools
       if (m_DataReaderWrapper == null)
         return;
 
-      var curPage = pageIndex;
-      if (m_PagedDataCache.Count < curPage)
+      var curPage = 1;
+      if (m_PagedDataCache.Count < pageIndex)
       {
         while (!m_Token.IsCancellationRequested
-              && m_DataReaderWrapper.RecordNumber < pageIndex * m_PageSize
+              && m_DataReaderWrapper.RecordNumber < (long) pageIndex * m_PageSize
               && await m_DataReaderWrapper.ReadAsync(m_Token))
         {
           curPage =  (int) ((m_DataReaderWrapper.RecordNumber-1) / m_PageSize) + 1;
@@ -72,10 +72,10 @@ namespace CsvTools
             m_PagedDataCache[curPage-1].Add(new DynamicDataRecord(m_DataReaderWrapper));
         }
       }
+      base.Clear();
 
       PageIndex = curPage;
-      base.Clear();
-      foreach (var item in m_PagedDataCache[curPage-1])
+      foreach (var item in m_PagedDataCache[curPage - 1])
         base.Add(item);
       CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     }

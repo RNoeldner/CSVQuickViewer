@@ -17,7 +17,7 @@ using System.Collections.Generic;
 
 namespace CsvTools
 {
-  public class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TValue>
+  public class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TValue> where TKey : notnull where TValue : notnull
   {
     private readonly IDictionary<TValue, TKey> m_SecondToFirst;
 

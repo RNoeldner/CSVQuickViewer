@@ -14,9 +14,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 
@@ -31,28 +29,28 @@ namespace CsvTools
     private readonly DataTable m_DataTable;
     private readonly IList<string> m_VisibleColumns;
     private FilteredDataGridView m_DataGridView;
-
+#nullable enable
     /// <summary>
     /// Initializes a new instance of the <see cref="FormShowMaxLength" /> class.
     /// </summary>
     /// <param name="dataTable">The data table.</param>
     /// <param name="dataRows">The data rows.</param>
-    /// <param name="visibleColums">The visible columns.</param>
+    /// <param name="visibleColumns">The visible columns.</param>
     /// <param name="hTMLStyle">The h TML style.</param>
     /// <exception cref="ArgumentNullException">
     /// dataTable
     /// or
     /// dataRows
     /// or
-    /// visibleColums
+    /// visibleColumns
     /// </exception>
-    public FormShowMaxLength(DataTable dataTable, DataRow[] dataRows, IList<string> visibleColumns, HTMLStyle hTMLStyle)
+    public FormShowMaxLength(DataTable? dataTable, DataRow[] dataRows, IList<string>? visibleColumns, HTMLStyle hTMLStyle)
     {
       m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows ?? throw new ArgumentNullException(nameof(dataRows));
       m_VisibleColumns = visibleColumns ?? throw new ArgumentNullException(nameof(visibleColumns));
       InitializeComponent();
-      m_DataGridView.HTMLStyle = hTMLStyle;
+      m_DataGridView!.HTMLStyle = hTMLStyle;
     }
 
     /// <summary>
@@ -184,7 +182,6 @@ namespace CsvTools
           dataTable.Rows.Add(lastRow);
         }
 
-        if (m_DataGridView == null) return;
         m_DataGridView.DataSource = dataTable;
         // ReSharper disable PossibleNullReferenceException
         m_DataGridView.Columns[dataColumnName.ColumnName].Width = 150;

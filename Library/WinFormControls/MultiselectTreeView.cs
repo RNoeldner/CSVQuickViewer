@@ -27,13 +27,13 @@ namespace CsvTools
   /// </summary>
   public class MultiselectTreeView : TreeView
   {
-    private TreeNode m_FirstNode;
+    private TreeNode m_FirstNode = new TreeNode();
 
     /// <summary>
     ///   Gets or sets the HTML style.
     /// </summary>
     /// <value>The HTML style.</value>
-    public HTMLStyle HTMLStyle { get; set; }
+    public HTMLStyle? HTMLStyle { get; set; }
 
     /// <summary>
     ///   Gets or sets the selected tree node.
@@ -162,13 +162,13 @@ namespace CsvTools
         else
         {
           // in the case of a simple click, just add this item
-          if (SelectedTreeNode != null && SelectedTreeNode.Count > 0)
+          if (SelectedTreeNode.Count > 0)
           {
             RemovePaintFromNodes();
             SelectedTreeNode.Clear();
           }
 
-          SelectedTreeNode?.Add(e.Node);
+          SelectedTreeNode.Add(e.Node);
         }
       }
     }
@@ -212,7 +212,7 @@ namespace CsvTools
 
     public string SelectedToClipboard()
     {
-      if (SelectedTreeNode.Count == 0)
+      if (SelectedTreeNode.Count == 0 || HTMLStyle==null)
         return string.Empty;
 
       var minLevel = int.MaxValue;
@@ -337,8 +337,6 @@ namespace CsvTools
     /// <param name="item">The item.</param>
     private void AddNodeWithSubnodes(TreeNode item)
     {
-      if (item == null)
-        return;
       SelectedTreeNode.Add(item);
       if (!item.IsExpanded)
         return;

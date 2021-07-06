@@ -11,25 +11,25 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+#nullable enable
 using System.Linq;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace CsvTools
 {
-  using JetBrains.Annotations;
-  using System;
-  using System.Collections.Generic;
-  using System.Drawing;
-  using System.Threading;
-  using System.Threading.Tasks;
-  using System.Windows.Forms;
+  
 
   /// <summary>
   ///   Helper class
   /// </summary>
   public static class Extensions
   {
-    public static void RunWithHourglass([NotNull] this ToolStripItem item, [NotNull] Action action)
+    public static void RunWithHourglass(this ToolStripItem item, Action action)
     {
       if (item is null)
         throw new ArgumentNullException(nameof(item));
@@ -55,7 +55,7 @@ namespace CsvTools
       }
     }
 
-    public static void RunWithHourglass([NotNull] this Control control, [NotNull] Action action)
+    public static void RunWithHourglass(this Control control, Action action)
     {
       if (control is null)
         throw new ArgumentNullException(nameof(control));
@@ -80,7 +80,7 @@ namespace CsvTools
       }
     }
 
-    public static async Task RunWithHourglassAsync([NotNull] this ToolStripItem item, [NotNull] Func<Task> action)
+    public static async Task RunWithHourglassAsync(this ToolStripItem item, Func<Task> action)
     {
       if (item is null)
         throw new ArgumentNullException(nameof(item));
@@ -105,7 +105,7 @@ namespace CsvTools
       }
     }
 
-    public static async Task RunWithHourglassAsync([NotNull] this Control control, [NotNull] Func<Task> action)
+    public static async Task RunWithHourglassAsync(this Control control, Func<Task> action)
     {
       if (control is null)
         throw new ArgumentNullException(nameof(control));
@@ -139,7 +139,7 @@ namespace CsvTools
 
     public static void SetClipboard(this string text) => RunSTAThread(() => Clipboard.SetText(text));
 
-    public static void RunSTAThread([NotNull] this Action action, int timeoutMilliseconds = 20000)
+    public static void RunSTAThread(this Action action, int timeoutMilliseconds = 20000)
     {
       if (action is null)
         throw new ArgumentNullException(nameof(action));
@@ -172,7 +172,7 @@ namespace CsvTools
     /// <param name="frm">The calling form</param>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
-    public static void CtrlA([NotNull] this Form frm, [NotNull] object sender, [CanBeNull] KeyEventArgs e)
+    public static void CtrlA(this Form frm, object sender, KeyEventArgs? e)
     {
       if (e == null || !e.Control || e.KeyCode.ToString() != "A")
         return;
@@ -205,11 +205,10 @@ namespace CsvTools
     /// </param>
     /// <param name="withLogger">if set to <c>true</c> [with logger].</param>
     /// <param name="cancellationToken">A Cancellation token</param>
-    /// <returns>A process display, if the stetting want a process</returns>
-    [NotNull]
+    /// <returns>A process display, if the stetting want a process</returns>    
     public static IProcessDisplay GetProcessDisplay(
-      [NotNull] this IFileSetting fileSetting,
-      [CanBeNull] Form owner,
+      this IFileSetting fileSetting,
+      Form? owner,
       bool withLogger,
       CancellationToken cancellationToken)
     {
@@ -221,14 +220,14 @@ namespace CsvTools
       return processDisplay;
     }
 
-    public static Binding GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>()
+    public static Binding? GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>()
                                                                    .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
 
     public static void LoadWindowState(
-      [NotNull] this Form form,
-      [CanBeNull] WindowState windowPosition,
-      [CanBeNull] Action<int> setCustomValue1 = null,
-      [CanBeNull] Action<string> setCustomValue2 = null)
+      this Form form,
+      WindowState? windowPosition,
+      Action<int>? setCustomValue1 = null,
+      Action<string>? setCustomValue2 = null)
     {
       if (windowPosition == null || windowPosition.Width == 0 || windowPosition.Height == 0)
         return;
@@ -288,7 +287,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
-    public static void SafeBeginInvoke([NotNull] this Control uiElement, [NotNull] Action action)
+    public static void SafeBeginInvoke(this Control uiElement, Action action)
     {
       if (uiElement.IsDisposed)
         return;
@@ -303,7 +302,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
-    public static void SafeInvoke([NotNull] this Control uiElement, [NotNull] Action action)
+    public static void SafeInvoke(this Control uiElement, Action action)
     {
       if (!uiElement.IsHandleCreated)
         return;
@@ -318,7 +317,7 @@ namespace CsvTools
     /// <param name="uiElement">Type of the Object that will get the extension</param>
     /// <param name="action">A delegate for the action</param>
     /// <param name="timeoutTicks">Timeout to finish action, default is 1/10 of a second</param>
-    public static void SafeInvokeNoHandleNeeded([NotNull] this Control uiElement, [NotNull] Action action,
+    public static void SafeInvokeNoHandleNeeded(this Control uiElement, Action action,
                                                 long timeoutTicks = TimeSpan.TicksPerSecond / 10)
     {
       if (uiElement.IsDisposed)
@@ -342,7 +341,7 @@ namespace CsvTools
     /// <param name="from">The current Form</param>
     /// <param name="ex">the Exception</param>
     /// <param name="additionalTitle">Title Bar information</param>
-    public static void ShowError([CanBeNull] this Form from, [NotNull] Exception ex, string additionalTitle = "")
+    public static void ShowError(this Form? from, Exception ex, string additionalTitle = "")
     {
       if (from != null)
         Logger.Warning(ex, "Error in {form} : {message}", from.GetType().Name, ex.SourceExceptionMessage());
@@ -363,7 +362,7 @@ namespace CsvTools
 #endif
     }
 
-    public static WindowState StoreWindowState([NotNull] this Form form, int customInt = int.MinValue,
+    public static WindowState? StoreWindowState(this Form form, int customInt = int.MinValue,
                                                string customText = "")
     {
       try
@@ -404,7 +403,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnFormat">The column format.</param>
     /// <param name="listView">The list view.</param>
-    public static void UpdateListViewColumnFormat(this ListView listView, [NotNull] ICollection<Column> columnFormat)
+    public static void UpdateListViewColumnFormat(this ListView? listView, ICollection<Column> columnFormat)
     {
       if (listView == null || listView.IsDisposed)
         return;

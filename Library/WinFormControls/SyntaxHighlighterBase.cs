@@ -22,11 +22,11 @@ namespace CsvTools
   {
     protected readonly TextStyle SkipStyle = new TextStyle(Brushes.DarkGray, Brushes.LightGray, FontStyle.Regular);
 
-    public SyntaxHighlighterBase([NotNull] FastColoredTextBox currentTb) : base(currentTb)
+    public SyntaxHighlighterBase(FastColoredTextBox currentTb) : base(currentTb)
     {
     }
 
-    public abstract void Highlight([NotNull] Range range);
+    public abstract void Highlight(Range range);
 
     public void SkipRows(int skipRows)
     {
@@ -36,7 +36,7 @@ namespace CsvTools
       range.SetStyle(SkipStyle);
     }
 
-    public virtual void Comment([NotNull] Range range)
+    public virtual void Comment(Range range)
     {
       range.ClearStyle(StyleIndex.All);
       range.SetStyle(GrayStyle);

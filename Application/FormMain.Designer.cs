@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace CsvTools
 {
   sealed partial class FormMain
@@ -98,7 +100,7 @@ namespace CsvTools
 			this.loggerDisplay.IsReplaceMode = false;
 			this.loggerDisplay.Location = new System.Drawing.Point(0, 0);
 			this.loggerDisplay.Margin = new System.Windows.Forms.Padding(2);
-			this.loggerDisplay.MinLevel = CsvTools.Logger.Level.Debug;
+			this.loggerDisplay.MinLevel = LogLevel.Debug;
 			this.loggerDisplay.Name = "loggerDisplay";
 			this.loggerDisplay.Paddings = new System.Windows.Forms.Padding(0);
 			this.loggerDisplay.ReadOnly = true;

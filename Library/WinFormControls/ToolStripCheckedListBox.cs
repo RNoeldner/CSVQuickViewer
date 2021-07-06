@@ -14,7 +14,6 @@
 
 namespace CsvTools
 {
-  using JetBrains.Annotations;
   using System.Drawing;
   using System.Windows.Forms;
 
@@ -45,18 +44,17 @@ namespace CsvTools
     /// <summary>
     ///   Tell the world that an item was checked
     /// </summary>
-    public event ItemCheckEventHandler ItemCheck;
+    public event ItemCheckEventHandler? ItemCheck;
 
     /// <summary>
     ///   Gets the checked ListBox.
     /// </summary>
-    /// <value>The checked ListBox.</value>
-    [NotNull]
+    /// <value>The checked ListBox.</value>    
     public CheckedListBox CheckedListBoxControl
     {
       get
       {
-        return Control as CheckedListBox;
+        return (CheckedListBox) Control;
       }
     }
 

@@ -1423,7 +1423,7 @@ namespace CsvTools.Tests
 				{
 					await test.OpenAsync(processDisplay.CancellationToken);
 
-					using (var dt = await test.GetDataTableAsync(5, false, false, false, false, false, null,
+					using (DataTable dt = await test.GetDataTableAsync(5, false, false, false, false, false, null,
 						processDisplay.CancellationToken))
 					{
 						Assert.AreEqual(5, dt.Rows.Count);
@@ -1441,7 +1441,7 @@ namespace CsvTools.Tests
 				{
 					await test.OpenAsync(processDisplay.CancellationToken);
 
-					using (var dt = await test.GetDataTableAsync(5, true, true, false, false, true, null,
+					using (DataTable dt = await test.GetDataTableAsync(5, true, true, false, false, true, null,
 						processDisplay.CancellationToken))
 					{
 						Assert.AreEqual(5, dt.Rows.Count);

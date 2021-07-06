@@ -17,7 +17,6 @@ using System.ComponentModel;
 
 namespace CsvTools.Tests
 {
-#pragma warning disable CA1304 // Specify CultureInfo
 
   [TestClass]
   public class FileFormatTest
@@ -226,6 +225,4 @@ namespace CsvTools.Tests
       Assert.AreEqual('\"', test.FieldDelimiterChar);
     }
   }
-
-#pragma warning restore CA1304 // Specify CultureInfo
 }

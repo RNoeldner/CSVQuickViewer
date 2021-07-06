@@ -12,6 +12,7 @@
  *
  */
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -65,7 +66,6 @@ namespace CsvTools
 
       InitializeComponent();
       Text = AssemblyTitle;
-      Logger.AddLog(loggerDisplay.AddLog);
 
       m_DetailControlLoader = new DetailControlLoader(detailControl);
       // add the not button not visible in designer to the detail control
@@ -134,38 +134,36 @@ namespace CsvTools
 
       try
       {
-        using (var processDisplay = new CustomProcessDisplay(m_CancellationTokenSource.Token))
+        using var processDisplay = new CustomProcessDisplay(m_CancellationTokenSource.Token);
+        DetachPropertyChanged(m_FileSetting);
+        m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
+          m_ViewSettings.GuessCodePage,
+          m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
+          m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
+          m_ViewSettings.FillGuessSettings, processDisplay))?.CsvFile();
+
+        if (m_FileSetting == null)
+          return;
+
+        // update the UI
+        this.SafeInvoke(() =>
         {
-          DetachPropertyChanged(m_FileSetting);
-          m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
-                            m_ViewSettings.GuessCodePage,
-                            m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
-                            m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-                            m_ViewSettings.FillGuessSettings, processDisplay)).CsvFile();
+          var display = fileName;
+          if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
+            display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
 
-          if (m_FileSetting == null)
-            return;
+          Text =
+            $@"{FileSystemUtils.GetShortDisplayFileName(display, 50)} - {EncodingHelper.GetEncodingName(m_FileSetting.CodePageId, m_FileSetting.ByteOrderMark)} - {AssemblyTitle}";
 
-          // update the UI
-          this.SafeInvoke(() =>
-          {
-            var display = fileName;
-            if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
-              display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
+          m_ToolStripButtonAsText.Visible = !m_FileSetting.JsonFormat &&
+                                            m_FileSetting.ColumnCollection.Any(x =>
+                                              x.ValueFormat.DataType != DataType.String);
+          SetFileSystemWatcher(fileName);
+        });
 
-            Text =
-              $@"{FileSystemUtils.GetShortDisplayFileName(display, 50)} - {EncodingHelper.GetEncodingName(m_FileSetting.CodePageId, m_FileSetting.ByteOrderMark)} - {AssemblyTitle}";
+        await OpenDataReaderAsync();
 
-            m_ToolStripButtonAsText.Visible = !m_FileSetting.JsonFormat &&
-                                              m_FileSetting.ColumnCollection.Any(x =>
-                                                x.ValueFormat.DataType != DataType.String);
-            SetFileSystemWatcher(fileName);
-          });
-
-          await OpenDataReaderAsync();
-
-          ShowTextPanel(false);
-        }
+        ShowTextPanel(false);
       }
       catch (Exception ex)
       {
@@ -184,7 +182,7 @@ namespace CsvTools
       var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
       try
       {
-        loggerDisplay.AddLog(message, Logger.Level.Info);
+        loggerDisplay.LogInformation(message);
         var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
                         + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
 
@@ -496,26 +494,21 @@ namespace CsvTools
         FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
           await Task.FromResult(new DataTableWrapper(detailControl.DataTable));
 
-        if (detailControl.DataTable == null)
-          Logger.Information("No data to show");
+        // Load View Settings
+        if (m_FileSetting is BaseSettingPhysicalFile basePhys && FileSystemUtils.FileExists(basePhys.ColumnFile))
+        {
+          Logger.Information("Restoring view and filter setting {filename}...", basePhys.ColumnFile);
+          detailControl.ReStoreViewSetting(basePhys.ColumnFile);
+        }
         else
         {
-          // Load View Settings
-          if (m_FileSetting is BaseSettingPhysicalFile basePhys && FileSystemUtils.FileExists(basePhys.ColumnFile))
+          var index = m_FileSetting.FileName.LastIndexOf('.');
+          var fn = (index == -1 ? m_FileSetting.FileName : m_FileSetting.FileName.Substring(0, index)) + ".col";
+          var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName() ?? string.Empty, fn);
+          if (FileSystemUtils.FileExists(fnView))
           {
-            Logger.Information("Restoring view and filter setting {filename}...", basePhys.ColumnFile);
-            detailControl.ReStoreViewSetting(basePhys.ColumnFile);
-          }
-          else
-          {
-            var index = m_FileSetting.FileName.LastIndexOf('.');
-            var fn = (index == -1 ? m_FileSetting.FileName : m_FileSetting.FileName.Substring(0, index)) + ".col";
-            var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
-            if (FileSystemUtils.FileExists(fnView))
-            {
-              Logger.Information("Restoring view and filter setting {filename}...", fn);
-              detailControl.ReStoreViewSetting(fnView);
-            }
+            Logger.Information("Restoring view and filter setting {filename}...", fn);
+            detailControl.ReStoreViewSetting(fnView);
           }
         }
       }
@@ -528,11 +521,7 @@ namespace CsvTools
       {
         if (!m_DisposedValue)
         {
-          if (detailControl.DataTable == null)
-            Logger.Information("No data...");
-          else
-            // if (!m_FileSetting.NoDelimitedFile)
-            ShowTextPanel(false);
+          ShowTextPanel(false);
 
           detailControl.ShowInfoButtons = true;
           Cursor.Current = oldCursor;
@@ -584,16 +573,14 @@ namespace CsvTools
       {
         m_ToolStripButtonSettings.Enabled = false;
         ViewSettings.CopyConfiguration(m_FileSetting, m_ViewSettings);
-        using (var frm = new FormEditSettings(m_ViewSettings))
-        {
-          frm.ShowDialog(MdiParent);
-          m_ViewSettings.SaveViewSettings();
-          detailControl.MenuDown = m_ViewSettings.MenuDown;
-          SetFileSystemWatcher(m_FileSetting.FileName);
-          ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting);
+        using var frm = new FormEditSettings(m_ViewSettings);
+        frm.ShowDialog(MdiParent);
+        m_ViewSettings.SaveViewSettings();
+        detailControl.MenuDown = m_ViewSettings.MenuDown;
+        SetFileSystemWatcher(m_FileSetting.FileName);
+        ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting);
 
-          await CheckPossibleChange();
-        }
+        await CheckPossibleChange();
       });
     }
 
@@ -607,19 +594,17 @@ namespace CsvTools
         m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting.FileName);
         m_SourceDisplay.FormClosed += SourceDisplayClosed;
         m_SourceDisplay.Show();
-        using (var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token))
-        {
-          proc.Show(this);
+        using var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token);
+        proc.Show(this);
 
-          proc.Maximum = 0;
-          proc.SetProcess("Reading source and applying color coding", 0, false);
+        proc.Maximum = 0;
+        proc.SetProcess("Reading source and applying color coding", 0, false);
 
-          m_SourceDisplay.OpenFile(m_FileSetting.JsonFormat,
-            m_FileSetting.FileFormat.FieldQualifier,
-            m_FileSetting.FileFormat.FieldDelimiter, m_FileSetting.FileFormat.EscapeCharacter,
-            m_FileSetting.CodePageId, m_FileSetting.SkipRows, m_FileSetting.FileFormat.CommentLine);
-          proc.Close();
-        }
+        m_SourceDisplay.OpenFile(m_FileSetting.JsonFormat,
+          m_FileSetting.FileFormat.FieldQualifier,
+          m_FileSetting.FileFormat.FieldDelimiter, m_FileSetting.FileFormat.EscapeCharacter,
+          m_FileSetting.CodePageId, m_FileSetting.SkipRows, m_FileSetting.FileFormat.CommentLine);
+        proc.Close();
       });
     }
 

@@ -162,7 +162,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetAbsolutePath()
     {
-      Assert.AreEqual(m_FileName2, FileSystemUtils.GetAbsolutePath(m_FileName2, null));
+      Assert.AreEqual(m_FileName2, m_FileName2.GetAbsolutePath(null));
     }
 
     [TestMethod]
@@ -179,8 +179,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetDirectoryName()
     {
-      Assert.AreEqual(m_Folder1, FileSystemUtils.GetDirectoryName(m_FileName1));
-      Assert.AreEqual(m_Folder2, FileSystemUtils.GetDirectoryName(m_FileName2));
+      Assert.AreEqual(m_Folder1, m_FileName1.GetDirectoryName());
+      Assert.AreEqual(m_Folder2, m_FileName2.GetDirectoryName());
     }
 
     [TestMethod]

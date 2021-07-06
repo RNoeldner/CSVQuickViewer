@@ -98,7 +98,7 @@ namespace CsvTools
     /// <summary>
     ///   Event handler called if a warning or error occurred
     /// </summary>
-    event EventHandler<WarningEventArgs>? Warning;
+    event EventHandler<WarningEventArgs> Warning;
 
     /// <summary>
     ///   Event to be raised once the reader is finished reading the file
@@ -114,7 +114,7 @@ namespace CsvTools
     ///   Occurs when an open process failed, allowing the user to change the timeout or provide the
     ///   needed file etc.
     /// </summary>
-    event EventHandler<RetryEventArgs>? OnAskRetry;
+    event EventHandler<RetryEventArgs> OnAskRetry;
 
     /// <summary>
     ///   Gets the column information for a given column number

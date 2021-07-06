@@ -66,7 +66,7 @@ namespace CsvTools
             sb.Append(message);
           }
 
-        return sb.ToString();
+        return Convert.ToString(sb);
       }
     }
 
@@ -101,7 +101,7 @@ namespace CsvTools
           }
         }
 
-        return sb.ToString();
+        return Convert.ToString(sb);
       }
     }
 
@@ -113,8 +113,7 @@ namespace CsvTools
       for (var col = 0; col < reader.FieldCount; col++)
       {
         if (!reader.GetColumn(col).Ignore) continue;
-        if (m_IgnoredColumns == null)
-          m_IgnoredColumns = new HashSet<int>();
+        m_IgnoredColumns ??= new HashSet<int>();
         m_IgnoredColumns.Add(col);
       }
     }
@@ -126,7 +125,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="args"></param>
-    public void Add(object sender, WarningEventArgs args)
+    public void Add(object? sender, WarningEventArgs args)
     {
       if (m_IgnoredColumns != null && m_IgnoredColumns.Contains(args.ColumnNumber) || CountRows >= m_MaxRows)
         return;
@@ -152,7 +151,7 @@ namespace CsvTools
     /// <param name="recordNumber">The record number.</param>
     /// <param name="returnValue">The return value.</param>
     /// <returns></returns>
-    public bool TryGetValue(long recordNumber, out ColumnErrorDictionary returnValue) =>
+    public bool TryGetValue(long recordNumber, out ColumnErrorDictionary? returnValue) =>
       // if we return true, th dictionary is not null
       m_RowErrorCollection.TryGetValue(recordNumber, out returnValue);
   }

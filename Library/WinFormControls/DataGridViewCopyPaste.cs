@@ -11,10 +11,9 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+#nullable enable
 namespace CsvTools
 {
-  using JetBrains.Annotations;
   using System;
   using System.Collections.Generic;
   using System.Text;
@@ -40,7 +39,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="DataGridViewCopyPaste" /> class.
     /// </summary>
     /// <param name="htmlStyle">The HTML style.</param>
-    public DataGridViewCopyPaste(HTMLStyle htmlStyle)
+    public DataGridViewCopyPaste(HTMLStyle? htmlStyle)
     {
       m_HtmlStyle= htmlStyle ?? new HTMLStyle();
     }
@@ -53,7 +52,7 @@ namespace CsvTools
     /// <param name="cutLength">if set to <c>true</c> cut off long text.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     public void SelectedDataIntoClipboard(
-      [NotNull] DataGridView dataGridView,
+      DataGridView dataGridView,
       bool addErrorInfo,
       bool cutLength,
       CancellationToken cancellationToken)
@@ -85,7 +84,7 @@ namespace CsvTools
     /// <summary>
     ///   Copies the one cell to the clipboard
     /// </summary>
-    private static void CopyOneCellIntoClipboard([NotNull] DataGridViewCell cell)
+    private static void CopyOneCellIntoClipboard(DataGridViewCell cell)
     {
       var dataObject = new DataObject();
       dataObject.SetData(DataFormats.Text, true, cell.Value.ToString());
@@ -97,11 +96,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="contents">The contents.</param>
     /// <returns></returns>
-    private static string EscapeTab([CanBeNull] string contents)
+    private static string EscapeTab(string? contents)
     {
       if (string.IsNullOrEmpty(contents))
         return string.Empty;
-      if (contents.Contains("\t") || contents.Contains("\n") || contents.Contains("\r"))
+      if (contents!.Contains("\t") || contents.Contains("\n") || contents.Contains("\r"))
         return "\"" + contents.Replace("\"", "\"\"") + "\"";
       return contents;
     }
@@ -113,7 +112,7 @@ namespace CsvTools
     /// <param name="bottomRow">The bottom row.</param>
     /// <param name="rows">The rows.</param>
     /// <returns><c>true</c> if it has row errors; otherwise, <c>false</c>.</returns>
-    private static bool HasRowErrors(int topRow, int bottomRow, [NotNull] DataGridViewRowCollection rows)
+    private static bool HasRowErrors(int topRow, int bottomRow, DataGridViewRowCollection rows)
     {
       var hasRowErrors = false;
       for (var row = topRow; row < bottomRow; row++)
@@ -135,10 +134,11 @@ namespace CsvTools
     /// <param name="appendTab">if set to <c>true</c> [append tab].</param>
     /// <param name="addErrorInfo">if set to <c>true</c> [add error info].</param>
     /// <param name="cutLength">Maximum length of the resulting text</param>
+    /// <param name="style"></param>
     private void AddCell(
-      [NotNull] DataGridViewCell cell,
-      [NotNull] StringBuilder stringBuilder,
-      [NotNull] StringBuilder sbHtml,
+      DataGridViewCell cell,
+      StringBuilder stringBuilder,
+      StringBuilder sbHtml,
       bool appendTab,
       bool addErrorInfo,
       bool cutLength, HTMLStyle style)
@@ -165,7 +165,8 @@ namespace CsvTools
     /// <param name="sbHtml">The StringBuilder for HTML.</param>
     /// <param name="errorText">The error Text</param>
     /// <param name="addErrorInfo">if set to <c>true</c> [add error info].</param>
-    private void AppendRowError([NotNull] StringBuilder stringBuilder, [NotNull] StringBuilder sbHtml, [CanBeNull] string errorText, bool addErrorInfo, HTMLStyle style)
+    /// <param name="style"></param>
+    private void AppendRowError(StringBuilder stringBuilder, StringBuilder sbHtml, string? errorText, bool addErrorInfo, HTMLStyle style)
     {
       if (!addErrorInfo)
         return;
@@ -173,7 +174,7 @@ namespace CsvTools
         sbHtml.Append(m_HtmlStyle.TDEmpty);
       else
       {
-        style.AddHtmlCell(sbHtml, m_HtmlStyle.TD, string.Empty, errorText, true);
+        style.AddHtmlCell(sbHtml, m_HtmlStyle.TD, string.Empty, errorText ?? string.Empty, true);
       }
       stringBuilder.Append('\t');
       stringBuilder.Append(EscapeTab(errorText));
@@ -192,8 +193,8 @@ namespace CsvTools
       bool addErrorInfo,
       bool cutLength,
       bool alternatingRows,
-      [NotNull] DataGridViewColumnCollection columns,
-      [NotNull] DataGridViewRowCollection rows,
+      DataGridViewColumnCollection columns,
+      DataGridViewRowCollection rows,
       CancellationToken cancellationToken)
     {
       var buffer = new StringBuilder();
@@ -282,9 +283,9 @@ namespace CsvTools
       bool addErrorInfo,
       bool cutLength,
       bool alternatingRows,
-      [NotNull] DataGridViewColumnCollection columns,
-      [NotNull] DataGridViewRowCollection rows,
-      [NotNull] DataGridViewSelectedCellCollection selectedCells,
+      DataGridViewColumnCollection columns,
+      DataGridViewRowCollection rows,
+      DataGridViewSelectedCellCollection selectedCells,
       CancellationToken cancellationToken)
     {
       var buffer = new StringBuilder();

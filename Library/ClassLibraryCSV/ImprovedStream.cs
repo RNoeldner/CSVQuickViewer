@@ -12,6 +12,7 @@
  *
  */
 
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -30,7 +31,7 @@ namespace CsvTools
 		protected readonly SourceAccess SourceAccess;
 		private bool m_DisposedValue;
 		private ICSharpCode.SharpZipLib.Zip.ZipFile? m_ZipFile;
-
+    
 		// ReSharper disable once NotNullMemberIsNotInitialized
 #pragma warning disable 8618
 		public ImprovedStream(SourceAccess sourceAccess)
@@ -296,29 +297,25 @@ namespace CsvTools
 
 						// build a new Zipfile with the contend of the old one but exlode the file we are about
 						// to write
-						using (var zipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(File.OpenRead(tmpName)))
-						{
-							var entryEnumerator = zipFile.GetEnumerator();
-							while (entryEnumerator.MoveNext())
-							{
-								var zipEntry = entryEnumerator.Current as ICSharpCode.SharpZipLib.Zip.ZipEntry;
-								if (!(zipEntry?.IsFile ?? false) || zipEntry.Name == cleanName)
-									continue;
-								using (var zipStream = zipFile.GetInputStream(zipEntry))
-								{
-									// Copy the source data to the new stream
-									zipOutputStream.PutNextEntry(new ICSharpCode.SharpZipLib.Zip.ZipEntry(zipEntry.Name)
-									{
-										DateTime = zipEntry.DateTime,
-										Size = zipEntry.Size,
-									});
-									var buffer = new byte[4096];
-									ICSharpCode.SharpZipLib.Core.StreamUtils.Copy(zipStream, zipOutputStream, buffer);
-									zipOutputStream.CloseEntry();
-								}
-							}
-						}
-					}
+            using var zipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(File.OpenRead(tmpName));
+            var entryEnumerator = zipFile.GetEnumerator();
+            while (entryEnumerator.MoveNext())
+            {
+              var zipEntry = entryEnumerator.Current as ICSharpCode.SharpZipLib.Zip.ZipEntry;
+              if (!(zipEntry?.IsFile ?? false) || zipEntry.Name == cleanName)
+                continue;
+              using var zipStream = zipFile.GetInputStream(zipEntry);
+              // Copy the source data to the new stream
+              zipOutputStream.PutNextEntry(new ICSharpCode.SharpZipLib.Zip.ZipEntry(zipEntry.Name)
+              {
+                DateTime = zipEntry.DateTime,
+                Size = zipEntry.Size,
+              });
+              var buffer = new byte[4096];
+              ICSharpCode.SharpZipLib.Core.StreamUtils.Copy(zipStream, zipOutputStream, buffer);
+              zipOutputStream.CloseEntry();
+            }
+          }
 					finally
 					{
 						File.Delete(tmpName);

@@ -27,7 +27,7 @@ namespace CsvTools.Tests
     {
       using (var display = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        var det = await CsvHelper.GetDetectionResultFromFile(UnitTestInitializeCsv.GetTestPath("employee.txt"), display, true);
+        var det = await UnitTestInitializeCsv.GetTestPath("employee.txt").GetDetectionResultFromFile(display, true);
         Assert.AreEqual(RecordDelimiterType.CRLF, det.NewLine);
       }
     }
@@ -37,8 +37,9 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        var tuple = await CsvHelper.AnalyseFileAsync(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), true, true, true,
+        var tuple = await UnitTestInitializeCsv.GetTestPath("BasicCSV.txt").AnalyseFileAsync(true, true, true,
                     true, true, true, true, true, new FillGuessSettings(), processDisplay);
+        Assert.IsNotNull(tuple);
         Assert.AreEqual(1200, tuple.CodePageId);
       }
     }
@@ -48,8 +49,9 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        var tuple = await CsvHelper.AnalyseFileAsync(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt" + CsvFile.cCsvSettingExtension), true, true, true,
+        var tuple = await UnitTestInitializeCsv.GetTestPath("BasicCSV.txt" + CsvFile.cCsvSettingExtension).AnalyseFileAsync(true, true, true,
                      true, true, true, true, true, new FillGuessSettings(), processDisplay);
+        Assert.IsNotNull(tuple); 
         Assert.AreEqual(1200, tuple.CodePageId);
       }
     }
@@ -142,6 +144,14 @@ namespace CsvTools.Tests
         reader.ToBeginning();
         Assert.IsFalse(reader.GuessHasHeader("#", ",", UnitTestInitializeCsv.Token).Item1);
       }
+
+
+      using (var stream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("DifferentColumnDelimiter.txt"))))
+      using (var reader = new ImprovedTextReader(stream))
+      {
+        reader.ToBeginning();
+        Assert.IsFalse(reader.GuessHasHeader("", ",", UnitTestInitializeCsv.Token).Item1);
+      }
     }
 
     [TestMethod]
@@ -152,12 +162,13 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async System.Threading.Tasks.Task GetCsvFileSetting()
+    public async Task GetCsvFileSetting()
     {
       using (IProcessDisplay process = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        var result = await CsvHelper.AnalyseFileAsync(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), true, true, true, true, true, true, false, true,
+        var result = await UnitTestInitializeCsv.GetTestPath("BasicCSV.txt").AnalyseFileAsync(true, true, true, true, true, true, false, true,
                        new FillGuessSettings(), process);
+        Assert.IsNotNull(result);
         Assert.IsTrue(result.HasFieldHeader);
         Assert.AreEqual(1200, result.CodePageId);
       }
@@ -169,6 +180,7 @@ namespace CsvTools.Tests
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"))))
       {
         var result = await improvedStream.GuessHasHeader(1200, 0, "", ",", UnitTestInitializeCsv.Token);
+        Assert.IsNotNull(result);
         Assert.IsTrue(result.Item1);
         Assert.AreEqual("Header seems present", result.Item2);
       }
@@ -180,6 +192,7 @@ namespace CsvTools.Tests
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"))))
       {
         var result = await improvedStream.GuessHasHeader(65001, 0, "", "\t", UnitTestInitializeCsv.Token);
+        Assert.IsNotNull(result);
         Assert.IsTrue(result.Item1);
         Assert.AreEqual("Header seems present", result.Item2);
       }
@@ -191,6 +204,7 @@ namespace CsvTools.Tests
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicEscapedCharacters.txt"))))
       {
         var result = await improvedStream.GuessHasHeader(65001, 0, "", ",", UnitTestInitializeCsv.Token);
+        Assert.IsNotNull(result);
         Assert.IsFalse(result.Item1);
         Assert.AreEqual("Headers 'a\\', 'b', 'c', 'd', 'e', 'f' very short", result.Item2);
       }
@@ -202,6 +216,7 @@ namespace CsvTools.Tests
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("LongHeaders.txt"))))
       {
         var result = await improvedStream.GuessHasHeader(65001, 0, "#", ",", UnitTestInitializeCsv.Token);
+        Assert.IsNotNull(result);
         Assert.IsFalse(result.Item1);
         Assert.IsTrue(result.Item2.StartsWith("Headers", System.StringComparison.OrdinalIgnoreCase));
         Assert.IsTrue(result.Item2.EndsWith("very short", System.StringComparison.OrdinalIgnoreCase));
@@ -362,7 +377,7 @@ namespace CsvTools.Tests
     {
       using (var display = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        var det = await CsvHelper.GetDetectionResultFromFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), display);
+        var det = await UnitTestInitializeCsv.GetTestPath("BasicCSV.txt").GetDetectionResultFromFile(display);
         Assert.AreEqual(0, det.SkipRows);
         Assert.AreEqual(",".WrittenPunctuationToChar(), det.FieldDelimiter.WrittenPunctuationToChar());
         Assert.AreEqual(1200, det.CodePageId); // UTF16_LE
@@ -374,7 +389,7 @@ namespace CsvTools.Tests
     {
       using (var display = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
-        var det = await CsvHelper.GetDetectionResultFromFile(UnitTestInitializeCsv.GetTestPath("CSVTestEmpty.txt"), display);
+        var det = await UnitTestInitializeCsv.GetTestPath("CSVTestEmpty.txt").GetDetectionResultFromFile(display);
         Assert.AreEqual(0, det.SkipRows);
       }
     }
@@ -401,7 +416,7 @@ namespace CsvTools.Tests
       {
         using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
         {
-          var det = await fileName.GetDetectionResultFromFile(processDisplay);
+          await fileName.GetDetectionResultFromFile(processDisplay);
         }
       }
     }
@@ -454,9 +469,9 @@ namespace CsvTools.Tests
     public void TestValidateLineCommentInvalid()
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt"))))
-      using (var textReader = new ImprovedTextReader(improvedStream, 65001, 0))
+      using (var textReader = new ImprovedTextReader(improvedStream))
       {
-        Assert.IsFalse(CsvHelper.CheckLineCommentIsValid(textReader, "#", "Tab", UnitTestInitializeCsv.Token));
+        Assert.IsFalse(textReader.CheckLineCommentIsValid("#", "Tab", UnitTestInitializeCsv.Token));
       }
     }
 
@@ -465,15 +480,15 @@ namespace CsvTools.Tests
     public void TestValidateLineCommentValid()
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("ComplexDataDelimiter.txt"))))
-      using (var textReader = new ImprovedTextReader(improvedStream, 65001, 0))
+      using (var textReader = new ImprovedTextReader(improvedStream))
       {
-        Assert.IsTrue(CsvHelper.CheckLineCommentIsValid(textReader, "#", ",", UnitTestInitializeCsv.Token));
+        Assert.IsTrue(textReader.CheckLineCommentIsValid("#", ",", UnitTestInitializeCsv.Token));
       }
 
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("ReadingInHeaderAfterComments.txt"))))
-      using (var textReader = new ImprovedTextReader(improvedStream, 65001, 0))
+      using (var textReader = new ImprovedTextReader(improvedStream))
       {
-        Assert.IsTrue(CsvHelper.CheckLineCommentIsValid(textReader, "#", ",", UnitTestInitializeCsv.Token));
+        Assert.IsTrue(textReader.CheckLineCommentIsValid("#", ",", UnitTestInitializeCsv.Token));
       }
 
     }

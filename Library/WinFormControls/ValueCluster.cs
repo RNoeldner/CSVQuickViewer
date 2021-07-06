@@ -11,10 +11,9 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+#nullable enable
 namespace CsvTools
 {
-  using JetBrains.Annotations;
   using System;
 
   /// <summary>
@@ -30,7 +29,7 @@ namespace CsvTools
     /// <param name="sort">A text used for the order</param>
     /// <param name="count">Number of records that do have this value</param>
     /// <param name="active">Flag indicating if the filter for the value is active</param>
-    public ValueCluster([NotNull] string display, [NotNull] string condition, [CanBeNull] string sort, int count, bool active = false)
+    public ValueCluster(string display, string condition, string? sort, int count, bool active = false)
     {
       Display = display;
       SQLCondition = condition;
@@ -64,7 +63,6 @@ namespace CsvTools
     ///   Gets or sets the displayed text
     /// </summary>
     /// <value>The display.</value>
-    [NotNull]
     public string Display
     {
       get;
@@ -74,7 +72,6 @@ namespace CsvTools
     ///   Gets or sets the displayed text
     /// </summary>
     /// <value>The display.</value>
-    [NotNull]
     public string Sort
     {
       get;
@@ -84,7 +81,6 @@ namespace CsvTools
     ///   Gets or sets the SQL condition to get a list of the records
     /// </summary>
     /// <value>The SQL condition.</value>
-    [NotNull]
     public string SQLCondition
     {
       get;
@@ -98,7 +94,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
     ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
-    public bool Equals(ValueCluster other)
+    public bool Equals(ValueCluster? other)
     {
       if (other is null)
         return false;
@@ -118,7 +114,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
     ///   <see langword="false" />.
     /// </returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
       if (obj is null)
         return false;

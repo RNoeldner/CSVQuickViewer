@@ -12,13 +12,14 @@
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <NeutralLanguage>en-US</NeutralLanguage>
     <!--- <TargetFramework>net472</TargetFramework> -->
-    <TargetFrameworks>net472;netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
+    <TargetFrameworks>net472;netstandard2.0;netstandard2.1</TargetFrameworks>
     <SignAssembly>false</SignAssembly>
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
     <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>
     <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
     <DefineConstants>Windows</DefineConstants>
@@ -49,8 +50,8 @@
 
   <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
     <PackageReference Include="SharpZipLib" Version="1.2.0" />
     <PackageReference Include="UTF.Unknown" Version="2.3.0" />
   </ItemGroup>

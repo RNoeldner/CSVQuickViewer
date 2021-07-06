@@ -11,10 +11,9 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+#nullable enable
 namespace CsvTools
 {
-  using JetBrains.Annotations;
   using System;
   using System.Collections.Generic;
   using System.ComponentModel;
@@ -103,26 +102,21 @@ namespace CsvTools
     /// </summary>
     private bool m_Active;
 
-    [NotNull]
     private string m_DataPropertyName;
 
-    [NotNull]
     private string m_DataPropertyNameEscape;
 
     /// <summary>
     ///   The m_ filter expression
     /// </summary>
-    [NotNull]
     private string m_FilterExpressionOperator = string.Empty;
 
-    [NotNull]
     private string m_FilterExpressionValue = string.Empty;
 
     private string m_Operator = c_OperatorEquals;
 
     private DateTime m_ValueDateTime;
 
-    [NotNull]
     private string m_ValueText = string.Empty;
 
     /// <summary>
@@ -132,6 +126,8 @@ namespace CsvTools
     /// <param name="dataPropertyName">Name of the data property.</param>
     public ColumnFilterLogic(Type columnDataType, string dataPropertyName)
     {
+      m_DataPropertyNameEscape = string.Empty;
+      m_DataPropertyName = string.Empty;
       DataPropertyName = dataPropertyName ?? throw new ArgumentNullException(nameof(dataPropertyName));
       m_ColumnDataType = columnDataType ?? throw new ArgumentNullException(nameof(columnDataType));
     }
@@ -139,12 +135,12 @@ namespace CsvTools
     /// <summary>
     ///   Occurs when filter should be executed
     /// </summary>
-    public event EventHandler ColumnFilterApply;
+    public event EventHandler? ColumnFilterApply;
 
     /// <summary>
     ///   Occurs when a property value changes.
     /// </summary>
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public static string OperatorIsNull => c_OperatorIsNull;
 
@@ -171,7 +167,6 @@ namespace CsvTools
     /// <value>The type of the column data.</value>
     public virtual Type ColumnDataType => m_ColumnDataType;
 
-    [NotNull]
     public string DataPropertyName
     {
       get => m_DataPropertyName;
@@ -212,7 +207,6 @@ namespace CsvTools
     ///   Gets or sets the operator, setting the operator will build the filter
     /// </summary>
     /// <value>The operator.</value>
-    [NotNull]
     public virtual string Operator
     {
       get => m_Operator;
@@ -246,7 +240,6 @@ namespace CsvTools
     ///   Gets or sets the value text.
     /// </summary>
     /// <value>The value text.</value>
-    [NotNull]
     public virtual string ValueText
     {
       get => m_ValueText;
@@ -296,7 +289,7 @@ namespace CsvTools
     /// <summary>
     ///   Applies the filter.
     /// </summary>
-    public virtual void ApplyFilter() => ColumnFilterApply?.Invoke(this, new EventArgs());
+    public virtual void ApplyFilter() => ColumnFilterApply?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
     ///   Builds the SQL command.
@@ -323,7 +316,7 @@ namespace CsvTools
     /// <param name="value">The typed value</param>
     public virtual void SetFilter(object value)
     {
-      if (string.IsNullOrEmpty(value?.ToString()))
+      if (string.IsNullOrEmpty(Convert.ToString(value)))
       {
         Operator = OperatorIsNull;
       }
@@ -332,7 +325,7 @@ namespace CsvTools
         if (m_ColumnDataType == typeof(DateTime))
           ValueDateTime = (DateTime) value;
         else
-          ValueText = value.ToString();
+          ValueText = Convert.ToString(value);
         Operator = c_OperatorEquals;
       }
 
@@ -345,7 +338,6 @@ namespace CsvTools
     /// <param name="value">The value.</param>
     /// <param name="targetType">Type of the target.</param>
     /// <returns>A string with the formatted value</returns>
-    [NotNull]
     private static string FormatValue(string value, Type targetType)
     {
       if (string.IsNullOrEmpty(value))
@@ -408,7 +400,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputValue">The input.</param>
     /// <returns></returns>
-    [NotNull]
     private static string StringEscapeLike(string inputValue)
     {
       if (string.IsNullOrEmpty(inputValue))
@@ -435,7 +426,7 @@ namespace CsvTools
         }
       }
 
-      return returnVal.ToString();
+      return Convert.ToString(returnVal);
     }
 
     /// <summary>
@@ -454,7 +445,6 @@ namespace CsvTools
     ///   Builds the filter expression for this column for Operator based filter
     /// </summary>
     /// <returns>a sql statement</returns>
-    [NotNull]
     private string BuildFilterExpressionOperator()
     {
       switch (m_Operator)
@@ -525,32 +515,17 @@ namespace CsvTools
           {
             // Filtering for Dates we need to ignore time
             filterValue = $@"#{m_ValueDateTime:MM\/dd\/yyyy}#";
-            switch (m_Operator)
+            return m_Operator switch
             {
-              case c_OperatorEquals:
-                return string.Format(
-                  CultureInfo.InvariantCulture,
-                  "({0} >= {1} AND {0} < #{2:MM\\/dd\\/yyyy}#)",
-                  m_DataPropertyNameEscape,
-                  filterValue,
-                  m_ValueDateTime.AddDays(1));
-
-              case c_OperatorNotEqual:
-                return string.Format(
-                  CultureInfo.InvariantCulture,
-                  "({0} < {1} OR {0} > #{2:MM\\/dd\\/yyyy}#)",
-                  m_DataPropertyNameEscape,
-                  filterValue,
-                  m_ValueDateTime.AddDays(1));
-
-              default:
-                return string.Format(
-                  CultureInfo.InvariantCulture,
-                  "{0} {1} {2}",
-                  m_DataPropertyNameEscape,
-                  m_Operator,
-                  filterValue);
-            }
+              c_OperatorEquals => string.Format(CultureInfo.InvariantCulture,
+                "({0} >= {1} AND {0} < #{2:MM\\/dd\\/yyyy}#)", m_DataPropertyNameEscape, filterValue,
+                m_ValueDateTime.AddDays(1)),
+              c_OperatorNotEqual => string.Format(CultureInfo.InvariantCulture,
+                "({0} < {1} OR {0} > #{2:MM\\/dd\\/yyyy}#)", m_DataPropertyNameEscape, filterValue,
+                m_ValueDateTime.AddDays(1)),
+              _ => string.Format(CultureInfo.InvariantCulture, "{0} {1} {2}", m_DataPropertyNameEscape, m_Operator,
+                filterValue)
+            };
           }
           else
           {
@@ -579,7 +554,6 @@ namespace CsvTools
     ///   Builds the filter expression for this column for value based filter
     /// </summary>
     /// <returns>a sql statement</returns>
-    [NotNull]
     private string BuildFilterExpressionValues()
     {
       var sql = new StringBuilder();
@@ -595,7 +569,7 @@ namespace CsvTools
 
       if (counter > 1)
         return "(" + sql + ")";
-      return counter == 1 ? sql.ToString() : string.Empty;
+      return counter == 1 ? Convert.ToString(sql) : string.Empty;
     }
 
     /// <summary>

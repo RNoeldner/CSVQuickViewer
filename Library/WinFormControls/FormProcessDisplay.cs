@@ -11,9 +11,8 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+#nullable enable
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Text;
 using System.Threading;
@@ -26,11 +25,11 @@ namespace CsvTools
   /// </summary>
   public sealed class FormProcessDisplay : ResizeForm, IProcessDisplayTime
   {
-    private readonly LoggerDisplay m_LoggerDisplay;
+    private readonly LoggerDisplay? m_LoggerDisplay;
     private readonly ProcessDisplayTime m_ProcessDisplay;
-    private Label m_LabelEtl;
-    private Label m_LabelText;
-    private ProgressBar m_ProgressBar;
+    private Label? m_LabelEtl;
+    private Label? m_LabelText;
+    private ProgressBar m_ProgressBar = new ProgressBar();
     private TableLayoutPanel m_TableLayoutPanel;
     private string m_Title;
 
@@ -56,12 +55,12 @@ namespace CsvTools
 
       Maximum = 0;
       SuspendLayout();
-      m_TableLayoutPanel.SuspendLayout();
+      m_TableLayoutPanel!.SuspendLayout();
       if (withLoggerDisplay)
       {
         Height += 100;
 
-        m_LoggerDisplay = new LoggerDisplay { MinLevel = Logger.Level.Debug, Dock = DockStyle.Fill, Multiline = true, TabIndex = 8 };
+        m_LoggerDisplay = new LoggerDisplay { Dock = DockStyle.Fill, Multiline = true, TabIndex = 8 };
         m_TableLayoutPanel.Controls.Add(m_LoggerDisplay, 0, 3);
         m_LoggerDisplay.Dock = DockStyle.Fill;
       }
@@ -99,19 +98,19 @@ namespace CsvTools
 
     public TimeToCompletion TimeToCompletion => m_ProcessDisplay.TimeToCompletion;
 
-    public event EventHandler<ProgressEventArgsTime> ProgressTime
+    public event EventHandler<ProgressEventArgsTime>? ProgressTime
     {
       add => m_ProcessDisplay.ProgressTime += value;
       remove => m_ProcessDisplay.ProgressTime -= value;
     }
 
-    public event EventHandler<long> SetMaximum
+    public event EventHandler<long>? SetMaximum
     {
       add => m_ProcessDisplay.SetMaximum += value;
       remove => m_ProcessDisplay.SetMaximum -= value;
     }
 
-    public event EventHandler<ProgressEventArgs> Progress
+    public event EventHandler<ProgressEventArgs>? Progress
     {
       add => m_ProcessDisplay.Progress += value;
       remove => m_ProcessDisplay.Progress -= value;
@@ -148,7 +147,7 @@ namespace CsvTools
           m_ProgressBar.SafeInvoke(() =>
           {
             m_ProgressBar.Maximum = 0;
-            m_LabelEtl.Text = string.Empty;
+            m_LabelEtl!.Text = string.Empty;
             m_ProgressBar.Style = ProgressBarStyle.Marquee;
           });
         }
@@ -183,16 +182,16 @@ namespace CsvTools
       m_ProcessDisplay.SetProcess(text, value, log);
 
       // This might cause an issue
-      m_LabelText.SafeInvoke(
+      m_LabelText!.SafeInvoke(
         () =>
         {
           if (!Visible)
             Show();
-          m_LabelText.Text = text;
+          m_LabelText!.Text = text;
 
           if (value <= 0 || Maximum <= 1)
           {
-            m_LabelEtl.Text = string.Empty;
+            m_LabelEtl!.Text = string.Empty;
             m_ProgressBar.Style = ProgressBarStyle.Marquee;
           }
           else
@@ -211,7 +210,7 @@ namespace CsvTools
               sb.Append(t1);
             }
 
-            m_LabelEtl.Text = sb.ToString();
+            m_LabelEtl!.Text = sb.ToString();
           }
 
           m_LabelEtl.Refresh();
@@ -224,7 +223,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    public void SetProcess(object sender, ProgressEventArgs e) => m_ProcessDisplay.SetProcess(sender, e);
+    public void SetProcess(object? sender, ProgressEventArgs? e) => m_ProcessDisplay.SetProcess(sender, e);
 
     public new void Close()
     {
