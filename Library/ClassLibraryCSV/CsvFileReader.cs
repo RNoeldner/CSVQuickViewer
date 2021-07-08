@@ -143,7 +143,7 @@ namespace CsvTools
                          bool warnLineFeed = false, bool warnNbsp = true, bool warnQuotes = true, bool warnUnknownCharacter = true,
                          bool warnEmptyTailingColumns = true,
                          bool treatNbspAsSpace = false,
-                         string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool skipEmptyLines = true,
+                         string treatTextAsNull = "NULL", bool skipEmptyLines = true,
                          int consecutiveEmptyRowsMax = 4, IProcessDisplay? processDisplay = null)
       : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
         trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
@@ -173,7 +173,7 @@ namespace CsvTools
                          bool warnLineFeed = false, bool warnNbsp = true, bool warnQuotes = true, bool warnUnknownCharacter = true,
                          bool warnEmptyTailingColumns = true,
                          bool treatNbspAsSpace = false,
-                         string treatTextAsNull = BaseSettings.cTreatTextAsNull, bool skipEmptyLines = true,
+                         string treatTextAsNull = "NULL", bool skipEmptyLines = true,
                          int consecutiveEmptyRowsMax = 4, string identifierInContainer = "", IProcessDisplay? processDisplay = null)
       : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
         trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,

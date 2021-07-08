@@ -33,8 +33,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Value between 0 and 100 to show the progress of the reader, not all readers do support
-    ///   this, readers based on streams usually return the relative position in that stream. In
-    ///   case a <see cref="Rec" />
+    ///   this, readers based on streams usually return the relative position in that stream. 
     /// </summary>
     int Percent { get; }
 
@@ -104,7 +103,7 @@ namespace CsvTools
     ///   Event to be raised once the reader is finished reading the file
     /// </summary>
     event EventHandler ReadFinished;
-
+#if !QUICK
     /// <summary>
     ///   Event to be raised once the reader opened, the column information is now known
     /// </summary>
@@ -115,7 +114,7 @@ namespace CsvTools
     ///   needed file etc.
     /// </summary>
     event EventHandler<RetryEventArgs> OnAskRetry;
-
+#endif
     /// <summary>
     ///   Gets the column information for a given column number
     /// </summary>

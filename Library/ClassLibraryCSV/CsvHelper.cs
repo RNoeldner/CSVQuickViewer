@@ -68,6 +68,7 @@ namespace CsvTools
       Logger.Information("Examining file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName2!, 40));
       Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
 
+#if !QUICK
       // load from Setting file
       if (fileName2!.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase) ||
           FileSystemUtils.FileExists(fileName2 + CsvFile.cCsvSettingExtension))
@@ -79,27 +80,33 @@ namespace CsvTools
         var fileSettingSer = SerializedFilesLib.LoadCsvFile(fileNameSetting);
         Logger.Information("Configuration read from setting file {filename}", FileSystemUtils.GetShortDisplayFileName(fileNameSetting, 40));
 
+        var columnCollection = new ColumnCollection();
+
         // un-ignore all ignored columns
         foreach (var col in fileSettingSer.ColumnCollection.Where(x => x.Ignore))
-          col.Ignore = false;
+        {
+          columnCollection.Add(new ImmutableColumn(col.Name, col.ValueFormat, col.ColumnOrdinal, col.Convert,
+            col.DestinationName, false, col.Part, col.PartSplitter, col.PartToEnd, col.TimePart, col.TimePartFormat,
+            col.TimeZonePart));
+        }
 
         return new DelimitedFileDetectionResultWithColumns(fileNameFile, fileSettingSer.SkipRows,
           fileSettingSer.CodePageId, fileSettingSer.ByteOrderMark, fileSettingSer.FileFormat.QualifyAlways,
           fileSettingSer.IdentifierInContainer, fileSettingSer.FileFormat.CommentLine,
           fileSettingSer.FileFormat.EscapeCharacter, fileSettingSer.FileFormat.FieldDelimiter,
           fileSettingSer.FileFormat.FieldQualifier, fileSettingSer.HasFieldHeader, fileSettingSer.JsonFormat,
-          fileSettingSer.NoDelimitedFile, fileSettingSer.FileFormat.NewLine, fileSettingSer.ColumnCollection,
+          fileSettingSer.NoDelimitedFile, fileSettingSer.FileFormat.NewLine, columnCollection,
           (fileSettingSer is BaseSettingPhysicalFile bas) ? bas.ColumnFile : string.Empty);
       }
-
-      var setting = await ManifestData.ReadManifestZip(fileName2);
+#endif
+      var setting = await ManifestData.ReadManifestZip(fileName2!);
       if (setting != null)
       {
         Logger.Information("Data in zip {filename}", setting.IdentifierInContainer);
         return setting;
       }
 
-      var settingFs = await ManifestData.ReadManifestFileSystem(fileName2);
+      var settingFs = await ManifestData.ReadManifestFileSystem(fileName2!);
       if (settingFs != null)
       {
         Logger.Information("Data in {filename}", settingFs.FileName);
@@ -107,7 +114,7 @@ namespace CsvTools
       }
 
       // Determine from file
-      var detectionResult = await GetDetectionResultFromFile(fileName2, processDisplay,
+      var detectionResult = await GetDetectionResultFromFile(fileName2!, processDisplay,
         guessJson,
         guessCodePage,
         guessDelimiter,
@@ -118,14 +125,34 @@ namespace CsvTools
         guessCommentLine);
 
       processDisplay.SetProcess("Determining column format by reading samples", -1, true);
-      var csv = detectionResult.CsvFile();
-      await csv.FillGuessColumnFormatReaderAsync(
-        true,
-        false,
-        fillGuessSettings,
-        processDisplay.CancellationToken);
 
-      return new DelimitedFileDetectionResultWithColumns(detectionResult, csv.ColumnCollection, string.Empty);
+      using IFileReader reader = GetReaderFromDetectionResult(fileName2!, detectionResult, processDisplay);
+      await reader.OpenAsync(processDisplay.CancellationToken);
+      var (_, b)= await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings, null, false, true,
+        "NULL", processDisplay.CancellationToken);
+
+      return new DelimitedFileDetectionResultWithColumns(detectionResult, b);
+    }
+
+    private static IFileReader GetReaderFromDetectionResult(string fileName, DelimitedFileDetectionResult detectionResult, IProcessDisplay processDisplay)
+    {
+      if (detectionResult.IsJson)
+        return new JsonFileReader(fileName: fileName, columnDefinition: null, recordLimit: 1000, processDisplay: processDisplay);
+      return new CsvFileReader(fileName: fileName, codePageId: detectionResult.CodePageId,
+        skipRows: (!detectionResult.HasFieldHeader && detectionResult.SkipRows == 0) ? 1 : detectionResult.SkipRows,
+        hasFieldHeader: detectionResult.HasFieldHeader, columnDefinition: null,
+        trimmingOption: TrimmingOption.Unquoted, fieldDelimiter: detectionResult.FieldDelimiter,
+        fieldQualifier: detectionResult.FieldQualifier,
+        escapeCharacter: detectionResult.EscapeCharacter, recordLimit: 0L, allowRowCombining: false,
+        alternateQuoting: false, commentLine: detectionResult.CommentLine, numWarning: 0,
+        duplicateQuotingToEscape: true, newLinePlaceholder: "", delimiterPlaceholder: "", quotePlaceholder: "",
+        skipDuplicateHeader: true, treatLfAsSpace: false, treatUnknownCharacterAsSpace: false,
+        tryToSolveMoreColumns: false,
+        warnDelimiterInValue: false, warnLineFeed: false, warnNbsp: false, warnQuotes: false,
+        warnUnknownCharacter: false, warnEmptyTailingColumns: true, treatNbspAsSpace: false,
+        treatTextAsNull: "NULL", skipEmptyLines: true, consecutiveEmptyRowsMax: 4, identifierInContainer: "",
+        processDisplay: processDisplay);
+
     }
 
     /// <summary>
@@ -688,7 +715,7 @@ namespace CsvTools
       if (textReader == null) throw new ArgumentNullException(nameof(textReader));
       const int c_MaxRows = 50;
       int lastRow = 0;
-      Dictionary<string, int> starts = new[] {"##", "//", "\\\\", "''", "#", "/", "\\", "'"}.ToDictionary(test => test, test => 0);
+      Dictionary<string, int> starts = new[] { "##", "//", "\\\\", "''", "#", "/", "\\", "'" }.ToDictionary(test => test, test => 0);
 
       textReader.ToBeginning();
       // Count the number of rows that start with teh checked comment chars

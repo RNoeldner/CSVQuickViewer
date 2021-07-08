@@ -37,18 +37,18 @@ namespace CsvTools.Tests
           FileFormat = { FieldDelimiter = ",", CommentLine = "#" }
         };
 
-      m_ReadFile.ColumnCollection.AddIfNew(new Column("ExamDate",
+      m_ReadFile.ColumnCollection.Add(new Column("ExamDate",
         new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = @"dd/MM/yyyy" }));
-      m_ReadFile.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
-      m_ReadFile.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
-      m_ReadFile.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
+      m_ReadFile.ColumnCollection.Add(new Column("Score", DataType.Integer));
+      m_ReadFile.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
+      m_ReadFile.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
 
       UnitTestInitializeCsv.MimicSQLReader.AddSetting(m_ReadFile);
 
       m_WriteFile = new CsvFile { ID = "Write", SqlStatement = m_ReadFile.ID };
 
-      m_WriteFile.ColumnCollection.AddIfNew(new Column("ExamDate", @"MM/dd/yyyy") { TimePart = "ExamTime" });
-      m_WriteFile.ColumnCollection.AddIfNew(new Column { Name = "Proficiency", Ignore = true });
+      m_WriteFile.ColumnCollection.Add(new Column("ExamDate", @"MM/dd/yyyy") { TimePart = "ExamTime" });
+      m_WriteFile.ColumnCollection.Add(new Column { Name = "Proficiency", Ignore = true });
     }
 
     [TestMethod]
@@ -66,7 +66,7 @@ namespace CsvTools.Tests
       UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting);
       writeFile.SqlStatement = setting.ID;
       writeFile.FileFormat.FieldDelimiter = "|";
-      writeFile.ColumnCollection.AddIfNew(
+      writeFile.ColumnCollection.Add(
         new Column("DateTime", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "yyyyMMdd" })
         {
           TimePartFormat = @"hh:mm",
@@ -119,7 +119,7 @@ namespace CsvTools.Tests
         TimeZonePart = "\"UTC\""
       };
       cf.ValueFormatMutable.DateFormat = "yyyyMMdd";
-      writeFile.ColumnCollection.AddIfNew(cf);
+      writeFile.ColumnCollection.Add(cf);
       var writer = new CsvFileWriter(writeFile);
 
       var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);

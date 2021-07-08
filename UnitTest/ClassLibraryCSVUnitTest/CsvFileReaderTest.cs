@@ -35,8 +35,8 @@ namespace CsvTools.Tests
           HasFieldHeader = true,
           FileFormat = new FileFormat { FieldDelimiter = "Tab" }
         };
-      setting.ColumnCollection.AddIfNew(new Column("DateTime", DataType.DateTime));
-      setting.ColumnCollection.AddIfNew(new Column("Integer", DataType.Integer));
+      setting.ColumnCollection.Add(new Column("DateTime", DataType.DateTime));
+      setting.ColumnCollection.Add(new Column("Integer", DataType.Integer));
       using (var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, dpd))
       {
@@ -221,7 +221,7 @@ namespace CsvTools.Tests
         ByteOrderMark = true,
         FileFormat = { FieldDelimiter = "\t" }
       };
-      setting.ColumnCollection.AddIfNew(new Column("Start Date", "MM/dd/yyyy") { TimePart = "Start Time", TimePartFormat = "HH:mm:ss" });
+      setting.ColumnCollection.Add(new Column("Start Date", "MM/dd/yyyy") { TimePart = "Start Time", TimePartFormat = "HH:mm:ss" });
 
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay))
@@ -249,7 +249,7 @@ namespace CsvTools.Tests
         ByteOrderMark = true,
         FileFormat = { FieldDelimiter = "\t" }
       };
-      setting.ColumnCollection.AddIfNew(new Column("Start Date", "MM/dd/yyyy")
+      setting.ColumnCollection.Add(new Column("Start Date", "MM/dd/yyyy")
       {
         TimePart = "Start Time",
         TimePartFormat = "HH:mm:ss",
@@ -1303,9 +1303,9 @@ Line "Test"", "22",23,"  24"
     public async Task GetValue()
     {
       var setting = new CsvFile { HasFieldHeader = true, FileFormat = { FieldDelimiter = "," }, FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt") };
-      setting.ColumnCollection.AddIfNew(new Column("ExamDate", @"dd/MM/yyyy"));
-      setting.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer));
-      setting.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean));
+      setting.ColumnCollection.Add(new Column("ExamDate", @"dd/MM/yyyy"));
+      setting.ColumnCollection.Add(new Column("ID", DataType.Integer));
+      setting.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean));
 
       using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       using (var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay))

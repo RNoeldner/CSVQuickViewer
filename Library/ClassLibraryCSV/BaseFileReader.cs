@@ -103,7 +103,7 @@ namespace CsvTools
         }
       }
     }
-
+#if !QUICK
     /// <summary>
     ///   Occurs when something went wrong during opening of the setting, this might be the file
     ///   does not exist or a query ran into a timeout
@@ -111,7 +111,7 @@ namespace CsvTools
     public event EventHandler<RetryEventArgs>? OnAskRetry;
 
     public event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
-
+#endif
     /// <summary>
     ///   Event to be raised if reading the files is completed
     /// </summary>
@@ -844,8 +844,9 @@ namespace CsvTools
     {
       m_IsFinished = false;
       EndOfFile = false;
-
+#if !QUICK
       OpenFinished?.Invoke(this, Column);
+#endif
       SetMaxProcess?.Invoke(this, c_MaxValue);
     }
 
@@ -1155,11 +1156,15 @@ namespace CsvTools
 
     protected bool ShouldRetry(Exception ex, CancellationToken token)
     {
+#if !QUICK
       if (token.IsCancellationRequested) return false;
 
       var eventArgs = new RetryEventArgs(ex) { Retry = false };
       OnAskRetry?.Invoke(this, eventArgs);
       return eventArgs.Retry;
+#else
+      return false;
+#endif
     }
 
     /// <summary>

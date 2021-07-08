@@ -1,5 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Globalization;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace CsvTools.Tests
 {
@@ -7,25 +10,23 @@ namespace CsvTools.Tests
   public class ColumnCollectionTest
   {
     [TestMethod]
-    public void AddIfNew()
+    public void Add()
     {
       var test = new ColumnCollection();
       Assert.AreEqual(0, test.Count);
       var item1 = new Column("Test");
-      test.AddIfNew(item1);
+      test.Add(item1);
       Assert.AreEqual(1, test.Count);
-      var item2 = new Column("Test");
-      test.AddIfNew(item2);
+      var item2 = new ImmutableColumn("Test", new ImmutableValueFormat(),0);
+      test.Add(item2);
       Assert.AreEqual(1, test.Count);
-      Assert.AreEqual(item1, item2);
-
-      test.AddIfNew(new Column());
+      test.Add(new Column());
 
       var exception = false;
       try
       {
         // ReSharper disable once AssignNullToNotNullAttribute
-        test.AddIfNew(null);
+        test.Add(null);
       }
       catch (ArgumentException)
       {
@@ -40,14 +41,49 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void TestOrder()
+    {
+      var test = new ColumnCollection(new[] {new ImmutableColumn("ColA", new ImmutableValueFormat(), 1),
+        new ImmutableColumn("ColB", new ImmutableValueFormat(), 2),
+        new ImmutableColumn("ColC", new ImmutableValueFormat(), 3)});
+      Assert.AreEqual(3, test.Count);
+
+      int oldColOrd = 0;
+      foreach (var col in test)
+      {
+        Assert.IsTrue(col.ColumnOrdinal>oldColOrd);
+        oldColOrd = col.ColumnOrdinal;
+      }
+    }
+
+    [TestMethod]
+    public void Replace()
+    {
+      var test = new ColumnCollection(new[] {new ImmutableColumn("ColA", new ImmutableValueFormat(), 1),
+                                                   new ImmutableColumn("ColB", new ImmutableValueFormat(), 2),
+                                                   new ImmutableColumn("ColC", new ImmutableValueFormat(), 3)});
+      var colBnew = new ImmutableColumn("ColB", new ImmutableValueFormat(DataType.Boolean), 2);
+      test.Replace(colBnew);
+      var colB = test.Get("ColB");
+      Assert.AreEqual(3, test.Count);
+      Assert.AreEqual(colB, (IColumn) colBnew);
+      int oldColOrd = 0;
+      foreach (var col in test)
+      {
+        Assert.IsTrue(col.ColumnOrdinal>oldColOrd);
+        oldColOrd = col.ColumnOrdinal;
+      }
+    }
+
+    [TestMethod]
     public void Get()
     {
       var test = new ColumnCollection();
       var item1 = new Column("Test");
-      test.AddIfNew(item1);
+      test.Add(item1);
       Assert.AreEqual(1, test.Count);
       var item2 = new Column("Test2");
-      test.AddIfNew(item2);
+      test.Add(item2);
       Assert.AreEqual(item1, test.Get("Test"));
       Assert.AreEqual(item1, test.Get("TEST"));
       Assert.AreEqual(item2, test.Get("tEst2"));
@@ -57,12 +93,38 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void Serialize()
+    {
+      var test1 = new ColumnCollection();
+      test1.Add(new Column("Test1", DataType.Boolean));
+      test1.Add(new Column("Test2", DataType.Guid));
+      test1.Add(new Column("Test3", DataType.TextPart));
+      string contend;
+      var serializer = new XmlSerializer(typeof(ColumnCollection));
+      using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
+      {
+        serializer.Serialize(stringWriter, test1, SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
+        contend = stringWriter.ToString();
+      }
+      Assert.IsFalse(string.IsNullOrEmpty(contend));
+      using (TextReader reader = new StringReader(contend))
+      {
+        var result = (ColumnCollection) serializer.Deserialize(reader);
+        Assert.AreEqual(3, result.Count);
+        Assert.AreEqual(0, result.GetIndex("Test1"));
+        Assert.AreEqual(1, result.GetIndex("Test2"));
+        Assert.AreEqual(2, result.GetIndex("Test3"));
+      }
+
+    }
+
+    [TestMethod]
     public void Clone()
     {
       var test1 = new ColumnCollection();
-      test1.AddIfNew(new Column("Test1"));
-      test1.AddIfNew(new Column("Test2"));
-      test1.AddIfNew(new Column("Test3"));
+      test1.Add(new Column("Test1"));
+      test1.Add(new Column("Test2"));
+      test1.Add(new Column("Test3"));
 
       var test2 = test1.Clone();
 
@@ -73,9 +135,9 @@ namespace CsvTools.Tests
     public void CopyTo()
     {
       var test1 = new ColumnCollection();
-      test1.AddIfNew(new Column("Test1"));
-      test1.AddIfNew(new Column("Test2"));
-      test1.AddIfNew(new Column("Test3"));
+      test1.Add(new Column("Test1"));
+      test1.Add(new Column("Test2"));
+      test1.Add(new Column("Test3"));
       var test2 = new ColumnCollection();
       test1.CopyTo(test2);
 

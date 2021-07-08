@@ -935,7 +935,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="colIndex">The column index.</param>
     /// <returns></returns>
-    private Column? GetColumnFormat(int colIndex)
+    private IColumn? GetColumnFormat(int colIndex)
     {
       if (m_FileSetting == null || colIndex < 0 || colIndex > m_FileSetting.ColumnCollection.Count)
         return null;
@@ -1198,7 +1198,10 @@ namespace CsvTools
         using var form = new FormColumnUI(columnFormat, false, m_FileSetting, FillGuessSettings, false, HTMLStyle);
         var result = form.ShowDialog(this);
         if (result == DialogResult.OK || result == DialogResult.Yes)
+        {
+          m_FileSetting.ColumnCollection.Replace(form.EditedColumn);
           Refresh();
+        }
       }
     }
 

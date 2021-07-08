@@ -33,6 +33,7 @@ namespace CsvTools
 
   public static class ClassLibraryCsvExtensionMethods
   {
+#if !QUICK
     public static async Task<long> WriteAsync(this IFileWriter writer, string sqlStatement,
                                               int timeout, Action<string>? reportProgress, CancellationToken cancellationToken)
     {
@@ -45,7 +46,7 @@ namespace CsvTools
       await sqlReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       return await writer.WriteAsync(sqlReader, cancellationToken).ConfigureAwait(false);
     }
-
+#endif
     public static string Description(this RecordDelimiterType item)
     {
       var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));

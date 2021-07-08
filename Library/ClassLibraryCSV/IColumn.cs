@@ -13,10 +13,12 @@
 // */
 
 
+using System;
 
 namespace CsvTools
 {
-  public interface IColumn
+
+  public interface IColumn : ICloneable<IColumn>, IEquatable<IColumn>
   {
     int ColumnOrdinal { get; }
     bool Convert { get; }

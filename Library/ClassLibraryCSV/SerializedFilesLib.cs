@@ -73,8 +73,8 @@ namespace CsvTools
       saveSetting.ColumnCollection.Clear();
       foreach (var col in fileSettingPhysicalFile.ColumnCollection)
       {
-        if (col.Ignore || col.DataType== DataType.String && col.Convert || col.DataType!= DataType.String)
-          saveSetting.ColumnCollection.AddIfNew(col);
+        if (col.Ignore || col.ValueFormat.DataType== DataType.String && col.Convert || col.ValueFormat.DataType!= DataType.String)
+          saveSetting.ColumnCollection.Add(col);
       }
 
       Logger.Debug("Saving setting {path}", fileName);

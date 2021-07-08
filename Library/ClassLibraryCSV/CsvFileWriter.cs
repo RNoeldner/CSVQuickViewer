@@ -63,16 +63,18 @@ namespace CsvTools
       }
     }
 
+#if !QUICK
     /// <summary>
     ///   Initializes a new instance of the <see cref="CsvFileWriter" /> class.
     /// </summary>
     /// <param name="fileSetting">The file.</param>
     public CsvFileWriter(ICsvFile fileSetting)
       : this(fileSetting.ID, fileSetting.FullPath, fileSetting.HasFieldHeader, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, fileSetting.CodePageId,
-        fileSetting.ByteOrderMark, fileSetting.ColumnCollection.ReadonlyCopy(), fileSetting.Recipient, fileSetting.KeepUnencrypted, fileSetting.IdentifierInContainer,
+        fileSetting.ByteOrderMark, fileSetting.ColumnCollection, fileSetting.Recipient, fileSetting.KeepUnencrypted, fileSetting.IdentifierInContainer,
         fileSetting.Header, fileSetting.Footer)
     {
     }
+#endif
 
     /// <summary>
     ///   Writes the specified file reading from the given reader

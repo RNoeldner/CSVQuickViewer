@@ -29,6 +29,39 @@ namespace CsvTools
     public const string cTimeSeparatorDefault = ":";
     public const string cTrueDefault = "True";
 
+
+    public static bool Equals(this IValueFormat one, IValueFormat? other)
+    {
+      if (other is null)
+        return false;
+      if (ReferenceEquals(one, other))
+        return true;
+
+      if (other.DataType != one.DataType || !other.DisplayNullAs.Equals(one.DisplayNullAs, StringComparison.Ordinal))
+        return false;
+
+      return one.DataType switch
+      {
+        DataType.Integer => string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal),
+        DataType.Numeric => other.GroupSeparator == one.GroupSeparator && other.DecimalSeparator == one.DecimalSeparator &&
+                            string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal),
+        DataType.Double => other.GroupSeparator == one.GroupSeparator && other.DecimalSeparator == one.DecimalSeparator &&
+                           string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal),
+        DataType.DateTime => string.Equals(other.DateFormat, one.DateFormat, StringComparison.Ordinal) &&
+                             string.Equals(other.DateSeparator, one.DateSeparator, StringComparison.Ordinal) &&
+                             string.Equals(other.TimeSeparator, one.TimeSeparator, StringComparison.Ordinal),
+        DataType.Boolean => string.Equals(other.False, one.False, StringComparison.OrdinalIgnoreCase) &&
+                            string.Equals(other.True, one.True, StringComparison.OrdinalIgnoreCase),
+        _ => string.Equals(other.DateFormat, one.DateFormat, StringComparison.Ordinal) &&
+             string.Equals(other.DateSeparator, one.DateSeparator, StringComparison.Ordinal) &&
+             string.Equals(other.TimeSeparator, one.TimeSeparator, StringComparison.Ordinal) &&
+             string.Equals(other.False, one.False, StringComparison.OrdinalIgnoreCase) &&
+             string.Equals(other.True, one.True, StringComparison.OrdinalIgnoreCase) &&
+             other.GroupSeparator == one.GroupSeparator && other.DecimalSeparator == one.DecimalSeparator &&
+             string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal)
+      };
+    }
+
     /// <summary>
     ///   Determines whether the specified expected column is matching this column.
     /// </summary>
@@ -82,29 +115,21 @@ namespace CsvTools
     ///   Gets the a description of the Date or Number format
     /// </summary>
     /// <returns></returns>
-    public static string GetFormatDescription(this IValueFormat one)
-    {
-      switch (one.DataType)
+    public static string GetFormatDescription(this IValueFormat one) =>
+      one.DataType switch
       {
-        case DataType.Integer:
-          return one.NumberFormat.Replace(CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
-            one.GroupSeparator);
-
-        case DataType.DateTime:
-          return one.DateFormat.ReplaceDefaults(CultureInfo.InvariantCulture.DateTimeFormat.DateSeparator,
-            one.DateSeparator,
-            CultureInfo.InvariantCulture.DateTimeFormat.TimeSeparator, one.TimeSeparator);
-
-        case DataType.Numeric:
-        case DataType.Double:
-          return one.NumberFormat.ReplaceDefaults(CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
-            one.DecimalSeparator,
-            CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, one.GroupSeparator);
-
-        default:
-          return string.Empty;
-      }
-    }
+        DataType.Integer => one.NumberFormat.Replace(CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
+          one.GroupSeparator),
+        DataType.DateTime => one.DateFormat.ReplaceDefaults(CultureInfo.InvariantCulture.DateTimeFormat.DateSeparator,
+          one.DateSeparator, CultureInfo.InvariantCulture.DateTimeFormat.TimeSeparator, one.TimeSeparator),
+        DataType.Numeric => one.NumberFormat.ReplaceDefaults(
+          CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, one.DecimalSeparator,
+          CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, one.GroupSeparator),
+        DataType.Double => one.NumberFormat.ReplaceDefaults(
+          CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, one.DecimalSeparator,
+          CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, one.GroupSeparator),
+        _ => string.Empty
+      };
 
     /// <summary>
     ///   Gets the description.

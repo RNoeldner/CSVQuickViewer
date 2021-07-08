@@ -1,0 +1,95 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>CsvTools</RootNamespace>
+    <ProductName>CsvTools</ProductName>
+    <OutputType>Library</OutputType>
+    <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
+    <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>
+    <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsWindows)'=='true'">
+    <DefineConstants>QUICK</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsOSX)'=='true'">
+    <DefineConstants>OSX</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsLinux)'=='true'">
+    <DefineConstants>Linux</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <DefineConstants>TRACE;QUICK</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\ClassLibraryCSV\BaseFileReader.cs" Link="BaseFileReader.cs" />
+    <Compile Include="..\ClassLibraryCSV\BaseFileReaderTyped.cs" Link="BaseFileReaderTyped.cs" />
+    <Compile Include="..\ClassLibraryCSV\BaseFileWriter.cs" Link="BaseFileWriter.cs" />
+    <Compile Include="..\ClassLibraryCSV\ClassLibraryCsvExtensionMethods.cs" Link="ClassLibraryCsvExtensionMethods.cs" />
+    <Compile Include="..\ClassLibraryCSV\ColumnExtension.cs" Link="ColumnExtension.cs" />
+    <Compile Include="..\ClassLibraryCSV\CsvFileReader.cs" Link="CsvFileReader.cs" />
+    <Compile Include="..\ClassLibraryCSV\JsonFileReader.cs" Link="JsonFileReader.cs" />
+    <Compile Include="..\ClassLibraryCSV\CsvFileWriter.cs" Link="CsvFileWriter.cs" />
+    <Compile Include="..\ClassLibraryCSV\CsvHelper.cs" Link="CsvHelper.cs" />
+    <Compile Include="..\ClassLibraryCSV\IProcessDisplay.cs" Link="IProcessDisplay.cs" />
+    <Compile Include="..\ClassLibraryCSV\IProcessDisplayTime.cs" Link="IProcessDisplayTime.cs" />
+    <Compile Include="..\ClassLibraryCSV\TrimmingOption.cs" Link="TrimmingOption.cs" />
+    <Compile Include="..\ClassLibraryCSV\ReAlignColumns.cs" Link="ReAlignColumns.cs" />
+    <Compile Include="..\ClassLibraryCSV\TimeToCompletion.cs" Link="TimeToCompletion.cs" />
+    <Compile Include="..\ClassLibraryCSV\ProgressEventArgs.cs" Link="ProgressEventArgs.cs" />
+    <Compile Include="..\ClassLibraryCSV\IImprovedStream.cs" Link="IImprovedStream.cs" />
+    <Compile Include="..\ClassLibraryCSV\Logger.cs" Link="Logger.cs" />
+    <Compile Include="..\ClassLibraryCSV\DataType.cs" Link="DataType.cs" />
+    <Compile Include="..\ClassLibraryCSV\IColumn.cs" Link="IColumn.cs" />
+    <Compile Include="..\ClassLibraryCSV\IValueFormat.cs" Link="IValueFormat.cs" />
+    <Compile Include="..\ClassLibraryCSV\FileSystemUtils.cs" Link="FileSystemUtils.cs" />
+    <Compile Include="..\ClassLibraryCSV\ImprovedTextReader.cs" Link="ImprovedTextReader.cs" />
+    <Compile Include="..\ClassLibraryCSV\ValueFormatExtension.cs" Link="ValueFormatExtension.cs" />
+    <Compile Include="..\ClassLibraryCSV\ColumnErrorDictionary.cs" Link="ColumnErrorDictionary.cs" />
+    <Compile Include="..\ClassLibraryCSV\Immutable\DelimitedFileDetectionResult.cs" Link="DelimitedFileDetectionResult.cs" />
+    <Compile Include="..\ClassLibraryCSV\Immutable\DelimitedFileDetectionResultWithColumns.cs" Link="DelimitedFileDetectionResultWithColumns.cs" />
+    <Compile Include="..\ClassLibraryCSV\ErrorInformation.cs" Link="ErrorInformation.cs" />
+    <Compile Include="..\ClassLibraryCSV\StringConversion.cs" Link="StringConversion.cs" />
+    <Compile Include="..\ClassLibraryCSV\DateTimeFormatCollection.cs" Link="DateTimeFormatCollection.cs" />
+    <Compile Include="..\ClassLibraryCSV\Immutable\DateTimeFormatInformation.cs" Link="DateTimeFormatInformation.cs" />
+    <Compile Include="..\ClassLibraryCSV\Immutable\DateTimeFormatLength.cs" Link="DateTimeFormatLength.cs" />
+    <Compile Include="..\ClassLibraryCSV\RecordDelimiterType.cs" Link="RecordDelimiterType.cs" />
+    <Compile Include="..\ClassLibraryCSV\Mutable\CheckResult.cs" Link="CheckResult.cs" />
+    <Compile Include="..\ClassLibraryCSV\Immutable\ImmutableValueFormat.cs" Link="ImmutableValueFormat.cs" />
+    <Compile Include="..\ClassLibraryCSV\FileReaderException.cs" Link="FileReaderException.cs" />
+    <Compile Include="..\ClassLibraryCSV\EncodingHelper.cs" Link="EncodingHelper.cs" />
+    <Compile Include="..\ClassLibraryCSV\FunctionalDI.cs" Link="FunctionalDI.cs" />
+    <Compile Include="..\ClassLibraryCSV\StringUtils.cs" Link="StringUtils.cs" />
+    <Compile Include="..\ClassLibraryCSV\SourceAccess.cs" Link="SourceAccess.cs" />
+    <Compile Include="..\ClassLibraryCSV\IFileReader.cs" Link="IFileReader.cs" />
+    <Compile Include="..\ClassLibraryCSV\IFileWriter.cs" Link="IFileWriter.cs" />
+    <Compile Include="..\ClassLibraryCSV\WarningEventArgs.cs" Link="WarningEventArgs.cs" />
+    <Compile Include="..\ClassLibraryCSV\ReaderConstants.cs" Link="ReaderConstants.cs" />
+    <Compile Include="..\ClassLibraryCSV\Mutable\FillGuessSettings.cs" Link="FillGuessSettings.cs" />
+    <Compile Include="..\ClassLibraryCSV\Mutable\DelimiterCounter.cs" Link="DelimiterCounter.cs" />
+    <Compile Include="..\ClassLibraryCSV\ImprovedStream.cs" Link="ImprovedStream.cs" />
+    <Compile Include="..\ClassLibraryCSV\Immutable\ImmutableColumn.cs" Link="ImmutableColumn.cs" />
+    <Compile Include="..\ClassLibraryCSV\FileWriterException.cs" Link="FileWriterException.cs" />
+    <Compile Include="..\ClassLibraryCSV\ImprovedTextReaderPositionStore.cs" Link="ImprovedTextReaderPositionStore.cs" />
+    <Compile Include="..\ClassLibraryCSV\ManifestData.cs" Link="ManifestData.cs" />
+    <Compile Include="..\ClassLibraryCSV\IFileFormat.cs" Link="IFileFormat.cs" />
+    <Compile Include="..\ClassLibraryCSV\EnumDescriptionConverter.cs" Link="EnumDescriptionConverter.cs" />
+    <Compile Include="..\ClassLibraryCSV\HTMLStyle.cs" Link="HTMLStyle.cs" />
+    <Compile Include="..\ClassLibraryCSV\BiDirectionalDictionary.cs" Link="BiDirectionalDictionary.cs" />
+    <Compile Include="..\ClassLibraryCSV\Immutable\ImmutableFileFormat.cs" Link="ImmutableFileFormat.cs" />
+    <Compile Include="..\ClassLibraryCSV\IntervalAction.cs" Link="IntervalAction.cs" />
+    <Compile Include="..\ClassLibraryCSV\ICloneable.cs" Link="ICloneable.cs" />
+    <Compile Include="..\ClassLibraryCSV\DetermineColumnFormat.cs" Link="DetermineColumnFormat.cs" />
+    <Compile Include="..\ClassLibraryCSV\Mutable\ColumnCollection.cs" Link="ColumnCollection.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="SharpZipLib" Version="1.2.0" />
+    <PackageReference Include="UTF.Unknown" Version="2.3.0" />
+  </ItemGroup>
+</Project>

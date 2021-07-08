@@ -13,7 +13,6 @@
  */
 
 using System;
-using System.Drawing;
 using System.Globalization;
 using System.Text;
 
@@ -47,7 +46,7 @@ namespace CsvTools
     /// <summary>
     /// Initializes a new instance of the <see cref="HTMLStyle"/> class.
     /// </summary>
-    public HTMLStyle() : this(c_Style, string.Empty, string.Empty)
+    public HTMLStyle() : this(c_Style)
     {
     }
 
@@ -55,11 +54,9 @@ namespace CsvTools
     /// Initializes a new instance of the <see cref="HTMLStyle"/> class.
     /// </summary>
     /// <param name="style">The style.</param>
-    public HTMLStyle(string style, string error, string errorWarning)
+    public HTMLStyle(string style)
     {
       Style = style;
-      Error = error;
-      ErrorWarning = errorWarning;
       BR = "<br>";
       H1 = "<h1>{0}</h1>";
       H2 = "<h2>{0}</h2>";
@@ -72,6 +69,8 @@ namespace CsvTools
       TRClose = "</tr>\r\n";
       TROpen = "<tr>\r\n";
       TROpenAlt = "<tr class='alt'>\r\n";
+      Error = "<span class='err'>{0}</span>";
+      ErrorWarning = "<span class='err'>{0}</span>";
       Warning = "<span class='war'>{0}</span>";
       ValueError = "{0}<br><span class='err'>{1}</span>";
       ValueErrorWarning = "{0}<br><span class='err'>{1}</span><br><span class='war'>{2}</span>";
@@ -383,11 +382,11 @@ namespace CsvTools
       return allowed;
     }
 
-    public static StringBuilder StartHTMLDoc(Color back, string style = c_Style)
+    public static StringBuilder StartHTMLDoc(string hexColor = "", string style = c_Style)
     {
       var text = new StringBuilder(500);
       text.AppendLine("<!DOCTYPE HTML public virtual \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
-      text.AppendLine($"<HTML style=\"background-color: #{back.R:X2}{back.G:X2}{back.B:X2}\">");
+      text.AppendLine(string.IsNullOrEmpty(hexColor) ? "<HTML>" : $"<HTML style=\"background-color: #{hexColor}\">");
       text.AppendLine("<HEAD>");
       text.AppendLine(style);
       text.AppendLine("</HEAD>");

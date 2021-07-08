@@ -35,6 +35,7 @@ namespace CsvTools
     public EnumDescriptionConverter(Type enumType)
       : base(enumType) => m_EnumType = enumType;
 
+
     /// <summary>
     ///   Determines whether this instance [can convert from] the specified context.
     /// </summary>

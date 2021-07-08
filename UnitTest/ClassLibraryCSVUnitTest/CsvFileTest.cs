@@ -236,7 +236,7 @@ namespace CsvTools.Tests
     public void FileFormatColumnFormatAddExisting()
     {
       var column = new Column("Name");
-      m_CsvFile.ColumnCollection.AddIfNew(column);
+      m_CsvFile.ColumnCollection.Add(column);
       Assert.AreEqual(2, m_CsvFile.ColumnCollection.Count);
     }
 
@@ -255,7 +255,7 @@ namespace CsvTools.Tests
     public void FileFormatColumnFormatAddNew()
     {
       var column = new Column("Name2");
-      m_CsvFile.ColumnCollection.AddIfNew(column);
+      m_CsvFile.ColumnCollection.Add(column);
       Assert.AreEqual(3, m_CsvFile.ColumnCollection.Count);
     }
 
@@ -324,13 +324,13 @@ namespace CsvTools.Tests
       Assert.AreEqual(2, m_CsvFile.MappingCollection.Count, "FieldMapping");
 
       m_CsvFile.ColumnCollection.Clear();
-      m_CsvFile.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer)
+      m_CsvFile.ColumnCollection.Add(new Column("ID", DataType.Integer)
       {
         ColumnOrdinal = 1,
         Ignore = false,
         Convert = true
       });
-      m_CsvFile.ColumnCollection.AddIfNew(new Column { ColumnOrdinal = 2, Name = "Name" });
+      m_CsvFile.ColumnCollection.Add(new Column { ColumnOrdinal = 2, Name = "Name" });
 
       m_CsvFile.WarnEmptyTailingColumns = false;
       Assert.IsFalse(m_CsvFile.WarnEmptyTailingColumns, "WarnEmptyTailingColumns");

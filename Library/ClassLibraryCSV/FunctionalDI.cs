@@ -40,53 +40,6 @@ namespace CsvTools
       (input, destTimeZone, columnOrdinal, handleWarning) =>
         ChangeTimeZone(input, TimeZoneInfo.Local.Id, destTimeZone, columnOrdinal, handleWarning);
 
-    /// <summary>
-    ///   Function to retrieve the column in a setting file
-    /// </summary>
-    public static Func<IFileSetting, CancellationToken, Task<ICollection<string>>>? GetColumnHeader;
-
-    /// <summary>
-    ///   Retrieve the passphrase for a files
-    /// </summary>
-    public static Func<string, string> GetEncryptedPassphraseForFile = s => string.Empty;
-
-    /// <summary>
-    ///   Retrieve the passphrase for a setting
-    /// </summary>
-    public static Func<IFileSettingPhysicalFile, string> GetEncryptedPassphrase = s => s.Passphrase;
-
-    /// <summary>
-    ///   Open a file for reading, it will take care of things like compression and encryption
-    /// </summary>
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<SourceAccess, IImprovedStream> OpenStream = fileAccess => new ImprovedStream(fileAccess);
-
-    /// <summary>
-    ///   Action to be performed while waiting on a background process, do something like handing
-    ///   message queues (WinForms =&gt; DoEvents) call a Dispatcher to take care of the UI or send
-    ///   signals that the application is not stale
-    /// </summary>
-    public static Action SignalBackground = () => { };
-
-    /// <summary>
-    ///   Return the right reader for a file setting
-    /// </summary>
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, string?, IProcessDisplay?, IFileReader> GetFileReader = DefaultFileReader;
-
-    /// <summary>
-    ///   Return a right writer for a file setting
-    /// </summary>
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSettingPhysicalFile, IProcessDisplay?, IFileWriter> GetFileWriter = DefaultFileWriter;
-
-    /// <summary>
-    ///   Gets or sets a data reader
-    /// </summary>
-    /// <value>The statement for reader the data.</value>
-    /// <remarks>Make sure the returned reader is open when needed</remarks>
-    public static Func<string, EventHandler<ProgressEventArgs>?, int, CancellationToken, Task<IFileReader>>
-      SQLDataReader = (sql, eh, limit, token) => throw new FileWriterException("SQL Reader not specified");
 
     private static DateTime ChangeTimeZone(DateTime input, string srcTimeZone,
       string destTimeZone, int columnOrdinal, Action<int, string>? handleWarning)
@@ -107,6 +60,61 @@ namespace CsvTools
         return new DateTime();
       }
     }
+
+    /// <summary>
+    ///   Open a file for reading, it will take care of things like compression and encryption
+    /// </summary>
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
+    public static Func<SourceAccess, IImprovedStream> OpenStream = fileAccess => new ImprovedStream(fileAccess);
+
+    /// <summary>
+    ///   Retrieve the passphrase for a files
+    /// </summary>
+    public static Func<string, string> GetEncryptedPassphraseForFile = s => string.Empty;
+
+#if !QUICK
+    /// <summary>
+    ///   Function to retrieve the column in a setting file
+    /// </summary>
+    public static Func<IFileSetting, CancellationToken, Task<ICollection<string>>>? GetColumnHeader;
+
+
+
+    /// <summary>
+    ///   Retrieve the passphrase for a setting
+    /// </summary>
+    public static Func<IFileSettingPhysicalFile, string> GetEncryptedPassphrase = s => s.Passphrase;
+
+
+
+      /// <summary>
+    ///   Return a right writer for a file setting
+    /// </summary>
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
+    public static Func<IFileSettingPhysicalFile, IProcessDisplay?, IFileWriter> GetFileWriter = DefaultFileWriter;
+
+    /// <summary>
+    ///   Return the right reader for a file setting
+    /// </summary>
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
+    public static Func<IFileSetting, string?, IProcessDisplay?, IFileReader> GetFileReader = DefaultFileReader;
+
+       /// <summary>
+    ///   Gets or sets a data reader
+    /// </summary>
+    /// <value>The statement for reader the data.</value>
+    /// <remarks>Make sure the returned reader is open when needed</remarks>
+    public static Func<string, EventHandler<ProgressEventArgs>?, int, CancellationToken, Task<IFileReader>>
+      SQLDataReader = (sql, eh, limit, token) => throw new FileWriterException("SQL Reader not specified");
+
+
+    /// <summary>
+    ///   Action to be performed while waiting on a background process, do something like handing
+    ///   message queues (WinForms =&gt; DoEvents) call a Dispatcher to take care of the UI or send
+    ///   signals that the application is not stale
+    /// </summary>
+    public static Action SignalBackground = () => { };
+
 
     private static IFileReader DefaultFileReader(IFileSetting setting, string? timeZone,
       IProcessDisplay? processDisplay)
@@ -154,5 +162,6 @@ namespace CsvTools
       };
       return writer;
     }
+#endif
   }
 }

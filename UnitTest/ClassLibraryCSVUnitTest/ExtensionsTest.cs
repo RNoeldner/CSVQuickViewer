@@ -316,7 +316,7 @@ namespace CsvTools.Tests
     public void CollectionCopy()
     {
       var col1 = new ColumnCollection();
-      var col2 = new List<Column>();
+      var col2 = new ColumnCollection();
       col1.CollectionCopy(col2);
       Assert.AreEqual(0, col2.Count);
 
@@ -325,7 +325,7 @@ namespace CsvTools.Tests
       col1.CollectionCopy(col2);
       Assert.AreEqual(0, col2.Count);
 
-      col1.AddIfNew(new Column { Name = "ID" });
+      col1.Add(new Column { Name = "ID" });
       col1.CollectionCopy(col2);
       Assert.AreEqual(1, col2.Count);
     }

@@ -255,7 +255,7 @@ namespace CsvTools
 
       return result;
     }
-
+#if !QUICK
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseFileWriter" /> class.
     /// </summary>
@@ -266,10 +266,10 @@ namespace CsvTools
     protected BaseFileWriter(IFileSettingPhysicalFile fileSetting, IProcessDisplay? processDisplay)
       : this(fileSetting.ID, fileSetting.FullPath, fileSetting.HasFieldHeader, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, recipient: fileSetting.Recipient,
         unencrypted: fileSetting.KeepUnencrypted, identifierInContainer: fileSetting.IdentifierInContainer, footer: fileSetting.Footer, header: fileSetting.Header,
-        columnDefinition: fileSetting.ColumnCollection.ReadonlyCopy(), fileSettingDisplay: Convert.ToString(fileSetting), processDisplay: processDisplay)
+        columnDefinition: fileSetting.ColumnCollection, fileSettingDisplay: Convert.ToString(fileSetting), processDisplay: processDisplay)
     {
     }
-
+#endif
     private long Records { get; set; }
 
     protected string Footer() =>

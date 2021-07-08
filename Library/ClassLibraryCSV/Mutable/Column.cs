@@ -23,7 +23,7 @@ namespace CsvTools
   /// </summary>
   [Serializable]
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-  public class Column : IColumn, INotifyPropertyChanged, IEquatable<Column>, ICloneable<Column>
+  public class Column : IColumn, INotifyPropertyChanged
 #pragma warning restore CS0659
   {
     /// <summary>
@@ -377,7 +377,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    
+
     public bool PartSplitterSpecified =>
       ValueFormatMutable.DataType == DataType.TextPart && !m_PartSplitter.Equals(ImmutableColumn.cPartSplitterDefault);
 
@@ -405,7 +405,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    
+
     public bool PartToEndSpecified => ValueFormatMutable.DataType == DataType.TextPart;
 
     /// <summary>
@@ -450,7 +450,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    
+
     public bool TimePartFormatSpecified => ValueFormatMutable.DataType == DataType.DateTime;
 
     /// <summary>
@@ -458,7 +458,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    
+
     public bool TimePartSpecified => ValueFormatMutable.DataType == DataType.DateTime;
 
     /// <summary>
@@ -478,7 +478,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    
+
     public bool TimeSeparatorSpecified => ValueFormatMutable.DataType == DataType.DateTime;
 
     /// <summary>
@@ -519,7 +519,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    
+
     public bool TrueSpecified => ValueFormatMutable.DataType == DataType.Boolean;
 
     /// <summary>
@@ -571,7 +571,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
     ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
-    public bool Equals(Column? other)
+    public bool Equals(IColumn? other)
     {
       if (other is null)
         return false;
@@ -579,7 +579,6 @@ namespace CsvTools
         return true;
 
       return ColumnOrdinal == other.ColumnOrdinal
-             && False == other.False && NumberFormat == other.NumberFormat && True == other.True   && DateFormat == other.DateFormat
              && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
              && string.Equals(DestinationName, other.DestinationName, StringComparison.OrdinalIgnoreCase)
              && Ignore == other.Ignore && Part == other.Part && PartSplitter == other.PartSplitter
@@ -587,7 +586,7 @@ namespace CsvTools
              && string.Equals(TimePart, other.TimePart, StringComparison.OrdinalIgnoreCase)
              && string.Equals(TimePartFormat, other.TimePartFormat, StringComparison.Ordinal)
              && string.Equals(TimeZonePart, other.TimeZonePart, StringComparison.OrdinalIgnoreCase)
-             && Convert == other.Convert && ValueFormatMutable.Equals(other.ValueFormatMutable);
+             && Convert == other.Convert && ValueFormatExtension.Equals(ValueFormatMutable, other.ValueFormat);
     }
 
     /// <summary>
@@ -598,7 +597,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
     ///   <see langword="false" />.
     /// </returns>
-    public override bool Equals(object? obj) => Equals(obj as Column);
+    public override bool Equals(object? obj) => Equals(obj as IColumn);
 
     /// <summary>
     ///   Notifies the property changed.
@@ -613,47 +612,6 @@ namespace CsvTools
     /// <returns>A <see cref="string" /> that represents this instance.</returns>
     public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
 
-    /*
-    /// <summary>
-    ///   Returns a hash code for this instance.
-    /// </summary>
-    /// <returns>
-    ///   A hash code for this instance, suitable for use in hashing algorithms and data structures
-    ///   like a hash table.
-    /// </returns>
-    public override int GetHashCode()
-    {
-      unchecked
-      {
-        var hashCode = m_ColumnOrdinal;
-        hashCode = (hashCode * 397) ^ m_Convert.GetHashCode();
-        hashCode = (hashCode * 397) ^ (int)m_DataType;
-        hashCode = (hashCode * 397) ^ (m_DateFormat != null ? m_DateFormat.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (m_DateSeparator != null ? m_DateSeparator.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (m_DecimalSeparator != null ? m_DecimalSeparator.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ m_DecimalSeparatorChar.GetHashCode();
-        hashCode = (hashCode * 397) ^ (m_DestinationName != null
-                     ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_DestinationName)
-                     : 0);
-        hashCode = (hashCode * 397) ^ (m_False != null ? m_False.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (m_GroupSeparator != null ? m_GroupSeparator.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ m_Ignore.GetHashCode();
-        hashCode = (hashCode * 397) ^ (m_Name != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_Name) : 0);
-        hashCode = (hashCode * 397) ^ (m_NumberFormat != null ? m_NumberFormat.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ m_Part;
-        hashCode = (hashCode * 397) ^ m_PartSplitter.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_PartToEnd.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_Size;
-        hashCode = (hashCode * 397) ^ (m_TimePart != null ? m_TimePart.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (m_TimePartFormat != null ? m_TimePartFormat.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (m_TimeSeparator != null ? m_TimeSeparator.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^
-                   (m_TimeZonePart != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(m_TimeZonePart) : 0);
-        hashCode = (hashCode * 397) ^ (m_True != null ? m_True.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ GroupSeparatorChar.GetHashCode();
-        return hashCode;
-      }
-    }
-    */
+    IColumn ICloneable<IColumn>.Clone() => new Column(this);
   }
 }

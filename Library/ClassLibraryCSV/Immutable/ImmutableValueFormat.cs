@@ -28,7 +28,7 @@ namespace CsvTools
       string displayNullAs = "")
     {
       if (!string.IsNullOrEmpty(decimalSeparator) && decimalSeparator.Equals(groupSeparator))
-        throw new FileReaderException("Decimal and Group Sperator must be different");
+        throw new FileReaderException("Decimal and Group separator must be different");
       DataType = dataType;
       DateFormat = dateFormat??throw new System.ArgumentNullException(nameof(dateFormat));
       DateSeparator = (dateSeparator??throw new System.ArgumentNullException(nameof(dateSeparator))).WrittenPunctuation();
@@ -70,5 +70,7 @@ namespace CsvTools
     public string False { get; }
 
     public string DisplayNullAs { get; }
+
+
   }
 }

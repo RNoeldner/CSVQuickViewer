@@ -42,7 +42,7 @@ namespace CsvTools.Tests
       {
         using (var tm = new TimedMessage())
         {
-          var stringBuilder = HTMLStyle.StartHTMLDoc(SystemColors.Control, "");
+          var stringBuilder = HTMLStyle.StartHTMLDoc($"{SystemColors.Control.R:X2}{SystemColors.Control.G:X2}{SystemColors.Control.B:X2}", "");
           stringBuilder.Append(string.Format(UnitTestInitializeWin.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample")));
           stringBuilder.Append(string.Format(UnitTestInitializeWin.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample2")));
 

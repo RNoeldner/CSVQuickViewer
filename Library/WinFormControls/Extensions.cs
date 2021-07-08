@@ -403,7 +403,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnFormat">The column format.</param>
     /// <param name="listView">The list view.</param>
-    public static void UpdateListViewColumnFormat(this ListView? listView, ICollection<Column> columnFormat)
+    public static void UpdateListViewColumnFormat(this ListView? listView, ICollection<IColumn> columnFormat)
     {
       if (listView == null || listView.IsDisposed)
         return;

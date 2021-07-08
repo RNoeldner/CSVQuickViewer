@@ -112,13 +112,13 @@ namespace CsvTools.Tests
       Assert.AreEqual(2, m_StructuredFile.MappingCollection.Count, "FieldMapping");
 
       m_StructuredFile.ColumnCollection.Clear();
-      m_StructuredFile.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer)
+      m_StructuredFile.ColumnCollection.Add(new Column("ID", DataType.Integer)
       {
         ColumnOrdinal = 1,
         Ignore = false,
         Convert = true
       });
-      m_StructuredFile.ColumnCollection.AddIfNew(new Column { ColumnOrdinal = 2, Name = "Name" });
+      m_StructuredFile.ColumnCollection.Add(new Column { ColumnOrdinal = 2, Name = "Name" });
     }
 
     [TestMethod]

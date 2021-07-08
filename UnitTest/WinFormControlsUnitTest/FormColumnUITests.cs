@@ -26,7 +26,7 @@ namespace CsvTools.Tests
     {
       var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
       var col = new Column("ExamDate", DataType.DateTime);
-      csvFile.ColumnCollection.AddIfNew(col);
+      csvFile.ColumnCollection.Add(col);
 
       using (var frm = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false, UnitTestInitializeWin.HTMLStyle))
       {
@@ -68,7 +68,7 @@ namespace CsvTools.Tests
     {
       var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
       var col = new Column("ExamDate", DataType.DateTime);
-      csvFile.ColumnCollection.AddIfNew(col);
+      csvFile.ColumnCollection.Add(col);
 
       using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestInitializeWin.HTMLStyle))
       {
@@ -82,7 +82,7 @@ namespace CsvTools.Tests
     {
       var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
       var col = new Column("ExamDate", DataType.DateTime);
-      csvFile.ColumnCollection.AddIfNew(col);
+      csvFile.ColumnCollection.Add(col);
       using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestInitializeWin.HTMLStyle))
       {
         await UnitTestWinFormHelper.ShowFormAndCloseAsync(form, .2, frm => frm.Guess());
@@ -107,7 +107,7 @@ namespace CsvTools.Tests
     {
       var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
       var col = new Column("ExamDate", DataType.DateTime);
-      csvFile.ColumnCollection.AddIfNew(col);
+      csvFile.ColumnCollection.Add(col);
 
       using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestInitializeWin.HTMLStyle))
       {
@@ -122,7 +122,7 @@ namespace CsvTools.Tests
     {
       var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
       var col = new Column("ID", DataType.Integer);
-      csvFile.ColumnCollection.AddIfNew(col);
+      csvFile.ColumnCollection.Add(col);
 
       using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false, UnitTestInitializeWin.HTMLStyle))
       {
@@ -147,7 +147,7 @@ namespace CsvTools.Tests
     {
       var csvFile = new CsvFile { ID = "Csv", FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt") };
       var col = new Column("Score", DataType.Double);
-      csvFile.ColumnCollection.AddIfNew(col);
+      csvFile.ColumnCollection.Add(col);
 
       using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestInitializeWin.HTMLStyle))
       {
@@ -161,11 +161,12 @@ namespace CsvTools.Tests
     {
       var csvFile = new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")) { ID = "Csv" };
 
-      csvFile.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer));
-      csvFile.ColumnCollection.AddIfNew(new Column("ExamDate", DataType.DateTime));
-      csvFile.ColumnCollection.AddIfNew(new Column("Score", DataType.Double));
+      csvFile.ColumnCollection.Add(new Column("ID", DataType.Integer));
+      var col = new Column("ExamDate", DataType.DateTime);
+      csvFile.ColumnCollection.Add(col);
+      csvFile.ColumnCollection.Add(new Column("Score", DataType.Double));
 
-      using (var form = new FormColumnUI(csvFile.ColumnCollection.Get("ExamDate"), false, csvFile,
+      using (var form = new FormColumnUI(col, false, csvFile,
         new FillGuessSettings(), true, UnitTestInitializeWin.HTMLStyle))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form);
