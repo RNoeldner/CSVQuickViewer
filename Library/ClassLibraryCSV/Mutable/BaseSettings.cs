@@ -186,18 +186,31 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the options for a column
+    ///   Workaround to serialize 
     /// </summary>
     /// <value>The column options</value>
-    [XmlElement("Format")]
+    [XmlElement]
+    public virtual Column[] Format
+    {
+      get
+      {
+        var res = new Column[ColumnCollection.Count];
+        for (int index = 0; index < ColumnCollection.Count; index++)
+          res[index] = new Column(ColumnCollection[index]);
+        return res;
+      }
+      set
+      {
+        ColumnCollection.Clear();
+        foreach (var col in value)
+          ColumnCollection.Add(col);
+      }
+    }
+
+    [XmlIgnore]
     public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
-    /// <summary>
-    ///   Gets a value indicating whether column format specified.
-    /// </summary>
-    /// <value><c>true</c> if column format specified; otherwise, <c>false</c>.</value>
 
-    public bool ColumnSpecified => ColumnCollection.Count > 0;
 
     /// <summary>
     ///   Gets or sets a value indicating whether to display end line numbers.
@@ -281,9 +294,9 @@ namespace CsvTools
       set => m_SamplesErrors = value;
     }
 
-    public bool SampleAndErrorsInformationSpecified => m_SamplesErrors.ErrorsSpecified ||
-                                                       m_SamplesErrors.SamplesSpecified ||
-                                                       m_SamplesErrors.NumErrors != -1;
+    public bool SamplesAndErrorsSpecified => m_SamplesErrors.ErrorsSpecified ||
+                                             m_SamplesErrors.SamplesSpecified ||
+                                             m_SamplesErrors.NumErrors != -1;
 
     /// <summary>
     ///   Gets or sets the file format.
@@ -640,7 +653,7 @@ namespace CsvTools
       get => m_SqlStatement;
       set
       {
-        var newVal = value == null ? string.Empty : value.NoControlCharacters().HandleCRLFCombinations();
+        var newVal = (value ?? string.Empty).NoControlCharacters().HandleCRLFCombinations();
         if (newVal.Equals(m_SqlStatement, StringComparison.Ordinal))
           return;
         m_SqlStatement = newVal;

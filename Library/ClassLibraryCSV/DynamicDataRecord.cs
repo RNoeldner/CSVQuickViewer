@@ -12,7 +12,7 @@ namespace CsvTools
 
     public DynamicDataRecord(IDataRecord dataRecord)
     {
-      m_Properties = new Dictionary<string, object>(dataRecord?.FieldCount ??  throw new ArgumentNullException(nameof(dataRecord)));
+      m_Properties = new Dictionary<string, object>(dataRecord.FieldCount);
       for (var i = 0; i < dataRecord.FieldCount; i++)
         m_Properties.Add(dataRecord.GetName(i), dataRecord.GetValue(i));
     }

@@ -12,7 +12,6 @@
 // * If not, see http://www.gnu.org/licenses/ . *
 // */
 
-
 namespace CsvTools
 {
   public interface IValueFormat
@@ -22,29 +21,31 @@ namespace CsvTools
     string DateFormat { get; }
 
     /// <summary>
-    ///   The value will return the resulted Seperator, passing in "Colon" will return ":"
+    ///   The value will return the resulted Separator, passing in "Colon" will return ":"
     /// </summary>
     string DateSeparator { get; }
 
     /// <summary>
-    ///   The value will return the resulted Seperator, passing in "Dot" will return "."
+    ///   The value will return the resulted Separator, passing in "Dot" will return "."
     /// </summary>
     string TimeSeparator { get; }
 
     string NumberFormat { get; }
 
     /// <summary>
-    ///   The value will return the resulted Seperator, passing in "Dot" will return "."
+    ///   The value will return the resulted Separator, passing in "Dot" will return "."
     /// </summary>
     string DecimalSeparator { get; }
 
     /// <summary>
-    ///   The value will return the resulted Seperator, passing in "Dot" will return "."
+    ///   The value will return the resulted Separator, passing in "Dot" will return "."
     /// </summary>
     string GroupSeparator { get; }
 
     string True { get; }
+
     string False { get; }
+
     string DisplayNullAs { get; }
   }
 }

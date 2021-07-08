@@ -20,15 +20,15 @@ namespace CsvTools
        this(result.FileName, result.SkipRows, result.CodePageId, result.ByteOrderMark, result.QualifyAlways, result.IdentifierInContainer, result.CommentLine, result.EscapeCharacter, result.FieldDelimiter, result.FieldQualifier, result.HasFieldHeader, result.IsJson, result.NoDelimitedFile, result.NewLine, columns, columnFile)
     {
     }
-
+#if !QUICK
     public override ICsvFile CsvFile()
     {
       var ret = base.CsvFile();
-
       foreach (var col in Columns)
-        ret.ColumnCollection.Add(new Column(col));
+        ret.ColumnCollection.Add(col);
       ret.ColumnFile = m_ColumnFile;
       return ret;
     }
+#endif
   }
 }

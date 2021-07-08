@@ -191,10 +191,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileOrDirectory">Name of the file or directory.</param>
     /// <returns>The folder / directory of the given file or directory</returns>
-    public static string? GetDirectoryName(this string? fileOrDirectory)
+    public static string GetDirectoryName(this string fileOrDirectory)
     {
       if (string.IsNullOrEmpty(fileOrDirectory))
-        return null;
+        return string.Empty;
 
       if (fileOrDirectory![0] == '.')
         fileOrDirectory = Path.GetFullPath(fileOrDirectory);
@@ -204,7 +204,7 @@ namespace CsvTools
 
       // get the directory from under it
       var lastIndex = fileOrDirectory.LastIndexOf(Path.DirectorySeparatorChar);
-      return lastIndex > 0 ? fileOrDirectory.Substring(0, lastIndex).RemovePrefix() : null;
+      return lastIndex > 0 ? fileOrDirectory.Substring(0, lastIndex).RemovePrefix() : string.Empty;
     }
 
     public static string? GetLatestFileOfPattern(string folder, string searchPattern)
@@ -422,8 +422,8 @@ namespace CsvTools
     }
 
 #else
-  public static string RemovePrefix([NotNull] this string path) => path;
-  public static string LongPathPrefix([NotNull] this string path) => path;
+  public static string RemovePrefix(this string path) => path;
+  public static string LongPathPrefix(this string path) => path;
 #endif
 
     public static string? ResolvePattern(string fileName)

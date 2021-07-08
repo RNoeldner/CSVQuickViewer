@@ -72,31 +72,5 @@ namespace CsvTools
 
       return stringBuilder.ToString();
     }
-
-    public static Column ToMutable(this IColumn other) => new Column(other.Name, new ValueFormatMutable
-    {
-      DataType = other.ValueFormat.DataType,
-      DateFormat = other.ValueFormat.DateFormat,
-      DateSeparator = other.ValueFormat.DateSeparator,
-      DecimalSeparator = other.ValueFormat.DecimalSeparator,
-      DisplayNullAs = other.ValueFormat.DisplayNullAs,
-      False = other.ValueFormat.False,
-      GroupSeparator = other.ValueFormat.GroupSeparator,
-      NumberFormat = other.ValueFormat.NumberFormat,
-      TimeSeparator = other.ValueFormat.TimeSeparator,
-      True = other.ValueFormat.True
-    })
-    {
-      ColumnOrdinal = other.ColumnOrdinal,
-      Convert = other.Convert,
-      DestinationName = other.DestinationName,
-      Ignore = other.Ignore,
-      Part = other.Part,
-      PartSplitter = other.PartSplitter,
-      PartToEnd = other.PartToEnd,
-      TimePart = other.TimePart,
-      TimePartFormat = other.TimePartFormat,
-      TimeZonePart = other.TimeZonePart
-    };
   }
 }

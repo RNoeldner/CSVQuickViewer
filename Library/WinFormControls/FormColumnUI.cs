@@ -41,14 +41,19 @@ namespace CsvTools
 
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
-    private readonly Column m_ColumnEdit = new Column();
-    private readonly Column m_ColumnRef;
+    private readonly Column m_ColumnEdit;
+    private readonly IColumn m_ColumnRef;
 
     private readonly IFileSetting m_FileSetting;
 
     private readonly FillGuessSettings m_FillGuessSettings;
 
     private readonly bool m_WriteSetting;
+
+    public IColumn EditedColumn
+    {
+      get => m_ColumnEdit;
+    }
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormColumnUI" /> class.
@@ -61,18 +66,19 @@ namespace CsvTools
     /// <param name="hTMLStyle">The HTML style.</param>
     /// <exception cref="ArgumentNullException">fileSetting or fillGuessSettings NULL</exception>
     public FormColumnUI(
-      Column column,
+      IColumn column,
       bool writeSetting,
       IFileSetting fileSetting,
       FillGuessSettings fillGuessSettings,
       bool showIgnore,
       HTMLStyle hTMLStyle)
     {
+      m_ColumnRef = column;
+      m_ColumnEdit = new Column(column ?? throw new ArgumentNullException(nameof(column)));
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
-      m_ColumnRef = column ?? throw new ArgumentNullException(nameof(column));
       HTMLStyle = hTMLStyle ?? throw new ArgumentNullException(nameof(hTMLStyle));
-      column.CopyTo(m_ColumnEdit);
+
 
       m_WriteSetting = writeSetting;
 
@@ -302,7 +308,8 @@ namespace CsvTools
             }
             else
             {
-              if (checkResult.FoundValueFormat != null || checkResult.PossibleMatch)
+              if (checkResult.ValueFormatPossibleMatch != null &&
+                  (checkResult.FoundValueFormat != null || checkResult.PossibleMatch))
               {
                 if (checkResult.FoundValueFormat != null)
                 {
@@ -315,12 +322,10 @@ namespace CsvTools
                   if (checkResult.FoundValueFormat.Equals(checkResult.ValueFormatPossibleMatch))
                     checkResult.PossibleMatch = false;
                 }
-                else if (checkResult.PossibleMatch && checkResult.ValueFormatPossibleMatch != null)
-                {
-                  if (checkResult.ValueFormatPossibleMatch.DataType == DataType.DateTime)
-                    AddDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
-                }
-
+                
+                if (checkResult.ValueFormatPossibleMatch.DataType == DataType.DateTime)
+                  AddDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
+                
                 var header1 = string.Empty;
                 var suggestClosestMatch = checkResult.PossibleMatch
                                           && (checkResult.FoundValueFormat == null
@@ -331,7 +336,7 @@ namespace CsvTools
                   header1 +=
                     $"\r\nClosest match is : {checkResult.ValueFormatPossibleMatch?.GetTypeAndFormatDescription()}";
 
-                if (suggestClosestMatch && checkResult.ValueFormatPossibleMatch !=null )
+                if (suggestClosestMatch && checkResult.ValueFormatPossibleMatch !=null)
                 {
                   if (_MessageBox.ShowBigHtml(
                       BuildHTMLText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4,
@@ -498,7 +503,7 @@ namespace CsvTools
                                             ICollection<string> values1, int col1, string? headerList2 = null, ICollection<string>? values2 = null,
                                             int col2 = 2)
     {
-      var stringBuilder = HTMLStyle.StartHTMLDoc(System.Drawing.SystemColors.Control, "<STYLE type=\"text/css\">\r\n" +
+      var stringBuilder = HTMLStyle.StartHTMLDoc($"{System.Drawing.SystemColors.Control.R:X2}{System.Drawing.SystemColors.Control.G:X2}{System.Drawing.SystemColors.Control.B:X2}", "<STYLE type=\"text/css\">\r\n" +
                                                                                       "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
                                                                                       "  h2 { color:DarkBlue; font-size : 12px; }\r\n" +
                                                                                       "  table { border-collapse:collapse; font-size : 11px; }\r\n" +
@@ -556,9 +561,11 @@ namespace CsvTools
         if (!ValidateChildren())
           return;
         if (m_ColumnEdit.Equals(m_ColumnRef))
+        {
+          DialogResult = DialogResult.No;
           return;
+        }
         Hide();
-        m_ColumnEdit.CopyTo(m_ColumnRef);
         DialogResult = DialogResult.Yes;
       }
       catch (Exception ex)
@@ -650,7 +657,7 @@ namespace CsvTools
           {
             // Read Settings -- open the source that is a file if there are ignored columns need
             // to open file and get all columns
-            if (m_FileSetting.ColumnCollection.Any(x => x.Ignore))
+            if (m_FileSetting.ColumnCollection.Any<IColumn>(x => x.Ignore))
             {
               using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null,
                 new CustomProcessDisplay(m_CancellationTokenSource.Token));
@@ -779,7 +786,7 @@ namespace CsvTools
     /// <param name="columnName">Name of the column.</param>
     /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
-    
+
     /// <exception cref="FileException">
     ///   Column {columnName} not found. or Column {columnName} not found.
     /// </exception>

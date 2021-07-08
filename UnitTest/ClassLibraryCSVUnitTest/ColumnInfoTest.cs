@@ -26,13 +26,13 @@ namespace CsvTools.Tests
     public void GetSourceColumnInformation_OverwrittenType()
     {
       var cc = new ColumnCollection();
-      cc.AddIfNew(new Column("Test1", DataType.Double));
-      cc.AddIfNew(
+      cc.Add(new Column("Test1", DataType.Double));
+      cc.Add(
         new Column("Test2", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
         {
           TimeZonePart = "\"UTC\""
         });
-      cc.AddIfNew(
+      cc.Add(
         new Column("Test3", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
         {
           TimePart = "Test4",
@@ -49,7 +49,7 @@ namespace CsvTools.Tests
       using (var reader = dt.CreateDataReader())
       using (var dt2 = reader.GetSchemaTable())
       {
-        var res = BaseFileWriter.GetColumnInformation(new ValueFormatMutable(), cc.ReadonlyCopy(), dt2).ToList();
+        var res = BaseFileWriter.GetColumnInformation(new ValueFormatMutable(), cc, dt2).ToList();
         Assert.AreEqual(4, res.Count());
 
         Assert.AreEqual(DataType.Double, res[0].ValueFormat.DataType,
@@ -66,7 +66,7 @@ namespace CsvTools.Tests
     public void GetSourceColumnInformation_AddedTime()
     {
       var cc = new ColumnCollection();
-      cc.AddIfNew(new Column("Test3", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
+      cc.Add(new Column("Test3", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
       {
         TimeZonePart = "\"UTC\"",
         TimePart = "Col2"
@@ -81,7 +81,7 @@ namespace CsvTools.Tests
       using (var reader = dt.CreateDataReader())
       using (var dt2 = reader.GetSchemaTable())
       {
-        var res = BaseFileWriter.GetColumnInformation(new ValueFormatMutable(), cc.ReadonlyCopy(), dt2).ToList();
+        var res = BaseFileWriter.GetColumnInformation(new ValueFormatMutable(), cc, dt2).ToList();
         Assert.AreEqual(4, res.Count());
         Assert.AreEqual(DataType.Integer, res[0].ValueFormat.DataType);
         Assert.AreEqual(DataType.DateTime, res[2].ValueFormat.DataType);

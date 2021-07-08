@@ -168,7 +168,7 @@ namespace CsvTools.Tests
       var ff = new CsvFile();
       var col = new Column("StartDate", valueFormatGerman) { Ignore = true };
 
-      ff.ColumnCollection.AddIfNew(col);
+      ff.ColumnCollection.Add(col);
       Assert.AreEqual("StartDate", col.Name, "Name");
       Assert.AreEqual(DataType.DateTime, col.ValueFormatMutable.DataType, "DataType");
       Assert.IsTrue(col.Convert, "Convert");

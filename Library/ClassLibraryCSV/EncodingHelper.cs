@@ -145,7 +145,6 @@ namespace CsvTools
     ///   Gets the name of the encoding.
     /// </summary>
     /// <param name="codePage">The code page ID.</param>
-    /// <param name="showBom">Flag indicating that byte order mark information should be shown</param>
     /// <returns>The name</returns>
     public static string GetEncodingName(int codePage)
     {

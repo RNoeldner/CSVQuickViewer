@@ -40,6 +40,10 @@ namespace CsvTools.Tests
       foreach (var type in list)
         try
         {
+          // if there is not parameter less constructor skip 
+          if (type.GetConstructor(Type.EmptyTypes)== null)
+            continue;
+          
           var obj1 = Activator.CreateInstance(type);
           var obj2 = Activator.CreateInstance(type);
 

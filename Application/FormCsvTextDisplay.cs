@@ -39,7 +39,7 @@ namespace CsvTools
     {
       m_FullPath = fullPath ?? throw new ArgumentNullException(nameof(fullPath));
       InitializeComponent();
-      Text = FileSystemUtils.GetShortDisplayFileName(m_FullPath);
+      base.Text = FileSystemUtils.GetShortDisplayFileName(m_FullPath);
     }
 
     private void HighlightVisibleRange()

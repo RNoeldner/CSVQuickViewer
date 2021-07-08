@@ -65,14 +65,14 @@ namespace CsvTools
 
     private FilterDataTable? m_FilterDataTable;
 
-    private FormHierarchyDisplay? m_HierarchyDisplay = null;
-    private FormShowMaxLength? m_FormShowMaxLength = null;
-    private FormDuplicatesDisplay? m_FormDuplicatesDisplay = null;
-    private FormUniqueDisplay? m_FormUniqueDisplay = null;
+    private FormHierarchyDisplay? m_HierarchyDisplay;
+    private FormShowMaxLength? m_FormShowMaxLength;
+    private FormDuplicatesDisplay? m_FormDuplicatesDisplay;
+    private FormUniqueDisplay? m_FormUniqueDisplay;
 
     private Form? m_ParentForm;
 
-    private Search m_Search = new CsvTools.Search();
+    private Search m_Search = new Search();
 
     private bool m_SearchCellsDirty = true;
 
@@ -123,11 +123,11 @@ namespace CsvTools
         AllowUserToOrderColumns = true,
         ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize,
         Dock = DockStyle.Fill,
-        Location = new System.Drawing.Point(0, 0),
+        Location = new Point(0, 0),
         Margin = new Padding(2),
         RowHeadersWidth = 51,
         RowTemplate = { Height = 33 },
-        Size = new System.Drawing.Size(996, 320),
+        Size = new Size(996, 320),
         TabIndex = 2
       };
 
@@ -420,10 +420,10 @@ namespace CsvTools
         m_FormDuplicatesDisplay?.Dispose();
         m_FormUniqueDisplay?.Dispose();
         m_CurrentSearch?.Dispose();
-        m_DataTable?.Dispose();
+        m_DataTable.Dispose();
         m_FilterDataTable?.Dispose();
         m_HierarchyDisplay?.Dispose();
-        m_CancellationTokenSource?.Dispose();
+        m_CancellationTokenSource.Dispose();
       }
 
       base.Dispose(disposing);
@@ -1298,7 +1298,7 @@ namespace CsvTools
 
       public EventHandler<SearchEventArgs>? SearchCompleteEvent;
 
-      public SearchEventArgs SearchEventArgs = new SearchEventArgs(string.Empty, 1);
+      public SearchEventArgs SearchEventArgs = new SearchEventArgs(string.Empty);
 
       public string SearchText = string.Empty;
 

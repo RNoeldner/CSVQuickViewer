@@ -11,17 +11,15 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+#nullable  enable
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace CsvTools
 {
-  using System.Collections.Generic;
-  using System.Linq;
-
-  public sealed class ColumnCollection : ObservableCollection<Column>, ICloneable<ColumnCollection>,
-    IEquatable<ColumnCollection>
+  public sealed class ColumnCollection : ObservableCollection<IColumn>, ICloneable<ColumnCollection>, IEquatable<ColumnCollection>
   {
     public ColumnCollection()
     {
@@ -31,9 +29,8 @@ namespace CsvTools
     {
       if (items == null) return;
       foreach (var col in items)
-        AddIfNew(col);
+        Add(col);
     }
-
 
     /// <summary>
     ///   Clones this instance into a new instance of the same type
@@ -61,37 +58,37 @@ namespace CsvTools
       ClearItems();
       if (items == null) return;
       foreach (var col in items)
-        AddIfNew(col);
+        Add(col);
     }
 
     /// <summary>
-    ///   Adds the <see cref="Column" /> format to the column list if it does not exist yet
+    ///   Adds the <see cref="IColumn" /> to the column list if it does not exist yet
     /// </summary>
     /// <remarks>
     ///   If the column name already exist it does nothing but return the already defined column
     /// </remarks>
-    /// <param name="columnFormat">The column format.</param>
-    public void AddIfNew(IColumn columnFormat)
+    /// <param name="column">The column format.</param>
+    public new void Add(IColumn? column)
     {
-      if (columnFormat is null)
-        throw new ArgumentNullException(nameof(columnFormat));
-      var found = Get(columnFormat.Name);
-      if (found != null) return;
-      Column? toAdd = null;
-      switch (columnFormat)
+      if (column is null)
+        throw new ArgumentNullException(nameof(column));
+      int index = GetIndex(column.Name);
+      if (index!=-1) return;
+      base.Add(column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
+    }
+
+    public void Replace(IColumn column)
+    {
+      if (column is null)
+        throw new ArgumentNullException(nameof(column));
+
+      int index = GetIndex(column.Name);
+
+      if (index!=-1)
       {
-        case ImmutableColumn cro:
-          toAdd = cro.ToMutable();
-          break;
-
-        case Column col:
-          toAdd = col;
-          break;
+        Items.RemoveAt(index);
+        Items.Insert(index, column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
       }
-
-      if (toAdd == null)
-        throw new InvalidOperationException("Implementation must be of type ImmutableColumn or Column");
-      Add(toAdd);
     }
 
     /// <summary>
@@ -100,16 +97,28 @@ namespace CsvTools
     /// <param name="other">The other instance</param>
     public void CopyTo(ColumnCollection other) => Items.CollectionCopy(other);
 
+    public int GetIndex(string colName)
+    {
+      for (int index = 0; index < Items.Count; index++)
+      {
+        if (string.Equals(Items[index].Name, colName, StringComparison.OrdinalIgnoreCase))
+          return index;
+      }
+      return -1;
+    }
+
     /// <summary>
-    ///   Gets the <see cref="CsvTools.Column" /> with the specified field name.
+    ///   Gets the <see cref="CsvTools.IColumn" /> with the specified field name.
     /// </summary>
     /// <param name="fieldName"></param>
     /// <returns></returns>
     /// <value>The column format found by the given name, <c>NULL</c> otherwise</value>
-    public Column? Get(string? fieldName) =>
-      Items.FirstOrDefault(column => column.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
-
-    public IReadOnlyCollection<IColumn> ReadonlyCopy() =>
-      Items.Select(col => new ImmutableColumn(col)).Cast<IColumn>().ToList();
+    public IColumn? Get(string? fieldName)
+    {
+      if (string.IsNullOrEmpty(fieldName)) return null;
+      int index = GetIndex(fieldName!);
+      if (index==-1) return null;
+      return Items[index];
+    }
   }
 }

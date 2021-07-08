@@ -53,9 +53,14 @@ namespace CsvTools.Tests
       Assert.IsTrue(FileSystemUtils.FileExists(fileName));
       var test = SerializedFilesLib.LoadCsvFile(fileName);
 
+      Assert.AreEqual(file.ColumnCollection.Count, test.ColumnCollection.Count, "ColumnCollection.Count");
+
+      Assert.AreEqual(file.MappingCollection.Count, test.MappingCollection.Count, "MappingCollection.Count");
+      Assert.IsTrue(file.MappingCollection.CollectionEqual(test.MappingCollection), "MappingCollection");
+
       Assert.AreNotSame(file, test);
       Assert.IsInstanceOfType(test, typeof(CsvFile));
-
+      
       // FileName and ID are not serialized
       test.FileName= file.FileName;
       test.ID = file.ID;
@@ -64,7 +69,7 @@ namespace CsvTools.Tests
 
       Assert.AreEqual(file.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
-      Assert.IsTrue(file.MappingCollection.CollectionEqual(test.MappingCollection), "Mapping");
+      
       Assert.IsTrue(file.FileFormat.Equals(test.FileFormat), "FileFormat");
     }
 
@@ -93,8 +98,8 @@ namespace CsvTools.Tests
 
       file.MappingCollection.Add(new Mapping("Fld1", "FldA"));
       file.MappingCollection.Add(new Mapping("Fld2", "FldB"));
-      file.ColumnCollection.AddIfNew(new Column("ID", DataType.Integer) { ColumnOrdinal = 1, Ignore = false });
-      file.ColumnCollection.AddIfNew(new Column("Name") { ColumnOrdinal = 2, Part = 2 });
+      file.ColumnCollection.Add(new Column("ID", DataType.Integer) { ColumnOrdinal = 1, Ignore = false });
+      file.ColumnCollection.Add(new Column("Name", DataType.TextPart) { ColumnOrdinal = 2, Part = 2 });
       return file;
     }
   }

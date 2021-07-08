@@ -64,10 +64,6 @@ namespace CsvTools.Tests
         Exception exception,
         Func<TState, Exception, string> formatter)
       {
-        if (!IsEnabled(logLevel))
-        {
-          return;
-        }
         Messages.Add(formatter(state, exception));
       }
     }
@@ -77,7 +73,8 @@ namespace CsvTools.Tests
     {
       //var jsonLogFileName = m_ApplicationDirectory + "\\Log.json";
       //Logger.Configure(jsonLogFileName, Logger.Level.Info, m_ApplicationDirectory + "\\text.log");
-      
+      WinAppLogging.Init();
+
       var logAction = new TestLogger();
       WinAppLogging.AddLog(logAction);
 

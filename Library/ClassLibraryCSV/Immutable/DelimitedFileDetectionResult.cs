@@ -65,15 +65,18 @@ namespace CsvTools
       }
     }
 
-    public DelimitedFileDetectionResult(string fileName, int skipRows = 0, int codePageId = -1, bool byteOrderMark = false, bool qualifyAlways = false,
-                                        string? identifierInContainer = "", string commentLine = "#", string? escapeCharacter = "\\", string? fieldDelimiter = "",
-                                        string? fieldQualifier = "", bool hasFieldHeader = true, bool isJson = false, bool noDelimitedFile = false, RecordDelimiterType recordDelimiterType = RecordDelimiterType.None)
+    public DelimitedFileDetectionResult(string fileName, int skipRows = 0, int codePageId = -1,
+      bool byteOrderMark = false, bool qualifyAlways = false,
+      string? identifierInContainer = "", string commentLine = "#", string? escapeCharacter = "\\",
+      string? fieldDelimiter = "",
+      string? fieldQualifier = "", bool hasFieldHeader = true, bool isJson = false, bool noDelimitedFile = false,
+      RecordDelimiterType recordDelimiterType = RecordDelimiterType.None)
     {
       FileName = fileName ?? throw new System.ArgumentNullException(nameof(fileName));
-      IdentifierInContainer = identifierInContainer?? string.Empty;
-      SkipRows = skipRows<1 ? 0 : skipRows;
-      CodePageId = codePageId<1 ? -1 : codePageId;
-      ByteOrderMark= byteOrderMark;
+      IdentifierInContainer = identifierInContainer ?? string.Empty;
+      SkipRows = skipRows < 1 ? 0 : skipRows;
+      CodePageId = codePageId < 1 ? -1 : codePageId;
+      ByteOrderMark = byteOrderMark;
       CommentLine = commentLine;
       EscapeCharacter = GetShortDisplay(escapeCharacter);
       FieldDelimiter = GetShortDisplay(fieldDelimiter);
@@ -81,28 +84,30 @@ namespace CsvTools
       HasFieldHeader = hasFieldHeader;
       IsJson = isJson;
       NoDelimitedFile = noDelimitedFile;
-      QualifyAlways= qualifyAlways;
-      NewLine= recordDelimiterType;
+      QualifyAlways = qualifyAlways;
+      NewLine = recordDelimiterType;
     }
 
+#if !QUICK
     public virtual ICsvFile CsvFile() => new CsvFile(FileName)
     {
       FileFormat = new FileFormat()
       {
-        QualifyAlways= QualifyAlways,
+        QualifyAlways = QualifyAlways,
         CommentLine = CommentLine,
-        EscapeCharacter=  GetShortDisplay(EscapeCharacter),
-        FieldDelimiter =  GetShortDisplay(FieldDelimiter),
-        FieldQualifier =  GetShortDisplay(FieldQualifier),
-        NewLine =  NewLine
+        EscapeCharacter = GetShortDisplay(EscapeCharacter),
+        FieldDelimiter = GetShortDisplay(FieldDelimiter),
+        FieldQualifier = GetShortDisplay(FieldQualifier),
+        NewLine = NewLine
       },
       ByteOrderMark = ByteOrderMark,
       CodePageId = CodePageId,
       HasFieldHeader = HasFieldHeader,
-      JsonFormat= IsJson,
+      JsonFormat = IsJson,
       NoDelimitedFile = NoDelimitedFile,
       IdentifierInContainer = IdentifierInContainer,
       SkipRows = SkipRows
     };
+#endif
   }
 }

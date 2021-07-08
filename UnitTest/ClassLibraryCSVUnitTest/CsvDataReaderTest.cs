@@ -35,12 +35,12 @@ namespace CsvTools.Tests
 		[TestInitialize]
 		public void Init()
 		{
-			m_ValidSetting.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
-			m_ValidSetting.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
-			m_ValidSetting.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean));
+			m_ValidSetting.ColumnCollection.Add(new Column("Score", DataType.Integer));
+			m_ValidSetting.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
+			m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean));
 			var cf = new Column("ExamDate", DataType.DateTime);
 			cf.ValueFormatMutable.DateFormat = @"dd/MM/yyyy";
-			m_ValidSetting.ColumnCollection.AddIfNew(cf);
+			m_ValidSetting.ColumnCollection.Add(cf);
 		}
 
 		[TestMethod]
@@ -127,14 +127,14 @@ namespace CsvTools.Tests
 				FileName = UnitTestInitializeCsv.GetTestPath("BadIssues.csv"),
 				FileFormat = { FieldDelimiter = "Tab", FieldQualifier = string.Empty }
 			};
-			basIssues.ColumnCollection.AddIfNew(new Column("effectiveDate", "yyyy/MM/dd", "-"));
-			basIssues.ColumnCollection.AddIfNew(new Column("timestamp", "yyyy/MM/ddTHH:mm:ss", "-"));
+			basIssues.ColumnCollection.Add(new Column("effectiveDate", "yyyy/MM/dd", "-"));
+			basIssues.ColumnCollection.Add(new Column("timestamp", "yyyy/MM/ddTHH:mm:ss", "-"));
 
-			basIssues.ColumnCollection.AddIfNew(new Column("version", DataType.Integer));
-			basIssues.ColumnCollection.AddIfNew(new Column("retrainingRequired", DataType.Boolean));
+			basIssues.ColumnCollection.Add(new Column("version", DataType.Integer));
+			basIssues.ColumnCollection.Add(new Column("retrainingRequired", DataType.Boolean));
 
-			basIssues.ColumnCollection.AddIfNew(new Column("classroomTraining", DataType.Boolean));
-			basIssues.ColumnCollection.AddIfNew(new Column("webLink", DataType.TextToHtml));
+			basIssues.ColumnCollection.Add(new Column("classroomTraining", DataType.Boolean));
+			basIssues.ColumnCollection.Add(new Column("webLink", DataType.TextToHtml));
 
 			using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
 			using (var test = new CsvFileReader(basIssues.FullPath, basIssues.CodePageId, basIssues.SkipRows, basIssues.HasFieldHeader, basIssues.ColumnCollection, basIssues.TrimmingOption, basIssues.FileFormat.FieldDelimiter, basIssues.FileFormat.FieldQualifier, basIssues.FileFormat.EscapeCharacter, basIssues.RecordLimit, basIssues.AllowRowCombining, basIssues.FileFormat.AlternateQuoting, basIssues.FileFormat.CommentLine, basIssues.NumWarnings, basIssues.FileFormat.DuplicateQuotingToEscape, basIssues.FileFormat.NewLinePlaceholder, basIssues.FileFormat.DelimiterPlaceholder, basIssues.FileFormat.QuotePlaceholder, basIssues.SkipDuplicateHeader, basIssues.TreatLFAsSpace, basIssues.TreatUnknownCharacterAsSpace, basIssues.TryToSolveMoreColumns, basIssues.WarnDelimiterInValue, basIssues.WarnLineFeed, basIssues.WarnNBSP, basIssues.WarnQuotes, basIssues.WarnUnknownCharacter, basIssues.WarnEmptyTailingColumns, basIssues.TreatNBSPAsSpace, basIssues.TreatTextAsNull, basIssues.SkipEmptyLines, basIssues.ConsecutiveEmptyRows, basIssues.IdentifierInContainer, processDisplay))
@@ -376,7 +376,7 @@ namespace CsvTools.Tests
 				FileFormat = { FieldDelimiter = "tab" }
 			};
 
-			csvFile.ColumnCollection.AddIfNew(new Column("Title", DataType.DateTime));
+			csvFile.ColumnCollection.Add(new Column("Title", DataType.DateTime));
 
 			using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
 			using (var test = new CsvFileReader(csvFile.FullPath, csvFile.CodePageId, csvFile.SkipRows, csvFile.HasFieldHeader, csvFile.ColumnCollection, csvFile.TrimmingOption, csvFile.FileFormat.FieldDelimiter, csvFile.FileFormat.FieldQualifier, csvFile.FileFormat.EscapeCharacter, csvFile.RecordLimit, csvFile.AllowRowCombining, csvFile.FileFormat.AlternateQuoting, csvFile.FileFormat.CommentLine, csvFile.NumWarnings, csvFile.FileFormat.DuplicateQuotingToEscape, csvFile.FileFormat.NewLinePlaceholder, csvFile.FileFormat.DelimiterPlaceholder, csvFile.FileFormat.QuotePlaceholder, csvFile.SkipDuplicateHeader, csvFile.TreatLFAsSpace, csvFile.TreatUnknownCharacterAsSpace, csvFile.TryToSolveMoreColumns, csvFile.WarnDelimiterInValue, csvFile.WarnLineFeed, csvFile.WarnNBSP, csvFile.WarnQuotes, csvFile.WarnUnknownCharacter, csvFile.WarnEmptyTailingColumns, csvFile.TreatNBSPAsSpace, csvFile.TreatTextAsNull, csvFile.SkipEmptyLines, csvFile.ConsecutiveEmptyRows, csvFile.IdentifierInContainer, processDisplay))

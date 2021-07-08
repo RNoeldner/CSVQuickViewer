@@ -31,6 +31,8 @@ namespace CsvTools.Tests
       foreach (var type in GetAllIEquatable())
         try
         {
+          if (type.GetConstructor(Type.EmptyTypes)==null)
+            continue;
           var obj1 = Activator.CreateInstance(type);
           var obj3 = Activator.CreateInstance(type);
 

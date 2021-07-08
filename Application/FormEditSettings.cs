@@ -188,11 +188,13 @@ namespace CsvTools
             {
               Logger.Debug("Determining column format by reading samples");
 
-              await m_ViewSettings.FillGuessColumnFormatReaderAsync(
+              var (_, newColumns) = await m_ViewSettings.FillGuessColumnFormatReaderAsync(
                 false,
                 false,
                 m_ViewSettings.FillGuessSettings,
                 m_CancellationTokenSource.Token);
+
+              m_ViewSettings.ColumnCollection.CopyFrom(newColumns);
             }
             catch (Exception exc)
             {
@@ -259,8 +261,8 @@ namespace CsvTools
     {
       await buttonNewLine.RunWithHourglassAsync(async () =>
       {
-        using (var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings)))
-          cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.FieldQualifier, m_CancellationTokenSource.Token);
+        using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
+        cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.FieldQualifier, m_CancellationTokenSource.Token);
       });
     }
 
@@ -315,57 +317,41 @@ namespace CsvTools
 
     private void DomainUpDownTime_SelectedItemChanged(object sender, EventArgs e)
     {
-      switch (domainUpDownTime.SelectedIndex)
+      m_ViewSettings.LimitDuration = domainUpDownTime.SelectedIndex switch
       {
-        case 4:
-          m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.Unlimited;
-          break;
-
-        case 3:
-          m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.TenSecond;
-          break;
-
-        case 2:
-          m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.TwoSecond;
-          break;
-
-        case 1:
-          m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.Second;
-          break;
-
-        case 0:
-          m_ViewSettings.LimitDuration = ViewSettings.DurationEnum.HalfSecond;
-          break;
-      }
+        4 => ViewSettings.DurationEnum.Unlimited,
+        3 => ViewSettings.DurationEnum.TenSecond,
+        2 => ViewSettings.DurationEnum.TwoSecond,
+        1 => ViewSettings.DurationEnum.Second,
+        0 => ViewSettings.DurationEnum.HalfSecond,
+        _ => m_ViewSettings.LimitDuration
+      };
     }
 
     private async void ButtonGuessHeader_Click(object sender, EventArgs e)
     {
       await buttonGuessHeader.RunWithHourglassAsync(async () =>
       {
-        using (var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings)))
-        {
-          var res = await improvedStream.GuessHasHeader(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.CommentLine, m_ViewSettings.FileFormat.FieldDelimiter, m_CancellationTokenSource.Token);
-          m_ViewSettings.HasFieldHeader= res.Item1;
-          fileSettingBindingSource.ResetBindings(false);
-          _MessageBox.Show(res.Item2, "Checking headers");
-        }
+        using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
+        var res = await improvedStream.GuessHasHeader(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.CommentLine, m_ViewSettings.FileFormat.FieldDelimiter, m_CancellationTokenSource.Token);
+        m_ViewSettings.HasFieldHeader= res.Item1;
+        fileSettingBindingSource.ResetBindings(false);
+        _MessageBox.Show(res.Item2, "Checking headers");
       });
     }
 
     private void ButtonInteractiveSettings_Click(object sender, EventArgs e)
     {
-      using (var frm = new FindSkipRows(m_ViewSettings)) _=frm.ShowDialog();
+      using var frm = new FindSkipRows(m_ViewSettings);
+      _=frm.ShowDialog();
     }
 
     private async void buttonGuessLineComment_Click(object sender, EventArgs e)
     {
       await buttonGuessLineComment.RunWithHourglassAsync(async () =>
       {
-        using (var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings)))
-        {
-          m_ViewSettings.FileFormat.CommentLine = await improvedStream.GuessLineComment(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_CancellationTokenSource.Token);
-        }
+        using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
+        m_ViewSettings.FileFormat.CommentLine = await improvedStream.GuessLineComment(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_CancellationTokenSource.Token);
       });
 
       // GuessDelimiterAsync does set the values, refresh them

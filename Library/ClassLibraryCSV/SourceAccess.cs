@@ -122,7 +122,7 @@ namespace CsvTools
       else
         m_OpenStream = GetOpenStreamFunc(fileName, isReading);
     }
-
+#if !QUICK
     /// <summary>
     ///   Create a source access based on a setting, the setting might contain information for
     ///   containers like Zip of PGP
@@ -132,7 +132,7 @@ namespace CsvTools
     public SourceAccess(IFileSettingPhysicalFile setting, bool isReading = true) : this(setting.FullPath, isReading, setting.ID, setting.Recipient, setting.KeepUnencrypted)
     {
     }
-
+#endif
     /// <summary>
     ///   Create a source access based on a stream
     /// </summary>

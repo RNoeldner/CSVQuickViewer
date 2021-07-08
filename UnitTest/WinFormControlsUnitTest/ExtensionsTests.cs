@@ -56,7 +56,7 @@ namespace CsvTools.Tests
     {
       using (var lv = new ListView())
       {
-        var colFmt = new List<Column>();
+        var colFmt = new List<IColumn>();
 
         {
           var item = lv.Items.Add("Test");

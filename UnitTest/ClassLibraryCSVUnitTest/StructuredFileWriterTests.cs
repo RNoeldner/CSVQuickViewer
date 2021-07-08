@@ -29,10 +29,10 @@ namespace CsvTools.Tests
       {
         ID = c_ReadID, FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"), FileFormat = {CommentLine = "#"}
       };
-      readFile.ColumnCollection.AddIfNew(new Column("ExamDate", @"dd/MM/yyyy"));
-      readFile.ColumnCollection.AddIfNew(new Column("Score", DataType.Integer));
-      readFile.ColumnCollection.AddIfNew(new Column("Proficiency", DataType.Numeric));
-      readFile.ColumnCollection.AddIfNew(new Column("IsNativeLang", DataType.Boolean) {Ignore = true});
+      readFile.ColumnCollection.Add(new Column("ExamDate", @"dd/MM/yyyy"));
+      readFile.ColumnCollection.Add(new Column("Score", DataType.Integer));
+      readFile.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
+      readFile.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean) {Ignore = true});
       UnitTestInitializeCsv.MimicSQLReader.AddSetting(readFile);
     }
 
