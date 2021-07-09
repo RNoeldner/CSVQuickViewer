@@ -234,7 +234,6 @@ namespace CsvTools.Tests
     public void GetLogInfoMessageTest()
     {
       var testValue = string.Empty;
-      var testValue2 = string.Empty;
 
       using (var customProcess = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
       {
@@ -245,7 +244,6 @@ namespace CsvTools.Tests
         test.Invoke(null, "Test");
         // can not check if log was sent
         Assert.AreEqual("Test", testValue);
-        Assert.AreEqual("Test", testValue2);
       }
     }
 

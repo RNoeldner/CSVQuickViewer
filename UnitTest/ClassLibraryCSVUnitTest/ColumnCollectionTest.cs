@@ -93,32 +93,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void Serialize()
-    {
-      var test1 = new ColumnCollection();
-      test1.Add(new Column("Test1", DataType.Boolean));
-      test1.Add(new Column("Test2", DataType.Guid));
-      test1.Add(new Column("Test3", DataType.TextPart));
-      string contend;
-      var serializer = new XmlSerializer(typeof(ColumnCollection));
-      using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
-      {
-        serializer.Serialize(stringWriter, test1, SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
-        contend = stringWriter.ToString();
-      }
-      Assert.IsFalse(string.IsNullOrEmpty(contend));
-      using (TextReader reader = new StringReader(contend))
-      {
-        var result = (ColumnCollection) serializer.Deserialize(reader);
-        Assert.AreEqual(3, result.Count);
-        Assert.AreEqual(0, result.GetIndex("Test1"));
-        Assert.AreEqual(1, result.GetIndex("Test2"));
-        Assert.AreEqual(2, result.GetIndex("Test3"));
-      }
-
-    }
-
-    [TestMethod]
     public void Clone()
     {
       var test1 = new ColumnCollection();

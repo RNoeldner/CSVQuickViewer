@@ -14,7 +14,6 @@
 
 namespace CsvTools
 {
-  using JetBrains.Annotations;
   using System.Drawing;
   using System.Windows.Forms;
 

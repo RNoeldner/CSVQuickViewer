@@ -182,7 +182,7 @@ namespace CsvTools.Tests
 
         using (var dataView = new DataView(dataTable, null, null, DataViewRowState.CurrentRows))
         {
-          var res = test.BuildValueClusters(dataView, typeof(long), 0);
+          test.BuildValueClusters(dataView, typeof(long), 0);
           Assert.AreEqual(40, test.ValueClusters.Count);
           TestSort(test.ValueClusters);
         }
