@@ -299,14 +299,14 @@ namespace CsvTools
               {
                 // if he date format does not match the last found date format reset the assumed
                 // correct format
-                if (!othersValueFormatDate.Equals(checkResult.FoundValueFormat))
+                if (!ValueFormatExtension.Equals(othersValueFormatDate,checkResult.FoundValueFormat))
                   othersValueFormatDate = null;
               }
             }
 
             var oldValueFormat = columnCollection[colIndexCurrent].GetTypeAndFormatDescription();
 
-            if (checkResult.FoundValueFormat.Equals(columnCollection[colIndexCurrent].ValueFormat))
+            if (ValueFormatExtension.Equals(checkResult.FoundValueFormat, columnCollection[colIndexCurrent].ValueFormat))
             {
               Logger.Debug("{column} – Format : {format} – not changed", readerColumn.Name, oldValueFormat);
             }
@@ -315,10 +315,10 @@ namespace CsvTools
               var newValueFormat = checkResult.FoundValueFormat.GetTypeAndFormatDescription();
               if (oldValueFormat.Equals(newValueFormat, StringComparison.Ordinal))
                 continue;
-              columnCollection.Replace(new ImmutableColumn(columnCollection[colIndexCurrent], checkResult.FoundValueFormat));
               Logger.Debug("{column} – Format : {format} – updated from {oldformat}", readerColumn.Name,
                 newValueFormat, oldValueFormat);
               result.Add($"{readerColumn.Name} – Format : {newValueFormat} – updated from {oldValueFormat}");
+              columnCollection.Replace(new ImmutableColumn(columnCollection[colIndexCurrent], checkResult.FoundValueFormat));
             }
           }
           // new Column
@@ -365,7 +365,7 @@ namespace CsvTools
               if (colIndexExisting != -1)
               {
                 var oldVf = columnCollection[colIndexExisting].ValueFormat;
-                if (checkResult.FoundValueFormat.Equals(oldVf)) continue;
+                if (ValueFormatExtension.Equals(oldVf,checkResult.FoundValueFormat)) continue;
                 Logger.Debug("{column} – Format : {format} – updated from {oldformat}",
                   columnCollection[colIndexExisting].Name,
                   checkResult.FoundValueFormat.GetTypeAndFormatDescription(),

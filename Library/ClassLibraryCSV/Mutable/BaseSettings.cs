@@ -202,8 +202,11 @@ namespace CsvTools
       set
       {
         ColumnCollection.Clear();
-        foreach (var col in value)
-          ColumnCollection.Add(col);
+        if (value != null)
+        {
+          foreach (var col in value)
+            ColumnCollection.Add(col);
+        }
       }
     }
 

@@ -14,7 +14,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -264,25 +263,6 @@ namespace CsvTools
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
         cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.FieldQualifier, m_CancellationTokenSource.Token);
       });
-    }
-
-    private void PositiveNumberValidating(object sender, CancelEventArgs e)
-    {
-      if (!(sender is TextBox tb)) return;
-
-      var ok = int.TryParse(tb.Text, out var parse);
-      var reformat = parse.ToString(CultureInfo.CurrentCulture);
-      ok = ok && parse >= 0 && reformat == tb.Text;
-
-      if (!ok)
-      {
-        errorProvider.SetError(tb, "Must be a positive number ");
-        e.Cancel = true;
-      }
-      else
-      {
-        errorProvider.SetError(tb, string.Empty);
-      }
     }
 
     private void TextBoxDelimiter_TextChanged(object sender, EventArgs e)
