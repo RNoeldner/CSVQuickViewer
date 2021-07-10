@@ -30,7 +30,7 @@ namespace CsvTools
     public const string cTrueDefault = "True";
 
 
-    public static bool Equals(this IValueFormat one, IValueFormat? other)
+    public static bool ValueFormatEqual(this IValueFormat one, IValueFormat? other)
     {
       if (other is null)
         return false;

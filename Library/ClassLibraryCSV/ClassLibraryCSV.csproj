@@ -11,8 +11,8 @@
     <OutputType>Library</OutputType>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <!--- <TargetFramework>net472</TargetFramework> -->
-    <TargetFrameworks>net472;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <!---    <TargetFrameworks>net472;netstandard2.0;netstandard2.1</TargetFrameworks> -->
     <SignAssembly>false</SignAssembly>
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
     <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>

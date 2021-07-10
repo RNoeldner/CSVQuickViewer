@@ -17,29 +17,29 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class ClassLibraryCsvExtensionMethodsTest
-  {
-    [TestMethod]
-    public void GetDescription()
-    {
-      Assert.AreEqual(string.Empty, "".GetDescription());
-      Assert.AreEqual("Horizontal Tab", "\t".GetDescription());
-      Assert.AreEqual("Comma: ,", ",".GetDescription());
-      Assert.AreEqual("Pipe: |", "|".GetDescription());
-      Assert.AreEqual("Semicolon: ;", ";".GetDescription());
-      Assert.AreEqual("Colon: :", ":".GetDescription());
-      Assert.AreEqual("Quotation marks: \"", "\"".GetDescription());
-      Assert.AreEqual("Apostrophe: '", "'".GetDescription());
-      Assert.AreEqual("Space", " ".GetDescription());
-      Assert.AreEqual("Backslash: \\", "\\".GetDescription());
-      Assert.AreEqual("Slash: /", '/'.GetDescription());
-      Assert.AreEqual("Unit Separator: Char 31", "US".WrittenPunctuation().GetDescription());
-      Assert.AreEqual("Unit Separator: Char 31", "Unit Separator".WrittenPunctuation().GetDescription());
-      Assert.AreEqual("Unit Separator: Char 31", "char(31)".WrittenPunctuation().GetDescription());
+	public class ClassLibraryCsvExtensionMethodsTest
+	{
+		[TestMethod]
+		public void GetDescription()
+		{
+			Assert.AreEqual(string.Empty, "".GetDescription());
+			Assert.AreEqual("Horizontal Tab", "\t".GetDescription());
+			Assert.AreEqual("Comma: ,", ",".GetDescription());
+			Assert.AreEqual("Pipe: |", "|".GetDescription());
+			Assert.AreEqual("Semicolon: ;", ";".GetDescription());
+			Assert.AreEqual("Colon: :", ":".GetDescription());
+			Assert.AreEqual("Quotation marks: \"", "\"".GetDescription());
+			Assert.AreEqual("Apostrophe: '", "'".GetDescription());
+			Assert.AreEqual("Space", " ".GetDescription());
+			Assert.AreEqual("Backslash: \\", "\\".GetDescription());
+			Assert.AreEqual("Slash: /", '/'.GetDescription());
+			Assert.AreEqual("Unit Separator: Char 31", "US".WrittenPunctuation().GetDescription());
+			Assert.AreEqual("Unit Separator: Char 31", "Unit Separator".WrittenPunctuation().GetDescription());
+			Assert.AreEqual("Unit Separator: Char 31", "char(31)".WrittenPunctuation().GetDescription());
 
-      Assert.AreEqual("Group Separator: Char 29", "GS".WrittenPunctuation().GetDescription());
-      Assert.AreEqual("Record Separator: Char 30", "RS".WrittenPunctuation().GetDescription());
-      Assert.AreEqual("File Separator: Char 28", "FS".WrittenPunctuation().GetDescription());
-    }
-  }
+			Assert.AreEqual("Group Separator: Char 29", "GS".WrittenPunctuation().GetDescription());
+			Assert.AreEqual("Record Separator: Char 30", "RS".WrittenPunctuation().GetDescription());
+			Assert.AreEqual("File Separator: Char 28", "FS".WrittenPunctuation().GetDescription());
+		}
+	}
 }

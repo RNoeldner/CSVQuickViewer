@@ -281,48 +281,7 @@ namespace CsvTools
       }
     }
 
-    public bool Equals(IValueFormat? other)
-    {
-      if (other is null)
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-
-      if (other.DataType != DataType || !other.DisplayNullAs.Equals(DisplayNullAs, StringComparison.Ordinal))
-        return false;
-
-      switch (DataType)
-      {
-        case DataType.Integer:
-          return string.Equals(other.NumberFormat, NumberFormat, StringComparison.Ordinal);
-
-        case DataType.Numeric:
-        case DataType.Double:
-          return other.GroupSeparator == GroupSeparator &&
-                 other.DecimalSeparator == DecimalSeparator &&
-                 string.Equals(other.NumberFormat, NumberFormat, StringComparison.Ordinal);
-
-        case DataType.DateTime:
-          return string.Equals(other.DateFormat, DateFormat, StringComparison.Ordinal) &&
-                 string.Equals(other.DateSeparator, DateSeparator, StringComparison.Ordinal) &&
-                 string.Equals(other.TimeSeparator, TimeSeparator, StringComparison.Ordinal);
-
-        case DataType.Boolean:
-          return string.Equals(other.False, False, StringComparison.OrdinalIgnoreCase) &&
-                 string.Equals(other.True, True, StringComparison.OrdinalIgnoreCase);
-
-        default:
-          // compare everything
-          return string.Equals(other.DateFormat, DateFormat, StringComparison.Ordinal) &&
-                 string.Equals(other.DateSeparator, DateSeparator, StringComparison.Ordinal) &&
-                 string.Equals(other.TimeSeparator, TimeSeparator, StringComparison.Ordinal) &&
-                 string.Equals(other.False, False, StringComparison.OrdinalIgnoreCase) &&
-                 string.Equals(other.True, True, StringComparison.OrdinalIgnoreCase) &&
-                 other.GroupSeparator == GroupSeparator &&
-                 other.DecimalSeparator == DecimalSeparator &&
-                 string.Equals(other.NumberFormat, NumberFormat, StringComparison.Ordinal);
-      }
-    }
+    public bool Equals(IValueFormat? other) => this.ValueFormatEqual(other);
 
     public void CopyFrom(IValueFormat other) =>
      m_ImmutableValueFormat = new ImmutableValueFormat(other.DataType, other.DateFormat, other.DateSeparator, other.TimeSeparator, other.NumberFormat, other.GroupSeparator, other.DecimalSeparator, other.True, other.False, other.DisplayNullAs);

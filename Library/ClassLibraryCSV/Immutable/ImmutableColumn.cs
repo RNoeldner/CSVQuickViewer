@@ -90,7 +90,7 @@ namespace CsvTools
              DestinationName == other.DestinationName && Ignore == other.Ignore && Name == other.Name &&
              Part == other.Part && PartSplitter == other.PartSplitter && PartToEnd == other.PartToEnd &&
              TimePart == other.TimePart && TimePartFormat == other.TimePartFormat &&
-             TimeZonePart == other.TimeZonePart && ValueFormatExtension.Equals(ValueFormat,other.ValueFormat);
+             TimeZonePart == other.TimeZonePart && ValueFormat.ValueFormatEqual(other.ValueFormat);
     }
 
     public override bool Equals(object? obj)

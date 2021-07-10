@@ -202,6 +202,7 @@ namespace CsvTools
       set
       {
         ColumnCollection.Clear();
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
         if (value != null)
         {
           foreach (var col in value)

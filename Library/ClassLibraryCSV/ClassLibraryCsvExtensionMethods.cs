@@ -22,8 +22,10 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+#if !QUICK
 using System.Threading;
 using System.Threading.Tasks;
+#endif
 
 namespace CsvTools
 {

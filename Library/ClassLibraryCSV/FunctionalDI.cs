@@ -13,9 +13,11 @@
  */
 
 using System;
+#if !QUICK
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+#endif
 
 namespace CsvTools
 {

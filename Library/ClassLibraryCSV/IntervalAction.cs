@@ -47,6 +47,7 @@ namespace CsvTools
       if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
         return;
       m_LastNotification = DateTime.Now;
+      // ReSharper disable once ConstantConditionalAccessQualifier
       action?.Invoke();
     }
 

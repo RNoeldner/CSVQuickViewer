@@ -15,13 +15,15 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+#if !QUICK
+using System.Data;
+using System.Data.Common;
+#endif
 
 namespace CsvTools
 {
@@ -63,7 +65,6 @@ namespace CsvTools
     /// <param name="cancellationToken"></param>
     /// <returns>A list of columns with new format that have been changed</returns>
     /// <exception cref="ArgumentNullException">processDisplay</exception>
-    [Obsolete("Use FillGuessColumnFormatReaderAsyncReader instead, or use CsvHelper.AnalyseFileAsync")]
     public static async Task<(IList<string>, IEnumerable<IColumn>)> FillGuessColumnFormatReaderAsync(this IFileSetting fileSetting,
       bool addTextColumns,
       bool checkDoubleToBeInteger, FillGuessSettings fillGuessSettings,
@@ -299,14 +300,14 @@ namespace CsvTools
               {
                 // if he date format does not match the last found date format reset the assumed
                 // correct format
-                if (!ValueFormatExtension.Equals(othersValueFormatDate,checkResult.FoundValueFormat))
+                if (!othersValueFormatDate.ValueFormatEqual(checkResult.FoundValueFormat))
                   othersValueFormatDate = null;
               }
             }
 
             var oldValueFormat = columnCollection[colIndexCurrent].GetTypeAndFormatDescription();
 
-            if (ValueFormatExtension.Equals(checkResult.FoundValueFormat, columnCollection[colIndexCurrent].ValueFormat))
+            if (checkResult.FoundValueFormat.ValueFormatEqual(columnCollection[colIndexCurrent].ValueFormat))
             {
               Logger.Debug("{column} – Format : {format} – not changed", readerColumn.Name, oldValueFormat);
             }
@@ -365,7 +366,7 @@ namespace CsvTools
               if (colIndexExisting != -1)
               {
                 var oldVf = columnCollection[colIndexExisting].ValueFormat;
-                if (ValueFormatExtension.Equals(oldVf,checkResult.FoundValueFormat)) continue;
+                if (oldVf.ValueFormatEqual(checkResult.FoundValueFormat)) continue;
                 Logger.Debug("{column} – Format : {format} – updated from {oldformat}",
                   columnCollection[colIndexExisting].Name,
                   checkResult.FoundValueFormat.GetTypeAndFormatDescription(),

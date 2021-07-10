@@ -132,7 +132,8 @@ namespace CsvTools
 				if (!ReferenceEquals(AccessStream, BaseStream))
 					try
 					{
-						AccessStream?.Close();
+            // ReSharper disable once ConstantConditionalAccessQualifier
+            AccessStream?.Close();
 					}
 					catch
 					{
@@ -154,7 +155,8 @@ namespace CsvTools
 			if (!disposing) return;
 
 			if (!ReferenceEquals(AccessStream, BaseStream))
-				AccessStream?.Dispose();
+        // ReSharper disable once ConstantConditionalAccessQualifier
+        AccessStream?.Dispose();
 
 			if (!SourceAccess.LeaveOpen)
 				BaseStream.Dispose();
@@ -278,8 +280,9 @@ namespace CsvTools
 					var entryEnumerator = zipFileTest.GetEnumerator();
 					while (entryEnumerator.MoveNext())
 					{
-						var zipEntry = entryEnumerator.Current as ICSharpCode.SharpZipLib.Zip.ZipEntry;
-						if (zipEntry?.IsFile ?? false  && zipEntry.Name != cleanName)
+            if (!(entryEnumerator.Current is ICSharpCode.SharpZipLib.Zip.ZipEntry zipEntry))
+              continue;
+            if (zipEntry.IsFile && zipEntry.Name != cleanName)
 						{
 							copyOtherFiles= true;
 							break;
@@ -294,7 +297,7 @@ namespace CsvTools
 					{
 						File.Copy(SourceAccess.FullPath, tmpName, true);
 
-						// build a new Zipfile with the contend of the old one but exlode the file we are about
+						// build a new Zip file with the contend of the old one but exlode the file we are about
 						// to write
             using var zipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(File.OpenRead(tmpName));
             var entryEnumerator = zipFile.GetEnumerator();

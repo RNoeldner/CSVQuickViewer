@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
-	[TestClass]
+  [TestClass]
 	public class CsvDataReaderUnitTest
 	{
 		private readonly CsvFile m_ValidSetting = new CsvFile
