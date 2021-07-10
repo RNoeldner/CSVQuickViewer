@@ -23,63 +23,51 @@ namespace CsvTools.Tests
 		public void CustomProcessDisplayTest()
 		{
 			var called = false;
-			using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-			{
-				processDisplay.Progress += (sender, args) => { called = true; };
-				processDisplay.SetProcess("Test", -1, true);
-				Assert.IsTrue(called);
-			}
-		}
+      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      processDisplay.Progress += (sender, args) => { called = true; };
+      processDisplay.SetProcess("Test", -1, true);
+      Assert.IsTrue(called);
+    }
 
 		[TestMethod]
 		public void DummyProcessDisplayTest()
-		{
-			using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-			{
-				processDisplay.SetProcess("Test", -1, true);
-			}
-		}
+    {
+      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      processDisplay.SetProcess("Test", -1, true);
+    }
 
 		[TestMethod]
 		public void SetMaximum()
-		{
-			using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-			{
-				processDisplay.Maximum = 666;
-				Assert.AreEqual(666, processDisplay.Maximum);
+    {
+      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      processDisplay.Maximum = 666;
+      Assert.AreEqual(666, processDisplay.Maximum);
 
-				processDisplay.Maximum = -1;
-				Assert.AreEqual(-1, processDisplay.Maximum);
-			}
-		}
+      processDisplay.Maximum = -1;
+      Assert.AreEqual(-1, processDisplay.Maximum);
+    }
 
 		[TestMethod]
 		public void SetProcessTest()
-		{
-			using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-			{
-				processDisplay.SetProcess("Test", -1, true);
-			}
-		}
+    {
+      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      processDisplay.SetProcess("Test", -1, true);
+    }
 
 		[TestMethod]
 		public void SetProcessTest1()
-		{
-			using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-			{
-				processDisplay.Maximum = 5;
-				processDisplay.SetProcess("Test", 100, true);
-			}
-		}
+    {
+      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      processDisplay.Maximum = 5;
+      processDisplay.SetProcess("Test", 100, true);
+    }
 
 		[TestMethod]
 		public void SetProcessTest2()
-		{
-			using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-			{
-				processDisplay.Maximum = 5;
-				processDisplay.SetProcess(null, new ProgressEventArgs("Hallo", 2, false));
-			}
-		}
+    {
+      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      processDisplay.Maximum = 5;
+      processDisplay.SetProcess(null, new ProgressEventArgs("Hallo", 2, false));
+    }
 	}
 }

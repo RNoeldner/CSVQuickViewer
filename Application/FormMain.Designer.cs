@@ -43,14 +43,15 @@ namespace CsvTools
 			this.components = new System.ComponentModel.Container();
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+			CsvTools.HTMLStyle htmlStyle1 = new CsvTools.HTMLStyle();
 			this.fileSystemWatcher = new System.IO.FileSystemWatcher();
 			this.loggerDisplay = new CsvTools.LoggerDisplay();
 			this.detailControl = new CsvTools.DetailControl();
 			this.toolStrip = new System.Windows.Forms.ToolStrip();
-			this.textPanel = new System.Windows.Forms.ToolStripContainer();
-			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.m_ToolStripButtonLoadFile2 = new System.Windows.Forms.ToolStripButton();
 			this.m_ToolStripButtonShowLog2 = new System.Windows.Forms.ToolStripButton();
+			this.textPanel = new System.Windows.Forms.ToolStripContainer();
+			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.m_ToolStripButtonLoadFile = new System.Windows.Forms.ToolStripButton();
 			this.m_ToolStripButtonAsText = new System.Windows.Forms.ToolStripButton();
 			this.m_ToolStripButtonShowLog = new System.Windows.Forms.ToolStripButton();
@@ -100,7 +101,7 @@ namespace CsvTools
 			this.loggerDisplay.IsReplaceMode = false;
 			this.loggerDisplay.Location = new System.Drawing.Point(0, 0);
 			this.loggerDisplay.Margin = new System.Windows.Forms.Padding(2);
-			this.loggerDisplay.MinLevel = LogLevel.Debug;
+			this.loggerDisplay.MinLevel = Microsoft.Extensions.Logging.LogLevel.Debug;
 			this.loggerDisplay.Name = "loggerDisplay";
 			this.loggerDisplay.Paddings = new System.Windows.Forms.Padding(0);
 			this.loggerDisplay.ReadOnly = true;
@@ -126,8 +127,10 @@ namespace CsvTools
 			this.detailControl.DefaultCellStyle = dataGridViewCellStyle2;
 			this.detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.detailControl.FileSetting = null;
+			this.detailControl.HTMLStyle = htmlStyle1;
 			this.detailControl.Location = new System.Drawing.Point(0, 0);
 			this.detailControl.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.detailControl.MenuDown = false;
 			this.detailControl.Name = "detailControl";
 			this.detailControl.Size = new System.Drawing.Size(971, 528);
 			this.detailControl.TabIndex = 1;
@@ -144,6 +147,26 @@ namespace CsvTools
 			this.toolStrip.Size = new System.Drawing.Size(49, 25);
 			this.toolStrip.TabIndex = 5;
 			this.toolStrip.Text = "toolStrip";
+			// 
+			// m_ToolStripButtonLoadFile2
+			// 
+			this.m_ToolStripButtonLoadFile2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.m_ToolStripButtonLoadFile2.Image = global::CsvTools.Properties.Resources.LoadFile;
+			this.m_ToolStripButtonLoadFile2.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_ToolStripButtonLoadFile2.Name = "m_ToolStripButtonLoadFile2";
+			this.m_ToolStripButtonLoadFile2.Size = new System.Drawing.Size(23, 22);
+			this.m_ToolStripButtonLoadFile2.Text = "Load File";
+			this.m_ToolStripButtonLoadFile2.Click += new System.EventHandler(this.ToolStripButtonLoadFile_Click);
+			// 
+			// m_ToolStripButtonShowLog2
+			// 
+			this.m_ToolStripButtonShowLog2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.m_ToolStripButtonShowLog2.Image = global::CsvTools.Properties.Resources.ShowLog;
+			this.m_ToolStripButtonShowLog2.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_ToolStripButtonShowLog2.Name = "m_ToolStripButtonShowLog2";
+			this.m_ToolStripButtonShowLog2.Size = new System.Drawing.Size(23, 22);
+			this.m_ToolStripButtonShowLog2.Text = "Log";
+			this.m_ToolStripButtonShowLog2.Click += new System.EventHandler(this.ToggleShowLog);
 			// 
 			// textPanel
 			// 
@@ -178,30 +201,10 @@ namespace CsvTools
             this.m_ToolStripButtonSource});
 			this.toolStrip1.Location = new System.Drawing.Point(208, 0);
 			this.toolStrip1.Name = "toolStrip1";
-			this.toolStrip1.Size = new System.Drawing.Size(149, 25);
+			this.toolStrip1.Size = new System.Drawing.Size(118, 25);
 			this.toolStrip1.TabIndex = 3;
 			this.toolStrip1.Text = "toolStrip1";
 			this.toolStrip1.Visible = false;
-			// 
-			// m_ToolStripButtonLoadFile2
-			// 
-			this.m_ToolStripButtonLoadFile2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.m_ToolStripButtonLoadFile2.Image = global::CsvTools.Properties.Resources.LoadFile;
-			this.m_ToolStripButtonLoadFile2.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_ToolStripButtonLoadFile2.Name = "m_ToolStripButtonLoadFile2";
-			this.m_ToolStripButtonLoadFile2.Size = new System.Drawing.Size(23, 22);
-			this.m_ToolStripButtonLoadFile2.Text = "Load File";
-			this.m_ToolStripButtonLoadFile2.Click += new System.EventHandler(this.ToolStripButtonLoadFile_Click);
-			// 
-			// m_ToolStripButtonShowLog2
-			// 
-			this.m_ToolStripButtonShowLog2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.m_ToolStripButtonShowLog2.Image = global::CsvTools.Properties.Resources.ShowLog;
-			this.m_ToolStripButtonShowLog2.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_ToolStripButtonShowLog2.Name = "m_ToolStripButtonShowLog2";
-			this.m_ToolStripButtonShowLog2.Size = new System.Drawing.Size(23, 22);
-			this.m_ToolStripButtonShowLog2.Text = "Log";
-			this.m_ToolStripButtonShowLog2.Click += new System.EventHandler(this.ToggleShowLog);
 			// 
 			// m_ToolStripButtonLoadFile
 			// 

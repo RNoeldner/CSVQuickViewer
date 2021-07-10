@@ -91,25 +91,23 @@ namespace CsvTools.Tests
 		{
 			var dest = UnitTestInitializeCsv.GetTestPath("xyz.txt");
 			try
-			{
-				using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-				{
-					processDisplay.Maximum = -100;
+      {
+        using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+        processDisplay.Maximum = -100;
 
-					Assert.IsFalse(FileSystemUtils.FileExists(dest));
-					await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"), dest, false,
-						processDisplay);
-					Assert.IsTrue(FileSystemUtils.FileExists(dest));
-					Assert.AreEqual(-100, processDisplay.Maximum);
+        Assert.IsFalse(FileSystemUtils.FileExists(dest));
+        await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"), dest, false,
+          processDisplay);
+        Assert.IsTrue(FileSystemUtils.FileExists(dest));
+        Assert.AreEqual(-100, processDisplay.Maximum);
 
-					// Copy again, the old file should be overwritten
-					await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt"), dest, true,
-						processDisplay);
-					Assert.IsTrue(FileSystemUtils.FileExists(dest));
-					Assert.AreEqual(new FileInfo(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")).Length,
-						new FileInfo(dest).Length);
-				}
-			}
+        // Copy again, the old file should be overwritten
+        await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt"), dest, true,
+          processDisplay);
+        Assert.IsTrue(FileSystemUtils.FileExists(dest));
+        Assert.AreEqual(new FileInfo(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")).Length,
+          new FileInfo(dest).Length);
+      }
 			finally
 			{
 				FileSystemUtils.FileDelete(dest);
@@ -299,10 +297,10 @@ namespace CsvTools.Tests
 				directory += Path.DirectorySeparatorChar;
 
 			if (create)
-			{
-				using (var stream = FileSystemUtils.CreateText(directory + fn))
-					stream.WriteLine($"Small Test {fn}");
-			}
+      {
+        using var stream = FileSystemUtils.CreateText(directory + fn);
+        stream.WriteLine($"Small Test {fn}");
+      }
 
 			return directory + fn;
 		}
@@ -321,12 +319,12 @@ namespace CsvTools.Tests
 			}
 
 			for (var counter = 0; counter < 10; counter++)
-				using (var stream = FileSystemUtils.CreateText(directory + $"\\File{counter:000}.txt"))
-				{
-					stream.WriteLine($"Small Test {counter:000}");
-				}
+      {
+        using var stream = FileSystemUtils.CreateText(directory + $"\\File{counter:000}.txt");
+        stream.WriteLine($"Small Test {counter:000}");
+      }
 
-			var fn1 = FileSystemUtils.ResolvePattern(directory + "\\File*.txt");
+      var fn1 = FileSystemUtils.ResolvePattern(directory + "\\File*.txt");
 			Assert.IsNotNull(fn1);
 
 			var fn2 = FileSystemUtils.ResolvePattern(relPath + "\\File*.txt");

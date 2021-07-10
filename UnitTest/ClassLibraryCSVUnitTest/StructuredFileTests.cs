@@ -61,13 +61,11 @@ namespace CsvTools.Tests
 		public void GetFileReader()
 		{
 			try
-			{
-				using (var dummy = FunctionalDI.GetFileReader(m_StructuredFile, TimeZoneInfo.Local.Id,
-					new CustomProcessDisplay(UnitTestInitializeCsv.Token)))
-				{
-					Assert.Fail("Should throw error");
-				}
-			}
+      {
+        using var dummy = FunctionalDI.GetFileReader(m_StructuredFile, TimeZoneInfo.Local.Id,
+          new CustomProcessDisplay(UnitTestInitializeCsv.Token));
+        Assert.Fail("Should throw error");
+      }
 			catch (NotImplementedException)
 			{
 			}
@@ -75,14 +73,12 @@ namespace CsvTools.Tests
 
 		[TestMethod]
 		public void GetFileWriter()
-		{
-			using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-			{
-				m_StructuredFile.SqlStatement = "dummy";
-				var res = FunctionalDI.GetFileWriter(m_StructuredFile, processDisplay);
-				Assert.IsInstanceOfType(res, typeof(IFileWriter));
-			}
-		}
+    {
+      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      m_StructuredFile.SqlStatement = "dummy";
+      var res = FunctionalDI.GetFileWriter(m_StructuredFile, processDisplay);
+      Assert.IsInstanceOfType(res, typeof(IFileWriter));
+    }
 
 		[TestInitialize]
 		public void Init()

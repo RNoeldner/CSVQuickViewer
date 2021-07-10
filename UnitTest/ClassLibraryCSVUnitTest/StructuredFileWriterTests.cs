@@ -53,28 +53,26 @@ namespace CsvTools.Tests
 			};
 
 			var sb = new StringBuilder("{");
-			using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-			{
-				var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout,
-					processDisplay.CancellationToken);
-				writeFile.Header = "{\"rowset\":[\n";
+      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout,
+        processDisplay.CancellationToken);
+      writeFile.Header = "{\"rowset\":[\n";
 
-				// { "firstName":"John", "lastName":"Doe"},
-				foreach (var col in cols)
-					sb.AppendFormat("\"{0}\":\"{1}\", ", HTMLStyle.JsonElementName(col),
-						string.Format(CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
+      // { "firstName":"John", "lastName":"Doe"},
+      foreach (var col in cols)
+        sb.AppendFormat("\"{0}\":\"{1}\", ", HTMLStyle.JsonElementName(col),
+          string.Format(CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
 
-				if (sb.Length > 1)
-					sb.Length -= 2;
-				sb.AppendLine("},");
-				writeFile.Row = sb.ToString();
-				var writer = new StructuredFileWriter(writeFile, processDisplay);
-				var result =
-					await writer.WriteAsync(writeFile.SqlStatement, writeFile.Timeout, t => processDisplay.SetProcess(t, 0, true),
-						processDisplay.CancellationToken);
-				Assert.AreEqual(7L, result);
-			}
-		}
+      if (sb.Length > 1)
+        sb.Length -= 2;
+      sb.AppendLine("},");
+      writeFile.Row = sb.ToString();
+      var writer = new StructuredFileWriter(writeFile, processDisplay);
+      var result =
+        await writer.WriteAsync(writeFile.SqlStatement, writeFile.Timeout, t => processDisplay.SetProcess(t, 0, true),
+          processDisplay.CancellationToken);
+      Assert.AreEqual(7L, result);
+    }
 
 		[TestMethod]
 		public async Task StructuredFileWriterXMLEncodeTest()
@@ -88,26 +86,24 @@ namespace CsvTools.Tests
 				JSONEncode = false
 			};
 			var sb = new StringBuilder();
-			using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-			{
-				var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout,
-					processDisplay.CancellationToken);
-				sb.AppendLine("<?xml version=\"1.0\"?>\n");
-				sb.AppendLine("<rowset>");
-				writeFile.Header = sb.ToString();
-				sb.Clear();
-				sb.AppendLine("  <row>");
-				foreach (var col in cols)
-					sb.AppendFormat("    <{0}>{1}</{0}>\n", HTMLStyle.XmlElementName(col),
-						string.Format(CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
+      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout,
+        processDisplay.CancellationToken);
+      sb.AppendLine("<?xml version=\"1.0\"?>\n");
+      sb.AppendLine("<rowset>");
+      writeFile.Header = sb.ToString();
+      sb.Clear();
+      sb.AppendLine("  <row>");
+      foreach (var col in cols)
+        sb.AppendFormat("    <{0}>{1}</{0}>\n", HTMLStyle.XmlElementName(col),
+          string.Format(CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
 
-				sb.AppendLine("  </row>");
-				writeFile.Row = sb.ToString();
-				writeFile.Footer = "</rowset>";
+      sb.AppendLine("  </row>");
+      writeFile.Row = sb.ToString();
+      writeFile.Footer = "</rowset>";
 
-				var writer = new StructuredFileWriter(writeFile, processDisplay);
-				await writer.WriteAsync(writeFile.SqlStatement, writeFile.Timeout, null, processDisplay.CancellationToken);
-			}
-		}
+      var writer = new StructuredFileWriter(writeFile, processDisplay);
+      await writer.WriteAsync(writeFile.SqlStatement, writeFile.Timeout, null, processDisplay.CancellationToken);
+    }
 	}
 }

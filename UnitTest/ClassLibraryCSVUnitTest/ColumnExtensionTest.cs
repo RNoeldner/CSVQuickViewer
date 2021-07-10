@@ -12,13 +12,14 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
+  using Microsoft.VisualStudio.TestTools.UnitTesting;
+
   [TestClass]
-	public class ColumnTest
-	{
+	public class ColumnExtensionTest
+  {
 		[TestMethod]
 		public void CopyToCloneEquals()
 		{
@@ -29,7 +30,7 @@ namespace CsvTools.Tests
 			Assert.IsTrue(col2.Equals(col));
 		}
 
-		[TestMethod]
+    [TestMethod]
 		public void GetFormatDescriptionTest()
 		{
 			var col = new Column();
@@ -44,5 +45,6 @@ namespace CsvTools.Tests
 			col.ValueFormatMutable.DataType = DataType.Numeric;
 			Assert.AreNotEqual(string.Empty, col.GetFormatDescription());
 		}
-	}
+
+  }
 }
