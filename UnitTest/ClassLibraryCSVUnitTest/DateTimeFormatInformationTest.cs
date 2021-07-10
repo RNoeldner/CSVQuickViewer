@@ -19,93 +19,92 @@ using System.Collections.Generic;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class DateTimeFormatInformationTest
-  {
-    private ICollection<string> GetSamples(string format)
-    {
-      var l = new List<string>
-      {
-        new DateTime(1980, 1, 1, 1, 1, 1, 1, DateTimeKind.Local).ToString(format),
-        new DateTime(1999, 11, 5, 7, 15, 5, 87, DateTimeKind.Local).ToString(format),
-        new DateTime(1999, 11, 6, 9, 5, 15, 67, DateTimeKind.Local).ToString(format),
-        new DateTime(1999, 11, 7, 10, 6, 5, 9, DateTimeKind.Local).ToString(format),
-        new DateTime(1999, 11, 8, 12, 17, 5, 10, DateTimeKind.Local).ToString(format),
-        new DateTime(1999, 11, 9, 13, 55, 25, 1, DateTimeKind.Local).ToString(format),
-        new DateTime(1999, 11, 10, 13, 55, 25, 1, DateTimeKind.Local).ToString(format),
-        new DateTime(1999, 12, 11, 18, 45, 40, 183, DateTimeKind.Local).ToString(format)
-      };
-      return l;
-    }
+	public class DateTimeFormatInformationTest
+	{
+		private ICollection<string> GetSamples(string format)
+		{
+			var l = new List<string>
+			{
+				new DateTime(1980, 1, 1, 1, 1, 1, 1, DateTimeKind.Local).ToString(format),
+				new DateTime(1999, 11, 5, 7, 15, 5, 87, DateTimeKind.Local).ToString(format),
+				new DateTime(1999, 11, 6, 9, 5, 15, 67, DateTimeKind.Local).ToString(format),
+				new DateTime(1999, 11, 7, 10, 6, 5, 9, DateTimeKind.Local).ToString(format),
+				new DateTime(1999, 11, 8, 12, 17, 5, 10, DateTimeKind.Local).ToString(format),
+				new DateTime(1999, 11, 9, 13, 55, 25, 1, DateTimeKind.Local).ToString(format),
+				new DateTime(1999, 11, 10, 13, 55, 25, 1, DateTimeKind.Local).ToString(format),
+				new DateTime(1999, 12, 11, 18, 45, 40, 183, DateTimeKind.Local).ToString(format)
+			};
+			return l;
+		}
 
-    private DateTimeFormatInformation CheckDate(string format)
-    {
-      var dtm = new DateTimeFormatInformation(format);
-      var l = GetSamples(format);
+		private DateTimeFormatInformation CheckDate(string format)
+		{
+			var dtm = new DateTimeFormatInformation(format);
+			var l = GetSamples(format);
 
-      var minLength = int.MaxValue;
-      var maxLength = int.MinValue;
+			var minLength = int.MaxValue;
+			var maxLength = int.MinValue;
 
-      foreach (var text in l)
-      {
-        if (text.Length < minLength)
-        {
-          minLength = text.Length;
-          Assert.IsTrue(dtm.MinLength <= minLength, $"Minimum is {minLength} for {format}\nExample {text}");
-        }          
-        if (text.Length > maxLength)
-        {
-          maxLength = text.Length;          
-          Assert.IsTrue(dtm.MaxLength >= maxLength, $"Minimum is {maxLength} for {format}\nExample {text}");
-        }
-          
-      }
+			foreach (var text in l)
+			{
+				if (text.Length < minLength)
+				{
+					minLength = text.Length;
+					Assert.IsTrue(dtm.MinLength <= minLength, $"Minimum is {minLength} for {format}\nExample {text}");
+				}
+				if (text.Length > maxLength)
+				{
+					maxLength = text.Length;
+					Assert.IsTrue(dtm.MaxLength >= maxLength, $"Minimum is {maxLength} for {format}\nExample {text}");
+				}
+			}
 
-      return dtm;
-    }
+			return dtm;
+		}
 
-    [TestMethod]
-    public void DateTimeFormatInformationCheck1()
-    {
-      var dtm = CheckDate("yyyy/MM/ddTHH:mm:sszzz");
+		[TestMethod]
+		public void DateTimeFormatInformationCheck1()
+		{
+			var dtm = CheckDate("yyyy/MM/ddTHH:mm:sszzz");
 
-      Assert.AreEqual(25, dtm.MinLength);
-      Assert.AreEqual(25, dtm.MaxLength);
-    }
+			Assert.AreEqual(25, dtm.MinLength);
+			Assert.AreEqual(25, dtm.MaxLength);
+		}
 
-    [TestMethod]
-    public void DateTimeFormatInformationCheck2()
-    {
-      var dtm = CheckDate("yyyy/MM/dd");
+		[TestMethod]
+		public void DateTimeFormatInformationCheck2()
+		{
+			var dtm = CheckDate("yyyy/MM/dd");
 
-      Assert.AreEqual(10, dtm.MinLength);
-      Assert.AreEqual(10, dtm.MaxLength);
-    }
+			Assert.AreEqual(10, dtm.MinLength);
+			Assert.AreEqual(10, dtm.MaxLength);
+		}
 
-    [TestMethod]
-    public void DateTimeFormatInformationCheck3()
-    {
-      var dtm = CheckDate("yyyy/M/d");
+		[TestMethod]
+		public void DateTimeFormatInformationCheck3()
+		{
+			var dtm = CheckDate("yyyy/M/d");
 
-      Assert.AreEqual(8, dtm.MinLength);
-      Assert.AreEqual(10, dtm.MaxLength);
-    }
+			Assert.AreEqual(8, dtm.MinLength);
+			Assert.AreEqual(10, dtm.MaxLength);
+		}
 
-    [TestMethod]
-    public void DateTimeFormatInformationCheck4()
-    {
-      var dtm = CheckDate("yyyy/M/dTHH:mm:ss");
+		[TestMethod]
+		public void DateTimeFormatInformationCheck4()
+		{
+			var dtm = CheckDate("yyyy/M/dTHH:mm:ss");
 
-      Assert.AreEqual(17, dtm.MinLength);
-      Assert.AreEqual(19, dtm.MaxLength);
-    }
+			Assert.AreEqual(17, dtm.MinLength);
+			Assert.AreEqual(19, dtm.MaxLength);
+		}
 
-    [TestMethod]
-    public void DateTimeFormatInformationCheck5()
-    {
-      var dtm = CheckDate("yyyy/M/dTH:m:s");
+		[TestMethod]
+		public void DateTimeFormatInformationCheck5()
+		{
+			var dtm = CheckDate("yyyy/M/dTH:m:s");
 
-      Assert.AreEqual(14, dtm.MinLength);
-      Assert.AreEqual(19, dtm.MaxLength);
-    }
-  }
+			Assert.AreEqual(14, dtm.MinLength);
+			Assert.AreEqual(19, dtm.MaxLength);
+		}
+	}
 }

@@ -71,6 +71,6 @@ namespace CsvTools
 
     public string DisplayNullAs { get; }
 
-
+    public bool Equals(IValueFormat? other) => this.ValueFormatEqual(other);
   }
 }

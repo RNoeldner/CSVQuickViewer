@@ -12,13 +12,14 @@
  *
  */
 
-using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+
+#nullable enable
 
 namespace CsvTools.Tests
 {
@@ -34,16 +35,16 @@ namespace CsvTools.Tests
         .Where(t1 => t1.i.IsGenericType && t1.i.GetGenericTypeDefinition() == typeof(ICloneable<>))
         .Select(t1 => t1.t1.t);
 
-    public static void RunCopyTo([NotNull] IEnumerable<Type> list)
+    public static void RunCopyTo(IEnumerable<Type> list)
     {
       if (list == null) throw new ArgumentNullException(nameof(list));
       foreach (var type in list)
         try
         {
-          // if there is not parameter less constructor skip 
+          // if there is not parameter less constructor skip
           if (type.GetConstructor(Type.EmptyTypes)== null)
             continue;
-          
+
           var obj1 = Activator.CreateInstance(type);
           var obj2 = Activator.CreateInstance(type);
 

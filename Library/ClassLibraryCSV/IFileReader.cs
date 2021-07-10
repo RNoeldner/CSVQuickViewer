@@ -13,10 +13,12 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
+#if !QUICK
+using System.Collections.Generic;
+#endif
 
 namespace CsvTools
 {
@@ -99,11 +101,13 @@ namespace CsvTools
     /// </summary>
     event EventHandler<WarningEventArgs> Warning;
 
+#if !QUICK
     /// <summary>
     ///   Event to be raised once the reader is finished reading the file
     /// </summary>
     event EventHandler ReadFinished;
-#if !QUICK
+
+
     /// <summary>
     ///   Event to be raised once the reader opened, the column information is now known
     /// </summary>

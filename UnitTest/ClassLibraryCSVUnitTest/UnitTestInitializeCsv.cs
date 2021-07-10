@@ -22,53 +22,54 @@ using System.Threading;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public static class UnitTestInitializeCsv
-  {
-    public static CancellationToken Token;
-    public static string ApplicationDirectory;
+	public static class UnitTestInitializeCsv
+	{
+		public static CancellationToken Token;
+		public static string ApplicationDirectory;
 
-    public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
+		public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
 
-    public static string GetTestPath(string fileName) =>
-      Path.Combine(ApplicationDirectory, fileName.TrimStart(' ', '\\', '/'));
+		public static string GetTestPath(string fileName) =>
+			Path.Combine(ApplicationDirectory, fileName.TrimStart(' ', '\\', '/'));
 
-    public static void MimicSql() => FunctionalDI.SQLDataReader = MimicSQLReader.ReadDataAsync;
+		public static void MimicSql() => FunctionalDI.SQLDataReader = MimicSQLReader.ReadDataAsync;
 
-    private class TestLogger : ILogger
-    {
-      private readonly TestContext Context;
+		private class TestLogger : ILogger
+		{
+			private readonly TestContext Context;
 
-      public TestLogger(TestContext context)
-      {
-        Context = context;
-      }
+			public TestLogger(TestContext context)
+			{
+				Context = context;
+			}
 
-      public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-      {
-        Context.WriteLine($"{logLevel} - {formatter(state, exception)}");
-      }
+			public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+			{
+				Context.WriteLine($"{logLevel} - {formatter(state, exception)}");
+			}
 
-      public bool IsEnabled(LogLevel logLevel) => true;
+			public bool IsEnabled(LogLevel logLevel) => true;
 
-      public IDisposable BeginScope<TState>(TState state) => default;
-    }
-    [AssemblyInitialize]
-    public static void AssemblyInitialize(TestContext context)
-    {
-      MimicSql();
-      Token = context.CancellationTokenSource.Token;
+			public IDisposable BeginScope<TState>(TState state) => default;
+		}
 
-      ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
+		[AssemblyInitialize]
+		public static void AssemblyInitialize(TestContext context)
+		{
+			MimicSql();
+			Token = context.CancellationTokenSource.Token;
 
-      Logger.LoggerInstance = new TestLogger(context);
-      
-      ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
+			ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
 
-      AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs args)
-      {
-        if (!context.CancellationTokenSource.IsCancellationRequested)
-          context.Write(args.ExceptionObject.ToString());
-      };
-    }
-  }
+			Logger.LoggerInstance = new TestLogger(context);
+
+			ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
+
+			AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs args)
+			{
+				if (!context.CancellationTokenSource.IsCancellationRequested)
+					context.Write(args.ExceptionObject.ToString());
+			};
+		}
+	}
 }

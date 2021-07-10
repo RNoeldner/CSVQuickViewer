@@ -586,18 +586,9 @@ namespace CsvTools
              && string.Equals(TimePart, other.TimePart, StringComparison.OrdinalIgnoreCase)
              && string.Equals(TimePartFormat, other.TimePartFormat, StringComparison.Ordinal)
              && string.Equals(TimeZonePart, other.TimeZonePart, StringComparison.OrdinalIgnoreCase)
-             && Convert == other.Convert && ValueFormatExtension.Equals(ValueFormatMutable, other.ValueFormat);
+             && Convert == other.Convert && ValueFormatMutable.ValueFormatEqual(other.ValueFormat);
     }
 
-    /// <summary>
-    ///   Determines whether the specified object is equal to the current object.
-    /// </summary>
-    /// <param name="obj">The object to compare with the current object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
-    ///   <see langword="false" />.
-    /// </returns>
-    public override bool Equals(object? obj) => Equals(obj as IColumn);
 
     /// <summary>
     ///   Notifies the property changed.

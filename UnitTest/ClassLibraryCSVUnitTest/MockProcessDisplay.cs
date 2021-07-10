@@ -18,51 +18,50 @@ using System.Threading;
 namespace CsvTools.Tests
 {
   public class MockProcessDisplay : IProcessDisplay
-  {
-    private bool m_Disposed;
-    private bool m_Visible = true;
-    public string Text;
+	{
+		private bool m_Disposed;
+		private bool m_Visible = true;
+		public string Text;
 
-    public long Maximum { get; set; }
-    public virtual string Title { get; set; }
+		public long Maximum { get; set; }
+		public virtual string Title { get; set; }
 
+		public CancellationToken CancellationToken => UnitTestInitializeCsv.Token;
 
-    public CancellationToken CancellationToken => UnitTestInitializeCsv.Token;
+		public event EventHandler<ProgressEventArgs> Progress;
 
-    public event EventHandler<ProgressEventArgs> Progress;
+		public virtual void Dispose()
+		{
+			if (!m_Disposed)
+			{
+				m_Visible = true;
+				m_Disposed = true;
+			}
+		}
 
-    public virtual void Dispose()
-    {
-      if (!m_Disposed)
-      {
-        m_Visible = true;
-        m_Disposed = true;
-      }
-    }
+		public void SetProcess(string text, long value = -1, bool log = false)
+		{
+			Text = text;
+			Progress?.Invoke(this, new ProgressEventArgs(text));
+		}
 
-    public void SetProcess(string text, long value = -1, bool log = false)
-    {
-      Text = text;
-      Progress?.Invoke(this, new ProgressEventArgs(text));
-    }
+		public void SetProcess(object sender, ProgressEventArgs e)
+		{
+			Text = e.Text;
+			Progress?.Invoke(sender, e);
+		}
 
-    public void SetProcess(object sender, ProgressEventArgs e)
-    {
-      Text = e.Text;
-      Progress?.Invoke(sender, e);
-    }
+		public void Cancel()
+		{
+		}
 
-    public void Cancel()
-    {
-    }
+		public event EventHandler ProgressStopEvent;
 
-    public event EventHandler ProgressStopEvent;
-
-    public void Close()
-    {
-      m_Visible = !m_Visible;
-      m_Disposed = true;
-      ProgressStopEvent?.Invoke(this, null);
-    }
-  }
+		public void Close()
+		{
+			m_Visible = !m_Visible;
+			m_Disposed = true;
+			ProgressStopEvent?.Invoke(this, null);
+		}
+	}
 }

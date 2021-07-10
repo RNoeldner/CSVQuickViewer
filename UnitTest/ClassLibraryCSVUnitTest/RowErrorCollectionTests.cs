@@ -12,85 +12,85 @@
  *
  */
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class RowErrorCollectionTests
-  {
-    [TestMethod]
-    public void RowErrorCollection() => Assert.IsNotNull(new RowErrorCollection(100));
+	public class RowErrorCollectionTests
+	{
+		[TestMethod]
+		public void RowErrorCollection() => Assert.IsNotNull(new RowErrorCollection(100));
 
-    [TestMethod]
-    public async Task HandleIgnoredColumns()
-    {
-      var coll = new RowErrorCollection(5);
+		[TestMethod]
+		public async Task HandleIgnoredColumns()
+		{
+			var coll = new RowErrorCollection(5);
 
-      using (var reader = new CsvFileReader(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0, true,
-        new IColumn[]
-        {
-          new ImmutableColumn("DateTime", new ImmutableValueFormat(DataType.DateTime), 0, true, "", true),
-          new ImmutableColumn("Integer", new ImmutableValueFormat(DataType.Integer), 0, true, "", true),
-        }))
+			using (var reader = new CsvFileReader(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0, true,
+				new IColumn[]
+				{
+					new ImmutableColumn("DateTime", new ImmutableValueFormat(DataType.DateTime), 0, true, "", true),
+					new ImmutableColumn("Integer", new ImmutableValueFormat(DataType.Integer), 0, true, "", true),
+				}))
 
-      {
-        await reader.OpenAsync(CancellationToken.None);
-        coll.HandleIgnoredColumns(reader);
+			{
+				await reader.OpenAsync(CancellationToken.None);
+				coll.HandleIgnoredColumns(reader);
 
-        // An error i an ignored column is not stored
-        coll.Add(this, new WarningEventArgs(1, 0, "Message1", 100, 100, "ColName"));
-        Assert.AreEqual(0, coll.CountRows);
-      }
-    }
+				// An error i an ignored column is not stored
+				coll.Add(this, new WarningEventArgs(1, 0, "Message1", 100, 100, "ColName"));
+				Assert.AreEqual(0, coll.CountRows);
+			}
+		}
 
-    [TestMethod]
-    public void Add()
-    {
-      var coll = new RowErrorCollection(5);
-      coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
-      Assert.AreEqual(1, coll.CountRows);
-      coll.Add(this, new WarningEventArgs(2, 1, "Message1", 101, 101, "ColName"));
-      Assert.AreEqual(2, coll.CountRows);
-      coll.Add(this, new WarningEventArgs(3, 1, "Message1", 102, 102, "ColName"));
-      Assert.AreEqual(3, coll.CountRows);
-      coll.Add(this, new WarningEventArgs(4, 1, "Message1", 103, 103, "ColName"));
-      Assert.AreEqual(4, coll.CountRows);
-      coll.Add(this, new WarningEventArgs(5, 1, "Message1", 104, 104, "ColName"));
-      Assert.AreEqual(5, coll.CountRows);
+		[TestMethod]
+		public void Add()
+		{
+			var coll = new RowErrorCollection(5);
+			coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
+			Assert.AreEqual(1, coll.CountRows);
+			coll.Add(this, new WarningEventArgs(2, 1, "Message1", 101, 101, "ColName"));
+			Assert.AreEqual(2, coll.CountRows);
+			coll.Add(this, new WarningEventArgs(3, 1, "Message1", 102, 102, "ColName"));
+			Assert.AreEqual(3, coll.CountRows);
+			coll.Add(this, new WarningEventArgs(4, 1, "Message1", 103, 103, "ColName"));
+			Assert.AreEqual(4, coll.CountRows);
+			coll.Add(this, new WarningEventArgs(5, 1, "Message1", 104, 104, "ColName"));
+			Assert.AreEqual(5, coll.CountRows);
 
-      // This should be cut off
-      coll.Add(this, new WarningEventArgs(6, 1, "Message1", 105, 105, "ColName"));
-      Assert.AreEqual(5, coll.CountRows);
-    }
+			// This should be cut off
+			coll.Add(this, new WarningEventArgs(6, 1, "Message1", 105, 105, "ColName"));
+			Assert.AreEqual(5, coll.CountRows);
+		}
 
-    [TestMethod]
-    public void Clear()
-    {
-      var coll = new RowErrorCollection(5);
-      coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
-      Assert.AreEqual(1, coll.CountRows);
-      coll.Clear();
-      Assert.AreEqual(0, coll.CountRows);
-    }
+		[TestMethod]
+		public void Clear()
+		{
+			var coll = new RowErrorCollection(5);
+			coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
+			Assert.AreEqual(1, coll.CountRows);
+			coll.Clear();
+			Assert.AreEqual(0, coll.CountRows);
+		}
 
-    [TestMethod]
-    public void TryGetValue()
-    {
-      var coll = new RowErrorCollection(5);
-      coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
-      Assert.IsTrue(coll.TryGetValue(1, out _));
-    }
+		[TestMethod]
+		public void TryGetValue()
+		{
+			var coll = new RowErrorCollection(5);
+			coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
+			Assert.IsTrue(coll.TryGetValue(1, out _));
+		}
 
-    [TestMethod]
-    public void DisplayByRecordNumber()
-    {
-      var coll = new RowErrorCollection(5);
-      coll.Add(this, new WarningEventArgs(425, 1, "Message1", 100, 100, "ColName"));
-      Assert.IsTrue(coll.DisplayByRecordNumber.Contains("Row 425"));
-    }
-  }
+		[TestMethod]
+		public void DisplayByRecordNumber()
+		{
+			var coll = new RowErrorCollection(5);
+			coll.Add(this, new WarningEventArgs(425, 1, "Message1", 100, 100, "ColName"));
+			Assert.IsTrue(coll.DisplayByRecordNumber.Contains("Row 425"));
+		}
+	}
 }
