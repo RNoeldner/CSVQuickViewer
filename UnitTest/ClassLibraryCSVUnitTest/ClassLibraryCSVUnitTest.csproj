@@ -1,25 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>CsvTools.Tests</RootNamespace>
-    <OutputType>Library</OutputType>
+    <TargetFramework>net472</TargetFramework>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
 <ItemGroup>
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.5" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.5" />
 
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Reference Include="Microsoft.CSharp">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\Microsoft.CSharp.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

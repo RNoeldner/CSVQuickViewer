@@ -48,14 +48,14 @@ namespace CsvTools
     /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">processDisplay</exception>
-    public static async Task<DelimitedFileDetectionResultWithColumns?> AnalyseFileAsync(this string fileName, bool guessJson,
+    public static async Task<DelimitedFileDetectionResultWithColumns> AnalyseFileAsync(this string fileName, bool guessJson,
                                                          bool guessCodePage, bool guessDelimiter, bool guessQualifier, bool guessStartRow,
                                                          bool guessHasHeader, bool guessNewLine, bool guessCommentLine, FillGuessSettings fillGuessSettings,
                                                          IProcessDisplay processDisplay)
     {
       if (processDisplay == null) throw new ArgumentNullException(nameof(processDisplay));
       if (string.IsNullOrEmpty(fileName))
-        return null;
+        throw new ArgumentException("Argument can not be empty", nameof(fileName));
 
       if (fileName.IndexOf('~') != -1)
         fileName = fileName.LongFileName();
@@ -63,7 +63,7 @@ namespace CsvTools
       var fileName2 = FileSystemUtils.ResolvePattern(fileName);
       var fileInfo = new FileSystemUtils.FileInfo(fileName2);
       if (!fileInfo.Exists)
-        return null;
+        throw new FileNotFoundException(fileName2);
 
       Logger.Information("Examining file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName2!, 40));
       Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
@@ -99,22 +99,32 @@ namespace CsvTools
           (fileSettingSer is BaseSettingPhysicalFile bas) ? bas.ColumnFile : string.Empty);
       }
 #endif
-      var setting = await ManifestData.ReadManifestZip(fileName2!);
-      if (setting != null)
-      {
-        Logger.Information("Data in zip {filename}", setting.IdentifierInContainer);
-        return setting;
-      }
+      if (fileName2.EndsWith("zip"))
+        try
+        {
+          var setting = await ManifestData.ReadManifestZip(fileName2!);
+          Logger.Information("Data in zip {filename}", setting.IdentifierInContainer);
+          return setting;
+        }
+        catch (FileNotFoundException e1)
+        {
+          Logger.Information(e1, "Trying to read manifest inside zip");
+        }
 
-      var settingFs = await ManifestData.ReadManifestFileSystem(fileName2!);
-      if (settingFs != null)
-      {
-        Logger.Information("Data in {filename}", settingFs.FileName);
-        return settingFs;
-      }
+      if (fileName2.EndsWith(ManifestData.cCsvManifestExtension))
+        try
+        {
+          var settingFs = await ManifestData.ReadManifestFileSystem(fileName2!);
+          Logger.Information("Data in {filename}", settingFs.FileName);
+          return settingFs;
+        }
+        catch (FileNotFoundException e2)
+        {
+          Logger.Information(e2, "Trying to read manifest");
+        }
 
       // Determine from file
-      var detectionResult = await GetDetectionResultFromFile(fileName2!, processDisplay,
+      var detectionResult = await GetDetectionResultFromFile(fileName2, processDisplay,
         guessJson,
         guessCodePage,
         guessDelimiter,
@@ -126,9 +136,9 @@ namespace CsvTools
 
       processDisplay.SetProcess("Determining column format by reading samples", -1, true);
 
-      using IFileReader reader = GetReaderFromDetectionResult(fileName2!, detectionResult, processDisplay);
+      using IFileReader reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
       await reader.OpenAsync(processDisplay.CancellationToken);
-      var (_, b)= await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings, null, false, true,
+      var (res, b)= await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings, null, false, true,
         "NULL", processDisplay.CancellationToken);
 
       return new DelimitedFileDetectionResultWithColumns(detectionResult, b);
@@ -275,7 +285,7 @@ namespace CsvTools
       if (guessStartRow && oldDelimiter != detectionResult.FieldDelimiter.StringToChar())
       {
         if (oldDelimiter != 0)
-          Logger.Information("  Checking start row again because previously assumed delimiter has changed");
+          Logger.Information("Checking start row again because previously assumed delimiter has changed");
         if (display.CancellationToken.IsCancellationRequested)
           return detectionResult;
         using var streamReader2 = await improvedStream.GetStreamReaderAtStart(detectionResult.CodePageId, 0, display.CancellationToken);
@@ -474,11 +484,11 @@ namespace CsvTools
       }
       catch (ApplicationException ex)
       {
-        Logger.Information("  Without Header Row {reason}", ex.Message);
+        Logger.Information("Without Header Row {reason}", ex.Message);
         return new Tuple<bool, string>(false, ex.Message);
       }
 
-      Logger.Information("  Has Header Row");
+      Logger.Information("Has Header Row");
       return new Tuple<bool, string>(true, "Header seems present");
     }
 
@@ -700,7 +710,7 @@ namespace CsvTools
           }
         }
       }
-      Logger.Information("  Start Row: {row}", retValue);
+      Logger.Information("Start Row: {row}", retValue);
       return retValue;
     }
 
@@ -741,11 +751,11 @@ namespace CsvTools
       if (maxCount > 0)
       {
         var check = starts.First(x => x.Value == maxCount);
-        Logger.Information("  Comment Line: {comment}", check.Key);
+        Logger.Information("Comment Line: {comment}", check.Key);
         return check.Key;
       }
 
-      Logger.Information("  No Comment Line");
+      Logger.Information("No Comment Line");
       return string.Empty;
     }
 
@@ -893,7 +903,7 @@ namespace CsvTools
       {
         if (await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
-          Logger.Information("  Detected Json file");
+          Logger.Information("Detected Json file");
           if (jsonTextReader.TokenType == JsonToken.StartObject ||
               jsonTextReader.TokenType == JsonToken.StartArray ||
               jsonTextReader.TokenType == JsonToken.StartConstructor)
@@ -1174,7 +1184,7 @@ namespace CsvTools
       }
 
       var result = match == '\t' ? "Tab" : match.ToString(CultureInfo.CurrentCulture);
-      Logger.Information("  Column Delimiter: {delimiter}", result);
+      Logger.Information("Column Delimiter: {delimiter}", result);
       return new Tuple<string, bool>(result, true);
     }
 
@@ -1273,7 +1283,7 @@ namespace CsvTools
                 : count[c_LFCr] == maxCount ? RecordDelimiterType.LFCR
                 : count[c_CrLf] == maxCount ? RecordDelimiterType.CRLF
                 : RecordDelimiterType.None;
-      Logger.Information("  Record Delimiter: {recorddelimiter}", res.Description());
+      Logger.Information("Record Delimiter: {recorddelimiter}", res.Description());
       return res;
     }
 
@@ -1323,9 +1333,9 @@ namespace CsvTools
 
       var res = max < 1 ? '\0' : possibleQuotes.Where((t, testChar) => counter[testChar] == max).FirstOrDefault();
       if (res != '\0')
-        Logger.Information("  Column Qualifier: {qualifier}", res);
+        Logger.Information("Column Qualifier: {qualifier}", res);
       else
-        Logger.Information("  No Column Qualifier");
+        Logger.Information("No Column Qualifier");
       return res;
     }
   }

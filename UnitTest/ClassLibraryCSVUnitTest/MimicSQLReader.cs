@@ -55,14 +55,12 @@ namespace CsvTools.Tests
 			var setting = m_ReadSetting.Any(x => x.Key.ID == settingName)
 				? m_ReadSetting.First(x => x.Key.ID == settingName)
 				: m_ReadSetting.First();
-			using (var dummy = new CustomProcessDisplay(token))
-			{
-				var reader = setting.Value != null
-					? new DataTableWrapper(setting.Value)
-					: FunctionalDI.GetFileReader(setting.Key, null, dummy);
-				await reader.OpenAsync(token).ConfigureAwait(false);
-				return reader;
-			}
-		}
+      using var dummy = new CustomProcessDisplay(token);
+      var reader = setting.Value != null
+        ? new DataTableWrapper(setting.Value)
+        : FunctionalDI.GetFileReader(setting.Key, null, dummy);
+      await reader.OpenAsync(token).ConfigureAwait(false);
+      return reader;
+    }
 	}
 }

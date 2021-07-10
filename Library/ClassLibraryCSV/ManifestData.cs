@@ -10,7 +10,7 @@ namespace CsvTools
 {
   public class ManifestData
   {
-    private const string cCsvManifestExtension = ".manifest.json";
+    internal const string cCsvManifestExtension = ".manifest.json";
 
     [JsonConstructor]
     public ManifestData(string? pubName, string? heading, string? desc, bool delta, string? hydration,
@@ -33,14 +33,15 @@ namespace CsvTools
     public string Hydration { get; }
     public string PubName { get; }
 
-    public static async Task<DelimitedFileDetectionResultWithColumns?> ReadManifestFileSystem(string fileName)
+    public static async Task<DelimitedFileDetectionResultWithColumns> ReadManifestFileSystem(string fileName)
     {
       var posExt = fileName.LastIndexOf('.');
-      if (posExt == -1) return null;
       var manifest = fileName.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase)
         ? fileName
         : fileName.Substring(0, posExt) + cCsvManifestExtension;
-      if (!FileSystemUtils.FileExists(manifest)) return null;
+      if (!FileSystemUtils.FileExists(manifest)) 
+        throw new FileNotFoundException(manifest);
+
       var dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".csv");
       Logger.Information("Configuration read from manifest file {filename}", manifest);
 
@@ -50,20 +51,15 @@ namespace CsvTools
       dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".txt");
       if (FileSystemUtils.FileExists(dataFile))
         return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
-
-      return null;
+      throw new FileNotFoundException(dataFile);
     }
 
-    public static async Task<DelimitedFileDetectionResultWithColumns?> ReadManifestZip(string fileName)
+    public static async Task<DelimitedFileDetectionResultWithColumns> ReadManifestZip(string fileName)
     {
-      if (!fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
-        return null;
-
       Logger.Debug("Opening Zip file {filename}", fileName);
 
       using var archive = new ZipFile(fileName.LongPathPrefix());
       // find Text and Manifest
-
       foreach (ZipEntry entryManifest in archive)
       {
         if (!entryManifest.IsFile || !entryManifest.Name.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase))
@@ -77,15 +73,15 @@ namespace CsvTools
         }
       }
 
-      return null;
+      throw new FileNotFoundException("Could not locate manifest and matching file");
     }
 
-    private static async Task<DelimitedFileDetectionResultWithColumns?> ReadManifestFromStream(Stream manifestStream, string fileName, string identifierInContainer)
+    private static async Task<DelimitedFileDetectionResultWithColumns> ReadManifestFromStream(Stream manifestStream, string fileName, string identifierInContainer)
     {
       var strContend = await new StreamReader(manifestStream, Encoding.UTF8, true, 4096, false).ReadToEndAsync();
       var mani = JsonConvert.DeserializeObject<ManifestData>(strContend);
       if (mani == null)
-        return null;
+        throw new InvalidOperationException("The manifest file could not be deserialized");
       var fileSettingMani = new DelimitedFileDetectionResult(fileName, 0, Encoding.UTF8.CodePage, false, true, identifierInContainer, "#", "\\", ",", "\"", false, false, false, RecordDelimiterType.LF);
 
       var columnCollection = new List<IColumn>();

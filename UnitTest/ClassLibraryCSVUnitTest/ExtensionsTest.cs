@@ -235,29 +235,25 @@ namespace CsvTools.Tests
 		{
 			var testValue = string.Empty;
 
-			using (var customProcess = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-			{
-				customProcess.Progress += (sender, args) => testValue = args.Text;
-				// Logger.UILog = (s, level) => testValue2 = s;
+      using var customProcess = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      customProcess.Progress += (sender, args) => testValue = args.Text;
+      // Logger.UILog = (s, level) => testValue2 = s;
 
-				var test = customProcess.GetLogInfoMessage();
-				test.Invoke(null, "Test");
-				// can not check if log was sent
-				Assert.AreEqual("Test", testValue);
-			}
-		}
+      var test = customProcess.GetLogInfoMessage();
+      test.Invoke(null, "Test");
+      // can not check if log was sent
+      Assert.AreEqual("Test", testValue);
+    }
 
 		[TestMethod]
 		public void GetRealDataColumnsTest()
-		{
-			using (var dt = new DataTable())
-			{
-				dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(string) });
-				dt.Columns.Add(new DataColumn { ColumnName = "ID2", DataType = typeof(string) });
-				var cols = dt.GetRealColumns();
-				Assert.AreEqual(2, cols.Count());
-			}
-		}
+    {
+      using var dt = new DataTable();
+      dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(string) });
+      dt.Columns.Add(new DataColumn { ColumnName = "ID2", DataType = typeof(string) });
+      var cols = dt.GetRealColumns();
+      Assert.AreEqual(2, cols.Count());
+    }
 
 		[TestMethod]
 		public void AssumeExtension()

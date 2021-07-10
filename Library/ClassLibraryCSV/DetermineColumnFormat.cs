@@ -195,7 +195,7 @@ namespace CsvTools
 
         if (fillGuessSettings.IgnoreIdColumns && StringUtils.AssumeIDColumn(readerColumn.Name) > 0)
         {
-          Logger.Debug("{column} – ID columns ignored", readerColumn.Name);
+          Logger.Information("{column} – ID columns ignored", readerColumn.Name);
           result.Add($"{readerColumn.Name} – ID columns ignored");
 
           if (!addTextColumns || columnCollection.Get(readerColumn.Name) != null) continue;
@@ -212,7 +212,7 @@ namespace CsvTools
             (readerColumn.ValueFormat.DataType == DataType.Numeric && !checkDoubleToBeInteger) ||
             (readerColumn.ValueFormat.DataType == DataType.Double && !checkDoubleToBeInteger))
         {
-          Logger.Debug("{column} - Existing Type : {format}", readerColumn.Name,
+          Logger.Information("{column} - Existing Type : {format}", readerColumn.Name,
             readerColumn.ValueFormat.GetTypeAndFormatDescription());
           result.Add($"{readerColumn.Name} - Existing Type : {readerColumn.ValueFormat.GetTypeAndFormatDescription()}");
           continue;
@@ -244,7 +244,7 @@ namespace CsvTools
         cancellationToken.ThrowIfCancellationRequested();
         if (samples.Values.Count == 0)
         {
-          Logger.Debug("{column} – No values found – Format : {format}", readerColumn.Name,
+          Logger.Information("{column} – No values found – Format : {format}", readerColumn.Name,
             readerColumn.GetTypeAndFormatDescription());
           result.Add($"{readerColumn.Name} – No values found – Format : {readerColumn.GetTypeAndFormatDescription()}");
           if (!addTextColumns)
@@ -256,7 +256,7 @@ namespace CsvTools
           var detect = true;
           if (samples.Values.Count() < fillGuessSettings.MinSamples)
           {
-            Logger.Debug(
+            Logger.Information(
               "{column} – {values} values found in {records} rows. Not enough sample values – Format : {format}",
               readerColumn.Name, samples.Values.Count(), samples.RecordsRead,
               readerColumn.GetTypeAndFormatDescription());
@@ -264,7 +264,7 @@ namespace CsvTools
           }
           else
           {
-            Logger.Debug("{column} – {values} values found in {records} row. Examining format", readerColumn.Name,
+            Logger.Information("{column} – {values} values found in {records} row. Examining format", readerColumn.Name,
               samples.Values.Count(), samples.RecordsRead);
           }
 
@@ -309,14 +309,14 @@ namespace CsvTools
 
             if (checkResult.FoundValueFormat.ValueFormatEqual(columnCollection[colIndexCurrent].ValueFormat))
             {
-              Logger.Debug("{column} – Format : {format} – not changed", readerColumn.Name, oldValueFormat);
+              Logger.Information("{column} – Format : {format} – not changed", readerColumn.Name, oldValueFormat);
             }
             else
             {
               var newValueFormat = checkResult.FoundValueFormat.GetTypeAndFormatDescription();
               if (oldValueFormat.Equals(newValueFormat, StringComparison.Ordinal))
                 continue;
-              Logger.Debug("{column} – Format : {format} – updated from {oldformat}", readerColumn.Name,
+              Logger.Information("{column} – Format : {format} – updated from {oldformat}", readerColumn.Name,
                 newValueFormat, oldValueFormat);
               result.Add($"{readerColumn.Name} – Format : {newValueFormat} – updated from {oldValueFormat}");
               columnCollection.Replace(new ImmutableColumn(columnCollection[colIndexCurrent], checkResult.FoundValueFormat));
@@ -330,7 +330,7 @@ namespace CsvTools
 
             if (!addTextColumns && format.DataType == DataType.String) continue;
 
-            Logger.Debug("{column} – Format : {format}", readerColumn.Name, format.GetTypeAndFormatDescription());
+            Logger.Information("{column} – Format : {format}", readerColumn.Name, format.GetTypeAndFormatDescription());
             result.Add($"{readerColumn.Name} – Format : {format.GetTypeAndFormatDescription()}");
             columnCollection.Add(new ImmutableColumn(readerColumn, format));
 
@@ -367,7 +367,7 @@ namespace CsvTools
               {
                 var oldVf = columnCollection[colIndexExisting].ValueFormat;
                 if (oldVf.ValueFormatEqual(checkResult.FoundValueFormat)) continue;
-                Logger.Debug("{column} – Format : {format} – updated from {oldformat}",
+                Logger.Information("{column} – Format : {format} – updated from {oldformat}",
                   columnCollection[colIndexExisting].Name,
                   checkResult.FoundValueFormat.GetTypeAndFormatDescription(),
                   oldVf.GetTypeAndFormatDescription());
@@ -413,7 +413,7 @@ namespace CsvTools
                 columnCollection[colIndexSetting].PartSplitter, columnCollection[colIndexSetting].PartToEnd,
                 columnCollection[colIndexSetting].TimePart, columnCollection[colIndexSetting].TimePartFormat,
                 columnTimeZone.Name));
-              Logger.Debug("{column} – Added Time Zone : {column2}", readerColumn.Name, columnTimeZone.Name);
+              Logger.Information("{column} – Added Time Zone : {column2}", readerColumn.Name, columnTimeZone.Name);
               result.Add($"{readerColumn.Name} – Added Time Zone : {columnTimeZone.Name}");
             }
 
@@ -443,7 +443,7 @@ namespace CsvTools
               columnTime.Name, timeFormat.DateFormat,
               columnCollection[colIndexSetting].TimeZonePart));
 
-            Logger.Debug("{column} – Added Time Part : {column2}", readerColumn.Name, columnTime.Name);
+            Logger.Information("{column} – Added Time Part : {column2}", readerColumn.Name, columnTime.Name);
             result.Add($"{readerColumn.Name} – Added Time Part : {columnTime.Name}");
           }
         }
@@ -491,7 +491,7 @@ namespace CsvTools
                 {
                   columnCollection.Add(new ImmutableColumn(columnTime,
                     new ImmutableValueFormat(DataType.DateTime, first.Length == 8 ? "HH:mm:ss" : "HH:mm")));
-                  Logger.Debug("{column} – Format : {format}", columnTime.Name,
+                  Logger.Information("{column} – Format : {format}", columnTime.Name,
                     columnTime.GetTypeAndFormatDescription());
                   result.Add($"{readerColumn.Name}  – Format : {columnTime.GetTypeAndFormatDescription()}");
                 }
@@ -499,7 +499,7 @@ namespace CsvTools
                 break;
               }
 
-              Logger.Debug("{column} – Added Time Part : {column2}", readerColumn.Name, columnTime.Name);
+              Logger.Information("{column} – Added Time Part : {column2}", readerColumn.Name, columnTime.Name);
               result.Add($"{readerColumn.Name} – Added Time Part : {columnTime.Name}");
               continue;
             }
@@ -539,7 +539,7 @@ namespace CsvTools
                   columnCollection[colIndexSetting].TimePart, first.Length == 8 ? "HH:mm:ss" : "HH:mm",
                   columnCollection[colIndexSetting].TimeZonePart));
 
-                Logger.Debug("{column} – Format : {format}", columnCollection[colIndexSetting].Name,
+                Logger.Information("{column} – Format : {format}", columnCollection[colIndexSetting].Name,
                   columnCollection[colIndexSetting].GetTypeAndFormatDescription());
                 result.Add($"{columnCollection[colIndexSetting].Name} – Format : {columnCollection[colIndexSetting].GetTypeAndFormatDescription()}");
               }
@@ -547,7 +547,7 @@ namespace CsvTools
               break;
             }
 
-            Logger.Debug("{column} – Added Time Part : {column2}", readerColumn.Name, readerColumnTime.Name);
+            Logger.Information("{column} – Added Time Part : {column2}", readerColumn.Name, readerColumnTime.Name);
             result.Add($"{readerColumn.Name} – Added Time Part : {readerColumnTime.Name}");
           }
         }

@@ -129,120 +129,114 @@ namespace CsvTools.Tests
 
 		[TestMethod]
 		public async Task WriteDataTableAsync()
-		{
-			using (var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture })
-			{
-				dataTable.Columns.Add("ID", typeof(int));
-				dataTable.Columns.Add("Text", typeof(string));
-				for (var i = 0; i < 100; i++)
-				{
-					var row = dataTable.NewRow();
-					row["ID"] = i;
-					row["Text"] = i.ToString(CultureInfo.CurrentCulture);
-					dataTable.Rows.Add(row);
-				}
+    {
+      using var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
+      dataTable.Columns.Add("ID", typeof(int));
+      dataTable.Columns.Add("Text", typeof(string));
+      for (var i = 0; i < 100; i++)
+      {
+        var row = dataTable.NewRow();
+        row["ID"] = i;
+        row["Text"] = i.ToString(CultureInfo.CurrentCulture);
+        dataTable.Rows.Add(row);
+      }
 
-				var writeFile = new CsvFile { ID = "Test.txt", FileName =  UnitTestInitializeCsv.GetTestPath("Test.txt"), SqlStatement = "Hello" };
-				using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-				{
-					var writer = new CsvFileWriter(writeFile);
-					using (var reader = new DataTableWrapper(dataTable))
-					{
-						// await reader.OpenAsync(processDisplay.CancellationToken);
-						Assert.AreEqual(100, await writer.WriteAsync(reader, processDisplay.CancellationToken));
-					}
-				}
+      var writeFile = new CsvFile { ID = "Test.txt", FileName =  UnitTestInitializeCsv.GetTestPath("Test.txt"), SqlStatement = "Hello" };
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+      {
+        var writer = new CsvFileWriter(writeFile);
+        using (var reader = new DataTableWrapper(dataTable))
+        {
+          // await reader.OpenAsync(processDisplay.CancellationToken);
+          Assert.AreEqual(100, await writer.WriteAsync(reader, processDisplay.CancellationToken));
+        }
+      }
 
-				Assert.IsTrue(File.Exists(writeFile.FileName));
-			}
-		}
+      Assert.IsTrue(File.Exists(writeFile.FileName));
+    }
 
 		[TestMethod]
 		public async Task WriteDataTableHandleIssuesAsync()
-		{
-			using (var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture })
-			{
-				dataTable.Columns.Add("ID", typeof(int));
-				dataTable.Columns.Add("Text", typeof(string));
-				for (var i = 0; i < 100; i++)
-				{
-					var row = dataTable.NewRow();
-					row["ID"] = i;
-					row["Text"] = "Text" + i.ToString(CultureInfo.CurrentCulture);
-					dataTable.Rows.Add(row);
-				}
+    {
+      using var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
+      dataTable.Columns.Add("ID", typeof(int));
+      dataTable.Columns.Add("Text", typeof(string));
+      for (var i = 0; i < 100; i++)
+      {
+        var row = dataTable.NewRow();
+        row["ID"] = i;
+        row["Text"] = "Text" + i.ToString(CultureInfo.CurrentCulture);
+        dataTable.Rows.Add(row);
+      }
 
-				var writeFile = new CsvFile { ID = "Test.txt", FileName =  UnitTestInitializeCsv.GetTestPath("Test.txt"), SqlStatement = "Hello" };
-				writeFile.ColumnCollection.Add(new Column("Text", DataType.Integer));
-				writeFile.Header = "##This is a header for {FileName}";
-				writeFile.Footer = "##This is a Footer\r\n{Records} in file";
-				var count = 0;
-				using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-				{
-					var writer = new CsvFileWriter(writeFile);
-					writer.Warning += (sender, e) => { count++; };
-					using (var reader = new DataTableWrapper(dataTable))
-					{
-						// await reader.OpenAsync(processDisplay.CancellationToken);
-						Assert.AreEqual(100, await writer.WriteAsync(reader, processDisplay.CancellationToken), "Records");
-					}
+      var writeFile = new CsvFile { ID = "Test.txt", FileName =  UnitTestInitializeCsv.GetTestPath("Test.txt"), SqlStatement = "Hello" };
+      writeFile.ColumnCollection.Add(new Column("Text", DataType.Integer));
+      writeFile.Header = "##This is a header for {FileName}";
+      writeFile.Footer = "##This is a Footer\r\n{Records} in file";
+      var count = 0;
+      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+      {
+        var writer = new CsvFileWriter(writeFile);
+        writer.Warning += (sender, e) => { count++; };
+        using (var reader = new DataTableWrapper(dataTable))
+        {
+          // await reader.OpenAsync(processDisplay.CancellationToken);
+          Assert.AreEqual(100, await writer.WriteAsync(reader, processDisplay.CancellationToken), "Records");
+        }
 
-					Assert.AreEqual(100, count, "Warnings");
-				}
+        Assert.AreEqual(100, count, "Warnings");
+      }
 
-				Assert.IsTrue(File.Exists(writeFile.FileName));
-			}
-		}
+      Assert.IsTrue(File.Exists(writeFile.FileName));
+    }
 
 		[TestMethod]
 		public async Task WriteFileLocked()
-		{
-			using (var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture })
-			{
-				dataTable.Columns.Add("ID", typeof(int));
-				dataTable.Columns.Add("Text", typeof(string));
-				for (var i = 0; i < 5; i++)
-				{
-					var row = dataTable.NewRow();
-					row["ID"] = i;
-					row["Text"] = i.ToString(CultureInfo.InvariantCulture);
-					dataTable.Rows.Add(row);
-				}
+    {
+      using var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
+      dataTable.Columns.Add("ID", typeof(int));
+      dataTable.Columns.Add("Text", typeof(string));
+      for (var i = 0; i < 5; i++)
+      {
+        var row = dataTable.NewRow();
+        row["ID"] = i;
+        row["Text"] = i.ToString(CultureInfo.InvariantCulture);
+        dataTable.Rows.Add(row);
+      }
 
-				var writeFile = new CsvFile
-				{
-					ID = "Test.txt",
-					FileName =  UnitTestInitializeCsv.GetTestPath("WriteFileLocked.txt"),
-					InOverview = false,
-					SqlStatement = "dummy"
-				};
-				FileSystemUtils.FileDelete(writeFile.FileName);
-				using (var file = new StreamWriter(writeFile.FileName))
-				{
-					await file.WriteLineAsync("Hello");
-					try
-					{
-						using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-						{
-							var writer = new CsvFileWriter(writeFile);
-							using (var reader = new DataTableWrapper(dataTable))
-							{
-								await writer.WriteAsync(reader, processDisplay.CancellationToken);
-							}
-						}
+      var writeFile = new CsvFile
+      {
+        ID = "Test.txt",
+        FileName =  UnitTestInitializeCsv.GetTestPath("WriteFileLocked.txt"),
+        InOverview = false,
+        SqlStatement = "dummy"
+      };
+      FileSystemUtils.FileDelete(writeFile.FileName);
+      using (var file = new StreamWriter(writeFile.FileName))
+      {
+        await file.WriteLineAsync("Hello");
+        try
+        {
+          using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+          {
+            var writer = new CsvFileWriter(writeFile);
+            using (var reader = new DataTableWrapper(dataTable))
+            {
+              await writer.WriteAsync(reader, processDisplay.CancellationToken);
+            }
+          }
 
-						Assert.Fail("Exception not thrown");
-					}
-					catch (FileWriterException)
-					{
-					}
+          Assert.Fail("Exception not thrown");
+        }
+        catch (FileWriterException)
+        {
+        }
 
-					await file.WriteLineAsync("World");
-				}
+        await file.WriteLineAsync("World");
+      }
 
-				FileSystemUtils.FileDelete(writeFile.FileName);
-			}
-		}
+      FileSystemUtils.FileDelete(writeFile.FileName);
+    }
 
 		[TestMethod]
 		public async Task WriteGZipAsync()

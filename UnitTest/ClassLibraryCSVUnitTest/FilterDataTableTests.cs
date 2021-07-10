@@ -67,33 +67,29 @@ namespace CsvTools.Tests
 		public void CancelTest()
 		{
 			var dt = GetDataTable(2000);
-			using (var test = new FilterDataTable(dt.Item1))
-			{
-				test.Cancel();
-				// No effect but no error either
-				_ = test.FilterAsync(0, FilterType.ShowErrors, UnitTestInitializeCsv.Token);
-				// Assert.IsTrue(test.Filtering);
-				test.Cancel();
-				// Assert.IsFalse(test.Filtering);
-			}
-		}
+      using var test = new FilterDataTable(dt.Item1);
+      test.Cancel();
+      // No effect but no error either
+      _ = test.FilterAsync(0, FilterType.ShowErrors, UnitTestInitializeCsv.Token);
+      // Assert.IsTrue(test.Filtering);
+      test.Cancel();
+      // Assert.IsFalse(test.Filtering);
+    }
 
 		[TestMethod]
 		public void UniqueFieldName()
 		{
 			var dt = GetDataTable(10);
-			using (var test = new FilterDataTable(dt.Item1))
-			{
-				test.UniqueFieldName = new[] { "ColID" };
-				var task = test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestInitializeCsv.Token).ConfigureAwait(false);
-				while (test.Filtering)
-					test.WaitCompeteFilter(0.1);
+      using var test = new FilterDataTable(dt.Item1);
+      test.UniqueFieldName = new[] { "ColID" };
+      var task = test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestInitializeCsv.Token).ConfigureAwait(false);
+      while (test.Filtering)
+        test.WaitCompeteFilter(0.1);
 
-				Assert.IsFalse(test.Filtering);
-				var result1 = test.ColumnsWithoutErrors;
-				Assert.IsFalse(result1.Contains("ColID"));
-			}
-		}
+      Assert.IsFalse(test.Filtering);
+      var result1 = test.ColumnsWithoutErrors;
+      Assert.IsFalse(result1.Contains("ColID"));
+    }
 
 		[TestMethod]
 		public async Task ColumnsWithoutErrorsAsync()
