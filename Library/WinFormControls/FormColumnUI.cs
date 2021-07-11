@@ -657,7 +657,7 @@ namespace CsvTools
           {
             // Read Settings -- open the source that is a file if there are ignored columns need
             // to open file and get all columns
-            if (m_FileSetting.ColumnCollection.Any<IColumn>(x => x.Ignore))
+            if (m_FileSetting.ColumnCollection.Any(x => x.Ignore))
             {
               using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null,
                 new CustomProcessDisplay(m_CancellationTokenSource.Token));
@@ -796,18 +796,18 @@ namespace CsvTools
       try
       {
         if (m_WriteSetting)
-          using (var sqlReader =
+        {
+          using var sqlReader =
             await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
-              processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
-          {
-            await sqlReader.OpenAsync(processDisplay.CancellationToken);
-            var colIndex = sqlReader.GetOrdinal(columnName);
-            if (colIndex < 0)
-              throw new FileException($"Column {columnName} not found.");
-            return (await DetermineColumnFormat.GetSampleValuesAsync(sqlReader, 0, new[] { colIndex },
-                                                 m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken)
-                                               .ConfigureAwait(false)).First().Value;
-          }
+              processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken);
+          await sqlReader.OpenAsync(processDisplay.CancellationToken);
+          var colIndex = sqlReader.GetOrdinal(columnName);
+          if (colIndex < 0)
+            throw new FileException($"Column {columnName} not found.");
+          return (await DetermineColumnFormat.GetSampleValuesAsync(sqlReader, 0, new[] { colIndex },
+              m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken)
+            .ConfigureAwait(false)).First().Value;
+        }
 
         // must be file reader if this is reached
         var hasRetried = false;

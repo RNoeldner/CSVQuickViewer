@@ -65,7 +65,7 @@ namespace CsvTools
         Paint += FilteredDataGridView_Paint;
 
       var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
-      m_ImgFilterIndicator = (Image) resources.GetObject("toolStripMenuItem2.Image") ?? throw new InvalidOperationException("Resource not found");
+      m_ImgFilterIndicator = ((Image) resources.GetObject("toolStripMenuItem2.Image")) ?? throw new InvalidOperationException("Resource not found");
 
       DataError += FilteredDataGridView_DataError;
       toolStripTextBoxColFilter.TextChanged += (o, a) => { timerColumsFilterText.Stop(); timerColumsFilterText.Start(); };

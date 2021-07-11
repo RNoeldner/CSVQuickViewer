@@ -81,9 +81,9 @@ namespace CsvTools.Tests
 			Assert.AreEqual(1, test.Count);
 			var item2 = new Column("Test2");
 			test.Add(item2);
-			Assert.AreEqual(item1, test.Get("Test"));
-			Assert.AreEqual(item1, test.Get("TEST"));
-			Assert.AreEqual(item2, test.Get("tEst2"));
+			Assert.IsTrue(item1.Equals(test.Get("Test")));
+			Assert.IsTrue(item1.Equals(test.Get("TEST")));
+			Assert.IsTrue(item2.Equals(test.Get("tEst2") ));
 
 			Assert.IsNull(test.Get(""));
 			Assert.IsNull(test.Get(null));

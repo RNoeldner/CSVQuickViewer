@@ -85,6 +85,9 @@
     <Compile Include="..\ClassLibraryCSV\Mutable\ColumnCollection.cs" Link="ColumnCollection.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\ClassLibraryCSV\DateTimeFormats.txt" Link="DateTimeFormats.txt" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />

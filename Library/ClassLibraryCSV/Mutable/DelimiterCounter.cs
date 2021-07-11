@@ -20,7 +20,7 @@ namespace CsvTools
   public class DelimiterCounter
   {
     // Added INFORMATION SEPARATOR ONE to FOUR
-    private const string c_DefaultSeparators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
+    private const string cDefaultSeparators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
     public readonly int NumRows;
     public readonly int[] SeparatorRows;
     public readonly string Separators;
@@ -31,10 +31,10 @@ namespace CsvTools
     {
       NumRows = numRows;
       var listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator[0];
-      if (c_DefaultSeparators.IndexOf(listSeparator) == -1)
-        Separators = c_DefaultSeparators + listSeparator;
+      if (cDefaultSeparators.IndexOf(listSeparator) == -1)
+        Separators = cDefaultSeparators + listSeparator;
       else
-        Separators = c_DefaultSeparators;
+        Separators = cDefaultSeparators;
       SeparatorsCount = new int[Separators.Length, NumRows];
       SeparatorRows = new int[Separators.Length];
     }
@@ -43,7 +43,6 @@ namespace CsvTools
     {
       get
       {
-
         while (LastRow > 1 &&  RowEmpty(LastRow-1))
           LastRow--;
 
@@ -57,17 +56,12 @@ namespace CsvTools
       }
     }
 
-    public bool RowEmpty(int line)
+    private bool RowEmpty(int line)
     {
-      bool empty = true;
       for (int x = 0; x < Separators.Length; x++)
         if (SeparatorsCount[x, line] != 0)
-        {
-          empty = false;
-          break;
-        }
-
-      return empty;
+          return false;
+      return true;
     }
   }
 }

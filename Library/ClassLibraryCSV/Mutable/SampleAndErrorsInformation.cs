@@ -21,7 +21,7 @@ using System.Xml.Serialization;
 namespace CsvTools
 {
   /// <summary>
-  /// This class is only used by the Validator but since we can not extend classes iwth new properties, it needs to be defined here
+  /// This class is only used by the Validator but since we can not extend classes with new properties, it needs to be defined here
   /// </summary>
   [Serializable]
   public class SampleAndErrorsInformation : INotifyPropertyChanged, ICloneable<SampleAndErrorsInformation>

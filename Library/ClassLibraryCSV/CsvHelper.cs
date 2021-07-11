@@ -61,9 +61,9 @@ namespace CsvTools
         fileName = fileName.LongFileName();
 
       var fileName2 = FileSystemUtils.ResolvePattern(fileName);
+      if (fileName2 == null)
+        throw new FileNotFoundException(fileName);
       var fileInfo = new FileSystemUtils.FileInfo(fileName2);
-      if (!fileInfo.Exists)
-        throw new FileNotFoundException(fileName2);
 
       Logger.Information("Examining file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName2!, 40));
       Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
@@ -99,7 +99,7 @@ namespace CsvTools
           (fileSettingSer is BaseSettingPhysicalFile bas) ? bas.ColumnFile : string.Empty);
       }
 #endif
-      if (fileName2.EndsWith("zip"))
+      if (fileName2.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
         try
         {
           var setting = await ManifestData.ReadManifestZip(fileName2!);

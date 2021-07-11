@@ -284,7 +284,9 @@ namespace CsvTools
     public bool Equals(IValueFormat? other) => this.ValueFormatEqual(other);
 
     public void CopyFrom(IValueFormat other) =>
-     m_ImmutableValueFormat = new ImmutableValueFormat(other.DataType, other.DateFormat, other.DateSeparator, other.TimeSeparator, other.NumberFormat, other.GroupSeparator, other.DecimalSeparator, other.True, other.False, other.DisplayNullAs);
+     m_ImmutableValueFormat = new ImmutableValueFormat(other.DataType, other.DateFormat, other.DateSeparator,
+       other.TimeSeparator, other.NumberFormat, other.GroupSeparator, other.DecimalSeparator, other.True, other.False,
+       other.DisplayNullAs);
 
     /// <summary>
     ///   Notifies the property changed.
