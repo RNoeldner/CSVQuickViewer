@@ -203,7 +203,7 @@ namespace CsvTools
       {
         if (ReferenceEquals(m_DataTable, value))
           return;
-        m_DataTable = value;
+        m_DataTable = value ?? new DataTable();
         m_FilterDataTable?.Dispose();
         m_FilterDataTable = null;
       }
@@ -313,7 +313,7 @@ namespace CsvTools
     ///   Sets the name of the unique field.
     /// </summary>
     /// <value>The name of the unique field.</value>
-    public IEnumerable<string> UniqueFieldName
+    public IEnumerable<string>? UniqueFieldName
     {
       set
       {
@@ -907,7 +907,7 @@ namespace CsvTools
     private void OnSearchChanged(object sender, SearchEventArgs e)
     {
       // Stop any current searches
-      if (m_CurrentSearch != null && m_CurrentSearch.IsRunning)
+      if (m_CurrentSearch is {IsRunning: true})
       {
         m_CurrentSearch.SearchEventArgs = e;
 
@@ -1091,7 +1091,7 @@ namespace CsvTools
       m_Search.Visible = false;
 
       var newDt = m_DataTable;
-      if (m_FilterDataTable == null && m_DataTable != null)
+      if (m_FilterDataTable == null)
         m_FilterDataTable = new FilterDataTable(m_DataTable);
       if (m_FilterDataTable != null && type != FilterType.All)
       {

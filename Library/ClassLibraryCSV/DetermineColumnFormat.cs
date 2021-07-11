@@ -613,7 +613,7 @@ namespace CsvTools
         fileSettings.ColumnCollection.Add(new ImmutableColumn(header, new ImmutableValueFormat(colType), (int) schemaRow[SchemaTableColumn.ColumnOrdinal]));
       }
     }
-#endif
+
 
     /// <summary>
     ///   Gets all possible formats based on the provided value
@@ -633,6 +633,7 @@ namespace CsvTools
           .HasValue))
           yield return new ImmutableValueFormat(DataType.DateTime, fmt, sep);
     }
+#endif
 
     /// <summary>
     ///   Get sample values for several columns at once, ignoring rows with issues or warning in the

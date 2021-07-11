@@ -29,6 +29,7 @@ namespace CsvTools
 			this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
 			this.contextMenuStripFilter = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.toolStripMenuItemApplyFilter = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItemFilterAdd = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItemFilterThisValue = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItemFilterRemove = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,9 +43,7 @@ namespace CsvTools
 			this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripTextBoxColFilter = new System.Windows.Forms.ToolStripTextBox();
 			this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
-			this.toolStripMenuItemColumnVisibility = new CsvTools.ToolStripCheckedListBox();
 			this.toolStripMenuItemColumns = new System.Windows.Forms.ToolStripMenuItem();
-			this.toolStripMenuItemFilterAdd = new System.Windows.Forms.ToolStripMenuItem();
 			this.contextMenuStripHeader = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.toolStripMenuItemHideThisColumn = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItemCF = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,6 +56,7 @@ namespace CsvTools
 			this.toolStripMenuItemFreeze = new System.Windows.Forms.ToolStripMenuItem();
 			this.timerColumsFilterChecked = new System.Windows.Forms.Timer(this.components);
 			this.timerColumsFilterText = new System.Windows.Forms.Timer(this.components);
+			this.toolStripMenuItemColumnVisibility = new CsvTools.ToolStripCheckedListBox();
 			this.contextMenuStripCell.SuspendLayout();
 			this.contextMenuStripFilter.SuspendLayout();
 			this.contextMenuStripColumns.SuspendLayout();
@@ -141,7 +141,7 @@ namespace CsvTools
             this.toolStripSeparator4,
             this.toolStripMenuItemApplyFilter});
 			this.contextMenuStripFilter.Name = "contextMenuStripFilter";
-			this.contextMenuStripFilter.OwnerItem = this.toolStripMenuItemFilterAdd;
+			this.contextMenuStripFilter.OwnerItem = this.toolStripMenuItem2;
 			this.contextMenuStripFilter.Size = new System.Drawing.Size(114, 40);
 			this.contextMenuStripFilter.Text = "contextMenuStripFilter";
 			// 
@@ -152,6 +152,14 @@ namespace CsvTools
 			this.toolStripMenuItemApplyFilter.Size = new System.Drawing.Size(113, 30);
 			this.toolStripMenuItemApplyFilter.Text = "&Apply";
 			this.toolStripMenuItemApplyFilter.Click += new System.EventHandler(this.ToolStripMenuItemApply_Click);
+			// 
+			// toolStripMenuItemFilterAdd
+			// 
+			this.toolStripMenuItemFilterAdd.DropDown = this.contextMenuStripFilter;
+			this.toolStripMenuItemFilterAdd.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemFilterAdd.Image")));
+			this.toolStripMenuItemFilterAdd.Name = "toolStripMenuItemFilterAdd";
+			this.toolStripMenuItemFilterAdd.Size = new System.Drawing.Size(268, 30);
+			this.toolStripMenuItemFilterAdd.Text = "Filter";
 			// 
 			// toolStripMenuItemFilterThisValue
 			// 
@@ -191,7 +199,7 @@ namespace CsvTools
             this.toolStripSeparator9,
             this.toolStripMenuItemColumnVisibility});
 			this.contextMenuStripColumns.Name = "contextMenuStripColumns";
-			this.contextMenuStripColumns.OwnerItem = this.toolStripMenuItem1;
+			this.contextMenuStripColumns.OwnerItem = this.toolStripMenuItemColumns;
 			this.contextMenuStripColumns.ShowImageMargin = false;
 			this.contextMenuStripColumns.Size = new System.Drawing.Size(179, 185);
 			// 
@@ -255,27 +263,12 @@ namespace CsvTools
 			this.toolStripSeparator9.Name = "toolStripSeparator9";
 			this.toolStripSeparator9.Size = new System.Drawing.Size(175, 6);
 			// 
-			// toolStripMenuItemColumnVisibility
-			// 
-			this.toolStripMenuItemColumnVisibility.BackColor = System.Drawing.SystemColors.Window;
-			this.toolStripMenuItemColumnVisibility.Name = "toolStripMenuItemColumnVisibility";
-			this.toolStripMenuItemColumnVisibility.Overflow = System.Windows.Forms.ToolStripItemOverflow.Always;
-			this.toolStripMenuItemColumnVisibility.Size = new System.Drawing.Size(39, 25);
-			// 
 			// toolStripMenuItemColumns
 			// 
 			this.toolStripMenuItemColumns.DropDown = this.contextMenuStripColumns;
 			this.toolStripMenuItemColumns.Name = "toolStripMenuItemColumns";
 			this.toolStripMenuItemColumns.Size = new System.Drawing.Size(268, 30);
 			this.toolStripMenuItemColumns.Text = "Columns";
-			// 
-			// toolStripMenuItemFilterAdd
-			// 
-			this.toolStripMenuItemFilterAdd.DropDown = this.contextMenuStripFilter;
-			this.toolStripMenuItemFilterAdd.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemFilterAdd.Image")));
-			this.toolStripMenuItemFilterAdd.Name = "toolStripMenuItemFilterAdd";
-			this.toolStripMenuItemFilterAdd.Size = new System.Drawing.Size(268, 30);
-			this.toolStripMenuItemFilterAdd.Text = "Filter";
 			// 
 			// contextMenuStripHeader
 			// 
@@ -378,6 +371,13 @@ namespace CsvTools
 			// 
 			this.timerColumsFilterText.Interval = 400;
 			this.timerColumsFilterText.Tick += new System.EventHandler(this.TimerColumsFilterText_Tick);
+			// 
+			// toolStripMenuItemColumnVisibility
+			// 
+			this.toolStripMenuItemColumnVisibility.BackColor = System.Drawing.SystemColors.Window;
+			this.toolStripMenuItemColumnVisibility.Name = "toolStripMenuItemColumnVisibility";
+			this.toolStripMenuItemColumnVisibility.Overflow = System.Windows.Forms.ToolStripItemOverflow.Always;
+			this.toolStripMenuItemColumnVisibility.Size = new System.Drawing.Size(39, 25);
 			// 
 			// FilteredDataGridView
 			// 

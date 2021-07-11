@@ -443,7 +443,7 @@ namespace CsvTools
              && string.Equals(NewLinePlaceholder, other.NewLinePlaceholder, StringComparison.Ordinal)
              && QualifyAlways == other.QualifyAlways && QualifyOnlyIfNeeded == other.QualifyOnlyIfNeeded
              && string.Equals(QuotePlaceholder, other.QuotePlaceholder, StringComparison.Ordinal)
-             && ValueFormatMutable.Equals(other.ValueFormatMutable);
+             && ValueFormatMutable.ValueFormatEqual(other.ValueFormatMutable);
     }
 
     /// <summary>
