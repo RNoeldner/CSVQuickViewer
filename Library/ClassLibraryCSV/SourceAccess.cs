@@ -70,7 +70,7 @@ namespace CsvTools
     public readonly string Recipient;
 
     /// <summary>
-    /// Flag <c>true</c> if the not encrypted files should be keept after encryption
+    /// Flag <c>true</c> if the not encrypted files should be kept after encryption
     /// </summary>
     public readonly bool KeepEncyrpted;
 
