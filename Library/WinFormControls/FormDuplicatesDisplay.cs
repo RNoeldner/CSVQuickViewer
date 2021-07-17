@@ -116,10 +116,12 @@ namespace CsvTools
           });
       try
       {
-        var dupliacteList = new List<int>();
+        var duplicateList = new List<int>();
         var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var dictFirstIDStored = new HashSet<int>();
         var dataColumnID = m_DataTable.Columns[dataColumnName];
+        if (dataColumnID==null)
+          return;
         this.SafeInvoke(() => Text = $@"Duplicate Display - {dataColumnName}");
 
         var intervalAction = new IntervalAction();
@@ -136,24 +138,23 @@ namespace CsvTools
           // ReSharper disable once AccessToDisposedClosure
           intervalAction.Invoke(row => display.SetProcess("Getting duplicate values", row, false), rowIndex);
 
-          var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
+          var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString()?.Trim();
 
-          // if (id != null) id = id.Trim();
           if (ignoreNull && string.IsNullOrEmpty(id))
             continue;
-          if (dictIDToRow.TryGetValue(id, out var duplicateRowIndex))
+          if (dictIDToRow.TryGetValue(id!, out var duplicateRowIndex))
           {
             if (!dictFirstIDStored.Contains(duplicateRowIndex))
             {
-              dupliacteList.Add(duplicateRowIndex);
+              duplicateList.Add(duplicateRowIndex);
               dictFirstIDStored.Add(duplicateRowIndex);
             }
 
-            dupliacteList.Add(rowIndex);
+            duplicateList.Add(rowIndex);
           }
           else
           {
-            dictIDToRow.Add(id, rowIndex);
+            dictIDToRow.Add(id??string.Empty, rowIndex);
           }
         }
 
@@ -161,15 +162,15 @@ namespace CsvTools
         dictIDToRow.Clear();
 
         this.SafeInvoke(
-          () => Text = $@"Duplicate Display - {dataColumnName} - Rows {dupliacteList.Count} / {m_DataRow.Length}");
+          () => Text = $@"Duplicate Display - {dataColumnName} - Rows {duplicateList.Count} / {m_DataRow.Length}");
 
         m_DataTable.BeginLoadData();
         m_DataTable.Clear();
         var counter = 0;
 
-        display.Maximum = dupliacteList.Count;
+        display.Maximum = duplicateList.Count;
 
-        foreach (var rowIndex in dupliacteList)
+        foreach (var rowIndex in duplicateList)
         {
           if (display.CancellationToken.IsCancellationRequested)
             return;

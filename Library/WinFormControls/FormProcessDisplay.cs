@@ -82,7 +82,7 @@ namespace CsvTools
     /// <value>The cancellation token.</value>
     private CancellationTokenSource CancellationTokenSource { get; }
 
-    public new Form Owner
+    public new Form? Owner
     {
       set
       {

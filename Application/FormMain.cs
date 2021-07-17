@@ -95,20 +95,21 @@ namespace CsvTools
       get => detailControl.DataTable;
     }
 
-    private static string? AssemblyTitle
+    private static string AssemblyTitle
     {
       get
       {
         var assembly = Assembly.GetExecutingAssembly();
-        var version = assembly.GetName().Version;
         var attributes = assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
-        if (attributes.Length <= 0)
-          return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
-        var titleAttribute = (AssemblyTitleAttribute) attributes[0];
-        if (titleAttribute.Title.Length != 0)
-          return titleAttribute.Title + " " + version;
+        if (attributes.Length > 0)
+        {
+          var titleAttribute = (AssemblyTitleAttribute) attributes[0];
+          if (titleAttribute.Title.Length != 0)
+            return titleAttribute.Title + " " + assembly.GetName().Version;
+        }
 
-        return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+
+        return Path.GetFileNameWithoutExtension(assembly.Location);
       }
     }
 
@@ -198,7 +199,7 @@ namespace CsvTools
         if (!string.IsNullOrEmpty(fileName))
         {
           Cursor.Current = Cursors.WaitCursor;
-          await LoadCsvFile(fileName);
+          await LoadCsvFile(fileName!);
         }
       }
       catch (Exception ex)

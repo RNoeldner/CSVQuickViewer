@@ -66,7 +66,7 @@ namespace CsvTools
           "Delimited files (*.csv;*.txt;*.tab;*.tsv)|*.csv;*.txt;*.tab;*.tsv|All files (*.*)|*.*",
           split.FileName);
         if (!string.IsNullOrEmpty(newFileName))
-          await ChangeFileNameAsync(newFileName);
+          await ChangeFileNameAsync(newFileName!);
       }
       catch (Exception ex)
       {
@@ -82,8 +82,8 @@ namespace CsvTools
       {
         m_IsDisposed = true;
         components?.Dispose();
-        m_CancellationTokenSource?.Cancel();
-        m_CancellationTokenSource?.Dispose();
+        m_CancellationTokenSource.Cancel();
+        m_CancellationTokenSource.Dispose();
       }
 
       base.Dispose(disposing);
@@ -93,12 +93,10 @@ namespace CsvTools
     {
       await buttonGuessCP.RunWithHourglassAsync(async () =>
       {
-        using (var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings)))
-        {
-          var (codepage, bom) = await improvedStream.GuessCodePage(m_CancellationTokenSource.Token);
-          m_ViewSettings.CodePageId = codepage;
-          m_ViewSettings.ByteOrderMark = bom;
-        }
+        using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
+        var (codepage, bom) = await improvedStream.GuessCodePage(m_CancellationTokenSource.Token);
+        m_ViewSettings.CodePageId = codepage;
+        m_ViewSettings.ByteOrderMark = bom;
       });
       fileSettingBindingSource.ResetBindings(false);
     }
@@ -107,10 +105,8 @@ namespace CsvTools
     {
       await buttonGuessDelimiter.RunWithHourglassAsync(async () =>
       {
-        using (var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings)))
-        {
-          await improvedStream.GuessDelimiter(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.EscapeCharacter, m_CancellationTokenSource.Token);
-        }
+        using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
+        await improvedStream.GuessDelimiter(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.EscapeCharacter, m_CancellationTokenSource.Token);
       });
 
       // GuessDelimiterAsync does set the values, refresh them
@@ -122,21 +118,20 @@ namespace CsvTools
       var qualifier = string.Empty;
       await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
       {
-        using (var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings)))
-          qualifier = await improvedStream.GuessQualifier(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.FieldDelimiter, m_CancellationTokenSource.Token);
+        using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
+        qualifier = await improvedStream.GuessQualifier(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.FieldDelimiter, m_CancellationTokenSource.Token);
       });
-      if (qualifier != null)
-        m_ViewSettings.FileFormat.FieldQualifier = qualifier;
-      else
-        _MessageBox.Show("No Column Qualifier found", "Qualifier", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+      m_ViewSettings.FileFormat.FieldQualifier = qualifier;
+
     }
 
     private async void ButtonSkipLine_ClickAsync(object sender, EventArgs e)
     {
       await buttonSkipLine.RunWithHourglassAsync(async () =>
       {
-        using (var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings)))
-          m_ViewSettings.SkipRows = await improvedStream.GuessStartRow(m_ViewSettings.CodePageId, m_ViewSettings.FileFormat.FieldDelimiter, m_ViewSettings.FileFormat.FieldQualifier, m_ViewSettings.FileFormat.CommentLine, m_CancellationTokenSource.Token);
+        using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
+        m_ViewSettings.SkipRows = await improvedStream.GuessStartRow(m_ViewSettings.CodePageId, m_ViewSettings.FileFormat.FieldDelimiter, m_ViewSettings.FileFormat.FieldQualifier, m_ViewSettings.FileFormat.CommentLine, m_CancellationTokenSource.Token);
       });
     }
 

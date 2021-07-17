@@ -131,11 +131,11 @@ namespace CsvTools
           if (display.CancellationToken.IsCancellationRequested)
             return;
           intervalAction.Invoke(row => { display.SetProcess("Getting Unique values", row, true); }, rowIndex);
-          var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
+          var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString()?.Trim();
           if (ignoreNull && string.IsNullOrEmpty(id))
             continue;
-          if (!dictIDToRow.ContainsKey(id))
-            dictIDToRow.Add(id, rowIndex);
+          if (!dictIDToRow.ContainsKey(id!))
+            dictIDToRow.Add(id!, rowIndex);
         }
 
         this.SafeInvoke(

@@ -127,9 +127,9 @@ namespace CsvTools
     {
       unchecked
       {
-        var hashCode = (Display != null ? Display.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (Sort != null ? Sort.GetHashCode() : 0);
-        hashCode = (hashCode * 397) ^ (SQLCondition != null ? SQLCondition.GetHashCode() : 0);
+        var hashCode = Display.GetHashCode();
+        hashCode = (hashCode * 397) ^ (Sort.GetHashCode());
+        hashCode = (hashCode * 397) ^ (SQLCondition.GetHashCode());
         hashCode = (hashCode * 397) ^ Count.GetHashCode();
         return hashCode;
       }

@@ -322,10 +322,10 @@ namespace CsvTools
                   if (checkResult.FoundValueFormat.Equals(checkResult.ValueFormatPossibleMatch))
                     checkResult.PossibleMatch = false;
                 }
-                
+
                 if (checkResult.ValueFormatPossibleMatch.DataType == DataType.DateTime)
                   AddDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
-                
+
                 var header1 = string.Empty;
                 var suggestClosestMatch = checkResult.PossibleMatch
                                           && (checkResult.FoundValueFormat == null
@@ -424,14 +424,14 @@ namespace CsvTools
       });
     }
 
-    public void UpdateDateLabel(ValueFormatMutable vf, bool hasTimePart, string timePartFormt, string timeZone)
+    public void UpdateDateLabel(ValueFormatMutable vf, bool hasTimePart, string timePartFormat, string timeZone)
     {
       try
       {
         var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
 
         if (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
-          vf.DateFormat += " " + timePartFormt;
+          vf.DateFormat += " " + timePartFormat;
 
         labelSampleDisplay.SafeInvoke(() =>
         {
@@ -588,6 +588,8 @@ namespace CsvTools
     private void CheckedListBoxDateFormats_ItemCheck(object sender, ItemCheckEventArgs e)
     {
       var format = checkedListBoxDateFormats.Items[e.Index].ToString();
+      if (string.IsNullOrEmpty(format))
+        return;
       if (m_WriteSetting)
       {
         var uncheck = checkedListBoxDateFormats.CheckedIndices.Cast<int>().Where(ind => ind != e.Index);
@@ -637,7 +639,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private async void ColumnFormatUI_Load(object sender, EventArgs e)
     {
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
 
       try
@@ -830,6 +832,7 @@ namespace CsvTools
         }
 
         retry:
+        // ReSharper disable once ConvertToUsingDeclaration
         using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
         {
           await fileReader.OpenAsync(processDisplay.CancellationToken);
@@ -850,9 +853,9 @@ namespace CsvTools
           }
 
           return (await DetermineColumnFormat.GetSampleValuesAsync(fileReader, m_FillGuessSettings.CheckedRecords,
-                                               new[] { colIndex },
-                                               m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken)
-                                             .ConfigureAwait(false)).First().Value;
+              new[] { colIndex },
+              m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken)
+            .ConfigureAwait(false)).First().Value;
         }
       }
       catch (Exception ex)
@@ -866,29 +869,28 @@ namespace CsvTools
     private void ListSamples(StringBuilder stringBuilder, string? headerList, ICollection<string>? values, int col,
                                                                             int rows)
     {
-      if (values != null && values.Count > 0)
+      if (values == null || values.Count <= 0 || string.IsNullOrEmpty(headerList))
+        return;
+      if (!string.IsNullOrEmpty(headerList))
+        stringBuilder.Append(string.Format(HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(headerList!)));
+
+      stringBuilder.AppendLine(HTMLStyle.TableOpen);
+      var texts = values.Take(col * rows).ToArray();
+      stringBuilder.AppendLine(HTMLStyle.TROpen);
+      for (var index = 1; index <= texts.Length; index++)
       {
-        if (!string.IsNullOrEmpty(headerList))
-          stringBuilder.Append(string.Format(HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(headerList!)));
-
-        stringBuilder.AppendLine(HTMLStyle.TableOpen);
-        var texts = values.Take(col * rows).ToArray();
-        stringBuilder.AppendLine(HTMLStyle.TROpen);
-        for (var index = 1; index <= texts.Length; index++)
-        {
-          if (string.IsNullOrEmpty(texts[index - 1]))
-            stringBuilder.AppendLine(HTMLStyle.TDEmpty);
-          else
-            stringBuilder.AppendLine(string.Format(HTMLStyle.TD,
-              HTMLStyle.TextToHtmlEncode(texts[index - 1])));
-          if (index % col == 0)
-            stringBuilder.AppendLine(HTMLStyle.TRClose);
-        }
-
-        if (texts.Length % col != 0)
+        if (string.IsNullOrEmpty(texts[index - 1]))
+          stringBuilder.AppendLine(HTMLStyle.TDEmpty);
+        else
+          stringBuilder.AppendLine(string.Format(HTMLStyle.TD,
+            HTMLStyle.TextToHtmlEncode(texts[index - 1])));
+        if (index % col == 0)
           stringBuilder.AppendLine(HTMLStyle.TRClose);
-        stringBuilder.AppendLine(HTMLStyle.TableClose);
       }
+
+      if (texts.Length % col != 0)
+        stringBuilder.AppendLine(HTMLStyle.TRClose);
+      stringBuilder.AppendLine(HTMLStyle.TableClose);
     }
 
     /// <summary>

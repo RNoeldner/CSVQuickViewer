@@ -88,7 +88,7 @@ namespace CsvTools
     /// </summary>
     public void BuildTree(string parent, string id, string? display1 = null, string? display2 = null)
     {
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      var oldCursor = Equals(Cursor.Current , Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try
       {
