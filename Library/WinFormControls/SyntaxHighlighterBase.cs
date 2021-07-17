@@ -13,7 +13,6 @@
 // */
 
 using FastColoredTextBoxNS;
-using JetBrains.Annotations;
 using System.Drawing;
 
 namespace CsvTools

@@ -94,8 +94,12 @@ namespace CsvTools
       {
         // Logger.Warning(ex, "UnhandledException of type ObjectDisposedException is ignored");
         return;
+      }      
+      if (ex is InvalidOperationException && ex.HResult==-2146233079)
+      {
+        // Logger.Warning(ex, "UnhandledException of type InvalidOperationException is ignored");
+        return;
       }
-
       Logger.Error(ex, "Not handled Exception");
       var message = $"{ex.GetType()}\n\n{ex.ExceptionMessages()}\nStack Trace:\n{ex.CsvToolsStackTrace()}";
 #if DEBUG

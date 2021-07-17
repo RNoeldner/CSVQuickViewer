@@ -12,7 +12,9 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <RootNamespace>CsvTools</RootNamespace>
+    <RootNamespace>CsvTools</RootNamespace>    
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -50,7 +52,7 @@
     <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Library\ClassLibraryCSV.Standard\ClassLibraryCSV.Standard.csproj" />
+    <ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj" />
     <ProjectReference Include="..\Library\WinFormsControls.core\WinFormsControls.core.csproj" />
   </ItemGroup>
 </Project>

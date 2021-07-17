@@ -15,8 +15,8 @@
 using System;
 using System.IO;
 using System.Text;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
+#nullable enable
 
 namespace CsvTools
 {
@@ -26,16 +26,16 @@ namespace CsvTools
   public partial class FormCsvTextDisplay : ResizeForm
   {
     private int m_CodePage;
-    [NotNull] private readonly string m_FullPath;
-    [CanBeNull] private ISyntaxHighlighter m_HighLighter;
-    private MemoryStream m_MemoryStream;
+    private readonly string m_FullPath;
+    private ISyntaxHighlighter? m_HighLighter;
+    private MemoryStream? m_MemoryStream;
     private int m_SkipLines;
-    private IImprovedStream m_Stream;
+    private IImprovedStream? m_Stream;
 
     /// <summary>
     ///   CTOR CsvTextDisplay
     /// </summary>
-    public FormCsvTextDisplay([NotNull] string fullPath)
+    public FormCsvTextDisplay(string fullPath)
     {
       m_FullPath = fullPath ?? throw new ArgumentNullException(nameof(fullPath));
       InitializeComponent();
@@ -76,6 +76,8 @@ namespace CsvTools
 
     private void PrettyPrintStream()
     {
+      if (m_Stream == null)
+        return;
       try
       {
         m_Stream.Seek(0, SeekOrigin.Begin);

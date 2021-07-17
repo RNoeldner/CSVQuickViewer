@@ -25,7 +25,7 @@ namespace CsvTools
   public class ViewSettings : CsvFile
   {
     [XmlElement]
-    public WindowState WindowPosition;
+    public WindowState WindowPosition = new WindowState();
 
     private bool m_AllowJson = true;
     private bool m_DetectFileChanges = true;

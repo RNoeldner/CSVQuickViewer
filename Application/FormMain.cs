@@ -40,19 +40,19 @@ namespace CsvTools
 
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
 
-    private ICollection<IColumn> m_StoreColumns;
+    private ICollection<IColumn>? m_StoreColumns;
 
     private readonly ViewSettings m_ViewSettings;
 
     private bool m_ConfigChanged;
 
     private bool m_FileChanged;
-    
-    private ICsvFile m_FileSetting;
 
-    private ICollection<string> m_Headers;
+    private ICsvFile? m_FileSetting;
 
-    private FormCsvTextDisplay m_SourceDisplay;
+    private ICollection<string>? m_Headers;
+
+    private FormCsvTextDisplay? m_SourceDisplay;
 
     private int m_WarningCount;
 
@@ -95,7 +95,7 @@ namespace CsvTools
       get => detailControl.DataTable;
     }
 
-    private static string AssemblyTitle
+    private static string? AssemblyTitle
     {
       get
       {
@@ -136,7 +136,7 @@ namespace CsvTools
       {
         using var processDisplay = new CustomProcessDisplay(m_CancellationTokenSource.Token);
         DetachPropertyChanged(m_FileSetting);
-        
+
         m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
           m_ViewSettings.GuessCodePage,
           m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
@@ -180,7 +180,7 @@ namespace CsvTools
         m_ToolStripButtonLoadFile2.Enabled = false;
       });
 
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
       try
       {
         loggerDisplay.LogInformation(message);
@@ -216,11 +216,11 @@ namespace CsvTools
       }
     }
 
-    private void AddWarning(object sender, WarningEventArgs args)
+    private void AddWarning(object? sender, WarningEventArgs args)
     {
       if (string.IsNullOrEmpty(args.Message))
         return;
-      if (++m_WarningCount == m_FileSetting.NumWarnings)
+      if (++m_WarningCount == m_FileSetting!.NumWarnings)
         Logger.Warning("No further warnings displayed");
       else if (m_WarningCount < m_FileSetting.NumWarnings)
         Logger.Warning(args.Display(true, true));
@@ -234,7 +234,7 @@ namespace CsvTools
     ///   The <see cref="PropertyChangedEventArgs" /> instance containing the event data.
     /// </param>
     /// <remarks>Called by ViewSettings.FillGuessSetting or Columns</remarks>
-    private void AnyPropertyChangedReload(object sender, PropertyChangedEventArgs e) => m_ConfigChanged = true;
+    private void AnyPropertyChangedReload(object? sender, PropertyChangedEventArgs? e) => m_ConfigChanged = true;
 
     /// <summary>
     ///   Attaches the property changed handlers for the file Settings
@@ -257,7 +257,7 @@ namespace CsvTools
       }
     }
 
-    private void ColumnCollectionOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private void ColumnCollectionOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
       m_ConfigChanged = true;
     }
@@ -303,7 +303,7 @@ namespace CsvTools
     ///   Detaches the property changed handlers for the file Setting
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
-    private void DetachPropertyChanged(IFileSetting fileSetting)
+    private void DetachPropertyChanged(IFileSetting? fileSetting)
     {
       m_SettingsChangedTimerChange.Stop();
       fileSystemWatcher.EnableRaisingEvents = false;
@@ -347,7 +347,7 @@ namespace CsvTools
     /// <param name="e">
     ///   The <see cref="PropertyChangedEventArgs" /> instance containing the event data.
     /// </param>
-    private void FileSetting_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void FileSetting_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
       if (e.PropertyName == nameof(ICsvFile.AllowRowCombining)
           || e.PropertyName == nameof(ICsvFile.ByteOrderMark)
@@ -377,13 +377,13 @@ namespace CsvTools
         m_ConfigChanged = true;
     }
 
-    private void BeforeFileStored(object sender, IFileSettingPhysicalFile e)
+    private void BeforeFileStored(object? sender, IFileSettingPhysicalFile e)
     {
       fileSystemWatcher.Changed -= FileSystemWatcher_Changed;
       fileSystemWatcher.EnableRaisingEvents = false;
     }
 
-    private void FileStored(object sender, IFileSettingPhysicalFile e)
+    private void FileStored(object? sender, IFileSettingPhysicalFile e)
     {
       fileSystemWatcher.Changed += FileSystemWatcher_Changed;
       fileSystemWatcher.EnableRaisingEvents =  m_ViewSettings.DetectFileChanges;
@@ -401,7 +401,7 @@ namespace CsvTools
     ///   The <see cref="FileSystemEventArgs" /> instance containing the event data.
     /// </param>
     private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e) =>
-        m_FileChanged |= e.FullPath == m_FileSetting.FileName && e.ChangeType == WatcherChangeTypes.Changed;
+        m_FileChanged |= e.FullPath == m_FileSetting!.FileName && e.ChangeType == WatcherChangeTypes.Changed;
 
     /// <summary>
     ///   Handles the Activated event of the Display control.
@@ -444,7 +444,7 @@ namespace CsvTools
       if (m_FileSetting == null)
         return;
 
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
 
       // Stop Property changed events for the time this is processed We might store data in the FileSetting
@@ -566,6 +566,8 @@ namespace CsvTools
 
     private async void ShowSettings(object sender, EventArgs e)
     {
+      if (m_FileSetting==null)
+        return;
       await m_ToolStripButtonSettings.RunWithHourglassAsync(async () =>
 
       {
@@ -585,7 +587,8 @@ namespace CsvTools
     private void ShowSourceFile(object sender, EventArgs e)
     {
       if (m_SourceDisplay != null) return;
-      m_ToolStripButtonSource.RunWithHourglass(() =>
+      if (m_FileSetting == null) return;
+      m_ToolStripButtonSource!.RunWithHourglass(() =>
 
       {
         m_ToolStripButtonSource.Enabled = false;
@@ -608,7 +611,7 @@ namespace CsvTools
 
     private void ShowTextPanel(bool visible)
     {
-      textPanel.SafeInvoke(() =>
+      textPanel!.SafeInvoke(() =>
       {
         textPanel.Visible = visible;
         textPanel.BottomToolStripPanelVisible = visible;
@@ -616,15 +619,15 @@ namespace CsvTools
       });
     }
 
-    private void SourceDisplayClosed(object sender, FormClosedEventArgs e)
+    private void SourceDisplayClosed(object? sender, FormClosedEventArgs e)
     {
       m_SourceDisplay?.Dispose();
       m_SourceDisplay = null;
       m_ToolStripButtonSource.Enabled = true;
     }
 
-    private void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e) =>
-      this.LoadWindowState(m_ViewSettings.WindowPosition);
+    private void SystemEvents_DisplaySettingsChanged(object? sender, EventArgs e) =>
+      this.LoadWindowState(m_ViewSettings!.WindowPosition);
 
     private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
     {
@@ -647,19 +650,21 @@ namespace CsvTools
 
     private async void ToggleDisplayAsText(object sender, EventArgs e)
     {
+      if (m_FileSetting==null)
+        return;
       await m_ToolStripButtonAsText.RunWithHourglassAsync(async () =>
       {
         m_ToolStripButtonAsText.Enabled = false;
         detailControl.SuspendLayout();
 
         var store = ViewSetting.StoreViewSetting(detailControl.FilteredDataGridView,
-          new List<ToolStripDataGridViewColumnFilter>());
+          Array.Empty<ToolStripDataGridViewColumnFilter?>());
         // Assume data type is not recognize
         if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String))
         {
           Logger.Information("Showing columns as text");
           m_StoreColumns = new ColumnCollection(m_FileSetting.ColumnCollection);
-          
+
           m_FileSetting.ColumnCollection.Clear();
           // restore header names
           foreach (var col in m_StoreColumns)
@@ -672,13 +677,13 @@ namespace CsvTools
           Logger.Information("Showing columns as values");
           m_ToolStripButtonAsText.Text = "As Text";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsText;
-          m_StoreColumns.CollectionCopy(m_FileSetting.ColumnCollection);
+          m_StoreColumns?.CollectionCopy(m_FileSetting.ColumnCollection);
         }
 
         await OpenDataReaderAsync();
 
         ViewSetting.ReStoreViewSetting(store, detailControl.FilteredDataGridView.Columns,
-          new List<ToolStripDataGridViewColumnFilter>(), null, null);
+          Array.Empty<ToolStripDataGridViewColumnFilter?>(), null, null);
         detailControl.ResumeLayout();
       });
     }

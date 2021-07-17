@@ -8,7 +8,7 @@ namespace CsvTools
   public partial class FindSkipRows : ResizeForm
   {
     private readonly ICsvFile fileSetting;
-    private ISyntaxHighlighter m_HighLighter;
+    private ISyntaxHighlighter? m_HighLighter;
     private readonly IImprovedStream m_Stream;
 
     public FindSkipRows() : this(new CsvFile())
