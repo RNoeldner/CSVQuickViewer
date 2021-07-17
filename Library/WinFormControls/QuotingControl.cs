@@ -142,7 +142,7 @@ namespace CsvTools
 			base.Dispose(true);
 		}
 
-		private void FormatPropertyChanged(object sender, PropertyChangedEventArgs e)
+		private void FormatPropertyChanged(object? sender, PropertyChangedEventArgs e)
 		{
 			if (e.PropertyName == nameof(FileFormat.FieldDelimiter) ||
 					e.PropertyName == nameof(FileFormat.DuplicateQuotingToEscape))
@@ -868,7 +868,7 @@ namespace CsvTools
           }
 				});
 
-		private void SettingPropertyChanged(object sender, PropertyChangedEventArgs e)
+		private void SettingPropertyChanged(object? sender, PropertyChangedEventArgs e)
 		{
 			if (e.PropertyName == nameof(CsvFile.TrimmingOption))
 				SetCboTrim(m_CsvFile!.TrimmingOption);

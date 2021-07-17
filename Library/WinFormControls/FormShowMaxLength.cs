@@ -160,7 +160,7 @@ namespace CsvTools
           foreach (var row in m_DataRow)
             foreach (var col in checkCols)
             {
-              var cl = row[col.Value] == DBNull.Value ? 0 : row[col.Value].ToString().Length;
+              var cl = row[col.Value] == DBNull.Value ? 0 : row[col.Value].ToString()?.Length ?? 0 ;
               if (cl > maxLength[col.Key]) maxLength[col.Key] = cl;
             }
 
@@ -173,7 +173,7 @@ namespace CsvTools
           if (len.Value != -1)
             lastRow[dataColumnLength] = len.Value.ToString(CultureInfo.CurrentCulture);
           else
-            lastRow[dataColumnLength] = m_DataTable.Columns[len.Key].DataType.Name;
+            lastRow[dataColumnLength] = m_DataTable.Columns[len.Key]?.DataType.Name;
 
           lastRow[dataColumnNo] = colNo++;
           var index = m_VisibleColumns.IndexOf(len.Key);
