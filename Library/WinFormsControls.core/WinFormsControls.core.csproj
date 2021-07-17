@@ -11,15 +11,23 @@
     <EmbeddedResource Include="..\WinFormControls\**\*.resx" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="..\WinFormControls\obj\**" />
+    <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <None Remove="obj\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Remove="..\WinFormControls\FolderTree.cs" />
     <Compile Remove="..\WinFormControls\Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\FCTB\FastColoredTextBox.Core\FastColoredTextBox.Core.csproj" />
-    <ProjectReference Include="..\ClassLibraryCSV.Standard\ClassLibraryCSV.Standard.csproj" />
+    <ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">
