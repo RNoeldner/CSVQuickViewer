@@ -4,10 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.31512.422
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSVQuickViewer", "Application\CSVQuickViewer.csproj", "{611F276A-12C1-43F1-B4F2-3237529A0265}"
-	ProjectSection(ProjectDependencies) = postProject
-		{0B6AEE5A-8005-4B1D-987F-5790D34A2D52} = {0B6AEE5A-8005-4B1D-987F-5790D34A2D52}
-		{55AD0A98-C175-4B38-A3D0-321740820D41} = {55AD0A98-C175-4B38-A3D0-321740820D41}
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Setup", "Setup", "{DC98E363-87E9-48CD-9C7A-A7BDEC8D73E1}"
 EndProject

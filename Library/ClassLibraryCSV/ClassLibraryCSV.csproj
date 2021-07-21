@@ -20,6 +20,7 @@
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
+    <CodePage>65001</CodePage>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
     <DefineConstants>Windows</DefineConstants>
@@ -55,4 +56,13 @@
     <PackageReference Include="SharpZipLib" Version="1.2.0" />
     <PackageReference Include="UTF.Unknown" Version="2.3.0" />
   </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="None" ResourceNamePolicy="FileFormatDefault" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
 </Project>

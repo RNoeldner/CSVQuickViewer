@@ -10,6 +10,7 @@
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
+    <CodePage>65001</CodePage>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
     <DefineConstants>QUICK</DefineConstants>
@@ -22,6 +23,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
     <DefineConstants>TRACE;QUICK</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_0;QUICK</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\netstandard2.0</OutputPath>
+    <OutputPath>bin\Release\netstandard2.0</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\ClassLibraryCSV\BaseFileReader.cs" Link="BaseFileReader.cs" />
@@ -94,4 +102,13 @@
     <PackageReference Include="SharpZipLib" Version="1.2.0" />
     <PackageReference Include="UTF.Unknown" Version="2.3.0" />
   </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="None" ResourceNamePolicy="FileFormatDefault" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
 </Project>

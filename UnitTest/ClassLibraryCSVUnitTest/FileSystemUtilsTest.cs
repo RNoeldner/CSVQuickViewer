@@ -153,7 +153,7 @@ namespace CsvTools.Tests
 			Assert.AreEqual("", "".LongFileName());
 			Assert.AreEqual("C:\\CsvHelperTest.cs", "C:\\CsvHelperTest.cs".ShortFileName());
 			var root = FileSystemUtils.ExecutableDirectoryName();
-			var fn = root + "\\VeryLongNameForAFile.txt";
+			var fn = root + Path.DirectorySeparatorChar + "VeryLongNameForAFile.txt";
 			using (var sw = File.CreateText(fn))
 			{
 				sw.WriteLine("Hello");
@@ -178,7 +178,7 @@ namespace CsvTools.Tests
 		public void GetRelativePath()
 		{
 			var root = FileSystemUtils.ExecutableDirectoryName();
-			Assert.AreEqual("TestFiles\\BasicCSV.txt", (root + "\\TestFiles\\BasicCSV.txt").GetRelativePath(root));
+			Assert.AreEqual("TestFiles\\BasicCSV.txt", (root + Path.DirectorySeparatorChar + "TestFiles\\BasicCSV.txt").GetRelativePath(root));
 		}
 
 		[TestMethod]
@@ -194,32 +194,33 @@ namespace CsvTools.Tests
 		public void GetRelativeFolder()
 		{
 			var root = FileSystemUtils.ExecutableDirectoryName();
-			Assert.AreEqual("TestFiles\\SubFolder\\", (root + "\\TestFiles\\SubFolder").GetRelativeFolder(root));
-			Assert.AreEqual("TestFiles\\SubFolder\\", (root + "\\TestFiles\\SubFolder\\").GetRelativeFolder(root));
+			Assert.AreEqual($"TestFiles{Path.DirectorySeparatorChar}SubFolder{Path.DirectorySeparatorChar}", (root + Path.DirectorySeparatorChar + "TestFiles\\SubFolder").GetRelativeFolder(root));
+			Assert.AreEqual($"TestFiles{Path.DirectorySeparatorChar}SubFolder{Path.DirectorySeparatorChar}", (root + Path.DirectorySeparatorChar + "TestFiles\\SubFolder\\").GetRelativeFolder(root));
 			// Assert.AreEqual("Debug\\TestFiles\\SubFolder\\", (root +
 			// "\\TestFiles\\SubFolder").GetRelativeFolder(root +"\\.."));
-			Assert.AreEqual("..\\Debug\\TestFiles\\SubFolder\\",
-				(root + "\\..\\Debug\\TestFiles\\SubFolder").GetRelativeFolder(root));
+			Assert.AreEqual($"..{Path.DirectorySeparatorChar}Debug{Path.DirectorySeparatorChar}TestFiles{Path.DirectorySeparatorChar}SubFolder{Path.DirectorySeparatorChar}",
+				(root + Path.DirectorySeparatorChar + $"..{Path.DirectorySeparatorChar}Debug{Path.DirectorySeparatorChar}TestFiles{Path.DirectorySeparatorChar}SubFolder").GetRelativeFolder(root));
 		}
 
 		[TestMethod]
-		public void SafePath() => Assert.AreEqual("Test$Files\\Basic$CSV.txt", "Test|Files\\Basic<CSV.txt".SafePath("$"));
+		public void SafePath() => Assert.AreEqual($"Test$Files{Path.DirectorySeparatorChar}Basic$CSV.txt", $"Test|Files{Path.DirectorySeparatorChar}Basic<CSV.txt".SafePath("$"));
 
 		[TestMethod]
 		public void GetLatestFileOfPattern()
 		{
 			var root = FileSystemUtils.ExecutableDirectoryName();
 			var res = FileSystemUtils.GetLatestFileOfPattern(root, "ClassLibraryCSVU*.dll");
-			Assert.IsTrue(res == root + "\\ClassLibraryCSVUnitTest.dll");
+			Assert.IsTrue(res == root + Path.DirectorySeparatorChar + "ClassLibraryCSVUnitTest.dll");
 		}
 
 		[TestMethod]
 		public void ResolvePattern()
 		{
 			var root = FileSystemUtils.ExecutableDirectoryName();
-			var res = FileSystemUtils.ResolvePattern(root + "\\ClassLibraryCSV*.dll");
-			Assert.IsTrue(res == root + "\\ClassLibraryCSVUnitTest.dll" ||
-										res == root + "\\ClassLibraryCSV.dll");
+			var res = FileSystemUtils.ResolvePattern(root +  Path.DirectorySeparatorChar +
+			"ClassLibraryCSV*.dll");
+			Assert.IsTrue(res == root + Path.DirectorySeparatorChar + "ClassLibraryCSVUnitTest.dll" ||
+										res == root + Path.DirectorySeparatorChar + "ClassLibraryCSV.dll");
 		}
 
 		[TestMethod]
@@ -227,10 +228,10 @@ namespace CsvTools.Tests
 		{
 			var root = FileSystemUtils.ExecutableDirectoryName();
 			Directory.SetCurrentDirectory(root);
-			Assert.AreEqual(root + "\\TestFile.docx", "TestFile.docx".GetAbsolutePath(""));
-			Assert.AreEqual(root + "\\TestFile.docx", "TestFile.docx".GetAbsolutePath("."));
-			Assert.AreEqual(root + "\\TestFile.docx", ".\\TestFile.docx".GetAbsolutePath(""));
-			Assert.AreEqual(root + "\\TestFile.docx", ".\\TestFile.docx".GetAbsolutePath("."));
+			Assert.AreEqual(root + Path.DirectorySeparatorChar + "TestFile.docx", "TestFile.docx".GetAbsolutePath(""));
+			Assert.AreEqual(root + Path.DirectorySeparatorChar + "TestFile.docx", "TestFile.docx".GetAbsolutePath("."));
+			Assert.AreEqual(root + Path.DirectorySeparatorChar + "TestFile.docx", ".\\TestFile.docx".GetAbsolutePath(""));
+			Assert.AreEqual(root + Path.DirectorySeparatorChar + "TestFile.docx", ".\\TestFile.docx".GetAbsolutePath("."));
 			Assert.AreEqual("C:\\TestFile.docx", "C:\\TestFile.docx".GetAbsolutePath("."));
 			Assert.AreEqual("C:\\TestFile.docx", "C:\\TestFile.docx".GetAbsolutePath(""));
 		}
@@ -238,8 +239,8 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void SplitPath()
 		{
-			var split = FileSystemUtils.SplitPath("C:\\MyTest\\Test.dat");
-			Assert.AreEqual("C:\\MyTest", split.DirectoryName);
+			var split = FileSystemUtils.SplitPath(Path.Combine("C:","MyTest","Test.dat"));
+			Assert.IsTrue(split.DirectoryName.Contains("MyTest"));
 			Assert.AreEqual("Test.dat", split.FileName);
 			Assert.AreEqual("Test", split.FileNameWithoutExtension);
 			Assert.AreEqual(".dat", split.Extension);
@@ -313,25 +314,25 @@ namespace CsvTools.Tests
 			var directory = UnitTestInitializeCsv.ApplicationDirectory;
 			while (directory.Length < 260)
 			{
-				relPath += "\\This is a subfolder";
-				directory += "\\This is a subfolder";
+				relPath += Path.DirectorySeparatorChar + "This is a subfolder";
+				directory += Path.DirectorySeparatorChar + "This is a subfolder";
 				FileSystemUtils.CreateDirectory(directory);
 			}
 
 			for (var counter = 0; counter < 10; counter++)
       {
-        using var stream = FileSystemUtils.CreateText(directory + $"\\File{counter:000}.txt");
+        using var stream = FileSystemUtils.CreateText(directory + Path.DirectorySeparatorChar + $"File{counter:000}.txt");
         stream.WriteLine($"Small Test {counter:000}");
       }
 
-      var fn1 = FileSystemUtils.ResolvePattern(directory + "\\File*.txt");
+      var fn1 = FileSystemUtils.ResolvePattern(directory + Path.DirectorySeparatorChar + "File*.txt");
 			Assert.IsNotNull(fn1);
 
-			var fn2 = FileSystemUtils.ResolvePattern(relPath + "\\File*.txt");
+			var fn2 = FileSystemUtils.ResolvePattern(relPath + Path.DirectorySeparatorChar + "File*.txt");
 			Assert.AreEqual(fn1, fn2);
 
 			// cleanup
-			for (var counter = 0; counter < 10; counter++) FileSystemUtils.FileDelete(directory + $"\\File{counter:000}.txt");
+			for (var counter = 0; counter < 10; counter++) FileSystemUtils.FileDelete(directory + Path.DirectorySeparatorChar + $"File{counter:000}.txt");
 		}
 	}
 }

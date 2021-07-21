@@ -669,8 +669,8 @@ namespace CsvTools.Tests
       test.GetDecimal(1);
     }
 
-		[TestMethod]
-		[ExpectedException(typeof(FormatException))]
+    [TestMethod]
+    [ExpectedException(typeof(FormatException))]
 		public async Task CsvDataReaderGetInt32NullAsync()
     {
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
