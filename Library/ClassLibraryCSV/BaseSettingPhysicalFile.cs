@@ -266,6 +266,7 @@ namespace CsvTools
     private static string FileNameFix(string? value)
     {
       var newVal = value ?? string.Empty;
+      // TODO: this should be removed as its very windows specific
       if (newVal.StartsWith(".\\", StringComparison.Ordinal))
         newVal = newVal.Substring(2);
       return newVal;

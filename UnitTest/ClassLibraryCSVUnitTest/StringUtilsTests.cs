@@ -89,12 +89,13 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void GetShortDisplayOk()
 		{
-			var test = @"C:\Dir2\dir3\dir4\dir5\dir6\file.ext";
+			var test = System.IO.Path.Combine(@"C:","Dir2", "dir3", "dir4","dir5","dir6", "file.ext");
 
 			Assert.AreEqual(test, FileSystemUtils.GetShortDisplayFileName(test, 100));
 			Assert.AreEqual(test, FileSystemUtils.GetShortDisplayFileName(test, test.Length));
+#if WINDOWS
 			Assert.AreEqual(@"C:\Dir2\…\dir5\dir6\file.ext", FileSystemUtils.GetShortDisplayFileName(test, test.Length - 1));
-
+#endif
 			var test2 = @"file.ext";
 			Assert.AreEqual(test2, FileSystemUtils.GetShortDisplayFileName(test2));
 
@@ -182,13 +183,15 @@ namespace CsvTools.Tests
 
 			Assert.AreEqual(@"c:\Users\rnoldner\Documents\Kunden\Sample\Settings.ValidationTask",
 				@"c:\Users\rnoldner\Documents\Kunden\Sample\Settings.ValidationTask".SafePath());
+#if WINDOWS
 			Assert.AreEqual(@"c:\Users\rnoldner\Documents\Kunden\Sample\Settings.ValidationTask",
 				@"c:\Users\rnoldner\Documents\Kunden\Sample\Set:tings.Validation*Task".SafePath());
 			Assert.AreEqual(@"c:\Users\rnoldner\Documents\Kunden\Sample\Settings.ValidationTask",
 				@"c:\Users\rno>ldner\Documents\Kunden\Sample\Set:tings.Validat?ionTask".SafePath());
+#endif
 		}
 
-		[TestMethod]
+			[TestMethod]
 		public void ShouldBeTreatedAsNull()
 		{
 			Assert.IsTrue(StringUtils.ShouldBeTreatedAsNull(null, "NULL"), "Value null");

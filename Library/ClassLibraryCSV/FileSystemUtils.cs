@@ -86,7 +86,7 @@ namespace CsvTools
         directory = Assembly.GetEntryAssembly()?.Location;
 
       return (string.IsNullOrEmpty(directory)
-        ? Path.GetFullPath(".")
+        ? Directory.GetCurrentDirectory()
         : Path.GetDirectoryName(directory!.LongPathPrefix())) ?? string.Empty;
     }
 
@@ -196,7 +196,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(fileOrDirectory))
         return string.Empty;
 
-      if (fileOrDirectory![0] == '.')
+       if (fileOrDirectory![0] == '.')
         fileOrDirectory = Path.GetFullPath(fileOrDirectory);
 
       if (DirectoryExists(fileOrDirectory))
@@ -210,7 +210,7 @@ namespace CsvTools
     public static string? GetLatestFileOfPattern(string folder, string searchPattern)
     {
       if (string.IsNullOrEmpty(folder))
-        folder=".";
+        folder= ".";
       else
         if (!DirectoryExists(folder))
         return null;
@@ -259,9 +259,9 @@ namespace CsvTools
     public static string GetRelativeFolder(this string otherDir, string basePath)
     {
       if (otherDir.Equals(basePath, StringComparison.OrdinalIgnoreCase))
-        return ".\\";
+        return "." + Path.DirectorySeparatorChar;
       if (string.IsNullOrEmpty(otherDir))
-        return ".\\";
+        return "." + Path.DirectorySeparatorChar;
       if (basePath[basePath.Length - 1] != Path.DirectorySeparatorChar)
         basePath += Path.DirectorySeparatorChar;
       if (otherDir[otherDir.Length - 1] != Path.DirectorySeparatorChar)
@@ -311,13 +311,13 @@ namespace CsvTools
 
       // try to cut out directories
       if (parts.Length > 5)
-        ret = $"{parts[0]}\\{parts[1]}\\…\\{parts[parts.Length - 3]}\\{parts[parts.Length - 2]}\\{fileNameOnly}";
+        ret = $"{parts[0]}{ Path.DirectorySeparatorChar }{parts[1]}{ Path.DirectorySeparatorChar }…{ Path.DirectorySeparatorChar }{parts[parts.Length - 3]}{ Path.DirectorySeparatorChar }{parts[parts.Length - 2]}{ Path.DirectorySeparatorChar }{fileNameOnly}";
 
       if (ret.Length > length && parts.Length > 3)
-        ret = $"{parts[0]}\\…\\{parts[parts.Length - 2]}\\{fileNameOnly}";
+        ret = $"{parts[0]}{ Path.DirectorySeparatorChar }…{ Path.DirectorySeparatorChar }{parts[parts.Length - 2]}{ Path.DirectorySeparatorChar }{fileNameOnly}";
 
       if (ret.Length > length && parts.Length > 3)
-        ret = $"…\\{parts[parts.Length - 2]}\\{fileNameOnly}";
+        ret = $"…{ Path.DirectorySeparatorChar }{parts[parts.Length - 2]}{ Path.DirectorySeparatorChar }{fileNameOnly}";
 
       // yet too long? only filename
       if (ret.Length > length)

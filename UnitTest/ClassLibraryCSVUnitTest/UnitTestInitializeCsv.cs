@@ -59,7 +59,7 @@ namespace CsvTools.Tests
 			MimicSql();
 			Token = context.CancellationTokenSource.Token;
 
-			ApplicationDirectory = FileSystemUtils.ExecutableDirectoryName() + @"\TestFiles";
+			ApplicationDirectory = Path.Combine(FileSystemUtils.ExecutableDirectoryName() , "TestFiles");
 
 			Logger.LoggerInstance = new TestLogger(context);
 
