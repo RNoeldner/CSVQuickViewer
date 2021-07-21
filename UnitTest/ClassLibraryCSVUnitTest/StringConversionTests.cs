@@ -167,7 +167,7 @@ namespace CsvTools.Tests
 			Assert.AreEqual(16, res2.Value.Day);
 
 			var res3 = StringConversion.StringToDateTimeExact("01/16/2008 10:25 pm", @"MM/dd/yyyy hh:mm tt", "/", ":",
-				CultureInfo.CurrentCulture);
+				CultureInfo.InvariantCulture);
 			Assert.IsTrue(res3.HasValue);
 			Assert.AreEqual(16, res3.Value.Day);
 			Assert.AreEqual(22, res3.Value.Hour);

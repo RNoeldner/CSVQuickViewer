@@ -26,7 +26,7 @@ namespace CsvTools
     {
       MaxDayLong = int.MinValue;
       MaxDayMid = int.MinValue;
-      MinDesignator = 1;
+      MinDesignator = 2;
       MaxDesignator = 2;
       MaxMonthLong = int.MinValue;
       MaxMonthMid = int.MinValue;
@@ -88,11 +88,11 @@ namespace CsvTools
       if (CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length > MaxDesignator)
         MaxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
       if (CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length > MaxDesignator)
-        MaxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
+        MaxDesignator = CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length;
 
-      if (CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length > MinDesignator)
+      if (CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length < MinDesignator)
         MinDesignator = CultureInfo.CurrentCulture.DateTimeFormat.AMDesignator.Length;
-      if (CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length > MinDesignator)
+      if (CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length < MinDesignator)
         MinDesignator = CultureInfo.CurrentCulture.DateTimeFormat.PMDesignator.Length;
     }
 

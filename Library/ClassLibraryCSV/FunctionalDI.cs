@@ -52,6 +52,8 @@ namespace CsvTools
       try
       {
         // default implementation will convert using the .NET library
+
+        // TODO: in order for Windows and Linux to work on the same data we need to add a mapping between Windows and IARA
         return TimeZoneInfo.ConvertTime(input, TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone),
           TimeZoneInfo.FindSystemTimeZoneById(destTimeZone));
       }

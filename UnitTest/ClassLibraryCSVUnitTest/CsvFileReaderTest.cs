@@ -252,7 +252,7 @@ namespace CsvTools.Tests
       var cultureInfo = new CultureInfo("en-US");
       // 01/08/2013 07:00:00 IST --> 01/08/2013 01:30:00 UTC
       Assert.AreEqual("01/08/2013 01:30:00",
-        test.GetDateTime(0).ToUniversalTime().ToString("MM/dd/yyyy HH:mm:ss", cultureInfo));
+        test.GetDateTime(0).ToUniversalTime().ToString("MM/dd/yyyy HH:mm:ss", cultureInfo), "01/08/2013 07:00:00 IST --> 01/08/2013 01:30:00 UTC");
       await test.ReadAsync(processDisplay.CancellationToken);
       // 01/19/2010 24:00:00 MST --> 01/20/2010 00:00:00 MST --> 01/20/2010 07:00:00 UTC
       Assert.AreEqual("01/20/2010 07:00:00",
