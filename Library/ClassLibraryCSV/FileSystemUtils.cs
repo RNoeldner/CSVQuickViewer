@@ -17,7 +17,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+#if Windows
 using System.Runtime.InteropServices;
+#endif
 using System.Text;
 using System.Threading.Tasks;
 
@@ -393,9 +395,8 @@ namespace CsvTools
 #endif
       return shortPath.Contains("." + Path.DirectorySeparatorChar) ? Path.GetFullPath(shortPath) : shortPath;
     }
+
 #if Windows
-
-
     /// <summary>
     ///   On windows we need to take care of filename that might exceed 248 characters, they need to
     ///   be escaped.
@@ -423,10 +424,10 @@ namespace CsvTools
         ? path.Substring(cUncLongPathPrefix.Length)
         : path;
     }
-
 #else
     [Obsolete("Should only be used on Windows")]    
     public static string RemovePrefix(this string path) => path;
+
     [Obsolete("Should only be used on Windows")]
     public static string LongPathPrefix(this string path) => path;
 #endif
@@ -484,7 +485,7 @@ namespace CsvTools
 
       return sb.ToString();
     }
-#if WINDOWS
+#if Windows
     public static string ShortFileName(this string longPath)
     {
       if (string.IsNullOrEmpty(longPath))
@@ -551,7 +552,7 @@ namespace CsvTools
         : new SplitResult(string.Empty, path.RemovePrefix());
     }
 
-#if WINDOWS
+#if Windows
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern int GetLongPathName(string lpszShortPath, [Out] StringBuilder lpszLongPath, int cchBuffer);
 

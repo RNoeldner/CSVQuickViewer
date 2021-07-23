@@ -71,7 +71,7 @@ namespace CsvTools.Tests
 					// in case the code page was not found we ignore
 				}
 			}
-#if WINDOWS
+#if Windows
 			Assert.AreEqual(17, notRecognized.Count);
 #else
 			Assert.AreEqual(12, notRecognized.Count);

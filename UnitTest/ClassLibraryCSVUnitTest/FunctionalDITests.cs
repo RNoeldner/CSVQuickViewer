@@ -53,7 +53,7 @@ namespace CsvTools.Tests
 		{
 			var srcTime = new DateTime(2020, 02, 20);
 			// time zone we convert to can not be changed...
-#if WINDOWS
+#if Windows
 			var test1 = FunctionalDI.AdjustTZImport(srcTime, "Hawaiian Standard Time", 1, null);
 			// as the time of the system is not know, we do not know what we are converting to, people in Hawaiian would need no difference
 			Assert.IsNotNull(test1);

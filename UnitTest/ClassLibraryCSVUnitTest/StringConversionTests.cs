@@ -364,7 +364,7 @@ namespace CsvTools.Tests
 			Assert.AreEqual(new DateTime(1879, 05, 01, 19, 12, 00, DateTimeKind.Utc), res1.Value);
 		}
 
-#if WINDOWS
+#if Windows
 		[TestMethod]
 		public void TestDateTimezone2()
 		{

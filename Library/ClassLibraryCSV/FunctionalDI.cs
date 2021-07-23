@@ -13,6 +13,7 @@
  */
 
 using System;
+using TimeZoneConverter;
 #if !QUICK
 using System.Collections.Generic;
 using System.Threading;
@@ -51,12 +52,14 @@ namespace CsvTools
         return input;
       try
       {
-        // default implementation will convert using the .NET library
-
-        // TODO: in Order for Windows and Linux to work on the same data we need to add a mapping between Windows and IARA
-        // Either use Noda Time or wait on .NET 6 that will should be corss platform
-        return TimeZoneInfo.ConvertTime(input, TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone),
-          TimeZoneInfo.FindSystemTimeZoneById(destTimeZone));
+#if Windows
+        TimeZoneInfo srcTimeZoneInfo = (TZConvert.TryIanaToWindows(srcTimeZone, out var winSrc)) ? TimeZoneInfo.FindSystemTimeZoneById(winSrc) : TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone);
+        TimeZoneInfo destTimeZoneInfo = (TZConvert.TryIanaToWindows(destTimeZone, out var winDest)) ? TimeZoneInfo.FindSystemTimeZoneById(winDest) : TimeZoneInfo.FindSystemTimeZoneById(destTimeZone);
+#else
+        TimeZoneInfo srcTimeZoneInfo = (TZConvert.TryWindowsToIana(srcTimeZone, out var inaraSrc)) ? TimeZoneInfo.FindSystemTimeZoneById(inaraSrc) : TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone);
+        TimeZoneInfo destTimeZoneInfo = (TZConvert.TryWindowsToIana(destTimeZone, out var inaraDest)) ? TimeZoneInfo.FindSystemTimeZoneById(inaraSrc) : TimeZoneInfo.FindSystemTimeZoneById(destTimeZone);
+#endif
+        return TimeZoneInfo.ConvertTime(input, srcTimeZoneInfo, destTimeZoneInfo);
       }
       catch (Exception ex)
       {
@@ -92,7 +95,7 @@ namespace CsvTools
 
 
 
-      /// <summary>
+    /// <summary>
     ///   Return a right writer for a file setting
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
@@ -104,7 +107,7 @@ namespace CsvTools
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<IFileSetting, string?, IProcessDisplay?, IFileReader> GetFileReader = DefaultFileReader;
 
-       /// <summary>
+    /// <summary>
     ///   Gets or sets a data reader
     /// </summary>
     /// <value>The statement for reader the data.</value>
@@ -126,7 +129,7 @@ namespace CsvTools
     {
       return setting switch
       {
-        ICsvFile {JsonFormat: true} csv => new JsonFileReader(csv.FullPath, csv.ColumnCollection, csv.RecordLimit,
+        ICsvFile { JsonFormat: true } csv => new JsonFileReader(csv.FullPath, csv.ColumnCollection, csv.RecordLimit,
           csv.TrimmingOption == TrimmingOption.All, csv.TreatTextAsNull, csv.TreatNBSPAsSpace, processDisplay),
         ICsvFile csv => new CsvFileReader(csv.FullPath, csv.CodePageId, csv.SkipRows, csv.HasFieldHeader,
           csv.ColumnCollection, csv.TrimmingOption, csv.FileFormat.FieldDelimiter, csv.FileFormat.FieldQualifier,

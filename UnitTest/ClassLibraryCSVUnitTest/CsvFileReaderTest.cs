@@ -251,7 +251,7 @@ namespace CsvTools.Tests
       await test.ReadAsync(processDisplay.CancellationToken);
       var cultureInfo = new CultureInfo("en-US");
       
-#if WINDOWS
+#if Windows
       // 01/08/2013 07:00:00 IST --> 01/08/2013 01:30:00 UTC
       Assert.AreEqual("01/08/2013 01:30:00",
         test.GetDateTime(0).ToUniversalTime().ToString("MM/dd/yyyy HH:mm:ss", cultureInfo), "01/08/2013 07:00:00 IST --> 01/08/2013 01:30:00 UTC");
