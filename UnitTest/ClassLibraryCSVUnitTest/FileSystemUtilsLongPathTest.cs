@@ -19,7 +19,8 @@ using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
-  [TestClass]
+#if WINDOWOS
+	[TestClass]
 	public class FileSystemUtilsLongPathTest
 	{
 		private const string cPre = @"\\?\";
@@ -45,7 +46,8 @@ namespace CsvTools.Tests
 		{
 			m_Root = Path.GetFullPath(".");
 			if (m_Root.Length >= 236)
-				m_Root = @"C:";
+				m_Root = Path.GetTempPath();
+
 			m_Folder0 = Path.Combine(m_Root, "TestLongPath");
 			Directory.CreateDirectory(m_Folder0);
 
@@ -192,4 +194,5 @@ namespace CsvTools.Tests
 			Assert.AreEqual(m_FileName1.Substring(m_Root.Length + 1), m_FileName1.GetShortestPath(m_Root), "GetShortestPath");
 		}
 	}
+#endif
 }

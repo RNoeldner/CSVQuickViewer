@@ -458,35 +458,6 @@ namespace CsvTools.Tests
 		private string Routine() => throw new ApplicationException();
 
 		[TestMethod]
-		public void CsvToolsStackTraceTest()
-		{
-			var ex = new ApplicationException();
-			Assert.IsNull(ex.CsvToolsStackTrace());
-
-			try
-			{
-				throw ex;
-			}
-			catch (Exception e)
-			{
-				// ReSharper disable once PossibleNullReferenceException
-				Assert.IsTrue(e.CsvToolsStackTrace().Contains("ExtensionsTest.CsvToolsStackTraceTest"),
-					$"Expected: 'ExtensionsTest.CsvToolsStackTraceTest' Value: '{e.CsvToolsStackTrace()}'");
-			}
-
-			try
-			{
-				Task.Run(Routine).RunSynchronously();
-			}
-			catch (Exception e)
-			{
-				// ReSharper disable once PossibleNullReferenceException
-				Assert.IsTrue(e.CsvToolsStackTrace().Contains("ExtensionsTest.CsvToolsStackTraceTest"),
-					$"Expected: 'ExtensionsTest.CsvToolsStackTraceTest' Value: '{e.CsvToolsStackTrace()}'");
-			}
-		}
-
-		[TestMethod]
 		public void NoRecordSQLTest()
 		{
 			Assert.AreEqual("", "".NoRecordSQL());

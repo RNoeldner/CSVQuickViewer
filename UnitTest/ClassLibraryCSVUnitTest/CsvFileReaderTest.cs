@@ -250,9 +250,12 @@ namespace CsvTools.Tests
       await test.OpenAsync(processDisplay.CancellationToken);
       await test.ReadAsync(processDisplay.CancellationToken);
       var cultureInfo = new CultureInfo("en-US");
+      
+#if WINDOWS
       // 01/08/2013 07:00:00 IST --> 01/08/2013 01:30:00 UTC
       Assert.AreEqual("01/08/2013 01:30:00",
         test.GetDateTime(0).ToUniversalTime().ToString("MM/dd/yyyy HH:mm:ss", cultureInfo), "01/08/2013 07:00:00 IST --> 01/08/2013 01:30:00 UTC");
+#endif
       await test.ReadAsync(processDisplay.CancellationToken);
       // 01/19/2010 24:00:00 MST --> 01/20/2010 00:00:00 MST --> 01/20/2010 07:00:00 UTC
       Assert.AreEqual("01/20/2010 07:00:00",
@@ -950,7 +953,8 @@ Line "Test"", "22",23,"  24"
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
       Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.AreEqual("A \r\nLine\r\nBreak", test.GetString(1));
+
+      Assert.AreEqual($"A {Environment.NewLine}Line{Environment.NewLine}Break", test.GetString(1));
 
       Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
       Assert.AreEqual("Two ,Delimiter,", test.GetString(1));

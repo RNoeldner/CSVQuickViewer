@@ -715,7 +715,7 @@ namespace CsvTools
           case c_Nbsp:
             if (!postData)
             {
-              // TODO: not 100% correct in case we have a misalignment of column that is corrected afterwards
+              // This is not 100% correct in case we have a misalignment of column that is corrected afterwards
               // warning for NBP need to be issues before trimming as trimming would remove the char
               if (m_WarnNbsp && !GetColumn(columnNo).Ignore)
               {
