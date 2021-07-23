@@ -240,7 +240,7 @@ namespace CsvTools
     public static string GetRelativePath(this string? fileName, string? basePath)
     {
       if (string.IsNullOrEmpty(fileName) || fileName!.StartsWith(".", StringComparison.Ordinal)
-                                         || fileName.IndexOf("\\", StringComparison.Ordinal) == -1)
+                                         || fileName.IndexOf(Path.DirectorySeparatorChar) == -1)
         return fileName ?? string.Empty;
 
       if (string.IsNullOrEmpty(basePath))
@@ -382,16 +382,19 @@ namespace CsvTools
       throw new ArgumentException($"Could not locate stream for {file}");
     }
 
+
     public static string LongFileName(this string shortPath)
     {
       if (string.IsNullOrEmpty(shortPath))
         return shortPath;
+#if Windows
       if (shortPath.Contains("~"))
         return shortPath.LongFileNameKernel();
-      return shortPath.Contains(".\\") ? Path.GetFullPath(shortPath) : shortPath;
+#endif
+      return shortPath.Contains("." + Path.DirectorySeparatorChar) ? Path.GetFullPath(shortPath) : shortPath;
     }
-
 #if Windows
+
 
     /// <summary>
     ///   On windows we need to take care of filename that might exceed 248 characters, they need to
@@ -422,8 +425,10 @@ namespace CsvTools
     }
 
 #else
-  public static string RemovePrefix(this string path) => path;
-  public static string LongPathPrefix(this string path) => path;
+    [Obsolete("Should only be used on Windows")]    
+    public static string RemovePrefix(this string path) => path;
+    [Obsolete("Should only be used on Windows")]
+    public static string LongPathPrefix(this string path) => path;
 #endif
 
     public static string? ResolvePattern(string fileName)
@@ -479,7 +484,7 @@ namespace CsvTools
 
       return sb.ToString();
     }
-
+#if WINDOWS
     public static string ShortFileName(this string longPath)
     {
       if (string.IsNullOrEmpty(longPath))
@@ -496,17 +501,23 @@ namespace CsvTools
       }
 
       // if we have at least the directory shorten this
-      if (!(fi.Directory?.Exists ?? false)) throw new Exception($"Could not get a short path for the file ${longPath}");
+      if (fi.Directory?.Exists ?? false)
       {
-        var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, bufferSize);
-        if (length > 0)
-          return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length - 1] == Path.DirectorySeparatorChar ? string.Empty : Path.DirectorySeparatorChar.ToString()) +
-                  fi.Name)
-            .RemovePrefix();
+        {
+          var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, bufferSize);
+          if (length > 0)
+            return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length - 1] == Path.DirectorySeparatorChar ? string.Empty : Path.DirectorySeparatorChar.ToString()) +
+                    fi.Name)
+              .RemovePrefix();
+        }
       }
 
-      throw new Exception($"Could not get a short path for the file ${longPath}");
+      throw new Exception($"Could not get a short path for the file {longPath}");
     }
+#else
+    [Obsolete("Should only be used on Windows")]
+    public static string ShortFileName(this string longPath) => longPath;
+#endif
 
     public static string GetFileName(string? path)
     {
@@ -540,6 +551,7 @@ namespace CsvTools
         : new SplitResult(string.Empty, path.RemovePrefix());
     }
 
+#if WINDOWS
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern int GetLongPathName(string lpszShortPath, [Out] StringBuilder lpszLongPath, int cchBuffer);
 
@@ -554,6 +566,7 @@ namespace CsvTools
       var length = GetLongPathName(shortPath.LongPathPrefix(), longNameBuffer, longNameBuffer.Capacity);
       return length > 0 ? longNameBuffer.ToString(0, length) : shortPath;
     }
+#endif
 
     /// <summary>
     ///   In general a wrapper for for <see cref="System.IO.FileInfo" />, but it does allow to store

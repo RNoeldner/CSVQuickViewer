@@ -27,6 +27,7 @@ namespace CsvTools.Tests
     {
       using var display = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       var det = await UnitTestInitializeCsv.GetTestPath("employee.txt").GetDetectionResultFromFile(display, true);
+			//TODO: check if this is Environment dependent, looks like windows has CRLF and Mac as LF
       Assert.AreEqual(RecordDelimiterType.CRLF, det.NewLine);
     }
 

@@ -77,7 +77,7 @@ namespace CsvTools.Tests
 			var test2 = new CsvFile(m_CsvFile.FileName);
 			Assert.AreEqual(m_CsvFile.FileName, test2.FileName, "Filename2");
 
-			var test3 = new CsvFile(".\\Test.txt");
+			var test3 = new CsvFile($".{System.IO.Path.DirectorySeparatorChar}Test.txt");
 			Assert.AreEqual("Test.txt", test3.FileName, "Filename3");
 		}
 

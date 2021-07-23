@@ -28,7 +28,7 @@
     <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_0;QUICK</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>bin\Release\netstandard2.0</OutputPath>
+    <OutputPath>bin\Release\netstandard2.0\netstandard2.0</OutputPath>
     <OutputPath>bin\Release\netstandard2.0</OutputPath>
   </PropertyGroup>
   <ItemGroup>

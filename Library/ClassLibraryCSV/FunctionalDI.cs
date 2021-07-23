@@ -53,7 +53,8 @@ namespace CsvTools
       {
         // default implementation will convert using the .NET library
 
-        // TODO: in order for Windows and Linux to work on the same data we need to add a mapping between Windows and IARA
+        // TODO: in Order for Windows and Linux to work on the same data we need to add a mapping between Windows and IARA
+        // Either use Noda Time or wait on .NET 6 that will should be corss platform
         return TimeZoneInfo.ConvertTime(input, TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone),
           TimeZoneInfo.FindSystemTimeZoneById(destTimeZone));
       }

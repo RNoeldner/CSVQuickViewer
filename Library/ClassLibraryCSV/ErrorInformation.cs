@@ -234,7 +234,6 @@ namespace CsvTools
         return null;
       var list = new List<Tuple<string, string>>();
 
-      //TODO : Should columns not listed here (possibly ignored columns be removed) ?
       // Tried Parallel.Foreach but it was not reliable, with a few million executions some values
       // where wrong
       foreach (var entry in columnErrors)

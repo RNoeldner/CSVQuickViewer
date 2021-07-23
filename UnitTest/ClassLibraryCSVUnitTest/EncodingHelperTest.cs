@@ -68,11 +68,14 @@ namespace CsvTools.Tests
 				}
 				catch (Exception)
 				{
-					// in case teh code page was not found we ignore
+					// in case the code page was not found we ignore
 				}
 			}
-
+#if WINDOWS
 			Assert.AreEqual(17, notRecognized.Count);
+#else
+			Assert.AreEqual(12, notRecognized.Count);
+#endif
 		}
 
 		[TestMethod]

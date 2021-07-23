@@ -474,7 +474,7 @@ namespace CsvTools
             return input;
         }
       }
-      // TODO: Not sure why this is in the code, where was it needed?
+      // Not sure why this is in the code, where was it needed?
       if (input.IndexOf(" - " + type, StringComparison.OrdinalIgnoreCase) != -1)
       {
         type = " - " + type;
@@ -683,6 +683,7 @@ namespace CsvTools
       return template.Replace("  ", " ");
     }
 
+    [Obsolete("Do not use this nay more")]
     public static string? CsvToolsStackTrace(this Exception exception)
     {
       if (string.IsNullOrEmpty(exception.StackTrace))
