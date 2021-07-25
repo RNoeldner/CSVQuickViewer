@@ -851,10 +851,24 @@ namespace CsvTools
         // all cases covered, character must be data
         stringBuilder.Append(character);
       }
-
+      var columnText = stringBuilder.ToString();
+      if (columnText.IndexOf(c_UnknownChar) != -1)
+      {
+        if (m_WarnUnknownCharacter)
+        {
+          if (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning)
+            HandleWarning(
+              columnNo,
+              m_TreatUnknownCharacterAsSpace
+                ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
+                : "Unknown Character '�' found in field".AddWarningId());
+        }
+        if (m_TreatUnknownCharacterAsSpace)
+          columnText = columnText.Replace(c_UnknownChar, ' ');
+      }
       return m_TrimmingOption == TrimmingOption.All || !quoted && m_TrimmingOption == TrimmingOption.Unquoted
-               ? stringBuilder.ToString().Trim()
-               : stringBuilder.ToString();
+               ? columnText.Trim()
+               : columnText;
     }
 
     /// <summary>
@@ -1114,28 +1128,6 @@ namespace CsvTools
                   columnNo,
                   $"Field delimiter '{m_FieldDelimiterChar.GetDescription()}' found in field"
                     .AddWarningId());
-            }
-
-            if (adjustedValue.IndexOf(c_UnknownChar) != -1)
-            {
-              if (m_WarnUnknownCharacter)
-              {
-                if (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning)
-                  HandleWarning(
-                    columnNo,
-                    m_TreatUnknownCharacterAsSpace
-                      ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
-                      : "Unknown Character '�' found in field".AddWarningId());
-              }
-
-              if (m_TreatUnknownCharacterAsSpace)
-              {
-                adjustedValue = adjustedValue.Replace(c_UnknownChar, ' ');
-
-                // TODO: In order to use Quoted we would need to know if the column was quoted this is not possible right now
-                if (m_TrimmingOption == TrimmingOption.All)
-                  adjustedValue = adjustedValue.Trim();
-              }
             }
 
             if (m_WarnUnknownCharacter)
