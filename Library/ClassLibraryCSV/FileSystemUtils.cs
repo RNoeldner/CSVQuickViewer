@@ -425,10 +425,10 @@ namespace CsvTools
         : path;
     }
 #else
-    [Obsolete("Should only be used on Windows")]    
+    // [Obsolete("Should only be used on Windows")]    
     public static string RemovePrefix(this string path) => path;
 
-    [Obsolete("Should only be used on Windows")]
+    // [Obsolete("Should only be used on Windows")]
     public static string LongPathPrefix(this string path) => path;
 #endif
 
@@ -485,6 +485,7 @@ namespace CsvTools
 
       return sb.ToString();
     }
+
 #if Windows
     public static string ShortFileName(this string longPath)
     {
