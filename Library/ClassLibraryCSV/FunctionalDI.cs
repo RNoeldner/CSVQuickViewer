@@ -129,7 +129,7 @@ namespace CsvTools
     {
       return setting switch
       {
-        ICsvFile { JsonFormat: true } csv => new JsonFileReader(csv.FullPath, csv.ColumnCollection, csv.RecordLimit,
+        IJsonFile csv => new JsonFileReader(csv.FullPath, csv.ColumnCollection, csv.RecordLimit,
           csv.TrimmingOption == TrimmingOption.All, csv.TreatTextAsNull, csv.TreatNBSPAsSpace, processDisplay),
         ICsvFile csv => new CsvFileReader(csv.FullPath, csv.CodePageId, csv.SkipRows, csv.HasFieldHeader,
           csv.ColumnCollection, csv.TrimmingOption, csv.FileFormat.FieldDelimiter, csv.FileFormat.FieldQualifier,
@@ -150,12 +150,22 @@ namespace CsvTools
       IFileWriter? writer = null;
       switch (physicalFile)
       {
-        case ICsvFile { JsonFormat: false } csv:
-          writer = new CsvFileWriter(csv);
+        case ICsvFile csv:
+          writer = new CsvFileWriter(csv.ID, csv.FullPath, csv.HasFieldHeader, csv.FileFormat.ValueFormatMutable, csv.FileFormat, csv.CodePageId,
+        csv.ByteOrderMark, csv.ColumnCollection, csv.Recipient, csv.KeepUnencrypted, csv.IdentifierInContainer,
+        csv.Header, csv.Footer);
           break;
 
-        case StructuredFile structuredFile:
-          writer = new StructuredFileWriter(structuredFile, processDisplay);
+        case IJsonFile fileSetting:
+          writer = new JsonFileWriter(fileSetting.ID, fileSetting.FullPath, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, recipient: fileSetting.Recipient,
+        unencrypted: fileSetting.KeepUnencrypted, identifierInContainer: fileSetting.IdentifierInContainer, footer: fileSetting.Footer, header: fileSetting.Header,
+        columnDefinition: fileSetting.ColumnCollection, fileSettingDisplay: Convert.ToString(fileSetting), row: fileSetting.Row, processDisplay: processDisplay);
+          break;
+
+        case IXMLFile fileSetting:
+          writer = new XMLFileWriter(fileSetting.ID, fileSetting.FullPath, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, recipient: fileSetting.Recipient,
+        unencrypted: fileSetting.KeepUnencrypted, identifierInContainer: fileSetting.IdentifierInContainer, footer: fileSetting.Footer, header: fileSetting.Header,
+        columnDefinition: fileSetting.ColumnCollection, fileSettingDisplay: Convert.ToString(fileSetting), row: fileSetting.Row, processDisplay: processDisplay);
           break;
       }
 

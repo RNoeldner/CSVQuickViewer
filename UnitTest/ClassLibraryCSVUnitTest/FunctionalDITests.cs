@@ -26,10 +26,9 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void GetFileReaderTestJson()
 		{
-			var setting = new CsvFile
-			{
-				FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt"),
-				JsonFormat = true
+			var setting = new JsonFile
+      {
+				FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")				
 			};
       using var test2 =
         FunctionalDI.GetFileReader(setting, null, new CustomProcessDisplay(UnitTestInitializeCsv.Token));
@@ -43,7 +42,7 @@ namespace CsvTools.Tests
 			var test = FunctionalDI.GetFileWriter(setting, new CustomProcessDisplay(UnitTestInitializeCsv.Token));
 			Assert.IsInstanceOfType(test, typeof(CsvFileWriter));
 
-			var setting2 = new StructuredFile { FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt") };
+			var setting2 = new JsonFile { FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt") };
 			var test2 = FunctionalDI.GetFileWriter(setting2, new CustomProcessDisplay(UnitTestInitializeCsv.Token));
 			Assert.IsInstanceOfType(test2, typeof(StructuredFileWriter));
 		}

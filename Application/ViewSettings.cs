@@ -291,39 +291,41 @@ namespace CsvTools
       }
     }
 
-    public static void CopyConfiguration(ICsvFile csvSrc, ICsvFile csvDest)
+    public static void CopyConfiguration(IFileSettingPhysicalFile csvSrc, IFileSettingPhysicalFile csvDest)
     {
       if (csvSrc == null || csvDest == null || ReferenceEquals(csvSrc, csvDest))
         return;
+      if (csvSrc is ICsvFile csvS && csvDest is ICsvFile csvD)
+      {
+        csvD.AllowRowCombining = csvS.AllowRowCombining;
+        csvD.CodePageId= csvS.CodePageId;
+        csvD.ByteOrderMark = csvS.ByteOrderMark;
+        csvD.NoDelimitedFile = csvS.NoDelimitedFile;
+        csvD.NumWarnings = csvS.NumWarnings;
+        csvD.TreatLFAsSpace = csvS.TreatLFAsSpace;
+        csvD.TreatUnknownCharacterAsSpace = csvS.TreatUnknownCharacterAsSpace;
+        csvD.TryToSolveMoreColumns = csvS.TryToSolveMoreColumns;
+        csvD.WarnDelimiterInValue = csvS.WarnDelimiterInValue;
+        csvD.WarnEmptyTailingColumns = csvS.WarnEmptyTailingColumns;
+        csvD.WarnLineFeed = csvS.WarnLineFeed;
+        csvD.WarnNBSP = csvS.WarnNBSP;
+        csvD.WarnQuotes = csvS.WarnQuotes;
+        csvD.WarnQuotesInQuotes = csvS.WarnQuotesInQuotes;
+        csvD.WarnUnknownCharacter = csvS.WarnUnknownCharacter;
+      }
 
-      csvDest.AllowRowCombining = csvSrc.AllowRowCombining;
-      csvDest.CodePageId= csvSrc.CodePageId;
-      csvDest.ByteOrderMark = csvSrc.ByteOrderMark;
       csvDest.ConsecutiveEmptyRows = csvSrc.ConsecutiveEmptyRows;
       csvDest.DisplayEndLineNo = csvSrc.DisplayEndLineNo;
       csvDest.DisplayRecordNo = csvSrc.DisplayRecordNo;
       csvDest.DisplayStartLineNo = csvSrc.DisplayStartLineNo;
-      csvDest.DoubleDecode = csvSrc.DoubleDecode;
       csvDest.FileName = csvSrc.FileName;
       csvDest.HasFieldHeader = csvSrc.HasFieldHeader;
-      csvDest.NoDelimitedFile = csvSrc.NoDelimitedFile;
-      csvDest.NumWarnings = csvSrc.NumWarnings;
       csvDest.SkipDuplicateHeader = csvSrc.SkipDuplicateHeader;
       csvDest.SkipEmptyLines = csvSrc.SkipEmptyLines;
       csvDest.SkipRows = csvSrc.SkipRows;
-      csvDest.TreatLFAsSpace = csvSrc.TreatLFAsSpace;
       csvDest.TreatNBSPAsSpace = csvSrc.TreatNBSPAsSpace;
       csvDest.TreatTextAsNull = csvSrc.TreatTextAsNull;
-      csvDest.TreatUnknownCharacterAsSpace = csvSrc.TreatUnknownCharacterAsSpace;
       csvDest.TrimmingOption = csvSrc.TrimmingOption;
-      csvDest.TryToSolveMoreColumns = csvSrc.TryToSolveMoreColumns;
-      csvDest.WarnDelimiterInValue = csvSrc.WarnDelimiterInValue;
-      csvDest.WarnEmptyTailingColumns = csvSrc.WarnEmptyTailingColumns;
-      csvDest.WarnLineFeed = csvSrc.WarnLineFeed;
-      csvDest.WarnNBSP = csvSrc.WarnNBSP;
-      csvDest.WarnQuotes = csvSrc.WarnQuotes;
-      csvDest.WarnQuotesInQuotes = csvSrc.WarnQuotesInQuotes;
-      csvDest.WarnUnknownCharacter = csvSrc.WarnUnknownCharacter;
       csvSrc.FileFormat.CopyTo(csvDest.FileFormat);
     }
   }

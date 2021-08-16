@@ -11,7 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+#nullable enable
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System;
@@ -22,6 +22,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -48,13 +49,14 @@ namespace CsvTools
 
     private bool m_FileChanged;
 
-    private ICsvFile? m_FileSetting;
+    private IFileSettingPhysicalFile? m_FileSetting;
 
     private ICollection<string>? m_Headers;
 
     private FormCsvTextDisplay? m_SourceDisplay;
 
     private int m_WarningCount;
+    private int m_WarningMax = 100;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormMain" /> class.
@@ -142,7 +144,7 @@ namespace CsvTools
           m_ViewSettings.GuessCodePage,
           m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
           m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-          m_ViewSettings.FillGuessSettings, processDisplay)).CsvFile();
+          m_ViewSettings.FillGuessSettings, processDisplay)).PhysicalFile();
 
         if (m_FileSetting == null)
           return;
@@ -154,10 +156,18 @@ namespace CsvTools
           if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
             display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
 
-          Text =
-            $@"{FileSystemUtils.GetShortDisplayFileName(display, 50)} - {EncodingHelper.GetEncodingName(m_FileSetting.CodePageId, m_FileSetting.ByteOrderMark)} - {AssemblyTitle}";
+          var title = new StringBuilder(FileSystemUtils.GetShortDisplayFileName(display, 50));
+          if (m_FileSetting is ICsvFile csv)
+          {
+            title.Append(" - ");
+            title.Append(EncodingHelper.GetEncodingName(csv.CodePageId, csv.ByteOrderMark));
+            m_WarningMax = csv.NumWarnings;
+          }
+          title.Append(" - ");
+          title.Append(AssemblyTitle);
+          Text = title.ToString();
 
-          m_ToolStripButtonAsText.Visible = !m_FileSetting.JsonFormat &&
+          m_ToolStripButtonAsText.Visible = m_FileSetting is ICsvFile &&
                                             m_FileSetting.ColumnCollection.Any(x =>
                                               x.ValueFormat.DataType != DataType.String);
           SetFileSystemWatcher(fileName);
@@ -221,9 +231,9 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(args.Message))
         return;
-      if (++m_WarningCount == m_FileSetting!.NumWarnings)
+      if (++m_WarningCount == m_WarningMax)
         Logger.Warning("No further warnings displayed");
-      else if (m_WarningCount < m_FileSetting.NumWarnings)
+      else if (m_WarningCount < m_WarningMax)
         Logger.Warning(args.Display(true, true));
     }
 
@@ -354,7 +364,6 @@ namespace CsvTools
           || e.PropertyName == nameof(ICsvFile.ByteOrderMark)
           || e.PropertyName == nameof(ICsvFile.CodePageId)
           || e.PropertyName == nameof(ICsvFile.ConsecutiveEmptyRows)
-          || e.PropertyName == nameof(ICsvFile.DoubleDecode)
           || e.PropertyName == nameof(ICsvFile.HasFieldHeader)
           || e.PropertyName == nameof(ICsvFile.NumWarnings)
           || e.PropertyName == nameof(ICsvFile.SkipEmptyLines)
@@ -602,10 +611,10 @@ namespace CsvTools
         proc.Maximum = 0;
         proc.SetProcess("Reading source and applying color coding", 0, false);
 
-        m_SourceDisplay.OpenFile(m_FileSetting.JsonFormat,
+        m_SourceDisplay.OpenFile(m_FileSetting is IJsonFile,
           m_FileSetting.FileFormat.FieldQualifier,
           m_FileSetting.FileFormat.FieldDelimiter, m_FileSetting.FileFormat.EscapeCharacter,
-          m_FileSetting.CodePageId, m_FileSetting.SkipRows, m_FileSetting.FileFormat.CommentLine);
+          m_FileSetting is ICsvFile csv ? csv.CodePageId : 65001, m_FileSetting.SkipRows, m_FileSetting.FileFormat.CommentLine);
         proc.Close();
       });
     }

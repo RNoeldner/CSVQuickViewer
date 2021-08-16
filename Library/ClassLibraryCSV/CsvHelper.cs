@@ -94,7 +94,7 @@ namespace CsvTools
           fileSettingSer.CodePageId, fileSettingSer.ByteOrderMark, fileSettingSer.FileFormat.QualifyAlways,
           fileSettingSer.IdentifierInContainer, fileSettingSer.FileFormat.CommentLine,
           fileSettingSer.FileFormat.EscapeCharacter, fileSettingSer.FileFormat.FieldDelimiter,
-          fileSettingSer.FileFormat.FieldQualifier, fileSettingSer.HasFieldHeader, fileSettingSer.JsonFormat,
+          fileSettingSer.FileFormat.FieldQualifier, fileSettingSer.HasFieldHeader, false,
           fileSettingSer.NoDelimitedFile, fileSettingSer.FileFormat.NewLine, columnCollection,
           (fileSettingSer is BaseSettingPhysicalFile bas) ? bas.ColumnFile : string.Empty);
       }

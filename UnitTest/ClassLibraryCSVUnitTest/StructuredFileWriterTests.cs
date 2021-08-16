@@ -43,20 +43,19 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public async Task StructuredFileWriterJSONEncodeTestAsync()
 		{
-			var writeFile = new StructuredFile
+			var fileSetting = new JsonFile
 			{
 				ID = "Write",
 				FileName = "StructuredFileOutputJSON.txt",
 				SqlStatement = c_ReadID,
-				InOverview = true,
-				JSONEncode = true
+				InOverview = true
 			};
 
 			var sb = new StringBuilder("{");
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
-      var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout,
+      var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(fileSetting.SqlStatement, fileSetting.Timeout,
         processDisplay.CancellationToken);
-      writeFile.Header = "{\"rowset\":[\n";
+      fileSetting.Header = "{\"rowset\":[\n";
 
       // { "firstName":"John", "lastName":"Doe"},
       foreach (var col in cols)
@@ -66,10 +65,13 @@ namespace CsvTools.Tests
       if (sb.Length > 1)
         sb.Length -= 2;
       sb.AppendLine("},");
-      writeFile.Row = sb.ToString();
-      var writer = new StructuredFileWriter(writeFile, processDisplay);
+      fileSetting.Row = sb.ToString();
+      var writer = new JsonFileWriter(fileSetting.ID, fileSetting.FullPath, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, recipient: fileSetting.Recipient,
+        unencrypted: fileSetting.KeepUnencrypted, identifierInContainer: fileSetting.IdentifierInContainer, footer: fileSetting.Footer, header: fileSetting.Header,
+        columnDefinition: fileSetting.ColumnCollection, fileSettingDisplay: "Test", row: fileSetting.Row, processDisplay: processDisplay);
+
       var result =
-        await writer.WriteAsync(writeFile.SqlStatement, writeFile.Timeout, t => processDisplay.SetProcess(t, 0, true),
+        await writer.WriteAsync(fileSetting.SqlStatement, fileSetting.Timeout, t => processDisplay.SetProcess(t, 0, true),
           processDisplay.CancellationToken);
       Assert.AreEqual(7L, result);
     }
@@ -77,21 +79,20 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public async Task StructuredFileWriterXMLEncodeTest()
 		{
-			var writeFile = new StructuredFile
+			var fileSetting = new XMLFile
 			{
 				ID = "Write",
 				FileName = "StructuredFileOutputXML.txt",
 				SqlStatement = c_ReadID,
-				InOverview = true,
-				JSONEncode = false
+				InOverview = true
 			};
 			var sb = new StringBuilder();
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
-      var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(writeFile.SqlStatement, writeFile.Timeout,
+      var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(fileSetting.SqlStatement, fileSetting.Timeout,
         processDisplay.CancellationToken);
       sb.AppendLine("<?xml version=\"1.0\"?>\n");
       sb.AppendLine("<rowset>");
-      writeFile.Header = sb.ToString();
+      fileSetting.Header = sb.ToString();
       sb.Clear();
       sb.AppendLine("  <row>");
       foreach (var col in cols)
@@ -99,11 +100,13 @@ namespace CsvTools.Tests
           string.Format(CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
 
       sb.AppendLine("  </row>");
-      writeFile.Row = sb.ToString();
-      writeFile.Footer = "</rowset>";
+      fileSetting.Row = sb.ToString();
+      fileSetting.Footer = "</rowset>";
 
-      var writer = new StructuredFileWriter(writeFile, processDisplay);
-      await writer.WriteAsync(writeFile.SqlStatement, writeFile.Timeout, null, processDisplay.CancellationToken);
+      var writer = new JsonFileWriter(fileSetting.ID, fileSetting.FullPath, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, recipient: fileSetting.Recipient,
+        unencrypted: fileSetting.KeepUnencrypted, identifierInContainer: fileSetting.IdentifierInContainer, footer: fileSetting.Footer, header: fileSetting.Header,
+        columnDefinition: fileSetting.ColumnCollection, fileSettingDisplay: "Test", row: fileSetting.Row, processDisplay: processDisplay);
+      await writer.WriteAsync(fileSetting.SqlStatement, fileSetting.Timeout, null, processDisplay.CancellationToken);
     }
 	}
 }

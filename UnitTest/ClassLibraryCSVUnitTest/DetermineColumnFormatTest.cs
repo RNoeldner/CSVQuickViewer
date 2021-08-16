@@ -30,7 +30,7 @@ namespace CsvTools.Tests
     public async Task TestJson()
     {
       var setting =
-        new CsvFile(UnitTestInitializeCsv.GetTestPath("Larger.json")) { JsonFormat = true };
+        new JsonFile(UnitTestInitializeCsv.GetTestPath("Larger.json"));
 
       var fillGuessSettings = new FillGuessSettings
       {

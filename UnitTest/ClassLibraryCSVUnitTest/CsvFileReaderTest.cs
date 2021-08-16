@@ -30,8 +30,7 @@ namespace CsvTools.Tests
 		{
 			var setting =
 				new CsvFile(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"))
-				{
-					JsonFormat = false,
+				{					
 					HasFieldHeader = true,
 					FileFormat = new FileFormat { FieldDelimiter = "Tab" }
 				};

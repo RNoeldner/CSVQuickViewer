@@ -1151,9 +1151,7 @@ namespace CsvTools
     {
       // This will always write a delimited text file
       ICsvFile writeFile = new CsvFile();
-      FileSetting?.CopyTo(writeFile);
-      if (writeFile.JsonFormat)
-        writeFile.JsonFormat = false;
+      writeFile.CopyTo(writeFile);
 
       // in case the extension is changed change the delimiter accordingly
       if (adjustDelimiter)
@@ -1169,7 +1167,7 @@ namespace CsvTools
       writeFile.FileName = fileName;
       writeFile.ID = string.Empty;
       // in case we skipped lines read them as Header so we do not loose them
-      if (FileSetting is ICsvFile src && src.SkipRows > 0 && string.IsNullOrEmpty(writeFile.Header))
+      if (writeFile is ICsvFile src && src.SkipRows > 0 && string.IsNullOrEmpty(writeFile.Header))
       {
         using var iStream = FunctionalDI.OpenStream(new SourceAccess(src));
         using var sr = new ImprovedTextReader(iStream, src.CodePageId);
@@ -1184,7 +1182,9 @@ namespace CsvTools
         processDisplay.Show(ParentForm);
 
         BeforeFileStored?.Invoke(this, writeFile);
-        var writer = new CsvFileWriter(writeFile);
+        var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
+        writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
+        writeFile.Header, writeFile.Footer);
 
         using var dt = new DataTableWrapper(
           FilteredDataGridView!.DataView!.ToTable(false,
