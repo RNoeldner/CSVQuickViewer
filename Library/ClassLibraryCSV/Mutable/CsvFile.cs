@@ -37,11 +37,7 @@ namespace CsvTools
     private bool m_ByteOrderMark = true;
     private int m_CodePageId = 65001;
 
-    [NonSerialized] private Encoding m_CurrentEncoding = Encoding.UTF8;
-
-    private bool m_DoubleDecode;
-
-    private bool m_JsonFormat;
+    [NonSerialized] private Encoding m_CurrentEncoding = Encoding.UTF8;    
     private bool m_NoDelimitedFile;
     private int m_NumWarnings;
     private bool m_TreatLfAsSpace;
@@ -115,49 +111,6 @@ namespace CsvTools
           return;
         m_CodePageId = value;
         NotifyPropertyChanged(nameof(CodePageId));
-      }
-    }
-
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public virtual bool JsonFormat
-    {
-      get => m_JsonFormat;
-      set
-      {
-        if (m_JsonFormat.Equals(value))
-          return;
-        m_JsonFormat = value;
-        if (value)
-        {
-          // JSON always has header information
-          HasFieldHeader = true;
-
-          // The format prevents column and row misalignment
-          TryToSolveMoreColumns = false;
-          AllowRowCombining = false;
-        }
-
-        NotifyPropertyChanged(nameof(JsonFormat));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether we have a text that was double encoded and needs a
-    ///   double decoding.
-    /// </summary>
-    /// <value><c>true</c> if while reading double decode the file otherwise <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public virtual bool DoubleDecode
-    {
-      get => m_DoubleDecode;
-      set
-      {
-        if (m_DoubleDecode.Equals(value))
-          return;
-        m_DoubleDecode = value;
-        NotifyPropertyChanged(nameof(DoubleDecode));
       }
     }
 
@@ -428,10 +381,8 @@ namespace CsvTools
 
       if (!(other is ICsvFile csv))
         return;
-      csv.ByteOrderMark = m_ByteOrderMark;
-      csv.DoubleDecode = m_DoubleDecode;
-      csv.WarnQuotes = m_WarnQuotes;
-      csv.JsonFormat = m_JsonFormat;
+      csv.ByteOrderMark = m_ByteOrderMark;      
+      csv.WarnQuotes = m_WarnQuotes;      
       csv.WarnDelimiterInValue = m_WarnDelimiterInValue;
       csv.WarnEmptyTailingColumns = m_WarnEmptyTailingColumns;
       csv.WarnQuotesInQuotes = m_WarnQuotesInQuotes;
@@ -456,9 +407,7 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return m_ByteOrderMark == other.ByteOrderMark && m_CodePageId == other.CodePageId &&
-             m_DoubleDecode == other.DoubleDecode &&
-             m_JsonFormat == other.JsonFormat &&
+      return m_ByteOrderMark == other.ByteOrderMark && m_CodePageId == other.CodePageId &&             
              m_NoDelimitedFile == other.NoDelimitedFile && m_NumWarnings == other.NumWarnings &&
              m_TreatUnknownCharacterAsSpace == other.TreatUnknownCharacterAsSpace &&
              m_WarnDelimiterInValue == other.WarnDelimiterInValue &&

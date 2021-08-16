@@ -89,25 +89,33 @@ namespace CsvTools
     }
 
 #if !QUICK
-    public virtual ICsvFile CsvFile() => new CsvFile(FileName)
+    public virtual IFileSettingPhysicalFile PhysicalFile()
     {
-      FileFormat = new FileFormat()
+      if (IsJson)
+        return new JsonFile(FileName)
+        {          
+          IdentifierInContainer = IdentifierInContainer         
+        };
+
+      return new CsvFile(FileName)
       {
-        QualifyAlways = QualifyAlways,
-        CommentLine = CommentLine,
-        EscapeCharacter = GetShortDisplay(EscapeCharacter),
-        FieldDelimiter = GetShortDisplay(FieldDelimiter),
-        FieldQualifier = GetShortDisplay(FieldQualifier),
-        NewLine = NewLine
-      },
-      ByteOrderMark = ByteOrderMark,
-      CodePageId = CodePageId,
-      HasFieldHeader = HasFieldHeader,
-      JsonFormat = IsJson,
-      NoDelimitedFile = NoDelimitedFile,
-      IdentifierInContainer = IdentifierInContainer,
-      SkipRows = SkipRows
-    };
+        FileFormat = new FileFormat()
+        {
+          QualifyAlways = QualifyAlways,
+          CommentLine = CommentLine,
+          EscapeCharacter = GetShortDisplay(EscapeCharacter),
+          FieldDelimiter = GetShortDisplay(FieldDelimiter),
+          FieldQualifier = GetShortDisplay(FieldQualifier),
+          NewLine = NewLine
+        },
+        ByteOrderMark = ByteOrderMark,
+        CodePageId = CodePageId,
+        HasFieldHeader = HasFieldHeader,
+        NoDelimitedFile = NoDelimitedFile,
+        IdentifierInContainer = IdentifierInContainer,
+        SkipRows = SkipRows
+      };
+    }
 #endif
   }
 }

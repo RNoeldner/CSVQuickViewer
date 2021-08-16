@@ -25,9 +25,9 @@ namespace CsvTools
     }
 
 #if !QUICK
-    public override ICsvFile CsvFile()
+    public override IFileSettingPhysicalFile PhysicalFile()
     {
-      var ret = base.CsvFile();
+      var ret = base.PhysicalFile();
       foreach (var col in Columns)
         ret.ColumnCollection.Add(col);
       ret.ColumnFile = m_ColumnFile;

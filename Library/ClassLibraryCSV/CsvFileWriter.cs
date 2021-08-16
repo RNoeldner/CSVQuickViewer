@@ -34,13 +34,15 @@ namespace CsvTools
     private readonly string m_FieldQualifier;
     private readonly string m_FieldQualifierEscaped;
     private readonly char[] m_QualifyCharArray;
+    protected readonly bool m_ColumnHeader;
 
     public CsvFileWriter(string id, string fullPath, bool hasFieldHeader, IValueFormat? valueFormat = null, IFileFormat? fileFormat = null,
       int codePageId = 65001, bool byteOrderMark = true, IEnumerable<IColumn>? columnDefinition = null, string? recipient = null,
       bool unencyrpted = false, string? identifierInContainer = null, string? header = null, string? footer = null)
-      : base(id, fullPath, hasFieldHeader, valueFormat, fileFormat, recipient, unencyrpted, identifierInContainer, footer, header, columnDefinition)
+      : base(id, fullPath, valueFormat, fileFormat, recipient, unencyrpted, identifierInContainer, footer, header, columnDefinition)
     {
       m_CodePageId = codePageId;
+      m_ColumnHeader = hasFieldHeader;
       m_ByteOrderMark = byteOrderMark;
       m_FieldQualifier =  fileFormat?.FieldQualifierChar.ToStringHandle0() ?? string.Empty;
       m_FieldDelimiter =  fileFormat?.FieldDelimiterChar.ToStringHandle0() ?? string.Empty;
@@ -62,19 +64,6 @@ namespace CsvTools
         m_FieldQualifierEscaped = m_FieldQualifier + m_FieldQualifier;
       }
     }
-
-#if !QUICK
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="CsvFileWriter" /> class.
-    /// </summary>
-    /// <param name="fileSetting">The file.</param>
-    public CsvFileWriter(ICsvFile fileSetting)
-      : this(fileSetting.ID, fileSetting.FullPath, fileSetting.HasFieldHeader, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, fileSetting.CodePageId,
-        fileSetting.ByteOrderMark, fileSetting.ColumnCollection, fileSetting.Recipient, fileSetting.KeepUnencrypted, fileSetting.IdentifierInContainer,
-        fileSetting.Header, fileSetting.Footer)
-    {
-    }
-#endif
 
     /// <summary>
     ///   Writes the specified file reading from the given reader
@@ -104,7 +93,7 @@ namespace CsvTools
 
         var lastCol = Columns[Columns.Count - 1];
 
-        if (ColumnHeader)
+        if (m_ColumnHeader)
         {
           foreach (var columnInfo in Columns)
           {

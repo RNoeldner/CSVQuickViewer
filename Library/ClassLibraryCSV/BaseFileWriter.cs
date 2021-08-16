@@ -59,7 +59,7 @@ namespace CsvTools
     }
 
     protected readonly IReadOnlyCollection<ImmutableColumn> ColumnDefinition;
-    protected readonly bool ColumnHeader;
+    
     protected readonly List<WriterColumn> Columns = new List<WriterColumn>();
     protected readonly IFileFormat FileFormat;
     protected readonly string Header;
@@ -75,7 +75,7 @@ namespace CsvTools
     protected readonly IValueFormat ValueFormatGeneral;
     private DateTime m_LastNotification = DateTime.Now;
 
-    protected BaseFileWriter(string id, string fullPath, bool hasFieldHeader, IValueFormat? valueFormatGeneral = null,
+    protected BaseFileWriter(string id, string fullPath, IValueFormat? valueFormatGeneral = null,
       IFileFormat? fileFormat = null, string? recipient = null,
       bool unencrypted = false, string? identifierInContainer = null, string? footer = null, string? header = null,
       IEnumerable<IColumn>? columnDefinition = null, string fileSettingDisplay = "",
@@ -83,7 +83,7 @@ namespace CsvTools
     {
       m_FullPath = fullPath;
       var fileName = FileSystemUtils.GetFileName(fullPath);
-      ColumnHeader = hasFieldHeader;
+    
       if (valueFormatGeneral!=null)
         ValueFormatGeneral = new ImmutableValueFormat(valueFormatGeneral.DataType, valueFormatGeneral.DateFormat, valueFormatGeneral.DateSeparator,
             valueFormatGeneral.TimeSeparator, valueFormatGeneral.NumberFormat, valueFormatGeneral.GroupSeparator, valueFormatGeneral.DecimalSeparator, valueFormatGeneral.True,
@@ -255,7 +255,7 @@ namespace CsvTools
 
       return result;
     }
-#if !QUICK
+/*
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseFileWriter" /> class.
     /// </summary>
@@ -264,12 +264,12 @@ namespace CsvTools
     /// <exception cref="ArgumentNullException">fileSetting</exception>
     /// <exception cref="ArgumentException">No SQL Reader set</exception>
     protected BaseFileWriter(IFileSettingPhysicalFile fileSetting, IProcessDisplay? processDisplay)
-      : this(fileSetting.ID, fileSetting.FullPath, fileSetting.HasFieldHeader, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, recipient: fileSetting.Recipient,
+      : this(fileSetting.ID, fileSetting.FullPath, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, recipient: fileSetting.Recipient,
         unencrypted: fileSetting.KeepUnencrypted, identifierInContainer: fileSetting.IdentifierInContainer, footer: fileSetting.Footer, header: fileSetting.Header,
         columnDefinition: fileSetting.ColumnCollection, fileSettingDisplay: Convert.ToString(fileSetting), processDisplay: processDisplay)
     {
     }
-#endif
+*/
     private long Records { get; set; }
 
     protected string Footer() =>

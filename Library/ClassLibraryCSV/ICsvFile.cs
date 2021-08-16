@@ -21,7 +21,6 @@ namespace CsvTools
   /// </summary>
   public interface ICsvFile : IFileSettingPhysicalFile, IEquatable<ICsvFile>
   {
-    bool JsonFormat { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether rows should combined if there are less columns.
@@ -42,15 +41,6 @@ namespace CsvTools
     /// </summary>
     /// <value>The code page.</value>
     int CodePageId { get; set; }
-
-
-    /// <summary>
-    ///  Gets or sets a value indicating whether the file is double encoded and need to be double decoded.
-    /// </summary>
-    /// <value>
-    ///  <c>true</c> if double decode; otherwise, <c>false</c>.
-    /// </value>
-    bool DoubleDecode { get; set; }
 
     /// <summary>
     ///  Gets or sets a value indicating whether a file is most likely not a delimited file

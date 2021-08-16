@@ -13,7 +13,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml.Serialization;
 
@@ -21,17 +20,10 @@ namespace CsvTools
 {
   /// <summary>
   ///   Setting for StructuredFile
-  /// </summary>
-  [Serializable]
-#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-#pragma warning disable CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode()
-  public class StructuredFile : BaseSettingPhysicalFile, IEquatable<StructuredFile>
-#pragma warning restore CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode()
-#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
+  /// </summary>  
+  public abstract class StructuredFile : BaseSettingPhysicalFile
   {
-    private bool m_JSONEncode = true;
     private string m_Row = string.Empty;
-    private bool m_XMLEncode;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
@@ -40,30 +32,6 @@ namespace CsvTools
     public StructuredFile(string fileName)
       : base(fileName)
     {
-    }
-
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
-    /// </summary>
-    public StructuredFile() : this(string.Empty)
-    {
-    }
-
-    /// <summary>
-    ///   Set to <c>true</c> if the contend needs to be HTML Encoded, needed for XML Files
-    /// </summary>
-    [XmlAttribute]
-    [DefaultValue(true)]
-    public bool JSONEncode
-    {
-      get => m_JSONEncode;
-      set
-      {
-        if (m_JSONEncode == value)
-          return;
-        m_JSONEncode = value;
-        NotifyPropertyChanged(nameof(JSONEncode));
-      }
     }
 
     /// <summary>
@@ -86,23 +54,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Set to <c>true</c> if the contend needs to be HTML Encoded, needed for XML Files
-    /// </summary>
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public bool XMLEncode
-    {
-      get => m_XMLEncode;
-      set
-      {
-        if (m_XMLEncode == value)
-          return;
-        m_XMLEncode = value;
-        NotifyPropertyChanged(nameof(XMLEncode));
-      }
-    }
-
-    /// <summary>
     ///   Indicates whether the current object is equal to another object of the same type.
     /// </summary>
     /// <param name="other">An object to compare with this object.</param>
@@ -110,28 +61,16 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
     ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
-    public bool Equals(StructuredFile? other)
+    public bool BaseSettingsEquals(StructuredFile? other)
     {
       if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return m_JSONEncode == other.JSONEncode &&
-             string.Equals(m_Row, other.Row, StringComparison.Ordinal) &&
-             m_XMLEncode == other.XMLEncode &&
-             BaseSettingsEquals(other);
+      return string.Equals(m_Row, other.Row, StringComparison.Ordinal) &&
+             base.BaseSettingsEquals(other as BaseSettings);
     }
 
-    /// <summary>
-    ///   Clones this instance.
-    /// </summary>
-    /// <returns></returns>
-    public override IFileSetting Clone()
-    {
-      var other = new StructuredFile();
-      CopyTo(other);
-      return other;
-    }
 
     /// <summary>
     ///   Copies all values to other instance
@@ -145,47 +84,6 @@ namespace CsvTools
         return;
 
       otherSwf.Row = m_Row;
-      otherSwf.XMLEncode = m_XMLEncode;
-      otherSwf.JSONEncode = m_JSONEncode;
     }
-
-    public override bool Equals(IFileSetting? other) => Equals(other as StructuredFile);
-
-    /// <summary>
-    ///   Determines whether the specified object is equal to the current object.
-    /// </summary>
-    /// <param name="obj">The object to compare with the current object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
-    ///   <see langword="false" />.
-    /// </returns>
-#pragma warning disable 659
-    public override bool Equals(object? obj) => Equals(obj as StructuredFile);
-#pragma warning restore 659
-
-    public static bool operator ==(StructuredFile file1, StructuredFile file2) =>
-      EqualityComparer<StructuredFile>.Default.Equals(file1, file2);
-
-    public static bool operator !=(StructuredFile file1, StructuredFile file2) => !(file1 == file2);
-
-    /*
-    /// <summary>
-    ///   Serves as the default hash function.
-    /// </summary>
-    /// <returns>A hash code for the current object.</returns>
-    public override int GetHashCode()
-    {
-      unchecked
-      {
-        var hashCode = base.GetBaseHashCode();
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Footer);
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(m_Header);
-        hashCode = (hashCode * 397) ^ m_JSONEncode.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_Row.GetHashCode();
-        hashCode = (hashCode * 397) ^ m_XMLEncode.GetHashCode();
-        return hashCode;
-      }
-    }
-    */
   }
 }

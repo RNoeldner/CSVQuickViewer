@@ -12,13 +12,11 @@
  *
  */
 
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,7 +26,7 @@ namespace CsvTools
   /// <summary>
   ///   A class to write structured Files like XML or JASON
   /// </summary>
-  public class StructuredFileWriter : BaseFileWriter, IFileWriter
+  public abstract class StructuredFileWriter : BaseFileWriter, IFileWriter
   {
     /// <summary>
     ///   The field placeholder
@@ -44,24 +42,25 @@ namespace CsvTools
     ///   The header placeholder
     /// </summary>
     private const string c_HeaderPlaceholder = "[column{0}]";
-
-    private readonly bool m_JSONEncode;
     private readonly string m_Row;
-    private readonly bool m_XMLEncode;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="processDisplay">The process display.</param>
-    public StructuredFileWriter(StructuredFile file,
-      IProcessDisplay? processDisplay)
-      : base(file, processDisplay)
+    public StructuredFileWriter(string id, string fullPath, IValueFormat? valueFormatGeneral = null,
+      IFileFormat? fileFormat = null, string? recipient = null,
+      bool unencrypted = false, string? identifierInContainer = null, string? footer = null, string? header = null,
+      IEnumerable<IColumn>? columnDefinition = null, string fileSettingDisplay = "", string row = "",
+      IProcessDisplay? processDisplay = null) : base(id, fullPath, valueFormatGeneral, fileFormat, recipient, unencrypted, identifierInContainer, footer, header, columnDefinition, fileSettingDisplay, processDisplay)
     {
-      m_Row = file.Row;
-      m_XMLEncode = file.XMLEncode;
-      m_JSONEncode = file.JSONEncode;
+      if (string.IsNullOrEmpty(row))
+        throw new ArgumentNullException(nameof(row));
+      m_Row = row;
     }
+    protected abstract string ElementName(string input);
+    protected abstract string Escape(object input, WriterColumn columnInfo, IFileReader reader);
 
     /// <summary>
     ///   Writes the specified file reading from the given reader
@@ -99,12 +98,7 @@ namespace CsvTools
       foreach (var columnInfo in Columns)
       {
         var placeHolder = string.Format(CultureInfo.CurrentCulture, c_HeaderPlaceholder, colNum);
-        if (m_XMLEncode)
-          withHeader = withHeader.Replace(placeHolder, HTMLStyle.XmlElementName(columnInfo.Name));
-        else if (m_JSONEncode)
-          withHeader = withHeader.Replace(placeHolder, HTMLStyle.JsonElementName(columnInfo.Name));
-        else
-          withHeader = withHeader.Replace(placeHolder, columnInfo.Name);
+        withHeader = withHeader.Replace(placeHolder, ElementName(columnInfo.Name));
 
         placeHolderLookup1.Add(colNum, string.Format(CultureInfo.CurrentCulture, c_FieldPlaceholderByNumber, colNum));
         placeHolderLookup2.Add(colNum,
@@ -126,12 +120,8 @@ namespace CsvTools
         var row = withHeader;
         colNum = 0;
         foreach (var value in from columnInfo in Columns
-          let col = reader.GetValue(columnInfo.ColumnOrdinal)
-          select m_XMLEncode
-            ? SecurityElement.Escape(TextEncodeField(FileFormat, col, columnInfo, false,
-              reader,
-              null))
-            : JsonConvert.ToString(col))
+                              let col = reader.GetValue(columnInfo.ColumnOrdinal)
+                              select Escape(col, columnInfo, reader))
         {
           row = row.Replace(placeHolderLookup1[colNum], value).Replace(placeHolderLookup2[colNum], value);
           colNum++;
