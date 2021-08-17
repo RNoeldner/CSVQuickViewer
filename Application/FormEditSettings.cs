@@ -55,7 +55,7 @@ namespace CsvTools
         domainUpDownTime.SelectedIndex = 0;
     }
 
-    private async void BtnOpenFile_ClickAsync(object sender, EventArgs e)
+    private async void BtnOpenFile_ClickAsync(object? sender, EventArgs e)
     {
       try
       {
@@ -89,7 +89,7 @@ namespace CsvTools
       base.Dispose(disposing);
     }
 
-    private async void ButtonGuessCP_ClickAsync(object sender, EventArgs e)
+    private async void ButtonGuessCP_ClickAsync(object? sender, EventArgs e)
     {
       await buttonGuessCP.RunWithHourglassAsync(async () =>
       {
@@ -101,7 +101,7 @@ namespace CsvTools
       fileSettingBindingSource.ResetBindings(false);
     }
 
-    private async void ButtonGuessDelimiter_ClickAsync(object sender, EventArgs e)
+    private async void ButtonGuessDelimiter_ClickAsync(object? sender, EventArgs e)
     {
       await buttonGuessDelimiter.RunWithHourglassAsync(async () =>
       {
@@ -113,7 +113,7 @@ namespace CsvTools
       fileFormatBindingSource.ResetBindings(false);
     }
 
-    private async void ButtonGuessTextQualifier_Click(object sender, EventArgs e)
+    private async void ButtonGuessTextQualifier_Click(object? sender, EventArgs e)
     {
       var qualifier = string.Empty;
       await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
@@ -123,10 +123,9 @@ namespace CsvTools
       });
 
       m_ViewSettings.FileFormat.FieldQualifier = qualifier;
-
     }
 
-    private async void ButtonSkipLine_ClickAsync(object sender, EventArgs e)
+    private async void ButtonSkipLine_ClickAsync(object? sender, EventArgs e)
     {
       await buttonSkipLine.RunWithHourglassAsync(async () =>
       {
@@ -135,13 +134,13 @@ namespace CsvTools
       });
     }
 
-    private void CboCodePage_SelectedIndexChanged(object sender, EventArgs e)
+    private void CboCodePage_SelectedIndexChanged(object? sender, EventArgs e)
     {
       if (cboCodePage.SelectedItem != null)
         m_ViewSettings.CodePageId = ((DisplayItem<int>) cboCodePage.SelectedItem).ID;
     }
 
-    private void CboRecordDelimiter_SelectedIndexChanged(object sender, EventArgs e)
+    private void CboRecordDelimiter_SelectedIndexChanged(object? sender, EventArgs e)
     {
       if (cboRecordDelimiter.SelectedItem != null)
         m_ViewSettings.FileFormat.NewLine = (RecordDelimiterType) cboRecordDelimiter.SelectedValue;
@@ -205,7 +204,7 @@ namespace CsvTools
       }
     }
 
-    private void CheckBoxColumnsProcess_CheckedChanged(object sender, EventArgs e)
+    private void CheckBoxColumnsProcess_CheckedChanged(object? sender, EventArgs e)
     {
       if (m_ViewSettings.TryToSolveMoreColumns || m_ViewSettings.AllowRowCombining)
         m_ViewSettings.WarnEmptyTailingColumns = true;
@@ -216,7 +215,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void EditSettings_Load(object sender, EventArgs e)
+    private void EditSettings_Load(object? sender, EventArgs e)
     {
       fileSettingBindingSource.DataSource = m_ViewSettings;
       fileFormatBindingSource.DataSource = m_ViewSettings.FileFormat;
@@ -245,13 +244,13 @@ namespace CsvTools
       quotingControl.CsvFile = m_ViewSettings;
     }
 
-    private void FormEditSettings_FormClosing(object sender, FormClosingEventArgs e)
+    private void FormEditSettings_FormClosing(object? sender, FormClosingEventArgs e)
     {
       m_CancellationTokenSource.Cancel();
       ValidateChildren();
     }
 
-    private async void GuessNewline_Click(object sender, EventArgs e)
+    private async void GuessNewline_Click(object? sender, EventArgs e)
     {
       await buttonNewLine.RunWithHourglassAsync(async () =>
       {
@@ -260,7 +259,7 @@ namespace CsvTools
       });
     }
 
-    private void TextBoxDelimiter_TextChanged(object sender, EventArgs e)
+    private void TextBoxDelimiter_TextChanged(object? sender, EventArgs e)
     {
       if (string.IsNullOrWhiteSpace(textBoxDelimiter.Text))
       {
@@ -277,7 +276,7 @@ namespace CsvTools
       }
     }
 
-    private void TextBoxFile_Validating(object sender, CancelEventArgs e)
+    private void TextBoxFile_Validating(object? sender, CancelEventArgs e)
     {
       if (!FileSystemUtils.FileExists(textBoxFile.Text))
       {
@@ -290,7 +289,7 @@ namespace CsvTools
       }
     }
 
-    private void DomainUpDownTime_SelectedItemChanged(object sender, EventArgs e)
+    private void DomainUpDownTime_SelectedItemChanged(object? sender, EventArgs e)
     {
       m_ViewSettings.LimitDuration = domainUpDownTime.SelectedIndex switch
       {
@@ -303,7 +302,7 @@ namespace CsvTools
       };
     }
 
-    private async void ButtonGuessHeader_Click(object sender, EventArgs e)
+    private async void ButtonGuessHeader_Click(object? sender, EventArgs e)
     {
       await buttonGuessHeader.RunWithHourglassAsync(async () =>
       {
@@ -315,13 +314,13 @@ namespace CsvTools
       });
     }
 
-    private void ButtonInteractiveSettings_Click(object sender, EventArgs e)
+    private void ButtonInteractiveSettings_Click(object? sender, EventArgs e)
     {
       using var frm = new FindSkipRows(m_ViewSettings);
       _=frm.ShowDialog();
     }
 
-    private async void buttonGuessLineComment_Click(object sender, EventArgs e)
+    private async void buttonGuessLineComment_Click(object? sender, EventArgs e)
     {
       await buttonGuessLineComment.RunWithHourglassAsync(async () =>
       {

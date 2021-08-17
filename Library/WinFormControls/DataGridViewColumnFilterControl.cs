@@ -32,7 +32,7 @@ namespace CsvTools
     /// <param name="dataGridViewColumn">The data grid view column.</param>
     public DataGridViewColumnFilterControl(DataGridViewColumn dataGridViewColumn)
     {
-      if (dataGridViewColumn == null)
+      if (dataGridViewColumn is null)
         throw new ArgumentNullException(nameof(dataGridViewColumn));
       m_DataGridViewColumnFilter = new ColumnFilterLogic(dataGridViewColumn.ValueType, dataGridViewColumn.DataPropertyName);
       m_DataGridViewColumnFilter.PropertyChanged += FilterLogic_PropertyChanged;
@@ -79,7 +79,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ComboBoxOperator_SelectedIndexChanged(object sender, EventArgs e)
+    private void ComboBoxOperator_SelectedIndexChanged(object? sender, EventArgs e)
     {
       var isNotNullCompare = ColumnFilterLogic.IsNotNullCompare(comboBoxOperator.Text);
       try
@@ -94,7 +94,7 @@ namespace CsvTools
       }
     }
 
-    private void FilterLogic_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void FilterLogic_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
       switch (e.PropertyName)
       {
@@ -117,7 +117,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void FilterValueChanged(object sender, EventArgs e)
+    private void FilterValueChanged(object? sender, EventArgs e)
     {
       try
       {
@@ -142,7 +142,7 @@ namespace CsvTools
       }
     }
 
-    private void HandleEnterKeyPress(object sender, KeyPressEventArgs e)
+    private void HandleEnterKeyPress(object? sender, KeyPressEventArgs e)
     {
       if (e.KeyChar != 13)
         return;
@@ -150,7 +150,7 @@ namespace CsvTools
       m_DataGridViewColumnFilter.ApplyFilter();
     }
 
-    private void TextBoxValue_Validated(object sender, EventArgs e)
+    private void TextBoxValue_Validated(object? sender, EventArgs e)
     {
       errorProvider.SetError(textBoxValue, string.Empty);
       textBoxValue.Width = dateTimePickerValue.Width;

@@ -12,7 +12,7 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <RootNamespace>CsvTools</RootNamespace>    
+    <RootNamespace>CsvTools</RootNamespace>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <Configurations>Release;Debug</Configurations>
@@ -55,5 +55,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj" />
     <ProjectReference Include="..\Library\WinFormsControls.core\WinFormsControls.core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="FastColoredTextBox.Core">
+      <HintPath>..\Library\DLL\FastColoredTextBox.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

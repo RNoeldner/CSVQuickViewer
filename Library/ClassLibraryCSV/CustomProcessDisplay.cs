@@ -18,37 +18,37 @@ using System.Threading;
 
 namespace CsvTools
 {
-  [DebuggerStepThrough]
-  public class CustomProcessDisplay : IProcessDisplay
-  {
-    public CustomProcessDisplay(CancellationToken token) => CancellationToken = token;
+	[DebuggerStepThrough]
+	public class CustomProcessDisplay : IProcessDisplay
+	{
+		public CustomProcessDisplay(CancellationToken token) => CancellationToken = token;
 
-    public void Dispose()
-    {
-    }
+		public void Dispose()
+		{
+		}
 
-    public event EventHandler<ProgressEventArgs>? Progress;
+		public event EventHandler<ProgressEventArgs>? Progress;
 
-    public CancellationToken CancellationToken { get; }
+		public CancellationToken CancellationToken { get; }
 
-    public virtual long Maximum { get; set; } = -1;
+		public virtual long Maximum { get; set; } = -1;
 
-    public void SetProcess(object? sender, ProgressEventArgs? e)
-    {
-      if (e == null || Progress==null)
-        return;
-      Handle(sender, e.Text, e.Value, e.Log);
-    }
+		public void SetProcess(object? sender, ProgressEventArgs? e)
+		{
+			if (e is null || Progress==null)
+				return;
+			Handle(sender, e.Text, e.Value, e.Log);
+		}
 
-    public string Title { get; set; } = string.Empty;
+		public string Title { get; set; } = string.Empty;
 
-    public void SetProcess(string text, long value, bool log) => Handle(this, text, value, log);
+		public void SetProcess(string text, long value, bool log) => Handle(this, text, value, log);
 
-    protected virtual void Handle(object? sender, string text, long value, bool log)
-    {
-      if (log)
-        Logger.Information(text);
-      Progress?.Invoke(sender, new ProgressEventArgs(text, value, log));
-    }
-  }
+		protected virtual void Handle(object? sender, string text, long value, bool log)
+		{
+			if (log)
+				Logger.Information(text);
+			Progress?.Invoke(sender, new ProgressEventArgs(text, value, log));
+		}
+	}
 }

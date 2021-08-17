@@ -89,6 +89,7 @@
     <Compile Include="..\ClassLibraryCSV\Immutable\ImmutableFileFormat.cs" Link="ImmutableFileFormat.cs" />
     <Compile Include="..\ClassLibraryCSV\IntervalAction.cs" Link="IntervalAction.cs" />
     <Compile Include="..\ClassLibraryCSV\ICloneable.cs" Link="ICloneable.cs" />
+    <Compile Include="..\ClassLibraryCSV\WriterColumn.cs" Link="WriterColumn.cs" />
     <Compile Include="..\ClassLibraryCSV\DetermineColumnFormat.cs" Link="DetermineColumnFormat.cs" />
     <Compile Include="..\ClassLibraryCSV\Mutable\ColumnCollection.cs" Link="ColumnCollection.cs" />
   </ItemGroup>

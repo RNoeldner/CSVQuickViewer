@@ -12,7 +12,6 @@
  *
  */
 
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,8 +37,8 @@ namespace CsvTools
 
     public CsvFileWriter(string id, string fullPath, bool hasFieldHeader, IValueFormat? valueFormat = null, IFileFormat? fileFormat = null,
       int codePageId = 65001, bool byteOrderMark = true, IEnumerable<IColumn>? columnDefinition = null, string? recipient = null,
-      bool unencyrpted = false, string? identifierInContainer = null, string? header = null, string? footer = null)
-      : base(id, fullPath, valueFormat, fileFormat, recipient, unencyrpted, identifierInContainer, footer, header, columnDefinition)
+      bool unencyrpted = false, string? identifierInContainer = null, string? header = null, string? footer = null, string fileSettingDisplay = "", IProcessDisplay? processDisplay = null)
+      : base(id, fullPath, valueFormat, fileFormat, recipient, unencyrpted, identifierInContainer, footer, header, columnDefinition, fileSettingDisplay, processDisplay)
     {
       m_CodePageId = codePageId;
       m_ColumnHeader = hasFieldHeader;

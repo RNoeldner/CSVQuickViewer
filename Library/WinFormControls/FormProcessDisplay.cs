@@ -12,6 +12,7 @@
  *
  */
 #nullable enable
+
 using System;
 using System.Drawing;
 using System.Text;
@@ -44,14 +45,14 @@ namespace CsvTools
     /// <param name="windowTitle">The description / form title</param>
     /// <param name="withLoggerDisplay">True if a debug logging windows should be shown</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    public FormProcessDisplay(string windowTitle, bool withLoggerDisplay, CancellationToken cancellationToken)
+    public FormProcessDisplay(string? windowTitle, bool withLoggerDisplay, CancellationToken cancellationToken)
     {
       CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
       m_ProcessDisplay = new ProcessDisplayTime(CancellationTokenSource.Token);
       InitializeComponent();
 
-      m_Title = windowTitle;
-      base.Text = windowTitle;
+      m_Title = windowTitle ?? string.Empty;
+      base.Text = m_Title;
 
       Maximum = 0;
       SuspendLayout();
@@ -87,7 +88,7 @@ namespace CsvTools
       set
       {
         base.Owner = value;
-        if (value == null)
+        if (value is null)
           return;
         StartPosition = FormStartPosition.Manual;
         Location = new Point(
@@ -314,7 +315,7 @@ namespace CsvTools
       ResumeLayout(false);
     }
 
-    private void ProcessDisplay_FormClosing(object sender, FormClosingEventArgs e)
+    private void ProcessDisplay_FormClosing(object? sender, FormClosingEventArgs e)
     {
       e.Cancel = false;
       try

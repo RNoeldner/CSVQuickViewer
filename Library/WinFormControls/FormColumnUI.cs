@@ -13,6 +13,7 @@
  */
 
 #nullable enable
+
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -78,7 +79,6 @@ namespace CsvTools
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
       HTMLStyle = hTMLStyle ?? throw new ArgumentNullException(nameof(hTMLStyle));
-
 
       m_WriteSetting = writeSetting;
 
@@ -190,7 +190,7 @@ namespace CsvTools
               processDisplay.CancellationToken);
             var found = new Column();
             var column = data?.Columns[columnName];
-            if (column == null)
+            if (column is null)
             {
               if (hasRetried)
                 throw new FileReaderException($"The file does not seem to contain the column {columnName}.");
@@ -217,8 +217,8 @@ namespace CsvTools
         else
         {
           var samples = await GetSampleValuesAsync(columnName, processDisplay);
-          // shuffle samples, take some from the end and put it in the first 10 1 - 1 2 - Last 3 -
-          // 2 4 - Last - 1
+          // shuffle samples, take some from the end and put it in the first 10 1 - 1 2 - Last 3 - 2
+          // 4 - Last - 1
 
           if (samples.Values.Count == 0)
           {
@@ -296,7 +296,7 @@ namespace CsvTools
               DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection),
               processDisplay.CancellationToken);
             processDisplay.Hide();
-            if (checkResult.FoundValueFormat == null)
+            if (checkResult.FoundValueFormat is null)
             {
               _MessageBox.ShowBigHtml(
                 BuildHTMLText(
@@ -317,8 +317,8 @@ namespace CsvTools
                   if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
                     AddDateFormat(checkResult.FoundValueFormat.DateFormat);
 
-                  // In case possible match has the same information as FoundValueFormat,
-                  // disregard the possible match
+                  // In case possible match has the same information as FoundValueFormat, disregard
+                  // the possible match
                   if (checkResult.FoundValueFormat.Equals(checkResult.ValueFormatPossibleMatch))
                     checkResult.PossibleMatch = false;
                 }
@@ -328,7 +328,7 @@ namespace CsvTools
 
                 var header1 = string.Empty;
                 var suggestClosestMatch = checkResult.PossibleMatch
-                                          && (checkResult.FoundValueFormat == null
+                                          && (checkResult.FoundValueFormat is null
                                               || checkResult.FoundValueFormat.DataType == DataType.String);
                 header1 += $"Determined Format : {checkResult.FoundValueFormat?.GetTypeAndFormatDescription()}";
 
@@ -344,8 +344,8 @@ namespace CsvTools
                       $"Column: {columnName}",
                       MessageBoxButtons.YesNo,
                       MessageBoxIcon.Question) == DialogResult.Yes)
-                    // use the closest match instead of Text can not use ValueFormat.CopyTo,.
-                    // Column is quite specific and need it to be set,
+                    // use the closest match instead of Text can not use ValueFormat.CopyTo,. Column
+                    // is quite specific and need it to be set,
                     m_ColumnEdit.ValueFormatMutable.CopyFrom(checkResult.ValueFormatPossibleMatch);
                 }
                 else
@@ -495,7 +495,7 @@ namespace CsvTools
 
     private static void AddNotExisting(List<string> list, string value, List<string>? otherList = null)
     {
-      if (!list.Contains(value) && (otherList == null || !otherList.Contains(value)))
+      if (!list.Contains(value) && (otherList is null || !otherList.Contains(value)))
         list.Add(value);
     }
 
@@ -529,7 +529,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ButtonAddFormat_Click(object sender, EventArgs e) =>
+    private void ButtonAddFormat_Click(object? sender, EventArgs e) =>
       AddDateFormat(comboBoxDateFormat.Text);
 
     /// <summary>
@@ -537,9 +537,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ButtonCancelClick(object sender, EventArgs e) => Close();
+    private void ButtonCancelClick(object? sender, EventArgs e) => Close();
 
-    private async void ButtonDisplayValues_ClickAsync(object sender, EventArgs e) =>
+    private async void ButtonDisplayValues_ClickAsync(object? sender, EventArgs e) =>
           await buttonDisplayValues.RunWithHourglassAsync(async () => await DisplayValues());
 
     /// <summary>
@@ -547,14 +547,14 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private async void ButtonGuessClick(object sender, EventArgs e) => await Guess();
+    private async void ButtonGuessClick(object? sender, EventArgs e) => await Guess();
 
     /// <summary>
     ///   Handles the Click event of the buttonOK control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ButtonOkClick(object sender, EventArgs e)
+    private void ButtonOkClick(object? sender, EventArgs e)
     {
       try
       {
@@ -585,7 +585,7 @@ namespace CsvTools
     /// <param name="e">
     ///   The <see cref="System.Windows.Forms.ItemCheckEventArgs" /> instance containing the event data.
     /// </param>
-    private void CheckedListBoxDateFormats_ItemCheck(object sender, ItemCheckEventArgs e)
+    private void CheckedListBoxDateFormats_ItemCheck(object? sender, ItemCheckEventArgs e)
     {
       var format = checkedListBoxDateFormats.Items[e.Index].ToString();
       if (string.IsNullOrEmpty(format))
@@ -618,7 +618,7 @@ namespace CsvTools
       }
     }
 
-    private void ColumnFormatUI_FormClosing(object sender, FormClosingEventArgs e)
+    private void ColumnFormatUI_FormClosing(object? sender, FormClosingEventArgs e)
     {
       try
       {
@@ -637,7 +637,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private async void ColumnFormatUI_Load(object sender, EventArgs e)
+    private async void ColumnFormatUI_Load(object? sender, EventArgs e)
     {
       var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
@@ -657,8 +657,8 @@ namespace CsvTools
         {
           if (!m_WriteSetting)
           {
-            // Read Settings -- open the source that is a file if there are ignored columns need
-            // to open file and get all columns
+            // Read Settings -- open the source that is a file if there are ignored columns need to
+            // open file and get all columns
             if (m_FileSetting.ColumnCollection.Any(x => x.Ignore))
             {
               using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null,
@@ -705,7 +705,7 @@ namespace CsvTools
       }
     }
 
-    private void ComboBoxColumnName_SelectedIndexChanged(object sender, EventArgs e)
+    private void ComboBoxColumnName_SelectedIndexChanged(object? sender, EventArgs e)
     {
       try
       {
@@ -731,7 +731,7 @@ namespace CsvTools
     {
       try
       {
-        if (comboBoxDataType.SelectedValue == null)
+        if (comboBoxDataType.SelectedValue is null)
           return;
         var selType = (DataType) comboBoxDataType.SelectedValue;
         m_ColumnEdit.ValueFormatMutable.DataType = selType;
@@ -759,7 +759,7 @@ namespace CsvTools
       }
     }
 
-    private void ComboBoxTimePart_SelectedIndexChanged(object sender, EventArgs e) =>
+    private void ComboBoxTimePart_SelectedIndexChanged(object? sender, EventArgs e) =>
       comboBoxTPFormat.Enabled = comboBoxTimePart.SelectedIndex >= 0;
 
     /// <summary>
@@ -869,7 +869,7 @@ namespace CsvTools
     private void ListSamples(StringBuilder stringBuilder, string? headerList, ICollection<string>? values, int col,
                                                                             int rows)
     {
-      if (values == null || values.Count <= 0 || string.IsNullOrEmpty(headerList))
+      if (values is null || values.Count <= 0 || string.IsNullOrEmpty(headerList))
         return;
       if (!string.IsNullOrEmpty(headerList))
         stringBuilder.Append(string.Format(HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(headerList!)));
@@ -901,7 +901,7 @@ namespace CsvTools
     private void NumberFormatChanged(object? sender, EventArgs? e) => UpdateNumericLabel(textBoxDecimalSeparator.Text,
       comboBoxNumberFormat.Text, textBoxDecimalSeparator.Text);
 
-    private void PartValidating(object sender, CancelEventArgs e)
+    private void PartValidating(object? sender, CancelEventArgs e)
     {
       var ok = int.TryParse(textBoxPart.Text, out var parse);
       var reformat = parse.ToString(CultureInfo.CurrentCulture);
@@ -937,7 +937,7 @@ namespace CsvTools
       ComboBoxColumnName_TextUpdate(null, EventArgs.Empty);
     }
 
-    private void RegionAndLanguageLinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    private void RegionAndLanguageLinkClicked(object? sender, LinkLabelLinkClickedEventArgs e)
     {
       try
       {
@@ -1038,7 +1038,7 @@ namespace CsvTools
 
     private void SetSamplePart(object? sender, EventArgs? e) => SetPartLabels(textBoxSplit.Text, textBoxPart.Text, checkBoxPartToEnd.Checked);
 
-    private void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+    private void SystemEvents_UserPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e)
     {
       if (e.Category != UserPreferenceCategory.Locale)
         return;
@@ -1049,12 +1049,12 @@ namespace CsvTools
       ComboBoxDataType_SelectedIndexChanged(null, EventArgs.Empty);
     }
 
-    private void TextBoxDecimalSeparator_Validating(object sender, CancelEventArgs e) =>
+    private void TextBoxDecimalSeparator_Validating(object? sender, CancelEventArgs e) =>
       errorProvider.SetError(
         textBoxDecimalSeparator,
         string.IsNullOrEmpty(textBoxDecimalSeparator.Text) ? "Must be provided" : "");
 
-    private void TextBoxSplit_Validating(object sender, CancelEventArgs e) =>
+    private void TextBoxSplit_Validating(object? sender, CancelEventArgs e) =>
       errorProvider.SetError(textBoxSplit, string.IsNullOrEmpty(textBoxSplit.Text) ? "Must be provided" : "");
 
     private void UpdateColumnList(ICollection<string> allColumns)

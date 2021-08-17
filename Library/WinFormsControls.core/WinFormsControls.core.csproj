@@ -5,6 +5,8 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <OutputType>Library</OutputType>
+    <Nullable>enable</Nullable>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\WinFormControls\**\*.cs" />
@@ -26,8 +28,12 @@
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\FCTB\FastColoredTextBox.Core\FastColoredTextBox.Core.csproj" />
     <ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="FastColoredTextBox.Core">
+      <HintPath>..\DLL\FastColoredTextBox.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">

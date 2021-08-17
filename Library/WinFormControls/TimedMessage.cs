@@ -3,6 +3,7 @@ namespace CsvTools
   using System;
   using System.ComponentModel;
   using System.Windows.Forms;
+
 #nullable enable
 
   public class TimedMessage : ResizeForm
@@ -73,7 +74,7 @@ namespace CsvTools
 
     public DialogResult ShowDialog(
       string message,
-      string title,
+      string? title,
       MessageBoxButtons buttons,
       MessageBoxIcon icon,
       MessageBoxDefaultButton defaultButton,
@@ -82,7 +83,7 @@ namespace CsvTools
       string? button2Text,
       string? button3Text)
     {
-      Text = title;
+      Text = title ?? string.Empty;
       if (!string.IsNullOrEmpty(message))
         Message = message;
       Duration = timeout;
@@ -390,19 +391,19 @@ namespace CsvTools
       this.PerformLayout();
     }
 
-    private void MouseEnterElement(object sender, EventArgs e)
+    private void MouseEnterElement(object? sender, EventArgs e)
     {
       m_Timer.Enabled = false;
       UpdateLabel();
     }
 
-    private void MouseLeaveElement(object sender, EventArgs e)
+    private void MouseLeaveElement(object? sender, EventArgs e)
     {
       m_Timer.Enabled = true;
       UpdateLabel();
     }
 
-    private void Timer_Tick(object sender, EventArgs e)
+    private void Timer_Tick(object? sender, EventArgs e)
     {
       m_Counter++;
       UpdateLabel();

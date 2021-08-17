@@ -13,6 +13,7 @@
  */
 
 #nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -318,7 +319,7 @@ namespace CsvTools
       set
       {
         // in case we do not have unique names and the table is not loaded do nothing
-        if ((value == null || !value.Any()))
+        if ((value is null || !value.Any()))
           return;
         if (m_FilterDataTable != null)
           m_FilterDataTable.UniqueFieldName = value;
@@ -453,11 +454,13 @@ namespace CsvTools
             : DataGridViewAutoSizeColumnsMode.DisplayedCells);
     }
 
-    private void BackgroundSearchThread(object obj)
+    private void BackgroundSearchThread(object? obj)
     {
-      var processInformation = (ProcessInformation) obj;
+      var processInformation = obj as ProcessInformation;
+      if (processInformation == null)
+        return;
       processInformation.IsRunning = true;
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try
       {
@@ -492,7 +495,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ButtonColumnLength_Click(object sender, EventArgs e)
+    private void ButtonColumnLength_Click(object? sender, EventArgs e)
     {
       if (FilteredDataGridView.Columns.Count <= 0)
         return;
@@ -516,7 +519,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ButtonDuplicates_Click(object sender, EventArgs e)
+    private void ButtonDuplicates_Click(object? sender, EventArgs e)
     {
       if (FilteredDataGridView.Columns.Count <= 0)
         return;
@@ -546,7 +549,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ButtonHierarchy_Click(object sender, EventArgs e)
+    private void ButtonHierarchy_Click(object? sender, EventArgs e)
     {
       m_ToolStripButtonHierarchy!.RunWithHourglass(() =>
       {
@@ -571,7 +574,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ButtonUniqueValues_Click(object sender, EventArgs e)
+    private void ButtonUniqueValues_Click(object? sender, EventArgs e)
     {
       if (FilteredDataGridView.Columns.Count <= 0)
         return;
@@ -598,7 +601,7 @@ namespace CsvTools
       m_ToolStripButtonUniqueValues.Enabled = false;
     }
 
-    private void ClearSearch(object sender, EventArgs e)
+    private void ClearSearch(object? sender, EventArgs e)
     {
       (this).SafeInvoke(
         () =>
@@ -611,7 +614,7 @@ namespace CsvTools
       m_CurrentSearch?.Dispose();
     }
 
-    private void DataViewChanged(object sender, EventArgs args)
+    private void DataViewChanged(object? sender, EventArgs args)
     {
       m_SearchCellsDirty = true;
       if (!m_Search.Visible)
@@ -623,7 +626,7 @@ namespace CsvTools
       ClearSearch(sender, args);
     }
 
-    private void DetailControl_KeyDown(object sender, KeyEventArgs e)
+    private void DetailControl_KeyDown(object? sender, KeyEventArgs e)
     {
       if (!e.Control || e.KeyCode != Keys.F)
         return;
@@ -654,7 +657,7 @@ namespace CsvTools
         return;
       }
 
-      if (m_FilterDataTable?.FilterTable != null && (m_FilterDataTable == null || m_FilterDataTable.FilterTable.Rows.Count <= 0))
+      if (m_FilterDataTable?.FilterTable != null && (m_FilterDataTable is null || m_FilterDataTable.FilterTable.Rows.Count <= 0))
         return;
       if (m_FilterDataTable != null && m_FilterDataTable.ColumnsWithoutErrors.Count == Columns!.Count)
         return;
@@ -666,7 +669,7 @@ namespace CsvTools
       }
     }
 
-    private void FilteredDataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+    private void FilteredDataGridView_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
     {
       if (!(e.Value is DateTime cellValue))
         return;
@@ -904,10 +907,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="SearchEventArgs" /> instance containing the event data.</param>
-    private void OnSearchChanged(object sender, SearchEventArgs e)
+    private void OnSearchChanged(object? sender, SearchEventArgs e)
     {
       // Stop any current searches
-      if (m_CurrentSearch is {IsRunning: true})
+      if (m_CurrentSearch is { IsRunning: true })
       {
         m_CurrentSearch.SearchEventArgs = e;
 
@@ -928,7 +931,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="SearchEventArgs" /> instance containing the event data.</param>
-    private void OnSearchResultChanged(object sender, SearchEventArgs e)
+    private void OnSearchResultChanged(object? sender, SearchEventArgs e)
     {
       if (e.Result <= 0 || e.Result >= m_FoundCells.Count)
         return;
@@ -954,7 +957,7 @@ namespace CsvTools
     /// <param name="e">
     ///   The <see cref="System.ComponentModel.CancelEventArgs" /> instance containing the event data.
     /// </param>
-    private void ParentForm_Closing(object sender, CancelEventArgs e)
+    private void ParentForm_Closing(object? sender, CancelEventArgs e)
     {
       if (m_ParentForm != null)
       {
@@ -971,7 +974,7 @@ namespace CsvTools
     {
       if (!m_SearchCellsDirty)
         return;
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try
       {
@@ -990,7 +993,11 @@ namespace CsvTools
           foreach (var cell in visible.Select(col => row.Cells[col.Index])
                                       .Where(cell => !string.IsNullOrEmpty(cell.FormattedValue?.ToString())))
             if (cell.FormattedValue != null)
-              m_SearchCells.Add(new KeyValuePair<string, DataGridViewCell>(cell.FormattedValue.ToString(), cell));
+            {
+              var formatted = cell.FormattedValue.ToString();
+              if (!string.IsNullOrEmpty(formatted))
+                m_SearchCells.Add(new KeyValuePair<string, DataGridViewCell>(formatted, cell));
+            }
         }
 
         m_SearchCellsDirty = false;
@@ -1001,7 +1008,7 @@ namespace CsvTools
       }
     }
 
-    private void ResultFound(object sender, FoundEventArgs args)
+    private void ResultFound(object? sender, FoundEventArgs args)
     {
       m_FoundCells.Add(args.Cell);
       (this).SafeBeginInvoke(() =>
@@ -1011,7 +1018,7 @@ namespace CsvTools
       });
     }
 
-    private void SearchComplete(object sender, SearchEventArgs e) =>
+    private void SearchComplete(object? sender, SearchEventArgs e) =>
       this.SafeBeginInvoke(() => { m_Search.Results = m_CurrentSearch?.Found ?? 0; });
 
     private void SetButtonVisibility() =>
@@ -1084,14 +1091,14 @@ namespace CsvTools
       var oldOrder = FilteredDataGridView.SortOrder;
 
       // Cancel the current search
-      if (m_CurrentSearch is {IsRunning: true})
+      if (m_CurrentSearch is { IsRunning: true })
         m_CurrentSearch.Cancel();
 
       // Hide any showing search
       m_Search.Visible = false;
 
       var newDt = m_DataTable;
-      if (m_FilterDataTable == null)
+      if (m_FilterDataTable is null)
         m_FilterDataTable = new FilterDataTable(m_DataTable);
       if (m_FilterDataTable != null && type != FilterType.All)
       {
@@ -1128,7 +1135,7 @@ namespace CsvTools
       ShowFilter = m_FilterDataTable?.FilterTable != null && m_FilterDataTable.FilterTable.Rows.Count > 0;
     }
 
-    private void StartSearch(object sender, SearchEventArgs e)
+    private void StartSearch(object? sender, SearchEventArgs e)
     {
       ClearSearch(this, EventArgs.Empty);
       FilteredDataGridView.HighlightText = e.SearchText;
@@ -1206,7 +1213,7 @@ namespace CsvTools
       }
     }
 
-    private async void ToolStripButtonStoreAsCsvAsync(object sender, EventArgs e)
+    private async void ToolStripButtonStoreAsCsvAsync(object? sender, EventArgs e)
     {
       try
       {
@@ -1236,7 +1243,7 @@ namespace CsvTools
 
     public void ReStoreViewSetting(string fileName) => FilteredDataGridView.ReStoreViewSetting(fileName);
 
-    private async void ToolStripComboBoxFilterType_SelectedIndexChanged(object sender, EventArgs e)
+    private async void ToolStripComboBoxFilterType_SelectedIndexChanged(object? sender, EventArgs e)
     {
       /*
        * All Records
@@ -1257,9 +1264,9 @@ namespace CsvTools
         await RefreshDisplayAsync(FilterType.ShowIssueFree, m_CancellationTokenSource.Token);
     }
 
-    private async void ToolStripButtonNext_Click(object sender, EventArgs e)
+    private async void ToolStripButtonNext_Click(object? sender, EventArgs e)
     {
-      if (LoadNextBatchAsync == null || (EndOfFile?.Invoke() ?? true))
+      if (LoadNextBatchAsync is null || (EndOfFile?.Invoke() ?? true))
         return;
       await ToolStripButtonNext.RunWithHourglassAsync(async () =>
       {

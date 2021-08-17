@@ -12,6 +12,7 @@
  *
  */
 #nullable enable
+
 namespace CsvTools
 {
   using System;
@@ -325,7 +326,7 @@ namespace CsvTools
         if (m_ColumnDataType == typeof(DateTime))
           ValueDateTime = (DateTime) value;
         else
-          ValueText = Convert.ToString(value);
+          ValueText = Convert.ToString(value) ?? string.Empty;
         Operator = c_OperatorEquals;
       }
 
@@ -426,7 +427,7 @@ namespace CsvTools
         }
       }
 
-      return Convert.ToString(returnVal);
+      return Convert.ToString(returnVal) ?? string.Empty;
     }
 
     /// <summary>
@@ -569,7 +570,7 @@ namespace CsvTools
 
       if (counter > 1)
         return "(" + sql + ")";
-      return counter == 1 ? Convert.ToString(sql) : string.Empty;
+      return counter == 1 ? Convert.ToString(sql) ?? string.Empty : string.Empty;
     }
 
     /// <summary>

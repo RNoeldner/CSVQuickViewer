@@ -268,7 +268,7 @@ namespace CsvTools
     /// </returns>
     public static bool CheckTime(IEnumerable<string>? samples, string timeSeparator)
     {
-      if (samples == null)
+      if (samples is null)
         return false;
 
       var allParsed = true;
@@ -296,7 +296,7 @@ namespace CsvTools
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
     public static bool CheckTimeSpan(IEnumerable<string>? samples, string timeSeparator, bool serialDateTime)
     {
-      if (samples == null)
+      if (samples is null)
         return false;
       var allParsed = true;
       var hasValue = false;
@@ -329,8 +329,8 @@ namespace CsvTools
     /// </param>
     /// <returns>A combined date from a date and a time column</returns>
     /// <remarks>This does not have time zone adjustments yet</remarks>
-    public static DateTime? CombineObjectsToDateTime(object? dateColumn, string dateColumnText, object? timeColumn,
-      string timeColumnText, bool serialDateTime, IValueFormat valueFormat, out bool timeColumnIssues)
+    public static DateTime? CombineObjectsToDateTime(object? dateColumn, string? dateColumnText, object? timeColumn,
+      string? timeColumnText, bool serialDateTime, IValueFormat valueFormat, out bool timeColumnIssues)
     {
       var dateValue = m_FirstDateTime;
       // We do have an associated column, with a proper date format
@@ -389,9 +389,11 @@ namespace CsvTools
 
       // It could be that the dateValue is indeed m_FirstDateTime, but only if the text matches the
       // proper formatted value
-      if (dateValue == m_FirstDateTime && dateColumn == null &&
+      if (dateValue == m_FirstDateTime && dateColumn is null &&
           (string.IsNullOrEmpty(dateColumnText) ||
+#pragma warning disable CS8602 // Dereferenzierung eines möglichen Nullverweises.
            !dateColumnText.Equals(DateTimeToString(m_FirstDateTime, valueFormat), StringComparison.Ordinal)))
+#pragma warning restore CS8602 // Dereferenzierung eines möglichen Nullverweises.
         return null;
 
       return dateValue;
@@ -407,7 +409,7 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="serialDateTime">Allow Date Time values ion serial format</param>
     /// <returns></returns>
-    public static DateTime? CombineStringsToDateTime(string datePart, string? dateFormat, string timePart,
+    public static DateTime? CombineStringsToDateTime(string? datePart, string? dateFormat, string? timePart,
       string dateSeparator, string timeSeparator, bool serialDateTime)
     {
       //DateTime? date = null;
@@ -904,7 +906,7 @@ namespace CsvTools
     /// <param name="decimalSeparator">The decimal separator.</param>
     /// <param name="thousandSeparator">The thousand separator.</param>
     /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
-    public static short? StringToInt16(string value, string decimalSeparator, string thousandSeparator)
+    public static short? StringToInt16(string? value, string decimalSeparator, string thousandSeparator)
     {
       if (string.IsNullOrEmpty(value))
         return null;

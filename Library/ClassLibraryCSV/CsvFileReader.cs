@@ -155,7 +155,6 @@ namespace CsvTools
       m_ImprovedStream = improvedStream ?? throw new ArgumentNullException(nameof(improvedStream));
     }
 
-
     public CsvFileReader(string fileName,
                          int codePageId = 650001, // Encoding.UTF8.CodePage
                          int skipRows = 0,
@@ -182,7 +181,7 @@ namespace CsvTools
         warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
         treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax, identifierInContainer, fileName, processDisplay)
     {
-      if (fileName == null) 
+      if (fileName is null)
         throw new ArgumentNullException(nameof(fileName));
       if (fileName.Trim().Length == 0)
         throw new ArgumentException("File can not be empty", nameof(fileName));
@@ -265,7 +264,7 @@ namespace CsvTools
       m_TrimmingOption = trimmingOption;
       m_TreatTextAsNull = treatTextAsNull;
       m_IdentifierInContainer = identifierInContainer;
-   
+
       // Either we report the issues regularly or at least log it
       if (warnEmptyTailingColumns)
         m_HandleMessageColumn = HandleWarning;
@@ -278,7 +277,7 @@ namespace CsvTools
     ///   Gets a value indicating whether this instance is closed.
     /// </summary>
     /// <value><c>true</c> if this instance is closed; otherwise, <c>false</c>.</value>
-    public override bool IsClosed => m_TextReader == null;
+    public override bool IsClosed => m_TextReader is null;
 
     public override void Close()
     {
@@ -389,8 +388,6 @@ namespace CsvTools
       }
 
       return ret ?? DBNull.Value;
-
-
     }
 
     /// <summary>
@@ -412,7 +409,7 @@ namespace CsvTools
         }
         else
         {
-          if (m_ImprovedStream == null)
+          if (m_ImprovedStream is null)
             throw new FileReaderException("Stream for reading is not provided");
         }
 
@@ -495,7 +492,7 @@ namespace CsvTools
       return byFile;
     }
 
-    private bool AllEmptyAndCountConsecutiveEmptyRows(IReadOnlyList<string>? columns)
+    private bool AllEmptyAndCountConsecutiveEmptyRows(IReadOnlyList<string?>? columns)
     {
       if (columns != null)
       {
@@ -715,8 +712,9 @@ namespace CsvTools
           case c_Nbsp:
             if (!postData)
             {
-              // This is not 100% correct in case we have a misalignment of column that is corrected afterwards
-              // warning for NBP need to be issues before trimming as trimming would remove the char
+              // This is not 100% correct in case we have a misalignment of column that is corrected
+              // afterwards warning for NBP need to be issues before trimming as trimming would
+              // remove the char
               if (m_WarnNbsp && !GetColumn(columnNo).Ignore)
               {
                 if (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning)
@@ -889,7 +887,7 @@ namespace CsvTools
         m_RecordSource.Length = 0;
 
       // If already at end of file, return null
-      if (EndOfFile || m_TextReader == null)
+      if (EndOfFile || m_TextReader is null)
         return new string[FieldCount];
 
       var item = ReadNextColumn(0);
@@ -999,7 +997,9 @@ namespace CsvTools
             }
 
             if (m_RealignColumns != null && !isRepeatedHeader)
+#pragma warning disable CS8620 // Das Argument kann aufgrund von Unterschieden bei der NULL-Zulässigkeit von Verweistypen nicht für den Parameter verwendet werden.
               m_RealignColumns.AddRow(CurrentRowColumnText);
+#pragma warning restore CS8620 // Das Argument kann aufgrund von Unterschieden bei der NULL-Zulässigkeit von Verweistypen nicht für den Parameter verwendet werden.
           }
         }
         // If less columns are present
@@ -1007,7 +1007,9 @@ namespace CsvTools
         {
           // if we still have only one column and we should have a number of columns assume this was
           // nonsense like a report footer
+#pragma warning disable CS8602 // Dereferenzierung eines möglichen Nullverweises.
           if (rowLength == 1 && EndOfFile && CurrentRowColumnText[0].Length < 10)
+#pragma warning restore CS8602 // Dereferenzierung eines möglichen Nullverweises.
           {
             // As the record is ignored tis will most likely not be visible
             // -2 to indicate this error could be stored with the previous line....
@@ -1031,7 +1033,9 @@ namespace CsvTools
             // allow up to two extra columns they can be combined later
             if (nextLine.Length > 0 && nextLine.Length + rowLength < FieldCount + 4)
             {
+#pragma warning disable CS8620 // Das Argument kann aufgrund von Unterschieden bei der NULL-Zulässigkeit von Verweistypen nicht für den Parameter verwendet werden.
               var combined = new List<string>(CurrentRowColumnText);
+#pragma warning restore CS8620 // Das Argument kann aufgrund von Unterschieden bei der NULL-Zulässigkeit von Verweistypen nicht für den Parameter verwendet werden.
 
               // the first column belongs to the last column of the previous ignore
               // NumWarningsLinefeed otherwise as this is important information
@@ -1073,7 +1077,9 @@ namespace CsvTools
 
             // determine which column could have caused the issue it could be any column, try to establish
             CurrentRowColumnText =
+#pragma warning disable CS8620 // Das Argument kann aufgrund von Unterschieden bei der NULL-Zulässigkeit von Verweistypen nicht für den Parameter verwendet werden.
               m_RealignColumns.RealignColumn(CurrentRowColumnText, m_HandleMessageColumn, m_RecordSource.ToString());
+#pragma warning restore CS8620 // Das Argument kann aufgrund von Unterschieden bei der NULL-Zulässigkeit von Verweistypen nicht für den Parameter verwendet werden.
           }
           else
           {
@@ -1105,12 +1111,14 @@ namespace CsvTools
             continue;
 
           // Handle replacements and warnings etc,
+#pragma warning disable CS8604 // Mögliches Nullverweisargument.
           var adjustedValue = HandleTextSpecials(CurrentRowColumnText[columnNo]
+#pragma warning restore CS8604 // Mögliches Nullverweisargument.
                                                  .ReplaceCaseInsensitive(m_NewLinePlaceholder, Environment.NewLine)
                                                  .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiterChar)
                                                  .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifierChar), columnNo);
 
-          if (adjustedValue.Length > 0)
+          if (adjustedValue != null && adjustedValue.Length > 0)
           {
             if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifierChar) != -1)
             {

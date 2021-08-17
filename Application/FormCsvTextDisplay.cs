@@ -16,6 +16,7 @@ using System;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
+
 #nullable enable
 
 namespace CsvTools
@@ -76,7 +77,7 @@ namespace CsvTools
 
     private void PrettyPrintStream()
     {
-      if (m_Stream == null)
+      if (m_Stream is null)
         return;
       try
       {
@@ -143,12 +144,12 @@ namespace CsvTools
       }
     }
 
-    private void TextBox_TextChangedDelayed(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) => HighlightVisibleRange();
+    private void TextBox_TextChangedDelayed(object? sender, FastColoredTextBoxNS.TextChangedEventArgs e) => HighlightVisibleRange();
 
-    private void TextBox_VisibleRangeChangedDelayed(object sender, EventArgs e) => HighlightVisibleRange();
+    private void TextBox_VisibleRangeChangedDelayed(object? sender, EventArgs e) => HighlightVisibleRange();
 
-    private void PrettyPrintJsonToolStripMenuItem_Click(object sender, EventArgs e) => PrettyPrintStream();
+    private void PrettyPrintJsonToolStripMenuItem_Click(object? sender, EventArgs e) => PrettyPrintStream();
 
-    private void OriginalFileToolStripMenuItem_Click(object sender, EventArgs e) => OriginalStream();
+    private void OriginalFileToolStripMenuItem_Click(object? sender, EventArgs e) => OriginalStream();
   }
 }
