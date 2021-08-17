@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+#nullable enable
 
 namespace CsvTools
 {
@@ -49,7 +50,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets the checked ListBox.
     /// </summary>
-    /// <value>The checked ListBox.</value>    
+    /// <value>The checked ListBox.</value>
     public CheckedListBox CheckedListBoxControl
     {
       get
@@ -92,6 +93,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void OnItemCheck(object sender, ItemCheckEventArgs e) => ItemCheck?.Invoke(this, e);
+    private void OnItemCheck(object? sender, ItemCheckEventArgs e) => ItemCheck?.Invoke(this, e);
   }
 }

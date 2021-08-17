@@ -12,6 +12,7 @@
  *
  */
 #nullable enable
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -88,7 +89,7 @@ namespace CsvTools
     /// </summary>
     public void BuildTree(string parent, string id, string? display1 = null, string? display2 = null)
     {
-      var oldCursor = Equals(Cursor.Current , Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
+      var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try
       {
@@ -139,10 +140,10 @@ namespace CsvTools
     private void AddTreeDataNodeWithChild(TreeData root, TreeNode? rootNode,
       IProcessDisplay process)
     {
-      if (process == null) throw new ArgumentNullException(nameof(process));
+      if (process is null) throw new ArgumentNullException(nameof(process));
       root.Visited = true;
       var treeNode = new TreeNode(root.NodeTitle) { Tag = root };
-      if (rootNode == null)
+      if (rootNode is null)
         m_TreeView.Nodes.Add(treeNode);
       else
         rootNode.Nodes.Add(treeNode);
@@ -158,7 +159,7 @@ namespace CsvTools
     /// <returns></returns>
     private TreeNode[] BuildSubNodes(TreeData parent, IProcessDisplay process)
     {
-      if (process == null) throw new ArgumentNullException(nameof(process));
+      if (process is null) throw new ArgumentNullException(nameof(process));
       var treeNodes = new List<TreeNode>();
       foreach (var child in parent.Children)
       {
@@ -189,11 +190,11 @@ namespace CsvTools
       var intervalAction = new IntervalAction();
 
       var dataColumnParent = m_DataTable.Columns[parentCol];
-      if (dataColumnParent == null)
+      if (dataColumnParent is null)
         throw new ArgumentException($"Could not find column {parentCol}");
 
       var dataColumnID = m_DataTable.Columns[idCol];
-      if (dataColumnID == null)
+      if (dataColumnID is null)
         throw new ArgumentException($"Could not find column {idCol}");
 
       var dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null : m_DataTable.Columns[display1!];
@@ -220,7 +221,7 @@ namespace CsvTools
           continue;
         var treeData = new TreeData(id, dataColumnDisplay1 != null ? dataColumnDisplay2 != null ? dataRow[dataColumnDisplay1.Ordinal] + " - " + dataRow[dataColumnDisplay2.Ordinal] : dataRow[dataColumnDisplay1.Ordinal].ToString() : id, dataRow[dataColumnParent.Ordinal].ToString());
         if (dataColumnDisplay1 != null)
-          treeData.Tag = dataRow[dataColumnDisplay1.Ordinal].ToString();
+          treeData.Tag = Convert.ToString(dataRow[dataColumnDisplay1.Ordinal]) ?? string.Empty;
 
         // Store the display
         if (!treeDataDictionary.ContainsKey(id))
@@ -288,7 +289,7 @@ namespace CsvTools
 
     public void CloseAll() => CloseAllToolStripMenuItem_Click(this, EventArgs.Empty);
 
-    private void CloseAllToolStripMenuItem_Click(object sender, EventArgs e)
+    private void CloseAllToolStripMenuItem_Click(object? sender, EventArgs e)
     {
       try
       {
@@ -306,7 +307,7 @@ namespace CsvTools
 
     public void ExpandAll() => ExpandAllToolStripMenuItem_Click(this, EventArgs.Empty);
 
-    private void ExpandAllToolStripMenuItem_Click(object sender, EventArgs e)
+    private void ExpandAllToolStripMenuItem_Click(object? sender, EventArgs e)
     {
       try
       {
@@ -322,7 +323,7 @@ namespace CsvTools
       }
     }
 
-    private void FilterValueChangedElapsed(object sender, ElapsedEventArgs e) =>
+    private void FilterValueChangedElapsed(object? sender, ElapsedEventArgs e) =>
 
       // go to UI Main thread
       m_TextBoxValue!.Invoke(
@@ -340,7 +341,7 @@ namespace CsvTools
           }
         });
 
-    private void FormHierarchyDisplay_FormClosing(object sender, FormClosingEventArgs e) =>
+    private void FormHierarchyDisplay_FormClosing(object? sender, FormClosingEventArgs e) =>
           m_CancellationTokenSource.Cancel();
 
     /// <summary>
@@ -348,7 +349,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void FormHierarchyDisplay_Load(object sender, EventArgs e)
+    private void FormHierarchyDisplay_Load(object? sender, EventArgs e)
     {
       try
       {
@@ -562,7 +563,7 @@ namespace CsvTools
 
     private void Search(string text, ICollection nodes, CancellationToken token)
     {
-      if (nodes == null)
+      if (nodes is null)
         return;
       if (nodes.Count == 0)
         return;
@@ -585,7 +586,7 @@ namespace CsvTools
     /// </summary>
     private void ShowTree(IProcessDisplay process)
     {
-      if (m_TreeView == null)
+      if (m_TreeView is null)
         return;
       m_TreeView.BeginUpdate();
       try
@@ -649,7 +650,7 @@ namespace CsvTools
       }
     }
 
-    private void TimeDisplayRestart(object sender, EventArgs e)
+    private void TimeDisplayRestart(object? sender, EventArgs e)
     {
       m_TimerDisplay.Stop();
       if (m_BuildProcess != null && !m_BuildProcess.CancellationToken.IsCancellationRequested)
@@ -658,7 +659,7 @@ namespace CsvTools
     }
 
     //TODO: Make this async
-    private void TimerDisplayElapsed(object sender, ElapsedEventArgs e) =>
+    private void TimerDisplayElapsed(object? sender, ElapsedEventArgs e) =>
       Task.Run(() =>
       {
         m_TimerDisplay.Stop();
@@ -673,7 +674,7 @@ namespace CsvTools
           });
       }, m_CancellationTokenSource.Token);
 
-    private void TimerSearchRestart(object sender, EventArgs e)
+    private void TimerSearchRestart(object? sender, EventArgs e)
     {
       m_TimerSearch.Stop();
       m_TimerSearch.Start();

@@ -74,8 +74,8 @@ namespace CsvTools
     /// <returns>A new list of columns</returns>
     public string[] RealignColumn(string[] row, Action<int, string> handleWarning, string rawText)
     {
-      if (row == null) throw new ArgumentNullException(nameof(row));
-      if (handleWarning == null) throw new ArgumentNullException(nameof(handleWarning));
+      if (row is null) throw new ArgumentNullException(nameof(row));
+      if (handleWarning is null) throw new ArgumentNullException(nameof(handleWarning));
 
       if (m_GoodRows.Count < 2)
       {
@@ -98,7 +98,7 @@ namespace CsvTools
       {
         for (var colIndex = 0; colIndex < columns.Count; colIndex++)
         {
-          if (columns[colIndex] == null)
+          if (columns[colIndex] is null)
             columns[colIndex] = string.Empty;
         }
         //Get the Options for all good rows

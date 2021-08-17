@@ -12,6 +12,7 @@
  *
  */
 #nullable enable
+
 namespace CsvTools
 {
   using System;
@@ -39,19 +40,13 @@ namespace CsvTools
     private bool m_LastIgnoreNull = true;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="FormDuplicatesDisplay" /> class.
+    ///   Initializes a new instance of the <see cref="FormDuplicatesDisplay" /> class.
     /// </summary>
     /// <param name="dataTable">The data table.</param>
     /// <param name="dataRows">The filtered rows.</param>
     /// <param name="initialColumn">The starting column</param>
     /// <param name="hTMLStyle">The HTML style.</param>
-    /// <exception cref="ArgumentNullException">
-    /// hTMLStyle
-    /// or
-    /// dataTable
-    /// or
-    /// dataRows
-    /// </exception>
+    /// <exception cref="ArgumentNullException">hTMLStyle or dataTable or dataRows</exception>
     public FormDuplicatesDisplay(DataTable dataTable, DataRow[] dataRows, string? initialColumn, HTMLStyle hTMLStyle)
     {
       if (hTMLStyle is null)
@@ -68,10 +63,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ComboBoxID_SelectedIndexChanged(object sender, EventArgs e) =>
+    private void ComboBoxID_SelectedIndexChanged(object? sender, EventArgs e) =>
       Work(comboBoxID.Text, checkBoxIgnoreNull.Checked);
 
-    private void DuplicatesDisplay_FormClosing(object sender, FormClosingEventArgs e) =>
+    private void DuplicatesDisplay_FormClosing(object? sender, FormClosingEventArgs e) =>
       m_CancellationTokenSource.Cancel();
 
     /// <summary>
@@ -79,7 +74,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private async void DuplicatesDisplay_LoadAsync(object sender, EventArgs e)
+    private async void DuplicatesDisplay_LoadAsync(object? sender, EventArgs e)
     {
       var index = 0;
       var current = 0;

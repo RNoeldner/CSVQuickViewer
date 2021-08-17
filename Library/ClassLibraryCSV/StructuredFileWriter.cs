@@ -42,6 +42,7 @@ namespace CsvTools
     ///   The header placeholder
     /// </summary>
     private const string c_HeaderPlaceholder = "[column{0}]";
+
     private readonly string m_Row;
 
     /// <summary>
@@ -49,17 +50,19 @@ namespace CsvTools
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="processDisplay">The process display.</param>
-    public StructuredFileWriter(string id, string fullPath, IValueFormat? valueFormatGeneral = null,
-      IFileFormat? fileFormat = null, string? recipient = null,
-      bool unencrypted = false, string? identifierInContainer = null, string? footer = null, string? header = null,
-      IEnumerable<IColumn>? columnDefinition = null, string fileSettingDisplay = "", string row = "",
-      IProcessDisplay? processDisplay = null) : base(id, fullPath, valueFormatGeneral, fileFormat, recipient, unencrypted, identifierInContainer, footer, header, columnDefinition, fileSettingDisplay, processDisplay)
+    public StructuredFileWriter(string id, string fullPath, IValueFormat? valueFormatGeneral,
+      IFileFormat? fileFormat, string? recipient,
+      bool unencrypted, string? identifierInContainer, string? footer, string? header,
+      IEnumerable<IColumn>? columnDefinition, string fileSettingDisplay, string row,
+      IProcessDisplay? processDisplay) : base(id, fullPath, valueFormatGeneral, fileFormat, recipient, unencrypted, identifierInContainer, footer, header, columnDefinition, fileSettingDisplay, processDisplay)
     {
       if (string.IsNullOrEmpty(row))
         throw new ArgumentNullException(nameof(row));
       m_Row = row;
     }
+
     protected abstract string ElementName(string input);
+
     protected abstract string Escape(object input, WriterColumn columnInfo, IFileReader reader);
 
     /// <summary>

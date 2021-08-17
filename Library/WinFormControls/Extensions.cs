@@ -12,6 +12,7 @@
  *
  */
 #nullable enable
+
 using System.Linq;
 using System;
 using System.Collections.Generic;
@@ -22,8 +23,6 @@ using System.Windows.Forms;
 
 namespace CsvTools
 {
-  
-
   /// <summary>
   ///   Helper class
   /// </summary>
@@ -35,7 +34,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(item));
       if (action is null)
         throw new ArgumentNullException(nameof(action));
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try
       {
@@ -61,7 +60,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(control));
       if (action is null)
         throw new ArgumentNullException(nameof(action));
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try
       {
@@ -86,7 +85,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(item));
       if (action is null)
         throw new ArgumentNullException(nameof(action));
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try
       {
@@ -111,7 +110,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(control));
       if (action is null)
         throw new ArgumentNullException(nameof(action));
-      var oldCursor = Cursor.Current == Cursors.WaitCursor ? Cursors.WaitCursor : Cursors.Default;
+      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
       try
       {
@@ -172,9 +171,9 @@ namespace CsvTools
     /// <param name="frm">The calling form</param>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
-    public static void CtrlA(this Form frm, object sender, KeyEventArgs? e)
+    public static void CtrlA(this Form frm, object? sender, KeyEventArgs? e)
     {
-      if (e == null || !e.Control || e.KeyCode.ToString() != "A")
+      if (e is null || !e.Control || e.KeyCode.ToString() != "A")
         return;
       var tb = sender as TextBox;
       if (sender == frm)
@@ -190,7 +189,7 @@ namespace CsvTools
       if (sender == frm)
         lv = frm.ActiveControl as ListView;
 
-      if (lv == null || !lv.MultiSelect)
+      if (lv is null || !lv.MultiSelect)
         return;
       foreach (ListViewItem item in lv.Items)
         item.Selected = true;
@@ -205,7 +204,7 @@ namespace CsvTools
     /// </param>
     /// <param name="withLogger">if set to <c>true</c> [with logger].</param>
     /// <param name="cancellationToken">A Cancellation token</param>
-    /// <returns>A process display, if the stetting want a process</returns>    
+    /// <returns>A process display, if the stetting want a process</returns>
     public static IProcessDisplay GetProcessDisplay(
       this IFileSetting fileSetting,
       Form? owner,
@@ -229,7 +228,7 @@ namespace CsvTools
       Action<int>? setCustomValue1 = null,
       Action<string>? setCustomValue2 = null)
     {
-      if (windowPosition == null || windowPosition.Width == 0 || windowPosition.Height == 0)
+      if (windowPosition is null || windowPosition.Width == 0 || windowPosition.Height == 0)
         return;
       if (form.IsDisposed)
         return;
@@ -341,7 +340,7 @@ namespace CsvTools
     /// <param name="from">The current Form</param>
     /// <param name="ex">the Exception</param>
     /// <param name="additionalTitle">Title Bar information</param>
-    public static void ShowError(this Form? from, Exception ex, string additionalTitle = "")
+    public static void ShowError(this Form? from, Exception ex, string? additionalTitle = "")
     {
       if (from != null)
         Logger.Warning(ex, "Error in {form} : {message}", from.GetType().Name, ex.SourceExceptionMessage());
@@ -362,40 +361,33 @@ namespace CsvTools
 #endif
     }
 
-    public static WindowState? StoreWindowState(this Form form, int customInt = int.MinValue,
+    public static WindowState StoreWindowState(this Form form, int customInt = int.MinValue,
                                                string customText = "")
     {
-      try
-      {
-        var windowPosition = form.DesktopBounds;
-        var windowState = form.WindowState;
+      var windowPosition = form.DesktopBounds;
+      var windowState = form.WindowState;
 
-        // Get the original WindowPosition in case of maximize or minimize
-        if (windowState != FormWindowState.Normal)
-        {
-          var oldVis = form.Visible;
-          form.Visible = false;
-          form.WindowState = FormWindowState.Normal;
-          windowPosition = form.DesktopBounds;
-          form.WindowState = windowState;
-          form.Visible = oldVis;
-        }
-
-        return new WindowState
-        {
-          Left = windowPosition.Left,
-          Top = windowPosition.Top,
-          Height = windowPosition.Height,
-          Width = windowPosition.Width,
-          State = (int) windowState,
-          CustomInt = customInt,
-          CustomText = customText
-        };
-      }
-      catch
+      // Get the original WindowPosition in case of maximize or minimize
+      if (windowState != FormWindowState.Normal)
       {
-        return null;
+        var oldVis = form.Visible;
+        form.Visible = false;
+        form.WindowState = FormWindowState.Normal;
+        windowPosition = form.DesktopBounds;
+        form.WindowState = windowState;
+        form.Visible = oldVis;
       }
+
+      return new WindowState
+      {
+        Left = windowPosition.Left,
+        Top = windowPosition.Top,
+        Height = windowPosition.Height,
+        Width = windowPosition.Width,
+        State = (int) windowState,
+        CustomInt = customInt,
+        CustomText = customText
+      };
     }
 
     /// <summary>
@@ -405,7 +397,7 @@ namespace CsvTools
     /// <param name="listView">The list view.</param>
     public static void UpdateListViewColumnFormat(this ListView? listView, ICollection<IColumn> columnFormat)
     {
-      if (listView == null || listView.IsDisposed)
+      if (listView is null || listView.IsDisposed)
         return;
       if (listView.InvokeRequired)
       {

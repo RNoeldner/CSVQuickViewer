@@ -23,6 +23,9 @@
     </NuGetPackageImportStamp>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
     <PublishUrl>C:\Users\r_n\source\repos\FileValidator\CSVQuickViewer\Application\Setup\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -46,9 +49,6 @@
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>false</BootstrapperEnabled>
     <BootstrapperComponentsLocation>Relative</BootstrapperComponentsLocation>
-	 <LangVersion>8.0</LangVersion>
-    <Nullable>enable</Nullable>
-    <WarningsAsErrors>nullable</WarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>

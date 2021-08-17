@@ -127,10 +127,10 @@ namespace CsvTools
       base.Dispose(disposing);
     }
 
-    private void Cancel_Click(object sender, EventArgs e)
+    private void Cancel_Click(object? sender, EventArgs e)
     {
       // m_TimerChange.Stop();
-      OnSearchClear?.Invoke(this, null);
+      OnSearchClear?.Invoke(this, EventArgs.Empty);
       Hide();
     }
 
@@ -152,7 +152,7 @@ namespace CsvTools
       m_LblResults = new System.Windows.Forms.Label();
       m_BtnNext = new System.Windows.Forms.Button();
       m_BtnPrevious = new System.Windows.Forms.Button();
-      
+
       label1 = new System.Windows.Forms.Label();
       m_TableLayoutPanel.SuspendLayout();
       SuspendLayout();
@@ -259,19 +259,19 @@ namespace CsvTools
       ResumeLayout(false);
     }
 
-    private void LblResultsTextChanged(object sender, EventArgs e)
+    private void LblResultsTextChanged(object? sender, EventArgs e)
     {
       m_LblResults.Left = 250 - m_LblResults.Width;
       m_SearchTextBoxText.Width = m_LblResults.Left - 76;
     }
 
-    private void Next_Click(object sender, EventArgs e)
+    private void Next_Click(object? sender, EventArgs e)
     {
       if (m_CurrentResult < m_Results)
         CurrentResult++;
     }
 
-    private void Previous_Click(object sender, EventArgs e)
+    private void Previous_Click(object? sender, EventArgs e)
     {
       if (m_CurrentResult > 1)
         CurrentResult--;
@@ -279,7 +279,7 @@ namespace CsvTools
 
     private void SearchChanged() => OnSearchChanged?.Invoke(this, new SearchEventArgs(m_SearchTextBoxText!.Text));
 
-    private void SearchText_TextChanged(object sender, EventArgs e) =>
+    private void SearchText_TextChanged(object? sender, EventArgs e) =>
       FilterValueChangedElapsed();
 
     private void UpdateDisplay()

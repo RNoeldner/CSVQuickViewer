@@ -14,69 +14,69 @@
 
 namespace CsvTools
 {
-  using System;
-  using System.Windows.Forms;
+	using System;
+	using System.Windows.Forms;
 
-  /// <summary>
-  ///   A pop up form to set the record limit
-  /// </summary>
-  public partial class FrmLimitSize : ResizeForm
-  {
-    private const double c_Duration = 5.0;
+	/// <summary>
+	///   A pop up form to set the record limit
+	/// </summary>
+	public partial class FrmLimitSize : ResizeForm
+	{
+		private const double c_Duration = 5.0;
 
-    private static readonly int[] m_IntRecords = new int[] { 10000, 20000, 50000, 100000 };
+		private static readonly int[] m_IntRecords = new int[] { 10000, 20000, 50000, 100000 };
 
-    private int m_Counter;
+		private int m_Counter;
 
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="FrmLimitSize" /> class.
-    /// </summary>
-    public FrmLimitSize()
-    {
-      InitializeComponent();
-      labelCount1.Text = $@"{m_IntRecords[0]:N0}";
-      labelCount2.Text = $@"{m_IntRecords[1]:N0}";
-      labelCount3.Text = $@"{m_IntRecords[2]:N0}";
-      labelCount4.Text = $@"{m_IntRecords[3]:N0}";
-      UpdateLabel();
-    }
+		/// <summary>
+		///   Initializes a new instance of the <see cref="FrmLimitSize" /> class.
+		/// </summary>
+		public FrmLimitSize()
+		{
+			InitializeComponent();
+			labelCount1.Text = $@"{m_IntRecords[0]:N0}";
+			labelCount2.Text = $@"{m_IntRecords[1]:N0}";
+			labelCount3.Text = $@"{m_IntRecords[2]:N0}";
+			labelCount4.Text = $@"{m_IntRecords[3]:N0}";
+			UpdateLabel();
+		}
 
-    /// <summary>
-    ///   The selected record limit
-    /// </summary>
-    public long RecordLimit { get; set; }
+		/// <summary>
+		///   The selected record limit
+		/// </summary>
+		public long RecordLimit { get; set; }
 
-    private void ButtonCancel_Click(object sender, EventArgs e)
-    {
-      DialogResult = DialogResult.Cancel;
-      Close();
-    }
+		private void ButtonCancel_Click(object? sender, EventArgs e)
+		{
+			DialogResult = DialogResult.Cancel;
+			Close();
+		}
 
-    private void ButtonOK_Click(object sender, EventArgs e)
-    {
-      if (trackBarLimit.Value != 5)
-        RecordLimit = m_IntRecords[4 - trackBarLimit.Value];
-      Close();
-    }
+		private void ButtonOK_Click(object? sender, EventArgs e)
+		{
+			if (trackBarLimit.Value != 5)
+				RecordLimit = m_IntRecords[4 - trackBarLimit.Value];
+			Close();
+		}
 
-    private void Timer_Tick(object sender, EventArgs e)
-    {
-      m_Counter++;
-      UpdateLabel();
-      // ReSharper disable once PossibleLossOfFraction
-      if (m_Counter * timer.Interval / 1000 > c_Duration)
-      {
-        ButtonOK_Click(sender, e);
-      }
-    }
+		private void Timer_Tick(object? sender, EventArgs e)
+		{
+			m_Counter++;
+			UpdateLabel();
+			// ReSharper disable once PossibleLossOfFraction
+			if (m_Counter * timer.Interval / 1000 > c_Duration)
+			{
+				ButtonOK_Click(sender, e);
+			}
+		}
 
-    private void UpdateLabel()
-    {
-      // ReSharper disable once PossibleLossOfFraction
-      var display = Convert.ToInt32((c_Duration - m_Counter * timer.Interval / 1000 + .75));
-      label.Text = display > 0 ? $@"Default in {display:N0} seconds" : string.Empty;
+		private void UpdateLabel()
+		{
+			// ReSharper disable once PossibleLossOfFraction
+			var display = Convert.ToInt32((c_Duration - m_Counter * timer.Interval / 1000 + .75));
+			label.Text = display > 0 ? $@"Default in {display:N0} seconds" : string.Empty;
 
-      Application.DoEvents();
-    }
-  }
+			Application.DoEvents();
+		}
+	}
 }

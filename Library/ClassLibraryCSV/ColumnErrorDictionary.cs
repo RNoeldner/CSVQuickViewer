@@ -17,51 +17,51 @@ using System.Collections.Generic;
 
 namespace CsvTools
 {
-  /// <summary>
-  ///   Column errors for one row
-  /// </summary>
-  public sealed class ColumnErrorDictionary : Dictionary<int, string>
-  {
-    private readonly ICollection<int> m_IgnoredColumns = new HashSet<int>();
+	/// <summary>
+	///   Column errors for one row
+	/// </summary>
+	public sealed class ColumnErrorDictionary : Dictionary<int, string>
+	{
+		private readonly ICollection<int> m_IgnoredColumns = new HashSet<int>();
 
-    public ColumnErrorDictionary()
-    {
-    }
+		public ColumnErrorDictionary()
+		{
+		}
 
-    public ColumnErrorDictionary(IFileReader reader)
-    {
-      if (reader == null)
-        throw new ArgumentNullException(nameof(reader));
-      for (var col = 0; col < reader.FieldCount; col++)
-      {
-        var column = reader.GetColumn(col);
-        if (!column.Ignore) continue;
-        m_IgnoredColumns.Add(col);
-      }
+		public ColumnErrorDictionary(IFileReader reader)
+		{
+			if (reader is null)
+				throw new ArgumentNullException(nameof(reader));
+			for (var col = 0; col < reader.FieldCount; col++)
+			{
+				var column = reader.GetColumn(col);
+				if (!column.Ignore) continue;
+				m_IgnoredColumns.Add(col);
+			}
 
-      reader.Warning += (s, args) => { Add(args.ColumnNumber, args.Message); };
-    }
+			reader.Warning += (s, args) => { Add(args.ColumnNumber, args.Message); };
+		}
 
-    /// <summary>
-    ///   Combines all messages in order to display them
-    /// </summary>
-    /// <value>One string with all messages</value>
-    public string Display => Values.JoinChar(ErrorInformation.cSeparator);
+		/// <summary>
+		///   Combines all messages in order to display them
+		/// </summary>
+		/// <value>One string with all messages</value>
+		public string Display => Values.JoinChar(ErrorInformation.cSeparator);
 
-    /// <summary>
-    ///   Adds the column error.
-    /// </summary>
-    /// <param name="columnNumber">The column number.</param>
-    /// <param name="message">The message.</param>
-    public new void Add(int columnNumber, string message)
-    {
-      if (m_IgnoredColumns.Contains(columnNumber) || string.IsNullOrEmpty(message))
-        return;
+		/// <summary>
+		///   Adds the column error.
+		/// </summary>
+		/// <param name="columnNumber">The column number.</param>
+		/// <param name="message">The message.</param>
+		public new void Add(int columnNumber, string message)
+		{
+			if (m_IgnoredColumns.Contains(columnNumber) || string.IsNullOrEmpty(message))
+				return;
 
-      if (TryGetValue(columnNumber, out var old))
-        base[columnNumber] = old.AddMessage(message);
-      else
-        base.Add(columnNumber, message);
-    }
-  }
+			if (TryGetValue(columnNumber, out var old))
+				base[columnNumber] = old.AddMessage(message);
+			else
+				base.Add(columnNumber, message);
+		}
+	}
 }

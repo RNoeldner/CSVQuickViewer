@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -43,7 +44,7 @@ namespace CsvTools
     protected BaseFileReaderTyped(string? fileName,
                                   IEnumerable<IColumn>? columnDefinition,
                                   long recordLimit, bool trim,
-                                  string? treatTextAsNull, bool treatNbspAsSpace , IProcessDisplay? processDisplay) :
+                                  string? treatTextAsNull, bool treatNbspAsSpace, IProcessDisplay? processDisplay) :
       base(fileName, columnDefinition, recordLimit, processDisplay)
     {
       m_TreatNbspAsSpace = treatNbspAsSpace;
@@ -95,7 +96,7 @@ namespace CsvTools
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
 
       object? timePart = null;
-      string timePartText = string.Empty;
+      string? timePartText = null;
       EnsureTextFilled(columnNumber);
 
       if (AssociatedTimeCol[columnNumber] > -1)
@@ -299,14 +300,14 @@ namespace CsvTools
       if (Column[columnNumber].ValueFormat.DataType == DataType.DateTime)
       {
         if (AssociatedTimeCol[columnNumber] == -1)
-          return CurrentValues[columnNumber] == null || CurrentValues[columnNumber] == DBNull.Value;
+          return CurrentValues[columnNumber] is null || CurrentValues[columnNumber] == DBNull.Value;
 
-        return (CurrentValues[columnNumber] == null || CurrentValues[columnNumber] == DBNull.Value) &&
-               (CurrentValues[AssociatedTimeCol[columnNumber]] == null ||
+        return (CurrentValues[columnNumber] is null || CurrentValues[columnNumber] == DBNull.Value) &&
+               (CurrentValues[AssociatedTimeCol[columnNumber]] is null ||
                 CurrentValues[AssociatedTimeCol[columnNumber]] == DBNull.Value);
       }
 
-      if (CurrentValues[columnNumber] == null || CurrentValues[columnNumber] == DBNull.Value)
+      if (CurrentValues[columnNumber] is null || CurrentValues[columnNumber] == DBNull.Value)
         return true;
 
       if (CurrentValues[columnNumber] is string str)

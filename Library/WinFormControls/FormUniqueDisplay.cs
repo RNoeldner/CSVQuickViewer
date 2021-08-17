@@ -12,6 +12,7 @@
  *
  */
 #nullable enable
+
 namespace CsvTools
 {
   using System;
@@ -36,19 +37,13 @@ namespace CsvTools
     private bool m_LastIgnoreNull = true;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="FormDuplicatesDisplay" /> class.
+    ///   Initializes a new instance of the <see cref="FormDuplicatesDisplay" /> class.
     /// </summary>
     /// <param name="dataTable">The empty data table.</param>
     /// <param name="dataRows">The filtered rows.</param>
     /// <param name="initialColumn">The initial column to use</param>
     /// <param name="hTMLStyle">The h TML style.</param>
-    /// <exception cref="ArgumentNullException">
-    /// hTMLStyle
-    /// or
-    /// dataTable
-    /// or
-    /// dataRows
-    /// </exception>
+    /// <exception cref="ArgumentNullException">hTMLStyle or dataTable or dataRows</exception>
     public FormUniqueDisplay(DataTable dataTable, DataRow[] dataRows, string? initialColumn, HTMLStyle hTMLStyle)
     {
       if (hTMLStyle is null)
@@ -65,17 +60,17 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ComboBoxID_SelectedIndexChanged(object sender, EventArgs e) =>
+    private void ComboBoxID_SelectedIndexChanged(object? sender, EventArgs e) =>
       Work(comboBoxID.Text, checkBoxIgnoreNull.Checked);
 
-    private void UniqueDisplay_FormClosing(object sender, FormClosingEventArgs e) => m_CancellationTokenSource.Cancel();
+    private void UniqueDisplay_FormClosing(object? sender, FormClosingEventArgs e) => m_CancellationTokenSource.Cancel();
 
     /// <summary>
     ///   Handles the Load event of the HirachyDisplay control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private async void UniqueDisplay_Load(object sender, EventArgs e)
+    private async void UniqueDisplay_Load(object? sender, EventArgs e)
     {
       var index = 0;
       var current = 0;

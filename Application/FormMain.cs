@@ -12,6 +12,7 @@
  *
  */
 #nullable enable
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System;
@@ -110,7 +111,6 @@ namespace CsvTools
             return titleAttribute.Title + " " + assembly.GetName().Version;
         }
 
-
         return Path.GetFileNameWithoutExtension(assembly.Location);
       }
     }
@@ -146,7 +146,7 @@ namespace CsvTools
           m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
           m_ViewSettings.FillGuessSettings, processDisplay)).PhysicalFile();
 
-        if (m_FileSetting == null)
+        if (m_FileSetting is null)
           return;
 
         // update the UI
@@ -319,7 +319,7 @@ namespace CsvTools
       m_SettingsChangedTimerChange.Stop();
       fileSystemWatcher.EnableRaisingEvents = false;
 
-      if (fileSetting == null) return;
+      if (fileSetting is null) return;
 
       fileSetting.PropertyChanged -= FileSetting_PropertyChanged;
       fileSetting.FileFormat.PropertyChanged -= AnyPropertyChangedReload;
@@ -331,7 +331,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
-    private async void FileDragDrop(object sender, DragEventArgs e)
+    private async void FileDragDrop(object? sender, DragEventArgs e)
     {
       // Set the filename
       var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
@@ -345,7 +345,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
-    private void FileDragEnter(object sender, DragEventArgs e)
+    private void FileDragEnter(object? sender, DragEventArgs e)
     {
       if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
         e.Effect = DragDropEffects.All;
@@ -410,7 +410,7 @@ namespace CsvTools
     /// <param name="e">
     ///   The <see cref="FileSystemEventArgs" /> instance containing the event data.
     /// </param>
-    private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e) =>
+    private void FileSystemWatcher_Changed(object? sender, FileSystemEventArgs e) =>
         m_FileChanged |= e.FullPath == m_FileSetting!.FileName && e.ChangeType == WatcherChangeTypes.Changed;
 
     /// <summary>
@@ -418,9 +418,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private async void FormMain_Activated(object sender, EventArgs e) => await CheckPossibleChange();
+    private async void FormMain_Activated(object? sender, EventArgs e) => await CheckPossibleChange();
 
-    private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
+    private void FormMain_FormClosing(object? sender, FormClosingEventArgs e)
     {
       if (!m_CancellationTokenSource.IsCancellationRequested)
       {
@@ -439,7 +439,7 @@ namespace CsvTools
       SaveIndividualFileSetting();
     }
 
-    private async void FormMain_KeyUpAsync(object sender, KeyEventArgs e)
+    private async void FormMain_KeyUpAsync(object? sender, KeyEventArgs e)
     {
       if (e.KeyCode != Keys.F5 && (!e.Control || e.KeyCode != Keys.R)) return;
       e.Handled = true;
@@ -451,7 +451,7 @@ namespace CsvTools
     /// </summary>
     private async Task OpenDataReaderAsync()
     {
-      if (m_FileSetting == null)
+      if (m_FileSetting is null)
         return;
 
       var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
@@ -485,7 +485,7 @@ namespace CsvTools
           m_Headers = detailControl.DataTable.GetRealColumns().ToArray();
           foreach (var columnName in m_Headers)
           {
-            if (m_FileSetting.ColumnCollection.Get(columnName) == null)
+            if (m_FileSetting.ColumnCollection.Get(columnName) is null)
               m_FileSetting.ColumnCollection.Add(new Column { Name = columnName });
           }
 
@@ -574,7 +574,7 @@ namespace CsvTools
         fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
     }
 
-    private async void ShowSettings(object sender, EventArgs e)
+    private async void ShowSettings(object? sender, EventArgs e)
     {
       if (m_FileSetting==null)
         return;
@@ -594,10 +594,10 @@ namespace CsvTools
       });
     }
 
-    private void ShowSourceFile(object sender, EventArgs e)
+    private void ShowSourceFile(object? sender, EventArgs e)
     {
       if (m_SourceDisplay != null) return;
-      if (m_FileSetting == null) return;
+      if (m_FileSetting is null) return;
       m_ToolStripButtonSource!.RunWithHourglass(() =>
 
       {
@@ -639,14 +639,14 @@ namespace CsvTools
     private void SystemEvents_DisplaySettingsChanged(object? sender, EventArgs e) =>
       this.LoadWindowState(m_ViewSettings!.WindowPosition);
 
-    private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
+    private void SystemEvents_PowerModeChanged(object? sender, PowerModeChangedEventArgs e)
     {
       switch (e.Mode)
       {
         case PowerModes.Suspend:
           Logger.Debug("Power Event Suspend");
           var res = this.StoreWindowState();
-          if (res == null)
+          if (res is null)
             return;
           m_ViewSettings.WindowPosition = res;
           break;
@@ -658,7 +658,7 @@ namespace CsvTools
       }
     }
 
-    private async void ToggleDisplayAsText(object sender, EventArgs e)
+    private async void ToggleDisplayAsText(object? sender, EventArgs e)
     {
       if (m_FileSetting==null)
         return;
@@ -698,11 +698,11 @@ namespace CsvTools
       });
     }
 
-    private void ToggleShowLog(object sender, EventArgs e)
+    private void ToggleShowLog(object? sender, EventArgs e)
     {
       ShowTextPanel(!textPanel.Visible);
     }
 
-    private async void ToolStripButtonLoadFile_Click(object sender, EventArgs e) => await SelectFile("Open File Dialog");
+    private async void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) => await SelectFile("Open File Dialog");
   }
 }
