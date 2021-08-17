@@ -57,7 +57,8 @@ namespace CsvTools
       IProcessDisplay? processDisplay) : base(id, fullPath, valueFormatGeneral, fileFormat, recipient, unencrypted, identifierInContainer, footer, header, columnDefinition, fileSettingDisplay, processDisplay)
     {
       if (string.IsNullOrEmpty(row))
-        throw new ArgumentNullException(nameof(row));
+        throw new ArgumentException($"{nameof(row)} can not be empty");
+
       m_Row = row;
     }
 

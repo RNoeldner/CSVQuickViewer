@@ -11,8 +11,9 @@
     <AssemblyName>CSVQuickViewer</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+    <LangVersion>8.0</LangVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -506,13 +507,14 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>CD "$(TargetDir)"
-del *.pdb
-del *.log
-del *.xml
-REM Widnows 10: zipping with included tar
-rem tar.exe -a -c -f $(TargetName).zip *.dll $(TargetFileName)
-</PostBuildEvent>
+    <PostBuildEvent>
+      CD "$(TargetDir)"
+      del *.pdb
+      del *.log
+      del *.xml
+      REM Widnows 10: zipping with included tar
+      rem tar.exe -a -c -f $(TargetName).zip *.dll $(TargetFileName)
+    </PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
