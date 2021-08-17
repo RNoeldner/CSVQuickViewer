@@ -14,114 +14,118 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
 
 namespace CsvTools.Tests
 {
   [TestClass]
-	public class JsonFileTests
+  public class JsonFileTests
   {
-		private readonly JsonFile m_JsonFile = new JsonFile();
+    private readonly JsonFile m_JsonFile = new JsonFile() { Row = "{0}" };
 
-		[TestMethod]
-		public void StructuredFileClone()
-		{
-			var test = m_JsonFile.Clone();
-			Assert.AreNotSame(m_JsonFile, test);
-			Assert.IsInstanceOfType(test, typeof(JsonFile));
+    [TestMethod]
+    public void StructuredFileClone()
+    {
+      var test = m_JsonFile.Clone();
+      Assert.AreNotSame(m_JsonFile, test);
+      Assert.IsInstanceOfType(test, typeof(JsonFile));
 
-			m_JsonFile.AllPropertiesEqual(test);
-			// Test Properties that are not tested
+      m_JsonFile.AllPropertiesEqual(test);
+      // Test Properties that are not tested
 
-			Assert.AreEqual(m_JsonFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
-			Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
-			Assert.IsTrue(m_JsonFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
-			Assert.IsTrue(m_JsonFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "Column");
-			Assert.IsTrue(m_JsonFile.FileFormat.Equals(test.FileFormat), "FileFormat");
+      Assert.AreEqual(m_JsonFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
+      Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
+      Assert.IsTrue(m_JsonFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
+      Assert.IsTrue(m_JsonFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "Column");
+      Assert.IsTrue(m_JsonFile.FileFormat.Equals(test.FileFormat), "FileFormat");
 
-			Assert.IsTrue(test.Equals(m_JsonFile), "Equals");
-		}
+      Assert.IsTrue(test.Equals(m_JsonFile), "Equals");
+    }
 
-		[TestMethod]
-		public void CsvFileCopyTo()
-		{
-			var test = new JsonFile();
-			m_JsonFile.CopyTo(test);
-			m_JsonFile.AllPropertiesEqual(test);
-			// Test Properties that are not tested
-			Assert.AreEqual(m_JsonFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
-			Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
-			Assert.IsTrue(m_JsonFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
-			Assert.IsTrue(m_JsonFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection),
-				"ColumnCollection");
-			Assert.IsTrue(m_JsonFile.FileFormat.Equals(test.FileFormat), "FileFormat");
-			Assert.IsTrue(test.Equals(m_JsonFile), "Equals");
-		}
+    [TestMethod]
+    public void CsvFileCopyTo()
+    {
+      var test = new JsonFile();
+      m_JsonFile.CopyTo(test);
+      m_JsonFile.AllPropertiesEqual(test);
+      // Test Properties that are not tested
+      Assert.AreEqual(m_JsonFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
+      Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
+      Assert.IsTrue(m_JsonFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
+      Assert.IsTrue(m_JsonFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection),
+        "ColumnCollection");
+      Assert.IsTrue(m_JsonFile.FileFormat.Equals(test.FileFormat), "FileFormat");
+      Assert.IsTrue(test.Equals(m_JsonFile), "Equals");
+    }
 
-		[TestMethod]
-		public void GetFileReader()
-		{
-			try
+    [TestMethod]
+    public void GetFileReader()
+    {
+      try
       {
         using var dummy = FunctionalDI.GetFileReader(m_JsonFile, TimeZoneInfo.Local.Id,
           new CustomProcessDisplay(UnitTestInitializeCsv.Token));
         Assert.Fail("Should throw error");
       }
-			catch (NotImplementedException)
-			{
-			}
-		}
+      catch (NotImplementedException)
+      {
+      }
+      catch (FileNotFoundException)
+      { }
+    }
 
-		[TestMethod]
-		public void GetFileWriter()
+    [TestMethod]
+    public void GetFileWriter()
     {
+      var jsonFile = new JsonFile("SomeFileName.json") { Row = "{0}" };
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       m_JsonFile.SqlStatement = "dummy";
-      var res = FunctionalDI.GetFileWriter(m_JsonFile, processDisplay);
+      var res = FunctionalDI.GetFileWriter(jsonFile, processDisplay);
       Assert.IsInstanceOfType(res, typeof(IFileWriter));
     }
 
-		[TestInitialize]
-		public void Init()
-		{
-			m_JsonFile.FileName = "StructuredFile.txt";
-			m_JsonFile.Header = "Header";
-			Assert.AreEqual("Header", m_JsonFile.Header);
-			m_JsonFile.Header = null;
-			Assert.AreEqual(string.Empty, m_JsonFile.Header);
+    [TestInitialize]
+    public void Init()
+    {
+      m_JsonFile.FileName = "StructuredFile.txt";
+      m_JsonFile.Header = "Header";
+      Assert.AreEqual("Header", m_JsonFile.Header);
+      m_JsonFile.Header = null;
+      Assert.AreEqual(string.Empty, m_JsonFile.Header);
 
-			m_JsonFile.Row = "Row";
-			Assert.AreEqual("Row", m_JsonFile.Row);
-			m_JsonFile.Row = null;
-			Assert.AreEqual(string.Empty, m_JsonFile.Row);
+      m_JsonFile.Row = "Row";
+      Assert.AreEqual("Row", m_JsonFile.Row);
+      m_JsonFile.Row = null;
+      Assert.AreEqual(string.Empty, m_JsonFile.Row);
 
-			m_JsonFile.Footer = "Footer";
-			Assert.AreEqual("Footer", m_JsonFile.Footer);
-			m_JsonFile.Footer = null;
-			Assert.AreEqual(string.Empty, m_JsonFile.Footer);
+      m_JsonFile.Footer = "Footer";
+      Assert.AreEqual("Footer", m_JsonFile.Footer);
+      m_JsonFile.Footer = null;
+      Assert.AreEqual(string.Empty, m_JsonFile.Footer);
 
-			m_JsonFile.MappingCollection.Clear();
-			m_JsonFile.MappingCollection.Add(new Mapping("Fld1", "FldA", false, true));
-			m_JsonFile.MappingCollection.Add(new Mapping("Fld2", "FldB", false, true));
-			Assert.AreEqual(2, m_JsonFile.MappingCollection.Count, "FieldMapping");
+      m_JsonFile.MappingCollection.Clear();
+      m_JsonFile.MappingCollection.Add(new Mapping("Fld1", "FldA", false, true));
+      m_JsonFile.MappingCollection.Add(new Mapping("Fld2", "FldB", false, true));
+      Assert.AreEqual(2, m_JsonFile.MappingCollection.Count, "FieldMapping");
 
-			m_JsonFile.ColumnCollection.Clear();
-			m_JsonFile.ColumnCollection.Add(new Column("ID", DataType.Integer)
-			{
-				ColumnOrdinal = 1,
-				Ignore = false,
-				Convert = true
-			});
-			m_JsonFile.ColumnCollection.Add(new Column { ColumnOrdinal = 2, Name = "Name" });
-		}
+      m_JsonFile.ColumnCollection.Clear();
+      m_JsonFile.ColumnCollection.Add(new Column("ID", DataType.Integer)
+      {
+        ColumnOrdinal = 1,
+        Ignore = false,
+        Convert = true
+      });
+      m_JsonFile.ColumnCollection.Add(new Column { ColumnOrdinal = 2, Name = "Name" });
+    }
 
-		[TestMethod]
-		public void StructuredFileTestCTOR()
-		{
-			var test = new JsonFile();
-			Assert.IsTrue(string.IsNullOrEmpty(test.FileName));
+    [TestMethod]
+    public void StructuredFileTestCTOR()
+    {
+      var test = new JsonFile();
+      Assert.IsTrue(string.IsNullOrEmpty(test.FileName));
 
-			var test2 = new JsonFile("Hello");
-			Assert.AreEqual("Hello", test2.FileName);
-		}
-	}
+      var test2 = new JsonFile("Hello");
+      Assert.AreEqual("Hello", test2.FileName);
+    }
+  }
 }
