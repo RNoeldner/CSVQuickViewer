@@ -60,8 +60,10 @@ namespace CsvTools
       Type columnType,
       int columnIndex)
     {
-      if (m_Result != BuildValueClustersResult.NotRun) return m_Result;
+      if (dataView.Table is null)
+        return BuildValueClustersResult.Error;
 
+      if (m_Result != BuildValueClustersResult.NotRun) return m_Result;
       try
       {
         if (columnType == typeof(string) || columnType == typeof(bool) || columnType == typeof(Guid))
@@ -168,7 +170,6 @@ namespace CsvTools
           if (cluster.Count > 0)
             m_ValueClusters.Add(cluster);
         }
-
       else if (clusterMonth.Count < m_MaxNumber)
         foreach (var dic in clusterMonth.OrderBy(x => x))
         {
@@ -179,7 +180,6 @@ namespace CsvTools
           if (cluster.Count > 0)
             m_ValueClusters.Add(cluster);
         }
-
       else
         foreach (var dic in clusterYear.OrderBy(x => x))
         {
@@ -357,8 +357,10 @@ namespace CsvTools
           hasNull = true;
           continue;
         }
-
-        cluster.Add(dataRow[columnIndex].ToString());
+        var text = dataRow[columnIndex].ToString();
+        if (text is null)
+          continue;
+        cluster.Add(text);
 
         // if we have more than the maximum entries stop, no value filter will be used
         if (cluster.Count <= m_MaxNumber)

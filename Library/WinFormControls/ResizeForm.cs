@@ -5,71 +5,71 @@ using System.Windows.Forms;
 
 namespace CsvTools
 {
-	public class ResizeForm : Form
-	{
-		public ResizeForm()
-		{
-			InitializeComponent();
-			try
-			{
+  public class ResizeForm : Form
+  {
+    public ResizeForm()
+    {
+      InitializeComponent();
+      try
+      {
 #if !NETCOREAPP3_1
-				// 6.2 and 6.3 is Windows 8 / Windows Server 2012
-				if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
-					SetFonts(this, SystemFonts.DialogFont);
+        // 6.2 and 6.3 is Windows 8 / Windows Server 2012
+        if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
+          SetFonts(this, SystemFonts.DialogFont);
 #endif
 
-				MouseWheel += FormMouseWheel;
-			}
-			catch (Exception)
-			{
-				//ignore
-			}
-		}
+        MouseWheel += FormMouseWheel;
+      }
+      catch (Exception)
+      {
+        //ignore
+      }
+    }
 
-		private void FormMouseWheel(object? sender, MouseEventArgs e)
-		{
-			if (e.Delta > 0)
-				if (Font.Size < 11)
-					SetFonts(this, new Font(Font.FontFamily, Font.Size + 1, Font.Style));
-				else
-					Console.Beep();
+    private void FormMouseWheel(object? sender, MouseEventArgs e)
+    {
+      if (e.Delta > 0)
+        if (Font.Size < 11)
+          SetFonts(this, new Font(Font.FontFamily, Font.Size + 1, Font.Style));
+        else
+          Console.Beep();
 
-			if (e.Delta >= 0) return;
-			if (Font.Size > 4)
-				SetFonts(this, new Font(Font.FontFamily, Font.Size - 1, Font.Style));
-			else
-				Console.Beep();
-		}
+      if (e.Delta >= 0) return;
+      if (Font.Size > 4)
+        SetFonts(this, new Font(Font.FontFamily, Font.Size - 1, Font.Style));
+      else
+        Console.Beep();
+    }
 
-		/// <summary>
-		///   Recursively change the font of all controls, needed on Windows 8 / 2012
-		/// </summary>
-		/// <param name="container">A container control like a form or panel</param>
-		/// <param name="font"></param>
-		public static void SetFonts(Control container, Font font)
-		{
-			if (!Equals(container.Font, font)) container.Font = font;
+    /// <summary>
+    ///   Recursively change the font of all controls, needed on Windows 8 / 2012
+    /// </summary>
+    /// <param name="container">A container control like a form or panel</param>
+    /// <param name="font"></param>
+    public static void SetFonts(Control container, Font font)
+    {
+      if (!Equals(container.Font, font)) container.Font = font;
 
-			foreach (Control ctrl in container.Controls)
-				if (ctrl is ContainerControl cc)
-				{
-					SetFonts(cc, font);
-				}
-				else
-				{
-					if (Equals(ctrl.Font, font)) continue;
-					ctrl.Font = font;
-				}
-		}
+      foreach (Control ctrl in container.Controls)
+        if (ctrl is ContainerControl cc)
+        {
+          SetFonts(cc, font);
+        }
+        else
+        {
+          if (Equals(ctrl.Font, font)) continue;
+          ctrl.Font = font;
+        }
+    }
 
-		private void InitializeComponent()
-		{
-			ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResizeForm));
-			this.SuspendLayout();
-			// ResizeForm
-			this.ClientSize = new System.Drawing.Size(282, 253);
-			this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
-			this.ResumeLayout(false);
-		}
-	}
+    private void InitializeComponent()
+    {
+      ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResizeForm));
+      this.SuspendLayout();
+      // ResizeForm
+      this.ClientSize = new System.Drawing.Size(282, 253);
+      this.Icon = (resources.GetObject("$this.Icon") as Icon);
+      this.ResumeLayout(false);
+    }
+  }
 }
