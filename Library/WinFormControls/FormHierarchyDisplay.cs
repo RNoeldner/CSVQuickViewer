@@ -199,7 +199,8 @@ namespace CsvTools
 
       var dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null : m_DataTable.Columns[display1!];
       var dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2!];
-
+      if (dataColumnDisplay1==null && dataColumnDisplay2==null)
+        return;
       // Using a dictionary here to speed up lookups
       var treeDataDictionary = new Dictionary<string, TreeData>();
       var rootDataParentFound = new TreeData("{R}", "Parent found / No Parent");
@@ -219,7 +220,9 @@ namespace CsvTools
         var id = dataRow[dataColumnID.Ordinal].ToString();
         if (string.IsNullOrEmpty(id))
           continue;
+#pragma warning disable CS8604 // Mögliches Nullverweisargument.
         var treeData = new TreeData(id, dataColumnDisplay1 != null ? dataColumnDisplay2 != null ? dataRow[dataColumnDisplay1.Ordinal] + " - " + dataRow[dataColumnDisplay2.Ordinal] : dataRow[dataColumnDisplay1.Ordinal].ToString() : id, dataRow[dataColumnParent.Ordinal].ToString());
+#pragma warning restore CS8604 // Mögliches Nullverweisargument.
         if (dataColumnDisplay1 != null)
           treeData.Tag = Convert.ToString(dataRow[dataColumnDisplay1.Ordinal]) ?? string.Empty;
 
