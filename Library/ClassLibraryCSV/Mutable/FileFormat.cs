@@ -23,9 +23,7 @@ namespace CsvTools
   ///   Setting class for a general file format
   /// </summary>
   [Serializable]
-#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class FileFormat : INotifyPropertyChanged, IFileFormat, IEquatable<FileFormat>, ICloneable<FileFormat>
-#pragma warning restore CS0659
   {
     // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public const string cEscapeCharacterDefault = "";

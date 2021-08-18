@@ -329,8 +329,8 @@ namespace CsvTools
     /// </param>
     /// <returns>A combined date from a date and a time column</returns>
     /// <remarks>This does not have time zone adjustments yet</remarks>
-    public static DateTime? CombineObjectsToDateTime(object? dateColumn, string? dateColumnText, object? timeColumn,
-      string? timeColumnText, bool serialDateTime, IValueFormat valueFormat, out bool timeColumnIssues)
+    public static DateTime? CombineObjectsToDateTime(object? dateColumn, string dateColumnText, object? timeColumn,
+      string timeColumnText, bool serialDateTime, IValueFormat valueFormat, out bool timeColumnIssues)
     {
       var dateValue = m_FirstDateTime;
       // We do have an associated column, with a proper date format
@@ -344,7 +344,7 @@ namespace CsvTools
       }
 
       // if we did not convert yet and we have a text use it
-      if (dateValue == m_FirstDateTime && !string.IsNullOrEmpty(dateColumnText))
+      if (dateValue == m_FirstDateTime && dateColumnText.Length>0)
       {
         var val = CombineStringsToDateTime(dateColumnText, valueFormat.DateFormat, string.Empty, valueFormat.DateSeparator,
           valueFormat.TimeSeparator,
@@ -377,7 +377,8 @@ namespace CsvTools
             break;
         }
 
-      if (!timeSpanValue.HasValue) timeSpanValue = StringToTimeSpan(timeColumnText, ":", serialDateTime);
+      if (!timeSpanValue.HasValue) 
+          timeSpanValue = StringToTimeSpan(timeColumnText, ":", serialDateTime);
 
       if (timeSpanValue.HasValue)
       {
@@ -391,9 +392,7 @@ namespace CsvTools
       // proper formatted value
       if (dateValue == m_FirstDateTime && dateColumn is null &&
           (string.IsNullOrEmpty(dateColumnText) ||
-#pragma warning disable CS8602 // Dereferenzierung eines möglichen Nullverweises.
            !dateColumnText.Equals(DateTimeToString(m_FirstDateTime, valueFormat), StringComparison.Ordinal)))
-#pragma warning restore CS8602 // Dereferenzierung eines möglichen Nullverweises.
         return null;
 
       return dateValue;
@@ -409,12 +408,12 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="serialDateTime">Allow Date Time values ion serial format</param>
     /// <returns></returns>
-    public static DateTime? CombineStringsToDateTime(string? datePart, string? dateFormat, string? timePart,
+    public static DateTime? CombineStringsToDateTime(string datePart, string dateFormat, string timePart,
       string dateSeparator, string timeSeparator, bool serialDateTime)
     {
       //DateTime? date = null;
       //TimeSpan? time;
-      if (string.IsNullOrEmpty(dateFormat))
+      if (dateFormat.Length == 0)
         return null;
 
       var date = StringToDateTime(datePart, dateFormat!, dateSeparator, timeSeparator, serialDateTime);
@@ -712,10 +711,10 @@ namespace CsvTools
     ///   An <see cref="DateTime" /> if the value could be interpreted, <c>null</c> otherwise
     /// </returns>
     /// <remarks>If the date part is not filled its the 1/1/1</remarks>
-    public static DateTime? StringToDateTime(string? originalValue, string dateFormat, string dateSeparator,
+    public static DateTime? StringToDateTime(string originalValue, string dateFormat, string dateSeparator,
        string timeSeparator, bool serialDateTime, CultureInfo? culture = null)
     {
-      var stringDateValue = originalValue?.Trim() ?? string.Empty;
+      var stringDateValue = originalValue.Trim();
       culture ??= CultureInfo.CurrentCulture;
 
       var result = StringToDateTimeExact(originalValue, dateFormat, dateSeparator, timeSeparator, culture);
@@ -733,7 +732,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(dateSeparator) ||
           stringDateValue.IndexOf(dateSeparator, StringComparison.Ordinal) != -1 ||
           dateFormat.IndexOf('/') != -1) return null;
-      var ts = StringToTimeSpan(originalValue, timeSeparator, false);
+      var ts = StringToTimeSpan(stringDateValue, timeSeparator, false);
       if (ts.HasValue)
         return new DateTime(ts.Value.Ticks);
 
@@ -873,7 +872,7 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="serialDateTime">Allow Date Time values ion serial format</param>
     /// <returns></returns>
-    public static double StringToDurationInDays(string? originalValue, string? timeSeparator, bool serialDateTime)
+    public static double StringToDurationInDays(string originalValue, string? timeSeparator, bool serialDateTime)
     {
       var parsed = StringToTimeSpan(originalValue, timeSeparator, serialDateTime);
       return parsed?.TotalDays ?? 0D;
@@ -1024,9 +1023,9 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="serialDateTime">Allow Date Time values in serial format</param>
     /// <returns></returns>
-    public static TimeSpan? StringToTimeSpan(string? originalValue, string? timeSeparator, bool serialDateTime)
+    public static TimeSpan? StringToTimeSpan(string originalValue, string? timeSeparator, bool serialDateTime)
     {
-      var stringTimeValue = originalValue?.Trim() ?? string.Empty;
+      var stringTimeValue = originalValue.Trim();
       if (string.IsNullOrEmpty(stringTimeValue))
         return null;
 

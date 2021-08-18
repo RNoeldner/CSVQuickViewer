@@ -11,7 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-#nullable enable
+
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;

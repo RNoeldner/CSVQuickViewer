@@ -67,6 +67,7 @@
     <Compile Include="..\ClassLibraryCSV\Mutable\CheckResult.cs" Link="CheckResult.cs" />
     <Compile Include="..\ClassLibraryCSV\Immutable\ImmutableValueFormat.cs" Link="ImmutableValueFormat.cs" />
     <Compile Include="..\ClassLibraryCSV\FileReaderException.cs" Link="FileReaderException.cs" />
+    <Compile Include="..\ClassLibraryCSV\FileReaderExceptionOpen.cs" Link="FileReaderExceptionOpen.cs" />
     <Compile Include="..\ClassLibraryCSV\EncodingHelper.cs" Link="EncodingHelper.cs" />
     <Compile Include="..\ClassLibraryCSV\FunctionalDI.cs" Link="FunctionalDI.cs" />
     <Compile Include="..\ClassLibraryCSV\StringUtils.cs" Link="StringUtils.cs" />

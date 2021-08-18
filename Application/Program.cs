@@ -101,7 +101,7 @@ namespace CsvTools
         return;
       }
       Logger.Error(ex, "Not handled Exception");
-      var message = $"{ex.GetType()}\n\n{ex.ExceptionMessages()}\nStack Trace:\n{ex.CsvToolsStackTrace()}";
+      var message = $"{ex.GetType()}\n\n{ex.ExceptionMessages()}";
 #if DEBUG
       System.Diagnostics.Debug.Assert(false, @"Not handled Exception", message);
 #else

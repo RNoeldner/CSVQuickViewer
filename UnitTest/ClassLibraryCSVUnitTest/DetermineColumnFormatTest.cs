@@ -92,18 +92,16 @@ namespace CsvTools.Tests
             setting.DisplayEndLineNo, false, null, UnitTestInitializeCsv.Token));
       }
 
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
-      {
-        var res1 = await DetermineColumnFormat.GetWriterColumnInformationAsync(setting.SqlStatement, setting.Timeout,
-          setting.FileFormat.ValueFormatMutable, setting.ColumnCollection,
-          processDisplay.CancellationToken);
-        Assert.AreEqual(6, res1.Count());
-        setting.SqlStatement = string.Empty;
+      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      var res1 = await DetermineColumnFormat.GetWriterColumnInformationAsync(setting.SqlStatement, setting.Timeout,
+        setting.FileFormat.ValueFormatMutable, setting.ColumnCollection,
+        processDisplay.CancellationToken);
+      Assert.AreEqual(6, res1.Count());
+      setting.SqlStatement = string.Empty;
 
-        var res2 = await DetermineColumnFormat.GetSqlColumnNamesAsync(setting.SqlStatement, setting.Timeout,
-          processDisplay.CancellationToken);
-        Assert.AreEqual(0, res2.Count());
-      }
+      var res2 = await DetermineColumnFormat.GetSqlColumnNamesAsync(setting.SqlStatement, setting.Timeout,
+        processDisplay.CancellationToken);
+      Assert.AreEqual(0, res2.Count());
     }
 
     [TestMethod]

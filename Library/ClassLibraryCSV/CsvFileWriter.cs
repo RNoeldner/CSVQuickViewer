@@ -72,87 +72,85 @@ namespace CsvTools
     /// <param name="cancellationToken">The cancellation token.</param>
     protected override async Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken)
     {
-      using (var writer = new StreamWriter(output,
-        EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192))
+      using var writer = new StreamWriter(output,
+        EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192);
+      SetColumns(reader);
+
+      if (Columns.Count == 0)
+        throw new FileWriterException("No columns defined to be written.");
+
+      HandleWriteStart();
+
+      var sb = new StringBuilder();
+      if (!string.IsNullOrEmpty(Header))
       {
-        SetColumns(reader);
-
-        if (Columns.Count == 0)
-          throw new FileWriterException("No columns defined to be written.");
-
-        HandleWriteStart();
-
-        var sb = new StringBuilder();
-        if (!string.IsNullOrEmpty(Header))
-        {
-          sb.Append(Header);
-          if (!Header.EndsWith(NewLine, StringComparison.Ordinal))
-            sb.Append(NewLine);
-        }
-
-        var lastCol = Columns[Columns.Count - 1];
-
-        if (m_ColumnHeader)
-        {
-          foreach (var columnInfo in Columns)
-          {
-            sb.Append(TextEncodeField(FileFormat, columnInfo.Name, columnInfo, true, null, QualifyText));
-            if (!FileFormat.IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
-              sb.Append(FileFormat.FieldDelimiterChar);
-          }
-
+        sb.Append(Header);
+        if (!Header.EndsWith(NewLine, StringComparison.Ordinal))
           sb.Append(NewLine);
-        }
-
-        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) &&
-               !cancellationToken.IsCancellationRequested)
-        {
-          if (sb.Length > 32768)
-          {
-            await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
-            sb.Length = 0;
-          }
-
-          var emptyColumns = 0;
-
-          var row = new StringBuilder();
-          foreach (var columnInfo in Columns)
-          {
-            // Number of columns might be higher than number of reader columns
-            var col = reader.GetValue(columnInfo.ColumnOrdinal);
-            if (col == DBNull.Value || (col is string text && string.IsNullOrEmpty(text)))
-              emptyColumns++;
-            else
-              row.Append(TextEncodeField(FileFormat, col, columnInfo, false, reader, QualifyText));
-
-            if (!FileFormat.IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
-              row.Append(FileFormat.FieldDelimiterChar);
-          }
-
-          if (emptyColumns == Columns.Count()) break;
-          NextRecord();
-          sb.Append(row);
-          sb.Append(NewLine);
-        }
-
-        var footer = Footer();
-        if (!string.IsNullOrEmpty(footer))
-        {
-          sb.Append(footer);
-          if (!footer.EndsWith(NewLine, StringComparison.Ordinal))
-            sb.Append(NewLine);
-        }
-
-        // remove the very last newline
-        if (sb.Length > NewLine.Length)
-        {
-          sb.Length -= NewLine.Length;
-          // and store the possibly remaining data
-          await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
-        }
-
-        await writer.FlushAsync();
       }
+
+      var lastCol = Columns[Columns.Count - 1];
+
+      if (m_ColumnHeader)
+      {
+        foreach (var columnInfo in Columns)
+        {
+          sb.Append(TextEncodeField(FileFormat, columnInfo.Name, columnInfo, true, null, QualifyText));
+          if (!FileFormat.IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
+            sb.Append(FileFormat.FieldDelimiterChar);
+        }
+
+        sb.Append(NewLine);
+      }
+
+      while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) &&
+             !cancellationToken.IsCancellationRequested)
+      {
+        if (sb.Length > 32768)
+        {
+          await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
+          sb.Length = 0;
+        }
+
+        var emptyColumns = 0;
+
+        var row = new StringBuilder();
+        foreach (var columnInfo in Columns)
+        {
+          // Number of columns might be higher than number of reader columns
+          var col = reader.GetValue(columnInfo.ColumnOrdinal);
+          if (col == DBNull.Value || (col is string text && string.IsNullOrEmpty(text)))
+            emptyColumns++;
+          else
+            row.Append(TextEncodeField(FileFormat, col, columnInfo, false, reader, QualifyText));
+
+          if (!FileFormat.IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
+            row.Append(FileFormat.FieldDelimiterChar);
+        }
+
+        if (emptyColumns == Columns.Count()) break;
+        NextRecord();
+        sb.Append(row);
+        sb.Append(NewLine);
+      }
+
+      var footer = Footer();
+      if (!string.IsNullOrEmpty(footer))
+      {
+        sb.Append(footer);
+        if (!footer.EndsWith(NewLine, StringComparison.Ordinal))
+          sb.Append(NewLine);
+      }
+
+      // remove the very last newline
+      if (sb.Length > NewLine.Length)
+      {
+        sb.Length -= NewLine.Length;
+        // and store the possibly remaining data
+        await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
+      }
+
+      await writer.FlushAsync();
     }
 
     private string QualifyText(string displayAs, DataType dataType, IFileFormat fileFormat)

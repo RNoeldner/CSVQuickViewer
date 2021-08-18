@@ -262,12 +262,11 @@ namespace CsvTools
     ///   A semicolon separated list of texts that should be treated as NULL
     /// </param>
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
-    public static bool ShouldBeTreatedAsNull(string? value, string? treatAsNull)
+    public static bool ShouldBeTreatedAsNull(string value, string treatAsNull)
     {
-      if (string.IsNullOrEmpty(treatAsNull))
+      if (treatAsNull.Length == 0)
         return false;
-      return string.IsNullOrEmpty(value) || SplitByDelimiter(treatAsNull)
-        .Any(part => value!.Equals(part, StringComparison.OrdinalIgnoreCase));
+      return value.Length == 0 || SplitByDelimiter(treatAsNull).Any(part => value!.Equals(part, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -351,7 +350,7 @@ namespace CsvTools
         return true;
       }
 
-      if (!Regex.IsMatch(entry, @"-?[0-9]+\.?[0-9]*")) 
+      if (!Regex.IsMatch(entry, @"-?[0-9]+\.?[0-9]*"))
         return false;
 
       result = entry;

@@ -153,11 +153,9 @@ namespace CsvTools.Tests
         var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer);
-        using (var reader = new DataTableWrapper(dataTable))
-        {
-          // await reader.OpenAsync(processDisplay.CancellationToken);
-          Assert.AreEqual(100, await writer.WriteAsync(reader, processDisplay.CancellationToken));
-        }
+        using var reader = new DataTableWrapper(dataTable);
+        // await reader.OpenAsync(processDisplay.CancellationToken);
+        Assert.AreEqual(100, await writer.WriteAsync(reader, processDisplay.CancellationToken));
       }
 
       Assert.IsTrue(File.Exists(writeFile.FileName));
@@ -232,10 +230,8 @@ namespace CsvTools.Tests
             var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer);
-            using (var reader = new DataTableWrapper(dataTable))
-            {
-              await writer.WriteAsync(reader, processDisplay.CancellationToken);
-            }
+            using var reader = new DataTableWrapper(dataTable);
+            await writer.WriteAsync(reader, processDisplay.CancellationToken);
           }
 
           Assert.Fail("Exception not thrown");

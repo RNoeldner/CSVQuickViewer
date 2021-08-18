@@ -39,7 +39,8 @@ namespace CsvTools
 		{
 			m_PagedDataCache.Clear();
 			m_DataReaderWrapper?.Close();
-		}
+      m_DataReaderWrapper = null;
+    }
 
 		public void Dispose() => Dispose(true);
 
@@ -51,10 +52,10 @@ namespace CsvTools
 
 		public async Task MoveToPageAsync(int pageIndex)
 		{
-			if (pageIndex<1)
+      if (m_DataReaderWrapper is null)
+        throw new FileReaderExceptionOpen();
+      if (pageIndex<1)
 				pageIndex=1;
-			if (m_DataReaderWrapper is null)
-				return;
 
 			var curPage = 1;
 			if (m_PagedDataCache.Count < pageIndex)
@@ -104,7 +105,8 @@ namespace CsvTools
 			{
 				m_DisposedValue = true;
 				m_DataReaderWrapper?.Dispose();
-			}
+        m_DataReaderWrapper = null;
+      }
 		}
 	}
 }

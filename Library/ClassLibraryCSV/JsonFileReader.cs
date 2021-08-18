@@ -163,11 +163,13 @@ namespace CsvTools
 		/// <returns>A collection with name and value of the properties</returns>
 		private ICollection<KeyValuePair<string, object?>>? GetNextRecord(CancellationToken token)
 		{
+      if (m_JsonTextReader is null)
+        throw new FileReaderExceptionOpen();
 			try
 			{
 				var headers = new Dictionary<string, bool>();
 				var keyValuePairs = new Dictionary<string, object?>();
-				while (m_JsonTextReader!.TokenType != JsonToken.StartObject
+				while (m_JsonTextReader.TokenType != JsonToken.StartObject
 							 // && m_JsonTextReader.TokenType != JsonToken.PropertyName
 							 && m_JsonTextReader.TokenType != JsonToken.StartArray)
 					if (!m_JsonTextReader.Read())

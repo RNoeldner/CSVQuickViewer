@@ -23,9 +23,7 @@ namespace CsvTools
   ///   Setting file for CSV files, its an implementation of <see cref="BaseSettings" />
   /// </summary>
   [Serializable]
-#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class CsvFile : BaseSettingPhysicalFile, ICsvFile
-#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
     /// <summary>
     ///   File ending for a setting file

@@ -12,7 +12,7 @@
  *
  */
 
-#nullable enable
+
 
 namespace CsvTools
 {
