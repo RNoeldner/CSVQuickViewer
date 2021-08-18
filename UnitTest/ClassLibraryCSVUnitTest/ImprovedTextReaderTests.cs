@@ -82,12 +82,10 @@ namespace CsvTools.Tests
 					// write the BOM
 					fs.Write(type.Item3, 0, type.Item3.Length);
 
-					using (var fs2 = new StreamWriter(fs, Encoding.GetEncoding(type.Item2)))
-					{
-						await fs2.WriteLineAsync(line1);
-						await fs2.WriteAsync(line2);
-					}
-				}
+          using var fs2 = new StreamWriter(fs, Encoding.GetEncoding(type.Item2));
+          await fs2.WriteLineAsync(line1);
+          await fs2.WriteAsync(line2);
+        }
 
 				using (var impStream = new ImprovedStream(new SourceAccess(fileName)))
 				{

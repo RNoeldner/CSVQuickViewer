@@ -30,10 +30,6 @@ namespace CsvTools
 #if NETCORE
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
-
-#if NETFRAMEWORK
-        CosturaUtility.Initialize();
-#endif
       }
       catch (Exception ex)
       {
@@ -94,7 +90,7 @@ namespace CsvTools
       {
         // Logger.Warning(ex, "UnhandledException of type ObjectDisposedException is ignored");
         return;
-      }      
+      }
       if (ex is InvalidOperationException && ex.HResult==-2146233079)
       {
         // Logger.Warning(ex, "UnhandledException of type InvalidOperationException is ignored");

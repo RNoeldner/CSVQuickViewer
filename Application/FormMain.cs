@@ -599,7 +599,6 @@ namespace CsvTools
       if (m_SourceDisplay != null) return;
       if (m_FileSetting is null) return;
       m_ToolStripButtonSource!.RunWithHourglass(() =>
-
       {
         m_ToolStripButtonSource.Enabled = false;
         m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting.FileName);
