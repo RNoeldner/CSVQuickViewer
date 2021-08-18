@@ -1,4 +1,3 @@
-using JetBrains.Annotations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
@@ -34,7 +33,7 @@ namespace CsvTools.Tests
       }
     }
 
-    public static void ShowFormAndClose(Form frm, double timeout, [NotNull] Func<CancellationToken, Task> toDo)
+    public static void ShowFormAndClose(Form frm, double timeout, Func<CancellationToken, Task> toDo)
     {
       frm.TopMost = true;
       frm.ShowInTaskbar = false;
@@ -46,7 +45,7 @@ namespace CsvTools.Tests
       frm.Close();
     }
 
-    public static async Task ShowFormAndCloseAsync(Form frm, double time, [NotNull] Task toDo)
+    public static async Task ShowFormAndCloseAsync(Form frm, double time, Task toDo)
     {
       frm.TopMost = true;
       frm.ShowInTaskbar = false;
@@ -58,7 +57,7 @@ namespace CsvTools.Tests
       frm.Close();
     }
 
-    public static async Task ShowFormAndCloseAsync<T>(T frm, double time, [NotNull] Func<T, Task> toDo) where T : Form
+    public static async Task ShowFormAndCloseAsync<T>(T frm, double time, Func<T, Task> toDo) where T : Form
     {
       frm.TopMost = true;
       frm.ShowInTaskbar = false;
