@@ -83,8 +83,8 @@ namespace CsvTools
     /// <param name="columnDefinition">List of column definitions</param>
     /// <param name="recordLimit">Number of records that should be read</param>
     /// <param name="processDisplay">Reporting progress information</param>
-    protected BaseFileReader(string fileName, IEnumerable<IColumn>? columnDefinition,
-                             long recordLimit, IProcessDisplay? processDisplay)
+    protected BaseFileReader(in string fileName, in IEnumerable<IColumn>? columnDefinition,
+                             long recordLimit, in IProcessDisplay? processDisplay)
     {
       m_ColumnDefinition =  columnDefinition?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList() ??
                                  new List<ImmutableColumn>();
@@ -223,9 +223,9 @@ namespace CsvTools
     /// <param name="warnings">A <see cref="ColumnErrorDictionary" /> to store possible warnings</param>
     /// <returns></returns>
     public static Tuple<IReadOnlyCollection<string>, int> AdjustColumnName(
-      IEnumerable<string> columns,
+      in IEnumerable<string> columns,
       int fieldCount,
-      ColumnErrorDictionary? warnings)
+      in ColumnErrorDictionary? warnings)
     {
       var issuesCounter = 0;
       var previousColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -520,7 +520,7 @@ namespace CsvTools
     /// <param name="inputValue">The input.</param>
     /// <param name="column">The column.</param>
     /// <returns></returns>
-    public int? GetInt32Null(string inputValue, IColumn column)
+    public int? GetInt32Null(in string inputValue, in IColumn column)
     {
       var ret = StringConversion.StringToInt32(
         inputValue,
@@ -558,7 +558,7 @@ namespace CsvTools
     /// <param name="inputValue">The input.</param>
     /// <param name="column">The column.</param>
     /// <returns></returns>
-    public long? GetInt64Null(string inputValue, IColumn column)
+    public long? GetInt64Null(in string inputValue, in IColumn column)
     {
       var ret = StringConversion.StringToInt64(
         inputValue,
@@ -738,7 +738,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
     /// <param name="message">The message.</param>
-    public void HandleError(int columnNumber, string message) =>
+    public void HandleError(in int columnNumber, in string message) =>
       Warning?.Invoke(this, GetWarningEventArgs(columnNumber, message));
 
     /// <summary>
@@ -812,7 +812,7 @@ namespace CsvTools
     /// <param name="trim">if set to <c>true</c> [trim].</param>
     /// <returns></returns>
     protected static string TreatNbspAsNullTrim(string inputString, bool treatNbspAsSpace,
-                                                    string treatTextAsNull, bool trim)
+                                                    in string treatTextAsNull, bool trim)
     {
       if (inputString.Length>0)
       {
@@ -866,11 +866,11 @@ namespace CsvTools
     /// <param name="serialDateTime"></param>
     /// <returns></returns>
     protected DateTime? GetDateTimeNull(
-      object? inputDate,
-      string strInputDate,
-      object? inputTime,
-      string strInputTime,
-      IColumn column,
+      in object? inputDate,
+      in string strInputDate,
+      in object? inputTime,
+      in string strInputTime,
+      in IColumn column,
       bool serialDateTime)
     {
       var dateTime = StringConversion.CombineObjectsToDateTime(
@@ -940,9 +940,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="i">The i.</param>
     /// <returns></returns>
-    protected string GetTimeValue(int i) => (AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= CurrentRowColumnText.Length) ? string.Empty : CurrentRowColumnText[AssociatedTimeCol[i]];
+    protected string GetTimeValue(in int i) => (AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= CurrentRowColumnText.Length) ? string.Empty : CurrentRowColumnText[AssociatedTimeCol[i]];
 
-    protected WarningEventArgs GetWarningEventArgs(int columnNumber, string message) => new WarningEventArgs(
+    protected WarningEventArgs GetWarningEventArgs(in int columnNumber, in string message) => new WarningEventArgs(
       RecordNumber,
       columnNumber,
       message,
@@ -968,7 +968,7 @@ namespace CsvTools
     /// <param name="text">Leading Text</param>
     /// <param name="recordNumber">The record number.</param>
     /// <param name="progress">The progress (a value between 0 and MaxValue)</param>
-    protected virtual void HandleShowProgress(string text, long recordNumber, double progress)
+    protected virtual void HandleShowProgress(in string text, long recordNumber, double progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
       ReportProgress?.Invoke(this,
@@ -979,7 +979,7 @@ namespace CsvTools
     ///   Shows the process.
     /// </summary>
     /// <param name="text">The text.</param>
-    protected void HandleShowProgress(string text) => ReportProgress?.Invoke(this, new ProgressEventArgs(text));
+    protected void HandleShowProgress(in string text) => ReportProgress?.Invoke(this, new ProgressEventArgs(text));
 
     /// <summary>
     ///   Shows the process twice a second
@@ -1000,7 +1000,7 @@ namespace CsvTools
     /// <param name="inputString">The input string.</param>
     /// <param name="columnNumber">The column number</param>
     /// <returns>The proper encoded or cut text as returned for the column</returns>
-    protected string HandleTextSpecials(string? inputString, int columnNumber)
+    protected string HandleTextSpecials(in string? inputString, int columnNumber)
     {
       if (string.IsNullOrEmpty(inputString) || columnNumber >= FieldCount)
         return inputString ?? string.Empty;
@@ -1044,7 +1044,7 @@ namespace CsvTools
     ///   Displays progress, is called after <see langword="abstract" /> row has been read
     /// </summary>
     /// <param name="hasReadRow"><c>true</c> if a row has been read</param>
-    protected void InfoDisplay(bool hasReadRow)
+    protected void InfoDisplay(in bool hasReadRow)
     {
       if (!hasReadRow)
         HandleReadFinished();
@@ -1076,7 +1076,7 @@ namespace CsvTools
     /// <param name="headerRow">The header row.</param>
     /// <param name="dataType">Type of the data.</param>
     /// <param name="hasFieldHeader">if set to <c>true</c> [has field header].</param>
-    protected void ParseColumnName(IEnumerable<string> headerRow,
+    protected void ParseColumnName(in IEnumerable<string> headerRow,
                                    IEnumerable<DataType>? dataType = null, bool hasFieldHeader = true)
     {
       var issues = new ColumnErrorDictionary();
@@ -1162,7 +1162,7 @@ namespace CsvTools
         HandleWarning(warning.Key, warning.Value);
     }
 
-    protected bool ShouldRetry(Exception ex, CancellationToken token)
+    protected bool ShouldRetry(in Exception ex, CancellationToken token)
     {
 #if !QUICK
       if (token.IsCancellationRequested) return false;
@@ -1180,7 +1180,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column.</param>
     /// <param name="message">The message.</param>
-    protected FormatException WarnAddFormatException(int columnNumber, string message)
+    protected FormatException WarnAddFormatException(in int columnNumber, in string message)
     {
       HandleError(columnNumber, message);
       return new FormatException(message);
@@ -1192,9 +1192,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnNumber">The column number counting from 0</param>
     /// <returns>A string with the column name</returns>
-    private static string GetDefaultName(int columnNumber) => $"Column{columnNumber + 1}";
+    private static string GetDefaultName(in int columnNumber) => $"Column{columnNumber + 1}";
 
-    private DateTime AdjustTz(DateTime input, IColumn column)
+    private DateTime AdjustTz(in DateTime input, in IColumn column)
     {
       if (m_AssociatedTimeZoneCol.Length>column.ColumnOrdinal &&  m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
         return FunctionalDI.AdjustTZImport(input, GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]), column.ColumnOrdinal, HandleWarning);
@@ -1211,9 +1211,9 @@ namespace CsvTools
     ///   The Boolean, if conversion is not successful: <c>NULL</c> the event handler for warnings
     ///   is called
     /// </returns>
-    protected bool? GetBooleanNull(string inputBoolean, int columnNumber) => GetBooleanNull(inputBoolean, GetColumn(columnNumber));
+    protected bool? GetBooleanNull(in string inputBoolean, int columnNumber) => GetBooleanNull(inputBoolean, GetColumn(columnNumber));
 
-    private bool? GetBooleanNull(string inputValue, IColumn column)
+    private bool? GetBooleanNull(in string inputValue, in IColumn column)
     {
       var boolValue = StringConversion.StringToBoolean(
         inputValue,
@@ -1235,7 +1235,7 @@ namespace CsvTools
     ///   The decimal value if conversion is not successful: <c>NULL</c> the event handler for
     ///   warnings is called
     /// </returns>
-    protected decimal? GetDecimalNull(string inputValue, int columnNumber)
+    protected decimal? GetDecimalNull(in string inputValue, int columnNumber)
     {
       var column = GetColumn(columnNumber);
       var decimalValue = StringConversion.StringToDecimal(
@@ -1259,7 +1259,7 @@ namespace CsvTools
     ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
     ///   handler for warnings is called
     /// </returns>
-    protected double? GetDoubleNull(string inputValue, int columnNumber)
+    protected double? GetDoubleNull(in string inputValue, int columnNumber)
     {
       var decimalValue = GetDecimalNull(inputValue, columnNumber);
       if (decimalValue.HasValue)
@@ -1275,7 +1275,7 @@ namespace CsvTools
     /// <param name="inputValue">The input.</param>
     /// <param name="columnNumber">The column number.</param>
     /// <returns></returns>
-    protected Guid? GetGuidNull(string inputValue, int columnNumber)
+    protected Guid? GetGuidNull(in string inputValue, int columnNumber)
     {
       if (string.IsNullOrEmpty(inputValue))
         return null;
@@ -1299,7 +1299,7 @@ namespace CsvTools
     ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
     ///   handler for warnings is called
     /// </returns>
-    private short GetInt16(string value, int columnNumber)
+    private short GetInt16(in string value, int columnNumber)
     {
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       var column = GetColumn(columnNumber);
@@ -1321,7 +1321,7 @@ namespace CsvTools
     /// <param name="inputDate">The input date.</param>
     /// <param name="inputTime">The input time.</param>
     /// <param name="columnNumber">The column.</param>
-    private void HandleDateError(string inputDate, string inputTime, int columnNumber)
+    private void HandleDateError(in string inputDate, in string inputTime, int columnNumber)
     {
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       var column = GetColumn(columnNumber);

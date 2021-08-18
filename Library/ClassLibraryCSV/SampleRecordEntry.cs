@@ -25,7 +25,7 @@ namespace CsvTools
     {
     }
 
-    public SampleRecordEntry(long recordNumber, string error) : this(recordNumber, true, error)
+    public SampleRecordEntry(long recordNumber, in string error) : this(recordNumber, true, error)
     {
     }
 
@@ -34,7 +34,7 @@ namespace CsvTools
     {
     }
 
-    public SampleRecordEntry(long recordNumber, bool provideEvidence, string error)
+    public SampleRecordEntry(long recordNumber, bool provideEvidence, in string error)
     {
       RecordNumber = recordNumber;
       ProvideEvidence = provideEvidence;
@@ -48,9 +48,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the error.
     /// </summary>
-    /// <value>
-    ///   The error.
-    /// </value>
+    /// <value>The error.</value>
     [XmlAttribute]
     [DefaultValue("")]
     public string Error { get; }
@@ -58,9 +56,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets a value indicating whether [provide evidence].
     /// </summary>
-    /// <value>
-    ///   <c>true</c> if [provide evidence]; otherwise, <c>false</c>.
-    /// </value>
+    /// <value><c>true</c> if [provide evidence]; otherwise, <c>false</c>.</value>
     [XmlAttribute]
     [DefaultValue(true)]
     public bool ProvideEvidence { get; }
@@ -68,18 +64,17 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the record number.
     /// </summary>
-    /// <value>
-    ///   The record number.
-    /// </value>
+    /// <value>The record number.</value>
     [XmlAttribute]
     public long RecordNumber { get; }
 
-
-    /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+    /// <summary>
+    ///   Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
     /// <param name="other">An object to compare with this object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise,
-    ///   <see langword="false" />.
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
+    ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
     public bool Equals(SampleRecordEntry? other)
     {
@@ -97,14 +92,19 @@ namespace CsvTools
     /// <returns></returns>
     public SampleRecordEntry Clone() => new SampleRecordEntry(RecordNumber, ProvideEvidence, Error);
 
-    /// <summary>Determines whether the specified object is equal to the current object.</summary>
-    /// <param name="obj">The object to compare with the current object. </param>
+    /// <summary>
+    ///   Determines whether the specified object is equal to the current object.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+    ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
+    ///   <see langword="false" />.
     /// </returns>
     public override bool Equals(object? obj) => Equals(obj as SampleRecordEntry);
 
-    /// <summary>Serves as the default hash function. </summary>
+    /// <summary>
+    ///   Serves as the default hash function.
+    /// </summary>
     /// <returns>A hash code for the current object.</returns>
     public override int GetHashCode()
     {

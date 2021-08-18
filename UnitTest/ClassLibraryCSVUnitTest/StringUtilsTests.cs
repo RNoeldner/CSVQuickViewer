@@ -90,7 +90,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetShortDisplayOk()
     {
-      var test = Path.Combine(@"C:"+ Path.DirectorySeparatorChar, "Dir2", "dir3", "dir4", "dir5", "dir6", "file.ext");      
+      var test = Path.Combine(@"C:"+ Path.DirectorySeparatorChar, "Dir2", "dir3", "dir4", "dir5", "dir6", "file.ext");
       Assert.AreEqual(test, FileSystemUtils.GetShortDisplayFileName(test, test.Length));
 #if Windows
       Assert.AreEqual($"C:{Path.DirectorySeparatorChar}Dir2{Path.DirectorySeparatorChar}…{Path.DirectorySeparatorChar}dir5{Path.DirectorySeparatorChar}dir6{Path.DirectorySeparatorChar}file.ext", FileSystemUtils.GetShortDisplayFileName(test, test.Length - 1));
@@ -209,8 +209,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TDNull()
     {
-      Assert.IsNull(HTMLStyle.AddTd(null, null));
-      Assert.IsNull(HTMLStyle.AddTd(null));
+      Assert.IsTrue(string.IsNullOrEmpty(HTMLStyle.AddTd(null, null)));
+      Assert.IsTrue(string.IsNullOrEmpty(HTMLStyle.AddTd(null)));
       Assert.AreEqual(string.Empty, HTMLStyle.AddTd(string.Empty));
     }
 

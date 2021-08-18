@@ -34,7 +34,7 @@ namespace CsvTools
     // ReSharper disable once NotNullMemberIsNotInitialized
 #pragma warning disable 8618
 
-    public ImprovedStream(SourceAccess sourceAccess)
+    public ImprovedStream(in SourceAccess sourceAccess)
 #pragma warning restore 8618
     {
       SourceAccess = sourceAccess;
@@ -50,7 +50,7 @@ namespace CsvTools
     // ReSharper disable once NotNullMemberIsNotInitialized
 #pragma warning disable 8618
 
-    public ImprovedStream(Stream stream, SourceAccess.FileTypeEnum type = SourceAccess.FileTypeEnum.Stream)
+    public ImprovedStream(in Stream stream, SourceAccess.FileTypeEnum type = SourceAccess.FileTypeEnum.Stream)
 #pragma warning restore 8618
     {
       SourceAccess = new SourceAccess(stream, type);

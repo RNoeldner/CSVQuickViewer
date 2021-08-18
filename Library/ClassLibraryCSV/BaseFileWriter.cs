@@ -46,10 +46,10 @@ namespace CsvTools
     protected readonly IValueFormat ValueFormatGeneral;
     private DateTime m_LastNotification = DateTime.Now;
 
-    protected BaseFileWriter(string id, string fullPath, IValueFormat? valueFormatGeneral,
-      IFileFormat? fileFormat, string? recipient,
-      bool unencrypted, string? identifierInContainer, string? footer, string? header,
-      IEnumerable<IColumn>? columnDefinition, string fileSettingDisplay,
+    protected BaseFileWriter(in string id, in string fullPath, in IValueFormat? valueFormatGeneral,
+      in IFileFormat? fileFormat, in string? recipient,
+      bool unencrypted, in string? identifierInContainer, in string? footer, in string? header,
+      in IEnumerable<IColumn>? columnDefinition, in string fileSettingDisplay,
       IProcessDisplay? processDisplay)
     {
       if (string.IsNullOrEmpty(fullPath))

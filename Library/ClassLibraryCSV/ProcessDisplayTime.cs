@@ -12,7 +12,6 @@
  *
  */
 
-
 using System;
 using System.Diagnostics;
 using System.Threading;
@@ -27,9 +26,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
     /// </summary>
-    /// <value>
-    ///   The maximum value.
-    /// </value>
+    /// <value>The maximum value.</value>
     public override long Maximum
     {
       get => TimeToCompletion.TargetValue;
@@ -46,7 +43,7 @@ namespace CsvTools
 
     public event EventHandler<long>? SetMaximum;
 
-    protected override void Handle(object? sender, string text, long value, bool log)
+    protected override void Handle(in object? sender, string text, long value, bool log)
     {
       base.Handle(sender, text, value, log);
       ProgressTime?.Invoke(sender,

@@ -50,11 +50,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="processDisplay">The process display.</param>
-    public StructuredFileWriter(string id, string fullPath, IValueFormat? valueFormatGeneral,
-      IFileFormat? fileFormat, string? recipient,
-      bool unencrypted, string? identifierInContainer, string? footer, string? header,
-      IEnumerable<IColumn>? columnDefinition, string fileSettingDisplay, string row,
-      IProcessDisplay? processDisplay) : base(id, fullPath, valueFormatGeneral, fileFormat, recipient, unencrypted, identifierInContainer, footer, header, columnDefinition, fileSettingDisplay, processDisplay)
+    public StructuredFileWriter(in string id, in string fullPath, in IValueFormat? valueFormatGeneral,
+      in IFileFormat? fileFormat, in string? recipient,
+      bool unencrypted, in string? identifierInContainer, in string? footer, in string? header,
+      in IEnumerable<IColumn>? columnDefinition, in string fileSettingDisplay, in string row,
+      in IProcessDisplay? processDisplay) : base(id, fullPath, valueFormatGeneral, fileFormat, recipient, unencrypted, identifierInContainer, footer, header, columnDefinition, fileSettingDisplay, processDisplay)
     {
       if (string.IsNullOrEmpty(row))
         throw new ArgumentException($"{nameof(row)} can not be empty");

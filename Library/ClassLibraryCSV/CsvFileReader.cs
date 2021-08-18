@@ -127,24 +127,24 @@ namespace CsvTools
     /// </summary>
     private ImprovedTextReader? m_TextReader;
 
-    public CsvFileReader(IImprovedStream improvedStream,
+    public CsvFileReader(in IImprovedStream improvedStream,
                          int codePageId = 650001, int skipRows = 0,
                          bool hasFieldHeader = true,
-                         IEnumerable<IColumn>? columnDefinition = null,
-                         TrimmingOption trimmingOption = TrimmingOption.Unquoted,
-                         string fieldDelimiter = "\t", string fieldQualifier = "\"", string escapeCharacter = "",
+                         in IEnumerable<IColumn>? columnDefinition = null,
+                         in TrimmingOption trimmingOption = TrimmingOption.Unquoted,
+                         in string fieldDelimiter = "\t", in string fieldQualifier = "\"", in string escapeCharacter = "",
                          long recordLimit = 0,
                          bool allowRowCombining = false, bool alternateQuoting = false,
-                         string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
-                         string newLinePlaceholder = "", string delimiterPlaceholder = "", string quotePlaceholder = "",
+                         in string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
+                         in string newLinePlaceholder = "", in string delimiterPlaceholder = "", in string quotePlaceholder = "",
                          bool skipDuplicateHeader = true,
                          bool treatLfAsSpace = false, bool treatUnknownCharacterAsSpace = false, bool tryToSolveMoreColumns = true,
                          bool warnDelimiterInValue = true,
                          bool warnLineFeed = false, bool warnNbsp = true, bool warnQuotes = true, bool warnUnknownCharacter = true,
                          bool warnEmptyTailingColumns = true,
                          bool treatNbspAsSpace = false,
-                         string treatTextAsNull = "NULL", bool skipEmptyLines = true,
-                         int consecutiveEmptyRowsMax = 4, IProcessDisplay? processDisplay = null)
+                         in string treatTextAsNull = "NULL", bool skipEmptyLines = true,
+                         int consecutiveEmptyRowsMax = 4, in IProcessDisplay? processDisplay = null)
       : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
         trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
         alternateQuoting, commentLine, numWarning, duplicateQuotingToEscape, newLinePlaceholder, delimiterPlaceholder,
@@ -155,25 +155,25 @@ namespace CsvTools
       m_ImprovedStream = improvedStream ?? throw new ArgumentNullException(nameof(improvedStream));
     }
 
-    public CsvFileReader(string fileName,
+    public CsvFileReader(in string fileName,
                          int codePageId = 650001, // Encoding.UTF8.CodePage
                          int skipRows = 0,
                          bool hasFieldHeader = true,
-                         IEnumerable<IColumn>? columnDefinition = null,
-                         TrimmingOption trimmingOption = TrimmingOption.Unquoted,
-                         string fieldDelimiter = "\t", string fieldQualifier = "\"", string escapeCharacter = "",
+                         in IEnumerable<IColumn>? columnDefinition = null,
+                         in TrimmingOption trimmingOption = TrimmingOption.Unquoted,
+                         in string fieldDelimiter = "\t", in string fieldQualifier = "\"", in string escapeCharacter = "",
                          long recordLimit = 0,
                          bool allowRowCombining = false, bool alternateQuoting = false,
-                         string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
-                         string newLinePlaceholder = "", string delimiterPlaceholder = "", string quotePlaceholder = "",
+                         in string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
+                         in string newLinePlaceholder = "", in string delimiterPlaceholder = "", in string quotePlaceholder = "",
                          bool skipDuplicateHeader = true,
                          bool treatLfAsSpace = false, bool treatUnknownCharacterAsSpace = false, bool tryToSolveMoreColumns = true,
                          bool warnDelimiterInValue = true,
                          bool warnLineFeed = false, bool warnNbsp = true, bool warnQuotes = true, bool warnUnknownCharacter = true,
                          bool warnEmptyTailingColumns = true,
                          bool treatNbspAsSpace = false,
-                         string treatTextAsNull = "NULL", bool skipEmptyLines = true,
-                         int consecutiveEmptyRowsMax = 4, string identifierInContainer = "", IProcessDisplay? processDisplay = null)
+                         in string treatTextAsNull = "NULL", bool skipEmptyLines = true,
+                         int consecutiveEmptyRowsMax = 4, in string identifierInContainer = "", in IProcessDisplay? processDisplay = null)
       : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
         trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
         alternateQuoting, commentLine, numWarning, duplicateQuotingToEscape, newLinePlaceholder, delimiterPlaceholder,
@@ -876,7 +876,7 @@ namespace CsvTools
       var item = ReadNextColumn(0);
 
       // An empty line does not have any data
-      if (string.IsNullOrEmpty(item) && m_EndOfLine)
+      if ((item is null || item.Length==0) && m_EndOfLine)
       {
         m_EndOfLine = false;
         if (m_SkipEmptyLines)
@@ -923,12 +923,12 @@ namespace CsvTools
             col,
             $"Column has {EndLineNumber - StartLineNumber + 1} lines and has a length of {item.Length} characters"
               .AddWarningId());
-
-        if (item.Length == 0)
-        {
-          item = null;
-        }
-        columns.Add(item!);
+        //TODO: Determine if its better to store NULL instaed of empty Text
+        //if (item.Length == 0)
+        //{
+        //  item = string.Empty;
+        //}
+        columns.Add(item);
 
         col++;
         item = ReadNextColumn(col);
