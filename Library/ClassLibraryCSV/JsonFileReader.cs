@@ -139,7 +139,7 @@ namespace CsvTools
 
     public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
-    public override bool Read(in CancellationToken token)
+    public override bool Read(CancellationToken token)
     {
       if (!EndOfFile && !token.IsCancellationRequested)
       {
