@@ -29,7 +29,7 @@ namespace CsvTools
 		private readonly DataTable m_DataTable;
 		private readonly IList<string> m_VisibleColumns;
 		private FilteredDataGridView m_DataGridView;
-#nullable enable
+
 
 		/// <summary>
 		///   Initializes a new instance of the <see cref="FormShowMaxLength" /> class.

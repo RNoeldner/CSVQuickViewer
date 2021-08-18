@@ -29,11 +29,9 @@ namespace CsvTools
 	///   Abstract calls containing the basic setting for an IFileSetting if contains <see
 	///   cref="ColumnCollection" /> , <see cref="MappingCollection" /> and <see cref="FileFormat" />
 	/// </summary>
-#pragma warning disable CS0659
 
 	[DebuggerDisplay("Settings: {ID} ({ColumnCollection.Count()} Columns)")]
 	public abstract class BaseSettings : IFileSetting
-#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 	{
 		public const string cTreatTextAsNull = "NULL";
 		public static readonly DateTime ZeroTime = new DateTime(0, DateTimeKind.Utc);
@@ -883,8 +881,10 @@ namespace CsvTools
 		///   Copies all values to other instance
 		/// </summary>
 		/// <param name="other">The other.</param>
-		protected virtual void BaseSettingsCopyTo(BaseSettings other)
+		protected virtual void BaseSettingsCopyTo(BaseSettings? other)
 		{
+      if (other == null)
+        return;
 			FileFormat.CopyTo(other.FileFormat);
 			MappingCollection.CopyTo(other.MappingCollection);
 

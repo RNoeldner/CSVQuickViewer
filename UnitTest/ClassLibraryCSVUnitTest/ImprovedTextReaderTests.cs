@@ -91,21 +91,19 @@ namespace CsvTools.Tests
 
 				using (var impStream = new ImprovedStream(new SourceAccess(fileName)))
 				{
-					using (var test = new ImprovedTextReader(impStream, type.Item2))
-					{
-						test.ToBeginning();
+          using var test = new ImprovedTextReader(impStream, type.Item2);
+          test.ToBeginning();
 
-						Assert.AreEqual(1, test.LineNumber);
-						Assert.AreEqual(line1, test.ReadLine(), $"Issue reading Line1 {type.Item1}");
-						Assert.AreEqual(2, test.LineNumber);
-						Assert.AreEqual(line2, test.ReadLine(), $"Issue reading Line2 {type.Item1}");
+          Assert.AreEqual(1, test.LineNumber);
+          Assert.AreEqual(line1, test.ReadLine(), $"Issue reading Line1 {type.Item1}");
+          Assert.AreEqual(2, test.LineNumber);
+          Assert.AreEqual(line2, test.ReadLine(), $"Issue reading Line2 {type.Item1}");
 
-						test.ToBeginning();
+          test.ToBeginning();
 
-						Assert.AreEqual(1, test.LineNumber);
-						Assert.AreEqual(line1, test.ReadLine(), $"Issue reading after reset {type.Item1}");
-					}
-				}
+          Assert.AreEqual(1, test.LineNumber);
+          Assert.AreEqual(line1, test.ReadLine(), $"Issue reading after reset {type.Item1}");
+        }
 
 				File.Delete(fileName);
 			}

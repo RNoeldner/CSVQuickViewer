@@ -241,12 +241,11 @@ namespace CsvTools
 		/// <param name="template">The template.</param>
 		/// <param name="contents">The contents.</param>
 		/// <returns></returns>
-		public static string? AddTd(string? template, params object?[]? contents)
+		public static string AddTd(string? template, params object?[]? contents)
 		{
-			if (template is null || contents is null)
-				return null;
-			if (string.IsNullOrEmpty(template))
+			if (template is null || contents is null || template.Length==0)
 				return string.Empty;
+			
 			for (var i = 0; i < contents.Length; i++)
 				if (contents[i]!=null)
 					contents[i] = HtmlEncode(contents[i]?.ToString() ?? String.Empty).Replace("�", "<span style=\"color:Red; font-size:larger\">&diams;</span>");

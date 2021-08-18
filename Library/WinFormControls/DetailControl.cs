@@ -12,7 +12,7 @@
  *
  */
 
-#nullable enable
+
 
 using System;
 using System.Collections.Generic;
@@ -456,8 +456,7 @@ namespace CsvTools
 
     private void BackgroundSearchThread(object? obj)
     {
-      var processInformation = obj as ProcessInformation;
-      if (processInformation == null)
+      if (!(obj is ProcessInformation processInformation))
         return;
       processInformation.IsRunning = true;
       var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;

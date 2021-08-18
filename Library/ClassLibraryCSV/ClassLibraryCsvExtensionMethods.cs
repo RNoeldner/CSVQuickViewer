@@ -686,19 +686,7 @@ namespace CsvTools
 			template = placeholder.Aggregate(template, (current, pro) => current.ReplaceCaseInsensitive(pro.Key, pro.Value));
 
 			return template.Replace("  ", " ");
-		}
-
-		[Obsolete("Do not use this nay more")]
-		public static string? CsvToolsStackTrace(this Exception exception)
-		{
-			if (string.IsNullOrEmpty(exception.StackTrace))
-				return null;
-
-			var start = exception.StackTrace.LastIndexOf("   ", StringComparison.Ordinal);
-			if (start == -1) return null;
-			start = exception.StackTrace.IndexOf(" ", start + 3, StringComparison.Ordinal);
-			return $"at {exception.StackTrace.Substring(start)}";
-		}
+		}		
 
 		/// <summary>
 		///   Get the inner most exception message

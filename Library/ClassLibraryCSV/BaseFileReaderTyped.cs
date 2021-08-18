@@ -41,20 +41,20 @@ namespace CsvTools
     /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
     /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
     /// <param name="processDisplay">Process Display</param>
-    protected BaseFileReaderTyped(string? fileName,
+    protected BaseFileReaderTyped(string fileName,
                                   IEnumerable<IColumn>? columnDefinition,
                                   long recordLimit, bool trim,
-                                  string? treatTextAsNull, bool treatNbspAsSpace, IProcessDisplay? processDisplay) :
+                                  string treatTextAsNull, bool treatNbspAsSpace, IProcessDisplay? processDisplay) :
       base(fileName, columnDefinition, recordLimit, processDisplay)
     {
       m_TreatNbspAsSpace = treatNbspAsSpace;
       m_Trim = trim;
-      m_TreatTextAsNull = treatTextAsNull ?? string.Empty;
+      m_TreatTextAsNull = treatTextAsNull;
       CurrentValues = Array.Empty<object>();
     }
 
-    protected string? TreatNbspTestAsNullTrim(string? inputString) =>
-      BaseFileReader.TreatNbspTestAsNullTrim(inputString, m_TreatNbspAsSpace, m_TreatTextAsNull, m_Trim);
+    protected string TreatNbspTestAsNullTrim(string inputString) =>
+      BaseFileReader.TreatNbspAsNullTrim(inputString, m_TreatNbspAsSpace, m_TreatTextAsNull, m_Trim);
 
     /// <summary>
     ///   Gets the boolean.
@@ -105,7 +105,7 @@ namespace CsvTools
         EnsureTextFilled(AssociatedTimeCol[columnNumber]);
         timePartText = CurrentRowColumnText[AssociatedTimeCol[columnNumber]];
       }
-      var dt = GetDateTimeNull(CurrentValues![columnNumber], CurrentRowColumnText[columnNumber], timePart, timePartText,
+      var dt = GetDateTimeNull(CurrentValues![columnNumber], CurrentRowColumnText[columnNumber], timePart, timePartText ?? string.Empty,
         GetColumn(columnNumber), false);
       if (dt.HasValue)
         return dt.Value;

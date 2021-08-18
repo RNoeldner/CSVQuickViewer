@@ -4,7 +4,7 @@ namespace CsvTools
   using System.ComponentModel;
   using System.Windows.Forms;
 
-#nullable enable
+
 
   public class TimedMessage : ResizeForm
   {

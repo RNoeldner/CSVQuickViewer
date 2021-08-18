@@ -178,7 +178,7 @@ namespace CsvTools
 
     public void ResetFullPath() => m_FullPathInitialized = false;
 
-    protected override void BaseSettingsCopyTo(BaseSettings other)
+    protected override void BaseSettingsCopyTo(BaseSettings? other)
     {
       base.BaseSettingsCopyTo(other);
 

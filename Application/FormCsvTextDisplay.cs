@@ -17,7 +17,6 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 
-#nullable enable
 
 namespace CsvTools
 {
