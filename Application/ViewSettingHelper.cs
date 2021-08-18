@@ -23,11 +23,9 @@ namespace CsvTools
         if (FileSystemUtils.FileExists(m_SettingPath))
         {
           var serial = File.ReadAllText(m_SettingPath.LongPathPrefix());
-          using (TextReader reader = new StringReader(serial))
-          {
-            var vs = m_SerializerViewSettings.Deserialize(reader) as ViewSettings;            
-            return vs ?? new ViewSettings();
-          }
+          using TextReader reader = new StringReader(serial);
+          if (m_SerializerViewSettings.Deserialize(reader) is ViewSettings viewSettings)
+            return viewSettings;
         }
       }
       catch (Exception ex)
@@ -48,21 +46,19 @@ namespace CsvTools
           FileSystemUtils.CreateDirectory(m_SettingFolder);
 
         FileSystemUtils.DeleteWithBackup(m_SettingPath, false);
-        using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
-        {
-          // Remove and Restore FileName
-          var oldFileName = viewSettings.FileName;
-          viewSettings.FileName = string.Empty;
+        using var stringWriter = new StringWriter(CultureInfo.InvariantCulture);
+        // Remove and Restore FileName
+        var oldFileName = viewSettings.FileName;
+        viewSettings.FileName = string.Empty;
 
-          m_SerializerViewSettings.Serialize(
-            stringWriter,
-            viewSettings,
-            SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
-          Logger.Debug("Saving defaults {path}", m_SettingPath);
-          File.WriteAllText(m_SettingPath, stringWriter.ToString());
+        m_SerializerViewSettings.Serialize(
+          stringWriter,
+          viewSettings,
+          SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
+        Logger.Debug("Saving defaults {path}", m_SettingPath);
+        File.WriteAllText(m_SettingPath, stringWriter.ToString());
 
-          viewSettings.FileName = oldFileName;
-        }
+        viewSettings.FileName = oldFileName;
       }
       catch (Exception ex)
       {

@@ -13,7 +13,6 @@
     <DefineConstants>Windows</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\FileValidator\Library\ClassLibraryValidator\ClassLibraryValidator.csproj" />
     <ProjectReference Include="..\..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj" />
   </ItemGroup>
 

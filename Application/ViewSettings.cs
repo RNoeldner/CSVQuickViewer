@@ -35,8 +35,8 @@ namespace CsvTools
 		private bool m_GuessHasHeader = true;
 		private bool m_GuessNewLine = true;
 		private bool m_GuessComment = true;
-		private bool m_GuessQualifier;
-		private bool m_GuessStartRow = true;
+		private bool m_GuessQualifier = true;
+    private bool m_GuessStartRow = true;
 		private HTMLStyle m_HtmlStyle = new HTMLStyle();
 		private bool m_MenuDown;
 		private bool m_StoreSettingsByFile;
@@ -92,24 +92,15 @@ namespace CsvTools
 		{
 			get
 			{
-				switch (LimitDuration)
-				{
-					case DurationEnum.HalfSecond:
-						return TimeSpan.FromSeconds(.5);
-
-					case DurationEnum.Second:
-						return TimeSpan.FromSeconds(1);
-
-					case DurationEnum.TwoSecond:
-						return TimeSpan.FromSeconds(2);
-
-					case DurationEnum.TenSecond:
-						return TimeSpan.FromSeconds(10);
-
-					default:
-						return TimeSpan.MaxValue;
-				}
-			}
+        return LimitDuration switch
+        {
+          DurationEnum.HalfSecond => TimeSpan.FromSeconds(.5),
+          DurationEnum.Second => TimeSpan.FromSeconds(1),
+          DurationEnum.TwoSecond => TimeSpan.FromSeconds(2),
+          DurationEnum.TenSecond => TimeSpan.FromSeconds(10),
+          _ => TimeSpan.MaxValue,
+        };
+      }
 		}
 
 		/// <summary>
