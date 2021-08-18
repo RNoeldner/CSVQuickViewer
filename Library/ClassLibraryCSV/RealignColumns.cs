@@ -54,7 +54,7 @@ namespace CsvTools
     ///   Adds a new row assuming the data is well aligned
     /// </summary>
     /// <param name="newRow">Array with the columns of that row</param>
-    public void AddRow(string[] newRow)
+    public void AddRow(in string[] newRow)
     {
       if (newRow.Length != m_ExpectedColumns)
         return;
@@ -72,7 +72,7 @@ namespace CsvTools
     /// <param name="handleWarning">Action to be called to store a warning</param>
     /// <param name="rawText">The raw text of the file before splitting it into columns</param>
     /// <returns>A new list of columns</returns>
-    public string[] RealignColumn(string[] row, Action<int, string> handleWarning, string rawText)
+    public string[] RealignColumn(in string[] row, Action<int, string> handleWarning, in string rawText)
     {
       if (row is null) throw new ArgumentNullException(nameof(row));
       if (handleWarning is null) throw new ArgumentNullException(nameof(handleWarning));
@@ -204,7 +204,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="colNum">The Column Number in the array</param>
     /// <param name="rows">All rows to look at</param>
-    private static ColumnOption GetColumnOptionAllRows(int colNum, IEnumerable<string?[]> rows)
+    private static ColumnOption GetColumnOptionAllRows(in int colNum, in IEnumerable<string?[]> rows)
     {
       var overall = ColumnOption.Empty;
       foreach (var row in rows)

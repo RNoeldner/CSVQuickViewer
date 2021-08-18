@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
@@ -10,7 +9,7 @@ namespace CsvTools
   {
     private readonly Dictionary<string, object> m_Properties;
 
-    public DynamicDataRecord(IDataRecord dataRecord)
+    public DynamicDataRecord(in IDataRecord dataRecord)
     {
       m_Properties = new Dictionary<string, object>(dataRecord.FieldCount);
       for (var i = 0; i < dataRecord.FieldCount; i++)

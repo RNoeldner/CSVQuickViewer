@@ -70,20 +70,23 @@ namespace CsvTools
     public readonly string Recipient;
 
     /// <summary>
-    /// Flag <c>true</c> if the not encrypted files should be kept after encryption
+    ///   Flag <c>true</c> if the not encrypted files should be kept after encryption
     /// </summary>
     public readonly bool KeepEncyrpted;
 
     /// <summary>
-    /// Get a new SourceAccess helper class
+    ///   Get a new SourceAccess helper class
     /// </summary>
     /// <param name="fileName">Name of teh file</param>
     /// <param name="isReading"><c>true</c> if the files is for reading</param>
     /// <param name="id">The identifier for the file for logging etc</param>
     /// <param name="recipient">Recipient for PGP encryption</param>
-    /// <param name="keepEncrypted">Do not remove teh not encrypted files once teh encrypted one is created, needed in for debugging in case teh private key is not known and the file can not be decrypted</param>
-    public SourceAccess(string fileName, bool isReading = true, string? id = null,
-                        string? recipient = null, bool keepEncrypted = false)
+    /// <param name="keepEncrypted">
+    ///   Do not remove teh not encrypted files once teh encrypted one is created, needed in for
+    ///   debugging in case teh private key is not known and the file can not be decrypted
+    /// </param>
+    public SourceAccess(in string fileName, bool isReading = true, in string? id = null,
+                        in string? recipient = null, bool keepEncrypted = false)
     {
       if (string.IsNullOrWhiteSpace(fileName))
         throw new ArgumentException("File can not be empty", nameof(fileName));
@@ -105,7 +108,7 @@ namespace CsvTools
       {
         case FileTypeEnum.Zip when !isReading:
           IdentifierInContainer = FileSystemUtils.GetFileName(fileName).ReplaceCaseInsensitive(".zip", "");
-          
+
           break;
         // for PGP we need a password/ pass phrase for Zip we might need one later
         case FileTypeEnum.Pgp when isReading:
@@ -122,7 +125,9 @@ namespace CsvTools
       else
         m_OpenStream = GetOpenStreamFunc(fileName, isReading);
     }
+
 #if !QUICK
+
     /// <summary>
     ///   Create a source access based on a setting, the setting might contain information for
     ///   containers like Zip of PGP
@@ -132,7 +137,9 @@ namespace CsvTools
     public SourceAccess(IFileSettingPhysicalFile setting, bool isReading = true) : this(setting.FullPath, isReading, setting.ID, setting.Recipient, setting.KeepUnencrypted)
     {
     }
+
 #endif
+
     /// <summary>
     ///   Create a source access based on a stream
     /// </summary>

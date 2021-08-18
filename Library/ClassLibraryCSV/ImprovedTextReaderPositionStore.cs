@@ -1,7 +1,8 @@
 namespace CsvTools
 {
   /// <summary>
-  ///   This class will make sure we go back to the beginning when starting in the middle of a stream and we reach the end.
+  ///   This class will make sure we go back to the beginning when starting in the middle of a
+  ///   stream and we reach the end.
   /// </summary>
   public class ImprovedTextReaderPositionStore
   {
@@ -14,9 +15,10 @@ namespace CsvTools
     private bool m_ArrivedAtEndOnce;
 
     /// <summary>
-    ///   This class will make sure we go back to the beginning when starting in the middle of a stream and we reach the end.
+    ///   This class will make sure we go back to the beginning when starting in the middle of a
+    ///   stream and we reach the end.
     /// </summary>
-    public ImprovedTextReaderPositionStore(ImprovedTextReader improvedTextReader)
+    public ImprovedTextReaderPositionStore(in ImprovedTextReader improvedTextReader)
     {
       m_ImprovedTextReader = improvedTextReader;
       m_ArrivedAtEndOnce = false;

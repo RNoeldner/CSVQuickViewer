@@ -29,48 +29,48 @@ namespace CsvTools
       set;
     }
 
-    public static void Debug(string? message, params object[] args)
+    public static void Debug(in string? message, params object[] args)
     {
       if (string.IsNullOrEmpty(message))
         return;
       LoggerInstance?.LogDebug(message!, args);
     }
 
-    public static void Error(string? message, params object[] args)
+    public static void Error(in string? message, params object[] args)
     {
       if (string.IsNullOrEmpty(message))
         return;
       LoggerInstance?.LogError(message!, args);
     }
 
-    public static void Error(Exception exception, string? message = null, params object[] args)
+    public static void Error(in Exception exception, in string? message = null, params object[] args)
     {
       var ex = exception.Demystify();
       LoggerInstance?.LogError(ex, message!, args);
     }
 
-    public static void Information(string? message, params object[] args)
+    public static void Information(in string? message, params object[] args)
     {
       if (string.IsNullOrEmpty(message))
         return;
       LoggerInstance?.LogInformation(message!, args);
     }
 
-    public static void Information(Exception exception, string? message, params object[] args)
+    public static void Information(in Exception exception, in string? message, params object[] args)
     {
       if (string.IsNullOrEmpty(message))
         return;
       LoggerInstance?.LogInformation(exception, message!, args);
     }
 
-    public static void Warning(string? message, params object[] args)
+    public static void Warning(in string? message, params object[] args)
     {
       if (string.IsNullOrEmpty(message))
         return;
       LoggerInstance?.LogWarning(message!, args);
     }
 
-    public static void Warning(Exception exception, string? message, params object[] args)
+    public static void Warning(in Exception exception, in string? message, params object[] args)
     {
       var ex = exception.Demystify();
       LoggerInstance?.LogWarning(ex, message!, args);

@@ -27,7 +27,7 @@ namespace CsvTools
     /// <param name="text">The text.</param>
     /// <param name="value">The progress value.</param>
     /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
-    public ProgressEventArgs(string text, long value = -1, bool log = false)
+    public ProgressEventArgs(in string text, long value = -1, bool log = false)
     {
       Text = text;
       Value = value;
@@ -48,15 +48,13 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets the value.
     /// </summary>
-    /// <value>
-    ///   The value.
-    /// </value>
+    /// <value>The value.</value>
     public long Value { get; }
   }
 
   public class ProgressEventArgsTime : ProgressEventArgs
   {
-    public ProgressEventArgsTime(string text, long value, TimeSpan estimatedTimeRemaining, double percent) : base(text,
+    public ProgressEventArgsTime(in string text, long value, in TimeSpan estimatedTimeRemaining, double percent) : base(text,
       value)
     {
       EstimatedTimeRemaining = estimatedTimeRemaining;

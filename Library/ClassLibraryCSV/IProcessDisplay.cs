@@ -18,26 +18,23 @@ using System.Threading;
 namespace CsvTools
 {
   /// <summary>
-  ///  Interface for an ProcessDisplay
+  ///   Interface for an ProcessDisplay
   /// </summary>
   public interface IProcessDisplay : IDisposable
   {
     /// <summary>
-    ///  Event handler called as progress should be displayed
+    ///   Event handler called as progress should be displayed
     /// </summary>
     event EventHandler<ProgressEventArgs>? Progress;
 
     /// <summary>
-    ///  Gets or sets the cancellation token.
+    ///   Gets or sets the cancellation token.
     /// </summary>
-    /// <value>
-    ///  The cancellation token.
-    /// </value>
+    /// <value>The cancellation token.</value>
     CancellationToken CancellationToken { get; }
 
-
     /// <summary>
-    ///  Event to be called if the display should be updated
+    ///   Event to be called if the display should be updated
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -46,7 +43,7 @@ namespace CsvTools
     string Title { get; set; }
 
     /// <summary>
-    /// Sets the process display
+    ///   Sets the process display
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The current progress</param>

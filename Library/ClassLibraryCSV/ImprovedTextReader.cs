@@ -1,4 +1,3 @@
-
 using System;
 using System.IO;
 using System.Text;
@@ -6,7 +5,8 @@ using System.Text;
 namespace CsvTools
 {
   /// <summary>
-  ///  Wrapper around a TestReader that handles BOM and Encoding and a has a method called ToBeginning to reset to the reader to the start of the stream
+  ///   Wrapper around a TestReader that handles BOM and Encoding and a has a method called
+  ///   ToBeginning to reset to the reader to the start of the stream
   /// </summary>
   public sealed class ImprovedTextReader : IDisposable
   {
@@ -42,7 +42,8 @@ namespace CsvTools
     ///   overwrite the provided data
     /// </remarks>
 #pragma warning disable 8618
-    public ImprovedTextReader(IImprovedStream improvedStream, int codePageId = 65001, int skipLines = 0)
+
+    public ImprovedTextReader(in IImprovedStream improvedStream, int codePageId = 65001, int skipLines = 0)
 #pragma warning restore 8618
     {
       m_SkipLines = skipLines;
@@ -96,9 +97,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Increase the position in the text, this is used in case a character that has been looked
-    ///   at with <see cref="Peek" /> does not need to be read the next call of
-    ///   <see
-    ///     cref="Read" />
+    ///   at with <see cref="Peek" /> does not need to be read the next call of <see cref="Read" />
     /// </summary>
     public void MoveNext() => TextReader.Read();
 
@@ -114,10 +113,8 @@ namespace CsvTools
     /// </summary>
     /// <remarks>
     ///   In case the character is a cr or Lf it will increase the lineNumber, to prevent a CR LF
-    ///   combination to count as two lines Make sure you "eat" the possible next char using
-    ///   <see
-    ///     cref="Peek" />
-    ///   and <see cref="MoveNext" />
+    ///   combination to count as two lines Make sure you "eat" the possible next char using <see
+    ///   cref="Peek" /> and <see cref="MoveNext" />
     /// </remarks>
     /// <returns></returns>
     public int Read()

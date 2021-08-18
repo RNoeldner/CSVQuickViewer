@@ -44,7 +44,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
     /// </summary>
     /// <param name="init">The initial DataTable</param>
-    public FilterDataTable(DataTable? init)
+    public FilterDataTable(in DataTable? init)
     {
       m_SourceTable = init ?? throw new ArgumentNullException(nameof(init));
       FilterTable = m_SourceTable.Clone();

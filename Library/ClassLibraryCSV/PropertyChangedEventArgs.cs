@@ -11,23 +11,24 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
 
 namespace CsvTools
 {
   /// <summary>
-  ///  Property Changed Event Argument providing information of old and new value
+  ///   Property Changed Event Argument providing information of old and new value
   /// </summary>
   /// <typeparam name="T"></typeparam>
   public class PropertyChangedEventArgs<T> : EventArgs
   {
     /// <summary>
-    ///  Initializes a new instance of the <see cref="PropertyChangedEventArgs{T}" /> class.
+    ///   Initializes a new instance of the <see cref="PropertyChangedEventArgs{T}" /> class.
     /// </summary>
     /// <param name="propertyName">Name of the property.</param>
     /// <param name="oldValue">The old value.</param>
     /// <param name="newValue">The new value.</param>
-    public PropertyChangedEventArgs(string propertyName, T oldValue, T newValue)
+    public PropertyChangedEventArgs(in string propertyName, T oldValue, T newValue)
     {
       PropertyName = propertyName;
       OldValue = oldValue;
@@ -35,27 +36,21 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Gets or sets the new value.
+    ///   Gets or sets the new value.
     /// </summary>
-    /// <value>
-    ///  The new value.
-    /// </value>
+    /// <value>The new value.</value>
     public T NewValue { get; set; }
 
     /// <summary>
-    ///  Gets or sets the old value.
+    ///   Gets or sets the old value.
     /// </summary>
-    /// <value>
-    ///  The old value.
-    /// </value>
+    /// <value>The old value.</value>
     public T OldValue { get; set; }
 
     /// <summary>
-    ///  Gets or sets the name of the property.
+    ///   Gets or sets the name of the property.
     /// </summary>
-    /// <value>
-    ///  The name of the property.
-    /// </value>
+    /// <value>The name of the property.</value>
     public string PropertyName { get; }
   }
 }

@@ -12,7 +12,6 @@
  *
  */
 
-
 using System;
 using System.Drawing;
 using System.Text;
@@ -34,7 +33,7 @@ namespace CsvTools
     private TableLayoutPanel m_TableLayoutPanel;
     private string m_Title;
 
-    public FormProcessDisplay(string windowTitle)
+    public FormProcessDisplay(in string windowTitle)
       : this(windowTitle, true, CancellationToken.None)
     {
     }
@@ -45,7 +44,7 @@ namespace CsvTools
     /// <param name="windowTitle">The description / form title</param>
     /// <param name="withLoggerDisplay">True if a debug logging windows should be shown</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    public FormProcessDisplay(string? windowTitle, bool withLoggerDisplay, CancellationToken cancellationToken)
+    public FormProcessDisplay(in string? windowTitle, bool withLoggerDisplay, CancellationToken cancellationToken)
     {
       CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
       m_ProcessDisplay = new ProcessDisplayTime(CancellationTokenSource.Token);

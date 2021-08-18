@@ -14,7 +14,6 @@
 
 using System.Collections.Generic;
 
-
 namespace CsvTools
 {
   using System.Linq;
@@ -22,18 +21,18 @@ namespace CsvTools
   public class DateTimeFormatCollection
   {
     /// <summary>
-    /// A lookup for minimum and maximum length by format description
+    ///   A lookup for minimum and maximum length by format description
     /// </summary>
     private readonly Dictionary<string, DateTimeFormatInformation> m_DateLengthMinMax = new Dictionary<string, DateTimeFormatInformation>();
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DateTimeFormatCollection"/> class.
+    ///   Initializes a new instance of the <see cref="DateTimeFormatCollection" /> class.
     /// </summary>
     /// <param name="file">The file.</param>
     public DateTimeFormatCollection(string file)
     {
       using var reader = FileSystemUtils.GetStreamReaderForFileOrResource(file);
-      
+
       while (!reader.EndOfStream)
       {
         var entry = reader.ReadLine();
@@ -44,15 +43,13 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Gets the Date Time Formats by format description
+    ///   Gets the Date Time Formats by format description
     /// </summary>
-    /// <value>
-    /// The keys.
-    /// </value>
+    /// <value>The keys.</value>
     public IEnumerable<string> Keys => m_DateLengthMinMax.Keys;
 
     /// <summary>
-    /// Returns Date time formats that would fit the length of the input
+    ///   Returns Date time formats that would fit the length of the input
     /// </summary>
     /// <param name="length">The length.</param>
     /// <param name="checkNamedDates">if set to <c>true</c> check named dates e.g. January, February</param>
@@ -64,18 +61,18 @@ namespace CsvTools
       select kvFormatInformation.Key;
 
     /// <summary>
-    /// Tries the get value.
+    ///   Tries the get value.
     /// </summary>
     /// <param name="key">The key.</param>
-    /// <param name="value">The <see cref="DateTimeFormatInformation"/>.</param>
-    /// <returns><c>true</c> if key was found </returns>
-    public bool TryGetValue(string key, out DateTimeFormatInformation value) => m_DateLengthMinMax.TryGetValue(key, out value);
+    /// <param name="value">The <see cref="DateTimeFormatInformation" />.</param>
+    /// <returns><c>true</c> if key was found</returns>
+    public bool TryGetValue(in string key, out DateTimeFormatInformation value) => m_DateLengthMinMax.TryGetValue(key, out value);
 
     /// <summary>
-    /// Adds the specified entry.
+    ///   Adds the specified entry.
     /// </summary>
     /// <param name="entry">The entry.</param>
-    private void Add(string entry)
+    private void Add(in string entry)
     {
       if (string.IsNullOrWhiteSpace(entry))
         return;

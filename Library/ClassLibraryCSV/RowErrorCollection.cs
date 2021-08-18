@@ -37,7 +37,7 @@ namespace CsvTools
     ///   Attach the error collection to the reader
     /// </summary>
     /// <param name="reader"></param>
-    public RowErrorCollection(IFileReader reader) => reader.Warning += Add;
+    public RowErrorCollection(in IFileReader reader) => reader.Warning += Add;
 
     public RowErrorCollection(int maxRows) => m_MaxRows = maxRows;
 
@@ -105,7 +105,7 @@ namespace CsvTools
       }
     }
 
-    public void HandleIgnoredColumns(IFileReader reader)
+    public void HandleIgnoredColumns(in IFileReader reader)
     {
       if (reader.IsClosed)
         throw new InvalidOperationException("Reader has not been opened.");

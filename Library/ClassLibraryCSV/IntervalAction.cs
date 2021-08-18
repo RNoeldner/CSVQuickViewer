@@ -17,21 +17,21 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  ///  Class to notify only after a given period of time
+  ///   Class to notify only after a given period of time
   /// </summary>
   public class IntervalAction
   {
     private DateTime m_LastNotification = DateTime.MinValue;
 
     /// <summary>
-    ///  Initializes a new instance of the <see cref="IntervalAction" /> class.
+    ///   Initializes a new instance of the <see cref="IntervalAction" /> class.
     /// </summary>
     /// <remarks>If no notification period is set 1/3 a second is assumed</remarks>
     public IntervalAction() : this(1 / 3d)
     { }
 
     /// <summary>
-    ///  Initializes a new instance of the <see cref="IntervalAction" /> class.
+    ///   Initializes a new instance of the <see cref="IntervalAction" /> class.
     /// </summary>
     /// <param name="notifyAfterSeconds">Notify only after this time in seconds</param>
     public IntervalAction(double notifyAfterSeconds) => NotifyAfterSeconds = notifyAfterSeconds;
@@ -39,10 +39,10 @@ namespace CsvTools
     public double NotifyAfterSeconds { get; set; }
 
     /// <summary>
-    ///  Invoke the given action if the set interval has passed
+    ///   Invoke the given action if the set interval has passed
     /// </summary>
     /// <param name="action">the action to invoke</param>
-    public void Invoke(Action action)
+    public void Invoke(in Action action)
     {
       if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
         return;
@@ -52,9 +52,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Invoke the given action if the set interval has passed
+    ///   Invoke the given action if the set interval has passed
     /// </summary>
-    public void Invoke(Action<long> action, long value)
+    public void Invoke(in Action<long> action, long value)
     {
       if (!((DateTime.Now - m_LastNotification).TotalSeconds > NotifyAfterSeconds))
         return;
@@ -63,9 +63,9 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///  Invoke the given action if the set interval has passed
+    ///   Invoke the given action if the set interval has passed
     /// </summary>
-    public void Invoke(Action<string, long, bool> action, string text, long value, bool log)
+    public void Invoke(in Action<string, long, bool> action, in string text, long value, bool log)
     {
       if (!((DateTime.Now - m_LastNotification).TotalSeconds > NotifyAfterSeconds))
         return;

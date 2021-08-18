@@ -33,7 +33,8 @@ namespace CsvTools
     private readonly long m_RecordLimit;
 
     /// <summary>
-    /// Constructor for a DataReaderWrapper, this wrapper adds artificial fields like Error, start and end Line or record number    
+    ///   Constructor for a DataReaderWrapper, this wrapper adds artificial fields like Error, start
+    ///   and end Line or record number
     /// </summary>
     /// <param name="reader">A reader, this can be a regular IDataReader or a IFileReader</param>
     /// <param name="recordLimit">Number of maximum records to read, 0 if there is no limit</param>
@@ -41,7 +42,7 @@ namespace CsvTools
     /// <param name="addStartLine">Add artificial field Start Line</param>
     /// <param name="addEndLine">Add artificial field End Line</param>
     /// <param name="addRecNum">Add artificial field Records Number</param>
-    public DataReaderWrapper(IDataReader reader, long recordLimit = 0, bool addErrorField = false,
+    public DataReaderWrapper(in IDataReader reader, long recordLimit = 0, bool addErrorField = false,
                              bool addStartLine = false, bool addEndLine = false, bool addRecNum = false)
     {
       DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
@@ -139,10 +140,9 @@ namespace CsvTools
       }
 
       return -1;
-    }    
-    
+    }
 
-       public override DataTable GetSchemaTable()
+    public override DataTable GetSchemaTable()
     {
       var dataTable = ReaderConstants.GetEmptySchemaTable();
       var schemaRow = ReaderConstants.GetDefaultSchemaRowArray();

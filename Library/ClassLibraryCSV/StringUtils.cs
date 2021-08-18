@@ -46,7 +46,7 @@ namespace CsvTools
     /// <returns>
     ///   The number of charters at the end that did match, 0 if it does not end on ID
     /// </returns>
-    public static int AssumeIDColumn(string? columnName)
+    public static int AssumeIDColumn(in string? columnName)
     {
       if (string.IsNullOrWhiteSpace(columnName))
         return 0;
@@ -76,7 +76,7 @@ namespace CsvTools
     /// <param name="toCheck">To text find.</param>
     /// <param name="comp">The comparison.</param>
     /// <returns><c>true</c> if the text does contains the check; otherwise, <c>false</c>.</returns>
-    public static bool Contains(this string? text, string toCheck, StringComparison comp) =>
+    public static bool Contains(this string? text, in string toCheck, in StringComparison comp) =>
       text?.IndexOf(toCheck, comp) >= 0;
 
     /// <summary>
@@ -85,7 +85,7 @@ namespace CsvTools
     /// <param name="text">The text.</param>
     /// <param name="length">The length.</param>
     /// <returns>The text with the maximum length, in case it has been cut off a … is added</returns>
-    public static string GetShortDisplay(string? text, int length)
+    public static string GetShortDisplay(in string? text, int length)
     {
       var withoutLineFeed = text?.Replace('\r', ' ').Replace('\n', ' ').Replace('\t', ' ').Replace("  ", " ")
         .Replace("  ", " ")?? string.Empty;
@@ -109,7 +109,7 @@ namespace CsvTools
     /// <returns>
     ///   The text with every combination of line feed replaced with <see cref="replace" />
     /// </returns>
-    public static string HandleCRLFCombinations(this string text, string replace = "\n")
+    public static string HandleCRLFCombinations(this string text, in string replace = "\n")
     {
       // Replace everything Unicode LINE SEPARATOR
       const string placeholderStr = "\u2028";
@@ -130,7 +130,7 @@ namespace CsvTools
     /// <example>JoinParts(new [] {"My","","Test")=&gt; My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
-    public static string Join(this IEnumerable<string> parts, string joinWith = ", ")
+    public static string Join(this IEnumerable<string> parts, in string joinWith = ", ")
     {
       var sb = new StringBuilder();
       foreach (var part in parts)
@@ -153,7 +153,7 @@ namespace CsvTools
     /// <example>JoinParts(new [] {"My","","Test")=&gt; My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
-    public static string JoinChar(this IEnumerable<string> parts, char joinWith = ',')
+    public static string JoinChar(this IEnumerable<string> parts, in char joinWith = ',')
     {
       var sb = new StringBuilder();
       foreach (var part in parts)
@@ -174,7 +174,7 @@ namespace CsvTools
     /// <param name="previousColumns">A collection of already used names, these will not be changed</param>
     /// <param name="nameToAdd">The default name</param>
     /// <returns>The unique name</returns>
-    public static string MakeUniqueInCollection(ICollection<string> previousColumns, string nameToAdd)
+    public static string MakeUniqueInCollection(in ICollection<string> previousColumns, in string nameToAdd)
     {
       if (nameToAdd is null)
         throw new ArgumentNullException(nameof(nameToAdd));
@@ -185,14 +185,14 @@ namespace CsvTools
       // The name is present already
 
       // cut off any trailing numbers
-      nameToAdd = nameToAdd.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\t', ' ');
+      var nameNoNumber = nameToAdd.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '\t', ' ');
 
       // add 1 for the first add 2 for the second etc
       var counterAdd = 1;
       string fieldName;
       do
       {
-        fieldName = nameToAdd + counterAdd++;
+        fieldName = nameNoNumber + counterAdd++;
       } while (previousColumns.Contains(fieldName));
 
       return fieldName;
@@ -262,11 +262,11 @@ namespace CsvTools
     ///   A semicolon separated list of texts that should be treated as NULL
     /// </param>
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
-    public static bool ShouldBeTreatedAsNull(string value, string treatAsNull)
+    public static bool ShouldBeTreatedAsNull(string value, in string treatAsNull)
     {
       if (treatAsNull.Length == 0)
         return false;
-      return value.Length == 0 || SplitByDelimiter(treatAsNull).Any(part => value!.Equals(part, StringComparison.OrdinalIgnoreCase));
+      return value is null || value.Length == 0 || SplitByDelimiter(treatAsNull).Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -274,10 +274,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputValue">The string to be split.</param>
     /// <returns>String array with substrings, empty elements are removed</returns>
-    public static string[] SplitByDelimiter(string? inputValue)
+    public static string[] SplitByDelimiter(in string? inputValue)
     {
       return string.IsNullOrEmpty(inputValue)
-        ? new string[] { }
+        ? Array.Empty<string>()
         : inputValue!.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
     }
 
@@ -306,7 +306,7 @@ namespace CsvTools
     /// <param name="stringComparison"></param>
     /// <Note>In case the filter is empty there is no filter it will always return true</Note>
     /// <returns>True if text matches</returns>
-    public static bool PassesFilter(this string? item, string? filter,
+    public static bool PassesFilter(this string? item, in string? filter,
       StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
     {
       if (string.IsNullOrEmpty(filter))
@@ -332,7 +332,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Read the value and determine if this could be a constant value (surrounded by " or ') if not its assume is a reference to another field
+    ///   Read the value and determine if this could be a constant value (surrounded by " or ') if
+    ///   not its assume is a reference to another field
     /// </summary>
     /// <param name="entry">A text that refers to another column or is possibly a constant</param>
     /// <param name="result">The constant value</param>
