@@ -83,7 +83,7 @@ namespace CsvTools
     /// <param name="columnDefinition">List of column definitions</param>
     /// <param name="recordLimit">Number of records that should be read</param>
     /// <param name="processDisplay">Reporting progress information</param>
-    protected BaseFileReader(string fileName, IEnumerable<IColumn>? columnDefinition,
+    protected BaseFileReader(in string fileName, in IEnumerable<IColumn>? columnDefinition,
                              long recordLimit, IProcessDisplay? processDisplay)
     {
       m_ColumnDefinition =  columnDefinition?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList() ??
@@ -93,14 +93,12 @@ namespace CsvTools
       SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
       FileName = FileSystemUtils.GetFileName(fileName);
 
-      if (processDisplay != null)
+      if (processDisplay == null) return;
+      ReportProgress = processDisplay.SetProcess;
+      if (processDisplay is IProcessDisplayTime processDisplayTime)
       {
-        ReportProgress = processDisplay.SetProcess;
-        if (processDisplay is IProcessDisplayTime processDisplayTime)
-        {
-          SetMaxProcess = (sender, l) => processDisplayTime.Maximum = l;
-          SetMaxProcess(this, 0);
-        }
+        SetMaxProcess = (sender, l) => processDisplayTime.Maximum = l;
+        SetMaxProcess(this, 0);
       }
     }
 
@@ -1002,7 +1000,7 @@ namespace CsvTools
     /// <returns>The proper encoded or cut text as returned for the column</returns>
     protected string HandleTextSpecials(string? inputString, int columnNumber)
     {
-      if (string.IsNullOrEmpty(inputString) || columnNumber >= FieldCount)
+      if (inputString == null || inputString.Length==0 || columnNumber >= FieldCount)
         return inputString ?? string.Empty;
       var column = GetColumn(columnNumber);
 
@@ -1011,9 +1009,7 @@ namespace CsvTools
         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         case DataType.TextToHtml:
         {
-#pragma warning disable CS8604 // Mögliches Nullverweisargument.
           var output = HTMLStyle.TextToHtmlEncode(inputString);
-#pragma warning restore CS8604 // Mögliches Nullverweisargument.
           if (!inputString.Equals(output, StringComparison.Ordinal))
             HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
           return output;
@@ -1021,9 +1017,7 @@ namespace CsvTools
         case DataType.TextToHtmlFull:
         {
           var output = HTMLStyle.HtmlEncodeShort(inputString);
-#pragma warning disable CS8602 // Dereferenzierung eines möglichen Nullverweises.
           if (!inputString.Equals(output, StringComparison.Ordinal))
-#pragma warning restore CS8602 // Dereferenzierung eines möglichen Nullverweises.
             HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
           return output ?? string.Empty;
         }
@@ -1036,7 +1030,7 @@ namespace CsvTools
           return output ?? string.Empty;
         }
         default:
-          return inputString ?? string.Empty;
+          return inputString;
       }
     }
 

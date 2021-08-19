@@ -512,7 +512,7 @@ namespace CsvTools
         {
           var index = m_FileSetting.FileName.LastIndexOf('.');
           var fn = (index == -1 ? m_FileSetting.FileName : m_FileSetting.FileName.Substring(0, index)) + ".col";
-          var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName() ?? string.Empty, fn);
+          var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
           if (FileSystemUtils.FileExists(fnView))
           {
             Logger.Information("Restoring view and filter setting {filename}...", fn);
@@ -636,7 +636,7 @@ namespace CsvTools
     }
 
     private void SystemEvents_DisplaySettingsChanged(object? sender, EventArgs e) =>
-      this.LoadWindowState(m_ViewSettings!.WindowPosition);
+      this.LoadWindowState(m_ViewSettings.WindowPosition);
 
     private void SystemEvents_PowerModeChanged(object? sender, PowerModeChangedEventArgs e)
     {
@@ -645,8 +645,6 @@ namespace CsvTools
         case PowerModes.Suspend:
           Logger.Debug("Power Event Suspend");
           var res = this.StoreWindowState();
-          if (res is null)
-            return;
           m_ViewSettings.WindowPosition = res;
           break;
 

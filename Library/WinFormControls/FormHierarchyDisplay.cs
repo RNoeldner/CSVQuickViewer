@@ -566,15 +566,13 @@ namespace CsvTools
 
     private void Search(string text, ICollection nodes, CancellationToken token)
     {
-      if (nodes is null)
-        return;
-      if (nodes.Count == 0)
+      if (nodes is null || nodes.Count == 0)
         return;
       token.ThrowIfCancellationRequested();
       foreach (TreeNode node in nodes)
         if (node.Text.Contains(text))
         {
-          m_TreeView!.Select();
+          m_TreeView.Select();
           node.EnsureVisible();
           m_TreeView.SelectedNode = node;
           return;

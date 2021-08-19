@@ -97,8 +97,8 @@ namespace CsvTools
       using var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, string.Empty, prc2);
       await fileReader.OpenAsync(prc2.CancellationToken).ConfigureAwait(false);
       return await FillGuessColumnFormatReaderAsyncReader(fileReader, fillGuessSettings,
-        fileSetting.ColumnCollection,
-        addTextColumns, checkDoubleToBeInteger, fileSetting.TreatTextAsNull, prc2.CancellationToken);
+               fileSetting.ColumnCollection,
+               addTextColumns, checkDoubleToBeInteger, fileSetting.TreatTextAsNull, prc2.CancellationToken).ConfigureAwait(false);
     }
 
     public static IFileSetting GetSettingForRead(this IFileSetting fileSetting)

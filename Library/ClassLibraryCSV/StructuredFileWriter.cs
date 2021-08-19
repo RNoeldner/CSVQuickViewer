@@ -48,13 +48,11 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
     /// </summary>
-    /// <param name="file">The file.</param>
-    /// <param name="processDisplay">The process display.</param>
     public StructuredFileWriter(in string id, in string fullPath, in IValueFormat? valueFormatGeneral,
-      in IFileFormat? fileFormat, in string? recipient,
-      bool unencrypted, in string? identifierInContainer, in string? footer, in string? header,
-      in IEnumerable<IColumn>? columnDefinition, in string fileSettingDisplay, in string row,
-      in IProcessDisplay? processDisplay) : base(id, fullPath, valueFormatGeneral, fileFormat, recipient, unencrypted, identifierInContainer, footer, header, columnDefinition, fileSettingDisplay, processDisplay)
+                                in IFileFormat? fileFormat, in string? recipient,
+                                bool unencrypted, in string? identifierInContainer, in string? footer, in string? header,
+                                in IEnumerable<IColumn>? columnDefinition, in string fileSettingDisplay, in string row,
+                                in IProcessDisplay? processDisplay) : base(id, fullPath, valueFormatGeneral, fileFormat, recipient, unencrypted, identifierInContainer, footer, header, columnDefinition, fileSettingDisplay, processDisplay)
     {
       if (string.IsNullOrEmpty(row))
         throw new ArgumentException($"{nameof(row)} can not be empty");
@@ -145,7 +143,7 @@ namespace CsvTools
       if (!string.IsNullOrEmpty(Footer()))
         await writer.WriteAsync(Footer()).ConfigureAwait(false);
 
-      await writer.FlushAsync();
+      await writer.FlushAsync().ConfigureAwait(false);
     }
   }
 }

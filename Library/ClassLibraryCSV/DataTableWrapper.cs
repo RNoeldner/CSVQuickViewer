@@ -51,7 +51,7 @@ namespace CsvTools
     [Obsolete("No need to open a DataTableWrapper")]
     public async Task OpenAsync(CancellationToken token)
     {
-      if (OnOpen != null) await OnOpen.Invoke();
+      if (OnOpen != null) await OnOpen.Invoke().ConfigureAwait(false);
       OpenFinished?.Invoke(this, base.ReaderMapping.Column);
     }
 

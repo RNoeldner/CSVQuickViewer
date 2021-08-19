@@ -74,7 +74,7 @@ namespace CsvTools
         hashCode = (hashCode * 397) ^ (Operator.GetHashCode());
         hashCode = (hashCode * 397) ^ (ValueText.GetHashCode());
         hashCode = (hashCode * 397) ^ ValueDate.GetHashCode();
-        hashCode = (hashCode * 397) ^ (ValueFilters != null ? ValueFilters.GetHashCode() : 0);
+        hashCode = (hashCode * 397) ^  ValueFilters.GetHashCode();
         return hashCode;
       }
     }

@@ -35,9 +35,9 @@ namespace CsvTools
     private readonly char[] m_QualifyCharArray;
     protected readonly bool m_ColumnHeader;
 
-    public CsvFileWriter(string id, string fullPath, bool hasFieldHeader, IValueFormat? valueFormat = null, IFileFormat? fileFormat = null,
-      int codePageId = 65001, bool byteOrderMark = true, IEnumerable<IColumn>? columnDefinition = null, string? recipient = null,
-      bool unencyrpted = false, string? identifierInContainer = null, string? header = null, string? footer = null, string fileSettingDisplay = "", IProcessDisplay? processDisplay = null)
+    public CsvFileWriter(in string id, in string fullPath, bool hasFieldHeader, in IValueFormat? valueFormat = null, in IFileFormat? fileFormat = null,
+      int codePageId = 65001, bool byteOrderMark = true, in IEnumerable<IColumn>? columnDefinition = null, in string? recipient = null,
+      bool unencyrpted = false, in string? identifierInContainer = null, in string? header = null, in string? footer = null, in string fileSettingDisplay = "", IProcessDisplay? processDisplay = null)
       : base(id, fullPath, valueFormat, fileFormat, recipient, unencyrpted, identifierInContainer, footer, header, columnDefinition, fileSettingDisplay, processDisplay)
     {
       m_CodePageId = codePageId;
@@ -150,7 +150,7 @@ namespace CsvTools
         await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
       }
 
-      await writer.FlushAsync();
+      await writer.FlushAsync().ConfigureAwait(false);
     }
 
     private string QualifyText(string displayAs, DataType dataType, IFileFormat fileFormat)

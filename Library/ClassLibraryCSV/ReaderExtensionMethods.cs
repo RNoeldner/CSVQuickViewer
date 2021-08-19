@@ -112,11 +112,11 @@ namespace CsvTools
       if (recordLimit < 1)
         recordLimit = long.MaxValue;
       if (reader.IsClosed)
-        await reader.OpenAsync(cancellationToken);
+        await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
       using var wrapper = new DataReaderWrapper(reader, recordLimit, includeErrorField, addStartLine, includeEndLineNo,
         includeRecordNo);
-      return await LoadDataTable(wrapper, TimeSpan.MaxValue, restoreErrorsFromColumn, progress, cancellationToken);
+      return await LoadDataTable(wrapper, TimeSpan.MaxValue, restoreErrorsFromColumn, progress, cancellationToken).ConfigureAwait(false);
     }
 
     public static async Task<DataTable> LoadDataTable(this DataReaderWrapper wrapper, TimeSpan maxDuration,

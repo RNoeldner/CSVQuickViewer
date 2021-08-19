@@ -46,11 +46,11 @@ namespace CsvTools
 			Logger.Information("Configuration read from manifest file {filename}", manifest);
 
 			if (FileSystemUtils.FileExists(dataFile))
-				return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
+				return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty).ConfigureAwait(false);
 
 			dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".txt");
 			if (FileSystemUtils.FileExists(dataFile))
-				return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty);
+				return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty).ConfigureAwait(false);
 			throw new FileNotFoundException(dataFile);
 		}
 
@@ -69,7 +69,7 @@ namespace CsvTools
 					if (entryManifest == entryFile || !entryFile.IsFile || !entryFile.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
 						continue;
 					Logger.Information("Configuration read from manifest file {filename}", entryManifest.Name);
-					return await ReadManifestFromStream(archive.GetInputStream(entryManifest), fileName, entryFile.Name);
+					return await ReadManifestFromStream(archive.GetInputStream(entryManifest), fileName, entryFile.Name).ConfigureAwait(false);
 				}
 			}
 
@@ -78,7 +78,7 @@ namespace CsvTools
 
 		private static async Task<DelimitedFileDetectionResultWithColumns> ReadManifestFromStream(Stream manifestStream, string fileName, string identifierInContainer)
 		{
-			var strContend = await new StreamReader(manifestStream, Encoding.UTF8, true, 4096, false).ReadToEndAsync();
+			var strContend = await new StreamReader(manifestStream, Encoding.UTF8, true, 4096, false).ReadToEndAsync().ConfigureAwait(false);
 			var mani = JsonConvert.DeserializeObject<ManifestData>(strContend);
 			if (mani is null)
 				throw new InvalidOperationException("The manifest file could not be deserialized");

@@ -98,8 +98,7 @@ namespace CsvTools
       {
         for (var colIndex = 0; colIndex < columns.Count; colIndex++)
         {
-          if (columns[colIndex] is null)
-            columns[colIndex] = string.Empty;
+          columns[colIndex] ??= string.Empty;
         }
         //Get the Options for all good rows
         var otherColumns = new List<ColumnOption>(m_ExpectedColumns);
