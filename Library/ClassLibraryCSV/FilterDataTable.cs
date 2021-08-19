@@ -240,7 +240,7 @@ namespace CsvTools
 
       m_CurrentFilterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-      await Task.Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token);
+      await Task.Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token).ConfigureAwait(false);
     }
 
     public void WaitCompeteFilter(double timeoutInSeconds)

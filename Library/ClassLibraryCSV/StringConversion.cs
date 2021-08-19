@@ -377,8 +377,7 @@ namespace CsvTools
             break;
         }
 
-      if (!timeSpanValue.HasValue)
-        timeSpanValue = StringToTimeSpan(timeColumnText, ":", serialDateTime);
+      timeSpanValue ??= StringToTimeSpan(timeColumnText, ":", serialDateTime);
 
       if (timeSpanValue.HasValue)
       {
@@ -420,7 +419,7 @@ namespace CsvTools
 
       // In case a value is read that just is a time, need to adjust c# and Excel behavior the
       // application assumes all dates on cFirstDatetime is a time only
-      if (date.HasValue && date.Value.Year == 1 && date.Value.Month == 1 && string.IsNullOrWhiteSpace(timePart))
+      if (date is {Year: 1, Month: 1} && string.IsNullOrWhiteSpace(timePart))
         return GetTimeFromTicks(date.Value.Ticks);
 
       var time = StringToTimeSpan(timePart, timeSeparator, serialDateTime);

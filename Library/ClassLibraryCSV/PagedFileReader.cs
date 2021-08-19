@@ -44,11 +44,11 @@ namespace CsvTools
 
     public void Dispose() => Dispose(true);
 
-    public async Task MoveToFirstPageAsync() => await MoveToPageAsync(1);
+    public async Task MoveToFirstPageAsync() => await MoveToPageAsync(1).ConfigureAwait(false);
 
-    public async Task MoveToLastPageAsync() => await MoveToPageAsync(int.MaxValue);
+    public async Task MoveToLastPageAsync() => await MoveToPageAsync(int.MaxValue).ConfigureAwait(false);
 
-    public async Task MoveToNextPageAsync() => await MoveToPageAsync(PageIndex + 1);
+    public async Task MoveToNextPageAsync() => await MoveToPageAsync(PageIndex + 1).ConfigureAwait(false);
 
     public async Task MoveToPageAsync(int pageIndex)
     {
@@ -62,7 +62,7 @@ namespace CsvTools
       {
         while (!m_Token.IsCancellationRequested
               && m_DataReaderWrapper.RecordNumber < (long) pageIndex * m_PageSize
-              && await m_DataReaderWrapper.ReadAsync(m_Token))
+              && await m_DataReaderWrapper.ReadAsync(m_Token).ConfigureAwait(false))
         {
           curPage =  (int) ((m_DataReaderWrapper.RecordNumber-1) / m_PageSize) + 1;
 
@@ -82,7 +82,7 @@ namespace CsvTools
       CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     }
 
-    public async Task MoveToPreviousPageAsync() => await MoveToPageAsync(PageIndex - 1);
+    public async Task MoveToPreviousPageAsync() => await MoveToPageAsync(PageIndex - 1).ConfigureAwait(false);
 
     /// <summary>
     ///   Opens the file reader and reads the first page
@@ -93,9 +93,9 @@ namespace CsvTools
     /// <param name="addRecNum">Add artificial field Records Number</param>
     public async Task OpenAsync(bool addErrorField = false, bool addStartLine = false, bool addEndLine = false, bool addRecNum = false)
     {
-      await m_FileReader.OpenAsync(m_Token);
+      await m_FileReader.OpenAsync(m_Token).ConfigureAwait(false);
       m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, 0, addErrorField, addStartLine, addEndLine, addRecNum);
-      await MoveToPageAsync(1);
+      await MoveToPageAsync(1).ConfigureAwait(false);
     }
 
     private void Dispose(bool disposing)

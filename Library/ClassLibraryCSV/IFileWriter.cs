@@ -27,12 +27,12 @@ namespace CsvTools
     /// <summary>
     ///   Event handler called if a warning or error occurred
     /// </summary>
-    event EventHandler<WarningEventArgs> Warning;
+    event EventHandler<WarningEventArgs>? Warning;
 
     /// <summary>
     /// Event handler called once writing of the file is completed
     /// </summary>
-    event EventHandler WriteFinished;
+    event EventHandler? WriteFinished;
 
     /// <summary>
     ///   Writes the specified file reading from the a data table

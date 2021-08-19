@@ -137,12 +137,12 @@ namespace CsvTools
       FilteredDataGridView.KeyDown += DetailControl_KeyDown;
       m_ToolStripContainer!.ContentPanel.Controls.Add(FilteredDataGridView);
 
-      m_ToolStripItems.Add(m_ToolStripComboBoxFilterType!);
-      m_ToolStripItems.Add(m_ToolStripButtonUniqueValues!);
-      m_ToolStripItems.Add(m_ToolStripButtonDuplicates!);
-      m_ToolStripItems.Add(m_ToolStripButtonHierarchy!);
-      m_ToolStripItems.Add(m_ToolStripButtonColumnLength!);
-      m_ToolStripItems.Add(m_ToolStripButtonStore!);
+      m_ToolStripItems.Add(m_ToolStripComboBoxFilterType);
+      m_ToolStripItems.Add(m_ToolStripButtonUniqueValues);
+      m_ToolStripItems.Add(m_ToolStripButtonDuplicates);
+      m_ToolStripItems.Add(m_ToolStripButtonHierarchy);
+      m_ToolStripItems.Add(m_ToolStripButtonColumnLength);
+      m_ToolStripItems.Add(m_ToolStripButtonStore);
 
       m_ToolStripItems.CollectionChanged += (sender, e) => MoveMenu();
       MoveMenu();
@@ -498,19 +498,19 @@ namespace CsvTools
     {
       if (FilteredDataGridView.Columns.Count <= 0)
         return;
-      m_ToolStripButtonColumnLength!.RunWithHourglass(() =>
+      m_ToolStripButtonColumnLength.RunWithHourglass(() =>
       {
         var visible = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
                                           .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)).OrderBy(col => col.DisplayIndex)
                                           .Select(col => col.DataPropertyName).ToList();
         m_FormShowMaxLength?.Close();
-        m_FormShowMaxLength =new FormShowMaxLength(m_DataTable, m_DataTable!.Select(FilteredDataGridView.CurrentFilter), visible, HTMLStyle)
+        m_FormShowMaxLength =new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible, HTMLStyle)
         { Icon = ParentForm?.Icon };
         m_FormShowMaxLength.Show(ParentForm);
 
-        m_FormShowMaxLength.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonColumnLength!.Enabled = true);
+        m_FormShowMaxLength.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
       });
-      m_ToolStripButtonColumnLength!.Enabled = false;
+      m_ToolStripButtonColumnLength.Enabled = false;
     }
 
     /// <summary>
@@ -530,7 +530,7 @@ namespace CsvTools
         try
         {
           m_FormDuplicatesDisplay?.Close();
-          m_FormDuplicatesDisplay = new FormDuplicatesDisplay(m_DataTable!.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), columnName, HTMLStyle)
+          m_FormDuplicatesDisplay = new FormDuplicatesDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), columnName, HTMLStyle)
           { Icon = ParentForm?.Icon };
           m_FormDuplicatesDisplay.Show(ParentForm);
           m_FormDuplicatesDisplay.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonDuplicates!.Enabled = true);
@@ -540,7 +540,7 @@ namespace CsvTools
           ParentForm.ShowError(ex);
         }
       });
-      m_ToolStripButtonDuplicates!.Enabled = false;
+      m_ToolStripButtonDuplicates.Enabled = false;
     }
 
     /// <summary>
@@ -550,22 +550,22 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonHierarchy_Click(object? sender, EventArgs e)
     {
-      m_ToolStripButtonHierarchy!.RunWithHourglass(() =>
+      m_ToolStripButtonHierarchy.RunWithHourglass(() =>
       {
         try
         {
           m_HierarchyDisplay?.Close();
           m_HierarchyDisplay =
-            new FormHierarchyDisplay(m_DataTable!.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), HTMLStyle) { Icon = ParentForm?.Icon };
+            new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), HTMLStyle) { Icon = ParentForm?.Icon };
           m_HierarchyDisplay.Show(ParentForm);
-          m_HierarchyDisplay.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonHierarchy!.Enabled = true);
+          m_HierarchyDisplay.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
         }
         catch (Exception ex)
         {
           ParentForm.ShowError(ex);
         }
       });
-      m_ToolStripButtonHierarchy!.Enabled = false;
+      m_ToolStripButtonHierarchy.Enabled = false;
     }
 
     /// <summary>
@@ -577,7 +577,7 @@ namespace CsvTools
     {
       if (FilteredDataGridView.Columns.Count <= 0)
         return;
-      m_ToolStripButtonUniqueValues!.RunWithHourglass(() =>
+      m_ToolStripButtonUniqueValues.RunWithHourglass(() =>
       {
         try
         {
@@ -586,7 +586,7 @@ namespace CsvTools
                              : FilteredDataGridView.Columns[0].Name;
           m_FormUniqueDisplay?.Close();
           m_FormUniqueDisplay = new FormUniqueDisplay(
-           m_DataTable!.Clone(),
+           m_DataTable.Clone(),
            m_DataTable.Select(FilteredDataGridView.CurrentFilter),
            columnName, HTMLStyle)
           { Icon = ParentForm?.Icon };
@@ -658,7 +658,7 @@ namespace CsvTools
 
       if (m_FilterDataTable?.FilterTable != null && (m_FilterDataTable is null || m_FilterDataTable.FilterTable.Rows.Count <= 0))
         return;
-      if (m_FilterDataTable != null && m_FilterDataTable.ColumnsWithoutErrors.Count == Columns!.Count)
+      if (m_FilterDataTable != null && m_FilterDataTable.ColumnsWithoutErrors.Count == Columns.Count)
         return;
       foreach (DataGridViewColumn dgCol in FilteredDataGridView.Columns)
       {
@@ -1193,7 +1193,7 @@ namespace CsvTools
         writeFile.Header, writeFile.Footer);
 
         using var dt = new DataTableWrapper(
-          FilteredDataGridView!.DataView!.ToTable(false,
+          FilteredDataGridView.DataView.ToTable(false,
             // Restrict to shown data
             FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
               .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))

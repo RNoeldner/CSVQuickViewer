@@ -33,6 +33,7 @@ namespace CsvTools
     }
 
     protected override string ElementName(string input) => HTMLStyle.XmlElementName(input);
-    protected override string Escape(object input, WriterColumn columnInfo, IFileReader reader) => SecurityElement.Escape(TextEncodeField(FileFormat, input, columnInfo, false, reader, null));
+    protected override string Escape(object input, WriterColumn columnInfo, IFileReader reader) => 
+      SecurityElement.Escape(TextEncodeField(FileFormat, input, columnInfo, false, reader, null)) ?? string.Empty;
   }
 }

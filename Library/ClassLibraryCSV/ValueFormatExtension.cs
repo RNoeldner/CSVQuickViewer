@@ -81,8 +81,7 @@ namespace CsvTools
 
       // if one is integer but we expect numeric or vice versa, assume its OK, one of the sides does
       // not have a decimal separator
-      if ((other.DataType == DataType.Numeric || other.DataType == DataType.Double ||
-           other.DataType == DataType.Integer)
+      if ((other.DataType == DataType.Numeric || other.DataType == DataType.Double || other.DataType == DataType.Integer)
           && one.DataType == DataType.Integer)
         return true;
 

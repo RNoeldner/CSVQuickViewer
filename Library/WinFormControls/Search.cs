@@ -277,7 +277,7 @@ namespace CsvTools
         CurrentResult--;
     }
 
-    private void SearchChanged() => OnSearchChanged?.Invoke(this, new SearchEventArgs(m_SearchTextBoxText!.Text));
+    private void SearchChanged() => OnSearchChanged?.Invoke(this, new SearchEventArgs(m_SearchTextBoxText.Text));
 
     private void SearchText_TextChanged(object? sender, EventArgs e) =>
       FilterValueChangedElapsed();
