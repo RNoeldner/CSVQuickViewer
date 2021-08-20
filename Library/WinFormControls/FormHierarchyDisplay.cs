@@ -11,7 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+#nullable enable
 
 using System;
 using System.Collections;
@@ -220,9 +220,7 @@ namespace CsvTools
         var id = dataRow[dataColumnID.Ordinal].ToString();
         if (string.IsNullOrEmpty(id))
           continue;
-#pragma warning disable CS8604 // Mögliches Nullverweisargument.
         var treeData = new TreeData(id, dataColumnDisplay1 != null ? dataColumnDisplay2 != null ? dataRow[dataColumnDisplay1.Ordinal] + " - " + dataRow[dataColumnDisplay2.Ordinal] : dataRow[dataColumnDisplay1.Ordinal].ToString() : id, dataRow[dataColumnParent.Ordinal].ToString());
-#pragma warning restore CS8604 // Mögliches Nullverweisargument.
         if (dataColumnDisplay1 != null)
           treeData.Tag = Convert.ToString(dataRow[dataColumnDisplay1.Ordinal]) ?? string.Empty;
 

@@ -1,9 +1,13 @@
+#nullable enable
+
 using System;
 using System.Windows.Forms;
 
 namespace CsvTools
 {
-  /// <summary> Class to store dialog choices in a persistent way </summary>
+  /// <summary>
+  ///   Class to store dialog choices in a persistent way
+  /// </summary>
   public class PersistentChoice
   {
     public PersistentChoice(DialogResult option)

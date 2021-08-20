@@ -23,19 +23,19 @@ using System.Threading.Tasks;
 namespace CsvTools.Tests
 {
   [TestClass]
-	public class CsvFileReaderTest
-	{
-		[TestMethod]
-		public async Task OpenBySetting()
-		{
-			var setting =
-				new CsvFile(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"))
-				{					
-					HasFieldHeader = true,
-					FileFormat = new FileFormat { FieldDelimiter = "Tab" }
-				};
-			setting.ColumnCollection.Add(new Column("DateTime", DataType.DateTime));
-			setting.ColumnCollection.Add(new Column("Integer", DataType.Integer));
+  public class CsvFileReaderTest
+  {
+    [TestMethod]
+    public async Task OpenBySetting()
+    {
+      var setting =
+        new CsvFile(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"))
+        {
+          HasFieldHeader = true,
+          FileFormat = new FileFormat { FieldDelimiter = "Tab" }
+        };
+      setting.ColumnCollection.Add(new Column("DateTime", DataType.DateTime));
+      setting.ColumnCollection.Add(new Column("Integer", DataType.Integer));
       using var dpd = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, dpd);
       await reader.OpenAsync(dpd.CancellationToken);
@@ -58,30 +58,30 @@ namespace CsvTools.Tests
       while (readEnumerator.MoveNext()) Assert.IsNotNull(readEnumerator.Current);
     }
 
-		[TestMethod]
-		public async Task ShouldRetry()
-		{
-			bool called = false;
-			var fn = UnitTestInitializeCsv.GetTestPath("txTranscripts.txt");
-			using (var stream = new FileStream(fn.LongPathPrefix(), FileMode.Open, FileAccess.ReadWrite, FileShare.None))
-			using (var reader = new CsvFileReader(fn, Encoding.UTF8.CodePage, 0, true, fieldDelimiter: "\t"))
-			{
-				// lock file for reading
-				reader.OnAskRetry += (sender, args) =>
-				{
-					stream?.Close();
-					called = true;
-					args.Retry = true;
-				};
-				await reader.OpenAsync(UnitTestInitializeCsv.Token);
-				Assert.IsFalse(reader.IsClosed);
-			}
+    [TestMethod]
+    public async Task ShouldRetry()
+    {
+      bool called = false;
+      var fn = UnitTestInitializeCsv.GetTestPath("txTranscripts.txt");
+      using (var stream = new FileStream(fn.LongPathPrefix(), FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+      using (var reader = new CsvFileReader(fn, Encoding.UTF8.CodePage, 0, true, fieldDelimiter: "\t"))
+      {
+        // lock file for reading
+        reader.OnAskRetry += (sender, args) =>
+        {
+          stream?.Close();
+          called = true;
+          args.Retry = true;
+        };
+        await reader.OpenAsync(UnitTestInitializeCsv.Token);
+        Assert.IsFalse(reader.IsClosed);
+      }
 
-			Assert.IsTrue(called);
-		}
+      Assert.IsTrue(called);
+    }
 
-		[TestMethod]
-		public async Task OpenByParams()
+    [TestMethod]
+    public async Task OpenByParams()
     {
       using var reader = new CsvFileReader(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0, true,
         new IColumn[]
@@ -103,8 +103,8 @@ namespace CsvTools.Tests
       Assert.AreEqual(100, reader.Percent);
     }
 
-		[TestMethod]
-		public async Task OpenByStream()
+    [TestMethod]
+    public async Task OpenByStream()
     {
       using var stream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("AllFormats.txt")));
       using var reader = new CsvFileReader(stream, Encoding.UTF8.CodePage, 0, true,
@@ -127,67 +127,65 @@ namespace CsvTools.Tests
       Assert.AreEqual(100, reader.Percent);
     }
 
-		[TestMethod]
-		public void InvalidCtor()
-		{
-			try
-			{
-				using (var reader = new CsvFileReader(""))
-				{
-				}
-			}
-			catch (ArgumentException)
-			{
-			}
-			catch (Exception ex)
-			{
-				Assert.Fail("Wrong Exception Type: " + ex.GetType());
-			}
+    [TestMethod]
+    public void InvalidCtor()
+    {
+      try
+      {
+        using var reader = new CsvFileReader("");
+      }
+      catch (ArgumentException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail("Wrong Exception Type: " + ex.GetType());
+      }
 
-			try
-			{
-				using (var reader = new CsvFileReader((string) null))
-				{
-				}
-			}
-			catch (ArgumentNullException) { }
-			catch (ArgumentException) { }
-			catch (Exception ex)
-			{
-				Assert.Fail("Wrong Exception Type: " + ex.GetType());
-			}
+      try
+      {
+        using (var reader = new CsvFileReader((string) null))
+        {
+        }
+      }
+      catch (ArgumentNullException) { }
+      catch (ArgumentException) { }
+      catch (Exception ex)
+      {
+        Assert.Fail("Wrong Exception Type: " + ex.GetType());
+      }
 
-			try
-			{
-				using (var reader = new CsvFileReader("(string) null.txt"))
-				{
-				}
-			}
-			catch (FileNotFoundException)
-			{
-			}
-			catch (Exception ex)
-			{
-				Assert.Fail("Wrong Exception Type: " + ex.GetType());
-			}
+      try
+      {
+        using (var reader = new CsvFileReader("(string) null.txt"))
+        {
+        }
+      }
+      catch (FileNotFoundException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail("Wrong Exception Type: " + ex.GetType());
+      }
 
-			try
-			{
-				using (var reader = new CsvFileReader((IImprovedStream) null))
-				{
-				}
-			}
-			catch (ArgumentNullException)
-			{
-			}
-			catch (Exception ex)
-			{
-				Assert.Fail("Wrong Exception Type: " + ex.GetType());
-			}
-		}
+      try
+      {
+        using (var reader = new CsvFileReader((IImprovedStream) null))
+        {
+        }
+      }
+      catch (ArgumentNullException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail("Wrong Exception Type: " + ex.GetType());
+      }
+    }
 
-		[TestMethod]
-		public async Task NextResult()
+    [TestMethod]
+    public async Task NextResult()
     {
       using var test = new CsvFileReader(UnitTestInitializeCsv.GetTestPath("Sessions.txt"),
         columnDefinition: new IColumn[] { new Column("Start Date", "MM/dd/yyyy") { TimePart = "Start Time", TimePartFormat = "HH:mm:ss" } },
@@ -200,17 +198,17 @@ namespace CsvTools.Tests
       Assert.IsTrue(test.Read(UnitTestInitializeCsv.Token));
     }
 
-		[TestMethod]
-		public async Task ReadDateWithTimeAsync()
-		{
-			var setting = new CsvFile
-			{
-				FileName = UnitTestInitializeCsv.GetTestPath("Sessions.txt"),
-				HasFieldHeader = true,
-				ByteOrderMark = true,
-				FileFormat = { FieldDelimiter = "\t" }
-			};
-			setting.ColumnCollection.Add(new Column("Start Date", "MM/dd/yyyy") { TimePart = "Start Time", TimePartFormat = "HH:mm:ss" });
+    [TestMethod]
+    public async Task ReadDateWithTimeAsync()
+    {
+      var setting = new CsvFile
+      {
+        FileName = UnitTestInitializeCsv.GetTestPath("Sessions.txt"),
+        HasFieldHeader = true,
+        ByteOrderMark = true,
+        FileFormat = { FieldDelimiter = "\t" }
+      };
+      setting.ColumnCollection.Add(new Column("Start Date", "MM/dd/yyyy") { TimePart = "Start Time", TimePartFormat = "HH:mm:ss" });
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -226,30 +224,30 @@ namespace CsvTools.Tests
       Assert.AreEqual("01/22/2013 01:00:00", test.GetDateTime(0).ToString("MM/dd/yyyy HH:mm:ss", cultureInfo));
     }
 
-		[TestMethod]
-		public async Task ReadDateWithTimeAndTimeZoneAsync()
-		{
-			var setting = new CsvFile
-			{
-				FileName = UnitTestInitializeCsv.GetTestPath("Sessions.txt"),
-				HasFieldHeader = true,
-				ByteOrderMark = true,
-				FileFormat = { FieldDelimiter = "\t" }
-			};
-			setting.ColumnCollection.Add(new Column("Start Date", "MM/dd/yyyy")
-			{
-				TimePart = "Start Time",
-				TimePartFormat = "HH:mm:ss",
-				TimeZonePart = "Time Zone"
-			});
+    [TestMethod]
+    public async Task ReadDateWithTimeAndTimeZoneAsync()
+    {
+      var setting = new CsvFile
+      {
+        FileName = UnitTestInitializeCsv.GetTestPath("Sessions.txt"),
+        HasFieldHeader = true,
+        ByteOrderMark = true,
+        FileFormat = { FieldDelimiter = "\t" }
+      };
+      setting.ColumnCollection.Add(new Column("Start Date", "MM/dd/yyyy")
+      {
+        TimePart = "Start Time",
+        TimePartFormat = "HH:mm:ss",
+        TimeZonePart = "Time Zone"
+      });
 
-			// all will be converted to TimeZoneInfo.Local, but we concert then to UTC
+      // all will be converted to TimeZoneInfo.Local, but we concert then to UTC
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
       await test.ReadAsync(processDisplay.CancellationToken);
       var cultureInfo = new CultureInfo("en-US");
-      
+
 #if Windows
       // 01/08/2013 07:00:00 IST --> 01/08/2013 01:30:00 UTC
       Assert.AreEqual("01/08/2013 01:30:00",
@@ -265,16 +263,16 @@ namespace CsvTools.Tests
         test.GetDateTime(0).ToUniversalTime().ToString("MM/dd/yyyy HH:mm:ss", cultureInfo));
     }
 
-		[TestMethod]
-		public async Task CsvDataReaderCancellationOnOpenAsync()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { AlternateQuoting = true },
-				TrimmingOption = TrimmingOption.All,
-				FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")
-			};
+    [TestMethod]
+    public async Task CsvDataReaderCancellationOnOpenAsync()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { AlternateQuoting = true },
+        TrimmingOption = TrimmingOption.All,
+        FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")
+      };
       using var cts = CancellationTokenSource.CreateLinkedTokenSource(UnitTestInitializeCsv.Token);
       using var processDisplay = new CustomProcessDisplay(cts.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -283,15 +281,15 @@ namespace CsvTools.Tests
       Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
     }
 
-		[TestMethod]
-		public async Task AlternateTextQualifiersDoubleQuotesAsync()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = ",", AlternateQuoting = true, DuplicateQuotingToEscape = true },
-				FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiersDoubleQuote.txt")
-			};
+    [TestMethod]
+    public async Task AlternateTextQualifiersDoubleQuotesAsync()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = ",", AlternateQuoting = true, DuplicateQuotingToEscape = true },
+        FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiersDoubleQuote.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -307,16 +305,16 @@ namespace CsvTools.Tests
         "Ending with two double quotes but one is a closing quote");
     }
 
-		[TestMethod]
-		public async Task AlternateTextQualifiersTrimQuoted()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = ",", AlternateQuoting = true },
-				TrimmingOption = TrimmingOption.All,
-				FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")
-			};
+    [TestMethod]
+    public async Task AlternateTextQualifiersTrimQuoted()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = ",", AlternateQuoting = true },
+        TrimmingOption = TrimmingOption.All,
+        FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")
+      };
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
@@ -341,17 +339,17 @@ namespace CsvTools.Tests
       Assert.AreEqual("24", test.GetString(5), "Leading space not trimmed & EOF");
     }
 
-		[TestMethod]
-		public async Task AlternateTextQualifiersTrimUnquoted()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				WarnQuotes = true,
-				FileFormat = { FieldDelimiter = ",", AlternateQuoting = true },
-				TrimmingOption = TrimmingOption.Unquoted,
-				FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")
-			};
+    [TestMethod]
+    public async Task AlternateTextQualifiersTrimUnquoted()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        WarnQuotes = true,
+        FileFormat = { FieldDelimiter = ",", AlternateQuoting = true },
+        TrimmingOption = TrimmingOption.Unquoted,
+        FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -384,15 +382,15 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("  24", test.GetString(5), "Leading space not trimmed & EOF");
     }
 
-		[TestMethod]
-		public async Task BasicEscapedCharacters()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = ",", CommentLine = "#", EscapeCharacter = "\\" },
-				FileName = UnitTestInitializeCsv.GetTestPath("BasicEscapedCharacters.txt")
-			};
+    [TestMethod]
+    public async Task BasicEscapedCharacters()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = ",", CommentLine = "#", EscapeCharacter = "\\" },
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicEscapedCharacters.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -417,17 +415,17 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(6, test.FieldCount);
     }
 
-		[TestMethod]
-		public async Task TestWarnLinefeed()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				WarnLineFeed = true,
-				FileFormat = { CommentLine = "#", EscapeCharacter = "\\", FieldQualifier = "\"", FieldDelimiter = "," },
-				TrimmingOption = TrimmingOption.Unquoted,
-				FileName = UnitTestInitializeCsv.GetTestPath("ComplexDataDelimiter.txt")
-			};
+    [TestMethod]
+    public async Task TestWarnLinefeed()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        WarnLineFeed = true,
+        FileFormat = { CommentLine = "#", EscapeCharacter = "\\", FieldQualifier = "\"", FieldDelimiter = "," },
+        TrimmingOption = TrimmingOption.Unquoted,
+        FileName = UnitTestInitializeCsv.GetTestPath("ComplexDataDelimiter.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -439,17 +437,17 @@ Line "Test"", "22",23,"  24"
       Assert.IsTrue(message.Contains("Linefeed"));
     }
 
-		[TestMethod]
-		public async Task TestHighOccuranceQuestionMark()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				WarnLineFeed = true,
-				FileFormat = { CommentLine = "#", EscapeCharacter = "\\", FieldQualifier = "\"", FieldDelimiter = "," },
-				TrimmingOption = TrimmingOption.Unquoted,
-				FileName = UnitTestInitializeCsv.GetTestPath("ComplexDataDelimiter.txt")
-			};
+    [TestMethod]
+    public async Task TestHighOccuranceQuestionMark()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        WarnLineFeed = true,
+        FileFormat = { CommentLine = "#", EscapeCharacter = "\\", FieldQualifier = "\"", FieldDelimiter = "," },
+        TrimmingOption = TrimmingOption.Unquoted,
+        FileName = UnitTestInitializeCsv.GetTestPath("ComplexDataDelimiter.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -462,17 +460,17 @@ Line "Test"", "22",23,"  24"
       Assert.IsTrue(message.Contains("occurrence") && message.Contains("?"));
     }
 
-		[TestMethod]
-		public async Task ComplexDataDelimiter()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = ",", CommentLine = "#", EscapeCharacter = "\\", FieldQualifier = "\"" }
-			};
-			setting.FileFormat.FieldDelimiter = ",";
-			setting.TrimmingOption = TrimmingOption.Unquoted;
-			setting.FileName = UnitTestInitializeCsv.GetTestPath("ComplexDataDelimiter.txt");
+    [TestMethod]
+    public async Task ComplexDataDelimiter()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = ",", CommentLine = "#", EscapeCharacter = "\\", FieldQualifier = "\"" }
+      };
+      setting.FileFormat.FieldDelimiter = ",";
+      setting.TrimmingOption = TrimmingOption.Unquoted;
+      setting.FileName = UnitTestInitializeCsv.GetTestPath("ComplexDataDelimiter.txt");
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -520,16 +518,16 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(23, test.StartLineNumber, "StartLineNumber");
     }
 
-		[TestMethod]
-		public async Task ComplexDataDelimiter2()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { CommentLine = "#", FieldQualifier = "\"", FieldDelimiter = "," },
-				TrimmingOption = TrimmingOption.Unquoted,
-				FileName = UnitTestInitializeCsv.GetTestPath("QuoteInText.txt")
-			};
+    [TestMethod]
+    public async Task ComplexDataDelimiter2()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { CommentLine = "#", FieldQualifier = "\"", FieldDelimiter = "," },
+        TrimmingOption = TrimmingOption.Unquoted,
+        FileName = UnitTestInitializeCsv.GetTestPath("QuoteInText.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -549,17 +547,17 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("f\n", test.GetString(5).HandleCRLFCombinations());
     }
 
-		[TestMethod]
-		public async Task ComplexDataDelimiterTrimQuotes()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				ConsecutiveEmptyRows = 5,
-				FileFormat = { CommentLine = "#", EscapeCharacter = "\\", FieldQualifier = "\"", FieldDelimiter = "," },
-				TrimmingOption = TrimmingOption.All,
-				FileName = UnitTestInitializeCsv.GetTestPath("ComplexDataDelimiter.txt")
-			};
+    [TestMethod]
+    public async Task ComplexDataDelimiterTrimQuotes()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        ConsecutiveEmptyRows = 5,
+        FileFormat = { CommentLine = "#", EscapeCharacter = "\\", FieldQualifier = "\"", FieldDelimiter = "," },
+        TrimmingOption = TrimmingOption.All,
+        FileName = UnitTestInitializeCsv.GetTestPath("ComplexDataDelimiter.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -609,10 +607,10 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(23, test.StartLineNumber, "LineNumber");
     }
 
-		[TestMethod]
-		public async Task CSVTestEmpty()
-		{
-			var setting = new CsvFile { HasFieldHeader = false, ByteOrderMark = true, FileName = UnitTestInitializeCsv.GetTestPath("CSVTestEmpty.txt") };
+    [TestMethod]
+    public async Task CSVTestEmpty()
+    {
+      var setting = new CsvFile { HasFieldHeader = false, ByteOrderMark = true, FileName = UnitTestInitializeCsv.GetTestPath("CSVTestEmpty.txt") };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -621,15 +619,15 @@ Line "Test"", "22",23,"  24"
       Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
     }
 
-		[TestMethod]
-		public async Task DifferentColumnDelimiter()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = "PIPE" },
-				FileName = UnitTestInitializeCsv.GetTestPath("DifferentColumnDelimiter.txt")
-			};
+    [TestMethod]
+    public async Task DifferentColumnDelimiter()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = "PIPE" },
+        FileName = UnitTestInitializeCsv.GetTestPath("DifferentColumnDelimiter.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -652,15 +650,15 @@ Line "Test"", "22",23,"  24"
       Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
     }
 
-		[TestMethod]
-		public async Task EscapedCharacterAtEndOfFile()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = ",", EscapeCharacter = "\\" },
-				FileName = UnitTestInitializeCsv.GetTestPath("EscapedCharacterAtEndOfFile.txt")
-			};
+    [TestMethod]
+    public async Task EscapedCharacterAtEndOfFile()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = ",", EscapeCharacter = "\\" },
+        FileName = UnitTestInitializeCsv.GetTestPath("EscapedCharacterAtEndOfFile.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -681,17 +679,17 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("24", test.GetString(5), @"24\");
     }
 
-		[TestMethod]
-		public async Task EscapedCharacterAtEndOfRowDelimiter()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				TrimmingOption = TrimmingOption.None,
-				TreatLFAsSpace = false,
-				FileFormat = { FieldDelimiter = ",", EscapeCharacter = "\\" },
-				FileName = UnitTestInitializeCsv.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt")
-			};
+    [TestMethod]
+    public async Task EscapedCharacterAtEndOfRowDelimiter()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        TrimmingOption = TrimmingOption.None,
+        TreatLFAsSpace = false,
+        FileFormat = { FieldDelimiter = ",", EscapeCharacter = "\\" },
+        FileName = UnitTestInitializeCsv.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -707,15 +705,15 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(4U, test.RecordNumber, "RecordNumber");
     }
 
-		[TestMethod]
-		public async Task EscapedCharacterAtEndOfRowDelimiterNoEscape()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = ",", EscapeCharacter = "" },
-				FileName = UnitTestInitializeCsv.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt")
-			};
+    [TestMethod]
+    public async Task EscapedCharacterAtEndOfRowDelimiterNoEscape()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = ",", EscapeCharacter = "" },
+        FileName = UnitTestInitializeCsv.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -732,15 +730,15 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(4U, test.RecordNumber);
     }
 
-		[TestMethod]
-		public async Task EscapeWithoutTextQualifier()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = ",", EscapeCharacter = "\\", FieldQualifier = string.Empty },
-				FileName = UnitTestInitializeCsv.GetTestPath("EscapeWithoutTextQualifier.txt")
-			};
+    [TestMethod]
+    public async Task EscapeWithoutTextQualifier()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = ",", EscapeCharacter = "\\", FieldQualifier = string.Empty },
+        FileName = UnitTestInitializeCsv.GetTestPath("EscapeWithoutTextQualifier.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -760,15 +758,15 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("24\\", test.GetString(5), @"24\\");
     }
 
-		[TestMethod]
-		public async Task HandlingDuplicateColumnNames()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = true,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("HandlingDuplicateColumnNames.txt")
-			};
+    [TestMethod]
+    public async Task HandlingDuplicateColumnNames()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = true,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("HandlingDuplicateColumnNames.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -778,15 +776,15 @@ Line "Test"", "22",23,"  24"
       Assert.IsTrue(message.Contains("exists more than once"));
     }
 
-		[TestMethod]
-		public async Task LastRowWithRowDelimiter()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = true,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("LastRowWithRowDelimiter.txt")
-			};
+    [TestMethod]
+    public async Task LastRowWithRowDelimiter()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = true,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("LastRowWithRowDelimiter.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -802,15 +800,15 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("6", test.GetString(5));
     }
 
-		[TestMethod]
-		public async Task LastRowWithRowDelimiterNoHeader()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("LastRowWithRowDelimiter.txt")
-			};
+    [TestMethod]
+    public async Task LastRowWithRowDelimiterNoHeader()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("LastRowWithRowDelimiter.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -824,15 +822,15 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("f", test.GetString(5));
     }
 
-		[TestMethod]
-		public async Task LongHeaders()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = true,
-				FileFormat = { FieldDelimiter = ",", CommentLine = "#" },
-				FileName = UnitTestInitializeCsv.GetTestPath("LongHeaders.txt")
-			};
+    [TestMethod]
+    public async Task LongHeaders()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = true,
+        FileFormat = { FieldDelimiter = ",", CommentLine = "#" },
+        FileName = UnitTestInitializeCsv.GetTestPath("LongHeaders.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -858,16 +856,16 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("6", test.GetString(5));
     }
 
-		[TestMethod]
-		public async Task MoreColumnsThanHeaders()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				WarnEmptyTailingColumns = true,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("MoreColumnsThanHeaders.txt")
-			};
+    [TestMethod]
+    public async Task MoreColumnsThanHeaders()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        WarnEmptyTailingColumns = true,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("MoreColumnsThanHeaders.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -890,8 +888,7 @@ Line "Test"", "22",23,"  24"
 
       Assert.AreEqual(1, warningList.CountRows, "warningList.CountRows");
       Assert.IsTrue(warningList.Display.Contains(CsvFileReader.cMoreColumns));
-      // Assert.IsTrue(warningList.Display.Contains("The existing data in these extra columns is
-      // not read"));
+      // Assert.IsTrue(warningList.Display.Contains("The existing data in these extra columns is not read"));
 
       Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
 
@@ -899,15 +896,15 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(2, warningList.CountRows, "warningList.CountRows");
     }
 
-		[TestMethod]
-		public async Task NoFieldQualifier()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = ",", FieldQualifier = string.Empty },
-				FileName = UnitTestInitializeCsv.GetTestPath("TextQualifierDataPastClosingQuote.txt")
-			};
+    [TestMethod]
+    public async Task NoFieldQualifier()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = ",", FieldQualifier = string.Empty },
+        FileName = UnitTestInitializeCsv.GetTestPath("TextQualifierDataPastClosingQuote.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -932,22 +929,22 @@ Line "Test"", "22",23,"  24"
       Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
     }
 
-		[TestMethod]
-		public async Task PlaceHolderTest()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = true,
-				FileFormat =
-				{
-					FieldDelimiter = ",",
-					EscapeCharacter = string.Empty,
-					DelimiterPlaceholder = @"<\d>",
-					QuotePlaceholder = @"<\q>",
-					NewLinePlaceholder = @"<\r>"
-				},
-				FileName = UnitTestInitializeCsv.GetTestPath("Placeholder.txt")
-			};
+    [TestMethod]
+    public async Task PlaceHolderTest()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = true,
+        FileFormat =
+        {
+          FieldDelimiter = ",",
+          EscapeCharacter = string.Empty,
+          DelimiterPlaceholder = @"<\d>",
+          QuotePlaceholder = @"<\q>",
+          NewLinePlaceholder = @"<\r>"
+        },
+        FileName = UnitTestInitializeCsv.GetTestPath("Placeholder.txt")
+      };
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
@@ -962,35 +959,35 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("Two \"Quote\"", test.GetString(1));
     }
 
-		[TestMethod]
-		public async Task ProcessDisplayUpdateShowProgress()
-		{
-			var setting = UnitTestHelper.ReaderGetAllFormats(null);
-			var processDisplay = new MockProcessDisplay();
-			var stopped = false;
-			processDisplay.ProgressStopEvent += delegate { stopped = true; };
-			Assert.AreEqual(null, processDisplay.Text);
-			using (var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay))
-			{
-				await test.OpenAsync(processDisplay.CancellationToken);
+    [TestMethod]
+    public async Task ProcessDisplayUpdateShowProgress()
+    {
+      var setting = UnitTestHelper.ReaderGetAllFormats(null);
+      var processDisplay = new MockProcessDisplay();
+      var stopped = false;
+      processDisplay.ProgressStopEvent += delegate { stopped = true; };
+      Assert.AreEqual(null, processDisplay.Text);
+      using (var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay))
+      {
+        await test.OpenAsync(processDisplay.CancellationToken);
 
-				for (var i = 0; i < 500; i++)
-					Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-			}
+        for (var i = 0; i < 500; i++)
+          Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      }
 
-			Assert.AreNotEqual(null, processDisplay.Text);
-			Assert.IsFalse(stopped);
-		}
+      Assert.AreNotEqual(null, processDisplay.Text);
+      Assert.IsFalse(stopped);
+    }
 
-		[TestMethod]
-		public async Task ReadingInHeaderAfterComments()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = true,
-				FileFormat = { CommentLine = "#" },
-				FileName = UnitTestInitializeCsv.GetTestPath("ReadingInHeaderAfterComments.txt")
-			};
+    [TestMethod]
+    public async Task ReadingInHeaderAfterComments()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = true,
+        FileFormat = { CommentLine = "#" },
+        FileName = UnitTestInitializeCsv.GetTestPath("ReadingInHeaderAfterComments.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1003,15 +1000,15 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("6", test.GetString(5));
     }
 
-		[TestMethod]
-		public async Task RowWithoutColumnDelimiter()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = true,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("RowWithoutColumnDelimiter.txt")
-			};
+    [TestMethod]
+    public async Task RowWithoutColumnDelimiter()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = true,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("RowWithoutColumnDelimiter.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1025,18 +1022,18 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("123456", test.GetString(0));
     }
 
-		[TestMethod]
-		public async Task SimpleDelimiterWithControlCharacters()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = true,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("SimpleDelimiterWithControlCharacters.txt")
-			};
-			setting.FileFormat.CommentLine = "#";
-			setting.WarnNBSP = true;
-			setting.WarnUnknownCharacter = true;
+    [TestMethod]
+    public async Task SimpleDelimiterWithControlCharacters()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = true,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("SimpleDelimiterWithControlCharacters.txt")
+      };
+      setting.FileFormat.CommentLine = "#";
+      setting.WarnNBSP = true;
+      setting.WarnUnknownCharacter = true;
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1076,21 +1073,21 @@ Line "Test"", "22",23,"  24"
       Assert.IsTrue(warningList.Display.Contains("Unknown Character"));
     }
 
-		[TestMethod]
-		public async Task SimpleDelimiterWithControlCharactersUnknowCharaterReplacement()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = true,
-				TreatUnknownCharacterAsSpace = true,
-				TreatNBSPAsSpace = true,
-				WarnNBSP = true,
-				WarnUnknownCharacter = true,
-				TrimmingOption = TrimmingOption.None,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("SimpleDelimiterWithControlCharacters.txt")
-			};
-			setting.FileFormat.CommentLine = "#";
+    [TestMethod]
+    public async Task SimpleDelimiterWithControlCharactersUnknowCharaterReplacement()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = true,
+        TreatUnknownCharacterAsSpace = true,
+        TreatNBSPAsSpace = true,
+        WarnNBSP = true,
+        WarnUnknownCharacter = true,
+        TrimmingOption = TrimmingOption.None,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("SimpleDelimiterWithControlCharacters.txt")
+      };
+      setting.FileFormat.CommentLine = "#";
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1125,16 +1122,16 @@ Line "Test"", "22",23,"  24"
       Assert.IsTrue(warningList.Display.Contains("Unknown Character"));
     }
 
-		[TestMethod]
-		public async Task SkipAllRows()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = "," },
-				SkipRows = 100,
-				FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")
-			};
+    [TestMethod]
+    public async Task SkipAllRows()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = "," },
+        SkipRows = 100,
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1142,16 +1139,16 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(0, test.FieldCount);
     }
 
-		[TestMethod]
-		public async Task SkippingComments()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("SkippingComments.txt")
-			};
-			setting.FileFormat.CommentLine = "#";
+    [TestMethod]
+    public async Task SkippingComments()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("SkippingComments.txt")
+      };
+      setting.FileFormat.CommentLine = "#";
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
@@ -1193,15 +1190,15 @@ Line "Test"", "22",23,"  24"
       Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
     }
 
-		[TestMethod]
-		public async Task SkippingEmptyRowsWithDelimiter()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("SkippingEmptyRowsWithDelimiter.txt")
-			};
+    [TestMethod]
+    public async Task SkippingEmptyRowsWithDelimiter()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("SkippingEmptyRowsWithDelimiter.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1226,13 +1223,13 @@ Line "Test"", "22",23,"  24"
       Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
     }
 
-		[TestMethod]
-		public async Task GetValue()
-		{
-			var setting = new CsvFile { HasFieldHeader = true, FileFormat = { FieldDelimiter = "," }, FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt") };
-			setting.ColumnCollection.Add(new Column("ExamDate", @"dd/MM/yyyy"));
-			setting.ColumnCollection.Add(new Column("ID", DataType.Integer));
-			setting.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean));
+    [TestMethod]
+    public async Task GetValue()
+    {
+      var setting = new CsvFile { HasFieldHeader = true, FileFormat = { FieldDelimiter = "," }, FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt") };
+      setting.ColumnCollection.Add(new Column("ExamDate", @"dd/MM/yyyy"));
+      setting.ColumnCollection.Add(new Column("ID", DataType.Integer));
+      setting.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean));
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1250,16 +1247,16 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(false, test.GetValue(5));
     }
 
-		[TestMethod]
-		public async Task SkipRows()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = "," },
-				SkipRows = 2,
-				FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")
-			};
+    [TestMethod]
+    public async Task SkipRows()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = "," },
+        SkipRows = 2,
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1285,17 +1282,17 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(4U, test.RecordNumber, "RecordNumber");
     }
 
-		[TestMethod]
-		public async Task TestConsecutiveEmptyRows2()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = true,
-				ConsecutiveEmptyRows = 2,
-				SkipEmptyLines = false,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVEmptyLine.txt")
-			};
+    [TestMethod]
+    public async Task TestConsecutiveEmptyRows2()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = true,
+        ConsecutiveEmptyRows = 2,
+        SkipEmptyLines = false,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVEmptyLine.txt")
+      };
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
@@ -1310,17 +1307,17 @@ Line "Test"", "22",23,"  24"
       Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken), "Read() 4");
     }
 
-		[TestMethod]
-		public async Task TestConsecutiveEmptyRows3()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = true,
-				ConsecutiveEmptyRows = 3,
-				SkipEmptyLines = false,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVEmptyLine.txt")
-			};
+    [TestMethod]
+    public async Task TestConsecutiveEmptyRows3()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = true,
+        ConsecutiveEmptyRows = 3,
+        SkipEmptyLines = false,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVEmptyLine.txt")
+      };
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
@@ -1338,15 +1335,15 @@ Line "Test"", "22",23,"  24"
       Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
     }
 
-		[TestMethod]
-		public async Task TextQualifierBeginningAndEnd()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = ",", EscapeCharacter = "\\" },
-				FileName = UnitTestInitializeCsv.GetTestPath("TextQualifierBeginningAndEnd.txt")
-			};
+    [TestMethod]
+    public async Task TextQualifierBeginningAndEnd()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = ",", EscapeCharacter = "\\" },
+        FileName = UnitTestInitializeCsv.GetTestPath("TextQualifierBeginningAndEnd.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1374,15 +1371,15 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("\"x\"\"\"\"\"\"", test.GetString(3));
     }
 
-		[TestMethod]
-		public async Task TextQualifierDataPastClosingQuote()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("TextQualifierDataPastClosingQuote.txt")
-			};
+    [TestMethod]
+    public async Task TextQualifierDataPastClosingQuote()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("TextQualifierDataPastClosingQuote.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1407,15 +1404,15 @@ Line "Test"", "22",23,"  24"
       Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
     }
 
-		[TestMethod]
-		public async Task TextQualifierNotClosedAtEnd()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = ",", EscapeCharacter = "\\" },
-				FileName = UnitTestInitializeCsv.GetTestPath("TextQualifierNotClosedAtEnd.txt")
-			};
+    [TestMethod]
+    public async Task TextQualifierNotClosedAtEnd()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = ",", EscapeCharacter = "\\" },
+        FileName = UnitTestInitializeCsv.GetTestPath("TextQualifierNotClosedAtEnd.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1458,15 +1455,15 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(" \n 24", test.GetString(5).HandleCRLFCombinations());
     }
 
-		[TestMethod]
-		public async Task TextQualifiers()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("TextQualifiers.txt")
-			};
+    [TestMethod]
+    public async Task TextQualifiers()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("TextQualifiers.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1489,16 +1486,16 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual("6", test.GetString(5));
     }
 
-		[TestMethod]
-		public async Task TextQualifiersWithDelimiters()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				WarnDelimiterInValue = true,
-				FileFormat = { FieldDelimiter = ",", EscapeCharacter = "\\" },
-				FileName = UnitTestInitializeCsv.GetTestPath("TextQualifiersWithDelimiters.txt")
-			};
+    [TestMethod]
+    public async Task TextQualifiersWithDelimiters()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        WarnDelimiterInValue = true,
+        FileFormat = { FieldDelimiter = ",", EscapeCharacter = "\\" },
+        FileName = UnitTestInitializeCsv.GetTestPath("TextQualifiersWithDelimiters.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1543,15 +1540,15 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(" \n 24", test.GetString(5).HandleCRLFCombinations());
     }
 
-		[TestMethod]
-		public async Task TrimmingHeaders()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = true,
-				FileFormat = { FieldDelimiter = ",", CommentLine = "#" },
-				FileName = UnitTestInitializeCsv.GetTestPath("TrimmingHeaders.txt")
-			};
+    [TestMethod]
+    public async Task TrimmingHeaders()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = true,
+        FileFormat = { FieldDelimiter = ",", CommentLine = "#" },
+        FileName = UnitTestInitializeCsv.GetTestPath("TrimmingHeaders.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1568,17 +1565,17 @@ Line "Test"", "22",23,"  24"
       Assert.IsTrue(warningList.Display.Contains("leading or tailing spaces"));
     }
 
-		[TestMethod]
-		public async Task UnicodeUTF16BE()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				CodePageId = 1201,
-				ByteOrderMark = true,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("UnicodeUTF16BE.txt")
-			};
+    [TestMethod]
+    public async Task UnicodeUTF16BE()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        CodePageId = 1201,
+        ByteOrderMark = true,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("UnicodeUTF16BE.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1618,17 +1615,17 @@ Line "Test"", "22",23,"  24"
       Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
     }
 
-		[TestMethod]
-		public async Task UnicodeUTF16LE()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				CodePageId = 1200,
-				ByteOrderMark = true,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("UnicodeUTF16LE.txt")
-			};
+    [TestMethod]
+    public async Task UnicodeUTF16LE()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        CodePageId = 1200,
+        ByteOrderMark = true,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("UnicodeUTF16LE.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1664,23 +1661,23 @@ Line "Test"", "22",23,"  24"
       Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
     }
 
-		[TestMethod]
-		public async Task TestStartRowAndFooter()
+    [TestMethod]
+    public async Task TestStartRowAndFooter()
     {
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("LateStartRow.txt")));
       Assert.AreEqual(10, await improvedStream.GuessStartRow(20127, "|", "\"", "#", UnitTestInitializeCsv.Token));
     }
 
-		[TestMethod]
-		public async Task UnicodeUTF8()
-		{
-			var setting = new CsvFile
-			{
-				HasFieldHeader = false,
-				CodePageId = 65001,
-				FileFormat = { FieldDelimiter = "," },
-				FileName = UnitTestInitializeCsv.GetTestPath("UnicodeUTF8.txt")
-			};
+    [TestMethod]
+    public async Task UnicodeUTF8()
+    {
+      var setting = new CsvFile
+      {
+        HasFieldHeader = false,
+        CodePageId = 65001,
+        FileFormat = { FieldDelimiter = "," },
+        FileName = UnitTestInitializeCsv.GetTestPath("UnicodeUTF8.txt")
+      };
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
@@ -1720,5 +1717,5 @@ Line "Test"", "22",23,"  24"
 
       Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
     }
-	}
+  }
 }

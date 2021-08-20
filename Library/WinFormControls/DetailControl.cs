@@ -11,8 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
-
+#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -1193,7 +1192,7 @@ namespace CsvTools
         writeFile.Header, writeFile.Footer);
 
         using var dt = new DataTableWrapper(
-          FilteredDataGridView.DataView.ToTable(false,
+          FilteredDataGridView.DataView?.ToTable(false,
             // Restrict to shown data
             FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
               .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))

@@ -1,35 +1,39 @@
+#nullable enable
+
 namespace CsvTools
 {
   using System;
   using System.ComponentModel;
   using System.Windows.Forms;
 
-
-
   public class TimedMessage : ResizeForm
   {
-    private IContainer? components;
-    private Button? m_Button1;
+    private IContainer components;
+    private Button m_Button1;
 
-    private Button? m_Button2;
+    private Button m_Button2;
 
-    private Button? m_Button3;
+    private Button m_Button3;
 
     private int m_Counter;
 
-    private ImageList? m_ImageList;
+    private ImageList m_ImageList;
 
-    private Label? m_LabelDefault;
+    private Label m_LabelDefault;
 
-    private PictureBox? m_PictureBox;
+    private PictureBox m_PictureBox;
 
-    private TableLayoutPanel? m_TableLayoutPanel;
+    private TableLayoutPanel m_TableLayoutPanel;
 
-    private TextBox? m_TextBox;
+    private TextBox m_TextBox;
     private Timer m_Timer = new Timer();
-    private WebBrowser? m_WebBrowser;
+    private WebBrowser m_WebBrowser;
+
+#pragma warning disable CS8618 // Ein Non-Nullable-Feld muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Erwägen Sie die Deklaration als Nullable.
 
     public TimedMessage() => InitializeComponent();
+
+#pragma warning restore CS8618 // Ein Non-Nullable-Feld muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Erwägen Sie die Deklaration als Nullable.
 
     public double Duration { get; set; } = 4.0;
 

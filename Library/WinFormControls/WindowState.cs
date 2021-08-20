@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace CsvTools
 {
   using System;
@@ -23,7 +25,6 @@ namespace CsvTools
     }
 
     [XmlAttribute]
-#pragma warning disable CA1051 // Do not declare visible instance fields
     public int Left;
 
     [XmlAttribute]
@@ -51,7 +52,5 @@ namespace CsvTools
     [XmlAttribute]
     [DefaultValue("")]
     public string CustomText = string.Empty;
-
-#pragma warning restore CA1051 // Do not declare visible instance fields
   }
 }
