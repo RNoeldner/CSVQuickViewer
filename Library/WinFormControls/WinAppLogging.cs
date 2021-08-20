@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿#nullable enable
+
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -17,7 +19,7 @@ namespace CsvTools
     private static readonly UserInterfaceSink m_UserInterfaceSink = new UserInterfaceSink(CultureInfo.CurrentCulture);
 
     /// <summary>
-    /// Dummy Method to make sure the Constructor is called
+    ///   Dummy Method to make sure the Constructor is called
     /// </summary>
     public static void Init()
     {
@@ -54,10 +56,10 @@ namespace CsvTools
           loggerConfiguration = loggerConfiguration
             // Exceptions
             .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Exception != null).WriteTo.File(
-              folder + "ExceptionLog.txt", rollingInterval: RollingInterval.Month, retainedFileCountLimit: 3, encoding: Encoding.UTF8, 
+              folder + "ExceptionLog.txt", rollingInterval: RollingInterval.Month, retainedFileCountLimit: 3, encoding: Encoding.UTF8,
               outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff}\t{Level}\t\"{Exception:l}\"{NewLine}"), LogEventLevel.Error)
             //CSV
-            .WriteTo.File(folder + "ApplicationLog.txt", rollingInterval: RollingInterval.Day, encoding: Encoding.UTF8, 
+            .WriteTo.File(folder + "ApplicationLog.txt", rollingInterval: RollingInterval.Day, encoding: Encoding.UTF8,
               outputTemplate: "{Timestamp:HH:mm:ss}\t{Level:w3}\t{Message:l}{NewLine}")
             // Json
             .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), path: folder + "ApplicationLog.json",
@@ -75,6 +77,7 @@ namespace CsvTools
 
     public static void RemoveLog(Microsoft.Extensions.Logging.ILogger value)
         => m_UserInterfaceSink.AdditionalLoggers.Remove(value ?? throw new ArgumentNullException(nameof(value)));
+
     public static void AddLog(Microsoft.Extensions.Logging.ILogger value)
       => m_UserInterfaceSink.AdditionalLoggers.Add(value ?? throw new ArgumentNullException(nameof(value)));
 

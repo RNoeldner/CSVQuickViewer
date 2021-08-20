@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+#nullable enable
 
 namespace CsvTools
 {
@@ -33,8 +34,6 @@ namespace CsvTools
       Cell = cell;
     }
 
-#pragma warning disable CA1051 // Do not declare visible instance fields
-
     /// <summary>
     ///   The cell
     /// </summary>
@@ -44,7 +43,5 @@ namespace CsvTools
     ///   The index
     /// </summary>
     public readonly int Index;
-
-#pragma warning restore CA1051 // Do not declare visible instance fields
   }
 }

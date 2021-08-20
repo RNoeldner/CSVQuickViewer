@@ -11,8 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
-
+#nullable enable
 
 namespace CsvTools
 {

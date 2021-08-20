@@ -41,6 +41,10 @@
   <ItemGroup>
     <Compile Remove="..\Application\Properties\AssemblyInfo.cs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Library\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="..\Application\csv_text.ico">
       <Pack>True</Pack>

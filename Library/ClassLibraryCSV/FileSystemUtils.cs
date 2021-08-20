@@ -437,9 +437,9 @@ namespace CsvTools
     public static string LongPathPrefix(this string path) => path;
 #endif
 
-    public static string? ResolvePattern(string fileName)
+    public static string? ResolvePattern(string? fileName)
     {
-      if (string.IsNullOrEmpty(fileName))
+      if (fileName== null|| fileName.Length==0)
         return string.Empty;
 
       // Handle date Placeholders

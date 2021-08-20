@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+#nullable enable
 
 using System;
 using System.Drawing;
