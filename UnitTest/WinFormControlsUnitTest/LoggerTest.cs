@@ -28,7 +28,7 @@ namespace CsvTools.Tests
     {
       //var jsonLogFileName = m_ApplicationDirectory + "\\Log.json";
       //Logger.Configure(jsonLogFileName, Logger.Level.Info, m_ApplicationDirectory + "\\text.log");
-      
+
       Logger.Debug("MyMessage1");
       Logger.Debug("");
       Logger.Debug(null);
@@ -40,9 +40,9 @@ namespace CsvTools.Tests
       Logger.Warning("Hello {param1}", "World");
       Logger.Warning("");
       Logger.Warning(null);
-      
+
       Logger.Warning("Pure {param1}", 1);
-      
+
       Logger.Error(new Exception("Hello World"), "MyMessage2");
       Logger.Error(new Exception("This is it"));
       Logger.Error("");
@@ -53,8 +53,9 @@ namespace CsvTools.Tests
     private class TestLogger : ILogger
     {
       public IDisposable BeginScope<TState>(TState state) => default;
+
       public bool IsEnabled(LogLevel logLevel) => true;
-      
+
       public readonly List<string> Messages = new List<string>();
 
       public void Log<TState>(
@@ -88,14 +89,12 @@ namespace CsvTools.Tests
       Logger.Warning(null);
       Assert.AreEqual(2, logAction.Messages.Count);
       Assert.AreEqual("Hello \"World\"", logAction.Messages.Last());
-      
+
       logAction.Messages.Clear();
 
       WinAppLogging.RemoveLog(logAction);
       Logger.Debug("MyMessage1");
       Assert.AreEqual(0, logAction.Messages.Count);
     }
-
-    
   }
 }
