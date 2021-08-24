@@ -141,7 +141,7 @@ namespace CsvTools
             this.toolStripSeparator4,
             this.toolStripMenuItemApplyFilter});
 			this.contextMenuStripFilter.Name = "contextMenuStripFilter";
-			this.contextMenuStripFilter.OwnerItem = this.toolStripMenuItem2;
+			this.contextMenuStripFilter.OwnerItem = this.toolStripMenuItemFilterAdd;
 			this.contextMenuStripFilter.Size = new System.Drawing.Size(114, 40);
 			this.contextMenuStripFilter.Text = "contextMenuStripFilter";
 			// 
@@ -199,7 +199,7 @@ namespace CsvTools
             this.toolStripSeparator9,
             this.toolStripMenuItemColumnVisibility});
 			this.contextMenuStripColumns.Name = "contextMenuStripColumns";
-			this.contextMenuStripColumns.OwnerItem = this.toolStripMenuItemColumns;
+			this.contextMenuStripColumns.OwnerItem = this.toolStripMenuItem1;
 			this.contextMenuStripColumns.ShowImageMargin = false;
 			this.contextMenuStripColumns.Size = new System.Drawing.Size(179, 185);
 			// 
@@ -253,7 +253,6 @@ namespace CsvTools
 			// toolStripTextBoxColFilter
 			// 
 			this.toolStripTextBoxColFilter.BackColor = System.Drawing.SystemColors.Info;
-			this.toolStripTextBoxColFilter.Font = new System.Drawing.Font("Segoe UI", 9F);
 			this.toolStripTextBoxColFilter.Name = "toolStripTextBoxColFilter";
 			this.toolStripTextBoxColFilter.Size = new System.Drawing.Size(100, 23);
 			this.toolStripTextBoxColFilter.ToolTipText = "Show columns that contain the input";

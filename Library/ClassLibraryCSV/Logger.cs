@@ -18,62 +18,64 @@ using System.Diagnostics;
 
 namespace CsvTools
 {
-  /// <summary>
-  ///   Central point for logging ILogger needs to be set once
-  /// </summary>
-  public static class Logger
-  {
-    public static ILogger? LoggerInstance
-    {
-      get;
-      set;
-    }
+	/// <summary>
+	///   Central point for logging ILogger needs to be set once
+	/// </summary>
+	public static class Logger
+	{
+		public static ILogger? LoggerInstance
+		{
+			get;
+			set;
+		}
 
-    public static void Debug(in string? message, params object[] args)
-    {
-      if (string.IsNullOrEmpty(message))
-        return;
-      LoggerInstance?.LogDebug(message!, args);
-    }
+		public static void Debug(in string? message, params object[] args)
+		{
+			if (string.IsNullOrEmpty(message))
+				return;
+			LoggerInstance?.LogDebug(message!, args);
+		}
 
-    public static void Error(in string? message, params object[] args)
-    {
-      if (string.IsNullOrEmpty(message))
-        return;
-      LoggerInstance?.LogError(message!, args);
-    }
+		public static void Error(in string? message, params object[] args)
+		{
+			if (string.IsNullOrEmpty(message))
+				return;
+			LoggerInstance?.LogError(message!, args);
+		}
 
-    public static void Error(in Exception exception, in string? message = null, params object[] args)
-    {
-      var ex = exception.Demystify();
-      LoggerInstance?.LogError(ex, message!, args);
-    }
+		public static void Error(in Exception exception, in string? message = null, params object[] args)
+		{
+			if (exception!=null)
+				LoggerInstance?.LogError(exception.Demystify(), message ?? exception.ExceptionMessages(2), args);
+			else
+				LoggerInstance?.LogError(message, args);
+		}
 
-    public static void Information(in string? message, params object[] args)
-    {
-      if (string.IsNullOrEmpty(message))
-        return;
-      LoggerInstance?.LogInformation(message!, args);
-    }
+		public static void Information(in string? message, params object[] args)
+		{
+			if (string.IsNullOrEmpty(message))
+				return;
+			LoggerInstance?.LogInformation(message!, args);
+		}
 
-    public static void Information(in Exception exception, in string? message, params object[] args)
-    {
-      if (string.IsNullOrEmpty(message))
-        return;
-      LoggerInstance?.LogInformation(exception, message!, args);
-    }
+		public static void Information(in Exception exception, in string? message, params object[] args)
+		{
+			if (string.IsNullOrEmpty(message))
+				return;
+			LoggerInstance?.LogInformation(exception, message!, args);
+		}
 
-    public static void Warning(in string? message, params object[] args)
-    {
-      if (string.IsNullOrEmpty(message))
-        return;
-      LoggerInstance?.LogWarning(message!, args);
-    }
+		public static void Warning(in string? message, params object[] args)
+		{
+			if (string.IsNullOrEmpty(message))
+				return;
+			LoggerInstance?.LogWarning(message!, args);
+		}
 
-    public static void Warning(in Exception exception, in string? message, params object[] args)
-    {
-      var ex = exception.Demystify();
-      LoggerInstance?.LogWarning(ex, message!, args);
-    }
-  }
+		public static void Warning(in Exception exception, in string? message, params object[] args)
+		{
+			var ex = exception.Demystify();
+			LoggerInstance?.LogWarning(ex, message!, args);
+		}
+	}
 }
