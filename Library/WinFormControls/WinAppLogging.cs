@@ -8,6 +8,7 @@ using Serilog.Extensions.Logging;
 using Serilog.Formatting.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
@@ -23,16 +24,16 @@ namespace CsvTools
     /// </summary>
     public static void Init()
     {
-      var loggerConfiguration = new LoggerConfiguration()
-      //.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-      .Enrich.FromLogContext()
-      .Filter.ByExcluding(logEvent => logEvent.Exception != null
-                                      && (logEvent.Exception.GetType() == typeof(OperationCanceledException) ||
-                                          logEvent.Exception.GetType() == typeof(ObjectDisposedException)))
-      .WriteTo.Sink(m_UserInterfaceSink);
-
       try
       {
+        var loggerConfiguration = new LoggerConfiguration()
+          //.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+          .Enrich.FromLogContext()
+          .Filter.ByExcluding(logEvent => logEvent.Exception != null
+                                          && (logEvent.Exception.GetType() == typeof(OperationCanceledException) ||
+                                              logEvent.Exception.GetType() == typeof(ObjectDisposedException)))
+          .WriteTo.Sink(m_UserInterfaceSink);
+
         // File Logger
         var entryName = Assembly.GetEntryAssembly()?.GetName().Name ?? Assembly.GetExecutingAssembly().GetName().Name;
 
@@ -65,14 +66,14 @@ namespace CsvTools
             .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), path: folder + "ApplicationLog.json",
               rollingInterval: RollingInterval.Day);
         }
+        // Set the general Logger
+        Logger.LoggerInstance = new SerilogLoggerProvider(loggerConfiguration.CreateLogger()).CreateLogger(nameof(CsvTools));
       }
-      catch
+      catch (Exception ex)
       {
         // ignore
+        Debug.WriteLine(ex.Message);
       }
-
-      // Set the general Logger
-      Logger.LoggerInstance = new SerilogLoggerProvider(loggerConfiguration.CreateLogger()).CreateLogger(nameof(CsvTools));
     }
 
     public static void RemoveLog(Microsoft.Extensions.Logging.ILogger value)

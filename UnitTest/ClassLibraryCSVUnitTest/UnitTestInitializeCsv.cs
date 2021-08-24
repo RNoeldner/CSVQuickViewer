@@ -25,7 +25,7 @@ namespace CsvTools.Tests
 	public static class UnitTestInitializeCsv
 	{
 		public static CancellationToken Token;
-		public static string ApplicationDirectory;
+		public static string ApplicationDirectory = Path.Combine(FileSystemUtils.ExecutableDirectoryName() , "TestFiles");
 
 		public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
 
@@ -59,9 +59,7 @@ namespace CsvTools.Tests
 			MimicSql();
 			Token = context.CancellationTokenSource.Token;
 
-			ApplicationDirectory = Path.Combine(FileSystemUtils.ExecutableDirectoryName() , "TestFiles");
-
-			Logger.LoggerInstance = new TestLogger(context);
+      Logger.LoggerInstance = new TestLogger(context);
 
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
 

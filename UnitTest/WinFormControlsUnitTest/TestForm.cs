@@ -1,23 +1,30 @@
 using System;
 using System.Drawing;
-using System.Threading;
 using System.Windows.Forms;
 using Timer = System.Timers.Timer;
 
 namespace CsvTools.Tests
 {
-  public partial class TestForm : Form
+  public sealed class TestForm : Form
   {
-    private readonly CancellationTokenSource m_CancellationTokenSource;
     private readonly Timer m_Timer = new Timer();
 
     public TestForm()
     {
-      m_CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(UnitTestInitializeCsv.Token);
-      InitializeComponent();
+      SuspendLayout();
+      AutoScaleDimensions = new SizeF(8F, 16F);
+      AutoScaleMode = AutoScaleMode.Font;
+      BackColor = SystemColors.Control;
+      ClientSize = new Size(895, 445);
+      FormBorderStyle = FormBorderStyle.SizableToolWindow;
+      Name = "TestForm";
+      ShowInTaskbar = false;
+      StartPosition = FormStartPosition.CenterScreen;
+      Text = "TestForm";
+      TopMost = true;
+      FormClosing += TestForm_FormClosing;
+      ResumeLayout(false);
     }
-
-    public CancellationToken CancellationToken => m_CancellationTokenSource.Token;
 
     public void AddOneControl(Control ctrl)
     {
@@ -40,7 +47,6 @@ namespace CsvTools.Tests
 
     private void TestForm_FormClosing(object sender, FormClosingEventArgs e)
     {
-      m_CancellationTokenSource.Cancel();
       m_Timer.Stop();
       m_Timer.Enabled = false;
     }
