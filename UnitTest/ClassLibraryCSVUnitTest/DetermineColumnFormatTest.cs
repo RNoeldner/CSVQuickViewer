@@ -112,7 +112,7 @@ namespace CsvTools.Tests
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var reader = new DataTableWrapper(dataTable);
       var res = await DetermineColumnFormat
-        .GetSampleValuesAsync(reader, 100, new[] { 0, 1 }, 20, null, processDisplay.CancellationToken)
+        .GetSampleValuesAsync(reader, 100, new[] { 0, 1 }, 20, string.Empty, processDisplay.CancellationToken)
         .ConfigureAwait(false);
       Assert.AreEqual(20, res[0].Values.Count);
     }
@@ -276,8 +276,8 @@ namespace CsvTools.Tests
       {
         await reader.OpenAsync(processDisplay.CancellationToken);
         UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting.ID,
-          await reader.GetDataTableAsync(0, false, setting.DisplayStartLineNo, setting.DisplayRecordNo,
-            setting.DisplayEndLineNo, false, null, UnitTestInitializeCsv.Token));
+          (await reader.GetDataTableAsync(0, false, setting.DisplayStartLineNo, setting.DisplayRecordNo,
+            setting.DisplayEndLineNo, false, null, UnitTestInitializeCsv.Token))!);
       }
 
       var writer = new CsvFile { SqlStatement = setting.ID };
@@ -374,7 +374,7 @@ namespace CsvTools.Tests
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var reader = new DataTableWrapper(dt);
       var temp = await DetermineColumnFormat
-        .GetSampleValuesAsync(reader, 0, new[] { 0 }, 20, null,
+        .GetSampleValuesAsync(reader, 0, new[] { 0 }, 20, string.Empty,
           processDisplay.CancellationToken).ConfigureAwait(false);
       Assert.AreEqual(0, temp.Count);
     }

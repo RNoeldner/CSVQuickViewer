@@ -7,7 +7,7 @@
     <Authors>Raphael Nöldner</Authors>
     <PackageIcon>csv_text.ico</PackageIcon>
     <PackageIconUrl />
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>True</SignAssembly>
     <TargetFramework>net472</TargetFramework>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -23,6 +23,8 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://sourceforge.net/projects/csvquickviewer</PackageProjectUrl>
     <PackageTags>Comma-separated values;Delimited Text;CSV;TAB;Viewer</PackageTags>
+    <IsPublishable>False</IsPublishable>
+    <AssemblyOriginatorKeyFile>C:\Users\r_n\source\repos\FileValidator\CSVQuickViewer\sgKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -51,20 +53,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj">
-      <Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
-      <Name>ClassLibraryCSV</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Library\WinFormControls\WinFormControls.csproj">
-      <Project>{55ad0a98-c175-4b38-a3d0-321740820d41}</Project>
-      <Name>WinFormControls</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj" />      
+    <ProjectReference Include="..\Library\WinFormControls\WinFormControls.csproj" />      
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Costura.Fody">
       <Version>5.4.0</Version>
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <!--<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>-->
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

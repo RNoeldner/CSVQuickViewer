@@ -7,6 +7,8 @@
     <OutputType>Library</OutputType>
     <Nullable>enable</Nullable>
     <LangVersion>8.0</LangVersion>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>C:\Users\r_n\source\repos\FileValidator\CSVQuickViewer\sgKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\WinFormControls\**\*.cs" />

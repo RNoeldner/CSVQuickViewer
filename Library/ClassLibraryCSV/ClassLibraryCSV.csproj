@@ -12,7 +12,7 @@
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <NeutralLanguage>en-US</NeutralLanguage>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <SignAssembly>False</SignAssembly>
+    <SignAssembly>True</SignAssembly>
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
     <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>
     <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
@@ -22,6 +22,7 @@
     <CodePage>65001</CodePage>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
+    <AssemblyOriginatorKeyFile>C:\Users\r_n\source\repos\FileValidator\CSVQuickViewer\sgKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
     <DefineConstants>Windows</DefineConstants>

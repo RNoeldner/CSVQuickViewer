@@ -8,7 +8,7 @@
     <Authors>Raphael Nöldner</Authors>
     <PackageIcon>csv_text.ico</PackageIcon>
     <PackageIconUrl />
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>True</SignAssembly>
     <TargetFramework>net5.0-windows</TargetFramework>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -16,6 +16,9 @@
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <Configurations>Release;Debug</Configurations>
+    <MinimumPlatformVersion>7.0</MinimumPlatformVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+    <AssemblyOriginatorKeyFile>C:\Users\r_n\source\repos\FileValidator\CSVQuickViewer\sgKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

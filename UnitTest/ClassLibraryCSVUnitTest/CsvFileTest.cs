@@ -103,10 +103,10 @@ namespace CsvTools.Tests
 			Assert.AreNotSame(m_CsvFile, test);
 			Assert.IsInstanceOfType(test, typeof(CsvFile));
 
-			m_CsvFile.AllPropertiesEqual(test);
+			m_CsvFile.AllPropertiesEqual(test!);
 			// Test Properties that are not tested
 
-			Assert.AreEqual(m_CsvFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
+			Assert.AreEqual(m_CsvFile.MappingCollection.Count, test!.MappingCollection.Count, "FieldMapping");
 			Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
 			Assert.IsTrue(m_CsvFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
 			//Assert.IsTrue(m_CsvFile.Errors.CollectionEqualWithOrder(test.Errors), "Errors");
