@@ -144,7 +144,7 @@ namespace CsvTools.Tests
 
       try
       {
-        using (var reader = new CsvFileReader((string) null))
+        using (var reader = new CsvFileReader((string?) null))
         {
         }
       }
@@ -962,11 +962,11 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task ProcessDisplayUpdateShowProgress()
     {
-      var setting = UnitTestHelper.ReaderGetAllFormats(null);
+      var setting = UnitTestHelper.ReaderGetAllFormats();
       var processDisplay = new MockProcessDisplay();
       var stopped = false;
       processDisplay.ProgressStopEvent += delegate { stopped = true; };
-      Assert.AreEqual(null, processDisplay.Text);
+      Assert.IsNull(processDisplay.Text);
       using (var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay))
       {
         await test.OpenAsync(processDisplay.CancellationToken);
@@ -975,7 +975,7 @@ Line "Test"", "22",23,"  24"
           Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
       }
 
-      Assert.AreNotEqual(null, processDisplay.Text);
+      Assert.IsNotNull(processDisplay.Text);
       Assert.IsFalse(stopped);
     }
 

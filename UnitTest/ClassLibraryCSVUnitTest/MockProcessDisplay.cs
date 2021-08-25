@@ -21,14 +21,14 @@ namespace CsvTools.Tests
   {
     private bool m_Disposed;
     private bool m_Visible = true;
-    public string Text;
+    public string Text = string.Empty;
 
     public long Maximum { get; set; }
-    public virtual string Title { get; set; }
+    public virtual string Title { get; set; } = string.Empty;
 
     public CancellationToken CancellationToken => UnitTestInitializeCsv.Token;
 
-    public event EventHandler<ProgressEventArgs> Progress;
+    public event EventHandler<ProgressEventArgs>? Progress;
 
     public virtual void Dispose()
     {
@@ -45,9 +45,9 @@ namespace CsvTools.Tests
       Progress?.Invoke(this, new ProgressEventArgs(text));
     }
 
-    public void SetProcess(object sender, ProgressEventArgs e)
+    public void SetProcess(object? sender, ProgressEventArgs? e)
     {
-      Text = e.Text;
+      Text = e?.Text ?? string.Empty;
       Progress?.Invoke(sender, e);
     }
 
@@ -55,7 +55,7 @@ namespace CsvTools.Tests
     {
     }
 
-    public event EventHandler ProgressStopEvent;
+    public event EventHandler? ProgressStopEvent;
 
     public void Close()
     {

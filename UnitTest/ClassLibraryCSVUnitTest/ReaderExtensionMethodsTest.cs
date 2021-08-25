@@ -83,11 +83,11 @@ namespace CsvTools.Tests
       using var test = new CsvFileReader(test3.FullPath, test3.CodePageId, test3.SkipRows, test3.HasFieldHeader, test3.ColumnCollection, test3.TrimmingOption, test3.FileFormat.FieldDelimiter, test3.FileFormat.FieldQualifier, test3.FileFormat.EscapeCharacter, test3.RecordLimit, test3.AllowRowCombining, test3.FileFormat.AlternateQuoting, test3.FileFormat.CommentLine, test3.NumWarnings, test3.FileFormat.DuplicateQuotingToEscape, test3.FileFormat.NewLinePlaceholder, test3.FileFormat.DelimiterPlaceholder, test3.FileFormat.QuotePlaceholder, test3.SkipDuplicateHeader, test3.TreatLFAsSpace, test3.TreatUnknownCharacterAsSpace, test3.TryToSolveMoreColumns, test3.WarnDelimiterInValue, test3.WarnLineFeed, test3.WarnNBSP, test3.WarnQuotes, test3.WarnUnknownCharacter, test3.WarnEmptyTailingColumns, test3.TreatNBSPAsSpace, test3.TreatTextAsNull, test3.SkipEmptyLines, test3.ConsecutiveEmptyRows, test3.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
 
-      DataTable dt = await test.GetDataTableAsync(-1, true, true, true, true, true, null,
+      using var dt = await test.GetDataTableAsync(-1, true, true, true, true, true, null,
         processDisplay.CancellationToken);
       // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one for
       // Line end
-      Assert.AreEqual((10 - 1) + 4, dt.Columns.Count);
+      Assert.AreEqual((10 - 1) + 4, dt!.Columns.Count);
       Assert.AreEqual(19, dt.Rows.Count);
     }
   }

@@ -40,7 +40,10 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FastColoredTextBox, Version=2.16.26.0, Culture=neutral, PublicKeyToken=fb8aa12b994ef61b, processorArchitecture=MSIL">
@@ -208,6 +211,7 @@
     <EmbeddedResource Include="Search.resx">
       <DependentUpon>Search.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="sgKey.snk" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell">
