@@ -6,28 +6,21 @@
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="UnitTestInitializeWin.cs" />
+    <Compile Include="..\ClassLibraryCSVUnitTest\MimicSQLReader.cs" Link="MimicSQLReader.cs" />
+    <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestHelper.cs" Link="UnitTestHelper.cs" />
+    <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestInitializeCsv.cs" Link="UnitTestInitializeCsv.cs" />
+    <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
+    <Compile Include="..\WinFormControlsUnitTest\TestForm.cs" Link="TestForm.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="MSTest.TestAdapter">
-      <Version>2.2.5</Version>
-    </PackageReference>
-    <PackageReference Include="MSTest.TestFramework">
-      <Version>2.2.5</Version>
-    </PackageReference>
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.5" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.5" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Application\CSVQuickViewer.csproj" />
-    <ProjectReference Include="..\..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj" />
-    <ProjectReference Include="..\..\Library\WinFormControls\WinFormControls.csproj" />
-    <ProjectReference Include="..\ClassLibraryCSVUnitTest\ClassLibraryCSVUnitTest.csproj" />
-    <ProjectReference Include="..\WinFormControlsUnitTest\WinFormControlsUnitTest.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="UnitTestInitializeWin.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Update="TestFiles\AllFormatsPipe.txt">

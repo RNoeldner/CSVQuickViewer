@@ -19,26 +19,26 @@ using System.Threading.Tasks;
 namespace CsvTools.Tests
 {
   [TestClass]
-	public class ReaderExtensionMethodsTest
-	{
-		private readonly CsvFile m_ValidSetting = new CsvFile
-		{
-			FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
-			FileFormat = { FieldDelimiter = ",", CommentLine = "#" }
-		};
+  public class ReaderExtensionMethodsTest
+  {
+    private readonly CsvFile m_ValidSetting = new CsvFile
+    {
+      FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
+      FileFormat = { FieldDelimiter = ",", CommentLine = "#" }
+    };
 
-		[TestInitialize]
-		public void Init()
-		{
-			m_ValidSetting.ColumnCollection.Add(new Column("Score", DataType.Integer));
-			m_ValidSetting.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
-			m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean));
-			var cf = new Column("ExamDate", DataType.DateTime) { ValueFormatMutable = { DateFormat = @"dd/MM/yyyy" } };
-			m_ValidSetting.ColumnCollection.Add(cf);
-		}
+    [TestInitialize]
+    public void Init()
+    {
+      m_ValidSetting.ColumnCollection.Add(new Column("Score", DataType.Integer));
+      m_ValidSetting.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
+      m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean));
+      var cf = new Column("ExamDate", DataType.DateTime) { ValueFormatMutable = { DateFormat = @"dd/MM/yyyy" } };
+      m_ValidSetting.ColumnCollection.Add(cf);
+    }
 
-		[TestMethod]
-		public async Task GetColumnsOfReaderTest()
+    [TestMethod]
+    public async Task GetColumnsOfReaderTest()
     {
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(fileName: UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
@@ -47,8 +47,8 @@ namespace CsvTools.Tests
       Assert.AreEqual(6, test.GetColumnsOfReader().Count);
     }
 
-		[TestMethod]
-		public async Task GetEmptyColumnHeaderAsyncTest()
+    [TestMethod]
+    public async Task GetEmptyColumnHeaderAsyncTest()
     {
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader, m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FileFormat.FieldDelimiter, m_ValidSetting.FileFormat.FieldQualifier, m_ValidSetting.FileFormat.EscapeCharacter, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.FileFormat.AlternateQuoting, m_ValidSetting.FileFormat.CommentLine, m_ValidSetting.NumWarnings, m_ValidSetting.FileFormat.DuplicateQuotingToEscape, m_ValidSetting.FileFormat.NewLinePlaceholder, m_ValidSetting.FileFormat.DelimiterPlaceholder, m_ValidSetting.FileFormat.QuotePlaceholder, m_ValidSetting.SkipDuplicateHeader, m_ValidSetting.TreatLFAsSpace, m_ValidSetting.TreatUnknownCharacterAsSpace, m_ValidSetting.TryToSolveMoreColumns, m_ValidSetting.WarnDelimiterInValue, m_ValidSetting.WarnLineFeed, m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns, m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows, m_ValidSetting.IdentifierInContainer, processDisplay);
@@ -57,8 +57,8 @@ namespace CsvTools.Tests
       Assert.AreEqual(0, result.Count);
     }
 
-		[TestMethod]
-		public async Task GetDataTableAsync2()
+    [TestMethod]
+    public async Task GetDataTableAsync2()
     {
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       var test2 = (CsvFile) m_ValidSetting.Clone();
@@ -68,11 +68,11 @@ namespace CsvTools.Tests
 
       DataTable dt = await test.GetDataTableAsync(-1, false, false, false, false, false, null,
         processDisplay.CancellationToken);
-      Assert.AreEqual(test2.RecordLimit, dt.Rows.Count);
+      Assert.AreEqual(test2.RecordLimit, dt!.Rows.Count);
     }
 
-		[TestMethod]
-		public async Task GetDataTableAsync3()
+    [TestMethod]
+    public async Task GetDataTableAsync3()
     {
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
       var test3 = new CsvFile(UnitTestInitializeCsv.GetTestPath("WithEoFChar.txt"))
@@ -85,10 +85,10 @@ namespace CsvTools.Tests
 
       DataTable dt = await test.GetDataTableAsync(-1, true, true, true, true, true, null,
         processDisplay.CancellationToken);
-      // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one
-      // for Line end
+      // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one for
+      // Line end
       Assert.AreEqual((10 - 1) + 4, dt.Columns.Count);
       Assert.AreEqual(19, dt.Rows.Count);
     }
-	}
+  }
 }

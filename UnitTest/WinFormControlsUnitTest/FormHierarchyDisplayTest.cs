@@ -136,34 +136,26 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public async Task FormHierarchyDisplay_DataWithCycleAsync()
     {
-      using (var dataTable = UnitTestStatic.GetDataTable(60))
-      {
-        // load the csvFile FileWithHierarchy
-        using (var processDisplay = new FormProcessDisplay("FileWithHierarchy"))
-        {
-          processDisplay.Show();
-          var cvsSetting = new CsvFile(UnitTestInitializeCsv.GetTestPath("FileWithHierarchy_WithCyle.txt"))
-          { FileFormat = { FieldDelimiter = "\t" } };
-          using (var csvDataReader = new CsvFileReader(cvsSetting.FullPath, cvsSetting.CodePageId, cvsSetting.SkipRows, cvsSetting.HasFieldHeader, cvsSetting.ColumnCollection, cvsSetting.TrimmingOption, cvsSetting.FileFormat.FieldDelimiter, cvsSetting.FileFormat.FieldQualifier, cvsSetting.FileFormat.EscapeCharacter, cvsSetting.RecordLimit, cvsSetting.AllowRowCombining, cvsSetting.FileFormat.AlternateQuoting, cvsSetting.FileFormat.CommentLine, cvsSetting.NumWarnings, cvsSetting.FileFormat.DuplicateQuotingToEscape, cvsSetting.FileFormat.NewLinePlaceholder, cvsSetting.FileFormat.DelimiterPlaceholder, cvsSetting.FileFormat.QuotePlaceholder, cvsSetting.SkipDuplicateHeader, cvsSetting.TreatLFAsSpace, cvsSetting.TreatUnknownCharacterAsSpace, cvsSetting.TryToSolveMoreColumns, cvsSetting.WarnDelimiterInValue, cvsSetting.WarnLineFeed, cvsSetting.WarnNBSP, cvsSetting.WarnQuotes, cvsSetting.WarnUnknownCharacter, cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull, cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows, cvsSetting.IdentifierInContainer, processDisplay))
-          {
-            DataTable dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null,
-              processDisplay.CancellationToken);
+      using var dataTable = UnitTestStatic.GetDataTable(60);
+      // load the csvFile FileWithHierarchy
+      using var processDisplay = new FormProcessDisplay("FileWithHierarchy");
+      processDisplay.Show();
+      var cvsSetting = new CsvFile(UnitTestInitializeCsv.GetTestPath("FileWithHierarchy_WithCyle.txt"))
+      { FileFormat = { FieldDelimiter = "\t" } };
+      using var csvDataReader = new CsvFileReader(cvsSetting.FullPath, cvsSetting.CodePageId, cvsSetting.SkipRows, cvsSetting.HasFieldHeader, cvsSetting.ColumnCollection, cvsSetting.TrimmingOption, cvsSetting.FileFormat.FieldDelimiter, cvsSetting.FileFormat.FieldQualifier, cvsSetting.FileFormat.EscapeCharacter, cvsSetting.RecordLimit, cvsSetting.AllowRowCombining, cvsSetting.FileFormat.AlternateQuoting, cvsSetting.FileFormat.CommentLine, cvsSetting.NumWarnings, cvsSetting.FileFormat.DuplicateQuotingToEscape, cvsSetting.FileFormat.NewLinePlaceholder, cvsSetting.FileFormat.DelimiterPlaceholder, cvsSetting.FileFormat.QuotePlaceholder, cvsSetting.SkipDuplicateHeader, cvsSetting.TreatLFAsSpace, cvsSetting.TreatUnknownCharacterAsSpace, cvsSetting.TryToSolveMoreColumns, cvsSetting.WarnDelimiterInValue, cvsSetting.WarnLineFeed, cvsSetting.WarnNBSP, cvsSetting.WarnQuotes, cvsSetting.WarnUnknownCharacter, cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull, cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows, cvsSetting.IdentifierInContainer, processDisplay);
+      var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null,
+        processDisplay.CancellationToken);
 
-            using (var form = new FormHierarchyDisplay(dt, dataTable.Select(), UnitTestInitializeWin.HTMLStyle))
-            {
-              UnitTestWinFormHelper.ShowFormAndClose(form, .1, (frm) =>
-              {
-                if (!(frm is FormHierarchyDisplay hd))
-                  return;
-                hd.BuildTree("ReferenceID1", "ID");
-                hd.CloseAll();
-                hd.ExpandAll();
-              });
-              form.Close();
-            }
-          }
-        }
-      }
+      using var form = new FormHierarchyDisplay(dt!, dataTable.Select(), UnitTestInitializeWin.HTMLStyle);
+      UnitTestWinFormHelper.ShowFormAndClose(form, .1, (frm) =>
+      {
+        if (!(frm is FormHierarchyDisplay hd))
+          return;
+        hd.BuildTree("ReferenceID1", "ID");
+        hd.CloseAll();
+        hd.ExpandAll();
+      });
+      form.Close();
     }
   }
 }

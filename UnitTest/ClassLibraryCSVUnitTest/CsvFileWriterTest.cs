@@ -21,120 +21,120 @@ using System.Threading.Tasks;
 namespace CsvTools.Tests
 {
   [TestClass]
-	public class CsvFileWriterTest
-	{
-		private static CsvFile m_ReadFile;
+  public class CsvFileWriterTest
+  {
+    private static CsvFile m_ReadFile;
 
-		private static CsvFile m_WriteFile;
+    private static CsvFile m_WriteFile;
 
-		[TestInitialize]
-		public void Init()
-		{
-			m_ReadFile =
-				new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"))
-				{
-					ID = "Read",
-					FileFormat = { FieldDelimiter = ",", CommentLine = "#" }
-				};
+    [TestInitialize]
+    public void Init()
+    {
+      m_ReadFile =
+        new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"))
+        {
+          ID = "Read",
+          FileFormat = { FieldDelimiter = ",", CommentLine = "#" }
+        };
 
-			m_ReadFile.ColumnCollection.Add(new Column("ExamDate",
-				new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = @"dd/MM/yyyy" }));
-			m_ReadFile.ColumnCollection.Add(new Column("Score", DataType.Integer));
-			m_ReadFile.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
-			m_ReadFile.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
+      m_ReadFile.ColumnCollection.Add(new Column("ExamDate",
+        new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = @"dd/MM/yyyy" }));
+      m_ReadFile.ColumnCollection.Add(new Column("Score", DataType.Integer));
+      m_ReadFile.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
+      m_ReadFile.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
 
-			UnitTestInitializeCsv.MimicSQLReader.AddSetting(m_ReadFile);
+      UnitTestInitializeCsv.MimicSQLReader.AddSetting(m_ReadFile);
 
-			m_WriteFile = new CsvFile { ID = "Write", SqlStatement = m_ReadFile.ID };
+      m_WriteFile = new CsvFile { ID = "Write", SqlStatement = m_ReadFile.ID };
 
-			m_WriteFile.ColumnCollection.Add(new Column("ExamDate", @"MM/dd/yyyy") { TimePart = "ExamTime" });
-			m_WriteFile.ColumnCollection.Add(new Column { Name = "Proficiency", Ignore = true });
-		}
+      m_WriteFile.ColumnCollection.Add(new Column("ExamDate", @"MM/dd/yyyy") { TimePart = "ExamTime" });
+      m_WriteFile.ColumnCollection.Add(new Column { Name = "Proficiency", Ignore = true });
+    }
 
-		[TestMethod]
-		[Timeout(2000)]
-		public async Task TimeZoneConversionsAsync()
-		{
-			var pd = new MockProcessDisplay();
+    [TestMethod]
+    [Timeout(2000)]
+    public async Task TimeZoneConversionsAsync()
+    {
+      var pd = new MockProcessDisplay();
 
-			var writeFile = (CsvFile) m_WriteFile.Clone();
-			writeFile.FileName =  UnitTestInitializeCsv.GetTestPath("BasicCSVOut2tzc.txt");
+      var writeFile = (CsvFile) m_WriteFile.Clone();
+      writeFile.FileName =  UnitTestInitializeCsv.GetTestPath("BasicCSVOut2tzc.txt");
 
-			FileSystemUtils.FileDelete(writeFile.FileName);
-			var setting = UnitTestHelper.ReaderGetAllFormats();
+      FileSystemUtils.FileDelete(writeFile.FileName);
+      var setting = UnitTestHelper.ReaderGetAllFormats();
 
-			UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting);
-			writeFile.SqlStatement = setting.ID;
-			writeFile.FileFormat.FieldDelimiter = "|";
-			writeFile.ColumnCollection.Add(
-				new Column("DateTime", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "yyyyMMdd" })
-				{
-					TimePartFormat = @"hh:mm",
-					TimePart = "Time",
-					TimeZonePart = "TZ"
-				});
-			var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
+      UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting);
+      writeFile.SqlStatement = setting.ID;
+      writeFile.FileFormat.FieldDelimiter = "|";
+      writeFile.ColumnCollection.Add(
+        new Column("DateTime", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "yyyyMMdd" })
+        {
+          TimePartFormat = @"hh:mm",
+          TimePart = "Time",
+          TimeZonePart = "TZ"
+        });
+      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer);
 
-			var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
-			Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
-			Assert.AreEqual(1065, res, "Records");
-		}
+      var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
+      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
+      Assert.AreEqual(1065, res, "Records");
+    }
 
-		[TestMethod]
-		public async Task Write()
-		{
-			var pd = new MockProcessDisplay();
+    [TestMethod]
+    public async Task Write()
+    {
+      var pd = new MockProcessDisplay();
 
-			var writeFile = (CsvFile) m_WriteFile.Clone();
-			writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut.txt");
-			FileSystemUtils.FileDelete(writeFile.FileName);
-			writeFile.FileFormat.FieldDelimiter = "|";
+      var writeFile = (CsvFile) m_WriteFile.Clone();
+      writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut.txt");
+      FileSystemUtils.FileDelete(writeFile.FileName);
+      writeFile.FileFormat.FieldDelimiter = "|";
 
-			var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
+      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer);
 
-			var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
-			Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
-			Assert.AreEqual(7, res);
-		}
+      var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
+      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
+      Assert.AreEqual(7, res);
+    }
 
-		[TestMethod]
-		public async Task WriteAllFormatsAsync()
-		{
-			var pd = new MockProcessDisplay();
+    [TestMethod]
+    public async Task WriteAllFormatsAsync()
+    {
+      var pd = new MockProcessDisplay();
 
-			var writeFile = (CsvFile) m_WriteFile.Clone();
-			writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut2.txt");
+      var writeFile = (CsvFile) m_WriteFile.Clone();
+      writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut2.txt");
 
-			FileSystemUtils.FileDelete(writeFile.FileName);
-			var setting = UnitTestHelper.ReaderGetAllFormats();
+      FileSystemUtils.FileDelete(writeFile.FileName);
+      var setting = UnitTestHelper.ReaderGetAllFormats();
 
-			UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting);
-			writeFile.SqlStatement = setting.ID;
-			writeFile.FileFormat.FieldDelimiter = "|";
+      UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting);
+      writeFile.SqlStatement = setting.ID;
+      writeFile.FileFormat.FieldDelimiter = "|";
 
-			var cf = new Column("DateTime", DataType.DateTime)
-			{
-				TimePartFormat = @"hh:mm",
-				TimePart = "Time",
-				TimeZonePart = "\"UTC\""
-			};
-			cf.ValueFormatMutable.DateFormat = "yyyyMMdd";
-			writeFile.ColumnCollection.Add(cf);
-			var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
+      var cf = new Column("DateTime", DataType.DateTime)
+      {
+        TimePartFormat = @"hh:mm",
+        TimePart = "Time",
+        TimeZonePart = "\"UTC\""
+      };
+      cf.ValueFormatMutable.DateFormat = "yyyyMMdd";
+      writeFile.ColumnCollection.Add(cf);
+      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer);
 
-			var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
-			Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
-			Assert.AreEqual(1065, res, "Records");
-		}
+      var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
+      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
+      Assert.AreEqual(1065, res, "Records");
+    }
 
-		[TestMethod]
-		public async Task WriteDataTableAsync()
+    [TestMethod]
+    public async Task WriteDataTableAsync()
     {
       using var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
       dataTable.Columns.Add("ID", typeof(int));
@@ -161,8 +161,8 @@ namespace CsvTools.Tests
       Assert.IsTrue(File.Exists(writeFile.FileName));
     }
 
-		[TestMethod]
-		public async Task WriteDataTableHandleIssuesAsync()
+    [TestMethod]
+    public async Task WriteDataTableHandleIssuesAsync()
     {
       using var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
       dataTable.Columns.Add("ID", typeof(int));
@@ -198,8 +198,8 @@ namespace CsvTools.Tests
       Assert.IsTrue(File.Exists(writeFile.FileName));
     }
 
-		[TestMethod]
-		public async Task WriteFileLocked()
+    [TestMethod]
+    public async Task WriteFileLocked()
     {
       using var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
       dataTable.Columns.Add("ID", typeof(int));
@@ -246,23 +246,23 @@ namespace CsvTools.Tests
       FileSystemUtils.FileDelete(writeFile.FileName);
     }
 
-		[TestMethod]
-		public async Task WriteGZipAsync()
-		{
-			var pd = new MockProcessDisplay();
+    [TestMethod]
+    public async Task WriteGZipAsync()
+    {
+      var pd = new MockProcessDisplay();
 
-			var writeFile = (CsvFile) m_WriteFile.Clone();
-			writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut.txt.gz");
-			FileSystemUtils.FileDelete(writeFile.FileName);
-			writeFile.FileFormat.FieldDelimiter = "|";
+      var writeFile = (CsvFile) m_WriteFile.Clone();
+      writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut.txt.gz");
+      FileSystemUtils.FileDelete(writeFile.FileName);
+      writeFile.FileFormat.FieldDelimiter = "|";
 
-			var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
+      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer);
 
-			var res = await writer.WriteAsync(m_WriteFile.SqlStatement, 360, null, pd.CancellationToken);
-			Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
-			Assert.AreEqual(7, res);
-		}
-	}
+      var res = await writer.WriteAsync(m_WriteFile.SqlStatement, 360, null, pd.CancellationToken);
+      Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
+      Assert.AreEqual(7, res);
+    }
+  }
 }
