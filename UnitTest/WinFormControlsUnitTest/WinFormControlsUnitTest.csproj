@@ -6,26 +6,17 @@
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="MSTest.TestAdapter">
-      <Version>2.2.5</Version>
-    </PackageReference>
-    <PackageReference Include="MSTest.TestFramework">
-      <Version>2.2.5</Version>
-    </PackageReference>
+    <Compile Include="..\ClassLibraryCSVUnitTest\MimicSQLReader.cs" Link="MimicSQLReader.cs" />
+    <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestHelper.cs" Link="UnitTestHelper.cs" />
+    <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestInitializeCsv.cs" Link="UnitTestInitializeCsv.cs" />
+    <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj">
-      <Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
-      <Name>ClassLibraryCSV</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Library\WinFormControls\WinFormControls.csproj">
-      <Project>{55ad0a98-c175-4b38-a3d0-321740820d41}</Project>
-      <Name>WinFormControls</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ClassLibraryCSVUnitTest\ClassLibraryCSVUnitTest.csproj">
-      <Project>{ddfec05c-94f0-4329-9cb2-96d2b4b57050}</Project>
-      <Name>ClassLibraryCSVUnitTest</Name>
-    </ProjectReference>
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.5" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Library\WinFormControls\WinFormControls.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FastColoredTextBox">

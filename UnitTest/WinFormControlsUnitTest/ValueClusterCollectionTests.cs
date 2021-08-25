@@ -24,12 +24,10 @@ namespace CsvTools.Tests
   [TestClass]
   public class ValueClusterCollectionTests
   {
-    private static DataTable m_Data;
-    private static DataView m_DataView;
+    private static readonly DataTable m_Data;
+    private static readonly DataView m_DataView;
 
-    [ClassInitialize]
-    [Timeout(5000)]
-    public static void ClassInitialize(TestContext context)
+    static ValueClusterCollectionTests()
     {
       m_Data = UnitTestStatic.GetDataTable(200);
       m_DataView = new DataView(m_Data, null, null, DataViewRowState.CurrentRows);
@@ -153,7 +151,7 @@ namespace CsvTools.Tests
 
     private static void TestSort(IEnumerable<ValueCluster> items)
     {
-      string oldSort = null;
+      string? oldSort = null;
 
       foreach (var cluster in items)
       {

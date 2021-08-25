@@ -39,9 +39,9 @@ namespace CsvTools
 
     public static void CreateDirectory(in string? directoryName)
     {
-      if (string.IsNullOrEmpty(directoryName))
+      if (directoryName is null || directoryName.Length==0)
         return;
-      Directory.CreateDirectory(directoryName!.LongPathPrefix());
+      Directory.CreateDirectory(directoryName.LongPathPrefix());
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ namespace CsvTools
     }
 
     public static bool DirectoryExists(in string? directoryName) =>
-      !string.IsNullOrEmpty(directoryName) && Directory.Exists(directoryName!.LongPathPrefix());
+      !(directoryName is null || directoryName.Length==0) && Directory.Exists(directoryName.LongPathPrefix());
 
     /// <summary>
     ///   Folder of the executing assembly, mainly used in Unit testing
@@ -88,12 +88,12 @@ namespace CsvTools
     public static string ExecutableDirectoryName()
     {
       var directory = Assembly.GetExecutingAssembly().Location;
-      if (string.IsNullOrEmpty(directory))
+      if (directory is null || directory.Length==0)
         directory = Assembly.GetEntryAssembly()?.Location;
 
-      return (string.IsNullOrEmpty(directory)
+      return (directory is null || directory.Length==0)
         ? Directory.GetCurrentDirectory()
-        : Path.GetDirectoryName(directory!.LongPathPrefix())) ?? string.Empty;
+        : Path.GetDirectoryName(directory.LongPathPrefix());
     }
 
     /// <summary>
@@ -147,14 +147,14 @@ namespace CsvTools
 
     public static void FileDelete(in string? fileName)
     {
-      if (string.IsNullOrEmpty(fileName)) return;
-      var fn = fileName!.LongPathPrefix();
+      if (fileName is null || fileName.Length==0) return;
+      var fn = fileName.LongPathPrefix();
       if (File.Exists(fn))
         File.Delete(fn);
     }
 
     public static bool FileExists(in string? fileName) =>
-      !string.IsNullOrEmpty(fileName) && File.Exists(fileName!.LongPathPrefix());
+      !(fileName is null || fileName.Length==0) && File.Exists(fileName.LongPathPrefix());
 
     /// <summary>
     ///   Gets the absolute path.
@@ -166,7 +166,7 @@ namespace CsvTools
     {
       try
       {
-        if (string.IsNullOrEmpty(fileName))
+        if (fileName is null || fileName.Length==0)
           return string.Empty;
 
         if (Path.IsPathRooted(fileName))
@@ -175,7 +175,7 @@ namespace CsvTools
         if (string.IsNullOrEmpty(basePath))
           basePath = ".";
 
-        var split = fileName!.LastIndexOf(Path.DirectorySeparatorChar);
+        var split = fileName.LastIndexOf(Path.DirectorySeparatorChar);
         if (split == -1)
           return Path.Combine(GetFullPath(basePath!), fileName).RemovePrefix();
 
@@ -245,17 +245,17 @@ namespace CsvTools
     /// <returns>A relative path if possible</returns>
     public static string GetRelativePath(this string? fileName, string? basePath)
     {
-      if (string.IsNullOrEmpty(fileName) || fileName!.StartsWith(".", StringComparison.Ordinal)
-                                         || fileName.IndexOf(Path.DirectorySeparatorChar) == -1)
+      if (fileName is null || fileName.Length==0 || fileName!.StartsWith(".", StringComparison.Ordinal)
+                                                 || fileName.IndexOf(Path.DirectorySeparatorChar) == -1)
         return fileName ?? string.Empty;
 
-      if (string.IsNullOrEmpty(basePath))
+      if (basePath is null || basePath.Length==0)
         basePath = Directory.GetCurrentDirectory();
 
       if (fileName.Equals(basePath, StringComparison.OrdinalIgnoreCase))
         return ".";
-      if (fileName.StartsWith(basePath!, StringComparison.OrdinalIgnoreCase))
-        return fileName.Substring(basePath!.Length + 1);
+      if (fileName.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
+        return fileName.Substring(basePath.Length + 1);
       var otherDir = Path.GetFullPath(fileName);
 
       var folder = GetRelativeFolder(otherDir, basePath!);
@@ -412,8 +412,7 @@ namespace CsvTools
     public static string LongPathPrefix(this string path)
     {
       // In case the directory is 248 we need long path as well
-      if (string.IsNullOrEmpty(path) || path.Length < 248 || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal)
-          || path.StartsWith(cUncLongPathPrefix, StringComparison.Ordinal))
+      if (path.Length < 248 || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal) || path.StartsWith(cUncLongPathPrefix, StringComparison.OrdinalIgnoreCase))
         return path;
       return path.StartsWith(@"\\", StringComparison.Ordinal)
         ? cUncLongPathPrefix + path.Substring(2)
@@ -430,11 +429,13 @@ namespace CsvTools
     }
 
 #else
+
     // [Obsolete("Should only be used on Windows")]
     public static string RemovePrefix(this string path) => path;
 
     // [Obsolete("Should only be used on Windows")]
     public static string LongPathPrefix(this string path) => path;
+
 #endif
 
     public static string? ResolvePattern(string? fileName)
@@ -591,13 +592,16 @@ namespace CsvTools
 
       public FileInfo(string? fileName)
       {
-        Name = fileName?.RemovePrefix() ?? string.Empty;
-
-        if (string.IsNullOrEmpty(fileName))
+        if (fileName is null  || fileName.Length==0)
+        {
+          Name= string.Empty;
           return;
+        }
+
+        Name = fileName.RemovePrefix();
         try
         {
-          m_Info = new System.IO.FileInfo(fileName!.LongPathPrefix());
+          m_Info = new System.IO.FileInfo(fileName.LongPathPrefix());
           if (!m_Info.Exists)
             return;
 

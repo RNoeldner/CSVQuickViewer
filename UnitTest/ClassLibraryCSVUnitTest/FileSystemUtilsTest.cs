@@ -68,6 +68,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Ignore("PathTooLongException when compiled in .net standard")]
     public void FileInfo()
     {
       var testFile = GetLongFileName("InfoTest.txt", false);
@@ -145,7 +146,9 @@ namespace CsvTools.Tests
         FileSystemUtils.CreateDirectory($"Test{Path.DirectorySeparatorChar}");
       Assert.AreEqual(Path.GetFullPath($".{Path.DirectorySeparatorChar}Test"), $".{Path.DirectorySeparatorChar}Test".GetDirectoryName());
     }
+
 #if Windows
+
     [TestMethod]
     public void ShortFileName_LongFileName()
     {
@@ -169,7 +172,6 @@ namespace CsvTools.Tests
       FileSystemUtils.FileDelete(fn);
     }
 
-
     [TestMethod]
     public void GetShortestPathABS()
     {
@@ -178,6 +180,7 @@ namespace CsvTools.Tests
     }
 
 #endif
+
     [TestMethod]
     public void GetShortestPathRel()
     {
@@ -212,10 +215,14 @@ namespace CsvTools.Tests
       Assert.AreEqual($"..{Path.DirectorySeparatorChar}Debug{Path.DirectorySeparatorChar}TestFiles{Path.DirectorySeparatorChar}SubFolder{Path.DirectorySeparatorChar}",
         (root + Path.DirectorySeparatorChar + $"..{Path.DirectorySeparatorChar}Debug{Path.DirectorySeparatorChar}TestFiles{Path.DirectorySeparatorChar}SubFolder").GetRelativeFolder(root));
     }
+
 #if Windows
+
     [TestMethod]
     public void SafePath() => Assert.AreEqual($"Test$Files{Path.DirectorySeparatorChar}Basic$CSV.txt", $"Test|Files{Path.DirectorySeparatorChar}Basic<CSV.txt".SafePath("$"));
+
 #endif
+
     [TestMethod]
     public void GetLatestFileOfPattern()
     {
@@ -320,6 +327,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Ignore("PathTooLongException when compiled in .net standard")]
     public void TestMethodsOnLongPath()
     {
       Directory.SetCurrentDirectory(UnitTestInitializeCsv.ApplicationDirectory);

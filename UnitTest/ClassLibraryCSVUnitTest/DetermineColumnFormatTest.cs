@@ -87,9 +87,10 @@ namespace CsvTools.Tests
         setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer,
         null))
       {
+        var dt = await reader.GetDataTableAsync(0, false, setting.DisplayStartLineNo, setting.DisplayRecordNo,
+                    setting.DisplayEndLineNo, false, null, UnitTestInitializeCsv.Token);
         UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting.ID,
-          await reader.GetDataTableAsync(0, false, setting.DisplayStartLineNo, setting.DisplayRecordNo,
-            setting.DisplayEndLineNo, false, null, UnitTestInitializeCsv.Token));
+          dt!);
       }
 
       using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);

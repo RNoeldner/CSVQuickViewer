@@ -73,7 +73,7 @@ namespace CsvTools.Tests
     public void NotifyPropertyChangedTest()
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(double), "Column1");
-      string prop = null;
+      string? prop = null;
       columnFilterLogic.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
       {
         prop = e.PropertyName;

@@ -67,7 +67,7 @@ namespace CsvTools.Tests
       frm.Close();
     }
 
-    public static void ShowFormAndClose<T>(T frm, double before = .2, Action<T> toDo = null) where T : Form
+    public static void ShowFormAndClose<T>(T frm, double before = .2, Action<T>? toDo = null) where T : Form
       => ShowFormAndClose(frm, before, toDo, before, UnitTestInitializeCsv.Token);
 
     private static void ShowFormAndClose<T>(T typed, double before, Action<T> toDo, double after,
@@ -100,7 +100,7 @@ namespace CsvTools.Tests
       frm.Close();
     }
 
-    public static void ShowControl<T>(T ctrl, double before = .2, Action<T, Form> toDo = null, double after = .2)
+    public static void ShowControl<T>(T ctrl, double before = .2, Action<T, Form>? toDo = null, double after = .2)
       where T : Control
     {
       using var cts = CancellationTokenSource.CreateLinkedTokenSource(UnitTestInitializeCsv.Token);

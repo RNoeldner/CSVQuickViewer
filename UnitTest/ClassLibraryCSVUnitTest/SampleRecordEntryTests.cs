@@ -17,59 +17,59 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CsvTools.Tests
 {
   [TestClass]
-	public class SampleRecordEntryTests
-	{
-		[TestMethod]
-		public void SampleRecordEntry()
-		{
-			var entry = new SampleRecordEntry();
-			Assert.AreEqual(true, entry.ProvideEvidence);
+  public class SampleRecordEntryTests
+  {
+    [TestMethod]
+    public void SampleRecordEntry()
+    {
+      var entry = new SampleRecordEntry();
+      Assert.AreEqual(true, entry.ProvideEvidence);
 
-			var entry1 = new SampleRecordEntry(100, "Error");
-			Assert.AreEqual(100, entry1.RecordNumber);
-			Assert.AreEqual("Error", entry1.Error);
-			Assert.AreEqual(true, entry1.ProvideEvidence);
+      var entry1 = new SampleRecordEntry(100, "Error");
+      Assert.AreEqual(100, entry1.RecordNumber);
+      Assert.AreEqual("Error", entry1.Error);
+      Assert.AreEqual(true, entry1.ProvideEvidence);
 
-			var entry2 = new SampleRecordEntry(1000, false);
-			Assert.AreEqual(1000, entry2.RecordNumber);
-			Assert.AreEqual(false, entry2.ProvideEvidence);
+      var entry2 = new SampleRecordEntry(1000, false);
+      Assert.AreEqual(1000, entry2.RecordNumber);
+      Assert.AreEqual(false, entry2.ProvideEvidence);
 
-			var entry3 = new SampleRecordEntry(2000);
-			Assert.AreEqual(2000, entry3.RecordNumber);
-		}
+      var entry3 = new SampleRecordEntry(2000);
+      Assert.AreEqual(2000, entry3.RecordNumber);
+    }
 
-		[TestMethod]
-		public void Clone()
-		{
-			var entry1 = new SampleRecordEntry(100, "Error1");
-			var entry2 = entry1.Clone();
-			Assert.AreEqual(100, entry2.RecordNumber);
-			Assert.AreEqual("Error1", entry2.Error);
-			Assert.IsTrue(entry2.ProvideEvidence);
-		}
+    [TestMethod]
+    public void Clone()
+    {
+      var entry1 = new SampleRecordEntry(100, "Error1");
+      var entry2 = entry1.Clone();
+      Assert.AreEqual(100, entry2.RecordNumber);
+      Assert.AreEqual("Error1", entry2.Error);
+      Assert.IsTrue(entry2.ProvideEvidence);
+    }
 
-		[TestMethod]
-		public void Equals()
-		{
-			var entry1 = new SampleRecordEntry(100, "Error1");
-			var entry2 = entry1.Clone();
-			Assert.IsTrue(entry1.Equals(entry2));
-			Assert.IsTrue(entry2.Equals(entry1));
-			Assert.IsFalse(entry1.Equals(null));
+    [TestMethod]
+    public void Equals()
+    {
+      var entry1 = new SampleRecordEntry(100, "Error1");
+      var entry2 = entry1.Clone();
+      Assert.IsTrue(entry1.Equals(entry2));
+      Assert.IsTrue(entry2.Equals(entry1));
+      Assert.IsFalse(entry1.Equals(null));
 
-			entry2 = new SampleRecordEntry(10, "Error1");
-			Assert.IsFalse(entry1.Equals(entry2));
-		}
+      entry2 = new SampleRecordEntry(10, "Error1");
+      Assert.IsFalse(entry1!.Equals(entry2));
+    }
 
-		[TestMethod]
-		public void GetHashCodeTest()
-		{
-			var entry1 = new SampleRecordEntry(100, "Error1");
-			var entry2 = entry1.Clone();
-			Assert.AreEqual(entry1.GetHashCode(), entry2.GetHashCode());
+    [TestMethod]
+    public void GetHashCodeTest()
+    {
+      var entry1 = new SampleRecordEntry(100, "Error1");
+      var entry2 = entry1.Clone();
+      Assert.AreEqual(entry1.GetHashCode(), entry2.GetHashCode());
 
-			entry2 = new SampleRecordEntry(10, "Error1");
-			Assert.AreNotEqual(entry1.GetHashCode(), entry2.GetHashCode());
-		}
-	}
+      entry2 = new SampleRecordEntry(10, "Error1");
+      Assert.AreNotEqual(entry1.GetHashCode(), entry2.GetHashCode());
+    }
+  }
 }
