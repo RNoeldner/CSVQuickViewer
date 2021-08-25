@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31205.134
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31612.314
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Setup", "Setup", "{DC98E363-87E9-48CD-9C7A-A7BDEC8D73E1}"
 EndProject
@@ -39,6 +39,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dll", "dll", "{FDAD6378-0AC
 		Library\DLL\FastColoredTextBox.Core.dll = Library\DLL\FastColoredTextBox.Core.dll
 		Library\DLL\FastColoredTextBox.dll = Library\DLL\FastColoredTextBox.dll
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSVQuickViewer.WinUI", "Maui\CSVQuickViewer.WinUI\CSVQuickViewer.WinUI.csproj", "{248BED72-AC26-401C-B3B0-E612A3DF4430}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Maui", "Maui", "{2973D2A6-B4F5-4114-BF0B-CB2C8C6B51E4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSVQuickViewer.maui", "Maui\CSVQuickViewer\CSVQuickViewer.maui.csproj", "{069F40B3-C115-44DC-B264-7B9FD0E80BD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +90,14 @@ Global
 		{F5F4952B-0BEA-4EC7-9E70-563B50F0E7EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5F4952B-0BEA-4EC7-9E70-563B50F0E7EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5F4952B-0BEA-4EC7-9E70-563B50F0E7EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{248BED72-AC26-401C-B3B0-E612A3DF4430}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{248BED72-AC26-401C-B3B0-E612A3DF4430}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{248BED72-AC26-401C-B3B0-E612A3DF4430}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{248BED72-AC26-401C-B3B0-E612A3DF4430}.Release|Any CPU.Build.0 = Release|Any CPU
+		{069F40B3-C115-44DC-B264-7B9FD0E80BD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{069F40B3-C115-44DC-B264-7B9FD0E80BD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{069F40B3-C115-44DC-B264-7B9FD0E80BD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{069F40B3-C115-44DC-B264-7B9FD0E80BD2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,6 +113,8 @@ Global
 		{55AD0A98-C175-4B38-A3D0-321740820D41} = {7D3C5014-EC8B-4247-9C3C-D5EEF7BB68A0}
 		{2CD1D7A1-F607-4179-BB41-9DCF839488C2} = {7D3C5014-EC8B-4247-9C3C-D5EEF7BB68A0}
 		{FDAD6378-0ACE-4F1B-B161-25EDAF83765C} = {7D3C5014-EC8B-4247-9C3C-D5EEF7BB68A0}
+		{248BED72-AC26-401C-B3B0-E612A3DF4430} = {2973D2A6-B4F5-4114-BF0B-CB2C8C6B51E4}
+		{069F40B3-C115-44DC-B264-7B9FD0E80BD2} = {2973D2A6-B4F5-4114-BF0B-CB2C8C6B51E4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2C6B6E1E-ABD3-49DA-9BE4-DC79F5504CC2}
