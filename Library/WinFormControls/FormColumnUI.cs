@@ -236,9 +236,7 @@ namespace CsvTools
             if (comboBoxDataType.SelectedValue != null)
             {
               var selectedType = (DataType) comboBoxDataType.SelectedValue;
-              if (selectedType != DataType.String && selectedType != DataType.TextToHtml
-                                                  && selectedType != DataType.TextToHtmlFull
-                                                  && selectedType != DataType.TextPart)
+              if (selectedType < DataType.String)
               {
                 var resp = _MessageBox.Show(
                   $"Should the system restrict detection to {selectedType}?",

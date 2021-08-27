@@ -166,8 +166,7 @@ namespace CsvTools
                                                  displayAs[0].Equals(' '));
         else
           // quality any text or something containing a Qualify Char
-          qualifyThis = dataType == DataType.String || dataType == DataType.TextToHtml ||
-                        displayAs.IndexOfAny(m_QualifyCharArray) > -1;
+          qualifyThis = dataType == DataType.String || dataType == DataType.TextToHtml || displayAs.IndexOfAny(m_QualifyCharArray) > -1;
       }
 
       if (m_FieldDelimiter != m_FieldDelimiterEscaped)

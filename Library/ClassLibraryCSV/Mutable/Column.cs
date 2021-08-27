@@ -238,7 +238,6 @@ namespace CsvTools
       get => m_DestinationName;
       set
       {
-
         if (m_DestinationName.Equals(value, StringComparison.Ordinal))
           return;
         m_DestinationName = value;
@@ -588,7 +587,6 @@ namespace CsvTools
              && string.Equals(TimeZonePart, other.TimeZonePart, StringComparison.OrdinalIgnoreCase)
              && Convert == other.Convert && ValueFormatMutable.ValueFormatEqual(other.ValueFormat);
     }
-
 
     /// <summary>
     ///   Notifies the property changed.
