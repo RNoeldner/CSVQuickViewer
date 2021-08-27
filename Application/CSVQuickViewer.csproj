@@ -24,7 +24,7 @@
     <PackageProjectUrl>https://sourceforge.net/projects/csvquickviewer</PackageProjectUrl>
     <PackageTags>Comma-separated values;Delimited Text;CSV;TAB;Viewer</PackageTags>
     <IsPublishable>False</IsPublishable>
-    <AssemblyOriginatorKeyFile>C:\Users\r_n\source\repos\FileValidator\CSVQuickViewer\sgKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -53,8 +53,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj" />      
-    <ProjectReference Include="..\Library\WinFormControls\WinFormControls.csproj" />      
+    <ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj" />
+    <ProjectReference Include="..\Library\WinFormControls\WinFormControls.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Costura.Fody">

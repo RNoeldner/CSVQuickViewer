@@ -18,7 +18,7 @@
     <Configurations>Release;Debug</Configurations>
     <MinimumPlatformVersion>7.0</MinimumPlatformVersion>
     <NeutralLanguage>en</NeutralLanguage>
-    <AssemblyOriginatorKeyFile>C:\Users\r_n\source\repos\FileValidator\CSVQuickViewer\sgKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

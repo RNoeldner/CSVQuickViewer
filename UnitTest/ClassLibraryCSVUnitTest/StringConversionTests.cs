@@ -396,7 +396,8 @@ namespace CsvTools.Tests
     {
       Assert.IsFalse(StringConversion.CombineObjectsToDateTime(null, null, null, null, true,
         new ValueFormatMutable { DateFormat = "yyyyMMdd", DateSeparator = "", TimeSeparator = ":" }, out _).HasValue);
-
+#pragma warning disable CS8629 // Ein Werttyp, der NULL zulässt, kann NULL sein.
+#pragma warning disable CS8625
       Assert.AreEqual(new DateTime(2010, 10, 10),
         StringConversion.CombineObjectsToDateTime(new DateTime(2010, 10, 10),
           null,
@@ -428,6 +429,7 @@ namespace CsvTools.Tests
           new ValueFormatMutable { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" }, out _).Value);
 
       Assert.AreEqual(new DateTime(2010, 10, 13, 8, 12, 54),
+
         StringConversion.CombineObjectsToDateTime(new DateTime(2010, 10, 13).ToOADate(),
           null,
           new DateTime(new TimeSpan(8, 12, 54).Ticks).ToOADate(), null, true,
@@ -441,6 +443,8 @@ namespace CsvTools.Tests
             new ValueFormatMutable { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" },
             out var issues)
           .Value);
+#pragma warning restore CS8629
+#pragma warning restore CS8625
       // should issue a warning
       Assert.IsTrue(issues);
     }

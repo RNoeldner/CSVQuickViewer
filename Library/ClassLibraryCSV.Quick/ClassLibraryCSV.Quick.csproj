@@ -12,6 +12,7 @@
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <CodePage>65001</CodePage>
     <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
     <DefineConstants>QUICK</DefineConstants>
