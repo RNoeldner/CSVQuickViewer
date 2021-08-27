@@ -12,7 +12,6 @@
  *
  */
 
-
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
@@ -30,7 +29,9 @@ namespace CsvTools
     public ValueFormatMutable() => m_ImmutableValueFormat = new ImmutableValueFormat();
 
 #pragma warning disable 8618
+
     public ValueFormatMutable(IValueFormat other) => CopyFrom(other);
+
 #pragma warning restore 8618
 
     public bool Specified => m_ImmutableValueFormat.Specified;

@@ -695,10 +695,6 @@ namespace CsvTools
             break;
 
           case DataType.String:
-          case DataType.TextToHtml:
-          case DataType.TextToHtmlFull:
-          case DataType.TextPart:
-            /* TextToHTML and TextToHTMLFull have been handled in the Reader for the column as the length of the fields would change */
             ret = GetString(columnNumber);
             break;
 
@@ -1002,36 +998,10 @@ namespace CsvTools
     {
       if (inputString == null || inputString.Length==0 || columnNumber >= FieldCount)
         return inputString ?? string.Empty;
-      var column = GetColumn(columnNumber);
-
-      switch (column.ValueFormat.DataType)
-      {
-        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-        case DataType.TextToHtml:
-        {
-          var output = HTMLStyle.TextToHtmlEncode(inputString);
-          if (!inputString.Equals(output, StringComparison.Ordinal))
-            HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
-          return output;
-        }
-        case DataType.TextToHtmlFull:
-        {
-          var output = HTMLStyle.HtmlEncodeShort(inputString);
-          if (!inputString.Equals(output, StringComparison.Ordinal))
-            HandleWarning(columnNumber, $"HTML encoding removed from {inputString}");
-          return output ?? string.Empty;
-        }
-        case DataType.TextPart:
-        {
-          var output =
-            StringConversion.StringToTextPart(inputString, column.PartSplitter.StringToChar(), column.Part, column.PartToEnd);
-          if (output is null)
-            HandleWarning(columnNumber, $"Part {column.Part} of text {inputString} is empty.");
-          return output ?? string.Empty;
-        }
-        default:
-          return inputString;
-      }
+      var column = Column[columnNumber];
+      if (column.ColumnFormatter is null)
+        return inputString;
+      return column.ColumnFormatter.FormatText(inputString, (message) => HandleWarning(columnNumber, message));
     }
 
     /// <summary>

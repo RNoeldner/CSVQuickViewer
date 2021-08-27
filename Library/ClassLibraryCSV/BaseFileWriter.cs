@@ -185,9 +185,6 @@ namespace CsvTools
             break;
 
           case DataType.String:
-          case DataType.TextToHtml:
-          case DataType.TextToHtmlFull:
-          case DataType.TextPart:
             break;
 
           default:
@@ -435,12 +432,7 @@ namespace CsvTools
                 break;
 
               case DataType.String:
-              case DataType.TextToHtml:
-              case DataType.TextToHtmlFull:
-              case DataType.TextPart:
                 displayAs = Convert.ToString(dataObject) ?? string.Empty;
-                if (columnInfo.ValueFormat.DataType == DataType.TextToHtml)
-                  displayAs = HTMLStyle.TextToHtmlEncode(displayAs);
 
                 // a new line of any kind will be replaced with the placeholder if set
                 if (fileFormat.NewLinePlaceholder.Length > 0)

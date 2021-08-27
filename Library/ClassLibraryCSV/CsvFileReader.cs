@@ -376,10 +376,6 @@ namespace CsvTools
           break;
 
         case DataType.String:
-        case DataType.TextToHtml:
-        case DataType.TextToHtmlFull:
-        case DataType.TextPart:
-          /* TextToHTML and TextToHTMLFull and TextPart have been handled in the CSV Reader as the length of the fields would change */
           ret = value;
           break;
 

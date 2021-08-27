@@ -64,20 +64,31 @@ namespace CsvTools
           valueFormat.TimeSeparator, valueFormat.NumberFormat, valueFormat.GroupSeparator, valueFormat.DecimalSeparator,
           valueFormat.True,
           valueFormat.False, valueFormat.DisplayNullAs);
+
+      if (ValueFormat.DataType == DataType.TextPart)
+        ColumnFormatter = new TextPartFormatter(Part, PartSplitter, PartToEnd);
+      else if (ValueFormat.DataType == DataType.TextToHtml)
+        ColumnFormatter = new TextToHtmlFormatter();
+      else if (ValueFormat.DataType == DataType.TextToHtmlFull)
+        ColumnFormatter = new TextToHtmlFullFormatter();
     }
 
-    public int ColumnOrdinal { get;  }
-    public bool Convert { get;  }
-    public string DestinationName { get;  }
-    public bool Ignore { get;  }
-    public string Name { get;  }
-    public int Part { get;  }
-    public string PartSplitter { get;  }
-    public bool PartToEnd { get;  }
-    public string TimePart { get;  }
-    public string TimePartFormat { get;  }
-    public string TimeZonePart { get;  }
-    public IValueFormat ValueFormat { get;  }
+    public int ColumnOrdinal { get; }
+    public bool Convert { get; }
+    public string DestinationName { get; }
+    public bool Ignore { get; }
+    public string Name { get; }
+    public int Part { get; }
+    public string PartSplitter { get; }
+    public bool PartToEnd { get; }
+    public string TimePart { get; }
+    public string TimePartFormat { get; }
+    public string TimeZonePart { get; }
+
+    public IValueFormat ValueFormat { get; }
+
+    public IColumnFormatter? ColumnFormatter { get; }
+
     public IColumn Clone() => new ImmutableColumn(this);
 
     public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
@@ -120,6 +131,5 @@ namespace CsvTools
         return hashCode;
       }
     }
-
   }
 }

@@ -12,41 +12,32 @@
 // * If not, see http://www.gnu.org/licenses/ . *
 // */
 
-
 using System;
 
 namespace CsvTools
 {
-
   public interface IColumn : ICloneable<IColumn>, IEquatable<IColumn>
   {
     int ColumnOrdinal { get; }
     bool Convert { get; }
 
-
     string DestinationName { get; }
 
     bool Ignore { get; }
-
 
     string Name { get; }
 
     int Part { get; }
 
-
     string PartSplitter { get; }
 
     bool PartToEnd { get; }
 
-
     string TimePart { get; }
-
 
     string TimePartFormat { get; }
 
-
     string TimeZonePart { get; }
-
 
     IValueFormat ValueFormat { get; }
   }

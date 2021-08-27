@@ -355,9 +355,6 @@ namespace CsvTools
           return typeof(Guid);
 
         case DataType.String:
-        case DataType.TextToHtml:
-        case DataType.TextToHtmlFull:
-        case DataType.TextPart:
           return typeof(string);
 
         default:
