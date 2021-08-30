@@ -30,14 +30,14 @@ namespace CsvTools
   {
     public static readonly char[] Spaces =
     {
-      ' ', '\u00A0', '\u1680', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008',
-      '\u2009', '\u200A', '\u200B', '\u202F', '\u205F', '\u3000', '\uFEFF'
+      ' ', '\u00A0', '\u1680', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007',
+      '\u2008', '\u2009', '\u200A', '\u200B', '\u202F', '\u205F', '\u3000', '\uFEFF'
     };
 
     /// <summary>
     ///   ; | CR LF Tab
     /// </summary>
-    private static readonly char[] m_DelimiterChar = { ';', '|', '\r', '\n', '\t' };
+    private static readonly char[] m_DelimiterChar = {';', '|', '\r', '\n', '\t'};
 
     /// <summary>
     ///   Checks whether a column name text ends on the text ID or Ref
@@ -88,13 +88,13 @@ namespace CsvTools
     public static string GetShortDisplay(in string? text, int length)
     {
       var withoutLineFeed = text?.Replace('\r', ' ').Replace('\n', ' ').Replace('\t', ' ').Replace("  ", " ")
-        .Replace("  ", " ")?? string.Empty;
+                              .Replace("  ", " ") ?? string.Empty;
       if (string.IsNullOrWhiteSpace(withoutLineFeed))
         return string.Empty;
-      if (length<1 || withoutLineFeed.Length <= length)
+      if (length < 1 || withoutLineFeed.Length <= length)
         return withoutLineFeed;
       withoutLineFeed = withoutLineFeed.Substring(0, length - 1);
-      var spaceIndex = withoutLineFeed.LastIndexOf(" ", length - 1 - length / 8, StringComparison.Ordinal);
+      var spaceIndex = withoutLineFeed.LastIndexOf(" ", length - 1 - (length / 8), StringComparison.Ordinal);
       if (spaceIndex > 1)
         return withoutLineFeed.Substring(0, spaceIndex) + "…";
 
@@ -193,7 +193,8 @@ namespace CsvTools
       do
       {
         fieldName = nameNoNumber + counterAdd++;
-      } while (previousColumns.Contains(fieldName));
+      }
+      while (previousColumns.Contains(fieldName));
 
       return fieldName;
     }
@@ -222,11 +223,47 @@ namespace CsvTools
     /// </summary>
     /// <param name="original">The original text.</param>
     /// <returns>The Text without special characters</returns>
-    public static string NoSpecials(this string original)
+    public static string NoSpecials(this string original) =>
+      ProcessByCategory(
+        original,
+        x => x == UnicodeCategory.LowercaseLetter || x == UnicodeCategory.UppercaseLetter
+                                                  || x == UnicodeCategory.DecimalDigitNumber);
+
+    /// <summary>
+    ///   Check if a text would match a filter value,
+    /// </summary>
+    /// <param name="item">The item of a list that should be checked</param>
+    /// <param name="filter">
+    ///   Filter value, for OR separate words by space for AND separate words by +
+    /// </param>
+    /// <param name="stringComparison"></param>
+    /// <Note>In case the filter is empty there is no filter it will always return true</Note>
+    /// <returns>True if text matches</returns>
+    public static bool PassesFilter(
+      this string? item,
+      in string? filter,
+      StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
     {
-      return ProcessByCategory(original,
-        x => x == UnicodeCategory.LowercaseLetter || x == UnicodeCategory.UppercaseLetter ||
-             x == UnicodeCategory.DecimalDigitNumber);
+      if (string.IsNullOrEmpty(filter))
+        return true;
+      if (string.IsNullOrEmpty(item))
+        return false;
+
+      if (filter!.IndexOf('+') <= -1)
+        return filter.Split(new[] {' ', ',', ';'}, StringSplitOptions.RemoveEmptyEntries)
+          .Any(part => item!.IndexOf(part, stringComparison) != -1);
+      var parts = filter.Split(new[] {'+', ' ', ',', ';'}, StringSplitOptions.RemoveEmptyEntries);
+      if (parts.Length == 0)
+        return true;
+
+      // 1st part
+      var all = item!.IndexOf(parts[0], stringComparison) > -1;
+
+      // and all other parts
+      for (var index = 1; index < parts.Length && all; index++)
+        if (item.IndexOf(parts[index], stringComparison) == -1)
+          all = false;
+      return all;
     }
 
     /// <summary>
@@ -236,8 +273,7 @@ namespace CsvTools
     /// <param name="original">The original.</param>
     /// <param name="testFunction">The test function called on each individual char</param>
     /// <returns>A test with only allowed characters</returns>
-    public static string ProcessByCategory(this string original,
-      Func<UnicodeCategory, bool> testFunction)
+    public static string ProcessByCategory(this string original, Func<UnicodeCategory, bool> testFunction)
     {
       if (string.IsNullOrEmpty(original))
         return string.Empty;
@@ -266,7 +302,8 @@ namespace CsvTools
     {
       if (treatAsNull.Length == 0)
         return false;
-      return value is null || value.Length == 0 || SplitByDelimiter(treatAsNull).Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
+      return value is null || value.Length == 0 || SplitByDelimiter(treatAsNull)
+               .Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -274,12 +311,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputValue">The string to be split.</param>
     /// <returns>String array with substrings, empty elements are removed</returns>
-    public static string[] SplitByDelimiter(in string? inputValue)
-    {
-      return string.IsNullOrEmpty(inputValue)
+    public static string[] SplitByDelimiter(in string? inputValue) =>
+      string.IsNullOrEmpty(inputValue)
         ? Array.Empty<string>()
         : inputValue!.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
-    }
 
     /// <summary>
     ///   Escapes SQL names; does not include the brackets or quotes
@@ -294,42 +329,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="contents">The contents.</param>
     /// <returns></returns>
-    public static string SqlQuote(this string? contents) => string.IsNullOrEmpty(contents) ? string.Empty : contents!.Replace("'", "''");
-
-    /// <summary>
-    ///   Check if a text would match a filter value,
-    /// </summary>
-    /// <param name="item">The item of a list that should be checked</param>
-    /// <param name="filter">
-    ///   Filter value, for OR separate words by space for AND separate words by +
-    /// </param>
-    /// <param name="stringComparison"></param>
-    /// <Note>In case the filter is empty there is no filter it will always return true</Note>
-    /// <returns>True if text matches</returns>
-    public static bool PassesFilter(this string? item, in string? filter,
-      StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
-    {
-      if (string.IsNullOrEmpty(filter))
-        return true;
-      if (string.IsNullOrEmpty(item))
-        return false;
-
-      if (filter!.IndexOf('+') <= -1)
-        return filter.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-          .Any(part => item!.IndexOf(part, stringComparison) != -1);
-      var parts = filter.Split(new[] { '+', ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
-      if (parts.Length==0)
-        return true;
-
-      // 1st part
-      var all = item!.IndexOf(parts[0], stringComparison) > -1;
-
-      // and all other parts
-      for (var index = 1; index < parts.Length && all; index++)
-        if (item.IndexOf(parts[index], stringComparison) == -1)
-          all = false;
-      return all;
-    }
+    public static string SqlQuote(this string? contents) =>
+      string.IsNullOrEmpty(contents) ? string.Empty : contents!.Replace("'", "''");
 
     /// <summary>
     ///   Read the value and determine if this could be a constant value (surrounded by " or ') if
@@ -344,8 +345,9 @@ namespace CsvTools
       if (string.IsNullOrEmpty(entry))
         return false;
 
-      if (entry!.Length > 2 && ((entry.StartsWith("\"", StringComparison.Ordinal) && entry.EndsWith("\"", StringComparison.Ordinal))
-                             || (entry.StartsWith("'", StringComparison.Ordinal) && entry.EndsWith("'", StringComparison.Ordinal))))
+      if (entry!.Length > 2
+          && ((entry.StartsWith("\"", StringComparison.Ordinal) && entry.EndsWith("\"", StringComparison.Ordinal))
+              || (entry.StartsWith("'", StringComparison.Ordinal) && entry.EndsWith("'", StringComparison.Ordinal))))
       {
         result = entry.Substring(1, entry.Length - 2);
         return true;

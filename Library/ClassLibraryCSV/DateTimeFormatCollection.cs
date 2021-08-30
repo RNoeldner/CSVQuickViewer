@@ -13,17 +13,17 @@
  */
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CsvTools
 {
-  using System.Linq;
-
   public class DateTimeFormatCollection
   {
     /// <summary>
     ///   A lookup for minimum and maximum length by format description
     /// </summary>
-    private readonly Dictionary<string, DateTimeFormatInformation> m_DateLengthMinMax = new Dictionary<string, DateTimeFormatInformation>();
+    private readonly Dictionary<string, DateTimeFormatInformation> m_DateLengthMinMax =
+      new Dictionary<string, DateTimeFormatInformation>();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="DateTimeFormatCollection" /> class.
@@ -66,7 +66,8 @@ namespace CsvTools
     /// <param name="key">The key.</param>
     /// <param name="value">The <see cref="DateTimeFormatInformation" />.</param>
     /// <returns><c>true</c> if key was found</returns>
-    public bool TryGetValue(in string key, out DateTimeFormatInformation value) => m_DateLengthMinMax.TryGetValue(key, out value);
+    public bool TryGetValue(in string key, out DateTimeFormatInformation value) =>
+      m_DateLengthMinMax.TryGetValue(key, out value);
 
     /// <summary>
     ///   Adds the specified entry.

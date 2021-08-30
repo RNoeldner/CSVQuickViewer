@@ -28,8 +28,11 @@ namespace CsvTools
   public class DataReaderWrapper : DbDataReader
   {
     public readonly ReaderMapping ReaderMapping;
+
     protected readonly IFileReader? FileReader;
+
     protected IDataReader DataReader;
+
     private readonly long m_RecordLimit;
 
     /// <summary>
@@ -42,8 +45,13 @@ namespace CsvTools
     /// <param name="addStartLine">Add artificial field Start Line</param>
     /// <param name="addEndLine">Add artificial field End Line</param>
     /// <param name="addRecNum">Add artificial field Records Number</param>
-    public DataReaderWrapper(in IDataReader reader, long recordLimit = 0, bool addErrorField = false,
-                             bool addStartLine = false, bool addEndLine = false, bool addRecNum = false)
+    public DataReaderWrapper(
+      in IDataReader reader,
+      long recordLimit = 0,
+      bool addErrorField = false,
+      bool addStartLine = false,
+      bool addEndLine = false,
+      bool addRecNum = false)
     {
       DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
       FileReader = reader as IFileReader;
@@ -59,7 +67,7 @@ namespace CsvTools
 
     public long EndLineNumber => FileReader?.EndLineNumber ?? RecordNumber;
 
-    public bool EndOfFile => FileReader?.EndOfFile ?? DataReader.IsClosed || RecordNumber >= m_RecordLimit;
+    public bool EndOfFile => FileReader?.EndOfFile ?? (DataReader.IsClosed || RecordNumber >= m_RecordLimit);
 
     public override int FieldCount => ReaderMapping.Column.Count;
 
@@ -67,7 +75,9 @@ namespace CsvTools
 
     public override bool IsClosed => DataReader.IsClosed;
 
-    public virtual int Percent => (FileReader != null && FileReader.Percent != 0 && FileReader.Percent != 100) ? FileReader.Percent : RecordNumber > 0 ? (int) (RecordNumber / (double) m_RecordLimit * 100d) : 0;
+    public virtual int Percent =>
+      FileReader != null && FileReader.Percent != 0 && FileReader.Percent != 100 ? FileReader.Percent :
+      RecordNumber > 0 ? (int) (RecordNumber / (double) m_RecordLimit * 100d) : 0;
 
     public long RecordNumber { get; protected set; }
 
@@ -101,7 +111,8 @@ namespace CsvTools
 
     public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
 
-    public override DateTime GetDateTime(int ordinal) => DataReader.GetDateTime(ReaderMapping.DataTableToReader(ordinal));
+    public override DateTime GetDateTime(int ordinal) =>
+      DataReader.GetDateTime(ReaderMapping.DataTableToReader(ordinal));
 
     public override decimal GetDecimal(int ordinal) => DataReader.GetDecimal(ReaderMapping.DataTableToReader(ordinal));
 
@@ -153,10 +164,10 @@ namespace CsvTools
 
         schemaRow[1] = column.Name; // Column name
         schemaRow[4] = column.Name; // Column name
-        schemaRow[5] = col;         // Column ordinal
+        schemaRow[5] = col; // Column ordinal
 
-        if (col == ReaderMapping.DataTableStartLine || col == ReaderMapping.DataTableRecNum ||
-            col == ReaderMapping.DataTableEndLine)
+        if (col == ReaderMapping.DataTableStartLine || col == ReaderMapping.DataTableRecNum
+                                                    || col == ReaderMapping.DataTableEndLine)
         {
           schemaRow[7] = typeof(long);
         }
@@ -194,11 +205,12 @@ namespace CsvTools
     public override int GetValues(object[] values) => DataReader.GetValues(values);
 
     public override bool IsDBNull(int columnNumber) =>
-      columnNumber != ReaderMapping.DataTableStartLine && columnNumber != ReaderMapping.DataTableEndLine &&
-      columnNumber != ReaderMapping.DataTableRecNum &&
-      (columnNumber == ReaderMapping.DataTableErrorField
-         ? (ReaderMapping.ColumnErrorDictionary?.Count ?? 0) == 0
-         : DataReader.IsDBNull(ReaderMapping.DataTableToReader(columnNumber)));
+      columnNumber != ReaderMapping.DataTableStartLine && columnNumber != ReaderMapping.DataTableEndLine
+                                                       && columnNumber != ReaderMapping.DataTableRecNum
+                                                       && (columnNumber == ReaderMapping.DataTableErrorField
+                                                             ? (ReaderMapping.ColumnErrorDictionary?.Count ?? 0) == 0
+                                                             : DataReader.IsDBNull(
+                                                               ReaderMapping.DataTableToReader(columnNumber)));
 
     public override bool NextResult() => false;
 
@@ -207,7 +219,9 @@ namespace CsvTools
     public override async Task<bool> ReadAsync(CancellationToken token)
     {
       ReaderMapping.ColumnErrorDictionary?.Clear();
-      var couldRead = (DataReader is DbDataReader dbDataReader) ? await dbDataReader.ReadAsync(token).ConfigureAwait(false) : DataReader.Read();
+      var couldRead = DataReader is DbDataReader dbDataReader
+                        ? await dbDataReader.ReadAsync(token).ConfigureAwait(false)
+                        : DataReader.Read();
 
       if (couldRead)
         RecordNumber++;

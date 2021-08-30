@@ -20,7 +20,6 @@ namespace CsvTools
   ///   Setting file for Json files, its an implementation of <see cref="StructuredFile" />
   /// </summary>
   [Serializable]
-
   public class JsonFile : StructuredFile, IJsonFile
   {
     /// <summary>
@@ -35,7 +34,8 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
     /// </summary>
-    public JsonFile() : this(string.Empty)
+    public JsonFile()
+      : this(string.Empty)
     {
     }
 
@@ -46,6 +46,7 @@ namespace CsvTools
       return other;
     }
 
-    public override bool Equals(IFileSetting? other) => other is IJsonFile json && BaseSettingsEquals(json as StructuredFile);
+    public override bool Equals(IFileSetting? other) =>
+      other is IJsonFile json && BaseSettingsEquals(json as StructuredFile);
   }
 }

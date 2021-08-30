@@ -12,13 +12,12 @@
  *
  */
 
+using System;
+using System.ComponentModel;
+using System.Xml.Serialization;
+
 namespace CsvTools
 {
-
-  using System;
-  using System.ComponentModel;
-  using System.Xml.Serialization;
-
   /// <summary>
   ///   Setting class for a general file format
   /// </summary>
@@ -28,6 +27,8 @@ namespace CsvTools
     // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public const string cEscapeCharacterDefault = "";
 
+    public const RecordDelimiterType cNewLineDefault = RecordDelimiterType.CRLF;
+
     private const string c_CommentLineDefault = "";
 
     private const string c_DelimiterPlaceholderDefault = "";
@@ -36,15 +37,11 @@ namespace CsvTools
 
     private const string c_FieldQualifierDefault = "\"";
 
-    public const RecordDelimiterType cNewLineDefault = RecordDelimiterType.CRLF;
-
     private const string c_NewLinePlaceholderDefault = "";
 
     private const bool c_QualifyOnlyIfNeededDefault = true;
 
     private const string c_QuotePlaceholderDefault = "";
-
-    private bool m_DuplicateQuotingToEscape = true;
 
     private bool m_AlternateQuoting;
 
@@ -52,9 +49,11 @@ namespace CsvTools
 
     private string m_DelimiterPlaceholder = c_DelimiterPlaceholderDefault;
 
-    private string m_EscapeCharacter = cEscapeCharacterDefault;
+    private bool m_DuplicateQuotingToEscape = true;
 
     private char m_EscapeChar = cEscapeCharacterDefault.WrittenPunctuationToChar();
+
+    private string m_EscapeCharacter = cEscapeCharacterDefault;
 
     private string m_FieldDelimiter = c_FieldDelimiterDefault;
 
@@ -172,10 +171,7 @@ namespace CsvTools
     }
 
     [XmlIgnore]
-    public virtual char EscapeChar
-    {
-      get => m_EscapeChar;
-    }
+    public virtual char EscapeChar => m_EscapeChar;
 
     /// <summary>
     ///   Gets or sets the escape character.
@@ -428,20 +424,42 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return AlternateQuoting == other.AlternateQuoting
-             && DuplicateQuotingToEscape == other.DuplicateQuotingToEscape
-             && string.Equals(CommentLine, other.CommentLine, StringComparison.Ordinal)
-             && string.Equals(DelimiterPlaceholder, other.DelimiterPlaceholder, StringComparison.Ordinal)
-             && string.Equals(EscapeCharacter, other.EscapeCharacter, StringComparison.Ordinal)
-             && string.Equals(FieldDelimiter, other.FieldDelimiter, StringComparison.Ordinal)
-             && FieldDelimiterChar == other.FieldDelimiterChar
-             && string.Equals(FieldQualifier, other.FieldQualifier, StringComparison.Ordinal)
-             && FieldQualifierChar == other.FieldQualifierChar
-             && NewLine.Equals(other.NewLine)
-             && string.Equals(NewLinePlaceholder, other.NewLinePlaceholder, StringComparison.Ordinal)
-             && QualifyAlways == other.QualifyAlways && QualifyOnlyIfNeeded == other.QualifyOnlyIfNeeded
-             && string.Equals(QuotePlaceholder, other.QuotePlaceholder, StringComparison.Ordinal)
-             && ValueFormatMutable.ValueFormatEqual(other.ValueFormatMutable);
+      return AlternateQuoting == other.AlternateQuoting && DuplicateQuotingToEscape == other.DuplicateQuotingToEscape
+                                                        && string.Equals(
+                                                          CommentLine,
+                                                          other.CommentLine,
+                                                          StringComparison.Ordinal)
+                                                        && string.Equals(
+                                                          DelimiterPlaceholder,
+                                                          other.DelimiterPlaceholder,
+                                                          StringComparison.Ordinal)
+                                                        && string.Equals(
+                                                          EscapeCharacter,
+                                                          other.EscapeCharacter,
+                                                          StringComparison.Ordinal)
+                                                        && string.Equals(
+                                                          FieldDelimiter,
+                                                          other.FieldDelimiter,
+                                                          StringComparison.Ordinal)
+                                                        && FieldDelimiterChar == other.FieldDelimiterChar
+                                                        && string.Equals(
+                                                          FieldQualifier,
+                                                          other.FieldQualifier,
+                                                          StringComparison.Ordinal)
+                                                        && FieldQualifierChar == other.FieldQualifierChar
+                                                        && NewLine.Equals(other.NewLine)
+                                                        && string.Equals(
+                                                          NewLinePlaceholder,
+                                                          other.NewLinePlaceholder,
+                                                          StringComparison.Ordinal)
+                                                        && QualifyAlways == other.QualifyAlways
+                                                        && QualifyOnlyIfNeeded == other.QualifyOnlyIfNeeded
+                                                        && string.Equals(
+                                                          QuotePlaceholder,
+                                                          other.QuotePlaceholder,
+                                                          StringComparison.Ordinal)
+                                                        && ValueFormatMutable.ValueFormatEqual(
+                                                          other.ValueFormatMutable);
     }
 
     /// <summary>

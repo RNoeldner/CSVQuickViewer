@@ -26,6 +26,4 @@ namespace CsvTools
     /// <returns></returns>
     T Clone();
   }
-
-
 }

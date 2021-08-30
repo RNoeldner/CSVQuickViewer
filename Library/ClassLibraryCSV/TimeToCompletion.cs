@@ -25,11 +25,17 @@ namespace CsvTools
   public class TimeToCompletion
   {
     private readonly long m_MaximumTicks;
+
     private readonly byte m_MinimumData;
+
     private readonly Queue<ProgressOverTime> m_Queue;
+
     private readonly Stopwatch m_Stopwatch = new Stopwatch();
+
     private ProgressOverTime m_FirstItem;
+
     private ProgressOverTime m_LastItem;
+
     private long m_TargetValue;
 
     /// <summary>
@@ -76,7 +82,8 @@ namespace CsvTools
     /// <value>Percent (usually between 0 and 1)</value>
     public double Percent { get; private set; }
 
-    public string PercentDisplay => string.Format(CultureInfo.CurrentCulture, Percent < 10 ? "{0:F1}%" : "{0:F0}%", Percent);
+    public string PercentDisplay =>
+      string.Format(CultureInfo.CurrentCulture, Percent < 10 ? "{0:F1}%" : "{0:F0}%", Percent);
 
     /// <summary>
     ///   Gets or sets the target value / maximum that would match 100%.
@@ -137,12 +144,12 @@ namespace CsvTools
         }
         else
         {
-          var finishedInTicks = (m_TargetValue - m_LastItem.Value) * (double) (m_LastItem.Tick - m_FirstItem.Tick) /
-                                (m_LastItem.Value - m_FirstItem.Value);
+          var finishedInTicks = (m_TargetValue - m_LastItem.Value) * (double) (m_LastItem.Tick - m_FirstItem.Tick)
+                                / (m_LastItem.Value - m_FirstItem.Value);
           // Calculate the estimated finished time but add 5%
           EstimatedTimeRemaining = finishedInTicks / Stopwatch.Frequency > .9
-            ? TimeSpan.FromSeconds(finishedInTicks / Stopwatch.Frequency * 1.05)
-            : TimeSpan.MaxValue;
+                                     ? TimeSpan.FromSeconds(finishedInTicks / Stopwatch.Frequency * 1.05)
+                                     : TimeSpan.MaxValue;
         }
       }
       get => m_LastItem.Value;
@@ -156,7 +163,7 @@ namespace CsvTools
     /// <returns></returns>
     public static string DisplayTimespan(TimeSpan value, bool cut2Sec = true)
     {
-      if (value == TimeSpan.MaxValue || cut2Sec && value.TotalSeconds < 2)
+      if (value == TimeSpan.MaxValue || (cut2Sec && value.TotalSeconds < 2))
         return string.Empty;
       if (value.TotalSeconds < 2 && !cut2Sec)
         return $"{value:s\\.ff} sec";
@@ -164,12 +171,13 @@ namespace CsvTools
         return $"{value:%s} sec";
       if (value.TotalHours < 1)
         return $"{value:mm\\:ss}";
-      return value.TotalHours<24 ? $"{value:hh\\:mm} hour" : $"{value:dd hh\\:mm} days";
+      return value.TotalHours < 24 ? $"{value:hh\\:mm} hour" : $"{value:dd hh\\:mm} days";
     }
 
     private struct ProgressOverTime
     {
       public long Tick;
+
       public long Value;
     }
   }

@@ -28,22 +28,33 @@ namespace CsvTools
   public interface IFileReader : IDataReader
   {
     /// <summary>
+    ///   Event handler called if a warning or error occurred
+    /// </summary>
+    event EventHandler<WarningEventArgs> Warning;
+
+    /// <summary>
     ///   Gets the end line number, if reading form text file, otherwise <see cref="RecordNumber" />
     /// </summary>
     /// <value>The line number in which the record ended</value>
     long EndLineNumber { get; }
 
     /// <summary>
-    ///   Value between 0 and 100 to show the progress of the reader, not all readers do support
-    ///   this, readers based on streams usually return the relative position in that stream. 
-    /// </summary>
-    int Percent { get; }
-
-    /// <summary>
     ///   Determine if the data Reader is at the end of the file
     /// </summary>
     /// <returns>True if you can read; otherwise, false.</returns>
     bool EndOfFile { get; }
+
+    /// <summary>
+    ///   Occurs before the initial open. Can be used to prepare the data like download it from a
+    ///   remote location
+    /// </summary>
+    Func<Task> OnOpen { set; }
+
+    /// <summary>
+    ///   Value between 0 and 100 to show the progress of the reader, not all readers do support
+    ///   this, readers based on streams usually return the relative position in that stream.
+    /// </summary>
+    int Percent { get; }
 
     /// <summary>
     ///   Gets the record number of a the records that just had been read (1 after the first read)
@@ -64,19 +75,11 @@ namespace CsvTools
     bool SupportsReset { get; }
 
     /// <summary>
-    ///   Occurs before the initial open. Can be used to prepare the data like download it from a
-    ///   remote location
+    ///   Gets the column information for a given column number
     /// </summary>
-    Func<Task> OnOpen { set; }
-
-    /// <summary>
-    ///   Advances the <see cref="T:System.Data.IDataReader" /> to the next record.
-    /// </summary>
-    /// <returns>
-    ///   <see langword="true" /> if there are more rows; otherwise, <see langword="false" />.
-    /// </returns>
-    [Obsolete("Use ReadAsync if possible")]
-    new bool Read();
+    /// <param name="column">The column number</param>
+    /// <returns>A <see cref="IColumn" /> with all information on the column</returns>
+    IColumn GetColumn(int column);
 
     /// <summary>
     ///   Advances the data reader to the next result, when reading the results of batch SQL statements.
@@ -88,6 +91,22 @@ namespace CsvTools
     new bool NextResult();
 
     /// <summary>
+    ///   Opens the text file and begins to read the meta data, like columns
+    /// </summary>
+    /// <param name="token">The cancellation token.</param>
+    /// <returns>Number of records in the file if known (use determineColumnSize), -1 otherwise</returns>
+    Task OpenAsync(CancellationToken token);
+
+    /// <summary>
+    ///   Advances the <see cref="T:System.Data.IDataReader" /> to the next record.
+    /// </summary>
+    /// <returns>
+    ///   <see langword="true" /> if there are more rows; otherwise, <see langword="false" />.
+    /// </returns>
+    [Obsolete("Use ReadAsync if possible")]
+    new bool Read();
+
+    /// <summary>
     ///   Reads the next record of the current result set asynchronously
     /// </summary>
     /// <param name="token">The cancellation token</param>
@@ -97,16 +116,15 @@ namespace CsvTools
     Task<bool> ReadAsync(CancellationToken token);
 
     /// <summary>
-    ///   Event handler called if a warning or error occurred
+    ///   Resets the position and buffer to the first data row (handing headers, and skipped rows)
     /// </summary>
-    event EventHandler<WarningEventArgs> Warning;
+    void ResetPositionToFirstDataRow();
 
 #if !QUICK
     /// <summary>
     ///   Event to be raised once the reader is finished reading the file
     /// </summary>
     event EventHandler ReadFinished;
-
 
     /// <summary>
     ///   Event to be raised once the reader opened, the column information is now known
@@ -119,23 +137,5 @@ namespace CsvTools
     /// </summary>
     event EventHandler<RetryEventArgs> OnAskRetry;
 #endif
-    /// <summary>
-    ///   Gets the column information for a given column number
-    /// </summary>
-    /// <param name="column">The column number</param>
-    /// <returns>A <see cref="IColumn" /> with all information on the column</returns>
-    IColumn GetColumn(int column);
-
-    /// <summary>
-    ///   Opens the text file and begins to read the meta data, like columns
-    /// </summary>
-    /// <param name="token">The cancellation token.</param>
-    /// <returns>Number of records in the file if known (use determineColumnSize), -1 otherwise</returns>
-    Task OpenAsync(CancellationToken token);
-
-    /// <summary>
-    ///   Resets the position and buffer to the first data row (handing headers, and skipped rows)
-    /// </summary>
-    void ResetPositionToFirstDataRow();
   }
 }

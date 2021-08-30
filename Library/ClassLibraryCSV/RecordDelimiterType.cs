@@ -1,7 +1,7 @@
+using System.ComponentModel;
+
 namespace CsvTools
 {
-  using System.ComponentModel;
-
   public enum RecordDelimiterType
   {
     [Description("")]
@@ -25,6 +25,4 @@ namespace CsvTools
     [Description("Unit Seperator")]
     US = 6
   }
-
-
 }

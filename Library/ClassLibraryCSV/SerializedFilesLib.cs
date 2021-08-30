@@ -28,12 +28,13 @@ namespace CsvTools
     ///   The a XML serialize namespace, used for all serialization
     /// </summary>
     public static readonly Lazy<XmlSerializerNamespaces> EmptyXmlSerializerNamespaces =
-      new Lazy<XmlSerializerNamespaces>(() =>
-      {
-        var xmlSerializerNamespaces = new XmlSerializerNamespaces();
-        xmlSerializerNamespaces.Add(string.Empty, string.Empty);
-        return xmlSerializerNamespaces;
-      });
+      new Lazy<XmlSerializerNamespaces>(
+        () =>
+        {
+          var xmlSerializerNamespaces = new XmlSerializerNamespaces();
+          xmlSerializerNamespaces.Add(string.Empty, string.Empty);
+          return xmlSerializerNamespaces;
+        });
 
     private static readonly Lazy<XmlSerializer> m_SerializerCurrentCsvFile =
       new Lazy<XmlSerializer>(() => new XmlSerializer(typeof(CsvFile)));
@@ -72,10 +73,9 @@ namespace CsvTools
       // remove not needed Columns so they do not play into comparison
       saveSetting.ColumnCollection.Clear();
       foreach (var col in fileSettingPhysicalFile.ColumnCollection)
-      {
-        if (col.Ignore || col.ValueFormat.DataType== DataType.String && col.Convert || col.ValueFormat.DataType!= DataType.String)
+        if (col.Ignore || (col.ValueFormat.DataType == DataType.String && col.Convert)
+                       || col.ValueFormat.DataType != DataType.String)
           saveSetting.ColumnCollection.Add(col);
-      }
 
       Logger.Debug("Saving setting {path}", fileName);
       string contend;

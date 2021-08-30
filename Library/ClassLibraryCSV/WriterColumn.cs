@@ -16,7 +16,14 @@ namespace CsvTools
 {
   public class WriterColumn : ImmutableColumn
   {
-    public WriterColumn(string name, int colNum, IValueFormat valueFormat, int fieldLength = 0, string constantTimeZone = "", int columnOrdinalTimeZone = -1) : base(name, valueFormat, colNum)
+    public WriterColumn(
+      string name,
+      int colNum,
+      IValueFormat valueFormat,
+      int fieldLength = 0,
+      string constantTimeZone = "",
+      int columnOrdinalTimeZone = -1)
+      : base(name, valueFormat, colNum)
     {
       FieldLength = fieldLength;
       ConstantTimeZone = constantTimeZone;

@@ -28,19 +28,23 @@ namespace CsvTools
   {
     private bool m_DisposedValue;
 
-    public DataTableWrapper(in DataTable? dataTable) : base(dataTable?.CreateDataReader() ?? throw new ArgumentNullException(nameof(dataTable)), dataTable.Rows.Count) => DataTable = dataTable;
+    public DataTableWrapper(in DataTable? dataTable)
+      : base(
+        dataTable?.CreateDataReader() ?? throw new ArgumentNullException(nameof(dataTable)),
+        dataTable.Rows.Count) =>
+      DataTable = dataTable;
 
-    public DataTable DataTable { get; }
+    [Obsolete("Not needed for DataTableWrapper")]
+    public event EventHandler<RetryEventArgs>? OnAskRetry;
 
     public event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
 
     public event EventHandler? ReadFinished;
 
     [Obsolete("Not needed for DataTableWrapper")]
-    public event EventHandler<RetryEventArgs>? OnAskRetry;
-
-    [Obsolete("Not needed for DataTableWrapper")]
     public event EventHandler<WarningEventArgs>? Warning;
+
+    public DataTable DataTable { get; }
 
     public Func<Task>? OnOpen { get; set; }
 
@@ -52,7 +56,7 @@ namespace CsvTools
     public async Task OpenAsync(CancellationToken token)
     {
       if (OnOpen != null) await OnOpen.Invoke().ConfigureAwait(false);
-      OpenFinished?.Invoke(this, base.ReaderMapping.Column);
+      OpenFinished?.Invoke(this, ReaderMapping.Column);
     }
 
     /// <summary>
@@ -78,18 +82,18 @@ namespace CsvTools
     /// </summary>
     public void ResetPositionToFirstDataRow()
     {
-      base.DataReader.Close();
-      base.DataReader = DataTable.CreateDataReader();
-      base.RecordNumber = 0;
+      DataReader.Close();
+      DataReader = DataTable.CreateDataReader();
+      RecordNumber = 0;
     }
 
     /// <summary>
-    ///   Releases the managed resources used by the <see cref="T:System.Data.Common.DbDataReader"
-    ///   /> and optionally releases the unmanaged resources.
+    ///   Releases the managed resources used by the <see cref="T:System.Data.Common.DbDataReader" /> and optionally releases
+    ///   the unmanaged resources.
     /// </summary>
     /// <param name="disposing">
-    ///   <see langword="true" /> to release managed and unmanaged resources; <see langword="false"
-    ///   /> to release only unmanaged resources.
+    ///   <see langword="true" /> to release managed and unmanaged resources; <see langword="false" /> to release only
+    ///   unmanaged resources.
     /// </param>
     protected override void Dispose(bool disposing)
     {

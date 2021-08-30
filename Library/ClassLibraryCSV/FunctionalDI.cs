@@ -14,9 +14,7 @@
 
 using System;
 using TimeZoneConverter;
-
 #if !QUICK
-
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,27 +37,55 @@ namespace CsvTools
     ///   implementation using Noda Time
     /// </summary>
     public static Func<DateTime, string, int, Action<int, string>?, DateTime> AdjustTZImport =
-      (input, srcTimeZone, columnOrdinal, handleWarning) =>
-        ChangeTimeZone(input, srcTimeZone, TimeZoneInfo.Local.Id, columnOrdinal, handleWarning);
+      (input, srcTimeZone, columnOrdinal, handleWarning) => ChangeTimeZone(
+        input,
+        srcTimeZone,
+        TimeZoneInfo.Local.Id,
+        columnOrdinal,
+        handleWarning);
 
     public static Func<DateTime, string, int, Action<int, string>?, DateTime> AdjustTZExport =
-      (input, destTimeZone, columnOrdinal, handleWarning) =>
-        ChangeTimeZone(input, TimeZoneInfo.Local.Id, destTimeZone, columnOrdinal, handleWarning);
+      (input, destTimeZone, columnOrdinal, handleWarning) => ChangeTimeZone(
+        input,
+        TimeZoneInfo.Local.Id,
+        destTimeZone,
+        columnOrdinal,
+        handleWarning);
 
-    private static DateTime ChangeTimeZone(in DateTime input, in string srcTimeZone,
-      in string destTimeZone, int columnOrdinal, in Action<int, string>? handleWarning)
+    /// <summary>
+    ///   Retrieve the passphrase for a files
+    /// </summary>
+    public static Func<string, string> GetEncryptedPassphraseForFile = s => string.Empty;
+
+    /// <summary>
+    ///   Open a file for reading, it will take care of things like compression and encryption
+    /// </summary>
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
+    public static Func<SourceAccess, IImprovedStream> OpenStream = fileAccess => new ImprovedStream(fileAccess);
+
+    private static DateTime ChangeTimeZone(
+      in DateTime input,
+      in string srcTimeZone,
+      in string destTimeZone,
+      int columnOrdinal,
+      in Action<int, string>? handleWarning)
     {
-      if (string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) ||
-          destTimeZone.Equals(srcTimeZone))
+      if (string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) || destTimeZone.Equals(srcTimeZone))
         return input;
       try
       {
 #if Windows
-        TimeZoneInfo srcTimeZoneInfo = (TZConvert.TryIanaToWindows(srcTimeZone, out var winSrc)) ? TimeZoneInfo.FindSystemTimeZoneById(winSrc) : TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone);
-        TimeZoneInfo destTimeZoneInfo = (TZConvert.TryIanaToWindows(destTimeZone, out var winDest)) ? TimeZoneInfo.FindSystemTimeZoneById(winDest) : TimeZoneInfo.FindSystemTimeZoneById(destTimeZone);
+        TimeZoneInfo srcTimeZoneInfo =
+ (TZConvert.TryIanaToWindows(srcTimeZone, out var winSrc)) ? TimeZoneInfo.FindSystemTimeZoneById(winSrc) : TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone);
+        TimeZoneInfo destTimeZoneInfo =
+ (TZConvert.TryIanaToWindows(destTimeZone, out var winDest)) ? TimeZoneInfo.FindSystemTimeZoneById(winDest) : TimeZoneInfo.FindSystemTimeZoneById(destTimeZone);
 #else
-        TimeZoneInfo srcTimeZoneInfo = (TZConvert.TryWindowsToIana(srcTimeZone, out var inaraSrc)) ? TimeZoneInfo.FindSystemTimeZoneById(inaraSrc) : TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone);
-        TimeZoneInfo destTimeZoneInfo = (TZConvert.TryWindowsToIana(destTimeZone, out var inaraDest)) ? TimeZoneInfo.FindSystemTimeZoneById(inaraSrc) : TimeZoneInfo.FindSystemTimeZoneById(destTimeZone);
+        TimeZoneInfo srcTimeZoneInfo = TZConvert.TryWindowsToIana(srcTimeZone, out var inaraSrc)
+                                         ? TimeZoneInfo.FindSystemTimeZoneById(inaraSrc)
+                                         : TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone);
+        TimeZoneInfo destTimeZoneInfo = TZConvert.TryWindowsToIana(destTimeZone, out var inaraDest)
+                                          ? TimeZoneInfo.FindSystemTimeZoneById(inaraSrc)
+                                          : TimeZoneInfo.FindSystemTimeZoneById(destTimeZone);
 #endif
         return TimeZoneInfo.ConvertTime(input, srcTimeZoneInfo, destTimeZoneInfo);
       }
@@ -70,17 +96,6 @@ namespace CsvTools
         return new DateTime();
       }
     }
-
-    /// <summary>
-    ///   Open a file for reading, it will take care of things like compression and encryption
-    /// </summary>
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<SourceAccess, IImprovedStream> OpenStream = fileAccess => new ImprovedStream(fileAccess);
-
-    /// <summary>
-    ///   Retrieve the passphrase for a files
-    /// </summary>
-    public static Func<string, string> GetEncryptedPassphraseForFile = s => string.Empty;
 
 #if !QUICK
 
@@ -121,48 +136,112 @@ namespace CsvTools
     /// </summary>
     public static Action SignalBackground = () => { };
 
-    private static IFileReader DefaultFileReader(IFileSetting setting, string? timeZone,
-      IProcessDisplay? processDisplay)
-    {
-      return setting switch
+    private static IFileReader DefaultFileReader(
+      IFileSetting setting,
+      string? timeZone,
+      IProcessDisplay? processDisplay) =>
+      setting switch
       {
-        IJsonFile csv => new JsonFileReader(csv.FullPath, csv.ColumnCollection, csv.RecordLimit,
-          csv.TrimmingOption == TrimmingOption.All, csv.TreatTextAsNull, csv.TreatNBSPAsSpace, processDisplay),
-        ICsvFile csv => new CsvFileReader(csv.FullPath, csv.CodePageId, csv.SkipRows, csv.HasFieldHeader,
-          csv.ColumnCollection, csv.TrimmingOption, csv.FileFormat.FieldDelimiter, csv.FileFormat.FieldQualifier,
-          csv.FileFormat.EscapeCharacter, csv.RecordLimit, csv.AllowRowCombining, csv.FileFormat.AlternateQuoting,
-          csv.FileFormat.CommentLine, csv.NumWarnings, csv.FileFormat.DuplicateQuotingToEscape,
-          csv.FileFormat.NewLinePlaceholder, csv.FileFormat.DelimiterPlaceholder, csv.FileFormat.QuotePlaceholder,
-          csv.SkipDuplicateHeader, csv.TreatLFAsSpace, csv.TreatUnknownCharacterAsSpace, csv.TryToSolveMoreColumns,
-          csv.WarnDelimiterInValue, csv.WarnLineFeed, csv.WarnNBSP, csv.WarnQuotes, csv.WarnUnknownCharacter,
-          csv.WarnEmptyTailingColumns, csv.TreatNBSPAsSpace, csv.TreatTextAsNull, csv.SkipEmptyLines,
-          csv.ConsecutiveEmptyRows, csv.IdentifierInContainer, processDisplay),
+        IJsonFile csv => new JsonFileReader(
+          csv.FullPath,
+          csv.ColumnCollection,
+          csv.RecordLimit,
+          csv.TrimmingOption == TrimmingOption.All,
+          csv.TreatTextAsNull,
+          csv.TreatNBSPAsSpace,
+          processDisplay),
+        ICsvFile csv => new CsvFileReader(
+          csv.FullPath,
+          csv.CodePageId,
+          csv.SkipRows,
+          csv.HasFieldHeader,
+          csv.ColumnCollection,
+          csv.TrimmingOption,
+          csv.FileFormat.FieldDelimiter,
+          csv.FileFormat.FieldQualifier,
+          csv.FileFormat.EscapeCharacter,
+          csv.RecordLimit,
+          csv.AllowRowCombining,
+          csv.FileFormat.AlternateQuoting,
+          csv.FileFormat.CommentLine,
+          csv.NumWarnings,
+          csv.FileFormat.DuplicateQuotingToEscape,
+          csv.FileFormat.NewLinePlaceholder,
+          csv.FileFormat.DelimiterPlaceholder,
+          csv.FileFormat.QuotePlaceholder,
+          csv.SkipDuplicateHeader,
+          csv.TreatLFAsSpace,
+          csv.TreatUnknownCharacterAsSpace,
+          csv.TryToSolveMoreColumns,
+          csv.WarnDelimiterInValue,
+          csv.WarnLineFeed,
+          csv.WarnNBSP,
+          csv.WarnQuotes,
+          csv.WarnUnknownCharacter,
+          csv.WarnEmptyTailingColumns,
+          csv.TreatNBSPAsSpace,
+          csv.TreatTextAsNull,
+          csv.SkipEmptyLines,
+          csv.ConsecutiveEmptyRows,
+          csv.IdentifierInContainer,
+          processDisplay),
         _ => throw new NotImplementedException($"Reader for {setting} not found")
       };
-    }
 
-    private static IFileWriter DefaultFileWriter(IFileSettingPhysicalFile physicalFile,
-      IProcessDisplay? processDisplay)
+    private static IFileWriter DefaultFileWriter(IFileSettingPhysicalFile physicalFile, IProcessDisplay? processDisplay)
     {
       IFileWriter? writer = null;
       switch (physicalFile)
       {
         case ICsvFile csv:
-          writer = new CsvFileWriter(csv.ID, csv.FullPath, csv.HasFieldHeader, csv.FileFormat.ValueFormatMutable, csv.FileFormat, csv.CodePageId,
-        csv.ByteOrderMark, csv.ColumnCollection, csv.Recipient, csv.KeepUnencrypted, csv.IdentifierInContainer,
-        csv.Header, csv.Footer);
+          writer = new CsvFileWriter(
+            csv.ID,
+            csv.FullPath,
+            csv.HasFieldHeader,
+            csv.FileFormat.ValueFormatMutable,
+            csv.FileFormat,
+            csv.CodePageId,
+            csv.ByteOrderMark,
+            csv.ColumnCollection,
+            csv.Recipient,
+            csv.KeepUnencrypted,
+            csv.IdentifierInContainer,
+            csv.Header,
+            csv.Footer);
           break;
 
         case IJsonFile fileSetting:
-          writer = new JsonFileWriter(fileSetting.ID, fileSetting.FullPath, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, recipient: fileSetting.Recipient,
-        unencrypted: fileSetting.KeepUnencrypted, identifierInContainer: fileSetting.IdentifierInContainer, footer: fileSetting.Footer, header: fileSetting.Header,
-        columnDefinition: fileSetting.ColumnCollection, fileSettingDisplay: Convert.ToString(fileSetting), row: fileSetting.Row, processDisplay: processDisplay);
+          writer = new JsonFileWriter(
+            fileSetting.ID,
+            fileSetting.FullPath,
+            fileSetting.FileFormat.ValueFormatMutable,
+            fileSetting.FileFormat,
+            fileSetting.Recipient,
+            fileSetting.KeepUnencrypted,
+            fileSetting.IdentifierInContainer,
+            fileSetting.Footer,
+            fileSetting.Header,
+            fileSetting.ColumnCollection,
+            Convert.ToString(fileSetting),
+            fileSetting.Row,
+            processDisplay);
           break;
 
         case IXMLFile fileSetting:
-          writer = new XMLFileWriter(fileSetting.ID, fileSetting.FullPath, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, recipient: fileSetting.Recipient,
-        unencrypted: fileSetting.KeepUnencrypted, identifierInContainer: fileSetting.IdentifierInContainer, footer: fileSetting.Footer, header: fileSetting.Header,
-        columnDefinition: fileSetting.ColumnCollection, fileSettingDisplay: Convert.ToString(fileSetting), row: fileSetting.Row, processDisplay: processDisplay);
+          writer = new XMLFileWriter(
+            fileSetting.ID,
+            fileSetting.FullPath,
+            fileSetting.FileFormat.ValueFormatMutable,
+            fileSetting.FileFormat,
+            fileSetting.Recipient,
+            fileSetting.KeepUnencrypted,
+            fileSetting.IdentifierInContainer,
+            fileSetting.Footer,
+            fileSetting.Header,
+            fileSetting.ColumnCollection,
+            Convert.ToString(fileSetting),
+            fileSetting.Row,
+            processDisplay);
           break;
       }
 

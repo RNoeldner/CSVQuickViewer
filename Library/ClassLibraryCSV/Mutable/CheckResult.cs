@@ -18,30 +18,29 @@ using System.Collections.Generic;
 namespace CsvTools
 {
   /// <summary>
-  ///  Result of a format check, if the samples match a value type this is set, if not an example is give what did not match
+  ///   Result of a format check, if the samples match a value type this is set, if not an example is give what did not match
   /// </summary>
   public class CheckResult
   {
-    
     public ICollection<string> ExampleNonMatch { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    ///  The found value format
+    ///   The found value format
     /// </summary>
     public IValueFormat? FoundValueFormat { get; set; }
 
     /// <summary>
-    ///  The positive matches before an invalid value was found
+    ///   The positive matches before an invalid value was found
     /// </summary>
     public bool PossibleMatch { get; set; }
 
     /// <summary>
-    ///  The value format for a possible match
+    ///   The value format for a possible match
     /// </summary>
     public ImmutableValueFormat? ValueFormatPossibleMatch { get; set; }
 
     /// <summary>
-    ///  Combines a Sub check to an overall check
+    ///   Combines a Sub check to an overall check
     /// </summary>
     /// <param name="subResult">The sub result.</param>
     public void KeepBestPossibleMatch(CheckResult subResult)
@@ -55,10 +54,8 @@ namespace CsvTools
       ValueFormatPossibleMatch = subResult.ValueFormatPossibleMatch;
 
       foreach (var ex in subResult.ExampleNonMatch)
-      {
         if (!string.IsNullOrEmpty(ex))
           ExampleNonMatch.Add(ex);
-      }
     }
   }
 }

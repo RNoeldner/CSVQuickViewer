@@ -17,7 +17,8 @@ using System.Collections.Generic;
 
 namespace CsvTools
 {
-  public class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TValue> where TKey : notnull where TValue : notnull
+  public class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TValue>
+    where TKey : notnull where TValue : notnull
   {
     private readonly IDictionary<TValue, TKey> m_SecondToFirst;
 
@@ -30,7 +31,8 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="BiDirectionalDictionary{TKey, TValue}" /> class.
     /// </summary>
     /// <param name="capacity">Initial capacity.</param>
-    public BiDirectionalDictionary(int capacity) : base(capacity) =>
+    public BiDirectionalDictionary(int capacity)
+      : base(capacity) =>
       m_SecondToFirst = new Dictionary<TValue, TKey>(capacity);
 
     /// <summary>
@@ -66,6 +68,29 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Removes all items from the dictionary.
+    /// </summary>
+    public new void Clear()
+    {
+      m_SecondToFirst.Clear();
+      base.Clear();
+    }
+
+    /// <summary>
+    ///   Find the TFirst corresponding to the Second value. Throws an exception if value is not in
+    ///   the dictionary.
+    /// </summary>
+    /// <param name="value">the key to search for</param>
+    /// <returns>the value corresponding to value</returns>
+    public TKey GetByValue(in TValue value)
+    {
+      if (!m_SecondToFirst.TryGetValue(value, out var key))
+        throw new ArgumentException(nameof(value));
+
+      return key;
+    }
+
+    /// <summary>
     ///   Tries to add the pair to the dictionary. Returns false if either element is already in the dictionary
     /// </summary>
     /// <param name="key"></param>
@@ -87,30 +112,6 @@ namespace CsvTools
     /// <param name="value">the key to search for</param>
     /// <param name="key">the corresponding value</param>
     /// <returns>true if value is in the dictionary, false otherwise</returns>
-    public bool TryGetByValue(in TValue value, out TKey key) =>
-      m_SecondToFirst.TryGetValue(value, out key);
-
-    /// <summary>
-    ///   Find the TFirst corresponding to the Second value. Throws an exception if value is not in
-    ///   the dictionary.
-    /// </summary>
-    /// <param name="value">the key to search for</param>
-    /// <returns>the value corresponding to value</returns>
-    public TKey GetByValue(in TValue value)
-    {
-      if (!m_SecondToFirst.TryGetValue(value, out var key))
-        throw new ArgumentException(nameof(value));
-
-      return key;
-    }
-
-    /// <summary>
-    ///   Removes all items from the dictionary.
-    /// </summary>
-    public new void Clear()
-    {
-      m_SecondToFirst.Clear();
-      base.Clear();
-    }
+    public bool TryGetByValue(in TValue value, out TKey key) => m_SecondToFirst.TryGetValue(value, out key);
   }
 }

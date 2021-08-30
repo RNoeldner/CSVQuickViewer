@@ -22,24 +22,35 @@ namespace CsvTools
   ///   Settings how the typed values should be determined
   /// </summary>
   [Serializable]
-#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class FillGuessSettings : INotifyPropertyChanged, ICloneable<FillGuessSettings>, IEquatable<FillGuessSettings>
-#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
     private long m_CheckedRecords = 30000;
+
     private bool m_CheckNamedDates = true;
-    private bool m_DetectNumbers = true;
-    private bool m_DetectPercentage = true;
+
     private bool m_DetectBoolean = true;
+
     private bool m_DetectDateTime = true;
+
     private bool m_DetectGuid;
-    private string m_FalseValue = "False";
-    private bool m_IgnoreIdColumns = true;
-    private int m_MinSamples = 5;
-    private int m_SampleValues = 150;
-    private bool m_SerialDateTime = true;
-    private string m_TrueValue = "True";
+
+    private bool m_DetectNumbers = true;
+
+    private bool m_DetectPercentage = true;
+
     private bool m_Enabled = true;
+
+    private string m_FalseValue = "False";
+
+    private bool m_IgnoreIdColumns = true;
+
+    private int m_MinSamples = 5;
+
+    private int m_SampleValues = 150;
+
+    private bool m_SerialDateTime = true;
+
+    private string m_TrueValue = "True";
 
     /// <summary>
     ///   Occurs when a property value changes.
@@ -86,7 +97,8 @@ namespace CsvTools
     [XmlElement]
     public bool Enabled
     {
-      get => m_Enabled; set
+      get => m_Enabled;
+      set
       {
         if (m_Enabled == value)
           return;
@@ -346,21 +358,23 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return Enabled == other.Enabled && CheckedRecords == other.CheckedRecords && CheckNamedDates == other.CheckNamedDates &&
-             DateParts == other.DateParts &&
-             m_DetectNumbers == other.m_DetectNumbers && DetectPercentage == other.DetectPercentage &&
-             m_DetectBoolean == other.m_DetectBoolean && m_DetectDateTime == other.DetectDateTime &&
-             DetectGUID == other.DetectGUID &&
-             string.Equals(FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase) &&
-             IgnoreIdColumns == other.IgnoreIdColumns && MinSamples == other.MinSamples &&
-             SampleValues == other.SampleValues && SerialDateTime == other.SerialDateTime &&
-             string.Equals(TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase);
+      return Enabled == other.Enabled && CheckedRecords == other.CheckedRecords
+                                      && CheckNamedDates == other.CheckNamedDates && DateParts == other.DateParts
+                                      && m_DetectNumbers == other.m_DetectNumbers
+                                      && DetectPercentage == other.DetectPercentage
+                                      && m_DetectBoolean == other.m_DetectBoolean
+                                      && m_DetectDateTime == other.DetectDateTime && DetectGUID == other.DetectGUID
+                                      && string.Equals(FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase)
+                                      && IgnoreIdColumns == other.IgnoreIdColumns && MinSamples == other.MinSamples
+                                      && SampleValues == other.SampleValues && SerialDateTime == other.SerialDateTime
+                                      && string.Equals(TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
+    public virtual void NotifyPropertyChanged(string info) =>
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
   }
 }

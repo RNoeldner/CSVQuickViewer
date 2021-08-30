@@ -13,15 +13,25 @@ namespace CsvTools
     public readonly ColumnErrorDictionary? ColumnErrorDictionary;
 
     public readonly int DataTableEndLine;
+
     public readonly int DataTableErrorField;
+
     public readonly int DataTableRecNum;
+
     public readonly int DataTableStartLine;
+
     private readonly List<ImmutableColumn> m_DateTableColumns = new List<ImmutableColumn>();
+
     private readonly BiDirectionalDictionary<int, int> m_Mapping = new BiDirectionalDictionary<int, int>();
+
     private readonly List<string> m_ReaderColumnsAll = new List<string>();
 
-    public ReaderMapping(in IDataRecord dataReader, bool addStartLine, bool addRecNum, bool addEndLine,
-                         bool addErrorField)
+    public ReaderMapping(
+      in IDataRecord dataReader,
+      bool addStartLine,
+      bool addRecNum,
+      bool addEndLine,
+      bool addErrorField)
     {
       var fileReader = dataReader as IFileReader;
       if (fileReader != null)
@@ -41,7 +51,12 @@ namespace CsvTools
             column = new ImmutableColumn(iColumn);
         }
         else
-          column= new ImmutableColumn(dataReader.GetName(col), new ImmutableValueFormat(dataReader.GetFieldType(col).GetDataType()), col);
+        {
+          column = new ImmutableColumn(
+            dataReader.GetName(col),
+            new ImmutableValueFormat(dataReader.GetFieldType(col).GetDataType()),
+            col);
+        }
 
         m_ReaderColumnsAll.Add(column.Name);
         if (column.Ignore) continue;
@@ -54,8 +69,11 @@ namespace CsvTools
       if (addStartLine && !readerColumns.Contains(ReaderConstants.cStartLineNumberFieldName))
       {
         DataTableStartLine = fieldCount++;
-        m_DateTableColumns.Add(new ImmutableColumn(ReaderConstants.cStartLineNumberFieldName,
-          new ImmutableValueFormat(DataType.Integer), DataTableStartLine));
+        m_DateTableColumns.Add(
+          new ImmutableColumn(
+            ReaderConstants.cStartLineNumberFieldName,
+            new ImmutableValueFormat(DataType.Integer),
+            DataTableStartLine));
       }
       else
       {
@@ -65,8 +83,11 @@ namespace CsvTools
       if (addRecNum && !readerColumns.Contains(ReaderConstants.cRecordNumberFieldName))
       {
         DataTableRecNum = fieldCount++;
-        m_DateTableColumns.Add(new ImmutableColumn(ReaderConstants.cRecordNumberFieldName,
-          new ImmutableValueFormat(DataType.Integer), DataTableRecNum));
+        m_DateTableColumns.Add(
+          new ImmutableColumn(
+            ReaderConstants.cRecordNumberFieldName,
+            new ImmutableValueFormat(DataType.Integer),
+            DataTableRecNum));
       }
       else
       {
@@ -76,8 +97,11 @@ namespace CsvTools
       if (addEndLine && !readerColumns.Contains(ReaderConstants.cEndLineNumberFieldName))
       {
         DataTableEndLine = fieldCount++;
-        m_DateTableColumns.Add(new ImmutableColumn(ReaderConstants.cEndLineNumberFieldName,
-          new ImmutableValueFormat(DataType.Integer), DataTableEndLine));
+        m_DateTableColumns.Add(
+          new ImmutableColumn(
+            ReaderConstants.cEndLineNumberFieldName,
+            new ImmutableValueFormat(DataType.Integer),
+            DataTableEndLine));
       }
       else
       {
@@ -87,8 +111,8 @@ namespace CsvTools
       if (addErrorField && !readerColumns.Contains(ReaderConstants.cErrorField))
       {
         DataTableErrorField = fieldCount;
-        m_DateTableColumns.Add(new ImmutableColumn(ReaderConstants.cErrorField, new ImmutableValueFormat(),
-          DataTableErrorField));
+        m_DateTableColumns.Add(
+          new ImmutableColumn(ReaderConstants.cErrorField, new ImmutableValueFormat(), DataTableErrorField));
       }
       else
       {
@@ -96,12 +120,12 @@ namespace CsvTools
       }
     }
 
+    public IReadOnlyList<ImmutableColumn> Column => m_DateTableColumns;
+
     public string? RowErrorInformation =>
       ColumnErrorDictionary is null || ColumnErrorDictionary.Count == 0
         ? null
         : ErrorInformation.ReadErrorInformation(ColumnErrorDictionary, m_ReaderColumnsAll);
-
-    public IReadOnlyList<ImmutableColumn> Column => m_DateTableColumns;
 
     public int DataTableToReader(int tableColumn) => m_Mapping.GetByValue(tableColumn);
 

@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -53,16 +54,25 @@ namespace CsvTools
     private const char c_Nbsp = (char) 0xA0;
 
     private const char c_UnknownChar = (char) 0xFFFD;
+
     private readonly bool m_AllowRowCombining;
+
     private readonly bool m_AlternateQuoting;
+
     private readonly int m_CodePageId;
+
     private readonly string m_CommentLine;
+
     private readonly int m_ConsecutiveEmptyRowsMax;
+
     private readonly string m_DelimiterPlaceholder;
+
     private readonly bool m_DuplicateQuotingToEscape;
+
     private readonly char m_EscapeCharacterChar;
 
     private readonly char m_FieldDelimiterChar;
+
     private readonly char m_FieldQualifierChar;
 
     // This is used to report issues with columns
@@ -71,29 +81,44 @@ namespace CsvTools
     private readonly bool m_HasFieldHeader;
 
     private readonly bool m_HasQualifier;
+
     private readonly string m_IdentifierInContainer;
+
     private readonly string m_NewLinePlaceholder;
+
     private readonly int m_NumWarning;
+
     private readonly string m_QuotePlaceholder;
 
     // Store the raw text of the record, before split into columns and trimming of the columns
     private readonly StringBuilder m_RecordSource = new StringBuilder();
 
     private readonly bool m_SkipDuplicateHeader;
+
     private readonly bool m_SkipEmptyLines;
+
     private readonly int m_SkipRows;
 
     private readonly bool m_TreatLfAsSpace;
+
     private readonly bool m_TreatNbspAsSpace;
+
     private readonly string m_TreatTextAsNull;
+
     private readonly bool m_TreatUnknownCharacterAsSpace;
+
     private readonly TrimmingOption m_TrimmingOption;
+
     private readonly bool m_TryToSolveMoreColumns;
+
     private readonly bool m_WarnDelimiterInValue;
+
     private readonly bool m_WarnLineFeed;
 
     private readonly bool m_WarnNbsp;
+
     private readonly bool m_WarnQuotes;
+
     private readonly bool m_WarnUnknownCharacter;
 
     private int m_ConsecutiveEmptyRows;
@@ -127,79 +152,194 @@ namespace CsvTools
     /// </summary>
     private ImprovedTextReader? m_TextReader;
 
-    public CsvFileReader(in IImprovedStream improvedStream,
-                         int codePageId = 650001, int skipRows = 0,
-                         bool hasFieldHeader = true,
-                         in IEnumerable<IColumn>? columnDefinition = null,
-                         in TrimmingOption trimmingOption = TrimmingOption.Unquoted,
-                         in string fieldDelimiter = "\t", in string fieldQualifier = "\"", in string escapeCharacter = "",
-                         long recordLimit = 0,
-                         bool allowRowCombining = false, bool alternateQuoting = false,
-                         in string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
-                         in string newLinePlaceholder = "", in string delimiterPlaceholder = "", in string quotePlaceholder = "",
-                         bool skipDuplicateHeader = true,
-                         bool treatLfAsSpace = false, bool treatUnknownCharacterAsSpace = false, bool tryToSolveMoreColumns = true,
-                         bool warnDelimiterInValue = true,
-                         bool warnLineFeed = false, bool warnNbsp = true, bool warnQuotes = true, bool warnUnknownCharacter = true,
-                         bool warnEmptyTailingColumns = true,
-                         bool treatNbspAsSpace = false,
-                         in string treatTextAsNull = "NULL", bool skipEmptyLines = true,
-                         int consecutiveEmptyRowsMax = 4, in IProcessDisplay? processDisplay = null)
-      : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
-        trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
-        alternateQuoting, commentLine, numWarning, duplicateQuotingToEscape, newLinePlaceholder, delimiterPlaceholder,
-        quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace, tryToSolveMoreColumns,
-        warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
-        treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax, string.Empty, string.Empty, processDisplay)
-    {
+    public CsvFileReader(
+      in IImprovedStream improvedStream,
+      int codePageId = 650001,
+      int skipRows = 0,
+      bool hasFieldHeader = true,
+      in IEnumerable<IColumn>? columnDefinition = null,
+      in TrimmingOption trimmingOption = TrimmingOption.Unquoted,
+      in string fieldDelimiter = "\t",
+      in string fieldQualifier = "\"",
+      in string escapeCharacter = "",
+      long recordLimit = 0,
+      bool allowRowCombining = false,
+      bool alternateQuoting = false,
+      in string commentLine = "",
+      int numWarning = 0,
+      bool duplicateQuotingToEscape = true,
+      in string newLinePlaceholder = "",
+      in string delimiterPlaceholder = "",
+      in string quotePlaceholder = "",
+      bool skipDuplicateHeader = true,
+      bool treatLfAsSpace = false,
+      bool treatUnknownCharacterAsSpace = false,
+      bool tryToSolveMoreColumns = true,
+      bool warnDelimiterInValue = true,
+      bool warnLineFeed = false,
+      bool warnNbsp = true,
+      bool warnQuotes = true,
+      bool warnUnknownCharacter = true,
+      bool warnEmptyTailingColumns = true,
+      bool treatNbspAsSpace = false,
+      in string treatTextAsNull = "NULL",
+      bool skipEmptyLines = true,
+      int consecutiveEmptyRowsMax = 4,
+      in IProcessDisplay? processDisplay = null)
+      : this(
+        columnDefinition,
+        codePageId,
+        skipRows,
+        hasFieldHeader,
+        trimmingOption,
+        fieldDelimiter,
+        fieldQualifier,
+        escapeCharacter,
+        recordLimit,
+        allowRowCombining,
+        alternateQuoting,
+        commentLine,
+        numWarning,
+        duplicateQuotingToEscape,
+        newLinePlaceholder,
+        delimiterPlaceholder,
+        quotePlaceholder,
+        skipDuplicateHeader,
+        treatLfAsSpace,
+        treatUnknownCharacterAsSpace,
+        tryToSolveMoreColumns,
+        warnDelimiterInValue,
+        warnLineFeed,
+        warnNbsp,
+        warnQuotes,
+        warnUnknownCharacter,
+        warnEmptyTailingColumns,
+        treatNbspAsSpace,
+        treatTextAsNull,
+        skipEmptyLines,
+        consecutiveEmptyRowsMax,
+        string.Empty,
+        string.Empty,
+        processDisplay) =>
       m_ImprovedStream = improvedStream ?? throw new ArgumentNullException(nameof(improvedStream));
-    }
 
-    public CsvFileReader(in string fileName,
-                         int codePageId = 650001, // Encoding.UTF8.CodePage
-                         int skipRows = 0,
-                         bool hasFieldHeader = true,
-                         in IEnumerable<IColumn>? columnDefinition = null,
-                         in TrimmingOption trimmingOption = TrimmingOption.Unquoted,
-                         in string fieldDelimiter = "\t", in string fieldQualifier = "\"", in string escapeCharacter = "",
-                         long recordLimit = 0,
-                         bool allowRowCombining = false, bool alternateQuoting = false,
-                         in string commentLine = "", int numWarning = 0, bool duplicateQuotingToEscape = true,
-                         in string newLinePlaceholder = "", in string delimiterPlaceholder = "", in string quotePlaceholder = "",
-                         bool skipDuplicateHeader = true,
-                         bool treatLfAsSpace = false, bool treatUnknownCharacterAsSpace = false, bool tryToSolveMoreColumns = true,
-                         bool warnDelimiterInValue = true,
-                         bool warnLineFeed = false, bool warnNbsp = true, bool warnQuotes = true, bool warnUnknownCharacter = true,
-                         bool warnEmptyTailingColumns = true,
-                         bool treatNbspAsSpace = false,
-                         in string treatTextAsNull = "NULL", bool skipEmptyLines = true,
-                         int consecutiveEmptyRowsMax = 4, in string identifierInContainer = "", in IProcessDisplay? processDisplay = null)
-      : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
-        trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
-        alternateQuoting, commentLine, numWarning, duplicateQuotingToEscape, newLinePlaceholder, delimiterPlaceholder,
-        quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace, tryToSolveMoreColumns,
-        warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
-        treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax, identifierInContainer, fileName, processDisplay)
+    public CsvFileReader(
+      in string fileName,
+      int codePageId = 650001, // Encoding.UTF8.CodePage
+      int skipRows = 0,
+      bool hasFieldHeader = true,
+      in IEnumerable<IColumn>? columnDefinition = null,
+      in TrimmingOption trimmingOption = TrimmingOption.Unquoted,
+      in string fieldDelimiter = "\t",
+      in string fieldQualifier = "\"",
+      in string escapeCharacter = "",
+      long recordLimit = 0,
+      bool allowRowCombining = false,
+      bool alternateQuoting = false,
+      in string commentLine = "",
+      int numWarning = 0,
+      bool duplicateQuotingToEscape = true,
+      in string newLinePlaceholder = "",
+      in string delimiterPlaceholder = "",
+      in string quotePlaceholder = "",
+      bool skipDuplicateHeader = true,
+      bool treatLfAsSpace = false,
+      bool treatUnknownCharacterAsSpace = false,
+      bool tryToSolveMoreColumns = true,
+      bool warnDelimiterInValue = true,
+      bool warnLineFeed = false,
+      bool warnNbsp = true,
+      bool warnQuotes = true,
+      bool warnUnknownCharacter = true,
+      bool warnEmptyTailingColumns = true,
+      bool treatNbspAsSpace = false,
+      in string treatTextAsNull = "NULL",
+      bool skipEmptyLines = true,
+      int consecutiveEmptyRowsMax = 4,
+      in string identifierInContainer = "",
+      in IProcessDisplay? processDisplay = null)
+      : this(
+        columnDefinition,
+        codePageId,
+        skipRows,
+        hasFieldHeader,
+        trimmingOption,
+        fieldDelimiter,
+        fieldQualifier,
+        escapeCharacter,
+        recordLimit,
+        allowRowCombining,
+        alternateQuoting,
+        commentLine,
+        numWarning,
+        duplicateQuotingToEscape,
+        newLinePlaceholder,
+        delimiterPlaceholder,
+        quotePlaceholder,
+        skipDuplicateHeader,
+        treatLfAsSpace,
+        treatUnknownCharacterAsSpace,
+        tryToSolveMoreColumns,
+        warnDelimiterInValue,
+        warnLineFeed,
+        warnNbsp,
+        warnQuotes,
+        warnUnknownCharacter,
+        warnEmptyTailingColumns,
+        treatNbspAsSpace,
+        treatTextAsNull,
+        skipEmptyLines,
+        consecutiveEmptyRowsMax,
+        identifierInContainer,
+        fileName,
+        processDisplay)
     {
       if (fileName is null)
         throw new ArgumentNullException(nameof(fileName));
       if (fileName.Trim().Length == 0)
         throw new ArgumentException("File can not be empty", nameof(fileName));
       if (!FileSystemUtils.FileExists(fileName))
-        throw new System.IO.FileNotFoundException($"The file '{FileSystemUtils.GetShortDisplayFileName(fileName)}' does not exist or is not accessible.", fileName);
+        throw new FileNotFoundException(
+          $"The file '{FileSystemUtils.GetShortDisplayFileName(fileName)}' does not exist or is not accessible.",
+          fileName);
     }
 
-    private CsvFileReader(IEnumerable<IColumn>? columnDefinition, int codePageId, int skipRows, bool hasFieldHeader,
-         TrimmingOption trimmingOption,
-         string fieldDelimiter, string fieldQualifier, string escapeCharacter,
-         long recordLimit, bool allowRowCombining, bool alternateQuoting,
-         string commentLine, int numWarning, bool duplicateQuotingToEscape,
-         string newLinePlaceholder, string delimiterPlaceholder, string quotePlaceholder,
-         bool skipDuplicateHeader, bool treatLfAsSpace, bool treatUnknownCharacterAsSpace, bool tryToSolveMoreColumns,
-         bool warnDelimiterInValue, bool warnLineFeed, bool warnNbsp, bool warnQuotes, bool warnUnknownCharacter,
-         bool warnEmptyTailingColumns, bool treatNbspAsSpace, string treatTextAsNull, bool skipEmptyLines,
-         int consecutiveEmptyRowsMax, string identifierInContainer, string fileName, IProcessDisplay? processDisplay)
-         : base(fileName, columnDefinition, recordLimit, processDisplay)
+    private CsvFileReader(
+      IEnumerable<IColumn>? columnDefinition,
+      int codePageId,
+      int skipRows,
+      bool hasFieldHeader,
+      TrimmingOption trimmingOption,
+      string fieldDelimiter,
+      string fieldQualifier,
+      string escapeCharacter,
+      long recordLimit,
+      bool allowRowCombining,
+      bool alternateQuoting,
+      string commentLine,
+      int numWarning,
+      bool duplicateQuotingToEscape,
+      string newLinePlaceholder,
+      string delimiterPlaceholder,
+      string quotePlaceholder,
+      bool skipDuplicateHeader,
+      bool treatLfAsSpace,
+      bool treatUnknownCharacterAsSpace,
+      bool tryToSolveMoreColumns,
+      bool warnDelimiterInValue,
+      bool warnLineFeed,
+      bool warnNbsp,
+      bool warnQuotes,
+      bool warnUnknownCharacter,
+      bool warnEmptyTailingColumns,
+      bool treatNbspAsSpace,
+      string treatTextAsNull,
+      bool skipEmptyLines,
+      int consecutiveEmptyRowsMax,
+      string identifierInContainer,
+      string fileName,
+      IProcessDisplay? processDisplay)
+      : base(fileName, columnDefinition, recordLimit, processDisplay)
     {
       SelfOpenedStream = !string.IsNullOrEmpty(fileName);
       m_HeaderRow = Array.Empty<string>();
@@ -214,12 +354,11 @@ namespace CsvTools
         throw new FileReaderException(
           "The text quoting characters is invalid, please use something else than CR or LF");
 
-      if (m_FieldDelimiterChar == c_Cr || m_FieldDelimiterChar == c_Lf
-                                       || m_FieldDelimiterChar == ' ')
+      if (m_FieldDelimiterChar == c_Cr || m_FieldDelimiterChar == c_Lf || m_FieldDelimiterChar == ' ')
         throw new FileReaderException(
           "The field delimiter character is invalid, please use something else than CR, LF or Space");
 
-      if (m_FieldDelimiterChar == m_EscapeCharacterChar && m_EscapeCharacterChar!='\0')
+      if (m_FieldDelimiterChar == m_EscapeCharacterChar && m_EscapeCharacterChar != '\0')
         throw new FileReaderException(
           $"The escape character is invalid, please use something else than the field delimiter character {m_EscapeCharacterChar.GetDescription()}.");
 
@@ -346,43 +485,17 @@ namespace CsvTools
 
       var value = CurrentRowColumnText[columnNumber];
       var column = Column[columnNumber];
-      object? ret;
-
-      // Get Column Format for Column
-      switch (column.ValueFormat.DataType)
+      object? ret = column.ValueFormat.DataType switch
       {
-        case DataType.DateTime:
-          ret = GetDateTimeNull(null, value, null, GetTimeValue(columnNumber), column, true);
-          break;
-
-        case DataType.Integer:
-          ret = IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column);
-          break;
-
-        case DataType.Double:
-          ret = GetDoubleNull(value, columnNumber);
-          break;
-
-        case DataType.Numeric:
-          ret = GetDecimalNull(value, columnNumber);
-          break;
-
-        case DataType.Boolean:
-          ret = GetBooleanNull(value, columnNumber);
-          break;
-
-        case DataType.Guid:
-          ret = GetGuidNull(value, column.ColumnOrdinal);
-          break;
-
-        case DataType.String:
-          ret = value;
-          break;
-
-        default:
-          throw new ArgumentOutOfRangeException();
-      }
-
+        DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(columnNumber), column, true),
+        DataType.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
+        DataType.Double => GetDoubleNull(value, columnNumber),
+        DataType.Numeric => GetDecimalNull(value, columnNumber),
+        DataType.Boolean => GetBooleanNull(value, columnNumber),
+        DataType.Guid => GetGuidNull(value, column.ColumnOrdinal),
+        DataType.String => value,
+        _ => throw new ArgumentOutOfRangeException()
+      };
       return ret ?? DBNull.Value;
     }
 
@@ -401,7 +514,8 @@ namespace CsvTools
         if (SelfOpenedStream)
         {
           m_ImprovedStream?.Dispose();
-          m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath) { IdentifierInContainer = m_IdentifierInContainer });
+          m_ImprovedStream = FunctionalDI.OpenStream(
+            new SourceAccess(FullPath) {IdentifierInContainer = m_IdentifierInContainer});
         }
         else
         {
@@ -410,7 +524,10 @@ namespace CsvTools
         }
 
         m_TextReader?.Dispose();
-        m_TextReader = new ImprovedTextReader(m_ImprovedStream, await m_ImprovedStream.CodePageResolve(m_CodePageId, token).ConfigureAwait(false), m_SkipRows);
+        m_TextReader = new ImprovedTextReader(
+          m_ImprovedStream,
+          await m_ImprovedStream.CodePageResolve(m_CodePageId, token).ConfigureAwait(false),
+          m_SkipRows);
         ResetPositionToStartOrOpen();
 
         m_HeaderRow = ReadNextRow(false);
@@ -460,6 +577,8 @@ namespace CsvTools
       return false;
     }
 
+    public override bool Read(CancellationToken token) => !token.IsCancellationRequested && Read();
+
     public override Task<bool> ReadAsync(CancellationToken token) => Task.FromResult(Read(token));
 
     /// <summary>
@@ -473,8 +592,6 @@ namespace CsvTools
         ReadNextRow(false);
     }
 
-    public override bool Read(CancellationToken token) => !token.IsCancellationRequested && Read();
-
     /// <summary>
     ///   Gets the relative position.
     /// </summary>
@@ -484,7 +601,7 @@ namespace CsvTools
       var byFile = m_ImprovedStream?.Percentage ?? 0;
       if (RecordLimit > 0 && RecordLimit < long.MaxValue)
         // you can either reach the record limit or the end of the stream
-        return Math.Max(((double) RecordNumber) / RecordLimit, byFile);
+        return Math.Max((double) RecordNumber / RecordLimit, byFile);
       return byFile;
     }
 
@@ -520,6 +637,228 @@ namespace CsvTools
         EndLineNumber++;
     }
 
+    // This does read the next records, it will handle column mismatches
+    private bool GetNextRecord()
+    {
+      try
+      {
+        Restart:
+        CurrentRowColumnText = ReadNextRow(true);
+
+        if (AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
+        {
+          if (EndOfFile)
+            return false;
+
+          // an empty line
+          if (m_SkipEmptyLines)
+            goto Restart;
+        }
+
+        RecordNumber++;
+        var hasWarningCombinedWarning = false;
+        Restart2:
+        var rowLength = CurrentRowColumnText.Length;
+        if (rowLength == FieldCount)
+        {
+          // Check if we have row that matches the header row
+          if (m_HasFieldHeader && !hasWarningCombinedWarning)
+          {
+            var isRepeatedHeader = true;
+            for (var col = 0; col < FieldCount; col++)
+              if (!m_HeaderRow[col].Equals(CurrentRowColumnText[col], StringComparison.OrdinalIgnoreCase))
+              {
+                isRepeatedHeader = false;
+                break;
+              }
+
+            if (isRepeatedHeader && m_SkipDuplicateHeader)
+            {
+              HandleWarning(-1, "Repeated Header row is ignored");
+              RecordNumber--;
+              goto Restart;
+            }
+
+            if (m_RealignColumns != null && !isRepeatedHeader)
+              m_RealignColumns.AddRow(CurrentRowColumnText);
+          }
+        }
+        // If less columns are present
+        else if (rowLength < FieldCount)
+        {
+          // if we still have only one column and we should have a number of columns assume this was
+          // nonsense like a report footer
+          if (rowLength == 1 && EndOfFile && CurrentRowColumnText[0].Length < 10)
+          {
+            // As the record is ignored tis will most likely not be visible
+            // -2 to indicate this error could be stored with the previous line....
+            m_HandleMessageColumn(
+              -2,
+              $"Last line is '{CurrentRowColumnText[0]}'. Assumed to be a EOF marker and ignored.");
+            return false;
+          }
+
+          if (!m_AllowRowCombining)
+          {
+            m_HandleMessageColumn(-1, $"Line {cLessColumns} ({rowLength}/{FieldCount}).");
+          }
+          else
+          {
+            var startLine = StartLineNumber;
+
+            // get the next row
+            var nextLine = ReadNextRow(true);
+            StartLineNumber = startLine;
+
+            // allow up to two extra columns they can be combined later
+            if (nextLine.Length > 0 && nextLine.Length + rowLength < FieldCount + 4)
+            {
+              var combined = new List<string>(CurrentRowColumnText);
+
+              // the first column belongs to the last column of the previous ignore
+              // NumWarningsLinefeed otherwise as this is important information
+              m_NumWarningsLinefeed++;
+              m_HandleMessageColumn(
+                rowLength - 1,
+                $"Combined with line {EndLineNumber}, assuming a linefeed has split the column into additional line.");
+              combined[rowLength - 1] += '\n' + nextLine[0];
+
+              for (var col = 1; col < nextLine.Length; col++)
+                combined.Add(nextLine[col]);
+
+              //if (!hasWarningCombinedWarning)
+              //{
+              //  m_HandleMessageColumn(-1,
+              //    $"Line {cLessColumns}\nLines {StartLineNumber}-{EndLineNumber - 1} have been combined.");
+              //  hasWarningCombinedWarning = true;
+              //}
+
+              CurrentRowColumnText = combined.ToArray();
+              goto Restart2;
+            }
+
+            // we have an issue we went into the next Buffer there is no way back.
+            HandleError(
+              -1,
+              $"Line {cLessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
+          }
+        }
+
+        // If more columns are present
+        // ReSharper disable once InvertIf
+        if (rowLength > FieldCount)
+        {
+          var text = $"Line {cMoreColumns} ({rowLength}/{FieldCount}).";
+
+          if (m_RealignColumns != null)
+          {
+            m_HandleMessageColumn(-1, text + " Trying to realign columns.");
+
+            // determine which column could have caused the issue it could be any column, try to establish
+            CurrentRowColumnText = m_RealignColumns.RealignColumn(
+              CurrentRowColumnText,
+              m_HandleMessageColumn,
+              m_RecordSource.ToString());
+          }
+          else
+          {
+            // check if the additional columns have contents
+            var hasContent = false;
+            for (var extraCol = FieldCount; extraCol < rowLength; extraCol++)
+            {
+              if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
+                continue;
+              hasContent = true;
+              break;
+            }
+
+            if (!hasContent)
+            {
+              m_HandleMessageColumn(
+                -1,
+                text + " All additional columns where empty. Allow 're-align columns' to handle this.");
+              return true;
+            }
+
+            m_HandleMessageColumn(
+              -1,
+              text + " The data in extra columns is not read. Allow 're-align columns' to handle this.");
+          }
+        }
+
+        for (var columnNo = 0; columnNo < FieldCount && columnNo < CurrentRowColumnText.Length; columnNo++)
+        {
+          if (GetColumn(columnNo).Ignore || string.IsNullOrEmpty(CurrentRowColumnText[columnNo]))
+            continue;
+
+          // Handle replacements and warnings etc,
+          var adjustedValue = HandleTextSpecials(
+            CurrentRowColumnText[columnNo].ReplaceCaseInsensitive(m_NewLinePlaceholder, Environment.NewLine)
+              .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiterChar)
+              .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifierChar),
+            columnNo);
+
+          if (adjustedValue != null && adjustedValue.Length > 0)
+          {
+            if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifierChar) != -1)
+              if (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning)
+                HandleWarning(
+                  columnNo,
+                  $"Field qualifier '{m_FieldQualifierChar.GetDescription()}' found in field".AddWarningId());
+
+            if (m_WarnDelimiterInValue && adjustedValue.IndexOf(m_FieldDelimiterChar) != -1)
+              if (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning)
+                HandleWarning(
+                  columnNo,
+                  $"Field delimiter '{m_FieldDelimiterChar.GetDescription()}' found in field".AddWarningId());
+
+            if (m_WarnUnknownCharacter)
+            {
+              var numberQuestionMark = 0;
+              var lastPos = -1;
+              var length = adjustedValue.Length;
+              for (var pos = length - 1; pos >= 0; pos--)
+              {
+                if (adjustedValue[pos] != '?')
+                  continue;
+                numberQuestionMark++;
+
+                // If we have at least two and there are two consecutive or more than 3+ in 12
+                // characters, or 4+ in 16 characters
+                if (numberQuestionMark > 2 && (lastPos == pos + 1 || numberQuestionMark > length / 4))
+                {
+                  if (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning)
+                    HandleWarning(
+                      columnNo,
+                      "Unusual high occurrence of ? this indicates unmapped characters.".AddWarningId());
+                  break;
+                }
+
+                lastPos = pos;
+              }
+            }
+
+            if (m_WarnLineFeed && (adjustedValue.IndexOf('\r') != -1 || adjustedValue.IndexOf('\n') != -1))
+              WarnLinefeed(columnNo);
+
+            if (StringUtils.ShouldBeTreatedAsNull(adjustedValue, m_TreatTextAsNull))
+              adjustedValue = string.Empty;
+          }
+
+          CurrentRowColumnText[columnNo] = adjustedValue ?? string.Empty;
+        }
+
+        return true;
+      }
+      catch (Exception ex)
+      {
+        HandleError(-1, ex.Message);
+
+        EndOfFile = true;
+        return false;
+      }
+    }
+
     /// <summary>
     ///   Indicates whether the specified Unicode character is categorized as white space.
     /// </summary>
@@ -536,6 +875,17 @@ namespace CsvTools
         return c == ' ' || c == '\t';
 
       return CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.SpaceSeparator;
+    }
+
+    /// <summary>
+    ///   Move to next character and store the recent character
+    /// </summary>
+    /// <param name="current">The recent character that has been read</param>
+    private void MoveNext(char current)
+    {
+      if (m_RealignColumns != null)
+        m_RecordSource.Append(current);
+      m_TextReader?.MoveNext();
     }
 
     private int ParseFieldCount(IReadOnlyList<string> headerRow)
@@ -560,7 +910,7 @@ namespace CsvTools
 
         // special case of missing linefeed, the line is twice as long minus 1 because of the
         // combined column in the middle
-        if (nextLine.Length == fields * 2 - 1)
+        if (nextLine.Length == (fields * 2) - 1)
           continue;
 
         while (nextLine.GetLength(0) > fields)
@@ -599,17 +949,6 @@ namespace CsvTools
 
       // return a linefeed to determine the end of quoting easily
       return c_Lf;
-    }
-
-    /// <summary>
-    ///   Move to next character and store the recent character
-    /// </summary>
-    /// <param name="current">The recent character that has been read</param>
-    private void MoveNext(char current)
-    {
-      if (m_RealignColumns != null)
-        m_RecordSource.Append(current);
-      m_TextReader?.MoveNext();
     }
 
     /// <summary>
@@ -661,7 +1000,7 @@ namespace CsvTools
               // in case a linefeed actually follows ignore the EscapeCharacterChar but handle the
               // regular processing
               '\\' when nextChar == 'a' => '\a',
-              _ => nextChar,
+              _ => nextChar
             };
           }
         }
@@ -695,14 +1034,12 @@ namespace CsvTools
               // afterwards warning for NBP need to be issues before trimming as trimming would
               // remove the char
               if (m_WarnNbsp && !GetColumn(columnNo).Ignore)
-              {
                 if (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning)
                   HandleWarning(
                     columnNo,
                     m_TreatNbspAsSpace
                       ? "Character Non Breaking Space found, this character was treated as space".AddWarningId()
                       : "Character Non Breaking Space found in field".AddWarningId());
-              }
 
               if (m_TreatNbspAsSpace)
                 character = ' ';
@@ -731,7 +1068,7 @@ namespace CsvTools
               }
             }
 
-            if (character == c_Cr && nextChar == c_Lf || character == c_Lf && nextChar == c_Cr)
+            if ((character == c_Cr && nextChar == c_Lf) || (character == c_Lf && nextChar == c_Cr))
               if (quoted && !postData)
               {
                 stringBuilder.Append(character);
@@ -743,7 +1080,7 @@ namespace CsvTools
         }
 
         // Finished with reading the column by Delimiter or EOF
-        if (character == m_FieldDelimiterChar && !escaped && (postData || !quoted) || EndOfFile)
+        if ((character == m_FieldDelimiterChar && !escaped && (postData || !quoted)) || EndOfFile)
           break;
 
         // Finished with reading the column by Linefeed
@@ -804,8 +1141,7 @@ namespace CsvTools
             // handling for "" that is not only representing a " but also closes the text
             peekNextChar = Peek();
             if (m_AlternateQuoting && (peekNextChar == m_FieldDelimiterChar
-                                       || peekNextChar == c_Cr
-                                       || peekNextChar == c_Lf)) postData = true;
+                                       || peekNextChar == c_Cr || peekNextChar == c_Lf)) postData = true;
             continue;
           }
 
@@ -828,22 +1164,22 @@ namespace CsvTools
         // all cases covered, character must be data
         stringBuilder.Append(character);
       }
+
       var columnText = stringBuilder.ToString();
       if (columnText.IndexOf(c_UnknownChar) != -1)
       {
         if (m_WarnUnknownCharacter)
-        {
           if (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning)
             HandleWarning(
               columnNo,
               m_TreatUnknownCharacterAsSpace
                 ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
                 : "Unknown Character '�' found in field".AddWarningId());
-        }
         if (m_TreatUnknownCharacterAsSpace)
           columnText = columnText.Replace(c_UnknownChar, ' ');
       }
-      return m_TrimmingOption == TrimmingOption.All || !quoted && m_TrimmingOption == TrimmingOption.Unquoted
+
+      return m_TrimmingOption == TrimmingOption.All || (!quoted && m_TrimmingOption == TrimmingOption.Unquoted)
                ? columnText.Trim()
                : columnText;
     }
@@ -872,7 +1208,7 @@ namespace CsvTools
       var item = ReadNextColumn(0);
 
       // An empty line does not have any data
-      if ((item is null || item.Length==0) && m_EndOfLine)
+      if ((item is null || item.Length == 0) && m_EndOfLine)
       {
         m_EndOfLine = false;
         if (m_SkipEmptyLines)
@@ -885,8 +1221,8 @@ namespace CsvTools
       }
 
       // Skip commented lines
-      if (m_CommentLine.Length > 0 && !string.IsNullOrEmpty(item) &&
-          item!.StartsWith(m_CommentLine, StringComparison.Ordinal))
+      if (m_CommentLine.Length > 0 && !string.IsNullOrEmpty(item)
+                                   && item!.StartsWith(m_CommentLine, StringComparison.Ordinal))
       {
         // A commented line does start with the comment
         if (m_EndOfLine)
@@ -931,226 +1267,6 @@ namespace CsvTools
       }
 
       return columns.ToArray();
-    }
-
-    // This does read the next records, it will handle column mismatches
-    private bool GetNextRecord()
-    {
-      try
-      {
-        Restart:
-        CurrentRowColumnText = ReadNextRow(true);
-
-        if (AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
-        {
-          if (EndOfFile)
-            return false;
-
-          // an empty line
-          if (m_SkipEmptyLines)
-            goto Restart;
-        }
-
-        RecordNumber++;
-        var hasWarningCombinedWarning = false;
-        Restart2:
-        var rowLength = CurrentRowColumnText.Length;
-        if (rowLength == FieldCount)
-        {
-          // Check if we have row that matches the header row
-          if (m_HasFieldHeader && !hasWarningCombinedWarning)
-          {
-            var isRepeatedHeader = true;
-            for (var col = 0; col < FieldCount; col++)
-              if (!m_HeaderRow[col].Equals(CurrentRowColumnText[col], StringComparison.OrdinalIgnoreCase))
-              {
-                isRepeatedHeader = false;
-                break;
-              }
-
-            if (isRepeatedHeader && m_SkipDuplicateHeader)
-            {
-              HandleWarning(-1, "Repeated Header row is ignored");
-              RecordNumber--;
-              goto Restart;
-            }
-
-            if (m_RealignColumns != null && !isRepeatedHeader)
-              m_RealignColumns.AddRow(CurrentRowColumnText);
-          }
-        }
-        // If less columns are present
-        else if (rowLength < FieldCount)
-        {
-          // if we still have only one column and we should have a number of columns assume this was
-          // nonsense like a report footer
-          if (rowLength == 1 && EndOfFile && CurrentRowColumnText[0].Length < 10)
-          {
-            // As the record is ignored tis will most likely not be visible
-            // -2 to indicate this error could be stored with the previous line....
-            m_HandleMessageColumn(-2,
-              $"Last line is '{CurrentRowColumnText[0]}'. Assumed to be a EOF marker and ignored.");
-            return false;
-          }
-
-          if (!m_AllowRowCombining)
-          {
-            m_HandleMessageColumn(-1, $"Line {cLessColumns} ({rowLength}/{FieldCount}).");
-          }
-          else
-          {
-            var startLine = StartLineNumber;
-
-            // get the next row
-            var nextLine = ReadNextRow(true);
-            StartLineNumber = startLine;
-
-            // allow up to two extra columns they can be combined later
-            if (nextLine.Length > 0 && nextLine.Length + rowLength < FieldCount + 4)
-            {
-              var combined = new List<string>(CurrentRowColumnText);
-
-              // the first column belongs to the last column of the previous ignore
-              // NumWarningsLinefeed otherwise as this is important information
-              m_NumWarningsLinefeed++;
-              m_HandleMessageColumn(rowLength - 1,
-                $"Combined with line {EndLineNumber}, assuming a linefeed has split the column into additional line.");
-              combined[rowLength - 1] += '\n' + nextLine[0];
-
-              for (var col = 1; col < nextLine.Length; col++)
-                combined.Add(nextLine[col]);
-
-              //if (!hasWarningCombinedWarning)
-              //{
-              //  m_HandleMessageColumn(-1,
-              //    $"Line {cLessColumns}\nLines {StartLineNumber}-{EndLineNumber - 1} have been combined.");
-              //  hasWarningCombinedWarning = true;
-              //}
-
-              CurrentRowColumnText = combined.ToArray();
-              goto Restart2;
-            }
-
-            // we have an issue we went into the next Buffer there is no way back.
-            HandleError(
-              -1,
-              $"Line {cLessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
-          }
-        }
-
-        // If more columns are present
-        // ReSharper disable once InvertIf
-        if (rowLength > FieldCount)
-        {
-          var text = $"Line {cMoreColumns} ({rowLength}/{FieldCount}).";
-
-          if (m_RealignColumns != null)
-          {
-            m_HandleMessageColumn(-1, text + " Trying to realign columns.");
-
-            // determine which column could have caused the issue it could be any column, try to establish
-            CurrentRowColumnText =
-              m_RealignColumns.RealignColumn(CurrentRowColumnText, m_HandleMessageColumn, m_RecordSource.ToString());
-          }
-          else
-          {
-            // check if the additional columns have contents
-            var hasContent = false;
-            for (var extraCol = FieldCount; extraCol < rowLength; extraCol++)
-            {
-              if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
-                continue;
-              hasContent = true;
-              break;
-            }
-
-            if (!hasContent)
-            {
-              m_HandleMessageColumn(-1,
-                text + " All additional columns where empty. Allow 're-align columns' to handle this.");
-              return true;
-            }
-
-            m_HandleMessageColumn(-1,
-              text + " The data in extra columns is not read. Allow 're-align columns' to handle this.");
-          }
-        }
-
-        for (int columnNo = 0; columnNo < FieldCount && columnNo < CurrentRowColumnText.Length; columnNo++)
-        {
-          if (GetColumn(columnNo).Ignore || string.IsNullOrEmpty(CurrentRowColumnText[columnNo]))
-            continue;
-
-          // Handle replacements and warnings etc,
-          var adjustedValue = HandleTextSpecials(CurrentRowColumnText[columnNo]
-                                                 .ReplaceCaseInsensitive(m_NewLinePlaceholder, Environment.NewLine)
-                                                 .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiterChar)
-                                                 .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifierChar), columnNo);
-
-          if (adjustedValue != null && adjustedValue.Length > 0)
-          {
-            if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifierChar) != -1)
-            {
-              if (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning)
-                HandleWarning(
-                  columnNo,
-                  $"Field qualifier '{m_FieldQualifierChar.GetDescription()}' found in field"
-                    .AddWarningId());
-            }
-
-            if (m_WarnDelimiterInValue && adjustedValue.IndexOf(m_FieldDelimiterChar) != -1)
-            {
-              if (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning)
-                HandleWarning(
-                  columnNo,
-                  $"Field delimiter '{m_FieldDelimiterChar.GetDescription()}' found in field"
-                    .AddWarningId());
-            }
-
-            if (m_WarnUnknownCharacter)
-            {
-              var numberQuestionMark = 0;
-              var lastPos = -1;
-              var length = adjustedValue.Length;
-              for (var pos = length - 1; pos >= 0; pos--)
-              {
-                if (adjustedValue[pos] != '?')
-                  continue;
-                numberQuestionMark++;
-
-                // If we have at least two and there are two consecutive or more than 3+ in 12
-                // characters, or 4+ in 16 characters
-                if (numberQuestionMark > 2 && (lastPos == pos + 1 || numberQuestionMark > length / 4))
-                {
-                  if (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning)
-                    HandleWarning(columnNo,
-                      "Unusual high occurrence of ? this indicates unmapped characters.".AddWarningId());
-                  break;
-                }
-
-                lastPos = pos;
-              }
-            }
-
-            if (m_WarnLineFeed && (adjustedValue.IndexOf('\r') != -1 || adjustedValue.IndexOf('\n') != -1))
-              WarnLinefeed(columnNo);
-
-            if (StringUtils.ShouldBeTreatedAsNull(adjustedValue, m_TreatTextAsNull))
-              adjustedValue = string.Empty;
-          }
-
-          CurrentRowColumnText[columnNo] = adjustedValue ?? string.Empty;
-        }
-
-        return true;
-      }
-      catch (Exception ex)
-      {
-        HandleError(-1, ex.Message);
-
-        EndOfFile = true;
-        return false;
-      }
     }
 
     /// <summary>

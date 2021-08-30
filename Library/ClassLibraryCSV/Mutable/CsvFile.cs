@@ -33,20 +33,34 @@ namespace CsvTools
     private bool m_AllowRowCombining;
 
     private bool m_ByteOrderMark = true;
+
     private int m_CodePageId = 65001;
 
-    [NonSerialized] private Encoding m_CurrentEncoding = Encoding.UTF8;    
+    [NonSerialized]
+    private Encoding m_CurrentEncoding = Encoding.UTF8;
+
     private bool m_NoDelimitedFile;
+
     private int m_NumWarnings;
+
     private bool m_TreatLfAsSpace;
+
     private bool m_TreatUnknownCharacterAsSpace;
+
     private bool m_TryToSolveMoreColumns;
+
     private bool m_WarnDelimiterInValue;
+
     private bool m_WarnEmptyTailingColumns = true;
+
     private bool m_WarnLineFeed;
+
     private bool m_WarnNbsp = true;
+
     private bool m_WarnQuotes;
+
     private bool m_WarnQuotesInQuotes = true;
+
     private bool m_WarnUnknownCharacter = true;
 
     /// <summary>
@@ -61,19 +75,24 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="CsvFile" /> class.
     /// </summary>
-    public CsvFile() : this(string.Empty)
+    public CsvFile()
+      : this(string.Empty)
     {
     }
 
-    /// <summary>
-    ///   Gets current encoding.
-    /// </summary>
-    /// <value>The current encoding.</value>
-    [XmlIgnore]
-    public virtual Encoding CurrentEncoding
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool AllowRowCombining
     {
-      get => m_CurrentEncoding;
-      set => m_CurrentEncoding = value;
+      get => m_AllowRowCombining;
+
+      set
+      {
+        if (m_AllowRowCombining.Equals(value))
+          return;
+        m_AllowRowCombining = value;
+        NotifyPropertyChanged(nameof(AllowRowCombining));
+      }
     }
 
     /// <summary>
@@ -110,6 +129,17 @@ namespace CsvTools
         m_CodePageId = value;
         NotifyPropertyChanged(nameof(CodePageId));
       }
+    }
+
+    /// <summary>
+    ///   Gets current encoding.
+    /// </summary>
+    /// <value>The current encoding.</value>
+    [XmlIgnore]
+    public virtual Encoding CurrentEncoding
+    {
+      get => m_CurrentEncoding;
+      set => m_CurrentEncoding = value;
     }
 
     /// <summary>
@@ -150,6 +180,25 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Gets or sets a value indicating whether to treat a single LF as space
+    /// </summary>
+    /// <value><c>true</c> if LF should be treated as space; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool TreatLFAsSpace
+    {
+      get => m_TreatLfAsSpace;
+
+      set
+      {
+        if (m_TreatLfAsSpace.Equals(value))
+          return;
+        m_TreatLfAsSpace = value;
+        NotifyPropertyChanged(nameof(TreatLFAsSpace));
+      }
+    }
+
+    /// <summary>
     ///   Gets or sets a value indicating whether to replace unknown charters.
     /// </summary>
     /// <value><c>true</c> if unknown character should be replaced; otherwise, <c>false</c>.</value>
@@ -165,6 +214,27 @@ namespace CsvTools
           return;
         m_TreatUnknownCharacterAsSpace = value;
         NotifyPropertyChanged(nameof(TreatUnknownCharacterAsSpace));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether the reader should try to solve more columns.
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if it should be try to solve misalignment more columns; otherwise, <c>false</c>.
+    /// </value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool TryToSolveMoreColumns
+    {
+      get => m_TryToSolveMoreColumns;
+
+      set
+      {
+        if (m_TryToSolveMoreColumns.Equals(value))
+          return;
+        m_TryToSolveMoreColumns = value;
+        NotifyPropertyChanged(nameof(TryToSolveMoreColumns));
       }
     }
 
@@ -224,61 +294,6 @@ namespace CsvTools
           return;
         m_WarnLineFeed = value;
         NotifyPropertyChanged(nameof(WarnLineFeed));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether to treat a single LF as space
-    /// </summary>
-    /// <value><c>true</c> if LF should be treated as space; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public virtual bool TreatLFAsSpace
-    {
-      get => m_TreatLfAsSpace;
-
-      set
-      {
-        if (m_TreatLfAsSpace.Equals(value))
-          return;
-        m_TreatLfAsSpace = value;
-        NotifyPropertyChanged(nameof(TreatLFAsSpace));
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether the reader should try to solve more columns.
-    /// </summary>
-    /// <value>
-    ///   <c>true</c> if it should be try to solve misalignment more columns; otherwise, <c>false</c>.
-    /// </value>
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public virtual bool TryToSolveMoreColumns
-    {
-      get => m_TryToSolveMoreColumns;
-
-      set
-      {
-        if (m_TryToSolveMoreColumns.Equals(value))
-          return;
-        m_TryToSolveMoreColumns = value;
-        NotifyPropertyChanged(nameof(TryToSolveMoreColumns));
-      }
-    }
-
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public virtual bool AllowRowCombining
-    {
-      get => m_AllowRowCombining;
-
-      set
-      {
-        if (m_AllowRowCombining.Equals(value))
-          return;
-        m_AllowRowCombining = value;
-        NotifyPropertyChanged(nameof(AllowRowCombining));
       }
     }
 
@@ -379,8 +394,8 @@ namespace CsvTools
 
       if (!(other is ICsvFile csv))
         return;
-      csv.ByteOrderMark = m_ByteOrderMark;      
-      csv.WarnQuotes = m_WarnQuotes;      
+      csv.ByteOrderMark = m_ByteOrderMark;
+      csv.WarnQuotes = m_WarnQuotes;
       csv.WarnDelimiterInValue = m_WarnDelimiterInValue;
       csv.WarnEmptyTailingColumns = m_WarnEmptyTailingColumns;
       csv.WarnQuotesInQuotes = m_WarnQuotesInQuotes;
@@ -405,19 +420,21 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return m_ByteOrderMark == other.ByteOrderMark && m_CodePageId == other.CodePageId &&             
-             m_NoDelimitedFile == other.NoDelimitedFile && m_NumWarnings == other.NumWarnings &&
-             m_TreatUnknownCharacterAsSpace == other.TreatUnknownCharacterAsSpace &&
-             m_WarnDelimiterInValue == other.WarnDelimiterInValue &&
-             m_WarnEmptyTailingColumns == other.WarnEmptyTailingColumns && m_WarnLineFeed == other.WarnLineFeed &&
-             m_TryToSolveMoreColumns == other.TryToSolveMoreColumns &&
-             m_AllowRowCombining == other.AllowRowCombining &&
-             m_TreatLfAsSpace == other.TreatLFAsSpace &&
-             m_WarnNbsp == other.WarnNBSP && m_WarnQuotes == other.WarnQuotes &&
-             m_WarnQuotesInQuotes == other.WarnQuotesInQuotes &&
-             m_WarnUnknownCharacter == other.WarnUnknownCharacter &&
-             BaseSettingsEquals(other as BaseSettings);
+      return m_ByteOrderMark == other.ByteOrderMark && m_CodePageId == other.CodePageId
+                                                    && m_NoDelimitedFile == other.NoDelimitedFile
+                                                    && m_NumWarnings == other.NumWarnings
+                                                    && m_TreatUnknownCharacterAsSpace
+                                                    == other.TreatUnknownCharacterAsSpace
+                                                    && m_WarnDelimiterInValue == other.WarnDelimiterInValue
+                                                    && m_WarnEmptyTailingColumns == other.WarnEmptyTailingColumns
+                                                    && m_WarnLineFeed == other.WarnLineFeed
+                                                    && m_TryToSolveMoreColumns == other.TryToSolveMoreColumns
+                                                    && m_AllowRowCombining == other.AllowRowCombining
+                                                    && m_TreatLfAsSpace == other.TreatLFAsSpace
+                                                    && m_WarnNbsp == other.WarnNBSP && m_WarnQuotes == other.WarnQuotes
+                                                    && m_WarnQuotesInQuotes == other.WarnQuotesInQuotes
+                                                    && m_WarnUnknownCharacter == other.WarnUnknownCharacter
+                                                    && BaseSettingsEquals(other as BaseSettings);
     }
-
   }
 }

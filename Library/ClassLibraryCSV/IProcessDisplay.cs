@@ -33,14 +33,14 @@ namespace CsvTools
     /// <value>The cancellation token.</value>
     CancellationToken CancellationToken { get; }
 
+    string Title { get; set; }
+
     /// <summary>
     ///   Event to be called if the display should be updated
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
     void SetProcess(object? sender, ProgressEventArgs? e);
-
-    string Title { get; set; }
 
     /// <summary>
     ///   Sets the process display

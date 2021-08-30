@@ -8,18 +8,27 @@ namespace CsvTools
   public class TwoStepDataTableLoader : IDisposable
   {
     private readonly Action? m_ActionBegin;
+
     private readonly Action<DataReaderWrapper>? m_ActionFinished;
+
     private readonly Func<DataTable> m_GetDataTable;
+
     private readonly Func<FilterType, CancellationToken, Task>? m_RefreshDisplayAsync;
+
     private readonly Action<DataTable> m_SetDataTable;
+
     private readonly Action<Func<IProcessDisplay, Task>>? m_SetLoadNextBatchAsync;
+
     private DataReaderWrapper? m_DataReaderWrapper;
+
     private IFileReader? m_FileReader;
 
-    public TwoStepDataTableLoader(in Action<DataTable> actionSetDataTable,
+    public TwoStepDataTableLoader(
+      in Action<DataTable> actionSetDataTable,
       in Func<DataTable> getDataTable,
       in Func<FilterType, CancellationToken, Task>? setRefreshDisplayAsync,
-      in Action<Func<IProcessDisplay, Task>>? loadNextBatchAsync, in Action? actionBegin,
+      in Action<Func<IProcessDisplay, Task>>? loadNextBatchAsync,
+      in Action? actionBegin,
       in Action<DataReaderWrapper>? actionFinished)
     {
       m_SetDataTable = actionSetDataTable ?? throw new ArgumentNullException(nameof(actionSetDataTable));
@@ -38,8 +47,12 @@ namespace CsvTools
       m_FileReader = null;
     }
 
-    public async Task StartAsync(IFileSetting fileSetting, bool includeError, TimeSpan durationInitial,
-      IProcessDisplay processDisplay, EventHandler<WarningEventArgs>? addWarning)
+    public async Task StartAsync(
+      IFileSetting fileSetting,
+      bool includeError,
+      TimeSpan durationInitial,
+      IProcessDisplay processDisplay,
+      EventHandler<WarningEventArgs>? addWarning)
     {
       m_FileReader = FunctionalDI.GetFileReader(fileSetting, TimeZoneInfo.Local.Id, processDisplay);
       if (m_FileReader is null)
@@ -62,19 +75,28 @@ namespace CsvTools
         warningList.PassWarning += addWarning;
       }
 
-      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, fileSetting.RecordLimit, includeError,
-        fileSetting.DisplayStartLineNo, fileSetting.DisplayRecordNo, fileSetting.DisplayEndLineNo);
+      m_DataReaderWrapper = new DataReaderWrapper(
+        m_FileReader,
+        fileSetting.RecordLimit,
+        includeError,
+        fileSetting.DisplayStartLineNo,
+        fileSetting.DisplayRecordNo,
+        fileSetting.DisplayEndLineNo);
 
       m_ActionBegin?.Invoke();
       await GetBatchByTimeSpan(durationInitial, includeError, processDisplay, m_SetDataTable).ConfigureAwait(false);
 
-      m_SetLoadNextBatchAsync?.Invoke(process => GetBatchByTimeSpan(TimeSpan.MaxValue, includeError, process, (dt) => m_GetDataTable().Merge(dt)));
+      m_SetLoadNextBatchAsync?.Invoke(
+        process => GetBatchByTimeSpan(TimeSpan.MaxValue, includeError, process, dt => m_GetDataTable().Merge(dt)));
 
       m_ActionFinished?.Invoke(m_DataReaderWrapper);
     }
 
-    private async Task GetBatchByTimeSpan(TimeSpan maxDuration, bool restoreError,
-      IProcessDisplay processDisplay, Action<DataTable> action)
+    private async Task GetBatchByTimeSpan(
+      TimeSpan maxDuration,
+      bool restoreError,
+      IProcessDisplay processDisplay,
+      Action<DataTable> action)
     {
       if (m_DataReaderWrapper is null)
         return;
@@ -83,14 +105,15 @@ namespace CsvTools
       try
       {
         processDisplay.SetMaximum(100);
-        var dt = await m_DataReaderWrapper.LoadDataTable(maxDuration, restoreError,
-                        (l, i) => processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
-                        processDisplay.CancellationToken).ConfigureAwait(false);
+        var dt = await m_DataReaderWrapper.LoadDataTable(
+                   maxDuration,
+                   restoreError,
+                   (l, i) => processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
+                   processDisplay.CancellationToken).ConfigureAwait(false);
         action.Invoke(dt);
 
         if (m_RefreshDisplayAsync != null)
-          await m_RefreshDisplayAsync(FilterType.All, processDisplay.CancellationToken)
-            .ConfigureAwait(false);
+          await m_RefreshDisplayAsync(FilterType.All, processDisplay.CancellationToken).ConfigureAwait(false);
 
         if (m_DataReaderWrapper.EndOfFile)
           Dispose();

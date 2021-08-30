@@ -34,7 +34,41 @@ namespace CsvTools
 
 #pragma warning restore 8618
 
-    public bool Specified => m_ImmutableValueFormat.Specified;
+    /// <summary>
+    ///   Occurs when a property value changes.
+    /// </summary>
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    ///   Gets or sets the type of the data.
+    /// </summary>
+    /// <value>The type of the data.</value>
+    [XmlAttribute]
+    [DefaultValue(DataType.String)]
+    public DataType DataType
+    {
+      get => m_ImmutableValueFormat.DataType;
+      set
+      {
+        if (m_ImmutableValueFormat.DataType.Equals(value))
+          return;
+        m_ImmutableValueFormat = new ImmutableValueFormat(
+          value,
+          m_ImmutableValueFormat.DateFormat,
+          m_ImmutableValueFormat.DateSeparator,
+          m_ImmutableValueFormat.TimeSeparator,
+          m_ImmutableValueFormat.NumberFormat,
+          m_ImmutableValueFormat.GroupSeparator,
+          m_ImmutableValueFormat.DecimalSeparator,
+          m_ImmutableValueFormat.True,
+          m_ImmutableValueFormat.False,
+          m_ImmutableValueFormat.DisplayNullAs,
+          m_ImmutableValueFormat.Part,
+          m_ImmutableValueFormat.PartSplitter,
+          m_ImmutableValueFormat.PartToEnd);
+        NotifyPropertyChanged(nameof(DataType));
+      }
+    }
 
     /// <summary>
     ///   Gets or sets the date format.
@@ -50,10 +84,20 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_ImmutableValueFormat.DateFormat.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, newVal,
-          m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
-          m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
+        m_ImmutableValueFormat = new ImmutableValueFormat(
+          m_ImmutableValueFormat.DataType,
+          newVal,
+          m_ImmutableValueFormat.DateSeparator,
+          m_ImmutableValueFormat.TimeSeparator,
+          m_ImmutableValueFormat.NumberFormat,
+          m_ImmutableValueFormat.GroupSeparator,
+          m_ImmutableValueFormat.DecimalSeparator,
+          m_ImmutableValueFormat.True,
+          m_ImmutableValueFormat.False,
+          m_ImmutableValueFormat.DisplayNullAs,
+          m_ImmutableValueFormat.Part,
+          m_ImmutableValueFormat.PartSplitter,
+          m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(DateFormat));
       }
     }
@@ -70,13 +114,23 @@ namespace CsvTools
       set
       {
         // Translate written punctuation into a character
-        var newVal = value?? string.Empty;
+        var newVal = value ?? string.Empty;
         if (m_ImmutableValueFormat.DateSeparator.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
-          newVal, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
-          m_ImmutableValueFormat.GroupSeparator, newVal, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
+        m_ImmutableValueFormat = new ImmutableValueFormat(
+          m_ImmutableValueFormat.DataType,
+          m_ImmutableValueFormat.DateFormat,
+          newVal,
+          m_ImmutableValueFormat.TimeSeparator,
+          m_ImmutableValueFormat.NumberFormat,
+          m_ImmutableValueFormat.GroupSeparator,
+          newVal,
+          m_ImmutableValueFormat.True,
+          m_ImmutableValueFormat.False,
+          m_ImmutableValueFormat.DisplayNullAs,
+          m_ImmutableValueFormat.Part,
+          m_ImmutableValueFormat.PartSplitter,
+          m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(DateSeparator));
       }
     }
@@ -92,7 +146,7 @@ namespace CsvTools
       set
       {
         // Translate written punctuation into a character
-        var newValDecimal = value?? string.Empty;
+        var newValDecimal = value ?? string.Empty;
         if (m_ImmutableValueFormat.DecimalSeparator.Equals(newValDecimal))
           return;
 
@@ -103,15 +157,58 @@ namespace CsvTools
           NotifyPropertyChanged(nameof(GroupSeparator));
         }
 
-        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
-          m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
-          newValGroup, newValDecimal, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
+        m_ImmutableValueFormat = new ImmutableValueFormat(
+          m_ImmutableValueFormat.DataType,
+          m_ImmutableValueFormat.DateFormat,
+          m_ImmutableValueFormat.DateSeparator,
+          m_ImmutableValueFormat.TimeSeparator,
+          m_ImmutableValueFormat.NumberFormat,
+          newValGroup,
+          newValDecimal,
+          m_ImmutableValueFormat.True,
+          m_ImmutableValueFormat.False,
+          m_ImmutableValueFormat.DisplayNullAs,
+          m_ImmutableValueFormat.Part,
+          m_ImmutableValueFormat.PartSplitter,
+          m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(DecimalSeparator));
       }
     }
 
-    [XmlIgnore] public bool DecimalSeparatorSpecified => m_ImmutableValueFormat.DecimalSeparator != ValueFormatExtension.cDecimalSeparatorDefault;
+    [XmlIgnore]
+    public bool DecimalSeparatorSpecified =>
+      m_ImmutableValueFormat.DecimalSeparator != ValueFormatExtension.cDecimalSeparatorDefault;
+
+    /// <summary>
+    ///   Writing data you can specify how a NULL value should be written, commonly its empty, in
+    ///   some circumstances you might want to have n/a etc.
+    /// </summary>
+    /// <value>Text used if the value is NULL</value>
+    [XmlAttribute]
+    [DefaultValue("")]
+    public string DisplayNullAs
+    {
+      get => m_ImmutableValueFormat.DisplayNullAs;
+
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_ImmutableValueFormat.DisplayNullAs.Equals(newVal))
+          return;
+        m_ImmutableValueFormat = new ImmutableValueFormat(
+          m_ImmutableValueFormat.DataType,
+          m_ImmutableValueFormat.DateFormat,
+          m_ImmutableValueFormat.DateSeparator,
+          m_ImmutableValueFormat.TimeSeparator,
+          m_ImmutableValueFormat.NumberFormat,
+          m_ImmutableValueFormat.GroupSeparator,
+          m_ImmutableValueFormat.DecimalSeparator,
+          m_ImmutableValueFormat.True,
+          m_ImmutableValueFormat.False,
+          newVal);
+        NotifyPropertyChanged(nameof(DisplayNullAs));
+      }
+    }
 
     /// <summary>
     ///   Gets or sets the representation for false.
@@ -127,10 +224,20 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_ImmutableValueFormat.False.Equals(newVal, StringComparison.OrdinalIgnoreCase))
           return;
-        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
-          m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
-          m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
-          newVal, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
+        m_ImmutableValueFormat = new ImmutableValueFormat(
+          m_ImmutableValueFormat.DataType,
+          m_ImmutableValueFormat.DateFormat,
+          m_ImmutableValueFormat.DateSeparator,
+          m_ImmutableValueFormat.TimeSeparator,
+          m_ImmutableValueFormat.NumberFormat,
+          m_ImmutableValueFormat.GroupSeparator,
+          m_ImmutableValueFormat.DecimalSeparator,
+          m_ImmutableValueFormat.True,
+          newVal,
+          m_ImmutableValueFormat.DisplayNullAs,
+          m_ImmutableValueFormat.Part,
+          m_ImmutableValueFormat.PartSplitter,
+          m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(False));
       }
     }
@@ -152,70 +259,32 @@ namespace CsvTools
         var newValDecimal = m_ImmutableValueFormat.DecimalSeparator;
         if (newValGroup.Equals(newValDecimal))
         {
-          newValDecimal=m_ImmutableValueFormat.GroupSeparator;
+          newValDecimal = m_ImmutableValueFormat.GroupSeparator;
           NotifyPropertyChanged(nameof(DecimalSeparator));
         }
 
-        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
-          m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
-          newValGroup, newValDecimal, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
+        m_ImmutableValueFormat = new ImmutableValueFormat(
+          m_ImmutableValueFormat.DataType,
+          m_ImmutableValueFormat.DateFormat,
+          m_ImmutableValueFormat.DateSeparator,
+          m_ImmutableValueFormat.TimeSeparator,
+          m_ImmutableValueFormat.NumberFormat,
+          newValGroup,
+          newValDecimal,
+          m_ImmutableValueFormat.True,
+          m_ImmutableValueFormat.False,
+          m_ImmutableValueFormat.DisplayNullAs,
+          m_ImmutableValueFormat.Part,
+          m_ImmutableValueFormat.PartSplitter,
+          m_ImmutableValueFormat.PartToEnd);
 
         NotifyPropertyChanged(nameof(GroupSeparator));
       }
     }
 
-    [XmlIgnore] public bool GroupSeparatorSpecified => m_ImmutableValueFormat.GroupSeparator != ValueFormatExtension.cGroupSeparatorDefault;
-
-    /// <summary>
-    ///   Occurs when a property value changes.
-    /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    /// <summary>
-    ///   Gets or sets the type of the data.
-    /// </summary>
-    /// <value>The type of the data.</value>
-    [XmlAttribute]
-    [DefaultValue(DataType.String)]
-    public DataType DataType
-    {
-      get => m_ImmutableValueFormat.DataType;
-      set
-      {
-        if (m_ImmutableValueFormat.DataType.Equals(value))
-          return;
-        m_ImmutableValueFormat = new ImmutableValueFormat(value, m_ImmutableValueFormat.DateFormat,
-          m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
-          m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
-        NotifyPropertyChanged(nameof(DataType));
-      }
-    }
-
-    /// <summary>
-    ///   Writing data you can specify how a NULL value should be written, commonly its empty, in
-    ///   some circumstances you might want to have n/a etc.
-    /// </summary>
-    /// <value>Text used if the value is NULL</value>
-    [XmlAttribute]
-    [DefaultValue("")]
-    public string DisplayNullAs
-    {
-      get => m_ImmutableValueFormat.DisplayNullAs;
-
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_ImmutableValueFormat.DisplayNullAs.Equals(newVal))
-          return;
-        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
-          m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
-          m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, newVal);
-        NotifyPropertyChanged(nameof(DisplayNullAs));
-      }
-    }
+    [XmlIgnore]
+    public bool GroupSeparatorSpecified =>
+      m_ImmutableValueFormat.GroupSeparator != ValueFormatExtension.cGroupSeparatorDefault;
 
     /// <summary>
     ///   Gets or sets the number format.
@@ -230,13 +299,101 @@ namespace CsvTools
       {
         if (m_ImmutableValueFormat.NumberFormat.Equals(value, StringComparison.Ordinal))
           return;
-        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
-          m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, value,
-          m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
+        m_ImmutableValueFormat = new ImmutableValueFormat(
+          m_ImmutableValueFormat.DataType,
+          m_ImmutableValueFormat.DateFormat,
+          m_ImmutableValueFormat.DateSeparator,
+          m_ImmutableValueFormat.TimeSeparator,
+          value,
+          m_ImmutableValueFormat.GroupSeparator,
+          m_ImmutableValueFormat.DecimalSeparator,
+          m_ImmutableValueFormat.True,
+          m_ImmutableValueFormat.False,
+          m_ImmutableValueFormat.DisplayNullAs,
+          m_ImmutableValueFormat.Part,
+          m_ImmutableValueFormat.PartSplitter,
+          m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(NumberFormat));
       }
     }
+
+    public int Part
+    {
+      get => m_ImmutableValueFormat.Part;
+      set
+      {
+        if (m_ImmutableValueFormat.Part == value)
+          return;
+        m_ImmutableValueFormat = new ImmutableValueFormat(
+          m_ImmutableValueFormat.DataType,
+          m_ImmutableValueFormat.DateFormat,
+          m_ImmutableValueFormat.DateSeparator,
+          m_ImmutableValueFormat.TimeSeparator,
+          m_ImmutableValueFormat.NumberFormat,
+          m_ImmutableValueFormat.GroupSeparator,
+          m_ImmutableValueFormat.DecimalSeparator,
+          m_ImmutableValueFormat.True,
+          m_ImmutableValueFormat.False,
+          m_ImmutableValueFormat.DisplayNullAs,
+          value,
+          m_ImmutableValueFormat.PartSplitter,
+          m_ImmutableValueFormat.PartToEnd);
+        NotifyPropertyChanged(nameof(Part));
+      }
+    }
+
+    public string PartSplitter
+    {
+      get => m_ImmutableValueFormat.PartSplitter;
+      set
+      {
+        var newVal = (value ?? string.Empty).WrittenPunctuation();
+        if (m_ImmutableValueFormat.PartSplitter.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_ImmutableValueFormat = new ImmutableValueFormat(
+          m_ImmutableValueFormat.DataType,
+          m_ImmutableValueFormat.DateFormat,
+          m_ImmutableValueFormat.DateSeparator,
+          m_ImmutableValueFormat.TimeSeparator,
+          m_ImmutableValueFormat.NumberFormat,
+          m_ImmutableValueFormat.GroupSeparator,
+          m_ImmutableValueFormat.DecimalSeparator,
+          m_ImmutableValueFormat.True,
+          m_ImmutableValueFormat.False,
+          m_ImmutableValueFormat.DisplayNullAs,
+          m_ImmutableValueFormat.Part,
+          newVal,
+          m_ImmutableValueFormat.PartToEnd);
+        NotifyPropertyChanged(nameof(PartSplitter));
+      }
+    }
+
+    public bool PartToEnd
+    {
+      get => m_ImmutableValueFormat.PartToEnd;
+      set
+      {
+        if (m_ImmutableValueFormat.PartToEnd.Equals(value))
+          return;
+        m_ImmutableValueFormat = new ImmutableValueFormat(
+          m_ImmutableValueFormat.DataType,
+          m_ImmutableValueFormat.DateFormat,
+          m_ImmutableValueFormat.DateSeparator,
+          m_ImmutableValueFormat.TimeSeparator,
+          m_ImmutableValueFormat.NumberFormat,
+          m_ImmutableValueFormat.GroupSeparator,
+          m_ImmutableValueFormat.DecimalSeparator,
+          m_ImmutableValueFormat.True,
+          m_ImmutableValueFormat.False,
+          m_ImmutableValueFormat.DisplayNullAs,
+          m_ImmutableValueFormat.Part,
+          m_ImmutableValueFormat.PartSplitter,
+          value);
+        NotifyPropertyChanged(nameof(PartToEnd));
+      }
+    }
+
+    public bool Specified => m_ImmutableValueFormat.Specified;
 
     /// <summary>
     ///   Gets or sets the time separator.
@@ -249,13 +406,23 @@ namespace CsvTools
       get => m_ImmutableValueFormat.TimeSeparator;
       set
       {
-        var newVal = (value??string.Empty).WrittenPunctuation();
+        var newVal = (value ?? string.Empty).WrittenPunctuation();
         if (m_ImmutableValueFormat.TimeSeparator.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
-          m_ImmutableValueFormat.DateSeparator, newVal, m_ImmutableValueFormat.NumberFormat,
-          m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
+        m_ImmutableValueFormat = new ImmutableValueFormat(
+          m_ImmutableValueFormat.DataType,
+          m_ImmutableValueFormat.DateFormat,
+          m_ImmutableValueFormat.DateSeparator,
+          newVal,
+          m_ImmutableValueFormat.NumberFormat,
+          m_ImmutableValueFormat.GroupSeparator,
+          m_ImmutableValueFormat.DecimalSeparator,
+          m_ImmutableValueFormat.True,
+          m_ImmutableValueFormat.False,
+          m_ImmutableValueFormat.DisplayNullAs,
+          m_ImmutableValueFormat.Part,
+          m_ImmutableValueFormat.PartSplitter,
+          m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(TimeSeparator));
       }
     }
@@ -274,72 +441,46 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_ImmutableValueFormat.True.Equals(newVal, StringComparison.OrdinalIgnoreCase))
           return;
-        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
-          m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
-          m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, newVal,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
+        m_ImmutableValueFormat = new ImmutableValueFormat(
+          m_ImmutableValueFormat.DataType,
+          m_ImmutableValueFormat.DateFormat,
+          m_ImmutableValueFormat.DateSeparator,
+          m_ImmutableValueFormat.TimeSeparator,
+          m_ImmutableValueFormat.NumberFormat,
+          m_ImmutableValueFormat.GroupSeparator,
+          m_ImmutableValueFormat.DecimalSeparator,
+          newVal,
+          m_ImmutableValueFormat.False,
+          m_ImmutableValueFormat.DisplayNullAs,
+          m_ImmutableValueFormat.Part,
+          m_ImmutableValueFormat.PartSplitter,
+          m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(True));
       }
     }
 
-    public int Part
-    {
-      get => m_ImmutableValueFormat.Part;
-      set
-      {
-        if (m_ImmutableValueFormat.Part == value)
-          return;
-        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
-          m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
-          m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, value, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
-        NotifyPropertyChanged(nameof(Part));
-      }
-    }
-
-    public string PartSplitter
-    {
-      get => m_ImmutableValueFormat.PartSplitter;
-      set
-      {
-        var newVal = (value??string.Empty).WrittenPunctuation();
-        if (m_ImmutableValueFormat.PartSplitter.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
-          m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
-          m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, newVal, m_ImmutableValueFormat.PartToEnd);
-        NotifyPropertyChanged(nameof(PartSplitter));
-      }
-    }
-
-    public bool PartToEnd
-    {
-      get => m_ImmutableValueFormat.PartToEnd;
-      set
-      {
-        if (m_ImmutableValueFormat.PartToEnd.Equals(value))
-          return;
-        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
-          m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
-          m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, value);
-        NotifyPropertyChanged(nameof(PartToEnd));
-      }
-    }
+    public void CopyFrom(IValueFormat other) =>
+      m_ImmutableValueFormat = new ImmutableValueFormat(
+        other.DataType,
+        other.DateFormat,
+        other.DateSeparator,
+        other.TimeSeparator,
+        other.NumberFormat,
+        other.GroupSeparator,
+        other.DecimalSeparator,
+        other.True,
+        other.False,
+        other.DisplayNullAs,
+        other.Part,
+        other.PartSplitter,
+        other.PartToEnd);
 
     public bool Equals(IValueFormat? other) => this.ValueFormatEqual(other);
-
-    public void CopyFrom(IValueFormat other) =>
-     m_ImmutableValueFormat = new ImmutableValueFormat(other.DataType, other.DateFormat, other.DateSeparator,
-       other.TimeSeparator, other.NumberFormat, other.GroupSeparator, other.DecimalSeparator, other.True, other.False,
-       other.DisplayNullAs, other.Part, other.PartSplitter, other.PartToEnd);
 
     /// <summary>
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    public void NotifyPropertyChanged(string info) =>
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
+    public void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
   }
 }

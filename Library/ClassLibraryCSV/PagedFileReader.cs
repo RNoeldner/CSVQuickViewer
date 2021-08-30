@@ -14,10 +14,15 @@ namespace CsvTools
   public class PagedFileReader : List<DynamicDataRecord>, INotifyCollectionChanged, IDisposable
   {
     private readonly IFileReader m_FileReader;
+
     private readonly List<ICollection<DynamicDataRecord>> m_PagedDataCache;
+
     private readonly int m_PageSize;
+
     private readonly CancellationToken m_Token;
+
     private DataReaderWrapper? m_DataReaderWrapper;
+
     private bool m_DisposedValue;
 
     public PagedFileReader(in IFileReader fileReader, int pageSize, CancellationToken token)
@@ -54,31 +59,29 @@ namespace CsvTools
     {
       if (m_DataReaderWrapper is null)
         throw new FileReaderExceptionOpen();
-      if (pageIndex<1)
-        pageIndex=1;
+      if (pageIndex < 1)
+        pageIndex = 1;
 
       var curPage = 1;
       if (m_PagedDataCache.Count < pageIndex)
-      {
-        while (!m_Token.IsCancellationRequested
-              && m_DataReaderWrapper.RecordNumber < (long) pageIndex * m_PageSize
-              && await m_DataReaderWrapper.ReadAsync(m_Token).ConfigureAwait(false))
+        while (!m_Token.IsCancellationRequested && m_DataReaderWrapper.RecordNumber < (long) pageIndex * m_PageSize
+                                                && await m_DataReaderWrapper.ReadAsync(m_Token).ConfigureAwait(false))
         {
-          curPage =  (int) ((m_DataReaderWrapper.RecordNumber-1) / m_PageSize) + 1;
+          curPage = (int) ((m_DataReaderWrapper.RecordNumber - 1) / m_PageSize) + 1;
 
           // create the page if it does not exist
-          if (m_PagedDataCache.Count<curPage)
+          if (m_PagedDataCache.Count < curPage)
             m_PagedDataCache.Add(new List<DynamicDataRecord>(m_PageSize));
 
-          if (m_PagedDataCache[curPage-1].Count != m_PageSize)
-            m_PagedDataCache[curPage-1].Add(new DynamicDataRecord(m_DataReaderWrapper));
+          if (m_PagedDataCache[curPage - 1].Count != m_PageSize)
+            m_PagedDataCache[curPage - 1].Add(new DynamicDataRecord(m_DataReaderWrapper));
         }
-      }
-      base.Clear();
+
+      Clear();
 
       PageIndex = curPage;
       foreach (var item in m_PagedDataCache[curPage - 1])
-        base.Add(item);
+        Add(item);
       CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     }
 
@@ -91,7 +94,11 @@ namespace CsvTools
     /// <param name="addStartLine">Add artificial field Start Line</param>
     /// <param name="addEndLine">Add artificial field End Line</param>
     /// <param name="addRecNum">Add artificial field Records Number</param>
-    public async Task OpenAsync(bool addErrorField = false, bool addStartLine = false, bool addEndLine = false, bool addRecNum = false)
+    public async Task OpenAsync(
+      bool addErrorField = false,
+      bool addStartLine = false,
+      bool addEndLine = false,
+      bool addRecNum = false)
     {
       await m_FileReader.OpenAsync(m_Token).ConfigureAwait(false);
       m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, 0, addErrorField, addStartLine, addEndLine, addRecNum);

@@ -25,10 +25,13 @@ namespace CsvTools
   /// </summary>
   public abstract class BaseFileReaderTyped : BaseFileReader
   {
-    private readonly bool m_TreatNbspAsSpace;
-    private readonly string m_TreatTextAsNull;
-    private readonly bool m_Trim;
     protected object?[] CurrentValues;
+
+    private readonly bool m_TreatNbspAsSpace;
+
+    private readonly string m_TreatTextAsNull;
+
+    private readonly bool m_Trim;
 
     /// <summary>
     ///   Constructor for abstract base call for <see cref="IFileReader" /> that does read typed
@@ -41,20 +44,21 @@ namespace CsvTools
     /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
     /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
     /// <param name="processDisplay">Process Display</param>
-    protected BaseFileReaderTyped(string fileName,
-                                  IEnumerable<IColumn>? columnDefinition,
-                                  long recordLimit, bool trim,
-                                  string treatTextAsNull, bool treatNbspAsSpace, IProcessDisplay? processDisplay) :
-      base(fileName, columnDefinition, recordLimit, processDisplay)
+    protected BaseFileReaderTyped(
+      string fileName,
+      IEnumerable<IColumn>? columnDefinition,
+      long recordLimit,
+      bool trim,
+      string treatTextAsNull,
+      bool treatNbspAsSpace,
+      IProcessDisplay? processDisplay)
+      : base(fileName, columnDefinition, recordLimit, processDisplay)
     {
       m_TreatNbspAsSpace = treatNbspAsSpace;
       m_Trim = trim;
       m_TreatTextAsNull = treatTextAsNull;
       CurrentValues = Array.Empty<object>();
     }
-
-    protected string TreatNbspTestAsNullTrim(string inputString) =>
-      BaseFileReader.TreatNbspAsNullTrim(inputString, m_TreatNbspAsSpace, m_TreatTextAsNull, m_Trim);
 
     /// <summary>
     ///   Gets the boolean.
@@ -69,12 +73,6 @@ namespace CsvTools
         return b;
       EnsureTextFilled(columnNumber);
       return base.GetBoolean(columnNumber);
-    }
-
-    protected override void InitColumn(int fieldCount)
-    {
-      CurrentValues = new object[fieldCount];
-      base.InitColumn(fieldCount);
     }
 
     /// <summary>
@@ -105,13 +103,18 @@ namespace CsvTools
         EnsureTextFilled(AssociatedTimeCol[columnNumber]);
         timePartText = CurrentRowColumnText[AssociatedTimeCol[columnNumber]];
       }
-      var dt = GetDateTimeNull(CurrentValues![columnNumber], CurrentRowColumnText[columnNumber], timePart, timePartText ?? string.Empty,
-        GetColumn(columnNumber), false);
+
+      var dt = GetDateTimeNull(
+        CurrentValues![columnNumber],
+        CurrentRowColumnText[columnNumber],
+        timePart,
+        timePartText ?? string.Empty,
+        GetColumn(columnNumber),
+        false);
       if (dt.HasValue)
         return dt.Value;
       // Warning was added by GetDecimalNull
-      throw WarnAddFormatException(columnNumber,
-        $"'{CurrentRowColumnText[columnNumber]}' is not a date time");
+      throw WarnAddFormatException(columnNumber, $"'{CurrentRowColumnText[columnNumber]}' is not a date time");
     }
 
     /// <summary>
@@ -124,10 +127,11 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
 
-      if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double ||
-          CurrentValues[columnNumber] is float ||
-          CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
-          CurrentValues[columnNumber] is long)
+      if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double
+                                                  || CurrentValues[columnNumber] is float
+                                                  || CurrentValues[columnNumber] is short
+                                                  || CurrentValues[columnNumber] is int
+                                                  || CurrentValues[columnNumber] is long)
         return Convert.ToDecimal(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
       EnsureTextFilled(columnNumber);
       return base.GetDecimal(columnNumber);
@@ -143,10 +147,11 @@ namespace CsvTools
       Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
 
-      if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double ||
-          CurrentValues[columnNumber] is float ||
-          CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
-          CurrentValues[columnNumber] is long)
+      if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double
+                                                  || CurrentValues[columnNumber] is float
+                                                  || CurrentValues[columnNumber] is short
+                                                  || CurrentValues[columnNumber] is int
+                                                  || CurrentValues[columnNumber] is long)
         return Convert.ToDouble(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
       EnsureTextFilled(columnNumber);
       return base.GetDouble(columnNumber);
@@ -163,10 +168,11 @@ namespace CsvTools
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
       try
       {
-        if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double ||
-            CurrentValues[columnNumber] is float ||
-            CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
-            CurrentValues[columnNumber] is long)
+        if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double
+                                                    || CurrentValues[columnNumber] is float
+                                                    || CurrentValues[columnNumber] is short
+                                                    || CurrentValues[columnNumber] is int
+                                                    || CurrentValues[columnNumber] is long)
           return Convert.ToSingle(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
       }
       catch (Exception e)
@@ -176,12 +182,6 @@ namespace CsvTools
 
       EnsureTextFilled(columnNumber);
       return base.GetFloat(columnNumber);
-    }
-
-    private void EnsureTextFilled(int columnNumber)
-    {
-      if (string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]))
-        CurrentRowColumnText[columnNumber] = Convert.ToString(CurrentValues[columnNumber]);
     }
 
     /// <summary>
@@ -211,10 +211,11 @@ namespace CsvTools
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
       try
       {
-        if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double ||
-            CurrentValues[columnNumber] is float ||
-            CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
-            CurrentValues[columnNumber] is long)
+        if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double
+                                                    || CurrentValues[columnNumber] is float
+                                                    || CurrentValues[columnNumber] is short
+                                                    || CurrentValues[columnNumber] is int
+                                                    || CurrentValues[columnNumber] is long)
           return Convert.ToInt16(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
       }
       catch (Exception e)
@@ -238,10 +239,11 @@ namespace CsvTools
 
       try
       {
-        if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double ||
-            CurrentValues[columnNumber] is float ||
-            CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
-            CurrentValues[columnNumber] is long)
+        if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double
+                                                    || CurrentValues[columnNumber] is float
+                                                    || CurrentValues[columnNumber] is short
+                                                    || CurrentValues[columnNumber] is int
+                                                    || CurrentValues[columnNumber] is long)
           return Convert.ToInt32(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
       }
       catch (Exception e)
@@ -264,16 +266,18 @@ namespace CsvTools
       Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
       try
       {
-        if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double ||
-            CurrentValues[columnNumber] is float ||
-            CurrentValues[columnNumber] is short || CurrentValues[columnNumber] is int ||
-            CurrentValues[columnNumber] is long)
+        if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double
+                                                    || CurrentValues[columnNumber] is float
+                                                    || CurrentValues[columnNumber] is short
+                                                    || CurrentValues[columnNumber] is int
+                                                    || CurrentValues[columnNumber] is long)
           return Convert.ToInt64(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
       }
       catch (Exception e)
       {
         throw WarnAddFormatException(columnNumber, $"'{CurrentValues![columnNumber]}' is not a long, {e.Message}");
       }
+
       EnsureTextFilled(columnNumber);
       return base.GetInt64(columnNumber);
     }
@@ -302,9 +306,9 @@ namespace CsvTools
         if (AssociatedTimeCol[columnNumber] == -1)
           return CurrentValues[columnNumber] is null || CurrentValues[columnNumber] == DBNull.Value;
 
-        return (CurrentValues[columnNumber] is null || CurrentValues[columnNumber] == DBNull.Value) &&
-               (CurrentValues[AssociatedTimeCol[columnNumber]] is null ||
-                CurrentValues[AssociatedTimeCol[columnNumber]] == DBNull.Value);
+        return (CurrentValues[columnNumber] is null || CurrentValues[columnNumber] == DBNull.Value)
+               && (CurrentValues[AssociatedTimeCol[columnNumber]] is null
+                   || CurrentValues[AssociatedTimeCol[columnNumber]] == DBNull.Value);
       }
 
       if (CurrentValues[columnNumber] is null || CurrentValues[columnNumber] == DBNull.Value)
@@ -314,6 +318,21 @@ namespace CsvTools
         return string.IsNullOrEmpty(str);
 
       return false;
+    }
+
+    protected override void InitColumn(int fieldCount)
+    {
+      CurrentValues = new object[fieldCount];
+      base.InitColumn(fieldCount);
+    }
+
+    protected string TreatNbspTestAsNullTrim(string inputString) =>
+      TreatNbspAsNullTrim(inputString, m_TreatNbspAsSpace, m_TreatTextAsNull, m_Trim);
+
+    private void EnsureTextFilled(int columnNumber)
+    {
+      if (string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]))
+        CurrentRowColumnText[columnNumber] = Convert.ToString(CurrentValues[columnNumber]);
     }
   }
 }

@@ -21,16 +21,18 @@ namespace CsvTools
   [Serializable]
   public class SampleRecordEntry : IEquatable<SampleRecordEntry>, ICloneable<SampleRecordEntry>
   {
-    public SampleRecordEntry() : this(0, true, string.Empty)
+    public SampleRecordEntry()
+      : this(0, true, string.Empty)
     {
     }
 
-    public SampleRecordEntry(long recordNumber, in string error) : this(recordNumber, true, error)
+    public SampleRecordEntry(long recordNumber, in string error)
+      : this(recordNumber, true, error)
     {
     }
 
-    public SampleRecordEntry(long recordNumber, bool provideEvidence) : this(recordNumber, provideEvidence,
-      string.Empty)
+    public SampleRecordEntry(long recordNumber, bool provideEvidence)
+      : this(recordNumber, provideEvidence, string.Empty)
     {
     }
 
@@ -41,7 +43,8 @@ namespace CsvTools
       Error = error;
     }
 
-    public SampleRecordEntry(long recordNumber) : this(recordNumber, true, string.Empty)
+    public SampleRecordEntry(long recordNumber)
+      : this(recordNumber, true, string.Empty)
     {
     }
 
@@ -69,6 +72,12 @@ namespace CsvTools
     public long RecordNumber { get; }
 
     /// <summary>
+    ///   Clones this instance into a new instance of the same type
+    /// </summary>
+    /// <returns></returns>
+    public SampleRecordEntry Clone() => new SampleRecordEntry(RecordNumber, ProvideEvidence, Error);
+
+    /// <summary>
     ///   Indicates whether the current object is equal to another object of the same type.
     /// </summary>
     /// <param name="other">An object to compare with this object.</param>
@@ -82,15 +91,12 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return RecordNumber == other.RecordNumber && ProvideEvidence == other.ProvideEvidence &&
-             string.Equals(Error, other.Error, StringComparison.OrdinalIgnoreCase);
+      return RecordNumber == other.RecordNumber && ProvideEvidence == other.ProvideEvidence
+                                                && string.Equals(
+                                                  Error,
+                                                  other.Error,
+                                                  StringComparison.OrdinalIgnoreCase);
     }
-
-    /// <summary>
-    ///   Clones this instance into a new instance of the same type
-    /// </summary>
-    /// <returns></returns>
-    public SampleRecordEntry Clone() => new SampleRecordEntry(RecordNumber, ProvideEvidence, Error);
 
     /// <summary>
     ///   Determines whether the specified object is equal to the current object.

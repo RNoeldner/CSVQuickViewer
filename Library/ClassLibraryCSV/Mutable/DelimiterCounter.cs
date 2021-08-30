@@ -12,7 +12,6 @@
 //  *
 //  */
 
-
 using System.Globalization;
 
 namespace CsvTools
@@ -21,10 +20,15 @@ namespace CsvTools
   {
     // Added INFORMATION SEPARATOR ONE to FOUR
     private const string cDefaultSeparators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
+
     public readonly int NumRows;
+
     public readonly int[] SeparatorRows;
+
     public readonly string Separators;
+
     public readonly int[,] SeparatorsCount;
+
     public int LastRow;
 
     public DelimiterCounter(int numRows)
@@ -43,22 +47,20 @@ namespace CsvTools
     {
       get
       {
-        while (LastRow > 1 &&  RowEmpty(LastRow-1))
+        while (LastRow > 1 && RowEmpty(LastRow - 1))
           LastRow--;
 
-        int res = 0;
+        var res = 0;
         for (var line = 0; line < LastRow; line++)
-        {
           if (!RowEmpty(line))
             res++;
-        }
         return res;
       }
     }
 
     private bool RowEmpty(int line)
     {
-      for (int x = 0; x < Separators.Length; x++)
+      for (var x = 0; x < Separators.Length; x++)
         if (SeparatorsCount[x, line] != 0)
           return false;
       return true;

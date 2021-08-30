@@ -22,9 +22,7 @@ namespace CsvTools
   ///   Column information like name, Type, Format etc.
   /// </summary>
   [Serializable]
-#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class Column : IColumn, INotifyPropertyChanged
-#pragma warning restore CS0659
   {
     /// <summary>
     ///   The default time part format
@@ -32,11 +30,17 @@ namespace CsvTools
     private int m_ColumnOrdinal;
 
     private bool? m_Convert;
+
     private string m_DestinationName = string.Empty;
+
     private bool m_Ignore;
+
     private string m_Name;
+
     private string m_TimePart = string.Empty;
+
     private string m_TimePartFormat = ImmutableColumn.cDefaultTimePartFormat;
+
     private string m_TimeZonePart = string.Empty;
 
     public Column()
@@ -79,14 +83,16 @@ namespace CsvTools
     public Column(string name, DataType dataType = DataType.String)
     {
       m_Name = name;
-      ValueFormatMutable = new ValueFormatMutable() { DataType = dataType };
+      ValueFormatMutable = new ValueFormatMutable {DataType = dataType};
     }
 
     public Column(string name, string dateFormat, string dateSeparator = ValueFormatExtension.cDateSeparatorDefault)
     {
       m_Name = name;
-      ValueFormatMutable =
-        new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = dateFormat, DateSeparator = dateSeparator };
+      ValueFormatMutable = new ValueFormatMutable
+                           {
+                             DataType = DataType.DateTime, DateFormat = dateFormat, DateSeparator = dateSeparator
+                           };
     }
 
     /// <summary>
@@ -102,23 +108,6 @@ namespace CsvTools
     {
       get => m_ColumnOrdinal;
       set => m_ColumnOrdinal = value;
-    }
-
-    /// <summary>
-    ///   Gets or sets the name.
-    /// </summary>
-    /// <value>The name.</value>
-    [XmlAttribute("Column")]
-    public virtual string Name
-    {
-      get => m_Name;
-      set
-      {
-        if (m_Name.Equals(value, StringComparison.Ordinal))
-          return;
-        m_Name = value;
-        NotifyPropertyChanged(nameof(Name));
-      }
     }
 
     /// <summary>
@@ -216,7 +205,8 @@ namespace CsvTools
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
     public bool DecimalSeparatorSpecified =>
-      (ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric) && ValueFormatMutable.DecimalSeparatorSpecified;
+      (ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric)
+      && ValueFormatMutable.DecimalSeparatorSpecified;
 
     /// <summary>
     ///   Gets or sets the name in a destination. This is only used for writing
@@ -236,8 +226,7 @@ namespace CsvTools
       }
     }
 
-    public bool DestinationNameSpecified =>
-      !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
+    public bool DestinationNameSpecified => !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Gets or sets the representation for false.
@@ -275,8 +264,10 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    public bool GroupSeparatorSpecified => (ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric || ValueFormatMutable.DataType == DataType.Integer)
-              && ValueFormatMutable.GroupSeparatorSpecified;
+    public bool GroupSeparatorSpecified =>
+      (ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric
+                                                      || ValueFormatMutable.DataType == DataType.Integer)
+      && ValueFormatMutable.GroupSeparatorSpecified;
 
     /// <summary>
     ///   Gets or sets a value indicating whether the column should be ignore reading a file
@@ -294,6 +285,23 @@ namespace CsvTools
           return;
         m_Ignore = value;
         NotifyPropertyChanged(nameof(Ignore));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the name.
+    /// </summary>
+    /// <value>The name.</value>
+    [XmlAttribute("Column")]
+    public virtual string Name
+    {
+      get => m_Name;
+      set
+      {
+        if (m_Name.Equals(value, StringComparison.Ordinal))
+          return;
+        m_Name = value;
+        NotifyPropertyChanged(nameof(Name));
       }
     }
 
@@ -326,7 +334,7 @@ namespace CsvTools
     public virtual int Part
     {
       get => ValueFormatMutable.Part;
-      set => ValueFormatMutable.Part= value;
+      set => ValueFormatMutable.Part = value;
     }
 
     /// <summary>
@@ -344,7 +352,7 @@ namespace CsvTools
     public virtual string PartSplitter
     {
       get => ValueFormatMutable.PartSplitter;
-      set => ValueFormatMutable.PartSplitter= value;
+      set => ValueFormatMutable.PartSplitter = value;
     }
 
     /// <summary>
@@ -354,7 +362,8 @@ namespace CsvTools
     /// <remarks>Used for XML Serialization</remarks>
 
     public bool PartSplitterSpecified =>
-      ValueFormatMutable.DataType == DataType.TextPart && !ValueFormatMutable.PartSplitter.Equals(ValueFormatExtension.cPartSplitterDefault);
+      ValueFormatMutable.DataType == DataType.TextPart
+      && !ValueFormatMutable.PartSplitter.Equals(ValueFormatExtension.cPartSplitterDefault);
 
     /// <summary>
     ///   Gets or sets the part for splitting.
@@ -365,7 +374,7 @@ namespace CsvTools
     public virtual bool PartToEnd
     {
       get => ValueFormatMutable.PartToEnd;
-      set => ValueFormatMutable.PartToEnd= value;
+      set => ValueFormatMutable.PartToEnd = value;
     }
 
     /// <summary>
@@ -496,6 +505,7 @@ namespace CsvTools
     /// <value>The value format.</value>
 
     public IValueFormat ValueFormat => ValueFormatMutable;
+
     public ValueFormatMutable ValueFormatMutable { get; }
 
     /// <summary>
@@ -543,14 +553,24 @@ namespace CsvTools
       if (ReferenceEquals(this, other))
         return true;
 
-      return ColumnOrdinal == other.ColumnOrdinal
-             && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
-             && string.Equals(DestinationName, other.DestinationName, StringComparison.OrdinalIgnoreCase)
-             && Ignore == other.Ignore
-             && string.Equals(TimePart, other.TimePart, StringComparison.OrdinalIgnoreCase)
-             && string.Equals(TimePartFormat, other.TimePartFormat, StringComparison.Ordinal)
-             && string.Equals(TimeZonePart, other.TimeZonePart, StringComparison.OrdinalIgnoreCase)
-             && Convert == other.Convert && ValueFormatMutable.ValueFormatEqual(other.ValueFormat);
+      return ColumnOrdinal == other.ColumnOrdinal && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
+                                                  && string.Equals(
+                                                    DestinationName,
+                                                    other.DestinationName,
+                                                    StringComparison.OrdinalIgnoreCase) && Ignore == other.Ignore
+                                                  && string.Equals(
+                                                    TimePart,
+                                                    other.TimePart,
+                                                    StringComparison.OrdinalIgnoreCase)
+                                                  && string.Equals(
+                                                    TimePartFormat,
+                                                    other.TimePartFormat,
+                                                    StringComparison.Ordinal)
+                                                  && string.Equals(
+                                                    TimeZonePart,
+                                                    other.TimeZonePart,
+                                                    StringComparison.OrdinalIgnoreCase) && Convert == other.Convert
+                                                  && ValueFormatMutable.ValueFormatEqual(other.ValueFormat);
     }
 
     /// <summary>

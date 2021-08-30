@@ -18,35 +18,35 @@ using System;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class ApplicationSettingTest
-  {
-    [TestMethod]
-    public void SQLDataReaderText()
-    {
-      try
-      {
-        FunctionalDI.SQLDataReader = (sql, eh, limit, token) => throw new FileWriterException("SQL Reader not specified");
-      }
-      catch (ArgumentNullException)
-      {
-        // all good
-      }
+	public class ApplicationSettingTest
+	{
+		[TestMethod]
+		public void SQLDataReaderText()
+		{
+			try
+			{
+				FunctionalDI.SQLDataReader = (sql, eh, limit, token) => throw new FileWriterException("SQL Reader not specified");
+			}
+			catch (ArgumentNullException)
+			{
+				// all good
+			}
 
-      FunctionalDI.SQLDataReader = UnitTestInitializeCsv.MimicSQLReader.ReadDataAsync;
-      var readerAsync = FunctionalDI.SQLDataReader;
-      Assert.IsNotNull(readerAsync);
-    }
+			FunctionalDI.SQLDataReader = UnitTestInitializeCsv.MimicSQLReader.ReadDataAsync;
+			var readerAsync = FunctionalDI.SQLDataReader;
+			Assert.IsNotNull(readerAsync);
+		}
 
-    [TestMethod]
-    public void GetMappingByFieldTest()
-    {
-      var csv = new CsvFile();
-      Assert.IsNull(csv.MappingCollection.GetByField(""));
-      Assert.IsNull(csv.MappingCollection.GetByField("Hello"));
+		[TestMethod]
+		public void GetMappingByFieldTest()
+		{
+			var csv = new CsvFile();
+			Assert.IsNull(csv.MappingCollection.GetByField(""));
+			Assert.IsNull(csv.MappingCollection.GetByField("Hello"));
 
-      var map = new Mapping("Column", "Field");
-      csv.MappingCollection.Add(map);
-      Assert.AreEqual(map, csv.MappingCollection.GetByField("Field"));
-    }
-  }
+			var map = new Mapping("Column", "Field");
+			csv.MappingCollection.Add(map);
+			Assert.AreEqual(map, csv.MappingCollection.GetByField("Field"));
+		}
+	}
 }
