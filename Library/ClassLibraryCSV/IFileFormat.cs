@@ -12,7 +12,6 @@
  *
  */
 
-
 namespace CsvTools
 {
   public interface IFileFormat

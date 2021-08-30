@@ -17,6 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+#pragma warning disable 8625
+#pragma warning disable CS8625
+#pragma warning disable CS8629
 
 namespace CsvTools.Tests
 {
@@ -373,7 +376,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(res1.HasValue);
       var utc = new DateTime(1879, 05, 17, 15, 12, 00, DateTimeKind.Utc);
       // Result of parse on a mac is 17.05.1879 16:06:00 not sure how this comes
-      // DateTime.TryParseExact seems to work diffreently
+      // DateTime.TryParseExact seems to work differently
       Assert.AreEqual(utc, res1.Value.ToUniversalTime());
     }
 
@@ -396,8 +399,6 @@ namespace CsvTools.Tests
     {
       Assert.IsFalse(StringConversion.CombineObjectsToDateTime(null, null, null, null, true,
         new ValueFormatMutable { DateFormat = "yyyyMMdd", DateSeparator = "", TimeSeparator = ":" }, out _).HasValue);
-#pragma warning disable CS8629 // Ein Werttyp, der NULL zulässt, kann NULL sein.
-#pragma warning disable CS8625
       Assert.AreEqual(new DateTime(2010, 10, 10),
         StringConversion.CombineObjectsToDateTime(new DateTime(2010, 10, 10),
           null,
@@ -443,8 +444,6 @@ namespace CsvTools.Tests
             new ValueFormatMutable { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" },
             out var issues)
           .Value);
-#pragma warning restore CS8629
-#pragma warning restore CS8625
       // should issue a warning
       Assert.IsTrue(issues);
     }
@@ -488,6 +487,7 @@ namespace CsvTools.Tests
     public void StringToBooleanTest()
     {
       Assert.IsNull(StringConversion.StringToBoolean(null, "y", "n"));
+ // Ein Werttyp, der NULL zulässt, kann NULL sein.
       Assert.IsTrue(StringConversion.StringToBoolean("y", "y", "n").Value);
       Assert.IsFalse(StringConversion.StringToBoolean("n", "y", "n").Value);
     }

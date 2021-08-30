@@ -32,24 +32,45 @@ namespace CsvTools
     protected readonly IReadOnlyCollection<ImmutableColumn> ColumnDefinition;
 
     protected readonly List<WriterColumn> Columns = new List<WriterColumn>();
+
     protected readonly IFileFormat FileFormat;
+
     protected readonly string Header;
-    private readonly string m_FileSettingDisplay;
-    private readonly string m_Footer;
-    private readonly string m_FullPath;
-    private readonly string m_Recipient;
-    private readonly bool m_KeepUnencrypted;
-    private readonly string m_IdentifierInContainer;
-    private readonly Action<string>? m_ReportProgress;
-    private readonly Action<long>? m_SetMaxProcess;
+
     protected readonly string NewLine;
+
     protected readonly IValueFormat ValueFormatGeneral;
+
+    private readonly string m_FileSettingDisplay;
+
+    private readonly string m_Footer;
+
+    private readonly string m_FullPath;
+
+    private readonly string m_IdentifierInContainer;
+
+    private readonly bool m_KeepUnencrypted;
+
+    private readonly string m_Recipient;
+
+    private readonly Action<string>? m_ReportProgress;
+
+    private readonly Action<long>? m_SetMaxProcess;
+
     private DateTime m_LastNotification = DateTime.Now;
 
-    protected BaseFileWriter(in string id, in string fullPath, in IValueFormat? valueFormatGeneral,
-      in IFileFormat? fileFormat, in string? recipient,
-      bool unencrypted, in string? identifierInContainer, in string? footer, in string? header,
-      in IEnumerable<IColumn>? columnDefinition, in string fileSettingDisplay,
+    protected BaseFileWriter(
+      in string id,
+      in string fullPath,
+      in IValueFormat? valueFormatGeneral,
+      in IFileFormat? fileFormat,
+      in string? recipient,
+      bool unencrypted,
+      in string? identifierInContainer,
+      in string? footer,
+      in string? header,
+      in IEnumerable<IColumn>? columnDefinition,
+      in string fileSettingDisplay,
       IProcessDisplay? processDisplay)
     {
       if (string.IsNullOrEmpty(fullPath))
@@ -58,39 +79,63 @@ namespace CsvTools
       m_FullPath = fullPath;
       var fileName = FileSystemUtils.GetFileName(fullPath);
 
-      if (valueFormatGeneral!=null)
-        ValueFormatGeneral = new ImmutableValueFormat(valueFormatGeneral.DataType, valueFormatGeneral.DateFormat, valueFormatGeneral.DateSeparator,
-            valueFormatGeneral.TimeSeparator, valueFormatGeneral.NumberFormat, valueFormatGeneral.GroupSeparator, valueFormatGeneral.DecimalSeparator, valueFormatGeneral.True,
-            valueFormatGeneral.False, valueFormatGeneral.DisplayNullAs);
+      if (valueFormatGeneral != null)
+        ValueFormatGeneral = new ImmutableValueFormat(
+          valueFormatGeneral.DataType,
+          valueFormatGeneral.DateFormat,
+          valueFormatGeneral.DateSeparator,
+          valueFormatGeneral.TimeSeparator,
+          valueFormatGeneral.NumberFormat,
+          valueFormatGeneral.GroupSeparator,
+          valueFormatGeneral.DecimalSeparator,
+          valueFormatGeneral.True,
+          valueFormatGeneral.False,
+          valueFormatGeneral.DisplayNullAs);
       else
-        ValueFormatGeneral =new ImmutableValueFormat();
+        ValueFormatGeneral = new ImmutableValueFormat();
 
       if (fileFormat != null)
-        FileFormat = new ImmutableFileFormat(fileFormat.IsFixedLength, fileFormat.QualifyAlways,
-          fileFormat.QualifyOnlyIfNeeded, fileFormat.EscapeChar, fileFormat.FieldDelimiterChar, fileFormat.DelimiterPlaceholder,
-          fileFormat.FieldQualifierChar, fileFormat.QuotePlaceholder, fileFormat.NewLine, fileFormat.NewLinePlaceholder);
+        FileFormat = new ImmutableFileFormat(
+          fileFormat.IsFixedLength,
+          fileFormat.QualifyAlways,
+          fileFormat.QualifyOnlyIfNeeded,
+          fileFormat.EscapeChar,
+          fileFormat.FieldDelimiterChar,
+          fileFormat.DelimiterPlaceholder,
+          fileFormat.FieldQualifierChar,
+          fileFormat.QuotePlaceholder,
+          fileFormat.NewLine,
+          fileFormat.NewLinePlaceholder);
       else
         FileFormat = new ImmutableFileFormat();
 
-      ColumnDefinition =  columnDefinition?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList() ??
-                           new List<ImmutableColumn>();
+      ColumnDefinition =
+        columnDefinition
+          ?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList()
+        ?? new List<ImmutableColumn>();
       NewLine = fileFormat?.NewLine.NewLineString() ?? "\r\n";
       if (!string.IsNullOrEmpty(header))
-        Header = ReplacePlaceHolder(header!.HandleCRLFCombinations(NewLine), fileFormat?.FieldDelimiterChar.GetDescription() ?? string.Empty,
-        fileName, id);
+        Header = ReplacePlaceHolder(
+          header!.HandleCRLFCombinations(NewLine),
+          fileFormat?.FieldDelimiterChar.GetDescription() ?? string.Empty,
+          fileName,
+          id);
       else
         Header = string.Empty;
 
       if (!string.IsNullOrEmpty(footer))
-        m_Footer = ReplacePlaceHolder(footer!.HandleCRLFCombinations(NewLine), fileFormat?.FieldDelimiterChar.GetDescription() ?? string.Empty,
-          fileName, id);
+        m_Footer = ReplacePlaceHolder(
+          footer!.HandleCRLFCombinations(NewLine),
+          fileFormat?.FieldDelimiterChar.GetDescription() ?? string.Empty,
+          fileName,
+          id);
       else
         m_Footer = string.Empty;
 
       m_FileSettingDisplay = fileSettingDisplay;
-      m_Recipient = recipient?? string.Empty;
+      m_Recipient = recipient ?? string.Empty;
       m_KeepUnencrypted = unencrypted;
-      m_IdentifierInContainer = identifierInContainer?? string.Empty;
+      m_IdentifierInContainer = identifierInContainer ?? string.Empty;
 
       Logger.Debug("Created Writer for {filesetting}", m_FileSettingDisplay);
       if (processDisplay is null) return;
@@ -101,15 +146,31 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Sets the columns by looking at the reader
+    ///   Event handler called if a warning or error occurred
     /// </summary>
-    /// <param name="reader">The reader.</param>
-    protected void SetColumns(IFileReader reader)
-    {
-      Columns.Clear();
-      using var dt = reader.GetSchemaTable();
-      Columns.AddRange(GetColumnInformation(ValueFormatGeneral, ColumnDefinition, dt ?? throw new ArgumentException("GetSchemaTable did not return information for reader")).Cast<WriterColumn>());
-    }
+    public event EventHandler<WarningEventArgs>? Warning;
+
+    /// <summary>
+    ///   Event to be raised if writing is finished
+    /// </summary>
+    public event EventHandler? WriteFinished;
+
+    /*
+        /// <summary>
+        ///   Initializes a new instance of the <see cref="BaseFileWriter" /> class.
+        /// </summary>
+        /// <param name="fileSetting">the file setting with the definition for the file</param>
+        /// <param name="processDisplay">The process display.</param>
+        /// <exception cref="ArgumentNullException">fileSetting</exception>
+        /// <exception cref="ArgumentException">No SQL Reader set</exception>
+        protected BaseFileWriter(IFileSettingPhysicalFile fileSetting, IProcessDisplay? processDisplay)
+          : this(fileSetting.ID, fileSetting.FullPath, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, recipient: fileSetting.Recipient,
+            unencrypted: fileSetting.KeepUnencrypted, identifierInContainer: fileSetting.IdentifierInContainer, footer: fileSetting.Footer, header: fileSetting.Header,
+            columnDefinition: fileSetting.ColumnCollection, fileSettingDisplay: Convert.ToString(fileSetting), processDisplay: processDisplay)
+        {
+        }
+    */
+    private long Records { get; set; }
 
     /// <summary>
     ///   Gets the column information based on the SQL Source, but overwritten with the definitions
@@ -121,8 +182,10 @@ namespace CsvTools
     /// <param name="schemaTable"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">reader</exception>
-    public static IEnumerable<IColumn> GetColumnInformation(IValueFormat generalFormat,
-      IReadOnlyCollection<IColumn> columnDefinitions, DataTable schemaTable)
+    public static IEnumerable<IColumn> GetColumnInformation(
+      IValueFormat generalFormat,
+      IReadOnlyCollection<IColumn> columnDefinitions,
+      DataTable schemaTable)
     {
       if (schemaTable is null)
         throw new ArgumentNullException(nameof(schemaTable));
@@ -144,18 +207,24 @@ namespace CsvTools
       foreach (DataRow schemaRow in schemaTable.Rows)
       {
         var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
-        var column = columnDefinitions.FirstOrDefault(x => x.Name.Equals(colNames[colNo], StringComparison.OrdinalIgnoreCase));
+        var column =
+          columnDefinitions.FirstOrDefault(x => x.Name.Equals(colNames[colNo], StringComparison.OrdinalIgnoreCase));
 
-        if (column is { Ignore: true })
+        if (column is {Ignore: true})
           continue;
 
         // Based on the data Type in the reader defined and the general format create the value format
         var valueFormat = column?.ValueFormat ?? new ImmutableValueFormat(
-          ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(), generalFormat.DateFormat,
-          generalFormat.DateSeparator,
-          generalFormat.TimeSeparator, generalFormat.NumberFormat, generalFormat.GroupSeparator,
-          generalFormat.DecimalSeparator, generalFormat.True,
-          generalFormat.False, generalFormat.DisplayNullAs);
+                            ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(),
+                            generalFormat.DateFormat,
+                            generalFormat.DateSeparator,
+                            generalFormat.TimeSeparator,
+                            generalFormat.NumberFormat,
+                            generalFormat.GroupSeparator,
+                            generalFormat.DecimalSeparator,
+                            generalFormat.True,
+                            generalFormat.False,
+                            generalFormat.DisplayNullAs);
 
         var fieldLength = Math.Max((int) schemaRow[SchemaTableColumn.ColumnSize], 0);
         switch (valueFormat.DataType)
@@ -199,15 +268,18 @@ namespace CsvTools
         {
           var tz = column.TimeZonePart;
           if (!string.IsNullOrEmpty(tz))
-          {
             if (!tz.TryGetConstant(out constantTimeZone))
-            {
               if (colNames.TryGetByValue(tz, out var ordinal))
                 columnOrdinalTimeZoneReader = ordinal;
-            }
-          }
         }
-        var ci = new WriterColumn(colNames[colNo], colNo, valueFormat, fieldLength, constantTimeZone, columnOrdinalTimeZoneReader);
+
+        var ci = new WriterColumn(
+          colNames[colNo],
+          colNo,
+          valueFormat,
+          fieldLength,
+          constantTimeZone,
+          columnOrdinalTimeZoneReader);
         result.Add(ci);
 
         // add an extra column for the time, reading columns they get combined, writing them they
@@ -216,46 +288,26 @@ namespace CsvTools
         if (column is null || string.IsNullOrEmpty(column.TimePart) || colNames.ContainsValue(column.TimePart))
           continue;
 
-        if (ci.ValueFormat.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 's' }) != -1)
+        if (ci.ValueFormat.DateFormat.IndexOfAny(new[] {'h', 'H', 'm', 's'}) != -1)
           Logger.Warning(
             $"'{ci.Name}' will create a separate time column '{column.TimePart}' but seems to write time itself '{ci.ValueFormat.DateFormat}'");
 
         // In case we have a split column, add the second column (unless the column is also present
-        result.Add(new WriterColumn(column.TimePart, colNo, new ImmutableValueFormat(DataType.DateTime, column.TimePartFormat, timeSeparator: column.ValueFormat?.TimeSeparator ?? ":"), column.TimePartFormat.Length, constantTimeZone, columnOrdinalTimeZoneReader));
+        result.Add(
+          new WriterColumn(
+            column.TimePart,
+            colNo,
+            new ImmutableValueFormat(
+              DataType.DateTime,
+              column.TimePartFormat,
+              timeSeparator: column.ValueFormat?.TimeSeparator ?? ":"),
+            column.TimePartFormat.Length,
+            constantTimeZone,
+            columnOrdinalTimeZoneReader));
       }
 
       return result;
     }
-
-    /*
-        /// <summary>
-        ///   Initializes a new instance of the <see cref="BaseFileWriter" /> class.
-        /// </summary>
-        /// <param name="fileSetting">the file setting with the definition for the file</param>
-        /// <param name="processDisplay">The process display.</param>
-        /// <exception cref="ArgumentNullException">fileSetting</exception>
-        /// <exception cref="ArgumentException">No SQL Reader set</exception>
-        protected BaseFileWriter(IFileSettingPhysicalFile fileSetting, IProcessDisplay? processDisplay)
-          : this(fileSetting.ID, fileSetting.FullPath, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, recipient: fileSetting.Recipient,
-            unencrypted: fileSetting.KeepUnencrypted, identifierInContainer: fileSetting.IdentifierInContainer, footer: fileSetting.Footer, header: fileSetting.Header,
-            columnDefinition: fileSetting.ColumnCollection, fileSettingDisplay: Convert.ToString(fileSetting), processDisplay: processDisplay)
-        {
-        }
-    */
-    private long Records { get; set; }
-
-    protected string Footer() =>
-      m_Footer.PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:n0}", Records));
-
-    /// <summary>
-    ///   Event handler called if a warning or error occurred
-    /// </summary>
-    public event EventHandler<WarningEventArgs>? Warning;
-
-    /// <summary>
-    ///   Event to be raised if writing is finished
-    /// </summary>
-    public event EventHandler? WriteFinished;
 
     public async Task<long> WriteAsync(IFileReader? reader, CancellationToken token)
     {
@@ -266,7 +318,11 @@ namespace CsvTools
 
       try
       {
-        var sourceAccess = new SourceAccess(m_FullPath, false, recipient: m_Recipient, keepEncrypted: m_KeepUnencrypted);
+        var sourceAccess = new SourceAccess(
+          m_FullPath,
+          false,
+          recipient: m_Recipient,
+          keepEncrypted: m_KeepUnencrypted);
         if (!string.IsNullOrEmpty(m_IdentifierInContainer))
           sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
 
@@ -276,7 +332,8 @@ namespace CsvTools
       catch (Exception exc)
       {
         Logger.Error(exc, "Could not write file {filename}", FileSystemUtils.GetShortDisplayFileName(m_FullPath));
-        throw new FileWriterException($"Could not write file '{FileSystemUtils.GetShortDisplayFileName(m_FullPath)}'\n{exc.SourceExceptionMessage()}",
+        throw new FileWriterException(
+          $"Could not write file '{FileSystemUtils.GetShortDisplayFileName(m_FullPath)}'\n{exc.SourceExceptionMessage()}",
           exc);
       }
       finally
@@ -288,12 +345,8 @@ namespace CsvTools
       return Records;
     }
 
-    private static string ReplacePlaceHolder(string input, string fieldDelimiter, string fileName,
-      string replacement) => input.PlaceholderReplace("ID", replacement)
-      .PlaceholderReplace("FileName", fileName)
-      .PlaceholderReplace("Delim", fieldDelimiter)
-      .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
-      .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
+    protected string Footer() =>
+      m_Footer.PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:n0}", Records));
 
     /// <summary>
     ///   Handles the error.
@@ -325,24 +378,24 @@ namespace CsvTools
           HandleWarning(columnInfo.Name, "Time zone is empty, value not converted");
         else
           // ReSharper disable once PossibleInvalidOperationException
-          return FunctionalDI.AdjustTZExport(dataObject, destinationTimeZoneId, Columns.IndexOf(columnInfo), (columnNo, msg) => HandleWarning(Columns[columnNo].Name, msg));
+          return FunctionalDI.AdjustTZExport(
+            dataObject,
+            destinationTimeZoneId,
+            Columns.IndexOf(columnInfo),
+            (columnNo, msg) => HandleWarning(Columns[columnNo].Name, msg));
       }
       else if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
       {
         // ReSharper disable once PossibleInvalidOperationException
-        return FunctionalDI.AdjustTZExport(dataObject, columnInfo.ConstantTimeZone, Columns.IndexOf(columnInfo), (columnNo, msg) => HandleWarning(Columns[columnNo].Name, msg));
+        return FunctionalDI.AdjustTZExport(
+          dataObject,
+          columnInfo.ConstantTimeZone,
+          Columns.IndexOf(columnInfo),
+          (columnNo, msg) => HandleWarning(Columns[columnNo].Name, msg));
       }
 
       return dataObject;
     }
-
-    /// <summary>
-    ///   Calls the event handler for warnings
-    /// </summary>
-    /// <param name="columnName">The column.</param>
-    /// <param name="message">The message.</param>
-    private void HandleWarning(string columnName, string message) => Warning?.Invoke(this,
-      new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
 
     protected void HandleWriteStart() => Records = 0;
 
@@ -352,6 +405,22 @@ namespace CsvTools
       if (!((DateTime.Now - m_LastNotification).TotalSeconds > .15)) return;
       m_LastNotification = DateTime.Now;
       HandleProgress($"Record {Records:N0}");
+    }
+
+    /// <summary>
+    ///   Sets the columns by looking at the reader
+    /// </summary>
+    /// <param name="reader">The reader.</param>
+    protected void SetColumns(IFileReader reader)
+    {
+      Columns.Clear();
+      using var dt = reader.GetSchemaTable();
+      Columns.AddRange(
+        GetColumnInformation(
+            ValueFormatGeneral,
+            ColumnDefinition,
+            dt ?? throw new ArgumentException("GetSchemaTable did not return information for reader"))
+          .Cast<WriterColumn>());
     }
 
     /// <summary>
@@ -368,9 +437,13 @@ namespace CsvTools
     /// <exception cref="FileWriterException">
     ///   For fix length output the length of the columns needs to be specified.
     /// </exception>
-    protected string TextEncodeField(IFileFormat fileFormat, object? dataObject,
-      WriterColumn columnInfo, bool isHeader,
-      IDataReader? reader, Func<string, DataType, IFileFormat, string>? handleQualify)
+    protected string TextEncodeField(
+      IFileFormat fileFormat,
+      object? dataObject,
+      WriterColumn columnInfo,
+      bool isHeader,
+      IDataReader? reader,
+      Func<string, DataType, IFileFormat, string>? handleQualify)
     {
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));
@@ -395,19 +468,21 @@ namespace CsvTools
             switch (columnInfo.ValueFormat.DataType)
             {
               case DataType.Integer:
-                displayAs = Convert.ToInt64(dataObject).ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
-                    CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, columnInfo.ValueFormat.GroupSeparator);
+                displayAs = Convert.ToInt64(dataObject)
+                  .ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
+                    CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
+                    columnInfo.ValueFormat.GroupSeparator);
                 break;
 
               case DataType.Boolean:
-                displayAs = (bool) dataObject
-                  ? columnInfo.ValueFormat.True
-                  : columnInfo.ValueFormat.False;
+                displayAs = (bool) dataObject ? columnInfo.ValueFormat.True : columnInfo.ValueFormat.False;
                 break;
 
               case DataType.Double:
                 displayAs = StringConversion.DoubleToString(
-                  dataObject is double d ? d : Convert.ToDouble(Convert.ToString(dataObject), CultureInfo.InvariantCulture),
+                  dataObject is double d
+                    ? d
+                    : Convert.ToDouble(Convert.ToString(dataObject), CultureInfo.InvariantCulture),
                   columnInfo.ValueFormat);
                 break;
 
@@ -421,9 +496,10 @@ namespace CsvTools
 
               case DataType.DateTime:
                 displayAs = reader is null
-                  ? StringConversion.DateTimeToString((DateTime) dataObject, columnInfo.ValueFormat)
-                  : StringConversion.DateTimeToString(HandleTimeZone((DateTime) dataObject, columnInfo, reader),
-                    columnInfo.ValueFormat);
+                              ? StringConversion.DateTimeToString((DateTime) dataObject, columnInfo.ValueFormat)
+                              : StringConversion.DateTimeToString(
+                                HandleTimeZone((DateTime) dataObject, columnInfo, reader),
+                                columnInfo.ValueFormat);
                 break;
 
               case DataType.Guid:
@@ -438,12 +514,15 @@ namespace CsvTools
                 if (fileFormat.NewLinePlaceholder.Length > 0)
                   displayAs = displayAs.HandleCRLFCombinations(fileFormat.NewLinePlaceholder);
 
-                if (fileFormat.DelimiterPlaceholder.Length > 0 &&  fileFormat.FieldDelimiterChar != '\0')
-                  displayAs = displayAs.Replace(fileFormat.FieldDelimiterChar.ToStringHandle0(),
+                if (fileFormat.DelimiterPlaceholder.Length > 0 && fileFormat.FieldDelimiterChar != '\0')
+                  displayAs = displayAs.Replace(
+                    fileFormat.FieldDelimiterChar.ToStringHandle0(),
                     fileFormat.DelimiterPlaceholder);
 
                 if (fileFormat.QuotePlaceholder.Length > 0 && fileFormat.FieldQualifierChar != '\0')
-                  displayAs = displayAs.Replace(fileFormat.FieldQualifierChar.ToStringHandle0(), fileFormat.QuotePlaceholder);
+                  displayAs = displayAs.Replace(
+                    fileFormat.FieldQualifierChar.ToStringHandle0(),
+                    fileFormat.QuotePlaceholder);
                 break;
 
               default:
@@ -459,9 +538,11 @@ namespace CsvTools
           if (string.IsNullOrEmpty(displayAs))
             HandleError(columnInfo.Name, ex.Message);
           else
-            HandleWarning(columnInfo.Name,
-              "Value stored as: " + displayAs +
-              $"\nExpected {columnInfo.ValueFormat.DataType} but was {dataObject?.GetType()}" + ex.Message);
+            HandleWarning(
+              columnInfo.Name,
+              "Value stored as: " + displayAs
+                                  + $"\nExpected {columnInfo.ValueFormat.DataType} but was {dataObject?.GetType()}"
+                                  + ex.Message);
         }
       }
 
@@ -470,7 +551,8 @@ namespace CsvTools
       {
         if (displayAs.Length <= columnInfo.FieldLength || columnInfo.FieldLength <= 0)
           return displayAs.PadRight(columnInfo.FieldLength, ' ');
-        HandleWarning(columnInfo.Name,
+        HandleWarning(
+          columnInfo.Name,
           $"Text with length of {displayAs.Length} has been cut off after {columnInfo.FieldLength} character");
         return displayAs.Substring(0, columnInfo.FieldLength);
       }
@@ -482,7 +564,21 @@ namespace CsvTools
       return displayAs;
     }
 
-    protected abstract Task WriteReaderAsync(IFileReader reader, Stream output,
-      CancellationToken cancellationToken);
+    protected abstract Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
+
+    private static string
+      ReplacePlaceHolder(string input, string fieldDelimiter, string fileName, string replacement) =>
+      input.PlaceholderReplace("ID", replacement).PlaceholderReplace("FileName", fileName)
+        .PlaceholderReplace("Delim", fieldDelimiter)
+        .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
+        .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
+
+    /// <summary>
+    ///   Calls the event handler for warnings
+    /// </summary>
+    /// <param name="columnName">The column.</param>
+    /// <param name="message">The message.</param>
+    private void HandleWarning(string columnName, string message) =>
+      Warning?.Invoke(this, new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
   }
 }

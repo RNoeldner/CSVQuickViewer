@@ -23,24 +23,24 @@ namespace CsvTools
   {
     public CustomProcessDisplay(CancellationToken token) => CancellationToken = token;
 
-    public void Dispose()
-    {
-    }
-
     public event EventHandler<ProgressEventArgs>? Progress;
 
     public CancellationToken CancellationToken { get; }
 
     public virtual long Maximum { get; set; } = -1;
 
+    public string Title { get; set; } = string.Empty;
+
+    public void Dispose()
+    {
+    }
+
     public void SetProcess(object? sender, ProgressEventArgs? e)
     {
-      if (e is null || Progress==null)
+      if (e is null || Progress == null)
         return;
       Handle(sender, e.Text, e.Value, e.Log);
     }
-
-    public string Title { get; set; } = string.Empty;
 
     public void SetProcess(string text, long value, bool log) => Handle(this, text, value, log);
 

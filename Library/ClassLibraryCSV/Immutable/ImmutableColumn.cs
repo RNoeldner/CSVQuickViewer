@@ -12,6 +12,8 @@
  *
  */
 
+using System;
+
 namespace CsvTools
 {
   /// <summary>
@@ -21,27 +23,48 @@ namespace CsvTools
   {
     public const string cDefaultTimePartFormat = "HH:mm:ss";
 
-    public ImmutableColumn(IColumn col) : this(col.Name, col.ValueFormat, col.ColumnOrdinal, col.Convert,
-      col.DestinationName, col.Ignore, col.TimePart, col.TimePartFormat,
-      col.TimeZonePart)
+    public ImmutableColumn(IColumn col)
+      : this(
+        col.Name,
+        col.ValueFormat,
+        col.ColumnOrdinal,
+        col.Convert,
+        col.DestinationName,
+        col.Ignore,
+        col.TimePart,
+        col.TimePartFormat,
+        col.TimeZonePart)
     {
     }
 
-    public ImmutableColumn(IColumn col, IValueFormat format) : this(col.Name, format, col.ColumnOrdinal, col.Convert,
-      col.DestinationName, col.Ignore, col.TimePart, col.TimePartFormat,
-      col.TimeZonePart)
+    public ImmutableColumn(IColumn col, IValueFormat format)
+      : this(
+        col.Name,
+        format,
+        col.ColumnOrdinal,
+        col.Convert,
+        col.DestinationName,
+        col.Ignore,
+        col.TimePart,
+        col.TimePartFormat,
+        col.TimeZonePart)
     {
     }
 
-    public ImmutableColumn(string name, IValueFormat valueFormat, int columnOrdinal, bool? convert = null,
+    public ImmutableColumn(
+      string name,
+      IValueFormat valueFormat,
+      int columnOrdinal,
+      bool? convert = null,
       string destinationName = "",
-      bool ignore = false, string timePart = "",
+      bool ignore = false,
+      string timePart = "",
       string timePartFormat = "",
       string timeZonePart = "")
     {
-      Name = name ?? throw new System.ArgumentNullException(nameof(name));
+      Name = name ?? throw new ArgumentNullException(nameof(name));
       if (valueFormat is null)
-        throw new System.ArgumentNullException(nameof(valueFormat));
+        throw new ArgumentNullException(nameof(valueFormat));
       ColumnOrdinal = columnOrdinal;
       Convert = convert ?? valueFormat.DataType != DataType.String;
       DestinationName = destinationName;
@@ -52,11 +75,21 @@ namespace CsvTools
       TimeZonePart = timeZonePart;
 
       ValueFormat = valueFormat is ImmutableValueFormat immutable
-        ? immutable
-        : new ImmutableValueFormat(valueFormat.DataType, valueFormat.DateFormat, valueFormat.DateSeparator,
-          valueFormat.TimeSeparator, valueFormat.NumberFormat, valueFormat.GroupSeparator, valueFormat.DecimalSeparator,
-          valueFormat.True,
-          valueFormat.False, valueFormat.DisplayNullAs, valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd);
+                      ? immutable
+                      : new ImmutableValueFormat(
+                        valueFormat.DataType,
+                        valueFormat.DateFormat,
+                        valueFormat.DateSeparator,
+                        valueFormat.TimeSeparator,
+                        valueFormat.NumberFormat,
+                        valueFormat.GroupSeparator,
+                        valueFormat.DecimalSeparator,
+                        valueFormat.True,
+                        valueFormat.False,
+                        valueFormat.DisplayNullAs,
+                        valueFormat.Part,
+                        valueFormat.PartSplitter,
+                        valueFormat.PartToEnd);
 
       if (ValueFormat.DataType == DataType.TextPart)
         ColumnFormatter = new TextPartFormatter(ValueFormat.Part, ValueFormat.PartSplitter, ValueFormat.PartToEnd);
@@ -66,39 +99,45 @@ namespace CsvTools
         ColumnFormatter = new TextToHtmlFullFormatter();
     }
 
+    public IColumnFormatter? ColumnFormatter { get; }
+
     public int ColumnOrdinal { get; }
+
     public bool Convert { get; }
+
     public string DestinationName { get; }
+
     public bool Ignore { get; }
+
     public string Name { get; }
 
     public string TimePart { get; }
+
     public string TimePartFormat { get; }
+
     public string TimeZonePart { get; }
 
     public IValueFormat ValueFormat { get; }
 
-    public IColumnFormatter? ColumnFormatter { get; }
-
     public IColumn Clone() => new ImmutableColumn(this);
-
-    public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
 
     public bool Equals(IColumn? other)
     {
-      if (ReferenceEquals(null, other)) return false;
+      if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
-      return ColumnOrdinal == other.ColumnOrdinal && Convert == other.Convert &&
-             DestinationName == other.DestinationName && Ignore == other.Ignore && Name == other.Name &&
-             TimePart == other.TimePart && TimePartFormat == other.TimePartFormat &&
-             TimeZonePart == other.TimeZonePart && ValueFormat.ValueFormatEqual(other.ValueFormat);
+      return ColumnOrdinal == other.ColumnOrdinal && Convert == other.Convert
+                                                  && DestinationName == other.DestinationName && Ignore == other.Ignore
+                                                  && Name == other.Name && TimePart == other.TimePart
+                                                  && TimePartFormat == other.TimePartFormat
+                                                  && TimeZonePart == other.TimeZonePart
+                                                  && ValueFormat.ValueFormatEqual(other.ValueFormat);
     }
 
     public override bool Equals(object? obj)
     {
-      if (ReferenceEquals(null, obj)) return false;
+      if (obj is null) return false;
       if (ReferenceEquals(this, obj)) return true;
-      if (obj.GetType() != this.GetType()) return false;
+      if (obj.GetType() != GetType()) return false;
       return Equals((ImmutableColumn) obj);
     }
 
@@ -118,5 +157,7 @@ namespace CsvTools
         return hashCode;
       }
     }
+
+    public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
   }
 }

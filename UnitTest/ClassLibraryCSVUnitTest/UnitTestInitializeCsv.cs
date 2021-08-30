@@ -22,58 +22,58 @@ using System.Threading;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public static class UnitTestInitializeCsv
-  {
-    public static CancellationToken Token;
-    public static string ApplicationDirectory = Path.Combine(FileSystemUtils.ExecutableDirectoryName(), "TestFiles");
+	public static class UnitTestInitializeCsv
+	{
+		public static CancellationToken Token;
+		public static string ApplicationDirectory = Path.Combine(FileSystemUtils.ExecutableDirectoryName(), "TestFiles");
 
-    public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
+		public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
 
-    public static string GetTestPath(string fileName) =>
-      Path.Combine(ApplicationDirectory, fileName.TrimStart(' ', '\\', '/'));
+		public static string GetTestPath(string fileName) =>
+			Path.Combine(ApplicationDirectory, fileName.TrimStart(' ', '\\', '/'));
 
-    public static void MimicSql() => FunctionalDI.SQLDataReader = MimicSQLReader.ReadDataAsync;
+		public static void MimicSql() => FunctionalDI.SQLDataReader = MimicSQLReader.ReadDataAsync;
 
-    private class TestLogger : ILogger
-    {
-      private readonly TestContext Context;
+		private class TestLogger : ILogger
+		{
+			private readonly TestContext Context;
 
-      public TestLogger(TestContext context)
-      {
-        Context = context;
-      }
+			public TestLogger(TestContext context)
+			{
+				Context = context;
+			}
 
-      public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception, string> formatter)
-      {
-        if (exception is null)
-          return;
-        Context.WriteLine($"{logLevel} - {formatter(state, exception)}");
-      }
+			public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception, string> formatter)
+			{
+				if (exception is null)
+					return;
+				Context.WriteLine($"{logLevel} - {formatter(state, exception)}");
+			}
 
-      public bool IsEnabled(LogLevel logLevel) => true;
+			public bool IsEnabled(LogLevel logLevel) => true;
 
 #pragma warning disable CS8603 // Mögliche Nullverweisrückgabe.
 
-      public IDisposable BeginScope<TState>(TState state) => default;
+			public IDisposable BeginScope<TState>(TState state) => default;
 
 #pragma warning restore CS8603 // Mögliche Nullverweisrückgabe.
-    }
+		}
 
-    [AssemblyInitialize]
-    public static void AssemblyInitialize(TestContext context)
-    {
-      MimicSql();
-      Token = context.CancellationTokenSource.Token;
+		[AssemblyInitialize]
+		public static void AssemblyInitialize(TestContext context)
+		{
+			MimicSql();
+			Token = context.CancellationTokenSource.Token;
 
-      Logger.LoggerInstance = new TestLogger(context);
+			Logger.LoggerInstance = new TestLogger(context);
 
-      ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
+			ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
 
-      AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs args)
-      {
-        if (!context.CancellationTokenSource.IsCancellationRequested)
-          context.Write(args.ExceptionObject.ToString());
-      };
-    }
-  }
+			AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs args)
+			{
+				if (!context.CancellationTokenSource.IsCancellationRequested)
+					context.Write(args.ExceptionObject.ToString());
+			};
+		}
+	}
 }

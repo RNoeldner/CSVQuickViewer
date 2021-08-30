@@ -48,11 +48,33 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
     /// </summary>
-    public StructuredFileWriter(in string id, in string fullPath, in IValueFormat? valueFormatGeneral,
-                                in IFileFormat? fileFormat, in string? recipient,
-                                bool unencrypted, in string? identifierInContainer, in string? footer, in string? header,
-                                in IEnumerable<IColumn>? columnDefinition, in string fileSettingDisplay, in string row,
-                                in IProcessDisplay? processDisplay) : base(id, fullPath, valueFormatGeneral, fileFormat, recipient, unencrypted, identifierInContainer, footer, header, columnDefinition, fileSettingDisplay, processDisplay)
+    public StructuredFileWriter(
+      in string id,
+      in string fullPath,
+      in IValueFormat? valueFormatGeneral,
+      in IFileFormat? fileFormat,
+      in string? recipient,
+      bool unencrypted,
+      in string? identifierInContainer,
+      in string? footer,
+      in string? header,
+      in IEnumerable<IColumn>? columnDefinition,
+      in string fileSettingDisplay,
+      in string row,
+      in IProcessDisplay? processDisplay)
+      : base(
+        id,
+        fullPath,
+        valueFormatGeneral,
+        fileFormat,
+        recipient,
+        unencrypted,
+        identifierInContainer,
+        footer,
+        header,
+        columnDefinition,
+        fileSettingDisplay,
+        processDisplay)
     {
       if (string.IsNullOrEmpty(row))
         throw new ArgumentException($"{nameof(row)} can not be empty");
@@ -70,7 +92,9 @@ namespace CsvTools
     /// <param name="reader">A Data Reader with the data</param>
     /// <param name="output">The output.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    protected override async Task WriteReaderAsync(IFileReader reader, Stream output,
+    protected override async Task WriteReaderAsync(
+      IFileReader reader,
+      Stream output,
       CancellationToken cancellationToken)
     {
       using var writer = new StreamWriter(output, new UTF8Encoding(true), 4096);
@@ -103,17 +127,17 @@ namespace CsvTools
         withHeader = withHeader.Replace(placeHolder, ElementName(columnInfo.Name));
 
         placeHolderLookup1.Add(colNum, string.Format(CultureInfo.CurrentCulture, c_FieldPlaceholderByNumber, colNum));
-        placeHolderLookup2.Add(colNum,
+        placeHolderLookup2.Add(
+          colNum,
           string.Format(CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnInfo.Name));
         colNum++;
       }
 
       withHeader = withHeader.Trim();
-      var
-        sb = new StringBuilder(
-          1024); // Assume a capacity of 1024 characters to start, data is flushed every 512 chars
-      while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) &&
-             !cancellationToken.IsCancellationRequested)
+      var sb = new StringBuilder(
+        1024); // Assume a capacity of 1024 characters to start, data is flushed every 512 chars
+      while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false)
+             && !cancellationToken.IsCancellationRequested)
       {
         NextRecord();
 

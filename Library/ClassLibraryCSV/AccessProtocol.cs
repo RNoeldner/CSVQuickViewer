@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
 
 namespace CsvTools
@@ -19,12 +20,12 @@ namespace CsvTools
   public enum AccessProtocol
   {
     /// <summary>
-    /// File System Copy
+    ///   File System Copy
     /// </summary>
     Local = -1,
 
     /// <summary>
-    /// sFTP Access
+    ///   sFTP Access
     /// </summary>
     Sftp = 0
   }

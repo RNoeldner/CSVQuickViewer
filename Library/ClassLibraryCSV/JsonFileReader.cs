@@ -30,34 +30,38 @@ namespace CsvTools
   public class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
     private IImprovedStream? m_ImprovedStream;
+
     private JsonTextReader? m_JsonTextReader;
+
     private StreamReader? m_StreamReader;
 
-    public JsonFileReader(IImprovedStream improvedStream,
-                          IEnumerable<IColumn>? columnDefinition = null,
-                          long recordLimit = 0,
-                          bool trim = false,
-                          string treatTextAsNull = "",
-                          bool treatNbspAsSpace = false,
-                          IProcessDisplay? processDisplay = null) :
-      base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, processDisplay)
-    {
+    public JsonFileReader(
+      IImprovedStream improvedStream,
+      IEnumerable<IColumn>? columnDefinition = null,
+      long recordLimit = 0,
+      bool trim = false,
+      string treatTextAsNull = "",
+      bool treatNbspAsSpace = false,
+      IProcessDisplay? processDisplay = null)
+      : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, processDisplay) =>
       m_ImprovedStream = improvedStream;
-    }
 
-    public JsonFileReader(string fileName,
-                          IEnumerable<IColumn>? columnDefinition = null,
-                          long recordLimit = 0,
-                          bool trim = false,
-                          string treatTextAsNull = "",
-                          bool treatNbspAsSpace = false,
-                          IProcessDisplay? processDisplay = null) :
-      base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, processDisplay)
+    public JsonFileReader(
+      string fileName,
+      IEnumerable<IColumn>? columnDefinition = null,
+      long recordLimit = 0,
+      bool trim = false,
+      string treatTextAsNull = "",
+      bool treatNbspAsSpace = false,
+      IProcessDisplay? processDisplay = null)
+      : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, processDisplay)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("File can not be null or empty", nameof(fileName));
       if (!FileSystemUtils.FileExists(fileName))
-        throw new FileNotFoundException($"The file '{FileSystemUtils.GetShortDisplayFileName(fileName)}' does not exist or is not accessible.", fileName);
+        throw new FileNotFoundException(
+          $"The file '{FileSystemUtils.GetShortDisplayFileName(fileName)}' does not exist or is not accessible.",
+          fileName);
     }
 
     /// <summary>
@@ -83,8 +87,7 @@ namespace CsvTools
     public override async Task OpenAsync(CancellationToken token)
     {
       Logger.Information("Opening JSON file {filename}", FileName);
-      await BeforeOpenAsync(
-          $"Opening JSON file {FileSystemUtils.GetShortDisplayFileName(FileName)}")
+      await BeforeOpenAsync($"Opening JSON file {FileSystemUtils.GetShortDisplayFileName(FileName)}")
         .ConfigureAwait(false);
       Retry:
       try
@@ -99,10 +102,8 @@ namespace CsvTools
         while (line != null)
         {
           foreach (var keyValue in line)
-          {
             if (!colNames.ContainsKey(keyValue.Key))
               colNames.Add(keyValue.Key, keyValue.Value?.GetType().GetDataType() ?? DataType.String);
-          }
 
           if (stopwatch.ElapsedMilliseconds > 200)
             break;
@@ -135,10 +136,6 @@ namespace CsvTools
       }
     }
 
-    public override Task<bool> ReadAsync(CancellationToken token) => Task.FromResult(Read(token));
-
-    public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
-
     public override bool Read(CancellationToken token)
     {
       if (!EndOfFile && !token.IsCancellationRequested)
@@ -154,6 +151,23 @@ namespace CsvTools
       EndOfFile = true;
       HandleReadFinished();
       return false;
+    }
+
+    public override Task<bool> ReadAsync(CancellationToken token) => Task.FromResult(Read(token));
+
+    public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
+
+    /// <summary>
+    ///   Gets the relative position.
+    /// </summary>
+    /// <returns>A value between 0 and MaxValue</returns>
+    protected override double GetRelativePosition()
+    {
+      var byFile = m_ImprovedStream?.Percentage ?? 0;
+      if (RecordLimit > 0 && RecordLimit < long.MaxValue)
+        // you can either reach the record limit or the end of the stream, whatever is faster
+        return Math.Max((double) RecordNumber / RecordLimit, byFile);
+      return byFile;
     }
 
     /// <summary>
@@ -228,7 +242,8 @@ namespace CsvTools
 
               // in case we are in an array combine all values but separate them with linefeed
               if (inArray && keyValuePairs[key] != null)
-                keyValuePairs[key] = (Convert.ToString(keyValuePairs[key]) ?? string.Empty) + '\n' + m_JsonTextReader.Value;
+                keyValuePairs[key] = (Convert.ToString(keyValuePairs[key]) ?? string.Empty) + '\n'
+                                     + m_JsonTextReader.Value;
               else
                 keyValuePairs[key] = m_JsonTextReader.Value;
               break;
@@ -257,8 +272,8 @@ namespace CsvTools
           }
 
           token.ThrowIfCancellationRequested();
-        } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey)
-                 && m_JsonTextReader.Read());
+        }
+        while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey) && m_JsonTextReader.Read());
 
         EndLineNumber = m_JsonTextReader.LineNumber;
 
@@ -274,7 +289,9 @@ namespace CsvTools
           if (keyValuePairs.TryGetValue(col.Name, out CurrentValues[columnNumber]))
           {
             if (CurrentValues[columnNumber] is null)
+            {
               CurrentRowColumnText[columnNumber] = string.Empty;
+            }
             else
             {
               var orgVal = Convert.ToString(CurrentValues[columnNumber]) ?? string.Empty;
@@ -282,7 +299,8 @@ namespace CsvTools
 
               if (!string.IsNullOrEmpty(orgVal) && !col.Ignore && col.ValueFormat.DataType >= DataType.String)
               {
-                CurrentRowColumnText[columnNumber] = TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal, columnNumber)) ?? String.Empty;
+                CurrentRowColumnText[columnNumber] =
+                  TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal, columnNumber)) ?? String.Empty;
                 CurrentValues[columnNumber] = CurrentRowColumnText[columnNumber];
               }
             }
@@ -292,10 +310,12 @@ namespace CsvTools
         }
 
         if (keyValuePairs.Count < FieldCount)
-          HandleWarning(-1,
+          HandleWarning(
+            -1,
             $"Line {StartLineNumber} has fewer columns than expected ({keyValuePairs.Count}/{FieldCount}).");
         else if (keyValuePairs.Count > FieldCount)
-          HandleWarning(-1,
+          HandleWarning(
+            -1,
             $"Line {StartLineNumber} has more columns than expected ({keyValuePairs.Count}/{FieldCount}). The data in extra columns is not read.");
 
         return keyValuePairs;
@@ -310,19 +330,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the relative position.
-    /// </summary>
-    /// <returns>A value between 0 and MaxValue</returns>
-    protected override double GetRelativePosition()
-    {
-      var byFile = m_ImprovedStream?.Percentage ?? 0;
-      if (RecordLimit > 0 && RecordLimit < long.MaxValue)
-        // you can either reach the record limit or the end of the stream, whatever is faster
-        return Math.Max(((double) RecordNumber) / RecordLimit, byFile);
-      return byFile;
-    }
-
-    /// <summary>
     ///   Resets the position and buffer to the first line, excluding headers, use
     ///   ResetPositionToStart if you want to go to first data line
     /// </summary>
@@ -334,11 +341,18 @@ namespace CsvTools
         m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath));
       }
       else
+      {
         m_ImprovedStream!.Seek(0, SeekOrigin.Begin);
+      }
 
       // in case we can not seek need to reopen the stream reader
       m_StreamReader?.Close();
-      m_StreamReader = new StreamReader(m_ImprovedStream as Stream ?? throw new InvalidOperationException(), Encoding.UTF8, true, 4096, true);
+      m_StreamReader = new StreamReader(
+        m_ImprovedStream as Stream ?? throw new InvalidOperationException(),
+        Encoding.UTF8,
+        true,
+        4096,
+        true);
 
       // End Line should be at 1, later on as the line is read the start line s set to this value
       StartLineNumber = 1;
@@ -348,7 +362,7 @@ namespace CsvTools
       EndOfFile = m_StreamReader.EndOfStream;
 
       m_JsonTextReader?.Close();
-      m_JsonTextReader = new JsonTextReader(m_StreamReader) { SupportMultipleContent = true };
+      m_JsonTextReader = new JsonTextReader(m_StreamReader) {SupportMultipleContent = true};
     }
   }
 }

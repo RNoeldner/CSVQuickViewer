@@ -154,12 +154,6 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Performs application-defined tasks associated with freeing, releasing, or resetting
-    ///   unmanaged resources.
-    /// </summary>
-    public void Dispose() => Dispose(true);
-
     public void Cancel()
     {
       // stop old filtering
@@ -173,6 +167,12 @@ namespace CsvTools
       m_CurrentFilterCancellationTokenSource.Dispose();
       m_CurrentFilterCancellationTokenSource = null;
     }
+
+    /// <summary>
+    ///   Performs application-defined tasks associated with freeing, releasing, or resetting
+    ///   unmanaged resources.
+    /// </summary>
+    public void Dispose() => Dispose(true);
 
     public void Filter(int limit, FilterType type)
     {

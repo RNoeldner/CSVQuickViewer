@@ -20,7 +20,7 @@ namespace CsvTools
 {
   /// <summary>
   ///   Setting for StructuredFile
-  /// </summary>  
+  /// </summary>
   public abstract class StructuredFile : BaseSettingPhysicalFile
   {
     private string m_Row = string.Empty;
@@ -67,10 +67,8 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return string.Equals(m_Row, other.Row, StringComparison.Ordinal) &&
-             base.BaseSettingsEquals(other as BaseSettings);
+      return string.Equals(m_Row, other.Row, StringComparison.Ordinal) && base.BaseSettingsEquals(other);
     }
-
 
     /// <summary>
     ///   Copies all values to other instance

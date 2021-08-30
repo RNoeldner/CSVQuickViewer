@@ -24,33 +24,19 @@ namespace CsvTools
   /// </summary>
   [DebuggerDisplay("Mapping(File/Source: {FileColumn} -> Template/Destination {TemplateField})")]
   [Serializable]
-#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public sealed class Mapping : IEquatable<Mapping>, ICloneable<Mapping>
-#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
-    public Mapping() : this(string.Empty, string.Empty)
+    public Mapping()
+      : this(string.Empty, string.Empty)
     {
     }
 
-    public Mapping(string fileColumn, string templateField, bool update = false,
-      bool attention = false)
+    public Mapping(string fileColumn, string templateField, bool update = false, bool attention = false)
     {
       FileColumn = fileColumn;
       TemplateField = templateField;
       Update = update;
       Attention = attention;
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether this <see cref="Mapping" /> should be used for update
-    /// </summary>
-    /// <value><c>true</c> if it should be regarded for updates; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public bool Update
-    {
-      get;
-      set;
     }
 
     /// <summary>
@@ -82,6 +68,18 @@ namespace CsvTools
     public string TemplateField { get; set; }
 
     /// <summary>
+    ///   Gets or sets a value indicating whether this <see cref="Mapping" /> should be used for update
+    /// </summary>
+    /// <value><c>true</c> if it should be regarded for updates; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public bool Update
+    {
+      get;
+      set;
+    }
+
+    /// <summary>
     ///   Clones this instance.
     /// </summary>
     /// <returns>A new FieldMapping that is a copy</returns>
@@ -101,27 +99,32 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return Attention == other.Attention && Update == other.Update &&
-             string.Equals(FileColumn, other.FileColumn, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(TemplateField, other.TemplateField, StringComparison.OrdinalIgnoreCase);
+      return Attention == other.Attention && Update == other.Update
+                                          && string.Equals(
+                                            FileColumn,
+                                            other.FileColumn,
+                                            StringComparison.OrdinalIgnoreCase) && string.Equals(
+                                            TemplateField,
+                                            other.TemplateField,
+                                            StringComparison.OrdinalIgnoreCase);
     }
 
-/*
-    /// <summary>
-    ///   Serves as the default hash function.
-    /// </summary>
-    /// <returns>A hash code for the current object.</returns>
-    public override int GetHashCode()
-    {
-      unchecked
-      {
-        var hashCode = StringComparer.OrdinalIgnoreCase.GetHashCode(FileColumn);
-        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(TemplateField);
-        hashCode = (hashCode * 397) ^ Update.GetHashCode();
-        hashCode = (hashCode * 397) ^ Attention.GetHashCode();
-        return hashCode;
-      }
-    }
-*/
+    /*
+        /// <summary>
+        ///   Serves as the default hash function.
+        /// </summary>
+        /// <returns>A hash code for the current object.</returns>
+        public override int GetHashCode()
+        {
+          unchecked
+          {
+            var hashCode = StringComparer.OrdinalIgnoreCase.GetHashCode(FileColumn);
+            hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(TemplateField);
+            hashCode = (hashCode * 397) ^ Update.GetHashCode();
+            hashCode = (hashCode * 397) ^ Attention.GetHashCode();
+            return hashCode;
+          }
+        }
+    */
   }
 }

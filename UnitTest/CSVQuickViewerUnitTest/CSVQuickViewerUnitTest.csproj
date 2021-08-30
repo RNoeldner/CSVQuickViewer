@@ -5,6 +5,12 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;Windows</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;Windows</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\ClassLibraryCSVUnitTest\MimicSQLReader.cs" Link="MimicSQLReader.cs" />
     <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestHelper.cs" Link="UnitTestHelper.cs" />

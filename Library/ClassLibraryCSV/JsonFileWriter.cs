@@ -20,21 +20,45 @@ namespace CsvTools
   /// <summary>
   ///   A class to write structured Json Files
   /// </summary>
-  public class JsonFileWriter : StructuredFileWriter 
+  public class JsonFileWriter : StructuredFileWriter
   {
     /// <summary>
     ///   Initializes a new instance of the <see cref="JsonFileWriter" /> class.
     /// </summary>
-    public JsonFileWriter(string id, string fullPath, IValueFormat? valueFormatGeneral = null,
-      IFileFormat? fileFormat = null, string? recipient = null,
-      bool unencrypted = false, string? identifierInContainer = null, string? footer = null, string? header = null,
-      IEnumerable<IColumn>? columnDefinition = null, string fileSettingDisplay = "", string row = "",
-      IProcessDisplay? processDisplay = null) : base (id, fullPath, valueFormatGeneral, fileFormat, recipient, unencrypted, identifierInContainer, footer, header, columnDefinition, fileSettingDisplay, row, processDisplay)
+    public JsonFileWriter(
+      string id,
+      string fullPath,
+      IValueFormat? valueFormatGeneral = null,
+      IFileFormat? fileFormat = null,
+      string? recipient = null,
+      bool unencrypted = false,
+      string? identifierInContainer = null,
+      string? footer = null,
+      string? header = null,
+      IEnumerable<IColumn>? columnDefinition = null,
+      string fileSettingDisplay = "",
+      string row = "",
+      IProcessDisplay? processDisplay = null)
+      : base(
+        id,
+        fullPath,
+        valueFormatGeneral,
+        fileFormat,
+        recipient,
+        unencrypted,
+        identifierInContainer,
+        footer,
+        header,
+        columnDefinition,
+        fileSettingDisplay,
+        row,
+        processDisplay)
     {
     }
 
     protected override string ElementName(string input) => HTMLStyle.JsonElementName(input);
 
-    protected override string Escape(object input, WriterColumn columnInfo, IFileReader reader) => JsonConvert.ToString(input);
+    protected override string Escape(object input, WriterColumn columnInfo, IFileReader reader) =>
+      JsonConvert.ToString(input);
   }
 }

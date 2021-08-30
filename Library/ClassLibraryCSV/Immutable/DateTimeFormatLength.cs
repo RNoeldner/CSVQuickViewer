@@ -18,7 +18,7 @@ using System.Globalization;
 namespace CsvTools
 {
   /// <summary>
-  /// Static class that stores the length of named date parts for the current culture  and English
+  ///   Static class that stores the length of named date parts for the current culture  and English
   /// </summary>
   public static class DateTimeFormatLength
   {
@@ -97,14 +97,23 @@ namespace CsvTools
     }
 
     public static int MaxDayLong { get; }
+
     public static int MaxDayMid { get; }
+
     public static int MaxDesignator { get; }
+
     public static int MaxMonthLong { get; }
+
     public static int MaxMonthMid { get; }
+
     public static int MinDayLong { get; }
+
     public static int MinDayMid { get; }
+
     public static int MinDesignator { get; }
+
     public static int MinMonthLong { get; }
+
     public static int MinMonthMid { get; }
   }
 }

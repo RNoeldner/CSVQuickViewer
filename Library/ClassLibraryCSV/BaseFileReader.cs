@@ -39,6 +39,10 @@ namespace CsvTools
 
     protected readonly long RecordLimit;
 
+    protected readonly EventHandler<ProgressEventArgs>? ReportProgress;
+
+    protected readonly EventHandler<long>? SetMaxProcess;
+
     /// <summary>
     ///   An array of associated col
     /// </summary>
@@ -54,10 +58,10 @@ namespace CsvTools
     /// </summary>
     protected string[] CurrentRowColumnText = Array.Empty<string>();
 
-    protected readonly EventHandler<ProgressEventArgs>? ReportProgress;
     protected bool SelfOpenedStream;
-    protected readonly EventHandler<long>? SetMaxProcess;
+
     private readonly IReadOnlyCollection<ImmutableColumn> m_ColumnDefinition;
+
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
 
     /// <summary>
@@ -83,11 +87,16 @@ namespace CsvTools
     /// <param name="columnDefinition">List of column definitions</param>
     /// <param name="recordLimit">Number of records that should be read</param>
     /// <param name="processDisplay">Reporting progress information</param>
-    protected BaseFileReader(in string fileName, in IEnumerable<IColumn>? columnDefinition,
-                             long recordLimit, IProcessDisplay? processDisplay)
+    protected BaseFileReader(
+      in string fileName,
+      in IEnumerable<IColumn>? columnDefinition,
+      long recordLimit,
+      IProcessDisplay? processDisplay)
     {
-      m_ColumnDefinition =  columnDefinition?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList() ??
-                                 new List<ImmutableColumn>();
+      m_ColumnDefinition =
+        columnDefinition
+          ?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList()
+        ?? new List<ImmutableColumn>();
       RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       FullPath = fileName;
       SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
@@ -101,18 +110,6 @@ namespace CsvTools
         SetMaxProcess(this, 0);
       }
     }
-
-#if !QUICK
-
-    /// <summary>
-    ///   Occurs when something went wrong during opening of the setting, this might be the file
-    ///   does not exist or a query ran into a timeout
-    /// </summary>
-    public event EventHandler<RetryEventArgs>? OnAskRetry;
-
-    public event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
-
-#endif
 
     /// <summary>
     ///   Event to be raised if reading the files is completed
@@ -153,10 +150,7 @@ namespace CsvTools
 
     public double NotifyAfterSeconds
     {
-      set
-      {
-        m_IntervalAction.NotifyAfterSeconds = value;
-      }
+      set => m_IntervalAction.NotifyAfterSeconds = value;
     }
 
     /// <summary>
@@ -196,6 +190,7 @@ namespace CsvTools
     public override int VisibleFieldCount => Column.Count(x => !x.Ignore);
 
     protected string FileName { get; }
+
     protected string FullPath { get; }
 
     /// <summary>
@@ -263,7 +258,7 @@ namespace CsvTools
             {
               warnings?.Add(counter, $"Column title '{resultingName}' exists more than once replaced with {newName}");
               issuesCounter++;
-              resultingName= newName;
+              resultingName = newName;
             }
           }
 
@@ -600,8 +595,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
-    ///   cref="IDataReader" /> .
+    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the
+    ///   <see
+    ///     cref="IDataReader" />
+    ///   .
     /// </summary>
     /// <returns>A <see cref="DataTable" /> that describes the column meta data.</returns>
     /// <exception cref="InvalidOperationException">The <see cref="IDataReader" /> is closed.</exception>
@@ -616,7 +613,7 @@ namespace CsvTools
 
         schemaRow[1] = column.Name; // Column name
         schemaRow[4] = column.Name; // Column name
-        schemaRow[5] = col;         // Column ordinal
+        schemaRow[5] = col; // Column ordinal
 
         // If there is a conversion get the information
         if (column.Convert && column.ValueFormat.DataType != DataType.String)
@@ -631,7 +628,7 @@ namespace CsvTools
     }
 
     public override Stream GetStream(int columnNumber) =>
-          new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[columnNumber]));
+      new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[columnNumber]));
 
     /// <summary>
     ///   Gets the originally provided text in a column
@@ -668,39 +665,17 @@ namespace CsvTools
       object ret;
       try
       {
-        switch (column.ValueFormat.DataType)
+        ret = column.ValueFormat.DataType switch
         {
-          case DataType.DateTime:
-            ret = GetDateTime(columnNumber);
-            break;
-
-          case DataType.Integer:
-            ret = IntPtr.Size == 4 ? GetInt32(columnNumber) : GetInt64(columnNumber);
-            break;
-
-          case DataType.Double:
-            ret = GetDouble(columnNumber);
-            break;
-
-          case DataType.Numeric:
-            ret = GetDecimal(columnNumber);
-            break;
-
-          case DataType.Boolean:
-            ret = GetBoolean(columnNumber);
-            break;
-
-          case DataType.Guid:
-            ret = GetGuid(columnNumber);
-            break;
-
-          case DataType.String:
-            ret = GetString(columnNumber);
-            break;
-
-          default:
-            throw new ArgumentOutOfRangeException();
-        }
+          DataType.DateTime => GetDateTime(columnNumber),
+          DataType.Integer => IntPtr.Size == 4 ? GetInt32(columnNumber) : GetInt64(columnNumber),
+          DataType.Double => GetDouble(columnNumber),
+          DataType.Numeric => GetDecimal(columnNumber),
+          DataType.Boolean => GetBoolean(columnNumber),
+          DataType.Guid => GetGuid(columnNumber),
+          DataType.String => GetString(columnNumber),
+          _ => throw new ArgumentOutOfRangeException()
+        };
       }
       catch (FormatException)
       {
@@ -805,10 +780,13 @@ namespace CsvTools
     /// <param name="treatTextAsNull">The treat text as null.</param>
     /// <param name="trim">if set to <c>true</c> [trim].</param>
     /// <returns></returns>
-    protected static string TreatNbspAsNullTrim(string inputString, bool treatNbspAsSpace,
-                                                    string treatTextAsNull, bool trim)
+    protected static string TreatNbspAsNullTrim(
+      string inputString,
+      bool treatNbspAsSpace,
+      string treatTextAsNull,
+      bool trim)
     {
-      if (inputString.Length>0)
+      if (inputString.Length > 0)
       {
         if (treatNbspAsSpace && inputString!.IndexOf((char) 0xA0) != -1)
           inputString = inputString.Replace((char) 0xA0, ' ');
@@ -819,6 +797,7 @@ namespace CsvTools
         if (StringUtils.ShouldBeTreatedAsNull(inputString, treatTextAsNull))
           inputString = string.Empty;
       }
+
       return inputString;
     }
 
@@ -847,6 +826,18 @@ namespace CsvTools
 #endif
       SetMaxProcess?.Invoke(this, c_MaxValue);
     }
+
+    /// <summary>
+    ///   Gets the boolean value.
+    /// </summary>
+    /// <param name="inputBoolean">The input.</param>
+    /// <param name="columnNumber">The column.</param>
+    /// <returns>
+    ///   The Boolean, if conversion is not successful: <c>NULL</c> the event handler for warnings
+    ///   is called
+    /// </returns>
+    protected bool? GetBooleanNull(string inputBoolean, int columnNumber) =>
+      GetBooleanNull(inputBoolean, GetColumn(columnNumber));
 
     /// <summary>
     ///   This routine will read a date from a typed or untyped reader, will combined date with time
@@ -881,7 +872,8 @@ namespace CsvTools
         if (inputTime != null)
           passedIn = Convert.ToString(inputTime);
 
-        HandleWarning(column.ColumnOrdinal,
+        HandleWarning(
+          column.ColumnOrdinal,
           $"'{passedIn}' is outside expected range 00:00 - 23:59, the date has been adjusted");
       }
 
@@ -906,7 +898,7 @@ namespace CsvTools
             column.ValueFormat.TimeSeparator);
           HandleWarning(
             column.ColumnOrdinal,
-            strInputTime.Length >0
+            strInputTime.Length > 0
               ? $"'{strInputDate} {strInputTime}' is not a date of the format '{display}' '{column.TimePartFormat}', used '{inputDateNew} {strInputTime}'"
               : $"'{strInputDate}' is not a date of the format '{display}', used '{inputDateNew}' ");
         }
@@ -916,277 +908,6 @@ namespace CsvTools
         return AdjustTz(dateTime.Value, column);
 
       HandleDateError(strInputDate, strInputTime, column.ColumnOrdinal);
-      return null;
-    }
-
-    /// <summary>
-    ///   Gets the relative position.
-    /// </summary>
-    /// <returns>A value between 0 and MaxValue</returns>
-    /// <summary>
-    ///   Gets the relative position.
-    /// </summary>
-    /// <returns>A value between 0 and MaxValue</returns>
-    protected abstract double GetRelativePosition();
-
-    /// <summary>
-    ///   Gets the associated value.
-    /// </summary>
-    /// <param name="i">The i.</param>
-    /// <returns></returns>
-    protected string GetTimeValue(int i) => (AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= CurrentRowColumnText.Length) ? string.Empty : CurrentRowColumnText[AssociatedTimeCol[i]];
-
-    protected WarningEventArgs GetWarningEventArgs(int columnNumber, string message) => new WarningEventArgs(
-      RecordNumber,
-      columnNumber,
-      message,
-      StartLineNumber,
-      EndLineNumber,
-      columnNumber >= 0 && columnNumber < m_FieldCount ? Column[columnNumber].Name : null);
-
-    /// <summary>
-    ///   Handles the Event if reading the file is completed
-    /// </summary>
-    protected void HandleReadFinished()
-    {
-      if (m_IsFinished)
-        return;
-      m_IsFinished = true;
-      HandleShowProgress("Finished Reading from source", RecordNumber, c_MaxValue);
-      ReadFinished?.Invoke(this, EventArgs.Empty);
-    }
-
-    /// <summary>
-    ///   Shows the process.
-    /// </summary>
-    /// <param name="text">Leading Text</param>
-    /// <param name="recordNumber">The record number.</param>
-    /// <param name="progress">The progress (a value between 0 and MaxValue)</param>
-    protected virtual void HandleShowProgress(in string text, long recordNumber, double progress)
-    {
-      var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
-      ReportProgress?.Invoke(this,
-        new ProgressEventArgs($"{text}{rec}", (progress * c_MaxValue).ToInt64()));
-    }
-
-    /// <summary>
-    ///   Shows the process.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    protected void HandleShowProgress(string text) => ReportProgress?.Invoke(this, new ProgressEventArgs(text));
-
-    /// <summary>
-    ///   Shows the process twice a second
-    /// </summary>
-    /// <param name="text">Leading Text</param>
-    /// <param name="recordNumber">The record number.</param>
-    protected void HandleShowProgressPeriodic(string text, long recordNumber)
-    {
-      if (ReportProgress != null)
-        m_IntervalAction.Invoke(() => HandleShowProgress(text, recordNumber, GetRelativePosition()));
-    }
-
-    /// <summary>
-    ///   Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update the
-    ///   maximum column size
-    ///   Attention: Trimming needs to be handled before hand
-    /// </summary>
-    /// <param name="inputString">The input string.</param>
-    /// <param name="columnNumber">The column number</param>
-    /// <returns>The proper encoded or cut text as returned for the column</returns>
-    protected string HandleTextSpecials(string? inputString, int columnNumber)
-    {
-      if (inputString == null || inputString.Length==0 || columnNumber >= FieldCount)
-        return inputString ?? string.Empty;
-      var column = Column[columnNumber];
-      if (column.ColumnFormatter is null)
-        return inputString;
-      return column.ColumnFormatter.FormatText(inputString, (message) => HandleWarning(columnNumber, message));
-    }
-
-    /// <summary>
-    ///   Displays progress, is called after <see langword="abstract" /> row has been read
-    /// </summary>
-    /// <param name="hasReadRow"><c>true</c> if a row has been read</param>
-    protected void InfoDisplay(bool hasReadRow)
-    {
-      if (!hasReadRow)
-        HandleReadFinished();
-      else
-        HandleShowProgressPeriodic("Reading", RecordNumber);
-    }
-
-    protected virtual void InitColumn(int fieldCount)
-    {
-      m_FieldCount = fieldCount;
-      CurrentRowColumnText = new string[fieldCount];
-
-      Column = new ImmutableColumn[fieldCount];
-      AssociatedTimeCol = new int[fieldCount];
-      m_AssociatedTimeZoneCol = new int[fieldCount];
-      for (var counter = 0; counter < fieldCount; counter++)
-      {
-        Column[counter] = new ImmutableColumn(GetDefaultName(counter), new ImmutableValueFormat(),
-          counter);
-        AssociatedTimeCol[counter] = -1;
-        m_AssociatedTimeZoneCol[counter] = -1;
-      }
-    }
-
-    /// <summary>
-    ///   Parses the name of the columns and sets teh data types, it will handle TimePart and
-    ///   TimeZone. Column must be set before hand
-    /// </summary>
-    /// <param name="headerRow">The header row.</param>
-    /// <param name="dataType">Type of the data.</param>
-    /// <param name="hasFieldHeader">if set to <c>true</c> [has field header].</param>
-    protected void ParseColumnName(IEnumerable<string> headerRow,
-                                   IEnumerable<DataType>? dataType = null, bool hasFieldHeader = true)
-    {
-      var issues = new ColumnErrorDictionary();
-      var adjustedNames = new List<string>();
-      if (hasFieldHeader)
-        adjustedNames.AddRange(AdjustColumnName(headerRow, Column.Length, issues).Item1);
-      else
-      {
-        for (var colIndex = 0; colIndex<Column.Length; colIndex++)
-        {
-          if (Column[colIndex].Name.Equals(GetDefaultName(colIndex)))
-          {
-            // Might have passed in the column names in m_ColumnDefinition (used with Manifest data
-            // accompanying a file without header)
-            var newDef = m_ColumnDefinition.FirstOrDefault(x => x.ColumnOrdinal==colIndex);
-            if (newDef!= null && !string.IsNullOrEmpty(newDef.Name))
-            {
-              issues.Add(colIndex, "Using column name from definition");
-              adjustedNames.Add(newDef.Name);
-              continue;
-            }
-          }
-          adjustedNames.Add(Column[colIndex].Name);
-        }
-      }
-
-      var dataTypeL = new DataType[adjustedNames.Count];
-      // Initialize as text
-      for (int col = 0; col<adjustedNames.Count; col++)
-        dataTypeL[col] = DataType.String;
-      // get the provided and overwrite
-      if (dataType!=null)
-      {
-        using var enumeratorType = dataType.GetEnumerator();
-        var col = 0;
-        while (enumeratorType.MoveNext() && col<adjustedNames.Count)
-          dataTypeL[col++]= enumeratorType.Current;
-      }
-
-      // set the data types, either using the definition, or the provided DataType with defaults
-      for (var colIndex = 0; colIndex<adjustedNames.Count && colIndex<Column.Length; colIndex++)
-      {
-        var defined = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ??  new ImmutableColumn(adjustedNames[colIndex], new ImmutableValueFormat(dataTypeL[colIndex]), colIndex);
-        Column[colIndex] =new ImmutableColumn(adjustedNames[colIndex], defined.ValueFormat, colIndex, defined.Convert, defined.DestinationName,
-                defined.Ignore, defined.TimePart, defined.TimePartFormat, defined.TimeZonePart);
-      }
-
-      if (Column.Length==0)
-        issues.Add(-1, "Column should be set before using ParseColumnName to handle TimePart and TimeZone");
-      else
-        // Initialize the references for TimePart and TimeZone
-        for (var index = 0; index < Column.Length; index++)
-        {
-          // if the original column that reference other columns is ignored, skip it
-          if (Column[index].Ignore) continue;
-
-          var searchedTimePart = Column[index].TimePart;
-          var searchedTimeZonePart = Column[index].TimeZonePart;
-
-          if (!string.IsNullOrEmpty(searchedTimePart))
-            for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
-            {
-              if (indexPoint == index) continue;
-              if (!Column[indexPoint].Name.Equals(searchedTimePart, StringComparison.OrdinalIgnoreCase)) continue;
-              AssociatedTimeCol[index] = indexPoint;
-              break;
-            }
-
-          if (string.IsNullOrEmpty(searchedTimeZonePart))
-            continue;
-          for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
-          {
-            if (indexPoint == index) continue;
-
-            if (!Column[indexPoint].Name.Equals(searchedTimeZonePart, StringComparison.OrdinalIgnoreCase)) continue;
-            m_AssociatedTimeZoneCol[index] = indexPoint;
-            break;
-          }
-        }
-
-      // Now can handle possible warning that have been raised adjusting the names
-      foreach (var warning in issues.Where(warning => (warning.Key<0 ||  warning.Key>=Column.Length) || !Column[warning.Key].Ignore))
-        HandleWarning(warning.Key, warning.Value);
-    }
-
-    protected bool ShouldRetry(Exception ex, CancellationToken token)
-    {
-#if !QUICK
-      if (token.IsCancellationRequested) return false;
-
-      var eventArgs = new RetryEventArgs(ex) { Retry = false };
-      OnAskRetry?.Invoke(this, eventArgs);
-      return eventArgs.Retry;
-#else
-      return false;
-#endif
-    }
-
-    /// <summary>
-    ///   Adds a Format exception.
-    /// </summary>
-    /// <param name="columnNumber">The column.</param>
-    /// <param name="message">The message.</param>
-    protected FormatException WarnAddFormatException(int columnNumber, string message)
-    {
-      HandleError(columnNumber, message);
-      return new FormatException(message);
-    }
-
-    /// <summary>
-    ///   Get the default names, if columnDefinitions is provided try to find the name looking at
-    ///   teh ColumnOrdinal, otherwise is ColumnX (X being the column number +1)
-    /// </summary>
-    /// <param name="columnNumber">The column number counting from 0</param>
-    /// <returns>A string with the column name</returns>
-    private static string GetDefaultName(int columnNumber) => $"Column{columnNumber + 1}";
-
-    private DateTime AdjustTz(DateTime input, IColumn column)
-    {
-      if (m_AssociatedTimeZoneCol.Length>column.ColumnOrdinal &&  m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
-        return FunctionalDI.AdjustTZImport(input, GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]), column.ColumnOrdinal, HandleWarning);
-
-      return column.TimeZonePart.TryGetConstant(out var timeZone) ? FunctionalDI.AdjustTZImport(input, timeZone, column.ColumnOrdinal, HandleWarning) : input;
-    }
-
-    /// <summary>
-    ///   Gets the boolean value.
-    /// </summary>
-    /// <param name="inputBoolean">The input.</param>
-    /// <param name="columnNumber">The column.</param>
-    /// <returns>
-    ///   The Boolean, if conversion is not successful: <c>NULL</c> the event handler for warnings
-    ///   is called
-    /// </returns>
-    protected bool? GetBooleanNull(string inputBoolean, int columnNumber) => GetBooleanNull(inputBoolean, GetColumn(columnNumber));
-
-    private bool? GetBooleanNull(string inputValue, IColumn column)
-    {
-      var boolValue = StringConversion.StringToBoolean(
-        inputValue,
-        column.ValueFormat.True,
-        column.ValueFormat.False);
-      if (boolValue.HasValue)
-        return boolValue.Value;
-
-      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a boolean");
       return null;
     }
 
@@ -1255,6 +976,286 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Gets the relative position.
+    /// </summary>
+    /// <returns>A value between 0 and MaxValue</returns>
+    /// <summary>
+    ///   Gets the relative position.
+    /// </summary>
+    /// <returns>A value between 0 and MaxValue</returns>
+    protected abstract double GetRelativePosition();
+
+    /// <summary>
+    ///   Gets the associated value.
+    /// </summary>
+    /// <param name="i">The i.</param>
+    /// <returns></returns>
+    protected string GetTimeValue(int i) =>
+      AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= CurrentRowColumnText.Length
+        ? string.Empty
+        : CurrentRowColumnText[AssociatedTimeCol[i]];
+
+    protected WarningEventArgs GetWarningEventArgs(int columnNumber, string message) =>
+      new WarningEventArgs(
+        RecordNumber,
+        columnNumber,
+        message,
+        StartLineNumber,
+        EndLineNumber,
+        columnNumber >= 0 && columnNumber < m_FieldCount ? Column[columnNumber].Name : null);
+
+    /// <summary>
+    ///   Handles the Event if reading the file is completed
+    /// </summary>
+    protected void HandleReadFinished()
+    {
+      if (m_IsFinished)
+        return;
+      m_IsFinished = true;
+      HandleShowProgress("Finished Reading from source", RecordNumber, c_MaxValue);
+      ReadFinished?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    ///   Shows the process.
+    /// </summary>
+    /// <param name="text">Leading Text</param>
+    /// <param name="recordNumber">The record number.</param>
+    /// <param name="progress">The progress (a value between 0 and MaxValue)</param>
+    protected virtual void HandleShowProgress(in string text, long recordNumber, double progress)
+    {
+      var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
+      ReportProgress?.Invoke(this, new ProgressEventArgs($"{text}{rec}", (progress * c_MaxValue).ToInt64()));
+    }
+
+    /// <summary>
+    ///   Shows the process.
+    /// </summary>
+    /// <param name="text">The text.</param>
+    protected void HandleShowProgress(string text) => ReportProgress?.Invoke(this, new ProgressEventArgs(text));
+
+    /// <summary>
+    ///   Shows the process twice a second
+    /// </summary>
+    /// <param name="text">Leading Text</param>
+    /// <param name="recordNumber">The record number.</param>
+    protected void HandleShowProgressPeriodic(string text, long recordNumber)
+    {
+      if (ReportProgress != null)
+        m_IntervalAction.Invoke(() => HandleShowProgress(text, recordNumber, GetRelativePosition()));
+    }
+
+    /// <summary>
+    ///   Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update the
+    ///   maximum column size
+    ///   Attention: Trimming needs to be handled before hand
+    /// </summary>
+    /// <param name="inputString">The input string.</param>
+    /// <param name="columnNumber">The column number</param>
+    /// <returns>The proper encoded or cut text as returned for the column</returns>
+    protected string HandleTextSpecials(string? inputString, int columnNumber)
+    {
+      if (inputString == null || inputString.Length == 0 || columnNumber >= FieldCount)
+        return inputString ?? string.Empty;
+      var column = Column[columnNumber];
+      if (column.ColumnFormatter is null)
+        return inputString;
+      return column.ColumnFormatter.FormatText(inputString, message => HandleWarning(columnNumber, message));
+    }
+
+    /// <summary>
+    ///   Displays progress, is called after <see langword="abstract" /> row has been read
+    /// </summary>
+    /// <param name="hasReadRow"><c>true</c> if a row has been read</param>
+    protected void InfoDisplay(bool hasReadRow)
+    {
+      if (!hasReadRow)
+        HandleReadFinished();
+      else
+        HandleShowProgressPeriodic("Reading", RecordNumber);
+    }
+
+    protected virtual void InitColumn(int fieldCount)
+    {
+      m_FieldCount = fieldCount;
+      CurrentRowColumnText = new string[fieldCount];
+
+      Column = new ImmutableColumn[fieldCount];
+      AssociatedTimeCol = new int[fieldCount];
+      m_AssociatedTimeZoneCol = new int[fieldCount];
+      for (var counter = 0; counter < fieldCount; counter++)
+      {
+        Column[counter] = new ImmutableColumn(GetDefaultName(counter), new ImmutableValueFormat(), counter);
+        AssociatedTimeCol[counter] = -1;
+        m_AssociatedTimeZoneCol[counter] = -1;
+      }
+    }
+
+    /// <summary>
+    ///   Parses the name of the columns and sets teh data types, it will handle TimePart and
+    ///   TimeZone. Column must be set before hand
+    /// </summary>
+    /// <param name="headerRow">The header row.</param>
+    /// <param name="dataType">Type of the data.</param>
+    /// <param name="hasFieldHeader">if set to <c>true</c> [has field header].</param>
+    protected void ParseColumnName(
+      IEnumerable<string> headerRow,
+      IEnumerable<DataType>? dataType = null,
+      bool hasFieldHeader = true)
+    {
+      var issues = new ColumnErrorDictionary();
+      var adjustedNames = new List<string>();
+      if (hasFieldHeader)
+        adjustedNames.AddRange(AdjustColumnName(headerRow, Column.Length, issues).Item1);
+      else
+        for (var colIndex = 0; colIndex < Column.Length; colIndex++)
+        {
+          if (Column[colIndex].Name.Equals(GetDefaultName(colIndex)))
+          {
+            // Might have passed in the column names in m_ColumnDefinition (used with Manifest data
+            // accompanying a file without header)
+            var newDef = m_ColumnDefinition.FirstOrDefault(x => x.ColumnOrdinal == colIndex);
+            if (newDef != null && !string.IsNullOrEmpty(newDef.Name))
+            {
+              issues.Add(colIndex, "Using column name from definition");
+              adjustedNames.Add(newDef.Name);
+              continue;
+            }
+          }
+
+          adjustedNames.Add(Column[colIndex].Name);
+        }
+
+      var dataTypeL = new DataType[adjustedNames.Count];
+      // Initialize as text
+      for (var col = 0; col < adjustedNames.Count; col++)
+        dataTypeL[col] = DataType.String;
+      // get the provided and overwrite
+      if (dataType != null)
+      {
+        using var enumeratorType = dataType.GetEnumerator();
+        var col = 0;
+        while (enumeratorType.MoveNext() && col < adjustedNames.Count)
+          dataTypeL[col++] = enumeratorType.Current;
+      }
+
+      // set the data types, either using the definition, or the provided DataType with defaults
+      for (var colIndex = 0; colIndex < adjustedNames.Count && colIndex < Column.Length; colIndex++)
+      {
+        var defined =
+          m_ColumnDefinition.FirstOrDefault(
+            x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ?? new ImmutableColumn(
+            adjustedNames[colIndex],
+            new ImmutableValueFormat(dataTypeL[colIndex]),
+            colIndex);
+        Column[colIndex] = new ImmutableColumn(
+          adjustedNames[colIndex],
+          defined.ValueFormat,
+          colIndex,
+          defined.Convert,
+          defined.DestinationName,
+          defined.Ignore,
+          defined.TimePart,
+          defined.TimePartFormat,
+          defined.TimeZonePart);
+      }
+
+      if (Column.Length == 0)
+        issues.Add(-1, "Column should be set before using ParseColumnName to handle TimePart and TimeZone");
+      else
+        // Initialize the references for TimePart and TimeZone
+        for (var index = 0; index < Column.Length; index++)
+        {
+          // if the original column that reference other columns is ignored, skip it
+          if (Column[index].Ignore) continue;
+
+          var searchedTimePart = Column[index].TimePart;
+          var searchedTimeZonePart = Column[index].TimeZonePart;
+
+          if (!string.IsNullOrEmpty(searchedTimePart))
+            for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
+            {
+              if (indexPoint == index) continue;
+              if (!Column[indexPoint].Name.Equals(searchedTimePart, StringComparison.OrdinalIgnoreCase)) continue;
+              AssociatedTimeCol[index] = indexPoint;
+              break;
+            }
+
+          if (string.IsNullOrEmpty(searchedTimeZonePart))
+            continue;
+          for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
+          {
+            if (indexPoint == index) continue;
+
+            if (!Column[indexPoint].Name.Equals(searchedTimeZonePart, StringComparison.OrdinalIgnoreCase)) continue;
+            m_AssociatedTimeZoneCol[index] = indexPoint;
+            break;
+          }
+        }
+
+      // Now can handle possible warning that have been raised adjusting the names
+      foreach (var warning in issues.Where(
+        warning => warning.Key < 0 || warning.Key >= Column.Length || !Column[warning.Key].Ignore))
+        HandleWarning(warning.Key, warning.Value);
+    }
+
+    protected bool ShouldRetry(Exception ex, CancellationToken token)
+    {
+#if !QUICK
+      if (token.IsCancellationRequested) return false;
+
+      var eventArgs = new RetryEventArgs(ex) {Retry = false};
+      OnAskRetry?.Invoke(this, eventArgs);
+      return eventArgs.Retry;
+#else
+      return false;
+#endif
+    }
+
+    /// <summary>
+    ///   Adds a Format exception.
+    /// </summary>
+    /// <param name="columnNumber">The column.</param>
+    /// <param name="message">The message.</param>
+    protected FormatException WarnAddFormatException(int columnNumber, string message)
+    {
+      HandleError(columnNumber, message);
+      return new FormatException(message);
+    }
+
+    /// <summary>
+    ///   Get the default names, if columnDefinitions is provided try to find the name looking at
+    ///   teh ColumnOrdinal, otherwise is ColumnX (X being the column number +1)
+    /// </summary>
+    /// <param name="columnNumber">The column number counting from 0</param>
+    /// <returns>A string with the column name</returns>
+    private static string GetDefaultName(int columnNumber) => $"Column{columnNumber + 1}";
+
+    private DateTime AdjustTz(DateTime input, IColumn column)
+    {
+      if (m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal && m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
+        return FunctionalDI.AdjustTZImport(
+          input,
+          GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]),
+          column.ColumnOrdinal,
+          HandleWarning);
+
+      return column.TimeZonePart.TryGetConstant(out var timeZone)
+               ? FunctionalDI.AdjustTZImport(input, timeZone, column.ColumnOrdinal, HandleWarning)
+               : input;
+    }
+
+    private bool? GetBooleanNull(string inputValue, IColumn column)
+    {
+      var boolValue = StringConversion.StringToBoolean(inputValue, column.ValueFormat.True, column.ValueFormat.False);
+      if (boolValue.HasValue)
+        return boolValue.Value;
+
+      HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a boolean");
+      return null;
+    }
+
+    /// <summary>
     ///   Gets the integer value
     /// </summary>
     /// <param name="value">The input.</param>
@@ -1303,5 +1304,17 @@ namespace CsvTools
           ? $"'{inputDate} {inputTime}' is not a date of the format {display} {column.TimePartFormat}"
           : $"'{inputDate}' is not a date of the format {display}");
     }
+
+#if !QUICK
+
+    /// <summary>
+    ///   Occurs when something went wrong during opening of the setting, this might be the file
+    ///   does not exist or a query ran into a timeout
+    /// </summary>
+    public event EventHandler<RetryEventArgs>? OnAskRetry;
+
+    public event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
+
+#endif
   }
 }

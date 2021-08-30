@@ -12,10 +12,10 @@
  *
  */
 
+using System;
+
 namespace CsvTools
 {
-  using System;
-
   [Flags]
   public enum FilterType
   {
@@ -37,6 +37,5 @@ namespace CsvTools
 
     // A true error is an error that has proper error information, in some cases only a placeholder text is stored as the real message is not known
     OnlyTrueErrors = 8
-    
   }
 }

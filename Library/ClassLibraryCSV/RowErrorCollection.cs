@@ -41,6 +41,8 @@ namespace CsvTools
 
     public RowErrorCollection(int maxRows) => m_MaxRows = maxRows;
 
+    public event EventHandler<WarningEventArgs>? PassWarning;
+
     /// <summary>
     ///   Number of Rows in the warning list
     /// </summary>
@@ -59,12 +61,12 @@ namespace CsvTools
         // Go though all rows
         foreach (var errorsInColumn in m_RowErrorCollection.Values)
           // And all columns
-          foreach (var message in errorsInColumn.Values)
-          {
-            if (sb.Length > 0)
-              sb.Append(ErrorInformation.cSeparator);
-            sb.Append(message);
-          }
+        foreach (var message in errorsInColumn.Values)
+        {
+          if (sb.Length > 0)
+            sb.Append(ErrorInformation.cSeparator);
+          sb.Append(message);
+        }
 
         return Convert.ToString(sb);
       }
@@ -105,21 +107,6 @@ namespace CsvTools
       }
     }
 
-    public void HandleIgnoredColumns(in IFileReader reader)
-    {
-      if (reader.IsClosed)
-        throw new InvalidOperationException("Reader has not been opened.");
-
-      for (var col = 0; col < reader.FieldCount; col++)
-      {
-        if (!reader.GetColumn(col).Ignore) continue;
-        m_IgnoredColumns ??= new HashSet<int>();
-        m_IgnoredColumns.Add(col);
-      }
-    }
-
-    public event EventHandler<WarningEventArgs>? PassWarning;
-
     /// <summary>
     ///   Add a warning to the list of warnings
     /// </summary>
@@ -127,7 +114,7 @@ namespace CsvTools
     /// <param name="args"></param>
     public void Add(object? sender, WarningEventArgs args)
     {
-      if (m_IgnoredColumns != null && m_IgnoredColumns.Contains(args.ColumnNumber) || CountRows >= m_MaxRows)
+      if ((m_IgnoredColumns != null && m_IgnoredColumns.Contains(args.ColumnNumber)) || CountRows >= m_MaxRows)
         return;
 
       if (!m_RowErrorCollection.TryGetValue(args.RecordNumber, out var columnErrorCollection))
@@ -144,6 +131,19 @@ namespace CsvTools
     ///   Empties out the warning list
     /// </summary>
     public void Clear() => m_RowErrorCollection.Clear();
+
+    public void HandleIgnoredColumns(in IFileReader reader)
+    {
+      if (reader.IsClosed)
+        throw new InvalidOperationException("Reader has not been opened.");
+
+      for (var col = 0; col < reader.FieldCount; col++)
+      {
+        if (!reader.GetColumn(col).Ignore) continue;
+        m_IgnoredColumns ??= new HashSet<int>();
+        m_IgnoredColumns.Add(col);
+      }
+    }
 
     /// <summary>
     ///   Tries the retrieve the value for a given record

@@ -19,6 +19,7 @@ namespace CsvTools
   public interface IColumn : ICloneable<IColumn>, IEquatable<IColumn>
   {
     int ColumnOrdinal { get; }
+
     bool Convert { get; }
 
     string DestinationName { get; }

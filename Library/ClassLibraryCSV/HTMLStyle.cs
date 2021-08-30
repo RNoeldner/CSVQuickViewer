@@ -26,27 +26,26 @@ namespace CsvTools
   /// </remarks>
   public class HTMLStyle
   {
-    public const string c_Style = "<STYLE type=\"text/css\">\r\n" +
-                                   "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
-                                   "  h1 { style=\"color:DarkBlue; font-size : 14px; }\r\n" +
-                                   "  h2 { style=\"color:DarkBlue; font-size : 13px; }\r\n" +
-                                   "  table { border-collapse:collapse; font-size : 11px; }\r\n" +
-                                   "  td { border: 1px solid lightgrey; padding:2px; }\r\n" +
-                                   "  td.info { mso-number-format:\\@; background: #f0f8ff; font-weight:bold;}\r\n" +
-                                   "  td.inforight { mso-number-format:\\@; text-align:right; background: #f0f8ff; font-weight:bold;}\r\n" +
-                                   "  td.value { text-align:right; color:DarkBlue; }\r\n" +
-                                   "  td.text { mso-number-format:\\@; color:black; }\r\n" +
-                                   "  tr.alt { background: #EEEEEE; }\r\n" +
-                                   "  br { mso-data-placement:same-cell; }\r\n" +
-                                   "  span { background: #F7F8E0; }\r\n" +
-                                   "  span.err { color:#B40404; }\r\n" +
-                                   "  span.war { color:#2E64FE; }\r\n" +
-                                   "</STYLE>";
+    public const string c_Style = "<STYLE type=\"text/css\">\r\n"
+                                  + "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n"
+                                  + "  h1 { style=\"color:DarkBlue; font-size : 14px; }\r\n"
+                                  + "  h2 { style=\"color:DarkBlue; font-size : 13px; }\r\n"
+                                  + "  table { border-collapse:collapse; font-size : 11px; }\r\n"
+                                  + "  td { border: 1px solid lightgrey; padding:2px; }\r\n"
+                                  + "  td.info { mso-number-format:\\@; background: #f0f8ff; font-weight:bold;}\r\n"
+                                  + "  td.inforight { mso-number-format:\\@; text-align:right; background: #f0f8ff; font-weight:bold;}\r\n"
+                                  + "  td.value { text-align:right; color:DarkBlue; }\r\n"
+                                  + "  td.text { mso-number-format:\\@; color:black; }\r\n"
+                                  + "  tr.alt { background: #EEEEEE; }\r\n"
+                                  + "  br { mso-data-placement:same-cell; }\r\n" + "  span { background: #F7F8E0; }\r\n"
+                                  + "  span.err { color:#B40404; }\r\n" + "  span.war { color:#2E64FE; }\r\n"
+                                  + "</STYLE>";
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="HTMLStyle" /> class.
     /// </summary>
-    public HTMLStyle() : this(c_Style)
+    public HTMLStyle()
+      : this(c_Style)
     {
     }
 
@@ -243,12 +242,14 @@ namespace CsvTools
     /// <returns></returns>
     public static string AddTd(string? template, params object?[]? contents)
     {
-      if (template is null || contents is null || template.Length==0)
+      if (template is null || contents is null || template.Length == 0)
         return string.Empty;
 
       for (var i = 0; i < contents.Length; i++)
-        if (contents[i]!=null)
-          contents[i] = HtmlEncode(contents[i]?.ToString() ?? String.Empty).Replace("�", "<span style=\"color:Red; font-size:larger\">&diams;</span>");
+        if (contents[i] != null)
+          contents[i] = HtmlEncode(contents[i]?.ToString() ?? String.Empty).Replace(
+            "�",
+            "<span style=\"color:Red; font-size:larger\">&diams;</span>");
 
       return string.Format(CultureInfo.CurrentCulture, template, contents);
     }
@@ -317,7 +318,7 @@ namespace CsvTools
     {
       if (text is null)
         return null;
-      text = StringUtils.HandleCRLFCombinations(text);
+      text = text.HandleCRLFCombinations();
       var sb = new StringBuilder(text.Length);
 
       foreach (var oneChar in text)
@@ -358,24 +359,23 @@ namespace CsvTools
     /// <returns></returns>
     public static string JsonElementName(string text)
     {
-      var allowed = StringUtils.ProcessByCategory(text, x => x == UnicodeCategory.TitlecaseLetter ||
-                                                             x == UnicodeCategory.LowercaseLetter ||
-                                                             x == UnicodeCategory.UppercaseLetter ||
-                                                             x == UnicodeCategory.ModifierLetter ||
-                                                             x == UnicodeCategory.OtherLetter ||
-                                                             x == UnicodeCategory.LetterNumber ||
-                                                             x == UnicodeCategory.NonSpacingMark ||
-                                                             x == UnicodeCategory.DecimalDigitNumber ||
-                                                             x == UnicodeCategory.ConnectorPunctuation);
+      var allowed = text.ProcessByCategory(
+        x => x == UnicodeCategory.TitlecaseLetter || x == UnicodeCategory.LowercaseLetter
+                                                  || x == UnicodeCategory.UppercaseLetter
+                                                  || x == UnicodeCategory.ModifierLetter
+                                                  || x == UnicodeCategory.OtherLetter
+                                                  || x == UnicodeCategory.LetterNumber
+                                                  || x == UnicodeCategory.NonSpacingMark
+                                                  || x == UnicodeCategory.DecimalDigitNumber
+                                                  || x == UnicodeCategory.ConnectorPunctuation);
       if (allowed.Length <= 0)
         return allowed;
       var oc = CharUnicodeInfo.GetUnicodeCategory(allowed[0]);
-      if (oc != UnicodeCategory.TitlecaseLetter
-          && oc != UnicodeCategory.LowercaseLetter
-          && oc != UnicodeCategory.UppercaseLetter
-          && oc != UnicodeCategory.ModifierLetter
-          && oc != UnicodeCategory.OtherLetter
-          && oc != UnicodeCategory.LetterNumber)
+      if (oc != UnicodeCategory.TitlecaseLetter && oc != UnicodeCategory.LowercaseLetter
+                                                && oc != UnicodeCategory.UppercaseLetter
+                                                && oc != UnicodeCategory.ModifierLetter
+                                                && oc != UnicodeCategory.OtherLetter
+                                                && oc != UnicodeCategory.LetterNumber)
         return "_" + allowed;
 
       return allowed;
@@ -402,12 +402,12 @@ namespace CsvTools
     {
       if (text is null) throw new ArgumentNullException(nameof(text));
 
-      if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase) &&
-          text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
+      if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase)
+          && text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
         return text.Substring(9, text.Length - 12);
 
-      return StringUtils.HandleCRLFCombinations(text, "<br>").Replace((char) 0xA0, ' ').Replace('\t', ' ')
-        .Replace("  ", " ").Replace("  ", " ");
+      return text.HandleCRLFCombinations("<br>").Replace((char) 0xA0, ' ').Replace('\t', ' ').Replace("  ", " ")
+        .Replace("  ", " ");
     }
 
     /// <summary>
@@ -422,10 +422,10 @@ namespace CsvTools
     /// </remarks>
     public static string XmlElementName(string text)
     {
-      var allowed = StringUtils.ProcessByCategory(text, x => x == UnicodeCategory.DashPunctuation ||
-                                                             x == UnicodeCategory.LowercaseLetter ||
-                                                             x == UnicodeCategory.UppercaseLetter ||
-                                                             x == UnicodeCategory.DecimalDigitNumber);
+      var allowed = text.ProcessByCategory(
+        x => x == UnicodeCategory.DashPunctuation || x == UnicodeCategory.LowercaseLetter
+                                                  || x == UnicodeCategory.UppercaseLetter
+                                                  || x == UnicodeCategory.DecimalDigitNumber);
       if (allowed.StartsWith("xml", StringComparison.OrdinalIgnoreCase))
         return "_" + allowed;
       if (allowed.Length <= 0)
@@ -445,7 +445,11 @@ namespace CsvTools
     /// <param name="regularText">The regular test for the cell.</param>
     /// <param name="errorText">Additional information displayed underneath.</param>
     /// <param name="addErrorInfo">if set to <c>true</c> add the errorText.</param>
-    public void AddHtmlCell(StringBuilder sbHtml, string tdTemplate, string regularText, string errorText,
+    public void AddHtmlCell(
+      StringBuilder sbHtml,
+      string tdTemplate,
+      string regularText,
+      string errorText,
       bool addErrorInfo)
     {
       if (!addErrorInfo || string.IsNullOrEmpty(errorText))
@@ -465,32 +469,43 @@ namespace CsvTools
 
         if (errorsAndWarnings.Item2.Length > 0 && errorsAndWarnings.Item1.Length == 0)
         {
-          sbHtml.Append(
-            string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(Warning, errorsAndWarnings.Item2)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(Warning, errorsAndWarnings.Item2)));
           return;
         }
 
-        sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
-          AddTd(ErrorWarning, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
+        sbHtml.Append(
+          string.Format(
+            CultureInfo.CurrentCulture,
+            tdTemplate,
+            AddTd(ErrorWarning, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
       }
       else
       {
         if (errorsAndWarnings.Item2.Length == 0 && errorsAndWarnings.Item1.Length > 0)
         {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
-            AddTd(ValueError, regularText, errorsAndWarnings.Item1)));
+          sbHtml.Append(
+            string.Format(
+              CultureInfo.CurrentCulture,
+              tdTemplate,
+              AddTd(ValueError, regularText, errorsAndWarnings.Item1)));
           return;
         }
 
         if (errorsAndWarnings.Item2.Length > 0 && errorsAndWarnings.Item1.Length == 0)
         {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
-            AddTd(ValueWarning, regularText, errorsAndWarnings.Item2)));
+          sbHtml.Append(
+            string.Format(
+              CultureInfo.CurrentCulture,
+              tdTemplate,
+              AddTd(ValueWarning, regularText, errorsAndWarnings.Item2)));
           return;
         }
 
-        sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate,
-          AddTd(ValueErrorWarning, regularText, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
+        sbHtml.Append(
+          string.Format(
+            CultureInfo.CurrentCulture,
+            tdTemplate,
+            AddTd(ValueErrorWarning, regularText, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
       }
     }
 
@@ -506,27 +521,29 @@ namespace CsvTools
       // Minimal implementation of HTML clipboard format
       const string c_Source = "http://www.csvquickviewer.com/";
 
-      const string c_MarkerBlock =
-        "Version:1.0\r\n" +
-        "StartHTML:{0,8}\r\n" +
-        "EndHTML:{1,8}\r\n" +
-        "StartFragment:{2,8}\r\n" +
-        "EndFragment:{3,8}\r\n" +
-        "StartSelection:{2,8}\r\n" +
-        "EndSelection:{3,8}\r\n" +
-        "SourceURL:{4}\r\n" +
-        "{5}";
+      const string c_MarkerBlock = "Version:1.0\r\n" + "StartHTML:{0,8}\r\n" + "EndHTML:{1,8}\r\n"
+                                   + "StartFragment:{2,8}\r\n" + "EndFragment:{3,8}\r\n" + "StartSelection:{2,8}\r\n"
+                                   + "EndSelection:{3,8}\r\n" + "SourceURL:{4}\r\n" + "{5}";
 
       var prefixLength = string.Format(CultureInfo.InvariantCulture, c_MarkerBlock, 0, 0, 0, 0, c_Source, "").Length;
 
-      var html = string.Format(CultureInfo.InvariantCulture,
+      var html = string.Format(
+        CultureInfo.InvariantCulture,
         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\"><HTML><HEAD>{1}</HEAD><BODY><!--StartFragment-->{0}<!--EndFragment--></BODY></HTML>",
-        fragment, Style);
+        fragment,
+        Style);
       var startFragment = prefixLength + html.IndexOf(fragment, StringComparison.Ordinal);
       var endFragment = startFragment + fragment.Length;
 
-      return string.Format(CultureInfo.InvariantCulture, c_MarkerBlock, prefixLength, prefixLength + html.Length,
-        startFragment, endFragment, c_Source, html);
+      return string.Format(
+        CultureInfo.InvariantCulture,
+        c_MarkerBlock,
+        prefixLength,
+        prefixLength + html.Length,
+        startFragment,
+        endFragment,
+        c_Source,
+        html);
     }
   }
 }

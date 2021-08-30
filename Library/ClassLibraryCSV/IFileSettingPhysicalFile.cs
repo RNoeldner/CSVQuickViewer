@@ -12,18 +12,20 @@
  *
  */
 
-
 namespace CsvTools
 {
   public interface IFileSettingPhysicalFile : IFileSetting
   {
     /// <summary>
+    ///   May store information on columns to show, filtering and sorting
+    /// </summary>
+    string ColumnFile { get; set; }
+
+    /// <summary>
     ///   Gets or sets the name of the file, this value could be a relative path
     /// </summary>
     /// <value>The name of the file.</value>
     string FileName { get; set; }
-
-    string RootFolder { get; set; }
 
     /// <summary>
     ///   The Size of the file in Byte
@@ -36,6 +38,15 @@ namespace CsvTools
     /// <value>The full path of the file <see cref="FileName" /> /&gt;</value>
     string FullPath { get; }
 
+    string IdentifierInContainer { get; set; }
+
+    bool KeepUnencrypted { get; set; }
+
+    /// <summary>
+    ///   Passphrase for Decryption
+    /// </summary>
+    string Passphrase { get; set; }
+
     /// <summary>
     ///   Gets the root folder of the Tool Setting
     /// </summary>
@@ -43,29 +54,11 @@ namespace CsvTools
     string Recipient { get; set; }
 
     /// <summary>
-    ///   Passphrase for Decryption
-    /// </summary>
-    string Passphrase { get; set; }
-
-    bool KeepUnencrypted { get; set; }
-
-    /// <summary>
-    ///   Force the refresh of full path information, a filename with placeholders might need to
-    ///   check again if there is a new file
-    /// </summary>
-    void ResetFullPath();
-
-    /// <summary>
     ///   Path to the file on sFTP Server
     /// </summary>
     string RemoteFileName { get; set; }
 
-    /// <summary>
-    ///   May store information on columns to show, filtering and sorting
-    /// </summary>
-    string ColumnFile { get; set; }
-
-    string IdentifierInContainer { get; set; }
+    string RootFolder { get; set; }
 
     /// <summary>
     ///   In case of creating a file, should the time of the latest source be used?
@@ -80,5 +73,11 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if throw an error if not exists; otherwise, <c>false</c>.</value>
     bool ThrowErrorIfNotExists { get; set; }
+
+    /// <summary>
+    ///   Force the refresh of full path information, a filename with placeholders might need to
+    ///   check again if there is a new file
+    /// </summary>
+    void ResetFullPath();
   }
 }

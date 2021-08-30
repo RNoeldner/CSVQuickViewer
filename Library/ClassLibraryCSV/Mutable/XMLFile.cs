@@ -20,7 +20,6 @@ namespace CsvTools
   ///   Setting file for XML files, its an implementation of <see cref="StructuredFile" />
   /// </summary>
   [Serializable]
-
   public class XMLFile : StructuredFile, IXMLFile
 
   {
@@ -36,7 +35,8 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
     /// </summary>
-    public XMLFile() : this(string.Empty)
+    public XMLFile()
+      : this(string.Empty)
     {
     }
 
@@ -47,6 +47,7 @@ namespace CsvTools
       return other;
     }
 
-    public override bool Equals(IFileSetting? other) => other is IXMLFile json && BaseSettingsEquals(json as StructuredFile);
+    public override bool Equals(IFileSetting? other) =>
+      other is IXMLFile json && BaseSettingsEquals(json as StructuredFile);
   }
 }

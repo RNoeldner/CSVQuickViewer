@@ -21,7 +21,10 @@ namespace CsvTools
   /// <summary>
   ///   Interface for a FileSetting
   /// </summary>
-  public interface IFileSetting : INotifyPropertyChanged, ICloneable<IFileSetting>, IEquatable<IFileSetting>, ICopyTo<IFileSetting>
+  public interface IFileSetting : INotifyPropertyChanged,
+                                  ICloneable<IFileSetting>,
+                                  IEquatable<IFileSetting>,
+                                  ICopyTo<IFileSetting>
   {
     /// <summary>
     ///   Occurs when a string value property changed providing information on old and new value
@@ -39,11 +42,6 @@ namespace CsvTools
     /// </summary>
     /// <value>The consecutive empty rows.</value>
     int ConsecutiveEmptyRows { get; set; }
-
-    /// <summary>
-    /// Storage for Sample and error records, used in the validator only, TODO: move to other library or wait for Extension of Classes
-    /// </summary>
-    SampleAndErrorsInformation SamplesAndErrors { get; set; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether to display line numbers.
@@ -64,16 +62,15 @@ namespace CsvTools
     bool DisplayStartLineNo { get; set; }
 
     /// <summary>
+    ///   Gets or sets the number records with errors
+    /// </summary>
+    long ErrorCount { get; set; }
+
+    /// <summary>
     ///   Gets or sets the file format.
     /// </summary>
     /// <value>The file format.</value>
     FileFormat FileFormat { get; }
-
-    /// <summary>
-    ///   Gets or sets the Last Write Time of the files that has been read for this Setting
-    /// </summary>
-    /// <value>UTC time of last file write</value>
-    DateTime ProcessTimeUtc { get; set; }
 
     /// <summary>
     ///   Gets or sets the Footer.
@@ -119,31 +116,32 @@ namespace CsvTools
     bool IsEnabled { get; set; }
 
     /// <summary>
+    ///   The latest value of possible sources, e.G. the file time from the sources in a SQL, As
+    ///   calculating might be time consuming, use CalculateLatestSource to rebuild the value
+    /// </summary>
+    DateTime LatestSourceTimeUtc { get; set; }
+
+    /// <summary>
     ///   Gets or sets the field mapping.
     /// </summary>
     /// <value>The field mapping.</value>
     MappingCollection MappingCollection { get; }
 
     /// <summary>
-		///   Gets or sets the number records that have been processed
-		/// </summary>
-		/// <value>The number of processed records.</value>
-		long NumRecords { get; set; }
+    ///   Gets or sets the number records that have been processed
+    /// </summary>
+    /// <value>The number of processed records.</value>
+    long NumRecords { get; set; }
 
     /// <summary>
-    ///   Gets or sets the number records with warnings
+    ///   Gets or sets the Last Write Time of the files that has been read for this Setting
     /// </summary>
-    long WarningCount { get; set; }
-
-    /// <summary>
-    ///   Gets or sets the number records with errors
-    /// </summary>
-    long ErrorCount { get; set; }
+    /// <value>UTC time of last file write</value>
+    DateTime ProcessTimeUtc { get; set; }
 
     /// <summary>
     ///   As the data is loaded and not further validation is done this will be set to true Once
     ///   validation is happening and validation errors are stored this is false again.
-    ///
     ///   This is stored on FileSetting level even as it actually is used for determine th freshness
     ///   of a loaded data in the validator, but there is not suitable data structure
     /// </summary>
@@ -155,6 +153,11 @@ namespace CsvTools
     /// <value>The record limit. if set to 0 there is no limit</value>
     long RecordLimit { get; set; }
 
+    /// <summary>
+    ///   Storage for Sample and error records, used in the validator only, TODO: move to other library or wait for Extension
+    ///   of Classes
+    /// </summary>
+    SampleAndErrorsInformation SamplesAndErrors { get; set; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether to show progress.
@@ -201,16 +204,16 @@ namespace CsvTools
     string SqlStatement { get; set; }
 
     /// <summary>
-    ///   Gets or sets the timeout value mainly used in Web or SQL Calls.
-    /// </summary>
-    /// <value>The timeout in seconds.</value>
-    int Timeout { get; set; }
-
-    /// <summary>
     ///   Gets or sets the name of the template.
     /// </summary>
     /// <value>The name of the template.</value>
     string TemplateName { get; set; }
+
+    /// <summary>
+    ///   Gets or sets the timeout value mainly used in Web or SQL Calls.
+    /// </summary>
+    /// <value>The timeout in seconds.</value>
+    int Timeout { get; set; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether to treat NBSP as space.
@@ -240,10 +243,9 @@ namespace CsvTools
     bool Validate { get; set; }
 
     /// <summary>
-    ///   The latest value of possible sources, e.G. the file time from the sources in a SQL, As
-    ///   calculating might be time consuming, use CalculateLatestSource to rebuild the value
+    ///   Gets or sets the number records with warnings
     /// </summary>
-    DateTime LatestSourceTimeUtc { get; set; }
+    long WarningCount { get; set; }
 
     /// <summary>
     ///   Examine the source and determine LatestSource

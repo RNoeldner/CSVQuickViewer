@@ -30,7 +30,7 @@ namespace CsvTools
     event EventHandler<WarningEventArgs>? Warning;
 
     /// <summary>
-    /// Event handler called once writing of the file is completed
+    ///   Event handler called once writing of the file is completed
     /// </summary>
     event EventHandler? WriteFinished;
 

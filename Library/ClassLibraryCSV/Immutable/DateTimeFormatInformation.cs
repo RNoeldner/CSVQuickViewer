@@ -48,7 +48,8 @@ namespace CsvTools
 
       MinLength = formatSpecifier.Length;
       MaxLength = formatSpecifier.Length;
-      NamedDate = formatSpecifier.IndexOf("ddd", StringComparison.Ordinal) != -1 || formatSpecifier.IndexOf("MMM", StringComparison.Ordinal) != -1;
+      NamedDate = formatSpecifier.IndexOf("ddd", StringComparison.Ordinal) != -1
+                  || formatSpecifier.IndexOf("MMM", StringComparison.Ordinal) != -1;
 
       SetMinMax(ref formatSpecifier, "dddd", DateTimeFormatLength.MinDayLong, DateTimeFormatLength.MaxDayLong);
       SetMinMax(ref formatSpecifier, "ddd", DateTimeFormatLength.MinDayMid, DateTimeFormatLength.MaxDayMid);
@@ -90,7 +91,9 @@ namespace CsvTools
     }
 
     public int MaxLength { get; private set; }
+
     public int MinLength { get; private set; }
+
     public bool NamedDate { get; }
 
     private void SetMinMax(ref string format, string search, int minLen, int maxLen)
@@ -103,6 +106,6 @@ namespace CsvTools
         format = format.Remove(pos, search.Length);
         pos = format.IndexOf(search, StringComparison.Ordinal);
       }
-    }    
+    }
   }
 }

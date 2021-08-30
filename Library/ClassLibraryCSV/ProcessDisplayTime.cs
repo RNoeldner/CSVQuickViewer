@@ -21,7 +21,13 @@ namespace CsvTools
   [DebuggerStepThrough]
   public class ProcessDisplayTime : CustomProcessDisplay, IProcessDisplayTime
   {
-    public ProcessDisplayTime(CancellationToken token) : base(token) => TimeToCompletion = new TimeToCompletion();
+    public ProcessDisplayTime(CancellationToken token)
+      : base(token) =>
+      TimeToCompletion = new TimeToCompletion();
+
+    public event EventHandler<ProgressEventArgsTime>? ProgressTime;
+
+    public event EventHandler<long>? SetMaximum;
 
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
@@ -37,16 +43,13 @@ namespace CsvTools
       }
     }
 
-    public event EventHandler<ProgressEventArgsTime>? ProgressTime;
-
     public TimeToCompletion TimeToCompletion { get; }
-
-    public event EventHandler<long>? SetMaximum;
 
     protected override void Handle(in object? sender, string text, long value, bool log)
     {
       base.Handle(sender, text, value, log);
-      ProgressTime?.Invoke(sender,
+      ProgressTime?.Invoke(
+        sender,
         new ProgressEventArgsTime(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
       TimeToCompletion.Value = value;
     }

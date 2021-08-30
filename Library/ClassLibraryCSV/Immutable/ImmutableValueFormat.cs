@@ -12,11 +12,14 @@
 // * If not, see http://www.gnu.org/licenses/
 // */
 
+using System;
+
 namespace CsvTools
 {
   public class ImmutableValueFormat : IValueFormat
   {
-    public ImmutableValueFormat(DataType dataType = DataType.String,
+    public ImmutableValueFormat(
+      DataType dataType = DataType.String,
       string dateFormat = ValueFormatExtension.cDateFormatDefault,
       string dateSeparator = ValueFormatExtension.cDateSeparatorDefault,
       string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
@@ -33,18 +36,19 @@ namespace CsvTools
       if (!string.IsNullOrEmpty(decimalSeparator) && decimalSeparator.Equals(groupSeparator))
         throw new FileReaderException("Decimal and Group separator must be different");
       DataType = dataType;
-      DateFormat = dateFormat??throw new System.ArgumentNullException(nameof(dateFormat));
-      DateSeparator = (dateSeparator??throw new System.ArgumentNullException(nameof(dateSeparator))).WrittenPunctuation();
-      DecimalSeparator = (decimalSeparator??throw new System.ArgumentNullException(nameof(decimalSeparator))).WrittenPunctuation();
-      GroupSeparator = (groupSeparator??throw new System.ArgumentNullException(nameof(groupSeparator))).WrittenPunctuation();
-      DisplayNullAs = displayNullAs??throw new System.ArgumentNullException(nameof(displayNullAs));
-      False = asFalse??throw new System.ArgumentNullException(nameof(asFalse));
-      NumberFormat = numberFormat??throw new System.ArgumentNullException(nameof(numberFormat));
-      TimeSeparator = timeSeparator??throw new System.ArgumentNullException(nameof(timeSeparator));
-      True = asTrue??throw new System.ArgumentNullException(nameof(asTrue));
+      DateFormat = dateFormat ?? throw new ArgumentNullException(nameof(dateFormat));
+      DateSeparator = (dateSeparator ?? throw new ArgumentNullException(nameof(dateSeparator))).WrittenPunctuation();
+      DecimalSeparator = (decimalSeparator ?? throw new ArgumentNullException(nameof(decimalSeparator)))
+        .WrittenPunctuation();
+      GroupSeparator = (groupSeparator ?? throw new ArgumentNullException(nameof(groupSeparator))).WrittenPunctuation();
+      DisplayNullAs = displayNullAs ?? throw new ArgumentNullException(nameof(displayNullAs));
+      False = asFalse ?? throw new ArgumentNullException(nameof(asFalse));
+      NumberFormat = numberFormat ?? throw new ArgumentNullException(nameof(numberFormat));
+      TimeSeparator = timeSeparator ?? throw new ArgumentNullException(nameof(timeSeparator));
+      True = asTrue ?? throw new ArgumentNullException(nameof(asTrue));
       Part = part;
-      PartSplitter = (partSplitter??throw new System.ArgumentNullException(nameof(partSplitter))).WrittenPunctuation();
-      PartToEnd= partToEnd;
+      PartSplitter = (partSplitter ?? throw new ArgumentNullException(nameof(partSplitter))).WrittenPunctuation();
+      PartToEnd = partToEnd;
     }
 
     public DataType DataType { get; }
@@ -73,21 +77,21 @@ namespace CsvTools
     ///   Used in Serialization to determine if something needs to be stored
     /// </summary>
     public bool Specified =>
-      DataType == DataType.String &&
-      DateFormat == ValueFormatExtension.cDateFormatDefault &&
-      DateSeparator == ValueFormatExtension.cDateSeparatorDefault &&
-      TimeSeparator == ValueFormatExtension.cTimeSeparatorDefault &&
-      NumberFormat == ValueFormatExtension.cNumberFormatDefault &&
-      DecimalSeparator == ValueFormatExtension.cDecimalSeparatorDefault &&
-      GroupSeparator == ValueFormatExtension.cGroupSeparatorDefault &&
-      True == ValueFormatExtension.cTrueDefault &&
-      False == ValueFormatExtension.cFalseDefault &&
-      Part   == ValueFormatExtension.cPartDefault &&
-      PartSplitter   == ValueFormatExtension.cPartSplitterDefault &&
-      PartToEnd   == ValueFormatExtension.cPartToEndDefault &&
-      DisplayNullAs == string.Empty;
+      DataType == DataType.String && DateFormat == ValueFormatExtension.cDateFormatDefault
+                                  && DateSeparator == ValueFormatExtension.cDateSeparatorDefault
+                                  && TimeSeparator == ValueFormatExtension.cTimeSeparatorDefault
+                                  && NumberFormat == ValueFormatExtension.cNumberFormatDefault
+                                  && DecimalSeparator == ValueFormatExtension.cDecimalSeparatorDefault
+                                  && GroupSeparator == ValueFormatExtension.cGroupSeparatorDefault
+                                  && True == ValueFormatExtension.cTrueDefault
+                                  && False == ValueFormatExtension.cFalseDefault
+                                  && Part == ValueFormatExtension.cPartDefault
+                                  && PartSplitter == ValueFormatExtension.cPartSplitterDefault
+                                  && PartToEnd == ValueFormatExtension.cPartToEndDefault
+                                  && DisplayNullAs == string.Empty;
 
     public string TimeSeparator { get; }
+
     public string True { get; }
 
     public bool Equals(IValueFormat? other) => this.ValueFormatEqual(other);

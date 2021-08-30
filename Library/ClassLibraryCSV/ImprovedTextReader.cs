@@ -25,8 +25,12 @@ namespace CsvTools
     private readonly int m_CodePage;
 
     private readonly Stream m_ImprovedStream;
+
     private readonly int m_SkipLines;
+
     private bool m_DisposedValue;
+
+    private bool m_Init = true;
 
     /// <summary>
     ///   Creates an instance of the TextReader
@@ -42,7 +46,6 @@ namespace CsvTools
     ///   overwrite the provided data
     /// </remarks>
 #pragma warning disable 8618
-
     public ImprovedTextReader(in IImprovedStream improvedStream, int codePageId = 65001, int skipLines = 0)
 #pragma warning restore 8618
     {
@@ -113,8 +116,10 @@ namespace CsvTools
     /// </summary>
     /// <remarks>
     ///   In case the character is a cr or Lf it will increase the lineNumber, to prevent a CR LF
-    ///   combination to count as two lines Make sure you "eat" the possible next char using <see
-    ///   cref="Peek" /> and <see cref="MoveNext" />
+    ///   combination to count as two lines Make sure you "eat" the possible next char using
+    ///   <see
+    ///     cref="Peek" />
+    ///   and <see cref="MoveNext" />
     /// </remarks>
     /// <returns></returns>
     public int Read()
@@ -170,8 +175,6 @@ namespace CsvTools
       return sb.ToString();
     }
 
-    private bool m_Init = true;
-
     /// <summary>
     ///   Resets the position of the stream to the beginning, without opening the stream from
     ///   scratch This is fast in case the text fitted into the buffer or the underlying stream
@@ -195,7 +198,9 @@ namespace CsvTools
       }
       // discard the buffer
       else
+      {
         TextReader.DiscardBufferedData();
+      }
 
       for (var i = 0; i < m_SkipLines && !TextReader.EndOfStream; i++)
         ReadLine();

@@ -11,26 +11,31 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 using System;
 
 namespace CsvTools
 {
   public class FileReaderExceptionOpen : ApplicationException
   {
-    private static string GetMessage(string message)
-    {
-      return message.Length > 0 ? $"A file readder has to be opened before reading data.Please execute Open() or OpenAsync().\n{message}" : "A file readder has to be opened before reading data.";
-    }
-    public FileReaderExceptionOpen() : base(GetMessage(string.Empty))
+    public FileReaderExceptionOpen()
+      : base(GetMessage(string.Empty))
     {
     }
 
-    public FileReaderExceptionOpen(string message) : base(GetMessage(message))
+    public FileReaderExceptionOpen(string message)
+      : base(GetMessage(message))
     {
     }
 
-    public FileReaderExceptionOpen(string message, Exception inner) : base(GetMessage(message), inner)
+    public FileReaderExceptionOpen(string message, Exception inner)
+      : base(GetMessage(message), inner)
     {
     }
+
+    private static string GetMessage(string message) =>
+      message.Length > 0
+        ? $"A file reader has to be opened before reading data. Please execute Open() or OpenAsync().\n{message}"
+        : "A file reader has to be opened before reading data.";
   }
 }

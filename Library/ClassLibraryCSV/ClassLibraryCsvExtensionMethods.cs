@@ -22,9 +22,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-
 #if !QUICK
-
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,46 +33,11 @@ namespace CsvTools
   /// <summary>
   ///   Class with extensions used in the class Library
   /// </summary>
-
   public static class ClassLibraryCsvExtensionMethods
   {
-#if !QUICK
-
-    public static async Task<long> WriteAsync(this IFileWriter writer, string sqlStatement,
-                                              int timeout, Action<string>? reportProgress, CancellationToken cancellationToken)
-    {
-      if (string.IsNullOrEmpty(sqlStatement))
-        return 0;
-
-      using var sqlReader = await FunctionalDI
-        .SQLDataReader(sqlStatement, (sender, s) => reportProgress?.Invoke(s.Text), timeout, cancellationToken)
-        .ConfigureAwait(false);
-      await sqlReader.OpenAsync(cancellationToken).ConfigureAwait(false);
-      return await writer.WriteAsync(sqlReader, cancellationToken).ConfigureAwait(false);
-    }
-
-#endif
-
-    public static string Description(this RecordDelimiterType item)
-    {
-      var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));
-      return descConv.ConvertToString(item) ?? string.Empty;
-    }
-
-    public static string NewLineString(this RecordDelimiterType type)
-    {
-      return type switch
-      {
-        RecordDelimiterType.LF => "\n",
-        RecordDelimiterType.CR => "\r",
-        RecordDelimiterType.CRLF => "\r\n",
-        RecordDelimiterType.LFCR => "\n\r",
-        RecordDelimiterType.RS => "▲",
-        RecordDelimiterType.US => "▼",
-        RecordDelimiterType.None => string.Empty,
-        _ => string.Empty
-      };
-    }
+    public static bool AssumeDeflate(this string fileName) =>
+      fileName.EndsWith(".cmp", StringComparison.OrdinalIgnoreCase)
+      || fileName.EndsWith(".dfl", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Check if the application should assume its gZIP
@@ -82,12 +45,8 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
     public static bool AssumeGZip(this string fileName) =>
-      fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) ||
-      fileName.EndsWith(".gzip", StringComparison.OrdinalIgnoreCase);
-
-    public static bool AssumeDeflate(this string fileName) =>
-      fileName.EndsWith(".cmp", StringComparison.OrdinalIgnoreCase) ||
-      fileName.EndsWith(".dfl", StringComparison.OrdinalIgnoreCase);
+      fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase)
+      || fileName.EndsWith(".gzip", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Check if the application should assume its PGP.
@@ -95,16 +54,15 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
     public static bool AssumePgp(this string fileName) =>
-      fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase) ||
-      fileName.EndsWith(".gpg", StringComparison.OrdinalIgnoreCase);
+      fileName.EndsWith(".pgp", StringComparison.OrdinalIgnoreCase)
+      || fileName.EndsWith(".gpg", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Check if the application should assume its ZIP
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static bool AssumeZip(this string fileName) =>
-      fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
+    public static bool AssumeZip(this string fileName) => fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Copies all elements from one collection to the other
@@ -146,24 +104,21 @@ namespace CsvTools
     /// <param name="items">The items.</param>
     /// <returns></returns>
     [DebuggerStepThrough]
-    public static int Count(this IEnumerable? items)
-    {
-      return items switch
+    public static int Count(this IEnumerable? items) =>
+      items switch
       {
         null => 0,
         ICollection col => col.Count,
         _ => Enumerable.Count(items.Cast<object>())
       };
-    }
 
     /// <summary>
     ///   User Display for a data type
     /// </summary>
     /// <param name="dt">The <see cref="DataType" />.</param>
     /// <returns>A text representing the dataType</returns>
-    public static string DataTypeDisplay(this DataType dt)
-    {
-      return dt switch
+    public static string DataTypeDisplay(this DataType dt) =>
+      dt switch
       {
         DataType.DateTime => "Date Time",
         DataType.Integer => "Integer",
@@ -177,6 +132,11 @@ namespace CsvTools
         DataType.String => "Text",
         _ => throw new ArgumentOutOfRangeException(nameof(dt), dt, "Data Type not known")
       };
+
+    public static string Description(this RecordDelimiterType item)
+    {
+      var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));
+      return descConv.ConvertToString(item) ?? string.Empty;
     }
 
     /// <summary>
@@ -261,27 +221,41 @@ namespace CsvTools
       }
     }
 
-    public static string NoRecordSQL(this string source)
+    public static string GetDescription(this char input) => input.ToStringHandle0().GetDescription();
+
+    /// <summary>
+    ///   Gets a char from a text
+    /// </summary>
+    /// <param name="input">The input string.</param>
+    /// <returns></returns>
+    public static string GetDescription(this string input)
     {
-      if (string.IsNullOrEmpty(source))
+      if (string.IsNullOrEmpty(input))
         return string.Empty;
 
-      // if its not SQL or has a Where condition do nothing
-      if (!source.Contains("SELECT", StringComparison.OrdinalIgnoreCase))
-        return source;
-      var whereRegEx = new Regex("\\sWHERE\\s", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-      var matchWhere = whereRegEx.Match(source);
-      if (matchWhere.Length>0)
-        return whereRegEx.Replace(source, " WHERE 1=0 AND ");
-      var orderRegEx = new Regex("\\sORDER\\sBY\\s", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-      var matchOrder = orderRegEx.Match(source);
-      if (matchOrder.Index<1)
-        // Remove Order By and Add a WHERE
-        source += " WHERE 1=0";
-      else
-        source = source.Substring(0, matchOrder.Index) + " WHERE 1=0";
-
-      return source;
+      return input.WrittenPunctuationToChar() switch
+      {
+        '\t' => "Horizontal Tab",
+        ' ' => "Space",
+        (char) 0xA0 => "Non-breaking space",
+        '\\' => "Backslash: \\",
+        '/' => "Slash: /",
+        ',' => "Comma: ,",
+        ';' => "Semicolon: ;",
+        ':' => "Colon: :",
+        '|' => "Pipe: |",
+        '\"' => "Quotation marks: \"",
+        '\'' => "Apostrophe: \'",
+        '&' => "Ampersand: &",
+        '*' => "Asterisk: *",
+        '`' => "Tick Mark: `",
+        '✓' => "Check mark: ✓",
+        '\u001F' => "Unit Separator: Char 31",
+        '\u001E' => "Record Separator: Char 30",
+        '\u001D' => "Group Separator: Char 29",
+        '\u001C' => "File Separator: Char 28",
+        _ => input
+      };
     }
 
     /// <summary>
@@ -291,75 +265,42 @@ namespace CsvTools
     /// <returns>The filename without special characters</returns>
     public static string GetIdFromFileName(this string path)
     {
-      var fileName = FileSystemUtils.GetFileName(path).ProcessByCategory(x =>
-        x == UnicodeCategory.UppercaseLetter || x == UnicodeCategory.LowercaseLetter ||
-        x == UnicodeCategory.OtherLetter ||
-        x == UnicodeCategory.ConnectorPunctuation || x == UnicodeCategory.DashPunctuation ||
-        x == UnicodeCategory.OtherPunctuation ||
-        x == UnicodeCategory.DecimalDigitNumber);
+      var fileName = FileSystemUtils.GetFileName(path).ProcessByCategory(
+        x => x == UnicodeCategory.UppercaseLetter || x == UnicodeCategory.LowercaseLetter
+                                                  || x == UnicodeCategory.OtherLetter
+                                                  || x == UnicodeCategory.ConnectorPunctuation
+                                                  || x == UnicodeCategory.DashPunctuation
+                                                  || x == UnicodeCategory.OtherPunctuation
+                                                  || x == UnicodeCategory.DecimalDigitNumber);
 
       const string timeSep = @"(:|-|_)?";
       const string dateSep = @"(\/|\.|-|_)?";
 
       const string hour = @"(2[0-3]|((0|1)\d))"; // 00-09 10-19 20-23
-      const string minSec = @"([0-5][0-9])";     // 00-59
+      const string minSec = @"([0-5][0-9])"; // 00-59
       const string amPm = @"((_| )?(AM|PM))?";
 
       const string year = @"((19\d{2})|(2\d{3}))"; // 1900 - 2999
-      const string month = @"(0[1-9]|1[012])";     // 01-12
+      const string month = @"(0[1-9]|1[012])"; // 01-12
       const string day = @"(0[1-9]|[12]\d|3[01])"; // 01 - 31
 
       // Replace Dates YYYYMMDD / MMDDYYYY / DDMMYYYY
-      fileName = Regex.Replace(fileName,
-        "(" + dateSep + year + dateSep + month + dateSep + day + ")|(" + dateSep + month + dateSep +
-        day + dateSep + year + ")|(" + dateSep + day + dateSep + month + dateSep + year + ")",
-        string.Empty, RegexOptions.Singleline);
+      fileName = Regex.Replace(
+        fileName,
+        "(" + dateSep + year + dateSep + month + dateSep + day + ")|(" + dateSep + month + dateSep + day + dateSep
+        + year + ")|(" + dateSep + day + dateSep + month + dateSep + year + ")",
+        string.Empty,
+        RegexOptions.Singleline);
 
       // Replace Times 3_53_34_AM
-      fileName = Regex.Replace(fileName,
-        dateSep + hour + timeSep + minSec + timeSep + minSec + "?" + amPm, string.Empty,
+      fileName = Regex.Replace(
+        fileName,
+        dateSep + hour + timeSep + minSec + timeSep + minSec + "?" + amPm,
+        string.Empty,
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
       return fileName.Trim('_', '-', ' ', '\t').Replace("__", "_").Replace("__", "_").Replace("--", "-")
-                     .Replace("--", "-");
-    }
-
-    /// <summary>
-    ///   Gets the .NET type for a given CsvTools type
-    /// </summary>
-    /// <param name="dt">The <see cref="DataType" />.</param>
-    /// <returns>The .NET Type</returns>
-    public static Type GetNetType(this DataType dt)
-    {
-      switch (dt)
-      {
-        case DataType.DateTime:
-          return typeof(DateTime);
-
-        case DataType.Integer when IntPtr.Size == 4:
-          return typeof(int);
-
-        case DataType.Integer:
-          return typeof(long);
-
-        case DataType.Double:
-          return typeof(double);
-
-        case DataType.Numeric:
-          return typeof(decimal);
-
-        case DataType.Boolean:
-          return typeof(bool);
-
-        case DataType.Guid:
-          return typeof(Guid);
-
-        case DataType.String:
-          return typeof(string);
-
-        default:
-          return typeof(string);
-      }
+        .Replace("--", "-");
     }
 
     /// <summary>
@@ -368,10 +309,29 @@ namespace CsvTools
     /// <param name="process">The process display.</param>
     /// <returns></returns>
     public static EventHandler<string> GetLogInfoMessage(this IProcessDisplay process) =>
-      delegate (object? sender, string message)
+      delegate(object? sender, string message)
       {
         Logger.Information("SQL Information: {message}", message);
         process.SetProcess(message, -1, true);
+      };
+
+    /// <summary>
+    ///   Gets the .NET type for a given CsvTools type
+    /// </summary>
+    /// <param name="dt">The <see cref="DataType" />.</param>
+    /// <returns>The .NET Type</returns>
+    public static Type GetNetType(this DataType dt) =>
+      dt switch
+      {
+        DataType.DateTime => typeof(DateTime),
+        DataType.Integer when IntPtr.Size == 4 => typeof(int),
+        DataType.Integer => typeof(long),
+        DataType.Double => typeof(double),
+        DataType.Numeric => typeof(decimal),
+        DataType.Boolean => typeof(bool),
+        DataType.Guid => typeof(Guid),
+        DataType.String => typeof(string),
+        _ => typeof(string)
       };
 
     /// <summary>
@@ -430,25 +390,40 @@ namespace CsvTools
       }
     }
 
-    public static string PlaceholderReplaceFormat(this string input, string placeholder, object? replacement)
-    {
-      if (replacement is null) return input;
-      // in case we have a placeholder with a formatting part e.G. {date:yyyy-MM-dd} we us
-      // string.Format to process {0:...
-
-      // General regex without matching the placeholder name is: (?:[{#])([^:\s}#]*)(:[^}]*)?(?:[}#\s])
-
-      // Needs to start with # or { Ends with #, space or } May contain a Format description
-      // starting with : ending with }
-      var regEx = new Regex(@"(?:[{#])(" + Regex.Escape(placeholder) +  @")(:[^}]*)?(?:[}#\s])", RegexOptions.IgnoreCase | RegexOptions.Singleline);
-      if (regEx.IsMatch(input))
+    public static string NewLineString(this RecordDelimiterType type) =>
+      type switch
       {
-        var withFormat = regEx.Replace(input, "{0$2}");
-        return string.Format(withFormat, replacement);
-      }
-      // using string format but replace the placeholder text with 0 as only argument
+        RecordDelimiterType.LF => "\n",
+        RecordDelimiterType.CR => "\r",
+        RecordDelimiterType.CRLF => "\r\n",
+        RecordDelimiterType.LFCR => "\n\r",
+        RecordDelimiterType.RS => "▲",
+        RecordDelimiterType.US => "▼",
+        RecordDelimiterType.None => string.Empty,
+        _ => string.Empty
+      };
+
+    public static string NoRecordSQL(this string source)
+    {
+      if (string.IsNullOrEmpty(source))
+        return string.Empty;
+
+      // if its not SQL or has a Where condition do nothing
+      if (!source.Contains("SELECT", StringComparison.OrdinalIgnoreCase))
+        return source;
+      var whereRegEx = new Regex("\\sWHERE\\s", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+      var matchWhere = whereRegEx.Match(source);
+      if (matchWhere.Length > 0)
+        return whereRegEx.Replace(source, " WHERE 1=0 AND ");
+      var orderRegEx = new Regex("\\sORDER\\sBY\\s", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+      var matchOrder = orderRegEx.Match(source);
+      if (matchOrder.Index < 1)
+        // Remove Order By and Add a WHERE
+        source += " WHERE 1=0";
       else
-        return PlaceholderReplace(input, placeholder, Convert.ToString(replacement));
+        source = source.Substring(0, matchOrder.Index) + " WHERE 1=0";
+
+      return source;
     }
 
     /// <summary>
@@ -460,8 +435,7 @@ namespace CsvTools
     /// <param name="replacement">The replacement.</param>
     /// <returns>The new text based on input</returns>
     [DebuggerStepThrough]
-    public static string PlaceholderReplace(this string input, string placeholder,
-                                            string? replacement)
+    public static string PlaceholderReplace(this string input, string placeholder, string? replacement)
     {
       if (string.IsNullOrEmpty(replacement)) return input;
 
@@ -472,11 +446,12 @@ namespace CsvTools
         if (input.IndexOf(type, StringComparison.OrdinalIgnoreCase) == -1)
         {
           type = "#" + placeholder;
-          if (!input.EndsWith(type, StringComparison.OrdinalIgnoreCase) &&
-              input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) == -1)
+          if (!input.EndsWith(type, StringComparison.OrdinalIgnoreCase)
+              && input.IndexOf(type + " ", StringComparison.OrdinalIgnoreCase) == -1)
             return input;
         }
       }
+
       // Not sure why this is in the code, where was it needed?
       if (input.IndexOf(" - " + type, StringComparison.OrdinalIgnoreCase) != -1)
       {
@@ -495,6 +470,29 @@ namespace CsvTools
       return input.ReplaceCaseInsensitive(type, replacement);
     }
 
+    public static string PlaceholderReplaceFormat(this string input, string placeholder, object? replacement)
+    {
+      if (replacement is null) return input;
+      // in case we have a placeholder with a formatting part e.G. {date:yyyy-MM-dd} we us
+      // string.Format to process {0:...
+
+      // General regex without matching the placeholder name is: (?:[{#])([^:\s}#]*)(:[^}]*)?(?:[}#\s])
+
+      // Needs to start with # or { Ends with #, space or } May contain a Format description
+      // starting with : ending with }
+      var regEx = new Regex(
+        @"(?:[{#])(" + Regex.Escape(placeholder) + @")(:[^}]*)?(?:[}#\s])",
+        RegexOptions.IgnoreCase | RegexOptions.Singleline);
+      if (regEx.IsMatch(input))
+      {
+        var withFormat = regEx.Replace(input, "{0$2}");
+        return string.Format(withFormat, replacement);
+      }
+      // using string format but replace the placeholder text with 0 as only argument
+
+      return PlaceholderReplace(input, placeholder, Convert.ToString(replacement));
+    }
+
     /// <summary>
     ///   String replace function that is Case Insensitive
     /// </summary>
@@ -503,8 +501,7 @@ namespace CsvTools
     /// <param name="replacement">the character to which it should be changed</param>
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
-    public static string ReplaceCaseInsensitive(this string original, string? pattern,
-                                                char replacement)
+    public static string ReplaceCaseInsensitive(this string original, string? pattern, char replacement)
     {
       var count = 0;
       var position0 = 0;
@@ -542,8 +539,7 @@ namespace CsvTools
     /// <param name="replacement">the text to which it should be changed</param>
     /// <returns>The source text with the replacement</returns>
     [DebuggerStepThrough]
-    public static string ReplaceCaseInsensitive(this string original, string? pattern,
-                                                string? replacement)
+    public static string ReplaceCaseInsensitive(this string original, string? pattern, string? replacement)
     {
       if (string.IsNullOrEmpty(pattern))
         return original;
@@ -590,8 +586,7 @@ namespace CsvTools
     /// <param name="old2">The old2.</param>
     /// <param name="new2">The new2.</param>
     /// <returns></returns>
-    public static string ReplaceDefaults(this string inputValue, string? old1,
-                                         string? new1, string? old2, string? new2)
+    public static string ReplaceDefaults(this string inputValue, string? old1, string? new1, string? old2, string? new2)
     {
       if (string.IsNullOrEmpty(inputValue))
         return string.Empty;
@@ -633,7 +628,7 @@ namespace CsvTools
 
       foreach (Match match in rgx.Matches(template))
       {
-        if (string.IsNullOrEmpty(match.Value) || placeholder.ContainsKey(match.Value) || match.Value.Length<2)
+        if (string.IsNullOrEmpty(match.Value) || placeholder.ContainsKey(match.Value) || match.Value.Length < 2)
           continue;
 
         var prop = props.FirstOrDefault(
@@ -685,6 +680,12 @@ namespace CsvTools
       return template.Replace("  ", " ");
     }
 
+    public static void SetMaximum(this IProcessDisplay? processDisplay, long maximum)
+    {
+      if (processDisplay is IProcessDisplayTime processDisplayTime)
+        processDisplayTime.Maximum = maximum;
+    }
+
     /// <summary>
     ///   Get the inner most exception message
     /// </summary>
@@ -699,11 +700,8 @@ namespace CsvTools
       return loop.Message;
     }
 
-    public static void SetMaximum(this IProcessDisplay? processDisplay, long maximum)
-    {
-      if (processDisplay is IProcessDisplayTime processDisplayTime)
-        processDisplayTime.Maximum = maximum;
-    }
+    public static char StringToChar(this string inputString) =>
+      string.IsNullOrEmpty(inputString) ? '\0' : inputString[0];
 
     public static int ToInt(this ulong value) => value > int.MaxValue ? int.MaxValue : Convert.ToInt32(value);
 
@@ -742,44 +740,29 @@ namespace CsvTools
       return value < long.MinValue ? long.MinValue : Convert.ToInt64(value);
     }
 
-    public static string ToStringHandle0(this char input) => input=='\0' ? string.Empty : input.ToString();
+    public static string ToStringHandle0(this char input) => input == '\0' ? string.Empty : input.ToString();
+#if !QUICK
 
-    public static string GetDescription(this char input) => input.ToStringHandle0().GetDescription();
-
-    /// <summary>
-    ///   Gets a char from a text
-    /// </summary>
-    /// <param name="input">The input string.</param>
-    /// <returns></returns>
-    public static string GetDescription(this string input)
+    public static async Task<long> WriteAsync(
+      this IFileWriter writer,
+      string sqlStatement,
+      int timeout,
+      Action<string>? reportProgress,
+      CancellationToken cancellationToken)
     {
-      if (string.IsNullOrEmpty(input))
-        return string.Empty;
+      if (string.IsNullOrEmpty(sqlStatement))
+        return 0;
 
-      return input.WrittenPunctuationToChar() switch
-      {
-        '\t' => "Horizontal Tab",
-        ' ' => "Space",
-        (char) 0xA0 => "Non-breaking space",
-        '\\' => "Backslash: \\",
-        '/' => "Slash: /",
-        ',' => "Comma: ,",
-        ';' => "Semicolon: ;",
-        ':' => "Colon: :",
-        '|' => "Pipe: |",
-        '\"' => "Quotation marks: \"",
-        '\'' => "Apostrophe: \'",
-        '&' => "Ampersand: &",
-        '*' => "Asterisk: *",
-        '`' => "Tick Mark: `",
-        '✓' => "Check mark: ✓",
-        '\u001F' => "Unit Separator: Char 31",
-        '\u001E' => "Record Separator: Char 30",
-        '\u001D' => "Group Separator: Char 29",
-        '\u001C' => "File Separator: Char 28",
-        _ => input
-      };
+      using var sqlReader = await FunctionalDI.SQLDataReader(
+                              sqlStatement,
+                              (sender, s) => reportProgress?.Invoke(s.Text),
+                              timeout,
+                              cancellationToken).ConfigureAwait(false);
+      await sqlReader.OpenAsync(cancellationToken).ConfigureAwait(false);
+      return await writer.WriteAsync(sqlReader, cancellationToken).ConfigureAwait(false);
     }
+
+#endif
 
     /// <summary>
     ///   Return a string resolving written punctuation
@@ -791,7 +774,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(inputString))
         return string.Empty;
 
-      if (inputString.Length==1)
+      if (inputString.Length == 1)
       {
         if (inputString.Equals("␍", StringComparison.Ordinal))
           return "\r";
@@ -800,142 +783,148 @@ namespace CsvTools
         return inputString;
       }
 
-      if (inputString.Equals("Tab", StringComparison.OrdinalIgnoreCase) ||
-            inputString.Equals("Tabulator", StringComparison.OrdinalIgnoreCase) ||
-            inputString.Equals("Horizontal Tab", StringComparison.OrdinalIgnoreCase) ||
-            inputString.Equals("HorizontalTab", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("Tab", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Tabulator", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Horizontal Tab", StringComparison.OrdinalIgnoreCase) || inputString.Equals(
+            "HorizontalTab",
+            StringComparison.OrdinalIgnoreCase))
         return "\t";
 
       if (inputString.Equals("Space", StringComparison.OrdinalIgnoreCase))
         return " ";
 
-      if (inputString.Equals("hash", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("sharp", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("hash", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("sharp", StringComparison.OrdinalIgnoreCase))
         return "#";
 
-      if (inputString.Equals("whirl", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("at", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("monkey", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("whirl", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("at", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("monkey", StringComparison.OrdinalIgnoreCase))
         return "@";
 
-      if (inputString.Equals("underbar", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("underscore", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("understrike", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("underbar", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("underscore", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("understrike", StringComparison.OrdinalIgnoreCase))
         return "_";
 
-      if (inputString.Equals("Comma", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Comma: ,", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("Comma", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Comma: ,", StringComparison.OrdinalIgnoreCase))
         return ",";
 
-      if (inputString.Equals("Dot", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Point", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Full Stop", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("Dot", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Point", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Full Stop", StringComparison.OrdinalIgnoreCase))
         return ".";
 
-      if (inputString.Equals("amper", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("ampersand", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Ampersand: &", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("amper", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("ampersand", StringComparison.OrdinalIgnoreCase) || inputString.Equals(
+            "Ampersand: &",
+            StringComparison.OrdinalIgnoreCase))
         return "&";
 
-      if (inputString.Equals("Pipe", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Vertical bar", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("VerticalBar", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Pipe: |", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("Pipe", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Vertical bar", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("VerticalBar", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Pipe: |", StringComparison.OrdinalIgnoreCase))
         return "|";
 
-      if (inputString.Equals("broken bar", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("BrokenBar", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("broken bar", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("BrokenBar", StringComparison.OrdinalIgnoreCase))
         return "¦";
 
-      if (inputString.Equals("fullwidth broken bar", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("FullwidthBrokenBar", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("fullwidth broken bar", StringComparison.OrdinalIgnoreCase) || inputString.Equals(
+            "FullwidthBrokenBar",
+            StringComparison.OrdinalIgnoreCase))
         return "￤";
 
-      if (inputString.Equals("Semicolon", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Semicolon: ;", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("Semicolon", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Semicolon: ;", StringComparison.OrdinalIgnoreCase))
         return ";";
 
-      if (inputString.Equals("Colon", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Colon: :", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("Colon", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Colon: :", StringComparison.OrdinalIgnoreCase))
         return ":";
 
-      if (inputString.Equals("Doublequote", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Doublequotes", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Quote", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Quotation marks", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Quotation marks: \"", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("Doublequote", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Doublequotes", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Quote", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Quotation marks", StringComparison.OrdinalIgnoreCase) || inputString.Equals(
+            "Quotation marks: \"",
+            StringComparison.OrdinalIgnoreCase))
         return "\"";
 
-      if (inputString.Equals("Apostrophe", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Singlequote", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("tick", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Apostrophe: \'", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("Apostrophe", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Singlequote", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("tick", StringComparison.OrdinalIgnoreCase) || inputString.Equals(
+            "Apostrophe: \'",
+            StringComparison.OrdinalIgnoreCase))
         return "'";
 
-      if (inputString.Equals("Slash", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Stroke", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("forward slash", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Slash: /", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("Slash", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Stroke", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("forward slash", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Slash: /", StringComparison.OrdinalIgnoreCase))
         return "/";
 
-      if (inputString.Equals("backslash", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("backslant", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Backslash: \\", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("backslash", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("backslant", StringComparison.OrdinalIgnoreCase) || inputString.Equals(
+            "Backslash: \\",
+            StringComparison.OrdinalIgnoreCase))
         return "\\";
 
-      if (inputString.Equals("Tick", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Tick Mark", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("Tick", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Tick Mark", StringComparison.OrdinalIgnoreCase))
         return "`";
 
-      if (inputString.Equals("Star", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Asterisk", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Asterisk: *", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("Star", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Asterisk", StringComparison.OrdinalIgnoreCase) || inputString.Equals(
+            "Asterisk: *",
+            StringComparison.OrdinalIgnoreCase))
         return "*";
 
-      if (inputString.Equals("NBSP", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Non-breaking space", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Non breaking space", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("NonBreakingSpace", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("NBSP", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Non-breaking space", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Non breaking space", StringComparison.OrdinalIgnoreCase) || inputString.Equals(
+            "NonBreakingSpace",
+            StringComparison.OrdinalIgnoreCase))
         return "\u00A0";
 
-      if (inputString.Equals("Return", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("CarriageReturn", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("CR", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("␍", StringComparison.Ordinal) ||
-          inputString.Equals("Carriage return", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("Return", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("CarriageReturn", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("CR", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("␍", StringComparison.Ordinal) || inputString.Equals(
+            "Carriage return",
+            StringComparison.OrdinalIgnoreCase))
         return "\r";
 
-      if (inputString.Equals("Check mark", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("Check", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("Check mark", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("Check", StringComparison.OrdinalIgnoreCase))
         return "✓";
 
-      if (inputString.Equals("Feed", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("LineFeed", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("LF", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Equals("␊", StringComparison.Ordinal) ||
-          inputString.Equals("Line feed", StringComparison.OrdinalIgnoreCase))
+      if (inputString.Equals("Feed", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("LineFeed", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("LF", StringComparison.OrdinalIgnoreCase)
+          || inputString.Equals("␊", StringComparison.Ordinal) || inputString.Equals(
+            "Line feed",
+            StringComparison.OrdinalIgnoreCase))
         return "\n";
 
-      if (inputString.StartsWith("Unit separator", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Contains("31") ||
-          inputString.Equals("␟", StringComparison.Ordinal) ||
-          inputString.Equals("US", StringComparison.OrdinalIgnoreCase))
+      if (inputString.StartsWith("Unit separator", StringComparison.OrdinalIgnoreCase) || inputString.Contains("31")
+          || inputString.Equals("␟", StringComparison.Ordinal)
+          || inputString.Equals("US", StringComparison.OrdinalIgnoreCase))
         return "\u001F";
 
-      if (inputString.StartsWith("Record separator", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Contains("30") ||
-          inputString.Equals("␞", StringComparison.Ordinal) ||
-          inputString.Equals("RS", StringComparison.OrdinalIgnoreCase))
+      if (inputString.StartsWith("Record separator", StringComparison.OrdinalIgnoreCase) || inputString.Contains("30")
+          || inputString.Equals("␞", StringComparison.Ordinal)
+          || inputString.Equals("RS", StringComparison.OrdinalIgnoreCase))
         return "\u001E";
 
-      if (inputString.StartsWith("Group separator", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Contains("29") ||
-          inputString.Equals("GS", StringComparison.OrdinalIgnoreCase))
+      if (inputString.StartsWith("Group separator", StringComparison.OrdinalIgnoreCase) || inputString.Contains("29")
+          || inputString.Equals("GS", StringComparison.OrdinalIgnoreCase))
         return "\u001D";
 
-      if (inputString.StartsWith("File separator", StringComparison.OrdinalIgnoreCase) ||
-          inputString.Contains("28") ||
-          inputString.Equals("FS", StringComparison.OrdinalIgnoreCase))
+      if (inputString.StartsWith("File separator", StringComparison.OrdinalIgnoreCase) || inputString.Contains("28")
+          || inputString.Equals("FS", StringComparison.OrdinalIgnoreCase))
         return "\u001C";
 
       return inputString.Substring(0, 1);
@@ -946,9 +935,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputString">The source</param>
     /// <returns>return '\0' if the text was not interpreted as punctuation</returns>
-    public static char WrittenPunctuationToChar(this string inputString) => string.IsNullOrEmpty(inputString) ? '\0' : WrittenPunctuation(inputString)[0];
-
-    public static char StringToChar(this string inputString) => string.IsNullOrEmpty(inputString) ? '\0' : inputString[0];
+    public static char WrittenPunctuationToChar(this string inputString) =>
+      string.IsNullOrEmpty(inputString) ? '\0' : WrittenPunctuation(inputString)[0];
 
 #if !GetHashByGUID
 
@@ -964,7 +952,8 @@ namespace CsvTools
     ///   Parameter is IEnumerable to make it work with ICollections, IReadOnlyCollection, Arrays
     ///   and ObservableCollection
     /// </remarks>
-    public static bool CollectionEqual<T>(this IEnumerable<T> self, IEnumerable<T>? other) where T : IEquatable<T>
+    public static bool CollectionEqual<T>(this IEnumerable<T> self, IEnumerable<T>? other)
+      where T : IEquatable<T>
     {
       if (other is null)
         return false;
@@ -973,7 +962,7 @@ namespace CsvTools
       ICollection<T> selfCol = self.ToArray();
       if (other is Collection<T> || other is ICollection<T> || other is IReadOnlyCollection<T> || other is Array)
       {
-        int otherNum = other.Count();
+        var otherNum = other.Count();
         if (otherNum != selfCol.Count)
           return false;
         if (otherNum == 0) // both are empty
@@ -981,7 +970,6 @@ namespace CsvTools
       }
 
       foreach (var ot in other)
-      {
         if (ot is null)
         {
           if (!selfCol.Any(x => x is null))
@@ -991,17 +979,15 @@ namespace CsvTools
         {
           var found = false;
           foreach (var st in selfCol)
-          {
             if (ot.Equals(st))
             {
               found = true;
               break;
             }
-          }
+
           if (!found)
             return false;
         }
-      }
 
       return true;
     }
@@ -1056,8 +1042,9 @@ namespace CsvTools
       unchecked
       {
         var order = 0;
-        return collection.Cast<object>()
-                         .Aggregate(731, (current, item) => (current * 397) ^ (item.GetHashCode() + order++));
+        return collection.Cast<object>().Aggregate(
+          731,
+          (current, item) => (current * 397) ^ (item.GetHashCode() + order++));
       }
     }
 

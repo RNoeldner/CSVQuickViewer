@@ -22,16 +22,6 @@ namespace CsvTools
   /// </summary>
   public class SourceAccess
   {
-    public enum FileTypeEnum
-    {
-      FileSystem,
-      GZip,
-      Deflate,
-      Pgp,
-      Zip,
-      Stream
-    }
-
     /// <summary>
     ///   Type of the file
     /// </summary>
@@ -40,14 +30,19 @@ namespace CsvTools
     public readonly string FullPath;
 
     /// <summary>
-    ///   Method to open the base stream usually the physical file
+    ///   Flag <c>true</c> if the not encrypted files should be kept after encryption
     /// </summary>
-    private readonly Func<Stream> m_OpenStream;
+    public readonly bool KeepEncyrpted;
 
     /// <summary>
     ///   Determine if the access is for reading or writing
     /// </summary>
     public readonly bool Reading;
+
+    /// <summary>
+    ///   Information about the recipient for a encryption
+    /// </summary>
+    public readonly string Recipient;
 
     /// <summary>
     ///   The Password or Passphrase information
@@ -65,53 +60,58 @@ namespace CsvTools
     public string IdentifierInContainer;
 
     /// <summary>
-    ///   Information about the recipient for a encryption
+    ///   Method to open the base stream usually the physical file
     /// </summary>
-    public readonly string Recipient;
+    private readonly Func<Stream> m_OpenStream;
 
     /// <summary>
-    /// Flag <c>true</c> if the not encrypted files should be kept after encryption
-    /// </summary>
-    public readonly bool KeepEncyrpted;
-
-    /// <summary>
-    /// Get a new SourceAccess helper class
+    ///   Get a new SourceAccess helper class
     /// </summary>
     /// <param name="fileName">Name of teh file</param>
     /// <param name="isReading"><c>true</c> if the files is for reading</param>
     /// <param name="id">The identifier for the file for logging etc</param>
     /// <param name="recipient">Recipient for PGP encryption</param>
-    /// <param name="keepEncrypted">Do not remove teh not encrypted files once teh encrypted one is created, needed in for debugging in case teh private key is not known and the file can not be decrypted</param>
-    public SourceAccess(string fileName, bool isReading = true, string? id = null,
-                        string? recipient = null, bool keepEncrypted = false)
+    /// <param name="keepEncrypted">
+    ///   Do not remove teh not encrypted files once teh encrypted one is created, needed in for
+    ///   debugging in case teh private key is not known and the file can not be decrypted
+    /// </param>
+    public SourceAccess(
+      string fileName,
+      bool isReading = true,
+      string? id = null,
+      string? recipient = null,
+      bool keepEncrypted = false)
     {
       if (string.IsNullOrWhiteSpace(fileName))
         throw new ArgumentException("File can not be empty", nameof(fileName));
 
       // as of now a physical file must exist
       if (isReading && !FileSystemUtils.FileExists(fileName))
-        throw new FileNotFoundException($"The file '{FileSystemUtils.GetShortDisplayFileName(fileName)}' does not exist or is not accessible.", fileName);
+        throw new FileNotFoundException(
+          $"The file '{FileSystemUtils.GetShortDisplayFileName(fileName)}' does not exist or is not accessible.",
+          fileName);
 
-      FullPath= fileName;
+      FullPath = fileName;
       Reading = isReading;
       Identifier = id ?? FileSystemUtils.GetShortDisplayFileName(fileName, 40);
       Recipient = recipient ?? string.Empty;
       KeepEncyrpted = keepEncrypted;
       LeaveOpen = false;
-      FileType =  FromExtension(fileName);
+      FileType = FromExtension(fileName);
       EncryptedPassphrase = string.Empty;
       IdentifierInContainer = string.Empty;
       switch (FileType)
       {
         case FileTypeEnum.Zip when !isReading:
           IdentifierInContainer = FileSystemUtils.GetFileName(fileName).ReplaceCaseInsensitive(".zip", "");
-          
+
           break;
         // for PGP we need a password/ pass phrase for Zip we might need one later
         case FileTypeEnum.Pgp when isReading:
           EncryptedPassphrase = FunctionalDI.GetEncryptedPassphraseForFile(fileName);
           break;
       }
+
       if (!isReading && KeepEncyrpted)
       {
         // remove extension
@@ -120,7 +120,9 @@ namespace CsvTools
         m_OpenStream = GetOpenStreamFunc(fn, false);
       }
       else
+      {
         m_OpenStream = GetOpenStreamFunc(fileName, isReading);
+      }
     }
 #if !QUICK
     /// <summary>
@@ -129,7 +131,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="setting">The setting of type <see cref="IFileSettingPhysicalFile" /></param>
     /// <param name="isReading"><c>true</c> if used for reading</param>
-    public SourceAccess(IFileSettingPhysicalFile setting, bool isReading = true) : this(setting.FullPath, isReading, setting.ID, setting.Recipient, setting.KeepUnencrypted)
+    public SourceAccess(IFileSettingPhysicalFile setting, bool isReading = true)
+      : this(setting.FullPath, isReading, setting.ID, setting.Recipient, setting.KeepUnencrypted)
     {
     }
 #endif
@@ -143,10 +146,10 @@ namespace CsvTools
       if (!stream.CanSeek)
         throw new ArgumentException("Source stream must support seek to be used for SourceAccess", nameof(stream));
       LeaveOpen = true;
-      m_OpenStream =() => stream;
+      m_OpenStream = () => stream;
       FileType = type;
       Reading = true;
-      FullPath= string.Empty;
+      FullPath = string.Empty;
       EncryptedPassphrase = string.Empty;
       IdentifierInContainer = string.Empty;
       Recipient = string.Empty;
@@ -154,11 +157,28 @@ namespace CsvTools
       if (stream is FileStream fs)
       {
         Identifier = FileSystemUtils.GetShortDisplayFileName(fs.Name);
-        if ((type == FileTypeEnum.Stream))
+        if (type == FileTypeEnum.Stream)
           FileType = FromExtension(fs.Name);
       }
       else
+      {
         Identifier = $"{stream.GetType().Name}_{FileType}";
+      }
+    }
+
+    public enum FileTypeEnum
+    {
+      FileSystem,
+
+      GZip,
+
+      Deflate,
+
+      Pgp,
+
+      Zip,
+
+      Stream
     }
 
     public bool LeaveOpen { get; }
@@ -175,9 +195,9 @@ namespace CsvTools
 
       // in case the SourceAccess initialized with a function, the stream is only known now...
       if (Identifier.Length == 0)
-        Identifier = (stream is FileStream fs)
-          ? FileSystemUtils.GetShortDisplayFileName(fs.Name)
-          : $"{stream.GetType().Name}_{FileType}";
+        Identifier = stream is FileStream fs
+                       ? FileSystemUtils.GetShortDisplayFileName(fs.Name)
+                       : $"{stream.GetType().Name}_{FileType}";
       return stream;
     }
 
@@ -194,9 +214,11 @@ namespace CsvTools
       return fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ? FileTypeEnum.Zip : FileTypeEnum.FileSystem;
     }
 
-    private static Func<Stream> GetOpenStreamFunc(string fileName, bool isReading) => () =>
-         new FileStream(fileName.LongPathPrefix(),
-           isReading ? FileMode.Open : FileMode.OpenOrCreate,
-           isReading ? FileAccess.Read : FileAccess.ReadWrite, FileShare.ReadWrite);
+    private static Func<Stream> GetOpenStreamFunc(string fileName, bool isReading) =>
+      () => new FileStream(
+        fileName.LongPathPrefix(),
+        isReading ? FileMode.Open : FileMode.OpenOrCreate,
+        isReading ? FileAccess.Read : FileAccess.ReadWrite,
+        FileShare.ReadWrite);
   }
 }

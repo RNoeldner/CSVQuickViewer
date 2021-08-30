@@ -26,29 +26,61 @@ namespace CsvTools
   /// </summary>
   public class CsvFileWriter : BaseFileWriter, IFileWriter
   {
-    private readonly bool m_ByteOrderMark;
-    private readonly int m_CodePageId;
-    private readonly string m_FieldDelimiter;
-    private readonly string m_FieldDelimiterEscaped;
-    private readonly string m_FieldQualifier;
-    private readonly string m_FieldQualifierEscaped;
-    private readonly char[] m_QualifyCharArray;
     protected readonly bool m_ColumnHeader;
 
-    public CsvFileWriter(in string id, in string fullPath, bool hasFieldHeader, in IValueFormat? valueFormat = null, in IFileFormat? fileFormat = null,
-      int codePageId = 65001, bool byteOrderMark = true, in IEnumerable<IColumn>? columnDefinition = null, in string? recipient = null,
-      bool unencyrpted = false, in string? identifierInContainer = null, in string? header = null, in string? footer = null, in string fileSettingDisplay = "", IProcessDisplay? processDisplay = null)
-      : base(id, fullPath, valueFormat, fileFormat, recipient, unencyrpted, identifierInContainer, footer, header, columnDefinition, fileSettingDisplay, processDisplay)
+    private readonly bool m_ByteOrderMark;
+
+    private readonly int m_CodePageId;
+
+    private readonly string m_FieldDelimiter;
+
+    private readonly string m_FieldDelimiterEscaped;
+
+    private readonly string m_FieldQualifier;
+
+    private readonly string m_FieldQualifierEscaped;
+
+    private readonly char[] m_QualifyCharArray;
+
+    public CsvFileWriter(
+      in string id,
+      in string fullPath,
+      bool hasFieldHeader,
+      in IValueFormat? valueFormat = null,
+      in IFileFormat? fileFormat = null,
+      int codePageId = 65001,
+      bool byteOrderMark = true,
+      in IEnumerable<IColumn>? columnDefinition = null,
+      in string? recipient = null,
+      bool unencyrpted = false,
+      in string? identifierInContainer = null,
+      in string? header = null,
+      in string? footer = null,
+      in string fileSettingDisplay = "",
+      IProcessDisplay? processDisplay = null)
+      : base(
+        id,
+        fullPath,
+        valueFormat,
+        fileFormat,
+        recipient,
+        unencyrpted,
+        identifierInContainer,
+        footer,
+        header,
+        columnDefinition,
+        fileSettingDisplay,
+        processDisplay)
     {
       m_CodePageId = codePageId;
       m_ColumnHeader = hasFieldHeader;
       m_ByteOrderMark = byteOrderMark;
-      m_FieldQualifier =  fileFormat?.FieldQualifierChar.ToStringHandle0() ?? string.Empty;
-      m_FieldDelimiter =  fileFormat?.FieldDelimiterChar.ToStringHandle0() ?? string.Empty;
+      m_FieldQualifier = fileFormat?.FieldQualifierChar.ToStringHandle0() ?? string.Empty;
+      m_FieldDelimiter = fileFormat?.FieldDelimiterChar.ToStringHandle0() ?? string.Empty;
 
-      if (fileFormat?.EscapeChar!='\0')
+      if (fileFormat?.EscapeChar != '\0')
       {
-        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d };
+        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d};
         m_FieldQualifierEscaped = fileFormat?.EscapeChar + m_FieldQualifier;
         m_FieldDelimiterEscaped = fileFormat?.EscapeChar + m_FieldDelimiter;
       }
@@ -57,7 +89,7 @@ namespace CsvTools
         // Delimiters are not escaped
         m_FieldDelimiterEscaped = m_FieldDelimiter;
         // but require quoting
-        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d, fileFormat.FieldDelimiterChar };
+        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d, fileFormat.FieldDelimiterChar};
 
         // the Qualifier is repeated to so it can be recognized as not to be end the quoting
         m_FieldQualifierEscaped = m_FieldQualifier + m_FieldQualifier;
@@ -70,10 +102,12 @@ namespace CsvTools
     /// <param name="reader">A Data Reader with the data</param>
     /// <param name="output">The output.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    protected override async Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken)
+    protected override async Task WriteReaderAsync(
+      IFileReader reader,
+      Stream output,
+      CancellationToken cancellationToken)
     {
-      using var writer = new StreamWriter(output,
-        EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192);
+      using var writer = new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192);
       SetColumns(reader);
 
       if (Columns.Count == 0)
@@ -103,8 +137,8 @@ namespace CsvTools
         sb.Append(NewLine);
       }
 
-      while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false) &&
-             !cancellationToken.IsCancellationRequested)
+      while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false)
+             && !cancellationToken.IsCancellationRequested)
       {
         if (sb.Length > 32768)
         {
@@ -161,12 +195,13 @@ namespace CsvTools
         if (fileFormat.QualifyOnlyIfNeeded)
           // Qualify the text if the delimiter or Linefeed is present, or if the text starts with
           // the Qualifier
-          qualifyThis = displayAs.Length > 0 && (displayAs.IndexOfAny(m_QualifyCharArray) > -1 ||
-                                                 displayAs[0].Equals(fileFormat.FieldQualifierChar) ||
-                                                 displayAs[0].Equals(' '));
+          qualifyThis = displayAs.Length > 0 && (displayAs.IndexOfAny(m_QualifyCharArray) > -1
+                                                 || displayAs[0].Equals(fileFormat.FieldQualifierChar)
+                                                 || displayAs[0].Equals(' '));
         else
           // quality any text or something containing a Qualify Char
-          qualifyThis = dataType == DataType.String || dataType == DataType.TextToHtml || displayAs.IndexOfAny(m_QualifyCharArray) > -1;
+          qualifyThis = dataType == DataType.String || dataType == DataType.TextToHtml
+                                                    || displayAs.IndexOfAny(m_QualifyCharArray) > -1;
       }
 
       if (m_FieldDelimiter != m_FieldDelimiterEscaped)

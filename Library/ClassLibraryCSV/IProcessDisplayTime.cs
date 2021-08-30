@@ -17,20 +17,22 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  ///  Interface for an ProcessDisplay
+  ///   Interface for an ProcessDisplay
   /// </summary>
   public interface IProcessDisplayTime : IProcessDisplay
   {
+    event EventHandler<ProgressEventArgsTime>? ProgressTime;
+
+    event EventHandler<long>? SetMaximum;
 
     /// <summary>
-    ///  Gets or sets the maximum value for the Progress
+    ///   Gets or sets the maximum value for the Progress
     /// </summary>
     /// <value>
-    ///  The maximum value.
+    ///   The maximum value.
     /// </value>
     long Maximum { get; set; }
+
     TimeToCompletion TimeToCompletion { get; }
-    event EventHandler<ProgressEventArgsTime>? ProgressTime;
-    event EventHandler<long>? SetMaximum;
   }
 }
