@@ -19,36 +19,39 @@ using System.Data;
 namespace CsvTools.Tests
 {
   [TestClass]
-	public class DetailControlLoaderTests
-	{
-		[TestMethod]
-		[Timeout(3000)]
-		public async System.Threading.Tasks.Task DetailControlLoaderTestAsync()
-		{
-			using var dt = new DataTable();
-			dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
-			dt.Columns.Add(new DataColumn { ColumnName = "Text", DataType = typeof(string) });
-			dt.Columns.Add(new DataColumn { ColumnName = "Date", DataType = typeof(DateTime) });
-			dt.Columns.Add(new DataColumn { ColumnName = "Bool", DataType = typeof(bool) });
-			for (var line = 1; line < 5000; line++)
-			{
-				var row = dt.NewRow();
-				row[0] = line;
-				row[1] = $"This is text {line / 2}";
-				row[2] = new DateTime(2001, 6, 6).AddHours(line * 3);
-				row[3] = line % 3 == 0;
-				dt.Rows.Add(row);
-			}
+  public class DetailControlLoaderTests
+  {
+    [TestMethod]
+    [Timeout(3000)]
+    public async System.Threading.Tasks.Task DetailControlLoaderTestAsync()
+    {
+      using var dt = new DataTable();
+      dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
+      dt.Columns.Add(new DataColumn { ColumnName = "Text", DataType = typeof(string) });
+      dt.Columns.Add(new DataColumn { ColumnName = "Date", DataType = typeof(DateTime) });
+      dt.Columns.Add(new DataColumn { ColumnName = "Bool", DataType = typeof(bool) });
+      for (var line = 1; line < 5000; line++)
+      {
+        var row = dt.NewRow();
+        row[0] = line;
+        row[1] = $"This is text {line / 2}";
+        row[2] = new DateTime(2001, 6, 6).AddHours(line * 3);
+        row[3] = line % 3 == 0;
+        dt.Rows.Add(row);
+      }
 
-			using var dc = new DetailControl();
-			dc.HTMLStyle = UnitTestInitializeWin.HTMLStyle;
-			dc.DataTable = dt;
+      using var dc = new DetailControl();
+      dc.HTMLStyle = UnitTestInitializeWin.HTMLStyle;
+      dc.DataTable = dt;
 
-			await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);
-			dc.OnlyShowErrors = true;
-			dc.MoveMenu();
-			var dcl = new DetailControlLoader(dc);
-			dc.Show();
-		}
-	}
+      await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);
+      dc.OnlyShowErrors = true;
+      dc.MoveMenu();
+      var dcl = new DetailControlLoader(dc);
+      dc.Show();
+    }
+
+
+
+  }
 }
