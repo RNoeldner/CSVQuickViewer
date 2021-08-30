@@ -25,7 +25,10 @@ namespace CsvTools
       string decimalSeparator = ValueFormatExtension.cDecimalSeparatorDefault,
       string asTrue = ValueFormatExtension.cTrueDefault,
       string asFalse = ValueFormatExtension.cFalseDefault,
-      string displayNullAs = "")
+      string displayNullAs = "",
+      int part = ValueFormatExtension.cPartDefault,
+      string partSplitter = ValueFormatExtension.cPartSplitterDefault,
+      bool partToEnd = ValueFormatExtension.cPartToEndDefault)
     {
       if (!string.IsNullOrEmpty(decimalSeparator) && decimalSeparator.Equals(groupSeparator))
         throw new FileReaderException("Decimal and Group separator must be different");
@@ -39,7 +42,32 @@ namespace CsvTools
       NumberFormat = numberFormat??throw new System.ArgumentNullException(nameof(numberFormat));
       TimeSeparator = timeSeparator??throw new System.ArgumentNullException(nameof(timeSeparator));
       True = asTrue??throw new System.ArgumentNullException(nameof(asTrue));
+      Part = part;
+      PartSplitter = (partSplitter??throw new System.ArgumentNullException(nameof(partSplitter))).WrittenPunctuation();
+      PartToEnd= partToEnd;
     }
+
+    public DataType DataType { get; }
+
+    public string DateFormat { get; }
+
+    public string DateSeparator { get; }
+
+    public string DecimalSeparator { get; }
+
+    public string DisplayNullAs { get; }
+
+    public string False { get; }
+
+    public string GroupSeparator { get; }
+
+    public string NumberFormat { get; }
+
+    public int Part { get; }
+
+    public string PartSplitter { get; }
+
+    public bool PartToEnd { get; }
 
     /// <summary>
     ///   Used in Serialization to determine if something needs to be stored
@@ -54,22 +82,13 @@ namespace CsvTools
       GroupSeparator == ValueFormatExtension.cGroupSeparatorDefault &&
       True == ValueFormatExtension.cTrueDefault &&
       False == ValueFormatExtension.cFalseDefault &&
+      Part   == ValueFormatExtension.cPartDefault &&
+      PartSplitter   == ValueFormatExtension.cPartSplitterDefault &&
+      PartToEnd   == ValueFormatExtension.cPartToEndDefault &&
       DisplayNullAs == string.Empty;
 
-    public DataType DataType { get; }
-
-    public string DateFormat { get; }
-    public string DateSeparator { get; }
     public string TimeSeparator { get; }
-
-    public string NumberFormat { get; }
-    public string DecimalSeparator { get; }
-    public string GroupSeparator { get; }
-
     public string True { get; }
-    public string False { get; }
-
-    public string DisplayNullAs { get; }
 
     public bool Equals(IValueFormat? other) => this.ValueFormatEqual(other);
   }

@@ -35,9 +35,6 @@ namespace CsvTools
     private string m_DestinationName = string.Empty;
     private bool m_Ignore;
     private string m_Name;
-    private int m_Part = ImmutableColumn.cPartDefault;
-    private string m_PartSplitter = ImmutableColumn.cPartSplitterDefault;
-    private bool m_PartToEnd = ImmutableColumn.cPartToEnd;
     private string m_TimePart = string.Empty;
     private string m_TimePartFormat = ImmutableColumn.cDefaultTimePartFormat;
     private string m_TimeZonePart = string.Empty;
@@ -54,9 +51,6 @@ namespace CsvTools
       m_DestinationName = source.DestinationName;
       m_Ignore = source.Ignore;
       m_Name = source.Name;
-      m_Part = source.Part;
-      m_PartSplitter = source.PartSplitter;
-      m_PartToEnd = source.PartToEnd;
       m_TimePart = source.TimePart;
       m_TimePartFormat = source.TimePartFormat;
       m_TimeZonePart = source.TimeZonePart;
@@ -70,9 +64,6 @@ namespace CsvTools
       m_DestinationName = source.DestinationName;
       m_Ignore = source.Ignore;
       m_Name = source.Name;
-      m_Part = source.Part;
-      m_PartSplitter = source.PartSplitter;
-      m_PartToEnd = source.PartToEnd;
       m_TimePart = source.TimePart;
       m_TimePartFormat = source.TimePartFormat;
       m_TimeZonePart = source.TimeZonePart;
@@ -331,18 +322,11 @@ namespace CsvTools
     /// </summary>
     /// <value>The part starting with 1</value>
     [XmlAttribute]
-    [DefaultValue(ImmutableColumn.cPartDefault)]
+    [DefaultValue(ValueFormatExtension.cPartDefault)]
     public virtual int Part
     {
-      get => m_Part;
-
-      set
-      {
-        if (m_Part.Equals(value))
-          return;
-        m_Part = value;
-        NotifyPropertyChanged(nameof(Part));
-      }
+      get => ValueFormatMutable.Part;
+      set => ValueFormatMutable.Part= value;
     }
 
     /// <summary>
@@ -356,19 +340,11 @@ namespace CsvTools
     ///   Gets or sets the splitter.
     /// </summary>
     /// <value>The splitter.</value>
-    [DefaultValue(ImmutableColumn.cPartSplitterDefault)]
+    [DefaultValue(ValueFormatExtension.cPartSplitterDefault)]
     public virtual string PartSplitter
     {
-      get => m_PartSplitter;
-
-      set
-      {
-        var newVal = value.WrittenPunctuation();
-        if (m_PartSplitter.Equals(newVal))
-          return;
-        m_PartSplitter = newVal;
-        NotifyPropertyChanged(nameof(PartSplitter));
-      }
+      get => ValueFormatMutable.PartSplitter;
+      set => ValueFormatMutable.PartSplitter= value;
     }
 
     /// <summary>
@@ -378,25 +354,18 @@ namespace CsvTools
     /// <remarks>Used for XML Serialization</remarks>
 
     public bool PartSplitterSpecified =>
-      ValueFormatMutable.DataType == DataType.TextPart && !m_PartSplitter.Equals(ImmutableColumn.cPartSplitterDefault);
+      ValueFormatMutable.DataType == DataType.TextPart && !ValueFormatMutable.PartSplitter.Equals(ValueFormatExtension.cPartSplitterDefault);
 
     /// <summary>
     ///   Gets or sets the part for splitting.
     /// </summary>
     /// <value>The part starting with 1</value>
     [XmlAttribute]
-    [DefaultValue(ImmutableColumn.cPartToEnd)]
+    [DefaultValue(ValueFormatExtension.cPartToEndDefault)]
     public virtual bool PartToEnd
     {
-      get => m_PartToEnd;
-
-      set
-      {
-        if (m_PartToEnd.Equals(value))
-          return;
-        m_PartToEnd = value;
-        NotifyPropertyChanged(nameof(PartToEnd));
-      }
+      get => ValueFormatMutable.PartToEnd;
+      set => ValueFormatMutable.PartToEnd= value;
     }
 
     /// <summary>
@@ -549,9 +518,6 @@ namespace CsvTools
       other.ValueFormatMutable.CopyFrom(ValueFormatMutable);
 
       // other.ValueFormatMutable = m_ValueFormatMutable;
-      other.PartSplitter = m_PartSplitter;
-      other.Part = m_Part;
-      other.PartToEnd = m_PartToEnd;
       other.TimePartFormat = m_TimePartFormat;
       other.TimePart = m_TimePart;
       other.TimeZonePart = m_TimeZonePart;
@@ -580,8 +546,7 @@ namespace CsvTools
       return ColumnOrdinal == other.ColumnOrdinal
              && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
              && string.Equals(DestinationName, other.DestinationName, StringComparison.OrdinalIgnoreCase)
-             && Ignore == other.Ignore && Part == other.Part && PartSplitter == other.PartSplitter
-             && PartToEnd == other.PartToEnd
+             && Ignore == other.Ignore
              && string.Equals(TimePart, other.TimePart, StringComparison.OrdinalIgnoreCase)
              && string.Equals(TimePartFormat, other.TimePartFormat, StringComparison.Ordinal)
              && string.Equals(TimeZonePart, other.TimeZonePart, StringComparison.OrdinalIgnoreCase)

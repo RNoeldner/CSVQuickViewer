@@ -12,39 +12,21 @@
  *
  */
 
-
 namespace CsvTools.Tests
 {
   using Microsoft.VisualStudio.TestTools.UnitTesting;
 
   [TestClass]
-	public class ColumnExtensionTest
+  public class ColumnExtensionTest
   {
-		[TestMethod]
-		public void CopyToCloneEquals()
-		{
-			var col = new Column();
-			var col3 = new Column();
-			col.CopyTo(col3);
-			var col2 = col.Clone();
-			Assert.IsTrue(col2.Equals(col));
-		}
-
     [TestMethod]
-		public void GetFormatDescriptionTest()
-		{
-			var col = new Column();
-			Assert.AreEqual(string.Empty, col.GetFormatDescription());
-
-			col.ValueFormatMutable.DataType = DataType.TextPart;
-			Assert.AreNotEqual(string.Empty, col.GetFormatDescription());
-
-			col.ValueFormatMutable.DataType = DataType.DateTime;
-			Assert.AreNotEqual(string.Empty, col.GetFormatDescription());
-
-			col.ValueFormatMutable.DataType = DataType.Numeric;
-			Assert.AreNotEqual(string.Empty, col.GetFormatDescription());
-		}
-
+    public void CopyToCloneEquals()
+    {
+      var col = new Column();
+      var col3 = new Column();
+      col.CopyTo(col3);
+      var col2 = col.Clone();
+      Assert.IsTrue(col2.Equals(col));
+    }
   }
 }

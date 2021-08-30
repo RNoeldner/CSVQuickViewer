@@ -53,7 +53,7 @@ namespace CsvTools
         m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, newVal,
           m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
           m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs);
+          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(DateFormat));
       }
     }
@@ -76,7 +76,7 @@ namespace CsvTools
         m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
           newVal, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
           m_ImmutableValueFormat.GroupSeparator, newVal, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs);
+          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(DateSeparator));
       }
     }
@@ -106,7 +106,7 @@ namespace CsvTools
         m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
           m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
           newValGroup, newValDecimal, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs);
+          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(DecimalSeparator));
       }
     }
@@ -130,7 +130,7 @@ namespace CsvTools
         m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
           m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
           m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
-          newVal, m_ImmutableValueFormat.DisplayNullAs);
+          newVal, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(False));
       }
     }
@@ -159,7 +159,7 @@ namespace CsvTools
         m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
           m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
           newValGroup, newValDecimal, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs);
+          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
 
         NotifyPropertyChanged(nameof(GroupSeparator));
       }
@@ -188,7 +188,7 @@ namespace CsvTools
         m_ImmutableValueFormat = new ImmutableValueFormat(value, m_ImmutableValueFormat.DateFormat,
           m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
           m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs);
+          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(DataType));
       }
     }
@@ -233,7 +233,7 @@ namespace CsvTools
         m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
           m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, value,
           m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs);
+          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(NumberFormat));
       }
     }
@@ -255,7 +255,7 @@ namespace CsvTools
         m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
           m_ImmutableValueFormat.DateSeparator, newVal, m_ImmutableValueFormat.NumberFormat,
           m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs);
+          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(TimeSeparator));
       }
     }
@@ -277,8 +277,54 @@ namespace CsvTools
         m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
           m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
           m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, newVal,
-          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs);
+          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
         NotifyPropertyChanged(nameof(True));
+      }
+    }
+
+    public int Part
+    {
+      get => m_ImmutableValueFormat.Part;
+      set
+      {
+        if (m_ImmutableValueFormat.Part == value)
+          return;
+        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
+          m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
+          m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
+          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, value, m_ImmutableValueFormat.PartSplitter, m_ImmutableValueFormat.PartToEnd);
+        NotifyPropertyChanged(nameof(Part));
+      }
+    }
+
+    public string PartSplitter
+    {
+      get => m_ImmutableValueFormat.PartSplitter;
+      set
+      {
+        var newVal = (value??string.Empty).WrittenPunctuation();
+        if (m_ImmutableValueFormat.PartSplitter.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
+          m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
+          m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
+          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, newVal, m_ImmutableValueFormat.PartToEnd);
+        NotifyPropertyChanged(nameof(PartSplitter));
+      }
+    }
+
+    public bool PartToEnd
+    {
+      get => m_ImmutableValueFormat.PartToEnd;
+      set
+      {
+        if (m_ImmutableValueFormat.PartToEnd.Equals(value))
+          return;
+        m_ImmutableValueFormat = new ImmutableValueFormat(m_ImmutableValueFormat.DataType, m_ImmutableValueFormat.DateFormat,
+          m_ImmutableValueFormat.DateSeparator, m_ImmutableValueFormat.TimeSeparator, m_ImmutableValueFormat.NumberFormat,
+          m_ImmutableValueFormat.GroupSeparator, m_ImmutableValueFormat.DecimalSeparator, m_ImmutableValueFormat.True,
+          m_ImmutableValueFormat.False, m_ImmutableValueFormat.DisplayNullAs, m_ImmutableValueFormat.Part, m_ImmutableValueFormat.PartSplitter, value);
+        NotifyPropertyChanged(nameof(PartToEnd));
       }
     }
 
@@ -287,7 +333,7 @@ namespace CsvTools
     public void CopyFrom(IValueFormat other) =>
      m_ImmutableValueFormat = new ImmutableValueFormat(other.DataType, other.DateFormat, other.DateSeparator,
        other.TimeSeparator, other.NumberFormat, other.GroupSeparator, other.DecimalSeparator, other.True, other.False,
-       other.DisplayNullAs);
+       other.DisplayNullAs, other.Part, other.PartSplitter, other.PartToEnd);
 
     /// <summary>
     ///   Notifies the property changed.

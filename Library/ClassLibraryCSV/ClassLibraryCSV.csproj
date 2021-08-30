@@ -36,7 +36,13 @@
   <ItemGroup>
     <Compile Remove="CsvFileReaderAsync.cs" />
     <Compile Remove="DataTableReaderAsync.cs" />
+    <Compile Remove="Immutable\ImmutableColumnBase.cs" />
     <Compile Remove="Immutable\SettingReadOnly.cs" />
+    <Compile Remove="Mutable\ColumnBase.cs" />
+    <Compile Remove="Mutable\ColumnForBoolean.cs" />
+    <Compile Remove="Mutable\ColumnForDate.cs" />
+    <Compile Remove="Mutable\ColumnForNumber.cs" />
+    <Compile Remove="Mutable\ColumnForPart.cs" />
   </ItemGroup>
 
   <ItemGroup>

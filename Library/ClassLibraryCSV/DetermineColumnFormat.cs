@@ -414,8 +414,7 @@ namespace CsvTools
               columnCollection.Replace(new ImmutableColumn(columnCollection[colIndexSetting].Name,
                 columnCollection[colIndexSetting].ValueFormat, columnCollection[colIndexSetting].ColumnOrdinal,
                 columnCollection[colIndexSetting].Convert, columnCollection[colIndexSetting].DestinationName,
-                columnCollection[colIndexSetting].Ignore, columnCollection[colIndexSetting].Part,
-                columnCollection[colIndexSetting].PartSplitter, columnCollection[colIndexSetting].PartToEnd,
+                columnCollection[colIndexSetting].Ignore,
                 columnCollection[colIndexSetting].TimePart, columnCollection[colIndexSetting].TimePartFormat,
                 columnTimeZone.Name));
               Logger.Information("{column} – Added Time Zone : {column2}", readerColumn.Name, columnTimeZone.Name);
@@ -443,9 +442,7 @@ namespace CsvTools
             columnCollection.Replace(new ImmutableColumn(columnCollection[colIndexSetting].Name,
               columnCollection[colIndexSetting].ValueFormat, columnCollection[colIndexSetting].ColumnOrdinal,
               columnCollection[colIndexSetting].Convert, columnCollection[colIndexSetting].DestinationName,
-              columnCollection[colIndexSetting].Ignore, columnCollection[colIndexSetting].Part,
-              columnCollection[colIndexSetting].PartSplitter, columnCollection[colIndexSetting].PartToEnd,
-              columnTime.Name, timeFormat.DateFormat,
+              columnCollection[colIndexSetting].Ignore, columnTime.Name, timeFormat.DateFormat,
               columnCollection[colIndexSetting].TimeZonePart));
 
             Logger.Information("{column} – Added Time Part : {column2}", readerColumn.Name, columnTime.Name);
@@ -480,9 +477,7 @@ namespace CsvTools
               columnCollection.Replace(new ImmutableColumn(columnCollection[colIndexSetting].Name,
                 columnCollection[colIndexSetting].ValueFormat, columnCollection[colIndexSetting].ColumnOrdinal,
                 columnCollection[colIndexSetting].Convert, columnCollection[colIndexSetting].DestinationName,
-                columnCollection[colIndexSetting].Ignore, columnCollection[colIndexSetting].Part,
-                columnCollection[colIndexSetting].PartSplitter, columnCollection[colIndexSetting].PartToEnd,
-                columnTime.Name, columnCollection[colIndexSetting].TimePartFormat,
+                columnCollection[colIndexSetting].Ignore, columnTime.Name, columnCollection[colIndexSetting].TimePartFormat,
                 columnCollection[colIndexSetting].TimeZonePart));
 
               var samples = sampleList.Keys.Contains(colIndex + 1)
@@ -523,9 +518,7 @@ namespace CsvTools
             columnCollection.Replace(new ImmutableColumn(columnCollection[colIndexSetting].Name,
               columnCollection[colIndexSetting].ValueFormat, columnCollection[colIndexSetting].ColumnOrdinal,
               columnCollection[colIndexSetting].Convert, columnCollection[colIndexSetting].DestinationName,
-              columnCollection[colIndexSetting].Ignore, columnCollection[colIndexSetting].Part,
-              columnCollection[colIndexSetting].PartSplitter, columnCollection[colIndexSetting].PartToEnd,
-              readerColumnTime.Name, columnCollection[colIndexSetting].TimePartFormat,
+              columnCollection[colIndexSetting].Ignore, readerColumnTime.Name, columnCollection[colIndexSetting].TimePartFormat,
               columnCollection[colIndexSetting].TimeZonePart));
 
             var samples = sampleList.Keys.Contains(colIndex - 1)
@@ -539,9 +532,7 @@ namespace CsvTools
                 columnCollection.Replace(new ImmutableColumn(columnCollection[colIndexSetting].Name,
                   columnCollection[colIndexSetting].ValueFormat, columnCollection[colIndexSetting].ColumnOrdinal,
                   columnCollection[colIndexSetting].Convert, columnCollection[colIndexSetting].DestinationName,
-                  columnCollection[colIndexSetting].Ignore, columnCollection[colIndexSetting].Part,
-                  columnCollection[colIndexSetting].PartSplitter, columnCollection[colIndexSetting].PartToEnd,
-                  columnCollection[colIndexSetting].TimePart, first.Length == 8 ? "HH:mm:ss" : "HH:mm",
+                  columnCollection[colIndexSetting].Ignore, columnCollection[colIndexSetting].TimePart, first.Length == 8 ? "HH:mm:ss" : "HH:mm",
                   columnCollection[colIndexSetting].TimeZonePart));
 
                 Logger.Information("{column} – Format : {format}", columnCollection[colIndexSetting].Name,

@@ -27,12 +27,6 @@ namespace CsvTools
 
     string Name { get; }
 
-    int Part { get; }
-
-    string PartSplitter { get; }
-
-    bool PartToEnd { get; }
-
     string TimePart { get; }
 
     string TimePartFormat { get; }

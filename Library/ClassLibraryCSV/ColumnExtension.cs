@@ -19,18 +19,6 @@ namespace CsvTools
   public static class ColumnExtension
   {
     /// <summary>
-    ///   Gets the a description of the Date or Number format
-    /// </summary>
-    /// <returns></returns>
-    public static string GetFormatDescription(this IColumn column)
-    {
-      if (column.ValueFormat.DataType == DataType.TextPart)
-        return column.Part + (column.PartToEnd ? " To End" : string.Empty);
-
-      return column.ValueFormat.GetFormatDescription();
-    }
-
-    /// <summary>
     ///   Gets the description.
     /// </summary>
     /// <returns></returns>
@@ -38,7 +26,7 @@ namespace CsvTools
     {
       var stringBuilder = new StringBuilder(column.ValueFormat.DataType.DataTypeDisplay());
 
-      var shortDesc = column.GetFormatDescription();
+      var shortDesc = column.ValueFormat.GetFormatDescription();
       if (shortDesc.Length > 0)
       {
         stringBuilder.Append(" (");
