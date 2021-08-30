@@ -52,7 +52,7 @@ namespace CsvTools
       bool byteOrderMark = true,
       in IEnumerable<IColumn>? columnDefinition = null,
       in string? recipient = null,
-      bool unencyrpted = false,
+      bool unencrypted = false,
       in string? identifierInContainer = null,
       in string? header = null,
       in string? footer = null,
@@ -64,7 +64,7 @@ namespace CsvTools
         valueFormat,
         fileFormat,
         recipient,
-        unencyrpted,
+        unencrypted,
         identifierInContainer,
         footer,
         header,
@@ -80,7 +80,7 @@ namespace CsvTools
 
       if (fileFormat?.EscapeChar != '\0')
       {
-        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d};
+        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d };
         m_FieldQualifierEscaped = fileFormat?.EscapeChar + m_FieldQualifier;
         m_FieldDelimiterEscaped = fileFormat?.EscapeChar + m_FieldDelimiter;
       }
@@ -89,7 +89,7 @@ namespace CsvTools
         // Delimiters are not escaped
         m_FieldDelimiterEscaped = m_FieldDelimiter;
         // but require quoting
-        m_QualifyCharArray = new[] {(char) 0x0a, (char) 0x0d, fileFormat.FieldDelimiterChar};
+        m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d, fileFormat.FieldDelimiterChar };
 
         // the Qualifier is repeated to so it can be recognized as not to be end the quoting
         m_FieldQualifierEscaped = m_FieldQualifier + m_FieldQualifier;

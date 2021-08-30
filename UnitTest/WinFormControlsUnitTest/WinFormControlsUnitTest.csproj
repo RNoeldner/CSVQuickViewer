@@ -14,17 +14,12 @@
     <DefineConstants>Windows</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\ClassLibraryCSVUnitTest\MimicSQLReader.cs" Link="MimicSQLReader.cs" />
-    <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestHelper.cs" Link="UnitTestHelper.cs" />
-    <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestInitializeCsv.cs" Link="UnitTestInitializeCsv.cs" />
-    <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.6" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Library\WinFormControls\WinFormControls.csproj" />
+    <ProjectReference Include="..\UnitTestBasic\UnitTestBasic.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FastColoredTextBox">

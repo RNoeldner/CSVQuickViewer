@@ -17,7 +17,7 @@ using System;
 namespace CsvTools
 {
   public interface IColumnFormatter
-  {
-    string FormatText(in string input, Action<string>? handleWarnig);
-  }
+	{
+		string FormatText(in string input, Action<string>? handleWarning);
+	}
 }

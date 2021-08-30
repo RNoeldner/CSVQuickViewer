@@ -61,7 +61,7 @@ namespace CsvTools.Tests
       writeFile.FileName =  UnitTestInitializeCsv.GetTestPath("BasicCSVOut2tzc.txt");
 
       FileSystemUtils.FileDelete(writeFile.FileName);
-      var setting = UnitTestHelper.ReaderGetAllFormats();
+      var setting = UnitTestStatic.ReaderGetAllFormats();
 
       UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting);
       writeFile.SqlStatement = setting.ID;
@@ -110,7 +110,7 @@ namespace CsvTools.Tests
       writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut2.txt");
 
       FileSystemUtils.FileDelete(writeFile.FileName);
-      var setting = UnitTestHelper.ReaderGetAllFormats();
+      var setting = UnitTestStatic.ReaderGetAllFormats();
 
       UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting);
       writeFile.SqlStatement = setting.ID;

@@ -20,34 +20,34 @@ namespace CsvTools
   ///   Setting file for XML files, its an implementation of <see cref="StructuredFile" />
   /// </summary>
   [Serializable]
-  public class XMLFile : StructuredFile, IXMLFile
+	public class XMLFile : StructuredFile, IXMLFile
 
-  {
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
-    /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    public XMLFile(string fileName)
-      : base(fileName)
-    {
-    }
+	{
+		/// <summary>
+		///   Initializes a new instance of the <see cref="StructuredFile" /> class.
+		/// </summary>
+		/// <param name="fileName">Name of the file.</param>
+		public XMLFile(string fileName)
+			: base(fileName)
+		{
+		}
 
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
-    /// </summary>
-    public XMLFile()
-      : this(string.Empty)
-    {
-    }
+		/// <summary>
+		///   Initializes a new instance of the <see cref="StructuredFile" /> class.
+		/// </summary>
+		public XMLFile()
+			: this(string.Empty)
+		{
+		}
 
-    public override IFileSetting Clone()
-    {
-      var other = new XMLFile();
-      CopyTo(other);
-      return other;
-    }
+		public override IFileSetting Clone()
+		{
+			var other = new XMLFile();
+			CopyTo(other);
+			return other;
+		}
 
-    public override bool Equals(IFileSetting? other) =>
-      other is IXMLFile json && BaseSettingsEquals(json as StructuredFile);
-  }
+		public override bool Equals(IFileSetting? other) =>
+			other is IXMLFile json && BaseSettingsEquals(json as StructuredFile);
+	}
 }

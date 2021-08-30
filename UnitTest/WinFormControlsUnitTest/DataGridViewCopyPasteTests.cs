@@ -22,7 +22,6 @@ namespace CsvTools.Tests
   [TestClass]
   public class DataGridViewCopyPasteTests
   {
-    private readonly HTMLStyle m_HTMLStyle = new HTMLStyle();
 
     [TestMethod]
     [Timeout(2000)]
@@ -41,7 +40,7 @@ namespace CsvTools.Tests
               frm.Controls.Add(dgv);
               frm.Show();
               dgv.SelectAll();
-              var cp = new DataGridViewCopyPaste(m_HTMLStyle);
+              var cp = new DataGridViewCopyPaste(UnitTestInitializeCsv.HTMLStyle);
               cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestInitializeCsv.Token);
             }
           }
@@ -71,7 +70,7 @@ namespace CsvTools.Tests
               Clipboard.Clear();
               try
               {
-                var cp = new DataGridViewCopyPaste(UnitTestInitializeWin.HTMLStyle);
+                var cp = new DataGridViewCopyPaste(UnitTestInitializeCsv.HTMLStyle);
                 cp.SelectedDataIntoClipboard(dgv, false, true, UnitTestInitializeCsv.Token);
 
 								var dataObject = Clipboard.GetDataObject();
@@ -110,7 +109,7 @@ namespace CsvTools.Tests
               try
               {
                 Clipboard.Clear();
-                var cp = new DataGridViewCopyPaste(UnitTestInitializeWin.HTMLStyle);
+                var cp = new DataGridViewCopyPaste(UnitTestInitializeCsv.HTMLStyle);
                 cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestInitializeCsv.Token);
                 var dataObject = Clipboard.GetDataObject();
                 Assert.IsNotNull(dataObject);
@@ -146,7 +145,7 @@ namespace CsvTools.Tests
               try
               {
                 Clipboard.Clear();
-                var cp = new DataGridViewCopyPaste(UnitTestInitializeWin.HTMLStyle);
+                var cp = new DataGridViewCopyPaste(UnitTestInitializeCsv.HTMLStyle);
                 cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestInitializeCsv.Token);
                 var dataObject = Clipboard.GetDataObject();
                 Assert.IsNotNull(dataObject);

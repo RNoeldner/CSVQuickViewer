@@ -7,40 +7,16 @@
     <RootNamespace>CsvTools.Tests</RootNamespace>
     <TestProjectType>UnitTest</TestProjectType>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;Windows</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>Windows</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;Windows</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>TRACE;Windows</DefineConstants>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="..\ClassLibraryCSVUnitTest\MimicSQLReader.cs" Link="MimicSQLReader.cs" />
-    <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestHelper.cs" Link="UnitTestHelper.cs" />
-    <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestInitializeCsv.cs" Link="UnitTestInitializeCsv.cs" />
-    <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
-    <Compile Include="..\WinFormControlsUnitTest\TestForm.cs" Link="TestForm.cs" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.6" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Application\CSVQuickViewer.csproj" />
+    <ProjectReference Include="..\UnitTestBasic\UnitTestBasic.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="UnitTestInitializeWin.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="TestFiles\AllFormatsPipe.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="TestFiles\BasicCSV.txt.gz">
+    <None Update="TestFiles\*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

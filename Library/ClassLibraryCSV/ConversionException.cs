@@ -17,15 +17,15 @@ using System;
 namespace CsvTools
 {
   public class ConversionException : ApplicationException
-  {
-    public ConversionException(string message)
-      : base(message)
-    {
-    }
+	{
+		public ConversionException(string message)
+			: base(message)
+		{
+		}
 
-    public ConversionException(string message, Exception inner)
-      : base(message, inner)
-    {
-    }
-  }
+		public ConversionException(string message, Exception inner)
+			: base(message, inner)
+		{
+		}
+	}
 }

@@ -17,11 +17,11 @@ namespace CsvTools
   public class WriterColumn : ImmutableColumn
   {
     public WriterColumn(
-      string name,
+      in string name,
       int colNum,
-      IValueFormat valueFormat,
+      in IValueFormat valueFormat,
       int fieldLength = 0,
-      string constantTimeZone = "",
+      in string constantTimeZone = "",
       int columnOrdinalTimeZone = -1)
       : base(name, valueFormat, colNum)
     {

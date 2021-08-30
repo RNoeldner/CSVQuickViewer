@@ -22,7 +22,6 @@ namespace CsvTools.Tests
   [TestClass]
   public class DetailControlTests
   {
-    private readonly HTMLStyle m_HTMLStyle = new HTMLStyle();
     private readonly Random random = new Random(Guid.NewGuid().GetHashCode());
 
 		[TestMethod]
@@ -51,7 +50,7 @@ namespace CsvTools.Tests
 
         using (var dc = new DetailControl())
         {
-          dc.HTMLStyle = UnitTestInitializeWin.HTMLStyle;
+          dc.HTMLStyle = UnitTestInitializeCsv.HTMLStyle;
           dc.Show();
           dc.DataTable = dt;
           
@@ -84,7 +83,7 @@ namespace CsvTools.Tests
 
         using (var dc = new DetailControl())
         {
-          dc.HTMLStyle = UnitTestInitializeWin.HTMLStyle;
+          dc.HTMLStyle = UnitTestInitializeCsv.HTMLStyle;
           dc.Show();
           dc.DataTable = dt;
           await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);

@@ -962,7 +962,7 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task ProcessDisplayUpdateShowProgress()
     {
-      var setting = UnitTestHelper.ReaderGetAllFormats();
+      var setting = UnitTestStatic.ReaderGetAllFormats();
       var processDisplay = new MockProcessDisplay();
       var stopped = false;
       processDisplay.ProgressStopEvent += delegate { stopped = true; };

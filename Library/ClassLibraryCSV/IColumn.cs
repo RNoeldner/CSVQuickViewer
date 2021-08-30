@@ -17,23 +17,23 @@ using System;
 namespace CsvTools
 {
   public interface IColumn : ICloneable<IColumn>, IEquatable<IColumn>
-  {
-    int ColumnOrdinal { get; }
+	{
+		int ColumnOrdinal { get; }
 
-    bool Convert { get; }
+		bool Convert { get; }
 
-    string DestinationName { get; }
+		string DestinationName { get; }
 
-    bool Ignore { get; }
+		bool Ignore { get; }
 
-    string Name { get; }
+		string Name { get; }
 
-    string TimePart { get; }
+		string TimePart { get; }
 
-    string TimePartFormat { get; }
+		string TimePartFormat { get; }
 
-    string TimeZonePart { get; }
+		string TimeZonePart { get; }
 
-    IValueFormat ValueFormat { get; }
-  }
+		IValueFormat ValueFormat { get; }
+	}
 }
