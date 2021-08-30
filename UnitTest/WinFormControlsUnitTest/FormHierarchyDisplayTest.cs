@@ -8,7 +8,6 @@ namespace CsvTools.Tests
   [TestClass]
   public class FormHierarchyDisplayTest
   {
-    private readonly HTMLStyle m_HTMLStyle = new HTMLStyle();
 
     [TestMethod]
     [Timeout(5000)]
@@ -16,7 +15,7 @@ namespace CsvTools.Tests
     {
       using (var treeView = new MultiselectTreeView())
       {
-        treeView.HTMLStyle = m_HTMLStyle;
+        treeView.HTMLStyle = UnitTestInitializeCsv.HTMLStyle;
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
         var treeNode = new TreeNode("Test") { Tag = "test" };
@@ -65,7 +64,7 @@ namespace CsvTools.Tests
     {
       using (var treeView = new MultiselectTreeView())
       {
-        treeView.HTMLStyle = m_HTMLStyle;
+        treeView.HTMLStyle = UnitTestInitializeCsv.HTMLStyle;
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
         var td1 = new FormHierarchyDisplay.TreeData("1", "Test One") { Tag = "T1" };
@@ -123,7 +122,7 @@ namespace CsvTools.Tests
     public void FormHierarchyDisplay()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), m_HTMLStyle))
+      using (var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), UnitTestInitializeCsv.HTMLStyle))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form, 0.1, (frm) =>
         {
@@ -148,7 +147,7 @@ namespace CsvTools.Tests
       var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null,
         processDisplay.CancellationToken);
 
-      using var form = new FormHierarchyDisplay(dt!, dataTable.Select(), m_HTMLStyle);
+      using var form = new FormHierarchyDisplay(dt!, dataTable.Select(), UnitTestInitializeCsv.HTMLStyle);
       UnitTestWinFormHelper.ShowFormAndClose(form, .1, (frm) =>
       {
         if (!(frm is FormHierarchyDisplay hd))

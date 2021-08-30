@@ -17,48 +17,48 @@ using System.Text;
 namespace CsvTools
 {
   public static class ColumnExtension
-  {
-    /// <summary>
-    ///   Gets the description.
-    /// </summary>
-    /// <returns></returns>
-    public static string GetTypeAndFormatDescription(this IColumn column, bool addTime = true)
-    {
-      var stringBuilder = new StringBuilder(column.ValueFormat.DataType.DataTypeDisplay());
+	{
+		/// <summary>
+		///   Gets the description.
+		/// </summary>
+		/// <returns></returns>
+		public static string GetTypeAndFormatDescription(this IColumn column, bool addTime = true)
+		{
+			var stringBuilder = new StringBuilder(column.ValueFormat.DataType.DataTypeDisplay());
 
-      var shortDesc = column.ValueFormat.GetFormatDescription();
-      if (shortDesc.Length > 0)
-      {
-        stringBuilder.Append(" (");
-        stringBuilder.Append(shortDesc);
-        stringBuilder.Append(")");
-      }
+			var shortDesc = column.ValueFormat.GetFormatDescription();
+			if (shortDesc.Length > 0)
+			{
+				stringBuilder.Append(" (");
+				stringBuilder.Append(shortDesc);
+				stringBuilder.Append(")");
+			}
 
-      if (addTime && column.ValueFormat.DataType == DataType.DateTime)
-      {
-        if (column.TimePart.Length > 0)
-        {
-          stringBuilder.Append(" + ");
-          stringBuilder.Append(column.TimePart);
-          if (column.TimePartFormat.Length > 0)
-          {
-            stringBuilder.Append(" (");
-            stringBuilder.Append(column.TimePartFormat);
-            stringBuilder.Append(")");
-          }
-        }
+			if (addTime && column.ValueFormat.DataType == DataType.DateTime)
+			{
+				if (column.TimePart.Length > 0)
+				{
+					stringBuilder.Append(" + ");
+					stringBuilder.Append(column.TimePart);
+					if (column.TimePartFormat.Length > 0)
+					{
+						stringBuilder.Append(" (");
+						stringBuilder.Append(column.TimePartFormat);
+						stringBuilder.Append(")");
+					}
+				}
 
-        if (column.TimeZonePart.Length > 0)
-        {
-          stringBuilder.Append(" - ");
-          stringBuilder.Append(column.TimeZonePart);
-        }
-      }
+				if (column.TimeZonePart.Length > 0)
+				{
+					stringBuilder.Append(" - ");
+					stringBuilder.Append(column.TimeZonePart);
+				}
+			}
 
-      if (column.Ignore)
-        stringBuilder.Append(" (Ignore)");
+			if (column.Ignore)
+				stringBuilder.Append(" (Ignore)");
 
-      return stringBuilder.ToString();
-    }
-  }
+			return stringBuilder.ToString();
+		}
+	}
 }

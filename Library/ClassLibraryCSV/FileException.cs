@@ -17,15 +17,15 @@ using System;
 namespace CsvTools
 {
   public class FileException : ApplicationException
-  {
-    public FileException(string message)
-      : base(message)
-    {
-    }
+	{
+		public FileException(string message)
+			: base(message)
+		{
+		}
 
-    public FileException(string message, Exception inner)
-      : base(message, inner)
-    {
-    }
-  }
+		public FileException(string message, Exception inner)
+			: base(message, inner)
+		{
+		}
+	}
 }

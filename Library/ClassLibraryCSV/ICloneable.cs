@@ -19,11 +19,11 @@ namespace CsvTools
   /// </summary>
   /// <typeparam name="T">Type</typeparam>
   public interface ICloneable<out T>
-  {
-    /// <summary>
-    ///   Clones this instance into a new instance of the same type
-    /// </summary>
-    /// <returns></returns>
-    T Clone();
-  }
+	{
+		/// <summary>
+		///   Clones this instance into a new instance of the same type
+		/// </summary>
+		/// <returns></returns>
+		T Clone();
+	}
 }

@@ -23,93 +23,93 @@ namespace CsvTools
   ///   Setting to store a Field Mapping
   /// </summary>
   [DebuggerDisplay("Mapping(File/Source: {FileColumn} -> Template/Destination {TemplateField})")]
-  [Serializable]
-  public sealed class Mapping : IEquatable<Mapping>, ICloneable<Mapping>
-  {
-    public Mapping()
-      : this(string.Empty, string.Empty)
-    {
-    }
+	[Serializable]
+	public sealed class Mapping : IEquatable<Mapping>, ICloneable<Mapping>
+	{
+		public Mapping()
+			: this(string.Empty, string.Empty)
+		{
+		}
 
-    public Mapping(string fileColumn, string templateField, bool update = false, bool attention = false)
-    {
-      FileColumn = fileColumn;
-      TemplateField = templateField;
-      Update = update;
-      Attention = attention;
-    }
+		public Mapping(string fileColumn, string templateField, bool update = false, bool attention = false)
+		{
+			FileColumn = fileColumn;
+			TemplateField = templateField;
+			Update = update;
+			Attention = attention;
+		}
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether this <see cref="Mapping" /> required additional attention
-    /// </summary>
-    /// <value><c>true</c> if attention; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public bool Attention
-    {
-      get;
-      set;
-    }
+		/// <summary>
+		///   Gets or sets a value indicating whether this <see cref="Mapping" /> required additional attention
+		/// </summary>
+		/// <value><c>true</c> if attention; otherwise, <c>false</c>.</value>
+		[XmlAttribute]
+		[DefaultValue(false)]
+		public bool Attention
+		{
+			get;
+			set;
+		}
 
-    /// <summary>
-    ///   Gets or sets the Source := File Column.
-    /// </summary>
-    /// <value>The source.</value>
-    /// <remarks>The set operator is only present to allow serialization</remarks>
-    [XmlAttribute("Column")]
-    public string FileColumn { get; set; }
+		/// <summary>
+		///   Gets or sets the Source := File Column.
+		/// </summary>
+		/// <value>The source.</value>
+		/// <remarks>The set operator is only present to allow serialization</remarks>
+		[XmlAttribute("Column")]
+		public string FileColumn { get; set; }
 
-    /// <summary>
-    ///   Gets or sets the := Template Column.
-    /// </summary>
-    /// <value>The destination.</value>
-    /// <remarks>The set operator is only present to allow serialization</remarks>
-    [XmlAttribute("Field")]
-    public string TemplateField { get; set; }
+		/// <summary>
+		///   Gets or sets the := Template Column.
+		/// </summary>
+		/// <value>The destination.</value>
+		/// <remarks>The set operator is only present to allow serialization</remarks>
+		[XmlAttribute("Field")]
+		public string TemplateField { get; set; }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether this <see cref="Mapping" /> should be used for update
-    /// </summary>
-    /// <value><c>true</c> if it should be regarded for updates; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public bool Update
-    {
-      get;
-      set;
-    }
+		/// <summary>
+		///   Gets or sets a value indicating whether this <see cref="Mapping" /> should be used for update
+		/// </summary>
+		/// <value><c>true</c> if it should be regarded for updates; otherwise, <c>false</c>.</value>
+		[XmlAttribute]
+		[DefaultValue(false)]
+		public bool Update
+		{
+			get;
+			set;
+		}
 
-    /// <summary>
-    ///   Clones this instance.
-    /// </summary>
-    /// <returns>A new FieldMapping that is a copy</returns>
-    public Mapping Clone() => new Mapping(FileColumn, TemplateField, Update, Attention);
+		/// <summary>
+		///   Clones this instance.
+		/// </summary>
+		/// <returns>A new FieldMapping that is a copy</returns>
+		public Mapping Clone() => new Mapping(FileColumn, TemplateField, Update, Attention);
 
-    /// <summary>
-    ///   Indicates whether the current object is equal to another object of the same type.
-    /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
-    ///   parameter; otherwise, <see langword="false" />.
-    /// </returns>
-    public bool Equals(Mapping? other)
-    {
-      if (other is null)
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return Attention == other.Attention && Update == other.Update
-                                          && string.Equals(
-                                            FileColumn,
-                                            other.FileColumn,
-                                            StringComparison.OrdinalIgnoreCase) && string.Equals(
-                                            TemplateField,
-                                            other.TemplateField,
-                                            StringComparison.OrdinalIgnoreCase);
-    }
+		/// <summary>
+		///   Indicates whether the current object is equal to another object of the same type.
+		/// </summary>
+		/// <param name="other">An object to compare with this object.</param>
+		/// <returns>
+		///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
+		///   parameter; otherwise, <see langword="false" />.
+		/// </returns>
+		public bool Equals(Mapping? other)
+		{
+			if (other is null)
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return Attention == other.Attention && Update == other.Update
+																					&& string.Equals(
+																						FileColumn,
+																						other.FileColumn,
+																						StringComparison.OrdinalIgnoreCase) && string.Equals(
+																						TemplateField,
+																						other.TemplateField,
+																						StringComparison.OrdinalIgnoreCase);
+		}
 
-    /*
+		/*
         /// <summary>
         ///   Serves as the default hash function.
         /// </summary>
@@ -126,5 +126,5 @@ namespace CsvTools
           }
         }
     */
-  }
+	}
 }

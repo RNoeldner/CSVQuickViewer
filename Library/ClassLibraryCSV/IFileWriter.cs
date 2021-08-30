@@ -23,23 +23,23 @@ namespace CsvTools
   ///   Interface for a File Writer.
   /// </summary>
   public interface IFileWriter
-  {
-    /// <summary>
-    ///   Event handler called if a warning or error occurred
-    /// </summary>
-    event EventHandler<WarningEventArgs>? Warning;
+	{
+		/// <summary>
+		///   Event handler called if a warning or error occurred
+		/// </summary>
+		event EventHandler<WarningEventArgs>? Warning;
 
-    /// <summary>
-    ///   Event handler called once writing of the file is completed
-    /// </summary>
-    event EventHandler? WriteFinished;
+		/// <summary>
+		///   Event handler called once writing of the file is completed
+		/// </summary>
+		event EventHandler? WriteFinished;
 
-    /// <summary>
-    ///   Writes the specified file reading from the a data table
-    /// </summary>
-    /// <param name="source">The data that should be written in a <see cref="DataTable" /></param>
-    /// <param name="token">A cancellation toke to stop a long running process</param>
-    /// <returns>Number of records written</returns>
-    Task<long> WriteAsync(IFileReader? source, CancellationToken token);
-  }
+		/// <summary>
+		///   Writes the specified file reading from the a data table
+		/// </summary>
+		/// <param name="source">The data that should be written in a <see cref="DataTable" /></param>
+		/// <param name="token">A cancellation toke to stop a long running process</param>
+		/// <returns>Number of records written</returns>
+		Task<long> WriteAsync(IFileReader? source, CancellationToken token);
+	}
 }

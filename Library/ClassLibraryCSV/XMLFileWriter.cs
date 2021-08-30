@@ -21,44 +21,44 @@ namespace CsvTools
   ///   A class to write structured XML Files
   /// </summary>
   public class XMLFileWriter : StructuredFileWriter
-  {
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="XMLFileWriter" /> class.
-    /// </summary>
-    public XMLFileWriter(
-      string id,
-      string fullPath,
-      IValueFormat? valueFormatGeneral = null,
-      IFileFormat? fileFormat = null,
-      string? recipient = null,
-      bool unencrypted = false,
-      string? identifierInContainer = null,
-      string? footer = null,
-      string? header = null,
-      IEnumerable<IColumn>? columnDefinition = null,
-      string fileSettingDisplay = "",
-      string row = "",
-      IProcessDisplay? processDisplay = null)
-      : base(
-        id,
-        fullPath,
-        valueFormatGeneral,
-        fileFormat,
-        recipient,
-        unencrypted,
-        identifierInContainer,
-        footer,
-        header,
-        columnDefinition,
-        fileSettingDisplay,
-        row,
-        processDisplay)
-    {
-    }
+	{
+		/// <summary>
+		///   Initializes a new instance of the <see cref="XMLFileWriter" /> class.
+		/// </summary>
+		public XMLFileWriter(
+      in string id,
+      in string fullPath,
+      in IValueFormat? valueFormatGeneral = null,
+      in IFileFormat? fileFormat = null,
+      in string? recipient = null,
+			bool unencrypted = false,
+      in string? identifierInContainer = null,
+      in string? footer = null,
+      in string? header = null,
+      in IEnumerable<IColumn>? columnDefinition = null,
+      in string fileSettingDisplay = "",
+      in string row = "",
+      in IProcessDisplay? processDisplay = null)
+			: base(
+				id,
+				fullPath,
+				valueFormatGeneral,
+				fileFormat,
+				recipient,
+				unencrypted,
+				identifierInContainer,
+				footer,
+				header,
+				columnDefinition,
+				fileSettingDisplay,
+				row,
+				processDisplay)
+		{
+		}
 
-    protected override string ElementName(string input) => HTMLStyle.XmlElementName(input);
+		protected override string ElementName(string input) => HTMLStyle.XmlElementName(input);
 
-    protected override string Escape(object input, WriterColumn columnInfo, IFileReader reader) =>
-      SecurityElement.Escape(TextEncodeField(FileFormat, input, columnInfo, false, reader, null)) ?? string.Empty;
-  }
+		protected override string Escape(object input, in WriterColumn columnInfo, in IFileReader reader) =>
+			SecurityElement.Escape(TextEncodeField(FileFormat, input, columnInfo, false, reader, null)) ?? string.Empty;
+	}
 }

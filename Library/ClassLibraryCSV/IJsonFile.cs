@@ -15,7 +15,7 @@
 namespace CsvTools
 {
   public interface IJsonFile : IFileSettingPhysicalFile
-  {
-    string Row { get; set; }
-  }
+	{
+		string Row { get; set; }
+	}
 }

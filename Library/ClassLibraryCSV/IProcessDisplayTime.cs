@@ -20,19 +20,19 @@ namespace CsvTools
   ///   Interface for an ProcessDisplay
   /// </summary>
   public interface IProcessDisplayTime : IProcessDisplay
-  {
-    event EventHandler<ProgressEventArgsTime>? ProgressTime;
+	{
+		event EventHandler<ProgressEventArgsTime>? ProgressTime;
 
-    event EventHandler<long>? SetMaximum;
+		event EventHandler<long>? SetMaximum;
 
-    /// <summary>
-    ///   Gets or sets the maximum value for the Progress
-    /// </summary>
-    /// <value>
-    ///   The maximum value.
-    /// </value>
-    long Maximum { get; set; }
+		/// <summary>
+		///   Gets or sets the maximum value for the Progress
+		/// </summary>
+		/// <value>
+		///   The maximum value.
+		/// </value>
+		long Maximum { get; set; }
 
-    TimeToCompletion TimeToCompletion { get; }
-  }
+		TimeToCompletion TimeToCompletion { get; }
+	}
 }

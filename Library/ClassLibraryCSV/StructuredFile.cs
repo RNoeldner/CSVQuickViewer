@@ -22,66 +22,66 @@ namespace CsvTools
   ///   Setting for StructuredFile
   /// </summary>
   public abstract class StructuredFile : BaseSettingPhysicalFile
-  {
-    private string m_Row = string.Empty;
+	{
+		private string m_Row = string.Empty;
 
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
-    /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    public StructuredFile(string fileName)
-      : base(fileName)
-    {
-    }
+		/// <summary>
+		///   Initializes a new instance of the <see cref="StructuredFile" /> class.
+		/// </summary>
+		/// <param name="fileName">Name of the file.</param>
+		public StructuredFile(string fileName)
+			: base(fileName)
+		{
+		}
 
-    /// <summary>
-    ///   Template for a row
-    /// </summary>
-    [XmlElement]
-    [DefaultValue("")]
-    public string Row
-    {
-      get => m_Row;
+		/// <summary>
+		///   Template for a row
+		/// </summary>
+		[XmlElement]
+		[DefaultValue("")]
+		public string Row
+		{
+			get => m_Row;
 
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_Row.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_Row = newVal;
-        NotifyPropertyChanged(nameof(Row));
-      }
-    }
+			set
+			{
+				var newVal = value ?? string.Empty;
+				if (m_Row.Equals(newVal, StringComparison.Ordinal))
+					return;
+				m_Row = newVal;
+				NotifyPropertyChanged(nameof(Row));
+			}
+		}
 
-    /// <summary>
-    ///   Indicates whether the current object is equal to another object of the same type.
-    /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
-    ///   parameter; otherwise, <see langword="false" />.
-    /// </returns>
-    public bool BaseSettingsEquals(StructuredFile? other)
-    {
-      if (other is null)
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return string.Equals(m_Row, other.Row, StringComparison.Ordinal) && base.BaseSettingsEquals(other);
-    }
+		/// <summary>
+		///   Indicates whether the current object is equal to another object of the same type.
+		/// </summary>
+		/// <param name="other">An object to compare with this object.</param>
+		/// <returns>
+		///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
+		///   parameter; otherwise, <see langword="false" />.
+		/// </returns>
+		public bool BaseSettingsEquals(in StructuredFile? other)
+		{
+			if (other is null)
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return string.Equals(m_Row, other.Row, StringComparison.Ordinal) && base.BaseSettingsEquals(other);
+		}
 
-    /// <summary>
-    ///   Copies all values to other instance
-    /// </summary>
-    /// <param name="other">The other.</param>
-    public override void CopyTo(IFileSetting other)
-    {
-      BaseSettingsCopyTo((BaseSettings) other);
+		/// <summary>
+		///   Copies all values to other instance
+		/// </summary>
+		/// <param name="other">The other.</param>
+		public override void CopyTo(IFileSetting other)
+		{
+			BaseSettingsCopyTo((BaseSettings) other);
 
-      if (!(other is StructuredFile otherSwf))
-        return;
+			if (!(other is StructuredFile otherSwf))
+				return;
 
-      otherSwf.Row = m_Row;
-    }
-  }
+			otherSwf.Row = m_Row;
+		}
+	}
 }

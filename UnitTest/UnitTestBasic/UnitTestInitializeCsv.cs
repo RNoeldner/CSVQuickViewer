@@ -13,7 +13,6 @@
  */
 #nullable enable
 
-using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -25,8 +24,9 @@ namespace CsvTools.Tests
   [TestClass]
 	public static class UnitTestInitializeCsv
 	{
+		public static HTMLStyle HTMLStyle { get; } = new HTMLStyle();
 		public static CancellationToken Token;
-		public static string ApplicationDirectory = Path.Combine(FileSystemUtils.ExecutableDirectoryName(), "TestFiles");
+		public static readonly string ApplicationDirectory = Path.Combine(FileSystemUtils.ExecutableDirectoryName(), "TestFiles");
 
 		public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
 
@@ -35,38 +35,10 @@ namespace CsvTools.Tests
 
 		public static void MimicSql() => FunctionalDI.SQLDataReader = MimicSQLReader.ReadDataAsync;
 
-		private class TestLogger : ILogger
-		{
-			private readonly TestContext Context;
-
-			public TestLogger(TestContext context)
-			{
-				Context = context;
-			}
-
-			public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception, string> formatter)
-			{
-				if (exception is null)
-					return;
-				Context.WriteLine($"{logLevel} - {formatter(state, exception)}");
-			}
-
-			public bool IsEnabled(LogLevel logLevel) => true;
-
-#pragma warning disable CS8603 // Mögliche Nullverweisrückgabe.
-
-			public IDisposable BeginScope<TState>(TState state) => default;
-
-#pragma warning restore CS8603 // Mögliche Nullverweisrückgabe.
-		}
-
-		[AssemblyInitialize]
 		public static void AssemblyInitialize(TestContext context)
 		{
 			MimicSql();
 			Token = context.CancellationTokenSource.Token;
-
-			Logger.LoggerInstance = new TestLogger(context);
 
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
 

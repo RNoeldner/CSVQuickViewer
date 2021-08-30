@@ -17,15 +17,15 @@ using System;
 namespace CsvTools
 {
   public class FileWriterException : ApplicationException
-  {
-    public FileWriterException(string message)
-      : base(message)
-    {
-    }
+	{
+		public FileWriterException(string message)
+			: base(message)
+		{
+		}
 
-    public FileWriterException(string message, Exception inner)
-      : base(message, inner)
-    {
-    }
-  }
+		public FileWriterException(string message, Exception inner)
+			: base(message, inner)
+		{
+		}
+	}
 }

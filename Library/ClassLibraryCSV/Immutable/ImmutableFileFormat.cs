@@ -17,53 +17,53 @@ using System;
 namespace CsvTools
 {
   public class ImmutableFileFormat : IFileFormat
-  {
-    public ImmutableFileFormat(
-      bool isFixedLength = false,
-      bool qualifyAlways = false,
-      bool qualifyOnlyIfNeeded = true,
-      char escapeCharacter = '\0',
-      char fieldDelimiterChar = ',',
-      string delimiterPlaceholder = "",
-      char fieldQualifierChar = '"',
-      string qualifierPlaceholder = "",
-      RecordDelimiterType newLine = RecordDelimiterType.CRLF,
-      string newLinePlaceholder = "")
-    {
-      IsFixedLength = isFixedLength;
-      QualifyAlways = qualifyAlways;
-      QualifyOnlyIfNeeded = qualifyOnlyIfNeeded;
+	{
+		public ImmutableFileFormat(
+			bool isFixedLength = false,
+			bool qualifyAlways = false,
+			bool qualifyOnlyIfNeeded = true,
+			char escapeCharacter = '\0',
+			char fieldDelimiterChar = ',',
+			string delimiterPlaceholder = "",
+			char fieldQualifierChar = '"',
+			string qualifierPlaceholder = "",
+			RecordDelimiterType newLine = RecordDelimiterType.CRLF,
+			string newLinePlaceholder = "")
+		{
+			IsFixedLength = isFixedLength;
+			QualifyAlways = qualifyAlways;
+			QualifyOnlyIfNeeded = qualifyOnlyIfNeeded;
 
-      FieldDelimiterChar = fieldDelimiterChar;
-      DelimiterPlaceholder = delimiterPlaceholder ?? throw new ArgumentNullException(nameof(delimiterPlaceholder));
+			FieldDelimiterChar = fieldDelimiterChar;
+			DelimiterPlaceholder = delimiterPlaceholder ?? throw new ArgumentNullException(nameof(delimiterPlaceholder));
 
-      FieldQualifierChar = fieldQualifierChar;
-      QuotePlaceholder = qualifierPlaceholder ?? throw new ArgumentNullException(nameof(qualifierPlaceholder));
+			FieldQualifierChar = fieldQualifierChar;
+			QuotePlaceholder = qualifierPlaceholder ?? throw new ArgumentNullException(nameof(qualifierPlaceholder));
 
-      EscapeChar = escapeCharacter;
+			EscapeChar = escapeCharacter;
 
-      NewLine = newLine;
-      NewLinePlaceholder = newLinePlaceholder ?? throw new ArgumentNullException(nameof(newLinePlaceholder));
-    }
+			NewLine = newLine;
+			NewLinePlaceholder = newLinePlaceholder ?? throw new ArgumentNullException(nameof(newLinePlaceholder));
+		}
 
-    public string DelimiterPlaceholder { get; }
+		public string DelimiterPlaceholder { get; }
 
-    public virtual char EscapeChar { get; }
+		public virtual char EscapeChar { get; }
 
-    public char FieldDelimiterChar { get; }
+		public char FieldDelimiterChar { get; }
 
-    public char FieldQualifierChar { get; }
+		public char FieldQualifierChar { get; }
 
-    public bool IsFixedLength { get; }
+		public bool IsFixedLength { get; }
 
-    public RecordDelimiterType NewLine { get; }
+		public RecordDelimiterType NewLine { get; }
 
-    public string NewLinePlaceholder { get; }
+		public string NewLinePlaceholder { get; }
 
-    public bool QualifyAlways { get; }
+		public bool QualifyAlways { get; }
 
-    public bool QualifyOnlyIfNeeded { get; }
+		public bool QualifyOnlyIfNeeded { get; }
 
-    public string QuotePlaceholder { get; }
-  }
+		public string QuotePlaceholder { get; }
+	}
 }

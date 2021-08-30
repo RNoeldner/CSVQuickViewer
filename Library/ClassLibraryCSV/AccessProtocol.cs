@@ -17,16 +17,16 @@ using System;
 namespace CsvTools
 {
   [Serializable]
-  public enum AccessProtocol
-  {
-    /// <summary>
-    ///   File System Copy
-    /// </summary>
-    Local = -1,
+	public enum AccessProtocol
+	{
+		/// <summary>
+		///   File System Copy
+		/// </summary>
+		Local = -1,
 
-    /// <summary>
-    ///   sFTP Access
-    /// </summary>
-    Sftp = 0
-  }
+		/// <summary>
+		///   sFTP Access
+		/// </summary>
+		Sftp = 0
+	}
 }

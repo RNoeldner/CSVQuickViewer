@@ -6,7 +6,7 @@ namespace CsvTools.Tests
   [TestClass()]
 	public class PagedFileReaderTest
 	{
-		private readonly CsvFile m_Setting = UnitTestHelper.ReaderGetAllFormats();
+		private readonly CsvFile m_Setting = UnitTestStatic.ReaderGetAllFormats();
 
 		[TestMethod()]
 		public async Task MoveToLastPageFirstPageAsync()

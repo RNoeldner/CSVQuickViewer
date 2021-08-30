@@ -7,7 +7,7 @@ namespace CsvTools.Tests
   [TestClass()]
 	public class DataReaderWrapperTests
 	{
-		private static readonly CsvFile m_Setting = UnitTestHelper.ReaderGetAllFormats();
+		private static readonly CsvFile m_Setting = UnitTestStatic.ReaderGetAllFormats();
 
 		[TestMethod()]
 		public async Task GetColumnIndexFromErrorColumnTest()

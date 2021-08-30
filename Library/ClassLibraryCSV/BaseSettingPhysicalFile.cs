@@ -229,25 +229,24 @@ namespace CsvTools
 
     public void ResetFullPath() => m_FullPathInitialized = false;
 
-    protected override void BaseSettingsCopyTo(BaseSettings? other)
+    protected override void BaseSettingsCopyTo(in BaseSettings? other)
     {
       base.BaseSettingsCopyTo(other);
 
-      if (other is IFileSettingPhysicalFile fileSettingPhysicalFile)
-      {
-        fileSettingPhysicalFile.FileSize = FileSize;
-        fileSettingPhysicalFile.ColumnFile = ColumnFile;
-        fileSettingPhysicalFile.FileName = FileName;
-        fileSettingPhysicalFile.RemoteFileName = RemoteFileName;
-        fileSettingPhysicalFile.IdentifierInContainer = IdentifierInContainer;
-        fileSettingPhysicalFile.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
-        fileSettingPhysicalFile.Passphrase = Passphrase;
-        fileSettingPhysicalFile.Recipient = Recipient;
-        fileSettingPhysicalFile.KeepUnencrypted = KeepUnencrypted;
-      }
+      if (!(other is IFileSettingPhysicalFile fileSettingPhysicalFile)) 
+        return;
+      fileSettingPhysicalFile.FileSize = FileSize;
+      fileSettingPhysicalFile.ColumnFile = ColumnFile;
+      fileSettingPhysicalFile.FileName = FileName;
+      fileSettingPhysicalFile.RemoteFileName = RemoteFileName;
+      fileSettingPhysicalFile.IdentifierInContainer = IdentifierInContainer;
+      fileSettingPhysicalFile.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
+      fileSettingPhysicalFile.Passphrase = Passphrase;
+      fileSettingPhysicalFile.Recipient = Recipient;
+      fileSettingPhysicalFile.KeepUnencrypted = KeepUnencrypted;
     }
 
-    protected override bool BaseSettingsEquals(BaseSettings? other)
+    protected override bool BaseSettingsEquals(in BaseSettings? other)
     {
       if (!(other is IFileSettingPhysicalFile fileSettingPhysicalFile))
         return base.BaseSettingsEquals(other);
@@ -273,7 +272,7 @@ namespace CsvTools
       return base.BaseSettingsEquals(other);
     }
 
-    private static string FileNameFix(string? value)
+    private static string FileNameFix(in string? value)
     {
       var newVal = value ?? string.Empty;
 

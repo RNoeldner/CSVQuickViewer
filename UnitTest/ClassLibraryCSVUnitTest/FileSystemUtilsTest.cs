@@ -166,7 +166,7 @@ namespace CsvTools.Tests
         sw.WriteLine("Welcome");
       }
       var sfn = fn.ShortFileName();
-      Assert.IsTrue(sfn.EndsWith("VeryLo~1.txt", StringComparison.OrdinalIgnoreCase), sfn);
+      Assert.IsTrue(sfn.EndsWith("VeryLo~1.txt", StringComparison.OrdinalIgnoreCase), $"EndsWith VeryLo~1.txt {sfn}");
       Assert.AreEqual(fn, sfn.LongFileName());
 
       FileSystemUtils.FileDelete(fn);

@@ -44,7 +44,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Maui", "Maui", "{2973D2A6-B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSVQuickViewer.maui", "Maui\CSVQuickViewer\CSVQuickViewer.maui.csproj", "{069F40B3-C115-44DC-B264-7B9FD0E80BD2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormControlsUnitTest", "UnitTest\WinFormControlsUnitTest\WinFormControlsUnitTest.csproj", "{A359FAE4-03C7-479B-8490-E2F50D53C858}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormControlsUnitTest", "UnitTest\WinFormControlsUnitTest\WinFormControlsUnitTest.csproj", "{A359FAE4-03C7-479B-8490-E2F50D53C858}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestBasic", "UnitTest\UnitTestBasic\UnitTestBasic.csproj", "{058834DF-F9CC-4E3D-98DA-5FDA8B5853C6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,6 +100,10 @@ Global
 		{A359FAE4-03C7-479B-8490-E2F50D53C858}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A359FAE4-03C7-479B-8490-E2F50D53C858}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A359FAE4-03C7-479B-8490-E2F50D53C858}.Release|Any CPU.Build.0 = Release|Any CPU
+		{058834DF-F9CC-4E3D-98DA-5FDA8B5853C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{058834DF-F9CC-4E3D-98DA-5FDA8B5853C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{058834DF-F9CC-4E3D-98DA-5FDA8B5853C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{058834DF-F9CC-4E3D-98DA-5FDA8B5853C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -115,6 +121,7 @@ Global
 		{248BED72-AC26-401C-B3B0-E612A3DF4430} = {2973D2A6-B4F5-4114-BF0B-CB2C8C6B51E4}
 		{069F40B3-C115-44DC-B264-7B9FD0E80BD2} = {2973D2A6-B4F5-4114-BF0B-CB2C8C6B51E4}
 		{A359FAE4-03C7-479B-8490-E2F50D53C858} = {88999FFC-3B3E-4F71-ACA9-3150143FBC06}
+		{058834DF-F9CC-4E3D-98DA-5FDA8B5853C6} = {88999FFC-3B3E-4F71-ACA9-3150143FBC06}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2C6B6E1E-ABD3-49DA-9BE4-DC79F5504CC2}
