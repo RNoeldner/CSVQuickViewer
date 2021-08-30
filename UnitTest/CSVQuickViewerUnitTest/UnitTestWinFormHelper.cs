@@ -1,3 +1,5 @@
+#nullable enable
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
@@ -70,7 +72,7 @@ namespace CsvTools.Tests
     public static void ShowFormAndClose<T>(T frm, double before = .2, Action<T>? toDo = null) where T : Form
       => ShowFormAndClose(frm, before, toDo, before, UnitTestInitializeCsv.Token);
 
-    private static void ShowFormAndClose<T>(T typed, double before, Action<T> toDo, double after,
+    private static void ShowFormAndClose<T>(T typed, double before, Action<T>? toDo, double after,
                                             CancellationToken token) where T : Form
     {
       var frm = typed as Form;

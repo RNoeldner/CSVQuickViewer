@@ -16,7 +16,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -26,6 +25,8 @@ namespace CsvTools.Tests
   [TestClass]
   public class ControlsTests
   {
+    private readonly HTMLStyle m_HTMLStyle = new HTMLStyle();
+
     [TestMethod]
     [Timeout(8000)]
     public void PersistentChoice()
@@ -43,26 +44,26 @@ namespace CsvTools.Tests
         using (var tm = new TimedMessage())
         {
           var stringBuilder = HTMLStyle.StartHTMLDoc($"{SystemColors.Control.R:X2}{SystemColors.Control.G:X2}{SystemColors.Control.B:X2}", "");
-          stringBuilder.Append(string.Format(UnitTestInitializeWin.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample")));
-          stringBuilder.Append(string.Format(UnitTestInitializeWin.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample2")));
+          stringBuilder.Append(string.Format(m_HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample")));
+          stringBuilder.Append(string.Format(m_HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample2")));
 
-          stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TableOpen);
-          stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TROpen);
+          stringBuilder.AppendLine(m_HTMLStyle.TableOpen);
+          stringBuilder.AppendLine(m_HTMLStyle.TROpen);
           for (var index = 1; index <= 10; index++)
           {
-            stringBuilder.AppendLine(string.Format(UnitTestInitializeWin.HTMLStyle.TD,
+            stringBuilder.AppendLine(string.Format(m_HTMLStyle.TD,
               HTMLStyle.TextToHtmlEncode("Test " + index.ToString())));
             if (index % 4 == 0)
             {
-              stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TRClose);
+              stringBuilder.AppendLine(m_HTMLStyle.TRClose);
             }
           }
 
-          stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TRClose);
-          stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TableClose);
-          stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TableClose);
-          stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TRClose);
-          stringBuilder.AppendLine(UnitTestInitializeWin.HTMLStyle.TableClose);
+          stringBuilder.AppendLine(m_HTMLStyle.TRClose);
+          stringBuilder.AppendLine(m_HTMLStyle.TableClose);
+          stringBuilder.AppendLine(m_HTMLStyle.TableClose);
+          stringBuilder.AppendLine(m_HTMLStyle.TRClose);
+          stringBuilder.AppendLine(m_HTMLStyle.TableClose);
           tm.Html = stringBuilder.ToString();
 
           tm.Size = new Size(600, 450);
@@ -272,7 +273,7 @@ namespace CsvTools.Tests
     public void FormDuplicatesDisplay()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormDuplicatesDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, UnitTestInitializeWin.HTMLStyle))
+      using (var form = new FormDuplicatesDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, m_HTMLStyle))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form);
       }
@@ -283,7 +284,7 @@ namespace CsvTools.Tests
     public void FormUniqueDisplay()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, UnitTestInitializeWin.HTMLStyle))
+      using (var form = new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, m_HTMLStyle))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form);
       }
@@ -294,7 +295,7 @@ namespace CsvTools.Tests
     public void FormShowMaxLength()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), UnitTestInitializeWin.HTMLStyle))
+      using (var form = new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), m_HTMLStyle))
       {
         UnitTestWinFormHelper.ShowFormAndClose(form);
       }

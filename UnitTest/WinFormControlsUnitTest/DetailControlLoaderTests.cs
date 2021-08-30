@@ -22,7 +22,6 @@ namespace CsvTools.Tests
   [TestClass]
   public class DetailControlLoaderTests
   {
-
     [TestMethod]
     [Timeout(3000)]
     public async System.Threading.Tasks.Task DetailControlLoaderTestAsync()
@@ -43,7 +42,7 @@ namespace CsvTools.Tests
       }
 
       using var dc = new DetailControl();
-      dc.HTMLStyle = UnitTestInitializeWin.HTMLStyle;
+      dc.HTMLStyle = new HTMLStyle();
       dc.DataTable = dt;
 
       await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);
@@ -52,8 +51,5 @@ namespace CsvTools.Tests
       var dcl = new DetailControlLoader(dc);
       dc.Show();
     }
-
-
-
   }
 }
