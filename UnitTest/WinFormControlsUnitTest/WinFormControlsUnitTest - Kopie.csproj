@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A359FAE4-03C7-479B-8490-E2F50D53C858}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CsvTools.Tests</RootNamespace>
+    <AssemblyName>WinFormControlsUnitTest</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
+    <IsCodedUITest>False</IsCodedUITest>
+    <TestProjectType>UnitTest</TestProjectType>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;Windows</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;Windows</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FastColoredTextBox, Version=2.16.26.0, Culture=neutral, PublicKeyToken=fb8aa12b994ef61b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Library\DLL\FastColoredTextBox.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\ClassLibraryCSVUnitTest\MimicSQLReader.cs">
+      <Link>MimicSQLReader.cs</Link>
+    </Compile>
+    <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestInitializeCsv.cs">
+      <Link>UnitTestInitializeCsv.cs</Link>
+    </Compile>
+    <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestStatic.cs">
+      <Link>UnitTestStatic.cs</Link>
+    </Compile>
+    <Compile Include="ApplicationSettingTest.cs" />
+    <Compile Include="ColumnFilterLogicTests.cs" />
+    <Compile Include="ColumnSettingTests.cs" />
+    <Compile Include="ControlsTests.cs" />
+    <Compile Include="DataGridViewCopyPasteTests.cs" />
+    <Compile Include="DetailControlLoaderTests.cs" />
+    <Compile Include="DetailControlTests.cs" />
+    <Compile Include="ExtensionsTests.cs" />
+    <Compile Include="FilteredDataGridViewTests.cs" />
+    <Compile Include="FormColumnUITests.cs" />
+    <Compile Include="FormHierarchyDisplayTest.cs" />
+    <Compile Include="FormProcessDisplayTests.cs" />
+    <Compile Include="FoundEventArgsTests.cs" />
+    <Compile Include="LoggerTest.cs" />
+    <Compile Include="LoggerTextBoxTests.cs" />
+    <Compile Include="PersistentChoiceTests.cs" />
+    <Compile Include="SyntaxHighlighterDelimitedTextTests.cs" />
+    <Compile Include="TestForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ToolStripDataGridViewColumnFilterTests.cs" />
+    <Compile Include="UnitTestInitializeWin.cs" />
+    <Compile Include="UnitTestWinFormHelper.cs" />
+    <Compile Include="ValueClusterCollectionTests.cs" />
+    <Compile Include="ValueClusterTests.cs" />
+    <Compile Include="ViewSettingTests.cs" />
+    <Compile Include="WindowStateTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="TestFiles\BasicCSV.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestFiles\FileWithHierarchy_WithCyle.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj">
+      <Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
+      <Name>ClassLibraryCSV</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Library\WinFormControls\WinFormControls.csproj">
+      <Project>{55ad0a98-c175-4b38-a3d0-321740820d41}</Project>
+      <Name>WinFormControls</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MSTest.TestFramework">
+      <Version>2.2.6</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

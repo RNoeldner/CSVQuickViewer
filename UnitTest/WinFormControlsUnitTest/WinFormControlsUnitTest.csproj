@@ -3,7 +3,15 @@
     <TargetFramework>net472</TargetFramework>
     <LangVersion>8.0</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
+    <RootNamespace>CsvTools.Tests</RootNamespace>
+    <TestProjectType>UnitTest</TestProjectType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;Windows</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>Windows</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\ClassLibraryCSVUnitTest\MimicSQLReader.cs" Link="MimicSQLReader.cs" />
@@ -12,8 +20,8 @@
     <Compile Include="..\ClassLibraryCSVUnitTest\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MSTest.TestAdapter" Version="2.2.5" />
-    <PackageReference Include="MSTest.TestFramework" Version="2.2.5" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.6" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Library\WinFormControls\WinFormControls.csproj" />
@@ -24,10 +32,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Update="TestFiles\BasicCSV.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="TestFiles\FileWithHierarchy_WithCyle.txt">
+    <None Update="TestFiles\*.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

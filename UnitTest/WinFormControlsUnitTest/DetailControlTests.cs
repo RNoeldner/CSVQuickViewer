@@ -20,9 +20,10 @@ using System.Data;
 namespace CsvTools.Tests
 {
   [TestClass]
-	public class DetailControlTests
-	{
-		private readonly Random random = new Random(Guid.NewGuid().GetHashCode());
+  public class DetailControlTests
+  {
+    private readonly HTMLStyle m_HTMLStyle = new HTMLStyle();
+    private readonly Random random = new Random(Guid.NewGuid().GetHashCode());
 
 		[TestMethod]
 		[Timeout(3000)]
@@ -48,18 +49,18 @@ namespace CsvTools.Tests
 					dt.Rows.Add(row);
 				}
 
-				using (var dc = new DetailControl())
-				{
-					dc.HTMLStyle = UnitTestInitializeWin.HTMLStyle;
-					dc.Show();
-					dc.DataTable = dt;
-
-					await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);
-					dc.OnlyShowErrors = true;
-					dc.MoveMenu();
-				}
-			}
-		}
+        using (var dc = new DetailControl())
+        {
+          dc.HTMLStyle = UnitTestInitializeWin.HTMLStyle;
+          dc.Show();
+          dc.DataTable = dt;
+          
+          await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);
+          dc.OnlyShowErrors = true ;
+          dc.MoveMenu();
+        }
+      }
+    }
 
 		[TestMethod]
 		[Timeout(3000)]
@@ -81,15 +82,15 @@ namespace CsvTools.Tests
 					dt.Rows.Add(row);
 				}
 
-				using (var dc = new DetailControl())
-				{
-					dc.HTMLStyle = UnitTestInitializeWin.HTMLStyle;
-					dc.Show();
-					dc.DataTable = dt;
-					await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);
-					dc.Sort("ID", ListSortDirection.Ascending);
-				}
-			}
-		}
-	}
+        using (var dc = new DetailControl())
+        {
+          dc.HTMLStyle = UnitTestInitializeWin.HTMLStyle;
+          dc.Show();
+          dc.DataTable = dt;
+          await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);
+          dc.Sort("ID", ListSortDirection.Ascending);
+        }
+      }
+    }
+  }
 }
