@@ -1085,7 +1085,7 @@ namespace CsvTools
       {
         var defined = m_ColumnDefinition.FirstOrDefault(x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ??  new ImmutableColumn(adjustedNames[colIndex], new ImmutableValueFormat(dataTypeL[colIndex]), colIndex);
         Column[colIndex] =new ImmutableColumn(adjustedNames[colIndex], defined.ValueFormat, colIndex, defined.Convert, defined.DestinationName,
-                defined.Ignore, defined.Part, defined.PartSplitter, defined.PartToEnd, defined.TimePart, defined.TimePartFormat, defined.TimeZonePart);
+                defined.Ignore, defined.TimePart, defined.TimePartFormat, defined.TimeZonePart);
       }
 
       if (Column.Length==0)

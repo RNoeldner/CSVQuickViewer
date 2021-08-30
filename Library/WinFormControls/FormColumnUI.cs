@@ -398,26 +398,20 @@ namespace CsvTools
       });
     }
 
-    public void SetPartLabels(string textBoxSplitText, string textBoxPartText, bool toEnd)
+    public void SetPartLabels(string textBoxSplitText, int part, bool toEnd)
     {
       if (string.IsNullOrEmpty(textBoxSplitText))
         return;
       var split = textBoxSplitText.WrittenPunctuationToChar();
       var sample = $"This{split}is a{split}concatenated{split}list";
 
-      var part = StringConversion.StringToInt32(textBoxPartText, ".", "");
-      if (!part.HasValue)
-        return;
-      if (part.Value < 1)
-        part = 1;
-
       labelSamplePart.SafeInvoke(() =>
       {
         toolTip.SetToolTip(textBoxSplit, textBoxSplitText.GetDescription());
-        if (part.Value == 1)
+        if (part == 1)
           checkBoxPartToEnd.Checked = false;
         labelSamplePart.Text = $@"Input: ""{sample}""";
-        labelResultPart.Text = $@"Output: ""{StringConversion.StringToTextPart(sample, split, part.Value, toEnd)}""";
+        labelResultPart.Text = $@"Output: ""{StringConversion.StringToTextPart(sample, split, part, toEnd)}""";
       });
     }
 
@@ -900,27 +894,17 @@ namespace CsvTools
 
     private void PartValidating(object? sender, CancelEventArgs e)
     {
-      var ok = int.TryParse(textBoxPart.Text, out var parse);
-      var reformat = parse.ToString(CultureInfo.CurrentCulture);
-      ok = ok && parse > 0 && reformat == textBoxPart.Text;
+      var parse = Convert.ToInt32(numericUpDownPart.Value);
 
-      if (!ok)
+      if (parse == 1 && checkBoxPartToEnd.Checked)
       {
-        errorProvider.SetError(textBoxPart, "Must be a positive number");
-        e.Cancel = true;
+        errorProvider.SetError(numericUpDownPart, "Un-check or choose a later part.");
+        errorProvider.SetError(checkBoxPartToEnd, "Un-check or choose a later part.");
       }
       else
       {
-        if (parse == 1 && checkBoxPartToEnd.Checked)
-        {
-          errorProvider.SetError(textBoxPart, "Un-check or choose a later part.");
-          errorProvider.SetError(checkBoxPartToEnd, "Un-check or choose a later part.");
-        }
-        else
-        {
-          errorProvider.SetError(checkBoxPartToEnd, "");
-          errorProvider.SetError(textBoxPart, "");
-        }
+        errorProvider.SetError(checkBoxPartToEnd, "");
+        errorProvider.SetError(numericUpDownPart, "");
       }
     }
 
@@ -1033,7 +1017,7 @@ namespace CsvTools
       checkedListBoxDateFormats.EndUpdate();
     }
 
-    private void SetSamplePart(object? sender, EventArgs? e) => SetPartLabels(textBoxSplit.Text, textBoxPart.Text, checkBoxPartToEnd.Checked);
+    private void SetSamplePart(object? sender, EventArgs? e) => SetPartLabels(textBoxSplit.Text, Convert.ToInt32(numericUpDownPart.Value), checkBoxPartToEnd.Checked);
 
     private void SystemEvents_UserPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e)
     {

@@ -19,27 +19,23 @@ namespace CsvTools
   /// </summary>
   public class ImmutableColumn : IColumn
   {
-    public const int cPartDefault = 2;
-    public const string cPartSplitterDefault = ":";
     public const string cDefaultTimePartFormat = "HH:mm:ss";
-    public const bool cPartToEnd = true;
 
     public ImmutableColumn(IColumn col) : this(col.Name, col.ValueFormat, col.ColumnOrdinal, col.Convert,
-      col.DestinationName, col.Ignore, col.Part, col.PartSplitter, col.PartToEnd, col.TimePart, col.TimePartFormat,
+      col.DestinationName, col.Ignore, col.TimePart, col.TimePartFormat,
       col.TimeZonePart)
     {
     }
 
     public ImmutableColumn(IColumn col, IValueFormat format) : this(col.Name, format, col.ColumnOrdinal, col.Convert,
-      col.DestinationName, col.Ignore, col.Part, col.PartSplitter, col.PartToEnd, col.TimePart, col.TimePartFormat,
+      col.DestinationName, col.Ignore, col.TimePart, col.TimePartFormat,
       col.TimeZonePart)
     {
     }
 
     public ImmutableColumn(string name, IValueFormat valueFormat, int columnOrdinal, bool? convert = null,
       string destinationName = "",
-      bool ignore = false, int part = cPartDefault,
-      string partSplitter = cPartSplitterDefault, bool partToEnd = cPartToEnd, string timePart = "",
+      bool ignore = false, string timePart = "",
       string timePartFormat = "",
       string timeZonePart = "")
     {
@@ -51,9 +47,6 @@ namespace CsvTools
       DestinationName = destinationName;
       Ignore = ignore;
 
-      Part = part;
-      PartSplitter = (partSplitter ?? string.Empty).WrittenPunctuation();
-      PartToEnd = partToEnd;
       TimePart = timePart;
       TimePartFormat = timePartFormat;
       TimeZonePart = timeZonePart;
@@ -63,10 +56,10 @@ namespace CsvTools
         : new ImmutableValueFormat(valueFormat.DataType, valueFormat.DateFormat, valueFormat.DateSeparator,
           valueFormat.TimeSeparator, valueFormat.NumberFormat, valueFormat.GroupSeparator, valueFormat.DecimalSeparator,
           valueFormat.True,
-          valueFormat.False, valueFormat.DisplayNullAs);
+          valueFormat.False, valueFormat.DisplayNullAs, valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd);
 
       if (ValueFormat.DataType == DataType.TextPart)
-        ColumnFormatter = new TextPartFormatter(Part, PartSplitter, PartToEnd);
+        ColumnFormatter = new TextPartFormatter(ValueFormat.Part, ValueFormat.PartSplitter, ValueFormat.PartToEnd);
       else if (ValueFormat.DataType == DataType.TextToHtml)
         ColumnFormatter = new TextToHtmlFormatter();
       else if (ValueFormat.DataType == DataType.TextToHtmlFull)
@@ -78,9 +71,7 @@ namespace CsvTools
     public string DestinationName { get; }
     public bool Ignore { get; }
     public string Name { get; }
-    public int Part { get; }
-    public string PartSplitter { get; }
-    public bool PartToEnd { get; }
+
     public string TimePart { get; }
     public string TimePartFormat { get; }
     public string TimeZonePart { get; }
@@ -99,7 +90,6 @@ namespace CsvTools
       if (ReferenceEquals(this, other)) return true;
       return ColumnOrdinal == other.ColumnOrdinal && Convert == other.Convert &&
              DestinationName == other.DestinationName && Ignore == other.Ignore && Name == other.Name &&
-             Part == other.Part && PartSplitter == other.PartSplitter && PartToEnd == other.PartToEnd &&
              TimePart == other.TimePart && TimePartFormat == other.TimePartFormat &&
              TimeZonePart == other.TimeZonePart && ValueFormat.ValueFormatEqual(other.ValueFormat);
     }
@@ -121,9 +111,6 @@ namespace CsvTools
         hashCode = (hashCode * 397) ^ DestinationName.GetHashCode();
         hashCode = (hashCode * 397) ^ Ignore.GetHashCode();
         hashCode = (hashCode * 397) ^ Name.GetHashCode();
-        hashCode = (hashCode * 397) ^ Part;
-        hashCode = (hashCode * 397) ^ PartSplitter.GetHashCode();
-        hashCode = (hashCode * 397) ^ PartToEnd.GetHashCode();
         hashCode = (hashCode * 397) ^ TimePart.GetHashCode();
         hashCode = (hashCode * 397) ^ TimePartFormat.GetHashCode();
         hashCode = (hashCode * 397) ^ TimeZonePart.GetHashCode();

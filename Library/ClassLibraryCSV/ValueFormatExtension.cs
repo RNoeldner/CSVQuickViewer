@@ -28,7 +28,9 @@ namespace CsvTools
     public const string cNumberFormatDefault = "0.#####";
     public const string cTimeSeparatorDefault = ":";
     public const string cTrueDefault = "True";
-
+    public const int cPartDefault = 2;
+    public const string cPartSplitterDefault = ":";
+    public const bool cPartToEndDefault = true;
 
     public static bool ValueFormatEqual(this IValueFormat one, IValueFormat? other)
     {
@@ -43,7 +45,8 @@ namespace CsvTools
       return one.DataType switch
       {
         DataType.Integer => string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal),
-        DataType.Numeric => other.GroupSeparator == one.GroupSeparator && other.DecimalSeparator == one.DecimalSeparator &&
+        DataType.Numeric => string.Equals(other.GroupSeparator, one.GroupSeparator, StringComparison.Ordinal) &&
+                            string.Equals(other.DecimalSeparator, one.DecimalSeparator, StringComparison.Ordinal) &&
                             string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal),
         DataType.Double => other.GroupSeparator == one.GroupSeparator && other.DecimalSeparator == one.DecimalSeparator &&
                            string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal),
@@ -52,13 +55,21 @@ namespace CsvTools
                              string.Equals(other.TimeSeparator, one.TimeSeparator, StringComparison.Ordinal),
         DataType.Boolean => string.Equals(other.False, one.False, StringComparison.OrdinalIgnoreCase) &&
                             string.Equals(other.True, one.True, StringComparison.OrdinalIgnoreCase),
+        DataType.TextPart => string.Equals(other.PartSplitter, one.PartSplitter, StringComparison.Ordinal) &&
+                             other.Part ==  one.Part &&
+                             other.PartToEnd == one.PartToEnd,
         _ => string.Equals(other.DateFormat, one.DateFormat, StringComparison.Ordinal) &&
-             string.Equals(other.DateSeparator, one.DateSeparator, StringComparison.Ordinal) &&
-             string.Equals(other.TimeSeparator, one.TimeSeparator, StringComparison.Ordinal) &&
-             string.Equals(other.False, one.False, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(other.True, one.True, StringComparison.OrdinalIgnoreCase) &&
-             other.GroupSeparator == one.GroupSeparator && other.DecimalSeparator == one.DecimalSeparator &&
-             string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal)
+              string.Equals(other.DateSeparator, one.DateSeparator, StringComparison.Ordinal) &&
+              string.Equals(other.TimeSeparator, one.TimeSeparator, StringComparison.Ordinal) &&
+
+              string.Equals(other.False, one.False, StringComparison.OrdinalIgnoreCase) &&
+              string.Equals(other.True, one.True, StringComparison.OrdinalIgnoreCase) &&
+
+              string.Equals(other.GroupSeparator, one.GroupSeparator, StringComparison.Ordinal) &&
+              string.Equals(other.DecimalSeparator, one.DecimalSeparator, StringComparison.Ordinal) &&
+              string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal) &&
+
+              string.Equals(other.PartSplitter, one.PartSplitter, StringComparison.Ordinal) && other.Part ==  one.Part && other.PartToEnd == one.PartToEnd
       };
     }
 
@@ -127,6 +138,7 @@ namespace CsvTools
         DataType.Double => one.NumberFormat.ReplaceDefaults(
           CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, one.DecimalSeparator,
           CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, one.GroupSeparator),
+        DataType.TextPart => $"{one.Part}"  + (one.PartToEnd ? " To End" : string.Empty),
         _ => string.Empty
       };
 

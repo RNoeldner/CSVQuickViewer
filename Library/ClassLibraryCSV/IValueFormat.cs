@@ -14,38 +14,66 @@
 
 namespace CsvTools
 {
-  public interface IValueFormat
-  {
-    DataType DataType { get; }
+	public interface IValueFormat
+	{
+		DataType DataType { get; }
 
-    string DateFormat { get; }
+		string DateFormat { get; }
 
-    /// <summary>
-    ///   The value will return the resulted Separator, passing in "Colon" will return ":"
-    /// </summary>
-    string DateSeparator { get; }
+		/// <summary>
+		///   The value will return the resulted Separator, passing in "Colon" will return ":"
+		/// </summary>
+		string DateSeparator { get; }
 
-    /// <summary>
-    ///   The value will return the resulted Separator, passing in "Dot" will return "."
-    /// </summary>
-    string TimeSeparator { get; }
+		/// <summary>
+		///   The value will return the resulted Separator, passing in "Dot" will return "."
+		/// </summary>
+		string DecimalSeparator { get; }
 
-    string NumberFormat { get; }
+		string DisplayNullAs { get; }
 
-    /// <summary>
-    ///   The value will return the resulted Separator, passing in "Dot" will return "."
-    /// </summary>
-    string DecimalSeparator { get; }
+		/// <summary>
+		///   Gets or sets the representation for false.
+		/// </summary>
+		string False { get; }
 
-    /// <summary>
-    ///   The value will return the resulted Separator, passing in "Dot" will return "."
-    /// </summary>
-    string GroupSeparator { get; }
+		/// <summary>
+		///   The value will return the resulted Separator, passing in "Dot" will return "."
+		/// </summary>
+		string GroupSeparator { get; }
 
-    string True { get; }
+		/// <summary>
+		///   Gets or sets the number format
+		/// </summary>
+		/// <value>The number format.</value>
+		string NumberFormat { get; }
 
-    string False { get; }
+		/// <summary>
+		///   Gets or sets the part for splitting.
+		/// </summary>
+		/// <value>The part starting with 1</value>
+		int Part { get; }
 
-    string DisplayNullAs { get; }
-  }
+		/// <summary>
+		///   Gets or sets the splitter.
+		/// </summary>
+		/// <value>The splitter.</value>
+		string PartSplitter { get; }
+
+		/// <summary>
+		///   Determine if a part should end with teh next splitter
+		/// </summary>
+		/// <value><c>true</c> if all of the remaining text should be returned in the part</value>
+		bool PartToEnd { get; }
+
+		/// <summary>
+		///   The value will return the resulted Separator, passing in "Dot" will return "."
+		/// </summary>
+		string TimeSeparator { get; }
+
+		/// <summary>
+		///   Gets or sets the representation for true.
+		/// </summary>
+		string True { get; }
+	}
 }
