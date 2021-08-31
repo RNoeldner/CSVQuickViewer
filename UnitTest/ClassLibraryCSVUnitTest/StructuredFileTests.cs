@@ -30,7 +30,7 @@ namespace CsvTools.Tests
       Assert.AreNotSame(m_JsonFile, test);
       Assert.IsInstanceOfType(test, typeof(JsonFile));
 
-      m_JsonFile.AllPropertiesEqual(test);
+      m_JsonFile.CheckAllPropertiesEqual(test);
       // Test Properties that are not tested
 
       Assert.AreEqual(m_JsonFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
@@ -47,7 +47,7 @@ namespace CsvTools.Tests
     {
       var test = new JsonFile();
       m_JsonFile.CopyTo(test);
-      m_JsonFile.AllPropertiesEqual(test);
+      m_JsonFile.CheckAllPropertiesEqual(test);
       // Test Properties that are not tested
       Assert.AreEqual(m_JsonFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
@@ -64,7 +64,7 @@ namespace CsvTools.Tests
       try
       {
         using var dummy = FunctionalDI.GetFileReader(m_JsonFile, TimeZoneInfo.Local.Id,
-          new CustomProcessDisplay(UnitTestInitializeCsv.Token));
+          new CustomProcessDisplay(UnitTestStatic.Token));
         Assert.Fail("Should throw error");
       }
       catch (NotImplementedException)
@@ -78,7 +78,7 @@ namespace CsvTools.Tests
     public void GetFileWriter()
     {
       var jsonFile = new JsonFile("SomeFileName.json") { Row = "{0}" };
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       m_JsonFile.SqlStatement = "dummy";
       var res = FunctionalDI.GetFileWriter(jsonFile, processDisplay);
       Assert.IsInstanceOfType(res, typeof(IFileWriter));

@@ -30,7 +30,7 @@ namespace CsvTools.Tests
 		{
 			var coll = new RowErrorCollection(5);
 
-      using var reader = new CsvFileReader(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0, true,
+      using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0, true,
         new IColumn[]
         {
           new ImmutableColumn("DateTime", new ImmutableValueFormat(DataType.DateTime), 0, true, "", true),

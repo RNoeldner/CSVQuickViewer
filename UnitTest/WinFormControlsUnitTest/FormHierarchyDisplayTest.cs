@@ -15,7 +15,7 @@ namespace CsvTools.Tests
     {
       using (var treeView = new MultiselectTreeView())
       {
-        treeView.HTMLStyle = UnitTestInitializeCsv.HTMLStyle;
+        treeView.HTMLStyle = UnitTestStatic.HTMLStyle;
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
         var treeNode = new TreeNode("Test") { Tag = "test" };
@@ -37,7 +37,7 @@ namespace CsvTools.Tests
         treeView.AfterSelect += (s, args) => { firedAfter = true; };
         treeView.BeforeSelect += (s, args) => { firedBefore = true; };
 
-        UnitTestWinFormHelper.ShowControl(treeView, .2, (control, form) =>
+        UnitTestStatic.ShowControl(treeView, .2, (control, form) =>
         {
           if (!(control is MultiselectTreeView text))
             return;
@@ -64,7 +64,7 @@ namespace CsvTools.Tests
     {
       using (var treeView = new MultiselectTreeView())
       {
-        treeView.HTMLStyle = UnitTestInitializeCsv.HTMLStyle;
+        treeView.HTMLStyle = UnitTestStatic.HTMLStyle;
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
         var td1 = new FormHierarchyDisplay.TreeData("1", "Test One") { Tag = "T1" };
@@ -93,7 +93,7 @@ namespace CsvTools.Tests
         treeView.AfterSelect += (s, args) => { firedAfter = true; };
         treeView.BeforeSelect += (s, args) => { firedBefore = true; };
 
-        UnitTestWinFormHelper.ShowControl(treeView, .2, (control, form) =>
+        UnitTestStatic.ShowControl(treeView, .2, (control, form) =>
         {
           if (!(control is MultiselectTreeView text))
             return;
@@ -122,9 +122,9 @@ namespace CsvTools.Tests
     public void FormHierarchyDisplay()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), UnitTestInitializeCsv.HTMLStyle))
+      using (var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), UnitTestStatic.HTMLStyle))
       {
-        UnitTestWinFormHelper.ShowFormAndClose(form, 0.1, (frm) =>
+        UnitTestStatic.ShowFormAndClose(form, 0.1, (frm) =>
         {
           if (!(frm is FormHierarchyDisplay hd))
             return;
@@ -141,14 +141,14 @@ namespace CsvTools.Tests
       // load the csvFile FileWithHierarchy
       using var processDisplay = new FormProcessDisplay("FileWithHierarchy");
       processDisplay.Show();
-      var cvsSetting = new CsvFile(UnitTestInitializeCsv.GetTestPath("FileWithHierarchy_WithCyle.txt"))
+      var cvsSetting = new CsvFile(UnitTestStatic.GetTestPath("FileWithHierarchy_WithCyle.txt"))
       { FileFormat = { FieldDelimiter = "\t" } };
       using var csvDataReader = new CsvFileReader(cvsSetting.FullPath, cvsSetting.CodePageId, cvsSetting.SkipRows, cvsSetting.HasFieldHeader, cvsSetting.ColumnCollection, cvsSetting.TrimmingOption, cvsSetting.FileFormat.FieldDelimiter, cvsSetting.FileFormat.FieldQualifier, cvsSetting.FileFormat.EscapeCharacter, cvsSetting.RecordLimit, cvsSetting.AllowRowCombining, cvsSetting.FileFormat.AlternateQuoting, cvsSetting.FileFormat.CommentLine, cvsSetting.NumWarnings, cvsSetting.FileFormat.DuplicateQuotingToEscape, cvsSetting.FileFormat.NewLinePlaceholder, cvsSetting.FileFormat.DelimiterPlaceholder, cvsSetting.FileFormat.QuotePlaceholder, cvsSetting.SkipDuplicateHeader, cvsSetting.TreatLFAsSpace, cvsSetting.TreatUnknownCharacterAsSpace, cvsSetting.TryToSolveMoreColumns, cvsSetting.WarnDelimiterInValue, cvsSetting.WarnLineFeed, cvsSetting.WarnNBSP, cvsSetting.WarnQuotes, cvsSetting.WarnUnknownCharacter, cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull, cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows, cvsSetting.IdentifierInContainer, processDisplay);
       var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null,
         processDisplay.CancellationToken);
 
-      using var form = new FormHierarchyDisplay(dt!, dataTable.Select(), UnitTestInitializeCsv.HTMLStyle);
-      UnitTestWinFormHelper.ShowFormAndClose(form, .1, (frm) =>
+      using var form = new FormHierarchyDisplay(dt!, dataTable.Select(), UnitTestStatic.HTMLStyle);
+      UnitTestStatic.ShowFormAndClose(form, .1, (frm) =>
       {
         if (!(frm is FormHierarchyDisplay hd))
           return;

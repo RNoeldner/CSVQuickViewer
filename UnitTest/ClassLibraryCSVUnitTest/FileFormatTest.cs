@@ -27,7 +27,7 @@ namespace CsvTools.Tests
 		{
 			var clone = m_FileFormat.Clone();
 			Assert.AreNotSame(clone, m_FileFormat);
-			m_FileFormat.AllPropertiesEqual(clone);
+			m_FileFormat.CheckAllPropertiesEqual(clone);
 		}
 
 		[TestMethod]

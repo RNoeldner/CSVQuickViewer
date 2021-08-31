@@ -11,12 +11,12 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public async System.Threading.Tasks.Task AnalyseStreamAsyncFile()
 		{
-			var stream = FileSystemUtils.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"));
+			var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("BasicCSV.txt"));
 
 			ICollection<IColumn> determinedColumns;
 			// Not closing the stream
 
-      using IProcessDisplay process = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using IProcessDisplay process = new CustomProcessDisplay(UnitTestStatic.Token);
       using var impStream = new ImprovedStream(stream);
       var result = await impStream.GetDetectionResult("stream", process, false, true, true, true, true, true, false, true);
       impStream.Seek(0, System.IO.SeekOrigin.Begin);
@@ -49,11 +49,11 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public async System.Threading.Tasks.Task AnalyseStreamAsyncGZip()
     {
-      using var stream = FileSystemUtils.OpenRead(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt.gz"));
+      using var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"));
       ICollection<IColumn> determinedColumns;
       // Not closing the stream
       using var impStream = new ImprovedStream(stream, SourceAccess.FileTypeEnum.GZip);
-      using IProcessDisplay process = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using IProcessDisplay process = new CustomProcessDisplay(UnitTestStatic.Token);
       var result = await impStream.GetDetectionResult("steam", process, false, true, true, true, true, true, false, false);
 
       impStream.Seek(0, System.IO.SeekOrigin.Begin);

@@ -13,18 +13,6 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <TargetFramework>netstandard2.0</TargetFramework>
     <SignAssembly>True</SignAssembly>
-    <IsWindows
-      Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">
-      true
-    </IsWindows>
-    <IsOSX
-      Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">
-      true
-    </IsOSX>
-    <IsLinux
-      Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">
-      true
-    </IsLinux>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
@@ -32,15 +20,6 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
     <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(IsWindows)'=='true'">
-    <DefineConstants>Windows</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(IsOSX)'=='true'">
-    <DefineConstants>OSX</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(IsLinux)'=='true'">
-    <DefineConstants>Linux</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="CsvFileReaderAsync.cs" />

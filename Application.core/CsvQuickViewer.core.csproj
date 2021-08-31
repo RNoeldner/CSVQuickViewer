@@ -17,6 +17,7 @@
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <Configurations>Release;Debug</Configurations>
     <MinimumPlatformVersion>7.0</MinimumPlatformVersion>
+    <LangVersion>8.0</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>

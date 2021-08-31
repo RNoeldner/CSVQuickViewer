@@ -30,14 +30,14 @@ namespace CsvTools.Tests
 			var readFile = new CsvFile
 			{
 				ID = c_ReadID,
-				FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
+				FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
 				FileFormat = { CommentLine = "#" }
 			};
 			readFile.ColumnCollection.Add(new Column("ExamDate", @"dd/MM/yyyy"));
 			readFile.ColumnCollection.Add(new Column("Score", DataType.Integer));
 			readFile.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
 			readFile.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
-			UnitTestInitializeCsv.MimicSQLReader.AddSetting(readFile);
+			UnitTestStatic.MimicSQLReader.AddSetting(readFile);
 		}
 
 		[TestMethod]
@@ -52,7 +52,7 @@ namespace CsvTools.Tests
 			};
 
 			var sb = new StringBuilder("{");
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(fileSetting.SqlStatement, fileSetting.Timeout,
         processDisplay.CancellationToken);
       fileSetting.Header = "{\"rowset\":[\n";
@@ -87,7 +87,7 @@ namespace CsvTools.Tests
 				InOverview = true
 			};
 			var sb = new StringBuilder();
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(fileSetting.SqlStatement, fileSetting.Timeout,
         processDisplay.CancellationToken);
       sb.AppendLine("<?xml version=\"1.0\"?>\n");

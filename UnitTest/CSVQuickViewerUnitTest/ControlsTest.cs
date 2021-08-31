@@ -9,9 +9,9 @@ namespace CsvTools.Tests
     [Timeout(6000)]
     public void CsvTextDisplayShow()
     {
-      using (var frm = new FormCsvTextDisplay(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt")))
+      using (var frm = new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt")))
       {
-        UnitTestWinFormHelper.ShowFormAndClose(frm, .2,
+        UnitTestStatic.ShowFormAndClose(frm, .2,
           (f) => f.OpenFile(false, "\"", "\t", "", 1200, 1, "##"));
       }
     }

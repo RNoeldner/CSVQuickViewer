@@ -23,7 +23,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void OpenReadTestSetting()
     {
-      var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("BasicCsV.txt") };
+      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("BasicCsV.txt") };
       using var res = new ImprovedStream(new SourceAccess(setting, true));
       Assert.IsNotNull(res);
     }
@@ -31,7 +31,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void OpenReadTestGZipSmallRead()
     {
-      using var res = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt.gz"), true));
+      using var res = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt.gz"), true));
       Assert.IsNotNull(res);
       var result1 = new byte[2048];
       using (var reader = new BinaryReader(res))
@@ -58,7 +58,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void OpenReadTestZipSmallRead()
     {
-      var sourceAccess = new SourceAccess(UnitTestInitializeCsv.GetTestPath("AllFormatsPipe.zip"), true);
+      var sourceAccess = new SourceAccess(UnitTestStatic.GetTestPath("AllFormatsPipe.zip"), true);
 
       // opeing without IdentifierInContainer should return teh first file entry
       using (var res = new ImprovedStream(sourceAccess))
@@ -97,7 +97,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void OpenReadTestGZipLargeRead()
     {
-      using var res = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("Larger.json.gz"), true));
+      using var res = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("Larger.json.gz"), true));
       Assert.IsNotNull(res);
 
       var result1 = new byte[10000];
@@ -127,13 +127,13 @@ namespace CsvTools.Tests
     [TestMethod]
     public void OpenReadTestRegular()
     {
-      using var res = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"), true));
+      using var res = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt"), true));
       Assert.IsNotNull(res);
     }
 
     private void WriteFile(string fileName, string password, string internalName, bool remove = false)
     {
-      var fullname = UnitTestInitializeCsv.GetTestPath(fileName);
+      var fullname = UnitTestStatic.GetTestPath(fileName);
 
       var encoding = EncodingHelper.GetEncoding(65001, true);
       const string c_Line1 = "This is a test of compressed data written to a file";
@@ -202,7 +202,7 @@ namespace CsvTools.Tests
     public void OpenWriteTestZipAddUpdate()
     {
       var fn = "WriteText3.Zip";
-      var path = UnitTestInitializeCsv.GetTestPath(fn);
+      var path = UnitTestStatic.GetTestPath(fn);
 
       // Create
       WriteFile(fn, "Test", "Test.txt", false);
@@ -221,7 +221,7 @@ namespace CsvTools.Tests
     public void OpenWriteTestZipAddTwo()
     {
       var fn = "WriteText4.Zip";
-      var path = UnitTestInitializeCsv.GetTestPath(fn);
+      var path = UnitTestStatic.GetTestPath(fn);
 
       // Create two files
       WriteFile(fn, "Test", "Test.txt", false);
@@ -237,14 +237,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CloseTest()
     {
-      var res = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"), true));
+      var res = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt"), true));
       res.Close();
     }
 
     [TestMethod]
     public void DisposeTest()
     {
-      var res = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt"), true));
+      var res = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt"), true));
       res.Dispose();
     }
   }

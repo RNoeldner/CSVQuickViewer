@@ -23,7 +23,7 @@ namespace CsvTools.Tests
 		public void CustomProcessDisplayTest()
 		{
 			var called = false;
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       processDisplay.Progress += (sender, args) => { called = true; };
       processDisplay.SetProcess("Test", -1, true);
       Assert.IsTrue(called);
@@ -32,14 +32,14 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void DummyProcessDisplayTest()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       processDisplay.SetProcess("Test", -1, true);
     }
 
 		[TestMethod]
 		public void SetMaximum()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       processDisplay.Maximum = 666;
       Assert.AreEqual(666, processDisplay.Maximum);
 
@@ -50,14 +50,14 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void SetProcessTest()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       processDisplay.SetProcess("Test", -1, true);
     }
 
 		[TestMethod]
 		public void SetProcessTest1()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       processDisplay.Maximum = 5;
       processDisplay.SetProcess("Test", 100, true);
     }
@@ -65,7 +65,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void SetProcessTest2()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       processDisplay.Maximum = 5;
       processDisplay.SetProcess(null, new ProgressEventArgs("Hallo", 2, false));
     }

@@ -12,7 +12,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void ImprovedTextReaderTestBOM()
     {
-      using var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt")));
+      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt")));
       using var test = new ImprovedTextReader(impStream);
       test.ToBeginning();
       Assert.AreEqual(1, test.LineNumber);
@@ -23,7 +23,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void ImprovedTextReaderTestCodePage()
     {
-      using var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt")));
+      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt")));
       using var test = new ImprovedTextReader(impStream, 12000);
       test.ToBeginning();
       Assert.AreEqual(1, test.LineNumber);
@@ -34,7 +34,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void ImprovedTextReaderTestGz()
     {
-      using var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("BasicCsV.txt.gz")));
+      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt.gz")));
       using var test = new ImprovedTextReader(impStream, 12000);
       test.ToBeginning();
       Assert.AreEqual(1, test.LineNumber);
@@ -76,7 +76,7 @@ namespace CsvTools.Tests
 
 			foreach (var type in fn)
 			{
-				var fileName = UnitTestInitializeCsv.GetTestPath("Test_" + type.Item1 + ".txt");
+				var fileName = UnitTestStatic.GetTestPath("Test_" + type.Item1 + ".txt");
 				using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
 				{
 					// write the BOM
@@ -111,7 +111,7 @@ namespace CsvTools.Tests
 		public void ToBeginningTest()
     {
       // use a file with a BOM
-      using var impStream = new ImprovedStream(new SourceAccess(UnitTestInitializeCsv.GetTestPath("txTranscripts.txt")));
+      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt")));
       using var test = new ImprovedTextReader(impStream);
       test.ToBeginning();
       Assert.AreEqual(1, test.LineNumber);

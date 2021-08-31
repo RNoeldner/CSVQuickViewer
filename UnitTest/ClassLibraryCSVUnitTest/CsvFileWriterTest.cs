@@ -31,7 +31,7 @@ namespace CsvTools.Tests
     public void Init()
     {
       m_ReadFile =
-        new CsvFile(UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"))
+        new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"))
         {
           ID = "Read",
           FileFormat = { FieldDelimiter = ",", CommentLine = "#" }
@@ -43,7 +43,7 @@ namespace CsvTools.Tests
       m_ReadFile.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
       m_ReadFile.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
 
-      UnitTestInitializeCsv.MimicSQLReader.AddSetting(m_ReadFile);
+      UnitTestStatic.MimicSQLReader.AddSetting(m_ReadFile);
 
       m_WriteFile = new CsvFile { ID = "Write", SqlStatement = m_ReadFile.ID };
 
@@ -58,12 +58,12 @@ namespace CsvTools.Tests
       var pd = new MockProcessDisplay();
 
       var writeFile = (CsvFile) m_WriteFile.Clone();
-      writeFile.FileName =  UnitTestInitializeCsv.GetTestPath("BasicCSVOut2tzc.txt");
+      writeFile.FileName =  UnitTestStatic.GetTestPath("BasicCSVOut2tzc.txt");
 
       FileSystemUtils.FileDelete(writeFile.FileName);
       var setting = UnitTestStatic.ReaderGetAllFormats();
 
-      UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting);
+      UnitTestStatic.MimicSQLReader.AddSetting(setting);
       writeFile.SqlStatement = setting.ID;
       writeFile.FileFormat.FieldDelimiter = "|";
       writeFile.ColumnCollection.Add(
@@ -88,7 +88,7 @@ namespace CsvTools.Tests
       var pd = new MockProcessDisplay();
 
       var writeFile = (CsvFile) m_WriteFile.Clone();
-      writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut.txt");
+      writeFile.FileName = UnitTestStatic.GetTestPath("BasicCSVOut.txt");
       FileSystemUtils.FileDelete(writeFile.FileName);
       writeFile.FileFormat.FieldDelimiter = "|";
 
@@ -107,12 +107,12 @@ namespace CsvTools.Tests
       var pd = new MockProcessDisplay();
 
       var writeFile = (CsvFile) m_WriteFile.Clone();
-      writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut2.txt");
+      writeFile.FileName = UnitTestStatic.GetTestPath("BasicCSVOut2.txt");
 
       FileSystemUtils.FileDelete(writeFile.FileName);
       var setting = UnitTestStatic.ReaderGetAllFormats();
 
-      UnitTestInitializeCsv.MimicSQLReader.AddSetting(setting);
+      UnitTestStatic.MimicSQLReader.AddSetting(setting);
       writeFile.SqlStatement = setting.ID;
       writeFile.FileFormat.FieldDelimiter = "|";
 
@@ -147,8 +147,8 @@ namespace CsvTools.Tests
         dataTable.Rows.Add(row);
       }
 
-      var writeFile = new CsvFile { ID = "Test.txt", FileName =  UnitTestInitializeCsv.GetTestPath("Test.txt"), SqlStatement = "Hello" };
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+      var writeFile = new CsvFile { ID = "Test.txt", FileName =  UnitTestStatic.GetTestPath("Test.txt"), SqlStatement = "Hello" };
+      using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
       {
         var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
@@ -175,12 +175,12 @@ namespace CsvTools.Tests
         dataTable.Rows.Add(row);
       }
 
-      var writeFile = new CsvFile { ID = "Test.txt", FileName =  UnitTestInitializeCsv.GetTestPath("Test.txt"), SqlStatement = "Hello" };
+      var writeFile = new CsvFile { ID = "Test.txt", FileName =  UnitTestStatic.GetTestPath("Test.txt"), SqlStatement = "Hello" };
       writeFile.ColumnCollection.Add(new Column("Text", DataType.Integer));
       writeFile.Header = "##This is a header for {FileName}";
       writeFile.Footer = "##This is a Footer\r\n{Records} in file";
       var count = 0;
-      using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+      using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
       {
         var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
@@ -215,7 +215,7 @@ namespace CsvTools.Tests
       var writeFile = new CsvFile
       {
         ID = "Test.txt",
-        FileName =  UnitTestInitializeCsv.GetTestPath("WriteFileLocked.txt"),
+        FileName =  UnitTestStatic.GetTestPath("WriteFileLocked.txt"),
         InOverview = false,
         SqlStatement = "dummy"
       };
@@ -225,7 +225,7 @@ namespace CsvTools.Tests
         await file.WriteLineAsync("Hello");
         try
         {
-          using (var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token))
+          using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
           {
             var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
@@ -252,7 +252,7 @@ namespace CsvTools.Tests
       var pd = new MockProcessDisplay();
 
       var writeFile = (CsvFile) m_WriteFile.Clone();
-      writeFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSVOut.txt.gz");
+      writeFile.FileName = UnitTestStatic.GetTestPath("BasicCSVOut.txt.gz");
       FileSystemUtils.FileDelete(writeFile.FileName);
       writeFile.FileFormat.FieldDelimiter = "|";
 

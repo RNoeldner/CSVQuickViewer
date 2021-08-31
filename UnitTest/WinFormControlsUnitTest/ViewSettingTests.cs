@@ -70,7 +70,7 @@ namespace CsvTools.Tests
         {
           dc.HTMLStyle = new HTMLStyle();
           dc.DataTable = dt;
-          await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);
+          await dc.RefreshDisplayAsync(FilterType.All, UnitTestStatic.Token);
           var columnFilters = new List<ToolStripDataGridViewColumnFilter>
           {
             new ToolStripDataGridViewColumnFilter(dc.FilteredDataGridView.Columns[0])

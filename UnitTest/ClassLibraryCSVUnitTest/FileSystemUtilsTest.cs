@@ -25,7 +25,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void UtilsCreate()
     {
-      var fn = UnitTestInitializeCsv.GetTestPath("out1.txt");
+      var fn = UnitTestStatic.GetTestPath("out1.txt");
       using (var result = FileSystemUtils.Create(fn, 512, FileOptions.Asynchronous))
       {
         Assert.IsNotNull(result);
@@ -37,7 +37,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void UtilsCreateText()
     {
-      var fn = UnitTestInitializeCsv.GetTestPath("out2.txt");
+      var fn = UnitTestStatic.GetTestPath("out2.txt");
       using (var result = FileSystemUtils.CreateText(fn))
       {
         Assert.IsNotNull(result);
@@ -90,23 +90,23 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task FileCopy()
     {
-      var dest = UnitTestInitializeCsv.GetTestPath("xyz.txt");
+      var dest = UnitTestStatic.GetTestPath("xyz.txt");
       try
       {
-        using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+        using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
         processDisplay.Maximum = -100;
 
         Assert.IsFalse(FileSystemUtils.FileExists(dest));
-        await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AllFormats.txt"), dest, false,
+        await FileSystemUtils.FileCopy(UnitTestStatic.GetTestPath("AllFormats.txt"), dest, false,
           processDisplay);
         Assert.IsTrue(FileSystemUtils.FileExists(dest));
         Assert.AreEqual(-100, processDisplay.Maximum);
 
         // Copy again, the old file should be overwritten
-        await FileSystemUtils.FileCopy(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt"), dest, true,
+        await FileSystemUtils.FileCopy(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), dest, true,
           processDisplay);
         Assert.IsTrue(FileSystemUtils.FileExists(dest));
-        Assert.AreEqual(new FileInfo(UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")).Length,
+        Assert.AreEqual(new FileInfo(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")).Length,
           new FileInfo(dest).Length);
       }
       finally
@@ -198,10 +198,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GroupFromFileNameInMain()
     {
-      var setting2 = new CsvFile($"..{Path.DirectorySeparatorChar}TestFile.csv") { RootFolder = UnitTestInitializeCsv.ApplicationDirectory };
+      var setting2 = new CsvFile($"..{Path.DirectorySeparatorChar}TestFile.csv") { RootFolder = UnitTestStatic.ApplicationDirectory };
       var dn = FileSystemUtils.SplitPath(setting2.FullPath).DirectoryName;
 
-      Assert.AreEqual($"..{Path.DirectorySeparatorChar}", dn.GetRelativeFolder(UnitTestInitializeCsv.ApplicationDirectory));
+      Assert.AreEqual($"..{Path.DirectorySeparatorChar}", dn.GetRelativeFolder(UnitTestStatic.ApplicationDirectory));
     }
 
     [TestMethod]
@@ -277,7 +277,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Create()
     {
-      var fn = UnitTestInitializeCsv.GetTestPath("Test2.dat");
+      var fn = UnitTestStatic.GetTestPath("Test2.dat");
       if (File.Exists(fn))
         File.Delete(fn);
 
@@ -295,7 +295,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void WriteAllText()
     {
-      var fn = UnitTestInitializeCsv.GetTestPath("Test3.txt");
+      var fn = UnitTestStatic.GetTestPath("Test3.txt");
       if (File.Exists(fn))
         File.Delete(fn);
       FileSystemUtils.WriteAllText(fn, "Hello World\n");
@@ -305,8 +305,8 @@ namespace CsvTools.Tests
 
     private string GetLongFileName(string fn, bool create)
     {
-      Directory.SetCurrentDirectory(UnitTestInitializeCsv.ApplicationDirectory);
-      var directory = UnitTestInitializeCsv.ApplicationDirectory;
+      Directory.SetCurrentDirectory(UnitTestStatic.ApplicationDirectory);
+      var directory = UnitTestStatic.ApplicationDirectory;
       while (directory.Length < 260)
       {
         directory += "\\This is a subfolder";
@@ -330,9 +330,9 @@ namespace CsvTools.Tests
     [Ignore("PathTooLongException when compiled in .net standard")]
     public void TestMethodsOnLongPath()
     {
-      Directory.SetCurrentDirectory(UnitTestInitializeCsv.ApplicationDirectory);
+      Directory.SetCurrentDirectory(UnitTestStatic.ApplicationDirectory);
       var relPath = ".";
-      var directory = UnitTestInitializeCsv.ApplicationDirectory;
+      var directory = UnitTestStatic.ApplicationDirectory;
       while (directory.Length < 260)
       {
         relPath += Path.DirectorySeparatorChar + "This is a subfolder";

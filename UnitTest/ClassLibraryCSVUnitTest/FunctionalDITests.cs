@@ -17,9 +17,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetFileReaderTestCsv()
     {
-      var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt") };
+      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt") };
       using var test =
-        FunctionalDI.GetFileReader(setting, null, new CustomProcessDisplay(UnitTestInitializeCsv.Token));
+        FunctionalDI.GetFileReader(setting, null, new CustomProcessDisplay(UnitTestStatic.Token));
       Assert.IsInstanceOfType(test, typeof(CsvFileReader));
     }
 
@@ -28,22 +28,22 @@ namespace CsvTools.Tests
     {
       var setting = new JsonFile
       {
-        FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt")
+        FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")
       };
       using var test2 =
-        FunctionalDI.GetFileReader(setting, null, new CustomProcessDisplay(UnitTestInitializeCsv.Token));
+        FunctionalDI.GetFileReader(setting, null, new CustomProcessDisplay(UnitTestStatic.Token));
       Assert.IsInstanceOfType(test2, typeof(JsonFileReader));
     }
 
     [TestMethod]
     public void GetFileWriterTest()
     {
-      var setting = new CsvFile { FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt") };
-      var test = FunctionalDI.GetFileWriter(setting, new CustomProcessDisplay(UnitTestInitializeCsv.Token));
+      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt") };
+      var test = FunctionalDI.GetFileWriter(setting, new CustomProcessDisplay(UnitTestStatic.Token));
       Assert.IsInstanceOfType(test, typeof(CsvFileWriter));
 
-      var setting2 = new JsonFile { FileName = UnitTestInitializeCsv.GetTestPath("AlternateTextQualifiers.txt"), Row ="{0}" };
-      var test2 = FunctionalDI.GetFileWriter(setting2, new CustomProcessDisplay(UnitTestInitializeCsv.Token));
+      var setting2 = new JsonFile { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), Row ="{0}" };
+      var test2 = FunctionalDI.GetFileWriter(setting2, new CustomProcessDisplay(UnitTestStatic.Token));
       Assert.IsInstanceOfType(test2, typeof(StructuredFileWriter));
     }
 
