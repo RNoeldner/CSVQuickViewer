@@ -40,7 +40,7 @@ namespace CsvTools.Tests
 			};
 			var b = a.Clone();
 			Assert.AreNotSame(b, a);
-			a.AllPropertiesEqual(b);
+			a.CheckAllPropertiesEqual(b);
 		}
 
 		[TestMethod]
@@ -82,7 +82,7 @@ namespace CsvTools.Tests
 
 			a.CopyTo(b);
 			Assert.AreNotSame(b, a);
-			a.AllPropertiesEqual(b);
+			a.CheckAllPropertiesEqual(b);
 		}
 
 		[TestMethod]

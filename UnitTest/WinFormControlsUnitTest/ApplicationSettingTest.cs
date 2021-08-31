@@ -32,7 +32,7 @@ namespace CsvTools.Tests
 				// all good
 			}
 
-			FunctionalDI.SQLDataReader = UnitTestInitializeCsv.MimicSQLReader.ReadDataAsync;
+			FunctionalDI.SQLDataReader = UnitTestStatic.MimicSQLReader.ReadDataAsync;
 			var readerAsync = FunctionalDI.SQLDataReader;
 			Assert.IsNotNull(readerAsync);
 		}

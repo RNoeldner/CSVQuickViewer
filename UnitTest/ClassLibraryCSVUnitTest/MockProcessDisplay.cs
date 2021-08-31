@@ -26,7 +26,7 @@ namespace CsvTools.Tests
     public long Maximum { get; set; }
     public virtual string Title { get; set; } = string.Empty;
 
-    public CancellationToken CancellationToken => UnitTestInitializeCsv.Token;
+    public CancellationToken CancellationToken => UnitTestStatic.Token;
 
     public event EventHandler<ProgressEventArgs>? Progress;
 

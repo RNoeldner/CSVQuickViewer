@@ -50,11 +50,11 @@ namespace CsvTools.Tests
 
         using (var dc = new DetailControl())
         {
-          dc.HTMLStyle = UnitTestInitializeCsv.HTMLStyle;
+          dc.HTMLStyle = UnitTestStatic.HTMLStyle;
           dc.Show();
           dc.DataTable = dt;
           
-          await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);
+          await dc.RefreshDisplayAsync(FilterType.All, UnitTestStatic.Token);
           dc.OnlyShowErrors = true ;
           dc.MoveMenu();
         }
@@ -83,10 +83,10 @@ namespace CsvTools.Tests
 
         using (var dc = new DetailControl())
         {
-          dc.HTMLStyle = UnitTestInitializeCsv.HTMLStyle;
+          dc.HTMLStyle = UnitTestStatic.HTMLStyle;
           dc.Show();
           dc.DataTable = dt;
-          await dc.RefreshDisplayAsync(FilterType.All, UnitTestInitializeCsv.Token);
+          await dc.RefreshDisplayAsync(FilterType.All, UnitTestStatic.Token);
           dc.Sort("ID", ListSortDirection.Ascending);
         }
       }

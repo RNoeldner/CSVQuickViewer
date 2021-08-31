@@ -136,19 +136,19 @@ namespace CsvTools.Tests
     public void GetProcessDisplayTest()
     {
       var setting = new CsvFile { FileName = "Folder\\This is a long file name that should be cut and fit into 80 chars.txt", ShowProgress = true };
-      using (var prc = setting.GetProcessDisplay(null, true, UnitTestInitializeCsv.Token))
+      using (var prc = setting.GetProcessDisplay(null, true, UnitTestStatic.Token))
       {
         Assert.IsTrue(prc != null, "GetProcessDisplay With Logger");
       }
 
-      using (var prc = setting.GetProcessDisplay(null, false, UnitTestInitializeCsv.Token))
+      using (var prc = setting.GetProcessDisplay(null, false, UnitTestStatic.Token))
       {
         Assert.IsTrue(prc != null, "GetProcessDisplay Without Logger");
       }
 
       var setting2 = new CsvFile { FileName = "Folder\\This is a long file name that should be cut and fit into 80 chars.txt", ShowProgress = false };
 
-      using (var prc = setting2.GetProcessDisplay(null, false, UnitTestInitializeCsv.Token))
+      using (var prc = setting2.GetProcessDisplay(null, false, UnitTestStatic.Token))
       {
         Assert.IsTrue(prc != null, "GetProcessDisplay without UI");
       }
@@ -158,9 +158,9 @@ namespace CsvTools.Tests
         frm.Text = "Testing...";
         frm.Show();
         var csv = new CsvFile() { ShowProgress = true };
-        Assert.IsInstanceOfType(csv.GetProcessDisplay(frm, true, UnitTestInitializeCsv.Token), typeof(FormProcessDisplay));
+        Assert.IsInstanceOfType(csv.GetProcessDisplay(frm, true, UnitTestStatic.Token), typeof(FormProcessDisplay));
         csv.ShowProgress = false;
-        Assert.IsNotInstanceOfType(csv.GetProcessDisplay(frm, true, UnitTestInitializeCsv.Token), typeof(FormProcessDisplay));
+        Assert.IsNotInstanceOfType(csv.GetProcessDisplay(frm, true, UnitTestStatic.Token), typeof(FormProcessDisplay));
       }
     }
 

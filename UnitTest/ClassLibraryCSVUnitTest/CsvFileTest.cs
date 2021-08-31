@@ -86,7 +86,7 @@ namespace CsvTools.Tests
 		{
 			var test = new CsvFile();
 			m_CsvFile.CopyTo(test);
-			m_CsvFile.AllPropertiesEqual(test);
+			m_CsvFile.CheckAllPropertiesEqual(test);
 			// Test Properties that are not tested
 			Assert.AreEqual(m_CsvFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
 			Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
@@ -103,7 +103,7 @@ namespace CsvTools.Tests
 			Assert.AreNotSame(m_CsvFile, test);
 			Assert.IsInstanceOfType(test, typeof(CsvFile));
 
-			m_CsvFile.AllPropertiesEqual(test!);
+			m_CsvFile.CheckAllPropertiesEqual(test!);
 			// Test Properties that are not tested
 
 			Assert.AreEqual(m_CsvFile.MappingCollection.Count, test!.MappingCollection.Count, "FieldMapping");
@@ -152,8 +152,8 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void GetFileReader()
 		{
-			m_CsvFile.FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt");
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+			m_CsvFile.FileName = UnitTestStatic.GetTestPath("BasicCSV.txt");
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       using var res = FunctionalDI.GetFileReader(m_CsvFile, TimeZoneInfo.Local.Id, processDisplay);
       Assert.IsInstanceOfType(res, typeof(IFileReader));
     }
@@ -161,7 +161,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void GetFileWriter()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       var res = FunctionalDI.GetFileWriter(m_CsvFile, processDisplay);
       Assert.IsInstanceOfType(res, typeof(IFileWriter));
     }

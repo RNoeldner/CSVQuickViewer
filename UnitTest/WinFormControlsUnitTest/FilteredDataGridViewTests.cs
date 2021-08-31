@@ -116,7 +116,7 @@ namespace CsvTools.Tests
       {
         filteredDataGridView.DataSource = dt;
         filteredDataGridView.FrozenColumns = 2;
-        UnitTestWinFormHelper.WaitSomeTime(.2, UnitTestInitializeCsv.Token);
+        UnitTestStatic.WaitSomeTime(.2, UnitTestStatic.Token);
       }
     }
 
@@ -129,7 +129,7 @@ namespace CsvTools.Tests
       {
         filteredDataGridView.DataSource = dt;
         filteredDataGridView.HighlightText = "ag";
-        UnitTestWinFormHelper.WaitSomeTime(.2, UnitTestInitializeCsv.Token);
+        UnitTestStatic.WaitSomeTime(.2, UnitTestStatic.Token);
         Assert.AreEqual("", filteredDataGridView.CurrentFilter);
       }
     }
@@ -141,7 +141,7 @@ namespace CsvTools.Tests
       using (var data = UnitTestStatic.GetDataTable(200))
       using (var ctrl = new FilteredDataGridView())
       {
-        UnitTestWinFormHelper.ShowControl(new FilteredDataGridView(), 0.5d,
+        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
           (control, form) =>
           {
             if (!(control is FilteredDataGridView ctrl2))
@@ -163,7 +163,7 @@ namespace CsvTools.Tests
       using (var data = UnitTestStatic.GetDataTable(200))
       using (var ctrl = new FilteredDataGridView())
       {
-        UnitTestWinFormHelper.ShowControl(new FilteredDataGridView(), 0.5d,
+        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
           (control, form) =>
           {
             if (!(control is FilteredDataGridView ctrl2))
@@ -184,7 +184,7 @@ namespace CsvTools.Tests
       using (var data = UnitTestStatic.GetDataTable(200))
       using (var ctrl = new FilteredDataGridView())
       {
-        UnitTestWinFormHelper.ShowControl(new FilteredDataGridView(), 0.5d,
+        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
           (control, form) =>
           {
             if (!(control is FilteredDataGridView ctrl2))
@@ -198,7 +198,7 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(5000)]
-    public void FilteredDataGridViewShow() => UnitTestWinFormHelper.ShowControl(new FilteredDataGridView());
+    public void FilteredDataGridViewShow() => UnitTestStatic.ShowControl(new FilteredDataGridView());
 
     [TestMethod()]
     public void ApplyFiltersTest()
@@ -206,7 +206,7 @@ namespace CsvTools.Tests
       using (var data = UnitTestStatic.GetDataTable(200))
       using (var ctrl = new FilteredDataGridView())
       {
-        UnitTestWinFormHelper.ShowControl(new FilteredDataGridView(), 0.5d,
+        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
           (control, form) =>
           {
             if (!(control is FilteredDataGridView ctrl2))
@@ -223,7 +223,7 @@ namespace CsvTools.Tests
       using (var data = UnitTestStatic.GetDataTable(200))
       using (var ctrl = new FilteredDataGridView())
       {
-        UnitTestWinFormHelper.ShowControl(new FilteredDataGridView(), 0.5d,
+        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
           (control, form) =>
           {
             if (!(control is FilteredDataGridView ctrl2))
@@ -244,7 +244,7 @@ namespace CsvTools.Tests
       using (var data = UnitTestStatic.GetDataTable(200))
       using (var ctrl = new FilteredDataGridView())
       {
-        UnitTestWinFormHelper.ShowControl(new FilteredDataGridView(), 0.5d,
+        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
           (control, form) =>
           {
             if (!(control is FilteredDataGridView ctrl2))
@@ -261,7 +261,7 @@ namespace CsvTools.Tests
       using (var data = UnitTestStatic.GetDataTable(200))
       using (var ctrl = new FilteredDataGridView())
       {
-        UnitTestWinFormHelper.ShowControl(new FilteredDataGridView(), 0.5d,
+        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
           (control, form) =>
           {
             if (!(control is FilteredDataGridView ctrl2))
@@ -284,7 +284,7 @@ namespace CsvTools.Tests
       using (var data = UnitTestStatic.GetDataTable(200))
       using (var ctrl = new FilteredDataGridView())
       {
-        UnitTestWinFormHelper.ShowControl(new FilteredDataGridView(), 0.5d,
+        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
           (control, form) =>
           {
             if (!(control is FilteredDataGridView ctrl2))

@@ -15,6 +15,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace CsvTools.Tests
@@ -71,11 +72,12 @@ namespace CsvTools.Tests
           // in case the code page was not found we ignore
         }
       }
-#if Windows
-      Assert.AreEqual(17, notRecognized.Count);
-#else
-			Assert.AreEqual(12, notRecognized.Count);
-#endif
+      var expected = 12;
+      if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        expected=17;
+
+      Assert.AreEqual(expected, notRecognized.Count);
+
     }
 
     [TestMethod]

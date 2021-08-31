@@ -23,7 +23,7 @@ namespace CsvTools.Tests
   {
     private readonly CsvFile m_ValidSetting = new CsvFile
     {
-      FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
+      FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
       FileFormat = { FieldDelimiter = ",", CommentLine = "#" }
     };
 
@@ -40,8 +40,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetColumnsOfReaderTest()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
-      using var test = new CsvFileReader(fileName: UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      using var test = new CsvFileReader(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"),
         fieldDelimiter: ",", commentLine: "#", processDisplay: processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
       Assert.AreEqual(6, test.GetColumnsOfReader().Count);
@@ -50,7 +50,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetEmptyColumnHeaderAsyncTest()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader, m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FileFormat.FieldDelimiter, m_ValidSetting.FileFormat.FieldQualifier, m_ValidSetting.FileFormat.EscapeCharacter, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.FileFormat.AlternateQuoting, m_ValidSetting.FileFormat.CommentLine, m_ValidSetting.NumWarnings, m_ValidSetting.FileFormat.DuplicateQuotingToEscape, m_ValidSetting.FileFormat.NewLinePlaceholder, m_ValidSetting.FileFormat.DelimiterPlaceholder, m_ValidSetting.FileFormat.QuotePlaceholder, m_ValidSetting.SkipDuplicateHeader, m_ValidSetting.TreatLFAsSpace, m_ValidSetting.TreatUnknownCharacterAsSpace, m_ValidSetting.TryToSolveMoreColumns, m_ValidSetting.WarnDelimiterInValue, m_ValidSetting.WarnLineFeed, m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns, m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows, m_ValidSetting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
       var result = await test.GetEmptyColumnHeaderAsync(processDisplay.CancellationToken);
@@ -60,7 +60,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync2()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       var test2 = (CsvFile) m_ValidSetting.Clone();
       test2.RecordLimit = 4;
       using var test = new CsvFileReader(test2.FullPath, test2.CodePageId, test2.SkipRows, test2.HasFieldHeader, test2.ColumnCollection, test2.TrimmingOption, test2.FileFormat.FieldDelimiter, test2.FileFormat.FieldQualifier, test2.FileFormat.EscapeCharacter, test2.RecordLimit, test2.AllowRowCombining, test2.FileFormat.AlternateQuoting, test2.FileFormat.CommentLine, test2.NumWarnings, test2.FileFormat.DuplicateQuotingToEscape, test2.FileFormat.NewLinePlaceholder, test2.FileFormat.DelimiterPlaceholder, test2.FileFormat.QuotePlaceholder, test2.SkipDuplicateHeader, test2.TreatLFAsSpace, test2.TreatUnknownCharacterAsSpace, test2.TryToSolveMoreColumns, test2.WarnDelimiterInValue, test2.WarnLineFeed, test2.WarnNBSP, test2.WarnQuotes, test2.WarnUnknownCharacter, test2.WarnEmptyTailingColumns, test2.TreatNBSPAsSpace, test2.TreatTextAsNull, test2.SkipEmptyLines, test2.ConsecutiveEmptyRows, test2.IdentifierInContainer, processDisplay);
@@ -74,8 +74,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync3()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
-      var test3 = new CsvFile(UnitTestInitializeCsv.GetTestPath("WithEoFChar.txt"))
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var test3 = new CsvFile(UnitTestStatic.GetTestPath("WithEoFChar.txt"))
       {
         FileFormat = { FieldDelimiter = "Tab" }
       };

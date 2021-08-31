@@ -10,8 +10,8 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public async Task AllFormatsPipeReaderAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
-      using var test = new CsvFileReader(fileName: UnitTestInitializeCsv.GetTestPath("RealignColumn.txt"),
+      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      using var test = new CsvFileReader(fileName: UnitTestStatic.GetTestPath("RealignColumn.txt"),
         hasFieldHeader: true, tryToSolveMoreColumns: true, skipEmptyLines: false, processDisplay: processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
 

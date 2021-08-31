@@ -22,11 +22,11 @@ namespace CsvTools.Tests
       using var tsde = new TwoStepDataTableLoader(dt => myDataTable = dt, () => myDataTable, refeshFunc, null, () => beginCalled=true, (x) => finishedCalled=true);
       var csv = new CsvFile
       {
-        FileName = UnitTestInitializeCsv.GetTestPath("BasicCSV.txt"),
+        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
         FileFormat = { FieldDelimiter = ",", CommentLine = "#" }
       };
 
-      using var proc = new CustomProcessDisplay(UnitTestInitializeCsv.Token);
+      using var proc = new CustomProcessDisplay(UnitTestStatic.Token);
       await tsde.StartAsync(csv, true, TimeSpan.FromMilliseconds(20), proc, (sender, args) => { warningCalled =true; });
       Assert.IsTrue(refreshCalled);
       Assert.IsFalse(warningCalled);

@@ -13,7 +13,7 @@ namespace CsvTools.Tests
       {
         using (var frm = new FormEditSettings(new ViewSettings()))
         {
-          UnitTestWinFormHelper.ShowFormAndClose(frm);
+          UnitTestStatic.ShowFormAndClose(frm);
         }
       });
     }
@@ -26,7 +26,7 @@ namespace CsvTools.Tests
       {
         using (var frm = new FormEditSettings())
         {
-          UnitTestWinFormHelper.ShowFormAndClose(frm);
+          UnitTestStatic.ShowFormAndClose(frm);
         }
       });
     }
