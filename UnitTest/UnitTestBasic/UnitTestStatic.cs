@@ -37,7 +37,7 @@ namespace CsvTools.Tests
       FileSystemUtils.ExecutableDirectoryName(),
       "TestFiles");
 
-    public static CancellationToken Token;
+    public static CancellationToken Token = CancellationToken.None;
 
     private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 
@@ -133,6 +133,7 @@ namespace CsvTools.Tests
     public static void AssemblyInitialize(CancellationToken contextToken, Action<string> unhandledException)
     {
       MimicSql();
+
       Token = contextToken;
 
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
