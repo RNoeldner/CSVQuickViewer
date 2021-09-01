@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
@@ -415,6 +416,63 @@ namespace CsvTools.Tests
       WaitSomeTime(.1, token);
       frm.Close();
     }
+    private static void GetButtonsRecursive(Control rootControl, ICollection<Component> btns)
+    {
+      foreach (Control ctrl in rootControl.Controls)
+      {
+        switch (ctrl)
+        {
+          case Button _:
+            btns.Add(ctrl);
+            break;
+          case ToolStrip ts:
+          {
+            foreach (ToolStripItem i in ts.Items)
+            {
+              if (i is ToolStripButton)
+                btns.Add(i);
+            }
+            break;
+          }
+          default:
+          {
+            if (ctrl.HasChildren)
+              GetButtonsRecursive(ctrl, btns);
+            break;
+          }
+        }
+      }
+    }
+
+    //public static void CheckButtonEvents(this ContainerControl rootControl, Action<string> messageIssue)
+    //{
+    //  var sb = new StringBuilder();
+    //  var buttons = new List<Component>();
+    //  GetButtonsRecursive(rootControl, buttons);
+    //  if (buttons.Count==0)
+    //    return;
+    //  FieldInfo eventClick = typeof(Control).GetField("EventClick", BindingFlags.NonPublic | BindingFlags.Static);
+    //  object secret = eventClick.GetValue(null);
+    //  PropertyInfo eventsProp = typeof(Component).GetProperty("Events", BindingFlags.NonPublic | BindingFlags.Instance);
+    //  foreach (var btn in buttons)
+    //  {
+    //    EventHandlerList events = (EventHandlerList) eventsProp.GetValue(btn, null);
+    //    // check OnClick Event
+    //    var field = btn.GetType().GetField("EventClick", BindingFlags.NonPublic | BindingFlags.Static);
+    //    Delegate click = events[secret];
+    //    if (click is null)
+    //    {
+    //      if (sb.Length > 0)
+    //        sb.Append(", ");
+    //      sb.Append(btn.ToString());
+    //    }
+    //  }
+
+    //  if (sb.Length <= 0)
+    //    return;
+
+    //  messageIssue?.Invoke($"{rootControl.GetType().Name} {rootControl.Name} Missing click events {sb}");
+    //}
 
     public static void ShowFormAndClose<T>(T frm, double before = .2, Action<T>? toDo = null, CancellationToken token = default)
       where T : Form =>

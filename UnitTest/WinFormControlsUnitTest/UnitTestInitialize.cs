@@ -4,7 +4,7 @@ using System.Windows.Forms;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class UnitTestInitialize
+  public sealed class UnitTestInitialize
   {
     [AssemblyInitialize]
     public static void AssemblyInitialize(TestContext context)
