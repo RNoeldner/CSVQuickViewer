@@ -12,68 +12,19 @@
  *
  */
 
-using System.Drawing;
-using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class FormMainTests
+  public sealed class FormMainTests
   {
-    //public void GetButtons(Control rootControl, List<Component> btns)
-    //{
-    //  foreach (Control ctrl in rootControl.Controls)
-    //  {
-    //    if (ctrl is Button)
-    //      btns.Add(ctrl);
-    //    else if (ctrl is ToolStrip ts)
-    //    {
-    //      foreach (ToolStripItem i in ts.Items)
-    //      {
-    //        if (i is ToolStripButton)
-    //          btns.Add(i);
-    //      }
-    //    }
-    //    else if (ctrl.HasChildren)
-    //      GetButtons(ctrl, btns);
-    //  }
-    //}
-
-    //[TestMethod]
-    //public void CheckEvents()
-    //{
-    //  Extensions.RunSTAThread(() =>
-    //  {
-    //    using (var frm = new FormMain(Path.Combine(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"))))
-    //    {
-    //      Thread.Sleep(500);
-    //      //UnitTestStatic.WaitSomeTime(2, UnitTestStatic.Token);
-    //      var btns = new List<Component>();
-    //      GetButtons(frm, btns);
-
-    //      foreach (var btn in btns)
-    //      {
-    //        var events = (EventHandlerList) typeof(Component).GetProperty("Events", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(btn, null);
-    //        // check OnClick Event
-    //        var field = btn.GetType().GetField("EventClick", BindingFlags.NonPublic | BindingFlags.Static);
-    //        if (field != null)
-    //        {
-    //          var clickhandlers = events[field.GetValue(btn)];
-    //          Assert.IsTrue(clickhandlers.GetInvocationList().Count()>0);
-    //        }
-    //      }
-    //    }
-    //  });
-    //}
-
     [TestMethod]
     [Timeout(20000)]
     public async System.Threading.Tasks.Task FormMain_BasicCSVAsync()
     {
       using var frm = new FormMain(new ViewSettings());
-      frm.Size = new Size(800, 600);
-      await UnitTestStatic.ShowFormAndCloseAsync(frm, .2, frm.LoadCsvFile(Path.Combine(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"))), UnitTestStatic.Token);
+      await UnitTestStatic.ShowFormAndCloseAsync(frm, .2, frm.LoadCsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt.gz")), UnitTestStatic.Token);
 
       Assert.IsNotNull(frm.DataTable);
       Assert.AreEqual(7, frm.DataTable.Rows.Count);

@@ -17,15 +17,15 @@ using System;
 namespace CsvTools
 {
   public class TextToHtmlFormatter : IColumnFormatter
-	{
-		public string Description => "Encode HTML (Linefeed and CData Tags)";
+  {
+    // public string Description => "Encode HTML (Linefeed and CData Tags)";
 
-		public string FormatText(in string inputString, Action<string>? handleWarning)
-		{
-			var output = HTMLStyle.TextToHtmlEncode(inputString);
-			if (!inputString.Equals(output, StringComparison.Ordinal))
-				handleWarning?.Invoke($"HTML encoding removed from {inputString}");
-			return output;
-		}
-	}
+    public string FormatText(in string inputString, Action<string>? handleWarning)
+    {
+      var output = HTMLStyle.TextToHtmlEncode(inputString);
+      if (!inputString.Equals(output, StringComparison.Ordinal))
+        handleWarning?.Invoke($"HTML encoding removed from {inputString}");
+      return output;
+    }
+  }
 }

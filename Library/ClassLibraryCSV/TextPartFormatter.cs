@@ -17,36 +17,36 @@ using System;
 namespace CsvTools
 {
   public class TextPartFormatter : IColumnFormatter
-	{
-		private readonly int m_Part;
+  {
+    private readonly int m_Part;
 
-		private readonly char m_PartSplitter;
+    private readonly char m_PartSplitter;
 
-		private readonly bool m_PartToEnd;
+    private readonly bool m_PartToEnd;
 
-		public TextPartFormatter()
-			: this(
-				ValueFormatExtension.cPartDefault,
-				ValueFormatExtension.cPartSplitterDefault,
-				ValueFormatExtension.cPartToEndDefault)
-		{
-		}
+    public TextPartFormatter()
+      : this(
+        ValueFormatExtension.cPartDefault,
+        ValueFormatExtension.cPartSplitterDefault,
+        ValueFormatExtension.cPartToEndDefault)
+    {
+    }
 
-		public TextPartFormatter(int part, string partSplitter, bool partToEnd)
-		{
-			m_Part = part;
-			m_PartSplitter = partSplitter.StringToChar();
-			m_PartToEnd = partToEnd;
-		}
+    public TextPartFormatter(int part, string partSplitter, bool partToEnd)
+    {
+      m_Part = part;
+      m_PartSplitter = partSplitter.StringToChar();
+      m_PartToEnd = partToEnd;
+    }
 
-		public string Description => $"Part {m_Part}{(m_PartToEnd ? " To End" : string.Empty)}";
+    // public string Description => $"Part {m_Part}{(m_PartToEnd ? " To End" : string.Empty)}";
 
-		public string FormatText(in string inputString, Action<string>? handleWarning)
-		{
-			var output = StringConversion.StringToTextPart(inputString, m_PartSplitter, m_Part, m_PartToEnd);
-			if (output is null)
-				handleWarning?.Invoke($"Part {m_Part} of text {inputString} is empty.");
-			return output ?? string.Empty;
-		}
-	}
+    public string FormatText(in string inputString, Action<string>? handleWarning)
+    {
+      var output = StringConversion.StringToTextPart(inputString, m_PartSplitter, m_Part, m_PartToEnd);
+      if (output is null)
+        handleWarning?.Invoke($"Part {m_Part} of text {inputString} is empty.");
+      return output ?? string.Empty;
+    }
+  }
 }
