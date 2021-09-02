@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CSVQuickViewer.MAUI.WinUI": {
+      "commandName": "MsixPackage",
+      "nativeDebugging": false
+    }
+  }
+}
