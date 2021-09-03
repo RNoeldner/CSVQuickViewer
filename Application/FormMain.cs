@@ -12,7 +12,6 @@
  *
  */
 
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System;
@@ -63,7 +62,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="FormMain" /> class.
     /// </summary>
     /// <param name="viewSettings">Default view Settings</param>
-    public FormMain(ViewSettings viewSettings)
+    public FormMain(in ViewSettings viewSettings)
     {
       m_ViewSettings = viewSettings;
 
@@ -148,6 +147,7 @@ namespace CsvTools
 
         if (m_FileSetting is null)
           return;
+        ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting, false);
 
         // update the UI
         this.SafeInvoke(() =>
@@ -582,13 +582,13 @@ namespace CsvTools
 
       {
         m_ToolStripButtonSettings.Enabled = false;
-        ViewSettings.CopyConfiguration(m_FileSetting, m_ViewSettings);
+        ViewSettings.CopyConfiguration(m_FileSetting, m_ViewSettings, true);
         using var frm = new FormEditSettings(m_ViewSettings);
         frm.ShowDialog(MdiParent);
         m_ViewSettings.SaveViewSettings();
         detailControl.MenuDown = m_ViewSettings.MenuDown;
         SetFileSystemWatcher(m_FileSetting.FileName);
-        ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting);
+        ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting, true);
 
         await CheckPossibleChange();
       });

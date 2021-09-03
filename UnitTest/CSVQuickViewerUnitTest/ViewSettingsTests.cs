@@ -14,11 +14,11 @@ namespace CsvTools.Tests
 
       Assert.IsFalse(test1.WarnDelimiterInValue);
       test1.WarnDelimiterInValue = true;
-      ViewSettings.CopyConfiguration(test1, test2);
+      ViewSettings.CopyConfiguration(test1, test2, true);
       Assert.IsTrue(test2.WarnDelimiterInValue);
 
       test3.WarnDelimiterInValue = false;
-      ViewSettings.CopyConfiguration(test3, test2);
+      ViewSettings.CopyConfiguration(test3, test2, false);
       Assert.IsFalse(test2.WarnDelimiterInValue);
     }
 
