@@ -40,28 +40,33 @@ namespace CsvTools
     /// </summary>
     public static void SaveViewSettings(this ViewSettings viewSettings)
     {
+      var oldFileName = viewSettings.FileName;
       try
       {
         if (!FileSystemUtils.DirectoryExists(m_SettingFolder))
           FileSystemUtils.CreateDirectory(m_SettingFolder);
 
-        FileSystemUtils.DeleteWithBackup(m_SettingPath, false);
         using var stringWriter = new StringWriter(CultureInfo.InvariantCulture);
-        // Remove and Restore FileName
-        var oldFileName = viewSettings.FileName;
+        // Remove and Restore FileName it would be serialized
         viewSettings.FileName = string.Empty;
 
         m_SerializerViewSettings.Serialize(
           stringWriter,
           viewSettings,
           SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
-        Logger.Debug("Saving defaults {path}", m_SettingPath);
-        File.WriteAllText(m_SettingPath, stringWriter.ToString());
-
-        viewSettings.FileName = oldFileName;
+        var newContens = stringWriter.ToString();
+        var oldContens = FileSystemUtils.FileExists(m_SettingPath) ? File.ReadAllText(m_SettingPath.LongPathPrefix()) : string.Empty;
+        if (!newContens.Equals(oldContens))
+        {
+          FileSystemUtils.DeleteWithBackup(m_SettingPath, false);
+          Logger.Debug("Saving defaults {path}", m_SettingPath);
+          File.WriteAllText(m_SettingPath, newContens);
+        }
+        
       }
       catch (Exception ex)
       {
+        viewSettings.FileName = oldFileName;
         Logger.Warning(ex, "Save Default Settings");
       }
     }

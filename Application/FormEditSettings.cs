@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+#nullable enable
 
 using System;
 using System.ComponentModel;
@@ -30,14 +31,7 @@ namespace CsvTools
     private readonly ViewSettings m_ViewSettings;
     private bool m_IsDisposed;
 
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="FormEditSettings" /> class.
-    /// </summary>
-    public FormEditSettings() : this(new ViewSettings())
-    {
-    }
-
-    public FormEditSettings(ViewSettings viewSettings)
+    public FormEditSettings(in ViewSettings viewSettings)
     {
       InitializeComponent();
       m_ViewSettings = viewSettings??throw new ArgumentNullException(nameof(viewSettings));
