@@ -268,10 +268,7 @@ namespace CsvTools
       }
     }
 
-    private void ColumnCollectionOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-      m_ConfigChanged = true;
-    }
+    private void ColumnCollectionOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => m_ConfigChanged = true;
 
     private async Task CheckPossibleChange()
     {
@@ -303,6 +300,9 @@ namespace CsvTools
           await OpenDataReaderAsync();
         else
           m_FileChanged = false;
+
+        if (m_FileSetting != null && !m_ViewSettings.StoreSettingsByFile)
+          FileSystemUtils.FileDelete(m_FileSetting.FileName + CsvFile.cCsvSettingExtension);
       }
       catch (Exception exception)
       {
@@ -397,10 +397,9 @@ namespace CsvTools
     {
       fileSystemWatcher.Changed += FileSystemWatcher_Changed;
       fileSystemWatcher.EnableRaisingEvents =  m_ViewSettings.DetectFileChanges;
-      if (!m_ViewSettings.StoreSettingsByFile)
-        return;
       m_ConfigChanged = false;
-      SerializedFilesLib.SaveSettingFile(e, () => true);
+      if (m_ViewSettings.StoreSettingsByFile)
+        SerializedFilesLib.SaveSettingFile(e, () => true);
     }
 
     /// <summary>
@@ -551,7 +550,7 @@ namespace CsvTools
         {
           var fileName = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
           SerializedFilesLib.SaveSettingFile(m_FileSetting,
-            () => _MessageBox.Show($"Setting {fileName.ShortFileName()} has been changed.\nReplace with new setting? ", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
+            () => _MessageBox.Show($"Setting {FileSystemUtils.GetShortDisplayFileName(fileName, 50)} has been changed.\nReplace with new setting? ", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
         }
         m_ConfigChanged = false;
       }
@@ -671,11 +670,12 @@ namespace CsvTools
         {
           Logger.Information("Showing columns as text");
           m_StoreColumns = new ColumnCollection(m_FileSetting.ColumnCollection);
-
+          m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
           m_FileSetting.ColumnCollection.Clear();
           // restore header names
           foreach (var col in m_StoreColumns)
             m_FileSetting.ColumnCollection.Add(new Column(col.Name) { ColumnOrdinal = col.ColumnOrdinal });
+          m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
           m_ToolStripButtonAsText.Text = "As Values";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;
         }
@@ -684,7 +684,9 @@ namespace CsvTools
           Logger.Information("Showing columns as values");
           m_ToolStripButtonAsText.Text = "As Text";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsText;
+          m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
           m_StoreColumns?.CollectionCopy(m_FileSetting.ColumnCollection);
+          m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
         }
 
         await OpenDataReaderAsync();
