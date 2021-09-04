@@ -396,6 +396,7 @@ Global
 		{238E57E3-F116-410F-B161-3E459E9835AE}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
 		{238E57E3-F116-410F-B161-3E459E9835AE}.Release|x64.ActiveCfg = Release|iPhoneSimulator
 		{238E57E3-F116-410F-B161-3E459E9835AE}.Release|x86.ActiveCfg = Release|iPhoneSimulator
+		{238E57E3-F116-410F-B161-3E459E9835AE}.Debug|Any CPU.Build.0 = Debug|iPhoneSimulator
 		{964E1635-5242-471B-93D5-040AB148CAC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{964E1635-5242-471B-93D5-040AB148CAC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{964E1635-5242-471B-93D5-040AB148CAC3}.Debug|ARM.ActiveCfg = Debug|Any CPU
@@ -448,5 +449,8 @@ Global
 		Policies = $0
 		$0.DotNetNamingPolicy = $1
 		$0.VersionControlPolicy = $2
+		$0.StandardHeader = $3
+		$3.Text = @/*\n * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com\n *\n * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public\n * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n *\n * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty\n * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.\n *\n * You should have received a copy of the GNU Lesser Public License along with this program.\n * If not, see http://www.gnu.org/licenses/ .\n *\n */
+		version = 1.4.6.499
 	EndGlobalSection
 EndGlobal
