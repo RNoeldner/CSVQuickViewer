@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 using Foundation;
@@ -25,7 +26,34 @@ namespace CSVQuickViewer.Xamarin.iOS
             global::Xamarin.Forms.Forms.Init();
             LoadApplication(new App());
 
-            return base.FinishedLaunching(app, options);
+          AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;          
+
+      return base.FinishedLaunching(app, options);
         }
+    
+  private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
+  {
+    var newExc = new Exception("CurrentDomainOnUnhandledException", unhandledExceptionEventArgs.ExceptionObject as Exception);
+    LogUnhandledException(newExc);
+  }
+  internal static void LogUnhandledException(Exception exception)
+  {
+    try
+    {
+      const string errorFileName = "Fatal.log";
+      var libraryPath = Environment.GetFolderPath(Environment.SpecialFolder.Resources); 
+      var errorFilePath = Path.Combine(libraryPath, errorFileName);
+      var errorMessage = String.Format("Time: {0}\r\nError: Unhandled Exception\r\n{1}",
+      DateTime.Now, exception.ToString());
+      File.WriteAllText(errorFilePath, errorMessage);
+
+      // Log to Android Device Logging.
+      
     }
+    catch
+    {
+      // just suppress any error logging exceptions
+    }
+  }
+  }
 }
