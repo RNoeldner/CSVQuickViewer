@@ -14,7 +14,7 @@
     <RootNamespace>CsvTools</RootNamespace>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
-    <Configurations>Release;Debug</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <LangVersion>8.0</LangVersion>
     <StartupObject></StartupObject>
     <RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
@@ -59,8 +59,7 @@
     <ProjectReference Include="..\Library\WinFormControls\WinFormControls.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Costura.Fody">
-      <Version>5.5.0</Version>
+    <PackageReference Include="Costura.Fody" Version="5.5.0">
       <PrivateAssets>all</PrivateAssets>
       <!--<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>-->
     </PackageReference>
