@@ -1,8 +1,10 @@
 ﻿using CSVQuickViewer.Xamarin.ViewModels;
 using CSVQuickViewer.Xamarin.Views;
+using Foundation;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UIKit;
 using Xamarin.Forms;
 
 namespace CSVQuickViewer.Xamarin
@@ -19,10 +21,13 @@ namespace CSVQuickViewer.Xamarin
 			await Shell.Current.GoToAsync("//SelectFilePage");
 		}
 
-    public async Task LoadFile(string fileName)
+
+  /*  public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
     {
-      Settings.CurrentFile = fileName;
-       
+      Settings.CurrentFile= url.Path;
+      Shell.Current.GoToAsync("//SelectFilePage");
+      return true;
     }
+    */
   }
 }

@@ -16,7 +16,7 @@ namespace CSVQuickViewer.Xamarin.ViewModels
     private static readonly FilePickerFileType filePickerFileType =
       new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
                              {
-                               { DevicePlatform.iOS, new[] { "UTType.Text" } },
+                               { DevicePlatform.iOS, new[] { "UTType.Text", "UTType.JSONx", "UTType.DelimitedText", "UTType.CommaSeparatedText" } },
                                { DevicePlatform.Android, new[] { "text/plain" } },
                                { DevicePlatform.UWP, new[] { ".txt", ".tab", ".csv" } },
                              });
@@ -28,7 +28,7 @@ namespace CSVQuickViewer.Xamarin.ViewModels
           FileTypes = filePickerFileType,
         };
 
-    private string fileName;
+    private string fileName = string.Empty;
     private bool guessCodePage;
     private bool guessComment;
     private bool guessDelimiter;
@@ -37,14 +37,14 @@ namespace CSVQuickViewer.Xamarin.ViewModels
     private bool guessQualifier;
     private bool guessStartRow;
     private bool isRunning = false;
-    public string Status { get; private set; }
+    public string Status { get; private set; } = string.Empty;
 
     public SelectFileViewModel()
     {
       OpenFileCommand = new Command(OpenFileAsync);
       SelectFileCommand = new Command(PickAndShow);
       AnalyseFileCommand =  new Command(AnalyseFileAsync);
-      FileName = Settings.CurrentFile;
+      
       GuessCodePage = Settings.GuessCodePage;
       GuessComment = Settings.GuessComment;
       GuessDelimiter = Settings.GuessDelimiter;
@@ -52,7 +52,9 @@ namespace CSVQuickViewer.Xamarin.ViewModels
       GuessQualifier = Settings.GuessQualifier;
       GuessStartRow = Settings.GuessStartRow;
       GuessNewLine = Settings.GuessNewLine;
+      FileName = Settings.CurrentFile;
     }
+
     public Command AnalyseFileCommand { get; }
     public string FileName
     {
@@ -128,17 +130,17 @@ namespace CSVQuickViewer.Xamarin.ViewModels
         StoreSettings();
         IsRunning = true;
         //var fr = new FileResult(new FileBase(FileName, "text/plain"));
-        //using var improvedStream = new ImprovedStream();
-        //var det = await improvedStream.GetDetectionResult(FileName,
-        //            this,
-        //            true,
-        //            GuessCodePage,
-        //            GuessDelimiter,
-        //            GuessQualifier,
-        //            GuessStartRow,
-        //            GuessHasHeader,
-        //            GuessNewLine,
-        //            GuessComment);
+        using var improvedStream = new ImprovedStream(new SourceAccess(FileName, true,FileName));
+        var det = await improvedStream.GetDetectionResult(FileName,
+                    this,
+                    true,
+                    GuessCodePage,
+                    GuessDelimiter,
+                    GuessQualifier,
+                    GuessStartRow,
+                    GuessHasHeader,
+                    GuessNewLine,
+                    GuessComment);
       }
       catch (Exception e)
       {
@@ -184,7 +186,7 @@ namespace CSVQuickViewer.Xamarin.ViewModels
 
     public CancellationToken CancellationToken => CancellationTokenSource.Token;
 
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
 
     public void SetProcess(object? sender, ProgressEventArgs? e) => Status = e?.Text ??  string.Empty;
 
