@@ -1,54 +1,27 @@
-﻿using CSVQuickViewer.Xamarin.Models;
-using CSVQuickViewer.Xamarin.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Xamarin.Forms;
 
 namespace CSVQuickViewer.Xamarin.ViewModels
 {
-	public class BaseViewModel : INotifyPropertyChanged
-	{
-		public IDataStore<Item> DataStore => DependencyService.Get<IDataStore<Item>>();
+  public abstract class BaseViewModel : INotifyPropertyChanged
+  {
+    protected bool SetProperty<T>(ref T backingStore, T value,
+        [CallerMemberName] string propertyName = "",
+        Action onChanged = null)
+    {
+      if (EqualityComparer<T>.Default.Equals(backingStore, value))
+        return false;
 
-		bool isBusy = false;
-		public bool IsBusy
-		{
-			get { return isBusy; }
-			set { SetProperty(ref isBusy, value); }
-		}
+      backingStore = value;
+      onChanged?.Invoke();
+      OnPropertyChanged(propertyName);
+      return true;
+    }
 
-		string title = string.Empty;
-		public string Title
-		{
-			get { return title; }
-			set { SetProperty(ref title, value); }
-		}
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-		protected bool SetProperty<T>(ref T backingStore, T value,
-				[CallerMemberName] string propertyName = "",
-				Action onChanged = null)
-		{
-			if (EqualityComparer<T>.Default.Equals(backingStore, value))
-				return false;
-
-			backingStore = value;
-			onChanged?.Invoke();
-			OnPropertyChanged(propertyName);
-			return true;
-		}
-
-		#region INotifyPropertyChanged
-		public event PropertyChangedEventHandler PropertyChanged;
-		protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
-		{
-			var changed = PropertyChanged;
-			if (changed == null)
-				return;
-
-			changed.Invoke(this, new PropertyChangedEventArgs(propertyName));
-		}
-		#endregion
-	}
+    protected void OnPropertyChanged([CallerMemberName] string propertyName = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+  }
 }

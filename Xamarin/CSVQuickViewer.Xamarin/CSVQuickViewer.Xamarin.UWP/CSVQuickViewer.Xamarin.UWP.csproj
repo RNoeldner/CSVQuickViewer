@@ -148,6 +148,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="PCLStorage">
+      <Version>1.0.2</Version>
+    </PackageReference>
     <PackageReference Include="Syncfusion.SfGrid.UWP">
       <Version>19.2.0.59</Version>
     </PackageReference>
@@ -156,6 +159,10 @@
     <PackageReference Include="Xamarin.Essentials" Version="1.7.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Library\ClassLibraryCSV.Quick\ClassLibraryCSV.Quick.csproj">
+      <Project>{454f7bbb-245a-4474-88b1-e5d27fcafdb3}</Project>
+      <Name>ClassLibraryCSV.Quick</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CSVQuickViewer.Xamarin\CSVQuickViewer.Xamarin.csproj">
       <Project>{BF5EC489-D009-4FAB-AD26-9FEED7055F68}</Project>
       <Name>CSVQuickViewer.Xamarin</Name>

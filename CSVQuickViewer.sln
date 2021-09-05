@@ -50,7 +50,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSVQuickViewer.Xamarin.Andr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSVQuickViewer.Xamarin.iOS", "Xamarin\CSVQuickViewer.Xamarin\CSVQuickViewer.Xamarin.iOS\CSVQuickViewer.Xamarin.iOS.csproj", "{238E57E3-F116-410F-B161-3E459E9835AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSVQuickViewer.Xamarin", "Xamarin\CSVQuickViewer.Xamarin\CSVQuickViewer.Xamarin\CSVQuickViewer.Xamarin.csproj", "{964E1635-5242-471B-93D5-040AB148CAC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSVQuickViewer.Xamarin", "Xamarin\CSVQuickViewer.Xamarin\CSVQuickViewer.Xamarin\CSVQuickViewer.Xamarin.csproj", "{964E1635-5242-471B-93D5-040AB148CAC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -321,6 +321,8 @@ Global
 		{058834DF-F9CC-4E3D-98DA-5FDA8B5853C6}.Release|x86.ActiveCfg = Release|Any CPU
 		{058834DF-F9CC-4E3D-98DA-5FDA8B5853C6}.Release|x86.Build.0 = Release|Any CPU
 		{A09BE6C9-1653-4F09-857C-3B784B9B92AF}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{A09BE6C9-1653-4F09-857C-3B784B9B92AF}.Debug|Any CPU.Build.0 = Debug|x86
+		{A09BE6C9-1653-4F09-857C-3B784B9B92AF}.Debug|Any CPU.Deploy.0 = Debug|x86
 		{A09BE6C9-1653-4F09-857C-3B784B9B92AF}.Debug|ARM.ActiveCfg = Debug|ARM
 		{A09BE6C9-1653-4F09-857C-3B784B9B92AF}.Debug|ARM.Build.0 = Debug|ARM
 		{A09BE6C9-1653-4F09-857C-3B784B9B92AF}.Debug|ARM.Deploy.0 = Debug|ARM
@@ -381,6 +383,7 @@ Global
 		{D522EA47-6B10-4EFA-814B-BB3945713D42}.Release|x86.Build.0 = Release|Any CPU
 		{D522EA47-6B10-4EFA-814B-BB3945713D42}.Release|x86.Deploy.0 = Release|Any CPU
 		{238E57E3-F116-410F-B161-3E459E9835AE}.Debug|Any CPU.ActiveCfg = Debug|iPhoneSimulator
+		{238E57E3-F116-410F-B161-3E459E9835AE}.Debug|Any CPU.Build.0 = Debug|iPhoneSimulator
 		{238E57E3-F116-410F-B161-3E459E9835AE}.Debug|ARM.ActiveCfg = Debug|iPhoneSimulator
 		{238E57E3-F116-410F-B161-3E459E9835AE}.Debug|iPhone.ActiveCfg = Debug|iPhone
 		{238E57E3-F116-410F-B161-3E459E9835AE}.Debug|iPhone.Build.0 = Debug|iPhone
@@ -396,7 +399,6 @@ Global
 		{238E57E3-F116-410F-B161-3E459E9835AE}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
 		{238E57E3-F116-410F-B161-3E459E9835AE}.Release|x64.ActiveCfg = Release|iPhoneSimulator
 		{238E57E3-F116-410F-B161-3E459E9835AE}.Release|x86.ActiveCfg = Release|iPhoneSimulator
-		{238E57E3-F116-410F-B161-3E459E9835AE}.Debug|Any CPU.Build.0 = Debug|iPhoneSimulator
 		{964E1635-5242-471B-93D5-040AB148CAC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{964E1635-5242-471B-93D5-040AB148CAC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{964E1635-5242-471B-93D5-040AB148CAC3}.Debug|ARM.ActiveCfg = Debug|Any CPU

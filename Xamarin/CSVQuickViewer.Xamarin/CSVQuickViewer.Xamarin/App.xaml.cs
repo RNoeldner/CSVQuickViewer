@@ -1,5 +1,4 @@
-﻿using CSVQuickViewer.Xamarin.Services;
-using CSVQuickViewer.Xamarin.Views;
+﻿using CSVQuickViewer.Xamarin.Views;
 using System;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -13,7 +12,6 @@ namespace CSVQuickViewer.Xamarin
 		{
 			InitializeComponent();
 
-			DependencyService.Register<MockDataStore>();
 			MainPage = new AppShell();
 		}
 
