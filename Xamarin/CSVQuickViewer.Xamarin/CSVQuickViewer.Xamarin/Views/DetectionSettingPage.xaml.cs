@@ -1,4 +1,5 @@
 ﻿using CSVQuickViewer.Xamarin.ViewModels;
+using CsvTools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +11,12 @@ using Xamarin.Forms.Xaml;
 namespace CSVQuickViewer.Xamarin.Views
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class LoginPage : ContentPage
+	public partial class DetectionSettingPage : ContentPage
 	{
-		public LoginPage()
+		public DetectionSettingPage()
 		{
 			InitializeComponent();
-			this.BindingContext = new SelectFileViewModel();
+			this.BindingContext = new DetectionSettingsViewModel();
 		}
 	}
 }

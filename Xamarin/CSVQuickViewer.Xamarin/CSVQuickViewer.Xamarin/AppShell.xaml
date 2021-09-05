@@ -78,20 +78,28 @@
         FlyoutDisplayOptions="AsMultipleItems" will create a separate flyout item for each child element    
         https://docs.microsoft.com/dotnet/api/xamarin.forms.shellgroupitem.flyoutdisplayoptions?view=xamarin-forms
     -->
-    <FlyoutItem Title="Browse" Icon="icon_feed.png">
+    <FlyoutItem Title="Select File">
+        <ShellContent Route="SelectFilePage" ContentTemplate="{DataTemplate local:SelectFilePage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="Settings">
+        <ShellContent Route="DetectionSettingPage" ContentTemplate="{DataTemplate local:DetectionSettingPage}" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="Display" Icon="icon_feed.png">
         <ShellContent Route="ItemsPage" ContentTemplate="{DataTemplate local:ItemsPage}" />
     </FlyoutItem>
-
-
+    
+    
     <!--
         TabBar lets you define content that won't show up in a flyout menu. When this content is active
         the flyout menu won't be available. This is useful for creating areas of the application where 
         you don't want users to be able to navigate away from. If you would like to navigate to this 
         content you can do so by calling 
-        await Shell.Current.GoToAsync("//LoginPage");
+        await Shell.Current.GoToAsync("//SelectFilePage");
     -->
     <TabBar>
-        <ShellContent Route="LoginPage" ContentTemplate="{DataTemplate local:LoginPage}" />
+        <ShellContent Route="SelectFilePage" ContentTemplate="{DataTemplate local:SelectFilePage}" />
     </TabBar>
 
     <!-- Optional Templates 
