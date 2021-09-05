@@ -3,4 +3,5 @@
     <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="30" />
     <application android:label="CSVQuickViewer.Xamarin.Android" android:theme="@style/MainTheme"></application>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 </manifest>

@@ -38,12 +38,14 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>Delimited Tset File</string>
+			<string>Delimited Text File</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>public.text</string>
 			</array>
 		</dict>
 	</array>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 </dict>
 </plist>

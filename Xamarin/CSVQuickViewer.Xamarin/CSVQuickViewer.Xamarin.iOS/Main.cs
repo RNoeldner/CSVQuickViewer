@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using CSVQuickViewer.Xamarin.Views;
 using Foundation;
 using UIKit;
 
@@ -16,5 +16,8 @@ namespace CSVQuickViewer.Xamarin.iOS
             // you can specify it here.
             UIApplication.Main(args, null, "AppDelegate");
         }
-    }
+    
+    
+  }
+ 
 }
