@@ -20,6 +20,8 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
+#pragma warning disable CS8625
+
 namespace CsvTools.Tests
 {
   [TestClass]
@@ -178,6 +180,7 @@ namespace CsvTools.Tests
       try
       {
         // ReSharper disable once AssignNullToNotNullAttribute
+
         await DetermineColumnFormat.GetWriterColumnInformationAsync("Nonsense SQL", 60, null, new List<IColumn>(),
           UnitTestStatic.Token);
 
