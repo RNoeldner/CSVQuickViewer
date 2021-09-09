@@ -233,8 +233,9 @@ namespace CsvTools
     {
       base.BaseSettingsCopyTo(other);
 
-      if (!(other is IFileSettingPhysicalFile fileSettingPhysicalFile)) 
+      if (!(other is IFileSettingPhysicalFile fileSettingPhysicalFile))
         return;
+      fileSettingPhysicalFile.RootFolder = RootFolder;
       fileSettingPhysicalFile.FileSize = FileSize;
       fileSettingPhysicalFile.ColumnFile = ColumnFile;
       fileSettingPhysicalFile.FileName = FileName;
