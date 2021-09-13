@@ -1,5 +1,4 @@
-﻿using CsvTools;
-using Plugin.Settings;
+﻿using Plugin.Settings;
 
 namespace CSVQuickViewer.Xamarin
 {

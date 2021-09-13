@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CSVQuickViewer.Xamarin.Services;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,16 +13,20 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Xamarin.Forms;
+using CSVQuickViewer.Xamarin.UWP.Service;
 
 namespace CSVQuickViewer.Xamarin.UWP
 {
-    public sealed partial class MainPage
+  public sealed partial class MainPage
+  {
+    public MainPage()
     {
-        public MainPage()
-        {
-            this.InitializeComponent();
-            Syncfusion.SfDataGrid.XForms.UWP.SfDataGridRenderer.Init();
-            LoadApplication(new CSVQuickViewer.Xamarin.App());
-        }
+      this.InitializeComponent();
+      DependencyService.Register<IDeviceDependentService, DeviceDependentService>();
+
+      Syncfusion.SfDataGrid.XForms.UWP.SfDataGridRenderer.Init();
+      LoadApplication(new Xamarin.App());
     }
+  }
 }

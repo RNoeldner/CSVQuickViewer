@@ -4,7 +4,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>3.10</ProductVersion>
-    <ProjectGuid>{deaeaa07-1960-407a-9d7b-a95faf0408dd}</ProjectGuid>
+    <ProjectGuid>{e7a862b8-5a45-47fd-9a91-d909a08be783}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
     <OutputName>CSVQuickViewerSetup</OutputName>
     <OutputType>Package</OutputType>
