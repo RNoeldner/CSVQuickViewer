@@ -38,10 +38,6 @@
       <DependentUpon>SelectFilePage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
   <ItemGroup>
     <None Remove="Xamarin.iOS" />
   </ItemGroup>

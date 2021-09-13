@@ -1,4 +1,5 @@
-﻿using CSVQuickViewer.Xamarin.Views;
+﻿using CSVQuickViewer.Xamarin.Services;
+using CSVQuickViewer.Xamarin.Views;
 using CsvTools;
 using System;
 using System.Collections.Generic;
@@ -37,7 +38,21 @@ namespace CSVQuickViewer.Xamarin.ViewModels
     private bool guessQualifier;
     private bool guessStartRow;
     private bool isRunning = false;
-    public string Status { get; private set; } = string.Empty;
+
+    private string m_Status = string.Empty;
+
+    public string Status
+    {
+      get => m_Status;
+      private set
+      {
+        if (m_Status.Equals(value))
+          return;
+
+        m_Status = value;
+        OnPropertyChanged(nameof(Status));
+      }
+    }
 
     public SelectFileViewModel()
     {
@@ -129,8 +144,14 @@ namespace CSVQuickViewer.Xamarin.ViewModels
       {
         StoreSettings();
         IsRunning = true;
-        //var fr = new FileResult(new FileBase(FileName, "text/plain"));
-        using var improvedStream = new ImprovedStream(new SourceAccess(FileName, true,FileName));
+        // Its not possible to open the file by its filename on the disk
+        // I would think its a permission issue
+        // on Windows UWP you possibly need to use a StorageFile
+        
+        var device= DependencyService.Get<IDeviceDependentService>();
+        
+        using var stream = await device.GetStreamFromFileNameAsync(FileName);
+        using var improvedStream = new ImprovedStream(new SourceAccess(stream));
         var det = await improvedStream.GetDetectionResult(FileName,
                     this,
                     true,
@@ -141,11 +162,11 @@ namespace CSVQuickViewer.Xamarin.ViewModels
                     GuessHasHeader,
                     GuessNewLine,
                     GuessComment);
+        Status = $"CodePage {det.CodePageId} - Delimiter {det.FieldDelimiter}  - Qualifier {det.FieldQualifier} - Header {det.HasFieldHeader}";
       }
       catch (Exception e)
       {
         Status = e.Message;
-        OnPropertyChanged(nameof(Status));
       }
       finally
       {

@@ -1,10 +1,8 @@
 ﻿using CSVQuickViewer.Xamarin.ViewModels;
 using CSVQuickViewer.Xamarin.Views;
-using Foundation;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UIKit;
 using Xamarin.Forms;
 
 namespace CSVQuickViewer.Xamarin
