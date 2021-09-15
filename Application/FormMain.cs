@@ -590,7 +590,7 @@ namespace CsvTools
         ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting, true);
 
         await CheckPossibleChange();
-      });
+      }, this);
     }
 
     private void ShowSourceFile(object? sender, EventArgs e)
@@ -614,7 +614,7 @@ namespace CsvTools
           m_FileSetting.FileFormat.FieldDelimiter, m_FileSetting.FileFormat.EscapeCharacter,
           m_FileSetting is ICsvFile csv ? csv.CodePageId : 65001, m_FileSetting.SkipRows, m_FileSetting.FileFormat.CommentLine);
         proc.Close();
-      });
+      }, this);
     }
 
     private void ShowTextPanel(bool visible)
@@ -694,7 +694,7 @@ namespace CsvTools
         ViewSetting.ReStoreViewSetting(store, detailControl.FilteredDataGridView.Columns,
           Array.Empty<ToolStripDataGridViewColumnFilter?>(), null, null);
         detailControl.ResumeLayout();
-      });
+      }, this);
     }
 
     private void ToggleShowLog(object? sender, EventArgs e)

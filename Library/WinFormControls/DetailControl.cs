@@ -508,7 +508,7 @@ namespace CsvTools
         m_FormShowMaxLength.Show(ParentForm);
 
         m_FormShowMaxLength.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
-      });
+      }, ParentForm);
       m_ToolStripButtonColumnLength.Enabled = false;
     }
 
@@ -538,7 +538,7 @@ namespace CsvTools
         {
           ParentForm.ShowError(ex);
         }
-      });
+      }, ParentForm);
       m_ToolStripButtonDuplicates.Enabled = false;
     }
 
@@ -563,7 +563,7 @@ namespace CsvTools
         {
           ParentForm.ShowError(ex);
         }
-      });
+      }, ParentForm);
       m_ToolStripButtonHierarchy.Enabled = false;
     }
 
@@ -595,7 +595,7 @@ namespace CsvTools
         {
           ParentForm.ShowError(ex);
         }
-      });
+      }, ParentForm);
       m_ToolStripButtonUniqueValues.Enabled = false;
     }
 
@@ -1288,7 +1288,7 @@ namespace CsvTools
           m_ToolStripLabelCount.Text = m_DataTable.Rows.Count.ToString();
           ToolStripButtonNext.Visible = !eof && m_ShowButtons;
         }
-      });
+      }, ParentForm);
     }
 
     private class ProcessInformation : IDisposable

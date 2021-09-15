@@ -1411,7 +1411,7 @@ namespace CsvTools
           return;
 
         SetRowHeight();
-      });
+      }, null);
       toolStripTextBoxColFilter.Focus();
     }
   }
