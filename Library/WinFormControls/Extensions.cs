@@ -28,7 +28,7 @@ namespace CsvTools
   /// </summary>
   public static class Extensions
   {
-    public static void RunWithHourglass(this ToolStripItem item, Action action)
+    public static void RunWithHourglass(this ToolStripItem item, Action action, Form? frm)
     {
       if (item is null)
         throw new ArgumentNullException(nameof(item));
@@ -43,8 +43,7 @@ namespace CsvTools
         action.Invoke();
       }
       catch (Exception ex)
-      {
-        var frm = item.Owner?.FindForm();
+      {       
         frm?.ShowError(ex);
       }
       finally
@@ -79,7 +78,7 @@ namespace CsvTools
       }
     }
 
-    public static async Task RunWithHourglassAsync(this ToolStripItem item, Func<Task> action)
+    public static async Task RunWithHourglassAsync(this ToolStripItem item, Func<Task> action, Form? frm)
     {
       if (item is null)
         throw new ArgumentNullException(nameof(item));
@@ -94,7 +93,6 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        var frm = item.Owner?.FindForm();
         frm?.ShowError(ex);
       }
       finally

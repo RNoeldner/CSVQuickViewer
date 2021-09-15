@@ -83,7 +83,7 @@ namespace CsvTools.Tests
       using (var ctrl = new ToolStripButton())
       {
         var done = false;
-        await ctrl.RunWithHourglassAsync(async () => await Task.Run(() => done = true));
+        await ctrl.RunWithHourglassAsync(async () => await Task.Run(() => done = true), null);
         Assert.IsTrue(done);
       }
     }
@@ -95,7 +95,7 @@ namespace CsvTools.Tests
       using (var ctrl = new ToolStripButton())
       {
         var done = false;
-        ctrl.RunWithHourglass(() => done = true);
+        ctrl.RunWithHourglass(() => done = true, null);
         Assert.IsTrue(done);
       }
     }
