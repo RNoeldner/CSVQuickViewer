@@ -38,10 +38,8 @@ namespace CsvTools
     private ZipFile? m_ZipFile;
 
     // ReSharper disable once NotNullMemberIsNotInitialized
-#pragma warning disable 8618
 
     public ImprovedStream(in SourceAccess sourceAccess)
-#pragma warning restore 8618
     {
       SourceAccess = sourceAccess;
       BaseOpen();
@@ -54,24 +52,22 @@ namespace CsvTools
     /// <param name="type"></param>
     /// <remarks>Make sure the source stream is disposed</remarks>
     // ReSharper disable once NotNullMemberIsNotInitialized
-#pragma warning disable 8618
 
     public ImprovedStream(in Stream stream, SourceAccess.FileTypeEnum type = SourceAccess.FileTypeEnum.Stream)
-#pragma warning restore 8618
     {
       SourceAccess = new SourceAccess(stream, type);
       BaseOpen();
     }
 
-    public override bool CanRead => AccessStream.CanRead && BaseStream.CanRead;
+    public override bool CanRead => AccessStream!.CanRead && BaseStream!.CanRead;
 
-    public override bool CanSeek => BaseStream.CanSeek;
+    public override bool CanSeek => BaseStream!.CanSeek;
 
-    public override bool CanWrite => AccessStream.CanWrite && BaseStream.CanWrite;
+    public override bool CanWrite => AccessStream!.CanWrite && BaseStream!.CanWrite;
 
-    public override long Length => BaseStream.Length;
+    public override long Length => BaseStream!.Length;
 
-    public double Percentage => (double) BaseStream.Position / BaseStream.Length;
+    public double Percentage => (double) BaseStream!.Position / BaseStream.Length;
 
     /// <summary>
     ///   This is the position in the base stream, Access stream (e.G. gZip stream) might not
@@ -79,13 +75,13 @@ namespace CsvTools
     /// </summary>
     public override long Position
     {
-      get => BaseStream.Position;
-      set => BaseStream.Position = value;
+      get => BaseStream!.Position;
+      set => BaseStream!.Position = value;
     }
 
-    protected Stream AccessStream { get; set; }
+    protected Stream? AccessStream { get; set; }
 
-    protected Stream BaseStream { get; private set; }
+    protected Stream? BaseStream { get; private set; }
 
     /// <summary>
     ///   Closes the stream in case of a file opened for writing it would be uploaded to the sFTP
@@ -115,7 +111,7 @@ namespace CsvTools
           }
 
         if (!SourceAccess.LeaveOpen)
-          BaseStream.Close();
+          BaseStream?.Close();
       }
       catch (Exception ex)
       {
@@ -124,7 +120,7 @@ namespace CsvTools
     }
 
     public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken) =>
-      AccessStream.CopyToAsync(destination, bufferSize, cancellationToken);
+      AccessStream!.CopyToAsync(destination, bufferSize, cancellationToken);
 
     public new void Dispose()
     {
@@ -137,8 +133,8 @@ namespace CsvTools
       try
       {
         if (!ReferenceEquals(AccessStream, BaseStream))
-          AccessStream.Flush();
-        BaseStream.Flush();
+          AccessStream?.Flush();
+        BaseStream?.Flush();
       }
       catch (Exception ex)
       {
@@ -147,10 +143,10 @@ namespace CsvTools
       }
     }
 
-    public override int Read(byte[] buffer, int offset, int count) => AccessStream.Read(buffer, offset, count);
+    public override int Read(byte[] buffer, int offset, int count) => AccessStream!.Read(buffer, offset, count);
 
     public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
-      AccessStream.ReadAsync(buffer, offset, count, cancellationToken);
+      AccessStream!.ReadAsync(buffer, offset, count, cancellationToken);
 
     public override long Seek(long offset, SeekOrigin origin)
     {
@@ -158,7 +154,7 @@ namespace CsvTools
         throw new ObjectDisposedException(nameof(ImprovedStream));
 
       // The stream must support seeking to get or set the position
-      if (AccessStream.CanSeek)
+      if (AccessStream!.CanSeek)
         return AccessStream.Seek(offset, origin);
 
       if (origin != SeekOrigin.Begin || offset != 0)
@@ -170,12 +166,12 @@ namespace CsvTools
       return 0;
     }
 
-    public override void SetLength(long value) => AccessStream.SetLength(value);
+    public override void SetLength(long value) => AccessStream!.SetLength(value);
 
-    public override void Write(byte[] buffer, int offset, int count) => AccessStream.Write(buffer, offset, count);
+    public override void Write(byte[] buffer, int offset, int count) => AccessStream!.Write(buffer, offset, count);
 
     public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
-      AccessStream.WriteAsync(buffer, offset, count, cancellationToken);
+      AccessStream!.WriteAsync(buffer, offset, count, cancellationToken);
 
     protected void BaseOpen()
     {
@@ -213,7 +209,7 @@ namespace CsvTools
         AccessStream?.Dispose();
 
       if (!SourceAccess.LeaveOpen)
-        BaseStream.Dispose();
+        BaseStream?.Dispose();
 
       m_DisposedValue = true;
     }
@@ -225,10 +221,12 @@ namespace CsvTools
       {
         // ReSharper disable once ConstantConditionalAccessQualifier
         await AccessStream.DisposeAsync().ConfigureAwait(false);
+        AccessStream = null;
       }
-      if (!SourceAccess.LeaveOpen)
+      if (BaseStream !=null && !SourceAccess.LeaveOpen)
       {
         await BaseStream.DisposeAsync().ConfigureAwait(false);
+        BaseStream = null;
       }
     }
 

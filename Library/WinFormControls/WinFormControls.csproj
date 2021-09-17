@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 	<PropertyGroup>
 		<UseWindowsForms>true</UseWindowsForms>
-		<TargetFramework>net472</TargetFramework>
+		<TargetFrameworks>net472;net5.0-windows</TargetFrameworks>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<OutputType>Library</OutputType>
 		<Nullable>enable</Nullable>
@@ -16,10 +16,23 @@
 		<RootNamespace>CsvTools</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
-		<Reference Include="FastColoredTextBox, Version=2.16.26.0, Culture=neutral, PublicKeyToken=fb8aa12b994ef61b, processorArchitecture=MSIL">
-			<SpecificVersion>False</SpecificVersion>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Include="..\SharedAssemblyInfo.cs">
+			<Link>Properties\SharedAssemblyInfo.cs</Link>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Remove="FolderTree.cs" />
+		<Compile Remove="Properties\AssemblyInfo.cs" />
+		<Compile Remove="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Remove="FolderTree.resx" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+		<Reference Include="FastColoredTextBox">
 			<HintPath>..\DLL\FastColoredTextBox.dll</HintPath>
-			<EmbedInteropTypes>False</EmbedInteropTypes>
 		</Reference>
 		<Reference Include="System" />
 		<Reference Include="System.Core" />
@@ -29,15 +42,12 @@
 		<Reference Include="System.Data" />
 		<Reference Include="System.Xml" />
 	</ItemGroup>
-	<ItemGroup>
-		<Compile Include="..\SharedAssemblyInfo.cs">
-			<Link>Properties\SharedAssemblyInfo.cs</Link>
-		</Compile>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0-windows'">
+		<Reference Include="FastColoredTextBox.Core">
+			<HintPath>..\DLL\FastColoredTextBox.Core.dll</HintPath>
+		</Reference>
 	</ItemGroup>
-	<ItemGroup>
-		<Compile Remove="Properties\AssemblyInfo.cs" />
-		<Compile Remove="Properties\AssemblyInfo.cs" />
-	</ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Microsoft-WindowsAPICodePack-Shell">
 			<Version>1.1.4</Version>

@@ -16,10 +16,7 @@ namespace CsvTools
 {
   using System;
   using System.Windows.Forms;
-
-#if NETCORE
   using System.Text;
-#endif
 
   internal static class Program
   {
@@ -27,7 +24,7 @@ namespace CsvTools
     {
       try
       {
-#if NETCORE
+#if !NET472
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
       }
