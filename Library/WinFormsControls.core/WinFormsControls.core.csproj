@@ -1,53 +1,57 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
-  <PropertyGroup>
-    <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net5.0-windows</TargetFramework>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <OutputType>Library</OutputType>
-    <Nullable>enable</Nullable>
-    <LangVersion>8.0</LangVersion>
-    <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="..\WinFormControls\**\*.cs" />
-    <EmbeddedResource Include="..\WinFormControls\**\*.resx" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="..\WinFormControls\obj\**" />
-    <Compile Remove="obj\**" />
-    <EmbeddedResource Remove="obj\**" />
-    <None Remove="obj\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="..\WinFormControls\FolderTree.cs" />
-    <Compile Remove="..\WinFormControls\Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
-    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="FastColoredTextBox.Core">
-      <HintPath>..\DLL\FastColoredTextBox.Core.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
+	<PropertyGroup>
+		<UseWindowsForms>true</UseWindowsForms>
+		<TargetFramework>net5.0-windows</TargetFramework>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<OutputType>Library</OutputType>
+		<Nullable>enable</Nullable>
+		<LangVersion>8.0</LangVersion>
+		<SignAssembly>True</SignAssembly>
+		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="..\WinFormControls\**\*.cs" />
+		<EmbeddedResource Include="..\WinFormControls\**\*.resx" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Remove="..\WinFormControls\obj\**" />
+		<Compile Remove="obj\**" />
+		<EmbeddedResource Remove="obj\**" />
+		<None Remove="obj\**" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Remove="..\WinFormControls\FolderTree.cs" />
+		<Compile Remove="..\WinFormControls\Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Include="..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
+		<PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
+		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Include="FastColoredTextBox.Core">
+			<HintPath>..\DLL\FastColoredTextBox.Core.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="Properties\Settings.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Settings.settings</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<None Update="Properties\Settings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+	</ItemGroup>
 </Project>

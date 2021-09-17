@@ -6,27 +6,30 @@ using System.Threading.Tasks;
 namespace CsvTools
 {
   public interface IImprovedStream : IDisposable
-	{
-		bool CanRead { get; }
+#if NETSTANDARD2_1
+    , IAsyncDisposable
+#endif
+  {
+    bool CanRead { get; }
 
-		bool CanSeek { get; }
+    bool CanSeek { get; }
 
-		bool CanWrite { get; }
+    bool CanWrite { get; }
 
-		long Length { get; }
+    long Length { get; }
 
-		double Percentage { get; }
+    double Percentage { get; }
 
-		long Position { get; }
+    long Position { get; }
 
-		int Read(byte[] buffer, int offset, int count);
+    int Read(byte[] buffer, int offset, int count);
 
-		Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+    Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
-		long Seek(long offset, SeekOrigin origin);
+    long Seek(long offset, SeekOrigin origin);
 
-		void Write(byte[] buffer, int offset, int count);
+    void Write(byte[] buffer, int offset, int count);
 
-		Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
-	}
+    Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+  }
 }
