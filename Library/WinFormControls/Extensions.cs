@@ -43,7 +43,7 @@ namespace CsvTools
         action.Invoke();
       }
       catch (Exception ex)
-      {       
+      {
         frm?.ShowError(ex);
       }
       finally

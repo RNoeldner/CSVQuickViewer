@@ -111,6 +111,10 @@ namespace CsvTools
       }
     }
 
+    public virtual new void Dispose()
+    {
+    }
+
     /// <summary>
     ///   Event to be raised if reading the files is completed
     /// </summary>
