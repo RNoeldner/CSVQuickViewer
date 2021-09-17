@@ -1,65 +1,71 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <Authors>Raphael Nöldner</Authors>
-    <Description>Functionality to read and write delimited text files</Description>
-    <PackageTags>delimited Text;csv;json</PackageTags>
-    <PackageProjectUrl>https://github.com/RNoeldner/CSVQuickViewer</PackageProjectUrl>
-    <RootNamespace>CsvTools</RootNamespace>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Copyright>Copyright © 2017</Copyright>
-    <ProductName>CsvTools</ProductName>
-    <OutputType>Library</OutputType>
-    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
-    <NeutralLanguage>en-US</NeutralLanguage>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <SignAssembly>True</SignAssembly>
-    <LangVersion>8.0</LangVersion>
-    <Nullable>enable</Nullable>
-    <WarningsAsErrors>nullable</WarningsAsErrors>
-    <CodePage>65001</CodePage>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
-    <AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="CsvFileReaderAsync.cs" />
-    <Compile Remove="DataTableReaderAsync.cs" />
-    <Compile Remove="Immutable\ImmutableColumnBase.cs" />
-    <Compile Remove="Immutable\SettingReadOnly.cs" />
-    <Compile Remove="Mutable\ColumnBase.cs" />
-    <Compile Remove="Mutable\ColumnForBoolean.cs" />
-    <Compile Remove="Mutable\ColumnForDate.cs" />
-    <Compile Remove="Mutable\ColumnForNumber.cs" />
-    <Compile Remove="Mutable\ColumnForPart.cs" />
-  </ItemGroup>
+	<PropertyGroup>
+		<Authors>Raphael Nöldner</Authors>
+		<Description>Functionality to read and write delimited text files</Description>
+		<PackageTags>delimited Text;csv;json</PackageTags>
+		<PackageProjectUrl>https://github.com/RNoeldner/CSVQuickViewer</PackageProjectUrl>
+		<RootNamespace>CsvTools</RootNamespace>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<Copyright>Copyright © 2017</Copyright>
+		<ProductName>CsvTools</ProductName>
+		<OutputType>Library</OutputType>
+		<AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+		<SignAssembly>True</SignAssembly>
+		<LangVersion>8.0</LangVersion>
+		<Nullable>enable</Nullable>
+		<WarningsAsErrors>nullable</WarningsAsErrors>
+		<CodePage>65001</CodePage>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
+		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="CsvFileReaderAsync.cs" />
+		<Compile Remove="DataTableReaderAsync.cs" />
+		<Compile Remove="Immutable\ImmutableColumnBase.cs" />
+		<Compile Remove="Immutable\SettingReadOnly.cs" />
+		<Compile Remove="Mutable\ColumnBase.cs" />
+		<Compile Remove="Mutable\ColumnForBoolean.cs" />
+		<Compile Remove="Mutable\ColumnForDate.cs" />
+		<Compile Remove="Mutable\ColumnForNumber.cs" />
+		<Compile Remove="Mutable\ColumnForPart.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Remove="DateTimeFormats.txt" />
-    <None Include="LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="DateTimeFormats.txt" />
+		<Compile Include="..\SharedAssemblyInfo.cs" Link="Propertiies\SharedAssemblyInfo.cs" />
+		<None Include="LICENSE">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="DateTimeFormats.txt" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="DateTimeFormats.txt" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="SharpZipLib" Version="1.3.1" />
-    <PackageReference Include="TimeZoneConverter" Version="3.5.0" />
-    <PackageReference Include="UTF.Unknown" Version="2.4.0" />
-  </ItemGroup>
-  <ProjectExtensions>
-    <MonoDevelop>
-      <Properties>
-        <Policies>
-          <DotNetNamingPolicy DirectoryNamespaceAssociation="None" ResourceNamePolicy="FileFormatDefault" />
-        </Policies>
-      </Properties>
-    </MonoDevelop>
-  </ProjectExtensions>
+	<ItemGroup>
+		<PackageReference Include="Ben.Demystifier" Version="0.4.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="SharpZipLib" Version="1.3.1" />
+		<PackageReference Include="TimeZoneConverter" Version="3.5.0" />
+		<PackageReference Include="UTF.Unknown" Version="2.4.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Propertiies\" />
+	</ItemGroup>
+	<ProjectExtensions>
+		<MonoDevelop>
+			<Properties>
+				<Policies>
+					<DotNetNamingPolicy DirectoryNamespaceAssociation="None" ResourceNamePolicy="FileFormatDefault" />
+				</Policies>
+			</Properties>
+		</MonoDevelop>
+	</ProjectExtensions>
 </Project>

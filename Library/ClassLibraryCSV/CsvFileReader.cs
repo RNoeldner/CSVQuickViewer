@@ -26,7 +26,7 @@ namespace CsvTools
   /// <summary>
   ///   A data reader for CSV files
   /// </summary>
-  public sealed class CsvFileReader : BaseFileReader, IFileReader
+  public class CsvFileReader : BaseFileReader, IFileReader
   {
     /// <summary>
     ///   Constant: Line has fewer columns than expected
@@ -425,13 +425,41 @@ namespace CsvTools
       m_NumWarningsDelimiter = 0;
       m_NumWarningsUnknownChar = 0;
       m_NumWarningsNbspChar = 0;
+    }
+
+    public new void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        m_ImprovedStream?.Dispose();
+      }
+      m_ImprovedStream = null;
 
       m_TextReader?.Dispose();
       m_TextReader = null;
-      if (!SelfOpenedStream) return;
-      m_ImprovedStream?.Dispose();
-      m_ImprovedStream = null;
     }
+
+#if NETSTANDARD2_1
+    public new async ValueTask DisposeAsync()
+    {
+      await DisposeAsyncCore();
+
+      Dispose(false);
+      GC.SuppressFinalize(this);
+    }
+
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
+      if (m_ImprovedStream != null)
+        await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
+    }
+#endif
 
     /// <summary>
     ///   Reads a stream of bytes from the specified column offset into the buffer as an array,
@@ -513,7 +541,13 @@ namespace CsvTools
         // HandleShowProgress($"Opening text file {FileName}");
         if (SelfOpenedStream)
         {
-          m_ImprovedStream?.Dispose();
+          if (m_ImprovedStream != null)
+#if NETSTANDARD2_1
+            await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
+#else
+            m_ImprovedStream.Dispose();
+#endif
+
           m_ImprovedStream = FunctionalDI.OpenStream(
             new SourceAccess(FullPath) { IdentifierInContainer = m_IdentifierInContainer });
         }

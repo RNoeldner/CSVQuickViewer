@@ -82,18 +82,18 @@ namespace CsvTools
     /// </summary>
     public void ResetPositionToFirstDataRow()
     {
-      DataReader.Close();
+      DataReader?.Close();
       DataReader = DataTable.CreateDataReader();
       RecordNumber = 0;
     }
 
     /// <summary>
-    ///   Releases the managed resources used by the <see cref="T:System.Data.Common.DbDataReader" /> and optionally releases
-    ///   the unmanaged resources.
+    ///   Releases the managed resources used by the <see cref="T:System.Data.Common.DbDataReader"
+    ///   /> and optionally releases the unmanaged resources.
     /// </summary>
     /// <param name="disposing">
-    ///   <see langword="true" /> to release managed and unmanaged resources; <see langword="false" /> to release only
-    ///   unmanaged resources.
+    ///   <see langword="true" /> to release managed and unmanaged resources; <see langword="false"
+    ///   /> to release only unmanaged resources.
     /// </param>
     protected override void Dispose(bool disposing)
     {
