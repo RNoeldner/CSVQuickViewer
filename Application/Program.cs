@@ -24,7 +24,7 @@ namespace CsvTools
     {
       try
       {
-#if !NET472
+#if NET5_0_OR_GREATER
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
       }
@@ -37,13 +37,16 @@ namespace CsvTools
     /// <summary>
     ///   The main entry point for the application.
     /// </summary>
+#if !NETFRAMEWORK
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     [STAThread]
     private static void Main(string[] args)
     {
       Application.ThreadException += (s, e) => UnhandledException(e.Exception);
       AppDomain.CurrentDomain.UnhandledException += (s, e) => UnhandledException((Exception) e.ExceptionObject);
       var fileName = string.Empty;
-#if NETCORE
+#if NET5_0_OR_GREATER
       Application.SetHighDpiMode(HighDpiMode.SystemAware);
 #endif
       Application.EnableVisualStyles();

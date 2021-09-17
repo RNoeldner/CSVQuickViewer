@@ -127,6 +127,9 @@ namespace CsvTools
       }
     }
 
+#if !NETFRAMEWORK
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public static void SetClipboard(this DataObject dataObject, int timeoutMilliseconds = 120000)
     => RunSTAThread(() =>
       {
@@ -134,8 +137,14 @@ namespace CsvTools
         Clipboard.SetDataObject(dataObject, false, 5, 200);
       }, timeoutMilliseconds);
 
+#if !NETFRAMEWORK
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public static void SetClipboard(this string text) => RunSTAThread(() => Clipboard.SetText(text));
 
+#if !NETFRAMEWORK
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public static void RunSTAThread(this Action action, int timeoutMilliseconds = 20000)
     {
       if (action is null)

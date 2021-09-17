@@ -209,7 +209,10 @@ namespace CsvTools
 		/// </summary>
 		[DefaultValue("False")]
 		[XmlElement]
-		public virtual string FalseValue
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public virtual string FalseValue
 		{
 			get => m_FalseValue;
 			set
@@ -298,7 +301,10 @@ namespace CsvTools
 		/// </summary>
 		[DefaultValue("True")]
 		[XmlElement]
-		public virtual string TrueValue
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public virtual string TrueValue
 		{
 			get => m_TrueValue;
 			set

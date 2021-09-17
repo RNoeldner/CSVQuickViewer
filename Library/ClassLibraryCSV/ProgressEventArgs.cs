@@ -20,49 +20,51 @@ namespace CsvTools
   ///   Argument for a ProgressEvent
   /// </summary>
   public class ProgressEventArgs : EventArgs
-	{
-		/// <summary>
-		///   Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
-		/// </summary>
-		/// <param name="text">The text.</param>
-		/// <param name="value">The progress value.</param>
-		/// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
-		public ProgressEventArgs(in string text, long value = -1, bool log = false)
-		{
-			Text = text;
-			Value = value;
-			Log = log;
-		}
+  {
+    // static new ProgressEventArgs Empty { get; } = new ProgressEventArgs(string.Empty, -1, false);
 
-		/// <summary>
-		///   Indicating if a progress should be logged or not
-		/// </summary>
-		public bool Log { get; }
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
+    /// </summary>
+    /// <param name="text">The text.</param>
+    /// <param name="value">The progress value.</param>
+    /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
+    public ProgressEventArgs(in string text, long value = -1, bool log = false)
+    {
+      Text = text;
+      Value = value;
+      Log = log;
+    }
 
-		/// <summary>
-		///   Gets or sets the text.
-		/// </summary>
-		/// <value>The text.</value>
-		public string Text { get; }
+    /// <summary>
+    ///   Indicating if a progress should be logged or not
+    /// </summary>
+    public bool Log { get; }
 
-		/// <summary>
-		///   Gets or sets the value.
-		/// </summary>
-		/// <value>The value.</value>
-		public long Value { get; }
-	}
+    /// <summary>
+    ///   Gets or sets the text.
+    /// </summary>
+    /// <value>The text.</value>
+    public string Text { get; }
 
-	public class ProgressEventArgsTime : ProgressEventArgs
-	{
-		public ProgressEventArgsTime(in string text, long value, in TimeSpan estimatedTimeRemaining, double percent)
-			: base(text, value)
-		{
-			EstimatedTimeRemaining = estimatedTimeRemaining;
-			Percent = percent;
-		}
+    /// <summary>
+    ///   Gets or sets the value.
+    /// </summary>
+    /// <value>The value.</value>
+    public long Value { get; }
+  }
 
-		public TimeSpan EstimatedTimeRemaining { get; }
+  public class ProgressEventArgsTime : ProgressEventArgs
+  {
+    public ProgressEventArgsTime(in string text, long value, in TimeSpan estimatedTimeRemaining, double percent)
+      : base(text, value)
+    {
+      EstimatedTimeRemaining = estimatedTimeRemaining;
+      Percent = percent;
+    }
 
-		public double Percent { get; }
-	}
+    public TimeSpan EstimatedTimeRemaining { get; }
+
+    public double Percent { get; }
+  }
 }

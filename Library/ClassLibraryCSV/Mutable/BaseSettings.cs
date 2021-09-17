@@ -312,6 +312,9 @@ namespace CsvTools
     /// </summary>
     /// <value>The Footer for outbound data.</value>
     [DefaultValue("")]
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public virtual string Footer
     {
       get => m_Footer;
@@ -349,6 +352,9 @@ namespace CsvTools
     /// </summary>
     /// <value>The Footer for outbound data.</value>
     [DefaultValue("")]
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public virtual string Header
     {
       get => m_Header;
@@ -368,6 +374,9 @@ namespace CsvTools
     /// <value>The ID.</value>
     [XmlAttribute]
     [DefaultValue("")]
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public virtual string ID
     {
       get => m_Id;
@@ -646,6 +655,9 @@ namespace CsvTools
     /// <value>The SQL statement.</value>
     [XmlIgnore]
     [DefaultValue("")]
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public virtual string SqlStatement
     {
       get => m_SqlStatement;
@@ -673,7 +685,7 @@ namespace CsvTools
         var doc = new XmlDocument();
         return doc.CreateCDataSection(SqlStatement);
       }
-      set => SetSqlStatementRename(value.Value ?? string.Empty);
+      set => SqlStatement=value.Value;
     }
 
     /// <summary>
@@ -690,6 +702,9 @@ namespace CsvTools
     /// <value>The connection string.</value>
     [XmlElement]
     [DefaultValue("")]
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public virtual string TemplateName
     {
       get => m_TemplateName;
@@ -747,6 +762,9 @@ namespace CsvTools
     /// </summary>
     [XmlAttribute]
     [DefaultValue(cTreatTextAsNull)]
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public virtual string TreatTextAsNull
     {
       get => m_TreatTextAsNull;

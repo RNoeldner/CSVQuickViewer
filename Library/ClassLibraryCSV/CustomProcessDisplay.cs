@@ -35,7 +35,7 @@ namespace CsvTools
 		{
 		}
 
-		public void SetProcess(object? sender, ProgressEventArgs? e)
+		public void SetProcess(object? sender, ProgressEventArgs e)
 		{
 			if (e is null || Progress == null)
 				return;

@@ -53,6 +53,9 @@ namespace CsvTools
     /// <value>The name of the file.</value>
     [XmlAttribute]
     [DefaultValue("")]
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public virtual string ColumnFile
     {
       get => m_ColumnFile;
@@ -65,6 +68,9 @@ namespace CsvTools
     /// <value>The name of the file.</value>
     [XmlAttribute]
     [DefaultValue("")]
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public virtual string FileName
     {
       get => m_FileName;
@@ -121,6 +127,9 @@ namespace CsvTools
     /// <value>The name of the file.</value>
     [XmlAttribute]
     [DefaultValue("")]
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public virtual string IdentifierInContainer
     {
       get => m_IdentifierInContainer;
@@ -160,6 +169,9 @@ namespace CsvTools
     /// </summary>
     [XmlIgnore]
     [DefaultValue("")]
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public virtual string Passphrase
     {
       get => m_PassPhrase;
@@ -171,6 +183,9 @@ namespace CsvTools
     /// </summary>
     [XmlAttribute]
     [DefaultValue("")]
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public virtual string Recipient
     {
       get => m_Recipient;
@@ -190,6 +205,9 @@ namespace CsvTools
     /// <value>The name of the file.</value>
     [XmlAttribute]
     [DefaultValue("")]
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public virtual string RemoteFileName
     {
       get => m_RemoteFileName;

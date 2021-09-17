@@ -113,6 +113,9 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="DetailControl" /> class.
     /// </summary>
+#if !NETFRAMEWORK
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public DetailControl()
     {
       InitializeComponent();
