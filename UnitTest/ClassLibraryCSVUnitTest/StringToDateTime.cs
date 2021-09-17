@@ -97,7 +97,7 @@ namespace CsvTools.Tests
 
     [TestMethod]
     public void ParseStringToDateTimeFormatNotMatchingseparatorOK() =>
-      TestDate(new DateTime(1999, 01, 02), @"yyyyMMdd", ".");
+      TestDate(new DateTime(1999, 01, 02), @"yyyyMMdd", ".", string.Empty);
 
     [TestMethod]
     public void ParseStringToDateTimeFormatNotMatchingseparatorOK2() =>
@@ -110,8 +110,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ParseStringToDateTimeFormatNotMatchingseparatorOK4()
     {
-      TestDate(new DateTime(1999, 01, 02), @"MM/dd/yyyy", "/");
-      TestDate(new DateTime(1999, 01, 02), @"MM.dd.yyyy", ".");
+      TestDate(new DateTime(1999, 01, 02), @"MM/dd/yyyy", "/", string.Empty);
+      TestDate(new DateTime(1999, 01, 02), @"MM.dd.yyyy", ".", string.Empty);
     }
 
     [TestMethod]
@@ -287,7 +287,7 @@ namespace CsvTools.Tests
     /// <param name="shortDate">The short date format.</param>
     /// <param name="dateSep">The date separator.</param>
     /// <param name="format"></param>
-    private static void TestDate(DateTime expected, string shortDate, string dateSep, string format = null)
+    private static void TestDate(DateTime expected, string shortDate, string dateSep, string format)
     {
       var dtString = GetFormattedDate(expected, shortDate);
       if (format == null)

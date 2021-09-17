@@ -45,9 +45,9 @@ namespace CsvTools.Tests
       Progress?.Invoke(this, new ProgressEventArgs(text));
     }
 
-    public void SetProcess(object? sender, ProgressEventArgs? e)
+    public void SetProcess(object? sender, ProgressEventArgs e)
     {
-      Text = e?.Text ?? string.Empty;
+      Text = e.Text ?? string.Empty;
       Progress?.Invoke(sender, e);
     }
 

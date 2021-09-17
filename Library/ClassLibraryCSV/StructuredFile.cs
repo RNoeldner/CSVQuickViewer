@@ -39,7 +39,10 @@ namespace CsvTools
 		/// </summary>
 		[XmlElement]
 		[DefaultValue("")]
-		public string Row
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public string Row
 		{
 			get => m_Row;
 

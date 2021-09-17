@@ -609,6 +609,9 @@ namespace CsvTools
       }
     }
 
+#if !NETFRAMEWORK
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     private void ColumnFormatUI_FormClosing(object? sender, FormClosingEventArgs e)
     {
       try
@@ -628,6 +631,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
+#if !NETFRAMEWORK
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+# endif
     private async void ColumnFormatUI_Load(object? sender, EventArgs e)
     {
       var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
@@ -1019,6 +1025,9 @@ namespace CsvTools
 
     private void SetSamplePart(object? sender, EventArgs? e) => SetPartLabels(textBoxSplit.Text, Convert.ToInt32(numericUpDownPart.Value), checkBoxPartToEnd.Checked);
 
+#if !NETFRAMEWORK
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     private void SystemEvents_UserPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e)
     {
       if (e.Category != UserPreferenceCategory.Locale)

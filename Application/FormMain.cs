@@ -58,10 +58,15 @@ namespace CsvTools
     private int m_WarningCount;
     private int m_WarningMax = 100;
 
+
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormMain" /> class.
     /// </summary>
     /// <param name="viewSettings">Default view Settings</param>
+#if !NETFRAMEWORK
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public FormMain(in ViewSettings viewSettings)
     {
       m_ViewSettings = viewSettings;
@@ -634,9 +639,15 @@ namespace CsvTools
       m_ToolStripButtonSource.Enabled = true;
     }
 
+#if !NETFRAMEWORK
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     private void SystemEvents_DisplaySettingsChanged(object? sender, EventArgs e) =>
       this.LoadWindowState(m_ViewSettings.WindowPosition);
 
+#if !NETFRAMEWORK
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     private void SystemEvents_PowerModeChanged(object? sender, PowerModeChangedEventArgs e)
     {
       switch (e.Mode)

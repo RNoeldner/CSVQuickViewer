@@ -26,9 +26,8 @@ namespace CsvTools.Tests
     private static CsvFile m_ReadFile;
 
     private static CsvFile m_WriteFile;
-
-    [TestInitialize]
-    public void Init()
+    
+    public CsvFileWriterTest()
     {
       m_ReadFile =
         new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"))

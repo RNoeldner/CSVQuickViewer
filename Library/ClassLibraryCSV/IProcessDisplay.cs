@@ -40,7 +40,7 @@ namespace CsvTools
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		void SetProcess(object? sender, ProgressEventArgs? e);
+		void SetProcess(object? sender, ProgressEventArgs e);
 
 		/// <summary>
 		///   Sets the process display

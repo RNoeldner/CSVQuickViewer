@@ -57,6 +57,9 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="FilteredDataGridView" /> class.
     /// </summary>
+#if !NETFRAMEWORK
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
     public FilteredDataGridView()
     {
       InitializeComponent();
@@ -1151,6 +1154,9 @@ namespace CsvTools
     ///   The <see cref="Microsoft.Win32.UserPreferenceChangedEventArgs" /> instance containing the
     ///   event data.
     /// </param>
+#if !NETFRAMEWORK
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+# endif
     private void SystemEvents_UserPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e)
     {
       if (e.Category == UserPreferenceCategory.Locale)
