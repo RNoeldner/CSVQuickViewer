@@ -658,6 +658,9 @@ namespace CsvTools
             // open file and get all columns
             if (m_FileSetting.ColumnCollection.Any(x => x.Ignore))
             {
+              #if NETSTANDARD2_1_OR_GREATER
+      await
+#endif
               using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null,
                 new CustomProcessDisplay(m_CancellationTokenSource.Token));
               await fileReader.OpenAsync(m_CancellationTokenSource.Token);

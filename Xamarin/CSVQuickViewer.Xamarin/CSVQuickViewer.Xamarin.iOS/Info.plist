@@ -41,7 +41,7 @@
 			<string>Delimited Text File</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>public.text</string>
+				<string>txt</string>
 			</array>
 		</dict>
 	</array>

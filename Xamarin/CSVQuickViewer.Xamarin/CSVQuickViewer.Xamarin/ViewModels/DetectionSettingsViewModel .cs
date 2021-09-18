@@ -45,7 +45,7 @@ namespace CSVQuickViewer.Xamarin.ViewModels
       Settings.SerialDateTime = base.SerialDateTime;
       Settings.TrueValue = base.TrueValue;
 
-      await Shell.Current.GoToAsync($"//{nameof(ItemsPage)}");
+      await Shell.Current.GoToAsync($"//{nameof(SelectFilePage)}");
     }
   }
 }

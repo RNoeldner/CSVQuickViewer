@@ -60,7 +60,7 @@ namespace CsvTools
             m_DataReaderWrapper = null;
         }
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1_OR_GREATER
     protected virtual async ValueTask DisposeAsyncCore()
     {
       if (m_DataReaderWrapper != null)
@@ -151,7 +151,11 @@ namespace CsvTools
                     await m_RefreshDisplayAsync(FilterType.All, processDisplay.CancellationToken).ConfigureAwait(false);
 
                 if (m_DataReaderWrapper.EndOfFile)
-                    Dispose();
+#if NETSTANDARD2_1_OR_GREATER
+await DisposeAsync();
+#else
+                  Dispose();
+                #endif
             }
             catch (Exception e)
             {
