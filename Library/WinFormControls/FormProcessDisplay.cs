@@ -224,7 +224,7 @@ namespace CsvTools
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		public void SetProcess(object? sender, ProgressEventArgs? e) => m_ProcessDisplay.SetProcess(sender, e);
+		public void SetProcess(object? sender, ProgressEventArgs e) => m_ProcessDisplay.SetProcess(sender, e);
 
 		public new void Close()
 		{
