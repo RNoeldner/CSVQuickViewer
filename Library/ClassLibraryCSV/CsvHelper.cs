@@ -609,7 +609,7 @@ namespace CsvTools
         throw new ArgumentException("file name can not be empty", nameof(fileName));
       if (display is null)
         throw new ArgumentNullException(nameof(display));
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));

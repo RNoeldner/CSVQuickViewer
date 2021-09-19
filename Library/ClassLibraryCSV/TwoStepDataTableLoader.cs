@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace CsvTools
 {
     public class TwoStepDataTableLoader : IDisposable
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1_OR_GREATER
     , IAsyncDisposable
 #endif
     {

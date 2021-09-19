@@ -102,7 +102,7 @@ namespace CsvTools
             m_ImprovedStream = null;
         }
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1_OR_GREATER
     public new async ValueTask DisposeAsync()
     {
       await DisposeAsyncCore();

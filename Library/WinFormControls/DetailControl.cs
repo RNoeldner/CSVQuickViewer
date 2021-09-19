@@ -1177,7 +1177,7 @@ namespace CsvTools
       // in case we skipped lines read them as Header so we do not loose them
       if (writeFile is ICsvFile src && src.SkipRows > 0 && string.IsNullOrEmpty(writeFile.Header))
       {
-#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+#if NET5_0_OR_GREATER
         await
 #endif
         using var iStream = FunctionalDI.OpenStream(new SourceAccess(src));

@@ -180,8 +180,11 @@ namespace CsvTools
         {
           var hasRetried = false;
           retry:
+#if NET5_0_OR_GREATER
+          await
+#endif
           using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
-            processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
+                processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
           {
             DataTable? data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false,
               m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
@@ -633,7 +636,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-# endif
+#endif
     private async void ColumnFormatUI_Load(object? sender, EventArgs e)
     {
       var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
@@ -658,11 +661,11 @@ namespace CsvTools
             // open file and get all columns
             if (m_FileSetting.ColumnCollection.Any(x => x.Ignore))
             {
-              #if NETSTANDARD2_1_OR_GREATER
-      await
+#if NET5_0_OR_GREATER
+              await
 #endif
               using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null,
-                new CustomProcessDisplay(m_CancellationTokenSource.Token));
+                        new CustomProcessDisplay(m_CancellationTokenSource.Token));
               await fileReader.OpenAsync(m_CancellationTokenSource.Token);
               for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
                 allColumns.Add(fileReader.GetColumn(colIndex).Name);
@@ -679,9 +682,12 @@ namespace CsvTools
           }
           else
           {
-            // Write Setting ----- open the source that is SQL
-            using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
-              m_FileSetting.Timeout, m_CancellationTokenSource.Token);
+#if NET5_0_OR_GREATER
+            await
+#endif
+                  // Write Setting ----- open the source that is SQL
+                  using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
+                    m_FileSetting.Timeout, m_CancellationTokenSource.Token);
             await fileReader.OpenAsync(m_CancellationTokenSource.Token);
             for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
               allColumns.Add(fileReader.GetColumn(colIndex).Name);
@@ -799,9 +805,12 @@ namespace CsvTools
       {
         if (m_WriteSetting)
         {
+#if NET5_0_OR_GREATER
+          await
+#endif
           using var sqlReader =
-            await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
-              processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken);
+                      await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
+                        processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken);
           await sqlReader.OpenAsync(processDisplay.CancellationToken);
           var colIndex = sqlReader.GetOrdinal(columnName);
           if (colIndex < 0)
@@ -832,8 +841,12 @@ namespace CsvTools
         }
 
         retry:
-        // ReSharper disable once ConvertToUsingDeclaration
-        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
+
+#if NET5_0_OR_GREATER
+        await
+#endif
+           // ReSharper disable once ConvertToUsingDeclaration
+           using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
         {
           await fileReader.OpenAsync(processDisplay.CancellationToken);
           var colIndex = fileReader.GetOrdinal(columnName);

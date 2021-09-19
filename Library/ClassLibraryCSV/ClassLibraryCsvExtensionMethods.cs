@@ -755,7 +755,9 @@ namespace CsvTools
 		{
 			if (string.IsNullOrEmpty(sqlStatement))
 				return 0;
-
+#if NETSTANDARD2_1_OR_GREATER
+      await
+#endif
 			using var sqlReader = await FunctionalDI.SQLDataReader(
 															sqlStatement,
 															(sender, s) => reportProgress?.Invoke(s.Text),
@@ -767,12 +769,12 @@ namespace CsvTools
 
 #endif
 
-		/// <summary>
-		///   Return a string resolving written punctuation
-		/// </summary>
-		/// <param name="inputString"></param>
-		/// <returns>A string of length 1 or empty</returns>
-		public static string WrittenPunctuation(this string inputString)
+    /// <summary>
+    ///   Return a string resolving written punctuation
+    /// </summary>
+    /// <param name="inputString"></param>
+    /// <returns>A string of length 1 or empty</returns>
+    public static string WrittenPunctuation(this string inputString)
 		{
 			if (string.IsNullOrEmpty(inputString))
 				return string.Empty;

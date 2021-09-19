@@ -29,7 +29,7 @@ namespace CsvTools
   ///   Interface for a File Reader.
   /// </summary>
   public interface IFileReader : IDataReader
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1_OR_GREATER
     , IAsyncDisposable
 #endif
   {
