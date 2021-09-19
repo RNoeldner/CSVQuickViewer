@@ -282,7 +282,7 @@ namespace CsvTools
       EndOfFile = true;
     }
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1_OR_GREATER
     public new virtual async Task CloseAsync()
     {
       await Task.Run(() => base.Close());

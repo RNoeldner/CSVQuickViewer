@@ -247,7 +247,7 @@ namespace CsvTools
       DataReader = null;
     }
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1_OR_GREATER
     public override async ValueTask DisposeAsync()
     {
       await DisposeAsyncCore();

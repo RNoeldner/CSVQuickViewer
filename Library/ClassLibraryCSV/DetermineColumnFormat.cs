@@ -1197,7 +1197,9 @@ namespace CsvTools
         throw new FileWriterException("No SQL Statement given");
       if (FunctionalDI.SQLDataReader is null)
         throw new FileWriterException("No Async SQL Reader set");
-
+#if NETSTANDARD2_1_OR_GREATER
+      await
+#endif
       using var fileReader = await FunctionalDI.SQLDataReader(
                                fileSettings.SqlStatement,
                                processDisplay.SetProcess,
@@ -1270,7 +1272,9 @@ namespace CsvTools
 
       if (FunctionalDI.SQLDataReader is null)
         throw new FileWriterException("No SQL Reader set");
-
+#if NETSTANDARD2_1_OR_GREATER
+      await
+#endif
       using var data = await FunctionalDI.SQLDataReader(
                          sqlStatement!.NoRecordSQL(),
                          (sender, s) =>
@@ -1293,7 +1297,9 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(sqlStatement))
         return new List<string>();
-
+#if NETSTANDARD2_1_OR_GREATER
+      await
+#endif
       using var data = await FunctionalDI.SQLDataReader(sqlStatement!.NoRecordSQL(), null, timeout, token)
                          .ConfigureAwait(false);
       await data.OpenAsync(token).ConfigureAwait(false);
