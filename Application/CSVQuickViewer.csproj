@@ -5,7 +5,7 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<ApplicationIcon>csv_text.ico</ApplicationIcon>
 		<Authors>Raphael Nöldner</Authors>
-		<PackageIcon>csv_text.ico</PackageIcon>
+		<PackageIcon>Picture.png</PackageIcon>
 		<PackageIconUrl />
 		<SignAssembly>True</SignAssembly>
 		<TargetFrameworks>net472;net5.0-windows</TargetFrameworks>
@@ -50,15 +50,15 @@
 		<Reference Include="System.Xml.Linq" />
 		<Reference Include="WindowsBase" />
 	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
+		<ProjectReference Include="..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
+	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0-windows'">
 		<Reference Include="FastColoredTextBox.Core">
 			<HintPath>..\Library\DLL\FastColoredTextBox.Core.dll</HintPath>
 		</Reference>
 		<PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj" />
-		<ProjectReference Include="..\Library\WinFormControls\WinFormControls.csproj" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net472'">
 		<Reference Include="FastColoredTextBox">
@@ -66,11 +66,15 @@
 		</Reference>
 		<PackageReference Include="Costura.Fody" Version="5.5.0">
 			<PrivateAssets>all</PrivateAssets>
-			<!--<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>-->
+			<IncludeAssets>compile; runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="LICENSE">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+		<None Include="Picture.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>

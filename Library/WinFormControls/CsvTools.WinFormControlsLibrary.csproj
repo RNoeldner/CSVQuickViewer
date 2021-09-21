@@ -14,6 +14,7 @@
 		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
 		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
 		<RootNamespace>CsvTools</RootNamespace>
+		<AssemblyName>CsvTools.WinFormControls</AssemblyName>
 	</PropertyGroup>
 	<ItemGroup>
 	</ItemGroup>
@@ -60,7 +61,7 @@
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\ClassLibraryCSV\ClassLibraryCSV.csproj">
+		<ProjectReference Include="..\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj">
 			<Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
 			<Name>ClassLibraryCSV</Name>
 		</ProjectReference>

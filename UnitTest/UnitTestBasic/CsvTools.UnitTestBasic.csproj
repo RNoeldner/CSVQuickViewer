@@ -9,7 +9,7 @@
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\Library\ClassLibraryCSV\ClassLibraryCSV.csproj" />
+		<ProjectReference Include="..\..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="TestForm.cs">
