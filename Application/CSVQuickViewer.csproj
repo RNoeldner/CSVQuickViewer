@@ -64,7 +64,7 @@
 		<Reference Include="FastColoredTextBox">
 			<HintPath>..\Library\DLL\FastColoredTextBox.dll</HintPath>
 		</Reference>
-		<PackageReference Include="Costura.Fody" Version="5.5.0">
+		<PackageReference Include="Costura.Fody" Version="5.6.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>compile; runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
