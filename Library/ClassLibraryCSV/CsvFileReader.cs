@@ -445,7 +445,8 @@ namespace CsvTools
       m_TextReader = null;
     }
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+
     public new async ValueTask DisposeAsync()
     {
       await DisposeAsyncCore();
@@ -459,6 +460,7 @@ namespace CsvTools
       if (m_ImprovedStream != null)
         await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
     }
+
 #endif
 
     /// <summary>
@@ -542,7 +544,7 @@ namespace CsvTools
         if (SelfOpenedStream)
         {
           if (m_ImprovedStream != null)
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
             await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
 #else
             m_ImprovedStream.Dispose();

@@ -62,13 +62,13 @@ namespace CsvTools
           Logger.Debug("Saving defaults {path}", m_SettingPath);
           File.WriteAllText(m_SettingPath, newContens);
         }
-        
       }
       catch (Exception ex)
       {
         viewSettings.FileName = oldFileName;
         Logger.Warning(ex, "Save Default Settings");
       }
+      viewSettings.FileName = oldFileName;
     }
   }
 }

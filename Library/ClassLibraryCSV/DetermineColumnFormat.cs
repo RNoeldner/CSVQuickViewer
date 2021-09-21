@@ -1136,7 +1136,7 @@ namespace CsvTools
 
       // need a dummy process display to have pass in Cancellation token to reader
       using var prc2 = new CustomProcessDisplay(cancellationToken);
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, string.Empty, prc2);
@@ -1197,7 +1197,7 @@ namespace CsvTools
         throw new FileWriterException("No SQL Statement given");
       if (FunctionalDI.SQLDataReader is null)
         throw new FileWriterException("No Async SQL Reader set");
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var fileReader = await FunctionalDI.SQLDataReader(
@@ -1272,7 +1272,7 @@ namespace CsvTools
 
       if (FunctionalDI.SQLDataReader is null)
         throw new FileWriterException("No SQL Reader set");
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var data = await FunctionalDI.SQLDataReader(
@@ -1297,7 +1297,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(sqlStatement))
         return new List<string>();
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var data = await FunctionalDI.SQLDataReader(sqlStatement!.NoRecordSQL(), null, timeout, token)
