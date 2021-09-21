@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibraryCSV.Quick", "Library\ClassLibraryCSV.Quick\ClassLibraryCSV.Quick.csproj", "{454F7BBB-245A-4474-88B1-E5D27FCAFDB3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvTools.ClassLibraryCSV.Quick", "Library\ClassLibraryCSV.Quick\CsvTools.ClassLibraryCSV.Quick.csproj", "{454F7BBB-245A-4474-88B1-E5D27FCAFDB3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dll", "dll", "{FDAD6378-0ACE-4F1B-B161-25EDAF83765C}"
 	ProjectSection(SolutionItems) = preProject
@@ -32,17 +32,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSVQuickViewer.Xamarin", "X
 EndProject
 Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "CSVQuickViewer_MSI", "Setup\CSVQuickViewer_MSI.wixproj", "{E7A862B8-5A45-47FD-9A91-D909A08BE783}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibraryCSVUnitTest", "UnitTest\ClassLibraryCSVUnitTest\ClassLibraryCSVUnitTest.csproj", "{333C01D0-3A86-451A-AB26-73C395F83600}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvTools.ClassLibraryCSV.UnitTest", "UnitTest\ClassLibraryCSVUnitTest\CsvTools.ClassLibraryCSV.UnitTest.csproj", "{333C01D0-3A86-451A-AB26-73C395F83600}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSVQuickViewerUnitTest", "UnitTest\CSVQuickViewerUnitTest\CSVQuickViewerUnitTest.csproj", "{5D00F9EC-31D2-4F4E-8D05-F98FD36915A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSVQuickViewer.UnitTest", "UnitTest\CSVQuickViewerUnitTest\CSVQuickViewer.UnitTest.csproj", "{5D00F9EC-31D2-4F4E-8D05-F98FD36915A9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormControlsUnitTest", "UnitTest\WinFormControlsUnitTest\WinFormControlsUnitTest.csproj", "{AA7178C8-C46D-47EC-A589-EF21141C7F1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvTools.WinFormControlsLibrary.UnitTest", "UnitTest\WinFormControlsUnitTest\CsvTools.WinFormControlsLibrary.UnitTest.csproj", "{AA7178C8-C46D-47EC-A589-EF21141C7F1F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestBasic", "UnitTest\UnitTestBasic\UnitTestBasic.csproj", "{4BA34C2E-49A4-4659-A461-D41D5465ECEF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvTools.UnitTestBasic", "UnitTest\UnitTestBasic\CsvTools.UnitTestBasic.csproj", "{4BA34C2E-49A4-4659-A461-D41D5465ECEF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibraryCSV", "Library\ClassLibraryCSV\ClassLibraryCSV.csproj", "{45743EE3-F753-42FC-A721-99CCB44B8A7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvTools.ClassLibraryCSV", "Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj", "{45743EE3-F753-42FC-A721-99CCB44B8A7A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormControls", "Library\WinFormControls\WinFormControls.csproj", "{B0E0095C-2E55-4067-8444-C88213B98F37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvTools.WinFormControlsLibrary", "Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj", "{B0E0095C-2E55-4067-8444-C88213B98F37}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSVQuickViewer", "Application\CSVQuickViewer.csproj", "{C07F9282-7816-4B22-8B1E-F7AA0812ED67}"
 EndProject

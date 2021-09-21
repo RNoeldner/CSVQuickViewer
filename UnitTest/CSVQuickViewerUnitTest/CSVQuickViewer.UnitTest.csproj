@@ -15,7 +15,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Application\CSVQuickViewer.csproj" />
-		<ProjectReference Include="..\UnitTestBasic\UnitTestBasic.csproj" />
+		<ProjectReference Include="..\UnitTestBasic\CsvTools.UnitTestBasic.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Update="TestFiles\*.*">
