@@ -58,8 +58,6 @@ namespace CsvTools
     private int m_WarningCount;
     private int m_WarningMax = 100;
 
-
-
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormMain" /> class.
     /// </summary>
@@ -67,6 +65,7 @@ namespace CsvTools
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
+
     public FormMain(in ViewSettings viewSettings)
     {
       m_ViewSettings = viewSettings;
@@ -295,6 +294,9 @@ namespace CsvTools
         }
 
         if (!m_FileChanged) return;
+        if (m_FileSetting is null || m_FileSetting.FileName.Length==0)
+          return;
+
         m_FileChanged = false;
         if (_MessageBox.Show(
               "The displayed file has changed do you want to reload the data?",
@@ -302,7 +304,7 @@ namespace CsvTools
           MessageBoxButtons.YesNo,
           MessageBoxIcon.Question,
           MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-          await OpenDataReaderAsync();
+          await LoadCsvFile(m_FileSetting.FileName);
         else
           m_FileChanged = false;
 
@@ -467,6 +469,7 @@ namespace CsvTools
       try
       {
         var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
+        this.SafeBeginInvoke(() => { ShowTextPanel(true); });
 
         using (var processDisplay = new FormProcessDisplay(fileNameShort, false, m_CancellationTokenSource.Token))
         {
@@ -591,9 +594,14 @@ namespace CsvTools
         frm.ShowDialog(MdiParent);
         m_ViewSettings.SaveViewSettings();
         detailControl.MenuDown = m_ViewSettings.MenuDown;
-        SetFileSystemWatcher(m_FileSetting.FileName);
-        ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting, true);
 
+        if (!m_ViewSettings.FileName.Equals(m_FileSetting.FileName, StringComparison.OrdinalIgnoreCase))
+          m_FileChanged = true;
+        ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting, true);
+        SetFileSystemWatcher(m_FileSetting.FileName);
+
+        if (m_FileChanged)
+          m_ConfigChanged= false;
         await CheckPossibleChange();
       }, this);
     }
@@ -642,12 +650,14 @@ namespace CsvTools
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
+
     private void SystemEvents_DisplaySettingsChanged(object? sender, EventArgs e) =>
       this.LoadWindowState(m_ViewSettings.WindowPosition);
 
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
+
     private void SystemEvents_PowerModeChanged(object? sender, PowerModeChangedEventArgs e)
     {
       switch (e.Mode)

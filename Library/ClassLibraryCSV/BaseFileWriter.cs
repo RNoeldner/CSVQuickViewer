@@ -63,7 +63,7 @@ namespace CsvTools
       in string id,
       in string fullPath,
       in IValueFormat? valueFormatGeneral,
-      in IFileFormat? fileFormat,      
+      in IFileFormat? fileFormat,
       in string? recipient,
       bool unencrypted,
       in string? identifierInContainer,
@@ -325,7 +325,7 @@ namespace CsvTools
           keepEncrypted: m_KeepUnencrypted);
         if (!string.IsNullOrEmpty(m_IdentifierInContainer))
           sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
         await
 #endif
         using var improvedStream = (Stream) FunctionalDI.OpenStream(sourceAccess);

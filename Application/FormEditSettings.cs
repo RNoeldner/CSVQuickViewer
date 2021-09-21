@@ -17,7 +17,6 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CsvTools
@@ -49,7 +48,7 @@ namespace CsvTools
         domainUpDownTime.SelectedIndex = 0;
     }
 
-    private async void BtnOpenFile_ClickAsync(object? sender, EventArgs e)
+    private void BtnOpenFile_Click(object? sender, EventArgs e)
     {
       try
       {
@@ -59,8 +58,10 @@ namespace CsvTools
           "Delimited File",
           "Delimited files (*.csv;*.txt;*.tab;*.tsv)|*.csv;*.txt;*.tab;*.tsv|All files (*.*)|*.*",
           split.FileName);
-        if (!string.IsNullOrEmpty(newFileName))
-          await ChangeFileNameAsync(newFileName!);
+
+        if (newFileName is null || newFileName.Length==0)
+          return;
+        m_ViewSettings.FileName = newFileName;
       }
       catch (Exception ex)
       {
@@ -138,64 +139,6 @@ namespace CsvTools
     {
       if (cboRecordDelimiter.SelectedItem != null)
         m_ViewSettings.FileFormat.NewLine = (RecordDelimiterType) cboRecordDelimiter.SelectedValue;
-    }
-
-    private async Task ChangeFileNameAsync(string newFileName)
-    {
-      m_ViewSettings.FileName = newFileName;
-      var oldCursor = Cursor.Current;
-      Cursor.Current = Cursors.WaitCursor;
-      try
-      {
-        using (var processDisplay = new CustomProcessDisplay(m_CancellationTokenSource.Token))
-        {
-          var res = await newFileName.GetDetectionResultFromFile(processDisplay);
-          m_ViewSettings.FileFormat.FieldDelimiter = res.FieldDelimiter;
-          m_ViewSettings.CodePageId = res.CodePageId;
-          m_ViewSettings.ByteOrderMark = res.ByteOrderMark;
-          m_ViewSettings.SkipRows = res.SkipRows;
-          m_ViewSettings.HasFieldHeader = res.HasFieldHeader;
-
-          if (MessageBox.Show(
-            this,
-            @"Should the value format of the columns be analyzed?",
-            @"Value Format",
-            MessageBoxButtons.YesNo,
-            MessageBoxIcon.Question) == DialogResult.Yes)
-          {
-            if (m_ViewSettings.ColumnCollection.Count > 0 && MessageBox.Show(
-              this,
-              @"Any already typed value will not be analyzed.
- Should the existing formats be removed before doing so?",
-              @"Value Format",
-              MessageBoxButtons.YesNo,
-              MessageBoxIcon.Question) == DialogResult.Yes)
-              m_ViewSettings.ColumnCollection.Clear();
-            try
-            {
-              Logger.Debug("Determining column format by reading samples");
-
-              var (_, newColumns) = await m_ViewSettings.FillGuessColumnFormatReaderAsync(
-                false,
-                false,
-                m_ViewSettings.FillGuessSettings,
-                m_CancellationTokenSource.Token);
-
-              m_ViewSettings.ColumnCollection.CopyFrom(newColumns);
-            }
-            catch (Exception exc)
-            {
-              this.ShowError(exc);
-            }
-          }
-        }
-
-        m_ViewSettings.ColumnCollection.Clear();
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
     }
 
     private void CheckBoxColumnsProcess_CheckedChanged(object? sender, EventArgs e)

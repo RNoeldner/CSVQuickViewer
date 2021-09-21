@@ -53,7 +53,7 @@ namespace CsvTools
     /// <value>The name of the file.</value>
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string ColumnFile
@@ -68,7 +68,7 @@ namespace CsvTools
     /// <value>The name of the file.</value>
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string FileName
@@ -127,7 +127,7 @@ namespace CsvTools
     /// <value>The name of the file.</value>
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string IdentifierInContainer
@@ -169,7 +169,7 @@ namespace CsvTools
     /// </summary>
     [XmlIgnore]
     [DefaultValue("")]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string Passphrase
@@ -183,7 +183,7 @@ namespace CsvTools
     /// </summary>
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string Recipient
@@ -205,7 +205,7 @@ namespace CsvTools
     /// <value>The name of the file.</value>
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string RemoteFileName

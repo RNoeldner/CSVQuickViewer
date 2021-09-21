@@ -312,7 +312,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The Footer for outbound data.</value>
     [DefaultValue("")]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string Footer
@@ -352,7 +352,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The Footer for outbound data.</value>
     [DefaultValue("")]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string Header
@@ -374,7 +374,7 @@ namespace CsvTools
     /// <value>The ID.</value>
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string ID
@@ -655,7 +655,7 @@ namespace CsvTools
     /// <value>The SQL statement.</value>
     [XmlIgnore]
     [DefaultValue("")]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string SqlStatement
@@ -702,7 +702,7 @@ namespace CsvTools
     /// <value>The connection string.</value>
     [XmlElement]
     [DefaultValue("")]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string TemplateName
@@ -762,7 +762,7 @@ namespace CsvTools
     /// </summary>
     [XmlAttribute]
     [DefaultValue(cTreatTextAsNull)]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string TreatTextAsNull

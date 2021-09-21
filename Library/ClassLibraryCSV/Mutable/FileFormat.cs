@@ -120,7 +120,7 @@ namespace CsvTools
     /// <value>The startup comment line.</value>
     [XmlAttribute]
     [DefaultValue(c_CommentLineDefault)]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string CommentLine
@@ -142,7 +142,7 @@ namespace CsvTools
     /// <value>The delimiter placeholder.</value>
     [XmlAttribute]
     [DefaultValue(c_DelimiterPlaceholderDefault)]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string DelimiterPlaceholder
@@ -185,7 +185,7 @@ namespace CsvTools
     /// <value>The escape character.</value>
     [XmlAttribute]
     [DefaultValue(cEscapeCharacterDefault)]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string EscapeCharacter
@@ -208,7 +208,7 @@ namespace CsvTools
     /// <value>The field delimiter.</value>
     [XmlAttribute]
     [DefaultValue(c_FieldDelimiterDefault)]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string FieldDelimiter
@@ -238,7 +238,7 @@ namespace CsvTools
     /// <value>The field qualifier.</value>
     [XmlAttribute]
     [DefaultValue(c_FieldQualifierDefault)]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string FieldQualifier
@@ -354,7 +354,7 @@ namespace CsvTools
     /// <value>The quote placeholder.</value>
     [XmlAttribute]
     [DefaultValue(c_QuotePlaceholderDefault)]
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual string QuotePlaceholder

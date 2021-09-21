@@ -278,7 +278,7 @@ namespace CsvTools
 			this.btnOpenFile.TabIndex = 1;
 			this.btnOpenFile.Text = "Select File";
 			this.btnOpenFile.UseVisualStyleBackColor = true;
-			this.btnOpenFile.Click += new System.EventHandler(this.BtnOpenFile_ClickAsync);
+			this.btnOpenFile.Click += new System.EventHandler(this.BtnOpenFile_Click);
 			// 
 			// labelDelimiter
 			// 

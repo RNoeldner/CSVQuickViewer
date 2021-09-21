@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace CsvTools
 {
   public interface IImprovedStream : IDisposable
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     , IAsyncDisposable
 #endif
   {
