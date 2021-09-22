@@ -44,38 +44,29 @@ namespace CsvTools
 
     public void Dispose()
     {
-      Dispose(disposing: true);
+      m_DataReaderWrapper?.Dispose();
+      m_DataReaderWrapper = null;
+
+      m_FileReader?.Dispose();
+      m_FileReader = null;
+
       GC.SuppressFinalize(this);
     }
 
-    protected virtual void Dispose(bool disposing)
-    {
-      if (disposing)
-      {
-        m_DataReaderWrapper?.Dispose();
-        m_FileReader?.Dispose();
-      }
-
-      m_FileReader = null;
-      m_DataReaderWrapper = null;
-    }
-
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    protected virtual async ValueTask DisposeAsyncCore()
-    {
-      if (m_DataReaderWrapper != null)
-        await m_DataReaderWrapper.DisposeAsync().ConfigureAwait(false);
-      if (m_FileReader != null)
-        await m_FileReader.DisposeAsync().ConfigureAwait(false);
-    }
 
     public async ValueTask DisposeAsync()
     {
-      // Perform async cleanup.
-      await DisposeAsyncCore();
-
-      // Dispose of unmanaged resources.
-      Dispose(false);
+      if (m_DataReaderWrapper != null)
+      {
+        await m_DataReaderWrapper.DisposeAsync().ConfigureAwait(false);
+        m_DataReaderWrapper = null;
+      }
+      if (m_FileReader != null)
+      {
+        await m_FileReader.DisposeAsync().ConfigureAwait(false);
+        m_FileReader=null;
+      }
 
       // Suppress finalization.
       GC.SuppressFinalize(this);
