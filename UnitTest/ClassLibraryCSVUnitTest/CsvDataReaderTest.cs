@@ -1190,7 +1190,6 @@ namespace CsvTools.Tests
       test.ResetPositionToFirstDataRow();
     }
 
-    [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
     [TestMethod]
     public async Task CsvDataReaderIsDBNull()
     {
@@ -1299,7 +1298,6 @@ namespace CsvTools.Tests
       Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
     }
 
-    [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
     [TestMethod]
     public async Task CsvDataReaderReadAfterCloseAsync()
     {

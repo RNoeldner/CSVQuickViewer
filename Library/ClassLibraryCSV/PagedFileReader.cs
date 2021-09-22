@@ -11,10 +11,7 @@ namespace CsvTools
   ///   having paging on the usually forward only IFileReader Returned is a list of
   ///   DynamicDataRecords for the current page
   /// </summary>
-  public class PagedFileReader : List<DynamicDataRecord>, INotifyCollectionChanged, IDisposable
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    , IAsyncDisposable
-#endif
+  public class PagedFileReader : List<DynamicDataRecord>, INotifyCollectionChanged
   {
     private readonly IFileReader m_FileReader;
 
@@ -46,25 +43,6 @@ namespace CsvTools
       m_PagedDataCache.Clear();
       m_DataReaderWrapper?.Close();
     }
-
-    public void Dispose()
-    {
-      m_DataReaderWrapper?.Dispose();
-      m_DataReaderWrapper = null;
-      GC.SuppressFinalize(this);
-    }
-
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    public async ValueTask DisposeAsync()
-    {
-      if (m_DataReaderWrapper!=null)
-      {
-        await m_DataReaderWrapper.DisposeAsync().ConfigureAwait(false);
-        m_DataReaderWrapper = null;
-      }
-      GC.SuppressFinalize(this);
-    }
-#endif
 
     public async Task MoveToFirstPageAsync() => await MoveToPageAsync(1).ConfigureAwait(false);
 

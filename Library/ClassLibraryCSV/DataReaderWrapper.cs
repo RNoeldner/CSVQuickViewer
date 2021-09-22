@@ -228,30 +228,5 @@ namespace CsvTools
     }
 
     public int ReaderToDataTable(int readerColumn) => ReaderMapping.ReaderToDataTable(readerColumn);
-
-    public new void Dispose()
-    {
-      DataReader?.Dispose();
-      DataReader = null;
-
-      GC.SuppressFinalize(this);
-    }
-
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    public override async ValueTask DisposeAsync()
-    {
-      // no need to dispose FileReader
-      if (DataReader != null)
-      {
-        if (DataReader is DbDataReader dbDataReader)
-          await dbDataReader.DisposeAsync().ConfigureAwait(false);
-        else
-          DataReader.Dispose();
-        DataReader = null;
-      }
-
-      GC.SuppressFinalize(this);
-    }
-#endif
   }
 }

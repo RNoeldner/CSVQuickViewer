@@ -44,9 +44,6 @@ namespace CsvTools
 
     public void Dispose()
     {
-      m_DataReaderWrapper?.Dispose();
-      m_DataReaderWrapper = null;
-
       m_FileReader?.Dispose();
       m_FileReader = null;
 
@@ -57,11 +54,6 @@ namespace CsvTools
 
     public async ValueTask DisposeAsync()
     {
-      if (m_DataReaderWrapper != null)
-      {
-        await m_DataReaderWrapper.DisposeAsync().ConfigureAwait(false);
-        m_DataReaderWrapper = null;
-      }
       if (m_FileReader != null)
       {
         await m_FileReader.DisposeAsync().ConfigureAwait(false);
