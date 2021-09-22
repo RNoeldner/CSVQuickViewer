@@ -12,6 +12,8 @@
 		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
 		<AssemblyName>CsvToolsClassLibraryCSV.Quick</AssemblyName>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 		<DefineConstants>TRACE;DEBUG;QUICK</DefineConstants>
