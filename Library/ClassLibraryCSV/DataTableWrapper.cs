@@ -26,8 +26,6 @@ namespace CsvTools
   /// <remarks>Some functionality for progress reporting are not implemented</remarks>
   public sealed class DataTableWrapper : DataReaderWrapper, IFileReader
   {
-    private bool m_DisposedValue;
-
     public DataTableWrapper(in DataTable? dataTable)
       : base(
         dataTable?.CreateDataReader() ?? throw new ArgumentNullException(nameof(dataTable)),
@@ -85,26 +83,6 @@ namespace CsvTools
       DataReader?.Close();
       DataReader = DataTable.CreateDataReader();
       RecordNumber = 0;
-    }
-
-    /// <summary>
-    ///   Releases the managed resources used by the <see cref="T:System.Data.Common.DbDataReader"
-    ///   /> and optionally releases the unmanaged resources.
-    /// </summary>
-    /// <param name="disposing">
-    ///   <see langword="true" /> to release managed and unmanaged resources; <see langword="false"
-    ///   /> to release only unmanaged resources.
-    /// </param>
-    protected override void Dispose(bool disposing)
-    {
-      if (m_DisposedValue) return;
-      if (disposing)
-      {
-        m_DisposedValue = true;
-        DataTable.Dispose();
-      }
-
-      base.Dispose(disposing);
     }
   }
 }

@@ -12,6 +12,9 @@ namespace CsvTools
   ///   DynamicDataRecords for the current page
   /// </summary>
   public class PagedFileReader : List<DynamicDataRecord>, INotifyCollectionChanged, IDisposable
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    , IAsyncDisposable
+#endif
   {
     private readonly IFileReader m_FileReader;
 
@@ -22,8 +25,6 @@ namespace CsvTools
     private readonly CancellationToken m_Token;
 
     private DataReaderWrapper? m_DataReaderWrapper;
-
-    private bool m_DisposedValue;
 
     public PagedFileReader(in IFileReader fileReader, int pageSize, CancellationToken token)
     {
@@ -44,14 +45,26 @@ namespace CsvTools
     {
       m_PagedDataCache.Clear();
       m_DataReaderWrapper?.Close();
-      m_DataReaderWrapper = null;
     }
 
     public void Dispose()
     {
-      Dispose(true);
+      m_DataReaderWrapper?.Dispose();
+      m_DataReaderWrapper = null;
       GC.SuppressFinalize(this);
     }
+
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    public async ValueTask DisposeAsync()
+    {
+      if (m_DataReaderWrapper!=null)
+      {
+        await m_DataReaderWrapper.DisposeAsync().ConfigureAwait(false);
+        m_DataReaderWrapper = null;
+      }
+      GC.SuppressFinalize(this);
+    }
+#endif
 
     public async Task MoveToFirstPageAsync() => await MoveToPageAsync(1).ConfigureAwait(false);
 
@@ -107,17 +120,6 @@ namespace CsvTools
       await m_FileReader.OpenAsync(m_Token).ConfigureAwait(false);
       m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, 0, addErrorField, addStartLine, addEndLine, addRecNum);
       await MoveToPageAsync(1).ConfigureAwait(false);
-    }
-
-    private void Dispose(bool disposing)
-    {
-      if (m_DisposedValue) return;
-      if (disposing)
-      {
-        m_DisposedValue = true;
-        m_DataReaderWrapper?.Dispose();
-        m_DataReaderWrapper = null;
-      }
     }
   }
 }

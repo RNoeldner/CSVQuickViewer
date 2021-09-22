@@ -21,245 +21,237 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <summary>
+  ///   Wrapper around another FileReader adding artificial fields and removing ignored columns
+  /// </summary>
+  /// <remarks>Introduced to allow a stream into SQLBulkCopy and possibly replace CopyToDataTableInfo</remarks>
+  public class DataReaderWrapper : DbDataReader
+  {
+    public readonly ReaderMapping ReaderMapping;
+
+    protected IFileReader? FileReader;
+
+    protected IDataReader? DataReader;
+
+    private readonly long m_RecordLimit;
+
     /// <summary>
-    ///   Wrapper around another FileReader adding artificial fields and removing ignored columns
+    ///   Constructor for a DataReaderWrapper, this wrapper adds artificial fields like Error, start
+    ///   and end Line or record number
     /// </summary>
-    /// <remarks>Introduced to allow a stream into SQLBulkCopy and possibly replace CopyToDataTableInfo</remarks>
-    public class DataReaderWrapper : DbDataReader
+    /// <param name="reader">A reader, this can be a regular IDataReader or a IFileReader</param>
+    /// <param name="recordLimit">Number of maximum records to read, 0 if there is no limit</param>
+    /// <param name="addErrorField">Add artificial field Error</param>
+    /// <param name="addStartLine">Add artificial field Start Line</param>
+    /// <param name="addEndLine">Add artificial field End Line</param>
+    /// <param name="addRecNum">Add artificial field Records Number</param>
+    public DataReaderWrapper(
+      in IDataReader reader,
+      long recordLimit = 0,
+      bool addErrorField = false,
+      bool addStartLine = false,
+      bool addEndLine = false,
+      bool addRecNum = false)
     {
-        public readonly ReaderMapping ReaderMapping;
+      DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
+      FileReader = reader as IFileReader;
+      if (reader.IsClosed)
+        throw new ArgumentException("Reader must be opened");
+      m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
+      ReaderMapping = new ReaderMapping(DataReader, addStartLine, addRecNum, addEndLine, addErrorField);
+    }
 
-        protected IFileReader? FileReader;
+    // public void ResetPositionToFirstDataRow() => FileReader.ResetPositionToFirstDataRow();
 
-        protected IDataReader? DataReader;
+    public override int Depth => FieldCount;
 
-        private readonly long m_RecordLimit;
+    public long EndLineNumber => FileReader?.EndLineNumber ?? RecordNumber;
 
-        /// <summary>
-        ///   Constructor for a DataReaderWrapper, this wrapper adds artificial fields like Error,
-        ///   start and end Line or record number
-        /// </summary>
-        /// <param name="reader">A reader, this can be a regular IDataReader or a IFileReader</param>
-        /// <param name="recordLimit">Number of maximum records to read, 0 if there is no limit</param>
-        /// <param name="addErrorField">Add artificial field Error</param>
-        /// <param name="addStartLine">Add artificial field Start Line</param>
-        /// <param name="addEndLine">Add artificial field End Line</param>
-        /// <param name="addRecNum">Add artificial field Records Number</param>
-        public DataReaderWrapper(
-          in IDataReader reader,
-          long recordLimit = 0,
-          bool addErrorField = false,
-          bool addStartLine = false,
-          bool addEndLine = false,
-          bool addRecNum = false)
+    public bool EndOfFile => FileReader?.EndOfFile ?? (DataReader?.IsClosed ?? true || RecordNumber >= m_RecordLimit);
+
+    public override int FieldCount => ReaderMapping.Column.Count;
+
+    public override bool HasRows => !(DataReader?.IsClosed ?? true);
+
+    public override bool IsClosed => DataReader?.IsClosed ?? true;
+
+    public virtual int Percent =>
+      FileReader != null && FileReader.Percent != 0 && FileReader.Percent != 100 ? FileReader.Percent :
+      RecordNumber > 0 ? (int) (RecordNumber / (double) m_RecordLimit * 100d) : 0;
+
+    public long RecordNumber { get; protected set; }
+
+    public override int RecordsAffected => m_RecordLimit.ToInt();
+
+    public long StartLineNumber => FileReader?.StartLineNumber ?? RecordNumber;
+
+    public override object this[int ordinal] => GetValue(ordinal);
+
+    public override object this[string name] => GetValue(GetOrdinal(name));
+
+    public override void Close()
+    {
+      DataReader?.Close();
+    }
+
+    public override bool GetBoolean(int ordinal) => DataReader!.GetBoolean(ReaderMapping.DataTableToReader(ordinal));
+
+    public override byte GetByte(int ordinal) => DataReader!.GetByte(ReaderMapping.DataTableToReader(ordinal));
+
+    public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length) =>
+      DataReader!.GetBytes(ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
+
+    public override char GetChar(int ordinal) => DataReader!.GetChar(ReaderMapping.DataTableToReader(ordinal));
+
+    public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) =>
+      DataReader!.GetChars(ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
+
+    public new IDataReader? GetData(int i) => DataReader!.GetData(i);
+
+    public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
+
+    public override DateTime GetDateTime(int ordinal) =>
+      DataReader!.GetDateTime(ReaderMapping.DataTableToReader(ordinal));
+
+    public override decimal GetDecimal(int ordinal) => DataReader!.GetDecimal(ReaderMapping.DataTableToReader(ordinal));
+
+    public override double GetDouble(int ordinal) => DataReader!.GetDouble(ReaderMapping.DataTableToReader(ordinal));
+
+    public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
+
+    public override Type GetFieldType(int ordinal) => ReaderMapping.Column[ordinal].ValueFormat.DataType.GetNetType();
+
+    public override float GetFloat(int ordinal) => DataReader!.GetFloat(ReaderMapping.DataTableToReader(ordinal));
+
+    public override Guid GetGuid(int ordinal) => DataReader!.GetGuid(ReaderMapping.DataTableToReader(ordinal));
+
+    public override short GetInt16(int ordinal) => DataReader!.GetInt16(ReaderMapping.DataTableToReader(ordinal));
+
+    public override int GetInt32(int ordinal) => DataReader!.GetInt32(ReaderMapping.DataTableToReader(ordinal));
+
+    public override long GetInt64(int columnNumber) =>
+      columnNumber == ReaderMapping.DataTableStartLine ? StartLineNumber :
+      columnNumber == ReaderMapping.DataTableEndLine ? EndLineNumber :
+      columnNumber == ReaderMapping.DataTableRecNum ? RecordNumber :
+      DataReader!.GetInt64(ReaderMapping.DataTableToReader(columnNumber));
+
+    public override string GetName(int ordinal) => ReaderMapping.Column[ordinal].Name;
+
+    public override int GetOrdinal(string columnName)
+    {
+      if (string.IsNullOrEmpty(columnName))
+        return -1;
+      var count = 0;
+      foreach (var column in ReaderMapping.Column)
+      {
+        if (columnName.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
+          return count;
+        count++;
+      }
+
+      return -1;
+    }
+
+    public override DataTable GetSchemaTable()
+    {
+      var dataTable = ReaderConstants.GetEmptySchemaTable();
+      var schemaRow = ReaderConstants.GetDefaultSchemaRowArray();
+
+      for (var col = 0; col < FieldCount; col++)
+      {
+        var column = ReaderMapping.Column[col];
+
+        schemaRow[1] = column.Name; // Column name
+        schemaRow[4] = column.Name; // Column name
+        schemaRow[5] = col; // Column ordinal
+
+        if (col == ReaderMapping.DataTableStartLine || col == ReaderMapping.DataTableRecNum
+                                                    || col == ReaderMapping.DataTableEndLine)
         {
-            DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
-            FileReader = reader as IFileReader;
-            if (reader.IsClosed)
-                throw new ArgumentException("Reader must be opened");
-            m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
-            ReaderMapping = new ReaderMapping(DataReader, addStartLine, addRecNum, addEndLine, addErrorField);
+          schemaRow[7] = typeof(long);
+        }
+        else
+        {
+          // If there is a conversion get the information
+          if (column.Convert && column.ValueFormat.DataType != DataType.String)
+            schemaRow[7] = column.ValueFormat.DataType.GetNetType();
+          else
+            schemaRow[7] = typeof(string);
         }
 
-        // public void ResetPositionToFirstDataRow() => FileReader.ResetPositionToFirstDataRow();
+        dataTable.Rows.Add(schemaRow);
+      }
 
-        public override int Depth => FieldCount;
+      return dataTable;
+    }
 
-        public long EndLineNumber => FileReader?.EndLineNumber ?? RecordNumber;
+    public override string GetString(int columnNumber) => Convert.ToString(GetValue(columnNumber));
 
-        public bool EndOfFile => FileReader?.EndOfFile ?? (DataReader?.IsClosed ?? true || RecordNumber >= m_RecordLimit);
+    public override object GetValue(int columnNumber)
+    {
+      if (columnNumber == ReaderMapping.DataTableStartLine)
+        return StartLineNumber;
+      if (columnNumber == ReaderMapping.DataTableEndLine)
+        return EndLineNumber;
+      if (columnNumber == ReaderMapping.DataTableRecNum)
+        return RecordNumber;
+      if (columnNumber == ReaderMapping.DataTableErrorField)
+        return ReaderMapping.RowErrorInformation ?? string.Empty;
 
-        public override int FieldCount => ReaderMapping.Column.Count;
+      return DataReader!.GetValue(ReaderMapping.DataTableToReader(columnNumber));
+    }
 
-        public override bool HasRows => !(DataReader?.IsClosed ?? true);
+    public override int GetValues(object[] values) => DataReader!.GetValues(values);
 
-        public override bool IsClosed => DataReader?.IsClosed ?? true;
+    public override bool IsDBNull(int columnNumber) =>
+      columnNumber != ReaderMapping.DataTableStartLine && columnNumber != ReaderMapping.DataTableEndLine
+                                                       && columnNumber != ReaderMapping.DataTableRecNum
+                                                       && (columnNumber == ReaderMapping.DataTableErrorField
+                                                             ? (ReaderMapping.ColumnErrorDictionary?.Count ?? 0) == 0
+                                                             : DataReader!.IsDBNull(
+                                                               ReaderMapping.DataTableToReader(columnNumber)));
 
-        public virtual int Percent =>
-          FileReader != null && FileReader.Percent != 0 && FileReader.Percent != 100 ? FileReader.Percent :
-          RecordNumber > 0 ? (int) (RecordNumber / (double) m_RecordLimit * 100d) : 0;
+    public override bool NextResult() => false;
 
-        public long RecordNumber { get; protected set; }
+    public override bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
 
-        public override int RecordsAffected => m_RecordLimit.ToInt();
+    public override async Task<bool> ReadAsync(CancellationToken token)
+    {
+      ReaderMapping.ColumnErrorDictionary?.Clear();
+      var couldRead = DataReader is DbDataReader dbDataReader
+                        ? await dbDataReader.ReadAsync(token).ConfigureAwait(false)
+                        : DataReader!.Read();
 
-        public long StartLineNumber => FileReader?.StartLineNumber ?? RecordNumber;
+      if (couldRead)
+        RecordNumber++;
+      return couldRead && RecordNumber <= m_RecordLimit;
+    }
 
-        public override object this[int ordinal] => GetValue(ordinal);
+    public int ReaderToDataTable(int readerColumn) => ReaderMapping.ReaderToDataTable(readerColumn);
 
-        public override object this[string name] => GetValue(GetOrdinal(name));
+    public new void Dispose()
+    {
+      DataReader?.Dispose();
+      DataReader = null;
 
-        public override void Close()
-        {
-            DataReader?.Close();
-        }
-
-        public override bool GetBoolean(int ordinal) => DataReader!.GetBoolean(ReaderMapping.DataTableToReader(ordinal));
-
-        public override byte GetByte(int ordinal) => DataReader!.GetByte(ReaderMapping.DataTableToReader(ordinal));
-
-        public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length) =>
-          DataReader!.GetBytes(ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
-
-        public override char GetChar(int ordinal) => DataReader!.GetChar(ReaderMapping.DataTableToReader(ordinal));
-
-        public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) =>
-          DataReader!.GetChars(ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
-
-        public new IDataReader? GetData(int i) => DataReader!.GetData(i);
-
-        public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
-
-        public override DateTime GetDateTime(int ordinal) =>
-          DataReader!.GetDateTime(ReaderMapping.DataTableToReader(ordinal));
-
-        public override decimal GetDecimal(int ordinal) => DataReader!.GetDecimal(ReaderMapping.DataTableToReader(ordinal));
-
-        public override double GetDouble(int ordinal) => DataReader!.GetDouble(ReaderMapping.DataTableToReader(ordinal));
-
-        public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
-
-        public override Type GetFieldType(int ordinal) => ReaderMapping.Column[ordinal].ValueFormat.DataType.GetNetType();
-
-        public override float GetFloat(int ordinal) => DataReader!.GetFloat(ReaderMapping.DataTableToReader(ordinal));
-
-        public override Guid GetGuid(int ordinal) => DataReader!.GetGuid(ReaderMapping.DataTableToReader(ordinal));
-
-        public override short GetInt16(int ordinal) => DataReader!.GetInt16(ReaderMapping.DataTableToReader(ordinal));
-
-        public override int GetInt32(int ordinal) => DataReader!.GetInt32(ReaderMapping.DataTableToReader(ordinal));
-
-        public override long GetInt64(int columnNumber) =>
-          columnNumber == ReaderMapping.DataTableStartLine ? StartLineNumber :
-          columnNumber == ReaderMapping.DataTableEndLine ? EndLineNumber :
-          columnNumber == ReaderMapping.DataTableRecNum ? RecordNumber :
-          DataReader!.GetInt64(ReaderMapping.DataTableToReader(columnNumber));
-
-        public override string GetName(int ordinal) => ReaderMapping.Column[ordinal].Name;
-
-        public override int GetOrdinal(string columnName)
-        {
-            if (string.IsNullOrEmpty(columnName))
-                return -1;
-            var count = 0;
-            foreach (var column in ReaderMapping.Column)
-            {
-                if (columnName.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
-                    return count;
-                count++;
-            }
-
-            return -1;
-        }
-
-        public override DataTable GetSchemaTable()
-        {
-            var dataTable = ReaderConstants.GetEmptySchemaTable();
-            var schemaRow = ReaderConstants.GetDefaultSchemaRowArray();
-
-            for (var col = 0; col < FieldCount; col++)
-            {
-                var column = ReaderMapping.Column[col];
-
-                schemaRow[1] = column.Name; // Column name
-                schemaRow[4] = column.Name; // Column name
-                schemaRow[5] = col; // Column ordinal
-
-                if (col == ReaderMapping.DataTableStartLine || col == ReaderMapping.DataTableRecNum
-                                                            || col == ReaderMapping.DataTableEndLine)
-                {
-                    schemaRow[7] = typeof(long);
-                }
-                else
-                {
-                    // If there is a conversion get the information
-                    if (column.Convert && column.ValueFormat.DataType != DataType.String)
-                        schemaRow[7] = column.ValueFormat.DataType.GetNetType();
-                    else
-                        schemaRow[7] = typeof(string);
-                }
-
-                dataTable.Rows.Add(schemaRow);
-            }
-
-            return dataTable;
-        }
-
-        public override string GetString(int columnNumber) => Convert.ToString(GetValue(columnNumber));
-
-        public override object GetValue(int columnNumber)
-        {
-            if (columnNumber == ReaderMapping.DataTableStartLine)
-                return StartLineNumber;
-            if (columnNumber == ReaderMapping.DataTableEndLine)
-                return EndLineNumber;
-            if (columnNumber == ReaderMapping.DataTableRecNum)
-                return RecordNumber;
-            if (columnNumber == ReaderMapping.DataTableErrorField)
-                return ReaderMapping.RowErrorInformation ?? string.Empty;
-
-            return DataReader!.GetValue(ReaderMapping.DataTableToReader(columnNumber));
-        }
-
-        public override int GetValues(object[] values) => DataReader!.GetValues(values);
-
-        public override bool IsDBNull(int columnNumber) =>
-          columnNumber != ReaderMapping.DataTableStartLine && columnNumber != ReaderMapping.DataTableEndLine
-                                                           && columnNumber != ReaderMapping.DataTableRecNum
-                                                           && (columnNumber == ReaderMapping.DataTableErrorField
-                                                                 ? (ReaderMapping.ColumnErrorDictionary?.Count ?? 0) == 0
-                                                                 : DataReader!.IsDBNull(
-                                                                   ReaderMapping.DataTableToReader(columnNumber)));
-
-        public override bool NextResult() => false;
-
-        public override bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
-
-        public override async Task<bool> ReadAsync(CancellationToken token)
-        {
-            ReaderMapping.ColumnErrorDictionary?.Clear();
-            var couldRead = DataReader is DbDataReader dbDataReader
-                              ? await dbDataReader.ReadAsync(token).ConfigureAwait(false)
-                              : DataReader!.Read();
-
-            if (couldRead)
-                RecordNumber++;
-            return couldRead && RecordNumber <= m_RecordLimit;
-        }
-
-        public int ReaderToDataTable(int readerColumn) => ReaderMapping.ReaderToDataTable(readerColumn);
-
-        public new void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected new virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                FileReader?.Dispose();
-            }
-            FileReader = null;
-
-            DataReader?.Dispose();
-            DataReader = null;
-        }
+      GC.SuppressFinalize(this);
+    }
 
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-        public override async ValueTask DisposeAsync()
-        {
-            await DisposeAsyncCore();
-            Dispose(false);
-            GC.SuppressFinalize(this);
-        }
+    public override async ValueTask DisposeAsync()
+    {
+      // no need to dispose FileReader
+      if (DataReader != null)
+      {
+        if (DataReader is DbDataReader dbDataReader)
+          await dbDataReader.DisposeAsync().ConfigureAwait(false);
+        else
+          DataReader.Dispose();
+        DataReader = null;
+      }
 
-        protected virtual async ValueTask DisposeAsyncCore()
-        {
-            if (FileReader!=null)
-                await FileReader.DisposeAsync().ConfigureAwait(false);
-        }
-#endif
+      GC.SuppressFinalize(this);
     }
+#endif
+  }
 }
