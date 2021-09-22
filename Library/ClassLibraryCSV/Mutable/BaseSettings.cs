@@ -667,9 +667,11 @@ namespace CsvTools
         if (newVal.Equals(m_SqlStatement, StringComparison.Ordinal))
           return;
         m_SqlStatement = newVal;
-
-        m_LatestSourceTimeUtc = ZeroTime;
+        // Need to assume we have new sources, it has to be recalculated
         SourceFileSettings = null;
+        // Reset the process time as well
+        ProcessTimeUtc = ZeroTime;
+        LatestSourceTimeUtc = ZeroTime;
         NotifyPropertyChanged(nameof(SqlStatement));
       }
     }
@@ -685,7 +687,7 @@ namespace CsvTools
         var doc = new XmlDocument();
         return doc.CreateCDataSection(SqlStatement);
       }
-      set => SqlStatement=value.Value;
+      set => m_SqlStatement = value.Value;
     }
 
     /// <summary>
