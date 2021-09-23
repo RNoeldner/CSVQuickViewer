@@ -16,7 +16,6 @@
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
-    <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
     <TargetFrameworkVersion>v11.0</TargetFrameworkVersion>
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
     <AndroidUseAapt2>true</AndroidUseAapt2>
@@ -89,7 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CSVQuickViewer.Xamarin\CSVQuickViewer.Xamarin.csproj">
-      <Project>{BF5EC489-D009-4FAB-AD26-9FEED7055F68}</Project>
+      <Project>{964E1635-5242-471B-93D5-040AB148CAC3}</Project>
       <Name>CSVQuickViewer.Xamarin</Name>
     </ProjectReference>
   </ItemGroup>

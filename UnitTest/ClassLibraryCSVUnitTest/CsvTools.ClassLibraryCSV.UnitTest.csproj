@@ -8,6 +8,7 @@
 		<Nullable>enable</Nullable>
 		<RootNamespace>CsvTools.Tests</RootNamespace>
 		<IsPackable>false</IsPackable>
+		<ReleaseVersion>1.4.6.499</ReleaseVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.7" />
