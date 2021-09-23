@@ -31,9 +31,7 @@ namespace CsvTools
   {
     private const int c_BufferSize = 8192;
 
-    protected readonly SourceAccess SourceAccess;
-
-    private bool m_DisposedValue;
+    protected readonly SourceAccess SourceAccess;    
 
     private ZipFile? m_ZipFile;
 
@@ -150,9 +148,7 @@ namespace CsvTools
 
     public override long Seek(long offset, SeekOrigin origin)
     {
-      if (m_DisposedValue)
-        throw new ObjectDisposedException(nameof(ImprovedStream));
-
+      
       // The stream must support seeking to get or set the position
       if (AccessStream!.CanSeek)
         return AccessStream.Seek(offset, origin);
@@ -175,8 +171,7 @@ namespace CsvTools
 
     protected void BaseOpen()
     {
-      if (m_DisposedValue)
-        throw new ObjectDisposedException(nameof(ImprovedStream));
+      
       BaseStream = SourceAccess.OpenStream();
 
       switch (SourceAccess.FileType)
@@ -200,8 +195,7 @@ namespace CsvTools
     }
 
     protected override void Dispose(bool disposing)
-    {
-      if (m_DisposedValue) return;
+    {      
       if (!disposing) return;
 
       if (!ReferenceEquals(AccessStream, BaseStream))
@@ -209,9 +203,7 @@ namespace CsvTools
         AccessStream?.Dispose();
 
       if (!SourceAccess.LeaveOpen)
-        BaseStream?.Dispose();
-
-      m_DisposedValue = true;
+        BaseStream?.Dispose();      
     }
 
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER

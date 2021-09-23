@@ -114,18 +114,18 @@ namespace CsvTools
           ?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList()
         ?? new List<ImmutableColumn>();
       NewLine = fileFormat?.NewLine.NewLineString() ?? "\r\n";
-      if (!string.IsNullOrEmpty(header))
+      if (header != null && header.Length > 0)
         Header = ReplacePlaceHolder(
-          header!.HandleCRLFCombinations(NewLine),
+          header.HandleCRLFCombinations(NewLine),
           fileFormat?.FieldDelimiterChar.GetDescription() ?? string.Empty,
           fileName,
           id);
       else
         Header = string.Empty;
 
-      if (!string.IsNullOrEmpty(footer))
+      if (footer != null && footer.Length > 0)
         m_Footer = ReplacePlaceHolder(
-          footer!.HandleCRLFCombinations(NewLine),
+          footer.HandleCRLFCombinations(NewLine),
           fileFormat?.FieldDelimiterChar.GetDescription() ?? string.Empty,
           fileName,
           id);
@@ -198,9 +198,9 @@ namespace CsvTools
       {
         var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
         var colName = schemaRow[SchemaTableColumn.ColumnName] as string;
-        if (string.IsNullOrEmpty(colName))
+        if (colName is null || colName.Length == 0)
           continue;
-        var newName = StringUtils.MakeUniqueInCollection(colNames.Values, colName!);
+        var newName = StringUtils.MakeUniqueInCollection(colNames.Values, colName);
         colNames.Add(colNo, newName);
       }
 
@@ -328,7 +328,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
         await
 #endif
-        using var improvedStream = (Stream) FunctionalDI.OpenStream(sourceAccess);
+          using var improvedStream = (Stream) FunctionalDI.OpenStream(sourceAccess);
 
         await WriteReaderAsync(reader, improvedStream, token).ConfigureAwait(false);
       }
@@ -472,9 +472,9 @@ namespace CsvTools
             {
               case DataType.Integer:
                 displayAs = Convert.ToInt64(dataObject)
-                  .ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
-                    CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
-                    columnInfo.ValueFormat.GroupSeparator);
+                                   .ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
+                                     CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
+                                     columnInfo.ValueFormat.GroupSeparator);
                 break;
 
               case DataType.Boolean:
@@ -572,9 +572,9 @@ namespace CsvTools
     private static string
       ReplacePlaceHolder(string input, string fieldDelimiter, string fileName, string replacement) =>
       input.PlaceholderReplace("ID", replacement).PlaceholderReplace("FileName", fileName)
-        .PlaceholderReplace("Delim", fieldDelimiter)
-        .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
-        .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
+           .PlaceholderReplace("Delim", fieldDelimiter)
+           .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
+           .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
 
     /// <summary>
     ///   Calls the event handler for warnings

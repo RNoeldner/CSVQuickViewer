@@ -47,11 +47,10 @@ namespace CsvTools
     [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
     public event EventHandler<WarningEventArgs>? Warning;
 
+    public Func<Task>? OnOpen { get; set; }
 #pragma warning restore CS0067
 
-    public DataTable DataTable { get; }
-
-    public Func<Task>? OnOpen { get; set; }
+    public DataTable DataTable { get; }    
 
     public bool SupportsReset => true;
 
@@ -59,10 +58,11 @@ namespace CsvTools
 
     [Obsolete("No need to open a DataTableWrapper, the DataTable is in memory")]
 #pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
-    public async Task OpenAsync(CancellationToken token) =>
-      throw new NotImplementedException("No need to open a DataTableWrapper, the DataTable is in memory");
+    public async Task OpenAsync(CancellationToken token)
+    {
+    }
 
-#pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
+#pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.        
 
     /// <summary>
     ///   Asynchronous Read of next record

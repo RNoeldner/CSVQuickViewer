@@ -92,7 +92,7 @@ namespace CsvTools
                                            ? TimeZoneInfo.FindSystemTimeZoneById(inaraSrc)
                                            : TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone);
           TimeZoneInfo destTimeZoneInfo = TZConvert.TryWindowsToIana(destTimeZone, out var inaraDest)
-                                            ? TimeZoneInfo.FindSystemTimeZoneById(inaraSrc)
+                                            ? TimeZoneInfo.FindSystemTimeZoneById(inaraDest)
                                             : TimeZoneInfo.FindSystemTimeZoneById(destTimeZone);
           return TimeZoneInfo.ConvertTime(input, srcTimeZoneInfo, destTimeZoneInfo);
         }

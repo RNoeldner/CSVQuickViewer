@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ * Copyright (C) 2014 Raphael NÃ¶ldner : http://csvquickviewer.com
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -92,11 +92,10 @@ namespace CsvTools
 		/// <value>The column format found by the given name, <c>NULL</c> otherwise</value>
 		public IColumn? Get(string? fieldName)
 		{
-			if (string.IsNullOrEmpty(fieldName)) return null;
-			var index = GetIndex(fieldName!);
-			if (index == -1) return null;
-			return Items[index];
-		}
+			if (fieldName is null) return null;
+			var index = GetIndex(fieldName);
+			return index == -1 ? null : Items[index];
+    }
 
 		public int GetIndex(string colName)
 		{

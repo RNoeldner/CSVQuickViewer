@@ -171,7 +171,11 @@ namespace CsvTools
 				columnCollection.Add(new ImmutableColumn(fld.PubName, vf, fld.Ordinal, destinationName: fld.PubName));
 			}
 
-			return new DelimitedFileDetectionResultWithColumns(fileSettingMani, columnCollection, string.Empty);
+			return new DelimitedFileDetectionResultWithColumns(fileSettingMani, columnCollection
+#if !QUICK
+        , string.Empty
+#endif
+        );
 		}
 
 		public class ManifestField
