@@ -162,15 +162,10 @@ namespace CsvTools
           intervalAction?.Invoke(() => progress!(wrapper.RecordNumber, wrapper.Percent));
 
           // This gets the errors from the fileReader
-          if ((wrapper.ReaderMapping.ColumnErrorDictionary?.Count ?? 0) <= 0
-              || cancellationToken.IsCancellationRequested)
+          if (cancellationToken.IsCancellationRequested)
             continue;
-
-          foreach (var keyValuePair in wrapper.ReaderMapping.ColumnErrorDictionary!)
-            if (keyValuePair.Key == -1)
-              dataRow.RowError = keyValuePair.Value;
-            else
-              dataRow.SetColumnError(wrapper.ReaderToDataTable(keyValuePair.Key), keyValuePair.Value);
+          if (wrapper.ReaderMapping.HasErrors)
+            wrapper.ReaderMapping.SetDataRowErrors(dataRow);
         }
       }
       catch (Exception ex)

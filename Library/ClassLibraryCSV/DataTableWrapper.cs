@@ -29,6 +29,7 @@ namespace CsvTools
     public DataTableWrapper(in DataTable? dataTable)
       : base(
         dataTable?.CreateDataReader() ?? throw new ArgumentNullException(nameof(dataTable)),
+        // passing in number of records so Percent can be calulated
         dataTable.Rows.Count) =>
       DataTable = dataTable;
 

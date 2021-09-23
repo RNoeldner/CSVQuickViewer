@@ -233,26 +233,31 @@ namespace CsvTools
       columnNumber != ReaderMapping.DataTableStartLine && columnNumber != ReaderMapping.DataTableEndLine
                                                        && columnNumber != ReaderMapping.DataTableRecNum
                                                        && (columnNumber == ReaderMapping.DataTableErrorField
-                                                             ? (ReaderMapping.ColumnErrorDictionary?.Count ?? 0) == 0
-                                                             : DataReader!.IsDBNull(
-                                                               ReaderMapping.DataTableToReader(columnNumber)));
+                                                             ? ReaderMapping.HasErrors
+                                                             : DataReader!.IsDBNull(ReaderMapping.DataTableToReader(columnNumber)));
 
     public override bool NextResult() => false;
 
-    public override bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
-
-    public override async Task<bool> ReadAsync(CancellationToken token)
+    public override bool Read()
     {
-      ReaderMapping.ColumnErrorDictionary?.Clear();
-      var couldRead = DataReader is DbDataReader dbDataReader
-                                 ? await dbDataReader.ReadAsync(token).ConfigureAwait(false)
-                                 : DataReader!.Read();
-
+      ReaderMapping.PrepareRead();
+      var couldRead = DataReader.Read();
       if (couldRead)
         RecordNumber++;
       return couldRead && RecordNumber <= m_RecordLimit;
     }
 
-    public int ReaderToDataTable(int readerColumn) => ReaderMapping.ReaderToDataTable(readerColumn);
+    public override async Task<bool> ReadAsync(CancellationToken token)
+    {
+      ReaderMapping.PrepareRead();
+      // IDataReader does not support preferred ReadAsync
+      var couldRead = DataReader is DbDataReader dbDataReader
+                                 ? await dbDataReader.ReadAsync(token).ConfigureAwait(false)
+                                 : DataReader.Read();
+
+      if (couldRead)
+        RecordNumber++;
+      return couldRead && RecordNumber <= m_RecordLimit;
+    }
   }
 }

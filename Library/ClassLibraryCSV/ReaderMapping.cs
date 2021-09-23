@@ -10,7 +10,7 @@ namespace CsvTools
   /// </summary>
   public class ReaderMapping
   {
-    public readonly ColumnErrorDictionary? ColumnErrorDictionary;
+    private readonly ColumnErrorDictionary? ColumnErrorDictionary;
 
     public readonly int DataTableEndLine;
 
@@ -131,6 +131,24 @@ namespace CsvTools
       }
     }
 
+    public bool HasErrors => !(ColumnErrorDictionary is null) && ColumnErrorDictionary.Count>0;
+
+    public void PrepareRead() => ColumnErrorDictionary?.Clear();
+
+    public void SetDataRowErrors(DataRow dataRow)
+    {
+      if (dataRow is null)
+        throw new ArgumentNullException(nameof(dataRow));
+      // This gets the errors from the fileReader
+      if (ColumnErrorDictionary is null)
+        return;
+      foreach (var keyValuePair in ColumnErrorDictionary)
+        if (keyValuePair.Key == -1)
+          dataRow.RowError = keyValuePair.Value;
+        else
+          dataRow.SetColumnError(m_Mapping[keyValuePair.Key], keyValuePair.Value);
+    }
+
     public IReadOnlyList<ImmutableColumn> Column => m_ReaderColumnNotIgnored;
 
     public string? RowErrorInformation =>
@@ -139,7 +157,5 @@ namespace CsvTools
         : ErrorInformation.ReadErrorInformation(ColumnErrorDictionary, m_ReaderColumnsAll);
 
     public int DataTableToReader(int tableColumn) => m_Mapping.GetByValue(tableColumn);
-
-    public int ReaderToDataTable(int readerColumn) => m_Mapping[readerColumn];
   }
 }
