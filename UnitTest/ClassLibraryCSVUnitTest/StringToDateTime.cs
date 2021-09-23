@@ -290,7 +290,7 @@ namespace CsvTools.Tests
     private static void TestDate(DateTime expected, string shortDate, string dateSep, string format)
     {
       var dtString = GetFormattedDate(expected, shortDate);
-      if (format == null)
+      if (format == null || format.Length == 0) 
         format = shortDate;
 
       var actual = StringConversion.StringToDateTime(dtString, format, dateSep, ":", false);

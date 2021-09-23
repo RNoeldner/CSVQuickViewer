@@ -111,7 +111,7 @@ namespace CsvTools
             }
         }
 
-        public virtual new void Dispose()
+        public new virtual void Dispose()
         {
         }
 
@@ -662,7 +662,7 @@ namespace CsvTools
             if (columnNumber < 0 || columnNumber >= FieldCount || columnNumber >= CurrentRowColumnText.Length)
                 throw new IndexOutOfRangeException(nameof(columnNumber));
 
-            return CurrentRowColumnText[columnNumber] ?? string.Empty;
+            return CurrentRowColumnText[columnNumber];
         }
 
         public override TextReader GetTextReader(int columnNumber) => new StringReader(CurrentRowColumnText[columnNumber]);
@@ -806,11 +806,11 @@ namespace CsvTools
         {
             if (inputString.Length > 0)
             {
-                if (treatNbspAsSpace && inputString!.IndexOf((char) 0xA0) != -1)
+                if (treatNbspAsSpace && inputString.IndexOf((char) 0xA0) != -1)
                     inputString = inputString.Replace((char) 0xA0, ' ');
 
                 if (trim)
-                    inputString = inputString!.Trim();
+                    inputString = inputString.Trim();
 
                 if (StringUtils.ShouldBeTreatedAsNull(inputString, treatTextAsNull))
                     inputString = string.Empty;
@@ -897,7 +897,7 @@ namespace CsvTools
 
             if (!dateTime.HasValue && !string.IsNullOrEmpty(strInputDate)
                                    && !string.IsNullOrEmpty(column.ValueFormat.DateFormat)
-                                   && strInputDate!.Length > column.ValueFormat.DateFormat.Length)
+                                   && strInputDate.Length > column.ValueFormat.DateFormat.Length)
             {
                 var inputDateNew = strInputDate.Substring(0, column.ValueFormat.DateFormat.Length);
                 dateTime = StringConversion.CombineStringsToDateTime(
@@ -1214,7 +1214,7 @@ namespace CsvTools
             // Now can handle possible warning that have been raised adjusting the names
             foreach (var warning in issues.Where(
               warning => warning.Key < 0 || warning.Key >= Column.Length || !Column[warning.Key].Ignore))
-                HandleWarning(warning.Key, warning.Value);
+              HandleWarning(warning.Key, warning.Value);
         }
 
         protected bool ShouldRetry(Exception ex, CancellationToken token)

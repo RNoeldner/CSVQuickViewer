@@ -108,6 +108,9 @@ namespace CsvTools
     /// </summary>
     /// <value>The fill guess settings.</value>
     [XmlElement]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public virtual FillGuessSettings FillGuessSettings
     {
       get => m_FillGuessSettings;
@@ -269,6 +272,9 @@ namespace CsvTools
     }
 
     [XmlElement(ElementName = "HTMLStyle")]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public string Style
     {
       get => m_HtmlStyle.Style;
@@ -300,7 +306,7 @@ namespace CsvTools
             SkipRows = SkipRows
     */
 
-    public static void CopyConfiguration(IFileSettingPhysicalFile csvSrc, IFileSettingPhysicalFile csvDest, bool includeDetected)
+    public static void CopyConfiguration(IFileSettingPhysicalFile? csvSrc, IFileSettingPhysicalFile? csvDest, bool includeDetected)
     {
       if (csvSrc is null || csvDest is null || ReferenceEquals(csvSrc, csvDest))
         return;

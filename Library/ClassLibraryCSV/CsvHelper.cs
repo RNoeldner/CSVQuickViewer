@@ -73,7 +73,7 @@ namespace CsvTools
         throw new FileNotFoundException(fileName);
       var fileInfo = new FileSystemUtils.FileInfo(fileName2);
 
-      Logger.Information("Examining file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName2!, 40));
+      Logger.Information("Examining file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName2, 40));
       Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
 
 #if !QUICK
