@@ -690,21 +690,6 @@
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="240" width="480" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
-                        <toolbar key="toolbar" implicitIdentifier="F9B4C5F2-8FF1-48C6-81A9-7BB939B42E23" displayMode="iconOnly" sizeMode="regular" id="7PX-zu-mig">
-                            <allowedToolbarItems>
-                                <toolbarItem implicitItemIdentifier="NSToolbarShowColorsItem" id="XZp-1x-LuO"/>
-                                <toolbarItem implicitItemIdentifier="NSToolbarShowFontsItem" id="Fyk-ew-rdL"/>
-                                <toolbarItem implicitItemIdentifier="NSToolbarPrintItem" id="3Np-Y1-jMx"/>
-                                <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="B6T-RK-Gl2"/>
-                                <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="P0C-p7-f0m"/>
-                            </allowedToolbarItems>
-                            <defaultToolbarItems>
-                                <toolbarItem reference="XZp-1x-LuO"/>
-                                <toolbarItem reference="Fyk-ew-rdL"/>
-                                <toolbarItem reference="P0C-p7-f0m"/>
-                                <toolbarItem reference="3Np-Y1-jMx"/>
-                            </defaultToolbarItems>
-                        </toolbar>
                         <connections>
                             <outlet property="delegate" destination="jGA-0Y-lOj" id="98r-iN-zZc"/>
                         </connections>
@@ -737,7 +722,7 @@
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <size key="minSize" width="465" height="270"/>
-                                            <size key="maxSize" width="465" height="10000000"/>
+                                            <size key="maxSize" width="480" height="10000000"/>
                                             <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                         </textView>
                                     </subviews>

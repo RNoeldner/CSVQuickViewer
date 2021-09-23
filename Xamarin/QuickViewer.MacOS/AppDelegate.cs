@@ -37,12 +37,12 @@ namespace QuickViewer.MacOS
       dlg.CanChooseFiles = true;
       dlg.CanChooseDirectories = false;
       dlg.AllowsOtherFileTypes = true;
-      
+
       if (dlg.RunModal() == 1)
       {
         var url = dlg.Urls[0];
         if (url != null)
-        {         
+        {
           OpenFile(url);
         }
       }
@@ -55,7 +55,7 @@ namespace QuickViewer.MacOS
       {
         filename = filename.Replace(" ", "%20");
         var url = new NSUrl("file://"+filename);
-        
+
         return OpenFile(url);
       }
       catch
@@ -88,7 +88,7 @@ namespace QuickViewer.MacOS
         //}
         // Add document to the Open Recent menu
         NSDocumentController.SharedDocumentController.NoteNewRecentDocumentURL(url);
-        
+
         // Get new window
         var storyboard = NSStoryboard.FromName("Main", null);
         var controller = storyboard.InstantiateControllerWithIdentifier("DocumentWindowController") as NSWindowController;
@@ -98,13 +98,11 @@ namespace QuickViewer.MacOS
         controller.WindowTitleForDocumentDisplayName(Path.GetFileName(path));
         var viewController = controller.ContentViewController as ViewController;
         // Load the text into the window
-        
-        // viewController.TextView.TextStorage.SetString(File.ReadAllText(path));
-        
-        //viewController.SetLanguageFromPath(path);
-        //viewController.SetLanguageFromPath(path);
-        //viewController.View.Window.SetTitleWithRepresentedFilename(path.GetFileName(path));
-        //viewController.View.Window.RepresentedUrl = url;
+
+        viewController.TextView.Value = File.ReadAllText(path);
+
+        viewController.View.Window.SetTitleWithRepresentedFilename(Path.GetFileName(path));
+        viewController.View.Window.RepresentedUrl = url;
 
         // Add document to the Open Recent menu
         NSDocumentController.SharedDocumentController.NoteNewRecentDocumentURL(url);
@@ -113,7 +111,7 @@ namespace QuickViewer.MacOS
         good = true;
       }
       catch (Exception ex)
-      { 
+      {
         var alert = new NSAlert()
         {
           AlertStyle = NSAlertStyle.Warning,

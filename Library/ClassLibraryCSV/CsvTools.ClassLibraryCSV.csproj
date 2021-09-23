@@ -22,6 +22,7 @@
 		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<AssemblyName>CsvTools.ClassLibraryCSV</AssemblyName>
+		<ReleaseVersion>1.4.6.499</ReleaseVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Remove="CsvFileReaderAsync.cs" />
@@ -61,12 +62,12 @@
 		<Folder Include="Properties\" />
 	</ItemGroup>
 	<ProjectExtensions>
-		<MonoDevelop>
-			<Properties>
-				<Policies>
-					<DotNetNamingPolicy DirectoryNamespaceAssociation="None" ResourceNamePolicy="FileFormatDefault" />
-				</Policies>
-			</Properties>
-		</MonoDevelop>
+	  <MonoDevelop>
+	    <Properties>
+	      <Policies>
+	        <DotNetNamingPolicy DirectoryNamespaceAssociation="None" ResourceNamePolicy="FileFormatDefault" />
+	      </Policies>
+	    </Properties>
+	  </MonoDevelop>
 	</ProjectExtensions>
 </Project>

@@ -7,6 +7,7 @@
 		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
 		<RootNamespace>CsvTools.Tests</RootNamespace>
 		<TestProjectType>UnitTest</TestProjectType>
+		<ReleaseVersion>1.4.6.499</ReleaseVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DefineConstants>TRACE;Windows</DefineConstants>

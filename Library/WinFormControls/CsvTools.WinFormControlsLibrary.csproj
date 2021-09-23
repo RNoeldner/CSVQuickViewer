@@ -9,6 +9,7 @@
 		<SignAssembly>True</SignAssembly>
 		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<ReleaseVersion>1.4.6.499</ReleaseVersion>
 	</PropertyGroup>
 	<PropertyGroup>
 		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
@@ -50,20 +51,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft-WindowsAPICodePack-Shell">
-			<Version>1.1.4</Version>
+		<PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4">
 		</PackageReference>
-		<PackageReference Include="Serilog.Extensions.Logging">
-			<Version>3.0.1</Version>
+		<PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1">
 		</PackageReference>
-		<PackageReference Include="Serilog.Sinks.File">
-			<Version>5.0.0</Version>
+		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0">
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj">
-			<Project>{0b6aee5a-8005-4b1d-987f-5790d34a2d52}</Project>
-			<Name>ClassLibraryCSV</Name>
 		</ProjectReference>
 	</ItemGroup>
 </Project>

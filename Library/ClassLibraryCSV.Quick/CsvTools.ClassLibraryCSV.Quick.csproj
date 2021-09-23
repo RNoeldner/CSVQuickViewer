@@ -14,6 +14,9 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
+		<ReleaseVersion>1.4.6.499</ReleaseVersion>
+		<IsPackable>false</IsPackable>
+		<NeutralLanguage>en</NeutralLanguage>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 		<DefineConstants>TRACE;DEBUG;QUICK</DefineConstants>
@@ -105,12 +108,12 @@
 		<Folder Include="Properties\" />
 	</ItemGroup>
 	<ProjectExtensions>
-		<MonoDevelop>
-			<Properties>
-				<Policies>
-					<DotNetNamingPolicy DirectoryNamespaceAssociation="None" ResourceNamePolicy="FileFormatDefault" />
-				</Policies>
-			</Properties>
-		</MonoDevelop>
+	  <MonoDevelop>
+	    <Properties>
+	      <Policies>
+	        <DotNetNamingPolicy DirectoryNamespaceAssociation="None" ResourceNamePolicy="FileFormatDefault" />
+	      </Policies>
+	    </Properties>
+	  </MonoDevelop>
 	</ProjectExtensions>
 </Project>
