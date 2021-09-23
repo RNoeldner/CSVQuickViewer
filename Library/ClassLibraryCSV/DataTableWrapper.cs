@@ -32,15 +32,21 @@ namespace CsvTools
         dataTable.Rows.Count) =>
       DataTable = dataTable;
 
-    [Obsolete("Not needed for DataTableWrapper")]
+#pragma warning disable CS0067
+
+    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
     public event EventHandler<RetryEventArgs>? OnAskRetry;
 
+    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
     public event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
 
+    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
     public event EventHandler? ReadFinished;
 
-    [Obsolete("Not needed for DataTableWrapper")]
+    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
     public event EventHandler<WarningEventArgs>? Warning;
+
+#pragma warning restore CS0067
 
     public DataTable DataTable { get; }
 
@@ -50,12 +56,12 @@ namespace CsvTools
 
     public IColumn GetColumn(int column) => ReaderMapping.Column[column];
 
-    [Obsolete("No need to open a DataTableWrapper")]
-    public async Task OpenAsync(CancellationToken token)
-    {
-      if (OnOpen != null) await OnOpen.Invoke().ConfigureAwait(false);
-      OpenFinished?.Invoke(this, ReaderMapping.Column);
-    }
+    [Obsolete("No need to open a DataTableWrapper, the DataTable is in memory")]
+#pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
+    public async Task OpenAsync(CancellationToken token) =>
+      throw new NotImplementedException("No need to open a DataTableWrapper, the DataTable is in memory");
+
+#pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
 
     /// <summary>
     ///   Asynchronous Read of next record
@@ -80,7 +86,7 @@ namespace CsvTools
     /// </summary>
     public void ResetPositionToFirstDataRow()
     {
-      DataReader?.Close();
+      base.Close();
       DataReader = DataTable.CreateDataReader();
       RecordNumber = 0;
     }

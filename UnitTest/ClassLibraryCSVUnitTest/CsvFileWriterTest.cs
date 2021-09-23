@@ -23,11 +23,11 @@ namespace CsvTools.Tests
   [TestClass]
   public class CsvFileWriterTest
   {
-    private static CsvFile m_ReadFile;
+    private static readonly CsvFile m_ReadFile;
 
-    private static CsvFile m_WriteFile;
-    
-    public CsvFileWriterTest()
+    private static readonly CsvFile m_WriteFile;
+
+    static CsvFileWriterTest()
     {
       m_ReadFile =
         new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"))
