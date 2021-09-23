@@ -134,7 +134,8 @@ namespace CsvTools
     event EventHandler ReadFinished;
 
     /// <summary>
-    ///   Event to be raised once the reader opened, the column information is now known
+    ///   Event to be raised once the reader is opened, the column information is now known and
+    ///   passed to the EventHandler
     /// </summary>
     event EventHandler<IReadOnlyCollection<IColumn>> OpenFinished;
 

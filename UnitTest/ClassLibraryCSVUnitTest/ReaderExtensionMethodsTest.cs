@@ -66,7 +66,7 @@ namespace CsvTools.Tests
       using var test = new CsvFileReader(test2.FullPath, test2.CodePageId, test2.SkipRows, test2.HasFieldHeader, test2.ColumnCollection, test2.TrimmingOption, test2.FileFormat.FieldDelimiter, test2.FileFormat.FieldQualifier, test2.FileFormat.EscapeCharacter, test2.RecordLimit, test2.AllowRowCombining, test2.FileFormat.AlternateQuoting, test2.FileFormat.CommentLine, test2.NumWarnings, test2.FileFormat.DuplicateQuotingToEscape, test2.FileFormat.NewLinePlaceholder, test2.FileFormat.DelimiterPlaceholder, test2.FileFormat.QuotePlaceholder, test2.SkipDuplicateHeader, test2.TreatLFAsSpace, test2.TreatUnknownCharacterAsSpace, test2.TryToSolveMoreColumns, test2.WarnDelimiterInValue, test2.WarnLineFeed, test2.WarnNBSP, test2.WarnQuotes, test2.WarnUnknownCharacter, test2.WarnEmptyTailingColumns, test2.TreatNBSPAsSpace, test2.TreatTextAsNull, test2.SkipEmptyLines, test2.ConsecutiveEmptyRows, test2.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
 
-      DataTable dt = await test.GetDataTableAsync(-1, false, false, false, false, false, null,
+      var dt = await test.GetDataTableAsync(-1, false, false, false, false, false, null,
         processDisplay.CancellationToken);
       Assert.AreEqual(test2.RecordLimit, dt!.Rows.Count);
     }

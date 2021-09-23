@@ -22,24 +22,25 @@ using System.Threading.Tasks;
 namespace CsvTools
 {
   /// <summary>
-  ///   Wrapper around another FileReader adding artificial fields and removing ignored columns
+  ///   Wrapper around another an open IDataReader adding artificial fields and removing ignored columns
   /// </summary>
-  /// <remarks>Introduced to allow a stream into SQLBulkCopy and possibly replace CopyToDataTableInfo</remarks>
+  /// <remarks>
+  ///   Introduced to allow a stream into SQLBulkCopy and possibly replace CopyToDataTableInfo. <br
+  ///   /> This does not need to be disposed the passed in Reader though need to be disposed. <br />
+  ///   Closing does close the passed in reader
+  /// </remarks>
   public class DataReaderWrapper : DbDataReader
   {
     public readonly ReaderMapping ReaderMapping;
-
-    protected IFileReader? FileReader;
-
-    protected IDataReader? DataReader;
-
+    protected readonly IFileReader? FileReader;
+    protected IDataReader DataReader;
     private readonly long m_RecordLimit;
 
     /// <summary>
-    ///   Constructor for a DataReaderWrapper, this wrapper adds artificial fields like Error, start
-    ///   and end Line or record number
+    ///   Constructor for a DataReaderWrapper <br /> This wrapper adds artificial fields like Error,
+    ///   start and end Line or record number and handles the return of these artifical fields in GetValue
     /// </summary>
-    /// <param name="reader">A reader, this can be a regular IDataReader or a IFileReader</param>
+    /// <param name="reader">Regular framework IDataReader</param>
     /// <param name="recordLimit">Number of maximum records to read, 0 if there is no limit</param>
     /// <param name="addErrorField">Add artificial field Error</param>
     /// <param name="addStartLine">Add artificial field Start Line</param>
@@ -61,19 +62,37 @@ namespace CsvTools
       ReaderMapping = new ReaderMapping(DataReader, addStartLine, addRecNum, addEndLine, addErrorField);
     }
 
-    // public void ResetPositionToFirstDataRow() => FileReader.ResetPositionToFirstDataRow();
+    /// <summary>
+    ///   Constructor for a DataReaderWrapper, this wrapper adds artificial fields like Error, start
+    ///   and end Line or record number
+    /// </summary>
+    /// <param name="fileReader"><see cref="IFileReader" /></param>
+    /// <param name="recordLimit">Number of maximum records to read, 0 if there is no limit</param>
+    /// <param name="addErrorField">Add artificial field Error</param>
+    /// <param name="addStartLine">Add artificial field Start Line</param>
+    /// <param name="addEndLine">Add artificial field End Line</param>
+    /// <param name="addRecNum">Add artificial field Records Number</param>
+    public DataReaderWrapper(
+      in IFileReader fileReader,
+      long recordLimit = 0,
+      bool addErrorField = false,
+      bool addStartLine = false,
+      bool addEndLine = false,
+      bool addRecNum = false) : this(fileReader as IDataReader, recordLimit, addErrorField, addStartLine, addEndLine, addRecNum)
+    {
+    }
 
     public override int Depth => FieldCount;
 
     public long EndLineNumber => FileReader?.EndLineNumber ?? RecordNumber;
 
-    public bool EndOfFile => FileReader?.EndOfFile ?? (DataReader?.IsClosed ?? true || RecordNumber >= m_RecordLimit);
+    public bool EndOfFile => FileReader?.EndOfFile ?? (DataReader.IsClosed || RecordNumber >= m_RecordLimit);
 
     public override int FieldCount => ReaderMapping.Column.Count;
 
-    public override bool HasRows => !(DataReader?.IsClosed ?? true);
+    public override bool HasRows => !DataReader.IsClosed;
 
-    public override bool IsClosed => DataReader?.IsClosed ?? true;
+    public override bool IsClosed => DataReader.IsClosed;
 
     public virtual int Percent =>
       FileReader != null && FileReader.Percent != 0 && FileReader.Percent != 100 ? FileReader.Percent :
@@ -89,10 +108,17 @@ namespace CsvTools
 
     public override object this[string name] => GetValue(GetOrdinal(name));
 
-    public override void Close()
+    public override void Close() => DataReader.Close();
+
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    public override async Task CloseAsync()
     {
-      DataReader?.Close();
+      if (DataReader is DbDataReader dbDataReader)
+        await dbDataReader.CloseAsync();
+      else
+        DataReader.Close();
     }
+#endif
 
     public override bool GetBoolean(int ordinal) => DataReader!.GetBoolean(ReaderMapping.DataTableToReader(ordinal));
 
@@ -219,8 +245,8 @@ namespace CsvTools
     {
       ReaderMapping.ColumnErrorDictionary?.Clear();
       var couldRead = DataReader is DbDataReader dbDataReader
-                        ? await dbDataReader.ReadAsync(token).ConfigureAwait(false)
-                        : DataReader!.Read();
+                                 ? await dbDataReader.ReadAsync(token).ConfigureAwait(false)
+                                 : DataReader!.Read();
 
       if (couldRead)
         RecordNumber++;
