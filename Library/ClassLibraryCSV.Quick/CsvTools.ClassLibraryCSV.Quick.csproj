@@ -80,12 +80,10 @@
 		<Compile Include="..\ClassLibraryCSV\Immutable\ImmutableColumn.cs" Link="ImmutableColumn.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileWriterException.cs" Link="FileWriterException.cs" />
 		<Compile Include="..\ClassLibraryCSV\ImprovedTextReaderPositionStore.cs" Link="ImprovedTextReaderPositionStore.cs" />
-		<Compile Include="..\ClassLibraryCSV\ManifestData.cs" Link="ManifestData.cs" />
-		<Compile Include="..\ClassLibraryCSV\IFileFormat.cs" Link="IFileFormat.cs" />
+		<Compile Include="..\ClassLibraryCSV\ManifestData.cs" Link="ManifestData.cs" />		
 		<Compile Include="..\ClassLibraryCSV\EnumDescriptionConverter.cs" Link="EnumDescriptionConverter.cs" />
 		<Compile Include="..\ClassLibraryCSV\HTMLStyle.cs" Link="HTMLStyle.cs" />
-		<Compile Include="..\ClassLibraryCSV\BiDirectionalDictionary.cs" Link="BiDirectionalDictionary.cs" />
-		<Compile Include="..\ClassLibraryCSV\Immutable\ImmutableFileFormat.cs" Link="ImmutableFileFormat.cs" />
+		<Compile Include="..\ClassLibraryCSV\BiDirectionalDictionary.cs" Link="BiDirectionalDictionary.cs" />		
 		<Compile Include="..\ClassLibraryCSV\IntervalAction.cs" Link="IntervalAction.cs" />		
 		<Compile Include="..\ClassLibraryCSV\WriterColumn.cs" Link="WriterColumn.cs" />
 		<Compile Include="..\ClassLibraryCSV\DetermineColumnFormat.cs" Link="DetermineColumnFormat.cs" />

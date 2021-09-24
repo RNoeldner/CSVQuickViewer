@@ -75,14 +75,14 @@ namespace CsvTools.Tests
         HasFieldHeader = true,
         DisplayStartLineNo = false,
         SqlStatement = "ID122",
-        FileFormat = { FieldDelimiter = "," }
+        FieldDelimiter = ","
       };
       using (var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
-        setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter,
-        setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit,
-        setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine,
-        setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder,
-        setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader,
+        setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter,
+        setting.FieldQualifier, setting.EscapeCharacter, setting.RecordLimit,
+        setting.AllowRowCombining, setting.AlternateQuoting, setting.CommentLine,
+        setting.NumWarnings, setting.DuplicateQuotingToEscape, setting.NewLinePlaceholder,
+        setting.DelimiterPlaceholder, setting.QuotePlaceholder, setting.SkipDuplicateHeader,
         setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns,
         setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes,
         setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace,
@@ -129,7 +129,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSourceColumnInformationTest2Async()
     {
-      var setting = new CsvFile { ID = "ID122", FileFormat = { FieldDelimiter = "," } };
+      var setting = new CsvFile { ID = "ID122", FieldDelimiter = "," };
       try
       {
         using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
@@ -243,7 +243,7 @@ namespace CsvTools.Tests
         ID = "DetermineColumnFormatFillGuessColumnFormatWriter",
         FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = true,
-        FileFormat = { FieldDelimiter = "," }
+        FieldDelimiter = ","
       };
       var fillGuessSettings = new FillGuessSettings
       {
@@ -272,10 +272,10 @@ namespace CsvTools.Tests
         FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
         DisplayStartLineNo = false,
         HasFieldHeader = true,
-        FileFormat = { FieldDelimiter = "," }
+        FieldDelimiter = ","
       };
       using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
-      using (var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, null))
+      using (var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.AlternateQuoting, setting.CommentLine, setting.NumWarnings, setting.DuplicateQuotingToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, null))
       {
         await reader.OpenAsync(processDisplay.CancellationToken);
         UnitTestStatic.MimicSQLReader.AddSetting(setting.ID,
@@ -388,7 +388,7 @@ namespace CsvTools.Tests
       var setting = new CsvFile
       {
         FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        FileFormat = { FieldDelimiter = "," },
+        FieldDelimiter = ",",
         HasFieldHeader = true
       };
 
@@ -416,7 +416,7 @@ namespace CsvTools.Tests
         FileName = UnitTestStatic.GetTestPath("Sessions.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = { FieldDelimiter = "\t" }
+        FieldDelimiter = "\t"
       };
       var fillGuessSettings = new FillGuessSettings
       {
@@ -446,7 +446,7 @@ namespace CsvTools.Tests
       var setting = new CsvFile
       {
         FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        FileFormat = { FieldDelimiter = "," },
+        FieldDelimiter = ",",
         HasFieldHeader = true
       };
 
@@ -474,7 +474,8 @@ namespace CsvTools.Tests
       {
         FileName = UnitTestStatic.GetTestPath("DateAndNumber.csv"),
         HasFieldHeader = true,
-        FileFormat = { FieldQualifier = "Quote", FieldDelimiter = "Tab" },
+        FieldQualifier = "Quote",
+        FieldDelimiter = "Tab",
         CodePageId = 1252
       };
       var fillGuessSettings = new FillGuessSettings
@@ -512,7 +513,7 @@ namespace CsvTools.Tests
       var setting = new CsvFile
       {
         FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        FileFormat = { FieldDelimiter = "," },
+        FieldDelimiter = ",",
         HasFieldHeader = true
       };
 
@@ -541,7 +542,7 @@ namespace CsvTools.Tests
         FileName = UnitTestStatic.GetTestPath("AllFormatsColon.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = { FieldDelimiter = "," }
+        FieldDelimiter = ","
       };
       var fillGuessSettings = new FillGuessSettings { IgnoreIdColumns = true };
 
@@ -571,7 +572,7 @@ namespace CsvTools.Tests
         FileName = UnitTestStatic.GetTestPath("AllFormatsColon.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = { FieldDelimiter = "," },
+        FieldDelimiter = ",",
       };
 
       try
@@ -630,7 +631,7 @@ namespace CsvTools.Tests
         FileName = UnitTestStatic.GetTestPath("AllFormatsColon.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = { FieldDelimiter = "," }
+        FieldDelimiter = ","
       };
       setting.ColumnCollection.Clear();
 
@@ -730,7 +731,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), HasFieldHeader = true };
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
-      using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
+      using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.AlternateQuoting, setting.CommentLine, setting.NumWarnings, setting.DuplicateQuotingToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
       var samples = await DetermineColumnFormat.GetSampleValuesAsync(test, 1000, new[] { 0 }, 20,
         "NULL", UnitTestStatic.Token);
@@ -749,7 +750,7 @@ namespace CsvTools.Tests
         HasFieldHeader = true
       };
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
-      using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FileFormat.FieldDelimiter, setting.FileFormat.FieldQualifier, setting.FileFormat.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.FileFormat.AlternateQuoting, setting.FileFormat.CommentLine, setting.NumWarnings, setting.FileFormat.DuplicateQuotingToEscape, setting.FileFormat.NewLinePlaceholder, setting.FileFormat.DelimiterPlaceholder, setting.FileFormat.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
+      using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.AlternateQuoting, setting.CommentLine, setting.NumWarnings, setting.DuplicateQuotingToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
 
       var temp = await DetermineColumnFormat

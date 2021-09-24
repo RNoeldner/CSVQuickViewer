@@ -264,8 +264,7 @@ namespace CsvTools
       try
       {
         fileSetting.PropertyChanged += FileSetting_PropertyChanged;
-        if (fileSetting is ICsvFile csv)
-          csv.FileFormat.PropertyChanged += AnyPropertyChangedReload;
+        
         fileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
 
         if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
@@ -332,10 +331,7 @@ namespace CsvTools
       fileSystemWatcher.EnableRaisingEvents = false;
 
       if (fileSetting is null) return;
-
       fileSetting.PropertyChanged -= FileSetting_PropertyChanged;
-      if (fileSetting is ICsvFile csv)
-        csv.FileFormat.PropertyChanged -= AnyPropertyChangedReload;
       fileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
     }
 
@@ -395,7 +391,13 @@ namespace CsvTools
           || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)
           || e.PropertyName == nameof(ICsvFile.DisplayStartLineNo)
           || e.PropertyName == nameof(ICsvFile.DisplayRecordNo)
-          || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)
+          || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)          
+          || e.PropertyName == nameof(ICsvFile.FieldDelimiterChar)
+          || e.PropertyName == nameof(ICsvFile.FieldQualifierChar)
+          || e.PropertyName == nameof(ICsvFile.EscapeChar)
+          || e.PropertyName == nameof(ICsvFile.CommentLine)
+          || e.PropertyName == nameof(ICsvFile.AlternateQuoting)
+          || e.PropertyName == nameof(ICsvFile.DuplicateQuotingToEscape)                
           || e.PropertyName == nameof(ICsvFile.FileName))
         m_ConfigChanged = true;
     }
@@ -628,7 +630,7 @@ namespace CsvTools
         proc.Maximum = 0;
         proc.SetProcess("Reading source and applying color coding", 0, false);
         if (m_FileSetting is ICsvFile csv)
-          m_SourceDisplay.OpenFile(false, csv.FileFormat.FieldQualifier, csv.FileFormat.FieldDelimiter, csv.FileFormat.EscapeCharacter, csv.CodePageId, m_FileSetting.SkipRows, csv.FileFormat.CommentLine);
+          m_SourceDisplay.OpenFile(false, csv.FieldQualifier, csv.FieldDelimiter, csv.EscapeCharacter, csv.CodePageId, m_FileSetting.SkipRows, csv.CommentLine);
         else
           m_SourceDisplay.OpenFile(m_FileSetting is IJsonFile, "", "", "", 65001, m_FileSetting.SkipRows, "");
         proc.Close();

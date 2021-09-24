@@ -112,6 +112,9 @@ namespace CsvTools
     /// </summary>
     /// <value>The value format.</value>
     [XmlElement]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public virtual ValueFormatMutable DefaultValueFormatWrite
     {
       get => m_DefaultValueFormatWrite;

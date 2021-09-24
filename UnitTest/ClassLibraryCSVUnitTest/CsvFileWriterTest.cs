@@ -33,7 +33,8 @@ namespace CsvTools.Tests
         new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"))
         {
           ID = "Read",
-          FileFormat = { FieldDelimiter = ",", CommentLine = "#" }
+          FieldDelimiter = ",",
+          CommentLine = "#"
         };
 
       m_ReadFile.ColumnCollection.Add(new Column("ExamDate",
@@ -64,7 +65,7 @@ namespace CsvTools.Tests
 
       UnitTestStatic.MimicSQLReader.AddSetting(setting);
       writeFile.SqlStatement = setting.ID;
-      writeFile.FileFormat.FieldDelimiter = "|";
+      writeFile.FieldDelimiter = "|";
       writeFile.ColumnCollection.Add(
         new Column("DateTime", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "yyyyMMdd" })
         {
@@ -72,9 +73,10 @@ namespace CsvTools.Tests
           TimePart = "Time",
           TimeZonePart = "TZ"
         });
-      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.FileFormat, writeFile.CodePageId,
+      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
-        writeFile.Header, writeFile.Footer);
+        writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapeChar,
+        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QuotePlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, pd);
 
       var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
@@ -89,11 +91,12 @@ namespace CsvTools.Tests
       var writeFile = (CsvFile) m_WriteFile.Clone();
       writeFile.FileName = UnitTestStatic.GetTestPath("BasicCSVOut.txt");
       FileSystemUtils.FileDelete(writeFile.FileName);
-      writeFile.FileFormat.FieldDelimiter = "|";
+      writeFile.FieldDelimiter = "|";
 
-      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.FileFormat, writeFile.CodePageId,
+      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
-        writeFile.Header, writeFile.Footer);
+        writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapeChar,
+        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QuotePlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, pd);
 
       var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
@@ -113,7 +116,7 @@ namespace CsvTools.Tests
 
       UnitTestStatic.MimicSQLReader.AddSetting(setting);
       writeFile.SqlStatement = setting.ID;
-      writeFile.FileFormat.FieldDelimiter = "|";
+      writeFile.FieldDelimiter = "|";
 
       var cf = new Column("DateTime", DataType.DateTime)
       {
@@ -123,9 +126,10 @@ namespace CsvTools.Tests
       };
       cf.ValueFormatMutable.DateFormat = "yyyyMMdd";
       writeFile.ColumnCollection.Add(cf);
-      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.FileFormat, writeFile.CodePageId,
+      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
-        writeFile.Header, writeFile.Footer);
+        writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapeChar,
+        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QuotePlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, pd);
 
       var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
@@ -149,9 +153,10 @@ namespace CsvTools.Tests
       var writeFile = new CsvFile { ID = "Test.txt", FileName =  UnitTestStatic.GetTestPath("Test.txt"), SqlStatement = "Hello" };
       using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
       {
-        var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.FileFormat, writeFile.CodePageId,
+        var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
-        writeFile.Header, writeFile.Footer);
+        writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapeChar,
+        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QuotePlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, processDisplay);
         using var reader = new DataTableWrapper(dataTable);
         // await reader.OpenAsync(processDisplay.CancellationToken);
         Assert.AreEqual(100, await writer.WriteAsync(reader, processDisplay.CancellationToken));
@@ -181,9 +186,10 @@ namespace CsvTools.Tests
       var count = 0;
       using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
       {
-        var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.FileFormat, writeFile.CodePageId,
+        var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
-        writeFile.Header, writeFile.Footer);
+        writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapeChar,
+        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QuotePlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, processDisplay);
         writer.Warning += (sender, e) => { count++; };
         using (var reader = new DataTableWrapper(dataTable))
         {
@@ -226,9 +232,10 @@ namespace CsvTools.Tests
         {
           using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
           {
-            var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.FileFormat, writeFile.CodePageId,
+            var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
-        writeFile.Header, writeFile.Footer);
+        writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapeChar,
+        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QuotePlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, processDisplay);
             using var reader = new DataTableWrapper(dataTable);
             await writer.WriteAsync(reader, processDisplay.CancellationToken);
           }
@@ -248,18 +255,19 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task WriteGZipAsync()
     {
-      var pd = new MockProcessDisplay();
+      var processDisplay = new MockProcessDisplay();
 
       var writeFile = (CsvFile) m_WriteFile.Clone();
       writeFile.FileName = UnitTestStatic.GetTestPath("BasicCSVOut.txt.gz");
       FileSystemUtils.FileDelete(writeFile.FileName);
-      writeFile.FileFormat.FieldDelimiter = "|";
+      writeFile.FieldDelimiter = "|";
 
-      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.FileFormat, writeFile.CodePageId,
+      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
-        writeFile.Header, writeFile.Footer);
+        writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapeChar,
+        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QuotePlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, processDisplay);
 
-      var res = await writer.WriteAsync(m_WriteFile.SqlStatement, 360, null, pd.CancellationToken);
+      var res = await writer.WriteAsync(m_WriteFile.SqlStatement, 360, null, processDisplay.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
       Assert.AreEqual(7, res);
     }

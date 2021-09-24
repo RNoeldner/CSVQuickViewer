@@ -32,38 +32,22 @@ namespace CsvTools
     protected readonly IReadOnlyCollection<ImmutableColumn> ColumnDefinition;
 
     protected readonly List<WriterColumn> Columns = new List<WriterColumn>();
-
-    protected readonly IFileFormat FileFormat;
-
-    protected readonly string Header;
-
-    protected readonly string NewLine;
-
+    protected string m_Footer;
+    protected string Header;
     protected readonly IValueFormat ValueFormatGeneral;
-
     private readonly string m_FileSettingDisplay;
-
-    private readonly string m_Footer;
-
     private readonly string m_FullPath;
-
     private readonly string m_IdentifierInContainer;
-
     private readonly bool m_KeepUnencrypted;
-
     private readonly string m_Recipient;
-
     private readonly Action<string>? m_ReportProgress;
-
     private readonly Action<long>? m_SetMaxProcess;
-
     private DateTime m_LastNotification = DateTime.Now;
 
     protected BaseFileWriter(
       in string id,
       in string fullPath,
       in IValueFormat? valueFormatGeneral,
-      in IFileFormat? fileFormat,
       in string? recipient,
       bool unencrypted,
       in string? identifierInContainer,
@@ -75,10 +59,24 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fullPath))
         throw new ArgumentException($"{nameof(fullPath)} can not be empty");
-
-      m_FullPath = fullPath;
       var fileName = FileSystemUtils.GetFileName(fullPath);
+      m_FullPath = fullPath;
+      if (header != null && header.Length > 0)
+        Header = ReplacePlaceHolder(
+          header,
+          fileName,
+          id);
+      else
+        Header = string.Empty;
 
+      if (footer != null && footer.Length > 0)
+        m_Footer = ReplacePlaceHolder(
+          footer,
+          fileName,
+          id );
+      else
+        m_Footer = string.Empty;
+      
       if (valueFormatGeneral != null)
         ValueFormatGeneral = new ImmutableValueFormat(
           valueFormatGeneral.DataType,
@@ -93,34 +91,11 @@ namespace CsvTools
           valueFormatGeneral.DisplayNullAs);
       else
         ValueFormatGeneral = new ImmutableValueFormat();
-
-      if (fileFormat != null)
-        FileFormat = new ImmutableFileFormat(fileFormat);
-      else
-        FileFormat = new ImmutableFileFormat();
-
       ColumnDefinition =
         columnDefinition
           ?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList()
         ?? new List<ImmutableColumn>();
-      NewLine = fileFormat?.NewLine.NewLineString() ?? "\r\n";
-      if (header != null && header.Length > 0)
-        Header = ReplacePlaceHolder(
-          header.HandleCRLFCombinations(NewLine),
-          fileName,
-          id,
-          fileFormat?.FieldDelimiterChar.GetDescription() ?? string.Empty);
-      else
-        Header = string.Empty;
-
-      if (footer != null && footer.Length > 0)
-        m_Footer = ReplacePlaceHolder(
-          footer.HandleCRLFCombinations(NewLine),
-          fileName,
-          id,
-          fileFormat?.FieldDelimiterChar.GetDescription() ?? string.Empty);
-      else
-        m_Footer = string.Empty;
+      
 
       m_FileSettingDisplay = fileSettingDisplay;
       m_Recipient = recipient ?? string.Empty;
@@ -317,7 +292,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
         await
 #endif
-        using var improvedStream = (Stream) FunctionalDI.OpenStream(sourceAccess);
+          using var improvedStream = (Stream) FunctionalDI.OpenStream(sourceAccess);
 
         await WriteReaderAsync(reader, improvedStream, token).ConfigureAwait(false);
       }
@@ -415,154 +390,13 @@ namespace CsvTools
           .Cast<WriterColumn>());
     }
 
-    /// <summary>
-    ///   Encodes the field.
-    /// </summary>
-    /// <param name="fileFormat">The settings.</param>
-    /// <param name="dataObject">The data object.</param>
-    /// <param name="columnInfo">Column Information</param>
-    /// <param name="isHeader">if set to <c>true</c> the current line is the header.</param>
-    /// <param name="reader">The reader.</param>
-    /// <param name="handleQualify">The handle qualify.</param>
-    /// <returns>proper formatted CSV / Fix Length field</returns>
-    /// <exception cref="ArgumentNullException">columnInfo or dataObject</exception>
-    /// <exception cref="FileWriterException">
-    ///   For fix length output the length of the columns needs to be specified.
-    /// </exception>
-    protected string TextEncodeField(
-      IFileFormat fileFormat,
-      object? dataObject,
-      WriterColumn columnInfo,
-      bool isHeader,
-      IDataReader? reader,
-      Func<string, DataType, IFileFormat, string>? handleQualify)
-    {
-      if (columnInfo is null)
-        throw new ArgumentNullException(nameof(columnInfo));
-
-      if (fileFormat.IsFixedLength && columnInfo.FieldLength == 0)
-        throw new FileWriterException("For fix length output the length of the columns needs to be specified.");
-
-      string displayAs;
-      if (isHeader)
-      {
-        if (dataObject is null)
-          throw new ArgumentNullException(nameof(dataObject));
-        displayAs = Convert.ToString(dataObject) ?? string.Empty;
-      }
-      else
-      {
-        try
-        {
-          if (dataObject is null || dataObject is DBNull)
-            displayAs = columnInfo.ValueFormat.DisplayNullAs;
-          else
-            switch (columnInfo.ValueFormat.DataType)
-            {
-              case DataType.Integer:
-                displayAs = Convert.ToInt64(dataObject)
-                                   .ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
-                                     CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
-                                     columnInfo.ValueFormat.GroupSeparator);
-                break;
-
-              case DataType.Boolean:
-                displayAs = (bool) dataObject ? columnInfo.ValueFormat.True : columnInfo.ValueFormat.False;
-                break;
-
-              case DataType.Double:
-                displayAs = StringConversion.DoubleToString(
-                  dataObject is double d
-                    ? d
-                    : Convert.ToDouble(Convert.ToString(dataObject), CultureInfo.InvariantCulture),
-                  columnInfo.ValueFormat);
-                break;
-
-              case DataType.Numeric:
-                displayAs = StringConversion.DecimalToString(
-                  dataObject is decimal @decimal
-                    ? @decimal
-                    : Convert.ToDecimal(Convert.ToString(dataObject), CultureInfo.InvariantCulture),
-                  columnInfo.ValueFormat);
-                break;
-
-              case DataType.DateTime:
-                displayAs = reader is null
-                              ? StringConversion.DateTimeToString((DateTime) dataObject, columnInfo.ValueFormat)
-                              : StringConversion.DateTimeToString(
-                                HandleTimeZone((DateTime) dataObject, columnInfo, reader),
-                                columnInfo.ValueFormat);
-                break;
-
-              case DataType.Guid:
-                // 382c74c3-721d-4f34-80e5-57657b6cbc27
-                displayAs = ((Guid) dataObject).ToString();
-                break;
-
-              case DataType.String:
-                displayAs = Convert.ToString(dataObject) ?? string.Empty;
-
-                // a new line of any kind will be replaced with the placeholder if set
-                if (fileFormat.NewLinePlaceholder.Length > 0)
-                  displayAs = displayAs.HandleCRLFCombinations(fileFormat.NewLinePlaceholder);
-
-                if (fileFormat.DelimiterPlaceholder.Length > 0 && fileFormat.FieldDelimiterChar != '\0')
-                  displayAs = displayAs.Replace(
-                    fileFormat.FieldDelimiterChar.ToStringHandle0(),
-                    fileFormat.DelimiterPlaceholder);
-
-                if (fileFormat.QuotePlaceholder.Length > 0 && fileFormat.FieldQualifierChar != '\0')
-                  displayAs = displayAs.Replace(
-                    fileFormat.FieldQualifierChar.ToStringHandle0(),
-                    fileFormat.QuotePlaceholder);
-                break;
-
-              default:
-                displayAs = string.Empty;
-                break;
-            }
-        }
-        catch (Exception ex)
-        {
-          // In case a cast did fail (eg.g trying to format as integer and providing a text, use the
-          // original value
-          displayAs = Convert.ToString(dataObject) ?? string.Empty;
-          if (string.IsNullOrEmpty(displayAs))
-            HandleError(columnInfo.Name, ex.Message);
-          else
-            HandleWarning(
-              columnInfo.Name,
-              "Value stored as: " + displayAs
-                                  + $"\nExpected {columnInfo.ValueFormat.DataType} but was {dataObject?.GetType()}"
-                                  + ex.Message);
-        }
-      }
-
-      // Adjust the output in case its is fixed length
-      if (fileFormat.IsFixedLength)
-      {
-        if (displayAs.Length <= columnInfo.FieldLength || columnInfo.FieldLength <= 0)
-          return displayAs.PadRight(columnInfo.FieldLength, ' ');
-        HandleWarning(
-          columnInfo.Name,
-          $"Text with length of {displayAs.Length} has been cut off after {columnInfo.FieldLength} character");
-        return displayAs.Substring(0, columnInfo.FieldLength);
-      }
-
-      // Qualify text if required
-      if (fileFormat.FieldQualifierChar != '\0' && handleQualify != null)
-        return handleQualify(displayAs, columnInfo.ValueFormat.DataType, fileFormat);
-
-      return displayAs;
-    }
 
     protected abstract Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
 
-    private static string
-      ReplacePlaceHolder(string input, string fileName, string id, string fieldDelimiter) =>
+    protected static string
+      ReplacePlaceHolder(string input, string fileName, string id) =>
       input.PlaceholderReplace("ID", id)
            .PlaceholderReplace("FileName", fileName)
-           .PlaceholderReplace("Delim", fieldDelimiter)
            .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
            .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
 
@@ -571,7 +405,88 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">The column.</param>
     /// <param name="message">The message.</param>
-    private void HandleWarning(string columnName, string message) =>
+    protected void HandleWarning(string columnName, string message) =>
       Warning?.Invoke(this, new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
+
+
+    protected string TextEncodeField(
+      object? dataObject,
+      WriterColumn columnInfo,
+      IDataReader? reader)
+    {
+      if (columnInfo is null)
+        throw new ArgumentNullException(nameof(columnInfo));
+
+      string displayAs;
+      try
+      {
+        if (dataObject is null || dataObject is DBNull)
+          displayAs = columnInfo.ValueFormat.DisplayNullAs;
+        else
+          switch (columnInfo.ValueFormat.DataType)
+          {
+            case DataType.Integer:
+              displayAs = Convert.ToInt64(dataObject)
+                                 .ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
+                                   CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
+                                   columnInfo.ValueFormat.GroupSeparator);
+              break;
+
+            case DataType.Boolean:
+              displayAs = (bool) dataObject ? columnInfo.ValueFormat.True : columnInfo.ValueFormat.False;
+              break;
+
+            case DataType.Double:
+              displayAs = StringConversion.DoubleToString(
+                dataObject is double d
+                  ? d
+                  : Convert.ToDouble(Convert.ToString(dataObject), CultureInfo.InvariantCulture),
+                columnInfo.ValueFormat);
+              break;
+
+            case DataType.Numeric:
+              displayAs = StringConversion.DecimalToString(
+                dataObject is decimal @decimal
+                  ? @decimal
+                  : Convert.ToDecimal(Convert.ToString(dataObject), CultureInfo.InvariantCulture),
+                columnInfo.ValueFormat);
+              break;
+
+            case DataType.DateTime:
+              displayAs = reader is null
+                            ? StringConversion.DateTimeToString((DateTime) dataObject, columnInfo.ValueFormat)
+                            : StringConversion.DateTimeToString(HandleTimeZone((DateTime) dataObject, columnInfo, reader),columnInfo.ValueFormat);
+              break;
+
+            case DataType.Guid:              
+              displayAs = ((Guid) dataObject).ToString();
+              break;
+
+            case DataType.String:
+              displayAs = Convert.ToString(dataObject) ?? string.Empty;
+              break;
+
+            default:
+              displayAs = string.Empty;
+              break;
+          }
+      }
+      catch (Exception ex)
+      {
+        // In case a cast did fail (eg.g trying to format as integer and providing a text, use the
+        // original value
+        displayAs = Convert.ToString(dataObject) ?? string.Empty;
+        if (string.IsNullOrEmpty(displayAs))
+          HandleError(columnInfo.Name, ex.Message);
+        else
+          HandleWarning(
+            columnInfo.Name,
+            "Value stored as: " + displayAs
+                                + $"\nExpected {columnInfo.ValueFormat.DataType} but was {dataObject?.GetType()}"
+                                + ex.Message);
+      }
+
+      return displayAs;
+    }
   }
 }

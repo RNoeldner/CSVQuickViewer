@@ -19,11 +19,10 @@ namespace CsvTools
     {
       InitializeComponent();
       m_FileSetting = csvFile;
-      fileSettingBindingSource.DataSource = csvFile;
-      fileFormatBindingSource.DataSource = csvFile.FileFormat;
+      fileSettingBindingSource.DataSource = csvFile;      
 
       m_Stream = new ImprovedStream(new SourceAccess(csvFile));
-      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_FileSetting.FileFormat.EscapeCharacter, textBoxComment.Text);
+      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_FileSetting.EscapeChar.ToStringHandle0(), textBoxComment.Text);
     }
 
     private void HighlightVisibleRange(int skipRows)
@@ -61,7 +60,7 @@ namespace CsvTools
 
     private void DifferentSyntaxHighlighter(object? sender, EventArgs e)
     {
-      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_FileSetting.FileFormat.EscapeCharacter, textBoxComment.Text);
+      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_FileSetting.EscapeCharacter, textBoxComment.Text);
       HighlightVisibleRange(m_FileSetting.SkipRows);
     }
 

@@ -78,7 +78,7 @@ namespace CsvTools
 
 #if !QUICK
 			// load from Setting file
-			if (fileName2!.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase)
+			if (fileName2.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase)
 					|| FileSystemUtils.FileExists(fileName2 + CsvFile.cCsvSettingExtension))
 			{
 				var fileNameSetting = !fileName2.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase)
@@ -113,16 +113,16 @@ namespace CsvTools
 					fileSettingSer.SkipRows,
 					fileSettingSer.CodePageId,
 					fileSettingSer.ByteOrderMark,
-					fileSettingSer.FileFormat.QualifyAlways,
+					fileSettingSer.QualifyAlways,
 					fileSettingSer.IdentifierInContainer,
-					fileSettingSer.FileFormat.CommentLine,
-					fileSettingSer.FileFormat.EscapeCharacter,
-					fileSettingSer.FileFormat.FieldDelimiter,
-					fileSettingSer.FileFormat.FieldQualifier,
+					fileSettingSer.CommentLine,
+					fileSettingSer.EscapeCharacter,
+					fileSettingSer.FieldDelimiter,
+					fileSettingSer.FieldQualifier,
 					fileSettingSer.HasFieldHeader,
 					false,
 					fileSettingSer.NoDelimitedFile,
-					fileSettingSer.FileFormat.NewLine,
+					fileSettingSer.NewLine,
 					columnCollection,
 					fileSettingSer is BaseSettingPhysicalFile bas ? bas.ColumnFile : string.Empty);
 			}
@@ -165,7 +165,9 @@ namespace CsvTools
                               guessCommentLine).ConfigureAwait(false);
 
       processDisplay.SetProcess("Determining column format by reading samples", -1, true);
-
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+      await
+#endif
       using IFileReader reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
       await reader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
       var (_, b) = await reader.FillGuessColumnFormatReaderAsyncReader(
@@ -199,13 +201,13 @@ namespace CsvTools
 
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
 
-      const int MaxRows = 100;
+      const int c_MaxRows = 100;
       var row = 0;
       var lineCommented = 0;
       var delim = delimiter.WrittenPunctuationToChar();
       var parts = 0;
       var partsComment = -1;
-      while (row < MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
+      while (row < c_MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
         var line = textReader.ReadLine().TrimStart();
         if (string.IsNullOrEmpty(line))

@@ -17,112 +17,109 @@ using System;
 namespace CsvTools
 {
   public class DelimitedFileDetectionResult
-	{
-		public readonly bool ByteOrderMark;
+  {
+    public readonly bool ByteOrderMark;
 
-		public readonly int CodePageId;
+    public readonly int CodePageId;
 
-		public readonly string CommentLine;
+    public readonly string CommentLine;
 
-		public readonly string EscapeCharacter;
+    public readonly string EscapeCharacter;
 
-		public readonly string FieldDelimiter;
+    public readonly string FieldDelimiter;
 
-		public readonly string FieldQualifier;
+    public readonly string FieldQualifier;
 
-		public readonly string FileName;
+    public readonly string FileName;
 
-		public readonly bool HasFieldHeader;
+    public readonly bool HasFieldHeader;
 
-		public readonly string IdentifierInContainer;
+    public readonly string IdentifierInContainer;
 
-		public readonly bool IsJson;
+    public readonly bool IsJson;
 
-		public readonly RecordDelimiterType NewLine;
+    public readonly RecordDelimiterType NewLine;
 
-		public readonly bool NoDelimitedFile;
+    public readonly bool NoDelimitedFile;
 
-		public readonly bool QualifyAlways;
+    public readonly bool QualifyAlways;
 
-		public readonly int SkipRows;
+    public readonly int SkipRows;
 
-		public DelimitedFileDetectionResult(
-			string fileName,
-			int skipRows = 0,
-			int codePageId = -1,
-			bool byteOrderMark = false,
-			bool qualifyAlways = false,
-			string? identifierInContainer = "",
-			string commentLine = "#",
-			string? escapeCharacter = "\\",
-			string? fieldDelimiter = "",
-			string? fieldQualifier = "",
-			bool hasFieldHeader = true,
-			bool isJson = false,
-			bool noDelimitedFile = false,
-			RecordDelimiterType recordDelimiterType = RecordDelimiterType.None)
-		{
-			FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
-			IdentifierInContainer = identifierInContainer ?? string.Empty;
-			SkipRows = skipRows < 1 ? 0 : skipRows;
-			CodePageId = codePageId < 1 ? -1 : codePageId;
-			ByteOrderMark = byteOrderMark;
-			CommentLine = commentLine;
-			EscapeCharacter = GetShortDisplay(escapeCharacter);
-			FieldDelimiter = GetShortDisplay(fieldDelimiter);
-			FieldQualifier = GetShortDisplay(fieldQualifier);
-			HasFieldHeader = hasFieldHeader;
-			IsJson = isJson;
-			NoDelimitedFile = noDelimitedFile;
-			QualifyAlways = qualifyAlways;
-			NewLine = recordDelimiterType;
-		}
+    public DelimitedFileDetectionResult(
+      string fileName,
+      int skipRows = 0,
+      int codePageId = -1,
+      bool byteOrderMark = false,
+      bool qualifyAlways = false,
+      string? identifierInContainer = "",
+      string commentLine = "#",
+      string? escapeCharacter = "\\",
+      string? fieldDelimiter = "",
+      string? fieldQualifier = "",
+      bool hasFieldHeader = true,
+      bool isJson = false,
+      bool noDelimitedFile = false,
+      RecordDelimiterType recordDelimiterType = RecordDelimiterType.None)
+    {
+      FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
+      IdentifierInContainer = identifierInContainer ?? string.Empty;
+      SkipRows = skipRows < 1 ? 0 : skipRows;
+      CodePageId = codePageId < 1 ? -1 : codePageId;
+      ByteOrderMark = byteOrderMark;
+      CommentLine = commentLine;
+      EscapeCharacter = GetShortDisplay(escapeCharacter);
+      FieldDelimiter = GetShortDisplay(fieldDelimiter);
+      FieldQualifier = GetShortDisplay(fieldQualifier);
+      HasFieldHeader = hasFieldHeader;
+      IsJson = isJson;
+      NoDelimitedFile = noDelimitedFile;
+      QualifyAlways = qualifyAlways;
+      NewLine = recordDelimiterType;
+    }
 
 #if !QUICK
 
-		public virtual IFileSettingPhysicalFile PhysicalFile()
-		{
-			if (IsJson)
-				return new JsonFile(FileName) { IdentifierInContainer = IdentifierInContainer };
+    public virtual IFileSettingPhysicalFile PhysicalFile()
+    {
+      if (IsJson)
+        return new JsonFile(FileName) { IdentifierInContainer = IdentifierInContainer };
 
-			return new CsvFile(FileName)
-			{
-				FileFormat = new FileFormat
-				{
-					QualifyAlways = QualifyAlways,
-					CommentLine = CommentLine,
-					EscapeCharacter = GetShortDisplay(EscapeCharacter),
-					FieldDelimiter = GetShortDisplay(FieldDelimiter),
-					FieldQualifier = GetShortDisplay(FieldQualifier),
-					NewLine = NewLine
-				},
-				ByteOrderMark = ByteOrderMark,
-				CodePageId = CodePageId,
-				HasFieldHeader = HasFieldHeader,
-				NoDelimitedFile = NoDelimitedFile,
-				IdentifierInContainer = IdentifierInContainer,
-				SkipRows = SkipRows
-			};
-		}
+      return new CsvFile(FileName)
+      {
+        QualifyAlways = QualifyAlways,
+        CommentLine = CommentLine,
+        EscapeCharacter = GetShortDisplay(EscapeCharacter),
+        FieldDelimiter = GetShortDisplay(FieldDelimiter),
+        FieldQualifier = GetShortDisplay(FieldQualifier),
+        NewLine = NewLine,
+        ByteOrderMark = ByteOrderMark,
+        CodePageId = CodePageId,
+        HasFieldHeader = HasFieldHeader,
+        NoDelimitedFile = NoDelimitedFile,
+        IdentifierInContainer = IdentifierInContainer,
+        SkipRows = SkipRows
+      };
+    }
 
 #endif
 
-		private static string GetShortDisplay(string? input)
-		{
-			if (string.IsNullOrEmpty(input))
-				return string.Empty;
+    private static string GetShortDisplay(string? input)
+    {
+      if (string.IsNullOrEmpty(input))
+        return string.Empty;
 
-			input = input!.WrittenPunctuation();
-			return input switch
-			{
-				"\t" => "Tab",
-				" " => "Space",
-				"\u00A0" => "NBSP",
-				"," => "Comma",
-				";" => "Semicolon",
-				"|" => "Pipe",
-				_ => input
-			};
-		}
-	}
+      input = input!.WrittenPunctuation();
+      return input switch
+      {
+        "\t" => "Tab",
+        " " => "Space",
+        "\u00A0" => "NBSP",
+        "," => "Comma",
+        ";" => "Semicolon",
+        "|" => "Pipe",
+        _ => input
+      };
+    }
+  }
 }

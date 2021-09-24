@@ -1255,7 +1255,7 @@ namespace CsvTools
       }
 
       // Skip commented lines
-      if (m_CommentLine.Length > 0 && item != null && item.Length > m_CommentLine.Length 
+      if (m_CommentLine.Length > 0 && item != null && item.Length > m_CommentLine.Length
                                    && item.StartsWith(m_CommentLine, StringComparison.Ordinal))
       {
         // A commented line does start with the comment

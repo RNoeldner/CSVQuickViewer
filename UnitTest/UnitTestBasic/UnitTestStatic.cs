@@ -250,7 +250,7 @@ namespace CsvTools.Tests
         ID = id,
         FileName = Path.Combine(GetTestPath("AllFormats.txt")),
         HasFieldHeader = true,
-        FileFormat = { FieldDelimiter = "TAB" }
+        FieldDelimiter = "TAB"
       };
 
       readFile.ColumnCollection.Add(
@@ -279,7 +279,7 @@ namespace CsvTools.Tests
       var readFile = new CsvFile
       {
         ID = id,
-        FileFormat = { CommentLine = "#" },
+        CommentLine = "#",
         FileName = Path.Combine(GetTestPath("BasicCSV.txt"))
       };
       var examDateFld = new Column("ExamDate", DataType.DateTime);

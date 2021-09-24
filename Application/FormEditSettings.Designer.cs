@@ -24,8 +24,7 @@ namespace CsvTools
 			System.Windows.Forms.TableLayoutPanel tableLayoutPanelWarnings;
 			this.cboRecordDelimiter = new System.Windows.Forms.ComboBox();
 			this.labelDelimitedFile = new System.Windows.Forms.Label();
-			this.textBoxComment = new System.Windows.Forms.TextBox();
-			this.fileFormatBindingSource = new System.Windows.Forms.BindingSource(this.components);
+			this.textBoxComment = new System.Windows.Forms.TextBox();			
 			this.label2 = new System.Windows.Forms.Label();
 			this.textBoxFile = new System.Windows.Forms.TextBox();
 			this.fileSettingBindingSource = new System.Windows.Forms.BindingSource(this.components);
@@ -97,8 +96,7 @@ namespace CsvTools
 			tableLayoutPanelFile = new System.Windows.Forms.TableLayoutPanel();
 			tableLayoutPanelBehavior = new System.Windows.Forms.TableLayoutPanel();
 			tableLayoutPanelWarnings = new System.Windows.Forms.TableLayoutPanel();
-			tableLayoutPanelFile.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).BeginInit();
+			tableLayoutPanelFile.SuspendLayout();			
 			((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).BeginInit();
 			tableLayoutPanelBehavior.SuspendLayout();
@@ -211,18 +209,14 @@ namespace CsvTools
 			// textBoxComment
 			// 
 			this.textBoxComment.Anchor = System.Windows.Forms.AnchorStyles.Left;
-			this.textBoxComment.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "CommentLine", true));
+			this.textBoxComment.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "CommentLine", true));
 			this.textBoxComment.Location = new System.Drawing.Point(115, 120);
 			this.textBoxComment.Margin = new System.Windows.Forms.Padding(2);
 			this.textBoxComment.MinimumSize = new System.Drawing.Size(46, 4);
 			this.textBoxComment.Name = "textBoxComment";
 			this.textBoxComment.Size = new System.Drawing.Size(46, 20);
 			this.textBoxComment.TabIndex = 10;
-			// 
-			// fileFormatBindingSource
-			// 
-			this.fileFormatBindingSource.AllowNew = false;
-			this.fileFormatBindingSource.DataSource = typeof(CsvTools.FileFormat);
+			
 			// 
 			// label2
 			// 
@@ -298,7 +292,7 @@ namespace CsvTools
             "TAB"});
 			this.textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
 			this.textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-			this.textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "FieldDelimiter", true));
+			this.textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "FieldDelimiter", true));
 			this.textBoxDelimiter.Location = new System.Drawing.Point(115, 91);
 			this.textBoxDelimiter.Margin = new System.Windows.Forms.Padding(2);
 			this.textBoxDelimiter.MinimumSize = new System.Drawing.Size(46, 4);
@@ -392,7 +386,7 @@ namespace CsvTools
             "\\"});
 			this.textBox1.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
 			this.textBox1.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-			this.textBox1.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "EscapeCharacter", true));
+			this.textBox1.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "EscapeCharacter", true));
 			this.textBox1.Location = new System.Drawing.Point(331, 91);
 			this.textBox1.Margin = new System.Windows.Forms.Padding(2);
 			this.textBox1.MinimumSize = new System.Drawing.Size(46, 4);
@@ -498,7 +492,7 @@ namespace CsvTools
 			this.textBox3.AutoCompleteCustomSource.AddRange(new string[] {
             "{d}"});
 			this.textBox3.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-			this.textBox3.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "DelimiterPlaceholder", true));
+			this.textBox3.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "DelimiterPlaceholder", true));
 			this.textBox3.Location = new System.Drawing.Point(115, 218);
 			this.textBox3.Margin = new System.Windows.Forms.Padding(2);
 			this.textBox3.MinimumSize = new System.Drawing.Size(46, 4);
@@ -549,7 +543,7 @@ namespace CsvTools
             "<br>",
             "{n}"});
 			this.textBoxNLPlaceholder.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-			this.textBoxNLPlaceholder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileFormatBindingSource, "NewLinePlaceholder", true));
+			this.textBoxNLPlaceholder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "NewLinePlaceholder", true));
 			this.textBoxNLPlaceholder.Location = new System.Drawing.Point(331, 218);
 			this.textBoxNLPlaceholder.Margin = new System.Windows.Forms.Padding(2);
 			this.textBoxNLPlaceholder.MinimumSize = new System.Drawing.Size(46, 4);
@@ -1186,8 +1180,7 @@ namespace CsvTools
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormEditSettings_FormClosing);
 			this.Load += new System.EventHandler(this.EditSettings_Load);
 			tableLayoutPanelFile.ResumeLayout(false);
-			tableLayoutPanelFile.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.fileFormatBindingSource)).EndInit();
+			tableLayoutPanelFile.PerformLayout();			
 			((System.ComponentModel.ISupportInitialize)(this.fileSettingBindingSource)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).EndInit();
 			tableLayoutPanelBehavior.ResumeLayout(false);
@@ -1242,8 +1235,7 @@ namespace CsvTools
     private System.Windows.Forms.CheckBox checkBoxWarnQuotes;
     private System.Windows.Forms.CheckBox checkBoxWarnUnknowCharater;
     private System.Windows.Forms.CheckBox chkUseFileSettings;
-    private System.Windows.Forms.ErrorProvider errorProvider;
-    private System.Windows.Forms.BindingSource fileFormatBindingSource;
+    private System.Windows.Forms.ErrorProvider errorProvider;    
     private System.Windows.Forms.BindingSource fileSettingBindingSource;
     private CsvTools.FillGuessSettingEdit fillGuessSettingEdit;
     private System.Windows.Forms.Label label1;

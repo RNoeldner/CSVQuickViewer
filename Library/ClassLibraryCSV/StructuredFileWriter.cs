@@ -64,7 +64,6 @@ namespace CsvTools
         id,
         fullPath,
         null,
-        null,
         recipient,
         unencrypted,
         identifierInContainer,
@@ -95,12 +94,15 @@ namespace CsvTools
       Stream output,
       CancellationToken cancellationToken)
     {
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+      await
+#endif
       using var writer = new StreamWriter(output, new UTF8Encoding(true), 4096);
       SetColumns(reader);
       var numColumns = Columns.Count();
       if (numColumns == 0)
         throw new FileWriterException("No columns defined to be written.");
-      var recordEnd = NewLine;
+      var recordEnd = "\r\n";
       HandleWriteStart();
 
       // Header
