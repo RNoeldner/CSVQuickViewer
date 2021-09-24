@@ -28,8 +28,7 @@ namespace CsvTools
 		public JsonFileWriter(
 			in string id,
       in string fullPath,
-      in IValueFormat? valueFormatGeneral = null,
-      in IFileFormat? fileFormat = null,
+      in IValueFormat? valueFormatGeneral = null,      
       in string? recipient = null,
 			bool unencrypted = false,
       in string? identifierInContainer = null,
@@ -42,8 +41,7 @@ namespace CsvTools
 			: base(
 				id,
 				fullPath,
-				valueFormatGeneral,
-				fileFormat,
+				valueFormatGeneral,				
 				recipient,
 				unencrypted,
 				identifierInContainer,

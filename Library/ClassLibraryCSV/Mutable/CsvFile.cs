@@ -23,418 +23,443 @@ namespace CsvTools
   ///   Setting file for CSV files, its an implementation of <see cref="BaseSettings" />
   /// </summary>
   [Serializable]
-	public class CsvFile : BaseSettingPhysicalFile, ICsvFile
-	{
-		/// <summary>
-		///   File ending for a setting file
-		/// </summary>
-		public const string cCsvSettingExtension = ".setting";
+  public class CsvFile : BaseSettingPhysicalFile, ICsvFile
+  {
+    /// <summary>
+    ///   File ending for a setting file
+    /// </summary>
+    public const string cCsvSettingExtension = ".setting";
 
-		private bool m_AllowRowCombining;
+    private bool m_AllowRowCombining;
 
-		private bool m_ByteOrderMark = true;
+    private bool m_ByteOrderMark = true;
 
-		private int m_CodePageId = 65001;
+    private int m_CodePageId = 65001;
 
-		[NonSerialized]
-		private Encoding m_CurrentEncoding = Encoding.UTF8;
+    [NonSerialized]
+    private Encoding m_CurrentEncoding = Encoding.UTF8;
 
-		private bool m_NoDelimitedFile;
+    private bool m_NoDelimitedFile;
 
-		private int m_NumWarnings;
+    private int m_NumWarnings;
 
-		private bool m_TreatLfAsSpace;
+    private bool m_TreatLfAsSpace;
 
-		private bool m_TreatUnknownCharacterAsSpace;
+    private bool m_TreatUnknownCharacterAsSpace;
 
-		private bool m_TryToSolveMoreColumns;
+    private bool m_TryToSolveMoreColumns;
 
-		private bool m_WarnDelimiterInValue;
+    private bool m_WarnDelimiterInValue;
 
-		private bool m_WarnEmptyTailingColumns = true;
+    private bool m_WarnEmptyTailingColumns = true;
 
-		private bool m_WarnLineFeed;
+    private bool m_WarnLineFeed;
 
-		private bool m_WarnNbsp = true;
+    private bool m_WarnNbsp = true;
 
-		private bool m_WarnQuotes;
+    private bool m_WarnQuotes;
 
-		private bool m_WarnQuotesInQuotes = true;
+    private bool m_WarnQuotesInQuotes = true;
 
-		private bool m_WarnUnknownCharacter = true;
+    private bool m_WarnUnknownCharacter = true;
 
-		/// <summary>
-		///   Initializes a new instance of the <see cref="CsvFile" /> class.
-		/// </summary>
-		/// <param name="fileName">Name of the file.</param>
-		public CsvFile(string fileName)
-			: base(fileName)
-		{
-		}
+    private readonly FileFormat m_FileFormat = new FileFormat();
 
-		/// <summary>
-		///   Initializes a new instance of the <see cref="CsvFile" /> class.
-		/// </summary>
-		public CsvFile()
-			: this(string.Empty)
-		{
-		}
+    /// <summary>
+    ///   Gets or sets the file format.
+    /// </summary>
+    /// <value>The file format.</value>
+    [XmlElement]
+    public virtual FileFormat FileFormat
+    {
+      get => m_FileFormat;
+      set => value.CopyTo(m_FileFormat);
+    }
 
-		[XmlAttribute]
-		[DefaultValue(false)]
-		public virtual bool AllowRowCombining
-		{
-			get => m_AllowRowCombining;
+    /// <summary>
+    ///   Gets a value indicating whether FileFormat is specified.
+    /// </summary>
+    /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
 
-			set
-			{
-				if (m_AllowRowCombining.Equals(value))
-					return;
-				m_AllowRowCombining = value;
-				NotifyPropertyChanged(nameof(AllowRowCombining));
-			}
-		}
+    public bool FileFormatSpecified => !FileFormat.Equals(new FileFormat());
 
-		/// <summary>
-		///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
-		/// </summary>
-		/// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
-		[XmlAttribute]
-		[DefaultValue(true)]
-		public virtual bool ByteOrderMark
-		{
-			get => m_ByteOrderMark;
-			set
-			{
-				if (m_ByteOrderMark.Equals(value))
-					return;
-				m_ByteOrderMark = value;
-				NotifyPropertyChanged(nameof(ByteOrderMark));
-			}
-		}
 
-		/// <summary>
-		///   Gets or sets the code page.
-		/// </summary>
-		/// <value>The code page.</value>
-		[XmlAttribute]
-		[DefaultValue(65001)]
-		public virtual int CodePageId
-		{
-			get => m_CodePageId;
-			set
-			{
-				if (m_CodePageId.Equals(value))
-					return;
-				m_CodePageId = value;
-				NotifyPropertyChanged(nameof(CodePageId));
-			}
-		}
 
-		/// <summary>
-		///   Gets current encoding.
-		/// </summary>
-		/// <value>The current encoding.</value>
-		[XmlIgnore]
-		public virtual Encoding CurrentEncoding
-		{
-			get => m_CurrentEncoding;
-			set => m_CurrentEncoding = value;
-		}
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="CsvFile" /> class.
+    /// </summary>
+    /// <param name="fileName">Name of the file.</param>
+    public CsvFile(string fileName)
+      : base(fileName)
+    {
+    }
 
-		/// <summary>
-		///   Gets or sets a value indicating whether a file is most likely not a delimited file
-		/// </summary>
-		/// <value><c>true</c> if the file is assumed to be a non delimited file; otherwise, <c>false</c>.</value>
-		[XmlIgnore]
-		public virtual bool NoDelimitedFile
-		{
-			get => m_NoDelimitedFile;
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="CsvFile" /> class.
+    /// </summary>
+    public CsvFile()
+      : this(string.Empty)
+    {
+    }
 
-			set
-			{
-				if (m_NoDelimitedFile.Equals(value))
-					return;
-				m_NoDelimitedFile = value;
-				NotifyPropertyChanged(nameof(NoDelimitedFile));
-			}
-		}
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool AllowRowCombining
+    {
+      get => m_AllowRowCombining;
 
-		/// <summary>
-		///   Gets or sets the maximum number of warnings.
-		/// </summary>
-		/// <value>The number of warnings.</value>
-		[XmlElement]
-		[DefaultValue(0)]
-		public virtual int NumWarnings
-		{
-			get => m_NumWarnings;
+      set
+      {
+        if (m_AllowRowCombining.Equals(value))
+          return;
+        m_AllowRowCombining = value;
+        NotifyPropertyChanged(nameof(AllowRowCombining));
+      }
+    }
 
-			set
-			{
-				if (m_NumWarnings.Equals(value))
-					return;
-				m_NumWarnings = value;
-				NotifyPropertyChanged(nameof(NumWarnings));
-			}
-		}
+    /// <summary>
+    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
+    /// </summary>
+    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public virtual bool ByteOrderMark
+    {
+      get => m_ByteOrderMark;
+      set
+      {
+        if (m_ByteOrderMark.Equals(value))
+          return;
+        m_ByteOrderMark = value;
+        NotifyPropertyChanged(nameof(ByteOrderMark));
+      }
+    }
 
-		/// <summary>
-		///   Gets or sets a value indicating whether to treat a single LF as space
-		/// </summary>
-		/// <value><c>true</c> if LF should be treated as space; otherwise, <c>false</c>.</value>
-		[XmlAttribute]
-		[DefaultValue(false)]
-		public virtual bool TreatLFAsSpace
-		{
-			get => m_TreatLfAsSpace;
+    /// <summary>
+    ///   Gets or sets the code page.
+    /// </summary>
+    /// <value>The code page.</value>
+    [XmlAttribute]
+    [DefaultValue(65001)]
+    public virtual int CodePageId
+    {
+      get => m_CodePageId;
+      set
+      {
+        if (m_CodePageId.Equals(value))
+          return;
+        m_CodePageId = value;
+        NotifyPropertyChanged(nameof(CodePageId));
+      }
+    }
 
-			set
-			{
-				if (m_TreatLfAsSpace.Equals(value))
-					return;
-				m_TreatLfAsSpace = value;
-				NotifyPropertyChanged(nameof(TreatLFAsSpace));
-			}
-		}
+    /// <summary>
+    ///   Gets current encoding.
+    /// </summary>
+    /// <value>The current encoding.</value>
+    [XmlIgnore]
+    public virtual Encoding CurrentEncoding
+    {
+      get => m_CurrentEncoding;
+      set => m_CurrentEncoding = value;
+    }
 
-		/// <summary>
-		///   Gets or sets a value indicating whether to replace unknown charters.
-		/// </summary>
-		/// <value><c>true</c> if unknown character should be replaced; otherwise, <c>false</c>.</value>
-		[XmlAttribute]
-		[DefaultValue(false)]
-		public virtual bool TreatUnknownCharacterAsSpace
-		{
-			get => m_TreatUnknownCharacterAsSpace;
+    /// <summary>
+    ///   Gets or sets a value indicating whether a file is most likely not a delimited file
+    /// </summary>
+    /// <value><c>true</c> if the file is assumed to be a non delimited file; otherwise, <c>false</c>.</value>
+    [XmlIgnore]
+    public virtual bool NoDelimitedFile
+    {
+      get => m_NoDelimitedFile;
 
-			set
-			{
-				if (m_TreatUnknownCharacterAsSpace.Equals(value))
-					return;
-				m_TreatUnknownCharacterAsSpace = value;
-				NotifyPropertyChanged(nameof(TreatUnknownCharacterAsSpace));
-			}
-		}
+      set
+      {
+        if (m_NoDelimitedFile.Equals(value))
+          return;
+        m_NoDelimitedFile = value;
+        NotifyPropertyChanged(nameof(NoDelimitedFile));
+      }
+    }
 
-		/// <summary>
-		///   Gets or sets a value indicating whether the reader should try to solve more columns.
-		/// </summary>
-		/// <value>
-		///   <c>true</c> if it should be try to solve misalignment more columns; otherwise, <c>false</c>.
-		/// </value>
-		[XmlAttribute]
-		[DefaultValue(false)]
-		public virtual bool TryToSolveMoreColumns
-		{
-			get => m_TryToSolveMoreColumns;
+    /// <summary>
+    ///   Gets or sets the maximum number of warnings.
+    /// </summary>
+    /// <value>The number of warnings.</value>
+    [XmlElement]
+    [DefaultValue(0)]
+    public virtual int NumWarnings
+    {
+      get => m_NumWarnings;
 
-			set
-			{
-				if (m_TryToSolveMoreColumns.Equals(value))
-					return;
-				m_TryToSolveMoreColumns = value;
-				NotifyPropertyChanged(nameof(TryToSolveMoreColumns));
-			}
-		}
+      set
+      {
+        if (m_NumWarnings.Equals(value))
+          return;
+        m_NumWarnings = value;
+        NotifyPropertyChanged(nameof(NumWarnings));
+      }
+    }
 
-		/// <summary>
-		///   Gets or sets a value indicating whether to warn if delimiter is in a value.
-		/// </summary>
-		/// <value>
-		///   <c>true</c> if a warning should be issued if a delimiter is encountered; otherwise, <c>false</c>.
-		/// </value>
-		[XmlAttribute]
-		[DefaultValue(false)]
-		public virtual bool WarnDelimiterInValue
-		{
-			get => m_WarnDelimiterInValue;
+    /// <summary>
+    ///   Gets or sets a value indicating whether to treat a single LF as space
+    /// </summary>
+    /// <value><c>true</c> if LF should be treated as space; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool TreatLFAsSpace
+    {
+      get => m_TreatLfAsSpace;
 
-			set
-			{
-				if (m_WarnDelimiterInValue.Equals(value))
-					return;
-				m_WarnDelimiterInValue = value;
-				NotifyPropertyChanged(nameof(WarnDelimiterInValue));
-			}
-		}
+      set
+      {
+        if (m_TreatLfAsSpace.Equals(value))
+          return;
+        m_TreatLfAsSpace = value;
+        NotifyPropertyChanged(nameof(TreatLFAsSpace));
+      }
+    }
 
-		/// <summary>
-		///   Gets or sets a value indicating whether to warn empty tailing columns.
-		/// </summary>
-		/// <value><c>true</c> if [warn empty tailing columns]; otherwise, <c>false</c>.</value>
-		[XmlAttribute(AttributeName = "WarnEmptyTailingColumns")]
-		[DefaultValue(true)]
-		public virtual bool WarnEmptyTailingColumns
-		{
-			get => m_WarnEmptyTailingColumns;
+    /// <summary>
+    ///   Gets or sets a value indicating whether to replace unknown charters.
+    /// </summary>
+    /// <value><c>true</c> if unknown character should be replaced; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool TreatUnknownCharacterAsSpace
+    {
+      get => m_TreatUnknownCharacterAsSpace;
 
-			set
-			{
-				if (m_WarnEmptyTailingColumns.Equals(value))
-					return;
-				m_WarnEmptyTailingColumns = value;
-				NotifyPropertyChanged(nameof(WarnEmptyTailingColumns));
-			}
-		}
+      set
+      {
+        if (m_TreatUnknownCharacterAsSpace.Equals(value))
+          return;
+        m_TreatUnknownCharacterAsSpace = value;
+        NotifyPropertyChanged(nameof(TreatUnknownCharacterAsSpace));
+      }
+    }
 
-		/// <summary>
-		///   Gets or sets a value indicating whether to warn unknown character.
-		/// </summary>
-		/// <value><c>true</c> if unknown character should issue a warning; otherwise, <c>false</c>.</value>
-		[XmlAttribute]
-		[DefaultValue(false)]
-		public virtual bool WarnLineFeed
-		{
-			get => m_WarnLineFeed;
+    /// <summary>
+    ///   Gets or sets a value indicating whether the reader should try to solve more columns.
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if it should be try to solve misalignment more columns; otherwise, <c>false</c>.
+    /// </value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool TryToSolveMoreColumns
+    {
+      get => m_TryToSolveMoreColumns;
 
-			set
-			{
-				if (m_WarnLineFeed.Equals(value))
-					return;
-				m_WarnLineFeed = value;
-				NotifyPropertyChanged(nameof(WarnLineFeed));
-			}
-		}
+      set
+      {
+        if (m_TryToSolveMoreColumns.Equals(value))
+          return;
+        m_TryToSolveMoreColumns = value;
+        NotifyPropertyChanged(nameof(TryToSolveMoreColumns));
+      }
+    }
 
-		/// <summary>
-		///   Gets or sets a value indicating whether to warn occurrence of NBSP.
-		/// </summary>
-		/// <value><c>true</c> to issue a writing if there is a NBSP; otherwise, <c>false</c>.</value>
-		[XmlAttribute]
-		[DefaultValue(true)]
-		public virtual bool WarnNBSP
-		{
-			get => m_WarnNbsp;
+    /// <summary>
+    ///   Gets or sets a value indicating whether to warn if delimiter is in a value.
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if a warning should be issued if a delimiter is encountered; otherwise, <c>false</c>.
+    /// </value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool WarnDelimiterInValue
+    {
+      get => m_WarnDelimiterInValue;
 
-			set
-			{
-				if (m_WarnNbsp.Equals(value))
-					return;
-				m_WarnNbsp = value;
-				NotifyPropertyChanged(nameof(WarnNBSP));
-			}
-		}
+      set
+      {
+        if (m_WarnDelimiterInValue.Equals(value))
+          return;
+        m_WarnDelimiterInValue = value;
+        NotifyPropertyChanged(nameof(WarnDelimiterInValue));
+      }
+    }
 
-		/// <summary>
-		///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
-		/// </summary>
-		/// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
-		[XmlAttribute]
-		[DefaultValue(false)]
-		public virtual bool WarnQuotes
-		{
-			get => m_WarnQuotes;
+    /// <summary>
+    ///   Gets or sets a value indicating whether to warn empty tailing columns.
+    /// </summary>
+    /// <value><c>true</c> if [warn empty tailing columns]; otherwise, <c>false</c>.</value>
+    [XmlAttribute(AttributeName = "WarnEmptyTailingColumns")]
+    [DefaultValue(true)]
+    public virtual bool WarnEmptyTailingColumns
+    {
+      get => m_WarnEmptyTailingColumns;
 
-			set
-			{
-				if (m_WarnQuotes.Equals(value))
-					return;
-				m_WarnQuotes = value;
-				NotifyPropertyChanged(nameof(WarnQuotes));
-			}
-		}
+      set
+      {
+        if (m_WarnEmptyTailingColumns.Equals(value))
+          return;
+        m_WarnEmptyTailingColumns = value;
+        NotifyPropertyChanged(nameof(WarnEmptyTailingColumns));
+      }
+    }
 
-		/// <summary>
-		///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
-		/// </summary>
-		/// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
-		[XmlAttribute]
-		[DefaultValue(true)]
-		public virtual bool WarnQuotesInQuotes
-		{
-			get => m_WarnQuotesInQuotes;
+    /// <summary>
+    ///   Gets or sets a value indicating whether to warn unknown character.
+    /// </summary>
+    /// <value><c>true</c> if unknown character should issue a warning; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool WarnLineFeed
+    {
+      get => m_WarnLineFeed;
 
-			set
-			{
-				if (m_WarnQuotesInQuotes.Equals(value))
-					return;
-				m_WarnQuotesInQuotes = value;
-				NotifyPropertyChanged(nameof(WarnQuotesInQuotes));
-			}
-		}
+      set
+      {
+        if (m_WarnLineFeed.Equals(value))
+          return;
+        m_WarnLineFeed = value;
+        NotifyPropertyChanged(nameof(WarnLineFeed));
+      }
+    }
 
-		/// <summary>
-		///   Gets or sets a value indicating whether to warn unknown character.
-		/// </summary>
-		/// <value><c>true</c> if unknown character should issue a warning; otherwise, <c>false</c>.</value>
-		[XmlAttribute]
-		[DefaultValue(true)]
-		public virtual bool WarnUnknownCharacter
-		{
-			get => m_WarnUnknownCharacter;
+    /// <summary>
+    ///   Gets or sets a value indicating whether to warn occurrence of NBSP.
+    /// </summary>
+    /// <value><c>true</c> to issue a writing if there is a NBSP; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public virtual bool WarnNBSP
+    {
+      get => m_WarnNbsp;
 
-			set
-			{
-				if (m_WarnUnknownCharacter.Equals(value))
-					return;
-				m_WarnUnknownCharacter = value;
-				NotifyPropertyChanged(nameof(WarnUnknownCharacter));
-			}
-		}
+      set
+      {
+        if (m_WarnNbsp.Equals(value))
+          return;
+        m_WarnNbsp = value;
+        NotifyPropertyChanged(nameof(WarnNBSP));
+      }
+    }
 
-		/// <summary>
-		///   Clones this instance.
-		/// </summary>
-		/// <returns></returns>
-		public override IFileSetting Clone()
-		{
-			var other = new CsvFile();
-			CopyTo(other);
-			return other;
-		}
+    /// <summary>
+    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
+    /// </summary>
+    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool WarnQuotes
+    {
+      get => m_WarnQuotes;
 
-		/// <summary>
-		///   Copies all values to other instance
-		/// </summary>
-		/// <param name="other">The other.</param>
-		public override void CopyTo(IFileSetting other)
-		{
-			BaseSettingsCopyTo((BaseSettings) other);
+      set
+      {
+        if (m_WarnQuotes.Equals(value))
+          return;
+        m_WarnQuotes = value;
+        NotifyPropertyChanged(nameof(WarnQuotes));
+      }
+    }
 
-			if (!(other is ICsvFile csv))
-				return;
-			csv.ByteOrderMark = m_ByteOrderMark;
-			csv.WarnQuotes = m_WarnQuotes;
-			csv.WarnDelimiterInValue = m_WarnDelimiterInValue;
-			csv.WarnEmptyTailingColumns = m_WarnEmptyTailingColumns;
-			csv.WarnQuotesInQuotes = m_WarnQuotesInQuotes;
-			csv.WarnUnknownCharacter = m_WarnUnknownCharacter;
-			csv.WarnLineFeed = m_WarnLineFeed;
-			csv.WarnNBSP = m_WarnNbsp;
-			csv.TreatLFAsSpace = m_TreatLfAsSpace;
-			csv.TryToSolveMoreColumns = m_TryToSolveMoreColumns;
-			csv.AllowRowCombining = m_AllowRowCombining;
+    /// <summary>
+    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
+    /// </summary>
+    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public virtual bool WarnQuotesInQuotes
+    {
+      get => m_WarnQuotesInQuotes;
 
-			csv.TreatUnknownCharacterAsSpace = m_TreatUnknownCharacterAsSpace;
-			csv.CodePageId = m_CodePageId;
-			csv.NumWarnings = m_NumWarnings;
-			csv.NoDelimitedFile = m_NoDelimitedFile;
-		}
+      set
+      {
+        if (m_WarnQuotesInQuotes.Equals(value))
+          return;
+        m_WarnQuotesInQuotes = value;
+        NotifyPropertyChanged(nameof(WarnQuotesInQuotes));
+      }
+    }
 
-		public override bool Equals(IFileSetting? other) => Equals(other as ICsvFile);
+    /// <summary>
+    ///   Gets or sets a value indicating whether to warn unknown character.
+    /// </summary>
+    /// <value><c>true</c> if unknown character should issue a warning; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public virtual bool WarnUnknownCharacter
+    {
+      get => m_WarnUnknownCharacter;
 
-		public virtual bool Equals(ICsvFile? other)
-		{
-			if (other is null)
-				return false;
-			if (ReferenceEquals(this, other))
-				return true;
-			return m_ByteOrderMark == other.ByteOrderMark && m_CodePageId == other.CodePageId
-																										&& m_NoDelimitedFile == other.NoDelimitedFile
-																										&& m_NumWarnings == other.NumWarnings
-																										&& m_TreatUnknownCharacterAsSpace
-																										== other.TreatUnknownCharacterAsSpace
-																										&& m_WarnDelimiterInValue == other.WarnDelimiterInValue
-																										&& m_WarnEmptyTailingColumns == other.WarnEmptyTailingColumns
-																										&& m_WarnLineFeed == other.WarnLineFeed
-																										&& m_TryToSolveMoreColumns == other.TryToSolveMoreColumns
-																										&& m_AllowRowCombining == other.AllowRowCombining
-																										&& m_TreatLfAsSpace == other.TreatLFAsSpace
-																										&& m_WarnNbsp == other.WarnNBSP && m_WarnQuotes == other.WarnQuotes
-																										&& m_WarnQuotesInQuotes == other.WarnQuotesInQuotes
-																										&& m_WarnUnknownCharacter == other.WarnUnknownCharacter
-																										&& BaseSettingsEquals(other as BaseSettings);
-		}
-	}
+      set
+      {
+        if (m_WarnUnknownCharacter.Equals(value))
+          return;
+        m_WarnUnknownCharacter = value;
+        NotifyPropertyChanged(nameof(WarnUnknownCharacter));
+      }
+    }
+
+    /// <summary>
+    ///   Clones this instance.
+    /// </summary>
+    /// <returns></returns>
+    public override object Clone()
+    {
+      var other = new CsvFile();
+      CopyTo(other);
+      return other;
+    }
+
+    /// <summary>
+    ///   Copies all values to other instance
+    /// </summary>
+    /// <param name="other">The other.</param>
+    public override void CopyTo(IFileSetting other)
+    {
+      BaseSettingsCopyTo((BaseSettings) other);
+
+      if (!(other is ICsvFile csv))
+        return;
+      m_FileFormat.CopyTo(csv.FileFormat);
+      csv.ByteOrderMark = m_ByteOrderMark;
+      csv.WarnQuotes = m_WarnQuotes;
+      csv.WarnDelimiterInValue = m_WarnDelimiterInValue;
+      csv.WarnEmptyTailingColumns = m_WarnEmptyTailingColumns;
+      csv.WarnQuotesInQuotes = m_WarnQuotesInQuotes;
+      csv.WarnUnknownCharacter = m_WarnUnknownCharacter;
+      csv.WarnLineFeed = m_WarnLineFeed;
+      csv.WarnNBSP = m_WarnNbsp;
+      csv.TreatLFAsSpace = m_TreatLfAsSpace;
+      csv.TryToSolveMoreColumns = m_TryToSolveMoreColumns;
+      csv.AllowRowCombining = m_AllowRowCombining;
+
+      csv.TreatUnknownCharacterAsSpace = m_TreatUnknownCharacterAsSpace;
+      csv.CodePageId = m_CodePageId;
+      csv.NumWarnings = m_NumWarnings;
+      csv.NoDelimitedFile = m_NoDelimitedFile;
+    }
+
+    public override bool Equals(IFileSetting? other) => Equals(other as ICsvFile);
+
+    public virtual bool Equals(ICsvFile? other)
+    {
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return m_ByteOrderMark == other.ByteOrderMark && m_CodePageId == other.CodePageId
+                                                    && m_NoDelimitedFile == other.NoDelimitedFile
+                                                    && m_NumWarnings == other.NumWarnings
+                                                    && m_TreatUnknownCharacterAsSpace
+                                                    == other.TreatUnknownCharacterAsSpace
+                                                    && m_WarnDelimiterInValue == other.WarnDelimiterInValue
+                                                    && m_WarnEmptyTailingColumns == other.WarnEmptyTailingColumns
+                                                    && m_WarnLineFeed == other.WarnLineFeed
+                                                    && m_TryToSolveMoreColumns == other.TryToSolveMoreColumns
+                                                    && m_AllowRowCombining == other.AllowRowCombining
+                                                    && m_TreatLfAsSpace == other.TreatLFAsSpace
+                                                    && m_WarnNbsp == other.WarnNBSP && m_WarnQuotes == other.WarnQuotes
+                                                    && m_WarnQuotesInQuotes == other.WarnQuotesInQuotes
+                                                    && m_WarnUnknownCharacter == other.WarnUnknownCharacter
+                                                    && m_FileFormat.Equals(other.FileFormat)
+                                                    && BaseSettingsEquals(other as BaseSettings);
+    }
+  }
 }

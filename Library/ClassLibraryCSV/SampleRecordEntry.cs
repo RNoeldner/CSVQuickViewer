@@ -19,7 +19,7 @@ using System.Xml.Serialization;
 namespace CsvTools
 {
   [Serializable]
-	public class SampleRecordEntry : IEquatable<SampleRecordEntry>, ICloneable<SampleRecordEntry>
+	public class SampleRecordEntry : IEquatable<SampleRecordEntry>, ICloneable
 	{
 		public SampleRecordEntry()
 			: this(0, true, string.Empty)
@@ -75,7 +75,7 @@ namespace CsvTools
 		///   Clones this instance into a new instance of the same type
 		/// </summary>
 		/// <returns></returns>
-		public SampleRecordEntry Clone() => new SampleRecordEntry(RecordNumber, ProvideEvidence, Error);
+		public object Clone() => new SampleRecordEntry(RecordNumber, ProvideEvidence, Error);
 
 		/// <summary>
 		///   Indicates whether the current object is equal to another object of the same type.

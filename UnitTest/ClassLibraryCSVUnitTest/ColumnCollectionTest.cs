@@ -97,7 +97,7 @@ namespace CsvTools.Tests
 			test1.Add(new Column("Test2"));
 			test1.Add(new Column("Test3"));
 
-			var test2 = test1.Clone();
+			var test2 = (ColumnCollection) test1.Clone();
 
 			Assert.IsTrue(test2.Equals(test1));
 		}

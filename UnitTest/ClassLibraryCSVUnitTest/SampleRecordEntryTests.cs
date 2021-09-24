@@ -42,7 +42,7 @@ namespace CsvTools.Tests
     public void Clone()
     {
       var entry1 = new SampleRecordEntry(100, "Error1");
-      var entry2 = entry1.Clone();
+      var entry2 = (SampleRecordEntry) entry1.Clone();
       Assert.AreEqual(100, entry2.RecordNumber);
       Assert.AreEqual("Error1", entry2.Error);
       Assert.IsTrue(entry2.ProvideEvidence);

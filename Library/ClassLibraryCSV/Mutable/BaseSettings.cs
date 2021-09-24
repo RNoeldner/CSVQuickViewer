@@ -36,8 +36,7 @@ namespace CsvTools
 
     public static readonly DateTime ZeroTime = new DateTime(0, DateTimeKind.Utc);
 
-    private readonly FileFormat m_FileFormat = new FileFormat();
-
+    
     private int m_ConsecutiveEmptyRows = 5;
 
     private bool m_DisplayEndLineNo;
@@ -280,24 +279,7 @@ namespace CsvTools
       set => m_SamplesErrors = value;
     }
 
-    /// <summary>
-    ///   Gets or sets the file format.
-    /// </summary>
-    /// <value>The file format.</value>
-    [XmlElement]
-    public virtual FileFormat FileFormat
-    {
-      get => m_FileFormat;
-      set => value.CopyTo(m_FileFormat);
-    }
 
-    /// <summary>
-    ///   Gets a value indicating whether FileFormat is specified.
-    /// </summary>
-    /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-
-    public bool FileFormatSpecified => !FileFormat.Equals(new FileFormat());
 
     /// <summary>
     ///   Gets a value indicating whether FileLastWriteTimeUtc is specified.
@@ -867,7 +849,7 @@ namespace CsvTools
     ///   Clones this instance into a new instance of the same type
     /// </summary>
     /// <returns></returns>
-    public abstract IFileSetting Clone();
+    public abstract object Clone();
 
     /// <summary>
     ///   Copies all properties to the other instance
@@ -920,8 +902,8 @@ namespace CsvTools
     protected virtual void BaseSettingsCopyTo(in BaseSettings? other)
     {
       if (other == null)
-        return;
-      FileFormat.CopyTo(other.FileFormat);
+        return;      
+      
       MappingCollection.CopyTo(other.MappingCollection);
 
       other.ConsecutiveEmptyRows = ConsecutiveEmptyRows;
@@ -1006,8 +988,7 @@ namespace CsvTools
       if (!other.Footer.Equals(Footer, StringComparison.Ordinal)
           || !other.Header.Equals(Header, StringComparison.OrdinalIgnoreCase))
         return false;
-      if (!other.FileFormat.Equals(FileFormat))
-        return false;
+
       if (!other.MappingCollection.Equals(MappingCollection))
         return false;
       if (!other.SamplesAndErrors.Equals(SamplesAndErrors))

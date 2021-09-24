@@ -306,11 +306,11 @@ namespace CsvTools
             SkipRows = SkipRows
     */
 
-    public static void CopyConfiguration(IFileSettingPhysicalFile? csvSrc, IFileSettingPhysicalFile? csvDest, bool includeDetected)
+    public static void CopyConfiguration(IFileSettingPhysicalFile? physicalSrc, IFileSettingPhysicalFile? physicalDest, bool includeDetected)
     {
-      if (csvSrc is null || csvDest is null || ReferenceEquals(csvSrc, csvDest))
+      if (physicalSrc is null || physicalDest is null || ReferenceEquals(physicalSrc, physicalDest))
         return;
-      if (csvSrc is ICsvFile csvS && csvDest is ICsvFile csvD)
+      if (physicalSrc is ICsvFile csvS && physicalDest is ICsvFile csvD)
       {
         csvD.AllowRowCombining = csvS.AllowRowCombining;
 
@@ -333,23 +333,24 @@ namespace CsvTools
         }
       }
 
-      csvDest.ConsecutiveEmptyRows = csvSrc.ConsecutiveEmptyRows;
-      csvDest.DisplayEndLineNo = csvSrc.DisplayEndLineNo;
-      csvDest.DisplayRecordNo = csvSrc.DisplayRecordNo;
-      csvDest.DisplayStartLineNo = csvSrc.DisplayStartLineNo;
-      csvDest.SkipDuplicateHeader = csvSrc.SkipDuplicateHeader;
-      csvDest.SkipEmptyLines = csvSrc.SkipEmptyLines;
+      physicalDest.ConsecutiveEmptyRows = physicalSrc.ConsecutiveEmptyRows;
+      physicalDest.DisplayEndLineNo = physicalSrc.DisplayEndLineNo;
+      physicalDest.DisplayRecordNo = physicalSrc.DisplayRecordNo;
+      physicalDest.DisplayStartLineNo = physicalSrc.DisplayStartLineNo;
+      physicalDest.SkipDuplicateHeader = physicalSrc.SkipDuplicateHeader;
+      physicalDest.SkipEmptyLines = physicalSrc.SkipEmptyLines;
 
-      csvDest.TreatNBSPAsSpace = csvSrc.TreatNBSPAsSpace;
-      csvDest.TreatTextAsNull = csvSrc.TreatTextAsNull;
-      csvDest.TrimmingOption = csvSrc.TrimmingOption;
+      physicalDest.TreatNBSPAsSpace = physicalSrc.TreatNBSPAsSpace;
+      physicalDest.TreatTextAsNull = physicalSrc.TreatTextAsNull;
+      physicalDest.TrimmingOption = physicalSrc.TrimmingOption;
 
       if (includeDetected)
       {
-        csvDest.FileName = csvSrc.FileName;
-        csvDest.SkipRows = csvSrc.SkipRows;
-        csvDest.HasFieldHeader = csvSrc.HasFieldHeader;
-        csvSrc.FileFormat.CopyTo(csvDest.FileFormat);
+        physicalDest.FileName = physicalSrc.FileName;
+        physicalDest.SkipRows = physicalSrc.SkipRows;
+        physicalDest.HasFieldHeader = physicalSrc.HasFieldHeader;
+        if (physicalSrc is ICsvFile csvSrc && physicalDest is ICsvFile csvDest)
+          csvSrc.FileFormat.CopyTo(csvDest.FileFormat);
       }
     }
   }

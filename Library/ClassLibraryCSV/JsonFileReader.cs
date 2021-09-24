@@ -27,7 +27,7 @@ namespace CsvTools
   /// <summary>
   ///   Json text file reader
   /// </summary>
-  public class JsonFileReader : BaseFileReaderTyped, IFileReader
+  public sealed class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
     private IImprovedStream? m_ImprovedStream;
 
@@ -112,7 +112,7 @@ namespace CsvTools
       GC.SuppressFinalize(this);
     }
 
-    protected virtual async ValueTask DisposeAsyncCore()
+    private async ValueTask DisposeAsyncCore()
     {
       if (m_ImprovedStream != null)
         await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
@@ -373,9 +373,8 @@ namespace CsvTools
     {
       if (SelfOpenedStream)
       {
-        //TODO: use DisposeAsnyc() but this means needs to be async
-        if (m_ImprovedStream != null)
-          m_ImprovedStream.Dispose();
+        // Better would bve DisposeAsync(), but method is synchronous
+        m_ImprovedStream?.Dispose();
 
         m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath));
       }

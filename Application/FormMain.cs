@@ -264,7 +264,8 @@ namespace CsvTools
       try
       {
         fileSetting.PropertyChanged += FileSetting_PropertyChanged;
-        fileSetting.FileFormat.PropertyChanged += AnyPropertyChangedReload;
+        if (fileSetting is ICsvFile csv)
+          csv.FileFormat.PropertyChanged += AnyPropertyChangedReload;
         fileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
 
         if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
@@ -333,7 +334,8 @@ namespace CsvTools
       if (fileSetting is null) return;
 
       fileSetting.PropertyChanged -= FileSetting_PropertyChanged;
-      fileSetting.FileFormat.PropertyChanged -= AnyPropertyChangedReload;
+      if (fileSetting is ICsvFile csv)
+        csv.FileFormat.PropertyChanged -= AnyPropertyChangedReload;
       fileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
     }
 
@@ -625,11 +627,10 @@ namespace CsvTools
 
         proc.Maximum = 0;
         proc.SetProcess("Reading source and applying color coding", 0, false);
-
-        m_SourceDisplay.OpenFile(m_FileSetting is IJsonFile,
-          m_FileSetting.FileFormat.FieldQualifier,
-          m_FileSetting.FileFormat.FieldDelimiter, m_FileSetting.FileFormat.EscapeCharacter,
-          m_FileSetting is ICsvFile csv ? csv.CodePageId : 65001, m_FileSetting.SkipRows, m_FileSetting.FileFormat.CommentLine);
+        if (m_FileSetting is ICsvFile csv)
+          m_SourceDisplay.OpenFile(false, csv.FileFormat.FieldQualifier, csv.FileFormat.FieldDelimiter, csv.FileFormat.EscapeCharacter, csv.CodePageId, m_FileSetting.SkipRows, csv.FileFormat.CommentLine);
+        else
+          m_SourceDisplay.OpenFile(m_FileSetting is IJsonFile, "", "", "", 65001, m_FileSetting.SkipRows, "");
         proc.Close();
       }, this);
     }

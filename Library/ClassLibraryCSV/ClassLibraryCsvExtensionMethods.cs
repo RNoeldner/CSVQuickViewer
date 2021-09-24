@@ -74,12 +74,12 @@ namespace CsvTools
         /// <param name="other">The other collection.</param>
         [DebuggerStepThrough]
         public static void CollectionCopy<T>(this IEnumerable<T> self, ICollection<T>? other)
-            where T : ICloneable<T>
+            where T : ICloneable
         {
             if (other is null) return;
             other.Clear();
             foreach (var item in self)
-                other.Add(item.Clone());
+                other.Add((T) item.Clone());
         }
 
         /// <summary>

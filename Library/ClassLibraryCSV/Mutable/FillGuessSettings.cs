@@ -22,7 +22,7 @@ namespace CsvTools
   ///   Settings how the typed values should be determined
   /// </summary>
   [Serializable]
-  public class FillGuessSettings : INotifyPropertyChanged, ICloneable<FillGuessSettings>, IEquatable<FillGuessSettings>
+  public class FillGuessSettings : INotifyPropertyChanged, ICloneable, IEquatable<FillGuessSettings>
   {
     private long m_CheckedRecords = 30000;
 
@@ -321,7 +321,7 @@ namespace CsvTools
     ///   Clones this instance into a new instance of the same type
     /// </summary>
     /// <returns></returns>
-    public virtual FillGuessSettings Clone()
+    public virtual object Clone()
     {
       var other = new FillGuessSettings();
       CopyTo(other);
@@ -382,5 +382,6 @@ namespace CsvTools
     /// <param name="info">The info.</param>
     public virtual void NotifyPropertyChanged(string info) =>
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
+    
   }
 }

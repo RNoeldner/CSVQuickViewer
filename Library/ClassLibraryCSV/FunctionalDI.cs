@@ -193,7 +193,7 @@ namespace CsvTools
 					csv.ConsecutiveEmptyRows,
 					csv.IdentifierInContainer,
 					processDisplay),
-				_ => throw new NotImplementedException($"Reader for {setting} not found")
+				_ => throw new FileReaderException($"Reader for {setting} not found")
 			};
 
 		private static IFileWriter DefaultFileWriter(IFileSettingPhysicalFile physicalFile, IProcessDisplay? processDisplay)
@@ -206,7 +206,7 @@ namespace CsvTools
 						csv.ID,
 						csv.FullPath,
 						csv.HasFieldHeader,
-						csv.FileFormat.ValueFormatMutable,
+						csv.DefaultValueFormatWrite,
 						csv.FileFormat,
 						csv.CodePageId,
 						csv.ByteOrderMark,
@@ -222,8 +222,7 @@ namespace CsvTools
 					writer = new JsonFileWriter(
 						fileSetting.ID,
 						fileSetting.FullPath,
-						fileSetting.FileFormat.ValueFormatMutable,
-						fileSetting.FileFormat,
+						fileSetting.DefaultValueFormatWrite,						
 						fileSetting.Recipient,
 						fileSetting.KeepUnencrypted,
 						fileSetting.IdentifierInContainer,
@@ -239,8 +238,7 @@ namespace CsvTools
 					writer = new XMLFileWriter(
 						fileSetting.ID,
 						fileSetting.FullPath,
-						fileSetting.FileFormat.ValueFormatMutable,
-						fileSetting.FileFormat,
+						fileSetting.DefaultValueFormatWrite,						
 						fileSetting.Recipient,
 						fileSetting.KeepUnencrypted,
 						fileSetting.IdentifierInContainer,
@@ -254,7 +252,7 @@ namespace CsvTools
 			}
 
 			if (writer is null)
-				throw new NotImplementedException($"Writer for {physicalFile} not found");
+				throw new FileWriterException($"Writer for {physicalFile} not found");
 
 			writer.WriteFinished += (sender, args) =>
 			{

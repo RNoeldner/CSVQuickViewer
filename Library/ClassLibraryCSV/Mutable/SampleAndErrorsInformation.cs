@@ -25,7 +25,7 @@ namespace CsvTools
   ///   properties, it needs to be defined here
   /// </summary>
   [Serializable]
-	public class SampleAndErrorsInformation : INotifyPropertyChanged, ICloneable<SampleAndErrorsInformation>
+	public class SampleAndErrorsInformation : INotifyPropertyChanged, ICloneable
 	{
 		private ObservableCollection<SampleRecordEntry> m_Errors = new ObservableCollection<SampleRecordEntry>();
 
@@ -106,7 +106,7 @@ namespace CsvTools
 		///   Clones this instance into a new instance of the same type
 		/// </summary>
 		/// <returns></returns>
-		public SampleAndErrorsInformation Clone()
+		public object Clone()
 		{
 			var other = new SampleAndErrorsInformation();
 			CopyTo(other);

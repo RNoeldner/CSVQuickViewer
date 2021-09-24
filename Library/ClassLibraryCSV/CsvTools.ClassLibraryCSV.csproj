@@ -27,6 +27,7 @@
 	<ItemGroup>
 		<Compile Remove="CsvFileReaderAsync.cs" />
 		<Compile Remove="DataTableReaderAsync.cs" />
+		<Compile Remove="ICloneable.cs" />
 		<Compile Remove="Immutable\ImmutableColumnBase.cs" />
 		<Compile Remove="Immutable\SettingReadOnly.cs" />
 		<Compile Remove="Mutable\ColumnBase.cs" />

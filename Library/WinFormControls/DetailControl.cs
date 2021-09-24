@@ -1193,7 +1193,7 @@ namespace CsvTools
         processDisplay.Show(ParentForm);
 
         BeforeFileStored?.Invoke(this, writeFile);
-        var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.FileFormat.ValueFormatMutable, writeFile.FileFormat, writeFile.CodePageId,
+        var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.FileFormat, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer);
 

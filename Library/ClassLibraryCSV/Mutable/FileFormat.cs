@@ -22,58 +22,64 @@ namespace CsvTools
   ///   Setting class for a general file format
   /// </summary>
   [Serializable]
-  public class FileFormat : INotifyPropertyChanged, IFileFormat, IEquatable<FileFormat>, ICloneable<FileFormat>
+  public class FileFormat : INotifyPropertyChanged, IFileFormat, IEquatable<FileFormat>, ICloneable
   {
-    // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public const string cEscapeCharacterDefault = "";
-
     public const RecordDelimiterType cNewLineDefault = RecordDelimiterType.CRLF;
-
     private const string c_CommentLineDefault = "";
-
     private const string c_DelimiterPlaceholderDefault = "";
-
     private const string c_FieldDelimiterDefault = ",";
-
     private const string c_FieldQualifierDefault = "\"";
-
     private const string c_NewLinePlaceholderDefault = "";
-
     private const bool c_QualifyOnlyIfNeededDefault = true;
-
     private const string c_QuotePlaceholderDefault = "";
 
     private bool m_AlternateQuoting;
-
-    private string m_CommentLine = c_CommentLineDefault;
-
-    private string m_DelimiterPlaceholder = c_DelimiterPlaceholderDefault;
-
-    private bool m_DuplicateQuotingToEscape = true;
-
-    private char m_EscapeChar = cEscapeCharacterDefault.WrittenPunctuationToChar();
-
-    private string m_EscapeCharacter = cEscapeCharacterDefault;
-
-    private string m_FieldDelimiter = c_FieldDelimiterDefault;
-
-    private char m_FieldDelimiterChar = c_FieldDelimiterDefault.WrittenPunctuationToChar();
-
-    private string m_FieldQualifier = c_FieldQualifierDefault;
-
-    private char m_FieldQualifierChar = c_FieldQualifierDefault.WrittenPunctuationToChar();
-
-    private RecordDelimiterType m_NewLine = cNewLineDefault;
-
-    private string m_NewLinePlaceholder = c_NewLinePlaceholderDefault;
-
+    private string m_CommentLine;
+    private string m_DelimiterPlaceholder;
+    private bool m_DuplicateQuotingToEscape;
+    private char m_EscapeChar;
+    private string m_EscapeCharacter;
+    private string m_FieldDelimiter;
+    private char m_FieldDelimiterChar;
+    private string m_FieldQualifier;
+    private char m_FieldQualifierChar;
+    private RecordDelimiterType m_NewLine;
+    private string m_NewLinePlaceholder;
     private bool m_QualifyAlways;
+    private bool m_QualifyOnlyIfNeeded;
+    private string m_QualifierPlaceholder;    
 
-    private bool m_QualifyOnlyIfNeeded = c_QualifyOnlyIfNeededDefault;
-
-    private string m_QuotePlaceholder = c_QuotePlaceholderDefault;
-
-    private ValueFormatMutable m_ValueFormatMutable = new ValueFormatMutable();
+    public FileFormat(
+      bool qualifyAlways = false,
+      bool qualifyOnlyIfNeeded = c_QualifyOnlyIfNeededDefault,
+      bool alternateQuoting = false,
+      string escapeCharacter = cEscapeCharacterDefault,
+      bool duplicateQuotingToEscape = true,
+      string fieldDelimiter = c_FieldDelimiterDefault,
+      string delimiterPlaceholder = c_DelimiterPlaceholderDefault,
+      string fieldQualifier = c_FieldQualifierDefault,
+      string quotePlaceholder = c_QuotePlaceholderDefault,
+      RecordDelimiterType newLine = cNewLineDefault,
+      string newLinePlaceholder = c_NewLinePlaceholderDefault,
+      string commentLine = c_CommentLineDefault)
+    {
+      m_CommentLine = commentLine;
+      m_DelimiterPlaceholder = delimiterPlaceholder;
+      m_DuplicateQuotingToEscape = duplicateQuotingToEscape;
+      m_EscapeChar = escapeCharacter.WrittenPunctuationToChar();
+      m_EscapeCharacter = escapeCharacter;
+      m_FieldDelimiter = fieldDelimiter;
+      m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
+      m_FieldQualifier = fieldQualifier;
+      m_FieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
+      m_NewLine = newLine;
+      m_NewLinePlaceholder = newLinePlaceholder;
+      m_QualifyAlways = qualifyAlways;
+      m_QualifierPlaceholder = quotePlaceholder;
+      m_QualifyOnlyIfNeeded = qualifyOnlyIfNeeded;
+      m_AlternateQuoting = alternateQuoting;
+    }
 
     /// <summary>
     ///   Occurs when a property value changes.
@@ -359,52 +365,25 @@ namespace CsvTools
 #endif
     public virtual string QuotePlaceholder
     {
-      get => m_QuotePlaceholder;
+      get => m_QualifierPlaceholder;
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_QuotePlaceholder.Equals(newVal, StringComparison.Ordinal))
+        if (m_QualifierPlaceholder.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_QuotePlaceholder = newVal;
+        m_QualifierPlaceholder = newVal;
         NotifyPropertyChanged(nameof(QuotePlaceholder));
       }
     }
 
     /// <summary>
-    ///   Gets or sets the value format.
-    /// </summary>
-    /// <value>The value format.</value>
-    [XmlElement]
-    public virtual ValueFormatMutable ValueFormatMutable
-    {
-      get => m_ValueFormatMutable;
-      set
-      {
-        var newVal = value ?? new ValueFormatMutable();
-        if (m_ValueFormatMutable.Equals(newVal))
-          return;
-        m_ValueFormatMutable = newVal;
-        NotifyPropertyChanged(nameof(ValueFormatMutable));
-      }
-    }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool ValueFormatMutableSpecified => !m_ValueFormatMutable.Specified;
-
-    /// <summary>
     ///   Clones this instance into a new instance of the same type
     /// </summary>
     /// <returns></returns>
-    public FileFormat Clone()
+    public object Clone()
     {
-      var other = new FileFormat();
-      CopyTo(other);
-      return other;
+      return new FileFormat(QualifyAlways, QualifyOnlyIfNeeded, AlternateQuoting, EscapeCharacter, DuplicateQuotingToEscape, FieldDelimiter,
+        DelimiterPlaceholder, FieldQualifier, QuotePlaceholder, NewLine, NewLinePlaceholder, CommentLine);
     }
 
     /// <summary>
@@ -413,21 +392,20 @@ namespace CsvTools
     /// <param name="other">The other.</param>
     public virtual void CopyTo(FileFormat other)
     {
-      other.CommentLine = m_CommentLine;
-      other.AlternateQuoting = m_AlternateQuoting;
-      other.DuplicateQuotingToEscape = m_DuplicateQuotingToEscape;
-      other.DelimiterPlaceholder = m_DelimiterPlaceholder;
-      other.EscapeCharacter = m_EscapeCharacter;
-      other.FieldDelimiter = m_FieldDelimiter;
-      other.FieldQualifier = m_FieldQualifier;
-      other.NewLine = m_NewLine;
-      other.NewLinePlaceholder = m_NewLinePlaceholder;
-      other.QualifyOnlyIfNeeded = m_QualifyOnlyIfNeeded;
-      other.QualifyAlways = m_QualifyAlways;
-      other.QuotePlaceholder = m_QuotePlaceholder;
-      other.ValueFormatMutable.CopyFrom(ValueFormatMutable);
+      other.CommentLine = CommentLine;
+      other.AlternateQuoting = AlternateQuoting;
+      other.DuplicateQuotingToEscape = DuplicateQuotingToEscape;
+      other.DelimiterPlaceholder = DelimiterPlaceholder;
+      other.EscapeCharacter = EscapeCharacter;
+      other.FieldDelimiter = FieldDelimiter;
+      other.FieldQualifier = FieldQualifier;
+      other.NewLine = NewLine;
+      other.NewLinePlaceholder = NewLinePlaceholder;
+      other.QualifyOnlyIfNeeded = QualifyOnlyIfNeeded;
+      other.QualifyAlways = QualifyAlways;
+      other.QuotePlaceholder = QuotePlaceholder;      
     }
-
+   
     /// <summary>
     ///   Indicates whether the current object is equal to another object of the same type.
     /// </summary>
@@ -475,9 +453,7 @@ namespace CsvTools
                                                         && string.Equals(
                                                           QuotePlaceholder,
                                                           other.QuotePlaceholder,
-                                                          StringComparison.Ordinal)
-                                                        && ValueFormatMutable.ValueFormatEqual(
-                                                          other.ValueFormatMutable);
+                                                          StringComparison.Ordinal);
     }
 
     /// <summary>
