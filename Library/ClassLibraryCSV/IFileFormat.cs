@@ -15,68 +15,85 @@
 namespace CsvTools
 {
   public interface IFileFormat
-	{
-		/// <summary>
-		///   Gets or sets the new delimiter placeholder, the placeholder substitutes a delimiter, its
-		///   similar to escaping but could replace a Quote with something completely different or a
-		///   longer text, e.G. {Delimiter}
-		/// </summary>
-		/// <value>The new line placeholder.</value>
-		string DelimiterPlaceholder { get; }
+  {
+    /// <summary>
+    ///   Gets or sets the new delimiter placeholder, the placeholder substitutes a delimiter, its
+    ///   similar to escaping but could replace a Quote with something completely different or a
+    ///   longer text, e.G. {Delimiter}
+    /// </summary>
+    /// <value>The new line placeholder.</value>
+    string DelimiterPlaceholder { get; }
 
-		/// <summary>
-		///   Gets the escape character, in order to include a delimiter or quote in the text, these could
-		///   be escaped and would not be recognized a end of the text.
-		/// </summary>
-		/// <value>The field delimiter char.</value>
-		/// <remarks>If \0, the quote are often repeated to escape them</remarks>
-		char EscapeChar { get; }
+    /// <summary>
+    ///   Gets the escape character, in order to include a delimiter or quote in the text, these could
+    ///   be escaped and would not be recognized a end of the text.
+    /// </summary>
+    /// <value>The field delimiter char.</value>
+    /// <remarks>If \0, the quote are often repeated to escape them</remarks>
+    char EscapeChar { get; }
 
-		/// <summary>
-		///   Gets the field delimiter character, this delimiter separates two columns.
-		/// </summary>
-		/// <value>The field delimiter char.</value>
-		char FieldDelimiterChar { get; }
+    /// <summary>
+    ///   Gets the field delimiter character, this delimiter separates two columns.
+    /// </summary>
+    /// <value>The field delimiter char.</value>
+    char FieldDelimiterChar { get; }
 
-		/// <summary>
-		///   Gets the field qualifier character also called quoting character, this surrounds a column
-		///   text so it may contain the delimiter or a linefeed without breaking teh structure
-		/// </summary>
-		/// <value>The field delimiter char.</value>
-		char FieldQualifierChar { get; }
+    /// <summary>
+    ///   Gets the field qualifier character also called quoting character, this surrounds a column
+    ///   text so it may contain the delimiter or a linefeed without breaking teh structure
+    /// </summary>
+    /// <value>The field delimiter char.</value>
+    char FieldQualifierChar { get; }
 
-		/// <summary>
-		///   Gets a value indicating whether this it is a fixed length file
-		/// </summary>
-		/// <value><c>true</c> if this instance is fixed length; otherwise, <c>false</c>.</value>
-		bool IsFixedLength { get; }
+    /// <summary>
+    ///   Gets a value indicating whether this it is a fixed length file
+    /// </summary>
+    /// <value><c>true</c> if this instance is fixed length; otherwise, <c>false</c>.</value>
+    bool IsFixedLength { get; }
 
-		RecordDelimiterType NewLine { get; }
+    RecordDelimiterType NewLine { get; }
 
-		/// <summary>
-		///   Gets or sets the new line placeholder, the placeholder substitutes a linefeed
-		/// </summary>
-		/// <value>The new line placeholder.</value>
-		string NewLinePlaceholder { get; }
+    /// <summary>
+    ///   Gets or sets the new line placeholder, the placeholder substitutes a linefeed
+    /// </summary>
+    /// <value>The new line placeholder.</value>
+    string NewLinePlaceholder { get; }
 
-		/// <summary>
-		///   Gets a value indicating whether to qualify every text even if number or empty.
-		/// </summary>
-		/// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
-		bool QualifyAlways { get; }
+    /// <summary>
+    ///   Gets a value indicating whether to qualify every text even if number or empty.
+    /// </summary>
+    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
+    bool QualifyAlways { get; }
 
-		/// <summary>
-		///   Gets or sets a value indicating whether to qualify only if needed.
-		/// </summary>
-		/// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
-		bool QualifyOnlyIfNeeded { get; }
+    /// <summary>
+    ///   Gets or sets a value indicating whether to qualify only if needed.
+    /// </summary>
+    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
+    bool QualifyOnlyIfNeeded { get; }
 
-		/// <summary>
-		///   Gets or sets the quote placeholder, the placeholder substitutes a field qualifier, its
-		///   similar to escaping but could replace a Quote with something completly different or a
-		///   longer text, e.G. {Quote}
-		/// </summary>
-		/// <value>The quote placeholder.</value>
-		string QuotePlaceholder { get; }
-	}
+    /// <summary>
+    ///   Gets or sets the quote placeholder, the placeholder substitutes a field qualifier, its
+    ///   similar to escaping but could replace a Quote with something completly different or a
+    ///   longer text, e.G. {Quote}
+    /// </summary>
+    /// <value>The quote placeholder.</value>
+    string QuotePlaceholder { get; }
+
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether context senitive quoting is used
+    /// </summary>    
+    bool AlternateQuoting { get; }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether quotes in text will be representend as double quotes 
+    /// </summary>
+    bool DuplicateQuotingToEscape { get; }
+
+    /// <summary>
+    ///   Gets or sets the text to indicate that the line is comment line and not contain data. If a
+    ///   line starts with the given text, it is ignored in the data grid.
+    /// </summary>    
+    string CommentLine { get; }
+  }
 }

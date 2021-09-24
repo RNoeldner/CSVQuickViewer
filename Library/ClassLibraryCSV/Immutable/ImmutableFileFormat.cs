@@ -17,53 +17,67 @@ using System;
 namespace CsvTools
 {
   public class ImmutableFileFormat : IFileFormat
-	{
-		public ImmutableFileFormat(
-			bool isFixedLength = false,
-			bool qualifyAlways = false,
-			bool qualifyOnlyIfNeeded = true,
-			char escapeCharacter = '\0',
-			char fieldDelimiterChar = ',',
-			string delimiterPlaceholder = "",
-			char fieldQualifierChar = '"',
-			string qualifierPlaceholder = "",
-			RecordDelimiterType newLine = RecordDelimiterType.CRLF,
-			string newLinePlaceholder = "")
-		{
-			IsFixedLength = isFixedLength;
-			QualifyAlways = qualifyAlways;
-			QualifyOnlyIfNeeded = qualifyOnlyIfNeeded;
+  {
+    public ImmutableFileFormat(IFileFormat other) : this(other.QualifyAlways, other.QualifyOnlyIfNeeded, other.AlternateQuoting, other.EscapeChar, other.DuplicateQuotingToEscape, other.FieldDelimiterChar, other.DelimiterPlaceholder, other.FieldQualifierChar, other.QuotePlaceholder, other.NewLine, other.NewLinePlaceholder, other.CommentLine)
+    {
+    }
+    public ImmutableFileFormat(
+      bool qualifyAlways = false,
+      bool qualifyOnlyIfNeeded = true,
+      bool alternateQuoting = false,
+      char escapeCharacter = '\0',
+      bool duplicateQuotingToEscape = true,
+      char fieldDelimiterChar = ',',
+      in string delimiterPlaceholder = "",
+      char fieldQualifierChar = '"',
+      in string qualifierPlaceholder = "",
+      RecordDelimiterType newLine = RecordDelimiterType.CRLF,
+      in string newLinePlaceholder = "",
+      in string commentLine = "")
+    {
+      AlternateQuoting = alternateQuoting;
+      DuplicateQuotingToEscape = duplicateQuotingToEscape;
 
-			FieldDelimiterChar = fieldDelimiterChar;
-			DelimiterPlaceholder = delimiterPlaceholder ?? throw new ArgumentNullException(nameof(delimiterPlaceholder));
+      QualifyAlways = qualifyAlways;
+      QualifyOnlyIfNeeded = qualifyOnlyIfNeeded;
 
-			FieldQualifierChar = fieldQualifierChar;
-			QuotePlaceholder = qualifierPlaceholder ?? throw new ArgumentNullException(nameof(qualifierPlaceholder));
+      FieldDelimiterChar = fieldDelimiterChar;
+      DelimiterPlaceholder = delimiterPlaceholder ?? throw new ArgumentNullException(nameof(delimiterPlaceholder));
 
-			EscapeChar = escapeCharacter;
+      FieldQualifierChar = fieldQualifierChar;
+      QuotePlaceholder = qualifierPlaceholder ?? throw new ArgumentNullException(nameof(qualifierPlaceholder));
 
-			NewLine = newLine;
-			NewLinePlaceholder = newLinePlaceholder ?? throw new ArgumentNullException(nameof(newLinePlaceholder));
-		}
+      EscapeChar = escapeCharacter;
 
-		public string DelimiterPlaceholder { get; }
+      NewLine = newLine;
+      NewLinePlaceholder = newLinePlaceholder ?? throw new ArgumentNullException(nameof(newLinePlaceholder));
+      CommentLine = commentLine ?? string.Empty;
+    }
 
-		public virtual char EscapeChar { get; }
+    public string CommentLine { get; }
 
-		public char FieldDelimiterChar { get; }
+    public string DelimiterPlaceholder { get; }
 
-		public char FieldQualifierChar { get; }
+    public virtual char EscapeChar { get; }
 
-		public bool IsFixedLength { get; }
+    public char FieldDelimiterChar { get; }
 
-		public RecordDelimiterType NewLine { get; }
+    public char FieldQualifierChar { get; }
 
-		public string NewLinePlaceholder { get; }
+    public bool IsFixedLength => FieldDelimiterChar == '\0';
 
-		public bool QualifyAlways { get; }
+    public RecordDelimiterType NewLine { get; }
 
-		public bool QualifyOnlyIfNeeded { get; }
+    public string NewLinePlaceholder { get; }
 
-		public string QuotePlaceholder { get; }
-	}
+    public bool QualifyAlways { get; }
+
+    public bool QualifyOnlyIfNeeded { get; }
+
+    public bool AlternateQuoting { get; }
+
+    public bool DuplicateQuotingToEscape { get; }
+
+    public string QuotePlaceholder { get; }
+  }
 }

@@ -79,5 +79,7 @@ namespace CsvTools
 		///   check again if there is a new file
 		/// </summary>
 		void ResetFullPath();
-	}
+
+        ValueFormatMutable DefaultValueFormatWrite { get; }
+  }
 }

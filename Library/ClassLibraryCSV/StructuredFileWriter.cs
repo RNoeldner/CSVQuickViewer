@@ -51,8 +51,7 @@ namespace CsvTools
 		public StructuredFileWriter(
 			in string id,
 			in string fullPath,
-			in IValueFormat? valueFormatGeneral,
-			in IFileFormat? fileFormat,
+			in IValueFormat? valueFormatGeneral,			
 			in string? recipient,
 			bool unencrypted,
 			in string? identifierInContainer,
@@ -66,7 +65,7 @@ namespace CsvTools
 				id,
 				fullPath,
 				valueFormatGeneral,
-				fileFormat,
+				new ImmutableFileFormat(),
 				recipient,
 				unencrypted,
 				identifierInContainer,

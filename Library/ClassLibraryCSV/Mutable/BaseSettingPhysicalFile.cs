@@ -24,6 +24,8 @@ namespace CsvTools
   public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
   {
     private string m_ColumnFile = string.Empty;
+    
+    private readonly ValueFormatMutable m_DefaultValueFormatWrite = new ValueFormatMutable();
 
     private string m_FileName;
 
@@ -104,6 +106,32 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(FileSize));
       }
     }
+
+    /// <summary>
+    ///   Gets or sets the value format.
+    /// </summary>
+    /// <value>The value format.</value>
+    [XmlElement]
+    public virtual ValueFormatMutable DefaultValueFormatWrite
+    {
+      get => m_DefaultValueFormatWrite;
+      set
+      {
+        var newVal = value ?? new ValueFormatMutable();
+        if (m_DefaultValueFormatWrite.Equals(newVal))
+          return;
+        newVal.CopyTo(m_DefaultValueFormatWrite);
+        NotifyPropertyChanged(nameof(DefaultValueFormatWrite));
+      }
+    }
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [XmlIgnore]
+    public virtual bool DefaultValueFormatWriteSpecified => !m_DefaultValueFormatWrite.Specified;
 
     [XmlIgnore]
     public virtual string FullPath
@@ -263,12 +291,16 @@ namespace CsvTools
       fileSettingPhysicalFile.Passphrase = Passphrase;
       fileSettingPhysicalFile.Recipient = Recipient;
       fileSettingPhysicalFile.KeepUnencrypted = KeepUnencrypted;
+      DefaultValueFormatWrite.CopyTo(fileSettingPhysicalFile.DefaultValueFormatWrite);
     }
 
     protected override bool BaseSettingsEquals(in BaseSettings? other)
     {
       if (!(other is IFileSettingPhysicalFile fileSettingPhysicalFile))
         return base.BaseSettingsEquals(other);
+
+      if (!fileSettingPhysicalFile.DefaultValueFormatWrite.Equals(DefaultValueFormatWrite))
+        return false;
 
       if (!string.Equals(fileSettingPhysicalFile.FileName, FileName, StringComparison.OrdinalIgnoreCase))
         return false;

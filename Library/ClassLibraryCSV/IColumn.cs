@@ -16,7 +16,7 @@ using System;
 
 namespace CsvTools
 {
-  public interface IColumn : ICloneable<IColumn>, IEquatable<IColumn>
+  public interface IColumn : ICloneable, IEquatable<IColumn>
 	{
 		int ColumnOrdinal { get; }
 

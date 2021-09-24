@@ -26,7 +26,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void StructuredFileClone()
     {
-      var test = m_JsonFile.Clone();
+      var test = (JsonFile) m_JsonFile.Clone();
       Assert.AreNotSame(m_JsonFile, test);
       Assert.IsInstanceOfType(test, typeof(JsonFile));
 
@@ -37,7 +37,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
       Assert.IsTrue(m_JsonFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
       Assert.IsTrue(m_JsonFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "Column");
-      Assert.IsTrue(m_JsonFile.FileFormat.Equals(test.FileFormat), "FileFormat");
+      
 
       Assert.IsTrue(test.Equals(m_JsonFile), "Equals");
     }
@@ -53,8 +53,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
       Assert.IsTrue(m_JsonFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
       Assert.IsTrue(m_JsonFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection),
-        "ColumnCollection");
-      Assert.IsTrue(m_JsonFile.FileFormat.Equals(test.FileFormat), "FileFormat");
+        "ColumnCollection");      
       Assert.IsTrue(test.Equals(m_JsonFile), "Equals");
     }
 

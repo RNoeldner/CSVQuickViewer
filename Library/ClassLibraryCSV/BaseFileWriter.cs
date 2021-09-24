@@ -95,17 +95,7 @@ namespace CsvTools
         ValueFormatGeneral = new ImmutableValueFormat();
 
       if (fileFormat != null)
-        FileFormat = new ImmutableFileFormat(
-          fileFormat.IsFixedLength,
-          fileFormat.QualifyAlways,
-          fileFormat.QualifyOnlyIfNeeded,
-          fileFormat.EscapeChar,
-          fileFormat.FieldDelimiterChar,
-          fileFormat.DelimiterPlaceholder,
-          fileFormat.FieldQualifierChar,
-          fileFormat.QuotePlaceholder,
-          fileFormat.NewLine,
-          fileFormat.NewLinePlaceholder);
+        FileFormat = new ImmutableFileFormat(fileFormat);
       else
         FileFormat = new ImmutableFileFormat();
 

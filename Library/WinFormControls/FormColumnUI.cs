@@ -313,7 +313,9 @@ namespace CsvTools
               {
                 if (checkResult.FoundValueFormat != null)
                 {
+
                   m_ColumnEdit.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
+
                   if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
                     AddDateFormat(checkResult.FoundValueFormat.DateFormat);
 
@@ -685,9 +687,9 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
             await
 #endif
-                  // Write Setting ----- open the source that is SQL
-                  using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
-                    m_FileSetting.Timeout, m_CancellationTokenSource.Token);
+            // Write Setting ----- open the source that is SQL
+            using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
+              m_FileSetting.Timeout, m_CancellationTokenSource.Token);
             await fileReader.OpenAsync(m_CancellationTokenSource.Token);
             for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
               allColumns.Add(fileReader.GetColumn(colIndex).Name);
@@ -823,7 +825,7 @@ namespace CsvTools
         // must be file reader if this is reached
         var hasRetried = false;
 
-        var fileSettingCopy = m_FileSetting.Clone();
+        var fileSettingCopy = (IFileSetting) m_FileSetting.Clone();
         // Make sure that if we do have a CSV file without header that we will skip the first row
         // that might contain headers, but its simply set as without headers.
         if (fileSettingCopy is CsvFile csv)
@@ -845,8 +847,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-           // ReSharper disable once ConvertToUsingDeclaration
-           using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
+        // ReSharper disable once ConvertToUsingDeclaration
+        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
         {
           await fileReader.OpenAsync(processDisplay.CancellationToken);
           var colIndex = fileReader.GetOrdinal(columnName);

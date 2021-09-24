@@ -119,7 +119,7 @@ namespace CsvTools
 
 		public IValueFormat ValueFormat { get; }
 
-		public IColumn Clone() => new ImmutableColumn(this);
+		public object Clone() => new ImmutableColumn(this);
 
 		public bool Equals(IColumn? other)
 		{

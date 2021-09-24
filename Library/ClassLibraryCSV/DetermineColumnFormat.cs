@@ -1129,7 +1129,7 @@ namespace CsvTools
         return (new List<string>(), fileSetting.ColumnCollection);
 
       // in case there is no delimiter but its a delimited file, do nothing
-      if (fileSetting.FileFormat.FieldDelimiterChar == '\0' && fileSetting is ICsvFile)
+      if (fileSetting is ICsvFile csv && csv.FileFormat.FieldDelimiterChar == '\0')
         return (new List<string>(), fileSetting.ColumnCollection);
       // Open the file setting but change a few settings
       var fileSettingCopy = GetSettingForRead(fileSetting);
@@ -1157,7 +1157,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(fileSetting));
 
       // Open the file setting but change a few settings
-      var fileSettingCopy = fileSetting.Clone();
+      var fileSettingCopy = (IFileSetting) fileSetting.Clone();
 
       // Make sure that if we do have a CSV file without header that we will skip the first row that
       // might contain headers, but its simply set as without headers.

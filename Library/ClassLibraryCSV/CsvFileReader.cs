@@ -1289,11 +1289,6 @@ namespace CsvTools
             col,
             $"Column has {EndLineNumber - StartLineNumber + 1} lines and has a length of {item.Length} characters"
               .AddWarningId());
-        //TODO: Determine if its better to store NULL instead of empty Text
-        //if (item.Length == 0)
-        //{
-        //  item = string.Empty;
-        //}
         columns.Add(item);
 
         col++;

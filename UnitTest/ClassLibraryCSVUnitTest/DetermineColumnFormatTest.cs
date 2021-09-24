@@ -97,7 +97,7 @@ namespace CsvTools.Tests
 
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       var res1 = await DetermineColumnFormat.GetWriterColumnInformationAsync(setting.SqlStatement, setting.Timeout,
-        setting.FileFormat.ValueFormatMutable, setting.ColumnCollection,
+        setting.DefaultValueFormatWrite, setting.ColumnCollection,
         processDisplay.CancellationToken);
       Assert.AreEqual(6, res1.Count());
       setting.SqlStatement = string.Empty;
@@ -134,7 +134,7 @@ namespace CsvTools.Tests
       {
         using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
           await DetermineColumnFormat.GetWriterColumnInformationAsync("setting.SqlStatement", 60,
-            setting.FileFormat.ValueFormatMutable, setting.ColumnCollection,
+            setting.DefaultValueFormatWrite, setting.ColumnCollection,
             processDisplay.CancellationToken);
 
         Assert.Fail("Invalid SQL should have caused error ");

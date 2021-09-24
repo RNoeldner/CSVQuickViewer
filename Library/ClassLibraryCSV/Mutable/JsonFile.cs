@@ -39,7 +39,7 @@ namespace CsvTools
     {
     }
 
-    public override IFileSetting Clone()
+    public override object Clone()
     {
       var other = new JsonFile();
       CopyTo(other);

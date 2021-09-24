@@ -70,7 +70,7 @@ namespace CsvTools.Tests
 			test.Samples.Add(new SampleRecordEntry(20, true));
 			test.Samples.Add(new SampleRecordEntry(20, false));
 
-			var test2 = test.Clone();
+			var test2 = (SampleAndErrorsInformation) test.Clone();
 			Assert.IsTrue(test.Equals(test2));
 			Assert.AreEqual(test.Errors[0], test2.Errors[0]);
 			Assert.AreEqual(test.Samples[0], test2.Samples[0]);
@@ -85,7 +85,7 @@ namespace CsvTools.Tests
 			test.Samples.Add(new SampleRecordEntry(20, true));
 			test.Samples.Add(new SampleRecordEntry(20, false));
 
-			var test2 = test.Clone();
+			var test2 = (SampleAndErrorsInformation) test.Clone();
 			Assert.IsTrue(test.Equals(test));
 			Assert.IsTrue(test.Equals(test2));
 			Assert.IsFalse(test.Equals(null));

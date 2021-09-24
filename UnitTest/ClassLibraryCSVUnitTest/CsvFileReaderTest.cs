@@ -206,7 +206,7 @@ namespace CsvTools.Tests
         FileName = UnitTestStatic.GetTestPath("Sessions.txt"),
         HasFieldHeader = true,
         ByteOrderMark = true,
-        FileFormat = { FieldDelimiter = "\t" }
+        FileFormat = new FileFormat() { FieldDelimiter = "\t" }
       };
       setting.ColumnCollection.Add(new Column("Start Date", "MM/dd/yyyy") { TimePart = "Start Time", TimePartFormat = "HH:mm:ss" });
 
@@ -388,7 +388,7 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFile
       {
         HasFieldHeader = false,
-        FileFormat = { FieldDelimiter = ",", CommentLine = "#", EscapeCharacter = "\\" },
+        FileFormat = new FileFormat() { FieldDelimiter = ",", CommentLine = "#", EscapeCharacter = "\\" },
         FileName = UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt")
       };
 
