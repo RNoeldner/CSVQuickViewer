@@ -27,15 +27,15 @@ namespace CsvTools.Tests
     public void Init()
     {
       var readFile = new CsvFile
-                     {
-                       ID = c_ReadID,
-                       FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-                       FileFormat = {CommentLine = "#"}
-                     };
+      {
+        ID = c_ReadID,
+        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
+        FileFormat = { CommentLine = "#" }
+      };
       readFile.ColumnCollection.Add(new Column("ExamDate", @"dd/MM/yyyy"));
       readFile.ColumnCollection.Add(new Column("Score", DataType.Integer));
       readFile.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
-      readFile.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean) {Ignore = true});
+      readFile.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
       UnitTestStatic.MimicSQLReader.AddSetting(readFile);
     }
 
@@ -43,12 +43,12 @@ namespace CsvTools.Tests
     public async Task StructuredFileWriterJSONEncodeTestAsync()
     {
       var fileSetting = new JsonFile
-                        {
-                          ID = "Write",
-                          FileName = "StructuredFileOutputJSON.txt",
-                          SqlStatement = c_ReadID,
-                          InOverview = true
-                        };
+      {
+        ID = "Write",
+        FileName = "StructuredFileOutputJSON.txt",
+        SqlStatement = c_ReadID,
+        InOverview = true
+      };
 
       var sb = new StringBuilder("{");
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
@@ -72,7 +72,6 @@ namespace CsvTools.Tests
       var writer = new JsonFileWriter(
         fileSetting.ID,
         fileSetting.FullPath,
-        fileSetting.DefaultValueFormatWrite,        
         fileSetting.Recipient,
         fileSetting.KeepUnencrypted,
         fileSetting.IdentifierInContainer,
@@ -95,12 +94,12 @@ namespace CsvTools.Tests
     public async Task StructuredFileWriterXMLEncodeTest()
     {
       var fileSetting = new XMLFile
-                        {
-                          ID = "Write",
-                          FileName = "StructuredFileOutputXML.txt",
-                          SqlStatement = c_ReadID,
-                          InOverview = true
-                        };
+      {
+        ID = "Write",
+        FileName = "StructuredFileOutputXML.txt",
+        SqlStatement = c_ReadID,
+        InOverview = true
+      };
       var sb = new StringBuilder();
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(
@@ -125,7 +124,6 @@ namespace CsvTools.Tests
       var writer = new XMLFileWriter(
         fileSetting.ID,
         fileSetting.FullPath,
-        fileSetting.DefaultValueFormatWrite,        
         fileSetting.Recipient,
         fileSetting.KeepUnencrypted,
         fileSetting.IdentifierInContainer,

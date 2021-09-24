@@ -107,18 +107,18 @@ namespace CsvTools
       if (header != null && header.Length > 0)
         Header = ReplacePlaceHolder(
           header.HandleCRLFCombinations(NewLine),
-          fileFormat?.FieldDelimiterChar.GetDescription() ?? string.Empty,
           fileName,
-          id);
+          id,
+          fileFormat?.FieldDelimiterChar.GetDescription() ?? string.Empty);
       else
         Header = string.Empty;
 
       if (footer != null && footer.Length > 0)
         m_Footer = ReplacePlaceHolder(
           footer.HandleCRLFCombinations(NewLine),
-          fileFormat?.FieldDelimiterChar.GetDescription() ?? string.Empty,
           fileName,
-          id);
+          id,
+          fileFormat?.FieldDelimiterChar.GetDescription() ?? string.Empty);
       else
         m_Footer = string.Empty;
 
@@ -187,8 +187,7 @@ namespace CsvTools
       foreach (DataRow schemaRow in schemaTable.Rows)
       {
         var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
-        var colName = schemaRow[SchemaTableColumn.ColumnName] as string;
-        if (colName is null || colName.Length == 0)
+        if (!(schemaRow[SchemaTableColumn.ColumnName] is string colName) || colName.Length == 0)
           continue;
         var newName = StringUtils.MakeUniqueInCollection(colNames.Values, colName);
         colNames.Add(colNo, newName);
@@ -318,7 +317,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
         await
 #endif
-          using var improvedStream = (Stream) FunctionalDI.OpenStream(sourceAccess);
+        using var improvedStream = (Stream) FunctionalDI.OpenStream(sourceAccess);
 
         await WriteReaderAsync(reader, improvedStream, token).ConfigureAwait(false);
       }
@@ -560,8 +559,9 @@ namespace CsvTools
     protected abstract Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
 
     private static string
-      ReplacePlaceHolder(string input, string fieldDelimiter, string fileName, string replacement) =>
-      input.PlaceholderReplace("ID", replacement).PlaceholderReplace("FileName", fileName)
+      ReplacePlaceHolder(string input, string fileName, string id, string fieldDelimiter) =>
+      input.PlaceholderReplace("ID", id)
+           .PlaceholderReplace("FileName", fileName)
            .PlaceholderReplace("Delim", fieldDelimiter)
            .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
            .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));

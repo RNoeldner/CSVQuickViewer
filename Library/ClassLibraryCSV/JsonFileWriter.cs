@@ -21,42 +21,40 @@ namespace CsvTools
   ///   A class to write structured Json Files
   /// </summary>
   public class JsonFileWriter : StructuredFileWriter
-	{
-		/// <summary>
-		///   Initializes a new instance of the <see cref="JsonFileWriter" /> class.
-		/// </summary>
-		public JsonFileWriter(
-			in string id,
+  {
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="JsonFileWriter" /> class.
+    /// </summary>
+    public JsonFileWriter(
+      in string id,
       in string fullPath,
-      in IValueFormat? valueFormatGeneral = null,      
       in string? recipient = null,
-			bool unencrypted = false,
+      bool unencrypted = false,
       in string? identifierInContainer = null,
       in string? footer = null,
       in string? header = null,
       in IEnumerable<IColumn>? columnDefinition = null,
       in string fileSettingDisplay = "",
       in string row = "",
-			in IProcessDisplay? processDisplay = null)
-			: base(
-				id,
-				fullPath,
-				valueFormatGeneral,				
-				recipient,
-				unencrypted,
-				identifierInContainer,
-				footer,
-				header,
-				columnDefinition,
-				fileSettingDisplay,
-				row,
-				processDisplay)
-		{
-		}
+      in IProcessDisplay? processDisplay = null)
+      : base(
+        id,
+        fullPath,
+        recipient,
+        unencrypted,
+        identifierInContainer,
+        footer,
+        header,
+        columnDefinition,
+        fileSettingDisplay,
+        row,
+        processDisplay)
+    {
+    }
 
-		protected override string ElementName(string input) => HTMLStyle.JsonElementName(input);
+    protected override string ElementName(string input) => HTMLStyle.JsonElementName(input);
 
-		protected override string Escape(object input, in WriterColumn columnInfo, in IFileReader reader) =>
-			JsonConvert.ToString(input);
-	}
+    protected override string Escape(object input, in WriterColumn columnInfo, in IFileReader reader) =>
+      JsonConvert.ToString(input);
+  }
 }
