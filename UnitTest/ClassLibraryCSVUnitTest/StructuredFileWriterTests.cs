@@ -30,7 +30,7 @@ namespace CsvTools.Tests
       {
         ID = c_ReadID,
         FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        FileFormat = { CommentLine = "#" }
+        CommentLine = "#"
       };
       readFile.ColumnCollection.Add(new Column("ExamDate", @"dd/MM/yyyy"));
       readFile.ColumnCollection.Add(new Column("Score", DataType.Integer));

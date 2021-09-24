@@ -871,7 +871,7 @@ namespace CsvTools
     ///   Sets the SQL statement rename.
     /// </summary>
     /// <param name="value">The value.</param>
-    public void SetSqlStatementRename(string value)
+    public void SetSqlStatementRename(string? value)
     {
       var newVal = (value ?? string.Empty).NoControlCharacters();
       m_SqlStatement = newVal;

@@ -35,7 +35,7 @@ namespace CsvTools
   /// </summary>
   public static class DetermineColumnFormat
   {
-    private static Random m_Random = new Random(Guid.NewGuid().GetHashCode());
+    private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 
     public static IValueFormat? CommonDateFormat(in IEnumerable<IColumn>? columns)
     {
@@ -1129,7 +1129,7 @@ namespace CsvTools
         return (new List<string>(), fileSetting.ColumnCollection);
 
       // in case there is no delimiter but its a delimited file, do nothing
-      if (fileSetting is ICsvFile csv && csv.FileFormat.FieldDelimiterChar == '\0')
+      if (fileSetting is ICsvFile { FieldDelimiterChar: '\0' } )
         return (new List<string>(), fileSetting.ColumnCollection);
       // Open the file setting but change a few settings
       var fileSettingCopy = GetSettingForRead(fileSetting);
@@ -1267,7 +1267,7 @@ namespace CsvTools
     {
       if (valueFormatGeneral is null) throw new ArgumentNullException(nameof(valueFormatGeneral));
       if (columnDefinitions is null) throw new ArgumentNullException(nameof(columnDefinitions));
-      if (string.IsNullOrEmpty(sqlStatement))
+      if (sqlStatement == null)
         return new List<ImmutableColumn>();
 
       if (FunctionalDI.SQLDataReader is null)
@@ -1276,7 +1276,7 @@ namespace CsvTools
       await
 #endif
       using var data = await FunctionalDI.SQLDataReader(
-                         sqlStatement!.NoRecordSQL(),
+                         sqlStatement.NoRecordSQL(),
                          (sender, s) =>
                          {
                            if (s.Log) Logger.Debug(s.Text);
@@ -1295,12 +1295,12 @@ namespace CsvTools
       int timeout,
       CancellationToken token)
     {
-      if (string.IsNullOrEmpty(sqlStatement))
+      if (sqlStatement == null)
         return new List<string>();
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var data = await FunctionalDI.SQLDataReader(sqlStatement!.NoRecordSQL(), null, timeout, token)
+      using var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), null, timeout, token)
                          .ConfigureAwait(false);
       await data.OpenAsync(token).ConfigureAwait(false);
       var list = new List<string>();

@@ -25,6 +25,327 @@ namespace CsvTools
   [Serializable]
   public class CsvFile : BaseSettingPhysicalFile, ICsvFile
   {
+    private const string c_EscapeCharacterDefault = "";
+    private const RecordDelimiterType c_NewLineDefault = RecordDelimiterType.CRLF;
+    private const string c_CommentLineDefault = "";
+    private const string c_DelimiterPlaceholderDefault = "";
+    private const string c_FieldDelimiterDefault = ",";
+    private const string c_FieldQualifierDefault = "\"";
+    private const string c_NewLinePlaceholderDefault = "";
+    private const bool c_QualifyOnlyIfNeededDefault = true;
+    private const string c_QuotePlaceholderDefault = "";
+
+    private bool m_AlternateQuoting;
+    private string m_CommentLine = c_CommentLineDefault;
+    private string m_DelimiterPlaceholder = c_DelimiterPlaceholderDefault;
+    private bool m_DuplicateQuotingToEscape;
+    private char m_EscapeChar = '\0';
+    private string m_EscapeCharacter = c_EscapeCharacterDefault;
+    private string m_FieldDelimiter = c_FieldDelimiterDefault;
+    private char m_FieldDelimiterChar = c_FieldDelimiterDefault[0];
+    private string m_FieldQualifier = c_FieldQualifierDefault;
+    private char m_FieldQualifierChar = c_FieldQualifierDefault[0];
+    private RecordDelimiterType m_NewLine = c_NewLineDefault;
+    private string m_NewLinePlaceholder = c_NewLinePlaceholderDefault;
+    private bool m_QualifyAlways;
+    private bool m_QualifyOnlyIfNeeded = c_QualifyOnlyIfNeededDefault;
+    private string m_QualifierPlaceholder = c_QuotePlaceholderDefault;
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
+    /// </summary>
+    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool AlternateQuoting
+    {
+      get => m_AlternateQuoting;
+      set
+      {
+        if (m_AlternateQuoting.Equals(value))
+          return;
+        m_AlternateQuoting = value;
+        NotifyPropertyChanged(nameof(AlternateQuoting));
+
+        // If Alternate Quoting is disabled, enable DuplicateQuotingToEscape automatically
+        if (!m_AlternateQuoting && !DuplicateQuotingToEscape)
+          DuplicateQuotingToEscape = true;
+
+        // If Alternate Quoting is enabled, disable DuplicateQuotingToEscape automatically
+        if (m_AlternateQuoting && DuplicateQuotingToEscape)
+          DuplicateQuotingToEscape = false;
+      }
+    }
+
+    /// <summary>
+    ///   Gets a value indicating whether column format specified.
+    /// </summary>
+    /// <value>Always <c>false</c>.</value>
+    [XmlIgnore]
+    public virtual bool ColumnFormatSpecified => false;
+
+    /// <summary>
+    ///   Gets or sets the text to indicate that the line is comment line and not contain data. If a
+    ///   line starts with the given text, it is ignored in the data grid.
+    /// </summary>
+    /// <value>The startup comment line.</value>
+    [XmlAttribute]
+    [DefaultValue(c_CommentLineDefault)]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public virtual string CommentLine
+    {
+      get => m_CommentLine;
+      set
+      {
+        var newVal = (value ?? string.Empty).Trim();
+        if (m_CommentLine.Equals(value, StringComparison.Ordinal))
+          return;
+        m_CommentLine = newVal;
+        NotifyPropertyChanged(nameof(CommentLine));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the delimiter placeholder.
+    /// </summary>
+    /// <value>The delimiter placeholder.</value>
+    [XmlAttribute]
+    [DefaultValue(c_DelimiterPlaceholderDefault)]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public virtual string DelimiterPlaceholder
+    {
+      get => m_DelimiterPlaceholder;
+      set
+      {
+        var newVal = (value ?? string.Empty).Trim();
+        if (m_DelimiterPlaceholder.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_DelimiterPlaceholder = newVal;
+        NotifyPropertyChanged(nameof(DelimiterPlaceholder));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
+    /// </summary>
+    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public virtual bool DuplicateQuotingToEscape
+    {
+      get => m_DuplicateQuotingToEscape;
+      set
+      {
+        if (m_DuplicateQuotingToEscape.Equals(value))
+          return;
+        m_DuplicateQuotingToEscape = value;
+        NotifyPropertyChanged(nameof(DuplicateQuotingToEscape));
+      }
+    }
+
+    [XmlIgnore] public virtual char EscapeChar => m_EscapeChar;
+
+    /// <summary>
+    ///   Gets or sets the escape character.
+    /// </summary>
+    /// <value>The escape character.</value>
+    [XmlAttribute]
+    [DefaultValue(c_EscapeCharacterDefault)]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public virtual string EscapeCharacter
+    {
+      get => m_EscapeCharacter;
+      set
+      {
+        var newVal = (value ?? string.Empty).Trim();
+        if (m_EscapeCharacter.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_EscapeChar = newVal.WrittenPunctuationToChar();
+        m_EscapeCharacter = newVal;
+        NotifyPropertyChanged(nameof(EscapeCharacter));
+        NotifyPropertyChanged(nameof(EscapeChar));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the field delimiter.
+    /// </summary>
+    /// <value>The field delimiter.</value>
+    [XmlAttribute]
+    [DefaultValue(c_FieldDelimiterDefault)]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public virtual string FieldDelimiter
+    {
+      get => m_FieldDelimiter;
+      set
+      {
+        var newVal = (value ?? string.Empty).Trim(StringUtils.Spaces);
+        if (m_FieldDelimiter.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_FieldDelimiterChar = newVal.WrittenPunctuationToChar();
+        m_FieldDelimiter = newVal;
+        NotifyPropertyChanged(nameof(FieldDelimiter));
+        NotifyPropertyChanged(nameof(FieldDelimiterChar));
+      }
+    }
+
+    /// <summary>
+    ///   Gets the field delimiter char from the FieldDelimiter.
+    /// </summary>
+    /// <value>The field delimiter char.</value>
+    [XmlIgnore]
+    public virtual char FieldDelimiterChar => m_FieldDelimiterChar;
+
+    /// <summary>
+    ///   Gets or sets the field qualifier.
+    /// </summary>
+    /// <value>The field qualifier.</value>
+    [XmlAttribute]
+    [DefaultValue(c_FieldQualifierDefault)]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public virtual string FieldQualifier
+    {
+      get => m_FieldQualifier;
+      set
+      {
+        var newVal = (value ?? string.Empty).Trim();
+        if (m_FieldQualifier.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_FieldQualifierChar = newVal.WrittenPunctuationToChar();
+        m_FieldQualifier = newVal;
+        NotifyPropertyChanged(nameof(FieldQualifier));
+        NotifyPropertyChanged(nameof(m_FieldQualifierChar));
+      }
+    }
+
+    /// <summary>
+    ///   Gets the field qualifier char from the FieldQualifier.
+    /// </summary>
+    /// <value>The field qualifier char.</value>
+    [XmlIgnore]
+    public virtual char FieldQualifierChar => m_FieldQualifierChar;
+
+    /// <summary>
+    ///   Gets a value indicating whether this instance is fixed length.
+    /// </summary>
+    /// <value><c>true</c> if this instance is fixed length; otherwise, <c>false</c>.</value>
+    [XmlIgnore]
+    public virtual bool IsFixedLength => string.IsNullOrEmpty(m_FieldDelimiter);
+
+    /// <summary>
+    ///   Gets or sets the newline.
+    /// </summary>
+    /// <value>The newline.</value>
+    [XmlAttribute]
+    [DefaultValue(c_NewLineDefault)]
+    public virtual RecordDelimiterType NewLine
+    {
+      get => m_NewLine;
+
+      set
+      {
+        if (m_NewLine.Equals(value))
+          return;
+        m_NewLine = value;
+        NotifyPropertyChanged(nameof(NewLine));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the new line placeholder.
+    /// </summary>
+    /// <value>The new line placeholder.</value>
+    [XmlAttribute]
+    [DefaultValue(c_NewLinePlaceholderDefault)]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public virtual string NewLinePlaceholder
+    {
+      get => m_NewLinePlaceholder;
+      set
+      {
+        var newVal = value ?? c_NewLinePlaceholderDefault;
+        if (m_NewLinePlaceholder.Equals(newVal, StringComparison.OrdinalIgnoreCase))
+          return;
+        m_NewLinePlaceholder = newVal;
+        NotifyPropertyChanged(nameof(NewLinePlaceholder));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether to qualify every text even if number or empty.
+    /// </summary>
+    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public virtual bool QualifyAlways
+    {
+      get => m_QualifyAlways;
+      set
+      {
+        if (m_QualifyAlways.Equals(value))
+          return;
+        m_QualifyAlways = value;
+        if (m_QualifyAlways)
+          QualifyOnlyIfNeeded = false;
+        NotifyPropertyChanged(nameof(QualifyAlways));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether to qualify only if needed.
+    /// </summary>
+    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
+    [XmlAttribute]
+    [DefaultValue(c_QualifyOnlyIfNeededDefault)]
+    public virtual bool QualifyOnlyIfNeeded
+    {
+      get => m_QualifyOnlyIfNeeded;
+
+      set
+      {
+        if (m_QualifyOnlyIfNeeded.Equals(value))
+          return;
+        m_QualifyOnlyIfNeeded = value;
+        if (m_QualifyOnlyIfNeeded)
+          QualifyAlways = false;
+        NotifyPropertyChanged(nameof(QualifyOnlyIfNeeded));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets the quote placeholder.
+    /// </summary>
+    /// <value>The quote placeholder.</value>
+    [XmlAttribute]
+    [DefaultValue(c_QuotePlaceholderDefault)]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public virtual string QuotePlaceholder
+    {
+      get => m_QualifierPlaceholder;
+      set
+      {
+        var newVal = (value ?? string.Empty).Trim();
+        if (m_QualifierPlaceholder.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_QualifierPlaceholder = newVal;
+        NotifyPropertyChanged(nameof(QuotePlaceholder));
+      }
+    }
+
     /// <summary>
     ///   File ending for a setting file
     /// </summary>
@@ -36,8 +357,7 @@ namespace CsvTools
 
     private int m_CodePageId = 65001;
 
-    [NonSerialized]
-    private Encoding m_CurrentEncoding = Encoding.UTF8;
+    [NonSerialized] private Encoding m_CurrentEncoding = Encoding.UTF8;
 
     private bool m_NoDelimitedFile;
 
@@ -62,29 +382,6 @@ namespace CsvTools
     private bool m_WarnQuotesInQuotes = true;
 
     private bool m_WarnUnknownCharacter = true;
-
-    private readonly FileFormat m_FileFormat = new FileFormat();
-
-    /// <summary>
-    ///   Gets or sets the file format.
-    /// </summary>
-    /// <value>The file format.</value>
-    [XmlElement]
-    public virtual FileFormat FileFormat
-    {
-      get => m_FileFormat;
-      set => value.CopyTo(m_FileFormat);
-    }
-
-    /// <summary>
-    ///   Gets a value indicating whether FileFormat is specified.
-    /// </summary>
-    /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-
-    public bool FileFormatSpecified => !FileFormat.Equals(new FileFormat());
-
-
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="CsvFile" /> class.
@@ -415,9 +712,8 @@ namespace CsvTools
     {
       BaseSettingsCopyTo((BaseSettings) other);
 
-      if (!(other is ICsvFile csv))
+      if (!(other is CsvFile csv))
         return;
-      m_FileFormat.CopyTo(csv.FileFormat);
       csv.ByteOrderMark = m_ByteOrderMark;
       csv.WarnQuotes = m_WarnQuotes;
       csv.WarnDelimiterInValue = m_WarnDelimiterInValue;
@@ -434,6 +730,19 @@ namespace CsvTools
       csv.CodePageId = m_CodePageId;
       csv.NumWarnings = m_NumWarnings;
       csv.NoDelimitedFile = m_NoDelimitedFile;
+
+      csv.CommentLine = CommentLine;
+      csv.AlternateQuoting = AlternateQuoting;
+      csv.DuplicateQuotingToEscape = DuplicateQuotingToEscape;
+      csv.DelimiterPlaceholder = DelimiterPlaceholder;
+      csv.EscapeCharacter = EscapeCharacter;
+      csv.FieldDelimiter = FieldDelimiter;
+      csv.FieldQualifier = FieldQualifier;
+      csv.NewLine = NewLine;
+      csv.NewLinePlaceholder = NewLinePlaceholder;
+      csv.QualifyOnlyIfNeeded = QualifyOnlyIfNeeded;
+      csv.QualifyAlways = QualifyAlways;
+      csv.QuotePlaceholder = QuotePlaceholder;
     }
 
     public override bool Equals(IFileSetting? other) => Equals(other as ICsvFile);
@@ -458,8 +767,27 @@ namespace CsvTools
                                                     && m_WarnNbsp == other.WarnNBSP && m_WarnQuotes == other.WarnQuotes
                                                     && m_WarnQuotesInQuotes == other.WarnQuotesInQuotes
                                                     && m_WarnUnknownCharacter == other.WarnUnknownCharacter
-                                                    && m_FileFormat.Equals(other.FileFormat)
-                                                    && BaseSettingsEquals(other as BaseSettings);
+                                                    && BaseSettingsEquals(other as BaseSettings)
+                                                    && AlternateQuoting == other.AlternateQuoting
+                                                    && DuplicateQuotingToEscape == other.DuplicateQuotingToEscape
+                                                    && string.Equals(CommentLine,
+                                                      other.CommentLine,
+                                                      StringComparison.Ordinal)
+                                                    && string.Equals(DelimiterPlaceholder,
+                                                      other.DelimiterPlaceholder,
+                                                      StringComparison.Ordinal)
+                                                    && EscapeChar == other.EscapeChar
+                                                    && FieldDelimiterChar == other.FieldDelimiterChar
+                                                    && FieldQualifierChar == other.FieldQualifierChar
+                                                    && NewLine.Equals(other.NewLine)
+                                                    && string.Equals(NewLinePlaceholder,
+                                                      other.NewLinePlaceholder,
+                                                      StringComparison.Ordinal)
+                                                    && QualifyAlways == other.QualifyAlways
+                                                    && QualifyOnlyIfNeeded == other.QualifyOnlyIfNeeded
+                                                    && string.Equals(QuotePlaceholder,
+                                                      other.QuotePlaceholder,
+                                                      StringComparison.Ordinal);
     }
   }
 }

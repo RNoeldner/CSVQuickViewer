@@ -101,11 +101,11 @@ namespace CsvTools
       await buttonGuessDelimiter.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        await improvedStream.GuessDelimiter(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.EscapeCharacter, m_CancellationTokenSource.Token);
+        var res = await improvedStream.GuessDelimiter(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.EscapeChar.ToStringHandle0(), m_CancellationTokenSource.Token);
+        if (res.Item2)
+          m_ViewSettings.FieldDelimiter = res.Item1;
       });
-
-      // GuessDelimiterAsync does set the values, refresh them
-      fileFormatBindingSource.ResetBindings(false);
+      
     }
 
     private async void ButtonGuessTextQualifier_Click(object? sender, EventArgs e)
@@ -114,10 +114,10 @@ namespace CsvTools
       await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        qualifier = await improvedStream.GuessQualifier(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.FieldDelimiter, m_CancellationTokenSource.Token);
+        qualifier = await improvedStream.GuessQualifier(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FieldDelimiter, m_CancellationTokenSource.Token);
       });
 
-      m_ViewSettings.FileFormat.FieldQualifier = qualifier;
+      m_ViewSettings.FieldQualifier = qualifier;
     }
 
     private async void ButtonSkipLine_ClickAsync(object? sender, EventArgs e)
@@ -125,7 +125,7 @@ namespace CsvTools
       await buttonSkipLine.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        m_ViewSettings.SkipRows = await improvedStream.GuessStartRow(m_ViewSettings.CodePageId, m_ViewSettings.FileFormat.FieldDelimiter, m_ViewSettings.FileFormat.FieldQualifier, m_ViewSettings.FileFormat.CommentLine, m_CancellationTokenSource.Token);
+        m_ViewSettings.SkipRows = await improvedStream.GuessStartRow(m_ViewSettings.CodePageId, m_ViewSettings.FieldDelimiter, m_ViewSettings.FieldQualifier, m_ViewSettings.CommentLine, m_CancellationTokenSource.Token);
       });
     }
 
@@ -138,7 +138,7 @@ namespace CsvTools
     private void CboRecordDelimiter_SelectedIndexChanged(object? sender, EventArgs e)
     {
       if (cboRecordDelimiter.SelectedItem != null)
-        m_ViewSettings.FileFormat.NewLine = (RecordDelimiterType) cboRecordDelimiter.SelectedValue;
+        m_ViewSettings.NewLine = (RecordDelimiterType) cboRecordDelimiter.SelectedValue;
     }
 
     private void CheckBoxColumnsProcess_CheckedChanged(object? sender, EventArgs e)
@@ -154,8 +154,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void EditSettings_Load(object? sender, EventArgs e)
     {
-      fileSettingBindingSource.DataSource = m_ViewSettings;
-      fileFormatBindingSource.DataSource = m_ViewSettings.FileFormat;
+      fileSettingBindingSource.DataSource = m_ViewSettings;      
 
       // Fill Drop down
       cboCodePage.SuspendLayout();
@@ -170,7 +169,7 @@ namespace CsvTools
       var di = (from RecordDelimiterType item in Enum.GetValues(typeof(RecordDelimiterType))
                 select new DisplayItem<int>((int) item, descConv.ConvertToString(item))).ToList();
 
-      var selValue = (int) m_ViewSettings.FileFormat.NewLine;
+      var selValue = (int) m_ViewSettings.NewLine;
       cboRecordDelimiter.SuspendLayout();
       cboRecordDelimiter.DataSource = di;
       cboRecordDelimiter.DisplayMember = nameof(DisplayItem<int>.Display);
@@ -192,7 +191,7 @@ namespace CsvTools
       await buttonNewLine.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.FieldQualifier, m_CancellationTokenSource.Token);
+        cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FieldQualifier, m_CancellationTokenSource.Token);
       });
     }
 
@@ -244,7 +243,7 @@ namespace CsvTools
       await buttonGuessHeader.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        var res = await improvedStream.GuessHasHeader(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FileFormat.CommentLine, m_ViewSettings.FileFormat.FieldDelimiter, m_CancellationTokenSource.Token);
+        var res = await improvedStream.GuessHasHeader(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.CommentLine, m_ViewSettings.FieldDelimiter, m_CancellationTokenSource.Token);
         m_ViewSettings.HasFieldHeader= res.Item1;
         fileSettingBindingSource.ResetBindings(false);
         _MessageBox.Show(res.Item2, "Checking headers");
@@ -262,11 +261,8 @@ namespace CsvTools
       await buttonGuessLineComment.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        m_ViewSettings.FileFormat.CommentLine = await improvedStream.GuessLineComment(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_CancellationTokenSource.Token);
-      });
-
-      // GuessDelimiterAsync does set the values, refresh them
-      fileFormatBindingSource.ResetBindings(false);
+        m_ViewSettings.CommentLine = await improvedStream.GuessLineComment(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_CancellationTokenSource.Token);
+      });      
     }
   }
 }

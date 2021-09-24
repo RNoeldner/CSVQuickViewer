@@ -350,7 +350,21 @@ namespace CsvTools
         physicalDest.SkipRows = physicalSrc.SkipRows;
         physicalDest.HasFieldHeader = physicalSrc.HasFieldHeader;
         if (physicalSrc is ICsvFile csvSrc && physicalDest is ICsvFile csvDest)
-          csvSrc.FileFormat.CopyTo(csvDest.FileFormat);
+        {
+          csvDest.CommentLine = csvSrc.CommentLine;
+          csvDest.AlternateQuoting = csvSrc.AlternateQuoting;
+          csvDest.DuplicateQuotingToEscape = csvSrc.DuplicateQuotingToEscape;
+          csvDest.DelimiterPlaceholder = csvSrc.DelimiterPlaceholder;
+          csvDest.EscapeCharacter = csvSrc.EscapeCharacter;
+          csvDest.FieldDelimiter = csvSrc.FieldDelimiter;
+          csvDest.FieldQualifier = csvSrc.FieldQualifier;
+          csvDest.NewLine = csvSrc.NewLine;
+          csvDest.NewLinePlaceholder = csvSrc.NewLinePlaceholder;
+          csvDest.QualifyOnlyIfNeeded = csvSrc.QualifyOnlyIfNeeded;
+          csvDest.QualifyAlways = csvSrc.QualifyAlways;
+          csvDest.QuotePlaceholder = csvSrc.QuotePlaceholder;
+        }
+      
       }
     }
   }

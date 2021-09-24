@@ -81,7 +81,7 @@ namespace CsvTools.Tests
         Assert.AreEqual("|", (await improvedStream.GuessDelimiter(-1, 0, string.Empty, UnitTestStatic.Token)).Item1);
 
       ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("LateStartRow.txt")) { SkipRows = 10, CodePageId = 20127 };
-      test.FileFormat.FieldQualifier = "\"";
+      test.FieldQualifier = "\"";
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
         Assert.AreEqual("|", (await improvedStream.GuessDelimiter(20127, 10, string.Empty, UnitTestStatic.Token)).Item1);
     }
@@ -90,7 +90,7 @@ namespace CsvTools.Tests
     public async Task GuessDelimiterCommaAsync()
     {
       ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")) { CodePageId = -1 };
-      test.FileFormat.EscapeCharacter = "\\";
+      test.EscapeCharacter = "\\";
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       Assert.AreEqual(",", (await improvedStream.GuessDelimiter(-1, 0, "\\", UnitTestStatic.Token)).Item1);
     }
@@ -99,7 +99,7 @@ namespace CsvTools.Tests
     public async Task GuessDelimiterPipeAsync()
     {
       ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt")) { CodePageId = -1 };
-      test.FileFormat.EscapeCharacter = string.Empty;
+      test.EscapeCharacter = string.Empty;
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       Assert.AreEqual("|", (await improvedStream.GuessDelimiter(-1, 0, string.Empty, UnitTestStatic.Token)).Item1);
     }
@@ -108,18 +108,18 @@ namespace CsvTools.Tests
     public async Task GuessDelimiterQualifierAsync()
     {
       ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("TextQualifiers.txt")) { CodePageId = -1 };
-      test.FileFormat.EscapeCharacter = string.Empty;
+      test.EscapeCharacter = string.Empty;
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
-      Assert.AreEqual(",", (await improvedStream.GuessDelimiter(test.CodePageId, test.SkipRows, test.FileFormat.EscapeCharacter, UnitTestStatic.Token)).Item1);
+      Assert.AreEqual(",", (await improvedStream.GuessDelimiter(test.CodePageId, test.SkipRows, test.EscapeCharacter, UnitTestStatic.Token)).Item1);
     }
 
     [TestMethod]
     public async Task GuessDelimiterTabAsync()
     {
       ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("txTranscripts.txt")) { CodePageId = -1 };
-      test.FileFormat.EscapeCharacter = "\\";
+      test.EscapeCharacter = "\\";
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
-      Assert.AreEqual("TAB", (await improvedStream.GuessDelimiter(test.CodePageId, test.SkipRows, test.FileFormat.EscapeCharacter, UnitTestStatic.Token)).Item1, true);
+      Assert.AreEqual("TAB", (await improvedStream.GuessDelimiter(test.CodePageId, test.SkipRows, test.EscapeCharacter, UnitTestStatic.Token)).Item1, true);
     }
 
     [TestMethod]
@@ -237,9 +237,9 @@ namespace CsvTools.Tests
           file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\n");
         }
 
-        var test = new CsvFile(path) { CodePageId = 65001, FileFormat = { FieldQualifier = "\"" } };
+        var test = new CsvFile(path) { CodePageId = 65001, FieldQualifier = "\"" };
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-          Assert.AreEqual(RecordDelimiterType.LF, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FileFormat.FieldQualifier, UnitTestStatic.Token));
+          Assert.AreEqual(RecordDelimiterType.LF, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
 
         FileSystemUtils.FileDelete(path);
         using (var file = File.CreateText(path))
@@ -255,7 +255,7 @@ namespace CsvTools.Tests
           file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\u001E");
         }
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-          Assert.AreEqual(RecordDelimiterType.RS, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FileFormat.FieldQualifier, UnitTestStatic.Token));
+          Assert.AreEqual(RecordDelimiterType.RS, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
 
         FileSystemUtils.FileDelete(path);
         using (var file = File.CreateText(path))
@@ -271,7 +271,7 @@ namespace CsvTools.Tests
           file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\n\r");
         }
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-          Assert.AreEqual(RecordDelimiterType.LFCR, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FileFormat.FieldQualifier, UnitTestStatic.Token));
+          Assert.AreEqual(RecordDelimiterType.LFCR, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
 
         FileSystemUtils.FileDelete(path);
         using (var file = File.CreateText(path))
@@ -287,7 +287,7 @@ namespace CsvTools.Tests
           await file.WriteAsync("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\r\n");
         }
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-          Assert.AreEqual(RecordDelimiterType.CRLF, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FileFormat.FieldQualifier, UnitTestStatic.Token));
+          Assert.AreEqual(RecordDelimiterType.CRLF, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
       }
       finally
       {
@@ -401,11 +401,15 @@ namespace CsvTools.Tests
     public async Task TestGuessStartRow1Async()
     {
       ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("LateStartRow.txt")) { SkipRows = 10, CodePageId = 20127 };
-      test.FileFormat.FieldDelimiter = "|";
-      test.FileFormat.FieldQualifier = "\"";
+      test.FieldDelimiter = "|";
+      test.FieldQualifier = "\"";
 
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
-      using var reader = new CsvFileReader(test.FullPath, test.CodePageId, test.SkipRows, test.HasFieldHeader, test.ColumnCollection, test.TrimmingOption, test.FileFormat.FieldDelimiter, test.FileFormat.FieldQualifier, test.FileFormat.EscapeCharacter, test.RecordLimit, test.AllowRowCombining, test.FileFormat.AlternateQuoting, test.FileFormat.CommentLine, test.NumWarnings, test.FileFormat.DuplicateQuotingToEscape, test.FileFormat.NewLinePlaceholder, test.FileFormat.DelimiterPlaceholder, test.FileFormat.QuotePlaceholder, test.SkipDuplicateHeader, test.TreatLFAsSpace, test.TreatUnknownCharacterAsSpace, test.TryToSolveMoreColumns, test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, test.WarnUnknownCharacter, test.WarnEmptyTailingColumns, test.TreatNBSPAsSpace, test.TreatTextAsNull, test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer, processDisplay);
+      using var reader = new CsvFileReader(test.FullPath, test.CodePageId, test.SkipRows, test.HasFieldHeader, test.ColumnCollection, test.TrimmingOption, test.FieldDelimiter,
+        test.FieldQualifier, test.EscapeCharacter, test.RecordLimit, test.AllowRowCombining, test.AlternateQuoting, test.CommentLine, test.NumWarnings, test.DuplicateQuotingToEscape,
+        test.NewLinePlaceholder, test.DelimiterPlaceholder, test.QuotePlaceholder, test.SkipDuplicateHeader, test.TreatLFAsSpace, test.TreatUnknownCharacterAsSpace, test.TryToSolveMoreColumns,
+        test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, test.WarnUnknownCharacter, test.WarnEmptyTailingColumns, test.TreatNBSPAsSpace, test.TreatTextAsNull,
+        test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer, processDisplay);
       await reader.OpenAsync(processDisplay.CancellationToken);
       Assert.AreEqual("RecordNumber", reader.GetName(0));
       await reader.ReadAsync(processDisplay.CancellationToken);
