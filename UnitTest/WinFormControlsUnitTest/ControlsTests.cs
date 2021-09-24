@@ -167,9 +167,7 @@ namespace CsvTools.Tests
 			try
 			{
 				UnitTestStatic.RunTaskTimeout(token => Task.Run(() =>
-#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
 					WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", null, null), token));
-#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
 			}
 			catch (COMException)
 			{

@@ -48,21 +48,24 @@ namespace CsvTools
     private string m_NewLinePlaceholder;
     private bool m_QualifyAlways;
     private bool m_QualifyOnlyIfNeeded;
-    private string m_QualifierPlaceholder;    
+    private string m_QualifierPlaceholder;
+
+    public FileFormat() : this(false, c_QualifyOnlyIfNeededDefault, false, cEscapeCharacterDefault, true, c_FieldDelimiterDefault, c_DelimiterPlaceholderDefault, c_FieldQualifierDefault, c_QuotePlaceholderDefault, cNewLineDefault, c_NewLinePlaceholderDefault, c_CommentLineDefault)
+    { }
 
     public FileFormat(
-      bool qualifyAlways = false,
-      bool qualifyOnlyIfNeeded = c_QualifyOnlyIfNeededDefault,
-      bool alternateQuoting = false,
-      string escapeCharacter = cEscapeCharacterDefault,
-      bool duplicateQuotingToEscape = true,
-      string fieldDelimiter = c_FieldDelimiterDefault,
-      string delimiterPlaceholder = c_DelimiterPlaceholderDefault,
-      string fieldQualifier = c_FieldQualifierDefault,
-      string quotePlaceholder = c_QuotePlaceholderDefault,
-      RecordDelimiterType newLine = cNewLineDefault,
-      string newLinePlaceholder = c_NewLinePlaceholderDefault,
-      string commentLine = c_CommentLineDefault)
+      bool qualifyAlways,
+      bool qualifyOnlyIfNeeded,
+      bool alternateQuoting,
+      string escapeCharacter,
+      bool duplicateQuotingToEscape,
+      in string fieldDelimiter,
+      in string delimiterPlaceholder,
+      in string fieldQualifier,
+      in string quotePlaceholder,
+      RecordDelimiterType newLine,
+      in string newLinePlaceholder,
+      in string commentLine)
     {
       m_CommentLine = commentLine;
       m_DelimiterPlaceholder = delimiterPlaceholder;
@@ -403,9 +406,9 @@ namespace CsvTools
       other.NewLinePlaceholder = NewLinePlaceholder;
       other.QualifyOnlyIfNeeded = QualifyOnlyIfNeeded;
       other.QualifyAlways = QualifyAlways;
-      other.QuotePlaceholder = QuotePlaceholder;      
+      other.QuotePlaceholder = QuotePlaceholder;
     }
-   
+
     /// <summary>
     ///   Indicates whether the current object is equal to another object of the same type.
     /// </summary>
