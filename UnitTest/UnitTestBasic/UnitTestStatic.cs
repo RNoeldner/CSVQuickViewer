@@ -107,16 +107,27 @@ namespace CsvTools.Tests
 
     public static void CheckAllPropertiesEqual(this object a, in object b)
     {
+      if (ReferenceEquals(a, b))
+        return;
+
       try
       {
-        var valueProperties = a.GetType().GetProperties().Where(
-        prop => prop.GetMethod != null && (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long)
-                                                                            || prop.PropertyType == typeof(string)
-                                                                            || prop.PropertyType == typeof(bool)
-                                                                            || prop.PropertyType == typeof(DateTime)));
+        if (a is null)
+          throw new ArgumentNullException(nameof(a));
+        if (b is null)
+          throw new ArgumentNullException(nameof(b));
+
+        var readProps = a.GetType().GetProperties().Where(prop => prop?.GetMethod != null).ToList();
+
+        var valueProperties = readProps.Where(prop => (prop.PropertyType == typeof(int)
+                                                    || prop.PropertyType == typeof(long)
+                                                    || prop.PropertyType == typeof(string)
+                                                    || prop.PropertyType == typeof(bool)
+                                                    || prop.PropertyType == typeof(DateTime)));
+
         CheckProertiesEqual(a, b, valueProperties);
 
-        foreach (var prop in a.GetType().GetProperties().Where(prop => prop.GetMethod != null && !valueProperties.Contains(prop) && prop.PropertyType.AssemblyQualifiedName.StartsWith("CsvTools.", StringComparison.Ordinal)))
+        foreach (var prop in readProps.Where(prop => !valueProperties.Contains(prop) && prop.PropertyType.AssemblyQualifiedName.StartsWith("CsvTools.", StringComparison.Ordinal)))
         {
           var obj1 = prop.GetValue(a);
           var obj2 = prop.GetValue(b);
