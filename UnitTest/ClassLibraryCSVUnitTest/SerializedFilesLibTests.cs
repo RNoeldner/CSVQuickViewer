@@ -45,6 +45,13 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void LoadCsvFileTestBackwardsCompatible()
+    {      
+      var test = SerializedFilesLib.LoadCsvFile(UnitTestStatic.GetTestPath("Read.setting"));
+      Assert.AreEqual("##", test.CommentLine);
+    }
+
+     [TestMethod]
     public void SaveAndLoadCsvFileTest()
     {
       var file = GetCsvFile();
@@ -93,7 +100,8 @@ namespace CsvTools.Tests
 
     private CsvFile GetCsvFile()
     {
-      var file = new CsvFile(UnitTestStatic.GetTestPath("Test.csv")) { ID = "TestFile" };
+      var file = new CsvFile(UnitTestStatic.GetTestPath("Test.csv")) { ID = "TestFile" };      
+      file.CommentLine = "##";
 
       file.MappingCollection.Add(new Mapping("Fld1", "FldA"));
       file.MappingCollection.Add(new Mapping("Fld2", "FldB"));

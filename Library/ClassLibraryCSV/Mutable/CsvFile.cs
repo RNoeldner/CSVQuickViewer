@@ -23,8 +23,10 @@ namespace CsvTools
   ///   Setting file for CSV files, its an implementation of <see cref="BaseSettings" />
   /// </summary>
   [Serializable]
-  public class CsvFile : BaseSettingPhysicalFile, ICsvFile
+  public partial class CsvFile : BaseSettingPhysicalFile, ICsvFile
   {
+    private const bool c_ContextSensitiveQualifierDefault = false;
+    private const bool c_QualifyAlwaysDefault = false;
     private const string c_EscapePrefixDefault = "";
     private const RecordDelimiterType c_NewLineDefault = RecordDelimiterType.CRLF;
     private const string c_CommentLineDefault = "";
@@ -34,12 +36,12 @@ namespace CsvTools
     private const string c_NewLinePlaceholderDefault = "";
     private const bool c_QualifyOnlyIfNeededDefault = true;
     private const string c_QuotePlaceholderDefault = "";
-    private const bool c_m_DuplicateQualifierToEscape = true;
+    private const bool c_DuplicateQualifierToEscapeDefault = true;
 
-    private bool m_AlternateQualifier;
+    private bool m_ContextSensitiveQualifier = c_ContextSensitiveQualifierDefault;
     private string m_CommentLine = c_CommentLineDefault;
     private string m_DelimiterPlaceholder = c_DelimiterPlaceholderDefault;
-    private bool m_DuplicateQualifierToEscape = c_m_DuplicateQualifierToEscape;
+    private bool m_DuplicateQualifierToEscape = c_DuplicateQualifierToEscapeDefault;
     private char m_EscapePrefixChar = '\0';
     private string m_EscapePrefix = c_EscapePrefixDefault;
     private string m_FieldDelimiter = c_FieldDelimiterDefault;
@@ -48,7 +50,7 @@ namespace CsvTools
     private char m_FieldQualifierChar = c_FieldQualifierDefault[0];
     private RecordDelimiterType m_NewLine = c_NewLineDefault;
     private string m_NewLinePlaceholder = c_NewLinePlaceholderDefault;
-    private bool m_QualifyAlways = false;
+    private bool m_QualifyAlways = c_QualifyAlwaysDefault;
     private bool m_QualifyOnlyIfNeeded = c_QualifyOnlyIfNeededDefault;
     private string m_QualifierPlaceholder = c_QuotePlaceholderDefault;
 
@@ -57,23 +59,23 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
     [XmlAttribute]
-    [DefaultValue(false)]
+    [DefaultValue(c_ContextSensitiveQualifierDefault)]
     public virtual bool ContextSensitiveQualifier
     {
-      get => m_AlternateQualifier;
+      get => m_ContextSensitiveQualifier;
       set
       {
-        if (m_AlternateQualifier.Equals(value))
+        if (m_ContextSensitiveQualifier.Equals(value))
           return;
-        m_AlternateQualifier = value;
+        m_ContextSensitiveQualifier = value;
         NotifyPropertyChanged(nameof(ContextSensitiveQualifier));
 
         // If Alternate Qualifier is disabled, enable DuplicateQualifierToEscape automatically
-        if (!m_AlternateQualifier && !DuplicateQualifierToEscape)
+        if (!m_ContextSensitiveQualifier && !DuplicateQualifierToEscape)
           DuplicateQualifierToEscape = true;
 
         // If Alternate Qualifier is enabled, disable DuplicateQualifierToEscape automatically
-        if (m_AlternateQualifier && DuplicateQualifierToEscape)
+        if (m_ContextSensitiveQualifier && DuplicateQualifierToEscape)
           DuplicateQualifierToEscape = false;
       }
     }
@@ -128,7 +130,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
     [XmlAttribute]
-    [DefaultValue(c_m_DuplicateQualifierToEscape)]
+    [DefaultValue(c_DuplicateQualifierToEscapeDefault)]
     public virtual bool DuplicateQualifierToEscape
     {
       get => m_DuplicateQualifierToEscape;
@@ -283,7 +285,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
     [XmlAttribute]
-    [DefaultValue(false)]
+    [DefaultValue(c_QualifyAlwaysDefault)]
     public virtual bool QualifyAlways
     {
       get => m_QualifyAlways;
@@ -784,5 +786,174 @@ namespace CsvTools
                                                       other.QualifierPlaceholder,
                                                       StringComparison.Ordinal);
     }
+
+    #region backwardscompatibility
+
+    [XmlElement]      
+    [DefaultValue(null)]
+    public FileFormatStore? FileFormat
+    {
+      get;
+      set;
+    }    
+
+    [Obsolete("Only used for backwards compatibility of Serialization")]
+    public virtual void OverwriteFromFileFormatStore()
+    {
+      if (FileFormat is null)
+        return;
+
+      ContextSensitiveQualifier = FileFormat.AlternateQuoting;
+      DuplicateQualifierToEscape = FileFormat.DuplicateQuotingToEscape;
+      CommentLine = FileFormat.CommentLine;
+      DelimiterPlaceholder = FileFormat.DelimiterPlaceholder;
+      EscapePrefix = FileFormat.EscapeCharacter;
+      FieldDelimiter = FileFormat.FieldDelimiter;
+      FieldQualifier = FileFormat.FieldQualifier;
+      NewLine = FileFormat.NewLine;
+      NewLinePlaceholder = FileFormat.NewLinePlaceholder;
+      QualifyAlways = FileFormat.QualifyAlways;
+      QualifyOnlyIfNeeded = FileFormat.QualifyOnlyIfNeeded;
+      QualifierPlaceholder = FileFormat.QuotePlaceholder;
+
+      FileFormat = null;
+    }
+
+
+    [Obsolete("Only used for backwards compatibility of Serialization")]
+    [Serializable]
+    public class FileFormatStore
+    {
+      /// <summary>
+      ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
+      /// </summary>
+      /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+      [XmlAttribute]
+      [DefaultValue(c_ContextSensitiveQualifierDefault)]
+      public bool AlternateQuoting
+      {
+        get;
+        set;
+      } = c_ContextSensitiveQualifierDefault;
+
+      /// <summary>
+      ///   Gets or sets the text to indicate that the line is comment line and not contain data. If a
+      ///   line starts with the given text, it is ignored in the data grid.
+      /// </summary>
+      /// <value>The startup comment line.</value>
+      [XmlAttribute]
+      [DefaultValue(c_CommentLineDefault)]
+
+      public string CommentLine
+      {
+        get;
+        set;
+      } = c_CommentLineDefault;
+
+      /// <summary>
+      ///   Gets or sets the delimiter placeholder.
+      /// </summary>
+      /// <value>The delimiter placeholder.</value>
+      [XmlAttribute]
+      [DefaultValue(c_DelimiterPlaceholderDefault)]
+      public string DelimiterPlaceholder
+      {
+        get;
+        set;
+      } = c_DelimiterPlaceholderDefault;
+
+      /// <summary>
+      ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
+      /// </summary>
+      /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+      [XmlAttribute]
+      [DefaultValue(c_DuplicateQualifierToEscapeDefault)]
+      public bool DuplicateQuotingToEscape
+      {
+        get;
+        set;
+      } = c_DuplicateQualifierToEscapeDefault;
+
+      /// <summary>
+      ///   Gets or sets the escape character.
+      /// </summary>
+      /// <value>The escape character.</value>
+      [XmlAttribute]
+      [DefaultValue(c_EscapePrefixDefault)]
+      public string EscapeCharacter
+      {
+        get;
+        set;
+      } = c_EscapePrefixDefault;
+
+      /// <summary>
+      ///   Gets or sets the field delimiter.
+      /// </summary>
+      /// <value>The field delimiter.</value>
+      [XmlAttribute]
+      [DefaultValue(c_FieldDelimiterDefault)]
+      public string FieldDelimiter
+      {
+        get;
+        set;
+      } = c_FieldDelimiterDefault;
+
+      /// <summary>
+      ///   Gets or sets the field qualifier.
+      /// </summary>
+      /// <value>The field qualifier.</value>
+      [XmlAttribute]
+      [DefaultValue(c_FieldQualifierDefault)]
+      public string FieldQualifier
+      {
+        get;
+        set;
+      } = c_FieldQualifierDefault;
+
+      /// <summary>
+      ///   Gets or sets the newline.
+      /// </summary>
+      /// <value>The newline.</value>
+      [XmlAttribute]
+      [DefaultValue(c_NewLineDefault)]
+      public RecordDelimiterType NewLine
+      {
+        get;
+        set;
+      } = c_NewLineDefault;
+
+      [XmlAttribute]
+      [DefaultValue(c_NewLinePlaceholderDefault)]
+      public string NewLinePlaceholder
+      {
+        get;
+        set;
+      } = c_NewLinePlaceholderDefault;
+
+      [XmlAttribute]
+      [DefaultValue(c_QualifyAlwaysDefault)]
+      public bool QualifyAlways
+      {
+        get;
+        set;
+      } = c_QualifyAlwaysDefault;
+
+      [XmlAttribute]
+      [DefaultValue(c_QualifyOnlyIfNeededDefault)]
+      public bool QualifyOnlyIfNeeded
+      {
+        get;
+        set;
+      } = c_QualifyOnlyIfNeededDefault;
+
+      [XmlAttribute]
+      [DefaultValue(c_QuotePlaceholderDefault)]
+      public string QuotePlaceholder
+      {
+        get;
+        set;
+      } = c_QuotePlaceholderDefault;
+    }
+    #endregion
   }
 }

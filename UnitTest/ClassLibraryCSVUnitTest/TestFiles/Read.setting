@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-16"?>
+<CsvFile >
+  <FileFormat FieldDelimiter=";" CommentLine="##"/>
+  <Format Convert="true" Type="Integer" Column="ID" />
+  <Format Convert="true" Type="TextPart" Column="Name" />
+  <Mapping Column="Fld1" Field="FldA" />
+  <Mapping Column="Fld2" Field="FldB" />
+</CsvFile>

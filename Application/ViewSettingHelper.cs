@@ -25,7 +25,9 @@ namespace CsvTools
           var serial = File.ReadAllText(m_SettingPath.LongPathPrefix());
           using TextReader reader = new StringReader(serial);
           if (m_SerializerViewSettings.Deserialize(reader) is ViewSettings viewSettings)
+          {
             return viewSettings;
+          }
         }
       }
       catch (Exception ex)
