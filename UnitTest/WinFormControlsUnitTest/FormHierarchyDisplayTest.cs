@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Data;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -8,7 +7,6 @@ namespace CsvTools.Tests
   [TestClass]
   public class FormHierarchyDisplayTest
   {
-
     [TestMethod]
     [Timeout(5000)]
     public void MultiselectTreeViewRegular()
@@ -82,7 +80,7 @@ namespace CsvTools.Tests
         var treeNode3 = new TreeNode(td3.Title) { Tag = td3 };
         treeNode.Nodes.Add(treeNode3);
 
-        var treeNode3a = new TreeNode(td3a.Title) { Tag =td3a };
+        var treeNode3a = new TreeNode(td3a.Title) { Tag = td3a };
         treeNode3.Nodes.Add(treeNode3a);
 
         var treeNode3b = new TreeNode(td3b.Title) { Tag = td3b };
@@ -95,7 +93,7 @@ namespace CsvTools.Tests
 
         UnitTestStatic.ShowControl(treeView, .2, (control, form) =>
         {
-          if (!(control is MultiselectTreeView text))
+          if (!(control is { } text))
             return;
 
           text.PressKey(Keys.Control | Keys.A);
@@ -126,7 +124,7 @@ namespace CsvTools.Tests
       {
         UnitTestStatic.ShowFormAndClose(form, 0.1, (frm) =>
         {
-          if (!(frm is FormHierarchyDisplay hd))
+          if (!(frm is { } hd))
             return;
           hd.BuildTree("int", "ID");
         });
@@ -141,16 +139,22 @@ namespace CsvTools.Tests
       // load the csvFile FileWithHierarchy
       using var processDisplay = new FormProcessDisplay("FileWithHierarchy");
       processDisplay.Show();
-      var cvsSetting = new CsvFile(UnitTestStatic.GetTestPath("FileWithHierarchy_WithCyle.txt"))
-      { FieldDelimiter = "\t" };
-      using var csvDataReader = new CsvFileReader(cvsSetting.FullPath, cvsSetting.CodePageId, cvsSetting.SkipRows, cvsSetting.HasFieldHeader, cvsSetting.ColumnCollection, cvsSetting.TrimmingOption, cvsSetting.FieldDelimiter, cvsSetting.FieldQualifier, cvsSetting.EscapeCharacter, cvsSetting.RecordLimit, cvsSetting.AllowRowCombining, cvsSetting.AlternateQuoting, cvsSetting.CommentLine, cvsSetting.NumWarnings, cvsSetting.DuplicateQuotingToEscape, cvsSetting.NewLinePlaceholder, cvsSetting.DelimiterPlaceholder, cvsSetting.QuotePlaceholder, cvsSetting.SkipDuplicateHeader, cvsSetting.TreatLFAsSpace, cvsSetting.TreatUnknownCharacterAsSpace, cvsSetting.TryToSolveMoreColumns, cvsSetting.WarnDelimiterInValue, cvsSetting.WarnLineFeed, cvsSetting.WarnNBSP, cvsSetting.WarnQuotes, cvsSetting.WarnUnknownCharacter, cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull, cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows, cvsSetting.IdentifierInContainer, processDisplay);
+      var cvsSetting = new CsvFile(UnitTestStatic.GetTestPath("FileWithHierarchy_WithCyle.txt")) { FieldDelimiter = "\t" };
+      using var csvDataReader = new CsvFileReader(cvsSetting.FullPath, cvsSetting.CodePageId, cvsSetting.SkipRows, cvsSetting.HasFieldHeader,
+        cvsSetting.ColumnCollection, cvsSetting.TrimmingOption, cvsSetting.FieldDelimiter, cvsSetting.FieldQualifier, cvsSetting.EscapePrefix,
+        cvsSetting.RecordLimit, cvsSetting.AllowRowCombining, cvsSetting.ContextSensitiveQualifier, cvsSetting.CommentLine, cvsSetting.NumWarnings,
+        cvsSetting.DuplicateQualifierToEscape, cvsSetting.NewLinePlaceholder, cvsSetting.DelimiterPlaceholder, cvsSetting.QualifierPlaceholder,
+        cvsSetting.SkipDuplicateHeader, cvsSetting.TreatLFAsSpace, cvsSetting.TreatUnknownCharacterAsSpace, cvsSetting.TryToSolveMoreColumns,
+        cvsSetting.WarnDelimiterInValue, cvsSetting.WarnLineFeed, cvsSetting.WarnNBSP, cvsSetting.WarnQuotes, cvsSetting.WarnUnknownCharacter,
+        cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull, cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows,
+        cvsSetting.IdentifierInContainer, processDisplay);
       var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null,
-        processDisplay.CancellationToken);
+                 processDisplay.CancellationToken);
 
       using var form = new FormHierarchyDisplay(dt!, dataTable.Select(), UnitTestStatic.HTMLStyle);
       UnitTestStatic.ShowFormAndClose(form, .1, (frm) =>
       {
-        if (!(frm is FormHierarchyDisplay hd))
+        if (!(frm is { } hd))
           return;
         hd.BuildTree("ReferenceID1", "ID");
         hd.CloseAll();

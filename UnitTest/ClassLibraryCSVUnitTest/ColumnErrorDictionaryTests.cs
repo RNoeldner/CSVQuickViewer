@@ -9,17 +9,17 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ColumnErrorDictionaryTest1Async()
     {
-      var setting = new CsvFile
-      {
-        FileName = UnitTestStatic.GetTestPath("Sessions.txt"),
-        HasFieldHeader = true,
-        ByteOrderMark = true,
-        FieldDelimiter = "\t"
-      };
+      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("Sessions.txt"), HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t" };
       setting.ColumnCollection.Add(new Column("Start Date") { Ignore = true });
 
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
-      using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapeCharacter, setting.RecordLimit, setting.AllowRowCombining, setting.AlternateQuoting, setting.CommentLine, setting.NumWarnings, setting.DuplicateQuotingToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QuotePlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
+      using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
+        setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
+        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
+        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace,
+        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
+        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
+        setting.IdentifierInContainer, processDisplay);
       await reader.OpenAsync(processDisplay.CancellationToken);
       var test1 = new ColumnErrorDictionary(reader);
       Assert.IsNotNull(test1);

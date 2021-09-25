@@ -288,24 +288,6 @@ namespace CsvTools
       }
     }
 
-    /*
-     * 				FileFormat = new FileFormat
-            {
-              QualifyAlways = QualifyAlways,
-              CommentLine = CommentLine,
-              EscapeCharacter = GetShortDisplay(EscapeCharacter),
-              FieldDelimiter = GetShortDisplay(FieldDelimiter),
-              FieldQualifier = GetShortDisplay(FieldQualifier),
-              NewLine = NewLine
-            },
-            ByteOrderMark = ByteOrderMark,
-            CodePageId = CodePageId,
-            HasFieldHeader = HasFieldHeader,
-            NoDelimitedFile = NoDelimitedFile,
-            IdentifierInContainer = IdentifierInContainer,
-            SkipRows = SkipRows
-    */
-
     public static void CopyConfiguration(IFileSettingPhysicalFile? physicalSrc, IFileSettingPhysicalFile? physicalDest, bool includeDetected)
     {
       if (physicalSrc is null || physicalDest is null || ReferenceEquals(physicalSrc, physicalDest))
@@ -352,17 +334,17 @@ namespace CsvTools
         if (physicalSrc is ICsvFile csvSrc && physicalDest is ICsvFile csvDest)
         {
           csvDest.CommentLine = csvSrc.CommentLine;
-          csvDest.AlternateQuoting = csvSrc.AlternateQuoting;
-          csvDest.DuplicateQuotingToEscape = csvSrc.DuplicateQuotingToEscape;
+          csvDest.ContextSensitiveQualifier = csvSrc.ContextSensitiveQualifier;
+          csvDest.DuplicateQualifierToEscape = csvSrc.DuplicateQualifierToEscape;
           csvDest.DelimiterPlaceholder = csvSrc.DelimiterPlaceholder;
-          csvDest.EscapeCharacter = csvSrc.EscapeCharacter;
+          csvDest.EscapePrefix = csvSrc.EscapePrefix;
           csvDest.FieldDelimiter = csvSrc.FieldDelimiter;
           csvDest.FieldQualifier = csvSrc.FieldQualifier;
           csvDest.NewLine = csvSrc.NewLine;
           csvDest.NewLinePlaceholder = csvSrc.NewLinePlaceholder;
           csvDest.QualifyOnlyIfNeeded = csvSrc.QualifyOnlyIfNeeded;
           csvDest.QualifyAlways = csvSrc.QualifyAlways;
-          csvDest.QuotePlaceholder = csvSrc.QuotePlaceholder;
+          csvDest.QualifierPlaceholder = csvSrc.QualifierPlaceholder;
         }
       
       }

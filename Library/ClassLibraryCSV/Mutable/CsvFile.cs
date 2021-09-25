@@ -25,7 +25,7 @@ namespace CsvTools
   [Serializable]
   public class CsvFile : BaseSettingPhysicalFile, ICsvFile
   {
-    private const string c_EscapeCharacterDefault = "";
+    private const string c_EscapePrefixDefault = "";
     private const RecordDelimiterType c_NewLineDefault = RecordDelimiterType.CRLF;
     private const string c_CommentLineDefault = "";
     private const string c_DelimiterPlaceholderDefault = "";
@@ -34,20 +34,21 @@ namespace CsvTools
     private const string c_NewLinePlaceholderDefault = "";
     private const bool c_QualifyOnlyIfNeededDefault = true;
     private const string c_QuotePlaceholderDefault = "";
+    private const bool c_m_DuplicateQualifierToEscape = true;
 
-    private bool m_AlternateQuoting;
+    private bool m_AlternateQualifier;
     private string m_CommentLine = c_CommentLineDefault;
     private string m_DelimiterPlaceholder = c_DelimiterPlaceholderDefault;
-    private bool m_DuplicateQuotingToEscape;
-    private char m_EscapeChar = '\0';
-    private string m_EscapeCharacter = c_EscapeCharacterDefault;
+    private bool m_DuplicateQualifierToEscape = c_m_DuplicateQualifierToEscape;
+    private char m_EscapePrefixChar = '\0';
+    private string m_EscapePrefix = c_EscapePrefixDefault;
     private string m_FieldDelimiter = c_FieldDelimiterDefault;
     private char m_FieldDelimiterChar = c_FieldDelimiterDefault[0];
     private string m_FieldQualifier = c_FieldQualifierDefault;
     private char m_FieldQualifierChar = c_FieldQualifierDefault[0];
     private RecordDelimiterType m_NewLine = c_NewLineDefault;
     private string m_NewLinePlaceholder = c_NewLinePlaceholderDefault;
-    private bool m_QualifyAlways;
+    private bool m_QualifyAlways = false;
     private bool m_QualifyOnlyIfNeeded = c_QualifyOnlyIfNeededDefault;
     private string m_QualifierPlaceholder = c_QuotePlaceholderDefault;
 
@@ -57,32 +58,25 @@ namespace CsvTools
     /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
     [XmlAttribute]
     [DefaultValue(false)]
-    public virtual bool AlternateQuoting
+    public virtual bool ContextSensitiveQualifier
     {
-      get => m_AlternateQuoting;
+      get => m_AlternateQualifier;
       set
       {
-        if (m_AlternateQuoting.Equals(value))
+        if (m_AlternateQualifier.Equals(value))
           return;
-        m_AlternateQuoting = value;
-        NotifyPropertyChanged(nameof(AlternateQuoting));
+        m_AlternateQualifier = value;
+        NotifyPropertyChanged(nameof(ContextSensitiveQualifier));
 
-        // If Alternate Quoting is disabled, enable DuplicateQuotingToEscape automatically
-        if (!m_AlternateQuoting && !DuplicateQuotingToEscape)
-          DuplicateQuotingToEscape = true;
+        // If Alternate Qualifier is disabled, enable DuplicateQualifierToEscape automatically
+        if (!m_AlternateQualifier && !DuplicateQualifierToEscape)
+          DuplicateQualifierToEscape = true;
 
-        // If Alternate Quoting is enabled, disable DuplicateQuotingToEscape automatically
-        if (m_AlternateQuoting && DuplicateQuotingToEscape)
-          DuplicateQuotingToEscape = false;
+        // If Alternate Qualifier is enabled, disable DuplicateQualifierToEscape automatically
+        if (m_AlternateQualifier && DuplicateQualifierToEscape)
+          DuplicateQualifierToEscape = false;
       }
     }
-
-    /// <summary>
-    ///   Gets a value indicating whether column format specified.
-    /// </summary>
-    /// <value>Always <c>false</c>.</value>
-    [XmlIgnore]
-    public virtual bool ColumnFormatSpecified => false;
 
     /// <summary>
     ///   Gets or sets the text to indicate that the line is comment line and not contain data. If a
@@ -134,42 +128,42 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
     [XmlAttribute]
-    [DefaultValue(true)]
-    public virtual bool DuplicateQuotingToEscape
+    [DefaultValue(c_m_DuplicateQualifierToEscape)]
+    public virtual bool DuplicateQualifierToEscape
     {
-      get => m_DuplicateQuotingToEscape;
+      get => m_DuplicateQualifierToEscape;
       set
       {
-        if (m_DuplicateQuotingToEscape.Equals(value))
+        if (m_DuplicateQualifierToEscape.Equals(value))
           return;
-        m_DuplicateQuotingToEscape = value;
-        NotifyPropertyChanged(nameof(DuplicateQuotingToEscape));
+        m_DuplicateQualifierToEscape = value;
+        NotifyPropertyChanged(nameof(DuplicateQualifierToEscape));
       }
     }
 
-    [XmlIgnore] public virtual char EscapeChar => m_EscapeChar;
+    [XmlIgnore] public virtual char EscapePrefixChar => m_EscapePrefixChar;
 
     /// <summary>
     ///   Gets or sets the escape character.
     /// </summary>
     /// <value>The escape character.</value>
     [XmlAttribute]
-    [DefaultValue(c_EscapeCharacterDefault)]
+    [DefaultValue(c_EscapePrefixDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
-    public virtual string EscapeCharacter
+    public virtual string EscapePrefix
     {
-      get => m_EscapeCharacter;
+      get => m_EscapePrefix;
       set
       {
         var newVal = (value ?? string.Empty).Trim();
-        if (m_EscapeCharacter.Equals(newVal, StringComparison.Ordinal))
+        if (m_EscapePrefix.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_EscapeChar = newVal.WrittenPunctuationToChar();
-        m_EscapeCharacter = newVal;
-        NotifyPropertyChanged(nameof(EscapeCharacter));
-        NotifyPropertyChanged(nameof(EscapeChar));
+        m_EscapePrefixChar = newVal.WrittenPunctuationToChar();
+        m_EscapePrefix = newVal;
+        NotifyPropertyChanged(nameof(EscapePrefix));
+        NotifyPropertyChanged(nameof(EscapePrefixChar));
       }
     }
 
@@ -240,6 +234,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if this instance is fixed length; otherwise, <c>false</c>.</value>
     [XmlIgnore]
+    [Obsolete("Check FieldDelimiterChar instead")]
     public virtual bool IsFixedLength => string.IsNullOrEmpty(m_FieldDelimiter);
 
     /// <summary>
@@ -333,7 +328,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
-    public virtual string QuotePlaceholder
+    public virtual string QualifierPlaceholder
     {
       get => m_QualifierPlaceholder;
       set
@@ -342,7 +337,7 @@ namespace CsvTools
         if (m_QualifierPlaceholder.Equals(newVal, StringComparison.Ordinal))
           return;
         m_QualifierPlaceholder = newVal;
-        NotifyPropertyChanged(nameof(QuotePlaceholder));
+        NotifyPropertyChanged(nameof(QualifierPlaceholder));
       }
     }
 
@@ -732,17 +727,17 @@ namespace CsvTools
       csv.NoDelimitedFile = m_NoDelimitedFile;
 
       csv.CommentLine = CommentLine;
-      csv.AlternateQuoting = AlternateQuoting;
-      csv.DuplicateQuotingToEscape = DuplicateQuotingToEscape;
+      csv.ContextSensitiveQualifier = ContextSensitiveQualifier;
+      csv.DuplicateQualifierToEscape = DuplicateQualifierToEscape;
       csv.DelimiterPlaceholder = DelimiterPlaceholder;
-      csv.EscapeCharacter = EscapeCharacter;
+      csv.EscapePrefix = EscapePrefix;
       csv.FieldDelimiter = FieldDelimiter;
       csv.FieldQualifier = FieldQualifier;
       csv.NewLine = NewLine;
       csv.NewLinePlaceholder = NewLinePlaceholder;
       csv.QualifyOnlyIfNeeded = QualifyOnlyIfNeeded;
       csv.QualifyAlways = QualifyAlways;
-      csv.QuotePlaceholder = QuotePlaceholder;
+      csv.QualifierPlaceholder = QualifierPlaceholder;
     }
 
     public override bool Equals(IFileSetting? other) => Equals(other as ICsvFile);
@@ -768,15 +763,15 @@ namespace CsvTools
                                                     && m_WarnQuotesInQuotes == other.WarnQuotesInQuotes
                                                     && m_WarnUnknownCharacter == other.WarnUnknownCharacter
                                                     && BaseSettingsEquals(other as BaseSettings)
-                                                    && AlternateQuoting == other.AlternateQuoting
-                                                    && DuplicateQuotingToEscape == other.DuplicateQuotingToEscape
+                                                    && ContextSensitiveQualifier == other.ContextSensitiveQualifier
+                                                    && DuplicateQualifierToEscape == other.DuplicateQualifierToEscape
                                                     && string.Equals(CommentLine,
                                                       other.CommentLine,
                                                       StringComparison.Ordinal)
                                                     && string.Equals(DelimiterPlaceholder,
                                                       other.DelimiterPlaceholder,
                                                       StringComparison.Ordinal)
-                                                    && EscapeChar == other.EscapeChar
+                                                    && EscapePrefixChar == other.EscapePrefixChar
                                                     && FieldDelimiterChar == other.FieldDelimiterChar
                                                     && FieldQualifierChar == other.FieldQualifierChar
                                                     && NewLine.Equals(other.NewLine)
@@ -785,8 +780,8 @@ namespace CsvTools
                                                       StringComparison.Ordinal)
                                                     && QualifyAlways == other.QualifyAlways
                                                     && QualifyOnlyIfNeeded == other.QualifyOnlyIfNeeded
-                                                    && string.Equals(QuotePlaceholder,
-                                                      other.QuotePlaceholder,
+                                                    && string.Equals(QualifierPlaceholder,
+                                                      other.QualifierPlaceholder,
                                                       StringComparison.Ordinal);
     }
   }

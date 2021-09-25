@@ -90,7 +90,7 @@ namespace CsvTools.Tests
     public async Task GuessDelimiterCommaAsync()
     {
       ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")) { CodePageId = -1 };
-      test.EscapeCharacter = "\\";
+      test.EscapePrefix = "\\";
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       Assert.AreEqual(",", (await improvedStream.GuessDelimiter(-1, 0, "\\", UnitTestStatic.Token)).Item1);
     }
@@ -99,7 +99,7 @@ namespace CsvTools.Tests
     public async Task GuessDelimiterPipeAsync()
     {
       ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt")) { CodePageId = -1 };
-      test.EscapeCharacter = string.Empty;
+      test.EscapePrefix = string.Empty;
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       Assert.AreEqual("|", (await improvedStream.GuessDelimiter(-1, 0, string.Empty, UnitTestStatic.Token)).Item1);
     }
@@ -108,18 +108,18 @@ namespace CsvTools.Tests
     public async Task GuessDelimiterQualifierAsync()
     {
       ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("TextQualifiers.txt")) { CodePageId = -1 };
-      test.EscapeCharacter = string.Empty;
+      test.EscapePrefix = string.Empty;
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
-      Assert.AreEqual(",", (await improvedStream.GuessDelimiter(test.CodePageId, test.SkipRows, test.EscapeCharacter, UnitTestStatic.Token)).Item1);
+      Assert.AreEqual(",", (await improvedStream.GuessDelimiter(test.CodePageId, test.SkipRows, test.EscapePrefix, UnitTestStatic.Token)).Item1);
     }
 
     [TestMethod]
     public async Task GuessDelimiterTabAsync()
     {
       ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("txTranscripts.txt")) { CodePageId = -1 };
-      test.EscapeCharacter = "\\";
+      test.EscapePrefix = "\\";
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
-      Assert.AreEqual("TAB", (await improvedStream.GuessDelimiter(test.CodePageId, test.SkipRows, test.EscapeCharacter, UnitTestStatic.Token)).Item1, true);
+      Assert.AreEqual("TAB", (await improvedStream.GuessDelimiter(test.CodePageId, test.SkipRows, test.EscapePrefix, UnitTestStatic.Token)).Item1, true);
     }
 
     [TestMethod]
@@ -406,8 +406,8 @@ namespace CsvTools.Tests
 
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       using var reader = new CsvFileReader(test.FullPath, test.CodePageId, test.SkipRows, test.HasFieldHeader, test.ColumnCollection, test.TrimmingOption, test.FieldDelimiter,
-        test.FieldQualifier, test.EscapeCharacter, test.RecordLimit, test.AllowRowCombining, test.AlternateQuoting, test.CommentLine, test.NumWarnings, test.DuplicateQuotingToEscape,
-        test.NewLinePlaceholder, test.DelimiterPlaceholder, test.QuotePlaceholder, test.SkipDuplicateHeader, test.TreatLFAsSpace, test.TreatUnknownCharacterAsSpace, test.TryToSolveMoreColumns,
+        test.FieldQualifier, test.EscapePrefix, test.RecordLimit, test.AllowRowCombining, test.ContextSensitiveQualifier, test.CommentLine, test.NumWarnings, test.DuplicateQualifierToEscape,
+        test.NewLinePlaceholder, test.DelimiterPlaceholder, test.QualifierPlaceholder, test.SkipDuplicateHeader, test.TreatLFAsSpace, test.TreatUnknownCharacterAsSpace, test.TryToSolveMoreColumns,
         test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, test.WarnUnknownCharacter, test.WarnEmptyTailingColumns, test.TreatNBSPAsSpace, test.TreatTextAsNull,
         test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer, processDisplay);
       await reader.OpenAsync(processDisplay.CancellationToken);

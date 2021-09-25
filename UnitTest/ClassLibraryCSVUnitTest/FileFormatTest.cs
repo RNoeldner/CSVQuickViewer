@@ -46,21 +46,21 @@ namespace CsvTools.Tests
       var target = new CsvFile();
       m_FileFormat.CopyTo(target);
       Assert.AreEqual("##", target.CommentLine, "CommentLine");
-      Assert.AreEqual("\\", m_FileFormat.EscapeCharacter, "EscapeCharacter");
+      Assert.AreEqual("\\", m_FileFormat.EscapePrefix, "EscapeCharacter");
     }
 
 
     [TestMethod]
     public void FileFormatEscapeCharacter()
     {
-      var target = new CsvFile { EscapeCharacter = "Tab" };
-      Assert.AreEqual("tab", target.EscapeCharacter, true);
+      var target = new CsvFile { EscapePrefix = "Tab" };
+      Assert.AreEqual("tab", target.EscapePrefix, true);
 
-      target.EscapeCharacter = "+";
-      Assert.AreEqual(target.EscapeCharacter, "+", true);
+      target.EscapePrefix = "+";
+      Assert.AreEqual(target.EscapePrefix, "+", true);
 
-      target.EscapeCharacter = "";
-      Assert.AreEqual(target.EscapeCharacter, "", true);
+      target.EscapePrefix = "";
+      Assert.AreEqual(target.EscapePrefix, "", true);
     }
 
     [TestMethod]
@@ -101,15 +101,15 @@ namespace CsvTools.Tests
       //m_FileFormat.ColumnFormat = null;
       m_FileFormat.CommentLine = "##";
       m_FileFormat.DelimiterPlaceholder = "{d}";
-      m_FileFormat.EscapeCharacter = "\\";
+      m_FileFormat.EscapePrefix = "\\";
       m_FileFormat.FieldDelimiter = "|";
       m_FileFormat.FieldQualifier = "#";
-      m_FileFormat.EscapeCharacter = "\\";
+      m_FileFormat.EscapePrefix = "\\";
       m_FileFormat.NewLine = RecordDelimiterType.LF;
       m_FileFormat.NewLinePlaceholder = "{n}";
       m_FileFormat.QualifyOnlyIfNeeded = false;
       m_FileFormat.QualifyAlways = true;
-      m_FileFormat.QuotePlaceholder = "{q}";
+      m_FileFormat.QualifierPlaceholder = "{q}";
 
       Assert.IsFalse(m_FileFormat.QualifyOnlyIfNeeded, "QualifyOnlyIfNeeded");
       Assert.IsTrue(m_FileFormat.QualifyAlways, "QualifyAlways");
@@ -117,10 +117,10 @@ namespace CsvTools.Tests
       Assert.AreEqual("##", m_FileFormat.CommentLine, "CommentLine");
       Assert.AreEqual("{d}", m_FileFormat.DelimiterPlaceholder, "DelimiterPlaceholder");
       Assert.AreEqual("{n}", m_FileFormat.NewLinePlaceholder, "NewLinePlaceholder");
-      Assert.AreEqual("{q}", m_FileFormat.QuotePlaceholder, "QuotePlaceholder");
+      Assert.AreEqual("{q}", m_FileFormat.QualifierPlaceholder, "QuotePlaceholder");
       Assert.AreEqual("|", m_FileFormat.FieldDelimiter, "FieldDelimiter");
       Assert.AreEqual("#", m_FileFormat.FieldQualifier, "FieldQualifier");
-      Assert.AreEqual("\\", m_FileFormat.EscapeCharacter, "EscapeCharacter");
+      Assert.AreEqual("\\", m_FileFormat.EscapePrefix, "EscapeCharacter");
     }
 
     [TestMethod]
@@ -152,10 +152,10 @@ namespace CsvTools.Tests
       var test = new CsvFile();
       test.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
       {
-        Assert.AreEqual("QuotePlaceholder", e.PropertyName, true);
+        Assert.AreEqual(nameof(CsvFile.QualifierPlaceholder), e.PropertyName, true);
         numCalled++;
       };
-      test.QuotePlaceholder = "&&";
+      test.QualifierPlaceholder = "&&";
       Assert.AreEqual(numCalled, 1);
     }
 

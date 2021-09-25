@@ -386,7 +386,7 @@ namespace CsvTools
             "\\"});
 			this.textBox1.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
 			this.textBox1.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-			this.textBox1.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "EscapeCharacter", true));
+			this.textBox1.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.fileSettingBindingSource, "EscapePrefix", true));
 			this.textBox1.Location = new System.Drawing.Point(331, 91);
 			this.textBox1.Margin = new System.Windows.Forms.Padding(2);
 			this.textBox1.MinimumSize = new System.Drawing.Size(46, 4);

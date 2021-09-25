@@ -57,7 +57,7 @@ namespace CsvTools
 
     private readonly bool m_AllowRowCombining;
 
-    private readonly bool m_AlternateQuoting;
+    private readonly bool m_ContextSensitiveQualifier;
 
     private readonly int m_CodePageId;
 
@@ -67,9 +67,9 @@ namespace CsvTools
 
     private readonly string m_DelimiterPlaceholder;
 
-    private readonly bool m_DuplicateQuotingToEscape;
+    private readonly bool m_DuplicateQualifierToEscape;
 
-    private readonly char m_EscapeCharacterChar;
+    private readonly char m_EscapePrefixChar;
 
     private readonly char m_FieldDelimiterChar;
 
@@ -164,10 +164,10 @@ namespace CsvTools
       in string escapeCharacter = "",
       long recordLimit = 0,
       bool allowRowCombining = false,
-      bool alternateQuoting = false,
+      bool contextSensitiveQualifier = false,
       in string commentLine = "",
       int numWarning = 0,
-      bool duplicateQuotingToEscape = true,
+      bool duplicateQualifierToEscape = true,
       in string newLinePlaceholder = "",
       in string delimiterPlaceholder = "",
       in string quotePlaceholder = "",
@@ -197,10 +197,10 @@ namespace CsvTools
         escapeCharacter,
         recordLimit,
         allowRowCombining,
-        alternateQuoting,
+        contextSensitiveQualifier,
         commentLine,
         numWarning,
-        duplicateQuotingToEscape,
+        duplicateQualifierToEscape,
         newLinePlaceholder,
         delimiterPlaceholder,
         quotePlaceholder,
@@ -220,8 +220,10 @@ namespace CsvTools
         consecutiveEmptyRowsMax,
         string.Empty,
         string.Empty,
-        processDisplay) =>
+        processDisplay)
+    {
       m_ImprovedStream = improvedStream ?? throw new ArgumentNullException(nameof(improvedStream));
+    }
 
     public CsvFileReader(
       in string fileName,
@@ -232,16 +234,16 @@ namespace CsvTools
       in TrimmingOption trimmingOption = TrimmingOption.Unquoted,
       in string fieldDelimiter = "\t",
       in string fieldQualifier = "\"",
-      in string escapeCharacter = "",
+      in string escapePrefix = "",
       long recordLimit = 0,
       bool allowRowCombining = false,
-      bool alternateQuoting = false,
+      bool contextSensitiveQualifier = false,
       in string commentLine = "",
-      int numWarning = 0,
-      bool duplicateQuotingToEscape = true,
+      int numWarnings = 0,
+      bool duplicateQualifierToEscape = true,
       in string newLinePlaceholder = "",
       in string delimiterPlaceholder = "",
-      in string quotePlaceholder = "",
+      in string qualifierPlaceholder = "",
       bool skipDuplicateHeader = true,
       bool treatLfAsSpace = false,
       bool treatUnknownCharacterAsSpace = false,
@@ -266,16 +268,16 @@ namespace CsvTools
         trimmingOption,
         fieldDelimiter,
         fieldQualifier,
-        escapeCharacter,
+        escapePrefix,
         recordLimit,
         allowRowCombining,
-        alternateQuoting,
+        contextSensitiveQualifier,
         commentLine,
-        numWarning,
-        duplicateQuotingToEscape,
+        numWarnings,
+        duplicateQualifierToEscape,
         newLinePlaceholder,
         delimiterPlaceholder,
-        quotePlaceholder,
+        qualifierPlaceholder,
         skipDuplicateHeader,
         treatLfAsSpace,
         treatUnknownCharacterAsSpace,
@@ -312,13 +314,13 @@ namespace CsvTools
       TrimmingOption trimmingOption,
       string fieldDelimiter,
       string fieldQualifier,
-      string escapeCharacter,
+      string escapePrefix,
       long recordLimit,
       bool allowRowCombining,
-      bool alternateQuoting,
+      bool contextSensitiveQualifier,
       string commentLine,
       int numWarning,
-      bool duplicateQuotingToEscape,
+      bool duplicateQualifierToEscape,
       string newLinePlaceholder,
       string delimiterPlaceholder,
       string quotePlaceholder,
@@ -343,7 +345,7 @@ namespace CsvTools
     {
       SelfOpenedStream = !string.IsNullOrEmpty(fileName);
       m_HeaderRow = Array.Empty<string>();
-      m_EscapeCharacterChar = escapeCharacter.WrittenPunctuationToChar();
+      m_EscapePrefixChar = escapePrefix.WrittenPunctuationToChar();
       m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
       m_FieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
 
@@ -352,37 +354,28 @@ namespace CsvTools
 
       if (m_FieldQualifierChar == c_Cr || m_FieldQualifierChar == c_Lf)
         throw new FileReaderException(
-          "The text quoting characters is invalid, please use something else than CR or LF");
+          "The text qualifier characters is invalid, please use something else than CR or LF");
 
       if (m_FieldDelimiterChar == c_Cr || m_FieldDelimiterChar == c_Lf || m_FieldDelimiterChar == ' ')
         throw new FileReaderException(
           "The field delimiter character is invalid, please use something else than CR, LF or Space");
 
-      if (m_FieldDelimiterChar == m_EscapeCharacterChar && m_EscapeCharacterChar != '\0')
+      if (m_FieldDelimiterChar == m_EscapePrefixChar && m_EscapePrefixChar != '\0')
         throw new FileReaderException(
-          $"The escape character is invalid, please use something else than the field delimiter character {m_EscapeCharacterChar.GetDescription()}.");
-
-      //if (escapeCharacter.Length > 1)
-      //  Logger.Warning("Escape {text} converted to {char}", escapeCharacter, m_EscapeCharacterChar);
-
-      //if (fieldDelimiter.Length > 1)
-      //  Logger.Warning("Delimiter {text} converted to {char}", fieldDelimiter, m_FieldDelimiterChar);
-
-      //if (fieldQualifier.Length > 1)
-      //  Logger.Warning("Quoting {text} converted to {char}", fieldQualifier, m_FieldQualifierChar);
+          $"The escape character is invalid, please use something else than the field delimiter character {m_EscapePrefixChar.GetDescription()}.");
 
       m_HasQualifier = m_FieldQualifierChar != '\0';
 
       if (m_HasQualifier && m_FieldQualifierChar == m_FieldDelimiterChar)
         throw new ArgumentOutOfRangeException(
-          $"The text quoting and the field delimiter characters of a delimited file cannot be the same character {m_FieldDelimiterChar.GetDescription()}");
+          $"The field qualifier and the field delimiter characters of a delimited file cannot be the same character {m_FieldDelimiterChar.GetDescription()}");
 
       m_AllowRowCombining = allowRowCombining;
-      m_AlternateQuoting = alternateQuoting;
+      m_ContextSensitiveQualifier = contextSensitiveQualifier;
       m_CodePageId = codePageId;
       m_CommentLine = commentLine;
       m_DelimiterPlaceholder = delimiterPlaceholder;
-      m_DuplicateQuotingToEscape = duplicateQuotingToEscape;
+      m_DuplicateQualifierToEscape = duplicateQualifierToEscape;
       m_NewLinePlaceholder = newLinePlaceholder;
       m_NumWarning = numWarning;
       m_QuotePlaceholder = quotePlaceholder;
@@ -981,7 +974,7 @@ namespace CsvTools
       if (res != -1) return (char) res;
       EndOfFile = true;
 
-      // return a linefeed to determine the end of quoting easily
+      // return a linefeed to determine the end of a line
       return c_Lf;
     }
 
@@ -1015,7 +1008,7 @@ namespace CsvTools
         var character = Peek();
         MoveNext(character);
 
-        var escaped = character == m_EscapeCharacterChar && !postData;
+        var escaped = character == m_EscapePrefixChar && !postData;
 
         // Handle escaped characters
         if (escaped)
@@ -1024,14 +1017,14 @@ namespace CsvTools
           if (!EndOfFile)
           {
             MoveNext(nextChar);
-            character = m_EscapeCharacterChar switch
+            character = m_EscapePrefixChar switch
             {
               // Handle \ Notation of common not visible characters
               '\\' when nextChar == 'n' => '\n',
               '\\' when nextChar == 'r' => '\r',
               '\\' when nextChar == 't' => '\t',
               '\\' when nextChar == 'b' => '\b',
-              // in case a linefeed actually follows ignore the EscapeCharacterChar but handle the
+              // in case a linefeed actually follows ignore the EscapePrefixChar but handle the
               // regular processing
               '\\' when nextChar == 'a' => '\a',
               _ => nextChar
@@ -1166,7 +1159,7 @@ namespace CsvTools
           var peekNextChar = Peek();
 
           // a "" should be regarded as " if the text is quoted
-          if (m_DuplicateQuotingToEscape && peekNextChar == m_FieldQualifierChar)
+          if (m_DuplicateQualifierToEscape && peekNextChar == m_FieldQualifierChar)
           {
             // double quotes within quoted string means add a quote
             stringBuilder.Append(m_FieldQualifierChar);
@@ -1174,21 +1167,21 @@ namespace CsvTools
 
             // handling for "" that is not only representing a " but also closes the text
             peekNextChar = Peek();
-            if (m_AlternateQuoting && (peekNextChar == m_FieldDelimiterChar
+            if (m_ContextSensitiveQualifier && (peekNextChar == m_FieldDelimiterChar
                                        || peekNextChar == c_Cr || peekNextChar == c_Lf)) postData = true;
             continue;
           }
 
           // a single " should be regarded as closing when its followed by the delimiter
-          if (m_AlternateQuoting && (peekNextChar == m_FieldDelimiterChar
+          if (m_ContextSensitiveQualifier && (peekNextChar == m_FieldDelimiterChar
                                      || peekNextChar == c_Cr || peekNextChar == c_Lf))
           {
             postData = true;
             continue;
           }
 
-          // a single " should be regarded as closing if we do not have alternate quoting
-          if (!m_AlternateQuoting)
+          // a single " should be regarded as closing if we do not have alternate qualifier
+          if (!m_ContextSensitiveQualifier)
           {
             postData = true;
             continue;

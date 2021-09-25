@@ -27,7 +27,7 @@ namespace CsvTools
   /// </summary>
   public class CsvFileWriter : BaseFileWriter, IFileWriter
   {
-    protected readonly bool m_ColumnHeader;
+    private readonly bool m_ColumnHeader;
     private readonly bool m_ByteOrderMark;
     private readonly int m_CodePageId;
     private readonly string m_FieldDelimiter;
@@ -62,7 +62,7 @@ namespace CsvTools
       RecordDelimiterType newLine = RecordDelimiterType.CRLF,
       char fieldDelimiterChar = ',',
       char fieldQualifierChar = '\"',
-      char escapeChar = '\0',
+      char escapePrefixChar = '\0',
       in string newLinePlaceholder = "",
       in string delimiterPlaceholder = "",
       in string qualifierPlaceholder = "",
@@ -98,11 +98,11 @@ namespace CsvTools
       m_QualifierPlaceholder = qualifierPlaceholder;
       m_FieldQualifierChar = fieldQualifierChar;
 
-      if (escapeChar != '\0')
+      if (escapePrefixChar != '\0')
       {
         m_QualifyCharArray = new[] { (char) 0x0a, (char) 0x0d };
-        m_FieldQualifierEscaped = escapeChar + m_FieldQualifier;
-        m_FieldDelimiterEscaped = escapeChar + m_FieldDelimiter;
+        m_FieldQualifierEscaped = escapePrefixChar + m_FieldQualifier;
+        m_FieldDelimiterEscaped = escapePrefixChar + m_FieldDelimiter;
       }
       else
       {

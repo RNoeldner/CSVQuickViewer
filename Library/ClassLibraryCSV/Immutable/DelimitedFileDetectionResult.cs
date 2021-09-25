@@ -24,7 +24,7 @@ namespace CsvTools
 
     public readonly string CommentLine;
 
-    public readonly string EscapeCharacter;
+    public readonly string EscapePrefix;
 
     public readonly string FieldDelimiter;
 
@@ -54,7 +54,7 @@ namespace CsvTools
       bool qualifyAlways = false,
       string? identifierInContainer = "",
       string commentLine = "#",
-      string? escapeCharacter = "\\",
+      string? escapePrefix = "\\",
       string? fieldDelimiter = "",
       string? fieldQualifier = "",
       bool hasFieldHeader = true,
@@ -68,7 +68,7 @@ namespace CsvTools
       CodePageId = codePageId < 1 ? -1 : codePageId;
       ByteOrderMark = byteOrderMark;
       CommentLine = commentLine;
-      EscapeCharacter = GetShortDisplay(escapeCharacter);
+      EscapePrefix = GetShortDisplay(escapePrefix);
       FieldDelimiter = GetShortDisplay(fieldDelimiter);
       FieldQualifier = GetShortDisplay(fieldQualifier);
       HasFieldHeader = hasFieldHeader;
@@ -89,7 +89,7 @@ namespace CsvTools
       {
         QualifyAlways = QualifyAlways,
         CommentLine = CommentLine,
-        EscapeCharacter = GetShortDisplay(EscapeCharacter),
+        EscapePrefix = GetShortDisplay(EscapePrefix),
         FieldDelimiter = GetShortDisplay(FieldDelimiter),
         FieldQualifier = GetShortDisplay(FieldQualifier),
         NewLine = NewLine,

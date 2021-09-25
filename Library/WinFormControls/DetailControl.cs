@@ -1195,8 +1195,8 @@ namespace CsvTools
         BeforeFileStored?.Invoke(this, writeFile);
         var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
-        writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapeChar,
-        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QuotePlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, processDisplay);
+        writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
+        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, processDisplay);
 
         using var dt = new DataTableWrapper(
           FilteredDataGridView.DataView?.ToTable(false,
