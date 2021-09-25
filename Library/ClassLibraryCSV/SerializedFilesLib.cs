@@ -48,8 +48,12 @@ namespace CsvTools
 		{
 			var serial = FileSystemUtils.ReadAllText(fileName);
 			using TextReader reader = new StringReader(serial);
-			return (CsvFile) m_SerializerCurrentCsvFile.Value.Deserialize(reader);
-		}
+			var res = (CsvFile) m_SerializerCurrentCsvFile.Value.Deserialize(reader);
+#pragma warning disable 618
+      res.OverwriteFromFileFormatStore();
+#pragma warning restore 618
+      return res;
+    }
 
 		/// <summary>
 		///   Saves the setting for a physical file
