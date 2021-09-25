@@ -101,7 +101,7 @@ namespace CsvTools
       await buttonGuessDelimiter.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        var res = await improvedStream.GuessDelimiter(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.EscapeChar.ToStringHandle0(), m_CancellationTokenSource.Token);
+        var res = await improvedStream.GuessDelimiter(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.EscapePrefix, m_CancellationTokenSource.Token);
         if (res.Item2)
           m_ViewSettings.FieldDelimiter = res.Item1;
       });

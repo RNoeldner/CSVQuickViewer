@@ -38,7 +38,7 @@ namespace CsvTools.Tests
       await UnitTestStatic.ShowFormAndCloseAsync(frm, .1, frm.LoadCsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt")), UnitTestStatic.Token);
       Assert.IsNotNull(frm.DataTable);
       // 45 records, one of the lines has a linefeed
-      Assert.IsTrue(frm.DataTable.Rows.Count>=46);
+      Assert.IsTrue(frm.DataTable.Rows.Count >= 46);
     }
   }
 }

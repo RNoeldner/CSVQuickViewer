@@ -300,7 +300,7 @@ namespace CsvTools.Tests
       m_CsvFile.TemplateName = "TemplateName";
       m_CsvFile.WarnLineFeed = false;
       Assert.IsFalse(m_CsvFile.WarnLineFeed);
-      m_CsvFile.AlternateQuoting = false;
+      m_CsvFile.ContextSensitiveQualifier = false;
 
       Assert.IsFalse(m_CsvFile.TreatNBSPAsSpace, "TreatNBSPAsSpace");
       m_CsvFile.ShowProgress = true;

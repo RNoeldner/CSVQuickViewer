@@ -19,10 +19,11 @@ namespace CsvTools
     {
       InitializeComponent();
       m_FileSetting = csvFile;
-      fileSettingBindingSource.DataSource = csvFile;      
+      fileSettingBindingSource.DataSource = csvFile;
 
       m_Stream = new ImprovedStream(new SourceAccess(csvFile));
-      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_FileSetting.EscapeChar.ToStringHandle0(), textBoxComment.Text);
+      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_FileSetting.EscapePrefixChar.ToStringHandle0(),
+        textBoxComment.Text);
     }
 
     private void HighlightVisibleRange(int skipRows)
@@ -55,12 +56,13 @@ namespace CsvTools
         streamReader.ToBeginning();
         m_FileSetting.SkipRows = streamReader.GuessStartRow(textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxComment.Text, frm.CancellationToken);
       }
+
       HighlightVisibleRange(m_FileSetting.SkipRows);
     }
 
     private void DifferentSyntaxHighlighter(object? sender, EventArgs e)
     {
-      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_FileSetting.EscapeCharacter, textBoxComment.Text);
+      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_FileSetting.EscapePrefix, textBoxComment.Text);
       HighlightVisibleRange(m_FileSetting.SkipRows);
     }
 
@@ -71,7 +73,8 @@ namespace CsvTools
 
     private void FindSkipRows_Load(object? sender, EventArgs e)
     {
-      textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(m_FileSetting.CodePageId, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
+      textBox.OpenBindingStream(m_Stream as Stream,
+        Encoding.GetEncoding(m_FileSetting.CodePageId, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
     }
 
     private void TextBox_VisibleRangeChangedDelayed(object? sender, EventArgs e)

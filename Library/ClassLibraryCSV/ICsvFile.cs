@@ -123,36 +123,42 @@ namespace CsvTools
     bool WarnUnknownCharacter { get; set; }
 
     /// <summary>
-    ///   Gets or sets the new delimiter placeholder, the placeholder substitutes a delimiter, its
-    ///   similar to escaping but could replace a Quote with something completely different or a
-    ///   longer text, e.G. {Delimiter}
-    /// </summary>
-    /// <value>The new line placeholder.</value>
-    string DelimiterPlaceholder { get; set; }
-
-    /// <summary>
-    ///   Gets the escape character, in order to include a delimiter or quote in the text, these could
-    ///   be escaped and would not be recognized a end of the text.
+    ///   Gets the escape prefix as character <see cref="EscapePrefix"/>
     /// </summary>
     /// <value>The field delimiter char.</value>
     /// <remarks>If \0, the quote are often repeated to escape them</remarks>
-    char EscapeChar { get; }
-    string EscapeCharacter { get; set; }
+    char EscapePrefixChar { get; }
 
     /// <summary>
-    ///   Gets the field delimiter character, this delimiter separates two columns.
+    ///   Get and Sets the text representation of the escape prefix, in order to include a delimiter or quote in the text, these could
+    ///   be escaped and would not be recognized a end of the text.
+    /// </summary>    
+    /// <remarks>Common values are "\"<br/>If not set, it is assumed no escaping is needed </remarks>
+    string EscapePrefix { get; set; }
+
+    /// <summary>
+    ///   Gets the field delimiter as character <see cref="FieldDelimiter"/>
     /// </summary>
     /// <value>The field delimiter char.</value>
     char FieldDelimiterChar { get; }
+
+    /// <summary>
+    ///   Get and Sets the text representation of the the delimiter, this delimiter separates two columns.
+    /// </summary>
+    /// <value>The field delimiter char.</value>
     string FieldDelimiter { get; set; }
 
     /// <summary>
-    ///   Gets the field qualifier character also called quoting character, this surrounds a column
-    ///   text so it may contain the delimiter or a linefeed without breaking teh structure
+    ///  Gets the qualifier character as character <see cref="FieldQualifier"/>
     /// </summary>
     /// <value>The field delimiter char.</value>
     char FieldQualifierChar { get; }
 
+    /// <summary>
+    ///   Get and Sets the text representation of the field qualifier character also called quoting character, this may surround a column
+    ///    so it may contain the delimiter or a linefeed without breaking the structure of the columns
+    /// </summary>
+    /// <value>The field delimiter char.</value>
     string FieldQualifier { get; set; }
 
     /// <summary>
@@ -161,13 +167,10 @@ namespace CsvTools
     /// <value><c>true</c> if this instance is fixed length; otherwise, <c>false</c>.</value>
     bool IsFixedLength { get; }
 
-    RecordDelimiterType NewLine { get; set; }
-
     /// <summary>
-    ///   Gets or sets the new line placeholder, the placeholder substitutes a linefeed
+    ///  Get or Sets a value determining the record separator used writing a delimited text file
     /// </summary>
-    /// <value>The new line placeholder.</value>
-    string NewLinePlaceholder { get; set; }
+    RecordDelimiterType NewLine { get; set; }
 
     /// <summary>
     ///   Gets a value indicating whether to qualify every text even if number or empty.
@@ -187,18 +190,31 @@ namespace CsvTools
     ///   longer text, e.G. {Quote}
     /// </summary>
     /// <value>The quote placeholder.</value>
-    string QuotePlaceholder { get; set; }
-
+    string QualifierPlaceholder { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating whether context sensitive quoting is used
+    ///   Gets or sets the new line placeholder, the placeholder substitutes a linefeed
+    /// </summary>
+    /// <value>The new line placeholder.</value>
+    string NewLinePlaceholder { get; set; }
+
+    /// <summary>
+    ///   Gets or sets the new delimiter placeholder, the placeholder substitutes a delimiter, its
+    ///   similar to escaping but could replace a Quote with something completely different or a
+    ///   longer text, e.G. {Delimiter}
+    /// </summary>
+    /// <value>The new line placeholder.</value>
+    string DelimiterPlaceholder { get; set; }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether context sensitive qualification is used
     /// </summary>    
-    bool AlternateQuoting { get; set; }
+    bool ContextSensitiveQualifier { get; set; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether quotes in text will be represented as double quotes 
     /// </summary>
-    bool DuplicateQuotingToEscape { get; set; }
+    bool DuplicateQualifierToEscape { get; set; }
 
     /// <summary>
     ///   Gets or sets the text to indicate that the line is comment line and not contain data. If a

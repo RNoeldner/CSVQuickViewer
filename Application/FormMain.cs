@@ -391,13 +391,16 @@ namespace CsvTools
           || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)
           || e.PropertyName == nameof(ICsvFile.DisplayStartLineNo)
           || e.PropertyName == nameof(ICsvFile.DisplayRecordNo)
-          || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)          
-          || e.PropertyName == nameof(ICsvFile.FieldDelimiterChar)
-          || e.PropertyName == nameof(ICsvFile.FieldQualifierChar)
-          || e.PropertyName == nameof(ICsvFile.EscapeChar)
+          || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)               
+          || e.PropertyName == nameof(ICsvFile.FieldDelimiter)
+          || e.PropertyName == nameof(ICsvFile.FieldQualifier)
+          || e.PropertyName == nameof(ICsvFile.EscapePrefix)
+          || e.PropertyName == nameof(ICsvFile.DelimiterPlaceholder)
+          || e.PropertyName == nameof(ICsvFile.NewLinePlaceholder)
+          || e.PropertyName == nameof(ICsvFile.QualifierPlaceholder)
           || e.PropertyName == nameof(ICsvFile.CommentLine)
-          || e.PropertyName == nameof(ICsvFile.AlternateQuoting)
-          || e.PropertyName == nameof(ICsvFile.DuplicateQuotingToEscape)                
+          || e.PropertyName == nameof(ICsvFile.ContextSensitiveQualifier)
+          || e.PropertyName == nameof(ICsvFile.DuplicateQualifierToEscape)                
           || e.PropertyName == nameof(ICsvFile.FileName))
         m_ConfigChanged = true;
     }
@@ -630,7 +633,7 @@ namespace CsvTools
         proc.Maximum = 0;
         proc.SetProcess("Reading source and applying color coding", 0, false);
         if (m_FileSetting is ICsvFile csv)
-          m_SourceDisplay.OpenFile(false, csv.FieldQualifier, csv.FieldDelimiter, csv.EscapeCharacter, csv.CodePageId, m_FileSetting.SkipRows, csv.CommentLine);
+          m_SourceDisplay.OpenFile(false, csv.FieldQualifier, csv.FieldDelimiter, csv.EscapePrefix, csv.CodePageId, m_FileSetting.SkipRows, csv.CommentLine);
         else
           m_SourceDisplay.OpenFile(m_FileSetting is IJsonFile, "", "", "", 65001, m_FileSetting.SkipRows, "");
         proc.Close();

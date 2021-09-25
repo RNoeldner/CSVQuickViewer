@@ -163,7 +163,7 @@ namespace CsvTools
 
           // This gets the errors from the fileReader
           if (cancellationToken.IsCancellationRequested)
-            continue;
+            break;
           if (wrapper.ReaderMapping.HasErrors)
             wrapper.ReaderMapping.SetDataRowErrors(dataRow);
         }
