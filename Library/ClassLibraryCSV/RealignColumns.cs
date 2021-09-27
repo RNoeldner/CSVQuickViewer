@@ -27,44 +27,15 @@ namespace CsvTools
   public class ReAlignColumns
   {
     private const int c_MaxGoodRows = 40;
-    private static Random m_Random = new Random(Guid.NewGuid().GetHashCode());
+    private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 
-    private static readonly string[] m_BoolVal =
-    {
-      "True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F"
-    };
+    private static readonly string[] m_BoolVal = { "True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F" };
 
     private readonly int m_ExpectedColumns;
 
     private readonly List<string[]> m_GoodRows = new List<string[]>();
 
     public ReAlignColumns(int expectedColumns) => m_ExpectedColumns = expectedColumns;
-
-    /// <summary>
-    ///   A regular number like 2772 would be NumbersOnly | DecimalChars | DateTimeChars | NoSpace |
-    ///   ShortText | VeryShortText
-    /// </summary>
-    [Flags]
-    private enum ColumnOption
-    {
-      None = 0,
-
-      Empty = 1,
-
-      NumbersOnly = 2, // Only 0-9
-
-      DecimalChars = 4, // Only . ,  + -
-
-      DateTimeChars = 8, // Only / \ - . : T (space)
-
-      NoSpace = 16, // 0-9 A-Z _ - (noSpace)
-
-      ShortText = 32, // Length < 40
-
-      VeryShortText = 64, // Length < 10
-
-      Boolean = 128
-    }
 
     /// <summary>
     ///   Adds a new row assuming the data is well aligned
@@ -175,7 +146,7 @@ namespace CsvTools
     /// <returns>The appropriate column options</returns>
     private static ColumnOption GetColumnOption(string? text)
     {
-      if (string.IsNullOrEmpty(text))
+      if (text is null || text.Length == 0)
         return ColumnOption.Empty;
 
       var all = ColumnOption.NumbersOnly | ColumnOption.DecimalChars | ColumnOption.DateTimeChars
@@ -184,7 +155,7 @@ namespace CsvTools
       // compare the text as whole
       if (m_BoolVal.Any(test => test.Equals(text, StringComparison.OrdinalIgnoreCase))) all |= ColumnOption.Boolean;
 
-      if (text!.Length <= 30)
+      if (text.Length <= 30)
         all |= ColumnOption.ShortText;
       if (text.Length <= 10)
         all |= ColumnOption.VeryShortText;
@@ -218,7 +189,7 @@ namespace CsvTools
       var overall = ColumnOption.Empty;
       foreach (var row in rows)
       {
-        if (row.Length <= colNum || row[colNum] == null) continue;
+        if (row.Length <= colNum || row[colNum] is null) continue;
         var oneColOption = GetColumnOption(row[colNum].Trim());
         if (oneColOption == ColumnOption.Empty)
           continue;
@@ -230,6 +201,32 @@ namespace CsvTools
       }
 
       return overall;
+    }
+
+    /// <summary>
+    ///   A regular number like 2772 would be NumbersOnly | DecimalChars | DateTimeChars | NoSpace |
+    ///   ShortText | VeryShortText
+    /// </summary>
+    [Flags]
+    private enum ColumnOption
+    {
+      None = 0,
+
+      Empty = 1,
+
+      NumbersOnly = 2, // Only 0-9
+
+      DecimalChars = 4, // Only . ,  + -
+
+      DateTimeChars = 8, // Only / \ - . : T (space)
+
+      NoSpace = 16, // 0-9 A-Z _ - (noSpace)
+
+      ShortText = 32, // Length < 40
+
+      VeryShortText = 64, // Length < 10
+
+      Boolean = 128
     }
   }
 }
