@@ -88,11 +88,30 @@ namespace CsvTools
       m_PartToEnd = partToEnd;
     }
 
-    public ValueFormatMutable(IValueFormat other) : this(other.DataType, other.DateFormat, other.DateSeparator, other.TimeSeparator, other.NumberFormat, other.GroupSeparator, other.DecimalSeparator,
+    public ValueFormatMutable(IValueFormat other) : this(other.DataType, other.DateFormat, other.DateSeparator, other.TimeSeparator, other.NumberFormat,
+      other.GroupSeparator, other.DecimalSeparator,
       other.True, other.False, other.DisplayNullAs, other.Part, other.PartSplitter, other.PartToEnd)
 
     {
     }
+
+    /// <summary>
+    ///   Determines if anything is different to the default values, commonly used for
+    ///   serialisation, avoiding empty elements
+    /// </summary>
+
+    public bool Specified => !(DataType == DataType.String && DateFormat == ValueFormatExtension.cDateFormatDefault
+                                                           && DateSeparator == ValueFormatExtension.cDateSeparatorDefault
+                                                           && TimeSeparator == ValueFormatExtension.cTimeSeparatorDefault
+                                                           && NumberFormat == ValueFormatExtension.cNumberFormatDefault
+                                                           && DecimalSeparator == ValueFormatExtension.cDecimalSeparatorDefault
+                                                           && GroupSeparator == ValueFormatExtension.cGroupSeparatorDefault
+                                                           && True == ValueFormatExtension.cTrueDefault
+                                                           && False == ValueFormatExtension.cFalseDefault
+                                                           && Part == ValueFormatExtension.cPartDefault
+                                                           && PartSplitter == ValueFormatExtension.cPartSplitterDefault
+                                                           && PartToEnd == ValueFormatExtension.cPartToEndDefault
+                                                           && DisplayNullAs == string.Empty);
 
     /// <summary>
     ///   Occurs when a property value changes.
@@ -134,7 +153,7 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_DateFormat.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_DateFormat= newVal;
+        m_DateFormat = newVal;
         NotifyPropertyChanged(nameof(DateFormat));
       }
     }
@@ -263,28 +282,11 @@ namespace CsvTools
           m_DecimalSeparator = m_GroupSeparator;
           NotifyPropertyChanged(nameof(DecimalSeparator));
         }
+
         m_GroupSeparator = newValGroup;
         NotifyPropertyChanged(nameof(GroupSeparator));
       }
     }
-
-    /// <summary>
-    ///   Determines if anything is different to the default values, commponly used for
-    ///   serialisation, avoiding empty elements
-    /// </summary>
-
-    public bool Specified => !(DataType == DataType.String && DateFormat == ValueFormatExtension.cDateFormatDefault
-                                && DateSeparator == ValueFormatExtension.cDateSeparatorDefault
-                                && TimeSeparator == ValueFormatExtension.cTimeSeparatorDefault
-                                && NumberFormat == ValueFormatExtension.cNumberFormatDefault
-                                && DecimalSeparator == ValueFormatExtension.cDecimalSeparatorDefault
-                                && GroupSeparator == ValueFormatExtension.cGroupSeparatorDefault
-                                && True == ValueFormatExtension.cTrueDefault
-                                && False == ValueFormatExtension.cFalseDefault
-                                && Part == ValueFormatExtension.cPartDefault
-                                && PartSplitter == ValueFormatExtension.cPartSplitterDefault
-                                && PartToEnd == ValueFormatExtension.cPartToEndDefault
-                                && DisplayNullAs == string.Empty);
 
     /// <summary>
     ///   Gets or sets the number format.
@@ -361,6 +363,9 @@ namespace CsvTools
     /// <value>The time separator.</value>
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
     public string TimeSeparator
     {
       get => m_TimeSeparator;
@@ -408,16 +413,16 @@ namespace CsvTools
       DataType = other.DataType;
       DateFormat = other.DateFormat;
       DateSeparator = other.DateSeparator;
-      TimeSeparator= other.TimeSeparator;
+      TimeSeparator = other.TimeSeparator;
       NumberFormat = other.NumberFormat;
       GroupSeparator = other.GroupSeparator;
-      DecimalSeparator= other.DecimalSeparator;
+      DecimalSeparator = other.DecimalSeparator;
       True = other.True;
       False = other.False;
       DisplayNullAs = other.DisplayNullAs;
       Part = other.Part;
       PartSplitter = other.PartSplitter;
-      PartToEnd= other.PartToEnd;
+      PartToEnd = other.PartToEnd;
     }
 
     /// <summary>

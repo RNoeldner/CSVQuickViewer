@@ -27,7 +27,7 @@ namespace CsvTools
   // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   /// <summary>
   ///   Abstract calls containing the basic setting for an IFileSetting if contains <see
-  ///   cref="ColumnCollection" /> , <see cref="MappingCollection" /> and <see cref="FileFormat" />
+  ///   cref="ColumnCollection" /> , <see cref="MappingCollection" /> />
   /// </summary>
   [DebuggerDisplay("Settings: {ID} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettings : IFileSetting
@@ -36,7 +36,6 @@ namespace CsvTools
 
     public static readonly DateTime ZeroTime = new DateTime(0, DateTimeKind.Utc);
 
-    
     private int m_ConsecutiveEmptyRows = 5;
 
     private bool m_DisplayEndLineNo;
@@ -120,40 +119,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Occurs after a property value changes.
-    /// </summary>
-    public virtual event PropertyChangedEventHandler? PropertyChanged;
-
-    /// <summary>
-    ///   Occurs when a string value property changed providing information on old and new value
-    /// </summary>
-    public virtual event EventHandler<PropertyChangedEventArgs<string>>? PropertyChangedString;
-
-    [XmlIgnore]
-    public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
-
-    /// <summary>
-    ///   Gets or sets the number consecutive empty rows that should finish a read
-    /// </summary>
-    /// <value>The consecutive empty rows.</value>
-    [XmlAttribute]
-    [DefaultValue(5)]
-    public virtual int ConsecutiveEmptyRows
-    {
-      get => m_ConsecutiveEmptyRows;
-
-      set
-      {
-        if (m_ConsecutiveEmptyRows.Equals(value))
-          return;
-        if (value < 0)
-          value = 0;
-        m_ConsecutiveEmptyRows = value;
-        NotifyPropertyChanged(nameof(ConsecutiveEmptyRows));
-      }
-    }
-
-    /// <summary>
     ///   Workaround to serialize
     /// </summary>
     /// <value>The column options</value>
@@ -174,25 +139,6 @@ namespace CsvTools
         if (value != null)
           foreach (var col in value)
             ColumnCollection.Add(col);
-      }
-    }
-
-    /// <summary>
-    ///   Gets or sets a value indicating whether to display end line numbers.
-    /// </summary>
-    /// <value><c>true</c> if end line no should be displayed; otherwise, <c>false</c>.</value>
-    [XmlElement]
-    [DefaultValue(false)]
-    public virtual bool DisplayEndLineNo
-    {
-      get => m_DisplayEndLineNo;
-
-      set
-      {
-        if (m_DisplayEndLineNo.Equals(value))
-          return;
-        m_DisplayEndLineNo = value;
-        NotifyPropertyChanged(nameof(DisplayEndLineNo));
       }
     }
 
@@ -234,6 +180,116 @@ namespace CsvTools
       }
     }
 
+    [XmlElement]
+    [DefaultValue(false)]
+    public virtual bool SetLatestSourceTimeForWrite
+    {
+      get => m_SetLatestSourceTimeForWrite;
+
+      set
+      {
+        if (m_SetLatestSourceTimeForWrite.Equals(value))
+          return;
+        m_SetLatestSourceTimeForWrite = value;
+        NotifyPropertyChanged(nameof(SetLatestSourceTimeForWrite));
+      }
+    }
+
+    /// <summary>
+    ///   Gets a value indicating whether FileLastWriteTimeUtc is specified.
+    /// </summary>
+    /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+
+    public bool FileLastWriteTimeUtcSpecified => ProcessTimeUtc != ZeroTime;
+
+    /// <summary>
+    ///   Gets a value indicating whether field mapping specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+
+    public bool MappingSpecified => MappingCollection.Count > 0;
+
+    public bool ProcessTimeUtcSpecified => m_ProcessTimeUtc != ZeroTime;
+
+    public bool SamplesAndErrorsSpecified =>
+      m_SamplesErrors.ErrorsSpecified || m_SamplesErrors.SamplesSpecified || m_SamplesErrors.NumErrors != -1;
+
+    /// <summary>
+    ///   Utility calls to get or set the SQL Statement as CDataSection
+    /// </summary>
+    [DefaultValue("")]
+    public XmlCDataSection SqlStatementCData
+    {
+      get
+      {
+        var doc = new XmlDocument();
+        return doc.CreateCDataSection(SqlStatement);
+      }
+      set => m_SqlStatement = value.Value;
+    }
+
+    /// <summary>
+    ///   Gets a value indicating whether SqlStatementCData is specified.
+    /// </summary>
+    /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+
+    public bool SqlStatementCDataSpecified => !string.IsNullOrEmpty(SqlStatement);
+
+    /// <summary>
+    ///   Occurs after a property value changes.
+    /// </summary>
+    public virtual event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    ///   Occurs when a string value property changed providing information on old and new value
+    /// </summary>
+    public virtual event EventHandler<PropertyChangedEventArgs<string>>? PropertyChangedString;
+
+    [XmlIgnore] public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
+
+    /// <summary>
+    ///   Gets or sets the number consecutive empty rows that should finish a read
+    /// </summary>
+    /// <value>The consecutive empty rows.</value>
+    [XmlAttribute]
+    [DefaultValue(5)]
+    public virtual int ConsecutiveEmptyRows
+    {
+      get => m_ConsecutiveEmptyRows;
+
+      set
+      {
+        if (m_ConsecutiveEmptyRows.Equals(value))
+          return;
+        if (value < 0)
+          value = 0;
+        m_ConsecutiveEmptyRows = value;
+        NotifyPropertyChanged(nameof(ConsecutiveEmptyRows));
+      }
+    }
+
+    /// <summary>
+    ///   Gets or sets a value indicating whether to display end line numbers.
+    /// </summary>
+    /// <value><c>true</c> if end line no should be displayed; otherwise, <c>false</c>.</value>
+    [XmlElement]
+    [DefaultValue(false)]
+    public virtual bool DisplayEndLineNo
+    {
+      get => m_DisplayEndLineNo;
+
+      set
+      {
+        if (m_DisplayEndLineNo.Equals(value))
+          return;
+        m_DisplayEndLineNo = value;
+        NotifyPropertyChanged(nameof(DisplayEndLineNo));
+      }
+    }
+
     /// <summary>
     ///   Gets or sets the ID.
     /// </summary>
@@ -253,21 +309,6 @@ namespace CsvTools
       }
     }
 
-    [XmlElement]
-    [DefaultValue(false)]
-    public virtual bool SetLatestSourceTimeForWrite
-    {
-      get => m_SetLatestSourceTimeForWrite;
-
-      set
-      {
-        if (m_SetLatestSourceTimeForWrite.Equals(value))
-          return;
-        m_SetLatestSourceTimeForWrite = value;
-        NotifyPropertyChanged(nameof(SetLatestSourceTimeForWrite));
-      }
-    }
-
     /// <summary>
     ///   Storage for validation and samples record, only used in the validator but as we can not
     ///   extend classes it has to live here
@@ -278,16 +319,6 @@ namespace CsvTools
       get => m_SamplesErrors;
       set => m_SamplesErrors = value;
     }
-
-
-
-    /// <summary>
-    ///   Gets a value indicating whether FileLastWriteTimeUtc is specified.
-    /// </summary>
-    /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-
-    public bool FileLastWriteTimeUtcSpecified => ProcessTimeUtc != ZeroTime;
 
     /// <summary>
     ///   Gets or sets the Footer.
@@ -453,14 +484,6 @@ namespace CsvTools
     public MappingCollection MappingCollection { get; } = new MappingCollection();
 
     /// <summary>
-    ///   Gets a value indicating whether field mapping specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-
-    public bool MappingSpecified => MappingCollection.Count > 0;
-
-    /// <summary>
     ///   Gets or sets the ID.
     /// </summary>
     /// <value>The ID.</value>
@@ -498,8 +521,6 @@ namespace CsvTools
       }
     }
 
-    public bool ProcessTimeUtcSpecified => m_ProcessTimeUtc != ZeroTime;
-
     /// <summary>
     ///   As the data is loaded and not further validation is done this will be set to true Once
     ///   validation is happening and validation errors are stored this is false again. This is
@@ -528,9 +549,6 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(RecordLimit));
       }
     }
-
-    public bool SamplesAndErrorsSpecified =>
-      m_SamplesErrors.ErrorsSpecified || m_SamplesErrors.SamplesSpecified || m_SamplesErrors.NumErrors != -1;
 
     /// <summary>
     ///   Gets or sets a value indicating whether to show progress.
@@ -657,28 +675,6 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(SqlStatement));
       }
     }
-
-    /// <summary>
-    ///   Utility calls to get or set the SQL Statement as CDataSection
-    /// </summary>
-    [DefaultValue("")]
-    public XmlCDataSection SqlStatementCData
-    {
-      get
-      {
-        var doc = new XmlDocument();
-        return doc.CreateCDataSection(SqlStatement);
-      }
-      set => m_SqlStatement = value.Value;
-    }
-
-    /// <summary>
-    ///   Gets a value indicating whether SqlStatementCData is specified.
-    /// </summary>
-    /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-
-    public bool SqlStatementCDataSpecified => !string.IsNullOrEmpty(SqlStatement);
 
     /// <summary>
     ///   Gets or sets the template used for the file
@@ -839,7 +835,7 @@ namespace CsvTools
         m_LatestSourceTimeUtc = fi.LastWriteTimeUtc;
       }
       else
-      // in case the source is not a physical file, assume it's the processing time
+        // in case the source is not a physical file, assume it's the processing time
       {
         m_LatestSourceTimeUtc = ProcessTimeUtc;
       }
@@ -902,8 +898,8 @@ namespace CsvTools
     protected virtual void BaseSettingsCopyTo(in BaseSettings? other)
     {
       if (other == null)
-        return;      
-      
+        return;
+
       MappingCollection.CopyTo(other.MappingCollection);
 
       other.ConsecutiveEmptyRows = ConsecutiveEmptyRows;

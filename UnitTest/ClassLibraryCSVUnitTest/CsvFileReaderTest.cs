@@ -146,7 +146,7 @@ namespace CsvTools.Tests
 
       try
       {
-        using (var reader = new CsvFileReader((string?) null))
+        using (new CsvFileReader((string?) null))
         {
         }
       }
@@ -159,7 +159,7 @@ namespace CsvTools.Tests
 
       try
       {
-        using (var reader = new CsvFileReader("(string) null.txt"))
+        using (new CsvFileReader("(string) null.txt"))
         {
         }
       }
@@ -173,7 +173,7 @@ namespace CsvTools.Tests
 
       try
       {
-        using (var reader = new CsvFileReader((IImprovedStream) null))
+        using (new CsvFileReader((IImprovedStream) null))
         {
         }
       }

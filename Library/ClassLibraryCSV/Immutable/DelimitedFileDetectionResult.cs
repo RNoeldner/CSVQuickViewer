@@ -104,21 +104,20 @@ namespace CsvTools
 
 #endif
 
-    private static string GetShortDisplay(string? input)
+    private static string GetShortDisplay(in string? input)
     {
-      if (string.IsNullOrEmpty(input))
+      if (input is null)
         return string.Empty;
 
-      input = input!.WrittenPunctuation();
-      return input switch
+      return input.WrittenPunctuation() switch
       {
-        "\t" => "Tab",
-        " " => "Space",
+        "\t"     => "Tab",
+        " "      => "Space",
         "\u00A0" => "NBSP",
-        "," => "Comma",
-        ";" => "Semicolon",
-        "|" => "Pipe",
-        _ => input
+        ","      => "Comma",
+        ";"      => "Semicolon",
+        "|"      => "Pipe",
+        _        => input
       };
     }
   }

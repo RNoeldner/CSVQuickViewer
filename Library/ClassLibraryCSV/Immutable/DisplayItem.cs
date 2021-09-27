@@ -18,28 +18,28 @@ namespace CsvTools
   ///   Display Items are used for combo boxes
   /// </summary>
   public class DisplayItem<T>
-	{
-		/// <summary>
-		///   Initializes a new instance of the DisplayItem class.
-		/// </summary>
-		/// <param name="id">The id.</param>
-		/// <param name="display">The display.</param>
-		public DisplayItem(T id, string display)
-		{
-			ID = id;
-			Display = display;
-		}
+  {
+    /// <summary>
+    ///   Initializes a new instance of the DisplayItem class.
+    /// </summary>
+    /// <param name="id">The id.</param>
+    /// <param name="display">The display.</param>
+    public DisplayItem(T id, string display)
+    {
+      ID = id;
+      Display = display;
+    }
 
-		/// <summary>
-		///   Gets or sets the display.
-		/// </summary>
-		/// <value>The display.</value>
-		public string Display { get; }
+    /// <summary>
+    ///   Gets or sets the display.
+    /// </summary>
+    /// <value>The display.</value>
+    public string Display { get; }
 
-		/// <summary>
-		///   Gets or sets the ID.
-		/// </summary>
-		/// <value>The ID.</value>
-		public T ID { get; }
-	}
+    /// <summary>
+    ///   Gets or sets the ID.
+    /// </summary>
+    /// <value>The ID.</value>
+    public T ID { get; }
+  }
 }

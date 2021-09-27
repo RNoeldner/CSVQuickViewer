@@ -23,7 +23,7 @@ namespace CsvTools
   ///   Setting file for CSV files, its an implementation of <see cref="BaseSettings" />
   /// </summary>
   [Serializable]
-  public partial class CsvFile : BaseSettingPhysicalFile, ICsvFile
+  public class CsvFile : BaseSettingPhysicalFile, ICsvFile
   {
     private const bool c_ContextSensitiveQualifierDefault = false;
     private const bool c_QualifyAlwaysDefault = false;
@@ -38,21 +38,86 @@ namespace CsvTools
     private const string c_QuotePlaceholderDefault = "";
     private const bool c_DuplicateQualifierToEscapeDefault = true;
 
-    private bool m_ContextSensitiveQualifier = c_ContextSensitiveQualifierDefault;
+    /// <summary>
+    ///   File ending for a setting file
+    /// </summary>
+    public const string cCsvSettingExtension = ".setting";
+
+    private bool m_AllowRowCombining;
+
+    private bool m_ByteOrderMark = true;
+
+    private int m_CodePageId = 65001;
     private string m_CommentLine = c_CommentLineDefault;
+
+    private bool m_ContextSensitiveQualifier = c_ContextSensitiveQualifierDefault;
+
+    [NonSerialized] private Encoding m_CurrentEncoding = Encoding.UTF8;
     private string m_DelimiterPlaceholder = c_DelimiterPlaceholderDefault;
     private bool m_DuplicateQualifierToEscape = c_DuplicateQualifierToEscapeDefault;
-    private char m_EscapePrefixChar = '\0';
     private string m_EscapePrefix = c_EscapePrefixDefault;
+    private char m_EscapePrefixChar = '\0';
     private string m_FieldDelimiter = c_FieldDelimiterDefault;
     private char m_FieldDelimiterChar = c_FieldDelimiterDefault[0];
     private string m_FieldQualifier = c_FieldQualifierDefault;
     private char m_FieldQualifierChar = c_FieldQualifierDefault[0];
     private RecordDelimiterType m_NewLine = c_NewLineDefault;
     private string m_NewLinePlaceholder = c_NewLinePlaceholderDefault;
+
+    private bool m_NoDelimitedFile;
+
+    private int m_NumWarnings;
+    private string m_QualifierPlaceholder = c_QuotePlaceholderDefault;
     private bool m_QualifyAlways = c_QualifyAlwaysDefault;
     private bool m_QualifyOnlyIfNeeded = c_QualifyOnlyIfNeededDefault;
-    private string m_QualifierPlaceholder = c_QuotePlaceholderDefault;
+
+    private bool m_TreatLfAsSpace;
+
+    private bool m_TreatUnknownCharacterAsSpace;
+
+    private bool m_TryToSolveMoreColumns;
+
+    private bool m_WarnDelimiterInValue;
+
+    private bool m_WarnEmptyTailingColumns = true;
+
+    private bool m_WarnLineFeed;
+
+    private bool m_WarnNbsp = true;
+
+    private bool m_WarnQuotes;
+
+    private bool m_WarnQuotesInQuotes = true;
+
+    private bool m_WarnUnknownCharacter = true;
+
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="CsvFile" /> class.
+    /// </summary>
+    /// <param name="fileName">Name of the file.</param>
+    public CsvFile(string fileName)
+      : base(fileName)
+    {
+    }
+
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="CsvFile" /> class.
+    /// </summary>
+    public CsvFile()
+      : this(string.Empty)
+    {
+    }
+
+    /// <summary>
+    ///   Gets current encoding.
+    /// </summary>
+    /// <value>The current encoding.</value>
+    [XmlIgnore]
+    public virtual Encoding CurrentEncoding
+    {
+      get => m_CurrentEncoding;
+      set => m_CurrentEncoding = value;
+    }
 
     /// <summary>
     ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
@@ -343,60 +408,6 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   File ending for a setting file
-    /// </summary>
-    public const string cCsvSettingExtension = ".setting";
-
-    private bool m_AllowRowCombining;
-
-    private bool m_ByteOrderMark = true;
-
-    private int m_CodePageId = 65001;
-
-    [NonSerialized] private Encoding m_CurrentEncoding = Encoding.UTF8;
-
-    private bool m_NoDelimitedFile;
-
-    private int m_NumWarnings;
-
-    private bool m_TreatLfAsSpace;
-
-    private bool m_TreatUnknownCharacterAsSpace;
-
-    private bool m_TryToSolveMoreColumns;
-
-    private bool m_WarnDelimiterInValue;
-
-    private bool m_WarnEmptyTailingColumns = true;
-
-    private bool m_WarnLineFeed;
-
-    private bool m_WarnNbsp = true;
-
-    private bool m_WarnQuotes;
-
-    private bool m_WarnQuotesInQuotes = true;
-
-    private bool m_WarnUnknownCharacter = true;
-
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="CsvFile" /> class.
-    /// </summary>
-    /// <param name="fileName">Name of the file.</param>
-    public CsvFile(string fileName)
-      : base(fileName)
-    {
-    }
-
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="CsvFile" /> class.
-    /// </summary>
-    public CsvFile()
-      : this(string.Empty)
-    {
-    }
-
     [XmlAttribute]
     [DefaultValue(false)]
     public virtual bool AllowRowCombining
@@ -446,17 +457,6 @@ namespace CsvTools
         m_CodePageId = value;
         NotifyPropertyChanged(nameof(CodePageId));
       }
-    }
-
-    /// <summary>
-    ///   Gets current encoding.
-    /// </summary>
-    /// <value>The current encoding.</value>
-    [XmlIgnore]
-    public virtual Encoding CurrentEncoding
-    {
-      get => m_CurrentEncoding;
-      set => m_CurrentEncoding = value;
     }
 
     /// <summary>
@@ -787,15 +787,15 @@ namespace CsvTools
                                                       StringComparison.Ordinal);
     }
 
-    #region backwardscompatibility
+#region backwardscompatibility
 
-    [XmlElement]      
+    [XmlElement]
     [DefaultValue(null)]
     public FileFormatStore? FileFormat
     {
       get;
       set;
-    }    
+    }
 
     [Obsolete("Only used for backwards compatibility of Serialization")]
     public virtual void OverwriteFromFileFormatStore()
@@ -818,7 +818,6 @@ namespace CsvTools
 
       FileFormat = null;
     }
-
 
     [Obsolete("Only used for backwards compatibility of Serialization")]
     [Serializable]
@@ -954,6 +953,7 @@ namespace CsvTools
         set;
       } = c_QuotePlaceholderDefault;
     }
-    #endregion
+
+#endregion
   }
 }

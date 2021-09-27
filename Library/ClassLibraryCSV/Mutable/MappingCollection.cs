@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ * Copyright (C) 2014 Raphael NÃ¶ldner : http://csvquickviewer.com
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -21,6 +21,26 @@ namespace CsvTools
 {
   public sealed class MappingCollection : ObservableCollection<Mapping>, ICloneable, IEquatable<MappingCollection>
   {
+    /// <summary>
+    ///   Clones this instance into a new instance of the same type
+    /// </summary>
+    /// <returns></returns>
+    public object Clone()
+    {
+      var newMappingCollection = new MappingCollection();
+      CopyTo(newMappingCollection);
+      return newMappingCollection;
+    }
+
+    /// <summary>
+    ///   Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
+    /// <param name="other">An object to compare with this object.</param>
+    /// <returns>
+    ///   true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
+    /// </returns>
+    public bool Equals(MappingCollection? other) => Items.CollectionEqual(other);
+
     public bool AddIfNew(Mapping? fieldMapping)
     {
       if (fieldMapping is null)
@@ -36,30 +56,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Clones this instance into a new instance of the same type
-    /// </summary>
-    /// <returns></returns>
-    public object Clone()
-    {
-      var newMappingCollection = new MappingCollection();
-      CopyTo(newMappingCollection);
-      return newMappingCollection;
-    }
-
-    /// <summary>
     ///   Copies all properties to the other instance
     /// </summary>
     /// <param name="other">The other instance</param>
     public void CopyTo(MappingCollection other) => Items.CollectionCopy(other);
-
-    /// <summary>
-    ///   Indicates whether the current object is equal to another object of the same type.
-    /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
-    /// </returns>
-    public bool Equals(MappingCollection? other) => Items.CollectionEqual(other);
 
     public IEnumerable<Mapping> GetByColumn(string columnName) =>
       Items.Where(mapping => mapping.FileColumn.Equals(columnName, StringComparison.OrdinalIgnoreCase));
