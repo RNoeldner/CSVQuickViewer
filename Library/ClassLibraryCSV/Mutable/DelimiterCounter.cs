@@ -17,53 +17,53 @@ using System.Globalization;
 namespace CsvTools
 {
   public class DelimiterCounter
-	{
-		// Added INFORMATION SEPARATOR ONE to FOUR
-		private const string cDefaultSeparators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
+  {
+    // Added INFORMATION SEPARATOR ONE to FOUR
+    private const string c_DefaultSeparators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
 
-		public readonly int NumRows;
+    public readonly int NumRows;
 
-		public readonly int[] SeparatorRows;
+    public readonly int[] SeparatorRows;
 
-		public readonly string Separators;
+    public readonly string Separators;
 
-		public readonly int[,] SeparatorsCount;
+    public readonly int[,] SeparatorsCount;
 
-		public int LastRow;
+    public int LastRow;
 
-		public DelimiterCounter(int numRows)
-		{
-			NumRows = numRows;
-			var listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator[0];
-			if (cDefaultSeparators.IndexOf(listSeparator) == -1)
-				Separators = cDefaultSeparators + listSeparator;
-			else
-				Separators = cDefaultSeparators;
-			SeparatorsCount = new int[Separators.Length, NumRows];
-			SeparatorRows = new int[Separators.Length];
-		}
+    public DelimiterCounter(int numRows)
+    {
+      NumRows = numRows;
+      var listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator[0];
+      if (c_DefaultSeparators.IndexOf(listSeparator) == -1)
+        Separators = c_DefaultSeparators + listSeparator;
+      else
+        Separators = c_DefaultSeparators;
+      SeparatorsCount = new int[Separators.Length, NumRows];
+      SeparatorRows = new int[Separators.Length];
+    }
 
-		public int FilledRows
-		{
-			get
-			{
-				while (LastRow > 1 && RowEmpty(LastRow - 1))
-					LastRow--;
+    public int FilledRows
+    {
+      get
+      {
+        while (LastRow > 1 && RowEmpty(LastRow - 1))
+          LastRow--;
 
-				var res = 0;
-				for (var line = 0; line < LastRow; line++)
-					if (!RowEmpty(line))
-						res++;
-				return res;
-			}
-		}
+        var res = 0;
+        for (var line = 0; line < LastRow; line++)
+          if (!RowEmpty(line))
+            res++;
+        return res;
+      }
+    }
 
-		private bool RowEmpty(int line)
-		{
-			for (var x = 0; x < Separators.Length; x++)
-				if (SeparatorsCount[x, line] != 0)
-					return false;
-			return true;
-		}
-	}
+    private bool RowEmpty(int line)
+    {
+      for (var x = 0; x < Separators.Length; x++)
+        if (SeparatorsCount[x, line] != 0)
+          return false;
+      return true;
+    }
+  }
 }

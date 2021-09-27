@@ -4,29 +4,29 @@ namespace CsvTools
 {
   public class DelimitedFileDetectionResultWithColumns : DelimitedFileDetectionResult
   {
-    public readonly IEnumerable<IColumn> Columns;
 #if !QUICK
-		private readonly string m_ColumnFile;
+    private readonly string m_ColumnFile;
 #endif
+    private readonly IEnumerable<IColumn> m_Columns;
 
     public DelimitedFileDetectionResultWithColumns(
-      string fileName,
+      in string fileName,
       int skipRows = 0,
       int codePageId = -1,
       bool byteOrderMark = false,
       bool qualifyAlways = false,
-      string identifierInContainer = "",
-      string commentLine = "#",
-      string? escapePrefix = "\\",
-      string? fieldDelimiter = "",
-      string? fieldQualifier = "",
+      in string identifierInContainer = "",
+      in string commentLine = "#",
+      in string? escapePrefix = "\\",
+      in string? fieldDelimiter = "",
+      in string? fieldQualifier = "",
       bool hasFieldHeader = true,
       bool isJson = false,
       bool noDelimitedFile = false,
       RecordDelimiterType recordDelimiterType = RecordDelimiterType.None,
-      IEnumerable<IColumn>? columns = null
+      in IEnumerable<IColumn>? columns = null
 #if !QUICK
-,string? columnFile = ""
+      , string? columnFile = ""
 #endif
     )
       : base(
@@ -45,19 +45,19 @@ namespace CsvTools
         noDelimitedFile,
         recordDelimiterType)
     {
-      Columns = columns ?? new List<IColumn>();
+      m_Columns = columns ?? new List<IColumn>();
 #if !QUICK
-			m_ColumnFile = columnFile ?? string.Empty;
+      m_ColumnFile = columnFile ?? string.Empty;
 #endif
     }
 
     public DelimitedFileDetectionResultWithColumns(
       DelimitedFileDetectionResult result,
-      IEnumerable<IColumn>? columns = null
+      in IEnumerable<IColumn>? columns = null
 #if !QUICK
       , string columnFile = ""
 #endif
-      )
+    )
       : this(
         result.FileName,
         result.SkipRows,
@@ -75,21 +75,21 @@ namespace CsvTools
         result.NewLine,
         columns
 #if !QUICK
-      ,columnFile
+        , columnFile
 #endif
       )
     {
     }
 
 #if !QUICK
-		public override IFileSettingPhysicalFile PhysicalFile()
-		{
-			var ret = base.PhysicalFile();
-			foreach (var col in Columns)
-				ret.ColumnCollection.Add(col);
-			ret.ColumnFile = m_ColumnFile;
-			return ret;
-		}
+    public override IFileSettingPhysicalFile PhysicalFile()
+    {
+      var ret = base.PhysicalFile();
+      foreach (var col in m_Columns)
+        ret.ColumnCollection.Add(col);
+      ret.ColumnFile = m_ColumnFile;
+      return ret;
+    }
 
 #endif
   }

@@ -23,9 +23,8 @@ namespace CsvTools
   [DebuggerDisplay("File: {ID} {m_FileName} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
   {
-    private string m_ColumnFile = string.Empty;
-
     private readonly ValueFormatMutable m_DefaultValueFormatWrite = new ValueFormatMutable();
+    private string m_ColumnFile = string.Empty;
 
     private string m_FileName;
 
@@ -47,7 +46,15 @@ namespace CsvTools
 
     private bool m_ThrowErrorIfNotExists = true;
 
-    public BaseSettingPhysicalFile(string fileName) => m_FileName = FileNameFix(fileName);
+    protected BaseSettingPhysicalFile(string fileName) => m_FileName = FileNameFix(fileName);
+
+    /// <summary>
+    ///   Gets a value indicating whether the Xml field is specified.
+    /// </summary>
+    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
+    /// <remarks>Used for XML Serialization</remarks>
+    [XmlIgnore]
+    public virtual bool DefaultValueFormatWriteSpecified => m_DefaultValueFormatWrite.Specified;
 
     /// <summary>
     ///   Gets or sets the name of the file.
@@ -127,14 +134,6 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(DefaultValueFormatWrite));
       }
     }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool DefaultValueFormatWriteSpecified => m_DefaultValueFormatWrite.Specified;
 
     [XmlIgnore]
     public virtual string FullPath
@@ -253,9 +252,7 @@ namespace CsvTools
       }
     }
 
-    [XmlIgnore]
-    [DefaultValue("")]
-    public string RootFolder { get; set; } = string.Empty;
+    [XmlIgnore] [DefaultValue("")] public string RootFolder { get; set; } = string.Empty;
 
     /// <summary>
     ///   Gets or sets the name of the file.

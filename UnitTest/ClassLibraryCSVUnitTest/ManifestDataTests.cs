@@ -9,7 +9,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ReadManifestPropertiesTest()
     {
-      var m = new ManifestData("pubname", "heading", "desc", true, "hydration", true, new[] { new ManifestData.ManifestField("pubname2", "heading2", "desc2", "type2", 1) });
+      var m = new ManifestData("pubname", "heading", "desc", true, "hydration", true,
+        new[] { new ManifestData.ManifestField("pubname2", "heading2", "desc2", "type2", 1) });
 
       Assert.AreEqual("desc", m.Desc);
       Assert.AreEqual("heading", m.Heading);
@@ -30,8 +31,14 @@ namespace CsvTools.Tests
       var manifest = await ManifestData.ReadManifestFileSystem(UnitTestStatic.GetTestPath("training_relation.manifest.json"));
       var setting = manifest.PhysicalFile() as CsvFile;
       Assert.AreEqual(false, manifest.HasFieldHeader);
-      Assert.AreEqual(19, manifest.Columns.Count());
-      using var reader = new CsvFileReader(setting!.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, null);
+      Assert.AreEqual(19, setting.ColumnCollection.Count());
+      using var reader = new CsvFileReader(setting!.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
+        setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
+        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
+        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace,
+        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
+        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
+        setting.IdentifierInContainer, null);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("object_id", reader.GetColumn(0).Name);
       reader.Read();
@@ -43,8 +50,14 @@ namespace CsvTools.Tests
       var manifest = await ManifestData.ReadManifestZip(UnitTestStatic.GetTestPath("ces_xxx_v879548171_lo_exempt_status_reason_approver_local_full.zip"));
       var setting = manifest.PhysicalFile() as CsvFile;
       Assert.AreEqual(false, manifest.HasFieldHeader);
-      Assert.AreEqual(3, manifest.Columns.Count());
-      using var reader = new CsvFileReader(setting!.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, null);
+      Assert.AreEqual(3, setting.ColumnCollection.Count());
+      using var reader = new CsvFileReader(setting!.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
+        setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
+        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
+        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace,
+        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
+        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
+        setting.IdentifierInContainer, null);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("lesrlA_reason_id", reader.GetColumn(0).Name);
       reader.Read();
