@@ -24,14 +24,6 @@
 			<Link>Properties\SharedAssemblyInfo.cs</Link>
 		</Compile>
 	</ItemGroup>
-	<ItemGroup>
-		<Compile Remove="FolderTree.cs" />
-		<Compile Remove="Properties\AssemblyInfo.cs" />
-		<Compile Remove="Properties\AssemblyInfo.cs" />
-	</ItemGroup>
-	<ItemGroup>
-		<EmbeddedResource Remove="FolderTree.resx" />
-	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net472'">
 		<Reference Include="FastColoredTextBox">
 			<HintPath>..\DLL\FastColoredTextBox.dll</HintPath>

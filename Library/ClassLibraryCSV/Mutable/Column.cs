@@ -194,21 +194,12 @@ namespace CsvTools
     /// </summary>
     /// <value>The decimal separator.</value>
     [XmlAttribute]
+    [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
     public virtual string DecimalSeparator
     {
       get => ValueFormatMutable.DecimalSeparator;
       set => ValueFormatMutable.DecimalSeparator = value;
     }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public bool DecimalSeparatorSpecified =>
-      (ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric)
-      && ValueFormatMutable.DecimalSeparatorSpecified;
 
     /// <summary>
     ///   Gets or sets the name in a destination. This is only used for writing
@@ -255,21 +246,12 @@ namespace CsvTools
     /// </summary>
     /// <value>The group separator.</value>
     [XmlAttribute]
+    [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
     public virtual string GroupSeparator
     {
       get => ValueFormatMutable.GroupSeparator;
       set => ValueFormatMutable.GroupSeparator = value;
     }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    public bool GroupSeparatorSpecified =>
-      (ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric
-                                                      || ValueFormatMutable.DataType == DataType.Integer)
-      && ValueFormatMutable.GroupSeparatorSpecified;
 
     /// <summary>
     ///   Gets or sets a value indicating whether the column should be ignore reading a file
@@ -527,7 +509,7 @@ namespace CsvTools
     /// <param name="other">The other.</param>
     public virtual void CopyTo(Column other)
     {
-      ValueFormatMutable.CopyTo(other.ValueFormatMutable);
+      other.ValueFormatMutable.CopyFrom(ValueFormatMutable);
 
       // other.ValueFormatMutable = m_ValueFormatMutable;
       other.TimePartFormat = m_TimePartFormat;
@@ -589,6 +571,5 @@ namespace CsvTools
     public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
 
     object ICloneable.Clone() => new Column(this);
-
   }
 }

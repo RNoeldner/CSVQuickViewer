@@ -24,7 +24,7 @@ namespace CsvTools
   public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
   {
     private string m_ColumnFile = string.Empty;
-    
+
     private readonly ValueFormatMutable m_DefaultValueFormatWrite = new ValueFormatMutable();
 
     private string m_FileName;
@@ -121,9 +121,9 @@ namespace CsvTools
       set
       {
         var newVal = value ?? new ValueFormatMutable();
-        if (m_DefaultValueFormatWrite.Equals(newVal))
+        if (m_DefaultValueFormatWrite.ValueFormatEqual(newVal))
           return;
-        newVal.CopyTo(m_DefaultValueFormatWrite);
+        m_DefaultValueFormatWrite.CopyFrom(newVal);
         NotifyPropertyChanged(nameof(DefaultValueFormatWrite));
       }
     }
@@ -134,7 +134,7 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    public virtual bool DefaultValueFormatWriteSpecified => !m_DefaultValueFormatWrite.Specified;
+    public virtual bool DefaultValueFormatWriteSpecified => m_DefaultValueFormatWrite.Specified;
 
     [XmlIgnore]
     public virtual string FullPath
@@ -294,7 +294,7 @@ namespace CsvTools
       fileSettingPhysicalFile.Passphrase = Passphrase;
       fileSettingPhysicalFile.Recipient = Recipient;
       fileSettingPhysicalFile.KeepUnencrypted = KeepUnencrypted;
-      DefaultValueFormatWrite.CopyTo(fileSettingPhysicalFile.DefaultValueFormatWrite);
+      fileSettingPhysicalFile.DefaultValueFormatWrite.CopyFrom(DefaultValueFormatWrite);
     }
 
     protected override bool BaseSettingsEquals(in BaseSettings? other)
@@ -302,7 +302,7 @@ namespace CsvTools
       if (!(other is IFileSettingPhysicalFile fileSettingPhysicalFile))
         return base.BaseSettingsEquals(other);
 
-      if (!fileSettingPhysicalFile.DefaultValueFormatWrite.Equals(DefaultValueFormatWrite))
+      if (!fileSettingPhysicalFile.DefaultValueFormatWrite.ValueFormatEqual(DefaultValueFormatWrite))
         return false;
 
       if (!string.Equals(fileSettingPhysicalFile.FileName, FileName, StringComparison.OrdinalIgnoreCase))
