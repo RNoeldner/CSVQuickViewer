@@ -24,11 +24,6 @@ namespace CsvTools
   public interface IFileSetting : INotifyPropertyChanged, ICloneable, IEquatable<IFileSetting>
   {
     /// <summary>
-    ///   Occurs when a string value property changed providing information on old and new value
-    /// </summary>
-    event EventHandler<PropertyChangedEventArgs<string>>? PropertyChangedString;
-
-    /// <summary>
     ///   Gets or sets the column formats
     /// </summary>
     /// <value>The column format.</value>
@@ -179,7 +174,7 @@ namespace CsvTools
     /// </summary>
     /// <remarks>
     ///   This is used for queries that might refer to data that is produced by other settings but
-    ///   not for file setting pointing to a specif physical file
+    ///   not for file setting pointing to a specific physical file
     /// </remarks>
     /// <example>
     ///   A setting A using setting B that is dependent on C1 and C2 both dependent on D-&gt; A is
@@ -237,6 +232,11 @@ namespace CsvTools
     ///   Gets or sets the number records with warnings
     /// </summary>
     long WarningCount { get; set; }
+
+    /// <summary>
+    ///   Occurs when a string value property changed providing information on old and new value
+    /// </summary>
+    event EventHandler<PropertyChangedEventArgs<string>>? PropertyChangedString;
 
     /// <summary>
     ///   Examine the source and determine LatestSource

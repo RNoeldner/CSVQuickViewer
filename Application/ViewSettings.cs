@@ -12,52 +12,46 @@
  *
  */
 
+using System;
+using System.ComponentModel;
+using System.Xml.Serialization;
+
 namespace CsvTools
 {
-  using System;
-  using System.ComponentModel;
-  using System.Xml.Serialization;
-
   /// <summary>
   ///   Class containing the all configuration, used in serialization to store the settings
   /// </summary>
   [Serializable]
   public class ViewSettings : CsvFile
   {
-    [XmlElement]
-    public WindowState WindowPosition = new WindowState();
+    public enum DurationEnum
+    {
+      [Description("unlimited")] Unlimited,
+
+      [Description("1/2 second")] HalfSecond,
+
+      [Description("1 second")] Second,
+
+      [Description("2 seconds")] TwoSecond,
+
+      [Description("10 seconds")] TenSecond,
+    }
 
     private bool m_AllowJson = true;
     private bool m_DetectFileChanges = true;
     private FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
     private bool m_GuessCodePage = true;
+    private bool m_GuessComment = true;
     private bool m_GuessDelimiter = true;
     private bool m_GuessHasHeader = true;
     private bool m_GuessNewLine = true;
-    private bool m_GuessComment = true;
     private bool m_GuessQualifier = true;
     private bool m_GuessStartRow = true;
     private HTMLStyle m_HtmlStyle = new HTMLStyle();
     private bool m_MenuDown;
     private bool m_StoreSettingsByFile;
 
-    public enum DurationEnum
-    {
-      [Description("unlimited")]
-      Unlimited,
-
-      [Description("1/2 second")]
-      HalfSecond,
-
-      [Description("1 second")]
-      Second,
-
-      [Description("2 seconds")]
-      TwoSecond,
-
-      [Description("10 seconds")]
-      TenSecond,
-    }
+    [XmlElement] public WindowState WindowPosition = new WindowState();
 
     [XmlAttribute]
     [DefaultValue(true)]
@@ -95,10 +89,10 @@ namespace CsvTools
         return LimitDuration switch
         {
           DurationEnum.HalfSecond => TimeSpan.FromSeconds(.5),
-          DurationEnum.Second => TimeSpan.FromSeconds(1),
-          DurationEnum.TwoSecond => TimeSpan.FromSeconds(2),
-          DurationEnum.TenSecond => TimeSpan.FromSeconds(10),
-          _ => TimeSpan.MaxValue,
+          DurationEnum.Second     => TimeSpan.FromSeconds(1),
+          DurationEnum.TwoSecond  => TimeSpan.FromSeconds(2),
+          DurationEnum.TenSecond  => TimeSpan.FromSeconds(10),
+          _                       => TimeSpan.MaxValue,
         };
       }
     }
@@ -232,8 +226,7 @@ namespace CsvTools
       }
     }
 
-    [XmlIgnore]
-    public HTMLStyle HTMLStyle => m_HtmlStyle;
+    [XmlIgnore] public HTMLStyle HTMLStyle => m_HtmlStyle;
 
     [XmlElement]
     [DefaultValue(DurationEnum.Second)]
@@ -280,7 +273,7 @@ namespace CsvTools
       get => m_HtmlStyle.Style;
       set
       {
-        var newVal = value ?? HTMLStyle.c_Style;
+        var newVal = value ?? HTMLStyle.cStyle;
         if (m_HtmlStyle.Style.Equals(newVal))
           return;
         m_HtmlStyle = new HTMLStyle(newVal);
@@ -311,7 +304,7 @@ namespace CsvTools
         {
           csvD.NoDelimitedFile = csvS.NoDelimitedFile;
           csvD.ByteOrderMark = csvS.ByteOrderMark;
-          csvD.CodePageId= csvS.CodePageId;
+          csvD.CodePageId = csvS.CodePageId;
         }
       }
 
@@ -346,7 +339,6 @@ namespace CsvTools
           csvDest.QualifyAlways = csvSrc.QualifyAlways;
           csvDest.QualifierPlaceholder = csvSrc.QualifierPlaceholder;
         }
-      
       }
     }
   }

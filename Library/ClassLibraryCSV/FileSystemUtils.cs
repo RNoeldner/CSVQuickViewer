@@ -28,6 +28,13 @@ namespace CsvTools
   /// </summary>
   public static class FileSystemUtils
   {
+    /// <summary>
+    ///   On windows we need to take care of filename that might exceed 248 characters, they need to
+    ///   be escaped.
+    /// </summary>
+    private const string c_LongPathPrefix = @"\\?\";
+
+    private const string c_UncLongPathPrefix = @"\\?\UNC\";
     private static readonly bool m_IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
     public static string FullPath(this string? fileName, in string? root) =>
@@ -93,57 +100,63 @@ namespace CsvTools
     }
 
 #if !QUICK
-		/// <summary>
-		///   Copy a file locally and provide progress
-		/// </summary>
-		/// <param name="sourceFile">The file to be copied from</param>
-		/// <param name="destFile">The file to be created / overwritten</param>
-		/// <param name="onlyChanged">
-		///   Checks if the source file is newer or has a different length, if not file will not be copied,
-		/// </param>
-		/// <param name="processDisplay">A process display</param>
-		public static async Task FileCopy(
-			string sourceFile,
-			string destFile,
-			bool onlyChanged,
-			IProcessDisplay processDisplay)
-		{
-			if (onlyChanged)
-			{
-				var fiSource = new FileInfo(sourceFile);
-				var fiDestInfo = new FileInfo(destFile);
-				if (fiDestInfo.Exists && fiSource.LastWriteTimeUtc <= fiDestInfo.LastWriteTimeUtc
-															&& fiSource.Length == fiDestInfo.Length)
-					return;
-			}
+    /// <summary>
+    ///   Copy a file locally and provide progress
+    /// </summary>
+    /// <param name="sourceFile">The file to be copied from</param>
+    /// <param name="destFile">The file to be created / overwritten</param>
+    /// <param name="onlyChanged">
+    ///   Checks if the source file is newer or has a different length, if not file will not be copied,
+    /// </param>
+    /// <param name="processDisplay">A process display</param>
+    public static async Task FileCopy(
+      string sourceFile,
+      string destFile,
+      bool onlyChanged,
+      IProcessDisplay processDisplay)
+    {
+      if (onlyChanged)
+      {
+        var fiSource = new FileInfo(sourceFile);
+        var fiDestInfo = new FileInfo(destFile);
+        if (fiDestInfo.Exists && fiSource.LastWriteTimeUtc <= fiDestInfo.LastWriteTimeUtc
+                              && fiSource.Length == fiDestInfo.Length)
+          return;
+      }
 
-			if (FileExists(sourceFile))
-				FileDelete(destFile);
-			using var fromStream = OpenRead(sourceFile);
-			using var toStream = OpenWrite(destFile);
-			var bytes = new byte[81920];
-			int bytesRead;
-			long totalReads = 0;
+      if (FileExists(sourceFile))
+        FileDelete(destFile);
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+      await
+#endif
+        using var fromStream = OpenRead(sourceFile);
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+      await
+#endif
+        using var toStream = OpenWrite(destFile);
+      var bytes = new byte[81920];
+      int bytesRead;
+      long totalReads = 0;
 
-			long oldMax = 0;
-			if (processDisplay is IProcessDisplayTime processDisplayTime)
-			{
-				oldMax = processDisplayTime.Maximum;
-				processDisplayTime.Maximum = fromStream.Length;
-			}
+      long oldMax = 0;
+      if (processDisplay is IProcessDisplayTime processDisplayTime)
+      {
+        oldMax = processDisplayTime.Maximum;
+        processDisplayTime.Maximum = fromStream.Length;
+      }
 
-			var intervalAction = new IntervalAction();
-			while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, processDisplay.CancellationToken)
-														.ConfigureAwait(false)) > 0)
-			{
-				processDisplay.CancellationToken.ThrowIfCancellationRequested();
-				totalReads += bytesRead;
-				await toStream.WriteAsync(bytes, 0, bytesRead, processDisplay.CancellationToken).ConfigureAwait(false);
-				intervalAction.Invoke(pos => processDisplay.SetProcess("Copy file", pos, false), totalReads);
-			}
+      var intervalAction = new IntervalAction();
+      while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, processDisplay.CancellationToken)
+                                          .ConfigureAwait(false)) > 0)
+      {
+        processDisplay.CancellationToken.ThrowIfCancellationRequested();
+        totalReads += bytesRead;
+        await toStream.WriteAsync(bytes, 0, bytesRead, processDisplay.CancellationToken).ConfigureAwait(false);
+        intervalAction.Invoke(pos => processDisplay.SetProcess("Copy file", pos, false), totalReads);
+      }
 
-			processDisplay.SetMaximum(oldMax);
-		}
+      processDisplay.SetMaximum(oldMax);
+    }
 
 #endif
 
@@ -404,31 +417,23 @@ namespace CsvTools
       return shortPath;
     }
 
-    /// <summary>
-    ///   On windows we need to take care of filename that might exceed 248 characters, they need to
-    ///   be escaped.
-    /// </summary>
-    private const string cLongPathPrefix = @"\\?\";
-
-    private const string cUncLongPathPrefix = @"\\?\UNC\";
-
     public static string LongPathPrefix(this string path)
     {
       // In case the directory is 248 we need long path as well
-      if (!m_IsWindows || path.Length < 248 || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal) ||
-          path.StartsWith(cUncLongPathPrefix, StringComparison.OrdinalIgnoreCase))
+      if (!m_IsWindows || path.Length < 248 || path.StartsWith(c_LongPathPrefix, StringComparison.Ordinal) ||
+          path.StartsWith(c_UncLongPathPrefix, StringComparison.OrdinalIgnoreCase))
         return path;
       return path.StartsWith(@"\\", StringComparison.Ordinal)
-               ? cUncLongPathPrefix + path.Substring(2)
-               : cLongPathPrefix + path;
+               ? c_UncLongPathPrefix + path.Substring(2)
+               : c_LongPathPrefix + path;
     }
 
     public static string RemovePrefix(this string path)
     {
-      if (!m_IsWindows || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
-        return path.Substring(cLongPathPrefix.Length);
-      return path.StartsWith(cUncLongPathPrefix, StringComparison.Ordinal)
-               ? path.Substring(cUncLongPathPrefix.Length)
+      if (!m_IsWindows || path.StartsWith(c_LongPathPrefix, StringComparison.Ordinal))
+        return path.Substring(c_LongPathPrefix.Length);
+      return path.StartsWith(c_UncLongPathPrefix, StringComparison.Ordinal)
+               ? path.Substring(c_UncLongPathPrefix.Length)
                : path;
     }
 
@@ -491,13 +496,13 @@ namespace CsvTools
       if (!m_IsWindows || string.IsNullOrEmpty(longPath))
         return longPath;
       var fi = new System.IO.FileInfo(longPath);
-      const uint bufferSize = 512;
-      var shortNameBuffer = new StringBuilder((int) bufferSize);
+      const uint c_BufferSize = 512;
+      var shortNameBuffer = new StringBuilder((int) c_BufferSize);
 
       // we might be asked to build a short path when the file does not exist yet, this would fail
       if (fi.Exists)
       {
-        var length = GetShortPathName(longPath, shortNameBuffer, bufferSize);
+        var length = GetShortPathName(longPath, shortNameBuffer, c_BufferSize);
         if (length > 0) return shortNameBuffer.ToString().RemovePrefix();
       }
 
@@ -505,7 +510,7 @@ namespace CsvTools
       if (fi.Directory?.Exists ?? false)
       {
         {
-          var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, bufferSize);
+          var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, c_BufferSize);
           if (length > 0)
             return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length - 1] == Path.DirectorySeparatorChar
                                          ? string.Empty

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ * Copyright (C) 2014 Raphael Nï¿½ldner : http://csvquickviewer.com
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -22,60 +22,56 @@ namespace CsvTools
   ///   Central point for logging ILogger needs to be set once
   /// </summary>
   public static class Logger
-	{
-		public static ILogger? LoggerInstance
-		{
-			get;
-			set;
-		}
+  {
+    public static ILogger? LoggerInstance
+    {
+      get;
+      set;
+    }
 
-		public static void Debug(in string? message, params object[] args)
-		{
-			if (string.IsNullOrEmpty(message))
-				return;
-			LoggerInstance?.LogDebug(message!, args);
-		}
+    public static void Debug(in string? message, params object[] args)
+    {
+      if (message is null || message.Length == 0)
+        return;
+      LoggerInstance?.LogDebug(message, args);
+    }
 
-		public static void Error(in string? message, params object[] args)
-		{
-			if (string.IsNullOrEmpty(message))
-				return;
-			LoggerInstance?.LogError(message!, args);
-		}
+    public static void Error(in string? message, params object[] args)
+    {
+      if (message is null || message.Length == 0)
+        return;
+      LoggerInstance?.LogError(message, args);
+    }
 
-		public static void Error(in Exception exception, in string? message = null, params object[] args)
-		{
-			if (exception != null)
-				LoggerInstance?.LogError(exception.Demystify(), message ?? exception.ExceptionMessages(2), args);
-			else
-				LoggerInstance?.LogError(message, args);
-		}
+    public static void Error(in Exception exception, in string? message = null, params object[] args)
+    {
+      LoggerInstance?.LogError(exception.Demystify(), message ?? exception.ExceptionMessages(2), args);
+    }
 
-		public static void Information(in string? message, params object[] args)
-		{
-			if (string.IsNullOrEmpty(message))
-				return;
-			LoggerInstance?.LogInformation(message!, args);
-		}
+    public static void Information(in string? message, params object[] args)
+    {
+      if (message is null || message.Length == 0)
+        return;
+      LoggerInstance?.LogInformation(message, args);
+    }
 
-		public static void Information(in Exception exception, in string? message, params object[] args)
-		{
-			if (string.IsNullOrEmpty(message))
-				return;
-			LoggerInstance?.LogInformation(exception, message!, args);
-		}
+    public static void Information(in Exception exception, in string? message, params object[] args)
+    {
+      if (message is null || message.Length == 0)
+        return;
+      LoggerInstance?.LogInformation(exception, message, args);
+    }
 
-		public static void Warning(in string? message, params object[] args)
-		{
-			if (string.IsNullOrEmpty(message))
-				return;
-			LoggerInstance?.LogWarning(message!, args);
-		}
+    public static void Warning(in string? message, params object[] args)
+    {
+      if (message is null || message.Length == 0)
+        return;
+      LoggerInstance?.LogWarning(message, args);
+    }
 
-		public static void Warning(in Exception exception, in string? message, params object[] args)
-		{
-			var ex = exception.Demystify();
-			LoggerInstance?.LogWarning(ex, message!, args);
-		}
-	}
+    public static void Warning(in Exception exception, in string? message, params object[] args)
+    {
+      LoggerInstance?.LogWarning(exception.Demystify(), message ?? string.Empty, args);
+    }
+  }
 }

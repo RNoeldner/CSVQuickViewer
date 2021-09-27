@@ -11,16 +11,17 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+
 #nullable enable
 
 namespace CsvTools
 {
-  using System;
-  using System.Collections.Generic;
-  using System.Text;
-  using System.Threading;
-  using System.Windows.Forms;
-
   /// <summary>
   ///   Class to provide HTML Copy and Past functionality to a DataGrid
   /// </summary>
@@ -42,7 +43,7 @@ namespace CsvTools
     /// <param name="htmlStyle">The HTML style.</param>
     public DataGridViewCopyPaste(HTMLStyle? htmlStyle)
     {
-      m_HtmlStyle= htmlStyle ?? new HTMLStyle();
+      m_HtmlStyle = htmlStyle ?? new HTMLStyle();
     }
 
     /// <summary>
@@ -177,6 +178,7 @@ namespace CsvTools
       {
         style.AddHtmlCell(sbHtml, m_HtmlStyle.TD, string.Empty, errorText ?? string.Empty, true);
       }
+
       stringBuilder.Append('\t');
       stringBuilder.Append(EscapeTab(errorText));
     }

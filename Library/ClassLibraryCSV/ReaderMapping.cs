@@ -10,8 +10,6 @@ namespace CsvTools
   /// </summary>
   public class ReaderMapping
   {
-    private readonly ColumnErrorDictionary? ColumnErrorDictionary;
-
     public readonly int DataTableEndLine;
 
     public readonly int DataTableErrorField;
@@ -19,16 +17,17 @@ namespace CsvTools
     public readonly int DataTableRecNum;
 
     public readonly int DataTableStartLine;
-
-    private readonly List<ImmutableColumn> m_ReaderColumnNotIgnored = new List<ImmutableColumn>();
+    private readonly ColumnErrorDictionary? m_ColumnErrorDictionary;
 
     private readonly BiDirectionalDictionary<int, int> m_Mapping = new BiDirectionalDictionary<int, int>();
+
+    private readonly List<ImmutableColumn> m_ReaderColumnNotIgnored = new List<ImmutableColumn>();
 
     private readonly List<string> m_ReaderColumnsAll = new List<string>();
 
     /// <summary>
-    ///   Maps the columns of the data reader for an reader warpper, taking care of ignored and
-    ///   artifical columns
+    ///   Maps the columns of the data reader for an reader wrapper, taking care of ignored and
+    ///   artificial columns
     /// </summary>
     /// <param name="dataReader">
     ///   <see cref="IDataRecord" /> usually a <see cref="IFileReader" /> or <see cref="IDataReader" />
@@ -46,7 +45,7 @@ namespace CsvTools
     {
       var fileReader = dataReader as IFileReader;
       if (fileReader != null)
-        ColumnErrorDictionary = new ColumnErrorDictionary(fileReader);
+        m_ColumnErrorDictionary = new ColumnErrorDictionary(fileReader);
 
       var readerColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       var fieldCount = 0;
@@ -56,8 +55,8 @@ namespace CsvTools
         if (fileReader != null)
         {
           var iColumn = fileReader.GetColumn(col);
-          if (iColumn is ImmutableColumn imcol)
-            column = imcol;
+          if (iColumn is ImmutableColumn immutableColumn)
+            column = immutableColumn;
           else
             column = new ImmutableColumn(iColumn);
         }
@@ -131,30 +130,30 @@ namespace CsvTools
       }
     }
 
-    public bool HasErrors => !(ColumnErrorDictionary is null) && ColumnErrorDictionary.Count>0;
+    public bool HasErrors => !(m_ColumnErrorDictionary is null) && m_ColumnErrorDictionary.Count > 0;
 
-    public void PrepareRead() => ColumnErrorDictionary?.Clear();
+    public IReadOnlyList<ImmutableColumn> Column => m_ReaderColumnNotIgnored;
+
+    public string? RowErrorInformation =>
+      m_ColumnErrorDictionary is null || m_ColumnErrorDictionary.Count == 0
+        ? null
+        : ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, m_ReaderColumnsAll);
+
+    public void PrepareRead() => m_ColumnErrorDictionary?.Clear();
 
     public void SetDataRowErrors(DataRow dataRow)
     {
       if (dataRow is null)
         throw new ArgumentNullException(nameof(dataRow));
       // This gets the errors from the fileReader
-      if (ColumnErrorDictionary is null)
+      if (m_ColumnErrorDictionary is null)
         return;
-      foreach (var keyValuePair in ColumnErrorDictionary)
+      foreach (var keyValuePair in m_ColumnErrorDictionary)
         if (keyValuePair.Key == -1)
           dataRow.RowError = keyValuePair.Value;
         else
           dataRow.SetColumnError(m_Mapping[keyValuePair.Key], keyValuePair.Value);
     }
-
-    public IReadOnlyList<ImmutableColumn> Column => m_ReaderColumnNotIgnored;
-
-    public string? RowErrorInformation =>
-      ColumnErrorDictionary is null || ColumnErrorDictionary.Count == 0
-        ? null
-        : ErrorInformation.ReadErrorInformation(ColumnErrorDictionary, m_ReaderColumnsAll);
 
     public int DataTableToReader(int tableColumn) => m_Mapping.GetByValue(tableColumn);
   }
