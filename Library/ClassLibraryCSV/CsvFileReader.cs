@@ -26,7 +26,7 @@ namespace CsvTools
   /// <summary>
   ///   A data reader for CSV files
   /// </summary>
-  public class CsvFileReader : BaseFileReader, IFileReader
+  public class CsvFileReader : BaseFileReader, IFileReaderWithEvents
   {
     /// <summary>
     ///   Constant: Line has fewer columns than expected
@@ -57,13 +57,13 @@ namespace CsvTools
 
     private readonly bool m_AllowRowCombining;
 
-    private readonly bool m_ContextSensitiveQualifier;
-
     private readonly int m_CodePageId;
 
     private readonly string m_CommentLine;
 
     private readonly int m_ConsecutiveEmptyRowsMax;
+
+    private readonly bool m_ContextSensitiveQualifier;
 
     private readonly string m_DelimiterPlaceholder;
 
@@ -426,36 +426,6 @@ namespace CsvTools
       GC.SuppressFinalize(this);
     }
 
-    protected override void Dispose(bool disposing)
-    {
-      if (disposing)
-      {
-        m_ImprovedStream?.Dispose();
-      }
-      m_ImprovedStream = null;
-
-      m_TextReader?.Dispose();
-      m_TextReader = null;
-    }
-
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-
-    public new async ValueTask DisposeAsync()
-    {
-      await DisposeAsyncCore();
-
-      Dispose(false);
-      GC.SuppressFinalize(this);
-    }
-
-    protected virtual async ValueTask DisposeAsyncCore()
-    {
-      if (m_ImprovedStream != null)
-        await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
-    }
-
-#endif
-
     /// <summary>
     ///   Reads a stream of bytes from the specified column offset into the buffer as an array,
     ///   starting at the given buffer offset.
@@ -511,13 +481,13 @@ namespace CsvTools
       object? ret = column.ValueFormat.DataType switch
       {
         DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(columnNumber), column, true),
-        DataType.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
-        DataType.Double => GetDoubleNull(value, columnNumber),
-        DataType.Numeric => GetDecimalNull(value, columnNumber),
-        DataType.Boolean => GetBooleanNull(value, columnNumber),
-        DataType.Guid => GetGuidNull(value, column.ColumnOrdinal),
-        DataType.String => value,
-        _ => throw new ArgumentOutOfRangeException()
+        DataType.Integer  => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
+        DataType.Double   => GetDoubleNull(value, columnNumber),
+        DataType.Numeric  => GetDecimalNull(value, columnNumber),
+        DataType.Boolean  => GetBooleanNull(value, columnNumber),
+        DataType.Guid     => GetGuidNull(value, column.ColumnOrdinal),
+        DataType.String   => value,
+        _                 => throw new ArgumentOutOfRangeException()
       };
       return ret ?? DBNull.Value;
     }
@@ -606,8 +576,6 @@ namespace CsvTools
       return false;
     }
 
-    public override bool Read(CancellationToken token) => !token.IsCancellationRequested && Read();
-
     public override Task<bool> ReadAsync(CancellationToken token) => Task.FromResult(Read(token));
 
     /// <summary>
@@ -620,6 +588,21 @@ namespace CsvTools
         // Read the header row, this could be more than one line
         ReadNextRow(false);
     }
+
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        m_ImprovedStream?.Dispose();
+      }
+
+      m_ImprovedStream = null;
+
+      m_TextReader?.Dispose();
+      m_TextReader = null;
+    }
+
+    public override bool Read(CancellationToken token) => !token.IsCancellationRequested && Read();
 
     /// <summary>
     ///   Gets the relative position.
@@ -821,8 +804,8 @@ namespace CsvTools
           // Handle replacements and warnings etc,
           var adjustedValue = HandleTextSpecials(
             CurrentRowColumnText[columnNo].ReplaceCaseInsensitive(m_NewLinePlaceholder, Environment.NewLine)
-              .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiterChar)
-              .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifierChar),
+                                          .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiterChar)
+                                          .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifierChar),
             columnNo);
 
           if (adjustedValue.Length > 0)
@@ -1027,7 +1010,7 @@ namespace CsvTools
               // in case a linefeed actually follows ignore the EscapePrefixChar but handle the
               // regular processing
               '\\' when nextChar == 'a' => '\a',
-              _ => nextChar
+              _                         => nextChar
             };
           }
         }
@@ -1168,13 +1151,13 @@ namespace CsvTools
             // handling for "" that is not only representing a " but also closes the text
             peekNextChar = Peek();
             if (m_ContextSensitiveQualifier && (peekNextChar == m_FieldDelimiterChar
-                                       || peekNextChar == c_Cr || peekNextChar == c_Lf)) postData = true;
+                                                || peekNextChar == c_Cr || peekNextChar == c_Lf)) postData = true;
             continue;
           }
 
           // a single " should be regarded as closing when its followed by the delimiter
           if (m_ContextSensitiveQualifier && (peekNextChar == m_FieldDelimiterChar
-                                     || peekNextChar == c_Cr || peekNextChar == c_Lf))
+                                              || peekNextChar == c_Cr || peekNextChar == c_Lf))
           {
             postData = true;
             continue;
@@ -1249,7 +1232,7 @@ namespace CsvTools
 
       // Skip commented lines
       if (m_CommentLine.Length > 0 && item != null && item.Length > m_CommentLine.Length
-                                   && item.StartsWith(m_CommentLine, StringComparison.Ordinal))
+          && item.StartsWith(m_CommentLine, StringComparison.Ordinal))
       {
         // A commented line does start with the comment
         if (m_EndOfLine)
@@ -1317,5 +1300,23 @@ namespace CsvTools
         return;
       HandleWarning(column, "Linefeed found in field".AddWarningId());
     }
+
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+
+    public new async ValueTask DisposeAsync()
+    {
+      await DisposeAsyncCore();
+
+      Dispose(false);
+      GC.SuppressFinalize(this);
+    }
+
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
+      if (m_ImprovedStream != null)
+        await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
+    }
+
+#endif
   }
 }

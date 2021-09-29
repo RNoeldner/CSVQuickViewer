@@ -80,8 +80,9 @@ namespace CsvTools
 
     protected bool SelfOpenedStream;
 
+    /// <inheritdoc />
     /// <summary>
-    ///   Constructor for abstract base call for <see cref="IFileReader" />
+    ///   Constructor for abstract base call for <see cref="T:CsvTools.IFileReaderWithEvents" />
     /// </summary>
     /// <param name="fileName">Path to a physical file (if used)</param>
     /// <param name="columnDefinition">List of column definitions</param>
@@ -160,6 +161,7 @@ namespace CsvTools
     /// <value>The record number.</value>
     public virtual long RecordNumber { get; protected set; }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the number of rows changed, inserted, or deleted by execution of the SQL statement.
     /// </summary>
@@ -183,14 +185,16 @@ namespace CsvTools
 
     protected string FullPath { get; }
 
+    /// <inheritdoc />
     /// <summary>
-    ///   Gets the <see cref="object" /> with the specified name.
+    ///   Gets the <see cref="T:System.Object" /> with the specified name.
     /// </summary>
     /// <value></value>
     public override object this[string columnName] => GetValue(GetOrdinal(columnName));
 
+    /// <inheritdoc />
     /// <summary>
-    ///   Gets the <see cref="object" /> with the specified column.
+    ///   Gets the <see cref="T:System.Object" /> with the specified column.
     /// </summary>
     /// <value></value>
     public override object this[int columnNumber] => GetValue(columnNumber);
@@ -220,7 +224,7 @@ namespace CsvTools
     /// </param>
     /// <param name="warnings">A <see cref="ColumnErrorDictionary" /> to store possible warnings</param>
     /// <returns></returns>
-    public static Tuple<IReadOnlyCollection<string>, int> AdjustColumnName(
+    internal static Tuple<IReadOnlyCollection<string>, int> AdjustColumnName(
       IEnumerable<string> columns,
       int fieldCount,
       ColumnErrorDictionary? warnings)
@@ -274,8 +278,9 @@ namespace CsvTools
       return new Tuple<IReadOnlyCollection<string>, int>(previousColumns, issuesCounter);
     }
 
+    /// <inheritdoc />
     /// <summary>
-    ///   Closes the <see cref="IDataReader" /> Object.
+    ///   Closes the <see cref="T:System.Data.IDataReader" /> Object.
     /// </summary>
     public override void Close()
     {
@@ -285,14 +290,11 @@ namespace CsvTools
 
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
 
-    public new virtual async Task CloseAsync()
-    {
-      await Task.Run(() => base.Close());
-    }
+    public new virtual async Task CloseAsync() => await Task.Run(() => base.Close());
 
 #endif
 
-    // To detect redundant calls
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the boolean.
     /// </summary>
@@ -310,13 +312,14 @@ namespace CsvTools
         $"'{CurrentRowColumnText[i]}' is not a boolean ({GetColumn(i).ValueFormat.True}/{GetColumn(i).ValueFormat.False})");
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the 8-bit unsigned integer value of the specified column.
     /// </summary>
     /// <param name="i">The zero-based column ordinal.</param>
     /// <returns>The 8-bit unsigned integer value of the specified column.</returns>
-    /// <exception cref="IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
+    /// <exception cref="T:System.IndexOutOfRangeException">
+    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
     public override byte GetByte(int i)
     {
@@ -330,6 +333,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Reads a stream of bytes from the specified column offset into the buffer as an array,
     ///   starting at the given buffer offset.
@@ -344,17 +348,18 @@ namespace CsvTools
     /// </param>
     /// <param name="length">The number of bytes to read.</param>
     /// <returns>The actual number of bytes read.</returns>
-    /// <exception cref="NotImplementedException"></exception>
+    /// <exception cref="T:System.NotImplementedException"></exception>
     public override long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) =>
       throw new NotImplementedException();
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the character value of the specified column.
     /// </summary>
     /// <param name="i">The zero-based column ordinal.</param>
     /// <returns>The character value of the specified column.</returns>
-    /// <exception cref="IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
+    /// <exception cref="T:System.IndexOutOfRangeException">
+    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
     public override char GetChar(int i) => GetString(i)[0];
 
@@ -396,14 +401,16 @@ namespace CsvTools
     /// <returns></returns>
     public virtual IColumn GetColumn(int columnNumber) => Column[columnNumber];
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the data type information for the specified field.
     /// </summary>
     /// <param name="i">The index of the field to find.</param>
     /// <returns>The data type information for the specified field.</returns>
-    /// <exception cref="NotImplementedException"></exception>
+    /// <exception cref="T:System.NotImplementedException"></exception>
     public override string GetDataTypeName(int i) => GetFieldType(i).Name;
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the date and time data value of the specified field.
     /// </summary>
@@ -427,6 +434,7 @@ namespace CsvTools
         $"'{CurrentRowColumnText[columnNumber]}' is not a date of the format '{GetColumn(columnNumber).ValueFormat.DateFormat}'");
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the decimal.
     /// </summary>
@@ -442,6 +450,7 @@ namespace CsvTools
       throw WarnAddFormatException(columnNumber, $"'{CurrentRowColumnText[columnNumber]}' is not a decimal");
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the double.
     /// </summary>
@@ -459,6 +468,7 @@ namespace CsvTools
 
     public override IEnumerator GetEnumerator() => new DbEnumerator(this, true);
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the type of the field.
     /// </summary>
@@ -466,6 +476,7 @@ namespace CsvTools
     /// <returns>The .NET type of the column</returns>
     public override Type GetFieldType(int columnNumber) => GetColumn(columnNumber).ValueFormat.DataType.GetNetType();
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the single-precision floating point number of the specified field.
     /// </summary>
@@ -481,6 +492,7 @@ namespace CsvTools
       throw WarnAddFormatException(columnNumber, $"'{CurrentRowColumnText[columnNumber]}' is not a float");
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the unique identifier.
     /// </summary>
@@ -496,6 +508,7 @@ namespace CsvTools
       throw WarnAddFormatException(columnNumber, $"'{CurrentRowColumnText[columnNumber]}' is not an GUID");
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the 16-bit signed integer value of the specified field.
     /// </summary>
@@ -503,6 +516,7 @@ namespace CsvTools
     /// <returns>The 16-bit signed integer value of the specified field.</returns>
     public override short GetInt16(int columnNumber) => GetInt16(CurrentRowColumnText[columnNumber], columnNumber);
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the int32.
     /// </summary>
@@ -542,6 +556,7 @@ namespace CsvTools
       return null;
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the int64.
     /// </summary>
@@ -580,6 +595,7 @@ namespace CsvTools
       return null;
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the name for the field to find.
     /// </summary>
@@ -587,11 +603,12 @@ namespace CsvTools
     /// <returns>
     ///   The name of the field or the empty string (""), if there is no value to return.
     /// </returns>
-    /// <exception cref="IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
+    /// <exception cref="T:System.IndexOutOfRangeException">
+    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
     public override string GetName(int columnNumber) => GetColumn(columnNumber).Name;
 
+    /// <inheritdoc />
     /// <summary>
     ///   Return the index of the named field.
     /// </summary>
@@ -612,13 +629,14 @@ namespace CsvTools
       return -1;
     }
 
+    /// <inheritdoc />
     /// <summary>
-    ///   Returns a <see cref="DataTable" /> that describes the column meta data of the <see
-    ///   cref="IDataReader" /> .
+    ///   Returns a <see cref="T:System.Data.DataTable" /> that describes the column meta data of the
+    ///   <see cref="T:System.Data.IDataReader" /> .
     /// </summary>
-    /// <returns>A <see cref="DataTable" /> that describes the column meta data.</returns>
-    /// <exception cref="InvalidOperationException">
-    ///   The <see cref="IDataReader" /> is closed.
+    /// <returns>A <see cref="T:System.Data.DataTable" /> that describes the column meta data.</returns>
+    /// <exception cref="T:System.InvalidOperationException">
+    ///   The <see cref="T:System.Data.IDataReader" /> is closed.
     /// </exception>
     public override DataTable GetSchemaTable()
     {
@@ -648,13 +666,14 @@ namespace CsvTools
     public override Stream GetStream(int columnNumber) =>
       new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[columnNumber]));
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the originally provided text in a column
     /// </summary>
     /// <param name="columnNumber">The column number.</param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException">Row has not been read</exception>
-    /// <exception cref="ArgumentOutOfRangeException">ColumnNumber invalid</exception>
+    /// <exception cref="T:System.InvalidOperationException">Row has not been read</exception>
+    /// <exception cref="T:System.ArgumentOutOfRangeException">ColumnNumber invalid</exception>
     public override string GetString(int columnNumber)
     {
       if (CurrentRowColumnText is null)
@@ -667,6 +686,7 @@ namespace CsvTools
 
     public override TextReader GetTextReader(int columnNumber) => new StringReader(CurrentRowColumnText[columnNumber]);
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the value of a column
     /// </summary>
@@ -703,6 +723,7 @@ namespace CsvTools
       return ret;
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets all the attribute fields in the collection for the current record.
     /// </summary>
@@ -736,13 +757,14 @@ namespace CsvTools
     public void HandleWarning(int columnNumber, string message) =>
       Warning?.Invoke(this, GetWarningEventArgs(columnNumber, message.AddWarningId()));
 
+    /// <inheritdoc />
     /// <summary>
     ///   Return whether the specified field is set to null.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
     /// <returns>true if the specified field is set to null; otherwise, false.</returns>
-    /// <exception cref="IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
+    /// <exception cref="T:System.IndexOutOfRangeException">
+    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
     public override bool IsDBNull(int columnNumber)
     {
@@ -757,6 +779,7 @@ namespace CsvTools
              && string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[columnNumber]]);
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Advances the data reader to the next result, when reading the results of batch SQL statements.
     /// </summary>

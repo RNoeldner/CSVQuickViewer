@@ -77,55 +77,55 @@ namespace CsvTools
       Logger.Information($"Size of file: {StringConversion.DynamicStorageSize(fileInfo.Length)}");
 
 #if !QUICK
-			// load from Setting file
-			if (fileName2.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase)
-					|| FileSystemUtils.FileExists(fileName2 + CsvFile.cCsvSettingExtension))
-			{
-				var fileNameSetting = !fileName2.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase)
-																? fileName2 + CsvFile.cCsvSettingExtension
-																: fileName2;
-				var fileNameFile = fileNameSetting.Substring(0, fileNameSetting.Length - CsvFile.cCsvSettingExtension.Length);
+      // load from Setting file
+      if (fileName2.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase)
+          || FileSystemUtils.FileExists(fileName2 + CsvFile.cCsvSettingExtension))
+      {
+        var fileNameSetting = !fileName2.EndsWith(CsvFile.cCsvSettingExtension, StringComparison.OrdinalIgnoreCase)
+                                ? fileName2 + CsvFile.cCsvSettingExtension
+                                : fileName2;
+        var fileNameFile = fileNameSetting.Substring(0, fileNameSetting.Length - CsvFile.cCsvSettingExtension.Length);
 
-				// we defiantly have a the extension with the name
-				var fileSettingSer = SerializedFilesLib.LoadCsvFile(fileNameSetting);
-				Logger.Information(
-					"Configuration read from setting file {filename}",
-					FileSystemUtils.GetShortDisplayFileName(fileNameSetting, 40));
+        // we defiantly have a the extension with the name
+        var fileSettingSer = SerializedFilesLib.LoadCsvFile(fileNameSetting);
+        Logger.Information(
+          "Configuration read from setting file {filename}",
+          FileSystemUtils.GetShortDisplayFileName(fileNameSetting, 40));
 
-				var columnCollection = new ColumnCollection();
+        var columnCollection = new ColumnCollection();
 
-				// un-ignore all ignored columns
-				foreach (var col in fileSettingSer.ColumnCollection.Where(x => x.Ignore))
-					columnCollection.Add(
-						new ImmutableColumn(
-							col.Name,
-							col.ValueFormat,
-							col.ColumnOrdinal,
-							col.Convert,
-							col.DestinationName,
-							false,
-							col.TimePart,
-							col.TimePartFormat,
-							col.TimeZonePart));
+        // un-ignore all ignored columns
+        foreach (var col in fileSettingSer.ColumnCollection.Where(x => x.Ignore))
+          columnCollection.Add(
+            new ImmutableColumn(
+              col.Name,
+              col.ValueFormat,
+              col.ColumnOrdinal,
+              col.Convert,
+              col.DestinationName,
+              false,
+              col.TimePart,
+              col.TimePartFormat,
+              col.TimeZonePart));
 
-				return new DelimitedFileDetectionResultWithColumns(
-					fileNameFile,
-					fileSettingSer.SkipRows,
-					fileSettingSer.CodePageId,
-					fileSettingSer.ByteOrderMark,
-					fileSettingSer.QualifyAlways,
-					fileSettingSer.IdentifierInContainer,
-					fileSettingSer.CommentLine,
-					fileSettingSer.EscapePrefix,
-					fileSettingSer.FieldDelimiter,
-					fileSettingSer.FieldQualifier,
-					fileSettingSer.HasFieldHeader,
-					false,
-					fileSettingSer.NoDelimitedFile,
-					fileSettingSer.NewLine,
-					columnCollection,
-					fileSettingSer is BaseSettingPhysicalFile bas ? bas.ColumnFile : string.Empty);
-			}
+        return new DelimitedFileDetectionResultWithColumns(
+          fileNameFile,
+          fileSettingSer.SkipRows,
+          fileSettingSer.CodePageId,
+          fileSettingSer.ByteOrderMark,
+          fileSettingSer.QualifyAlways,
+          fileSettingSer.IdentifierInContainer,
+          fileSettingSer.CommentLine,
+          fileSettingSer.EscapePrefix,
+          fileSettingSer.FieldDelimiter,
+          fileSettingSer.FieldQualifier,
+          fileSettingSer.HasFieldHeader,
+          false,
+          fileSettingSer.NoDelimitedFile,
+          fileSettingSer.NewLine,
+          columnCollection,
+          fileSettingSer is BaseSettingPhysicalFile bas ? bas.ColumnFile : string.Empty);
+      }
 #endif
       if (fileName2.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
         try
@@ -168,7 +168,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using IFileReader reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
+        using var reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
       await reader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
       var (_, b) = await reader.FillGuessColumnFormatReaderAsyncReader(
                      fillGuessSettings,
@@ -522,8 +522,8 @@ namespace CsvTools
         if (display.CancellationToken.IsCancellationRequested)
           return detectionResult;
         using var streamReader2 = await improvedStream
-                                    .GetStreamReaderAtStart(detectionResult.CodePageId, 0, display.CancellationToken)
-                                    .ConfigureAwait(false);
+                                        .GetStreamReaderAtStart(detectionResult.CodePageId, 0, display.CancellationToken)
+                                        .ConfigureAwait(false);
         streamReader2.ToBeginning();
         detectionResult = new DelimitedFileDetectionResult(
           detectionResult.FileName,
@@ -614,7 +614,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
+        using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
       return await improvedStream.GetDetectionResult(
                fileName,
                display,
@@ -679,7 +679,7 @@ namespace CsvTools
       if (improvedStream is null)
         throw new ArgumentNullException(nameof(improvedStream));
       using var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
-                               .ConfigureAwait(false);
+                                                 .ConfigureAwait(false);
       textReader.ToBeginning();
       return textReader.GuessDelimiter(escapeCharacter, cancellationToken);
     }
@@ -765,7 +765,7 @@ namespace CsvTools
 
           var numeric = headerRow.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
           var boolHead = headerRow.Where(header => StringConversion.StringToBooleanStrict(header, "1", "0") != null)
-            .ToList();
+                                  .ToList();
           var specials = headerRow.Where(header => Regex.IsMatch(header, @"[^\w\d\-_\s<>#,.*\[\]\(\)+?!]")).ToList();
           if (numeric.Count + boolHead.Count + specials.Count >= halfTheColumns)
           {
@@ -849,7 +849,7 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       using var reader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
-                           .ConfigureAwait(false);
+                                             .ConfigureAwait(false);
       return GuessHasHeader(reader, commentLine, fieldDelimiter, cancellationToken);
     }
 
@@ -860,7 +860,7 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       using var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
-                               .ConfigureAwait(false);
+                                                 .ConfigureAwait(false);
       return textReader.GuessLineComment(cancellationToken);
     }
 
@@ -920,7 +920,7 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       using var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
-                               .ConfigureAwait(false);
+                                                 .ConfigureAwait(false);
       return textReader.GuessNewline(fieldQualifier, cancellationToken);
     }
 
@@ -941,7 +941,7 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       using var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
-                               .ConfigureAwait(false);
+                                                 .ConfigureAwait(false);
       var qualifier = textReader.GuessQualifier(fieldDelimiter, cancellationToken);
       if (qualifier != '\0')
         return char.ToString(qualifier);
@@ -1143,7 +1143,7 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       using var streamReader = await improvedStream.GetStreamReaderAtStart(codePageID, 0, cancellationToken)
-                                 .ConfigureAwait(false);
+                                                   .ConfigureAwait(false);
       return streamReader.GuessStartRow(fieldDelimiter, fieldQualifier, commentLine, cancellationToken);
     }
 
@@ -1171,7 +1171,7 @@ namespace CsvTools
       var fieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
       var fieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
       using var streamReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
-                                 .ConfigureAwait(false);
+                                                   .ConfigureAwait(false);
       streamReader.ToBeginning();
       var isStartOfColumn = true;
       while (!streamReader.EndOfStream)
@@ -1319,7 +1319,7 @@ namespace CsvTools
       return dc;
     }
 
-    private static IFileReader GetReaderFromDetectionResult(
+    private static IFileReaderWithEvents GetReaderFromDetectionResult(
       string fileName,
       DelimitedFileDetectionResult detectionResult,
       IProcessDisplay processDisplay)

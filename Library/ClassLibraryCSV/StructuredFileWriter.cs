@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="CsvTools.BaseFileWriter" />
   /// <summary>
   ///   A class to write structured Files like XML or JASON
   /// </summary>
@@ -97,7 +98,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var writer = new StreamWriter(output, new UTF8Encoding(true), 4096);
+        using var writer = new StreamWriter(output, new UTF8Encoding(true), 4096);
       SetColumns(reader);
       var numColumns = Columns.Count();
       if (numColumns == 0)

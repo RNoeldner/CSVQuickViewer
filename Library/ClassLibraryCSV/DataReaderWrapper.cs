@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ * Copyright (C) 2014 Raphael NÃ¶ldner : http://csvquickviewer.com
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -21,20 +21,20 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   /// <summary>
   ///   Wrapper around another an open IDataReader adding artificial fields and removing ignored columns
   /// </summary>
   /// <remarks>
-  ///   Introduced to allow a stream into SQLBulkCopy and possibly replace CopyToDataTableInfo. <br
-  ///   /> This does not need to be disposed the passed in Reader though need to be disposed. <br />
+  ///   Introduced to allow a stream into SQLBulkCopy and possibly replace CopyToDataTableInfo. <br /> This does not need to be disposed the passed in Reader though need to be disposed. <br />
   ///   Closing does close the passed in reader
   /// </remarks>
   public class DataReaderWrapper : DbDataReader
   {
-    public readonly ReaderMapping ReaderMapping;
-    protected readonly IFileReader? FileReader;
-    protected IDataReader DataReader;
+    protected readonly IFileReaderWithEvents? FileReader;
     private readonly long m_RecordLimit;
+    public readonly ReaderMapping ReaderMapping;
+    protected IDataReader DataReader;
 
     /// <summary>
     ///   Constructor for a DataReaderWrapper <br /> This wrapper adds artificial fields like Error,
@@ -55,7 +55,7 @@ namespace CsvTools
       bool addRecNum = false)
     {
       DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
-      FileReader = reader as IFileReader;
+      FileReader = reader as IFileReaderWithEvents;
       if (reader.IsClosed)
         throw new ArgumentException("Reader must be opened");
       m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
@@ -66,14 +66,14 @@ namespace CsvTools
     ///   Constructor for a DataReaderWrapper, this wrapper adds artificial fields like Error, start
     ///   and end Line or record number
     /// </summary>
-    /// <param name="fileReader"><see cref="IFileReader" /></param>
+    /// <param name="fileReader"><see cref="IFileReaderWithEvents" /></param>
     /// <param name="recordLimit">Number of maximum records to read, 0 if there is no limit</param>
     /// <param name="addErrorField">Add artificial field Error</param>
     /// <param name="addStartLine">Add artificial field Start Line</param>
     /// <param name="addEndLine">Add artificial field End Line</param>
     /// <param name="addRecNum">Add artificial field Records Number</param>
     public DataReaderWrapper(
-      in IFileReader fileReader,
+      in IFileReaderWithEvents fileReader,
       long recordLimit = 0,
       bool addErrorField = false,
       bool addStartLine = false,
@@ -189,7 +189,7 @@ namespace CsvTools
 
         schemaRow[1] = column.Name; // Column name
         schemaRow[4] = column.Name; // Column name
-        schemaRow[5] = col; // Column ordinal
+        schemaRow[5] = col;         // Column ordinal
 
         if (col == ReaderMapping.DataTableStartLine || col == ReaderMapping.DataTableRecNum
                                                     || col == ReaderMapping.DataTableEndLine)
@@ -252,8 +252,8 @@ namespace CsvTools
       ReaderMapping.PrepareRead();
       // IDataReader does not support preferred ReadAsync
       var couldRead = DataReader is DbDataReader dbDataReader
-                                 ? await dbDataReader.ReadAsync(token).ConfigureAwait(false)
-                                 : DataReader.Read();
+                        ? await dbDataReader.ReadAsync(token).ConfigureAwait(false)
+                        : DataReader.Read();
 
       if (couldRead)
         RecordNumber++;

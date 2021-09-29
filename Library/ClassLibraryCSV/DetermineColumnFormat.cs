@@ -20,7 +20,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
 #if !QUICK
 using System.Data;
 using System.Data.Common;
@@ -584,7 +583,7 @@ namespace CsvTools
     ///   Get sample values for several columns at once, ignoring rows with issues or warning in the
     ///   columns, looping though all records in the reader
     /// </summary>
-    /// <param name="fileReader">A <see cref="IFileReader" /> data reader</param>
+    /// <param name="fileReader">A <see cref="IFileReaderWithEvents" /> data reader</param>
     /// <param name="maxRecords">The maximum records.</param>
     /// <param name="columns">
     ///   A Dictionary listing the columns and the number of samples needed for each
@@ -640,7 +639,8 @@ namespace CsvTools
         hasWarning = true;
       }
 
-      fileReader.Warning += WarningEvent;
+      if (fileReader is IFileReaderWithEvents readerWithEvents)
+        readerWithEvents.Warning += WarningEvent;
 
       var recordRead = 0;
       try
@@ -722,7 +722,8 @@ namespace CsvTools
       }
       finally
       {
-        fileReader.Warning -= WarningEvent;
+        if (fileReader is IFileReaderWithEvents readerWithEventsFinal)
+          readerWithEventsFinal.Warning -= WarningEvent;
       }
 
       return samples.ToDictionary(keyValue => keyValue.Key, keyValue => new SampleResult(keyValue.Value, recordRead));
@@ -1140,7 +1141,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, string.Empty, prc2);
+        using var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, string.Empty, prc2);
       await fileReader.OpenAsync(prc2.CancellationToken).ConfigureAwait(false);
       return await FillGuessColumnFormatReaderAsyncReader(
                fileReader,
@@ -1201,11 +1202,11 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var fileReader = await FunctionalDI.SQLDataReader(
-                               fileSettings.SqlStatement,
-                               processDisplay.SetProcess,
-                               fileSettings.Timeout,
-                               processDisplay.CancellationToken).ConfigureAwait(false);
+        using var fileReader = await FunctionalDI.SQLDataReader(
+                                 fileSettings.SqlStatement,
+                                 processDisplay.SetProcess,
+                                 fileSettings.Timeout,
+                                 processDisplay.CancellationToken).ConfigureAwait(false);
       await fileReader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
       // Put the information into the list
       var dataRowCollection = fileReader.GetSchemaTable()?.Rows;
@@ -1276,14 +1277,14 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var data = await FunctionalDI.SQLDataReader(
-                         sqlStatement.NoRecordSQL(),
-                         (sender, s) =>
-                         {
-                           if (s.Log) Logger.Debug(s.Text);
-                         },
-                         timeout,
-                         token).ConfigureAwait(false);
+        using var data = await FunctionalDI.SQLDataReader(
+                           sqlStatement.NoRecordSQL(),
+                           (sender, s) =>
+                           {
+                             if (s.Log) Logger.Debug(s.Text);
+                           },
+                           timeout,
+                           token).ConfigureAwait(false);
       await data.OpenAsync(token).ConfigureAwait(false);
       using var dt = data.GetSchemaTable();
       if (dt is null)
@@ -1301,8 +1302,8 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), null, timeout, token)
-                                         .ConfigureAwait(false);
+        using var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), null, timeout, token)
+                                           .ConfigureAwait(false);
       await data.OpenAsync(token).ConfigureAwait(false);
       var list = new List<string>();
       for (var index = 0; index < data.FieldCount; index++)

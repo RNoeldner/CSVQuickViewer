@@ -25,23 +25,23 @@ using System.Threading.Tasks;
 namespace CsvTools
 {
   /// <summary>
-  ///   A Class to write CSV Files
+  ///   Base class with methods used by all <see cref="IFileWriter"/>
   /// </summary>
   public abstract class BaseFileWriter
   {
     protected readonly IReadOnlyCollection<ImmutableColumn> ColumnDefinition;
 
     protected readonly List<WriterColumn> Columns = new List<WriterColumn>();
-    protected string m_Footer;
-    protected string Header;
-    protected readonly IValueFormat ValueFormatGeneral;
     private readonly string m_FileSettingDisplay;
+    private readonly string m_Footer;
     private readonly string m_FullPath;
     private readonly string m_IdentifierInContainer;
     private readonly bool m_KeepUnencrypted;
     private readonly string m_Recipient;
     private readonly Action<string>? m_ReportProgress;
     private readonly Action<long>? m_SetMaxProcess;
+    protected readonly IValueFormat ValueFormatGeneral;
+    protected string Header;
     private DateTime m_LastNotification = DateTime.Now;
 
     protected BaseFileWriter(
@@ -73,10 +73,10 @@ namespace CsvTools
         m_Footer = ReplacePlaceHolder(
           footer,
           fileName,
-          id );
+          id);
       else
         m_Footer = string.Empty;
-      
+
       if (valueFormatGeneral != null)
         ValueFormatGeneral = new ImmutableValueFormat(
           valueFormatGeneral.DataType,
@@ -95,7 +95,6 @@ namespace CsvTools
         columnDefinition
           ?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList()
         ?? new List<ImmutableColumn>();
-      
 
       m_FileSettingDisplay = fileSettingDisplay;
       m_Recipient = recipient ?? string.Empty;
@@ -109,16 +108,6 @@ namespace CsvTools
       processDisplayTime.Maximum = 0;
       m_SetMaxProcess = l => processDisplayTime.Maximum = l;
     }
-
-    /// <summary>
-    ///   Event handler called if a warning or error occurred
-    /// </summary>
-    public event EventHandler<WarningEventArgs>? Warning;
-
-    /// <summary>
-    ///   Event to be raised if writing is finished
-    /// </summary>
-    public event EventHandler? WriteFinished;
 
     /*
         /// <summary>
@@ -136,6 +125,16 @@ namespace CsvTools
         }
     */
     private long Records { get; set; }
+
+    /// <summary>
+    ///   Event handler called if a warning or error occurred
+    /// </summary>
+    public event EventHandler<WarningEventArgs>? Warning;
+
+    /// <summary>
+    ///   Event to be raised if writing is finished
+    /// </summary>
+    public event EventHandler? WriteFinished;
 
     /// <summary>
     ///   Gets the column information based on the SQL Source, but overwritten with the definitions
@@ -390,7 +389,6 @@ namespace CsvTools
           .Cast<WriterColumn>());
     }
 
-
     protected abstract Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
 
     protected static string
@@ -407,7 +405,6 @@ namespace CsvTools
     /// <param name="message">The message.</param>
     protected void HandleWarning(string columnName, string message) =>
       Warning?.Invoke(this, new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
-
 
     protected string TextEncodeField(
       object? dataObject,
@@ -455,10 +452,10 @@ namespace CsvTools
             case DataType.DateTime:
               displayAs = reader is null
                             ? StringConversion.DateTimeToString((DateTime) dataObject, columnInfo.ValueFormat)
-                            : StringConversion.DateTimeToString(HandleTimeZone((DateTime) dataObject, columnInfo, reader),columnInfo.ValueFormat);
+                            : StringConversion.DateTimeToString(HandleTimeZone((DateTime) dataObject, columnInfo, reader), columnInfo.ValueFormat);
               break;
 
-            case DataType.Guid:              
+            case DataType.Guid:
               displayAs = ((Guid) dataObject).ToString();
               break;
 

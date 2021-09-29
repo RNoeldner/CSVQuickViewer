@@ -153,7 +153,7 @@ namespace CsvTools.Tests
       m_CsvFile.FileName = UnitTestStatic.GetTestPath("BasicCSV.txt");
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       using var res = FunctionalDI.GetFileReader(m_CsvFile, TimeZoneInfo.Local.Id, processDisplay);
-      Assert.IsInstanceOfType(res, typeof(IFileReader));
+      Assert.IsInstanceOfType(res, typeof(IFileReaderWithEvents));
     }
 
     [TestMethod]
@@ -217,7 +217,7 @@ namespace CsvTools.Tests
     {
       var numCalled = 0;
       var test = new CsvFile();
-      test.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
+      test.PropertyChanged += delegate(object sender, PropertyChangedEventArgs e)
       {
         Assert.AreEqual("FileName", e.PropertyName);
         numCalled++;
@@ -318,12 +318,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(2, m_CsvFile.MappingCollection.Count, "FieldMapping");
 
       m_CsvFile.ColumnCollection.Clear();
-      m_CsvFile.ColumnCollection.Add(new Column("ID", DataType.Integer)
-      {
-        ColumnOrdinal = 1,
-        Ignore = false,
-        Convert = true
-      });
+      m_CsvFile.ColumnCollection.Add(new Column("ID", DataType.Integer) { ColumnOrdinal = 1, Ignore = false, Convert = true });
       m_CsvFile.ColumnCollection.Add(new Column { ColumnOrdinal = 2, Name = "Name" });
 
       m_CsvFile.WarnEmptyTailingColumns = false;

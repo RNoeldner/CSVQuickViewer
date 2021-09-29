@@ -27,7 +27,7 @@ namespace CsvTools
   /// <summary>
   ///   Json text file reader
   /// </summary>
-  public sealed class JsonFileReader : BaseFileReaderTyped, IFileReader
+  public sealed class JsonFileReader : BaseFileReaderTyped, IFileReaderWithEvents
   {
     private IImprovedStream? m_ImprovedStream;
 
@@ -90,36 +90,6 @@ namespace CsvTools
       GC.SuppressFinalize(this);
     }
 
-    protected override void Dispose(bool disposing)
-    {
-      if (disposing)
-      {
-        m_ImprovedStream?.Dispose();
-      }
-      m_StreamReader?.Dispose();
-      (m_JsonTextReader as IDisposable)?.Dispose();
-      m_JsonTextReader = null;
-      m_ImprovedStream = null;
-    }
-
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-
-    public new async ValueTask DisposeAsync()
-    {
-      await DisposeAsyncCore();
-
-      Dispose(false);
-      GC.SuppressFinalize(this);
-    }
-
-    private async ValueTask DisposeAsyncCore()
-    {
-      if (m_ImprovedStream != null)
-        await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
-    }
-
-#endif
-
     public override async Task OpenAsync(CancellationToken token)
     {
       Logger.Information("Opening JSON file {filename}", FileName);
@@ -172,6 +142,23 @@ namespace CsvTools
       }
     }
 
+    public override Task<bool> ReadAsync(CancellationToken token) => Task.FromResult(Read(token));
+
+    public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
+
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        m_ImprovedStream?.Dispose();
+      }
+
+      m_StreamReader?.Dispose();
+      (m_JsonTextReader as IDisposable)?.Dispose();
+      m_JsonTextReader = null;
+      m_ImprovedStream = null;
+    }
+
     public override bool Read(CancellationToken token)
     {
       if (!EndOfFile && !token.IsCancellationRequested)
@@ -188,10 +175,6 @@ namespace CsvTools
       HandleReadFinished();
       return false;
     }
-
-    public override Task<bool> ReadAsync(CancellationToken token) => Task.FromResult(Read(token));
-
-    public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
     /// <summary>
     ///   Gets the relative position.
@@ -279,7 +262,7 @@ namespace CsvTools
               // in case we are in an array combine all values but separate them with linefeed
               if (inArray && keyValuePairs[key] != null)
                 keyValuePairs[key] = (Convert.ToString(keyValuePairs[key]) ?? string.Empty) + '\n'
-                                     + m_JsonTextReader.Value;
+                                                                                            + m_JsonTextReader.Value;
               else
                 keyValuePairs[key] = m_JsonTextReader.Value;
               break;
@@ -308,8 +291,7 @@ namespace CsvTools
           }
 
           token.ThrowIfCancellationRequested();
-        }
-        while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey) && m_JsonTextReader.Read());
+        } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey) && m_JsonTextReader.Read());
 
         EndLineNumber = m_JsonTextReader.LineNumber;
 
@@ -402,5 +384,23 @@ namespace CsvTools
       m_JsonTextReader?.Close();
       m_JsonTextReader = new JsonTextReader(m_StreamReader) { SupportMultipleContent = true };
     }
+
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+
+    public new async ValueTask DisposeAsync()
+    {
+      await DisposeAsyncCore();
+
+      Dispose(false);
+      GC.SuppressFinalize(this);
+    }
+
+    private async ValueTask DisposeAsyncCore()
+    {
+      if (m_ImprovedStream != null)
+        await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
+    }
+
+#endif
   }
 }

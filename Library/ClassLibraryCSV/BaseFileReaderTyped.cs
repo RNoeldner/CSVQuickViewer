@@ -25,16 +25,15 @@ namespace CsvTools
   /// </summary>
   public abstract class BaseFileReaderTyped : BaseFileReader
   {
-    protected object?[] CurrentValues;
-
     private readonly bool m_TreatNbspAsSpace;
 
     private readonly string m_TreatTextAsNull;
 
     private readonly bool m_Trim;
+    protected object?[] CurrentValues;
 
     /// <summary>
-    ///   Constructor for abstract base call for <see cref="IFileReader" /> that does read typed
+    ///   Constructor for abstract base call for <see cref="IFileReaderWithEvents" /> that does read typed
     ///   values like Excel, SQl
     /// </summary>
     /// <param name="fileName">Path to a physical file (if used)</param>
