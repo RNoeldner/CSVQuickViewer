@@ -7,7 +7,7 @@ namespace CsvTools
 {
   public class TwoStepDataTableLoader : IDisposable
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    , IAsyncDisposable
+                                        , IAsyncDisposable
 #endif
   {
     private readonly Action? m_ActionBegin;
@@ -42,14 +42,6 @@ namespace CsvTools
       m_ActionBegin = actionBegin;
     }
 
-    public void Dispose()
-    {
-      m_FileReader?.Dispose();
-      m_FileReader = null;
-
-      GC.SuppressFinalize(this);
-    }
-
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
 
     public async ValueTask DisposeAsync()
@@ -57,13 +49,21 @@ namespace CsvTools
       if (m_FileReader != null)
       {
         await m_FileReader.DisposeAsync().ConfigureAwait(false);
-        m_FileReader=null;
+        m_FileReader = null;
       }
 
       // Suppress finalization.
       GC.SuppressFinalize(this);
     }
 #endif
+
+    public void Dispose()
+    {
+      m_FileReader?.Dispose();
+      m_FileReader = null;
+
+      GC.SuppressFinalize(this);
+    }
 
     public async Task StartAsync(
       IFileSetting fileSetting,
@@ -77,11 +77,11 @@ namespace CsvTools
         throw new FileReaderException($"Could not get reader for {fileSetting}");
 
       RowErrorCollection? warningList = null;
-      if (addWarning != null)
+      if (addWarning != null && m_FileReader is IFileReaderWithEvents readerWithEvents)
       {
-        warningList = new RowErrorCollection(m_FileReader);
-        m_FileReader.Warning += addWarning;
-        m_FileReader.Warning -= warningList.Add;
+        warningList = new RowErrorCollection(readerWithEvents);
+        readerWithEvents.Warning += addWarning;
+        readerWithEvents.Warning -= warningList.Add;
       }
 
       Logger.Information("Reading data for display");

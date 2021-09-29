@@ -17,6 +17,7 @@ using System.Collections.Generic;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   /// <summary>
   ///   Column errors for one row
   /// </summary>
@@ -28,7 +29,7 @@ namespace CsvTools
     {
     }
 
-    public ColumnErrorDictionary(in IFileReader reader)
+    public ColumnErrorDictionary(in IFileReaderWithEvents reader)
     {
       if (reader is null)
         throw new ArgumentNullException(nameof(reader));

@@ -17,7 +17,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="reader">A file reader</param>
     /// <returns></returns>
-    public static IReadOnlyCollection<IColumn> GetColumnsOfReader(this IFileReader reader)
+    public static IEnumerable<IColumn> GetColumnsOfReader(this IFileReader reader)
     {
       if (reader is null) throw new ArgumentNullException(nameof(reader));
       var retList = new List<IColumn>();
@@ -88,13 +88,13 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var wrapper = new DataReaderWrapper(
-        reader,
-        recordLimit,
-        includeErrorField,
-        addStartLine,
-        includeEndLineNo,
-        includeRecordNo);
+        using var wrapper = new DataReaderWrapper(
+          reader,
+          recordLimit,
+          includeErrorField,
+          addStartLine,
+          includeEndLineNo,
+          includeRecordNo);
       return await LoadDataTable(wrapper, TimeSpan.MaxValue, restoreErrorsFromColumn, progress, cancellationToken)
                .ConfigureAwait(false);
     }
@@ -142,7 +142,7 @@ namespace CsvTools
         var watch = Stopwatch.StartNew();
         while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 90)
                                                           && await wrapper.ReadAsync(cancellationToken)
-                                                            .ConfigureAwait(false))
+                                                                          .ConfigureAwait(false))
         {
           var dataRow = dataTable.NewRow();
           dataTable.Rows.Add(dataRow);

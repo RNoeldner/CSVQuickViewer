@@ -13,7 +13,7 @@ namespace CsvTools
   /// </summary>
   public class PagedFileReader : List<DynamicDataRecord>, INotifyCollectionChanged
   {
-    private readonly IFileReader m_FileReader;
+    private readonly IFileReaderWithEvents m_FileReader;
 
     private readonly List<ICollection<DynamicDataRecord>> m_PagedDataCache;
 
@@ -23,7 +23,7 @@ namespace CsvTools
 
     private DataReaderWrapper? m_DataReaderWrapper;
 
-    public PagedFileReader(in IFileReader fileReader, int pageSize, CancellationToken token)
+    public PagedFileReader(in IFileReaderWithEvents fileReader, int pageSize, CancellationToken token)
     {
       m_FileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
       m_Token = token;
@@ -31,12 +31,12 @@ namespace CsvTools
       m_PagedDataCache = new List<ICollection<DynamicDataRecord>>();
     }
 
-    public event NotifyCollectionChangedEventHandler? CollectionChanged;
-
     /// <summary>
     ///   First page has number 1
     /// </summary>
     public int PageIndex { get; set; }
+
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
     public void Close()
     {

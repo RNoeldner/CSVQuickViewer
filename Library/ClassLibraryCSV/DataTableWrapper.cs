@@ -24,7 +24,7 @@ namespace CsvTools
   ///   IFileReader implementation based on a data table, this is used to pass on a data table to a writer
   /// </summary>
   /// <remarks>Some functionality for progress reporting are not implemented</remarks>
-  public sealed class DataTableWrapper : DataReaderWrapper, IFileReader
+  public sealed class DataTableWrapper : DataReaderWrapper, IFileReaderWithEvents
   {
     public DataTableWrapper(in DataTable? dataTable)
       : base(
@@ -33,24 +33,7 @@ namespace CsvTools
         dataTable.Rows.Count) =>
       DataTable = dataTable;
 
-#pragma warning disable CS0067
-
-    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
-    public event EventHandler<RetryEventArgs>? OnAskRetry;
-
-    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
-    public event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
-
-    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
-    public event EventHandler? ReadFinished;
-
-    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
-    public event EventHandler<WarningEventArgs>? Warning;
-
-    public Func<Task>? OnOpen { get; set; }
-#pragma warning restore CS0067
-
-    public DataTable DataTable { get; }    
+    public DataTable DataTable { get; }
 
     public bool SupportsReset => true;
 
@@ -91,5 +74,22 @@ namespace CsvTools
       DataReader = DataTable.CreateDataReader();
       RecordNumber = 0;
     }
+
+#pragma warning disable CS0067
+
+    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
+    public event EventHandler<RetryEventArgs>? OnAskRetry;
+
+    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
+    public event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
+
+    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
+    public event EventHandler? ReadFinished;
+
+    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
+    public event EventHandler<WarningEventArgs>? Warning;
+
+    public Func<Task>? OnOpen { get; set; }
+#pragma warning restore CS0067
   }
 }
