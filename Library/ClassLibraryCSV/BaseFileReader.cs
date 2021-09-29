@@ -73,8 +73,8 @@ namespace CsvTools
     private int m_FieldCount;
 
     /// <summary>
-    ///   used to avoid reporting a fished execution twice it might be called on error before
-    ///   being called once execution is done
+    ///   used to avoid reporting a fished execution twice it might be called on error before being
+    ///   called once execution is done
     /// </summary>
     private bool m_IsFinished;
 
@@ -214,13 +214,12 @@ namespace CsvTools
     public event EventHandler<WarningEventArgs>? Warning;
 
     /// <summary>
-    ///   Does look at the provided column names, and checks them for valid entry, makes sure
-    ///   teh column names are unique and not empty, have teh right size etc.
+    ///   Does look at the provided column names, and checks them for valid entry, makes sure teh
+    ///   column names are unique and not empty, have teh right size etc.
     /// </summary>
     /// <param name="columns">The columns as read / provided</param>
     /// <param name="fieldCount">
-    ///   The maximum number of fields, if more than this number are provided, it will ignore
-    ///   these columns
+    ///   The maximum number of fields, if more than this number are provided, it will ignore these columns
     /// </param>
     /// <param name="warnings">A <see cref="ColumnErrorDictionary" /> to store possible warnings</param>
     /// <returns></returns>
@@ -319,7 +318,8 @@ namespace CsvTools
     /// <param name="i">The zero-based column ordinal.</param>
     /// <returns>The 8-bit unsigned integer value of the specified column.</returns>
     /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    ///   The index passed was outside the range of 0 through <see
+    ///   cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
     public override byte GetByte(int i)
     {
@@ -339,9 +339,7 @@ namespace CsvTools
     ///   starting at the given buffer offset.
     /// </summary>
     /// <param name="i">The zero-based column ordinal.</param>
-    /// <param name="fieldOffset">
-    ///   The index within the field from which to start the read operation.
-    /// </param>
+    /// <param name="fieldOffset">The index within the field from which to start the read operation.</param>
     /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
     /// <param name="bufferoffset">
     ///   The index for <paramref name="buffer" /> to start the read operation.
@@ -359,13 +357,14 @@ namespace CsvTools
     /// <param name="i">The zero-based column ordinal.</param>
     /// <returns>The character value of the specified column.</returns>
     /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    ///   The index passed was outside the range of 0 through <see
+    ///   cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
     public override char GetChar(int i) => GetString(i)[0];
 
     /// <summary>
-    ///   Reads a stream of characters from the specified column offset into the buffer as an
-    ///   array, starting at the given buffer offset.
+    ///   Reads a stream of characters from the specified column offset into the buffer as an array,
+    ///   starting at the given buffer offset.
     /// </summary>
     /// <param name="i">The zero-based column ordinal.</param>
     /// <param name="fieldOffset">The index within the row from which to start the read operation.</param>
@@ -600,11 +599,10 @@ namespace CsvTools
     ///   Gets the name for the field to find.
     /// </summary>
     /// <param name="columnNumber">The index of the field to find.</param>
-    /// <returns>
-    ///   The name of the field or the empty string (""), if there is no value to return.
-    /// </returns>
+    /// <returns>The name of the field or the empty string (""), if there is no value to return.</returns>
     /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    ///   The index passed was outside the range of 0 through <see
+    ///   cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
     public override string GetName(int columnNumber) => GetColumn(columnNumber).Name;
 
@@ -631,8 +629,8 @@ namespace CsvTools
 
     /// <inheritdoc />
     /// <summary>
-    ///   Returns a <see cref="T:System.Data.DataTable" /> that describes the column meta data of the
-    ///   <see cref="T:System.Data.IDataReader" /> .
+    ///   Returns a <see cref="T:System.Data.DataTable" /> that describes the column meta data of
+    ///   the <see cref="T:System.Data.IDataReader" /> .
     /// </summary>
     /// <returns>A <see cref="T:System.Data.DataTable" /> that describes the column meta data.</returns>
     /// <exception cref="T:System.InvalidOperationException">
@@ -706,13 +704,13 @@ namespace CsvTools
         ret = column.ValueFormat.DataType switch
         {
           DataType.DateTime => GetDateTime(columnNumber),
-          DataType.Integer  => IntPtr.Size == 4 ? GetInt32(columnNumber) : GetInt64(columnNumber),
-          DataType.Double   => GetDouble(columnNumber),
-          DataType.Numeric  => GetDecimal(columnNumber),
-          DataType.Boolean  => GetBoolean(columnNumber),
-          DataType.Guid     => GetGuid(columnNumber),
-          DataType.String   => GetString(columnNumber),
-          _                 => throw new ArgumentOutOfRangeException()
+          DataType.Integer => IntPtr.Size == 4 ? GetInt32(columnNumber) : GetInt64(columnNumber),
+          DataType.Double => GetDouble(columnNumber),
+          DataType.Numeric => GetDecimal(columnNumber),
+          DataType.Boolean => GetBoolean(columnNumber),
+          DataType.Guid => GetGuid(columnNumber),
+          DataType.String => GetString(columnNumber),
+          _ => throw new ArgumentOutOfRangeException()
         };
       }
       catch (FormatException)
@@ -764,7 +762,8 @@ namespace CsvTools
     /// <param name="columnNumber">The index of the field to find.</param>
     /// <returns>true if the specified field is set to null; otherwise, false.</returns>
     /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    ///   The index passed was outside the range of 0 through <see
+    ///   cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
     public override bool IsDBNull(int columnNumber)
     {
@@ -789,8 +788,8 @@ namespace CsvTools
     public override Task<bool> NextResultAsync(CancellationToken cancellationToken) => Task.FromResult(false);
 
     /// <summary>
-    ///   Routine to open the reader, each implementation should call BeforeOpenAsync,
-    ///   InitColumns, ParseColumnName and last FinishOpen;
+    ///   Routine to open the reader, each implementation should call BeforeOpenAsync, InitColumns,
+    ///   ParseColumnName and last FinishOpen;
     /// </summary>
     /// <param name="token"></param>
     /// <returns></returns>
@@ -843,8 +842,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Sets the Progress to marquee, calls OnOpen Event, check if the file does exist if its
-    ///   a physical file
+    ///   Sets the Progress to marquee, calls OnOpen Event, check if the file does exist if its a
+    ///   physical file
     /// </summary>
     protected async Task BeforeOpenAsync(string message)
     {
@@ -862,9 +861,7 @@ namespace CsvTools
     {
       m_IsFinished = false;
       EndOfFile = false;
-#if !QUICK
       OpenFinished?.Invoke(this, Column);
-#endif
       SetMaxProcess?.Invoke(this, cMaxValue);
     }
 
@@ -874,15 +871,15 @@ namespace CsvTools
     /// <param name="inputBoolean">The input.</param>
     /// <param name="columnNumber">The column.</param>
     /// <returns>
-    ///   The Boolean, if conversion is not successful: <c>NULL</c> the event handler for
-    ///   warnings is called
+    ///   The Boolean, if conversion is not successful: <c>NULL</c> the event handler for warnings
+    ///   is called
     /// </returns>
     protected bool? GetBooleanNull(string inputBoolean, int columnNumber) =>
       GetBooleanNull(inputBoolean, GetColumn(columnNumber));
 
     /// <summary>
-    ///   This routine will read a date from a typed or untyped reader, will combined date with
-    ///   time and apply timeZone adjustments
+    ///   This routine will read a date from a typed or untyped reader, will combined date with time
+    ///   and apply timeZone adjustments
     /// </summary>
     /// <param name="inputDate"></param>
     /// <param name="strInputDate"></param>
@@ -982,8 +979,8 @@ namespace CsvTools
     /// <param name="inputValue">The input.</param>
     /// <param name="columnNumber">The column.</param>
     /// <returns>
-    ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the
-    ///   event handler for warnings is called
+    ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
+    ///   handler for warnings is called
     /// </returns>
     protected double? GetDoubleNull(string inputValue, int columnNumber)
     {
@@ -1087,8 +1084,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update
-    ///   the maximum column size
+    ///   Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update the
+    ///   maximum column size
     ///   Attention: Trimming needs to be handled before hand
     /// </summary>
     /// <param name="inputString">The input string.</param>
@@ -1153,8 +1150,8 @@ namespace CsvTools
         {
           if (Column[colIndex].Name.Equals(GetDefaultName(colIndex)))
           {
-            // Might have passed in the column names in m_ColumnDefinition (used with
-            // Manifest data accompanying a file without header)
+            // Might have passed in the column names in m_ColumnDefinition (used with Manifest data
+            // accompanying a file without header)
             var newDef = m_ColumnDefinition.FirstOrDefault(x => x.ColumnOrdinal == colIndex);
             if (newDef != null && !string.IsNullOrEmpty(newDef.Name))
             {
@@ -1265,8 +1262,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Get the default names, if columnDefinitions is provided try to find the name looking
-    ///   at teh ColumnOrdinal, otherwise is ColumnX (X being the column number +1)
+    ///   Get the default names, if columnDefinitions is provided try to find the name looking at
+    ///   teh ColumnOrdinal, otherwise is ColumnX (X being the column number +1)
     /// </summary>
     /// <param name="columnNumber">The column number counting from 0</param>
     /// <returns>A string with the column name</returns>
@@ -1302,8 +1299,8 @@ namespace CsvTools
     /// <param name="value">The input.</param>
     /// <param name="columnNumber">The column number for retrieving the Format information.</param>
     /// <returns>
-    ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the
-    ///   event handler for warnings is called
+    ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
+    ///   handler for warnings is called
     /// </returns>
     private short GetInt16(string value, int columnNumber)
     {
@@ -1346,6 +1343,8 @@ namespace CsvTools
           : $"'{inputDate}' is not a date of the format {display}");
     }
 
+    public event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
+
 #if !QUICK
 
     /// <summary>
@@ -1353,8 +1352,6 @@ namespace CsvTools
     ///   does not exist or a query ran into a timeout
     /// </summary>
     public event EventHandler<RetryEventArgs>? OnAskRetry;
-
-    public event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
 
 #endif
   }
