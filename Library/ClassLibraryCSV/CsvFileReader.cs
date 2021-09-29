@@ -481,13 +481,13 @@ namespace CsvTools
       object? ret = column.ValueFormat.DataType switch
       {
         DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(columnNumber), column, true),
-        DataType.Integer  => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
-        DataType.Double   => GetDoubleNull(value, columnNumber),
-        DataType.Numeric  => GetDecimalNull(value, columnNumber),
-        DataType.Boolean  => GetBooleanNull(value, columnNumber),
-        DataType.Guid     => GetGuidNull(value, column.ColumnOrdinal),
-        DataType.String   => value,
-        _                 => throw new ArgumentOutOfRangeException()
+        DataType.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
+        DataType.Double => GetDoubleNull(value, columnNumber),
+        DataType.Numeric => GetDecimalNull(value, columnNumber),
+        DataType.Boolean => GetBooleanNull(value, columnNumber),
+        DataType.Guid => GetGuidNull(value, column.ColumnOrdinal),
+        DataType.String => value,
+        _ => throw new ArgumentOutOfRangeException()
       };
       return ret ?? DBNull.Value;
     }
@@ -1010,7 +1010,7 @@ namespace CsvTools
               // in case a linefeed actually follows ignore the EscapePrefixChar but handle the
               // regular processing
               '\\' when nextChar == 'a' => '\a',
-              _                         => nextChar
+              _ => nextChar
             };
           }
         }

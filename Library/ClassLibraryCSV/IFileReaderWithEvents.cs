@@ -13,10 +13,7 @@
  */
 
 using System;
-#if !QUICK
 using System.Collections.Generic;
-
-#endif
 
 namespace CsvTools
 {
@@ -27,25 +24,29 @@ namespace CsvTools
   public interface IFileReaderWithEvents : IFileReader
   {
     /// <summary>
-    ///   Event handler called if a warning or error occurred
+    ///   Event to be raised once the reader is opened, the column information is now known and
+    ///   passed to the EventHandler
     /// </summary>
-    event EventHandler<WarningEventArgs> Warning;
+    event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
 
     /// <summary>
     ///   Event to be raised once the reader is finished reading the file
     /// </summary>
-    event EventHandler ReadFinished;
+    event EventHandler? ReadFinished;
 
     /// <summary>
-    ///   Event to be raised once the reader is opened, the column information is now known and
-    ///   passed to the EventHandler
+    ///   Event handler called if a warning or error occurred
     /// </summary>
-    event EventHandler<IReadOnlyCollection<IColumn>> OpenFinished;
+    event EventHandler<WarningEventArgs>? Warning;
+
+#if !QUICK
 
     /// <summary>
     ///   Occurs when an open process failed, allowing the user to change the timeout or provide the
     ///   needed file etc.
     /// </summary>
-    event EventHandler<RetryEventArgs> OnAskRetry;
+    event EventHandler<RetryEventArgs>? OnAskRetry;
+
+#endif
   }
 }

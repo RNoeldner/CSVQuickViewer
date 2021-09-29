@@ -71,6 +71,7 @@
 		<Compile Include="..\ClassLibraryCSV\StringUtils.cs" Link="StringUtils.cs" />
 		<Compile Include="..\ClassLibraryCSV\SourceAccess.cs" Link="SourceAccess.cs" />
 		<Compile Include="..\ClassLibraryCSV\IFileReader.cs" Link="IFileReader.cs" />
+		<Compile Include="..\ClassLibraryCSV\IFileReaderWithEvents.cs" Link="IFileReaderWithEvents.cs" />
 		<Compile Include="..\ClassLibraryCSV\IFileWriter.cs" Link="IFileWriter.cs" />
 		<Compile Include="..\ClassLibraryCSV\WarningEventArgs.cs" Link="WarningEventArgs.cs" />
 		<Compile Include="..\ClassLibraryCSV\ReaderConstants.cs" Link="ReaderConstants.cs" />
@@ -80,11 +81,11 @@
 		<Compile Include="..\ClassLibraryCSV\Immutable\ImmutableColumn.cs" Link="ImmutableColumn.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileWriterException.cs" Link="FileWriterException.cs" />
 		<Compile Include="..\ClassLibraryCSV\ImprovedTextReaderPositionStore.cs" Link="ImprovedTextReaderPositionStore.cs" />
-		<Compile Include="..\ClassLibraryCSV\ManifestData.cs" Link="ManifestData.cs" />		
+		<Compile Include="..\ClassLibraryCSV\ManifestData.cs" Link="ManifestData.cs" />
 		<Compile Include="..\ClassLibraryCSV\EnumDescriptionConverter.cs" Link="EnumDescriptionConverter.cs" />
 		<Compile Include="..\ClassLibraryCSV\HTMLStyle.cs" Link="HTMLStyle.cs" />
-		<Compile Include="..\ClassLibraryCSV\BiDirectionalDictionary.cs" Link="BiDirectionalDictionary.cs" />		
-		<Compile Include="..\ClassLibraryCSV\IntervalAction.cs" Link="IntervalAction.cs" />		
+		<Compile Include="..\ClassLibraryCSV\BiDirectionalDictionary.cs" Link="BiDirectionalDictionary.cs" />
+		<Compile Include="..\ClassLibraryCSV\IntervalAction.cs" Link="IntervalAction.cs" />
 		<Compile Include="..\ClassLibraryCSV\WriterColumn.cs" Link="WriterColumn.cs" />
 		<Compile Include="..\ClassLibraryCSV\DetermineColumnFormat.cs" Link="DetermineColumnFormat.cs" />
 		<Compile Include="..\ClassLibraryCSV\Mutable\ColumnCollection.cs" Link="ColumnCollection.cs" />
@@ -105,12 +106,12 @@
 		<Folder Include="Properties\" />
 	</ItemGroup>
 	<ProjectExtensions>
-	  <MonoDevelop>
-	    <Properties>
-	      <Policies>
-	        <DotNetNamingPolicy DirectoryNamespaceAssociation="None" ResourceNamePolicy="FileFormatDefault" />
-	      </Policies>
-	    </Properties>
-	  </MonoDevelop>
+		<MonoDevelop>
+			<Properties>
+				<Policies>
+					<DotNetNamingPolicy DirectoryNamespaceAssociation="None" ResourceNamePolicy="FileFormatDefault" />
+				</Policies>
+			</Properties>
+		</MonoDevelop>
 	</ProjectExtensions>
 </Project>
