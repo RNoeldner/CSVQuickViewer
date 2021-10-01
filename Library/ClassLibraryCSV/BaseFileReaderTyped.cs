@@ -33,8 +33,8 @@ namespace CsvTools
     protected object?[] CurrentValues;
 
     /// <summary>
-    ///   Constructor for abstract base call for <see cref="IFileReaderWithEvents" /> that does read typed
-    ///   values like Excel, SQl
+    ///   Constructor for abstract base call for <see cref="IFileReader" /> and <see
+    ///   cref="IFileReaderWithEvents" /> that does read typed values like Excel, SQl
     /// </summary>
     /// <param name="fileName">Path to a physical file (if used)</param>
     /// <param name="columnDefinition">List of column definitions</param>

@@ -22,11 +22,8 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-#if !QUICK
 using System.Threading;
 using System.Threading.Tasks;
-
-#endif
 
 namespace CsvTools
 {
@@ -107,9 +104,9 @@ namespace CsvTools
     public static int Count(this IEnumerable? items) =>
       items switch
       {
-        null            => 0,
+        null => 0,
         ICollection col => col.Count,
-        _               => Enumerable.Count(items.Cast<object>())
+        _ => Enumerable.Count(items.Cast<object>())
       };
 
     /// <summary>
@@ -120,17 +117,17 @@ namespace CsvTools
     public static string DataTypeDisplay(this DataType dt) =>
       dt switch
       {
-        DataType.DateTime       => "Date Time",
-        DataType.Integer        => "Integer",
-        DataType.Double         => "Floating  Point (High Range)",
-        DataType.Numeric        => "Money (High Precision)",
-        DataType.Boolean        => "Boolean",
-        DataType.Guid           => "Guid",
-        DataType.TextPart       => "Text Part",
-        DataType.TextToHtml     => "Encode HTML (Linefeed and CData Tags)",
+        DataType.DateTime => "Date Time",
+        DataType.Integer => "Integer",
+        DataType.Double => "Floating  Point (High Range)",
+        DataType.Numeric => "Money (High Precision)",
+        DataType.Boolean => "Boolean",
+        DataType.Guid => "Guid",
+        DataType.TextPart => "Text Part",
+        DataType.TextToHtml => "Encode HTML (Linefeed and CData Tags)",
         DataType.TextToHtmlFull => "Encode HTML ('<' -> '&lt;')",
-        DataType.String         => "Text",
-        _                       => throw new ArgumentOutOfRangeException(nameof(dt), dt, "Data Type not known")
+        DataType.String => "Text",
+        _ => throw new ArgumentOutOfRangeException(nameof(dt), dt, "Data Type not known")
       };
 
     public static string Description(this RecordDelimiterType item)
@@ -235,26 +232,26 @@ namespace CsvTools
 
       return input.WrittenPunctuationToChar() switch
       {
-        '\t'        => "Horizontal Tab",
-        ' '         => "Space",
+        '\t' => "Horizontal Tab",
+        ' ' => "Space",
         (char) 0xA0 => "Non-breaking space",
-        '\\'        => "Backslash: \\",
-        '/'         => "Slash: /",
-        ','         => "Comma: ,",
-        ';'         => "Semicolon: ;",
-        ':'         => "Colon: :",
-        '|'         => "Pipe: |",
-        '\"'        => "Quotation marks: \"",
-        '\''        => "Apostrophe: \'",
-        '&'         => "Ampersand: &",
-        '*'         => "Asterisk: *",
-        '`'         => "Tick Mark: `",
-        '✓'         => "Check mark: ✓",
-        '\u001F'    => "Unit Separator: Char 31",
-        '\u001E'    => "Record Separator: Char 30",
-        '\u001D'    => "Group Separator: Char 29",
-        '\u001C'    => "File Separator: Char 28",
-        _           => input
+        '\\' => "Backslash: \\",
+        '/' => "Slash: /",
+        ',' => "Comma: ,",
+        ';' => "Semicolon: ;",
+        ':' => "Colon: :",
+        '|' => "Pipe: |",
+        '\"' => "Quotation marks: \"",
+        '\'' => "Apostrophe: \'",
+        '&' => "Ampersand: &",
+        '*' => "Asterisk: *",
+        '`' => "Tick Mark: `",
+        '✓' => "Check mark: ✓",
+        '\u001F' => "Unit Separator: Char 31",
+        '\u001E' => "Record Separator: Char 30",
+        '\u001D' => "Group Separator: Char 29",
+        '\u001C' => "File Separator: Char 28",
+        _ => input
       };
     }
 
@@ -309,7 +306,7 @@ namespace CsvTools
     /// <param name="process">The process display.</param>
     /// <returns></returns>
     public static EventHandler<string> GetLogInfoMessage(this IProcessDisplay process) =>
-      delegate(object? sender, string message)
+      delegate (object? sender, string message)
       {
         Logger.Information("SQL Information: {message}", message);
         process.SetProcess(message, -1, true);
@@ -323,15 +320,15 @@ namespace CsvTools
     public static Type GetNetType(this DataType dt) =>
       dt switch
       {
-        DataType.DateTime                      => typeof(DateTime),
+        DataType.DateTime => typeof(DateTime),
         DataType.Integer when IntPtr.Size == 4 => typeof(int),
-        DataType.Integer                       => typeof(long),
-        DataType.Double                        => typeof(double),
-        DataType.Numeric                       => typeof(decimal),
-        DataType.Boolean                       => typeof(bool),
-        DataType.Guid                          => typeof(Guid),
-        DataType.String                        => typeof(string),
-        _                                      => typeof(string)
+        DataType.Integer => typeof(long),
+        DataType.Double => typeof(double),
+        DataType.Numeric => typeof(decimal),
+        DataType.Boolean => typeof(bool),
+        DataType.Guid => typeof(Guid),
+        DataType.String => typeof(string),
+        _ => typeof(string)
       };
 
     /// <summary>
@@ -384,8 +381,8 @@ namespace CsvTools
       }
       catch (Exception)
       {
-        // Ignore problems within this method - there's nothing more stupid than an error in
-        // the error handler
+        // Ignore problems within this method - there's nothing more stupid than an error in the
+        // error handler
         return string.Empty;
       }
     }
@@ -393,14 +390,14 @@ namespace CsvTools
     public static string NewLineString(this RecordDelimiterType type) =>
       type switch
       {
-        RecordDelimiterType.LF   => "\n",
-        RecordDelimiterType.CR   => "\r",
+        RecordDelimiterType.LF => "\n",
+        RecordDelimiterType.CR => "\r",
         RecordDelimiterType.CRLF => "\r\n",
         RecordDelimiterType.LFCR => "\n\r",
-        RecordDelimiterType.RS   => "▲",
-        RecordDelimiterType.US   => "▼",
+        RecordDelimiterType.RS => "▲",
+        RecordDelimiterType.US => "▼",
         RecordDelimiterType.None => string.Empty,
-        _                        => string.Empty
+        _ => string.Empty
       };
 
     public static string NoRecordSQL(this string source)
@@ -646,8 +643,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Replace placeholder in a template with the text provide in the parameters the order of
-    ///   the placeholders is important not their contend
+    ///   Replace placeholder in a template with the text provide in the parameters the order of the
+    ///   placeholders is important not their contend
     /// </summary>
     /// <param name="template">The template with placeholder in {}, e.G. ID:{ID}</param>
     /// <param name="values">
@@ -742,7 +739,6 @@ namespace CsvTools
     public static string ToStringHandle0(this char input) => input == '\0' ? string.Empty : input.ToString();
 
 #if !QUICK
-
     public static async Task<long> WriteAsync(
       this IFileWriter writer,
       string sqlStatement,
@@ -755,15 +751,14 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-        using var sqlReader = await FunctionalDI.SQLDataReader(
-                                sqlStatement,
-                                (sender, s) => reportProgress?.Invoke(s.Text),
-                                timeout,
-                                cancellationToken).ConfigureAwait(false);
+      using var sqlReader = await FunctionalDI.SQLDataReader(
+                              sqlStatement,
+                              (sender, s) => reportProgress?.Invoke(s.Text),
+                              timeout,
+                              cancellationToken).ConfigureAwait(false);
       await sqlReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       return await writer.WriteAsync(sqlReader, cancellationToken).ConfigureAwait(false);
     }
-
 #endif
 
     /// <summary>
@@ -943,16 +938,16 @@ namespace CsvTools
 #if !GetHashByGUID
 
     /// <summary>
-    ///   Check if a collection is equal, the items can be in any order as long as all exist in
-    ///   the other collection
+    ///   Check if a collection is equal, the items can be in any order as long as all exist in the
+    ///   other collection
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="self">The collection.</param>
     /// <param name="other">The other collection.</param>
     /// <returns></returns>
     /// <remarks>
-    ///   Parameter is IEnumerable to make it work with ICollections, IReadOnlyCollection,
-    ///   Arrays and ObservableCollection
+    ///   Parameter is IEnumerable to make it work with ICollections, IReadOnlyCollection, Arrays
+    ///   and ObservableCollection
     /// </remarks>
     public static bool CollectionEqual<T>(this IEnumerable<T> self, in IEnumerable<T>? other)
       where T : IEquatable<T>

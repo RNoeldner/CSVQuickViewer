@@ -153,7 +153,7 @@ namespace CsvTools.Tests
       m_CsvFile.FileName = UnitTestStatic.GetTestPath("BasicCSV.txt");
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       using var res = FunctionalDI.GetFileReader(m_CsvFile, TimeZoneInfo.Local.Id, processDisplay);
-      Assert.IsInstanceOfType(res, typeof(IFileReaderWithEvents));
+      Assert.IsInstanceOfType(res, typeof(IFileReader));
     }
 
     [TestMethod]
@@ -217,7 +217,7 @@ namespace CsvTools.Tests
     {
       var numCalled = 0;
       var test = new CsvFile();
-      test.PropertyChanged += delegate(object sender, PropertyChangedEventArgs e)
+      test.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
       {
         Assert.AreEqual("FileName", e.PropertyName);
         numCalled++;

@@ -4,9 +4,8 @@ namespace CsvTools
 {
   public class DelimitedFileDetectionResultWithColumns : DelimitedFileDetectionResult
   {
-#if !QUICK
     private readonly string m_ColumnFile;
-#endif
+
     private readonly IEnumerable<IColumn> m_Columns;
 
     public DelimitedFileDetectionResultWithColumns(
@@ -24,10 +23,8 @@ namespace CsvTools
       bool isJson = false,
       bool noDelimitedFile = false,
       RecordDelimiterType recordDelimiterType = RecordDelimiterType.None,
-      in IEnumerable<IColumn>? columns = null
-#if !QUICK
-      , string? columnFile = ""
-#endif
+      in IEnumerable<IColumn>? columns = null,
+      string? columnFile = ""
     )
       : base(
         fileName,
@@ -46,17 +43,14 @@ namespace CsvTools
         recordDelimiterType)
     {
       m_Columns = columns ?? new List<IColumn>();
-#if !QUICK
       m_ColumnFile = columnFile ?? string.Empty;
-#endif
     }
 
     public DelimitedFileDetectionResultWithColumns(
       DelimitedFileDetectionResult result,
-      in IEnumerable<IColumn>? columns = null
-#if !QUICK
-      , string columnFile = ""
-#endif
+      in IEnumerable<IColumn>? columns = null,
+      string columnFile = ""
+
     )
       : this(
         result.FileName,
@@ -73,10 +67,8 @@ namespace CsvTools
         result.IsJson,
         result.NoDelimitedFile,
         result.NewLine,
-        columns
-#if !QUICK
-        , columnFile
-#endif
+        columns,
+        columnFile
       )
     {
     }

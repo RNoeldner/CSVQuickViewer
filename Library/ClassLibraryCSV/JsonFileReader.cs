@@ -127,7 +127,6 @@ namespace CsvTools
       {
         if (ShouldRetry(ex, token))
           goto Retry;
-
         Close();
         var appEx = new FileReaderException(
           "Error opening structured text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",

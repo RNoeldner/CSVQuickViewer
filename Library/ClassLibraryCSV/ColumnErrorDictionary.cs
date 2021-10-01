@@ -29,7 +29,7 @@ namespace CsvTools
     {
     }
 
-    public ColumnErrorDictionary(in IFileReaderWithEvents reader)
+    public ColumnErrorDictionary(in IFileReader reader)
     {
       if (reader is null)
         throw new ArgumentNullException(nameof(reader));

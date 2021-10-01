@@ -30,7 +30,7 @@ namespace CsvTools
     ///   artificial columns
     /// </summary>
     /// <param name="dataReader">
-    ///   <see cref="IDataRecord" /> usually a <see cref="IFileReaderWithEvents" /> or <see cref="IDataReader" />
+    ///   <see cref="IDataRecord" /> usually a <see cref="IFileReader" /> or <see cref="IDataReader" />
     /// </param>
     /// <param name="addStartLine">Add artificial field Start Line</param>
     /// <param name="addRecNum">Add artificial field Records Number</param>
@@ -43,7 +43,7 @@ namespace CsvTools
       bool addEndLine,
       bool addErrorField)
     {
-      var fileReader = dataReader as IFileReaderWithEvents;
+      var fileReader = dataReader as IFileReader;
       if (fileReader != null)
         m_ColumnErrorDictionary = new ColumnErrorDictionary(fileReader);
 

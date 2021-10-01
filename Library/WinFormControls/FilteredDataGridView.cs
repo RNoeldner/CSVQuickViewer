@@ -60,6 +60,7 @@ namespace CsvTools
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
+
     public FilteredDataGridView()
     {
       InitializeComponent();
@@ -1156,7 +1157,8 @@ namespace CsvTools
     /// </param>
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-# endif
+#endif
+
     private void SystemEvents_UserPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e)
     {
       if (e.Category == UserPreferenceCategory.Locale)

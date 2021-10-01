@@ -16,13 +16,9 @@ using System;
 using TimeZoneConverter;
 using System.Runtime.InteropServices;
 
-#if !QUICK
-
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-
-#endif
 
 namespace CsvTools
 {
@@ -216,15 +212,15 @@ namespace CsvTools
             csv.Header,
             csv.Footer,
             csv.ToString(),
-            csv.NewLine, 
-            csv.FieldDelimiterChar, 
-            csv.FieldQualifierChar, 
-            csv.EscapePrefixChar, 
-            csv.NewLinePlaceholder, 
-            csv.DelimiterPlaceholder, 
-            csv.QualifierPlaceholder, 
-            csv.QualifyAlways, 
-            csv.QualifyOnlyIfNeeded, 
+            csv.NewLine,
+            csv.FieldDelimiterChar,
+            csv.FieldQualifierChar,
+            csv.EscapePrefixChar,
+            csv.NewLinePlaceholder,
+            csv.DelimiterPlaceholder,
+            csv.QualifierPlaceholder,
+            csv.QualifyAlways,
+            csv.QualifyOnlyIfNeeded,
             processDisplay);
           break;
 

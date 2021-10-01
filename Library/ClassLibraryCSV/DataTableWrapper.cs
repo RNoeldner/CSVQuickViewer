@@ -13,7 +13,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,28 +23,28 @@ namespace CsvTools
   ///   IFileReader implementation based on a data table, this is used to pass on a data table to a writer
   /// </summary>
   /// <remarks>Some functionality for progress reporting are not implemented</remarks>
-  public sealed class DataTableWrapper : DataReaderWrapper, IFileReaderWithEvents
+  public sealed class DataTableWrapper : DataReaderWrapper
   {
-    public DataTableWrapper(in DataTable? dataTable)
+    public DataTableWrapper(in DataTable dataTable)
       : base(
-        dataTable?.CreateDataReader() ?? throw new ArgumentNullException(nameof(dataTable)),
+        dataTable.CreateDataReader(),
         // passing in number of records so Percent can be calulated
         dataTable.Rows.Count) =>
       DataTable = dataTable;
 
     public DataTable DataTable { get; }
 
-    public bool SupportsReset => true;
+    public new bool SupportsReset => true;
 
-    public IColumn GetColumn(int column) => ReaderMapping.Column[column];
+    public new IColumn GetColumn(int column) => ReaderMapping.Column[column];
 
     [Obsolete("No need to open a DataTableWrapper, the DataTable is in memory")]
 #pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
-    public async Task OpenAsync(CancellationToken token)
+    public new async Task OpenAsync(CancellationToken token)
     {
     }
 
-#pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.        
+#pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
 
     /// <summary>
     ///   Asynchronous Read of next record
@@ -60,36 +59,16 @@ namespace CsvTools
         if (couldRead)
           return true;
       }
-
-      ReadFinished?.Invoke(this, EventArgs.Empty);
       return false;
     }
 
     /// <summary>
     ///   Resets the position and buffer to the first data row (handing headers, and skipped rows)
     /// </summary>
-    public void ResetPositionToFirstDataRow()
+    public new void ResetPositionToFirstDataRow()
     {
-      base.Close();
+      Close();
       DataReader = DataTable.CreateDataReader();
-      RecordNumber = 0;
     }
-
-#pragma warning disable CS0067
-
-    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
-    public event EventHandler<RetryEventArgs>? OnAskRetry;
-
-    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
-    public event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
-
-    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
-    public event EventHandler? ReadFinished;
-
-    [Obsolete("Not supported for DataTableWrapper, but required for IFileReader")]
-    public event EventHandler<WarningEventArgs>? Warning;
-
-    public Func<Task>? OnOpen { get; set; }
-#pragma warning restore CS0067
   }
 }
