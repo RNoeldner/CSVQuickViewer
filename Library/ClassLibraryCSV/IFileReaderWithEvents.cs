@@ -17,12 +17,18 @@ using System.Collections.Generic;
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="System.Data.IDataReader" />
+  /// <inheritdoc cref="IFileReader" />
   /// <summary>
   ///   Interface for a File Reader.
   /// </summary>
   public interface IFileReaderWithEvents : IFileReader
   {
+    /// <summary>
+    ///   Occurs when an open process failed, allowing the user to change the timeout or provide the
+    ///   needed file etc.
+    /// </summary>
+    event EventHandler<RetryEventArgs>? OnAskRetry;
+
     /// <summary>
     ///   Event to be raised once the reader is opened, the column information is now known and
     ///   passed to the EventHandler
@@ -33,20 +39,5 @@ namespace CsvTools
     ///   Event to be raised once the reader is finished reading the file
     /// </summary>
     event EventHandler? ReadFinished;
-
-    /// <summary>
-    ///   Event handler called if a warning or error occurred
-    /// </summary>
-    event EventHandler<WarningEventArgs>? Warning;
-
-#if !QUICK
-
-    /// <summary>
-    ///   Occurs when an open process failed, allowing the user to change the timeout or provide the
-    ///   needed file etc.
-    /// </summary>
-    event EventHandler<RetryEventArgs>? OnAskRetry;
-
-#endif
   }
 }

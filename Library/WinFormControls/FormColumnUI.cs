@@ -42,18 +42,13 @@ namespace CsvTools
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
     private readonly Column m_ColumnEdit;
-    private readonly IColumn m_ColumnRef;
-
+    private readonly IColumn? m_ColumnRef;
     private readonly IFileSetting m_FileSetting;
-
     private readonly FillGuessSettings m_FillGuessSettings;
 
     private readonly bool m_WriteSetting;
 
-    public IColumn EditedColumn
-    {
-      get => m_ColumnEdit;
-    }
+    public IColumn EditedColumn => m_ColumnEdit;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormColumnUI" /> class.
@@ -66,7 +61,7 @@ namespace CsvTools
     /// <param name="hTMLStyle">The HTML style.</param>
     /// <exception cref="ArgumentNullException">fileSetting or fillGuessSettings NULL</exception>
     public FormColumnUI(
-      IColumn column,
+      IColumn? column,
       bool writeSetting,
       IFileSetting fileSetting,
       FillGuessSettings fillGuessSettings,
@@ -74,7 +69,10 @@ namespace CsvTools
       HTMLStyle hTMLStyle)
     {
       m_ColumnRef = column;
-      m_ColumnEdit = new Column(column ?? throw new ArgumentNullException(nameof(column)));
+      if (column ==null)
+        m_ColumnEdit = new Column();
+      else
+        m_ColumnEdit = new Column(column);
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
       HTMLStyle = hTMLStyle ?? throw new ArgumentNullException(nameof(hTMLStyle));
@@ -313,7 +311,6 @@ namespace CsvTools
               {
                 if (checkResult.FoundValueFormat != null)
                 {
-
                   m_ColumnEdit.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
 
                   if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
@@ -563,6 +560,10 @@ namespace CsvTools
         }
         Hide();
         DialogResult = DialogResult.Yes;
+        if (m_ColumnRef is Column refCol)
+        {
+          m_ColumnEdit.CopyTo(refCol);
+        }
       }
       catch (Exception ex)
       {
@@ -617,6 +618,7 @@ namespace CsvTools
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
+
     private void ColumnFormatUI_FormClosing(object? sender, FormClosingEventArgs e)
     {
       try
@@ -639,6 +641,7 @@ namespace CsvTools
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
+
     private async void ColumnFormatUI_Load(object? sender, EventArgs e)
     {
       var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
@@ -1046,6 +1049,7 @@ namespace CsvTools
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
+
     private void SystemEvents_UserPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e)
     {
       if (e.Category != UserPreferenceCategory.Locale)

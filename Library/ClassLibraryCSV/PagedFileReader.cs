@@ -13,17 +13,13 @@ namespace CsvTools
   /// </summary>
   public class PagedFileReader : List<DynamicDataRecord>, INotifyCollectionChanged
   {
-    private readonly IFileReaderWithEvents m_FileReader;
-
+    private readonly IFileReader m_FileReader;
     private readonly List<ICollection<DynamicDataRecord>> m_PagedDataCache;
-
     private readonly int m_PageSize;
-
     private readonly CancellationToken m_Token;
-
     private DataReaderWrapper? m_DataReaderWrapper;
 
-    public PagedFileReader(in IFileReaderWithEvents fileReader, int pageSize, CancellationToken token)
+    public PagedFileReader(in IFileReader fileReader, int pageSize, CancellationToken token)
     {
       m_FileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
       m_Token = token;

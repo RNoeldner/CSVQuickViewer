@@ -37,7 +37,7 @@ namespace CsvTools
     ///   Attach the error collection to the reader
     /// </summary>
     /// <param name="reader"></param>
-    public RowErrorCollection(in IFileReaderWithEvents reader) => reader.Warning += Add;
+    public RowErrorCollection(in IFileReader reader) => reader.Warning += Add;
 
     public RowErrorCollection(int maxRows) => m_MaxRows = maxRows;
 
@@ -59,12 +59,12 @@ namespace CsvTools
         // Go though all rows
         foreach (var errorsInColumn in m_RowErrorCollection.Values)
           // And all columns
-        foreach (var message in errorsInColumn.Values)
-        {
-          if (sb.Length > 0)
-            sb.Append(ErrorInformation.cSeparator);
-          sb.Append(message);
-        }
+          foreach (var message in errorsInColumn.Values)
+          {
+            if (sb.Length > 0)
+              sb.Append(ErrorInformation.cSeparator);
+            sb.Append(message);
+          }
 
         return Convert.ToString(sb);
       }

@@ -71,6 +71,7 @@
 		<Compile Include="..\ClassLibraryCSV\StringUtils.cs" Link="StringUtils.cs" />
 		<Compile Include="..\ClassLibraryCSV\SourceAccess.cs" Link="SourceAccess.cs" />
 		<Compile Include="..\ClassLibraryCSV\IFileReader.cs" Link="IFileReader.cs" />
+		<Compile Include="..\ClassLibraryCSV\RetryEventArgs.cs" Link="RetryEventArgs.cs" />
 		<Compile Include="..\ClassLibraryCSV\IFileReaderWithEvents.cs" Link="IFileReaderWithEvents.cs" />
 		<Compile Include="..\ClassLibraryCSV\IFileWriter.cs" Link="IFileWriter.cs" />
 		<Compile Include="..\ClassLibraryCSV\WarningEventArgs.cs" Link="WarningEventArgs.cs" />

@@ -11,19 +11,12 @@ namespace CsvTools
 #endif
   {
     private readonly Action? m_ActionBegin;
-
     private readonly Action<DataReaderWrapper>? m_ActionFinished;
-
     private readonly Func<DataTable> m_GetDataTable;
-
     private readonly Func<FilterType, CancellationToken, Task>? m_RefreshDisplayAsync;
-
     private readonly Action<DataTable> m_SetDataTable;
-
     private readonly Action<Func<IProcessDisplay, Task>>? m_SetLoadNextBatchAsync;
-
     private DataReaderWrapper? m_DataReaderWrapper;
-
     private IFileReader? m_FileReader;
 
     public TwoStepDataTableLoader(
@@ -77,11 +70,11 @@ namespace CsvTools
         throw new FileReaderException($"Could not get reader for {fileSetting}");
 
       RowErrorCollection? warningList = null;
-      if (addWarning != null && m_FileReader is IFileReaderWithEvents readerWithEvents)
+      if (addWarning != null)
       {
-        warningList = new RowErrorCollection(readerWithEvents);
-        readerWithEvents.Warning += addWarning;
-        readerWithEvents.Warning -= warningList.Add;
+        warningList = new RowErrorCollection(m_FileReader);
+        m_FileReader.Warning += addWarning;
+        m_FileReader.Warning -= warningList.Add;
       }
 
       Logger.Information("Reading data for display");

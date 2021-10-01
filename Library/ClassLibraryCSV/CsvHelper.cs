@@ -168,7 +168,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-        using var reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
+      using var reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
       await reader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
       var (_, b) = await reader.FillGuessColumnFormatReaderAsyncReader(
                      fillGuessSettings,
@@ -614,7 +614,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-        using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
+      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
       return await improvedStream.GetDetectionResult(
                fileName,
                display,
@@ -1319,7 +1319,7 @@ namespace CsvTools
       return dc;
     }
 
-    private static IFileReaderWithEvents GetReaderFromDetectionResult(
+    private static IFileReader GetReaderFromDetectionResult(
       string fileName,
       DelimitedFileDetectionResult detectionResult,
       IProcessDisplay processDisplay)
