@@ -809,17 +809,15 @@ namespace CsvTools
 
           if (adjustedValue.Length > 0)
           {
-            if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifierChar) != -1)
-              if (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning)
-                HandleWarning(
-                  columnNo,
-                  $"Field qualifier '{m_FieldQualifierChar.GetDescription()}' found in field".AddWarningId());
+            if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifierChar) != -1 && (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning))
+              HandleWarning(
+                columnNo,
+                $"Field qualifier '{m_FieldQualifierChar.GetDescription()}' found in field".AddWarningId());
 
-            if (m_WarnDelimiterInValue && adjustedValue.IndexOf(m_FieldDelimiterChar) != -1)
-              if (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning)
-                HandleWarning(
-                  columnNo,
-                  $"Field delimiter '{m_FieldDelimiterChar.GetDescription()}' found in field".AddWarningId());
+            if (m_WarnDelimiterInValue && adjustedValue.IndexOf(m_FieldDelimiterChar) != -1 && (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning))
+              HandleWarning(
+                columnNo,
+                $"Field delimiter '{m_FieldDelimiterChar.GetDescription()}' found in field".AddWarningId());
 
             if (m_WarnUnknownCharacter)
             {
@@ -1042,13 +1040,12 @@ namespace CsvTools
               // This is not 100% correct in case we have a misalignment of column that is corrected
               // afterwards warning for NBP need to be issues before trimming as trimming would
               // remove the char
-              if (m_WarnNbsp && !GetColumn(columnNo).Ignore)
-                if (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning)
-                  HandleWarning(
-                    columnNo,
-                    m_TreatNbspAsSpace
-                      ? "Character Non Breaking Space found, this character was treated as space".AddWarningId()
-                      : "Character Non Breaking Space found in field".AddWarningId());
+              if (m_WarnNbsp && !GetColumn(columnNo).Ignore && (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning))
+                HandleWarning(
+                  columnNo,
+                  m_TreatNbspAsSpace
+                    ? "Character Non Breaking Space found, this character was treated as space".AddWarningId()
+                    : "Character Non Breaking Space found in field".AddWarningId());
 
               if (m_TreatNbspAsSpace)
                 character = ' ';
@@ -1077,13 +1074,12 @@ namespace CsvTools
               }
             }
 
-            if ((character == c_Cr && nextChar == c_Lf) || (character == c_Lf && nextChar == c_Cr))
-              if (quoted && !postData)
-              {
-                stringBuilder.Append(character);
-                stringBuilder.Append(nextChar);
-                continue;
-              }
+            if (((character == c_Cr && nextChar == c_Lf) || (character == c_Lf && nextChar == c_Cr)) && quoted && !postData)
+            {
+              stringBuilder.Append(character);
+              stringBuilder.Append(nextChar);
+              continue;
+            }
 
             break;
         }
@@ -1177,13 +1173,12 @@ namespace CsvTools
       var columnText = stringBuilder.ToString();
       if (columnText.IndexOf(c_UnknownChar) != -1)
       {
-        if (m_WarnUnknownCharacter)
-          if (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning)
-            HandleWarning(
-              columnNo,
-              m_TreatUnknownCharacterAsSpace
-                ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
-                : "Unknown Character '�' found in field".AddWarningId());
+        if (m_WarnUnknownCharacter && (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning))
+          HandleWarning(
+            columnNo,
+            m_TreatUnknownCharacterAsSpace
+              ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
+              : "Unknown Character '�' found in field".AddWarningId());
         if (m_TreatUnknownCharacterAsSpace)
           columnText = columnText.Replace(c_UnknownChar, ' ');
       }

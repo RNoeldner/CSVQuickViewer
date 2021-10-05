@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 namespace CsvTools
 {
   /// <summary>
-  ///   Base class with methods used by all <see cref="IFileWriter"/>
+  ///   Base class with methods used by all <see cref="IFileWriter" />
   /// </summary>
   public abstract class BaseFileWriter
   {
@@ -230,10 +230,8 @@ namespace CsvTools
         if (column != null)
         {
           var tz = column.TimeZonePart;
-          if (!string.IsNullOrEmpty(tz))
-            if (!tz.TryGetConstant(out constantTimeZone))
-              if (colNames.TryGetByValue(tz, out var ordinal))
-                columnOrdinalTimeZoneReader = ordinal;
+          if (!string.IsNullOrEmpty(tz) && !tz.TryGetConstant(out constantTimeZone) && colNames.TryGetByValue(tz, out var ordinal))
+            columnOrdinalTimeZoneReader = ordinal;
         }
 
         var ci = new WriterColumn(
@@ -291,7 +289,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
         await
 #endif
-          using var improvedStream = (Stream) FunctionalDI.OpenStream(sourceAccess);
+        using var improvedStream = (Stream) FunctionalDI.OpenStream(sourceAccess);
 
         await WriteReaderAsync(reader, improvedStream, token).ConfigureAwait(false);
       }

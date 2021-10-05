@@ -375,7 +375,7 @@ namespace CsvTools
 
     public static StreamReader GetStreamReaderForFileOrResource(string file)
     {
-      var fileName = ExecutableDirectoryName() + "\\" + file;
+      var fileName = Path.Combine(ExecutableDirectoryName(), file);
       try
       {
         if (FileExists(fileName))

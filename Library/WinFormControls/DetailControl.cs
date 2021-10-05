@@ -116,6 +116,7 @@ namespace CsvTools
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
+
     public DetailControl()
     {
       InitializeComponent();
@@ -1101,7 +1102,7 @@ namespace CsvTools
       var newDt = m_DataTable;
       if (m_FilterDataTable is null)
         m_FilterDataTable = new FilterDataTable(m_DataTable);
-      if (m_FilterDataTable != null && type != FilterType.All)
+      if (type != FilterType.All)
       {
         if (type != m_FilterDataTable.FilterType)
           await m_FilterDataTable.FilterAsync(int.MaxValue, type, cancellationToken);

@@ -1008,9 +1008,8 @@ namespace CsvTools
         return true;
 
       // Shortcut if we have collections but different number of Items
-      if (self is ICollection<T> selfCol && other is ICollection<T> otherCol)
-        if (selfCol.Count != otherCol.Count)
-          return false;
+      if (self is ICollection<T> selfCol && other is ICollection<T> otherCol && selfCol.Count != otherCol.Count)
+        return false;
 
       // use Enumerators to compare the two collections
       using var selfEnum = self.GetEnumerator();

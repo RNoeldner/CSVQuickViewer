@@ -20,7 +20,7 @@ namespace CsvTools
   /// <summary>
   ///   A representation for a group / cluster of records
   /// </summary>
-  public class ValueCluster
+  public class ValueCluster : IEquatable<ValueCluster>
   {
     /// <summary>
     ///   Initializes a new instance of the <see cref="ValueCluster" /> class.
