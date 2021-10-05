@@ -1090,34 +1090,32 @@ namespace CsvTools
 
         var avg = (int) (sum / (double) (num == 0 ? 1 : num));
         // If there are not many columns do not try to guess
-        if (avg > 1)
-          // If the first rows would be a good fit return this
-          if (columnCount[0] < avg)
-          {
-            for (var row = columnCount.Count - 1; row > 0; row--)
+        if (avg > 1 && columnCount[0] < avg)
+        {
+          for (var row = columnCount.Count - 1; row > 0; row--)
+            if (columnCount[row] > 0)
+            {
+              if (columnCount[row] >= avg - (avg / 10)) continue;
+              retValue = rowMapping[row];
+              break;
+            }
+            // In case we have an empty line but the next line are roughly good match take that
+            // empty line
+            else if (row + 2 < columnCount.Count && columnCount[row + 1] == columnCount[row + 2]
+                                                 && columnCount[row + 1] >= avg - 1)
+            {
+              retValue = rowMapping[row + 1];
+              break;
+            }
+
+          if (retValue == 0)
+            for (var row = 0; row < columnCount.Count; row++)
               if (columnCount[row] > 0)
               {
-                if (columnCount[row] >= avg - (avg / 10)) continue;
                 retValue = rowMapping[row];
                 break;
               }
-              // In case we have an empty line but the next line are roughly good match take that
-              // empty line
-              else if (row + 2 < columnCount.Count && columnCount[row + 1] == columnCount[row + 2]
-                                                   && columnCount[row + 1] >= avg - 1)
-              {
-                retValue = rowMapping[row + 1];
-                break;
-              }
-
-            if (retValue == 0)
-              for (var row = 0; row < columnCount.Count; row++)
-                if (columnCount[row] > 0)
-                {
-                  retValue = rowMapping[row];
-                  break;
-                }
-          }
+        }
       }
 
       Logger.Information("Start Row: {row}", retValue);
@@ -1256,14 +1254,14 @@ namespace CsvTools
       var quoted = false;
       var firstChar = true;
       var readChar = -1;
-      //var contends = new StringBuilder();
+
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
 
       while (dc.LastRow < dc.NumRows && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested)
       {
         var lastChar = readChar;
         readChar = textReader.Read();
-        //contends.Append(readChar);
+
         if (lastChar == escapeCharacter)
           continue;
         switch (readChar)

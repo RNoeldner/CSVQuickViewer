@@ -18,8 +18,6 @@
 		<AssemblyName>CsvTools.WinFormControls</AssemblyName>
 	</PropertyGroup>
 	<ItemGroup>
-	</ItemGroup>
-	<ItemGroup>
 		<Compile Include="..\SharedAssemblyInfo.cs">
 			<Link>Properties\SharedAssemblyInfo.cs</Link>
 		</Compile>
@@ -48,6 +46,10 @@
 		<PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1">
 		</PackageReference>
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0">
+		</PackageReference>
+		<PackageReference Include="SonarAnalyzer.CSharp" Version="8.29.0.36737">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>

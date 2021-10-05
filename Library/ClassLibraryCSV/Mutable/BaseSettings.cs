@@ -27,7 +27,7 @@ namespace CsvTools
   // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   /// <summary>
   ///   Abstract calls containing the basic setting for an IFileSetting if contains <see
-  ///   cref="ColumnCollection" /> , <see cref="MappingCollection" /> />
+  ///   cref="ColumnCollection" /> , <see cref="MappingCollection" /> /&gt;
   /// </summary>
   [DebuggerDisplay("Settings: {ID} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettings : IFileSetting
@@ -65,13 +65,6 @@ namespace CsvTools
     private DateTime m_ProcessTimeUtc = ZeroTime;
 
     private long m_RecordLimit;
-
-    /// <summary>
-    ///   This information is only used by the Validator but since we can not extend classes with
-    ///   new properties, it needs to be defined here
-    /// </summary>
-    private SampleAndErrorsInformation m_SamplesErrors = new SampleAndErrorsInformation();
-
     private bool m_SetLatestSourceTimeForWrite;
 
     private bool m_ShowProgress = true;
@@ -214,7 +207,7 @@ namespace CsvTools
     public bool ProcessTimeUtcSpecified => m_ProcessTimeUtc != ZeroTime;
 
     public bool SamplesAndErrorsSpecified =>
-      m_SamplesErrors.ErrorsSpecified || m_SamplesErrors.SamplesSpecified || m_SamplesErrors.NumErrors != -1;
+      SamplesAndErrors.ErrorsSpecified || SamplesAndErrors.SamplesSpecified || SamplesAndErrors.NumErrors != -1;
 
     /// <summary>
     ///   Utility calls to get or set the SQL Statement as CDataSection
@@ -314,11 +307,7 @@ namespace CsvTools
     ///   extend classes it has to live here
     /// </summary>
     [XmlElement]
-    public SampleAndErrorsInformation SamplesAndErrors
-    {
-      get => m_SamplesErrors;
-      set => m_SamplesErrors = value;
-    }
+    public SampleAndErrorsInformation SamplesAndErrors { get; set; } = new SampleAndErrorsInformation();
 
     /// <summary>
     ///   Gets or sets the Footer.
@@ -835,7 +824,7 @@ namespace CsvTools
         m_LatestSourceTimeUtc = fi.LastWriteTimeUtc;
       }
       else
-        // in case the source is not a physical file, assume it's the processing time
+      // in case the source is not a physical file, assume it's the processing time
       {
         m_LatestSourceTimeUtc = ProcessTimeUtc;
       }
@@ -1008,6 +997,7 @@ namespace CsvTools
       }
       catch (TargetInvocationException)
       {
+        // Ignore
       }
     }
 
@@ -1028,6 +1018,7 @@ namespace CsvTools
       }
       catch (TargetInvocationException)
       {
+        // Ignore
       }
     }
   }
