@@ -791,7 +791,9 @@ namespace CsvTools
 
     [XmlElement]
     [DefaultValue(null)]
+#pragma warning disable CS0618 // Type or member is obsolete
     public FileFormatStore? FileFormat
+#pragma warning restore CS0618 // Type or member is obsolete
     {
       get;
       set;

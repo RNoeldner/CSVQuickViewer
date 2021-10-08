@@ -108,22 +108,7 @@ namespace CsvTools
       processDisplayTime.Maximum = 0;
       m_SetMaxProcess = l => processDisplayTime.Maximum = l;
     }
-
-    /*
-        /// <summary>
-        ///   Initializes a new instance of the <see cref="BaseFileWriter" /> class.
-        /// </summary>
-        /// <param name="fileSetting">the file setting with the definition for the file</param>
-        /// <param name="processDisplay">The process display.</param>
-        /// <exception cref="ArgumentNullException">fileSetting</exception>
-        /// <exception cref="ArgumentException">No SQL Reader set</exception>
-        protected BaseFileWriter(IFileSettingPhysicalFile fileSetting, IProcessDisplay? processDisplay)
-          : this(fileSetting.ID, fileSetting.FullPath, fileSetting.FileFormat.ValueFormatMutable, fileSetting.FileFormat, recipient: fileSetting.Recipient,
-            unencrypted: fileSetting.KeepUnencrypted, identifierInContainer: fileSetting.IdentifierInContainer, footer: fileSetting.Footer, header: fileSetting.Header,
-            columnDefinition: fileSetting.ColumnCollection, fileSettingDisplay: Convert.ToString(fileSetting), processDisplay: processDisplay)
-        {
-        }
-    */
+ 
     private long Records { get; set; }
 
     /// <summary>
@@ -366,7 +351,7 @@ namespace CsvTools
     protected void NextRecord()
     {
       Records++;
-      if (!((DateTime.Now - m_LastNotification).TotalSeconds > .15)) return;
+      if ((DateTime.Now - m_LastNotification).TotalSeconds <=.15) return;
       m_LastNotification = DateTime.Now;
       HandleProgress($"Record {Records:N0}");
     }

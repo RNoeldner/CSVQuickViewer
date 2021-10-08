@@ -129,11 +129,11 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-        using var fromStream = OpenRead(sourceFile);
+      using var fromStream = OpenRead(sourceFile);
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-        using var toStream = OpenWrite(destFile);
+      using var toStream = OpenWrite(destFile);
       var bytes = new byte[81920];
       int bytesRead;
       long totalReads = 0;
@@ -509,15 +509,15 @@ namespace CsvTools
       // if we have at least the directory shorten this
       if (fi.Directory?.Exists ?? false)
       {
-        {
-          var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, c_BufferSize);
-          if (length > 0)
-            return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length - 1] == Path.DirectorySeparatorChar
-                                         ? string.Empty
-                                         : Path.DirectorySeparatorChar.ToString()) +
-                    fi.Name)
-              .RemovePrefix();
-        }
+
+        var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, c_BufferSize);
+        if (length > 0)
+          return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length - 1] == Path.DirectorySeparatorChar
+                                       ? string.Empty
+                                       : Path.DirectorySeparatorChar.ToString()) +
+                  fi.Name)
+            .RemovePrefix();
+
       }
 
       throw new Exception($"Could not get a short path for the file {longPath}");

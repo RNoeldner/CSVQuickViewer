@@ -20,9 +20,7 @@ namespace CsvTools
   ///   Argument for a ProgressEvent
   /// </summary>
   public class ProgressEventArgs : EventArgs
-  {
-    // static new ProgressEventArgs Empty { get; } = new ProgressEventArgs(string.Empty, -1, false);
-
+  {    
     /// <summary>
     ///   Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
     /// </summary>

@@ -16,19 +16,19 @@ using System;
 
 namespace CsvTools
 {
-  public class FileReaderExceptionOpen : ApplicationException
-	{
-		public FileReaderExceptionOpen()
+  public class FileReaderOpenException : FileReaderException
+  {
+		public FileReaderOpenException()
 			: base(GetMessage(string.Empty))
 		{
 		}
 
-		public FileReaderExceptionOpen(string message)
+		public FileReaderOpenException(string message)
 			: base(GetMessage(message))
 		{
 		}
 
-		public FileReaderExceptionOpen(string message, Exception inner)
+		public FileReaderOpenException(string message, Exception inner)
 			: base(GetMessage(message), inner)
 		{
 		}
