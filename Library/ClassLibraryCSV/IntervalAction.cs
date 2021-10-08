@@ -46,8 +46,8 @@ namespace CsvTools
 		/// <param name="action">the action to invoke</param>
 		public void Invoke(in Action action)
 		{
-			if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
-				return;
+      if((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
+        return;
 			m_LastNotification = DateTime.Now;
 			// ReSharper disable once ConstantConditionalAccessQualifier
 			action?.Invoke();
@@ -58,7 +58,7 @@ namespace CsvTools
 		/// </summary>
 		public void Invoke(in Action<long> action, long value)
 		{
-			if (!((DateTime.Now - m_LastNotification).TotalSeconds > NotifyAfterSeconds))
+			if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
 				return;
 			m_LastNotification = DateTime.Now;
 			action.Invoke(value);
@@ -69,7 +69,7 @@ namespace CsvTools
 		/// </summary>
 		public void Invoke(in Action<string, long, bool> action, in string text, long value, bool log)
 		{
-			if (!((DateTime.Now - m_LastNotification).TotalSeconds > NotifyAfterSeconds))
+			if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
 				return;
 			m_LastNotification = DateTime.Now;
 			action.Invoke(text, value, log);

@@ -464,22 +464,18 @@ namespace CsvTools
                                    treatTextAsNull,
                                    cancellationToken).ConfigureAwait(false)).First().Value;
 
-              foreach (var first in samples.Values)
+              var first = samples.Values.FirstOrDefault();
+              if (first != null && (first.Length == 8 || first.Length == 5))
               {
-                if (first.Length == 8 || first.Length == 5)
-                {
-                  columnCollection.Add(
-                    new ImmutableColumn(
-                      columnTime,
-                      new ImmutableValueFormat(DataType.DateTime, first.Length == 8 ? "HH:mm:ss" : "HH:mm")));
-                  Logger.Information(
-                    "{column} – Format : {format}",
-                    columnTime.Name,
-                    columnTime.GetTypeAndFormatDescription());
-                  result.Add($"{readerColumn.Name}  – Format : {columnTime.GetTypeAndFormatDescription()}");
-                }
-
-                break;
+                columnCollection.Add(
+                  new ImmutableColumn(
+                    columnTime,
+                    new ImmutableValueFormat(DataType.DateTime, first.Length == 8 ? "HH:mm:ss" : "HH:mm")));
+                Logger.Information(
+                  "{column} – Format : {format}",
+                  columnTime.Name,
+                  columnTime.GetTypeAndFormatDescription());
+                result.Add($"{readerColumn.Name}  – Format : {columnTime.GetTypeAndFormatDescription()}");
               }
 
               Logger.Information("{column} – Added Time Part : {column2}", readerColumn.Name, columnTime.Name);
@@ -513,38 +509,29 @@ namespace CsvTools
 
             var samples = sampleList.Keys.Contains(colIndex - 1)
                             ? sampleList[colIndex - 1]
-                            : (await GetSampleValuesAsync(
-                                 fileReader,
-                                 1,
-                                 new[] { colIndex + 1 },
-                                 1,
-                                 treatTextAsNull,
-                                 cancellationToken).ConfigureAwait(false)).First().Value;
-            foreach (var first in samples.Values)
+                            : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, 1, treatTextAsNull, cancellationToken).ConfigureAwait(false)).First().Value;
+
+            var first = samples.Values.FirstOrDefault();
+            if (first != null && (first.Length == 8 || first.Length == 5))
             {
-              if (first.Length == 8 || first.Length == 5)
-              {
-                columnCollection.Replace(
-                  new ImmutableColumn(
-                    columnCollection[colIndexSetting].Name,
-                    columnCollection[colIndexSetting].ValueFormat,
-                    columnCollection[colIndexSetting].ColumnOrdinal,
-                    columnCollection[colIndexSetting].Convert,
-                    columnCollection[colIndexSetting].DestinationName,
-                    columnCollection[colIndexSetting].Ignore,
-                    columnCollection[colIndexSetting].TimePart,
-                    first.Length == 8 ? "HH:mm:ss" : "HH:mm",
-                    columnCollection[colIndexSetting].TimeZonePart));
-
-                Logger.Information(
-                  "{column} – Format : {format}",
+              columnCollection.Replace(
+                new ImmutableColumn(
                   columnCollection[colIndexSetting].Name,
-                  columnCollection[colIndexSetting].GetTypeAndFormatDescription());
-                result.Add(
-                  $"{columnCollection[colIndexSetting].Name} – Format : {columnCollection[colIndexSetting].GetTypeAndFormatDescription()}");
-              }
+                  columnCollection[colIndexSetting].ValueFormat,
+                  columnCollection[colIndexSetting].ColumnOrdinal,
+                  columnCollection[colIndexSetting].Convert,
+                  columnCollection[colIndexSetting].DestinationName,
+                  columnCollection[colIndexSetting].Ignore,
+                  columnCollection[colIndexSetting].TimePart,
+                  first.Length == 8 ? "HH:mm:ss" : "HH:mm",
+                  columnCollection[colIndexSetting].TimeZonePart));
 
-              break;
+              Logger.Information(
+                "{column} – Format : {format}",
+                columnCollection[colIndexSetting].Name,
+                columnCollection[colIndexSetting].GetTypeAndFormatDescription());
+              result.Add(
+                $"{columnCollection[colIndexSetting].Name} – Format : {columnCollection[colIndexSetting].GetTypeAndFormatDescription()}");
             }
 
             Logger.Information("{column} – Added Time Part : {column2}", readerColumn.Name, readerColumnTime.Name);

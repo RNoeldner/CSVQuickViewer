@@ -433,7 +433,7 @@ namespace CsvTools
     /// <param name="i">The zero-based column ordinal.</param>
     /// <param name="fieldOffset">The index within the field from which to start the read operation.</param>
     /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-    /// <param name="bufferOffset">
+    /// <param name="bufferoffset">
     ///   The index for <paramref name="buffer" /> to start the read operation.
     /// </param>
     /// <param name="length">The number of bytes to read.</param>
@@ -442,7 +442,7 @@ namespace CsvTools
     /// <exception cref="IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
-    public new long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferOffset, int length) =>
+    public new long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) =>
       throw new NotImplementedException();
 
     /// <summary>
@@ -466,25 +466,25 @@ namespace CsvTools
     /// <summary>
     ///   Return the value of the specified field.
     /// </summary>
-    /// <param name="columnNumber">The index of the field to find.</param>
+    /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The object will contain the field value upon return.</returns>
     /// <exception cref="IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
-    public override object GetValue(int columnNumber)
+    public override object GetValue(int ordinal)
     {
-      if (IsDBNull(columnNumber))
+      if (IsDBNull(ordinal))
         return DBNull.Value;
 
-      var value = CurrentRowColumnText[columnNumber];
-      var column = Column[columnNumber];
+      var value = CurrentRowColumnText[ordinal];
+      var column = Column[ordinal];
       object? ret = column.ValueFormat.DataType switch
       {
-        DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(columnNumber), column, true),
+        DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal), column, true),
         DataType.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
-        DataType.Double => GetDoubleNull(value, columnNumber),
-        DataType.Numeric => GetDecimalNull(value, columnNumber),
-        DataType.Boolean => GetBooleanNull(value, columnNumber),
+        DataType.Double => GetDoubleNull(value, ordinal),
+        DataType.Numeric => GetDecimalNull(value, ordinal),
+        DataType.Boolean => GetBooleanNull(value, ordinal),
         DataType.Guid => GetGuidNull(value, column.ColumnOrdinal),
         DataType.String => value,
         _ => throw new ArgumentOutOfRangeException()
@@ -503,7 +503,6 @@ namespace CsvTools
         .ConfigureAwait(false);
       try
       {
-        // HandleShowProgress($"Opening text file {FileName}");
         if (SelfOpenedStream)
         {
           if (m_ImprovedStream != null)
@@ -575,7 +574,7 @@ namespace CsvTools
       return false;
     }
 
-    public override Task<bool> ReadAsync(CancellationToken token) => Task.FromResult(Read(token));
+    public override Task<bool> ReadAsync(CancellationToken cancellationToken) => Task.FromResult(Read(cancellationToken));
 
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
@@ -1198,53 +1197,55 @@ namespace CsvTools
     /// </returns>
     private string[] ReadNextRow(bool storeWarnings)
     {
-      Restart:
-
-      // Store the starting Line Number
-      StartLineNumber = EndLineNumber;
-      if (m_RealignColumns != null)
-        m_RecordSource.Length = 0;
-
-      // If already at end of file, return null
-      if (EndOfFile || m_TextReader is null)
-        return new string[FieldCount];
-
-      var item = ReadNextColumn(0);
-
-      // An empty line does not have any data
-      if ((item is null || item.Length == 0) && m_EndOfLine)
+      bool restart = false;
+      string? item;
+      do
       {
-        m_EndOfLine = false;
-        if (m_SkipEmptyLines)
+        // Store the starting Line Number
+        StartLineNumber = EndLineNumber;
+        if (m_RealignColumns != null)
+          m_RecordSource.Length = 0;
 
-          // go to the next line
-          goto Restart;
+        // If already at end of file, return null
+        if (EndOfFile || m_TextReader is null)
+          return new string[FieldCount];
 
-        // Return it as array of empty columns
-        return new string[FieldCount];
-      }
+        item = ReadNextColumn(0);
 
-      // Skip commented lines
-      if (m_CommentLine.Length > 0 && item != null && item.Length > m_CommentLine.Length
-          && item.StartsWith(m_CommentLine, StringComparison.Ordinal))
-      {
-        // A commented line does start with the comment
-        if (m_EndOfLine)
+        // An empty line does not have any data
+        if ((item is null || item.Length == 0) && m_EndOfLine)
+        {
           m_EndOfLine = false;
-        else
-          // it might happen that the comment line contains a Delimiter
-          while (!EndOfFile)
-          {
-            var character = Peek();
-            MoveNext(character);
-            if (character != c_Cr && character != c_Lf)
-              continue;
-            EatNextCRLF(character);
-            break;
-          }
+          if (m_SkipEmptyLines)
+            // go to the next line
+            restart = true;
+          else
+            // Return it as array of empty columns
+            return new string[FieldCount];
+        }
 
-        goto Restart;
-      }
+        // Skip commented lines
+        if (m_CommentLine.Length > 0 && item != null && item.Length > m_CommentLine.Length
+            && item.StartsWith(m_CommentLine, StringComparison.Ordinal))
+        {
+          // A commented line does start with the comment
+          if (m_EndOfLine)
+            m_EndOfLine = false;
+          else
+            // it might happen that the comment line contains a Delimiter
+            while (!EndOfFile)
+            {
+              var character = Peek();
+              MoveNext(character);
+              if (character != c_Cr && character != c_Lf)
+                continue;
+              EatNextCRLF(character);
+              break;
+            }
+
+          restart = true;          
+        }
+      } while (restart);
 
       var col = 0;
       var columns = new List<string>(FieldCount);

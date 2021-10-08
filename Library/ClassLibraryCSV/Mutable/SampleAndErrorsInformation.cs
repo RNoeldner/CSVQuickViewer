@@ -25,7 +25,7 @@ namespace CsvTools
   ///   properties, it needs to be defined here
   /// </summary>
   [Serializable]
-  public class SampleAndErrorsInformation : INotifyPropertyChanged, ICloneable
+  public sealed class SampleAndErrorsInformation : INotifyPropertyChanged, ICloneable 
   {
     private ObservableCollection<SampleRecordEntry> m_Errors = new ObservableCollection<SampleRecordEntry>();
 
@@ -60,7 +60,7 @@ namespace CsvTools
     /// </value>
     [XmlAttribute]
     [DefaultValue(-1)]
-    public virtual int NumErrors
+    public int NumErrors
     {
       get
       {
@@ -144,7 +144,7 @@ namespace CsvTools
     ///   Notifies the completed property changed
     /// </summary>
     /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info)
+    public  void NotifyPropertyChanged(string info)
     {
       if (PropertyChanged is null)
         return;
@@ -155,6 +155,7 @@ namespace CsvTools
       }
       catch (TargetInvocationException)
       {
+        // ignored
       }
     }
   }

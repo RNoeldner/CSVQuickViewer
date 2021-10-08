@@ -167,22 +167,22 @@ namespace CsvTools
 
     public override int GetInt32(int ordinal) => DataReader!.GetInt32(ReaderMapping.DataTableToReader(ordinal));
 
-    public override long GetInt64(int columnNumber) =>
-      columnNumber == ReaderMapping.DataTableStartLine ? StartLineNumber :
-      columnNumber == ReaderMapping.DataTableEndLine ? EndLineNumber :
-      columnNumber == ReaderMapping.DataTableRecNum ? RecordNumber :
-      DataReader!.GetInt64(ReaderMapping.DataTableToReader(columnNumber));
+    public override long GetInt64(int ordinal) =>
+      ordinal == ReaderMapping.DataTableStartLine ? StartLineNumber :
+      ordinal == ReaderMapping.DataTableEndLine ? EndLineNumber :
+      ordinal == ReaderMapping.DataTableRecNum ? RecordNumber :
+      DataReader!.GetInt64(ReaderMapping.DataTableToReader(ordinal));
 
     public override string GetName(int ordinal) => ReaderMapping.Column[ordinal].Name;
 
-    public override int GetOrdinal(string columnName)
+    public override int GetOrdinal(string name)
     {
-      if (string.IsNullOrEmpty(columnName))
+      if (string.IsNullOrEmpty(name))
         return -1;
       var count = 0;
       foreach (var column in ReaderMapping.Column)
       {
-        if (columnName.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
+        if (name.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
           return count;
         count++;
       }
@@ -223,30 +223,30 @@ namespace CsvTools
       return dataTable;
     }
 
-    public override string GetString(int columnNumber) => Convert.ToString(GetValue(columnNumber));
+    public override string GetString(int ordinal) => Convert.ToString(GetValue(ordinal));
 
-    public override object GetValue(int columnNumber)
+    public override object GetValue(int ordinal)
     {
-      if (columnNumber == ReaderMapping.DataTableStartLine)
+      if (ordinal == ReaderMapping.DataTableStartLine)
         return StartLineNumber;
-      if (columnNumber == ReaderMapping.DataTableEndLine)
+      if (ordinal == ReaderMapping.DataTableEndLine)
         return EndLineNumber;
-      if (columnNumber == ReaderMapping.DataTableRecNum)
+      if (ordinal == ReaderMapping.DataTableRecNum)
         return RecordNumber;
-      if (columnNumber == ReaderMapping.DataTableErrorField)
+      if (ordinal == ReaderMapping.DataTableErrorField)
         return ReaderMapping.RowErrorInformation ?? string.Empty;
 
-      return DataReader!.GetValue(ReaderMapping.DataTableToReader(columnNumber));
+      return DataReader!.GetValue(ReaderMapping.DataTableToReader(ordinal));
     }
 
     public override int GetValues(object[] values) => DataReader!.GetValues(values);
 
-    public override bool IsDBNull(int columnNumber) =>
-      columnNumber != ReaderMapping.DataTableStartLine && columnNumber != ReaderMapping.DataTableEndLine
-                                                       && columnNumber != ReaderMapping.DataTableRecNum
-                                                       && (columnNumber == ReaderMapping.DataTableErrorField
+    public override bool IsDBNull(int ordinal) =>
+      ordinal != ReaderMapping.DataTableStartLine && ordinal != ReaderMapping.DataTableEndLine
+                                                       && ordinal != ReaderMapping.DataTableRecNum
+                                                       && (ordinal == ReaderMapping.DataTableErrorField
                                                              ? ReaderMapping.HasErrors
-                                                             : DataReader!.IsDBNull(ReaderMapping.DataTableToReader(columnNumber)));
+                                                             : DataReader!.IsDBNull(ReaderMapping.DataTableToReader(ordinal)));
 
     public override bool NextResult() => false;
 

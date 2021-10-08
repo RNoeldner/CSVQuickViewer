@@ -49,7 +49,7 @@ namespace CsvTools
     public async Task MoveToPageAsync(int pageIndex)
     {
       if (m_DataReaderWrapper is null)
-        throw new FileReaderExceptionOpen();
+        throw new FileReaderOpenException();
       if (pageIndex < 1)
         pageIndex = 1;
 
