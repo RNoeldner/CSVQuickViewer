@@ -17,13 +17,15 @@ using System.Collections.Generic;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   /// <summary>
   ///   A class to write structured Json Files
   /// </summary>
   public class JsonFileWriter : StructuredFileWriter
   {
+    /// <inheritdoc />
     /// <summary>
-    ///   Initializes a new instance of the <see cref="JsonFileWriter" /> class.
+    ///   Initializes a new instance of the <see cref="T:CsvTools.JsonFileWriter" /> class.
     /// </summary>
     public JsonFileWriter(
       in string id,

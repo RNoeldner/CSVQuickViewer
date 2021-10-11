@@ -41,8 +41,6 @@ namespace CsvTools
 
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
 
-    private ICollection<IColumn>? m_StoreColumns;
-
     private readonly ViewSettings m_ViewSettings;
 
     private bool m_ConfigChanged;
@@ -54,6 +52,8 @@ namespace CsvTools
     private ICollection<string>? m_Headers;
 
     private FormCsvTextDisplay? m_SourceDisplay;
+
+    private ICollection<IColumn>? m_StoreColumns;
 
     private int m_WarningCount;
     private int m_WarningMax = 100;
@@ -113,9 +113,9 @@ namespace CsvTools
           if (titleAttribute.Title.Length != 0)
             return titleAttribute.Title + " " + assembly.GetName().Version
 #if !NETFRAMEWORK
-            + "*"
+                   + "*"
 #endif
-          ;
+              ;
         }
 
         return Path.GetFileNameWithoutExtension(assembly.Location);
@@ -148,10 +148,10 @@ namespace CsvTools
         DetachPropertyChanged(m_FileSetting);
 
         m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
-          m_ViewSettings.GuessCodePage,
-          m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
-          m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-          m_ViewSettings.FillGuessSettings, processDisplay)).PhysicalFile();
+                           m_ViewSettings.GuessCodePage,
+                           m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
+                           m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
+                           m_ViewSettings.FillGuessSettings, processDisplay)).PhysicalFile();
 
         if (m_FileSetting is null)
           return;
@@ -171,6 +171,7 @@ namespace CsvTools
             title.Append(EncodingHelper.GetEncodingName(csv.CodePageId, csv.ByteOrderMark));
             m_WarningMax = csv.NumWarnings;
           }
+
           title.Append(" - ");
           title.Append(AssemblyTitle);
           Text = title.ToString();
@@ -264,7 +265,7 @@ namespace CsvTools
       try
       {
         fileSetting.PropertyChanged += FileSetting_PropertyChanged;
-        
+
         fileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
 
         if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
@@ -288,26 +289,26 @@ namespace CsvTools
           detailControl.MoveMenu();
           if (_MessageBox.Show(
                 "The configuration has changed do you want to reload the data?",
-            "Configuration changed",
-            MessageBoxButtons.YesNo,
-            MessageBoxIcon.Question,
-            MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                "Configuration changed",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             await OpenDataReaderAsync();
           else
             m_ConfigChanged = false;
         }
 
         if (!m_FileChanged) return;
-        if (m_FileSetting is null || m_FileSetting.FileName.Length==0)
+        if (m_FileSetting is null || m_FileSetting.FileName.Length == 0)
           return;
 
         m_FileChanged = false;
         if (_MessageBox.Show(
               "The displayed file has changed do you want to reload the data?",
-          "File changed",
-          MessageBoxButtons.YesNo,
-          MessageBoxIcon.Question,
-          MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+              "File changed",
+              MessageBoxButtons.YesNo,
+              MessageBoxIcon.Question,
+              MessageBoxDefaultButton.Button2) == DialogResult.Yes)
           await LoadCsvFile(m_FileSetting.FileName);
         else
           m_FileChanged = false;
@@ -391,7 +392,7 @@ namespace CsvTools
           || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)
           || e.PropertyName == nameof(ICsvFile.DisplayStartLineNo)
           || e.PropertyName == nameof(ICsvFile.DisplayRecordNo)
-          || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)               
+          || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)
           || e.PropertyName == nameof(ICsvFile.FieldDelimiter)
           || e.PropertyName == nameof(ICsvFile.FieldQualifier)
           || e.PropertyName == nameof(ICsvFile.EscapePrefix)
@@ -400,7 +401,7 @@ namespace CsvTools
           || e.PropertyName == nameof(ICsvFile.QualifierPlaceholder)
           || e.PropertyName == nameof(ICsvFile.CommentLine)
           || e.PropertyName == nameof(ICsvFile.ContextSensitiveQualifier)
-          || e.PropertyName == nameof(ICsvFile.DuplicateQualifierToEscape)                
+          || e.PropertyName == nameof(ICsvFile.DuplicateQualifierToEscape)
           || e.PropertyName == nameof(ICsvFile.FileName))
         m_ConfigChanged = true;
     }
@@ -414,7 +415,7 @@ namespace CsvTools
     private void FileStored(object? sender, IFileSettingPhysicalFile e)
     {
       fileSystemWatcher.Changed += FileSystemWatcher_Changed;
-      fileSystemWatcher.EnableRaisingEvents =  m_ViewSettings.DetectFileChanges;
+      fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
       m_ConfigChanged = false;
       if (m_ViewSettings.StoreSettingsByFile)
         SerializedFilesLib.SaveSettingFile(e, () => true);
@@ -428,7 +429,7 @@ namespace CsvTools
     ///   The <see cref="FileSystemEventArgs" /> instance containing the event data.
     /// </param>
     private void FileSystemWatcher_Changed(object? sender, FileSystemEventArgs e) =>
-        m_FileChanged |= e.FullPath == m_FileSetting!.FileName && e.ChangeType == WatcherChangeTypes.Changed;
+      m_FileChanged |= e.FullPath == m_FileSetting!.FileName && e.ChangeType == WatcherChangeTypes.Changed;
 
     /// <summary>
     ///   Handles the Activated event of the Display control.
@@ -497,7 +498,7 @@ namespace CsvTools
             detailControl.ShowInfoButtons = false;
           });
 
-          await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.Duration, processDisplay,
+          await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.DurationTimeSpan, processDisplay,
             AddWarning);
 
           m_Headers = detailControl.DataTable.GetRealColumns().ToArray();
@@ -569,8 +570,10 @@ namespace CsvTools
         {
           var fileName = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
           SerializedFilesLib.SaveSettingFile(m_FileSetting,
-            () => _MessageBox.Show($"Setting {FileSystemUtils.GetShortDisplayFileName(fileName, 50)} has been changed.\nReplace with new setting? ", "Settings", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
+            () => _MessageBox.Show($"Setting {FileSystemUtils.GetShortDisplayFileName(fileName, 50)} has been changed.\nReplace with new setting? ", "Settings",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
         }
+
         m_ConfigChanged = false;
       }
       catch (Exception ex)
@@ -594,7 +597,7 @@ namespace CsvTools
 
     private async void ShowSettings(object? sender, EventArgs e)
     {
-      if (m_FileSetting==null)
+      if (m_FileSetting == null)
         return;
       await m_ToolStripButtonSettings.RunWithHourglassAsync(async () =>
 
@@ -612,7 +615,7 @@ namespace CsvTools
         SetFileSystemWatcher(m_FileSetting.FileName);
 
         if (m_FileChanged)
-          m_ConfigChanged= false;
+          m_ConfigChanged = false;
         await CheckPossibleChange();
       }, this);
     }
@@ -687,7 +690,7 @@ namespace CsvTools
 
     private async void ToggleDisplayAsText(object? sender, EventArgs e)
     {
-      if (m_FileSetting==null)
+      if (m_FileSetting == null)
         return;
       await m_ToolStripButtonAsText.RunWithHourglassAsync(async () =>
       {

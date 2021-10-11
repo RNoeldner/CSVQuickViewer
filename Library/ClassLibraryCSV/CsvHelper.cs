@@ -139,7 +139,7 @@ namespace CsvTools
           Logger.Information(e1, "Trying to read manifest inside zip");
         }
 
-      if (fileName2.EndsWith(ManifestData.cCsvManifestExtension))
+      if (fileName2.EndsWith(ManifestData.cCsvManifestExtension, StringComparison.OrdinalIgnoreCase))
         try
         {
           var settingFs = await ManifestData.ReadManifestFileSystem(fileName2).ConfigureAwait(false);
@@ -168,7 +168,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
+        using var reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
       await reader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
       var (_, b) = await reader.FillGuessColumnFormatReaderAsyncReader(
                      fillGuessSettings,
@@ -614,7 +614,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
+        using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
       return await improvedStream.GetDetectionResult(
                fileName,
                display,
@@ -708,7 +708,7 @@ namespace CsvTools
       {
         cancellationToken.ThrowIfCancellationRequested();
         headerLine = reader.ReadLine();
-        if (!string.IsNullOrEmpty(comment) && headerLine.TrimStart().StartsWith(comment))
+        if (!string.IsNullOrEmpty(comment) && headerLine.TrimStart().StartsWith(comment, StringComparison.Ordinal))
           headerLine = string.Empty;
       }
 
@@ -739,7 +739,7 @@ namespace CsvTools
           {
             var dataLine = reader.ReadLine();
             if (string.IsNullOrEmpty(dataLine)
-                || (!string.IsNullOrEmpty(comment) && dataLine.TrimStart().StartsWith(comment)))
+                || (!string.IsNullOrEmpty(comment) && dataLine.TrimStart().StartsWith(comment, StringComparison.Ordinal)))
               continue;
             counter++;
             fieldCount += dataLine.Split(delimiterChar).Length;
@@ -1602,12 +1602,18 @@ namespace CsvTools
       var maxCount = count.Max();
       if (maxCount == 0)
         return RecordDelimiterType.None;
-      var res = count[c_RecSep] == maxCount ? RecordDelimiterType.RS :
-                count[c_UnitSep] == maxCount ? RecordDelimiterType.US :
-                count[c_Cr] == maxCount ? RecordDelimiterType.CR :
-                count[c_LF] == maxCount ? RecordDelimiterType.LF :
-                count[c_LFCr] == maxCount ? RecordDelimiterType.LFCR :
-                count[c_CrLf] == maxCount ? RecordDelimiterType.CRLF : RecordDelimiterType.None;
+
+      var res = RecordDelimiterType.None;
+      if (count[c_RecSep] == maxCount)
+        res = RecordDelimiterType.RS;
+      else if (count[c_UnitSep] == maxCount)
+        res = RecordDelimiterType.US;
+      else if (count[c_Cr] == maxCount)
+        res = RecordDelimiterType.CR;
+      else if (count[c_LF] == maxCount)
+        res = RecordDelimiterType.LF;
+      else if (count[c_CrLf] == maxCount)
+        res = RecordDelimiterType.CRLF;
       Logger.Information("Record Delimiter: {recorddelimiter}", res.Description());
       return res;
     }

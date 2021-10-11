@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="CsvTools.BaseFileReader" />
   /// <summary>
   ///   A data reader for CSV files
   /// </summary>
@@ -405,6 +406,7 @@ namespace CsvTools
         m_HandleMessageColumn = (i, s) => Logger.Warning(GetWarningEventArgs(i, s).Display(true, true));
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.
     /// </summary>
@@ -426,36 +428,18 @@ namespace CsvTools
       GC.SuppressFinalize(this);
     }
 
-    /// <summary>
-    ///   Reads a stream of bytes from the specified column offset into the buffer as an array,
-    ///   starting at the given buffer offset.
-    /// </summary>
-    /// <param name="i">The zero-based column ordinal.</param>
-    /// <param name="fieldOffset">The index within the field from which to start the read operation.</param>
-    /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-    /// <param name="bufferoffset">
-    ///   The index for <paramref name="buffer" /> to start the read operation.
-    /// </param>
-    /// <param name="length">The number of bytes to read.</param>
-    /// <exception cref="NotImplementedException"></exception>
-    /// <returns>The actual number of bytes read.</returns>
-    /// <exception cref="IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
-    /// </exception>
+    /// <inheritdoc />
+    /// <exception cref="T:System.NotImplementedException">Always returns</exception>
+    [Obsolete("Not implemented")]
     public new long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) =>
       throw new NotImplementedException();
 
-    /// <summary>
-    ///   Returns an <see cref="IDataReader" /> for the specified column ordinal.
-    /// </summary>
-    /// <param name="i">The index of the field to find.</param>
-    /// <exception cref="NotImplementedException"></exception>
-    /// <returns>An <see cref="IDataReader" />.</returns>
-    /// <exception cref="IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
-    /// </exception>
+    /// <inheritdoc />
+    /// <exception cref="T:System.NotImplementedException">Always returns</exception>
+    [Obsolete("Not implemented")]
     public new IDataReader GetData(int i) => throw new NotImplementedException();
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the data type information for the specified field.
     /// </summary>
@@ -463,13 +447,14 @@ namespace CsvTools
     /// <returns>The .NET type name of the column</returns>
     public new string GetDataTypeName(int i) => Column[i].ValueFormat.DataType.GetNetType().Name;
 
+    /// <inheritdoc />
     /// <summary>
     ///   Return the value of the specified field.
     /// </summary>
     /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The object will contain the field value upon return.</returns>
-    /// <exception cref="IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
+    /// <exception cref="T:System.IndexOutOfRangeException">
+    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
     public override object GetValue(int ordinal)
     {
@@ -481,17 +466,18 @@ namespace CsvTools
       object? ret = column.ValueFormat.DataType switch
       {
         DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal), column, true),
-        DataType.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
-        DataType.Double => GetDoubleNull(value, ordinal),
-        DataType.Numeric => GetDecimalNull(value, ordinal),
-        DataType.Boolean => GetBooleanNull(value, ordinal),
-        DataType.Guid => GetGuidNull(value, column.ColumnOrdinal),
-        DataType.String => value,
-        _ => throw new ArgumentOutOfRangeException()
+        DataType.Integer  => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
+        DataType.Double   => GetDoubleNull(value, ordinal),
+        DataType.Numeric  => GetDecimalNull(value, ordinal),
+        DataType.Boolean  => GetBooleanNull(value, ordinal),
+        DataType.Guid     => GetGuidNull(value, column.ColumnOrdinal),
+        DataType.String   => value,
+        _                 => throw new ArgumentOutOfRangeException()
       };
       return ret ?? DBNull.Value;
     }
 
+    /// <inheritdoc cref="IFileReader.OpenAsync" />
     /// <summary>
     ///   Open the file Reader; Start processing the Headers and determine the maximum column size
     /// </summary>
@@ -576,6 +562,7 @@ namespace CsvTools
 
     public override Task<bool> ReadAsync(CancellationToken cancellationToken) => Task.FromResult(Read(cancellationToken));
 
+    /// <inheritdoc />
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
     /// </summary>
@@ -602,6 +589,7 @@ namespace CsvTools
 
     public override bool Read(CancellationToken token) => !token.IsCancellationRequested && Read();
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the relative position.
     /// </summary>
@@ -1006,7 +994,7 @@ namespace CsvTools
               // in case a linefeed actually follows ignore the EscapePrefixChar but handle the
               // regular processing
               '\\' when nextChar == 'a' => '\a',
-              _ => nextChar
+              _                         => nextChar
             };
           }
         }
@@ -1243,7 +1231,7 @@ namespace CsvTools
               break;
             }
 
-          restart = true;          
+          restart = true;
         }
       } while (restart);
 

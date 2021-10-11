@@ -176,7 +176,7 @@ namespace CsvTools
         sbHtml.Append(m_HtmlStyle.TDEmpty);
       else
       {
-        style.AddHtmlCell(sbHtml, m_HtmlStyle.TD, string.Empty, errorText ?? string.Empty, true);
+        style.AddHtmlCell(sbHtml, m_HtmlStyle.TD, string.Empty, errorText, true);
       }
 
       stringBuilder.Append('\t');
@@ -258,7 +258,7 @@ namespace CsvTools
         AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError, m_HtmlStyle);
         sbHtml.AppendLine(m_HtmlStyle.TRClose);
         buffer.AppendLine();
-        if (!((DateTime.Now - lastRefresh).TotalSeconds > 0.2))
+        if ((DateTime.Now - lastRefresh).TotalSeconds <= 0.2)
           continue;
         lastRefresh = DateTime.Now;
         Extensions.ProcessUIElements();
@@ -380,7 +380,7 @@ namespace CsvTools
 
         sbHtml.AppendLine(m_HtmlStyle.TRClose);
         buffer.AppendLine();
-        if (!((DateTime.Now - lastRefresh).TotalSeconds > 0.2))
+        if ((DateTime.Now - lastRefresh).TotalSeconds <= 0.2)
           continue;
         lastRefresh = DateTime.Now;
         Extensions.ProcessUIElements();

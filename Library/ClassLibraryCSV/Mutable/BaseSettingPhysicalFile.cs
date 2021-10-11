@@ -56,6 +56,7 @@ namespace CsvTools
     [XmlIgnore]
     public virtual bool DefaultValueFormatWriteSpecified => m_DefaultValueFormatWrite.Specified;
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the name of the file.
     /// </summary>
@@ -71,6 +72,7 @@ namespace CsvTools
       set => m_ColumnFile = value ?? string.Empty;
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the name of the file.
     /// </summary>
@@ -95,6 +97,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the date the file when it was read
     /// </summary>
@@ -151,6 +154,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the name of the file.
     /// </summary>
@@ -174,6 +178,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   The identified to find this specific instance
     /// </summary>
@@ -194,6 +199,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   PassPhrase for Decryption, will not be stored
     /// </summary>
@@ -208,6 +214,7 @@ namespace CsvTools
       set => m_PassPhrase = (value ?? string.Empty).Trim();
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Recipient for a outbound PGP encryption
     /// </summary>
@@ -229,6 +236,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the name of the file.
     /// </summary>
@@ -254,6 +262,7 @@ namespace CsvTools
 
     [XmlIgnore] [DefaultValue("")] public string RootFolder { get; set; } = string.Empty;
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the name of the file.
     /// </summary>

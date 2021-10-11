@@ -25,14 +25,14 @@ namespace CsvTools
   /// </summary>
   public static class StringConversion
   {
-    public static readonly HashSet<string> DateSeparators =
-      new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" });
+    internal static readonly IReadOnlyCollection<string> DateSeparators =
+      new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" }, StringComparer.Ordinal);
 
-    public static readonly HashSet<string> DecimalGroupings = new HashSet<string>(
-      new[] { CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator, ".", ",", " ", "" });
+    internal static readonly IReadOnlyCollection<string> DecimalGroupings = new HashSet<string>(
+      new[] { CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator, ".", ",", " ", "" }, StringComparer.Ordinal);
 
-    public static readonly HashSet<string> DecimalSeparators = new HashSet<string>(
-      new[] { CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "," });
+    internal static readonly IReadOnlyCollection<string> DecimalSeparators = new HashSet<string>(
+      new[] { CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "," }, StringComparer.Ordinal);
 
     /// <summary>
     ///   The possible length of a date for a given format
@@ -358,9 +358,8 @@ namespace CsvTools
       {
         if (dateColumn is DateTime time)
           dateValue = time;
-        else if (serialDateTime && dateColumn is double oaDate)
-          if (oaDate > -657435.0 && oaDate < 2958466.0)
-            dateValue = m_FirstDateTime.AddDays(oaDate);
+        else if (serialDateTime && dateColumn is double oaDate && oaDate > -657435.0 && oaDate < 2958466.0)
+          dateValue = m_FirstDateTime.AddDays(oaDate);
       }
 
       // if we did not convert yet and we have a text use it
@@ -448,7 +447,7 @@ namespace CsvTools
       if (dateFormat is null || dateFormat.Length == 0)
         return null;
 
-      var date = StringToDateTime(datePart, dateFormat!, dateSeparator, timeSeparator, serialDateTime);
+      var date = StringToDateTime(datePart, dateFormat, dateSeparator, timeSeparator, serialDateTime);
 
       // In case a value is read that just is a time, need to adjust c# and Excel behavior the
       // application assumes all dates on cFirstDatetime is a time only
@@ -862,7 +861,6 @@ namespace CsvTools
         stringFieldValue = stringFieldValue.Substring(0, stringFieldValue.Length - 1);
       }
 
-      /* 1 -> -x ; 2 -> - x; 3 -> x-;*/
       for (numberFormatProvider.NumberNegativePattern = 1;
            numberFormatProvider.NumberNegativePattern <= 3;
            numberFormatProvider.NumberNegativePattern++)
@@ -901,7 +899,7 @@ namespace CsvTools
     public static Guid? StringToGuid(in string? originalValue)
     {
       // only try to do this if we have the right length
-      if (string.IsNullOrEmpty(originalValue) || originalValue!.Length < 32 || originalValue.Length > 38)
+      if (originalValue is null || originalValue.Length < 32 || originalValue.Length > 38)
         return null;
       try
       {
@@ -1064,7 +1062,6 @@ namespace CsvTools
       var hrs = stringTimeValue.Substring(0, hrsIndex);
       if (hrs.IndexOf(' ') != -1)
         return null;
-      // hrs = hrs.Substring(hrs.IndexOf(' ') + 1);
 
       if (int.TryParse(hrs, out var hours))
       {

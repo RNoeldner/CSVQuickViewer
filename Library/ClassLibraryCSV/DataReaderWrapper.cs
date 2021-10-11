@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  /// <inheritdoc />
+  /// <inheritdoc cref="CsvTools.IFileReader" />
   /// <summary>
   ///   Wrapper around another an open IDataReader adding artificial fields and removing ignored columns
   /// </summary>
@@ -37,14 +37,10 @@ namespace CsvTools
     public readonly ReaderMapping ReaderMapping;
     protected IDataReader DataReader;
 
-    /// <summary>
-    ///   Event handler called if a warning or error occurred
-    /// </summary>
-    public event EventHandler<WarningEventArgs>? Warning;
-
+    /// <inheritdoc />
     /// <summary>
     ///   Constructor for a DataReaderWrapper <br /> This wrapper adds artificial fields like Error,
-    ///   start and end Line or record number and handles the return of these artifical fields in GetValue
+    ///   start and end Line or record number and handles the return of these artificial fields in GetValue
     /// </summary>
     /// <param name="reader">Regular framework IDataReader</param>
     /// <param name="recordLimit">Number of maximum records to read, 0 if there is no limit</param>
@@ -66,7 +62,7 @@ namespace CsvTools
         throw new ArgumentException("Reader must be opened");
       m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       ReaderMapping = new ReaderMapping(DataReader, addStartLine, addRecNum, addEndLine, addErrorField);
-      if (FileReader!=null)
+      if (FileReader != null)
         FileReader.Warning += (o, e) => Warning?.Invoke(o, e);
     }
 
@@ -90,6 +86,14 @@ namespace CsvTools
     {
     }
 
+    public override bool HasRows => !DataReader.IsClosed;
+
+    /// <inheritdoc />
+    /// <summary>
+    ///   Event handler called if a warning or error occurred
+    /// </summary>
+    public event EventHandler<WarningEventArgs>? Warning;
+
     public override int Depth => FieldCount;
 
     public long EndLineNumber => FileReader?.EndLineNumber ?? RecordNumber;
@@ -97,8 +101,6 @@ namespace CsvTools
     public bool EndOfFile => FileReader?.EndOfFile ?? (DataReader.IsClosed || RecordNumber >= m_RecordLimit);
 
     public override int FieldCount => ReaderMapping.Column.Count;
-
-    public override bool HasRows => !DataReader.IsClosed;
 
     public override bool IsClosed => DataReader.IsClosed;
 
@@ -121,16 +123,6 @@ namespace CsvTools
     public override object this[string name] => GetValue(GetOrdinal(name));
 
     public override void Close() => DataReader.Close();
-
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    public override async Task CloseAsync()
-    {
-      if (DataReader is DbDataReader dbDataReader)
-        await dbDataReader.CloseAsync();
-      else
-        DataReader.Close();
-    }
-#endif
 
     public override bool GetBoolean(int ordinal) => DataReader!.GetBoolean(ReaderMapping.DataTableToReader(ordinal));
 
@@ -155,8 +147,6 @@ namespace CsvTools
 
     public override double GetDouble(int ordinal) => DataReader!.GetDouble(ReaderMapping.DataTableToReader(ordinal));
 
-    public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
-
     public override Type GetFieldType(int ordinal) => ReaderMapping.Column[ordinal].ValueFormat.DataType.GetNetType();
 
     public override float GetFloat(int ordinal) => DataReader!.GetFloat(ReaderMapping.DataTableToReader(ordinal));
@@ -167,11 +157,16 @@ namespace CsvTools
 
     public override int GetInt32(int ordinal) => DataReader!.GetInt32(ReaderMapping.DataTableToReader(ordinal));
 
-    public override long GetInt64(int ordinal) =>
-      ordinal == ReaderMapping.DataTableStartLine ? StartLineNumber :
-      ordinal == ReaderMapping.DataTableEndLine ? EndLineNumber :
-      ordinal == ReaderMapping.DataTableRecNum ? RecordNumber :
-      DataReader!.GetInt64(ReaderMapping.DataTableToReader(ordinal));
+    public override long GetInt64(int ordinal)
+    {
+      if (ordinal == ReaderMapping.DataTableStartLine)
+        return StartLineNumber;
+      if (ordinal == ReaderMapping.DataTableEndLine)
+        return EndLineNumber;
+      if (ordinal == ReaderMapping.DataTableRecNum)
+        return RecordNumber;
+      return DataReader!.GetInt64(ReaderMapping.DataTableToReader(ordinal));
+    }
 
     public override string GetName(int ordinal) => ReaderMapping.Column[ordinal].Name;
 
@@ -243,10 +238,10 @@ namespace CsvTools
 
     public override bool IsDBNull(int ordinal) =>
       ordinal != ReaderMapping.DataTableStartLine && ordinal != ReaderMapping.DataTableEndLine
-                                                       && ordinal != ReaderMapping.DataTableRecNum
-                                                       && (ordinal == ReaderMapping.DataTableErrorField
-                                                             ? ReaderMapping.HasErrors
-                                                             : DataReader!.IsDBNull(ReaderMapping.DataTableToReader(ordinal)));
+                                                  && ordinal != ReaderMapping.DataTableRecNum
+                                                  && (ordinal == ReaderMapping.DataTableErrorField
+                                                        ? ReaderMapping.HasErrors
+                                                        : DataReader!.IsDBNull(ReaderMapping.DataTableToReader(ordinal)));
 
     public override bool NextResult() => false;
 
@@ -277,5 +272,17 @@ namespace CsvTools
     public Task OpenAsync(CancellationToken token) => throw new NotImplementedException();
 
     public void ResetPositionToFirstDataRow() => throw new NotImplementedException();
+
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    public override async Task CloseAsync()
+    {
+      if (DataReader is DbDataReader dbDataReader)
+        await dbDataReader.CloseAsync();
+      else
+        DataReader.Close();
+    }
+#endif
+
+    public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
   }
 }

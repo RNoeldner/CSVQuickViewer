@@ -20,6 +20,7 @@ using System.Globalization;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   /// <summary>
   ///   Abstract class as base for all DataReaders that are reading a typed value, e.G. Excel
   /// </summary>
@@ -32,9 +33,9 @@ namespace CsvTools
     private readonly bool m_Trim;
     protected object?[] CurrentValues;
 
+    /// <inheritdoc />
     /// <summary>
-    ///   Constructor for abstract base call for <see cref="IFileReader" /> and <see
-    ///   cref="IFileReaderWithEvents" /> that does read typed values like Excel, SQl
+    ///   Constructor for abstract base call for <see cref="T:CsvTools.IFileReader" /> and <see cref="T:CsvTools.IFileReaderWithEvents" /> that does read typed values like Excel, SQl
     /// </summary>
     /// <param name="fileName">Path to a physical file (if used)</param>
     /// <param name="columnDefinition">List of column definitions</param>
@@ -59,13 +60,7 @@ namespace CsvTools
       CurrentValues = Array.Empty<object>();
     }
 
-
     /// <inheritdoc/>
-    /// <summary>
-    ///   Gets the boolean.
-    /// </summary>
-    /// <param name="ordinal">The i.</param>
-    /// <returns></returns>
     public override bool GetBoolean(int ordinal)
     {
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
@@ -76,7 +71,6 @@ namespace CsvTools
       return base.GetBoolean(ordinal);
     }
 
-    /// <inheritdoc/>
     /// <summary>
     ///   Returns an <see cref="IDataReader" /> for the specified column ordinal.
     /// </summary>
@@ -85,11 +79,7 @@ namespace CsvTools
     /// <exception cref="NotImplementedException"></exception>
     public new IDataReader GetData(int ordinal) => throw new NotImplementedException();
 
-    /// <summary>
-    ///   Gets the date and time data value of the specified field.
-    /// </summary>
-    /// <param name="ordinal">The index of the field to find.</param>
-    /// <returns>The date and time data value of the specified field.</returns>
+    /// <inheritdoc/>
     public override DateTime GetDateTime(int ordinal)
     {
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
@@ -120,51 +110,38 @@ namespace CsvTools
     }
 
     /// <inheritdoc/>
-    /// <summary>
-    ///   Gets the decimal.
-    /// </summary>
-    /// <param name="ordinal">The i.</param>
-    /// <returns></returns>
     public override decimal GetDecimal(int ordinal)
     {
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
       Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
 
       if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
-                                                  || CurrentValues[ordinal] is float
-                                                  || CurrentValues[ordinal] is short
-                                                  || CurrentValues[ordinal] is int
-                                                  || CurrentValues[ordinal] is long)
+                                             || CurrentValues[ordinal] is float
+                                             || CurrentValues[ordinal] is short
+                                             || CurrentValues[ordinal] is int
+                                             || CurrentValues[ordinal] is long)
         return Convert.ToDecimal(CurrentValues[ordinal], CultureInfo.CurrentCulture);
       EnsureTextFilled(ordinal);
       return base.GetDecimal(ordinal);
     }
 
-    /// <summary>
-    ///   Gets the double.
-    /// </summary>
-    /// <param name="ordinal">The i.</param>
-    /// <returns></returns>
+    /// <inheritdoc />
     public override double GetDouble(int ordinal)
     {
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
       Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
 
       if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
-                                                  || CurrentValues[ordinal] is float
-                                                  || CurrentValues[ordinal] is short
-                                                  || CurrentValues[ordinal] is int
-                                                  || CurrentValues[ordinal] is long)
+                                             || CurrentValues[ordinal] is float
+                                             || CurrentValues[ordinal] is short
+                                             || CurrentValues[ordinal] is int
+                                             || CurrentValues[ordinal] is long)
         return Convert.ToDouble(CurrentValues[ordinal], CultureInfo.CurrentCulture);
       EnsureTextFilled(ordinal);
       return base.GetDouble(ordinal);
     }
 
-    /// <summary>
-    ///   Gets the single-precision floating point number of the specified field.
-    /// </summary>
-    /// <param name="ordinal">The index of the field to find.</param>
-    /// <returns>The single-precision floating point number of the specified field.</returns>
+    /// <inheritdoc />
     public override float GetFloat(int ordinal)
     {
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
@@ -172,10 +149,10 @@ namespace CsvTools
       try
       {
         if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
-                                                    || CurrentValues[ordinal] is float
-                                                    || CurrentValues[ordinal] is short
-                                                    || CurrentValues[ordinal] is int
-                                                    || CurrentValues[ordinal] is long)
+                                               || CurrentValues[ordinal] is float
+                                               || CurrentValues[ordinal] is short
+                                               || CurrentValues[ordinal] is int
+                                               || CurrentValues[ordinal] is long)
           return Convert.ToSingle(CurrentValues[ordinal], CultureInfo.CurrentCulture);
       }
       catch (Exception e)
@@ -187,11 +164,7 @@ namespace CsvTools
       return base.GetFloat(ordinal);
     }
 
-    /// <summary>
-    ///   Gets the unique identifier.
-    /// </summary>
-    /// <param name="ordinal">The i.</param>
-    /// <returns></returns>
+    /// <inheritdoc />
     public override Guid GetGuid(int ordinal)
     {
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
@@ -203,11 +176,7 @@ namespace CsvTools
       return base.GetGuid(ordinal);
     }
 
-    /// <summary>
-    ///   Gets the 16-bit signed integer value of the specified field.
-    /// </summary>
-    /// <param name="ordinal">The index of the field to find.</param>
-    /// <returns>The 16-bit signed integer value of the specified field.</returns>
+    /// <inheritdoc />
     public override short GetInt16(int ordinal)
     {
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
@@ -215,10 +184,10 @@ namespace CsvTools
       try
       {
         if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
-                                                    || CurrentValues[ordinal] is float
-                                                    || CurrentValues[ordinal] is short
-                                                    || CurrentValues[ordinal] is int
-                                                    || CurrentValues[ordinal] is long)
+                                               || CurrentValues[ordinal] is float
+                                               || CurrentValues[ordinal] is short
+                                               || CurrentValues[ordinal] is int
+                                               || CurrentValues[ordinal] is long)
           return Convert.ToInt16(CurrentValues[ordinal], CultureInfo.CurrentCulture);
       }
       catch (Exception e)
@@ -230,11 +199,7 @@ namespace CsvTools
       return base.GetInt16(ordinal);
     }
 
-    /// <summary>
-    ///   Gets the int32.
-    /// </summary>
-    /// <param name="ordinal">The i.</param>
-    /// <returns></returns>
+    /// <inheritdoc />
     public override int GetInt32(int ordinal)
     {
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
@@ -243,10 +208,10 @@ namespace CsvTools
       try
       {
         if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
-                                                    || CurrentValues[ordinal] is float
-                                                    || CurrentValues[ordinal] is short
-                                                    || CurrentValues[ordinal] is int
-                                                    || CurrentValues[ordinal] is long)
+                                               || CurrentValues[ordinal] is float
+                                               || CurrentValues[ordinal] is short
+                                               || CurrentValues[ordinal] is int
+                                               || CurrentValues[ordinal] is long)
           return Convert.ToInt32(CurrentValues[ordinal], CultureInfo.CurrentCulture);
       }
       catch (Exception e)
@@ -258,11 +223,7 @@ namespace CsvTools
       return base.GetInt32(ordinal);
     }
 
-    /// <summary>
-    ///   Gets the int64.
-    /// </summary>
-    /// <param name="ordinal">The i.</param>
-    /// <returns></returns>
+    /// <inheritdoc />
     public override long GetInt64(int ordinal)
     {
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
@@ -270,10 +231,10 @@ namespace CsvTools
       try
       {
         if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
-                                                    || CurrentValues[ordinal] is float
-                                                    || CurrentValues[ordinal] is short
-                                                    || CurrentValues[ordinal] is int
-                                                    || CurrentValues[ordinal] is long)
+                                               || CurrentValues[ordinal] is float
+                                               || CurrentValues[ordinal] is short
+                                               || CurrentValues[ordinal] is int
+                                               || CurrentValues[ordinal] is long)
           return Convert.ToInt64(CurrentValues[ordinal], CultureInfo.CurrentCulture);
       }
       catch (Exception e)

@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   /// <summary>
   ///   IFileReader implementation based on a data table, this is used to pass on a data table to a writer
   /// </summary>
@@ -28,7 +29,7 @@ namespace CsvTools
     public DataTableWrapper(in DataTable dataTable)
       : base(
         dataTable.CreateDataReader(),
-        // passing in number of records so Percent can be calulated
+        // passing in number of records so Percent can be calculated
         dataTable.Rows.Count) =>
       DataTable = dataTable;
 
@@ -60,6 +61,7 @@ namespace CsvTools
         if (couldRead)
           return true;
       }
+
       return false;
     }
 
