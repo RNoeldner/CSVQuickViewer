@@ -22,28 +22,29 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="CsvTools.IFileWriter" />
   /// <summary>
   ///   A Class to write CSV Files
   /// </summary>
   public class CsvFileWriter : BaseFileWriter, IFileWriter
   {
-    private readonly bool m_ColumnHeader;
     private readonly bool m_ByteOrderMark;
     private readonly int m_CodePageId;
+    private readonly bool m_ColumnHeader;
+    private readonly string m_DelimiterPlaceholder;
     private readonly string m_FieldDelimiter;
+    private readonly char m_FieldDelimiterChar;
     private readonly string m_FieldDelimiterEscaped;
     private readonly string m_FieldQualifier;
-    private readonly string m_FieldQualifierEscaped;
-    private readonly char[] m_QualifyCharArray;
-    private readonly bool m_QualifyAlways;
-    private readonly bool m_QualifyOnlyIfNeeded;
-    private readonly string m_NewLine;
-    private readonly char m_FieldDelimiterChar;
     private readonly char m_FieldQualifierChar;
+    private readonly string m_FieldQualifierEscaped;
     private readonly bool m_IsFixedLength;
+    private readonly string m_NewLine;
     private readonly string m_NewLinePlaceholder;
-    private readonly string m_DelimiterPlaceholder;
     private readonly string m_QualifierPlaceholder;
+    private readonly bool m_QualifyAlways;
+    private readonly char[] m_QualifyCharArray;
+    private readonly bool m_QualifyOnlyIfNeeded;
 
     public CsvFileWriter(
       in string id,
@@ -130,7 +131,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var writer = new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192);
+        using var writer = new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192);
       SetColumns(reader);
 
       if (Columns.Count == 0)

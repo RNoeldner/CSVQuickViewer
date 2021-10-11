@@ -20,59 +20,60 @@ namespace CsvTools
   ///   Class to notify only after a given period of time
   /// </summary>
   public class IntervalAction
-	{
-		private DateTime m_LastNotification = DateTime.MinValue;
+  {
+    private DateTime m_LastNotification = DateTime.MinValue;
 
-		/// <summary>
-		///   Initializes a new instance of the <see cref="IntervalAction" /> class.
-		/// </summary>
-		/// <remarks>If no notification period is set 1/3 a second is assumed</remarks>
-		public IntervalAction()
-			: this(1 / 3d)
-		{
-		}
+    /// <inheritdoc />
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="T:CsvTools.IntervalAction" /> class.
+    /// </summary>
+    /// <remarks>If no notification period is set 1/3 a second is assumed</remarks>
+    public IntervalAction()
+      : this(1 / 3d)
+    {
+    }
 
-		/// <summary>
-		///   Initializes a new instance of the <see cref="IntervalAction" /> class.
-		/// </summary>
-		/// <param name="notifyAfterSeconds">Notify only after this time in seconds</param>
-		public IntervalAction(double notifyAfterSeconds) => NotifyAfterSeconds = notifyAfterSeconds;
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="IntervalAction" /> class.
+    /// </summary>
+    /// <param name="notifyAfterSeconds">Notify only after this time in seconds</param>
+    public IntervalAction(double notifyAfterSeconds) => NotifyAfterSeconds = notifyAfterSeconds;
 
-		public double NotifyAfterSeconds { get; set; }
+    public double NotifyAfterSeconds { get; set; }
 
-		/// <summary>
-		///   Invoke the given action if the set interval has passed
-		/// </summary>
-		/// <param name="action">the action to invoke</param>
-		public void Invoke(in Action action)
-		{
-      if((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
+    /// <summary>
+    ///   Invoke the given action if the set interval has passed
+    /// </summary>
+    /// <param name="action">the action to invoke</param>
+    public void Invoke(in Action action)
+    {
+      if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
         return;
-			m_LastNotification = DateTime.Now;
-			// ReSharper disable once ConstantConditionalAccessQualifier
-			action?.Invoke();
-		}
+      m_LastNotification = DateTime.Now;
+      // ReSharper disable once ConstantConditionalAccessQualifier
+      action?.Invoke();
+    }
 
-		/// <summary>
-		///   Invoke the given action if the set interval has passed
-		/// </summary>
-		public void Invoke(in Action<long> action, long value)
-		{
-			if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
-				return;
-			m_LastNotification = DateTime.Now;
-			action.Invoke(value);
-		}
+    /// <summary>
+    ///   Invoke the given action if the set interval has passed
+    /// </summary>
+    public void Invoke(in Action<long> action, long value)
+    {
+      if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
+        return;
+      m_LastNotification = DateTime.Now;
+      action.Invoke(value);
+    }
 
-		/// <summary>
-		///   Invoke the given action if the set interval has passed
-		/// </summary>
-		public void Invoke(in Action<string, long, bool> action, in string text, long value, bool log)
-		{
-			if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
-				return;
-			m_LastNotification = DateTime.Now;
-			action.Invoke(text, value, log);
-		}
-	}
+    /// <summary>
+    ///   Invoke the given action if the set interval has passed
+    /// </summary>
+    public void Invoke(in Action<string, long, bool> action, in string text, long value, bool log)
+    {
+      if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
+        return;
+      m_LastNotification = DateTime.Now;
+      action.Invoke(text, value, log);
+    }
+  }
 }

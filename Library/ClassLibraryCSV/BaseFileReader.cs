@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   /// <summary>
   ///   Abstract class as base for all DataReaders
   /// </summary>
@@ -112,6 +113,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets a value indicating the depth of nesting for the current row.
     /// </summary>
@@ -131,6 +133,7 @@ namespace CsvTools
     /// <value><c>true</c> if at the end of file; otherwise, <c>false</c>.</value>
     public virtual bool EndOfFile { get; protected set; } = true;
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the number of fields in the file.
     /// </summary>
@@ -704,13 +707,13 @@ namespace CsvTools
         ret = column.ValueFormat.DataType switch
         {
           DataType.DateTime => GetDateTime(ordinal),
-          DataType.Integer => IntPtr.Size == 4 ? GetInt32(ordinal) : GetInt64(ordinal),
-          DataType.Double => GetDouble(ordinal),
-          DataType.Numeric => GetDecimal(ordinal),
-          DataType.Boolean => GetBoolean(ordinal),
-          DataType.Guid => GetGuid(ordinal),
-          DataType.String => GetString(ordinal),
-          _ => throw new ArgumentOutOfRangeException()
+          DataType.Integer  => IntPtr.Size == 4 ? GetInt32(ordinal) : GetInt64(ordinal),
+          DataType.Double   => GetDouble(ordinal),
+          DataType.Numeric  => GetDecimal(ordinal),
+          DataType.Boolean  => GetBoolean(ordinal),
+          DataType.Guid     => GetGuid(ordinal),
+          DataType.String   => GetString(ordinal),
+          _                 => throw new ArgumentOutOfRangeException()
         };
       }
       catch (FormatException)

@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="CsvTools.IFileReaderWithEvents" />
   /// <summary>
   ///   Json text file reader
   /// </summary>
@@ -64,6 +65,7 @@ namespace CsvTools
           fileName);
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.
     /// </summary>

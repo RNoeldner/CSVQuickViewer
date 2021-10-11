@@ -16,38 +16,40 @@ using System;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="CsvTools.StructuredFile" />
   /// <summary>
-  ///   Setting file for XML files, its an implementation of <see cref="StructuredFile" />
+  ///   Setting file for XML files, its an implementation of <see cref="T:CsvTools.StructuredFile" />
   /// </summary>
   [Serializable]
-	public class XMLFile : StructuredFile, IXMLFile
+  public class XMLFile : StructuredFile, IXMLFile
 
-	{
-		/// <summary>
-		///   Initializes a new instance of the <see cref="StructuredFile" /> class.
-		/// </summary>
-		/// <param name="fileName">Name of the file.</param>
-		public XMLFile(string fileName)
-			: base(fileName)
-		{
-		}
+  {
+    /// <inheritdoc />
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="T:CsvTools.StructuredFile" /> class.
+    /// </summary>
+    /// <param name="fileName">Name of the file.</param>
+    public XMLFile(string fileName)
+      : base(fileName)
+    {
+    }
 
-		/// <summary>
-		///   Initializes a new instance of the <see cref="StructuredFile" /> class.
-		/// </summary>
-		public XMLFile()
-			: this(string.Empty)
-		{
-		}
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
+    /// </summary>
+    public XMLFile()
+      : this(string.Empty)
+    {
+    }
 
-		public override object Clone()
-		{
-			var other = new XMLFile();
-			CopyTo(other);
-			return other;
-		}
+    public override object Clone()
+    {
+      var other = new XMLFile();
+      CopyTo(other);
+      return other;
+    }
 
-		public override bool Equals(IFileSetting? other) =>
-			other is IXMLFile json && BaseSettingsEquals(json as StructuredFile);
-	}
+    public override bool Equals(IFileSetting? other) =>
+      other is IXMLFile json && BaseSettingsEquals(json as StructuredFile);
+  }
 }
