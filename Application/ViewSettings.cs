@@ -18,13 +18,14 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   /// <summary>
   ///   Class containing the all configuration, used in serialization to store the settings
   /// </summary>
   [Serializable]
   public class ViewSettings : CsvFile
   {
-    public enum DurationEnum
+    public enum Duration
     {
       [Description("unlimited")] Unlimited,
 
@@ -51,7 +52,12 @@ namespace CsvTools
     private bool m_MenuDown;
     private bool m_StoreSettingsByFile;
 
-    [XmlElement] public WindowState WindowPosition = new WindowState();
+    [XmlElement]
+    public WindowState WindowPosition
+    {
+      get;
+      set;
+    } = new WindowState();
 
     [XmlAttribute]
     [DefaultValue(true)]
@@ -82,17 +88,17 @@ namespace CsvTools
     }
 
     [XmlIgnore]
-    public TimeSpan Duration
+    public TimeSpan DurationTimeSpan
     {
       get
       {
         return LimitDuration switch
         {
-          DurationEnum.HalfSecond => TimeSpan.FromSeconds(.5),
-          DurationEnum.Second     => TimeSpan.FromSeconds(1),
-          DurationEnum.TwoSecond  => TimeSpan.FromSeconds(2),
-          DurationEnum.TenSecond  => TimeSpan.FromSeconds(10),
-          _                       => TimeSpan.MaxValue,
+          Duration.HalfSecond => TimeSpan.FromSeconds(.5),
+          Duration.Second     => TimeSpan.FromSeconds(1),
+          Duration.TwoSecond  => TimeSpan.FromSeconds(2),
+          Duration.TenSecond  => TimeSpan.FromSeconds(10),
+          _                   => TimeSpan.MaxValue,
         };
       }
     }
@@ -110,6 +116,7 @@ namespace CsvTools
       get => m_FillGuessSettings;
       set
       {
+        // ReSharper disable once ConstantNullCoalescingCondition
         var newVal = value ?? new FillGuessSettings();
         if (ReferenceEquals(m_FillGuessSettings, newVal))
           return;
@@ -229,12 +236,12 @@ namespace CsvTools
     [XmlIgnore] public HTMLStyle HTMLStyle => m_HtmlStyle;
 
     [XmlElement]
-    [DefaultValue(DurationEnum.Second)]
-    public DurationEnum LimitDuration
+    [DefaultValue(Duration.Second)]
+    public Duration LimitDuration
     {
       get;
       set;
-    } = DurationEnum.Second;
+    } = Duration.Second;
 
     [XmlAttribute]
     [DefaultValue(false)]
@@ -273,6 +280,7 @@ namespace CsvTools
       get => m_HtmlStyle.Style;
       set
       {
+        // ReSharper disable once ConstantNullCoalescingCondition
         var newVal = value ?? HTMLStyle.cStyle;
         if (m_HtmlStyle.Style.Equals(newVal))
           return;

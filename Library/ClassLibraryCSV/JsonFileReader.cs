@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="CsvTools.IFileReaderWithEvents" />
   /// <summary>
   ///   Json text file reader
   /// </summary>
@@ -64,6 +65,7 @@ namespace CsvTools
           fileName);
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.
     /// </summary>
@@ -95,7 +97,7 @@ namespace CsvTools
       Logger.Information("Opening JSON file {filename}", FileName);
       await BeforeOpenAsync($"Opening JSON file {FileSystemUtils.GetShortDisplayFileName(FileName)}")
         .ConfigureAwait(false);
-      Retry:
+    Retry:
       try
       {
         ResetPositionToStartOrOpen();
@@ -185,7 +187,7 @@ namespace CsvTools
       var byFile = m_ImprovedStream?.Percentage ?? 0;
       if (RecordLimit > 0 && RecordLimit < long.MaxValue)
         // you can either reach the record limit or the end of the stream, whatever is faster
-        return Math.Max((double) RecordNumber / RecordLimit, byFile);
+        return Math.Max((double)RecordNumber / RecordLimit, byFile);
       return byFile;
     }
 

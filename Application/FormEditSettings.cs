@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System;
@@ -33,16 +34,16 @@ namespace CsvTools
     public FormEditSettings(in ViewSettings viewSettings)
     {
       InitializeComponent();
-      m_ViewSettings = viewSettings??throw new ArgumentNullException(nameof(viewSettings));
+      m_ViewSettings = viewSettings ?? throw new ArgumentNullException(nameof(viewSettings));
       fillGuessSettingEdit.FillGuessSettings = viewSettings.FillGuessSettings;
 
-      if (m_ViewSettings.LimitDuration == ViewSettings.DurationEnum.Unlimited)
+      if (m_ViewSettings.LimitDuration == ViewSettings.Duration.Unlimited)
         domainUpDownTime.SelectedIndex = 4;
-      else if (m_ViewSettings.LimitDuration == ViewSettings.DurationEnum.TenSecond)
+      else if (m_ViewSettings.LimitDuration == ViewSettings.Duration.TenSecond)
         domainUpDownTime.SelectedIndex = 3;
-      else if (m_ViewSettings.LimitDuration == ViewSettings.DurationEnum.TwoSecond)
+      else if (m_ViewSettings.LimitDuration == ViewSettings.Duration.TwoSecond)
         domainUpDownTime.SelectedIndex = 2;
-      else if (m_ViewSettings.LimitDuration == ViewSettings.DurationEnum.Second)
+      else if (m_ViewSettings.LimitDuration == ViewSettings.Duration.Second)
         domainUpDownTime.SelectedIndex = 1;
       else
         domainUpDownTime.SelectedIndex = 0;
@@ -59,7 +60,7 @@ namespace CsvTools
           "Delimited files (*.csv;*.txt;*.tab;*.tsv)|*.csv;*.txt;*.tab;*.tsv|All files (*.*)|*.*",
           split.FileName);
 
-        if (newFileName is null || newFileName.Length==0)
+        if (newFileName is null || newFileName.Length == 0)
           return;
         m_ViewSettings.FileName = newFileName;
       }
@@ -101,11 +102,11 @@ namespace CsvTools
       await buttonGuessDelimiter.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        var res = await improvedStream.GuessDelimiter(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.EscapePrefix, m_CancellationTokenSource.Token);
+        var res = await improvedStream.GuessDelimiter(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.EscapePrefix,
+                    m_CancellationTokenSource.Token);
         if (res.Item2)
           m_ViewSettings.FieldDelimiter = res.Item1;
       });
-      
     }
 
     private async void ButtonGuessTextQualifier_Click(object? sender, EventArgs e)
@@ -114,7 +115,8 @@ namespace CsvTools
       await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        qualifier = await improvedStream.GuessQualifier(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FieldDelimiter, m_CancellationTokenSource.Token);
+        qualifier = await improvedStream.GuessQualifier(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FieldDelimiter,
+                      m_CancellationTokenSource.Token);
       });
 
       m_ViewSettings.FieldQualifier = qualifier;
@@ -125,7 +127,8 @@ namespace CsvTools
       await buttonSkipLine.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        m_ViewSettings.SkipRows = await improvedStream.GuessStartRow(m_ViewSettings.CodePageId, m_ViewSettings.FieldDelimiter, m_ViewSettings.FieldQualifier, m_ViewSettings.CommentLine, m_CancellationTokenSource.Token);
+        m_ViewSettings.SkipRows = await improvedStream.GuessStartRow(m_ViewSettings.CodePageId, m_ViewSettings.FieldDelimiter, m_ViewSettings.FieldQualifier,
+                                    m_ViewSettings.CommentLine, m_CancellationTokenSource.Token);
       });
     }
 
@@ -154,7 +157,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void EditSettings_Load(object? sender, EventArgs e)
     {
-      fileSettingBindingSource.DataSource = m_ViewSettings;      
+      fileSettingBindingSource.DataSource = m_ViewSettings;
 
       // Fill Drop down
       cboCodePage.SuspendLayout();
@@ -191,7 +194,8 @@ namespace CsvTools
       await buttonNewLine.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FieldQualifier, m_CancellationTokenSource.Token);
+        cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows,
+                                                   m_ViewSettings.FieldQualifier, m_CancellationTokenSource.Token);
       });
     }
 
@@ -229,11 +233,11 @@ namespace CsvTools
     {
       m_ViewSettings.LimitDuration = domainUpDownTime.SelectedIndex switch
       {
-        4 => ViewSettings.DurationEnum.Unlimited,
-        3 => ViewSettings.DurationEnum.TenSecond,
-        2 => ViewSettings.DurationEnum.TwoSecond,
-        1 => ViewSettings.DurationEnum.Second,
-        0 => ViewSettings.DurationEnum.HalfSecond,
+        4 => ViewSettings.Duration.Unlimited,
+        3 => ViewSettings.Duration.TenSecond,
+        2 => ViewSettings.Duration.TwoSecond,
+        1 => ViewSettings.Duration.Second,
+        0 => ViewSettings.Duration.HalfSecond,
         _ => m_ViewSettings.LimitDuration
       };
     }
@@ -243,8 +247,9 @@ namespace CsvTools
       await buttonGuessHeader.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        var res = await improvedStream.GuessHasHeader(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.CommentLine, m_ViewSettings.FieldDelimiter, m_CancellationTokenSource.Token);
-        m_ViewSettings.HasFieldHeader= res.Item1;
+        var res = await improvedStream.GuessHasHeader(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.CommentLine,
+                    m_ViewSettings.FieldDelimiter, m_CancellationTokenSource.Token);
+        m_ViewSettings.HasFieldHeader = res.Item1;
         fileSettingBindingSource.ResetBindings(false);
         _MessageBox.Show(res.Item2, "Checking headers");
       });
@@ -253,7 +258,7 @@ namespace CsvTools
     private void ButtonInteractiveSettings_Click(object? sender, EventArgs e)
     {
       using var frm = new FindSkipRows(m_ViewSettings);
-      _=frm.ShowDialog();
+      _ = frm.ShowDialog();
     }
 
     private async void buttonGuessLineComment_Click(object? sender, EventArgs e)
@@ -262,7 +267,7 @@ namespace CsvTools
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
         m_ViewSettings.CommentLine = await improvedStream.GuessLineComment(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_CancellationTokenSource.Token);
-      });      
+      });
     }
   }
 }
