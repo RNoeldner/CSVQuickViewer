@@ -291,16 +291,6 @@ namespace CsvTools
 
     public void ResetPositionToFirstDataRow() => throw new NotImplementedException();
 
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    public override async Task CloseAsync()
-    {
-      if (DataReader is DbDataReader dbDataReader)
-        await dbDataReader.CloseAsync();
-      else
-        DataReader.Close();
-    }
-#endif
-
     public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
   }
 }
