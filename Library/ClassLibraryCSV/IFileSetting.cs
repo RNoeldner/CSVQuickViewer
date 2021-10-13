@@ -18,6 +18,7 @@ using System.ComponentModel;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="System.ComponentModel.INotifyPropertyChanged" />
   /// <summary>
   ///   Interface for a FileSetting
   /// </summary>

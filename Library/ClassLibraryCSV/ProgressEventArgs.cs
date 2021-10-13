@@ -16,13 +16,15 @@ using System;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   /// <summary>
   ///   Argument for a ProgressEvent
   /// </summary>
   public class ProgressEventArgs : EventArgs
-  {    
+  {
+    /// <inheritdoc />
     /// <summary>
-    ///   Initializes a new instance of the <see cref="ProgressEventArgs" /> class.
+    ///   Initializes a new instance of the <see cref="T:CsvTools.ProgressEventArgs" /> class.
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The progress value.</param>

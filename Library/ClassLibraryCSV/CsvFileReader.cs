@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="CsvTools.BaseFileReader" />
   /// <summary>
   ///   A data reader for CSV files
   /// </summary>
@@ -41,19 +42,19 @@ namespace CsvTools
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
-    private const char c_Cr = (char) 0x0d;
+    private const char c_Cr = (char)0x0d;
 
     /// <summary>
     ///   The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
-    private const char c_Lf = (char) 0x0a;
+    private const char c_Lf = (char)0x0a;
 
     /// <summary>
     ///   A non-breaking space..
     /// </summary>
-    private const char c_Nbsp = (char) 0xA0;
+    private const char c_Nbsp = (char)0xA0;
 
-    private const char c_UnknownChar = (char) 0xFFFD;
+    private const char c_UnknownChar = (char)0xFFFD;
 
     private readonly bool m_AllowRowCombining;
 
@@ -405,6 +406,7 @@ namespace CsvTools
         m_HandleMessageColumn = (i, s) => Logger.Warning(GetWarningEventArgs(i, s).Display(true, true));
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets a value indicating whether this instance is closed.
     /// </summary>
@@ -426,36 +428,18 @@ namespace CsvTools
       GC.SuppressFinalize(this);
     }
 
-    /// <summary>
-    ///   Reads a stream of bytes from the specified column offset into the buffer as an array,
-    ///   starting at the given buffer offset.
-    /// </summary>
-    /// <param name="i">The zero-based column ordinal.</param>
-    /// <param name="fieldOffset">The index within the field from which to start the read operation.</param>
-    /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-    /// <param name="bufferoffset">
-    ///   The index for <paramref name="buffer" /> to start the read operation.
-    /// </param>
-    /// <param name="length">The number of bytes to read.</param>
-    /// <exception cref="NotImplementedException"></exception>
-    /// <returns>The actual number of bytes read.</returns>
-    /// <exception cref="IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
-    /// </exception>
+    /// <inheritdoc />
+    /// <exception cref="T:System.NotImplementedException">Always returns</exception>
+    [Obsolete("Not implemented")]
     public new long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) =>
       throw new NotImplementedException();
 
-    /// <summary>
-    ///   Returns an <see cref="IDataReader" /> for the specified column ordinal.
-    /// </summary>
-    /// <param name="i">The index of the field to find.</param>
-    /// <exception cref="NotImplementedException"></exception>
-    /// <returns>An <see cref="IDataReader" />.</returns>
-    /// <exception cref="IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
-    /// </exception>
+    /// <inheritdoc />
+    /// <exception cref="T:System.NotImplementedException">Always returns</exception>
+    [Obsolete("Not implemented")]
     public new IDataReader GetData(int i) => throw new NotImplementedException();
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the data type information for the specified field.
     /// </summary>
@@ -463,13 +447,15 @@ namespace CsvTools
     /// <returns>The .NET type name of the column</returns>
     public new string GetDataTypeName(int i) => Column[i].ValueFormat.DataType.GetNetType().Name;
 
+    /// <inheritdoc />
     /// <summary>
     ///   Return the value of the specified field.
     /// </summary>
     /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The object will contain the field value upon return.</returns>
-    /// <exception cref="IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
+    /// <exception cref="T:System.IndexOutOfRangeException">
+    ///   The index passed was outside the range of 0 through <see
+    ///   cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
     public override object GetValue(int ordinal)
     {
@@ -492,6 +478,7 @@ namespace CsvTools
       return ret ?? DBNull.Value;
     }
 
+    /// <inheritdoc cref="IFileReader.OpenAsync" />
     /// <summary>
     ///   Open the file Reader; Start processing the Headers and determine the maximum column size
     /// </summary>
@@ -578,6 +565,7 @@ namespace CsvTools
 
     public override Task<bool> ReadAsync(CancellationToken cancellationToken) => Task.FromResult(Read(cancellationToken));
 
+    /// <inheritdoc />
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
     /// </summary>
@@ -604,6 +592,7 @@ namespace CsvTools
 
     public override bool Read(CancellationToken token) => !token.IsCancellationRequested && Read();
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the relative position.
     /// </summary>
@@ -613,7 +602,7 @@ namespace CsvTools
       var byFile = m_ImprovedStream?.Percentage ?? 0;
       if (RecordLimit > 0 && RecordLimit < long.MaxValue)
         // you can either reach the record limit or the end of the stream
-        return Math.Max((double) RecordNumber / RecordLimit, byFile);
+        return Math.Max((double)RecordNumber / RecordLimit, byFile);
       return byFile;
     }
 
@@ -699,11 +688,9 @@ namespace CsvTools
           m_RealignColumns.AddRow(CurrentRowColumnText);
 
         // Option a) Supported - We have a break in a midlle column, the missing columns are pushed
-        // in the next row(s)
-        //
-        // Option b) Not Supported - We have a line break in the last column, the text of this row
-        // belongs to the last Column of the last records, as the last record had been processed
-        // adraedy we can not change it any more...
+        // in the next row(s) // Option b) Not Supported - We have a line break in the last column,
+        // the text of this row belongs to the last Column of the last records, as the last record
+        // had been processed adraedy we can not change it any more...
         if (CurrentRowColumnText.Length < FieldCount)
         {
           // if we still have only one column and we should have a number of columns assume this was
@@ -949,7 +936,7 @@ namespace CsvTools
     private char Peek()
     {
       var res = m_TextReader?.Peek() ?? -1;
-      if (res != -1) return (char) res;
+      if (res != -1) return (char)res;
       EndOfFile = true;
 
       // return a linefeed to determine the end of a line

@@ -18,6 +18,7 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="CsvTools.IValueFormat" />
   /// <summary>
   ///   Setting for a value format
   /// </summary>
@@ -113,6 +114,7 @@ namespace CsvTools
                                                            && PartToEnd == ValueFormatExtension.cPartToEndDefault
                                                            && DisplayNullAs == string.Empty);
 
+    /// <inheritdoc />
     /// <summary>
     ///   Occurs when a property value changes.
     /// </summary>
@@ -158,6 +160,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the date separator.
     /// </summary>
@@ -181,6 +184,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the decimal separator.
     /// </summary>
@@ -236,6 +240,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the representation for false.
     /// </summary>
@@ -258,6 +263,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the group separator.
     /// </summary>
@@ -288,6 +294,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the number format.
     /// </summary>
@@ -357,6 +364,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the time separator.
     /// </summary>
@@ -379,6 +387,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the representation for true.
     /// </summary>

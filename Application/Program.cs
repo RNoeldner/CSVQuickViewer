@@ -12,12 +12,11 @@
  *
  */
 
+using System;
+using System.Windows.Forms;
+
 namespace CsvTools
 {
-  using System;
-  using System.Windows.Forms;
-  using System.Text;
-
   internal static class Program
   {
     static Program()
@@ -87,14 +86,16 @@ namespace CsvTools
     {
       // Most likely disposing something which is still being used by a different thread its very
       // hard to track down as the stack frame is not useful, in 99% its updating progress or UI
-      if (ex is ObjectDisposedException && ex.HResult==-2146232798)
+      if (ex is ObjectDisposedException && ex.HResult == -2146232798)
       {
         return;
       }
-      if (ex is InvalidOperationException && ex.HResult==-2146233079)
+
+      if (ex is InvalidOperationException && ex.HResult == -2146233079)
       {
         return;
       }
+
       Logger.Error(ex, "Not handled Exception");
       var message = $"{ex.GetType()}\n\n{ex.ExceptionMessages()}";
 #if DEBUG

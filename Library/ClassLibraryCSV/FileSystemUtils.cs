@@ -382,7 +382,7 @@ namespace CsvTools
           return new StreamReader(OpenRead(fileName), true);
 
         var executingAssembly = Assembly.GetExecutingAssembly();
-        var foundName = executingAssembly.GetManifestResourceNames().FirstOrDefault(x => x.EndsWith("." + file));
+        var foundName = executingAssembly.GetManifestResourceNames().FirstOrDefault(x => x.EndsWith("." + file, StringComparison.OrdinalIgnoreCase));
         // try the embedded resource
         if (foundName != null)
           // ReSharper disable once AssignNullToNotNullAttribute
@@ -390,7 +390,7 @@ namespace CsvTools
         var callingAssembly = Assembly.GetCallingAssembly();
         if (callingAssembly != executingAssembly)
         {
-          foundName = callingAssembly.GetManifestResourceNames().FirstOrDefault(x => x.EndsWith("." + file));
+          foundName = callingAssembly.GetManifestResourceNames().FirstOrDefault(x => x.EndsWith("." + file, StringComparison.OrdinalIgnoreCase));
           if (foundName != null)
             // ReSharper disable once AssignNullToNotNullAttribute
             return new StreamReader(callingAssembly.GetManifestResourceStream(foundName), true);
@@ -509,7 +509,6 @@ namespace CsvTools
       // if we have at least the directory shorten this
       if (fi.Directory?.Exists ?? false)
       {
-
         var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, c_BufferSize);
         if (length > 0)
           return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length - 1] == Path.DirectorySeparatorChar
@@ -517,7 +516,6 @@ namespace CsvTools
                                        : Path.DirectorySeparatorChar.ToString()) +
                   fi.Name)
             .RemovePrefix();
-
       }
 
       throw new Exception($"Could not get a short path for the file {longPath}");
@@ -541,7 +539,7 @@ namespace CsvTools
         return new SplitResult(string.Empty, string.Empty);
 
       var lastIndex = path.LastIndexOf(Path.DirectorySeparatorChar);
-      if (path.StartsWith("."))
+      if (path.StartsWith(".", StringComparison.Ordinal))
       {
         if (lastIndex != -1)
           path = Path.GetFullPath(path.Substring(0, lastIndex)) + path.Substring(lastIndex);
