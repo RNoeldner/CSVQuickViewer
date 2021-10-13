@@ -202,10 +202,6 @@ namespace CsvTools
     /// <value></value>
     public override object this[int ordinal] => GetValue(ordinal);
 
-    public new virtual void Dispose()
-    {
-    }
-
     /// <summary>
     ///   Event to be raised if reading the files is completed
     /// </summary>
