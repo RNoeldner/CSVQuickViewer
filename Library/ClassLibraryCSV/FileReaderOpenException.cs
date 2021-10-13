@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -16,8 +16,26 @@ using System;
 
 namespace CsvTools
 {
-  public interface IColumnFormatter
-	{
-		string FormatText(in string inputString, Action<string>? handleWarning);
+  public class FileReaderOpenException : FileReaderException
+  {
+		public FileReaderOpenException()
+			: base(GetMessage(string.Empty))
+		{
+		}
+
+		public FileReaderOpenException(string message)
+			: base(GetMessage(message))
+		{
+		}
+
+		public FileReaderOpenException(string message, Exception inner)
+			: base(GetMessage(message), inner)
+		{
+		}
+
+		private static string GetMessage(string message) =>
+			message.Length > 0
+				? $"A file reader has to be opened before reading data. Please execute Open() or OpenAsync().\n{message}"
+				: "A file reader has to be opened before reading data.";
 	}
 }

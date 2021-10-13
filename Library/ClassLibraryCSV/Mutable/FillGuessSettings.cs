@@ -22,7 +22,7 @@ namespace CsvTools
   ///   Settings how the typed values should be determined
   /// </summary>
   [Serializable]
-  public class FillGuessSettings : INotifyPropertyChanged, ICloneable, IEquatable<FillGuessSettings>
+  public sealed class FillGuessSettings : INotifyPropertyChanged, ICloneable, IEquatable<FillGuessSettings>
   {
     private long m_CheckedRecords = 30000;
 
@@ -62,7 +62,7 @@ namespace CsvTools
     /// </summary>
     [XmlAttribute]
     [DefaultValue(30000)]
-    public virtual long CheckedRecords
+    public long CheckedRecords
     {
       get => m_CheckedRecords;
 
@@ -80,7 +80,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
-    public virtual bool CheckNamedDates
+    public bool CheckNamedDates
     {
       get => m_CheckNamedDates;
 
@@ -119,7 +119,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
-    public virtual bool DetectNumbers
+    public bool DetectNumbers
     {
       get => m_DetectNumbers;
 
@@ -137,7 +137,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
-    public virtual bool DetectPercentage
+    public bool DetectPercentage
     {
       get => m_DetectPercentage;
 
@@ -155,7 +155,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
-    public virtual bool DetectBoolean
+    public bool DetectBoolean
     {
       get => m_DetectBoolean;
 
@@ -173,7 +173,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
-    public virtual bool DetectDateTime
+    public bool DetectDateTime
     {
       get => m_DetectDateTime;
 
@@ -191,7 +191,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(false)]
     [XmlElement]
-    public virtual bool DetectGUID
+    public bool DetectGUID
     {
       get => m_DetectGuid;
 
@@ -212,7 +212,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
-    public virtual string FalseValue
+    public string FalseValue
     {
       get => m_FalseValue;
       set
@@ -230,7 +230,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
-    public virtual bool IgnoreIdColumns
+    public bool IgnoreIdColumns
     {
       get => m_IgnoreIdColumns;
       set
@@ -247,7 +247,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(5)]
     [XmlAttribute]
-    public virtual int MinSamples
+    public int MinSamples
     {
       get => m_MinSamples;
 
@@ -265,7 +265,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(150)]
     [XmlAttribute]
-    public virtual int SampleValues
+    public int SampleValues
     {
       get => m_SampleValues;
 
@@ -283,7 +283,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(true)]
     [XmlElement]
-    public virtual bool SerialDateTime
+    public bool SerialDateTime
     {
       get => m_SerialDateTime;
 
@@ -304,7 +304,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
-    public virtual string TrueValue
+    public string TrueValue
     {
       get => m_TrueValue;
       set
@@ -321,7 +321,7 @@ namespace CsvTools
     ///   Clones this instance into a new instance of the same type
     /// </summary>
     /// <returns></returns>
-    public virtual object Clone()
+    public object Clone()
     {
       var other = new FillGuessSettings();
       CopyTo(other);
@@ -332,7 +332,7 @@ namespace CsvTools
     ///   Copy all properties to another instance of FillGuessSettings
     /// </summary>
     /// <param name="other"></param>
-    public virtual void CopyTo(FillGuessSettings other)
+    public void CopyTo(FillGuessSettings other)
     {
       other.CheckedRecords = CheckedRecords;
       other.CheckNamedDates = CheckNamedDates;
@@ -380,8 +380,8 @@ namespace CsvTools
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info) =>
+    public void NotifyPropertyChanged(string info) =>
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
-    
+
   }
 }

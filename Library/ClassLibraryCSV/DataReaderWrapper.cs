@@ -102,9 +102,15 @@ namespace CsvTools
 
     public override bool IsClosed => DataReader.IsClosed;
 
-    public virtual int Percent =>
-      FileReader != null && FileReader.Percent != 0 && FileReader.Percent != 100 ? FileReader.Percent :
-      RecordNumber > 0 ? (int) (RecordNumber / (double) m_RecordLimit * 100d) : 0;
+    public virtual int Percent
+    {
+      get
+      {
+        if (FileReader is null)
+          return RecordNumber <= 0 ? 0 : (int) (RecordNumber / (double) m_RecordLimit * 100d);
+        return FileReader.Percent;
+      }
+    }
 
     public long RecordNumber { get; protected set; }
 
@@ -132,57 +138,63 @@ namespace CsvTools
     }
 #endif
 
-    public override bool GetBoolean(int ordinal) => DataReader!.GetBoolean(ReaderMapping.DataTableToReader(ordinal));
+    public override bool GetBoolean(int ordinal) => DataReader.GetBoolean(ReaderMapping.DataTableToReader(ordinal));
 
-    public override byte GetByte(int ordinal) => DataReader!.GetByte(ReaderMapping.DataTableToReader(ordinal));
+    public override byte GetByte(int ordinal) => DataReader.GetByte(ReaderMapping.DataTableToReader(ordinal));
 
     public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length) =>
-      DataReader!.GetBytes(ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
+      DataReader.GetBytes(ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
 
-    public override char GetChar(int ordinal) => DataReader!.GetChar(ReaderMapping.DataTableToReader(ordinal));
+    public override char GetChar(int ordinal) => DataReader.GetChar(ReaderMapping.DataTableToReader(ordinal));
 
     public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) =>
-      DataReader!.GetChars(ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
+      DataReader.GetChars(ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
 
-    public new IDataReader? GetData(int i) => DataReader!.GetData(i);
+    public new IDataReader? GetData(int i) => DataReader.GetData(i);
 
     public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
 
     public override DateTime GetDateTime(int ordinal) =>
-      DataReader!.GetDateTime(ReaderMapping.DataTableToReader(ordinal));
+      DataReader.GetDateTime(ReaderMapping.DataTableToReader(ordinal));
 
-    public override decimal GetDecimal(int ordinal) => DataReader!.GetDecimal(ReaderMapping.DataTableToReader(ordinal));
+    public override decimal GetDecimal(int ordinal) => DataReader.GetDecimal(ReaderMapping.DataTableToReader(ordinal));
 
-    public override double GetDouble(int ordinal) => DataReader!.GetDouble(ReaderMapping.DataTableToReader(ordinal));
+    public override double GetDouble(int ordinal) => DataReader.GetDouble(ReaderMapping.DataTableToReader(ordinal));
 
     public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
 
     public override Type GetFieldType(int ordinal) => ReaderMapping.Column[ordinal].ValueFormat.DataType.GetNetType();
 
-    public override float GetFloat(int ordinal) => DataReader!.GetFloat(ReaderMapping.DataTableToReader(ordinal));
+    public override float GetFloat(int ordinal) => DataReader.GetFloat(ReaderMapping.DataTableToReader(ordinal));
 
-    public override Guid GetGuid(int ordinal) => DataReader!.GetGuid(ReaderMapping.DataTableToReader(ordinal));
+    public override Guid GetGuid(int ordinal) => DataReader.GetGuid(ReaderMapping.DataTableToReader(ordinal));
 
-    public override short GetInt16(int ordinal) => DataReader!.GetInt16(ReaderMapping.DataTableToReader(ordinal));
+    public override short GetInt16(int ordinal) => DataReader.GetInt16(ReaderMapping.DataTableToReader(ordinal));
 
-    public override int GetInt32(int ordinal) => DataReader!.GetInt32(ReaderMapping.DataTableToReader(ordinal));
+    public override int GetInt32(int ordinal) => DataReader.GetInt32(ReaderMapping.DataTableToReader(ordinal));
 
-    public override long GetInt64(int columnNumber) =>
-      columnNumber == ReaderMapping.DataTableStartLine ? StartLineNumber :
-      columnNumber == ReaderMapping.DataTableEndLine ? EndLineNumber :
-      columnNumber == ReaderMapping.DataTableRecNum ? RecordNumber :
-      DataReader!.GetInt64(ReaderMapping.DataTableToReader(columnNumber));
+    public override long GetInt64(int ordinal)
+    {
+      if (ordinal == ReaderMapping.DataTableStartLine)
+        return StartLineNumber;
+      if (ordinal == ReaderMapping.DataTableEndLine)
+        return EndLineNumber;
+      if (ordinal == ReaderMapping.DataTableRecNum)
+        return RecordNumber;
+
+      return DataReader.GetInt64(ReaderMapping.DataTableToReader(ordinal));
+    }
 
     public override string GetName(int ordinal) => ReaderMapping.Column[ordinal].Name;
 
-    public override int GetOrdinal(string columnName)
+    public override int GetOrdinal(string name)
     {
-      if (string.IsNullOrEmpty(columnName))
+      if (string.IsNullOrEmpty(name))
         return -1;
       var count = 0;
       foreach (var column in ReaderMapping.Column)
       {
-        if (columnName.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
+        if (name.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
           return count;
         count++;
       }
@@ -223,30 +235,31 @@ namespace CsvTools
       return dataTable;
     }
 
-    public override string GetString(int columnNumber) => Convert.ToString(GetValue(columnNumber));
+    public override string GetString(int ordinal) => Convert.ToString(GetValue(ordinal));
 
-    public override object GetValue(int columnNumber)
+    public override object GetValue(int ordinal)
     {
-      if (columnNumber == ReaderMapping.DataTableStartLine)
+      if (ordinal == ReaderMapping.DataTableStartLine)
         return StartLineNumber;
-      if (columnNumber == ReaderMapping.DataTableEndLine)
+      if (ordinal == ReaderMapping.DataTableEndLine)
         return EndLineNumber;
-      if (columnNumber == ReaderMapping.DataTableRecNum)
+      if (ordinal == ReaderMapping.DataTableRecNum)
         return RecordNumber;
-      if (columnNumber == ReaderMapping.DataTableErrorField)
+      if (ordinal == ReaderMapping.DataTableErrorField)
         return ReaderMapping.RowErrorInformation ?? string.Empty;
 
-      return DataReader!.GetValue(ReaderMapping.DataTableToReader(columnNumber));
+      return DataReader.GetValue(ReaderMapping.DataTableToReader(ordinal));
     }
 
-    public override int GetValues(object[] values) => DataReader!.GetValues(values);
+    public override int GetValues(object[] values) => DataReader.GetValues(values);
 
-    public override bool IsDBNull(int columnNumber) =>
-      columnNumber != ReaderMapping.DataTableStartLine && columnNumber != ReaderMapping.DataTableEndLine
-                                                       && columnNumber != ReaderMapping.DataTableRecNum
-                                                       && (columnNumber == ReaderMapping.DataTableErrorField
-                                                             ? ReaderMapping.HasErrors
-                                                             : DataReader!.IsDBNull(ReaderMapping.DataTableToReader(columnNumber)));
+    public override bool IsDBNull(int ordinal)
+    {
+      if (ordinal == ReaderMapping.DataTableStartLine || ordinal == ReaderMapping.DataTableEndLine || ordinal == ReaderMapping.DataTableRecNum)
+        return false;
+
+      return (ordinal == ReaderMapping.DataTableErrorField ? ReaderMapping.HasErrors : DataReader.IsDBNull(ReaderMapping.DataTableToReader(ordinal)));
+    }
 
     public override bool NextResult() => false;
 
@@ -259,12 +272,12 @@ namespace CsvTools
       return couldRead && RecordNumber <= m_RecordLimit;
     }
 
-    public override async Task<bool> ReadAsync(CancellationToken token)
+    public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
     {
       ReaderMapping.PrepareRead();
       // IDataReader does not support preferred ReadAsync
       var couldRead = DataReader is DbDataReader dbDataReader
-                        ? await dbDataReader.ReadAsync(token).ConfigureAwait(false)
+                        ? await dbDataReader.ReadAsync(cancellationToken).ConfigureAwait(false)
                         : DataReader.Read();
 
       if (couldRead)

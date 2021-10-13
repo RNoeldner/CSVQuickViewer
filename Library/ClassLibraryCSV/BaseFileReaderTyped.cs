@@ -59,234 +59,238 @@ namespace CsvTools
       CurrentValues = Array.Empty<object>();
     }
 
+
+    /// <inheritdoc/>
     /// <summary>
     ///   Gets the boolean.
     /// </summary>
-    /// <param name="columnNumber">The i.</param>
+    /// <param name="ordinal">The i.</param>
     /// <returns></returns>
-    public override bool GetBoolean(int columnNumber)
+    public override bool GetBoolean(int ordinal)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
-      if (CurrentValues![columnNumber] is bool b)
+      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
+      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
+      if (CurrentValues![ordinal] is bool b)
         return b;
-      EnsureTextFilled(columnNumber);
-      return base.GetBoolean(columnNumber);
+      EnsureTextFilled(ordinal);
+      return base.GetBoolean(ordinal);
     }
 
+    /// <inheritdoc/>
     /// <summary>
     ///   Returns an <see cref="IDataReader" /> for the specified column ordinal.
     /// </summary>
-    /// <param name="i">The index of the field to find.</param>
+    /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The <see cref="IDataReader" /> for the specified column ordinal.</returns>
     /// <exception cref="NotImplementedException"></exception>
-    public new IDataReader GetData(int i) => throw new NotImplementedException();
+    public new IDataReader GetData(int ordinal) => throw new NotImplementedException();
 
     /// <summary>
     ///   Gets the date and time data value of the specified field.
     /// </summary>
-    /// <param name="columnNumber">The index of the field to find.</param>
+    /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The date and time data value of the specified field.</returns>
-    public override DateTime GetDateTime(int columnNumber)
+    public override DateTime GetDateTime(int ordinal)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
+      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
+      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
 
       object? timePart = null;
       string? timePartText = null;
-      EnsureTextFilled(columnNumber);
+      EnsureTextFilled(ordinal);
 
-      if (AssociatedTimeCol[columnNumber] > -1)
+      if (AssociatedTimeCol[ordinal] > -1)
       {
-        timePart = CurrentValues![AssociatedTimeCol[columnNumber]];
-        EnsureTextFilled(AssociatedTimeCol[columnNumber]);
-        timePartText = CurrentRowColumnText[AssociatedTimeCol[columnNumber]];
+        timePart = CurrentValues![AssociatedTimeCol[ordinal]];
+        EnsureTextFilled(AssociatedTimeCol[ordinal]);
+        timePartText = CurrentRowColumnText[AssociatedTimeCol[ordinal]];
       }
 
       var dt = GetDateTimeNull(
-        CurrentValues![columnNumber],
-        CurrentRowColumnText[columnNumber],
+        CurrentValues![ordinal],
+        CurrentRowColumnText[ordinal],
         timePart,
         timePartText ?? string.Empty,
-        GetColumn(columnNumber),
+        GetColumn(ordinal),
         false);
       if (dt.HasValue)
         return dt.Value;
       // Warning was added by GetDecimalNull
-      throw WarnAddFormatException(columnNumber, $"'{CurrentRowColumnText[columnNumber]}' is not a date time");
+      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a date time");
     }
 
+    /// <inheritdoc/>
     /// <summary>
     ///   Gets the decimal.
     /// </summary>
-    /// <param name="columnNumber">The i.</param>
+    /// <param name="ordinal">The i.</param>
     /// <returns></returns>
-    public override decimal GetDecimal(int columnNumber)
+    public override decimal GetDecimal(int ordinal)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
+      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
+      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
 
-      if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double
-                                                  || CurrentValues[columnNumber] is float
-                                                  || CurrentValues[columnNumber] is short
-                                                  || CurrentValues[columnNumber] is int
-                                                  || CurrentValues[columnNumber] is long)
-        return Convert.ToDecimal(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
-      EnsureTextFilled(columnNumber);
-      return base.GetDecimal(columnNumber);
+      if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
+                                                  || CurrentValues[ordinal] is float
+                                                  || CurrentValues[ordinal] is short
+                                                  || CurrentValues[ordinal] is int
+                                                  || CurrentValues[ordinal] is long)
+        return Convert.ToDecimal(CurrentValues[ordinal], CultureInfo.CurrentCulture);
+      EnsureTextFilled(ordinal);
+      return base.GetDecimal(ordinal);
     }
 
     /// <summary>
     ///   Gets the double.
     /// </summary>
-    /// <param name="columnNumber">The i.</param>
+    /// <param name="ordinal">The i.</param>
     /// <returns></returns>
-    public override double GetDouble(int columnNumber)
+    public override double GetDouble(int ordinal)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
+      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
+      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
 
-      if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double
-                                                  || CurrentValues[columnNumber] is float
-                                                  || CurrentValues[columnNumber] is short
-                                                  || CurrentValues[columnNumber] is int
-                                                  || CurrentValues[columnNumber] is long)
-        return Convert.ToDouble(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
-      EnsureTextFilled(columnNumber);
-      return base.GetDouble(columnNumber);
+      if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
+                                                  || CurrentValues[ordinal] is float
+                                                  || CurrentValues[ordinal] is short
+                                                  || CurrentValues[ordinal] is int
+                                                  || CurrentValues[ordinal] is long)
+        return Convert.ToDouble(CurrentValues[ordinal], CultureInfo.CurrentCulture);
+      EnsureTextFilled(ordinal);
+      return base.GetDouble(ordinal);
     }
 
     /// <summary>
     ///   Gets the single-precision floating point number of the specified field.
     /// </summary>
-    /// <param name="columnNumber">The index of the field to find.</param>
+    /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The single-precision floating point number of the specified field.</returns>
-    public override float GetFloat(int columnNumber)
+    public override float GetFloat(int ordinal)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
+      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
+      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
       try
       {
-        if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double
-                                                    || CurrentValues[columnNumber] is float
-                                                    || CurrentValues[columnNumber] is short
-                                                    || CurrentValues[columnNumber] is int
-                                                    || CurrentValues[columnNumber] is long)
-          return Convert.ToSingle(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
+        if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
+                                                    || CurrentValues[ordinal] is float
+                                                    || CurrentValues[ordinal] is short
+                                                    || CurrentValues[ordinal] is int
+                                                    || CurrentValues[ordinal] is long)
+          return Convert.ToSingle(CurrentValues[ordinal], CultureInfo.CurrentCulture);
       }
       catch (Exception e)
       {
-        throw WarnAddFormatException(columnNumber, $"'{CurrentValues![columnNumber]}' is not a float, {e.Message}");
+        throw WarnAddFormatException(ordinal, $"'{CurrentValues![ordinal]}' is not a float, {e.Message}");
       }
 
-      EnsureTextFilled(columnNumber);
-      return base.GetFloat(columnNumber);
+      EnsureTextFilled(ordinal);
+      return base.GetFloat(ordinal);
     }
 
     /// <summary>
     ///   Gets the unique identifier.
     /// </summary>
-    /// <param name="columnNumber">The i.</param>
+    /// <param name="ordinal">The i.</param>
     /// <returns></returns>
-    public override Guid GetGuid(int columnNumber)
+    public override Guid GetGuid(int ordinal)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
+      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
+      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
 
-      if (CurrentValues![columnNumber] is Guid val)
+      if (CurrentValues![ordinal] is Guid val)
         return val;
-      EnsureTextFilled(columnNumber);
-      return base.GetGuid(columnNumber);
+      EnsureTextFilled(ordinal);
+      return base.GetGuid(ordinal);
     }
 
     /// <summary>
     ///   Gets the 16-bit signed integer value of the specified field.
     /// </summary>
-    /// <param name="columnNumber">The index of the field to find.</param>
+    /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The 16-bit signed integer value of the specified field.</returns>
-    public override short GetInt16(int columnNumber)
+    public override short GetInt16(int ordinal)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
+      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
+      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
       try
       {
-        if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double
-                                                    || CurrentValues[columnNumber] is float
-                                                    || CurrentValues[columnNumber] is short
-                                                    || CurrentValues[columnNumber] is int
-                                                    || CurrentValues[columnNumber] is long)
-          return Convert.ToInt16(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
+        if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
+                                                    || CurrentValues[ordinal] is float
+                                                    || CurrentValues[ordinal] is short
+                                                    || CurrentValues[ordinal] is int
+                                                    || CurrentValues[ordinal] is long)
+          return Convert.ToInt16(CurrentValues[ordinal], CultureInfo.CurrentCulture);
       }
       catch (Exception e)
       {
-        throw WarnAddFormatException(columnNumber, $"'{CurrentValues![columnNumber]}' is not a short, {e.Message}");
+        throw WarnAddFormatException(ordinal, $"'{CurrentValues![ordinal]}' is not a short, {e.Message}");
       }
 
-      EnsureTextFilled(columnNumber);
-      return base.GetInt16(columnNumber);
+      EnsureTextFilled(ordinal);
+      return base.GetInt16(ordinal);
     }
 
     /// <summary>
     ///   Gets the int32.
     /// </summary>
-    /// <param name="columnNumber">The i.</param>
+    /// <param name="ordinal">The i.</param>
     /// <returns></returns>
-    public override int GetInt32(int columnNumber)
+    public override int GetInt32(int ordinal)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
+      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
+      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
 
       try
       {
-        if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double
-                                                    || CurrentValues[columnNumber] is float
-                                                    || CurrentValues[columnNumber] is short
-                                                    || CurrentValues[columnNumber] is int
-                                                    || CurrentValues[columnNumber] is long)
-          return Convert.ToInt32(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
+        if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
+                                                    || CurrentValues[ordinal] is float
+                                                    || CurrentValues[ordinal] is short
+                                                    || CurrentValues[ordinal] is int
+                                                    || CurrentValues[ordinal] is long)
+          return Convert.ToInt32(CurrentValues[ordinal], CultureInfo.CurrentCulture);
       }
       catch (Exception e)
       {
-        throw WarnAddFormatException(columnNumber, $"'{CurrentValues![columnNumber]}' is not an integer, {e.Message}");
+        throw WarnAddFormatException(ordinal, $"'{CurrentValues![ordinal]}' is not an integer, {e.Message}");
       }
 
-      EnsureTextFilled(columnNumber);
-      return base.GetInt32(columnNumber);
+      EnsureTextFilled(ordinal);
+      return base.GetInt32(ordinal);
     }
 
     /// <summary>
     ///   Gets the int64.
     /// </summary>
-    /// <param name="columnNumber">The i.</param>
+    /// <param name="ordinal">The i.</param>
     /// <returns></returns>
-    public override long GetInt64(int columnNumber)
+    public override long GetInt64(int ordinal)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
+      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
+      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
       try
       {
-        if (CurrentValues![columnNumber] is decimal || CurrentValues[columnNumber] is double
-                                                    || CurrentValues[columnNumber] is float
-                                                    || CurrentValues[columnNumber] is short
-                                                    || CurrentValues[columnNumber] is int
-                                                    || CurrentValues[columnNumber] is long)
-          return Convert.ToInt64(CurrentValues[columnNumber], CultureInfo.CurrentCulture);
+        if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
+                                                    || CurrentValues[ordinal] is float
+                                                    || CurrentValues[ordinal] is short
+                                                    || CurrentValues[ordinal] is int
+                                                    || CurrentValues[ordinal] is long)
+          return Convert.ToInt64(CurrentValues[ordinal], CultureInfo.CurrentCulture);
       }
       catch (Exception e)
       {
-        throw WarnAddFormatException(columnNumber, $"'{CurrentValues![columnNumber]}' is not a long, {e.Message}");
+        throw WarnAddFormatException(ordinal, $"'{CurrentValues![ordinal]}' is not a long, {e.Message}");
       }
 
-      EnsureTextFilled(columnNumber);
-      return base.GetInt64(columnNumber);
+      EnsureTextFilled(ordinal);
+      return base.GetInt64(ordinal);
     }
 
-    public override string GetString(int columnNumber)
+    public override string GetString(int ordinal)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      Debug.Assert(CurrentValues != null && columnNumber < CurrentValues.Length);
+      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
+      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
 
-      return Convert.ToString(CurrentValues![columnNumber]) ?? string.Empty;
+      return Convert.ToString(CurrentValues![ordinal]) ?? string.Empty;
     }
 
     public override int GetValues(object[] values)
@@ -295,25 +299,25 @@ namespace CsvTools
       return FieldCount;
     }
 
-    public override bool IsDBNull(int columnNumber)
+    public override bool IsDBNull(int ordinal)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      if (CurrentValues.Length <= columnNumber)
+      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
+      if (CurrentValues.Length <= ordinal)
         return true;
-      if (Column[columnNumber].ValueFormat.DataType == DataType.DateTime)
+      if (Column[ordinal].ValueFormat.DataType == DataType.DateTime)
       {
-        if (AssociatedTimeCol[columnNumber] == -1)
-          return CurrentValues[columnNumber] is null || CurrentValues[columnNumber] == DBNull.Value;
+        if (AssociatedTimeCol[ordinal] == -1)
+          return CurrentValues[ordinal] is null || CurrentValues[ordinal] == DBNull.Value;
 
-        return (CurrentValues[columnNumber] is null || CurrentValues[columnNumber] == DBNull.Value)
-               && (CurrentValues[AssociatedTimeCol[columnNumber]] is null
-                   || CurrentValues[AssociatedTimeCol[columnNumber]] == DBNull.Value);
+        return (CurrentValues[ordinal] is null || CurrentValues[ordinal] == DBNull.Value)
+               && (CurrentValues[AssociatedTimeCol[ordinal]] is null
+                   || CurrentValues[AssociatedTimeCol[ordinal]] == DBNull.Value);
       }
 
-      if (CurrentValues[columnNumber] is null || CurrentValues[columnNumber] == DBNull.Value)
+      if (CurrentValues[ordinal] is null || CurrentValues[ordinal] == DBNull.Value)
         return true;
 
-      if (CurrentValues[columnNumber] is string str)
+      if (CurrentValues[ordinal] is string str)
         return string.IsNullOrEmpty(str);
 
       return false;
@@ -328,10 +332,10 @@ namespace CsvTools
     protected string TreatNbspTestAsNullTrim(string inputString) =>
       TreatNbspAsNullTrim(inputString, m_TreatNbspAsSpace, m_TreatTextAsNull, m_Trim);
 
-    private void EnsureTextFilled(int columnNumber)
+    private void EnsureTextFilled(int ordinal)
     {
-      if (string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]))
-        CurrentRowColumnText[columnNumber] = Convert.ToString(CurrentValues[columnNumber]);
+      if (string.IsNullOrEmpty(CurrentRowColumnText[ordinal]))
+        CurrentRowColumnText[ordinal] = Convert.ToString(CurrentValues[ordinal]);
     }
   }
 }

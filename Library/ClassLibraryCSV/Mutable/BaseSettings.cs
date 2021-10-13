@@ -30,7 +30,7 @@ namespace CsvTools
   ///   cref="ColumnCollection" /> , <see cref="MappingCollection" /> /&gt;
   /// </summary>
   [DebuggerDisplay("Settings: {ID} ({ColumnCollection.Count()} Columns)")]
-  public abstract class BaseSettings : IFileSetting
+  public abstract class BaseSettings : IFileSetting  
   {
     public const string cTreatTextAsNull = "NULL";
 
@@ -234,12 +234,12 @@ namespace CsvTools
     /// <summary>
     ///   Occurs after a property value changes.
     /// </summary>
-    public virtual event PropertyChangedEventHandler? PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     ///   Occurs when a string value property changed providing information on old and new value
     /// </summary>
-    public virtual event EventHandler<PropertyChangedEventArgs<string>>? PropertyChangedString;
+    public event EventHandler<PropertyChangedEventArgs<string>>? PropertyChangedString;
 
     [XmlIgnore] public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
@@ -874,9 +874,13 @@ namespace CsvTools
         stringBuilder.Append(" ");
       stringBuilder.Append(ID);
 
-      if (!(this is IFileSettingPhysicalFile settingPhysicalFile)) return stringBuilder.ToString();
-      stringBuilder.Append(" - ");
-      stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName));
+      if (this is IFileSettingPhysicalFile settingPhysicalFile)
+      {
+        stringBuilder.Append(" - ");
+        stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName));
+        return stringBuilder.ToString();
+      }
+
       return stringBuilder.ToString();
     }
 

@@ -123,7 +123,7 @@ namespace CsvTools
               }
 
               if (!fromRaw)
-                columns[col - 1] = columns[col - 1] + " " + columns[col];
+                columns[col - 1] += " " + columns[col];
               columns.RemoveAt(col);
               col--;
               handleWarning.Invoke(

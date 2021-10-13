@@ -54,15 +54,13 @@ namespace CsvTools
     ///   Gets the columns without errors.
     /// </summary>
     /// <value>The columns without errors.</value>
-    public ICollection<string> ColumnsWithErrors
+    public IReadOnlyCollection<string> ColumnsWithErrors
     {
       get
       {
-        var withoutErrors = ColumnsWithoutErrors;
-
         return (from DataColumn col in m_SourceTable.Columns
                 where !col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
-                where !withoutErrors.Contains(col.ColumnName)
+                where !ColumnsWithoutErrors.Contains(col.ColumnName)
                 select col.ColumnName).ToList();
       }
     }
@@ -71,7 +69,7 @@ namespace CsvTools
     ///   Gets the columns without errors.
     /// </summary>
     /// <value>The columns without errors.</value>
-    public ICollection<string> ColumnsWithoutErrors
+    public IReadOnlyCollection<string> ColumnsWithoutErrors
     {
       get
       {
