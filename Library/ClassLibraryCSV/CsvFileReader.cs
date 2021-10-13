@@ -433,7 +433,7 @@ namespace CsvTools
     /// <param name="i">The zero-based column ordinal.</param>
     /// <param name="fieldOffset">The index within the field from which to start the read operation.</param>
     /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-    /// <param name="bufferOffset">
+    /// <param name="bufferoffset">
     ///   The index for <paramref name="buffer" /> to start the read operation.
     /// </param>
     /// <param name="length">The number of bytes to read.</param>
@@ -442,7 +442,7 @@ namespace CsvTools
     /// <exception cref="IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
-    public new long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferOffset, int length) =>
+    public new long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) =>
       throw new NotImplementedException();
 
     /// <summary>
@@ -466,25 +466,25 @@ namespace CsvTools
     /// <summary>
     ///   Return the value of the specified field.
     /// </summary>
-    /// <param name="columnNumber">The index of the field to find.</param>
+    /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The object will contain the field value upon return.</returns>
     /// <exception cref="IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
-    public override object GetValue(int columnNumber)
+    public override object GetValue(int ordinal)
     {
-      if (IsDBNull(columnNumber))
+      if (IsDBNull(ordinal))
         return DBNull.Value;
 
-      var value = CurrentRowColumnText[columnNumber];
-      var column = Column[columnNumber];
+      var value = CurrentRowColumnText[ordinal];
+      var column = Column[ordinal];
       object? ret = column.ValueFormat.DataType switch
       {
-        DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(columnNumber), column, true),
+        DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal), column, true),
         DataType.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
-        DataType.Double => GetDoubleNull(value, columnNumber),
-        DataType.Numeric => GetDecimalNull(value, columnNumber),
-        DataType.Boolean => GetBooleanNull(value, columnNumber),
+        DataType.Double => GetDoubleNull(value, ordinal),
+        DataType.Numeric => GetDecimalNull(value, ordinal),
+        DataType.Boolean => GetBooleanNull(value, ordinal),
         DataType.Guid => GetGuidNull(value, column.ColumnOrdinal),
         DataType.String => value,
         _ => throw new ArgumentOutOfRangeException()
@@ -498,12 +498,10 @@ namespace CsvTools
     public override async Task OpenAsync(CancellationToken token)
     {
       Logger.Information("Opening delimited file {filename}", FileName);
-      Retry:
       await BeforeOpenAsync($"Opening delimited file \"{FileSystemUtils.GetShortDisplayFileName(FullPath)}\"")
         .ConfigureAwait(false);
       try
       {
-        // HandleShowProgress($"Opening text file {FileName}");
         if (SelfOpenedStream)
         {
           if (m_ImprovedStream != null)
@@ -543,7 +541,10 @@ namespace CsvTools
       catch (Exception ex)
       {
         if (ShouldRetry(ex, token))
-          goto Retry;
+        {
+          await OpenAsync(token);
+          return;
+        }
         Close();
         var appEx = new FileReaderException(
           "Error opening text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
@@ -575,7 +576,7 @@ namespace CsvTools
       return false;
     }
 
-    public override Task<bool> ReadAsync(CancellationToken token) => Task.FromResult(Read(token));
+    public override Task<bool> ReadAsync(CancellationToken cancellationToken) => Task.FromResult(Read(cancellationToken));
 
     /// <summary>
     ///   Resets the position and buffer to the header in case the file has a header
@@ -648,32 +649,34 @@ namespace CsvTools
         EndLineNumber++;
     }
 
-    // This does read the next records, it will handle column mismatches
+    /// <summary>
+    ///   This does read the next record and stores it in <see cref="CurrentRowColumnText" />, it
+    ///   will handle column mismatches
+    /// </summary>
+    /// <returns><c>true</c> if a new record was read</returns>
     private bool GetNextRecord()
     {
       try
       {
-        Restart:
-        CurrentRowColumnText = ReadNextRow(true);
-
-        if (AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
+        bool readRowAgain;
+        do
         {
-          if (EndOfFile)
-            return false;
+          readRowAgain = false;
+          CurrentRowColumnText = ReadNextRow(true);
+          if (AllEmptyAndCountConsecutiveEmptyRows(CurrentRowColumnText))
+          {
+            if (EndOfFile)
+              return false;
 
-          // an empty line
-          if (m_SkipEmptyLines)
-            goto Restart;
-        }
+            // an empty line
+            if (m_SkipEmptyLines)
+            {
+              readRowAgain = true;
+              continue;
+            }
+          }
 
-        RecordNumber++;
-
-        Restart2:
-        var rowLength = CurrentRowColumnText.Length;
-        if (rowLength == FieldCount)
-        {
-          // Check if we have row that matches the header row
-          if (m_HasFieldHeader)
+          if (CurrentRowColumnText.Length == FieldCount && m_HasFieldHeader && m_SkipDuplicateHeader)
           {
             var isRepeatedHeader = true;
             for (var col = 0; col < FieldCount; col++)
@@ -683,40 +686,40 @@ namespace CsvTools
                 break;
               }
 
-            if (isRepeatedHeader && m_SkipDuplicateHeader)
+            if (isRepeatedHeader)
             {
               HandleWarning(-1, "Repeated Header row is ignored");
-              RecordNumber--;
-              goto Restart;
+              readRowAgain = true;
             }
-
-            if (m_RealignColumns != null && !isRepeatedHeader)
-              m_RealignColumns.AddRow(CurrentRowColumnText);
           }
-        }
+        } while (readRowAgain);
+
+        RecordNumber++;
+        if (m_RealignColumns != null)
+          m_RealignColumns.AddRow(CurrentRowColumnText);
+
         // Option a) Supported - We have a break in a midlle column, the missing columns are pushed
         // in the next row(s)
         //
         // Option b) Not Supported - We have a line break in the last column, the text of this row
         // belongs to the last Column of the last records, as the last record had been processed
         // adraedy we can not change it any more...
-        else if (rowLength < FieldCount)
+        if (CurrentRowColumnText.Length < FieldCount)
         {
           // if we still have only one column and we should have a number of columns assume this was
           // nonsense like a report footer
-          if (rowLength == 1 && EndOfFile && CurrentRowColumnText[0].Length < 10)
+          if (CurrentRowColumnText.Length == 1 && EndOfFile && CurrentRowColumnText[0].Length < 10)
           {
             // As the record is ignored tis will most likely not be visible
             // -2 to indicate this error could be stored with the previous line....
-            m_HandleMessageColumn(
-              -2,
+            m_HandleMessageColumn(-2,
               $"Last line is '{CurrentRowColumnText[0]}'. Assumed to be a EOF marker and ignored.");
             return false;
           }
 
           if (!m_AllowRowCombining)
           {
-            m_HandleMessageColumn(-1, $"Line {cLessColumns} ({rowLength}/{FieldCount}).");
+            m_HandleMessageColumn(-1, $"Line {cLessColumns} ({CurrentRowColumnText.Length}/{FieldCount}).");
           }
           else
           {
@@ -727,7 +730,7 @@ namespace CsvTools
             StartLineNumber = startLine;
 
             // allow up to two extra columns they can be combined later
-            if (nextLine.Length > 0 && nextLine.Length + rowLength < FieldCount + 4)
+            if (nextLine.Length > 0 && nextLine.Length + CurrentRowColumnText.Length < FieldCount + 4)
             {
               var combined = new List<string>(CurrentRowColumnText);
 
@@ -735,29 +738,26 @@ namespace CsvTools
               // NumWarningsLinefeed otherwise as this is important information
               m_NumWarningsLinefeed++;
               m_HandleMessageColumn(
-                rowLength - 1,
+                CurrentRowColumnText.Length - 1,
                 $"Combined with line {EndLineNumber}, assuming a linefeed has split the column into additional line.");
-              combined[rowLength - 1] += '\n' + nextLine[0];
+              combined[CurrentRowColumnText.Length - 1] += '\n' + nextLine[0];
 
               for (var col = 1; col < nextLine.Length; col++)
                 combined.Add(nextLine[col]);
 
               CurrentRowColumnText = combined.ToArray();
-              goto Restart2;
             }
 
             // we have an issue we went into the next Buffer there is no way back.
-            HandleError(
-              -1,
-              $"Line {cLessColumns}\nAttempting to combined lines some line have been read that is now lost, please turn off Row Combination");
+            HandleError(-1,
+              $"Line {cLessColumns}\nAttempting to combined lines some line(s) have been read this information is now lost, please turn off Row Combination");
           }
         }
 
         // If more columns are present
-        // ReSharper disable once InvertIf
-        if (rowLength > FieldCount)
+        if (CurrentRowColumnText.Length > FieldCount)
         {
-          var text = $"Line {cMoreColumns} ({rowLength}/{FieldCount}).";
+          var text = $"Line {cMoreColumns} ({CurrentRowColumnText.Length}/{FieldCount}).";
 
           if (m_RealignColumns != null)
           {
@@ -773,7 +773,7 @@ namespace CsvTools
           {
             // check if the additional columns have contents
             var hasContent = false;
-            for (var extraCol = FieldCount; extraCol < rowLength; extraCol++)
+            for (var extraCol = FieldCount; extraCol < CurrentRowColumnText.Length; extraCol++)
             {
               if (string.IsNullOrEmpty(CurrentRowColumnText[extraCol]))
                 continue;
@@ -795,6 +795,7 @@ namespace CsvTools
           }
         }
 
+        // now handle Text replacements and warning in the read columns
         for (var columnNo = 0; columnNo < FieldCount && columnNo < CurrentRowColumnText.Length; columnNo++)
         {
           if (GetColumn(columnNo).Ignore || string.IsNullOrEmpty(CurrentRowColumnText[columnNo]))
@@ -810,13 +811,11 @@ namespace CsvTools
           if (adjustedValue.Length > 0)
           {
             if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifierChar) != -1 && (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning))
-              HandleWarning(
-                columnNo,
+              HandleWarning(columnNo,
                 $"Field qualifier '{m_FieldQualifierChar.GetDescription()}' found in field".AddWarningId());
 
             if (m_WarnDelimiterInValue && adjustedValue.IndexOf(m_FieldDelimiterChar) != -1 && (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning))
-              HandleWarning(
-                columnNo,
+              HandleWarning(columnNo,
                 $"Field delimiter '{m_FieldDelimiterChar.GetDescription()}' found in field".AddWarningId());
 
             if (m_WarnUnknownCharacter)
@@ -835,8 +834,7 @@ namespace CsvTools
                 if (numberQuestionMark > 2 && (lastPos == pos + 1 || numberQuestionMark > length / 4))
                 {
                   if (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning)
-                    HandleWarning(
-                      columnNo,
+                    HandleWarning(columnNo,
                       "Unusual high occurrence of ? this indicates unmapped characters.".AddWarningId());
                   break;
                 }
@@ -1198,53 +1196,55 @@ namespace CsvTools
     /// </returns>
     private string[] ReadNextRow(bool storeWarnings)
     {
-      Restart:
-
-      // Store the starting Line Number
-      StartLineNumber = EndLineNumber;
-      if (m_RealignColumns != null)
-        m_RecordSource.Length = 0;
-
-      // If already at end of file, return null
-      if (EndOfFile || m_TextReader is null)
-        return new string[FieldCount];
-
-      var item = ReadNextColumn(0);
-
-      // An empty line does not have any data
-      if ((item is null || item.Length == 0) && m_EndOfLine)
+      bool restart = false;
+      string? item;
+      do
       {
-        m_EndOfLine = false;
-        if (m_SkipEmptyLines)
+        // Store the starting Line Number
+        StartLineNumber = EndLineNumber;
+        if (m_RealignColumns != null)
+          m_RecordSource.Length = 0;
 
-          // go to the next line
-          goto Restart;
+        // If already at end of file, return null
+        if (EndOfFile || m_TextReader is null)
+          return new string[FieldCount];
 
-        // Return it as array of empty columns
-        return new string[FieldCount];
-      }
+        item = ReadNextColumn(0);
 
-      // Skip commented lines
-      if (m_CommentLine.Length > 0 && item != null && item.Length > m_CommentLine.Length
-          && item.StartsWith(m_CommentLine, StringComparison.Ordinal))
-      {
-        // A commented line does start with the comment
-        if (m_EndOfLine)
+        // An empty line does not have any data
+        if ((item is null || item.Length == 0) && m_EndOfLine)
+        {
           m_EndOfLine = false;
-        else
-          // it might happen that the comment line contains a Delimiter
-          while (!EndOfFile)
-          {
-            var character = Peek();
-            MoveNext(character);
-            if (character != c_Cr && character != c_Lf)
-              continue;
-            EatNextCRLF(character);
-            break;
-          }
+          if (m_SkipEmptyLines)
+            // go to the next line
+            restart = true;
+          else
+            // Return it as array of empty columns
+            return new string[FieldCount];
+        }
 
-        goto Restart;
-      }
+        // Skip commented lines
+        if (m_CommentLine.Length > 0 && item != null && item.Length > m_CommentLine.Length
+            && item.StartsWith(m_CommentLine, StringComparison.Ordinal))
+        {
+          // A commented line does start with the comment
+          if (m_EndOfLine)
+            m_EndOfLine = false;
+          else
+            // it might happen that the comment line contains a Delimiter
+            while (!EndOfFile)
+            {
+              var character = Peek();
+              MoveNext(character);
+              if (character != c_Cr && character != c_Lf)
+                continue;
+              EatNextCRLF(character);
+              break;
+            }
+
+          restart = true;
+        }
+      } while (restart);
 
       var col = 0;
       var columns = new List<string>(FieldCount);

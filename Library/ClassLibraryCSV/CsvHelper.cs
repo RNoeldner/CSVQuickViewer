@@ -1494,7 +1494,7 @@ namespace CsvTools
 
           // The score is dependent on the average columns found and the regularity
           var score = Math.Abs(avg - Math.Round(cutVariance / (dc.LastRow - startRow), 2));
-          if (bestScore.HasValue && !(score > bestScore.Value))
+          if (bestScore.HasValue && score <= bestScore.Value)
             continue;
           match = dc.Separators[index];
           bestScore = score;

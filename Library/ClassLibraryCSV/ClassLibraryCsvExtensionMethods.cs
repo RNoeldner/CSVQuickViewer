@@ -616,7 +616,7 @@ namespace CsvTools
       if (template.IndexOf('{') == -1)
         return template;
 
-      // get all placeholders in {}
+      // get all placeholders in brackets
       var rgx = new Regex(@"\{[^\}]+\}");
 
       var placeholder = new Dictionary<string, string>();
@@ -657,7 +657,7 @@ namespace CsvTools
       if (template.IndexOf('{') == -1)
         return template;
 
-      // get all placeholders in {}
+      // get all placeholders in backet
       var rgx = new Regex(@"\{[^\}]+\}");
 
       var placeholder = new Dictionary<string, string>();

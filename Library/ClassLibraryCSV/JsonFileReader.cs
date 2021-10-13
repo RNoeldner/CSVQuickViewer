@@ -141,7 +141,8 @@ namespace CsvTools
       }
     }
 
-    public override Task<bool> ReadAsync(CancellationToken token) => Task.FromResult(Read(token));
+    public override Task<bool> ReadAsync(CancellationToken cancellationToken) =>
+      Task.FromResult(Read(cancellationToken));
 
     public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
@@ -196,7 +197,7 @@ namespace CsvTools
     private ICollection<KeyValuePair<string, object?>>? GetNextRecord(CancellationToken token)
     {
       if (m_JsonTextReader is null)
-        throw new FileReaderExceptionOpen();
+        throw new FileReaderOpenException();
       try
       {
         var headers = new Dictionary<string, bool>();

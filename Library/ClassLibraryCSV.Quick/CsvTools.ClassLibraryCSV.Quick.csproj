@@ -35,6 +35,8 @@
 		<Compile Include="..\ClassLibraryCSV\BaseFileWriter.cs" Link="BaseFileWriter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ClassLibraryCsvExtensionMethods.cs" Link="ClassLibraryCsvExtensionMethods.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnExtension.cs" Link="ColumnExtension.cs" />
+		<Compile Include="..\ClassLibraryCSV\FileReaderOpenException.cs" Link="FileReaderOpenException.cs" />
+
 		<Compile Include="..\ClassLibraryCSV\CsvFileReader.cs" Link="CsvFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\JsonFileReader.cs" Link="JsonFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\CsvFileWriter.cs" Link="CsvFileWriter.cs" />

@@ -22,7 +22,7 @@ namespace CsvTools
   ///   Column information like name, Type, Format etc.
   /// </summary>
   [Serializable]
-  public class Column : IColumn, INotifyPropertyChanged
+  public sealed class Column : IColumn, INotifyPropertyChanged
   {
     /// <summary>
     ///   The default time part format
@@ -100,13 +100,13 @@ namespace CsvTools
     /// <summary>
     ///   Occurs when a property value changes.
     /// </summary>
-    public virtual event PropertyChangedEventHandler? PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     ///   The Ordinal Position of the column
     /// </summary>
     [XmlIgnore]
-    public virtual int ColumnOrdinal
+    public int ColumnOrdinal
     {
       get => m_ColumnOrdinal;
       set => m_ColumnOrdinal = value;
@@ -119,7 +119,7 @@ namespace CsvTools
     /// <value><c>true</c> if the column should be convert; otherwise, <c>false</c>.</value>
     [XmlAttribute]
     [DefaultValue(false)]
-    public virtual bool Convert
+    public bool Convert
     {
       get => m_Convert ?? ValueFormatMutable.DataType != DataType.String;
       set
@@ -144,7 +144,7 @@ namespace CsvTools
     /// <value>The type of the data.</value>
     [XmlAttribute("Type")]
     [DefaultValue(DataType.String)]
-    public virtual DataType DataType
+    public DataType DataType
     {
       get => ValueFormatMutable.DataType;
       set => ValueFormatMutable.DataType = value;
@@ -156,7 +156,7 @@ namespace CsvTools
     /// <value>The date format.</value>
     [XmlAttribute]
     [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
-    public virtual string DateFormat
+    public string DateFormat
     {
       get => ValueFormatMutable.DateFormat;
       set => ValueFormatMutable.DateFormat = value;
@@ -175,7 +175,7 @@ namespace CsvTools
     /// <value>The date separator.</value>
     [XmlAttribute]
     [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
-    public virtual string DateSeparator
+    public string DateSeparator
     {
       get => ValueFormatMutable.DateSeparator;
       set => ValueFormatMutable.DateSeparator = value;
@@ -195,7 +195,7 @@ namespace CsvTools
     /// <value>The decimal separator.</value>
     [XmlAttribute]
     [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
-    public virtual string DecimalSeparator
+    public string DecimalSeparator
     {
       get => ValueFormatMutable.DecimalSeparator;
       set => ValueFormatMutable.DecimalSeparator = value;
@@ -207,7 +207,7 @@ namespace CsvTools
     /// <value>The name of the column in the destination.</value>
     [XmlAttribute]
     [DefaultValue("")]
-    public virtual string DestinationName
+    public string DestinationName
     {
       get => m_DestinationName;
       set
@@ -227,7 +227,7 @@ namespace CsvTools
     /// <value>The false.</value>
     [XmlAttribute]
     [DefaultValue(ValueFormatExtension.cFalseDefault)]
-    public virtual string False
+    public string False
     {
       // Identifiers should not match keywords
       get => ValueFormatMutable.False;
@@ -247,7 +247,7 @@ namespace CsvTools
     /// <value>The group separator.</value>
     [XmlAttribute]
     [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
-    public virtual string GroupSeparator
+    public string GroupSeparator
     {
       get => ValueFormatMutable.GroupSeparator;
       set => ValueFormatMutable.GroupSeparator = value;
@@ -259,7 +259,7 @@ namespace CsvTools
     /// <value><c>true</c> if [ignore read]; otherwise, <c>false</c>.</value>
     [XmlAttribute]
     [DefaultValue(false)]
-    public virtual bool Ignore
+    public bool Ignore
     {
       get => m_Ignore;
 
@@ -277,7 +277,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The name.</value>
     [XmlAttribute("Column")]
-    public virtual string Name
+    public string Name
     {
       get => m_Name;
       set
@@ -295,7 +295,7 @@ namespace CsvTools
     /// <value>The number format.</value>
     [XmlAttribute]
     [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
-    public virtual string NumberFormat
+    public string NumberFormat
     {
       get => ValueFormatMutable.NumberFormat;
       set => ValueFormatMutable.NumberFormat = value;
@@ -315,7 +315,7 @@ namespace CsvTools
     /// <value>The part starting with 1</value>
     [XmlAttribute]
     [DefaultValue(ValueFormatExtension.cPartDefault)]
-    public virtual int Part
+    public int Part
     {
       get => ValueFormatMutable.Part;
       set => ValueFormatMutable.Part = value;
@@ -333,7 +333,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The splitter.</value>
     [DefaultValue(ValueFormatExtension.cPartSplitterDefault)]
-    public virtual string PartSplitter
+    public string PartSplitter
     {
       get => ValueFormatMutable.PartSplitter;
       set => ValueFormatMutable.PartSplitter = value;
@@ -355,7 +355,7 @@ namespace CsvTools
     /// <value>The part starting with 1</value>
     [XmlAttribute]
     [DefaultValue(ValueFormatExtension.cPartToEndDefault)]
-    public virtual bool PartToEnd
+    public bool PartToEnd
     {
       get => ValueFormatMutable.PartToEnd;
       set => ValueFormatMutable.PartToEnd = value;
@@ -375,7 +375,7 @@ namespace CsvTools
     /// <value>The name.</value>
     [XmlAttribute]
     [DefaultValue("")]
-    public virtual string TimePart
+    public string TimePart
     {
       get => m_TimePart;
 
@@ -394,7 +394,7 @@ namespace CsvTools
     /// <value>The name.</value>
     [XmlAttribute]
     [DefaultValue(ImmutableColumn.cDefaultTimePartFormat)]
-    public virtual string TimePartFormat
+    public string TimePartFormat
     {
       get => m_TimePartFormat;
       set
@@ -428,7 +428,7 @@ namespace CsvTools
     /// <value>The time separator.</value>
     [XmlAttribute]
     [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
-    public virtual string TimeSeparator
+    public string TimeSeparator
     {
       get => ValueFormatMutable.TimeSeparator;
       set => ValueFormatMutable.TimeSeparator = value;
@@ -448,7 +448,7 @@ namespace CsvTools
     /// <value>The name.</value>
     [XmlAttribute]
     [DefaultValue("")]
-    public virtual string TimeZonePart
+    public string TimeZonePart
     {
       get => m_TimeZonePart;
 
@@ -467,7 +467,7 @@ namespace CsvTools
     /// <value>The true.</value>
     [XmlAttribute]
     [DefaultValue(ValueFormatExtension.cTrueDefault)]
-    public virtual string True
+    public string True
     {
       // Identifiers should not match keywords
       get => ValueFormatMutable.True;
@@ -496,7 +496,7 @@ namespace CsvTools
     ///   Clones this instance into a new instance of the same type
     /// </summary>
     /// <returns></returns>
-    public virtual Column Clone()
+    public Column Clone()
     {
       var other = new Column();
       CopyTo(other);
@@ -507,11 +507,10 @@ namespace CsvTools
     ///   Copies to.
     /// </summary>
     /// <param name="other">The other.</param>
-    public virtual void CopyTo(Column other)
+    public void CopyTo(Column other)
     {
       other.ValueFormatMutable.CopyFrom(ValueFormatMutable);
-
-      // other.ValueFormatMutable = m_ValueFormatMutable;
+      
       other.TimePartFormat = m_TimePartFormat;
       other.TimePart = m_TimePart;
       other.TimeZonePart = m_TimeZonePart;
@@ -561,7 +560,7 @@ namespace CsvTools
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
-    public virtual void NotifyPropertyChanged(string info) =>
+    public void NotifyPropertyChanged(string info) =>
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
     /// <summary>

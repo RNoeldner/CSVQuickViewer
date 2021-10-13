@@ -33,6 +33,7 @@ namespace CsvTools
 
     public void Dispose()
     {
+      // There is nothing to dispose in this implemenation
     }
 
     public void SetProcess(object? sender, ProgressEventArgs e)

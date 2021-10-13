@@ -197,7 +197,7 @@ namespace CsvTools
     ///   Gets the <see cref="T:System.Object" /> with the specified column.
     /// </summary>
     /// <value></value>
-    public override object this[int columnNumber] => GetValue(columnNumber);
+    public override object this[int ordinal] => GetValue(ordinal);
 
     public new virtual void Dispose()
     {
@@ -297,39 +297,39 @@ namespace CsvTools
     /// <summary>
     ///   Gets the boolean.
     /// </summary>
-    /// <param name="i">The i.</param>
+    /// <param name="ordinal">The i.</param>
     /// <returns></returns>
-    public override bool GetBoolean(int i)
+    public override bool GetBoolean(int ordinal)
     {
-      var parsed = GetBooleanNull(CurrentRowColumnText[i], i);
+      var parsed = GetBooleanNull(CurrentRowColumnText[ordinal], ordinal);
       if (parsed.HasValue)
         return parsed.Value;
 
       // Warning was added by GetBooleanNull
       throw WarnAddFormatException(
-        i,
-        $"'{CurrentRowColumnText[i]}' is not a boolean ({GetColumn(i).ValueFormat.True}/{GetColumn(i).ValueFormat.False})");
+        ordinal,
+        $"'{CurrentRowColumnText[ordinal]}' is not a boolean ({GetColumn(ordinal).ValueFormat.True}/{GetColumn(ordinal).ValueFormat.False})");
     }
 
     /// <inheritdoc />
     /// <summary>
     ///   Gets the 8-bit unsigned integer value of the specified column.
     /// </summary>
-    /// <param name="i">The zero-based column ordinal.</param>
+    /// <param name="ordinal">The zero-based column ordinal.</param>
     /// <returns>The 8-bit unsigned integer value of the specified column.</returns>
     /// <exception cref="T:System.IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see
     ///   cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
-    public override byte GetByte(int i)
+    public override byte GetByte(int ordinal)
     {
       try
       {
-        return byte.Parse(CurrentRowColumnText[i], CultureInfo.InvariantCulture);
+        return byte.Parse(CurrentRowColumnText[ordinal], CultureInfo.InvariantCulture);
       }
       catch (Exception)
       {
-        throw WarnAddFormatException(i, $"'{CurrentRowColumnText[i]}' is not byte");
+        throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not byte");
       }
     }
 
@@ -338,36 +338,36 @@ namespace CsvTools
     ///   Reads a stream of bytes from the specified column offset into the buffer as an array,
     ///   starting at the given buffer offset.
     /// </summary>
-    /// <param name="i">The zero-based column ordinal.</param>
-    /// <param name="fieldOffset">The index within the field from which to start the read operation.</param>
+    /// <param name="ordinal">The zero-based column ordinal.</param>
+    /// <param name="dataOffset">The index within the field from which to start the read operation.</param>
     /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
-    /// <param name="bufferoffset">
+    /// <param name="bufferOffset">
     ///   The index for <paramref name="buffer" /> to start the read operation.
     /// </param>
     /// <param name="length">The number of bytes to read.</param>
     /// <returns>The actual number of bytes read.</returns>
     /// <exception cref="T:System.NotImplementedException"></exception>
-    public override long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) =>
+    public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length) =>
       throw new NotImplementedException();
 
     /// <inheritdoc />
     /// <summary>
     ///   Gets the character value of the specified column.
     /// </summary>
-    /// <param name="i">The zero-based column ordinal.</param>
+    /// <param name="ordinal">The zero-based column ordinal.</param>
     /// <returns>The character value of the specified column.</returns>
     /// <exception cref="T:System.IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see
     ///   cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
-    public override char GetChar(int i) => GetString(i)[0];
+    public override char GetChar(int ordinal) => GetString(ordinal)[0];
 
     /// <summary>
     ///   Reads a stream of characters from the specified column offset into the buffer as an array,
     ///   starting at the given buffer offset.
     /// </summary>
-    /// <param name="i">The zero-based column ordinal.</param>
-    /// <param name="fieldOffset">The index within the row from which to start the read operation.</param>
+    /// <param name="ordinal">The zero-based column ordinal.</param>
+    /// <param name="dataOffset">The index within the row from which to start the read operation.</param>
     /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
     /// <param name="bufferOffset">
     ///   The index for <paramref name="buffer" /> to start the read operation.
@@ -377,15 +377,15 @@ namespace CsvTools
     /// <exception cref="IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
     /// </exception>
-    public override long GetChars(int i, long fieldOffset, char[] buffer, int bufferOffset, int length)
+    public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
     {
-      var offset = (int) fieldOffset;
+      var offset = (int) dataOffset;
 
-      var maxLen = CurrentRowColumnText[i].Length - offset;
+      var maxLen = CurrentRowColumnText[ordinal].Length - offset;
 
       if (maxLen > length)
         maxLen = length;
-      CurrentRowColumnText[i].CopyTo(
+      CurrentRowColumnText[ordinal].CopyTo(
         offset,
         buffer ?? throw new ArgumentNullException(nameof(buffer)),
         bufferOffset,
@@ -396,73 +396,73 @@ namespace CsvTools
     /// <summary>
     ///   Gets the column format.
     /// </summary>
-    /// <param name="columnNumber">The column.</param>
+    /// <param name="ordinal">The column.</param>
     /// <returns></returns>
-    public virtual IColumn GetColumn(int columnNumber) => Column[columnNumber];
+    public virtual IColumn GetColumn(int ordinal) => Column[ordinal];
 
     /// <inheritdoc />
     /// <summary>
     ///   Gets the data type information for the specified field.
     /// </summary>
-    /// <param name="i">The index of the field to find.</param>
+    /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The data type information for the specified field.</returns>
     /// <exception cref="T:System.NotImplementedException"></exception>
-    public override string GetDataTypeName(int i) => GetFieldType(i).Name;
+    public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
 
     /// <inheritdoc />
     /// <summary>
     ///   Gets the date and time data value of the specified field.
     /// </summary>
-    /// <param name="columnNumber">The index of the field to find.</param>
+    /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The date and time data value of the specified field.</returns>
-    public override DateTime GetDateTime(int columnNumber)
+    public override DateTime GetDateTime(int ordinal)
     {
       var dt = GetDateTimeNull(
         null,
-        CurrentRowColumnText[columnNumber],
+        CurrentRowColumnText[ordinal],
         null,
-        GetTimeValue(columnNumber),
-        Column[columnNumber],
+        GetTimeValue(ordinal),
+        Column[ordinal],
         true);
       if (dt.HasValue)
         return dt.Value;
 
       // Warning was added by GetDecimalNull
       throw WarnAddFormatException(
-        columnNumber,
-        $"'{CurrentRowColumnText[columnNumber]}' is not a date of the format '{GetColumn(columnNumber).ValueFormat.DateFormat}'");
+        ordinal,
+        $"'{CurrentRowColumnText[ordinal]}' is not a date of the format '{GetColumn(ordinal).ValueFormat.DateFormat}'");
     }
 
     /// <inheritdoc />
     /// <summary>
     ///   Gets the decimal.
     /// </summary>
-    /// <param name="columnNumber">The i.</param>
+    /// <param name="ordinal">The i.</param>
     /// <returns></returns>
-    public override decimal GetDecimal(int columnNumber)
+    public override decimal GetDecimal(int ordinal)
     {
-      var decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
+      var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal], ordinal);
       if (decimalValue.HasValue)
         return decimalValue.Value;
 
       // Warning was added by GetDecimalNull
-      throw WarnAddFormatException(columnNumber, $"'{CurrentRowColumnText[columnNumber]}' is not a decimal");
+      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a decimal");
     }
 
     /// <inheritdoc />
     /// <summary>
     ///   Gets the double.
     /// </summary>
-    /// <param name="columnNumber">The i.</param>
+    /// <param name="ordinal">The i.</param>
     /// <returns></returns>
-    public override double GetDouble(int columnNumber)
+    public override double GetDouble(int ordinal)
     {
-      var decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
+      var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal], ordinal);
       if (decimalValue.HasValue)
         return Convert.ToDouble(decimalValue.Value);
 
       // Warning was added by GetDecimalNull
-      throw WarnAddFormatException(columnNumber, $"'{CurrentRowColumnText[columnNumber]}' is not a double");
+      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a double");
     }
 
     public override IEnumerator GetEnumerator() => new DbEnumerator(this, true);
@@ -471,69 +471,69 @@ namespace CsvTools
     /// <summary>
     ///   Gets the type of the field.
     /// </summary>
-    /// <param name="columnNumber">The column number.</param>
+    /// <param name="ordinal">The column number.</param>
     /// <returns>The .NET type of the column</returns>
-    public override Type GetFieldType(int columnNumber) => GetColumn(columnNumber).ValueFormat.DataType.GetNetType();
+    public override Type GetFieldType(int ordinal) => GetColumn(ordinal).ValueFormat.DataType.GetNetType();
 
     /// <inheritdoc />
     /// <summary>
     ///   Gets the single-precision floating point number of the specified field.
     /// </summary>
-    /// <param name="columnNumber">The index of the field to find.</param>
+    /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The single-precision floating point number of the specified field.</returns>
-    public override float GetFloat(int columnNumber)
+    public override float GetFloat(int ordinal)
     {
-      var decimalValue = GetDecimalNull(CurrentRowColumnText[columnNumber], columnNumber);
+      var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal], ordinal);
       if (decimalValue.HasValue)
         return Convert.ToSingle(decimalValue, CultureInfo.InvariantCulture);
 
       // Warning was added by GetDecimalNull
-      throw WarnAddFormatException(columnNumber, $"'{CurrentRowColumnText[columnNumber]}' is not a float");
+      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a float");
     }
 
     /// <inheritdoc />
     /// <summary>
     ///   Gets the unique identifier.
     /// </summary>
-    /// <param name="columnNumber">The column number.</param>
+    /// <param name="ordinal">The column number.</param>
     /// <returns></returns>
-    public override Guid GetGuid(int columnNumber)
+    public override Guid GetGuid(int ordinal)
     {
-      var parsed = GetGuidNull(CurrentRowColumnText[columnNumber], columnNumber);
+      var parsed = GetGuidNull(CurrentRowColumnText[ordinal], ordinal);
 
       if (parsed.HasValue)
         return parsed.Value;
 
-      throw WarnAddFormatException(columnNumber, $"'{CurrentRowColumnText[columnNumber]}' is not an GUID");
+      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not an GUID");
     }
 
     /// <inheritdoc />
     /// <summary>
     ///   Gets the 16-bit signed integer value of the specified field.
     /// </summary>
-    /// <param name="columnNumber">The index of the field to find.</param>
+    /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The 16-bit signed integer value of the specified field.</returns>
-    public override short GetInt16(int columnNumber) => GetInt16(CurrentRowColumnText[columnNumber], columnNumber);
+    public override short GetInt16(int ordinal) => GetInt16(CurrentRowColumnText[ordinal], ordinal);
 
     /// <inheritdoc />
     /// <summary>
     ///   Gets the int32.
     /// </summary>
-    /// <param name="columnNumber">The i.</param>
+    /// <param name="ordinal">The i.</param>
     /// <returns></returns>
-    public override int GetInt32(int columnNumber)
+    public override int GetInt32(int ordinal)
     {
-      var column = GetColumn(columnNumber);
+      var column = GetColumn(ordinal);
 
       var parsed = StringConversion.StringToInt32(
-        CurrentRowColumnText[columnNumber],
+        CurrentRowColumnText[ordinal],
         column.ValueFormat.DecimalSeparator,
         column.ValueFormat.GroupSeparator);
       if (parsed.HasValue)
         return parsed.Value;
 
       // Warning was added by GetInt32Null
-      throw WarnAddFormatException(columnNumber, $"'{CurrentRowColumnText[columnNumber]}' is not an integer");
+      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not an integer");
     }
 
     /// <summary>
@@ -559,20 +559,20 @@ namespace CsvTools
     /// <summary>
     ///   Gets the int64.
     /// </summary>
-    /// <param name="columnNumber">The i.</param>
+    /// <param name="ordinal">The i.</param>
     /// <returns></returns>
-    public override long GetInt64(int columnNumber)
+    public override long GetInt64(int ordinal)
     {
-      var column = GetColumn(columnNumber);
+      var column = GetColumn(ordinal);
 
       var parsed = StringConversion.StringToInt64(
-        CurrentRowColumnText[columnNumber],
+        CurrentRowColumnText[ordinal],
         column.ValueFormat.DecimalSeparator,
         column.ValueFormat.GroupSeparator);
       if (parsed.HasValue)
         return parsed.Value;
 
-      throw WarnAddFormatException(columnNumber, $"'{CurrentRowColumnText[columnNumber]}' is not a long integer");
+      throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a long integer");
     }
 
     /// <summary>
@@ -598,28 +598,28 @@ namespace CsvTools
     /// <summary>
     ///   Gets the name for the field to find.
     /// </summary>
-    /// <param name="columnNumber">The index of the field to find.</param>
+    /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>The name of the field or the empty string (""), if there is no value to return.</returns>
     /// <exception cref="T:System.IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see
     ///   cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
-    public override string GetName(int columnNumber) => GetColumn(columnNumber).Name;
+    public override string GetName(int ordinal) => GetColumn(ordinal).Name;
 
     /// <inheritdoc />
     /// <summary>
     ///   Return the index of the named field.
     /// </summary>
-    /// <param name="columnName">The name of the field to find.</param>
+    /// <param name="name">The name of the field to find.</param>
     /// <returns>The index of the named field. If not found -1</returns>
-    public override int GetOrdinal(string columnName)
+    public override int GetOrdinal(string name)
     {
-      if (string.IsNullOrEmpty(columnName))
+      if (string.IsNullOrEmpty(name))
         return -1;
       var count = 0;
       foreach (var column in Column)
       {
-        if (columnName.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
+        if (name.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
           return count;
         count++;
       }
@@ -661,55 +661,55 @@ namespace CsvTools
       return dataTable;
     }
 
-    public override Stream GetStream(int columnNumber) =>
-      new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[columnNumber]));
+    public override Stream GetStream(int ordinal) =>
+      new MemoryStream(Encoding.UTF8.GetBytes(CurrentRowColumnText[ordinal]));
 
     /// <inheritdoc />
     /// <summary>
     ///   Gets the originally provided text in a column
     /// </summary>
-    /// <param name="columnNumber">The column number.</param>
+    /// <param name="ordinal">The column number.</param>
     /// <returns></returns>
     /// <exception cref="T:System.InvalidOperationException">Row has not been read</exception>
-    /// <exception cref="T:System.ArgumentOutOfRangeException">ColumnNumber invalid</exception>
-    public override string GetString(int columnNumber)
+    /// <exception cref="T:System.ArgumentOutOfRangeException">ordinal invalid</exception>
+    public override string GetString(int ordinal)
     {
       if (CurrentRowColumnText is null)
         throw new InvalidOperationException("Row has not been read");
-      if (columnNumber < 0 || columnNumber >= FieldCount || columnNumber >= CurrentRowColumnText.Length)
-        throw new IndexOutOfRangeException(nameof(columnNumber));
+      if (ordinal < 0 || ordinal >= FieldCount || ordinal >= CurrentRowColumnText.Length)
+        throw new IndexOutOfRangeException(nameof(ordinal));
 
-      return CurrentRowColumnText[columnNumber];
+      return CurrentRowColumnText[ordinal];
     }
 
-    public override TextReader GetTextReader(int columnNumber) => new StringReader(CurrentRowColumnText[columnNumber]);
+    public override TextReader GetTextReader(int ordinal) => new StringReader(CurrentRowColumnText[ordinal]);
 
     /// <inheritdoc />
     /// <summary>
     ///   Gets the value of a column
     /// </summary>
-    /// <param name="columnNumber">The column number.</param>
+    /// <param name="ordinal">The column number.</param>
     /// <returns>The value of the specific field</returns>
-    public override object GetValue(int columnNumber)
+    public override object GetValue(int ordinal)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
+      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
 
-      if (IsDBNull(columnNumber))
+      if (IsDBNull(ordinal))
         return DBNull.Value;
-      var column = GetColumn(columnNumber);
+      var column = GetColumn(ordinal);
 
       object ret;
       try
       {
         ret = column.ValueFormat.DataType switch
         {
-          DataType.DateTime => GetDateTime(columnNumber),
-          DataType.Integer => IntPtr.Size == 4 ? GetInt32(columnNumber) : GetInt64(columnNumber),
-          DataType.Double => GetDouble(columnNumber),
-          DataType.Numeric => GetDecimal(columnNumber),
-          DataType.Boolean => GetBoolean(columnNumber),
-          DataType.Guid => GetGuid(columnNumber),
-          DataType.String => GetString(columnNumber),
+          DataType.DateTime => GetDateTime(ordinal),
+          DataType.Integer => IntPtr.Size == 4 ? GetInt32(ordinal) : GetInt64(ordinal),
+          DataType.Double => GetDouble(ordinal),
+          DataType.Numeric => GetDecimal(ordinal),
+          DataType.Boolean => GetBoolean(ordinal),
+          DataType.Guid => GetGuid(ordinal),
+          DataType.String => GetString(ordinal),
           _ => throw new ArgumentOutOfRangeException()
         };
       }
@@ -742,40 +742,40 @@ namespace CsvTools
     /// <summary>
     ///   Handles the error.
     /// </summary>
-    /// <param name="columnNumber">The column number.</param>
+    /// <param name="ordinal">The column number.</param>
     /// <param name="message">The message.</param>
-    public void HandleError(int columnNumber, string message) =>
-      Warning?.Invoke(this, GetWarningEventArgs(columnNumber, message));
+    public void HandleError(int ordinal, string message) =>
+      Warning?.Invoke(this, GetWarningEventArgs(ordinal, message));
 
     /// <summary>
     ///   Calls the event handler for warnings
     /// </summary>
-    /// <param name="columnNumber">The column.</param>
+    /// <param name="ordinal">The column.</param>
     /// <param name="message">The message.</param>
-    public void HandleWarning(int columnNumber, string message) =>
-      Warning?.Invoke(this, GetWarningEventArgs(columnNumber, message.AddWarningId()));
+    public void HandleWarning(int ordinal, string message) =>
+      Warning?.Invoke(this, GetWarningEventArgs(ordinal, message.AddWarningId()));
 
     /// <inheritdoc />
     /// <summary>
     ///   Return whether the specified field is set to null.
     /// </summary>
-    /// <param name="columnNumber">The index of the field to find.</param>
+    /// <param name="ordinal">The index of the field to find.</param>
     /// <returns>true if the specified field is set to null; otherwise, false.</returns>
     /// <exception cref="T:System.IndexOutOfRangeException">
     ///   The index passed was outside the range of 0 through <see
     ///   cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
-    public override bool IsDBNull(int columnNumber)
+    public override bool IsDBNull(int ordinal)
     {
-      if (CurrentRowColumnText.Length <= columnNumber)
+      if (CurrentRowColumnText.Length <= ordinal)
         return true;
-      if (Column[columnNumber].ValueFormat.DataType != DataType.DateTime)
-        return string.IsNullOrWhiteSpace(CurrentRowColumnText[columnNumber]);
-      if (AssociatedTimeCol[columnNumber] == -1 || AssociatedTimeCol[columnNumber] >= CurrentRowColumnText.Length)
-        return string.IsNullOrEmpty(CurrentRowColumnText[columnNumber]);
+      if (Column[ordinal].ValueFormat.DataType != DataType.DateTime)
+        return string.IsNullOrWhiteSpace(CurrentRowColumnText[ordinal]);
+      if (AssociatedTimeCol[ordinal] == -1 || AssociatedTimeCol[ordinal] >= CurrentRowColumnText.Length)
+        return string.IsNullOrEmpty(CurrentRowColumnText[ordinal]);
 
-      return string.IsNullOrEmpty(CurrentRowColumnText[columnNumber])
-             && string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[columnNumber]]);
+      return string.IsNullOrEmpty(CurrentRowColumnText[ordinal])
+             && string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[ordinal]]);
     }
 
     /// <inheritdoc />
@@ -869,13 +869,13 @@ namespace CsvTools
     ///   Gets the boolean value.
     /// </summary>
     /// <param name="inputBoolean">The input.</param>
-    /// <param name="columnNumber">The column.</param>
+    /// <param name="ordinal">The column.</param>
     /// <returns>
     ///   The Boolean, if conversion is not successful: <c>NULL</c> the event handler for warnings
     ///   is called
     /// </returns>
-    protected bool? GetBooleanNull(string inputBoolean, int columnNumber) =>
-      GetBooleanNull(inputBoolean, GetColumn(columnNumber));
+    protected bool? GetBooleanNull(string inputBoolean, int ordinal) =>
+      GetBooleanNull(inputBoolean, GetColumn(ordinal));
 
     /// <summary>
     ///   This routine will read a date from a typed or untyped reader, will combined date with time
@@ -953,14 +953,14 @@ namespace CsvTools
     ///   Gets the decimal value or null.
     /// </summary>
     /// <param name="inputValue">The input.</param>
-    /// <param name="columnNumber">The column.</param>
+    /// <param name="ordinal">The column.</param>
     /// <returns>
     ///   The decimal value if conversion is not successful: <c>NULL</c> the event handler for
     ///   warnings is called
     /// </returns>
-    protected decimal? GetDecimalNull(string inputValue, int columnNumber)
+    protected decimal? GetDecimalNull(string inputValue, int ordinal)
     {
-      var column = GetColumn(columnNumber);
+      var column = GetColumn(ordinal);
       var decimalValue = StringConversion.StringToDecimal(
         inputValue,
         column.ValueFormat.DecimalSeparator,
@@ -977,18 +977,18 @@ namespace CsvTools
     ///   Gets the double value or null.
     /// </summary>
     /// <param name="inputValue">The input.</param>
-    /// <param name="columnNumber">The column.</param>
+    /// <param name="ordinal">The column.</param>
     /// <returns>
     ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
     ///   handler for warnings is called
     /// </returns>
-    protected double? GetDoubleNull(string inputValue, int columnNumber)
+    protected double? GetDoubleNull(string inputValue, int ordinal)
     {
-      var decimalValue = GetDecimalNull(inputValue, columnNumber);
+      var decimalValue = GetDecimalNull(inputValue, ordinal);
       if (decimalValue.HasValue)
         return decimal.ToDouble(decimalValue.Value);
 
-      HandleError(columnNumber, $"'{inputValue}' is not a double");
+      HandleError(ordinal, $"'{inputValue}' is not a double");
       return null;
     }
 
@@ -996,9 +996,9 @@ namespace CsvTools
     ///   Gets the int32 value or null.
     /// </summary>
     /// <param name="inputValue">The input.</param>
-    /// <param name="columnNumber">The column number.</param>
+    /// <param name="ordinal">The column number.</param>
     /// <returns></returns>
-    protected Guid? GetGuidNull(string inputValue, int columnNumber)
+    protected Guid? GetGuidNull(string inputValue, int ordinal)
     {
       if (string.IsNullOrEmpty(inputValue))
         return null;
@@ -1008,7 +1008,7 @@ namespace CsvTools
       }
       catch
       {
-        HandleError(columnNumber, $"'{inputValue}' is not a GUID");
+        HandleError(ordinal, $"'{inputValue}' is not a GUID");
         return null;
       }
     }
@@ -1033,14 +1033,14 @@ namespace CsvTools
         ? string.Empty
         : CurrentRowColumnText[AssociatedTimeCol[i]];
 
-    protected WarningEventArgs GetWarningEventArgs(int columnNumber, string message) =>
+    protected WarningEventArgs GetWarningEventArgs(int ordinal, string message) =>
       new WarningEventArgs(
         RecordNumber,
-        columnNumber,
+        ordinal,
         message,
         StartLineNumber,
         EndLineNumber,
-        columnNumber >= 0 && columnNumber < m_FieldCount ? Column[columnNumber].Name : null);
+        ordinal >= 0 && ordinal < m_FieldCount ? Column[ordinal].Name : null);
 
     /// <summary>
     ///   Handles the Event if reading the file is completed
@@ -1089,16 +1089,16 @@ namespace CsvTools
     ///   Attention: Trimming needs to be handled before hand
     /// </summary>
     /// <param name="inputString">The input string.</param>
-    /// <param name="columnNumber">The column number</param>
+    /// <param name="ordinal">The column number</param>
     /// <returns>The proper encoded or cut text as returned for the column</returns>
-    protected string HandleTextSpecials(string? inputString, int columnNumber)
+    protected string HandleTextSpecials(string? inputString, int ordinal)
     {
-      if (inputString is null || inputString.Length == 0 || columnNumber >= FieldCount)
+      if (inputString is null || inputString.Length == 0 || ordinal >= FieldCount)
         return inputString ?? string.Empty;
-      var column = Column[columnNumber];
+      var column = Column[ordinal];
       if (column.ColumnFormatter is null)
         return inputString;
-      return column.ColumnFormatter.FormatText(inputString, message => HandleWarning(columnNumber, message));
+      return column.ColumnFormatter.FormatText(inputString, message => HandleWarning(ordinal, message));
     }
 
     /// <summary>
@@ -1255,11 +1255,11 @@ namespace CsvTools
     /// <summary>
     ///   Adds a Format exception.
     /// </summary>
-    /// <param name="columnNumber">The column.</param>
+    /// <param name="ordinal">The column.</param>
     /// <param name="message">The message.</param>
-    protected FormatException WarnAddFormatException(int columnNumber, string message)
+    protected FormatException WarnAddFormatException(int ordinal, string message)
     {
-      HandleError(columnNumber, message);
+      HandleError(ordinal, message);
       return new FormatException(message);
     }
 
@@ -1267,9 +1267,9 @@ namespace CsvTools
     ///   Get the default names, if columnDefinitions is provided try to find the name looking at
     ///   teh ColumnOrdinal, otherwise is ColumnX (X being the column number +1)
     /// </summary>
-    /// <param name="columnNumber">The column number counting from 0</param>
+    /// <param name="ordinal">The column number counting from 0</param>
     /// <returns>A string with the column name</returns>
-    private static string GetDefaultName(int columnNumber) => $"Column{columnNumber + 1}";
+    private static string GetDefaultName(int ordinal) => $"Column{ordinal + 1}";
 
     private DateTime AdjustTz(DateTime input, IColumn column)
     {
@@ -1299,15 +1299,15 @@ namespace CsvTools
     ///   Gets the integer value
     /// </summary>
     /// <param name="value">The input.</param>
-    /// <param name="columnNumber">The column number for retrieving the Format information.</param>
+    /// <param name="ordinal">The column number for retrieving the Format information.</param>
     /// <returns>
     ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
     ///   handler for warnings is called
     /// </returns>
-    private short GetInt16(string value, int columnNumber)
+    private short GetInt16(string value, int ordinal)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      var column = GetColumn(columnNumber);
+      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
+      var column = GetColumn(ordinal);
 
       var parsed = StringConversion.StringToInt16(
         value,
@@ -1317,7 +1317,7 @@ namespace CsvTools
         return parsed.Value;
 
       // Warning was added by GetInt32Null
-      throw WarnAddFormatException(columnNumber, $"'{value}' is not a short");
+      throw WarnAddFormatException(ordinal, $"'{value}' is not a short");
     }
 
     /// <summary>
@@ -1325,11 +1325,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputDate">The input date.</param>
     /// <param name="inputTime">The input time.</param>
-    /// <param name="columnNumber">The column.</param>
-    private void HandleDateError(in string inputDate, string inputTime, int columnNumber)
+    /// <param name="ordinal">The column.</param>
+    private void HandleDateError(in string inputDate, string inputTime, int ordinal)
     {
-      Debug.Assert(columnNumber >= 0 && columnNumber < FieldCount);
-      var column = GetColumn(columnNumber);
+      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
+      var column = GetColumn(ordinal);
       if (column.Ignore)
         return;
       var display = column.ValueFormat.DateFormat.ReplaceDefaults(
@@ -1339,7 +1339,7 @@ namespace CsvTools
         column.ValueFormat.TimeSeparator);
 
       HandleError(
-        columnNumber,
+        ordinal,
         !string.IsNullOrEmpty(inputTime)
           ? $"'{inputDate} {inputTime}' is not a date of the format {display} {column.TimePartFormat}"
           : $"'{inputDate}' is not a date of the format {display}");

@@ -445,8 +445,6 @@ namespace CsvTools
       in string timeSeparator,
       bool serialDateTime)
     {
-      //DateTime? date = null;
-      //TimeSpan? time;
       if (dateFormat is null || dateFormat.Length == 0)
         return null;
 

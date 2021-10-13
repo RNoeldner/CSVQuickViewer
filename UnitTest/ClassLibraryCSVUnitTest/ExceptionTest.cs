@@ -44,8 +44,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileReaderExceptionOpen()
     {
-      var ex1 = new FileReaderExceptionOpen("MyMessage1");
-      var ex2 = new FileReaderExceptionOpen("MyMessage2", ex1);
+      var ex1 = new FileReaderOpenException("MyMessage1");
+      var ex2 = new FileReaderOpenException("MyMessage2", ex1);
       Assert.AreEqual(ex1, ex2.InnerException);
       Assert.AreNotEqual("MyMessage2", ex2.Message);
     }
