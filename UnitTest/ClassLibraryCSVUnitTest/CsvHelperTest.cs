@@ -123,13 +123,13 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GuessHasHeader()
+    public async Task GuessHasHeaderAsync()
     {
       using (var stream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
       using (var reader = new ImprovedTextReader(stream))
       {
         reader.ToBeginning();
-        Assert.IsTrue(reader.GuessHasHeader("#", ",", UnitTestStatic.Token).Item1);
+        Assert.IsTrue(string.IsNullOrEmpty(await reader.GuessHasHeaderAsync("#", ',', UnitTestStatic.Token)));
       }
 
       using (var stream =
@@ -137,14 +137,14 @@ namespace CsvTools.Tests
       using (var reader = new ImprovedTextReader(stream))
       {
         reader.ToBeginning();
-        Assert.IsFalse(reader.GuessHasHeader("#", ",", UnitTestStatic.Token).Item1);
+        Assert.IsFalse(string.IsNullOrEmpty(await reader.GuessHasHeaderAsync("#", ',', UnitTestStatic.Token)));
       }
 
       using (var stream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"))))
       using (var reader = new ImprovedTextReader(stream))
       {
         reader.ToBeginning();
-        Assert.IsFalse(reader.GuessHasHeader("", ",", UnitTestStatic.Token).Item1);
+        Assert.IsFalse(string.IsNullOrEmpty(await reader.GuessHasHeaderAsync("", ',', UnitTestStatic.Token)));
       }
     }
 
@@ -172,8 +172,7 @@ namespace CsvTools.Tests
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt")));
       var result = await improvedStream.GuessHasHeader(1200, 0, "", ",", UnitTestStatic.Token);
       Assert.IsNotNull(result);
-      Assert.IsTrue(result.Item1);
-      Assert.AreEqual("Header seems present", result.Item2);
+      Assert.IsTrue(string.IsNullOrEmpty(result));      
     }
 
     [TestMethod]
@@ -182,8 +181,7 @@ namespace CsvTools.Tests
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormats.txt")));
       var result = await improvedStream.GuessHasHeader(65001, 0, "", "\t", UnitTestStatic.Token);
       Assert.IsNotNull(result);
-      Assert.IsTrue(result.Item1);
-      Assert.AreEqual("Header seems present", result.Item2);
+      Assert.IsTrue(string.IsNullOrEmpty(result));      
     }
 
     [TestMethod]
@@ -192,8 +190,8 @@ namespace CsvTools.Tests
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt")));
       var result = await improvedStream.GuessHasHeader(65001, 0, "", ",", UnitTestStatic.Token);
       Assert.IsNotNull(result);
-      Assert.IsFalse(result.Item1);
-      Assert.AreEqual("Headers 'a\\', 'b', 'c', 'd', 'e', 'f' very short", result.Item2);
+      Assert.IsFalse(string.IsNullOrEmpty(result));
+      Assert.AreEqual("Headers 'a\\', 'b', 'c', 'd', 'e', 'f' very short", result);
     }
 
     [TestMethod]
@@ -202,9 +200,9 @@ namespace CsvTools.Tests
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("LongHeaders.txt")));
       var result = await improvedStream.GuessHasHeader(65001, 0, "#", ",", UnitTestStatic.Token);
       Assert.IsNotNull(result);
-      Assert.IsFalse(result.Item1);
-      Assert.IsTrue(result.Item2.StartsWith("Headers", System.StringComparison.OrdinalIgnoreCase));
-      Assert.IsTrue(result.Item2.EndsWith("very short", System.StringComparison.OrdinalIgnoreCase));
+      Assert.IsFalse(string.IsNullOrEmpty(result));
+      Assert.IsTrue(result.StartsWith("Headers", System.StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(result.EndsWith("very short", System.StringComparison.OrdinalIgnoreCase));
     }
 
     [TestMethod]
@@ -212,7 +210,7 @@ namespace CsvTools.Tests
     {
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("SkippingEmptyRowsWithDelimiter.txt")));
       var result = await improvedStream.GuessHasHeader(65001, 0, "#", ",", UnitTestStatic.Token);
-      Assert.IsFalse(result.Item1);
+      Assert.IsFalse(string.IsNullOrEmpty(result));
     }
 
     [TestMethod]
@@ -443,26 +441,26 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void TestValidateLineCommentInvalid()
+    public async Task TestValidateLineCommentInvalidAsync()
     {
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt")));
       using var textReader = new ImprovedTextReader(improvedStream);
-      Assert.IsFalse(textReader.CheckLineCommentIsValid("#", "Tab", UnitTestStatic.Token));
+      Assert.IsFalse(await textReader.CheckLineCommentIsValidAsync("#", "Tab", UnitTestStatic.Token));
     }
 
     [TestMethod]
-    public void TestValidateLineCommentValid()
+    public async Task TestValidateLineCommentValidAsync()
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt"))))
       using (var textReader = new ImprovedTextReader(improvedStream))
       {
-        Assert.IsTrue(textReader.CheckLineCommentIsValid("#", ",", UnitTestStatic.Token));
+        Assert.IsTrue(await textReader.CheckLineCommentIsValidAsync("#", ",", UnitTestStatic.Token));
       }
 
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("ReadingInHeaderAfterComments.txt"))))
       using (var textReader = new ImprovedTextReader(improvedStream))
       {
-        Assert.IsTrue(textReader.CheckLineCommentIsValid("#", ",", UnitTestStatic.Token));
+        Assert.IsTrue(await textReader.CheckLineCommentIsValidAsync("#", ",", UnitTestStatic.Token));
       }
     }
   }

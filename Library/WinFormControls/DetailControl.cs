@@ -23,6 +23,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -1160,7 +1161,7 @@ namespace CsvTools
     {
       // This will always write a delimited text file
       ICsvFile writeFile = new CsvFile();
-      writeFile.CopyTo(writeFile);
+      FileSetting?.CopyTo(writeFile);
 
       // in case the extension is changed change the delimiter accordingly
       if (adjustDelimiter)
@@ -1173,8 +1174,7 @@ namespace CsvTools
           writeFile.FieldDelimiter = ",";
       }
 
-      writeFile.FileName = fileName;
-      writeFile.ID = string.Empty;
+      var headerAndSipped = new StringBuilder(writeFile.Header);
       // in case we skipped lines read them as Header so we do not loose them
       if (writeFile is ICsvFile src && src.SkipRows > 0 && string.IsNullOrEmpty(writeFile.Header))
       {
@@ -1185,7 +1185,7 @@ namespace CsvTools
         using var sr = new ImprovedTextReader(iStream, src.CodePageId);
         sr.ToBeginning();
         for (var i = 0; i < src.SkipRows; i++)
-          writeFile.Header += sr.ReadLine() + '\n';
+          headerAndSipped.AppendLine(await sr.ReadLineAsync());
       }
 
       using var processDisplay = new FormProcessDisplay(writeFile.ToString(), true, m_CancellationTokenSource.Token);
@@ -1194,9 +1194,9 @@ namespace CsvTools
         processDisplay.Show(ParentForm);
 
         BeforeFileStored?.Invoke(this, writeFile);
-        var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
+        var writer = new CsvFileWriter(string.Empty, fileName, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
-        writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
+        headerAndSipped.ToString(), writeFile.Footer, string.Empty, writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
         writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, processDisplay);
 
         using var dt = new DataTableWrapper(

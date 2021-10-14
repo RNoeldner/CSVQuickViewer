@@ -53,18 +53,4 @@ namespace CsvTools
     /// <value>The value.</value>
     public long Value { get; }
   }
-
-  public class ProgressEventArgsTime : ProgressEventArgs
-  {
-    public ProgressEventArgsTime(in string text, long value, in TimeSpan estimatedTimeRemaining, double percent)
-      : base(text, value)
-    {
-      EstimatedTimeRemaining = estimatedTimeRemaining;
-      Percent = percent;
-    }
-
-    public TimeSpan EstimatedTimeRemaining { get; }
-
-    public double Percent { get; }
-  }
 }

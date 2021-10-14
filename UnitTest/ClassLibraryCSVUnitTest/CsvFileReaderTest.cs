@@ -538,11 +538,11 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(6, test.FieldCount);
       Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
 
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken), "ReadAsync");
       Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
       Assert.AreEqual("5\"", test.GetString(4));
 
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken)); // 2
+      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken), "ReadAsync2"); // 2
       Assert.AreEqual("a", test.GetString(0));
       Assert.AreEqual("bta", test.GetString(1));
       Assert.AreEqual("c", test.GetString(2));
@@ -553,11 +553,11 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(4, test.StartLineNumber, "StartLineNumber");
       Assert.AreEqual(6, test.EndLineNumber, "EndLineNumber");
 
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken)); // 3
+      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken), "ReadAsync3"); // 3
       Assert.AreEqual(6U, test.StartLineNumber, "StartLineNumber");
       Assert.AreEqual("6\"", test.GetString(5));
 
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken)); // 4
+      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken), "ReadAsync4"); // 4
       Assert.AreEqual("k\n", test.GetString(4).HandleCRLFCombinations());
       Assert.AreEqual(9, test.StartLineNumber, "StartLineNumber");
 
@@ -641,12 +641,12 @@ Line "Test"", "22",23,"  24"
       await test.OpenAsync(processDisplay.CancellationToken);
       Assert.AreEqual(6, test.FieldCount);
 
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken)); // 1
+      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken), "ReadAsync1"); // 1
       Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
       Assert.AreEqual("1", test.GetString(0));
       Assert.AreEqual("5\"", test.GetString(4));
 
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken)); // 2
+      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken), "ReadAsync2"); // 2
       Assert.AreEqual("a", test.GetString(0));
       Assert.AreEqual("bta", test.GetString(1));
       Assert.AreEqual("c", test.GetString(2));
@@ -656,7 +656,7 @@ Line "Test"", "22",23,"  24"
       // Line streches over two line both are fine
       Assert.AreEqual(4, test.StartLineNumber, "LineNumber");
 
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken)); // 3
+      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken), "ReadAsync3"); // 3
       Assert.AreEqual(6U, test.StartLineNumber, "LineNumber");
       Assert.AreEqual("6\"", test.GetString(5));
 

@@ -160,7 +160,7 @@
     <PackageReference Include="Xamarin.Essentials" Version="1.7.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Library\ClassLibraryCSV.Quick\ClassLibraryCSV.Quick.csproj">
+    <ProjectReference Include="..\..\..\Library\ClassLibraryCSV.Quick\CsvTools.ClassLibraryCSV.Quick.csproj">
       <Project>{454f7bbb-245a-4474-88b1-e5d27fcafdb3}</Project>
       <Name>ClassLibraryCSV.Quick</Name>
     </ProjectReference>

@@ -1183,10 +1183,12 @@ namespace CsvTools
     /// </returns>
     private string[] ReadNextRow(bool storeWarnings)
     {
-      bool restart = false;
+      bool restart;
+      // Special handling for the first column in the row
       string? item;
       do
       {
+        restart = false;
         // Store the starting Line Number
         StartLineNumber = EndLineNumber;
         if (m_RealignColumns != null)
@@ -1198,7 +1200,7 @@ namespace CsvTools
 
         item = ReadNextColumn(0);
 
-        // An empty line does not have any data
+        // An empty line does not have a first column
         if ((item is null || item.Length == 0) && m_EndOfLine)
         {
           m_EndOfLine = false;
@@ -1209,10 +1211,8 @@ namespace CsvTools
             // Return it as array of empty columns
             return new string[FieldCount];
         }
-
-        // Skip commented lines
-        if (m_CommentLine.Length > 0 && item != null && item.Length > m_CommentLine.Length
-            && item.StartsWith(m_CommentLine, StringComparison.Ordinal))
+        // And skip commented lines
+        else if (m_CommentLine.Length > 0 && item != null && item.StartsWith(m_CommentLine, StringComparison.Ordinal))
         {
           // A commented line does start with the comment
           if (m_EndOfLine)

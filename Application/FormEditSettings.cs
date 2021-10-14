@@ -249,9 +249,9 @@ namespace CsvTools
         using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
         var res = await improvedStream.GuessHasHeader(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.CommentLine,
                     m_ViewSettings.FieldDelimiter, m_CancellationTokenSource.Token);
-        m_ViewSettings.HasFieldHeader = res.Item1;
+        m_ViewSettings.HasFieldHeader = string.IsNullOrEmpty(res);
         fileSettingBindingSource.ResetBindings(false);
-        _MessageBox.Show(res.Item2, "Checking headers");
+        _MessageBox.Show(res, "Checking headers");
       });
     }
 

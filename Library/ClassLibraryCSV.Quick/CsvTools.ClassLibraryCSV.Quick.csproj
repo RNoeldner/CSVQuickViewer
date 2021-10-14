@@ -36,7 +36,6 @@
 		<Compile Include="..\ClassLibraryCSV\ClassLibraryCsvExtensionMethods.cs" Link="ClassLibraryCsvExtensionMethods.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnExtension.cs" Link="ColumnExtension.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReaderOpenException.cs" Link="FileReaderOpenException.cs" />
-
 		<Compile Include="..\ClassLibraryCSV\CsvFileReader.cs" Link="CsvFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\JsonFileReader.cs" Link="JsonFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\CsvFileWriter.cs" Link="CsvFileWriter.cs" />
@@ -47,6 +46,7 @@
 		<Compile Include="..\ClassLibraryCSV\ReAlignColumns.cs" Link="ReAlignColumns.cs" />
 		<Compile Include="..\ClassLibraryCSV\TimeToCompletion.cs" Link="TimeToCompletion.cs" />
 		<Compile Include="..\ClassLibraryCSV\ProgressEventArgs.cs" Link="ProgressEventArgs.cs" />
+		<Compile Include="..\ClassLibraryCSV\ProgressWithTimeEventArgs.cs" Link="ProgressWithTimeEventArgs.cs" />
 		<Compile Include="..\ClassLibraryCSV\IImprovedStream.cs" Link="IImprovedStream.cs" />
 		<Compile Include="..\ClassLibraryCSV\Logger.cs" Link="Logger.cs" />
 		<Compile Include="..\ClassLibraryCSV\DataType.cs" Link="DataType.cs" />
@@ -67,7 +67,6 @@
 		<Compile Include="..\ClassLibraryCSV\Mutable\CheckResult.cs" Link="CheckResult.cs" />
 		<Compile Include="..\ClassLibraryCSV\Immutable\ImmutableValueFormat.cs" Link="ImmutableValueFormat.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReaderException.cs" Link="FileReaderException.cs" />
-		<Compile Include="..\ClassLibraryCSV\FileReaderExceptionOpen.cs" Link="FileReaderExceptionOpen.cs" />
 		<Compile Include="..\ClassLibraryCSV\EncodingHelper.cs" Link="EncodingHelper.cs" />
 		<Compile Include="..\ClassLibraryCSV\FunctionalDI.cs" Link="FunctionalDI.cs" />
 		<Compile Include="..\ClassLibraryCSV\StringUtils.cs" Link="StringUtils.cs" />
