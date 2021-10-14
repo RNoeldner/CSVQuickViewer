@@ -15,6 +15,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
@@ -227,18 +228,34 @@ namespace CsvTools.Tests
     public void GetLatestFileOfPattern()
     {
       var root = FileSystemUtils.ExecutableDirectoryName();
-      var res = FileSystemUtils.GetLatestFileOfPattern(root, "ClassLibraryCSVU*.dll");
-      Assert.IsTrue(res == root + Path.DirectorySeparatorChar + "ClassLibraryCSVUnitTest.dll");
+      var thisDLL = System.Reflection.Assembly.GetExecutingAssembly();
+
+      var res = FileSystemUtils.GetLatestFileOfPattern(root, "CsvTools.ClassLibraryCSV.*.dll");
+      Assert.AreEqual(root + Path.DirectorySeparatorChar + "CsvTools.ClassLibraryCSV.UnitTest.dll", res);
     }
 
     [TestMethod]
     public void ResolvePattern()
     {
-      var root = FileSystemUtils.ExecutableDirectoryName();
-      var res = FileSystemUtils.ResolvePattern(root +  Path.DirectorySeparatorChar +
-      "ClassLibraryCSV*.dll");
-      Assert.IsTrue(res == root + Path.DirectorySeparatorChar + "ClassLibraryCSVUnitTest.dll" ||
-                    res == root + Path.DirectorySeparatorChar + "ClassLibraryCSV.dll");
+      var fileName1 = UnitTestStatic.GetTestPath("ResolvePattern_a.txt");
+      var fileName2 = UnitTestStatic.GetTestPath("ResolvePattern_b.txt");
+      try
+      {
+        FileSystemUtils.FileDelete(fileName1);
+        FileSystemUtils.FileDelete(fileName2);
+
+        FileSystemUtils.WriteAllText(fileName1, "Hello World\n");
+        Thread.Sleep(500);
+        FileSystemUtils.WriteAllText(fileName2, "Another File\n");
+
+        var res = FileSystemUtils.ResolvePattern(Path.Combine(fileName1.GetDirectoryName(), "ResolvePattern_*.txt"));
+        Assert.AreEqual(fileName2, res);
+      }
+      finally
+      {
+        FileSystemUtils.FileDelete(fileName1);
+        FileSystemUtils.FileDelete(fileName2);
+      }
     }
 
     [TestMethod]

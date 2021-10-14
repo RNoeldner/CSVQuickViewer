@@ -122,7 +122,7 @@ namespace CsvTools
 
     public Func<Task> OnOpen { set => throw new NotImplementedException(); }
 
-    public bool SupportsReset => throw new NotImplementedException();
+    public virtual bool SupportsReset => !(FileReader is null);
 
     public override object this[int ordinal] => GetValue(ordinal);
 
@@ -285,11 +285,16 @@ namespace CsvTools
       return couldRead && RecordNumber <= m_RecordLimit;
     }
 
-    public IColumn GetColumn(int column) => throw new NotImplementedException();
+    public virtual IColumn GetColumn(int column) => ReaderMapping.Column[column];
 
-    public Task OpenAsync(CancellationToken token) => throw new NotImplementedException();
+    //Nothing needs to be done for this instance
+    public virtual Task OpenAsync(CancellationToken token) => Task.CompletedTask;
 
-    public void ResetPositionToFirstDataRow() => throw new NotImplementedException();
+    public virtual void ResetPositionToFirstDataRow()
+    {
+      FileReader?.ResetPositionToFirstDataRow();
+      RecordNumber=0;
+    }
 
     public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
   }

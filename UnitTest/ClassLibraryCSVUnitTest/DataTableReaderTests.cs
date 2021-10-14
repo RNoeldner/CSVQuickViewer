@@ -32,6 +32,9 @@ namespace CsvTools.Tests
         {
         }
       }
+      catch (NullReferenceException)
+      { 
+      }
       catch (ArgumentNullException)
       {
       }

@@ -31,7 +31,7 @@ namespace CsvTools
   public static class CsvHelper
   {
     /// <summary>
-    ///   Check the file asynchronous
+    ///   Analyses a given the file asynchronously to determine proper read options
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="guessJson">if <c>true</c> trying to determine if file is a JSON file</param>
@@ -168,7 +168,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-        using var reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
+      using var reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
       await reader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
       var (_, b) = await reader.FillGuessColumnFormatReaderAsyncReader(
                      fillGuessSettings,
@@ -182,14 +182,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Checks if teh comment line does make sense, or if its possibly better regarded as header row
+    ///   Checks if the comment line does make sense, or if its possibly better regarded as header row
     /// </summary>
     /// <param name="textReader">The stream reader with the data</param>
     /// <param name="delimiter">The delimiter.</param>
     /// <param name="commentLine">The characters for a comment line.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>true if the comment line seems to ne ok</returns>
-    public static bool CheckLineCommentIsValid(
+    public static async Task<bool> CheckLineCommentIsValidAsync(
       this ImprovedTextReader textReader,
       string commentLine,
       string delimiter,
@@ -209,7 +209,7 @@ namespace CsvTools
       var partsComment = -1;
       while (row < c_MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
-        var line = textReader.ReadLine().TrimStart();
+        var line = (await textReader.ReadLineAsync()).TrimStart();
         if (string.IsNullOrEmpty(line))
           continue;
 
@@ -364,7 +364,7 @@ namespace CsvTools
           detectionResult.ByteOrderMark,
           detectionResult.QualifyAlways,
           detectionResult.IdentifierInContainer,
-          streamReader.GuessLineComment(display.CancellationToken),
+          await streamReader.GuessLineCommentAsync(display.CancellationToken).ConfigureAwait(false),
           detectionResult.EscapePrefix,
           detectionResult.FieldDelimiter,
           detectionResult.FieldQualifier,
@@ -465,7 +465,7 @@ namespace CsvTools
           if (display.CancellationToken.IsCancellationRequested)
             return detectionResult;
           display.SetProcess("Checking Qualifier", -1, false);
-          var qualifier = textReader.GuessQualifier(detectionResult.FieldDelimiter, display.CancellationToken);
+          var qualifier = await textReader.GuessQualifierAsync(detectionResult.FieldDelimiter, display.CancellationToken);
           if (qualifier != '\0')
             detectionResult = new DelimitedFileDetectionResult(
               detectionResult.FileName,
@@ -492,11 +492,11 @@ namespace CsvTools
                                    detectionResult.CodePageId,
                                    detectionResult.SkipRows,
                                    display.CancellationToken).ConfigureAwait(false);
-        if (!CheckLineCommentIsValid(
+        if (!await CheckLineCommentIsValidAsync(
               streamReader,
               detectionResult.CommentLine,
               detectionResult.FieldDelimiter,
-              display.CancellationToken))
+              display.CancellationToken).ConfigureAwait(false))
           detectionResult = new DelimitedFileDetectionResult(
             detectionResult.FileName,
             detectionResult.SkipRows,
@@ -551,6 +551,20 @@ namespace CsvTools
         if (display.CancellationToken.IsCancellationRequested)
           return detectionResult;
         display.SetProcess("Checking for Header Row", -1, false);
+
+        var issue = await GuessHasHeader(
+                      improvedStream,
+                      detectionResult.CodePageId,
+                      detectionResult.SkipRows,
+                      detectionResult.CommentLine,
+                      detectionResult.FieldDelimiter,
+                      display.CancellationToken).ConfigureAwait(false);
+        if (!string.IsNullOrEmpty(issue))
+          Logger.Information("Without Header Row {reason}", issue);
+
+        else
+          Logger.Information("Has Header Row");
+
         detectionResult = new DelimitedFileDetectionResult(
           detectionResult.FileName,
           detectionResult.SkipRows,
@@ -562,13 +576,7 @@ namespace CsvTools
           detectionResult.EscapePrefix,
           detectionResult.FieldDelimiter,
           detectionResult.FieldQualifier,
-          (await GuessHasHeader(
-             improvedStream,
-             detectionResult.CodePageId,
-             detectionResult.SkipRows,
-             detectionResult.CommentLine,
-             detectionResult.FieldDelimiter,
-             display.CancellationToken).ConfigureAwait(false)).Item1,
+          string.IsNullOrEmpty(issue),
           detectionResult.IsJson,
           detectionResult.NoDelimitedFile,
           detectionResult.NewLine);
@@ -614,7 +622,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-        using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
+      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
       return await improvedStream.GetDetectionResult(
                fileName,
                display,
@@ -680,155 +688,11 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(improvedStream));
       using var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
                                                  .ConfigureAwait(false);
+
       textReader.ToBeginning();
       return textReader.GuessDelimiter(escapeCharacter, cancellationToken);
     }
 
-    /// <summary>
-    ///   Guesses the has header from reader.
-    /// </summary>
-    /// <param name="reader">The reader.</param>
-    /// <param name="comment">The comment.</param>
-    /// <param name="delimiter">The delimiter.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
-    /// <exception cref="ApplicationException">
-    ///   Empty Line or Control Characters in Column {headerLine} or Only one column: {headerLine}
-    /// </exception>
-    public static Tuple<bool, string> GuessHasHeader(
-      this ImprovedTextReader reader,
-      string? comment,
-      string? delimiter,
-      CancellationToken cancellationToken)
-    {
-      var headerLine = string.Empty;
-      comment ??= string.Empty;
-      var delimiterChar = delimiter?.WrittenPunctuationToChar() ?? '\0';
-      while (string.IsNullOrEmpty(headerLine) && !reader.EndOfStream)
-      {
-        cancellationToken.ThrowIfCancellationRequested();
-        headerLine = reader.ReadLine();
-        if (!string.IsNullOrEmpty(comment) && headerLine.TrimStart().StartsWith(comment, StringComparison.Ordinal))
-          headerLine = string.Empty;
-      }
-
-      try
-      {
-        if (string.IsNullOrEmpty(headerLine))
-          throw new ApplicationException("Empty Line");
-
-        if (headerLine.NoControlCharacters().Length < headerLine.Replace("\t", "").Length)
-          throw new ApplicationException($"Control Characters in Column {headerLine}");
-
-        var headerRow = headerLine.Split(delimiterChar).Select(x => x.Trim('\"')).ToList();
-
-        // get the average field count looking at the header and 12 additional valid lines
-        var fieldCount = headerRow.Count;
-
-        // if there is only one column the header be number of letter and might be followed by a
-        // single number
-        if (fieldCount < 2)
-        {
-          if (!(headerLine.Length > 2 && Regex.IsMatch(headerLine, @"^[a-zA-Z]+\d?$")))
-            throw new ApplicationException($"Only one column: {headerLine}");
-        }
-        else
-        {
-          var counter = 1;
-          while (counter < 12 && !cancellationToken.IsCancellationRequested && !reader.EndOfStream)
-          {
-            var dataLine = reader.ReadLine();
-            if (string.IsNullOrEmpty(dataLine)
-                || (!string.IsNullOrEmpty(comment) && dataLine.TrimStart().StartsWith(comment, StringComparison.Ordinal)))
-              continue;
-            counter++;
-            fieldCount += dataLine.Split(delimiterChar).Length;
-          }
-
-          var avgFieldCount = fieldCount / (double) counter;
-          // The average should not be smaller than the columns in the initial row
-          if (avgFieldCount < headerRow.Count)
-            avgFieldCount = headerRow.Count;
-          var halfTheColumns = (int) Math.Ceiling(avgFieldCount / 2.0);
-
-          // Columns are only one or two char, does not look descriptive
-          if (headerRow.Count(x => x.Length < 3) > halfTheColumns)
-            throw new ApplicationException(
-              $"Headers '{string.Join("', '", headerRow.Where(x => x.Length < 3))}' very short");
-
-          // use the same routine that is used in readers to determine the names of the columns
-          var (_, numIssues) = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null);
-
-          // looking at the warnings raised
-          if (numIssues >= halfTheColumns || numIssues > 2)
-            throw new ApplicationException($"{numIssues} header where empty, duplicate or too long");
-
-          var numeric = headerRow.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
-          var boolHead = headerRow.Where(header => StringConversion.StringToBooleanStrict(header, "1", "0") != null)
-                                  .ToList();
-          var specials = headerRow.Where(header => Regex.IsMatch(header, @"[^\w\d\-_\s<>#,.*\[\]\(\)+?!]")).ToList();
-          if (numeric.Count + boolHead.Count + specials.Count >= halfTheColumns)
-          {
-            StringBuilder msg = new StringBuilder();
-            if (numeric.Count > 0)
-            {
-              msg.Append("Headers ");
-              foreach (var header in numeric)
-              {
-                msg.Append("'");
-                msg.Append(header.Trim('\"'));
-                msg.Append("',");
-              }
-
-              msg.Length--;
-              msg.Append(" numeric");
-            }
-
-            if (boolHead.Count > 0)
-            {
-              if (msg.Length > 0)
-                msg.Append(" and ");
-              msg.Append("Headers ");
-              foreach (var header in boolHead)
-              {
-                msg.Append("'");
-                msg.Append(header.Trim('\"'));
-                msg.Append("',");
-              }
-
-              msg.Length--;
-              msg.Append(" boolean");
-            }
-
-            if (specials.Count > 0)
-            {
-              if (msg.Length > 0)
-                msg.Append(" and ");
-              msg.Append("Headers ");
-              foreach (var header in specials)
-              {
-                msg.Append("'");
-                msg.Append(header.Trim('\"'));
-                msg.Append("',");
-              }
-
-              msg.Length--;
-              msg.Append(" with uncommon characters");
-            }
-
-            throw new ApplicationException(msg.ToString());
-          }
-        }
-      }
-      catch (ApplicationException ex)
-      {
-        Logger.Information("Without Header Row {reason}", ex.Message);
-        return new Tuple<bool, string>(false, ex.Message);
-      }
-
-      Logger.Information("Has Header Row");
-      return new Tuple<bool, string>(true, "Header seems present");
-    }
 
     /// <summary>
     ///   Guesses the has header from stream.
@@ -840,7 +704,7 @@ namespace CsvTools
     /// <param name="fieldDelimiter">The field delimiter.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    public static async Task<Tuple<bool, string>> GuessHasHeader(
+    public static async Task<string> GuessHasHeader(
       this IImprovedStream improvedStream,
       int codePageId,
       int skipRows,
@@ -850,8 +714,142 @@ namespace CsvTools
     {
       using var reader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
                                              .ConfigureAwait(false);
-      return GuessHasHeader(reader, commentLine, fieldDelimiter, cancellationToken);
+
+      return await GuessHasHeaderAsync(reader, commentLine, fieldDelimiter?.WrittenPunctuationToChar() ?? '\0', cancellationToken).ConfigureAwait(false);
     }
+
+    /// <summary>
+    ///   Guesses the has header from reader.
+    /// </summary>
+    /// <param name="reader">The reader.</param>
+    /// <param name="comment">The comment.</param>
+    /// <param name="delimiter">The delimiter.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>Explanation on by there is no header, if empty the header was found</returns>
+    public static async Task<string> GuessHasHeaderAsync(
+      this ImprovedTextReader reader,
+      string comment,
+      char delimiterChar,
+      CancellationToken cancellationToken)
+    {
+      var headerLine = string.Empty;
+      while (string.IsNullOrEmpty(headerLine) && !reader.EndOfStream)
+      {
+        cancellationToken.ThrowIfCancellationRequested();
+        headerLine = await reader.ReadLineAsync();
+        if (!string.IsNullOrEmpty(comment) && headerLine.TrimStart().StartsWith(comment, StringComparison.Ordinal))
+          headerLine = string.Empty;
+      }
+
+      if (string.IsNullOrEmpty(headerLine))
+        return "Empty Line";
+
+      if (headerLine.NoControlCharacters().Length < headerLine.Replace("\t", "").Length)
+        return $"Control Characters in Column {headerLine}";
+
+      var headerRow = headerLine.Split(delimiterChar).Select(x => x.Trim('\"')).ToList();
+
+      // get the average field count looking at the header and 12 additional valid lines
+      var fieldCount = headerRow.Count;
+
+      // if there is only one column the header be number of letter and might be followed by a
+      // single number
+      if (fieldCount < 2)
+      {
+        if (!(headerLine.Length > 2 && Regex.IsMatch(headerLine, @"^[a-zA-Z]+\d?$")))
+          return $"Only one column: {headerLine}";
+      }
+      else
+      {
+        var counter = 1;
+        while (counter < 12 && !cancellationToken.IsCancellationRequested && !reader.EndOfStream)
+        {
+          var dataLine = await reader.ReadLineAsync().ConfigureAwait(false);
+          if (string.IsNullOrEmpty(dataLine)
+              || (!string.IsNullOrEmpty(comment) && dataLine.TrimStart().StartsWith(comment, StringComparison.Ordinal)))
+            continue;
+          counter++;
+          fieldCount += dataLine.Split(delimiterChar).Length;
+        }
+
+        var avgFieldCount = fieldCount / (double) counter;
+        // The average should not be smaller than the columns in the initial row
+        if (avgFieldCount < headerRow.Count)
+          avgFieldCount = headerRow.Count;
+        var halfTheColumns = (int) Math.Ceiling(avgFieldCount / 2.0);
+
+        // Columns are only one or two char, does not look descriptive
+        if (headerRow.Count(x => x.Length < 3) > halfTheColumns)
+          return $"Headers '{string.Join("', '", headerRow.Where(x => x.Length < 3))}' very short";
+
+        // use the same routine that is used in readers to determine the names of the columns
+        var (_, numIssues) = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null);
+
+        // looking at the warnings raised
+        if (numIssues >= halfTheColumns || numIssues > 2)
+          return $"{numIssues} header where empty, duplicate or too long";
+
+        var numeric = headerRow.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
+        var boolHead = headerRow.Where(header => StringConversion.StringToBooleanStrict(header, "1", "0") != null)
+                                .ToList();
+        var specials = headerRow.Where(header => Regex.IsMatch(header, @"[^\w\d\-_\s<>#,.*\[\]\(\)+?!]")).ToList();
+        if (numeric.Count + boolHead.Count + specials.Count >= halfTheColumns)
+        {
+          StringBuilder msg = new StringBuilder();
+          if (numeric.Count > 0)
+          {
+            msg.Append("Headers ");
+            foreach (var header in numeric)
+            {
+              msg.Append("'");
+              msg.Append(header.Trim('\"'));
+              msg.Append("',");
+            }
+
+            msg.Length--;
+            msg.Append(" numeric");
+          }
+
+          if (boolHead.Count > 0)
+          {
+            if (msg.Length > 0)
+              msg.Append(" and ");
+            msg.Append("Headers ");
+            foreach (var header in boolHead)
+            {
+              msg.Append("'");
+              msg.Append(header.Trim('\"'));
+              msg.Append("',");
+            }
+
+            msg.Length--;
+            msg.Append(" boolean");
+          }
+
+          if (specials.Count > 0)
+          {
+            if (msg.Length > 0)
+              msg.Append(" and ");
+            msg.Append("Headers ");
+            foreach (var header in specials)
+            {
+              msg.Append("'");
+              msg.Append(header.Trim('\"'));
+              msg.Append("',");
+            }
+
+            msg.Length--;
+            msg.Append(" with uncommon characters");
+          }
+
+          return msg.ToString();
+        }
+      }
+
+      return string.Empty;
+    }
+
+
 
     public static async Task<string> GuessLineComment(
       this IImprovedStream improvedStream,
@@ -861,10 +859,10 @@ namespace CsvTools
     {
       using var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
                                                  .ConfigureAwait(false);
-      return textReader.GuessLineComment(cancellationToken);
+      return await textReader.GuessLineCommentAsync(cancellationToken);
     }
 
-    public static string GuessLineComment(this ImprovedTextReader textReader, CancellationToken cancellationToken)
+    public static async Task<string> GuessLineCommentAsync(this ImprovedTextReader textReader, CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
       const int c_MaxRows = 50;
@@ -877,7 +875,7 @@ namespace CsvTools
       while (lastRow < c_MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
         cancellationToken.ThrowIfCancellationRequested();
-        var line = textReader.ReadLine().TrimStart();
+        var line = (await textReader.ReadLineAsync().ConfigureAwait(false)).TrimStart();
         if (line.Length == 0)
           continue;
         lastRow++;
@@ -942,7 +940,7 @@ namespace CsvTools
     {
       using var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
                                                  .ConfigureAwait(false);
-      var qualifier = textReader.GuessQualifier(fieldDelimiter, cancellationToken);
+      var qualifier = await textReader.GuessQualifierAsync(fieldDelimiter, cancellationToken).ConfigureAwait(false);
       if (qualifier != '\0')
         return char.ToString(qualifier);
       return null;
@@ -1257,7 +1255,7 @@ namespace CsvTools
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
 
-      while (dc.LastRow < dc.NumRows && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested)
+      while (dc.LastRow < dc.NumRows && !(textReaderPosition.AllRead()) && !cancellationToken.IsCancellationRequested)
       {
         var lastChar = readChar;
         readChar = textReader.Read();
@@ -1614,11 +1612,13 @@ namespace CsvTools
         res = RecordDelimiterType.LF;
       else if (count[c_CrLf] == maxCount)
         res = RecordDelimiterType.CRLF;
+      else if (count[c_LFCr] == maxCount)
+        res = RecordDelimiterType.LFCR;
       Logger.Information("Record Delimiter: {recorddelimiter}", res.Description());
       return res;
     }
 
-    private static char GuessQualifier(
+    private static async Task<char> GuessQualifierAsync(
       this ImprovedTextReader textReader,
       string delimiter,
       CancellationToken cancellationToken)
@@ -1636,7 +1636,7 @@ namespace CsvTools
            lineNo < c_MaxLine && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested;
            lineNo++)
       {
-        var line = textReader.ReadLine();
+        var line = await textReader.ReadLineAsync().ConfigureAwait(false);
         if (string.IsNullOrEmpty(line))
         {
           if (textReader.EndOfStream && !textReaderPosition.CanStartFromBeginning())

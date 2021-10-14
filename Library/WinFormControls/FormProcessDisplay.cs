@@ -99,7 +99,7 @@ namespace CsvTools
 
 		public TimeToCompletion TimeToCompletion => m_ProcessDisplay.TimeToCompletion;
 
-		public event EventHandler<ProgressEventArgsTime>? ProgressTime
+		public event EventHandler<ProgressWithTimeEventArgs>? ProgressTime
 		{
 			add => m_ProcessDisplay.ProgressTime += value;
 			remove => m_ProcessDisplay.ProgressTime -= value;

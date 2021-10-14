@@ -35,18 +35,13 @@ namespace CsvTools
 
     public DataTable DataTable { get; }
 
-    public new bool SupportsReset => true;
+    public override bool SupportsReset => true;
 
     public new IColumn GetColumn(int column) => ReaderMapping.Column[column];
 
     [Obsolete("No need to open a DataTableWrapper, the DataTable is in memory")]
-#pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
-    public new async Task OpenAsync(CancellationToken token)
-    {
-      // ignored, open is not needed
-    }
+    public override Task OpenAsync(CancellationToken token) => Task.CompletedTask;
 
-#pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
 
     /// <summary>
     ///   Asynchronous Read of next record
@@ -68,9 +63,10 @@ namespace CsvTools
     /// <summary>
     ///   Resets the position and buffer to the first data row (handing headers, and skipped rows)
     /// </summary>
-    public new void ResetPositionToFirstDataRow()
+    public override void ResetPositionToFirstDataRow()
     {
       Close();
+      base.ResetPositionToFirstDataRow();
       DataReader = DataTable.CreateDataReader();
     }
   }

@@ -25,7 +25,7 @@ namespace CsvTools
 			: base(token) =>
 			TimeToCompletion = new TimeToCompletion();
 
-		public event EventHandler<ProgressEventArgsTime>? ProgressTime;
+		public event EventHandler<ProgressWithTimeEventArgs>? ProgressTime;
 
 		public event EventHandler<long>? SetMaximum;
 
@@ -50,7 +50,7 @@ namespace CsvTools
 			base.Handle(sender, text, value, log);
 			ProgressTime?.Invoke(
 				sender,
-				new ProgressEventArgsTime(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
+				new ProgressWithTimeEventArgs(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
 			TimeToCompletion.Value = value;
 		}
 	}

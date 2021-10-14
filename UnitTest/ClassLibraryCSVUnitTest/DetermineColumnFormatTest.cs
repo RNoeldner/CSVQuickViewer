@@ -159,16 +159,16 @@ namespace CsvTools.Tests
         DetectGUID = true,
         IgnoreIdColumns = true
       };
-
-      //await reader.OpenAsync(processDisplay.CancellationToken);
+      var noInformation = new ColumnCollection();
       var (information, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
-        new ColumnCollection(), false, true, "<NULL>", UnitTestStatic.Token);
+        noInformation, false, true, "<NULL>", UnitTestStatic.Token);
 
       Assert.AreEqual(7, columns.Count(), "Recognized columns");
       Assert.AreEqual(8, information.Count, "Information Lines");
 
+      // with Text columns
       var (information2, columns2) = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
-        new ColumnCollection(), true, true, "<NULL>", UnitTestStatic.Token);
+        noInformation, true, true, "<NULL>", UnitTestStatic.Token);
       Assert.AreEqual(11, columns2.Count());
       // Added 4 text columns,
       Assert.AreEqual(11, information2.Count);

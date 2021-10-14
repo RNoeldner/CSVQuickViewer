@@ -21,7 +21,7 @@ namespace CsvTools
   /// </summary>
   public interface IProcessDisplayTime : IProcessDisplay
 	{
-		event EventHandler<ProgressEventArgsTime>? ProgressTime;
+		event EventHandler<ProgressWithTimeEventArgs>? ProgressTime;
 
 		event EventHandler<long>? SetMaximum;
 

@@ -16,7 +16,7 @@ using System;
 
 namespace CsvTools
 {
-  public class FileReaderOpenException : FileReaderException
+  public sealed class FileReaderOpenException : FileReaderException
   {
 		public FileReaderOpenException()
 			: base(GetMessage(string.Empty))

@@ -46,7 +46,7 @@ namespace CsvTools
       }
     }
 
-    private void ButtonSkipLine_ClickAsync(object? sender, EventArgs e)
+    private void ButtonSkipLine_Click(object? sender, EventArgs e)
     {
       using var frm = new FormProcessDisplay("Check", true, CancellationToken.None);
       frm.Show();

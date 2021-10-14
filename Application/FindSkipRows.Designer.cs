@@ -128,7 +128,7 @@
             this.buttonSkipLine.TabIndex = 125;
             this.buttonSkipLine.Text = "Guess Start Row";
             this.buttonSkipLine.UseVisualStyleBackColor = true;
-            this.buttonSkipLine.Click += new System.EventHandler(this.ButtonSkipLine_ClickAsync);
+            this.buttonSkipLine.Click += new System.EventHandler(this.ButtonSkipLine_Click);
             // 
             // labelDelimiter
             // 

@@ -418,7 +418,7 @@ namespace CsvTools.Tests
       while (await test.ReadAsync(processDisplay.CancellationToken))
         row++;
       Assert.AreEqual(row, test.RecordNumber);
-      Assert.AreEqual(2, row);
+      Assert.AreEqual(2, row, "total Rows");
     }
 
     [TestMethod]
