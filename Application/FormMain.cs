@@ -36,25 +36,15 @@ namespace CsvTools
   public sealed partial class FormMain : ResizeForm
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
-
     private readonly DetailControlLoader m_DetailControlLoader;
-
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
-
     private readonly ViewSettings m_ViewSettings;
-
     private bool m_ConfigChanged;
-
     private bool m_FileChanged;
-
     private IFileSettingPhysicalFile? m_FileSetting;
-
     private ICollection<string>? m_Headers;
-
     private FormCsvTextDisplay? m_SourceDisplay;
-
     private ICollection<IColumn>? m_StoreColumns;
-
     private int m_WarningCount;
     private int m_WarningMax = 100;
 
@@ -89,6 +79,7 @@ namespace CsvTools
       ShowTextPanel(true);
 
       m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
+
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
       m_SettingsChangedTimerChange.AutoReset = false;
@@ -96,10 +87,7 @@ namespace CsvTools
       m_SettingsChangedTimerChange.Stop();
     }
 
-    public DataTable DataTable
-    {
-      get => detailControl.DataTable;
-    }
+    public DataTable DataTable => detailControl.DataTable;
 
     private static string AssemblyTitle
     {
@@ -265,7 +253,6 @@ namespace CsvTools
       try
       {
         fileSetting.PropertyChanged += FileSetting_PropertyChanged;
-
         fileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
 
         if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
@@ -645,12 +632,15 @@ namespace CsvTools
 
     private void ShowTextPanel(bool visible)
     {
-      textPanel!.SafeInvoke(() =>
+      try
       {
         textPanel.Visible = visible;
         textPanel.BottomToolStripPanelVisible = visible;
         detailControl.Visible = !visible;
-      });
+      }
+      catch (Exception)
+      {
+      }
     }
 
     private void SourceDisplayClosed(object? sender, FormClosedEventArgs e)
@@ -731,10 +721,7 @@ namespace CsvTools
       }, this);
     }
 
-    private void ToggleShowLog(object? sender, EventArgs e)
-    {
-      ShowTextPanel(!textPanel.Visible);
-    }
+    private void ToggleShowLog(object? sender, EventArgs e) => ShowTextPanel(!textPanel.Visible);
 
     private async void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) => await SelectFile("Open File Dialog");
   }
