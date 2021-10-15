@@ -86,6 +86,8 @@ namespace CsvTools
     {
     }
 
+    private Func<Task>? m_OnOpenAsync;
+
     public override bool HasRows => !DataReader.IsClosed;
 
     /// <inheritdoc />
@@ -120,7 +122,7 @@ namespace CsvTools
 
     public long StartLineNumber => FileReader?.StartLineNumber ?? RecordNumber;
 
-    public Func<Task> OnOpen { set => throw new NotImplementedException(); }
+    public virtual void SetOnOpen(Func<Task>? value) => m_OnOpenAsync=value;
 
     public virtual bool SupportsReset => !(FileReader is null);
 
@@ -288,7 +290,13 @@ namespace CsvTools
     public virtual IColumn GetColumn(int column) => ReaderMapping.Column[column];
 
     //Nothing needs to be done for this instance
-    public virtual Task OpenAsync(CancellationToken token) => Task.CompletedTask;
+
+    [Obsolete("No need to open a DataReaderWrapper")]
+    public virtual async Task OpenAsync(CancellationToken token)
+    {
+      if (m_OnOpenAsync != null)
+        await m_OnOpenAsync.Invoke().ConfigureAwait(false);
+    }
 
     public virtual void ResetPositionToFirstDataRow()
     {

@@ -100,6 +100,7 @@ namespace CsvTools
     }
 
 #if !QUICK
+
     /// <summary>
     ///   Copy a file locally and provide progress
     /// </summary>
@@ -518,7 +519,7 @@ namespace CsvTools
             .RemovePrefix();
       }
 
-      throw new Exception($"Could not get a short path for the file {longPath}");
+      throw new FileNotFoundException($"Could not get a short path for the file {longPath}");
     }
 
     public static string GetFileName(in string? path)

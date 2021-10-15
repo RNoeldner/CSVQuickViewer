@@ -640,6 +640,7 @@ namespace CsvTools
       }
       catch (Exception)
       {
+        // Ignore
       }
     }
 

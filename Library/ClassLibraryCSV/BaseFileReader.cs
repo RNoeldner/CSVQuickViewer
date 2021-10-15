@@ -142,15 +142,14 @@ namespace CsvTools
 
     public override bool HasRows => !EndOfFile;
 
-    public double NotifyAfterSeconds
-    {
-      set => m_IntervalAction.NotifyAfterSeconds = value;
-    }
+    public void SetNotifyAfterSeconds(double value) => m_IntervalAction.NotifyAfterSeconds = value;
+
+    private Func<Task>? m_OnOpenAsync;
 
     /// <summary>
     ///   Occurs before the file is opened
     /// </summary>
-    public Func<Task>? OnOpen { private get; set; }
+    public void SetOnOpen(Func<Task>? value) => m_OnOpenAsync=value;
 
     /// <summary>
     ///   Gets the percentage as value between 0 and 100
@@ -676,7 +675,7 @@ namespace CsvTools
       if (CurrentRowColumnText is null)
         throw new InvalidOperationException("Row has not been read");
       if (ordinal < 0 || ordinal >= FieldCount || ordinal >= CurrentRowColumnText.Length)
-        throw new IndexOutOfRangeException(nameof(ordinal));
+        throw new ArgumentOutOfRangeException(nameof(ordinal));
 
       return CurrentRowColumnText[ordinal];
     }
@@ -849,8 +848,8 @@ namespace CsvTools
       SetMaxProcess?.Invoke(this, 0);
       HandleShowProgress(message);
 
-      if (OnOpen != null)
-        await OnOpen().ConfigureAwait(false);
+      if (m_OnOpenAsync != null)
+        await m_OnOpenAsync.Invoke().ConfigureAwait(false);
     }
 
     /// <summary>

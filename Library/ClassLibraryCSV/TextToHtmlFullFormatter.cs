@@ -18,8 +18,6 @@ namespace CsvTools
 {
   public class TextToHtmlFullFormatter : IColumnFormatter
   {
-    //		public string Description => "Encode HTML ('<' -> '&lt;')";
-
     public string FormatText(in string inputString, Action<string>? handleWarning)
     {
       var output = HTMLStyle.HtmlEncodeShort(inputString);
