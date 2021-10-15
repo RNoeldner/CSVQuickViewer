@@ -49,7 +49,7 @@ namespace CsvTools
     ///   Occurs before the initial open. Can be used to prepare the data like download it from a
     ///   remote location
     /// </summary>
-    Func<Task> OnOpen { set; }
+    void SetOnOpen(Func<Task> value);
 
     /// <summary>
     ///   Value between 0 and 100 to show the progress of the reader, not all readers do support

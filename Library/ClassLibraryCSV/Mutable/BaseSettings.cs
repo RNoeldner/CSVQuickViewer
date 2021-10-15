@@ -30,7 +30,7 @@ namespace CsvTools
   ///   cref="ColumnCollection" /> , <see cref="MappingCollection" /> /&gt;
   /// </summary>
   [DebuggerDisplay("Settings: {ID} ({ColumnCollection.Count()} Columns)")]
-  public abstract class BaseSettings : IFileSetting  
+  public abstract class BaseSettings : IFileSetting
   {
     public const string cTreatTextAsNull = "NULL";
 
@@ -815,20 +815,7 @@ namespace CsvTools
     ///   For a physical file ist possibly easiest as it the file time, overwritten for more complex
     ///   things like a Query
     /// </remarks>
-    public virtual void CalculateLatestSourceTime()
-    {
-      if (this is IFileSettingPhysicalFile settingPhysicalFile)
-      {
-        var fileName = FileSystemUtils.ResolvePattern(settingPhysicalFile.FullPath);
-        var fi = new FileSystemUtils.FileInfo(fileName);
-        m_LatestSourceTimeUtc = fi.LastWriteTimeUtc;
-      }
-      else
-      // in case the source is not a physical file, assume it's the processing time
-      {
-        m_LatestSourceTimeUtc = ProcessTimeUtc;
-      }
-    }
+    public virtual void CalculateLatestSourceTime() => LatestSourceTimeUtc = ProcessTimeUtc;
 
     /// <summary>
     ///   Clones this instance into a new instance of the same type

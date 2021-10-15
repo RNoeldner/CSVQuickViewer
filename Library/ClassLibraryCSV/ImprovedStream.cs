@@ -31,7 +31,7 @@ namespace CsvTools
   {
     private const int c_BufferSize = 8192;
 
-    protected readonly SourceAccess SourceAccess;    
+    protected readonly SourceAccess SourceAccess;
 
     private ZipFile? m_ZipFile;
 
@@ -148,7 +148,6 @@ namespace CsvTools
 
     public override long Seek(long offset, SeekOrigin origin)
     {
-      
       // The stream must support seeking to get or set the position
       if (AccessStream!.CanSeek)
         return AccessStream.Seek(offset, origin);
@@ -171,7 +170,6 @@ namespace CsvTools
 
     protected void BaseOpen()
     {
-      
       BaseStream = SourceAccess.OpenStream();
 
       switch (SourceAccess.FileType)
@@ -195,7 +193,7 @@ namespace CsvTools
     }
 
     protected override void Dispose(bool disposing)
-    {      
+    {
       if (!disposing) return;
 
       if (!ReferenceEquals(AccessStream, BaseStream))
@@ -203,7 +201,7 @@ namespace CsvTools
         AccessStream?.Dispose();
 
       if (!SourceAccess.LeaveOpen)
-        BaseStream?.Dispose();      
+        BaseStream?.Dispose();
     }
 
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -350,7 +348,7 @@ namespace CsvTools
         if (copyOtherFiles)
         {
           Logger.Debug("Keeping already existing entries in {filename}", SourceAccess.Identifier);
-          var tmpName = Path.GetTempFileName();
+          var tmpName = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
           try
           {
             File.Copy(SourceAccess.FullPath, tmpName, true);

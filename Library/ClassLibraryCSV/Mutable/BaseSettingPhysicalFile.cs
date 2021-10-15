@@ -48,6 +48,9 @@ namespace CsvTools
 
     protected BaseSettingPhysicalFile(string fileName) => m_FileName = FileNameFix(fileName);
 
+    public override void CalculateLatestSourceTime() =>
+      LatestSourceTimeUtc = new FileSystemUtils.FileInfo(FileSystemUtils.ResolvePattern(FullPath)).LastWriteTimeUtc;
+
     /// <summary>
     ///   Gets a value indicating whether the Xml field is specified.
     /// </summary>

@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CsvTools
 {
@@ -33,6 +34,9 @@ namespace CsvTools
 
     internal static readonly IReadOnlyCollection<string> DecimalSeparators = new HashSet<string>(
       new[] { CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "," }, StringComparer.Ordinal);
+
+    // used to get rid of numeric suffixes like 12th or 3rd
+    private static readonly Lazy<Regex> m_RegExNumberSuffixEnglish = new Lazy<Regex>(() => new Regex(@"\b(\d+)\w?(?:st|nd|rd|th)\b"));
 
     /// <summary>
     ///   The possible length of a date for a given format
@@ -766,6 +770,15 @@ namespace CsvTools
       in CultureInfo culture)
     {
       var stringDateValue = originalValue?.Trim() ?? string.Empty;
+      if (stringDateValue.Length < StandardDateTimeFormats.MinLengthDate)
+        return null;
+
+      // get rid of numeric suffixes like 12th or 3rd for dates
+      if (stringDateValue.IndexOf("th ", StringComparison.OrdinalIgnoreCase) != -1
+      || stringDateValue.IndexOf("nd ", StringComparison.OrdinalIgnoreCase) != -1
+      || stringDateValue.IndexOf("st ", StringComparison.OrdinalIgnoreCase) != -1
+      || stringDateValue.IndexOf("rd ", StringComparison.OrdinalIgnoreCase) != -1)
+        stringDateValue = m_RegExNumberSuffixEnglish.Value.Replace(stringDateValue, "$1");
 
       // Quick check: If the entry is empty, or a constant string, or the length does not make
       // sense, we do not need to try and parse
@@ -840,7 +853,10 @@ namespace CsvTools
 
       var numberFormatProvider = new NumberFormatInfo
       {
-        NegativeSign = "-", PositiveSign = "+", NumberDecimalSeparator = decimalSeparator, NumberGroupSeparator = groupSeparator
+        NegativeSign = "-",
+        PositiveSign = "+",
+        NumberDecimalSeparator = decimalSeparator,
+        NumberGroupSeparator = groupSeparator
       };
 
       if (stringFieldValue.StartsWith("(", StringComparison.Ordinal)
@@ -1204,13 +1220,14 @@ namespace CsvTools
             out result)) return result;
         }
 
-        // In case a date with time is passed in it would not be parsed, take the part of before the
-        // space and try again
-        var foundSpace = stringDateValue.LastIndexOf(' ');
+        // In case a date with follwing time is passed in it would not be parsed, take the part of
+        // before the space and try again
+        var lastSpace = stringDateValue.LastIndexOf(' ');
 
         // Only do this if we have at least 6 characters
-        if (foundSpace <= 6) return null;
-        stringDateValue = stringDateValue.Substring(0, foundSpace);
+        if (lastSpace <= 6)
+          return null;
+        stringDateValue = stringDateValue.Substring(0, lastSpace);
       }
     }
   }

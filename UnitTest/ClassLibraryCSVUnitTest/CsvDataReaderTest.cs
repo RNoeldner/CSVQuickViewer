@@ -57,7 +57,7 @@ namespace CsvTools.Tests
         m_ValidSetting.ConsecutiveEmptyRows, m_ValidSetting.IdentifierInContainer, processDisplay);
       test.OpenFinished += (sender, columns) => openFinished = true;
       test.ReadFinished += (sender, args) => readFinished = true;
-      test.OnOpen = () => Task.FromResult(onOpenCalled = true);
+      test.SetOnOpen(() => Task.FromResult(onOpenCalled = true));
       Assert.IsFalse(openFinished);
       Assert.IsFalse(readFinished);
       Assert.IsFalse(onOpenCalled);
@@ -87,7 +87,7 @@ namespace CsvTools.Tests
         };
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
-      test.NotifyAfterSeconds = .01;
+      test.SetNotifyAfterSeconds(.01);
       await test.OpenAsync(processDisplay.CancellationToken);
 
       Assert.AreEqual(10, test.FieldCount);

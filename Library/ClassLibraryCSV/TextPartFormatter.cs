@@ -39,8 +39,6 @@ namespace CsvTools
       m_PartToEnd = partToEnd;
     }
 
-    // public string Description => $"Part {m_Part}{(m_PartToEnd ? " To End" : string.Empty)}";
-
     public string FormatText(in string inputString, Action<string>? handleWarning)
     {
       var output = StringConversion.StringToTextPart(inputString, m_PartSplitter, m_Part, m_PartToEnd);
