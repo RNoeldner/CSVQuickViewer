@@ -37,7 +37,7 @@ namespace CsvTools
     private readonly HTMLStyle HTMLStyle;
 
     private const string cNoSampleDate =
-          "The source does not contain any sample data without warnings in the {0:N0} records read";
+          "The source does not contain samples without warnings in the {0:N0} records read";
 
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 

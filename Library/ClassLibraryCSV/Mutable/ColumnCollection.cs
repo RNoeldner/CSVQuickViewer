@@ -20,6 +20,9 @@ namespace CsvTools
 {
   public sealed class ColumnCollection : ObservableCollection<IColumn>, ICloneable, IEquatable<ColumnCollection>
   {
+    /// <summary>
+    ///   Needed for XML Serialization
+    /// </summary>
     public ColumnCollection()
     {
     }
@@ -34,15 +37,11 @@ namespace CsvTools
     /// <summary>
     ///   Adds the <see cref="IColumn" /> to the column list if it does not exist yet
     /// </summary>
-    /// <remarks>
-    ///   If the column name already exist it does nothing but return the already defined column
-    /// </remarks>
+    /// <remarks>If the column name already exist it does nothing</remarks>
     /// <param name="column">The column format.</param>
-    public new void Add(IColumn? column)
+    public new void Add(IColumn column)
     {
-      if (column is null)
-        throw new ArgumentNullException(nameof(column));
-      var index = GetIndex(column.Name);
+      var index = GetIndex(column?.Name ?? throw new ArgumentNullException(nameof(column)));
       if (index != -1) return;
       base.Add(column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
     }
@@ -103,17 +102,25 @@ namespace CsvTools
       return -1;
     }
 
+    /// <summary>
+    ///   Replaces an existign column of teh same name, if it does not exist it adds the column
+    /// </summary>
+    /// <param name="column"></param>
     public void Replace(IColumn column)
     {
       if (column is null)
         throw new ArgumentNullException(nameof(column));
 
       var index = GetIndex(column.Name);
-
       if (index != -1)
       {
         Items.RemoveAt(index);
         Items.Insert(index, column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
+        base.OnCollectionChanged(new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
+      }
+      else
+      {
+        Add(column);
       }
     }
   }
