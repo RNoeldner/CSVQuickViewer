@@ -453,17 +453,26 @@ namespace CsvTools
 
       var date = StringToDateTime(datePart, dateFormat, dateSeparator, timeSeparator, serialDateTime);
 
+      // we have no date check if we have a time
+      if (date is null)
+      {
+        var timeP = StringToTimeSpan(timePart, timeSeparator, serialDateTime);
+        // no date and no time, nothing to do
+        if (timeP is null)
+          return null;
+        return m_FirstDateTime.Add(timeP.Value);
+      }
+
       // In case a value is read that just is a time, need to adjust c# and Excel behavior the
       // application assumes all dates on cFirstDatetime is a time only
       if (date is { Year: 1, Month: 1 } && string.IsNullOrWhiteSpace(timePart))
         return GetTimeFromTicks(date.Value.Ticks);
 
+      // get the time to add to the date
       var time = StringToTimeSpan(timePart, timeSeparator, serialDateTime);
-
-      if (time.HasValue && date.HasValue)
-        // this can be problematic if both are in fact times
-        return date.Value.Add(time.Value);
-      return time.HasValue ? m_FirstDateTime.Add(time.Value) : date;
+      if (time is null)
+        return date;
+      return date.Value.Add(time.Value);
     }
 
     /// <summary>
