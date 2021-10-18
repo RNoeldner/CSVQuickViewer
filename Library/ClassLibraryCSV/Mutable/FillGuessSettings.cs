@@ -18,6 +18,7 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="System.ICloneable" />
   /// <summary>
   ///   Settings how the typed values should be determined
   /// </summary>
@@ -51,11 +52,6 @@ namespace CsvTools
     private bool m_SerialDateTime = true;
 
     private string m_TrueValue = "True";
-
-    /// <summary>
-    ///   Occurs when a property value changes.
-    /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     ///   Number of records to parse to get the sample values, default is <c>30000</c>
@@ -317,16 +313,35 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Clones this instance into a new instance of the same type
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc />
     public object Clone()
     {
       var other = new FillGuessSettings();
       CopyTo(other);
       return other;
     }
+
+    /// <inheritdoc />
+    public bool Equals(FillGuessSettings? other)
+    {
+      if (other is null)
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return Enabled == other.Enabled && CheckedRecords == other.CheckedRecords
+                                      && CheckNamedDates == other.CheckNamedDates && DateParts == other.DateParts
+                                      && m_DetectNumbers == other.m_DetectNumbers
+                                      && DetectPercentage == other.DetectPercentage
+                                      && m_DetectBoolean == other.m_DetectBoolean
+                                      && m_DetectDateTime == other.DetectDateTime && DetectGUID == other.DetectGUID
+                                      && string.Equals(FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase)
+                                      && IgnoreIdColumns == other.IgnoreIdColumns && MinSamples == other.MinSamples
+                                      && SampleValues == other.SampleValues && SerialDateTime == other.SerialDateTime
+                                      && string.Equals(TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <inheritdoc />
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     ///   Copy all properties to another instance of FillGuessSettings
@@ -351,37 +366,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Indicates whether the current object is equal to another object of the same type.
-    /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
-    ///   parameter; otherwise, <see langword="false" />.
-    /// </returns>
-    public bool Equals(FillGuessSettings? other)
-    {
-      if (other is null)
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return Enabled == other.Enabled && CheckedRecords == other.CheckedRecords
-                                      && CheckNamedDates == other.CheckNamedDates && DateParts == other.DateParts
-                                      && m_DetectNumbers == other.m_DetectNumbers
-                                      && DetectPercentage == other.DetectPercentage
-                                      && m_DetectBoolean == other.m_DetectBoolean
-                                      && m_DetectDateTime == other.DetectDateTime && DetectGUID == other.DetectGUID
-                                      && string.Equals(FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase)
-                                      && IgnoreIdColumns == other.IgnoreIdColumns && MinSamples == other.MinSamples
-                                      && SampleValues == other.SampleValues && SerialDateTime == other.SerialDateTime
-                                      && string.Equals(TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <summary>
     ///   Notifies the property changed.
     /// </summary>
     /// <param name="info">The info.</param>
     public void NotifyPropertyChanged(string info) =>
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
-
   }
 }

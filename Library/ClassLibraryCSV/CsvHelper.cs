@@ -493,10 +493,10 @@ namespace CsvTools
                                    detectionResult.SkipRows,
                                    display.CancellationToken).ConfigureAwait(false);
         if (!await CheckLineCommentIsValidAsync(
-              streamReader,
-              detectionResult.CommentLine,
-              detectionResult.FieldDelimiter,
-              display.CancellationToken).ConfigureAwait(false))
+               streamReader,
+               detectionResult.CommentLine,
+               detectionResult.FieldDelimiter,
+               display.CancellationToken).ConfigureAwait(false))
           detectionResult = new DelimitedFileDetectionResult(
             detectionResult.FileName,
             detectionResult.SkipRows,
@@ -693,7 +693,6 @@ namespace CsvTools
       return textReader.GuessDelimiter(escapeCharacter, cancellationToken);
     }
 
-
     /// <summary>
     ///   Guesses the has header from stream.
     /// </summary>
@@ -723,7 +722,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="reader">The reader.</param>
     /// <param name="comment">The comment.</param>
-    /// <param name="delimiter">The delimiter.</param>
+    /// <param name="delimiterChar">The delimiter.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Explanation on by there is no header, if empty the header was found</returns>
     public static async Task<string> GuessHasHeaderAsync(
@@ -848,8 +847,6 @@ namespace CsvTools
 
       return string.Empty;
     }
-
-
 
     public static async Task<string> GuessLineComment(
       this IImprovedStream improvedStream,

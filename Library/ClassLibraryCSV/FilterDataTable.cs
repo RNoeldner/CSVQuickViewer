@@ -22,10 +22,11 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   /// <summary>
   ///   Utility Class to filter a DataTable for Errors
   /// </summary>
-  /// <seealso cref="System.IDisposable" />
+  /// <seealso cref="T:System.IDisposable" />
   public sealed class FilterDataTable : IDisposable
   {
     private readonly DataTable m_SourceTable;
@@ -152,6 +153,13 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
     public void Cancel()
     {
       // stop old filtering
@@ -164,16 +172,6 @@ namespace CsvTools
 
       m_CurrentFilterCancellationTokenSource.Dispose();
       m_CurrentFilterCancellationTokenSource = null;
-    }
-
-    /// <summary>
-    ///   Performs application-defined tasks associated with freeing, releasing, or resetting
-    ///   unmanaged resources.
-    /// </summary>
-    public void Dispose()
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this);
     }
 
     public void Filter(int limit, FilterType type)

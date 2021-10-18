@@ -19,8 +19,9 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="CsvTools.ICsvFile" />
   /// <summary>
-  ///   Setting file for CSV files, its an implementation of <see cref="BaseSettings" />
+  ///   Setting file for CSV files, its an implementation of <see cref="T:CsvTools.BaseSettings" />
   /// </summary>
   [Serializable]
   public class CsvFile : BaseSettingPhysicalFile, ICsvFile
@@ -100,8 +101,9 @@ namespace CsvTools
     {
     }
 
+    /// <inheritdoc />
     /// <summary>
-    ///   Initializes a new instance of the <see cref="CsvFile" /> class.
+    ///   Initializes a new instance of the <see cref="T:CsvTools.CsvFile" /> class.
     /// </summary>
     public CsvFile()
       : this(string.Empty)
@@ -119,10 +121,7 @@ namespace CsvTools
       set => m_CurrentEncoding = value;
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
-    /// </summary>
-    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(c_ContextSensitiveQualifierDefault)]
     public virtual bool ContextSensitiveQualifier
@@ -145,11 +144,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the text to indicate that the line is comment line and not contain data. If a
-    ///   line starts with the given text, it is ignored in the data grid.
-    /// </summary>
-    /// <value>The startup comment line.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(c_CommentLineDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -168,10 +163,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the delimiter placeholder.
-    /// </summary>
-    /// <value>The delimiter placeholder.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(c_DelimiterPlaceholderDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -190,10 +182,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
-    /// </summary>
-    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(c_DuplicateQualifierToEscapeDefault)]
     public virtual bool DuplicateQualifierToEscape
@@ -210,10 +199,7 @@ namespace CsvTools
 
     [XmlIgnore] public virtual char EscapePrefixChar => m_EscapePrefixChar;
 
-    /// <summary>
-    ///   Gets or sets the escape character.
-    /// </summary>
-    /// <value>The escape character.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(c_EscapePrefixDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -234,10 +220,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the field delimiter.
-    /// </summary>
-    /// <value>The field delimiter.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(c_FieldDelimiterDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -258,17 +241,11 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets the field delimiter char from the FieldDelimiter.
-    /// </summary>
-    /// <value>The field delimiter char.</value>
+    /// <inheritdoc />
     [XmlIgnore]
     public virtual char FieldDelimiterChar => m_FieldDelimiterChar;
 
-    /// <summary>
-    ///   Gets or sets the field qualifier.
-    /// </summary>
-    /// <value>The field qualifier.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(c_FieldQualifierDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -289,25 +266,16 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets the field qualifier char from the FieldQualifier.
-    /// </summary>
-    /// <value>The field qualifier char.</value>
+    /// <inheritdoc />
     [XmlIgnore]
     public virtual char FieldQualifierChar => m_FieldQualifierChar;
 
-    /// <summary>
-    ///   Gets a value indicating whether this instance is fixed length.
-    /// </summary>
-    /// <value><c>true</c> if this instance is fixed length; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlIgnore]
     [Obsolete("Check FieldDelimiterChar instead")]
     public virtual bool IsFixedLength => string.IsNullOrEmpty(m_FieldDelimiter);
 
-    /// <summary>
-    ///   Gets or sets the newline.
-    /// </summary>
-    /// <value>The newline.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(c_NewLineDefault)]
     public virtual RecordDelimiterType NewLine
@@ -323,10 +291,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the new line placeholder.
-    /// </summary>
-    /// <value>The new line placeholder.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(c_NewLinePlaceholderDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -345,10 +310,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether to qualify every text even if number or empty.
-    /// </summary>
-    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(c_QualifyAlwaysDefault)]
     public virtual bool QualifyAlways
@@ -365,10 +327,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether to qualify only if needed.
-    /// </summary>
-    /// <value><c>true</c> if qualify only if needed; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(c_QualifyOnlyIfNeededDefault)]
     public virtual bool QualifyOnlyIfNeeded
@@ -386,10 +345,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the quote placeholder.
-    /// </summary>
-    /// <value>The quote placeholder.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(c_QuotePlaceholderDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -423,10 +379,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
-    /// </summary>
-    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(true)]
     public virtual bool ByteOrderMark
@@ -441,10 +394,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the code page.
-    /// </summary>
-    /// <value>The code page.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(65001)]
     public virtual int CodePageId
@@ -459,10 +409,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether a file is most likely not a delimited file
-    /// </summary>
-    /// <value><c>true</c> if the file is assumed to be a non delimited file; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlIgnore]
     public virtual bool NoDelimitedFile
     {
@@ -477,10 +424,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the maximum number of warnings.
-    /// </summary>
-    /// <value>The number of warnings.</value>
+    /// <inheritdoc />
     [XmlElement]
     [DefaultValue(0)]
     public virtual int NumWarnings
@@ -496,10 +440,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether to treat a single LF as space
-    /// </summary>
-    /// <value><c>true</c> if LF should be treated as space; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
     public virtual bool TreatLFAsSpace
@@ -515,10 +456,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether to replace unknown charters.
-    /// </summary>
-    /// <value><c>true</c> if unknown character should be replaced; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
     public virtual bool TreatUnknownCharacterAsSpace
@@ -534,12 +472,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether the reader should try to solve more columns.
-    /// </summary>
-    /// <value>
-    ///   <c>true</c> if it should be try to solve misalignment more columns; otherwise, <c>false</c>.
-    /// </value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
     public virtual bool TryToSolveMoreColumns
@@ -555,12 +488,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether to warn if delimiter is in a value.
-    /// </summary>
-    /// <value>
-    ///   <c>true</c> if a warning should be issued if a delimiter is encountered; otherwise, <c>false</c>.
-    /// </value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
     public virtual bool WarnDelimiterInValue
@@ -576,10 +504,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether to warn empty tailing columns.
-    /// </summary>
-    /// <value><c>true</c> if [warn empty tailing columns]; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute(AttributeName = "WarnEmptyTailingColumns")]
     [DefaultValue(true)]
     public virtual bool WarnEmptyTailingColumns
@@ -595,10 +520,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether to warn unknown character.
-    /// </summary>
-    /// <value><c>true</c> if unknown character should issue a warning; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
     public virtual bool WarnLineFeed
@@ -614,10 +536,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether to warn occurrence of NBSP.
-    /// </summary>
-    /// <value><c>true</c> to issue a writing if there is a NBSP; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(true)]
     public virtual bool WarnNBSP
@@ -633,10 +552,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
-    /// </summary>
-    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
     public virtual bool WarnQuotes
@@ -652,10 +568,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
-    /// </summary>
-    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(true)]
     public virtual bool WarnQuotesInQuotes
@@ -671,10 +584,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether to warn unknown character.
-    /// </summary>
-    /// <value><c>true</c> if unknown character should issue a warning; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(true)]
     public virtual bool WarnUnknownCharacter
@@ -690,10 +600,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Clones this instance.
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc />
     public override object Clone()
     {
       var other = new CsvFile();
@@ -701,10 +608,7 @@ namespace CsvTools
       return other;
     }
 
-    /// <summary>
-    ///   Copies all values to other instance
-    /// </summary>
-    /// <param name="other">The other.</param>
+    /// <inheritdoc />
     public override void CopyTo(IFileSetting other)
     {
       BaseSettingsCopyTo((BaseSettings) other);
@@ -742,8 +646,10 @@ namespace CsvTools
       csv.QualifierPlaceholder = QualifierPlaceholder;
     }
 
+    /// <inheritdoc />
     public override bool Equals(IFileSetting? other) => Equals(other as ICsvFile);
 
+    /// <inheritdoc />
     public virtual bool Equals(ICsvFile? other)
     {
       if (other is null)
@@ -786,176 +692,5 @@ namespace CsvTools
                                                       other.QualifierPlaceholder,
                                                       StringComparison.Ordinal);
     }
-
-#region backwardscompatibility
-
-    [XmlElement]
-    [DefaultValue(null)]
-#pragma warning disable CS0618 // Type or member is obsolete
-    public FileFormatStore? FileFormat
-#pragma warning restore CS0618 // Type or member is obsolete
-    {
-      get;
-      set;
-    }
-
-    [Obsolete("Only used for backwards compatibility of Serialization")]
-    public virtual void OverwriteFromFileFormatStore()
-    {
-      if (FileFormat is null)
-        return;
-
-      ContextSensitiveQualifier = FileFormat.AlternateQuoting;
-      DuplicateQualifierToEscape = FileFormat.DuplicateQuotingToEscape;
-      CommentLine = FileFormat.CommentLine;
-      DelimiterPlaceholder = FileFormat.DelimiterPlaceholder;
-      EscapePrefix = FileFormat.EscapeCharacter;
-      FieldDelimiter = FileFormat.FieldDelimiter;
-      FieldQualifier = FileFormat.FieldQualifier;
-      NewLine = FileFormat.NewLine;
-      NewLinePlaceholder = FileFormat.NewLinePlaceholder;
-      QualifyAlways = FileFormat.QualifyAlways;
-      QualifyOnlyIfNeeded = FileFormat.QualifyOnlyIfNeeded;
-      QualifierPlaceholder = FileFormat.QuotePlaceholder;
-
-      FileFormat = null;
-    }
-
-    [Obsolete("Only used for backwards compatibility of Serialization")]
-    [Serializable]
-    public class FileFormatStore
-    {
-      /// <summary>
-      ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
-      /// </summary>
-      /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
-      [XmlAttribute]
-      [DefaultValue(c_ContextSensitiveQualifierDefault)]
-      public bool AlternateQuoting
-      {
-        get;
-        set;
-      } = c_ContextSensitiveQualifierDefault;
-
-      /// <summary>
-      ///   Gets or sets the text to indicate that the line is comment line and not contain data. If a
-      ///   line starts with the given text, it is ignored in the data grid.
-      /// </summary>
-      /// <value>The startup comment line.</value>
-      [XmlAttribute]
-      [DefaultValue(c_CommentLineDefault)]
-
-      public string CommentLine
-      {
-        get;
-        set;
-      } = c_CommentLineDefault;
-
-      /// <summary>
-      ///   Gets or sets the delimiter placeholder.
-      /// </summary>
-      /// <value>The delimiter placeholder.</value>
-      [XmlAttribute]
-      [DefaultValue(c_DelimiterPlaceholderDefault)]
-      public string DelimiterPlaceholder
-      {
-        get;
-        set;
-      } = c_DelimiterPlaceholderDefault;
-
-      /// <summary>
-      ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
-      /// </summary>
-      /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
-      [XmlAttribute]
-      [DefaultValue(c_DuplicateQualifierToEscapeDefault)]
-      public bool DuplicateQuotingToEscape
-      {
-        get;
-        set;
-      } = c_DuplicateQualifierToEscapeDefault;
-
-      /// <summary>
-      ///   Gets or sets the escape character.
-      /// </summary>
-      /// <value>The escape character.</value>
-      [XmlAttribute]
-      [DefaultValue(c_EscapePrefixDefault)]
-      public string EscapeCharacter
-      {
-        get;
-        set;
-      } = c_EscapePrefixDefault;
-
-      /// <summary>
-      ///   Gets or sets the field delimiter.
-      /// </summary>
-      /// <value>The field delimiter.</value>
-      [XmlAttribute]
-      [DefaultValue(c_FieldDelimiterDefault)]
-      public string FieldDelimiter
-      {
-        get;
-        set;
-      } = c_FieldDelimiterDefault;
-
-      /// <summary>
-      ///   Gets or sets the field qualifier.
-      /// </summary>
-      /// <value>The field qualifier.</value>
-      [XmlAttribute]
-      [DefaultValue(c_FieldQualifierDefault)]
-      public string FieldQualifier
-      {
-        get;
-        set;
-      } = c_FieldQualifierDefault;
-
-      /// <summary>
-      ///   Gets or sets the newline.
-      /// </summary>
-      /// <value>The newline.</value>
-      [XmlAttribute]
-      [DefaultValue(c_NewLineDefault)]
-      public RecordDelimiterType NewLine
-      {
-        get;
-        set;
-      } = c_NewLineDefault;
-
-      [XmlAttribute]
-      [DefaultValue(c_NewLinePlaceholderDefault)]
-      public string NewLinePlaceholder
-      {
-        get;
-        set;
-      } = c_NewLinePlaceholderDefault;
-
-      [XmlAttribute]
-      [DefaultValue(c_QualifyAlwaysDefault)]
-      public bool QualifyAlways
-      {
-        get;
-        set;
-      } = c_QualifyAlwaysDefault;
-
-      [XmlAttribute]
-      [DefaultValue(c_QualifyOnlyIfNeededDefault)]
-      public bool QualifyOnlyIfNeeded
-      {
-        get;
-        set;
-      } = c_QualifyOnlyIfNeededDefault;
-
-      [XmlAttribute]
-      [DefaultValue(c_QuotePlaceholderDefault)]
-      public string QuotePlaceholder
-      {
-        get;
-        set;
-      } = c_QuotePlaceholderDefault;
-    }
-
-#endregion
   }
 }

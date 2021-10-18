@@ -42,19 +42,19 @@ namespace CsvTools
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
-    private const char c_Cr = (char)0x0d;
+    private const char c_Cr = (char) 0x0d;
 
     /// <summary>
     ///   The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
-    private const char c_Lf = (char)0x0a;
+    private const char c_Lf = (char) 0x0a;
 
     /// <summary>
     ///   A non-breaking space..
     /// </summary>
-    private const char c_Nbsp = (char)0xA0;
+    private const char c_Nbsp = (char) 0xA0;
 
-    private const char c_UnknownChar = (char)0xFFFD;
+    private const char c_UnknownChar = (char) 0xFFFD;
 
     private readonly bool m_AllowRowCombining;
 
@@ -467,13 +467,13 @@ namespace CsvTools
       object? ret = column.ValueFormat.DataType switch
       {
         DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal), column, true),
-        DataType.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
-        DataType.Double => GetDoubleNull(value, ordinal),
-        DataType.Numeric => GetDecimalNull(value, ordinal),
-        DataType.Boolean => GetBooleanNull(value, ordinal),
-        DataType.Guid => GetGuidNull(value, column.ColumnOrdinal),
-        DataType.String => value,
-        _ => throw new ArgumentOutOfRangeException()
+        DataType.Integer  => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
+        DataType.Double   => GetDoubleNull(value, ordinal),
+        DataType.Numeric  => GetDecimalNull(value, ordinal),
+        DataType.Boolean  => GetBooleanNull(value, ordinal),
+        DataType.Guid     => GetGuidNull(value, column.ColumnOrdinal),
+        DataType.String   => value,
+        _                 => throw new ArgumentOutOfRangeException()
       };
       return ret ?? DBNull.Value;
     }
@@ -532,6 +532,7 @@ namespace CsvTools
           await OpenAsync(token);
           return;
         }
+
         Close();
         var appEx = new FileReaderException(
           "Error opening text file for reading.\nPlease make sure the file does exist, is of the right type and is not locked by another process.",
@@ -602,7 +603,7 @@ namespace CsvTools
       var byFile = m_ImprovedStream?.Percentage ?? 0;
       if (RecordLimit > 0 && RecordLimit < long.MaxValue)
         // you can either reach the record limit or the end of the stream
-        return Math.Max((double)RecordNumber / RecordLimit, byFile);
+        return Math.Max((double) RecordNumber / RecordLimit, byFile);
       return byFile;
     }
 
@@ -639,7 +640,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   This does read the next record and stores it in <see cref="CurrentRowColumnText" />, it
+    ///   This does read the next record and stores it in CurrentRowColumnText />, it
     ///   will handle column mismatches
     /// </summary>
     /// <returns><c>true</c> if a new record was read</returns>
@@ -936,7 +937,7 @@ namespace CsvTools
     private char Peek()
     {
       var res = m_TextReader?.Peek() ?? -1;
-      if (res != -1) return (char)res;
+      if (res != -1) return (char) res;
       EndOfFile = true;
 
       // return a linefeed to determine the end of a line
@@ -992,7 +993,7 @@ namespace CsvTools
               // in case a linefeed actually follows ignore the EscapePrefixChar but handle the
               // regular processing
               '\\' when nextChar == 'a' => '\a',
-              _ => nextChar
+              _                         => nextChar
             };
           }
         }
@@ -1283,7 +1284,6 @@ namespace CsvTools
     }
 
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-
     public new async ValueTask DisposeAsync()
     {
       await DisposeAsyncCore();

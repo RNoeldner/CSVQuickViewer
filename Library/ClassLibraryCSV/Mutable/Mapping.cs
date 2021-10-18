@@ -19,6 +19,7 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="System.ICloneable" />
   /// <summary>
   ///   Setting to store a Field Mapping
   /// </summary>
@@ -27,7 +28,7 @@ namespace CsvTools
   public sealed class Mapping : IEquatable<Mapping>, ICloneable
   {
     public Mapping()
-        : this(string.Empty, string.Empty)
+      : this(string.Empty, string.Empty)
     {
     }
 
@@ -79,20 +80,10 @@ namespace CsvTools
       set;
     }
 
-    /// <summary>
-    ///   Clones this instance.
-    /// </summary>
-    /// <returns>A new FieldMapping that is a copy</returns>
+    /// <inheritdoc />
     public object Clone() => new Mapping(FileColumn, TemplateField, Update, Attention);
 
-    /// <summary>
-    ///   Indicates whether the current object is equal to another object of the same type.
-    /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
-    ///   parameter; otherwise, <see langword="false" />.
-    /// </returns>
+    /// <inheritdoc />
     public bool Equals(Mapping? other)
     {
       if (other is null)
@@ -100,10 +91,9 @@ namespace CsvTools
       if (ReferenceEquals(this, other))
         return true;
       return Attention == other.Attention
-          && Update == other.Update
-          && string.Equals(FileColumn, other.FileColumn, StringComparison.OrdinalIgnoreCase)
-          && string.Equals(TemplateField, other.TemplateField, StringComparison.OrdinalIgnoreCase);
+             && Update == other.Update
+             && string.Equals(FileColumn, other.FileColumn, StringComparison.OrdinalIgnoreCase)
+             && string.Equals(TemplateField, other.TemplateField, StringComparison.OrdinalIgnoreCase);
     }
-
   }
 }

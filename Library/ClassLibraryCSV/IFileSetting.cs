@@ -144,7 +144,7 @@ namespace CsvTools
     ///   Storage for Sample and error records, used in the validator only, TODO: move to other library or wait for Extension
     ///   of Classes
     /// </summary>
-    SampleAndErrorsInformation SamplesAndErrors { get; set; }
+    SampleAndErrorsInformation SamplesAndErrors { get; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether to show progress.
@@ -216,7 +216,6 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets a value indicating of and if training and leading spaces should be trimmed.
     /// </summary>
-    /// <value><c>true</c> ; otherwise, <c>false</c>.</value>
     TrimmingOption TrimmingOption { get; set; }
 
     /// <summary>

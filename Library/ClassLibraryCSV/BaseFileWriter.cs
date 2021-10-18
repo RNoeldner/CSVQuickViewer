@@ -108,7 +108,7 @@ namespace CsvTools
       processDisplayTime.Maximum = 0;
       m_SetMaxProcess = l => processDisplayTime.Maximum = l;
     }
- 
+
     private long Records { get; set; }
 
     /// <summary>
@@ -129,6 +129,7 @@ namespace CsvTools
     /// </param>
     /// <param name="columnDefinitions"></param>
     /// <param name="schemaTable"></param>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">reader</exception>
     public static IEnumerable<IColumn> GetColumnInformation(
@@ -205,7 +206,7 @@ namespace CsvTools
             break;
 
           default:
-            throw new ArgumentOutOfRangeException();
+            throw new ArgumentOutOfRangeException($"DataType {valueFormat.DataType} not supported");
         }
 
         var constantTimeZone = string.Empty;
@@ -351,7 +352,7 @@ namespace CsvTools
     protected void NextRecord()
     {
       Records++;
-      if ((DateTime.Now - m_LastNotification).TotalSeconds <=.15) return;
+      if ((DateTime.Now - m_LastNotification).TotalSeconds <= .15) return;
       m_LastNotification = DateTime.Now;
       HandleProgress($"Record {Records:N0}");
     }

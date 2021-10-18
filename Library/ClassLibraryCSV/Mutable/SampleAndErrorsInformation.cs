@@ -20,12 +20,13 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="System.ICloneable" />
   /// <summary>
   ///   This class is only used by the Validator but since we can not extend classes with new
   ///   properties, it needs to be defined here
   /// </summary>
   [Serializable]
-  public sealed class SampleAndErrorsInformation : INotifyPropertyChanged, ICloneable 
+  public sealed class SampleAndErrorsInformation : INotifyPropertyChanged, ICloneable
   {
     private ObservableCollection<SampleRecordEntry> m_Errors = new ObservableCollection<SampleRecordEntry>();
 
@@ -97,10 +98,7 @@ namespace CsvTools
 
     public bool SamplesSpecified => Samples.Count > 0;
 
-    /// <summary>
-    ///   Clones this instance into a new instance of the same type
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc />
     public object Clone()
     {
       var other = new SampleAndErrorsInformation();
@@ -108,9 +106,7 @@ namespace CsvTools
       return other;
     }
 
-    /// <summary>
-    ///   Event risen on completed property changed
-    /// </summary>
+    /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
@@ -144,7 +140,7 @@ namespace CsvTools
     ///   Notifies the completed property changed
     /// </summary>
     /// <param name="info">The info.</param>
-    public  void NotifyPropertyChanged(string info)
+    public void NotifyPropertyChanged(string info)
     {
       if (PropertyChanged is null)
         return;

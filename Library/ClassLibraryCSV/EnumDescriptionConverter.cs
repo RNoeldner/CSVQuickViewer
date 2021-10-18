@@ -18,93 +18,68 @@ using System.Globalization;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   /// <summary>
   ///   Class to convert a Type into a text
   /// </summary>
   public class EnumDescriptionConverter : EnumConverter
-	{
-		private readonly Type m_EnumType;
+  {
+    private readonly Type m_EnumType;
 
-		/// <summary>
-		///   Initializes a new instance of the <see cref="EnumDescriptionConverter" /> class.
-		/// </summary>
-		/// <param name="enumType">
-		///   A <see cref="T:System.Type" /> that represents the type of enumeration to associate with
-		///   this enumeration converter.
-		/// </param>
-		public EnumDescriptionConverter(Type enumType)
-			: base(enumType) =>
-			m_EnumType = enumType;
+    /// <inheritdoc />
+    public EnumDescriptionConverter(Type enumType)
+      : base(enumType) =>
+      m_EnumType = enumType;
 
-		/// <summary>
-		///   Determines whether this instance [can convert from] the specified context.
-		/// </summary>
-		/// <param name="context">The context.</param>
-		/// <param name="sourceType">Type of the source.</param>
-		/// <returns></returns>
-		public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) =>
-			sourceType == typeof(string);
+    /// <inheritdoc />
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) =>
+      sourceType == typeof(string);
 
-		/// <summary>
-		///   Determines whether this instance [can convert to] the specified context.
-		/// </summary>
-		/// <param name="context">The context.</param>
-		/// <param name="destinationType">Type of the destination</param>
-		/// <returns></returns>
-		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) =>
-			destinationType == typeof(string);
+    /// <summary>
+    ///   Determines whether this instance [can convert to] the specified context.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="destinationType">Type of the destination</param>
+    /// <returns></returns>
+    public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) =>
+      destinationType == typeof(string);
 
-		/// <inheritdoc />
-		/// <summary>
-		///   Converts the specified value object to an enumeration object, using the Description
-		///   attribute first
-		/// </summary>
-		/// <param name="context">
-		///   An <see cref="T:System.ComponentModel.ITypeDescriptorContext" /> that provides a format context.
-		/// </param>
-		/// <param name="culture">
-		///   An optional <see cref="T:System.Globalization.CultureInfo" />. If not supplied, the
-		///   current culture is assumed.
-		/// </param>
-		/// <param name="value">The <see cref="T:object" /> to convert.</param>
-		/// <returns>
-		///   An <see cref="T:object" /> that represents the converted <paramref name="value" />.
-		/// </returns>
-		public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-		{
-			if (value is null)
-				throw new ArgumentNullException(nameof(value));
-			foreach (var fi in m_EnumType.GetFields())
-				if (Attribute.GetCustomAttribute(fi, typeof(DescriptionAttribute)) is DescriptionAttribute dna
-						&& (string) value == dna.Description)
-					return Enum.Parse(m_EnumType, fi.Name);
+    /// <inheritdoc />
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    {
+      if (value is null)
+        throw new ArgumentNullException(nameof(value));
+      foreach (var fi in m_EnumType.GetFields())
+        if (Attribute.GetCustomAttribute(fi, typeof(DescriptionAttribute)) is DescriptionAttribute dna
+            && (string) value == dna.Description)
+          return Enum.Parse(m_EnumType, fi.Name);
 
-			return Enum.Parse(m_EnumType, Convert.ToString(value));
-		}
+      return Enum.Parse(m_EnumType, Convert.ToString(value));
+    }
 
-		/// <inheritdoc />
-		/// <summary>
-		///   Converts the enumeration to a string, using the description attribute if defined
-		/// </summary>
-		/// <param name="context">The context.</param>
-		/// <param name="culture">The culture.</param>
-		/// <param name="value">The value.</param>
-		/// <param name="destinationType">Type of the destination</param>
-		/// <returns></returns>
-		public override object ConvertTo(
-			ITypeDescriptorContext context,
-			CultureInfo culture,
-			object value,
-			Type destinationType)
-		{
-			if (value is null)
-				throw new ArgumentNullException(nameof(value));
-			var fi = m_EnumType.GetField(Enum.GetName(m_EnumType, value));
+    /// <inheritdoc />
+    /// <summary>
+    ///   Converts the enumeration to a string, using the description attribute if defined
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="culture">The culture.</param>
+    /// <param name="value">The value.</param>
+    /// <param name="destinationType">Type of the destination</param>
+    /// <returns></returns>
+    public override object ConvertTo(
+      ITypeDescriptorContext context,
+      CultureInfo culture,
+      object value,
+      Type destinationType)
+    {
+      if (value is null)
+        throw new ArgumentNullException(nameof(value));
+      var fi = m_EnumType.GetField(Enum.GetName(m_EnumType, value));
 
-			if (Attribute.GetCustomAttribute(fi, typeof(DescriptionAttribute)) is DescriptionAttribute dna)
-				return dna.Description;
-			// most enumeration have an underlying integer
-			return value is int i ? i.ToString(culture) : Convert.ToString(value);
-		}
-	}
+      if (Attribute.GetCustomAttribute(fi, typeof(DescriptionAttribute)) is DescriptionAttribute dna)
+        return dna.Description;
+      // most enumeration have an underlying integer
+      return value is int i ? i.ToString(culture) : Convert.ToString(value);
+    }
+  }
 }

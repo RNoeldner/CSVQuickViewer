@@ -41,9 +41,7 @@ namespace CsvTools
                                  + "  span.err { color:#B40404; }\r\n" + "  span.war { color:#2E64FE; }\r\n"
                                  + "</STYLE>";
 
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="HTMLStyle" /> class.
-    /// </summary>
+    /// <inheritdoc />
     public HTMLStyle()
       : this(cStyle)
     {

@@ -23,8 +23,9 @@ namespace CsvTools
   {
     private DateTime m_LastNotification = DateTime.MinValue;
 
+    /// <inheritdoc />
     /// <summary>
-    ///   Initializes a new instance of the <see cref="IntervalAction" /> class.
+    ///   Initializes a new instance of the <see cref="T:CsvTools.IntervalAction" /> class.
     /// </summary>
     /// <remarks>If no notification period is set 1/3 a second is assumed</remarks>
     public IntervalAction()
