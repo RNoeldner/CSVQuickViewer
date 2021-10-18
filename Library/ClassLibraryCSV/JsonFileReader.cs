@@ -97,7 +97,7 @@ namespace CsvTools
       Logger.Information("Opening JSON file {filename}", FileName);
       await BeforeOpenAsync($"Opening JSON file {FileSystemUtils.GetShortDisplayFileName(FileName)}")
         .ConfigureAwait(false);
-    Retry:
+      Retry:
       try
       {
         ResetPositionToStartOrOpen();
@@ -178,6 +178,7 @@ namespace CsvTools
       return false;
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Gets the relative position.
     /// </summary>
@@ -187,7 +188,7 @@ namespace CsvTools
       var byFile = m_ImprovedStream?.Percentage ?? 0;
       if (RecordLimit > 0 && RecordLimit < long.MaxValue)
         // you can either reach the record limit or the end of the stream, whatever is faster
-        return Math.Max((double)RecordNumber / RecordLimit, byFile);
+        return Math.Max((double) RecordNumber / RecordLimit, byFile);
       return byFile;
     }
 
@@ -289,7 +290,7 @@ namespace CsvTools
               break;
 
             default:
-              throw new ArgumentOutOfRangeException();
+              throw new ArgumentOutOfRangeException($"Unkown TokenType {m_JsonTextReader.TokenType}");
           }
 
           token.ThrowIfCancellationRequested();
@@ -388,7 +389,6 @@ namespace CsvTools
     }
 
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-
     public new async ValueTask DisposeAsync()
     {
       await DisposeAsyncCore();

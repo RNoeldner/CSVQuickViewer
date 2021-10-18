@@ -66,11 +66,12 @@ namespace CsvTools
         FileReader.Warning += (o, e) => Warning?.Invoke(o, e);
     }
 
+    /// <inheritdoc />
     /// <summary>
     ///   Constructor for a DataReaderWrapper, this wrapper adds artificial fields like Error, start
     ///   and end Line or record number
     /// </summary>
-    /// <param name="fileReader"><see cref="IFileReader" /></param>
+    /// <param name="fileReader"><see cref="T:CsvTools.IFileReader" /></param>
     /// <param name="recordLimit">Number of maximum records to read, 0 if there is no limit</param>
     /// <param name="addErrorField">Add artificial field Error</param>
     /// <param name="addStartLine">Add artificial field Start Line</param>
@@ -122,7 +123,7 @@ namespace CsvTools
 
     public long StartLineNumber => FileReader?.StartLineNumber ?? RecordNumber;
 
-    public virtual void SetOnOpen(Func<Task>? value) => m_OnOpenAsync=value;
+    public virtual void SetOnOpen(Func<Task>? value) => m_OnOpenAsync = value;
 
     public virtual bool SupportsReset => !(FileReader is null);
 
@@ -301,7 +302,7 @@ namespace CsvTools
     public virtual void ResetPositionToFirstDataRow()
     {
       FileReader?.ResetPositionToFirstDataRow();
-      RecordNumber=0;
+      RecordNumber = 0;
     }
 
     public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);

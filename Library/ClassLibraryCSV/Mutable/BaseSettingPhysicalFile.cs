@@ -16,6 +16,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace CsvTools
@@ -48,9 +49,6 @@ namespace CsvTools
 
     protected BaseSettingPhysicalFile(string fileName) => m_FileName = FileNameFix(fileName);
 
-    public override void CalculateLatestSourceTime() =>
-      LatestSourceTimeUtc = new FileSystemUtils.FileInfo(FileSystemUtils.ResolvePattern(FullPath)).LastWriteTimeUtc;
-
     /// <summary>
     ///   Gets a value indicating whether the Xml field is specified.
     /// </summary>
@@ -58,6 +56,9 @@ namespace CsvTools
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
     public virtual bool DefaultValueFormatWriteSpecified => m_DefaultValueFormatWrite.Specified;
+
+    public override void CalculateLatestSourceTime() =>
+      LatestSourceTimeUtc = new FileSystemUtils.FileInfo(FileSystemUtils.ResolvePattern(FullPath)).LastWriteTimeUtc;
 
     /// <inheritdoc />
     /// <summary>
@@ -304,6 +305,15 @@ namespace CsvTools
       fileSettingPhysicalFile.Recipient = Recipient;
       fileSettingPhysicalFile.KeepUnencrypted = KeepUnencrypted;
       fileSettingPhysicalFile.DefaultValueFormatWrite.CopyFrom(DefaultValueFormatWrite);
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+      var stringBuilder = new StringBuilder(base.ToString());
+      stringBuilder.Append(" - ");
+      stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(FileName));
+      return stringBuilder.ToString();
     }
 
     protected override bool BaseSettingsEquals(in BaseSettings? other)

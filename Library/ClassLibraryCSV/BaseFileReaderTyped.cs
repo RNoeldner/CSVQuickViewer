@@ -72,7 +72,7 @@ namespace CsvTools
       return base.GetBoolean(ordinal);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="BaseFileReader" />
     /// <summary>
     ///   Returns an <see cref="IDataReader" /> for the specified column ordinal.
     /// </summary>

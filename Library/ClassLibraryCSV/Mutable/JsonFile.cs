@@ -16,14 +16,16 @@ using System;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="CsvTools.StructuredFile" />
   /// <summary>
-  ///   Setting file for Json files, its an implementation of <see cref="StructuredFile" />
+  ///   Setting file for Json files, its an implementation of <see cref="T:CsvTools.StructuredFile" />
   /// </summary>
   [Serializable]
   public class JsonFile : StructuredFile, IJsonFile
   {
+    /// <inheritdoc />
     /// <summary>
-    ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
+    ///   Initializes a new instance of the <see cref="T:CsvTools.StructuredFile" /> class.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     public JsonFile(string fileName)
@@ -31,9 +33,7 @@ namespace CsvTools
     {
     }
 
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
-    /// </summary>
+    /// <inheritdoc />
     public JsonFile()
       : this(string.Empty)
     {

@@ -42,11 +42,10 @@ namespace CsvTools
     [Obsolete("No need to open a DataTableWrapper, the DataTable is in memory")]
     public override Task OpenAsync(CancellationToken token) => Task.CompletedTask;
 
-
     /// <summary>
     ///   Asynchronous Read of next record
     /// </summary>
-    /// <param name="token">The cancellation token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
     {

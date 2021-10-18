@@ -46,12 +46,12 @@ namespace CsvTools.Tests
 
     [TestMethod]
     public void LoadCsvFileTestBackwardsCompatible()
-    {      
+    {
       var test = SerializedFilesLib.LoadCsvFile(UnitTestStatic.GetTestPath("Read.setting"));
       Assert.AreEqual("##", test.CommentLine);
     }
 
-     [TestMethod]
+    [TestMethod]
     public void SaveAndLoadCsvFileTest()
     {
       var file = GetCsvFile();
@@ -69,14 +69,13 @@ namespace CsvTools.Tests
       Assert.IsInstanceOfType(test, typeof(CsvFile));
 
       // FileName and ID are not serialized
-      test.FileName= file.FileName;
+      test.FileName = file.FileName;
       test.ID = file.ID;
       file.CheckAllPropertiesEqual(test);
       // Test Properties that are not tested
 
       Assert.AreEqual(file.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
-
     }
 
     [TestMethod]
@@ -100,8 +99,7 @@ namespace CsvTools.Tests
 
     private CsvFile GetCsvFile()
     {
-      var file = new CsvFile(UnitTestStatic.GetTestPath("Test.csv")) { ID = "TestFile" };      
-      file.CommentLine = "##";
+      var file = new CsvFile(UnitTestStatic.GetTestPath("Test.csv")) { ID = "TestFile", CommentLine = "##" };
 
       file.MappingCollection.Add(new Mapping("Fld1", "FldA"));
       file.MappingCollection.Add(new Mapping("Fld2", "FldB"));

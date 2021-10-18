@@ -19,39 +19,36 @@ using System.Threading;
 namespace CsvTools
 {
   [DebuggerStepThrough]
-	public class ProcessDisplayTime : CustomProcessDisplay, IProcessDisplayTime
-	{
-		public ProcessDisplayTime(CancellationToken token)
-			: base(token) =>
-			TimeToCompletion = new TimeToCompletion();
+  public sealed class ProcessDisplayTime : CustomProcessDisplay, IProcessDisplayTime
+  {
+    public ProcessDisplayTime(CancellationToken token)
+      : base(token) =>
+      TimeToCompletion = new TimeToCompletion();
 
-		public event EventHandler<ProgressWithTimeEventArgs>? ProgressTime;
+    public event EventHandler<ProgressWithTimeEventArgs>? ProgressTime;
 
-		public event EventHandler<long>? SetMaximum;
+    public event EventHandler<long>? SetMaximum;
 
-		/// <summary>
-		///   Gets or sets the maximum value for the Progress
-		/// </summary>
-		/// <value>The maximum value.</value>
-		public override long Maximum
-		{
-			get => TimeToCompletion.TargetValue;
-			set
-			{
-				TimeToCompletion.TargetValue = value > 1 ? value : 1;
-				SetMaximum?.Invoke(this, TimeToCompletion.TargetValue);
-			}
-		}
+    /// <inheritdoc cref="IProcessDisplayTime.Maximum" />
+    public override long Maximum
+    {
+      get => TimeToCompletion.TargetValue;
+      set
+      {
+        TimeToCompletion.TargetValue = value > 1 ? value : 1;
+        SetMaximum?.Invoke(this, TimeToCompletion.TargetValue);
+      }
+    }
 
-		public TimeToCompletion TimeToCompletion { get; }
+    public TimeToCompletion TimeToCompletion { get; }
 
-		protected override void Handle(in object? sender, string text, long value, bool log)
-		{
-			base.Handle(sender, text, value, log);
-			ProgressTime?.Invoke(
-				sender,
-				new ProgressWithTimeEventArgs(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
-			TimeToCompletion.Value = value;
-		}
-	}
+    protected override void Handle(in object? sender, string text, long value, bool log)
+    {
+      base.Handle(sender, text, value, log);
+      ProgressTime?.Invoke(
+        sender,
+        new ProgressWithTimeEventArgs(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
+      TimeToCompletion.Value = value;
+    }
+  }
 }

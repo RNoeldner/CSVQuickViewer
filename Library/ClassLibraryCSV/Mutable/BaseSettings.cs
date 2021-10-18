@@ -25,9 +25,9 @@ using System.Xml.Serialization;
 namespace CsvTools
 {
   // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
+  /// <inheritdoc />
   /// <summary>
-  ///   Abstract calls containing the basic setting for an IFileSetting if contains <see
-  ///   cref="ColumnCollection" /> , <see cref="MappingCollection" /> /&gt;
+  ///   Abstract calls containing the basic setting for an IFileSetting if contains <see cref="P:CsvTools.BaseSettings.ColumnCollection" /> , <see cref="P:CsvTools.BaseSettings.MappingCollection" /> /&gt;
   /// </summary>
   [DebuggerDisplay("Settings: {ID} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettings : IFileSetting
@@ -135,10 +135,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether to display record no.
-    /// </summary>
-    /// <value><c>true</c> if record number should be displayed; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlElement]
     [DefaultValue(false)]
     public virtual bool DisplayRecordNo
@@ -154,10 +151,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether to display start line numbers
-    /// </summary>
-    /// <value><c>true</c> if start line no should be displayed; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlElement]
     [DefaultValue(true)]
     public virtual bool DisplayStartLineNo
@@ -231,11 +225,10 @@ namespace CsvTools
 
     public bool SqlStatementCDataSpecified => !string.IsNullOrEmpty(SqlStatement);
 
-    /// <summary>
-    ///   Occurs after a property value changes.
-    /// </summary>
+    /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    /// <inheritdoc />
     /// <summary>
     ///   Occurs when a string value property changed providing information on old and new value
     /// </summary>
@@ -243,10 +236,7 @@ namespace CsvTools
 
     [XmlIgnore] public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
-    /// <summary>
-    ///   Gets or sets the number consecutive empty rows that should finish a read
-    /// </summary>
-    /// <value>The consecutive empty rows.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(5)]
     public virtual int ConsecutiveEmptyRows
@@ -264,10 +254,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether to display end line numbers.
-    /// </summary>
-    /// <value><c>true</c> if end line no should be displayed; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlElement]
     [DefaultValue(false)]
     public virtual bool DisplayEndLineNo
@@ -283,10 +270,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the ID.
-    /// </summary>
-    /// <value>The ID.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(0)]
     public virtual long ErrorCount
@@ -302,17 +286,11 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Storage for validation and samples record, only used in the validator but as we can not
-    ///   extend classes it has to live here
-    /// </summary>
+    /// <inheritdoc />
     [XmlElement]
     public SampleAndErrorsInformation SamplesAndErrors { get; set; } = new SampleAndErrorsInformation();
 
-    /// <summary>
-    ///   Gets or sets the Footer.
-    /// </summary>
-    /// <value>The Footer for outbound data.</value>
+    /// <inheritdoc />
     [DefaultValue("")]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
@@ -330,10 +308,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether this instance has field header.
-    /// </summary>
-    /// <value><c>true</c> if this instance has field header; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(true)]
     public virtual bool HasFieldHeader
@@ -349,10 +324,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the Footer.
-    /// </summary>
-    /// <value>The Footer for outbound data.</value>
+    /// <inheritdoc />
     [DefaultValue("")]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
@@ -370,10 +342,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the ID.
-    /// </summary>
-    /// <value>The ID.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue("")]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -397,10 +366,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether this instance is critical.
-    /// </summary>
-    /// <value><c>true</c> if this file is critical for the export; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute(AttributeName = "IsCritical")]
     [DefaultValue(false)]
     public virtual bool InOverview
@@ -416,16 +382,11 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   The identified to find this specific instance
-    /// </summary>
+    /// <inheritdoc />
     [XmlIgnore]
     public virtual string InternalID => ID;
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether this instance is enabled.
-    /// </summary>
-    /// <value><c>true</c> if this file is enabled; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(true)]
     public virtual bool IsEnabled
@@ -441,11 +402,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   The time of the source, either a file time, or in case the setting is dependent on
-    ///   multiple sources the time of the last source Changes to this date should not be considered
-    ///   as changes to the configuration
-    /// </summary>
+    /// <inheritdoc />
     [XmlIgnore]
     public DateTime LatestSourceTimeUtc
     {
@@ -465,17 +422,11 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the field mapping.
-    /// </summary>
-    /// <value>The field mapping.</value>
+    /// <inheritdoc />
     [XmlElement("Mapping")]
     public MappingCollection MappingCollection { get; } = new MappingCollection();
 
-    /// <summary>
-    ///   Gets or sets the ID.
-    /// </summary>
-    /// <value>The ID.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(0)]
     public virtual long NumRecords
@@ -491,11 +442,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   The UTC time the file was last written to, or when it was last read, this is different to
-    ///   <see cref="LatestSourceTimeUtc" />. Changes to this date should not be considered as
-    ///   changes to the configuration
-    /// </summary>
+    /// <inheritdoc />
     [XmlAttribute]
     public virtual DateTime ProcessTimeUtc
     {
@@ -510,20 +457,12 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   As the data is loaded and not further validation is done this will be set to true Once
-    ///   validation is happening and validation errors are stored this is false again. This is
-    ///   stored on FileSetting level even as it actually is used for determine th freshness of a
-    ///   loaded data in the validator, but there is not suitable data structure
-    /// </summary>
+    /// <inheritdoc />
     [XmlIgnore]
     [DefaultValue(false)]
     public virtual bool RecentlyLoaded { get; set; }
 
-    /// <summary>
-    ///   Gets or sets the record limit.
-    /// </summary>
-    /// <value>The record limit.</value>
+    /// <inheritdoc />
     [XmlElement]
     [DefaultValue(0)]
     public virtual long RecordLimit
@@ -539,10 +478,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether to show progress.
-    /// </summary>
-    /// <value><c>true</c> if progress should be shown; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(true)]
     public virtual bool ShowProgress
@@ -573,10 +509,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating if the reader will skip empty lines.
-    /// </summary>
-    /// <value>if <c>true</c> the reader will skip empty lines.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(true)]
     public virtual bool SkipEmptyLines
@@ -592,10 +525,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the number of rows that should be skipped at the start of the file
-    /// </summary>
-    /// <value>The skip rows.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(0)]
     public virtual int SkipRows
@@ -611,17 +541,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Storage for the settings used as direct or indirect sources.
-    /// </summary>
-    /// <remarks>
-    ///   This is used for queries that might refer to data that is produced by other settings but
-    ///   not for file setting pointing to a specific physical file
-    /// </remarks>
-    /// <example>
-    ///   A setting A using setting B that is dependent on C1 and C2 both dependent on D-&gt; A is
-    ///   {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}
-    /// </example>
+    /// <inheritdoc />
     [XmlIgnore]
     public IReadOnlyCollection<IFileSetting>? SourceFileSettings
     {
@@ -638,10 +558,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the SQL statement.
-    /// </summary>
-    /// <value>The SQL statement.</value>
+    /// <inheritdoc />
     [XmlIgnore]
     [DefaultValue("")]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -665,10 +582,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the template used for the file
-    /// </summary>
-    /// <value>The connection string.</value>
+    /// <inheritdoc />
     [XmlElement]
     [DefaultValue("")]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -687,10 +601,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the Timeout of a call.
-    /// </summary>
-    /// <value>The timeout in seconds.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(90)]
     public virtual int Timeout
@@ -707,10 +618,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether to treat NBSP as space.
-    /// </summary>
-    /// <value><c>true</c> if NBSP should be treated as space; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
     public virtual bool TreatNBSPAsSpace
@@ -726,9 +634,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether this instance should treat any text listed here as Null
-    /// </summary>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cTreatTextAsNull)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -747,10 +653,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating of and if training and leading spaces should be trimmed.
-    /// </summary>
-    /// <value><c>true</c> ; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(TrimmingOption.Unquoted)]
     public virtual TrimmingOption TrimmingOption
@@ -766,14 +669,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets a value indicating whether this instance is imported
-    /// </summary>
-    /// <remarks>
-    ///   Only used in CSV Validator to distinguish between imported files and extracts for
-    ///   reference checks
-    /// </remarks>
-    /// <value><c>true</c> if this file is imported; otherwise, <c>false</c>.</value>
+    /// <inheritdoc />
     [XmlAttribute(AttributeName = "IsImported")]
     [DefaultValue(true)]
     public virtual bool Validate
@@ -789,10 +685,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the ID.
-    /// </summary>
-    /// <value>The ID.</value>
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(0)]
     public virtual long WarningCount
@@ -808,35 +701,16 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   As this might be a time consuming process, do this only if the time was not determined before
-    /// </summary>
-    /// <remarks>
-    ///   For a physical file ist possibly easiest as it the file time, overwritten for more complex
-    ///   things like a Query
-    /// </remarks>
+    /// <inheritdoc />
     public virtual void CalculateLatestSourceTime() => LatestSourceTimeUtc = ProcessTimeUtc;
 
-    /// <summary>
-    ///   Clones this instance into a new instance of the same type
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc />
     public abstract object Clone();
 
-    /// <summary>
-    ///   Copies all properties to the other instance
-    /// </summary>
-    /// <param name="other">The other instance</param>
+    /// <inheritdoc />
     public abstract void CopyTo(IFileSetting other);
 
-    /// <summary>
-    ///   Indicates whether the current object is equal to another object of the same type.
-    /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
-    ///   parameter; otherwise, <see langword="false" />.
-    /// </returns>
+    /// <inheritdoc />
     public abstract bool Equals(IFileSetting? other);
 
     /// <summary>
@@ -860,14 +734,6 @@ namespace CsvTools
       if (!string.IsNullOrEmpty(ID))
         stringBuilder.Append(" ");
       stringBuilder.Append(ID);
-
-      if (this is IFileSettingPhysicalFile settingPhysicalFile)
-      {
-        stringBuilder.Append(" - ");
-        stringBuilder.Append(FileSystemUtils.GetShortDisplayFileName(settingPhysicalFile.FileName));
-        return stringBuilder.ToString();
-      }
-
       return stringBuilder.ToString();
     }
 

@@ -149,7 +149,7 @@ namespace CsvTools
     /// <summary>
     ///   Occurs before the file is opened
     /// </summary>
-    public void SetOnOpen(Func<Task>? value) => m_OnOpenAsync=value;
+    public void SetOnOpen(Func<Task>? value) => m_OnOpenAsync = value;
 
     /// <summary>
     ///   Gets the percentage as value between 0 and 100
@@ -286,7 +286,6 @@ namespace CsvTools
     }
 
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-
     public new virtual async Task CloseAsync() => await Task.Run(() => base.Close());
 
 #endif
@@ -360,6 +359,7 @@ namespace CsvTools
     /// </exception>
     public override char GetChar(int ordinal) => GetString(ordinal)[0];
 
+    /// <inheritdoc />
     /// <summary>
     ///   Reads a stream of characters from the specified column offset into the buffer as an array,
     ///   starting at the given buffer offset.
@@ -372,8 +372,8 @@ namespace CsvTools
     /// </param>
     /// <param name="length">The number of bytes to read.</param>
     /// <returns>The actual number of characters read.</returns>
-    /// <exception cref="IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="IDataRecord.FieldCount" />.
+    /// <exception cref="T:System.IndexOutOfRangeException">
+    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
     public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
     {
@@ -702,13 +702,13 @@ namespace CsvTools
         ret = column.ValueFormat.DataType switch
         {
           DataType.DateTime => GetDateTime(ordinal),
-          DataType.Integer => IntPtr.Size == 4 ? GetInt32(ordinal) : GetInt64(ordinal),
-          DataType.Double => GetDouble(ordinal),
-          DataType.Numeric => GetDecimal(ordinal),
-          DataType.Boolean => GetBoolean(ordinal),
-          DataType.Guid => GetGuid(ordinal),
-          DataType.String => GetString(ordinal),
-          _ => throw new ArgumentOutOfRangeException($"Datatype {column.ValueFormat.DataType} is not supported")
+          DataType.Integer  => IntPtr.Size == 4 ? GetInt32(ordinal) : GetInt64(ordinal),
+          DataType.Double   => GetDouble(ordinal),
+          DataType.Numeric  => GetDecimal(ordinal),
+          DataType.Boolean  => GetBoolean(ordinal),
+          DataType.Guid     => GetGuid(ordinal),
+          DataType.String   => GetString(ordinal),
+          _                 => throw new ArgumentOutOfRangeException($"Datatype {column.ValueFormat.DataType} is not supported")
         };
       }
       catch (FormatException)

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   /// <summary>
   ///   Wrapper around a TestReader that handles BOM and Encoding and a has a method called
   ///   ToBeginning to reset to the reader to the start of the stream
@@ -20,6 +21,7 @@ namespace CsvTools
     ///   The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
     private const char c_Lf = (char) 0x0a;
+
     private readonly int m_BomLength;
     private readonly int m_CodePage;
     private readonly Stream m_ImprovedStream;
@@ -41,7 +43,6 @@ namespace CsvTools
     ///   it will overwrite the provided data
     /// </remarks>
 #pragma warning disable 8618
-
     public ImprovedTextReader(in IImprovedStream improvedStream, int codePageId = 65001, int skipLines = 0)
 #pragma warning restore 8618
     {
@@ -139,11 +140,9 @@ namespace CsvTools
     /// <returns>A string with the contents, or empty string if nothing was read</returns>
     public async Task<string> ReadLineAsync()
     {
-
       LineNumber++;
       return await TextReader.ReadLineAsync();
     }
-
 
     /// <summary>
     ///   Resets the position of the stream to the beginning, without opening the stream from
@@ -176,7 +175,7 @@ namespace CsvTools
       {
         TextReader.ReadLine();
         LineNumber++;
-      }            
+      }
     }
 
     private void Dispose(bool disposing)

@@ -34,9 +34,7 @@ namespace CsvTools
     {
     }
 
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
-    /// </summary>
+    /// <inheritdoc />
     public XMLFile()
       : this(string.Empty)
     {

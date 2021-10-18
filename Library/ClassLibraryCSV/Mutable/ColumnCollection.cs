@@ -20,6 +20,7 @@ namespace CsvTools
 {
   public sealed class ColumnCollection : ObservableCollection<IColumn>, ICloneable, IEquatable<ColumnCollection>
   {
+    /// <inheritdoc />
     /// <summary>
     ///   Needed for XML Serialization
     /// </summary>
@@ -34,18 +35,7 @@ namespace CsvTools
         Add(col);
     }
 
-    /// <summary>
-    ///   Adds the <see cref="IColumn" /> to the column list if it does not exist yet
-    /// </summary>
-    /// <remarks>If the column name already exist it does nothing</remarks>
-    /// <param name="column">The column format.</param>
-    public new void Add(IColumn column)
-    {
-      var index = GetIndex(column?.Name ?? throw new ArgumentNullException(nameof(column)));
-      if (index != -1) return;
-      base.Add(column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
-    }
-
+    /// <inheritdoc />
     /// <summary>
     ///   Clones this instance into a new instance of the same type
     /// </summary>
@@ -55,6 +45,28 @@ namespace CsvTools
       var newColumnCollection = new ColumnCollection();
       CopyTo(newColumnCollection);
       return newColumnCollection;
+    }
+
+    /// <inheritdoc />
+    /// <summary>
+    ///   Indicates whether the current object is equal to another object of the same type.
+    /// </summary>
+    /// <param name="other">An object to compare with this object.</param>
+    /// <returns>
+    ///   true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
+    /// </returns>
+    public bool Equals(ColumnCollection? other) => Items.CollectionEqual(other);
+
+    /// <summary>
+    ///   Adds the <see cref="IColumn" /> to the column list if it does not exist yet
+    /// </summary>
+    /// <remarks>If the column name already exist it does nothing</remarks>
+    /// <param name="column">The column format.</param>
+    public new void Add(IColumn column)
+    {
+      var index = GetIndex(column.Name ?? throw new ArgumentNullException(nameof(column)));
+      if (index != -1) return;
+      base.Add(column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
     }
 
     public void CopyFrom(IEnumerable<IColumn>? items)
@@ -73,15 +85,6 @@ namespace CsvTools
     public void CopyTo(ColumnCollection other) => Items.CollectionCopy(other);
 
     /// <summary>
-    ///   Indicates whether the current object is equal to another object of the same type.
-    /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
-    /// </returns>
-    public bool Equals(ColumnCollection? other) => Items.CollectionEqual(other);
-
-    /// <summary>
     ///   Gets the <see cref="CsvTools.IColumn" /> with the specified field name.
     /// </summary>
     /// <param name="fieldName"></param>
@@ -94,7 +97,7 @@ namespace CsvTools
       return index == -1 ? null : Items[index];
     }
 
-    public int GetIndex(string colName)
+    internal int GetIndex(string colName)
     {
       for (var index = 0; index < Items.Count; index++)
         if (string.Equals(Items[index].Name, colName, StringComparison.OrdinalIgnoreCase))
@@ -103,7 +106,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Replaces an existign column of teh same name, if it does not exist it adds the column
+    ///   Replaces an existing column of teh same name, if it does not exist it adds the column
     /// </summary>
     /// <param name="column"></param>
     public void Replace(IColumn column)
@@ -116,7 +119,8 @@ namespace CsvTools
       {
         Items.RemoveAt(index);
         Items.Insert(index, column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
-        base.OnCollectionChanged(new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
+        base.OnCollectionChanged(
+          new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
       }
       else
       {
