@@ -36,10 +36,7 @@ namespace CsvTools
   {
     private static int m_DefRowHeight = -1;
     private static Image? m_ImgFilterIndicator;
-
-    //private static Image m_ImgNbSp;
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
-
     private readonly List<ToolStripDataGridViewColumnFilter?> m_Filter = new List<ToolStripDataGridViewColumnFilter?>();
 
     private BindingSource? m_BindingSource;
@@ -395,7 +392,7 @@ namespace CsvTools
         return;
 
       SetRowHeight();
-      DataViewChanged?.Invoke(null, EventArgs.Empty);
+      DataViewChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -860,8 +857,7 @@ namespace CsvTools
     }
 
     private void FilteredDataGridView_Paint(object? sender, PaintEventArgs e) => m_DefRowHeight =
-                                                                                                                                                                                                              (TextRenderer.MeasureText(e.Graphics, "My Text", base.Font).Height * 120) /
-                                                                                  100;
+     (TextRenderer.MeasureText(e.Graphics, "My Text", base.Font).Height * 120) / 100;
 
     /// <summary>
     ///   Generates the data grid view column.
@@ -1037,8 +1033,6 @@ namespace CsvTools
           while (highlightIndex >= 0 && (linefeedIndex == -1 || highlightIndex < linefeedIndex))
           {
             hlRect.Y = e.CellBounds.Y + 2;
-
-            // hl_rect.Height = e.CellBounds.Height - 5;
             var highlight = TextRenderer.MeasureText(
               e.Graphics,
               val.Substring(highlightIndex, m_HighlightText.Length),

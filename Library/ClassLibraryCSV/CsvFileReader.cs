@@ -467,13 +467,13 @@ namespace CsvTools
       object? ret = column.ValueFormat.DataType switch
       {
         DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal), column, true),
-        DataType.Integer  => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
-        DataType.Double   => GetDoubleNull(value, ordinal),
-        DataType.Numeric  => GetDecimalNull(value, ordinal),
-        DataType.Boolean  => GetBooleanNull(value, ordinal),
-        DataType.Guid     => GetGuidNull(value, column.ColumnOrdinal),
-        DataType.String   => value,
-        _                 => throw new NotSupportedException($"DataType {column.ValueFormat.DataType} is not supported")
+        DataType.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
+        DataType.Double => GetDoubleNull(value, ordinal),
+        DataType.Numeric => GetDecimalNull(value, ordinal),
+        DataType.Boolean => GetBooleanNull(value, ordinal),
+        DataType.Guid => GetGuidNull(value, column.ColumnOrdinal),
+        DataType.String => value,
+        _ => throw new NotSupportedException($"DataType {column.ValueFormat.DataType} is not supported")
       };
       return ret ?? DBNull.Value;
     }
@@ -640,8 +640,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   This does read the next record and stores it in CurrentRowColumnText />, it
-    ///   will handle column mismatches
+    ///   This does read the next record and stores it in CurrentRowColumnText /&gt;, it will handle
+    ///   column mismatches
     /// </summary>
     /// <returns><c>true</c> if a new record was read</returns>
     private bool GetNextRecord()
@@ -993,7 +993,7 @@ namespace CsvTools
               // in case a linefeed actually follows ignore the EscapePrefixChar but handle the
               // regular processing
               '\\' when nextChar == 'a' => '\a',
-              _                         => nextChar
+              _ => nextChar
             };
           }
         }

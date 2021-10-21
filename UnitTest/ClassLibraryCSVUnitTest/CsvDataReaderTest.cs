@@ -80,7 +80,10 @@ namespace CsvTools.Tests
       var setting =
         new CsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"))
         {
-          HasFieldHeader = true, FieldDelimiter = "|", FieldQualifier = "\"", SkipEmptyLines = false
+          HasFieldHeader = true,
+          FieldDelimiter = "|",
+          FieldQualifier = "\"",
+          SkipEmptyLines = false
         };
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
@@ -487,7 +490,10 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"), HasFieldHeader = true, SkipEmptyLines = false, ConsecutiveEmptyRows = 3
+        FileName = UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"),
+        HasFieldHeader = true,
+        SkipEmptyLines = false,
+        ConsecutiveEmptyRows = 3
       };
       /*
        * ID,LangCode,ExamDate,Score,Proficiency,IsNativeLang
@@ -854,7 +860,9 @@ namespace CsvTools.Tests
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
+#pragma warning disable CS0618 // Typ oder Element ist veraltet
       test.GetBytes(0, 0, null, 0, 0);
+#pragma warning restore CS0618 // Typ oder Element ist veraltet
     }
 
     [TestMethod]
@@ -1145,7 +1153,10 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), HasFieldHeader = false, SkipRows = 1, FieldQualifier = "Carriage return"
+        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
+        HasFieldHeader = false,
+        SkipRows = 1,
+        FieldQualifier = "Carriage return"
       };
       var exception = false;
       try

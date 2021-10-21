@@ -300,14 +300,14 @@ namespace CsvTools
           errors.Append(CombineColumnAndError(column, message));
         }
 
-      // The warnings
-      foreach (var part in errorList)
-        if (part.Item2.IsWarningMessage())
-        {
-          if (errors.Length > 0)
-            errors.Append(cSeparator);
-          errors.Append(CombineColumnAndError(part.Item1, part.Item2));
-        }
+      foreach (var part in from part in errorList
+                           where part.Item2.IsWarningMessage()
+                           select part)
+      {
+        if (errors.Length > 0)
+          errors.Append(cSeparator);
+        errors.Append(CombineColumnAndError(part.Item1, part.Item2));
+      }
 
       return errors.ToString();
     }

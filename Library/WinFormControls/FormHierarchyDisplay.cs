@@ -679,7 +679,7 @@ namespace CsvTools
       m_TimerSearch.Start();
     }
 
-    public class TreeData
+    public sealed class TreeData
     {
       public readonly ICollection<TreeData> Children = new List<TreeData>();
       public readonly string ID;
