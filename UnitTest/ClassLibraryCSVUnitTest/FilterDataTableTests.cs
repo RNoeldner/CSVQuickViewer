@@ -57,7 +57,7 @@ namespace CsvTools.Tests
     public async Task FilterDataTableTest()
     {
       var dt = GetDataTable(2000);
-      var test = new FilterDataTable(dt.Item1);
+      var test = new FilterDataTable(dt.Item1, null);
       await test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestStatic.Token);
       Assert.IsTrue(test.FilterTable.Rows.Count > 0);
 
@@ -68,7 +68,7 @@ namespace CsvTools.Tests
     public void CancelTest()
     {
       var dt = GetDataTable(2000);
-      using var test = new FilterDataTable(dt.Item1);
+      using var test = new FilterDataTable(dt.Item1, null);
       test.Cancel();
       // No effect but no error either
       _ = test.FilterAsync(0, FilterType.ShowErrors, UnitTestStatic.Token);
@@ -81,7 +81,7 @@ namespace CsvTools.Tests
     public void UniqueFieldName()
     {
       var dt = GetDataTable(10);
-      using var test = new FilterDataTable(dt.Item1);
+      using var test = new FilterDataTable(dt.Item1, null);
       test.UniqueFieldName = new[] { "ColID" };
       var task = test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestStatic.Token).ConfigureAwait(false);
       while (test.Filtering)
@@ -89,14 +89,14 @@ namespace CsvTools.Tests
 
       Assert.IsFalse(test.Filtering);
       var result1 = test.ColumnsWithoutErrors;
-      Assert.IsFalse(result1.Any(x => x=="ColID"));
+      Assert.IsFalse(result1.Any(x => x == "ColID"));
     }
 
     [TestMethod]
     public async Task ColumnsWithoutErrorsAsync()
     {
       var dt = GetDataTable(2000);
-      var test = new FilterDataTable(dt.Item1);
+      var test = new FilterDataTable(dt.Item1, null);
       await test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestStatic.Token);
       // not a good test, but its known how many columns will have errors
       Assert.AreEqual(dt.Item2, test.ColumnsWithoutErrors.Count);
@@ -106,7 +106,7 @@ namespace CsvTools.Tests
     public void DisposeTest()
     {
       var dt = GetDataTable(2);
-      var test = new FilterDataTable(dt.Item1);
+      var test = new FilterDataTable(dt.Item1, null);
       test.Dispose();
     }
   }

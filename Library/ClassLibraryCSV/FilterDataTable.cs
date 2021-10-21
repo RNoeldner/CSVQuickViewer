@@ -32,6 +32,7 @@ namespace CsvTools
     private readonly DataTable m_SourceTable;
 
     private readonly List<string> m_UniqueFieldName = new List<string>();
+    private readonly Action? m_WhileWaiting;
 
     private HashSet<string>? m_ColumnWithoutErrors;
 
@@ -45,10 +46,12 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
     /// </summary>
     /// <param name="init">The initial DataTable</param>
-    public FilterDataTable(in DataTable? init)
+    /// <param name="whileWaiting">Acton to be performed wjile waiting on completion</param>
+    public FilterDataTable(in DataTable? init, Action? whileWaiting)
     {
       m_SourceTable = init ?? throw new ArgumentNullException(nameof(init));
       FilterTable = m_SourceTable.Clone();
+      m_WhileWaiting = whileWaiting;
     }
 
     /// <summary>
@@ -250,11 +253,14 @@ namespace CsvTools
       stopwatch?.Start();
       while (m_Filtering)
       {
-        FunctionalDI.SignalBackground.Invoke();
-        if (!(stopwatch?.Elapsed.TotalSeconds > timeoutInSeconds)) continue;
-        // can not call Cancel as this method is called by cancel
-        m_CurrentFilterCancellationTokenSource?.Cancel();
-        break;
+        m_WhileWaiting?.Invoke();
+        Task.Delay(125);
+        if (stopwatch?.Elapsed.TotalSeconds > timeoutInSeconds)
+        {
+          // can not call Cancel as this method is called by timeout
+          m_CurrentFilterCancellationTokenSource?.Cancel();
+          break;
+        }
       }
     }
 

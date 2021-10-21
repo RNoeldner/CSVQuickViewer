@@ -7,14 +7,6 @@ namespace CsvTools.Tests
   public class FunctionalDITests
   {
     [TestMethod]
-    public void GetEncryptedPassphraseTest()
-    {
-      var setting = new CsvFile { Passphrase = "Hello World" };
-      var test = FunctionalDI.GetEncryptedPassphrase(setting);
-      Assert.AreEqual(setting.Passphrase, test);
-    }
-
-    [TestMethod]
     public void GetFileReaderTestCsv()
     {
       var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt") };
@@ -26,10 +18,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetFileReaderTestJson()
     {
-      var setting = new JsonFile
-      {
-        FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")
-      };
+      var setting = new JsonFile { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt") };
       using var test2 =
         FunctionalDI.GetFileReader(setting, null, new CustomProcessDisplay(UnitTestStatic.Token));
       Assert.IsInstanceOfType(test2, typeof(JsonFileReader));
@@ -42,7 +31,7 @@ namespace CsvTools.Tests
       var test = FunctionalDI.GetFileWriter(setting, new CustomProcessDisplay(UnitTestStatic.Token));
       Assert.IsInstanceOfType(test, typeof(CsvFileWriter));
 
-      var setting2 = new JsonFile { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), Row ="{0}" };
+      var setting2 = new JsonFile { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), Row = "{0}" };
       var test2 = FunctionalDI.GetFileWriter(setting2, new CustomProcessDisplay(UnitTestStatic.Token));
       Assert.IsInstanceOfType(test2, typeof(StructuredFileWriter));
     }
@@ -61,10 +50,10 @@ namespace CsvTools.Tests
       var test2 = FunctionalDI.AdjustTZExport(test1, "Hawaiian Standard Time", 1, null);
       Assert.AreEqual(srcTime, test2);
 #endif
-      var test3 = FunctionalDI.AdjustTZImport(srcTime, null, 1, null);
+      var test3 = FunctionalDI.AdjustTZImport(srcTime, null, null);
       Assert.AreEqual(srcTime, test3);
 
-      var test4 = FunctionalDI.AdjustTZImport(srcTime, TimeZoneInfo.Local.Id, 1, null);
+      var test4 = FunctionalDI.AdjustTZImport(srcTime, TimeZoneInfo.Local.Id, null);
       Assert.AreEqual(srcTime, test4);
     }
   }

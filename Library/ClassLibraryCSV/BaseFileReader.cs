@@ -1275,11 +1275,11 @@ namespace CsvTools
         return FunctionalDI.AdjustTZImport(
           input,
           GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]),
-          column.ColumnOrdinal,
-          HandleWarning);
+          (message) => HandleWarning(column.ColumnOrdinal, message));
 
       return column.TimeZonePart.TryGetConstant(out var timeZone)
-               ? FunctionalDI.AdjustTZImport(input, timeZone, column.ColumnOrdinal, HandleWarning)
+               ? FunctionalDI.AdjustTZImport(input, timeZone,
+                 (message) => HandleWarning(column.ColumnOrdinal, message))
                : input;
     }
 

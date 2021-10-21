@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Microsoft.Win32;
@@ -34,10 +35,10 @@ namespace CsvTools
   /// </summary>
   public partial class FormColumnUI : ResizeForm
   {
-    private readonly HTMLStyle HTMLStyle;
-
     private const string cNoSampleDate =
-          "The source does not contain samples without warnings in the {0:N0} records read";
+      "The source does not contain samples without warnings in the {0:N0} records read";
+
+    private readonly HTMLStyle HTMLStyle;
 
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
@@ -47,8 +48,6 @@ namespace CsvTools
     private readonly FillGuessSettings m_FillGuessSettings;
 
     private readonly bool m_WriteSetting;
-
-    public IColumn EditedColumn => m_ColumnEdit;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormColumnUI" /> class.
@@ -69,7 +68,7 @@ namespace CsvTools
       HTMLStyle hTMLStyle)
     {
       m_ColumnRef = column;
-      if (column ==null)
+      if (column == null)
         m_ColumnEdit = new Column();
       else
         m_ColumnEdit = new Column(column);
@@ -97,6 +96,8 @@ namespace CsvTools
       textBoxDisplayNullAs.Visible = writeSetting;
       checkBoxIgnore.Visible = !writeSetting && showIgnore;
     }
+
+    public IColumn EditedColumn => m_ColumnEdit;
 
     public bool ShowGuess
     {
@@ -181,13 +182,13 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
-                processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
+            using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
+                                     processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
           {
             DataTable? data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false,
-              m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
-              null,
-              processDisplay.CancellationToken);
+                                m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
+                                null,
+                                processDisplay.CancellationToken);
             var found = new Column();
             var column = data?.Columns[columnName];
             if (column is null)
@@ -335,14 +336,14 @@ namespace CsvTools
                   header1 +=
                     $"\r\nClosest match is : {checkResult.ValueFormatPossibleMatch?.GetTypeAndFormatDescription()}";
 
-                if (suggestClosestMatch && checkResult.ValueFormatPossibleMatch !=null)
+                if (suggestClosestMatch && checkResult.ValueFormatPossibleMatch != null)
                 {
                   if (_MessageBox.ShowBigHtml(
-                      BuildHTMLText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4,
-                        "Not matching:", checkResult.ExampleNonMatch),
-                      $"Column: {columnName}",
-                      MessageBoxButtons.YesNo,
-                      MessageBoxIcon.Question) == DialogResult.Yes)
+                        BuildHTMLText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4,
+                          "Not matching:", checkResult.ExampleNonMatch),
+                        $"Column: {columnName}",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question) == DialogResult.Yes)
                     // use the closest match instead of Text can not use ValueFormat.CopyTo,. Column
                     // is quite specific and need it to be set,
                     m_ColumnEdit.ValueFormatMutable.CopyFrom(checkResult.ValueFormatPossibleMatch);
@@ -386,10 +387,10 @@ namespace CsvTools
                   else
                   {
                     if (_MessageBox.ShowBig(
-                      displayMsg + "\n\nShould this be set to text?",
-                      $"Column: {columnName}",
-                      MessageBoxButtons.YesNo,
-                      MessageBoxIcon.Question) == DialogResult.Yes)
+                          displayMsg + "\n\nShould this be set to text?",
+                          $"Column: {columnName}",
+                          MessageBoxButtons.YesNo,
+                          MessageBoxIcon.Question) == DialogResult.Yes)
                       m_ColumnEdit.ValueFormatMutable.DataType = DataType.String;
                   }
                 }
@@ -438,8 +439,8 @@ namespace CsvTools
           if (timeZone.TryGetConstant(out var tz))
           {
             sourceDate = m_WriteSetting
-                           ? FunctionalDI.AdjustTZExport(sourceDate, tz, -1, null)
-                           : FunctionalDI.AdjustTZImport(sourceDate, tz, -1, null);
+                           ? FunctionalDI.AdjustTZExport(sourceDate, tz, null)
+                           : FunctionalDI.AdjustTZImport(sourceDate, tz, null);
           }
           else
           {
@@ -462,23 +463,18 @@ namespace CsvTools
       {
         if (string.IsNullOrEmpty(decimalSeparator))
           return;
-        var vf = new ValueFormatMutable
-        {
-          NumberFormat = numberFormat,
-          GroupSeparator = numberFormat,
-          DecimalSeparator = groupSeparator
-        };
+        var vf = new ValueFormatMutable { NumberFormat = numberFormat, GroupSeparator = numberFormat, DecimalSeparator = groupSeparator };
         var sample = StringConversion.DoubleToString(1234.567, vf);
 
         labelNumber.SafeInvoke(() =>
-       {
-         toolTip.SetToolTip(textBoxDecimalSeparator, vf.DecimalSeparator.GetDescription());
-         toolTip.SetToolTip(textBoxGroupSeparator, vf.GroupSeparator.GetDescription());
+        {
+          toolTip.SetToolTip(textBoxDecimalSeparator, vf.DecimalSeparator.GetDescription());
+          toolTip.SetToolTip(textBoxGroupSeparator, vf.GroupSeparator.GetDescription());
 
-         labelNumber.Text = $@"Input: ""{sample}""";
-         labelNumberOutput.Text =
-           $@"Output: ""{StringConversion.StringToDecimal(sample, vf.DecimalSeparator, vf.GroupSeparator, false):N}""";
-       });
+          labelNumber.Text = $@"Input: ""{sample}""";
+          labelNumberOutput.Text =
+            $@"Output: ""{StringConversion.StringToDecimal(sample, vf.DecimalSeparator, vf.GroupSeparator, false):N}""";
+        });
       }
       catch (Exception ex)
       {
@@ -493,15 +489,17 @@ namespace CsvTools
     }
 
     private string BuildHTMLText(string? header, string? footer, int rows, string headerList1,
-                                            ICollection<string> values1, int col1, string? headerList2 = null, ICollection<string>? values2 = null,
-                                            int col2 = 2)
+                                 ICollection<string> values1, int col1, string? headerList2 = null, ICollection<string>? values2 = null,
+                                 int col2 = 2)
     {
-      var stringBuilder = HTMLStyle.StartHTMLDoc($"{System.Drawing.SystemColors.Control.R:X2}{System.Drawing.SystemColors.Control.G:X2}{System.Drawing.SystemColors.Control.B:X2}", "<STYLE type=\"text/css\">\r\n" +
-                                                                                      "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
-                                                                                      "  h2 { color:DarkBlue; font-size : 12px; }\r\n" +
-                                                                                      "  table { border-collapse:collapse; font-size : 11px; }\r\n" +
-                                                                                      "  td { border: 2px solid lightgrey; padding:3px; }\r\n" +
-                                                                                      "</STYLE>");
+      var stringBuilder = HTMLStyle.StartHTMLDoc(
+        $"{System.Drawing.SystemColors.Control.R:X2}{System.Drawing.SystemColors.Control.G:X2}{System.Drawing.SystemColors.Control.B:X2}",
+        "<STYLE type=\"text/css\">\r\n" +
+        "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
+        "  h2 { color:DarkBlue; font-size : 12px; }\r\n" +
+        "  table { border-collapse:collapse; font-size : 11px; }\r\n" +
+        "  td { border: 2px solid lightgrey; padding:3px; }\r\n" +
+        "</STYLE>");
 
       if (!string.IsNullOrEmpty(header))
         stringBuilder.Append(string.Format(HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(header!)));
@@ -533,7 +531,7 @@ namespace CsvTools
     private void ButtonCancelClick(object? sender, EventArgs e) => Close();
 
     private async void ButtonDisplayValues_ClickAsync(object? sender, EventArgs e) =>
-          await buttonDisplayValues.RunWithHourglassAsync(async () => await DisplayValues());
+      await buttonDisplayValues.RunWithHourglassAsync(async () => await DisplayValues());
 
     /// <summary>
     ///   Handles the Click event of the buttonGuess control.
@@ -558,6 +556,7 @@ namespace CsvTools
           DialogResult = DialogResult.No;
           return;
         }
+
         Hide();
         DialogResult = DialogResult.Yes;
         if (m_ColumnRef is Column refCol)
@@ -669,17 +668,17 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
               await
 #endif
-              using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null,
-                        new CustomProcessDisplay(m_CancellationTokenSource.Token));
+                using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null,
+                  new CustomProcessDisplay(m_CancellationTokenSource.Token));
               await fileReader.OpenAsync(m_CancellationTokenSource.Token);
               for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
                 allColumns.Add(fileReader.GetColumn(colIndex).Name);
             }
             else
             {
-              if (FunctionalDI.GetColumnHeader != null)
+              if (FunctionalDI.GetColumnHeaderAsync != null)
               {
-                var cols = await FunctionalDI.GetColumnHeader(m_FileSetting, m_CancellationTokenSource.Token);
+                var cols = await FunctionalDI.GetColumnHeaderAsync(m_FileSetting, m_CancellationTokenSource.Token);
                 foreach (var col in cols)
                   allColumns.Add(col);
               }
@@ -690,9 +689,9 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
             await
 #endif
-            // Write Setting ----- open the source that is SQL
-            using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
-              m_FileSetting.Timeout, m_CancellationTokenSource.Token);
+              // Write Setting ----- open the source that is SQL
+              using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
+                                       m_FileSetting.Timeout, m_CancellationTokenSource.Token);
             await fileReader.OpenAsync(m_CancellationTokenSource.Token);
             for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
               allColumns.Add(fileReader.GetColumn(colIndex).Name);
@@ -786,10 +785,7 @@ namespace CsvTools
       UpdateDateLabel(
         new ValueFormatMutable()
         {
-          DataType = DataType.DateTime,
-          DateFormat = dateFormat,
-          DateSeparator = textBoxDateSeparator.Text,
-          TimeSeparator = textBoxTimeSeparator.Text
+          DataType = DataType.DateTime, DateFormat = dateFormat, DateSeparator = textBoxDateSeparator.Text, TimeSeparator = textBoxTimeSeparator.Text
         }, !string.IsNullOrEmpty(comboBoxTimePart.Text), comboBoxTPFormat.Text, comboBoxTimeZone.Text);
     }
 
@@ -799,7 +795,6 @@ namespace CsvTools
     /// <param name="columnName">Name of the column.</param>
     /// <param name="processDisplay">The process display.</param>
     /// <returns></returns>
-
     /// <exception cref="FileException">
     ///   Column {columnName} not found. or Column {columnName} not found.
     /// </exception>
@@ -813,16 +808,16 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var sqlReader =
-                      await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
-                        processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken);
+            using var sqlReader =
+              await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
+                processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken);
           await sqlReader.OpenAsync(processDisplay.CancellationToken);
           var colIndex = sqlReader.GetOrdinal(columnName);
           if (colIndex < 0)
             throw new FileException($"Column {columnName} not found.");
           return (await DetermineColumnFormat.GetSampleValuesAsync(sqlReader, 0, new[] { colIndex },
-              m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken)
-            .ConfigureAwait(false)).First().Value;
+                                               m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken)
+                                             .ConfigureAwait(false)).First().Value;
         }
 
         // must be file reader if this is reached
@@ -850,8 +845,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        // ReSharper disable once ConvertToUsingDeclaration
-        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
+          // ReSharper disable once ConvertToUsingDeclaration
+          using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
         {
           await fileReader.OpenAsync(processDisplay.CancellationToken);
           var colIndex = fileReader.GetOrdinal(columnName);
@@ -871,9 +866,9 @@ namespace CsvTools
           }
 
           return (await DetermineColumnFormat.GetSampleValuesAsync(fileReader, m_FillGuessSettings.CheckedRecords,
-              new[] { colIndex },
-              m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken)
-            .ConfigureAwait(false)).First().Value;
+                                               new[] { colIndex },
+                                               m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken)
+                                             .ConfigureAwait(false)).First().Value;
         }
       }
       catch (Exception ex)
@@ -885,7 +880,7 @@ namespace CsvTools
     }
 
     private void ListSamples(StringBuilder stringBuilder, string? headerList, ICollection<string>? values, int col,
-                                                                            int rows)
+                             int rows)
     {
       if (values is null || values.Count <= 0 || string.IsNullOrEmpty(headerList))
         return;
@@ -1044,7 +1039,8 @@ namespace CsvTools
       checkedListBoxDateFormats.EndUpdate();
     }
 
-    private void SetSamplePart(object? sender, EventArgs? e) => SetPartLabels(textBoxSplit.Text, Convert.ToInt32(numericUpDownPart.Value), checkBoxPartToEnd.Checked);
+    private void SetSamplePart(object? sender, EventArgs? e) =>
+      SetPartLabels(textBoxSplit.Text, Convert.ToInt32(numericUpDownPart.Value), checkBoxPartToEnd.Checked);
 
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]

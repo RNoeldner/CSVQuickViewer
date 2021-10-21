@@ -11,12 +11,13 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
-using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -131,7 +132,7 @@ namespace CsvTools
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
     public static void SetClipboard(this DataObject dataObject, int timeoutMilliseconds = 120000)
-    => RunSTAThread(() =>
+      => RunSTAThread(() =>
       {
         Clipboard.Clear();
         Clipboard.SetDataObject(dataObject, false, 5, 200);
@@ -227,7 +228,7 @@ namespace CsvTools
     }
 
     public static Binding? GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>()
-                                                                   .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
+                                                                    .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
 
     public static void LoadWindowState(
       this Form form,
@@ -277,7 +278,7 @@ namespace CsvTools
       Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,
                                           new Action(delegate { }));
 #else
-        FunctionalDI.SignalBackground.Invoke();
+        Application.DoEvents();
         if (milliseconds > 10)
           Thread.Sleep(milliseconds);
 #endif
@@ -355,7 +356,10 @@ namespace CsvTools
         Logger.Warning(ex, ex.SourceExceptionMessage());
       Cursor.Current = Cursors.Default;
 #if DEBUG
-      _MessageBox.ShowBig(((from != null) ? $"Error in {from.GetType().Name}\n\n" : string.Empty) + ex.ExceptionMessages() + ((ex.StackTrace!=null) ? "\n\nMethod:\n" + ex.StackTrace : string.Empty), string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}",
+      _MessageBox.ShowBig(
+        ((from != null) ? $"Error in {from.GetType().Name}\n\n" : string.Empty) + ex.ExceptionMessages() +
+        ((ex.StackTrace != null) ? "\n\nMethod:\n" + ex.StackTrace : string.Empty),
+        string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}",
         MessageBoxButtons.OK, MessageBoxIcon.Warning,
         timeout: 20);
 #else

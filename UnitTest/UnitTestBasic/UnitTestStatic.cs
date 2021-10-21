@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System;
@@ -42,6 +43,24 @@ namespace CsvTools.Tests
 
     private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 
+    public static Column[] ColumnsDT2 =
+    {
+      new Column("string") //0
+    };
+
+    public static Column[] ColumnsDT =
+    {
+      new Column("string"),                      //0
+      new Column("int", DataType.Integer),       //1
+      new Column("DateTime", DataType.DateTime), //2
+      new Column("bool", DataType.Boolean),      //3
+      new Column("double", DataType.Double),     //4
+      new Column("numeric", DataType.Numeric),   //5
+      new Column("AllEmpty"),                    //6
+      new Column("PartEmpty"),                   //7
+      new Column("ID", DataType.Integer)         //8
+    };
+
     public static HTMLStyle HTMLStyle { get; } = new HTMLStyle();
 
     public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
@@ -72,7 +91,7 @@ namespace CsvTools.Tests
 
       if (m_Random.NextDouble() > .4) dr[7] = GetRandomText(100);
 
-      dr[8] = recNum; // ID
+      dr[8] = recNum;     // ID
       dr[9] = recNum * 2; // #Line
 
       // Add Errors and Warnings to Columns and Rows
@@ -120,14 +139,15 @@ namespace CsvTools.Tests
         var readProps = a.GetType().GetProperties().Where(prop => prop?.GetMethod != null).ToList();
 
         var valueProperties = readProps.Where(prop => (prop.PropertyType == typeof(int)
-                                                    || prop.PropertyType == typeof(long)
-                                                    || prop.PropertyType == typeof(string)
-                                                    || prop.PropertyType == typeof(bool)
-                                                    || prop.PropertyType == typeof(DateTime)));
+                                                       || prop.PropertyType == typeof(long)
+                                                       || prop.PropertyType == typeof(string)
+                                                       || prop.PropertyType == typeof(bool)
+                                                       || prop.PropertyType == typeof(DateTime)));
 
         CheckProertiesEqual(a, b, valueProperties);
 
-        foreach (var prop in readProps.Where(prop => !valueProperties.Contains(prop) && prop.PropertyType.AssemblyQualifiedName.StartsWith("CsvTools.", StringComparison.Ordinal)))
+        foreach (var prop in readProps.Where(prop =>
+          !valueProperties.Contains(prop) && prop.PropertyType.AssemblyQualifiedName.StartsWith("CsvTools.", StringComparison.Ordinal)))
         {
           var obj1 = prop.GetValue(a);
           var obj2 = prop.GetValue(b);
@@ -150,7 +170,7 @@ namespace CsvTools.Tests
 
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
 
-      AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs args)
+      AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs args)
       {
         if (!contextToken.IsCancellationRequested)
           unhandledException(args.ExceptionObject.ToString());
@@ -256,19 +276,12 @@ namespace CsvTools.Tests
 
     public static CsvFile ReaderGetAllFormats(string id = "AllFormats")
     {
-      var readFile = new CsvFile
-      {
-        ID = id,
-        FileName = Path.Combine(GetTestPath("AllFormats.txt")),
-        HasFieldHeader = true,
-        FieldDelimiter = "TAB"
-      };
+      var readFile = new CsvFile { ID = id, FileName = Path.Combine(GetTestPath("AllFormats.txt")), HasFieldHeader = true, FieldDelimiter = "TAB" };
 
       readFile.ColumnCollection.Add(
         new Column("DateTime", new ValueFormatMutable { DataType = DataType.DateTime, DateFormat = @"dd/MM/yyyy" })
         {
-          TimePart = "Time",
-          TimePartFormat = "HH:mm:ss"
+          TimePart = "Time", TimePartFormat = "HH:mm:ss"
         });
       readFile.ColumnCollection.Add(new Column("Integer", DataType.Integer));
       readFile.ColumnCollection.Add(
@@ -278,21 +291,13 @@ namespace CsvTools.Tests
       readFile.ColumnCollection.Add(new Column("Boolean", DataType.Boolean));
       readFile.ColumnCollection.Add(new Column("GUID", DataType.Guid));
       readFile.ColumnCollection.Add(
-        new Column("Time", new ValueFormatMutable { DataType = DataType.DateTime, DateFormat = "HH:mm:ss" })
-        {
-          Ignore = true
-        });
+        new Column("Time", new ValueFormatMutable { DataType = DataType.DateTime, DateFormat = "HH:mm:ss" }) { Ignore = true });
       return readFile;
     }
 
     public static CsvFile ReaderGetBasicCSV(string id = "BasicCSV")
     {
-      var readFile = new CsvFile
-      {
-        ID = id,
-        CommentLine = "#",
-        FileName = Path.Combine(GetTestPath("BasicCSV.txt"))
-      };
+      var readFile = new CsvFile { ID = id, CommentLine = "#", FileName = Path.Combine(GetTestPath("BasicCSV.txt")) };
       var examDateFld = new Column("ExamDate", DataType.DateTime);
       readFile.ColumnCollection.Add(examDateFld);
 
@@ -323,8 +328,8 @@ namespace CsvTools.Tests
           var properties = type.GetProperties().Where(
             prop => prop.GetMethod != null && prop.SetMethod != null
                                            && (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(string)
-                                               || prop.PropertyType == typeof(bool)
-                                               || prop.PropertyType == typeof(DateTime))).ToArray();
+                                                                                || prop.PropertyType == typeof(bool)
+                                                                                || prop.PropertyType == typeof(DateTime))).ToArray();
           if (properties.Length == 0)
             continue;
           var start = 'a';
@@ -427,6 +432,7 @@ namespace CsvTools.Tests
       WaitSomeTime(.1, token);
       frm.Close();
     }
+
     private static void GetButtonsRecursive(Control rootControl, ICollection<Component> btns)
     {
       foreach (Control ctrl in rootControl.Controls)
@@ -443,6 +449,7 @@ namespace CsvTools.Tests
               if (i is ToolStripButton)
                 btns.Add(i);
             }
+
             break;
           }
           default:
@@ -522,7 +529,6 @@ namespace CsvTools.Tests
       while (sw.Elapsed.TotalSeconds < seconds && !token.IsCancellationRequested)
       {
         Application.DoEvents();
-        FunctionalDI.SignalBackground.Invoke();
         Thread.Sleep(10);
       }
     }
@@ -561,23 +567,5 @@ namespace CsvTools.Tests
 
       frm.Close();
     }
-
-    public static Column[] ColumnsDT2 =
-    {
-      new Column("string") //0
-    };
-
-    public static Column[] ColumnsDT =
-    {
-      new Column("string"), //0
-      new Column("int", DataType.Integer), //1
-      new Column("DateTime", DataType.DateTime), //2
-      new Column("bool", DataType.Boolean), //3
-      new Column("double", DataType.Double), //4
-      new Column("numeric", DataType.Numeric), //5
-      new Column("AllEmpty"), //6
-      new Column("PartEmpty"), //7
-      new Column("ID", DataType.Integer) //8
-    };
   }
 }
