@@ -27,7 +27,7 @@ namespace CsvTools
   ///   Utility Class to filter a DataTable for Errors
   /// </summary>
   /// <seealso cref="T:System.IDisposable" />
-  public sealed class FilterDataTable : IDisposable
+  public sealed class FilterDataTable : DisposableBase
   {
     private readonly DataTable m_SourceTable;
 
@@ -37,8 +37,6 @@ namespace CsvTools
     private HashSet<string>? m_ColumnWithoutErrors;
 
     private CancellationTokenSource? m_CurrentFilterCancellationTokenSource;
-
-    private bool m_DisposedValue; // To detect redundant calls
 
     private volatile bool m_Filtering;
 
@@ -264,13 +262,10 @@ namespace CsvTools
       }
     }
 
-    private void Dispose(bool disposing)
+    protected override void Dispose(bool disposing)
     {
       Cancel();
-      if (m_DisposedValue)
-        return;
       if (!disposing) return;
-      m_DisposedValue = true;
       m_CurrentFilterCancellationTokenSource?.Dispose();
       FilterTable.Dispose();
     }

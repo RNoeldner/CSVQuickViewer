@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Linq;
 
 #nullable enable
 
@@ -213,16 +214,15 @@ namespace CsvTools
         if (c.Visible && c.HeaderText != ReaderConstants.cErrorField)
           visibleColumns.Add(c.DisplayIndex, c);
       var hasRowError = HasRowErrors(0, rows.Count, rows);
-
-      foreach (var col in visibleColumns.Values)
+      foreach (var headerText in from col in visibleColumns.Values
+                                 let headerText = col.HeaderText
+                                 select headerText)
       {
-        var headerText = col.HeaderText;
         sbHtml.Append(HTMLStyle.AddTd(m_HtmlStyle.TH, headerText));
         if (!first)
           buffer.Append('\t');
         else
           first = false;
-
         buffer.Append(EscapeTab(headerText));
       }
 

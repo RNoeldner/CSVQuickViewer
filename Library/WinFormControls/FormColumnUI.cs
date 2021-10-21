@@ -182,8 +182,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-            using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
-                                     processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
+          using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
+                                   processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
           {
             DataTable? data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false,
                                 m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
@@ -629,6 +629,7 @@ namespace CsvTools
       }
       catch (ObjectDisposedException)
       {
+        // ignore this
       }
     }
 
@@ -668,8 +669,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
               await
 #endif
-                using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null,
-                  new CustomProcessDisplay(m_CancellationTokenSource.Token));
+              using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null,
+                new CustomProcessDisplay(m_CancellationTokenSource.Token));
               await fileReader.OpenAsync(m_CancellationTokenSource.Token);
               for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
                 allColumns.Add(fileReader.GetColumn(colIndex).Name);
@@ -689,9 +690,9 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
             await
 #endif
-              // Write Setting ----- open the source that is SQL
-              using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
-                                       m_FileSetting.Timeout, m_CancellationTokenSource.Token);
+            // Write Setting ----- open the source that is SQL
+            using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
+                                     m_FileSetting.Timeout, m_CancellationTokenSource.Token);
             await fileReader.OpenAsync(m_CancellationTokenSource.Token);
             for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
               allColumns.Add(fileReader.GetColumn(colIndex).Name);
@@ -785,7 +786,10 @@ namespace CsvTools
       UpdateDateLabel(
         new ValueFormatMutable()
         {
-          DataType = DataType.DateTime, DateFormat = dateFormat, DateSeparator = textBoxDateSeparator.Text, TimeSeparator = textBoxTimeSeparator.Text
+          DataType = DataType.DateTime,
+          DateFormat = dateFormat,
+          DateSeparator = textBoxDateSeparator.Text,
+          TimeSeparator = textBoxTimeSeparator.Text
         }, !string.IsNullOrEmpty(comboBoxTimePart.Text), comboBoxTPFormat.Text, comboBoxTimeZone.Text);
     }
 
@@ -808,9 +812,9 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-            using var sqlReader =
-              await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
-                processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken);
+          using var sqlReader =
+            await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
+              processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken);
           await sqlReader.OpenAsync(processDisplay.CancellationToken);
           var colIndex = sqlReader.GetOrdinal(columnName);
           if (colIndex < 0)
@@ -845,8 +849,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          // ReSharper disable once ConvertToUsingDeclaration
-          using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
+        // ReSharper disable once ConvertToUsingDeclaration
+        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
         {
           await fileReader.OpenAsync(processDisplay.CancellationToken);
           var colIndex = fileReader.GetOrdinal(columnName);

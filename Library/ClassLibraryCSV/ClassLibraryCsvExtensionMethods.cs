@@ -739,6 +739,7 @@ namespace CsvTools
     public static string ToStringHandle0(this char input) => input == '\0' ? string.Empty : input.ToString();
 
 #if !QUICK
+
     public static async Task<long> WriteAsync(
       this IFileWriter writer,
       string sqlStatement,
@@ -759,6 +760,7 @@ namespace CsvTools
       await sqlReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       return await writer.WriteAsync(sqlReader, cancellationToken).ConfigureAwait(false);
     }
+
 #endif
 
     /// <summary>
@@ -974,15 +976,7 @@ namespace CsvTools
         }
         else
         {
-          var found = false;
-          foreach (var st in selfCol)
-            if (ot.Equals(st))
-            {
-              found = true;
-              break;
-            }
-
-          if (!found)
+          if (!selfCol.Any(st => ot.Equals(st)))
             return false;
         }
 

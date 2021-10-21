@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  public class TwoStepDataTableLoader : IDisposable
+  public class TwoStepDataTableLoader : DisposableBase
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
                                         , IAsyncDisposable
 #endif
@@ -49,14 +49,6 @@ namespace CsvTools
       GC.SuppressFinalize(this);
     }
 #endif
-
-    public void Dispose()
-    {
-      m_FileReader?.Dispose();
-      m_FileReader = null;
-
-      GC.SuppressFinalize(this);
-    }
 
     public async Task StartAsync(
       IFileSetting fileSetting,
@@ -103,11 +95,21 @@ namespace CsvTools
       m_ActionFinished?.Invoke(m_DataReaderWrapper);
     }
 
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        m_FileReader?.Dispose();
+        m_FileReader = null;
+      }
+    }
+
     private async Task GetBatchByTimeSpan(
-      TimeSpan maxDuration,
-      bool restoreError,
-      IProcessDisplay processDisplay,
-      Action<DataTable> action)
+    TimeSpan maxDuration,
+    bool restoreError,
+    IProcessDisplay processDisplay,
+    Action<DataTable> action)
     {
       if (m_DataReaderWrapper is null)
         return;
