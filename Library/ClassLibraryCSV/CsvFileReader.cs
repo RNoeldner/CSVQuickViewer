@@ -473,7 +473,7 @@ namespace CsvTools
         DataType.Boolean  => GetBooleanNull(value, ordinal),
         DataType.Guid     => GetGuidNull(value, column.ColumnOrdinal),
         DataType.String   => value,
-        _                 => throw new ArgumentOutOfRangeException()
+        _                 => throw new NotSupportedException($"DataType {column.ValueFormat.DataType} is not supported")
       };
       return ret ?? DBNull.Value;
     }

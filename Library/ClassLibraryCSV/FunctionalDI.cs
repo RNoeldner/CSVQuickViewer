@@ -13,12 +13,11 @@
  */
 
 using System;
-using TimeZoneConverter;
-using System.Runtime.InteropServices;
-
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using TimeZoneConverter;
 
 namespace CsvTools
 {
@@ -37,20 +36,18 @@ namespace CsvTools
     ///   match the base file readers HandleWarning the validation library will overwrite this is an
     ///   implementation using Noda Time
     /// </summary>
-    public static Func<DateTime, string, int, Action<int, string>?, DateTime> AdjustTZImport =
-      (input, srcTimeZone, columnOrdinal, handleWarning) => ChangeTimeZone(
+    public static Func<DateTime, string, Action<string>?, DateTime> AdjustTZImport =
+      (input, srcTimeZone, handleWarning) => ChangeTimeZone(
         input,
         srcTimeZone,
         TimeZoneInfo.Local.Id,
-        columnOrdinal,
         handleWarning);
 
-    public static Func<DateTime, string, int, Action<int, string>?, DateTime> AdjustTZExport =
-      (input, destTimeZone, columnOrdinal, handleWarning) => ChangeTimeZone(
+    public static Func<DateTime, string, Action<string>?, DateTime> AdjustTZExport =
+      (input, destTimeZone, handleWarning) => ChangeTimeZone(
         input,
         TimeZoneInfo.Local.Id,
         destTimeZone,
-        columnOrdinal,
         handleWarning);
 
     /// <summary>
@@ -68,35 +65,61 @@ namespace CsvTools
       in DateTime input,
       in string srcTimeZone,
       in string destTimeZone,
-      int columnOrdinal,
-      in Action<int, string>? handleWarning)
+      in Action<string>? handleWarning)
     {
       if (string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) || destTimeZone.Equals(srcTimeZone))
         return input;
       try
       {
-        if (IsWindows)
-        {
-          TimeZoneInfo srcTimeZoneInfo = (TZConvert.TryIanaToWindows(srcTimeZone, out var winSrc)) ? TimeZoneInfo.FindSystemTimeZoneById(winSrc) : TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone);
-          TimeZoneInfo destTimeZoneInfo = (TZConvert.TryIanaToWindows(destTimeZone, out var winDest)) ? TimeZoneInfo.FindSystemTimeZoneById(winDest) : TimeZoneInfo.FindSystemTimeZoneById(destTimeZone);
+        TimeZoneInfo srcTimeZoneInfo;
+        TimeZoneInfo destTimeZoneInfo;
 
-          return TimeZoneInfo.ConvertTime(input, srcTimeZoneInfo, destTimeZoneInfo);
-        }
+        if (srcTimeZone.Equals("(local)", StringComparison.Ordinal))
+          srcTimeZoneInfo = TimeZoneInfo.Local;
         else
         {
-          TimeZoneInfo srcTimeZoneInfo = TZConvert.TryWindowsToIana(srcTimeZone, out var inaraSrc)
-                                           ? TimeZoneInfo.FindSystemTimeZoneById(inaraSrc)
-                                           : TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone);
-          TimeZoneInfo destTimeZoneInfo = TZConvert.TryWindowsToIana(destTimeZone, out var inaraDest)
-                                            ? TimeZoneInfo.FindSystemTimeZoneById(inaraDest)
-                                            : TimeZoneInfo.FindSystemTimeZoneById(destTimeZone);
-          return TimeZoneInfo.ConvertTime(input, srcTimeZoneInfo, destTimeZoneInfo);
+          if (IsWindows)
+          {
+            if (TZConvert.TryIanaToWindows(srcTimeZone, out var winSrc))
+              srcTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(winSrc);
+            else
+              srcTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone);
+          }
+          else
+          {
+            if (TZConvert.TryWindowsToIana(srcTimeZone, out var inaraSrc))
+              srcTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(inaraSrc);
+            else
+              srcTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone);
+          }
         }
+
+        if (destTimeZone.Equals("(local)", StringComparison.Ordinal))
+          destTimeZoneInfo = TimeZoneInfo.Local;
+        else
+        {
+          if (IsWindows)
+          {
+            if (TZConvert.TryIanaToWindows(destTimeZone, out var winSrc))
+              destTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(winSrc);
+            else
+              destTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(destTimeZone);
+          }
+          else
+          {
+            if (TZConvert.TryWindowsToIana(destTimeZone, out var inaraDest))
+              destTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(inaraDest);
+            else
+              destTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(destTimeZone);
+          }
+        }
+
+        return TimeZoneInfo.ConvertTime(input, srcTimeZoneInfo, destTimeZoneInfo);
       }
       catch (Exception ex)
       {
         if (handleWarning is null) throw;
-        handleWarning.Invoke(columnOrdinal, ex.Message);
+        handleWarning.Invoke(ex.Message);
         return new DateTime();
       }
     }
@@ -106,12 +129,7 @@ namespace CsvTools
     /// <summary>
     ///   Function to retrieve the column in a setting file
     /// </summary>
-    public static Func<IFileSetting, CancellationToken, Task<ICollection<string>>>? GetColumnHeader;
-
-    /// <summary>
-    ///   Retrieve the passphrase for a setting
-    /// </summary>
-    public static Func<IFileSettingPhysicalFile, string> GetEncryptedPassphrase = s => s.Passphrase;
+    public static Func<IFileSetting, CancellationToken, Task<IReadOnlyCollection<string>>>? GetColumnHeaderAsync;
 
     /// <summary>
     ///   Return a right writer for a file setting
@@ -132,13 +150,6 @@ namespace CsvTools
     /// <remarks>Make sure the returned reader is open when needed</remarks>
     public static Func<string, EventHandler<ProgressEventArgs>?, int, CancellationToken, Task<IFileReader>>
       SQLDataReader = (sql, eh, limit, token) => throw new FileWriterException("SQL Reader not specified");
-
-    /// <summary>
-    ///   Action to be performed while waiting on a background process, do something like handing
-    ///   message queues (WinForms =&gt; DoEvents) call a Dispatcher to take care of the UI or send
-    ///   signals that the application is not stale
-    /// </summary>
-    public static Action SignalBackground = () => { };
 
     private static IFileReader DefaultFileReader(
       IFileSetting setting,

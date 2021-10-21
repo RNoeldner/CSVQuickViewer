@@ -692,5 +692,176 @@ namespace CsvTools
                                                       other.QualifierPlaceholder,
                                                       StringComparison.Ordinal);
     }
+
+#region backwardscompatibility
+
+    [XmlElement]
+    [DefaultValue(null)]
+#pragma warning disable CS0618 // Type or member is obsolete
+    public FileFormatStore? FileFormat
+#pragma warning restore CS0618 // Type or member is obsolete
+    {
+      get;
+      set;
+    }
+
+    [Obsolete("Only used for backwards compatibility of Serialization")]
+    public virtual void OverwriteFromFileFormatStore()
+    {
+      if (FileFormat is null)
+        return;
+
+      ContextSensitiveQualifier = FileFormat.AlternateQuoting;
+      DuplicateQualifierToEscape = FileFormat.DuplicateQuotingToEscape;
+      CommentLine = FileFormat.CommentLine;
+      DelimiterPlaceholder = FileFormat.DelimiterPlaceholder;
+      EscapePrefix = FileFormat.EscapeCharacter;
+      FieldDelimiter = FileFormat.FieldDelimiter;
+      FieldQualifier = FileFormat.FieldQualifier;
+      NewLine = FileFormat.NewLine;
+      NewLinePlaceholder = FileFormat.NewLinePlaceholder;
+      QualifyAlways = FileFormat.QualifyAlways;
+      QualifyOnlyIfNeeded = FileFormat.QualifyOnlyIfNeeded;
+      QualifierPlaceholder = FileFormat.QuotePlaceholder;
+
+      FileFormat = null;
+    }
+
+    [Obsolete("Only used for backwards compatibility of Serialization")]
+    [Serializable]
+    public class FileFormatStore
+    {
+      /// <summary>
+      ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
+      /// </summary>
+      /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+      [XmlAttribute]
+      [DefaultValue(c_ContextSensitiveQualifierDefault)]
+      public bool AlternateQuoting
+      {
+        get;
+        set;
+      } = c_ContextSensitiveQualifierDefault;
+
+      /// <summary>
+      ///   Gets or sets the text to indicate that the line is comment line and not contain data. If a
+      ///   line starts with the given text, it is ignored in the data grid.
+      /// </summary>
+      /// <value>The startup comment line.</value>
+      [XmlAttribute]
+      [DefaultValue(c_CommentLineDefault)]
+
+      public string CommentLine
+      {
+        get;
+        set;
+      } = c_CommentLineDefault;
+
+      /// <summary>
+      ///   Gets or sets the delimiter placeholder.
+      /// </summary>
+      /// <value>The delimiter placeholder.</value>
+      [XmlAttribute]
+      [DefaultValue(c_DelimiterPlaceholderDefault)]
+      public string DelimiterPlaceholder
+      {
+        get;
+        set;
+      } = c_DelimiterPlaceholderDefault;
+
+      /// <summary>
+      ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
+      /// </summary>
+      /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+      [XmlAttribute]
+      [DefaultValue(c_DuplicateQualifierToEscapeDefault)]
+      public bool DuplicateQuotingToEscape
+      {
+        get;
+        set;
+      } = c_DuplicateQualifierToEscapeDefault;
+
+      /// <summary>
+      ///   Gets or sets the escape character.
+      /// </summary>
+      /// <value>The escape character.</value>
+      [XmlAttribute]
+      [DefaultValue(c_EscapePrefixDefault)]
+      public string EscapeCharacter
+      {
+        get;
+        set;
+      } = c_EscapePrefixDefault;
+
+      /// <summary>
+      ///   Gets or sets the field delimiter.
+      /// </summary>
+      /// <value>The field delimiter.</value>
+      [XmlAttribute]
+      [DefaultValue(c_FieldDelimiterDefault)]
+      public string FieldDelimiter
+      {
+        get;
+        set;
+      } = c_FieldDelimiterDefault;
+
+      /// <summary>
+      ///   Gets or sets the field qualifier.
+      /// </summary>
+      /// <value>The field qualifier.</value>
+      [XmlAttribute]
+      [DefaultValue(c_FieldQualifierDefault)]
+      public string FieldQualifier
+      {
+        get;
+        set;
+      } = c_FieldQualifierDefault;
+
+      /// <summary>
+      ///   Gets or sets the newline.
+      /// </summary>
+      /// <value>The newline.</value>
+      [XmlAttribute]
+      [DefaultValue(c_NewLineDefault)]
+      public RecordDelimiterType NewLine
+      {
+        get;
+        set;
+      } = c_NewLineDefault;
+
+      [XmlAttribute]
+      [DefaultValue(c_NewLinePlaceholderDefault)]
+      public string NewLinePlaceholder
+      {
+        get;
+        set;
+      } = c_NewLinePlaceholderDefault;
+
+      [XmlAttribute]
+      [DefaultValue(c_QualifyAlwaysDefault)]
+      public bool QualifyAlways
+      {
+        get;
+        set;
+      } = c_QualifyAlwaysDefault;
+
+      [XmlAttribute]
+      [DefaultValue(c_QualifyOnlyIfNeededDefault)]
+      public bool QualifyOnlyIfNeeded
+      {
+        get;
+        set;
+      } = c_QualifyOnlyIfNeededDefault;
+
+      [XmlAttribute]
+      [DefaultValue(c_QuotePlaceholderDefault)]
+      public string QuotePlaceholder
+      {
+        get;
+        set;
+      } = c_QuotePlaceholderDefault;
+    }
+
+#endregion
   }
 }

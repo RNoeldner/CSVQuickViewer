@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System;
@@ -30,40 +31,21 @@ using System.Windows.Forms;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="UserControl"/>
   /// <summary>
   ///   Windows from to show detail information for a dataTable
   /// </summary>
   public class DetailControl : UserControl
   {
+    private readonly IContainer components = new Container();
+    private readonly BindingNavigator m_BindingNavigator = new BindingNavigator();
+    private readonly BindingSource m_BindingSource = new BindingSource();
     private readonly List<DataGridViewCell> m_FoundCells = new List<DataGridViewCell>();
+    private readonly Search m_Search = new Search();
 
     private readonly List<KeyValuePair<string, DataGridViewCell>> m_SearchCells =
       new List<KeyValuePair<string, DataGridViewCell>>();
 
-    private readonly ObservableCollection<ToolStripItem> m_ToolStripItems = new ObservableCollection<ToolStripItem>();
-    private readonly IContainer components = new Container();
-    public Func<bool>? EndOfFile { get; set; }
-    public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored { get; set; }
-
-    public EventHandler<IFileSettingPhysicalFile>? FileStored { get; set; }
-    public Func<IProcessDisplay, Task>? LoadNextBatchAsync { get; set; }
-    private readonly BindingNavigator m_BindingNavigator = new BindingNavigator();
-    private readonly BindingSource m_BindingSource = new BindingSource();
-    private CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
-    private DataTable m_DataTable = new DataTable();
-    private DataColumnCollection Columns => m_DataTable.Columns;
-    private ProcessInformation? m_CurrentSearch;
-    private bool m_DisposedValue; // To detect redundant calls
-    private FilterDataTable? m_FilterDataTable;
-    private FormHierarchyDisplay? m_HierarchyDisplay;
-    private FormShowMaxLength? m_FormShowMaxLength;
-    private FormDuplicatesDisplay? m_FormDuplicatesDisplay;
-    private FormUniqueDisplay? m_FormUniqueDisplay;
-    private Form? m_ParentForm;
-    private readonly Search m_Search = new Search();
-    private bool m_SearchCellsDirty = true;
-    private bool m_ShowButtons = true;
-    private bool m_ShowFilter = true;
     private readonly ToolStripButton m_ToolStripButtonColumnLength = new ToolStripButton();
     private readonly ToolStripButton m_ToolStripButtonDuplicates = new ToolStripButton();
     private readonly ToolStripButton m_ToolStripButtonHierarchy = new ToolStripButton();
@@ -75,18 +57,34 @@ namespace CsvTools
     private readonly ToolStripButton m_ToolStripButtonUniqueValues = new ToolStripButton();
     private readonly ToolStripComboBox m_ToolStripComboBoxFilterType = new ToolStripComboBox();
     private readonly ToolStripContainer m_ToolStripContainer = new ToolStripContainer();
+
+    private readonly ObservableCollection<ToolStripItem> m_ToolStripItems = new ObservableCollection<ToolStripItem>();
     private readonly ToolStripLabel m_ToolStripLabelCount = new ToolStripLabel();
     private readonly ToolStripTextBox m_ToolStripTextBox1 = new ToolStripTextBox();
     private readonly ToolStrip m_ToolStripTop = new ToolStrip();
-    public ToolStripButton ToolStripButtonNext { get; set; } = new ToolStripButton();
+    private CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
+    private ProcessInformation? m_CurrentSearch;
+    private DataTable m_DataTable = new DataTable();
+    private bool m_DisposedValue; // To detect redundant calls
+    private FilterDataTable? m_FilterDataTable;
+    private FormDuplicatesDisplay? m_FormDuplicatesDisplay;
+    private FormShowMaxLength? m_FormShowMaxLength;
+    private FormUniqueDisplay? m_FormUniqueDisplay;
+    private FormHierarchyDisplay? m_HierarchyDisplay;
 
+    private bool m_MenuDown;
+    private Form? m_ParentForm;
+    private bool m_SearchCellsDirty = true;
+    private bool m_ShowButtons = true;
+    private bool m_ShowFilter = true;
+
+    /// <inheritdoc/>
     /// <summary>
     ///   Initializes a new instance of the <see cref="DetailControl" /> class.
     /// </summary>
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
-
     public DetailControl()
     {
       ComponentResourceManager resources = new ComponentResourceManager(typeof(DetailControl));
@@ -109,8 +107,8 @@ namespace CsvTools
       m_ToolStripTop.ImageScalingSize = new Size(20, 20);
       m_ToolStripTop.Items.AddRange(new ToolStripItem[]
       {
-        m_ToolStripComboBoxFilterType, m_ToolStripButtonUniqueValues, m_ToolStripButtonColumnLength, m_ToolStripButtonDuplicates,
-        m_ToolStripButtonHierarchy, m_ToolStripButtonStore
+        m_ToolStripComboBoxFilterType, m_ToolStripButtonUniqueValues, m_ToolStripButtonColumnLength, m_ToolStripButtonDuplicates, m_ToolStripButtonHierarchy,
+        m_ToolStripButtonStore
       });
       m_ToolStripTop.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
       m_ToolStripTop.Location = new Point(4, 0);
@@ -183,8 +181,8 @@ namespace CsvTools
       m_BindingNavigator.ImageScalingSize = new Size(20, 20);
       m_BindingNavigator.Items.AddRange(new ToolStripItem[]
       {
-        m_ToolStripButtonMoveFirstItem, m_ToolStripButtonMovePreviousItem, m_ToolStripTextBox1, m_ToolStripLabelCount,
-        m_ToolStripButtonMoveNextItem, m_ToolStripButtonMoveLastItem, ToolStripButtonNext
+        m_ToolStripButtonMoveFirstItem, m_ToolStripButtonMovePreviousItem, m_ToolStripTextBox1, m_ToolStripLabelCount, m_ToolStripButtonMoveNextItem,
+        m_ToolStripButtonMoveLastItem, ToolStripButtonNext
       });
       m_BindingNavigator.Location = new Point(4, 0);
       m_BindingNavigator.MoveFirstItem = m_ToolStripButtonMoveFirstItem;
@@ -238,7 +236,7 @@ namespace CsvTools
       ToolStripButtonNext.TextImageRelation = TextImageRelation.TextBeforeImage;
       ToolStripButtonNext.Click += new System.EventHandler(ToolStripButtonNext_Click);
       // m_Search
-      m_Search.Anchor =  AnchorStyles.Top | AnchorStyles.Right;
+      m_Search.Anchor = AnchorStyles.Top | AnchorStyles.Right;
       m_Search.AutoSize = true;
       m_Search.BackColor = SystemColors.Info;
       m_Search.BorderStyle = BorderStyle.FixedSingle;
@@ -303,13 +301,19 @@ namespace CsvTools
       MoveMenu();
     }
 
+    public Func<bool>? EndOfFile { get; set; }
+    public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored { get; set; }
+
+    public EventHandler<IFileSettingPhysicalFile>? FileStored { get; set; }
+    public Func<IProcessDisplay, Task>? LoadNextBatchAsync { get; set; }
+    private DataColumnCollection Columns => m_DataTable.Columns;
+    public ToolStripButton ToolStripButtonNext { get; set; } = new ToolStripButton();
+
     /// <summary>
     ///   Gets or sets the HTML style.
     /// </summary>
     /// <value>The HTML style.</value>
-    public HTMLStyle HTMLStyle { get => FilteredDataGridView.HTMLStyle; set => FilteredDataGridView.HTMLStyle=value; }
-
-    private bool m_MenuDown;
+    public HTMLStyle HTMLStyle { get => FilteredDataGridView.HTMLStyle; set => FilteredDataGridView.HTMLStyle = value; }
 
     /// <summary>
     ///   General Setting that determines if the menu is display in the bottom of a detail control
@@ -319,8 +323,8 @@ namespace CsvTools
       get => m_MenuDown;
       set
       {
-        if (m_MenuDown==value) return;
-        m_MenuDown=value;
+        if (m_MenuDown == value) return;
+        m_MenuDown = value;
         MoveMenu();
       }
     }
@@ -659,8 +663,8 @@ namespace CsvTools
                                           .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)).OrderBy(col => col.DisplayIndex)
                                           .Select(col => col.DataPropertyName).ToList();
         m_FormShowMaxLength?.Close();
-        m_FormShowMaxLength =new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible, HTMLStyle)
-        { Icon = ParentForm?.Icon };
+        m_FormShowMaxLength =
+          new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible, HTMLStyle) { Icon = ParentForm?.Icon };
         m_FormShowMaxLength.Show(ParentForm);
 
         m_FormShowMaxLength.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
@@ -685,8 +689,11 @@ namespace CsvTools
         try
         {
           m_FormDuplicatesDisplay?.Close();
-          m_FormDuplicatesDisplay = new FormDuplicatesDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), columnName, HTMLStyle)
-          { Icon = ParentForm?.Icon };
+          m_FormDuplicatesDisplay =
+            new FormDuplicatesDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), columnName, HTMLStyle)
+            {
+              Icon = ParentForm?.Icon
+            };
           m_FormDuplicatesDisplay.Show(ParentForm);
           m_FormDuplicatesDisplay.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonDuplicates!.Enabled = true);
         }
@@ -741,10 +748,9 @@ namespace CsvTools
                              : FilteredDataGridView.Columns[0].Name;
           m_FormUniqueDisplay?.Close();
           m_FormUniqueDisplay = new FormUniqueDisplay(
-           m_DataTable.Clone(),
-           m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-           columnName, HTMLStyle)
-          { Icon = ParentForm?.Icon };
+            m_DataTable.Clone(),
+            m_DataTable.Select(FilteredDataGridView.CurrentFilter),
+            columnName, HTMLStyle) { Icon = ParentForm?.Icon };
           m_FormUniqueDisplay.ShowDialog(ParentForm);
         }
         catch (Exception ex)
@@ -893,6 +899,7 @@ namespace CsvTools
         m_ParentForm.Closing -= ParentForm_Closing;
         m_ParentForm = null;
       }
+
       if (m_CurrentSearch?.IsRunning ?? false)
         m_CurrentSearch.Cancel();
       if (m_FilterDataTable?.Filtering ?? false)
@@ -1028,7 +1035,7 @@ namespace CsvTools
 
       var newDt = m_DataTable;
       if (m_FilterDataTable is null)
-        m_FilterDataTable = new FilterDataTable(m_DataTable);
+        m_FilterDataTable = new FilterDataTable(m_DataTable, Application.DoEvents);
       if (type != FilterType.All)
       {
         if (type != m_FilterDataTable.FilterType)
@@ -1107,7 +1114,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        using var iStream = FunctionalDI.OpenStream(new SourceAccess(src));
+          using var iStream = FunctionalDI.OpenStream(new SourceAccess(src));
         using var sr = new ImprovedTextReader(iStream, src.CodePageId);
         sr.ToBeginning();
         for (var i = 0; i < src.SkipRows; i++)
@@ -1121,17 +1128,19 @@ namespace CsvTools
 
         BeforeFileStored?.Invoke(this, writeFile);
         var writer = new CsvFileWriter(string.Empty, fileName, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
-        writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
-        headerAndSipped.ToString(), writeFile.Footer, string.Empty, writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
-        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, processDisplay);
+          writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
+          headerAndSipped.ToString(), writeFile.Footer, string.Empty, writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar,
+          writeFile.EscapePrefixChar,
+          writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded,
+          processDisplay);
 
         using var dt = new DataTableWrapper(
           FilteredDataGridView.DataView?.ToTable(false,
             // Restrict to shown data
             FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-              .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))
-              .OrderBy(col => col.DisplayIndex)
-              .Select(col => col.DataPropertyName).ToArray()));
+                                .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))
+                                .OrderBy(col => col.DisplayIndex)
+                                .Select(col => col.DataPropertyName).ToArray()));
         // can not use filteredDataGridView.Columns directly
         await writer.WriteAsync(dt, processDisplay.CancellationToken);
       }
@@ -1219,6 +1228,7 @@ namespace CsvTools
             m_ToolStripLabelCount.ForeColor = SystemColors.ControlText;
             m_ToolStripLabelCount.ToolTipText = "Total number of items";
           }
+
           m_ToolStripLabelCount.Text = m_DataTable.Rows.Count.ToString();
           ToolStripButtonNext.Visible = !eof && m_ShowButtons;
         }

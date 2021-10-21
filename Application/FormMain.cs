@@ -42,7 +42,7 @@ namespace CsvTools
     private bool m_ConfigChanged;
     private bool m_FileChanged;
     private IFileSettingPhysicalFile? m_FileSetting;
-    private ICollection<string>? m_Headers;
+
     private FormCsvTextDisplay? m_SourceDisplay;
     private ICollection<IColumn>? m_StoreColumns;
     private int m_WarningCount;
@@ -487,18 +487,17 @@ namespace CsvTools
 
           await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.DurationTimeSpan, processDisplay,
             AddWarning);
-
-          m_Headers = detailControl.DataTable.GetRealColumns().ToArray();
+          IReadOnlyCollection<string>? m_Headers = new List<string>(detailControl.DataTable.GetRealColumns());
           foreach (var columnName in m_Headers)
           {
             if (m_FileSetting.ColumnCollection.Get(columnName) is null)
               m_FileSetting.ColumnCollection.Add(new Column { Name = columnName });
           }
 
-          FunctionalDI.GetColumnHeader = (dummy1, dummy3) => Task.FromResult(m_Headers);
+          FunctionalDI.GetColumnHeaderAsync = (dummy1, dummy2) => Task.FromResult(m_Headers);
 
           this.SafeBeginInvoke(() => { ShowTextPanel(false); });
-          FunctionalDI.SignalBackground.Invoke();
+          Application.DoEvents();
 
           if (m_DisposedValue)
             return;

@@ -331,8 +331,7 @@ namespace CsvTools
           return FunctionalDI.AdjustTZExport(
             dataObject,
             destinationTimeZoneId,
-            Columns.IndexOf(columnInfo),
-            (columnNo, msg) => HandleWarning(Columns[columnNo].Name, msg));
+            (msg) => HandleWarning(Columns[Columns.IndexOf(columnInfo)].Name, msg));
       }
       else if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
       {
@@ -340,8 +339,7 @@ namespace CsvTools
         return FunctionalDI.AdjustTZExport(
           dataObject,
           columnInfo.ConstantTimeZone,
-          Columns.IndexOf(columnInfo),
-          (columnNo, msg) => HandleWarning(Columns[columnNo].Name, msg));
+          (msg) => HandleWarning(Columns[Columns.IndexOf(columnInfo)].Name, msg));
       }
 
       return dataObject;

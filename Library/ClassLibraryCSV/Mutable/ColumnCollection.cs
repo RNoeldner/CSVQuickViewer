@@ -64,7 +64,10 @@ namespace CsvTools
     /// <param name="column">The column format.</param>
     public new void Add(IColumn column)
     {
-      var index = GetIndex(column.Name ?? throw new ArgumentNullException(nameof(column)));
+      if (column is null)
+        throw new ArgumentNullException(nameof(column));
+
+      var index = GetIndex(column.Name);
       if (index != -1) return;
       base.Add(column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
     }
@@ -99,9 +102,13 @@ namespace CsvTools
 
     internal int GetIndex(string colName)
     {
-      for (var index = 0; index < Items.Count; index++)
-        if (string.Equals(Items[index].Name, colName, StringComparison.OrdinalIgnoreCase))
-          return index;
+      if (!string.IsNullOrEmpty(colName))
+      {
+        for (var index = 0; index < Items.Count; index++)
+          if (string.Equals(Items[index].Name, colName, StringComparison.OrdinalIgnoreCase))
+            return index;
+      }
+
       return -1;
     }
 

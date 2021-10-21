@@ -64,7 +64,6 @@ namespace CsvTools
         fileName = args.Join(" ");
 
       var viewSettings = ViewSettingHelper.LoadViewSettings();
-      FunctionalDI.SignalBackground = Application.DoEvents;
 
       var frm = new FormMain(viewSettings);
       frm.Show();
