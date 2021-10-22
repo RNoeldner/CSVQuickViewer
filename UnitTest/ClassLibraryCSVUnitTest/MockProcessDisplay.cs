@@ -63,5 +63,7 @@ namespace CsvTools.Tests
       m_Disposed = true;
       ProgressStopEvent?.Invoke(this, null);
     }
+
+    public void Report(ProgressEventArgs value) => Progress?.Invoke(this, value);
   }
 }

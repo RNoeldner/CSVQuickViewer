@@ -50,5 +50,7 @@ namespace CsvTools
         new ProgressWithTimeEventArgs(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
       TimeToCompletion.Value = value;
     }
+
+    public void Report(ProgressWithTimeEventArgs value) => ProgressTime?.Invoke(this, value);
   }
 }

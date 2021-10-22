@@ -20,7 +20,7 @@ namespace CsvTools
   /// <summary>
   ///   Interface for an ProcessDisplay
   /// </summary>
-  public interface IProcessDisplay : IDisposable
+  public interface IProcessDisplay : IDisposable, IProgress<ProgressEventArgs>
 	{
 		/// <summary>
 		///   Event handler called as progress should be displayed

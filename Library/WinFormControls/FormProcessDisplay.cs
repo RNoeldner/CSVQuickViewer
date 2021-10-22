@@ -378,6 +378,9 @@ namespace CsvTools
 			}
 		}
 
-		#endregion IDisposable Support
-	}
+    public void Report(ProgressEventArgs value) => m_ProcessDisplay.SetProcess(this, value);
+    public void Report(ProgressWithTimeEventArgs value) => m_ProcessDisplay.SetProcess(this, value);
+
+    #endregion IDisposable Support
+  }
 }
