@@ -196,10 +196,6 @@ namespace CsvTools
       get
       {
         // if a Value value filer is active ignore Operator filer
-
-        //if (m_FilterExpressionOperator.Length > 0 && m_Operator != c_OperatorIsNotNull
-        //                                          && m_FilterExpressionValue.Length > 0)
-        //  return $"{m_FilterExpressionOperator} AND {m_FilterExpressionValue}";
         return m_FilterExpressionValue.Length > 0 ? m_FilterExpressionValue : m_FilterExpressionOperator;
       }
     }
@@ -280,11 +276,11 @@ namespace CsvTools
       return retValues.ToArray();
     }
 
-    public static bool IsNotNullCompare(string text)
+    public static bool IsNotNullCompare(in string text)
     {
       if (string.IsNullOrEmpty(text))
         return false;
-      return text != c_OperatorIsNotNull & text != OperatorIsNull;
+      return text != c_OperatorIsNotNull && text != OperatorIsNull;
     }
 
     /// <summary>
@@ -347,12 +343,6 @@ namespace CsvTools
       {
         case TypeCode.DateTime:
           throw new NotImplementedException("ValueDateTime Time should be used, not ValueText");
-        // var dateValue = StringConversion.StringToDateTime( value,
-        // CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern,
-        // CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
-        // CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, false,
-        // CultureInfo.CurrentCulture); return dateValue.HasValue ?
-        // string.Format(CultureInfo.InvariantCulture, @"#{0:MM\/dd\/yyyy}#", dateValue.Value) : $"'{value.SqlQuote()}'";
 
         case TypeCode.Byte:
         case TypeCode.Decimal:

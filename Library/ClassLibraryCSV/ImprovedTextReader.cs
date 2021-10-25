@@ -10,7 +10,7 @@ namespace CsvTools
   ///   Wrapper around a TestReader that handles BOM and Encoding and a has a method called
   ///   ToBeginning to reset to the reader to the start of the stream
   /// </summary>
-  public sealed class ImprovedTextReader : IDisposable
+  public sealed class ImprovedTextReader : DisposableBase
   {
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
@@ -26,7 +26,6 @@ namespace CsvTools
     private readonly int m_CodePage;
     private readonly Stream m_ImprovedStream;
     private readonly int m_SkipLines;
-    private bool m_DisposedValue;
     private bool m_Init = true;
 
     /// <summary>
@@ -38,11 +37,12 @@ namespace CsvTools
     ///   Number of lines that should be skipped at the beginning of the file
     /// </param>
     /// <remarks>
-    ///   This routine uses a TextReader to allow character decoding, it will always read they
-    ///   the first few bytes of the source stream to look at a possible existing BOM if found,
-    ///   it will overwrite the provided data
+    ///   This routine uses a TextReader to allow character decoding, it will always read they the
+    ///   first few bytes of the source stream to look at a possible existing BOM if found, it will
+    ///   overwrite the provided data
     /// </remarks>
 #pragma warning disable 8618
+
     public ImprovedTextReader(in IImprovedStream improvedStream, int codePageId = 65001, int skipLines = 0)
 #pragma warning restore 8618
     {
@@ -92,23 +92,15 @@ namespace CsvTools
 
     private StreamReader TextReader { get; set; }
 
-    // This code added to correctly implement the disposable pattern.
-    public void Dispose()
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
-
     /// <summary>
-    ///   Increase the position in the text, this is used in case a character that has been
-    ///   looked at with <see cref="Peek" /> does not need to be read the next call of <see
-    ///   cref="Read" />
+    ///   Increase the position in the text, this is used in case a character that has been looked
+    ///   at with <see cref="Peek" /> does not need to be read the next call of <see cref="Read" />
     /// </summary>
     public void MoveNext() => TextReader.Read();
 
     /// <summary>
-    ///   Gets the next character but does not progress, as this can be done numerous times on
-    ///   the same position
+    ///   Gets the next character but does not progress, as this can be done numerous times on the
+    ///   same position
     /// </summary>
     /// <returns></returns>
     public int Peek() => TextReader.Peek();
@@ -117,9 +109,9 @@ namespace CsvTools
     ///   Reads the next character and progresses one further, and tracks the line number
     /// </summary>
     /// <remarks>
-    ///   In case the character is a cr or Lf it will increase the lineNumber, to prevent a CR
-    ///   LF combination to count as two lines Make sure you "eat" the possible next char using
-    ///   <see cref="Peek" /> and <see cref="MoveNext" />
+    ///   In case the character is a cr or Lf it will increase the lineNumber, to prevent a CR LF
+    ///   combination to count as two lines Make sure you "eat" the possible next char using <see
+    ///   cref="Peek" /> and <see cref="MoveNext" />
     /// </remarks>
     /// <returns></returns>
     public int Read()
@@ -133,8 +125,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Reads a sequence of characters followed by a linefeed or carriage return or the end of
-    ///   the text. The ending char is not part of the returned line
+    ///   Reads a sequence of characters followed by a linefeed or carriage return or the end of the
+    ///   text. The ending char is not part of the returned line
     /// </summary>
     /// <remarks>CR,LF,CRLF will end the line, LFCR is not supported</remarks>
     /// <returns>A string with the contents, or empty string if nothing was read</returns>
@@ -178,12 +170,10 @@ namespace CsvTools
       }
     }
 
-    private void Dispose(bool disposing)
+    protected override void Dispose(bool disposing)
     {
-      if (m_DisposedValue) return;
       if (disposing)
         TextReader.Dispose();
-      m_DisposedValue = true;
     }
   }
 }

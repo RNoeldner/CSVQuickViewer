@@ -561,7 +561,6 @@ namespace CsvTools
                       display.CancellationToken).ConfigureAwait(false);
         if (!string.IsNullOrEmpty(issue))
           Logger.Information("Without Header Row {reason}", issue);
-
         else
           Logger.Information("Has Header Row");
 
@@ -876,14 +875,15 @@ namespace CsvTools
         if (line.Length == 0)
           continue;
         lastRow++;
-        foreach (var test in starts.Keys)
-          if (line.StartsWith(test, StringComparison.Ordinal))
-          {
-            starts[test]++;
-            // do not check further once a line is counted, by having ## before # a line starting
-            // with ## will not be counted twice
-            break;
-          }
+        foreach (var test in from test in starts.Keys
+                             where line.StartsWith(test, StringComparison.Ordinal)
+                             select test)
+        {
+          starts[test]++;
+          // do not check further once a line is counted, by having ## before # a line starting with
+          // ## will not be counted twice
+          break;
+        }
       }
 
       var maxCount = starts.Max(x => x.Value);

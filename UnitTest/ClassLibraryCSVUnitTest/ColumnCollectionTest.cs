@@ -22,7 +22,9 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
+#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
         test.Add(null);
+#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       }
       catch (ArgumentException)
       {
@@ -108,10 +110,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CopyTo()
     {
-      var test1 = new ColumnCollection();
-      test1.Add(new Column("Test1"));
-      test1.Add(new Column("Test2"));
-      test1.Add(new Column("Test3"));
+      var test1 = new ColumnCollection
+      {
+        new Column("Test1"),
+        new Column("Test2"),
+        new Column("Test3")
+      };
       var test2 = new ColumnCollection();
       test1.CopyTo(test2);
 
