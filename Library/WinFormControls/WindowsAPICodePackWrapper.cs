@@ -162,7 +162,6 @@ namespace CsvTools
       else
       {
         using var saveFileDialog = new SaveFileDialog();
-        //saveFileDialog.DefaultExt = defaultExt;
         saveFileDialog.Filter = filter;
         saveFileDialog.OverwritePrompt = overwritePrompt;
         saveFileDialog.CheckFileExists = true;

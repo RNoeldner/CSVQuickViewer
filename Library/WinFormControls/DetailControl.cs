@@ -31,17 +31,17 @@ using System.Windows.Forms;
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="UserControl"/>
+  /// <inheritdoc cref="UserControl" />
   /// <summary>
   ///   Windows from to show detail information for a dataTable
   /// </summary>
   public class DetailControl : UserControl
   {
     private readonly IContainer components = new Container();
-    private readonly BindingNavigator m_BindingNavigator = new BindingNavigator();
-    private readonly BindingSource m_BindingSource = new BindingSource();
+    private readonly BindingNavigator m_BindingNavigator;
+    private readonly BindingSource m_BindingSource;
     private readonly List<DataGridViewCell> m_FoundCells = new List<DataGridViewCell>();
-    private readonly Search m_Search = new Search();
+    private readonly Search m_Search;
 
     private readonly List<KeyValuePair<string, DataGridViewCell>> m_SearchCells =
       new List<KeyValuePair<string, DataGridViewCell>>();
@@ -78,20 +78,21 @@ namespace CsvTools
     private bool m_ShowButtons = true;
     private bool m_ShowFilter = true;
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     /// <summary>
     ///   Initializes a new instance of the <see cref="DetailControl" /> class.
     /// </summary>
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
+
     public DetailControl()
     {
       ComponentResourceManager resources = new ComponentResourceManager(typeof(DetailControl));
       m_BindingNavigator = new BindingNavigator(components);
       m_BindingSource = new BindingSource(components);
       ToolStripButtonNext = new ToolStripButton();
-      m_Search = new CsvTools.Search();
+      m_Search = new Search();
       m_ToolStripTop.SuspendLayout();
       m_ToolStripContainer.BottomToolStripPanel.SuspendLayout();
       m_ToolStripContainer.ContentPanel.SuspendLayout();
@@ -307,7 +308,7 @@ namespace CsvTools
     public EventHandler<IFileSettingPhysicalFile>? FileStored { get; set; }
     public Func<IProcessDisplay, Task>? LoadNextBatchAsync { get; set; }
     private DataColumnCollection Columns => m_DataTable.Columns;
-    public ToolStripButton ToolStripButtonNext { get; set; } = new ToolStripButton();
+    public ToolStripButton ToolStripButtonNext { get; set; }
 
     /// <summary>
     ///   Gets or sets the HTML style.
@@ -750,7 +751,8 @@ namespace CsvTools
           m_FormUniqueDisplay = new FormUniqueDisplay(
             m_DataTable.Clone(),
             m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-            columnName, HTMLStyle) { Icon = ParentForm?.Icon };
+            columnName, HTMLStyle)
+          { Icon = ParentForm?.Icon };
           m_FormUniqueDisplay.ShowDialog(ParentForm);
         }
         catch (Exception ex)
@@ -914,10 +916,6 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        // m_SearchCells = from r in filteredDataGridView.Rows.Cast<DataGridViewRow>() from c in
-        // r.Cells.Cast<DataGridViewCell>() where c.Visible &&
-        // !string.IsNullOrEmpty(c.FormattedValue.ToString()) select new KeyValuePair<string,
-        // DataGridViewCell>(c.FormattedValue.ToString(), c);
         m_SearchCells.Clear();
         var visible = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
                                           .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)).ToList();
@@ -1114,7 +1112,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var iStream = FunctionalDI.OpenStream(new SourceAccess(src));
+        using var iStream = FunctionalDI.OpenStream(new SourceAccess(src));
         using var sr = new ImprovedTextReader(iStream, src.CodePageId);
         sr.ToBeginning();
         for (var i = 0; i < src.SkipRows; i++)
@@ -1235,7 +1233,7 @@ namespace CsvTools
       }, ParentForm);
     }
 
-    private class ProcessInformation : IDisposable
+    private sealed class ProcessInformation : DisposableBase
     {
       public CancellationTokenSource? CancellationTokenSource;
 
@@ -1251,9 +1249,13 @@ namespace CsvTools
 
       public string SearchText = string.Empty;
 
-      public void Dispose() => CancellationTokenSource?.Dispose();
-
       public void Cancel() => CancellationTokenSource?.Cancel();
+
+      protected override void Dispose(bool disposing)
+      {
+        if (disposing)
+          CancellationTokenSource?.Dispose();
+      }
     }
   }
 }
