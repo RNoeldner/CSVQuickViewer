@@ -861,7 +861,9 @@ namespace CsvTools.Tests
         m_ValidSetting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
 #pragma warning disable CS0618 // Typ oder Element ist veraltet
+#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       test.GetBytes(0, 0, null, 0, 0);
+#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
 #pragma warning restore CS0618 // Typ oder Element ist veraltet
     }
 
