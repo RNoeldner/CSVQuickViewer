@@ -36,7 +36,6 @@ namespace CsvTools
     }
 
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-
     public async ValueTask DisposeAsync()
     {
       if (m_FileReader != null)
@@ -106,22 +105,23 @@ namespace CsvTools
     }
 
     private async Task GetBatchByTimeSpan(
-    TimeSpan maxDuration,
-    bool restoreError,
-    IProcessDisplay processDisplay,
-    Action<DataTable> action)
+      TimeSpan maxDuration,
+      bool restoreError,
+      IProcessDisplay processDisplay,
+      Action<DataTable> action)
     {
       if (m_DataReaderWrapper is null)
         return;
       if (processDisplay is null)
         throw new ArgumentNullException(nameof(processDisplay));
+
       try
       {
         processDisplay.SetMaximum(100);
         var dt = await m_DataReaderWrapper.LoadDataTable(
                    maxDuration,
                    restoreError,
-                   (l, i) => processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
+                   (l, i) => processDisplay.Report(new ProgressEventArgs($"Reading data...\nRecord: {l:N0}", i, false)),
                    processDisplay.CancellationToken).ConfigureAwait(false);
         action.Invoke(dt);
 

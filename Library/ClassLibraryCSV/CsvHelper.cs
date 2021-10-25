@@ -59,7 +59,8 @@ namespace CsvTools
       bool guessNewLine,
       bool guessCommentLine,
       FillGuessSettings fillGuessSettings,
-      IProcessDisplay processDisplay)
+      IProcessDisplay processDisplay,
+      CancellationToken cancellationToken)
     {
       if (processDisplay is null) throw new ArgumentNullException(nameof(processDisplay));
       if (string.IsNullOrEmpty(fileName))
@@ -164,19 +165,19 @@ namespace CsvTools
                               guessNewLine,
                               guessCommentLine).ConfigureAwait(false);
 
-      processDisplay.SetProcess("Determining column format by reading samples", -1, true);
+      processDisplay.Report(new ProgressEventArgs("Determining column format by reading samples", -1, true));
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
-      await reader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
+      await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
       var (_, b) = await reader.FillGuessColumnFormatReaderAsyncReader(
                      fillGuessSettings,
                      null,
                      false,
                      true,
                      "NULL",
-                     processDisplay.CancellationToken).ConfigureAwait(false);
+                     cancellationToken).ConfigureAwait(false);
 
       return new DelimitedFileDetectionResultWithColumns(detectionResult, b);
     }

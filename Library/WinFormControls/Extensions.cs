@@ -334,7 +334,6 @@ namespace CsvTools
         var result = uiElement.BeginInvoke(action);
         result.AsyncWaitHandle.WaitOne(new TimeSpan(timeoutTicks));
         result.AsyncWaitHandle.Close();
-        //TODO: Check if this would be ok, it was commented out
         if (result.IsCompleted)
           uiElement.EndInvoke(result);
       }

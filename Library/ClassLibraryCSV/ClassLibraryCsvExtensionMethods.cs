@@ -104,9 +104,9 @@ namespace CsvTools
     public static int Count(this IEnumerable? items) =>
       items switch
       {
-        null => 0,
+        null            => 0,
         ICollection col => col.Count,
-        _ => Enumerable.Count(items.Cast<object>())
+        _               => Enumerable.Count(items.Cast<object>())
       };
 
     /// <summary>
@@ -117,17 +117,17 @@ namespace CsvTools
     public static string DataTypeDisplay(this DataType dt) =>
       dt switch
       {
-        DataType.DateTime => "Date Time",
-        DataType.Integer => "Integer",
-        DataType.Double => "Floating  Point (High Range)",
-        DataType.Numeric => "Money (High Precision)",
-        DataType.Boolean => "Boolean",
-        DataType.Guid => "Guid",
-        DataType.TextPart => "Text Part",
-        DataType.TextToHtml => "Encode HTML (Linefeed and CData Tags)",
+        DataType.DateTime       => "Date Time",
+        DataType.Integer        => "Integer",
+        DataType.Double         => "Floating  Point (High Range)",
+        DataType.Numeric        => "Money (High Precision)",
+        DataType.Boolean        => "Boolean",
+        DataType.Guid           => "Guid",
+        DataType.TextPart       => "Text Part",
+        DataType.TextToHtml     => "Encode HTML (Linefeed and CData Tags)",
         DataType.TextToHtmlFull => "Encode HTML ('<' -> '&lt;')",
-        DataType.String => "Text",
-        _ => throw new ArgumentOutOfRangeException(nameof(dt), dt, "Data Type not known")
+        DataType.String         => "Text",
+        _                       => throw new ArgumentOutOfRangeException(nameof(dt), dt, "Data Type not known")
       };
 
     public static string Description(this RecordDelimiterType item)
@@ -232,26 +232,26 @@ namespace CsvTools
 
       return input.WrittenPunctuationToChar() switch
       {
-        '\t' => "Horizontal Tab",
-        ' ' => "Space",
+        '\t'        => "Horizontal Tab",
+        ' '         => "Space",
         (char) 0xA0 => "Non-breaking space",
-        '\\' => "Backslash: \\",
-        '/' => "Slash: /",
-        ',' => "Comma: ,",
-        ';' => "Semicolon: ;",
-        ':' => "Colon: :",
-        '|' => "Pipe: |",
-        '\"' => "Quotation marks: \"",
-        '\'' => "Apostrophe: \'",
-        '&' => "Ampersand: &",
-        '*' => "Asterisk: *",
-        '`' => "Tick Mark: `",
-        '✓' => "Check mark: ✓",
-        '\u001F' => "Unit Separator: Char 31",
-        '\u001E' => "Record Separator: Char 30",
-        '\u001D' => "Group Separator: Char 29",
-        '\u001C' => "File Separator: Char 28",
-        _ => input
+        '\\'        => "Backslash: \\",
+        '/'         => "Slash: /",
+        ','         => "Comma: ,",
+        ';'         => "Semicolon: ;",
+        ':'         => "Colon: :",
+        '|'         => "Pipe: |",
+        '\"'        => "Quotation marks: \"",
+        '\''        => "Apostrophe: \'",
+        '&'         => "Ampersand: &",
+        '*'         => "Asterisk: *",
+        '`'         => "Tick Mark: `",
+        '✓'         => "Check mark: ✓",
+        '\u001F'    => "Unit Separator: Char 31",
+        '\u001E'    => "Record Separator: Char 30",
+        '\u001D'    => "Group Separator: Char 29",
+        '\u001C'    => "File Separator: Char 28",
+        _           => input
       };
     }
 
@@ -305,11 +305,11 @@ namespace CsvTools
     /// </summary>
     /// <param name="process">The process display.</param>
     /// <returns></returns>
-    public static EventHandler<string> GetLogInfoMessage(this IProcessDisplay process) =>
-      delegate (object? sender, string message)
+    public static EventHandler<string> GetLogInfoMessage(this IProgress<ProgressEventArgs> process) =>
+      delegate(object? sender, string message)
       {
         Logger.Information("SQL Information: {message}", message);
-        process.SetProcess(message, -1, true);
+        process.Report(new ProgressEventArgs(message, -1, true));
       };
 
     /// <summary>
@@ -320,15 +320,15 @@ namespace CsvTools
     public static Type GetNetType(this DataType dt) =>
       dt switch
       {
-        DataType.DateTime => typeof(DateTime),
+        DataType.DateTime                      => typeof(DateTime),
         DataType.Integer when IntPtr.Size == 4 => typeof(int),
-        DataType.Integer => typeof(long),
-        DataType.Double => typeof(double),
-        DataType.Numeric => typeof(decimal),
-        DataType.Boolean => typeof(bool),
-        DataType.Guid => typeof(Guid),
-        DataType.String => typeof(string),
-        _ => typeof(string)
+        DataType.Integer                       => typeof(long),
+        DataType.Double                        => typeof(double),
+        DataType.Numeric                       => typeof(decimal),
+        DataType.Boolean                       => typeof(bool),
+        DataType.Guid                          => typeof(Guid),
+        DataType.String                        => typeof(string),
+        _                                      => typeof(string)
       };
 
     /// <summary>
@@ -390,14 +390,14 @@ namespace CsvTools
     public static string NewLineString(this RecordDelimiterType type) =>
       type switch
       {
-        RecordDelimiterType.LF => "\n",
-        RecordDelimiterType.CR => "\r",
+        RecordDelimiterType.LF   => "\n",
+        RecordDelimiterType.CR   => "\r",
         RecordDelimiterType.CRLF => "\r\n",
         RecordDelimiterType.LFCR => "\n\r",
-        RecordDelimiterType.RS => "▲",
-        RecordDelimiterType.US => "▼",
+        RecordDelimiterType.RS   => "▲",
+        RecordDelimiterType.US   => "▼",
         RecordDelimiterType.None => string.Empty,
-        _ => string.Empty
+        _                        => string.Empty
       };
 
     public static string NoRecordSQL(this string source)

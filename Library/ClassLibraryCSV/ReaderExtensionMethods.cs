@@ -76,7 +76,7 @@ namespace CsvTools
       bool includeRecordNo,
       bool includeEndLineNo,
       bool includeErrorField,
-      Action<long, int>? progress,
+      IProgress<ProgressEventArgs>? progress,
       CancellationToken cancellationToken)
     {
       if (reader is DataTableWrapper dtw)
@@ -88,14 +88,15 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-        using var wrapper = new DataReaderWrapper(
-          reader,
-          recordLimit,
-          includeErrorField,
-          addStartLine,
-          includeEndLineNo,
-          includeRecordNo);
-      return await LoadDataTable(wrapper, TimeSpan.MaxValue, restoreErrorsFromColumn, progress, cancellationToken)
+      using var wrapper = new DataReaderWrapper(
+        reader,
+        recordLimit,
+        includeErrorField,
+        addStartLine,
+        includeEndLineNo,
+        includeRecordNo);
+      return await LoadDataTable(wrapper, TimeSpan.MaxValue, restoreErrorsFromColumn, (l, i) => progress?.Report(new ProgressEventArgs($"Record {l}", i)),
+                 cancellationToken)
                .ConfigureAwait(false);
     }
 

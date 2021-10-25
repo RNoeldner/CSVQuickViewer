@@ -44,7 +44,7 @@ namespace CsvTools
 
     protected readonly long RecordLimit;
 
-    protected readonly EventHandler<ProgressEventArgs>? ReportProgress;
+    protected readonly IProcessDisplay? ReportProgress;
 
     protected readonly EventHandler<long>? SetMaxProcess;
 
@@ -105,7 +105,7 @@ namespace CsvTools
       FileName = FileSystemUtils.GetFileName(fileName);
 
       if (processDisplay == null) return;
-      ReportProgress = processDisplay.SetProcess;
+      ReportProgress = processDisplay;
       if (processDisplay is IProcessDisplayTime processDisplayTime)
       {
         SetMaxProcess = (sender, l) => processDisplayTime.Maximum = l;
@@ -1061,14 +1061,14 @@ namespace CsvTools
     protected virtual void HandleShowProgress(in string text, long recordNumber, double progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
-      ReportProgress?.Invoke(this, new ProgressEventArgs($"{text}{rec}", (progress * cMaxValue).ToInt64()));
+      ReportProgress?.Report(new ProgressEventArgs($"{text}{rec}", (progress * cMaxValue).ToInt64()));
     }
 
     /// <summary>
     ///   Shows the process.
     /// </summary>
     /// <param name="text">The text.</param>
-    protected void HandleShowProgress(string text) => ReportProgress?.Invoke(this, new ProgressEventArgs(text));
+    protected void HandleShowProgress(string text) => ReportProgress?.Report(new ProgressEventArgs(text));
 
     /// <summary>
     ///   Shows the process twice a second

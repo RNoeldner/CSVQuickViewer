@@ -139,7 +139,7 @@ namespace CsvTools
                            m_ViewSettings.GuessCodePage,
                            m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
                            m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-                           m_ViewSettings.FillGuessSettings, processDisplay)).PhysicalFile();
+                           m_ViewSettings.FillGuessSettings, processDisplay, processDisplay.CancellationToken)).PhysicalFile();
 
         if (m_FileSetting is null)
           return;

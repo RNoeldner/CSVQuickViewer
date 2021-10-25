@@ -36,7 +36,7 @@ namespace CsvTools.Tests
     {
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt").AnalyseFileAsync(true, true, true,
-        true, true, true, true, true, new FillGuessSettings(), processDisplay);
+                    true, true, true, true, true, new FillGuessSettings(), processDisplay, UnitTestStatic.Token);
       Assert.IsNotNull(tuple);
       Assert.AreEqual(1200, tuple.CodePageId);
     }
@@ -46,7 +46,7 @@ namespace CsvTools.Tests
     {
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
       var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt" + CsvFile.cCsvSettingExtension).AnalyseFileAsync(true, true, true,
-        true, true, true, true, true, new FillGuessSettings(), processDisplay);
+                    true, true, true, true, true, new FillGuessSettings(), processDisplay, UnitTestStatic.Token);
       Assert.IsNotNull(tuple);
       Assert.AreEqual(1200, tuple.CodePageId);
     }
@@ -160,7 +160,7 @@ namespace CsvTools.Tests
     {
       using IProcessDisplay process = new CustomProcessDisplay(UnitTestStatic.Token);
       var result = await UnitTestStatic.GetTestPath("BasicCSV.txt").AnalyseFileAsync(true, true, true, true, true, true, false, true,
-        new FillGuessSettings(), process);
+                     new FillGuessSettings(), process, UnitTestStatic.Token);
       Assert.IsNotNull(result);
       Assert.IsTrue(result.HasFieldHeader);
       Assert.AreEqual(1200, result.CodePageId);
@@ -172,7 +172,7 @@ namespace CsvTools.Tests
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt")));
       var result = await improvedStream.GuessHasHeader(1200, 0, "", ",", UnitTestStatic.Token);
       Assert.IsNotNull(result);
-      Assert.IsTrue(string.IsNullOrEmpty(result));      
+      Assert.IsTrue(string.IsNullOrEmpty(result));
     }
 
     [TestMethod]
@@ -181,7 +181,7 @@ namespace CsvTools.Tests
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormats.txt")));
       var result = await improvedStream.GuessHasHeader(65001, 0, "", "\t", UnitTestStatic.Token);
       Assert.IsNotNull(result);
-      Assert.IsTrue(string.IsNullOrEmpty(result));      
+      Assert.IsTrue(string.IsNullOrEmpty(result));
     }
 
     [TestMethod]
@@ -252,6 +252,7 @@ namespace CsvTools.Tests
           file.Write("7S721A\t\"7 راز\"\t2b9d291f-ce76-4947-ae7b-fec3531d1766\u001E");
           file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\u001E");
         }
+
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
           Assert.AreEqual(RecordDelimiterType.RS, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
 
@@ -268,8 +269,10 @@ namespace CsvTools.Tests
           file.Write("7S721A\t\"7 راز\"\t2b9d291f-ce76-4947-ae7b-fec3531d1766\n\r");
           file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\n\r");
         }
+
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-          Assert.AreEqual(RecordDelimiterType.LFCR, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
+          Assert.AreEqual(RecordDelimiterType.LFCR,
+            await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
 
         FileSystemUtils.FileDelete(path);
         using (var file = File.CreateText(path))
@@ -284,8 +287,10 @@ namespace CsvTools.Tests
           file.Write("7S721A\t\"7 راز\"\t2b9d291f-ce76-4947-ae7b-fec3531d1766\r\n");
           await file.WriteAsync("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\r\n");
         }
+
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-          Assert.AreEqual(RecordDelimiterType.CRLF, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
+          Assert.AreEqual(RecordDelimiterType.CRLF,
+            await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
       }
       finally
       {
@@ -403,10 +408,14 @@ namespace CsvTools.Tests
       test.FieldQualifier = "\"";
 
       using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
-      using var reader = new CsvFileReader(test.FullPath, test.CodePageId, test.SkipRows, test.HasFieldHeader, test.ColumnCollection, test.TrimmingOption, test.FieldDelimiter,
-        test.FieldQualifier, test.EscapePrefix, test.RecordLimit, test.AllowRowCombining, test.ContextSensitiveQualifier, test.CommentLine, test.NumWarnings, test.DuplicateQualifierToEscape,
-        test.NewLinePlaceholder, test.DelimiterPlaceholder, test.QualifierPlaceholder, test.SkipDuplicateHeader, test.TreatLFAsSpace, test.TreatUnknownCharacterAsSpace, test.TryToSolveMoreColumns,
-        test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, test.WarnUnknownCharacter, test.WarnEmptyTailingColumns, test.TreatNBSPAsSpace, test.TreatTextAsNull,
+      using var reader = new CsvFileReader(test.FullPath, test.CodePageId, test.SkipRows, test.HasFieldHeader, test.ColumnCollection, test.TrimmingOption,
+        test.FieldDelimiter,
+        test.FieldQualifier, test.EscapePrefix, test.RecordLimit, test.AllowRowCombining, test.ContextSensitiveQualifier, test.CommentLine, test.NumWarnings,
+        test.DuplicateQualifierToEscape,
+        test.NewLinePlaceholder, test.DelimiterPlaceholder, test.QualifierPlaceholder, test.SkipDuplicateHeader, test.TreatLFAsSpace,
+        test.TreatUnknownCharacterAsSpace, test.TryToSolveMoreColumns,
+        test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, test.WarnUnknownCharacter, test.WarnEmptyTailingColumns,
+        test.TreatNBSPAsSpace, test.TreatTextAsNull,
         test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer, processDisplay);
       await reader.OpenAsync(processDisplay.CancellationToken);
       Assert.AreEqual("RecordNumber", reader.GetName(0));
