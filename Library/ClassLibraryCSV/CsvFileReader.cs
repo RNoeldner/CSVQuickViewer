@@ -583,12 +583,11 @@ namespace CsvTools
       if (disposing)
       {
         m_ImprovedStream?.Dispose();
+        m_ImprovedStream = null;
+
+        m_TextReader?.Dispose();
+        m_TextReader = null;
       }
-
-      m_ImprovedStream = null;
-
-      m_TextReader?.Dispose();
-      m_TextReader = null;
     }
 
     public override bool Read(CancellationToken token) => !token.IsCancellationRequested && Read();
