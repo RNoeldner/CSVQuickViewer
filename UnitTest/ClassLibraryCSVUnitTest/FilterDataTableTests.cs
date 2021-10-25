@@ -57,18 +57,18 @@ namespace CsvTools.Tests
     public async Task FilterDataTableTest()
     {
       var dt = GetDataTable(2000);
-      var test = new FilterDataTable(dt.Item1, null);
+      var test = new FilterDataTable(dt.Item1);
       await test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestStatic.Token);
       Assert.IsTrue(test.FilterTable.Rows.Count > 0);
 
-      Assert.AreEqual(4, test.ColumnsWithErrors.Count);
+      Assert.AreEqual(4, (await test.GetColumnsWithErrors()).Count);
     }
 
     [TestMethod]
     public void CancelTest()
     {
       var dt = GetDataTable(2000);
-      using var test = new FilterDataTable(dt.Item1, null);
+      using var test = new FilterDataTable(dt.Item1);
       test.Cancel();
       // No effect but no error either
       _ = test.FilterAsync(0, FilterType.ShowErrors, UnitTestStatic.Token);
@@ -78,17 +78,14 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void UniqueFieldName()
+    public async Task UniqueFieldName()
     {
       var dt = GetDataTable(10);
-      using var test = new FilterDataTable(dt.Item1, null);
+      using var test = new FilterDataTable(dt.Item1);
       test.UniqueFieldName = new[] { "ColID" };
       var task = test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestStatic.Token).ConfigureAwait(false);
-      while (test.Filtering)
-        test.WaitCompeteFilter(0.1);
-
       Assert.IsFalse(test.Filtering);
-      var result1 = test.ColumnsWithoutErrors;
+      var result1 = (await test.GetColumnsWithErrors());
       Assert.IsFalse(result1.Any(x => x == "ColID"));
     }
 
@@ -96,17 +93,17 @@ namespace CsvTools.Tests
     public async Task ColumnsWithoutErrorsAsync()
     {
       var dt = GetDataTable(2000);
-      var test = new FilterDataTable(dt.Item1, null);
+      var test = new FilterDataTable(dt.Item1);
       await test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestStatic.Token);
       // not a good test, but its known how many columns will have errors
-      Assert.AreEqual(dt.Item2, test.ColumnsWithoutErrors.Count);
+      Assert.AreEqual(dt.Item2, (await test.GetColumnsWithoutErrors()).Count);
     }
 
     [TestMethod]
     public void DisposeTest()
     {
       var dt = GetDataTable(2);
-      var test = new FilterDataTable(dt.Item1, null);
+      var test = new FilterDataTable(dt.Item1);
       test.Dispose();
     }
   }

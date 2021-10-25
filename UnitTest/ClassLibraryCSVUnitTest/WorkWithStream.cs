@@ -6,15 +6,15 @@ using System.Linq;
 namespace CsvTools.Tests
 {
   [TestClass]
-	public class WorkWithStream
-	{
-		[TestMethod]
-		public async System.Threading.Tasks.Task AnalyseStreamAsyncFile()
-		{
-			var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("BasicCSV.txt"));
+  public class WorkWithStream
+  {
+    [TestMethod]
+    public async System.Threading.Tasks.Task AnalyseStreamAsyncFile()
+    {
+      var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("BasicCSV.txt"));
 
-			ICollection<IColumn> determinedColumns;
-			// Not closing the stream
+      ICollection<IColumn> determinedColumns;
+      // Not closing the stream
 
       using IProcessDisplay process = new CustomProcessDisplay(UnitTestStatic.Token);
       using var impStream = new ImprovedStream(stream);
@@ -26,9 +26,9 @@ namespace CsvTools.Tests
         result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
         string.Empty, true, false, true, false, false, false, false, false, false, true, true))
       {
-        await reader.OpenAsync(process.CancellationToken);
+        await reader.OpenAsync(UnitTestStatic.Token);
         var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(new FillGuessSettings(),
-          new ColumnCollection(), false, true, "null", process.CancellationToken);
+                                new ColumnCollection(), false, true, "null", UnitTestStatic.Token);
         determinedColumns = columns.ToList();
         Assert.AreEqual(6, determinedColumns.Count(), "Recognized columns");
         Assert.AreEqual(6, info.Count, "Information Lines");
@@ -41,13 +41,13 @@ namespace CsvTools.Tests
         result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
         string.Empty, true, false, true, false, false, false, false, false, false, true, true))
       {
-        await reader.OpenAsync(process.CancellationToken);
+        await reader.OpenAsync(UnitTestStatic.Token);
         Assert.AreEqual(6, reader.FieldCount);
       }
     }
 
-		[TestMethod]
-		public async System.Threading.Tasks.Task AnalyseStreamAsyncGZip()
+    [TestMethod]
+    public async System.Threading.Tasks.Task AnalyseStreamAsyncGZip()
     {
       using var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"));
       ICollection<IColumn> determinedColumns;
@@ -63,9 +63,9 @@ namespace CsvTools.Tests
         result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
         string.Empty, true, false, true, false, false, false, false, false, false, true, true))
       {
-        await reader.OpenAsync(process.CancellationToken);
+        await reader.OpenAsync(UnitTestStatic.Token);
         var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(new FillGuessSettings(),
-          new ColumnCollection(), false, true, "null", process.CancellationToken);
+                                new ColumnCollection(), false, true, "null", UnitTestStatic.Token);
         determinedColumns = columns.ToList();
         Assert.AreEqual(6, determinedColumns.Count(), "Recognized columns");
         Assert.AreEqual(6, info.Count, "Information Lines");
@@ -78,9 +78,9 @@ namespace CsvTools.Tests
         result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
         string.Empty, true, false, true, false, false, false, false, false, false, true, true))
       {
-        await reader.OpenAsync(process.CancellationToken);
+        await reader.OpenAsync(UnitTestStatic.Token);
         Assert.AreEqual(6, reader.FieldCount);
       }
     }
-	}
+  }
 }

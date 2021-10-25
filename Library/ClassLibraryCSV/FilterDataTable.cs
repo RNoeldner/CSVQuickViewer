@@ -32,9 +32,8 @@ namespace CsvTools
     private readonly DataTable m_SourceTable;
 
     private readonly List<string> m_UniqueFieldName = new List<string>();
-    private readonly Action? m_WhileWaiting;
 
-    private HashSet<string>? m_ColumnWithoutErrors;
+    private HashSet<string>? m_ColumnWithoutErrorsCache;
 
     private CancellationTokenSource? m_CurrentFilterCancellationTokenSource;
 
@@ -44,87 +43,10 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
     /// </summary>
     /// <param name="init">The initial DataTable</param>
-    /// <param name="whileWaiting">Acton to be performed wjile waiting on completion</param>
-    public FilterDataTable(in DataTable? init, Action? whileWaiting)
+    public FilterDataTable(in DataTable? init)
     {
       m_SourceTable = init ?? throw new ArgumentNullException(nameof(init));
       FilterTable = m_SourceTable.Clone();
-      m_WhileWaiting = whileWaiting;
-    }
-
-    /// <summary>
-    ///   Gets the columns without errors.
-    /// </summary>
-    /// <value>The columns without errors.</value>
-    public IReadOnlyCollection<string> ColumnsWithErrors
-    {
-      get
-      {
-        return (from DataColumn col in m_SourceTable.Columns
-                where !col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
-                where !ColumnsWithoutErrors.Contains(col.ColumnName)
-                select col.ColumnName).ToList();
-      }
-    }
-
-    /// <summary>
-    ///   Gets the columns without errors.
-    /// </summary>
-    /// <value>The columns without errors.</value>
-    public IReadOnlyCollection<string> ColumnsWithoutErrors
-    {
-      get
-      {
-        if (m_ColumnWithoutErrors != null) return m_ColumnWithoutErrors;
-
-        // Wait until we are actually done filtering, max 60 seconds
-        WaitCompeteFilter(60);
-
-        m_ColumnWithoutErrors = new HashSet<string>();
-
-        // m_ColumnWithoutErrors will not contain UniqueFields nor line number / error
-        Debug.Assert(FilterTable != null, nameof(FilterTable) + " != null");
-        foreach (DataColumn col in FilterTable!.Columns)
-        {
-          // Always keep the line number, error field and any uniques
-          if (col.ColumnName.Equals(ReaderConstants.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase)
-              || col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
-              || m_UniqueFieldName.Contains(col.ColumnName))
-            continue;
-
-          // Check if there are errors in this column
-          var hasErrors = false;
-          var inRowErrorDesc0 = "[" + col.ColumnName + "]";
-          var inRowErrorDesc1 = "[" + col.ColumnName + ",";
-          var inRowErrorDesc2 = "," + col.ColumnName + "]";
-          var inRowErrorDesc3 = "," + col.ColumnName + ",";
-          foreach (DataRow row in FilterTable.Rows)
-          {
-            // In case there is a column error..
-            if (row.GetColumnError(col).Length > 0)
-            {
-              hasErrors = true;
-              break;
-            }
-
-            if (string.IsNullOrEmpty(row.RowError))
-              continue;
-            if (!row.RowError.Contains(inRowErrorDesc0, StringComparison.OrdinalIgnoreCase)
-                && !row.RowError.Contains(inRowErrorDesc1, StringComparison.OrdinalIgnoreCase)
-                && !row.RowError.Contains(inRowErrorDesc2, StringComparison.OrdinalIgnoreCase)
-                && !row.RowError.Contains(inRowErrorDesc3, StringComparison.OrdinalIgnoreCase))
-              continue;
-
-            hasErrors = true;
-            break;
-          }
-
-          if (!hasErrors)
-            m_ColumnWithoutErrors.Add(col.ColumnName);
-        }
-
-        return m_ColumnWithoutErrors;
-      }
     }
 
     public bool CutAtLimit { get; private set; }
@@ -154,14 +76,78 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc />
-    public void Dispose()
+    /// <summary>
+    ///   Gets the columns without errors.
+    /// </summary>
+    /// <value>The columns without errors.</value>
+    public async Task<IReadOnlyCollection<string>> GetColumnsWithErrors()
     {
-      Dispose(true);
-      GC.SuppressFinalize(this);
+      var columnsWithoutErrors = await GetColumnsWithoutErrors();
+      return (from DataColumn col in m_SourceTable.Columns
+              where !col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
+              where !columnsWithoutErrors.Contains(col.ColumnName)
+              select col.ColumnName).ToList();
     }
 
-    public void Cancel()
+    /// <summary>
+    ///   Gets the columns without errors.
+    /// </summary>
+    /// <value>The columns without errors.</value>
+    public async Task<IReadOnlyCollection<string>> GetColumnsWithoutErrors()
+    {
+      if (m_ColumnWithoutErrorsCache != null)
+        return m_ColumnWithoutErrorsCache;
+
+      // Wait until we are actually done filtering, max 60 seconds
+      await WaitCompeteFilterAsync(60, () => Task.Delay(125));
+
+      m_ColumnWithoutErrorsCache = new HashSet<string>();
+
+      // m_ColumnWithoutErrors will not contain UniqueFields nor line number / error
+      Debug.Assert(FilterTable != null, nameof(FilterTable) + " != null");
+      foreach (DataColumn col in FilterTable!.Columns)
+      {
+        // Always keep the line number, error field and any uniques
+        if (col.ColumnName.Equals(ReaderConstants.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase)
+            || col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
+            || m_UniqueFieldName.Contains(col.ColumnName))
+          continue;
+
+        // Check if there are errors in this column
+        var hasErrors = false;
+        var inRowErrorDesc0 = "[" + col.ColumnName + "]";
+        var inRowErrorDesc1 = "[" + col.ColumnName + ",";
+        var inRowErrorDesc2 = "," + col.ColumnName + "]";
+        var inRowErrorDesc3 = "," + col.ColumnName + ",";
+        foreach (DataRow row in FilterTable.Rows)
+        {
+          // In case there is a column error..
+          if (row.GetColumnError(col).Length > 0)
+          {
+            hasErrors = true;
+            break;
+          }
+
+          if (string.IsNullOrEmpty(row.RowError))
+            continue;
+          if (!row.RowError.Contains(inRowErrorDesc0, StringComparison.OrdinalIgnoreCase)
+              && !row.RowError.Contains(inRowErrorDesc1, StringComparison.OrdinalIgnoreCase)
+              && !row.RowError.Contains(inRowErrorDesc2, StringComparison.OrdinalIgnoreCase)
+              && !row.RowError.Contains(inRowErrorDesc3, StringComparison.OrdinalIgnoreCase))
+            continue;
+
+          hasErrors = true;
+          break;
+        }
+
+        if (!hasErrors)
+          m_ColumnWithoutErrorsCache.Add(col.ColumnName);
+      }
+
+      return m_ColumnWithoutErrorsCache;
+    }
+
+    public async Task Cancel()
     {
       // stop old filtering
       if (m_CurrentFilterCancellationTokenSource?.IsCancellationRequested ?? true) return;
@@ -169,7 +155,7 @@ namespace CsvTools
       m_CurrentFilterCancellationTokenSource.Cancel();
 
       // make sure the filtering is canceled
-      WaitCompeteFilter(0.2);
+      await WaitCompeteFilterAsync(0.2, () => Task.Delay(125));
 
       m_CurrentFilterCancellationTokenSource.Dispose();
       m_CurrentFilterCancellationTokenSource = null;
@@ -179,7 +165,7 @@ namespace CsvTools
     {
       if (limit < 1)
         limit = int.MaxValue;
-      m_ColumnWithoutErrors = null;
+      m_ColumnWithoutErrorsCache = null;
       m_Filtering = true;
       try
       {
@@ -234,9 +220,9 @@ namespace CsvTools
     public async Task FilterAsync(int limit, FilterType type, CancellationToken cancellationToken)
     {
       if (m_Filtering)
-        Cancel();
+        await Cancel();
 
-      m_ColumnWithoutErrors = null;
+      m_ColumnWithoutErrorsCache = null;
       FilterTable = m_SourceTable.Clone();
 
       m_CurrentFilterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -244,21 +230,18 @@ namespace CsvTools
       await Task.Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token).ConfigureAwait(false);
     }
 
-    public void WaitCompeteFilter(double timeoutInSeconds)
+    private async Task WaitCompeteFilterAsync(double timeoutInSeconds, Func<Task> whileWaiting)
     {
       if (!m_Filtering) return;
       var stopwatch = timeoutInSeconds > 0.01 ? new Stopwatch() : null;
       stopwatch?.Start();
       while (m_Filtering)
       {
-        m_WhileWaiting?.Invoke();
-        Task.Delay(125);
-        if (stopwatch?.Elapsed.TotalSeconds > timeoutInSeconds)
-        {
-          // can not call Cancel as this method is called by timeout
-          m_CurrentFilterCancellationTokenSource?.Cancel();
-          break;
-        }
+        await whileWaiting.Invoke();
+        if (!(stopwatch?.Elapsed.TotalSeconds > timeoutInSeconds)) continue;
+        // can not call Cancel as this method is called by timeout
+        m_CurrentFilterCancellationTokenSource?.Cancel();
+        break;
       }
     }
 

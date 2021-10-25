@@ -21,33 +21,36 @@ namespace CsvTools
   ///   Interface for an ProcessDisplay
   /// </summary>
   public interface IProcessDisplay : IDisposable, IProgress<ProgressEventArgs>
-	{
-		/// <summary>
-		///   Event handler called as progress should be displayed
-		/// </summary>
-		event EventHandler<ProgressEventArgs>? Progress;
+  {
+    /// <summary>
+    ///   Gets or sets the cancellation token.
+    /// </summary>
+    /// <value>The cancellation token.</value>
+    [Obsolete("This will be removed soon, please pass CancellationToken in a different way")]
+    CancellationToken CancellationToken { get; }
 
-		/// <summary>
-		///   Gets or sets the cancellation token.
-		/// </summary>
-		/// <value>The cancellation token.</value>
-		CancellationToken CancellationToken { get; }
+    string Title { get; set; }
 
-		string Title { get; set; }
+    /// <summary>
+    ///   Event handler called as progress should be displayed
+    /// </summary>
+    event EventHandler<ProgressEventArgs>? Progress;
 
-		/// <summary>
-		///   Event to be called if the display should be updated
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		void SetProcess(object? sender, ProgressEventArgs e);
+    /// <summary>
+    ///   Event to be called if the display should be updated
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    [Obsolete("This will be removed soon, please use Report instead")]
+    void SetProcess(object? sender, ProgressEventArgs e);
 
-		/// <summary>
-		///   Sets the process display
-		/// </summary>
-		/// <param name="text">The text.</param>
-		/// <param name="value">The current progress</param>
-		/// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
-		void SetProcess(string text, long value, bool log);
-	}
+    /// <summary>
+    ///   Sets the process display
+    /// </summary>
+    /// <param name="text">The text.</param>
+    /// <param name="value">The current progress</param>
+    /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
+    [Obsolete("This will be removed soon, please use Report instead")]
+    void SetProcess(string text, long value, bool log);
+  }
 }
