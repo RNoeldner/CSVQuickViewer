@@ -373,7 +373,8 @@ namespace CsvTools
     /// <param name="length">The number of bytes to read.</param>
     /// <returns>The actual number of characters read.</returns>
     /// <exception cref="T:System.IndexOutOfRangeException">
-    ///   The index passed was outside the range of 0 through <see cref="P:System.Data.IDataRecord.FieldCount" />.
+    ///   The index passed was outside the range of 0 through <see
+    ///   cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
     public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
     {
@@ -702,13 +703,13 @@ namespace CsvTools
         ret = column.ValueFormat.DataType switch
         {
           DataType.DateTime => GetDateTime(ordinal),
-          DataType.Integer  => IntPtr.Size == 4 ? GetInt32(ordinal) : GetInt64(ordinal),
-          DataType.Double   => GetDouble(ordinal),
-          DataType.Numeric  => GetDecimal(ordinal),
-          DataType.Boolean  => GetBoolean(ordinal),
-          DataType.Guid     => GetGuid(ordinal),
-          DataType.String   => GetString(ordinal),
-          _                 => throw new ArgumentOutOfRangeException($"Datatype {column.ValueFormat.DataType} is not supported")
+          DataType.Integer => IntPtr.Size == 4 ? GetInt32(ordinal) : GetInt64(ordinal),
+          DataType.Double => GetDouble(ordinal),
+          DataType.Numeric => GetDecimal(ordinal),
+          DataType.Boolean => GetBoolean(ordinal),
+          DataType.Guid => GetGuid(ordinal),
+          DataType.String => GetString(ordinal),
+          _ => throw new ArgumentOutOfRangeException($"Datatype {column.ValueFormat.DataType} is not supported")
         };
       }
       catch (FormatException)
@@ -1061,14 +1062,14 @@ namespace CsvTools
     protected virtual void HandleShowProgress(in string text, long recordNumber, double progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
-      ReportProgress?.Report(new ProgressEventArgs($"{text}{rec}", (progress * cMaxValue).ToInt64()));
+      ReportProgress?.SetProcess($"{text}{rec}", (progress * cMaxValue).ToInt64(), false);
     }
 
     /// <summary>
     ///   Shows the process.
     /// </summary>
     /// <param name="text">The text.</param>
-    protected void HandleShowProgress(string text) => ReportProgress?.Report(new ProgressEventArgs(text));
+    protected void HandleShowProgress(string text) => ReportProgress?.SetProcess(text, 0, false);
 
     /// <summary>
     ///   Shows the process twice a second

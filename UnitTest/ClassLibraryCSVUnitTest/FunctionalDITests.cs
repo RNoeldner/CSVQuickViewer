@@ -50,7 +50,9 @@ namespace CsvTools.Tests
       var test2 = FunctionalDI.AdjustTZExport(test1, "Hawaiian Standard Time", 1, null);
       Assert.AreEqual(srcTime, test2);
 #endif
+#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       var test3 = FunctionalDI.AdjustTZImport(srcTime, null, null);
+#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       Assert.AreEqual(srcTime, test3);
 
       var test4 = FunctionalDI.AdjustTZImport(srcTime, TimeZoneInfo.Local.Id, null);

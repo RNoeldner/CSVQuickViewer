@@ -16,9 +16,8 @@ namespace CsvTools.Tests
       ICollection<IColumn> determinedColumns;
       // Not closing the stream
 
-      using IProcessDisplay process = new CustomProcessDisplay(UnitTestStatic.Token);
       using var impStream = new ImprovedStream(stream);
-      var result = await impStream.GetDetectionResult("stream", process, false, true, true, true, true, true, false, true);
+      var result = await impStream.GetDetectionResult("stream", null, false, true, true, true, true, true, false, true, UnitTestStatic.Token);
       impStream.Seek(0, System.IO.SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
@@ -54,7 +53,7 @@ namespace CsvTools.Tests
       // Not closing the stream
       using var impStream = new ImprovedStream(stream, SourceAccess.FileTypeEnum.GZip);
       using IProcessDisplay process = new CustomProcessDisplay(UnitTestStatic.Token);
-      var result = await impStream.GetDetectionResult("steam", process, false, true, true, true, true, true, false, false);
+      var result = await impStream.GetDetectionResult("steam", (msg, log) => process.SetProcess(msg, -1, log), false, true, true, true, true, true, false, false, UnitTestStatic.Token);
 
       impStream.Seek(0, System.IO.SeekOrigin.Begin);
 

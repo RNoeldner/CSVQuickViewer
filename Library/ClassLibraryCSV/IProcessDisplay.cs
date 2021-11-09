@@ -20,7 +20,7 @@ namespace CsvTools
   /// <summary>
   ///   Interface for an ProcessDisplay
   /// </summary>
-  public interface IProcessDisplay : IDisposable, IProgress<ProgressEventArgs>
+  public interface IProcessDisplay : IDisposable
   {
     /// <summary>
     ///   Gets or sets the cancellation token.
@@ -41,7 +41,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    [Obsolete("This will be removed soon, please use Report instead")]
     void SetProcess(object? sender, ProgressEventArgs e);
 
     /// <summary>
@@ -50,7 +49,6 @@ namespace CsvTools
     /// <param name="text">The text.</param>
     /// <param name="value">The current progress</param>
     /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
-    [Obsolete("This will be removed soon, please use Report instead")]
     void SetProcess(string text, long value, bool log);
   }
 }

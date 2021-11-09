@@ -49,7 +49,6 @@ namespace CsvTools.Tests
       Assert.AreEqual("\\", m_FileFormat.EscapePrefix, "EscapeCharacter");
     }
 
-
     [TestMethod]
     public void FileFormatEscapeCharacter()
     {
@@ -124,15 +123,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void FileFormatIsFixedLength()
-    {
-      var target = new CsvFile();
-      Assert.IsFalse(target.IsFixedLength);
-      target.FieldDelimiter = "";
-      Assert.IsTrue(target.IsFixedLength);
-    }
-
-    [TestMethod]
     public void FileFormatNotEquals()
     {
       var target = new CsvFile();
@@ -158,7 +148,6 @@ namespace CsvTools.Tests
       test.QualifierPlaceholder = "&&";
       Assert.AreEqual(numCalled, 1);
     }
-
 
     [TestMethod]
     public void CommentLine()

@@ -882,7 +882,9 @@ namespace CsvTools.Tests
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
+#pragma warning disable CS0618 // Typ oder Element ist veraltet
       test.GetData(0);
+#pragma warning restore CS0618 // Typ oder Element ist veraltet
     }
 
     [TestMethod]
@@ -1717,7 +1719,9 @@ namespace CsvTools.Tests
         m_ValidSetting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(processDisplay.CancellationToken);
 
+#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       using var dt = await test.GetDataTableAsync(5, false, false, false, false, false, null,
+#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
                        processDisplay.CancellationToken);
       Assert.AreEqual(5, dt!.Rows.Count);
     }

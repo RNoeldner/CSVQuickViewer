@@ -52,6 +52,6 @@ namespace CsvTools
       Progress?.Invoke(sender, new ProgressEventArgs(text, value, log));
     }
 
-    public void Report(ProgressEventArgs value) => Progress?.Invoke(this, value);
+    // public void Report(ProgressEventArgs value) => Progress?.Invoke(this, value);
   }
 }

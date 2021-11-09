@@ -29,24 +29,27 @@ namespace CsvTools
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly ViewSettings m_ViewSettings;
+    private readonly ICsvFile m_CsvFile;
     private bool m_IsDisposed;
 
-    public FormEditSettings(in ViewSettings viewSettings)
+    public FormEditSettings(in ViewSettings viewSettings, in ICsvFile csvFile)
     {
-      InitializeComponent();
+
       m_ViewSettings = viewSettings ?? throw new ArgumentNullException(nameof(viewSettings));
-      fillGuessSettingEdit.FillGuessSettings = viewSettings.FillGuessSettings;
+      m_CsvFile = csvFile ?? throw new ArgumentNullException(nameof(csvFile));
+
+      InitializeComponent();
 
       if (m_ViewSettings.LimitDuration == ViewSettings.Duration.Unlimited)
-        domainUpDownTime.SelectedIndex = 4;
+        domainUpDownLimit.SelectedIndex = 4;
       else if (m_ViewSettings.LimitDuration == ViewSettings.Duration.TenSecond)
-        domainUpDownTime.SelectedIndex = 3;
+        domainUpDownLimit.SelectedIndex = 3;
       else if (m_ViewSettings.LimitDuration == ViewSettings.Duration.TwoSecond)
-        domainUpDownTime.SelectedIndex = 2;
+        domainUpDownLimit.SelectedIndex = 2;
       else if (m_ViewSettings.LimitDuration == ViewSettings.Duration.Second)
-        domainUpDownTime.SelectedIndex = 1;
+        domainUpDownLimit.SelectedIndex = 1;
       else
-        domainUpDownTime.SelectedIndex = 0;
+        domainUpDownLimit.SelectedIndex = 0;
     }
 
     private void BtnOpenFile_Click(object? sender, EventArgs e)
@@ -62,7 +65,7 @@ namespace CsvTools
 
         if (newFileName is null || newFileName.Length == 0)
           return;
-        m_ViewSettings.FileName = newFileName;
+        m_CsvFile.FileName = newFileName;
       }
       catch (Exception ex)
       {
@@ -89,23 +92,23 @@ namespace CsvTools
     {
       await buttonGuessCP.RunWithHourglassAsync(async () =>
       {
-        using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
+        using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
         var (codepage, bom) = await improvedStream.GuessCodePage(m_CancellationTokenSource.Token);
-        m_ViewSettings.CodePageId = codepage;
-        m_ViewSettings.ByteOrderMark = bom;
+        m_CsvFile.CodePageId = codepage;
+        m_CsvFile.ByteOrderMark = bom;
       });
-      fileSettingBindingSource.ResetBindings(false);
+      bindingSourceViewSetting.ResetBindings(false);
     }
 
     private async void ButtonGuessDelimiter_ClickAsync(object? sender, EventArgs e)
     {
       await buttonGuessDelimiter.RunWithHourglassAsync(async () =>
       {
-        using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        var res = await improvedStream.GuessDelimiter(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.EscapePrefix,
+        using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
+        var res = await improvedStream.GuessDelimiter(m_CsvFile.CodePageId, m_CsvFile.SkipRows, m_CsvFile.EscapePrefix,
                     m_CancellationTokenSource.Token);
         if (res.Item2)
-          m_ViewSettings.FieldDelimiter = res.Item1;
+          m_CsvFile.FieldDelimiter = res.Item1;
       });
     }
 
@@ -114,40 +117,40 @@ namespace CsvTools
       var qualifier = string.Empty;
       await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
       {
-        using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        qualifier = await improvedStream.GuessQualifier(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.FieldDelimiter,
+        using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
+        qualifier = await improvedStream.GuessQualifier(m_CsvFile.CodePageId, m_CsvFile.SkipRows, m_CsvFile.FieldDelimiter,
                       m_CancellationTokenSource.Token);
       });
 
-      m_ViewSettings.FieldQualifier = qualifier;
+      m_CsvFile.FieldQualifier = qualifier;
     }
 
     private async void ButtonSkipLine_ClickAsync(object? sender, EventArgs e)
     {
       await buttonSkipLine.RunWithHourglassAsync(async () =>
       {
-        using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        m_ViewSettings.SkipRows = await improvedStream.GuessStartRow(m_ViewSettings.CodePageId, m_ViewSettings.FieldDelimiter, m_ViewSettings.FieldQualifier,
-                                    m_ViewSettings.CommentLine, m_CancellationTokenSource.Token);
+        using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
+        m_CsvFile.SkipRows = await improvedStream.GuessStartRow(m_CsvFile.CodePageId, m_CsvFile.FieldDelimiter, m_CsvFile.FieldQualifier,
+                                    m_CsvFile.CommentLine, m_CancellationTokenSource.Token);
       });
     }
 
     private void CboCodePage_SelectedIndexChanged(object? sender, EventArgs e)
     {
       if (cboCodePage.SelectedItem != null)
-        m_ViewSettings.CodePageId = ((DisplayItem<int>) cboCodePage.SelectedItem).ID;
+        m_CsvFile.CodePageId = ((DisplayItem<int>) cboCodePage.SelectedItem).ID;
     }
 
     private void CboRecordDelimiter_SelectedIndexChanged(object? sender, EventArgs e)
     {
       if (cboRecordDelimiter.SelectedItem != null)
-        m_ViewSettings.NewLine = (RecordDelimiterType) cboRecordDelimiter.SelectedValue;
+        m_CsvFile.NewLine = (RecordDelimiterType) cboRecordDelimiter.SelectedValue;
     }
 
     private void CheckBoxColumnsProcess_CheckedChanged(object? sender, EventArgs e)
     {
-      if (m_ViewSettings.TryToSolveMoreColumns || m_ViewSettings.AllowRowCombining)
-        m_ViewSettings.WarnEmptyTailingColumns = true;
+      if (m_CsvFile.TryToSolveMoreColumns || m_CsvFile.AllowRowCombining)
+        m_CsvFile.WarnEmptyTailingColumns = true;
     }
 
     /// <summary>
@@ -157,7 +160,9 @@ namespace CsvTools
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void EditSettings_Load(object? sender, EventArgs e)
     {
-      fileSettingBindingSource.DataSource = m_ViewSettings;
+      bindingSourceViewSetting.DataSource = m_ViewSettings;
+      bindingSourceCsvFile.DataSource = m_CsvFile;
+      fillGuessSettingEdit.FillGuessSettings = m_ViewSettings.FillGuessSettings;
 
       // Fill Drop down
       cboCodePage.SuspendLayout();
@@ -165,14 +170,14 @@ namespace CsvTools
       cboCodePage.DataSource = EncodingHelper.CommonCodePages.Select(cp => new DisplayItem<int>(cp, EncodingHelper.GetEncodingName(cp, false))).ToList();
       cboRecordDelimiter.DisplayMember = nameof(DisplayItem<int>.Display);
       cboRecordDelimiter.ValueMember = nameof(DisplayItem<int>.ID);
-      cboRecordDelimiter.SelectedValue = m_ViewSettings.CodePageId;
+      cboRecordDelimiter.SelectedValue = m_CsvFile.CodePageId;
       cboCodePage.ResumeLayout(true);
 
       var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));
       var di = (from RecordDelimiterType item in Enum.GetValues(typeof(RecordDelimiterType))
                 select new DisplayItem<int>((int) item, descConv.ConvertToString(item))).ToList();
 
-      var selValue = (int) m_ViewSettings.NewLine;
+      var selValue = (int) m_CsvFile.NewLine;
       cboRecordDelimiter.SuspendLayout();
       cboRecordDelimiter.DataSource = di;
       cboRecordDelimiter.DisplayMember = nameof(DisplayItem<int>.Display);
@@ -180,7 +185,7 @@ namespace CsvTools
       cboRecordDelimiter.SelectedValue = selValue;
       cboRecordDelimiter.ResumeLayout(true);
 
-      quotingControl.CsvFile = m_ViewSettings;
+      quotingControl.CsvFile = m_CsvFile;
     }
 
     private void FormEditSettings_FormClosing(object? sender, FormClosingEventArgs e)
@@ -193,9 +198,9 @@ namespace CsvTools
     {
       await buttonNewLine.RunWithHourglassAsync(async () =>
       {
-        using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows,
-                                                   m_ViewSettings.FieldQualifier, m_CancellationTokenSource.Token);
+        using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
+        cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(m_CsvFile.CodePageId, m_CsvFile.SkipRows,
+                                                   m_CsvFile.FieldQualifier, m_CancellationTokenSource.Token);
       });
     }
 
@@ -231,7 +236,7 @@ namespace CsvTools
 
     private void DomainUpDownTime_SelectedItemChanged(object? sender, EventArgs e)
     {
-      m_ViewSettings.LimitDuration = domainUpDownTime.SelectedIndex switch
+      m_ViewSettings.LimitDuration = domainUpDownLimit.SelectedIndex switch
       {
         4 => ViewSettings.Duration.Unlimited,
         3 => ViewSettings.Duration.TenSecond,
@@ -246,18 +251,18 @@ namespace CsvTools
     {
       await buttonGuessHeader.RunWithHourglassAsync(async () =>
       {
-        using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        var res = await improvedStream.GuessHasHeader(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_ViewSettings.CommentLine,
-                    m_ViewSettings.FieldDelimiter, m_CancellationTokenSource.Token);
-        m_ViewSettings.HasFieldHeader = string.IsNullOrEmpty(res);
-        fileSettingBindingSource.ResetBindings(false);
+        using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
+        var res = await improvedStream.GuessHasHeader(m_CsvFile.CodePageId, m_CsvFile.SkipRows, m_CsvFile.CommentLine,
+                    m_CsvFile.FieldDelimiter, m_CancellationTokenSource.Token);
+        m_CsvFile.HasFieldHeader = string.IsNullOrEmpty(res);
+        bindingSourceViewSetting.ResetBindings(false);
         _MessageBox.Show(res, "Checking headers");
       });
     }
 
     private void ButtonInteractiveSettings_Click(object? sender, EventArgs e)
     {
-      using var frm = new FindSkipRows(m_ViewSettings);
+      using var frm = new FindSkipRows(m_CsvFile);
       _ = frm.ShowDialog();
     }
 
@@ -265,8 +270,8 @@ namespace CsvTools
     {
       await buttonGuessLineComment.RunWithHourglassAsync(async () =>
       {
-        using var improvedStream = new ImprovedStream(new SourceAccess(m_ViewSettings));
-        m_ViewSettings.CommentLine = await improvedStream.GuessLineComment(m_ViewSettings.CodePageId, m_ViewSettings.SkipRows, m_CancellationTokenSource.Token);
+        using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
+        m_CsvFile.CommentLine = await improvedStream.GuessLineComment(m_CsvFile.CodePageId, m_CsvFile.SkipRows, m_CancellationTokenSource.Token);
       });
     }
   }

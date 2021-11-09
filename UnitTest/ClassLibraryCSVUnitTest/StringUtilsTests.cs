@@ -160,7 +160,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void MakeUniqueInCollectionTest()
     {
+#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       var lst = new List<string> { "Value", null, "" };
+#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       Assert.AreEqual("Value1", StringUtils.MakeUniqueInCollection(lst, "Value"));
       Assert.AreEqual("New", StringUtils.MakeUniqueInCollection(lst, "New"));
     }
@@ -178,7 +180,9 @@ namespace CsvTools.Tests
     public void SafeFileName()
     {
       Assert.AreEqual(@"", @"".SafePath());
+#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       Assert.AreEqual(@"", FileSystemUtils.SafePath(null));
+#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
 
       Assert.AreEqual(@"c:\Users\rnoldner\Documents\Kunden\Sample\Settings.ValidationTask",
         @"c:\Users\rnoldner\Documents\Kunden\Sample\Settings.ValidationTask".SafePath());
