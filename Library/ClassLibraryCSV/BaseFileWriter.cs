@@ -103,7 +103,7 @@ namespace CsvTools
 
       Logger.Debug("Created Writer for {filesetting}", m_FileSettingDisplay);
       if (processDisplay is null) return;
-      m_ReportProgress = t => processDisplay.Report(new ProgressEventArgs(t, 0, true));
+      m_ReportProgress = t => processDisplay.SetProcess(t, 0, true);
       if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
       processDisplayTime.Maximum = 0;
       m_SetMaxProcess = l => processDisplayTime.Maximum = l;

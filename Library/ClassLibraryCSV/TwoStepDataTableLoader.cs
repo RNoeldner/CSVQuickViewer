@@ -15,7 +15,7 @@ namespace CsvTools
     private readonly Func<DataTable> m_GetDataTable;
     private readonly Func<FilterType, CancellationToken, Task>? m_RefreshDisplayAsync;
     private readonly Action<DataTable> m_SetDataTable;
-    private readonly Action<Func<IProcessDisplay, Task>>? m_SetLoadNextBatchAsync;
+    private readonly Action<Func<IProcessDisplay, CancellationToken, Task>>? m_SetLoadNextBatchAsync;
     private DataReaderWrapper? m_DataReaderWrapper;
     private IFileReader? m_FileReader;
 
@@ -23,7 +23,7 @@ namespace CsvTools
       in Action<DataTable> actionSetDataTable,
       in Func<DataTable> getDataTable,
       in Func<FilterType, CancellationToken, Task>? setRefreshDisplayAsync,
-      in Action<Func<IProcessDisplay, Task>>? loadNextBatchAsync,
+      in Action<Func<IProcessDisplay, CancellationToken, Task>>? loadNextBatchAsync,
       in Action? actionBegin,
       in Action<DataReaderWrapper>? actionFinished)
     {
@@ -54,7 +54,7 @@ namespace CsvTools
       bool includeError,
       TimeSpan durationInitial,
       IProcessDisplay processDisplay,
-      EventHandler<WarningEventArgs>? addWarning)
+      EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
     {
       m_FileReader = FunctionalDI.GetFileReader(fileSetting, TimeZoneInfo.Local.Id, processDisplay);
       if (m_FileReader is null)
@@ -69,7 +69,7 @@ namespace CsvTools
       }
 
       Logger.Information("Reading data for display");
-      await m_FileReader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
+      await m_FileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
       if (addWarning != null)
       {
@@ -86,10 +86,9 @@ namespace CsvTools
         fileSetting.DisplayEndLineNo);
 
       m_ActionBegin?.Invoke();
-      await GetBatchByTimeSpan(durationInitial, includeError, processDisplay, m_SetDataTable).ConfigureAwait(false);
+      await GetBatchByTimeSpan(durationInitial, includeError, processDisplay, m_SetDataTable, cancellationToken).ConfigureAwait(false);
 
-      m_SetLoadNextBatchAsync?.Invoke(
-        process => GetBatchByTimeSpan(TimeSpan.MaxValue, includeError, process, dt => m_GetDataTable().Merge(dt)));
+      m_SetLoadNextBatchAsync?.Invoke((process, cancellationToken) => GetBatchByTimeSpan(TimeSpan.MaxValue, includeError, process, dt => m_GetDataTable().Merge(dt), cancellationToken));
 
       m_ActionFinished?.Invoke(m_DataReaderWrapper);
     }
@@ -108,7 +107,7 @@ namespace CsvTools
       TimeSpan maxDuration,
       bool restoreError,
       IProcessDisplay processDisplay,
-      Action<DataTable> action)
+      Action<DataTable> action, CancellationToken cancellationToken)
     {
       if (m_DataReaderWrapper is null)
         return;
@@ -121,12 +120,12 @@ namespace CsvTools
         var dt = await m_DataReaderWrapper.LoadDataTable(
                    maxDuration,
                    restoreError,
-                   (l, i) => processDisplay.Report(new ProgressEventArgs($"Reading data...\nRecord: {l:N0}", i, false)),
-                   processDisplay.CancellationToken).ConfigureAwait(false);
+                   (l, i) => processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
+                   cancellationToken).ConfigureAwait(false);
         action.Invoke(dt);
 
         if (m_RefreshDisplayAsync != null)
-          await m_RefreshDisplayAsync(FilterType.All, processDisplay.CancellationToken).ConfigureAwait(false);
+          await m_RefreshDisplayAsync(FilterType.All, cancellationToken).ConfigureAwait(false);
 
         if (m_DataReaderWrapper.EndOfFile)
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER

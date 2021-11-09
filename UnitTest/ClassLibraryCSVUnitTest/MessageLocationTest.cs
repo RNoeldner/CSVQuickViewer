@@ -41,7 +41,9 @@ namespace CsvTools.Tests
       try
       {
         // ReSharper disable once AssignNullToNotNullAttribute
+#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
         messageList.Add(null, new WarningEventArgs(1, 2, null, 0, 0, null));
+#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
         Assert.Fail("Exception not thrown");
       }
       catch (ArgumentException)

@@ -76,7 +76,7 @@ namespace CsvTools
       bool includeRecordNo,
       bool includeEndLineNo,
       bool includeErrorField,
-      IProgress<ProgressEventArgs>? progress,
+      IProcessDisplay? progress,
       CancellationToken cancellationToken)
     {
       if (reader is DataTableWrapper dtw)
@@ -95,8 +95,7 @@ namespace CsvTools
         addStartLine,
         includeEndLineNo,
         includeRecordNo);
-      return await LoadDataTable(wrapper, TimeSpan.MaxValue, restoreErrorsFromColumn, (l, i) => progress?.Report(new ProgressEventArgs($"Record {l}", i)),
-                 cancellationToken)
+      return await LoadDataTable(wrapper, TimeSpan.MaxValue, restoreErrorsFromColumn, (l, i) => progress?.SetProcess($"Record {l}", i, false), cancellationToken)
                .ConfigureAwait(false);
     }
 

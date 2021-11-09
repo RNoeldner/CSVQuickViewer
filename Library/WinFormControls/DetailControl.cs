@@ -306,7 +306,7 @@ namespace CsvTools
     public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored { get; set; }
 
     public EventHandler<IFileSettingPhysicalFile>? FileStored { get; set; }
-    public Func<IProcessDisplay, Task>? LoadNextBatchAsync { get; set; }
+    public Func<IProcessDisplay, CancellationToken, Task>? LoadNextBatchAsync { get; set; }
     private DataColumnCollection Columns => m_DataTable.Columns;
     public ToolStripButton ToolStripButtonNext { get; set; }
 
@@ -752,7 +752,8 @@ namespace CsvTools
           m_FormUniqueDisplay = new FormUniqueDisplay(
             m_DataTable.Clone(),
             m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-            columnName, HTMLStyle) { Icon = ParentForm?.Icon };
+            columnName, HTMLStyle)
+          { Icon = ParentForm?.Icon };
           m_FormUniqueDisplay.ShowDialog(ParentForm);
         }
         catch (Exception ex)
@@ -1001,8 +1002,8 @@ namespace CsvTools
     /// </summary>
     public async Task RefreshDisplayAsync(FilterType type, CancellationToken cancellationToken)
     {
-      m_BindingNavigator.SafeInvoke(
-        () =>
+      this.SafeInvokeNoHandleNeeded(
+        async () =>
         {
           m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
 
@@ -1017,50 +1018,49 @@ namespace CsvTools
             m_ToolStripComboBoxFilterType.SelectedIndex = 3;
           else if (type == FilterType.ShowIssueFree)
             m_ToolStripComboBoxFilterType.SelectedIndex = 4;
+          else
+            m_ToolStripComboBoxFilterType.SelectedIndex = 0;
 
           m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
+
+          var oldSortedColumn = FilteredDataGridView.SortedColumn?.DataPropertyName;
+          var oldOrder = FilteredDataGridView.SortOrder;
+
+          // Cancel the current search
+          if (m_CurrentSearch is { IsRunning: true })
+            m_CurrentSearch.Cancel();
+
+          // Hide any showing search
+          m_Search.Visible = false;
+
+          var newDt = m_DataTable;
+          m_FilterDataTable ??= new FilterDataTable(m_DataTable);
+          if (type != FilterType.All)
+          {
+            if (type != m_FilterDataTable.FilterType)
+              await m_FilterDataTable.FilterAsync(int.MaxValue, type, cancellationToken);
+            newDt = m_FilterDataTable.FilterTable;
+          }
+
+          if (ReferenceEquals(m_BindingSource.DataSource, newDt))
+            return;
+
+          /// Now apply filter
+          FilteredDataGridView.DataSource = null;
+          m_BindingSource.DataSource = newDt;
+
+          FilteredDataGridView.DataSource = m_BindingSource;
+          await FilterColumnsAsync(!type.HasFlag(FilterType.ShowIssueFree));
+
+          AutoResizeColumns(newDt);
+
+          FilteredDataGridView.ColumnVisibilityChanged();
+          FilteredDataGridView.SetRowHeight();
+
+          if (oldOrder != SortOrder.None && !string.IsNullOrEmpty(oldSortedColumn))
+            Sort(oldSortedColumn!,
+              oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
         });
-
-      var oldSortedColumn = FilteredDataGridView.SortedColumn?.DataPropertyName;
-      var oldOrder = FilteredDataGridView.SortOrder;
-
-      // Cancel the current search
-      if (m_CurrentSearch is { IsRunning: true })
-        m_CurrentSearch.Cancel();
-
-      // Hide any showing search
-      m_Search.Visible = false;
-
-      var newDt = m_DataTable;
-      m_FilterDataTable ??= new FilterDataTable(m_DataTable);
-      if (type != FilterType.All)
-      {
-        if (type != m_FilterDataTable.FilterType)
-          await m_FilterDataTable.FilterAsync(int.MaxValue, type, cancellationToken);
-        newDt = m_FilterDataTable.FilterTable;
-      }
-
-      if (ReferenceEquals(m_BindingSource.DataSource, newDt))
-        return;
-
-      /// Now apply filter
-      FilteredDataGridView.DataSource = null;
-      m_BindingSource.DataSource = newDt;
-      FilteredDataGridView.DataSource = m_BindingSource;
-      await FilterColumnsAsync(!type.HasFlag(FilterType.ShowIssueFree));
-
-      this.SafeInvokeNoHandleNeeded(() =>
-      {
-        AutoResizeColumns(newDt);
-
-        FilteredDataGridView.ColumnVisibilityChanged();
-        FilteredDataGridView.SetRowHeight();
-
-        if (oldOrder != SortOrder.None && !string.IsNullOrEmpty(oldSortedColumn))
-          Sort(oldSortedColumn!,
-            oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
-      });
-      ShowFilter = m_FilterDataTable?.FilterTable != null && m_FilterDataTable.FilterTable.Rows.Count > 0;
     }
 
     private void StartSearch(object? sender, SearchEventArgs e)
@@ -1106,7 +1106,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var iStream = FunctionalDI.OpenStream(new SourceAccess(src));
+        using var iStream = FunctionalDI.OpenStream(new SourceAccess(src));
         using var sr = new ImprovedTextReader(iStream, src.CodePageId);
         sr.ToBeginning();
         for (var i = 0; i < src.SkipRows; i++)
@@ -1209,7 +1209,7 @@ namespace CsvTools
           using var processDisplay = new FormProcessDisplay("Load more...", false, m_CancellationTokenSource.Token);
           processDisplay.Show();
           processDisplay.Maximum = 100;
-          await LoadNextBatchAsync(processDisplay);
+          await LoadNextBatchAsync(processDisplay, processDisplay.CancellationToken);
         }
         finally
         {

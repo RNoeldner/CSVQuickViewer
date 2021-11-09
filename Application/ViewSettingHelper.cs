@@ -42,35 +42,25 @@ namespace CsvTools
     /// </summary>
     public static void SaveViewSettings(this ViewSettings viewSettings)
     {
-      var oldFileName = viewSettings.FileName;
-      try
-      {
-        if (!FileSystemUtils.DirectoryExists(m_SettingFolder))
-          FileSystemUtils.CreateDirectory(m_SettingFolder);
+      if (!FileSystemUtils.DirectoryExists(m_SettingFolder))
+        FileSystemUtils.CreateDirectory(m_SettingFolder);
 
-        using var stringWriter = new StringWriter(CultureInfo.InvariantCulture);
-        // Remove and Restore FileName it would be serialized
-        viewSettings.FileName = string.Empty;
+      using var stringWriter = new StringWriter(CultureInfo.InvariantCulture);
+      // Remove and Restore FileName it would be serialized
 
-        m_SerializerViewSettings.Serialize(
-          stringWriter,
-          viewSettings,
-          SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
-        var newContens = stringWriter.ToString();
-        var oldContens = FileSystemUtils.FileExists(m_SettingPath) ? File.ReadAllText(m_SettingPath.LongPathPrefix()) : string.Empty;
-        if (!newContens.Equals(oldContens))
-        {
-          FileSystemUtils.DeleteWithBackup(m_SettingPath, false);
-          Logger.Debug("Saving defaults {path}", m_SettingPath);
-          File.WriteAllText(m_SettingPath, newContens);
-        }
-      }
-      catch (Exception ex)
+      m_SerializerViewSettings.Serialize(
+        stringWriter,
+        viewSettings,
+        SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
+      var newContens = stringWriter.ToString();
+      var oldContens = FileSystemUtils.FileExists(m_SettingPath) ? File.ReadAllText(m_SettingPath.LongPathPrefix()) : string.Empty;
+      if (!newContens.Equals(oldContens))
       {
-        viewSettings.FileName = oldFileName;
-        Logger.Warning(ex, "Save Default Settings");
+        FileSystemUtils.DeleteWithBackup(m_SettingPath, false);
+        Logger.Debug("Saving defaults {path}", m_SettingPath);
+        File.WriteAllText(m_SettingPath, newContens);
       }
-      viewSettings.FileName = oldFileName;
+
     }
   }
 }

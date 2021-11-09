@@ -26,7 +26,8 @@ namespace CsvTools.Tests
     public async Task NewCsvFileGuessAllSmallFile()
     {
       using var display = new CustomProcessDisplay(UnitTestStatic.Token);
-      var det = await UnitTestStatic.GetTestPath("employee.txt").GetDetectionResultFromFile(display, true);
+
+      var det = await UnitTestStatic.GetTestPath("employee.txt").GetDetectionResultFromFile(display, true, true, true, true, true, true, true, true, UnitTestStatic.Token);
       //TODO: check if this is Environment dependent, looks like windows has CRLF and Mac as LF
       Assert.AreEqual(RecordDelimiterType.CRLF, det.NewLine);
     }
@@ -361,7 +362,7 @@ namespace CsvTools.Tests
     public async Task NewCsvFileGuessAllHeadingsAsync()
     {
       using var display = new CustomProcessDisplay(UnitTestStatic.Token);
-      var det = await UnitTestStatic.GetTestPath("BasicCSV.txt").GetDetectionResultFromFile(display);
+      var det = await UnitTestStatic.GetTestPath("BasicCSV.txt").GetDetectionResultFromFile(display, false, true, true, true, true, true, true, true, UnitTestStatic.Token);
       Assert.AreEqual(0, det.SkipRows);
       Assert.AreEqual(",".WrittenPunctuationToChar(), det.FieldDelimiter.WrittenPunctuationToChar());
       Assert.AreEqual(1200, det.CodePageId); // UTF16_LE
@@ -371,7 +372,7 @@ namespace CsvTools.Tests
     public async Task NewCsvFileGuessAllTestEmptyAsync()
     {
       using var display = new CustomProcessDisplay(UnitTestStatic.Token);
-      var det = await UnitTestStatic.GetTestPath("CSVTestEmpty.txt").GetDetectionResultFromFile(display);
+      var det = await UnitTestStatic.GetTestPath("CSVTestEmpty.txt").GetDetectionResultFromFile(display, false, true, true, true, true, true, true, true, UnitTestStatic.Token);
       Assert.AreEqual(0, det.SkipRows);
     }
 
@@ -387,7 +388,7 @@ namespace CsvTools.Tests
     {
       using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
       {
-        var det = await UnitTestStatic.GetTestPath("BasicCSV.txt").GetDetectionResultFromFile(processDisplay);
+        var det = await UnitTestStatic.GetTestPath("BasicCSV.txt").GetDetectionResultFromFile(processDisplay, false, true, true, true, true, true, true, true, UnitTestStatic.Token);
         Assert.AreEqual(1200, det.CodePageId);
         Assert.AreEqual(",".WrittenPunctuationToChar(), det.FieldDelimiter.WrittenPunctuationToChar());
       }
@@ -396,7 +397,7 @@ namespace CsvTools.Tests
         "AllFor*.txt", SearchOption.TopDirectoryOnly))
       {
         using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
-        await fileName.GetDetectionResultFromFile(processDisplay);
+        await fileName.GetDetectionResultFromFile(processDisplay, false, true, true, true, true, true, true, true, UnitTestStatic.Token);
       }
     }
 

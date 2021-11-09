@@ -31,7 +31,9 @@ namespace CsvTools.Tests
       var manifest = await ManifestData.ReadManifestFileSystem(UnitTestStatic.GetTestPath("training_relation.manifest.json"));
       var setting = manifest.PhysicalFile() as CsvFile;
       Assert.AreEqual(false, manifest.HasFieldHeader);
+#pragma warning disable CS8602 // Dereferenzierung eines möglichen Nullverweises.
       Assert.AreEqual(19, setting.ColumnCollection.Count());
+#pragma warning restore CS8602 // Dereferenzierung eines möglichen Nullverweises.
       using var reader = new CsvFileReader(setting!.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,

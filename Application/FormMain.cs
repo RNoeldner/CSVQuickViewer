@@ -134,7 +134,7 @@ namespace CsvTools
       {
         using var processDisplay = new CustomProcessDisplay(m_CancellationTokenSource.Token);
         DetachPropertyChanged(m_FileSetting);
-
+        
         m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
                            m_ViewSettings.GuessCodePage,
                            m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
@@ -143,7 +143,9 @@ namespace CsvTools
 
         if (m_FileSetting is null)
           return;
-        ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting, false);
+
+        m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
+        m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
 
         // update the UI
         this.SafeInvoke(() =>
@@ -486,7 +488,7 @@ namespace CsvTools
           });
 
           await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.DurationTimeSpan, processDisplay,
-            AddWarning);
+            AddWarning, processDisplay.CancellationToken);
           IReadOnlyCollection<string>? m_Headers = new List<string>(detailControl.DataTable.GetRealColumns());
           foreach (var columnName in m_Headers)
           {
@@ -496,8 +498,7 @@ namespace CsvTools
 
           FunctionalDI.GetColumnHeaderAsync = (dummy1, dummy2) => Task.FromResult(m_Headers);
 
-          this.SafeBeginInvoke(() => { ShowTextPanel(false); });
-          Application.DoEvents();
+          this.SafeInvoke(() => { ShowTextPanel(false); });
 
           if (m_DisposedValue)
             return;
@@ -586,18 +587,14 @@ namespace CsvTools
       if (m_FileSetting == null)
         return;
       await m_ToolStripButtonSettings.RunWithHourglassAsync(async () =>
-
       {
         m_ToolStripButtonSettings.Enabled = false;
-        ViewSettings.CopyConfiguration(m_FileSetting, m_ViewSettings, true);
-        using var frm = new FormEditSettings(m_ViewSettings);
+
+        using var frm = new FormEditSettings(m_ViewSettings, (ICsvFile) m_FileSetting);
         frm.ShowDialog(MdiParent);
         m_ViewSettings.SaveViewSettings();
         detailControl.MenuDown = m_ViewSettings.MenuDown;
 
-        if (!m_ViewSettings.FileName.Equals(m_FileSetting.FileName, StringComparison.OrdinalIgnoreCase))
-          m_FileChanged = true;
-        ViewSettings.CopyConfiguration(m_ViewSettings, m_FileSetting, true);
         SetFileSystemWatcher(m_FileSetting.FileName);
 
         if (m_FileChanged)

@@ -14,6 +14,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Reflection;
 using System.Xml.Serialization;
 
 namespace CsvTools
@@ -23,7 +24,7 @@ namespace CsvTools
   ///   Class containing the all configuration, used in serialization to store the settings
   /// </summary>
   [Serializable]
-  public class ViewSettings : CsvFile
+  public class ViewSettings : INotifyPropertyChanged
   {
     public enum Duration
     {
@@ -51,6 +52,41 @@ namespace CsvTools
     private HTMLStyle m_HtmlStyle = new HTMLStyle();
     private bool m_MenuDown;
     private bool m_StoreSettingsByFile;
+    private bool m_DisplayStartLineNo = true;
+    private bool m_DisplayRecordNo;
+
+    [XmlElement]
+    [DefaultValue(false)]
+    public virtual bool DisplayRecordNo
+    {
+      get => m_DisplayRecordNo;
+
+      set
+      {
+        if (m_DisplayRecordNo.Equals(value))
+          return;
+        m_DisplayRecordNo = value;
+        NotifyPropertyChanged(nameof(DisplayRecordNo));
+      }
+    }
+
+    [XmlElement]
+    [DefaultValue(true)]
+    public virtual bool DisplayStartLineNo
+    {
+      get => m_DisplayStartLineNo;
+
+      set
+      {
+        if (m_DisplayStartLineNo.Equals(value))
+          return;
+        m_DisplayStartLineNo = value;
+        NotifyPropertyChanged(nameof(DisplayStartLineNo));
+      }
+    }
+
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     [XmlElement]
     public WindowState WindowPosition
@@ -58,6 +94,25 @@ namespace CsvTools
       get;
       set;
     } = new WindowState();
+
+    /// <summary>
+    ///   Notifies the completed property changed.
+    /// </summary>
+    /// <param name="info">The property name.</param>
+    protected void NotifyPropertyChanged(string info)
+    {
+      if (PropertyChanged is null)
+        return;
+      try
+      {
+        // ReSharper disable once PolymorphicFieldLikeEventInvocation
+        PropertyChanged(this, new PropertyChangedEventArgs(info));
+      }
+      catch (TargetInvocationException)
+      {
+        // Ignore
+      }
+    }
 
     [XmlAttribute]
     [DefaultValue(true)]
@@ -95,10 +150,10 @@ namespace CsvTools
         return LimitDuration switch
         {
           Duration.HalfSecond => TimeSpan.FromSeconds(.5),
-          Duration.Second     => TimeSpan.FromSeconds(1),
-          Duration.TwoSecond  => TimeSpan.FromSeconds(2),
-          Duration.TenSecond  => TimeSpan.FromSeconds(10),
-          _                   => TimeSpan.MaxValue,
+          Duration.Second => TimeSpan.FromSeconds(1),
+          Duration.TwoSecond => TimeSpan.FromSeconds(2),
+          Duration.TenSecond => TimeSpan.FromSeconds(10),
+          _ => TimeSpan.MaxValue,
         };
       }
     }
@@ -286,67 +341,6 @@ namespace CsvTools
           return;
         m_HtmlStyle = new HTMLStyle(newVal);
         NotifyPropertyChanged(nameof(Style));
-      }
-    }
-
-    public static void CopyConfiguration(IFileSettingPhysicalFile? physicalSrc, IFileSettingPhysicalFile? physicalDest, bool includeDetected)
-    {
-      if (physicalSrc is null || physicalDest is null || ReferenceEquals(physicalSrc, physicalDest))
-        return;
-      if (physicalSrc is ICsvFile csvS && physicalDest is ICsvFile csvD)
-      {
-        csvD.AllowRowCombining = csvS.AllowRowCombining;
-
-        csvD.NumWarnings = csvS.NumWarnings;
-        csvD.TreatLFAsSpace = csvS.TreatLFAsSpace;
-        csvD.TreatUnknownCharacterAsSpace = csvS.TreatUnknownCharacterAsSpace;
-        csvD.TryToSolveMoreColumns = csvS.TryToSolveMoreColumns;
-        csvD.WarnDelimiterInValue = csvS.WarnDelimiterInValue;
-        csvD.WarnEmptyTailingColumns = csvS.WarnEmptyTailingColumns;
-        csvD.WarnLineFeed = csvS.WarnLineFeed;
-        csvD.WarnNBSP = csvS.WarnNBSP;
-        csvD.WarnQuotes = csvS.WarnQuotes;
-        csvD.WarnQuotesInQuotes = csvS.WarnQuotesInQuotes;
-        csvD.WarnUnknownCharacter = csvS.WarnUnknownCharacter;
-        if (includeDetected)
-        {
-          csvD.NoDelimitedFile = csvS.NoDelimitedFile;
-          csvD.ByteOrderMark = csvS.ByteOrderMark;
-          csvD.CodePageId = csvS.CodePageId;
-        }
-      }
-
-      physicalDest.ConsecutiveEmptyRows = physicalSrc.ConsecutiveEmptyRows;
-      physicalDest.DisplayEndLineNo = physicalSrc.DisplayEndLineNo;
-      physicalDest.DisplayRecordNo = physicalSrc.DisplayRecordNo;
-      physicalDest.DisplayStartLineNo = physicalSrc.DisplayStartLineNo;
-      physicalDest.SkipDuplicateHeader = physicalSrc.SkipDuplicateHeader;
-      physicalDest.SkipEmptyLines = physicalSrc.SkipEmptyLines;
-
-      physicalDest.TreatNBSPAsSpace = physicalSrc.TreatNBSPAsSpace;
-      physicalDest.TreatTextAsNull = physicalSrc.TreatTextAsNull;
-      physicalDest.TrimmingOption = physicalSrc.TrimmingOption;
-
-      if (includeDetected)
-      {
-        physicalDest.FileName = physicalSrc.FileName;
-        physicalDest.SkipRows = physicalSrc.SkipRows;
-        physicalDest.HasFieldHeader = physicalSrc.HasFieldHeader;
-        if (physicalSrc is ICsvFile csvSrc && physicalDest is ICsvFile csvDest)
-        {
-          csvDest.CommentLine = csvSrc.CommentLine;
-          csvDest.ContextSensitiveQualifier = csvSrc.ContextSensitiveQualifier;
-          csvDest.DuplicateQualifierToEscape = csvSrc.DuplicateQualifierToEscape;
-          csvDest.DelimiterPlaceholder = csvSrc.DelimiterPlaceholder;
-          csvDest.EscapePrefix = csvSrc.EscapePrefix;
-          csvDest.FieldDelimiter = csvSrc.FieldDelimiter;
-          csvDest.FieldQualifier = csvSrc.FieldQualifier;
-          csvDest.NewLine = csvSrc.NewLine;
-          csvDest.NewLinePlaceholder = csvSrc.NewLinePlaceholder;
-          csvDest.QualifyOnlyIfNeeded = csvSrc.QualifyOnlyIfNeeded;
-          csvDest.QualifyAlways = csvSrc.QualifyAlways;
-          csvDest.QualifierPlaceholder = csvSrc.QualifierPlaceholder;
-        }
       }
     }
   }
