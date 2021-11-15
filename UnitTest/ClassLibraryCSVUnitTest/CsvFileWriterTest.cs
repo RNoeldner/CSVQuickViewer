@@ -64,7 +64,9 @@ namespace CsvTools.Tests
       writeFile.ColumnCollection.Add(
         new Column("DateTime", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "yyyyMMdd" })
         {
-          TimePartFormat = @"hh:mm", TimePart = "Time", TimeZonePart = "TZ"
+          TimePartFormat = @"hh:mm",
+          TimePart = "Time",
+          TimeZonePart = "TZ"
         });
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
@@ -142,17 +144,17 @@ namespace CsvTools.Tests
       }
 
       var writeFile = new CsvFile { ID = "Test.txt", FileName = UnitTestStatic.GetTestPath("Test.txt"), SqlStatement = "Hello" };
-      using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
-      {
-        var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
-          writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
-          writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
-          writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded,
-          processDisplay);
-        using var reader = new DataTableWrapper(dataTable);
-        // await reader.OpenAsync(processDisplay.CancellationToken);
-        Assert.AreEqual(100, await writer.WriteAsync(reader, processDisplay.CancellationToken));
-      }
+      var processDisplay = new CustomProcessDisplay();
+
+      var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
+        writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
+        writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
+        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded,
+        processDisplay);
+      using var reader = new DataTableWrapper(dataTable);
+      // await reader.OpenAsync(UnitTestStatic.Token);
+      Assert.AreEqual(100, await writer.WriteAsync(reader, UnitTestStatic.Token));
+
 
       Assert.IsTrue(File.Exists(writeFile.FileName));
     }
@@ -176,7 +178,7 @@ namespace CsvTools.Tests
       writeFile.Header = "##This is a header for {FileName}";
       writeFile.Footer = "##This is a Footer\r\n{Records} in file";
       var count = 0;
-      using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
+      var processDisplay = new CustomProcessDisplay();
       {
         var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
           writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
@@ -186,8 +188,8 @@ namespace CsvTools.Tests
         writer.Warning += (sender, e) => { count++; };
         using (var reader = new DataTableWrapper(dataTable))
         {
-          // await reader.OpenAsync(processDisplay.CancellationToken);
-          Assert.AreEqual(100, await writer.WriteAsync(reader, processDisplay.CancellationToken), "Records");
+          // await reader.OpenAsync(UnitTestStatic.Token);
+          Assert.AreEqual(100, await writer.WriteAsync(reader, UnitTestStatic.Token), "Records");
         }
 
         Assert.AreEqual(100, count, "Warnings");
@@ -217,16 +219,16 @@ namespace CsvTools.Tests
         await file.WriteLineAsync("Hello");
         try
         {
-          using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
-          {
-            var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
-              writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
-              writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
-              writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways,
-              writeFile.QualifyOnlyIfNeeded, processDisplay);
-            using var reader = new DataTableWrapper(dataTable);
-            await writer.WriteAsync(reader, processDisplay.CancellationToken);
-          }
+          var processDisplay = new CustomProcessDisplay();
+
+          var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
+            writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
+            writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
+            writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways,
+            writeFile.QualifyOnlyIfNeeded, processDisplay);
+          using var reader = new DataTableWrapper(dataTable);
+          await writer.WriteAsync(reader, UnitTestStatic.Token);
+
 
           Assert.Fail("Exception not thrown");
         }
@@ -256,7 +258,7 @@ namespace CsvTools.Tests
         writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded,
         processDisplay);
 
-      var res = await writer.WriteAsync(m_WriteFile.SqlStatement, 360, null, processDisplay.CancellationToken);
+      var res = await writer.WriteAsync(m_WriteFile.SqlStatement, 360, null, UnitTestStatic.Token);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
       Assert.AreEqual(7, res);
     }

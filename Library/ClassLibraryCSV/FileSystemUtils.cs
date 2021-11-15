@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools
@@ -114,7 +115,8 @@ namespace CsvTools
       string sourceFile,
       string destFile,
       bool onlyChanged,
-      IProcessDisplay processDisplay)
+      IProcessDisplay? processDisplay,
+      CancellationToken cancellationToken)
     {
       if (onlyChanged)
       {
@@ -145,15 +147,18 @@ namespace CsvTools
         oldMax = processDisplayTime.Maximum;
         processDisplayTime.Maximum = fromStream.Length;
       }
-
-      var intervalAction = new IntervalAction();
-      while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, processDisplay.CancellationToken)
+      IntervalAction? intervalAction = null;
+      if (processDisplay!=null)
+        intervalAction = new IntervalAction();
+      while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, cancellationToken)
                                           .ConfigureAwait(false)) > 0)
       {
-        processDisplay.CancellationToken.ThrowIfCancellationRequested();
+        cancellationToken.ThrowIfCancellationRequested();
         totalReads += bytesRead;
-        await toStream.WriteAsync(bytes, 0, bytesRead, processDisplay.CancellationToken).ConfigureAwait(false);
-        intervalAction.Invoke(pos => processDisplay.SetProcess("Copy file", pos, false), totalReads);
+        await toStream.WriteAsync(bytes, 0, bytesRead, cancellationToken).ConfigureAwait(false);
+#pragma warning disable CS8602 // Dereferenzierung eines möglichen Nullverweises.
+        intervalAction?.Invoke(pos => processDisplay.SetProcess("Copy file", pos, false), totalReads);
+#pragma warning restore CS8602 // Dereferenzierung eines möglichen Nullverweises.
       }
 
       processDisplay.SetMaximum(oldMax);

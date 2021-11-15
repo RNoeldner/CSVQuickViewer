@@ -19,7 +19,7 @@ namespace CsvTools
   /// <summary>
   ///   Interface for an ProcessDisplay
   /// </summary>
-  public interface IProcessDisplayTime : IProcessDisplay, IProgress<ProgressWithTimeEventArgs>
+  public interface IProcessDisplayTime : IProcessDisplay
 	{
 		event EventHandler<ProgressWithTimeEventArgs>? ProgressTime;
 

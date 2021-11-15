@@ -213,19 +213,19 @@ namespace CsvTools
     /// <param name="withLogger">if set to <c>true</c> [with logger].</param>
     /// <param name="cancellationToken">A Cancellation token</param>
     /// <returns>A process display, if the stetting want a process</returns>
-    public static IProcessDisplay GetProcessDisplay(
+    public static FormProcessDisplay? GetProcessDisplay(
       this IFileSetting fileSetting,
       Form? owner,
       bool withLogger,
       CancellationToken cancellationToken)
     {
       if (!fileSetting.ShowProgress)
-        return new CustomProcessDisplay(cancellationToken);
-
+        return null;
       var processDisplay = new FormProcessDisplay(fileSetting.ToString(), withLogger, cancellationToken);
       processDisplay.Show(owner);
       return processDisplay;
     }
+
 
     public static Binding? GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>()
                                                                     .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");

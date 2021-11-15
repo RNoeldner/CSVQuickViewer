@@ -135,25 +135,23 @@ namespace CsvTools
     ///   Return a right writer for a file setting
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSettingPhysicalFile, IProcessDisplay?, IFileWriter> GetFileWriter = DefaultFileWriter;
+    public static Func<IFileSettingPhysicalFile, IProcessDisplay?, CancellationToken, IFileWriter> GetFileWriter = (setting, processDisplay, cancellationToken) => DefaultFileWriter(setting, processDisplay);
 
     /// <summary>
     ///   Return the right reader for a file setting
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, string?, IProcessDisplay?, IFileReader> GetFileReader = DefaultFileReader;
+    public static Func<IFileSetting, string?, IProcessDisplay?, CancellationToken, IFileReader> GetFileReader = (setting, timeZone, processDisplay, cancellationToken) => DefaultFileReader(setting, processDisplay);
 
     /// <summary>
     ///   Gets or sets a data reader
     /// </summary>
     /// <value>The statement for reader the data.</value>
     /// <remarks>Make sure the returned reader is open when needed</remarks>
-    public static Func<string, EventHandler<ProgressEventArgs>?, int, CancellationToken, Task<IFileReader>>
-      SQLDataReader = (sql, eh, limit, token) => throw new FileWriterException("SQL Reader not specified");
+    public static Func<string, IProcessDisplay?, int, CancellationToken, Task<IFileReader>> SQLDataReader = (sql, processDisplay, limit, token) => throw new FileWriterException("SQL Reader not specified");
 
     private static IFileReader DefaultFileReader(
       IFileSetting setting,
-      string? timeZone,
       IProcessDisplay? processDisplay) =>
       setting switch
       {

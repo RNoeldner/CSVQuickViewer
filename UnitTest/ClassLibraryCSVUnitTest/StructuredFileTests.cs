@@ -63,7 +63,7 @@ namespace CsvTools.Tests
       try
       {
         using var dummy = FunctionalDI.GetFileReader(m_JsonFile, TimeZoneInfo.Local.Id,
-          new CustomProcessDisplay(UnitTestStatic.Token));
+          new CustomProcessDisplay(), UnitTestStatic.Token);
         Assert.Fail("Should throw error");
       }
       catch (NotImplementedException)
@@ -77,9 +77,9 @@ namespace CsvTools.Tests
     public void GetFileWriter()
     {
       var jsonFile = new JsonFile("SomeFileName.json") { Row = "{0}" };
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       m_JsonFile.SqlStatement = "dummy";
-      var res = FunctionalDI.GetFileWriter(jsonFile, processDisplay);
+      var res = FunctionalDI.GetFileWriter(jsonFile, processDisplay, UnitTestStatic.Token);
       Assert.IsInstanceOfType(res, typeof(IFileWriter));
     }
 

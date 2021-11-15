@@ -27,7 +27,7 @@ namespace CsvTools.Tests
         CommentLine = "#"
       };
 
-      using var proc = new CustomProcessDisplay(UnitTestStatic.Token);
+      var proc = new CustomProcessDisplay();
       await tsde.StartAsync(csv, true, TimeSpan.FromMilliseconds(20), proc, (sender, args) => { warningCalled =true; }, UnitTestStatic.Token);
       Assert.IsTrue(refreshCalled);
       Assert.IsFalse(warningCalled);

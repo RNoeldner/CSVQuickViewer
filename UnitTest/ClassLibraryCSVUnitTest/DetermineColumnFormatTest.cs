@@ -95,15 +95,15 @@ namespace CsvTools.Tests
           dt!);
       }
 
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       var res1 = await DetermineColumnFormat.GetWriterColumnInformationAsync(setting.SqlStatement, setting.Timeout,
         setting.DefaultValueFormatWrite, setting.ColumnCollection,
-        processDisplay.CancellationToken);
+        UnitTestStatic.Token);
       Assert.AreEqual(6, res1.Count());
       setting.SqlStatement = string.Empty;
 
       var res2 = await DetermineColumnFormat.GetSqlColumnNamesAsync(setting.SqlStatement, setting.Timeout,
-        processDisplay.CancellationToken);
+        UnitTestStatic.Token);
       Assert.AreEqual(0, res2.Count());
     }
 
@@ -111,10 +111,10 @@ namespace CsvTools.Tests
     public async Task GetSampleValuesAsync()
     {
       using var dataTable = UnitTestStatic.GetDataTable(150, false);
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var reader = new DataTableWrapper(dataTable);
       var res = await DetermineColumnFormat
-        .GetSampleValuesAsync(reader, 100, new[] { 0, 1 }, 20, string.Empty, processDisplay.CancellationToken)
+        .GetSampleValuesAsync(reader, 100, new[] { 0, 1 }, 20, string.Empty, UnitTestStatic.Token)
         .ConfigureAwait(false);
       Assert.AreEqual(20, res[0].Values.Count);
     }
@@ -132,10 +132,10 @@ namespace CsvTools.Tests
       var setting = new CsvFile { ID = "ID122", FieldDelimiter = "," };
       try
       {
-        using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
-          await DetermineColumnFormat.GetWriterColumnInformationAsync("setting.SqlStatement", 60,
-            setting.DefaultValueFormatWrite, setting.ColumnCollection,
-            processDisplay.CancellationToken);
+        var processDisplay = new CustomProcessDisplay();
+        await DetermineColumnFormat.GetWriterColumnInformationAsync("setting.SqlStatement", 60,
+          setting.DefaultValueFormatWrite, setting.ColumnCollection,
+          UnitTestStatic.Token);
 
         Assert.Fail("Invalid SQL should have caused error ");
       }
@@ -199,12 +199,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSqlColumnNamesAsyncParameter()
     {
-      using var dummy = new CustomProcessDisplay(UnitTestStatic.Token);
       var backup = FunctionalDI.SQLDataReader;
       try
       {
         FunctionalDI.SQLDataReader = (sql, eh, limit, token) => throw new FileWriterException("SQL Reader not specified"); ;
-        await DetermineColumnFormat.GetSqlColumnNamesAsync("Nonsense SQL", 60, dummy.CancellationToken);
+        await DetermineColumnFormat.GetSqlColumnNamesAsync("Nonsense SQL", 60, UnitTestStatic.Token);
 
         Assert.Fail("Expected Exception not thrown");
       }
@@ -274,10 +273,10 @@ namespace CsvTools.Tests
         HasFieldHeader = true,
         FieldDelimiter = ","
       };
-      using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
+
       using (var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, null))
       {
-        await reader.OpenAsync(processDisplay.CancellationToken);
+        await reader.OpenAsync(UnitTestStatic.Token);
         UnitTestStatic.MimicSQLReader.AddSetting(setting.ID,
           (await reader.GetDataTableAsync(0, false, setting.DisplayStartLineNo, setting.DisplayRecordNo,
             setting.DisplayEndLineNo, false, null, UnitTestStatic.Token))!);
@@ -285,11 +284,11 @@ namespace CsvTools.Tests
 
       var writer = new CsvFile { SqlStatement = setting.ID };
 
-      using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
-      {
-        await writer.FillGuessColumnFormatWriterAsync(true, processDisplay);
-        Assert.AreEqual(6, writer.ColumnCollection.Count);
-      }
+      var processDisplay = new CustomProcessDisplay();
+
+      await writer.FillGuessColumnFormatWriterAsync(true, processDisplay, UnitTestStatic.Token);
+      Assert.AreEqual(6, writer.ColumnCollection.Count);
+
     }
 
     [TestMethod]
@@ -307,14 +306,14 @@ namespace CsvTools.Tests
         dt.Rows.Add(row);
       }
 
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var reader = new DataTableWrapper(dt);
       // Move the reader to a late record
       for (var i = 0; i < dt.Rows.Count / 2; i++)
-        await reader.ReadAsync(processDisplay.CancellationToken);
+        await reader.ReadAsync(UnitTestStatic.Token);
       string treatAsNull = string.Empty;
       var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] { 0 }, 100,
-        treatAsNull, processDisplay.CancellationToken).ConfigureAwait(false);
+        treatAsNull, UnitTestStatic.Token).ConfigureAwait(false);
       Assert.AreEqual(dt.Rows.Count, res[0].RecordsRead, "RecordsRead");
       Assert.AreEqual(dt.Rows.Count - (dt.Rows.Count / 5), res[0].Values.Count());
     }
@@ -335,11 +334,11 @@ namespace CsvTools.Tests
         dt.Rows.Add(row);
       }
 
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var reader = new DataTableWrapper(dt);
       string treatAsNull = string.Empty;
       var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] { 0, 1 }, 20,
-        treatAsNull, processDisplay.CancellationToken);
+        treatAsNull, UnitTestStatic.Token);
 
       Assert.IsTrue(res[0].RecordsRead >= 20);
       Assert.IsTrue(res[1].RecordsRead >= 20);
@@ -361,11 +360,11 @@ namespace CsvTools.Tests
         dt.Rows.Add(row);
       }
 
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var reader = new DataTableWrapper(dt);
       string treatAsNull = string.Empty;
       var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] { 0 }, 20,
-        treatAsNull, processDisplay.CancellationToken);
+        treatAsNull, UnitTestStatic.Token);
       Assert.IsTrue(res[0].RecordsRead >= 20);
       Assert.AreEqual(20, res[0].Values.Count());
     }
@@ -374,11 +373,11 @@ namespace CsvTools.Tests
     public async Task DetermineColumnFormatGetSampleValuesNoColumns()
     {
       using var dt = new DataTable();
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var reader = new DataTableWrapper(dt);
       var temp = await DetermineColumnFormat
         .GetSampleValuesAsync(reader, 0, new[] { 0 }, 20, string.Empty,
-          processDisplay.CancellationToken).ConfigureAwait(false);
+          UnitTestStatic.Token).ConfigureAwait(false);
       Assert.AreEqual(0, temp.Count);
     }
 
@@ -607,13 +606,13 @@ namespace CsvTools.Tests
     public async Task GetSampleValuesAsyncTest()
     {
       using var dt = UnitTestStatic.GetDataTable(1000);
-      using var dummy = new CustomProcessDisplay(UnitTestStatic.Token);
+
       var reader = new DataTableWrapper(dt);
       foreach (DataColumn col in dt.Columns)
       {
         var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 10,
           new[] { col.Ordinal }, 10, "null",
-          dummy.CancellationToken);
+          UnitTestStatic.Token);
 
         if (col.ColumnName != "AllEmpty")
           Assert.AreNotEqual(0, res[col.Ordinal].Values.Count, col.ColumnName);
@@ -730,9 +729,9 @@ namespace CsvTools.Tests
     public async Task GetSampleValuesByColIndexAsync()
     {
       var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), HasFieldHeader = true };
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
       var samples = await DetermineColumnFormat.GetSampleValuesAsync(test, 1000, new[] { 0 }, 20,
         "NULL", UnitTestStatic.Token);
       Assert.AreEqual(7, samples[0].Values.Count());
@@ -749,9 +748,9 @@ namespace CsvTools.Tests
         FileName = UnitTestStatic.GetTestPath("CSVTestEmpty.txt"),
         HasFieldHeader = true
       };
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
 
       var temp = await DetermineColumnFormat
         .GetSampleValuesAsync(test, 100, new[] { 0 }, 20, "NULL", UnitTestStatic.Token)

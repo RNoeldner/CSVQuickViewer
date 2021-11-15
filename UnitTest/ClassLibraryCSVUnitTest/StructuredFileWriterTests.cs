@@ -51,11 +51,11 @@ namespace CsvTools.Tests
       };
 
       var sb = new StringBuilder("{");
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(
                    fileSetting.SqlStatement,
                    fileSetting.Timeout,
-                   processDisplay.CancellationToken);
+                   UnitTestStatic.Token);
       fileSetting.Header = "{\"rowset\":[\n";
 
       // { "firstName":"John", "lastName":"Doe"},
@@ -85,8 +85,8 @@ namespace CsvTools.Tests
       var result = await writer.WriteAsync(
                      fileSetting.SqlStatement,
                      fileSetting.Timeout,
-                     t => processDisplay.SetProcess(t, 0, true),
-                     processDisplay.CancellationToken);
+                     processDisplay,
+                     UnitTestStatic.Token);
       Assert.AreEqual(7L, result);
     }
 
@@ -101,11 +101,11 @@ namespace CsvTools.Tests
         InOverview = true
       };
       var sb = new StringBuilder();
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(
                    fileSetting.SqlStatement,
                    fileSetting.Timeout,
-                   processDisplay.CancellationToken);
+                   UnitTestStatic.Token);
       sb.AppendLine("<?xml version=\"1.0\"?>\n");
       sb.AppendLine("<rowset>");
       fileSetting.Header = sb.ToString();
@@ -133,7 +133,7 @@ namespace CsvTools.Tests
         "Test",
         fileSetting.Row,
         processDisplay);
-      await writer.WriteAsync(fileSetting.SqlStatement, fileSetting.Timeout, null, processDisplay.CancellationToken);
+      await writer.WriteAsync(fileSetting.SqlStatement, fileSetting.Timeout, processDisplay, UnitTestStatic.Token);
     }
   }
 }

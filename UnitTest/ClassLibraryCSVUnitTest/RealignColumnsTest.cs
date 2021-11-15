@@ -10,28 +10,28 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public async Task AllFormatsPipeReaderAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(fileName: UnitTestStatic.GetTestPath("RealignColumn.txt"),
         hasFieldHeader: true, tryToSolveMoreColumns: true, skipEmptyLines: false, processDisplay: processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
 
       // first five rows are good.
-      await test.ReadAsync(processDisplay.CancellationToken); // Line 2
-      await test.ReadAsync(processDisplay.CancellationToken); // Line 3
-      await test.ReadAsync(processDisplay.CancellationToken); // Line 4
-      await test.ReadAsync(processDisplay.CancellationToken); // Line 5
-      await test.ReadAsync(processDisplay.CancellationToken); // Line 6
+      await test.ReadAsync(UnitTestStatic.Token); // Line 2
+      await test.ReadAsync(UnitTestStatic.Token); // Line 3
+      await test.ReadAsync(UnitTestStatic.Token); // Line 4
+      await test.ReadAsync(UnitTestStatic.Token); // Line 5
+      await test.ReadAsync(UnitTestStatic.Token); // Line 6
 
       // Issue row Column 3 = Text|6
-      await test.ReadAsync(processDisplay.CancellationToken); // Line 6
+      await test.ReadAsync(UnitTestStatic.Token); // Line 6
       Assert.AreEqual("Text\tF", test.GetValue(3));
 
-      await test.ReadAsync(processDisplay.CancellationToken); // Line 7
-      await test.ReadAsync(processDisplay.CancellationToken); // Line 8
-      await test.ReadAsync(processDisplay.CancellationToken); // Line 9
-      await test.ReadAsync(processDisplay.CancellationToken); // Line 10
+      await test.ReadAsync(UnitTestStatic.Token); // Line 7
+      await test.ReadAsync(UnitTestStatic.Token); // Line 8
+      await test.ReadAsync(UnitTestStatic.Token); // Line 9
+      await test.ReadAsync(UnitTestStatic.Token); // Line 10
 
-      await test.ReadAsync(processDisplay.CancellationToken); // Line 11
+      await test.ReadAsync(UnitTestStatic.Token); // Line 11
       Assert.AreEqual("Memo: A long text, \t multiple words 11", test.GetValue(5));
     }
 

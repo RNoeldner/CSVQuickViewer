@@ -95,7 +95,8 @@ namespace CsvTools
         addStartLine,
         includeEndLineNo,
         includeRecordNo);
-      return await LoadDataTable(wrapper, TimeSpan.MaxValue, restoreErrorsFromColumn, (l, i) => progress?.SetProcess($"Record {l}", i, false), cancellationToken)
+      
+      return await LoadDataTable(wrapper, TimeSpan.MaxValue, restoreErrorsFromColumn, progress, cancellationToken)
                .ConfigureAwait(false);
     }
 
@@ -128,13 +129,13 @@ namespace CsvTools
       this DataReaderWrapper wrapper,
       TimeSpan maxDuration,
       bool restoreErrorsFromColumn,
-      Action<long, int>? progress,
+      IProcessDisplay? processDisplay,
       CancellationToken cancellationToken)
     {
       var dataTable = GetEmptyDataTable(wrapper);
       if (wrapper.EndOfFile) return dataTable;
 
-      var intervalAction = progress != null ? new IntervalAction() : null;
+      var intervalAction = processDisplay != null ? new IntervalAction() : null;
       try
       {
         var errorColumn = restoreErrorsFromColumn ? dataTable.Columns[ReaderConstants.cErrorField] : null;
@@ -159,7 +160,7 @@ namespace CsvTools
           // This gets the errors from the column #Error that has been filled by the reader
           if (errorColumn != null)
             dataRow.SetErrorInformation(dataRow[errorColumn].ToString());
-          intervalAction?.Invoke(() => progress!(wrapper.RecordNumber, wrapper.Percent));
+          intervalAction?.Invoke(processDisplay, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent, false);
 
           // This gets the errors from the fileReader
           if (cancellationToken.IsCancellationRequested)
@@ -174,7 +175,7 @@ namespace CsvTools
       }
       finally
       {
-        intervalAction?.Invoke(() => progress!(wrapper.RecordNumber, wrapper.Percent));
+        intervalAction?.Invoke(processDisplay, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent, false);
       }
 
       return dataTable;

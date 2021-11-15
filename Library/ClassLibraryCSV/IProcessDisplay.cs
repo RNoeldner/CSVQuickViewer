@@ -13,22 +13,14 @@
  */
 
 using System;
-using System.Threading;
 
 namespace CsvTools
 {
   /// <summary>
   ///   Interface for an ProcessDisplay
   /// </summary>
-  public interface IProcessDisplay : IDisposable
+  public interface IProcessDisplay 
   {
-    /// <summary>
-    ///   Gets or sets the cancellation token.
-    /// </summary>
-    /// <value>The cancellation token.</value>
-    [Obsolete("This will be removed soon, please pass CancellationToken in a different way")]
-    CancellationToken CancellationToken { get; }
-
     string Title { get; set; }
 
     /// <summary>

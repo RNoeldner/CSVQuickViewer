@@ -235,7 +235,7 @@ namespace CsvTools.Tests
     {
       var testValue = string.Empty;
 
-      using var customProcess = new CustomProcessDisplay(UnitTestStatic.Token);
+      var customProcess = new CustomProcessDisplay();
       customProcess.Progress += (sender, args) => testValue = args.Text;
       // Logger.UILog = (s, level) => testValue2 = s;
 

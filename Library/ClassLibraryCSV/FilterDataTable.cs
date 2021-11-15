@@ -80,9 +80,9 @@ namespace CsvTools
     ///   Gets the columns without errors.
     /// </summary>
     /// <value>The columns without errors.</value>
-    public async Task<IReadOnlyCollection<string>> GetColumnsWithErrors()
+    public IReadOnlyCollection<string> GetColumnsWithErrors()
     {
-      var columnsWithoutErrors = await GetColumnsWithoutErrors();
+      var columnsWithoutErrors = GetColumnsWithoutErrors();
       return (from DataColumn col in m_SourceTable.Columns
               where !col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
               where !columnsWithoutErrors.Contains(col.ColumnName)
@@ -93,13 +93,13 @@ namespace CsvTools
     ///   Gets the columns without errors.
     /// </summary>
     /// <value>The columns without errors.</value>
-    public async Task<IReadOnlyCollection<string>> GetColumnsWithoutErrors()
+    public IReadOnlyCollection<string> GetColumnsWithoutErrors()
     {
       if (m_ColumnWithoutErrorsCache != null)
         return m_ColumnWithoutErrorsCache;
 
       // Wait until we are actually done filtering, max 60 seconds
-      await WaitCompeteFilterAsync(60, () => Task.Delay(125));
+      WaitCompeteFilter(60);
 
       m_ColumnWithoutErrorsCache = new HashSet<string>();
 
@@ -155,7 +155,14 @@ namespace CsvTools
       m_CurrentFilterCancellationTokenSource.Cancel();
 
       // make sure the filtering is canceled
-      await WaitCompeteFilterAsync(0.2, () => Task.Delay(125));
+
+/* Nicht gemergte Änderung aus Projekt "CsvTools.ClassLibraryCSV (netstandard2.1)"
+Vor:
+      await WaitCompeteFilterAsync(0.2);
+Nach:
+      await WaitCompeteFilter(0.2);
+*/
+      WaitCompeteFilter(0.2);
 
       m_CurrentFilterCancellationTokenSource.Dispose();
       m_CurrentFilterCancellationTokenSource = null;
@@ -230,14 +237,14 @@ namespace CsvTools
       await Task.Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token).ConfigureAwait(false);
     }
 
-    private async Task WaitCompeteFilterAsync(double timeoutInSeconds, Func<Task> whileWaiting)
+    private void WaitCompeteFilter(double timeoutInSeconds)
     {
       if (!m_Filtering) return;
       var stopwatch = timeoutInSeconds > 0.01 ? new Stopwatch() : null;
       stopwatch?.Start();
       while (m_Filtering)
       {
-        await whileWaiting.Invoke();
+        Thread.Sleep(125);
         if (!(stopwatch?.Elapsed.TotalSeconds > timeoutInSeconds)) continue;
         // can not call Cancel as this method is called by timeout
         m_CurrentFilterCancellationTokenSource?.Cancel();

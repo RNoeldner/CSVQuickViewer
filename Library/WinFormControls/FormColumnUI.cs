@@ -137,7 +137,7 @@ namespace CsvTools
     {
       using var processDisplay = new FormProcessDisplay("Display Values", true, m_CancellationTokenSource.Token);
       processDisplay.Show(this);
-      var values = await GetSampleValuesAsync(comboBoxColumnName.Text, processDisplay);
+      var values = await GetSampleValuesAsync(comboBoxColumnName.Text, processDisplay, processDisplay.CancellationToken);
       processDisplay.Hide();
       Cursor.Current = Cursors.Default;
       if (values.Values.Count == 0)
@@ -183,7 +183,7 @@ namespace CsvTools
           await
 #endif
           using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
-                                   processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken))
+                                   processDisplay, m_FileSetting.Timeout, processDisplay.CancellationToken))
           {
             DataTable? data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false,
                                 m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
@@ -217,7 +217,7 @@ namespace CsvTools
         }
         else
         {
-          var samples = await GetSampleValuesAsync(columnName, processDisplay);
+          var samples = await GetSampleValuesAsync(columnName, processDisplay, processDisplay.CancellationToken);
           // shuffle samples, take some from the end and put it in the first 10 1 - 1 2 - Last 3 - 2
           // 4 - Last - 1
 
@@ -669,8 +669,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
               await
 #endif
-              using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null,
-                new CustomProcessDisplay(m_CancellationTokenSource.Token));
+              using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, null, m_CancellationTokenSource.Token);
               await fileReader.OpenAsync(m_CancellationTokenSource.Token);
               for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
                 allColumns.Add(fileReader.GetColumn(colIndex).Name);
@@ -803,7 +802,7 @@ namespace CsvTools
     ///   Column {columnName} not found. or Column {columnName} not found.
     /// </exception>
     private async Task<DetermineColumnFormat.SampleResult> GetSampleValuesAsync(string columnName,
-                                                                                IProcessDisplay processDisplay)
+                                                                                IProcessDisplay? processDisplay, CancellationToken cancellationToken)
     {
       try
       {
@@ -813,14 +812,13 @@ namespace CsvTools
           await
 #endif
           using var sqlReader =
-            await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
-              processDisplay.SetProcess, m_FileSetting.Timeout, processDisplay.CancellationToken);
-          await sqlReader.OpenAsync(processDisplay.CancellationToken);
+            await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout, cancellationToken);
+          await sqlReader.OpenAsync(cancellationToken);
           var colIndex = sqlReader.GetOrdinal(columnName);
           if (colIndex < 0)
             throw new FileException($"Column {columnName} not found.");
           return (await DetermineColumnFormat.GetSampleValuesAsync(sqlReader, 0, new[] { colIndex },
-                                               m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken)
+                                               m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, cancellationToken)
                                              .ConfigureAwait(false)).First().Value;
         }
 
@@ -850,9 +848,9 @@ namespace CsvTools
         await
 #endif
         // ReSharper disable once ConvertToUsingDeclaration
-        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay))
+        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay, cancellationToken))
         {
-          await fileReader.OpenAsync(processDisplay.CancellationToken);
+          await fileReader.OpenAsync(cancellationToken);
           var colIndex = fileReader.GetOrdinal(columnName);
           if (colIndex < 0)
           {
@@ -871,7 +869,7 @@ namespace CsvTools
 
           return (await DetermineColumnFormat.GetSampleValuesAsync(fileReader, m_FillGuessSettings.CheckedRecords,
                                                new[] { colIndex },
-                                               m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, processDisplay.CancellationToken)
+                                               m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, cancellationToken)
                                              .ConfigureAwait(false)).First().Value;
         }
       }

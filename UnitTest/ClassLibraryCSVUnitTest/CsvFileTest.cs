@@ -151,16 +151,16 @@ namespace CsvTools.Tests
     public void GetFileReader()
     {
       m_CsvFile.FileName = UnitTestStatic.GetTestPath("BasicCSV.txt");
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
-      using var res = FunctionalDI.GetFileReader(m_CsvFile, TimeZoneInfo.Local.Id, processDisplay);
+      var processDisplay = new CustomProcessDisplay();
+      using var res = FunctionalDI.GetFileReader(m_CsvFile, TimeZoneInfo.Local.Id, processDisplay, UnitTestStatic.Token);
       Assert.IsInstanceOfType(res, typeof(IFileReader));
     }
 
     [TestMethod]
     public void GetFileWriter()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
-      var res = FunctionalDI.GetFileWriter(m_CsvFile, processDisplay);
+      var processDisplay = new CustomProcessDisplay();
+      var res = FunctionalDI.GetFileWriter(m_CsvFile, processDisplay, UnitTestStatic.Token);
       Assert.IsInstanceOfType(res, typeof(IFileWriter));
     }
 
