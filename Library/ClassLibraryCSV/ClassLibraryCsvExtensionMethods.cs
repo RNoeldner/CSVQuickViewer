@@ -319,6 +319,7 @@ namespace CsvTools
         _ => typeof(string)
       };
 
+
     /// <summary>
     ///   Get a list of column names that are not artificial
     /// </summary>
@@ -732,7 +733,7 @@ namespace CsvTools
       this IFileWriter writer,
       string sqlStatement,
       int timeout,
-      Action<string>? reportProgress,
+      IProcessDisplay? reportProgress,
       CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(sqlStatement))
@@ -742,7 +743,7 @@ namespace CsvTools
 #endif
       using var sqlReader = await FunctionalDI.SQLDataReader(
                               sqlStatement,
-                              (sender, s) => reportProgress?.Invoke(s.Text),
+                              reportProgress,
                               timeout,
                               cancellationToken).ConfigureAwait(false);
       await sqlReader.OpenAsync(cancellationToken).ConfigureAwait(false);

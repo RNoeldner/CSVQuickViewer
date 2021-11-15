@@ -25,7 +25,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task NewCsvFileGuessAllSmallFile()
     {
-      using var display = new CustomProcessDisplay(UnitTestStatic.Token);
+      var display = new CustomProcessDisplay();
 
       var det = await UnitTestStatic.GetTestPath("employee.txt").GetDetectionResultFromFile(display, true, true, true, true, true, true, true, true, UnitTestStatic.Token);
       //TODO: check if this is Environment dependent, looks like windows has CRLF and Mac as LF
@@ -35,7 +35,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetCsvFileSettingAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt").AnalyseFileAsync(true, true, true,
                     true, true, true, true, true, new FillGuessSettings(), processDisplay, UnitTestStatic.Token);
       Assert.IsNotNull(tuple);
@@ -45,7 +45,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetCsvFileSettingFromExtensionAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt" + CsvFile.cCsvSettingExtension).AnalyseFileAsync(true, true, true,
                     true, true, true, true, true, new FillGuessSettings(), processDisplay, UnitTestStatic.Token);
       Assert.IsNotNull(tuple);
@@ -159,7 +159,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetCsvFileSetting()
     {
-      using IProcessDisplay process = new CustomProcessDisplay(UnitTestStatic.Token);
+      var process = new CustomProcessDisplay();
       var result = await UnitTestStatic.GetTestPath("BasicCSV.txt").AnalyseFileAsync(true, true, true, true, true, true, false, true,
                      new FillGuessSettings(), process, UnitTestStatic.Token);
       Assert.IsNotNull(result);
@@ -361,7 +361,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task NewCsvFileGuessAllHeadingsAsync()
     {
-      using var display = new CustomProcessDisplay(UnitTestStatic.Token);
+      var display = new CustomProcessDisplay();
       var det = await UnitTestStatic.GetTestPath("BasicCSV.txt").GetDetectionResultFromFile(display, false, true, true, true, true, true, true, true, UnitTestStatic.Token);
       Assert.AreEqual(0, det.SkipRows);
       Assert.AreEqual(",".WrittenPunctuationToChar(), det.FieldDelimiter.WrittenPunctuationToChar());
@@ -371,7 +371,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task NewCsvFileGuessAllTestEmptyAsync()
     {
-      using var display = new CustomProcessDisplay(UnitTestStatic.Token);
+      var display = new CustomProcessDisplay();
       var det = await UnitTestStatic.GetTestPath("CSVTestEmpty.txt").GetDetectionResultFromFile(display, false, true, true, true, true, true, true, true, UnitTestStatic.Token);
       Assert.AreEqual(0, det.SkipRows);
     }
@@ -386,17 +386,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task RefreshCsvFileAsync()
     {
-      using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
-      {
+      var processDisplay = new CustomProcessDisplay();
         var det = await UnitTestStatic.GetTestPath("BasicCSV.txt").GetDetectionResultFromFile(processDisplay, false, true, true, true, true, true, true, true, UnitTestStatic.Token);
         Assert.AreEqual(1200, det.CodePageId);
         Assert.AreEqual(",".WrittenPunctuationToChar(), det.FieldDelimiter.WrittenPunctuationToChar());
-      }
-
+      
       foreach (var fileName in Directory.EnumerateFiles(UnitTestStatic.ApplicationDirectory.LongPathPrefix(),
         "AllFor*.txt", SearchOption.TopDirectoryOnly))
-      {
-        using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      {        
         await fileName.GetDetectionResultFromFile(processDisplay, false, true, true, true, true, true, true, true, UnitTestStatic.Token);
       }
     }
@@ -408,7 +405,7 @@ namespace CsvTools.Tests
       test.FieldDelimiter = "|";
       test.FieldQualifier = "\"";
 
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var reader = new CsvFileReader(test.FullPath, test.CodePageId, test.SkipRows, test.HasFieldHeader, test.ColumnCollection, test.TrimmingOption,
         test.FieldDelimiter,
         test.FieldQualifier, test.EscapePrefix, test.RecordLimit, test.AllowRowCombining, test.ContextSensitiveQualifier, test.CommentLine, test.NumWarnings,
@@ -418,21 +415,21 @@ namespace CsvTools.Tests
         test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, test.WarnUnknownCharacter, test.WarnEmptyTailingColumns,
         test.TreatNBSPAsSpace, test.TreatTextAsNull,
         test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer, processDisplay);
-      await reader.OpenAsync(processDisplay.CancellationToken);
+      await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("RecordNumber", reader.GetName(0));
-      await reader.ReadAsync(processDisplay.CancellationToken);
+      await reader.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("0F8C40DB-EE2C-4C7C-A226-3C43E72584B0", reader.GetString(1));
 
-      await reader.ReadAsync(processDisplay.CancellationToken);
+      await reader.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("4DCD85E1-64FB-4D33-B33F-4EEB36675666", reader.GetString(1));
 
-      await reader.ReadAsync(processDisplay.CancellationToken);
+      await reader.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("0F8C40DB-EE2C-4C7C-A226-3C43E72584B0", reader.GetString(1));
 
-      await reader.ReadAsync(processDisplay.CancellationToken);
+      await reader.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("4DCD85E1-64FB-4D33-B33F-4EEB36675666", reader.GetString(1));
       // the footer row is ignored with the record number
-      var next = await reader.ReadAsync(processDisplay.CancellationToken);
+      var next = await reader.ReadAsync(UnitTestStatic.Token);
       Assert.IsFalse(next);
     }
 

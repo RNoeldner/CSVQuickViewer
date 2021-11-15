@@ -802,7 +802,7 @@ namespace CsvTools
     /// <summary>
     ///   Filters the columns.
     /// </summary>
-    private async Task FilterColumnsAsync(bool onlyErrors)
+    private void FilterColumns(bool onlyErrors)
     {
       if (!onlyErrors)
       {
@@ -822,11 +822,11 @@ namespace CsvTools
 
       if (m_FilterDataTable?.FilterTable != null && m_FilterDataTable.FilterTable.Rows.Count <= 0)
         return;
-      if (m_FilterDataTable != null && (await m_FilterDataTable.GetColumnsWithoutErrors()).Count == Columns.Count)
+      if (m_FilterDataTable != null && (m_FilterDataTable.GetColumnsWithoutErrors()).Count == Columns.Count)
         return;
       foreach (DataGridViewColumn dgCol in FilteredDataGridView.Columns)
       {
-        if (m_FilterDataTable != null && (!dgCol.Visible || !(await m_FilterDataTable.GetColumnsWithoutErrors()).Contains(dgCol.DataPropertyName))) continue;
+        if (m_FilterDataTable != null && (!dgCol.Visible || !(m_FilterDataTable.GetColumnsWithoutErrors()).Contains(dgCol.DataPropertyName))) continue;
         dgCol.Visible = false;
         m_SearchCellsDirty = true;
       }
@@ -1002,65 +1002,61 @@ namespace CsvTools
     /// </summary>
     public async Task RefreshDisplayAsync(FilterType type, CancellationToken cancellationToken)
     {
-      this.SafeInvokeNoHandleNeeded(
-        async () =>
-        {
-          m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
+      var oldSortedColumn = FilteredDataGridView.SortedColumn?.DataPropertyName;
+      var oldOrder = FilteredDataGridView.SortOrder;
 
-          // update the drop down
-          if (type == FilterType.All)
-            m_ToolStripComboBoxFilterType.SelectedIndex = 0;
-          else if (type == FilterType.ErrorsAndWarning)
-            m_ToolStripComboBoxFilterType.SelectedIndex = 1;
-          else if (type == FilterType.ShowErrors)
-            m_ToolStripComboBoxFilterType.SelectedIndex = 2;
-          else if (type == FilterType.ShowWarning)
-            m_ToolStripComboBoxFilterType.SelectedIndex = 3;
-          else if (type == FilterType.ShowIssueFree)
-            m_ToolStripComboBoxFilterType.SelectedIndex = 4;
-          else
-            m_ToolStripComboBoxFilterType.SelectedIndex = 0;
+      // Cancel the current search
+      if (m_CurrentSearch is { IsRunning: true })
+        m_CurrentSearch.Cancel();
 
-          m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
+      // Hide any showing search
+      m_Search.Visible = false;
 
-          var oldSortedColumn = FilteredDataGridView.SortedColumn?.DataPropertyName;
-          var oldOrder = FilteredDataGridView.SortOrder;
+      var newDt = m_DataTable;
+      m_FilterDataTable ??= new FilterDataTable(m_DataTable);
+      if (type != FilterType.All)
+      {
+        if (type != m_FilterDataTable.FilterType)
+          await m_FilterDataTable.FilterAsync(int.MaxValue, type, cancellationToken);
+        newDt = m_FilterDataTable.FilterTable;
+      }
 
-          // Cancel the current search
-          if (m_CurrentSearch is { IsRunning: true })
-            m_CurrentSearch.Cancel();
+      if (ReferenceEquals(m_BindingSource.DataSource, newDt))
+        return;
 
-          // Hide any showing search
-          m_Search.Visible = false;
+      this.SafeInvoke(() =>
+      {
+        /// Now apply filter
+        FilteredDataGridView.DataSource = null;
 
-          var newDt = m_DataTable;
-          m_FilterDataTable ??= new FilterDataTable(m_DataTable);
-          if (type != FilterType.All)
-          {
-            if (type != m_FilterDataTable.FilterType)
-              await m_FilterDataTable.FilterAsync(int.MaxValue, type, cancellationToken);
-            newDt = m_FilterDataTable.FilterTable;
-          }
+        m_BindingSource.DataSource = newDt;
+        FilteredDataGridView.DataSource = m_BindingSource;
 
-          if (ReferenceEquals(m_BindingSource.DataSource, newDt))
-            return;
+        FilterColumns(!type.HasFlag(FilterType.ShowIssueFree));
+        m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
 
-          /// Now apply filter
-          FilteredDataGridView.DataSource = null;
-          m_BindingSource.DataSource = newDt;
+        AutoResizeColumns(newDt);
+        FilteredDataGridView.ColumnVisibilityChanged();
+        FilteredDataGridView.SetRowHeight();
 
-          FilteredDataGridView.DataSource = m_BindingSource;
-          await FilterColumnsAsync(!type.HasFlag(FilterType.ShowIssueFree));
+        if (oldOrder != SortOrder.None && !string.IsNullOrEmpty(oldSortedColumn))
+          Sort(oldSortedColumn!,
+            oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
 
-          AutoResizeColumns(newDt);
+        var newIndex = 0;
+        if (type == FilterType.ErrorsAndWarning)
+          newIndex = 1;
+        else if (type == FilterType.ShowErrors)
+          newIndex = 2;
+        else if (type == FilterType.ShowWarning)
+          newIndex = 3;
+        else if (type == FilterType.ShowIssueFree)
+          newIndex = 4;
 
-          FilteredDataGridView.ColumnVisibilityChanged();
-          FilteredDataGridView.SetRowHeight();
+        m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;
+        m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
+      });
 
-          if (oldOrder != SortOrder.None && !string.IsNullOrEmpty(oldSortedColumn))
-            Sort(oldSortedColumn!,
-              oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
-        });
     }
 
     private void StartSearch(object? sender, SearchEventArgs e)

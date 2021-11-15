@@ -1110,14 +1110,12 @@ namespace CsvTools
         return (new List<string>(), fileSetting.ColumnCollection);
       // Open the file setting but change a few settings
       var fileSettingCopy = GetSettingForRead(fileSetting);
-
-      // need a dummy process display to have pass in Cancellation token to reader
-      using var prc2 = new CustomProcessDisplay(cancellationToken);
+      
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, string.Empty, prc2);
-      await fileReader.OpenAsync(prc2.CancellationToken).ConfigureAwait(false);
+      using var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, string.Empty, null, cancellationToken);
+      await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       return await FillGuessColumnFormatReaderAsyncReader(
                fileReader,
                fillGuessSettings,
@@ -1125,7 +1123,7 @@ namespace CsvTools
                addTextColumns,
                checkDoubleToBeInteger,
                fileSetting.TreatTextAsNull,
-               prc2.CancellationToken).ConfigureAwait(false);
+               cancellationToken).ConfigureAwait(false);
     }
 
     public static IFileSetting GetSettingForRead(this IFileSetting fileSetting)
@@ -1168,7 +1166,7 @@ namespace CsvTools
     public static async Task FillGuessColumnFormatWriterAsync(
       this IFileSetting fileSettings,
       bool all,
-      IProcessDisplay processDisplay)
+      IProcessDisplay? processDisplay, CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(fileSettings.SqlStatement))
         throw new FileWriterException("No SQL Statement given");
@@ -1179,10 +1177,10 @@ namespace CsvTools
 #endif
       using var fileReader = await FunctionalDI.SQLDataReader(
                                fileSettings.SqlStatement,
-                               processDisplay.SetProcess,
+                               processDisplay,
                                fileSettings.Timeout,
-                               processDisplay.CancellationToken).ConfigureAwait(false);
-      await fileReader.OpenAsync(processDisplay.CancellationToken).ConfigureAwait(false);
+                               cancellationToken).ConfigureAwait(false);
+      await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       // Put the information into the list
       var dataRowCollection = fileReader.GetSchemaTable()?.Rows;
       if (dataRowCollection is null) return;
@@ -1254,10 +1252,7 @@ namespace CsvTools
 #endif
       using var data = await FunctionalDI.SQLDataReader(
                          sqlStatement.NoRecordSQL(),
-                         (sender, s) =>
-                         {
-                           if (s.Log) Logger.Debug(s.Text);
-                         },
+                         null,
                          timeout,
                          token).ConfigureAwait(false);
       await data.OpenAsync(token).ConfigureAwait(false);

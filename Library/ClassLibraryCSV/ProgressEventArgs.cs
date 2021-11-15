@@ -16,12 +16,56 @@ using System;
 
 namespace CsvTools
 {
+
+  public class ProgressInfo
+  {
+    public ProgressInfo(in string text, long value = -1, bool log = false, in string? title = null, long max = -1)
+    {
+      Title = title ?? string.Empty;
+      Text = text;
+      Value = value;
+      Max = max;
+      Log = log;
+    }
+
+    /// <summary>
+    ///   Gets or sets the text.
+    /// </summary>
+    /// <value>The text.</value>
+    public string Title { get; }
+
+    /// <summary>
+    ///   Gets or sets the text.
+    /// </summary>
+    /// <value>The text.</value>
+    public string Text { get; }
+
+    /// <summary>
+    ///   Gets or sets the value.
+    /// </summary>
+    /// <value>The value.</value>
+    public long Value { get; }
+
+    /// <summary>
+    ///   Gets or sets the value.
+    /// </summary>
+    /// <value>The value.</value>
+    public long Max { get; }
+
+    /// <summary>
+    ///   Gets or sets if teh entry should be logged
+    /// </summary>
+    /// <value>The value.</value>
+    public bool Log { get; }
+  }
+
   /// <inheritdoc />
   /// <summary>
   ///   Argument for a ProgressEvent
   /// </summary>
   public class ProgressEventArgs : EventArgs
   {
+    
     /// <inheritdoc />
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.ProgressEventArgs" /> class.
@@ -36,6 +80,7 @@ namespace CsvTools
       Log = log;
     }
 
+    /// TODO: Check if that is realy needed for passing on information
     /// <summary>
     ///   Indicating if a progress should be logged or not
     /// </summary>

@@ -43,7 +43,7 @@ namespace CsvTools.Tests
       bool openFinished = false;
       bool onOpenCalled = false;
       bool readFinished = false;
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption,
         m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier, m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining,
@@ -61,11 +61,11 @@ namespace CsvTools.Tests
       Assert.IsFalse(openFinished);
       Assert.IsFalse(readFinished);
       Assert.IsFalse(onOpenCalled);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsFalse(readFinished);
       Assert.IsTrue(onOpenCalled);
       Assert.IsTrue(openFinished);
-      while (await test.ReadAsync(processDisplay.CancellationToken))
+      while (await test.ReadAsync(UnitTestStatic.Token))
       {
       }
 
@@ -85,7 +85,7 @@ namespace CsvTools.Tests
           FieldQualifier = "\"",
           SkipEmptyLines = false
         };
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
@@ -94,21 +94,21 @@ namespace CsvTools.Tests
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, processDisplay);
       test.SetNotifyAfterSeconds(.01);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(10, test.FieldCount);
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual(2, test.StartLineNumber);
       Assert.AreEqual(3, test.EndLineNumber);
       Assert.AreEqual(1, test.RecordNumber);
       Assert.AreEqual("-22477", test.GetString(1));
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual(3, test.StartLineNumber);
       Assert.AreEqual(4, test.EndLineNumber);
       Assert.AreEqual(2, test.RecordNumber);
       Assert.AreEqual("22435", test.GetString(1));
       for (var line = 3; line < 25; line++)
-        await test.ReadAsync(processDisplay.CancellationToken);
+        await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("-21928", test.GetString(1));
       Assert.IsTrue(test.GetString(4).EndsWith("twpapulfffy"));
       Assert.AreEqual(25, test.StartLineNumber);
@@ -116,7 +116,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(24, test.RecordNumber);
 
       for (var line = 25; line < 47; line++)
-        await test.ReadAsync(processDisplay.CancellationToken);
+        await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual(49, test.EndLineNumber);
       Assert.AreEqual("4390", test.GetString(1));
 
@@ -144,7 +144,7 @@ namespace CsvTools.Tests
       basIssues.ColumnCollection.Add(new Column("classroomTraining", DataType.Boolean));
       basIssues.ColumnCollection.Add(new Column("webLink", DataType.TextToHtml));
 
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(basIssues.FullPath, basIssues.CodePageId, basIssues.SkipRows, basIssues.HasFieldHeader, basIssues.ColumnCollection,
         basIssues.TrimmingOption, basIssues.FieldDelimiter, basIssues.FieldQualifier, basIssues.EscapePrefix, basIssues.RecordLimit,
         basIssues.AllowRowCombining, basIssues.ContextSensitiveQualifier, basIssues.CommentLine, basIssues.NumWarnings, basIssues.DuplicateQualifierToEscape,
@@ -153,90 +153,90 @@ namespace CsvTools.Tests
         basIssues.WarnQuotes, basIssues.WarnUnknownCharacter, basIssues.WarnEmptyTailingColumns, basIssues.TreatNBSPAsSpace, basIssues.TreatTextAsNull,
         basIssues.SkipEmptyLines, basIssues.ConsecutiveEmptyRows, basIssues.IdentifierInContainer, processDisplay);
       var warningList = new RowErrorCollection(test);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
       warningList.HandleIgnoredColumns(test);
       // need 22 columns
       Assert.AreEqual(22, test.GetSchemaTable().Rows.Count());
 
       // This should work
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual(0, warningList.CountRows);
 
       Assert.AreEqual("Eagle_sop020517", test.GetValue(0));
       Assert.AreEqual("de-DE", test.GetValue(2));
 
       // There are more columns
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual(1, warningList.CountRows);
       Assert.AreEqual("Eagle_SRD-0137699", test.GetValue(0));
       Assert.AreEqual("de-DE", test.GetValue(2));
       Assert.AreEqual(3, test.StartLineNumber);
 
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("Eagle_600.364", test.GetValue(0));
       Assert.AreEqual(4, test.StartLineNumber);
 
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("Eagle_spt029698", test.GetValue(0));
       Assert.AreEqual(5, test.StartLineNumber);
 
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("Eagle_SRD-0137698", test.GetValue(0));
       Assert.AreEqual(2, warningList.CountRows);
       Assert.AreEqual(6, test.StartLineNumber);
 
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("Eagle_SRD-0138074", test.GetValue(0));
       Assert.AreEqual(7, test.StartLineNumber);
 
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("Eagle_SRD-0125563", test.GetValue(0));
       Assert.AreEqual(8, test.StartLineNumber);
 
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("doc_1004040002982", test.GetValue(0));
       Assert.AreEqual(3, warningList.CountRows);
       Assert.AreEqual(9, test.StartLineNumber);
 
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("doc_1004040002913", test.GetValue(0));
       Assert.AreEqual(10, test.StartLineNumber, "StartLineNumber");
       Assert.AreEqual(4, warningList.CountRows);
 
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("doc_1003001000427", test.GetValue(0));
       Assert.AreEqual(12, test.StartLineNumber);
 
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("doc_1008017000611", test.GetValue(0));
 
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("doc_1004040000268", test.GetValue(0));
 
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("doc_1008011000554", test.GetValue(0));
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("doc_1003001000936", test.GetValue(0));
 
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("doc_1200000124471", test.GetValue(0));
 
-      //await test.ReadAsync(processDisplay.CancellationToken);
+      //await test.ReadAsync(UnitTestStatic.Token);
       //Assert.AreEqual("doc_1200000134529", test.GetValue(0));
 
-      //await test.ReadAsync(processDisplay.CancellationToken);
+      //await test.ReadAsync(UnitTestStatic.Token);
       //Assert.AreEqual("doc_1004040003504", test.GetValue(0));
 
-      //await test.ReadAsync(processDisplay.CancellationToken);
+      //await test.ReadAsync(UnitTestStatic.Token);
       //Assert.AreEqual("doc_1200000016068", test.GetValue(0));
 
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
     }
 
     [TestMethod]
     public async Task TestGetDataTypeNameAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -246,14 +246,14 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("String", test.GetDataTypeName(0));
     }
 
     [TestMethod]
     public async Task TestWarningsRecordNoMappingAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -263,7 +263,7 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
       var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
 
       dataTable.Columns.Add(test.GetName(0), test.GetFieldType(0));
@@ -275,7 +275,7 @@ namespace CsvTools.Tests
       lineNumberColumn.AllowDBNull = true;
 
       _ = dataTable.NewRow();
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.ReadAsync(UnitTestStatic.Token);
       _ = new Dictionary<int, string> { { -1, "Test1" }, { 0, "Test2" } };
 
       //test.AssignNumbersAndWarnings(dataRow, null, recordNumberColumn, lineNumberColumn, null, warningsList);
@@ -288,7 +288,7 @@ namespace CsvTools.Tests
     {
       var column = new Column { ValueFormatMutable = { DataType = DataType.Integer, GroupSeparator = ",", DecimalSeparator = "." } };
 
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -321,7 +321,7 @@ namespace CsvTools.Tests
     public async Task TestBatchFinishedNotifcationAsync()
     {
       var finished = false;
-      using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
+      var processDisplay = new CustomProcessDisplay();
       using (var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -333,9 +333,9 @@ namespace CsvTools.Tests
         m_ValidSetting.IdentifierInContainer, processDisplay))
       {
         test.ReadFinished += delegate { finished = true; };
-        await test.OpenAsync(processDisplay.CancellationToken);
+        await test.OpenAsync(UnitTestStatic.Token);
 
-        while (await test.ReadAsync(processDisplay.CancellationToken))
+        while (await test.ReadAsync(UnitTestStatic.Token))
         {
         }
       }
@@ -347,7 +347,7 @@ namespace CsvTools.Tests
     public async Task TestReadFinishedNotificationAsync()
     {
       var finished = false;
-      using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
+      var processDisplay = new CustomProcessDisplay();
       using (var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -359,8 +359,8 @@ namespace CsvTools.Tests
         m_ValidSetting.IdentifierInContainer, processDisplay))
       {
         test.ReadFinished += delegate { finished = true; };
-        await test.OpenAsync(processDisplay.CancellationToken);
-        while (await test.ReadAsync(processDisplay.CancellationToken))
+        await test.OpenAsync(UnitTestStatic.Token);
+        while (await test.ReadAsync(UnitTestStatic.Token))
         {
         }
       }
@@ -391,7 +391,7 @@ namespace CsvTools.Tests
 
       csvFile.ColumnCollection.Add(new Column("Title", DataType.DateTime));
 
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(csvFile.FullPath, csvFile.CodePageId, csvFile.SkipRows, csvFile.HasFieldHeader, csvFile.ColumnCollection,
         csvFile.TrimmingOption, csvFile.FieldDelimiter, csvFile.FieldQualifier, csvFile.EscapePrefix, csvFile.RecordLimit, csvFile.AllowRowCombining,
         csvFile.ContextSensitiveQualifier, csvFile.CommentLine, csvFile.NumWarnings, csvFile.DuplicateQualifierToEscape, csvFile.NewLinePlaceholder,
@@ -399,8 +399,8 @@ namespace CsvTools.Tests
         csvFile.TryToSolveMoreColumns, csvFile.WarnDelimiterInValue, csvFile.WarnLineFeed, csvFile.WarnNBSP, csvFile.WarnQuotes, csvFile.WarnUnknownCharacter,
         csvFile.WarnEmptyTailingColumns, csvFile.TreatNBSPAsSpace, csvFile.TreatTextAsNull, csvFile.SkipEmptyLines, csvFile.ConsecutiveEmptyRows,
         csvFile.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
+      await test.ReadAsync(UnitTestStatic.Token);
       test.GetDateTime(1);
     }
 
@@ -438,7 +438,7 @@ namespace CsvTools.Tests
       try
       {
         setting.FileName = @"b;dslkfg;sldfkgjs;ldfkgj;sldfkg.sdfgsfd";
-        using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
+        var processDisplay = new CustomProcessDisplay();
         using (var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
           setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
           setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
@@ -447,7 +447,7 @@ namespace CsvTools.Tests
           setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
           setting.IdentifierInContainer, null))
         {
-          await reader.OpenAsync(processDisplay.CancellationToken);
+          await reader.OpenAsync(UnitTestStatic.Token);
         }
 
         Assert.Fail("Exception expected");
@@ -469,7 +469,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"), HasFieldHeader = true };
 
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
@@ -477,9 +477,9 @@ namespace CsvTools.Tests
         setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
       var row = 0;
-      while (await test.ReadAsync(processDisplay.CancellationToken))
+      while (await test.ReadAsync(UnitTestStatic.Token))
         row++;
       Assert.AreEqual(row, test.RecordNumber);
       Assert.AreEqual(2, row, "total Rows");
@@ -509,7 +509,7 @@ namespace CsvTools.Tests
 10
 */
 
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
@@ -517,9 +517,9 @@ namespace CsvTools.Tests
         setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
       var row = 0;
-      while (await test.ReadAsync(processDisplay.CancellationToken))
+      while (await test.ReadAsync(UnitTestStatic.Token))
         row++;
       Assert.AreEqual(row, test.RecordNumber, "Compare with RecordNumber");
       Assert.AreEqual(7, row, "Read");
@@ -528,7 +528,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderPropertiesAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -538,7 +538,7 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(0, test.Depth, "Depth");
       Assert.AreEqual(6, test.FieldCount, "FieldCount");
@@ -552,7 +552,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetNameAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -562,7 +562,7 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("ID", test.GetName(0));
       Assert.AreEqual("LangCodeID", test.GetName(1));
       Assert.AreEqual("ExamDate", test.GetName(2));
@@ -574,7 +574,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetOrdinalAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -584,7 +584,7 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(0, test.GetOrdinal("ID"));
       Assert.AreEqual(1, test.GetOrdinal("LangCodeID"));
       Assert.AreEqual(2, test.GetOrdinal("ExamDate"));
@@ -597,7 +597,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderUseIndexerAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -607,19 +607,19 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual("1", test["ID"]);
       Assert.AreEqual("German", test[1]);
       Assert.AreEqual(new DateTime(2010, 01, 20), test["ExamDate"]);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual(DBNull.Value, test["Proficiency"]);
     }
 
     [TestMethod]
     public async Task CsvDataReaderGetValueNullAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -629,9 +629,9 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual(DBNull.Value, test.GetValue(4));
     }
 
@@ -642,8 +642,8 @@ namespace CsvTools.Tests
       using (CsvFileReader test = new CsvFileReader())
       {
         test.Open(false);
-        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+        Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
         Assert.AreEqual(DBNull.Value, test.GetValueADO(4));
       }
     }
@@ -665,7 +665,7 @@ namespace CsvTools.Tests
       using (CsvFileReader test = new CsvFileReader())
       {
         test.Open(false);
-        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
         Assert.AreEqual("1", test.GetValueADO(0));
         Assert.AreEqual("German", test.GetValueADO(1));
         Assert.AreEqual(new DateTime(2010, 01, 20), test.GetValueADO(2));
@@ -677,7 +677,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetBooleanAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -687,10 +687,10 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(test.GetBoolean(5));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsFalse(test.GetBoolean(5));
     }
 
@@ -698,7 +698,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetBooleanErrorAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -708,15 +708,15 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       test.GetBoolean(1);
     }
 
     [TestMethod]
     public async Task CsvDataReaderGetDateTimeAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -726,8 +726,8 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       // 20/01/2010
       Assert.AreEqual(new DateTime(2010, 01, 20), test.GetDateTime(2));
     }
@@ -736,7 +736,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDateTimeErrorAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -746,15 +746,15 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       test.GetDateTime(1);
     }
 
     [TestMethod]
     public async Task CsvDataReaderGetInt32Async()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -764,8 +764,8 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual(276, test.GetInt32(3));
     }
 
@@ -773,7 +773,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetInt32ErrorAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -783,15 +783,15 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       test.GetInt32(1);
     }
 
     [TestMethod]
     public async Task CsvDataReaderGetDecimalAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -801,8 +801,8 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual(0.94m, test.GetDecimal(4));
     }
 
@@ -810,7 +810,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDecimalErrorAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -820,8 +820,8 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       test.GetDecimal(1);
     }
 
@@ -829,7 +829,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetInt32NullAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -839,9 +839,9 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       test.GetInt32(4);
     }
 
@@ -849,7 +849,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(NotImplementedException))]
     public async Task CsvDataReaderGetBytesAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -859,7 +859,7 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
 #pragma warning disable CS0618 // Typ oder Element ist veraltet
 #pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       test.GetBytes(0, 0, null, 0, 0);
@@ -871,7 +871,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(NotImplementedException))]
     public async Task CsvDataReaderGetDataAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -881,7 +881,7 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
 #pragma warning disable CS0618 // Typ oder Element ist veraltet
       test.GetData(0);
 #pragma warning restore CS0618 // Typ oder Element ist veraltet
@@ -890,7 +890,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetFloatAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -900,8 +900,8 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual(Convert.ToSingle(0.94), test.GetFloat(4));
     }
 
@@ -909,7 +909,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetFloatErrorAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -919,8 +919,8 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       test.GetFloat(1);
     }
 
@@ -928,7 +928,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetGuidAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -938,8 +938,8 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       test.GetGuid(1);
     }
 
@@ -947,7 +947,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDateTimeNullAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -957,10 +957,10 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       test.GetDateTime(2);
     }
 
@@ -968,7 +968,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDateTimeWrongTypeAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -978,8 +978,8 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       test.GetDateTime(1);
     }
 
@@ -987,7 +987,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDecimalFormatException()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -997,16 +997,16 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       test.GetDecimal(4);
     }
 
     [TestMethod]
     public async Task CsvDataReaderGetByte()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1016,8 +1016,8 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual(1, test.GetByte(0));
     }
 
@@ -1025,7 +1025,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetByteFrormat()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1035,15 +1035,15 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual(1, test.GetByte(1));
     }
 
     [TestMethod]
     public async Task CsvDataReaderGetDouble()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1053,8 +1053,8 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual(1, test.GetDouble(0));
     }
 
@@ -1062,7 +1062,7 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task CsvDataReaderGetDoubleFrormat()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1072,15 +1072,15 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual(1, test.GetDouble(1));
     }
 
     [TestMethod]
     public async Task CsvDataReaderGetInt16()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1090,8 +1090,8 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual(1, test.GetInt16(0));
     }
 
@@ -1102,7 +1102,7 @@ namespace CsvTools.Tests
       setting.FieldQualifier = "XX";
       setting.FieldDelimiter = ",,";
 
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
@@ -1111,7 +1111,7 @@ namespace CsvTools.Tests
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, processDisplay);
       var warningList = new RowErrorCollection(test);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
       warningList.HandleIgnoredColumns(test);
       // This is now check in the constructr, butr the constructor does not habe the error handling
       // set Assert.IsTrue(warningList.Display.Contains("Only the first character of 'XX' is be used
@@ -1126,7 +1126,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+        var processDisplay = new CustomProcessDisplay();
         using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
           setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
           setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
@@ -1134,7 +1134,7 @@ namespace CsvTools.Tests
           setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
           setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
           setting.IdentifierInContainer, processDisplay);
-        await test.OpenAsync(processDisplay.CancellationToken);
+        await test.OpenAsync(UnitTestStatic.Token);
       }
       catch (ArgumentException)
       {
@@ -1165,7 +1165,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+        var processDisplay = new CustomProcessDisplay();
         using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
           setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
           setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
@@ -1173,7 +1173,7 @@ namespace CsvTools.Tests
           setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
           setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
           setting.IdentifierInContainer, processDisplay);
-        await test.OpenAsync(processDisplay.CancellationToken);
+        await test.OpenAsync(UnitTestStatic.Token);
       }
       catch (ArgumentException)
       {
@@ -1198,7 +1198,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+        var processDisplay = new CustomProcessDisplay();
         using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
           setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
           setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
@@ -1206,7 +1206,7 @@ namespace CsvTools.Tests
           setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
           setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
           setting.IdentifierInContainer, processDisplay);
-        await test.OpenAsync(processDisplay.CancellationToken);
+        await test.OpenAsync(UnitTestStatic.Token);
       }
       catch (ArgumentException)
       {
@@ -1229,7 +1229,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), HasFieldHeader = true, CodePageId = 0 };
       setting.FieldDelimiter = ",";
-      using (var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token))
+      var processDisplay = new CustomProcessDisplay();
       using (var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
@@ -1238,7 +1238,7 @@ namespace CsvTools.Tests
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, processDisplay))
       {
-        await test.OpenAsync(processDisplay.CancellationToken);
+        await test.OpenAsync(UnitTestStatic.Token);
       }
 
       Assert.AreEqual(1200, setting.CurrentEncoding.WindowsCodePage); // UTF-16 little endian
@@ -1251,7 +1251,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+        var processDisplay = new CustomProcessDisplay();
         using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
           setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
           setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
@@ -1259,7 +1259,7 @@ namespace CsvTools.Tests
           setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
           setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
           setting.IdentifierInContainer, processDisplay);
-        await test.OpenAsync(processDisplay.CancellationToken);
+        await test.OpenAsync(UnitTestStatic.Token);
       }
       catch (ArgumentException)
       {
@@ -1284,7 +1284,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+        var processDisplay = new CustomProcessDisplay();
         using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
           setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
           setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
@@ -1292,7 +1292,7 @@ namespace CsvTools.Tests
           setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
           setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
           setting.IdentifierInContainer, processDisplay);
-        await test.OpenAsync(processDisplay.CancellationToken);
+        await test.OpenAsync(UnitTestStatic.Token);
       }
       catch (ArgumentException)
       {
@@ -1318,7 +1318,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+        var processDisplay = new CustomProcessDisplay();
         using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
           setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
           setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
@@ -1326,7 +1326,7 @@ namespace CsvTools.Tests
           setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
           setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
           setting.IdentifierInContainer, processDisplay);
-        await test.OpenAsync(processDisplay.CancellationToken);
+        await test.OpenAsync(UnitTestStatic.Token);
       }
       catch (ArgumentException)
       {
@@ -1350,7 +1350,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+        var processDisplay = new CustomProcessDisplay();
         using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
           m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
           m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1360,8 +1360,8 @@ namespace CsvTools.Tests
           m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
           m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
           m_ValidSetting.IdentifierInContainer, processDisplay);
-        await test.OpenAsync(processDisplay.CancellationToken);
-        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        await test.OpenAsync(UnitTestStatic.Token);
+        Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
         Assert.AreEqual(1, test.GetInt16(1));
       }
       catch (FormatException)
@@ -1379,7 +1379,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetInt64()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1389,8 +1389,8 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual(1, test.GetInt64(0));
     }
 
@@ -1400,7 +1400,7 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-        using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+        var processDisplay = new CustomProcessDisplay();
         using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
           m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
           m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1410,8 +1410,8 @@ namespace CsvTools.Tests
           m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
           m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
           m_ValidSetting.IdentifierInContainer, processDisplay);
-        await test.OpenAsync(processDisplay.CancellationToken);
-        Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+        await test.OpenAsync(UnitTestStatic.Token);
+        Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
         Assert.AreEqual(1, test.GetInt64(1));
       }
       catch (FormatException)
@@ -1429,7 +1429,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetChar()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1439,15 +1439,15 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual('G', test.GetChar(1));
     }
 
     [TestMethod]
     public async Task CsvDataReaderGetStringColumnNotExisting()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1458,8 +1458,8 @@ namespace CsvTools.Tests
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
       var exception = false;
-      await test.OpenAsync(processDisplay.CancellationToken);
-      await test.ReadAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
+      await test.ReadAsync(UnitTestStatic.Token);
       try
       {
         test.GetString(666);
@@ -1487,7 +1487,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetString()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1497,15 +1497,15 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual("German", test.GetString(1));
       Assert.AreEqual("German", test.GetValue(1));
     }
 
     public void DataReaderResetPositionToFirstDataRow()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1521,7 +1521,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderIsDBNull()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1531,10 +1531,10 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsFalse(test.IsDBNull(4));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(test.IsDBNull(4));
       test.Close();
     }
@@ -1543,7 +1543,7 @@ namespace CsvTools.Tests
     public async Task CsvDataReaderTreatNullTextTrue()
     {
       //m_ValidSetting.TreatTextNullAsNull = true;
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1553,12 +1553,12 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
 
       Assert.AreEqual(DBNull.Value, test["LangCodeID"]);
     }
@@ -1569,7 +1569,7 @@ namespace CsvTools.Tests
 #pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       m_ValidSetting.TreatTextAsNull = null;
 #pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader, m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter,
         m_ValidSetting.FieldQualifier, m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining,
@@ -1580,12 +1580,12 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns, m_ValidSetting.TreatNBSPAsSpace,
         m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows, m_ValidSetting.IdentifierInContainer,
         processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
 
       Assert.AreEqual("NULL", test["LangCodeID"]);
     }
@@ -1593,7 +1593,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetValues()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1603,8 +1603,8 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       var values = new object[test.FieldCount];
       Assert.AreEqual(6, test.GetValues(values));
     }
@@ -1612,7 +1612,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetChars()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1622,8 +1622,8 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       char[] buffer = { '0', '0', '0', '0' };
       test.GetChars(1, 0, buffer, 0, 4);
       Assert.AreEqual('G', buffer[0], "G");
@@ -1635,7 +1635,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGetSchemaTable()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1645,7 +1645,7 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
       var dt = test.GetSchemaTable();
       Assert.IsInstanceOfType(dt, typeof(DataTable));
       Assert.AreEqual(6, dt.Rows.Count);
@@ -1654,7 +1654,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderReadAfterEndAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1664,7 +1664,7 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
       /*
 1,German,20/01/2010,276,0.94,Y
 2,English,22/01/2012,190,,N
@@ -1674,21 +1674,21 @@ namespace CsvTools.Tests
 6,French,13/12/2000,399,0.67,N
 7,Dutch,01/11/2001,234,0.89,n
          */
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
-      Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsFalse(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsFalse(await test.ReadAsync(UnitTestStatic.Token));
     }
 
     [TestMethod]
     public async Task CsvDataReaderReadAfterCloseAsync()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1698,16 +1698,16 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      Assert.IsTrue(await test.ReadAsync(processDisplay.CancellationToken));
+      await test.OpenAsync(UnitTestStatic.Token);
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       test.Close();
-      Assert.IsFalse(await test.ReadAsync(processDisplay.CancellationToken));
+      Assert.IsFalse(await test.ReadAsync(UnitTestStatic.Token));
     }
 
     [TestMethod]
     public async Task GetDataTableAsync_LimitTrack1()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1717,19 +1717,19 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
 
 #pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       using var dt = await test.GetDataTableAsync(5, false, false, false, false, false, null,
 #pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
-                       processDisplay.CancellationToken);
+                       UnitTestStatic.Token);
       Assert.AreEqual(5, dt!.Rows.Count);
     }
 
     [TestMethod]
     public async Task GetDataTableAsync_LimitTrack2()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -1739,10 +1739,10 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
 
       using var dt = await test.GetDataTableAsync(5, true, true, false, false, true, null,
-                       processDisplay.CancellationToken);
+                       UnitTestStatic.Token);
       Assert.AreEqual(5, dt!.Rows.Count);
     }
 
@@ -1750,7 +1750,7 @@ namespace CsvTools.Tests
     public async Task CsvDataReaderNoHeader()
     {
       var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), HasFieldHeader = false, SkipRows = 1, FieldDelimiter = "," };
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
         setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
@@ -1758,7 +1758,7 @@ namespace CsvTools.Tests
         setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("Column1", test.GetName(0));
       Assert.AreEqual("Column2", test.GetName(1));
       Assert.AreEqual("Column3", test.GetName(2));

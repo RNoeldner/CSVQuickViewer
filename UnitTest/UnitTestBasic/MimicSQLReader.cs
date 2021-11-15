@@ -43,23 +43,21 @@ namespace CsvTools.Tests
 				m_ReadSetting.Add(new CsvFile(name) { ID = name }, dt);
 		}
 
-		public async Task<IFileReader> ReadDataAsync(string settingName, EventHandler<ProgressEventArgs>? message,
-			int timeout,
-			CancellationToken token)
+		public async Task<IFileReader> ReadDataAsync(string settingName, IProcessDisplay? message,			int timeout,			CancellationToken token)
 		{
 			if (m_ReadSetting.Count == 0)
 			{
-				message?.Invoke(null, new ProgressEventArgs($"{settingName} not found"));
+				message?.SetProcess(null, new ProgressEventArgs($"{settingName} not found"));
 				throw new ApplicationException($"{settingName} not found");
 			}
 
 			var setting = m_ReadSetting.Any(x => x.Key.ID == settingName)
 				? m_ReadSetting.First(x => x.Key.ID == settingName)
 				: m_ReadSetting.First();
-			using var dummy = new CustomProcessDisplay(token);
+			
 			var reader = setting.Value != null
 				? new DataTableWrapper(setting.Value)
-				: FunctionalDI.GetFileReader(setting.Key, null, dummy);
+				: FunctionalDI.GetFileReader(setting.Key, null, new CustomProcessDisplay(), UnitTestStatic.Token);
 			await reader.OpenAsync(token).ConfigureAwait(false);
 			return reader;
 		}

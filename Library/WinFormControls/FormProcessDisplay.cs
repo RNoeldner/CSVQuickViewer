@@ -49,7 +49,7 @@ namespace CsvTools
     public FormProcessDisplay(in string? windowTitle, bool withLoggerDisplay, CancellationToken cancellationToken)
     {
       CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-      m_ProcessDisplay = new ProcessDisplayTime(CancellationTokenSource.Token);
+      m_ProcessDisplay = new ProcessDisplayTime();
       InitializeComponent();
 
       m_Title = windowTitle ?? string.Empty;
@@ -220,16 +220,21 @@ namespace CsvTools
         });
     }
 
+    public void Report(ProgressInfo value)
+    {
+      if (value.Max != -1 &&  value.Max !=Maximum)
+        Maximum = value.Max;
+      if (value.Title.Length>0 &&  value.Title.Equals(Title, StringComparison.Ordinal))
+        Title = value.Title;
+      SetProcess(value.Text, value.Value, value.Log);
+    }
+
     /// <summary>
     ///   Set the progress used by Events
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    public void SetProcess(object? sender, ProgressEventArgs e) => m_ProcessDisplay.SetProcess(sender, e);
-
-    public void Report(ProgressEventArgs value) => m_ProcessDisplay.SetProcess(this, value);
-
-    public void Report(ProgressWithTimeEventArgs value) => m_ProcessDisplay.SetProcess(this, value);
+    public void SetProcess(object? sender, ProgressEventArgs e) => SetProcess(e.Text, e.Value, e.Log);
 
     public new void Close()
     {
@@ -344,7 +349,7 @@ namespace CsvTools
       }
     }
 
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool m_DisposedValue; // To detect redundant calls
 
@@ -383,6 +388,6 @@ namespace CsvTools
       }
     }
 
-#endregion IDisposable Support
+    #endregion IDisposable Support
   }
 }

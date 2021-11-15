@@ -15,7 +15,7 @@ namespace CsvTools
     private readonly Func<DataTable> m_GetDataTable;
     private readonly Func<FilterType, CancellationToken, Task>? m_RefreshDisplayAsync;
     private readonly Action<DataTable> m_SetDataTable;
-    private readonly Action<Func<IProcessDisplay, CancellationToken, Task>>? m_SetLoadNextBatchAsync;
+    private readonly Action<Func<IProcessDisplay?, CancellationToken, Task>>? m_SetLoadNextBatchAsync;
     private DataReaderWrapper? m_DataReaderWrapper;
     private IFileReader? m_FileReader;
 
@@ -23,7 +23,7 @@ namespace CsvTools
       in Action<DataTable> actionSetDataTable,
       in Func<DataTable> getDataTable,
       in Func<FilterType, CancellationToken, Task>? setRefreshDisplayAsync,
-      in Action<Func<IProcessDisplay, CancellationToken, Task>>? loadNextBatchAsync,
+      in Action<Func<IProcessDisplay?, CancellationToken, Task>>? loadNextBatchAsync,
       in Action? actionBegin,
       in Action<DataReaderWrapper>? actionFinished)
     {
@@ -53,10 +53,10 @@ namespace CsvTools
       IFileSetting fileSetting,
       bool includeError,
       TimeSpan durationInitial,
-      IProcessDisplay processDisplay,
+      IProcessDisplay? processDisplay,
       EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
     {
-      m_FileReader = FunctionalDI.GetFileReader(fileSetting, TimeZoneInfo.Local.Id, processDisplay);
+      m_FileReader = FunctionalDI.GetFileReader(fileSetting, TimeZoneInfo.Local.Id, processDisplay, cancellationToken);
       if (m_FileReader is null)
         throw new FileReaderException($"Could not get reader for {fileSetting}");
 
@@ -106,22 +106,21 @@ namespace CsvTools
     private async Task GetBatchByTimeSpan(
       TimeSpan maxDuration,
       bool restoreError,
-      IProcessDisplay processDisplay,
+      IProcessDisplay? processDisplay,
       Action<DataTable> action, CancellationToken cancellationToken)
     {
       if (m_DataReaderWrapper is null)
-        return;
-      if (processDisplay is null)
-        throw new ArgumentNullException(nameof(processDisplay));
-
+        return;      
       try
       {
-        processDisplay.SetMaximum(100);
+        processDisplay?.SetMaximum(100);
+
         var dt = await m_DataReaderWrapper.LoadDataTable(
                    maxDuration,
                    restoreError,
-                   (l, i) => processDisplay.SetProcess($"Reading data...\nRecord: {l:N0}", i, false),
+                   processDisplay,
                    cancellationToken).ConfigureAwait(false);
+
         action.Invoke(dt);
 
         if (m_RefreshDisplayAsync != null)
@@ -136,7 +135,7 @@ namespace CsvTools
       }
       catch (Exception e)
       {
-        Logger.Error(e, nameof(TwoStepDataTableLoader) + "." + nameof(GetBatchByTimeSpan));
+        Logger.Error(e, $"{nameof(TwoStepDataTableLoader)} .{nameof(GetBatchByTimeSpan)} {e.Message}");
       }
     }
   }

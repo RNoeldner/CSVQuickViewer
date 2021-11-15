@@ -14,15 +14,13 @@
 
 using System;
 using System.Diagnostics;
-using System.Threading;
 
 namespace CsvTools
 {
   [DebuggerStepThrough]
   public sealed class ProcessDisplayTime : CustomProcessDisplay, IProcessDisplayTime
   {
-    public ProcessDisplayTime(CancellationToken token)
-      : base(token) =>
+    public ProcessDisplayTime() =>
       TimeToCompletion = new TimeToCompletion();
 
     public event EventHandler<ProgressWithTimeEventArgs>? ProgressTime;
@@ -50,7 +48,5 @@ namespace CsvTools
         new ProgressWithTimeEventArgs(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
       TimeToCompletion.Value = value;
     }
-
-    public void Report(ProgressWithTimeEventArgs value) => ProgressTime?.Invoke(this, value);
   }
 }

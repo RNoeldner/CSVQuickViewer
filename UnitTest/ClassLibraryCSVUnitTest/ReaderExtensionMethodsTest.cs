@@ -35,17 +35,17 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetColumnsOfReaderTest()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"),
         fieldDelimiter: ",", commentLine: "#", processDisplay: processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.GetColumnsOfReader().Count());
     }
 
     [TestMethod]
     public async Task GetEmptyColumnHeaderAsyncTest()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
@@ -55,15 +55,15 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
-      var result = await test.GetEmptyColumnHeaderAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
+      var result = await test.GetEmptyColumnHeaderAsync(UnitTestStatic.Token);
       Assert.AreEqual(0, result.Count);
     }
 
     [TestMethod]
     public async Task GetDataTableAsync2()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       var test2 = (CsvFile) m_ValidSetting.Clone();
       test2.RecordLimit = 4;
       using var test = new CsvFileReader(test2.FullPath, test2.CodePageId, test2.SkipRows, test2.HasFieldHeader, test2.ColumnCollection, test2.TrimmingOption,
@@ -72,17 +72,17 @@ namespace CsvTools.Tests
         test2.QualifierPlaceholder, test2.SkipDuplicateHeader, test2.TreatLFAsSpace, test2.TreatUnknownCharacterAsSpace, test2.TryToSolveMoreColumns,
         test2.WarnDelimiterInValue, test2.WarnLineFeed, test2.WarnNBSP, test2.WarnQuotes, test2.WarnUnknownCharacter, test2.WarnEmptyTailingColumns,
         test2.TreatNBSPAsSpace, test2.TreatTextAsNull, test2.SkipEmptyLines, test2.ConsecutiveEmptyRows, test2.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
 
       var dt = await test.GetDataTableAsync(-1, false, false, false, false, false, null,
-                 processDisplay.CancellationToken);
+                 UnitTestStatic.Token);
       Assert.AreEqual(test2.RecordLimit, dt!.Rows.Count);
     }
 
     [TestMethod]
     public async Task GetDataTableAsync3()
     {
-      using var processDisplay = new CustomProcessDisplay(UnitTestStatic.Token);
+      var processDisplay = new CustomProcessDisplay();
       var test3 = new CsvFile(UnitTestStatic.GetTestPath("WithEoFChar.txt")) { FieldDelimiter = "Tab" };
       test3.ColumnCollection.Add(new Column("Memo") { Ignore = true });
       using var test = new CsvFileReader(test3.FullPath, test3.CodePageId, test3.SkipRows, test3.HasFieldHeader, test3.ColumnCollection, test3.TrimmingOption,
@@ -91,10 +91,10 @@ namespace CsvTools.Tests
         test3.QualifierPlaceholder, test3.SkipDuplicateHeader, test3.TreatLFAsSpace, test3.TreatUnknownCharacterAsSpace, test3.TryToSolveMoreColumns,
         test3.WarnDelimiterInValue, test3.WarnLineFeed, test3.WarnNBSP, test3.WarnQuotes, test3.WarnUnknownCharacter, test3.WarnEmptyTailingColumns,
         test3.TreatNBSPAsSpace, test3.TreatTextAsNull, test3.SkipEmptyLines, test3.ConsecutiveEmptyRows, test3.IdentifierInContainer, processDisplay);
-      await test.OpenAsync(processDisplay.CancellationToken);
+      await test.OpenAsync(UnitTestStatic.Token);
 
       using var dt = await test.GetDataTableAsync(-1, true, true, true, true, true, null,
-                       processDisplay.CancellationToken);
+                       UnitTestStatic.Token);
       // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one for
       // Line end
       Assert.AreEqual((10 - 1) + 4, dt!.Columns.Count);

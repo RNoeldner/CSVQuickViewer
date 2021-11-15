@@ -87,7 +87,7 @@ namespace CsvTools
     /// <summary>
     ///   Builds the tree.
     /// </summary>
-    public void BuildTree(string parent, string id, string? display1 = null, string? display2 = null)
+    public void BuildTree(in string parent, in string id, in string? display1 = null, in string? display2 = null)
     {
       var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
@@ -97,10 +97,10 @@ namespace CsvTools
         m_BuildProcess.Show(this);
         m_BuildProcess.Maximum = m_DataRow.GetLength(0) * 2;
 
-        BuildTreeData(parent, id, display1, display2, m_BuildProcess);
+        BuildTreeData(parent, id, display1, display2, m_BuildProcess, m_BuildProcess.CancellationToken);
 
         m_BuildProcess.Maximum = 0;
-        ShowTree(m_BuildProcess);
+        ShowTree(m_BuildProcess, m_BuildProcess.CancellationToken);
       }
       catch (Exception ex)
       {
@@ -137,10 +137,8 @@ namespace CsvTools
     /// <param name="root">The root.</param>
     /// <param name="rootNode">The root node.</param>
     /// <param name="process">Progress display</param>
-    private void AddTreeDataNodeWithChild(TreeData root, TreeNode? rootNode,
-      IProcessDisplay process)
+    private void AddTreeDataNodeWithChild(in TreeData root, in TreeNode? rootNode, in CancellationToken cancellationToken)
     {
-      if (process is null) throw new ArgumentNullException(nameof(process));
       root.Visited = true;
       var treeNode = new TreeNode(root.NodeTitle) { Tag = root };
       if (rootNode is null)
@@ -148,7 +146,7 @@ namespace CsvTools
       else
         rootNode.Nodes.Add(treeNode);
       if (root.Children.Count > 0)
-        treeNode.Nodes.AddRange(BuildSubNodes(root, process));
+        treeNode.Nodes.AddRange(BuildSubNodes(root, cancellationToken));
     }
 
     /// <summary>
@@ -157,13 +155,12 @@ namespace CsvTools
     /// <param name="parent">The parent ID.</param>
     /// <param name="process">Progress display</param>
     /// <returns></returns>
-    private TreeNode[] BuildSubNodes(TreeData parent, IProcessDisplay process)
-    {
-      if (process is null) throw new ArgumentNullException(nameof(process));
+    private TreeNode[] BuildSubNodes(in TreeData parent,  in CancellationToken cancellationToken)
+    {      
       var treeNodes = new List<TreeNode>();
       foreach (var child in parent.Children)
       {
-        process.CancellationToken.ThrowIfCancellationRequested();
+        cancellationToken.ThrowIfCancellationRequested();
         Extensions.ProcessUIElements();
         if (child.Visited)
         {
@@ -173,7 +170,7 @@ namespace CsvTools
         else
         {
           child.Visited = true;
-          var treeNode = new TreeNode(child.NodeTitle, BuildSubNodes(child, process)) { Tag = child };
+          var treeNode = new TreeNode(child.NodeTitle, BuildSubNodes(child, cancellationToken)) { Tag = child };
           treeNodes.Add(treeNode);
         }
       }
@@ -184,8 +181,8 @@ namespace CsvTools
     /// <summary>
     ///   Builds the tree data.
     /// </summary>
-    private void BuildTreeData(string parentCol, string idCol, string? display1, string? display2,
-      IProcessDisplay process)
+    private void BuildTreeData(in string parentCol, in string idCol, in string? display1, in string? display2,
+      IProcessDisplay process, in CancellationToken cancellationToken)
     {
       var intervalAction = new IntervalAction();
 
@@ -213,7 +210,7 @@ namespace CsvTools
       var counter = 0;
       foreach (var dataRow in m_DataRow)
       {
-        process.CancellationToken.ThrowIfCancellationRequested();
+        cancellationToken.ThrowIfCancellationRequested();
         intervalAction.Invoke(
           count => process.SetProcess($"Parent found {count}/{max} ", count, false),
           counter++);
@@ -247,7 +244,7 @@ namespace CsvTools
         // Create new entries
         foreach (var parentID in additionalRootNodes)
         {
-          process.CancellationToken.ThrowIfCancellationRequested();
+          cancellationToken.ThrowIfCancellationRequested();
           intervalAction.Invoke(
             count => process.SetProcess($"Parent not found (Step 1) {count}/{max} ", count, false),
             counter++);
@@ -261,7 +258,7 @@ namespace CsvTools
       counter = 0;
       foreach (var child in treeDataDictionary.Values)
       {
-        process.CancellationToken.ThrowIfCancellationRequested();
+        cancellationToken.ThrowIfCancellationRequested();
         intervalAction.Invoke(
           count => process.SetProcess($"Parent not found (Step 2) {count}/{max} ", count, false),
           counter++);
@@ -277,7 +274,7 @@ namespace CsvTools
       // Fill m_Children for the new nodes
       foreach (var child in treeDataDictionary.Values)
       {
-        process.CancellationToken.ThrowIfCancellationRequested();
+        cancellationToken.ThrowIfCancellationRequested();
         intervalAction.Invoke(
           count => process.SetProcess($"Set children {count}/{max} ", count, false),
           counter++);
@@ -583,7 +580,7 @@ namespace CsvTools
     /// <summary>
     ///   Shows the tree.
     /// </summary>
-    private void ShowTree(IProcessDisplay process)
+    private void ShowTree(IProcessDisplay process, CancellationToken cancellationToken)
     {
       if (m_TreeView is null)
         return;
@@ -597,17 +594,17 @@ namespace CsvTools
         process.SetProcess("Adding Tree with children", -1, false);
         foreach (var treeData in m_TreeData)
         {
-          process.CancellationToken.ThrowIfCancellationRequested();
+          cancellationToken.ThrowIfCancellationRequested();
           Extensions.ProcessUIElements();
           if (string.IsNullOrEmpty(treeData.ParentID))
-            AddTreeDataNodeWithChild(treeData, null, process);
+            AddTreeDataNodeWithChild(treeData, null, cancellationToken);
         }
 
         process.SetProcess("Finding Cycles in Hierarchy", -1, true);
         var hasCycles = false;
         foreach (var treeData in m_TreeData)
         {
-          process.CancellationToken.ThrowIfCancellationRequested();
+          cancellationToken.ThrowIfCancellationRequested();
           Extensions.ProcessUIElements();
           if (!treeData.Visited)
           {
@@ -625,7 +622,7 @@ namespace CsvTools
 
         foreach (var treeData in m_TreeData)
         {
-          process.CancellationToken.ThrowIfCancellationRequested();
+          cancellationToken.ThrowIfCancellationRequested();
           Extensions.ProcessUIElements();
           if (!treeData.Visited)
             MarkInCycle(treeData, new HashSet<TreeData>());
@@ -633,10 +630,10 @@ namespace CsvTools
 
         foreach (var root in m_TreeData)
         {
-          process.CancellationToken.ThrowIfCancellationRequested();
+          cancellationToken.ThrowIfCancellationRequested();
           Extensions.ProcessUIElements();
           if (!root.Visited && root.InCycle)
-            AddTreeDataNodeWithChild(root, rootNode, process);
+            AddTreeDataNodeWithChild(root, rootNode, cancellationToken);
         }
       }
       catch

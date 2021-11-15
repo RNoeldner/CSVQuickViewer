@@ -14,29 +14,19 @@
 
 using System;
 using System.Diagnostics;
-using System.Threading;
 
 namespace CsvTools
 {
   [DebuggerStepThrough]
   public class CustomProcessDisplay : IProcessDisplay
   {
-    public CustomProcessDisplay(CancellationToken token) => CancellationToken = token;
-
     public virtual long Maximum { get; set; } = -1;
 
     public event EventHandler<ProgressEventArgs>? Progress;
 
-    public CancellationToken CancellationToken { get; }
+    public virtual string Title { get; set; } = string.Empty;
 
-    public string Title { get; set; } = string.Empty;
-
-    public void Dispose()
-    {
-      // There is nothing to dispose in this implemenation
-    }
-
-    public void SetProcess(object? sender, ProgressEventArgs e)
+    public virtual void SetProcess(object? sender, ProgressEventArgs e)
     {
       if (Progress == null)
         return;
@@ -52,6 +42,13 @@ namespace CsvTools
       Progress?.Invoke(sender, new ProgressEventArgs(text, value, log));
     }
 
-    // public void Report(ProgressEventArgs value) => Progress?.Invoke(this, value);
+    public virtual void Report(in ProgressInfo value)
+    {
+      if (value.Max != -1 &&  value.Max !=Maximum)
+        Maximum = value.Max;
+      if (value.Title.Length>0 &&  value.Title.Equals(Title, StringComparison.Ordinal))
+        Title = value.Title;
+      Handle(this, value.Text, value.Value, value.Log);
+    }
   }
 }

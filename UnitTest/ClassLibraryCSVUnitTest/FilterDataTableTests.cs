@@ -61,7 +61,7 @@ namespace CsvTools.Tests
       await test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestStatic.Token);
       Assert.IsTrue(test.FilterTable.Rows.Count > 0);
 
-      Assert.AreEqual(4, (await test.GetColumnsWithErrors()).Count);
+      Assert.AreEqual(4, (test.GetColumnsWithErrors()).Count);
     }
 
     [TestMethod]
@@ -85,7 +85,7 @@ namespace CsvTools.Tests
       test.UniqueFieldName = new[] { "ColID" };
       var task = test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestStatic.Token).ConfigureAwait(false);
       Assert.IsFalse(test.Filtering);
-      var result1 = (await test.GetColumnsWithErrors());
+      var result1 = (test.GetColumnsWithErrors());
       Assert.IsFalse(result1.Any(x => x == "ColID"));
     }
 
@@ -96,7 +96,7 @@ namespace CsvTools.Tests
       var test = new FilterDataTable(dt.Item1);
       await test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestStatic.Token);
       // not a good test, but its known how many columns will have errors
-      Assert.AreEqual(dt.Item2, (await test.GetColumnsWithoutErrors()).Count);
+      Assert.AreEqual(dt.Item2, (test.GetColumnsWithoutErrors()).Count);
     }
 
     [TestMethod]

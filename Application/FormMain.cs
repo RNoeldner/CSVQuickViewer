@@ -131,15 +131,14 @@ namespace CsvTools
       }
 
       try
-      {
-        using var processDisplay = new CustomProcessDisplay(m_CancellationTokenSource.Token);
+      {        
         DetachPropertyChanged(m_FileSetting);
         
         m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
                            m_ViewSettings.GuessCodePage,
                            m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
                            m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-                           m_ViewSettings.FillGuessSettings, processDisplay, processDisplay.CancellationToken)).PhysicalFile();
+                           m_ViewSettings.FillGuessSettings, null, m_CancellationTokenSource.Token)).PhysicalFile();
 
         if (m_FileSetting is null)
           return;
@@ -172,9 +171,7 @@ namespace CsvTools
           SetFileSystemWatcher(fileName);
         });
 
-        await OpenDataReaderAsync();
-
-        ShowTextPanel(false);
+        await OpenDataReaderAsync();        
       }
       catch (Exception ex)
       {
@@ -464,55 +461,55 @@ namespace CsvTools
       var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
 
-      // Stop Property changed events for the time this is processed We might store data in the FileSetting
+      // Stop Property changed events for the time this is processed we might store data in the FileSetting
       DetachPropertyChanged(m_FileSetting);
 
       try
       {
         var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
-        this.SafeBeginInvoke(() => { ShowTextPanel(true); });
+
+        this.SafeInvoke(() =>
+        {
+          ShowTextPanel(true);
+          detailControl.FileSetting = m_FileSetting;
+          detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
+          detailControl.CancellationToken = m_CancellationTokenSource.Token;
+          detailControl.ShowInfoButtons = false;
+        });
 
         using (var processDisplay = new FormProcessDisplay(fileNameShort, false, m_CancellationTokenSource.Token))
         {
           processDisplay.AttachTaskbarProgress();
           processDisplay.Show();
           processDisplay.SetProcess("Reading data...", -1, false);
-          processDisplay.Maximum = 100;
-
-          this.SafeInvoke(() =>
-          {
-            detailControl.FileSetting = m_FileSetting;
-            detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
-            detailControl.CancellationToken = m_CancellationTokenSource.Token;
-            detailControl.ShowInfoButtons = false;
-          });
+          processDisplay.Maximum = 100;          
 
           await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.DurationTimeSpan, processDisplay,
-            AddWarning, processDisplay.CancellationToken);
-          IReadOnlyCollection<string>? m_Headers = new List<string>(detailControl.DataTable.GetRealColumns());
-          foreach (var columnName in m_Headers)
-          {
-            if (m_FileSetting.ColumnCollection.Get(columnName) is null)
-              m_FileSetting.ColumnCollection.Add(new Column { Name = columnName });
-          }
-
-          FunctionalDI.GetColumnHeaderAsync = (dummy1, dummy2) => Task.FromResult(m_Headers);
-
-          this.SafeInvoke(() => { ShowTextPanel(false); });
-
-          if (m_DisposedValue)
-            return;
+            AddWarning, processDisplay.CancellationToken);         
         }
 
+        if (m_DisposedValue)
+          return;
+
+        // Set Funcation DI routines to constants
+        IReadOnlyCollection<string>? m_Headers = new List<string>(detailControl.DataTable.GetRealColumns());
+        foreach (var columnName in m_Headers)
+        {
+          if (m_FileSetting.ColumnCollection.Get(columnName) is null)
+            m_FileSetting.ColumnCollection.Add(new Column { Name = columnName });
+        }
+        FunctionalDI.GetColumnHeaderAsync = (dummy1, dummy2) => Task.FromResult(m_Headers);
+
+        
         // The reader is used when data is stored through the detailControl
         FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
           await Task.FromResult(new DataTableWrapper(detailControl.DataTable));
 
-        // Load View Settings
-        if (m_FileSetting is BaseSettingPhysicalFile basePhys && FileSystemUtils.FileExists(basePhys.ColumnFile))
+        // Load View Settings from file
+        if (FileSystemUtils.FileExists(m_FileSetting.ColumnFile))
         {
-          Logger.Information("Restoring view and filter setting {filename}...", basePhys.ColumnFile);
-          detailControl.ReStoreViewSetting(basePhys.ColumnFile);
+          Logger.Information("Restoring view and filter setting {filename}...", m_FileSetting.ColumnFile);
+          detailControl.ReStoreViewSetting(m_FileSetting.ColumnFile);
         }
         else
         {
@@ -532,10 +529,10 @@ namespace CsvTools
           this.ShowError(exc, "Opening File");
       }
       finally
-      {
+      {        
         if (!m_DisposedValue)
         {
-          ShowTextPanel(false);
+          this.SafeInvoke(() => ShowTextPanel(false));          
 
           detailControl.ShowInfoButtons = true;
           Cursor.Current = oldCursor;

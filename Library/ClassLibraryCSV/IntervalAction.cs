@@ -75,5 +75,15 @@ namespace CsvTools
       m_LastNotification = DateTime.Now;
       action.Invoke(text, value, log);
     }
+
+    public void Invoke(in IProcessDisplay? processDisplay, in string text, long value, bool log)
+    {
+      if (processDisplay is null)
+        return;
+      if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
+        return;
+      m_LastNotification = DateTime.Now;
+      processDisplay.SetProcess(text, value, log);
+    }   
   }
 }

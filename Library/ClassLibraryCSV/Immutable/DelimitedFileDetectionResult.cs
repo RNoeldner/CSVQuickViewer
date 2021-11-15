@@ -79,7 +79,6 @@ namespace CsvTools
     }
 
 #if !QUICK
-
     public virtual IFileSettingPhysicalFile PhysicalFile()
     {
       if (IsJson)
