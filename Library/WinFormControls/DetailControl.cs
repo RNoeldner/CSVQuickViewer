@@ -1024,7 +1024,7 @@ namespace CsvTools
       if (ReferenceEquals(m_BindingSource.DataSource, newDt))
         return;
 
-      this.SafeInvoke(() =>
+      this.SafeInvokeNoHandleNeeded(() =>
       {
         /// Now apply filter
         FilteredDataGridView.DataSource = null;

@@ -18,6 +18,7 @@ namespace CsvTools
     private readonly Action<Func<IProcessDisplay?, CancellationToken, Task>>? m_SetLoadNextBatchAsync;
     private DataReaderWrapper? m_DataReaderWrapper;
     private IFileReader? m_FileReader;
+    private string m_ID = string.Empty;
 
     public TwoStepDataTableLoader(
       in Action<DataTable> actionSetDataTable,
@@ -56,6 +57,7 @@ namespace CsvTools
       IProcessDisplay? processDisplay,
       EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
     {
+      m_ID = fileSetting.ID;
       m_FileReader = FunctionalDI.GetFileReader(fileSetting, TimeZoneInfo.Local.Id, processDisplay, cancellationToken);
       if (m_FileReader is null)
         throw new FileReaderException($"Could not get reader for {fileSetting}");
@@ -83,7 +85,8 @@ namespace CsvTools
         includeError,
         fileSetting.DisplayStartLineNo,
         fileSetting.DisplayRecordNo,
-        fileSetting.DisplayEndLineNo);
+        fileSetting.DisplayEndLineNo);      
+
 
       m_ActionBegin?.Invoke();
       await GetBatchByTimeSpan(durationInitial, includeError, processDisplay, m_SetDataTable, cancellationToken).ConfigureAwait(false);
@@ -120,6 +123,9 @@ namespace CsvTools
                    restoreError,
                    processDisplay,
                    cancellationToken).ConfigureAwait(false);
+        // for Debuging its nice to know where it all came form
+        if (!string.IsNullOrEmpty(m_ID))
+          dt.TableName = m_ID;
 
         action.Invoke(dt);
 
