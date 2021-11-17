@@ -94,7 +94,9 @@ namespace CsvTools.Tests
 
       m_JsonFile.Row = "Row";
       Assert.AreEqual("Row", m_JsonFile.Row);
+#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       m_JsonFile.Row = null;
+#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       Assert.AreEqual(string.Empty, m_JsonFile.Row);
 
       m_JsonFile.Footer = "Footer";
