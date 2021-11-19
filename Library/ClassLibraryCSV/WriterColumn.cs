@@ -14,6 +14,7 @@
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   public class WriterColumn : ImmutableColumn
   {
     public WriterColumn(

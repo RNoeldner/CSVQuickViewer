@@ -471,16 +471,13 @@ namespace CsvTools
         if (m_DisposedValue)
           return;
 
-        // Set Funcation DI routines to constants
-        IReadOnlyCollection<string>? m_Headers = new List<string>(detailControl.DataTable.GetRealColumns());
-        foreach (var columnName in m_Headers)
+        foreach (var columnName in detailControl.DataTable.GetRealColumns())
         {
           if (m_FileSetting.ColumnCollection.Get(columnName) is null)
             m_FileSetting.ColumnCollection.Add(new Column { Name = columnName });
         }
-        FunctionalDI.GetColumnHeaderAsync = (dummy1, dummy2) => Task.FromResult(m_Headers);
 
-
+        // Set Functional DI routines to constants
         // The reader is used when data is stored through the detailControl
         FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
           await Task.FromResult(new DataTableWrapper(detailControl.DataTable));
