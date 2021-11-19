@@ -644,75 +644,43 @@ namespace CsvTools
 
     private async void ColumnFormatUI_Load(object? sender, EventArgs e)
     {
-      var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
+      if (m_WriteSetting)
+        labelAllowedDateFormats.Text = @"Date Format:";
 
-      try
+      columnBindingSource.DataSource = m_ColumnEdit;
+      SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
+
+      using var formProcessDisplay = new FormProcessDisplay("Getting column headers", false, m_CancellationTokenSource.Token);
+      formProcessDisplay.Show();
+      formProcessDisplay.SetProcess($"Getting columns from source");
+      // Read the column headers if possible
+      ICollection<string> allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      await this.RunWithHourglassAsync(async () =>
       {
-        if (m_WriteSetting)
-          labelAllowedDateFormats.Text = @"Date Format:";
-
-        columnBindingSource.DataSource = m_ColumnEdit;
-        SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
-
-        // Read the column headers if possible
-        ICollection<string> allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        try
+        if (!m_WriteSetting)
         {
-          if (!m_WriteSetting)
-          {
-            // Read Settings -- open the source that is a file if there are ignored columns need to
-            // open file and get all columns
-            if (m_FileSetting.ColumnCollection.Any(x => x.Ignore))
-            {
 #if NET5_0_OR_GREATER
               await
 #endif
-              using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, null, m_CancellationTokenSource.Token);
-              await fileReader.OpenAsync(m_CancellationTokenSource.Token);
-              for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-                allColumns.Add(fileReader.GetColumn(colIndex).Name);
-            }
-            else
-            {
-              if (FunctionalDI.GetColumnHeaderAsync != null)
-              {
-                var cols = await FunctionalDI.GetColumnHeaderAsync(m_FileSetting, m_CancellationTokenSource.Token);
-                foreach (var col in cols)
-                  allColumns.Add(col);
-              }
-            }
-          }
-          else
-          {
+          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, null, formProcessDisplay.CancellationToken);
+          await fileReader.OpenAsync(formProcessDisplay.CancellationToken);
+          for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+            allColumns.Add(fileReader.GetColumn(colIndex).Name);
+        }
+        else
+        {
 #if NET5_0_OR_GREATER
             await
 #endif
-            // Write Setting ----- open the source that is SQL
-            using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
-                                     m_FileSetting.Timeout, m_CancellationTokenSource.Token);
-            await fileReader.OpenAsync(m_CancellationTokenSource.Token);
-            for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-              allColumns.Add(fileReader.GetColumn(colIndex).Name);
-          }
+          // Write Setting ----- open the source that is SQL
+          using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
+                                   m_FileSetting.Timeout, formProcessDisplay.CancellationToken);
+          await fileReader.OpenAsync(formProcessDisplay.CancellationToken);
+          for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+            allColumns.Add(fileReader.GetColumn(colIndex).Name);
         }
-        catch (Exception ex)
-        {
-          this.ShowError(ex, "Could not determine columns");
-          return;
-        }
-
         UpdateColumnList(allColumns);
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex);
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
+      });
     }
 
     private void ComboBoxColumnName_SelectedIndexChanged(object? sender, EventArgs e)

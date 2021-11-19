@@ -42,8 +42,6 @@ namespace CsvTools
     private readonly Timer m_TimerSearch = new Timer();
     private System.ComponentModel.IContainer? components;
 
-    private FormProcessDisplay? m_BuildProcess;
-
     private ComboBox? m_ComboBoxDisplay1;
 
     private ComboBox? m_ComboBoxDisplay2;
@@ -87,31 +85,18 @@ namespace CsvTools
     /// <summary>
     ///   Builds the tree.
     /// </summary>
-    public void BuildTree(in string parent, in string id, in string? display1 = null, in string? display2 = null)
+    public void BuildTree(string parent, string id, string? display1 = null, string? display2 = null)
     {
-      var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-      try
+      this.RunWithHourglass(() =>
       {
-        m_BuildProcess = new FormProcessDisplay("Building Tree", false, m_CancellationTokenSource.Token);
-        m_BuildProcess.Show(this);
-        m_BuildProcess.Maximum = m_DataRow.GetLength(0) * 2;
+        using var formProcessDisplay = new FormProcessDisplay("Building Tree", false, m_CancellationTokenSource.Token);
+        formProcessDisplay.Show(this);
+        formProcessDisplay.Maximum = m_DataRow.GetLength(0) * 2;
 
-        BuildTreeData(parent, id, display1, display2, m_BuildProcess, m_BuildProcess.CancellationToken);
-
-        m_BuildProcess.Maximum = 0;
-        ShowTree(m_BuildProcess, m_BuildProcess.CancellationToken);
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, ex.Message);
-      }
-      finally
-      {
-        m_BuildProcess?.Dispose();
-        m_BuildProcess = null;
-        Cursor.Current = oldCursor;
-      }
+        BuildTreeData(parent, id, display1, display2, formProcessDisplay, formProcessDisplay.CancellationToken);
+        formProcessDisplay.Maximum = 0;
+        ShowTree(formProcessDisplay, formProcessDisplay.CancellationToken);
+      });
     }
 
     /// <inheritdoc />
@@ -124,7 +109,6 @@ namespace CsvTools
         m_DisposedValue = true;
         m_TimerDisplay.Dispose();
         m_TimerSearch.Dispose();
-        m_BuildProcess?.Dispose();
         m_CancellationTokenSource.Dispose();
       }
 
@@ -155,8 +139,8 @@ namespace CsvTools
     /// <param name="parent">The parent ID.</param>
     /// <param name="process">Progress display</param>
     /// <returns></returns>
-    private TreeNode[] BuildSubNodes(in TreeData parent,  in CancellationToken cancellationToken)
-    {      
+    private TreeNode[] BuildSubNodes(in TreeData parent, in CancellationToken cancellationToken)
+    {
       var treeNodes = new List<TreeNode>();
       foreach (var child in parent.Children)
       {
@@ -321,23 +305,20 @@ namespace CsvTools
       }
     }
 
-    private void FilterValueChangedElapsed(object? sender, ElapsedEventArgs e) =>
-
-      // go to UI Main thread
-      m_TextBoxValue!.Invoke(
-        (MethodInvoker) delegate
+    private void FilterValueChangedElapsed(object? sender, ElapsedEventArgs e)
+    => m_TextBoxValue!.SafeInvoke(() => m_TextBoxValue!.RunWithHourglass(() =>
         {
           try
           {
             using var processDisplay = new FormProcessDisplay("Searching", false, m_CancellationTokenSource.Token);
             processDisplay.Show(this);
-            Search(m_TextBoxValue.Text, m_TreeView.Nodes, processDisplay.CancellationToken);
+            Search(m_TextBoxValue!.Text, m_TreeView.Nodes, processDisplay.CancellationToken);
           }
           catch (Exception ex)
           {
             this.ShowError(ex);
           }
-        });
+        }));
 
     private void FormHierarchyDisplay_FormClosing(object? sender, FormClosingEventArgs e) =>
           m_CancellationTokenSource.Cancel();
@@ -649,8 +630,6 @@ namespace CsvTools
     private void TimeDisplayRestart(object? sender, EventArgs e)
     {
       m_TimerDisplay.Stop();
-      if (m_BuildProcess != null && !m_BuildProcess.CancellationToken.IsCancellationRequested)
-        m_BuildProcess.Close();
       m_TimerDisplay.Start();
     }
 
