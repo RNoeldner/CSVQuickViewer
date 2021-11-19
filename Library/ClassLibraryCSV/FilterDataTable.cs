@@ -147,7 +147,7 @@ namespace CsvTools
       return m_ColumnWithoutErrorsCache;
     }
 
-    public async Task Cancel()
+    public void Cancel()
     {
       // stop old filtering
       if (m_CurrentFilterCancellationTokenSource?.IsCancellationRequested ?? true) return;
@@ -155,20 +155,13 @@ namespace CsvTools
       m_CurrentFilterCancellationTokenSource.Cancel();
 
       // make sure the filtering is canceled
-
-/* Nicht gemergte Änderung aus Projekt "CsvTools.ClassLibraryCSV (netstandard2.1)"
-Vor:
-      await WaitCompeteFilterAsync(0.2);
-Nach:
-      await WaitCompeteFilter(0.2);
-*/
       WaitCompeteFilter(0.2);
 
       m_CurrentFilterCancellationTokenSource.Dispose();
       m_CurrentFilterCancellationTokenSource = null;
     }
 
-    public void Filter(int limit, FilterType type)
+    private void Filter(int limit, FilterType type)
     {
       if (limit < 1)
         limit = int.MaxValue;
@@ -227,7 +220,7 @@ Nach:
     public async Task FilterAsync(int limit, FilterType type, CancellationToken cancellationToken)
     {
       if (m_Filtering)
-        await Cancel();
+        Cancel();
 
       m_ColumnWithoutErrorsCache = null;
       FilterTable = m_SourceTable.Clone();

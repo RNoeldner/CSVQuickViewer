@@ -17,6 +17,7 @@ using System.Collections.Generic;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="CsvTools.IColumn" />
   /// <summary>
   ///   Column information like name, Type, Format etc.
   /// </summary>
@@ -134,6 +135,10 @@ namespace CsvTools
                                                   && ValueFormat.ValueFormatEqual(other.ValueFormat);
     }
 
+    public bool Equals(ImmutableColumn x, ImmutableColumn y) => x.Equals(y);
+
+    public int GetHashCode(ImmutableColumn obj) => throw new NotImplementedException();
+
     public override bool Equals(object? obj)
     {
       if (obj is null) return false;
@@ -141,8 +146,6 @@ namespace CsvTools
       if (obj.GetType() != GetType()) return false;
       return Equals((ImmutableColumn) obj);
     }
-
-    public bool Equals(ImmutableColumn x, ImmutableColumn y) => x.Equals(y);
 
     public override int GetHashCode()
     {
@@ -160,8 +163,6 @@ namespace CsvTools
         return hashCode;
       }
     }
-
-    public int GetHashCode(ImmutableColumn obj) => throw new NotImplementedException();
 
     public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
   }

@@ -13,7 +13,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -125,30 +124,27 @@ namespace CsvTools
     }
 
 #if !QUICK
-
-    /// <summary>
-    ///   Function to retrieve the column in a setting file
-    /// </summary>
-    public static Func<IFileSetting, CancellationToken, Task<IReadOnlyCollection<string>>>? GetColumnHeaderAsync;
-
     /// <summary>
     ///   Return a right writer for a file setting
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSettingPhysicalFile, IProcessDisplay?, CancellationToken, IFileWriter> GetFileWriter = (setting, processDisplay, cancellationToken) => DefaultFileWriter(setting, processDisplay);
+    public static Func<IFileSettingPhysicalFile, IProcessDisplay?, CancellationToken, IFileWriter> GetFileWriter =
+      (setting, processDisplay, cancellationToken) => DefaultFileWriter(setting, processDisplay);
 
     /// <summary>
     ///   Return the right reader for a file setting
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, string?, IProcessDisplay?, CancellationToken, IFileReader> GetFileReader = (setting, timeZone, processDisplay, cancellationToken) => DefaultFileReader(setting, processDisplay);
+    public static Func<IFileSetting, string?, IProcessDisplay?, CancellationToken, IFileReader> GetFileReader =
+      (setting, timeZone, processDisplay, cancellationToken) => DefaultFileReader(setting, processDisplay);
 
     /// <summary>
     ///   Gets or sets a data reader
     /// </summary>
     /// <value>The statement for reader the data.</value>
     /// <remarks>Make sure the returned reader is open when needed</remarks>
-    public static Func<string, IProcessDisplay?, int, CancellationToken, Task<IFileReader>> SQLDataReader = (sql, processDisplay, limit, token) => throw new FileWriterException("SQL Reader not specified");
+    public static Func<string, IProcessDisplay?, int, CancellationToken, Task<IFileReader>> SQLDataReader = (sql, processDisplay, limit, token) =>
+      throw new FileWriterException("SQL Reader not specified");
 
     private static IFileReader DefaultFileReader(
       IFileSetting setting,
@@ -248,7 +244,7 @@ namespace CsvTools
             processDisplay);
           break;
 
-        case IXMLFile fileSetting:
+        case IXmlFile fileSetting:
           writer = new XMLFileWriter(
             fileSetting.ID,
             fileSetting.FullPath,
