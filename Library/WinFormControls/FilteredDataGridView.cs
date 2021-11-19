@@ -212,14 +212,10 @@ namespace CsvTools
     /// <summary>
     ///   Applies the filters.
     /// </summary>
-    public void ApplyFilters()
-    {
-      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-      try
+    public void ApplyFilters() =>
+      this.RunWithHourglass(() =>
       {
         var filter = new StringBuilder();
-
         foreach (var filterLogic in from toolStripFilter in m_Filter
                                     where toolStripFilter != null
                                     select toolStripFilter.ColumnFilterLogic
@@ -252,15 +248,7 @@ namespace CsvTools
           DataViewChanged?.Invoke(this, EventArgs.Empty);
         }
       }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "ApplyFilters");
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
-    }
+      );
 
     public void FilterCurrentCell()
     {

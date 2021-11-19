@@ -131,9 +131,9 @@ namespace CsvTools
       }
 
       try
-      {        
+      {
         DetachPropertyChanged(m_FileSetting);
-        
+
         m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
                            m_ViewSettings.GuessCodePage,
                            m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
@@ -171,7 +171,7 @@ namespace CsvTools
           SetFileSystemWatcher(fileName);
         });
 
-        await OpenDataReaderAsync();        
+        await OpenDataReaderAsync();
       }
       catch (Exception ex)
       {
@@ -181,14 +181,7 @@ namespace CsvTools
 
     public async Task SelectFile(string message)
     {
-      this.SafeInvoke(() =>
-      {
-        m_ToolStripButtonLoadFile.Enabled = false;
-        m_ToolStripButtonLoadFile2.Enabled = false;
-      });
-
-      var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
-      try
+      await this.RunWithHourglassAsync(async () =>
       {
         loggerDisplay.LogInformation(message);
         var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
@@ -207,20 +200,7 @@ namespace CsvTools
           Cursor.Current = Cursors.WaitCursor;
           await LoadCsvFile(fileName!);
         }
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex);
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-        this.SafeInvoke(() =>
-        {
-          m_ToolStripButtonLoadFile.Enabled = true;
-          m_ToolStripButtonLoadFile2.Enabled = true;
-        });
-      }
+      });
     }
 
     private void AddWarning(object? sender, WarningEventArgs args)
@@ -482,10 +462,10 @@ namespace CsvTools
           processDisplay.AttachTaskbarProgress();
           processDisplay.Show();
           processDisplay.SetProcess("Reading data...", -1, false);
-          processDisplay.Maximum = 100;          
+          processDisplay.Maximum = 100;
 
           await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.DurationTimeSpan, processDisplay,
-            AddWarning, processDisplay.CancellationToken);         
+            AddWarning, processDisplay.CancellationToken);
         }
 
         if (m_DisposedValue)
@@ -500,7 +480,7 @@ namespace CsvTools
         }
         FunctionalDI.GetColumnHeaderAsync = (dummy1, dummy2) => Task.FromResult(m_Headers);
 
-        
+
         // The reader is used when data is stored through the detailControl
         FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
           await Task.FromResult(new DataTableWrapper(detailControl.DataTable));
@@ -529,10 +509,10 @@ namespace CsvTools
           this.ShowError(exc, "Opening File");
       }
       finally
-      {        
+      {
         if (!m_DisposedValue)
         {
-          this.SafeInvoke(() => ShowTextPanel(false));          
+          this.SafeInvoke(() => ShowTextPanel(false));
 
           detailControl.ShowInfoButtons = true;
           Cursor.Current = oldCursor;
