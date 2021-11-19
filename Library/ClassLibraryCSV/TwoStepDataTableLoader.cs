@@ -141,7 +141,7 @@ namespace CsvTools
       }
       catch (Exception e)
       {
-        Logger.Error(e, $"{nameof(TwoStepDataTableLoader)} .{nameof(GetBatchByTimeSpan)} {e.Message}");
+        Logger.Warning(e, $"{nameof(TwoStepDataTableLoader)}.{nameof(GetBatchByTimeSpan)} for {m_ID} - {e.Message}");
       }
     }
   }
