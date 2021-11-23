@@ -416,8 +416,8 @@ namespace CsvTools.Tests
     {
       using var cts = CancellationTokenSource.CreateLinkedTokenSource(Token);
       using var frm = new TestForm();
-      frm.Closing += (s, e) => cts?.Cancel();
-      frm.AddOneControl(ctrl);
+      frm.Closing += (s, e) => cts?.Cancel();            
+      frm.AddOneControl(ctrl, after * 6000d);
       ShowFormAndClose(frm, before, f => toDo?.Invoke(ctrl, f), after, cts.Token);
     }
 

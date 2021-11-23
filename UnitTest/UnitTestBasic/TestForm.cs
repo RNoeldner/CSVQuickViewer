@@ -19,49 +19,49 @@ using Timer = System.Timers.Timer;
 namespace CsvTools.Tests
 {
   public sealed class TestForm : Form
-	{
-		private readonly Timer m_Timer = new Timer();
+  {
+    private readonly Timer m_Timer = new Timer();
 
-		public TestForm()
-		{
-			SuspendLayout();
-			AutoScaleDimensions = new SizeF(8F, 16F);
-			AutoScaleMode = AutoScaleMode.Font;
-			BackColor = SystemColors.Control;
-			ClientSize = new Size(895, 445);
-			FormBorderStyle = FormBorderStyle.SizableToolWindow;
-			Name = "TestForm";
-			ShowInTaskbar = false;
-			StartPosition = FormStartPosition.CenterScreen;
-			Text = "TestForm";
-			TopMost = true;
-			FormClosing += TestForm_FormClosing;
-			ResumeLayout(false);
-		}
+    public TestForm()
+    {
+      SuspendLayout();
+      AutoScaleDimensions = new SizeF(8F, 16F);
+      AutoScaleMode = AutoScaleMode.Font;
+      BackColor = SystemColors.Control;
+      ClientSize = new Size(895, 445);
+      FormBorderStyle = FormBorderStyle.SizableToolWindow;
+      Name = "TestForm";
+      ShowInTaskbar = false;
+      StartPosition = FormStartPosition.CenterScreen;
+      Text = "TestForm";
+      TopMost = true;
+      FormClosing += TestForm_FormClosing;
+      ResumeLayout(false);
+    }
 
-		public void AddOneControl(Control ctrl)
-		{
-			if (ctrl == null) return;
+    public void AddOneControl(Control ctrl, double totalMilliseconds = 10000)
+    {
+      if (ctrl == null) return;
 
-			SuspendLayout();
-			Text = ctrl.GetType().FullName;
-			ctrl.Dock = DockStyle.Fill;
-			ctrl.Location = new Point(0, 0);
-			ctrl.Size = new Size(790, 790);
-			Controls.Add(ctrl);
-			ResumeLayout(false);
+      SuspendLayout();
+      Text = ctrl.GetType().FullName;
+      ctrl.Dock = DockStyle.Fill;
+      ctrl.Location = new Point(0, 0);
+      ctrl.Size = new Size(790, 790);
+      Controls.Add(ctrl);
+      ResumeLayout(false);
 
-			m_Timer.Interval = new TimeSpan(0, 0, 0, 10).TotalMilliseconds; // 10 Seconds max
-			m_Timer.Enabled = true;
-			m_Timer.Start();
-			m_Timer.Elapsed += (sender, args) => Close();
-			Show();
-		}
+      m_Timer.Interval = totalMilliseconds;
+      m_Timer.Enabled = true;
+      m_Timer.Start();
+      m_Timer.Elapsed += (sender, args) => Close();
+      Show();
+    }
 
-		private void TestForm_FormClosing(object sender, FormClosingEventArgs e)
-		{
-			m_Timer.Stop();
-			m_Timer.Enabled = false;
-		}
-	}
+    private void TestForm_FormClosing(object sender, FormClosingEventArgs e)
+    {
+      m_Timer.Stop();
+      m_Timer.Enabled = false;
+    }
+  }
 }
