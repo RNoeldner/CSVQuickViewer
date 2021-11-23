@@ -248,7 +248,7 @@ namespace CsvTools
             processDisplay);
           break;
 
-        case IXMLFile fileSetting:
+        case IXmlFile fileSetting:
           writer = new XMLFileWriter(
             fileSetting.ID,
             fileSetting.FullPath,

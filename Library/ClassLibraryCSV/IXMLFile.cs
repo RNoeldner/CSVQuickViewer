@@ -14,7 +14,7 @@
 
 namespace CsvTools
 {
-  public interface IXMLFile : IFileSettingPhysicalFile
+  public interface IXmlFile : IFileSettingPhysicalFile
 	{
 		string Row { get; set; }
 	}
