@@ -46,8 +46,8 @@ namespace CsvTools
     /// <param name="guessCommentLine"></param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="processDisplay">The process display.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    /// <exception cref="ArgumentNullException">processDisplay</exception>
     public static async Task<DelimitedFileDetectionResultWithColumns> AnalyseFileAsync(
       this string fileName,
       bool guessJson,
@@ -61,7 +61,7 @@ namespace CsvTools
       FillGuessSettings fillGuessSettings,
       IProcessDisplay? processDisplay,
       CancellationToken cancellationToken)
-    {      
+    {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("Argument can not be empty", nameof(fileName));
 
@@ -242,7 +242,7 @@ namespace CsvTools
       return partsComment < Math.Round(parts * .9 / row) || partsComment > Math.Round(parts * 1.1 / row);
     }
 
-    public static async Task<int> CodePageResolve(
+    internal static async Task<int> CodePageResolve(
       this IImprovedStream improvedStream,
       int codePageId,
       CancellationToken cancellationToken)
@@ -271,7 +271,8 @@ namespace CsvTools
     ///   if true, try to determine if the file does have a header row
     /// </param>
     /// <param name="guessNewLine">if set to <c>true</c> determine combination of new line.</param>
-    /// <param name="guessCommentLine"></param>
+    /// <param name="guessCommentLine">if set <c>true</c> determine if there is a comment line</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public static async Task<DelimitedFileDetectionResult> GetDetectionResult(
       this IImprovedStream improvedStream,
       string fileName,
@@ -300,7 +301,7 @@ namespace CsvTools
         if (cancellationToken.IsCancellationRequested)
           return detectionResult;
         improvedStream.Seek(0, SeekOrigin.Begin);
-        processDisplay?.SetProcess("Checking Code Page",-1, true);
+        processDisplay?.SetProcess("Checking Code Page", -1, true);
         var (codePage, bom) = await improvedStream.GuessCodePage(cancellationToken).ConfigureAwait(false);
         detectionResult = new DelimitedFileDetectionResult(
           detectionResult.FileName,
@@ -439,7 +440,7 @@ namespace CsvTools
         {
           if (cancellationToken.IsCancellationRequested)
             return detectionResult;
-          processDisplay?.SetProcess("Checking Record Delimiter",-1, false);
+          processDisplay?.SetProcess("Checking Record Delimiter", -1, false);
           improvedStream.Seek(0, SeekOrigin.Begin);
           detectionResult = new DelimitedFileDetectionResult(
             detectionResult.FileName,
@@ -598,6 +599,7 @@ namespace CsvTools
     /// </param>
     /// <param name="guessNewLine">if true, try to determine what kind of new line we do use</param>
     /// <param name="guessCommentLine"></param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
     public static async Task<DelimitedFileDetectionResult> GetDetectionResultFromFile(this string fileName,
@@ -613,7 +615,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("file name can not be empty", nameof(fileName));
-            
+
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
@@ -710,7 +712,7 @@ namespace CsvTools
       using var reader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
                                              .ConfigureAwait(false);
 
-      return await GuessHasHeaderAsync(reader, commentLine, fieldDelimiter?.WrittenPunctuationToChar() ?? '\0', cancellationToken).ConfigureAwait(false);
+      return await GuessHasHeaderAsync(reader, commentLine, fieldDelimiter.WrittenPunctuationToChar(), cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -872,14 +874,15 @@ namespace CsvTools
         if (line.Length == 0)
           continue;
         lastRow++;
-        foreach (var test in from test in starts.Keys
-                             where line.StartsWith(test, StringComparison.Ordinal)
-                             select test)
+
+        foreach (var test in starts.Keys.Where(test => line.StartsWith(test, StringComparison.Ordinal)))
         {
           starts[test]++;
           // do not check further once a line is counted, by having ## before # a line starting with
           // ## will not be counted twice
+#pragma warning disable S1751
           break;
+#pragma warning restore S1751
         }
       }
 

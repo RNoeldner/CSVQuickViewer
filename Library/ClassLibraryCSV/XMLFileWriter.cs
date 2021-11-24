@@ -12,22 +12,21 @@
  *
  */
 
-using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Security;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   /// <summary>
   ///   A class to write structured XML Files
   /// </summary>
-  public class XMLFileWriter : StructuredFileWriter
+  public class XmlFileWriter : StructuredFileWriter
   {
     /// <summary>
-    ///   Initializes a new instance of the <see cref="XMLFileWriter" /> class.
+    ///   Initializes a new instance of the <see cref="XmlFileWriter" /> class.
     /// </summary>
-    public XMLFileWriter(
+    public XmlFileWriter(
       in string id,
       in string fullPath,
       in string? recipient = null,

@@ -245,7 +245,7 @@ namespace CsvTools
           break;
 
         case IXmlFile fileSetting:
-          writer = new XMLFileWriter(
+          writer = new XmlFileWriter(
             fileSetting.ID,
             fileSetting.FullPath,
             fileSetting.Recipient,

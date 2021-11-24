@@ -50,7 +50,6 @@ namespace CsvTools
     /// <param name="type"></param>
     /// <remarks>Make sure the source stream is disposed</remarks>
     // ReSharper disable once NotNullMemberIsNotInitialized
-
     public ImprovedStream(in Stream stream, SourceAccess.FileTypeEnum type = SourceAccess.FileTypeEnum.Stream)
     {
       SourceAccess = new SourceAccess(stream, type);
@@ -205,7 +204,6 @@ namespace CsvTools
     }
 
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-
     protected virtual async ValueTask DisposeAsyncCore()
     {
       if (AccessStream !=null &&  !ReferenceEquals(AccessStream, BaseStream))
@@ -225,7 +223,6 @@ namespace CsvTools
     {
       await DisposeAsyncCore();
       await base.DisposeAsync().ConfigureAwait(false);
-      GC.SuppressFinalize(this);
     }
 
 #endif
