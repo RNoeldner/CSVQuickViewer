@@ -93,7 +93,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task StructuredFileWriterXMLEncodeTest()
     {
-      var fileSetting = new XMLFile
+      var fileSetting = new XmlFile
       {
         ID = "Write",
         FileName = "StructuredFileOutputXML.txt",
