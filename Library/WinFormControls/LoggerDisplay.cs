@@ -164,7 +164,10 @@ namespace CsvTools
             Selection.End = userSelection.End;
           }
           else
-            GoEnd(); //scroll to end of the text
+          {            
+            Selection.Start = new Place(0, Lines.Count - 1);
+            DoCaretVisible();           
+          }          
 
           Selection.EndUpdate();
           EndUpdate();

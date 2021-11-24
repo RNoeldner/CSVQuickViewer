@@ -21,7 +21,7 @@ namespace CsvTools
   ///   Setting file for XML files, its an implementation of <see cref="T:CsvTools.StructuredFile" />
   /// </summary>
   [Serializable]
-  public class XMLFile : StructuredFile, IXmlFile
+  public class XmlFile : StructuredFile, IXmlFile
 
   {
     /// <inheritdoc />
@@ -29,20 +29,20 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="T:CsvTools.StructuredFile" /> class.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
-    public XMLFile(string fileName)
+    public XmlFile(string fileName)
       : base(fileName)
     {
     }
 
     /// <inheritdoc />
-    public XMLFile()
+    public XmlFile()
       : this(string.Empty)
     {
     }
 
     public override object Clone()
     {
-      var other = new XMLFile();
+      var other = new XmlFile();
       CopyTo(other);
       return other;
     }
