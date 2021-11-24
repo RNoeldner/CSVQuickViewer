@@ -142,11 +142,12 @@ namespace CsvTools
 
 #if !QUICK
 
+    /// <inheritdoc />
     /// <summary>
     ///   Create a source access based on a setting, the setting might contain information for
     ///   containers like Zip of PGP
     /// </summary>
-    /// <param name="setting">The setting of type <see cref="IFileSettingPhysicalFile" /></param>
+    /// <param name="setting">The setting of type <see cref="T:CsvTools.IFileSettingPhysicalFile" /></param>
     /// <param name="isReading"><c>true</c> if used for reading</param>
     public SourceAccess(IFileSettingPhysicalFile setting, bool isReading = true)
       : this(setting.FullPath, isReading, setting.ID, setting.Recipient, setting.KeepUnencrypted)
@@ -185,7 +186,7 @@ namespace CsvTools
       }
     }
 
-    public bool LeaveOpen { get; }
+    internal bool LeaveOpen { get; }
 
     /// <summary>
     ///   Get the stream, in case of a read stream it's attempted to be at the beginning of the stream

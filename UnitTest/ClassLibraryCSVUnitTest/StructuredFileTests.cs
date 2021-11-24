@@ -37,7 +37,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
       Assert.IsTrue(m_JsonFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
       Assert.IsTrue(m_JsonFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "Column");
-      
 
       Assert.IsTrue(test.Equals(m_JsonFile), "Equals");
     }
@@ -53,7 +52,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
       Assert.IsTrue(m_JsonFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
       Assert.IsTrue(m_JsonFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection),
-        "ColumnCollection");      
+        "ColumnCollection");
       Assert.IsTrue(test.Equals(m_JsonFile), "Equals");
     }
 
@@ -70,7 +69,8 @@ namespace CsvTools.Tests
       {
       }
       catch (FileNotFoundException)
-      { }
+      {
+      }
     }
 
     [TestMethod]
@@ -89,14 +89,16 @@ namespace CsvTools.Tests
       m_JsonFile.FileName = "StructuredFile.txt";
       m_JsonFile.Header = "Header";
       Assert.AreEqual("Header", m_JsonFile.Header);
+#pragma warning disable 8625
       m_JsonFile.Header = null;
+#pragma warning restore 8625
       Assert.AreEqual(string.Empty, m_JsonFile.Header);
 
       m_JsonFile.Row = "Row";
       Assert.AreEqual("Row", m_JsonFile.Row);
-#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning disable CS8625
       m_JsonFile.Row = null;
-#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning restore CS8625
       Assert.AreEqual(string.Empty, m_JsonFile.Row);
 
       m_JsonFile.Footer = "Footer";
@@ -110,12 +112,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(2, m_JsonFile.MappingCollection.Count, "FieldMapping");
 
       m_JsonFile.ColumnCollection.Clear();
-      m_JsonFile.ColumnCollection.Add(new Column("ID", DataType.Integer)
-      {
-        ColumnOrdinal = 1,
-        Ignore = false,
-        Convert = true
-      });
+      m_JsonFile.ColumnCollection.Add(new Column("ID", DataType.Integer) { ColumnOrdinal = 1, Ignore = false, Convert = true });
       m_JsonFile.ColumnCollection.Add(new Column { ColumnOrdinal = 2, Name = "Name" });
     }
 

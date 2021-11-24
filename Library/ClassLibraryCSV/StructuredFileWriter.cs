@@ -49,7 +49,7 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
     /// </summary>
-    public StructuredFileWriter(
+    protected StructuredFileWriter(
       in string id,
       in string fullPath,
       in string? recipient,
@@ -98,12 +98,12 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-        using var writer = new StreamWriter(output, new UTF8Encoding(true), 4096);
+      using var writer = new StreamWriter(output, new UTF8Encoding(true), 4096);
       SetColumns(reader);
       var numColumns = Columns.Count();
       if (numColumns == 0)
         throw new FileWriterException("No columns defined to be written.");
-      var recordEnd = "\r\n";
+      const string c_RecordEnd = "\r\n";
       HandleWriteStart();
 
       // Header
@@ -111,8 +111,8 @@ namespace CsvTools
       {
         var sbH = new StringBuilder();
         sbH.Append(Header);
-        if (!Header.EndsWith(recordEnd, StringComparison.Ordinal))
-          sbH.Append(recordEnd);
+        if (!Header.EndsWith(c_RecordEnd, StringComparison.Ordinal))
+          sbH.Append(c_RecordEnd);
         await writer.WriteAsync(sbH.ToString()).ConfigureAwait(false);
       }
 
@@ -122,15 +122,15 @@ namespace CsvTools
       var placeHolderLookup1 = new Dictionary<int, string>();
       var placeHolderLookup2 = new Dictionary<int, string>();
 
-      foreach (var columnInfo in Columns)
+      foreach (var columnName in Columns.Select(x => x.Name))
       {
         var placeHolder = string.Format(CultureInfo.CurrentCulture, c_HeaderPlaceholder, colNum);
-        withHeader = withHeader.Replace(placeHolder, ElementName(columnInfo.Name));
+        withHeader = withHeader.Replace(placeHolder, ElementName(columnName));
 
         placeHolderLookup1.Add(colNum, string.Format(CultureInfo.CurrentCulture, c_FieldPlaceholderByNumber, colNum));
         placeHolderLookup2.Add(
           colNum,
-          string.Format(CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnInfo.Name));
+          string.Format(CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnName));
         colNum++;
       }
 
@@ -143,7 +143,7 @@ namespace CsvTools
         NextRecord();
 
         // Start a new line
-        sb.Append(recordEnd);
+        sb.Append(c_RecordEnd);
         var row = withHeader;
         colNum = 0;
         foreach (var value in from columnInfo in Columns

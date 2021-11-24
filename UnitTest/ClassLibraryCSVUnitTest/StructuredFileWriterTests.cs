@@ -1,7 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Globalization;
 using System.Text;
-using System.Threading.Tasks; /*
+using System.Threading.Tasks;
+
+/*
 
 * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
 *
@@ -26,12 +28,7 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      var readFile = new CsvFile
-      {
-        ID = c_ReadID,
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        CommentLine = "#"
-      };
+      var readFile = new CsvFile { ID = c_ReadID, FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), CommentLine = "#" };
       readFile.ColumnCollection.Add(new Column("ExamDate", @"dd/MM/yyyy"));
       readFile.ColumnCollection.Add(new Column("Score", DataType.Integer));
       readFile.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
@@ -42,13 +39,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task StructuredFileWriterJSONEncodeTestAsync()
     {
-      var fileSetting = new JsonFile
-      {
-        ID = "Write",
-        FileName = "StructuredFileOutputJSON.txt",
-        SqlStatement = c_ReadID,
-        InOverview = true
-      };
+      var fileSetting = new JsonFile { ID = "Write", FileName = "StructuredFileOutputJSON.txt", SqlStatement = c_ReadID, InOverview = true };
 
       var sb = new StringBuilder("{");
       var processDisplay = new CustomProcessDisplay();
@@ -93,13 +84,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task StructuredFileWriterXMLEncodeTest()
     {
-      var fileSetting = new XmlFile
-      {
-        ID = "Write",
-        FileName = "StructuredFileOutputXML.txt",
-        SqlStatement = c_ReadID,
-        InOverview = true
-      };
+      var fileSetting = new XmlFile { ID = "Write", FileName = "StructuredFileOutputXML.txt", SqlStatement = c_ReadID, InOverview = true };
       var sb = new StringBuilder();
       var processDisplay = new CustomProcessDisplay();
       var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(
@@ -121,7 +106,7 @@ namespace CsvTools.Tests
       fileSetting.Row = sb.ToString();
       fileSetting.Footer = "</rowset>";
 
-      var writer = new XMLFileWriter(
+      var writer = new XmlFileWriter(
         fileSetting.ID,
         fileSetting.FullPath,
         fileSetting.Recipient,
