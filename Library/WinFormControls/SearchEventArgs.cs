@@ -12,14 +12,14 @@
  *
  */
 
+using System;
+
 namespace CsvTools
 {
-  using System;
-
   /// <summary>
   ///   Event Arguments for the Search
   /// </summary>
-  public class SearchEventArgs : EventArgs
+  public sealed class SearchEventArgs : EventArgs
   {
     /// <summary>
     ///   Initializes a new instance of the <see cref="SearchEventArgs" /> class.

@@ -20,7 +20,6 @@ namespace CsvTools.Tests
   [TestClass]
   public class FormColumnUITests
   {
-
     [TestMethod]
     [Timeout(5000)]
     public void FormColumnUI()
@@ -40,7 +39,8 @@ namespace CsvTools.Tests
     public void FormColumnUI_Boolean()
     {
       var col = new Column("MyTest", DataType.Boolean) { True = "YO", False = "NOPE" };
-      using (var frm = new FormColumnUI(col, false, new CsvFile(), new FillGuessSettings(), true, UnitTestStatic.HTMLStyle))
+      using (var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
+        UnitTestStatic.HTMLStyle))
       {
         UnitTestStatic.ShowFormAndClose(frm);
       }
@@ -53,13 +53,16 @@ namespace CsvTools.Tests
       var col = new Column("MyTest", DataType.DateTime) { DateFormat = "dd/MM/yyyy", DateSeparator = ".", TimeSeparator = ":" };
 
       var df = new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "dd/MMM/yyy", DateSeparator = "-", TimeSeparator = "#" };
-      using (var frm = new FormColumnUI(col, false, new CsvFile(), new FillGuessSettings(), true, UnitTestStatic.HTMLStyle))
+      using (var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
+        UnitTestStatic.HTMLStyle))
         UnitTestStatic.ShowFormAndClose(frm, .1, f => f.UpdateDateLabel(df, true, "HH:mm", "[UTC]"));
 
-      using (var frm = new FormColumnUI(col, false, new CsvFile(), new FillGuessSettings(), true, UnitTestStatic.HTMLStyle))
+      using (var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
+        UnitTestStatic.HTMLStyle))
         UnitTestStatic.ShowFormAndClose(frm, .1, f => f.UpdateDateLabel(df, false, "HH:mm:ss", "OtherColumn"));
 
-      using (var frm = new FormColumnUI(col, false, new CsvFile(), new FillGuessSettings(), true, UnitTestStatic.HTMLStyle))
+      using (var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
+        UnitTestStatic.HTMLStyle))
         UnitTestStatic.ShowFormAndClose(frm, .1, f => f.AddDateFormat("dd MMM yy HH:mm tt"));
     }
 
@@ -96,7 +99,8 @@ namespace CsvTools.Tests
     {
       var col = new Column("MyTest", DataType.Numeric) { DecimalSeparator = ".", GroupSeparator = ",", NumberFormat = "0.00" };
 
-      using (var frm = new FormColumnUI(col, false, new CsvFile(), new FillGuessSettings(), true, UnitTestStatic.HTMLStyle))
+      using (var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
+        UnitTestStatic.HTMLStyle))
       {
         UnitTestStatic.ShowFormAndClose(frm, .1, f => f.UpdateNumericLabel(".", "00000", ""));
       }
@@ -136,7 +140,8 @@ namespace CsvTools.Tests
     public void FormColumnUI_TextPart()
     {
       var col = new Column("MyTest", DataType.TextPart) { PartSplitter = ":", Part = 2, PartToEnd = true };
-      using (var frm = new FormColumnUI(col, false, new CsvFile(), new FillGuessSettings(), true, UnitTestStatic.HTMLStyle))
+      using (var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
+        UnitTestStatic.HTMLStyle))
       {
         UnitTestStatic.ShowFormAndClose(frm, .1, f => f.SetPartLabels(":", 2, true));
       }

@@ -8,7 +8,7 @@ namespace CsvTools
   /// <summary>
   ///   Class to store dialog choices in a persistent way
   /// </summary>
-  public class PersistentChoice
+  public sealed class PersistentChoice
   {
     public PersistentChoice(DialogResult option)
     {

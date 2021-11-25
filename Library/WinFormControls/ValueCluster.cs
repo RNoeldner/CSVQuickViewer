@@ -11,16 +11,17 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
+using System;
+
 #nullable enable
 
 namespace CsvTools
 {
-  using System;
-
   /// <summary>
   ///   A representation for a group / cluster of records
   /// </summary>
-  public class ValueCluster : IEquatable<ValueCluster>
+  public sealed class ValueCluster : IEquatable<ValueCluster>
   {
     /// <summary>
     ///   Initializes a new instance of the <see cref="ValueCluster" /> class.
