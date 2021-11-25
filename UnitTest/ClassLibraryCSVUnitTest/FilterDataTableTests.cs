@@ -78,15 +78,15 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task UniqueFieldName()
+    public void UniqueFieldName()
     {
       var dt = GetDataTable(10);
       using var test = new FilterDataTable(dt.Item1);
       test.UniqueFieldName = new[] { "ColID" };
-      var task = test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestStatic.Token).ConfigureAwait(false);
+      var task = test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestStatic.Token);
       Assert.IsFalse(test.Filtering);
-      var result1 = (test.GetColumnsWithErrors());
-      Assert.IsFalse(result1.Any(x => x == "ColID"));
+      // A unique column should be displayed so its part of the Error columns 
+      Assert.IsTrue(test.GetColumnsWithErrors().Any(x => x == "ColID"), "Result does not contain ColID");
     }
 
     [TestMethod]

@@ -12,12 +12,12 @@
  *
  */
 
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Windows.Forms;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace CsvTools.Tests
 {
@@ -138,19 +138,12 @@ namespace CsvTools.Tests
       var setting = new CsvFile { FileName = "Folder\\This is a long file name that should be cut and fit into 80 chars.txt", ShowProgress = true };
       using (var prc = setting.GetProcessDisplay(null, true, UnitTestStatic.Token))
       {
-        Assert.IsTrue(prc != null, "GetProcessDisplay With Logger");
+        Assert.IsNotNull(prc, "GetProcessDisplay With Logger");
       }
 
       using (var prc = setting.GetProcessDisplay(null, false, UnitTestStatic.Token))
       {
-        Assert.IsTrue(prc != null, "GetProcessDisplay Without Logger");
-      }
-
-      var setting2 = new CsvFile { FileName = "Folder\\This is a long file name that should be cut and fit into 80 chars.txt", ShowProgress = false };
-
-      using (var prc = setting2.GetProcessDisplay(null, false, UnitTestStatic.Token))
-      {
-        Assert.IsTrue(prc != null, "GetProcessDisplay without UI");
+        Assert.IsNotNull(prc, "GetProcessDisplay Without Logger");
       }
 
       using (var frm = new Form())
@@ -162,6 +155,15 @@ namespace CsvTools.Tests
         csv.ShowProgress = false;
         Assert.IsNotInstanceOfType(csv.GetProcessDisplay(frm, true, UnitTestStatic.Token), typeof(FormProcessDisplay));
       }
+    }
+
+    [TestMethod]
+    [Timeout(3000)]
+    public void GetProcessDisplayTestNoShow()
+    {
+      var setting2 = new CsvFile { FileName = "Folder\\This is a long file name that should be cut and fit into 80 chars.txt", ShowProgress = false };
+      using var prc = setting2.GetProcessDisplay(null, false, UnitTestStatic.Token);
+      Assert.IsNull(prc, "GetProcessDisplay without UI");
     }
 
     [TestMethod]
@@ -188,8 +190,7 @@ namespace CsvTools.Tests
       {
         value.Show();
         var state1 = new WindowState(new Rectangle(10, 10, value.Width, value.Height),
-          FormWindowState.Normal)
-        { CustomInt = 27, CustomText = "Test" };
+          FormWindowState.Normal) { CustomInt = 27, CustomText = "Test" };
         var result1 = -1;
         value.LoadWindowState(state1, val => { result1 = val; }, val => { });
 

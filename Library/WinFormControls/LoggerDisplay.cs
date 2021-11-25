@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using FastColoredTextBoxNS;
@@ -21,6 +22,7 @@ using System.Drawing;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="Microsoft.Extensions.Logging.ILogger" />
   /// <summary>
   ///   Only the most recently created Logger Display will get the log messages
   /// </summary>
@@ -38,13 +40,6 @@ namespace CsvTools
 
     private string m_LastMessage = string.Empty;
 
-    [DefaultValue(LogLevel.Information)]
-    public LogLevel MinLevel
-    {
-      get;
-      set;
-    } = LogLevel.Debug;
-
     public LoggerDisplay()
     {
       Multiline = true;
@@ -52,6 +47,13 @@ namespace CsvTools
       ShowLineNumbers = false;
       WinAppLogging.AddLog(this);
     }
+
+    [DefaultValue(LogLevel.Information)]
+    public LogLevel MinLevel
+    {
+      get;
+      set;
+    } = LogLevel.Debug;
 
     [DefaultValue(120)]
     public int LimitLength
@@ -61,12 +63,6 @@ namespace CsvTools
     } = 120;
 
     public IDisposable BeginScope<TState>(TState state) => default!;
-
-    public new void Clear()
-    {
-      this.SafeBeginInvoke(() => { Text = string.Empty; });
-      Extensions.ProcessUIElements();
-    }
 
     public bool IsEnabled(LogLevel logLevel) => logLevel >= MinLevel;
 
@@ -82,8 +78,8 @@ namespace CsvTools
         var appended = false;
         var posSlash = text.IndexOf('–', 0);
         if (posSlash != -1 && m_LastMessage.StartsWith(
-          text.Substring(0, posSlash - 1).Trim(),
-          StringComparison.Ordinal))
+              text.Substring(0, posSlash - 1).Trim(),
+              StringComparison.Ordinal))
         {
           // add to previous item,
           AppendText(text.Substring(posSlash - 1), false, logLevel);
@@ -105,6 +101,12 @@ namespace CsvTools
       {
         // ignore
       }
+    }
+
+    public new void Clear()
+    {
+      this.SafeBeginInvoke(() => { Text = string.Empty; });
+      Extensions.ProcessUIElements();
     }
 
     /// <inheritdoc />
@@ -164,10 +166,10 @@ namespace CsvTools
             Selection.End = userSelection.End;
           }
           else
-          {            
+          {
             Selection.Start = new Place(0, Lines.Count - 1);
-            DoCaretVisible();           
-          }          
+            DoCaretVisible();
+          }
 
           Selection.EndUpdate();
           EndUpdate();
