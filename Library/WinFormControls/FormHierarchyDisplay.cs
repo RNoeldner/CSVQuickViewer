@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System;
@@ -67,7 +68,7 @@ namespace CsvTools
     /// <param name="hTMLStyle">The HTML style.</param>
     public FormHierarchyDisplay(DataTable dataTable, DataRow[] dataRows, HTMLStyle hTMLStyle)
     {
-      m_DataTable = dataTable ??throw new ArgumentNullException(nameof(dataTable));
+      m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows;
       InitializeComponent();
 
@@ -166,7 +167,7 @@ namespace CsvTools
     ///   Builds the tree data.
     /// </summary>
     private void BuildTreeData(in string parentCol, in string idCol, in string? display1, in string? display2,
-      IProcessDisplay process, in CancellationToken cancellationToken)
+                               IProcessDisplay process, in CancellationToken cancellationToken)
     {
       var intervalAction = new IntervalAction();
 
@@ -180,7 +181,7 @@ namespace CsvTools
 
       var dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null : m_DataTable.Columns[display1!];
       var dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2!];
-      if (dataColumnDisplay1==null && dataColumnDisplay2==null)
+      if (dataColumnDisplay1 == null && dataColumnDisplay2 == null)
         return;
       // Using a dictionary here to speed up lookups
       var treeDataDictionary = new Dictionary<string, TreeData>();
@@ -196,12 +197,16 @@ namespace CsvTools
       {
         cancellationToken.ThrowIfCancellationRequested();
         intervalAction.Invoke(
-          count => process.SetProcess($"Parent found {count}/{max} ", count, false),
-          counter++);
+          (count, m) => process.SetProcess($"Parent found {count}/{m} ", count, false),
+          counter++, max);
         var id = dataRow[dataColumnID.Ordinal].ToString();
         if (string.IsNullOrEmpty(id))
           continue;
-        var treeData = new TreeData(id, dataColumnDisplay1 != null ? dataColumnDisplay2 != null ? dataRow[dataColumnDisplay1.Ordinal] + " - " + dataRow[dataColumnDisplay2.Ordinal] : dataRow[dataColumnDisplay1.Ordinal].ToString() : id, dataRow[dataColumnParent.Ordinal].ToString());
+        var treeData = new TreeData(id,
+          dataColumnDisplay1 != null
+            ? dataColumnDisplay2 != null ? dataRow[dataColumnDisplay1.Ordinal] + " - " + dataRow[dataColumnDisplay2.Ordinal] :
+              dataRow[dataColumnDisplay1.Ordinal].ToString()
+            : id, dataRow[dataColumnParent.Ordinal].ToString());
         if (dataColumnDisplay1 != null)
           treeData.Tag = Convert.ToString(dataRow[dataColumnDisplay1.Ordinal]) ?? string.Empty;
 
@@ -230,8 +235,8 @@ namespace CsvTools
         {
           cancellationToken.ThrowIfCancellationRequested();
           intervalAction.Invoke(
-            count => process.SetProcess($"Parent not found (Step 1) {count}/{max} ", count, false),
-            counter++);
+            (count, m) => process.SetProcess($"Parent not found (Step 1) {count}/{m} ", count, false),
+            counter++, max);
           var childData = new TreeData(parentID, $"{parentID}", rootDataParentNotFound.ID);
           treeDataDictionary.Add(parentID, childData);
         }
@@ -244,8 +249,8 @@ namespace CsvTools
       {
         cancellationToken.ThrowIfCancellationRequested();
         intervalAction.Invoke(
-          count => process.SetProcess($"Parent not found (Step 2) {count}/{max} ", count, false),
-          counter++);
+          (count, m) => process.SetProcess($"Parent not found (Step 2) {count}/{m} ", count, false),
+          counter++, max);
         if (string.IsNullOrEmpty(child.ParentID) && child.ID != rootDataParentFound.ID
                                                  && child.ID != rootDataParentNotFound.ID)
           child.ParentID = rootDataParentFound.ID;
@@ -260,8 +265,8 @@ namespace CsvTools
       {
         cancellationToken.ThrowIfCancellationRequested();
         intervalAction.Invoke(
-          count => process.SetProcess($"Set children {count}/{max} ", count, false),
-          counter++);
+          (count, m) => process.SetProcess($"Set children {count}/{m} ", count, false),
+          counter++, max);
         if (!string.IsNullOrEmpty(child.ParentID))
           treeDataDictionary[child.ParentID].Children.Add(child);
       }
@@ -306,22 +311,22 @@ namespace CsvTools
     }
 
     private void FilterValueChangedElapsed(object? sender, ElapsedEventArgs e)
-    => m_TextBoxValue!.SafeInvoke(() => m_TextBoxValue!.RunWithHourglass(() =>
+      => m_TextBoxValue!.SafeInvoke(() => m_TextBoxValue!.RunWithHourglass(() =>
+      {
+        try
         {
-          try
-          {
-            using var processDisplay = new FormProcessDisplay("Searching", false, m_CancellationTokenSource.Token);
-            processDisplay.Show(this);
-            Search(m_TextBoxValue!.Text, m_TreeView.Nodes, processDisplay.CancellationToken);
-          }
-          catch (Exception ex)
-          {
-            this.ShowError(ex);
-          }
-        }));
+          using var processDisplay = new FormProcessDisplay("Searching", false, m_CancellationTokenSource.Token);
+          processDisplay.Show(this);
+          Search(m_TextBoxValue!.Text, m_TreeView.Nodes, processDisplay.CancellationToken);
+        }
+        catch (Exception ex)
+        {
+          this.ShowError(ex);
+        }
+      }));
 
     private void FormHierarchyDisplay_FormClosing(object? sender, FormClosingEventArgs e) =>
-          m_CancellationTokenSource.Cancel();
+      m_CancellationTokenSource.Cancel();
 
     /// <summary>
     ///   Handles the Load event of the HierarchyDisplay control.
@@ -659,12 +664,12 @@ namespace CsvTools
     {
       public readonly ICollection<TreeData> Children = new List<TreeData>();
       public readonly string ID;
-      public string ParentID;
       public readonly string Title;
       public bool InCycle;
+      private int m_StoreIndirect = -1;
+      public string ParentID;
       public string Tag;
       public bool Visited;
-      private int m_StoreIndirect = -1;
 
       public TreeData(string id, string title, string? parentID = null)
       {
@@ -672,7 +677,7 @@ namespace CsvTools
           throw new ArgumentException("ID can not be empty", nameof(id));
         if (string.IsNullOrEmpty(title))
           throw new ArgumentException("Title can not be empty", nameof(title));
-        ID= id;
+        ID = id;
         Title = title;
         ParentID = parentID ?? string.Empty;
         Tag = string.Empty;
@@ -685,8 +690,8 @@ namespace CsvTools
           if (DirectChildren <= 0)
             return Title;
           return DirectChildren == InDirectChildren
-            ? $"{Title} - Direct {DirectChildren}"
-            : $"{Title} - Direct {DirectChildren} - Indirect {InDirectChildren}";
+                   ? $"{Title} - Direct {DirectChildren}"
+                   : $"{Title} - Direct {DirectChildren} - Indirect {InDirectChildren}";
         }
       }
 
@@ -708,7 +713,7 @@ namespace CsvTools
           return 0;
 
         return root.Children.Count + root.Children.Where(child => child.Children.Count > 0)
-          .Sum(GetInDirectChildren);
+                                         .Sum(GetInDirectChildren);
       }
     }
   }

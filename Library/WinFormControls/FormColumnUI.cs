@@ -182,8 +182,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
-                                   processDisplay, m_FileSetting.Timeout, processDisplay.CancellationToken))
+            using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
+                                     processDisplay, m_FileSetting.Timeout, processDisplay.CancellationToken))
           {
             DataTable? data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false,
                                 m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
@@ -660,9 +660,9 @@ namespace CsvTools
         if (!m_WriteSetting)
         {
 #if NET5_0_OR_GREATER
-              await
+          await
 #endif
-          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, null, formProcessDisplay.CancellationToken);
+            using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, null, formProcessDisplay.CancellationToken);
           await fileReader.OpenAsync(formProcessDisplay.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
@@ -670,15 +670,16 @@ namespace CsvTools
         else
         {
 #if NET5_0_OR_GREATER
-            await
+          await
 #endif
-          // Write Setting ----- open the source that is SQL
-          using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
-                                   m_FileSetting.Timeout, formProcessDisplay.CancellationToken);
+            // Write Setting ----- open the source that is SQL
+            using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
+                                     m_FileSetting.Timeout, formProcessDisplay.CancellationToken);
           await fileReader.OpenAsync(formProcessDisplay.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
         }
+
         UpdateColumnList(allColumns);
       });
     }
@@ -725,6 +726,8 @@ namespace CsvTools
         groupBoxBoolean.Visible = selType == DataType.Boolean;
         groupBoxSplit.Visible = selType == DataType.TextPart;
 
+        groupBoxBinary.Visible = selType == DataType.Binary;
+
         if (groupBoxSplit.Visible)
           SetSamplePart(sender, EventArgs.Empty);
 
@@ -753,10 +756,7 @@ namespace CsvTools
       UpdateDateLabel(
         new ValueFormatMutable()
         {
-          DataType = DataType.DateTime,
-          DateFormat = dateFormat,
-          DateSeparator = textBoxDateSeparator.Text,
-          TimeSeparator = textBoxTimeSeparator.Text
+          DataType = DataType.DateTime, DateFormat = dateFormat, DateSeparator = textBoxDateSeparator.Text, TimeSeparator = textBoxTimeSeparator.Text
         }, !string.IsNullOrEmpty(comboBoxTimePart.Text), comboBoxTPFormat.Text, comboBoxTimeZone.Text);
     }
 
@@ -779,8 +779,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var sqlReader =
-            await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout, cancellationToken);
+            using var sqlReader =
+              await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout, cancellationToken);
           await sqlReader.OpenAsync(cancellationToken);
           var colIndex = sqlReader.GetOrdinal(columnName);
           if (colIndex < 0)
@@ -815,8 +815,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        // ReSharper disable once ConvertToUsingDeclaration
-        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay, cancellationToken))
+          // ReSharper disable once ConvertToUsingDeclaration
+          using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay, cancellationToken))
         {
           await fileReader.OpenAsync(cancellationToken);
           var colIndex = fileReader.GetOrdinal(columnName);

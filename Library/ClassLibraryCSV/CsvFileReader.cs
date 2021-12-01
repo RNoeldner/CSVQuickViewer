@@ -429,10 +429,19 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <exception cref="T:System.NotImplementedException">Always returns</exception>
-    [Obsolete("Not implemented")]
-    public new long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) =>
-      throw new NotImplementedException();
+    /// <exception cref="T:System.NotImplementedException">Always returns</exception>    
+    public new long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
+    {
+      if (GetColumn(i).ValueFormat.DataType == DataType.Binary && !string.IsNullOrEmpty(CurrentRowColumnText[i]))
+      {
+        using var fs = FileSystemUtils.OpenRead(CurrentRowColumnText[i]);
+        if (fieldOffset > 0)
+          fs.Seek(fieldOffset, SeekOrigin.Begin);
+        return fs.Read(buffer, bufferoffset, length);
+      }
+
+      return -1;
+    }
 
     /// <inheritdoc />
     /// <exception cref="T:System.NotImplementedException">Always returns</exception>
@@ -467,13 +476,13 @@ namespace CsvTools
       object? ret = column.ValueFormat.DataType switch
       {
         DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal), column, true),
-        DataType.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
-        DataType.Double => GetDoubleNull(value, ordinal),
-        DataType.Numeric => GetDecimalNull(value, ordinal),
-        DataType.Boolean => GetBooleanNull(value, ordinal),
-        DataType.Guid => GetGuidNull(value, column.ColumnOrdinal),
-        DataType.String => value,
-        _ => throw new NotSupportedException($"DataType {column.ValueFormat.DataType} is not supported")
+        DataType.Integer  => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
+        DataType.Double   => GetDoubleNull(value, ordinal),
+        DataType.Numeric  => GetDecimalNull(value, ordinal),
+        DataType.Boolean  => GetBooleanNull(value, ordinal),
+        DataType.Guid     => GetGuidNull(value, column.ColumnOrdinal),
+        DataType.String   => value,
+        _                 => throw new NotSupportedException($"DataType {column.ValueFormat.DataType} is not supported")
       };
       return ret ?? DBNull.Value;
     }
@@ -992,7 +1001,7 @@ namespace CsvTools
               // in case a linefeed actually follows ignore the EscapePrefixChar but handle the
               // regular processing
               '\\' when nextChar == 'a' => '\a',
-              _ => nextChar
+              _                         => nextChar
             };
           }
         }

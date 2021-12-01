@@ -23,13 +23,17 @@ namespace CsvTools
       in IValueFormat valueFormat,
       int fieldLength = 0,
       in string constantTimeZone = "",
-      int columnOrdinalTimeZone = -1)
+      int columnOrdinalTimeZone = -1,
+      string pattern = "{" + ReaderConstants.cStartLineNumberFieldName + "}")
       : base(name, valueFormat, colNum)
     {
       FieldLength = fieldLength;
       ConstantTimeZone = constantTimeZone;
       ColumnOrdinalTimeZone = columnOrdinalTimeZone;
+      Pattern = pattern;
     }
+
+    public string Pattern { get; }
 
     /// <summary>
     ///   Gets the column ordinal of the time zone column

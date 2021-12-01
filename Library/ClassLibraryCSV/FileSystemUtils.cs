@@ -111,6 +111,7 @@ namespace CsvTools
     ///   Checks if the source file is newer or has a different length, if not file will not be copied,
     /// </param>
     /// <param name="processDisplay">A process display</param>
+    /// <param name="cancellationToken"></param>
     public static async Task FileCopy(
       string sourceFile,
       string destFile,
@@ -147,8 +148,9 @@ namespace CsvTools
         oldMax = processDisplayTime.Maximum;
         processDisplayTime.Maximum = fromStream.Length;
       }
+
       IntervalAction? intervalAction = null;
-      if (processDisplay!=null)
+      if (processDisplay != null)
         intervalAction = new IntervalAction();
       while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, cancellationToken)
                                           .ConfigureAwait(false)) > 0)
@@ -156,9 +158,9 @@ namespace CsvTools
         cancellationToken.ThrowIfCancellationRequested();
         totalReads += bytesRead;
         await toStream.WriteAsync(bytes, 0, bytesRead, cancellationToken).ConfigureAwait(false);
-#pragma warning disable CS8602 // Dereferenzierung eines möglichen Nullverweises.
+#pragma warning disable CS8602
         intervalAction?.Invoke(pos => processDisplay.SetProcess("Copy file", pos, false), totalReads);
-#pragma warning restore CS8602 // Dereferenzierung eines möglichen Nullverweises.
+#pragma warning restore CS8602
       }
 
       processDisplay.SetMaximum(oldMax);

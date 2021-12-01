@@ -131,7 +131,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-        using var writer = new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192);
+      using var writer = new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192);
       SetColumns(reader);
 
       if (Columns.Count == 0)
@@ -153,7 +153,7 @@ namespace CsvTools
       {
         foreach (var columnInfo in Columns)
         {
-          sb.Append(TextEncodeField(columnInfo.Name, columnInfo, true, null, QualifyText));
+          sb.Append(TextEncodeField(columnInfo.Name, columnInfo, true, null, QualifyText, cancellationToken));
           if (!m_IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
             sb.Append(m_FieldDelimiterChar);
         }
@@ -180,7 +180,7 @@ namespace CsvTools
           if (col == DBNull.Value || (col is string text && string.IsNullOrEmpty(text)))
             emptyColumns++;
           else
-            row.Append(TextEncodeField(col, columnInfo, false, reader, QualifyText));
+            row.Append(TextEncodeField(col, columnInfo, false, reader, QualifyText, cancellationToken));
 
           if (!m_IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
             row.Append(m_FieldDelimiterChar);
@@ -237,12 +237,13 @@ namespace CsvTools
       return displayAs;
     }
 
-    protected string TextEncodeField(
+    private async Task<string> TextEncodeField(
       object? dataObject,
       WriterColumn columnInfo,
       bool isHeader,
       IDataReader? reader,
-      Func<string, DataType, string>? handleQualify)
+      Func<string, DataType, string>? handleQualify,
+      CancellationToken cancellationToken)
     {
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));
@@ -260,8 +261,19 @@ namespace CsvTools
       else
       {
         displayAs = TextEncodeField(dataObject, columnInfo, reader);
-
-        if (columnInfo.ValueFormat.DataType == DataType.String)
+        if (columnInfo.ValueFormat.DataType == DataType.Binary)
+        {
+          if (dataObject is byte[] buffer)
+          {
+            await BinaryFormatter.WriteFile(buffer, FileSystemUtils.GetDirectoryName(m_FullPath), displayAs, true, s => HandleError(columnInfo.Name, s),
+              cancellationToken).ConfigureAwait(false);
+          }
+          else
+          {
+            HandleWarning(columnInfo.Name, "Could not convert to byte[]");
+          }
+        }
+        else if (columnInfo.ValueFormat.DataType == DataType.String)
         {
           // a new line of any kind will be replaced with the placeholder if set
           if (m_NewLinePlaceholder.Length > 0)
@@ -282,8 +294,7 @@ namespace CsvTools
       {
         if (displayAs.Length <= columnInfo.FieldLength || columnInfo.FieldLength <= 0)
           return displayAs.PadRight(columnInfo.FieldLength, ' ');
-        HandleWarning(
-          columnInfo.Name,
+        HandleWarning(columnInfo.Name,
           $"Text with length of {displayAs.Length} has been cut off after {columnInfo.FieldLength} character");
         return displayAs.Substring(0, columnInfo.FieldLength);
       }

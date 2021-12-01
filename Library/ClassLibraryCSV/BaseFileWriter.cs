@@ -34,7 +34,7 @@ namespace CsvTools
     protected readonly List<WriterColumn> Columns = new List<WriterColumn>();
     private readonly string m_FileSettingDisplay;
     private readonly string m_Footer;
-    private readonly string m_FullPath;
+    internal readonly string m_FullPath;
     private readonly string m_IdentifierInContainer;
     private readonly bool m_KeepUnencrypted;
     private readonly string m_Recipient;
@@ -174,7 +174,7 @@ namespace CsvTools
                             generalFormat.True,
                             generalFormat.False,
                             generalFormat.DisplayNullAs);
-
+        var pattern = "{" + ReaderConstants.cStartLineNumberFieldName + "}";
         var fieldLength = Math.Max((int) schemaRow[SchemaTableColumn.ColumnSize], 0);
         switch (valueFormat.DataType)
         {
@@ -205,6 +205,9 @@ namespace CsvTools
           case DataType.String:
             break;
 
+          case DataType.Binary:
+            pattern = valueFormat.DateFormat;
+            break;
           default:
             throw new ArgumentOutOfRangeException($"DataType {valueFormat.DataType} not supported");
         }
@@ -226,7 +229,8 @@ namespace CsvTools
           valueFormat,
           fieldLength,
           constantTimeZone,
-          columnOrdinalTimeZoneReader);
+          columnOrdinalTimeZoneReader,
+          pattern);
         result.Add(ci);
 
         // add an extra column for the time, reading columns they get combined, writing them they
@@ -373,8 +377,7 @@ namespace CsvTools
 
     protected abstract Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
 
-    protected static string
-      ReplacePlaceHolder(string input, string fileName, string id) =>
+    protected static string ReplacePlaceHolder(string input, string fileName, string id) =>
       input.PlaceholderReplace("ID", id)
            .PlaceholderReplace("FileName", fileName)
            .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
@@ -404,6 +407,10 @@ namespace CsvTools
         else
           switch (columnInfo.ValueFormat.DataType)
           {
+            case DataType.Binary:
+              displayAs = BinaryFormatter.GetFileName(columnInfo.Pattern, reader);
+              break;
+
             case DataType.Integer:
               displayAs = Convert.ToInt64(dataObject)
                                  .ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(

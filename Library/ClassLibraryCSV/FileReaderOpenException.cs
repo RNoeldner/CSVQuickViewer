@@ -16,26 +16,27 @@ using System;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   public sealed class FileReaderOpenException : FileReaderException
   {
-		public FileReaderOpenException()
-			: base(GetMessage(string.Empty))
-		{
-		}
+    public FileReaderOpenException()
+      : base(GetMessage(string.Empty))
+    {
+    }
 
-		public FileReaderOpenException(string message)
-			: base(GetMessage(message))
-		{
-		}
+    public FileReaderOpenException(string message)
+      : base(GetMessage(message))
+    {
+    }
 
-		public FileReaderOpenException(string message, Exception inner)
-			: base(GetMessage(message), inner)
-		{
-		}
+    public FileReaderOpenException(string message, Exception inner)
+      : base(GetMessage(message), inner)
+    {
+    }
 
-		private static string GetMessage(string message) =>
-			message.Length > 0
-				? $"A file reader has to be opened before reading data. Please execute Open() or OpenAsync().\n{message}"
-				: "A file reader has to be opened before reading data.";
-	}
+    private static string GetMessage(string message) =>
+      message.Length > 0
+        ? $"A file reader has to be opened before reading data. Please execute Open() or OpenAsync().\n{message}"
+        : "A file reader has to be opened before reading data.";
+  }
 }

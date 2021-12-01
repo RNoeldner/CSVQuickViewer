@@ -16,7 +16,7 @@ using System;
 
 namespace CsvTools
 {
-  public class TextPartFormatter : IColumnFormatter
+  public sealed class TextPartFormatter : IColumnFormatter
   {
     private readonly int m_Part;
 

@@ -62,7 +62,85 @@ namespace CsvTools
       if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
         return;
       m_LastNotification = DateTime.Now;
-      action.Invoke(value);
+      try
+      {
+        action.Invoke(value);
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, nameof(IntervalAction));
+      }
+    }
+
+    /// <summary>
+    ///   Invoke the given action if the set interval has passed
+    /// </summary>
+    public void Invoke(in Action<long, string> action, long value, string value2)
+    {
+      if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
+        return;
+      m_LastNotification = DateTime.Now;
+
+      try
+      {
+        action.Invoke(value, value2);
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, nameof(IntervalAction));
+      }
+    }
+
+    /// <summary>
+    ///   Invoke the given action if the set interval has passed
+    /// </summary>
+    public void Invoke(in Action<long, long> action, long value1, long value2)
+    {
+      if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
+        return;
+      m_LastNotification = DateTime.Now;
+      try
+      {
+        action.Invoke(value1, value2);
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, nameof(IntervalAction));
+      }
+    }
+
+    /// <summary>
+    ///   Invoke the given action if the set interval has passed
+    /// </summary>
+    public void Invoke(in Action<long, long, long> action, long value1, long value2, long value3)
+    {
+      if ((DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
+        return;
+      m_LastNotification = DateTime.Now;
+      try
+      {
+        action.Invoke(value1, value2, value3);
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, nameof(IntervalAction));
+      }
     }
 
     /// <summary>
@@ -84,6 +162,6 @@ namespace CsvTools
         return;
       m_LastNotification = DateTime.Now;
       processDisplay.SetProcess(text, value, log);
-    }   
+    }
   }
 }

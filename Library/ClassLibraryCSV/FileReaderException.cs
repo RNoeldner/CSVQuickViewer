@@ -16,16 +16,17 @@ using System;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   public class FileReaderException : ApplicationException
-	{
-		public FileReaderException(string message)
-			: base(message)
-		{
-		}
+  {
+    public FileReaderException(string message)
+      : base(message)
+    {
+    }
 
-		public FileReaderException(string message, Exception inner)
-			: base(message, inner)
-		{
-		}
-	}
+    public FileReaderException(string message, Exception inner)
+      : base(message, inner)
+    {
+    }
+  }
 }

@@ -344,8 +344,28 @@ namespace CsvTools
     /// <param name="length">The number of bytes to read.</param>
     /// <returns>The actual number of bytes read.</returns>
     /// <exception cref="T:System.NotImplementedException"></exception>
-    public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length) =>
-      throw new NotImplementedException();
+    public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
+    {
+      var fn = GetString(ordinal);
+      if (GetColumn(ordinal).ValueFormat.DataType != DataType.Binary || string.IsNullOrEmpty(fn))
+        return -1;
+      using var filestream = FileSystemUtils.OpenRead(CurrentRowColumnText[ordinal]);
+      if (dataOffset > 0)
+        filestream.Seek(dataOffset, SeekOrigin.Begin);
+      return filestream.Read(buffer, bufferOffset, length);
+    }
+
+    /// <inheritdoc />
+    public virtual byte[] GetFile(int ordinal)
+    {
+      var fn = GetString(ordinal);
+      if (GetColumn(ordinal).ValueFormat.DataType != DataType.Binary || string.IsNullOrEmpty(fn))
+        return Array.Empty<byte>();
+      var fi = new FileSystemUtils.FileInfo(fn);
+      var buffer = new byte[fi.Length];
+      GetBytes(ordinal, 0, buffer, 0, buffer.Length);
+      return buffer;
+    }
 
     /// <inheritdoc />
     /// <summary>
@@ -702,14 +722,15 @@ namespace CsvTools
       {
         ret = column.ValueFormat.DataType switch
         {
+          DataType.Binary   => GetFile(ordinal),
           DataType.DateTime => GetDateTime(ordinal),
-          DataType.Integer => IntPtr.Size == 4 ? GetInt32(ordinal) : GetInt64(ordinal),
-          DataType.Double => GetDouble(ordinal),
-          DataType.Numeric => GetDecimal(ordinal),
-          DataType.Boolean => GetBoolean(ordinal),
-          DataType.Guid => GetGuid(ordinal),
-          DataType.String => GetString(ordinal),
-          _ => throw new ArgumentOutOfRangeException($"Datatype {column.ValueFormat.DataType} is not supported")
+          DataType.Integer  => IntPtr.Size == 4 ? GetInt32(ordinal) : GetInt64(ordinal),
+          DataType.Double   => GetDouble(ordinal),
+          DataType.Numeric  => GetDecimal(ordinal),
+          DataType.Boolean  => GetBoolean(ordinal),
+          DataType.Guid     => GetGuid(ordinal),
+          DataType.String   => GetString(ordinal),
+          _                 => throw new ArgumentOutOfRangeException($"Datatype {column.ValueFormat.DataType} is not supported")
         };
       }
       catch (FormatException)

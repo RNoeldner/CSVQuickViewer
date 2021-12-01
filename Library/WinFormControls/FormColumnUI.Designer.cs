@@ -52,6 +52,7 @@ namespace CsvTools
       System.Windows.Forms.LinkLabel linkLabelRegion;
       System.Windows.Forms.Label label4;
       System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+      System.Windows.Forms.Label label7;
       this.textBoxDateSeparator = new System.Windows.Forms.TextBox();
       this.bindingSourceValueFormat = new System.Windows.Forms.BindingSource(this.components);
       this.comboBoxDateFormat = new System.Windows.Forms.ComboBox();
@@ -102,6 +103,8 @@ namespace CsvTools
       this.buttonDisplayValues = new System.Windows.Forms.Button();
       this.tableLayoutPanelForm = new System.Windows.Forms.TableLayoutPanel();
       this.buttonOK = new System.Windows.Forms.Button();
+      this.groupBoxBinary = new System.Windows.Forms.GroupBox();
+      this.textBoxPattern = new System.Windows.Forms.TextBox();
       labelTrue = new System.Windows.Forms.Label();
       labelFalse = new System.Windows.Forms.Label();
       labelPoint = new System.Windows.Forms.Label();
@@ -119,6 +122,7 @@ namespace CsvTools
       linkLabelRegion = new System.Windows.Forms.LinkLabel();
       label4 = new System.Windows.Forms.Label();
       tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+      label7 = new System.Windows.Forms.Label();
       tableLayoutPanel2.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.bindingSourceValueFormat)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.columnBindingSource)).BeginInit();
@@ -129,6 +133,7 @@ namespace CsvTools
       ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPart)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
       this.tableLayoutPanelForm.SuspendLayout();
+      this.groupBoxBinary.SuspendLayout();
       this.SuspendLayout();
       // 
       // labelTrue
@@ -634,10 +639,10 @@ namespace CsvTools
       // 
       this.buttonCancel.AutoSize = true;
       this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.buttonCancel.Location = new System.Drawing.Point(447, 499);
+      this.buttonCancel.Location = new System.Drawing.Point(447, 557);
       this.buttonCancel.Margin = new System.Windows.Forms.Padding(2);
       this.buttonCancel.Name = "buttonCancel";
-      this.buttonCancel.Size = new System.Drawing.Size(104, 25);
+      this.buttonCancel.Size = new System.Drawing.Size(104, 23);
       this.buttonCancel.TabIndex = 4;
       this.buttonCancel.Text = "&Cancel";
       this.buttonCancel.UseVisualStyleBackColor = true;
@@ -786,10 +791,10 @@ namespace CsvTools
       this.buttonGuess.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonGuess.AutoSize = true;
       this.buttonGuess.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuess.Location = new System.Drawing.Point(233, 499);
+      this.buttonGuess.Location = new System.Drawing.Point(233, 557);
       this.buttonGuess.Margin = new System.Windows.Forms.Padding(2);
       this.buttonGuess.Name = "buttonGuess";
-      this.buttonGuess.Size = new System.Drawing.Size(104, 25);
+      this.buttonGuess.Size = new System.Drawing.Size(104, 23);
       this.buttonGuess.TabIndex = 2;
       this.buttonGuess.Text = "&Guess";
       this.toolTip.SetToolTip(this.buttonGuess, "Read the content of the source and try and find a matching format\r\nNote: Any colu" +
@@ -835,7 +840,7 @@ namespace CsvTools
       // numericUpDownPart
       // 
       this.numericUpDownPart.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.bindingSourceValueFormat, "Part", true));
-      this.numericUpDownPart.Location = new System.Drawing.Point(110, 39);
+      this.numericUpDownPart.Location = new System.Drawing.Point(113, 39);
       this.numericUpDownPart.Maximum = new decimal(new int[] {
             9,
             0,
@@ -869,7 +874,7 @@ namespace CsvTools
       // checkBoxPartToEnd
       // 
       this.checkBoxPartToEnd.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceValueFormat, "PartToEnd", true));
-      this.checkBoxPartToEnd.Location = new System.Drawing.Point(157, 37);
+      this.checkBoxPartToEnd.Location = new System.Drawing.Point(160, 38);
       this.checkBoxPartToEnd.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.checkBoxPartToEnd.Name = "checkBoxPartToEnd";
       this.checkBoxPartToEnd.Size = new System.Drawing.Size(72, 21);
@@ -950,10 +955,10 @@ namespace CsvTools
       this.buttonDisplayValues.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonDisplayValues.AutoSize = true;
       this.buttonDisplayValues.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonDisplayValues.Location = new System.Drawing.Point(84, 499);
+      this.buttonDisplayValues.Location = new System.Drawing.Point(84, 557);
       this.buttonDisplayValues.Margin = new System.Windows.Forms.Padding(2);
       this.buttonDisplayValues.Name = "buttonDisplayValues";
-      this.buttonDisplayValues.Size = new System.Drawing.Size(132, 25);
+      this.buttonDisplayValues.Size = new System.Drawing.Size(132, 23);
       this.buttonDisplayValues.TabIndex = 1;
       this.buttonDisplayValues.Text = "Display &Values";
       this.toolTip.SetToolTip(this.buttonDisplayValues, "Read the content of the source and display the read values.\r\nNote: Any column tha" +
@@ -971,6 +976,7 @@ namespace CsvTools
       this.tableLayoutPanelForm.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 53.39233F));
       this.tableLayoutPanelForm.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 46.60767F));
       this.tableLayoutPanelForm.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.tableLayoutPanelForm.Controls.Add(this.groupBoxBinary, 0, 6);
       this.tableLayoutPanelForm.Controls.Add(this.comboBoxColumnName, 1, 0);
       this.tableLayoutPanelForm.Controls.Add(this.groupBoxSplit, 0, 5);
       this.tableLayoutPanelForm.Controls.Add(this.groupBoxBoolean, 0, 4);
@@ -978,26 +984,27 @@ namespace CsvTools
       this.tableLayoutPanelForm.Controls.Add(this.groupBoxDate, 0, 2);
       this.tableLayoutPanelForm.Controls.Add(this.labelDisplayNullAs, 0, 1);
       this.tableLayoutPanelForm.Controls.Add(this.label1, 0, 0);
-      this.tableLayoutPanelForm.Controls.Add(this.buttonCancel, 4, 6);
-      this.tableLayoutPanelForm.Controls.Add(this.buttonOK, 3, 6);
       this.tableLayoutPanelForm.Controls.Add(this.comboBoxDataType, 3, 0);
-      this.tableLayoutPanelForm.Controls.Add(this.buttonGuess, 2, 6);
-      this.tableLayoutPanelForm.Controls.Add(this.buttonDisplayValues, 1, 6);
       this.tableLayoutPanelForm.Controls.Add(this.checkBoxIgnore, 2, 1);
       this.tableLayoutPanelForm.Controls.Add(this.textBoxDisplayNullAs, 1, 1);
+      this.tableLayoutPanelForm.Controls.Add(this.buttonDisplayValues, 1, 7);
+      this.tableLayoutPanelForm.Controls.Add(this.buttonGuess, 2, 7);
+      this.tableLayoutPanelForm.Controls.Add(this.buttonOK, 3, 7);
+      this.tableLayoutPanelForm.Controls.Add(this.buttonCancel, 4, 7);
       this.tableLayoutPanelForm.Dock = System.Windows.Forms.DockStyle.Top;
       this.tableLayoutPanelForm.Location = new System.Drawing.Point(0, 0);
       this.tableLayoutPanelForm.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.tableLayoutPanelForm.Name = "tableLayoutPanelForm";
-      this.tableLayoutPanelForm.RowCount = 7;
+      this.tableLayoutPanelForm.RowCount = 8;
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
-      this.tableLayoutPanelForm.Size = new System.Drawing.Size(554, 526);
+      this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.tableLayoutPanelForm.Size = new System.Drawing.Size(554, 582);
       this.tableLayoutPanelForm.TabIndex = 5;
       // 
       // buttonOK
@@ -1005,21 +1012,57 @@ namespace CsvTools
       this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonOK.AutoSize = true;
       this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonOK.Location = new System.Drawing.Point(357, 499);
+      this.buttonOK.Location = new System.Drawing.Point(357, 557);
       this.buttonOK.Margin = new System.Windows.Forms.Padding(2);
       this.buttonOK.Name = "buttonOK";
-      this.buttonOK.Size = new System.Drawing.Size(86, 25);
+      this.buttonOK.Size = new System.Drawing.Size(86, 23);
       this.buttonOK.TabIndex = 3;
       this.buttonOK.Text = "&Ok";
       this.buttonOK.UseVisualStyleBackColor = true;
       this.buttonOK.Click += new System.EventHandler(this.ButtonOkClick);
+      // 
+      // groupBoxBinary
+      // 
+      this.groupBoxBinary.AutoSize = true;
+      this.tableLayoutPanelForm.SetColumnSpan(this.groupBoxBinary, 5);
+      this.groupBoxBinary.Controls.Add(this.textBoxPattern);
+      this.groupBoxBinary.Controls.Add(label7);
+      this.groupBoxBinary.Dock = System.Windows.Forms.DockStyle.Top;
+      this.groupBoxBinary.Location = new System.Drawing.Point(3, 499);
+      this.groupBoxBinary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.groupBoxBinary.Name = "groupBoxBinary";
+      this.groupBoxBinary.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.groupBoxBinary.Size = new System.Drawing.Size(548, 54);
+      this.groupBoxBinary.TabIndex = 11;
+      this.groupBoxBinary.TabStop = false;
+      this.groupBoxBinary.Text = "Binary Data";
+      // 
+      // label7
+      // 
+      label7.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      label7.AutoSize = true;
+      label7.Location = new System.Drawing.Point(25, 20);
+      label7.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      label7.Name = "label7";
+      label7.Size = new System.Drawing.Size(84, 13);
+      label7.TabIndex = 1;
+      label7.Text = "Pattern for write:";
+      // 
+      // textBoxPattern
+      // 
+      this.textBoxPattern.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "DateFormat", true));
+      this.textBoxPattern.Location = new System.Drawing.Point(113, 17);
+      this.textBoxPattern.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxPattern.Name = "textBoxPattern";
+      this.textBoxPattern.Size = new System.Drawing.Size(175, 20);
+      this.textBoxPattern.TabIndex = 2;
       // 
       // FormColumnUI
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.buttonCancel;
-      this.ClientSize = new System.Drawing.Size(554, 541);
+      this.ClientSize = new System.Drawing.Size(554, 499);
       this.Controls.Add(this.tableLayoutPanelForm);
       this.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "Name", true));
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
@@ -1050,6 +1093,8 @@ namespace CsvTools
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
       this.tableLayoutPanelForm.ResumeLayout(false);
       this.tableLayoutPanelForm.PerformLayout();
+      this.groupBoxBinary.ResumeLayout(false);
+      this.groupBoxBinary.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -1109,5 +1154,7 @@ namespace CsvTools
 
     private System.Boolean m_DisposedValue;
     private System.Windows.Forms.NumericUpDown numericUpDownPart;
+    private System.Windows.Forms.GroupBox groupBoxBinary;
+    private System.Windows.Forms.TextBox textBoxPattern;
   }
 }
