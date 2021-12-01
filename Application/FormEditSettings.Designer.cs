@@ -732,7 +732,7 @@ namespace CsvTools
       this.buttonGuessLineComment.TabIndex = 21;
       this.buttonGuessLineComment.Text = "Guess Line Comment";
       this.buttonGuessLineComment.UseVisualStyleBackColor = true;
-      this.buttonGuessLineComment.Click += new System.EventHandler(this.buttonGuessLineComment_Click);
+      this.buttonGuessLineComment.Click += new System.EventHandler(this.ButtonGuessLineComment_Click);
       // 
       // numericUpDownSkipRows
       // 

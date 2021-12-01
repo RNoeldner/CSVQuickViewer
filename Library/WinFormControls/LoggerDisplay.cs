@@ -73,9 +73,9 @@ namespace CsvTools
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
     {
       if (!IsEnabled(logLevel))
-        return;
+        return;      
+      var text = (exception !=null)?formatter(state, exception):string.Empty;
 
-      var text = formatter(state, exception);
       if (string.IsNullOrWhiteSpace(text) || m_LastMessage.Equals(text, StringComparison.Ordinal)) return;
       try
       {

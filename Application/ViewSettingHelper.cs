@@ -60,7 +60,6 @@ namespace CsvTools
         Logger.Debug("Saving defaults {path}", m_SettingPath);
         File.WriteAllText(m_SettingPath, newContens);
       }
-
     }
   }
 }
