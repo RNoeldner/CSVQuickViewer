@@ -107,9 +107,8 @@ namespace CsvTools
     /// <summary>
     ///   CSV File to display
     /// </summary>
-    public void OpenFile(bool json, string qualifier, string delimiter,
-      string escape,
-      int codePage, int skipLines, string comment)
+    public void OpenFile(bool json, string qualifier, string delimiter, string escape, int codePage, int skipLines,
+                         string comment)
     {
       if (!FileSystemUtils.FileExists(m_FullPath))
       {

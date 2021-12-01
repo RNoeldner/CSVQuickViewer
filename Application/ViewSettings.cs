@@ -26,19 +26,6 @@ namespace CsvTools
   [Serializable]
   public class ViewSettings : INotifyPropertyChanged
   {
-    public enum Duration
-    {
-      [Description("unlimited")] Unlimited,
-
-      [Description("1/2 second")] HalfSecond,
-
-      [Description("1 second")] Second,
-
-      [Description("2 seconds")] TwoSecond,
-
-      [Description("10 seconds")] TenSecond,
-    }
-
     private bool m_AllowJson = true;
     private bool m_DetectFileChanges = true;
     private FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
@@ -54,6 +41,21 @@ namespace CsvTools
     private bool m_StoreSettingsByFile;
     private bool m_DisplayStartLineNo = true;
     private bool m_DisplayRecordNo;
+    
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public enum Duration
+    {
+      [Description("unlimited")] Unlimited,
+
+      [Description("1/2 second")] HalfSecond,
+
+      [Description("1 second")] Second,
+
+      [Description("2 seconds")] TwoSecond,
+
+      [Description("10 seconds")] TenSecond,
+    }
 
     [XmlElement]
     [DefaultValue(false)]
@@ -83,10 +85,7 @@ namespace CsvTools
         m_DisplayStartLineNo = value;
         NotifyPropertyChanged(nameof(DisplayStartLineNo));
       }
-    }
-
-
-    public event PropertyChangedEventHandler? PropertyChanged;
+    }    
 
     [XmlElement]
     public WindowState WindowPosition
