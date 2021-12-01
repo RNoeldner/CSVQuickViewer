@@ -2,6 +2,7 @@ using System;
 
 namespace CsvTools
 {
+  /// <inheritdoc />
   public sealed class EncryptionException : ApplicationException
   {
     public EncryptionException(string message)

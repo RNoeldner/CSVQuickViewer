@@ -104,9 +104,9 @@ namespace CsvTools
     public static int Count(this IEnumerable? items) =>
       items switch
       {
-        null => 0,
+        null            => 0,
         ICollection col => col.Count,
-        _ => Enumerable.Count(items.Cast<object>())
+        _               => Enumerable.Count(items.Cast<object>())
       };
 
     /// <summary>
@@ -117,17 +117,17 @@ namespace CsvTools
     public static string DataTypeDisplay(this DataType dt) =>
       dt switch
       {
-        DataType.DateTime => "Date Time",
-        DataType.Integer => "Integer",
-        DataType.Double => "Floating  Point (High Range)",
-        DataType.Numeric => "Money (High Precision)",
-        DataType.Boolean => "Boolean",
-        DataType.Guid => "Guid",
-        DataType.TextPart => "Text Part",
-        DataType.TextToHtml => "Encode HTML (Linefeed and CData Tags)",
+        DataType.DateTime       => "Date Time",
+        DataType.Integer        => "Integer",
+        DataType.Double         => "Floating  Point (High Range)",
+        DataType.Numeric        => "Money (High Precision)",
+        DataType.Boolean        => "Boolean",
+        DataType.Guid           => "Guid",
+        DataType.TextPart       => "Text Part",
+        DataType.TextToHtml     => "Encode HTML (Linefeed and CData Tags)",
         DataType.TextToHtmlFull => "Encode HTML ('<' -> '&lt;')",
-        DataType.String => "Text",
-        _ => throw new ArgumentOutOfRangeException(nameof(dt), dt, "Data Type not known")
+        DataType.String         => "Text",
+        _                       => throw new ArgumentOutOfRangeException(nameof(dt), dt, "Data Type not known")
       };
 
     public static string Description(this RecordDelimiterType item)
@@ -200,6 +200,9 @@ namespace CsvTools
         case TypeCode.UInt64:
           return DataType.Integer;
 
+        case TypeCode.Object when type.ToString().Equals("System.Image", StringComparison.Ordinal):
+          return DataType.Binary;
+
         case TypeCode.Object when type.ToString().Equals("System.TimeSpan", StringComparison.Ordinal):
           return DataType.DateTime;
 
@@ -232,26 +235,26 @@ namespace CsvTools
 
       return input.WrittenPunctuationToChar() switch
       {
-        '\t' => "Horizontal Tab",
-        ' ' => "Space",
+        '\t'        => "Horizontal Tab",
+        ' '         => "Space",
         (char) 0xA0 => "Non-breaking space",
-        '\\' => "Backslash: \\",
-        '/' => "Slash: /",
-        ',' => "Comma: ,",
-        ';' => "Semicolon: ;",
-        ':' => "Colon: :",
-        '|' => "Pipe: |",
-        '\"' => "Quotation marks: \"",
-        '\'' => "Apostrophe: \'",
-        '&' => "Ampersand: &",
-        '*' => "Asterisk: *",
-        '`' => "Tick Mark: `",
-        '✓' => "Check mark: ✓",
-        '\u001F' => "Unit Separator: Char 31",
-        '\u001E' => "Record Separator: Char 30",
-        '\u001D' => "Group Separator: Char 29",
-        '\u001C' => "File Separator: Char 28",
-        _ => input
+        '\\'        => "Backslash: \\",
+        '/'         => "Slash: /",
+        ','         => "Comma: ,",
+        ';'         => "Semicolon: ;",
+        ':'         => "Colon: :",
+        '|'         => "Pipe: |",
+        '\"'        => "Quotation marks: \"",
+        '\''        => "Apostrophe: \'",
+        '&'         => "Ampersand: &",
+        '*'         => "Asterisk: *",
+        '`'         => "Tick Mark: `",
+        '✓'         => "Check mark: ✓",
+        '\u001F'    => "Unit Separator: Char 31",
+        '\u001E'    => "Record Separator: Char 30",
+        '\u001D'    => "Group Separator: Char 29",
+        '\u001C'    => "File Separator: Char 28",
+        _           => input
       };
     }
 
@@ -308,17 +311,16 @@ namespace CsvTools
     public static Type GetNetType(this DataType dt) =>
       dt switch
       {
-        DataType.DateTime => typeof(DateTime),
+        DataType.DateTime                      => typeof(DateTime),
         DataType.Integer when IntPtr.Size == 4 => typeof(int),
-        DataType.Integer => typeof(long),
-        DataType.Double => typeof(double),
-        DataType.Numeric => typeof(decimal),
-        DataType.Boolean => typeof(bool),
-        DataType.Guid => typeof(Guid),
-        DataType.String => typeof(string),
-        _ => typeof(string)
+        DataType.Integer                       => typeof(long),
+        DataType.Double                        => typeof(double),
+        DataType.Numeric                       => typeof(decimal),
+        DataType.Boolean                       => typeof(bool),
+        DataType.Guid                          => typeof(Guid),
+        DataType.String                        => typeof(string),
+        _                                      => typeof(string)
       };
-
 
     /// <summary>
     ///   Get a list of column names that are not artificial
@@ -379,14 +381,14 @@ namespace CsvTools
     public static string NewLineString(this RecordDelimiterType type) =>
       type switch
       {
-        RecordDelimiterType.LF => "\n",
-        RecordDelimiterType.CR => "\r",
+        RecordDelimiterType.LF   => "\n",
+        RecordDelimiterType.CR   => "\r",
         RecordDelimiterType.CRLF => "\r\n",
         RecordDelimiterType.LFCR => "\n\r",
-        RecordDelimiterType.RS => "▲",
-        RecordDelimiterType.US => "▼",
+        RecordDelimiterType.RS   => "▲",
+        RecordDelimiterType.US   => "▼",
         RecordDelimiterType.None => string.Empty,
-        _ => string.Empty
+        _                        => string.Empty
       };
 
     public static string NoRecordSQL(this string source)
@@ -469,14 +471,10 @@ namespace CsvTools
       var regEx = new Regex(
         @"(?:[{#])(" + Regex.Escape(placeholder) + @")(:[^}]*)?(?:[}#\s])",
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
-      if (regEx.IsMatch(input))
-      {
-        var withFormat = regEx.Replace(input, "{0$2}");
-        return string.Format(withFormat, replacement);
-      }
-      // using string format but replace the placeholder text with 0 as only argument
 
-      return PlaceholderReplace(input, placeholder, Convert.ToString(replacement));
+      return !regEx.IsMatch(input)
+               ? PlaceholderReplace(input, placeholder, Convert.ToString(replacement))
+               : string.Format(regEx.Replace(input, "{0$2}"), replacement);
     }
 
     /// <summary>
@@ -611,18 +609,18 @@ namespace CsvTools
       var placeholder = new Dictionary<string, string>();
       var props = obj.GetType().GetProperties().Where(prop => prop.GetMethod != null).ToList();
 
-      foreach (Match match in rgx.Matches(template))
+      foreach (var value in rgx.Matches(template).OfType<Match>().Select(x => x.Value))
       {
-        if (string.IsNullOrEmpty(match.Value) || placeholder.ContainsKey(match.Value) || match.Value.Length < 2)
+        if (string.IsNullOrEmpty(value) || placeholder.ContainsKey(value) || value.Length < 2)
           continue;
 
         var prop = props.FirstOrDefault(
-          x => x.Name.Equals(match.Value.Substring(1, match.Value.Length - 2), StringComparison.OrdinalIgnoreCase));
+          x => x.Name.Equals(value.Substring(1, value.Length - 2), StringComparison.OrdinalIgnoreCase));
 
         if (prop is null) continue;
         var val = Convert.ToString(prop.GetValue(obj));
         if (!string.IsNullOrEmpty(val))
-          placeholder.Add(match.Value, val);
+          placeholder.Add(value, val);
       }
 
       // replace them with the property value from setting
@@ -651,12 +649,12 @@ namespace CsvTools
 
       var placeholder = new Dictionary<string, string>();
       var index = 0;
-      foreach (Match match in rgx.Matches(template))
+      foreach (var value in rgx.Matches(template).OfType<Match>().Select(x => x.Value))
       {
         if (index >= values.Length)
           break;
-        if (!placeholder.ContainsKey(match.Value))
-          placeholder.Add(match.Value, values[index++]);
+        if (!placeholder.ContainsKey(value))
+          placeholder.Add(value, values[index++]);
       }
 
       // replace them with the property value from setting

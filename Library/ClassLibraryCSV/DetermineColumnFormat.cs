@@ -15,13 +15,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Data;
-using System.Data.Common;
 
 namespace CsvTools
 {
@@ -454,14 +454,14 @@ namespace CsvTools
                   columnCollection[colIndexSetting].TimeZonePart));
 
               var firstValueNewColumn = (sampleList.Keys.Contains(colIndex + 1)
-                              ? sampleList[colIndex + 1]
-                              : (await GetSampleValuesAsync(
-                                   fileReader,
-                                   1,
-                                   new[] { colIndex + 1 },
-                                   1,
-                                   treatTextAsNull,
-                                   cancellationToken).ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
+                                           ? sampleList[colIndex + 1]
+                                           : (await GetSampleValuesAsync(
+                                                fileReader,
+                                                1,
+                                                new[] { colIndex + 1 },
+                                                1,
+                                                treatTextAsNull,
+                                                cancellationToken).ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
               if (firstValueNewColumn != null && (firstValueNewColumn.Length == 8 || firstValueNewColumn.Length == 5))
               {
                 columnCollection.Add(
@@ -488,7 +488,7 @@ namespace CsvTools
           if (readerColumnTime.ValueFormat.DataType != DataType.String || !readerColumn.Name.NoSpecials()
                                                                                        .ToUpperInvariant().Replace("DATE", string.Empty).Equals(
                                                                                          readerColumnTime.Name.NoSpecials().ToUpperInvariant()
-                                                                                           .Replace("TIME", string.Empty),
+                                                                                                         .Replace("TIME", string.Empty),
                                                                                          StringComparison.Ordinal))
             continue;
           columnCollection.Replace(
@@ -504,8 +504,9 @@ namespace CsvTools
               columnCollection[colIndexSetting].TimeZonePart));
 
           var firstValueNewColumn2 = (sampleList.Keys.Contains(colIndex - 1)
-                          ? sampleList[colIndex - 1]
-                          : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, 1, treatTextAsNull, cancellationToken).ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
+                                        ? sampleList[colIndex - 1]
+                                        : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, 1, treatTextAsNull, cancellationToken)
+                                             .ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
           if (firstValueNewColumn2 != null && (firstValueNewColumn2.Length == 8 || firstValueNewColumn2.Length == 5))
           {
             columnCollection.Replace(
@@ -535,13 +536,13 @@ namespace CsvTools
 
       var existing = new Collection<IColumn>();
       foreach (var colName in columnNamesInFile)
-        foreach (var col in columnCollection)
-        {
-          if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
-            continue;
-          existing.Add(col);
-          break;
-        }
+      foreach (var col in columnCollection)
+      {
+        if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
+          continue;
+        existing.Add(col);
+        break;
+      }
 
       // 2nd columns defined but not in list
       foreach (var col in columnCollection)
@@ -734,7 +735,7 @@ namespace CsvTools
         if (cancellationToken.IsCancellationRequested)
           return checkResult;
 
-        if (fmt.IndexOf('/') > 0)
+        if (fmt.IndexOf('/') != -1)
         {
           // if we do not have determined the list of possibleDateSeparators so far do so now, but
           // only once
@@ -742,13 +743,13 @@ namespace CsvTools
           {
             possibleDateSeparators = new List<string>();
             foreach (var sep in StringConversion.DateSeparators)
-              foreach (var entry in samples)
-              {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (entry.IndexOf(sep, StringComparison.Ordinal) == -1) continue;
-                possibleDateSeparators.Add(sep);
-                break;
-              }
+            foreach (var entry in samples)
+            {
+              cancellationToken.ThrowIfCancellationRequested();
+              if (entry.IndexOf(sep, StringComparison.Ordinal) == -1) continue;
+              possibleDateSeparators.Add(sep);
+              break;
+            }
           }
 
           foreach (var sep in possibleDateSeparators)
@@ -816,24 +817,24 @@ namespace CsvTools
 
       foreach (var thousandSeparator in possibleGrouping)
         // Try Numbers: Int and Decimal
-        foreach (var decimalSeparator in possibleDecimal)
-        {
-          if (cancellationToken.IsCancellationRequested)
-            return checkResult;
-          if (decimalSeparator.Equals(thousandSeparator))
-            continue;
-          var res = StringConversion.CheckNumber(
-            samples,
-            decimalSeparator,
-            thousandSeparator,
-            guessPercentage,
-            allowStartingZero,
-            minSamples);
-          if (res.FoundValueFormat != null)
-            return res;
+      foreach (var decimalSeparator in possibleDecimal)
+      {
+        if (cancellationToken.IsCancellationRequested)
+          return checkResult;
+        if (decimalSeparator.Equals(thousandSeparator))
+          continue;
+        var res = StringConversion.CheckNumber(
+          samples,
+          decimalSeparator,
+          thousandSeparator,
+          guessPercentage,
+          allowStartingZero,
+          minSamples);
+        if (res.FoundValueFormat != null)
+          return res;
 
-          checkResult.KeepBestPossibleMatch(res);
-        }
+        checkResult.KeepBestPossibleMatch(res);
+      }
 
       return checkResult;
     }
@@ -1110,7 +1111,7 @@ namespace CsvTools
         return (new List<string>(), fileSetting.ColumnCollection);
       // Open the file setting but change a few settings
       var fileSettingCopy = GetSettingForRead(fileSetting);
-      
+
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
@@ -1214,10 +1215,10 @@ namespace CsvTools
 
       // Standard Date Time formats
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(value.Length, true))
-        foreach (var sep in StringConversion.DateSeparators.Where(
-          sep => StringConversion.StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture)
-                                 .HasValue))
-          yield return new ImmutableValueFormat(DataType.DateTime, fmt, sep);
+      foreach (var sep in StringConversion.DateSeparators.Where(
+        sep => StringConversion.StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture)
+                               .HasValue))
+        yield return new ImmutableValueFormat(DataType.DateTime, fmt, sep);
     }
 
 #endif
