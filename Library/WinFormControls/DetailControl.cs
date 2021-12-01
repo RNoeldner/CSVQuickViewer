@@ -1056,7 +1056,6 @@ namespace CsvTools
         m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;
         m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
       });
-
     }
 
     private void StartSearch(object? sender, SearchEventArgs e)

@@ -52,15 +52,15 @@
 
 	<ItemGroup>
 		<PackageReference Include="Ben.Demystifier" Version="0.4.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="SharpZipLib" Version="1.3.1" />
-		<PackageReference Include="SonarAnalyzer.CSharp" Version="8.30.0.37606">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		<PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="TimeZoneConverter" Version="3.5.0" />
-		<PackageReference Include="UTF.Unknown" Version="2.4.0" />
+		<PackageReference Include="UTF.Unknown" Version="2.5.0" />
 	</ItemGroup>
 
 	<ItemGroup>

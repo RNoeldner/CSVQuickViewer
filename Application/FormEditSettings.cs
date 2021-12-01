@@ -34,7 +34,6 @@ namespace CsvTools
 
     public FormEditSettings(in ViewSettings viewSettings, in ICsvFile csvFile)
     {
-
       m_ViewSettings = viewSettings ?? throw new ArgumentNullException(nameof(viewSettings));
       m_CsvFile = csvFile ?? throw new ArgumentNullException(nameof(csvFile));
 
@@ -266,7 +265,7 @@ namespace CsvTools
       _ = frm.ShowDialog();
     }
 
-    private async void buttonGuessLineComment_Click(object? sender, EventArgs e)
+    private async void ButtonGuessLineComment_Click(object? sender, EventArgs e)
     {
       await buttonGuessLineComment.RunWithHourglassAsync(async () =>
       {

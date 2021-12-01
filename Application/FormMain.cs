@@ -652,7 +652,10 @@ namespace CsvTools
     private async void ToggleDisplayAsText(object? sender, EventArgs e)
     {
       if (m_FileSetting == null)
+      {
         return;
+      }
+
       await m_ToolStripButtonAsText.RunWithHourglassAsync(async () =>
       {
         m_ToolStripButtonAsText.Enabled = false;
@@ -669,7 +672,10 @@ namespace CsvTools
           m_FileSetting.ColumnCollection.Clear();
           // restore header names
           foreach (var col in m_StoreColumns)
+          {
             m_FileSetting.ColumnCollection.Add(new Column(col.Name) { ColumnOrdinal = col.ColumnOrdinal });
+          }
+
           m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
           m_ToolStripButtonAsText.Text = "As Values";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;
@@ -686,8 +692,12 @@ namespace CsvTools
 
         await OpenDataReaderAsync();
 
-        ViewSetting.ReStoreViewSetting(store, detailControl.FilteredDataGridView.Columns,
-          Array.Empty<ToolStripDataGridViewColumnFilter?>(), null, null);
+        ViewSetting.ReStoreViewSetting(
+          store, 
+          detailControl.FilteredDataGridView.Columns,
+          Array.Empty<ToolStripDataGridViewColumnFilter?>(), 
+          null, 
+          null);
         detailControl.ResumeLayout();
       }, this);
     }
