@@ -102,6 +102,7 @@ namespace CsvTools
                   valueFilter.SQLCondition, string.Empty, 0, true));
             }
           }
+
           // only restore operator based filter if there is no Value Filter
           else if (!string.IsNullOrEmpty(storedFilterSetting.Operator))
           {
