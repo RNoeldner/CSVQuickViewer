@@ -7,49 +7,37 @@ using System.Windows.Forms;
 
 namespace CsvTools
 {
+
   public static class WindowsAPICodePackWrapper
   {
     private static bool m_CommonFileDialogSupported = CommonFileDialog.IsPlatformSupported;
 
     private static bool m_TaskbarManagerSupported = TaskbarManager.IsPlatformSupported;
 
-    public static void AttachTaskbarProgress(this IProcessDisplayTime mainProcess)
+    public static void SetProgressValue(double percent)
     {
-      if (!m_TaskbarManagerSupported) return;
-
-      // Handle the TaskBarProcess
-      mainProcess.ProgressTime += (sender, args) =>
+      if (!m_TaskbarManagerSupported)
       {
-        if (m_TaskbarManagerSupported)
-          try
-          {
-            if ((string.IsNullOrEmpty(args.Text) && args.Value < 0) || args.Percent >= 1d)
-              TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
-            else if (args.Value > -1)
-            {
-              TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
-              TaskbarManager.Instance.SetProgressValue((args.Percent * 1000d).ToInt(), 1000);
-            }
-          }
-          catch (Exception)
-          {
-            // ignore
-            m_TaskbarManagerSupported = false;
-          }
-      };
+        return;
+      }
 
-      mainProcess.SetMaximum += delegate (object? sender, long max)
+      try
       {
-        try
+        if (percent> 0 && percent<=1)
         {
-          if (m_TaskbarManagerSupported && max < 1)
-            TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
+          TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
+          TaskbarManager.Instance.SetProgressValue((percent * 1000d).ToInt(), 1000);
         }
-        catch (Exception)
+        else
         {
-          // Ignore
+          TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
         }
-      };
+      }
+      catch (Exception)
+      {
+        // ignore
+        m_TaskbarManagerSupported = false;
+      }
     }
 
     public static string? Folder(string initialDirectory, string title)

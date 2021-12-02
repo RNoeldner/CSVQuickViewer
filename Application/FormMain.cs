@@ -458,8 +458,7 @@ namespace CsvTools
         });
 
         using (var processDisplay = new FormProcessDisplay(fileNameShort, false, m_CancellationTokenSource.Token))
-        {
-          processDisplay.AttachTaskbarProgress();
+        {          
           processDisplay.Show();
           processDisplay.SetProcess("Reading data...", -1, false);
           processDisplay.Maximum = 100;

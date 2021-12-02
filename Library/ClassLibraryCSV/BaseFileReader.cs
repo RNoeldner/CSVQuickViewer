@@ -104,7 +104,11 @@ namespace CsvTools
       SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
       FileName = FileSystemUtils.GetFileName(fileName);
 
-      if (processDisplay == null) return;
+      if (processDisplay == null)
+      {
+        return;
+      }
+
       ReportProgress = processDisplay;
       if (processDisplay is IProcessDisplayTime processDisplayTime)
       {
@@ -300,7 +304,9 @@ namespace CsvTools
     {
       var parsed = GetBooleanNull(CurrentRowColumnText[ordinal], ordinal);
       if (parsed.HasValue)
+      {
         return parsed.Value;
+      }
 
       // Warning was added by GetBooleanNull
       throw WarnAddFormatException(
@@ -348,10 +354,16 @@ namespace CsvTools
     {
       var fn = GetString(ordinal);
       if (GetColumn(ordinal).ValueFormat.DataType != DataType.Binary || string.IsNullOrEmpty(fn))
+      {
         return -1;
+      }
+
       using var filestream = FileSystemUtils.OpenRead(CurrentRowColumnText[ordinal]);
       if (dataOffset > 0)
+      {
         filestream.Seek(dataOffset, SeekOrigin.Begin);
+      }
+
       return filestream.Read(buffer, bufferOffset, length);
     }
 
@@ -360,7 +372,10 @@ namespace CsvTools
     {
       var fn = GetString(ordinal);
       if (GetColumn(ordinal).ValueFormat.DataType != DataType.Binary || string.IsNullOrEmpty(fn))
+      {
         return Array.Empty<byte>();
+      }
+
       var fi = new FileSystemUtils.FileInfo(fn);
       var buffer = new byte[fi.Length];
       GetBytes(ordinal, 0, buffer, 0, buffer.Length);
@@ -403,7 +418,10 @@ namespace CsvTools
       var maxLen = CurrentRowColumnText[ordinal].Length - offset;
 
       if (maxLen > length)
+      {
         maxLen = length;
+      }
+
       CurrentRowColumnText[ordinal].CopyTo(
         offset,
         buffer ?? throw new ArgumentNullException(nameof(buffer)),
@@ -444,7 +462,9 @@ namespace CsvTools
         Column[ordinal],
         true);
       if (dt.HasValue)
+      {
         return dt.Value;
+      }
 
       // Warning was added by GetDecimalNull
       throw WarnAddFormatException(
@@ -462,7 +482,9 @@ namespace CsvTools
     {
       var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal], ordinal);
       if (decimalValue.HasValue)
+      {
         return decimalValue.Value;
+      }
 
       // Warning was added by GetDecimalNull
       throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a decimal");
@@ -478,7 +500,9 @@ namespace CsvTools
     {
       var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal], ordinal);
       if (decimalValue.HasValue)
+      {
         return Convert.ToDouble(decimalValue.Value);
+      }
 
       // Warning was added by GetDecimalNull
       throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a double");
@@ -504,7 +528,9 @@ namespace CsvTools
     {
       var decimalValue = GetDecimalNull(CurrentRowColumnText[ordinal], ordinal);
       if (decimalValue.HasValue)
+      {
         return Convert.ToSingle(decimalValue, CultureInfo.InvariantCulture);
+      }
 
       // Warning was added by GetDecimalNull
       throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a float");
@@ -521,7 +547,9 @@ namespace CsvTools
       var parsed = GetGuidNull(CurrentRowColumnText[ordinal], ordinal);
 
       if (parsed.HasValue)
+      {
         return parsed.Value;
+      }
 
       throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not an GUID");
     }
@@ -549,7 +577,9 @@ namespace CsvTools
         column.ValueFormat.DecimalSeparator,
         column.ValueFormat.GroupSeparator);
       if (parsed.HasValue)
+      {
         return parsed.Value;
+      }
 
       // Warning was added by GetInt32Null
       throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not an integer");
@@ -560,7 +590,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputValue">The input.</param>
     /// <param name="column">The column.</param>
-    /// <returns></returns>
+    /// <returns>a nullabla integer</returns>
     public int? GetInt32Null(string inputValue, IColumn column)
     {
       var ret = StringConversion.StringToInt32(
@@ -568,7 +598,9 @@ namespace CsvTools
         column.ValueFormat.DecimalSeparator,
         column.ValueFormat.GroupSeparator);
       if (ret.HasValue)
+      {
         return ret.Value;
+      }
 
       HandleError(column.ColumnOrdinal, $"'{inputValue}' is not an integer");
       return null;
@@ -589,7 +621,9 @@ namespace CsvTools
         column.ValueFormat.DecimalSeparator,
         column.ValueFormat.GroupSeparator);
       if (parsed.HasValue)
+      {
         return parsed.Value;
+      }
 
       throw WarnAddFormatException(ordinal, $"'{CurrentRowColumnText[ordinal]}' is not a long integer");
     }
@@ -607,7 +641,9 @@ namespace CsvTools
         column.ValueFormat.DecimalSeparator,
         column.ValueFormat.GroupSeparator);
       if (ret.HasValue)
+      {
         return ret.Value;
+      }
 
       HandleError(column.ColumnOrdinal, $"'{inputValue}' is not an long integer");
       return null;
@@ -634,12 +670,18 @@ namespace CsvTools
     public override int GetOrdinal(string name)
     {
       if (string.IsNullOrEmpty(name))
+      {
         return -1;
+      }
+
       var count = 0;
       foreach (var column in Column)
       {
         if (name.Equals(column.Name, StringComparison.OrdinalIgnoreCase))
+        {
           return count;
+        }
+
         count++;
       }
 
@@ -670,9 +712,13 @@ namespace CsvTools
 
         // If there is a conversion get the information
         if (column.Convert && column.ValueFormat.DataType != DataType.String)
+        {
           schemaRow[7] = column.ValueFormat.DataType.GetNetType();
+        }
         else
+        {
           schemaRow[7] = typeof(string);
+        }
 
         dataTable.Rows.Add(schemaRow);
       }
@@ -694,9 +740,14 @@ namespace CsvTools
     public override string GetString(int ordinal)
     {
       if (CurrentRowColumnText is null)
+      {
         throw new InvalidOperationException("Row has not been read");
+      }
+
       if (ordinal < 0 || ordinal >= FieldCount || ordinal >= CurrentRowColumnText.Length)
+      {
         throw new ArgumentOutOfRangeException(nameof(ordinal));
+      }
 
       return CurrentRowColumnText[ordinal];
     }
@@ -750,12 +801,21 @@ namespace CsvTools
     public override int GetValues(object[] values)
     {
       if (values is null)
+      {
         throw new ArgumentNullException(nameof(values));
+      }
+
       var maxFld = values.Length;
       if (maxFld > FieldCount)
+      {
         maxFld = FieldCount;
+      }
+
       for (var col = 0; col < maxFld; col++)
+      {
         values[col] = GetValue(col);
+      }
+
       return FieldCount;
     }
 
@@ -788,11 +848,19 @@ namespace CsvTools
     public override bool IsDBNull(int ordinal)
     {
       if (CurrentRowColumnText.Length <= ordinal)
+      {
         return true;
+      }
+
       if (Column[ordinal].ValueFormat.DataType != DataType.DateTime)
+      {
         return string.IsNullOrWhiteSpace(CurrentRowColumnText[ordinal]);
+      }
+
       if (AssociatedTimeCol[ordinal] == -1 || AssociatedTimeCol[ordinal] >= CurrentRowColumnText.Length)
+      {
         return string.IsNullOrEmpty(CurrentRowColumnText[ordinal]);
+      }
 
       return string.IsNullOrEmpty(CurrentRowColumnText[ordinal])
              && string.IsNullOrEmpty(CurrentRowColumnText[AssociatedTimeCol[ordinal]]);
@@ -809,16 +877,17 @@ namespace CsvTools
 
     /// <summary>
     ///   Routine to open the reader, each implementation should call BeforeOpenAsync, InitColumns,
-    ///   ParseColumnName and last FinishOpen;
+    ///   ParseColumnName and last FinishOpen
     /// </summary>
-    /// <param name="token"></param>
-    /// <returns></returns>
-    public abstract Task OpenAsync(CancellationToken token);
+    /// <param name="cancellationToken">Cancellation token</param>
+    public abstract Task OpenAsync(CancellationToken cancellationToken);
 
     /// <summary>
     ///   Overrides the column format from setting.
     /// </summary>
-    public virtual bool Read(CancellationToken token) => ReadAsync(token).Wait(2000, token);
+    /// <returns>true if read was successfull</returns>
+    /// <param name="cancellationToken">Cancellation token</param>
+    public virtual bool Read(CancellationToken cancellationToken) => ReadAsync(cancellationToken).Wait(2000, cancellationToken);
 
     public override bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
 
@@ -849,13 +918,19 @@ namespace CsvTools
       if (inputString.Length > 0)
       {
         if (treatNbspAsSpace && inputString.IndexOf((char) 0xA0) != -1)
+        {
           inputString = inputString.Replace((char) 0xA0, ' ');
+        }
 
         if (trim)
+        {
           inputString = inputString.Trim();
+        }
 
         if (StringUtils.ShouldBeTreatedAsNull(inputString, treatTextAsNull))
+        {
           inputString = string.Empty;
+        }
       }
 
       return inputString;
@@ -871,7 +946,9 @@ namespace CsvTools
       HandleShowProgress(message);
 
       if (m_OnOpenAsync != null)
+      {
         await m_OnOpenAsync.Invoke().ConfigureAwait(false);
+      }
     }
 
     /// <summary>
@@ -899,14 +976,14 @@ namespace CsvTools
 
     /// <summary>
     ///   This routine will read a date from a typed or untyped reader, will combined date with time
-    ///   and apply timeZone adjustments
+    ///   and apply timeZone adjustments.
     /// </summary>
-    /// <param name="inputDate"></param>
-    /// <param name="strInputDate"></param>
-    /// <param name="inputTime"></param>
-    /// <param name="strInputTime"></param>
-    /// <param name="column"></param>
-    /// <param name="serialDateTime"></param>
+    /// <param name="inputDate">The original object possibly containing a date</param>
+    /// <param name="strInputDate">The text represenation of the data</param>
+    /// <param name="inputTime">The original object possibly containing a time</param>
+    /// <param name="strInputTime">The text represenation of the time</param>
+    /// <param name="column">Column information</param>
+    /// <param name="serialDateTime">if <c>true</c> parse dates represented as numbers</param>
     /// <returns></returns>
     protected DateTime? GetDateTimeNull(
       object? inputDate,
@@ -928,7 +1005,9 @@ namespace CsvTools
       {
         var passedIn = strInputTime;
         if (inputTime != null)
+        {
           passedIn = Convert.ToString(inputTime);
+        }
 
         HandleWarning(
           column.ColumnOrdinal,
@@ -963,7 +1042,9 @@ namespace CsvTools
       }
 
       if (dateTime.HasValue && dateTime.Value.Year > 1752 && dateTime.Value.Year <= 9999)
+      {
         return AdjustTz(dateTime.Value, column);
+      }
 
       HandleDateError(strInputDate, strInputTime, column.ColumnOrdinal);
       return null;
@@ -987,7 +1068,9 @@ namespace CsvTools
         column.ValueFormat.GroupSeparator,
         true);
       if (decimalValue.HasValue)
+      {
         return decimalValue.Value;
+      }
 
       HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a decimal");
       return null;
@@ -1006,7 +1089,9 @@ namespace CsvTools
     {
       var decimalValue = GetDecimalNull(inputValue, ordinal);
       if (decimalValue.HasValue)
+      {
         return decimal.ToDouble(decimalValue.Value);
+      }
 
       HandleError(ordinal, $"'{inputValue}' is not a double");
       return null;
@@ -1021,7 +1106,10 @@ namespace CsvTools
     protected Guid? GetGuidNull(string inputValue, int ordinal)
     {
       if (string.IsNullOrEmpty(inputValue))
+      {
         return null;
+      }
+
       try
       {
         return new Guid(inputValue);
@@ -1068,7 +1156,10 @@ namespace CsvTools
     protected void HandleReadFinished()
     {
       if (m_IsFinished)
+      {
         return;
+      }
+
       m_IsFinished = true;
       HandleShowProgress("Finished Reading from source", RecordNumber, cMaxValue);
       ReadFinished?.Invoke(this, EventArgs.Empty);
@@ -1100,7 +1191,9 @@ namespace CsvTools
     protected void HandleShowProgressPeriodic(string text, long recordNumber)
     {
       if (ReportProgress != null)
+      {
         m_IntervalAction.Invoke(() => HandleShowProgress(text, recordNumber, GetRelativePosition()));
+      }
     }
 
     /// <summary>
@@ -1114,10 +1207,16 @@ namespace CsvTools
     protected string HandleTextSpecials(string? inputString, int ordinal)
     {
       if (inputString is null || inputString.Length == 0 || ordinal >= FieldCount)
+      {
         return inputString ?? string.Empty;
+      }
+
       var column = Column[ordinal];
       if (column.ColumnFormatter is null)
+      {
         return inputString;
+      }
+
       return column.ColumnFormatter.FormatText(inputString, message => HandleWarning(ordinal, message));
     }
 
@@ -1128,9 +1227,13 @@ namespace CsvTools
     protected void InfoDisplay(bool hasReadRow)
     {
       if (!hasReadRow)
+      {
         HandleReadFinished();
+      }
       else
+      {
         HandleShowProgressPeriodic("Reading", RecordNumber);
+      }
     }
 
     protected virtual void InitColumn(int fieldCount)
@@ -1164,7 +1267,9 @@ namespace CsvTools
       var issues = new ColumnErrorDictionary();
       var adjustedNames = new List<string>();
       if (hasFieldHeader)
+      {
         adjustedNames.AddRange(AdjustColumnName(headerRow, Column.Length, issues).Item1);
+      }
       else
         for (var colIndex = 0; colIndex < Column.Length; colIndex++)
         {
@@ -1187,7 +1292,9 @@ namespace CsvTools
       var dataTypeL = new DataType[adjustedNames.Count];
       // Initialize as text
       for (var col = 0; col < adjustedNames.Count; col++)
+      {
         dataTypeL[col] = DataType.String;
+      }
       // get the provided and overwrite
       if (dataType != null)
       {
@@ -1219,8 +1326,11 @@ namespace CsvTools
       }
 
       if (Column.Length == 0)
+      {
         issues.Add(-1, "Column should be set before using ParseColumnName to handle TimePart and TimeZone");
+      }
       else
+      {
         // Initialize the references for TimePart and TimeZone
         for (var index = 0; index < Column.Length; index++)
         {
@@ -1240,7 +1350,10 @@ namespace CsvTools
             }
 
           if (string.IsNullOrEmpty(searchedTimeZonePart))
+          {
             continue;
+          }
+
           for (var indexPoint = 0; indexPoint < Column.Length; indexPoint++)
           {
             if (indexPoint == index) continue;
@@ -1250,11 +1363,14 @@ namespace CsvTools
             break;
           }
         }
+      }
 
       // Now can handle possible warning that have been raised adjusting the names
       foreach (var warning in issues.Where(
         warning => warning.Key < 0 || warning.Key >= Column.Length || !Column[warning.Key].Ignore))
+      {
         HandleWarning(warning.Key, warning.Value);
+      }
     }
 
     /// <summary>
@@ -1309,7 +1425,9 @@ namespace CsvTools
     {
       var boolValue = StringConversion.StringToBoolean(inputValue, column.ValueFormat.True, column.ValueFormat.False);
       if (boolValue.HasValue)
+      {
         return boolValue.Value;
+      }
 
       HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a boolean");
       return null;
@@ -1334,7 +1452,9 @@ namespace CsvTools
         column.ValueFormat.DecimalSeparator,
         column.ValueFormat.GroupSeparator);
       if (parsed.HasValue)
+      {
         return parsed.Value;
+      }
 
       // Warning was added by GetInt32Null
       throw WarnAddFormatException(ordinal, $"'{value}' is not a short");

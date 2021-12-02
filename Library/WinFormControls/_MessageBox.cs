@@ -63,9 +63,11 @@ namespace CsvTools
         message, title,           // add a third button in case we expect followup dialogs
         massChoice.NumRecs > 1 ? MessageBoxButtons.YesNoCancel : MessageBoxButtons.YesNo,
         MessageBoxIcon.Question,
+
         // Depending on the massChoice Result, select the right button
         massChoice.DialogResult == DialogResult.Yes ? MessageBoxDefaultButton.Button1 : MessageBoxDefaultButton.Button2,
         4.0,
+
         // do not overwrite Button 1 or Button 2
         button1Text,
         button2Text,           // but set Button 3 if needed
@@ -77,6 +79,7 @@ namespace CsvTools
         massChoice.Chosen = true;
         return massChoice.DialogResult;
       }
+
       return result;
     }
 

@@ -180,8 +180,8 @@ namespace CsvTools
       // if cancellation is requested do nothing
       if (CancellationToken.IsCancellationRequested)
         return;
-
       m_ProcessDisplay.SetProcess(text, value, log);
+      WindowsAPICodePackWrapper.SetProgressValue(m_ProcessDisplay.TimeToCompletion.Percent);
 
       // This might cause an issue
       m_LabelText!.SafeInvoke(
