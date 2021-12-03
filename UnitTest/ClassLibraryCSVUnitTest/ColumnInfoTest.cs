@@ -42,7 +42,7 @@ namespace CsvTools.Tests
       var dt = new DataTable();
       dt.Columns.AddRange(new[]
       {
-        new DataColumn("Test1", typeof(int)), new DataColumn("Test2", typeof(string)),
+        new DataColumn("Test1", typeof(long)), new DataColumn("Test2", typeof(string)),
         new DataColumn("Test3", typeof(DateTime))
       });
 
@@ -73,7 +73,7 @@ namespace CsvTools.Tests
       var dt = new DataTable();
       dt.Columns.AddRange(new[]
       {
-        new DataColumn("Test1", typeof(int)), new DataColumn("Test2", typeof(string)),
+        new DataColumn("Test1", typeof(long)), new DataColumn("Test2", typeof(string)),
         new DataColumn("Test3", typeof(DateTime))
       });
       using var reader = dt.CreateDataReader();

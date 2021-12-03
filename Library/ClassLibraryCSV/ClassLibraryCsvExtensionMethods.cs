@@ -305,6 +305,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Gets the .NET type for a given CsvTools type
+    ///  Always using long for integer values no matter if 32 or 64 bit system
     /// </summary>
     /// <param name="dt">The <see cref="DataType" />.</param>
     /// <returns>The .NET Type</returns>
@@ -312,7 +313,6 @@ namespace CsvTools
       dt switch
       {
         DataType.DateTime                      => typeof(DateTime),
-        DataType.Integer when IntPtr.Size == 4 => typeof(int),
         DataType.Integer                       => typeof(long),
         DataType.Double                        => typeof(double),
         DataType.Numeric                       => typeof(decimal),

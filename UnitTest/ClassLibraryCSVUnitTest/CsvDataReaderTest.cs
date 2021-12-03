@@ -268,10 +268,10 @@ namespace CsvTools.Tests
 
       dataTable.Columns.Add(test.GetName(0), test.GetFieldType(0));
 
-      var recordNumberColumn = dataTable.Columns.Add(ReaderConstants.cRecordNumberFieldName, typeof(int));
+      var recordNumberColumn = dataTable.Columns.Add(ReaderConstants.cRecordNumberFieldName, typeof(long));
       recordNumberColumn.AllowDBNull = true;
 
-      var lineNumberColumn = dataTable.Columns.Add(ReaderConstants.cEndLineNumberFieldName, typeof(int));
+      var lineNumberColumn = dataTable.Columns.Add(ReaderConstants.cEndLineNumberFieldName, typeof(long));
       lineNumberColumn.AllowDBNull = true;
 
       _ = dataTable.NewRow();
