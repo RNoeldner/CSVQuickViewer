@@ -756,7 +756,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     /// <summary>
-    ///   Gets the value of a column
+    ///   Gets the value of a column, any interger will be returned a long integer no matter if 32 or 64 bit
     /// </summary>
     /// <param name="ordinal">The column number.</param>
     /// <returns>The value of the specific field</returns>
@@ -773,15 +773,15 @@ namespace CsvTools
       {
         ret = column.ValueFormat.DataType switch
         {
-          DataType.Binary   => GetFile(ordinal),
+          DataType.Binary => GetFile(ordinal),
           DataType.DateTime => GetDateTime(ordinal),
-          DataType.Integer  => IntPtr.Size == 4 ? GetInt32(ordinal) : GetInt64(ordinal),
-          DataType.Double   => GetDouble(ordinal),
-          DataType.Numeric  => GetDecimal(ordinal),
-          DataType.Boolean  => GetBoolean(ordinal),
-          DataType.Guid     => GetGuid(ordinal),
-          DataType.String   => GetString(ordinal),
-          _                 => throw new ArgumentOutOfRangeException($"Datatype {column.ValueFormat.DataType} is not supported")
+          DataType.Integer => GetInt64(ordinal),
+          DataType.Double => GetDouble(ordinal),
+          DataType.Numeric => GetDecimal(ordinal),
+          DataType.Boolean => GetBoolean(ordinal),
+          DataType.Guid => GetGuid(ordinal),
+          DataType.String => GetString(ordinal),
+          _ => throw new ArgumentOutOfRangeException($"Datatype {column.ValueFormat.DataType} is not supported")
         };
       }
       catch (FormatException)

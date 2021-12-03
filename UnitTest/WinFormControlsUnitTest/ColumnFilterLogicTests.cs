@@ -209,13 +209,13 @@ namespace CsvTools.Tests
     [Timeout(1000)]
     public void ValueClusterCollection()
     {
-      var columnFilterLogic = new ColumnFilterLogic(typeof(int), "intCol");
+      var columnFilterLogic = new ColumnFilterLogic(typeof(long), "intCol");
 
       using (var data = UnitTestStatic.GetDataTable(200))
       {
         using (var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows))
         {
-          columnFilterLogic.ValueClusterCollection.BuildValueClusters(dataView, typeof(int), 1);
+          columnFilterLogic.ValueClusterCollection.BuildValueClusters(dataView, typeof(long), 1);
           var i = 0;
           foreach (var cluster in columnFilterLogic.ValueClusterCollection.ValueClusters)
           {
@@ -232,7 +232,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void AllFilterInt()
     {
-      var columnFilterLogic = new ColumnFilterLogic(typeof(int), "intCol") { ValueText = "-10" };
+      var columnFilterLogic = new ColumnFilterLogic(typeof(long), "intCol") { ValueText = "-10" };
       Assert.AreEqual("-10", columnFilterLogic.ValueText);
       foreach (var op in ColumnFilterLogic.GetOperators(columnFilterLogic.ColumnDataType))
       {
