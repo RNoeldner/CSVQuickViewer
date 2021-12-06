@@ -112,10 +112,10 @@ namespace CsvTools
     /// <summary>
     ///   User Display for a data type
     /// </summary>
-    /// <param name="dt">The <see cref="DataType" />.</param>
+    /// <param name="dataType">The <see cref="DataType" />.</param>
     /// <returns>A text representing the dataType</returns>
-    public static string DataTypeDisplay(this DataType dt) =>
-      dt switch
+    public static string DataTypeDisplay(this DataType dataType) =>
+      dataType switch
       {
         DataType.DateTime       => "Date Time",
         DataType.Integer        => "Integer",
@@ -127,7 +127,8 @@ namespace CsvTools
         DataType.TextToHtml     => "Encode HTML (Linefeed and CData Tags)",
         DataType.TextToHtmlFull => "Encode HTML ('<' -> '&lt;')",
         DataType.String         => "Text",
-        _                       => throw new ArgumentOutOfRangeException(nameof(dt), dt, "Data Type not known")
+        DataType.Binary         => "Binary (File Reference)",
+        _                       => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, $"Data Type {dataType} not known in {nameof(DataTypeDisplay)}")
       };
 
     public static string Description(this RecordDelimiterType item)

@@ -102,9 +102,9 @@ namespace CsvTools
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
       this.buttonDisplayValues = new System.Windows.Forms.Button();
       this.tableLayoutPanelForm = new System.Windows.Forms.TableLayoutPanel();
-      this.buttonOK = new System.Windows.Forms.Button();
       this.groupBoxBinary = new System.Windows.Forms.GroupBox();
       this.textBoxPattern = new System.Windows.Forms.TextBox();
+      this.buttonOK = new System.Windows.Forms.Button();
       labelTrue = new System.Windows.Forms.Label();
       labelFalse = new System.Windows.Forms.Label();
       labelPoint = new System.Windows.Forms.Label();
@@ -568,6 +568,17 @@ namespace CsvTools
       this.comboBoxTPFormat.SelectedIndexChanged += new System.EventHandler(this.DateFormatChanged);
       this.comboBoxTPFormat.TextUpdate += new System.EventHandler(this.DateFormatChanged);
       // 
+      // label7
+      // 
+      label7.Anchor = System.Windows.Forms.AnchorStyles.Right;
+      label7.AutoSize = true;
+      label7.Location = new System.Drawing.Point(25, 20);
+      label7.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      label7.Name = "label7";
+      label7.Size = new System.Drawing.Size(84, 13);
+      label7.TabIndex = 1;
+      label7.Text = "Pattern for write:";
+      // 
       // textBoxTrue
       // 
       this.textBoxTrue.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "True", true));
@@ -1007,20 +1018,6 @@ namespace CsvTools
       this.tableLayoutPanelForm.Size = new System.Drawing.Size(554, 582);
       this.tableLayoutPanelForm.TabIndex = 5;
       // 
-      // buttonOK
-      // 
-      this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.buttonOK.AutoSize = true;
-      this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonOK.Location = new System.Drawing.Point(357, 557);
-      this.buttonOK.Margin = new System.Windows.Forms.Padding(2);
-      this.buttonOK.Name = "buttonOK";
-      this.buttonOK.Size = new System.Drawing.Size(86, 23);
-      this.buttonOK.TabIndex = 3;
-      this.buttonOK.Text = "&Ok";
-      this.buttonOK.UseVisualStyleBackColor = true;
-      this.buttonOK.Click += new System.EventHandler(this.ButtonOkClick);
-      // 
       // groupBoxBinary
       // 
       this.groupBoxBinary.AutoSize = true;
@@ -1037,17 +1034,6 @@ namespace CsvTools
       this.groupBoxBinary.TabStop = false;
       this.groupBoxBinary.Text = "Binary Data";
       // 
-      // label7
-      // 
-      label7.Anchor = System.Windows.Forms.AnchorStyles.Right;
-      label7.AutoSize = true;
-      label7.Location = new System.Drawing.Point(25, 20);
-      label7.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      label7.Name = "label7";
-      label7.Size = new System.Drawing.Size(84, 13);
-      label7.TabIndex = 1;
-      label7.Text = "Pattern for write:";
-      // 
       // textBoxPattern
       // 
       this.textBoxPattern.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "DateFormat", true));
@@ -1057,12 +1043,26 @@ namespace CsvTools
       this.textBoxPattern.Size = new System.Drawing.Size(175, 20);
       this.textBoxPattern.TabIndex = 2;
       // 
+      // buttonOK
+      // 
+      this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.buttonOK.AutoSize = true;
+      this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+      this.buttonOK.Location = new System.Drawing.Point(357, 557);
+      this.buttonOK.Margin = new System.Windows.Forms.Padding(2);
+      this.buttonOK.Name = "buttonOK";
+      this.buttonOK.Size = new System.Drawing.Size(86, 23);
+      this.buttonOK.TabIndex = 3;
+      this.buttonOK.Text = "&Ok";
+      this.buttonOK.UseVisualStyleBackColor = true;
+      this.buttonOK.Click += new System.EventHandler(this.ButtonOkClick);
+      // 
       // FormColumnUI
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.buttonCancel;
-      this.ClientSize = new System.Drawing.Size(554, 499);
+      this.ClientSize = new System.Drawing.Size(554, 570);
       this.Controls.Add(this.tableLayoutPanelForm);
       this.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "Name", true));
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;

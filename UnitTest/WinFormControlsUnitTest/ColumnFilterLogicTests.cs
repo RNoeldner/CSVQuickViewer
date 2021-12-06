@@ -211,22 +211,18 @@ namespace CsvTools.Tests
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(long), "intCol");
 
-      using (var data = UnitTestStatic.GetDataTable(200))
+      using var data = UnitTestStatic.GetDataTable(200);
+      using var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows);
+      columnFilterLogic.ValueClusterCollection.BuildValueClusters(dataView, typeof(long), 1);
+      var i = 0;
+      foreach (var cluster in columnFilterLogic.ValueClusterCollection.ValueClusters)
       {
-        using (var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows))
-        {
-          columnFilterLogic.ValueClusterCollection.BuildValueClusters(dataView, typeof(long), 1);
-          var i = 0;
-          foreach (var cluster in columnFilterLogic.ValueClusterCollection.ValueClusters)
-          {
-            cluster.Active = true;
-            if (i++ > 2) break;
-          }
-
-          columnFilterLogic.Active = true;
-          Assert.IsNotNull(columnFilterLogic.FilterExpression);
-        }
+        cluster.Active = true;
+        if (i++ > 2) break;
       }
+
+      columnFilterLogic.Active = true;
+      Assert.IsNotNull(columnFilterLogic.FilterExpression);
     }
 
     [TestMethod]
