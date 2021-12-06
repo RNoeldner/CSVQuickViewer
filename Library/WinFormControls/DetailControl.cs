@@ -60,7 +60,7 @@ namespace CsvTools
 
     private readonly ObservableCollection<ToolStripItem> m_ToolStripItems = new ObservableCollection<ToolStripItem>();
     private readonly ToolStripLabel m_ToolStripLabelCount = new ToolStripLabel();
-    private readonly ToolStripTextBox m_ToolStripTextBox1 = new ToolStripTextBox();
+    private readonly ToolStripTextBox m_ToolStripTextBoxPos = new ToolStripTextBox();
     private readonly ToolStrip m_ToolStripTop = new ToolStrip();
     private CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private ProcessInformation? m_CurrentSearch;
@@ -182,7 +182,7 @@ namespace CsvTools
       m_BindingNavigator.ImageScalingSize = new Size(20, 20);
       m_BindingNavigator.Items.AddRange(new ToolStripItem[]
       {
-        m_ToolStripButtonMoveFirstItem, m_ToolStripButtonMovePreviousItem, m_ToolStripTextBox1, m_ToolStripLabelCount, m_ToolStripButtonMoveNextItem,
+        m_ToolStripButtonMoveFirstItem, m_ToolStripButtonMovePreviousItem, m_ToolStripTextBoxPos, m_ToolStripLabelCount, m_ToolStripButtonMoveNextItem,
         m_ToolStripButtonMoveLastItem, ToolStripButtonNext
       });
       m_BindingNavigator.Location = new Point(4, 0);
@@ -190,7 +190,7 @@ namespace CsvTools
       m_BindingNavigator.MoveLastItem = m_ToolStripButtonMoveLastItem;
       m_BindingNavigator.MoveNextItem = m_ToolStripButtonMoveNextItem;
       m_BindingNavigator.MovePreviousItem = m_ToolStripButtonMovePreviousItem;
-      m_BindingNavigator.PositionItem = m_ToolStripTextBox1;
+      m_BindingNavigator.PositionItem = m_ToolStripTextBoxPos;
       m_BindingNavigator.Size = new Size(284, 27);
       m_BindingNavigator.TabIndex = 0;
       // m_ToolStripLabelCount
@@ -211,11 +211,11 @@ namespace CsvTools
       m_ToolStripButtonMovePreviousItem.Size = new Size(29, 24);
       m_ToolStripButtonMovePreviousItem.Text = "Move previous";
       // m_ToolStripTextBox1
-      m_ToolStripTextBox1.AccessibleName = "Position";
-      m_ToolStripTextBox1.Font = new Font("Segoe UI", 9F);
-      m_ToolStripTextBox1.Size = new Size(50, 27);
-      m_ToolStripTextBox1.Text = "0";
-      m_ToolStripTextBox1.ToolTipText = "Current position";
+      m_ToolStripTextBoxPos.AccessibleName = "Position";
+      m_ToolStripTextBoxPos.Font = new Font("Segoe UI", 9F);
+      m_ToolStripTextBoxPos.Size = new Size(50, 27);
+      m_ToolStripTextBoxPos.Text = "0";
+      m_ToolStripTextBoxPos.ToolTipText = "Current position";
       // m_ToolStripButtonMoveNextItem
       m_ToolStripButtonMoveNextItem.DisplayStyle = ToolStripItemDisplayStyle.Image;
       m_ToolStripButtonMoveNextItem.Image = resources.GetObject("m_ToolStripButtonMoveNextItem.Image") as Image;

@@ -182,8 +182,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-            using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
-                                     processDisplay, m_FileSetting.Timeout, processDisplay.CancellationToken))
+          using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
+                                   processDisplay, m_FileSetting.Timeout, processDisplay.CancellationToken))
           {
             DataTable? data = await sqlReader.GetDataTableAsync(m_FileSetting.RecordLimit, false,
                                 m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
@@ -662,7 +662,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-            using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, null, formProcessDisplay.CancellationToken);
+          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, null, formProcessDisplay.CancellationToken);
           await fileReader.OpenAsync(formProcessDisplay.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
@@ -672,9 +672,9 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-            // Write Setting ----- open the source that is SQL
-            using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
-                                     m_FileSetting.Timeout, formProcessDisplay.CancellationToken);
+          // Write Setting ----- open the source that is SQL
+          using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
+                                   m_FileSetting.Timeout, formProcessDisplay.CancellationToken);
           await fileReader.OpenAsync(formProcessDisplay.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
@@ -721,12 +721,18 @@ namespace CsvTools
 
         groupBoxDate.Visible = selType == DataType.DateTime;
         if (groupBoxDate.Visible)
+        {
+          if (string.IsNullOrEmpty(m_ColumnEdit.DateFormat))
+            m_ColumnEdit.DateFormat = ValueFormatExtension.cDateFormatDefault;
           DateFormatChanged(sender, EventArgs.Empty);
+        }
 
         groupBoxBoolean.Visible = selType == DataType.Boolean;
         groupBoxSplit.Visible = selType == DataType.TextPart;
 
         groupBoxBinary.Visible = selType == DataType.Binary;
+        if (groupBoxBinary.Visible && m_ColumnEdit.DateFormat == ValueFormatExtension.cDateFormatDefault)
+          m_ColumnEdit.DateFormat = string.Empty;
 
         if (groupBoxSplit.Visible)
           SetSamplePart(sender, EventArgs.Empty);
@@ -756,7 +762,10 @@ namespace CsvTools
       UpdateDateLabel(
         new ValueFormatMutable()
         {
-          DataType = DataType.DateTime, DateFormat = dateFormat, DateSeparator = textBoxDateSeparator.Text, TimeSeparator = textBoxTimeSeparator.Text
+          DataType = DataType.DateTime,
+          DateFormat = dateFormat,
+          DateSeparator = textBoxDateSeparator.Text,
+          TimeSeparator = textBoxTimeSeparator.Text
         }, !string.IsNullOrEmpty(comboBoxTimePart.Text), comboBoxTPFormat.Text, comboBoxTimeZone.Text);
     }
 
@@ -779,8 +788,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-            using var sqlReader =
-              await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout, cancellationToken);
+          using var sqlReader =
+            await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout, cancellationToken);
           await sqlReader.OpenAsync(cancellationToken);
           var colIndex = sqlReader.GetOrdinal(columnName);
           if (colIndex < 0)
@@ -815,8 +824,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          // ReSharper disable once ConvertToUsingDeclaration
-          using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay, cancellationToken))
+        // ReSharper disable once ConvertToUsingDeclaration
+        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay, cancellationToken))
         {
           await fileReader.OpenAsync(cancellationToken);
           var colIndex = fileReader.GetOrdinal(columnName);
@@ -903,9 +912,8 @@ namespace CsvTools
     private void RefreshData()
     {
       SetDateFormat();
-      var di = (from DataType item in Enum.GetValues(typeof(DataType)) select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
       var selValue = (int) m_ColumnEdit.ValueFormatMutable.DataType;
-      comboBoxDataType.DataSource = di;
+      comboBoxDataType.DataSource = (from DataType item in Enum.GetValues(typeof(DataType)) select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
       comboBoxDataType.SelectedValue = selValue;
       ComboBoxColumnName_TextUpdate(null, EventArgs.Empty);
     }
