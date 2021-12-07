@@ -432,15 +432,11 @@ namespace CsvTools
     /// <exception cref="T:System.NotImplementedException">Always returns</exception>    
     public new long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
     {
-      if (GetColumn(i).ValueFormat.DataType == DataType.Binary && !string.IsNullOrEmpty(CurrentRowColumnText[i]))
-      {
-        using var fs = FileSystemUtils.OpenRead(CurrentRowColumnText[i]);
-        if (fieldOffset > 0)
-          fs.Seek(fieldOffset, SeekOrigin.Begin);
-        return fs.Read(buffer, bufferoffset, length);
-      }
-
-      return -1;
+      if (GetColumn(i).ValueFormat.DataType != DataType.Binary || string.IsNullOrEmpty(CurrentRowColumnText[i])) return -1;
+      using var fs = FileSystemUtils.OpenRead(CurrentRowColumnText[i]);
+      if (fieldOffset > 0)
+        fs.Seek(fieldOffset, SeekOrigin.Begin);
+      return fs.Read(buffer, bufferoffset, length);
     }
 
     /// <inheritdoc />

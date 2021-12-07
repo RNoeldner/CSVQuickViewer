@@ -98,6 +98,13 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    ///   Gets or sets the cancellation token.
+    /// </summary>
+    /// <value>The cancellation token.</value>
+    public CancellationToken CancellationToken =>
+      (!m_DisposedValue) ? CancellationTokenSource.Token : new CancellationToken(true);
+
     public TimeToCompletion TimeToCompletion => m_ProcessDisplay.TimeToCompletion;
 
     public event EventHandler<ProgressWithTimeEventArgs>? ProgressTime
@@ -117,13 +124,6 @@ namespace CsvTools
       add => m_ProcessDisplay.Progress += value;
       remove => m_ProcessDisplay.Progress -= value;
     }
-
-    /// <summary>
-    ///   Gets or sets the cancellation token.
-    /// </summary>
-    /// <value>The cancellation token.</value>
-    public CancellationToken CancellationToken =>
-      (!m_DisposedValue) ? CancellationTokenSource.Token : new CancellationToken(true);
 
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
@@ -218,15 +218,6 @@ namespace CsvTools
           m_LabelEtl.Refresh();
           m_LabelText.Refresh();
         });
-    }
-
-    public void Report(ProgressInfo value)
-    {
-      if (value.Max != -1 &&  value.Max !=Maximum)
-        Maximum = value.Max;
-      if (value.Title.Length>0 &&  value.Title.Equals(Title, StringComparison.Ordinal))
-        Title = value.Title;
-      SetProcess(value.Text, value.Value, value.Log);
     }
 
     /// <summary>
@@ -349,7 +340,7 @@ namespace CsvTools
       }
     }
 
-    #region IDisposable Support
+#region IDisposable Support
 
     private bool m_DisposedValue; // To detect redundant calls
 
@@ -388,6 +379,6 @@ namespace CsvTools
       }
     }
 
-    #endregion IDisposable Support
+#endregion IDisposable Support
   }
 }

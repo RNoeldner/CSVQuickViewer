@@ -41,14 +41,5 @@ namespace CsvTools
         Logger.Information(text);
       Progress?.Invoke(sender, new ProgressEventArgs(text, value, log));
     }
-
-    public virtual void Report(in ProgressInfo value)
-    {
-      if (value.Max != -1 &&  value.Max !=Maximum)
-        Maximum = value.Max;
-      if (value.Title.Length>0 &&  value.Title.Equals(Title, StringComparison.Ordinal))
-        Title = value.Title;
-      Handle(this, value.Text, value.Value, value.Log);
-    }
   }
 }

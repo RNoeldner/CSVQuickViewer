@@ -19,15 +19,16 @@ using System.Threading.Tasks;
 namespace CsvTools.Tests
 {
   [TestClass]
-	public class JsonFileReaderTest
-	{
-		[TestMethod]
-		public async Task OpenJsonArray()
-		{
-			var setting =
-				new JsonFile(UnitTestStatic.GetTestPath("Larger.json.gz")) ;
+  public class JsonFileReaderTest
+  {
+    [TestMethod]
+    public async Task OpenJsonArray()
+    {
+      var setting =
+        new JsonFile(UnitTestStatic.GetTestPath("Larger.json.gz"));
       var dpd = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption== TrimmingOption.All, setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("object_id", jfr.GetName(0));
       Assert.AreEqual("_last_touched_dt_utc", jfr.GetName(1));
@@ -35,15 +36,16 @@ namespace CsvTools.Tests
       await jfr.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("ef21069c-3d93-4e07-878d-00e820727f65", jfr.GetString(0));
       Assert.IsTrue((new DateTime(2020, 04, 03, 20, 45, 29, DateTimeKind.Local) - (DateTime) jfr.GetValue(1))
-        .TotalSeconds < 1f);
+                    .TotalSeconds < 1f);
     }
 
-		[TestMethod]
-		public async Task OpenLogAsync()
-		{
-			var setting = new JsonFile(UnitTestStatic.GetTestPath("LogFile.json"));
+    [TestMethod]
+    public async Task OpenLogAsync()
+    {
+      var setting = new JsonFile(UnitTestStatic.GetTestPath("LogFile.json"));
       var dpd = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption== TrimmingOption.All, setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
       await jfr.OpenAsync(UnitTestStatic.Token);
       await jfr.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("level", jfr.GetColumn(1).Name);
@@ -56,13 +58,14 @@ namespace CsvTools.Tests
       Assert.AreEqual("System.Data.DataException", jfr.GetValue(4));
     }
 
-		[TestMethod]
-		public async Task ReadJSonEmp_VariousTypedData()
-		{
-			var setting = new JsonFile(UnitTestStatic.GetTestPath("Emp.json"));
+    [TestMethod]
+    public async Task ReadJSonEmp_VariousTypedData()
+    {
+      var setting = new JsonFile(UnitTestStatic.GetTestPath("Emp.json"));
 
       var dpd = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption== TrimmingOption.All, setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
       await jfr.OpenAsync(UnitTestStatic.Token);
       await jfr.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual(0, jfr.GetByte(21));
@@ -73,58 +76,19 @@ namespace CsvTools.Tests
       Assert.AreEqual('A', buffer[1]);
     }
 
-		[TestMethod]
-		public async Task NotSupportedAsync()
-		{
-			var setting = new JsonFile(UnitTestStatic.GetTestPath("Emp.json"));
+    [TestMethod]
+    public async Task NotSupportedAsync()
+    {
+      var setting = new JsonFile(UnitTestStatic.GetTestPath("Emp.json"));
 
       var dpd = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption== TrimmingOption.All, setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
       await jfr.OpenAsync(UnitTestStatic.Token);
       await jfr.ReadAsync(UnitTestStatic.Token);
 
-      try
-      {
-        var buffer = new byte[200];
-        jfr.GetBytes(1, 0, buffer, 0, 100);
-        Assert.Fail("GetBytes - No Exception");
-      }
-      catch (NotImplementedException)
-      {
-      }
-      catch (Exception ex)
-      {
-        Assert.Fail($"GetBytes - Wrong type of exception  {ex.GetType().Name}");
-      }
-
-      try
-      {
-        var buffer = new byte[200];
-        jfr.GetBytes(1, 0, buffer, 0, 100);
-        Assert.Fail("No Exception");
-      }
-      catch (NotImplementedException)
-      {
-      }
-      catch (Exception ex)
-      {
-        Assert.Fail($"Wrong type of exception  {ex.GetType().Name}");
-      }
-
-      try
-      {
-        var buffer = new byte[200];
-        jfr.GetBytes(1, 0, buffer, 0, 100);
-        Assert.Fail("No Exception");
-      }
-      catch (NotImplementedException)
-      {
-      }
-      catch (Exception ex)
-      {
-        Assert.Fail($"Wrong type of exception  {ex.GetType().Name}");
-      }
-
+      var buffer = new byte[200];
+      Assert.AreEqual(-1L, jfr.GetBytes(1, 0, buffer, 0, 100));
       try
       {
         jfr.GetData(2);
@@ -139,8 +103,8 @@ namespace CsvTools.Tests
       }
     }
 
-		[TestMethod]
-		public async Task ReadJSonTypes()
+    [TestMethod]
+    public async Task ReadJSonTypes()
     {
       var dpd = new CustomProcessDisplay();
       using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Emp.json"), processDisplay: dpd);
@@ -151,7 +115,8 @@ namespace CsvTools.Tests
         Assert.Fail("No Exception thrown");
       }
       catch (FormatException)
-      { }
+      {
+      }
       catch (Exception ex)
       {
         Assert.Fail($"Wrong type of exception  {ex.GetType().Name}");
@@ -163,62 +128,73 @@ namespace CsvTools.Tests
         Assert.Fail("No Exception thrown");
       }
       catch (FormatException)
-      { }
+      {
+      }
       catch (Exception ex)
       {
         Assert.Fail($"Wrong type of exception  {ex.GetType().Name}");
       }
+
       try
       {
         jfr.GetInt64(0);
         Assert.Fail("No Exception thrown");
       }
       catch (FormatException)
-      { }
+      {
+      }
       catch (Exception ex)
       {
         Assert.Fail($"Wrong type of exception  {ex.GetType().Name}");
       }
+
       try
       {
         jfr.GetInt32(0);
         Assert.Fail("No Exception thrown");
       }
       catch (FormatException)
-      { }
+      {
+      }
       catch (Exception ex)
       {
         Assert.Fail($"Wrong type of exception  {ex.GetType().Name}");
       }
+
       try
       {
         jfr.GetInt16(0);
         Assert.Fail("No Exception thrown");
       }
       catch (FormatException)
-      { }
+      {
+      }
       catch (Exception ex)
       {
         Assert.Fail($"Wrong type of exception  {ex.GetType().Name}");
       }
+
       try
       {
         jfr.GetDateTime(0);
         Assert.Fail("No Exception thrown");
       }
       catch (FormatException)
-      { }
+      {
+      }
       catch (Exception ex)
       {
         Assert.Fail($"Wrong type of exception  {ex.GetType().Name}");
       }
+
       try
       {
         jfr.GetBoolean(0);
         Assert.Fail("No Exception thrown");
       }
       catch (FormatException)
-      { }
+      {
+      }
       catch (Exception ex)
       {
         Assert.Fail($"Wrong type of exception  {ex.GetType().Name}");
@@ -229,9 +205,9 @@ namespace CsvTools.Tests
       jfr.GetValues(target);
     }
 
-		[TestMethod]
-		[Timeout(5000)]
-		public async Task ReadJSonEmpAsync()
+    [TestMethod]
+    [Timeout(5000)]
+    public async Task ReadJSonEmpAsync()
     {
       var dpd = new CustomProcessDisplay();
       using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Emp.json"), processDisplay: dpd);
@@ -262,13 +238,14 @@ namespace CsvTools.Tests
       Assert.AreEqual(2782, jfr.RecordNumber);
     }
 
-		[TestMethod]
-		public async Task ReadJSon1Async()
-		{
-			var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason1.json"));
+    [TestMethod]
+    public async Task ReadJSon1Async()
+    {
+      var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason1.json"));
 
       var processDisplay = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption== TrimmingOption.All, setting.TreatTextAsNull, setting.TreatNBSPAsSpace, processDisplay);
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, processDisplay);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(20, jfr.FieldCount);
       await jfr.ReadAsync(UnitTestStatic.Token);
@@ -278,14 +255,15 @@ namespace CsvTools.Tests
       Assert.AreEqual(2, jfr.RecordNumber);
     }
 
-		[TestMethod]
-		public async Task ReadJSon1TypedAsync()
-		{
-			var setting =
-				new JsonFile(UnitTestStatic.GetTestPath("Larger.json"));
+    [TestMethod]
+    public async Task ReadJSon1TypedAsync()
+    {
+      var setting =
+        new JsonFile(UnitTestStatic.GetTestPath("Larger.json"));
 
       var processDisplay = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption== TrimmingOption.All, setting.TreatTextAsNull, setting.TreatNBSPAsSpace, processDisplay);
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, processDisplay);
       await jfr.OpenAsync(UnitTestStatic.Token);
       await jfr.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual(new Guid("ef21069c-3d93-4e07-878d-00e820727f65"), jfr.GetGuid(0));
@@ -299,12 +277,13 @@ namespace CsvTools.Tests
       Assert.IsNull(val[2]);
     }
 
-		[TestMethod]
-		public async Task ReadJSon2Async()
-		{
-			var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason2.json"));
+    [TestMethod]
+    public async Task ReadJSon2Async()
+    {
+      var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason2.json"));
       var dpd = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption== TrimmingOption.All, setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(7, jfr.FieldCount);
       await jfr.ReadAsync(UnitTestStatic.Token);
@@ -318,13 +297,14 @@ namespace CsvTools.Tests
       Assert.AreEqual(29, jfr.RecordNumber);
     }
 
-		[TestMethod]
-		public async Task ReadJSon3Async()
-		{
-			var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason3.json"));
+    [TestMethod]
+    public async Task ReadJSon3Async()
+    {
+      var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason3.json"));
 
       var dpd = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption== TrimmingOption.All, setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(2, jfr.FieldCount);
       await jfr.ReadAsync(UnitTestStatic.Token);
@@ -338,15 +318,16 @@ namespace CsvTools.Tests
       Assert.AreEqual(5, jfr.RecordNumber);
     }
 
-		[TestMethod]
-		public async Task ReadJSon4Async()
-		{
-			var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason4.json"));
+    [TestMethod]
+    public async Task ReadJSon4Async()
+    {
+      var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason4.json"));
 
       var processDisplay = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption== TrimmingOption.All, setting.TreatTextAsNull, setting.TreatNBSPAsSpace, processDisplay);
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, processDisplay);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(3, jfr.FieldCount);
     }
-	}
+  }
 }
