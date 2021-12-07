@@ -103,7 +103,9 @@ namespace CsvTools.Tests
 
       m_JsonFile.Footer = "Footer";
       Assert.AreEqual("Footer", m_JsonFile.Footer);
+#pragma warning disable CS8625 
       m_JsonFile.Footer = null;
+#pragma warning restore CS8625 
       Assert.AreEqual(string.Empty, m_JsonFile.Footer);
 
       m_JsonFile.MappingCollection.Clear();
