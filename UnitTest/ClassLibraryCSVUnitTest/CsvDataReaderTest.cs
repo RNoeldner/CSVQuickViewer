@@ -80,10 +80,7 @@ namespace CsvTools.Tests
       var setting =
         new CsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"))
         {
-          HasFieldHeader = true,
-          FieldDelimiter = "|",
-          FieldQualifier = "\"",
-          SkipEmptyLines = false
+          HasFieldHeader = true, FieldDelimiter = "|", FieldQualifier = "\"", SkipEmptyLines = false
         };
       var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
@@ -490,10 +487,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"),
-        HasFieldHeader = true,
-        SkipEmptyLines = false,
-        ConsecutiveEmptyRows = 3
+        FileName = UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"), HasFieldHeader = true, SkipEmptyLines = false, ConsecutiveEmptyRows = 3
       };
       /*
        * ID,LangCode,ExamDate,Score,Proficiency,IsNativeLang
@@ -846,7 +840,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(NotImplementedException))]
     public async Task CsvDataReaderGetBytesAsync()
     {
       var processDisplay = new CustomProcessDisplay();
@@ -860,11 +853,8 @@ namespace CsvTools.Tests
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
         m_ValidSetting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
-#pragma warning disable CS0618 // Typ oder Element ist veraltet
-#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
-      test.GetBytes(0, 0, null, 0, 0);
-#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
-#pragma warning restore CS0618 // Typ oder Element ist veraltet
+      var buffer = new byte[100];
+      Assert.AreEqual(-1L, test.GetBytes(0, 0, buffer, 0, buffer.Length));
     }
 
     [TestMethod]
@@ -1157,10 +1147,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        HasFieldHeader = false,
-        SkipRows = 1,
-        FieldQualifier = "Carriage return"
+        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), HasFieldHeader = false, SkipRows = 1, FieldQualifier = "Carriage return"
       };
       var exception = false;
       try
