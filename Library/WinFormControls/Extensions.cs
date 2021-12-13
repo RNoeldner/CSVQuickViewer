@@ -113,7 +113,7 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        control.Enabled = false;
+        control.SafeInvoke(() => control.Enabled = false);
         await action.Invoke();
       }
       catch (Exception ex)
@@ -123,8 +123,8 @@ namespace CsvTools
       }
       finally
       {
-        control.Enabled = true;
         Cursor.Current = oldCursor;
+        control.SafeInvoke(() => control.Enabled = true);        
       }
     }
 
