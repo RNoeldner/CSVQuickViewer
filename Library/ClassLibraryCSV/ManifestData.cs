@@ -68,7 +68,7 @@ namespace CsvTools
       throw new FileNotFoundException(dataFile);
     }
 
-    public static async Task<DelimitedFileDetectionResultWithColumns> ReadManifestZip(string fileName)
+    public static async Task<DelimitedFileDetectionResultWithColumns?> ReadManifestZip(string fileName)
     {
       Logger.Debug("Opening Zip file {filename}", fileName);
 
@@ -90,8 +90,7 @@ namespace CsvTools
                    .ConfigureAwait(false);
         }
       }
-
-      throw new FileNotFoundException("Could not locate manifest and matching file");
+      return null;
     }
 
     private static async Task<DelimitedFileDetectionResultWithColumns> ReadManifestFromStream(

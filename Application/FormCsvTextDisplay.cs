@@ -65,9 +65,18 @@ namespace CsvTools
     {
       m_MemoryStream?.Dispose();
       m_MemoryStream = null;
-      m_Stream = new ImprovedStream(new SourceAccess(m_FullPath));
-
-      textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(m_CodePage, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
+      var sa = new SourceAccess(m_FullPath);
+      m_Stream = new ImprovedStream(sa);
+      if (sa.FileType == SourceAccess.FileTypeEnum.Zip || sa.FileType == SourceAccess.FileTypeEnum.Pgp)
+      {
+        var encoding = Encoding.GetEncoding(m_CodePage);
+        using var textReader = new StreamReader((Stream) m_Stream, encoding, true, 4096, true);
+        textBox.Text = textReader.ReadToEnd();
+      }
+      else
+      {
+        textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(m_CodePage));
+      }      
       HighlightVisibleRange();
       prettyPrintJsonToolStripMenuItem.Checked = false;
       originalFileToolStripMenuItem.Checked = true;
@@ -84,13 +93,11 @@ namespace CsvTools
         m_MemoryStream = new MemoryStream();
 
         var encoding = Encoding.GetEncoding(m_CodePage);
-        using (var textReader = new StreamReader((Stream) m_Stream, encoding, true, 4096, true))
-        using (var stringWriter = new StreamWriter(m_MemoryStream, encoding, 4096, true))
-        {
-          var jsonReader = new JsonTextReader(textReader);
-          var jsonWriter = new JsonTextWriter(stringWriter) { Formatting = Formatting.Indented };
-          jsonWriter.WriteToken(jsonReader);
-        }
+        using var textReader = new StreamReader((Stream) m_Stream, encoding, true, 4096, true);
+        using var stringWriter = new StreamWriter(m_MemoryStream, encoding, 4096, true);
+        var jsonReader = new JsonTextReader(textReader);
+        var jsonWriter = new JsonTextWriter(stringWriter) { Formatting = Formatting.Indented };
+        jsonWriter.WriteToken(jsonReader);
 
         m_MemoryStream.Seek(0, SeekOrigin.Begin);
         textBox.OpenBindingStream(m_MemoryStream, encoding);

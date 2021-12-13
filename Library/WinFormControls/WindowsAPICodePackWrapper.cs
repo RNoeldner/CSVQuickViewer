@@ -92,7 +92,14 @@ namespace CsvTools
         commonOpenFileDialog.InitialDirectory = initialDirectory.RemovePrefix();
         if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok && commonOpenFileDialog.FileAsShellObject.IsFileSystemObject)
         {
-          return ((Microsoft.WindowsAPICodePack.Shell.ShellFile) commonOpenFileDialog.FileAsShellObject).Path.LongFileName();
+          try
+          {
+            return ((Microsoft.WindowsAPICodePack.Shell.ShellFile) commonOpenFileDialog.FileAsShellObject).Path.LongFileName();
+          }
+          catch (InvalidCastException)
+          {
+            return commonOpenFileDialog.FileName;
+          }          
         }
       }
       else

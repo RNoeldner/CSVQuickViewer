@@ -153,7 +153,7 @@ namespace CsvTools
       {
         foreach (var columnInfo in Columns)
         {
-          sb.Append(TextEncodeField(columnInfo.Name, columnInfo, true, null, QualifyText, cancellationToken));
+          sb.Append(await TextEncodeFieldAsync(columnInfo.Name, columnInfo, true, null, QualifyText, cancellationToken));
           if (!m_IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
             sb.Append(m_FieldDelimiterChar);
         }
@@ -180,7 +180,7 @@ namespace CsvTools
           if (col == DBNull.Value || (col is string text && string.IsNullOrEmpty(text)))
             emptyColumns++;
           else
-            row.Append(TextEncodeField(col, columnInfo, false, reader, QualifyText, cancellationToken));
+            row.Append(await TextEncodeFieldAsync(col, columnInfo, false, reader, QualifyText, cancellationToken));
 
           if (!m_IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
             row.Append(m_FieldDelimiterChar);
@@ -237,7 +237,7 @@ namespace CsvTools
       return displayAs;
     }
 
-    private async Task<string> TextEncodeField(
+    private async Task<string> TextEncodeFieldAsync(
       object? dataObject,
       WriterColumn columnInfo,
       bool isHeader,
@@ -265,7 +265,7 @@ namespace CsvTools
         {
           if (dataObject is byte[] buffer)
           {
-            await BinaryFormatter.WriteFile(buffer, FileSystemUtils.GetDirectoryName(m_FullPath), displayAs, true, s => HandleError(columnInfo.Name, s),
+            await BinaryFormatter.WriteFileAsync(buffer, FileSystemUtils.GetDirectoryName(m_FullPath), displayAs, true, s => HandleError(columnInfo.Name, s),
               cancellationToken).ConfigureAwait(false);
           }
           else
