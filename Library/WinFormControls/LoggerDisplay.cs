@@ -70,7 +70,7 @@ namespace CsvTools
     {
       if (!IsEnabled(logLevel))
         return;      
-      var text = (exception !=null)?formatter(state, exception):state?.ToString() ?? string.Empty;
+      var text = formatter(state, exception);
 
       if (string.IsNullOrWhiteSpace(text) || m_LastMessage.Equals(text, StringComparison.Ordinal)) return;
       try
