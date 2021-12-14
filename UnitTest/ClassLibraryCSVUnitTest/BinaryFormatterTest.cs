@@ -38,7 +38,7 @@ namespace CsvTools.Tests
     {
       byte[] fileBytes = File.ReadAllBytes(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"));
 
-      await BinaryFormatter.WriteFile(fileBytes, UnitTestStatic.ApplicationDirectory, "NewFile.gz", true, null, UnitTestStatic.Token);
+      await BinaryFormatter.WriteFileAsync(fileBytes, UnitTestStatic.ApplicationDirectory, "NewFile.gz", true, null, UnitTestStatic.Token);
 
       FileSystemUtils.FileDelete(UnitTestStatic.GetTestPath("NewFile.gz"));
     }

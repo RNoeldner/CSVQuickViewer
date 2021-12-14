@@ -48,14 +48,6 @@ namespace CsvTools
     private int m_WarningCount;
     private int m_WarningMax = 100;
 
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="FormMain" /> class.
-    /// </summary>
-    /// <param name="viewSettings">Default view Settings</param>
-#if !NETFRAMEWORK
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-#endif
-
     public FormMain(in ViewSettings viewSettings)
     {
       m_ViewSettings = viewSettings;
@@ -83,9 +75,18 @@ namespace CsvTools
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
       m_SettingsChangedTimerChange.AutoReset = false;
-      m_SettingsChangedTimerChange.Elapsed += async (sender, args) => await OpenDataReaderAsync();
+      m_SettingsChangedTimerChange.Elapsed += async (sender, args) => await OpenDataReaderAsync(m_CancellationTokenSource.Token);
       m_SettingsChangedTimerChange.Stop();
     }
+
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="FormMain" /> class.
+    /// </summary>
+    /// <param name="viewSettings">Default view Settings</param>
+#if !NETFRAMEWORK
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+#endif
+    public CancellationToken CancellationToken => m_CancellationTokenSource.Token;
 
     public DataTable DataTable => detailControl.DataTable;
 
@@ -114,8 +115,9 @@ namespace CsvTools
     ///   Initializes the file settings.
     /// </summary>
     /// <param name="fileName"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task LoadCsvFile(string fileName)
+    public async Task LoadCsvFile(string fileName, CancellationToken cancellationToken)
     {
       if (IsDisposed)
         return;
@@ -133,7 +135,8 @@ namespace CsvTools
       try
       {
         DetachPropertyChanged(m_FileSetting);
-        using var formProcessDisplay = new FormProcessDisplay("Analyse file", false, m_CancellationTokenSource.Token);
+        using var formProcessDisplay = new FormProcessDisplay("Analyse file", false, cancellationToken);
+        formProcessDisplay.Maximum = 0;
         formProcessDisplay.Show(this);
         m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
                            m_ViewSettings.GuessCodePage,
@@ -172,7 +175,7 @@ namespace CsvTools
           SetFileSystemWatcher(fileName);
         });
 
-        await OpenDataReaderAsync();
+        await OpenDataReaderAsync(cancellationToken);
       }
       catch (Exception ex)
       {
@@ -199,7 +202,7 @@ namespace CsvTools
         if (!string.IsNullOrEmpty(fileName))
         {
           Cursor.Current = Cursors.WaitCursor;
-          await LoadCsvFile(fileName!);
+          await LoadCsvFile(fileName!, m_CancellationTokenSource.Token);
         }
       });
     }
@@ -260,7 +263,7 @@ namespace CsvTools
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question,
                 MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-            await OpenDataReaderAsync();
+            await OpenDataReaderAsync(m_CancellationTokenSource.Token);
           else
             m_ConfigChanged = false;
         }
@@ -276,7 +279,7 @@ namespace CsvTools
               MessageBoxButtons.YesNo,
               MessageBoxIcon.Question,
               MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-          await LoadCsvFile(m_FileSetting.FileName);
+          await LoadCsvFile(m_FileSetting.FileName, m_CancellationTokenSource.Token);
         else
           m_FileChanged = false;
 
@@ -314,7 +317,7 @@ namespace CsvTools
       var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
       if (files.Length <= 0) return;
       SaveIndividualFileSetting();
-      await LoadCsvFile(files[0]);
+      await LoadCsvFile(files[0], m_CancellationTokenSource.Token);
     }
 
     /// <summary>
@@ -428,13 +431,13 @@ namespace CsvTools
     {
       if (e.KeyCode != Keys.F5 && (!e.Control || e.KeyCode != Keys.R)) return;
       e.Handled = true;
-      await OpenDataReaderAsync();
+      await OpenDataReaderAsync(m_CancellationTokenSource.Token);
     }
 
     /// <summary>
     ///   Opens the data reader.
     /// </summary>
-    private async Task OpenDataReaderAsync()
+    private async Task OpenDataReaderAsync(CancellationToken cancellationToken)
     {
       if (m_FileSetting is null)
         return;
@@ -454,12 +457,12 @@ namespace CsvTools
           ShowTextPanel(true);
           detailControl.FileSetting = m_FileSetting;
           detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
-          detailControl.CancellationToken = m_CancellationTokenSource.Token;
+          detailControl.CancellationToken = cancellationToken;
           detailControl.ShowInfoButtons = false;
         });
 
-        using (var processDisplay = new FormProcessDisplay(fileNameShort, false, m_CancellationTokenSource.Token))
-        {          
+        using (var processDisplay = new FormProcessDisplay(fileNameShort, false, cancellationToken))
+        {
           processDisplay.Show();
           processDisplay.SetProcess("Reading data...", -1, false);
           processDisplay.Maximum = 100;
@@ -589,7 +592,6 @@ namespace CsvTools
         m_SourceDisplay.Show();
         using var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token);
         proc.Show(this);
-
         proc.Maximum = 0;
         proc.SetProcess("Reading source and applying color coding", 0, false);
         if (m_FileSetting is ICsvFile csv)
@@ -690,13 +692,13 @@ namespace CsvTools
           m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
         }
 
-        await OpenDataReaderAsync();
+        await OpenDataReaderAsync(m_CancellationTokenSource.Token);
 
         ViewSetting.ReStoreViewSetting(
-          store, 
+          store,
           detailControl.FilteredDataGridView.Columns,
-          Array.Empty<ToolStripDataGridViewColumnFilter?>(), 
-          null, 
+          Array.Empty<ToolStripDataGridViewColumnFilter?>(),
+          null,
           null);
         detailControl.ResumeLayout();
       }, this);
