@@ -54,7 +54,7 @@ namespace CsvTools
       return fileName;
     }
 
-    public static async Task WriteFile(byte[]? binaryData, string folder, string fileName, bool overwrite, Action<string>? handleWarning,
+    public static async Task WriteFileAsync(byte[]? binaryData, string folder, string fileName, bool overwrite, Action<string>? handleWarning,
                                        CancellationToken cancellationToken)
     {
       if (binaryData is null || binaryData.GetLength(0) == 0)

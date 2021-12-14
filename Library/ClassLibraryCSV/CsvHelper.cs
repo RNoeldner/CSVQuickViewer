@@ -128,16 +128,18 @@ namespace CsvTools
       }
 #endif
       if (fileName2.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
-        try
+      {
+        var setting = await ManifestData.ReadManifestZip(fileName2).ConfigureAwait(false);
+        if (setting is null)
         {
-          var setting = await ManifestData.ReadManifestZip(fileName2).ConfigureAwait(false);
+          Logger.Information("Trying to read manifest inside zip");
+        }
+        else
+        {
           Logger.Information("Data in zip {filename}", setting.IdentifierInContainer);
           return setting;
         }
-        catch (FileNotFoundException e1)
-        {
-          Logger.Information(e1, "Trying to read manifest inside zip");
-        }
+      }
 
       if (fileName2.EndsWith(ManifestData.cCsvManifestExtension, StringComparison.OrdinalIgnoreCase))
         try
