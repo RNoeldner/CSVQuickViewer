@@ -73,7 +73,7 @@ namespace CsvTools
       else if (!FileSystemUtils.FileExists(fileName))
         frm.SelectFile($"File '{fileName}' not found, opening dialog");
       else
-        frm.LoadCsvFile(FileSystemUtils.GetFullPath(fileName));
+        frm.LoadCsvFile(FileSystemUtils.GetFullPath(fileName), frm.CancellationToken);
 #pragma warning restore 4014
       Application.Run(frm);
     }
