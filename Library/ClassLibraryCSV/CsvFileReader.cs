@@ -489,7 +489,7 @@ namespace CsvTools
     /// </summary>
     public override async Task OpenAsync(CancellationToken token)
     {
-      Logger.Information("Opening delimited file {filename}", FileName);
+      // Logger.Information("Opening delimited file {filename}", FileName);
       await BeforeOpenAsync($"Opening delimited file \"{FileSystemUtils.GetShortDisplayFileName(FullPath)}\"")
         .ConfigureAwait(false);
       try
