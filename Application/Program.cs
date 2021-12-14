@@ -69,9 +69,9 @@ namespace CsvTools
       frm.Show();
 #pragma warning disable 4014
       if (string.IsNullOrEmpty(fileName))
-        frm.SelectFile("No startup file provided");
+        frm.SelectFile("No startup file provided, opening dialog");
       else if (!FileSystemUtils.FileExists(fileName))
-        frm.SelectFile($"File '{fileName}' not found");
+        frm.SelectFile($"File '{fileName}' not found, opening dialog");
       else
         frm.LoadCsvFile(FileSystemUtils.GetFullPath(fileName));
 #pragma warning restore 4014

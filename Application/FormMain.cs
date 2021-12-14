@@ -133,13 +133,14 @@ namespace CsvTools
       try
       {
         DetachPropertyChanged(m_FileSetting);
-
+        using var formProcessDisplay = new FormProcessDisplay("Analyse file", false, m_CancellationTokenSource.Token);
+        formProcessDisplay.Show(this);
         m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
                            m_ViewSettings.GuessCodePage,
                            m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
                            m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-                           m_ViewSettings.FillGuessSettings, null, m_CancellationTokenSource.Token)).PhysicalFile();
-
+                           m_ViewSettings.FillGuessSettings, formProcessDisplay, formProcessDisplay.CancellationToken)).PhysicalFile();
+        formProcessDisplay.Close();
         if (m_FileSetting is null)
           return;
 

@@ -69,7 +69,6 @@ namespace CsvTools
         m_FileReader.Warning += addWarning;
         m_FileReader.Warning -= warningList.Add;
       }
-
       Logger.Information("Reading data for display");
       await m_FileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
