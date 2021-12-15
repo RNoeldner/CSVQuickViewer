@@ -135,15 +135,17 @@ namespace CsvTools
       try
       {
         DetachPropertyChanged(m_FileSetting);
-        using var formProcessDisplay = new FormProcessDisplay("Analyse file", false, cancellationToken);
-        formProcessDisplay.Maximum = 0;
-        formProcessDisplay.Show(this);
-        m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
-                           m_ViewSettings.GuessCodePage,
-                           m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
-                           m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-                           m_ViewSettings.FillGuessSettings, formProcessDisplay, formProcessDisplay.CancellationToken)).PhysicalFile();
-        formProcessDisplay.Close();
+        using (var formProcessDisplay = new FormProcessDisplay("Examining file", false, cancellationToken))
+        {
+          formProcessDisplay.Maximum = 0;
+          formProcessDisplay.Show(this);
+          m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
+                             m_ViewSettings.GuessCodePage,
+                             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
+                             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
+                             m_ViewSettings.FillGuessSettings, formProcessDisplay, formProcessDisplay.CancellationToken)).PhysicalFile();
+        }
+
         if (m_FileSetting is null)
           return;
 
@@ -179,7 +181,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        this.ShowError(ex, "Examining File");
+        this.ShowError(ex, $"Load File {fileName}");
       }
     }
 
@@ -441,13 +443,13 @@ namespace CsvTools
     {
       if (m_FileSetting is null)
         return;
-
-      var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-
+      
       // Stop Property changed events for the time this is processed we might store data in the FileSetting
       DetachPropertyChanged(m_FileSetting);
 
+      var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+    
       try
       {
         var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
@@ -471,7 +473,7 @@ namespace CsvTools
             AddWarning, processDisplay.CancellationToken);
         }
 
-        if (m_DisposedValue)
+        if (cancellationToken.IsCancellationRequested)
           return;
 
         foreach (var columnName in detailControl.DataTable.GetRealColumns())
@@ -503,14 +505,17 @@ namespace CsvTools
           }
         }
       }
-      catch (Exception exc)
+      catch (Exception)
       {
-        if (!m_DisposedValue)
-          this.ShowError(exc, "Opening File");
+        if (!cancellationToken.IsCancellationRequested)
+          throw;
       }
       finally
       {
-        if (!m_DisposedValue)
+        // Re enable event watching
+        AttachPropertyChanged(m_FileSetting);
+
+        if (!cancellationToken.IsCancellationRequested)
         {
           this.SafeInvoke(() => ShowTextPanel(false));
 
@@ -518,10 +523,7 @@ namespace CsvTools
           Cursor.Current = oldCursor;
 
           m_ConfigChanged = false;
-          m_FileChanged = false;
-
-          // Re enable event watching
-          AttachPropertyChanged(m_FileSetting);
+          m_FileChanged = false;         
         }
       }
     }
