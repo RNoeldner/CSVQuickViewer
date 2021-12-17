@@ -187,7 +187,7 @@ namespace CsvTools
 
     public async Task SelectFile(string message)
     {
-      await this.RunWithHourglassAsync(async () =>
+      try
       {
         loggerDisplay.LogInformation(message);
         var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
@@ -202,11 +202,12 @@ namespace CsvTools
 
         var fileName = WindowsAPICodePackWrapper.Open(".", "File to Display", strFilter, null);
         if (!string.IsNullOrEmpty(fileName))
-        {
-          Cursor.Current = Cursors.WaitCursor;
           await LoadCsvFile(fileName!, m_CancellationTokenSource.Token);
-        }
-      });
+      }
+      catch (Exception ex)
+      {
+        this.ShowError(ex, $"Select File");
+      }
     }
 
     private void AddWarning(object? sender, WarningEventArgs args)
@@ -318,7 +319,9 @@ namespace CsvTools
       // Set the filename
       var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
       if (files.Length <= 0) return;
+      if (WindowsAPICodePackWrapper.IsDialogOpen) return;
       SaveIndividualFileSetting();
+
       await LoadCsvFile(files[0], m_CancellationTokenSource.Token);
     }
 
@@ -329,7 +332,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
     private void FileDragEnter(object? sender, DragEventArgs e)
     {
-      if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
+      if (e.Data.GetDataPresent(DataFormats.FileDrop, false) && !WindowsAPICodePackWrapper.IsDialogOpen)
         e.Effect = DragDropEffects.All;
     }
 
@@ -443,13 +446,13 @@ namespace CsvTools
     {
       if (m_FileSetting is null)
         return;
-      
+
       // Stop Property changed events for the time this is processed we might store data in the FileSetting
       DetachPropertyChanged(m_FileSetting);
 
       var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
       Cursor.Current = Cursors.WaitCursor;
-    
+
       try
       {
         var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
@@ -523,7 +526,7 @@ namespace CsvTools
           Cursor.Current = oldCursor;
 
           m_ConfigChanged = false;
-          m_FileChanged = false;         
+          m_FileChanged = false;
         }
       }
     }
