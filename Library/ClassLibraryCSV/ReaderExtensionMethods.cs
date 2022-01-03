@@ -168,11 +168,7 @@ namespace CsvTools
           if (wrapper.ReaderMapping.HasErrors)
             wrapper.ReaderMapping.SetDataRowErrors(dataRow);
         }
-      }
-      catch (Exception ex)
-      {
-        Logger.Warning(ex, "Loading data from reader to data table");
-      }
+      }      
       finally
       {
         intervalAction?.Invoke(processDisplay, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent, false);

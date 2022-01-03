@@ -104,9 +104,9 @@ namespace CsvTools
     public static int Count(this IEnumerable? items) =>
       items switch
       {
-        null            => 0,
+        null => 0,
         ICollection col => col.Count,
-        _               => Enumerable.Count(items.Cast<object>())
+        _ => Enumerable.Count(items.Cast<object>())
       };
 
     /// <summary>
@@ -117,18 +117,18 @@ namespace CsvTools
     public static string DataTypeDisplay(this DataType dataType) =>
       dataType switch
       {
-        DataType.DateTime       => "Date Time",
-        DataType.Integer        => "Integer",
-        DataType.Double         => "Floating  Point (High Range)",
-        DataType.Numeric        => "Money (High Precision)",
-        DataType.Boolean        => "Boolean",
-        DataType.Guid           => "Guid",
-        DataType.TextPart       => "Text Part",
-        DataType.TextToHtml     => "Encode HTML (Linefeed and CData Tags)",
+        DataType.DateTime => "Date Time",
+        DataType.Integer => "Integer",
+        DataType.Double => "Floating  Point (High Range)",
+        DataType.Numeric => "Money (High Precision)",
+        DataType.Boolean => "Boolean",
+        DataType.Guid => "Guid",
+        DataType.TextPart => "Text Part",
+        DataType.TextToHtml => "Encode HTML (Linefeed and CData Tags)",
         DataType.TextToHtmlFull => "Encode HTML ('<' -> '&lt;')",
-        DataType.String         => "Text",
-        DataType.Binary         => "Binary (File Reference)",
-        _                       => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, $"Data Type {dataType} not known in {nameof(DataTypeDisplay)}")
+        DataType.String => "Text",
+        DataType.Binary => "Binary (File Reference)",
+        _ => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, $"Data Type {dataType} not known in {nameof(DataTypeDisplay)}")
       };
 
     public static string Description(this RecordDelimiterType item)
@@ -236,26 +236,26 @@ namespace CsvTools
 
       return input.WrittenPunctuationToChar() switch
       {
-        '\t'        => "Horizontal Tab",
-        ' '         => "Space",
+        '\t' => "Horizontal Tab",
+        ' ' => "Space",
         (char) 0xA0 => "Non-breaking space",
-        '\\'        => "Backslash: \\",
-        '/'         => "Slash: /",
-        ','         => "Comma: ,",
-        ';'         => "Semicolon: ;",
-        ':'         => "Colon: :",
-        '|'         => "Pipe: |",
-        '\"'        => "Quotation marks: \"",
-        '\''        => "Apostrophe: \'",
-        '&'         => "Ampersand: &",
-        '*'         => "Asterisk: *",
-        '`'         => "Tick Mark: `",
-        '✓'         => "Check mark: ✓",
-        '\u001F'    => "Unit Separator: Char 31",
-        '\u001E'    => "Record Separator: Char 30",
-        '\u001D'    => "Group Separator: Char 29",
-        '\u001C'    => "File Separator: Char 28",
-        _           => input
+        '\\' => "Backslash: \\",
+        '/' => "Slash: /",
+        ',' => "Comma: ,",
+        ';' => "Semicolon: ;",
+        ':' => "Colon: :",
+        '|' => "Pipe: |",
+        '\"' => "Quotation marks: \"",
+        '\'' => "Apostrophe: \'",
+        '&' => "Ampersand: &",
+        '*' => "Asterisk: *",
+        '`' => "Tick Mark: `",
+        '✓' => "Check mark: ✓",
+        '\u001F' => "Unit Separator: Char 31",
+        '\u001E' => "Record Separator: Char 30",
+        '\u001D' => "Group Separator: Char 29",
+        '\u001C' => "File Separator: Char 28",
+        _ => input
       };
     }
 
@@ -313,14 +313,14 @@ namespace CsvTools
     public static Type GetNetType(this DataType dt) =>
       dt switch
       {
-        DataType.DateTime                      => typeof(DateTime),
-        DataType.Integer                       => typeof(long),
-        DataType.Double                        => typeof(double),
-        DataType.Numeric                       => typeof(decimal),
-        DataType.Boolean                       => typeof(bool),
-        DataType.Guid                          => typeof(Guid),
-        DataType.String                        => typeof(string),
-        _                                      => typeof(string)
+        DataType.DateTime => typeof(DateTime),
+        DataType.Integer => typeof(long),
+        DataType.Double => typeof(double),
+        DataType.Numeric => typeof(decimal),
+        DataType.Boolean => typeof(bool),
+        DataType.Guid => typeof(Guid),
+        DataType.String => typeof(string),
+        _ => typeof(string)
       };
 
     /// <summary>
@@ -382,14 +382,14 @@ namespace CsvTools
     public static string NewLineString(this RecordDelimiterType type) =>
       type switch
       {
-        RecordDelimiterType.LF   => "\n",
-        RecordDelimiterType.CR   => "\r",
+        RecordDelimiterType.LF => "\n",
+        RecordDelimiterType.CR => "\r",
         RecordDelimiterType.CRLF => "\r\n",
         RecordDelimiterType.LFCR => "\n\r",
-        RecordDelimiterType.RS   => "▲",
-        RecordDelimiterType.US   => "▼",
+        RecordDelimiterType.RS => "▲",
+        RecordDelimiterType.US => "▼",
         RecordDelimiterType.None => string.Empty,
-        _                        => string.Empty
+        _ => string.Empty
       };
 
     public static string NoRecordSQL(this string source)
@@ -667,7 +667,16 @@ namespace CsvTools
     public static void SetMaximum(this IProcessDisplay? processDisplay, long maximum)
     {
       if (processDisplay is IProcessDisplayTime processDisplayTime)
-        processDisplayTime.Maximum = maximum;
+      {
+        try
+        {
+          processDisplayTime.Maximum = maximum;
+        }
+        catch (InvalidOperationException)
+        {
+          // ignore
+        }
+      }
     }
 
     /// <summary>
