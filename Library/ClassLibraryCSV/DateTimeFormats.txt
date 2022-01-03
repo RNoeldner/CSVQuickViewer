@@ -288,6 +288,7 @@ d/M/yyyy hh:mm tt
 dd/MM/yy HH:mm:ss
 dd/MM/yy hh:mm tt
 yyyyMMddTHH:mm:ss
+yyyyMMdd HH:mm:ss
 MMM/dd/yy h:mm tt
 d MMM, yyyy HH:mm
 d MMMM yyyy HH:mm
@@ -353,6 +354,7 @@ d/M/yy h:mm tt
 d/M/yyyy HH:mm
 dd/MM/yy HH:mm
 yyyyMMddTHH:mm
+yyyyMMdd HH:mm
 MMM/dd/yy H:mm
 ddd d MMM yyyy
 M/d/yyyy H:mm
