@@ -84,10 +84,11 @@ namespace CsvTools
         includeError,
         fileSetting.DisplayStartLineNo,
         fileSetting.DisplayRecordNo,
-        fileSetting.DisplayEndLineNo);      
+        fileSetting.DisplayEndLineNo);
 
 
       m_ActionBegin?.Invoke();
+
       await GetBatchByTimeSpan(durationInitial, includeError, processDisplay, m_SetDataTable, cancellationToken).ConfigureAwait(false);
 
       m_SetLoadNextBatchAsync?.Invoke((process, cancellationToken) => GetBatchByTimeSpan(TimeSpan.MaxValue, includeError, process, dt => m_GetDataTable().Merge(dt), cancellationToken));
@@ -112,36 +113,48 @@ namespace CsvTools
       Action<DataTable> action, CancellationToken cancellationToken)
     {
       if (m_DataReaderWrapper is null)
-        return;      
+        return;
+      processDisplay?.SetMaximum(100);
+
+
+      var dt = await m_DataReaderWrapper.LoadDataTable(
+                 maxDuration,
+                 restoreError,
+                 processDisplay,
+                 cancellationToken).ConfigureAwait(false);
+
+      // for Debuging its nice to know where it all came form
+      if (!string.IsNullOrEmpty(m_ID))
+        dt.TableName = m_ID;
       try
       {
-        processDisplay?.SetMaximum(100);
-
-        var dt = await m_DataReaderWrapper.LoadDataTable(
-                   maxDuration,
-                   restoreError,
-                   processDisplay,
-                   cancellationToken).ConfigureAwait(false);
-        // for Debuging its nice to know where it all came form
-        if (!string.IsNullOrEmpty(m_ID))
-          dt.TableName = m_ID;
-
         action.Invoke(dt);
+      }
+      catch (InvalidOperationException)
+      {
+        // ignore
+      }
 
-        if (m_RefreshDisplayAsync != null)
+
+      if (m_RefreshDisplayAsync != null)
+      {
+        try
+        {
           await m_RefreshDisplayAsync(FilterType.All, cancellationToken).ConfigureAwait(false);
+        }
+        catch (InvalidOperationException)
+        {
+          // ignore
+        }
+      }
 
-        if (m_DataReaderWrapper.EndOfFile)
+      if (m_DataReaderWrapper.EndOfFile)
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
           await DisposeAsync();
 #else
-          Dispose();
+        Dispose();
 #endif
-      }
-      catch (Exception e)
-      {
-        Logger.Warning(e, $"{nameof(TwoStepDataTableLoader)}.{nameof(GetBatchByTimeSpan)} for {m_ID} - {e.Message}");
-      }
+
     }
   }
 }

@@ -21,6 +21,8 @@ namespace CsvTools
 #endif
 
         MouseWheel += FormMouseWheel;
+        FormClosed += (o, e) => 
+          Parent?.Focus();
       }
       catch (Exception)
       {
@@ -66,12 +68,12 @@ namespace CsvTools
 
     private void InitializeComponent()
     {
-      ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResizeForm));
-      this.SuspendLayout();
+      ComponentResourceManager resources = new ComponentResourceManager(typeof(ResizeForm));
+      SuspendLayout();
       // ResizeForm
-      this.ClientSize = new System.Drawing.Size(282, 253);
-      this.Icon = (resources.GetObject("$this.Icon") as Icon);
-      this.ResumeLayout(false);
+      ClientSize = new Size(282, 253);
+      Icon = resources.GetObject("$this.Icon") as Icon;
+      ResumeLayout(false);
     }
   }
 }

@@ -354,21 +354,13 @@ namespace CsvTools
       else
         Logger.Warning(ex, ex.SourceExceptionMessage());
       Cursor.Current = Cursors.Default;
-#if DEBUG
-      _MessageBox.ShowBig(
-        ((from != null) ? $"Error in {from.GetType().Name}\n\n" : string.Empty) + ex.ExceptionMessages() +
-        ((ex.StackTrace != null) ? "\n\nMethod:\n" + ex.StackTrace : string.Empty),
-        string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}",
-        MessageBoxButtons.OK, MessageBoxIcon.Warning,
-        timeout: 20);
-#else
+
       _MessageBox.Show(
         ex.ExceptionMessages(),
         string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}",
         MessageBoxButtons.OK,
         MessageBoxIcon.Warning,
         timeout: 60);
-#endif
     }
 
     public static WindowState StoreWindowState(this Form form, int customInt = int.MinValue,
