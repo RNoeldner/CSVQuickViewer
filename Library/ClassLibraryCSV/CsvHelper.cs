@@ -152,14 +152,9 @@ namespace CsvTools
         {
           Logger.Information(e2, "Trying to read manifest");
         }
-      var disallowedDelimiter = new List<char>();
-      bool hasFields;
-      IFileReader reader;
-      DelimitedFileDetectionResult detectionResult;
-      do
-      {
-        // Determine from file
-        detectionResult = await GetDetectionResultFromFile(
+
+      // Determine from file
+      var detectionResult = await GetDetectionResultFromFile(
                                 fileName2,
                                 processDisplay,
                                 guessJson,
@@ -170,27 +165,14 @@ namespace CsvTools
                                 guessHasHeader,
                                 guessNewLine,
                                 guessCommentLine,
-                                disallowedDelimiter,
                                 cancellationToken).ConfigureAwait(false);
-        hasFields = true;
-        processDisplay?.SetProcess("Checking found values by opening the file", -1, true);
-        reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
-        await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
-
-        // if its a delimted file but we do not have fields,
-        // the delimiter must have been wrong, pick another one, after 3 though give up
-        if (!detectionResult.IsJson && reader.FieldCount == 0 && disallowedDelimiter.Count<3)
-        {
-          processDisplay?.SetProcess($"Found field delimiter {detectionResult.FieldDelimiter} is not valid, checking for an alternative", -1, true);
-          hasFields = false;
-          disallowedDelimiter.Add(detectionResult.FieldDelimiter.WrittenPunctuationToChar());
-          // no need to check for Json again
-          guessJson = false;
-        }
-      } while (!hasFields);
 
       processDisplay?.SetProcess("Determining column format by reading samples", -1, true);
-
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+      await
+#endif
+      using var reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
+      await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
       var (_, b) = await reader.FillGuessColumnFormatReaderAsyncReader(
                      fillGuessSettings,
                      null,
@@ -198,9 +180,6 @@ namespace CsvTools
                      true,
                      "NULL",
                      cancellationToken).ConfigureAwait(false);
-
-      reader.Dispose();
-
       return new DelimitedFileDetectionResultWithColumns(detectionResult, b);
     }
 
@@ -635,17 +614,22 @@ namespace CsvTools
                                                                                       bool guessHasHeader,
                                                                                       bool guessNewLine,
                                                                                       bool guessCommentLine,
-                                                                                      IEnumerable<char>? disallowedDelimiter,
                                                                                       CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(fileName))
-        throw new ArgumentException("file name can not be empty", nameof(fileName));
+        throw new ArgumentException("File name can not be empty", nameof(fileName));
 
+      var disallowedDelimiter = new List<char>();
+      bool hasFields;
+      DelimitedFileDetectionResult detectionResult;
+      do
+      {
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-      await
+        await
 #endif
-      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
-      return await improvedStream.GetDetectionResult(
+        using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
+        // Determine from file
+        detectionResult = await improvedStream.GetDetectionResult(
                fileName,
                processDisplay,
                guessJson,
@@ -658,6 +642,30 @@ namespace CsvTools
                guessCommentLine,
                disallowedDelimiter,
                cancellationToken).ConfigureAwait(false);
+
+        hasFields = true;
+        // if its a delimted file but we do not have fields,
+        // the delimiter must have been wrong, pick another one, after 3 though give up
+        if (!detectionResult.IsJson && disallowedDelimiter.Count<3)
+        {
+          processDisplay?.SetProcess($"Reading to check field delimiter", -1, true);
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+          await
+#endif
+          using var reader = GetReaderFromDetectionResult(fileName, detectionResult, processDisplay);
+          await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
+          if (reader.FieldCount == 0)
+          {
+            processDisplay?.SetProcess($"Found field delimiter { detectionResult.FieldDelimiter} is not valid, checking for an alternative", -1, true);
+            hasFields = false;
+            disallowedDelimiter.Add(detectionResult.FieldDelimiter.WrittenPunctuationToChar());            
+            // no need to check for Json again
+            guessJson = false;
+          }
+        }
+      } while (!hasFields);
+
+      return detectionResult;
     }
 
     /// <summary>
@@ -906,9 +914,7 @@ namespace CsvTools
           starts[test]++;
           // do not check further once a line is counted, by having ## before # a line starting with
           // ## will not be counted twice
-#pragma warning disable S1751
           break;
-#pragma warning restore S1751
         }
       }
 
