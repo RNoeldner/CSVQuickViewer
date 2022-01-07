@@ -20,7 +20,7 @@ namespace CsvTools.Tests
   public sealed class FormMainTests
   {
     [TestMethod]
-    [Timeout(25000)]
+    [Timeout(20000)]
     public async System.Threading.Tasks.Task FormMain_BasicCSVAsync()
     {
       using var frm = new FormMain(new ViewSettings());
@@ -32,11 +32,11 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(25000)]
+    [Timeout(20000)]
     public async System.Threading.Tasks.Task FormMain_AllFormatsPipeAsync()
     {
       using var frm = new FormMain(new ViewSettings());
-      await UnitTestStatic.ShowFormAndCloseAsync(frm, .1, frm.LoadCsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), UnitTestStatic.Token),
+      await UnitTestStatic.ShowFormAndCloseAsync(frm, .1, frm.LoadCsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), UnitTestStatic.Token), 
         UnitTestStatic.Token);
       Assert.IsNotNull(frm.DataTable);
       // 45 records, one of the lines has a linefeed

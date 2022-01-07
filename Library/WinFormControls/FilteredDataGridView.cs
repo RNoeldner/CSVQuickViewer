@@ -288,7 +288,7 @@ namespace CsvTools
     /// <returns><c>true</c> if column visibility has changed</returns>
     public bool HideEmptyColumns()
     {
-      if (Columns.Count == 0 || DataView ==null)
+      if (Columns.Count == 0 || DataView == null)
         return false;
 
       var hasChanges = false;

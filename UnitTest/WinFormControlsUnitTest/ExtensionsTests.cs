@@ -28,88 +28,75 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void CtrlATes()
     {
-      using (var frm = new Form())
+      using var frm = new Form();
+      frm.Text = "Testing...";
+      frm.Show();
+
+      using (TextBox tb = new TextBox())
       {
-        frm.Text = "Testing...";
-        frm.Show();
-
-        using (TextBox tb = new TextBox())
-        {
-          frm.Controls.Add(tb);
-          tb.Text = "Some Text";
-          frm.CtrlA(tb, new KeyEventArgs(Keys.Control | Keys.A));
-          Assert.AreEqual("Some Text", tb.SelectedText);
-          frm.Controls.Remove(tb);
-        }
-
-        using (ListView lv = new ListView())
-        {
-          frm.Controls.Add(lv);
-          frm.CtrlA(lv, new KeyEventArgs(Keys.Control | Keys.A));
-        }
+        frm.Controls.Add(tb);
+        tb.Text = "Some Text";
+        frm.CtrlA(tb, new KeyEventArgs(Keys.Control | Keys.A));
+        Assert.AreEqual("Some Text", tb.SelectedText);
+        frm.Controls.Remove(tb);
       }
+
+      using ListView lv = new ListView();
+      frm.Controls.Add(lv);
+      frm.CtrlA(lv, new KeyEventArgs(Keys.Control | Keys.A));
     }
 
     [TestMethod]
     [Timeout(2000)]
     public void UpdateListViewColumnFormatTest()
     {
-      using (var lv = new ListView())
+      using var lv = new ListView();
+      var colFmt = new List<IColumn>();
       {
-        var colFmt = new List<IColumn>();
-
-        {
-          var item = lv.Items.Add("Test");
-          item.Selected = true;
-        }
-        lv.UpdateListViewColumnFormat(colFmt);
-        Assert.AreEqual(0, lv.Items.Count);
-
-        {
-          lv.Items.Add("Test1");
-          var item = lv.Items.Add("Test");
-          item.Selected = true;
-        }
-
-        colFmt.Add(new Column { Name = "Test" });
-        lv.UpdateListViewColumnFormat(colFmt);
+        var item = lv.Items.Add("Test");
+        item.Selected = true;
       }
+      lv.UpdateListViewColumnFormat(colFmt);
+      Assert.AreEqual(0, lv.Items.Count);
+
+      {
+        lv.Items.Add("Test1");
+        var item = lv.Items.Add("Test");
+        item.Selected = true;
+      }
+
+      colFmt.Add(new Column { Name = "Test" });
+      lv.UpdateListViewColumnFormat(colFmt);
     }
 
     [TestMethod]
     [Timeout(2000)]
     public async Task RunWithHourglassAsyncTest()
     {
-      using (var ctrl = new ToolStripButton())
-      {
-        var done = false;
-        await ctrl.RunWithHourglassAsync(async () => await Task.Run(() => done = true), null);
-        Assert.IsTrue(done);
-      }
+      using var ctrl = new ToolStripButton();
+      var done = false;
+      await ctrl.RunWithHourglassAsync(async () => await Task.Run(() => done = true), null);
+      Assert.IsTrue(done);
     }
 
     [TestMethod]
     [Timeout(2000)]
     public void RunWithHourglassTest()
     {
-      using (var ctrl = new ToolStripButton())
-      {
-        var done = false;
-        ctrl.RunWithHourglass(() => done = true, null);
-        Assert.IsTrue(done);
-      }
+      using var ctrl = new ToolStripButton();
+      var done = false;
+      ctrl.RunWithHourglass(() => done = true, null);
+      Assert.IsTrue(done);
     }
 
     [TestMethod]
-    [Timeout(65000)]
+    [Timeout(4000)]
     public void ShowError()
     {
-      using (var frm = new Form())
-      {
-        frm.Text = "Testing...";
-        frm.Show();
-        frm.ShowError(new Exception(), "Text");
-      }
+      using var frm = new Form();
+      frm.Text = "Testing...";
+      frm.Show();
+      frm.ShowError(new Exception(), "Text", 3);
     }
 
     [TestMethod]
@@ -117,18 +104,14 @@ namespace CsvTools.Tests
     public void WriteBindingTest()
     {
       var obj = new DisplayItem<string>("15", "Text");
-      using (var bindingSource = new BindingSource { DataSource = obj })
-      {
-        var bind = new Binding("Text", bindingSource, "ID", true);
-        using (var textBoxBox = new TextBox())
-        {
-          textBoxBox.DataBindings.Add(bind);
-          textBoxBox.Text = "12";
+      using var bindingSource = new BindingSource { DataSource = obj };
+      var bind = new Binding("Text", bindingSource, "ID", true);
+      using var textBoxBox = new TextBox();
+      textBoxBox.DataBindings.Add(bind);
+      textBoxBox.Text = "12";
 
-          Assert.AreEqual(bind, textBoxBox.GetTextBinding());
-          textBoxBox.WriteBinding();
-        }
-      }
+      Assert.AreEqual(bind, textBoxBox.GetTextBinding());
+      textBoxBox.WriteBinding();
     }
 
     [TestMethod]
@@ -146,15 +129,13 @@ namespace CsvTools.Tests
         Assert.IsNotNull(prc, "GetProcessDisplay Without Logger");
       }
 
-      using (var frm = new Form())
-      {
-        frm.Text = "Testing...";
-        frm.Show();
-        var csv = new CsvFile() { ShowProgress = true };
-        Assert.IsInstanceOfType(csv.GetProcessDisplay(frm, true, UnitTestStatic.Token), typeof(FormProcessDisplay));
-        csv.ShowProgress = false;
-        Assert.IsNotInstanceOfType(csv.GetProcessDisplay(frm, true, UnitTestStatic.Token), typeof(FormProcessDisplay));
-      }
+      using var frm = new Form();
+      frm.Text = "Testing...";
+      frm.Show();
+      var csv = new CsvFile() { ShowProgress = true };
+      Assert.IsInstanceOfType(csv.GetProcessDisplay(frm, true, UnitTestStatic.Token), typeof(FormProcessDisplay));
+      csv.ShowProgress = false;
+      Assert.IsNotInstanceOfType(csv.GetProcessDisplay(frm, true, UnitTestStatic.Token), typeof(FormProcessDisplay));
     }
 
     [TestMethod]
@@ -170,37 +151,34 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void LoadWindowStateTest()
     {
-      using (var value = new FormProcessDisplay())
-      {
-        value.Show();
-        var state = new WindowState(new Rectangle(10, 10, 200, 200), FormWindowState.Normal) { CustomInt = 27, CustomText = "Test" };
-        var result1 = -1;
-        var result2 = "Hello";
-        value.LoadWindowState(state, val => { result1 = val; }, val => { result2 = val; });
-        Assert.AreEqual(state.CustomInt, result1);
-        Assert.AreEqual(state.CustomText, result2);
-      }
+      using var value = new FormProcessDisplay();
+      value.Show();
+      var state = new WindowState(new Rectangle(10, 10, 200, 200), FormWindowState.Normal) { CustomInt = 27, CustomText = "Test" };
+      var result1 = -1;
+      var result2 = "Hello";
+      value.LoadWindowState(state, val => { result1 = val; }, val => { result2 = val; });
+      Assert.AreEqual(state.CustomInt, result1);
+      Assert.AreEqual(state.CustomText, result2);
     }
 
     [TestMethod]
     [Timeout(2000)]
     public void StoreWindowStateTest()
     {
-      using (var value = new FormProcessDisplay())
-      {
-        value.Show();
-        var state1 = new WindowState(new Rectangle(10, 10, value.Width, value.Height),
-          FormWindowState.Normal) { CustomInt = 27, CustomText = "Test" };
-        var result1 = -1;
-        value.LoadWindowState(state1, val => { result1 = val; }, val => { });
+      using var value = new FormProcessDisplay();
+      value.Show();
+      var state1 = new WindowState(new Rectangle(10, 10, value.Width, value.Height),
+        FormWindowState.Normal)
+      { CustomInt = 27, CustomText = "Test" };
+      var result1 = -1;
+      value.LoadWindowState(state1, val => { result1 = val; }, val => { });
 
-        var state2 = value.StoreWindowState(result1, "World");
-        // Assert.AreEqual(state1.CustomText, state2.CustomText);
-        Assert.AreEqual(state1.CustomInt, state2.CustomInt, "CustomInt");
-        Assert.AreEqual("World", state2.CustomText, "CustomText");
-        //Assert.AreEqual(state1.Left, state2.Left, "Left");
-        Assert.AreEqual(state1.Width, state2.Width, "Width");
-      }
+      var state2 = value.StoreWindowState(result1, "World");
+      // Assert.AreEqual(state1.CustomText, state2.CustomText);
+      Assert.AreEqual(state1.CustomInt, state2.CustomInt, "CustomInt");
+      Assert.AreEqual("World", state2.CustomText, "CustomText");
+      //Assert.AreEqual(state1.Left, state2.Left, "Left");
+      Assert.AreEqual(state1.Width, state2.Width, "Width");
     }
   }
 }
