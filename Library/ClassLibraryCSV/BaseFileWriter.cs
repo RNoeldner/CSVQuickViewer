@@ -279,9 +279,9 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
         await
 #endif
-        using var improvedStream = (Stream) FunctionalDI.OpenStream(sourceAccess);
+        using var stream = (Stream) FunctionalDI.OpenStream(sourceAccess);
 
-        await WriteReaderAsync(reader, improvedStream, token).ConfigureAwait(false);
+        await WriteReaderAsync(reader, stream, token).ConfigureAwait(false);
       }
       catch (Exception exc)
       {

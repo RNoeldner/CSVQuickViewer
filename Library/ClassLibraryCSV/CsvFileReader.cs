@@ -503,8 +503,7 @@ namespace CsvTools
             m_ImprovedStream.Dispose();
 #endif
 
-          m_ImprovedStream = FunctionalDI.OpenStream(
-            new SourceAccess(FullPath) { IdentifierInContainer = m_IdentifierInContainer });
+          m_ImprovedStream = FunctionalDI.OpenStream( new SourceAccess(FullPath) { IdentifierInContainer = m_IdentifierInContainer });
         }
         else
         {

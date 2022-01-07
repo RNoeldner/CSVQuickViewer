@@ -173,7 +173,7 @@ namespace CsvTools
     {
       if (!addErrorInfo)
         return;
-      if (string.IsNullOrEmpty(errorText))
+      if (errorText is null || errorText.Length==0)
         sbHtml.Append(m_HtmlStyle.TDEmpty);
       else
       {
