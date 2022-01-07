@@ -14,10 +14,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using System.Linq;
 
 #nullable enable
 
@@ -173,12 +173,10 @@ namespace CsvTools
     {
       if (!addErrorInfo)
         return;
-      if (errorText is null || errorText.Length==0)
+      if (errorText is null || errorText.Length == 0)
         sbHtml.Append(m_HtmlStyle.TDEmpty);
       else
-      {
         style.AddHtmlCell(sbHtml, m_HtmlStyle.TD, string.Empty, errorText, true);
-      }
 
       stringBuilder.Append('\t');
       stringBuilder.Append(EscapeTab(errorText));

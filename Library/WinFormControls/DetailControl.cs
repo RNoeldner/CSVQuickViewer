@@ -752,8 +752,7 @@ namespace CsvTools
           m_FormUniqueDisplay = new FormUniqueDisplay(
             m_DataTable.Clone(),
             m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-            columnName, HTMLStyle)
-          { Icon = ParentForm?.Icon };
+            columnName, HTMLStyle) { Icon = ParentForm?.Icon };
           m_FormUniqueDisplay.ShowDialog(ParentForm);
         }
         catch (Exception ex)
@@ -1026,7 +1025,7 @@ namespace CsvTools
 
       this.SafeInvokeNoHandleNeeded(() =>
       {
-        /// Now apply filter
+        // Now apply filter
         FilteredDataGridView.DataSource = null;
 
         m_BindingSource.DataSource = newDt;
@@ -1040,18 +1039,16 @@ namespace CsvTools
         FilteredDataGridView.SetRowHeight();
 
         if (oldOrder != SortOrder.None && !string.IsNullOrEmpty(oldSortedColumn))
-          Sort(oldSortedColumn!,
-            oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
+          Sort(oldSortedColumn, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
 
-        var newIndex = 0;
-        if (type == FilterType.ErrorsAndWarning)
-          newIndex = 1;
-        else if (type == FilterType.ShowErrors)
-          newIndex = 2;
-        else if (type == FilterType.ShowWarning)
-          newIndex = 3;
-        else if (type == FilterType.ShowIssueFree)
-          newIndex = 4;
+        var newIndex = type switch
+        {
+          FilterType.ErrorsAndWarning => 1,
+          FilterType.ShowErrors       => 2,
+          FilterType.ShowWarning      => 3,
+          FilterType.ShowIssueFree    => 4,
+          _                           => 0
+        };
 
         m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;
         m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
@@ -1079,6 +1076,9 @@ namespace CsvTools
 
     public async Task SafeCurrentFile(string fileName, bool adjustDelimiter)
     {
+      if (FilteredDataGridView.DataView is null)
+        return;
+
       // This will always write a delimited text file
       ICsvFile writeFile = new CsvFile();
       FileSetting?.CopyTo(writeFile);
@@ -1096,15 +1096,15 @@ namespace CsvTools
 
       var headerAndSipped = new StringBuilder(writeFile.Header);
       // in case we skipped lines read them as Header so we do not loose them
-      if (writeFile is ICsvFile src && src.SkipRows > 0 && string.IsNullOrEmpty(writeFile.Header))
+      if (writeFile.SkipRows > 0 && string.IsNullOrEmpty(writeFile.Header))
       {
 #if NET5_0_OR_GREATER
         await
 #endif
-        using var iStream = FunctionalDI.OpenStream(new SourceAccess(src));
-        using var sr = new ImprovedTextReader(iStream, src.CodePageId);
+          using var iStream = FunctionalDI.OpenStream(new SourceAccess(writeFile));
+        using var sr = new ImprovedTextReader(iStream, writeFile.CodePageId);
         sr.ToBeginning();
-        for (var i = 0; i < src.SkipRows; i++)
+        for (var i = 0; i < writeFile.SkipRows; i++)
           headerAndSipped.AppendLine(await sr.ReadLineAsync());
       }
 
@@ -1121,13 +1121,16 @@ namespace CsvTools
           writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded,
           processDisplay);
 
-        using var dt = new DataTableWrapper(
-          FilteredDataGridView.DataView?.ToTable(false,
-            // Restrict to shown data
-            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-                                .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))
-                                .OrderBy(col => col.DisplayIndex)
-                                .Select(col => col.DataPropertyName).ToArray()));
+#if NET5_0_OR_GREATER
+        await
+#endif
+          using var dt = new DataTableWrapper(
+            FilteredDataGridView.DataView.ToTable(false,
+              // Restrict to shown data
+              FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+                                  .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))
+                                  .OrderBy(col => col.DisplayIndex)
+                                  .Select(col => col.DataPropertyName).ToArray()));
         // can not use filteredDataGridView.Columns directly
         await writer.WriteAsync(dt, processDisplay.CancellationToken);
       }
@@ -1161,7 +1164,7 @@ namespace CsvTools
         if (string.IsNullOrEmpty(fileName))
           return;
 
-        await SafeCurrentFile(fileName!, !fileName!.EndsWith(split.Extension, StringComparison.OrdinalIgnoreCase));
+        await SafeCurrentFile(fileName, !fileName.EndsWith(split.Extension, StringComparison.OrdinalIgnoreCase));
       }
       catch (Exception ex)
       {
