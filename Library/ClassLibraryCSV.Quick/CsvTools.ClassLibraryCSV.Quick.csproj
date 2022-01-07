@@ -25,7 +25,9 @@
 		<PlatformTarget>AnyCPU</PlatformTarget>
 		<DefineConstants>TRACE;QUICK</DefineConstants>
 	</PropertyGroup>
-	<ItemGroup>
+	<ItemGroup>		
+		<Compile Include="..\ClassLibraryCSV\BinaryFormatter.cs" Link="BinaryFormatter.cs" />
+		<Compile Include="..\ClassLibraryCSV\DisposableBase.cs" Link="DisposableBase.cs" />
 		<Compile Include="..\ClassLibraryCSV\BaseFileReader.cs" Link="BaseFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\IColumnFormatter.cs" Link="IColumnFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\TextPartFormatter.cs" Link="TextPartFormatter.cs" />

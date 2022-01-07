@@ -152,26 +152,45 @@ namespace CsvTools
         {
           Logger.Information(e2, "Trying to read manifest");
         }
+      var disallowedDelimiter = new List<char>();
+      bool hasFields;
+      IFileReader reader;
+      DelimitedFileDetectionResult detectionResult;
+      do
+      {
+        // Determine from file
+        detectionResult = await GetDetectionResultFromFile(
+                                fileName2,
+                                processDisplay,
+                                guessJson,
+                                guessCodePage,
+                                guessDelimiter,
+                                guessQualifier,
+                                guessStartRow,
+                                guessHasHeader,
+                                guessNewLine,
+                                guessCommentLine,
+                                disallowedDelimiter,
+                                cancellationToken).ConfigureAwait(false);
+        hasFields = true;
+        processDisplay?.SetProcess("Checking found values by opening the file", -1, true);
+        reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
+        await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
-      // Determine from file
-      var detectionResult = await GetDetectionResultFromFile(
-                              fileName2,
-                              processDisplay,
-                              guessJson,
-                              guessCodePage,
-                              guessDelimiter,
-                              guessQualifier,
-                              guessStartRow,
-                              guessHasHeader,
-                              guessNewLine,
-                              guessCommentLine, cancellationToken).ConfigureAwait(false);
+        // if its a delimted file but we do not have fields,
+        // the delimiter must have been wrong, pick another one, after 3 though give up
+        if (!detectionResult.IsJson && reader.FieldCount == 0 && disallowedDelimiter.Count<3)
+        {
+          processDisplay?.SetProcess($"Found field delimiter {detectionResult.FieldDelimiter} is not valid, checking for an alternative", -1, true);
+          hasFields = false;
+          disallowedDelimiter.Add(detectionResult.FieldDelimiter.WrittenPunctuationToChar());
+          // no need to check for Json again
+          guessJson = false;
+        }
+      } while (!hasFields);
 
       processDisplay?.SetProcess("Determining column format by reading samples", -1, true);
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-      await
-#endif
-      using var reader = GetReaderFromDetectionResult(fileName2, detectionResult, processDisplay);
-      await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
+
       var (_, b) = await reader.FillGuessColumnFormatReaderAsyncReader(
                      fillGuessSettings,
                      null,
@@ -179,6 +198,8 @@ namespace CsvTools
                      true,
                      "NULL",
                      cancellationToken).ConfigureAwait(false);
+
+      reader.Dispose();
 
       return new DelimitedFileDetectionResultWithColumns(detectionResult, b);
     }
@@ -287,6 +308,7 @@ namespace CsvTools
       bool guessHasHeader,
       bool guessNewLine,
       bool guessCommentLine,
+      IEnumerable<char>? disallowedDelimiter,
       CancellationToken cancellationToken)
     {
       if (improvedStream is null)
@@ -419,7 +441,7 @@ namespace CsvTools
             return detectionResult;
           processDisplay?.SetProcess("Checking Column Delimiter", -1, false);
           var (delimiter, noDelimiter) = textReader.GuessDelimiter(
-            detectionResult.EscapePrefix,
+            detectionResult.EscapePrefix, disallowedDelimiter,
             cancellationToken);
           detectionResult = new DelimitedFileDetectionResult(
             detectionResult.FileName,
@@ -613,6 +635,7 @@ namespace CsvTools
                                                                                       bool guessHasHeader,
                                                                                       bool guessNewLine,
                                                                                       bool guessCommentLine,
+                                                                                      IEnumerable<char>? disallowedDelimiter,
                                                                                       CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(fileName))
@@ -633,6 +656,7 @@ namespace CsvTools
                guessHasHeader,
                guessNewLine,
                guessCommentLine,
+               disallowedDelimiter,
                cancellationToken).ConfigureAwait(false);
     }
 
@@ -690,7 +714,7 @@ namespace CsvTools
                                                  .ConfigureAwait(false);
 
       textReader.ToBeginning();
-      return textReader.GuessDelimiter(escapeCharacter, cancellationToken);
+      return textReader.GuessDelimiter(escapeCharacter, null, cancellationToken);
     }
 
     /// <summary>
@@ -1242,11 +1266,12 @@ namespace CsvTools
       this ImprovedTextReader textReader,
       string escape,
       int numRows,
+      IEnumerable<char>? disallowedDelimiter,
       CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
 
-      var dc = new DelimiterCounter(numRows);
+      var dc = new DelimiterCounter(numRows, disallowedDelimiter);
       var escapeCharacter = escape.WrittenPunctuationToChar();
       var quoted = false;
       var firstChar = true;
@@ -1292,12 +1317,8 @@ namespace CsvTools
           default:
             if (!quoted)
             {
-              var index = dc.Separators.IndexOf((char) readChar);
-              if (index != -1)
+              if (dc.CheckChar((char) readChar))
               {
-                if (dc.SeparatorsCount[index, dc.LastRow] == 0)
-                  dc.SeparatorRows[index]++;
-                ++dc.SeparatorsCount[index, dc.LastRow];
                 firstChar = true;
                 continue;
               }
@@ -1386,13 +1407,14 @@ namespace CsvTools
     private static Tuple<string, bool> GuessDelimiter(
       this ImprovedTextReader textReader,
       string escapeCharacter,
+      IEnumerable<char>? disallowedDelimiter,
       CancellationToken cancellationToken)
     {
       if (textReader is null)
         throw new ArgumentNullException(nameof(textReader));
       var match = '\0';
 
-      var dc = textReader.GetDelimiterCounter(escapeCharacter, 300, cancellationToken);
+      var dc = textReader.GetDelimiterCounter(escapeCharacter, 300, disallowedDelimiter, cancellationToken);
       var numberOfRows = dc.FilledRows;
 
       // Limit everything to 100 columns max, the sum might get too big otherwise 100 * 100

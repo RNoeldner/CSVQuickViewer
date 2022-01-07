@@ -139,6 +139,9 @@
 		<None Update="TestFiles\MSysCsvExport.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="TestFiles\MultipleDelimiter.txt">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="TestFiles\Placeholder.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

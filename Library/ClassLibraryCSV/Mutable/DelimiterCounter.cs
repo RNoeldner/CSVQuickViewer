@@ -12,6 +12,7 @@
 //  *
 //  */
 
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace CsvTools
@@ -31,7 +32,7 @@ namespace CsvTools
 
     public int LastRow;
 
-    public DelimiterCounter(int numRows)
+    public DelimiterCounter(int numRows, IEnumerable<char>? disallowedDelimiter)
     {
       NumRows = numRows;
       var listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator[0];
@@ -39,8 +40,29 @@ namespace CsvTools
         Separators = c_DefaultSeparators + listSeparator;
       else
         Separators = c_DefaultSeparators;
+      if (disallowedDelimiter != null)
+      {
+        foreach (var delim in disallowedDelimiter)
+        {
+          if (Separators.IndexOf(delim) != -1)
+            Separators = Separators.Remove(Separators.IndexOf(delim), 1);
+        }
+      }
       SeparatorsCount = new int[Separators.Length, NumRows];
       SeparatorRows = new int[Separators.Length];
+    }
+
+    public bool CheckChar(char readChar)
+    {
+      var index = Separators.IndexOf(readChar);
+      if (index != -1)
+      {
+        if (SeparatorsCount[index, LastRow] == 0)
+          SeparatorRows[index]++;
+        ++SeparatorsCount[index, LastRow];
+        return true;        
+      }
+      return false;
     }
 
     public int FilledRows

@@ -347,7 +347,7 @@ namespace CsvTools
     /// <param name="from">The current Form</param>
     /// <param name="ex">the Exception</param>
     /// <param name="additionalTitle">Title Bar information</param>
-    public static void ShowError(this Form? from, Exception ex, string? additionalTitle = "")
+    public static void ShowError(this Form? from, Exception ex, string? additionalTitle = "", double timeout = 60.0)
     {
       if (from != null)
         Logger.Warning(ex, "Error in {form} : {message}", from.GetType().Name, ex.SourceExceptionMessage());
@@ -360,7 +360,7 @@ namespace CsvTools
         string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}",
         MessageBoxButtons.OK,
         MessageBoxIcon.Warning,
-        timeout: 60);
+        timeout: timeout);
     }
 
     public static WindowState StoreWindowState(this Form form, int customInt = int.MinValue,
