@@ -200,13 +200,17 @@ namespace CsvTools
           (count, m) => process.SetProcess($"Parent found {count}/{m} ", count, false),
           counter++, max);
         var id = dataRow[dataColumnID.Ordinal].ToString();
-        if (string.IsNullOrEmpty(id))
+        if (id is null || id.Length == 0)
           continue;
-        var treeData = new TreeData(id,
-          dataColumnDisplay1 != null
-            ? dataColumnDisplay2 != null ? dataRow[dataColumnDisplay1.Ordinal] + " - " + dataRow[dataColumnDisplay2.Ordinal] :
-              dataRow[dataColumnDisplay1.Ordinal].ToString()
-            : id, dataRow[dataColumnParent.Ordinal].ToString());
+        string title = id;
+
+        if (dataColumnDisplay1 != null)
+          if (dataColumnDisplay2 is null)
+            title = dataRow[dataColumnDisplay1.Ordinal].ToString() ?? string.Empty;
+          else
+            title = dataRow[dataColumnDisplay1.Ordinal] + " - " + dataRow[dataColumnDisplay2.Ordinal];
+
+        var treeData = new TreeData(id, title, dataRow[dataColumnParent.Ordinal].ToString());
         if (dataColumnDisplay1 != null)
           treeData.Tag = Convert.ToString(dataRow[dataColumnDisplay1.Ordinal]) ?? string.Empty;
 
@@ -674,9 +678,9 @@ namespace CsvTools
       public TreeData(string id, string title, string? parentID = null)
       {
         if (string.IsNullOrEmpty(id))
-          throw new ArgumentException("ID can not be empty", nameof(id));
+          throw new ArgumentException(@"ID can not be empty", nameof(id));
         if (string.IsNullOrEmpty(title))
-          throw new ArgumentException("Title can not be empty", nameof(title));
+          throw new ArgumentException(@"Title can not be empty", nameof(title));
         ID = id;
         Title = title;
         ParentID = parentID ?? string.Empty;
