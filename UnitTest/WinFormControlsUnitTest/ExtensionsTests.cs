@@ -96,7 +96,7 @@ namespace CsvTools.Tests
       using var frm = new Form();
       frm.Text = "Testing...";
       frm.Show();
-      frm.ShowError(new Exception(), "Text", 3);
+      frm.ShowError(new Exception(), "Text", 1.0);
     }
 
     [TestMethod]
