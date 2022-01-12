@@ -1207,17 +1207,9 @@ namespace CsvTools
     protected string HandleTextSpecials(string? inputString, int ordinal)
     {
       if (inputString is null || inputString.Length == 0 || ordinal >= FieldCount)
-      {
         return inputString ?? string.Empty;
-      }
 
-      var column = Column[ordinal];
-      if (column.ColumnFormatter is null)
-      {
-        return inputString;
-      }
-
-      return column.ColumnFormatter.FormatText(inputString, message => HandleWarning(ordinal, message));
+      return Column[ordinal].ColumnFormatter?.FormatText(inputString, message => HandleWarning(ordinal, message)) ?? inputString;
     }
 
     /// <summary>

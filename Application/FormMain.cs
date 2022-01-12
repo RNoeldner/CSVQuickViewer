@@ -250,7 +250,8 @@ namespace CsvTools
       }
     }
 
-    private void ColumnCollectionOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => m_ConfigChanged = true;
+    private void ColumnCollectionOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => 
+      m_ConfigChanged = true;
 
     private async Task CheckPossibleChange()
     {
