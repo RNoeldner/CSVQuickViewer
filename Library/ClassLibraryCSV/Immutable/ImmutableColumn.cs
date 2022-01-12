@@ -99,6 +99,8 @@ namespace CsvTools
         ColumnFormatter = new TextToHtmlFormatter();
       else if (ValueFormat.DataType == DataType.TextToHtmlFull)
         ColumnFormatter = new TextToHtmlFullFormatter();
+      else if (ValueFormat.DataType == DataType.TextUnescape)
+        ColumnFormatter = new TextUnescapeFormatter();
     }
 
     public IColumnFormatter? ColumnFormatter { get; }

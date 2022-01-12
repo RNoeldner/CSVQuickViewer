@@ -25,13 +25,14 @@
 		<PlatformTarget>AnyCPU</PlatformTarget>
 		<DefineConstants>TRACE;QUICK</DefineConstants>
 	</PropertyGroup>
-	<ItemGroup>		
+	<ItemGroup>
 		<Compile Include="..\ClassLibraryCSV\BinaryFormatter.cs" Link="BinaryFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\DisposableBase.cs" Link="DisposableBase.cs" />
 		<Compile Include="..\ClassLibraryCSV\BaseFileReader.cs" Link="BaseFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\IColumnFormatter.cs" Link="IColumnFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\TextPartFormatter.cs" Link="TextPartFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\TextToHtmlFullFormatter.cs" Link="TextToHtmlFullFormatter.cs" />
+		<Compile Include="..\ClassLibraryCSV\TextUnescapeFormatter.cs" Link="TextUnescapeFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\TextToHtmlFormatter.cs" Link="TextToHtmlFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\BaseFileReaderTyped.cs" Link="BaseFileReaderTyped.cs" />
 		<Compile Include="..\ClassLibraryCSV\BaseFileWriter.cs" Link="BaseFileWriter.cs" />
@@ -51,7 +52,7 @@
 		<Compile Include="..\ClassLibraryCSV\ProgressWithTimeEventArgs.cs" Link="ProgressWithTimeEventArgs.cs" />
 		<Compile Include="..\ClassLibraryCSV\IImprovedStream.cs" Link="IImprovedStream.cs" />
 		<Compile Include="..\ClassLibraryCSV\Logger.cs" Link="Logger.cs" />
-		<Compile Include="..\ClassLibraryCSV\DataType.cs" Link="DataType.cs" />
+		<Compile Include="..\ClassLibraryCSV\Immutable\DataType.cs" Link="DataType.cs" />
 		<Compile Include="..\ClassLibraryCSV\IColumn.cs" Link="IColumn.cs" />
 		<Compile Include="..\ClassLibraryCSV\IValueFormat.cs" Link="IValueFormat.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileSystemUtils.cs" Link="FileSystemUtils.cs" />
