@@ -68,38 +68,30 @@ namespace CsvTools
       "Pravda", "Patiess", "Oui", "Kyllä", "jā", "Iva", "Igaz", "Ie", "Gerçek", "Evet", "Đúng", "da", "Có", "Benar", "áno", "Ano", "Adevărat"
     };
 
-    public static CheckResult CheckUnescape(in IEnumerable<string> samples, in CancellationToken cancellationToken)
+    public static DataType CheckUnescape(in IEnumerable<string> samples, int minRequiredSamples, in CancellationToken cancellationToken)
     {
-      var checkResult = new CheckResult();
       int foundUnescpe = 0;
       int foundHTML = 0;
       foreach (var text in samples)
       {
         if (cancellationToken.IsCancellationRequested)
           break;
-        if (string.IsNullOrEmpty(text))
-          continue;
-
         if (text.IndexOf("<br>") != -1 || text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase))
         {
-          foundHTML++;
-          if (foundHTML >3)
+          if (foundHTML++ > minRequiredSamples)
           {
-            checkResult.FoundValueFormat = new ImmutableValueFormat(DataType.TextToHtml);
-            break;
+            return DataType.TextToHtml;
           }
         }
         if (text.IndexOf("\\r") != -1 || text.IndexOf("\\n") != -1 || text.IndexOf("\\t") != -1 || text.IndexOf("\\u") != -1 || text.IndexOf("\\x") != -1)
         {
-          foundUnescpe++;
-          if (foundUnescpe >3)
+          if (foundUnescpe++ > minRequiredSamples)
           {
-            checkResult.FoundValueFormat = new ImmutableValueFormat(DataType.TextUnescape);
-            break;
+            return DataType.TextUnescape;
           }
         }
       }
-      return checkResult;
+      return DataType.String;
     }
 
     /// <summary>

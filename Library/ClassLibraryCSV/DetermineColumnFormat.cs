@@ -160,7 +160,7 @@ namespace CsvTools
                          fillGuessSettings.CheckedRecords,
                          getSamples,
                          fillGuessSettings.SampleValues,
-                         treatTextAsNull,
+                         treatTextAsNull, 80,
                          cancellationToken).ConfigureAwait(false);
 
       // Add all columns that will not be guessed
@@ -460,7 +460,7 @@ namespace CsvTools
                                                 1,
                                                 new[] { colIndex + 1 },
                                                 1,
-                                                treatTextAsNull,
+                                                treatTextAsNull, 80,
                                                 cancellationToken).ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
               if (firstValueNewColumn != null && (firstValueNewColumn.Length == 8 || firstValueNewColumn.Length == 5))
               {
@@ -505,7 +505,7 @@ namespace CsvTools
 
           var firstValueNewColumn2 = (sampleList.Keys.Contains(colIndex - 1)
                                         ? sampleList[colIndex - 1]
-                                        : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, 1, treatTextAsNull, cancellationToken)
+                                        : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, 1, treatTextAsNull, 80, cancellationToken)
                                              .ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
           if (firstValueNewColumn2 != null && (firstValueNewColumn2.Length == 8 || firstValueNewColumn2.Length == 5))
           {
@@ -578,6 +578,7 @@ namespace CsvTools
       IEnumerable<int> columns,
       int enoughSamples,
       string treatAsNull,
+      int maxChars,
       CancellationToken cancellationToken)
     {
       if (fileReader is null)
@@ -674,9 +675,9 @@ namespace CsvTools
               if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
                 continue;
 
-              // cut of after 40 chars
-              if (value.Length > 40)
-                value = value.Substring(0, 40);
+              // cut of 
+              if (maxChars >0 && value.Length > maxChars)
+                value = value.Substring(0, maxChars);
 
               // Have a max of 2000 values
               if (samples[columnIndex].Count < maxSamples)
@@ -1030,14 +1031,18 @@ namespace CsvTools
           return res;
         checkResult.KeepBestPossibleMatch(res);
       }
-
+      cancellationToken.ThrowIfCancellationRequested();
       // check DataType.TextUnescape
-      if ((checkResult.FoundValueFormat?.DataType ?? DataType.String) == DataType.String)
+      if (!checkResult.PossibleMatch)
       {
-        var res = StringConversion.CheckUnescape(samples, cancellationToken);
-        if (res.FoundValueFormat != null)
-          return res;
-        checkResult.KeepBestPossibleMatch(res);
+        var res = StringConversion.CheckUnescape(samples, minRequiredSamples, cancellationToken);
+        if (res != DataType.String)
+        {
+          checkResult.PossibleMatch= true;
+          checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(res);
+          checkResult.FoundValueFormat = new ImmutableValueFormat(res);
+          return checkResult;
+        }
       }
 
       cancellationToken.ThrowIfCancellationRequested();

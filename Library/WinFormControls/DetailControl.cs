@@ -78,6 +78,12 @@ namespace CsvTools
     private bool m_ShowButtons = true;
     private bool m_ShowFilter = true;
 
+    public EventHandler<IColumn>? ColumnFormatChanged
+    {
+      get => FilteredDataGridView.ColumnFormatChanged;
+      set => FilteredDataGridView.ColumnFormatChanged = value;
+    }
+
     /// <inheritdoc />
     /// <summary>
     ///   Initializes a new instance of the <see cref="DetailControl" /> class.
@@ -285,7 +291,7 @@ namespace CsvTools
         Size = new Size(996, 320),
         TabIndex = 2
       };
-
+      
       FilteredDataGridView.DataViewChanged += DataViewChanged;
       FilteredDataGridView.CellFormatting += FilteredDataGridView_CellFormatting;
       FilteredDataGridView.KeyDown += DetailControl_KeyDown;
@@ -303,9 +309,9 @@ namespace CsvTools
     }
 
     public Func<bool>? EndOfFile { get; set; }
-    public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored { get; set; }
+    public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored;
 
-    public EventHandler<IFileSettingPhysicalFile>? FileStored { get; set; }
+    public EventHandler<IFileSettingPhysicalFile>? FileStored;
     public Func<IProcessDisplay, CancellationToken, Task>? LoadNextBatchAsync { get; set; }
     private DataColumnCollection Columns => m_DataTable.Columns;
     public ToolStripButton ToolStripButtonNext { get; set; }
@@ -752,7 +758,8 @@ namespace CsvTools
           m_FormUniqueDisplay = new FormUniqueDisplay(
             m_DataTable.Clone(),
             m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-            columnName, HTMLStyle) { Icon = ParentForm?.Icon };
+            columnName, HTMLStyle)
+          { Icon = ParentForm?.Icon };
           m_FormUniqueDisplay.ShowDialog(ParentForm);
         }
         catch (Exception ex)
@@ -1044,10 +1051,10 @@ namespace CsvTools
         var newIndex = type switch
         {
           FilterType.ErrorsAndWarning => 1,
-          FilterType.ShowErrors       => 2,
-          FilterType.ShowWarning      => 3,
-          FilterType.ShowIssueFree    => 4,
-          _                           => 0
+          FilterType.ShowErrors => 2,
+          FilterType.ShowWarning => 3,
+          FilterType.ShowIssueFree => 4,
+          _ => 0
         };
 
         m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;
