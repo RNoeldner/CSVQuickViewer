@@ -24,7 +24,8 @@ namespace CsvTools
     {
       var hex = new StringBuilder();
       var pos = startPos+2;
-      while (pos<startPos+6 && pos< text.Length)
+      // up to 4 byte escape 
+      while (pos<startPos + 6 && pos< text.Length)
       {
         if ((text[pos] >= '0' && text[pos] <= '9')
           || (text[pos] >= 'A' && text[pos] <= 'F')
@@ -52,7 +53,7 @@ namespace CsvTools
       if (text is null) throw new ArgumentNullException(nameof(text));
       if (text.IndexOf('\\') ==-1)
         return text;
-      
+
       var retValue = text.Replace("\\t", "\t").Replace("\\n", "\n").Replace("\\r", "\r").Replace("\\v", "\v").Replace("\\'", "\'").Replace("\\\"", "\"").Replace("\\a", "\a").Replace("\\b", "\b").Replace("\\f", "\f");
 
       int posEncoded = retValue.IndexOf("\\u");
@@ -89,7 +90,7 @@ namespace CsvTools
     {
       var output = Unescape(inputString);
       if (!inputString.Equals(output, StringComparison.Ordinal))
-        handleWarning?.Invoke($"Escape encoding removed from {inputString}");
+        handleWarning?.Invoke($"Unescaped text");
       return output;
     }
   }

@@ -164,12 +164,12 @@ namespace CsvTools.Tests
     public void CheckSerialDateFail() =>
       // last value is not a date
       Assert.IsNull(
-        StringConversion.CheckSerialDate(new[] { "239324", "239324.344", "4358784" }, false).FoundValueFormat);
+        StringConversion.CheckSerialDate(new[] { "239324", "239324.344", "4358784" }, false, UnitTestStatic.Token).FoundValueFormat);
 
     [TestMethod]
     public void CheckSerialDateOK() =>
       Assert.IsNotNull(
-        StringConversion.CheckSerialDate(new[] { "239324", "239324.344", "235324" }, false).FoundValueFormat);
+        StringConversion.CheckSerialDate(new[] { "239324", "239324.344", "235324" }, false, UnitTestStatic.Token).FoundValueFormat);
 
     [TestMethod]
     public void GetTimeFromTicks()
@@ -248,16 +248,16 @@ namespace CsvTools.Tests
 
     [TestMethod]
     public void CheckTimeDefault() =>
-      Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, ""));
+      Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, "", UnitTestStatic.Token));
 
     [TestMethod]
-    public void CheckTimeNotOK() => Assert.IsFalse(StringConversion.CheckTime(new[] { "10:00:00", "Test", "1:00" }, ":"));
+    public void CheckTimeNotOK() => Assert.IsFalse(StringConversion.CheckTime(new[] { "10:00:00", "Test", "1:00" }, ":", UnitTestStatic.Token));
 
     [TestMethod]
-    public void CheckTimeNull() => Assert.IsFalse(StringConversion.CheckTime(null, ""));
+    public void CheckTimeNull() => Assert.IsFalse(StringConversion.CheckTime(null, "", UnitTestStatic.Token));
 
     [TestMethod]
-    public void CheckTimeOK() => Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, ":"));
+    public void CheckTimeOK() => Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, ":", UnitTestStatic.Token));
 
     [TestMethod]
     public void DateTimeToStringOK()
@@ -300,7 +300,7 @@ namespace CsvTools.Tests
                 samples.Add(new DateTime(2010, month, day, hrs, min, 10, 876, DateTimeKind.Local).ToString(fmt, culture));
 
         Assert.IsNotNull(
-          StringConversion.CheckDate(samples, fmt, dateSep, ":", CultureInfo.CurrentCulture).FoundValueFormat,
+          StringConversion.CheckDate(samples, fmt, dateSep, ":", CultureInfo.CurrentCulture, UnitTestStatic.Token).FoundValueFormat,
           $"Test format {fmt}\nFirst not matching: {samples.First()}");
       }
     }
@@ -490,12 +490,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CheckGuidTest()
     {
-      Assert.IsFalse(StringConversion.CheckGuid(Array.Empty<string>()));
-      Assert.IsTrue(StringConversion.CheckGuid(new[] { "{35C1536A-094A-493D-8FED-545A959E167A}" }));
-      Assert.IsFalse(StringConversion.CheckGuid(new[] { "{35C1536A-094A-493D-8FED-545A959E167A}", "A Test" }));
+      Assert.IsFalse(StringConversion.CheckGuid(Array.Empty<string>(), UnitTestStatic.Token));
+      Assert.IsTrue(StringConversion.CheckGuid(new[] { "{35C1536A-094A-493D-8FED-545A959E167A}" }, UnitTestStatic.Token));
+      Assert.IsFalse(StringConversion.CheckGuid(new[] { "{35C1536A-094A-493D-8FED-545A959E167A}", "A Test" }, UnitTestStatic.Token));
       Assert.IsTrue(
         StringConversion.CheckGuid(
-          new[] { "{35C1536A-094A-493D-8FED-545A959E167A}", "9B6E2B50-5400-4871-820C-591844B4F0D6" }));
+          new[] { "{35C1536A-094A-493D-8FED-545A959E167A}", "9B6E2B50-5400-4871-820C-591844B4F0D6" }, UnitTestStatic.Token));
     }
 
     [TestMethod]
@@ -598,27 +598,27 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CheckNumberTest()
     {
-      Assert.IsFalse(StringConversion.CheckNumber(Array.Empty<string>(), ".", "", false, false, 1).FoundValueFormat != null);
-      Assert.IsTrue(StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, 0).FoundValueFormat != null);
+      Assert.IsFalse(StringConversion.CheckNumber(Array.Empty<string>(), ".", "", false, false, 1, UnitTestStatic.Token).FoundValueFormat != null);
+      Assert.IsTrue(StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, 0, UnitTestStatic.Token).FoundValueFormat != null);
       Assert.AreEqual(
         DataType.Integer,
-        StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, 1)!.FoundValueFormat!.DataType);
+        StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, 1, UnitTestStatic.Token)!.FoundValueFormat!.DataType);
       Assert.IsFalse(
-        StringConversion.CheckNumber(new[] { "16673", "A Test" }, ".", "", false, false, 2).FoundValueFormat != null);
+        StringConversion.CheckNumber(new[] { "16673", "A Test" }, ".", "", false, false, 2, UnitTestStatic.Token).FoundValueFormat != null);
       Assert.AreEqual(
         DataType.Numeric,
-        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, ".", "", false, false, 3)!.FoundValueFormat!
+        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, ".", "", false, false, 3, UnitTestStatic.Token)!.FoundValueFormat!
           .DataType);
     }
 
     [TestMethod]
     public void CheckTimeSpanTest()
     {
-      Assert.IsTrue(StringConversion.CheckTimeSpan(new[] { "8:20", "10:10", "2:20 pm", "17:30" }, ":", false));
-      Assert.IsTrue(StringConversion.CheckTimeSpan(new[] { ".2", ".3", "0.25", "17:30" }, ":", true));
+      Assert.IsTrue(StringConversion.CheckTimeSpan(new[] { "8:20", "10:10", "2:20 pm", "17:30" }, ":", false, UnitTestStatic.Token));
+      Assert.IsTrue(StringConversion.CheckTimeSpan(new[] { ".2", ".3", "0.25", "17:30" }, ":", true, UnitTestStatic.Token));
       // 24 hours
-      Assert.IsFalse(StringConversion.CheckTimeSpan(new[] { "0.2", "26:20", "0.25", "19:30" }, ":", true));
-      Assert.IsFalse(StringConversion.CheckTimeSpan(new[] { "0.2", "2.3", "0.25", "19:30" }, ":", true));
+      Assert.IsFalse(StringConversion.CheckTimeSpan(new[] { "0.2", "26:20", "0.25", "19:30" }, ":", true, UnitTestStatic.Token));
+      Assert.IsFalse(StringConversion.CheckTimeSpan(new[] { "0.2", "2.3", "0.25", "19:30" }, ":", true, UnitTestStatic.Token));
     }
 
     [TestMethod]

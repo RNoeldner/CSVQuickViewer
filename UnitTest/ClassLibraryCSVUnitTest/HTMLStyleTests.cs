@@ -158,6 +158,17 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void TextUnescapeFormatterTest()
+    {
+      var called = false;
+      var fmter = new TextUnescapeFormatter();
+      Assert.AreEqual("Hello", fmter.FormatText("Hello", s => called = true));
+      Assert.IsFalse(called);
+      Assert.AreEqual("\n\x0020\r", fmter.FormatText(@"\n\x0020\r", s => called = true));
+      Assert.IsTrue(called);
+    }
+
+    [TestMethod]
     public void XMLElementNameTest()
     {
       /*
