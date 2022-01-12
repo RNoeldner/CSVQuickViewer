@@ -1178,6 +1178,8 @@ namespace CsvTools
       contextMenuStripFilter.Close();
     }
 
+    public EventHandler<IColumn>? ColumnFormatChanged;
+
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemCF control.
     /// </summary>
@@ -1194,8 +1196,7 @@ namespace CsvTools
         var result = form.ShowDialog(this);
         if (result == DialogResult.OK || result == DialogResult.Yes)
         {
-          m_FileSetting.ColumnCollection.Replace(form.EditedColumn);
-          Refresh();
+          ColumnFormatChanged?.Invoke(this, form.EditedColumn);
         }
       }
     }

@@ -71,7 +71,12 @@ namespace CsvTools
       ShowTextPanel(true);
 
       m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
-
+      detailControl.ColumnFormatChanged +=  (send, column) =>
+      {
+        m_FileSetting?.ColumnCollection.Replace(column);
+        m_ConfigChanged = true;
+        CheckPossibleChange();
+      };
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
       m_SettingsChangedTimerChange.AutoReset = false;
@@ -239,7 +244,7 @@ namespace CsvTools
       try
       {
         fileSetting.PropertyChanged += FileSetting_PropertyChanged;
-        fileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+        //fileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
 
         if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
           fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
@@ -249,10 +254,7 @@ namespace CsvTools
         Logger.Information("Adding file system watcher failed");
       }
     }
-
-    private void ColumnCollectionOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => 
-      m_ConfigChanged = true;
-
+    
     private async Task CheckPossibleChange()
     {
       try
@@ -268,8 +270,7 @@ namespace CsvTools
                 MessageBoxIcon.Question,
                 MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             await OpenDataReaderAsync(m_CancellationTokenSource.Token);
-          else
-            m_ConfigChanged = false;
+
         }
 
         if (!m_FileChanged) return;
@@ -306,8 +307,7 @@ namespace CsvTools
       fileSystemWatcher.EnableRaisingEvents = false;
 
       if (fileSetting is null) return;
-      fileSetting.PropertyChanged -= FileSetting_PropertyChanged;
-      fileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
+      fileSetting.PropertyChanged -= FileSetting_PropertyChanged;      
     }
 
     /// <summary>
@@ -412,7 +412,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private async void FormMain_Activated(object? sender, EventArgs e) => await CheckPossibleChange();
+    private async void FormMain_Activated(object? sender, EventArgs e) =>
+      await CheckPossibleChange();
 
     private void FormMain_FormClosing(object? sender, FormClosingEventArgs e)
     {
@@ -676,26 +677,25 @@ namespace CsvTools
         {
           Logger.Information("Showing columns as text");
           m_StoreColumns = new ColumnCollection(m_FileSetting.ColumnCollection);
-          m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
           m_FileSetting.ColumnCollection.Clear();
           // restore header names
           foreach (var col in m_StoreColumns)
           {
             m_FileSetting.ColumnCollection.Add(new Column(col.Name) { ColumnOrdinal = col.ColumnOrdinal });
           }
-
-          m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+          
           m_ToolStripButtonAsText.Text = "As Values";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;
+          m_ConfigChanged = true;
         }
         else
         {
           Logger.Information("Showing columns as values");
           m_ToolStripButtonAsText.Text = "As Text";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsText;
-          m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
           m_StoreColumns?.CollectionCopy(m_FileSetting.ColumnCollection);
-          m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+          m_ConfigChanged = true;
+          
         }
 
         await OpenDataReaderAsync(m_CancellationTokenSource.Token);

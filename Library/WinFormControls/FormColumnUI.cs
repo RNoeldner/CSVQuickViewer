@@ -795,7 +795,7 @@ namespace CsvTools
           if (colIndex < 0)
             throw new FileException($"Column {columnName} not found.");
           return (await DetermineColumnFormat.GetSampleValuesAsync(sqlReader, 0, new[] { colIndex },
-                                               m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, cancellationToken)
+                                               m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, 500, cancellationToken)
                                              .ConfigureAwait(false)).First().Value;
         }
 
@@ -846,7 +846,7 @@ namespace CsvTools
 
           return (await DetermineColumnFormat.GetSampleValuesAsync(fileReader, m_FillGuessSettings.CheckedRecords,
                                                new[] { colIndex },
-                                               m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, cancellationToken)
+                                               m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, 500, cancellationToken)
                                              .ConfigureAwait(false)).First().Value;
         }
       }
