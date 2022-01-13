@@ -16,7 +16,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
 using System.IO;
@@ -71,7 +70,12 @@ namespace CsvTools
       ShowTextPanel(true);
 
       m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
-
+      detailControl.ColumnFormatChanged +=  (send, column) =>
+      {
+        m_FileSetting?.ColumnCollection.Replace(column);
+        m_ConfigChanged = true;
+        CheckPossibleChange();
+      };
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
       m_SettingsChangedTimerChange.AutoReset = false;
@@ -117,11 +121,10 @@ namespace CsvTools
     /// <param name="fileName"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task LoadCsvFile(string fileName, CancellationToken cancellationToken)
+    public void LoadCsvFile(string fileName, CancellationToken cancellationToken)
     {
       if (IsDisposed)
         return;
-      ShowTextPanel(true);
 
       if (string.IsNullOrEmpty(fileName))
         return;
@@ -132,29 +135,31 @@ namespace CsvTools
         return;
       }
 
-      try
+      this.SafeInvoke(async () =>
       {
-        DetachPropertyChanged(m_FileSetting);
-        using (var formProcessDisplay = new FormProcessDisplay("Examining file", false, cancellationToken))
+        ShowTextPanel(true);
+        try
         {
-          formProcessDisplay.Maximum = 0;
-          formProcessDisplay.Show(this);
-          m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
-                             m_ViewSettings.GuessCodePage,
-                             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
-                             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-                             m_ViewSettings.FillGuessSettings, formProcessDisplay, formProcessDisplay.CancellationToken)).PhysicalFile();
-        }
+          DetachPropertyChanged(m_FileSetting);
+          using (var formProcessDisplay = new FormProcessDisplay("Examining file", false, cancellationToken))
+          {
+            formProcessDisplay.Maximum = 0;
+            formProcessDisplay.Show(this);
+            m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
+                               m_ViewSettings.GuessCodePage,
+                               m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
+                               m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
+                               m_ViewSettings.FillGuessSettings, formProcessDisplay, formProcessDisplay.CancellationToken)).PhysicalFile();
+          }
 
-        if (m_FileSetting is null)
-          return;
+          if (m_FileSetting is null)
+            return;
 
-        m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
-        m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
+          m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
+          m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
 
-        // update the UI
-        this.SafeInvoke(() =>
-        {
+          // update the UI
+
           var display = fileName;
           if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
             display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
@@ -175,17 +180,17 @@ namespace CsvTools
                                             m_FileSetting.ColumnCollection.Any(x =>
                                               x.ValueFormat.DataType != DataType.String);
           SetFileSystemWatcher(fileName);
-        });
 
-        await OpenDataReaderAsync(cancellationToken);
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex, $"Load File {fileName}");
-      }
+          await OpenDataReaderAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+          this.ShowError(ex, $"Load File {fileName}");
+        }
+      });
     }
 
-    public async Task SelectFile(string message)
+    public void SelectFile(string message)
     {
       try
       {
@@ -202,7 +207,7 @@ namespace CsvTools
 
         var fileName = WindowsAPICodePackWrapper.Open(".", "File to Display", strFilter, null);
         if (!string.IsNullOrEmpty(fileName))
-          await LoadCsvFile(fileName!, m_CancellationTokenSource.Token);
+          LoadCsvFile(fileName!, m_CancellationTokenSource.Token);
       }
       catch (Exception ex)
       {
@@ -239,7 +244,7 @@ namespace CsvTools
       try
       {
         fileSetting.PropertyChanged += FileSetting_PropertyChanged;
-        fileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+        //fileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
 
         if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
           fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
@@ -249,8 +254,6 @@ namespace CsvTools
         Logger.Information("Adding file system watcher failed");
       }
     }
-
-    private void ColumnCollectionOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => m_ConfigChanged = true;
 
     private async Task CheckPossibleChange()
     {
@@ -267,8 +270,6 @@ namespace CsvTools
                 MessageBoxIcon.Question,
                 MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             await OpenDataReaderAsync(m_CancellationTokenSource.Token);
-          else
-            m_ConfigChanged = false;
         }
 
         if (!m_FileChanged) return;
@@ -282,7 +283,7 @@ namespace CsvTools
               MessageBoxButtons.YesNo,
               MessageBoxIcon.Question,
               MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-          await LoadCsvFile(m_FileSetting.FileName, m_CancellationTokenSource.Token);
+          LoadCsvFile(m_FileSetting.FileName, m_CancellationTokenSource.Token);
         else
           m_FileChanged = false;
 
@@ -306,7 +307,6 @@ namespace CsvTools
 
       if (fileSetting is null) return;
       fileSetting.PropertyChanged -= FileSetting_PropertyChanged;
-      fileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
     }
 
     /// <summary>
@@ -322,7 +322,7 @@ namespace CsvTools
       if (WindowsAPICodePackWrapper.IsDialogOpen) return;
       SaveIndividualFileSetting();
 
-      await LoadCsvFile(files[0], m_CancellationTokenSource.Token);
+      LoadCsvFile(files[0], m_CancellationTokenSource.Token);
     }
 
     /// <summary>
@@ -411,7 +411,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private async void FormMain_Activated(object? sender, EventArgs e) => await CheckPossibleChange();
+    private async void FormMain_Activated(object? sender, EventArgs e) =>
+      await CheckPossibleChange();
 
     private void FormMain_FormClosing(object? sender, FormClosingEventArgs e)
     {
@@ -675,7 +676,6 @@ namespace CsvTools
         {
           Logger.Information("Showing columns as text");
           m_StoreColumns = new ColumnCollection(m_FileSetting.ColumnCollection);
-          m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
           m_FileSetting.ColumnCollection.Clear();
           // restore header names
           foreach (var col in m_StoreColumns)
@@ -683,18 +683,18 @@ namespace CsvTools
             m_FileSetting.ColumnCollection.Add(new Column(col.Name) { ColumnOrdinal = col.ColumnOrdinal });
           }
 
-          m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
           m_ToolStripButtonAsText.Text = "As Values";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;
+          m_ConfigChanged = true;
         }
         else
         {
           Logger.Information("Showing columns as values");
           m_ToolStripButtonAsText.Text = "As Text";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsText;
-          m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
           m_StoreColumns?.CollectionCopy(m_FileSetting.ColumnCollection);
-          m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+          m_ConfigChanged = true;
+
         }
 
         await OpenDataReaderAsync(m_CancellationTokenSource.Token);
@@ -711,6 +711,6 @@ namespace CsvTools
 
     private void ToggleShowLog(object? sender, EventArgs e) => ShowTextPanel(!textPanel.Visible);
 
-    private async void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) => await SelectFile("Open File Dialog");
+    private async void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) => SelectFile("Open File Dialog");
   }
 }

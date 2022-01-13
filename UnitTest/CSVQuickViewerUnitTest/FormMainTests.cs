@@ -20,24 +20,21 @@ namespace CsvTools.Tests
   public sealed class FormMainTests
   {
     [TestMethod]
-    [Timeout(20000)]
-    public async System.Threading.Tasks.Task FormMain_BasicCSVAsync()
+    [Timeout(10000)]
+    public void FormMain_BasicCSV()
     {
       using var frm = new FormMain(new ViewSettings());
-      await UnitTestStatic.ShowFormAndCloseAsync(frm, .2, frm.LoadCsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"), UnitTestStatic.Token),
-        UnitTestStatic.Token);
-
+      UnitTestStatic.ShowFormAndClose(frm, 0, frm => frm.LoadCsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"), UnitTestStatic.Token), 8, UnitTestStatic.Token);
       Assert.IsNotNull(frm.DataTable);
       Assert.AreEqual(7, frm.DataTable.Rows.Count);
     }
 
     [TestMethod]
-    [Timeout(20000)]
-    public async System.Threading.Tasks.Task FormMain_AllFormatsPipeAsync()
+    [Timeout(10000)]
+    public void FormMain_AllFormatsPipe()
     {
       using var frm = new FormMain(new ViewSettings());
-      await UnitTestStatic.ShowFormAndCloseAsync(frm, .1, frm.LoadCsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), UnitTestStatic.Token), 
-        UnitTestStatic.Token);
+      UnitTestStatic.ShowFormAndClose(frm, 0, frm => frm.LoadCsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), UnitTestStatic.Token), 8, UnitTestStatic.Token);
       Assert.IsNotNull(frm.DataTable);
       // 45 records, one of the lines has a linefeed
       Assert.IsTrue(frm.DataTable.Rows.Count >= 46);

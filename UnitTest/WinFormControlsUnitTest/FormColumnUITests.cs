@@ -68,29 +68,25 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(15000)]
-    public async Task FormColumnUI_DisplayValues()
+    public void FormColumnUI_DisplayValues()
     {
       var csvFile = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"));
       var col = new Column("ExamDate", DataType.DateTime);
       csvFile.ColumnCollection.Add(col);
 
-      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestStatic.HTMLStyle))
-      {
-        await UnitTestStatic.ShowFormAndCloseAsync(form, .2, frm => frm.DisplayValues(), UnitTestStatic.Token);
-      }
+      using var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestStatic.HTMLStyle);
+      UnitTestStatic.ShowFormAndClose(form, .2, async frm => await frm.DisplayValues(), .2, UnitTestStatic.Token);
     }
 
     [TestMethod]
     [Timeout(15000)]
-    public async Task FormColumnUI_Guess()
+    public void FormColumnUI_Guess()
     {
       var csvFile = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"));
       var col = new Column("ExamDate", DataType.DateTime);
       csvFile.ColumnCollection.Add(col);
-      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestStatic.HTMLStyle))
-      {
-        await UnitTestStatic.ShowFormAndCloseAsync(form, .2, frm => frm.Guess(), UnitTestStatic.Token);
-      }
+      using var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestStatic.HTMLStyle);
+      UnitTestStatic.ShowFormAndClose(form, .2, async frm => await frm.Guess(), .2, UnitTestStatic.Token);
     }
 
     [TestMethod]

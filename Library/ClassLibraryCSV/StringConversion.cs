@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace CsvTools
 {
@@ -67,6 +68,32 @@ namespace CsvTools
       "Pravda", "Patiess", "Oui", "Kyllä", "jā", "Iva", "Igaz", "Ie", "Gerçek", "Evet", "Đúng", "da", "Có", "Benar", "áno", "Ano", "Adevărat"
     };
 
+    public static DataType CheckUnescape(in IEnumerable<string> samples, int minRequiredSamples, in CancellationToken cancellationToken)
+    {
+      int foundUnescpe = 0;
+      int foundHTML = 0;
+      foreach (var text in samples)
+      {
+        if (cancellationToken.IsCancellationRequested)
+          break;
+        if (text.IndexOf("<br>") != -1 || text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase))
+        {
+          if (foundHTML++ > minRequiredSamples)
+          {
+            return DataType.TextToHtml;
+          }
+        }
+        if (text.IndexOf("\\r") != -1 || text.IndexOf("\\n") != -1 || text.IndexOf("\\t") != -1 || text.IndexOf("\\u") != -1 || text.IndexOf("\\x") != -1)
+        {
+          if (foundUnescpe++ > minRequiredSamples)
+          {
+            return DataType.TextUnescape;
+          }
+        }
+      }
+      return DataType.String;
+    }
+
     /// <summary>
     ///   Checks if the values are dates.
     /// </summary>
@@ -77,11 +104,12 @@ namespace CsvTools
     /// <param name="culture">the culture to check (important for named Days or month)</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
     public static CheckResult CheckDate(
-      in ICollection<string> samples,
-      in string shortDateFormat,
-      in string dateSeparator,
-      in string timeSeparator,
-      in CultureInfo culture)
+    in ICollection<string> samples,
+    in string shortDateFormat,
+    in string dateSeparator,
+    in string timeSeparator,
+    in CultureInfo culture,
+    in CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
       if (samples.Count == 0)
@@ -95,6 +123,11 @@ namespace CsvTools
 
       foreach (var value in samples)
       {
+        if (value is null)
+          continue;
+        if (cancellationToken.IsCancellationRequested)
+          break;
+
         counter++;
         var ret = StringToDateTimeExact(value, shortDateFormat, dateSeparator, timeSeparator, culture);
         if (!ret.HasValue)
@@ -135,11 +168,16 @@ namespace CsvTools
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <returns><c>true</c> if all values can be interpreted as Guid, <c>false</c> otherwise.</returns>
-    public static bool CheckGuid(in IEnumerable<string> samples)
+    public static bool CheckGuid(in IEnumerable<string> samples, in CancellationToken cancellationToken)
     {
       var isEmpty = true;
       foreach (var value in samples)
       {
+        if (value is null)
+          continue;
+        if (cancellationToken.IsCancellationRequested)
+          break;
+
         isEmpty = false;
         var ret = StringToGuid(value);
         if (!ret.HasValue)
@@ -165,7 +203,7 @@ namespace CsvTools
       in string thousandSeparator,
       bool allowPercentage,
       bool allowStartingZero,
-      int minSamples)
+      int minSamples, in CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
       if (samples.Count < minSamples) return checkResult;
@@ -175,6 +213,8 @@ namespace CsvTools
 
       foreach (var value in samples)
       {
+        if (cancellationToken.IsCancellationRequested)
+          break;
         if (value is null)
           continue;
 
@@ -229,7 +269,7 @@ namespace CsvTools
     ///   (-80 +20 years)
     /// </param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
-    public static CheckResult CheckSerialDate(in IEnumerable<string> samples, bool isCloseToNow)
+    public static CheckResult CheckSerialDate(in IEnumerable<string> samples, bool isCloseToNow, in CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
 
@@ -239,6 +279,8 @@ namespace CsvTools
 
       foreach (var value in samples)
       {
+        if (cancellationToken.IsCancellationRequested)
+          break;
         counter++;
         var ret = SerialStringToDateTime(value);
         if (!ret.HasValue)
@@ -284,7 +326,7 @@ namespace CsvTools
     ///   <c>true</c> if all values can be interpreted as time and the list is not empty,
     ///   <c>false</c> otherwise.
     /// </returns>
-    public static bool CheckTime(in IEnumerable<string>? samples, in string timeSeparator)
+    public static bool CheckTime(in IEnumerable<string>? samples, in string timeSeparator, in CancellationToken cancellationToken)
     {
       if (samples is null)
         return false;
@@ -294,6 +336,8 @@ namespace CsvTools
 
       foreach (var value in samples)
       {
+        if (cancellationToken.IsCancellationRequested)
+          break;
         isEmpty = false;
         var ret = StringToTimeSpan(value, timeSeparator, false);
         if (ret.HasValue)
@@ -312,7 +356,7 @@ namespace CsvTools
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="serialDateTime">Allow Date Time values in serial format</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
-    public static bool CheckTimeSpan(in IEnumerable<string>? samples, in string timeSeparator, bool serialDateTime)
+    public static bool CheckTimeSpan(in IEnumerable<string>? samples, in string timeSeparator, bool serialDateTime, in CancellationToken cancellationToken)
     {
       if (samples is null)
         return false;
@@ -320,6 +364,8 @@ namespace CsvTools
       var hasValue = false;
       foreach (var value in samples)
       {
+        if (cancellationToken.IsCancellationRequested)
+          break;
         var ret = StringToTimeSpan(value, timeSeparator, serialDateTime);
         if (!ret.HasValue || ret.Value.TotalHours >= 24.0)
         {

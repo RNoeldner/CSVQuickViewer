@@ -126,6 +126,7 @@ namespace CsvTools
         DataType.TextPart => "Text Part",
         DataType.TextToHtml => "Encode HTML (Linefeed and CData Tags)",
         DataType.TextToHtmlFull => "Encode HTML ('<' -> '&lt;')",
+        DataType.TextUnescape => "Unescape Text ('\\r' -> \u240D)",
         DataType.String => "Text",
         DataType.Binary => "Binary (File Reference)",
         _ => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, $"Data Type {dataType} not known in {nameof(DataTypeDisplay)}")
