@@ -70,11 +70,13 @@ namespace CsvTools
       ShowTextPanel(true);
 
       m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
-      detailControl.ColumnFormatChanged +=  (send, column) =>
+      detailControl.ColumnFormatChanged += (send, column) =>
       {
         m_FileSetting?.ColumnCollection.Replace(column);
         m_ConfigChanged = true;
+#pragma warning disable CS4014
         CheckPossibleChange();
+#pragma warning restore CS4014
       };
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
@@ -83,14 +85,10 @@ namespace CsvTools
       m_SettingsChangedTimerChange.Stop();
     }
 
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="FormMain" /> class.
-    /// </summary>
-    /// <param name="viewSettings">Default view Settings</param>
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
-    public CancellationToken CancellationToken => m_CancellationTokenSource.Token;
+    internal CancellationToken CancellationToken => m_CancellationTokenSource.Token;
 
     public DataTable DataTable => detailControl.DataTable;
 
@@ -190,7 +188,7 @@ namespace CsvTools
       });
     }
 
-    public void SelectFile(string message)
+    internal void SelectFile(string message)
     {
       try
       {
@@ -206,8 +204,8 @@ namespace CsvTools
                      + "All files (*.*)|*.*";
 
         var fileName = WindowsAPICodePackWrapper.Open(".", "File to Display", strFilter, null);
-        if (!string.IsNullOrEmpty(fileName))
-          LoadCsvFile(fileName!, m_CancellationTokenSource.Token);
+        if (fileName != null && fileName.Length > 0)
+          LoadCsvFile(fileName, m_CancellationTokenSource.Token);
       }
       catch (Exception ex)
       {
@@ -314,7 +312,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
-    private async void FileDragDrop(object? sender, DragEventArgs e)
+    private void FileDragDrop(object? sender, DragEventArgs e)
     {
       // Set the filename
       var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
@@ -426,9 +424,7 @@ namespace CsvTools
       if (e.CloseReason != CloseReason.UserClosing) return;
       Logger.Debug("Closing Form");
 
-      var res = this.StoreWindowState();
-      if (res != null)
-        m_ViewSettings.WindowPosition = res;
+      m_ViewSettings.WindowPosition = this.StoreWindowState();
       m_ViewSettings.SaveViewSettings();
       SaveIndividualFileSetting();
     }
@@ -694,7 +690,6 @@ namespace CsvTools
           m_ToolStripButtonAsText.Image = Properties.Resources.AsText;
           m_StoreColumns?.CollectionCopy(m_FileSetting.ColumnCollection);
           m_ConfigChanged = true;
-
         }
 
         await OpenDataReaderAsync(m_CancellationTokenSource.Token);
@@ -711,6 +706,6 @@ namespace CsvTools
 
     private void ToggleShowLog(object? sender, EventArgs e) => ShowTextPanel(!textPanel.Visible);
 
-    private async void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) => SelectFile("Open File Dialog");
+    private void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) => SelectFile("Open File Dialog");
   }
 }
