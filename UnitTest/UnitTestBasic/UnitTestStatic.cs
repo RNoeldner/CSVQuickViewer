@@ -39,7 +39,7 @@ namespace CsvTools.Tests
       FileSystemUtils.ExecutableDirectoryName(),
       "TestFiles");
 
-    public static CancellationToken Token = CancellationToken.None;
+    public static CancellationToken Token { get; private set; }  = CancellationToken.None;
 
     private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 
@@ -165,12 +165,10 @@ namespace CsvTools.Tests
     public static void AssemblyInitialize(CancellationToken contextToken, Action<string> unhandledException)
     {
       MimicSql();
-
       Token = contextToken;
-
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
 
-      AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs args)
+      AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs args)
       {
         if (!contextToken.IsCancellationRequested)
           unhandledException(args.ExceptionObject.ToString());
@@ -281,7 +279,8 @@ namespace CsvTools.Tests
       readFile.ColumnCollection.Add(
         new Column("DateTime", new ValueFormatMutable { DataType = DataType.DateTime, DateFormat = @"dd/MM/yyyy" })
         {
-          TimePart = "Time", TimePartFormat = "HH:mm:ss"
+          TimePart = "Time",
+          TimePartFormat = "HH:mm:ss"
         });
       readFile.ColumnCollection.Add(new Column("Integer", DataType.Integer));
       readFile.ColumnCollection.Add(
@@ -404,9 +403,9 @@ namespace CsvTools.Tests
         }
     }
 
-    public static void RunTaskTimeout(Func<CancellationToken, Task> toDo, double timeout = 1)
+    public static void RunTaskTimeout(Func<CancellationToken, Task> toDo, double timeout = 1, CancellationToken token = default)
     {
-      using var source = CancellationTokenSource.CreateLinkedTokenSource(Token);
+      using var source = CancellationTokenSource.CreateLinkedTokenSource(token);
       Task.WhenAny(toDo.Invoke(source.Token), Task.Delay(TimeSpan.FromSeconds(timeout), source.Token));
       source.Cancel();
     }
@@ -416,22 +415,11 @@ namespace CsvTools.Tests
     {
       using var cts = CancellationTokenSource.CreateLinkedTokenSource(Token);
       using var frm = new TestForm();
-      frm.Closing += (s, e) => cts?.Cancel();            
+      frm.Closing += (s, e) => cts?.Cancel();
       frm.AddOneControl(ctrl, after * 6000d);
       ShowFormAndClose(frm, before, f => toDo?.Invoke(ctrl, f), after, cts.Token);
     }
 
-    public static void ShowFormAndClose(Form frm, double timeout, Func<CancellationToken, Task> toDo, CancellationToken token)
-    {
-      frm.TopMost = true;
-      frm.ShowInTaskbar = false;
-      frm.Show();
-      frm.Focus();
-      WaitSomeTime(.1, token);
-      RunTaskTimeout(toDo, timeout);
-      WaitSomeTime(.1, token);
-      frm.Close();
-    }
 
     private static void GetButtonsRecursive(Control rootControl, ICollection<Component> btns)
     {
@@ -462,65 +450,6 @@ namespace CsvTools.Tests
       }
     }
 
-    //public static void CheckButtonEvents(this ContainerControl rootControl, Action<string> messageIssue)
-    //{
-    //  var sb = new StringBuilder();
-    //  var buttons = new List<Component>();
-    //  GetButtonsRecursive(rootControl, buttons);
-    //  if (buttons.Count==0)
-    //    return;
-    //  FieldInfo eventClick = typeof(Control).GetField("EventClick", BindingFlags.NonPublic | BindingFlags.Static);
-    //  object secret = eventClick.GetValue(null);
-    //  PropertyInfo eventsProp = typeof(Component).GetProperty("Events", BindingFlags.NonPublic | BindingFlags.Instance);
-    //  foreach (var btn in buttons)
-    //  {
-    //    EventHandlerList events = (EventHandlerList) eventsProp.GetValue(btn, null);
-    //    // check OnClick Event
-    //    var field = btn.GetType().GetField("EventClick", BindingFlags.NonPublic | BindingFlags.Static);
-    //    Delegate click = events[secret];
-    //    if (click is null)
-    //    {
-    //      if (sb.Length > 0)
-    //        sb.Append(", ");
-    //      sb.Append(btn.ToString());
-    //    }
-    //  }
-
-    //  if (sb.Length <= 0)
-    //    return;
-
-    //  messageIssue?.Invoke($"{rootControl.GetType().Name} {rootControl.Name} Missing click events {sb}");
-    //}
-
-    public static void ShowFormAndClose<T>(T frm, double before = .2, Action<T>? toDo = null, CancellationToken token = default)
-      where T : Form =>
-      ShowFormAndClose(frm, before, toDo, before, token);
-
-    public static async Task ShowFormAndCloseAsync(Form frm, double time, Task toDo, CancellationToken token)
-    {
-      frm.TopMost = true;
-      frm.ShowInTaskbar = false;
-      frm.Show();
-      frm.Focus();
-      WaitSomeTime(time, token);
-      await toDo;
-      WaitSomeTime(time, token);
-      frm.Close();
-    }
-
-    public static async Task ShowFormAndCloseAsync<T>(T frm, double time, Func<T, Task> toDo, CancellationToken token)
-      where T : Form
-    {
-      frm.TopMost = true;
-      frm.ShowInTaskbar = false;
-      frm.Show();
-      frm.Focus();
-      WaitSomeTime(time, token);
-      await toDo(frm);
-      WaitSomeTime(time, token);
-      frm.Close();
-    }
-
     [DebuggerStepThrough]
     public static void WaitSomeTime(double seconds, CancellationToken token)
     {
@@ -533,12 +462,8 @@ namespace CsvTools.Tests
       }
     }
 
-    private static void ShowFormAndClose<T>(
-      T typed,
-      double before,
-      Action<T>? toDo,
-      double after,
-      CancellationToken token)
+    public static void ShowFormAndClose<T>(
+      T typed, double before=0, Action<T>? toDo = null, double after=0, CancellationToken token = default)
       where T : Form
     {
       var frm = typed as Form;
