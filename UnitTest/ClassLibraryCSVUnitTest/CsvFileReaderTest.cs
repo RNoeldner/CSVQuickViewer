@@ -448,7 +448,7 @@ Line "Test"", "22",23,"  24"
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      Assert.AreEqual("\\vy", test.GetString(5), @"\\\vy");
+      Assert.AreEqual("\\\\vy", test.GetString(5), @"\\\vy");
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual("24\"", test.GetString(5), @"24\""");
       Assert.AreEqual(6, test.FieldCount);
@@ -771,9 +771,9 @@ Line "Test"", "22",23,"  24"
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      Assert.AreEqual("\\vy", test.GetString(5), @"\\\vy");
+      Assert.AreEqual("\\\\vy", test.GetString(5), @"\\\vy");
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      Assert.AreEqual("24", test.GetString(5), @"24\");
+      Assert.AreEqual("24\\", test.GetString(5), @"24\");
     }
 
     [TestMethod]
@@ -802,7 +802,7 @@ Line "Test"", "22",23,"  24"
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      Assert.AreEqual("l", test.GetString(5)); // Important to not trim the value otherwise the linefeed is gone
+      Assert.AreEqual("l\\", test.GetString(5)); // Important to not trim the value otherwise the linefeed is gone
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual("7", test.GetString(0), @"Next Row");
       Assert.AreEqual(4U, test.StartLineNumber, "StartLineNumber");
@@ -872,7 +872,7 @@ Line "Test"", "22",23,"  24"
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      Assert.AreEqual("\\vy", test.GetString(5), @"\\\vy");
+      Assert.AreEqual("\\\\vy", test.GetString(5), @"\\\\vy");
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual("24\\", test.GetString(5), @"24\\");
     }

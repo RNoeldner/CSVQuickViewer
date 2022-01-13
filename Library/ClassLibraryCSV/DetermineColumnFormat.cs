@@ -160,7 +160,7 @@ namespace CsvTools
                          fillGuessSettings.CheckedRecords,
                          getSamples,
                          fillGuessSettings.SampleValues,
-                         treatTextAsNull,
+                         treatTextAsNull, 80,
                          cancellationToken).ConfigureAwait(false);
 
       // Add all columns that will not be guessed
@@ -460,7 +460,7 @@ namespace CsvTools
                                                 1,
                                                 new[] { colIndex + 1 },
                                                 1,
-                                                treatTextAsNull,
+                                                treatTextAsNull, 80,
                                                 cancellationToken).ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
               if (firstValueNewColumn != null && (firstValueNewColumn.Length == 8 || firstValueNewColumn.Length == 5))
               {
@@ -505,7 +505,7 @@ namespace CsvTools
 
           var firstValueNewColumn2 = (sampleList.Keys.Contains(colIndex - 1)
                                         ? sampleList[colIndex - 1]
-                                        : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, 1, treatTextAsNull, cancellationToken)
+                                        : (await GetSampleValuesAsync(fileReader, 1, new[] { colIndex + 1 }, 1, treatTextAsNull, 80, cancellationToken)
                                              .ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
           if (firstValueNewColumn2 != null && (firstValueNewColumn2.Length == 8 || firstValueNewColumn2.Length == 5))
           {
@@ -536,13 +536,13 @@ namespace CsvTools
 
       var existing = new Collection<IColumn>();
       foreach (var colName in columnNamesInFile)
-      foreach (var col in columnCollection)
-      {
-        if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
-          continue;
-        existing.Add(col);
-        break;
-      }
+        foreach (var col in columnCollection)
+        {
+          if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
+            continue;
+          existing.Add(col);
+          break;
+        }
 
       // 2nd columns defined but not in list
       foreach (var col in columnCollection)
@@ -578,6 +578,7 @@ namespace CsvTools
       IEnumerable<int> columns,
       int enoughSamples,
       string treatAsNull,
+      int maxChars,
       CancellationToken cancellationToken)
     {
       if (fileReader is null)
@@ -674,9 +675,9 @@ namespace CsvTools
               if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
                 continue;
 
-              // cut of after 40 chars
-              if (value.Length > 40)
-                value = value.Substring(0, 40);
+              // cut of 
+              if (maxChars >0 && value.Length > maxChars)
+                value = value.Substring(0, maxChars);
 
               // Have a max of 2000 values
               if (samples[columnIndex].Count < maxSamples)
@@ -743,18 +744,18 @@ namespace CsvTools
           {
             possibleDateSeparators = new List<string>();
             foreach (var sep in StringConversion.DateSeparators)
-            foreach (var entry in samples)
-            {
-              cancellationToken.ThrowIfCancellationRequested();
-              if (entry.IndexOf(sep, StringComparison.Ordinal) == -1) continue;
-              possibleDateSeparators.Add(sep);
-              break;
-            }
+              foreach (var entry in samples)
+              {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (entry.IndexOf(sep, StringComparison.Ordinal) == -1) continue;
+                possibleDateSeparators.Add(sep);
+                break;
+              }
           }
 
           foreach (var sep in possibleDateSeparators)
           {
-            var res = StringConversion.CheckDate(samples, fmt, sep, ":", CultureInfo.CurrentCulture);
+            var res = StringConversion.CheckDate(samples, fmt, sep, ":", CultureInfo.CurrentCulture, cancellationToken);
             if (res.FoundValueFormat != null)
               return res;
 
@@ -768,7 +769,7 @@ namespace CsvTools
             fmt,
             CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
             ":",
-            CultureInfo.CurrentCulture);
+            CultureInfo.CurrentCulture, cancellationToken);
           if (res.FoundValueFormat != null)
             return res;
 
@@ -817,24 +818,24 @@ namespace CsvTools
 
       foreach (var thousandSeparator in possibleGrouping)
         // Try Numbers: Int and Decimal
-      foreach (var decimalSeparator in possibleDecimal)
-      {
-        if (cancellationToken.IsCancellationRequested)
-          return checkResult;
-        if (decimalSeparator.Equals(thousandSeparator))
-          continue;
-        var res = StringConversion.CheckNumber(
-          samples,
-          decimalSeparator,
-          thousandSeparator,
-          guessPercentage,
-          allowStartingZero,
-          minSamples);
-        if (res.FoundValueFormat != null)
-          return res;
+        foreach (var decimalSeparator in possibleDecimal)
+        {
+          if (cancellationToken.IsCancellationRequested)
+            return checkResult;
+          if (decimalSeparator.Equals(thousandSeparator))
+            continue;
+          var res = StringConversion.CheckNumber(
+            samples,
+            decimalSeparator,
+            thousandSeparator,
+            guessPercentage,
+            allowStartingZero,
+            minSamples, cancellationToken);
+          if (res.FoundValueFormat != null)
+            return res;
 
-        checkResult.KeepBestPossibleMatch(res);
-      }
+          checkResult.KeepBestPossibleMatch(res);
+        }
 
       return checkResult;
     }
@@ -913,7 +914,7 @@ namespace CsvTools
       cancellationToken.ThrowIfCancellationRequested();
 
       // ---------------- GUID --------------------------
-      if (guessGuid && StringConversion.CheckGuid(samples))
+      if (guessGuid && StringConversion.CheckGuid(samples, cancellationToken))
       {
         checkResult.FoundValueFormat = new ImmutableValueFormat(DataType.Guid);
         return checkResult;
@@ -954,7 +955,7 @@ namespace CsvTools
           othersValueFormatDate.DateFormat,
           othersValueFormatDate.DateSeparator,
           othersValueFormatDate.TimeSeparator,
-          CultureInfo.CurrentCulture);
+          CultureInfo.CurrentCulture, cancellationToken);
         if (checkResultDateTime.FoundValueFormat != null)
           return checkResultDateTime;
         checkResult.KeepBestPossibleMatch(checkResultDateTime);
@@ -973,7 +974,7 @@ namespace CsvTools
             "yyyyMMdd",
             string.Empty,
             ":",
-            CultureInfo.InvariantCulture);
+            CultureInfo.InvariantCulture, cancellationToken);
           if (checkResultDateTime.FoundValueFormat != null)
             return checkResultDateTime;
           checkResult.KeepBestPossibleMatch(checkResultDateTime);
@@ -984,7 +985,7 @@ namespace CsvTools
         // We need to have at least 10 sample values here its too dangerous to assume it is a date
         if (guessDateTime && serialDateTime && samples.Count > 10 && samples.Count > minRequiredSamples)
         {
-          var checkResultDateTime = StringConversion.CheckSerialDate(samples, true);
+          var checkResultDateTime = StringConversion.CheckSerialDate(samples, true, cancellationToken);
           if (checkResultDateTime.FoundValueFormat != null)
             return checkResultDateTime;
           checkResult.KeepBestPossibleMatch(checkResultDateTime);
@@ -1025,10 +1026,23 @@ namespace CsvTools
           othersValueFormatDate.DateFormat,
           othersValueFormatDate.DateSeparator,
           othersValueFormatDate.TimeSeparator,
-          CultureInfo.CurrentCulture);
+          CultureInfo.CurrentCulture, cancellationToken);
         if (res.FoundValueFormat != null)
           return res;
         checkResult.KeepBestPossibleMatch(res);
+      }
+      cancellationToken.ThrowIfCancellationRequested();
+      // check DataType.TextUnescape
+      if (!checkResult.PossibleMatch)
+      {
+        var res = StringConversion.CheckUnescape(samples, minRequiredSamples, cancellationToken);
+        if (res != DataType.String)
+        {
+          checkResult.PossibleMatch= true;
+          checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(res);
+          checkResult.FoundValueFormat = new ImmutableValueFormat(res);
+          return checkResult;
+        }
       }
 
       cancellationToken.ThrowIfCancellationRequested();
@@ -1041,7 +1055,7 @@ namespace CsvTools
       // ReSharper disable once InvertIf
       if (samples.Count >= minRequiredSamples)
       {
-        var res = StringConversion.CheckSerialDate(samples, false);
+        var res = StringConversion.CheckSerialDate(samples, false, cancellationToken);
         if (res.FoundValueFormat != null)
           return res;
         checkResult.KeepBestPossibleMatch(res);
@@ -1215,10 +1229,10 @@ namespace CsvTools
 
       // Standard Date Time formats
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(value.Length, true))
-      foreach (var sep in StringConversion.DateSeparators.Where(
-        sep => StringConversion.StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture)
-                               .HasValue))
-        yield return new ImmutableValueFormat(DataType.DateTime, fmt, sep);
+        foreach (var sep in StringConversion.DateSeparators.Where(
+          sep => StringConversion.StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture)
+                                 .HasValue))
+          yield return new ImmutableValueFormat(DataType.DateTime, fmt, sep);
     }
 
 #endif

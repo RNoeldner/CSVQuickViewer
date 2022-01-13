@@ -21,41 +21,41 @@ namespace CsvTools
   ///   Result of a format check, if the samples match a value type this is set, if not an example is give what did not match
   /// </summary>
   public class CheckResult
-	{
-		public ICollection<string> ExampleNonMatch { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+  {
+    public ICollection<string> ExampleNonMatch { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-		/// <summary>
-		///   The found value format
-		/// </summary>
-		public IValueFormat? FoundValueFormat { get; set; }
+    /// <summary>
+    ///   The found value format
+    /// </summary>
+    public IValueFormat? FoundValueFormat { get; set; }
 
-		/// <summary>
-		///   The positive matches before an invalid value was found
-		/// </summary>
-		public bool PossibleMatch { get; set; }
+    /// <summary>
+    ///   The positive matches before an invalid value was found
+    /// </summary>
+    public bool PossibleMatch { get; set; }
 
-		/// <summary>
-		///   The value format for a possible match
-		/// </summary>
-		public ImmutableValueFormat? ValueFormatPossibleMatch { get; set; }
+    /// <summary>
+    ///   The value format for a possible match
+    /// </summary>
+    public ImmutableValueFormat? ValueFormatPossibleMatch { get; set; }
 
-		/// <summary>
-		///   Combines a Sub check to an overall check
-		/// </summary>
-		/// <param name="subResult">The sub result.</param>
-		public void KeepBestPossibleMatch(CheckResult subResult)
-		{
-			if (!subResult.PossibleMatch)
-				return;
+    /// <summary>
+    ///   Combines a Sub check to an overall check
+    /// </summary>
+    /// <param name="subResult">The sub result.</param>
+    public void KeepBestPossibleMatch(CheckResult subResult)
+    {
+      if (!subResult.PossibleMatch)
+        return;
 
-			if (PossibleMatch && subResult.ExampleNonMatch.Count >= ExampleNonMatch.Count) return;
-			ExampleNonMatch.Clear();
-			PossibleMatch = true;
-			ValueFormatPossibleMatch = subResult.ValueFormatPossibleMatch;
+      if (PossibleMatch && subResult.ExampleNonMatch.Count >= ExampleNonMatch.Count) return;
+      ExampleNonMatch.Clear();
+      PossibleMatch = true;
+      ValueFormatPossibleMatch = subResult.ValueFormatPossibleMatch;
 
-			foreach (var ex in subResult.ExampleNonMatch)
-				if (!string.IsNullOrEmpty(ex))
-					ExampleNonMatch.Add(ex);
-		}
-	}
+      foreach (var ex in subResult.ExampleNonMatch)
+        if (!string.IsNullOrEmpty(ex))
+          ExampleNonMatch.Add(ex);
+    }
+  }
 }

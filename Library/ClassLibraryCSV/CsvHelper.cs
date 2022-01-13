@@ -658,7 +658,7 @@ namespace CsvTools
           {
             processDisplay?.SetProcess($"Found field delimiter { detectionResult.FieldDelimiter} is not valid, checking for an alternative", -1, true);
             hasFields = false;
-            disallowedDelimiter.Add(detectionResult.FieldDelimiter.WrittenPunctuationToChar());            
+            disallowedDelimiter.Add(detectionResult.FieldDelimiter.WrittenPunctuationToChar());
             // no need to check for Json again
             guessJson = false;
           }
@@ -1652,12 +1652,12 @@ namespace CsvTools
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
       var delimiterChar = delimiter.WrittenPunctuationToChar();
-      const int c_MaxLine = 30;
+      const int c_MaxLine = 1000;
       var possibleQuotes = new[] { '"', '\'' };
       var counter = new int[possibleQuotes.Length];
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
-      var max = 0;
+
       // skip the first line it usually a header
       for (var lineNo = 0;
            lineNo < c_MaxLine && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested;
@@ -1670,31 +1670,36 @@ namespace CsvTools
             break;
           continue;
         }
-
-        var cols = line.Split(delimiterChar);
-        foreach (var col in cols)
+        for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
         {
-          if (string.IsNullOrWhiteSpace(col))
+          // Shortcut if the line does not contain the possible quoute at all
+          if (line.IndexOf(possibleQuotes[testIndex])==-1)
             continue;
-
-          var test = col.Trim();
-          for (var testChar = 0; testChar < possibleQuotes.Length; testChar++)
+          foreach (var col in line.Split(delimiterChar))
           {
-            if (test[0] != possibleQuotes[testChar]) continue;
-            counter[testChar]++;
+            var test = col.Trim();
+            if (test.Length==0 || test[0] != possibleQuotes[testIndex])
+              continue;
+            counter[testIndex]++;
             // Ideally column need to start and end with the same characters (but end quote could be
             // on another line) if the start and end are indeed the same give it extra credit
             if (test.Length > 1 && test[0] == test[test.Length - 1])
-              counter[testChar]++;
-            if (counter[testChar] > max)
-              max = counter[testChar];
+              counter[testIndex]++;
           }
-        }
+        }        
       }
-
-      var res = max < 1 ? '\0' : possibleQuotes.Where((t, testChar) => counter[testChar] == max).FirstOrDefault();
+      var max = 0;
+      var res = '\0';
+      for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
+      {
+        if (counter[testIndex] > max)
+        {
+          max = counter[testIndex];
+          res = possibleQuotes[testIndex];
+        }
+      }      
       if (res != '\0')
-        Logger.Information("Column Qualifier: {qualifier}", res);
+        Logger.Information("Column Qualifier: {qualifier}", res.GetDescription());
       else
         Logger.Information("No Column Qualifier");
       return res;

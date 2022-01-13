@@ -477,8 +477,7 @@ namespace CsvTools
         DataType.Numeric  => GetDecimalNull(value, ordinal),
         DataType.Boolean  => GetBooleanNull(value, ordinal),
         DataType.Guid     => GetGuidNull(value, column.ColumnOrdinal),
-        DataType.String   => value,
-        _                 => throw new NotSupportedException($"DataType {column.ValueFormat.DataType} is not supported")
+        _   => value        
       };
       return ret ?? DBNull.Value;
     }
@@ -966,41 +965,17 @@ namespace CsvTools
         return null;
       }
 
-      var stringBuilder = new StringBuilder(5);
+      var stringBuilder = new StringBuilder(5);      
       var quoted = false;
       var preData = true;
       var postData = false;
-
+      var escaped = false;
       while (!EndOfFile)
       {
         // Increase position
         var character = Peek();
         MoveNext(character);
-
-        var escaped = character == m_EscapePrefixChar && !postData;
-
-        // Handle escaped characters
-        if (escaped)
-        {
-          var nextChar = Peek();
-          if (!EndOfFile)
-          {
-            MoveNext(nextChar);
-            character = m_EscapePrefixChar switch
-            {
-              // Handle \ Notation of common not visible characters
-              '\\' when nextChar == 'n' => '\n',
-              '\\' when nextChar == 'r' => '\r',
-              '\\' when nextChar == 't' => '\t',
-              '\\' when nextChar == 'b' => '\b',
-              // in case a linefeed actually follows ignore the EscapePrefixChar but handle the
-              // regular processing
-              '\\' when nextChar == 'a' => '\a',
-              _                         => nextChar
-            };
-          }
-        }
-
+     
         // in case we have a single LF
         if (!postData && m_TreatLfAsSpace && character == c_Lf && quoted)
         {
@@ -1095,7 +1070,6 @@ namespace CsvTools
           {
             // Store the white spaces if we do any kind of trimming
             if (m_TrimmingOption == TrimmingOption.None)
-
               // Values will be trimmed later but we need to find out, if the filed is quoted first
               stringBuilder.Append(character);
             continue;
@@ -1112,13 +1086,12 @@ namespace CsvTools
 
             // quoted data is starting
             quoted = true;
+            continue;
           }
           else
           {
-            stringBuilder.Append(character);
-          }
-
-          continue;
+            goto append;            
+          }          
         }
 
         if (m_HasQualifier && character == m_FieldQualifierChar && quoted && !escaped)
@@ -1155,8 +1128,18 @@ namespace CsvTools
           }
         }
 
+append:
+        if (escaped && (character == m_FieldQualifierChar || character == m_FieldDelimiterChar || character == m_EscapePrefixChar))
+        {
+          // remove the already added escape char
+          stringBuilder.Length--;
+        }
+
         // all cases covered, character must be data
         stringBuilder.Append(character);
+
+        escaped = !escaped && (character == m_EscapePrefixChar);
+        // While
       }
 
       var columnText = stringBuilder.ToString();
