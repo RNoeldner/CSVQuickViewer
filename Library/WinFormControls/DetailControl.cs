@@ -1045,7 +1045,7 @@ namespace CsvTools
         FilteredDataGridView.ColumnVisibilityChanged();
         FilteredDataGridView.SetRowHeight();
 
-        if (oldOrder != SortOrder.None && !string.IsNullOrEmpty(oldSortedColumn))
+        if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length==0))
           Sort(oldSortedColumn, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
 
         var newIndex = type switch
@@ -1168,7 +1168,7 @@ namespace CsvTools
           false,
           split.FileName);
 
-        if (string.IsNullOrEmpty(fileName))
+        if (fileName is null || fileName.Length==0)
           return;
 
         await SafeCurrentFile(fileName, !fileName.EndsWith(split.Extension, StringComparison.OrdinalIgnoreCase));

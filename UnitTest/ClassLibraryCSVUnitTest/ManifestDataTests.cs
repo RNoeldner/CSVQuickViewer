@@ -6,7 +6,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class ManifestDataTests
   {
-    [TestMethod]
+    [TestMethod, Timeout(1000)]
     public void ReadManifestPropertiesTest()
     {
       var m = new ManifestData("pubname", "heading", "desc", true, "hydration", true,
@@ -25,7 +25,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(1, m.Fields[0].Ordinal);
     }
 
-    [TestMethod]
+    [TestMethod, Timeout(1000)]
     public async Task ReadManifestAsync()
     {
       var manifest = await ManifestData.ReadManifestFileSystem(UnitTestStatic.GetTestPath("training_relation.manifest.json"));
@@ -46,11 +46,11 @@ namespace CsvTools.Tests
       reader.Read();
     }
 
-    [TestMethod]
+    [TestMethod, Timeout(1000)]
     public async Task ReadManifestZip()
     {
       var manifest = await ManifestData.ReadManifestZip(UnitTestStatic.GetTestPath("ces_xxx_v879548171_lo_exempt_status_reason_approver_local_full.zip"));
-      var setting = manifest.PhysicalFile() as CsvFile;
+      var setting = manifest!.PhysicalFile() as CsvFile;
       Assert.AreEqual(false, manifest.HasFieldHeader);
 #pragma warning disable 8602
       Assert.AreEqual(3, setting.ColumnCollection.Count());
