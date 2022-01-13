@@ -28,10 +28,8 @@ namespace CsvTools.Tests
       var col = new Column("ExamDate", DataType.DateTime);
       csvFile.ColumnCollection.Add(col);
 
-      using (var frm = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false, UnitTestStatic.HTMLStyle))
-      {
-        UnitTestStatic.ShowFormAndClose(frm);
-      }
+      using var frm = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false, UnitTestStatic.HTMLStyle);
+      UnitTestStatic.ShowFormAndClose(frm);
     }
 
     [TestMethod]
@@ -39,11 +37,9 @@ namespace CsvTools.Tests
     public void FormColumnUI_Boolean()
     {
       var col = new Column("MyTest", DataType.Boolean) { True = "YO", False = "NOPE" };
-      using (var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
-        UnitTestStatic.HTMLStyle))
-      {
-        UnitTestStatic.ShowFormAndClose(frm);
-      }
+      using var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
+        UnitTestStatic.HTMLStyle);
+      UnitTestStatic.ShowFormAndClose(frm);
     }
 
     [TestMethod]
@@ -95,11 +91,9 @@ namespace CsvTools.Tests
     {
       var col = new Column("MyTest", DataType.Numeric) { DecimalSeparator = ".", GroupSeparator = ",", NumberFormat = "0.00" };
 
-      using (var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
-        UnitTestStatic.HTMLStyle))
-      {
-        UnitTestStatic.ShowFormAndClose(frm, .1, f => f.UpdateNumericLabel(".", "00000", ""));
-      }
+      using var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
+        UnitTestStatic.HTMLStyle);
+      UnitTestStatic.ShowFormAndClose(frm, .1, f => f.UpdateNumericLabel(".", "00000", ""));
     }
 
     [TestMethod]
@@ -110,11 +104,9 @@ namespace CsvTools.Tests
       var col = new Column("ExamDate", DataType.DateTime);
       csvFile.ColumnCollection.Add(col);
 
-      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestStatic.HTMLStyle))
-      {
-        form.ShowGuess = false;
-        UnitTestStatic.ShowFormAndClose(form);
-      }
+      using var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestStatic.HTMLStyle);
+      form.ShowGuess = false;
+      UnitTestStatic.ShowFormAndClose(form);
     }
 
     [TestMethod]
@@ -125,10 +117,8 @@ namespace CsvTools.Tests
       var col = new Column("ID", DataType.Integer);
       csvFile.ColumnCollection.Add(col);
 
-      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false, UnitTestStatic.HTMLStyle))
-      {
-        UnitTestStatic.ShowFormAndClose(form);
-      }
+      using var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false, UnitTestStatic.HTMLStyle);
+      UnitTestStatic.ShowFormAndClose(form);
     }
 
     [TestMethod]
@@ -136,11 +126,9 @@ namespace CsvTools.Tests
     public void FormColumnUI_TextPart()
     {
       var col = new Column("MyTest", DataType.TextPart) { PartSplitter = ":", Part = 2, PartToEnd = true };
-      using (var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
-        UnitTestStatic.HTMLStyle))
-      {
-        UnitTestStatic.ShowFormAndClose(frm, .1, f => f.SetPartLabels(":", 2, true));
-      }
+      using var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
+        UnitTestStatic.HTMLStyle);
+      UnitTestStatic.ShowFormAndClose(frm, .1, f => f.SetPartLabels(":", 2, true));
     }
 
     [TestMethod]
@@ -151,10 +139,8 @@ namespace CsvTools.Tests
       var col = new Column("Score", DataType.Double);
       csvFile.ColumnCollection.Add(col);
 
-      using (var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestStatic.HTMLStyle))
-      {
-        UnitTestStatic.ShowFormAndClose(form);
-      }
+      using var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestStatic.HTMLStyle);
+      UnitTestStatic.ShowFormAndClose(form);
     }
 
     [TestMethod]
@@ -168,11 +154,9 @@ namespace CsvTools.Tests
       csvFile.ColumnCollection.Add(col);
       csvFile.ColumnCollection.Add(new Column("Score", DataType.Double));
 
-      using (var form = new FormColumnUI(col, false, csvFile,
-        new FillGuessSettings(), true, UnitTestStatic.HTMLStyle))
-      {
-        UnitTestStatic.ShowFormAndClose(form);
-      }
+      using var form = new FormColumnUI(col, false, csvFile,
+        new FillGuessSettings(), true, UnitTestStatic.HTMLStyle);
+      UnitTestStatic.ShowFormAndClose(form);
     }
   }
 }
