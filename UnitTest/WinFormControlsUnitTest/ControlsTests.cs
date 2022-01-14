@@ -39,35 +39,33 @@ namespace CsvTools.Tests
     {
       Extensions.RunSTAThread(() =>
       {
-        using (var tm = new TimedMessage())
+        using var tm = new TimedMessage();
+        var stringBuilder = HTMLStyle.StartHTMLDoc($"{SystemColors.Control.R:X2}{SystemColors.Control.G:X2}{SystemColors.Control.B:X2}", "");
+        stringBuilder.Append(string.Format(UnitTestStatic.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample")));
+        stringBuilder.Append(string.Format(UnitTestStatic.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample2")));
+
+        stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TableOpen);
+        stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TROpen);
+        for (var index = 1; index <= 10; index++)
         {
-          var stringBuilder = HTMLStyle.StartHTMLDoc($"{SystemColors.Control.R:X2}{SystemColors.Control.G:X2}{SystemColors.Control.B:X2}", "");
-          stringBuilder.Append(string.Format(UnitTestStatic.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample")));
-          stringBuilder.Append(string.Format(UnitTestStatic.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample2")));
-
-          stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TableOpen);
-          stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TROpen);
-          for (var index = 1; index <= 10; index++)
+          stringBuilder.AppendLine(string.Format(UnitTestStatic.HTMLStyle.TD,
+            HTMLStyle.TextToHtmlEncode("Test " + index.ToString())));
+          if (index % 4 == 0)
           {
-            stringBuilder.AppendLine(string.Format(UnitTestStatic.HTMLStyle.TD,
-              HTMLStyle.TextToHtmlEncode("Test " + index.ToString())));
-            if (index % 4 == 0)
-            {
-              stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TRClose);
-            }
+            stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TRClose);
           }
+        }
 
-          stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TRClose);
-          stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TableClose);
-          stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TableClose);
-          stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TRClose);
-          stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TableClose);
-          tm.Html = stringBuilder.ToString();
+        stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TRClose);
+        stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TableClose);
+        stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TableClose);
+        stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TRClose);
+        stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TableClose);
+        tm.Html = stringBuilder.ToString();
 
-					tm.Size = new Size(600, 450);
-					UnitTestStatic.ShowFormAndClose(tm, 2);
-				}
-			});
+        tm.Size = new Size(600, 450);
+        UnitTestStatic.ShowFormAndClose(tm, 2);
+      });
 		}
 
 		[TestMethod]
@@ -76,40 +74,34 @@ namespace CsvTools.Tests
 		{
 			Extensions.RunSTAThread(() =>
 			{
-				using (var tm = new TimedMessage())
-				{
-					tm.Message = "Found values\rLine2\nDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n" +
-											 "DMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n\nNote: Text has been cut off after 15 characters";
+        using var tm = new TimedMessage();
+        tm.Message = "Found values\rLine2\nDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n" +
+                     "DMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n\nNote: Text has been cut off after 15 characters";
 
-					tm.Size = new Size(600, 450);
-					UnitTestStatic.ShowFormAndClose(tm, 2);
-				}
-			});
+        tm.Size = new Size(600, 450);
+        UnitTestStatic.ShowFormAndClose(tm, 2);
+      });
 		}
 
 		[TestMethod]
 		[Timeout(5000)]
 		public void ResizeForm()
 		{
-			using (var frm = new ResizeForm())
-			{
-				UnitTestStatic.ShowFormAndClose(frm, .2, (from) =>
-				{
-					CsvTools.ResizeForm.SetFonts(from, SystemFonts.DialogFont);
-				});
-			}
-		}
+      using var frm = new ResizeForm();
+      UnitTestStatic.ShowFormAndClose(frm, .2, (from) =>
+      {
+        CsvTools.ResizeForm.SetFonts(from, SystemFonts.DialogFont);
+      });
+    }
 
 		[TestMethod]
 		[Timeout(5000)]
 		public void QuotingControl()
 		{
-			using (var ctrl = new QuotingControl())
-			{
-				ctrl.CsvFile = new CsvFile();
-				UnitTestStatic.ShowControl(ctrl);
-			}
-		}
+      using var ctrl = new QuotingControl();
+      ctrl.CsvFile = new CsvFile();
+      UnitTestStatic.ShowControl(ctrl);
+    }
 
 		[TestMethod]
 		public void APICodePackWrapperFolder()
@@ -268,50 +260,42 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public void FormDuplicatesDisplay()
     {
-      using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormDuplicatesDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, UnitTestStatic.HTMLStyle))
-      {
-        UnitTestStatic.ShowFormAndClose(form);
-      }
+      using var dataTable = UnitTestStatic.GetDataTable(60);
+      using var form = new FormDuplicatesDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, UnitTestStatic.HTMLStyle);
+      UnitTestStatic.ShowFormAndClose(form);
     }
 
     [TestMethod]
     [Timeout(5000)]
     public void FormUniqueDisplay()
     {
-      using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, UnitTestStatic.HTMLStyle))
-      {
-        UnitTestStatic.ShowFormAndClose(form);
-      }
+      using var dataTable = UnitTestStatic.GetDataTable(60);
+      using var form = new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, UnitTestStatic.HTMLStyle);
+      UnitTestStatic.ShowFormAndClose(form);
     }
 
     [TestMethod]
     [Timeout(3000)]
     public void FormShowMaxLength()
     {
-      using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), UnitTestStatic.HTMLStyle))
-      {
-        UnitTestStatic.ShowFormAndClose(form);
-      }
+      using var dataTable = UnitTestStatic.GetDataTable(60);
+      using var form = new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), UnitTestStatic.HTMLStyle);
+      UnitTestStatic.ShowFormAndClose(form);
     }
 
 		[TestMethod]
 		[Timeout(5000)]
 		public void DataGridViewColumnFilterControl()
 		{
-			using (var dataTable = UnitTestStatic.GetDataTable(60))
-			{
-				var col = new DataGridViewTextBoxColumn
-				{
-					ValueType = dataTable.Columns[0].DataType,
-					Name = dataTable.Columns[0].ColumnName,
-					DataPropertyName = dataTable.Columns[0].ColumnName
-				};
+      using var dataTable = UnitTestStatic.GetDataTable(60);
+      var col = new DataGridViewTextBoxColumn
+      {
+        ValueType = dataTable.Columns[0].DataType,
+        Name = dataTable.Columns[0].ColumnName,
+        DataPropertyName = dataTable.Columns[0].ColumnName
+      };
 
-				UnitTestStatic.ShowControl(new DataGridViewColumnFilterControl(col));
-			}
-		}
+      UnitTestStatic.ShowControl(new DataGridViewColumnFilterControl(col));
+    }
 	}
 }

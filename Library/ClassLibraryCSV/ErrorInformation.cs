@@ -227,10 +227,10 @@ namespace CsvTools
     /// <param name="columnErrors">The column errors.</param>
     /// <param name="columns">The column names, for replacing the index to the name</param>
     /// <returns></returns>
-    public static string? ReadErrorInformation(IDictionary<int, string> columnErrors, in IReadOnlyList<string> columns)
+    public static string ReadErrorInformation(IDictionary<int, string>? columnErrors, in IReadOnlyList<string> columns)
     {
-      if (columnErrors.Count == 0)
-        return null;
+      if (columnErrors is null || columnErrors.Count == 0)
+        return string.Empty;
       var list = new List<Tuple<string, string>>();
 
       // Tried Parallel.Foreach but it was not reliable, with a few million executions some values

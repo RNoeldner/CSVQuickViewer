@@ -94,8 +94,7 @@ namespace CsvTools.Tests
         UnitTestStatic.MimicSQLReader.AddSetting(setting.ID,
           dt!);
       }
-
-      var processDisplay = new CustomProcessDisplay();
+      
       var res1 = await DetermineColumnFormat.GetWriterColumnInformationAsync(setting.SqlStatement, setting.Timeout,
         setting.DefaultValueFormatWrite, setting.ColumnCollection,
         UnitTestStatic.Token);
