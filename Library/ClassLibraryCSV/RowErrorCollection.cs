@@ -69,7 +69,7 @@ namespace CsvTools
         return Convert.ToString(sb);
       }
     }
-
+    
     public string DisplayByRecordNumber
     {
       get
