@@ -249,7 +249,7 @@ namespace CsvTools
       if (ordinal == ReaderMapping.DataTableRecNum)
         return RecordNumber;
       if (ordinal == ReaderMapping.DataTableErrorField)
-        return ReaderMapping.RowErrorInformation ?? string.Empty;
+        return ReaderMapping.RowErrorInformation;
 
       return DataReader.GetValue(ReaderMapping.DataTableToReader(ordinal));
     }
@@ -261,7 +261,7 @@ namespace CsvTools
       if (ordinal == ReaderMapping.DataTableStartLine || ordinal == ReaderMapping.DataTableEndLine || ordinal == ReaderMapping.DataTableRecNum)
         return false;
 
-      return (ordinal == ReaderMapping.DataTableErrorField ? ReaderMapping.HasErrors : DataReader.IsDBNull(ReaderMapping.DataTableToReader(ordinal)));
+      return (ordinal == ReaderMapping.DataTableErrorField ? !ReaderMapping.HasErrors : DataReader.IsDBNull(ReaderMapping.DataTableToReader(ordinal)));
     }
 
     public override bool NextResult() => false;
