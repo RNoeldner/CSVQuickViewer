@@ -1047,21 +1047,23 @@ namespace CsvTools
 
         if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length==0))
           Sort(oldSortedColumn, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
+      });
 
-        var newIndex = type switch
-        {
-          FilterType.ErrorsAndWarning => 1,
-          FilterType.ShowErrors => 2,
-          FilterType.ShowWarning => 3,
-          FilterType.ShowIssueFree => 4,
-          _ => 0
-        };
+      var newIndex = type switch
+      {
+        FilterType.ErrorsAndWarning => 1,
+        FilterType.ShowErrors => 2,
+        FilterType.ShowWarning => 3,
+        FilterType.ShowIssueFree => 4,
+        _ => 0
+      };
 
+      this.SafeInvoke(() =>
+      {
         m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;
         m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
       });
     }
-
     private void StartSearch(object? sender, SearchEventArgs e)
     {
       OnSearchClear(this, EventArgs.Empty);
