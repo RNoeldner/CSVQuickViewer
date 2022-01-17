@@ -171,7 +171,7 @@ namespace CsvTools
 				return $"{value:%s} sec";
 			if (value.TotalHours < 1)
 				return $"{value:mm\\:ss}";
-			return value.TotalHours < 24 ? $"{value:hh\\:mm} hour" : $"{value:dd hh\\:mm} days";
+			return value.TotalHours < 24 ? $"{value:HH\\:mm} hour" : $"{value:dd HH\\:mm} days";
 		}
 
 		private struct ProgressOverTime
