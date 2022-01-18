@@ -68,7 +68,7 @@ namespace CsvTools
     /// </param>
     /// <param name="treatTextAsNull">A text that should be regarded as empty</param>
     /// <param name="cancellationToken">Cancellation support</param>
-    /// <returns>A text with the changes that have been made</returns>
+    /// <returns>A text with the changes that have been made and a list of the determined columns</returns>
     public static async Task<(IList<string>, IEnumerable<IColumn>)> FillGuessColumnFormatReaderAsyncReader(
       this IFileReader fileReader,
       FillGuessSettings fillGuessSettings,
@@ -1138,7 +1138,7 @@ namespace CsvTools
                addTextColumns,
                checkDoubleToBeInteger,
                fileSetting.TreatTextAsNull,
-               cancellationToken).ConfigureAwait(false);
+               cancellationToken).ConfigureAwait(false);      
     }
 
     public static IFileSetting GetSettingForRead(this IFileSetting fileSetting)

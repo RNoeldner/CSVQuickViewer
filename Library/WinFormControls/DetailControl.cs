@@ -1029,25 +1029,7 @@ namespace CsvTools
 
       if (ReferenceEquals(m_BindingSource.DataSource, newDt))
         return;
-
-      this.SafeInvokeNoHandleNeeded(() =>
-      {
-        // Now apply filter
-        FilteredDataGridView.DataSource = null;
-
-        m_BindingSource.DataSource = newDt;
-        FilteredDataGridView.DataSource = m_BindingSource;
-
-        FilterColumns(!type.HasFlag(FilterType.ShowIssueFree));
-        m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
-
-        AutoResizeColumns(newDt);
-        FilteredDataGridView.ColumnVisibilityChanged();
-        FilteredDataGridView.SetRowHeight();
-
-        if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length==0))
-          Sort(oldSortedColumn, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
-      });
+      m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
 
       var newIndex = type switch
       {
@@ -1058,11 +1040,31 @@ namespace CsvTools
         _ => 0
       };
 
+      this.SafeInvokeNoHandleNeeded(() =>
+      {
+        // Now apply filter
+        FilteredDataGridView.DataSource = null;
+
+        m_BindingSource.DataSource = newDt;
+        FilteredDataGridView.DataSource = m_BindingSource;
+
+        FilterColumns(!type.HasFlag(FilterType.ShowIssueFree));
+       
+        AutoResizeColumns(newDt);
+        FilteredDataGridView.ColumnVisibilityChanged();
+        FilteredDataGridView.SetRowHeight();
+
+        if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length==0))
+          Sort(oldSortedColumn, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
+      });
+
+      
       this.SafeInvoke(() =>
       {
-        m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;
-        m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
+        m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;        
       });
+
+      m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
     }
     private void StartSearch(object? sender, SearchEventArgs e)
     {
