@@ -139,10 +139,8 @@ namespace CsvTools
         if (readerColumn.ValueFormat.DataType == DataType.Guid || readerColumn.ValueFormat.DataType == DataType.Integer
                                                                || readerColumn.ValueFormat.DataType == DataType.Boolean
                                                                || readerColumn.ValueFormat.DataType == DataType.DateTime
-                                                               || (readerColumn.ValueFormat.DataType == DataType.Numeric
-                                                                   && !checkDoubleToBeInteger)
-                                                               || (readerColumn.ValueFormat.DataType == DataType.Double
-                                                                   && !checkDoubleToBeInteger))
+                                                               || (readerColumn.ValueFormat.DataType == DataType.Numeric && !checkDoubleToBeInteger)
+                                                               || (readerColumn.ValueFormat.DataType == DataType.Double && !checkDoubleToBeInteger))
         {
           Logger.Information(
             "{column} - Existing Type : {format}",
@@ -160,7 +158,7 @@ namespace CsvTools
                          fillGuessSettings.CheckedRecords,
                          getSamples,
                          fillGuessSettings.SampleValues,
-                         treatTextAsNull, 80,
+                         treatTextAsNull, 100,
                          cancellationToken).ConfigureAwait(false);
 
       // Add all columns that will not be guessed
@@ -604,16 +602,16 @@ namespace CsvTools
       Logger.Debug("Getting sample values for {numcolumns} columns", samples.Keys.Count);
 
       var hasWarning = false;
-      var remainingShows = 10;
+      // var remainingShows = 10;
 
       void WarningEvent(object? sender, WarningEventArgs args)
       {
         if (args.ColumnNumber != -1 && !samples.ContainsKey(args.ColumnNumber))
           return;
-        if (remainingShows-- > 0)
-          Logger.Debug("Row ignored in detection: " + args.Message);
-        if (remainingShows == 0)
-          Logger.Debug("No further warning shown");
+        //if (remainingShows-- > 0)
+        //  Logger.Debug("Row ignored in detection: " + args.Message);
+        //if (remainingShows == 0)
+        //  Logger.Debug("No further warning shown");
 
         hasWarning = true;
       }
@@ -650,9 +648,10 @@ namespace CsvTools
           if (!await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false) && fileReader.EndOfFile)
           {
             if (!fileReader.SupportsReset)
-              break;
-            fileReader.ResetPositionToFirstDataRow();
-            // If still at the end, we do not have a line
+              break;            
+            fileReader.ResetPositionToFirstDataRow();            
+            // uif we started at teh beginning and we are now back, exist
+            // if we started and we can not read a line exist as well.
             if (startRecordNumber == 0 || !await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
               break;
           }
@@ -1138,7 +1137,7 @@ namespace CsvTools
                addTextColumns,
                checkDoubleToBeInteger,
                fileSetting.TreatTextAsNull,
-               cancellationToken).ConfigureAwait(false);      
+               cancellationToken).ConfigureAwait(false);
     }
 
     public static IFileSetting GetSettingForRead(this IFileSetting fileSetting)
