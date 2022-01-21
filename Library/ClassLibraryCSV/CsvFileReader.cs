@@ -472,12 +472,12 @@ namespace CsvTools
       object? ret = column.ValueFormat.DataType switch
       {
         DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal), column, true),
-        DataType.Integer  => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
-        DataType.Double   => GetDoubleNull(value, ordinal),
-        DataType.Numeric  => GetDecimalNull(value, ordinal),
-        DataType.Boolean  => GetBooleanNull(value, ordinal),
-        DataType.Guid     => GetGuidNull(value, column.ColumnOrdinal),
-        _   => value        
+        DataType.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
+        DataType.Double => GetDoubleNull(value, ordinal),
+        DataType.Numeric => GetDecimalNull(value, ordinal),
+        DataType.Boolean => GetBooleanNull(value, ordinal),
+        DataType.Guid => GetGuidNull(value, column.ColumnOrdinal),
+        _ => value
       };
       return ret ?? DBNull.Value;
     }
@@ -502,7 +502,7 @@ namespace CsvTools
             m_ImprovedStream.Dispose();
 #endif
 
-          m_ImprovedStream = FunctionalDI.OpenStream( new SourceAccess(FullPath) { IdentifierInContainer = m_IdentifierInContainer });
+          m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath) { IdentifierInContainer = m_IdentifierInContainer });
         }
         else
         {
@@ -522,6 +522,16 @@ namespace CsvTools
         ParseColumnName(m_HeaderRow, null, m_HasFieldHeader);
 
         FinishOpen();
+
+        // Turn off unescape warning based on WarnLineFeed
+        if (!m_WarnLineFeed)
+        {
+          foreach (var col in Column)
+          {
+            if (col.ColumnFormatter is TextUnescapeFormatter unescapeFormatter)
+              unescapeFormatter.RaiseWarning = false;
+          }
+        }
 
         ResetPositionToFirstDataRow();
 
@@ -965,7 +975,7 @@ namespace CsvTools
         return null;
       }
 
-      var stringBuilder = new StringBuilder(5);      
+      var stringBuilder = new StringBuilder(5);
       var quoted = false;
       var preData = true;
       var postData = false;
@@ -975,7 +985,7 @@ namespace CsvTools
         // Increase position
         var character = Peek();
         MoveNext(character);
-     
+
         // in case we have a single LF
         if (!postData && m_TreatLfAsSpace && character == c_Lf && quoted)
         {
@@ -1090,8 +1100,8 @@ namespace CsvTools
           }
           else
           {
-            goto append;            
-          }          
+            goto append;
+          }
         }
 
         if (m_HasQualifier && character == m_FieldQualifierChar && quoted && !escaped)
@@ -1128,7 +1138,7 @@ namespace CsvTools
           }
         }
 
-append:
+        append:
         if (escaped && (character == m_FieldQualifierChar || character == m_FieldDelimiterChar || character == m_EscapePrefixChar))
         {
           // remove the already added escape char
