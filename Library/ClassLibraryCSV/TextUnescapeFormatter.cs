@@ -20,6 +20,8 @@ namespace CsvTools
 {
   public class TextUnescapeFormatter : IColumnFormatter
   {
+    public bool RaiseWarning { get; set; } = true;
+
     private static Tuple<int, int> ParseHex(in string text, int startPos)
     {
       var hex = new StringBuilder();
@@ -85,11 +87,10 @@ namespace CsvTools
       return retValue;
     }
 
-
     public string FormatText(in string inputString, Action<string>? handleWarning)
     {
       var output = Unescape(inputString);
-      if (!inputString.Equals(output, StringComparison.Ordinal))
+      if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
         handleWarning?.Invoke($"Unescaped text");
       return output;
     }
