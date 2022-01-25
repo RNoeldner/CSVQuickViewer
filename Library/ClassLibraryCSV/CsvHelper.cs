@@ -1700,8 +1700,8 @@ namespace CsvTools
       {
         if (counterOpen[testIndex]==0)
           continue;
-        // if we could not find a lot of teh closinbg quotes, assume its worng
-        if (counterClose[testIndex] < counterOpen[testIndex] * 1.5)
+        // if we could not find a lot of the closinbg quotes, assume its worng
+        if (counterClose[testIndex] * 1.5 < counterOpen[testIndex] )
         {
           Logger.Information("Could not find an appropiate number of closing quotes for {qualifier}", possibleQuotes[testIndex].GetDescription());
           continue;
