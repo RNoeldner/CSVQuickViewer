@@ -766,8 +766,7 @@ namespace CsvTools
         {
           ParentForm.ShowError(ex);
         }
-      }, ParentForm);
-      m_ToolStripButtonUniqueValues.Enabled = false;
+      }, ParentForm);      
     }
 
     private void OnSearchClear(object? sender, EventArgs e)
