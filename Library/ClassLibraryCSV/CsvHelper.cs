@@ -1664,35 +1664,31 @@ namespace CsvTools
            lineNo < c_MaxLine && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested;
            lineNo++)
       {
+        if (textReader.EndOfStream && !textReaderPosition.CanStartFromBeginning())
+          break;
         var line = await textReader.ReadLineAsync().ConfigureAwait(false);
-        if (string.IsNullOrEmpty(line))
-        {
-          if (textReader.EndOfStream && !textReaderPosition.CanStartFromBeginning())
-            break;
+        if (string.IsNullOrEmpty(line))        
           continue;
-        }
+        
         for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
         {
-          var firstPos = line.IndexOf(possibleQuotes[testIndex]);
           // Shortcut if the line does not contain the possible quoute at all
-          if (firstPos==-1)
-            continue;          
-          // If tehre is no closing quote on the line 
-          if (line.IndexOf(possibleQuotes[testIndex], firstPos+1)==-1)
+          if (line.IndexOf(possibleQuotes[testIndex])==-1)
             continue;
-          
+
           foreach (var col in line.Split(delimiterChar))
           {
             var test = col.Trim();
-            if (test.Length==0 || test[0] != possibleQuotes[testIndex])
+            if (test.Length==0)
               continue;
-            counterOpen[testIndex]++;            
+            if (test[0] == possibleQuotes[testIndex])
+              counterOpen[testIndex]++;
             // Ideally column need to start and end with the same characters (but end quote could be
             // on another line) if the start and end are indeed the same give it extra credit
-            if (test.Length > 1 && test[0] == test[test.Length - 1])
+            if (test.Length > 1 &&  possibleQuotes[testIndex] == test[test.Length - 1])
               counterClose[testIndex]++;
           }
-        }        
+        }
       }
       var max = 0;
       var res = '\0';
@@ -1701,7 +1697,7 @@ namespace CsvTools
         if (counterOpen[testIndex]==0)
           continue;
         // if we could not find a lot of the closinbg quotes, assume its worng
-        if (counterClose[testIndex] * 1.5 < counterOpen[testIndex] )
+        if (counterClose[testIndex] * 1.5 < counterOpen[testIndex])
         {
           Logger.Information("Could not find an appropiate number of closing quotes for {qualifier}", possibleQuotes[testIndex].GetDescription());
           continue;
@@ -1711,13 +1707,13 @@ namespace CsvTools
           max = counterOpen[testIndex];
           res = possibleQuotes[testIndex];
         }
-      }      
+      }
 
       if (max == 0)
         Logger.Information("No Column Qualifier");
       else
         Logger.Information("Column Qualifier: {qualifier}", res.GetDescription());
-              
+
       return res;
     }
   }
