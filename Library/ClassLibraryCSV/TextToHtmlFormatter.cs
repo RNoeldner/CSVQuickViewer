@@ -16,12 +16,15 @@ using System;
 
 namespace CsvTools
 {
+
   public class TextToHtmlFormatter : IColumnFormatter
   {
+    public bool RaiseWarning { get; set; } = true;
+
     public string FormatText(in string inputString, Action<string>? handleWarning)
     {
       var output = HTMLStyle.TextToHtmlEncode(inputString);
-      if (!inputString.Equals(output, StringComparison.Ordinal))
+      if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
         handleWarning?.Invoke($"HTML encoding removed from {inputString}");
       return output;
     }
