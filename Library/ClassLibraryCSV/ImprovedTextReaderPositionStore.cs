@@ -34,10 +34,13 @@ namespace CsvTools
 
 		/// <summary>
 		///   Determines if we could reset the position to allow processing text that had been read before
+    ///   If its supported it will do so.
 		/// </summary>
 		public bool CanStartFromBeginning()
 		{
-			if (m_ArrivedAtEndOnce || m_LineStarted <= 1) return false;
+			if (m_ArrivedAtEndOnce || m_LineStarted <= 1) 
+        return false;
+
 			m_ArrivedAtEndOnce = true;
 			m_ImprovedTextReader.ToBeginning();
 			return true;
