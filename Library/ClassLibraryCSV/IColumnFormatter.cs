@@ -19,5 +19,6 @@ namespace CsvTools
   public interface IColumnFormatter
   {
     string FormatText(in string inputString, Action<string>? handleWarning);
+    bool RaiseWarning { get; set; }
   }
 }

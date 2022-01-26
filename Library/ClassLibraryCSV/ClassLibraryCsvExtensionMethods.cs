@@ -267,7 +267,7 @@ namespace CsvTools
     /// <returns>The filename without special characters</returns>
     public static string GetIdFromFileName(this string path)
     {
-      var fileName = FileSystemUtils.GetFileName(path).ProcessByCategory(
+      var fileName = FileSystemUtils.SplitPath(path).FileNameWithoutExtension.ProcessByCategory(
         x => x == UnicodeCategory.UppercaseLetter || x == UnicodeCategory.LowercaseLetter
                                                   || x == UnicodeCategory.OtherLetter
                                                   || x == UnicodeCategory.ConnectorPunctuation

@@ -1654,7 +1654,8 @@ namespace CsvTools
       var delimiterChar = delimiter.WrittenPunctuationToChar();
       const int c_MaxLine = 1000;
       var possibleQuotes = new[] { '"', '\'' };
-      var counter = new int[possibleQuotes.Length];
+      var counterOpen = new int[possibleQuotes.Length];
+      var counterClose = new int[possibleQuotes.Length];
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
 
@@ -1672,19 +1673,24 @@ namespace CsvTools
         }
         for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
         {
+          var firstPos = line.IndexOf(possibleQuotes[testIndex]);
           // Shortcut if the line does not contain the possible quoute at all
-          if (line.IndexOf(possibleQuotes[testIndex])==-1)
+          if (firstPos==-1)
+            continue;          
+          // If tehre is no closing quote on the line 
+          if (line.IndexOf(possibleQuotes[testIndex], firstPos+1)==-1)
             continue;
+          
           foreach (var col in line.Split(delimiterChar))
           {
             var test = col.Trim();
             if (test.Length==0 || test[0] != possibleQuotes[testIndex])
               continue;
-            counter[testIndex]++;
+            counterOpen[testIndex]++;            
             // Ideally column need to start and end with the same characters (but end quote could be
             // on another line) if the start and end are indeed the same give it extra credit
             if (test.Length > 1 && test[0] == test[test.Length - 1])
-              counter[testIndex]++;
+              counterClose[testIndex]++;
           }
         }        
       }
@@ -1692,16 +1698,26 @@ namespace CsvTools
       var res = '\0';
       for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
       {
-        if (counter[testIndex] > max)
+        if (counterOpen[testIndex]==0)
+          continue;
+        // if we could not find a lot of the closinbg quotes, assume its worng
+        if (counterClose[testIndex] * 1.5 < counterOpen[testIndex] )
         {
-          max = counter[testIndex];
+          Logger.Information("Could not find an appropiate number of closing quotes for {qualifier}", possibleQuotes[testIndex].GetDescription());
+          continue;
+        }
+        if (counterOpen[testIndex] > max)
+        {
+          max = counterOpen[testIndex];
           res = possibleQuotes[testIndex];
         }
       }      
-      if (res != '\0')
-        Logger.Information("Column Qualifier: {qualifier}", res.GetDescription());
-      else
+
+      if (max == 0)
         Logger.Information("No Column Qualifier");
+      else
+        Logger.Information("Column Qualifier: {qualifier}", res.GetDescription());
+              
       return res;
     }
   }
