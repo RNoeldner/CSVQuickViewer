@@ -188,15 +188,15 @@ namespace CsvTools
       this.label5 = new System.Windows.Forms.Label();
       this.label4 = new System.Windows.Forms.Label();
       this.label6 = new System.Windows.Forms.Label();
-      ((System.ComponentModel.ISupportInitialize) (this.csvSettingBindingSource)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize) (this.m_ErrorProvider)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox00)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox12)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox02)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox11)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox01)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox10)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.csvSettingBindingSource)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBox00)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBox12)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBox02)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBox11)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBox01)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBox10)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBox)).BeginInit();
       this.m_TableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -209,8 +209,7 @@ namespace CsvTools
       // 
       this.checkBoxDuplicateQuotingToEscape.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxDuplicateQuotingToEscape, 2);
-      this.checkBoxDuplicateQuotingToEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.csvSettingBindingSource,
-        "DuplicateQualifierToEscape", true));
+      this.checkBoxDuplicateQuotingToEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.csvSettingBindingSource, "DuplicateQualifierToEscape", true));
       this.checkBoxDuplicateQuotingToEscape.Location = new System.Drawing.Point(362, 26);
       this.checkBoxDuplicateQuotingToEscape.Margin = new System.Windows.Forms.Padding(2);
       this.checkBoxDuplicateQuotingToEscape.Name = "checkBoxDuplicateQuotingToEscape";
@@ -218,7 +217,7 @@ namespace CsvTools
       this.checkBoxDuplicateQuotingToEscape.TabIndex = 27;
       this.checkBoxDuplicateQuotingToEscape.Text = "Repeated Qualification";
       this.m_ToolTip.SetToolTip(this.checkBoxDuplicateQuotingToEscape, "Assume a repeated quote in a qualified text represent a quote that does not end t" +
-                                                                       "ext qualification");
+        "ext qualification");
       this.checkBoxDuplicateQuotingToEscape.UseVisualStyleBackColor = true;
       this.checkBoxDuplicateQuotingToEscape.CheckedChanged += new System.EventHandler(this.QuoteChanged);
       // 
@@ -232,19 +231,18 @@ namespace CsvTools
       this.labelNoQuotes.Location = new System.Drawing.Point(592, 16);
       this.labelNoQuotes.Name = "labelNoQuotes";
       this.m_TableLayoutPanel.SetRowSpan(this.labelNoQuotes, 2);
-      this.labelNoQuotes.Size = new System.Drawing.Size(142, 15);
+      this.labelNoQuotes.Size = new System.Drawing.Size(146, 15);
       this.labelNoQuotes.TabIndex = 28;
       this.labelNoQuotes.Text = "Text can not contain qualifier";
       this.m_ToolTip.SetToolTip(this.labelNoQuotes, "Either “Context Sensitive Quoting”, “Repeated Quotes” or an “Escape Character” ne" +
-                                                    "ed to be defined to allow a quote to be part of the text");
+        "ed to be defined to allow a quote to be part of the text");
       // 
       // checkBoxAlternateQuoting
       // 
       this.checkBoxAlternateQuoting.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxAlternateQuoting.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxAlternateQuoting, 2);
-      this.checkBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.csvSettingBindingSource, "ContextSensitiveQualifier",
-        true));
+      this.checkBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.csvSettingBindingSource, "ContextSensitiveQualifier", true));
       this.checkBoxAlternateQuoting.Location = new System.Drawing.Point(363, 3);
       this.checkBoxAlternateQuoting.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.checkBoxAlternateQuoting.Name = "checkBoxAlternateQuoting";
@@ -252,8 +250,8 @@ namespace CsvTools
       this.checkBoxAlternateQuoting.TabIndex = 2;
       this.checkBoxAlternateQuoting.Text = "Context Sensitive Qualification";
       this.m_ToolTip.SetToolTip(this.checkBoxAlternateQuoting, "A quote is only regarded as closing quote if it is followed by linefeed or delimi" +
-                                                               "ter\r\nThis is a uncommon way of quoting but allows to parse incorrectly quoted fi" +
-                                                               "les");
+        "ter\r\nThis is a uncommon way of quoting but allows to parse incorrectly quoted fi" +
+        "les");
       this.checkBoxAlternateQuoting.UseVisualStyleBackColor = true;
       this.checkBoxAlternateQuoting.Visible = false;
       this.checkBoxAlternateQuoting.CheckedChanged += new System.EventHandler(this.QuoteChanged);
@@ -269,7 +267,7 @@ namespace CsvTools
       this.comboBoxTrim.Size = new System.Drawing.Size(253, 21);
       this.comboBoxTrim.TabIndex = 10;
       this.m_ToolTip.SetToolTip(this.comboBoxTrim, "None will preserve whitespace; Unquoted will remove white spaces if the column wa" +
-                                                   "s not quoted; All will remove white spaces even if the column was quoted");
+        "s not quoted; All will remove white spaces even if the column was quoted");
       this.comboBoxTrim.ValueMember = "ID";
       this.comboBoxTrim.SelectedIndexChanged += new System.EventHandler(this.SetTrimming);
       // 
@@ -284,7 +282,7 @@ namespace CsvTools
       this.m_TextBoxQuotePlaceHolder.Size = new System.Drawing.Size(253, 20);
       this.m_TextBoxQuotePlaceHolder.TabIndex = 8;
       this.m_ToolTip.SetToolTip(this.m_TextBoxQuotePlaceHolder, "If this placeholder is part of the text it will be replaced with the quoting char" +
-                                                                "acter");
+        "acter");
       this.m_TextBoxQuotePlaceHolder.TextChanged += new System.EventHandler(this.QuoteChanged);
       // 
       // m_TextBoxQuote
@@ -297,7 +295,7 @@ namespace CsvTools
       this.m_TextBoxQuote.Size = new System.Drawing.Size(253, 20);
       this.m_TextBoxQuote.TabIndex = 1;
       this.m_ToolTip.SetToolTip(this.m_TextBoxQuote, "Columns may be qualified with a character; usually these are \" the quotes are rem" +
-                                                     "oved by the reading applications.");
+        "oved by the reading applications.");
       this.m_TextBoxQuote.TextChanged += new System.EventHandler(this.QuoteChanged);
       // 
       // m_ErrorProvider
@@ -306,24 +304,33 @@ namespace CsvTools
       // 
       // fastColoredTextBox00
       // 
-      this.fastColoredTextBox00.AutoCompleteBracketsList = new char[] { '(', ')', '{', '}', '[', ']', '\"', '\"', '\'', '\'' };
+      this.fastColoredTextBox00.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
       this.fastColoredTextBox00.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-                                                          "?<range>:)\\s*(?<range>[^;]+);";
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.fastColoredTextBox00.AutoScrollMinSize = new System.Drawing.Size(66, 14);
       this.fastColoredTextBox00.BackBrush = null;
       this.fastColoredTextBox00.CharHeight = 14;
       this.fastColoredTextBox00.CharWidth = 8;
       this.fastColoredTextBox00.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.fastColoredTextBox00.DisabledColor =
-        System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
+      this.fastColoredTextBox00.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.fastColoredTextBox00.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.fastColoredTextBox00.IsReplaceMode = false;
       this.fastColoredTextBox00.Location = new System.Drawing.Point(405, 121);
       this.fastColoredTextBox00.Multiline = false;
       this.fastColoredTextBox00.Name = "fastColoredTextBox00";
       this.fastColoredTextBox00.Paddings = new System.Windows.Forms.Padding(0);
       this.fastColoredTextBox00.ReadOnly = true;
-      this.fastColoredTextBox00.SelectionColor =
-        System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox00.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
       this.fastColoredTextBox00.ServiceColors = null;
       this.fastColoredTextBox00.ShowLineNumbers = false;
       this.fastColoredTextBox00.ShowScrollBars = false;
@@ -334,7 +341,7 @@ namespace CsvTools
       // 
       // label1
       // 
-      this.label1.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.label1.AutoSize = true;
       this.label1.ForeColor = System.Drawing.Color.Teal;
       this.label1.Location = new System.Drawing.Point(363, 118);
@@ -346,23 +353,32 @@ namespace CsvTools
       // 
       // fastColoredTextBox12
       // 
-      this.fastColoredTextBox12.AutoCompleteBracketsList = new char[] { '(', ')', '{', '}', '[', ']', '\"', '\"', '\'', '\'' };
+      this.fastColoredTextBox12.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
       this.fastColoredTextBox12.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-                                                          "?<range>:)\\s*(?<range>[^;]+);";
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.fastColoredTextBox12.AutoScrollMinSize = new System.Drawing.Size(106, 28);
       this.fastColoredTextBox12.BackBrush = null;
       this.fastColoredTextBox12.CharHeight = 14;
       this.fastColoredTextBox12.CharWidth = 8;
       this.fastColoredTextBox12.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.fastColoredTextBox12.DisabledColor =
-        System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
+      this.fastColoredTextBox12.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.fastColoredTextBox12.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.fastColoredTextBox12.IsReplaceMode = false;
       this.fastColoredTextBox12.Location = new System.Drawing.Point(592, 169);
       this.fastColoredTextBox12.Name = "fastColoredTextBox12";
       this.fastColoredTextBox12.Paddings = new System.Windows.Forms.Padding(0);
       this.fastColoredTextBox12.ReadOnly = true;
-      this.fastColoredTextBox12.SelectionColor =
-        System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox12.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
       this.fastColoredTextBox12.ServiceColors = null;
       this.fastColoredTextBox12.ShowLineNumbers = false;
       this.fastColoredTextBox12.Size = new System.Drawing.Size(191, 31);
@@ -372,24 +388,33 @@ namespace CsvTools
       // 
       // fastColoredTextBox02
       // 
-      this.fastColoredTextBox02.AutoCompleteBracketsList = new char[] { '(', ')', '{', '}', '[', ']', '\"', '\"', '\'', '\'' };
+      this.fastColoredTextBox02.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
       this.fastColoredTextBox02.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-                                                          "?<range>:)\\s*(?<range>[^;]+);";
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.fastColoredTextBox02.AutoScrollMinSize = new System.Drawing.Size(66, 14);
       this.fastColoredTextBox02.BackBrush = null;
       this.fastColoredTextBox02.CharHeight = 14;
       this.fastColoredTextBox02.CharWidth = 8;
       this.fastColoredTextBox02.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.fastColoredTextBox02.DisabledColor =
-        System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
+      this.fastColoredTextBox02.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.fastColoredTextBox02.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.fastColoredTextBox02.IsReplaceMode = false;
       this.fastColoredTextBox02.Location = new System.Drawing.Point(405, 169);
       this.fastColoredTextBox02.Multiline = false;
       this.fastColoredTextBox02.Name = "fastColoredTextBox02";
       this.fastColoredTextBox02.Paddings = new System.Windows.Forms.Padding(0);
       this.fastColoredTextBox02.ReadOnly = true;
-      this.fastColoredTextBox02.SelectionColor =
-        System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox02.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
       this.fastColoredTextBox02.ServiceColors = null;
       this.fastColoredTextBox02.ShowLineNumbers = false;
       this.fastColoredTextBox02.ShowScrollBars = false;
@@ -400,24 +425,33 @@ namespace CsvTools
       // 
       // fastColoredTextBox11
       // 
-      this.fastColoredTextBox11.AutoCompleteBracketsList = new char[] { '(', ')', '{', '}', '[', ']', '\"', '\"', '\'', '\'' };
+      this.fastColoredTextBox11.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
       this.fastColoredTextBox11.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-                                                          "?<range>:)\\s*(?<range>[^;]+);";
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.fastColoredTextBox11.AutoScrollMinSize = new System.Drawing.Size(154, 14);
       this.fastColoredTextBox11.BackBrush = null;
       this.fastColoredTextBox11.CharHeight = 14;
       this.fastColoredTextBox11.CharWidth = 8;
       this.fastColoredTextBox11.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.fastColoredTextBox11.DisabledColor =
-        System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
+      this.fastColoredTextBox11.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.fastColoredTextBox11.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.fastColoredTextBox11.IsReplaceMode = false;
       this.fastColoredTextBox11.Location = new System.Drawing.Point(592, 145);
       this.fastColoredTextBox11.Multiline = false;
       this.fastColoredTextBox11.Name = "fastColoredTextBox11";
       this.fastColoredTextBox11.Paddings = new System.Windows.Forms.Padding(0);
       this.fastColoredTextBox11.ReadOnly = true;
-      this.fastColoredTextBox11.SelectionColor =
-        System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox11.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
       this.fastColoredTextBox11.ServiceColors = null;
       this.fastColoredTextBox11.ShowLineNumbers = false;
       this.fastColoredTextBox11.ShowScrollBars = false;
@@ -428,24 +462,33 @@ namespace CsvTools
       // 
       // fastColoredTextBox01
       // 
-      this.fastColoredTextBox01.AutoCompleteBracketsList = new char[] { '(', ')', '{', '}', '[', ']', '\"', '\"', '\'', '\'' };
+      this.fastColoredTextBox01.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
       this.fastColoredTextBox01.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-                                                          "?<range>:)\\s*(?<range>[^;]+);";
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.fastColoredTextBox01.AutoScrollMinSize = new System.Drawing.Size(98, 14);
       this.fastColoredTextBox01.BackBrush = null;
       this.fastColoredTextBox01.CharHeight = 14;
       this.fastColoredTextBox01.CharWidth = 8;
       this.fastColoredTextBox01.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.fastColoredTextBox01.DisabledColor =
-        System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
+      this.fastColoredTextBox01.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.fastColoredTextBox01.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.fastColoredTextBox01.IsReplaceMode = false;
       this.fastColoredTextBox01.Location = new System.Drawing.Point(405, 145);
       this.fastColoredTextBox01.Multiline = false;
       this.fastColoredTextBox01.Name = "fastColoredTextBox01";
       this.fastColoredTextBox01.Paddings = new System.Windows.Forms.Padding(0);
       this.fastColoredTextBox01.ReadOnly = true;
-      this.fastColoredTextBox01.SelectionColor =
-        System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox01.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
       this.fastColoredTextBox01.ServiceColors = null;
       this.fastColoredTextBox01.ShowLineNumbers = false;
       this.fastColoredTextBox01.ShowScrollBars = false;
@@ -456,25 +499,32 @@ namespace CsvTools
       // 
       // fastColoredTextBox10
       // 
-      this.fastColoredTextBox10.AutoCompleteBracketsList = new char[] { '(', ')', '{', '}', '[', ']', '\"', '\"', '\'', '\'' };
+      this.fastColoredTextBox10.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
       this.fastColoredTextBox10.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-                                                          "?<range>:)\\s*(?<range>[^;]+);";
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.fastColoredTextBox10.AutoScrollMinSize = new System.Drawing.Size(186, 14);
       this.fastColoredTextBox10.BackBrush = null;
       this.fastColoredTextBox10.CharHeight = 14;
       this.fastColoredTextBox10.CharWidth = 8;
       this.fastColoredTextBox10.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.fastColoredTextBox10.DisabledColor =
-        System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
-      this.fastColoredTextBox10.Font = new System.Drawing.Font("Courier New", 9.75F);
+      this.fastColoredTextBox10.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
       this.fastColoredTextBox10.IsReplaceMode = false;
       this.fastColoredTextBox10.Location = new System.Drawing.Point(592, 121);
       this.fastColoredTextBox10.Multiline = false;
       this.fastColoredTextBox10.Name = "fastColoredTextBox10";
       this.fastColoredTextBox10.Paddings = new System.Windows.Forms.Padding(0);
       this.fastColoredTextBox10.ReadOnly = true;
-      this.fastColoredTextBox10.SelectionColor =
-        System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox10.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
       this.fastColoredTextBox10.ServiceColors = null;
       this.fastColoredTextBox10.ShowLineNumbers = false;
       this.fastColoredTextBox10.ShowScrollBars = false;
@@ -487,41 +537,48 @@ namespace CsvTools
       // 
       // fastColoredTextBox
       // 
-      this.fastColoredTextBox.AutoCompleteBracketsList = new char[] { '(', ')', '{', '}', '[', ']', '\"', '\"', '\'', '\'' };
+      this.fastColoredTextBox.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
       this.fastColoredTextBox.AutoIndentCharsPatterns = "^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>[^;=]+);\n^\\s*(case|default)\\s*[^:]*(" +
-                                                        "?<range>:)\\s*(?<range>[^;]+);";
+    "?<range>:)\\s*(?<range>[^;]+);";
       this.fastColoredTextBox.AutoScrollMinSize = new System.Drawing.Size(307, 56);
       this.fastColoredTextBox.BackBrush = null;
       this.fastColoredTextBox.CharHeight = 14;
       this.fastColoredTextBox.CharWidth = 8;
       this.m_TableLayoutPanel.SetColumnSpan(this.fastColoredTextBox, 2);
       this.fastColoredTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.fastColoredTextBox.DisabledColor =
-        System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
+      this.fastColoredTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
       this.fastColoredTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.fastColoredTextBox.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.fastColoredTextBox.IsReplaceMode = false;
       this.fastColoredTextBox.Location = new System.Drawing.Point(3, 121);
       this.fastColoredTextBox.Name = "fastColoredTextBox";
       this.fastColoredTextBox.Paddings = new System.Windows.Forms.Padding(0);
       this.fastColoredTextBox.ReadOnly = true;
       this.m_TableLayoutPanel.SetRowSpan(this.fastColoredTextBox, 3);
-      this.fastColoredTextBox.SelectionColor =
-        System.Drawing.Color.FromArgb(((int) (((byte) (60)))), ((int) (((byte) (0)))), ((int) (((byte) (0)))), ((int) (((byte) (255)))));
+      this.fastColoredTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
       this.fastColoredTextBox.ServiceColors = null;
       this.fastColoredTextBox.Size = new System.Drawing.Size(354, 87);
       this.fastColoredTextBox.TabIndex = 1;
       this.fastColoredTextBox.TabLength = 1;
       this.fastColoredTextBox.TabStop = false;
       this.fastColoredTextBox.Text = "\"This is \";Column with:, Delimiter¶\r\n a Trimming ;Column with \"\" Quote¶\r\nExample " +
-                                     ";\"Column with ¶\r\nLinefeed\"";
+    ";\"Column with ¶\r\nLinefeed\"";
       this.fastColoredTextBox.Zoom = 100;
       // 
       // checkBoxQualifyAlways
       // 
       this.checkBoxQualifyAlways.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxQualifyAlways.AutoSize = true;
-      this.checkBoxQualifyAlways.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.csvSettingBindingSource, "QualifyAlways", true));
+      this.checkBoxQualifyAlways.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.csvSettingBindingSource, "QualifyAlways", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.checkBoxQualifyAlways.Location = new System.Drawing.Point(592, 51);
       this.checkBoxQualifyAlways.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.checkBoxQualifyAlways.Name = "checkBoxQualifyAlways";
@@ -536,7 +593,7 @@ namespace CsvTools
       this.checkBoxQualifyOnlyNeeded.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.checkBoxQualifyOnlyNeeded.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.checkBoxQualifyOnlyNeeded, 2);
-      this.checkBoxQualifyOnlyNeeded.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.csvSettingBindingSource, "QualifyOnlyIfNeeded", true));
+      this.checkBoxQualifyOnlyNeeded.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.csvSettingBindingSource, "QualifyOnlyIfNeeded", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
       this.checkBoxQualifyOnlyNeeded.Location = new System.Drawing.Point(363, 51);
       this.checkBoxQualifyOnlyNeeded.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.checkBoxQualifyOnlyNeeded.Name = "checkBoxQualifyOnlyNeeded";
@@ -613,7 +670,7 @@ namespace CsvTools
       // 
       // label2
       // 
-      this.label2.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.label2.AutoSize = true;
       this.label2.ForeColor = System.Drawing.Color.Teal;
       this.label2.Location = new System.Drawing.Point(363, 142);
@@ -625,7 +682,7 @@ namespace CsvTools
       // 
       // label3
       // 
-      this.label3.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.label3.AutoSize = true;
       this.label3.ForeColor = System.Drawing.Color.Teal;
       this.label3.Location = new System.Drawing.Point(363, 166);
@@ -733,19 +790,20 @@ namespace CsvTools
       this.MinimumSize = new System.Drawing.Size(498, 0);
       this.Name = "QuotingControl";
       this.Size = new System.Drawing.Size(802, 317);
-      ((System.ComponentModel.ISupportInitialize) (this.csvSettingBindingSource)).EndInit();
-      ((System.ComponentModel.ISupportInitialize) (this.m_ErrorProvider)).EndInit();
-      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox00)).EndInit();
-      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox12)).EndInit();
-      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox02)).EndInit();
-      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox11)).EndInit();
-      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox01)).EndInit();
-      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox10)).EndInit();
-      ((System.ComponentModel.ISupportInitialize) (this.fastColoredTextBox)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.csvSettingBindingSource)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.m_ErrorProvider)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBox00)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBox12)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBox02)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBox11)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBox01)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBox10)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBox)).EndInit();
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
+
     }
 
     private void QuoteChanged(object? sender, EventArgs e)
