@@ -1652,47 +1652,55 @@ namespace CsvTools
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
       var delimiterChar = delimiter.WrittenPunctuationToChar();
-      const int c_MaxLine = 1000;
+
       var possibleQuotes = new[] { '"', '\'' };
+      var counterTotal = new int[possibleQuotes.Length];
       var counterOpen = new int[possibleQuotes.Length];
       var counterClose = new int[possibleQuotes.Length];
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
-
-      // skip the first line it usually a header
-      for (var lineNo = 0;
-           lineNo < c_MaxLine && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested;
-           lineNo++)
+      var filter = new StringBuilder();
+      int last = -1;
+      while (!textReaderPosition.AllRead() && filter.Length<400 && !cancellationToken.IsCancellationRequested)
       {
-        if (textReader.EndOfStream && !textReaderPosition.CanStartFromBeginning())
-          break;
-        var line = await textReader.ReadLineAsync().ConfigureAwait(false);
-        if (string.IsNullOrEmpty(line))        
-          continue;
-        
-        for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
+        var c = textReader.Read();
+        if (c == '\r' || c == '\n')
+          c = delimiterChar;
+        // any repeat will be ignored
+        // "" becomes "
+        // \r\n becomes , 
+        if (last!=c)
         {
-          // Shortcut if the line does not contain the possible quoute at all
-          if (line.IndexOf(possibleQuotes[testIndex])==-1)
-            continue;
+          if (c == delimiterChar)
+            filter.Append(delimiterChar);
+          else if (c == possibleQuotes[0])
+            filter.Append(possibleQuotes[0]);
+          else if (c == possibleQuotes[1])
+            filter.Append(possibleQuotes[1]);
+        }
+        last = c;
+      }
 
-          foreach (var col in line.Split(delimiterChar))
+      // normalize this, line should start and end with delimiter 
+      //  ","","",,,',", -> ,","","",,,',",
+      var line = delimiterChar + filter.ToString().Trim(delimiterChar) + delimiterChar;
+      for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
+      {
+        for (var index = 1; index < line.Length-1; index++)
+        {
+          if (line[index] == possibleQuotes[testIndex])
           {
-            var test = col.Trim();
-            if (test.Length==0)
-              continue;
-            if (test[0] == possibleQuotes[testIndex])
+            counterTotal[testIndex]++;
+            if (line[index-1]== delimiterChar && line[index+1] != delimiterChar)
               counterOpen[testIndex]++;
-            // Ideally column need to start and end with the same characters (but end quote could be
-            // on another line) if the start and end are indeed the same give it extra credit
-            if (test.Length > 1 &&  possibleQuotes[testIndex] == test[test.Length - 1])
+            if (line[index+1]== delimiterChar && line[index-1] != delimiterChar)
               counterClose[testIndex]++;
           }
         }
       }
       var max = 0;
       var res = '\0';
-      for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
+      for (var testIndex = 0; testIndex<possibleQuotes.Length; testIndex++)
       {
         if (counterOpen[testIndex]==0)
           continue;
@@ -1708,7 +1716,21 @@ namespace CsvTools
           res = possibleQuotes[testIndex];
         }
       }
-
+      // if we could not find opening and closing because we has a lot of ,", take the absolute numbers 
+      if (max == 0)
+      {
+        for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
+        {
+          // need at least 2 
+          if (counterTotal[testIndex] < 2)
+            continue;
+          if (counterTotal[testIndex] > max)
+          {
+            max = counterTotal[testIndex];
+            res = possibleQuotes[testIndex];
+          }
+        }
+      }
       if (max == 0)
         Logger.Information("No Column Qualifier");
       else
