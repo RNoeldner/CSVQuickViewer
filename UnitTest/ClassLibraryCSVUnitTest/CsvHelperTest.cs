@@ -33,7 +33,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("Pipe", tuple.FieldDelimiter);
     }
 
-      [TestMethod]
+    [TestMethod]
     public async Task NewCsvFileGuessAllSmallFile()
     {
       var display = new CustomProcessDisplay();
@@ -391,20 +391,20 @@ namespace CsvTools.Tests
     public async Task GuessQualifierAsync()
     {
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("TextQualifiers.txt")));
-      Assert.AreEqual("\"", await improvedStream.GuessQualifier(65001, 0, "\t", UnitTestStatic.Token));
+      Assert.AreEqual("\"", await improvedStream.GuessQualifier(65001, 0, "\t", "\\", UnitTestStatic.Token));
     }
 
     [TestMethod]
     public async Task RefreshCsvFileAsync()
     {
       var processDisplay = new CustomProcessDisplay();
-        var det = await UnitTestStatic.GetTestPath("BasicCSV.txt").GetDetectionResultFromFile(processDisplay, false, true, true, true, true, true, true, true, UnitTestStatic.Token);
-        Assert.AreEqual(1200, det.CodePageId);
-        Assert.AreEqual(",".WrittenPunctuationToChar(), det.FieldDelimiter.WrittenPunctuationToChar());
-      
+      var det = await UnitTestStatic.GetTestPath("BasicCSV.txt").GetDetectionResultFromFile(processDisplay, false, true, true, true, true, true, true, true, UnitTestStatic.Token);
+      Assert.AreEqual(1200, det.CodePageId);
+      Assert.AreEqual(",".WrittenPunctuationToChar(), det.FieldDelimiter.WrittenPunctuationToChar());
+
       foreach (var fileName in Directory.EnumerateFiles(UnitTestStatic.ApplicationDirectory.LongPathPrefix(),
         "AllFor*.txt", SearchOption.TopDirectoryOnly))
-      {        
+      {
         await fileName.GetDetectionResultFromFile(processDisplay, false, true, true, true, true, true, true, true, UnitTestStatic.Token);
       }
     }
