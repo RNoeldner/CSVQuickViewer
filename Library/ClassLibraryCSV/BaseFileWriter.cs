@@ -203,6 +203,9 @@ namespace CsvTools
             break;
 
           case DataType.String:
+          case DataType.TextToHtml:
+          case DataType.TextUnescape:
+          case DataType.TextToHtmlFull:
             break;
 
           case DataType.Binary:
@@ -449,7 +452,12 @@ namespace CsvTools
               break;
 
             case DataType.String:
+            case DataType.TextToHtml:
+            case DataType.TextToHtmlFull:
+            case DataType.TextUnescape:
               displayAs = Convert.ToString(dataObject) ?? string.Empty;
+              if (columnInfo.ColumnFormatter != null)
+                displayAs = columnInfo.ColumnFormatter.FormatText(displayAs, handleWarning: null);
               break;
 
             default:
