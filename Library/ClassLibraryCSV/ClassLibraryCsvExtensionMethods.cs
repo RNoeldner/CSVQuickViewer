@@ -124,7 +124,7 @@ namespace CsvTools
         DataType.Boolean => "Boolean",
         DataType.Guid => "Guid",
         DataType.TextPart => "Text Part",
-        DataType.TextToHtml => "Encode HTML (Linefeed and CData Tags)",
+        DataType.TextToHtml => "Encode HTML (CData, Linefeed, List)",
         DataType.TextToHtmlFull => "Encode HTML ('<' -> '&lt;')",
         DataType.TextUnescape => "Unescape Text ('\\r' -> \u240D)",
         DataType.String => "Text",

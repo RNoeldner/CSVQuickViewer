@@ -117,7 +117,7 @@ namespace CsvTools
       await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
-        qualifier = await improvedStream.GuessQualifier(m_CsvFile.CodePageId, m_CsvFile.SkipRows, m_CsvFile.FieldDelimiter,
+        qualifier = await improvedStream.GuessQualifier(m_CsvFile.CodePageId, m_CsvFile.SkipRows, m_CsvFile.FieldDelimiter, m_CsvFile.EscapePrefix,
                       m_CancellationTokenSource.Token);
       });
 
@@ -129,8 +129,7 @@ namespace CsvTools
       await buttonSkipLine.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
-        m_CsvFile.SkipRows = await improvedStream.GuessStartRow(m_CsvFile.CodePageId, m_CsvFile.FieldDelimiter, m_CsvFile.FieldQualifier,
-                                    m_CsvFile.CommentLine, m_CancellationTokenSource.Token);
+        m_CsvFile.SkipRows = await improvedStream.GuessStartRow(m_CsvFile.CodePageId, m_CsvFile.FieldDelimiter, m_CsvFile.FieldQualifier, m_CsvFile.CommentLine, m_CancellationTokenSource.Token);
       });
     }
 

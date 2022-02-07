@@ -391,7 +391,7 @@ namespace CsvTools
       return text;
     }
 
-   
+
 
     /// <summary>
     ///   Replace special characters from an HTML text
@@ -405,8 +405,7 @@ namespace CsvTools
       if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase)
           && text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
         return text.Substring(9, text.Length - 12);
-
-      return text.HandleCRLFCombinations("<br>").Replace((char) 0xA0, ' ').Replace('\t', ' ').Replace("  ", " ")
+      return text.HandleCRLFCombinations("<br>").Replace("- ", "<li/>").Replace("• ", "<li/>").Replace("* ", "<li/>").Replace("-<br>", "<li/>").Replace("•<br>", "<li/>").Replace("*<br>", "<li/>").Replace((char) 0xA0, ' ').Replace('\t', ' ').Replace("  ", " ")
                  .Replace("  ", " ");
     }
 

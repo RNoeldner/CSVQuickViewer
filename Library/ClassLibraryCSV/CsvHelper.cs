@@ -467,7 +467,7 @@ namespace CsvTools
           if (cancellationToken.IsCancellationRequested)
             return detectionResult;
           processDisplay?.SetProcess("Checking Qualifier", -1, false);
-          var qualifier = await textReader.GuessQualifierAsync(detectionResult.FieldDelimiter, cancellationToken);
+          var qualifier = textReader.GuessQualifier(detectionResult.FieldDelimiter, detectionResult.EscapePrefix, cancellationToken);
           if (qualifier != '\0')
             detectionResult = new DelimitedFileDetectionResult(
               detectionResult.FileName,
@@ -965,18 +965,19 @@ namespace CsvTools
       int codePageId,
       int skipRows,
       string fieldDelimiter,
+      string escapePrefix,
       CancellationToken cancellationToken)
     {
       using var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
                                                  .ConfigureAwait(false);
-      var qualifier = await textReader.GuessQualifierAsync(fieldDelimiter, cancellationToken).ConfigureAwait(false);
+      var qualifier = textReader.GuessQualifier(fieldDelimiter, escapePrefix, cancellationToken);
       if (qualifier != '\0')
         return char.ToString(qualifier);
       return null;
     }
 
     /// <summary>
-    ///   Guesses the start row of a CSV file Done with a rather simple csv parsing
+    ///   Guess the start row of a CSV file done with a rather simple csv parsing
     /// </summary>
     /// <param name="textReader">The stream reader with the data</param>
     /// <param name="delimiter">The delimiter.</param>
@@ -1645,14 +1646,23 @@ namespace CsvTools
       return res;
     }
 
-    private static async Task<char> GuessQualifierAsync(
+    /// <summary>
+    /// Try to determine quote character, by lloking at the file and doing a quick analysys
+    /// </summary>
+    /// <param name="textReader">The opened TextReader</param>
+    /// <param name="delimiter">The char to be used as field delimiter</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>The most likly quoting char</returns>
+    /// <remarks>Aany line feed ot crararigae return will be regardsed as field delimiter, a duplicate quoting will be regarded as single quote, an \ escpaed quote will be ignored</remarks>
+    private static char GuessQualifier(
       this ImprovedTextReader textReader,
       string delimiter,
+      string escape,
       CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
       var delimiterChar = delimiter.WrittenPunctuationToChar();
-
+      var escapeChar = escape.WrittenPunctuationToChar();
       var possibleQuotes = new[] { '"', '\'' };
       var counterTotal = new int[possibleQuotes.Length];
       var counterOpen = new int[possibleQuotes.Length];
@@ -1669,7 +1679,8 @@ namespace CsvTools
         // any repeat will be ignored
         // "" becomes "
         // \r\n becomes , 
-        if (last!=c)
+        // \" will be ignored
+        if (last != c && last != escapeChar)
         {
           if (c == delimiterChar)
             filter.Append(delimiterChar);
@@ -1707,7 +1718,7 @@ namespace CsvTools
         // if we could not find a lot of the closinbg quotes, assume its worng
         if (counterClose[testIndex] * 1.5 < counterOpen[testIndex])
         {
-          Logger.Information("Could not find an appropiate number of closing quotes for {qualifier}", possibleQuotes[testIndex].GetDescription());
+          Logger.Information("Could not find an matching number of opening and closing quotes for {qualifier}", possibleQuotes[testIndex].GetDescription());
           continue;
         }
         if (counterOpen[testIndex] > max)
@@ -1719,6 +1730,7 @@ namespace CsvTools
       // if we could not find opening and closing because we has a lot of ,", take the absolute numbers 
       if (max == 0)
       {
+        Logger.Information("Using less accurate method to determine quoting");
         for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
         {
           // need at least 2 
