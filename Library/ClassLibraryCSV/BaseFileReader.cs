@@ -779,9 +779,8 @@ namespace CsvTools
           DataType.Double => GetDouble(ordinal),
           DataType.Numeric => GetDecimal(ordinal),
           DataType.Boolean => GetBoolean(ordinal),
-          DataType.Guid => GetGuid(ordinal),
-          DataType.String => GetString(ordinal),
-          _ => throw new ArgumentOutOfRangeException($"Datatype {column.ValueFormat.DataType} is not supported")
+          DataType.Guid => GetGuid(ordinal),          
+          _ => GetString(ordinal)
         };
       }
       catch (FormatException)
