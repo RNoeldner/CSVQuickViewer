@@ -74,9 +74,7 @@ namespace CsvTools
       {
         m_FileSetting?.ColumnCollection.Replace(column);
         m_ConfigChanged = true;
-#pragma warning disable CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
         CheckPossibleChange();
-#pragma warning restore CS4014 // Da auf diesen Aufruf nicht gewartet wird, wird die Ausführung der aktuellen Methode vor Abschluss des Aufrufs fortgesetzt.
       };
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
@@ -316,7 +314,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
-    private void FileDragDrop(object? sender, DragEventArgs e)
+    private async void FileDragDrop(object? sender, DragEventArgs e)
     {
       // Set the filename
       var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
@@ -713,6 +711,6 @@ namespace CsvTools
 
     private void ToggleShowLog(object? sender, EventArgs e) => ShowTextPanel(!textPanel.Visible);
 
-    private void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) => SelectFile("Open File Dialog");
+    private async void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) => SelectFile("Open File Dialog");
   }
 }

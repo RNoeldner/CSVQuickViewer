@@ -64,9 +64,7 @@ namespace CsvTools.Tests
       writeFile.ColumnCollection.Add(
         new Column("DateTime", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "yyyyMMdd" })
         {
-          TimePartFormat = @"hh:mm",
-          TimePart = "Time",
-          TimeZonePart = "TZ"
+          TimePartFormat = @"hh:mm", TimePart = "Time", TimeZonePart = "TZ"
         });
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
@@ -100,7 +98,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(7, res);
     }
 
-    [TestMethod]
+    [TestMethod, Timeout(2000)]
     public async Task WriteAllFormatsAsync()
     {
       var pd = new MockProcessDisplay();
@@ -115,8 +113,10 @@ namespace CsvTools.Tests
       writeFile.SqlStatement = setting.ID;
       writeFile.FieldDelimiter = "|";
 
-      var cf = new Column("DateTime", DataType.DateTime) { TimePartFormat = @"hh:mm", TimePart = "Time", TimeZonePart = "\"UTC\"" };
-      cf.ValueFormatMutable.DateFormat = "yyyyMMdd";
+      var cf = new Column("DateTime", DataType.DateTime)
+      {
+        TimePartFormat = @"hh:mm", TimePart = "Time", TimeZonePart = "\"UTC\"", ValueFormatMutable = { DateFormat = "yyyyMMdd" }
+      };
       writeFile.ColumnCollection.Add(cf);
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
@@ -129,7 +129,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(1065, res, "Records");
     }
 
-    [TestMethod]
+    [TestMethod, Timeout(2000)]
     public async Task WriteDataTableAsync()
     {
       using var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
@@ -155,11 +155,10 @@ namespace CsvTools.Tests
       // await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(100, await writer.WriteAsync(reader, UnitTestStatic.Token));
 
-
       Assert.IsTrue(File.Exists(writeFile.FileName));
     }
 
-    [TestMethod]
+    [TestMethod, Timeout(1000)]
     public async Task WriteDataTableHandleIssuesAsync()
     {
       using var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
@@ -198,7 +197,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(File.Exists(writeFile.FileName));
     }
 
-    [TestMethod]
+    [TestMethod, Timeout(1000)]
     public async Task WriteFileLocked()
     {
       using var dataTable = new DataTable { TableName = "DataTable", Locale = CultureInfo.InvariantCulture };
@@ -229,7 +228,6 @@ namespace CsvTools.Tests
           using var reader = new DataTableWrapper(dataTable);
           await writer.WriteAsync(reader, UnitTestStatic.Token);
 
-
           Assert.Fail("Exception not thrown");
         }
         catch (FileWriterException)
@@ -242,7 +240,7 @@ namespace CsvTools.Tests
       FileSystemUtils.FileDelete(writeFile.FileName);
     }
 
-    [TestMethod]
+    [TestMethod, Timeout(1000)]
     public async Task WriteGZipAsync()
     {
       var processDisplay = new MockProcessDisplay();
