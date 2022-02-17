@@ -59,21 +59,19 @@ namespace CsvTools
       {
         if (!FileExists(fileName))
           return;
-        var backupName = fileName + ".bak";
-        var backupName2 = string.Empty;
+
+        var backupName = fileName + $".bak";
         if (twoBackups)
         {
-          backupName2 = fileName + "2.bak";
-          FileDelete(backupName2);
+          var split = SplitPath(fileName);
+          var numBackup = Directory.EnumerateFiles(split.DirectoryName.LongPathPrefix(), split.FileName + "*.bak", SearchOption.TopDirectoryOnly).Count();
+          backupName = fileName + $"_V{numBackup + 1}.bak";
         }
-
-        if (FileExists(backupName))
+        else
         {
-          if (twoBackups)
-            File.Move(backupName.LongPathPrefix(), backupName2.LongPathPrefix());
           FileDelete(backupName);
         }
-
+          
         File.Move(fileName.LongPathPrefix(), backupName.LongPathPrefix());
       }
       catch (Exception ex)
