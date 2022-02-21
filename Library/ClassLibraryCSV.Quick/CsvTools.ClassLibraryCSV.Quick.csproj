@@ -26,14 +26,15 @@
 		<DefineConstants>TRACE;QUICK</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
-		<Compile Include="..\ClassLibraryCSV\BinaryFormatter.cs" Link="BinaryFormatter.cs" />
+		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\BinaryFormatter.cs" Link="BinaryFormatter.cs" />
+		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\ColumnFormatterFactory.cs" Link="ColumnFormatterFactory.cs" />
 		<Compile Include="..\ClassLibraryCSV\DisposableBase.cs" Link="DisposableBase.cs" />
 		<Compile Include="..\ClassLibraryCSV\BaseFileReader.cs" Link="BaseFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\IColumnFormatter.cs" Link="IColumnFormatter.cs" />
-		<Compile Include="..\ClassLibraryCSV\TextPartFormatter.cs" Link="TextPartFormatter.cs" />
-		<Compile Include="..\ClassLibraryCSV\TextToHtmlFullFormatter.cs" Link="TextToHtmlFullFormatter.cs" />
-		<Compile Include="..\ClassLibraryCSV\TextUnescapeFormatter.cs" Link="TextUnescapeFormatter.cs" />
-		<Compile Include="..\ClassLibraryCSV\TextToHtmlFormatter.cs" Link="TextToHtmlFormatter.cs" />
+		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextPartFormatter.cs" Link="TextPartFormatter.cs" />
+		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextToHtmlFullFormatter.cs" Link="TextToHtmlFullFormatter.cs" />
+		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextUnescapeFormatter.cs" Link="TextUnescapeFormatter.cs" />
+		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextToHtmlFormatter.cs" Link="TextToHtmlFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\BaseFileReaderTyped.cs" Link="BaseFileReaderTyped.cs" />
 		<Compile Include="..\ClassLibraryCSV\BaseFileWriter.cs" Link="BaseFileWriter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ClassLibraryCsvExtensionMethods.cs" Link="ClassLibraryCsvExtensionMethods.cs" />

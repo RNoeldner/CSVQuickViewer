@@ -104,7 +104,8 @@ namespace CsvTools
       if (numColumns == 0)
         throw new FileWriterException("No columns defined to be written.");
       const string c_RecordEnd = "\r\n";
-      HandleWriteStart();
+
+      await HandleWriteStartAsync(cancellationToken).ConfigureAwait(false);
 
       // Header
       if (!string.IsNullOrEmpty(Header))

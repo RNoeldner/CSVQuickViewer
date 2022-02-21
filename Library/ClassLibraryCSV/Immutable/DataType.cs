@@ -68,7 +68,7 @@ namespace CsvTools
     ///   A given part of the text separate be a splitter
     /// </summary>
     TextPart = 13,
-    
+
     /// <summary>
     ///   Unescape c or c# escaped text to a verabtim text, e.g. \n will become a CR
     /// </summary>
@@ -77,6 +77,13 @@ namespace CsvTools
     /// <summary>
     ///   Binary data usually usually stored in a file
     /// </summary>
-    Binary = 15
+    Binary = 15,
+#if !QUICK
+
+    /// <summary>
+    ///   Convert Markc or c# escaped text to a verabtim text, e.g. \n will become a CR
+    /// </summary>
+    Markdown2Html = 16
+#endif
   }
 }

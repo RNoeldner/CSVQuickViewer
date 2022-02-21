@@ -93,14 +93,7 @@ namespace CsvTools
                         valueFormat.PartSplitter,
                         valueFormat.PartToEnd);
 
-      if (ValueFormat.DataType == DataType.TextPart)
-        ColumnFormatter = new TextPartFormatter(ValueFormat.Part, ValueFormat.PartSplitter, ValueFormat.PartToEnd);
-      else if (ValueFormat.DataType == DataType.TextToHtml)
-        ColumnFormatter = new TextToHtmlFormatter();
-      else if (ValueFormat.DataType == DataType.TextToHtmlFull)
-        ColumnFormatter = new TextToHtmlFullFormatter();
-      else if (ValueFormat.DataType == DataType.TextUnescape)
-        ColumnFormatter = new TextUnescapeFormatter();
+      ColumnFormatter = ColumnFormatterFactory.GetColumnFormatter(valueFormat);
     }
 
     public IColumnFormatter? ColumnFormatter { get; }

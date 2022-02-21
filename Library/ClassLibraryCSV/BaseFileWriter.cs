@@ -267,7 +267,8 @@ namespace CsvTools
     {
       if (reader is null)
         return -1;
-      HandleWriteStart();
+      await HandleWriteStartAsync(token).ConfigureAwait(false);
+
       m_SetMaxProcess?.Invoke(-1);
 
       try
@@ -352,7 +353,7 @@ namespace CsvTools
       return dataObject;
     }
 
-    protected void HandleWriteStart() => Records = 0;
+    protected async virtual Task HandleWriteStartAsync(CancellationToken cancellationToken) => await Task.Run(() => Records = 0);
 
     protected void NextRecord()
     {
