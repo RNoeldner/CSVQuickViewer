@@ -74,7 +74,9 @@ namespace CsvTools
       {
         m_FileSetting?.ColumnCollection.Replace(column);
         m_ConfigChanged = true;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         CheckPossibleChange();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
       };
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
@@ -207,7 +209,7 @@ namespace CsvTools
 
         var fileName = WindowsAPICodePackWrapper.Open(".", "File to Display", strFilter, null);
         if (!string.IsNullOrEmpty(fileName))
-          LoadCsvFile(fileName, m_CancellationTokenSource.Token);
+          LoadCsvFile(fileName!, m_CancellationTokenSource.Token);
       }
       catch (Exception ex)
       {

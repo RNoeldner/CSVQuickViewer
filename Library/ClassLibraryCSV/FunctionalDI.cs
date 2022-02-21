@@ -128,7 +128,7 @@ namespace CsvTools
     ///   Return a right writer for a file setting
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSettingPhysicalFile, IProcessDisplay?, CancellationToken, IFileWriter> GetFileWriter =
+    public static Func<IFileSetting, IProcessDisplay?, CancellationToken, IFileWriter> GetFileWriter =
       (setting, processDisplay, cancellationToken) => DefaultFileWriter(setting, processDisplay);
 
     /// <summary>
@@ -197,10 +197,10 @@ namespace CsvTools
         _ => throw new FileReaderException($"Reader for {setting} not found")
       };
 
-    private static IFileWriter DefaultFileWriter(IFileSettingPhysicalFile physicalFile, IProcessDisplay? processDisplay)
+    private static IFileWriter DefaultFileWriter(IFileSetting fileSetting, IProcessDisplay? processDisplay)
     {
       IFileWriter? writer = null;
-      switch (physicalFile)
+      switch (fileSetting)
       {
         case ICsvFile csv:
           writer = new CsvFileWriter(
@@ -229,45 +229,48 @@ namespace CsvTools
             processDisplay);
           break;
 
-        case IJsonFile fileSetting:
+        case IJsonFile jsonFile:
           writer = new JsonFileWriter(
             fileSetting.ID,
-            fileSetting.FullPath,
-            fileSetting.Recipient,
-            fileSetting.KeepUnencrypted,
-            fileSetting.IdentifierInContainer,
-            fileSetting.Footer,
-            fileSetting.Header,
-            fileSetting.ColumnCollection,
-            Convert.ToString(fileSetting),
-            fileSetting.Row,
+            jsonFile.FullPath,
+            jsonFile.Recipient,
+            jsonFile.KeepUnencrypted,
+            jsonFile.IdentifierInContainer,
+            jsonFile.Footer,
+            jsonFile.Header,
+            jsonFile.ColumnCollection,
+            Convert.ToString(jsonFile),
+            jsonFile.Row,
             processDisplay);
           break;
 
-        case IXmlFile fileSetting:
+        case IXmlFile xmlFile:
           writer = new XmlFileWriter(
-            fileSetting.ID,
-            fileSetting.FullPath,
-            fileSetting.Recipient,
-            fileSetting.KeepUnencrypted,
-            fileSetting.IdentifierInContainer,
-            fileSetting.Footer,
-            fileSetting.Header,
-            fileSetting.ColumnCollection,
-            Convert.ToString(fileSetting),
-            fileSetting.Row,
+            xmlFile.ID,
+            xmlFile.FullPath,
+            xmlFile.Recipient,
+            xmlFile.KeepUnencrypted,
+            xmlFile.IdentifierInContainer,
+            xmlFile.Footer,
+            xmlFile.Header,
+            xmlFile.ColumnCollection,
+            Convert.ToString(xmlFile),
+            xmlFile.Row,
             processDisplay);
           break;
       }
 
       if (writer is null)
-        throw new FileWriterException($"Writer for {physicalFile} not found");
+        throw new FileWriterException($"Writer for {fileSetting} not found");
 
       writer.WriteFinished += (sender, args) =>
       {
-        physicalFile.ProcessTimeUtc = DateTime.UtcNow;
-        if (physicalFile.SetLatestSourceTimeForWrite)
-          new FileSystemUtils.FileInfo(physicalFile.FullPath).LastWriteTimeUtc = physicalFile.LatestSourceTimeUtc;
+        fileSetting.ProcessTimeUtc = DateTime.UtcNow;
+        if (fileSetting is IFileSettingPhysicalFile physicalFile)
+        {
+          if (physicalFile.SetLatestSourceTimeForWrite)
+            new FileSystemUtils.FileInfo(physicalFile.FullPath).LastWriteTimeUtc = fileSetting.LatestSourceTimeUtc;
+        }
       };
       return writer;
     }

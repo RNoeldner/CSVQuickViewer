@@ -13,8 +13,6 @@
 		<ProjectReference Include="..\..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<Compile Update="TestForm.cs">
-			<SubType>Form</SubType>
-		</Compile>
+		<Compile Update="TestForm.cs" />
 	</ItemGroup>
 </Project>
