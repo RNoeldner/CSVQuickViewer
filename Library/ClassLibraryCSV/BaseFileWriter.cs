@@ -32,7 +32,7 @@ namespace CsvTools
     protected readonly IReadOnlyCollection<ImmutableColumn> ColumnDefinition;
 
     protected readonly List<WriterColumn> Columns = new List<WriterColumn>();
-    private readonly string m_FileSettingDisplay;
+    protected readonly string m_FileSettingDisplay;
     private readonly string m_Footer;
     internal readonly string m_FullPath;
     private readonly string m_IdentifierInContainer;
@@ -109,7 +109,7 @@ namespace CsvTools
       m_SetMaxProcess = l => processDisplayTime.Maximum = l;
     }
 
-    private long Records { get; set; }
+    public long Records { get; set; }
 
     /// <summary>
     ///   Event handler called if a warning or error occurred
@@ -263,11 +263,11 @@ namespace CsvTools
       return result;
     }
 
-    public async Task<long> WriteAsync(IFileReader? reader, CancellationToken token)
+    public virtual async Task<long> WriteAsync(IFileReader? reader, CancellationToken token)
     {
       if (reader is null)
         return -1;
-      await HandleWriteStartAsync(token).ConfigureAwait(false);
+      HandleWriteStart();
 
       m_SetMaxProcess?.Invoke(-1);
 
@@ -297,7 +297,7 @@ namespace CsvTools
       finally
       {
         Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSettingDisplay, Records);
-        WriteFinished?.Invoke(this, EventArgs.Empty);
+        HandleWriteEnd();
       }
 
       return Records;
@@ -353,7 +353,9 @@ namespace CsvTools
       return dataObject;
     }
 
-    protected async virtual Task HandleWriteStartAsync(CancellationToken cancellationToken) => await Task.Run(() => Records = 0);
+    protected virtual void HandleWriteStart() => Records = 0;
+
+    protected virtual void HandleWriteEnd() => WriteFinished?.Invoke(this, EventArgs.Empty);
 
     protected void NextRecord()
     {
@@ -379,7 +381,7 @@ namespace CsvTools
           .Cast<WriterColumn>());
     }
 
-    protected abstract Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
+    public abstract Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
 
     protected static string ReplacePlaceHolder(string input, string fileName, string id) =>
       input.PlaceholderReplace("ID", id)

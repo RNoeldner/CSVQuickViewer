@@ -37,8 +37,6 @@ namespace CsvTools
 
     private string m_IdentifierInContainer = string.Empty;
 
-    private bool m_KeepUnencrypted;
-
     private string m_PassPhrase = string.Empty;
 
     private string m_Recipient = string.Empty;
@@ -189,19 +187,7 @@ namespace CsvTools
     [XmlIgnore]
     public override string InternalID => string.IsNullOrEmpty(ID) ? FileName : ID;
 
-    [XmlAttribute]
-    [DefaultValue(false)]
-    public bool KeepUnencrypted
-    {
-      get => m_KeepUnencrypted;
-      set
-      {
-        if (m_KeepUnencrypted == value)
-          return;
-        m_KeepUnencrypted = value;
-        NotifyPropertyChanged(nameof(KeepUnencrypted));
-      }
-    }
+
 
     /// <inheritdoc />
     /// <summary>
@@ -302,8 +288,7 @@ namespace CsvTools
       fileSettingPhysicalFile.IdentifierInContainer = IdentifierInContainer;
       fileSettingPhysicalFile.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
       fileSettingPhysicalFile.Passphrase = Passphrase;
-      fileSettingPhysicalFile.Recipient = Recipient;
-      fileSettingPhysicalFile.KeepUnencrypted = KeepUnencrypted;
+      fileSettingPhysicalFile.Recipient = Recipient;      
       fileSettingPhysicalFile.DefaultValueFormatWrite.CopyFrom(DefaultValueFormatWrite);
     }
 
@@ -336,8 +321,7 @@ namespace CsvTools
         return false;
 
       if (!fileSettingPhysicalFile.Passphrase.Equals(Passphrase, StringComparison.Ordinal)
-          || !fileSettingPhysicalFile.Recipient.Equals(Recipient, StringComparison.OrdinalIgnoreCase)
-          || fileSettingPhysicalFile.KeepUnencrypted != KeepUnencrypted)
+          || !fileSettingPhysicalFile.Recipient.Equals(Recipient, StringComparison.OrdinalIgnoreCase))
         return false;
 
       if (!string.Equals(fileSettingPhysicalFile.ColumnFile, ColumnFile, StringComparison.OrdinalIgnoreCase))

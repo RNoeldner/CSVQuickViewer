@@ -90,7 +90,7 @@ namespace CsvTools
     /// <param name="reader">A Data Reader with the data</param>
     /// <param name="output">The output.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    protected override async Task WriteReaderAsync(
+    public override async Task WriteReaderAsync(
       IFileReader reader,
       Stream output,
       CancellationToken cancellationToken)
@@ -105,7 +105,7 @@ namespace CsvTools
         throw new FileWriterException("No columns defined to be written.");
       const string c_RecordEnd = "\r\n";
 
-      await HandleWriteStartAsync(cancellationToken).ConfigureAwait(false);
+      HandleWriteStart();
 
       // Header
       if (!string.IsNullOrEmpty(Header))

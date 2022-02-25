@@ -102,6 +102,13 @@ namespace CsvTools
     /// <value><c>true</c> if this instance is enabled; otherwise, <c>false</c>.</value>
     bool IsEnabled { get; set; }
 
+    /// <summary>    
+    /// When a file is encrypted the not encrypted version temporay file is removed 
+    /// When data is sent into a steam the data can not be access
+    /// Set to <c>true</c> a readable file is not removed / is created    
+    /// </summary>
+    bool KeepUnencrypted { get; set; }
+
     /// <summary>
     ///   The latest value of possible sources, e.G. the file time from the sources in a SQL, As
     ///   calculating might be time consuming, use CalculateLatestSource to rebuild the value
