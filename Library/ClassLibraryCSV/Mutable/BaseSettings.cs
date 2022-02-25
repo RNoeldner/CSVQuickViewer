@@ -57,6 +57,8 @@ namespace CsvTools
     private bool m_InOverview;
 
     private bool m_IsEnabled = true;
+    
+    private bool m_KeepUnencrypted;
 
     private DateTime m_LatestSourceTimeUtc = ZeroTime;
 
@@ -399,6 +401,20 @@ namespace CsvTools
           return;
         m_IsEnabled = value;
         NotifyPropertyChanged(nameof(IsEnabled));
+      }
+    }
+
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public bool KeepUnencrypted
+    {
+      get => m_KeepUnencrypted;
+      set
+      {
+        if (m_KeepUnencrypted == value)
+          return;
+        m_KeepUnencrypted = value;
+        NotifyPropertyChanged(nameof(KeepUnencrypted));
       }
     }
 
@@ -773,6 +789,7 @@ namespace CsvTools
       other.Timeout = Timeout;
       other.ProcessTimeUtc = ProcessTimeUtc;
       other.RecentlyLoaded = RecentlyLoaded;
+      other.KeepUnencrypted = KeepUnencrypted;
       other.LatestSourceTimeUtc = LatestSourceTimeUtc;
 
       other.Footer = Footer;
@@ -830,7 +847,8 @@ namespace CsvTools
       if (!other.Footer.Equals(Footer, StringComparison.Ordinal)
           || !other.Header.Equals(Header, StringComparison.OrdinalIgnoreCase))
         return false;
-
+      if (other.KeepUnencrypted != KeepUnencrypted)
+        return false;
       if (!other.MappingCollection.Equals(MappingCollection))
         return false;
       if (!other.SamplesAndErrors.Equals(SamplesAndErrors))

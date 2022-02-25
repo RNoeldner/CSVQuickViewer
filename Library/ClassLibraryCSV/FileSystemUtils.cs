@@ -71,7 +71,7 @@ namespace CsvTools
         {
           FileDelete(backupName);
         }
-          
+
         File.Move(fileName.LongPathPrefix(), backupName.LongPathPrefix());
       }
       catch (Exception ex)
@@ -99,6 +99,40 @@ namespace CsvTools
     }
 
 #if !QUICK
+
+    public static async Task StreamCopy(
+      Stream fromStream,
+      Stream toStream,
+      IProcessDisplay? processDisplay,
+      CancellationToken cancellationToken)
+    {
+      var bytes = new byte[81920];
+      int bytesRead;
+      long totalReads = 0;
+
+      long oldMax = 0;
+      if (processDisplay is IProcessDisplayTime processDisplayTime)
+      {
+        oldMax = processDisplayTime.Maximum;
+        processDisplayTime.Maximum = fromStream.Length;
+      }
+
+      IntervalAction? intervalAction = null;
+      if (processDisplay != null)
+        intervalAction = new IntervalAction();
+      while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, cancellationToken)
+                                          .ConfigureAwait(false)) > 0)
+      {
+        cancellationToken.ThrowIfCancellationRequested();
+        totalReads += bytesRead;
+        await toStream.WriteAsync(bytes, 0, bytesRead, cancellationToken).ConfigureAwait(false);
+#pragma warning disable CS8602
+        intervalAction?.Invoke(pos => processDisplay.SetProcess("Copy data", pos, false), totalReads);
+#pragma warning restore CS8602
+      }
+
+      processDisplay.SetMaximum(oldMax);
+    }
 
     /// <summary>
     ///   Copy a file locally and provide progress
@@ -136,32 +170,7 @@ namespace CsvTools
       await
 #endif
       using var toStream = OpenWrite(destFile);
-      var bytes = new byte[81920];
-      int bytesRead;
-      long totalReads = 0;
-
-      long oldMax = 0;
-      if (processDisplay is IProcessDisplayTime processDisplayTime)
-      {
-        oldMax = processDisplayTime.Maximum;
-        processDisplayTime.Maximum = fromStream.Length;
-      }
-
-      IntervalAction? intervalAction = null;
-      if (processDisplay != null)
-        intervalAction = new IntervalAction();
-      while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, cancellationToken)
-                                          .ConfigureAwait(false)) > 0)
-      {
-        cancellationToken.ThrowIfCancellationRequested();
-        totalReads += bytesRead;
-        await toStream.WriteAsync(bytes, 0, bytesRead, cancellationToken).ConfigureAwait(false);
-#pragma warning disable CS8602
-        intervalAction?.Invoke(pos => processDisplay.SetProcess("Copy file", pos, false), totalReads);
-#pragma warning restore CS8602
-      }
-
-      processDisplay.SetMaximum(oldMax);
+      await StreamCopy(fromStream, toStream, processDisplay, cancellationToken);
     }
 
 #endif

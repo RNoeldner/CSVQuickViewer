@@ -44,11 +44,6 @@ namespace CsvTools
     string IdentifierInContainer { get; set; }
 
     /// <summary>
-    /// When a file is encrypted teh not encrypted version is removed once crated, set to <c>true</c> if the source file that is not encrypted is not removed 
-    /// </summary>
-    bool KeepUnencrypted { get; set; }
-
-    /// <summary>
     ///   Passphrase for Decryption
     /// </summary>
     string Passphrase { get; set; }

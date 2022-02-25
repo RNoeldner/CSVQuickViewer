@@ -24,22 +24,21 @@ namespace CsvTools
     private readonly Markdown m_Markdown = new Markdown();
     public MarkupToHtmlFormatter()
     {
-      //var opt = new MarkdownOptions()
-      //{
-      //  AllowEmptyLinkText = false,
-      //  AutoHyperlink = true,
-      //  DisableImages = true,
-      //  LinkEmails = true,
-      //  QuoteSingleLine = false,
-      //  AutoNewLines = true
-      //};
-      m_Markdown = new Markdown();
+      m_Markdown = new Markdown(new MarkdownOptions()
+      {
+        AllowEmptyLinkText = false,
+        AutoHyperlink = true,
+        DisableImages = true,
+        LinkEmails = true,
+        QuoteSingleLine = false,
+        AutoNewLines = true
+      });
     }
 
     public bool RaiseWarning { get; set; } = true;
-    
+
     public string FormatText(in string inputString, Action<string>? handleWarning)
-    {      
+    {
       var output = m_Markdown.Transform(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
         handleWarning?.Invoke($"Markdown encoding");

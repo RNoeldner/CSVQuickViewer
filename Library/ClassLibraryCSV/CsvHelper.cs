@@ -1667,44 +1667,51 @@ namespace CsvTools
       var counterTotal = new int[possibleQuotes.Length];
       var counterOpen = new int[possibleQuotes.Length];
       var counterClose = new int[possibleQuotes.Length];
-
+      const char placeHolderText = 't';
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
       var filter = new StringBuilder();
       int last = -1;
-      while (!textReaderPosition.AllRead() && filter.Length<400 && !cancellationToken.IsCancellationRequested)
+      while (!textReaderPosition.AllRead() && filter.Length < 800 && !cancellationToken.IsCancellationRequested)
       {
         var c = textReader.Read();
+        if (c== escapeChar)
+        {
+          if (!textReader.EndOfStream)
+            c = textReader.Read();
+          if (!textReader.EndOfStream)
+            c = textReader.Read();
+        }
+
         if (c == '\r' || c == '\n')
           c = delimiterChar;
-        // any repeat will be ignored
-        // "" becomes "
-        // \r\n becomes , 
-        // \" will be ignored
-        if (last != c && last != escapeChar)
+        if (c == delimiterChar && last != delimiterChar)
+          filter.Append(delimiterChar);
+        else if (c == possibleQuotes[0])
+          filter.Append(possibleQuotes[0]);
+        else if (c == possibleQuotes[1])
+          filter.Append(possibleQuotes[0]);
+        else
         {
-          if (c == delimiterChar)
-            filter.Append(delimiterChar);
-          else if (c == possibleQuotes[0])
-            filter.Append(possibleQuotes[0]);
-          else if (c == possibleQuotes[1])
-            filter.Append(possibleQuotes[1]);
-        }
+          c = placeHolderText;
+          if (last != placeHolderText)
+            filter.Append(placeHolderText);
+        }       
         last = c;
       }
 
       // normalize this, line should start and end with delimiter 
       //  ","","",,,',", -> ,","","",,,',",
-      var line = delimiterChar + filter.ToString().Trim(delimiterChar) + delimiterChar;
+      var line = delimiterChar + filter.ToString().Trim(delimiterChar) + delimiterChar + delimiterChar;
       for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
       {
-        for (var index = 1; index < line.Length-1; index++)
+        for (var index = 1; index < line.Length-2; index++)
         {
           if (line[index] == possibleQuotes[testIndex])
           {
             counterTotal[testIndex]++;
-            if (line[index-1]== delimiterChar && line[index+1] != delimiterChar)
+            if (line[index-1]== delimiterChar && (line[index+1] == placeHolderText || (line[index+1] == possibleQuotes[testIndex] && line[index+2] != delimiterChar)))
               counterOpen[testIndex]++;
-            if (line[index+1]== delimiterChar && line[index-1] != delimiterChar)
+            if (line[index-1] == placeHolderText && line[index+1]== delimiterChar)
               counterClose[testIndex]++;
           }
         }
