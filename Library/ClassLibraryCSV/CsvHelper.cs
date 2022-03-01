@@ -1689,7 +1689,7 @@ namespace CsvTools
         else if (c == possibleQuotes[0])
           filter.Append(possibleQuotes[0]);
         else if (c == possibleQuotes[1])
-          filter.Append(possibleQuotes[0]);
+          filter.Append(possibleQuotes[1]);
         else
         {
           c = placeHolderText;

@@ -1,0 +1,9 @@
+﻿'IDs'	Name	'Long Text'	'Long Text2'
+2457	Name1	'This is a Text with ''  and "'	I'll be good
+'123"323:15'	Name2	No quotes just Text	'Hertogenbosch dutch city
+7383	Text	'this time
+with line feed'	'yes quoted no reason'
+Line6 Row5	Nothing		
+'here
+we
+go again'	Double QUote in Text "	Indeed	"neighbours'" not "neighbours's" garden

@@ -388,10 +388,24 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task GuessQualifierAsync()
+    public async Task GuessQualifier1()
     {
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("TextQualifiers.txt")));
       Assert.AreEqual("\"", await improvedStream.GuessQualifier(65001, 0, "\t", "\\", UnitTestStatic.Token));
+    }
+
+    [TestMethod]
+    public async Task GuessQualifier2()
+    {
+      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("Quoting1.txt")));
+      Assert.AreEqual("\"", await improvedStream.GuessQualifier(65001, 0, "\t", "\\", UnitTestStatic.Token));
+    }
+
+    [TestMethod]
+    public async Task GuessQualifier3()
+    {
+      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("Quoting1Reverse.txt")));
+      Assert.AreEqual("'", await improvedStream.GuessQualifier(65001, 0, "\t", "\\", UnitTestStatic.Token));
     }
 
     [TestMethod]
