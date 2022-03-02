@@ -28,11 +28,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetIdFromFileName()
     {
-      Assert.AreEqual("lo_data.csv", "lo_data_07102019_2303.csv".GetIdFromFileName());
-      Assert.AreEqual("lo_data_100.csv", "lo_data_100.csv".GetIdFromFileName());
+      Assert.AreEqual("lo_data", "lo_data_07102019_2303.csv".GetIdFromFileName());
+      Assert.AreEqual("lo_data_100", "lo_data_100.csv".GetIdFromFileName());
 
-      Assert.AreEqual("lo_data.csv", "lo_data_201910072303.csv".GetIdFromFileName());
-      Assert.AreEqual("lo_data.csv", "lo_data_20191007_11:03 pm.csv".GetIdFromFileName());
+      Assert.AreEqual("lo_data", "lo_data_201910072303.csv".GetIdFromFileName());
+      Assert.AreEqual("lo_data", "lo_data_20191007_11:03 pm.csv".GetIdFromFileName());
     }
 
     [TestMethod()]
