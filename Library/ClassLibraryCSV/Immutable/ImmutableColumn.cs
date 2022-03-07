@@ -78,20 +78,7 @@ namespace CsvTools
 
       ValueFormat = valueFormat is ImmutableValueFormat immutable
                       ? immutable
-                      : new ImmutableValueFormat(
-                        valueFormat.DataType,
-                        valueFormat.DateFormat,
-                        valueFormat.DateSeparator,
-                        valueFormat.TimeSeparator,
-                        valueFormat.NumberFormat,
-                        valueFormat.GroupSeparator,
-                        valueFormat.DecimalSeparator,
-                        valueFormat.True,
-                        valueFormat.False,
-                        valueFormat.DisplayNullAs,
-                        valueFormat.Part,
-                        valueFormat.PartSplitter,
-                        valueFormat.PartToEnd);
+                      : new ImmutableValueFormat(valueFormat);
 
       ColumnFormatter = ColumnFormatterFactory.GetColumnFormatter(valueFormat);
     }

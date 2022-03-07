@@ -24,6 +24,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -729,6 +730,7 @@ namespace CsvTools
 
         groupBoxBoolean.Visible = selType == DataType.Boolean;
         groupBoxSplit.Visible = selType == DataType.TextPart;
+        groupBoxRegExReplace.Visible = selType == DataType.RegexReplace;
 
         groupBoxBinary.Visible = selType == DataType.Binary;
         if (groupBoxBinary.Visible && m_ColumnEdit.DateFormat == ValueFormatExtension.cDateFormatDefault)
@@ -1069,6 +1071,19 @@ namespace CsvTools
       comboBoxColumnName.EndUpdate();
 
       RefreshData();
+    }
+
+    private void TextBoxRegexSearchPattern_Validating(object sender, CancelEventArgs e)
+    {
+      errorProvider.SetError(textBoxRegexSearchPattern, string.Empty);
+      try
+      {
+        var reg = new Regex(textBoxRegexSearchPattern.Text, RegexOptions.Compiled);
+      }
+      catch (Exception ex)
+      {
+        errorProvider.SetError( textBoxRegexSearchPattern, ex.Message);
+      }           
     }
   }
 }

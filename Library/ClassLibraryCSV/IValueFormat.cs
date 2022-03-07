@@ -16,8 +16,16 @@ namespace CsvTools
 {
   public interface IValueFormat
   {
+    /// <summary>
+    ///   Gets or sets the type of the data.
+    /// </summary>
+    /// <value>The type of the data.</value>
     DataType DataType { get; }
 
+    /// <summary>
+    ///   Gets or sets the date format.
+    /// </summary>
+    /// <value>The date format.</value>
     string DateFormat { get; }
 
     /// <summary>
@@ -30,6 +38,11 @@ namespace CsvTools
     /// </summary>
     string DecimalSeparator { get; }
 
+    /// <summary>
+    ///   Writing data you can specify how a NULL value should be written, commonly its empty, in
+    ///   some circumstances you might want to have n/a etc.
+    /// </summary>
+    /// <value>Text used if the value is NULL</value>
     string DisplayNullAs { get; }
 
     /// <summary>
@@ -70,6 +83,16 @@ namespace CsvTools
     ///   The value will return the resulted Separator, passing in "Dot" will return "."
     /// </summary>
     string TimeSeparator { get; }
+
+    /// <summary>
+    ///   Search Pattern for Regex Replace
+    /// </summary>    
+    string RegexSearchPattern { get; }
+
+    /// <summary>
+    ///   Replace for Regex Replace
+    /// </summary>
+    string RegexReplacement { get; }
 
     /// <summary>
     ///   Gets or sets the representation for true.

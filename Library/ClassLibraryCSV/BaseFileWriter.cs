@@ -78,17 +78,7 @@ namespace CsvTools
         m_Footer = string.Empty;
 
       if (valueFormatGeneral != null)
-        ValueFormatGeneral = new ImmutableValueFormat(
-          valueFormatGeneral.DataType,
-          valueFormatGeneral.DateFormat,
-          valueFormatGeneral.DateSeparator,
-          valueFormatGeneral.TimeSeparator,
-          valueFormatGeneral.NumberFormat,
-          valueFormatGeneral.GroupSeparator,
-          valueFormatGeneral.DecimalSeparator,
-          valueFormatGeneral.True,
-          valueFormatGeneral.False,
-          valueFormatGeneral.DisplayNullAs);
+        ValueFormatGeneral = new ImmutableValueFormat(valueFormatGeneral);
       else
         ValueFormatGeneral = new ImmutableValueFormat();
       ColumnDefinition =
@@ -148,7 +138,7 @@ namespace CsvTools
       {
         var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
         if (!(schemaRow[SchemaTableColumn.ColumnName] is string colName) || colName.Length == 0)
-          continue;
+          colName = $"Column{colNo+1}";
         var newName = StringUtils.MakeUniqueInCollection(colNames.Values, colName);
         colNames.Add(colNo, newName);
       }
@@ -158,7 +148,6 @@ namespace CsvTools
         var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
         var column =
           columnDefinitions.FirstOrDefault(x => x.Name.Equals(colNames[colNo], StringComparison.OrdinalIgnoreCase));
-
         if (column is { Ignore: true })
           continue;
 
@@ -202,17 +191,9 @@ namespace CsvTools
             fieldLength = 36;
             break;
 
-          case DataType.String:
-          case DataType.TextToHtml:
-          case DataType.TextUnescape:
-          case DataType.TextToHtmlFull:
-            break;
-
           case DataType.Binary:
             pattern = valueFormat.DateFormat;
             break;
-          default:
-            throw new ArgumentOutOfRangeException($"DataType {valueFormat.DataType} not supported");
         }
 
         var constantTimeZone = string.Empty;
@@ -454,17 +435,10 @@ namespace CsvTools
               displayAs = ((Guid) dataObject).ToString();
               break;
 
-            case DataType.String:
-            case DataType.TextToHtml:
-            case DataType.TextToHtmlFull:
-            case DataType.TextUnescape:
+            default:
               displayAs = Convert.ToString(dataObject) ?? string.Empty;
               if (columnInfo.ColumnFormatter != null)
                 displayAs = columnInfo.ColumnFormatter.FormatText(displayAs, handleWarning: null);
-              break;
-
-            default:
-              displayAs = string.Empty;
               break;
           }
       }
