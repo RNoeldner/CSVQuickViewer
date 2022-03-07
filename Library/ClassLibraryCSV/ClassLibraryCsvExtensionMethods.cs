@@ -130,6 +130,7 @@ namespace CsvTools
 #if !QUICK
         DataType.Markdown2Html => "Markdown to HTML",
 #endif
+        DataType.RegexReplace => "Text Replace",
         DataType.String => "Text",
         DataType.Binary => "Binary (File Reference)",
         _ => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, $"Data Type {dataType} not known in {nameof(DataTypeDisplay)}")

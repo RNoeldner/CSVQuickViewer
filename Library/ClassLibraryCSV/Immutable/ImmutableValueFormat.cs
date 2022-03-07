@@ -16,22 +16,31 @@ using System;
 
 namespace CsvTools
 {
+  /// <inheritdoc cref="CsvTools.IValueFormat" />
   public class ImmutableValueFormat : IValueFormat
   {
+    public ImmutableValueFormat(IValueFormat valueFormat) : this(valueFormat.DataType, valueFormat.DateFormat,
+      valueFormat.DateSeparator, valueFormat.TimeSeparator, valueFormat.NumberFormat, valueFormat.GroupSeparator, valueFormat.DecimalSeparator, valueFormat.True, valueFormat.False, valueFormat.DisplayNullAs,
+      valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd, valueFormat.RegexSearchPattern, valueFormat.RegexReplacement)
+    {
+    }
+
     public ImmutableValueFormat(
-      in DataType dataType = DataType.String,
-      in string dateFormat = ValueFormatExtension.cDateFormatDefault,
-      in string dateSeparator = ValueFormatExtension.cDateSeparatorDefault,
-      in string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
-      in string numberFormat = ValueFormatExtension.cNumberFormatDefault,
-      in string groupSeparator = ValueFormatExtension.cGroupSeparatorDefault,
-      in string decimalSeparator = ValueFormatExtension.cDecimalSeparatorDefault,
-      in string asTrue = ValueFormatExtension.cTrueDefault,
-      in string asFalse = ValueFormatExtension.cFalseDefault,
-      in string displayNullAs = "",
-      int part = ValueFormatExtension.cPartDefault,
-      in string partSplitter = ValueFormatExtension.cPartSplitterDefault,
-      bool partToEnd = ValueFormatExtension.cPartToEndDefault)
+    in DataType dataType = DataType.String,
+    in string dateFormat = ValueFormatExtension.cDateFormatDefault,
+    in string dateSeparator = ValueFormatExtension.cDateSeparatorDefault,
+    in string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
+    in string numberFormat = ValueFormatExtension.cNumberFormatDefault,
+    in string groupSeparator = ValueFormatExtension.cGroupSeparatorDefault,
+    in string decimalSeparator = ValueFormatExtension.cDecimalSeparatorDefault,
+    in string asTrue = ValueFormatExtension.cTrueDefault,
+    in string asFalse = ValueFormatExtension.cFalseDefault,
+    in string displayNullAs = "",
+    int part = ValueFormatExtension.cPartDefault,
+    in string partSplitter = ValueFormatExtension.cPartSplitterDefault,
+    bool partToEnd = ValueFormatExtension.cPartToEndDefault,
+    string regexSearchPattern = "",
+    string regexReplacement = "")
     {
       DataType = dataType;
       DateFormat = dateFormat ?? throw new ArgumentNullException(nameof(dateFormat));
@@ -46,32 +55,53 @@ namespace CsvTools
       Part = part;
       PartSplitter = (partSplitter ?? throw new ArgumentNullException(nameof(partSplitter)));
       PartToEnd = partToEnd;
+      RegexSearchPattern = (regexSearchPattern ?? throw new ArgumentNullException(nameof(regexSearchPattern)));
+      RegexReplacement = (regexReplacement ?? throw new ArgumentNullException(nameof(regexReplacement)));
     }
 
+    /// <inheritdoc />
     public DataType DataType { get; }
 
+    /// <inheritdoc />
     public string DateFormat { get; }
 
+    /// <inheritdoc />
     public string DateSeparator { get; }
 
+    /// <inheritdoc />
     public string DecimalSeparator { get; }
 
+    /// <inheritdoc />
     public string DisplayNullAs { get; }
 
+    /// <inheritdoc />
     public string False { get; }
 
+    /// <inheritdoc />
     public string GroupSeparator { get; }
 
+    /// <inheritdoc />
     public string NumberFormat { get; }
 
+    /// <inheritdoc />
     public int Part { get; }
 
+    /// <inheritdoc />
     public string PartSplitter { get; }
 
+    /// <inheritdoc />
     public bool PartToEnd { get; }
 
+    /// <inheritdoc />
     public string TimeSeparator { get; }
 
+    /// <inheritdoc />
     public string True { get; }
+
+    /// <inheritdoc />
+    public string RegexSearchPattern { get; }
+
+    /// <inheritdoc />
+    public string RegexReplacement { get; }
   }
 }

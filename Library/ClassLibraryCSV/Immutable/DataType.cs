@@ -81,9 +81,13 @@ namespace CsvTools
 #if !QUICK
 
     /// <summary>
-    ///   Convert Markc or c# escaped text to a verabtim text, e.g. \n will become a CR
+    ///   Convert Markdown text to HTML
     /// </summary>
-    Markdown2Html = 16
+    Markdown2Html = 16,
 #endif
+    /// <summary>
+    ///   Perform Regex.Replace 
+    /// </summary>
+    RegexReplace = 17
   }
 }

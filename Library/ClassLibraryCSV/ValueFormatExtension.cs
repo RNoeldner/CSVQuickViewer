@@ -68,6 +68,7 @@ namespace CsvTools
           CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
           one.GroupSeparator),
         DataType.TextPart => $"{one.Part}" + (one.PartToEnd ? " To End" : string.Empty),
+        DataType.RegexReplace => $"Replace Pattern {StringUtils.GetShortDisplay( one.RegexSearchPattern,10)} with {StringUtils.GetShortDisplay(one.RegexReplacement, 10)}",
         _ => string.Empty
       };
 
@@ -166,6 +167,10 @@ namespace CsvTools
                              && string.Equals(other.TimeSeparator, one.TimeSeparator, StringComparison.Ordinal),
         DataType.Boolean => string.Equals(other.False, one.False, StringComparison.OrdinalIgnoreCase)
                             && string.Equals(other.True, one.True, StringComparison.OrdinalIgnoreCase),
+
+        DataType.RegexReplace => string.Equals(other.RegexSearchPattern, one.RegexSearchPattern, StringComparison.Ordinal)
+                             && string.Equals(other.RegexReplacement, one.RegexReplacement, StringComparison.Ordinal),
+
         DataType.TextPart => string.Equals(other.PartSplitter, one.PartSplitter, StringComparison.Ordinal)
                              && other.Part == one.Part && other.PartToEnd == one.PartToEnd,
         _ => string.Equals(other.DateFormat, one.DateFormat, StringComparison.Ordinal)
@@ -176,6 +181,8 @@ namespace CsvTools
              && string.Equals(other.GroupSeparator, one.GroupSeparator, StringComparison.Ordinal)
              && string.Equals(other.DecimalSeparator, one.DecimalSeparator, StringComparison.Ordinal)
              && string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal)
+             && string.Equals(other.RegexSearchPattern, one.RegexSearchPattern, StringComparison.Ordinal)
+             && string.Equals(other.RegexReplacement, one.RegexReplacement, StringComparison.Ordinal)
              && string.Equals(other.PartSplitter, one.PartSplitter, StringComparison.Ordinal) && other.Part == one.Part
              && other.PartToEnd == one.PartToEnd
       };

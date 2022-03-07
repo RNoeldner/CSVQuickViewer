@@ -38,6 +38,9 @@ namespace CsvTools
     private bool m_PartToEnd;
     private string m_TimeSeparator;
     private string m_True;
+    private string m_RegexSearchPattern;
+    private string m_RegexReplacement;
+
 
     public ValueFormatMutable() : this(
       DataType.String,
@@ -52,7 +55,9 @@ namespace CsvTools
       string.Empty,
       ValueFormatExtension.cPartDefault,
       ValueFormatExtension.cPartSplitterDefault,
-      ValueFormatExtension.cPartToEndDefault)
+      ValueFormatExtension.cPartToEndDefault,
+      string.Empty,
+      string.Empty)
     {
     }
 
@@ -69,7 +74,9 @@ namespace CsvTools
       in string displayNullAs,
       int part,
       in string partSplitter,
-      bool partToEnd)
+      bool partToEnd,
+      in string regexSearchPattern,
+      in string regexReplacement)
     {
       if (!string.IsNullOrEmpty(decimalSeparator) && decimalSeparator.Equals(groupSeparator))
         throw new FileReaderException("Decimal and Group separator must be different");
@@ -87,11 +94,13 @@ namespace CsvTools
       m_Part = part;
       m_PartSplitter = (partSplitter ?? throw new ArgumentNullException(nameof(partSplitter))).WrittenPunctuation();
       m_PartToEnd = partToEnd;
+      m_RegexSearchPattern = (regexSearchPattern ?? throw new ArgumentNullException(nameof(regexSearchPattern)));
+      m_RegexReplacement = (regexReplacement ?? throw new ArgumentNullException(nameof(regexReplacement)));
     }
 
     public ValueFormatMutable(IValueFormat other) : this(other.DataType, other.DateFormat, other.DateSeparator, other.TimeSeparator, other.NumberFormat,
       other.GroupSeparator, other.DecimalSeparator,
-      other.True, other.False, other.DisplayNullAs, other.Part, other.PartSplitter, other.PartToEnd)
+      other.True, other.False, other.DisplayNullAs, other.Part, other.PartSplitter, other.PartToEnd, other.RegexSearchPattern, other.RegexReplacement)
 
     {
     }
@@ -112,6 +121,8 @@ namespace CsvTools
                                                            && Part == ValueFormatExtension.cPartDefault
                                                            && PartSplitter == ValueFormatExtension.cPartSplitterDefault
                                                            && PartToEnd == ValueFormatExtension.cPartToEndDefault
+                                                           && RegexSearchPattern == string.Empty
+                                                           && RegexReplacement == string.Empty
                                                            && DisplayNullAs == string.Empty);
 
     /// <inheritdoc />
@@ -120,10 +131,7 @@ namespace CsvTools
     /// </summary>
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    /// <summary>
-    ///   Gets or sets the type of the data.
-    /// </summary>
-    /// <value>The type of the data.</value>
+    /// <inheritdoc />    
     [XmlAttribute]
     [DefaultValue(DataType.String)]
     public DataType DataType
@@ -138,10 +146,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets or sets the date format.
-    /// </summary>
-    /// <value>The date format.</value>
+    /// <inheritdoc />    
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -161,10 +166,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets or sets the date separator.
-    /// </summary>
-    /// <value>The date separator.</value>
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -184,11 +185,7 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc />
-    /// <summary>
-    ///   Gets or sets the decimal separator.
-    /// </summary>
-    /// <value>The decimal separator.</value>
+    /// <inheritdoc />    
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -216,11 +213,7 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Writing data you can specify how a NULL value should be written, commonly its empty, in
-    ///   some circumstances you might want to have n/a etc.
-    /// </summary>
-    /// <value>Text used if the value is NULL</value>
+    /// <inheritdoc />    
     [XmlAttribute]
     [DefaultValue("")]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -240,11 +233,7 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc />
-    /// <summary>
-    ///   Gets or sets the representation for false.
-    /// </summary>
-    /// <value>The false.</value>
+    /// <inheritdoc />    
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cFalseDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -264,10 +253,6 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Gets or sets the group separator.
-    /// </summary>
-    /// <value>The group separator.</value>
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -410,6 +395,44 @@ namespace CsvTools
       }
     }
 
+
+    [XmlAttribute]
+    [DefaultValue("")]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+
+    public string RegexSearchPattern
+    {
+      get => m_RegexSearchPattern;
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_RegexSearchPattern.Equals(newVal, StringComparison.OrdinalIgnoreCase))
+          return;
+        m_RegexSearchPattern = newVal;
+        NotifyPropertyChanged(nameof(RegexSearchPattern));
+      }
+    }
+
+    [XmlAttribute]
+    [DefaultValue("")]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public string RegexReplacement
+    {
+      get => m_RegexReplacement;
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_RegexReplacement.Equals(newVal, StringComparison.OrdinalIgnoreCase))
+          return;
+        m_RegexReplacement = newVal;
+        NotifyPropertyChanged(nameof(RegexReplacement));
+      }
+    }
+
     /// <summary>
     ///   On Mutable classes prefer CopyFrom to CopyTo, overwrites the properties from the
     ///   properties in the provided class
@@ -432,6 +455,8 @@ namespace CsvTools
       Part = other.Part;
       PartSplitter = other.PartSplitter;
       PartToEnd = other.PartToEnd;
+      RegexSearchPattern = other.RegexSearchPattern;
+      RegexReplacement = other.RegexReplacement;
     }
 
     /// <summary>

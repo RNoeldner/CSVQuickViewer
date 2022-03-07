@@ -53,6 +53,8 @@ namespace CsvTools
       System.Windows.Forms.Label label4;
       System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
       System.Windows.Forms.Label label7;
+      System.Windows.Forms.Label label9;
+      System.Windows.Forms.Label label10;
       this.textBoxDateSeparator = new System.Windows.Forms.TextBox();
       this.bindingSourceValueFormat = new System.Windows.Forms.BindingSource(this.components);
       this.comboBoxDateFormat = new System.Windows.Forms.ComboBox();
@@ -105,6 +107,9 @@ namespace CsvTools
       this.groupBoxBinary = new System.Windows.Forms.GroupBox();
       this.textBoxPattern = new System.Windows.Forms.TextBox();
       this.buttonOK = new System.Windows.Forms.Button();
+      this.groupBoxRegExReplace = new System.Windows.Forms.GroupBox();
+      this.textBoxRegexReplacement = new System.Windows.Forms.TextBox();
+      this.textBoxRegexSearchPattern = new System.Windows.Forms.TextBox();
       labelTrue = new System.Windows.Forms.Label();
       labelFalse = new System.Windows.Forms.Label();
       labelPoint = new System.Windows.Forms.Label();
@@ -123,6 +128,8 @@ namespace CsvTools
       label4 = new System.Windows.Forms.Label();
       tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
       label7 = new System.Windows.Forms.Label();
+      label9 = new System.Windows.Forms.Label();
+      label10 = new System.Windows.Forms.Label();
       tableLayoutPanel2.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.bindingSourceValueFormat)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.columnBindingSource)).BeginInit();
@@ -134,15 +141,16 @@ namespace CsvTools
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
       this.tableLayoutPanelForm.SuspendLayout();
       this.groupBoxBinary.SuspendLayout();
+      this.groupBoxRegExReplace.SuspendLayout();
       this.SuspendLayout();
       // 
       // labelTrue
       // 
       labelTrue.AutoSize = true;
-      labelTrue.Location = new System.Drawing.Point(77, 17);
-      labelTrue.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelTrue.Location = new System.Drawing.Point(141, 31);
+      labelTrue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       labelTrue.Name = "labelTrue";
-      labelTrue.Size = new System.Drawing.Size(32, 13);
+      labelTrue.Size = new System.Drawing.Size(59, 25);
       labelTrue.TabIndex = 0;
       labelTrue.Text = "True:";
       labelTrue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -150,10 +158,10 @@ namespace CsvTools
       // labelFalse
       // 
       labelFalse.AutoSize = true;
-      labelFalse.Location = new System.Drawing.Point(72, 37);
-      labelFalse.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelFalse.Location = new System.Drawing.Point(132, 68);
+      labelFalse.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       labelFalse.Name = "labelFalse";
-      labelFalse.Size = new System.Drawing.Size(35, 13);
+      labelFalse.Size = new System.Drawing.Size(66, 25);
       labelFalse.TabIndex = 2;
       labelFalse.Text = "False:";
       labelFalse.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -161,10 +169,10 @@ namespace CsvTools
       // labelPoint
       // 
       labelPoint.AutoSize = true;
-      labelPoint.Location = new System.Drawing.Point(37, 63);
-      labelPoint.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelPoint.Location = new System.Drawing.Point(68, 116);
+      labelPoint.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       labelPoint.Name = "labelPoint";
-      labelPoint.Size = new System.Drawing.Size(75, 13);
+      labelPoint.Size = new System.Drawing.Size(137, 25);
       labelPoint.TabIndex = 8;
       labelPoint.Text = "Decimal Point:";
       // 
@@ -172,20 +180,20 @@ namespace CsvTools
       // 
       labelDateSep.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelDateSep.AutoSize = true;
-      labelDateSep.Location = new System.Drawing.Point(25, 5);
-      labelDateSep.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      labelDateSep.Location = new System.Drawing.Point(50, 6);
+      labelDateSep.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       labelDateSep.Name = "labelDateSep";
-      labelDateSep.Size = new System.Drawing.Size(82, 13);
+      labelDateSep.Size = new System.Drawing.Size(150, 25);
       labelDateSep.TabIndex = 0;
       labelDateSep.Text = "Date Separator:";
       // 
       // labelGroup
       // 
       labelGroup.AutoSize = true;
-      labelGroup.Location = new System.Drawing.Point(2, 43);
-      labelGroup.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelGroup.Location = new System.Drawing.Point(4, 79);
+      labelGroup.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       labelGroup.Name = "labelGroup";
-      labelGroup.Size = new System.Drawing.Size(107, 13);
+      labelGroup.Size = new System.Drawing.Size(198, 25);
       labelGroup.TabIndex = 4;
       labelGroup.Text = "Thousand Separator:";
       // 
@@ -193,10 +201,10 @@ namespace CsvTools
       // 
       labelTimeSep.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelTimeSep.AutoSize = true;
-      labelTimeSep.Location = new System.Drawing.Point(160, 5);
-      labelTimeSep.Margin = new System.Windows.Forms.Padding(2);
+      labelTimeSep.Location = new System.Drawing.Point(294, 6);
+      labelTimeSep.Margin = new System.Windows.Forms.Padding(4);
       labelTimeSep.Name = "labelTimeSep";
-      labelTimeSep.Size = new System.Drawing.Size(82, 13);
+      labelTimeSep.Size = new System.Drawing.Size(153, 25);
       labelTimeSep.TabIndex = 5;
       labelTimeSep.Text = "Time Separator:";
       // 
@@ -204,10 +212,10 @@ namespace CsvTools
       // 
       labelLessCommon.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelLessCommon.AutoSize = true;
-      labelLessCommon.Location = new System.Drawing.Point(3, 149);
-      labelLessCommon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      labelLessCommon.Location = new System.Drawing.Point(6, 434);
+      labelLessCommon.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       labelLessCommon.Name = "labelLessCommon";
-      labelLessCommon.Size = new System.Drawing.Size(104, 13);
+      labelLessCommon.Size = new System.Drawing.Size(194, 25);
       labelLessCommon.TabIndex = 16;
       labelLessCommon.Text = "Uncommon Formats:";
       // 
@@ -215,10 +223,10 @@ namespace CsvTools
       // 
       labelTCFormat.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelTCFormat.AutoSize = true;
-      labelTCFormat.Location = new System.Drawing.Point(281, 55);
-      labelTCFormat.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      labelTCFormat.Location = new System.Drawing.Point(519, 84);
+      labelTCFormat.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       labelTCFormat.Name = "labelTCFormat";
-      labelTCFormat.Size = new System.Drawing.Size(42, 13);
+      labelTCFormat.Size = new System.Drawing.Size(79, 25);
       labelTCFormat.TabIndex = 3;
       labelTCFormat.Text = "Format:";
       // 
@@ -226,10 +234,10 @@ namespace CsvTools
       // 
       labelTimeCol.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelTimeCol.AutoSize = true;
-      labelTimeCol.Location = new System.Drawing.Point(14, 55);
-      labelTimeCol.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      labelTimeCol.Location = new System.Drawing.Point(26, 84);
+      labelTimeCol.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       labelTimeCol.Name = "labelTimeCol";
-      labelTimeCol.Size = new System.Drawing.Size(93, 13);
+      labelTimeCol.Size = new System.Drawing.Size(174, 25);
       labelTimeCol.TabIndex = 1;
       labelTimeCol.Text = "Column with Time:";
       // 
@@ -238,10 +246,10 @@ namespace CsvTools
       labelSepBy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       labelSepBy.AutoSize = true;
-      labelSepBy.Location = new System.Drawing.Point(35, 17);
-      labelSepBy.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelSepBy.Location = new System.Drawing.Point(64, 31);
+      labelSepBy.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       labelSepBy.Name = "labelSepBy";
-      labelSepBy.Size = new System.Drawing.Size(68, 13);
+      labelSepBy.Size = new System.Drawing.Size(126, 25);
       labelSepBy.TabIndex = 0;
       labelSepBy.Text = "Separate By:";
       labelSepBy.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -251,10 +259,10 @@ namespace CsvTools
       labelPart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       labelPart.AutoSize = true;
-      labelPart.Location = new System.Drawing.Point(79, 41);
-      labelPart.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelPart.Location = new System.Drawing.Point(145, 76);
+      labelPart.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       labelPart.Name = "labelPart";
-      labelPart.Size = new System.Drawing.Size(29, 13);
+      labelPart.Size = new System.Drawing.Size(53, 25);
       labelPart.TabIndex = 3;
       labelPart.Text = "Part:";
       labelPart.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -263,10 +271,10 @@ namespace CsvTools
       // 
       label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label3.AutoSize = true;
-      label3.Location = new System.Drawing.Point(43, 30);
-      label3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      label3.Location = new System.Drawing.Point(83, 44);
+      label3.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       label3.Name = "label3";
-      label3.Size = new System.Drawing.Size(64, 13);
+      label3.Size = new System.Drawing.Size(117, 25);
       label3.TabIndex = 7;
       label3.Text = "Time Zone :";
       // 
@@ -275,10 +283,10 @@ namespace CsvTools
       labelDateOutput.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       labelDateOutput.AutoSize = true;
       labelDateOutput.ForeColor = System.Drawing.SystemColors.ControlText;
-      labelDateOutput.Location = new System.Drawing.Point(281, 106);
-      labelDateOutput.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      labelDateOutput.Location = new System.Drawing.Point(521, 204);
+      labelDateOutput.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       labelDateOutput.Name = "labelDateOutput";
-      labelDateOutput.Size = new System.Drawing.Size(42, 13);
+      labelDateOutput.Size = new System.Drawing.Size(77, 25);
       labelDateOutput.TabIndex = 13;
       labelDateOutput.Text = "Output:";
       // 
@@ -287,9 +295,10 @@ namespace CsvTools
       labelSample.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       labelSample.AutoSize = true;
       labelSample.ForeColor = System.Drawing.SystemColors.ControlText;
-      labelSample.Location = new System.Drawing.Point(289, 91);
+      labelSample.Location = new System.Drawing.Point(537, 175);
+      labelSample.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
       labelSample.Name = "labelSample";
-      labelSample.Size = new System.Drawing.Size(34, 13);
+      labelSample.Size = new System.Drawing.Size(61, 25);
       labelSample.TabIndex = 12;
       labelSample.Text = "Input:";
       // 
@@ -298,10 +307,10 @@ namespace CsvTools
       linkLabelRegion.Anchor = System.Windows.Forms.AnchorStyles.Left;
       linkLabelRegion.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(linkLabelRegion, 3);
-      linkLabelRegion.Location = new System.Drawing.Point(281, 125);
-      linkLabelRegion.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      linkLabelRegion.Location = new System.Drawing.Point(519, 316);
+      linkLabelRegion.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       linkLabelRegion.Name = "linkLabelRegion";
-      linkLabelRegion.Size = new System.Drawing.Size(130, 13);
+      linkLabelRegion.Size = new System.Drawing.Size(238, 25);
       linkLabelRegion.TabIndex = 14;
       linkLabelRegion.TabStop = true;
       linkLabelRegion.Text = "Open Region && Language";
@@ -312,10 +321,10 @@ namespace CsvTools
       label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       label4.AutoSize = true;
       label4.ForeColor = System.Drawing.SystemColors.ControlText;
-      label4.Location = new System.Drawing.Point(286, 76);
-      label4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      label4.Location = new System.Drawing.Point(529, 121);
+      label4.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       label4.Name = "label4";
-      label4.Size = new System.Drawing.Size(37, 13);
+      label4.Size = new System.Drawing.Size(69, 25);
       label4.TabIndex = 11;
       label4.Text = "Value:";
       // 
@@ -324,12 +333,12 @@ namespace CsvTools
       tableLayoutPanel2.AutoSize = true;
       tableLayoutPanel2.ColumnCount = 7;
       tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 34F));
-      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
-      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 34F));
+      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 62F));
+      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 183F));
+      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 62F));
       tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 62F));
+      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 114F));
       tableLayoutPanel2.Controls.Add(labelDateSep, 0, 0);
       tableLayoutPanel2.Controls.Add(this.textBoxDateSeparator, 1, 0);
       tableLayoutPanel2.Controls.Add(this.comboBoxDateFormat, 1, 7);
@@ -356,8 +365,8 @@ namespace CsvTools
       tableLayoutPanel2.Controls.Add(labelTCFormat, 4, 2);
       tableLayoutPanel2.Controls.Add(this.comboBoxTPFormat, 5, 2);
       tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Top;
-      tableLayoutPanel2.Location = new System.Drawing.Point(3, 15);
-      tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      tableLayoutPanel2.Location = new System.Drawing.Point(6, 26);
+      tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       tableLayoutPanel2.Name = "tableLayoutPanel2";
       tableLayoutPanel2.RowCount = 8;
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -368,16 +377,16 @@ namespace CsvTools
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel2.Size = new System.Drawing.Size(542, 169);
+      tableLayoutPanel2.Size = new System.Drawing.Size(910, 468);
       tableLayoutPanel2.TabIndex = 17;
       // 
       // textBoxDateSeparator
       // 
       this.textBoxDateSeparator.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "DateSeparator", true));
-      this.textBoxDateSeparator.Location = new System.Drawing.Point(113, 2);
-      this.textBoxDateSeparator.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxDateSeparator.Location = new System.Drawing.Point(212, 4);
+      this.textBoxDateSeparator.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.textBoxDateSeparator.Name = "textBoxDateSeparator";
-      this.textBoxDateSeparator.Size = new System.Drawing.Size(28, 20);
+      this.textBoxDateSeparator.Size = new System.Drawing.Size(48, 29);
       this.textBoxDateSeparator.TabIndex = 0;
       this.toolTip.SetToolTip(this.textBoxDateSeparator, "Separates the components of a date, that is, the year, month, and day");
       this.textBoxDateSeparator.TextChanged += new System.EventHandler(this.DateFormatChanged);
@@ -394,10 +403,10 @@ namespace CsvTools
       tableLayoutPanel2.SetColumnSpan(this.comboBoxDateFormat, 3);
       this.comboBoxDateFormat.Dock = System.Windows.Forms.DockStyle.Top;
       this.comboBoxDateFormat.FormattingEnabled = true;
-      this.comboBoxDateFormat.Location = new System.Drawing.Point(113, 144);
-      this.comboBoxDateFormat.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.comboBoxDateFormat.Location = new System.Drawing.Point(212, 429);
+      this.comboBoxDateFormat.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.comboBoxDateFormat.Name = "comboBoxDateFormat";
-      this.comboBoxDateFormat.Size = new System.Drawing.Size(162, 21);
+      this.comboBoxDateFormat.Size = new System.Drawing.Size(295, 32);
       this.comboBoxDateFormat.TabIndex = 6;
       this.comboBoxDateFormat.TextChanged += new System.EventHandler(this.DateFormatChanged);
       // 
@@ -405,10 +414,10 @@ namespace CsvTools
       // 
       this.buttonAddFormat.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(this.buttonAddFormat, 2);
-      this.buttonAddFormat.Location = new System.Drawing.Point(281, 144);
-      this.buttonAddFormat.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.buttonAddFormat.Location = new System.Drawing.Point(519, 429);
+      this.buttonAddFormat.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.buttonAddFormat.Name = "buttonAddFormat";
-      this.buttonAddFormat.Size = new System.Drawing.Size(85, 23);
+      this.buttonAddFormat.Size = new System.Drawing.Size(143, 35);
       this.buttonAddFormat.TabIndex = 7;
       this.buttonAddFormat.Text = "Add to List";
       this.toolTip.SetToolTip(this.buttonAddFormat, "Add the selected uncommon date/time format to the checked list box");
@@ -419,10 +428,10 @@ namespace CsvTools
       // 
       this.labelAllowedDateFormats.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.labelAllowedDateFormats.AutoSize = true;
-      this.labelAllowedDateFormats.Location = new System.Drawing.Point(28, 76);
-      this.labelAllowedDateFormats.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.labelAllowedDateFormats.Location = new System.Drawing.Point(51, 133);
+      this.labelAllowedDateFormats.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.labelAllowedDateFormats.Name = "labelAllowedDateFormats";
-      this.labelAllowedDateFormats.Size = new System.Drawing.Size(79, 13);
+      this.labelAllowedDateFormats.Size = new System.Drawing.Size(149, 25);
       this.labelAllowedDateFormats.TabIndex = 9;
       this.labelAllowedDateFormats.Text = "Date Format(s):";
       // 
@@ -431,11 +440,11 @@ namespace CsvTools
       tableLayoutPanel2.SetColumnSpan(this.checkedListBoxDateFormats, 3);
       this.checkedListBoxDateFormats.Dock = System.Windows.Forms.DockStyle.Fill;
       this.checkedListBoxDateFormats.FormattingEnabled = true;
-      this.checkedListBoxDateFormats.Location = new System.Drawing.Point(113, 76);
-      this.checkedListBoxDateFormats.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkedListBoxDateFormats.Location = new System.Drawing.Point(212, 121);
+      this.checkedListBoxDateFormats.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.checkedListBoxDateFormats.Name = "checkedListBoxDateFormats";
       tableLayoutPanel2.SetRowSpan(this.checkedListBoxDateFormats, 4);
-      this.checkedListBoxDateFormats.Size = new System.Drawing.Size(162, 64);
+      this.checkedListBoxDateFormats.Size = new System.Drawing.Size(295, 300);
       this.checkedListBoxDateFormats.TabIndex = 5;
       this.toolTip.SetToolTip(this.checkedListBoxDateFormats, "Common Date/Time formats, you can choose multiple");
       this.checkedListBoxDateFormats.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckedListBoxDateFormats_ItemCheck);
@@ -448,10 +457,10 @@ namespace CsvTools
       this.comboBoxTimePart.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "TimePart", true));
       this.comboBoxTimePart.Dock = System.Windows.Forms.DockStyle.Top;
       this.comboBoxTimePart.FormattingEnabled = true;
-      this.comboBoxTimePart.Location = new System.Drawing.Point(113, 51);
-      this.comboBoxTimePart.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.comboBoxTimePart.Location = new System.Drawing.Point(212, 81);
+      this.comboBoxTimePart.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.comboBoxTimePart.Name = "comboBoxTimePart";
-      this.comboBoxTimePart.Size = new System.Drawing.Size(162, 21);
+      this.comboBoxTimePart.Size = new System.Drawing.Size(295, 32);
       this.comboBoxTimePart.TabIndex = 1;
       this.toolTip.SetToolTip(this.comboBoxTimePart, "Combining a time column will result in a combination of the column and the select" +
         "ed time column\r\ne.G “17/Aug/2019” & “17:54” will become “17/Aug/2019 17:54”\r\n");
@@ -466,10 +475,10 @@ namespace CsvTools
       // textBoxTimeSeparator
       // 
       this.textBoxTimeSeparator.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "TimeSeparator", true));
-      this.textBoxTimeSeparator.Location = new System.Drawing.Point(247, 2);
-      this.textBoxTimeSeparator.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxTimeSeparator.Location = new System.Drawing.Point(457, 4);
+      this.textBoxTimeSeparator.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.textBoxTimeSeparator.Name = "textBoxTimeSeparator";
-      this.textBoxTimeSeparator.Size = new System.Drawing.Size(28, 20);
+      this.textBoxTimeSeparator.Size = new System.Drawing.Size(48, 29);
       this.textBoxTimeSeparator.TabIndex = 3;
       this.toolTip.SetToolTip(this.textBoxTimeSeparator, "Separates the components of time, that is, the hour, minutes, and seconds.");
       // 
@@ -479,10 +488,10 @@ namespace CsvTools
       this.comboBoxTimeZone.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "TimeZonePart", true));
       this.comboBoxTimeZone.Dock = System.Windows.Forms.DockStyle.Top;
       this.comboBoxTimeZone.FormattingEnabled = true;
-      this.comboBoxTimeZone.Location = new System.Drawing.Point(113, 26);
-      this.comboBoxTimeZone.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.comboBoxTimeZone.Location = new System.Drawing.Point(212, 41);
+      this.comboBoxTimeZone.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.comboBoxTimeZone.Name = "comboBoxTimeZone";
-      this.comboBoxTimeZone.Size = new System.Drawing.Size(162, 21);
+      this.comboBoxTimeZone.Size = new System.Drawing.Size(295, 32);
       this.comboBoxTimeZone.TabIndex = 4;
       this.comboBoxTimeZone.SelectedIndexChanged += new System.EventHandler(this.DateFormatChanged);
       this.comboBoxTimeZone.TextUpdate += new System.EventHandler(this.DateFormatChanged);
@@ -491,10 +500,10 @@ namespace CsvTools
       // 
       this.label5.AutoSize = true;
       this.label5.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.label5.Location = new System.Drawing.Point(329, 76);
-      this.label5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.label5.Location = new System.Drawing.Point(610, 121);
+      this.label5.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.label5.Name = "label5";
-      this.label5.Size = new System.Drawing.Size(141, 13);
+      this.label5.Size = new System.Drawing.Size(142, 50);
       this.label5.TabIndex = 11;
       this.label5.Text = "7th April 2013  15:45:50 345";
       // 
@@ -502,9 +511,10 @@ namespace CsvTools
       // 
       this.labelSampleDisplay.AutoSize = true;
       this.labelSampleDisplay.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelSampleDisplay.Location = new System.Drawing.Point(329, 91);
+      this.labelSampleDisplay.Location = new System.Drawing.Point(610, 175);
+      this.labelSampleDisplay.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
       this.labelSampleDisplay.Name = "labelSampleDisplay";
-      this.labelSampleDisplay.Size = new System.Drawing.Size(17, 13);
+      this.labelSampleDisplay.Size = new System.Drawing.Size(26, 25);
       this.labelSampleDisplay.TabIndex = 12;
       this.labelSampleDisplay.Text = "\"\"";
       // 
@@ -512,10 +522,10 @@ namespace CsvTools
       // 
       this.labelDateOutputDisplay.AutoSize = true;
       this.labelDateOutputDisplay.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelDateOutputDisplay.Location = new System.Drawing.Point(329, 106);
-      this.labelDateOutputDisplay.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.labelDateOutputDisplay.Location = new System.Drawing.Point(610, 204);
+      this.labelDateOutputDisplay.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.labelDateOutputDisplay.Name = "labelDateOutputDisplay";
-      this.labelDateOutputDisplay.Size = new System.Drawing.Size(17, 13);
+      this.labelDateOutputDisplay.Size = new System.Drawing.Size(26, 25);
       this.labelDateOutputDisplay.TabIndex = 13;
       this.labelDateOutputDisplay.Text = "\"\"";
       // 
@@ -525,10 +535,10 @@ namespace CsvTools
       this.label6.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(this.label6, 3);
       this.label6.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.label6.Location = new System.Drawing.Point(281, 30);
-      this.label6.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.label6.Location = new System.Drawing.Point(519, 44);
+      this.label6.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.label6.Name = "label6";
-      this.label6.Size = new System.Drawing.Size(187, 13);
+      this.label6.Size = new System.Drawing.Size(339, 25);
       this.label6.TabIndex = 11;
       this.label6.Text = "Note: Constants in quotes e.G. \"UTC\"";
       // 
@@ -536,9 +546,10 @@ namespace CsvTools
       // 
       this.labelInputTZ.AutoSize = true;
       this.labelInputTZ.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelInputTZ.Location = new System.Drawing.Point(483, 91);
+      this.labelInputTZ.Location = new System.Drawing.Point(802, 175);
+      this.labelInputTZ.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
       this.labelInputTZ.Name = "labelInputTZ";
-      this.labelInputTZ.Size = new System.Drawing.Size(17, 13);
+      this.labelInputTZ.Size = new System.Drawing.Size(26, 25);
       this.labelInputTZ.TabIndex = 12;
       this.labelInputTZ.Text = "\"\"";
       // 
@@ -546,10 +557,10 @@ namespace CsvTools
       // 
       this.labelOutPutTZ.AutoSize = true;
       this.labelOutPutTZ.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelOutPutTZ.Location = new System.Drawing.Point(483, 106);
-      this.labelOutPutTZ.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.labelOutPutTZ.Location = new System.Drawing.Point(802, 204);
+      this.labelOutPutTZ.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.labelOutPutTZ.Name = "labelOutPutTZ";
-      this.labelOutPutTZ.Size = new System.Drawing.Size(17, 13);
+      this.labelOutPutTZ.Size = new System.Drawing.Size(26, 25);
       this.labelOutPutTZ.TabIndex = 13;
       this.labelOutPutTZ.Text = "\"\"";
       // 
@@ -559,10 +570,10 @@ namespace CsvTools
       this.comboBoxTPFormat.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "TimePartFormat", true));
       this.comboBoxTPFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.comboBoxTPFormat.FormattingEnabled = true;
-      this.comboBoxTPFormat.Location = new System.Drawing.Point(329, 51);
-      this.comboBoxTPFormat.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.comboBoxTPFormat.Location = new System.Drawing.Point(610, 81);
+      this.comboBoxTPFormat.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.comboBoxTPFormat.Name = "comboBoxTPFormat";
-      this.comboBoxTPFormat.Size = new System.Drawing.Size(134, 21);
+      this.comboBoxTPFormat.Size = new System.Drawing.Size(149, 32);
       this.comboBoxTPFormat.TabIndex = 2;
       this.toolTip.SetToolTip(this.comboBoxTPFormat, "Format of the time column");
       this.comboBoxTPFormat.SelectedIndexChanged += new System.EventHandler(this.DateFormatChanged);
@@ -572,38 +583,64 @@ namespace CsvTools
       // 
       label7.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label7.AutoSize = true;
-      label7.Location = new System.Drawing.Point(25, 20);
-      label7.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      label7.Location = new System.Drawing.Point(-439, 31);
+      label7.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       label7.Name = "label7";
-      label7.Size = new System.Drawing.Size(84, 13);
+      label7.Size = new System.Drawing.Size(152, 25);
       label7.TabIndex = 1;
       label7.Text = "Pattern for write:";
+      // 
+      // label9
+      // 
+      label9.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+      label9.AutoSize = true;
+      label9.Location = new System.Drawing.Point(50, 38);
+      label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      label9.Name = "label9";
+      label9.Size = new System.Drawing.Size(148, 25);
+      label9.TabIndex = 0;
+      label9.Text = "Search Pattern:";
+      label9.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+      // 
+      // label10
+      // 
+      label10.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+      label10.AutoSize = true;
+      label10.Location = new System.Drawing.Point(496, 39);
+      label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+      label10.Name = "label10";
+      label10.Size = new System.Drawing.Size(89, 25);
+      label10.TabIndex = 8;
+      label10.Text = "Replace:";
+      label10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
       // 
       // textBoxTrue
       // 
       this.textBoxTrue.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "True", true));
-      this.textBoxTrue.Location = new System.Drawing.Point(113, 13);
-      this.textBoxTrue.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxTrue.Location = new System.Drawing.Point(207, 24);
+      this.textBoxTrue.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.textBoxTrue.Name = "textBoxTrue";
-      this.textBoxTrue.Size = new System.Drawing.Size(45, 20);
+      this.textBoxTrue.Size = new System.Drawing.Size(79, 29);
       this.textBoxTrue.TabIndex = 0;
       // 
       // textBoxFalse
       // 
       this.textBoxFalse.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "False", true));
-      this.textBoxFalse.Location = new System.Drawing.Point(113, 34);
-      this.textBoxFalse.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxFalse.Location = new System.Drawing.Point(207, 63);
+      this.textBoxFalse.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.textBoxFalse.Name = "textBoxFalse";
-      this.textBoxFalse.Size = new System.Drawing.Size(45, 20);
+      this.textBoxFalse.Size = new System.Drawing.Size(79, 29);
       this.textBoxFalse.TabIndex = 1;
       // 
       // textBoxGroupSeparator
       // 
       this.textBoxGroupSeparator.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "GroupSeparator", true));
-      this.textBoxGroupSeparator.Location = new System.Drawing.Point(116, 40);
-      this.textBoxGroupSeparator.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxGroupSeparator.Location = new System.Drawing.Point(213, 74);
+      this.textBoxGroupSeparator.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.textBoxGroupSeparator.Name = "textBoxGroupSeparator";
-      this.textBoxGroupSeparator.Size = new System.Drawing.Size(28, 20);
+      this.textBoxGroupSeparator.Size = new System.Drawing.Size(48, 29);
       this.textBoxGroupSeparator.TabIndex = 1;
       this.textBoxGroupSeparator.Text = ",";
       this.textBoxGroupSeparator.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -612,10 +649,10 @@ namespace CsvTools
       // textBoxDecimalSeparator
       // 
       this.textBoxDecimalSeparator.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "DecimalSeparator", true));
-      this.textBoxDecimalSeparator.Location = new System.Drawing.Point(116, 61);
-      this.textBoxDecimalSeparator.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxDecimalSeparator.Location = new System.Drawing.Point(213, 113);
+      this.textBoxDecimalSeparator.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.textBoxDecimalSeparator.Name = "textBoxDecimalSeparator";
-      this.textBoxDecimalSeparator.Size = new System.Drawing.Size(28, 20);
+      this.textBoxDecimalSeparator.Size = new System.Drawing.Size(48, 29);
       this.textBoxDecimalSeparator.TabIndex = 2;
       this.textBoxDecimalSeparator.Text = ".";
       this.textBoxDecimalSeparator.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -625,9 +662,10 @@ namespace CsvTools
       // label16
       // 
       this.label16.AutoSize = true;
-      this.label16.Location = new System.Drawing.Point(27, 20);
+      this.label16.Location = new System.Drawing.Point(50, 37);
+      this.label16.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
       this.label16.Name = "label16";
-      this.label16.Size = new System.Drawing.Size(82, 13);
+      this.label16.Size = new System.Drawing.Size(153, 25);
       this.label16.TabIndex = 0;
       this.label16.Text = "Number Format:";
       // 
@@ -638,10 +676,10 @@ namespace CsvTools
       this.comboBoxDataType.Dock = System.Windows.Forms.DockStyle.Top;
       this.comboBoxDataType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.comboBoxDataType.FormattingEnabled = true;
-      this.comboBoxDataType.Location = new System.Drawing.Point(342, 2);
-      this.comboBoxDataType.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.comboBoxDataType.Location = new System.Drawing.Point(563, 4);
+      this.comboBoxDataType.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.comboBoxDataType.Name = "comboBoxDataType";
-      this.comboBoxDataType.Size = new System.Drawing.Size(209, 21);
+      this.comboBoxDataType.Size = new System.Drawing.Size(365, 32);
       this.comboBoxDataType.TabIndex = 2;
       this.comboBoxDataType.ValueMember = "ID";
       this.comboBoxDataType.SelectedIndexChanged += new System.EventHandler(this.ComboBoxDataType_SelectedIndexChanged);
@@ -650,10 +688,10 @@ namespace CsvTools
       // 
       this.buttonCancel.AutoSize = true;
       this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.buttonCancel.Location = new System.Drawing.Point(447, 557);
-      this.buttonCancel.Margin = new System.Windows.Forms.Padding(2);
+      this.buttonCancel.Location = new System.Drawing.Point(738, 1252);
+      this.buttonCancel.Margin = new System.Windows.Forms.Padding(4);
       this.buttonCancel.Name = "buttonCancel";
-      this.buttonCancel.Size = new System.Drawing.Size(104, 23);
+      this.buttonCancel.Size = new System.Drawing.Size(191, 35);
       this.buttonCancel.TabIndex = 4;
       this.buttonCancel.Text = "&Cancel";
       this.buttonCancel.UseVisualStyleBackColor = true;
@@ -663,9 +701,10 @@ namespace CsvTools
       // 
       this.labelNumber.AutoSize = true;
       this.labelNumber.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelNumber.Location = new System.Drawing.Point(310, 43);
+      this.labelNumber.Location = new System.Drawing.Point(568, 79);
+      this.labelNumber.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
       this.labelNumber.Name = "labelNumber";
-      this.labelNumber.Size = new System.Drawing.Size(47, 13);
+      this.labelNumber.Size = new System.Drawing.Size(80, 25);
       this.labelNumber.TabIndex = 6;
       this.labelNumber.Text = "Input: \"\"";
       // 
@@ -673,9 +712,10 @@ namespace CsvTools
       // 
       this.labelNumberOutput.AutoSize = true;
       this.labelNumberOutput.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelNumberOutput.Location = new System.Drawing.Point(302, 63);
+      this.labelNumberOutput.Location = new System.Drawing.Point(554, 116);
+      this.labelNumberOutput.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
       this.labelNumberOutput.Name = "labelNumberOutput";
-      this.labelNumberOutput.Size = new System.Drawing.Size(55, 13);
+      this.labelNumberOutput.Size = new System.Drawing.Size(96, 25);
       this.labelNumberOutput.TabIndex = 7;
       this.labelNumberOutput.Text = "Output: \"\"";
       // 
@@ -683,10 +723,10 @@ namespace CsvTools
       // 
       this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.label1.AutoSize = true;
-      this.label1.Location = new System.Drawing.Point(3, 6);
-      this.label1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.label1.Location = new System.Drawing.Point(6, 7);
+      this.label1.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.label1.Name = "label1";
-      this.label1.Size = new System.Drawing.Size(76, 13);
+      this.label1.Size = new System.Drawing.Size(143, 25);
       this.label1.TabIndex = 0;
       this.label1.Text = "Column Name:";
       // 
@@ -696,11 +736,11 @@ namespace CsvTools
       this.tableLayoutPanelForm.SetColumnSpan(this.groupBoxDate, 5);
       this.groupBoxDate.Controls.Add(tableLayoutPanel2);
       this.groupBoxDate.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxDate.Location = new System.Drawing.Point(3, 51);
-      this.groupBoxDate.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.groupBoxDate.Location = new System.Drawing.Point(6, 89);
+      this.groupBoxDate.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.groupBoxDate.Name = "groupBoxDate";
-      this.groupBoxDate.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.groupBoxDate.Size = new System.Drawing.Size(548, 186);
+      this.groupBoxDate.Padding = new System.Windows.Forms.Padding(6, 4, 6, 4);
+      this.groupBoxDate.Size = new System.Drawing.Size(922, 498);
       this.groupBoxDate.TabIndex = 5;
       this.groupBoxDate.TabStop = false;
       this.groupBoxDate.Text = "Date";
@@ -720,11 +760,11 @@ namespace CsvTools
       this.groupBoxNumber.Controls.Add(this.textBoxGroupSeparator);
       this.groupBoxNumber.Controls.Add(this.labelNumber);
       this.groupBoxNumber.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxNumber.Location = new System.Drawing.Point(3, 241);
-      this.groupBoxNumber.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.groupBoxNumber.Location = new System.Drawing.Point(6, 595);
+      this.groupBoxNumber.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.groupBoxNumber.Name = "groupBoxNumber";
-      this.groupBoxNumber.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.groupBoxNumber.Size = new System.Drawing.Size(548, 98);
+      this.groupBoxNumber.Padding = new System.Windows.Forms.Padding(6, 4, 6, 4);
+      this.groupBoxNumber.Size = new System.Drawing.Size(922, 172);
       this.groupBoxNumber.TabIndex = 6;
       this.groupBoxNumber.TabStop = false;
       this.groupBoxNumber.Text = "Number";
@@ -732,9 +772,10 @@ namespace CsvTools
       // linkLabel2
       // 
       this.linkLabel2.AutoSize = true;
-      this.linkLabel2.Location = new System.Drawing.Point(176, 63);
+      this.linkLabel2.Location = new System.Drawing.Point(323, 116);
+      this.linkLabel2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
       this.linkLabel2.Name = "linkLabel2";
-      this.linkLabel2.Size = new System.Drawing.Size(101, 13);
+      this.linkLabel2.Size = new System.Drawing.Size(184, 25);
       this.linkLabel2.TabIndex = 3;
       this.linkLabel2.TabStop = true;
       this.linkLabel2.Text = "Region && Language";
@@ -748,10 +789,10 @@ namespace CsvTools
             "0.#####",
             "0.00",
             "#,##0.##"});
-      this.comboBoxNumberFormat.Location = new System.Drawing.Point(116, 18);
-      this.comboBoxNumberFormat.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.comboBoxNumberFormat.Location = new System.Drawing.Point(213, 33);
+      this.comboBoxNumberFormat.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.comboBoxNumberFormat.Name = "comboBoxNumberFormat";
-      this.comboBoxNumberFormat.Size = new System.Drawing.Size(162, 21);
+      this.comboBoxNumberFormat.Size = new System.Drawing.Size(294, 32);
       this.comboBoxNumberFormat.TabIndex = 0;
       this.comboBoxNumberFormat.TextChanged += new System.EventHandler(this.NumberFormatChanged);
       // 
@@ -759,9 +800,10 @@ namespace CsvTools
       // 
       this.label2.AutoSize = true;
       this.label2.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.label2.Location = new System.Drawing.Point(308, 20);
+      this.label2.Location = new System.Drawing.Point(565, 37);
+      this.label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
       this.label2.Name = "label2";
-      this.label2.Size = new System.Drawing.Size(95, 13);
+      this.label2.Size = new System.Drawing.Size(170, 25);
       this.label2.TabIndex = 2;
       this.label2.Text = "Value: \"1234.567\"";
       // 
@@ -774,11 +816,11 @@ namespace CsvTools
       this.groupBoxBoolean.Controls.Add(this.textBoxTrue);
       this.groupBoxBoolean.Controls.Add(this.textBoxFalse);
       this.groupBoxBoolean.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxBoolean.Location = new System.Drawing.Point(3, 343);
-      this.groupBoxBoolean.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.groupBoxBoolean.Location = new System.Drawing.Point(6, 775);
+      this.groupBoxBoolean.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.groupBoxBoolean.Name = "groupBoxBoolean";
-      this.groupBoxBoolean.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.groupBoxBoolean.Size = new System.Drawing.Size(548, 71);
+      this.groupBoxBoolean.Padding = new System.Windows.Forms.Padding(6, 4, 6, 4);
+      this.groupBoxBoolean.Size = new System.Drawing.Size(922, 122);
       this.groupBoxBoolean.TabIndex = 7;
       this.groupBoxBoolean.TabStop = false;
       this.groupBoxBoolean.Text = "Boolean";
@@ -789,10 +831,10 @@ namespace CsvTools
       this.comboBoxColumnName.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "Name", true));
       this.comboBoxColumnName.Dock = System.Windows.Forms.DockStyle.Top;
       this.comboBoxColumnName.FormattingEnabled = true;
-      this.comboBoxColumnName.Location = new System.Drawing.Point(85, 2);
-      this.comboBoxColumnName.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.comboBoxColumnName.Location = new System.Drawing.Point(161, 4);
+      this.comboBoxColumnName.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.comboBoxColumnName.Name = "comboBoxColumnName";
-      this.comboBoxColumnName.Size = new System.Drawing.Size(251, 21);
+      this.comboBoxColumnName.Size = new System.Drawing.Size(390, 32);
       this.comboBoxColumnName.TabIndex = 1;
       this.comboBoxColumnName.SelectedIndexChanged += new System.EventHandler(this.ComboBoxColumnName_SelectedIndexChanged);
       this.comboBoxColumnName.TextUpdate += new System.EventHandler(this.ComboBoxColumnName_TextUpdate);
@@ -802,10 +844,10 @@ namespace CsvTools
       this.buttonGuess.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonGuess.AutoSize = true;
       this.buttonGuess.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuess.Location = new System.Drawing.Point(233, 557);
-      this.buttonGuess.Margin = new System.Windows.Forms.Padding(2);
+      this.buttonGuess.Location = new System.Drawing.Point(362, 1252);
+      this.buttonGuess.Margin = new System.Windows.Forms.Padding(4);
       this.buttonGuess.Name = "buttonGuess";
-      this.buttonGuess.Size = new System.Drawing.Size(104, 23);
+      this.buttonGuess.Size = new System.Drawing.Size(191, 35);
       this.buttonGuess.TabIndex = 2;
       this.buttonGuess.Text = "&Guess";
       this.toolTip.SetToolTip(this.buttonGuess, "Read the content of the source and try and find a matching format\r\nNote: Any colu" +
@@ -816,10 +858,10 @@ namespace CsvTools
       // checkBoxIgnore
       // 
       this.checkBoxIgnore.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.columnBindingSource, "Ignore", true));
-      this.checkBoxIgnore.Location = new System.Drawing.Point(221, 27);
-      this.checkBoxIgnore.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkBoxIgnore.Location = new System.Drawing.Point(360, 44);
+      this.checkBoxIgnore.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.checkBoxIgnore.Name = "checkBoxIgnore";
-      this.checkBoxIgnore.Size = new System.Drawing.Size(82, 20);
+      this.checkBoxIgnore.Size = new System.Drawing.Size(127, 37);
       this.checkBoxIgnore.TabIndex = 3;
       this.checkBoxIgnore.Text = "&Ignore";
       this.checkBoxIgnore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -839,11 +881,11 @@ namespace CsvTools
       this.groupBoxSplit.Controls.Add(this.textBoxSplit);
       this.groupBoxSplit.Controls.Add(this.labelResultPart);
       this.groupBoxSplit.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxSplit.Location = new System.Drawing.Point(3, 418);
-      this.groupBoxSplit.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.groupBoxSplit.Location = new System.Drawing.Point(6, 905);
+      this.groupBoxSplit.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.groupBoxSplit.Name = "groupBoxSplit";
-      this.groupBoxSplit.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.groupBoxSplit.Size = new System.Drawing.Size(548, 77);
+      this.groupBoxSplit.Padding = new System.Windows.Forms.Padding(6, 4, 6, 4);
+      this.groupBoxSplit.Size = new System.Drawing.Size(922, 139);
       this.groupBoxSplit.TabIndex = 8;
       this.groupBoxSplit.TabStop = false;
       this.groupBoxSplit.Text = "Text Part";
@@ -851,7 +893,8 @@ namespace CsvTools
       // numericUpDownPart
       // 
       this.numericUpDownPart.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.bindingSourceValueFormat, "Part", true));
-      this.numericUpDownPart.Location = new System.Drawing.Point(113, 39);
+      this.numericUpDownPart.Location = new System.Drawing.Point(207, 72);
+      this.numericUpDownPart.Margin = new System.Windows.Forms.Padding(6);
       this.numericUpDownPart.Maximum = new decimal(new int[] {
             9,
             0,
@@ -863,7 +906,7 @@ namespace CsvTools
             0,
             0});
       this.numericUpDownPart.Name = "numericUpDownPart";
-      this.numericUpDownPart.Size = new System.Drawing.Size(41, 20);
+      this.numericUpDownPart.Size = new System.Drawing.Size(75, 29);
       this.numericUpDownPart.TabIndex = 7;
       this.numericUpDownPart.Value = new decimal(new int[] {
             1,
@@ -876,19 +919,20 @@ namespace CsvTools
       // 
       this.labelSamplePart.AutoSize = true;
       this.labelSamplePart.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelSamplePart.Location = new System.Drawing.Point(306, 19);
+      this.labelSamplePart.Location = new System.Drawing.Point(561, 35);
+      this.labelSamplePart.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
       this.labelSamplePart.Name = "labelSamplePart";
-      this.labelSamplePart.Size = new System.Drawing.Size(47, 13);
+      this.labelSamplePart.Size = new System.Drawing.Size(80, 25);
       this.labelSamplePart.TabIndex = 2;
       this.labelSamplePart.Text = "Input: \"\"";
       // 
       // checkBoxPartToEnd
       // 
       this.checkBoxPartToEnd.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceValueFormat, "PartToEnd", true));
-      this.checkBoxPartToEnd.Location = new System.Drawing.Point(160, 38);
-      this.checkBoxPartToEnd.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.checkBoxPartToEnd.Location = new System.Drawing.Point(293, 70);
+      this.checkBoxPartToEnd.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.checkBoxPartToEnd.Name = "checkBoxPartToEnd";
-      this.checkBoxPartToEnd.Size = new System.Drawing.Size(72, 21);
+      this.checkBoxPartToEnd.Size = new System.Drawing.Size(132, 39);
       this.checkBoxPartToEnd.TabIndex = 2;
       this.checkBoxPartToEnd.Text = "To End";
       this.checkBoxPartToEnd.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -903,11 +947,11 @@ namespace CsvTools
             ";",
             "|"});
       this.textBoxSplit.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "PartSplitter", true));
-      this.textBoxSplit.Location = new System.Drawing.Point(113, 15);
-      this.textBoxSplit.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxSplit.Location = new System.Drawing.Point(207, 28);
+      this.textBoxSplit.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.textBoxSplit.MaxLength = 1;
       this.textBoxSplit.Name = "textBoxSplit";
-      this.textBoxSplit.Size = new System.Drawing.Size(25, 20);
+      this.textBoxSplit.Size = new System.Drawing.Size(43, 29);
       this.textBoxSplit.TabIndex = 0;
       this.textBoxSplit.Text = ":";
       this.textBoxSplit.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -918,9 +962,10 @@ namespace CsvTools
       // 
       this.labelResultPart.AutoSize = true;
       this.labelResultPart.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelResultPart.Location = new System.Drawing.Point(297, 41);
+      this.labelResultPart.Location = new System.Drawing.Point(545, 76);
+      this.labelResultPart.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
       this.labelResultPart.Name = "labelResultPart";
-      this.labelResultPart.Size = new System.Drawing.Size(55, 13);
+      this.labelResultPart.Size = new System.Drawing.Size(96, 25);
       this.labelResultPart.TabIndex = 6;
       this.labelResultPart.Text = "Output: \"\"";
       // 
@@ -931,7 +976,7 @@ namespace CsvTools
       this.textBoxColumnName.Location = new System.Drawing.Point(85, 3);
       this.textBoxColumnName.Name = "textBoxColumnName";
       this.textBoxColumnName.ReadOnly = true;
-      this.textBoxColumnName.Size = new System.Drawing.Size(160, 20);
+      this.textBoxColumnName.Size = new System.Drawing.Size(160, 29);
       this.textBoxColumnName.TabIndex = 0;
       this.textBoxColumnName.WordWrap = false;
       // 
@@ -939,20 +984,20 @@ namespace CsvTools
       // 
       this.labelDisplayNullAs.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.labelDisplayNullAs.AutoSize = true;
-      this.labelDisplayNullAs.Location = new System.Drawing.Point(27, 30);
-      this.labelDisplayNullAs.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.labelDisplayNullAs.Location = new System.Drawing.Point(55, 50);
+      this.labelDisplayNullAs.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.labelDisplayNullAs.Name = "labelDisplayNullAs";
-      this.labelDisplayNullAs.Size = new System.Drawing.Size(52, 13);
+      this.labelDisplayNullAs.Size = new System.Drawing.Size(94, 25);
       this.labelDisplayNullAs.TabIndex = 10;
       this.labelDisplayNullAs.Text = "NULL as:";
       // 
       // textBoxDisplayNullAs
       // 
       this.textBoxDisplayNullAs.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "DisplayNullAs", true));
-      this.textBoxDisplayNullAs.Location = new System.Drawing.Point(85, 27);
-      this.textBoxDisplayNullAs.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxDisplayNullAs.Location = new System.Drawing.Point(161, 44);
+      this.textBoxDisplayNullAs.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.textBoxDisplayNullAs.Name = "textBoxDisplayNullAs";
-      this.textBoxDisplayNullAs.Size = new System.Drawing.Size(67, 20);
+      this.textBoxDisplayNullAs.Size = new System.Drawing.Size(120, 29);
       this.textBoxDisplayNullAs.TabIndex = 9;
       this.toolTip.SetToolTip(this.textBoxDisplayNullAs, "Wrting data empty field (NULL) can be an empty column or represented by this text" +
         " \r\ne.G. <NULL>");
@@ -966,10 +1011,10 @@ namespace CsvTools
       this.buttonDisplayValues.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonDisplayValues.AutoSize = true;
       this.buttonDisplayValues.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonDisplayValues.Location = new System.Drawing.Point(84, 557);
-      this.buttonDisplayValues.Margin = new System.Windows.Forms.Padding(2);
+      this.buttonDisplayValues.Location = new System.Drawing.Point(159, 1252);
+      this.buttonDisplayValues.Margin = new System.Windows.Forms.Padding(4);
       this.buttonDisplayValues.Name = "buttonDisplayValues";
-      this.buttonDisplayValues.Size = new System.Drawing.Size(132, 23);
+      this.buttonDisplayValues.Size = new System.Drawing.Size(191, 35);
       this.buttonDisplayValues.TabIndex = 1;
       this.buttonDisplayValues.Text = "Display &Values";
       this.toolTip.SetToolTip(this.buttonDisplayValues, "Read the content of the source and display the read values.\r\nNote: Any column tha" +
@@ -998,15 +1043,16 @@ namespace CsvTools
       this.tableLayoutPanelForm.Controls.Add(this.comboBoxDataType, 3, 0);
       this.tableLayoutPanelForm.Controls.Add(this.checkBoxIgnore, 2, 1);
       this.tableLayoutPanelForm.Controls.Add(this.textBoxDisplayNullAs, 1, 1);
-      this.tableLayoutPanelForm.Controls.Add(this.buttonDisplayValues, 1, 7);
-      this.tableLayoutPanelForm.Controls.Add(this.buttonGuess, 2, 7);
-      this.tableLayoutPanelForm.Controls.Add(this.buttonOK, 3, 7);
-      this.tableLayoutPanelForm.Controls.Add(this.buttonCancel, 4, 7);
-      this.tableLayoutPanelForm.Dock = System.Windows.Forms.DockStyle.Top;
+      this.tableLayoutPanelForm.Controls.Add(this.buttonDisplayValues, 1, 8);
+      this.tableLayoutPanelForm.Controls.Add(this.buttonGuess, 2, 8);
+      this.tableLayoutPanelForm.Controls.Add(this.buttonOK, 3, 8);
+      this.tableLayoutPanelForm.Controls.Add(this.buttonCancel, 4, 8);
+      this.tableLayoutPanelForm.Controls.Add(this.groupBoxRegExReplace, 0, 7);
+      this.tableLayoutPanelForm.Dock = System.Windows.Forms.DockStyle.Fill;
       this.tableLayoutPanelForm.Location = new System.Drawing.Point(0, 0);
-      this.tableLayoutPanelForm.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.tableLayoutPanelForm.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.tableLayoutPanelForm.Name = "tableLayoutPanelForm";
-      this.tableLayoutPanelForm.RowCount = 8;
+      this.tableLayoutPanelForm.RowCount = 9;
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -1015,7 +1061,8 @@ namespace CsvTools
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelForm.Size = new System.Drawing.Size(554, 582);
+      this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.tableLayoutPanelForm.Size = new System.Drawing.Size(934, 1295);
       this.tableLayoutPanelForm.TabIndex = 5;
       // 
       // groupBoxBinary
@@ -1025,11 +1072,11 @@ namespace CsvTools
       this.groupBoxBinary.Controls.Add(this.textBoxPattern);
       this.groupBoxBinary.Controls.Add(label7);
       this.groupBoxBinary.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxBinary.Location = new System.Drawing.Point(3, 499);
-      this.groupBoxBinary.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.groupBoxBinary.Location = new System.Drawing.Point(6, 1052);
+      this.groupBoxBinary.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.groupBoxBinary.Name = "groupBoxBinary";
-      this.groupBoxBinary.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-      this.groupBoxBinary.Size = new System.Drawing.Size(548, 54);
+      this.groupBoxBinary.Padding = new System.Windows.Forms.Padding(6, 4, 6, 4);
+      this.groupBoxBinary.Size = new System.Drawing.Size(922, 90);
       this.groupBoxBinary.TabIndex = 11;
       this.groupBoxBinary.TabStop = false;
       this.groupBoxBinary.Text = "Binary Data";
@@ -1037,10 +1084,10 @@ namespace CsvTools
       // textBoxPattern
       // 
       this.textBoxPattern.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "DateFormat", true));
-      this.textBoxPattern.Location = new System.Drawing.Point(113, 17);
-      this.textBoxPattern.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.textBoxPattern.Location = new System.Drawing.Point(207, 31);
+      this.textBoxPattern.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.textBoxPattern.Name = "textBoxPattern";
-      this.textBoxPattern.Size = new System.Drawing.Size(175, 20);
+      this.textBoxPattern.Size = new System.Drawing.Size(318, 29);
       this.textBoxPattern.TabIndex = 2;
       // 
       // buttonOK
@@ -1048,29 +1095,66 @@ namespace CsvTools
       this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonOK.AutoSize = true;
       this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonOK.Location = new System.Drawing.Point(357, 557);
-      this.buttonOK.Margin = new System.Windows.Forms.Padding(2);
+      this.buttonOK.Location = new System.Drawing.Point(561, 1252);
+      this.buttonOK.Margin = new System.Windows.Forms.Padding(4);
       this.buttonOK.Name = "buttonOK";
-      this.buttonOK.Size = new System.Drawing.Size(86, 23);
+      this.buttonOK.Size = new System.Drawing.Size(169, 35);
       this.buttonOK.TabIndex = 3;
       this.buttonOK.Text = "&Ok";
       this.buttonOK.UseVisualStyleBackColor = true;
       this.buttonOK.Click += new System.EventHandler(this.ButtonOkClick);
       // 
+      // groupBoxRegExReplace
+      // 
+      this.groupBoxRegExReplace.AutoSize = true;
+      this.tableLayoutPanelForm.SetColumnSpan(this.groupBoxRegExReplace, 5);
+      this.groupBoxRegExReplace.Controls.Add(this.textBoxRegexReplacement);
+      this.groupBoxRegExReplace.Controls.Add(label10);
+      this.groupBoxRegExReplace.Controls.Add(this.textBoxRegexSearchPattern);
+      this.groupBoxRegExReplace.Controls.Add(label9);
+      this.groupBoxRegExReplace.Dock = System.Windows.Forms.DockStyle.Top;
+      this.groupBoxRegExReplace.Location = new System.Drawing.Point(6, 1150);
+      this.groupBoxRegExReplace.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
+      this.groupBoxRegExReplace.Name = "groupBoxRegExReplace";
+      this.groupBoxRegExReplace.Padding = new System.Windows.Forms.Padding(6, 4, 6, 4);
+      this.groupBoxRegExReplace.Size = new System.Drawing.Size(922, 94);
+      this.groupBoxRegExReplace.TabIndex = 12;
+      this.groupBoxRegExReplace.TabStop = false;
+      this.groupBoxRegExReplace.Text = "Text Replace";
+      // 
+      // textBoxRegexReplacement
+      // 
+      this.textBoxRegexReplacement.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "RegexReplacement", true));
+      this.textBoxRegexReplacement.Location = new System.Drawing.Point(595, 35);
+      this.textBoxRegexReplacement.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
+      this.textBoxRegexReplacement.Name = "textBoxRegexReplacement";
+      this.textBoxRegexReplacement.Size = new System.Drawing.Size(234, 29);
+      this.textBoxRegexReplacement.TabIndex = 9;
+      // 
+      // textBoxRegexSearchPattern
+      // 
+      this.textBoxRegexSearchPattern.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "RegexSearchPattern", true));
+      this.textBoxRegexSearchPattern.Location = new System.Drawing.Point(207, 35);
+      this.textBoxRegexSearchPattern.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
+      this.textBoxRegexSearchPattern.Name = "textBoxRegexSearchPattern";
+      this.textBoxRegexSearchPattern.Size = new System.Drawing.Size(234, 29);
+      this.textBoxRegexSearchPattern.TabIndex = 7;
+      this.toolTip.SetToolTip(this.textBoxRegexSearchPattern, "Regex Pattern to look for");
+      this.textBoxRegexSearchPattern.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxRegexSearchPattern_Validating);
+      // 
       // FormColumnUI
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.buttonCancel;
-      this.ClientSize = new System.Drawing.Size(554, 570);
+      this.ClientSize = new System.Drawing.Size(934, 1295);
       this.Controls.Add(this.tableLayoutPanelForm);
       this.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "Name", true));
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-      this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+      this.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.MaximizeBox = false;
-      this.MaximumSize = new System.Drawing.Size(570, 786);
       this.MinimizeBox = false;
-      this.MinimumSize = new System.Drawing.Size(570, 50);
+      this.MinimumSize = new System.Drawing.Size(400, 400);
       this.Name = "FormColumnUI";
       this.ShowIcon = false;
       this.ShowInTaskbar = false;
@@ -1095,6 +1179,8 @@ namespace CsvTools
       this.tableLayoutPanelForm.PerformLayout();
       this.groupBoxBinary.ResumeLayout(false);
       this.groupBoxBinary.PerformLayout();
+      this.groupBoxRegExReplace.ResumeLayout(false);
+      this.groupBoxRegExReplace.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -1156,5 +1242,8 @@ namespace CsvTools
     private System.Windows.Forms.NumericUpDown numericUpDownPart;
     private System.Windows.Forms.GroupBox groupBoxBinary;
     private System.Windows.Forms.TextBox textBoxPattern;
+    private System.Windows.Forms.GroupBox groupBoxRegExReplace;
+    private System.Windows.Forms.TextBox textBoxRegexReplacement;
+    private System.Windows.Forms.TextBox textBoxRegexSearchPattern;
   }
 }

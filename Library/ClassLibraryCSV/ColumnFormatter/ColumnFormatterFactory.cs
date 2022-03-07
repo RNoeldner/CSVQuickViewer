@@ -24,6 +24,7 @@ namespace CsvTools
         DataType.TextToHtml => new TextToHtmlFormatter(),
         DataType.TextToHtmlFull => new TextToHtmlFullFormatter(),
         DataType.TextUnescape => new TextUnescapeFormatter(),
+        DataType.RegexReplace => new RegExReplace(valueFormat.RegexSearchPattern, valueFormat.RegexReplacement),
 #if !QUICK
         DataType.Markdown2Html => new MarkupToHtmlFormatter(),
 #endif
