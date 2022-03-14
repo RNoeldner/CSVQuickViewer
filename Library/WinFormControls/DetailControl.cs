@@ -236,7 +236,6 @@ namespace CsvTools
       m_ToolStripButtonMoveLastItem.Text = "Move last";
       // ToolStripButtonNext
       ToolStripButtonNext.DisplayStyle = ToolStripItemDisplayStyle.Image;
-      ToolStripButtonNext.Enabled = false;
       ToolStripButtonNext.Image = resources.GetObject("ToolStripButtonNext.Image") as Image;
       ToolStripButtonNext.Size = new Size(29, 24);
       ToolStripButtonNext.Text = "Load More...";
@@ -291,7 +290,7 @@ namespace CsvTools
         Size = new Size(996, 320),
         TabIndex = 2
       };
-      
+
       FilteredDataGridView.DataViewChanged += DataViewChanged;
       FilteredDataGridView.CellFormatting += FilteredDataGridView_CellFormatting;
       FilteredDataGridView.KeyDown += DetailControl_KeyDown;
@@ -766,7 +765,7 @@ namespace CsvTools
         {
           ParentForm.ShowError(ex);
         }
-      }, ParentForm);      
+      }, ParentForm);
     }
 
     private void OnSearchClear(object? sender, EventArgs e)
@@ -1002,6 +1001,19 @@ namespace CsvTools
         }
       });
 
+    public bool DataMissing
+
+    {
+      set
+      {
+        this.SafeInvoke(() =>
+        {
+          ToolStripButtonNext.Visible = value && m_ShowButtons;
+          FilteredDataGridView.toolStripMenuItemFilterAdd.Enabled = !value;
+        });
+      }
+    }
+
     /// <summary>
     ///   Sets the data source.
     /// </summary>
@@ -1048,7 +1060,7 @@ namespace CsvTools
         FilteredDataGridView.DataSource = m_BindingSource;
 
         FilterColumns(!type.HasFlag(FilterType.ShowIssueFree));
-       
+
         AutoResizeColumns(newDt);
         FilteredDataGridView.ColumnVisibilityChanged();
         FilteredDataGridView.SetRowHeight();
@@ -1057,10 +1069,10 @@ namespace CsvTools
           Sort(oldSortedColumn, oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
       });
 
-      
+
       this.SafeInvoke(() =>
       {
-        m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;        
+        m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;
       });
 
       m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
@@ -1111,7 +1123,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var iStream = FunctionalDI.OpenStream(new SourceAccess(writeFile));
+        using var iStream = FunctionalDI.OpenStream(new SourceAccess(writeFile));
         using var sr = new ImprovedTextReader(iStream, writeFile.CodePageId);
         sr.ToBeginning();
         for (var i = 0; i < writeFile.SkipRows; i++)
@@ -1134,13 +1146,13 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var dt = new DataTableWrapper(
-            FilteredDataGridView.DataView.ToTable(false,
-              // Restrict to shown data
-              FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-                                  .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))
-                                  .OrderBy(col => col.DisplayIndex)
-                                  .Select(col => col.DataPropertyName).ToArray()));
+        using var dt = new DataTableWrapper(
+          FilteredDataGridView.DataView.ToTable(false,
+            // Restrict to shown data
+            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+                                .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))
+                                .OrderBy(col => col.DisplayIndex)
+                                .Select(col => col.DataPropertyName).ToArray()));
         // can not use filteredDataGridView.Columns directly
         await writer.WriteAsync(dt, processDisplay.CancellationToken);
       }
@@ -1228,9 +1240,8 @@ namespace CsvTools
             m_ToolStripLabelCount.ForeColor = SystemColors.ControlText;
             m_ToolStripLabelCount.ToolTipText = "Total number of records";
           }
-
           m_ToolStripLabelCount.Text = m_DataTable.Rows.Count.ToString();
-          ToolStripButtonNext.Visible = !eof && m_ShowButtons;
+          DataMissing = !eof;
         }
       }, ParentForm);
     }
