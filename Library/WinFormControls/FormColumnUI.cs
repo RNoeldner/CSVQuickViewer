@@ -730,7 +730,7 @@ namespace CsvTools
 
         groupBoxBoolean.Visible = selType == DataType.Boolean;
         groupBoxSplit.Visible = selType == DataType.TextPart;
-        groupBoxRegExReplace.Visible = selType == DataType.RegexReplace;
+        groupBoxRegExReplace.Visible = selType == DataType.TextReplace;
 
         groupBoxBinary.Visible = selType == DataType.Binary;
         if (groupBoxBinary.Visible && m_ColumnEdit.DateFormat == ValueFormatExtension.cDateFormatDefault)
