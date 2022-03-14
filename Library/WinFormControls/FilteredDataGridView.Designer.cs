@@ -156,8 +156,8 @@ namespace CsvTools
 			// 
 			this.toolStripMenuItemFilterAdd.DropDown = this.contextMenuStripFilter;
 			this.toolStripMenuItemFilterAdd.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemFilterAdd.Image")));
-			this.toolStripMenuItemFilterAdd.Name = "toolStripMenuItemFilterAdd";
-			this.toolStripMenuItemFilterAdd.Size = new System.Drawing.Size(268, 30);
+			this.toolStripMenuItemFilterAdd.Name = "toolStripMenuItemFilterAdd";      
+      this.toolStripMenuItemFilterAdd.Size = new System.Drawing.Size(268, 30);
 			this.toolStripMenuItemFilterAdd.Text = "Filter";
 			// 
 			// toolStripMenuItemFilterThisValue
@@ -419,7 +419,7 @@ namespace CsvTools
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCopy;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemCopyError;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilled;
-    private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilterAdd;
+    public System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilterAdd;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilterRemove;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilterRemoveAllFilter;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilterThisValue;

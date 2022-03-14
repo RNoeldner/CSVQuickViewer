@@ -500,7 +500,7 @@ namespace CsvTools
         {
           toolStripMenuItemFreeze.Text = Columns[columnIndex].Frozen ? "Unfreeze" : "Freeze";
 
-          toolStripMenuItemFilterAdd.Enabled = columnIndex > -1;
+          // toolStripMenuItemFilterAdd.Enabled = columnIndex > -1;
           toolStripMenuItemSortAscending.Enabled = columnIndex > -1;
           toolStripMenuItemSortDescending.Enabled = columnIndex > -1;
 
