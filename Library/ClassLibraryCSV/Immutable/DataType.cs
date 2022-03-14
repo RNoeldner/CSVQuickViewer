@@ -88,6 +88,6 @@ namespace CsvTools
     /// <summary>
     ///   Perform Regex.Replace 
     /// </summary>
-    RegexReplace = 17
+    TextReplace = 17
   }
 }

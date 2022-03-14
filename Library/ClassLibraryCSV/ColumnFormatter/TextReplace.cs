@@ -17,14 +17,14 @@ using System.Text.RegularExpressions;
 
 namespace CsvTools
 {
-  public sealed class RegExReplace : IColumnFormatter
+  public sealed class TextReplace : IColumnFormatter
   {
     private readonly string m_Replacement = string.Empty;
     private readonly Regex? m_Regex;
 
     public bool RaiseWarning { get; set; } = true;
 
-    public RegExReplace(string searchPattern, string replace)
+    public TextReplace(string searchPattern, string replace)
     {
       if (string.IsNullOrWhiteSpace(searchPattern))
         return;
@@ -38,7 +38,7 @@ namespace CsvTools
       {
         var output = m_Regex.Replace(inputString, m_Replacement);
         if (RaiseWarning && !output.Equals(inputString))
-          handleWarning?.Invoke($"Regular Expression Replace {inputString}");
+          handleWarning?.Invoke($"Text Replace");
         return output ?? string.Empty;
       }
       return inputString;

@@ -229,8 +229,9 @@ namespace CsvTools
 
     public new void Close()
     {
+
       CancellationTokenSource.Cancel();
-      base.Close();
+      this.SafeInvoke(() => base.Close());      
     }
 
     /// <summary>

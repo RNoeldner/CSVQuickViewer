@@ -68,7 +68,7 @@ namespace CsvTools
           CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
           one.GroupSeparator),
         DataType.TextPart => $"{one.Part}" + (one.PartToEnd ? " To End" : string.Empty),
-        DataType.RegexReplace => $"Replace Pattern {StringUtils.GetShortDisplay( one.RegexSearchPattern,10)} with {StringUtils.GetShortDisplay(one.RegexReplacement, 10)}",
+        DataType.TextReplace => $"Replace {StringUtils.GetShortDisplay( one.RegexSearchPattern,10)} with {StringUtils.GetShortDisplay(one.RegexReplacement, 10)}",
         _ => string.Empty
       };
 
@@ -168,7 +168,7 @@ namespace CsvTools
         DataType.Boolean => string.Equals(other.False, one.False, StringComparison.OrdinalIgnoreCase)
                             && string.Equals(other.True, one.True, StringComparison.OrdinalIgnoreCase),
 
-        DataType.RegexReplace => string.Equals(other.RegexSearchPattern, one.RegexSearchPattern, StringComparison.Ordinal)
+        DataType.TextReplace => string.Equals(other.RegexSearchPattern, one.RegexSearchPattern, StringComparison.Ordinal)
                              && string.Equals(other.RegexReplacement, one.RegexReplacement, StringComparison.Ordinal),
 
         DataType.TextPart => string.Equals(other.PartSplitter, one.PartSplitter, StringComparison.Ordinal)

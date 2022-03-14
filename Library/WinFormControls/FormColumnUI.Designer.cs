@@ -103,13 +103,14 @@ namespace CsvTools
       this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
       this.buttonDisplayValues = new System.Windows.Forms.Button();
+      this.textBoxRegexSearchPattern = new System.Windows.Forms.TextBox();
       this.tableLayoutPanelForm = new System.Windows.Forms.TableLayoutPanel();
       this.groupBoxBinary = new System.Windows.Forms.GroupBox();
       this.textBoxPattern = new System.Windows.Forms.TextBox();
       this.buttonOK = new System.Windows.Forms.Button();
       this.groupBoxRegExReplace = new System.Windows.Forms.GroupBox();
+      this.label8 = new System.Windows.Forms.Label();
       this.textBoxRegexReplacement = new System.Windows.Forms.TextBox();
-      this.textBoxRegexSearchPattern = new System.Windows.Forms.TextBox();
       labelTrue = new System.Windows.Forms.Label();
       labelFalse = new System.Windows.Forms.Label();
       labelPoint = new System.Windows.Forms.Label();
@@ -608,7 +609,7 @@ namespace CsvTools
       label10.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       label10.AutoSize = true;
-      label10.Location = new System.Drawing.Point(496, 39);
+      label10.Location = new System.Drawing.Point(108, 76);
       label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       label10.Name = "label10";
       label10.Size = new System.Drawing.Size(89, 25);
@@ -688,7 +689,7 @@ namespace CsvTools
       // 
       this.buttonCancel.AutoSize = true;
       this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.buttonCancel.Location = new System.Drawing.Point(738, 1252);
+      this.buttonCancel.Location = new System.Drawing.Point(738, 1289);
       this.buttonCancel.Margin = new System.Windows.Forms.Padding(4);
       this.buttonCancel.Name = "buttonCancel";
       this.buttonCancel.Size = new System.Drawing.Size(191, 35);
@@ -844,7 +845,7 @@ namespace CsvTools
       this.buttonGuess.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonGuess.AutoSize = true;
       this.buttonGuess.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonGuess.Location = new System.Drawing.Point(362, 1252);
+      this.buttonGuess.Location = new System.Drawing.Point(362, 1289);
       this.buttonGuess.Margin = new System.Windows.Forms.Padding(4);
       this.buttonGuess.Name = "buttonGuess";
       this.buttonGuess.Size = new System.Drawing.Size(191, 35);
@@ -1011,7 +1012,7 @@ namespace CsvTools
       this.buttonDisplayValues.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonDisplayValues.AutoSize = true;
       this.buttonDisplayValues.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this.buttonDisplayValues.Location = new System.Drawing.Point(159, 1252);
+      this.buttonDisplayValues.Location = new System.Drawing.Point(159, 1289);
       this.buttonDisplayValues.Margin = new System.Windows.Forms.Padding(4);
       this.buttonDisplayValues.Name = "buttonDisplayValues";
       this.buttonDisplayValues.Size = new System.Drawing.Size(191, 35);
@@ -1021,6 +1022,24 @@ namespace CsvTools
         "t has possible alignment issues will be ignored\r\n");
       this.buttonDisplayValues.UseVisualStyleBackColor = true;
       this.buttonDisplayValues.Click += new System.EventHandler(this.ButtonDisplayValues_ClickAsync);
+      // 
+      // textBoxRegexSearchPattern
+      // 
+      this.textBoxRegexSearchPattern.AutoCompleteCustomSource.AddRange(new string[] {
+            "(?#href)<a(?:[^>]*?\\s+)?\\s*href\\s*=((\\\"|\')(.*)\\2)\\s*?>[^>]*?<\\/a>",
+            "(?#url)(https?:\\/\\/)[^[\\s)]*",
+            "(?#email)([\\w-]+(?:\\.[\\w-]+)*)@((?:[\\w-]+\\.)*\\w[\\w-]{0,66})",
+            "(?#file)(\\w{1}\\:{1}\\/{2})(\\w+\\/{1})+(\\w+\\.{1}\\w+){1}"});
+      this.textBoxRegexSearchPattern.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+      this.textBoxRegexSearchPattern.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+      this.textBoxRegexSearchPattern.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "RegexSearchPattern", true));
+      this.textBoxRegexSearchPattern.Location = new System.Drawing.Point(208, 35);
+      this.textBoxRegexSearchPattern.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
+      this.textBoxRegexSearchPattern.Name = "textBoxRegexSearchPattern";
+      this.textBoxRegexSearchPattern.Size = new System.Drawing.Size(434, 29);
+      this.textBoxRegexSearchPattern.TabIndex = 7;
+      this.toolTip.SetToolTip(this.textBoxRegexSearchPattern, "Regex Pattern to look for");
+      this.textBoxRegexSearchPattern.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxRegexSearchPattern_Validating);
       // 
       // tableLayoutPanelForm
       // 
@@ -1095,7 +1114,7 @@ namespace CsvTools
       this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonOK.AutoSize = true;
       this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonOK.Location = new System.Drawing.Point(561, 1252);
+      this.buttonOK.Location = new System.Drawing.Point(561, 1289);
       this.buttonOK.Margin = new System.Windows.Forms.Padding(4);
       this.buttonOK.Name = "buttonOK";
       this.buttonOK.Size = new System.Drawing.Size(169, 35);
@@ -1108,6 +1127,7 @@ namespace CsvTools
       // 
       this.groupBoxRegExReplace.AutoSize = true;
       this.tableLayoutPanelForm.SetColumnSpan(this.groupBoxRegExReplace, 5);
+      this.groupBoxRegExReplace.Controls.Add(this.label8);
       this.groupBoxRegExReplace.Controls.Add(this.textBoxRegexReplacement);
       this.groupBoxRegExReplace.Controls.Add(label10);
       this.groupBoxRegExReplace.Controls.Add(this.textBoxRegexSearchPattern);
@@ -1117,30 +1137,31 @@ namespace CsvTools
       this.groupBoxRegExReplace.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.groupBoxRegExReplace.Name = "groupBoxRegExReplace";
       this.groupBoxRegExReplace.Padding = new System.Windows.Forms.Padding(6, 4, 6, 4);
-      this.groupBoxRegExReplace.Size = new System.Drawing.Size(922, 94);
+      this.groupBoxRegExReplace.Size = new System.Drawing.Size(922, 131);
       this.groupBoxRegExReplace.TabIndex = 12;
       this.groupBoxRegExReplace.TabStop = false;
       this.groupBoxRegExReplace.Text = "Text Replace";
       // 
+      // label8
+      // 
+      this.label8.Anchor = System.Windows.Forms.AnchorStyles.Left;
+      this.label8.AutoSize = true;
+      this.label8.ForeColor = System.Drawing.SystemColors.Highlight;
+      this.label8.Location = new System.Drawing.Point(654, 38);
+      this.label8.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
+      this.label8.Name = "label8";
+      this.label8.Size = new System.Drawing.Size(255, 25);
+      this.label8.TabIndex = 12;
+      this.label8.Text = "Note: RegEx Pattern Syntax";
+      // 
       // textBoxRegexReplacement
       // 
       this.textBoxRegexReplacement.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "RegexReplacement", true));
-      this.textBoxRegexReplacement.Location = new System.Drawing.Point(595, 35);
+      this.textBoxRegexReplacement.Location = new System.Drawing.Point(207, 72);
       this.textBoxRegexReplacement.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
       this.textBoxRegexReplacement.Name = "textBoxRegexReplacement";
-      this.textBoxRegexReplacement.Size = new System.Drawing.Size(234, 29);
+      this.textBoxRegexReplacement.Size = new System.Drawing.Size(434, 29);
       this.textBoxRegexReplacement.TabIndex = 9;
-      // 
-      // textBoxRegexSearchPattern
-      // 
-      this.textBoxRegexSearchPattern.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "RegexSearchPattern", true));
-      this.textBoxRegexSearchPattern.Location = new System.Drawing.Point(207, 35);
-      this.textBoxRegexSearchPattern.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
-      this.textBoxRegexSearchPattern.Name = "textBoxRegexSearchPattern";
-      this.textBoxRegexSearchPattern.Size = new System.Drawing.Size(234, 29);
-      this.textBoxRegexSearchPattern.TabIndex = 7;
-      this.toolTip.SetToolTip(this.textBoxRegexSearchPattern, "Regex Pattern to look for");
-      this.textBoxRegexSearchPattern.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxRegexSearchPattern_Validating);
       // 
       // FormColumnUI
       // 
@@ -1245,5 +1266,6 @@ namespace CsvTools
     private System.Windows.Forms.GroupBox groupBoxRegExReplace;
     private System.Windows.Forms.TextBox textBoxRegexReplacement;
     private System.Windows.Forms.TextBox textBoxRegexSearchPattern;
+    private System.Windows.Forms.Label label8;
   }
 }
