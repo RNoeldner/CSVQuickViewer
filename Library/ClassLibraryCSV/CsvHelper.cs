@@ -1671,7 +1671,7 @@ namespace CsvTools
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
       var filter = new StringBuilder();
       int last = -1;
-      while (!textReaderPosition.AllRead() && filter.Length < 800 && !cancellationToken.IsCancellationRequested)
+      while (!textReaderPosition.AllRead() && filter.Length < 1000 && !cancellationToken.IsCancellationRequested)
       {
         var c = textReader.Read();
         if (c== escapeChar)
@@ -1750,7 +1750,14 @@ namespace CsvTools
           }
         }
       }
-      if (max == 0)
+      
+      if (max == 0 && counterTotal[0]==0 )
+      {
+        // if we have nothing but we did not see a " in the text at all, a quoting char does not hurt...
+        res=possibleQuotes[0];
+        Logger.Information("No Column Qualifier still using: {qualifier}", res.GetDescription());
+      }      
+      else if (max == 0)
         Logger.Information("No Column Qualifier");
       else
         Logger.Information("Column Qualifier: {qualifier}", res.GetDescription());

@@ -260,7 +260,7 @@ namespace CsvTools
     }
 
     [XmlAttribute]
-    [DefaultValue(true)]
+    [DefaultValue(false)]
     public bool GuessQualifier
     {
       get => m_GuessQualifier;
