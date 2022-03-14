@@ -26,7 +26,7 @@ namespace CsvTools
   [Serializable]
   public class CsvFile : BaseSettingPhysicalFile, ICsvFile
   {
-    private const bool c_ContextSensitiveQualifierDefault = false;
+    private const bool c_ContextSensitiveQualifierDefault = true;
     private const bool c_QualifyAlwaysDefault = false;
     private const string c_EscapePrefixDefault = "";
     private const RecordDelimiterType c_NewLineDefault = RecordDelimiterType.CRLF;
