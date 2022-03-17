@@ -472,12 +472,12 @@ namespace CsvTools
       object? ret = column.ValueFormat.DataType switch
       {
         DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal), column, true),
-        DataType.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
-        DataType.Double => GetDoubleNull(value, ordinal),
-        DataType.Numeric => GetDecimalNull(value, ordinal),
-        DataType.Boolean => GetBooleanNull(value, ordinal),
-        DataType.Guid => GetGuidNull(value, column.ColumnOrdinal),
-        _ => value
+        DataType.Integer  => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
+        DataType.Double   => GetDoubleNull(value, ordinal),
+        DataType.Numeric  => GetDecimalNull(value, ordinal),
+        DataType.Boolean  => GetBooleanNull(value, ordinal),
+        DataType.Guid     => GetGuidNull(value, column.ColumnOrdinal),
+        _                 => value
       };
       return ret ?? DBNull.Value;
     }
@@ -850,7 +850,7 @@ namespace CsvTools
               adjustedValue = string.Empty;
           }
 
-          CurrentRowColumnText[columnNo] = adjustedValue ?? string.Empty;
+          CurrentRowColumnText[columnNo] = adjustedValue;
         }
 
         return true;
@@ -1014,7 +1014,7 @@ namespace CsvTools
               // This is not 100% correct in case we have a misalignment of column that is corrected
               // afterwards warning for NBP need to be issues before trimming as trimming would
               // remove the char
-              if (m_WarnNbsp && !GetColumn(columnNo).Ignore && (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning))
+              if (m_WarnNbsp && columnNo < FieldCount && !GetColumn(columnNo).Ignore && (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning))
                 HandleWarning(
                   columnNo,
                   m_TreatNbspAsSpace
@@ -1288,7 +1288,7 @@ namespace CsvTools
       GC.SuppressFinalize(this);
     }
 
-    protected virtual async ValueTask DisposeAsyncCore()
+    protected async ValueTask DisposeAsyncCore()
     {
       if (m_ImprovedStream != null)
         await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
