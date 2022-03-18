@@ -285,13 +285,12 @@ namespace CsvTools
     /// </summary>
     public override void Close()
     {
-      Logger.Debug("Closing {filename}", FileSystemUtils.GetShortDisplayFileName(FileName));
       EndOfFile = true;
+      base.Close();
     }
 
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     public new virtual async Task CloseAsync() => await Task.Run(() => base.Close());
-
 #endif
 
     /// <inheritdoc />
@@ -779,7 +778,7 @@ namespace CsvTools
           DataType.Double => GetDouble(ordinal),
           DataType.Numeric => GetDecimal(ordinal),
           DataType.Boolean => GetBoolean(ordinal),
-          DataType.Guid => GetGuid(ordinal),          
+          DataType.Guid => GetGuid(ordinal),
           _ => GetString(ordinal)
         };
       }

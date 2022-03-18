@@ -777,13 +777,11 @@ namespace CsvTools
       in string dateFormat,
       in string dateSeparator,
       in string timeSeparator,
-      bool serialDateTime,
-      CultureInfo? culture = null)
+      bool serialDateTime)
     {
       var stringDateValue = originalValue.Trim();
-      culture ??= CultureInfo.CurrentCulture;
-
-      var result = StringToDateTimeExact(originalValue, dateFormat, dateSeparator, timeSeparator, culture);
+      
+      var result = StringToDateTimeExact(originalValue, dateFormat, dateSeparator, timeSeparator, CultureInfo.CurrentCulture);
       if (result.HasValue)
         return result.Value;
 
@@ -824,7 +822,7 @@ namespace CsvTools
       in string timeSeparator,
       in CultureInfo culture)
     {
-      var stringDateValue = originalValue?.Trim() ?? string.Empty;
+      var stringDateValue = (originalValue?.Trim() ?? string.Empty).Replace("\t", " ").Replace("  ", " ");
       if (stringDateValue.Length < StandardDateTimeFormats.MinLengthDate)
         return null;
 

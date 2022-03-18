@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-#pragma warning disable 8625
 #pragma warning disable CS8625
 #pragma warning disable CS8629
 
@@ -30,6 +29,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void StringToDateTime()
     {
+      Assert.AreEqual(new DateTime(2021, 5, 31, 14, 37, 0, 0, DateTimeKind.Unspecified), 
+        StringConversion.StringToDateTime("May 31 2021 2:37PM", "MMM d yyyy h:mmtt", "/", ":", false).Value);
+
+      Assert.AreEqual(new DateTime(2020, 10, 8, 16, 04, 0, 0, DateTimeKind.Unspecified),
+        StringConversion.StringToDateTime("Oct  8 2020  4:04PM", "MMM d yyyy h:mmtt", "", ":", false).Value);
+
       Assert.AreEqual(
         new DateTime(2009, 12, 10, 17, 43, 0, 0, DateTimeKind.Unspecified),
         StringConversion.StringToDateTime("12/10/2009 17:43", "MM/dd/yyyy HH:mm", "/", ":", false).Value);
