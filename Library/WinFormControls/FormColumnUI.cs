@@ -759,7 +759,13 @@ namespace CsvTools
     private void DateFormatChanged(object? sender, EventArgs? e)
     {
       var dateFormat = sender == comboBoxDateFormat ? comboBoxDateFormat.Text : checkedListBoxDateFormats.Text;
+      
       if (string.IsNullOrEmpty(dateFormat)) return;
+
+      // if changed by the check List Box, update the combobox with teh selected item 
+      if (sender== checkedListBoxDateFormats)
+        if (string.IsNullOrEmpty(comboBoxDateFormat.Text) ||  checkedListBoxDateFormats.Items.IndexOf(comboBoxDateFormat.Text) != -1)
+          comboBoxDateFormat.Text= checkedListBoxDateFormats.Text;
 
       UpdateDateLabel(
         new ValueFormatMutable()

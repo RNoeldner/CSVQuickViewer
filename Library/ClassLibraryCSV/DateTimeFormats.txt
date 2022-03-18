@@ -290,6 +290,7 @@ dd/MM/yy hh:mm tt
 yyyyMMddTHH:mm:ss
 yyyyMMdd HH:mm:ss
 MMM/dd/yy h:mm tt
+MMM d yyyy h:mmtt
 d MMM, yyyy HH:mm
 d MMMM yyyy HH:mm
 d MMMM, yyyy H:mm
