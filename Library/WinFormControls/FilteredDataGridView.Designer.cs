@@ -159,10 +159,11 @@ namespace CsvTools
 			this.toolStripMenuItemFilterAdd.Name = "toolStripMenuItemFilterAdd";      
       this.toolStripMenuItemFilterAdd.Size = new System.Drawing.Size(268, 30);
 			this.toolStripMenuItemFilterAdd.Text = "Filter";
-			// 
-			// toolStripMenuItemFilterThisValue
-			// 
-			this.toolStripMenuItemFilterThisValue.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemFilterThisValue.Image")));
+      this.toolStripMenuItemFilterAdd.Enabled = true;
+      // 
+      // toolStripMenuItemFilterThisValue
+      // 
+      this.toolStripMenuItemFilterThisValue.Image = ((System.Drawing.Image)(resources.GetObject("toolStripMenuItemFilterThisValue.Image")));
 			this.toolStripMenuItemFilterThisValue.Name = "toolStripMenuItemFilterThisValue";
 			this.toolStripMenuItemFilterThisValue.Size = new System.Drawing.Size(323, 30);
 			this.toolStripMenuItemFilterThisValue.Text = "Filter for this value";
