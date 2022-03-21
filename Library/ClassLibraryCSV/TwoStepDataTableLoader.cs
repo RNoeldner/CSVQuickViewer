@@ -69,6 +69,7 @@ namespace CsvTools
         m_FileReader.Warning += addWarning;
         m_FileReader.Warning -= warningList.Add;
       }
+
       Logger.Information("Reading data for display");
       await m_FileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
@@ -83,15 +84,16 @@ namespace CsvTools
         fileSetting.RecordLimit,
         includeError,
         fileSetting.DisplayStartLineNo,
-        fileSetting.DisplayRecordNo,
-        fileSetting.DisplayEndLineNo);
-
+        fileSetting.DisplayEndLineNo,
+        fileSetting.DisplayRecordNo
+      );
 
       m_ActionBegin?.Invoke();
 
       await GetBatchByTimeSpan(durationInitial, includeError, processDisplay, m_SetDataTable, cancellationToken).ConfigureAwait(false);
 
-      m_SetLoadNextBatchAsync?.Invoke((process, cancellationToken) => GetBatchByTimeSpan(TimeSpan.MaxValue, includeError, process, dt => m_GetDataTable().Merge(dt), cancellationToken));
+      m_SetLoadNextBatchAsync?.Invoke((process, token) =>
+        GetBatchByTimeSpan(TimeSpan.MaxValue, includeError, process, dt => m_GetDataTable().Merge(dt), token));
 
       m_ActionFinished?.Invoke(m_DataReaderWrapper);
     }
@@ -116,7 +118,6 @@ namespace CsvTools
         return;
       processDisplay?.SetMaximum(100);
 
-
       var dt = await m_DataReaderWrapper.LoadDataTable(
                  maxDuration,
                  restoreError,
@@ -134,7 +135,6 @@ namespace CsvTools
       {
         // ignore
       }
-
 
       if (m_RefreshDisplayAsync != null)
       {
@@ -154,7 +154,6 @@ namespace CsvTools
 #else
         Dispose();
 #endif
-
     }
   }
 }

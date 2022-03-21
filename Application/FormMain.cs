@@ -158,6 +158,7 @@ namespace CsvTools
             return;
 
           m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
+          m_FileSetting.DisplayStartLineNo = false;
           m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
 
           // update the UI
