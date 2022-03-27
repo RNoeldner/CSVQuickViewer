@@ -802,23 +802,26 @@ namespace CsvTools
           counter++;
           fieldCount += dataLine.Split(delimiterChar).Length;
         }
+        var halfTheColumns = (int) Math.Ceiling(fieldCount / 2.0);
+        if (counter>3)
+        {
+          var avgFieldCount = fieldCount / (double) counter;
+          // The average should not be smaller than the columns in the initial row
+          if (avgFieldCount < headerRow.Count)
+            avgFieldCount = headerRow.Count;
+          halfTheColumns = (int) Math.Ceiling(avgFieldCount / 2.0);
 
-        var avgFieldCount = fieldCount / (double) counter;
-        // The average should not be smaller than the columns in the initial row
-        if (avgFieldCount < headerRow.Count)
-          avgFieldCount = headerRow.Count;
-        var halfTheColumns = (int) Math.Ceiling(avgFieldCount / 2.0);
+          // Columns are only one or two char, does not look descriptive
+          if (headerRow.Count(x => x.Length < 3) > halfTheColumns)
+            return $"Headers '{string.Join("', '", headerRow.Where(x => x.Length < 3))}' very short";
 
-        // Columns are only one or two char, does not look descriptive
-        if (headerRow.Count(x => x.Length < 3) > halfTheColumns)
-          return $"Headers '{string.Join("', '", headerRow.Where(x => x.Length < 3))}' very short";
+          // use the same routine that is used in readers to determine the names of the columns
+          var (_, numIssues) = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null);
 
-        // use the same routine that is used in readers to determine the names of the columns
-        var (_, numIssues) = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null);
-
-        // looking at the warnings raised
-        if (numIssues >= halfTheColumns || numIssues > 2)
-          return $"{numIssues} header where empty, duplicate or too long";
+          // looking at the warnings raised
+          if (numIssues >= halfTheColumns || numIssues > 2)
+            return $"{numIssues} header where empty, duplicate or too long";
+        }
 
         var numeric = headerRow.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
         var boolHead = headerRow.Where(header => StringConversion.StringToBooleanStrict(header, "1", "0") != null)

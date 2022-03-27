@@ -361,9 +361,9 @@ namespace CsvTools
         throw new FileReaderException(
           "The field delimiter character is invalid, please use something else than CR, LF or Space");
 
-      if (m_FieldDelimiterChar == m_EscapePrefixChar && m_EscapePrefixChar != '\0')
+      if (m_EscapePrefixChar != '\0' && (m_FieldDelimiterChar == m_EscapePrefixChar || m_FieldQualifierChar == m_EscapePrefixChar))
         throw new FileReaderException(
-          $"The escape character is invalid, please use something else than the field delimiter character {m_EscapePrefixChar.GetDescription()}.");
+          $"The escape character is invalid, please use something else than the field delimiter or qualifier character {m_EscapePrefixChar.GetDescription()}.");
 
       m_HasQualifier = m_FieldQualifierChar != '\0';
 
@@ -472,12 +472,12 @@ namespace CsvTools
       object? ret = column.ValueFormat.DataType switch
       {
         DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal), column, true),
-        DataType.Integer  => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
-        DataType.Double   => GetDoubleNull(value, ordinal),
-        DataType.Numeric  => GetDecimalNull(value, ordinal),
-        DataType.Boolean  => GetBooleanNull(value, ordinal),
-        DataType.Guid     => GetGuidNull(value, column.ColumnOrdinal),
-        _                 => value
+        DataType.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
+        DataType.Double => GetDoubleNull(value, ordinal),
+        DataType.Numeric => GetDecimalNull(value, ordinal),
+        DataType.Boolean => GetBooleanNull(value, ordinal),
+        DataType.Guid => GetGuidNull(value, column.ColumnOrdinal),
+        _ => value
       };
       return ret ?? DBNull.Value;
     }
@@ -1149,8 +1149,7 @@ namespace CsvTools
         stringBuilder.Append(character);
 
         escaped = !escaped && (character == m_EscapePrefixChar);
-        // While
-      }
+      }// While
 
       var columnText = stringBuilder.ToString();
       if (columnText.IndexOf(c_UnknownChar) != -1)
