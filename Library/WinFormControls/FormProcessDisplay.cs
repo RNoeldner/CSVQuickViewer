@@ -226,12 +226,22 @@ namespace CsvTools
     /// <param name="sender"></param>
     /// <param name="e"></param>
     public void SetProcess(object? sender, ProgressEventArgs e) => SetProcess(e.Text, e.Value, e.Log);
+    bool m_IsClosed = false;
 
     public new void Close()
     {
-
-      CancellationTokenSource.Cancel();
-      this.SafeInvoke(() => base.Close());      
+      if (m_IsClosed)
+        return;
+      m_IsClosed = true;
+      try
+      {
+        CancellationTokenSource.Cancel();
+        this.SafeInvoke(() => base.Close());
+      }
+      catch (ObjectDisposedException)
+      {
+        // 
+      }      
     }
 
     /// <summary>

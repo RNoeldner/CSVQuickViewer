@@ -56,16 +56,21 @@ namespace CsvTools
       BaseOpen();
     }
 
+    /// <inheritdoc cref="Stream.CanRead"/>
     public override bool CanRead => AccessStream!.CanRead && BaseStream!.CanRead;
 
+    /// <inheritdoc cref="Stream.CanSeek"/>
     public override bool CanSeek => BaseStream!.CanSeek;
 
+    /// <inheritdoc cref="Stream.CanWrite"/>
     public override bool CanWrite => AccessStream!.CanWrite && BaseStream!.CanWrite;
 
+    /// <inheritdoc cref="Stream.Length()"/>
     public override long Length => BaseStream!.Length;
 
     public double Percentage => (double) BaseStream!.Position / BaseStream.Length;
 
+    /// <inheritdoc cref="Stream.Position()"/>
     /// <summary>
     ///   This is the position in the base stream, Access stream (e.G. gZip stream) might not
     ///   support a position
@@ -80,6 +85,7 @@ namespace CsvTools
 
     protected Stream? BaseStream { get; private set; }
 
+    /// <inheritdoc cref="Stream.Close()"/>
     /// <summary>
     ///   Closes the stream in case of a file opened for writing it would be uploaded to the sFTP
     /// </summary>
@@ -116,6 +122,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc cref="Stream.CopyToAsync(Stream, int, CancellationToken)"/>
     public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken) =>
       AccessStream!.CopyToAsync(destination, bufferSize, cancellationToken);
 
@@ -125,6 +132,7 @@ namespace CsvTools
       GC.SuppressFinalize(this);
     }
 
+    /// <inheritdoc cref="Stream.Flush()"/>
     public override void Flush()
     {
       try
@@ -140,8 +148,10 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc cref="Stream.Read(byte[], int, int)"/>
     public override int Read(byte[] buffer, int offset, int count) => AccessStream!.Read(buffer, offset, count);
 
+    /// <inheritdoc cref="Stream.ReadAsync(byte[], int, int, CancellationToken)"/>
     public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
       AccessStream!.ReadAsync(buffer, offset, count, cancellationToken);
 
@@ -160,10 +170,13 @@ namespace CsvTools
       return 0;
     }
 
+    /// <inheritdoc cref="Stream.SetLength(long)"/>
     public override void SetLength(long value) => AccessStream!.SetLength(value);
 
+    /// <inheritdoc cref="Stream.WriteAsync(byte[], int, int)"/>
     public override void Write(byte[] buffer, int offset, int count) => AccessStream!.Write(buffer, offset, count);
 
+    /// <inheritdoc cref="Stream.WriteAsync(byte[], int, int, CancellationToken)"/>
     public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
       AccessStream!.WriteAsync(buffer, offset, count, cancellationToken);
 
@@ -191,6 +204,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc cref="Stream.Dispose(bool)"/>
     protected override void Dispose(bool disposing)
     {
       if (!disposing) return;
