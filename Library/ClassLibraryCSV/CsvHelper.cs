@@ -826,7 +826,8 @@ namespace CsvTools
         var numeric = headerRow.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
         var boolHead = headerRow.Where(header => StringConversion.StringToBooleanStrict(header, "1", "0") != null)
                                 .ToList();
-        var specials = headerRow.Where(header => Regex.IsMatch(header, @"[^\w\d\-_\s<>#,.*\[\]\(\)+?!]")).ToList();
+        // allowed char are letters, digits and a predefined list of punctation and sysmbols
+        var specials = headerRow.Where(header => Regex.IsMatch(header, @"[^\w\d\s\\" + Regex.Escape(@"/_*&%$[]()+-=#'<>@.!?") +"]")).ToList();
         if (numeric.Count + boolHead.Count + specials.Count >= halfTheColumns)
         {
           StringBuilder msg = new StringBuilder();
@@ -1698,7 +1699,7 @@ namespace CsvTools
           c = placeHolderText;
           if (last != placeHolderText)
             filter.Append(placeHolderText);
-        }       
+        }
         last = c;
       }
 
@@ -1753,13 +1754,13 @@ namespace CsvTools
           }
         }
       }
-      
-      if (max == 0 && counterTotal[0]==0 )
+
+      if (max == 0 && counterTotal[0]==0)
       {
         // if we have nothing but we did not see a " in the text at all, a quoting char does not hurt...
         res=possibleQuotes[0];
         Logger.Information("No Column Qualifier still using: {qualifier}", res.GetDescription());
-      }      
+      }
       else if (max == 0)
         Logger.Information("No Column Qualifier");
       else
