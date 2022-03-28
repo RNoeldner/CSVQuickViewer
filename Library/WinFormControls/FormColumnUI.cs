@@ -740,7 +740,7 @@ namespace CsvTools
           SetSamplePart(sender, EventArgs.Empty);
 
         // Depending on OS and scaling a different value might be needed
-        Height = tableLayoutPanelForm.Height + (SystemInformation.CaptionHeight * 175 / 100);
+        Height = tableLayoutPanelForm.Height + (SystemInformation.CaptionHeight * 175 / 100) + panelTop.Height + panelBottom.Height;
       }
       catch (Exception ex)
       {
