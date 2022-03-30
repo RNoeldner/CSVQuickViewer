@@ -112,7 +112,7 @@ namespace CsvTools
       Recipient = recipient ?? string.Empty;
       KeepEncrypted = keepEncrypted;
       LeaveOpen = false;
-      FileType = FromExtension(fileName);
+      FileType = FromExtension(fileName);      
       EncryptedPassphrase = string.Empty;
       IdentifierInContainer = string.Empty;
       switch (FileType)
@@ -127,7 +127,7 @@ namespace CsvTools
           break;
       }
 
-      if (!isReading && KeepEncrypted)
+      if (!isReading && KeepEncrypted && FileType == FileTypeEnum.Pgp)
       {
         // remove extension
         var split = FileSystemUtils.SplitPath(fileName);

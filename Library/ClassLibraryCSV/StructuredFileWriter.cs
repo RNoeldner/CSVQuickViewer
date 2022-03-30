@@ -82,6 +82,8 @@ namespace CsvTools
 
     protected abstract string ElementName(string input);
 
+    protected abstract string RecordDelimiter();
+
     protected abstract string Escape(object input, in WriterColumn columnInfo, in IFileReader reader);
 
     /// <summary>
@@ -104,7 +106,7 @@ namespace CsvTools
       if (numColumns == 0)
         throw new FileWriterException("No columns defined to be written.");
       const string c_RecordEnd = "\r\n";
-
+      
       HandleWriteStart();
 
       // Header
@@ -142,6 +144,8 @@ namespace CsvTools
              && !cancellationToken.IsCancellationRequested)
       {
         NextRecord();
+        if (Records>1)
+          sb.Append(RecordDelimiter());
 
         // Start a new line
         sb.Append(c_RecordEnd);

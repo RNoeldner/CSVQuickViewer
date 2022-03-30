@@ -57,5 +57,6 @@ namespace CsvTools
 
     protected override string Escape(object input, in WriterColumn columnInfo, in IFileReader reader) =>
       SecurityElement.Escape(TextEncodeField(input, columnInfo, reader));
+    protected override string RecordDelimiter() => "";
   }
 }

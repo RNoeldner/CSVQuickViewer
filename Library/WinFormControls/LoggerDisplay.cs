@@ -18,6 +18,7 @@ using FastColoredTextBoxNS;
 using Microsoft.Extensions.Logging;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 
 namespace CsvTools
@@ -66,6 +67,7 @@ namespace CsvTools
 
     public bool IsEnabled(LogLevel logLevel) => logLevel >= MinLevel;
 
+    [DebuggerStepThrough]
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception?, string> formatter)
     {
       if (!IsEnabled(logLevel))
