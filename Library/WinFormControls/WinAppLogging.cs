@@ -77,6 +77,7 @@ namespace CsvTools
     public static void AddLog(Microsoft.Extensions.Logging.ILogger value)
       => m_UserInterfaceSink.AdditionalLoggers.Add(value ?? throw new ArgumentNullException(nameof(value)));
 
+    [DebuggerStepThrough]
     private class UserInterfaceSink : ILogEventSink
     {
       public readonly List<Microsoft.Extensions.Logging.ILogger> AdditionalLoggers = new List<Microsoft.Extensions.Logging.ILogger>();
@@ -88,7 +89,7 @@ namespace CsvTools
       {
         m_FormatProvider = formatProvider;
       }
-
+      
       public void Emit(LogEvent logEvent)
       {
         if (AdditionalLoggers.Count <= 0) return;

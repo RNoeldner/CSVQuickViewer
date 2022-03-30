@@ -84,7 +84,7 @@ namespace CsvTools
       columnBindingSource.DataSource = m_ColumnEdit;
       // needed for Formats
       bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormatMutable;
-
+      comboBoxTPFormat.Text = m_ColumnEdit.TimePartFormat;
       comboBoxColumnName.Enabled = showIgnore;
 
       toolTip.SetToolTip(
@@ -759,7 +759,7 @@ namespace CsvTools
     private void DateFormatChanged(object? sender, EventArgs? e)
     {
       var dateFormat = sender == comboBoxDateFormat ? comboBoxDateFormat.Text : checkedListBoxDateFormats.Text;
-      
+
       if (string.IsNullOrEmpty(dateFormat)) return;
 
       // if changed by the check List Box, update the combobox with teh selected item 
@@ -1088,8 +1088,8 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        errorProvider.SetError( textBoxRegexSearchPattern, ex.Message);
-      }           
+        errorProvider.SetError(textBoxRegexSearchPattern, ex.Message);
+      }
     }
   }
 }

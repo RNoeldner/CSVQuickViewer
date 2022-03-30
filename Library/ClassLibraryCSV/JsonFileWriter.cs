@@ -53,6 +53,7 @@ namespace CsvTools
         processDisplay)
     {
     }
+    protected override string RecordDelimiter() => ",";
 
     protected override string ElementName(string input) => HTMLStyle.JsonElementName(input);
 
