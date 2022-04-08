@@ -388,6 +388,9 @@ namespace CsvTools
     public static void WriteAllText(in string fileName, in string contents) =>
       File.WriteAllText(fileName.LongPathPrefix(), contents);
 
+    public static void WriteAllText(in string fileName, in string contents, in Encoding encoding) =>
+      File.WriteAllText(fileName.LongPathPrefix(), contents, encoding);
+
     public static StreamReader GetStreamReaderForFileOrResource(string file)
     {
       var fileName = Path.Combine(ExecutableDirectoryName(), file);

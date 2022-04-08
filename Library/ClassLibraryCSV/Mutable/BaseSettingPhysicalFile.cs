@@ -26,24 +26,17 @@ namespace CsvTools
   {
     private readonly ValueFormatMutable m_DefaultValueFormatWrite = new ValueFormatMutable();
     private string m_ColumnFile = string.Empty;
-
     private string m_FileName;
-
     private long m_FileSize;
-
     private string m_FullPath = string.Empty;
-
     private bool m_FullPathInitialized;
-
     private string m_IdentifierInContainer = string.Empty;
-
     private string m_PassPhrase = string.Empty;
-
     private string m_Recipient = string.Empty;
-
     private string m_RemoteFileName = string.Empty;
-
     private bool m_ThrowErrorIfNotExists = true;
+    private bool m_ByteOrderMark = true;
+    private int m_CodePageId = 65001;
 
     protected BaseSettingPhysicalFile(string fileName) => m_FileName = FileNameFix(fileName);
 
@@ -116,6 +109,36 @@ namespace CsvTools
           return;
         m_FileSize = value;
         NotifyPropertyChanged(nameof(FileSize));
+      }
+    }
+
+    /// <inheritdoc />
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public virtual bool ByteOrderMark
+    {
+      get => m_ByteOrderMark;
+      set
+      {
+        if (m_ByteOrderMark.Equals(value))
+          return;
+        m_ByteOrderMark = value;
+        NotifyPropertyChanged(nameof(ByteOrderMark));
+      }
+    }
+
+    /// <inheritdoc />
+    [XmlAttribute]
+    [DefaultValue(65001)]
+    public virtual int CodePageId
+    {
+      get => m_CodePageId;
+      set
+      {
+        if (m_CodePageId.Equals(value))
+          return;
+        m_CodePageId = value;
+        NotifyPropertyChanged(nameof(CodePageId));
       }
     }
 
@@ -280,6 +303,8 @@ namespace CsvTools
 
       if (!(other is IFileSettingPhysicalFile fileSettingPhysicalFile))
         return;
+      fileSettingPhysicalFile.ByteOrderMark = m_ByteOrderMark;
+      fileSettingPhysicalFile.CodePageId = m_CodePageId;
       fileSettingPhysicalFile.RootFolder = RootFolder;
       fileSettingPhysicalFile.FileSize = FileSize;
       fileSettingPhysicalFile.ColumnFile = ColumnFile;
@@ -305,6 +330,9 @@ namespace CsvTools
     {
       if (!(other is IFileSettingPhysicalFile fileSettingPhysicalFile))
         return base.BaseSettingsEquals(other);
+      if (m_ByteOrderMark != fileSettingPhysicalFile.ByteOrderMark || 
+            m_CodePageId != fileSettingPhysicalFile.CodePageId)
+        return false;
 
       if (!fileSettingPhysicalFile.DefaultValueFormatWrite.ValueFormatEqual(DefaultValueFormatWrite))
         return false;

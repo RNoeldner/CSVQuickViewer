@@ -44,11 +44,7 @@ namespace CsvTools
     /// </summary>
     public const string cCsvSettingExtension = ".setting";
 
-    private bool m_AllowRowCombining;
-
-    private bool m_ByteOrderMark = true;
-
-    private int m_CodePageId = 65001;
+    private bool m_AllowRowCombining;    
     private string m_CommentLine = c_CommentLineDefault;
 
     private bool m_ContextSensitiveQualifier = c_ContextSensitiveQualifierDefault;
@@ -379,36 +375,7 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc />
-    [XmlAttribute]
-    [DefaultValue(true)]
-    public virtual bool ByteOrderMark
-    {
-      get => m_ByteOrderMark;
-      set
-      {
-        if (m_ByteOrderMark.Equals(value))
-          return;
-        m_ByteOrderMark = value;
-        NotifyPropertyChanged(nameof(ByteOrderMark));
-      }
-    }
-
-    /// <inheritdoc />
-    [XmlAttribute]
-    [DefaultValue(65001)]
-    public virtual int CodePageId
-    {
-      get => m_CodePageId;
-      set
-      {
-        if (m_CodePageId.Equals(value))
-          return;
-        m_CodePageId = value;
-        NotifyPropertyChanged(nameof(CodePageId));
-      }
-    }
-
+   
     /// <inheritdoc />
     [XmlIgnore]
     public virtual bool NoDelimitedFile
@@ -615,7 +582,7 @@ namespace CsvTools
 
       if (!(other is CsvFile csv))
         return;
-      csv.ByteOrderMark = m_ByteOrderMark;
+      
       csv.WarnQuotes = m_WarnQuotes;
       csv.WarnDelimiterInValue = m_WarnDelimiterInValue;
       csv.WarnEmptyTailingColumns = m_WarnEmptyTailingColumns;
@@ -628,7 +595,7 @@ namespace CsvTools
       csv.AllowRowCombining = m_AllowRowCombining;
 
       csv.TreatUnknownCharacterAsSpace = m_TreatUnknownCharacterAsSpace;
-      csv.CodePageId = m_CodePageId;
+      
       csv.NumWarnings = m_NumWarnings;
       csv.NoDelimitedFile = m_NoDelimitedFile;
 
@@ -656,41 +623,39 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return m_ByteOrderMark == other.ByteOrderMark && m_CodePageId == other.CodePageId
-                                                    && m_NoDelimitedFile == other.NoDelimitedFile
-                                                    && m_NumWarnings == other.NumWarnings
-                                                    && m_TreatUnknownCharacterAsSpace
-                                                    == other.TreatUnknownCharacterAsSpace
-                                                    && m_WarnDelimiterInValue == other.WarnDelimiterInValue
-                                                    && m_WarnEmptyTailingColumns == other.WarnEmptyTailingColumns
-                                                    && m_WarnLineFeed == other.WarnLineFeed
-                                                    && m_TryToSolveMoreColumns == other.TryToSolveMoreColumns
-                                                    && m_AllowRowCombining == other.AllowRowCombining
-                                                    && m_TreatLfAsSpace == other.TreatLFAsSpace
-                                                    && m_WarnNbsp == other.WarnNBSP && m_WarnQuotes == other.WarnQuotes
-                                                    && m_WarnQuotesInQuotes == other.WarnQuotesInQuotes
-                                                    && m_WarnUnknownCharacter == other.WarnUnknownCharacter
-                                                    && BaseSettingsEquals(other as BaseSettings)
-                                                    && ContextSensitiveQualifier == other.ContextSensitiveQualifier
-                                                    && DuplicateQualifierToEscape == other.DuplicateQualifierToEscape
-                                                    && string.Equals(CommentLine,
-                                                      other.CommentLine,
-                                                      StringComparison.Ordinal)
-                                                    && string.Equals(DelimiterPlaceholder,
-                                                      other.DelimiterPlaceholder,
-                                                      StringComparison.Ordinal)
-                                                    && EscapePrefixChar == other.EscapePrefixChar
-                                                    && FieldDelimiterChar == other.FieldDelimiterChar
-                                                    && FieldQualifierChar == other.FieldQualifierChar
-                                                    && NewLine.Equals(other.NewLine)
-                                                    && string.Equals(NewLinePlaceholder,
-                                                      other.NewLinePlaceholder,
-                                                      StringComparison.Ordinal)
-                                                    && QualifyAlways == other.QualifyAlways
-                                                    && QualifyOnlyIfNeeded == other.QualifyOnlyIfNeeded
-                                                    && string.Equals(QualifierPlaceholder,
-                                                      other.QualifierPlaceholder,
-                                                      StringComparison.Ordinal);
+      return  m_NoDelimitedFile == other.NoDelimitedFile
+              && m_NumWarnings == other.NumWarnings
+              && m_TreatUnknownCharacterAsSpace == other.TreatUnknownCharacterAsSpace
+              && m_WarnDelimiterInValue == other.WarnDelimiterInValue
+              && m_WarnEmptyTailingColumns == other.WarnEmptyTailingColumns
+              && m_WarnLineFeed == other.WarnLineFeed
+              && m_TryToSolveMoreColumns == other.TryToSolveMoreColumns
+              && m_AllowRowCombining == other.AllowRowCombining
+              && m_TreatLfAsSpace == other.TreatLFAsSpace
+              && m_WarnNbsp == other.WarnNBSP && m_WarnQuotes == other.WarnQuotes
+              && m_WarnQuotesInQuotes == other.WarnQuotesInQuotes
+              && m_WarnUnknownCharacter == other.WarnUnknownCharacter
+              && BaseSettingsEquals(other as BaseSettings)
+              && ContextSensitiveQualifier == other.ContextSensitiveQualifier
+              && DuplicateQualifierToEscape == other.DuplicateQualifierToEscape
+              && string.Equals(CommentLine,
+                other.CommentLine,
+                StringComparison.Ordinal)
+              && string.Equals(DelimiterPlaceholder,
+                other.DelimiterPlaceholder,
+                StringComparison.Ordinal)
+              && EscapePrefixChar == other.EscapePrefixChar
+              && FieldDelimiterChar == other.FieldDelimiterChar
+              && FieldQualifierChar == other.FieldQualifierChar
+              && NewLine.Equals(other.NewLine)
+              && string.Equals(NewLinePlaceholder,
+                other.NewLinePlaceholder,
+                StringComparison.Ordinal)
+              && QualifyAlways == other.QualifyAlways
+              && QualifyOnlyIfNeeded == other.QualifyOnlyIfNeeded
+              && string.Equals(QualifierPlaceholder,
+                other.QualifierPlaceholder,
+                StringComparison.Ordinal);
     }
 
 #region backwardscompatibility

@@ -92,6 +92,16 @@ namespace CsvTools
     bool InOverview { get; set; }
 
     /// <summary>
+    ///   Gets or sets a value indicating the display order of the setting 
+    /// </summary>
+    int Order { get; set; }
+
+    /// <summary>
+    ///   Gets or sets a commnet text for the setting 
+    /// </summary>
+    string Comment { get; set; }
+
+    /// <summary>
     ///   The identified to find this specific instance
     /// </summary>
     string InternalID { get; }
