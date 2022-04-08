@@ -112,7 +112,7 @@ namespace CsvTools
       Recipient = recipient ?? string.Empty;
       KeepEncrypted = keepEncrypted;
       LeaveOpen = false;
-      FileType = FromExtension(fileName);      
+      FileType = FromExtension(fileName);
       EncryptedPassphrase = string.Empty;
       IdentifierInContainer = string.Empty;
       switch (FileType)
@@ -161,18 +161,18 @@ namespace CsvTools
     /// </summary>
     /// <param name="stream">The source stream, it must support seek if its a read stream</param>
     /// <param name="type">The type of the contents in the stream</param>
-    public SourceAccess(Stream stream, FileTypeEnum type = FileTypeEnum.Stream)
+    public SourceAccess(Stream stream, FileTypeEnum type = FileTypeEnum.Stream, bool isReading = true, in string? recipient = null)
     {
       if (!stream.CanSeek)
         throw new ArgumentException("Source stream must support seek to be used for SourceAccess", nameof(stream));
       LeaveOpen = true;
       m_OpenStream = () => stream;
       FileType = type;
-      Reading = true;
+      Reading = isReading;
       FullPath = string.Empty;
       EncryptedPassphrase = string.Empty;
       IdentifierInContainer = string.Empty;
-      Recipient = string.Empty;
+      Recipient = recipient?? string.Empty;
       // Overwrite in case we can get more information
       if (stream is FileStream fs)
       {

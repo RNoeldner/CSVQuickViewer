@@ -45,6 +45,8 @@ namespace CsvTools
     private const string c_HeaderPlaceholder = "[column{0}]";
 
     private readonly string m_Row;
+    private readonly bool m_ByteOrderMark;
+    private readonly int m_CodePageId;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
@@ -57,6 +59,8 @@ namespace CsvTools
       in string? identifierInContainer,
       in string? footer,
       in string? header,
+      int codePageId,
+      bool byteOrderMark,
       in IEnumerable<IColumn>? columnDefinition,
       in string fileSettingDisplay,
       in string row,
@@ -76,7 +80,9 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(row))
         throw new ArgumentException($"{nameof(row)} can not be empty");
-
+      
+      m_CodePageId = codePageId;      
+      m_ByteOrderMark = byteOrderMark;
       m_Row = row;
     }
 
@@ -96,11 +102,11 @@ namespace CsvTools
       IFileReader reader,
       Stream output,
       CancellationToken cancellationToken)
-    {
+    {      
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var writer = new StreamWriter(output, new UTF8Encoding(true), 4096);
+      using var writer = new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 4096);
       SetColumns(reader);
       var numColumns = Columns.Count();
       if (numColumns == 0)

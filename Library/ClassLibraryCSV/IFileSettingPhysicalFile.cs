@@ -59,6 +59,18 @@ namespace CsvTools
     /// </summary>
     string RemoteFileName { get; set; }
 
+    /// <summary>
+    ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
+    /// </summary>
+    /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
+    bool ByteOrderMark { get; set; }
+
+    /// <summary>
+    ///   Gets or sets the code page.
+    /// </summary>
+    /// <value>The code page.</value>
+    int CodePageId { get; set; }
+
     string RootFolder { get; set; }
 
     /// <summary>

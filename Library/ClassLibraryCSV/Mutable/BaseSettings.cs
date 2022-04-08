@@ -94,6 +94,8 @@ namespace CsvTools
     private bool m_Validate = true;
 
     private long m_WarningCount;
+    private int m_Order = 100;
+    private string m_Comment = string.Empty;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
@@ -344,6 +346,7 @@ namespace CsvTools
       }
     }
 
+  
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue("")]
@@ -381,6 +384,41 @@ namespace CsvTools
           return;
         m_InOverview = value;
         NotifyPropertyChanged(nameof(InOverview));
+      }
+    }
+
+    [XmlAttribute]
+    [DefaultValue(100)]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public virtual int Order
+    {
+      get => m_Order;
+      set
+      {
+        if (m_Order.Equals(value))
+          return;
+        m_Order = value;
+        NotifyPropertyChanged(nameof(Order));
+      }
+    }
+
+    [XmlAttribute]
+    [DefaultValue("")]
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public virtual string Comment
+    {
+      get => m_Comment;
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_Comment.Equals(newVal, StringComparison.Ordinal))
+          return;
+        m_Id = newVal;
+        NotifyPropertyChanged(nameof(Comment));
       }
     }
 
@@ -791,7 +829,8 @@ namespace CsvTools
       other.RecentlyLoaded = RecentlyLoaded;
       other.KeepUnencrypted = KeepUnencrypted;
       other.LatestSourceTimeUtc = LatestSourceTimeUtc;
-
+      other.Order = Order;
+      other.Comment = Comment;
       other.Footer = Footer;
       other.Header = Header;
       SamplesAndErrors.CopyTo(other.SamplesAndErrors);
@@ -852,6 +891,8 @@ namespace CsvTools
       if (!other.MappingCollection.Equals(MappingCollection))
         return false;
       if (!other.SamplesAndErrors.Equals(SamplesAndErrors))
+        return false;
+      if (other.Order != Order || !other.Comment.Equals(Comment))
         return false;
 
       return other.ColumnCollection.Equals(ColumnCollection);
