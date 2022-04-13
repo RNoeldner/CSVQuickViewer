@@ -95,7 +95,7 @@ namespace CsvTools
 
       labelDisplayNullAs.Visible = writeSetting;
       textBoxDisplayNullAs.Visible = writeSetting;
-      checkBoxIgnore.Visible = !writeSetting && showIgnore;
+      checkBoxIgnore.Visible = showIgnore;
     }
 
     public IColumn EditedColumn => m_ColumnEdit;
