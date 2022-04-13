@@ -57,7 +57,7 @@ namespace CsvTools
     private bool m_InOverview;
 
     private bool m_IsEnabled = true;
-    
+
     private bool m_KeepUnencrypted;
 
     private DateTime m_LatestSourceTimeUtc = ZeroTime;
@@ -346,7 +346,7 @@ namespace CsvTools
       }
     }
 
-  
+
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue("")]
@@ -756,6 +756,15 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    [XmlAttribute]
+    public virtual DateTime LastChange
+    {
+      get;
+      set;
+    } = DateTime.UtcNow;
+
+
+    /// <inheritdoc />
     public virtual void CalculateLatestSourceTime() => LatestSourceTimeUtc = ProcessTimeUtc;
 
     /// <inheritdoc />
@@ -801,7 +810,7 @@ namespace CsvTools
         return;
 
       MappingCollection.CopyTo(other.MappingCollection);
-
+      other.LastChange = LastChange;
       other.ConsecutiveEmptyRows = ConsecutiveEmptyRows;
       other.TrimmingOption = TrimmingOption;
       other.TemplateName = TemplateName;
@@ -904,6 +913,7 @@ namespace CsvTools
     /// <param name="info">The property name.</param>
     protected void NotifyPropertyChanged(string info)
     {
+      LastChange = DateTime.UtcNow;
       if (PropertyChanged is null)
         return;
       try
@@ -936,6 +946,97 @@ namespace CsvTools
       {
         // Ignore
       }
+    }
+
+    /// <inheritdoc />
+    public virtual IEnumerable<string> GetDifferences(IFileSetting other)
+    {
+      if (!other.GetType().FullName.Equals(GetType().FullName, StringComparison.OrdinalIgnoreCase))
+        yield return $"Type : {GetType().FullName} - {other.GetType().FullName}";
+
+      if (!other.ID.Equals(ID, StringComparison.OrdinalIgnoreCase))
+        yield return $"ID : {ID} - {other.ID}";
+      
+      if (other.SkipRows != SkipRows)
+        yield return $"SkipRows : {SkipRows} - {other.SkipRows}";
+      
+      if (other.HasFieldHeader != HasFieldHeader)
+        yield return $"HasFieldHeader : {HasFieldHeader} - {other.HasFieldHeader}";
+      
+      if (other.RecentlyLoaded != RecentlyLoaded)
+        yield return $"RecentlyLoaded : {RecentlyLoaded} - {other.RecentlyLoaded}";
+      
+      if (other.IsEnabled != IsEnabled)
+        yield return $"IsEnabled : {IsEnabled} - {other.IsEnabled}";
+      
+      if (other.InOverview != InOverview)
+        yield return $"InOverview : {InOverview} - {other.InOverview}";
+      
+      if (other.Validate != Validate)
+        yield return $"Validate : {Validate} - {other.Validate}";
+      
+      if (other.ShowProgress != ShowProgress)
+        yield return $"ShowProgress : {ShowProgress} - {other.ShowProgress}";
+      
+      if (other.TreatNBSPAsSpace != TreatNBSPAsSpace)
+        yield return $"TreatNBSPAsSpace : {TreatNBSPAsSpace} - {other.TreatNBSPAsSpace}";
+      
+      if (other.ConsecutiveEmptyRows != ConsecutiveEmptyRows)
+        yield return $"ConsecutiveEmptyRows : {ConsecutiveEmptyRows} - {other.ConsecutiveEmptyRows}";
+
+      if (other.DisplayStartLineNo != DisplayStartLineNo)
+        yield return $"DisplayStartLineNo : {DisplayStartLineNo} - {other.DisplayStartLineNo}";
+      
+      if (other.DisplayEndLineNo != DisplayEndLineNo)
+        yield return $"DisplayEndLineNo : {DisplayEndLineNo} - {other.DisplayEndLineNo}";
+      
+      if (other.DisplayRecordNo != DisplayRecordNo)
+        yield return $"DisplayRecordNo : {DisplayRecordNo} - {other.DisplayRecordNo}";
+      
+      if (other.RecordLimit != RecordLimit)
+        yield return $"RecordLimit : {RecordLimit} - {other.RecordLimit}";
+      
+      if (other.SkipEmptyLines != SkipEmptyLines)
+        yield return $"SkipEmptyLines : {SkipEmptyLines} - {other.SkipEmptyLines}";
+
+      if (other.SkipDuplicateHeader != SkipDuplicateHeader)
+        yield return $"SkipDuplicateHeader : {SkipDuplicateHeader} - {other.SkipDuplicateHeader}";
+
+      if (other.Timeout != Timeout)
+        yield return $"Timeout : {Timeout} - {other.Timeout}";
+
+      if (other.TreatTextAsNull != TreatTextAsNull)
+        yield return $"TreatTextAsNull : {TreatTextAsNull} - {other.TreatTextAsNull}";
+
+      if (!other.TreatTextAsNull.Equals(TreatTextAsNull, StringComparison.OrdinalIgnoreCase))
+        yield return $"TreatTextAsNull : {TreatTextAsNull} - {other.TreatTextAsNull}";
+
+      if (!other.TemplateName.Equals(TemplateName, StringComparison.Ordinal))
+        yield return $"TemplateName : {TemplateName} - {other.TemplateName}";
+
+      if (!other.SqlStatement.Equals(SqlStatement, StringComparison.Ordinal))
+        yield return $"SqlStatement : {SqlStatement} - {other.SqlStatement}";
+
+      if (!other.Footer.Equals(Footer, StringComparison.Ordinal))
+        yield return $"Footer : {Footer} - {other.Footer}";
+
+      if (!other.Header.Equals(Header, StringComparison.Ordinal))
+        yield return $"Header : {Header} - {other.Header}";
+
+      if (other.KeepUnencrypted != KeepUnencrypted)
+        yield return $"KeepUnencrypted : {KeepUnencrypted} - {other.KeepUnencrypted}";
+
+      if (!other.MappingCollection.Equals(MappingCollection))
+        yield return $"MappingCollection different";
+      
+      if (!other.SamplesAndErrors.Equals(SamplesAndErrors))
+        yield return $"SamplesAndErrors different";
+            
+      if (!other.Comment.Equals(Comment, StringComparison.Ordinal))
+        yield return $"Comment : {Comment} - {other.Comment}";
+      
+      if (!other.ColumnCollection.Equals(ColumnCollection))
+        yield return $"ColumnCollection different";
     }
   }
 }

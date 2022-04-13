@@ -13,6 +13,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -313,7 +314,7 @@ namespace CsvTools
       fileSettingPhysicalFile.IdentifierInContainer = IdentifierInContainer;
       fileSettingPhysicalFile.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
       fileSettingPhysicalFile.Passphrase = Passphrase;
-      fileSettingPhysicalFile.Recipient = Recipient;      
+      fileSettingPhysicalFile.Recipient = Recipient;
       fileSettingPhysicalFile.DefaultValueFormatWrite.CopyFrom(DefaultValueFormatWrite);
     }
 
@@ -330,7 +331,7 @@ namespace CsvTools
     {
       if (!(other is IFileSettingPhysicalFile fileSettingPhysicalFile))
         return base.BaseSettingsEquals(other);
-      if (m_ByteOrderMark != fileSettingPhysicalFile.ByteOrderMark || 
+      if (m_ByteOrderMark != fileSettingPhysicalFile.ByteOrderMark ||
             m_CodePageId != fileSettingPhysicalFile.CodePageId)
         return false;
 
@@ -364,6 +365,44 @@ namespace CsvTools
       if (newVal.StartsWith("." + Path.DirectorySeparatorChar, StringComparison.Ordinal))
         newVal = newVal.Substring(2);
       return newVal;
+    }
+
+    public override IEnumerable<string> GetDifferences(IFileSetting other)
+    {
+      if (other is IFileSettingPhysicalFile physicalFile)
+      {
+        if (physicalFile.ByteOrderMark!=ByteOrderMark)
+          yield return $"ByteOrderMark: {ByteOrderMark} {physicalFile.ByteOrderMark}";
+
+        if (physicalFile.CodePageId!=CodePageId)
+          yield return $"CodePageId: {CodePageId} {physicalFile.CodePageId}";
+
+        if (!physicalFile.ColumnFile.Equals(ColumnFile, StringComparison.OrdinalIgnoreCase))
+          yield return $"ColumnFile: {ColumnFile} {physicalFile.ColumnFile}";
+
+        if (!physicalFile.FileName.Equals(FileName, StringComparison.OrdinalIgnoreCase))
+          yield return $"FileName: {FileName} {physicalFile.FileName}";
+
+        if (!physicalFile.RemoteFileName.Equals(RemoteFileName, StringComparison.OrdinalIgnoreCase))
+          yield return $"RemoteFileName: {RemoteFileName} {physicalFile.RemoteFileName}";
+
+        if (!physicalFile.IdentifierInContainer.Equals(IdentifierInContainer, StringComparison.OrdinalIgnoreCase))
+          yield return $"IdentifierInContainer: {IdentifierInContainer} {physicalFile.IdentifierInContainer}";
+
+        if (physicalFile.ThrowErrorIfNotExists!=ThrowErrorIfNotExists)
+          yield return $"ThrowErrorIfNotExists: {ThrowErrorIfNotExists} {physicalFile.ThrowErrorIfNotExists}";
+
+        if (physicalFile.Passphrase!=Passphrase)
+          yield return $"Passphrase";
+
+        if (!physicalFile.Recipient.Equals(Recipient, StringComparison.OrdinalIgnoreCase))
+          yield return $"Recipient: {Recipient} {physicalFile.Recipient}";
+
+        if (!physicalFile.DefaultValueFormatWrite.ValueFormatEqual(DefaultValueFormatWrite))
+          yield return $"DefaultValueFormatWrite";
+      }
+      foreach (var res in base.GetDifferences(other))
+        yield return res;
     }
   }
 }

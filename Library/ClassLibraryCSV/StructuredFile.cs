@@ -13,6 +13,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml.Serialization;
 
@@ -85,6 +86,17 @@ namespace CsvTools
         return;
 
       otherSwf.Row = m_Row;
+    }
+
+    public override IEnumerable<string> GetDifferences(IFileSetting other)
+    {
+      if (other is StructuredFile csv)
+      {
+        if (Row != csv.Row)
+          yield return $"Row: {Row} {csv.Row}";
+      }
+      foreach (var res in base.GetDifferences(other))
+        yield return res;
     }
   }
 }

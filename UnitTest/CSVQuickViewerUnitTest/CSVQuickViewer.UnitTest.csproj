@@ -11,8 +11,8 @@
 		<ReleaseVersion>1.4.6.499</ReleaseVersion>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
-		<PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
+		<PackageReference Include="MSTest.TestAdapter" Version="2.2.9" />
+		<PackageReference Include="MSTest.TestFramework" Version="2.2.9" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Application\CSVQuickViewer.csproj" />

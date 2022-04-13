@@ -84,6 +84,12 @@ namespace CsvTools
     string ID { get; set; }
 
     /// <summary>
+    ///   Gets the time of the last chnage in the setting, this is not used for equality but its copied over.
+    /// </summary>
+    /// <value>Time of last chnage in UTC</value>
+    DateTime LastChange { get;  }
+
+    /// <summary>
     ///   Gets or sets a value indicating whether this setting is critical for the export, meaning
     ///   the processing will throw an error in case of problems. You can flag a setting to not be
     ///   validated but it should show up as critical import step
@@ -265,5 +271,13 @@ namespace CsvTools
     /// </summary>
     /// <param name="other"></param>
     void CopyTo(IFileSetting other);
+
+
+    /// <summary>
+    /// Get a description of diffreences between two file settings, idelaly they should be of same type
+    /// </summary>
+    /// <param name="other"></param>
+    /// <returns>List of diffrences as string</returns>
+    IEnumerable<string> GetDifferences(IFileSetting other);
   }
 }
