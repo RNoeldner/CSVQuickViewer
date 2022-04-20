@@ -122,7 +122,7 @@ namespace CsvTools
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">reader</exception>
-    public static IEnumerable<IColumn> GetColumnInformation(
+    public static IEnumerable<WriterColumn> GetColumnInformation(
       IValueFormat generalFormat,
       IReadOnlyCollection<IColumn> columnDefinitions,
       DataTable schemaTable)
@@ -378,6 +378,53 @@ namespace CsvTools
     protected void HandleWarning(string columnName, string message) =>
       Warning?.Invoke(this, new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
 
+    /// <summary>
+    /// Do the value vonversion of a FileWriter
+    /// </summary>
+    /// <param name="reader"></param>
+    /// <param name="dataObject"></param>
+    /// <param name="columnInfo"></param>
+    /// <returns></returns>
+    public static object ValueConversion(in IDataReader? reader, in object? dataObject, in WriterColumn columnInfo)
+    {
+      if (dataObject is null || dataObject is DBNull)
+        return columnInfo.ValueFormat.DisplayNullAs;
+
+      switch (columnInfo.ValueFormat.DataType)
+      {
+        case DataType.Binary:
+          return BinaryFormatter.GetFileName(columnInfo.Pattern, reader);
+        case DataType.Integer:
+          return Convert.ToInt64(dataObject);          
+        case DataType.Boolean:
+          return Convert.ToBoolean(dataObject);          
+        case DataType.Double:
+          return Convert.ToDouble(dataObject);
+        case DataType.Numeric:
+          return Convert.ToDecimal(dataObject);
+        case DataType.DateTime:
+          if (dataObject is DateTime dtm)
+          {
+            if (reader != null)
+            {
+              if (columnInfo.ColumnOrdinalTimeZone > -1)
+                return FunctionalDI.AdjustTZExport(dtm, reader.GetString(columnInfo.ColumnOrdinalTimeZone), null);
+              if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
+                return FunctionalDI.AdjustTZExport(dtm, columnInfo.ConstantTimeZone, null);
+            }
+            return dtm;
+          }
+          return Convert.ToDateTime(dataObject);
+        case DataType.Guid:          
+            return (dataObject is Guid guid) ? guid : new Guid(dataObject.ToString());          
+        default:
+          var displayAs = Convert.ToString(dataObject) ?? string.Empty;
+          if (columnInfo.ColumnFormatter != null)
+            displayAs = columnInfo.ColumnFormatter.FormatText(displayAs, handleWarning: null);
+          return displayAs;
+      }     
+    }
+
     protected string TextEncodeField(
       object? dataObject,
       WriterColumn columnInfo,
@@ -389,58 +436,18 @@ namespace CsvTools
       string displayAs;
       try
       {
-        if (dataObject is null || dataObject is DBNull)
-          displayAs = columnInfo.ValueFormat.DisplayNullAs;
-        else
-          switch (columnInfo.ValueFormat.DataType)
-          {
-            case DataType.Binary:
-              displayAs = BinaryFormatter.GetFileName(columnInfo.Pattern, reader);
-              break;
-
-            case DataType.Integer:
-              displayAs = Convert.ToInt64(dataObject)
-                                 .ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
-                                   CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
-                                   columnInfo.ValueFormat.GroupSeparator);
-              break;
-
-            case DataType.Boolean:
-              displayAs = (bool) dataObject ? columnInfo.ValueFormat.True : columnInfo.ValueFormat.False;
-              break;
-
-            case DataType.Double:
-              displayAs = StringConversion.DoubleToString(
-                dataObject is double d
-                  ? d
-                  : Convert.ToDouble(Convert.ToString(dataObject), CultureInfo.InvariantCulture),
-                columnInfo.ValueFormat);
-              break;
-
-            case DataType.Numeric:
-              displayAs = StringConversion.DecimalToString(
-                dataObject is decimal @decimal
-                  ? @decimal
-                  : Convert.ToDecimal(Convert.ToString(dataObject), CultureInfo.InvariantCulture),
-                columnInfo.ValueFormat);
-              break;
-
-            case DataType.DateTime:
-              displayAs = reader is null
-                            ? StringConversion.DateTimeToString((DateTime) dataObject, columnInfo.ValueFormat)
-                            : StringConversion.DateTimeToString(HandleTimeZone((DateTime) dataObject, columnInfo, reader), columnInfo.ValueFormat);
-              break;
-
-            case DataType.Guid:
-              displayAs = ((Guid) dataObject).ToString();
-              break;
-
-            default:
-              displayAs = Convert.ToString(dataObject) ?? string.Empty;
-              if (columnInfo.ColumnFormatter != null)
-                displayAs = columnInfo.ColumnFormatter.FormatText(displayAs, handleWarning: null);
-              break;
-          }
+        var convertedValue = ValueConversion(reader, dataObject, columnInfo);
+        displayAs =convertedValue switch
+        {
+          long longval => longval.ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
+                              CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
+                              columnInfo.ValueFormat.GroupSeparator),
+          bool bolval => bolval ? columnInfo.ValueFormat.True : columnInfo.ValueFormat.False,
+          double dblval => StringConversion.DoubleToString(dblval, columnInfo.ValueFormat),
+          decimal decval => StringConversion.DecimalToString(decval, columnInfo.ValueFormat),
+          DateTime dtmval => StringConversion.DateTimeToString(dtmval, columnInfo.ValueFormat),
+          _ => convertedValue.ToString(),
+        };
       }
       catch (Exception ex)
       {

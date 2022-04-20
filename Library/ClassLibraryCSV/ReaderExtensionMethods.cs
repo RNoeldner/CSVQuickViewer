@@ -177,7 +177,7 @@ namespace CsvTools
       return dataTable;
     }
 
-    private static DataTable GetEmptyDataTable(this IDataRecord reader)
+    public static DataTable GetEmptyDataTable(this IDataRecord reader)
     {
       // Special handling for DataTableWrapper, no need to build something
       var dataTable = new DataTable { Locale = CultureInfo.CurrentCulture, CaseSensitive = false };

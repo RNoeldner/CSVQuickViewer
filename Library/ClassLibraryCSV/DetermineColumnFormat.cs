@@ -648,8 +648,8 @@ namespace CsvTools
           if (!await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false) && fileReader.EndOfFile)
           {
             if (!fileReader.SupportsReset)
-              break;            
-            fileReader.ResetPositionToFirstDataRow();            
+              break;
+            fileReader.ResetPositionToFirstDataRow();
             // uif we started at teh beginning and we are now back, exist
             // if we started and we can not read a line exist as well.
             if (startRecordNumber == 0 || !await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
@@ -1182,38 +1182,54 @@ namespace CsvTools
       bool all,
       IProcessDisplay? processDisplay, CancellationToken cancellationToken)
     {
-      if (string.IsNullOrEmpty(fileSettings.SqlStatement))
+      if (FunctionalDI.SQLDataReader is null)
+        throw new FileWriterException("No Async SQL Reader set");
+      foreach (var item in await GetColumnsSQL(fileSettings.SqlStatement, all, cancellationToken))
+      {
+        fileSettings.ColumnCollection.Add(item);
+      }
+    }
+
+    /// <summary>
+    ///   Gets the Columns of a SQL statement
+    /// </summary>
+    /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
+    public static async Task<ICollection<IColumn>> GetColumnsSQL(
+      string sql, bool all, CancellationToken cancellationToken)
+    {
+      if (string.IsNullOrEmpty(sql))
         throw new FileWriterException("No SQL Statement given");
       if (FunctionalDI.SQLDataReader is null)
         throw new FileWriterException("No Async SQL Reader set");
+
+      var resultList = new List<IColumn>();
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var fileReader = await FunctionalDI.SQLDataReader(
-                               fileSettings.SqlStatement,
-                               processDisplay,
-                               fileSettings.Timeout,
-                               cancellationToken).ConfigureAwait(false);
+      using var fileReader = await FunctionalDI.SQLDataReader(sql, null, 120, cancellationToken).ConfigureAwait(false);
       await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       // Put the information into the list
       var dataRowCollection = fileReader.GetSchemaTable()?.Rows;
-      if (dataRowCollection is null) return;
-      foreach (DataRow schemaRow in dataRowCollection)
+      if (dataRowCollection != null)
       {
-        var header = Convert.ToString(schemaRow[SchemaTableColumn.ColumnName]);
-        if (string.IsNullOrEmpty(header))
-          continue;
-        var colType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType();
+        foreach (DataRow schemaRow in dataRowCollection)
+        {
+          var header = Convert.ToString(schemaRow[SchemaTableColumn.ColumnName]);
+          if (string.IsNullOrEmpty(header))
+            continue;
+          var colType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType();
 
-        if (!all && colType == DataType.String)
-          continue;
+          if (!all && colType == DataType.String)
+            continue;
 
-        fileSettings.ColumnCollection.Add(
-          new ImmutableColumn(
-            header,
-            new ImmutableValueFormat(colType),
-            (int) schemaRow[SchemaTableColumn.ColumnOrdinal]));
+          resultList.Add(
+            new ImmutableColumn(
+              header,
+              new ImmutableValueFormat(colType),
+              (int) schemaRow[SchemaTableColumn.ColumnOrdinal]));
+        }
       }
+      return resultList;
     }
 
     /// <summary>

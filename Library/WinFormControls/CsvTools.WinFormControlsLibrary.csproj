@@ -52,4 +52,7 @@
 		<ProjectReference Include="..\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj">
 		</ProjectReference>
 	</ItemGroup>
+	<ItemGroup>
+	  <Compile Update="FormCsvTextDisplay.cs" />
+	</ItemGroup>
 </Project>
