@@ -595,7 +595,7 @@ namespace CsvTools
       m_ToolStripButtonSource!.RunWithHourglass(() =>
       {
         m_ToolStripButtonSource.Enabled = false;
-        m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting.FileName);
+        m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting.FileName, true);
         m_SourceDisplay.FormClosed += SourceDisplayClosed;
         m_SourceDisplay.Show();
         using var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token);

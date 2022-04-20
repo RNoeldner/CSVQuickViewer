@@ -332,11 +332,11 @@ namespace CsvTools
       string.IsNullOrEmpty(contents) ? string.Empty : contents!.Replace("'", "''");
 
     /// <summary>
-    ///   Read the value and determine if this could be a constant value (surrounded by " or ') if
+    ///   Read the value and determine if this could be a constant value (surrounded by " or ') or if its a number; if
     ///   not its assume is a reference to another field
     /// </summary>
     /// <param name="entry">A text that refers to another column or is possibly a constant</param>
-    /// <param name="result">The constant value</param>
+    /// <param name="result">The constant value without the " or '</param>
     /// <returns><c>true</c> if a constant was found</returns>
     public static bool TryGetConstant(this string? entry, out string result)
     {
@@ -345,8 +345,8 @@ namespace CsvTools
         return false;
 
       if (entry!.Length > 2
-          && ((entry.StartsWith("\"", StringComparison.Ordinal) && entry.EndsWith("\"", StringComparison.Ordinal))
-              || (entry.StartsWith("'", StringComparison.Ordinal) && entry.EndsWith("'", StringComparison.Ordinal))))
+          && ((entry[0] == '"' && entry.EndsWith("\"", StringComparison.Ordinal))
+           || (entry[0] == '\'' && entry.EndsWith("'", StringComparison.Ordinal))))
       {
         result = entry.Substring(1, entry.Length - 2);
         return true;

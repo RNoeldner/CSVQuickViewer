@@ -26,19 +26,25 @@ namespace CsvTools
   {
     private int m_CodePage;
     private readonly string m_FullPath;
+    private readonly bool m_IsFile;
     private ISyntaxHighlighter? m_HighLighter;
     private MemoryStream? m_MemoryStream;
     private int m_SkipLines;
-    private IImprovedStream? m_Stream;
+    private Stream? m_Stream;
+
 
     /// <summary>
     ///   CTOR CsvTextDisplay
     /// </summary>
-    public FormCsvTextDisplay(string fullPath)
+    public FormCsvTextDisplay(string fullPath, bool isFile)
     {
       m_FullPath = fullPath ?? throw new ArgumentNullException(nameof(fullPath));
       InitializeComponent();
-      base.Text = FileSystemUtils.GetShortDisplayFileName(m_FullPath);
+      m_IsFile =isFile;
+      if (m_IsFile)
+        base.Text = FileSystemUtils.GetShortDisplayFileName(m_FullPath);
+      else
+        base.Text ="";
     }
 
     private void HighlightVisibleRange()
@@ -65,18 +71,22 @@ namespace CsvTools
     {
       m_MemoryStream?.Dispose();
       m_MemoryStream = null;
-      var sa = new SourceAccess(m_FullPath);
-      m_Stream = new ImprovedStream(sa);
-      if (sa.FileType == SourceAccess.FileTypeEnum.Zip || sa.FileType == SourceAccess.FileTypeEnum.Pgp)
+      if (!m_IsFile)
       {
-        var encoding = Encoding.GetEncoding(m_CodePage);
-        using var textReader = new StreamReader((Stream) m_Stream, encoding, true, 4096, true);
-        textBox.Text = textReader.ReadToEnd();
+        var sa = new SourceAccess(m_FullPath);
+        m_Stream = new ImprovedStream(sa);
+        if (sa.FileType == SourceAccess.FileTypeEnum.Zip || sa.FileType == SourceAccess.FileTypeEnum.Pgp)
+        {
+          var encoding = Encoding.GetEncoding(m_CodePage);
+          using var textReader = new StreamReader(m_Stream, encoding, true, 4096, true);
+          textBox.Text = textReader.ReadToEnd();
+        }
+        else
+        {
+          textBox.OpenBindingStream(m_Stream, Encoding.GetEncoding(m_CodePage));
+        }
       }
-      else
-      {
-        textBox.OpenBindingStream(m_Stream as Stream, Encoding.GetEncoding(m_CodePage));
-      }      
+
       HighlightVisibleRange();
       prettyPrintJsonToolStripMenuItem.Checked = false;
       originalFileToolStripMenuItem.Checked = true;
@@ -117,35 +127,40 @@ namespace CsvTools
     public void OpenFile(bool json, string qualifier, string delimiter, string escape, int codePage, int skipLines,
                          string comment)
     {
-      if (!FileSystemUtils.FileExists(m_FullPath))
+      if (json)
       {
-        textBox.Text = $"\nThe file '{m_FullPath}' does not exist.";
+        m_HighLighter = new SyntaxHighlighterJson(textBox);
+        textBox.ContextMenuStrip = contextMenuJson;
       }
       else
+        m_HighLighter =
+          new SyntaxHighlighterDelimitedText(textBox, qualifier, delimiter, escape, comment);
+
+      if (m_IsFile)
       {
-        try
+        if (!FileSystemUtils.FileExists(m_FullPath))
         {
-          if (json)
-          {
-            m_HighLighter = new SyntaxHighlighterJson(textBox);
-            textBox.ContextMenuStrip = contextMenuJson;
-          }
-          else
-            m_HighLighter =
-              new SyntaxHighlighterDelimitedText(textBox, qualifier, delimiter, escape, comment);
-
-          m_Stream = new ImprovedStream(new SourceAccess(m_FullPath));
-          m_SkipLines = !json ? skipLines : 0;
-          m_CodePage = codePage;
-
-          OriginalStream();
+          textBox.Text = $"\nThe file '{m_FullPath}' does not exist.";
         }
-        catch (Exception ex)
+        else
         {
-          m_HighLighter = null;
-          textBox.Text = $"Issue opening the file {m_FullPath} for display:\n\n\n{ex.Message}";
+          try
+          {
+            m_Stream = new ImprovedStream(new SourceAccess(m_FullPath));
+            m_SkipLines = !json ? skipLines : 0;
+            m_CodePage = codePage;
+
+            OriginalStream();
+          }
+          catch (Exception ex)
+          {
+            m_HighLighter = null;
+            textBox.Text = $"Issue opening the file {m_FullPath} for display:\n\n\n{ex.Message}";
+          }
         }
       }
+      else
+        textBox.Text = m_FullPath;
     }
 
     private void TextBox_TextChangedDelayed(object? sender, FastColoredTextBoxNS.TextChangedEventArgs e) => HighlightVisibleRange();
