@@ -123,7 +123,7 @@ namespace CsvTools
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">reader</exception>
     public static IEnumerable<WriterColumn> GetColumnInformation(
-      IValueFormat generalFormat,
+      IValueFormat? generalFormat,
       IReadOnlyCollection<IColumn> columnDefinitions,
       DataTable schemaTable)
     {
@@ -142,6 +142,9 @@ namespace CsvTools
         var newName = StringUtils.MakeUniqueInCollection(colNames.Values, colName);
         colNames.Add(colNo, newName);
       }
+      // Get default if we do not have the information
+      if (generalFormat is null)
+        generalFormat = new ImmutableValueFormat();
 
       foreach (DataRow schemaRow in schemaTable.Rows)
       {
