@@ -40,7 +40,7 @@ namespace CsvTools
     private readonly string m_Recipient;
     private readonly Action<string>? m_ReportProgress;
     private readonly Action<long>? m_SetMaxProcess;
-    protected readonly IValueFormat ValueFormatGeneral;
+    private readonly IValueFormat ValueFormatGeneral;
     protected string Header;
     private DateTime m_LastNotification = DateTime.Now;
 
@@ -99,7 +99,7 @@ namespace CsvTools
       m_SetMaxProcess = l => processDisplayTime.Maximum = l;
     }
 
-    public long Records { get; set; }
+    public long Records { get; protected set; }
 
     /// <summary>
     ///   Event handler called if a warning or error occurred
@@ -300,42 +300,6 @@ namespace CsvTools
 
     protected void HandleProgress(string text) => m_ReportProgress?.Invoke(text);
 
-    /// <summary>
-    ///   Handles the time zone for a date time column
-    /// </summary>
-    /// <param name="dataObject">The data object.</param>
-    /// <param name="columnInfo">The column information.</param>
-    /// <param name="reader">The reader.</param>
-    /// <returns></returns>
-    protected DateTime HandleTimeZone(DateTime dataObject, WriterColumn columnInfo, IDataRecord reader)
-    {
-      if (columnInfo is null)
-        throw new ArgumentNullException(nameof(columnInfo));
-      if (reader is null)
-        throw new ArgumentNullException(nameof(reader));
-      if (columnInfo.ColumnOrdinalTimeZone > -1)
-      {
-        var destinationTimeZoneId = reader.GetString(columnInfo.ColumnOrdinalTimeZone);
-        if (string.IsNullOrEmpty(destinationTimeZoneId))
-          HandleWarning(columnInfo.Name, "Time zone is empty, value not converted");
-        else
-          // ReSharper disable once PossibleInvalidOperationException
-          return FunctionalDI.AdjustTZExport(
-            dataObject,
-            destinationTimeZoneId,
-            (msg) => HandleWarning(Columns[Columns.IndexOf(columnInfo)].Name, msg));
-      }
-      else if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
-      {
-        // ReSharper disable once PossibleInvalidOperationException
-        return FunctionalDI.AdjustTZExport(
-          dataObject,
-          columnInfo.ConstantTimeZone,
-          (msg) => HandleWarning(Columns[Columns.IndexOf(columnInfo)].Name, msg));
-      }
-
-      return dataObject;
-    }
 
     protected virtual void HandleWriteStart() => Records = 0;
 
@@ -359,10 +323,9 @@ namespace CsvTools
       using var dt = reader.GetSchemaTable();
       Columns.AddRange(
         GetColumnInformation(
-            ValueFormatGeneral,
-            ColumnDefinition,
-            dt ?? throw new ArgumentException("GetSchemaTable did not return information for reader"))
-          .Cast<WriterColumn>());
+          ValueFormatGeneral,
+          ColumnDefinition,
+          dt ?? throw new ArgumentException("GetSchemaTable did not return information for reader")));
     }
 
     public abstract Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
@@ -382,50 +345,61 @@ namespace CsvTools
       Warning?.Invoke(this, new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
 
     /// <summary>
-    /// Do the value vonversion of a FileWriter
+    /// Value conversion of a FileWriter
     /// </summary>
-    /// <param name="reader"></param>
-    /// <param name="dataObject"></param>
-    /// <param name="columnInfo"></param>
-    /// <returns></returns>
-    public static object ValueConversion(in IDataReader? reader, in object? dataObject, in WriterColumn columnInfo)
+    /// <param name="reader">Data Reader / Data Records in case additional columns are needed e.G. for TimeZone adjustment based off ColumnOrdinalTimeZone or GetFileName</param>
+    /// <param name="dataObject">The actual data of the column</param>
+    /// <param name="columnInfo">Information on ValueConversion</param>
+    /// <param name="handleWarning"></param>
+    /// <returns>Value of the .Net Data type matching the ValueFormat.DataType</returns>
+    public static object? ValueConversion(in IDataRecord? reader, in object? dataObject, WriterColumn columnInfo, Action<string, string>? handleWarning = null)
     {
       if (dataObject is null || dataObject is DBNull)
-        return columnInfo.ValueFormat.DisplayNullAs;
+        return null;
 
+      // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
       switch (columnInfo.ValueFormat.DataType)
       {
         case DataType.Binary:
           return BinaryFormatter.GetFileName(columnInfo.Pattern, reader);
+
         case DataType.Integer:
-          return Convert.ToInt64(dataObject);          
+          return Convert.ToInt64(dataObject);
+
         case DataType.Boolean:
-          return Convert.ToBoolean(dataObject);          
+          return Convert.ToBoolean(dataObject);
+
         case DataType.Double:
           return Convert.ToDouble(dataObject);
+
         case DataType.Numeric:
           return Convert.ToDecimal(dataObject);
+
         case DataType.DateTime:
-          if (dataObject is DateTime dtm)
+          var dtm = Convert.ToDateTime(dataObject);
+          if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
+            return FunctionalDI.AdjustTZExport(dtm, columnInfo.ConstantTimeZone, (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
+
+          if (reader is null || columnInfo.ColumnOrdinalTimeZone <= -1)
+            return dtm;
+
+          var destinationTimeZoneId = reader.GetString(columnInfo.ColumnOrdinalTimeZone);
+          if (string.IsNullOrEmpty(destinationTimeZoneId))
           {
-            if (reader != null)
-            {
-              if (columnInfo.ColumnOrdinalTimeZone > -1)
-                return FunctionalDI.AdjustTZExport(dtm, reader.GetString(columnInfo.ColumnOrdinalTimeZone), null);
-              if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
-                return FunctionalDI.AdjustTZExport(dtm, columnInfo.ConstantTimeZone, null);
-            }
+            handleWarning?.Invoke(columnInfo.Name, "Time zone is empty, value not converted");
             return dtm;
           }
-          return Convert.ToDateTime(dataObject);
-        case DataType.Guid:          
-            return (dataObject is Guid guid) ? guid : new Guid(dataObject.ToString());          
+          return FunctionalDI.AdjustTZExport(dtm, reader.GetString(columnInfo.ColumnOrdinalTimeZone), (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
+
+        case DataType.Guid:
+          return (dataObject is Guid guid) ? guid : new Guid(dataObject.ToString());
+
         default:
-          var displayAs = Convert.ToString(dataObject) ?? string.Empty;
+          var displayAs = Convert.ToString(dataObject);
           if (columnInfo.ColumnFormatter != null)
             displayAs = columnInfo.ColumnFormatter.FormatText(displayAs, handleWarning: null);
           return displayAs;
-      }     
+      }
     }
 
     protected string TextEncodeField(
@@ -439,24 +413,31 @@ namespace CsvTools
       string displayAs;
       try
       {
-        var convertedValue = ValueConversion(reader, dataObject, columnInfo);
-        displayAs =convertedValue switch
+        var convertedValue = ValueConversion(reader, dataObject, columnInfo, HandleWarning);
+        if (convertedValue is null)
         {
-          long longval => longval.ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
-                              CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
-                              columnInfo.ValueFormat.GroupSeparator),
-          bool bolval => bolval ? columnInfo.ValueFormat.True : columnInfo.ValueFormat.False,
-          double dblval => StringConversion.DoubleToString(dblval, columnInfo.ValueFormat),
-          decimal decval => StringConversion.DecimalToString(decval, columnInfo.ValueFormat),
-          DateTime dtmval => StringConversion.DateTimeToString(dtmval, columnInfo.ValueFormat),
-          _ => convertedValue.ToString(),
-        };
+          displayAs =columnInfo.ValueFormat.DisplayNullAs;
+        }
+        else
+        {
+          displayAs =convertedValue switch
+          {
+            long aLong => aLong.ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
+                                CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
+                                columnInfo.ValueFormat.GroupSeparator),
+            bool aBol => aBol ? columnInfo.ValueFormat.True : columnInfo.ValueFormat.False,
+            double aDbl => StringConversion.DoubleToString(aDbl, columnInfo.ValueFormat),
+            decimal aDec => StringConversion.DecimalToString(aDec, columnInfo.ValueFormat),
+            DateTime aDTm => StringConversion.DateTimeToString(aDTm, columnInfo.ValueFormat),
+            _ => convertedValue.ToString(),
+          };
+        }
       }
       catch (Exception ex)
       {
         // In case a cast did fail (eg.g trying to format as integer and providing a text, use the
         // original value
-        displayAs = Convert.ToString(dataObject) ?? string.Empty;
+        displayAs = Convert.ToString(dataObject);
         if (string.IsNullOrEmpty(displayAs))
           HandleError(columnInfo.Name, ex.Message);
         else
