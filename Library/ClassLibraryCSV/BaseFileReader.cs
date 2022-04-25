@@ -366,7 +366,7 @@ namespace CsvTools
       return filestream.Read(buffer, bufferOffset, length);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IFileReader" />
     public virtual byte[] GetFile(int ordinal)
     {
       var fn = GetString(ordinal);
