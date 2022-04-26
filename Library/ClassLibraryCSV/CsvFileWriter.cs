@@ -265,7 +265,7 @@ namespace CsvTools
         {
           if (dataObject is byte[] buffer)
           {
-            await BinaryFormatter.WriteFileAsync(buffer, FileSystemUtils.GetDirectoryName(m_FullPath), displayAs, true, s => HandleError(columnInfo.Name, s),
+            await BinaryFormatter.WriteFileAsync(buffer, m_FullPath.GetDirectoryName(), displayAs, true, s => HandleError(columnInfo.Name, s),
               cancellationToken).ConfigureAwait(false);
           }
           else

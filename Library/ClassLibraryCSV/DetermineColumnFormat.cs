@@ -566,6 +566,7 @@ namespace CsvTools
     /// </param>
     /// <param name="enoughSamples">The enough samples.</param>
     /// <param name="treatAsNull">Text that should be regarded as an empty column</param>
+    /// <param name="maxChars">Examples are cut off if longer than this number of characters</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">dataReader</exception>
@@ -1176,6 +1177,7 @@ namespace CsvTools
     /// <param name="fileSettings">The file settings.</param>
     /// <param name="all">if set to <c>true</c> event string columns are added.</param>
     /// <param name="processDisplay">The process display.</param>
+    /// <param name="cancellationToken">A cancellation token</param>
     /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
     public static async Task FillGuessColumnFormatWriterAsync(
       this IFileSetting fileSettings,
@@ -1261,14 +1263,14 @@ namespace CsvTools
     /// <param name="timeout"></param>
     /// <param name="valueFormatGeneral">The general format for the output</param>
     /// <param name="columnDefinitions">Definition for individual columns</param>
-    /// <param name="token"></param>
+    /// <param name="cancellationToken">A cancellation token</param>
     /// <returns></returns>
     public static async Task<IEnumerable<IColumn>> GetWriterColumnInformationAsync(
       string? sqlStatement,
       int timeout,
       IValueFormat valueFormatGeneral,
       IReadOnlyCollection<IColumn> columnDefinitions,
-      CancellationToken token)
+      CancellationToken cancellationToken)
     {
       if (valueFormatGeneral is null) throw new ArgumentNullException(nameof(valueFormatGeneral));
       if (columnDefinitions is null) throw new ArgumentNullException(nameof(columnDefinitions));
@@ -1284,8 +1286,8 @@ namespace CsvTools
                          sqlStatement.NoRecordSQL(),
                          null,
                          timeout,
-                         token).ConfigureAwait(false);
-      await data.OpenAsync(token).ConfigureAwait(false);
+                         cancellationToken).ConfigureAwait(false);
+      await data.OpenAsync(cancellationToken).ConfigureAwait(false);
       using var dt = data.GetSchemaTable();
       if (dt is null)
         throw new FileWriterException("Could not get source schema");
