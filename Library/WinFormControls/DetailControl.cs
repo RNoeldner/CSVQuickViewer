@@ -1137,7 +1137,7 @@ namespace CsvTools
 
         BeforeFileStored?.Invoke(this, writeFile);
         var writer = new CsvFileWriter(string.Empty, fileName, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
-          writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
+          writeFile.ByteOrderMark, writeFile.ColumnCollection, FunctionalDI.GetKeyID(writeFile.Recipient), writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
           headerAndSipped.ToString(), writeFile.Footer, string.Empty, writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar,
           writeFile.EscapePrefixChar,
           writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded,

@@ -54,7 +54,7 @@ namespace CsvTools
     protected StructuredFileWriter(
       in string id,
       in string fullPath,
-      in string? recipient,
+      in long pgpKeyId,
       bool unencrypted,
       in string? identifierInContainer,
       in string? footer,
@@ -69,7 +69,7 @@ namespace CsvTools
         id,
         fullPath,
         null,
-        recipient,
+        pgpKeyId,
         unencrypted,
         identifierInContainer,
         footer,

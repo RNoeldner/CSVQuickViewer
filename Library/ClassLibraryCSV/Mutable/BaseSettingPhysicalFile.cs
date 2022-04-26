@@ -246,6 +246,7 @@ namespace CsvTools
         if (m_Recipient.Equals(newVal, StringComparison.Ordinal))
           return;
         m_Recipient = newVal;
+        m_KeyID = 0;
         NotifyPropertyChanged(nameof(Recipient));
       }
     }
@@ -293,6 +294,27 @@ namespace CsvTools
           return;
         m_ThrowErrorIfNotExists = value;
         NotifyPropertyChanged(nameof(ThrowErrorIfNotExists));
+      }
+    }
+
+    private long m_KeyID = 0;
+
+    [XmlAttribute]
+    [DefaultValue(0)]
+    public long KeyID
+    {
+      get
+      {
+        if (m_KeyID==0)
+          m_KeyID = FunctionalDI.GetKeyID(m_Recipient);
+        return m_KeyID;
+      }
+      set
+      {
+        if (m_KeyID.Equals(value))
+          return;
+        m_KeyID = value;
+        NotifyPropertyChanged(nameof(KeyID));
       }
     }
 

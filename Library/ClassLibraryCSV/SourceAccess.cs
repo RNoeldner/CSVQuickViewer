@@ -62,7 +62,12 @@ namespace CsvTools
     /// <summary>
     ///   Information about the recipient for a encryption
     /// </summary>
-    public readonly string Recipient;
+    // public readonly string Recipient;
+
+    /// <summary>
+    /// TODO: Need to provide the encryption key, only provideing recipient is not enough as there could be many keys for this recipinet
+    /// </summary>
+    public readonly long KeyID;
 
     /// <summary>
     ///   The Password or Passphrase information
@@ -93,8 +98,8 @@ namespace CsvTools
     public SourceAccess(
       in string fileName,
       bool isReading = true,
-      in string? id = null,
-      in string? recipient = null,
+      in string? id = null,      
+      in long keyID = 0,
       bool keepEncrypted = false)
     {
       if (string.IsNullOrWhiteSpace(fileName))
@@ -108,8 +113,8 @@ namespace CsvTools
 
       FullPath = fileName;
       Reading = isReading;
-      Identifier = id ?? FileSystemUtils.GetShortDisplayFileName(fileName, 40);
-      Recipient = recipient ?? string.Empty;
+      Identifier = id ?? FileSystemUtils.GetShortDisplayFileName(fileName, 40);      
+      KeyID = keyID;
       KeepEncrypted = keepEncrypted;
       LeaveOpen = false;
       FileType = FromExtension(fileName);
@@ -124,7 +129,7 @@ namespace CsvTools
         // for PGP we need a password/ pass phrase for Zip we might need one later
         case FileTypeEnum.Pgp when isReading:
           EncryptedPassphrase = FunctionalDI.GetEncryptedPassphraseForFile(fileName);
-          break;
+          break;        
       }
 
       if (!isReading && KeepEncrypted && FileType == FileTypeEnum.Pgp)
@@ -150,7 +155,7 @@ namespace CsvTools
     /// <param name="setting">The setting of type <see cref="T:CsvTools.IFileSettingPhysicalFile" /></param>
     /// <param name="isReading"><c>true</c> if used for reading</param>
     public SourceAccess(IFileSettingPhysicalFile setting, bool isReading = true)
-      : this(setting.FullPath, isReading, setting.ID, setting.Recipient, setting.KeepUnencrypted)
+      : this(setting.FullPath, isReading, setting.ID,  0, setting.KeepUnencrypted)
     {
     }
 
@@ -161,7 +166,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="stream">The source stream, it must support seek if its a read stream</param>
     /// <param name="type">The type of the contents in the stream</param>
-    public SourceAccess(Stream stream, FileTypeEnum type = FileTypeEnum.Stream, bool isReading = true, in string? recipient = null)
+    public SourceAccess(Stream stream, FileTypeEnum type = FileTypeEnum.Stream, bool isReading = true,  in long keyID = 0)
     {
       if (!stream.CanSeek)
         throw new ArgumentException("Source stream must support seek to be used for SourceAccess", nameof(stream));
@@ -171,8 +176,8 @@ namespace CsvTools
       Reading = isReading;
       FullPath = string.Empty;
       EncryptedPassphrase = string.Empty;
-      IdentifierInContainer = string.Empty;
-      Recipient = recipient?? string.Empty;
+      IdentifierInContainer = string.Empty;      
+      KeyID = keyID;
       // Overwrite in case we can get more information
       if (stream is FileStream fs)
       {
