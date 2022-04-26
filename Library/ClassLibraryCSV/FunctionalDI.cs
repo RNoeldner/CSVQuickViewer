@@ -53,6 +53,11 @@ namespace CsvTools
     ///   Retrieve the passphrase for a files
     /// </summary>
     public static Func<string, string> GetEncryptedPassphraseForFile = s => string.Empty;
+    
+    /// <summary>
+    ///   Retrieve the KeyID for a recipient
+    /// </summary>
+    public static Func<string, long> GetKeyID = s => 0;
 
     /// <summary>
     ///   Open a file for reading, it will take care of things like compression and encryption
@@ -200,6 +205,7 @@ namespace CsvTools
     private static IFileWriter DefaultFileWriter(IFileSetting fileSetting, IProcessDisplay? processDisplay)
     {
       IFileWriter? writer = null;
+
       switch (fileSetting)
       {
         case ICsvFile csv:
@@ -211,7 +217,7 @@ namespace CsvTools
             csv.CodePageId,
             csv.ByteOrderMark,
             csv.ColumnCollection,
-            csv.Recipient,
+            csv.KeyID,
             csv.KeepUnencrypted,
             csv.IdentifierInContainer,
             csv.Header,
@@ -233,7 +239,7 @@ namespace CsvTools
           writer = new JsonFileWriter(
             fileSetting.ID,
             jsonFile.FullPath,
-            jsonFile.Recipient,
+            jsonFile.KeyID,
             jsonFile.KeepUnencrypted,
             jsonFile.IdentifierInContainer,
             jsonFile.Footer,
@@ -250,7 +256,7 @@ namespace CsvTools
           writer = new XmlFileWriter(
             xmlFile.ID,
             xmlFile.FullPath,
-            xmlFile.Recipient,
+            xmlFile.KeyID,
             xmlFile.KeepUnencrypted,
             xmlFile.IdentifierInContainer,
             xmlFile.Footer,

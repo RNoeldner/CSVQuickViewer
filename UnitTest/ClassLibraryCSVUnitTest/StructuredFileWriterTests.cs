@@ -63,7 +63,7 @@ namespace CsvTools.Tests
       var writer = new JsonFileWriter(
         fileSetting.ID,
         fileSetting.FullPath,
-        fileSetting.Recipient,
+        0,
         fileSetting.KeepUnencrypted,
         fileSetting.IdentifierInContainer,
         fileSetting.Footer,
@@ -111,7 +111,7 @@ namespace CsvTools.Tests
       var writer = new XmlFileWriter(
         fileSetting.ID,
         fileSetting.FullPath,
-        fileSetting.Recipient,
+        fileSetting.KeyID,
         fileSetting.KeepUnencrypted,
         fileSetting.IdentifierInContainer,
         fileSetting.Footer,

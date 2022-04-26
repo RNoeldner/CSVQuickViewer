@@ -54,6 +54,8 @@ namespace CsvTools
     /// <value>The root folder.</value>
     string Recipient { get; set; }
 
+    long KeyID { get; set; }
+
     /// <summary>
     ///   Path to the file on sFTP Server
     /// </summary>

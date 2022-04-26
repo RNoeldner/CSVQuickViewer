@@ -29,7 +29,7 @@ namespace CsvTools
     public XmlFileWriter(
       in string id,
       in string fullPath,
-      in string? recipient = null,
+      long pgpKeyId = 0,
       bool unencrypted = false,
       in string? identifierInContainer = null,
       in string? footer = null,
@@ -43,7 +43,7 @@ namespace CsvTools
       : base(
         id,
         fullPath,
-        recipient,
+        pgpKeyId,
         unencrypted,
         identifierInContainer,
         footer,

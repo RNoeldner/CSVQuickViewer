@@ -67,7 +67,7 @@ namespace CsvTools.Tests
           TimePartFormat = @"hh:mm", TimePart = "Time", TimeZonePart = "TZ"
         });
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
-        writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
+        writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
         writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded,
         pd);
@@ -88,7 +88,7 @@ namespace CsvTools.Tests
       writeFile.FieldDelimiter = "|";
 
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
-        writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
+        writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
         writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded,
         pd);
@@ -119,7 +119,7 @@ namespace CsvTools.Tests
       };
       writeFile.ColumnCollection.Add(cf);
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
-        writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
+        writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
         writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded,
         pd);
@@ -147,7 +147,7 @@ namespace CsvTools.Tests
       var processDisplay = new CustomProcessDisplay();
 
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
-        writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
+        writeFile.ByteOrderMark, writeFile.ColumnCollection, FunctionalDI.GetKeyID(writeFile.Recipient), writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
         writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded,
         processDisplay);
@@ -180,7 +180,7 @@ namespace CsvTools.Tests
       var processDisplay = new CustomProcessDisplay();
       {
         var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
-          writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
+          writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
           writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
           writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded,
           processDisplay);
@@ -221,7 +221,7 @@ namespace CsvTools.Tests
           var processDisplay = new CustomProcessDisplay();
 
           var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
-            writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
+            writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
             writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
             writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways,
             writeFile.QualifyOnlyIfNeeded, processDisplay);
@@ -251,7 +251,7 @@ namespace CsvTools.Tests
       writeFile.FieldDelimiter = "|";
 
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
-        writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.Recipient, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
+        writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
         writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded,
         processDisplay);

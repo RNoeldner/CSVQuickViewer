@@ -35,9 +35,9 @@ namespace CsvTools
     protected readonly string m_FileSettingDisplay;
     private readonly string m_Footer;
     internal readonly string m_FullPath;
+    private readonly long m_PgpKeyId;
     private readonly string m_IdentifierInContainer;
-    private readonly bool m_KeepUnencrypted;
-    private readonly string m_Recipient;
+    private readonly bool m_KeepUnencrypted;    
     private readonly Action<string>? m_ReportProgress;
     private readonly Action<long>? m_SetMaxProcess;
     private readonly IValueFormat ValueFormatGeneral;
@@ -48,7 +48,7 @@ namespace CsvTools
       in string id,
       in string fullPath,
       in IValueFormat? valueFormatGeneral,
-      in string? recipient,
+      long pgpKeyId,
       bool unencrypted,
       in string? identifierInContainer,
       in string? footer,
@@ -61,6 +61,7 @@ namespace CsvTools
         throw new ArgumentException($"{nameof(fullPath)} can not be empty");
       var fileName = FileSystemUtils.GetFileName(fullPath);
       m_FullPath = fullPath;
+      m_PgpKeyId = pgpKeyId;
       if (header != null && header.Length > 0)
         Header = ReplacePlaceHolder(
           header,
@@ -86,8 +87,7 @@ namespace CsvTools
           ?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList()
         ?? new List<ImmutableColumn>();
 
-      m_FileSettingDisplay = fileSettingDisplay;
-      m_Recipient = recipient ?? string.Empty;
+      m_FileSettingDisplay = fileSettingDisplay;      
       m_KeepUnencrypted = unencrypted;
       m_IdentifierInContainer = identifierInContainer ?? string.Empty;
 
@@ -260,7 +260,7 @@ namespace CsvTools
         var sourceAccess = new SourceAccess(
           m_FullPath,
           false,
-          recipient: m_Recipient,
+          keyID: m_PgpKeyId,
           keepEncrypted: m_KeepUnencrypted);
         if (!string.IsNullOrEmpty(m_IdentifierInContainer))
           sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
@@ -269,7 +269,7 @@ namespace CsvTools
 #endif
         using var stream = (Stream) FunctionalDI.OpenStream(sourceAccess);
 
-        await WriteReaderAsync(reader, stream, token).ConfigureAwait(false);
+        await WriteReaderAsync(reader, stream, token).ConfigureAwait(false);        
       }
       catch (Exception exc)
       {
