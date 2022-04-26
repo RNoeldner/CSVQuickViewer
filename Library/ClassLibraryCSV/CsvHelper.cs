@@ -31,7 +31,7 @@ namespace CsvTools
   public static class CsvHelper
   {
     /// <summary>
-    ///   Analyses a given the file asynchronously to determine proper read options
+    ///   Analyzes a given the file asynchronously to determine proper read options
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="guessJson">if <c>true</c> trying to determine if file is a JSON file</param>
@@ -274,6 +274,7 @@ namespace CsvTools
     /// </param>
     /// <param name="guessNewLine">if set to <c>true</c> determine combination of new line.</param>
     /// <param name="guessCommentLine">if set <c>true</c> determine if there is a comment line</param>
+    /// <param name="disallowedDelimiter">Delimiter to exclude in recognition, as they have been ruled out before</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     public static async Task<DelimitedFileDetectionResult> GetDetectionResult(
       this IImprovedStream improvedStream,
@@ -644,7 +645,7 @@ namespace CsvTools
                cancellationToken).ConfigureAwait(false);
 
         hasFields = true;
-        // if its a delimted file but we do not have fields,
+        // if its a delimited file but we do not have fields,
         // the delimiter must have been wrong, pick another one, after 3 though give up
         if (!detectionResult.IsJson && disallowedDelimiter.Count<3)
         {
@@ -962,6 +963,7 @@ namespace CsvTools
     /// <param name="codePageId">The code page identifier.</param>
     /// <param name="skipRows">The skip rows.</param>
     /// <param name="fieldDelimiter">The field delimiter.</param>
+    /// <param name="escapePrefix"></param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>The NewLine Combination used</returns>
     public static async Task<string?> GuessQualifier(
@@ -975,9 +977,7 @@ namespace CsvTools
       using var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
                                                  .ConfigureAwait(false);
       var qualifier = textReader.GuessQualifier(fieldDelimiter, escapePrefix, cancellationToken);
-      if (qualifier != '\0')
-        return char.ToString(qualifier);
-      return null;
+      return qualifier != '\0' ? char.ToString(qualifier) : null;
     }
 
     /// <summary>
@@ -1411,6 +1411,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="textReader">The StreamReader with the data</param>
     /// <param name="escapeCharacter">The escape character.</param>
+    /// <param name="disallowedDelimiter">Character rules out as possible delimiters</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <exception cref="ArgumentNullException">streamReader</exception>
@@ -1549,7 +1550,7 @@ namespace CsvTools
       CancellationToken token)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
-      const int c_NumChars = 8192;
+      const int numChars = 8192;
 
       var currentChar = 0;
       var quoted = false;
@@ -1566,7 +1567,7 @@ namespace CsvTools
       // \r = CR (Carriage Return) \n = LF (Line Feed)
       var fieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
-      while (currentChar < c_NumChars && !textReaderPosition.AllRead() && !token.IsCancellationRequested)
+      while (currentChar < numChars && !textReaderPosition.AllRead() && !token.IsCancellationRequested)
       {
         var readChar = textReader.Read();
         if (readChar == fieldQualifierChar)
@@ -1651,13 +1652,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Try to determine quote character, by lloking at the file and doing a quick analysys
+    /// Try to determine quote character, by looking at the file and doing a quick analysis
     /// </summary>
     /// <param name="textReader">The opened TextReader</param>
     /// <param name="delimiter">The char to be used as field delimiter</param>
+    /// <param name="escape">Used to escape a delimiter or quoting char</param>
     /// <param name="cancellationToken"></param>
-    /// <returns>The most likly quoting char</returns>
-    /// <remarks>Aany line feed ot crararigae return will be regardsed as field delimiter, a duplicate quoting will be regarded as single quote, an \ escpaed quote will be ignored</remarks>
+    /// <returns>The most likely quoting char</returns>
+    /// <remarks>Any line feed ot carriage return will be regarded as field delimiter, a duplicate quoting will be regarded as single quote, an \ escaped quote will be ignored</remarks>
     private static char GuessQualifier(
       this ImprovedTextReader textReader,
       string delimiter,
@@ -1726,7 +1728,7 @@ namespace CsvTools
       {
         if (counterOpen[testIndex]==0)
           continue;
-        // if we could not find a lot of the closinbg quotes, assume its worng
+        // if we could not find a lot of the closing quotes, assume its wrong
         if (counterClose[testIndex] * 1.5 < counterOpen[testIndex])
         {
           Logger.Information("Could not find an matching number of opening and closing quotes for {qualifier}", possibleQuotes[testIndex].GetDescription());
