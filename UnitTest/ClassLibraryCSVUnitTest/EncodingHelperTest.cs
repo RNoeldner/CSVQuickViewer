@@ -34,16 +34,16 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GuessCodePageNoBOMTest()
+    public void GuessCodePageNoBomTest()
     {
       var utf8 = Encoding.UTF8.GetBytes("Raphael Nöldner Chinese 中文 & Thai ภาษาไทย Tailandia idioma ภาษาไทย");
-      var aSCII = Encoding.ASCII.GetBytes("This is a Test, that does not contain any characters that exist outside of teh English Language");
+      var aScii = Encoding.ASCII.GetBytes("This is a Test, that does not contain any characters that exist outside of teh English Language");
       var win1252 = Encoding.GetEncoding(1252)
                             .GetBytes(
                               "This is a Test for Windows 1252 the encoding support mainly european countries with Æ ã è ü but has symbols as well ½ ² etc.");
 
       Assert.AreEqual(Encoding.UTF8, EncodingHelper.GuessEncodingNoBom(null));
-      Assert.AreEqual(Encoding.ASCII, EncodingHelper.GuessEncodingNoBom(aSCII));
+      Assert.AreEqual(Encoding.ASCII, EncodingHelper.GuessEncodingNoBom(aScii));
       Assert.AreEqual(Encoding.UTF8, EncodingHelper.GuessEncodingNoBom(utf8));
       Assert.AreEqual(Encoding.GetEncoding(1252), EncodingHelper.GuessEncodingNoBom(win1252));
     }
@@ -81,7 +81,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void BOMLength()
+    public void BomLength()
     {
       Assert.AreEqual(2, EncodingHelper.BOMLength(1200));
       Assert.AreEqual(3, EncodingHelper.BOMLength(65001));
@@ -98,63 +98,63 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GuessCodePageBOMGB18030()
+    public void GuessCodePageBomgb18030()
     {
       byte[] test = { 132, 49, 149, 51 };
       Assert.AreEqual(54936, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
     }
 
     [TestMethod]
-    public void GuessCodePageBOMUTF16BE()
+    public void GuessCodePageBomutf16Be()
     {
       byte[] test = { 254, 255, 65, 65 };
       Assert.AreEqual(1201, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
     }
 
     [TestMethod]
-    public void GuessCodePageBOMUTF16LE()
+    public void GuessCodePageBomutf16Le()
     {
       byte[] test = { 255, 254, 65, 65 };
       Assert.AreEqual(1200, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
     }
 
     [TestMethod]
-    public void GuessCodePageBOMUTF32BE()
+    public void GuessCodePageBomutf32Be()
     {
       byte[] test = { 0, 0, 254, 255 };
       Assert.AreEqual(12001, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
     }
 
     [TestMethod]
-    public void GuessCodePageBOMUTF32LE()
+    public void GuessCodePageBomutf32Le()
     {
       byte[] test = { 255, 254, 0, 0 };
       Assert.AreEqual(12000, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
     }
 
     [TestMethod]
-    public void GuessCodePageBOMUTF7a()
+    public void GuessCodePageBomutf7A()
     {
       byte[] test = { 43, 47, 118, 57 };
       Assert.AreEqual(65000, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
     }
 
     [TestMethod]
-    public void GuessCodePageBOMUTF7b()
+    public void GuessCodePageBomutf7B()
     {
       byte[] test = { 43, 47, 118, 43 };
       Assert.AreEqual(65000, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
     }
 
     [TestMethod]
-    public void GuessCodePageBOMUTF7c()
+    public void GuessCodePageBomutf7C()
     {
       byte[] test = { 43, 47, 118, 56, 45 };
       Assert.AreEqual(65000, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
     }
 
     [TestMethod]
-    public void GuessCodePageBOMUTF8()
+    public void GuessCodePageBomutf8()
     {
       byte[] test = { 239, 187, 191, 65 };
       Assert.AreEqual(65001, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);

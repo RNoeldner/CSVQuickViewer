@@ -42,19 +42,19 @@ namespace CsvTools
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
-    private const char c_Cr = (char) 0x0d;
+    private const char cCr = (char) 0x0d;
 
     /// <summary>
     ///   The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
-    private const char c_Lf = (char) 0x0a;
+    private const char cLf = (char) 0x0a;
 
     /// <summary>
     ///   A non-breaking space..
     /// </summary>
-    private const char c_Nbsp = (char) 0xA0;
+    private const char cNbsp = (char) 0xA0;
 
-    private const char c_UnknownChar = (char) 0xFFFD;
+    private const char cUnknownChar = (char) 0xFFFD;
 
     private readonly bool m_AllowRowCombining;
 
@@ -353,11 +353,11 @@ namespace CsvTools
       if (m_FieldDelimiterChar == '\0')
         throw new FileReaderException("All delimited text files do need a delimiter.");
 
-      if (m_FieldQualifierChar == c_Cr || m_FieldQualifierChar == c_Lf)
+      if (m_FieldQualifierChar == cCr || m_FieldQualifierChar == cLf)
         throw new FileReaderException(
           "The text qualifier characters is invalid, please use something else than CR or LF");
 
-      if (m_FieldDelimiterChar == c_Cr || m_FieldDelimiterChar == c_Lf || m_FieldDelimiterChar == ' ')
+      if (m_FieldDelimiterChar == cCr || m_FieldDelimiterChar == cLf || m_FieldDelimiterChar == ' ')
         throw new FileReaderException(
           "The field delimiter character is invalid, please use something else than CR, LF or Space");
 
@@ -637,17 +637,17 @@ namespace CsvTools
       return true;
     }
 
-    private void EatNextCRLF(char character)
+    private void EatNextCrlf(char character)
     {
       EndLineNumber++;
       if (EndOfFile) return;
       var nextChar = Peek();
-      if ((character != c_Cr || nextChar != c_Lf) && (character != c_Lf || nextChar != c_Cr)) return;
+      if ((character != cCr || nextChar != cLf) && (character != cLf || nextChar != cCr)) return;
 
       // New line sequence is either CRLF or LFCR, disregard the character
       MoveNext(nextChar);
 
-      if (character == c_Lf && nextChar == c_Cr)
+      if (character == cLf && nextChar == cCr)
         EndLineNumber++;
     }
 
@@ -953,7 +953,7 @@ namespace CsvTools
       EndOfFile = true;
 
       // return a linefeed to determine the end of a line
-      return c_Lf;
+      return cLf;
     }
 
     /// <summary>
@@ -987,13 +987,13 @@ namespace CsvTools
         MoveNext(character);
 
         // in case we have a single LF
-        if (!postData && m_TreatLfAsSpace && character == c_Lf && quoted)
+        if (!postData && m_TreatLfAsSpace && character == cLf && quoted)
         {
           var singleLf = true;
           if (!EndOfFile)
           {
             var nextChar = Peek();
-            if (nextChar == c_Cr)
+            if (nextChar == cCr)
               singleLf = false;
           }
 
@@ -1008,7 +1008,7 @@ namespace CsvTools
 
         switch (character)
         {
-          case c_Nbsp:
+          case cNbsp:
             if (!postData)
             {
               // This is not 100% correct in case we have a misalignment of column that is corrected
@@ -1027,15 +1027,15 @@ namespace CsvTools
 
             break;
 
-          case c_Cr:
-          case c_Lf:
+          case cCr:
+          case cLf:
             EndLineNumber++;
 
             var nextChar = '\0';
             if (!EndOfFile)
             {
               nextChar = Peek();
-              if ((character != c_Cr || nextChar != c_Lf) && (character != c_Lf || nextChar != c_Cr))
+              if ((character != cCr || nextChar != cLf) && (character != cLf || nextChar != cCr))
               {
                 nextChar = '\0';
               }
@@ -1043,12 +1043,12 @@ namespace CsvTools
               {
                 MoveNext(nextChar);
 
-                if (character == c_Lf && nextChar == c_Cr)
+                if (character == cLf && nextChar == cCr)
                   EndLineNumber++;
               }
             }
 
-            if (((character == c_Cr && nextChar == c_Lf) || (character == c_Lf && nextChar == c_Cr)) && quoted && !postData)
+            if (((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr)) && quoted && !postData)
             {
               stringBuilder.Append(character);
               stringBuilder.Append(nextChar);
@@ -1063,7 +1063,7 @@ namespace CsvTools
           break;
 
         // Finished with reading the column by Linefeed
-        if ((character == c_Cr || character == c_Lf) && (preData || postData || !quoted))
+        if ((character == cCr || character == cLf) && (preData || postData || !quoted))
         {
           m_EndOfLine = true;
           break;
@@ -1118,13 +1118,13 @@ namespace CsvTools
             // handling for "" that is not only representing a " but also closes the text
             peekNextChar = Peek();
             if (m_ContextSensitiveQualifier && (peekNextChar == m_FieldDelimiterChar
-                                                || peekNextChar == c_Cr || peekNextChar == c_Lf)) postData = true;
+                                                || peekNextChar == cCr || peekNextChar == cLf)) postData = true;
             continue;
           }
 
           // a single " should be regarded as closing when its followed by the delimiter
           if (m_ContextSensitiveQualifier && (peekNextChar == m_FieldDelimiterChar
-                                              || peekNextChar == c_Cr || peekNextChar == c_Lf))
+                                              || peekNextChar == cCr || peekNextChar == cLf))
           {
             postData = true;
             continue;
@@ -1152,7 +1152,7 @@ namespace CsvTools
       }// While
 
       var columnText = stringBuilder.ToString();
-      if (columnText.IndexOf(c_UnknownChar) != -1)
+      if (columnText.IndexOf(cUnknownChar) != -1)
       {
         if (m_WarnUnknownCharacter && (m_NumWarning < 1 || m_NumWarningsUnknownChar++ < m_NumWarning))
           HandleWarning(
@@ -1161,7 +1161,7 @@ namespace CsvTools
               ? "Unknown Character '�' found, this character was replaced with space".AddWarningId()
               : "Unknown Character '�' found in field".AddWarningId());
         if (m_TreatUnknownCharacterAsSpace)
-          columnText = columnText.Replace(c_UnknownChar, ' ');
+          columnText = columnText.Replace(cUnknownChar, ' ');
       }
 
       return m_TrimmingOption == TrimmingOption.All || (!quoted && m_TrimmingOption == TrimmingOption.Unquoted)
@@ -1219,9 +1219,9 @@ namespace CsvTools
             {
               var character = Peek();
               MoveNext(character);
-              if (character != c_Cr && character != c_Lf)
+              if (character != cCr && character != cLf)
                 continue;
-              EatNextCRLF(character);
+              EatNextCrlf(character);
               break;
             }
 

@@ -49,7 +49,7 @@ namespace CsvTools
     /// <value>
     ///   <c>true</c> if LF should be treated as space; otherwise, <c>false</c>.
     /// </value>
-    bool TreatLFAsSpace { get; set; }
+    bool TreatLfAsSpace { get; set; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether to replace unknown character.

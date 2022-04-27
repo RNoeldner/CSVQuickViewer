@@ -26,7 +26,7 @@ namespace CsvTools
   /// </summary>
   public class ReAlignColumns
   {
-    private const int c_MaxGoodRows = 40;
+    private const int cMaxGoodRows = 40;
     private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 
     private static readonly string[] m_BoolVal = { "True", "False", "yes", "no", "1", "0", "-1", "y", "n", "", "x", "T", "F" };
@@ -47,11 +47,11 @@ namespace CsvTools
       if (newRow.Length != m_ExpectedColumns)
         return;
 
-      if (m_GoodRows.Count < c_MaxGoodRows)
+      if (m_GoodRows.Count < cMaxGoodRows)
         m_GoodRows.Add(newRow);
       else
         // Store the row in our list
-        m_GoodRows[m_Random.Next(0, c_MaxGoodRows)] = newRow;
+        m_GoodRows[m_Random.Next(0, cMaxGoodRows)] = newRow;
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ namespace CsvTools
         //Get the Options for all good rows
         var otherColumns = new List<ColumnOption>(m_ExpectedColumns);
         for (var col2 = 0; col2 < m_ExpectedColumns; col2++)
-          otherColumns.Add(GetColumnOptionAllRows(col2, m_GoodRows!));
+          otherColumns.Add(GetColumnOptionAllRows(col2, m_GoodRows));
         var col = 0;
         // Step 1: try combining
         while (col < columns.Count && col < m_ExpectedColumns && columns.Count != m_ExpectedColumns)
@@ -189,7 +189,7 @@ namespace CsvTools
       var overall = ColumnOption.Empty;
       foreach (var row in rows)
       {
-        if (row.Length <= colNum || row[colNum] is null) continue;
+        if (row.Length <= colNum) continue;
         var oneColOption = GetColumnOption(row[colNum].Trim());
         if (oneColOption == ColumnOption.Empty)
           continue;

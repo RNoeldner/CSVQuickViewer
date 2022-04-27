@@ -117,7 +117,7 @@ namespace CsvTools
         false,
         false,
         false,
-        RecordDelimiterType.LF);
+        RecordDelimiterType.Lf);
 
       var columnCollection = new List<IColumn>();
       foreach (var fld in mani.Fields)

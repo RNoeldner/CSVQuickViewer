@@ -15,12 +15,12 @@ namespace CsvTools
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
     /// </summary>
-    private const char c_Cr = (char) 0x0d;
+    private const char cCr = (char) 0x0d;
 
     /// <summary>
     ///   The line-feed character. Escape code is <c>\n</c>.
     /// </summary>
-    private const char c_Lf = (char) 0x0a;
+    private const char cLf = (char) 0x0a;
 
     private readonly int m_BomLength;
     private readonly int m_CodePage;
@@ -51,7 +51,7 @@ namespace CsvTools
 
       // read the BOM in any case
       var buff = new byte[4];
-      m_ImprovedStream.Read(buff, 0, buff.Length);
+      _ = m_ImprovedStream.Read(buff, 0, buff.Length);
       var intCodePageByBom = EncodingHelper.GetEncodingByByteOrderMark(buff);
       improvedStream.Seek(0, SeekOrigin.Begin);
       var byteOrderMark = false;
@@ -118,7 +118,7 @@ namespace CsvTools
     {
       var character = TextReader.Read();
 
-      if (character == c_Lf || character == c_Cr)
+      if (character == cLf || character == cCr)
         LineNumber++;
 
       return character;

@@ -187,7 +187,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(false)]
     [XmlElement]
-    public bool DetectGUID
+    public bool DetectGuid
     {
       get => m_DetectGuid;
 
@@ -196,7 +196,7 @@ namespace CsvTools
         if (m_DetectGuid == value)
           return;
         m_DetectGuid = value;
-        NotifyPropertyChanged(nameof(DetectGUID));
+        NotifyPropertyChanged(nameof(DetectGuid));
       }
     }
 
@@ -333,7 +333,7 @@ namespace CsvTools
                                       && m_DetectNumbers == other.m_DetectNumbers
                                       && DetectPercentage == other.DetectPercentage
                                       && m_DetectBoolean == other.m_DetectBoolean
-                                      && m_DetectDateTime == other.DetectDateTime && DetectGUID == other.DetectGUID
+                                      && m_DetectDateTime == other.DetectDateTime && DetectGuid == other.DetectGuid
                                       && string.Equals(FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase)
                                       && IgnoreIdColumns == other.IgnoreIdColumns && MinSamples == other.MinSamples
                                       && SampleValues == other.SampleValues && SerialDateTime == other.SerialDateTime
@@ -356,7 +356,7 @@ namespace CsvTools
       other.DetectBoolean = DetectBoolean;
       other.DateParts = DateParts;
       other.DetectDateTime = DetectDateTime;
-      other.DetectGUID = DetectGUID;
+      other.DetectGuid = DetectGuid;
       other.FalseValue = FalseValue;
       other.IgnoreIdColumns = IgnoreIdColumns;
       other.MinSamples = MinSamples;

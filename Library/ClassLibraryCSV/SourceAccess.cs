@@ -59,13 +59,9 @@ namespace CsvTools
     /// </summary>
     public readonly bool Reading;
 
+    
     /// <summary>
-    ///   Information about the recipient for a encryption
-    /// </summary>
-    // public readonly string Recipient;
-
-    /// <summary>
-    /// TODO: Need to provide the encryption key, only provideing recipient is not enough as there could be many keys for this recipinet
+    /// Needed to provide the encryption key
     /// </summary>
     public readonly long KeyID;
 
@@ -90,7 +86,7 @@ namespace CsvTools
     /// <param name="fileName">Name of teh file</param>
     /// <param name="isReading"><c>true</c> if the files is for reading</param>
     /// <param name="id">The identifier for the file for logging etc</param>
-    /// <param name="recipient">Recipient for PGP encryption</param>
+    /// <param name="keyID">PGP encryption key identifier</param>
     /// <param name="keepEncrypted">
     ///   Do not remove teh not encrypted files once teh encrypted one is created, needed in for
     ///   debugging in case teh private key is not known and the file can not be decrypted
@@ -166,6 +162,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="stream">The source stream, it must support seek if its a read stream</param>
     /// <param name="type">The type of the contents in the stream</param>
+    /// <param name="isReading"><c>true</c> if used for reading</param>
+    /// <param name="keyID">PGP encryption key identifier</param>
     public SourceAccess(Stream stream, FileTypeEnum type = FileTypeEnum.Stream, bool isReading = true,  in long keyID = 0)
     {
       if (!stream.CanSeek)

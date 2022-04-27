@@ -43,12 +43,12 @@ namespace CsvTools.Tests
 
     private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 
-    public static Column[] ColumnsDT2 =
+    public static Column[] ColumnsDt2 =
     {
       new Column("string") //0
     };
 
-    public static Column[] ColumnsDT =
+    public static Column[] ColumnsDt =
     {
       new Column("string"),                      //0
       new Column("int", DataType.Integer),       //1
@@ -61,7 +61,7 @@ namespace CsvTools.Tests
       new Column("ID", DataType.Integer)         //8
     };
 
-    public static HTMLStyle HTMLStyle { get; } = new HTMLStyle();
+    public static HtmlStyle HtmlStyle { get; } = new HtmlStyle();
 
     public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
 

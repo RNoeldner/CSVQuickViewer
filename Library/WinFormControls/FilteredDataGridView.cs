@@ -202,7 +202,7 @@ namespace CsvTools
     ///   Gets or sets the HTML style.
     /// </summary>
     /// <value>The HTML style.</value>
-    public HTMLStyle HTMLStyle { get; set; } = new HTMLStyle();
+    public HtmlStyle HtmlStyle { get; set; } = new HtmlStyle();
 
     /// <summary>
     ///   The current DataView
@@ -839,7 +839,7 @@ namespace CsvTools
     {
       if (!e.Control || e.KeyCode != Keys.C)
         return;
-      var html = new DataGridViewCopyPaste(HTMLStyle);
+      var html = new DataGridViewCopyPaste(HtmlStyle);
       html.SelectedDataIntoClipboard(this, !e.Alt, e.Shift, m_CancellationTokenSource.Token);
       e.Handled = true;
     }
@@ -1192,7 +1192,7 @@ namespace CsvTools
         return;
       if (m_FileSetting != null && FillGuessSettings != null)
       {
-        using var form = new FormColumnUI(columnFormat, false, m_FileSetting, FillGuessSettings, false, HTMLStyle);
+        using var form = new FormColumnUI(columnFormat, false, m_FileSetting, FillGuessSettings, false, HtmlStyle);
         var result = form.ShowDialog(this);
         if (result == DialogResult.OK || result == DialogResult.Yes)
         {
@@ -1208,7 +1208,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void ToolStripMenuItemCopy_Click(object? sender, EventArgs e)
     {
-      var html = new DataGridViewCopyPaste(HTMLStyle);
+      var html = new DataGridViewCopyPaste(HtmlStyle);
       html.SelectedDataIntoClipboard(this, false, false, m_CancellationTokenSource.Token);
     }
 
@@ -1219,7 +1219,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void ToolStripMenuItemCopyError_Click(object? sender, EventArgs e)
     {
-      var html = new DataGridViewCopyPaste(HTMLStyle);
+      var html = new DataGridViewCopyPaste(HtmlStyle);
       html.SelectedDataIntoClipboard(this, true, false, m_CancellationTokenSource.Token);
     }
 

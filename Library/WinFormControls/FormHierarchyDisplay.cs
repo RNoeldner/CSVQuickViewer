@@ -65,8 +65,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataTable">The data table.</param>
     /// <param name="dataRows">The filter.</param>
-    /// <param name="hTMLStyle">The HTML style.</param>
-    public FormHierarchyDisplay(DataTable dataTable, DataRow[] dataRows, HTMLStyle hTMLStyle)
+    /// <param name="hTmlStyle">The HTML style.</param>
+    public FormHierarchyDisplay(DataTable dataTable, DataRow[] dataRows, HtmlStyle hTmlStyle)
     {
       m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows;
@@ -80,7 +80,7 @@ namespace CsvTools
       m_TimerDisplay.Interval = 1000;
       m_TimerDisplay.AutoReset = false;
 
-      m_TreeView.HTMLStyle = hTMLStyle;
+      m_TreeView.HtmlStyle = hTmlStyle;
     }
 
     /// <summary>

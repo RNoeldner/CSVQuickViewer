@@ -84,9 +84,9 @@ namespace CsvTools
     string ID { get; set; }
 
     /// <summary>
-    ///   Gets the time of the last chnage in the setting, this is not used for equality but its copied over.
+    ///   Gets the time of the last change in the setting, this is not used for equality but its copied over.
     /// </summary>
-    /// <value>Time of last chnage in UTC</value>
+    /// <value>Time of last change in UTC</value>
     DateTime LastChange { get;  }
 
     /// <summary>
@@ -103,7 +103,7 @@ namespace CsvTools
     int Order { get; set; }
 
     /// <summary>
-    ///   Gets or sets a commnet text for the setting 
+    ///   Gets or sets a comment text for the setting 
     /// </summary>
     string Comment { get; set; }
 
@@ -119,7 +119,7 @@ namespace CsvTools
     bool IsEnabled { get; set; }
 
     /// <summary>    
-    /// When a file is encrypted the not encrypted version temporay file is removed 
+    /// When a file is encrypted the not encrypted version temporary file is removed 
     /// When data is sent into a steam the data can not be access
     /// Set to <c>true</c> a readable file is not removed / is created    
     /// </summary>
@@ -274,10 +274,10 @@ namespace CsvTools
 
 
     /// <summary>
-    /// Get a description of diffreences between two file settings, idelaly they should be of same type
+    /// Get a description of differences between two file settings, ideally they should be of same type
     /// </summary>
     /// <param name="other"></param>
-    /// <returns>List of diffrences as string</returns>
+    /// <returns>List of differences as string</returns>
     IEnumerable<string> GetDifferences(IFileSetting other);
   }
 }

@@ -387,12 +387,12 @@ namespace CsvTools
     public static string NewLineString(this RecordDelimiterType type) =>
       type switch
       {
-        RecordDelimiterType.LF => "\n",
-        RecordDelimiterType.CR => "\r",
-        RecordDelimiterType.CRLF => "\r\n",
-        RecordDelimiterType.LFCR => "\n\r",
-        RecordDelimiterType.RS => "▲",
-        RecordDelimiterType.US => "▼",
+        RecordDelimiterType.Lf => "\n",
+        RecordDelimiterType.Cr => "\r",
+        RecordDelimiterType.Crlf => "\r\n",
+        RecordDelimiterType.Lfcr => "\n\r",
+        RecordDelimiterType.Rs => "▲",
+        RecordDelimiterType.Us => "▼",
         RecordDelimiterType.None => string.Empty,
         _ => string.Empty
       };

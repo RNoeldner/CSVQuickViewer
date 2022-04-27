@@ -133,10 +133,10 @@ namespace CsvTools
     /// <returns>The name</returns>
     public static string GetEncodingName(int codePage, bool hasBom)
     {
-      const string c_SuffixWithBom = " with BOM";
+      const string suffixWithBom = " with BOM";
       var name = GetEncodingName(codePage);
       if (BOMLength(codePage) > 0)
-        return name + (hasBom ? c_SuffixWithBom : cSuffixWithoutBom);
+        return name + (hasBom ? suffixWithBom : cSuffixWithoutBom);
       return name;
     }
 

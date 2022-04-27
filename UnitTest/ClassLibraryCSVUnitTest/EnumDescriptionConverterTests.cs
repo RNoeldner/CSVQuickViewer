@@ -31,14 +31,14 @@ namespace CsvTools.Tests
 		public void ConvertFromTest()
 		{
 			var test = new EnumDescriptionConverter(typeof(RecordDelimiterType));
-			Assert.AreEqual(RecordDelimiterType.LF, test.ConvertFrom("Line feed"));
+			Assert.AreEqual(RecordDelimiterType.Lf, test.ConvertFrom("Line feed"));
 		}
 
 		[TestMethod]
 		public void ConvertToTest()
 		{
 			var test = new EnumDescriptionConverter(typeof(RecordDelimiterType));
-			Assert.AreEqual("Line feed", test.ConvertTo(RecordDelimiterType.LF, typeof(string)));
+			Assert.AreEqual("Line feed", test.ConvertTo(RecordDelimiterType.Lf, typeof(string)));
 			try
 			{
 				// ReSharper disable once AssignNullToNotNullAttribute

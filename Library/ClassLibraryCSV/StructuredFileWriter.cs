@@ -37,12 +37,12 @@ namespace CsvTools
     /// <summary>
     ///   The c field placeholder
     /// </summary>
-    private const string c_FieldPlaceholderByNumber = "[value{0}]";
+    private const string cFieldPlaceholderByNumber = "[value{0}]";
 
     /// <summary>
     ///   The header placeholder
     /// </summary>
-    private const string c_HeaderPlaceholder = "[column{0}]";
+    private const string cHeaderPlaceholder = "[column{0}]";
 
     private readonly string m_Row;
     private readonly bool m_ByteOrderMark;
@@ -111,7 +111,7 @@ namespace CsvTools
       var numColumns = Columns.Count();
       if (numColumns == 0)
         throw new FileWriterException("No columns defined to be written.");
-      const string c_RecordEnd = "\r\n";
+      const string recordEnd = "\r\n";
       
       HandleWriteStart();
 
@@ -120,8 +120,8 @@ namespace CsvTools
       {
         var sbH = new StringBuilder();
         sbH.Append(Header);
-        if (!Header.EndsWith(c_RecordEnd, StringComparison.Ordinal))
-          sbH.Append(c_RecordEnd);
+        if (!Header.EndsWith(recordEnd, StringComparison.Ordinal))
+          sbH.Append(recordEnd);
         await writer.WriteAsync(sbH.ToString()).ConfigureAwait(false);
       }
 
@@ -133,10 +133,10 @@ namespace CsvTools
 
       foreach (var columnName in Columns.Select(x => x.Name))
       {
-        var placeHolder = string.Format(CultureInfo.CurrentCulture, c_HeaderPlaceholder, colNum);
+        var placeHolder = string.Format(CultureInfo.CurrentCulture, cHeaderPlaceholder, colNum);
         withHeader = withHeader.Replace(placeHolder, ElementName(columnName));
 
-        placeHolderLookup1.Add(colNum, string.Format(CultureInfo.CurrentCulture, c_FieldPlaceholderByNumber, colNum));
+        placeHolderLookup1.Add(colNum, string.Format(CultureInfo.CurrentCulture, cFieldPlaceholderByNumber, colNum));
         placeHolderLookup2.Add(
           colNum,
           string.Format(CultureInfo.CurrentCulture, cFieldPlaceholderByName, columnName));
@@ -154,7 +154,7 @@ namespace CsvTools
           sb.Append(RecordDelimiter());
 
         // Start a new line
-        sb.Append(c_RecordEnd);
+        sb.Append(recordEnd);
         var row = withHeader;
         colNum = 0;
         foreach (var value in from columnInfo in Columns

@@ -19,29 +19,29 @@ namespace CsvTools.Tests
   [TestClass]
   public class SerializedFilesLibTests
   {
-    private static readonly string fileName = UnitTestStatic.GetTestPath("Test.csv") + CsvFile.cCsvSettingExtension;
+    private static readonly string m_FileName = UnitTestStatic.GetTestPath("Test.csv") + CsvFile.cCsvSettingExtension;
 
     [TestMethod]
     [Timeout(2000)]
     public void DeleteWithBackupTest()
     {
       var file = GetCsvFile();
-      FileSystemUtils.DeleteWithBackup(fileName, false);
-      Assert.IsFalse(FileSystemUtils.FileExists(fileName));
-      Assert.IsFalse(FileSystemUtils.FileExists(fileName + ".bak"));
+      FileSystemUtils.DeleteWithBackup(m_FileName, false);
+      Assert.IsFalse(FileSystemUtils.FileExists(m_FileName));
+      Assert.IsFalse(FileSystemUtils.FileExists(m_FileName + ".bak"));
 
       SerializedFilesLib.SaveSettingFile(file, () => false);
-      Assert.IsTrue(FileSystemUtils.FileExists(fileName));
-      FileSystemUtils.DeleteWithBackup(fileName, false);
-      Assert.IsFalse(FileSystemUtils.FileExists(fileName));
-      Assert.IsTrue(FileSystemUtils.FileExists(fileName + ".bak"));
+      Assert.IsTrue(FileSystemUtils.FileExists(m_FileName));
+      FileSystemUtils.DeleteWithBackup(m_FileName, false);
+      Assert.IsFalse(FileSystemUtils.FileExists(m_FileName));
+      Assert.IsTrue(FileSystemUtils.FileExists(m_FileName + ".bak"));
     }
 
     [TestInitialize]
     public void Init()
     {
-      FileSystemUtils.FileDelete(fileName);
-      FileSystemUtils.FileDelete(fileName + ".bak");
+      FileSystemUtils.FileDelete(m_FileName);
+      FileSystemUtils.FileDelete(m_FileName + ".bak");
     }
 
     [TestMethod]
@@ -55,10 +55,10 @@ namespace CsvTools.Tests
     public void SaveAndLoadCsvFileTest()
     {
       var file = GetCsvFile();
-      Assert.IsFalse(FileSystemUtils.FileExists(fileName));
+      Assert.IsFalse(FileSystemUtils.FileExists(m_FileName));
       SerializedFilesLib.SaveSettingFile(file, () => true);
-      Assert.IsTrue(FileSystemUtils.FileExists(fileName));
-      var test = SerializedFilesLib.LoadCsvFile(fileName);
+      Assert.IsTrue(FileSystemUtils.FileExists(m_FileName));
+      var test = SerializedFilesLib.LoadCsvFile(m_FileName);
 
       Assert.AreEqual(file.ColumnCollection.Count, test.ColumnCollection.Count, "ColumnCollection.Count");
 
@@ -83,12 +83,12 @@ namespace CsvTools.Tests
     {
       var file = GetCsvFile();
       file.ByteOrderMark = false;
-      Assert.IsFalse(FileSystemUtils.FileExists(fileName));
+      Assert.IsFalse(FileSystemUtils.FileExists(m_FileName));
       var asked = false;
       SerializedFilesLib.SaveSettingFile(file, () => true);
       file.ByteOrderMark = true;
 
-      Assert.IsTrue(FileSystemUtils.FileExists(fileName));
+      Assert.IsTrue(FileSystemUtils.FileExists(m_FileName));
       SerializedFilesLib.SaveSettingFile(file, () =>
       {
         asked = true;

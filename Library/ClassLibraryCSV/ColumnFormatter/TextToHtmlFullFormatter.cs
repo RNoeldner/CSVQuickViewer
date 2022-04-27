@@ -22,7 +22,7 @@ namespace CsvTools
 
     public string FormatText(in string inputString, Action<string>? handleWarning)
     {
-      var output = HTMLStyle.HtmlEncodeShort(inputString);
+      var output = HtmlStyle.HtmlEncodeShort(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))
         handleWarning?.Invoke($"HTML encoding removed from {inputString}");
       return output!;

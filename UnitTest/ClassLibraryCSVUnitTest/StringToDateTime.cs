@@ -96,19 +96,19 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void ParseStringToDateTimeFormatNotMatchingseparatorOK() =>
+    public void ParseStringToDateTimeFormatNotMatchingseparatorOk() =>
       TestDate(new DateTime(1999, 01, 02), @"yyyyMMdd", ".", string.Empty);
 
     [TestMethod]
-    public void ParseStringToDateTimeFormatNotMatchingseparatorOK2() =>
+    public void ParseStringToDateTimeFormatNotMatchingseparatorOk2() =>
       Assert.IsNull(StringConversion.StringToDateTime("01-02-1999", @"MM/dd/yyyy", "", "", false));
 
     [TestMethod]
-    public void ParseStringToDateTimeFormatNotMatchingseparatorOK3() =>
+    public void ParseStringToDateTimeFormatNotMatchingseparatorOk3() =>
       Assert.IsNull(StringConversion.StringToDateTime("01-02-1999", @"MM/dd/yyyy", ".", "", false));
 
     [TestMethod]
-    public void ParseStringToDateTimeFormatNotMatchingseparatorOK4()
+    public void ParseStringToDateTimeFormatNotMatchingseparatorOk4()
     {
       TestDate(new DateTime(1999, 01, 02), @"MM/dd/yyyy", "/", string.Empty);
       TestDate(new DateTime(1999, 01, 02), @"MM.dd.yyyy", ".", string.Empty);
@@ -205,7 +205,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void TryParseGBWithUSDate()
+    public void TryParseGbWithUsDate()
     {
       var expected = new DateTime(1799, 01, 02);
       var dtString = GetFormattedDate(expected, @"MM/dd/yyyy");
@@ -225,7 +225,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void TryParseGermanWithUSDate()
+    public void TryParseGermanWithUsDate()
     {
       {
         var expected = new DateTime(1799, 01, 02);

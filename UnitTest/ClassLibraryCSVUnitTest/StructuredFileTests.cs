@@ -119,7 +119,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void StructuredFileTestCTOR()
+    public void StructuredFileTestCtor()
     {
       var test = new JsonFile();
       Assert.IsTrue(string.IsNullOrEmpty(test.FileName));

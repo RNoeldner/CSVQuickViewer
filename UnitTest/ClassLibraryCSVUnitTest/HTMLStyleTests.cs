@@ -19,12 +19,12 @@ using System.Text;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public sealed class HTMLStyleTests
+  public sealed class HtmlStyleTests
   {
     [TestMethod]
-    public void AddHTMLCellTest()
+    public void AddHtmlCellTest()
     {
-      var html = new HTMLStyle();
+      var html = new HtmlStyle();
       var sb = new StringBuilder();
 
       html.AddHtmlCell(sb, "<{0}>", "1", string.Empty, false);
@@ -36,21 +36,21 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void AddHTMLCellTestError()
+    public void AddHtmlCellTestError()
     {
       var sb = new StringBuilder();
-      new HTMLStyle().AddHtmlCell(sb, "<{0}>", "Test", "Some Error", true);
+      new HtmlStyle().AddHtmlCell(sb, "<{0}>", "Test", "Some Error", true);
       Assert.IsTrue(sb.ToString().StartsWith("<Test"));
       Assert.IsTrue(sb.ToString().Contains("Some Error"));
       Assert.IsTrue(sb.ToString().EndsWith(">"));
     }
 
     [TestMethod]
-    public void AddHTMLCellTestErrorWarnings()
+    public void AddHtmlCellTestErrorWarnings()
     {
       var errWar = "Some Error".AddMessage("Issue".AddWarningId());
       var sb = new StringBuilder();
-      new HTMLStyle().AddHtmlCell(sb, "<{0}>", "Test", errWar, true);
+      new HtmlStyle().AddHtmlCell(sb, "<{0}>", "Test", errWar, true);
       Assert.IsTrue(sb.ToString().StartsWith("<Test"));
       Assert.IsTrue(sb.ToString().EndsWith(">"));
       Assert.IsTrue(sb.ToString().Contains("Issue"));
@@ -58,34 +58,34 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void AddHTMLCellTestWarnings()
+    public void AddHtmlCellTestWarnings()
     {
       var sb = new StringBuilder();
-      new HTMLStyle().AddHtmlCell(sb, "<{0}>", "Test", "Issue".AddWarningId(), true);
+      new HtmlStyle().AddHtmlCell(sb, "<{0}>", "Test", "Issue".AddWarningId(), true);
       Assert.IsTrue(sb.ToString().StartsWith("<Test"));
       Assert.IsTrue(sb.ToString().Contains("Issue"));
       Assert.IsTrue(sb.ToString().EndsWith(">"));
     }
 
     [TestMethod]
-    public void AddTDTest()
+    public void AddTdTest()
     {
-      Assert.IsTrue(string.IsNullOrEmpty(HTMLStyle.AddTd(null)));
-      Assert.IsTrue(string.IsNullOrEmpty(HTMLStyle.AddTd("")));
-      Assert.AreEqual("<1>", HTMLStyle.AddTd("<{0}>", "1"));
+      Assert.IsTrue(string.IsNullOrEmpty(HtmlStyle.AddTd(null)));
+      Assert.IsTrue(string.IsNullOrEmpty(HtmlStyle.AddTd("")));
+      Assert.AreEqual("<1>", HtmlStyle.AddTd("<{0}>", "1"));
     }
 
     [TestMethod]
     public void ConvertToHtmlFragment()
     {
-      var style = new HTMLStyle();
+      var style = new HtmlStyle();
       Assert.IsNotNull(style.ConvertToHtmlFragment("Hello"));
     }
 
     [TestMethod]
     public void ConvertToHtmlFragmentTest()
     {
-      var style = new HTMLStyle();
+      var style = new HtmlStyle();
       Assert.IsNotNull(style.ConvertToHtmlFragment("Test"));
       Assert.IsTrue(style.ConvertToHtmlFragment("Test").StartsWith("Version:1.0", StringComparison.Ordinal));
     }
@@ -93,46 +93,46 @@ namespace CsvTools.Tests
     [TestMethod]
     public void HtmlEncodeShortTest()
     {
-      Assert.IsNull(HTMLStyle.HtmlEncodeShort(null));
-      Assert.AreEqual("", HTMLStyle.HtmlEncodeShort(""));
-      Assert.AreEqual("&lt;&gt;", HTMLStyle.HtmlEncodeShort("<>"));
-      Assert.AreEqual("HTML", HTMLStyle.HtmlEncodeShort("HTML"));
-      Assert.AreEqual("K&amp;N", HTMLStyle.HtmlEncodeShort("K&N"));
-      Assert.AreEqual("Line1<br>Line2", HTMLStyle.HtmlEncodeShort("Line1\r\nLine2"));
+      Assert.IsNull(HtmlStyle.HtmlEncodeShort(null));
+      Assert.AreEqual("", HtmlStyle.HtmlEncodeShort(""));
+      Assert.AreEqual("&lt;&gt;", HtmlStyle.HtmlEncodeShort("<>"));
+      Assert.AreEqual("HTML", HtmlStyle.HtmlEncodeShort("HTML"));
+      Assert.AreEqual("K&amp;N", HtmlStyle.HtmlEncodeShort("K&N"));
+      Assert.AreEqual("Line1<br>Line2", HtmlStyle.HtmlEncodeShort("Line1\r\nLine2"));
     }
 
     [TestMethod]
     public void HtmlEncodeTest()
     {
-      Assert.AreEqual("", HTMLStyle.HtmlEncode(""));
-      Assert.AreEqual("HTML", HTMLStyle.HtmlEncode("HTML"));
-      Assert.AreEqual("K&amp;N", HTMLStyle.HtmlEncode("K&N"));
-      Assert.AreEqual("he sated &quot;Hello&quot;", HTMLStyle.HtmlEncode("he sated \"Hello\""));
+      Assert.AreEqual("", HtmlStyle.HtmlEncode(""));
+      Assert.AreEqual("HTML", HtmlStyle.HtmlEncode("HTML"));
+      Assert.AreEqual("K&amp;N", HtmlStyle.HtmlEncode("K&N"));
+      Assert.AreEqual("he sated &quot;Hello&quot;", HtmlStyle.HtmlEncode("he sated \"Hello\""));
 
       /*ö latin small letter o with diaeresis
        * &ouml; or &#246;
        */
       Assert.IsTrue(
-        @"Raphael N&ouml;ldner" == HTMLStyle.HtmlEncode("Raphael Nöldner")
-        || @"Raphael N&#246;ldner" == HTMLStyle.HtmlEncode("Raphael Nöldner"));
+        @"Raphael N&ouml;ldner" == HtmlStyle.HtmlEncode("Raphael Nöldner")
+        || @"Raphael N&#246;ldner" == HtmlStyle.HtmlEncode("Raphael Nöldner"));
     }
 
     [TestMethod]
-    public void JSONElementNameTest()
+    public void JsonElementNameTest()
     {
-      Assert.AreEqual("", HTMLStyle.JsonElementName(""));
-      Assert.AreEqual("HTmL", HTMLStyle.JsonElementName("HTmL"));
-      Assert.AreEqual("RaphaelNöldner", HTMLStyle.JsonElementName("Raphael Nöldner"));
-      Assert.AreEqual("_12", HTMLStyle.XmlElementName("12"));
+      Assert.AreEqual("", HtmlStyle.JsonElementName(""));
+      Assert.AreEqual("HTmL", HtmlStyle.JsonElementName("HTmL"));
+      Assert.AreEqual("RaphaelNöldner", HtmlStyle.JsonElementName("Raphael Nöldner"));
+      Assert.AreEqual("_12", HtmlStyle.XmlElementName("12"));
     }
 
     [TestMethod]
     public void TextToHtmlEncodeTest()
     {
-      Assert.AreEqual("", HTMLStyle.TextToHtmlEncode(""));
-      Assert.AreEqual("Raphael Nöldner", HTMLStyle.TextToHtmlEncode("Raphael  Nöldner"));
-      Assert.AreEqual("Raphael Nöldner", HTMLStyle.TextToHtmlEncode("Raphael\t Nöldner"));
-      Assert.AreEqual("Line1<br>Line2", HTMLStyle.TextToHtmlEncode("Line1\r\nLine2"));
+      Assert.AreEqual("", HtmlStyle.TextToHtmlEncode(""));
+      Assert.AreEqual("Raphael Nöldner", HtmlStyle.TextToHtmlEncode("Raphael  Nöldner"));
+      Assert.AreEqual("Raphael Nöldner", HtmlStyle.TextToHtmlEncode("Raphael\t Nöldner"));
+      Assert.AreEqual("Line1<br>Line2", HtmlStyle.TextToHtmlEncode("Line1\r\nLine2"));
     }
 
     [TestMethod]
@@ -178,11 +178,11 @@ namespace CsvTools.Tests
           Element names can contain letters, digits, hyphens, underscores, and periods
           Element names cannot contain spaces
       */
-      Assert.AreEqual("", HTMLStyle.XmlElementName(""));
-      Assert.AreEqual("HTmL", HTMLStyle.XmlElementName("HTmL"));
-      Assert.AreEqual("HTML", HTMLStyle.XmlElementName("HT;ML"));
-      Assert.AreEqual("RaphaelNoldner", HTMLStyle.XmlElementName("Raphael Nöldner"));
-      Assert.AreEqual("_12", HTMLStyle.XmlElementName("12"));
+      Assert.AreEqual("", HtmlStyle.XmlElementName(""));
+      Assert.AreEqual("HTmL", HtmlStyle.XmlElementName("HTmL"));
+      Assert.AreEqual("HTML", HtmlStyle.XmlElementName("HT;ML"));
+      Assert.AreEqual("RaphaelNoldner", HtmlStyle.XmlElementName("Raphael Nöldner"));
+      Assert.AreEqual("_12", HtmlStyle.XmlElementName("12"));
     }
   }
 }

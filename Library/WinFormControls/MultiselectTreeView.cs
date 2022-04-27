@@ -34,7 +34,7 @@ namespace CsvTools
     ///   Gets or sets the HTML style.
     /// </summary>
     /// <value>The HTML style.</value>
-    public HTMLStyle? HTMLStyle { get; set; }
+    public HtmlStyle? HtmlStyle { get; set; }
 
     /// <summary>
     ///   Gets or sets the selected tree node.
@@ -213,7 +213,7 @@ namespace CsvTools
 
     public string SelectedToClipboard()
     {
-      if (SelectedTreeNode.Count == 0 || HTMLStyle==null)
+      if (SelectedTreeNode.Count == 0 || HtmlStyle==null)
         return string.Empty;
 
       var minLevel = int.MaxValue;
@@ -230,20 +230,20 @@ namespace CsvTools
       var buffer = new StringBuilder();
       var sbHtml = new StringBuilder();
 
-      sbHtml.AppendLine(HTMLStyle.TableOpen);
+      sbHtml.AppendLine(HtmlStyle.TableOpen);
       // Should follow display of nodes...
       foreach (var item in SelectedTreeNode)
       {
         var text = item.Text;
 
-        sbHtml.Append(HTMLStyle.TROpen);
+        sbHtml.Append(HtmlStyle.TrOpen);
         // TreeData Tag is teh first column
         if (item.Tag is FormHierarchyDisplay.TreeData data)
         {
           text = data.Title;
           if (!string.IsNullOrEmpty(data.Tag))
           {
-            sbHtml.Append(HTMLStyle.AddTd("<td>{0}</td>", data.Tag));
+            sbHtml.Append(HtmlStyle.AddTd("<td>{0}</td>", data.Tag));
             buffer.Append(data.Tag);
             buffer.Append("\t");
             if (text.StartsWith(data.Tag, StringComparison.Ordinal))
@@ -251,18 +251,18 @@ namespace CsvTools
           }
           else
           {
-            sbHtml.Append(HTMLStyle.TDEmpty);
+            sbHtml.Append(HtmlStyle.TdEmpty);
           }
         }
         // Depending on Level add columns
         for (var level = minLevel; level < item.Level; level++)
         {
           buffer.Append("\t");
-          sbHtml.Append(HTMLStyle.TDEmpty);
+          sbHtml.Append(HtmlStyle.TdEmpty);
         }
 
         sbHtml.Append(
-          HTMLStyle.AddTd(
+          HtmlStyle.AddTd(
             "<td colspan='{0}'>{1}</td>",
             ((maxLevel - item.Level) + 1).ToString(CultureInfo.InvariantCulture),
             text));
@@ -272,17 +272,17 @@ namespace CsvTools
         // TreeData Children Count is the last column
         if (item.Tag is FormHierarchyDisplay.TreeData data2)
         {
-          sbHtml.Append(HTMLStyle.AddTd("<td>{0}</td>", data2.Children.Count));
+          sbHtml.Append(HtmlStyle.AddTd("<td>{0}</td>", data2.Children.Count));
           buffer.Append(data2.Children.Count);
         }
-        sbHtml.AppendLine(HTMLStyle.TRClose);
+        sbHtml.AppendLine(HtmlStyle.TrClose);
         buffer.AppendLine();
       }
 
-      sbHtml.AppendLine(HTMLStyle.TableClose);
+      sbHtml.AppendLine(HtmlStyle.TableClose);
 
       var dataObject = new DataObject();
-      dataObject.SetData(DataFormats.Html, true, HTMLStyle.ConvertToHtmlFragment(sbHtml.ToString()));
+      dataObject.SetData(DataFormats.Html, true, HtmlStyle.ConvertToHtmlFragment(sbHtml.ToString()));
       dataObject.SetData(DataFormats.Text, true, buffer.ToString());
 
       Clipboard.Clear();

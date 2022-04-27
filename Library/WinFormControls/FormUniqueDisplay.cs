@@ -42,17 +42,17 @@ namespace CsvTools
     /// <param name="dataTable">The empty data table.</param>
     /// <param name="dataRows">The filtered rows.</param>
     /// <param name="initialColumn">The initial column to use</param>
-    /// <param name="hTMLStyle">The h TML style.</param>
+    /// <param name="hTmlStyle">The h TML style.</param>
     /// <exception cref="ArgumentNullException">hTMLStyle or dataTable or dataRows</exception>
-    public FormUniqueDisplay(DataTable dataTable, DataRow[] dataRows, string? initialColumn, HTMLStyle hTMLStyle)
+    public FormUniqueDisplay(DataTable dataTable, DataRow[] dataRows, string? initialColumn, HtmlStyle hTmlStyle)
     {
-      if (hTMLStyle is null)
-        throw new ArgumentNullException(nameof(hTMLStyle));
+      if (hTmlStyle is null)
+        throw new ArgumentNullException(nameof(hTmlStyle));
       m_DataTable = dataTable??throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows??throw new ArgumentNullException(nameof(dataRows));
       m_InitialColumn = initialColumn;
       InitializeComponent();
-      detailControl.HTMLStyle = hTMLStyle;
+      detailControl.HtmlStyle = hTmlStyle;
     }
 
     /// <summary>

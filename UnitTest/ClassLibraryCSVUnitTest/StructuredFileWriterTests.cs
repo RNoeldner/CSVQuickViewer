@@ -23,12 +23,12 @@ namespace CsvTools.Tests
   [TestClass]
   public sealed class StructuredFileWriterTests
   {
-    private const string c_ReadID = "StructuredFileWriterTests";
+    private const string cReadID = "StructuredFileWriterTests";
 
     [TestInitialize]
     public void Init()
     {
-      var readFile = new CsvFile { ID = c_ReadID, FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), CommentLine = "#" };
+      var readFile = new CsvFile { ID = cReadID, FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), CommentLine = "#" };
       readFile.ColumnCollection.Add(new Column("ExamDate", @"dd/MM/yyyy"));
       readFile.ColumnCollection.Add(new Column("Score", DataType.Integer));
       readFile.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
@@ -37,9 +37,9 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task StructuredFileWriterJSONEncodeTestAsync()
+    public async Task StructuredFileWriterJsonEncodeTestAsync()
     {
-      var fileSetting = new JsonFile { ID = "Write", FileName = "StructuredFileOutputJSON.txt", SqlStatement = c_ReadID, InOverview = true };
+      var fileSetting = new JsonFile { ID = "Write", FileName = "StructuredFileOutputJSON.txt", SqlStatement = cReadID, InOverview = true };
 
       var sb = new StringBuilder("{");
       var processDisplay = new CustomProcessDisplay();
@@ -53,7 +53,7 @@ namespace CsvTools.Tests
       foreach (var col in cols)
         sb.AppendFormat(
           "\"{0}\":\"{1}\", ",
-          HTMLStyle.JsonElementName(col),
+          HtmlStyle.JsonElementName(col),
           string.Format(CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
 
       if (sb.Length > 1)
@@ -86,7 +86,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task StructuredFileWriterXMLEncodeTest()
     {
-      var fileSetting = new XmlFile { ID = "Write", FileName = "StructuredFileOutputXML.txt", SqlStatement = c_ReadID, InOverview = true };
+      var fileSetting = new XmlFile { ID = "Write", FileName = "StructuredFileOutputXML.txt", SqlStatement = cReadID, InOverview = true };
       var sb = new StringBuilder();
       var processDisplay = new CustomProcessDisplay();
       var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(
@@ -101,7 +101,7 @@ namespace CsvTools.Tests
       foreach (var col in cols)
         sb.AppendFormat(
           "    <{0}>{1}</{0}>\n",
-          HTMLStyle.XmlElementName(col),
+          HtmlStyle.XmlElementName(col),
           string.Format(CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
 
       sb.AppendLine("  </row>");

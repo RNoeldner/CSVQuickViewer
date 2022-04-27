@@ -63,7 +63,7 @@ namespace CsvTools
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
       detailControl.BeforeFileStored += BeforeFileStored;
       detailControl.FileStored += FileStored;
-      detailControl.HTMLStyle = m_ViewSettings.HTMLStyle;
+      detailControl.HtmlStyle = m_ViewSettings.HtmlStyle;
       detailControl.MenuDown = m_ViewSettings.MenuDown;
 
       this.LoadWindowState(m_ViewSettings.WindowPosition);
@@ -120,7 +120,7 @@ namespace CsvTools
     ///   Initializes the file settings.
     /// </summary>
     /// <param name="fileName"></param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     public void LoadCsvFile(string fileName, CancellationToken cancellationToken)
     {
@@ -266,7 +266,7 @@ namespace CsvTools
         {
           m_ConfigChanged = false;
           detailControl.MoveMenu();
-          if (_MessageBox.Show(
+          if (MessageBox.Show(
                 "The configuration has changed do you want to reload the data?",
                 "Configuration changed",
                 MessageBoxButtons.YesNo,
@@ -280,7 +280,7 @@ namespace CsvTools
           return;
 
         m_FileChanged = false;
-        if (_MessageBox.Show(
+        if (MessageBox.Show(
               "The displayed file has changed do you want to reload the data?",
               "File changed",
               MessageBoxButtons.YesNo,
@@ -356,7 +356,7 @@ namespace CsvTools
           || e.PropertyName == nameof(ICsvFile.NumWarnings)
           || e.PropertyName == nameof(ICsvFile.SkipEmptyLines)
           || e.PropertyName == nameof(ICsvFile.SkipRows)
-          || e.PropertyName == nameof(ICsvFile.TreatLFAsSpace)
+          || e.PropertyName == nameof(ICsvFile.TreatLfAsSpace)
           || e.PropertyName == nameof(ICsvFile.TreatNBSPAsSpace)
           || e.PropertyName == nameof(ICsvFile.TreatTextAsNull)
           || e.PropertyName == nameof(ICsvFile.TreatUnknownCharacterAsSpace)
@@ -542,7 +542,7 @@ namespace CsvTools
         {
           var fileName = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
           SerializedFilesLib.SaveSettingFile(m_FileSetting,
-            () => _MessageBox.Show($"Setting {FileSystemUtils.GetShortDisplayFileName(fileName, 50)} has been changed.\nReplace with new setting? ", "Settings",
+            () => MessageBox.Show($"Setting {FileSystemUtils.GetShortDisplayFileName(fileName, 50)} has been changed.\nReplace with new setting? ", "Settings",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
         }
 

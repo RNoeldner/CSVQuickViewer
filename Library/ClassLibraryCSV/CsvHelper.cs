@@ -203,13 +203,13 @@ namespace CsvTools
 
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
 
-      const int c_MaxRows = 100;
+      const int maxRows = 100;
       var row = 0;
       var lineCommented = 0;
       var delim = delimiter.WrittenPunctuationToChar();
       var parts = 0;
       var partsComment = -1;
-      while (row < c_MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
+      while (row < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
         var line = (await textReader.ReadLineAsync()).TrimStart();
         if (string.IsNullOrEmpty(line))
@@ -899,14 +899,14 @@ namespace CsvTools
     public static async Task<string> GuessLineCommentAsync(this ImprovedTextReader textReader, CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
-      const int c_MaxRows = 50;
+      const int maxRows = 50;
       var lastRow = 0;
       Dictionary<string, int> starts =
         new[] { "##", "//", "\\\\", "''", "#", "/", "\\", "'" }.ToDictionary(test => test, test => 0);
 
       textReader.ToBeginning();
       // Count the number of rows that start with teh checked comment chars
-      while (lastRow < c_MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
+      while (lastRow < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
         cancellationToken.ThrowIfCancellationRequested();
         var line = (await textReader.ReadLineAsync().ConfigureAwait(false)).TrimStart();
@@ -1000,20 +1000,20 @@ namespace CsvTools
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
       if (commentLine is null)
         throw new ArgumentNullException(nameof(commentLine));
-      const int c_MaxRows = 50;
+      const int maxRows = 50;
       var delimiterChar = delimiter.WrittenPunctuationToChar();
       var quoteChar = quote.WrittenPunctuationToChar();
       textReader.ToBeginning();
-      var columnCount = new List<int>(c_MaxRows);
-      var rowMapping = new Dictionary<int, int>(c_MaxRows);
-      var colCount = new int[c_MaxRows];
-      var isComment = new bool[c_MaxRows];
+      var columnCount = new List<int>(maxRows);
+      var rowMapping = new Dictionary<int, int>(maxRows);
+      var colCount = new int[maxRows];
+      var isComment = new bool[maxRows];
       var quoted = false;
       var firstChar = true;
       var lastRow = 0;
       var retValue = 0;
 
-      while (lastRow < c_MaxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
+      while (lastRow < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
         var readChar = textReader.Read();
 
@@ -1555,12 +1555,12 @@ namespace CsvTools
       var currentChar = 0;
       var quoted = false;
 
-      const int c_Cr = 0;
-      const int c_LF = 1;
-      const int c_CrLf = 2;
-      const int c_LFCr = 3;
-      const int c_RecSep = 4;
-      const int c_UnitSep = 5;
+      const int cr = 0;
+      const int lf = 1;
+      const int crLf = 2;
+      const int lfCr = 3;
+      const int recSep = 4;
+      const int unitSep = 5;
 
       int[] count = { 0, 0, 0, 0, 0, 0 };
 
@@ -1591,21 +1591,21 @@ namespace CsvTools
         switch (readChar)
         {
           case 30:
-            count[c_RecSep]++;
+            count[recSep]++;
             continue;
           case 31:
-            count[c_UnitSep]++;
+            count[unitSep]++;
             continue;
           case 10:
           {
             if (textReader.Peek() == 13)
             {
               textReader.MoveNext();
-              count[c_LFCr]++;
+              count[lfCr]++;
             }
             else
             {
-              count[c_LF]++;
+              count[lf]++;
             }
 
             currentChar++;
@@ -1616,11 +1616,11 @@ namespace CsvTools
             if (textReader.Peek() == 10)
             {
               textReader.MoveNext();
-              count[c_CrLf]++;
+              count[crLf]++;
             }
             else
             {
-              count[c_Cr]++;
+              count[cr]++;
             }
 
             break;
@@ -1635,18 +1635,18 @@ namespace CsvTools
         return RecordDelimiterType.None;
 
       var res = RecordDelimiterType.None;
-      if (count[c_RecSep] == maxCount)
-        res = RecordDelimiterType.RS;
-      else if (count[c_UnitSep] == maxCount)
-        res = RecordDelimiterType.US;
-      else if (count[c_Cr] == maxCount)
-        res = RecordDelimiterType.CR;
-      else if (count[c_LF] == maxCount)
-        res = RecordDelimiterType.LF;
-      else if (count[c_CrLf] == maxCount)
-        res = RecordDelimiterType.CRLF;
-      else if (count[c_LFCr] == maxCount)
-        res = RecordDelimiterType.LFCR;
+      if (count[recSep] == maxCount)
+        res = RecordDelimiterType.Rs;
+      else if (count[unitSep] == maxCount)
+        res = RecordDelimiterType.Us;
+      else if (count[cr] == maxCount)
+        res = RecordDelimiterType.Cr;
+      else if (count[lf] == maxCount)
+        res = RecordDelimiterType.Lf;
+      else if (count[crLf] == maxCount)
+        res = RecordDelimiterType.Crlf;
+      else if (count[lfCr] == maxCount)
+        res = RecordDelimiterType.Lfcr;
       Logger.Information("Record Delimiter: {recorddelimiter}", res.Description());
       return res;
     }
@@ -1657,7 +1657,7 @@ namespace CsvTools
     /// <param name="textReader">The opened TextReader</param>
     /// <param name="delimiter">The char to be used as field delimiter</param>
     /// <param name="escape">Used to escape a delimiter or quoting char</param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
     /// <returns>The most likely quoting char</returns>
     /// <remarks>Any line feed ot carriage return will be regarded as field delimiter, a duplicate quoting will be regarded as single quote, an \ escaped quote will be ignored</remarks>
     private static char GuessQualifier(

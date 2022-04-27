@@ -87,7 +87,7 @@ namespace CsvTools
 
       if (!fillGuessSettings.Enabled || (!fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean
                                                                           && !fillGuessSettings.DetectDateTime
-                                                                          && !fillGuessSettings.DetectGUID
+                                                                          && !fillGuessSettings.DetectGuid
                                                                           && !fillGuessSettings.DetectPercentage
                                                                           && !fillGuessSettings.SerialDateTime))
         return (Array.Empty<string>(), columnCollectionInput);
@@ -217,7 +217,7 @@ namespace CsvTools
             fillGuessSettings.TrueValue,
             fillGuessSettings.FalseValue,
             fillGuessSettings.DetectBoolean,
-            fillGuessSettings.DetectGUID && detect,
+            fillGuessSettings.DetectGuid && detect,
             fillGuessSettings.DetectNumbers && detect,
             fillGuessSettings.DetectDateTime && detect,
             fillGuessSettings.DetectPercentage && detect,
@@ -1035,7 +1035,7 @@ namespace CsvTools
       // check DataType.TextUnescape
       if (!checkResult.PossibleMatch)
       {
-        var res = StringConversion.CheckUnescape(samples, minRequiredSamples, cancellationToken);
+        var res = StringConversion.CheckUnescaped(samples, minRequiredSamples, cancellationToken);
         if (res != DataType.String)
         {
           checkResult.PossibleMatch= true;
@@ -1097,7 +1097,7 @@ namespace CsvTools
     /// <param name="addTextColumns">if set to <c>true</c> event string columns are added.</param>
     /// <param name="checkDoubleToBeInteger">if set to <c>true</c> [check double to be integer].</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
     /// <returns>A list of columns with new format that have been changed</returns>
     /// <exception cref="ArgumentNullException">processDisplay</exception>
     public static async Task<(IList<string>, IEnumerable<IColumn>)> FillGuessColumnFormatReaderAsync(
@@ -1115,7 +1115,7 @@ namespace CsvTools
       // Check if we are supposed to check something
       if (!fillGuessSettings.Enabled || (!fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean
                                                                           && !fillGuessSettings.DetectDateTime
-                                                                          && !fillGuessSettings.DetectGUID
+                                                                          && !fillGuessSettings.DetectGuid
                                                                           && !fillGuessSettings.DetectPercentage
                                                                           && !fillGuessSettings.SerialDateTime))
         return (new List<string>(), fileSetting.ColumnCollection);

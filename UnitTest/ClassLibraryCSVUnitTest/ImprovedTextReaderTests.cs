@@ -10,7 +10,7 @@ namespace CsvTools.Tests
 	public class ImprovedTextReaderTests
 	{
 		[TestMethod]
-		public async Task ImprovedTextReaderTestBOMAsync()
+		public async Task ImprovedTextReaderTestBomAsync()
     {
       using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt")));
       using var test = new ImprovedTextReader(impStream);
@@ -43,7 +43,7 @@ namespace CsvTools.Tests
     }
 
 		[TestMethod]
-		public async Task BOMTest()
+		public async Task BomTest()
 		{
 			// create files
 			var fn = new[]

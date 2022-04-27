@@ -132,7 +132,7 @@ namespace CsvTools
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
     public static void SetClipboard(this DataObject dataObject, int timeoutMilliseconds = 120000)
-      => RunSTAThread(() =>
+      => RunStaThread(() =>
       {
         Clipboard.Clear();
         Clipboard.SetDataObject(dataObject, false, 5, 200);
@@ -141,17 +141,20 @@ namespace CsvTools
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
-    public static void SetClipboard(this string text) => RunSTAThread(() => Clipboard.SetText(text));
+    public static void SetClipboard(this string text) => RunStaThread(() => Clipboard.SetText(text));
 
-#if !NETFRAMEWORK
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-#endif
-    public static void RunSTAThread(this Action action, int timeoutMilliseconds = 20000)
+    public static void RunStaThread(this Action action, int timeoutMilliseconds = 20000)
     {
       if (action is null)
         throw new ArgumentNullException(nameof(action));
+      if (!FunctionalDI.IsWindows)
+      {
+        action.Invoke();
+        return;
+      }
       try
       {
+        
         if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
           action.Invoke();
         else
@@ -355,7 +358,7 @@ namespace CsvTools
         Logger.Warning(ex, ex.SourceExceptionMessage());
       Cursor.Current = Cursors.Default;
 
-      _MessageBox.Show(
+      MessageBox.Show(
         ex.ExceptionMessages(),
         string.IsNullOrEmpty(additionalTitle) ? "Error" : $"Error {additionalTitle}",
         MessageBoxButtons.OK,

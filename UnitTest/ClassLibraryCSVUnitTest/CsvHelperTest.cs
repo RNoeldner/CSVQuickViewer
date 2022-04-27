@@ -40,7 +40,7 @@ namespace CsvTools.Tests
 
       var det = await UnitTestStatic.GetTestPath("employee.txt").GetDetectionResultFromFile(display, true, true, true, true, true, true, true, true, UnitTestStatic.Token);
       //TODO: check if this is Environment dependent, looks like windows has CRLF and Mac as LF
-      Assert.AreEqual(RecordDelimiterType.CRLF, det.NewLine);
+      Assert.AreEqual(RecordDelimiterType.Crlf, det.NewLine);
     }
 
     [TestMethod]
@@ -249,7 +249,7 @@ namespace CsvTools.Tests
 
         var test = new CsvFile(path) { CodePageId = 65001, FieldQualifier = "\"" };
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-          Assert.AreEqual(RecordDelimiterType.LF, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
+          Assert.AreEqual(RecordDelimiterType.Lf, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
 
         FileSystemUtils.FileDelete(path);
         using (var file = File.CreateText(path))
@@ -266,7 +266,7 @@ namespace CsvTools.Tests
         }
 
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-          Assert.AreEqual(RecordDelimiterType.RS, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
+          Assert.AreEqual(RecordDelimiterType.Rs, await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
 
         FileSystemUtils.FileDelete(path);
         using (var file = File.CreateText(path))
@@ -283,7 +283,7 @@ namespace CsvTools.Tests
         }
 
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-          Assert.AreEqual(RecordDelimiterType.LFCR,
+          Assert.AreEqual(RecordDelimiterType.Lfcr,
             await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
 
         FileSystemUtils.FileDelete(path);
@@ -301,7 +301,7 @@ namespace CsvTools.Tests
         }
 
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-          Assert.AreEqual(RecordDelimiterType.CRLF,
+          Assert.AreEqual(RecordDelimiterType.Crlf,
             await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier, UnitTestStatic.Token));
       }
       finally
@@ -435,7 +435,7 @@ namespace CsvTools.Tests
         test.FieldDelimiter,
         test.FieldQualifier, test.EscapePrefix, test.RecordLimit, test.AllowRowCombining, test.ContextSensitiveQualifier, test.CommentLine, test.NumWarnings,
         test.DuplicateQualifierToEscape,
-        test.NewLinePlaceholder, test.DelimiterPlaceholder, test.QualifierPlaceholder, test.SkipDuplicateHeader, test.TreatLFAsSpace,
+        test.NewLinePlaceholder, test.DelimiterPlaceholder, test.QualifierPlaceholder, test.SkipDuplicateHeader, test.TreatLfAsSpace,
         test.TreatUnknownCharacterAsSpace, test.TryToSolveMoreColumns,
         test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, test.WarnUnknownCharacter, test.WarnEmptyTailingColumns,
         test.TreatNBSPAsSpace, test.TreatTextAsNull,

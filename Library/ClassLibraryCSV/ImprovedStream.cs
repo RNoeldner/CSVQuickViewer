@@ -29,7 +29,7 @@ namespace CsvTools
   /// </summary>
   public class ImprovedStream : Stream, IImprovedStream
   {
-    private const int c_BufferSize = 8192;
+    private const int cBufferSize = 8192;
 
     protected readonly SourceAccess SourceAccess;
 
@@ -253,14 +253,14 @@ namespace CsvTools
         Logger.Debug("Deflating {filename}", SourceAccess.Identifier);
         AccessStream = new BufferedStream(
           new DeflateStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
-          c_BufferSize);
+          cBufferSize);
       }
       else
       {
         Logger.Debug("Compressing {filename}", SourceAccess.Identifier);
         AccessStream = new BufferedStream(
           new DeflateStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
-          c_BufferSize);
+          cBufferSize);
       }
     }
 
@@ -271,14 +271,14 @@ namespace CsvTools
         Logger.Debug("Decompressing from GZip {filename}", SourceAccess.Identifier);
         AccessStream = new BufferedStream(
           new GZipStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
-          c_BufferSize);
+          cBufferSize);
       }
       else
       {
         Logger.Debug("Compressing to GZip {filename}", SourceAccess.Identifier);
         AccessStream = new BufferedStream(
           new GZipStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
-          c_BufferSize);
+          cBufferSize);
       }
     }
 
@@ -331,7 +331,7 @@ namespace CsvTools
       // is writing
       else
       {
-        var zipOutputStream = new ZipOutputStream(BaseStream, c_BufferSize);
+        var zipOutputStream = new ZipOutputStream(BaseStream, cBufferSize);
         if (!string.IsNullOrEmpty(SourceAccess.EncryptedPassphrase))
           zipOutputStream.Password = SourceAccess.EncryptedPassphrase;
         zipOutputStream.IsStreamOwner = false;

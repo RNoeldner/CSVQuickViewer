@@ -37,15 +37,15 @@ namespace CsvTools
     /// <param name="dataTable">The data table.</param>
     /// <param name="dataRows">The data rows.</param>
     /// <param name="visibleColumns">The visible columns.</param>
-    /// <param name="hTMLStyle">The h TML style.</param>
+    /// <param name="hTmlStyle">The h TML style.</param>
     /// <exception cref="ArgumentNullException">dataTable or dataRows or visibleColumns</exception>
-    public FormShowMaxLength(DataTable? dataTable, DataRow[] dataRows, IList<string>? visibleColumns, HTMLStyle hTMLStyle)
+    public FormShowMaxLength(DataTable? dataTable, DataRow[] dataRows, IList<string>? visibleColumns, HtmlStyle hTmlStyle)
     {
       m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows ?? throw new ArgumentNullException(nameof(dataRows));
       m_VisibleColumns = visibleColumns ?? throw new ArgumentNullException(nameof(visibleColumns));
       InitializeComponent();
-      m_DataGridView!.HTMLStyle = hTMLStyle;
+      m_DataGridView!.HtmlStyle = hTmlStyle;
     }
 
     /// <summary>

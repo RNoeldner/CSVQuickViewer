@@ -82,40 +82,14 @@ namespace CsvTools
           srcTimeZoneInfo = TimeZoneInfo.Local;
         else
         {
-          if (IsWindows)
-          {
-            if (TZConvert.TryIanaToWindows(srcTimeZone, out var winSrc))
-              srcTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(winSrc);
-            else
-              srcTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone);
-          }
-          else
-          {
-            if (TZConvert.TryWindowsToIana(srcTimeZone, out var inaraSrc))
-              srcTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(inaraSrc);
-            else
-              srcTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(srcTimeZone);
-          }
+          srcTimeZoneInfo = IsWindows ? TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryIanaToWindows(srcTimeZone, out var winSrc) ? winSrc : srcTimeZone) : TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryWindowsToIana(srcTimeZone, out var inaraSrc) ? inaraSrc : srcTimeZone);
         }
 
         if (destTimeZone.Equals("(local)", StringComparison.Ordinal))
           destTimeZoneInfo = TimeZoneInfo.Local;
         else
         {
-          if (IsWindows)
-          {
-            if (TZConvert.TryIanaToWindows(destTimeZone, out var winSrc))
-              destTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(winSrc);
-            else
-              destTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(destTimeZone);
-          }
-          else
-          {
-            if (TZConvert.TryWindowsToIana(destTimeZone, out var inaraDest))
-              destTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(inaraDest);
-            else
-              destTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(destTimeZone);
-          }
+          destTimeZoneInfo = IsWindows ? TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryIanaToWindows(destTimeZone, out var winSrc) ? winSrc : destTimeZone) : TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryWindowsToIana(destTimeZone, out var inaraDest) ? inaraDest : destTimeZone);
         }
 
         return TimeZoneInfo.ConvertTime(input, srcTimeZoneInfo, destTimeZoneInfo);
@@ -184,7 +158,7 @@ namespace CsvTools
           csv.DelimiterPlaceholder,
           csv.QualifierPlaceholder,
           csv.SkipDuplicateHeader,
-          csv.TreatLFAsSpace,
+          csv.TreatLfAsSpace,
           csv.TreatUnknownCharacterAsSpace,
           csv.TryToSolveMoreColumns,
           csv.WarnDelimiterInValue,
@@ -276,11 +250,8 @@ namespace CsvTools
       writer.WriteFinished += (sender, args) =>
       {
         fileSetting.ProcessTimeUtc = DateTime.UtcNow;
-        if (fileSetting is IFileSettingPhysicalFile physicalFile)
-        {
-          if (physicalFile.SetLatestSourceTimeForWrite)
-            new FileSystemUtils.FileInfo(physicalFile.FullPath).LastWriteTimeUtc = fileSetting.LatestSourceTimeUtc;
-        }
+        if (fileSetting is IFileSettingPhysicalFile {SetLatestSourceTimeForWrite: true} physicalFile) 
+          new FileSystemUtils.FileInfo(physicalFile.FullPath).LastWriteTimeUtc = fileSetting.LatestSourceTimeUtc;
       };
       return writer;
     }
