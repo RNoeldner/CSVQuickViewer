@@ -50,7 +50,7 @@ namespace CsvTools
     /// <param name="type"></param>
     /// <remarks>Make sure the source stream is disposed</remarks>
     // ReSharper disable once NotNullMemberIsNotInitialized
-    public ImprovedStream(in Stream stream, SourceAccess.FileTypeEnum type = SourceAccess.FileTypeEnum.Stream)
+    public ImprovedStream(in Stream stream, FileTypeEnum type = FileTypeEnum.Stream)
     {
       SourceAccess = new SourceAccess(stream, type);
       BaseOpen();
@@ -186,15 +186,15 @@ namespace CsvTools
 
       switch (SourceAccess.FileType)
       {
-        case SourceAccess.FileTypeEnum.GZip:
+        case FileTypeEnum.GZip:
           OpenZGipOverBase();
           break;
 
-        case SourceAccess.FileTypeEnum.Deflate:
+        case FileTypeEnum.Deflate:
           OpenDeflateOverBase();
           break;
 
-        case SourceAccess.FileTypeEnum.Zip:
+        case FileTypeEnum.Zip:
           OpenZipOverBase();
           break;
 

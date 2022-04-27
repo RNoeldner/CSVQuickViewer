@@ -75,7 +75,7 @@ namespace CsvTools
       {
         var sa = new SourceAccess(m_FullPath);
         m_Stream = new ImprovedStream(sa);
-        if (sa.FileType == SourceAccess.FileTypeEnum.Zip || sa.FileType == SourceAccess.FileTypeEnum.Pgp)
+        if (sa.FileType == FileTypeEnum.Zip || sa.FileType == FileTypeEnum.Pgp)
         {
           var encoding = Encoding.GetEncoding(m_CodePage);
           using var textReader = new StreamReader(m_Stream, encoding, true, 4096, true);

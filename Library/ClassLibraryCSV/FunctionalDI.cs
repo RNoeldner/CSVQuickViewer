@@ -52,12 +52,7 @@ namespace CsvTools
     /// <summary>
     ///   Retrieve the passphrase for a files
     /// </summary>
-    public static Func<string, string> GetEncryptedPassphraseForFile = s => string.Empty;
-    
-    /// <summary>
-    ///   Retrieve the KeyID for a recipient
-    /// </summary>
-    public static Func<string, long> GetKeyID = s => 0;
+    public static Func<string, string> GetEncryptedPassphraseForFile = s => string.Empty;    
 
     /// <summary>
     ///   Open a file for reading, it will take care of things like compression and encryption
