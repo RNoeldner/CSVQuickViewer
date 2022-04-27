@@ -32,12 +32,12 @@ namespace CsvTools
     private string m_FullPath = string.Empty;
     private bool m_FullPathInitialized;
     private string m_IdentifierInContainer = string.Empty;
-    private string m_PassPhrase = string.Empty;
-    private string m_Recipient = string.Empty;
+    private string m_PassPhrase = string.Empty;    
     private string m_RemoteFileName = string.Empty;
     private bool m_ThrowErrorIfNotExists = true;
     private bool m_ByteOrderMark = true;
     private int m_CodePageId = 65001;
+    private long m_KeyID = 0;
 
     protected BaseSettingPhysicalFile(string fileName) => m_FileName = FileNameFix(fileName);
 
@@ -271,9 +271,7 @@ namespace CsvTools
         m_ThrowErrorIfNotExists = value;
         NotifyPropertyChanged(nameof(ThrowErrorIfNotExists));
       }
-    }
-
-    private long m_KeyID = 0;
+    }    
 
     [XmlAttribute]
     [DefaultValue(0)]
