@@ -40,7 +40,7 @@ namespace CsvTools.Tests
         DetectDateTime = true,
         DetectPercentage = true,
         DetectBoolean = true,
-        DetectGUID = true,
+        DetectGuid = true,
         IgnoreIdColumns = true
       };
       Assert.AreEqual(0, setting.ColumnCollection.Count);
@@ -83,7 +83,7 @@ namespace CsvTools.Tests
         setting.AllowRowCombining, setting.ContextSensitiveQualifier, setting.CommentLine,
         setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
         setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader,
-        setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns,
+        setting.TreatLfAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns,
         setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes,
         setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace,
         setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer,
@@ -155,7 +155,7 @@ namespace CsvTools.Tests
         DetectDateTime = true,
         DetectPercentage = true,
         DetectBoolean = true,
-        DetectGUID = true,
+        DetectGuid = true,
         IgnoreIdColumns = true
       };
       var noInformation = new ColumnCollection();
@@ -249,7 +249,7 @@ namespace CsvTools.Tests
         DetectDateTime = true,
         DetectPercentage = true,
         DetectBoolean = true,
-        DetectGUID = true,
+        DetectGuid = true,
         IgnoreIdColumns = false
       };
       var (_, newCols1) =
@@ -273,7 +273,7 @@ namespace CsvTools.Tests
         FieldDelimiter = ","
       };
 
-      using (var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, null))
+      using (var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, null))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         UnitTestStatic.MimicSQLReader.AddSetting(setting.ID,
@@ -396,7 +396,7 @@ namespace CsvTools.Tests
         DetectDateTime = true,
         DetectPercentage = true,
         DetectBoolean = true,
-        DetectGUID = true,
+        DetectGuid = true,
         IgnoreIdColumns = false
       };
       var (_, detected) = await setting.FillGuessColumnFormatReaderAsync(true, false, fillGuessSettings, UnitTestStatic.Token);
@@ -422,7 +422,7 @@ namespace CsvTools.Tests
         DetectDateTime = true,
         DetectPercentage = true,
         DetectBoolean = true,
-        DetectGUID = true,
+        DetectGuid = true,
         DateParts = true,
         IgnoreIdColumns = true
       };
@@ -454,7 +454,7 @@ namespace CsvTools.Tests
         DetectDateTime = true,
         DetectPercentage = true,
         DetectBoolean = true,
-        DetectGUID = true,
+        DetectGuid = true,
         IgnoreIdColumns = false
       };
 
@@ -482,7 +482,7 @@ namespace CsvTools.Tests
         DetectDateTime = true,
         DetectPercentage = true,
         DetectBoolean = true,
-        DetectGUID = true,
+        DetectGuid = true,
         IgnoreIdColumns = true
       };
 
@@ -522,7 +522,7 @@ namespace CsvTools.Tests
         DetectDateTime = true,
         DetectPercentage = true,
         DetectBoolean = true,
-        DetectGUID = true,
+        DetectGuid = true,
         IgnoreIdColumns = true
       };
       var (_, detected) = await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
@@ -562,7 +562,7 @@ namespace CsvTools.Tests
         DetectDateTime = true,
         DetectPercentage = true,
         DetectBoolean = true,
-        DetectGUID = true,
+        DetectGuid = true,
         IgnoreIdColumns = true
       };
       var setting = new CsvFile
@@ -639,7 +639,7 @@ namespace CsvTools.Tests
         DetectDateTime = true,
         DetectPercentage = true,
         DetectBoolean = true,
-        DetectGUID = true,
+        DetectGuid = true,
         IgnoreIdColumns = true
       };
       var (_, detected) = await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, UnitTestStatic.Token);
@@ -729,7 +729,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), HasFieldHeader = true };
       var processDisplay = new CustomProcessDisplay();
-      using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
+      using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
       var samples = await DetermineColumnFormat.GetSampleValuesAsync(test, 1000, new[] { 0 }, 20,
         "NULL", 40, UnitTestStatic.Token);
@@ -748,7 +748,7 @@ namespace CsvTools.Tests
         HasFieldHeader = true
       };
       var processDisplay = new CustomProcessDisplay();
-      using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLFAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
+      using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
 
       var temp = await DetermineColumnFormat
@@ -964,7 +964,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void GuessColumnFormatISODate()
+    public void GuessColumnFormatIsoDate()
     {
       string[] values = { "20100929", "20120214", "20120217", "20120222", "20120301" };
 

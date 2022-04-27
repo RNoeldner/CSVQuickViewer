@@ -32,15 +32,15 @@ namespace CsvTools
     protected readonly IReadOnlyCollection<ImmutableColumn> ColumnDefinition;
 
     protected readonly List<WriterColumn> Columns = new List<WriterColumn>();
-    protected readonly string m_FileSettingDisplay;
+    protected readonly string FileSettingDisplay;
     private readonly string m_Footer;
-    internal readonly string m_FullPath;
+    internal readonly string FullPath;
     private readonly long m_PgpKeyId;
     private readonly string m_IdentifierInContainer;
     private readonly bool m_KeepUnencrypted;    
     private readonly Action<string>? m_ReportProgress;
     private readonly Action<long>? m_SetMaxProcess;
-    private readonly IValueFormat ValueFormatGeneral;
+    private readonly IValueFormat m_ValueFormatGeneral;
     protected string Header;
     private DateTime m_LastNotification = DateTime.Now;
 
@@ -60,7 +60,7 @@ namespace CsvTools
       if (string.IsNullOrEmpty(fullPath))
         throw new ArgumentException($"{nameof(fullPath)} can not be empty");
       var fileName = FileSystemUtils.GetFileName(fullPath);
-      m_FullPath = fullPath;
+      FullPath = fullPath;
       m_PgpKeyId = pgpKeyId;
       if (header != null && header.Length > 0)
         Header = ReplacePlaceHolder(
@@ -79,19 +79,19 @@ namespace CsvTools
         m_Footer = string.Empty;
 
       if (valueFormatGeneral != null)
-        ValueFormatGeneral = new ImmutableValueFormat(valueFormatGeneral);
+        m_ValueFormatGeneral = new ImmutableValueFormat(valueFormatGeneral);
       else
-        ValueFormatGeneral = new ImmutableValueFormat();
+        m_ValueFormatGeneral = new ImmutableValueFormat();
       ColumnDefinition =
         columnDefinition
           ?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList()
         ?? new List<ImmutableColumn>();
 
-      m_FileSettingDisplay = fileSettingDisplay;      
+      FileSettingDisplay = fileSettingDisplay;      
       m_KeepUnencrypted = unencrypted;
       m_IdentifierInContainer = identifierInContainer ?? string.Empty;
 
-      Logger.Debug("Created Writer for {filesetting}", m_FileSettingDisplay);
+      Logger.Debug("Created Writer for {filesetting}", FileSettingDisplay);
       if (processDisplay is null) return;
       m_ReportProgress = t => processDisplay.SetProcess(t, 0, true);
       if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
@@ -258,7 +258,7 @@ namespace CsvTools
       try
       {
         var sourceAccess = new SourceAccess(
-          m_FullPath,
+          FullPath,
           false,
           keyID: m_PgpKeyId,
           keepEncrypted: m_KeepUnencrypted);
@@ -273,14 +273,14 @@ namespace CsvTools
       }
       catch (Exception exc)
       {
-        Logger.Error(exc, "Could not write file {filename}", FileSystemUtils.GetShortDisplayFileName(m_FullPath));
+        Logger.Error(exc, "Could not write file {filename}", FileSystemUtils.GetShortDisplayFileName(FullPath));
         throw new FileWriterException(
-          $"Could not write file '{FileSystemUtils.GetShortDisplayFileName(m_FullPath)}'\n{exc.SourceExceptionMessage()}",
+          $"Could not write file '{FileSystemUtils.GetShortDisplayFileName(FullPath)}'\n{exc.SourceExceptionMessage()}",
           exc);
       }
       finally
       {
-        Logger.Debug("Finished writing {filesetting} Records: {records}", m_FileSettingDisplay, Records);
+        Logger.Debug("Finished writing {filesetting} Records: {records}", FileSettingDisplay, Records);
         HandleWriteEnd();
       }
 
@@ -323,7 +323,7 @@ namespace CsvTools
       using var dt = reader.GetSchemaTable();
       Columns.AddRange(
         GetColumnInformation(
-          ValueFormatGeneral,
+          m_ValueFormatGeneral,
           ColumnDefinition,
           dt ?? throw new ArgumentException("GetSchemaTable did not return information for reader")));
     }

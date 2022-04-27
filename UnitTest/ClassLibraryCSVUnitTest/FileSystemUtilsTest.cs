@@ -228,7 +228,7 @@ namespace CsvTools.Tests
     public void GetLatestFileOfPattern()
     {
       var root = FileSystemUtils.ExecutableDirectoryName();
-      var thisDLL = System.Reflection.Assembly.GetExecutingAssembly();
+      var thisDll = System.Reflection.Assembly.GetExecutingAssembly();
 
       var res = FileSystemUtils.GetLatestFileOfPattern(root, "CsvTools.ClassLibraryCSV.*.dll");
       Assert.AreEqual(root + Path.DirectorySeparatorChar + "CsvTools.ClassLibraryCSV.UnitTest.dll", res);

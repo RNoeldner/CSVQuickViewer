@@ -44,7 +44,7 @@ namespace CsvTools
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-      CsvTools.HTMLStyle htmlStyle1 = new CsvTools.HTMLStyle();
+      CsvTools.HtmlStyle htmlStyle1 = new CsvTools.HtmlStyle();
       this.fileSystemWatcher = new System.IO.FileSystemWatcher();
       this.loggerDisplay = new CsvTools.LoggerDisplay();
       this.detailControl = new CsvTools.DetailControl();
@@ -128,7 +128,7 @@ namespace CsvTools
       this.detailControl.DefaultCellStyle = dataGridViewCellStyle2;
       this.detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
       this.detailControl.FileSetting = null;
-      this.detailControl.HTMLStyle = htmlStyle1;
+      this.detailControl.HtmlStyle = htmlStyle1;
       this.detailControl.Location = new System.Drawing.Point(0, 0);
       this.detailControl.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.detailControl.MenuDown = false;

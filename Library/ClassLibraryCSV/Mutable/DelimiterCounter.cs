@@ -20,7 +20,7 @@ namespace CsvTools
   public class DelimiterCounter
   {
     // Added INFORMATION SEPARATOR ONE to FOUR
-    private const string c_DefaultSeparators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
+    private const string cDefaultSeparators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
 
     public readonly int NumRows;
 
@@ -36,10 +36,10 @@ namespace CsvTools
     {
       NumRows = numRows;
       var listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator[0];
-      if (c_DefaultSeparators.IndexOf(listSeparator) == -1)
-        Separators = c_DefaultSeparators + listSeparator;
+      if (cDefaultSeparators.IndexOf(listSeparator) == -1)
+        Separators = cDefaultSeparators + listSeparator;
       else
-        Separators = c_DefaultSeparators;
+        Separators = cDefaultSeparators;
       if (disallowedDelimiter != null)
       {
         foreach (var delim in disallowedDelimiter)

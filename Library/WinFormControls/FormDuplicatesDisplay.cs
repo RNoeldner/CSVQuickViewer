@@ -45,17 +45,17 @@ namespace CsvTools
     /// <param name="dataTable">The data table.</param>
     /// <param name="dataRows">The filtered rows.</param>
     /// <param name="initialColumn">The starting column</param>
-    /// <param name="hTMLStyle">The HTML style.</param>
+    /// <param name="hTmlStyle">The HTML style.</param>
     /// <exception cref="ArgumentNullException">hTMLStyle or dataTable or dataRows</exception>
-    public FormDuplicatesDisplay(DataTable dataTable, DataRow[] dataRows, string? initialColumn, HTMLStyle hTMLStyle)
+    public FormDuplicatesDisplay(DataTable dataTable, DataRow[] dataRows, string? initialColumn, HtmlStyle hTmlStyle)
     {
-      if (hTMLStyle is null)
-        throw new ArgumentNullException(nameof(hTMLStyle));
+      if (hTmlStyle is null)
+        throw new ArgumentNullException(nameof(hTmlStyle));
       m_DataTable = dataTable??throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows??throw new ArgumentNullException(nameof(dataRows));
       m_InitialColumn = initialColumn ?? string.Empty;
       InitializeComponent();
-      detailControl.HTMLStyle = hTMLStyle;
+      detailControl.HtmlStyle = hTmlStyle;
     }
 
     /// <summary>

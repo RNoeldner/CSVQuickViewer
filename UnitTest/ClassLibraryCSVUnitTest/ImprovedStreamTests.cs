@@ -136,44 +136,44 @@ namespace CsvTools.Tests
       var fullname = UnitTestStatic.GetTestPath(fileName);
 
       var encoding = EncodingHelper.GetEncoding(65001, true);
-      const string c_Line1 = "This is a test of compressed data written to a file";
-      const string c_Line2 = "Yet another line to be written";
-      const string c_Line3 = "A text with non ASCII characters: Raphael Nöldner";
+      const string line1 = "This is a test of compressed data written to a file";
+      const string line2 = "Yet another line to be written";
+      const string line3 = "A text with non ASCII characters: Raphael Nöldner";
 
-      var sourceAccsss = new SourceAccess(fullname, false);
+      var sourceAccess = new SourceAccess(fullname, false);
       if (string.IsNullOrEmpty(password))
-        sourceAccsss.EncryptedPassphrase=password;
+        sourceAccess.EncryptedPassphrase = password;
       if (!string.IsNullOrEmpty(internalName))
-        sourceAccsss.IdentifierInContainer=internalName;
+        sourceAccess.IdentifierInContainer=internalName;
 
-      using (var improvedStream = new ImprovedStream(sourceAccsss))
+      using (var improvedStream = new ImprovedStream(sourceAccess))
       {
         using (var writer = new StreamWriter(improvedStream, encoding, 8192))
         {
-          writer.WriteLine(c_Line1);
-          writer.WriteLine(c_Line2);
-          writer.WriteLine(c_Line3);
+          writer.WriteLine(line1);
+          writer.WriteLine(line2);
+          writer.WriteLine(line3);
           writer.WriteLine();
-          writer.WriteLine(c_Line1);
+          writer.WriteLine(line1);
         }
 
         improvedStream.Close();
       }
 
       Assert.IsTrue(FileSystemUtils.FileExists(fullname), "Check if File is created" + fileName);
-      sourceAccsss = new SourceAccess(fullname, true);
+      sourceAccess = new SourceAccess(fullname, true);
       if (string.IsNullOrEmpty(password))
-        sourceAccsss.EncryptedPassphrase=password;
+        sourceAccess.EncryptedPassphrase = password;
 
-      using (var improvedStream = new ImprovedStream(sourceAccsss))
+      using (var improvedStream = new ImprovedStream(sourceAccess))
       {
         using (var textReader = new StreamReader(improvedStream, encoding, true))
         {
-          Assert.AreEqual(c_Line1, textReader.ReadLine(), "Line 1 : " + fileName);
-          Assert.AreEqual(c_Line2, textReader.ReadLine(), "Line 2 : " + fileName);
-          Assert.AreEqual(c_Line3, textReader.ReadLine(), "Line 3 : " + fileName);
+          Assert.AreEqual(line1, textReader.ReadLine(), "Line 1 : " + fileName);
+          Assert.AreEqual(line2, textReader.ReadLine(), "Line 2 : " + fileName);
+          Assert.AreEqual(line3, textReader.ReadLine(), "Line 3 : " + fileName);
           Assert.AreEqual(string.Empty, textReader.ReadLine(), "Line 4 : " + fileName);
-          Assert.AreEqual(c_Line1, textReader.ReadLine(), "Line 5 : " + fileName);
+          Assert.AreEqual(line1, textReader.ReadLine(), "Line 5 : " + fileName);
         }
 
         improvedStream.Close();

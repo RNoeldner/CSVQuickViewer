@@ -319,7 +319,7 @@ namespace CsvTools
     ///   Gets or sets the HTML style.
     /// </summary>
     /// <value>The HTML style.</value>
-    public HTMLStyle HTMLStyle { get => FilteredDataGridView.HTMLStyle; set => FilteredDataGridView.HTMLStyle = value; }
+    public HtmlStyle HtmlStyle { get => FilteredDataGridView.HtmlStyle; set => FilteredDataGridView.HtmlStyle = value; }
 
     /// <summary>
     ///   General Setting that determines if the menu is display in the bottom of a detail control
@@ -671,7 +671,7 @@ namespace CsvTools
                                           .Select(col => col.DataPropertyName).ToList();
         m_FormShowMaxLength?.Close();
         m_FormShowMaxLength =
-          new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible, HTMLStyle) { Icon = ParentForm?.Icon };
+          new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible, HtmlStyle) { Icon = ParentForm?.Icon };
         m_FormShowMaxLength.Show(ParentForm);
 
         m_FormShowMaxLength.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
@@ -697,7 +697,7 @@ namespace CsvTools
         {
           m_FormDuplicatesDisplay?.Close();
           m_FormDuplicatesDisplay =
-            new FormDuplicatesDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), columnName, HTMLStyle)
+            new FormDuplicatesDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), columnName, HtmlStyle)
             {
               Icon = ParentForm?.Icon
             };
@@ -725,7 +725,7 @@ namespace CsvTools
         {
           m_HierarchyDisplay?.Close();
           m_HierarchyDisplay =
-            new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), HTMLStyle) { Icon = ParentForm?.Icon };
+            new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), HtmlStyle) { Icon = ParentForm?.Icon };
           m_HierarchyDisplay.Show(ParentForm);
           m_HierarchyDisplay.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
         }
@@ -757,7 +757,7 @@ namespace CsvTools
           m_FormUniqueDisplay = new FormUniqueDisplay(
             m_DataTable.Clone(),
             m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-            columnName, HTMLStyle)
+            columnName, HtmlStyle)
           { Icon = ParentForm?.Icon };
           m_FormUniqueDisplay.ShowDialog(ParentForm);
         }

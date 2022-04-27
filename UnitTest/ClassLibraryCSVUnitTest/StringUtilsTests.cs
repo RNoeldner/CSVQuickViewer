@@ -103,58 +103,58 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void HandleCRLFCombinationsTest()
+    public void HandleCrlfCombinationsTest()
     {
-      Assert.AreEqual("+#+", "\r#\n".HandleCRLFCombinations("+"));
-      Assert.AreEqual("+#+", "\r\n#\n\r".HandleCRLFCombinations("+"));
-      Assert.AreEqual("++", "\r\n\n\r".HandleCRLFCombinations("+"));
-      Assert.AreEqual("", "".HandleCRLFCombinations("+"));
+      Assert.AreEqual("+#+", "\r#\n".HandleCrlfCombinations("+"));
+      Assert.AreEqual("+#+", "\r\n#\n\r".HandleCrlfCombinations("+"));
+      Assert.AreEqual("++", "\r\n\n\r".HandleCrlfCombinations("+"));
+      Assert.AreEqual("", "".HandleCrlfCombinations("+"));
     }
 
     [TestMethod]
     public void HtmlEncodeNull() =>
       // Assert.IsNull(HTMLStyle.HtmlEncode(null));
-      Assert.AreEqual(string.Empty, HTMLStyle.HtmlEncode(string.Empty));
+      Assert.AreEqual(string.Empty, HtmlStyle.HtmlEncode(string.Empty));
 
     [TestMethod]
-    public void HtmlEncodeOK()
+    public void HtmlEncodeOk()
     {
       var test = @"Only plain ACSII";
-      Assert.AreEqual(test, HTMLStyle.HtmlEncode(test));
-      Assert.AreEqual("&quot;", HTMLStyle.HtmlEncode("\""));
-      Assert.AreEqual("&amp;", HTMLStyle.HtmlEncode("&"));
+      Assert.AreEqual(test, HtmlStyle.HtmlEncode(test));
+      Assert.AreEqual("&quot;", HtmlStyle.HtmlEncode("\""));
+      Assert.AreEqual("&amp;", HtmlStyle.HtmlEncode("&"));
 
       Assert.IsTrue(
-        "&aeuml;" == HTMLStyle.HtmlEncode("ä") ||
-        "&#228;" == HTMLStyle.HtmlEncode("ä"));
+        "&aeuml;" == HtmlStyle.HtmlEncode("ä") ||
+        "&#228;" == HtmlStyle.HtmlEncode("ä"));
     }
 
     [TestMethod]
     public void HtmlEncodeShortLineFeed()
     {
-      Assert.AreEqual("Dies ist<br>Test", HTMLStyle.HtmlEncodeShort("Dies ist\r\nTest"));
-      Assert.AreEqual("Dies ist<br>Test", HTMLStyle.HtmlEncodeShort("Dies ist\n\rTest"));
-      Assert.AreEqual("Dies ist<br>Test", HTMLStyle.HtmlEncodeShort("Dies ist\rTest"));
-      Assert.AreEqual("Dies ist<br>Test", HTMLStyle.HtmlEncodeShort("Dies ist\nTest"));
-      Assert.AreEqual("Dies ist<br><br>Test", HTMLStyle.HtmlEncodeShort("Dies ist\r\rTest"));
+      Assert.AreEqual("Dies ist<br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\r\nTest"));
+      Assert.AreEqual("Dies ist<br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\n\rTest"));
+      Assert.AreEqual("Dies ist<br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\rTest"));
+      Assert.AreEqual("Dies ist<br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\nTest"));
+      Assert.AreEqual("Dies ist<br><br>Test", HtmlStyle.HtmlEncodeShort("Dies ist\r\rTest"));
     }
 
     [TestMethod]
     public void HtmlEncodeShortNull()
     {
-      Assert.IsNull(HTMLStyle.HtmlEncodeShort(null));
-      Assert.AreEqual(string.Empty, HTMLStyle.HtmlEncodeShort(string.Empty));
+      Assert.IsNull(HtmlStyle.HtmlEncodeShort(null));
+      Assert.AreEqual(string.Empty, HtmlStyle.HtmlEncodeShort(string.Empty));
     }
 
     [TestMethod]
-    public void HtmlEncodeShortOK()
+    public void HtmlEncodeShortOk()
     {
       var test = @"Only plain ACSII";
-      Assert.AreEqual(test, HTMLStyle.HtmlEncodeShort(test));
-      Assert.AreEqual("&quot;", HTMLStyle.HtmlEncodeShort("\""));
-      Assert.AreEqual("&amp;", HTMLStyle.HtmlEncodeShort("&"));
+      Assert.AreEqual(test, HtmlStyle.HtmlEncodeShort(test));
+      Assert.AreEqual("&quot;", HtmlStyle.HtmlEncodeShort("\""));
+      Assert.AreEqual("&amp;", HtmlStyle.HtmlEncodeShort("&"));
 
-      Assert.AreEqual("ä", HTMLStyle.HtmlEncodeShort("ä"));
+      Assert.AreEqual("ä", HtmlStyle.HtmlEncodeShort("ä"));
     }
 
     [TestMethod]
@@ -213,28 +213,28 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void TDNull()
+    public void TdNull()
     {
-      Assert.IsTrue(string.IsNullOrEmpty(HTMLStyle.AddTd(null, null)));
-      Assert.IsTrue(string.IsNullOrEmpty(HTMLStyle.AddTd(null)));
-      Assert.AreEqual(string.Empty, HTMLStyle.AddTd(string.Empty));
+      Assert.IsTrue(string.IsNullOrEmpty(HtmlStyle.AddTd(null, null)));
+      Assert.IsTrue(string.IsNullOrEmpty(HtmlStyle.AddTd(null)));
+      Assert.AreEqual(string.Empty, HtmlStyle.AddTd(string.Empty));
     }
 
     [TestMethod]
-    public void TDOK()
+    public void Tdok()
     {
-      Assert.AreEqual("AXB", HTMLStyle.AddTd("A{0}B", "X"));
-      Assert.AreEqual("AX.YB", HTMLStyle.AddTd("A{0}.{1}B", "X", "Y"));
-      Assert.AreEqual("<td>&gt;<br>&lt;</td>", HTMLStyle.AddTd("<td>{0}<br>{1}</td>", ">", "<"));
+      Assert.AreEqual("AXB", HtmlStyle.AddTd("A{0}B", "X"));
+      Assert.AreEqual("AX.YB", HtmlStyle.AddTd("A{0}.{1}B", "X", "Y"));
+      Assert.AreEqual("<td>&gt;<br>&lt;</td>", HtmlStyle.AddTd("<td>{0}<br>{1}</td>", ">", "<"));
     }
 
     [TestMethod]
     public void TextToHtmlEncode()
     {
-      Assert.AreEqual("", HTMLStyle.TextToHtmlEncode(""));
-      Assert.AreEqual("This is a test", HTMLStyle.TextToHtmlEncode("This is a test"));
-      Assert.AreEqual("This is a test", HTMLStyle.TextToHtmlEncode("This is a\ttest"));
-      Assert.AreEqual("This is a<br>test", HTMLStyle.TextToHtmlEncode("This is a\ntest"));
+      Assert.AreEqual("", HtmlStyle.TextToHtmlEncode(""));
+      Assert.AreEqual("This is a test", HtmlStyle.TextToHtmlEncode("This is a test"));
+      Assert.AreEqual("This is a test", HtmlStyle.TextToHtmlEncode("This is a\ttest"));
+      Assert.AreEqual("This is a<br>test", HtmlStyle.TextToHtmlEncode("This is a\ntest"));
     }
   }
 }

@@ -27,18 +27,18 @@ namespace CsvTools
   [Serializable]
   public class CsvFile : BaseSettingPhysicalFile, ICsvFile
   {
-    private const bool c_ContextSensitiveQualifierDefault = false;
-    private const bool c_QualifyAlwaysDefault = false;
-    private const string c_EscapePrefixDefault = "";
-    private const RecordDelimiterType c_NewLineDefault = RecordDelimiterType.CRLF;
-    private const string c_CommentLineDefault = "";
-    private const string c_DelimiterPlaceholderDefault = "";
-    private const string c_FieldDelimiterDefault = ",";
-    private const string c_FieldQualifierDefault = "\"";
-    private const string c_NewLinePlaceholderDefault = "";
-    private const bool c_QualifyOnlyIfNeededDefault = true;
-    private const string c_QuotePlaceholderDefault = "";
-    private const bool c_DuplicateQualifierToEscapeDefault = true;
+    private const bool cContextSensitiveQualifierDefault = false;
+    private const bool cQualifyAlwaysDefault = false;
+    private const string cEscapePrefixDefault = "";
+    private const RecordDelimiterType cNewLineDefault = RecordDelimiterType.Crlf;
+    private const string cCommentLineDefault = "";
+    private const string cDelimiterPlaceholderDefault = "";
+    private const string cFieldDelimiterDefault = ",";
+    private const string cFieldQualifierDefault = "\"";
+    private const string cNewLinePlaceholderDefault = "";
+    private const bool cQualifyOnlyIfNeededDefault = true;
+    private const string cQuotePlaceholderDefault = "";
+    private const bool cDuplicateQualifierToEscapeDefault = true;
 
     /// <summary>
     ///   File ending for a setting file
@@ -46,28 +46,28 @@ namespace CsvTools
     public const string cCsvSettingExtension = ".setting";
 
     private bool m_AllowRowCombining;
-    private string m_CommentLine = c_CommentLineDefault;
+    private string m_CommentLine = cCommentLineDefault;
 
-    private bool m_ContextSensitiveQualifier = c_ContextSensitiveQualifierDefault;
+    private bool m_ContextSensitiveQualifier = cContextSensitiveQualifierDefault;
 
     [NonSerialized] private Encoding m_CurrentEncoding = Encoding.UTF8;
-    private string m_DelimiterPlaceholder = c_DelimiterPlaceholderDefault;
-    private bool m_DuplicateQualifierToEscape = c_DuplicateQualifierToEscapeDefault;
-    private string m_EscapePrefix = c_EscapePrefixDefault;
+    private string m_DelimiterPlaceholder = cDelimiterPlaceholderDefault;
+    private bool m_DuplicateQualifierToEscape = cDuplicateQualifierToEscapeDefault;
+    private string m_EscapePrefix = cEscapePrefixDefault;
     private char m_EscapePrefixChar = '\0';
-    private string m_FieldDelimiter = c_FieldDelimiterDefault;
-    private char m_FieldDelimiterChar = c_FieldDelimiterDefault[0];
-    private string m_FieldQualifier = c_FieldQualifierDefault;
-    private char m_FieldQualifierChar = c_FieldQualifierDefault[0];
-    private RecordDelimiterType m_NewLine = c_NewLineDefault;
-    private string m_NewLinePlaceholder = c_NewLinePlaceholderDefault;
+    private string m_FieldDelimiter = cFieldDelimiterDefault;
+    private char m_FieldDelimiterChar = cFieldDelimiterDefault[0];
+    private string m_FieldQualifier = cFieldQualifierDefault;
+    private char m_FieldQualifierChar = cFieldQualifierDefault[0];
+    private RecordDelimiterType m_NewLine = cNewLineDefault;
+    private string m_NewLinePlaceholder = cNewLinePlaceholderDefault;
 
     private bool m_NoDelimitedFile;
 
     private int m_NumWarnings;
-    private string m_QualifierPlaceholder = c_QuotePlaceholderDefault;
-    private bool m_QualifyAlways = c_QualifyAlwaysDefault;
-    private bool m_QualifyOnlyIfNeeded = c_QualifyOnlyIfNeededDefault;
+    private string m_QualifierPlaceholder = cQuotePlaceholderDefault;
+    private bool m_QualifyAlways = cQualifyAlwaysDefault;
+    private bool m_QualifyOnlyIfNeeded = cQualifyOnlyIfNeededDefault;
 
     private bool m_TreatLfAsSpace;
 
@@ -120,7 +120,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlAttribute]
-    [DefaultValue(c_ContextSensitiveQualifierDefault)]
+    [DefaultValue(cContextSensitiveQualifierDefault)]
     public virtual bool ContextSensitiveQualifier
     {
       get => m_ContextSensitiveQualifier;
@@ -143,7 +143,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlAttribute]
-    [DefaultValue(c_CommentLineDefault)]
+    [DefaultValue(cCommentLineDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
@@ -162,7 +162,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlAttribute]
-    [DefaultValue(c_DelimiterPlaceholderDefault)]
+    [DefaultValue(cDelimiterPlaceholderDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
@@ -181,7 +181,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlAttribute]
-    [DefaultValue(c_DuplicateQualifierToEscapeDefault)]
+    [DefaultValue(cDuplicateQualifierToEscapeDefault)]
     public virtual bool DuplicateQualifierToEscape
     {
       get => m_DuplicateQualifierToEscape;
@@ -198,7 +198,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlAttribute]
-    [DefaultValue(c_EscapePrefixDefault)]
+    [DefaultValue(cEscapePrefixDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
@@ -219,7 +219,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlAttribute]
-    [DefaultValue(c_FieldDelimiterDefault)]
+    [DefaultValue(cFieldDelimiterDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
@@ -244,7 +244,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlAttribute]
-    [DefaultValue(c_FieldQualifierDefault)]
+    [DefaultValue(cFieldQualifierDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
@@ -274,7 +274,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlAttribute]
-    [DefaultValue(c_NewLineDefault)]
+    [DefaultValue(cNewLineDefault)]
     public virtual RecordDelimiterType NewLine
     {
       get => m_NewLine;
@@ -290,7 +290,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlAttribute]
-    [DefaultValue(c_NewLinePlaceholderDefault)]
+    [DefaultValue(cNewLinePlaceholderDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
@@ -299,7 +299,7 @@ namespace CsvTools
       get => m_NewLinePlaceholder;
       set
       {
-        var newVal = value ?? c_NewLinePlaceholderDefault;
+        var newVal = value ?? cNewLinePlaceholderDefault;
         if (m_NewLinePlaceholder.Equals(newVal, StringComparison.OrdinalIgnoreCase))
           return;
         m_NewLinePlaceholder = newVal;
@@ -309,7 +309,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlAttribute]
-    [DefaultValue(c_QualifyAlwaysDefault)]
+    [DefaultValue(cQualifyAlwaysDefault)]
     public virtual bool QualifyAlways
     {
       get => m_QualifyAlways;
@@ -326,7 +326,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlAttribute]
-    [DefaultValue(c_QualifyOnlyIfNeededDefault)]
+    [DefaultValue(cQualifyOnlyIfNeededDefault)]
     public virtual bool QualifyOnlyIfNeeded
     {
       get => m_QualifyOnlyIfNeeded;
@@ -344,7 +344,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlAttribute]
-    [DefaultValue(c_QuotePlaceholderDefault)]
+    [DefaultValue(cQuotePlaceholderDefault)]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
@@ -411,7 +411,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
-    public virtual bool TreatLFAsSpace
+    public virtual bool TreatLfAsSpace
     {
       get => m_TreatLfAsSpace;
 
@@ -420,7 +420,7 @@ namespace CsvTools
         if (m_TreatLfAsSpace.Equals(value))
           return;
         m_TreatLfAsSpace = value;
-        NotifyPropertyChanged(nameof(TreatLFAsSpace));
+        NotifyPropertyChanged(nameof(TreatLfAsSpace));
       }
     }
 
@@ -591,7 +591,7 @@ namespace CsvTools
       csv.WarnUnknownCharacter = m_WarnUnknownCharacter;
       csv.WarnLineFeed = m_WarnLineFeed;
       csv.WarnNBSP = m_WarnNbsp;
-      csv.TreatLFAsSpace = m_TreatLfAsSpace;
+      csv.TreatLfAsSpace = m_TreatLfAsSpace;
       csv.TryToSolveMoreColumns = m_TryToSolveMoreColumns;
       csv.AllowRowCombining = m_AllowRowCombining;
 
@@ -632,7 +632,7 @@ namespace CsvTools
               && m_WarnLineFeed == other.WarnLineFeed
               && m_TryToSolveMoreColumns == other.TryToSolveMoreColumns
               && m_AllowRowCombining == other.AllowRowCombining
-              && m_TreatLfAsSpace == other.TreatLFAsSpace
+              && m_TreatLfAsSpace == other.TreatLfAsSpace
               && m_WarnNbsp == other.WarnNBSP && m_WarnQuotes == other.WarnQuotes
               && m_WarnQuotesInQuotes == other.WarnQuotesInQuotes
               && m_WarnUnknownCharacter == other.WarnUnknownCharacter
@@ -680,8 +680,8 @@ namespace CsvTools
         if (m_AllowRowCombining != csv.AllowRowCombining) 
           yield return $"AllowRowCombining: {AllowRowCombining} {csv.AllowRowCombining}";
         
-        if (m_TreatLfAsSpace != csv.TreatLFAsSpace) 
-          yield return $"TreatLFAsSpace: {TreatLFAsSpace} {csv.TreatLFAsSpace}";
+        if (m_TreatLfAsSpace != csv.TreatLfAsSpace) 
+          yield return $"TreatLFAsSpace: {TreatLfAsSpace} {csv.TreatLfAsSpace}";
         
         if (m_WarnNbsp != csv.WarnNBSP) 
           yield return $"WarnNBSP: {WarnNBSP} {csv.WarnNBSP}";
@@ -777,12 +777,12 @@ namespace CsvTools
       /// </summary>
       /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
       [XmlAttribute]
-      [DefaultValue(c_ContextSensitiveQualifierDefault)]
+      [DefaultValue(cContextSensitiveQualifierDefault)]
       public bool AlternateQuoting
       {
         get;
         set;
-      } = c_ContextSensitiveQualifierDefault;
+      } = cContextSensitiveQualifierDefault;
 
       /// <summary>
       ///   Gets or sets the text to indicate that the line is comment line and not contain data. If a
@@ -790,117 +790,117 @@ namespace CsvTools
       /// </summary>
       /// <value>The startup comment line.</value>
       [XmlAttribute]
-      [DefaultValue(c_CommentLineDefault)]
+      [DefaultValue(cCommentLineDefault)]
 
       public string CommentLine
       {
         get;
         set;
-      } = c_CommentLineDefault;
+      } = cCommentLineDefault;
 
       /// <summary>
       ///   Gets or sets the delimiter placeholder.
       /// </summary>
       /// <value>The delimiter placeholder.</value>
       [XmlAttribute]
-      [DefaultValue(c_DelimiterPlaceholderDefault)]
+      [DefaultValue(cDelimiterPlaceholderDefault)]
       public string DelimiterPlaceholder
       {
         get;
         set;
-      } = c_DelimiterPlaceholderDefault;
+      } = cDelimiterPlaceholderDefault;
 
       /// <summary>
       ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
       /// </summary>
       /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
       [XmlAttribute]
-      [DefaultValue(c_DuplicateQualifierToEscapeDefault)]
+      [DefaultValue(cDuplicateQualifierToEscapeDefault)]
       public bool DuplicateQuotingToEscape
       {
         get;
         set;
-      } = c_DuplicateQualifierToEscapeDefault;
+      } = cDuplicateQualifierToEscapeDefault;
 
       /// <summary>
       ///   Gets or sets the escape character.
       /// </summary>
       /// <value>The escape character.</value>
       [XmlAttribute]
-      [DefaultValue(c_EscapePrefixDefault)]
+      [DefaultValue(cEscapePrefixDefault)]
       public string EscapeCharacter
       {
         get;
         set;
-      } = c_EscapePrefixDefault;
+      } = cEscapePrefixDefault;
 
       /// <summary>
       ///   Gets or sets the field delimiter.
       /// </summary>
       /// <value>The field delimiter.</value>
       [XmlAttribute]
-      [DefaultValue(c_FieldDelimiterDefault)]
+      [DefaultValue(cFieldDelimiterDefault)]
       public string FieldDelimiter
       {
         get;
         set;
-      } = c_FieldDelimiterDefault;
+      } = cFieldDelimiterDefault;
 
       /// <summary>
       ///   Gets or sets the field qualifier.
       /// </summary>
       /// <value>The field qualifier.</value>
       [XmlAttribute]
-      [DefaultValue(c_FieldQualifierDefault)]
+      [DefaultValue(cFieldQualifierDefault)]
       public string FieldQualifier
       {
         get;
         set;
-      } = c_FieldQualifierDefault;
+      } = cFieldQualifierDefault;
 
       /// <summary>
       ///   Gets or sets the newline.
       /// </summary>
       /// <value>The newline.</value>
       [XmlAttribute]
-      [DefaultValue(c_NewLineDefault)]
+      [DefaultValue(cNewLineDefault)]
       public RecordDelimiterType NewLine
       {
         get;
         set;
-      } = c_NewLineDefault;
+      } = cNewLineDefault;
 
       [XmlAttribute]
-      [DefaultValue(c_NewLinePlaceholderDefault)]
+      [DefaultValue(cNewLinePlaceholderDefault)]
       public string NewLinePlaceholder
       {
         get;
         set;
-      } = c_NewLinePlaceholderDefault;
+      } = cNewLinePlaceholderDefault;
 
       [XmlAttribute]
-      [DefaultValue(c_QualifyAlwaysDefault)]
+      [DefaultValue(cQualifyAlwaysDefault)]
       public bool QualifyAlways
       {
         get;
         set;
-      } = c_QualifyAlwaysDefault;
+      } = cQualifyAlwaysDefault;
 
       [XmlAttribute]
-      [DefaultValue(c_QualifyOnlyIfNeededDefault)]
+      [DefaultValue(cQualifyOnlyIfNeededDefault)]
       public bool QualifyOnlyIfNeeded
       {
         get;
         set;
-      } = c_QualifyOnlyIfNeededDefault;
+      } = cQualifyOnlyIfNeededDefault;
 
       [XmlAttribute]
-      [DefaultValue(c_QuotePlaceholderDefault)]
+      [DefaultValue(cQuotePlaceholderDefault)]
       public string QuotePlaceholder
       {
         get;
         set;
-      } = c_QuotePlaceholderDefault;
+      } = cQuotePlaceholderDefault;
     }
 
     #endregion

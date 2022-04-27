@@ -60,7 +60,7 @@ namespace CsvTools
       in string? header = null,
       in string? footer = null,
       in string fileSettingDisplay = "",
-      RecordDelimiterType newLine = RecordDelimiterType.CRLF,
+      RecordDelimiterType newLine = RecordDelimiterType.Crlf,
       char fieldDelimiterChar = ',',
       char fieldQualifierChar = '\"',
       char escapePrefixChar = '\0',
@@ -91,7 +91,7 @@ namespace CsvTools
       m_QualifyAlways = qualifyAlways;
       m_QualifyOnlyIfNeeded = qualifyOnlyIfNeeded;
       m_NewLine = newLine.NewLineString();
-      Header = Header.HandleCRLFCombinations(m_NewLine).PlaceholderReplace("Delim", m_FieldDelimiter);
+      Header = Header.HandleCrlfCombinations(m_NewLine).PlaceholderReplace("Delim", m_FieldDelimiter);
       m_FieldDelimiterChar = fieldDelimiterChar;
       m_IsFixedLength = m_FieldDelimiterChar == '\0';
       m_NewLinePlaceholder = newLinePlaceholder;
@@ -265,7 +265,7 @@ namespace CsvTools
         {
           if (dataObject is byte[] buffer)
           {
-            await BinaryFormatter.WriteFileAsync(buffer, m_FullPath.GetDirectoryName(), displayAs, true, s => HandleError(columnInfo.Name, s),
+            await BinaryFormatter.WriteFileAsync(buffer, FullPath.GetDirectoryName(), displayAs, true, s => HandleError(columnInfo.Name, s),
               cancellationToken).ConfigureAwait(false);
           }
           else
@@ -277,7 +277,7 @@ namespace CsvTools
         {
           // a new line of any kind will be replaced with the placeholder if set
           if (m_NewLinePlaceholder.Length > 0)
-            displayAs = displayAs.HandleCRLFCombinations(m_NewLinePlaceholder);
+            displayAs = displayAs.HandleCrlfCombinations(m_NewLinePlaceholder);
 
           if (m_DelimiterPlaceholder.Length > 0 && m_FieldDelimiterChar != '\0')
             displayAs = displayAs.Replace(m_FieldDelimiterChar.ToString(),

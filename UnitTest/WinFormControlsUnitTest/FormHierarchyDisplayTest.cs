@@ -13,7 +13,7 @@ namespace CsvTools.Tests
     {
       using (var treeView = new MultiselectTreeView())
       {
-        treeView.HTMLStyle = UnitTestStatic.HTMLStyle;
+        treeView.HtmlStyle = UnitTestStatic.HtmlStyle;
         Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
         var treeNode = new TreeNode("Test") { Tag = "test" };
@@ -25,10 +25,10 @@ namespace CsvTools.Tests
         var treeNode3 = new TreeNode("Test3") { Tag = "test3" };
         treeNode.Nodes.Add(treeNode3);
 
-        var treeNode3a = new TreeNode("Test3a") { Tag = "test3" };
-        treeNode3.Nodes.Add(treeNode3a);
-        var treeNode3b = new TreeNode("Test3b") { Tag = "test3" };
-        treeNode3.Nodes.Add(treeNode3b);
+        var treeNode3A = new TreeNode("Test3a") { Tag = "test3" };
+        treeNode3.Nodes.Add(treeNode3A);
+        var treeNode3B = new TreeNode("Test3b") { Tag = "test3" };
+        treeNode3.Nodes.Add(treeNode3B);
 
         var firedAfter = false;
         var firedBefore = false;
@@ -61,14 +61,14 @@ namespace CsvTools.Tests
     public void MultiselectTreeViewTreeData()
     {
       using var treeView = new MultiselectTreeView();
-      treeView.HTMLStyle = UnitTestStatic.HTMLStyle;
+      treeView.HtmlStyle = UnitTestStatic.HtmlStyle;
       Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
       var td1 = new FormHierarchyDisplay.TreeData("1", "Test One") { Tag = "T1" };
       var td2 = new FormHierarchyDisplay.TreeData("2", "Test Two", td1.ID) { Tag = "T2" };
       var td3 = new FormHierarchyDisplay.TreeData("3", "Test Three", td1.ID) { Tag = "T3" };
-      var td3a = new FormHierarchyDisplay.TreeData("4", "Test Three A", td3.ID) { Tag = "T3a" };
-      var td3b = new FormHierarchyDisplay.TreeData("5", "Test Three B", td3.ID) { Tag = "T34" };
+      var td3A = new FormHierarchyDisplay.TreeData("4", "Test Three A", td3.ID) { Tag = "T3a" };
+      var td3B = new FormHierarchyDisplay.TreeData("5", "Test Three B", td3.ID) { Tag = "T34" };
 
       var treeNode = new TreeNode(td1.Title) { Tag = td1 };
       treeView.Nodes.Add(treeNode);
@@ -79,11 +79,11 @@ namespace CsvTools.Tests
       var treeNode3 = new TreeNode(td3.Title) { Tag = td3 };
       treeNode.Nodes.Add(treeNode3);
 
-      var treeNode3a = new TreeNode(td3a.Title) { Tag = td3a };
-      treeNode3.Nodes.Add(treeNode3a);
+      var treeNode3A = new TreeNode(td3A.Title) { Tag = td3A };
+      treeNode3.Nodes.Add(treeNode3A);
 
-      var treeNode3b = new TreeNode(td3b.Title) { Tag = td3b };
-      treeNode3.Nodes.Add(treeNode3b);
+      var treeNode3B = new TreeNode(td3B.Title) { Tag = td3B };
+      treeNode3.Nodes.Add(treeNode3B);
 
       var firedAfter = false;
       var firedBefore = false;
@@ -106,8 +106,8 @@ namespace CsvTools.Tests
         Assert.IsTrue(result.Contains(treeNode.Text), result);
         Assert.IsTrue(result.Contains(treeNode2.Text), result);
         Assert.IsTrue(result.Contains(treeNode3.Text), result);
-        Assert.IsTrue(result.Contains(treeNode3a.Text), result);
-        Assert.IsTrue(result.Contains(treeNode3b.Text), result);
+        Assert.IsTrue(result.Contains(treeNode3A.Text), result);
+        Assert.IsTrue(result.Contains(treeNode3B.Text), result);
       });
       Assert.IsTrue(firedAfter);
       Assert.IsTrue(firedBefore);
@@ -118,7 +118,7 @@ namespace CsvTools.Tests
     public void FormHierarchyDisplay()
     {
       using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), UnitTestStatic.HTMLStyle))
+      using (var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), UnitTestStatic.HtmlStyle))
       {
         UnitTestStatic.ShowFormAndClose(form, 0.1, (frm) =>
         {
@@ -142,14 +142,14 @@ namespace CsvTools.Tests
         cvsSetting.ColumnCollection, cvsSetting.TrimmingOption, cvsSetting.FieldDelimiter, cvsSetting.FieldQualifier, cvsSetting.EscapePrefix,
         cvsSetting.RecordLimit, cvsSetting.AllowRowCombining, cvsSetting.ContextSensitiveQualifier, cvsSetting.CommentLine, cvsSetting.NumWarnings,
         cvsSetting.DuplicateQualifierToEscape, cvsSetting.NewLinePlaceholder, cvsSetting.DelimiterPlaceholder, cvsSetting.QualifierPlaceholder,
-        cvsSetting.SkipDuplicateHeader, cvsSetting.TreatLFAsSpace, cvsSetting.TreatUnknownCharacterAsSpace, cvsSetting.TryToSolveMoreColumns,
+        cvsSetting.SkipDuplicateHeader, cvsSetting.TreatLfAsSpace, cvsSetting.TreatUnknownCharacterAsSpace, cvsSetting.TryToSolveMoreColumns,
         cvsSetting.WarnDelimiterInValue, cvsSetting.WarnLineFeed, cvsSetting.WarnNBSP, cvsSetting.WarnQuotes, cvsSetting.WarnUnknownCharacter,
         cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull, cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows,
         cvsSetting.IdentifierInContainer, processDisplay);
       var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null,
                  processDisplay.CancellationToken);
 
-      using var form = new FormHierarchyDisplay(dt!, dataTable.Select(), UnitTestStatic.HTMLStyle);
+      using var form = new FormHierarchyDisplay(dt!, dataTable.Select(), UnitTestStatic.HtmlStyle);
       UnitTestStatic.ShowFormAndClose(form, .1, (frm) =>
       {
         if (!(frm is { } hd))

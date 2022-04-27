@@ -304,7 +304,7 @@ namespace CsvTools
       get => m_Footer;
       set
       {
-        var newVal = (value ?? string.Empty).HandleCRLFCombinations(Environment.NewLine);
+        var newVal = (value ?? string.Empty).HandleCrlfCombinations(Environment.NewLine);
         if (m_Footer.Equals(newVal, StringComparison.Ordinal))
           return;
         m_Footer = newVal;
@@ -338,7 +338,7 @@ namespace CsvTools
       get => m_Header;
       set
       {
-        var newVal = (value ?? string.Empty).HandleCRLFCombinations(Environment.NewLine);
+        var newVal = (value ?? string.Empty).HandleCrlfCombinations(Environment.NewLine);
         if (m_Header.Equals(newVal, StringComparison.Ordinal))
           return;
         m_Header = newVal;
@@ -623,7 +623,7 @@ namespace CsvTools
       get => m_SqlStatement;
       set
       {
-        var newVal = (value ?? string.Empty).NoControlCharacters().HandleCRLFCombinations();
+        var newVal = (value ?? string.Empty).NoControlCharacters().HandleCrlfCombinations();
         if (newVal.Equals(m_SqlStatement, StringComparison.Ordinal))
           return;
         m_SqlStatement = newVal;

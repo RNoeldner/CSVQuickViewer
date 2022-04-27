@@ -20,7 +20,7 @@ namespace CsvTools
 
 #pragma warning disable IDE1006 // Naming Styles
 
-  public static class _MessageBox
+  public static class MessageBox
 #pragma warning restore IDE1006 // Naming Styles
   {
     public static DialogResult Show(

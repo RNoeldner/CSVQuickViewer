@@ -39,7 +39,7 @@ namespace CsvTools
     private const string cNoSampleDate =
       "The source does not contain samples without warnings in the {0:N0} records read";
 
-    private readonly HTMLStyle HTMLStyle;
+    private readonly HtmlStyle m_HtmlStyle;
 
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
 
@@ -58,7 +58,7 @@ namespace CsvTools
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="showIgnore">if set to <c>true</c> [show ignore].</param>
-    /// <param name="hTMLStyle">The HTML style.</param>
+    /// <param name="hTmlStyle">The HTML style.</param>
     /// <exception cref="ArgumentNullException">fileSetting or fillGuessSettings NULL</exception>
     public FormColumnUI(
       IColumn? column,
@@ -66,7 +66,7 @@ namespace CsvTools
       IFileSetting fileSetting,
       FillGuessSettings fillGuessSettings,
       bool showIgnore,
-      HTMLStyle hTMLStyle)
+      HtmlStyle hTmlStyle)
     {
       m_ColumnRef = column;
       if (column == null)
@@ -75,7 +75,7 @@ namespace CsvTools
         m_ColumnEdit = new Column(column);
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
-      HTMLStyle = hTMLStyle ?? throw new ArgumentNullException(nameof(hTMLStyle));
+      m_HtmlStyle = hTmlStyle ?? throw new ArgumentNullException(nameof(hTmlStyle));
 
       m_WriteSetting = writeSetting;
 
@@ -143,7 +143,7 @@ namespace CsvTools
       Cursor.Current = Cursors.Default;
       if (values.Values.Count == 0)
       {
-        _MessageBox.Show(
+        MessageBox.Show(
           string.Format(CultureInfo.CurrentCulture, cNoSampleDate, values.RecordsRead),
           comboBoxColumnName.Text,
           MessageBoxButtons.OK,
@@ -151,8 +151,8 @@ namespace CsvTools
       }
       else
       {
-        _MessageBox.ShowBigHtml(
-          BuildHTMLText(null, null, 4, "Found values:", values.Values, 4),
+        MessageBox.ShowBigHtml(
+          BuildHtmlText(null, null, 4, "Found values:", values.Values, 4),
           comboBoxColumnName.Text,
           MessageBoxButtons.OK,
           MessageBoxIcon.Information);
@@ -168,7 +168,7 @@ namespace CsvTools
       var columnName = comboBoxColumnName.Text;
       if (string.IsNullOrEmpty(columnName))
       {
-        _MessageBox.Show("Please select a column first", "Guess");
+        MessageBox.Show("Please select a column first", "Guess");
         return;
       }
 
@@ -209,7 +209,7 @@ namespace CsvTools
             processDisplay.Hide();
 
             RefreshData();
-            _MessageBox.Show(
+            MessageBox.Show(
               $"Based on DataType of the source column this is {m_ColumnEdit.GetTypeAndFormatDescription()}.\nPlease choose the desired output format",
               columnName,
               MessageBoxButtons.OK,
@@ -224,7 +224,7 @@ namespace CsvTools
 
           if (samples.Values.Count == 0)
           {
-            _MessageBox.Show(
+            MessageBox.Show(
               string.Format(CultureInfo.CurrentCulture, cNoSampleDate, samples.RecordsRead),
               "Information",
               MessageBoxButtons.OK,
@@ -241,7 +241,7 @@ namespace CsvTools
               var selectedType = (DataType) comboBoxDataType.SelectedValue;
               if (selectedType < DataType.String)
               {
-                var resp = _MessageBox.Show(
+                var resp = MessageBox.Show(
                   $"Should the system restrict detection to {selectedType}?",
                   "Selected DataType",
                   MessageBoxButtons.YesNoCancel,
@@ -298,8 +298,8 @@ namespace CsvTools
             processDisplay.Hide();
             if (checkResult.FoundValueFormat is null)
             {
-              _MessageBox.ShowBigHtml(
-                BuildHTMLText(
+              MessageBox.ShowBigHtml(
+                BuildHtmlText(
                   $"No format could be determined in {samples.Values.Count():N0} sample values of {samples.RecordsRead:N0} records.",
                   null, 4, "Examples", samples.Values, 4),
                 $"Column: {columnName}",
@@ -339,8 +339,8 @@ namespace CsvTools
 
                 if (suggestClosestMatch && checkResult.ValueFormatPossibleMatch != null)
                 {
-                  if (_MessageBox.ShowBigHtml(
-                        BuildHTMLText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4,
+                  if (MessageBox.ShowBigHtml(
+                        BuildHtmlText(header1, "Should the closest match be used?", 4, "Samples:", samples.Values, 4,
                           "Not matching:", checkResult.ExampleNonMatch),
                         $"Column: {columnName}",
                         MessageBoxButtons.YesNo,
@@ -351,8 +351,8 @@ namespace CsvTools
                 }
                 else
                 {
-                  _MessageBox.ShowBigHtml(
-                    BuildHTMLText(header1, null, 4, "Samples:", samples.Values, 4, "Not matching:",
+                  MessageBox.ShowBigHtml(
+                    BuildHtmlText(header1, null, 4, "Samples:", samples.Values, 4, "Not matching:",
                       checkResult.ExampleNonMatch),
                     $"Column: {columnName}",
                     MessageBoxButtons.OK,
@@ -369,7 +369,7 @@ namespace CsvTools
 
                 if (samples.Values.Count() < m_FillGuessSettings.MinSamples)
                 {
-                  _MessageBox.ShowBig(
+                  MessageBox.ShowBig(
                     displayMsg,
                     $"Column: {columnName}",
                     MessageBoxButtons.OK,
@@ -379,7 +379,7 @@ namespace CsvTools
                 {
                   if (m_ColumnEdit.ValueFormatMutable.DataType == DataType.String)
                   {
-                    _MessageBox.ShowBig(
+                    MessageBox.ShowBig(
                       displayMsg,
                       $"Column: {columnName}",
                       MessageBoxButtons.OK,
@@ -387,7 +387,7 @@ namespace CsvTools
                   }
                   else
                   {
-                    if (_MessageBox.ShowBig(
+                    if (MessageBox.ShowBig(
                           displayMsg + "\n\nShould this be set to text?",
                           $"Column: {columnName}",
                           MessageBoxButtons.YesNo,
@@ -489,11 +489,11 @@ namespace CsvTools
         list.Add(value);
     }
 
-    private string BuildHTMLText(string? header, string? footer, int rows, string headerList1,
+    private string BuildHtmlText(string? header, string? footer, int rows, string headerList1,
                                  ICollection<string> values1, int col1, string? headerList2 = null, ICollection<string>? values2 = null,
                                  int col2 = 2)
     {
-      var stringBuilder = HTMLStyle.StartHTMLDoc(
+      var stringBuilder = HtmlStyle.StartHtmlDoc(
         $"{System.Drawing.SystemColors.Control.R:X2}{System.Drawing.SystemColors.Control.G:X2}{System.Drawing.SystemColors.Control.B:X2}",
         "<STYLE type=\"text/css\">\r\n" +
         "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
@@ -503,13 +503,13 @@ namespace CsvTools
         "</STYLE>");
 
       if (!string.IsNullOrEmpty(header))
-        stringBuilder.Append(string.Format(HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(header!)));
+        stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header!)));
 
       ListSamples(stringBuilder, headerList1, values1, col1, rows);
       ListSamples(stringBuilder, headerList2, values2, col2, rows);
 
       if (!string.IsNullOrEmpty(footer))
-        stringBuilder.Append(string.Format(HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(footer!)));
+        stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer!)));
 
       stringBuilder.AppendLine("</BODY>");
       stringBuilder.AppendLine("</HTML>");
@@ -872,25 +872,25 @@ namespace CsvTools
       if (values is null || values.Count <= 0 || string.IsNullOrEmpty(headerList))
         return;
       if (!string.IsNullOrEmpty(headerList))
-        stringBuilder.Append(string.Format(HTMLStyle.H2, HTMLStyle.TextToHtmlEncode(headerList!)));
+        stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(headerList!)));
 
-      stringBuilder.AppendLine(HTMLStyle.TableOpen);
+      stringBuilder.AppendLine(m_HtmlStyle.TableOpen);
       var texts = values.Take(col * rows).ToArray();
-      stringBuilder.AppendLine(HTMLStyle.TROpen);
+      stringBuilder.AppendLine(m_HtmlStyle.TrOpen);
       for (var index = 1; index <= texts.Length; index++)
       {
         if (string.IsNullOrEmpty(texts[index - 1]))
-          stringBuilder.AppendLine(HTMLStyle.TDEmpty);
+          stringBuilder.AppendLine(m_HtmlStyle.TdEmpty);
         else
-          stringBuilder.AppendLine(string.Format(HTMLStyle.TD,
-            HTMLStyle.TextToHtmlEncode(texts[index - 1])));
+          stringBuilder.AppendLine(string.Format(m_HtmlStyle.Td,
+            HtmlStyle.TextToHtmlEncode(texts[index - 1])));
         if (index % col == 0)
-          stringBuilder.AppendLine(HTMLStyle.TRClose);
+          stringBuilder.AppendLine(m_HtmlStyle.TrClose);
       }
 
       if (texts.Length % col != 0)
-        stringBuilder.AppendLine(HTMLStyle.TRClose);
-      stringBuilder.AppendLine(HTMLStyle.TableClose);
+        stringBuilder.AppendLine(m_HtmlStyle.TrClose);
+      stringBuilder.AppendLine(m_HtmlStyle.TableClose);
     }
 
     /// <summary>

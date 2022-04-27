@@ -27,7 +27,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void SelectedDataIntoClipboardAllTest()
     {
-      Extensions.RunSTAThread(() =>
+      Extensions.RunStaThread(() =>
       {
         using (var dgv = new DataGridView())
         {
@@ -40,7 +40,7 @@ namespace CsvTools.Tests
               frm.Controls.Add(dgv);
               frm.Show();
               dgv.SelectAll();
-              var cp = new DataGridViewCopyPaste(UnitTestStatic.HTMLStyle);
+              var cp = new DataGridViewCopyPaste(UnitTestStatic.HtmlStyle);
               cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestStatic.Token);
             }
           }
@@ -52,7 +52,7 @@ namespace CsvTools.Tests
     [Timeout(3000)]
     public void CopySelectedRowsIntoClipboard()
     {
-      Extensions.RunSTAThread(() =>
+      Extensions.RunStaThread(() =>
       {
         using (var dgv = new DataGridView())
         {
@@ -70,7 +70,7 @@ namespace CsvTools.Tests
               Clipboard.Clear();
               try
               {
-                var cp = new DataGridViewCopyPaste(UnitTestStatic.HTMLStyle);
+                var cp = new DataGridViewCopyPaste(UnitTestStatic.HtmlStyle);
                 cp.SelectedDataIntoClipboard(dgv, false, true, UnitTestStatic.Token);
 
 								var dataObject = Clipboard.GetDataObject();
@@ -92,7 +92,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void CopySelectedColumnsIntoClipboard()
     {
-      Extensions.RunSTAThread(() =>
+      Extensions.RunStaThread(() =>
       {
         using (var dgv = new DataGridView())
         {
@@ -109,7 +109,7 @@ namespace CsvTools.Tests
               try
               {
                 Clipboard.Clear();
-                var cp = new DataGridViewCopyPaste(UnitTestStatic.HTMLStyle);
+                var cp = new DataGridViewCopyPaste(UnitTestStatic.HtmlStyle);
                 cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestStatic.Token);
                 var dataObject = Clipboard.GetDataObject();
                 Assert.IsNotNull(dataObject);
@@ -130,7 +130,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void SelectedDataIntoClipboardTest()
     {
-      Extensions.RunSTAThread(() =>
+      Extensions.RunStaThread(() =>
       {
         using (var dgv = new DataGridView())
         {
@@ -145,7 +145,7 @@ namespace CsvTools.Tests
               try
               {
                 Clipboard.Clear();
-                var cp = new DataGridViewCopyPaste(UnitTestStatic.HTMLStyle);
+                var cp = new DataGridViewCopyPaste(UnitTestStatic.HtmlStyle);
                 cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestStatic.Token);
                 var dataObject = Clipboard.GetDataObject();
                 Assert.IsNotNull(dataObject);

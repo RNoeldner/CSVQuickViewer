@@ -269,14 +269,14 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void DescriptionTest()
     {
-      var recType = RecordDelimiterType.CR;
+      var recType = RecordDelimiterType.Cr;
       Assert.AreEqual("Carriage Return", recType.Description());
     }
 
     [TestMethod()]
     public void NewLineStringTest()
     {
-      var recType = RecordDelimiterType.CR;
+      var recType = RecordDelimiterType.Cr;
       Assert.AreEqual("\r", recType.NewLineString());
     }
 

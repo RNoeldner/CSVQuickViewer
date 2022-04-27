@@ -68,24 +68,38 @@ namespace CsvTools
       "Pravda", "Patiess", "Oui", "Kyllä", "jā", "Iva", "Igaz", "Ie", "Gerçek", "Evet", "Đúng", "da", "Có", "Benar", "áno", "Ano", "Adevărat"
     };
 
-    public static DataType CheckUnescape(in IEnumerable<string> samples, int minRequiredSamples, in CancellationToken cancellationToken)
+    /// <summary>
+    /// Check if a text does contains indications that suggest to use something else than DataType.String
+    /// </summary>
+    /// <param name="samples">The sample values to be checked.</param>
+    /// <param name="minRequiredSamples">The minimum required samples.</param>
+    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
+    /// <returns><see cref="DataType.TextToHtml"/> is to be assumed the text has HTML encoding
+    /// <see cref="DataType.TextUnescape"/> is to be assumed the text has C encoding
+    ///  otherwise <see cref="DataType.String"/>
+    /// </returns>
+    public static DataType CheckUnescaped(in IEnumerable<string> samples, int minRequiredSamples, in CancellationToken cancellationToken)
     {
-      int foundUnescpe = 0;
-      int foundHTML = 0;
+      int foundUnescaped = 0;
+      int foundHtml = 0;
       foreach (var text in samples)
       {
         if (cancellationToken.IsCancellationRequested)
           break;
-        if (text.IndexOf("<br>") != -1 || text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase))
+        if (text.IndexOf("<br>", StringComparison.OrdinalIgnoreCase) != -1 || text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase))
         {
-          if (foundHTML++ > minRequiredSamples)
+          if (foundHtml++ > minRequiredSamples)
           {
             return DataType.TextToHtml;
           }
         }
-        if (text.IndexOf("\\r") != -1 || text.IndexOf("\\n") != -1 || text.IndexOf("\\t") != -1 || text.IndexOf("\\u") != -1 || text.IndexOf("\\x") != -1)
+        if (text.IndexOf("\\r", StringComparison.Ordinal) != -1 || 
+            text.IndexOf("\\n", StringComparison.Ordinal) != -1 || 
+            text.IndexOf("\\t", StringComparison.Ordinal) != -1 || 
+            text.IndexOf("\\u", StringComparison.Ordinal) != -1 || 
+            text.IndexOf("\\x", StringComparison.Ordinal) != -1)
         {
-          if (foundUnescpe++ > minRequiredSamples)
+          if (foundUnescaped++ > minRequiredSamples)
           {
             return DataType.TextUnescape;
           }
@@ -102,6 +116,7 @@ namespace CsvTools
     /// <param name="dateSeparator">The date separator.</param>
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="culture">the culture to check (important for named Days or month)</param>
+    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
     public static CheckResult CheckDate(
     in ICollection<string> samples,
@@ -167,6 +182,7 @@ namespace CsvTools
     ///   Checks if the values are GUIDs
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
+    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as Guid, <c>false</c> otherwise.</returns>
     public static bool CheckGuid(in IEnumerable<string> samples, in CancellationToken cancellationToken)
     {
@@ -196,6 +212,7 @@ namespace CsvTools
     /// <param name="allowPercentage">Allows Percentages</param>
     /// <param name="allowStartingZero">if set to <c>true</c> [allow starting zero].</param>
     /// <param name="minSamples"></param>
+    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as numbers, <c>false</c> otherwise.</returns>
     public static CheckResult CheckNumber(
       in ICollection<string> samples,
@@ -268,6 +285,7 @@ namespace CsvTools
     ///   Only assume the number is a serial date if the resulting date is around the current date
     ///   (-80 +20 years)
     /// </param>
+    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
     public static CheckResult CheckSerialDate(in IEnumerable<string> samples, bool isCloseToNow, in CancellationToken cancellationToken)
     {
@@ -322,6 +340,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="timeSeparator">The time separator.</param>
+    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   <c>true</c> if all values can be interpreted as time and the list is not empty,
     ///   <c>false</c> otherwise.
@@ -355,6 +374,7 @@ namespace CsvTools
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="serialDateTime">Allow Date Time values in serial format</param>
+    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
     public static bool CheckTimeSpan(in IEnumerable<string>? samples, in string timeSeparator, bool serialDateTime, in CancellationToken cancellationToken)
     {
@@ -556,9 +576,9 @@ namespace CsvTools
       var pad = 2;
 
       // only allow format that has time values
-      const string c_Allowed = " Hhmsf:";
+      const string allowed = " Hhmsf:";
 
-      var result = format.DateFormat.Where(chr => c_Allowed.IndexOf(chr) != -1)
+      var result = format.DateFormat.Where(chr => allowed.IndexOf(chr) != -1)
                          .Aggregate(string.Empty, (current, chr) => current + chr).Trim();
       // make them all upper case H lower case does not make sense
       while (result.Contains("h"))
@@ -767,7 +787,6 @@ namespace CsvTools
     /// <param name="dateSeparator">The date separator used in the conversion</param>
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="serialDateTime">Allow Date Time values ion serial format</param>
-    /// <param name="culture">The culture.</param>
     /// <returns>
     ///   An <see cref="DateTime" /> if the value could be interpreted, <c>null</c> otherwise
     /// </returns>
@@ -916,17 +935,17 @@ namespace CsvTools
           && stringFieldValue.EndsWith(")", StringComparison.Ordinal))
         stringFieldValue = "-" + stringFieldValue.Substring(1, stringFieldValue.Length - 2).TrimStart();
 
-      var perCentage = false;
-      var perMille = false;
+      var percentage = false;
+      var permille = false;
       if (allowPercentage && stringFieldValue.EndsWith("%", StringComparison.Ordinal))
       {
-        perCentage = true;
+        percentage = true;
         stringFieldValue = stringFieldValue.Substring(0, stringFieldValue.Length - 1);
       }
 
       if (allowPercentage && stringFieldValue.EndsWith("‰", StringComparison.Ordinal))
       {
-        perMille = true;
+        permille = true;
         stringFieldValue = stringFieldValue.Substring(0, stringFieldValue.Length - 1);
       }
 
@@ -936,9 +955,9 @@ namespace CsvTools
       {
         // Try to convert this value to a decimal value. Try to convert this value to a decimal value.
         if (!decimal.TryParse(stringFieldValue, NumberStyles.Number, numberFormatProvider, out var result)) continue;
-        if (perCentage)
+        if (percentage)
           return result / 100m;
-        if (perMille)
+        if (permille)
           return result / 1000m;
         return result;
       }

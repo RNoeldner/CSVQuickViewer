@@ -172,7 +172,7 @@ namespace CsvTools.Tests
         StringConversion.CheckSerialDate(new[] { "239324", "239324.344", "4358784" }, false, UnitTestStatic.Token).FoundValueFormat);
 
     [TestMethod]
-    public void CheckSerialDateOK() =>
+    public void CheckSerialDateOk() =>
       Assert.IsNotNull(
         StringConversion.CheckSerialDate(new[] { "239324", "239324.344", "235324" }, false, UnitTestStatic.Token).FoundValueFormat);
 
@@ -256,16 +256,16 @@ namespace CsvTools.Tests
       Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, "", UnitTestStatic.Token));
 
     [TestMethod]
-    public void CheckTimeNotOK() => Assert.IsFalse(StringConversion.CheckTime(new[] { "10:00:00", "Test", "1:00" }, ":", UnitTestStatic.Token));
+    public void CheckTimeNotOk() => Assert.IsFalse(StringConversion.CheckTime(new[] { "10:00:00", "Test", "1:00" }, ":", UnitTestStatic.Token));
 
     [TestMethod]
     public void CheckTimeNull() => Assert.IsFalse(StringConversion.CheckTime(null, "", UnitTestStatic.Token));
 
     [TestMethod]
-    public void CheckTimeOK() => Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, ":", UnitTestStatic.Token));
+    public void CheckTimeOk() => Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, ":", UnitTestStatic.Token));
 
     [TestMethod]
-    public void DateTimeToStringOK()
+    public void DateTimeToStringOk()
     {
       // Assert.AreEqual("01/01/2010", StringConversion.DateTimeToString(new DateTime(2010, 01, 1), null));
       Assert.AreEqual(
@@ -288,7 +288,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void IdentifyDatesFormatsUS()
+    public void IdentifyDatesFormatsUs()
     {
       var dateSep = "/";
       var culture = new CultureInfo("en-US");
@@ -315,7 +315,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(0.5, StringConversion.StringToDurationInDays("12:00", ":", false));
 
     [TestMethod]
-    public void StringToDurationInDays48hrs() =>
+    public void StringToDurationInDays48Hrs() =>
       Assert.AreEqual(2, StringConversion.StringToDurationInDays("48:00", ":", false));
 
     [TestMethod]

@@ -39,7 +39,7 @@ namespace CsvTools
 
     public string Message
     {
-      set => m_TextBox!.Text = value.HandleCRLFCombinations(Environment.NewLine);
+      set => m_TextBox!.Text = value.HandleCrlfCombinations(Environment.NewLine);
     }
 
     public string Html
@@ -48,7 +48,7 @@ namespace CsvTools
       {
         m_TableLayoutPanel!.Controls.Remove(m_TextBox!);
         // this need to happen here
-        Extensions.RunSTAThread(() =>
+        Extensions.RunStaThread(() =>
         {
           m_WebBrowser = new WebBrowser();
           m_WebBrowser.Navigate("about:blank");
@@ -207,7 +207,7 @@ namespace CsvTools
       TopLevel = true;
 
       var result = AcceptButton!.DialogResult;
-      Extensions.RunSTAThread(() => result = ShowDialog());
+      Extensions.RunStaThread(() => result = ShowDialog());
       return result;
     }
 

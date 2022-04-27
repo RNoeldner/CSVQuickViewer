@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="System.Collections.Generic.List<T>" />
+  /// <inheritdoc cref="List{T}" />
   /// <summary>
   ///   Wrapper around another FileReader adding artificial fields, removing ignored columns, and
   ///   having paging on the usually forward only IFileReader Returned is a list of

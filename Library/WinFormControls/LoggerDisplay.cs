@@ -29,11 +29,11 @@ namespace CsvTools
   /// </summary>
   public class LoggerDisplay : FastColoredTextBox, ILogger
   {
-    private readonly TextStyle errorStyle = new TextStyle(Brushes.Red, null, FontStyle.Regular);
-    private readonly TextStyle infoStyle = new TextStyle(Brushes.Gray, null, FontStyle.Regular);
-    private readonly TextStyle regStyle = new TextStyle(Brushes.Black, null, FontStyle.Regular);
-    private readonly TextStyle timestampStyle = new TextStyle(Brushes.DimGray, Brushes.Lavender, FontStyle.Regular);
-    private readonly TextStyle warningStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
+    private readonly TextStyle m_ErrorStyle = new TextStyle(Brushes.Red, null, FontStyle.Regular);
+    private readonly TextStyle m_InfoStyle = new TextStyle(Brushes.Gray, null, FontStyle.Regular);
+    private readonly TextStyle m_RegStyle = new TextStyle(Brushes.Black, null, FontStyle.Regular);
+    private readonly TextStyle m_TimestampStyle = new TextStyle(Brushes.DimGray, Brushes.Lavender, FontStyle.Regular);
+    private readonly TextStyle m_WarningStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
 
     private bool m_Disposed;
 
@@ -68,7 +68,7 @@ namespace CsvTools
     public bool IsEnabled(LogLevel logLevel) => logLevel >= MinLevel;
 
     [DebuggerStepThrough]
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception?, string> formatter)
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
       if (!IsEnabled(logLevel))
         return;      
@@ -92,7 +92,7 @@ namespace CsvTools
         if (!appended)
         {
           if (logLevel < LogLevel.Warning)
-            text = StringUtils.GetShortDisplay(text.HandleCRLFCombinations(" "), LimitLength);
+            text = StringUtils.GetShortDisplay(text.HandleCrlfCombinations(" "), LimitLength);
           if (!string.IsNullOrEmpty(text) && text != "\"\"")
             AppendText(text, true, logLevel);
         }
@@ -145,17 +145,17 @@ namespace CsvTools
           //add text with predefined style
           TextSource.CurrentTB = this;
 
-          var style = regStyle;
+          var style = m_RegStyle;
           if (level < LogLevel.Information)
-            style = infoStyle;
+            style = m_InfoStyle;
           else if (level >= LogLevel.Error)
-            style = errorStyle;
+            style = m_ErrorStyle;
           else if (level >= LogLevel.Warning)
-            style = warningStyle;
+            style = m_WarningStyle;
 
           if (timestamp)
           {
-            AppendText(m_Initial ? $"{DateTime.Now:HH:mm:ss}" : $"\n{DateTime.Now:HH:mm:ss}", timestampStyle);
+            AppendText(m_Initial ? $"{DateTime.Now:HH:mm:ss}" : $"\n{DateTime.Now:HH:mm:ss}", m_TimestampStyle);
             AppendText(" ");
           }
 

@@ -30,17 +30,17 @@ namespace CsvTools
     /// </summary>
     public const char cSeparator = '\n';
 
-    private const char c_ClosingField = ']';
+    private const char cClosingField = ']';
 
     /// <summary>
     ///   Char to separate two column names
     /// </summary>
-    private const char c_FieldSeparator = ',';
+    private const char cFieldSeparator = ',';
 
     /// <summary>
     ///   Identifier for a warning message
     /// </summary>
-    private const string c_WarningId = "Warning: ";
+    private const string cWarningId = "Warning: ";
 
     /// <summary>
     ///   String method to append a message an error list text
@@ -94,11 +94,11 @@ namespace CsvTools
     /// <returns>The text with the leading WarningID</returns>
     public static string AddWarningId(this string message)
     {
-      if (message.Length == 0 || message.StartsWith(c_WarningId, StringComparison.Ordinal))
+      if (message.Length == 0 || message.StartsWith(cWarningId, StringComparison.Ordinal))
         return message;
 
       var sb = new StringBuilder();
-      sb.Append(c_WarningId);
+      sb.Append(cWarningId);
       sb.Append(message);
       return sb.ToString();
     }
@@ -208,17 +208,17 @@ namespace CsvTools
     /// </returns>
     public static bool IsWarningMessage(this string errorList)
     {
-      if (errorList.Length <= c_WarningId.Length)
+      if (errorList.Length <= cWarningId.Length)
         return false;
 
-      if (errorList.StartsWith(c_WarningId, StringComparison.Ordinal))
+      if (errorList.StartsWith(cWarningId, StringComparison.Ordinal))
         return true;
 
       // In case we have a column name in front we have to look into the middle of the string We
       // only look at the first entry, assuming error would be sorted into the front
-      var splitter = errorList.IndexOf(c_ClosingField);
+      var splitter = errorList.IndexOf(cClosingField);
       return splitter != -1 && splitter < errorList.Length - 2
-                            && errorList.Substring(splitter + 2).StartsWith(c_WarningId, StringComparison.Ordinal);
+                            && errorList.Substring(splitter + 2).StartsWith(cWarningId, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -279,7 +279,7 @@ namespace CsvTools
     /// <param name="errorList">A text containing different types of messages that are concatenated</param>
     /// <returns>The text without the leading WarningID</returns>
     public static string WithoutWarningId(this string errorList) =>
-      errorList.Length <= c_WarningId.Length ? errorList : errorList.Substring(c_WarningId.Length);
+      errorList.Length <= cWarningId.Length ? errorList : errorList.Substring(cWarningId.Length);
 
     /// <summary>
     ///   Builds a list from the provided error list, sorting error in front, this will show
@@ -344,7 +344,7 @@ namespace CsvTools
       // in each column
       while (start < columnErrorInformation.Item1.Length)
       {
-        var end = columnErrorInformation.Item1.IndexOf(c_FieldSeparator, start + 1);
+        var end = columnErrorInformation.Item1.IndexOf(cFieldSeparator, start + 1);
         if (end == -1)
           end = columnErrorInformation.Item1.Length;
         var colName = columnErrorInformation.Item1.Substring(start, end - start);
@@ -367,7 +367,7 @@ namespace CsvTools
       var splitter = -2;
       if (columnWithError[0] != '[')
         return new Tuple<string, string>(string.Empty, columnWithError.Substring(splitter + 2));
-      splitter = columnWithError.IndexOf(c_ClosingField);
+      splitter = columnWithError.IndexOf(cClosingField);
       if (splitter == -1)
         splitter = -2;
 

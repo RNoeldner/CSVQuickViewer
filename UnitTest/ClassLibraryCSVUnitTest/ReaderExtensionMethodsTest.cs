@@ -50,7 +50,7 @@ namespace CsvTools.Tests
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
         m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
         m_ValidSetting.CommentLine, m_ValidSetting.NumWarnings, m_ValidSetting.DuplicateQualifierToEscape, m_ValidSetting.NewLinePlaceholder,
-        m_ValidSetting.DelimiterPlaceholder, m_ValidSetting.QualifierPlaceholder, m_ValidSetting.SkipDuplicateHeader, m_ValidSetting.TreatLFAsSpace,
+        m_ValidSetting.DelimiterPlaceholder, m_ValidSetting.QualifierPlaceholder, m_ValidSetting.SkipDuplicateHeader, m_ValidSetting.TreatLfAsSpace,
         m_ValidSetting.TreatUnknownCharacterAsSpace, m_ValidSetting.TryToSolveMoreColumns, m_ValidSetting.WarnDelimiterInValue, m_ValidSetting.WarnLineFeed,
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
@@ -69,7 +69,7 @@ namespace CsvTools.Tests
       using var test = new CsvFileReader(test2.FullPath, test2.CodePageId, test2.SkipRows, test2.HasFieldHeader, test2.ColumnCollection, test2.TrimmingOption,
         test2.FieldDelimiter, test2.FieldQualifier, test2.EscapePrefix, test2.RecordLimit, test2.AllowRowCombining, test2.ContextSensitiveQualifier,
         test2.CommentLine, test2.NumWarnings, test2.DuplicateQualifierToEscape, test2.NewLinePlaceholder, test2.DelimiterPlaceholder,
-        test2.QualifierPlaceholder, test2.SkipDuplicateHeader, test2.TreatLFAsSpace, test2.TreatUnknownCharacterAsSpace, test2.TryToSolveMoreColumns,
+        test2.QualifierPlaceholder, test2.SkipDuplicateHeader, test2.TreatLfAsSpace, test2.TreatUnknownCharacterAsSpace, test2.TryToSolveMoreColumns,
         test2.WarnDelimiterInValue, test2.WarnLineFeed, test2.WarnNBSP, test2.WarnQuotes, test2.WarnUnknownCharacter, test2.WarnEmptyTailingColumns,
         test2.TreatNBSPAsSpace, test2.TreatTextAsNull, test2.SkipEmptyLines, test2.ConsecutiveEmptyRows, test2.IdentifierInContainer, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
@@ -88,7 +88,7 @@ namespace CsvTools.Tests
       using var test = new CsvFileReader(test3.FullPath, test3.CodePageId, test3.SkipRows, test3.HasFieldHeader, test3.ColumnCollection, test3.TrimmingOption,
         test3.FieldDelimiter, test3.FieldQualifier, test3.EscapePrefix, test3.RecordLimit, test3.AllowRowCombining, test3.ContextSensitiveQualifier,
         test3.CommentLine, test3.NumWarnings, test3.DuplicateQualifierToEscape, test3.NewLinePlaceholder, test3.DelimiterPlaceholder,
-        test3.QualifierPlaceholder, test3.SkipDuplicateHeader, test3.TreatLFAsSpace, test3.TreatUnknownCharacterAsSpace, test3.TryToSolveMoreColumns,
+        test3.QualifierPlaceholder, test3.SkipDuplicateHeader, test3.TreatLfAsSpace, test3.TreatUnknownCharacterAsSpace, test3.TryToSolveMoreColumns,
         test3.WarnDelimiterInValue, test3.WarnLineFeed, test3.WarnNBSP, test3.WarnQuotes, test3.WarnUnknownCharacter, test3.WarnEmptyTailingColumns,
         test3.TreatNBSPAsSpace, test3.TreatTextAsNull, test3.SkipEmptyLines, test3.ConsecutiveEmptyRows, test3.IdentifierInContainer, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);

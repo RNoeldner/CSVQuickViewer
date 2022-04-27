@@ -22,7 +22,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class DetailControlTests
   {
-    private readonly Random random = new Random(Guid.NewGuid().GetHashCode());
+    private readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 
 		[TestMethod]
 		[Timeout(3000)]
@@ -41,16 +41,16 @@ namespace CsvTools.Tests
 					row[1] = $"This is text {line / 2}";
 					row[2] = new DateTime(2001, 6, 6).AddHours(line * 3);
 					row[3] = line % 3 == 0;
-					if (random.Next(1, 10) == 5)
-						row.SetColumnError(random.Next(0, 3), "Error");
-					if (random.Next(1, 50) == 5)
+					if (m_Random.Next(1, 10) == 5)
+						row.SetColumnError(m_Random.Next(0, 3), "Error");
+					if (m_Random.Next(1, 50) == 5)
 						row.RowError = "Row Error";
 					dt.Rows.Add(row);
 				}
 
         using (var dc = new DetailControl())
         {
-          dc.HTMLStyle = UnitTestStatic.HTMLStyle;
+          dc.HtmlStyle = UnitTestStatic.HtmlStyle;
           dc.Show();
           dc.DataTable = dt;
           
@@ -74,7 +74,7 @@ namespace CsvTools.Tests
 				for (var line = 1; line < 5000; line++)
 				{
 					var row = dt.NewRow();
-					row[0] = random.Next(1, 5000);
+					row[0] = m_Random.Next(1, 5000);
 					row[1] = $"This is text {line / 2}";
 					row[2] = new DateTime(2001, 6, 6).AddHours(line * 3);
 					row[3] = line % 3 == 0;
@@ -83,7 +83,7 @@ namespace CsvTools.Tests
 
         using (var dc = new DetailControl())
         {
-          dc.HTMLStyle = UnitTestStatic.HTMLStyle;
+          dc.HtmlStyle = UnitTestStatic.HtmlStyle;
           dc.Show();
           dc.DataTable = dt;
           await dc.RefreshDisplayAsync(FilterType.All, UnitTestStatic.Token);

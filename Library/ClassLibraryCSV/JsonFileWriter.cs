@@ -59,7 +59,7 @@ namespace CsvTools
     }
     protected override string RecordDelimiter() => ",";
 
-    protected override string ElementName(string input) => HTMLStyle.JsonElementName(input);
+    protected override string ElementName(string input) => HtmlStyle.JsonElementName(input);
 
     protected override string Escape(object input, in WriterColumn columnInfo, in IFileReader reader) =>
       JsonConvert.ToString(input);

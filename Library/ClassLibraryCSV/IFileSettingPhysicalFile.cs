@@ -54,6 +54,9 @@ namespace CsvTools
     /// <value>The root folder.</value>
     string Recipient { get; set; }
 
+    /// <summary>
+    ///   Gets the PGP encryption Key ID
+    /// </summary>
     long KeyID { get; set; }
 
     /// <summary>

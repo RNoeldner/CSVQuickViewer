@@ -24,7 +24,7 @@ namespace CsvTools
   /// <remarks>
   ///   In theory every aspect is configurable, in practice only the Style needs to be changed
   /// </remarks>
-  public class HTMLStyle
+  public class HtmlStyle
   {
     public const string cStyle = "<STYLE type=\"text/css\">\r\n"
                                  + "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n"
@@ -42,30 +42,30 @@ namespace CsvTools
                                  + "</STYLE>";
 
     /// <inheritdoc />
-    public HTMLStyle()
+    public HtmlStyle()
       : this(cStyle)
     {
     }
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="HTMLStyle" /> class.
+    ///   Initializes a new instance of the <see cref="HtmlStyle" /> class.
     /// </summary>
     /// <param name="style">The style.</param>
-    public HTMLStyle(string style)
+    public HtmlStyle(string style)
     {
       Style = style;
-      BR = "<br>";
+      Br = "<br>";
       H1 = "<h1>{0}</h1>";
       H2 = "<h2>{0}</h2>";
       TableOpen = "<table>\r\n";
       TableClose = "</table>";
-      TD = "<td class='text'>{0}</td>";
-      TDEmpty = "<td/>";
-      TDNonText = "<td class='value'>{0}</td>";
-      TH = "<td class='info'>{0}</td>";
-      TRClose = "</tr>\r\n";
-      TROpen = "<tr>\r\n";
-      TROpenAlt = "<tr class='alt'>\r\n";
+      Td = "<td class='text'>{0}</td>";
+      TdEmpty = "<td/>";
+      TdNonText = "<td class='value'>{0}</td>";
+      Th = "<td class='info'>{0}</td>";
+      TrClose = "</tr>\r\n";
+      TrOpen = "<tr>\r\n";
+      TrOpenAlt = "<tr class='alt'>\r\n";
       Error = "<span class='err'>{0}</span>";
       ErrorWarning = "<span class='err'>{0}</span>";
       Warning = "<span class='war'>{0}</span>";
@@ -78,7 +78,7 @@ namespace CsvTools
     ///   Gets or sets the TD template.
     /// </summary>
     /// <value>The TD template.</value>
-    public string BR
+    public string Br
     {
       get;
     }
@@ -149,7 +149,7 @@ namespace CsvTools
     ///   Gets or sets the TD template.
     /// </summary>
     /// <value>The TD template.</value>
-    public string TD
+    public string Td
     {
       get;
     }
@@ -158,7 +158,7 @@ namespace CsvTools
     ///   Gets or sets the TD template.
     /// </summary>
     /// <value>The TD template.</value>
-    public string TDEmpty
+    public string TdEmpty
     {
       get;
     }
@@ -167,7 +167,7 @@ namespace CsvTools
     ///   Gets or sets the TD template.
     /// </summary>
     /// <value>The TD template.</value>
-    public string TDNonText
+    public string TdNonText
     {
       get;
     }
@@ -176,7 +176,7 @@ namespace CsvTools
     ///   Gets or sets the TH template.
     /// </summary>
     /// <value>The TH template.</value>
-    public string TH
+    public string Th
     {
       get;
     }
@@ -185,7 +185,7 @@ namespace CsvTools
     ///   Gets or sets the TR template.
     /// </summary>
     /// <value>The TR template.</value>
-    public string TRClose
+    public string TrClose
     {
       get;
     }
@@ -194,7 +194,7 @@ namespace CsvTools
     ///   Gets or sets the TR template.
     /// </summary>
     /// <value>The TR template.</value>
-    public string TROpen
+    public string TrOpen
     {
       get;
     }
@@ -203,7 +203,7 @@ namespace CsvTools
     ///   Gets or sets the TR template alternate.
     /// </summary>
     /// <value>The TR template alternate.</value>
-    public string TROpenAlt
+    public string TrOpenAlt
     {
       get;
     }
@@ -260,7 +260,7 @@ namespace CsvTools
     /// <remarks>Taken from http://www.west-wind.com/weblog/posts/2009/Feb/05/Html-and-Uri-String-Encoding-without-SystemWeb</remarks>
     public static string HtmlEncode(string text)
     {
-      text = text.HandleCRLFCombinations();
+      text = text.HandleCrlfCombinations();
 
       var sb = new StringBuilder(text.Length);
       var len = text.Length;
@@ -316,7 +316,7 @@ namespace CsvTools
     {
       if (text is null)
         return null;
-      text = text.HandleCRLFCombinations();
+      text = text.HandleCrlfCombinations();
       var sb = new StringBuilder(text.Length);
 
       foreach (var oneChar in text)
@@ -379,7 +379,7 @@ namespace CsvTools
       return allowed;
     }
 
-    public static StringBuilder StartHTMLDoc(string hexColor = "", string style = cStyle)
+    public static StringBuilder StartHtmlDoc(string hexColor = "", string style = cStyle)
     {
       var text = new StringBuilder(500);
       text.AppendLine("<!DOCTYPE HTML public virtual \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
@@ -405,7 +405,7 @@ namespace CsvTools
       if (text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase)
           && text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
         return text.Substring(9, text.Length - 12);
-      return text.HandleCRLFCombinations("<br>").Replace('\t', ' ').Replace("  ", " ")
+      return text.HandleCrlfCombinations("<br>").Replace('\t', ' ').Replace("  ", " ")
                  .Replace("  ", " ");
     }
 
@@ -518,13 +518,13 @@ namespace CsvTools
     public string ConvertToHtmlFragment(string fragment)
     {
       // Minimal implementation of HTML clipboard format
-      const string c_Source = "http://www.csvquickviewer.com/";
+      const string source = "http://www.csvquickviewer.com/";
 
-      const string c_MarkerBlock = "Version:1.0\r\n" + "StartHTML:{0,8}\r\n" + "EndHTML:{1,8}\r\n"
+      const string markerBlock = "Version:1.0\r\n" + "StartHTML:{0,8}\r\n" + "EndHTML:{1,8}\r\n"
                                    + "StartFragment:{2,8}\r\n" + "EndFragment:{3,8}\r\n" + "StartSelection:{2,8}\r\n"
                                    + "EndSelection:{3,8}\r\n" + "SourceURL:{4}\r\n" + "{5}";
 
-      var prefixLength = string.Format(CultureInfo.InvariantCulture, c_MarkerBlock, 0, 0, 0, 0, c_Source, "").Length;
+      var prefixLength = string.Format(CultureInfo.InvariantCulture, markerBlock, 0, 0, 0, 0, source, "").Length;
 
       var html = string.Format(
         CultureInfo.InvariantCulture,
@@ -536,12 +536,12 @@ namespace CsvTools
 
       return string.Format(
         CultureInfo.InvariantCulture,
-        c_MarkerBlock,
+        markerBlock,
         prefixLength,
         prefixLength + html.Length,
         startFragment,
         endFragment,
-        c_Source,
+        source,
         html);
     }
   }

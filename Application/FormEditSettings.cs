@@ -254,7 +254,7 @@ namespace CsvTools
                     m_CsvFile.FieldDelimiter, m_CancellationTokenSource.Token);
         m_CsvFile.HasFieldHeader = string.IsNullOrEmpty(res);
         bindingSourceViewSetting.ResetBindings(false);
-        _MessageBox.Show(res, "Checking headers");
+        MessageBox.Show(res, "Checking headers");
       });
     }
 

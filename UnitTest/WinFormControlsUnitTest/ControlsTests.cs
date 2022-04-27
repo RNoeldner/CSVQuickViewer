@@ -39,37 +39,37 @@ namespace CsvTools.Tests
     public void PersistentChoice()
     {
       var pc = new PersistentChoice(DialogResult.Yes);
-      _MessageBox.PersistentChoice("message", "Title", pc, "Yes", "no");
+      MessageBox.PersistentChoice("message", "Title", pc, "Yes", "no");
     }
 
     [TestMethod]
     [Timeout(10000)]
-    public void HTMLDisplay()
+    public void HtmlDisplay()
     {
-      Extensions.RunSTAThread(() =>
+      Extensions.RunStaThread(() =>
       {
         using var tm = new TimedMessage();
-        var stringBuilder = HTMLStyle.StartHTMLDoc($"{SystemColors.Control.R:X2}{SystemColors.Control.G:X2}{SystemColors.Control.B:X2}", "");
-        stringBuilder.Append(string.Format(UnitTestStatic.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample")));
-        stringBuilder.Append(string.Format(UnitTestStatic.HTMLStyle.H2, HTMLStyle.TextToHtmlEncode("Sample2")));
+        var stringBuilder = HtmlStyle.StartHtmlDoc($"{SystemColors.Control.R:X2}{SystemColors.Control.G:X2}{SystemColors.Control.B:X2}", "");
+        stringBuilder.Append(string.Format(UnitTestStatic.HtmlStyle.H2, HtmlStyle.TextToHtmlEncode("Sample")));
+        stringBuilder.Append(string.Format(UnitTestStatic.HtmlStyle.H2, HtmlStyle.TextToHtmlEncode("Sample2")));
 
-        stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TableOpen);
-        stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TROpen);
+        stringBuilder.AppendLine(UnitTestStatic.HtmlStyle.TableOpen);
+        stringBuilder.AppendLine(UnitTestStatic.HtmlStyle.TrOpen);
         for (var index = 1; index <= 10; index++)
         {
-          stringBuilder.AppendLine(string.Format(UnitTestStatic.HTMLStyle.TD,
-            HTMLStyle.TextToHtmlEncode("Test " + index.ToString())));
+          stringBuilder.AppendLine(string.Format(UnitTestStatic.HtmlStyle.Td,
+            HtmlStyle.TextToHtmlEncode("Test " + index.ToString())));
           if (index % 4 == 0)
           {
-            stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TRClose);
+            stringBuilder.AppendLine(UnitTestStatic.HtmlStyle.TrClose);
           }
         }
 
-        stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TRClose);
-        stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TableClose);
-        stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TableClose);
-        stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TRClose);
-        stringBuilder.AppendLine(UnitTestStatic.HTMLStyle.TableClose);
+        stringBuilder.AppendLine(UnitTestStatic.HtmlStyle.TrClose);
+        stringBuilder.AppendLine(UnitTestStatic.HtmlStyle.TableClose);
+        stringBuilder.AppendLine(UnitTestStatic.HtmlStyle.TableClose);
+        stringBuilder.AppendLine(UnitTestStatic.HtmlStyle.TrClose);
+        stringBuilder.AppendLine(UnitTestStatic.HtmlStyle.TableClose);
         tm.Html = stringBuilder.ToString();
 
         tm.Size = new Size(600, 450);
@@ -81,7 +81,7 @@ namespace CsvTools.Tests
 		[Timeout(10000)]
 		public void TextDisplay()
 		{
-			Extensions.RunSTAThread(() =>
+			Extensions.RunStaThread(() =>
 			{
         using var tm = new TimedMessage();
         tm.Message = "Found values\rLine2\nDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n" +
@@ -241,7 +241,7 @@ namespace CsvTools.Tests
 		[Timeout(10000)]
 		public void TimedMessage()
 		{
-			Extensions.RunSTAThread(() =>
+			Extensions.RunStaThread(() =>
 			{
 				using (var tm = new TimedMessage())
 				{
@@ -270,7 +270,7 @@ namespace CsvTools.Tests
     public void FormDuplicatesDisplay()
     {
       using var dataTable = UnitTestStatic.GetDataTable(60);
-      using var form = new FormDuplicatesDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, UnitTestStatic.HTMLStyle);
+      using var form = new FormDuplicatesDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, UnitTestStatic.HtmlStyle);
       UnitTestStatic.ShowFormAndClose(form);
     }
 
@@ -279,7 +279,7 @@ namespace CsvTools.Tests
     public void FormUniqueDisplay()
     {
       using var dataTable = UnitTestStatic.GetDataTable(60);
-      using var form = new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, UnitTestStatic.HTMLStyle);
+      using var form = new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, UnitTestStatic.HtmlStyle);
       UnitTestStatic.ShowFormAndClose(form);
     }
 
@@ -288,7 +288,7 @@ namespace CsvTools.Tests
     public void FormShowMaxLength()
     {
       using var dataTable = UnitTestStatic.GetDataTable(60);
-      using var form = new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), UnitTestStatic.HTMLStyle);
+      using var form = new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), UnitTestStatic.HtmlStyle);
       UnitTestStatic.ShowFormAndClose(form);
     }
 

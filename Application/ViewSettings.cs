@@ -36,7 +36,7 @@ namespace CsvTools
     private bool m_GuessNewLine = true;
     private bool m_GuessQualifier = true;
     private bool m_GuessStartRow = true;
-    private HTMLStyle m_HtmlStyle = new HTMLStyle();
+    private HtmlStyle m_HtmlStyle = new HtmlStyle();
     private bool m_MenuDown;
     private bool m_StoreSettingsByFile;
     private bool m_DisplayStartLineNo = true;
@@ -287,7 +287,7 @@ namespace CsvTools
       }
     }
 
-    [XmlIgnore] public HTMLStyle HTMLStyle => m_HtmlStyle;
+    [XmlIgnore] public HtmlStyle HtmlStyle => m_HtmlStyle;
 
     [XmlElement]
     [DefaultValue(Duration.Second)]
@@ -335,10 +335,10 @@ namespace CsvTools
       set
       {
         // ReSharper disable once ConstantNullCoalescingCondition
-        var newVal = value ?? HTMLStyle.cStyle;
+        var newVal = value ?? HtmlStyle.cStyle;
         if (m_HtmlStyle.Style.Equals(newVal))
           return;
-        m_HtmlStyle = new HTMLStyle(newVal);
+        m_HtmlStyle = new HtmlStyle(newVal);
         NotifyPropertyChanged(nameof(Style));
       }
     }
