@@ -212,7 +212,6 @@ namespace CsvTools
     public override string InternalID => string.IsNullOrEmpty(ID) ? FileName : ID;
 
 
-
     /// <inheritdoc />
     /// <summary>
     ///   PassPhrase for Decryption, will not be stored
@@ -226,29 +225,6 @@ namespace CsvTools
     {
       get => m_PassPhrase;
       set => m_PassPhrase = (value ?? string.Empty).Trim();
-    }
-
-    /// <inheritdoc />
-    /// <summary>
-    ///   Recipient for a outbound PGP encryption
-    /// </summary>
-    [XmlAttribute]
-    [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
-    public virtual string Recipient
-    {
-      get => m_Recipient;
-      set
-      {
-        var newVal = (value ?? string.Empty).Trim();
-        if (m_Recipient.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_Recipient = newVal;
-        m_KeyID = 0;
-        NotifyPropertyChanged(nameof(Recipient));
-      }
     }
 
     /// <inheritdoc />
@@ -303,12 +279,7 @@ namespace CsvTools
     [DefaultValue(0)]
     public long KeyID
     {
-      get
-      {
-        if (m_KeyID==0)
-          m_KeyID = FunctionalDI.GetKeyID(m_Recipient);
-        return m_KeyID;
-      }
+      get => m_KeyID;
       set
       {
         if (m_KeyID.Equals(value))
@@ -336,7 +307,7 @@ namespace CsvTools
       fileSettingPhysicalFile.IdentifierInContainer = IdentifierInContainer;
       fileSettingPhysicalFile.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
       fileSettingPhysicalFile.Passphrase = Passphrase;
-      fileSettingPhysicalFile.Recipient = Recipient;
+      fileSettingPhysicalFile.KeyID= KeyID;
       fileSettingPhysicalFile.DefaultValueFormatWrite.CopyFrom(DefaultValueFormatWrite);
     }
 
@@ -372,7 +343,7 @@ namespace CsvTools
         return false;
 
       if (!fileSettingPhysicalFile.Passphrase.Equals(Passphrase, StringComparison.Ordinal)
-          || !fileSettingPhysicalFile.Recipient.Equals(Recipient, StringComparison.OrdinalIgnoreCase))
+          || fileSettingPhysicalFile.KeyID != KeyID)
         return false;
 
       if (!string.Equals(fileSettingPhysicalFile.ColumnFile, ColumnFile, StringComparison.OrdinalIgnoreCase))
@@ -417,8 +388,8 @@ namespace CsvTools
         if (physicalFile.Passphrase!=Passphrase)
           yield return $"Passphrase";
 
-        if (!physicalFile.Recipient.Equals(Recipient, StringComparison.OrdinalIgnoreCase))
-          yield return $"Recipient: {Recipient} {physicalFile.Recipient}";
+        if (!physicalFile.KeyID.Equals(KeyID))
+          yield return $"KeyID: {KeyID} {physicalFile.KeyID}";
 
         if (!physicalFile.DefaultValueFormatWrite.ValueFormatEqual(DefaultValueFormatWrite))
           yield return $"DefaultValueFormatWrite";

@@ -46,13 +46,7 @@ namespace CsvTools
     /// <summary>
     ///   Passphrase for Decryption
     /// </summary>
-    string Passphrase { get; set; }
-
-    /// <summary>
-    ///   Gets the root folder of the Tool Setting
-    /// </summary>
-    /// <value>The root folder.</value>
-    string Recipient { get; set; }
+    string Passphrase { get; set; }    
 
     /// <summary>
     ///   Gets the PGP encryption Key ID

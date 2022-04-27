@@ -51,7 +51,7 @@ namespace CsvTools.Tests
       using var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"));
       ICollection<IColumn> determinedColumns;
       // Not closing the stream
-      using var impStream = new ImprovedStream(stream, SourceAccess.FileTypeEnum.GZip);
+      using var impStream = new ImprovedStream(stream, FileTypeEnum.GZip);
       var process = new CustomProcessDisplay();
       var result = await impStream.GetDetectionResult("steam", process, false, true, true, true, true, true, false, false, null, UnitTestStatic.Token);
 
