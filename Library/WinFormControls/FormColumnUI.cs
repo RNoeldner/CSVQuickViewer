@@ -69,10 +69,7 @@ namespace CsvTools
       HtmlStyle hTmlStyle)
     {
       m_ColumnRef = column;
-      if (column == null)
-        m_ColumnEdit = new Column();
-      else
-        m_ColumnEdit = new Column(column);
+      m_ColumnEdit = column == null ? new Column() : new Column(column);
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
       m_HtmlStyle = hTmlStyle ?? throw new ArgumentNullException(nameof(hTmlStyle));
@@ -80,7 +77,7 @@ namespace CsvTools
       m_WriteSetting = writeSetting;
 
       InitializeComponent();
-      // needed for TimeZon, Name or TimePart
+      // needed for TimeZone, Name or TimePart
       columnBindingSource.DataSource = m_ColumnEdit;
       // needed for Formats
       bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormatMutable;
@@ -483,7 +480,7 @@ namespace CsvTools
       }
     }
 
-    private static void AddNotExisting(List<string> list, string value, List<string>? otherList = null)
+    private static void AddNotExisting(ICollection<string> list, string value, IReadOnlyCollection<string>? otherList = null)
     {
       if (!list.Contains(value) && (otherList is null || !otherList.Contains(value)))
         list.Add(value);
@@ -653,7 +650,7 @@ namespace CsvTools
 
       using var formProcessDisplay = new FormProcessDisplay("Getting column headers", false, m_CancellationTokenSource.Token);
       formProcessDisplay.Show();
-      formProcessDisplay.SetProcess($"Getting columns from source");
+      formProcessDisplay.SetProcess("Getting columns from source");
       // Read the column headers if possible
       ICollection<string> allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       await this.RunWithHourglassAsync(async () =>
@@ -728,6 +725,16 @@ namespace CsvTools
           DateFormatChanged(sender, EventArgs.Empty);
         }
 
+        if (selType == DataType.Binary)
+        {
+          if (!m_WriteSetting && string.IsNullOrEmpty(m_ColumnEdit.ValueFormat.ReadFolder) &&
+              m_FileSetting is IFileSettingPhysicalFile physicalR)
+            m_ColumnEdit.ValueFormatMutable.ReadFolder = FileSystemUtils.GetShortestPath(physicalR.FullPath.GetDirectoryName(), ".") ;
+          if (m_WriteSetting && string.IsNullOrEmpty(m_ColumnEdit.ValueFormat.WriteFolder) &&
+              m_FileSetting is IFileSettingPhysicalFile physicalW)
+            m_ColumnEdit.ValueFormatMutable.WriteFolder = FileSystemUtils.GetShortestPath(physicalW.FullPath.GetDirectoryName(), ".") ;
+        }
+
         groupBoxBoolean.Visible = selType == DataType.Boolean;
         groupBoxSplit.Visible = selType == DataType.TextPart;
         groupBoxRegExReplace.Visible = selType == DataType.TextReplace;
@@ -782,6 +789,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">Name of the column.</param>
     /// <param name="processDisplay">The process display.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="FileException">
     ///   Column {columnName} not found. or Column {columnName} not found.
@@ -1084,7 +1092,7 @@ namespace CsvTools
       errorProvider.SetError(textBoxRegexSearchPattern, string.Empty);
       try
       {
-        var reg = new Regex(textBoxRegexSearchPattern.Text, RegexOptions.Compiled);
+        _ = new Regex(textBoxRegexSearchPattern.Text, RegexOptions.Compiled);
       }
       catch (Exception ex)
       {
