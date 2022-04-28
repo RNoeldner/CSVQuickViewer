@@ -21,8 +21,6 @@ namespace CsvTools
 #endif
 
         MouseWheel += FormMouseWheel;
-        FormClosed += (o, e) => 
-          Parent?.Focus();
       }
       catch (Exception)
       {
