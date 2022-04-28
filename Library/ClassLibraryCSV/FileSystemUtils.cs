@@ -385,6 +385,9 @@ namespace CsvTools
     public static FileStream Create(in string fileName, int bufferSize, in FileOptions options) =>
       File.Create(fileName.LongPathPrefix(), bufferSize, options);
 
+    public static void WriteAllBytes(in string fileName, in byte[] contents) =>
+      File.WriteAllBytes(fileName.LongPathPrefix(), contents);
+
     public static void WriteAllText(in string fileName, in string contents) =>
       File.WriteAllText(fileName.LongPathPrefix(), contents);
 

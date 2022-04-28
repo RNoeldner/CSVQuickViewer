@@ -40,6 +40,10 @@ namespace CsvTools
     private string m_True;
     private string m_RegexSearchPattern;
     private string m_RegexReplacement;
+    private string m_ReadFolder;
+    private string m_WriteFolder;
+    private string m_FileOutPutPlaceholder;
+    private bool m_Overwrite;
 
 
     public ValueFormatMutable() : this(
@@ -57,7 +61,11 @@ namespace CsvTools
       ValueFormatExtension.cPartSplitterDefault,
       ValueFormatExtension.cPartToEndDefault,
       string.Empty,
-      string.Empty)
+      string.Empty,
+      string.Empty,
+      string.Empty,
+      string.Empty,
+      true)
     {
     }
 
@@ -76,7 +84,11 @@ namespace CsvTools
       in string partSplitter,
       bool partToEnd,
       in string regexSearchPattern,
-      in string regexReplacement)
+      in string regexReplacement,
+      in string readFolder,
+      in string writeFolder,
+      in string fileOutPutPlaceholder,
+      in bool overwrite)
     {
       if (!string.IsNullOrEmpty(decimalSeparator) && decimalSeparator.Equals(groupSeparator))
         throw new FileReaderException("Decimal and Group separator must be different");
@@ -94,13 +106,17 @@ namespace CsvTools
       m_Part = part;
       m_PartSplitter = (partSplitter ?? throw new ArgumentNullException(nameof(partSplitter))).WrittenPunctuation();
       m_PartToEnd = partToEnd;
-      m_RegexSearchPattern = (regexSearchPattern ?? throw new ArgumentNullException(nameof(regexSearchPattern)));
-      m_RegexReplacement = (regexReplacement ?? throw new ArgumentNullException(nameof(regexReplacement)));
+      m_RegexSearchPattern = regexSearchPattern ?? throw new ArgumentNullException(nameof(regexSearchPattern));
+      m_RegexReplacement = regexReplacement ?? throw new ArgumentNullException(nameof(regexReplacement));
+      m_ReadFolder = readFolder ?? throw new ArgumentNullException(nameof(readFolder));
+      m_WriteFolder = writeFolder ?? throw new ArgumentNullException(nameof(writeFolder));
+      m_FileOutPutPlaceholder = fileOutPutPlaceholder ?? throw new ArgumentNullException(nameof(fileOutPutPlaceholder));
+      m_Overwrite = overwrite;
     }
 
     public ValueFormatMutable(IValueFormat other) : this(other.DataType, other.DateFormat, other.DateSeparator, other.TimeSeparator, other.NumberFormat,
       other.GroupSeparator, other.DecimalSeparator,
-      other.True, other.False, other.DisplayNullAs, other.Part, other.PartSplitter, other.PartToEnd, other.RegexSearchPattern, other.RegexReplacement)
+      other.True, other.False, other.DisplayNullAs, other.Part, other.PartSplitter, other.PartToEnd, other.RegexSearchPattern, other.RegexReplacement, other.ReadFolder, other.WriteFolder, other.FileOutPutPlaceholder, other.Overwrite)
 
     {
     }
@@ -123,6 +139,9 @@ namespace CsvTools
                                                            && PartToEnd == ValueFormatExtension.cPartToEndDefault
                                                            && RegexSearchPattern == string.Empty
                                                            && RegexReplacement == string.Empty
+                                                           && ReadFolder == string.Empty
+                                                           && WriteFolder == string.Empty
+                                                           && FileOutPutPlaceholder == string.Empty
                                                            && DisplayNullAs == string.Empty);
 
     /// <inheritdoc />
@@ -433,6 +452,65 @@ namespace CsvTools
       }
     }
 
+    [XmlAttribute]
+    [DefaultValue("")]
+    public string ReadFolder
+    {
+      get => m_ReadFolder;
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_ReadFolder.Equals(newVal))
+          return;
+        m_ReadFolder = newVal;
+        NotifyPropertyChanged(nameof(ReadFolder));
+      }
+    }
+    [XmlAttribute]
+    [DefaultValue("")]
+    public string WriteFolder
+    {
+      get => m_WriteFolder;
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_WriteFolder.Equals(newVal))
+          return;
+        m_WriteFolder = newVal;
+        NotifyPropertyChanged(nameof(WriteFolder));
+      }
+    }
+
+    [XmlAttribute]
+    [DefaultValue("")]
+    public string FileOutPutPlaceholder
+    {
+      get => m_FileOutPutPlaceholder;
+      set
+      {
+        var newVal = value ?? string.Empty;
+        if (m_FileOutPutPlaceholder.Equals(newVal))
+          return;
+        m_FileOutPutPlaceholder = newVal;
+        NotifyPropertyChanged(nameof(FileOutPutPlaceholder));
+      }
+    }
+
+    [XmlAttribute]
+    [DefaultValue(true)]
+    public bool Overwrite
+    {
+      get => m_Overwrite;
+      set
+      {
+
+        if (m_Overwrite.Equals(value))
+          return;
+        m_Overwrite = value;
+        NotifyPropertyChanged(nameof(Overwrite));
+      }
+    }
+
     /// <summary>
     ///   On Mutable classes prefer CopyFrom to CopyTo, overwrites the properties from the
     ///   properties in the provided class
@@ -457,6 +535,10 @@ namespace CsvTools
       PartToEnd = other.PartToEnd;
       RegexSearchPattern = other.RegexSearchPattern;
       RegexReplacement = other.RegexReplacement;
+      ReadFolder  = other.ReadFolder;
+      WriteFolder = other.WriteFolder;
+      Overwrite = other.Overwrite;
+      FileOutPutPlaceholder = other.FileOutPutPlaceholder;
     }
 
     /// <summary>

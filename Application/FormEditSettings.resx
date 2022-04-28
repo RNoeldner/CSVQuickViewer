@@ -117,11 +117,23 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="tableLayoutPanelBehavior.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+  <metadata name="tableLayoutPanelFile.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>False</value>
   </metadata>
   <metadata name="bindingSourceCsvFile.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>191, 19</value>
+  </metadata>
+  <metadata name="bindingSourceCsvFile.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>191, 19</value>
+  </metadata>
+  <metadata name="bindingSourceViewSetting.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>12, 17</value>
+  </metadata>
+  <metadata name="bindingSourceViewSetting.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>12, 17</value>
+  </metadata>
+  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>621, 12</value>
   </metadata>
   <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>621, 12</value>
@@ -138,21 +150,6 @@ Note: This does not work if it the issue is in the last column. The extra text o
 
 This is a very risky option, in some cases rows might be lost.</value>
   </data>
-  <metadata name="bindingSourceViewSetting.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>12, 17</value>
-  </metadata>
-  <metadata name="bindingSourceViewSetting.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>12, 17</value>
-  </metadata>
-  <metadata name="bindingSourceCsvFile.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>191, 19</value>
-  </metadata>
-  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>621, 12</value>
-  </metadata>
-  <metadata name="tableLayoutPanelFile.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>False</value>
-  </metadata>
   <metadata name="errorProvider.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>844, 5</value>
   </metadata>

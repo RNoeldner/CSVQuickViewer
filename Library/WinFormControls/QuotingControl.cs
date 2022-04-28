@@ -82,9 +82,11 @@ namespace CsvTools
     public QuotingControl()
     {
       InitializeComponent();
-      m_ComboBoxTrim!.Items.Add(new DisplayItem<int>(0, "None"));
+#pragma warning disable CS8602
+      m_ComboBoxTrim.Items.Add(new DisplayItem<int>(0, "None"));
       m_ComboBoxTrim.Items.Add(new DisplayItem<int>(1, "Unquoted"));
       m_ComboBoxTrim.Items.Add(new DisplayItem<int>(3, "All"));
+#pragma warning restore CS8602
       UpdateUI();
       QuoteOrDelimiterChange();
     }
@@ -200,17 +202,17 @@ namespace CsvTools
       this.m_TableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
       // 
-      // csvSettingBindingSource
+      // m_CSVSettingBindingSource
       // 
       this.m_CSVSettingBindingSource.AllowNew = false;
       this.m_CSVSettingBindingSource.DataSource = typeof(CsvTools.CsvFile);
       // 
-      // checkBoxDuplicateQuotingToEscape
+      // m_CheckBoxDuplicateQuotingToEscape
       // 
       this.m_CheckBoxDuplicateQuotingToEscape.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_CheckBoxDuplicateQuotingToEscape, 2);
       this.m_CheckBoxDuplicateQuotingToEscape.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CSVSettingBindingSource, "DuplicateQualifierToEscape", true));
-      this.m_CheckBoxDuplicateQuotingToEscape.Location = new System.Drawing.Point(362, 26);
+      this.m_CheckBoxDuplicateQuotingToEscape.Location = new System.Drawing.Point(378, 26);
       this.m_CheckBoxDuplicateQuotingToEscape.Margin = new System.Windows.Forms.Padding(2);
       this.m_CheckBoxDuplicateQuotingToEscape.Name = "m_CheckBoxDuplicateQuotingToEscape";
       this.m_CheckBoxDuplicateQuotingToEscape.Size = new System.Drawing.Size(134, 17);
@@ -221,14 +223,14 @@ namespace CsvTools
       this.m_CheckBoxDuplicateQuotingToEscape.UseVisualStyleBackColor = true;
       this.m_CheckBoxDuplicateQuotingToEscape.CheckedChanged += new System.EventHandler(this.QuoteChanged);
       // 
-      // labelNoQuotes
+      // m_LabelNoQuotes
       // 
       this.m_LabelNoQuotes.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.m_LabelNoQuotes.AutoSize = true;
       this.m_LabelNoQuotes.BackColor = System.Drawing.SystemColors.Info;
       this.m_LabelNoQuotes.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
       this.m_LabelNoQuotes.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.m_LabelNoQuotes.Location = new System.Drawing.Point(592, 16);
+      this.m_LabelNoQuotes.Location = new System.Drawing.Point(608, 16);
       this.m_LabelNoQuotes.Name = "m_LabelNoQuotes";
       this.m_TableLayoutPanel.SetRowSpan(this.m_LabelNoQuotes, 2);
       this.m_LabelNoQuotes.Size = new System.Drawing.Size(146, 15);
@@ -237,13 +239,13 @@ namespace CsvTools
       this.m_ToolTip.SetToolTip(this.m_LabelNoQuotes, "Either “Context Sensitive Quoting”, “Repeated Quotes” or an “Escape Character” ne" +
         "ed to be defined to allow a quote to be part of the text");
       // 
-      // checkBoxAlternateQuoting
+      // m_CheckBoxAlternateQuoting
       // 
       this.m_CheckBoxAlternateQuoting.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.m_CheckBoxAlternateQuoting.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_CheckBoxAlternateQuoting, 2);
       this.m_CheckBoxAlternateQuoting.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CSVSettingBindingSource, "ContextSensitiveQualifier", true));
-      this.m_CheckBoxAlternateQuoting.Location = new System.Drawing.Point(363, 3);
+      this.m_CheckBoxAlternateQuoting.Location = new System.Drawing.Point(379, 3);
       this.m_CheckBoxAlternateQuoting.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_CheckBoxAlternateQuoting.Name = "m_CheckBoxAlternateQuoting";
       this.m_CheckBoxAlternateQuoting.Size = new System.Drawing.Size(169, 17);
@@ -256,15 +258,14 @@ namespace CsvTools
       this.m_CheckBoxAlternateQuoting.Visible = false;
       this.m_CheckBoxAlternateQuoting.CheckedChanged += new System.EventHandler(this.QuoteChanged);
       // 
-      // comboBoxTrim
+      // m_ComboBoxTrim
       // 
       this.m_ComboBoxTrim.DisplayMember = "Display";
-      this.m_ComboBoxTrim.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_ComboBoxTrim.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.m_ComboBoxTrim.Location = new System.Drawing.Point(104, 74);
       this.m_ComboBoxTrim.Margin = new System.Windows.Forms.Padding(3, 2, 3, 3);
       this.m_ComboBoxTrim.Name = "m_ComboBoxTrim";
-      this.m_ComboBoxTrim.Size = new System.Drawing.Size(253, 21);
+      this.m_ComboBoxTrim.Size = new System.Drawing.Size(96, 21);
       this.m_ComboBoxTrim.TabIndex = 10;
       this.m_ToolTip.SetToolTip(this.m_ComboBoxTrim, "None will preserve whitespace; Unquoted will remove white spaces if the column wa" +
         "s not quoted; All will remove white spaces even if the column was quoted");
@@ -275,11 +276,10 @@ namespace CsvTools
       // 
       this.m_TextBoxQuotePlaceHolder.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
       this.m_TextBoxQuotePlaceHolder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_CSVSettingBindingSource, "QualifierPlaceholder", true));
-      this.m_TextBoxQuotePlaceHolder.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_TextBoxQuotePlaceHolder.Location = new System.Drawing.Point(104, 50);
       this.m_TextBoxQuotePlaceHolder.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_TextBoxQuotePlaceHolder.Name = "m_TextBoxQuotePlaceHolder";
-      this.m_TextBoxQuotePlaceHolder.Size = new System.Drawing.Size(253, 20);
+      this.m_TextBoxQuotePlaceHolder.Size = new System.Drawing.Size(96, 20);
       this.m_TextBoxQuotePlaceHolder.TabIndex = 8;
       this.m_ToolTip.SetToolTip(this.m_TextBoxQuotePlaceHolder, "If this placeholder is part of the text it will be replaced with the quoting char" +
         "acter");
@@ -288,11 +288,10 @@ namespace CsvTools
       // m_TextBoxQuote
       // 
       this.m_TextBoxQuote.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.m_CSVSettingBindingSource, "FieldQualifier", true));
-      this.m_TextBoxQuote.Dock = System.Windows.Forms.DockStyle.Top;
       this.m_TextBoxQuote.Location = new System.Drawing.Point(104, 2);
       this.m_TextBoxQuote.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_TextBoxQuote.Name = "m_TextBoxQuote";
-      this.m_TextBoxQuote.Size = new System.Drawing.Size(253, 20);
+      this.m_TextBoxQuote.Size = new System.Drawing.Size(96, 20);
       this.m_TextBoxQuote.TabIndex = 1;
       this.m_ToolTip.SetToolTip(this.m_TextBoxQuote, "Columns may be qualified with a character; usually these are \" the quotes are rem" +
         "oved by the reading applications.");
@@ -302,7 +301,7 @@ namespace CsvTools
       // 
       this.m_ErrorProvider.ContainerControl = this;
       // 
-      // fastColoredTextBox00
+      // m_FastColoredTextBox00
       // 
       this.m_FastColoredTextBox00.AutoCompleteBracketsList = new char[] {
         '(',
@@ -323,9 +322,8 @@ namespace CsvTools
       this.m_FastColoredTextBox00.CharWidth = 8;
       this.m_FastColoredTextBox00.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.m_FastColoredTextBox00.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-      this.m_FastColoredTextBox00.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.m_FastColoredTextBox00.IsReplaceMode = false;
-      this.m_FastColoredTextBox00.Location = new System.Drawing.Point(405, 121);
+      this.m_FastColoredTextBox00.Location = new System.Drawing.Point(421, 121);
       this.m_FastColoredTextBox00.Multiline = false;
       this.m_FastColoredTextBox00.Name = "m_FastColoredTextBox00";
       this.m_FastColoredTextBox00.Paddings = new System.Windows.Forms.Padding(0);
@@ -339,19 +337,19 @@ namespace CsvTools
       this.m_FastColoredTextBox00.Text = "This is ";
       this.m_FastColoredTextBox00.Zoom = 100;
       // 
-      // label1
+      // m_Label1
       // 
       this.m_Label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Label1.AutoSize = true;
       this.m_Label1.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label1.Location = new System.Drawing.Point(363, 118);
+      this.m_Label1.Location = new System.Drawing.Point(379, 118);
       this.m_Label1.Name = "m_Label1";
       this.m_Label1.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
       this.m_Label1.Size = new System.Drawing.Size(36, 16);
       this.m_Label1.TabIndex = 35;
       this.m_Label1.Text = "Rec 1";
       // 
-      // fastColoredTextBox12
+      // m_FastColoredTextBox12
       // 
       this.m_FastColoredTextBox12.AutoCompleteBracketsList = new char[] {
         '(',
@@ -372,9 +370,8 @@ namespace CsvTools
       this.m_FastColoredTextBox12.CharWidth = 8;
       this.m_FastColoredTextBox12.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.m_FastColoredTextBox12.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-      this.m_FastColoredTextBox12.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.m_FastColoredTextBox12.IsReplaceMode = false;
-      this.m_FastColoredTextBox12.Location = new System.Drawing.Point(592, 169);
+      this.m_FastColoredTextBox12.Location = new System.Drawing.Point(608, 169);
       this.m_FastColoredTextBox12.Name = "m_FastColoredTextBox12";
       this.m_FastColoredTextBox12.Paddings = new System.Windows.Forms.Padding(0);
       this.m_FastColoredTextBox12.ReadOnly = true;
@@ -386,7 +383,7 @@ namespace CsvTools
       this.m_FastColoredTextBox12.Text = "Column with ¶\r\nLinefeed";
       this.m_FastColoredTextBox12.Zoom = 100;
       // 
-      // fastColoredTextBox02
+      // m_FastColoredTextBox02
       // 
       this.m_FastColoredTextBox02.AutoCompleteBracketsList = new char[] {
         '(',
@@ -407,9 +404,8 @@ namespace CsvTools
       this.m_FastColoredTextBox02.CharWidth = 8;
       this.m_FastColoredTextBox02.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.m_FastColoredTextBox02.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-      this.m_FastColoredTextBox02.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.m_FastColoredTextBox02.IsReplaceMode = false;
-      this.m_FastColoredTextBox02.Location = new System.Drawing.Point(405, 169);
+      this.m_FastColoredTextBox02.Location = new System.Drawing.Point(421, 169);
       this.m_FastColoredTextBox02.Multiline = false;
       this.m_FastColoredTextBox02.Name = "m_FastColoredTextBox02";
       this.m_FastColoredTextBox02.Paddings = new System.Windows.Forms.Padding(0);
@@ -423,7 +419,7 @@ namespace CsvTools
       this.m_FastColoredTextBox02.Text = "Example ";
       this.m_FastColoredTextBox02.Zoom = 100;
       // 
-      // fastColoredTextBox11
+      // m_FastColoredTextBox11
       // 
       this.m_FastColoredTextBox11.AutoCompleteBracketsList = new char[] {
         '(',
@@ -444,9 +440,8 @@ namespace CsvTools
       this.m_FastColoredTextBox11.CharWidth = 8;
       this.m_FastColoredTextBox11.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.m_FastColoredTextBox11.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-      this.m_FastColoredTextBox11.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.m_FastColoredTextBox11.IsReplaceMode = false;
-      this.m_FastColoredTextBox11.Location = new System.Drawing.Point(592, 145);
+      this.m_FastColoredTextBox11.Location = new System.Drawing.Point(608, 145);
       this.m_FastColoredTextBox11.Multiline = false;
       this.m_FastColoredTextBox11.Name = "m_FastColoredTextBox11";
       this.m_FastColoredTextBox11.Paddings = new System.Windows.Forms.Padding(0);
@@ -460,7 +455,7 @@ namespace CsvTools
       this.m_FastColoredTextBox11.Text = "Column with \" Quote";
       this.m_FastColoredTextBox11.Zoom = 100;
       // 
-      // fastColoredTextBox01
+      // m_FastColoredTextBox01
       // 
       this.m_FastColoredTextBox01.AutoCompleteBracketsList = new char[] {
         '(',
@@ -481,9 +476,8 @@ namespace CsvTools
       this.m_FastColoredTextBox01.CharWidth = 8;
       this.m_FastColoredTextBox01.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.m_FastColoredTextBox01.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-      this.m_FastColoredTextBox01.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.m_FastColoredTextBox01.IsReplaceMode = false;
-      this.m_FastColoredTextBox01.Location = new System.Drawing.Point(405, 145);
+      this.m_FastColoredTextBox01.Location = new System.Drawing.Point(421, 145);
       this.m_FastColoredTextBox01.Multiline = false;
       this.m_FastColoredTextBox01.Name = "m_FastColoredTextBox01";
       this.m_FastColoredTextBox01.Paddings = new System.Windows.Forms.Padding(0);
@@ -497,7 +491,7 @@ namespace CsvTools
       this.m_FastColoredTextBox01.Text = " a Trimming ";
       this.m_FastColoredTextBox01.Zoom = 100;
       // 
-      // fastColoredTextBox10
+      // m_FastColoredTextBox10
       // 
       this.m_FastColoredTextBox10.AutoCompleteBracketsList = new char[] {
         '(',
@@ -518,8 +512,9 @@ namespace CsvTools
       this.m_FastColoredTextBox10.CharWidth = 8;
       this.m_FastColoredTextBox10.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.m_FastColoredTextBox10.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.m_FastColoredTextBox10.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.m_FastColoredTextBox10.IsReplaceMode = false;
-      this.m_FastColoredTextBox10.Location = new System.Drawing.Point(592, 121);
+      this.m_FastColoredTextBox10.Location = new System.Drawing.Point(608, 121);
       this.m_FastColoredTextBox10.Multiline = false;
       this.m_FastColoredTextBox10.Name = "m_FastColoredTextBox10";
       this.m_FastColoredTextBox10.Paddings = new System.Windows.Forms.Padding(0);
@@ -535,7 +530,7 @@ namespace CsvTools
       this.m_FastColoredTextBox10.Text = "Column with:, Delimiter";
       this.m_FastColoredTextBox10.Zoom = 100;
       // 
-      // fastColoredTextBox
+      // m_FastColoredTextBox
       // 
       this.m_FastColoredTextBox.AutoCompleteBracketsList = new char[] {
         '(',
@@ -558,6 +553,7 @@ namespace CsvTools
       this.m_FastColoredTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.m_FastColoredTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
       this.m_FastColoredTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.m_FastColoredTextBox.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.m_FastColoredTextBox.IsReplaceMode = false;
       this.m_FastColoredTextBox.Location = new System.Drawing.Point(3, 121);
       this.m_FastColoredTextBox.Name = "m_FastColoredTextBox";
@@ -566,7 +562,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.SetRowSpan(this.m_FastColoredTextBox, 3);
       this.m_FastColoredTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
       this.m_FastColoredTextBox.ServiceColors = null;
-      this.m_FastColoredTextBox.Size = new System.Drawing.Size(354, 87);
+      this.m_FastColoredTextBox.Size = new System.Drawing.Size(370, 87);
       this.m_FastColoredTextBox.TabIndex = 1;
       this.m_FastColoredTextBox.TabLength = 1;
       this.m_FastColoredTextBox.TabStop = false;
@@ -574,12 +570,12 @@ namespace CsvTools
     ";\"Column with ¶\r\nLinefeed\"";
       this.m_FastColoredTextBox.Zoom = 100;
       // 
-      // checkBoxQualifyAlways
+      // m_CheckBoxQualifyAlways
       // 
       this.m_CheckBoxQualifyAlways.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.m_CheckBoxQualifyAlways.AutoSize = true;
       this.m_CheckBoxQualifyAlways.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CSVSettingBindingSource, "QualifyAlways", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.m_CheckBoxQualifyAlways.Location = new System.Drawing.Point(592, 51);
+      this.m_CheckBoxQualifyAlways.Location = new System.Drawing.Point(608, 51);
       this.m_CheckBoxQualifyAlways.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_CheckBoxQualifyAlways.Name = "m_CheckBoxQualifyAlways";
       this.m_CheckBoxQualifyAlways.Size = new System.Drawing.Size(94, 17);
@@ -588,13 +584,13 @@ namespace CsvTools
       this.m_CheckBoxQualifyAlways.UseVisualStyleBackColor = true;
       this.m_CheckBoxQualifyAlways.Visible = false;
       // 
-      // checkBoxQualifyOnlyNeeded
+      // m_CheckBoxQualifyOnlyNeeded
       // 
       this.m_CheckBoxQualifyOnlyNeeded.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.m_CheckBoxQualifyOnlyNeeded.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_CheckBoxQualifyOnlyNeeded, 2);
       this.m_CheckBoxQualifyOnlyNeeded.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.m_CSVSettingBindingSource, "QualifyOnlyIfNeeded", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-      this.m_CheckBoxQualifyOnlyNeeded.Location = new System.Drawing.Point(363, 51);
+      this.m_CheckBoxQualifyOnlyNeeded.Location = new System.Drawing.Point(379, 51);
       this.m_CheckBoxQualifyOnlyNeeded.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_CheckBoxQualifyOnlyNeeded.Name = "m_CheckBoxQualifyOnlyNeeded";
       this.m_CheckBoxQualifyOnlyNeeded.Size = new System.Drawing.Size(132, 17);
@@ -611,7 +607,7 @@ namespace CsvTools
       this.m_LabelInfoQuoting.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_LabelInfoQuoting, 3);
       this.m_LabelInfoQuoting.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.m_LabelInfoQuoting.Location = new System.Drawing.Point(363, 77);
+      this.m_LabelInfoQuoting.Location = new System.Drawing.Point(379, 77);
       this.m_LabelInfoQuoting.Name = "m_LabelInfoQuoting";
       this.m_LabelInfoQuoting.Size = new System.Drawing.Size(225, 15);
       this.m_LabelInfoQuoting.TabIndex = 11;
@@ -668,24 +664,24 @@ namespace CsvTools
       this.m_LabelQuote.TabIndex = 0;
       this.m_LabelQuote.Text = "Text Qualifier:";
       // 
-      // label2
+      // m_Label2
       // 
       this.m_Label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Label2.AutoSize = true;
       this.m_Label2.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label2.Location = new System.Drawing.Point(363, 142);
+      this.m_Label2.Location = new System.Drawing.Point(379, 142);
       this.m_Label2.Name = "m_Label2";
       this.m_Label2.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
       this.m_Label2.Size = new System.Drawing.Size(36, 16);
       this.m_Label2.TabIndex = 36;
       this.m_Label2.Text = "Rec 2";
       // 
-      // label3
+      // m_Label3
       // 
       this.m_Label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.m_Label3.AutoSize = true;
       this.m_Label3.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label3.Location = new System.Drawing.Point(363, 166);
+      this.m_Label3.Location = new System.Drawing.Point(379, 166);
       this.m_Label3.Name = "m_Label3";
       this.m_Label3.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
       this.m_Label3.Size = new System.Drawing.Size(36, 16);
@@ -695,16 +691,15 @@ namespace CsvTools
       // m_TableLayoutPanel
       // 
       this.m_TableLayoutPanel.AutoSize = true;
-      this.m_TableLayoutPanel.ColumnCount = 7;
+      this.m_TableLayoutPanel.ColumnCount = 5;
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
       this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 16F));
-      this.m_TableLayoutPanel.Controls.Add(this.m_Label3, 3, 7);
-      this.m_TableLayoutPanel.Controls.Add(this.m_Label2, 3, 6);
+      this.m_TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+      this.m_TableLayoutPanel.Controls.Add(this.m_Label3, 2, 7);
+      this.m_TableLayoutPanel.Controls.Add(this.m_Label2, 2, 6);
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelQuote, 0, 0);
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelEscapeCharacter, 0, 1);
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelQuotePlaceholder, 0, 2);
@@ -713,22 +708,22 @@ namespace CsvTools
       this.m_TableLayoutPanel.Controls.Add(this.m_TextBoxQuotePlaceHolder, 1, 2);
       this.m_TableLayoutPanel.Controls.Add(this.m_ComboBoxTrim, 1, 3);
       this.m_TableLayoutPanel.Controls.Add(this.m_LabelTrim, 0, 3);
-      this.m_TableLayoutPanel.Controls.Add(this.m_LabelInfoQuoting, 3, 3);
-      this.m_TableLayoutPanel.Controls.Add(this.m_CheckBoxQualifyOnlyNeeded, 3, 2);
-      this.m_TableLayoutPanel.Controls.Add(this.m_CheckBoxAlternateQuoting, 3, 0);
-      this.m_TableLayoutPanel.Controls.Add(this.m_LabelNoQuotes, 5, 0);
-      this.m_TableLayoutPanel.Controls.Add(this.m_CheckBoxQualifyAlways, 5, 2);
-      this.m_TableLayoutPanel.Controls.Add(this.m_CheckBoxDuplicateQuotingToEscape, 3, 1);
+      this.m_TableLayoutPanel.Controls.Add(this.m_LabelInfoQuoting, 2, 3);
+      this.m_TableLayoutPanel.Controls.Add(this.m_CheckBoxQualifyOnlyNeeded, 2, 2);
+      this.m_TableLayoutPanel.Controls.Add(this.m_CheckBoxAlternateQuoting, 2, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.m_LabelNoQuotes, 4, 0);
+      this.m_TableLayoutPanel.Controls.Add(this.m_CheckBoxQualifyAlways, 4, 2);
+      this.m_TableLayoutPanel.Controls.Add(this.m_CheckBoxDuplicateQuotingToEscape, 2, 1);
       this.m_TableLayoutPanel.Controls.Add(this.m_FastColoredTextBox, 0, 5);
-      this.m_TableLayoutPanel.Controls.Add(this.m_FastColoredTextBox10, 5, 5);
-      this.m_TableLayoutPanel.Controls.Add(this.m_FastColoredTextBox01, 4, 6);
-      this.m_TableLayoutPanel.Controls.Add(this.m_FastColoredTextBox11, 5, 6);
-      this.m_TableLayoutPanel.Controls.Add(this.m_FastColoredTextBox02, 4, 7);
-      this.m_TableLayoutPanel.Controls.Add(this.m_FastColoredTextBox12, 5, 7);
-      this.m_TableLayoutPanel.Controls.Add(this.m_Label1, 3, 5);
-      this.m_TableLayoutPanel.Controls.Add(this.m_FastColoredTextBox00, 4, 5);
-      this.m_TableLayoutPanel.Controls.Add(this.m_Label5, 4, 4);
-      this.m_TableLayoutPanel.Controls.Add(this.m_Label4, 5, 4);
+      this.m_TableLayoutPanel.Controls.Add(this.m_FastColoredTextBox10, 4, 5);
+      this.m_TableLayoutPanel.Controls.Add(this.m_FastColoredTextBox01, 3, 6);
+      this.m_TableLayoutPanel.Controls.Add(this.m_FastColoredTextBox11, 4, 6);
+      this.m_TableLayoutPanel.Controls.Add(this.m_FastColoredTextBox02, 3, 7);
+      this.m_TableLayoutPanel.Controls.Add(this.m_FastColoredTextBox12, 4, 7);
+      this.m_TableLayoutPanel.Controls.Add(this.m_Label1, 2, 5);
+      this.m_TableLayoutPanel.Controls.Add(this.m_FastColoredTextBox00, 3, 5);
+      this.m_TableLayoutPanel.Controls.Add(this.m_Label5, 3, 4);
+      this.m_TableLayoutPanel.Controls.Add(this.m_Label4, 4, 4);
       this.m_TableLayoutPanel.Controls.Add(this.m_Label6, 0, 4);
       this.m_TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.m_TableLayoutPanel.Location = new System.Drawing.Point(0, 0);
@@ -747,35 +742,35 @@ namespace CsvTools
       this.m_TableLayoutPanel.Size = new System.Drawing.Size(802, 317);
       this.m_TableLayoutPanel.TabIndex = 0;
       // 
-      // label5
+      // m_Label5
       // 
       this.m_Label5.Anchor = System.Windows.Forms.AnchorStyles.None;
       this.m_Label5.AutoSize = true;
       this.m_Label5.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label5.Location = new System.Drawing.Point(470, 101);
+      this.m_Label5.Location = new System.Drawing.Point(486, 101);
       this.m_Label5.Name = "m_Label5";
       this.m_Label5.Size = new System.Drawing.Size(51, 13);
       this.m_Label5.TabIndex = 35;
       this.m_Label5.Text = "Column 1";
       // 
-      // label4
+      // m_Label4
       // 
       this.m_Label4.Anchor = System.Windows.Forms.AnchorStyles.None;
       this.m_Label4.AutoSize = true;
       this.m_Label4.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label4.Location = new System.Drawing.Point(662, 101);
+      this.m_Label4.Location = new System.Drawing.Point(678, 101);
       this.m_Label4.Name = "m_Label4";
       this.m_Label4.Size = new System.Drawing.Size(51, 13);
       this.m_Label4.TabIndex = 35;
       this.m_Label4.Text = "Column 2";
       // 
-      // label6
+      // m_Label6
       // 
       this.m_Label6.Anchor = System.Windows.Forms.AnchorStyles.None;
       this.m_Label6.AutoSize = true;
       this.m_TableLayoutPanel.SetColumnSpan(this.m_Label6, 2);
       this.m_Label6.ForeColor = System.Drawing.Color.Teal;
-      this.m_Label6.Location = new System.Drawing.Point(143, 101);
+      this.m_Label6.Location = new System.Drawing.Point(151, 101);
       this.m_Label6.Name = "m_Label6";
       this.m_Label6.Size = new System.Drawing.Size(74, 13);
       this.m_Label6.TabIndex = 35;

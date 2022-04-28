@@ -23,7 +23,7 @@ namespace CsvTools
     DataType DataType { get; }
 
     /// <summary>
-    ///   Gets or sets the date format.
+    ///   Gets or sets the date format. 
     /// </summary>
     /// <value>The date format.</value>
     string DateFormat { get; }
@@ -68,13 +68,13 @@ namespace CsvTools
     int Part { get; }
 
     /// <summary>
-    ///   Gets or sets the splitter.
+    ///   Gets or sets the splitter. 
     /// </summary>
     /// <value>The splitter.</value>
     string PartSplitter { get; }
 
     /// <summary>
-    ///   Determine if a part should end with teh next splitter
+    ///   Determine if a part should end with the next splitter
     /// </summary>
     /// <value><c>true</c> if all of the remaining text should be returned in the part</value>
     bool PartToEnd { get; }
@@ -98,5 +98,25 @@ namespace CsvTools
     ///   Gets or sets the representation for true.
     /// </summary>
     string True { get; }
+
+    /// <summary>
+    /// Folder where the source file should be read from 
+    /// </summary>
+    string ReadFolder { get; }
+
+    /// <summary>
+    /// Folder where the destination file should be written
+    /// </summary>
+    string WriteFolder { get; }
+
+    /// <summary>
+    /// PlaceHolder for the file name placeholders are replaced with current records fields if empty the source name is used
+    /// </summary>
+    string FileOutPutPlaceholder { get; }
+
+    /// <summary>
+    /// Set to <c>true</c> if binary output file should overwrite any existing file
+    /// </summary>
+    bool Overwrite { get; }
   }
 }

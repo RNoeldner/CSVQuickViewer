@@ -13,12 +13,34 @@
  */
 
 using System;
+using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
   public interface IColumnFormatter
   {
-    string FormatText(in string inputString, Action<string>? handleWarning);
+    /// <summary>
+    /// Format the text for the input, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
+    /// </summary>
+    /// <param name="inputString">The input text that need to be processed</param>
+    /// <param name="handleWarning">Action to be invoked if a warning needs to be passed on</param>
+    /// <returns>The formatted text</returns>
+    string FormatInputText(in string inputString, Action<string>? handleWarning);
+
+    /// <summary>
+    /// Returns the dataObject as string, if <see cref="RaiseWarning"/> is true, use handleWarning to pass on possible issues
+    /// </summary>
+    /// <param name="dataObject">The data to be processed</param>
+    /// <param name="dataRow">All other values for the current row, to handle placeholders etc.</param>
+    /// <param name="handleWarning"></param>
+    /// <returns>An awaitable task with teh text a text representation</returns>
+    string Write(object? dataObject, IDataRecord? dataRow, Action<string>? handleWarning);
+
+    /// <summary>
+    /// If <c>true</c> warning are raised with handle Warning
+    /// </summary>
     bool RaiseWarning { get; set; }
   }
 }

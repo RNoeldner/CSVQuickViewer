@@ -28,6 +28,29 @@ namespace CsvTools.Tests
   public class CsvFileReaderTest
   {
     [TestMethod]
+    public async Task OpenBinary()
+    {
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("BinaryReferenceList.txt")) { HasFieldHeader = true, FieldDelimiter = "Tab" };
+      setting.ColumnCollection.Add(new ImmutableColumn("Title", new ImmutableValueFormat(), 0));
+      setting.ColumnCollection.Add(new ImmutableColumn("File Name",
+          new ImmutableValueFormat(DataType.Binary, readFolder: UnitTestStatic.ApplicationDirectory, writeFolder: UnitTestStatic.ApplicationDirectory, fileOutPutPlaceholder: ""), 1));
+
+      var dpd = new CustomProcessDisplay();
+      using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
+        setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
+        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
+        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace, setting.TreatUnknownCharacterAsSpace,
+        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
+        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
+        setting.IdentifierInContainer, dpd);
+      await reader.OpenAsync(UnitTestStatic.Token);
+      Assert.AreEqual(false, reader.IsClosed);
+      Assert.IsTrue(reader.Read());
+
+      Assert.AreEqual("BasicCSV.txt.gz", reader.GetValue(1));
+    }
+
+    [TestMethod]
     public async Task OpenBySetting()
     {
       var setting =
@@ -484,7 +507,7 @@ Line "Test"", "22",23,"  24"
         setting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
       var message = string.Empty;
-      test.Warning += delegate(object sender, WarningEventArgs args) { message = args.Message; };
+      test.Warning += delegate (object sender, WarningEventArgs args) { message = args.Message; };
       await test.ReadAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       Assert.IsTrue(message.Contains("Linefeed"));
@@ -517,7 +540,7 @@ Line "Test"", "22",23,"  24"
       await test.ReadAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       var message = string.Empty;
-      test.Warning += delegate(object sender, WarningEventArgs args) { message = args.Message; };
+      test.Warning += delegate (object sender, WarningEventArgs args) { message = args.Message; };
       await test.ReadAsync(UnitTestStatic.Token);
       Assert.IsTrue(message.Contains("occurrence") && message.Contains("?"));
     }
@@ -750,7 +773,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile
       {
-        HasFieldHeader = false, FieldDelimiter = ",", EscapePrefix = "\\", FileName = UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfFile.txt")
+        HasFieldHeader = false,
+        FieldDelimiter = ",",
+        EscapePrefix = "\\",
+        FileName = UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfFile.txt")
       };
 
       var processDisplay = new CustomProcessDisplay();
@@ -816,7 +842,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile
       {
-        HasFieldHeader = false, FieldDelimiter = ",", EscapePrefix = "", FileName = UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt")
+        HasFieldHeader = false,
+        FieldDelimiter = ",",
+        EscapePrefix = "",
+        FileName = UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt")
       };
 
       var processDisplay = new CustomProcessDisplay();
@@ -890,7 +919,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, processDisplay);
       var message = string.Empty;
-      test.Warning += delegate(object sender, WarningEventArgs args) { message = args.Message; };
+      test.Warning += delegate (object sender, WarningEventArgs args) { message = args.Message; };
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(message.Contains("exists more than once"));
     }
@@ -983,7 +1012,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile
       {
-        HasFieldHeader = false, WarnEmptyTailingColumns = true, FieldDelimiter = ",", FileName = UnitTestStatic.GetTestPath("MoreColumnsThanHeaders.txt")
+        HasFieldHeader = false,
+        WarnEmptyTailingColumns = true,
+        FieldDelimiter = ",",
+        FileName = UnitTestStatic.GetTestPath("MoreColumnsThanHeaders.txt")
       };
 
       var processDisplay = new CustomProcessDisplay();
@@ -1303,7 +1335,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile
       {
-        HasFieldHeader = false, FieldDelimiter = ",", FileName = UnitTestStatic.GetTestPath("SkippingComments.txt"), CommentLine = "#"
+        HasFieldHeader = false,
+        FieldDelimiter = ",",
+        FileName = UnitTestStatic.GetTestPath("SkippingComments.txt"),
+        CommentLine = "#"
       };
       var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
@@ -1605,7 +1640,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile
       {
-        HasFieldHeader = false, FieldDelimiter = ",", EscapePrefix = "\\", FileName = UnitTestStatic.GetTestPath("TextQualifierNotClosedAtEnd.txt")
+        HasFieldHeader = false,
+        FieldDelimiter = ",",
+        EscapePrefix = "\\",
+        FileName = UnitTestStatic.GetTestPath("TextQualifierNotClosedAtEnd.txt")
       };
 
       var processDisplay = new CustomProcessDisplay();
@@ -1753,7 +1791,10 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile
       {
-        HasFieldHeader = true, FieldDelimiter = ",", CommentLine = "#", FileName = UnitTestStatic.GetTestPath("TrimmingHeaders.txt")
+        HasFieldHeader = true,
+        FieldDelimiter = ",",
+        CommentLine = "#",
+        FileName = UnitTestStatic.GetTestPath("TrimmingHeaders.txt")
       };
 
       var processDisplay = new CustomProcessDisplay();

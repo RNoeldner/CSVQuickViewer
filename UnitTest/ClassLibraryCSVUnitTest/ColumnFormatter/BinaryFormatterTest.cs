@@ -13,34 +13,35 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Data;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class BinaryFormatterTests
   {
+   
+
     [TestMethod]
-    public void GetFileNameTest()
+    public void WriteFileTestAsync()
     {
-      using var dt = UnitTestStatic.GetDataTable();
-      using var reader = new DataTableReader(dt);
-      reader.Read();
-      var res1 = BinaryFormatter.GetFileName("{int}{double}.jpg", reader);
-      reader.Read();
-      var res2 = BinaryFormatter.GetFileName("{ID}{DateTime}_{PartEmpty}.pgp", reader);
+      var testContent = BinaryFormatter.CombineNameAndContent("BasicCSV.txt.gz",
+        File.ReadAllBytes(UnitTestStatic.GetTestPath("BasicCSV.txt.gz")));
+
+      var bin = new BinaryFormatter(-1, UnitTestStatic.ApplicationDirectory, UnitTestStatic.ApplicationDirectory, "NewFile.gz",
+        true);
+      bin.Write(testContent, null, null);
+      Assert.IsTrue(FileSystemUtils.FileExists(UnitTestStatic.GetTestPath("NewFile.gz")));
+      FileSystemUtils.FileDelete(UnitTestStatic.GetTestPath("NewFile.gz"));
     }
 
     [TestMethod]
-    public async Task WriteFileTestAsync()
+    public void FormatText()
     {
-      byte[] fileBytes = File.ReadAllBytes(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"));
-
-      await BinaryFormatter.WriteFileAsync(fileBytes, UnitTestStatic.ApplicationDirectory, "NewFile.gz", true, null, UnitTestStatic.Token);
-
-      FileSystemUtils.FileDelete(UnitTestStatic.GetTestPath("NewFile.gz"));
+      var bin = new BinaryFormatter(-1, UnitTestStatic.ApplicationDirectory, UnitTestStatic.ApplicationDirectory, "",
+        true);
+      var res = bin.FormatInputText("BasicCSV.txt.gz", null);
+      Assert.AreEqual("BasicCSV.txt.gz", BinaryFormatter.GetNameFromNameAndContent(res));
     }
   }
 }

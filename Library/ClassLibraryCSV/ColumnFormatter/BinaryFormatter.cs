@@ -15,20 +15,36 @@
 using System;
 using System.Data;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  public class BinaryFormatter 
+  public class BinaryFormatter : BaseColumnFormatter
   {
-    /*
-    public bool RaiseWarning { get; set; } = true;
+    private readonly int m_ColumnOrdinal;
+    private readonly string m_FileOutPutPlaceholder;
+    private readonly bool m_Overwrite;
+    private readonly string m_RootFolderRead;
+    private readonly string m_RootFolderWrite;
 
-    // This is not good as we shoudl store teh original filename in addiztion to the contens
-    public string FormatText(in string inputString, Action<string>? handleWarning)
+    public BinaryFormatter(int columnOrdinal = -1, string? rootFolderRead = null, string? rootFolderWrite = null, string? fileOutPutPlaceholder = null, bool overwrite = true)
     {
-      var fileName = FileSystemUtils.ResolvePattern(inputString);
+      m_ColumnOrdinal = columnOrdinal;
+      m_RootFolderRead = rootFolderRead ?? string.Empty;
+      m_RootFolderWrite = rootFolderWrite ?? string.Empty;
+      m_FileOutPutPlaceholder = fileOutPutPlaceholder ?? string.Empty;
+      m_Overwrite = overwrite;
+    }
+
+    public static string CombineNameAndContent(in string fileName, in byte[] content) => $"{fileName}\0{Convert.ToBase64String(content)}";
+
+    private static byte[] GetContentFromNameAndContent(in string contentsWithFileName) => Convert.FromBase64String(contentsWithFileName.Substring(contentsWithFileName.IndexOf('\0')+1));
+
+    public static string GetNameFromNameAndContent(in string contentsWithFileName) => contentsWithFileName.Substring(0, contentsWithFileName.IndexOf('\0'));
+
+    /// <inheritdoc/>
+    public override string FormatInputText(in string inputString, Action<string>? handleWarning)
+    {
+      var fileName = inputString.FullPath(m_RootFolderRead);
       var fi = new FileSystemUtils.FileInfo(fileName);
       if (!fi.Exists)
       {
@@ -36,7 +52,6 @@ namespace CsvTools
           handleWarning?.Invoke($"File {inputString} not found");
         return string.Empty;
       }
-
       if (fi.Length>256000)
       {
         if (RaiseWarning)
@@ -44,64 +59,59 @@ namespace CsvTools
         return string.Empty;
       }
 
-      byte[] bytes = new byte[fi.Length];
-      using var stream = FileSystemUtils.OpenRead(fileName!);
-      int n = stream.Read(bytes, (int) fi.Length, (int) fi.Length);
-
-      return BitConverter.ToString(bytes);
+      return CombineNameAndContent(inputString, File.ReadAllBytes(fileName!.LongPathPrefix()));
     }
-    */
-    public static string GetFileName(string fileNamePattern, IDataRecord? dataRow)
+
+    /// <inheritdoc/>
+    public override string Write(object? contentsWithFileName, IDataRecord? dataRow, Action<string>? handleWarning)
     {
-      if (dataRow is null)
-        return fileNamePattern;
-
-      var fileName = fileNamePattern;
-      for (int colOrdinal = 0; colOrdinal < dataRow.FieldCount; colOrdinal++)
+      var fileName = m_FileOutPutPlaceholder;
+      if (dataRow != null)
       {
-        if (fileName.IndexOf(dataRow.GetName(colOrdinal), StringComparison.CurrentCultureIgnoreCase) == -1)
-          continue;
-        if (dataRow.GetFieldType(colOrdinal).GetDataType() == DataType.Binary)
-          continue;
+        if (string.IsNullOrEmpty(m_FileOutPutPlaceholder))
+          fileName = GetNameFromNameAndContent(dataRow.GetString(m_ColumnOrdinal));
 
-        string repl = string.Empty;
-
-        if (!dataRow.IsDBNull(colOrdinal))
+        else
         {
-          repl = dataRow.GetValue(colOrdinal).ToString();
-          foreach (var ill in Path.GetInvalidFileNameChars())
+          // The fileNamePattern could contain placeholders that will be replaced with the value of another column
+          for (int colOrdinal = 0; colOrdinal < dataRow.FieldCount; colOrdinal++)
           {
-            var index = repl.IndexOf(ill);
-            if (index != -1)
-              repl = repl.Remove(index);
+            if (colOrdinal == m_ColumnOrdinal)
+            {
+              var originalName = GetNameFromNameAndContent(dataRow.GetString(m_ColumnOrdinal));
+              fileName = fileName.PlaceholderReplace(dataRow.GetName(colOrdinal), originalName);
+              fileName = fileName.PlaceholderReplace("0", originalName);
+              continue;
+            }
+
+            if (fileName.IndexOf(dataRow.GetName(colOrdinal), StringComparison.CurrentCultureIgnoreCase) == -1)
+              continue;
+            if (dataRow.GetFieldType(colOrdinal).GetDataType() == DataType.Binary)
+              continue;
+
+            fileName = fileName.PlaceholderReplace(dataRow.GetName(colOrdinal),
+              dataRow.IsDBNull(colOrdinal) ? string.Empty : dataRow.GetValue(colOrdinal).ToString());
           }
         }
+      }
 
-        fileName = fileName.PlaceholderReplace(dataRow.GetName(colOrdinal), repl);
+      // Need to make sure the resulting filename does not contain invalid characters 
+      foreach (var invalid in Path.GetInvalidFileNameChars())
+      {
+        var index = fileName.IndexOf(invalid);
+        if (index != -1)
+          fileName = fileName.Remove(index);
+      }
+
+      if (contentsWithFileName != null)
+      {
+        var fullPath = Path.Combine(m_RootFolderWrite, fileName);
+        if (m_Overwrite)
+          FileSystemUtils.FileDelete(fullPath);
+        FileSystemUtils.WriteAllBytes(fullPath, GetContentFromNameAndContent(contentsWithFileName.ToString()));
       }
 
       return fileName;
-    }
-
-    public static async Task WriteFileAsync(byte[]? binaryData, string folder, string fileName, bool overwrite, Action<string>? handleWarning,
-                                       CancellationToken cancellationToken)
-    {
-      if (binaryData is null || binaryData.GetLength(0) == 0)
-        return;
-      try
-      {
-        var fullPath = Path.Combine(folder, fileName);
-        if (overwrite)
-          FileSystemUtils.FileDelete(fullPath);
-
-        using var stream = FileSystemUtils.OpenWrite(fullPath);
-        await stream.WriteAsync(binaryData, 0, binaryData.GetLength(0), cancellationToken).ConfigureAwait(false);
-      }
-      catch (Exception e)
-      {
-        Logger.Warning(e, "Could not write file {filename}", fileName);
-        handleWarning?.Invoke(e.Message);
-      }
     }
   }
 }

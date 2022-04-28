@@ -13,14 +13,23 @@
  */
 
 using System;
+using System.Data;
+
 
 namespace CsvTools
 {
-  public class TextToHtmlFullFormatter : IColumnFormatter
+  public class TextToHtmlFullFormatter : BaseColumnFormatter
   {
-    public bool RaiseWarning { get; set; } = true;
+    /// <inheritdoc/>
+    public override string Write(object? dataObject, IDataRecord? dataRow, Action<string>? handleWarning)
+    {
+      if (dataObject is null)
+        return string.Empty;
+      return HtmlStyle.HtmlEncode(dataObject.ToString());
+    }
 
-    public string FormatText(in string inputString, Action<string>? handleWarning)
+    /// <inheritdoc/>
+    public override string FormatInputText(in string inputString, Action<string>? handleWarning)
     {
       var output = HtmlStyle.HtmlEncodeShort(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))

@@ -55,6 +55,8 @@ namespace CsvTools
       System.Windows.Forms.Label labelPart;
       System.Windows.Forms.Label labelSepBy;
       System.Windows.Forms.Label label7;
+      System.Windows.Forms.Label label1;
+      System.Windows.Forms.Label label9;
       this.textBoxDateSeparator = new System.Windows.Forms.TextBox();
       this.bindingSourceValueFormat = new System.Windows.Forms.BindingSource(this.components);
       this.comboBoxDateFormat = new System.Windows.Forms.ComboBox();
@@ -113,6 +115,9 @@ namespace CsvTools
       this.buttonOK = new System.Windows.Forms.Button();
       this.panelTop = new System.Windows.Forms.Panel();
       this.panelBottom = new System.Windows.Forms.Panel();
+      this.textBox1 = new System.Windows.Forms.TextBox();
+      this.textBox2 = new System.Windows.Forms.TextBox();
+      this.checkBoxOverwrite = new System.Windows.Forms.CheckBox();
       labelSPattern = new System.Windows.Forms.Label();
       labelReplace = new System.Windows.Forms.Label();
       tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -133,6 +138,8 @@ namespace CsvTools
       labelPart = new System.Windows.Forms.Label();
       labelSepBy = new System.Windows.Forms.Label();
       label7 = new System.Windows.Forms.Label();
+      label1 = new System.Windows.Forms.Label();
+      label9 = new System.Windows.Forms.Label();
       tableLayoutPanel2.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.bindingSourceValueFormat)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.columnBindingSource)).BeginInit();
@@ -231,7 +238,7 @@ namespace CsvTools
       labelDateSep.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelDateSep.AutoSize = true;
       labelDateSep.Location = new System.Drawing.Point(25, 6);
-      labelDateSep.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      labelDateSep.Margin = new System.Windows.Forms.Padding(3);
       labelDateSep.Name = "labelDateSep";
       labelDateSep.Size = new System.Drawing.Size(82, 13);
       labelDateSep.TabIndex = 0;
@@ -283,7 +290,7 @@ namespace CsvTools
       this.labelAllowedDateFormats.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.labelAllowedDateFormats.AutoSize = true;
       this.labelAllowedDateFormats.Location = new System.Drawing.Point(28, 83);
-      this.labelAllowedDateFormats.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.labelAllowedDateFormats.Margin = new System.Windows.Forms.Padding(3);
       this.labelAllowedDateFormats.Name = "labelAllowedDateFormats";
       this.labelAllowedDateFormats.Size = new System.Drawing.Size(79, 13);
       this.labelAllowedDateFormats.TabIndex = 9;
@@ -308,7 +315,7 @@ namespace CsvTools
       labelTimeCol.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelTimeCol.AutoSize = true;
       labelTimeCol.Location = new System.Drawing.Point(14, 60);
-      labelTimeCol.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      labelTimeCol.Margin = new System.Windows.Forms.Padding(3);
       labelTimeCol.Name = "labelTimeCol";
       labelTimeCol.Size = new System.Drawing.Size(93, 13);
       labelTimeCol.TabIndex = 1;
@@ -360,7 +367,7 @@ namespace CsvTools
       label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
       label3.AutoSize = true;
       label3.Location = new System.Drawing.Point(43, 33);
-      label3.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      label3.Margin = new System.Windows.Forms.Padding(3);
       label3.Name = "label3";
       label3.Size = new System.Drawing.Size(64, 13);
       label3.TabIndex = 7;
@@ -384,7 +391,7 @@ namespace CsvTools
       labelLessCommon.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelLessCommon.AutoSize = true;
       labelLessCommon.Location = new System.Drawing.Point(3, 251);
-      labelLessCommon.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      labelLessCommon.Margin = new System.Windows.Forms.Padding(3);
       labelLessCommon.Name = "labelLessCommon";
       labelLessCommon.Size = new System.Drawing.Size(104, 13);
       labelLessCommon.TabIndex = 16;
@@ -396,7 +403,7 @@ namespace CsvTools
       linkLabelRegion.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(linkLabelRegion, 3);
       linkLabelRegion.Location = new System.Drawing.Point(272, 180);
-      linkLabelRegion.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      linkLabelRegion.Margin = new System.Windows.Forms.Padding(3);
       linkLabelRegion.Name = "linkLabelRegion";
       linkLabelRegion.Size = new System.Drawing.Size(130, 13);
       linkLabelRegion.TabIndex = 14;
@@ -410,7 +417,7 @@ namespace CsvTools
       labelDateOutput.AutoSize = true;
       labelDateOutput.ForeColor = System.Drawing.SystemColors.ControlText;
       labelDateOutput.Location = new System.Drawing.Point(272, 115);
-      labelDateOutput.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      labelDateOutput.Margin = new System.Windows.Forms.Padding(3);
       labelDateOutput.Name = "labelDateOutput";
       labelDateOutput.Size = new System.Drawing.Size(42, 13);
       labelDateOutput.TabIndex = 13;
@@ -433,7 +440,7 @@ namespace CsvTools
       label4.AutoSize = true;
       label4.ForeColor = System.Drawing.SystemColors.ControlText;
       label4.Location = new System.Drawing.Point(277, 83);
-      label4.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      label4.Margin = new System.Windows.Forms.Padding(3);
       label4.Name = "label4";
       label4.Size = new System.Drawing.Size(37, 13);
       label4.TabIndex = 11;
@@ -445,7 +452,7 @@ namespace CsvTools
       tableLayoutPanel2.SetColumnSpan(this.label5, 2);
       this.label5.ForeColor = System.Drawing.SystemColors.Highlight;
       this.label5.Location = new System.Drawing.Point(320, 83);
-      this.label5.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.label5.Margin = new System.Windows.Forms.Padding(3);
       this.label5.Name = "label5";
       this.label5.Size = new System.Drawing.Size(141, 13);
       this.label5.TabIndex = 11;
@@ -466,7 +473,7 @@ namespace CsvTools
       this.labelDateOutputDisplay.AutoSize = true;
       this.labelDateOutputDisplay.ForeColor = System.Drawing.SystemColors.Highlight;
       this.labelDateOutputDisplay.Location = new System.Drawing.Point(320, 115);
-      this.labelDateOutputDisplay.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.labelDateOutputDisplay.Margin = new System.Windows.Forms.Padding(3);
       this.labelDateOutputDisplay.Name = "labelDateOutputDisplay";
       this.labelDateOutputDisplay.Size = new System.Drawing.Size(17, 13);
       this.labelDateOutputDisplay.TabIndex = 13;
@@ -479,7 +486,7 @@ namespace CsvTools
       tableLayoutPanel2.SetColumnSpan(this.label6, 3);
       this.label6.ForeColor = System.Drawing.SystemColors.Highlight;
       this.label6.Location = new System.Drawing.Point(272, 33);
-      this.label6.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.label6.Margin = new System.Windows.Forms.Padding(3);
       this.label6.Name = "label6";
       this.label6.Size = new System.Drawing.Size(187, 13);
       this.label6.TabIndex = 11;
@@ -500,7 +507,7 @@ namespace CsvTools
       this.labelOutPutTZ.AutoSize = true;
       this.labelOutPutTZ.ForeColor = System.Drawing.SystemColors.Highlight;
       this.labelOutPutTZ.Location = new System.Drawing.Point(409, 115);
-      this.labelOutPutTZ.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.labelOutPutTZ.Margin = new System.Windows.Forms.Padding(3);
       this.labelOutPutTZ.Name = "labelOutPutTZ";
       this.labelOutPutTZ.Size = new System.Drawing.Size(17, 13);
       this.labelOutPutTZ.TabIndex = 13;
@@ -511,7 +518,7 @@ namespace CsvTools
       labelTCFormat.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelTCFormat.AutoSize = true;
       labelTCFormat.Location = new System.Drawing.Point(272, 60);
-      labelTCFormat.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      labelTCFormat.Margin = new System.Windows.Forms.Padding(3);
       labelTCFormat.Name = "labelTCFormat";
       labelTCFormat.Size = new System.Drawing.Size(42, 13);
       labelTCFormat.TabIndex = 3;
@@ -602,8 +609,8 @@ namespace CsvTools
       // label7
       // 
       label7.AutoSize = true;
-      label7.Location = new System.Drawing.Point(25, 17);
-      label7.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      label7.Location = new System.Drawing.Point(23, 21);
+      label7.Margin = new System.Windows.Forms.Padding(3);
       label7.Name = "label7";
       label7.Size = new System.Drawing.Size(84, 13);
       label7.TabIndex = 1;
@@ -639,7 +646,7 @@ namespace CsvTools
       // 
       this.labelColName.AutoSize = true;
       this.labelColName.Location = new System.Drawing.Point(3, 5);
-      this.labelColName.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.labelColName.Margin = new System.Windows.Forms.Padding(3);
       this.labelColName.Name = "labelColName";
       this.labelColName.Size = new System.Drawing.Size(76, 13);
       this.labelColName.TabIndex = 0;
@@ -699,7 +706,7 @@ namespace CsvTools
       // 
       this.labelDisplayNullAs.AutoSize = true;
       this.labelDisplayNullAs.Location = new System.Drawing.Point(28, 26);
-      this.labelDisplayNullAs.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.labelDisplayNullAs.Margin = new System.Windows.Forms.Padding(3);
       this.labelDisplayNullAs.Name = "labelDisplayNullAs";
       this.labelDisplayNullAs.Size = new System.Drawing.Size(52, 13);
       this.labelDisplayNullAs.TabIndex = 10;
@@ -777,26 +784,31 @@ namespace CsvTools
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelForm.Size = new System.Drawing.Size(503, 291);
+      this.tableLayoutPanelForm.Size = new System.Drawing.Size(503, 315);
       this.tableLayoutPanelForm.TabIndex = 5;
       // 
       // groupBoxBinary
       // 
       this.groupBoxBinary.AutoSize = true;
+      this.groupBoxBinary.Controls.Add(this.checkBoxOverwrite);
+      this.groupBoxBinary.Controls.Add(this.textBox2);
+      this.groupBoxBinary.Controls.Add(label9);
+      this.groupBoxBinary.Controls.Add(this.textBox1);
+      this.groupBoxBinary.Controls.Add(label1);
       this.groupBoxBinary.Controls.Add(this.textBoxPattern);
       this.groupBoxBinary.Controls.Add(label7);
       this.groupBoxBinary.Dock = System.Windows.Forms.DockStyle.Top;
       this.groupBoxBinary.Location = new System.Drawing.Point(3, 554);
       this.groupBoxBinary.Name = "groupBoxBinary";
       this.groupBoxBinary.Padding = new System.Windows.Forms.Padding(0);
-      this.groupBoxBinary.Size = new System.Drawing.Size(497, 54);
+      this.groupBoxBinary.Size = new System.Drawing.Size(497, 106);
       this.groupBoxBinary.TabIndex = 11;
       this.groupBoxBinary.TabStop = false;
       this.groupBoxBinary.Text = "Binary Data";
       // 
       // textBoxPattern
       // 
-      this.textBoxPattern.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "DateFormat", true));
+      this.textBoxPattern.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "FileOutPutPlaceholder", true));
       this.textBoxPattern.Location = new System.Drawing.Point(113, 18);
       this.textBoxPattern.Name = "textBoxPattern";
       this.textBoxPattern.Size = new System.Drawing.Size(175, 20);
@@ -1058,7 +1070,7 @@ namespace CsvTools
       this.groupBoxRegExReplace.Controls.Add(this.textBoxRegexSearchPattern);
       this.groupBoxRegExReplace.Controls.Add(labelSPattern);
       this.groupBoxRegExReplace.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxRegExReplace.Location = new System.Drawing.Point(3, 614);
+      this.groupBoxRegExReplace.Location = new System.Drawing.Point(3, 666);
       this.groupBoxRegExReplace.Name = "groupBoxRegExReplace";
       this.groupBoxRegExReplace.Padding = new System.Windows.Forms.Padding(0);
       this.groupBoxRegExReplace.Size = new System.Drawing.Size(497, 75);
@@ -1072,7 +1084,7 @@ namespace CsvTools
       this.label8.AutoSize = true;
       this.label8.ForeColor = System.Drawing.SystemColors.Highlight;
       this.label8.Location = new System.Drawing.Point(355, 24);
-      this.label8.Margin = new System.Windows.Forms.Padding(3, 3, 3, 3);
+      this.label8.Margin = new System.Windows.Forms.Padding(3);
       this.label8.Name = "label8";
       this.label8.Size = new System.Drawing.Size(140, 13);
       this.label8.TabIndex = 12;
@@ -1110,7 +1122,7 @@ namespace CsvTools
       this.panelTop.Controls.Add(this.checkBoxIgnore);
       this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
       this.panelTop.Location = new System.Drawing.Point(0, 0);
-      this.panelTop.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.panelTop.Margin = new System.Windows.Forms.Padding(2);
       this.panelTop.Name = "panelTop";
       this.panelTop.Size = new System.Drawing.Size(503, 46);
       this.panelTop.TabIndex = 6;
@@ -1122,11 +1134,58 @@ namespace CsvTools
       this.panelBottom.Controls.Add(this.buttonGuess);
       this.panelBottom.Controls.Add(this.buttonDisplayValues);
       this.panelBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-      this.panelBottom.Location = new System.Drawing.Point(0, 311);
-      this.panelBottom.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+      this.panelBottom.Location = new System.Drawing.Point(0, 335);
+      this.panelBottom.Margin = new System.Windows.Forms.Padding(2);
       this.panelBottom.Name = "panelBottom";
       this.panelBottom.Size = new System.Drawing.Size(503, 26);
       this.panelBottom.TabIndex = 7;
+      // 
+      // textBox1
+      // 
+      this.textBox1.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "WriteFolder", true));
+      this.textBox1.Location = new System.Drawing.Point(113, 44);
+      this.textBox1.Name = "textBox1";
+      this.textBox1.Size = new System.Drawing.Size(175, 20);
+      this.textBox1.TabIndex = 4;
+      // 
+      // label1
+      // 
+      label1.AutoSize = true;
+      label1.Location = new System.Drawing.Point(40, 47);
+      label1.Margin = new System.Windows.Forms.Padding(3);
+      label1.Name = "label1";
+      label1.Size = new System.Drawing.Size(67, 13);
+      label1.TabIndex = 3;
+      label1.Text = "Write Folder:";
+      // 
+      // textBox2
+      // 
+      this.textBox2.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "ReadFolder", true));
+      this.textBox2.Location = new System.Drawing.Point(113, 70);
+      this.textBox2.Name = "textBox2";
+      this.textBox2.Size = new System.Drawing.Size(175, 20);
+      this.textBox2.TabIndex = 6;
+      // 
+      // label9
+      // 
+      label9.AutoSize = true;
+      label9.Location = new System.Drawing.Point(39, 73);
+      label9.Margin = new System.Windows.Forms.Padding(3);
+      label9.Name = "label9";
+      label9.Size = new System.Drawing.Size(68, 13);
+      label9.TabIndex = 5;
+      label9.Text = "Read Folder:";
+      // 
+      // checkBoxOverwrite
+      // 
+      this.checkBoxOverwrite.AutoSize = true;
+      this.checkBoxOverwrite.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.columnBindingSource, "Overwrite", true));
+      this.checkBoxOverwrite.Location = new System.Drawing.Point(302, 20);
+      this.checkBoxOverwrite.Name = "checkBoxOverwrite";
+      this.checkBoxOverwrite.Size = new System.Drawing.Size(71, 17);
+      this.checkBoxOverwrite.TabIndex = 7;
+      this.checkBoxOverwrite.Text = "Overwrite";
+      this.checkBoxOverwrite.UseVisualStyleBackColor = true;
       // 
       // FormColumnUI
       // 
@@ -1134,7 +1193,7 @@ namespace CsvTools
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.CancelButton = this.buttonCancel;
-      this.ClientSize = new System.Drawing.Size(503, 337);
+      this.ClientSize = new System.Drawing.Size(503, 361);
       this.Controls.Add(this.panelBottom);
       this.Controls.Add(this.tableLayoutPanelForm);
       this.Controls.Add(this.panelTop);
@@ -1240,5 +1299,8 @@ namespace CsvTools
     private System.Windows.Forms.TextBox textBoxRegexReplacement;
     private System.Windows.Forms.TextBox textBoxRegexSearchPattern;
     private System.Windows.Forms.Panel panelTop;
+    private System.Windows.Forms.TextBox textBox2;
+    private System.Windows.Forms.TextBox textBox1;
+    private System.Windows.Forms.CheckBox checkBoxOverwrite;
   }
 }

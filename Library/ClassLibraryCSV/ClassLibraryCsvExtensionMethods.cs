@@ -1036,7 +1036,7 @@ namespace CsvTools
         var order = 0;
         return collection.Cast<object>().Aggregate(
           731,
-          (current, item) => (current * 397) ^ (item.GetHashCode() + order++));
+          (current, item) => current * 397 ^ item.GetHashCode() + order++);
       }
     }
 

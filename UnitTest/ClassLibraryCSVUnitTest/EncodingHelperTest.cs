@@ -37,7 +37,7 @@ namespace CsvTools.Tests
     public void GuessCodePageNoBomTest()
     {
       var utf8 = Encoding.UTF8.GetBytes("Raphael Nöldner Chinese 中文 & Thai ภาษาไทย Tailandia idioma ภาษาไทย");
-      var aScii = Encoding.ASCII.GetBytes("This is a Test, that does not contain any characters that exist outside of teh English Language");
+      var aScii = Encoding.ASCII.GetBytes("This is a Test, that does not contain any characters that exist outside of the English Language");
       var win1252 = Encoding.GetEncoding(1252)
                             .GetBytes(
                               "This is a Test for Windows 1252 the encoding support mainly european countries with Æ ã è ü but has symbols as well ½ ² etc.");

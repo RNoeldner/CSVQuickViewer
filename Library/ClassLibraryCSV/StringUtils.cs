@@ -94,7 +94,7 @@ namespace CsvTools
       if (length < 1 || withoutLineFeed.Length <= length)
         return withoutLineFeed;
       withoutLineFeed = withoutLineFeed.Substring(0, length - 1);
-      var spaceIndex = withoutLineFeed.LastIndexOf(" ", length - 1 - (length / 8), StringComparison.Ordinal);
+      var spaceIndex = withoutLineFeed.LastIndexOf(" ", length - 1 - length / 8, StringComparison.Ordinal);
       if (spaceIndex > 1)
         return withoutLineFeed.Substring(0, spaceIndex) + "…";
 
@@ -345,8 +345,8 @@ namespace CsvTools
         return false;
 
       if (entry!.Length > 2
-          && ((entry[0] == '"' && entry.EndsWith("\"", StringComparison.Ordinal))
-           || (entry[0] == '\'' && entry.EndsWith("'", StringComparison.Ordinal))))
+          && (entry[0] == '"' && entry.EndsWith("\"", StringComparison.Ordinal)
+           || entry[0] == '\'' && entry.EndsWith("'", StringComparison.Ordinal)))
       {
         result = entry.Substring(1, entry.Length - 2);
         return true;

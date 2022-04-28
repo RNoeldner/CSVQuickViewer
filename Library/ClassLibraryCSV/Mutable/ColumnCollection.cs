@@ -113,7 +113,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Replaces an existing column of teh same name, if it does not exist it adds the column
+    ///   Replaces an existing column of the same name, if it does not exist it adds the column
     /// </summary>
     /// <param name="column"></param>
     public void Replace(IColumn column)

@@ -18,7 +18,7 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="CsvTools.IColumn" />
+  /// <inheritdoc cref="IColumn" />
   /// <summary>
   ///   Column information like name, Type, Format etc.
   /// </summary>
@@ -26,17 +26,11 @@ namespace CsvTools
   public sealed class Column : IColumn, INotifyPropertyChanged
   {
     private bool? m_Convert;
-
     private string m_DestinationName = string.Empty;
-
     private bool m_Ignore;
-
     private string m_Name;
-
     private string m_TimePart = string.Empty;
-
     private string m_TimePartFormat = ImmutableColumn.cDefaultTimePartFormat;
-
     private string m_TimeZonePart = string.Empty;
 
     public Column()
@@ -54,6 +48,7 @@ namespace CsvTools
       m_TimePart = source.TimePart;
       m_TimePartFormat = source.TimePartFormat;
       m_TimeZonePart = source.TimeZonePart;
+
       ValueFormatMutable = new ValueFormatMutable(source.ValueFormat);
     }
 
@@ -498,7 +493,8 @@ namespace CsvTools
                                                   && string.Equals(
                                                     DestinationName,
                                                     other.DestinationName,
-                                                    StringComparison.OrdinalIgnoreCase) && Ignore == other.Ignore
+                                                    StringComparison.OrdinalIgnoreCase)
+                                                  && Ignore == other.Ignore
                                                   && string.Equals(
                                                     TimePart,
                                                     other.TimePart,
@@ -510,9 +506,14 @@ namespace CsvTools
                                                   && string.Equals(
                                                     TimeZonePart,
                                                     other.TimeZonePart,
-                                                    StringComparison.OrdinalIgnoreCase) && Convert == other.Convert
+                                                    StringComparison.OrdinalIgnoreCase)
+                                                  && Convert == other.Convert
                                                   && ValueFormatMutable.ValueFormatEqual(other.ValueFormat);
     }
+
+
+
+ 
 
     object ICloneable.Clone() => new Column(this);
 
@@ -544,6 +545,7 @@ namespace CsvTools
       other.ColumnOrdinal = ColumnOrdinal;
       other.Name = m_Name;
       other.Ignore = m_Ignore;
+
       if (m_Convert.HasValue)
         other.Convert = m_Convert.Value;
     }

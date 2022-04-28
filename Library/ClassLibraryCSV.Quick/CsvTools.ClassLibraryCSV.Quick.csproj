@@ -26,7 +26,9 @@
 		<DefineConstants>TRACE;QUICK</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
+		<Compile Include="..\ClassLibraryCSV\FileTypeEnum.cs" Link="FileTypeEnum.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\BinaryFormatter.cs" Link="BinaryFormatter.cs" />
+		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\BaseColumnFormatter.cs" Link="BaseColumnFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\ColumnFormatterFactory.cs" Link="ColumnFormatterFactory.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextReplace.cs" Link="TextReplace.cs" />
 		<Compile Include="..\ClassLibraryCSV\DisposableBase.cs" Link="DisposableBase.cs" />

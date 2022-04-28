@@ -16,7 +16,7 @@ namespace CsvTools
 {
   public static class ColumnFormatterFactory
   {
-    public static IColumnFormatter? GetColumnFormatter(IValueFormat valueFormat)
+    public static IColumnFormatter? GetColumnFormatter(int columnOrdinal, IValueFormat valueFormat)
     {
       return valueFormat.DataType switch
       {
@@ -25,8 +25,10 @@ namespace CsvTools
         DataType.TextToHtmlFull => new TextToHtmlFullFormatter(),
         DataType.TextUnescape => new TextUnescapeFormatter(),
         DataType.TextReplace => new TextReplace(valueFormat.RegexSearchPattern, valueFormat.RegexReplacement),
+        DataType.Binary => new BinaryFormatter(columnOrdinal, valueFormat.ReadFolder, valueFormat.WriteFolder, valueFormat.FileOutPutPlaceholder, valueFormat.Overwrite),
 #if !QUICK
         DataType.Markdown2Html => new MarkupToHtmlFormatter(),
+
 #endif
         _ => null,
       };

@@ -140,7 +140,7 @@ namespace CsvTools.Tests
                     prop.SetValue(obj2, prop.GetValue(obj1));
                   d++;
                 }
-                // change the one setting this is done to prevent other settings to reset teh property
+                // change the one setting this is done to prevent other settings to reset the property
                 foreach (var prop in properties)
                 {
                   if (ignore.Contains(prop))

@@ -68,6 +68,7 @@ namespace CsvTools
           CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
           one.GroupSeparator),
         DataType.TextPart => $"{one.Part}" + (one.PartToEnd ? " To End" : string.Empty),
+        DataType.Binary => $"Read file from {one.ReadFolder}",
         DataType.TextReplace => $"Replace {StringUtils.GetShortDisplay( one.RegexSearchPattern,10)} with {StringUtils.GetShortDisplay(one.RegexReplacement, 10)}",
         _ => string.Empty
       };
@@ -170,7 +171,7 @@ namespace CsvTools
 
         DataType.TextReplace => string.Equals(other.RegexSearchPattern, one.RegexSearchPattern, StringComparison.Ordinal)
                              && string.Equals(other.RegexReplacement, one.RegexReplacement, StringComparison.Ordinal),
-
+        DataType.Binary => string.Equals(other.ReadFolder, one.ReadFolder),
         DataType.TextPart => string.Equals(other.PartSplitter, one.PartSplitter, StringComparison.Ordinal)
                              && other.Part == one.Part && other.PartToEnd == one.PartToEnd,
         _ => string.Equals(other.DateFormat, one.DateFormat, StringComparison.Ordinal)

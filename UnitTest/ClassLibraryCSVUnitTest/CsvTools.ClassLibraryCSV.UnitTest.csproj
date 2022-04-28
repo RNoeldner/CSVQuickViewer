@@ -55,6 +55,9 @@
 		<None Update="TestFiles\BasicEscapedCharacters.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="TestFiles\BinaryReferenceList.txt">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="TestFiles\ces_xxx_v879548171_lo_exempt_status_reason_approver_local_full.zip">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
