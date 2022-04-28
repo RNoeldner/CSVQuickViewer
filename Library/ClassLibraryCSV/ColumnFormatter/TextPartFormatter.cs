@@ -14,16 +14,16 @@
 
 using System;
 
+
 namespace CsvTools
 {
-  public sealed class TextPartFormatter : IColumnFormatter
+  public sealed class TextPartFormatter : BaseColumnFormatter
   {
     private readonly int m_Part;
     private readonly char m_PartSplitter;
     private readonly bool m_PartToEnd;
 
-    public bool RaiseWarning { get; set; } = true;
-
+    
     public TextPartFormatter()
       : this(
         ValueFormatExtension.cPartDefault,
@@ -39,7 +39,8 @@ namespace CsvTools
       m_PartToEnd = partToEnd;
     }
 
-    public string FormatText(in string inputString, Action<string>? handleWarning)
+    /// <inheritdoc/>
+    public override string FormatInputText(in string inputString, Action<string>? handleWarning)
     {
       var output = StringConversion.StringToTextPart(inputString, m_PartSplitter, m_Part, m_PartToEnd);
       if (RaiseWarning && output is null)

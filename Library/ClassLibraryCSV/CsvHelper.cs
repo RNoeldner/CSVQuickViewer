@@ -798,7 +798,7 @@ namespace CsvTools
         {
           var dataLine = await reader.ReadLineAsync().ConfigureAwait(false);
           if (string.IsNullOrEmpty(dataLine)
-              || (!string.IsNullOrEmpty(comment) && dataLine.TrimStart().StartsWith(comment, StringComparison.Ordinal)))
+              || !string.IsNullOrEmpty(comment) && dataLine.TrimStart().StartsWith(comment, StringComparison.Ordinal))
             continue;
           counter++;
           fieldCount += dataLine.Split(delimiterChar).Length;
@@ -905,7 +905,7 @@ namespace CsvTools
         new[] { "##", "//", "\\\\", "''", "#", "/", "\\", "'" }.ToDictionary(test => test, test => 0);
 
       textReader.ToBeginning();
-      // Count the number of rows that start with teh checked comment chars
+      // Count the number of rows that start with the checked comment chars
       while (lastRow < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
         cancellationToken.ThrowIfCancellationRequested();
@@ -1127,7 +1127,7 @@ namespace CsvTools
           for (var row = columnCount.Count - 1; row > 0; row--)
             if (columnCount[row] > 0)
             {
-              if (columnCount[row] >= avg - (avg / 10)) continue;
+              if (columnCount[row] >= avg - avg / 10) continue;
               retValue = rowMapping[row];
               break;
             }
@@ -1290,7 +1290,7 @@ namespace CsvTools
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
 
-      while (dc.LastRow < dc.NumRows && !(textReaderPosition.AllRead()) && !cancellationToken.IsCancellationRequested)
+      while (dc.LastRow < dc.NumRows && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested)
       {
         var lastChar = readChar;
         readChar = textReader.Read();
@@ -1440,7 +1440,7 @@ namespace CsvTools
       {
         // only regard a delimiter if we have 75% of the rows with this delimiter we can still have
         // a lot of commented lines
-        if (dc.SeparatorRows[index] == 0 || (dc.SeparatorRows[index] < neededRows && numberOfRows > 3))
+        if (dc.SeparatorRows[index] == 0 || dc.SeparatorRows[index] < neededRows && numberOfRows > 3)
           continue;
         validSeparatorIndex.Add(index);
       }
@@ -1715,7 +1715,7 @@ namespace CsvTools
           if (line[index] == possibleQuotes[testIndex])
           {
             counterTotal[testIndex]++;
-            if (line[index-1]== delimiterChar && (line[index+1] == placeHolderText || (line[index+1] == possibleQuotes[testIndex] && line[index+2] != delimiterChar)))
+            if (line[index-1]== delimiterChar && (line[index+1] == placeHolderText || line[index+1] == possibleQuotes[testIndex] && line[index+2] != delimiterChar))
               counterOpen[testIndex]++;
             if (line[index-1] == placeHolderText && line[index+1]== delimiterChar)
               counterClose[testIndex]++;

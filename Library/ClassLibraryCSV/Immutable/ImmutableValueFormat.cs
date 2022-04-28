@@ -19,9 +19,10 @@ namespace CsvTools
   /// <inheritdoc cref="CsvTools.IValueFormat" />
   public class ImmutableValueFormat : IValueFormat
   {
+
     public ImmutableValueFormat(IValueFormat valueFormat) : this(valueFormat.DataType, valueFormat.DateFormat,
       valueFormat.DateSeparator, valueFormat.TimeSeparator, valueFormat.NumberFormat, valueFormat.GroupSeparator, valueFormat.DecimalSeparator, valueFormat.True, valueFormat.False, valueFormat.DisplayNullAs,
-      valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd, valueFormat.RegexSearchPattern, valueFormat.RegexReplacement)
+      valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd, valueFormat.RegexSearchPattern, valueFormat.RegexReplacement, valueFormat.ReadFolder)
     {
     }
 
@@ -40,23 +41,31 @@ namespace CsvTools
     in string partSplitter = ValueFormatExtension.cPartSplitterDefault,
     bool partToEnd = ValueFormatExtension.cPartToEndDefault,
     string regexSearchPattern = "",
-    string regexReplacement = "")
+    string regexReplacement = "",
+    string readFolder = "",
+    string writeFolder = "",
+    string fileOutPutPlaceholder = "",
+    bool overwrite = true)
     {
       DataType = dataType;
       DateFormat = dateFormat ?? throw new ArgumentNullException(nameof(dateFormat));
-      DateSeparator = (dateSeparator ?? throw new ArgumentNullException(nameof(dateSeparator)));
-      DecimalSeparator = (decimalSeparator ?? throw new ArgumentNullException(nameof(decimalSeparator)));
-      GroupSeparator = (groupSeparator ?? throw new ArgumentNullException(nameof(groupSeparator)));
+      DateSeparator = dateSeparator ?? throw new ArgumentNullException(nameof(dateSeparator));
+      DecimalSeparator = decimalSeparator ?? throw new ArgumentNullException(nameof(decimalSeparator));
+      GroupSeparator = groupSeparator ?? throw new ArgumentNullException(nameof(groupSeparator));
       DisplayNullAs = displayNullAs ?? throw new ArgumentNullException(nameof(displayNullAs));
       False = asFalse ?? throw new ArgumentNullException(nameof(asFalse));
       NumberFormat = numberFormat ?? throw new ArgumentNullException(nameof(numberFormat));
       TimeSeparator = timeSeparator ?? throw new ArgumentNullException(nameof(timeSeparator));
       True = asTrue ?? throw new ArgumentNullException(nameof(asTrue));
       Part = part;
-      PartSplitter = (partSplitter ?? throw new ArgumentNullException(nameof(partSplitter)));
+      PartSplitter = partSplitter ?? throw new ArgumentNullException(nameof(partSplitter));
       PartToEnd = partToEnd;
-      RegexSearchPattern = (regexSearchPattern ?? throw new ArgumentNullException(nameof(regexSearchPattern)));
-      RegexReplacement = (regexReplacement ?? throw new ArgumentNullException(nameof(regexReplacement)));
+      RegexSearchPattern = regexSearchPattern ?? throw new ArgumentNullException(nameof(regexSearchPattern));
+      RegexReplacement = regexReplacement ?? throw new ArgumentNullException(nameof(regexReplacement));
+      ReadFolder = readFolder ?? throw new ArgumentNullException(nameof(readFolder));
+      WriteFolder =writeFolder ?? throw new ArgumentNullException(nameof(writeFolder));
+      FileOutPutPlaceholder =fileOutPutPlaceholder ?? throw new ArgumentNullException(nameof(fileOutPutPlaceholder));
+      Overwrite = overwrite;
     }
 
     /// <inheritdoc />
@@ -103,5 +112,17 @@ namespace CsvTools
 
     /// <inheritdoc />
     public string RegexReplacement { get; }
+
+    /// <inheritdoc />
+    public string ReadFolder { get; }
+
+    /// <inheritdoc />
+    public string WriteFolder { get; }
+
+    /// <inheritdoc />
+    public string FileOutPutPlaceholder { get; }
+
+    /// <inheritdoc />
+    public bool Overwrite { get; }
   }
 }

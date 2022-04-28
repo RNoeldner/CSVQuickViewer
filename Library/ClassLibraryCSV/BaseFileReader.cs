@@ -216,8 +216,8 @@ namespace CsvTools
     public event EventHandler<WarningEventArgs>? Warning;
 
     /// <summary>
-    ///   Does look at the provided column names, and checks them for valid entry, makes sure teh
-    ///   column names are unique and not empty, have teh right size etc.
+    ///   Does look at the provided column names, and checks them for valid entry, makes sure the
+    ///   column names are unique and not empty, have the right size etc.
     /// </summary>
     /// <param name="columns">The columns as read / provided</param>
     /// <param name="fieldCount">
@@ -883,7 +883,7 @@ namespace CsvTools
     /// <summary>
     ///   Overrides the column format from setting.
     /// </summary>
-    /// <returns>true if read was successfull</returns>
+    /// <returns>true if read was successful</returns>
     /// <param name="cancellationToken">Cancellation token</param>
     public virtual bool Read(CancellationToken cancellationToken) => ReadAsync(cancellationToken).Wait(2000, cancellationToken);
 
@@ -977,9 +977,9 @@ namespace CsvTools
     ///   and apply timeZone adjustments.
     /// </summary>
     /// <param name="inputDate">The original object possibly containing a date</param>
-    /// <param name="strInputDate">The text represenation of the data</param>
+    /// <param name="strInputDate">The text representation of the data</param>
     /// <param name="inputTime">The original object possibly containing a time</param>
-    /// <param name="strInputTime">The text represenation of the time</param>
+    /// <param name="strInputTime">The text representation of the time</param>
     /// <param name="column">Column information</param>
     /// <param name="serialDateTime">if <c>true</c> parse dates represented as numbers</param>
     /// <returns></returns>
@@ -1207,7 +1207,7 @@ namespace CsvTools
       if (inputString is null || inputString.Length == 0 || ordinal >= FieldCount)
         return inputString ?? string.Empty;
 
-      return Column[ordinal].ColumnFormatter?.FormatText(inputString, message => HandleWarning(ordinal, message)) ?? inputString;
+      return Column[ordinal].ColumnFormatter?.FormatInputText(inputString, message => HandleWarning(ordinal, message)) ?? inputString;
     }
 
     /// <summary>
@@ -1243,7 +1243,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Parses the name of the columns and sets teh data types, it will handle TimePart and
+    ///   Parses the name of the columns and sets the data types, it will handle TimePart and
     ///   TimeZone. Column must be set before hand
     /// </summary>
     /// <param name="headerRow">The header row.</param>
@@ -1391,7 +1391,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Get the default names, if columnDefinitions is provided try to find the name looking at
-    ///   teh ColumnOrdinal, otherwise is ColumnX (X being the column number +1)
+    ///   the ColumnOrdinal, otherwise is ColumnX (X being the column number +1)
     /// </summary>
     /// <param name="ordinal">The column number counting from 0</param>
     /// <returns>A string with the column name</returns>

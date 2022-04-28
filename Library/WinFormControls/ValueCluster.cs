@@ -27,7 +27,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="ValueCluster" /> class.
     /// </summary>
     /// <param name="display">The text displayed for the value.</param>
-    /// <param name="condition">teh sql condition to be applied</param>
+    /// <param name="condition">the sql condition to be applied</param>
     /// <param name="sort">A text used for the order</param>
     /// <param name="count">Number of records that do have this value</param>
     /// <param name="active">Flag indicating if the filter for the value is active</param>

@@ -18,10 +18,8 @@ using System.Text;
 
 namespace CsvTools
 {
-  public class TextUnescapeFormatter : IColumnFormatter
+  public class TextUnescapeFormatter : BaseColumnFormatter
   {
-    public bool RaiseWarning { get; set; } = true;
-
     private static Tuple<int, int> ParseHex(in string text, int startPos)
     {
       var hex = new StringBuilder();
@@ -29,9 +27,9 @@ namespace CsvTools
       // up to 4 byte escape 
       while (pos<startPos + 6 && pos< text.Length)
       {
-        if ((text[pos] >= '0' && text[pos] <= '9')
-          || (text[pos] >= 'A' && text[pos] <= 'F')
-          || (text[pos] >= 'a' && text[pos] <= 'f'))
+        if (text[pos] >= '0' && text[pos] <= '9'
+          || text[pos] >= 'A' && text[pos] <= 'F'
+          || text[pos] >= 'a' && text[pos] <= 'f')
           hex.Append(text[pos]);
         else
           break;
@@ -47,7 +45,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Replace c escapted text to varbatim text similar to RegEx Unescape
+    ///   Replace c escaped text to verbatim text similar to RegEx UnEscape
     /// </summary>
     /// <param name="text">The text possibly containing c escaped text.</param>    
     public static string Unescape(in string text)
@@ -58,36 +56,36 @@ namespace CsvTools
 
       var retValue = text.Replace("\\t", "\t").Replace("\\n", "\n").Replace("\\r", "\r").Replace("\\v", "\v").Replace("\\'", "\'").Replace("\\\"", "\"").Replace("\\a", "\a").Replace("\\b", "\b").Replace("\\f", "\f");
 
-      int posEncoded = retValue.IndexOf("\\u");
+      int posEncoded = retValue.IndexOf("\\u", StringComparison.Ordinal);
       while (posEncoded != -1)
       {
-        (var pos, var charValue) = ParseHex(retValue, posEncoded);
+        var (pos, charValue) = ParseHex(retValue, posEncoded);
         if (pos!=-1)
         {
           retValue = retValue.Replace(retValue.Substring(posEncoded, pos-posEncoded), ((char) charValue).ToString());
           posEncoded -= 2;
         }
 
-        posEncoded = retValue.IndexOf("\\u", posEncoded+2);
+        posEncoded = retValue.IndexOf("\\u", posEncoded+2, StringComparison.Ordinal);
       }
 
-      posEncoded = retValue.IndexOf("\\x");
+      posEncoded = retValue.IndexOf("\\x", StringComparison.Ordinal);
       while (posEncoded != -1)
       {
-        (var pos, var charValue) = ParseHex(retValue, posEncoded);
+        var (pos, charValue) = ParseHex(retValue, posEncoded);
         if (pos!=-1)
         {
           retValue = retValue.Replace(retValue.Substring(posEncoded, pos-posEncoded), ((char) charValue).ToString());
           posEncoded -= 2;
         }
 
-        posEncoded = retValue.IndexOf("\\x", posEncoded+2);
+        posEncoded = retValue.IndexOf("\\x", posEncoded+2, StringComparison.Ordinal);
       }
 
       return retValue;
     }
 
-    public string FormatText(in string inputString, Action<string>? handleWarning)
+    public override string  FormatInputText(in string inputString, Action<string>? handleWarning)
     {
       var output = Unescape(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))

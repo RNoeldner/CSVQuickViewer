@@ -17,12 +17,11 @@ using System.Text.RegularExpressions;
 
 namespace CsvTools
 {
-  public sealed class TextReplace : IColumnFormatter
+  public sealed class TextReplace : BaseColumnFormatter
   {
     private readonly string m_Replacement = string.Empty;
     private readonly Regex? m_Regex;
 
-    public bool RaiseWarning { get; set; } = true;
 
     public TextReplace(string searchPattern, string replace)
     {
@@ -32,7 +31,8 @@ namespace CsvTools
       m_Replacement = replace;
     }
 
-    public string FormatText(in string inputString, Action<string>? handleWarning)
+    /// <inheritdoc/>
+    public override string FormatInputText(in string inputString, Action<string>? handleWarning)
     {
       if (m_Regex?.IsMatch(inputString) ?? false)
       {

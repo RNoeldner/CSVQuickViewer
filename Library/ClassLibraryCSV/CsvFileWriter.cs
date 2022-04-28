@@ -177,7 +177,7 @@ namespace CsvTools
         {
           // Number of columns might be higher than number of reader columns
           var col = reader.GetValue(columnInfo.ColumnOrdinal);
-          if (col == DBNull.Value || (col is string text && string.IsNullOrEmpty(text)))
+          if (col == DBNull.Value || col is string text && string.IsNullOrEmpty(text))
             emptyColumns++;
           else
             row.Append(await TextEncodeFieldAsync(col, columnInfo, false, reader, QualifyText, cancellationToken));
@@ -261,19 +261,7 @@ namespace CsvTools
       else
       {
         displayAs = TextEncodeField(dataObject, columnInfo, reader);
-        if (columnInfo.ValueFormat.DataType == DataType.Binary)
-        {
-          if (dataObject is byte[] buffer)
-          {
-            await BinaryFormatter.WriteFileAsync(buffer, FullPath.GetDirectoryName(), displayAs, true, s => HandleError(columnInfo.Name, s),
-              cancellationToken).ConfigureAwait(false);
-          }
-          else
-          {
-            HandleWarning(columnInfo.Name, "Could not convert to byte[]");
-          }
-        }
-        else if (columnInfo.ValueFormat.DataType == DataType.String)
+        if (columnInfo.ValueFormat.DataType == DataType.String)
         {
           // a new line of any kind will be replaced with the placeholder if set
           if (m_NewLinePlaceholder.Length > 0)

@@ -237,7 +237,7 @@ namespace CsvTools
         var text = item.Text;
 
         sbHtml.Append(HtmlStyle.TrOpen);
-        // TreeData Tag is teh first column
+        // TreeData Tag is the first column
         if (item.Tag is FormHierarchyDisplay.TreeData data)
         {
           text = data.Title;

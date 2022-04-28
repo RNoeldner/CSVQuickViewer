@@ -238,8 +238,8 @@ namespace CsvTools
         var ret = StringToDecimal(value, decimalSeparator, thousandSeparator, allowPercentage);
         // Any number with leading 0 should not be treated as numeric this is to avoid problems with
         // 0002 etc.
-        if (!ret.HasValue || (!allowStartingZero && value.StartsWith("0", StringComparison.Ordinal)
-                                                 && Math.Floor(ret.Value) != 0))
+        if (!ret.HasValue || !allowStartingZero && value.StartsWith("0", StringComparison.Ordinal)
+                                                && Math.Floor(ret.Value) != 0)
         {
           allParsed = false;
           checkResult.ExampleNonMatch.Add(value);

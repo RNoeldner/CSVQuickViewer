@@ -39,7 +39,7 @@ namespace CsvTools.Tests
         reader.Read(result1, 0, result1.Length);
       }
 
-      // should return to teh start
+      // should return to the start
       res.Seek(0, SeekOrigin.Begin);
       var result2 = new byte[2048];
       using (var reader = new BinaryReader(res))
@@ -60,7 +60,7 @@ namespace CsvTools.Tests
     {
       var sourceAccess = new SourceAccess(UnitTestStatic.GetTestPath("AllFormatsPipe.zip"), true);
 
-      // opeing without IdentifierInContainer should return teh first file entry
+      // opeing without IdentifierInContainer should return the first file entry
       using (var res = new ImprovedStream(sourceAccess))
       {
         Assert.AreEqual("AllFormatsPipe.txt", sourceAccess.IdentifierInContainer);
@@ -71,7 +71,7 @@ namespace CsvTools.Tests
           reader.Read(result1, 0, result1.Length);
         }
 
-        // should return to teh start
+        // should return to the start
         res.Seek(0, SeekOrigin.Begin);
         var result2 = new byte[2048];
         using (var reader = new BinaryReader(res))

@@ -114,7 +114,7 @@ namespace CsvTools
     /// <param name="args"></param>
     public void Add(object? sender, WarningEventArgs args)
     {
-      if ((m_IgnoredColumns != null && m_IgnoredColumns.Contains(args.ColumnNumber)) || m_RowErrorCollection.Count >= m_MaxRows)
+      if (m_IgnoredColumns != null && m_IgnoredColumns.Contains(args.ColumnNumber) || m_RowErrorCollection.Count >= m_MaxRows)
         return;
 
       if (!m_RowErrorCollection.TryGetValue(args.RecordNumber, out var columnErrorCollection))

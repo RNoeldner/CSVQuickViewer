@@ -915,7 +915,7 @@ namespace CsvTools
 
         // special case of missing linefeed, the line is twice as long minus 1 because of the
         // combined column in the middle
-        if (nextLine.Length == (fields * 2) - 1)
+        if (nextLine.Length == fields * 2 - 1)
           continue;
 
         while (nextLine.GetLength(0) > fields)
@@ -1048,7 +1048,7 @@ namespace CsvTools
               }
             }
 
-            if (((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr)) && quoted && !postData)
+            if ((character == cCr && nextChar == cLf || character == cLf && nextChar == cCr) && quoted && !postData)
             {
               stringBuilder.Append(character);
               stringBuilder.Append(nextChar);
@@ -1059,7 +1059,7 @@ namespace CsvTools
         }
 
         // Finished with reading the column by Delimiter or EOF
-        if ((character == m_FieldDelimiterChar && !escaped && (postData || !quoted)) || EndOfFile)
+        if (character == m_FieldDelimiterChar && !escaped && (postData || !quoted) || EndOfFile)
           break;
 
         // Finished with reading the column by Linefeed
@@ -1148,7 +1148,7 @@ namespace CsvTools
         // all cases covered, character must be data
         stringBuilder.Append(character);
 
-        escaped = !escaped && (character == m_EscapePrefixChar);
+        escaped = !escaped && character == m_EscapePrefixChar;
       }// While
 
       var columnText = stringBuilder.ToString();
@@ -1164,7 +1164,7 @@ namespace CsvTools
           columnText = columnText.Replace(cUnknownChar, ' ');
       }
 
-      return m_TrimmingOption == TrimmingOption.All || (!quoted && m_TrimmingOption == TrimmingOption.Unquoted)
+      return m_TrimmingOption == TrimmingOption.All || !quoted && m_TrimmingOption == TrimmingOption.Unquoted
                ? columnText.Trim()
                : columnText;
     }

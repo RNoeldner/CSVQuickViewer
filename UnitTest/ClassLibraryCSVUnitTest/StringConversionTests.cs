@@ -359,9 +359,9 @@ namespace CsvTools.Tests
     {
       var called = false;
       var fmter = new TextPartFormatter(2, ":", false);
-      Assert.AreEqual("Hallo", fmter.FormatText("Test:Hallo", s => called = true));
+      Assert.AreEqual("Hallo", fmter.FormatInputText("Test:Hallo", s => called = true));
       Assert.IsFalse(called);
-      Assert.AreEqual("", fmter.FormatText("Test", s => called = true));
+      Assert.AreEqual("", fmter.FormatInputText("Test", s => called = true));
       Assert.IsTrue(called);
     }
 

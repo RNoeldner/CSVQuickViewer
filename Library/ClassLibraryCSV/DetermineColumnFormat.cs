@@ -85,11 +85,11 @@ namespace CsvTools
 
       columnCollectionInput ??= Array.Empty<IColumn>();
 
-      if (!fillGuessSettings.Enabled || (!fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean
-                                                                          && !fillGuessSettings.DetectDateTime
-                                                                          && !fillGuessSettings.DetectGuid
-                                                                          && !fillGuessSettings.DetectPercentage
-                                                                          && !fillGuessSettings.SerialDateTime))
+      if (!fillGuessSettings.Enabled || !fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean
+                                                                         && !fillGuessSettings.DetectDateTime
+                                                                         && !fillGuessSettings.DetectGuid
+                                                                         && !fillGuessSettings.DetectPercentage
+                                                                         && !fillGuessSettings.SerialDateTime)
         return (Array.Empty<string>(), columnCollectionInput);
 
       if (fileReader.FieldCount == 0)
@@ -139,8 +139,8 @@ namespace CsvTools
         if (readerColumn.ValueFormat.DataType == DataType.Guid || readerColumn.ValueFormat.DataType == DataType.Integer
                                                                || readerColumn.ValueFormat.DataType == DataType.Boolean
                                                                || readerColumn.ValueFormat.DataType == DataType.DateTime
-                                                               || (readerColumn.ValueFormat.DataType == DataType.Numeric && !checkDoubleToBeInteger)
-                                                               || (readerColumn.ValueFormat.DataType == DataType.Double && !checkDoubleToBeInteger))
+                                                               || readerColumn.ValueFormat.DataType == DataType.Numeric && !checkDoubleToBeInteger
+                                                               || readerColumn.ValueFormat.DataType == DataType.Double && !checkDoubleToBeInteger)
         {
           Logger.Information(
             "{column} - Existing Type : {format}",
@@ -358,10 +358,10 @@ namespace CsvTools
             {
               var columnTimeZone = fileReader.GetColumn(colTimeZone);
               var colName = columnTimeZone.Name.NoSpecials().ToUpperInvariant();
-              if ((columnTimeZone.ValueFormat.DataType != DataType.String
-                   && columnTimeZone.ValueFormat.DataType != DataType.Integer)
-                  || (colName != "TIMEZONE" && colName != "TIMEZONEID" && colName != "TIME ZONE"
-                      && colName != "TIME ZONE ID"))
+              if (columnTimeZone.ValueFormat.DataType != DataType.String
+                  && columnTimeZone.ValueFormat.DataType != DataType.Integer
+                  || colName != "TIMEZONE" && colName != "TIMEZONEID" && colName != "TIME ZONE"
+                  && colName != "TIME ZONE ID")
                 continue;
               columnCollection.Replace(
                 new ImmutableColumn(
@@ -651,7 +651,7 @@ namespace CsvTools
             if (!fileReader.SupportsReset)
               break;
             fileReader.ResetPositionToFirstDataRow();
-            // uif we started at teh beginning and we are now back, exist
+            // uif we started at the beginning and we are now back, exist
             // if we started and we can not read a line exist as well.
             if (startRecordNumber == 0 || !await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
               break;
@@ -1113,11 +1113,11 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(fillGuessSettings));
 
       // Check if we are supposed to check something
-      if (!fillGuessSettings.Enabled || (!fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean
-                                                                          && !fillGuessSettings.DetectDateTime
-                                                                          && !fillGuessSettings.DetectGuid
-                                                                          && !fillGuessSettings.DetectPercentage
-                                                                          && !fillGuessSettings.SerialDateTime))
+      if (!fillGuessSettings.Enabled || !fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean
+                                                                         && !fillGuessSettings.DetectDateTime
+                                                                         && !fillGuessSettings.DetectGuid
+                                                                         && !fillGuessSettings.DetectPercentage
+                                                                         && !fillGuessSettings.SerialDateTime)
         return (new List<string>(), fileSetting.ColumnCollection);
 
       // in case there is no delimiter but its a delimited file, do nothing

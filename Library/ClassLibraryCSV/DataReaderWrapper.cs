@@ -101,7 +101,7 @@ namespace CsvTools
 
     public long EndLineNumber => FileReader?.EndLineNumber ?? RecordNumber;
 
-    public bool EndOfFile => FileReader?.EndOfFile ?? (DataReader.IsClosed || RecordNumber >= m_RecordLimit);
+    public bool EndOfFile => FileReader?.EndOfFile ?? DataReader.IsClosed || RecordNumber >= m_RecordLimit;
 
     public override int FieldCount => ReaderMapping.Column.Count;
 
@@ -261,7 +261,7 @@ namespace CsvTools
       if (ordinal == ReaderMapping.DataTableStartLine || ordinal == ReaderMapping.DataTableEndLine || ordinal == ReaderMapping.DataTableRecNum)
         return false;
 
-      return (ordinal == ReaderMapping.DataTableErrorField ? !ReaderMapping.HasErrors : DataReader.IsDBNull(ReaderMapping.DataTableToReader(ordinal)));
+      return ordinal == ReaderMapping.DataTableErrorField ? !ReaderMapping.HasErrors : DataReader.IsDBNull(ReaderMapping.DataTableToReader(ordinal));
     }
 
     public override bool NextResult() => false;

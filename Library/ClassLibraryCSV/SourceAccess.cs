@@ -45,7 +45,6 @@ namespace CsvTools
     /// </summary>
     public readonly bool Reading;
 
-
     /// <summary>
     /// Needed to provide the encryption key
     /// </summary>
@@ -69,13 +68,13 @@ namespace CsvTools
     /// <summary>
     ///   Get a new SourceAccess helper class
     /// </summary>
-    /// <param name="fileName">Name of teh file</param>
+    /// <param name="fileName">Name of the file</param>
     /// <param name="isReading"><c>true</c> if the files is for reading</param>
     /// <param name="id">The identifier for the file for logging etc</param>
     /// <param name="keyID">PGP encryption key identifier</param>
     /// <param name="keepEncrypted">
-    ///   Do not remove teh not encrypted files once teh encrypted one is created, needed in for
-    ///   debugging in case teh private key is not known and the file can not be decrypted
+    ///   Do not remove the not encrypted files once the encrypted one is created, needed in for
+    ///   debugging in case the private key is not known and the file can not be decrypted
     /// </param>
     public SourceAccess(
       in string fileName,

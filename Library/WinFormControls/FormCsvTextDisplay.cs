@@ -41,10 +41,7 @@ namespace CsvTools
       m_FullPath = fullPath ?? throw new ArgumentNullException(nameof(fullPath));
       InitializeComponent();
       m_IsFile =isFile;
-      if (m_IsFile)
-        base.Text = FileSystemUtils.GetShortDisplayFileName(m_FullPath);
-      else
-        base.Text ="";
+      base.Text = m_IsFile ? FileSystemUtils.GetShortDisplayFileName(m_FullPath) : string.Empty;
     }
 
     private void HighlightVisibleRange()
@@ -71,7 +68,7 @@ namespace CsvTools
     {
       m_MemoryStream?.Dispose();
       m_MemoryStream = null;
-      if (!m_IsFile)
+      if (m_IsFile)
       {
         var sa = new SourceAccess(m_FullPath);
         m_Stream = new ImprovedStream(sa);
@@ -136,31 +133,30 @@ namespace CsvTools
         m_HighLighter =
           new SyntaxHighlighterDelimitedText(textBox, qualifier, delimiter, escape, comment);
 
-      if (m_IsFile)
+      if (!m_IsFile)
       {
-        if (!FileSystemUtils.FileExists(m_FullPath))
-        {
-          textBox.Text = $"\nThe file '{m_FullPath}' does not exist.";
-        }
-        else
-        {
-          try
-          {
-            m_Stream = new ImprovedStream(new SourceAccess(m_FullPath));
-            m_SkipLines = !json ? skipLines : 0;
-            m_CodePage = codePage;
-
-            OriginalStream();
-          }
-          catch (Exception ex)
-          {
-            m_HighLighter = null;
-            textBox.Text = $"Issue opening the file {m_FullPath} for display:\n\n\n{ex.Message}";
-          }
-        }
+        textBox.Text = m_FullPath;
+        return;
+      }
+      if (!FileSystemUtils.FileExists(m_FullPath))
+      {
+        textBox.Text = $"\nThe file '{m_FullPath}' does not exist.";
       }
       else
-        textBox.Text = m_FullPath;
+      {
+        try
+        {
+          m_SkipLines = !json ? skipLines : 0;
+          m_CodePage = codePage;
+
+          OriginalStream();
+        }
+        catch (Exception ex)
+        {
+          m_HighLighter = null;
+          textBox.Text = $"Issue opening the file {m_FullPath} for display:\n\n\n{ex.Message}";
+        }
+      }
     }
 
     private void TextBox_TextChangedDelayed(object? sender, FastColoredTextBoxNS.TextChangedEventArgs e) => HighlightVisibleRange();

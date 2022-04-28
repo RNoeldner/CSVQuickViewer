@@ -11,7 +11,11 @@ namespace CsvTools
   {
     public ResizeForm()
     {
-      InitializeComponent();
+      SuspendLayout();
+      ClientSize = new Size(282, 253);
+      Icon = new ComponentResourceManager(typeof(ResizeForm)).GetObject("$this.Icon") as Icon;
+      ResumeLayout(false);
+
       try
       {
 #if !NETCOREAPP3_1
@@ -21,8 +25,6 @@ namespace CsvTools
 #endif
 
         MouseWheel += FormMouseWheel;
-        FormClosed += (o, e) => 
-          Parent?.Focus();
       }
       catch (Exception)
       {
@@ -64,16 +66,6 @@ namespace CsvTools
           if (Equals(ctrl.Font, font)) continue;
           ctrl.Font = font;
         }
-    }
-
-    private void InitializeComponent()
-    {
-      ComponentResourceManager resources = new ComponentResourceManager(typeof(ResizeForm));
-      SuspendLayout();
-      // ResizeForm
-      ClientSize = new Size(282, 253);
-      Icon = resources.GetObject("$this.Icon") as Icon;
-      ResumeLayout(false);
     }
   }
 }

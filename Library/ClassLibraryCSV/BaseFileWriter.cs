@@ -37,7 +37,7 @@ namespace CsvTools
     internal readonly string FullPath;
     private readonly long m_PgpKeyId;
     private readonly string m_IdentifierInContainer;
-    private readonly bool m_KeepUnencrypted;    
+    private readonly bool m_KeepUnencrypted;
     private readonly Action<string>? m_ReportProgress;
     private readonly Action<long>? m_SetMaxProcess;
     private readonly IValueFormat m_ValueFormatGeneral;
@@ -87,7 +87,7 @@ namespace CsvTools
           ?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList()
         ?? new List<ImmutableColumn>();
 
-      FileSettingDisplay = fileSettingDisplay;      
+      FileSettingDisplay = fileSettingDisplay;
       m_KeepUnencrypted = unencrypted;
       m_IdentifierInContainer = identifierInContainer ?? string.Empty;
 
@@ -269,7 +269,7 @@ namespace CsvTools
 #endif
         using var stream = (Stream) FunctionalDI.OpenStream(sourceAccess);
 
-        await WriteReaderAsync(reader, stream, token).ConfigureAwait(false);        
+        await WriteReaderAsync(reader, stream, token).ConfigureAwait(false);
       }
       catch (Exception exc)
       {
@@ -299,7 +299,6 @@ namespace CsvTools
       Warning?.Invoke(this, new WarningEventArgs(Records, 0, message, 0, 0, columnName));
 
     protected void HandleProgress(string text) => m_ReportProgress?.Invoke(text);
-
 
     protected virtual void HandleWriteStart() => Records = 0;
 
@@ -360,8 +359,6 @@ namespace CsvTools
       // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
       switch (columnInfo.ValueFormat.DataType)
       {
-        case DataType.Binary:
-          return BinaryFormatter.GetFileName(columnInfo.Pattern, reader);
 
         case DataType.Integer:
           return Convert.ToInt64(dataObject);
@@ -392,13 +389,15 @@ namespace CsvTools
           return FunctionalDI.AdjustTZExport(dtm, reader.GetString(columnInfo.ColumnOrdinalTimeZone), (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
 
         case DataType.Guid:
-          return (dataObject is Guid guid) ? guid : new Guid(dataObject.ToString());
+          return dataObject is Guid guid ? guid : new Guid(dataObject.ToString());
 
         default:
-          var displayAs = Convert.ToString(dataObject);
+
           if (columnInfo.ColumnFormatter != null)
-            displayAs = columnInfo.ColumnFormatter.FormatText(displayAs, handleWarning: null);
-          return displayAs;
+            return columnInfo.ColumnFormatter.Write(dataObject, reader,
+              (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
+
+          return Convert.ToString(dataObject);
       }
     }
 

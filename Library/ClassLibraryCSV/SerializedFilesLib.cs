@@ -77,7 +77,7 @@ namespace CsvTools
       // remove not needed Columns so they do not play into comparison
       saveSetting.ColumnCollection.Clear();
       foreach (var col in fileSettingPhysicalFile.ColumnCollection)
-        if (col.Ignore || (col.ValueFormat.DataType == DataType.String && col.Convert)
+        if (col.Ignore || col.ValueFormat.DataType == DataType.String && col.Convert
                        || col.ValueFormat.DataType != DataType.String)
           saveSetting.ColumnCollection.Add(col);
 

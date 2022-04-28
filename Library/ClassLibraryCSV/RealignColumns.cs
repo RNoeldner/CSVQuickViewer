@@ -75,7 +75,7 @@ namespace CsvTools
       // List is easier to handle than an array
       var columns = new List<string>(row);
 
-      if (row.Length >= (m_ExpectedColumns * 2) - 1)
+      if (row.Length >= m_ExpectedColumns * 2 - 1)
       {
         // take the columns as is...
         while (columns.Count > m_ExpectedColumns) columns.RemoveAt(m_ExpectedColumns);
@@ -105,7 +105,7 @@ namespace CsvTools
             var thisCol = GetColumnOption(columns[col].Trim());
             // assume we have to remove this columns
             if (!thisCol.HasFlag(otherColumns[col])
-                || (thisCol == ColumnOption.None && thisCol == otherColumns[col - 1]))
+                || thisCol == ColumnOption.None && thisCol == otherColumns[col - 1])
             {
               var fromRaw = false;
               if (!string.IsNullOrEmpty(rawText) && columns[col - 1].Length > 0 && columns[col].Length > 0)

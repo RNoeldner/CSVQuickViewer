@@ -15,13 +15,17 @@
 #if !QUICK
 using HeyRed.MarkdownSharp;
 using System;
+using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
 
-  public class MarkupToHtmlFormatter : IColumnFormatter
+  public class MarkupToHtmlFormatter : BaseColumnFormatter
   {
-    private readonly Markdown m_Markdown = new Markdown();
+    private readonly Markdown m_Markdown;
+
     public MarkupToHtmlFormatter()
     {
       m_Markdown = new Markdown(new MarkdownOptions()
@@ -35,9 +39,7 @@ namespace CsvTools
       });
     }
 
-    public bool RaiseWarning { get; set; } = true;
-
-    public string FormatText(in string inputString, Action<string>? handleWarning)
+    public override string FormatInputText(in string inputString, Action<string>? handleWarning)
     {
       var output = m_Markdown.Transform(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))

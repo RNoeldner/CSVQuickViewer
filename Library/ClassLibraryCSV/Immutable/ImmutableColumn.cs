@@ -79,28 +79,35 @@ namespace CsvTools
       ValueFormat = valueFormat is ImmutableValueFormat immutable
                       ? immutable
                       : new ImmutableValueFormat(valueFormat);
-
-      ColumnFormatter = ColumnFormatterFactory.GetColumnFormatter(valueFormat);
+      ColumnFormatter = ColumnFormatterFactory.GetColumnFormatter(columnOrdinal, valueFormat);
     }
 
     public IColumnFormatter? ColumnFormatter { get; }
 
+    /// <inheritdoc />
     public int ColumnOrdinal { get; }
 
+    /// <inheritdoc />
     public bool Convert { get; }
 
+    /// <inheritdoc />
     public string DestinationName { get; }
 
+    /// <inheritdoc />
     public bool Ignore { get; }
 
+    /// <inheritdoc />
     public string Name { get; }
 
+    /// <inheritdoc />
     public string TimePart { get; }
 
+    /// <inheritdoc />
     public string TimePartFormat { get; }
 
+    /// <inheritdoc />
     public string TimeZonePart { get; }
-
+    
     public IValueFormat ValueFormat { get; }
 
     public object Clone() => new ImmutableColumn(this);
@@ -119,7 +126,7 @@ namespace CsvTools
 
     public bool Equals(ImmutableColumn x, ImmutableColumn y) => x.Equals(y);
 
-    public int GetHashCode(ImmutableColumn obj) => throw new NotImplementedException();
+    public int GetHashCode(ImmutableColumn obj) => obj.GetHashCode();
 
     public override bool Equals(object? obj)
     {
@@ -129,19 +136,21 @@ namespace CsvTools
       return Equals((ImmutableColumn) obj);
     }
 
+   
+
     public override int GetHashCode()
     {
       unchecked
       {
         var hashCode = ColumnOrdinal;
-        hashCode = (hashCode * 397) ^ Convert.GetHashCode();
-        hashCode = (hashCode * 397) ^ DestinationName.GetHashCode();
-        hashCode = (hashCode * 397) ^ Ignore.GetHashCode();
-        hashCode = (hashCode * 397) ^ Name.GetHashCode();
-        hashCode = (hashCode * 397) ^ TimePart.GetHashCode();
-        hashCode = (hashCode * 397) ^ TimePartFormat.GetHashCode();
-        hashCode = (hashCode * 397) ^ TimeZonePart.GetHashCode();
-        hashCode = (hashCode * 397) ^ ValueFormat.GetHashCode();
+        hashCode = hashCode * 397 ^ Convert.GetHashCode();
+        hashCode = hashCode * 397 ^ DestinationName.GetHashCode();
+        hashCode = hashCode * 397 ^ Ignore.GetHashCode();
+        hashCode = hashCode * 397 ^ Name.GetHashCode();
+        hashCode = hashCode * 397 ^ TimePart.GetHashCode();
+        hashCode = hashCode * 397 ^ TimePartFormat.GetHashCode();
+        hashCode = hashCode * 397 ^ TimeZonePart.GetHashCode();
+        hashCode = hashCode * 397 ^ ValueFormat.GetHashCode();
         return hashCode;
       }
     }
