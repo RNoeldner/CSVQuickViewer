@@ -725,16 +725,6 @@ namespace CsvTools
           DateFormatChanged(sender, EventArgs.Empty);
         }
 
-        if (selType == DataType.Binary)
-        {
-          if (!m_WriteSetting && string.IsNullOrEmpty(m_ColumnEdit.ValueFormat.ReadFolder) &&
-              m_FileSetting is IFileSettingPhysicalFile physicalR)
-            m_ColumnEdit.ValueFormatMutable.ReadFolder = FileSystemUtils.GetShortestPath(physicalR.FullPath.GetDirectoryName(), ".") ;
-          if (m_WriteSetting && string.IsNullOrEmpty(m_ColumnEdit.ValueFormat.WriteFolder) &&
-              m_FileSetting is IFileSettingPhysicalFile physicalW)
-            m_ColumnEdit.ValueFormatMutable.WriteFolder = FileSystemUtils.GetShortestPath(physicalW.FullPath.GetDirectoryName(), ".") ;
-        }
-
         groupBoxBoolean.Visible = selType == DataType.Boolean;
         groupBoxSplit.Visible = selType == DataType.TextPart;
         groupBoxRegExReplace.Visible = selType == DataType.TextReplace;

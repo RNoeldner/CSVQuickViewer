@@ -135,6 +135,7 @@ namespace CsvTools
         Logger.Warning("Filename {filename} not found or not accessible.", fileName);
         return;
       }
+      
 
       // ReSharper disable once AsyncVoidLambda
       this.SafeInvoke(async () =>
@@ -156,7 +157,8 @@ namespace CsvTools
 
           if (m_FileSetting is null)
             return;
-
+          
+          m_FileSetting.RootFolder = fileName.GetDirectoryName();
           m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
           m_FileSetting.DisplayStartLineNo = false;
           m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
@@ -183,6 +185,8 @@ namespace CsvTools
                                             m_FileSetting.ColumnCollection.Any(x =>
                                               x.ValueFormat.DataType != DataType.String);
           SetFileSystemWatcher(fileName);
+          
+          Directory.SetCurrentDirectory(m_FileSetting.RootFolder);
 
           await OpenDataReaderAsync(cancellationToken);
         }

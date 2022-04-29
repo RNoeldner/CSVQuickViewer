@@ -143,8 +143,7 @@ namespace CsvTools
         colNames.Add(colNo, newName);
       }
       // Get default if we do not have the information
-      if (generalFormat is null)
-        generalFormat = new ImmutableValueFormat();
+      generalFormat ??= new ImmutableValueFormat();
 
       foreach (DataRow schemaRow in schemaTable.Rows)
       {
@@ -155,7 +154,7 @@ namespace CsvTools
           continue;
 
         // Based on the data Type in the reader defined and the general format create the value format
-        var valueFormat = column?.ValueFormat ?? new ImmutableValueFormat(
+        var valueFormat = new ValueFormatMutable( column?.ValueFormat  ?? new ImmutableValueFormat(
                             ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(),
                             generalFormat.DateFormat,
                             generalFormat.DateSeparator,
@@ -165,37 +164,43 @@ namespace CsvTools
                             generalFormat.DecimalSeparator,
                             generalFormat.True,
                             generalFormat.False,
-                            generalFormat.DisplayNullAs);
-        var pattern = "{" + ReaderConstants.cStartLineNumberFieldName + "}";
+                            generalFormat.DisplayNullAs));
+        
+        // Overwrite defaults for Binary if not set individually
+        if (string.IsNullOrEmpty(valueFormat.ReadFolder))
+          valueFormat.ReadFolder = generalFormat.ReadFolder;
+        if (string.IsNullOrEmpty(valueFormat.WriteFolder))
+          valueFormat.WriteFolder = generalFormat.WriteFolder;
+        if (string.IsNullOrEmpty(valueFormat.FileOutPutPlaceholder))
+          valueFormat.FileOutPutPlaceholder = generalFormat.FileOutPutPlaceholder;
+
+        // TODO: Add checks for Placeholders in FileOutPutPlaceholder if there is a placeholder we should have a column
+
         var fieldLength = Math.Max((int) schemaRow[SchemaTableColumn.ColumnSize], 0);
-        switch (valueFormat.DataType)
+        switch (valueFormat)
         {
-          case DataType.Integer:
+          case {DataType: DataType.Integer}:
             fieldLength = 10;
             break;
 
-          case DataType.Boolean:
+          case {DataType: DataType.Boolean}:
           {
             var lenTrue = valueFormat.True.Length;
             var lenFalse = valueFormat.False.Length;
             fieldLength = lenTrue > lenFalse ? lenTrue : lenFalse;
             break;
           }
-          case DataType.Double:
-          case DataType.Numeric:
+          case {DataType: DataType.Double}:
+          case {DataType: DataType.Numeric}:
             fieldLength = 28;
             break;
 
-          case DataType.DateTime:
+          case {DataType: DataType.DateTime}:
             fieldLength = valueFormat.DateFormat.Length;
             break;
 
-          case DataType.Guid:
+          case {DataType: DataType.Guid}:
             fieldLength = 36;
-            break;
-
-          case DataType.Binary:
-            pattern = valueFormat.DateFormat;
             break;
         }
 
@@ -216,8 +221,7 @@ namespace CsvTools
           valueFormat,
           fieldLength,
           constantTimeZone,
-          columnOrdinalTimeZoneReader,
-          pattern);
+          columnOrdinalTimeZoneReader);
         result.Add(ci);
 
         // add an extra column for the time, reading columns they get combined, writing them they
