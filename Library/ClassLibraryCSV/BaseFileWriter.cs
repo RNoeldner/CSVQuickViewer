@@ -174,8 +174,6 @@ namespace CsvTools
         if (string.IsNullOrEmpty(valueFormat.FileOutPutPlaceholder))
           valueFormat.FileOutPutPlaceholder = generalFormat.FileOutPutPlaceholder;
 
-        // TODO: Add checks for Placeholders in FileOutPutPlaceholder if there is a placeholder we should have a column
-
         var fieldLength = Math.Max((int) schemaRow[SchemaTableColumn.ColumnSize], 0);
         switch (valueFormat)
         {
@@ -251,6 +249,7 @@ namespace CsvTools
       return result;
     }
 
+    /// <inheritdoc cref="IFileWriter" />
     public virtual async Task<long> WriteAsync(IFileReader? reader, CancellationToken token)
     {
       if (reader is null)
