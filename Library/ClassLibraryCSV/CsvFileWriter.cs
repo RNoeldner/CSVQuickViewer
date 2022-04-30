@@ -153,7 +153,7 @@ namespace CsvTools
       {
         foreach (var columnInfo in Columns)
         {
-          sb.Append(await TextEncodeFieldAsync(columnInfo.Name, columnInfo, true, null, QualifyText, cancellationToken));
+          sb.Append(TextEncodeField(columnInfo.Name, columnInfo, true, null, QualifyText));
           if (!m_IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
             sb.Append(m_FieldDelimiterChar);
         }
@@ -180,7 +180,7 @@ namespace CsvTools
           if (col == DBNull.Value || col is string text && string.IsNullOrEmpty(text))
             emptyColumns++;
           else
-            row.Append(await TextEncodeFieldAsync(col, columnInfo, false, reader, QualifyText, cancellationToken));
+            row.Append(TextEncodeField(col, columnInfo, false, reader, QualifyText));
 
           if (!m_IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
             row.Append(m_FieldDelimiterChar);
@@ -237,13 +237,12 @@ namespace CsvTools
       return displayAs;
     }
 
-    private async Task<string> TextEncodeFieldAsync(
+    private string TextEncodeField(
       object? dataObject,
       WriterColumn columnInfo,
       bool isHeader,
       IDataReader? reader,
-      Func<string, DataType, string>? handleQualify,
-      CancellationToken cancellationToken)
+      Func<string, DataType, string>? handleQualify)
     {
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));

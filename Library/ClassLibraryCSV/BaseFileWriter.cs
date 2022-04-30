@@ -59,8 +59,11 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fullPath))
         throw new ArgumentException($"{nameof(fullPath)} can not be empty");
-      var fileName = FileSystemUtils.GetFileName(fullPath);
-      FullPath = fullPath;
+
+      FullPath = FileSystemUtils.ResolvePattern(fullPath) ??
+                 throw new ArgumentException($"Make sure path is correct {fullPath}");
+      var fileName = FileSystemUtils.GetFileName(FullPath);
+      
       m_PgpKeyId = pgpKeyId;
       if (header != null && header.Length > 0)
         Header = ReplacePlaceHolder(
