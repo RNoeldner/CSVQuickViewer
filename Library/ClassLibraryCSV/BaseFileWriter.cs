@@ -63,7 +63,7 @@ namespace CsvTools
       FullPath = FileSystemUtils.ResolvePattern(fullPath) ??
                  throw new ArgumentException($"Make sure path is correct {fullPath}");
       var fileName = FileSystemUtils.GetFileName(FullPath);
-      
+
       m_PgpKeyId = pgpKeyId;
       if (header != null && header.Length > 0)
         Header = ReplacePlaceHolder(
@@ -156,51 +156,62 @@ namespace CsvTools
         if (column is { Ignore: true })
           continue;
 
-        // Based on the data Type in the reader defined and the general format create the value format
-        var valueFormat = new ValueFormatMutable( column?.ValueFormat  ?? new ImmutableValueFormat(
-                            ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(),
-                            generalFormat.DateFormat,
-                            generalFormat.DateSeparator,
-                            generalFormat.TimeSeparator,
-                            generalFormat.NumberFormat,
-                            generalFormat.GroupSeparator,
-                            generalFormat.DecimalSeparator,
-                            generalFormat.True,
-                            generalFormat.False,
-                            generalFormat.DisplayNullAs));
-        
-        // Overwrite defaults for Binary if not set individually
-        if (string.IsNullOrEmpty(valueFormat.ReadFolder))
-          valueFormat.ReadFolder = generalFormat.ReadFolder;
-        if (string.IsNullOrEmpty(valueFormat.WriteFolder))
-          valueFormat.WriteFolder = generalFormat.WriteFolder;
-        if (string.IsNullOrEmpty(valueFormat.FileOutPutPlaceholder))
-          valueFormat.FileOutPutPlaceholder = generalFormat.FileOutPutPlaceholder;
+        var valueFormat = (column?.ValueFormat is null)
+          ? new ImmutableValueFormat(
+              ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(),
+              generalFormat.DateFormat,
+              generalFormat.DateSeparator,
+              generalFormat.TimeSeparator,
+              generalFormat.NumberFormat,
+              generalFormat.GroupSeparator,
+              generalFormat.DecimalSeparator,
+              generalFormat.True,
+              generalFormat.False,
+              generalFormat.DisplayNullAs,
+              readFolder: generalFormat.ReadFolder,
+              writeFolder: generalFormat.WriteFolder,
+              fileOutPutPlaceholder: generalFormat.FileOutPutPlaceholder,
+              overwrite: generalFormat.Overwrite)
+          : new ImmutableValueFormat(
+              column.ValueFormat.DataType,
+              column.ValueFormat.DateFormat,
+              column.ValueFormat.DateSeparator,
+              column.ValueFormat.TimeSeparator,
+              column.ValueFormat.NumberFormat,
+              column.ValueFormat.GroupSeparator,
+              column.ValueFormat.DecimalSeparator,
+              column.ValueFormat.True,
+              column.ValueFormat.False,
+              column.ValueFormat.DisplayNullAs,
+              readFolder: string.IsNullOrEmpty(column.ValueFormat.ReadFolder) ? generalFormat.ReadFolder : column.ValueFormat.ReadFolder,
+              writeFolder: string.IsNullOrEmpty(column.ValueFormat.WriteFolder) ? generalFormat.WriteFolder : column.ValueFormat.WriteFolder,
+              fileOutPutPlaceholder: string.IsNullOrEmpty(column.ValueFormat.FileOutPutPlaceholder) ? generalFormat.FileOutPutPlaceholder : column.ValueFormat.FileOutPutPlaceholder,
+              overwrite: column.ValueFormat.Overwrite);
 
         var fieldLength = Math.Max((int) schemaRow[SchemaTableColumn.ColumnSize], 0);
         switch (valueFormat)
         {
-          case {DataType: DataType.Integer}:
+          case { DataType: DataType.Integer }:
             fieldLength = 10;
             break;
 
-          case {DataType: DataType.Boolean}:
+          case { DataType: DataType.Boolean }:
           {
             var lenTrue = valueFormat.True.Length;
             var lenFalse = valueFormat.False.Length;
             fieldLength = lenTrue > lenFalse ? lenTrue : lenFalse;
             break;
           }
-          case {DataType: DataType.Double}:
-          case {DataType: DataType.Numeric}:
+          case { DataType: DataType.Double }:
+          case { DataType: DataType.Numeric }:
             fieldLength = 28;
             break;
 
-          case {DataType: DataType.DateTime}:
+          case { DataType: DataType.DateTime }:
             fieldLength = valueFormat.DateFormat.Length;
             break;
 
-          case {DataType: DataType.Guid}:
+          case { DataType: DataType.Guid }:
             fieldLength = 36;
             break;
         }

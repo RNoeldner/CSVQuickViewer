@@ -700,10 +700,10 @@ namespace CsvTools
         if (m_RealignColumns != null)
           m_RealignColumns.AddRow(CurrentRowColumnText);
 
-        // Option a) Supported - We have a break in a midlle column, the missing columns are pushed
+        // Option a) Supported - We have a break in a middle column, the missing columns are pushed
         // in the next row(s) // Option b) Not Supported - We have a line break in the last column,
         // the text of this row belongs to the last Column of the last records, as the last record
-        // had been processed adraedy we can not change it any more...
+        // had been processed already we can not change it any more...
         if (CurrentRowColumnText.Length < FieldCount)
         {
           // if we still have only one column and we should have a number of columns assume this was

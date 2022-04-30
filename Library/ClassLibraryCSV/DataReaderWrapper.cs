@@ -307,6 +307,6 @@ namespace CsvTools
 
     public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
 
-    public byte[] GetFile(int ordinal) => FileReader?.GetFile(ordinal) ?? new byte[0];
+    public byte[] GetFile(int ordinal) => FileReader?.GetFile(ordinal) ?? Array.Empty<byte>();
   }
 }

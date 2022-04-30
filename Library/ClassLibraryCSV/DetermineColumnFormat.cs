@@ -1176,13 +1176,12 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileSettings">The file settings.</param>
     /// <param name="all">if set to <c>true</c> event string columns are added.</param>
-    /// <param name="processDisplay">The process display.</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
     public static async Task FillGuessColumnFormatWriterAsync(
       this IFileSetting fileSettings,
       bool all,
-      IProcessDisplay? processDisplay, CancellationToken cancellationToken)
+      CancellationToken cancellationToken)
     {
       if (FunctionalDI.SQLDataReader is null)
         throw new FileWriterException("No Async SQL Reader set");

@@ -206,7 +206,7 @@ namespace CsvTools
       const int maxRows = 100;
       var row = 0;
       var lineCommented = 0;
-      var delim = delimiter.WrittenPunctuationToChar();
+      var delimiterChar = delimiter.WrittenPunctuationToChar();
       var parts = 0;
       var partsComment = -1;
       while (row < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
@@ -219,13 +219,13 @@ namespace CsvTools
         {
           lineCommented++;
           if (partsComment == -1)
-            partsComment = line.Count(x => x == delim);
+            partsComment = line.Count(x => x == delimiterChar);
         }
         else
         {
-          if (line.IndexOf(delim) != -1)
+          if (line.IndexOf(delimiterChar) != -1)
           {
-            parts += line.Count(x => x == delim);
+            parts += line.Count(x => x == delimiterChar);
             row++;
           }
         }
@@ -649,7 +649,7 @@ namespace CsvTools
         // the delimiter must have been wrong, pick another one, after 3 though give up
         if (!detectionResult.IsJson && disallowedDelimiter.Count<3)
         {
-          processDisplay?.SetProcess($"Reading to check field delimiter", -1, true);
+          processDisplay?.SetProcess("Reading to check field delimiter", -1, true);
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
           await
 #endif
@@ -827,7 +827,7 @@ namespace CsvTools
         var numeric = headerRow.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
         var boolHead = headerRow.Where(header => StringConversion.StringToBooleanStrict(header, "1", "0") != null)
                                 .ToList();
-        // allowed char are letters, digits and a predefined list of punctation and sysmbols
+        // allowed char are letters, digits and a predefined list of punctuation and symbols
         var specials = headerRow.Where(header => Regex.IsMatch(header, @"[^\w\d\s\\" + Regex.Escape(@"/_*&%$[]()+-=#'<>@.!?") +"]")).ToList();
         if (numeric.Count + boolHead.Count + specials.Count >= halfTheColumns)
         {
