@@ -14,14 +14,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("MyMessage2", ex2.Message);
     }
 
-    [TestMethod]
-    public void EncryptionException()
-    {
-      var ex1 = new EncryptionException("MyMessage1");
-      var ex2 = new EncryptionException("MyMessage2", ex1);
-      Assert.AreEqual(ex1, ex2.InnerException);
-      Assert.AreEqual("MyMessage2", ex2.Message);
-    }
+  
 
     [TestMethod]
     public void FileException()

@@ -285,7 +285,7 @@ namespace CsvTools.Tests
 
       var processDisplay = new CustomProcessDisplay();
 
-      await writer.FillGuessColumnFormatWriterAsync(true, processDisplay, UnitTestStatic.Token);
+      await writer.FillGuessColumnFormatWriterAsync(true, UnitTestStatic.Token);
       Assert.AreEqual(6, writer.ColumnCollection.Count);
 
     }
