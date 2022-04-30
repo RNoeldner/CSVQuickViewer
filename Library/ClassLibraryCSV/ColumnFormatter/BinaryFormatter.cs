@@ -72,7 +72,7 @@ namespace CsvTools
           fileName = GetNameFromNameAndContent(dataRow.GetString(m_ColumnOrdinal));
 
         else
-        {
+        {          
           // The fileNamePattern could contain placeholders that will be replaced with the value of another column
           for (int colOrdinal = 0; colOrdinal < dataRow.FieldCount; colOrdinal++)
           {
