@@ -148,7 +148,7 @@ namespace CsvTools
           {
             formProcessDisplay.Maximum = 0;
             formProcessDisplay.Show(this);
-            m_FileSetting = (await fileName.AnalyseFileAsync(m_ViewSettings.AllowJson,
+            m_FileSetting = (await fileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
                                m_ViewSettings.GuessCodePage,
                                m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
                                m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
