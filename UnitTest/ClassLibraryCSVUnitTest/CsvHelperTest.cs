@@ -23,10 +23,10 @@ namespace CsvTools.Tests
   public class CsvHelperTest
   {
     [TestMethod]
-    public async Task AnalyseFileAsyncOtherDelimiter()
+    public async Task AnalyzeFileAsyncOtherDelimiter()
     {
       var processDisplay = new CustomProcessDisplay();
-      var tuple = await UnitTestStatic.GetTestPath("MultipleDelimiter.txt").AnalyseFileAsync(false, true, true,
+      var tuple = await UnitTestStatic.GetTestPath("MultipleDelimiter.txt").AnalyzeFileAsync(false, true, true,
                     true, true, true, true, true, new FillGuessSettings(), processDisplay, UnitTestStatic.Token);
 
       Assert.IsNotNull(tuple);
@@ -47,7 +47,7 @@ namespace CsvTools.Tests
     public async Task GetCsvFileSettingAsync()
     {
       var processDisplay = new CustomProcessDisplay();
-      var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt").AnalyseFileAsync(true, true, true,
+      var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt").AnalyzeFileAsync(true, true, true,
                     true, true, true, true, true, new FillGuessSettings(), processDisplay, UnitTestStatic.Token);
       Assert.IsNotNull(tuple);
       Assert.AreEqual(1200, tuple.CodePageId);
@@ -57,7 +57,7 @@ namespace CsvTools.Tests
     public async Task GetCsvFileSettingFromExtensionAsync()
     {
       var processDisplay = new CustomProcessDisplay();
-      var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt" + CsvFile.cCsvSettingExtension).AnalyseFileAsync(true, true, true,
+      var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt" + CsvFile.cCsvSettingExtension).AnalyzeFileAsync(true, true, true,
                     true, true, true, true, true, new FillGuessSettings(), processDisplay, UnitTestStatic.Token);
       Assert.IsNotNull(tuple);
       Assert.AreEqual(1200, tuple.CodePageId);
@@ -171,7 +171,7 @@ namespace CsvTools.Tests
     public async Task GetCsvFileSetting()
     {
       var process = new CustomProcessDisplay();
-      var result = await UnitTestStatic.GetTestPath("BasicCSV.txt").AnalyseFileAsync(true, true, true, true, true, true, false, true,
+      var result = await UnitTestStatic.GetTestPath("BasicCSV.txt").AnalyzeFileAsync(true, true, true, true, true, true, false, true,
                      new FillGuessSettings(), process, UnitTestStatic.Token);
       Assert.IsNotNull(result);
       Assert.IsTrue(result.HasFieldHeader);

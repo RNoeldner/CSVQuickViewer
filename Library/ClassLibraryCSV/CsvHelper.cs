@@ -48,7 +48,7 @@ namespace CsvTools
     /// <param name="processDisplay">The process display.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    public static async Task<DelimitedFileDetectionResultWithColumns> AnalyseFileAsync(
+    public static async Task<DelimitedFileDetectionResultWithColumns> AnalyzeFileAsync(
       this string fileName,
       bool guessJson,
       bool guessCodePage,

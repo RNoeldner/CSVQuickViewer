@@ -81,13 +81,10 @@ namespace CsvTools
       else
         m_Footer = string.Empty;
 
-      if (valueFormatGeneral != null)
-        m_ValueFormatGeneral = new ImmutableValueFormat(valueFormatGeneral);
-      else
-        m_ValueFormatGeneral = new ImmutableValueFormat();
+      m_ValueFormatGeneral = valueFormatGeneral != null ? new ImmutableValueFormat(valueFormatGeneral) : new ImmutableValueFormat();
       ColumnDefinition =
         columnDefinition
-          ?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList()
+          ?.Select(col => col as ImmutableColumn ?? new ImmutableColumn(col)).ToList()
         ?? new List<ImmutableColumn>();
 
       FileSettingDisplay = fileSettingDisplay;

@@ -18,7 +18,6 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
-  /// <inheritdoc />
   [XmlRoot("dictionary")]
   public class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable
     where TKey : notnull where TValue : notnull
