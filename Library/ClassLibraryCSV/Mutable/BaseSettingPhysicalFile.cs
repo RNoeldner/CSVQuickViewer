@@ -37,7 +37,7 @@ namespace CsvTools
     private bool m_ThrowErrorIfNotExists = true;
     private bool m_ByteOrderMark = true;
     private int m_CodePageId = 65001;
-    private long m_KeyID = 0;
+    private long m_KeyID;
 
     protected BaseSettingPhysicalFile(string fileName) => m_FileName = FileNameFix(fileName);
 

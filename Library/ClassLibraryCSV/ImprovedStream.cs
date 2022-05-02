@@ -252,14 +252,14 @@ namespace CsvTools
       {
         Logger.Debug("Deflating {filename}", SourceAccess.Identifier);
         AccessStream = new BufferedStream(
-          new DeflateStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
+          new DeflateStream(BaseStream!, CompressionMode.Decompress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
       else
       {
         Logger.Debug("Compressing {filename}", SourceAccess.Identifier);
         AccessStream = new BufferedStream(
-          new DeflateStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
+          new DeflateStream(BaseStream!, CompressionMode.Compress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
     }
@@ -270,14 +270,14 @@ namespace CsvTools
       {
         Logger.Debug("Decompressing from GZip {filename}", SourceAccess.Identifier);
         AccessStream = new BufferedStream(
-          new GZipStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
+          new GZipStream(BaseStream!, CompressionMode.Decompress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
       else
       {
         Logger.Debug("Compressing to GZip {filename}", SourceAccess.Identifier);
         AccessStream = new BufferedStream(
-          new GZipStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
+          new GZipStream(BaseStream!, CompressionMode.Compress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
     }

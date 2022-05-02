@@ -13,7 +13,6 @@
  */
 
 using System;
-using System.Text;
 using System.Windows.Forms;
 
 namespace CsvTools
@@ -25,7 +24,7 @@ namespace CsvTools
       try
       {
 #if NET5_0_OR_GREATER
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 #endif
       }
       catch (Exception ex)

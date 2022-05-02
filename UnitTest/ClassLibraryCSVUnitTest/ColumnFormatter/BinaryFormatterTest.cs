@@ -28,8 +28,7 @@ namespace CsvTools.Tests
       var testContent = BinaryFormatter.CombineNameAndContent("BasicCSV.txt.gz",
         File.ReadAllBytes(UnitTestStatic.GetTestPath("BasicCSV.txt.gz")));
 
-      var bin = new BinaryFormatter(-1, UnitTestStatic.ApplicationDirectory, UnitTestStatic.ApplicationDirectory, "NewFile.gz",
-        true);
+      var bin = new BinaryFormatter(-1, UnitTestStatic.ApplicationDirectory, UnitTestStatic.ApplicationDirectory, "NewFile.gz");
       bin.Write(testContent, null, null);
       Assert.IsTrue(FileSystemUtils.FileExists(UnitTestStatic.GetTestPath("NewFile.gz")));
       FileSystemUtils.FileDelete(UnitTestStatic.GetTestPath("NewFile.gz"));
@@ -38,8 +37,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FormatText()
     {
-      var bin = new BinaryFormatter(-1, UnitTestStatic.ApplicationDirectory, UnitTestStatic.ApplicationDirectory, "",
-        true);
+      var bin = new BinaryFormatter(-1, UnitTestStatic.ApplicationDirectory, UnitTestStatic.ApplicationDirectory, "");
       var res = bin.FormatInputText("BasicCSV.txt.gz", null);
       Assert.AreEqual("BasicCSV.txt.gz", BinaryFormatter.GetNameFromNameAndContent(res));
     }

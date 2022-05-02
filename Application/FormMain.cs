@@ -213,8 +213,8 @@ namespace CsvTools
                      + "All files (*.*)|*.*";
 
         var fileName = WindowsAPICodePackWrapper.Open(".", "File to Display", strFilter, null);
-        if (!string.IsNullOrEmpty(fileName))
-          LoadCsvFile(fileName!, m_CancellationTokenSource.Token);
+        if (!(fileName is null || fileName.Length==0))
+          LoadCsvFile(fileName, m_CancellationTokenSource.Token);
       }
       catch (Exception ex)
       {

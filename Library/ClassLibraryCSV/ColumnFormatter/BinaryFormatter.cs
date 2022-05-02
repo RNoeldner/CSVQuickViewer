@@ -59,7 +59,7 @@ namespace CsvTools
         return string.Empty;
       }
 
-      return CombineNameAndContent(inputString, File.ReadAllBytes(fileName!.LongPathPrefix()));
+      return CombineNameAndContent(inputString, File.ReadAllBytes(fileName.LongPathPrefix()));
     }
 
     /// <inheritdoc/>

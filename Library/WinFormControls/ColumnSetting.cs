@@ -34,7 +34,8 @@ namespace CsvTools
 
     public bool ShouldSerializeSort() => Sort != 0;
 
-    public bool ShouldSerializeOperator() => !string.IsNullOrEmpty(Operator) && (ShouldSerializeValueText() || ShouldSerializeValueDate());
+    public bool ShouldSerializeOperator() =>
+      !string.IsNullOrEmpty(Operator) && (ShouldSerializeValueText() || ShouldSerializeValueDate());
 
     public bool ShouldSerializeValueText() => !string.IsNullOrEmpty(ValueText);
 
@@ -51,9 +52,9 @@ namespace CsvTools
         hashCode = (hashCode * 397) ^ Sort;
         hashCode = (hashCode * 397) ^ Width;
         hashCode = (hashCode * 397) ^ DisplayIndex;
-        hashCode = (hashCode * 397) ^ Operator.GetHashCode();
-        hashCode = (hashCode * 397) ^ ValueText.GetHashCode();
-        hashCode = (hashCode * 397) ^ ValueDate.GetHashCode();
+        //hashCode = (hashCode * 397) ^ Operator.GetHashCode();
+        //hashCode = (hashCode * 397) ^ ValueText.GetHashCode();
+        //hashCode = (hashCode * 397) ^ ValueDate.GetHashCode();
         hashCode = (hashCode * 397) ^ ValueFilters.GetHashCode();
         return hashCode;
       }
@@ -75,8 +76,8 @@ namespace CsvTools
       {
         unchecked
         {
-          return ((SQLCondition.GetHashCode()) * 397) ^
-                 (Display.GetHashCode());
+          return (SQLCondition.GetHashCode() * 397) ^
+                 Display.GetHashCode();
         }
       }
     }
