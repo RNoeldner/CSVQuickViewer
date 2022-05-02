@@ -6,6 +6,9 @@
   <?define Manufacturer="Raphael Nöldner" ?>
   <?define Application="CSV Quick Viewer" ?>
   <?define ApplicationShort="CSVQuickViewer" ?>
+  <?define CSVQuickViewer.ProjectDir= "..\Application\"?>
+  <?define CSVQuickViewer.TargetPath= "$(var.CSVQuickViewer.ProjectDir)bin\Release\net472\CSVQuickViewer.exe"?>
+  
 
   <Product Id="*" Name="$(var.Application) $(var.ProductVersion)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="$(var.Manufacturer)"
            UpgradeCode="342F893E-A1DB-43C6-94FE-D2FED20CDEED" Codepage="utf-8">
