@@ -86,6 +86,7 @@ namespace CsvTools
         return;
 
       otherSwf.Row = m_Row;
+      otherSwf.LastChange = LastChange;
     }
 
     public override IEnumerable<string> GetDifferences(IFileSetting other)

@@ -87,7 +87,7 @@ namespace CsvTools
     ///   Gets the time of the last change in the setting, this is not used for equality but its copied over.
     /// </summary>
     /// <value>Time of last change in UTC</value>
-    DateTime LastChange { get;  }
+    DateTime LastChange { get; set; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether this setting is critical for the export, meaning

@@ -16,8 +16,8 @@
 		<DefineConstants>Windows</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="MSTest.TestAdapter" Version="2.2.9" />
-		<PackageReference Include="MSTest.TestFramework" Version="2.2.9" />
+		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
+		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
