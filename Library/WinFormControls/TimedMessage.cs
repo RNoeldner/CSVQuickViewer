@@ -67,10 +67,10 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (disposing && components != null)
+      if (disposing)
       {
-        components.Dispose();
-        m_WebBrowser.Dispose();
+        components?.Dispose();
+        m_WebBrowser?.Dispose();
       }
 
       base.Dispose(disposing);

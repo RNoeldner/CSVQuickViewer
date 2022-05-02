@@ -612,6 +612,8 @@ namespace CsvTools
       csv.QualifyOnlyIfNeeded = QualifyOnlyIfNeeded;
       csv.QualifyAlways = QualifyAlways;
       csv.QualifierPlaceholder = QualifierPlaceholder;
+
+      csv.LastChange = LastChange;
     }
 
     /// <inheritdoc />

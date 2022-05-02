@@ -71,7 +71,7 @@ namespace CsvTools.Tests
       // FileName and ID are not serialized
       test.FileName = file.FileName;
       test.ID = file.ID;
-      file.CheckAllPropertiesEqual(test);
+      file.CheckAllPropertiesEqual(test, new []{"LastChange"});
       // Test Properties that are not tested
 
       Assert.AreEqual(file.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");

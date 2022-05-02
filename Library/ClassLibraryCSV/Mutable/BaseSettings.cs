@@ -807,7 +807,6 @@ namespace CsvTools
         return;
 
       MappingCollection.CopyTo(other.MappingCollection);
-      other.LastChange = LastChange;
       other.ConsecutiveEmptyRows = ConsecutiveEmptyRows;
       other.TrimmingOption = TrimmingOption;
       other.TemplateName = TemplateName;
@@ -845,6 +844,8 @@ namespace CsvTools
       other.NumRecords = NumRecords;
       other.WarningCount = WarningCount;
       other.ErrorCount = ErrorCount;
+      // should be done last... but it might well be trigger later
+      other.LastChange = LastChange;  
     }
 
     /// <summary>

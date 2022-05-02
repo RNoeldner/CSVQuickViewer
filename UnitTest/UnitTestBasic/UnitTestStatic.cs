@@ -117,14 +117,14 @@ namespace CsvTools.Tests
       dataTable.Rows.Add(dr);
     }
 
-    private static void CheckProertiesEqual(in object a, in object b, in IEnumerable<PropertyInfo> properties)
+    private static void CheckPropertiesEqual(in object a, in object b, in IEnumerable<PropertyInfo> properties)
     {
       foreach (var prop in properties)
         if (!prop.GetValue(a).Equals(prop.GetValue(b)))
           throw new Exception($"Type: {a.GetType().FullName}\nProperty:{prop.Name}\nValue A:{prop.GetValue(a)}\nnValue B:{prop.GetValue(b)}");
     }
 
-    public static void CheckAllPropertiesEqual(this object a, in object b)
+    public static void CheckAllPropertiesEqual(this object a, in object b, IReadOnlyCollection<string>? ignore = null)
     {
       if (ReferenceEquals(a, b))
         return;
@@ -138,13 +138,14 @@ namespace CsvTools.Tests
 
         var readProps = a.GetType().GetProperties().Where(prop => prop?.GetMethod != null).ToList();
 
-        var valueProperties = readProps.Where(prop => (prop.PropertyType == typeof(int)
-                                                       || prop.PropertyType == typeof(long)
-                                                       || prop.PropertyType == typeof(string)
-                                                       || prop.PropertyType == typeof(bool)
-                                                       || prop.PropertyType == typeof(DateTime)));
+        var valueProperties = readProps.Where(prop => 
+                                                      (prop.PropertyType == typeof(int)
+                                                      || prop.PropertyType == typeof(long)
+                                                      || prop.PropertyType == typeof(string)
+                                                      || prop.PropertyType == typeof(bool)
+                                                      || prop.PropertyType == typeof(DateTime)) && !(ignore?.Contains(prop.Name) ?? false));
 
-        CheckProertiesEqual(a, b, valueProperties);
+        CheckPropertiesEqual(a, b, valueProperties);
 
         foreach (var prop in readProps.Where(prop =>
           !valueProperties.Contains(prop) && prop.PropertyType.AssemblyQualifiedName.StartsWith("CsvTools.", StringComparison.Ordinal)))
@@ -366,7 +367,7 @@ namespace CsvTools.Tests
           try
           {
             var obj3 = methodClone.Invoke(obj1, null);
-            CheckProertiesEqual(obj1, obj3, properties);
+            CheckPropertiesEqual(obj1, obj3, properties);
           }
           catch (Exception ex)
           {
@@ -382,7 +383,7 @@ namespace CsvTools.Tests
           {
             // methodCopyTo.Invoke(obj1, new object[] { null });
             methodCopyTo.Invoke(obj1, new[] { obj2 });
-            CheckProertiesEqual(obj1, obj2, properties);
+            CheckPropertiesEqual(obj1, obj2, properties);
 
             methodCopyTo.Invoke(obj1, new[] { obj1 });
           }

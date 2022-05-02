@@ -47,7 +47,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(false, reader.IsClosed);
       Assert.IsTrue(reader.Read());
 
-      Assert.AreEqual("BasicCSV.txt.gz", reader.GetValue(1));
+      Assert.IsTrue( reader.GetValue(1).ToString().StartsWith("BasicCSV.txt.gz"));
     }
 
     [TestMethod]
