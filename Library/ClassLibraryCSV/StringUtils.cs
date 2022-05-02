@@ -243,20 +243,20 @@ namespace CsvTools
       in string? filter,
       StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
     {
-      if (string.IsNullOrEmpty(filter))
+      if (filter is null || filter.Length==0)
         return true;
-      if (string.IsNullOrEmpty(item))
+      if (item is null || item.Length==0)
         return false;
 
-      if (filter!.IndexOf('+') <= -1)
+      if (filter.IndexOf('+') <= -1)
         return filter.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                     .Any(part => item!.IndexOf(part, stringComparison) != -1);
+                     .Any(part => item.IndexOf(part, stringComparison) != -1);
       var parts = filter.Split(new[] { '+', ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
       if (parts.Length == 0)
         return true;
 
       // 1st part
-      var all = item!.IndexOf(parts[0], stringComparison) > -1;
+      var all = item.IndexOf(parts[0], stringComparison) > -1;
 
       // and all other parts
       for (var index = 1; index < parts.Length && all; index++)
@@ -297,7 +297,7 @@ namespace CsvTools
     ///   A semicolon separated list of texts that should be treated as NULL
     /// </param>
     /// <returns>True if the text is null, or empty or in the list of provided texts</returns>
-    public static bool ShouldBeTreatedAsNull(string value, in string treatAsNull)
+    public static bool ShouldBeTreatedAsNull(string? value, in string treatAsNull)
     {
       if (treatAsNull.Length == 0)
         return false;
@@ -311,9 +311,9 @@ namespace CsvTools
     /// <param name="inputValue">The string to be split.</param>
     /// <returns>String array with substrings, empty elements are removed</returns>
     public static string[] SplitByDelimiter(in string? inputValue) =>
-      string.IsNullOrEmpty(inputValue)
+      inputValue is null || inputValue.Length==0
         ? Array.Empty<string>()
-        : inputValue!.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
+        : inputValue.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
 
     /// <summary>
     ///   Escapes SQL names; does not include the brackets or quotes
@@ -321,7 +321,7 @@ namespace CsvTools
     /// <param name="contents">The column or table name.</param>
     /// <returns>The names as it can be placed into brackets</returns>
     public static string SqlName(this string? contents) =>
-      string.IsNullOrEmpty(contents) ? string.Empty : contents!.Replace("]", "]]");
+      contents is null || contents.Length==0 ? string.Empty : contents.Replace("]", "]]");
 
     /// <summary>
     ///   SQLs the quote, does not include the outer quotes
@@ -329,7 +329,7 @@ namespace CsvTools
     /// <param name="contents">The contents.</param>
     /// <returns></returns>
     public static string SqlQuote(this string? contents) =>
-      string.IsNullOrEmpty(contents) ? string.Empty : contents!.Replace("'", "''");
+      contents is null || contents.Length==0 ? string.Empty : contents.Replace("'", "''");
 
     /// <summary>
     ///   Read the value and determine if this could be a constant value (surrounded by " or ') or if its a number; if
@@ -341,10 +341,10 @@ namespace CsvTools
     public static bool TryGetConstant(this string? entry, out string result)
     {
       result = string.Empty;
-      if (string.IsNullOrEmpty(entry))
+      if (entry is null || entry.Length==0)
         return false;
 
-      if (entry!.Length > 2
+      if (entry.Length > 2
           && (entry[0] == '"' && entry.EndsWith("\"", StringComparison.Ordinal)
            || entry[0] == '\'' && entry.EndsWith("'", StringComparison.Ordinal)))
       {

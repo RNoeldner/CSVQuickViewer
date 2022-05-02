@@ -39,14 +39,14 @@ namespace CsvTools
 
     public string Message
     {
-      set => m_TextBox!.Text = value.HandleCrlfCombinations(Environment.NewLine);
+      set => m_TextBox.Text = value.HandleCrlfCombinations(Environment.NewLine);
     }
 
     public string Html
     {
       set
       {
-        m_TableLayoutPanel!.Controls.Remove(m_TextBox!);
+        m_TableLayoutPanel.Controls.Remove(m_TextBox);
         // this need to happen here
         Extensions.RunStaThread(() =>
         {
@@ -67,10 +67,10 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (disposing && (components != null))
+      if (disposing && components != null)
       {
         components.Dispose();
-        m_WebBrowser?.Dispose();
+        m_WebBrowser.Dispose();
       }
 
       base.Dispose(disposing);
@@ -97,8 +97,8 @@ namespace CsvTools
       {
         HideColumn(3, false);
         HideColumn(4, false);
-        m_Button2!.Visible = false;
-        m_Button3!.Visible = false;
+        m_Button2.Visible = false;
+        m_Button3.Visible = false;
       }
 
       // Two Button
@@ -106,49 +106,49 @@ namespace CsvTools
                                              || buttons == MessageBoxButtons.RetryCancel)
       {
         HideColumn(4, false);
-        m_Button3!.Visible = false;
+        m_Button3.Visible = false;
       }
 
-      if ((buttons == MessageBoxButtons.OK || buttons == MessageBoxButtons.OKCancel))
+      if (buttons == MessageBoxButtons.OK || buttons == MessageBoxButtons.OKCancel)
       {
-        m_Button1!.Text = @"&OK";
+        m_Button1.Text = @"&OK";
         m_Button1.DialogResult = DialogResult.OK;
       }
 
-      if ((buttons == MessageBoxButtons.YesNo || buttons == MessageBoxButtons.YesNoCancel))
+      if (buttons == MessageBoxButtons.YesNo || buttons == MessageBoxButtons.YesNoCancel)
       {
-        m_Button1!.Text = @"&Yes";
+        m_Button1.Text = @"&Yes";
         m_Button1.DialogResult = DialogResult.Yes;
       }
 
-      if ((buttons == MessageBoxButtons.AbortRetryIgnore))
+      if (buttons == MessageBoxButtons.AbortRetryIgnore)
       {
-        m_Button1!.Text = @"&Abort";
+        m_Button1.Text = @"&Abort";
         m_Button1.DialogResult = DialogResult.Abort;
       }
 
-      if ((buttons == MessageBoxButtons.RetryCancel))
+      if (buttons == MessageBoxButtons.RetryCancel)
       {
-        m_Button1!.Text = @"&Retry";
+        m_Button1.Text = @"&Retry";
         m_Button1.DialogResult = DialogResult.Retry;
       }
 
       // Button 2
-      if ((buttons == MessageBoxButtons.YesNo || buttons == MessageBoxButtons.YesNoCancel))
+      if (buttons == MessageBoxButtons.YesNo || buttons == MessageBoxButtons.YesNoCancel)
       {
-        m_Button2!.Text = @"&No";
+        m_Button2.Text = @"&No";
         m_Button2.DialogResult = DialogResult.No;
       }
 
-      if ((buttons == MessageBoxButtons.AbortRetryIgnore))
+      if (buttons == MessageBoxButtons.AbortRetryIgnore)
       {
-        m_Button2!.Text = @"&Retry";
+        m_Button2.Text = @"&Retry";
         m_Button2.DialogResult = DialogResult.Retry;
       }
 
-      if ((buttons == MessageBoxButtons.RetryCancel || buttons == MessageBoxButtons.OKCancel))
+      if (buttons == MessageBoxButtons.RetryCancel || buttons == MessageBoxButtons.OKCancel)
       {
-        m_Button2!.Text = @"&Cancel";
+        m_Button2.Text = @"&Cancel";
         m_Button2.DialogResult = DialogResult.Cancel;
         CancelButton = m_Button2;
       }
@@ -156,25 +156,25 @@ namespace CsvTools
       // Button 3
       if (buttons == MessageBoxButtons.AbortRetryIgnore)
       {
-        m_Button3!.Text = @"&Ignore";
+        m_Button3.Text = @"&Ignore";
         m_Button3.DialogResult = DialogResult.Ignore;
       }
 
       if (buttons == MessageBoxButtons.YesNoCancel)
       {
-        m_Button3!.Text = @"&Cancel";
+        m_Button3.Text = @"&Cancel";
         m_Button3.DialogResult = DialogResult.Cancel;
         CancelButton = m_Button3;
       }
 
       if (!string.IsNullOrEmpty(button1Text))
-        m_Button1!.Text = button1Text;
+        m_Button1.Text = button1Text;
 
       if (!string.IsNullOrEmpty(button2Text))
-        m_Button2!.Text = button2Text;
+        m_Button2.Text = button2Text;
 
       if (!string.IsNullOrEmpty(button3Text))
-        m_Button3!.Text = button3Text;
+        m_Button3.Text = button3Text;
 
       AcceptButton = defaultButton switch
       {
@@ -185,28 +185,18 @@ namespace CsvTools
       };
       if (icon != MessageBoxIcon.None)
       {
-        switch (icon)
+        m_PictureBox.Image = icon switch
         {
-          case MessageBoxIcon.Error:
-            m_PictureBox!.Image = m_ImageList!.Images[3];
-            break;
-
-          case MessageBoxIcon.Information:
-            m_PictureBox!.Image = m_ImageList!.Images[0];
-            break;
-
-          case MessageBoxIcon.Warning:
-            m_PictureBox!.Image = m_ImageList!.Images[1];
-            break;
-
-          case MessageBoxIcon.Question:
-            m_PictureBox!.Image = m_ImageList!.Images[2];
-            break;
-        }
+          MessageBoxIcon.Information => m_ImageList.Images[0],
+          MessageBoxIcon.Warning => m_ImageList.Images[1],
+          MessageBoxIcon.Question => m_ImageList.Images[2],
+          MessageBoxIcon.Error => m_ImageList.Images[3],
+          _ => m_PictureBox.Image
+        };
       }
       TopLevel = true;
 
-      var result = AcceptButton!.DialogResult;
+      var result = AcceptButton.DialogResult;
       Extensions.RunStaThread(() => result = ShowDialog());
       return result;
     }
@@ -244,7 +234,7 @@ namespace CsvTools
       this.m_Button1 = new System.Windows.Forms.Button();
       this.m_PictureBox = new System.Windows.Forms.PictureBox();
       this.m_TableLayoutPanel.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize) (this.m_PictureBox)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize) this.m_PictureBox).BeginInit();
       this.SuspendLayout();
       // m_Timer
       this.m_Timer.Enabled = true;
@@ -252,7 +242,7 @@ namespace CsvTools
       this.m_Timer.Tick += new System.EventHandler(this.Timer_Tick);
       // m_ImageList
       this.m_ImageList.ImageStream =
-        ((System.Windows.Forms.ImageListStreamer) (resources.GetObject("m_ImageList.ImageStream")));
+        (System.Windows.Forms.ImageListStreamer) resources.GetObject("m_ImageList.ImageStream");
       this.m_ImageList.TransparentColor = System.Drawing.Color.Transparent;
       this.m_ImageList.Images.SetKeyName(0, "Info-icon.bmp");
       this.m_ImageList.Images.SetKeyName(1, "icon-warning.bmp");
@@ -295,12 +285,12 @@ namespace CsvTools
       this.m_LabelDefault.Name = "m_LabelDefault";
       this.m_LabelDefault.Size = new System.Drawing.Size(167, 30);
       this.m_LabelDefault.TabIndex = 2;
-      this.m_LabelDefault.Text = "Default in 5 seconds";
+      this.m_LabelDefault.Text = @"Default in 5 seconds";
       this.m_LabelDefault.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
       // m_Button3
       this.m_Button3.Anchor =
-        ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom |
-                                               System.Windows.Forms.AnchorStyles.Right)));
+        (System.Windows.Forms.AnchorStyles) (System.Windows.Forms.AnchorStyles.Bottom |
+                                             System.Windows.Forms.AnchorStyles.Right);
       this.m_Button3.AutoSize = true;
       this.m_Button3.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.m_Button3.Location = new System.Drawing.Point(351, 186);
@@ -314,8 +304,8 @@ namespace CsvTools
       this.m_Button3.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
       // m_Button2
       this.m_Button2.Anchor =
-        ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom |
-                                               System.Windows.Forms.AnchorStyles.Right)));
+        (System.Windows.Forms.AnchorStyles) (System.Windows.Forms.AnchorStyles.Bottom |
+                                             System.Windows.Forms.AnchorStyles.Right);
       this.m_Button2.AutoSize = true;
       this.m_Button2.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.m_Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
@@ -346,8 +336,8 @@ namespace CsvTools
       this.m_TextBox.MouseLeave += new System.EventHandler(this.MouseLeaveElement);
       // m_Button1
       this.m_Button1.Anchor =
-        ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom |
-                                               System.Windows.Forms.AnchorStyles.Right)));
+        (System.Windows.Forms.AnchorStyles) (System.Windows.Forms.AnchorStyles.Bottom |
+                                             System.Windows.Forms.AnchorStyles.Right);
       this.m_Button1.AutoSize = true;
       this.m_Button1.BackColor = System.Drawing.SystemColors.ButtonFace;
       this.m_Button1.Location = new System.Drawing.Point(177, 186);
@@ -390,7 +380,7 @@ namespace CsvTools
       this.TopMost = true;
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
-      ((System.ComponentModel.ISupportInitialize) (this.m_PictureBox)).EndInit();
+      ((System.ComponentModel.ISupportInitialize) this.m_PictureBox).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
     }

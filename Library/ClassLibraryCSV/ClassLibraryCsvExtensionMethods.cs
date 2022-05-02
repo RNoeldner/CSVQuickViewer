@@ -961,7 +961,7 @@ namespace CsvTools
       if (ReferenceEquals(other, self))
         return true;
       ICollection<T> selfCol = self.ToArray();
-      if (other is Collection<T> || other is ICollection<T> || other is IReadOnlyCollection<T> || other is Array)
+      if (other is Collection<T> || other is ICollection<T> || other is IReadOnlyCollection<T>)
       {
         var otherNum = other.Count();
         if (otherNum != selfCol.Count)

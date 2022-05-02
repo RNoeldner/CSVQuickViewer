@@ -75,7 +75,7 @@ namespace CsvTools
       else
         col.Add(new CommonFileDialogFilter(filter, filter));
     }
-    public static bool IsDialogOpen { get; private set; } = false;
+    public static bool IsDialogOpen { get; private set; }
 
     public static string? Open(string initialDirectory, string title, string filter,
                               string? preselectFileName)

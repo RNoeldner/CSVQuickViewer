@@ -359,7 +359,7 @@ namespace CsvTools
           continue;
         }
         var text = dataRow[columnIndex].ToString();
-        if (text is null)
+        if (text is null || text.Length==0)
           continue;
         cluster.Add(text);
 

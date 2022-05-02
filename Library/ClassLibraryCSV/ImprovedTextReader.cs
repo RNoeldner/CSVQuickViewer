@@ -149,6 +149,7 @@ namespace CsvTools
 
       // eat the bom
       if (m_BomLength > 0 && m_ImprovedStream.CanRead)
+        // ReSharper disable once MustUseReturnValue
         m_ImprovedStream.Read(new byte[m_BomLength], 0, m_BomLength);
 
       // in case we can not seek need to reopen the stream reader

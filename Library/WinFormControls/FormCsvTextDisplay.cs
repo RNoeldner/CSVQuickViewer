@@ -100,7 +100,7 @@ namespace CsvTools
         m_MemoryStream = new MemoryStream();
 
         var encoding = Encoding.GetEncoding(m_CodePage);
-        using var textReader = new StreamReader((Stream) m_Stream, encoding, true, 4096, true);
+        using var textReader = new StreamReader(m_Stream, encoding, true, 4096, true);
         using var stringWriter = new StreamWriter(m_MemoryStream, encoding, 4096, true);
         var jsonReader = new JsonTextReader(textReader);
         var jsonWriter = new JsonTextWriter(stringWriter) { Formatting = Formatting.Indented };
@@ -140,7 +140,8 @@ namespace CsvTools
       }
       if (!FileSystemUtils.FileExists(m_FullPath))
       {
-        textBox.Text = $"\nThe file '{m_FullPath}' does not exist.";
+        textBox.Text = $@"
+The file '{m_FullPath}' does not exist.";
       }
       else
       {
@@ -154,7 +155,10 @@ namespace CsvTools
         catch (Exception ex)
         {
           m_HighLighter = null;
-          textBox.Text = $"Issue opening the file {m_FullPath} for display:\n\n\n{ex.Message}";
+          textBox.Text = $@"Issue opening the file {m_FullPath} for display:
+
+
+{ex.Message}";
         }
       }
     }

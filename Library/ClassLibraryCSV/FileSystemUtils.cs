@@ -19,8 +19,10 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+#if !QUICK
 using System.Threading;
 using System.Threading.Tasks;
+#endif
 
 namespace CsvTools
 {

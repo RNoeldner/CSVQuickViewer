@@ -389,9 +389,6 @@ namespace CsvTools
 
     [XmlAttribute]
     [DefaultValue(100)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual int Order
     {
       get => m_Order;
