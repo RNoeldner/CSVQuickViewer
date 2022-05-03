@@ -1207,7 +1207,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var fileReader = await FunctionalDI.SQLDataReader(sql, null, 120, cancellationToken).ConfigureAwait(false);
+      using var fileReader = await FunctionalDI.SQLDataReader(sql, null, 120, 1, cancellationToken).ConfigureAwait(false);
       await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       // Put the information into the list
       var dataRowCollection = fileReader.GetSchemaTable()?.Rows;
@@ -1285,6 +1285,7 @@ namespace CsvTools
                          sqlStatement.NoRecordSQL(),
                          null,
                          timeout,
+                         1,
                          cancellationToken).ConfigureAwait(false);
       await data.OpenAsync(cancellationToken).ConfigureAwait(false);
       using var dt = data.GetSchemaTable();
@@ -1303,7 +1304,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), null, timeout, token)
+      using var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), null, timeout,1, token)
                                          .ConfigureAwait(false);
       await data.OpenAsync(token).ConfigureAwait(false);
       var list = new List<string>();

@@ -80,8 +80,7 @@ namespace CsvTools
       }
 
       m_DataReaderWrapper = new DataReaderWrapper(
-        m_FileReader,
-        fileSetting.RecordLimit,
+        m_FileReader,        
         includeError,
         fileSetting.DisplayStartLineNo,
         fileSetting.DisplayEndLineNo,

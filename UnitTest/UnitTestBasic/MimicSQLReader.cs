@@ -23,43 +23,43 @@ using System.Threading.Tasks;
 namespace CsvTools.Tests
 {
   public class MimicSQLReader
-	{
-		private readonly Dictionary<IFileSetting, DataTable?> m_ReadSetting = new Dictionary<IFileSetting, DataTable?>();
+  {
+    private readonly Dictionary<IFileSetting, DataTable?> m_ReadSetting = new Dictionary<IFileSetting, DataTable?>();
 
-		public void AddSetting(IFileSetting setting)
-		{
-			if (setting == null || string.IsNullOrEmpty(setting.ID)) throw new ArgumentNullException(nameof(setting));
+    public void AddSetting(IFileSetting setting)
+    {
+      if (setting == null || string.IsNullOrEmpty(setting.ID)) throw new ArgumentNullException(nameof(setting));
 
-			if (!m_ReadSetting.Any(x => x.Key.ID.Equals(setting.ID, StringComparison.OrdinalIgnoreCase)))
-				m_ReadSetting.Add(setting, null);
-		}
+      if (!m_ReadSetting.Any(x => x.Key.ID.Equals(setting.ID, StringComparison.OrdinalIgnoreCase)))
+        m_ReadSetting.Add(setting, null);
+    }
 
-		public void AddSetting(string name, DataTable dt)
-		{
-			if (dt == null) throw new ArgumentNullException(nameof(dt));
-			if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+    public void AddSetting(string name, DataTable dt)
+    {
+      if (dt == null) throw new ArgumentNullException(nameof(dt));
+      if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
-			if (!m_ReadSetting.Any(x => x.Key.ID.Equals(name, StringComparison.OrdinalIgnoreCase)))
-				m_ReadSetting.Add(new CsvFile(name) { ID = name }, dt);
-		}
+      if (!m_ReadSetting.Any(x => x.Key.ID.Equals(name, StringComparison.OrdinalIgnoreCase)))
+        m_ReadSetting.Add(new CsvFile(name) { ID = name }, dt);
+    }
 
-		public async Task<IFileReader> ReadDataAsync(string settingName, IProcessDisplay? message,			int timeout,			CancellationToken token)
-		{
-			if (m_ReadSetting.Count == 0)
-			{
-				message?.SetProcess(null, new ProgressEventArgs($"{settingName} not found"));
-				throw new ApplicationException($"{settingName} not found");
-			}
+    public async Task<IFileReader> ReadDataAsync(string settingName, IProcessDisplay? message, int timeout, long limit, CancellationToken token)
+    {
+      if (m_ReadSetting.Count == 0)
+      {
+        message?.SetProcess(null, new ProgressEventArgs($"{settingName} not found"));
+        throw new ApplicationException($"{settingName} not found");
+      }
 
-			var setting = m_ReadSetting.Any(x => x.Key.ID == settingName)
-				? m_ReadSetting.First(x => x.Key.ID == settingName)
-				: m_ReadSetting.First();
-			
-			var reader = setting.Value != null
-				? new DataTableWrapper(setting.Value)
-				: FunctionalDI.GetFileReader(setting.Key, null, new CustomProcessDisplay(), UnitTestStatic.Token);
-			await reader.OpenAsync(token).ConfigureAwait(false);
-			return reader;
-		}
-	}
+      var setting = m_ReadSetting.Any(x => x.Key.ID == settingName)
+        ? m_ReadSetting.First(x => x.Key.ID == settingName)
+        : m_ReadSetting.First();
+
+      var reader = setting.Value != null
+        ? new DataTableWrapper(setting.Value)
+        : FunctionalDI.GetFileReader(setting.Key, null, new CustomProcessDisplay(), UnitTestStatic.Token);
+      await reader.OpenAsync(token).ConfigureAwait(false);
+      return reader;
+    }
+  }
 }

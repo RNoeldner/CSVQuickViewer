@@ -32,8 +32,7 @@ namespace CsvTools
   /// </remarks>
   public class DataReaderWrapper : DbDataReader, IFileReader
   {
-    protected readonly IFileReader? FileReader;
-    private readonly long m_RecordLimit;
+    protected readonly IFileReader? FileReader;    
     public readonly ReaderMapping ReaderMapping;
     protected IDataReader DataReader;
 
@@ -43,14 +42,12 @@ namespace CsvTools
     ///   start and end Line or record number and handles the return of these artificial fields in GetValue
     /// </summary>
     /// <param name="reader">Regular framework IDataReader</param>
-    /// <param name="recordLimit">Number of maximum records to read, 0 if there is no limit</param>
     /// <param name="addErrorField">Add artificial field Error</param>
     /// <param name="addStartLine">Add artificial field Start Line</param>
     /// <param name="addEndLine">Add artificial field End Line</param>
     /// <param name="addRecNum">Add artificial field Records Number</param>
     public DataReaderWrapper(
-      in IDataReader reader,
-      long recordLimit = 0,
+      in IDataReader reader,      
       bool addErrorField = false,
       bool addStartLine = false,
       bool addEndLine = false,
@@ -59,8 +56,7 @@ namespace CsvTools
       DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
       FileReader = reader as IFileReader;
       if (reader.IsClosed)
-        throw new ArgumentException("Reader must be opened");
-      m_RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
+        throw new ArgumentException("Reader must be opened");      
       ReaderMapping = new ReaderMapping(DataReader, addStartLine, addRecNum, addEndLine, addErrorField);
       if (FileReader != null)
         FileReader.Warning += (o, e) => Warning?.Invoke(o, e);
@@ -71,19 +67,17 @@ namespace CsvTools
     ///   Constructor for a DataReaderWrapper, this wrapper adds artificial fields like Error, start
     ///   and end Line or record number
     /// </summary>
-    /// <param name="fileReader"><see cref="T:CsvTools.IFileReader" /></param>
-    /// <param name="recordLimit">Number of maximum records to read, 0 if there is no limit</param>
+    /// <param name="fileReader"><see cref="T:CsvTools.IFileReader" /></param>    
     /// <param name="addErrorField">Add artificial field Error</param>
     /// <param name="addStartLine">Add artificial field Start Line</param>
     /// <param name="addEndLine">Add artificial field End Line</param>
     /// <param name="addRecNum">Add artificial field Records Number</param>
     public DataReaderWrapper(
-      in IFileReader fileReader,
-      long recordLimit = 0,
+      in IFileReader fileReader,      
       bool addErrorField = false,
       bool addStartLine = false,
       bool addEndLine = false,
-      bool addRecNum = false) : this(fileReader as IDataReader, recordLimit, addErrorField, addStartLine, addEndLine, addRecNum)
+      bool addRecNum = false) : this(fileReader as IDataReader, addErrorField, addStartLine, addEndLine, addRecNum)
     {
     }
 
@@ -101,25 +95,17 @@ namespace CsvTools
 
     public long EndLineNumber => FileReader?.EndLineNumber ?? RecordNumber;
 
-    public bool EndOfFile => FileReader?.EndOfFile ?? DataReader.IsClosed || RecordNumber >= m_RecordLimit;
+    public virtual bool EndOfFile => FileReader?.EndOfFile ?? DataReader.IsClosed;
 
     public override int FieldCount => ReaderMapping.Column.Count;
 
     public override bool IsClosed => DataReader.IsClosed;
 
-    public virtual int Percent
-    {
-      get
-      {
-        if (FileReader is null)
-          return RecordNumber <= 0 ? 0 : (int) (RecordNumber / (double) m_RecordLimit * 100d);
-        return FileReader.Percent;
-      }
-    }
+    public virtual int Percent => FileReader?.Percent ?? 50;
 
     public long RecordNumber { get; protected set; }
 
-    public override int RecordsAffected => m_RecordLimit.ToInt();
+    public override int RecordsAffected => RecordNumber.ToInt();
 
     public long StartLineNumber => FileReader?.StartLineNumber ?? RecordNumber;
 
@@ -272,7 +258,7 @@ namespace CsvTools
       var couldRead = DataReader.Read();
       if (couldRead)
         RecordNumber++;
-      return couldRead && RecordNumber <= m_RecordLimit;
+      return couldRead;
     }
 
     public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
@@ -285,7 +271,7 @@ namespace CsvTools
 
       if (couldRead)
         RecordNumber++;
-      return couldRead && RecordNumber <= m_RecordLimit;
+      return couldRead;
     }
 
     public virtual IColumn GetColumn(int column) => ReaderMapping.Column[column];

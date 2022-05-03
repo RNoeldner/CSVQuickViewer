@@ -25,7 +25,7 @@ namespace CsvTools.Tests
 		{
 			try
 			{
-				FunctionalDI.SQLDataReader = (sql, eh, limit, token) => throw new FileWriterException("SQL Reader not specified");
+				FunctionalDI.SQLDataReader = (sql, eh, timeout, limit, token) => throw new FileWriterException("SQL Reader not specified");
 			}
 			catch (ArgumentNullException)
 			{

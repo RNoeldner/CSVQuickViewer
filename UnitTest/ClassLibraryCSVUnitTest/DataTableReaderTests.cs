@@ -15,7 +15,7 @@ namespace CsvTools.Tests
     {
       var processDisplay = new CustomProcessDisplay();
       using var test = new DataTableWrapper(m_DataTable);
-      var dt = await test.GetDataTableAsync(200, false, true, false, false, false, null,
+      var dt = await test.GetDataTableAsync(false, true, false, false, false, null,
         UnitTestStatic.Token);
       Assert.AreEqual(m_DataTable, dt);
     }

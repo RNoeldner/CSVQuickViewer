@@ -146,7 +146,7 @@ namespace CsvTools.Tests
         cvsSetting.WarnDelimiterInValue, cvsSetting.WarnLineFeed, cvsSetting.WarnNBSP, cvsSetting.WarnQuotes, cvsSetting.WarnUnknownCharacter,
         cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull, cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows,
         cvsSetting.IdentifierInContainer, processDisplay);
-      var dt = await csvDataReader.GetDataTableAsync(0, false, true, false, false, false, null,
+      var dt = await csvDataReader.GetDataTableAsync(false, true, false, false, false, null,
                  processDisplay.CancellationToken);
 
       using var form = new FormHierarchyDisplay(dt!, dataTable.Select(), UnitTestStatic.HtmlStyle);

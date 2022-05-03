@@ -745,7 +745,7 @@ namespace CsvTools
     public static async Task<long> WriteAsync(
       this IFileWriter writer,
       string sqlStatement,
-      int timeout,
+      int timeout,      
       IProcessDisplay? reportProgress,
       CancellationToken cancellationToken)
     {
@@ -758,6 +758,7 @@ namespace CsvTools
                               sqlStatement,
                               reportProgress,
                               timeout,
+                              0,
                               cancellationToken).ConfigureAwait(false);
       await sqlReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       return await writer.WriteAsync(sqlReader, cancellationToken).ConfigureAwait(false);
