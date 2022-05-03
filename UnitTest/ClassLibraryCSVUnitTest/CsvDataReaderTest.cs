@@ -1697,7 +1697,7 @@ namespace CsvTools.Tests
       var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
-        m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
+        m_ValidSetting.EscapePrefix, 5, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
         m_ValidSetting.CommentLine, m_ValidSetting.NumWarnings, m_ValidSetting.DuplicateQualifierToEscape, m_ValidSetting.NewLinePlaceholder,
         m_ValidSetting.DelimiterPlaceholder, m_ValidSetting.QualifierPlaceholder, m_ValidSetting.SkipDuplicateHeader, m_ValidSetting.TreatLfAsSpace,
         m_ValidSetting.TreatUnknownCharacterAsSpace, m_ValidSetting.TryToSolveMoreColumns, m_ValidSetting.WarnDelimiterInValue, m_ValidSetting.WarnLineFeed,
@@ -1707,7 +1707,7 @@ namespace CsvTools.Tests
       await test.OpenAsync(UnitTestStatic.Token);
 
 #pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
-      using var dt = await test.GetDataTableAsync(5, false, false, false, false, false, null,
+      using var dt = await test.GetDataTableAsync(false, false, false, false, false, null,
 #pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
                        UnitTestStatic.Token);
       Assert.AreEqual(5, dt!.Rows.Count);
@@ -1719,7 +1719,7 @@ namespace CsvTools.Tests
       var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter, m_ValidSetting.FieldQualifier,
-        m_ValidSetting.EscapePrefix, m_ValidSetting.RecordLimit, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
+        m_ValidSetting.EscapePrefix, 5, m_ValidSetting.AllowRowCombining, m_ValidSetting.ContextSensitiveQualifier,
         m_ValidSetting.CommentLine, m_ValidSetting.NumWarnings, m_ValidSetting.DuplicateQualifierToEscape, m_ValidSetting.NewLinePlaceholder,
         m_ValidSetting.DelimiterPlaceholder, m_ValidSetting.QualifierPlaceholder, m_ValidSetting.SkipDuplicateHeader, m_ValidSetting.TreatLfAsSpace,
         m_ValidSetting.TreatUnknownCharacterAsSpace, m_ValidSetting.TryToSolveMoreColumns, m_ValidSetting.WarnDelimiterInValue, m_ValidSetting.WarnLineFeed,
@@ -1728,7 +1728,7 @@ namespace CsvTools.Tests
         m_ValidSetting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
 
-      using var dt = await test.GetDataTableAsync(5, true, true, false, false, true, null,
+      using var dt = await test.GetDataTableAsync(true, true, false, false, true, null,
                        UnitTestStatic.Token);
       Assert.AreEqual(5, dt!.Rows.Count);
     }

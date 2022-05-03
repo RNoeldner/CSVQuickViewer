@@ -93,7 +93,7 @@ namespace CsvTools
       bool addRecNum = false)
     {
       await m_FileReader.OpenAsync(m_Token).ConfigureAwait(false);
-      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, 0, addErrorField, addStartLine, addEndLine, addRecNum);
+      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, addErrorField, addStartLine, addEndLine, addRecNum);
       await MoveToPageAsync(1).ConfigureAwait(false);
     }
   }

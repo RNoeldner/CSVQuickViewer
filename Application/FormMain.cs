@@ -494,7 +494,7 @@ namespace CsvTools
 
         // Set Functional DI routines to constants
         // The reader is used when data is stored through the detailControl
-        FunctionalDI.SQLDataReader = async (settingName, message, timeout, token) =>
+        FunctionalDI.SQLDataReader = async (settingName, message, timeout, limit, token) =>
           await Task.FromResult(new DataTableWrapper(detailControl.DataTable));
 
         // Load View Settings from file

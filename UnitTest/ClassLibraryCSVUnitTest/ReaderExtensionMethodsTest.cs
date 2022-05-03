@@ -74,7 +74,7 @@ namespace CsvTools.Tests
         test2.TreatNBSPAsSpace, test2.TreatTextAsNull, test2.SkipEmptyLines, test2.ConsecutiveEmptyRows, test2.IdentifierInContainer, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
 
-      var dt = await test.GetDataTableAsync(-1, false, false, false, false, false, null,
+      var dt = await test.GetDataTableAsync(false, false, false, false, false, null,
                  UnitTestStatic.Token);
       Assert.AreEqual(test2.RecordLimit, dt!.Rows.Count);
     }
@@ -93,7 +93,7 @@ namespace CsvTools.Tests
         test3.TreatNBSPAsSpace, test3.TreatTextAsNull, test3.SkipEmptyLines, test3.ConsecutiveEmptyRows, test3.IdentifierInContainer, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
 
-      using var dt = await test.GetDataTableAsync(-1, true, true, true, true, true, null,
+      using var dt = await test.GetDataTableAsync(true, true, true, true, true, null,
                        UnitTestStatic.Token);
       // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one for
       // Line end

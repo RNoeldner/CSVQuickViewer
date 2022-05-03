@@ -27,13 +27,15 @@ namespace CsvTools
   public sealed class DataTableWrapper : DataReaderWrapper
   {
     public DataTableWrapper(in DataTable dataTable)
-      : base(
-        dataTable.CreateDataReader(),
-        // passing in number of records so Percent can be calculated
-        dataTable.Rows.Count) =>
-      DataTable = dataTable;
+      : base(dataTable.CreateDataReader()) => DataTable = dataTable;
 
     public DataTable DataTable { get; }
+
+    public override int RecordsAffected => DataTable.Rows.Count;
+
+    public override bool EndOfFile => RecordNumber >= DataTable.Rows.Count;
+
+    public override int Percent => RecordNumber <= 0 ? 0 : (int) (RecordNumber / (double) DataTable.Rows.Count * 100d);
 
     public override bool SupportsReset => true;
 

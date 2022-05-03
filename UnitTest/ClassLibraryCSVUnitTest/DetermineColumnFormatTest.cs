@@ -89,7 +89,7 @@ namespace CsvTools.Tests
         setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer,
         null))
       {
-        var dt = await reader.GetDataTableAsync(0, false, setting.DisplayStartLineNo, setting.DisplayRecordNo,
+        var dt = await reader.GetDataTableAsync(false, setting.DisplayStartLineNo, setting.DisplayRecordNo,
                     setting.DisplayEndLineNo, false, null, UnitTestStatic.Token);
         UnitTestStatic.MimicSQLReader.AddSetting(setting.ID,
           dt!);
@@ -201,7 +201,7 @@ namespace CsvTools.Tests
       var backup = FunctionalDI.SQLDataReader;
       try
       {
-        FunctionalDI.SQLDataReader = (sql, eh, limit, token) => throw new FileWriterException("SQL Reader not specified"); ;
+        FunctionalDI.SQLDataReader = (sql, eh, timeout, limit, token) => throw new FileWriterException("SQL Reader not specified"); ;
         await DetermineColumnFormat.GetSqlColumnNamesAsync("Nonsense SQL", 60, UnitTestStatic.Token);
 
         Assert.Fail("Expected Exception not thrown");
@@ -277,7 +277,7 @@ namespace CsvTools.Tests
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         UnitTestStatic.MimicSQLReader.AddSetting(setting.ID,
-          (await reader.GetDataTableAsync(0, false, setting.DisplayStartLineNo, setting.DisplayRecordNo,
+          (await reader.GetDataTableAsync(false, setting.DisplayStartLineNo, setting.DisplayRecordNo,
             setting.DisplayEndLineNo, false, null, UnitTestStatic.Token))!);
       }
 
