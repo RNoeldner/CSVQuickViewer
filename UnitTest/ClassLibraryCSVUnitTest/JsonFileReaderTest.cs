@@ -27,7 +27,7 @@ namespace CsvTools.Tests
       var setting =
         new JsonFile(UnitTestStatic.GetTestPath("Larger.json.gz"));
       var dpd = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("object_id", jfr.GetName(0));
@@ -44,7 +44,7 @@ namespace CsvTools.Tests
     {
       var setting = new JsonFile(UnitTestStatic.GetTestPath("LogFile.json"));
       var dpd = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
       await jfr.OpenAsync(UnitTestStatic.Token);
       await jfr.ReadAsync(UnitTestStatic.Token);
@@ -64,7 +64,7 @@ namespace CsvTools.Tests
       var setting = new JsonFile(UnitTestStatic.GetTestPath("Emp.json"));
 
       var dpd = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
       await jfr.OpenAsync(UnitTestStatic.Token);
       await jfr.ReadAsync(UnitTestStatic.Token);
@@ -82,7 +82,7 @@ namespace CsvTools.Tests
       var setting = new JsonFile(UnitTestStatic.GetTestPath("Emp.json"));
 
       var dpd = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
       await jfr.OpenAsync(UnitTestStatic.Token);
       await jfr.ReadAsync(UnitTestStatic.Token);
@@ -244,7 +244,7 @@ namespace CsvTools.Tests
       var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason1.json"));
 
       var processDisplay = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, processDisplay);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(20, jfr.FieldCount);
@@ -262,7 +262,7 @@ namespace CsvTools.Tests
         new JsonFile(UnitTestStatic.GetTestPath("Larger.json"));
 
       var processDisplay = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, processDisplay);
       await jfr.OpenAsync(UnitTestStatic.Token);
       await jfr.ReadAsync(UnitTestStatic.Token);
@@ -282,7 +282,7 @@ namespace CsvTools.Tests
     {
       var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason2.json"));
       var dpd = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(7, jfr.FieldCount);
@@ -303,7 +303,7 @@ namespace CsvTools.Tests
       var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason3.json"));
 
       var dpd = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, dpd);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(2, jfr.FieldCount);
@@ -324,7 +324,7 @@ namespace CsvTools.Tests
       var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason4.json"));
 
       var processDisplay = new CustomProcessDisplay();
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOption.All,
+      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, processDisplay);
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(3, jfr.FieldCount);

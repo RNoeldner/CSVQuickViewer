@@ -12,21 +12,26 @@
  *
  */
 
-using System;
-
 namespace CsvTools
 {
-  [Serializable]
-	public enum AccessProtocol
+  /// <summary>
+  ///   Enumeration of the different trimming options
+  /// </summary>
+  public enum TrimmingOptionEnum
 	{
 		/// <summary>
-		///   File System Copy
+		///   No Trimming
 		/// </summary>
-		Local = -1,
+		None = 0,
 
 		/// <summary>
-		///   sFTP Access
+		///   Do trim unquoted Text
 		/// </summary>
-		Sftp = 0
+		Unquoted = 1,
+
+		/// <summary>
+		///   Do trim everything, quoted and unquoted text
+		/// </summary>
+		All = 3
 	}
 }

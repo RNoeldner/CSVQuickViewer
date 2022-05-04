@@ -33,8 +33,8 @@ namespace CsvTools.Tests
       using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0, true,
         new IColumn[]
         {
-          new ImmutableColumn("DateTime", new ImmutableValueFormat(DataType.DateTime), 0, true, "", true),
-          new ImmutableColumn("Integer", new ImmutableValueFormat(DataType.Integer), 0, true, "", true),
+          new ImmutableColumn("DateTime", new ImmutableValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
+          new ImmutableColumn("Integer", new ImmutableValueFormat(DataTypeEnum.Integer), 0, true, "", true),
         });
       await reader.OpenAsync(CancellationToken.None);
       coll.HandleIgnoredColumns(reader);

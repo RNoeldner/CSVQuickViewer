@@ -48,12 +48,12 @@ namespace CsvTools.Tests
       var (_, detectedCols) = await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, UnitTestStatic.Token);
 
       var expected =
-        new Dictionary<string, DataType>
+        new Dictionary<string, DataTypeEnum>
         {
-          {"object_id", DataType.Guid},
-          {"_last_touched_dt_utc", DataType.DateTime},
-          {"classification_id", DataType.Guid},
-          {"email_option_id", DataType.Integer}
+          {"object_id", DataTypeEnum.Guid},
+          {"_last_touched_dt_utc", DataTypeEnum.DateTime},
+          {"classification_id", DataTypeEnum.Guid},
+          {"email_option_id", DataTypeEnum.Integer}
         };
 
       foreach (var keyValue in expected)
@@ -401,9 +401,9 @@ namespace CsvTools.Tests
       };
       var (_, detected) = await setting.FillGuessColumnFormatReaderAsync(true, false, fillGuessSettings, UnitTestStatic.Token);
 
-      Assert.AreEqual(DataType.Integer, detected.First(x => x.Name=="ID")?.ValueFormat?.DataType);
-      Assert.AreEqual(DataType.DateTime, detected.First(x => x.Name=="ExamDate")?.ValueFormat?.DataType);
-      Assert.AreEqual(DataType.Boolean, detected.First(x => x.Name=="IsNativeLang")?.ValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.Integer, detected.First(x => x.Name=="ID")?.ValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, detected.First(x => x.Name=="ExamDate")?.ValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.Boolean, detected.First(x => x.Name=="IsNativeLang")?.ValueFormat?.DataType);
     }
 
     [TestMethod]
@@ -433,7 +433,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("Start Date", col[0].Name, "Column 1 Start date");
       Assert.AreEqual("Start Time", col[1].Name, "Column 2 Start Time");
       Assert.AreEqual("Start Time", col[0].TimePart, "TimePart is Start Time");
-      Assert.AreEqual(DataType.DateTime, col[0].ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, col[0].ValueFormat.DataType);
       Assert.AreEqual("MM/dd/yyyy", col[0].ValueFormat.DateFormat);
       Assert.AreEqual("HH:mm:ss", col[1].ValueFormat.DateFormat);
     }
@@ -460,9 +460,9 @@ namespace CsvTools.Tests
 
       var (_, detected) =await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
       var col = new ColumnCollection(detected);
-      Assert.AreEqual(DataType.Integer, col.Get("ID")?.ValueFormat?.DataType);
-      Assert.AreEqual(DataType.DateTime, col.Get("ExamDate")?.ValueFormat?.DataType);
-      Assert.AreEqual(DataType.Boolean, col.Get("IsNativeLang")?.ValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.Integer, col.Get("ID")?.ValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, col.Get("ExamDate")?.ValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.Boolean, col.Get("IsNativeLang")?.ValueFormat?.DataType);
     }
 
     [TestMethod]
@@ -493,7 +493,7 @@ namespace CsvTools.Tests
       Assert.IsNotNull(col.Get(@"Betrag Brutto (2 Nachkommastellen)"), "Data Type recognized");
 
       Assert.AreEqual(
-        DataType.Numeric,
+        DataTypeEnum.Numeric,
         col.Get(@"Betrag Brutto (2 Nachkommastellen)")?.ValueFormat?.DataType,
         "Is Numeric");
 
@@ -502,7 +502,7 @@ namespace CsvTools.Tests
         col.Get(@"Betrag Brutto (2 Nachkommastellen)")?.ValueFormat?.DecimalSeparator,
         "Decimal Separator found");
 
-      Assert.AreEqual(DataType.DateTime, col.Get(@"Erstelldatum Rechnung")?.ValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, col.Get(@"Erstelldatum Rechnung")?.ValueFormat?.DataType);
     }
 
     [TestMethod]
@@ -528,8 +528,8 @@ namespace CsvTools.Tests
       var (_, detected) = await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
       var col = new ColumnCollection(detected);
       Assert.IsTrue(col.Get("ID") == null || col.Get("ID")?.Convert == false);
-      Assert.AreEqual(DataType.DateTime, col.Get("ExamDate")?.ValueFormat?.DataType);
-      Assert.AreEqual(DataType.Boolean, col.Get("IsNativeLang")?.ValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, col.Get("ExamDate")?.ValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.Boolean, col.Get("IsNativeLang")?.ValueFormat?.DataType);
     }
 
     [TestMethod]
@@ -547,10 +547,10 @@ namespace CsvTools.Tests
       var (_, detected) =await setting.FillGuessColumnFormatReaderAsync(true, true, fillGuessSettings, UnitTestStatic.Token);
       var col = new ColumnCollection(detected);
       Assert.AreEqual(10, col.Count);
-      Assert.AreEqual(DataType.DateTime, col[0].ValueFormat.DataType);
-      Assert.AreEqual(DataType.Integer, col[1].ValueFormat.DataType);
-      Assert.AreEqual(DataType.Numeric, col[2].ValueFormat.DataType);
-      Assert.AreEqual(DataType.String, col[4].ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, col[0].ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.Integer, col[1].ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.Numeric, col[2].ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.String, col[4].ValueFormat.DataType);
     }
 
     [TestMethod]
@@ -651,18 +651,18 @@ namespace CsvTools.Tests
       var v2 = detected.First(x => x.Name == "Double");
       var v3 = detected.First(x => x.Name == "Boolean");
       Assert.AreEqual(
-        DataType.DateTime,
+        DataTypeEnum.DateTime,
         v1.ValueFormat.DataType,
         "DateTime (Date Time (dd/MM/yyyy))");
 
       // a double will always be read as decimal from Csv
       Assert.AreEqual(
-        DataType.Numeric,
+        DataTypeEnum.Numeric,
         v2.ValueFormat.DataType,
         "Double (Money (High Precision) (0.#####))");
 
       Assert.AreEqual(
-        DataType.Boolean,
+        DataTypeEnum.Boolean,
         v3.ValueFormat.DataType,
         "Boolean (Boolean)");
     }
@@ -777,7 +777,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestStatic.Token);
-      Assert.AreEqual(DataType.Boolean, res.FoundValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.Boolean, res.FoundValueFormat?.DataType);
     }
 
     [TestMethod]
@@ -799,7 +799,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestStatic.Token);
-      Assert.AreEqual(DataType.Boolean, res.FoundValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.Boolean, res.FoundValueFormat?.DataType);
     }
 
     [TestMethod]
@@ -822,7 +822,7 @@ namespace CsvTools.Tests
         null,
         UnitTestStatic.Token);
       if (res.FoundValueFormat != null)
-        Assert.AreEqual(DataType.String, res.FoundValueFormat?.DataType);
+        Assert.AreEqual(DataTypeEnum.String, res.FoundValueFormat?.DataType);
     }
 
     [TestMethod]
@@ -844,7 +844,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestStatic.Token);
-      Assert.AreEqual(DataType.DateTime, res.FoundValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"dd/MM/yyyy", res.FoundValueFormat?.DateFormat);
       Assert.AreEqual("/", res.FoundValueFormat?.DateSeparator);
     }
@@ -868,7 +868,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestStatic.Token);
-      Assert.AreEqual(DataType.DateTime, res.FoundValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"dd/MM/yyyy", res.FoundValueFormat?.DateFormat);
       Assert.AreEqual(".", res.FoundValueFormat?.DateSeparator);
     }
@@ -892,7 +892,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestStatic.Token);
-      Assert.AreEqual(DataType.Guid, res.FoundValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.Guid, res.FoundValueFormat?.DataType);
     }
 
     [TestMethod]
@@ -914,7 +914,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestStatic.Token);
-      Assert.AreEqual(DataType.Integer, res.FoundValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.Integer, res.FoundValueFormat?.DataType);
     }
 
     [TestMethod]
@@ -936,7 +936,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestStatic.Token);
-      Assert.AreEqual(DataType.Integer, res.FoundValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.Integer, res.FoundValueFormat?.DataType);
     }
 
     [TestMethod]
@@ -958,7 +958,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestStatic.Token);
-      Assert.AreEqual(DataType.DateTime, res.FoundValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"MM/dd/yyyy", res.FoundValueFormat?.DateFormat);
       Assert.AreEqual("/", res.FoundValueFormat?.DateSeparator);
     }
@@ -982,7 +982,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestStatic.Token);
-      Assert.AreEqual(DataType.DateTime, res.FoundValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"yyyyMMdd", res.FoundValueFormat?.DateFormat);
     }
 
@@ -1024,9 +1024,9 @@ namespace CsvTools.Tests
         true,
         false,
         false,
-        new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "MM/dd/yyyy", DateSeparator = "/" },
+        new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = "MM/dd/yyyy", DateSeparator = "/" },
         UnitTestStatic.Token);
-      Assert.AreEqual(DataType.DateTime, res.FoundValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"MM/dd/yyyy", res.FoundValueFormat?.DateFormat);
       Assert.AreEqual("/", res.FoundValueFormat?.DateSeparator);
     }
@@ -1087,7 +1087,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestStatic.Token);
-      Assert.AreEqual(DataType.DateTime, res.FoundValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
     }
 
     [TestMethod]
@@ -1109,7 +1109,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestStatic.Token);
-      Assert.AreEqual(DataType.Numeric, res.FoundValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.Numeric, res.FoundValueFormat?.DataType);
       Assert.AreEqual(".", res.FoundValueFormat?.DecimalSeparator);
     }
 
@@ -1132,7 +1132,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestStatic.Token);
-      Assert.AreEqual(DataType.Numeric, res.FoundValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.Numeric, res.FoundValueFormat?.DataType);
       Assert.AreEqual(".", res.FoundValueFormat?.GroupSeparator);
       Assert.AreEqual(",", res.FoundValueFormat?.DecimalSeparator);
     }
@@ -1156,7 +1156,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestStatic.Token);
-      Assert.AreEqual(DataType.String, res.FoundValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.String, res.FoundValueFormat?.DataType);
     }
 
     [TestMethod]
@@ -1178,7 +1178,7 @@ namespace CsvTools.Tests
         false,
         null,
         UnitTestStatic.Token);
-      Assert.IsTrue(res.FoundValueFormat == null || res.FoundValueFormat?.DataType != DataType.Integer);
+      Assert.IsTrue(res.FoundValueFormat == null || res.FoundValueFormat?.DataType != DataTypeEnum.Integer);
     }
   }
 }

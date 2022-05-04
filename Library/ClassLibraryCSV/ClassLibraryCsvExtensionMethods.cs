@@ -112,33 +112,33 @@ namespace CsvTools
     /// <summary>
     ///   User Display for a data type
     /// </summary>
-    /// <param name="dataType">The <see cref="DataType" />.</param>
+    /// <param name="dataType">The <see cref="DataTypeEnum" />.</param>
     /// <returns>A text representing the dataType</returns>
-    public static string DataTypeDisplay(this DataType dataType) =>
+    public static string DataTypeDisplay(this DataTypeEnum dataType) =>
       dataType switch
       {
-        DataType.DateTime => "Date Time",
-        DataType.Integer => "Integer",
-        DataType.Double => "Floating  Point (High Range)",
-        DataType.Numeric => "Money (High Precision)",
-        DataType.Boolean => "Boolean",
-        DataType.Guid => "Guid",
-        DataType.TextPart => "Text Part",
-        DataType.TextToHtml => "Encode HTML (CData, Linefeed, List)",
-        DataType.TextToHtmlFull => "Encode HTML ('<' -> '&lt;')",
-        DataType.TextUnescape => "Unescape Text ('\\r' -> \u240D)",
+        DataTypeEnum.DateTime => "Date Time",
+        DataTypeEnum.Integer => "Integer",
+        DataTypeEnum.Double => "Floating  Point (High Range)",
+        DataTypeEnum.Numeric => "Money (High Precision)",
+        DataTypeEnum.Boolean => "Boolean",
+        DataTypeEnum.Guid => "Guid",
+        DataTypeEnum.TextPart => "Text Part",
+        DataTypeEnum.TextToHtml => "Encode HTML (CData, Linefeed, List)",
+        DataTypeEnum.TextToHtmlFull => "Encode HTML ('<' -> '&lt;')",
+        DataTypeEnum.TextUnescape => "Unescape Text ('\\r' -> \u240D)",
 #if !QUICK
-        DataType.Markdown2Html => "Markdown to HTML",
+        DataTypeEnum.Markdown2Html => "Markdown to HTML",
 #endif
-        DataType.TextReplace => "Replace",
-        DataType.String => "Text",
-        DataType.Binary => "Binary (File Reference)",
+        DataTypeEnum.TextReplace => "Replace",
+        DataTypeEnum.String => "Text",
+        DataTypeEnum.Binary => "Binary (File Reference)",
         _ => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, $"Data Type {dataType} not known in {nameof(DataTypeDisplay)}")
       };
 
-    public static string Description(this RecordDelimiterType item)
+    public static string Description(this RecordDelimiterTypeEnum item)
     {
-      var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));
+      var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterTypeEnum));
       return descConv.ConvertToString(item) ?? string.Empty;
     }
 
@@ -178,23 +178,23 @@ namespace CsvTools
     ///   Gets the CsvTools type for a .NET type
     /// </summary>
     /// <param name="type">The type.</param>
-    /// <returns>The matching <see cref="DataType" />.</returns>
-    public static DataType GetDataType(this Type type)
+    /// <returns>The matching <see cref="DataTypeEnum" />.</returns>
+    public static DataTypeEnum GetDataType(this Type type)
     {
       switch (Type.GetTypeCode(type))
       {
         case TypeCode.Boolean:
-          return DataType.Boolean;
+          return DataTypeEnum.Boolean;
 
         case TypeCode.DateTime:
-          return DataType.DateTime;
+          return DataTypeEnum.DateTime;
 
         case TypeCode.Single:
         case TypeCode.Double:
-          return DataType.Double;
+          return DataTypeEnum.Double;
 
         case TypeCode.Decimal:
-          return DataType.Numeric;
+          return DataTypeEnum.Numeric;
 
         case TypeCode.Byte:
         case TypeCode.Int16:
@@ -204,26 +204,26 @@ namespace CsvTools
         case TypeCode.UInt16:
         case TypeCode.UInt32:
         case TypeCode.UInt64:
-          return DataType.Integer;
+          return DataTypeEnum.Integer;
 
         case TypeCode.Object when type.ToString().Equals("System.Image", StringComparison.Ordinal):
-          return DataType.Binary;
+          return DataTypeEnum.Binary;
 
         case TypeCode.Object when type.ToString().Equals("System.TimeSpan", StringComparison.Ordinal):
-          return DataType.DateTime;
+          return DataTypeEnum.DateTime;
 
         case TypeCode.Object when type.ToString().Equals("System.Guid", StringComparison.Ordinal):
-          return DataType.Guid;
+          return DataTypeEnum.Guid;
 
         case TypeCode.Char:
         case TypeCode.String:
         case TypeCode.Object:
         case TypeCode.Empty:
         case TypeCode.DBNull:
-          return DataType.String;
+          return DataTypeEnum.String;
 
         default:
-          return DataType.String;
+          return DataTypeEnum.String;
       }
     }
 
@@ -313,18 +313,18 @@ namespace CsvTools
     ///   Gets the .NET type for a given CsvTools type
     ///  Always using long for integer values no matter if 32 or 64 bit system
     /// </summary>
-    /// <param name="dt">The <see cref="DataType" />.</param>
+    /// <param name="dt">The <see cref="DataTypeEnum" />.</param>
     /// <returns>The .NET Type</returns>
-    public static Type GetNetType(this DataType dt) =>
+    public static Type GetNetType(this DataTypeEnum dt) =>
       dt switch
       {
-        DataType.DateTime => typeof(DateTime),
-        DataType.Integer => typeof(long),
-        DataType.Double => typeof(double),
-        DataType.Numeric => typeof(decimal),
-        DataType.Boolean => typeof(bool),
-        DataType.Guid => typeof(Guid),
-        DataType.String => typeof(string),
+        DataTypeEnum.DateTime => typeof(DateTime),
+        DataTypeEnum.Integer => typeof(long),
+        DataTypeEnum.Double => typeof(double),
+        DataTypeEnum.Numeric => typeof(decimal),
+        DataTypeEnum.Boolean => typeof(bool),
+        DataTypeEnum.Guid => typeof(Guid),
+        DataTypeEnum.String => typeof(string),
         _ => typeof(string)
       };
 
@@ -384,16 +384,16 @@ namespace CsvTools
       }
     }
 
-    public static string NewLineString(this RecordDelimiterType type) =>
+    public static string NewLineString(this RecordDelimiterTypeEnum type) =>
       type switch
       {
-        RecordDelimiterType.Lf => "\n",
-        RecordDelimiterType.Cr => "\r",
-        RecordDelimiterType.Crlf => "\r\n",
-        RecordDelimiterType.Lfcr => "\n\r",
-        RecordDelimiterType.Rs => "▲",
-        RecordDelimiterType.Us => "▼",
-        RecordDelimiterType.None => string.Empty,
+        RecordDelimiterTypeEnum.Lf => "\n",
+        RecordDelimiterTypeEnum.Cr => "\r",
+        RecordDelimiterTypeEnum.Crlf => "\r\n",
+        RecordDelimiterTypeEnum.Lfcr => "\n\r",
+        RecordDelimiterTypeEnum.Rs => "▲",
+        RecordDelimiterTypeEnum.Us => "▼",
+        RecordDelimiterTypeEnum.None => string.Empty,
         _ => string.Empty
       };
 

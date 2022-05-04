@@ -104,7 +104,7 @@ namespace CsvTools.Tests
       m_FileFormat.FieldDelimiter = "|";
       m_FileFormat.FieldQualifier = "#";
       m_FileFormat.EscapePrefix = "\\";
-      m_FileFormat.NewLine = RecordDelimiterType.Lf;
+      m_FileFormat.NewLine = RecordDelimiterTypeEnum.Lf;
       m_FileFormat.NewLinePlaceholder = "{n}";
       m_FileFormat.QualifyOnlyIfNeeded = false;
       m_FileFormat.QualifyAlways = true;
@@ -112,7 +112,7 @@ namespace CsvTools.Tests
 
       Assert.IsFalse(m_FileFormat.QualifyOnlyIfNeeded, "QualifyOnlyIfNeeded");
       Assert.IsTrue(m_FileFormat.QualifyAlways, "QualifyAlways");
-      Assert.AreEqual(RecordDelimiterType.Lf, m_FileFormat.NewLine, "NewLine");
+      Assert.AreEqual(RecordDelimiterTypeEnum.Lf, m_FileFormat.NewLine, "NewLine");
       Assert.AreEqual("##", m_FileFormat.CommentLine, "CommentLine");
       Assert.AreEqual("{d}", m_FileFormat.DelimiterPlaceholder, "DelimiterPlaceholder");
       Assert.AreEqual("{n}", m_FileFormat.NewLinePlaceholder, "NewLinePlaceholder");

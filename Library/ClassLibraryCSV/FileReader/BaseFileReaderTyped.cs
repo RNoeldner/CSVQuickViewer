@@ -267,7 +267,7 @@ namespace CsvTools
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
       if (CurrentValues.Length <= ordinal)
         return true;
-      if (Column[ordinal].ValueFormat.DataType == DataType.DateTime)
+      if (Column[ordinal].ValueFormat.DataType == DataTypeEnum.DateTime)
       {
         if (AssociatedTimeCol[ordinal] == -1)
           return CurrentValues[ordinal] is null || CurrentValues[ordinal] == DBNull.Value;

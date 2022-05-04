@@ -944,7 +944,7 @@ namespace CsvTools
     /// <param name="fieldQualifier">The field qualifier.</param>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>The NewLine Combination used</returns>
-    public static async Task<RecordDelimiterType> GuessNewline(
+    public static async Task<RecordDelimiterTypeEnum> GuessNewline(
       this IImprovedStream improvedStream,
       int codePageId,
       int skipRows,
@@ -1359,7 +1359,7 @@ namespace CsvTools
         !detectionResult.HasFieldHeader && detectionResult.SkipRows == 0 ? 1 : detectionResult.SkipRows,
         detectionResult.HasFieldHeader,
         null,
-        TrimmingOption.Unquoted,
+        TrimmingOptionEnum.Unquoted,
         detectionResult.FieldDelimiter,
         detectionResult.FieldQualifier,
         detectionResult.EscapePrefix,
@@ -1544,7 +1544,7 @@ namespace CsvTools
       return new Tuple<string, bool>(result, true);
     }
 
-    private static RecordDelimiterType GuessNewline(
+    private static RecordDelimiterTypeEnum GuessNewline(
       this ImprovedTextReader textReader,
       string fieldQualifier,
       CancellationToken token)
@@ -1632,21 +1632,21 @@ namespace CsvTools
 
       var maxCount = count.Max();
       if (maxCount == 0)
-        return RecordDelimiterType.None;
+        return RecordDelimiterTypeEnum.None;
 
-      var res = RecordDelimiterType.None;
+      var res = RecordDelimiterTypeEnum.None;
       if (count[recSep] == maxCount)
-        res = RecordDelimiterType.Rs;
+        res = RecordDelimiterTypeEnum.Rs;
       else if (count[unitSep] == maxCount)
-        res = RecordDelimiterType.Us;
+        res = RecordDelimiterTypeEnum.Us;
       else if (count[cr] == maxCount)
-        res = RecordDelimiterType.Cr;
+        res = RecordDelimiterTypeEnum.Cr;
       else if (count[lf] == maxCount)
-        res = RecordDelimiterType.Lf;
+        res = RecordDelimiterTypeEnum.Lf;
       else if (count[crLf] == maxCount)
-        res = RecordDelimiterType.Crlf;
+        res = RecordDelimiterTypeEnum.Crlf;
       else if (count[lfCr] == maxCount)
-        res = RecordDelimiterType.Lfcr;
+        res = RecordDelimiterTypeEnum.Lfcr;
       Logger.Information("Record Delimiter: {recorddelimiter}", res.Description());
       return res;
     }

@@ -200,7 +200,7 @@ namespace CsvTools
             }
 
             found.ValueFormatMutable.DataType = column.DataType.GetDataType();
-            if (found.ValueFormatMutable.DataType == DataType.String)
+            if (found.ValueFormatMutable.DataType == DataTypeEnum.String)
               return;
             m_ColumnEdit.ValueFormatMutable.DataType = found.ValueFormatMutable.DataType;
             processDisplay.Hide();
@@ -235,8 +235,8 @@ namespace CsvTools
             var detectDateTime = true;
             if (comboBoxDataType.SelectedValue != null)
             {
-              var selectedType = (DataType) comboBoxDataType.SelectedValue;
-              if (selectedType < DataType.String)
+              var selectedType = (DataTypeEnum) comboBoxDataType.SelectedValue;
+              if (selectedType < DataTypeEnum.String)
               {
                 var resp = MessageBox.Show(
                   $"Should the system restrict detection to {selectedType}?",
@@ -248,27 +248,27 @@ namespace CsvTools
                 if (resp == DialogResult.Yes)
                   switch (selectedType)
                   {
-                    case DataType.Integer:
-                    case DataType.Numeric:
-                    case DataType.Double:
+                    case DataTypeEnum.Integer:
+                    case DataTypeEnum.Numeric:
+                    case DataTypeEnum.Double:
                       detectBool = false;
                       detectDateTime = false;
                       detectGuid = false;
                       break;
 
-                    case DataType.DateTime:
+                    case DataTypeEnum.DateTime:
                       detectBool = false;
                       detectNumeric = false;
                       detectGuid = false;
                       break;
 
-                    case DataType.Boolean:
+                    case DataTypeEnum.Boolean:
                       detectGuid = false;
                       detectNumeric = false;
                       detectDateTime = false;
                       break;
 
-                    case DataType.Guid:
+                    case DataTypeEnum.Guid:
                       detectBool = false;
                       detectNumeric = false;
                       detectDateTime = false;
@@ -312,7 +312,7 @@ namespace CsvTools
                 {
                   m_ColumnEdit.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
 
-                  if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
+                  if (checkResult.FoundValueFormat.DataType == DataTypeEnum.DateTime)
                     AddDateFormat(checkResult.FoundValueFormat.DateFormat);
 
                   // In case possible match has the same information as FoundValueFormat, disregard
@@ -321,13 +321,13 @@ namespace CsvTools
                     checkResult.PossibleMatch = false;
                 }
 
-                if (checkResult.ValueFormatPossibleMatch.DataType == DataType.DateTime)
+                if (checkResult.ValueFormatPossibleMatch.DataType == DataTypeEnum.DateTime)
                   AddDateFormat(checkResult.ValueFormatPossibleMatch.DateFormat);
 
                 var header1 = string.Empty;
                 var suggestClosestMatch = checkResult.PossibleMatch
                                           && (checkResult.FoundValueFormat is null
-                                              || checkResult.FoundValueFormat.DataType == DataType.String);
+                                              || checkResult.FoundValueFormat.DataType == DataTypeEnum.String);
                 header1 += $"Determined Format : {checkResult.FoundValueFormat?.GetTypeAndFormatDescription()}";
 
                 if (checkResult.PossibleMatch)
@@ -374,7 +374,7 @@ namespace CsvTools
                 }
                 else
                 {
-                  if (m_ColumnEdit.ValueFormatMutable.DataType == DataType.String)
+                  if (m_ColumnEdit.ValueFormatMutable.DataType == DataTypeEnum.String)
                   {
                     MessageBox.ShowBig(
                       displayMsg,
@@ -389,7 +389,7 @@ namespace CsvTools
                           $"Column: {columnName}",
                           MessageBoxButtons.YesNo,
                           MessageBoxIcon.Question) == DialogResult.Yes)
-                      m_ColumnEdit.ValueFormatMutable.DataType = DataType.String;
+                      m_ColumnEdit.ValueFormatMutable.DataType = DataTypeEnum.String;
                   }
                 }
               }
@@ -710,14 +710,14 @@ namespace CsvTools
       {
         if (comboBoxDataType.SelectedValue is null)
           return;
-        var selType = (DataType) comboBoxDataType.SelectedValue;
+        var selType = (DataTypeEnum) comboBoxDataType.SelectedValue;
         m_ColumnEdit.ValueFormatMutable.DataType = selType;
 
-        groupBoxNumber.Visible = selType == DataType.Numeric || selType == DataType.Double;
+        groupBoxNumber.Visible = selType == DataTypeEnum.Numeric || selType == DataTypeEnum.Double;
         if (groupBoxNumber.Visible)
           NumberFormatChanged(sender, EventArgs.Empty);
 
-        groupBoxDate.Visible = selType == DataType.DateTime;
+        groupBoxDate.Visible = selType == DataTypeEnum.DateTime;
         if (groupBoxDate.Visible)
         {
           if (string.IsNullOrEmpty(m_ColumnEdit.DateFormat))
@@ -725,11 +725,11 @@ namespace CsvTools
           DateFormatChanged(sender, EventArgs.Empty);
         }
 
-        groupBoxBoolean.Visible = selType == DataType.Boolean;
-        groupBoxSplit.Visible = selType == DataType.TextPart;
-        groupBoxRegExReplace.Visible = selType == DataType.TextReplace;
+        groupBoxBoolean.Visible = selType == DataTypeEnum.Boolean;
+        groupBoxSplit.Visible = selType == DataTypeEnum.TextPart;
+        groupBoxRegExReplace.Visible = selType == DataTypeEnum.TextReplace;
 
-        groupBoxBinary.Visible = selType == DataType.Binary;
+        groupBoxBinary.Visible = selType == DataTypeEnum.Binary;
         if (groupBoxBinary.Visible && m_ColumnEdit.DateFormat == ValueFormatExtension.cDateFormatDefault)
           m_ColumnEdit.DateFormat = string.Empty;
 
@@ -767,7 +767,7 @@ namespace CsvTools
       UpdateDateLabel(
         new ValueFormatMutable()
         {
-          DataType = DataType.DateTime,
+          DataType = DataTypeEnum.DateTime,
           DateFormat = dateFormat,
           DateSeparator = textBoxDateSeparator.Text,
           TimeSeparator = textBoxTimeSeparator.Text
@@ -919,7 +919,7 @@ namespace CsvTools
     {
       SetDateFormat();
       var selValue = (int) m_ColumnEdit.ValueFormatMutable.DataType;
-      comboBoxDataType.DataSource = (from DataType item in Enum.GetValues(typeof(DataType)) select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
+      comboBoxDataType.DataSource = (from DataTypeEnum item in Enum.GetValues(typeof(DataTypeEnum)) select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
       comboBoxDataType.SelectedValue = selValue;
       ComboBoxColumnName_TextUpdate(null, EventArgs.Empty);
     }

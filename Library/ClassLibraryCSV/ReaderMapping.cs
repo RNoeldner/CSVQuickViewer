@@ -82,7 +82,7 @@ namespace CsvTools
         m_ReaderColumnNotIgnored.Add(
           new ImmutableColumn(
             ReaderConstants.cStartLineNumberFieldName,
-            new ImmutableValueFormat(DataType.Integer),
+            new ImmutableValueFormat(DataTypeEnum.Integer),
             DataTableStartLine));
       }
       else
@@ -96,7 +96,7 @@ namespace CsvTools
         m_ReaderColumnNotIgnored.Add(
           new ImmutableColumn(
             ReaderConstants.cRecordNumberFieldName,
-            new ImmutableValueFormat(DataType.Integer),
+            new ImmutableValueFormat(DataTypeEnum.Integer),
             DataTableRecNum));
       }
       else
@@ -110,7 +110,7 @@ namespace CsvTools
         m_ReaderColumnNotIgnored.Add(
           new ImmutableColumn(
             ReaderConstants.cEndLineNumberFieldName,
-            new ImmutableValueFormat(DataType.Integer),
+            new ImmutableValueFormat(DataTypeEnum.Integer),
             DataTableEndLine));
       }
       else

@@ -89,7 +89,7 @@ namespace CsvTools.Tests
       m_CsvFile.CheckAllPropertiesEqual(test);
       // Test Properties that are not tested
       Assert.AreEqual(m_CsvFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
-      Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
+      Assert.AreEqual(TrimmingOptionEnum.Unquoted, test.TrimmingOption, "TrimmingOption");
       Assert.IsTrue(m_CsvFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
       Assert.IsTrue(m_CsvFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "ColumnCollection");
       Assert.IsTrue(test.Equals(m_CsvFile), "Equals");
@@ -106,7 +106,7 @@ namespace CsvTools.Tests
       // Test Properties that are not tested
 
       Assert.AreEqual(m_CsvFile.MappingCollection.Count, test!.MappingCollection.Count, "FieldMapping");
-      Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
+      Assert.AreEqual(TrimmingOptionEnum.Unquoted, test.TrimmingOption, "TrimmingOption");
       Assert.IsTrue(m_CsvFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
       //Assert.IsTrue(m_CsvFile.Errors.CollectionEqualWithOrder(test.Errors), "Errors");
       Assert.IsTrue(m_CsvFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "ColumnCollection");
@@ -308,7 +308,7 @@ namespace CsvTools.Tests
 
       m_CsvFile.TreatNBSPAsSpace = true;
       Assert.IsTrue(m_CsvFile.TreatNBSPAsSpace, "TreatNBSPAsSpace");
-      m_CsvFile.TrimmingOption = TrimmingOption.Unquoted;
+      m_CsvFile.TrimmingOption = TrimmingOptionEnum.Unquoted;
       m_CsvFile.WarnDelimiterInValue = true;
       Assert.IsTrue(m_CsvFile.WarnDelimiterInValue, "WarnDelimiterInValue");
 
@@ -318,7 +318,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(2, m_CsvFile.MappingCollection.Count, "FieldMapping");
 
       m_CsvFile.ColumnCollection.Clear();
-      m_CsvFile.ColumnCollection.Add(new Column("ID", DataType.Integer) { ColumnOrdinal = 1, Ignore = false, Convert = true });
+      m_CsvFile.ColumnCollection.Add(new Column("ID", DataTypeEnum.Integer) { ColumnOrdinal = 1, Ignore = false, Convert = true });
       m_CsvFile.ColumnCollection.Add(new Column { ColumnOrdinal = 2, Name = "Name" });
 
       m_CsvFile.WarnEmptyTailingColumns = false;
@@ -349,7 +349,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("ID", m_CsvFile.ID, "ID");
       Assert.IsTrue(m_CsvFile.InOverview, "IsCritical");
       Assert.IsFalse(m_CsvFile.IsEnabled, "IsEnabled");
-      Assert.AreEqual(TrimmingOption.Unquoted, m_CsvFile.TrimmingOption, "TrimmingOption");
+      Assert.AreEqual(TrimmingOptionEnum.Unquoted, m_CsvFile.TrimmingOption, "TrimmingOption");
       Assert.AreEqual(5, m_CsvFile.NumWarnings, "NumWarnings");
 
       Assert.AreEqual(5L, m_CsvFile.RecordLimit, "RecordLimit");

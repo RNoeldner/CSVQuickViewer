@@ -117,7 +117,7 @@ namespace CsvTools
         false,
         false,
         false,
-        RecordDelimiterType.Lf);
+        RecordDelimiterTypeEnum.Lf);
 
       var columnCollection = new List<IColumn>();
       foreach (var fld in mani.Fields)
@@ -129,37 +129,37 @@ namespace CsvTools
           case "long":
           case "byte":
           case "short":
-            vf = new ImmutableValueFormat(DataType.Integer);
+            vf = new ImmutableValueFormat(DataTypeEnum.Integer);
             break;
 
           case "decimal":
           case "single":
           case "double":
-            vf = new ImmutableValueFormat(DataType.Numeric, decimalSeparator: ".");
+            vf = new ImmutableValueFormat(DataTypeEnum.Numeric, decimalSeparator: ".");
             break;
 
           case "uuid":
           case "guid":
-            vf = new ImmutableValueFormat(DataType.Guid);
+            vf = new ImmutableValueFormat(DataTypeEnum.Guid);
             break;
 
           case "bit":
-            vf = new ImmutableValueFormat(DataType.Boolean);
+            vf = new ImmutableValueFormat(DataTypeEnum.Boolean);
             break;
 
           case "date":
           case "localdate":
-            vf = new ImmutableValueFormat(DataType.DateTime, "yyyy/MM/dd", "-");
+            vf = new ImmutableValueFormat(DataTypeEnum.DateTime, "yyyy/MM/dd", "-");
             break;
 
           case "datetime":
           case "localdatetime":
-            vf = new ImmutableValueFormat(DataType.DateTime, "yyyy/MM/ddTHH:mm:ss.FFFFFFF", "-");
+            vf = new ImmutableValueFormat(DataTypeEnum.DateTime, "yyyy/MM/ddTHH:mm:ss.FFFFFFF", "-");
             break;
 
           case "time":
           case "localtime":
-            vf = new ImmutableValueFormat(DataType.DateTime, "HH:mm:ss.FFFFFFF");
+            vf = new ImmutableValueFormat(DataTypeEnum.DateTime, "HH:mm:ss.FFFFFFF");
             break;
 
           default:

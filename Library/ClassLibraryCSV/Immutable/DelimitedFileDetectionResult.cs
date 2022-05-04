@@ -38,7 +38,7 @@ namespace CsvTools
 
     public readonly bool IsJson;
 
-    public readonly RecordDelimiterType NewLine;
+    public readonly RecordDelimiterTypeEnum NewLine;
 
     public readonly bool NoDelimitedFile;
 
@@ -60,7 +60,7 @@ namespace CsvTools
       bool hasFieldHeader = true,
       bool isJson = false,
       bool noDelimitedFile = false,
-      RecordDelimiterType recordDelimiterType = RecordDelimiterType.None)
+      RecordDelimiterTypeEnum recordDelimiterType = RecordDelimiterTypeEnum.None)
     {
       FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
       IdentifierInContainer = identifierInContainer ?? string.Empty;

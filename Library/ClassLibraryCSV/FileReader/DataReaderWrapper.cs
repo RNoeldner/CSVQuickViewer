@@ -212,7 +212,7 @@ namespace CsvTools
         else
         {
           // If there is a conversion get the information
-          if (column.Convert && column.ValueFormat.DataType != DataType.String)
+          if (column.Convert && column.ValueFormat.DataType != DataTypeEnum.String)
             schemaRow[7] = column.ValueFormat.DataType.GetNetType();
           else
             schemaRow[7] = typeof(string);

@@ -83,7 +83,7 @@ namespace CsvTools.Tests
         StringConversion.DoubleToString(
           1237.6,
           new ImmutableValueFormat(
-            DataType.Double,
+            DataTypeEnum.Double,
             groupSeparator: ".",
             decimalSeparator: ",",
             numberFormat: "#,####.0")));
@@ -93,7 +93,7 @@ namespace CsvTools.Tests
         StringConversion.DoubleToString(
           17.6,
           new ImmutableValueFormat(
-            DataType.Double,
+            DataTypeEnum.Double,
             groupSeparator: ".",
             decimalSeparator: ",",
             numberFormat: "#,####.0")));
@@ -606,12 +606,12 @@ namespace CsvTools.Tests
       Assert.IsFalse(StringConversion.CheckNumber(Array.Empty<string>(), ".", "", false, false, 1, UnitTestStatic.Token).FoundValueFormat != null);
       Assert.IsTrue(StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, 0, UnitTestStatic.Token).FoundValueFormat != null);
       Assert.AreEqual(
-        DataType.Integer,
+        DataTypeEnum.Integer,
         StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, 1, UnitTestStatic.Token)!.FoundValueFormat!.DataType);
       Assert.IsFalse(
         StringConversion.CheckNumber(new[] { "16673", "A Test" }, ".", "", false, false, 2, UnitTestStatic.Token).FoundValueFormat != null);
       Assert.AreEqual(
-        DataType.Numeric,
+        DataTypeEnum.Numeric,
         StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, ".", "", false, false, 3, UnitTestStatic.Token)!.FoundValueFormat!
           .DataType);
     }

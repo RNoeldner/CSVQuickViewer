@@ -60,7 +60,7 @@ namespace CsvTools
       in string? header = null,
       in string? footer = null,
       in string fileSettingDisplay = "",
-      RecordDelimiterType newLine = RecordDelimiterType.Crlf,
+      RecordDelimiterTypeEnum newLine = RecordDelimiterTypeEnum.Crlf,
       char fieldDelimiterChar = ',',
       char fieldQualifierChar = '\"',
       char escapePrefixChar = '\0',
@@ -211,7 +211,7 @@ namespace CsvTools
       await writer.FlushAsync().ConfigureAwait(false);
     }
 
-    private string QualifyText(string displayAs, DataType dataType)
+    private string QualifyText(string displayAs, DataTypeEnum dataType)
     {
       var qualifyThis = m_QualifyAlways;
       if (!qualifyThis)
@@ -224,7 +224,7 @@ namespace CsvTools
                                                  || displayAs[0].Equals(' '));
         else
           // quality any text or something containing a Qualify Char
-          qualifyThis = dataType == DataType.String || dataType == DataType.TextToHtml
+          qualifyThis = dataType == DataTypeEnum.String || dataType == DataTypeEnum.TextToHtml
                                                     || displayAs.IndexOfAny(m_QualifyCharArray) > -1;
       }
 
@@ -242,7 +242,7 @@ namespace CsvTools
       WriterColumn columnInfo,
       bool isHeader,
       IDataReader? reader,
-      Func<string, DataType, string>? handleQualify)
+      Func<string, DataTypeEnum, string>? handleQualify)
     {
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));
@@ -260,7 +260,7 @@ namespace CsvTools
       else
       {
         displayAs = TextEncodeField(dataObject, columnInfo, reader);
-        if (columnInfo.ValueFormat.DataType == DataType.String)
+        if (columnInfo.ValueFormat.DataType == DataTypeEnum.String)
         {
           // a new line of any kind will be replaced with the placeholder if set
           if (m_NewLinePlaceholder.Length > 0)

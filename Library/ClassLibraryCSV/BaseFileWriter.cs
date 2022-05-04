@@ -188,27 +188,27 @@ namespace CsvTools
         var fieldLength = Math.Max((int) schemaRow[SchemaTableColumn.ColumnSize], 0);
         switch (valueFormat)
         {
-          case { DataType: DataType.Integer }:
+          case { DataType: DataTypeEnum.Integer }:
             fieldLength = 10;
             break;
 
-          case { DataType: DataType.Boolean }:
+          case { DataType: DataTypeEnum.Boolean }:
           {
             var lenTrue = valueFormat.True.Length;
             var lenFalse = valueFormat.False.Length;
             fieldLength = lenTrue > lenFalse ? lenTrue : lenFalse;
             break;
           }
-          case { DataType: DataType.Double }:
-          case { DataType: DataType.Numeric }:
+          case { DataType: DataTypeEnum.Double }:
+          case { DataType: DataTypeEnum.Numeric }:
             fieldLength = 28;
             break;
 
-          case { DataType: DataType.DateTime }:
+          case { DataType: DataTypeEnum.DateTime }:
             fieldLength = valueFormat.DateFormat.Length;
             break;
 
-          case { DataType: DataType.Guid }:
+          case { DataType: DataTypeEnum.Guid }:
             fieldLength = 36;
             break;
         }
@@ -249,7 +249,7 @@ namespace CsvTools
             column.TimePart,
             colNo,
             new ImmutableValueFormat(
-              DataType.DateTime,
+              DataTypeEnum.DateTime,
               column.TimePartFormat,
               timeSeparator: column.ValueFormat?.TimeSeparator ?? ":"),
             column.TimePartFormat.Length,
@@ -374,19 +374,19 @@ namespace CsvTools
       switch (columnInfo.ValueFormat.DataType)
       {
 
-        case DataType.Integer:
+        case DataTypeEnum.Integer:
           return Convert.ToInt64(dataObject);
 
-        case DataType.Boolean:
+        case DataTypeEnum.Boolean:
           return Convert.ToBoolean(dataObject);
 
-        case DataType.Double:
+        case DataTypeEnum.Double:
           return Convert.ToDouble(dataObject);
 
-        case DataType.Numeric:
+        case DataTypeEnum.Numeric:
           return Convert.ToDecimal(dataObject);
 
-        case DataType.DateTime:
+        case DataTypeEnum.DateTime:
           var dtm = Convert.ToDateTime(dataObject);
           if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
             return FunctionalDI.AdjustTZExport(dtm, columnInfo.ConstantTimeZone, (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
@@ -402,7 +402,7 @@ namespace CsvTools
           }
           return FunctionalDI.AdjustTZExport(dtm, reader.GetString(columnInfo.ColumnOrdinalTimeZone), (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
 
-        case DataType.Guid:
+        case DataTypeEnum.Guid:
           return dataObject is Guid guid ? guid : new Guid(dataObject.ToString());
 
         default:

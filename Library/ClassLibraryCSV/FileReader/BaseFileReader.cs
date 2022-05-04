@@ -352,7 +352,7 @@ namespace CsvTools
     public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
     {
       var fn = GetString(ordinal);
-      if (GetColumn(ordinal).ValueFormat.DataType != DataType.Binary || string.IsNullOrEmpty(fn))
+      if (GetColumn(ordinal).ValueFormat.DataType != DataTypeEnum.Binary || string.IsNullOrEmpty(fn))
       {
         return -1;
       }
@@ -370,7 +370,7 @@ namespace CsvTools
     public virtual byte[] GetFile(int ordinal)
     {
       var fn = GetString(ordinal);
-      if (GetColumn(ordinal).ValueFormat.DataType != DataType.Binary || string.IsNullOrEmpty(fn))
+      if (GetColumn(ordinal).ValueFormat.DataType != DataTypeEnum.Binary || string.IsNullOrEmpty(fn))
       {
         return Array.Empty<byte>();
       }
@@ -710,7 +710,7 @@ namespace CsvTools
         schemaRow[5] = col;         // Column ordinal
 
         // If there is a conversion get the information
-        if (column.Convert && column.ValueFormat.DataType != DataType.String)
+        if (column.Convert && column.ValueFormat.DataType != DataTypeEnum.String)
         {
           schemaRow[7] = column.ValueFormat.DataType.GetNetType();
         }
@@ -772,13 +772,13 @@ namespace CsvTools
       {
         ret = column.ValueFormat.DataType switch
         {
-          DataType.Binary => GetFile(ordinal),
-          DataType.DateTime => GetDateTime(ordinal),
-          DataType.Integer => GetInt64(ordinal),
-          DataType.Double => GetDouble(ordinal),
-          DataType.Numeric => GetDecimal(ordinal),
-          DataType.Boolean => GetBoolean(ordinal),
-          DataType.Guid => GetGuid(ordinal),
+          DataTypeEnum.Binary => GetFile(ordinal),
+          DataTypeEnum.DateTime => GetDateTime(ordinal),
+          DataTypeEnum.Integer => GetInt64(ordinal),
+          DataTypeEnum.Double => GetDouble(ordinal),
+          DataTypeEnum.Numeric => GetDecimal(ordinal),
+          DataTypeEnum.Boolean => GetBoolean(ordinal),
+          DataTypeEnum.Guid => GetGuid(ordinal),
           _ => GetString(ordinal)
         };
       }
@@ -850,7 +850,7 @@ namespace CsvTools
         return true;
       }
 
-      if (Column[ordinal].ValueFormat.DataType != DataType.DateTime)
+      if (Column[ordinal].ValueFormat.DataType != DataTypeEnum.DateTime)
       {
         return string.IsNullOrWhiteSpace(CurrentRowColumnText[ordinal]);
       }
@@ -1251,7 +1251,7 @@ namespace CsvTools
     /// <param name="hasFieldHeader">if set to <c>true</c> [has field header].</param>
     protected void ParseColumnName(
       IEnumerable<string> headerRow,
-      IEnumerable<DataType>? dataType = null,
+      IEnumerable<DataTypeEnum>? dataType = null,
       bool hasFieldHeader = true)
     {
       var issues = new ColumnErrorDictionary();
@@ -1279,11 +1279,11 @@ namespace CsvTools
           adjustedNames.Add(Column[colIndex].Name);
         }
 
-      var dataTypeL = new DataType[adjustedNames.Count];
+      var dataTypeL = new DataTypeEnum[adjustedNames.Count];
       // Initialize as text
       for (var col = 0; col < adjustedNames.Count; col++)
       {
-        dataTypeL[col] = DataType.String;
+        dataTypeL[col] = DataTypeEnum.String;
       }
       // get the provided and overwrite
       if (dataType != null)

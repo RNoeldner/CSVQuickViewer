@@ -34,7 +34,7 @@ namespace CsvTools.Tests
       // Test Properties that are not tested
 
       Assert.AreEqual(m_JsonFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
-      Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
+      Assert.AreEqual(TrimmingOptionEnum.Unquoted, test.TrimmingOption, "TrimmingOption");
       Assert.IsTrue(m_JsonFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
       Assert.IsTrue(m_JsonFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection), "Column");
 
@@ -49,7 +49,7 @@ namespace CsvTools.Tests
       m_JsonFile.CheckAllPropertiesEqual(test);
       // Test Properties that are not tested
       Assert.AreEqual(m_JsonFile.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
-      Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
+      Assert.AreEqual(TrimmingOptionEnum.Unquoted, test.TrimmingOption, "TrimmingOption");
       Assert.IsTrue(m_JsonFile.MappingCollection.CollectionEqualWithOrder(test.MappingCollection), "Mapping");
       Assert.IsTrue(m_JsonFile.ColumnCollection.CollectionEqualWithOrder(test.ColumnCollection),
         "ColumnCollection");
@@ -114,7 +114,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(2, m_JsonFile.MappingCollection.Count, "FieldMapping");
 
       m_JsonFile.ColumnCollection.Clear();
-      m_JsonFile.ColumnCollection.Add(new Column("ID", DataType.Integer) { ColumnOrdinal = 1, Ignore = false, Convert = true });
+      m_JsonFile.ColumnCollection.Add(new Column("ID", DataTypeEnum.Integer) { ColumnOrdinal = 1, Ignore = false, Convert = true });
       m_JsonFile.ColumnCollection.Add(new Column { ColumnOrdinal = 2, Name = "Name" });
     }
 

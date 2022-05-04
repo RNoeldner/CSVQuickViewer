@@ -20,14 +20,14 @@ namespace CsvTools
     {
       return valueFormat.DataType switch
       {
-        DataType.TextPart => new TextPartFormatter(valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd),
-        DataType.TextToHtml => new TextToHtmlFormatter(),
-        DataType.TextToHtmlFull => new TextToHtmlFullFormatter(),
-        DataType.TextUnescape => new TextUnescapeFormatter(),
-        DataType.TextReplace => new TextReplace(valueFormat.RegexSearchPattern, valueFormat.RegexReplacement),
-        DataType.Binary => new BinaryFormatter(columnOrdinal, valueFormat.ReadFolder, valueFormat.WriteFolder, valueFormat.FileOutPutPlaceholder, valueFormat.Overwrite),
+        DataTypeEnum.TextPart => new TextPartFormatter(valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd),
+        DataTypeEnum.TextToHtml => new TextToHtmlFormatter(),
+        DataTypeEnum.TextToHtmlFull => new TextToHtmlFullFormatter(),
+        DataTypeEnum.TextUnescape => new TextUnescapeFormatter(),
+        DataTypeEnum.TextReplace => new TextReplaceFormatter(valueFormat.RegexSearchPattern, valueFormat.RegexReplacement),
+        DataTypeEnum.Binary => new BinaryFormatter(columnOrdinal, valueFormat.ReadFolder, valueFormat.WriteFolder, valueFormat.FileOutPutPlaceholder, valueFormat.Overwrite),
 #if !QUICK
-        DataType.Markdown2Html => new MarkupToHtmlFormatter(),
+        DataTypeEnum.Markdown2Html => new MarkupToHtmlFormatter(),
 
 #endif
         _ => null,

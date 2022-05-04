@@ -158,7 +158,7 @@ namespace CsvTools
     /// <summary>
     ///  Get or Sets a value determining the record separator used writing a delimited text file
     /// </summary>
-    RecordDelimiterType NewLine { get; set; }
+    RecordDelimiterTypeEnum NewLine { get; set; }
 
     /// <summary>
     ///   Gets a value indicating whether to qualify every text even if number or empty.

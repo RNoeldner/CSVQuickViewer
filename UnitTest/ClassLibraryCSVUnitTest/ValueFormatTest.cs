@@ -36,22 +36,22 @@ namespace CsvTools.Tests
     public void GetFormatDescriptionTest()
 
     {
-      var vf = new ImmutableValueFormat(DataType.String);
+      var vf = new ImmutableValueFormat(DataTypeEnum.String);
       Assert.AreEqual(string.Empty, vf.GetFormatDescription());
 
-      var vf2 = new ImmutableValueFormat(DataType.TextPart, part: 4);
+      var vf2 = new ImmutableValueFormat(DataTypeEnum.TextPart, part: 4);
       Assert.AreNotEqual(string.Empty, vf2.GetFormatDescription());
 
-      var vf3 = new ImmutableValueFormat(DataType.Integer, numberFormat: "000");
+      var vf3 = new ImmutableValueFormat(DataTypeEnum.Integer, numberFormat: "000");
       Assert.AreNotEqual(string.Empty, vf3.GetFormatDescription());
 
-      var vf4 = new ImmutableValueFormat(DataType.Numeric, numberFormat: "0.##");
+      var vf4 = new ImmutableValueFormat(DataTypeEnum.Numeric, numberFormat: "0.##");
       Assert.AreNotEqual(string.Empty, vf4.GetFormatDescription());
 
-      var a = new ValueFormatMutable { DataType = DataType.String };
+      var a = new ValueFormatMutable { DataType = DataTypeEnum.String };
       Assert.IsTrue(string.IsNullOrEmpty(a.GetFormatDescription()));
 
-      var b = new ValueFormatMutable { DataType = DataType.DateTime };
+      var b = new ValueFormatMutable { DataType = DataTypeEnum.DateTime };
       Assert.IsTrue(b.GetFormatDescription().Contains(ValueFormatExtension.cDateFormatDefault));
     }
 
@@ -61,46 +61,46 @@ namespace CsvTools.Tests
       var expected = new ValueFormatMutable();
       var current = new ValueFormatMutable();
 
-      foreach (DataType item in Enum.GetValues(typeof(DataType)))
+      foreach (DataTypeEnum item in Enum.GetValues(typeof(DataTypeEnum)))
       {
         expected.DataType = item;
         current.DataType = item;
         Assert.IsTrue(current.IsMatching(expected), item.ToString());
       }
 
-      expected.DataType = DataType.Integer;
-      current.DataType = DataType.Numeric;
+      expected.DataType = DataTypeEnum.Integer;
+      current.DataType = DataTypeEnum.Numeric;
       Assert.IsTrue(current.IsMatching(expected));
 
-      expected.DataType = DataType.Integer;
-      current.DataType = DataType.Double;
+      expected.DataType = DataTypeEnum.Integer;
+      current.DataType = DataTypeEnum.Double;
       Assert.IsTrue(current.IsMatching(expected));
 
-      expected.DataType = DataType.Numeric;
-      current.DataType = DataType.Double;
+      expected.DataType = DataTypeEnum.Numeric;
+      current.DataType = DataTypeEnum.Double;
       Assert.IsTrue(current.IsMatching(expected));
 
-      expected.DataType = DataType.Double;
-      current.DataType = DataType.Numeric;
+      expected.DataType = DataTypeEnum.Double;
+      current.DataType = DataTypeEnum.Numeric;
       Assert.IsTrue(current.IsMatching(expected));
 
-      expected.DataType = DataType.Numeric;
-      current.DataType = DataType.Integer;
+      expected.DataType = DataTypeEnum.Numeric;
+      current.DataType = DataTypeEnum.Integer;
       Assert.IsTrue(current.IsMatching(expected));
 
-      expected.DataType = DataType.DateTime;
-      current.DataType = DataType.DateTime;
+      expected.DataType = DataTypeEnum.DateTime;
+      current.DataType = DataTypeEnum.DateTime;
       Assert.IsTrue(current.IsMatching(expected));
 
-      expected.DataType = DataType.DateTime;
-      current.DataType = DataType.String;
+      expected.DataType = DataTypeEnum.DateTime;
+      current.DataType = DataTypeEnum.String;
       Assert.IsFalse(current.IsMatching(expected));
     }
 
     [TestMethod]
     public void GroupSeparator()
     {
-      var a = new ValueFormatMutable { DataType = DataType.Numeric };
+      var a = new ValueFormatMutable { DataType = DataTypeEnum.Numeric };
       a.GroupSeparator = ",";
       a.DecimalSeparator = ".";
       Assert.AreEqual(",", a.GroupSeparator);
@@ -112,7 +112,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DecimalSeparator()
     {
-      var a = new ValueFormatMutable { DataType = DataType.Numeric };
+      var a = new ValueFormatMutable { DataType = DataTypeEnum.Numeric };
       a.GroupSeparator = ".";
       a.DecimalSeparator = ",";
       Assert.AreEqual(",", a.DecimalSeparator);
@@ -124,9 +124,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetTypeAndFormatDescriptionTest()
     {
-      var a = new ValueFormatMutable { DataType = DataType.String };
+      var a = new ValueFormatMutable { DataType = DataTypeEnum.String };
       Assert.AreEqual("Text", a.GetTypeAndFormatDescription());
-      var b = new ValueFormatMutable { DataType = DataType.DateTime };
+      var b = new ValueFormatMutable { DataType = DataTypeEnum.DateTime };
       Assert.IsTrue(b.GetTypeAndFormatDescription().Contains("Date Time"));
       Assert.IsTrue(b.GetTypeAndFormatDescription().Contains("MM/dd/yyyy"));
     }
@@ -134,20 +134,20 @@ namespace CsvTools.Tests
     [TestMethod]
     public void NotifyPropertyChangedTest()
     {
-      var a = new ValueFormatMutable { DataType = DataType.DateTime };
+      var a = new ValueFormatMutable { DataType = DataTypeEnum.DateTime };
 
       var fired = false;
       a.PropertyChanged += delegate { fired = true; };
       Assert.IsFalse(fired);
-      a.DataType = DataType.Integer;
+      a.DataType = DataTypeEnum.Integer;
       Assert.IsTrue(fired);
     }
 
     [TestMethod]
     public void Ctor2()
     {
-      var test2 = new ValueFormatMutable() { DataType = DataType.Integer };
-      Assert.AreEqual(DataType.Integer, test2.DataType);
+      var test2 = new ValueFormatMutable() { DataType = DataTypeEnum.Integer };
+      Assert.AreEqual(DataTypeEnum.Integer, test2.DataType);
     }
 
     [TestMethod]
@@ -167,10 +167,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ValueFormatCopyFrom()
     {
-      var test1 = new ImmutableValueFormat(DataType.Double, groupSeparator: ".", decimalSeparator: ",");
-      var test2 = new ValueFormatMutable() { DataType=DataType.Boolean };
+      var test1 = new ImmutableValueFormat(DataTypeEnum.Double, groupSeparator: ".", decimalSeparator: ",");
+      var test2 = new ValueFormatMutable() { DataType=DataTypeEnum.Boolean };
       test2.CopyFrom(test1);
-      Assert.AreEqual(DataType.Double, test2.DataType);
+      Assert.AreEqual(DataTypeEnum.Double, test2.DataType);
       Assert.AreEqual(",", test2.DecimalSeparator);
       Assert.AreEqual(".", test2.GroupSeparator);
     }

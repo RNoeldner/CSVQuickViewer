@@ -28,6 +28,10 @@ namespace CsvTools
     {
     }
 
+    /// <summary>
+    /// Constructor for ColumnCollection
+    /// </summary>
+    /// <param name="items">Columns to initialize the new instance with</param>
     public ColumnCollection(IEnumerable<IColumn>? items)
     {
       if (items is null) return;
@@ -102,12 +106,12 @@ namespace CsvTools
 
     internal int GetIndex(string colName)
     {
-      if (!string.IsNullOrEmpty(colName))
-      {
-        for (var index = 0; index < Items.Count; index++)
-          if (string.Equals(Items[index].Name, colName, StringComparison.OrdinalIgnoreCase))
-            return index;
-      }
+      if (string.IsNullOrEmpty(colName)) 
+        return -1;
+      
+      for (var index = 0; index < Items.Count; index++)
+        if (string.Equals(Items[index].Name, colName, StringComparison.OrdinalIgnoreCase))
+          return index;
 
       return -1;
     }

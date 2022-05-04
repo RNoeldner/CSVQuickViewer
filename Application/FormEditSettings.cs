@@ -142,7 +142,7 @@ namespace CsvTools
     private void CboRecordDelimiter_SelectedIndexChanged(object? sender, EventArgs e)
     {
       if (cboRecordDelimiter.SelectedItem != null)
-        m_CsvFile.NewLine = (RecordDelimiterType) cboRecordDelimiter.SelectedValue;
+        m_CsvFile.NewLine = (RecordDelimiterTypeEnum) cboRecordDelimiter.SelectedValue;
     }
 
     private void CheckBoxColumnsProcess_CheckedChanged(object? sender, EventArgs e)
@@ -171,8 +171,8 @@ namespace CsvTools
       cboRecordDelimiter.SelectedValue = m_CsvFile.CodePageId;
       cboCodePage.ResumeLayout(true);
 
-      var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterType));
-      var di = (from RecordDelimiterType item in Enum.GetValues(typeof(RecordDelimiterType))
+      var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterTypeEnum));
+      var di = (from RecordDelimiterTypeEnum item in Enum.GetValues(typeof(RecordDelimiterTypeEnum))
                 select new DisplayItem<int>((int) item, descConv.ConvertToString(item))).ToList();
 
       var selValue = (int) m_CsvFile.NewLine;

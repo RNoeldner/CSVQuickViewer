@@ -30,7 +30,7 @@ namespace CsvTools
     private const bool cContextSensitiveQualifierDefault = false;
     private const bool cQualifyAlwaysDefault = false;
     private const string cEscapePrefixDefault = "";
-    private const RecordDelimiterType cNewLineDefault = RecordDelimiterType.Crlf;
+    private const RecordDelimiterTypeEnum cNewLineDefault = RecordDelimiterTypeEnum.Crlf;
     private const string cCommentLineDefault = "";
     private const string cDelimiterPlaceholderDefault = "";
     private const string cFieldDelimiterDefault = ",";
@@ -59,7 +59,7 @@ namespace CsvTools
     private char m_FieldDelimiterChar = cFieldDelimiterDefault[0];
     private string m_FieldQualifier = cFieldQualifierDefault;
     private char m_FieldQualifierChar = cFieldQualifierDefault[0];
-    private RecordDelimiterType m_NewLine = cNewLineDefault;
+    private RecordDelimiterTypeEnum m_NewLine = cNewLineDefault;
     private string m_NewLinePlaceholder = cNewLinePlaceholderDefault;
 
     private bool m_NoDelimitedFile;
@@ -275,7 +275,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cNewLineDefault)]
-    public virtual RecordDelimiterType NewLine
+    public virtual RecordDelimiterTypeEnum NewLine
     {
       get => m_NewLine;
 
@@ -866,7 +866,7 @@ namespace CsvTools
       /// <value>The newline.</value>
       [XmlAttribute]
       [DefaultValue(cNewLineDefault)]
-      public RecordDelimiterType NewLine
+      public RecordDelimiterTypeEnum NewLine
       {
         get;
         set;

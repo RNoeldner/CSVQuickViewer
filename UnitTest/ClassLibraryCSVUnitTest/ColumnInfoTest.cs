@@ -26,14 +26,14 @@ namespace CsvTools.Tests
     public void GetSourceColumnInformation_OverwrittenType()
     {
       var cc = new ColumnCollection();
-      cc.Add(new Column("Test1", DataType.Double));
+      cc.Add(new Column("Test1", DataTypeEnum.Double));
       cc.Add(
-        new Column("Test2", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
+        new Column("Test2", new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
         {
           TimeZonePart = "\"UTC\""
         });
       cc.Add(
-        new Column("Test3", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
+        new Column("Test3", new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
         {
           TimePart = "Test4",
           TimePartFormat = "HH:mm"
@@ -51,12 +51,12 @@ namespace CsvTools.Tests
       var res = BaseFileWriter.GetColumnInformation(new ValueFormatMutable(), cc, dt2).ToList();
       Assert.AreEqual(4, res.Count());
 
-      Assert.AreEqual(DataType.Double, res[0].ValueFormat.DataType,
+      Assert.AreEqual(DataTypeEnum.Double, res[0].ValueFormat.DataType,
         "Usually it would be Integer bt is has to be double");
-      Assert.AreEqual(DataType.DateTime, res[2].ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, res[2].ValueFormat.DataType);
 
       // The time column was added
-      Assert.AreEqual(DataType.DateTime, res[3].ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, res[3].ValueFormat.DataType);
       Assert.AreEqual("Test4", res[3].Name);
     }
 
@@ -64,7 +64,7 @@ namespace CsvTools.Tests
     public void GetSourceColumnInformation_AddedTime()
     {
       var cc = new ColumnCollection();
-      cc.Add(new Column("Test3", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
+      cc.Add(new Column("Test3", new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
       {
         TimeZonePart = "\"UTC\"",
         TimePart = "Col2"
@@ -80,10 +80,10 @@ namespace CsvTools.Tests
       using var dt2 = reader.GetSchemaTable();
       var res = BaseFileWriter.GetColumnInformation(new ValueFormatMutable(), cc, dt2).ToList();
       Assert.AreEqual(4, res.Count());
-      Assert.AreEqual(DataType.Integer, res[0].ValueFormat.DataType);
-      Assert.AreEqual(DataType.DateTime, res[2].ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.Integer, res[0].ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, res[2].ValueFormat.DataType);
       Assert.AreEqual("Col2", res[3].Name, "Added column for Time is Col2");
-      Assert.AreEqual(DataType.DateTime, res[3].ValueFormat.DataType,
+      Assert.AreEqual(DataTypeEnum.DateTime, res[3].ValueFormat.DataType,
         "Added column for Time is of type dateTime");
     }
   }

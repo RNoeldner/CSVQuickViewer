@@ -3,6 +3,9 @@ using System.Data;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Base class for all ColumnFormatters
+  /// </summary>
   public abstract class BaseColumnFormatter :  IColumnFormatter
   {
     /// <inheritdoc/>

@@ -61,7 +61,7 @@ namespace CsvTools.Tests
       var processDisplay = new CustomProcessDisplay();
       using var test = new DataTableWrapper(m_DataTable);
       //await test.OpenAsync(UnitTestStatic.Token);
-      Assert.AreEqual(DataType.Integer.GetNetType(), test.GetFieldType(0));
+      Assert.AreEqual(DataTypeEnum.Integer.GetNetType(), test.GetFieldType(0));
     }
 
     [TestMethod]

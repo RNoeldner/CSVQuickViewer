@@ -20,7 +20,7 @@ namespace CsvTools
     ///   Gets or sets the type of the data.
     /// </summary>
     /// <value>The type of the data.</value>
-    DataType DataType { get; }
+    DataTypeEnum DataType { get; }
 
     /// <summary>
     ///   Gets or sets the date format. 

@@ -86,7 +86,7 @@ namespace CsvTools
 
             if (fileName.IndexOf(dataRow.GetName(colOrdinal), StringComparison.CurrentCultureIgnoreCase) == -1)
               continue;
-            if (dataRow.GetFieldType(colOrdinal).GetDataType() == DataType.Binary)
+            if (dataRow.GetFieldType(colOrdinal).GetDataType() == DataTypeEnum.Binary)
               continue;
 
             fileName = fileName.PlaceholderReplace(dataRow.GetName(colOrdinal),

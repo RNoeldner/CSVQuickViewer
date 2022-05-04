@@ -89,7 +89,7 @@ namespace CsvTools
 
     private string m_TreatTextAsNull = cTreatTextAsNull;
 
-    private TrimmingOption m_TrimmingOption = TrimmingOption.Unquoted;
+    private TrimmingOptionEnum m_TrimmingOption = TrimmingOptionEnum.Unquoted;
 
     private bool m_Validate = true;
 
@@ -706,8 +706,8 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlAttribute]
-    [DefaultValue(TrimmingOption.Unquoted)]
-    public virtual TrimmingOption TrimmingOption
+    [DefaultValue(TrimmingOptionEnum.Unquoted)]
+    public virtual TrimmingOptionEnum TrimmingOption
     {
       get => m_TrimmingOption;
 

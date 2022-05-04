@@ -17,7 +17,7 @@ using System;
 namespace CsvTools
 {
   [Flags]
-	public enum FilterType
+	public enum FilterTypeEnum
 	{
 		None = 0,
 

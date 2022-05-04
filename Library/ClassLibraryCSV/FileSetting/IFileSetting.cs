@@ -239,7 +239,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets or sets a value indicating of and if training and leading spaces should be trimmed.
     /// </summary>
-    TrimmingOption TrimmingOption { get; set; }
+    TrimmingOptionEnum TrimmingOption { get; set; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether this instance is imported, and should be validated

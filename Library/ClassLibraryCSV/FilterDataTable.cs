@@ -59,7 +59,7 @@ namespace CsvTools
     /// <value>The error table.</value>
     public DataTable FilterTable { get; private set; }
 
-    public FilterType FilterType { get; private set; } = FilterType.None;
+    public FilterTypeEnum FilterType { get; private set; } = FilterTypeEnum.None;
 
     /// <summary>
     ///   Sets the name of the unique field.
@@ -161,7 +161,7 @@ namespace CsvTools
       m_CurrentFilterCancellationTokenSource = null;
     }
 
-    private void Filter(int limit, FilterType type)
+    private void Filter(int limit, FilterTypeEnum type)
     {
       if (limit < 1)
         limit = int.MaxValue;
@@ -176,26 +176,26 @@ namespace CsvTools
         {
           var errorOrWarning = m_SourceTable.Rows[counter].GetErrorInformation();
 
-          if (type.HasFlag(FilterType.OnlyTrueErrors) && errorOrWarning == "-")
+          if (type.HasFlag(FilterTypeEnum.OnlyTrueErrors) && errorOrWarning == "-")
             continue;
 
           var import = false;
           if (string.IsNullOrEmpty(errorOrWarning))
           {
-            if (type.HasFlag(FilterType.ShowIssueFree))
+            if (type.HasFlag(FilterTypeEnum.ShowIssueFree))
               import = true;
           }
           else
           {
             if (errorOrWarning.IsWarningMessage())
             {
-              if (type.HasFlag(FilterType.ShowWarning))
+              if (type.HasFlag(FilterTypeEnum.ShowWarning))
                 import = true;
             }
             else
             {
               // is an error
-              if (type.HasFlag(FilterType.ShowErrors))
+              if (type.HasFlag(FilterTypeEnum.ShowErrors))
                 import = true;
             }
           }
@@ -217,7 +217,7 @@ namespace CsvTools
       }
     }
 
-    public async Task FilterAsync(int limit, FilterType type, CancellationToken cancellationToken)
+    public async Task FilterAsync(int limit, FilterTypeEnum type, CancellationToken cancellationToken)
     {
       if (m_Filtering)
         Cancel();

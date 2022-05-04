@@ -75,7 +75,7 @@ namespace CsvTools.Tests
       // Test Properties that are not tested
 
       Assert.AreEqual(file.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
-      Assert.AreEqual(TrimmingOption.Unquoted, test.TrimmingOption, "TrimmingOption");
+      Assert.AreEqual(TrimmingOptionEnum.Unquoted, test.TrimmingOption, "TrimmingOption");
     }
 
     [TestMethod]
@@ -103,8 +103,8 @@ namespace CsvTools.Tests
 
       file.MappingCollection.Add(new Mapping("Fld1", "FldA"));
       file.MappingCollection.Add(new Mapping("Fld2", "FldB"));
-      file.ColumnCollection.Add(new Column("ID", DataType.Integer) { ColumnOrdinal = 1, Ignore = false });
-      file.ColumnCollection.Add(new Column("Name", DataType.TextPart) { ColumnOrdinal = 2, Part = 2 });
+      file.ColumnCollection.Add(new Column("ID", DataTypeEnum.Integer) { ColumnOrdinal = 1, Ignore = false });
+      file.ColumnCollection.Add(new Column("Name", DataTypeEnum.TextPart) { ColumnOrdinal = 2, Part = 2 });
       return file;
     }
   }

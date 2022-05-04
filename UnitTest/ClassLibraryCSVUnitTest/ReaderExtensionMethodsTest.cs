@@ -25,10 +25,10 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      m_ValidSetting.ColumnCollection.Add(new Column("Score", DataType.Integer));
-      m_ValidSetting.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
-      m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean));
-      var cf = new Column("ExamDate", DataType.DateTime) { ValueFormatMutable = { DateFormat = @"dd/MM/yyyy" } };
+      m_ValidSetting.ColumnCollection.Add(new Column("Score", DataTypeEnum.Integer));
+      m_ValidSetting.ColumnCollection.Add(new Column("Proficiency", DataTypeEnum.Numeric));
+      m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang", DataTypeEnum.Boolean));
+      var cf = new Column("ExamDate", DataTypeEnum.DateTime) { ValueFormatMutable = { DateFormat = @"dd/MM/yyyy" } };
       m_ValidSetting.ColumnCollection.Add(cf);
     }
 

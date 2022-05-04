@@ -58,7 +58,7 @@ namespace CsvTools.Tests
     {
       var dt = GetDataTable(2000);
       var test = new FilterDataTable(dt.Item1);
-      await test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestStatic.Token);
+      await test.FilterAsync(0, FilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
       Assert.IsTrue(test.FilterTable.Rows.Count > 0);
 
       Assert.AreEqual(4, (test.GetColumnsWithErrors()).Count);
@@ -71,7 +71,7 @@ namespace CsvTools.Tests
       using var test = new FilterDataTable(dt.Item1);
       test.Cancel();
       // No effect but no error either
-      _ = test.FilterAsync(0, FilterType.ShowErrors, UnitTestStatic.Token);
+      _ = test.FilterAsync(0, FilterTypeEnum.ShowErrors, UnitTestStatic.Token);
       // Assert.IsTrue(test.Filtering);
       test.Cancel();
       // Assert.IsFalse(test.Filtering);
@@ -83,7 +83,7 @@ namespace CsvTools.Tests
       var dt = GetDataTable(10);
       using var test = new FilterDataTable(dt.Item1);
       test.UniqueFieldName = new[] { "ColID" };
-      var task = test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestStatic.Token);
+      var task = test.FilterAsync(0, FilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
       Assert.IsFalse(test.Filtering);
       // A unique column should be displayed so its part of the Error columns 
       Assert.IsTrue(test.GetColumnsWithErrors().Any(x => x == "ColID"), "Result does not contain ColID");
@@ -94,7 +94,7 @@ namespace CsvTools.Tests
     {
       var dt = GetDataTable(2000);
       var test = new FilterDataTable(dt.Item1);
-      await test.FilterAsync(0, FilterType.ErrorsAndWarning, UnitTestStatic.Token);
+      await test.FilterAsync(0, FilterTypeEnum.ErrorsAndWarning, UnitTestStatic.Token);
       // not a good test, but its known how many columns will have errors
       Assert.AreEqual(dt.Item2, (test.GetColumnsWithoutErrors()).Count);
     }

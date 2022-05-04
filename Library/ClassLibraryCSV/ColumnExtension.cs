@@ -34,7 +34,7 @@ namespace CsvTools
 				stringBuilder.Append(")");
 			}
 
-			if (addTime && column.ValueFormat.DataType == DataType.DateTime)
+			if (addTime && column.ValueFormat.DataType == DataTypeEnum.DateTime)
 			{
 				if (column.TimePart.Length > 0)
 				{

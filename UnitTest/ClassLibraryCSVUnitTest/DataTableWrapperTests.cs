@@ -49,7 +49,7 @@ namespace CsvTools.Tests
 		public void GetDataTypeNameTestAsync()
     {
       using var test = new DataTableWrapper(m_DataTable);
-      Assert.AreEqual(DataType.Integer.GetNetType().Name, test.GetDataTypeName(0));
+      Assert.AreEqual(DataTypeEnum.Integer.GetNetType().Name, test.GetDataTypeName(0));
       Assert.AreEqual(nameof(String), test.GetDataTypeName(1));
       Assert.AreEqual(nameof(DateTime), test.GetDataTypeName(4));
       try
@@ -67,7 +67,7 @@ namespace CsvTools.Tests
 		public void GetFieldTypeTest()
     {
       using var test = new DataTableWrapper(m_DataTable);
-      Assert.AreEqual(DataType.Integer.GetNetType(), test.GetFieldType(0));
+      Assert.AreEqual(DataTypeEnum.Integer.GetNetType(), test.GetFieldType(0));
       Assert.AreEqual(typeof(string), test.GetFieldType(1));
     }
 

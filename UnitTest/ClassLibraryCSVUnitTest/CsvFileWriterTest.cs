@@ -33,10 +33,10 @@ namespace CsvTools.Tests
         new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")) { ID = "Read", FieldDelimiter = ",", CommentLine = "#" };
 
       m_ReadFile.ColumnCollection.Add(new Column("ExamDate",
-        new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = @"dd/MM/yyyy" }));
-      m_ReadFile.ColumnCollection.Add(new Column("Score", DataType.Integer));
-      m_ReadFile.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
-      m_ReadFile.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean) { Ignore = true });
+        new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = @"dd/MM/yyyy" }));
+      m_ReadFile.ColumnCollection.Add(new Column("Score", DataTypeEnum.Integer));
+      m_ReadFile.ColumnCollection.Add(new Column("Proficiency", DataTypeEnum.Numeric));
+      m_ReadFile.ColumnCollection.Add(new Column("IsNativeLang", DataTypeEnum.Boolean) { Ignore = true });
 
       UnitTestStatic.MimicSQLReader.AddSetting(m_ReadFile);
 
@@ -62,7 +62,7 @@ namespace CsvTools.Tests
       writeFile.SqlStatement = setting.ID;
       writeFile.FieldDelimiter = "|";
       writeFile.ColumnCollection.Add(
-        new Column("DateTime", new ValueFormatMutable() { DataType = DataType.DateTime, DateFormat = "yyyyMMdd" })
+        new Column("DateTime", new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = "yyyyMMdd" })
         {
           TimePartFormat = @"hh:mm", TimePart = "Time", TimeZonePart = "TZ"
         });
@@ -113,7 +113,7 @@ namespace CsvTools.Tests
       writeFile.SqlStatement = setting.ID;
       writeFile.FieldDelimiter = "|";
 
-      var cf = new Column("DateTime", DataType.DateTime)
+      var cf = new Column("DateTime", DataTypeEnum.DateTime)
       {
         TimePartFormat = @"hh:mm", TimePart = "Time", TimeZonePart = "\"UTC\"", ValueFormatMutable = { DateFormat = "yyyyMMdd" }
       };
@@ -173,7 +173,7 @@ namespace CsvTools.Tests
       }
 
       var writeFile = new CsvFile { ID = "Test.txt", FileName = UnitTestStatic.GetTestPath("Test.txt"), SqlStatement = "Hello" };
-      writeFile.ColumnCollection.Add(new Column("Text", DataType.Integer));
+      writeFile.ColumnCollection.Add(new Column("Text", DataTypeEnum.Integer));
       writeFile.Header = "##This is a header for {FileName}";
       writeFile.Footer = "##This is a Footer\r\n{Records} in file";
       var count = 0;

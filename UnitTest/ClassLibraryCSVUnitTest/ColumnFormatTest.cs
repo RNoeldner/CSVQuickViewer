@@ -33,17 +33,17 @@ namespace CsvTools.Tests
 			var int32 = -5;
 			var g = Guid.NewGuid();
 
-			Assert.AreEqual(DataType.Integer, lng.GetType().GetDataType());
-			Assert.AreEqual(DataType.Integer, int32.GetType().GetDataType());
-			Assert.AreEqual(DataType.Integer, Type.GetType("System.UInt16").GetDataType());
-			Assert.AreEqual(DataType.Integer, Type.GetType("System.Int64").GetDataType());
-			Assert.AreEqual(DataType.Double, dbl.GetType().GetDataType());
-			Assert.AreEqual(DataType.Double, Type.GetType("System.Single").GetDataType());
-			Assert.AreEqual(DataType.Numeric, dec.GetType().GetDataType());
-			Assert.AreEqual(DataType.DateTime, dt.GetType().GetDataType());
-			Assert.AreEqual(DataType.String, s.GetType().GetDataType());
-			Assert.AreEqual(DataType.Boolean, true.GetType().GetDataType());
-			Assert.AreEqual(DataType.Guid, g.GetType().GetDataType());
+			Assert.AreEqual(DataTypeEnum.Integer, lng.GetType().GetDataType());
+			Assert.AreEqual(DataTypeEnum.Integer, int32.GetType().GetDataType());
+			Assert.AreEqual(DataTypeEnum.Integer, Type.GetType("System.UInt16").GetDataType());
+			Assert.AreEqual(DataTypeEnum.Integer, Type.GetType("System.Int64").GetDataType());
+			Assert.AreEqual(DataTypeEnum.Double, dbl.GetType().GetDataType());
+			Assert.AreEqual(DataTypeEnum.Double, Type.GetType("System.Single").GetDataType());
+			Assert.AreEqual(DataTypeEnum.Numeric, dec.GetType().GetDataType());
+			Assert.AreEqual(DataTypeEnum.DateTime, dt.GetType().GetDataType());
+			Assert.AreEqual(DataTypeEnum.String, s.GetType().GetDataType());
+			Assert.AreEqual(DataTypeEnum.Boolean, true.GetType().GetDataType());
+			Assert.AreEqual(DataTypeEnum.Guid, g.GetType().GetDataType());
 		}
 
 		[TestMethod]
@@ -60,13 +60,13 @@ namespace CsvTools.Tests
 			var test = new ValueFormatMutable();
 
 			Assert.IsInstanceOfType(string.Empty, test.DataType.GetNetType());
-			test.DataType = DataType.DateTime;
+			test.DataType = DataTypeEnum.DateTime;
 			Assert.IsInstanceOfType(DateTime.Now, test.DataType.GetNetType());
-			test.DataType = DataType.Boolean;
+			test.DataType = DataTypeEnum.Boolean;
 			Assert.IsInstanceOfType(false, test.DataType.GetNetType());
-			test.DataType = DataType.Double;
+			test.DataType = DataTypeEnum.Double;
 			Assert.IsInstanceOfType(double.MinValue, test.DataType.GetNetType());
-			test.DataType = DataType.Numeric;
+			test.DataType = DataTypeEnum.Numeric;
 			Assert.IsInstanceOfType(decimal.MaxValue, test.DataType.GetNetType());
 		}
 
@@ -99,8 +99,8 @@ namespace CsvTools.Tests
 			{
 				numCalled++;
 			};
-			test.ValueFormatMutable.DataType = DataType.DateTime;
-			Assert.AreEqual(DataType.DateTime, test.ValueFormatMutable.DataType);
+			test.ValueFormatMutable.DataType = DataTypeEnum.DateTime;
+			Assert.AreEqual(DataTypeEnum.DateTime, test.ValueFormatMutable.DataType);
 			Assert.IsTrue(test.Convert);
 
 			Assert.AreEqual(0, numCalled);
@@ -115,7 +115,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void GetDataTypeDescriptionBool()
 		{
-			var target = new Column("Test", DataType.Boolean);
+			var target = new Column("Test", DataTypeEnum.Boolean);
 			Assert.AreEqual("Boolean", target.GetTypeAndFormatDescription());
 		}
 
@@ -123,7 +123,7 @@ namespace CsvTools.Tests
 		public void GetDataTypeDescriptionDateTime()
 		{
 			var target =
-				new Column("Test", DataType.DateTime) { TimePart = "TPart", TimePartFormat = "YYYYMMDD", TimeZonePart = "'UTC'" };
+				new Column("Test", DataTypeEnum.DateTime) { TimePart = "TPart", TimePartFormat = "YYYYMMDD", TimeZonePart = "'UTC'" };
 			Assert.IsTrue(target.GetTypeAndFormatDescription().Contains("TPart", StringComparison.InvariantCultureIgnoreCase),
 				"TimePart");
 			Assert.IsTrue(
@@ -136,7 +136,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void GetDataTypeDescriptionDouble()
 		{
-			var target = new Column("Test", new ValueFormatMutable() { DataType=DataType.Numeric, NumberFormat = "00.000" });
+			var target = new Column("Test", new ValueFormatMutable() { DataType=DataTypeEnum.Numeric, NumberFormat = "00.000" });
 
 			Assert.AreEqual("Money (High Precision) (00.000)", target.GetTypeAndFormatDescription());
 		}
@@ -154,7 +154,7 @@ namespace CsvTools.Tests
 		{
 			var valueFormatGerman = new ValueFormatMutable
 			{
-				DataType = DataType.DateTime,
+				DataType = DataTypeEnum.DateTime,
 				DateFormat = @"dd/MM/yyyy",
 				DateSeparator = ".",
 				DecimalSeparator = ",",
@@ -170,7 +170,7 @@ namespace CsvTools.Tests
 
 			ff.ColumnCollection.Add(col);
 			Assert.AreEqual("StartDate", col.Name, "Name");
-			Assert.AreEqual(DataType.DateTime, col.ValueFormatMutable.DataType, "DataType");
+			Assert.AreEqual(DataTypeEnum.DateTime, col.ValueFormatMutable.DataType, "DataType");
 			Assert.IsTrue(col.Convert, "Convert");
 			Assert.IsTrue(col.Ignore, "Ignore");
 		}

@@ -30,10 +30,10 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      m_ValidSetting.ColumnCollection.Add(new Column("Score", DataType.Integer));
-      m_ValidSetting.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
-      m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean));
-      var cf = new Column("ExamDate", DataType.DateTime) { ValueFormatMutable = { DateFormat = @"dd/MM/yyyy" } };
+      m_ValidSetting.ColumnCollection.Add(new Column("Score", DataTypeEnum.Integer));
+      m_ValidSetting.ColumnCollection.Add(new Column("Proficiency", DataTypeEnum.Numeric));
+      m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang", DataTypeEnum.Boolean));
+      var cf = new Column("ExamDate", DataTypeEnum.DateTime) { ValueFormatMutable = { DateFormat = @"dd/MM/yyyy" } };
       m_ValidSetting.ColumnCollection.Add(cf);
     }
 
@@ -135,11 +135,11 @@ namespace CsvTools.Tests
       basIssues.ColumnCollection.Add(new Column("effectiveDate", "yyyy/MM/dd", "-"));
       basIssues.ColumnCollection.Add(new Column("timestamp", "yyyy/MM/ddTHH:mm:ss", "-"));
 
-      basIssues.ColumnCollection.Add(new Column("version", DataType.Integer));
-      basIssues.ColumnCollection.Add(new Column("retrainingRequired", DataType.Boolean));
+      basIssues.ColumnCollection.Add(new Column("version", DataTypeEnum.Integer));
+      basIssues.ColumnCollection.Add(new Column("retrainingRequired", DataTypeEnum.Boolean));
 
-      basIssues.ColumnCollection.Add(new Column("classroomTraining", DataType.Boolean));
-      basIssues.ColumnCollection.Add(new Column("webLink", DataType.TextToHtml));
+      basIssues.ColumnCollection.Add(new Column("classroomTraining", DataTypeEnum.Boolean));
+      basIssues.ColumnCollection.Add(new Column("webLink", DataTypeEnum.TextToHtml));
 
       var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(basIssues.FullPath, basIssues.CodePageId, basIssues.SkipRows, basIssues.HasFieldHeader, basIssues.ColumnCollection,
@@ -283,7 +283,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetInteger32And64()
     {
-      var column = new Column { ValueFormatMutable = { DataType = DataType.Integer, GroupSeparator = ",", DecimalSeparator = "." } };
+      var column = new Column { ValueFormatMutable = { DataType = DataTypeEnum.Integer, GroupSeparator = ",", DecimalSeparator = "." } };
 
       var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows, m_ValidSetting.HasFieldHeader,
@@ -386,7 +386,7 @@ namespace CsvTools.Tests
     {
       var csvFile = new CsvFile { FileName = UnitTestStatic.GetTestPath("TestFile.txt"), CodePageId = 65001, FieldDelimiter = "tab" };
 
-      csvFile.ColumnCollection.Add(new Column("Title", DataType.DateTime));
+      csvFile.ColumnCollection.Add(new Column("Title", DataTypeEnum.DateTime));
 
       var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(csvFile.FullPath, csvFile.CodePageId, csvFile.SkipRows, csvFile.HasFieldHeader, csvFile.ColumnCollection,
