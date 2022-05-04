@@ -1017,7 +1017,7 @@ namespace CsvTools
     /// <summary>
     ///   Sets the data source.
     /// </summary>
-    public async Task RefreshDisplayAsync(FilterType type, CancellationToken cancellationToken)
+    public async Task RefreshDisplayAsync(FilterTypeEnum type, CancellationToken cancellationToken)
     {
       var oldSortedColumn = FilteredDataGridView.SortedColumn?.DataPropertyName;
       var oldOrder = FilteredDataGridView.SortOrder;
@@ -1031,7 +1031,7 @@ namespace CsvTools
 
       var newDt = m_DataTable;
       m_FilterDataTable ??= new FilterDataTable(m_DataTable);
-      if (type != FilterType.All)
+      if (type != FilterTypeEnum.All)
       {
         if (type != m_FilterDataTable.FilterType)
           await m_FilterDataTable.FilterAsync(int.MaxValue, type, cancellationToken);
@@ -1044,10 +1044,10 @@ namespace CsvTools
 
       var newIndex = type switch
       {
-        FilterType.ErrorsAndWarning => 1,
-        FilterType.ShowErrors => 2,
-        FilterType.ShowWarning => 3,
-        FilterType.ShowIssueFree => 4,
+        FilterTypeEnum.ErrorsAndWarning => 1,
+        FilterTypeEnum.ShowErrors => 2,
+        FilterTypeEnum.ShowWarning => 3,
+        FilterTypeEnum.ShowIssueFree => 4,
         _ => 0
       };
 
@@ -1059,7 +1059,7 @@ namespace CsvTools
         m_BindingSource.DataSource = newDt;
         FilteredDataGridView.DataSource = m_BindingSource;
 
-        FilterColumns(!type.HasFlag(FilterType.ShowIssueFree));
+        FilterColumns(!type.HasFlag(FilterTypeEnum.ShowIssueFree));
 
         AutoResizeColumns(newDt);
         FilteredDataGridView.ColumnVisibilityChanged();
@@ -1206,15 +1206,15 @@ namespace CsvTools
        * No Error or Warning
       */
       if (m_ToolStripComboBoxFilterType.SelectedIndex == 0)
-        await RefreshDisplayAsync(FilterType.All, m_CancellationTokenSource.Token);
+        await RefreshDisplayAsync(FilterTypeEnum.All, m_CancellationTokenSource.Token);
       if (m_ToolStripComboBoxFilterType.SelectedIndex == 1)
-        await RefreshDisplayAsync(FilterType.ErrorsAndWarning, m_CancellationTokenSource.Token);
+        await RefreshDisplayAsync(FilterTypeEnum.ErrorsAndWarning, m_CancellationTokenSource.Token);
       if (m_ToolStripComboBoxFilterType.SelectedIndex == 2)
-        await RefreshDisplayAsync(FilterType.ShowErrors, m_CancellationTokenSource.Token);
+        await RefreshDisplayAsync(FilterTypeEnum.ShowErrors, m_CancellationTokenSource.Token);
       if (m_ToolStripComboBoxFilterType.SelectedIndex == 3)
-        await RefreshDisplayAsync(FilterType.ShowWarning, m_CancellationTokenSource.Token);
+        await RefreshDisplayAsync(FilterTypeEnum.ShowWarning, m_CancellationTokenSource.Token);
       if (m_ToolStripComboBoxFilterType.SelectedIndex == 4)
-        await RefreshDisplayAsync(FilterType.ShowIssueFree, m_CancellationTokenSource.Token);
+        await RefreshDisplayAsync(FilterTypeEnum.ShowIssueFree, m_CancellationTokenSource.Token);
     }
 
     private async void ToolStripButtonNext_Click(object? sender, EventArgs e)

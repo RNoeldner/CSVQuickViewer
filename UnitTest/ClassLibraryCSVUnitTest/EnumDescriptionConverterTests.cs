@@ -9,36 +9,36 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void EnumDescriptionConverterTest()
 		{
-			var test = new EnumDescriptionConverter(typeof(RecordDelimiterType));
+			var test = new EnumDescriptionConverter(typeof(RecordDelimiterTypeEnum));
 			Assert.IsNotNull(test);
 		}
 
 		[TestMethod]
 		public void CanConvertFromTest()
 		{
-			var test = new EnumDescriptionConverter(typeof(RecordDelimiterType));
+			var test = new EnumDescriptionConverter(typeof(RecordDelimiterTypeEnum));
 			Assert.IsTrue(test.CanConvertFrom(typeof(string)));
 		}
 
 		[TestMethod]
 		public void CanConvertToTest()
 		{
-			var test = new EnumDescriptionConverter(typeof(RecordDelimiterType));
+			var test = new EnumDescriptionConverter(typeof(RecordDelimiterTypeEnum));
 			Assert.IsTrue(test.CanConvertTo(typeof(string)));
 		}
 
 		[TestMethod]
 		public void ConvertFromTest()
 		{
-			var test = new EnumDescriptionConverter(typeof(RecordDelimiterType));
-			Assert.AreEqual(RecordDelimiterType.Lf, test.ConvertFrom("Line feed"));
+			var test = new EnumDescriptionConverter(typeof(RecordDelimiterTypeEnum));
+			Assert.AreEqual(RecordDelimiterTypeEnum.Lf, test.ConvertFrom("Line feed"));
 		}
 
 		[TestMethod]
 		public void ConvertToTest()
 		{
-			var test = new EnumDescriptionConverter(typeof(RecordDelimiterType));
-			Assert.AreEqual("Line feed", test.ConvertTo(RecordDelimiterType.Lf, typeof(string)));
+			var test = new EnumDescriptionConverter(typeof(RecordDelimiterTypeEnum));
+			Assert.AreEqual("Line feed", test.ConvertTo(RecordDelimiterTypeEnum.Lf, typeof(string)));
 			try
 			{
 				// ReSharper disable once AssignNullToNotNullAttribute

@@ -918,7 +918,7 @@ namespace CsvTools
           m_ToolTip!.SetToolTip(m_TextBoxQuotePlaceHolder, newToolTip);
         });
 
-    private void SetCboTrim(TrimmingOption trim) =>
+    private void SetCboTrim(TrimmingOptionEnum trim) =>
       m_ComboBoxTrim!.SafeInvokeNoHandleNeeded(
         () =>
         {
@@ -950,34 +950,34 @@ namespace CsvTools
           switch (((DisplayItem<int>) m_ComboBoxTrim.SelectedItem).ID)
           {
             case 1:
-              m_CsvFile!.TrimmingOption = TrimmingOption.Unquoted;
+              m_CsvFile!.TrimmingOption = TrimmingOptionEnum.Unquoted;
               m_LabelInfoQuoting!.Text =
                 "Import of leading or training spaces possible, but the field has to be quoted";
               break;
 
             case 3:
-              m_CsvFile!.TrimmingOption = TrimmingOption.All;
+              m_CsvFile!.TrimmingOption = TrimmingOptionEnum.All;
               break;
 
             default:
-              m_CsvFile!.TrimmingOption = TrimmingOption.None;
+              m_CsvFile!.TrimmingOption = TrimmingOptionEnum.None;
               m_LabelInfoQuoting!.Text = "Leading or training spaces will stay as they are";
               break;
           }
 
           m_FastColoredTextBox00!.Text = "This is";
-          if (m_CsvFile.TrimmingOption == TrimmingOption.Unquoted || m_CsvFile.TrimmingOption == TrimmingOption.None)
+          if (m_CsvFile.TrimmingOption == TrimmingOptionEnum.Unquoted || m_CsvFile.TrimmingOption == TrimmingOptionEnum.None)
             m_FastColoredTextBox00.AppendText(" ");
 
           m_FastColoredTextBox01!.Clear();
-          if (m_CsvFile.TrimmingOption == TrimmingOption.Unquoted || m_CsvFile.TrimmingOption == TrimmingOption.None)
+          if (m_CsvFile.TrimmingOption == TrimmingOptionEnum.Unquoted || m_CsvFile.TrimmingOption == TrimmingOptionEnum.None)
             m_FastColoredTextBox01.AppendText(" ");
           m_FastColoredTextBox01.AppendText("a Trimming");
-          if (m_CsvFile.TrimmingOption == TrimmingOption.Unquoted || m_CsvFile.TrimmingOption == TrimmingOption.None)
+          if (m_CsvFile.TrimmingOption == TrimmingOptionEnum.Unquoted || m_CsvFile.TrimmingOption == TrimmingOptionEnum.None)
             m_FastColoredTextBox01.AppendText(" ");
 
           m_FastColoredTextBox02!.Text = "Example";
-          if (m_CsvFile.TrimmingOption == TrimmingOption.None)
+          if (m_CsvFile.TrimmingOption == TrimmingOptionEnum.None)
             m_FastColoredTextBox02.AppendText(" ");
 
           m_FastColoredTextBox00.Range.SetStyle(m_Space, m_SpaceRegex);
@@ -987,7 +987,7 @@ namespace CsvTools
 
     private void UpdateUI()
     {
-      SetCboTrim(m_CsvFile?.TrimmingOption ?? TrimmingOption.Unquoted);
+      SetCboTrim(m_CsvFile?.TrimmingOption ?? TrimmingOptionEnum.Unquoted);
       QuoteOrDelimiterChange();
       SetTrimming(null, EventArgs.Empty);
     }

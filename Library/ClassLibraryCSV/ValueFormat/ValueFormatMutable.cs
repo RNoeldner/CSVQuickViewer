@@ -25,7 +25,7 @@ namespace CsvTools
   [Serializable]
   public sealed class ValueFormatMutable : IValueFormat, INotifyPropertyChanged
   {
-    private DataType m_DataType;
+    private DataTypeEnum m_DataType;
     private string m_DateFormat;
     private string m_DateSeparator;
     private string m_DecimalSeparator;
@@ -47,7 +47,7 @@ namespace CsvTools
 
 
     public ValueFormatMutable() : this(
-      DataType.String,
+      DataTypeEnum.String,
       ValueFormatExtension.cDateFormatDefault,
       ValueFormatExtension.cDateSeparatorDefault,
       ValueFormatExtension.cTimeSeparatorDefault,
@@ -70,7 +70,7 @@ namespace CsvTools
     }
 
     public ValueFormatMutable(
-      in DataType dataType,
+      in DataTypeEnum dataType,
       in string dateFormat,
       in string dateSeparator,
       in string timeSeparator,
@@ -126,7 +126,7 @@ namespace CsvTools
     ///   serialisation, avoiding empty elements
     /// </summary>
 
-    public bool Specified => !(DataType == DataType.String && DateFormat == ValueFormatExtension.cDateFormatDefault
+    public bool Specified => !(DataType == DataTypeEnum.String && DateFormat == ValueFormatExtension.cDateFormatDefault
                                                            && DateSeparator == ValueFormatExtension.cDateSeparatorDefault
                                                            && TimeSeparator == ValueFormatExtension.cTimeSeparatorDefault
                                                            && NumberFormat == ValueFormatExtension.cNumberFormatDefault
@@ -152,8 +152,8 @@ namespace CsvTools
 
     /// <inheritdoc />    
     [XmlAttribute]
-    [DefaultValue(DataType.String)]
-    public DataType DataType
+    [DefaultValue(DataTypeEnum.String)]
+    public DataTypeEnum DataType
     {
       get => m_DataType;
       set

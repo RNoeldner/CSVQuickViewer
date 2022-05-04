@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace CsvTools
 {
-  public enum RecordDelimiterType
+  public enum RecordDelimiterTypeEnum
 	{
 		[Description("")]
 		None,

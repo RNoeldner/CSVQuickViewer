@@ -64,7 +64,7 @@ namespace CsvTools.Tests
         new ImmutableColumn("ColA", new ImmutableValueFormat(), 1), new ImmutableColumn("ColB", new ImmutableValueFormat(), 2),
         new ImmutableColumn("ColC", new ImmutableValueFormat(), 3)
       });
-      var colBnew = new ImmutableColumn("ColB", new ImmutableValueFormat(DataType.Boolean), 2);
+      var colBnew = new ImmutableColumn("ColB", new ImmutableValueFormat(DataTypeEnum.Boolean), 2);
       test.Replace(colBnew);
       var colB = test.Get("ColB");
       Assert.AreEqual(3, test.Count);

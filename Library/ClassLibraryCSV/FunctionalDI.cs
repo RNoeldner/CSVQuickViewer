@@ -129,7 +129,7 @@ namespace CsvTools
           csv.FullPath,
           csv.ColumnCollection,
           csv.RecordLimit,
-          csv.TrimmingOption == TrimmingOption.All,
+          csv.TrimmingOption == TrimmingOptionEnum.All,
           csv.TreatTextAsNull,
           csv.TreatNBSPAsSpace,
           processDisplay),

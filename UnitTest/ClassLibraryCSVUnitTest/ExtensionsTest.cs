@@ -269,14 +269,14 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void DescriptionTest()
     {
-      var recType = RecordDelimiterType.Cr;
+      var recType = RecordDelimiterTypeEnum.Cr;
       Assert.AreEqual("Carriage Return", recType.Description());
     }
 
     [TestMethod()]
     public void NewLineStringTest()
     {
-      var recType = RecordDelimiterType.Cr;
+      var recType = RecordDelimiterTypeEnum.Cr;
       Assert.AreEqual("\r", recType.NewLineString());
     }
 
@@ -344,10 +344,10 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void DataTypeDisplayTest()
     {
-      Assert.IsNotNull(DataType.Double.DataTypeDisplay());
-      Assert.IsNotNull(DataType.Integer.DataTypeDisplay());
-      Assert.AreEqual("Boolean", DataType.Boolean.DataTypeDisplay());
-      Assert.AreEqual("Guid", DataType.Guid.DataTypeDisplay());
+      Assert.IsNotNull(DataTypeEnum.Double.DataTypeDisplay());
+      Assert.IsNotNull(DataTypeEnum.Integer.DataTypeDisplay());
+      Assert.AreEqual("Boolean", DataTypeEnum.Boolean.DataTypeDisplay());
+      Assert.AreEqual("Guid", DataTypeEnum.Guid.DataTypeDisplay());
     }
 
     [TestMethod()]

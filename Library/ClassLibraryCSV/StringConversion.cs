@@ -74,11 +74,11 @@ namespace CsvTools
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="minRequiredSamples">The minimum required samples.</param>
     /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
-    /// <returns><see cref="DataType.TextToHtml"/> is to be assumed the text has HTML encoding
-    /// <see cref="DataType.TextUnescape"/> is to be assumed the text has C encoding
-    ///  otherwise <see cref="DataType.String"/>
+    /// <returns><see cref="DataTypeEnum.TextToHtml"/> is to be assumed the text has HTML encoding
+    /// <see cref="DataTypeEnum.TextUnescape"/> is to be assumed the text has C encoding
+    ///  otherwise <see cref="DataTypeEnum.String"/>
     /// </returns>
-    public static DataType CheckUnescaped(in IEnumerable<string> samples, int minRequiredSamples, in CancellationToken cancellationToken)
+    public static DataTypeEnum CheckUnescaped(in IEnumerable<string> samples, int minRequiredSamples, in CancellationToken cancellationToken)
     {
       int foundUnescaped = 0;
       int foundHtml = 0;
@@ -90,7 +90,7 @@ namespace CsvTools
         {
           if (foundHtml++ > minRequiredSamples)
           {
-            return DataType.TextToHtml;
+            return DataTypeEnum.TextToHtml;
           }
         }
         if (text.IndexOf("\\r", StringComparison.Ordinal) != -1 || 
@@ -101,11 +101,11 @@ namespace CsvTools
         {
           if (foundUnescaped++ > minRequiredSamples)
           {
-            return DataType.TextUnescape;
+            return DataTypeEnum.TextUnescape;
           }
         }
       }
-      return DataType.String;
+      return DataTypeEnum.String;
     }
 
     /// <summary>
@@ -161,7 +161,7 @@ namespace CsvTools
           if (positiveMatches < threshHoldPossible || checkResult.PossibleMatch) continue;
           checkResult.PossibleMatch = true;
           checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(
-            DataType.DateTime,
+            DataTypeEnum.DateTime,
             shortDateFormat,
             dateSeparator,
             timeSeparator);
@@ -170,7 +170,7 @@ namespace CsvTools
 
       if (allParsed)
         checkResult.FoundValueFormat = new ImmutableValueFormat(
-          DataType.DateTime,
+          DataTypeEnum.DateTime,
           shortDateFormat,
           dateSeparator,
           timeSeparator);
@@ -254,7 +254,7 @@ namespace CsvTools
           {
             checkResult.PossibleMatch = true;
             checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(
-              assumeInteger ? DataType.Integer : DataType.Numeric,
+              assumeInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
               groupSeparator: thousandSeparator,
               decimalSeparator: decimalSeparator);
           }
@@ -271,7 +271,7 @@ namespace CsvTools
 
       if (allParsed)
         checkResult.FoundValueFormat = new ImmutableValueFormat(
-          assumeInteger ? DataType.Integer : DataType.Numeric,
+          assumeInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
           groupSeparator: thousandSeparator,
           decimalSeparator: decimalSeparator);
       return checkResult;
@@ -324,13 +324,13 @@ namespace CsvTools
             positiveMatches++;
             if (positiveMatches <= 5 || checkResult.PossibleMatch) continue;
             checkResult.PossibleMatch = true;
-            checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(DataType.DateTime, "SerialDate");
+            checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(DataTypeEnum.DateTime, "SerialDate");
           }
         }
       }
 
       if (allParsed && counter > 0)
-        checkResult.FoundValueFormat = new ImmutableValueFormat(DataType.DateTime, "SerialDate");
+        checkResult.FoundValueFormat = new ImmutableValueFormat(DataTypeEnum.DateTime, "SerialDate");
 
       return checkResult;
     }
@@ -615,7 +615,7 @@ namespace CsvTools
       in string format,
       in string dateSeparator,
       in string timeSeparator) =>
-      DateTimeToString(dateTime, new ImmutableValueFormat(DataType.DateTime, format, dateSeparator, timeSeparator));
+      DateTimeToString(dateTime, new ImmutableValueFormat(DataTypeEnum.DateTime, format, dateSeparator, timeSeparator));
 
     /// <summary>
     ///   Converts a decimals to string.

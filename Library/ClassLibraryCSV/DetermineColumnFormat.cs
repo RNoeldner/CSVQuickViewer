@@ -40,7 +40,7 @@ namespace CsvTools
       var maxValue = int.MinValue;
       foreach (var newColumn in columns)
       {
-        if (newColumn?.ValueFormat is null || newColumn.ValueFormat.DataType != DataType.DateTime)
+        if (newColumn?.ValueFormat is null || newColumn.ValueFormat.DataType != DataTypeEnum.DateTime)
           continue;
         var vf = newColumn.ValueFormat;
         if (!counterByFormat.ContainsKey(vf))
@@ -136,11 +136,11 @@ namespace CsvTools
 
         // no need to get types that are already found and could now be smaller (e.G. decimal could
         // be a integer)
-        if (readerColumn.ValueFormat.DataType == DataType.Guid || readerColumn.ValueFormat.DataType == DataType.Integer
-                                                               || readerColumn.ValueFormat.DataType == DataType.Boolean
-                                                               || readerColumn.ValueFormat.DataType == DataType.DateTime
-                                                               || readerColumn.ValueFormat.DataType == DataType.Numeric && !checkDoubleToBeInteger
-                                                               || readerColumn.ValueFormat.DataType == DataType.Double && !checkDoubleToBeInteger)
+        if (readerColumn.ValueFormat.DataType == DataTypeEnum.Guid || readerColumn.ValueFormat.DataType == DataTypeEnum.Integer
+                                                               || readerColumn.ValueFormat.DataType == DataTypeEnum.Boolean
+                                                               || readerColumn.ValueFormat.DataType == DataTypeEnum.DateTime
+                                                               || readerColumn.ValueFormat.DataType == DataTypeEnum.Numeric && !checkDoubleToBeInteger
+                                                               || readerColumn.ValueFormat.DataType == DataTypeEnum.Double && !checkDoubleToBeInteger)
         {
           Logger.Information(
             "{column} - Existing Type : {format}",
@@ -234,7 +234,7 @@ namespace CsvTools
           // not enough
           if (colIndexCurrent != -1)
           {
-            if (checkResult.FoundValueFormat.DataType == DataType.DateTime)
+            if (checkResult.FoundValueFormat.DataType == DataTypeEnum.DateTime)
             {
               // if we have a date value format already store this
               if (othersValueFormatDate is null)
@@ -278,14 +278,14 @@ namespace CsvTools
               (checkResult.PossibleMatch ? checkResult.ValueFormatPossibleMatch : checkResult.FoundValueFormat)
               ?? new ImmutableValueFormat();
 
-            if (!addTextColumns && format.DataType == DataType.String) continue;
+            if (!addTextColumns && format.DataType == DataTypeEnum.String) continue;
 
             Logger.Information("{column} – Format : {format}", readerColumn.Name, format.GetTypeAndFormatDescription());
             result.Add($"{readerColumn.Name} – Format : {format.GetTypeAndFormatDescription()}");
             columnCollection.Add(new ImmutableColumn(readerColumn, format));
 
             // Adjust or Set the common date format
-            if (format.DataType == DataType.DateTime)
+            if (format.DataType == DataTypeEnum.DateTime)
               othersValueFormatDate = CommonDateFormat(columnCollection);
           }
         }
@@ -301,8 +301,8 @@ namespace CsvTools
           cancellationToken.ThrowIfCancellationRequested();
           var readerColumn = fileReader.GetColumn(colIndex);
 
-          if (readerColumn.ValueFormat.DataType != DataType.Double
-              && readerColumn.ValueFormat.DataType != DataType.Numeric) continue;
+          if (readerColumn.ValueFormat.DataType != DataTypeEnum.Double
+              && readerColumn.ValueFormat.DataType != DataTypeEnum.Numeric) continue;
           if (sampleList.Keys.Contains(colIndex + 1))
           {
             var samples = sampleList[colIndex + 1];
@@ -314,7 +314,7 @@ namespace CsvTools
               true,
               fillGuessSettings.MinSamples,
               cancellationToken);
-            if (checkResult.FoundValueFormat != null && checkResult.FoundValueFormat.DataType != DataType.Double)
+            if (checkResult.FoundValueFormat != null && checkResult.FoundValueFormat.DataType != DataTypeEnum.Double)
             {
               var colIndexExisting = columnCollection.GetIndex(readerColumn.Name);
 
@@ -353,13 +353,13 @@ namespace CsvTools
           var columnFormat = columnCollection[colIndexSetting].ValueFormat;
 
           // Possibly add Time Zone
-          if (columnFormat.DataType == DataType.DateTime && string.IsNullOrEmpty(readerColumn.TimeZonePart))
+          if (columnFormat.DataType == DataTypeEnum.DateTime && string.IsNullOrEmpty(readerColumn.TimeZonePart))
             for (var colTimeZone = 0; colTimeZone < fileReader.FieldCount; colTimeZone++)
             {
               var columnTimeZone = fileReader.GetColumn(colTimeZone);
               var colName = columnTimeZone.Name.NoSpecials().ToUpperInvariant();
-              if (columnTimeZone.ValueFormat.DataType != DataType.String
-                  && columnTimeZone.ValueFormat.DataType != DataType.Integer
+              if (columnTimeZone.ValueFormat.DataType != DataTypeEnum.String
+                  && columnTimeZone.ValueFormat.DataType != DataTypeEnum.Integer
                   || colName != "TIMEZONE" && colName != "TIMEZONEID" && colName != "TIME ZONE"
                   && colName != "TIME ZONE ID")
                 continue;
@@ -378,7 +378,7 @@ namespace CsvTools
               result.Add($"{readerColumn.Name} – Added Time Zone : {columnTimeZone.Name}");
             }
 
-          if (columnFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
+          if (columnFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
                                                          || columnFormat.DateFormat.IndexOfAny(
                                                            new[] { ':', 'h', 'H', 'm', 's', 't' }) != -1)
             continue;
@@ -389,7 +389,7 @@ namespace CsvTools
             var settingTime = columnCollection.Get(columnTime.Name);
             if (settingTime is null) continue;
             var timeFormat = settingTime.ValueFormat;
-            if (timeFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
+            if (timeFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
                                                          || timeFormat.DateFormat.IndexOfAny(new[] { '/', 'y', 'M', 'd' })
                                                          != -1)
               continue;
@@ -425,7 +425,7 @@ namespace CsvTools
 
           if (colIndexSetting == -1) continue;
           var columnFormat = columnCollection[colIndexSetting].ValueFormat;
-          if (columnFormat.DataType != DataType.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
+          if (columnFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
                                                          || columnFormat.DateFormat.IndexOfAny(
                                                            new[] { ':', 'h', 'H', 'm', 's', 't' }) != -1)
             continue;
@@ -433,7 +433,7 @@ namespace CsvTools
           if (colIndex + 1 < fileReader.FieldCount)
           {
             var columnTime = fileReader.GetColumn(colIndex + 1);
-            if (columnTime.ValueFormat.DataType == DataType.String && readerColumn.Name.NoSpecials().ToUpperInvariant()
+            if (columnTime.ValueFormat.DataType == DataTypeEnum.String && readerColumn.Name.NoSpecials().ToUpperInvariant()
                                                                                   .Replace("DATE", string.Empty).Equals(
                                                                                     columnTime.Name.NoSpecials().ToUpperInvariant()
                                                                                               .Replace("TIME", string.Empty),
@@ -465,7 +465,7 @@ namespace CsvTools
                 columnCollection.Add(
                   new ImmutableColumn(
                     columnTime,
-                    new ImmutableValueFormat(DataType.DateTime, firstValueNewColumn.Length == 8 ? "HH:mm:ss" : "HH:mm")));
+                    new ImmutableValueFormat(DataTypeEnum.DateTime, firstValueNewColumn.Length == 8 ? "HH:mm:ss" : "HH:mm")));
                 Logger.Information(
                   "{column} – Format : {format}",
                   columnTime.Name,
@@ -483,7 +483,7 @@ namespace CsvTools
             continue;
 
           var readerColumnTime = fileReader.GetColumn(colIndex - 1);
-          if (readerColumnTime.ValueFormat.DataType != DataType.String || !readerColumn.Name.NoSpecials()
+          if (readerColumnTime.ValueFormat.DataType != DataTypeEnum.String || !readerColumn.Name.NoSpecials()
                                                                                        .ToUpperInvariant().Replace("DATE", string.Empty).Equals(
                                                                                          readerColumnTime.Name.NoSpecials().ToUpperInvariant()
                                                                                                          .Replace("TIME", string.Empty),
@@ -904,7 +904,7 @@ namespace CsvTools
         if (allParsed)
         {
           checkResult.FoundValueFormat = new ImmutableValueFormat(
-            DataType.Boolean,
+            DataTypeEnum.Boolean,
             asTrue: usedTrueValue,
             asFalse: usedFalseValue);
           return checkResult;
@@ -916,7 +916,7 @@ namespace CsvTools
       // ---------------- GUID --------------------------
       if (guessGuid && StringConversion.CheckGuid(samples, cancellationToken))
       {
-        checkResult.FoundValueFormat = new ImmutableValueFormat(DataType.Guid);
+        checkResult.FoundValueFormat = new ImmutableValueFormat(DataTypeEnum.Guid);
         return checkResult;
       }
 
@@ -1036,7 +1036,7 @@ namespace CsvTools
       if (!checkResult.PossibleMatch)
       {
         var res = StringConversion.CheckUnescaped(samples, minRequiredSamples, cancellationToken);
-        if (res != DataType.String)
+        if (res != DataTypeEnum.String)
         {
           checkResult.PossibleMatch= true;
           checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(res);
@@ -1220,7 +1220,7 @@ namespace CsvTools
             continue;
           var colType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType();
 
-          if (!all && colType == DataType.String)
+          if (!all && colType == DataTypeEnum.String)
             continue;
 
           resultList.Add(
@@ -1248,7 +1248,7 @@ namespace CsvTools
         foreach (var sep in StringConversion.DateSeparators.Where(
           sep => StringConversion.StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture)
                                  .HasValue))
-          yield return new ImmutableValueFormat(DataType.DateTime, fmt, sep);
+          yield return new ImmutableValueFormat(DataTypeEnum.DateTime, fmt, sep);
     }
 
 #endif

@@ -17,7 +17,7 @@ namespace CsvTools
   /// <summary>
   ///   Enumeration of the supported Data Types
   /// </summary>
-  public enum DataType
+  public enum DataTypeEnum
   {
     /// <summary>
     ///   An 32 Bit Integer

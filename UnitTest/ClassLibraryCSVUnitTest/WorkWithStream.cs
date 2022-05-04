@@ -21,7 +21,7 @@ namespace CsvTools.Tests
       impStream.Seek(0, System.IO.SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-        new ColumnCollection(), TrimmingOption.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+        new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
         result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
         string.Empty, true, false, true, false, false, false, false, false, false, true, true))
       {
@@ -36,7 +36,7 @@ namespace CsvTools.Tests
       impStream.Seek(0, SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-        determinedColumns, TrimmingOption.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+        determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
         result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
         string.Empty, true, false, true, false, false, false, false, false, false, true, true))
       {
@@ -58,7 +58,7 @@ namespace CsvTools.Tests
       impStream.Seek(0, System.IO.SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-        new ColumnCollection(), TrimmingOption.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+        new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
         result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
         string.Empty, true, false, true, false, false, false, false, false, false, true, true))
       {
@@ -73,7 +73,7 @@ namespace CsvTools.Tests
       impStream.Seek(0, System.IO.SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-        determinedColumns, TrimmingOption.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+        determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
         result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
         string.Empty, true, false, true, false, false, false, false, false, false, true, true))
       {

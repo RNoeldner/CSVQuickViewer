@@ -183,7 +183,7 @@ namespace CsvTools
 
           m_ToolStripButtonAsText.Visible = m_FileSetting is ICsvFile &&
                                             m_FileSetting.ColumnCollection.Any(x =>
-                                              x.ValueFormat.DataType != DataType.String);
+                                              x.ValueFormat.DataType != DataTypeEnum.String);
           SetFileSystemWatcher(fileName);
           
           Directory.SetCurrentDirectory(m_FileSetting.RootFolder);
@@ -678,7 +678,7 @@ namespace CsvTools
         var store = ViewSetting.StoreViewSetting(detailControl.FilteredDataGridView,
           Array.Empty<ToolStripDataGridViewColumnFilter?>());
         // Assume data type is not recognize
-        if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataType.String))
+        if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataTypeEnum.String))
         {
           Logger.Information("Showing columns as text");
           m_StoreColumns = new ColumnCollection(m_FileSetting.ColumnCollection);

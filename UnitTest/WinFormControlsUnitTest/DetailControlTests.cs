@@ -54,7 +54,7 @@ namespace CsvTools.Tests
           dc.Show();
           dc.DataTable = dt;
           
-          await dc.RefreshDisplayAsync(FilterType.All, UnitTestStatic.Token);
+          await dc.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
           dc.OnlyShowErrors = true ;
           dc.MoveMenu();
         }
@@ -86,7 +86,7 @@ namespace CsvTools.Tests
           dc.HtmlStyle = UnitTestStatic.HtmlStyle;
           dc.Show();
           dc.DataTable = dt;
-          await dc.RefreshDisplayAsync(FilterType.All, UnitTestStatic.Token);
+          await dc.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
           dc.Sort("ID", ListSortDirection.Ascending);
         }
       }

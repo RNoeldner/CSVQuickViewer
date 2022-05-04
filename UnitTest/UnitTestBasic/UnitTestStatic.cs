@@ -51,14 +51,14 @@ namespace CsvTools.Tests
     public static Column[] ColumnsDt =
     {
       new Column("string"),                      //0
-      new Column("int", DataType.Integer),       //1
-      new Column("DateTime", DataType.DateTime), //2
-      new Column("bool", DataType.Boolean),      //3
-      new Column("double", DataType.Double),     //4
-      new Column("numeric", DataType.Numeric),   //5
+      new Column("int", DataTypeEnum.Integer),       //1
+      new Column("DateTime", DataTypeEnum.DateTime), //2
+      new Column("bool", DataTypeEnum.Boolean),      //3
+      new Column("double", DataTypeEnum.Double),     //4
+      new Column("numeric", DataTypeEnum.Numeric),   //5
       new Column("AllEmpty"),                    //6
       new Column("PartEmpty"),                   //7
-      new Column("ID", DataType.Integer)         //8
+      new Column("ID", DataTypeEnum.Integer)         //8
     };
 
     public static HtmlStyle HtmlStyle { get; } = new HtmlStyle();
@@ -278,36 +278,36 @@ namespace CsvTools.Tests
       var readFile = new CsvFile { ID = id, FileName = Path.Combine(GetTestPath("AllFormats.txt")), HasFieldHeader = true, FieldDelimiter = "TAB" };
 
       readFile.ColumnCollection.Add(
-        new Column("DateTime", new ValueFormatMutable { DataType = DataType.DateTime, DateFormat = @"dd/MM/yyyy" })
+        new Column("DateTime", new ValueFormatMutable { DataType = DataTypeEnum.DateTime, DateFormat = @"dd/MM/yyyy" })
         {
           TimePart = "Time",
           TimePartFormat = "HH:mm:ss"
         });
-      readFile.ColumnCollection.Add(new Column("Integer", DataType.Integer));
+      readFile.ColumnCollection.Add(new Column("Integer", DataTypeEnum.Integer));
       readFile.ColumnCollection.Add(
-        new ImmutableColumn("Numeric", new ImmutableValueFormat(DataType.Numeric, decimalSeparator: "."), 0));
+        new ImmutableColumn("Numeric", new ImmutableValueFormat(DataTypeEnum.Numeric, decimalSeparator: "."), 0));
       readFile.ColumnCollection.Add(
-        new Column("Double", new ValueFormatMutable { DataType = DataType.Double, DecimalSeparator = "." }));
-      readFile.ColumnCollection.Add(new Column("Boolean", DataType.Boolean));
-      readFile.ColumnCollection.Add(new Column("GUID", DataType.Guid));
+        new Column("Double", new ValueFormatMutable { DataType = DataTypeEnum.Double, DecimalSeparator = "." }));
+      readFile.ColumnCollection.Add(new Column("Boolean", DataTypeEnum.Boolean));
+      readFile.ColumnCollection.Add(new Column("GUID", DataTypeEnum.Guid));
       readFile.ColumnCollection.Add(
-        new Column("Time", new ValueFormatMutable { DataType = DataType.DateTime, DateFormat = "HH:mm:ss" }) { Ignore = true });
+        new Column("Time", new ValueFormatMutable { DataType = DataTypeEnum.DateTime, DateFormat = "HH:mm:ss" }) { Ignore = true });
       return readFile;
     }
 
     public static CsvFile ReaderGetBasicCSV(string id = "BasicCSV")
     {
       var readFile = new CsvFile { ID = id, CommentLine = "#", FileName = Path.Combine(GetTestPath("BasicCSV.txt")) };
-      var examDateFld = new Column("ExamDate", DataType.DateTime);
+      var examDateFld = new Column("ExamDate", DataTypeEnum.DateTime);
       readFile.ColumnCollection.Add(examDateFld);
 
       examDateFld.ValueFormatMutable.DateFormat = @"dd/MM/yyyy";
 
-      readFile.ColumnCollection.Add(new Column("Score", DataType.Integer));
+      readFile.ColumnCollection.Add(new Column("Score", DataTypeEnum.Integer));
 
-      readFile.ColumnCollection.Add(new Column("Proficiency", DataType.Numeric));
+      readFile.ColumnCollection.Add(new Column("Proficiency", DataTypeEnum.Numeric));
 
-      readFile.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean));
+      readFile.ColumnCollection.Add(new Column("IsNativeLang", DataTypeEnum.Boolean));
 
       return readFile;
     }

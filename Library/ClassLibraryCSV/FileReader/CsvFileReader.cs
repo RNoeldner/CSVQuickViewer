@@ -108,7 +108,7 @@ namespace CsvTools
 
     private readonly bool m_TreatUnknownCharacterAsSpace;
 
-    private readonly TrimmingOption m_TrimmingOption;
+    private readonly TrimmingOptionEnum m_TrimmingOption;
 
     private readonly bool m_TryToSolveMoreColumns;
 
@@ -159,7 +159,7 @@ namespace CsvTools
       int skipRows = 0,
       bool hasFieldHeader = true,
       in IEnumerable<IColumn>? columnDefinition = null,
-      in TrimmingOption trimmingOption = TrimmingOption.Unquoted,
+      in TrimmingOptionEnum trimmingOption = TrimmingOptionEnum.Unquoted,
       in string fieldDelimiter = "\t",
       in string fieldQualifier = "\"",
       in string escapeCharacter = "",
@@ -232,7 +232,7 @@ namespace CsvTools
       int skipRows = 0,
       bool hasFieldHeader = true,
       in IEnumerable<IColumn>? columnDefinition = null,
-      in TrimmingOption trimmingOption = TrimmingOption.Unquoted,
+      in TrimmingOptionEnum trimmingOption = TrimmingOptionEnum.Unquoted,
       in string fieldDelimiter = "\t",
       in string fieldQualifier = "\"",
       in string escapePrefix = "",
@@ -312,7 +312,7 @@ namespace CsvTools
       int codePageId,
       int skipRows,
       bool hasFieldHeader,
-      TrimmingOption trimmingOption,
+      TrimmingOptionEnum trimmingOption,
       string fieldDelimiter,
       string fieldQualifier,
       string escapePrefix,
@@ -432,7 +432,7 @@ namespace CsvTools
     /// <exception cref="T:System.NotImplementedException">Always returns</exception>    
     public new long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
     {
-      if (GetColumn(i).ValueFormat.DataType != DataType.Binary || string.IsNullOrEmpty(CurrentRowColumnText[i])) return -1;
+      if (GetColumn(i).ValueFormat.DataType != DataTypeEnum.Binary || string.IsNullOrEmpty(CurrentRowColumnText[i])) return -1;
       using var fs = FileSystemUtils.OpenRead(CurrentRowColumnText[i]);
       if (fieldOffset > 0)
         fs.Seek(fieldOffset, SeekOrigin.Begin);
@@ -471,12 +471,12 @@ namespace CsvTools
       var column = Column[ordinal];
       object? ret = column.ValueFormat.DataType switch
       {
-        DataType.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal), column, true),
-        DataType.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
-        DataType.Double => GetDoubleNull(value, ordinal),
-        DataType.Numeric => GetDecimalNull(value, ordinal),
-        DataType.Boolean => GetBooleanNull(value, ordinal),
-        DataType.Guid => GetGuidNull(value, column.ColumnOrdinal),
+        DataTypeEnum.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal), column, true),
+        DataTypeEnum.Integer => IntPtr.Size == 4 ? GetInt32Null(value, column) : GetInt64Null(value, column),
+        DataTypeEnum.Double => GetDoubleNull(value, ordinal),
+        DataTypeEnum.Numeric => GetDecimalNull(value, ordinal),
+        DataTypeEnum.Boolean => GetBooleanNull(value, ordinal),
+        DataTypeEnum.Guid => GetGuidNull(value, column.ColumnOrdinal),
         _ => value
       };
       return ret ?? DBNull.Value;
@@ -1079,7 +1079,7 @@ namespace CsvTools
           if (IsWhiteSpace(character))
           {
             // Store the white spaces if we do any kind of trimming
-            if (m_TrimmingOption == TrimmingOption.None)
+            if (m_TrimmingOption == TrimmingOptionEnum.None)
               // Values will be trimmed later but we need to find out, if the filed is quoted first
               stringBuilder.Append(character);
             continue;
@@ -1091,7 +1091,7 @@ namespace CsvTools
           // Can not be escaped here
           if (m_HasQualifier && character == m_FieldQualifierChar && !escaped)
           {
-            if (m_TrimmingOption != TrimmingOption.None)
+            if (m_TrimmingOption != TrimmingOptionEnum.None)
               stringBuilder.Length = 0;
 
             // quoted data is starting
@@ -1164,7 +1164,7 @@ namespace CsvTools
           columnText = columnText.Replace(cUnknownChar, ' ');
       }
 
-      return m_TrimmingOption == TrimmingOption.All || !quoted && m_TrimmingOption == TrimmingOption.Unquoted
+      return m_TrimmingOption == TrimmingOptionEnum.All || !quoted && m_TrimmingOption == TrimmingOptionEnum.Unquoted
                ? columnText.Trim()
                : columnText;
     }

@@ -13,7 +13,7 @@ namespace CsvTools
     private readonly Action? m_ActionBegin;
     private readonly Action<DataReaderWrapper>? m_ActionFinished;
     private readonly Func<DataTable> m_GetDataTable;
-    private readonly Func<FilterType, CancellationToken, Task>? m_RefreshDisplayAsync;
+    private readonly Func<FilterTypeEnum, CancellationToken, Task>? m_RefreshDisplayAsync;
     private readonly Action<DataTable> m_SetDataTable;
     private readonly Action<Func<IProcessDisplay?, CancellationToken, Task>>? m_SetLoadNextBatchAsync;
     private DataReaderWrapper? m_DataReaderWrapper;
@@ -23,7 +23,7 @@ namespace CsvTools
     public TwoStepDataTableLoader(
       in Action<DataTable> actionSetDataTable,
       in Func<DataTable> getDataTable,
-      in Func<FilterType, CancellationToken, Task>? setRefreshDisplayAsync,
+      in Func<FilterTypeEnum, CancellationToken, Task>? setRefreshDisplayAsync,
       in Action<Func<IProcessDisplay?, CancellationToken, Task>>? loadNextBatchAsync,
       in Action? actionBegin,
       in Action<DataReaderWrapper>? actionFinished)
@@ -139,7 +139,7 @@ namespace CsvTools
       {
         try
         {
-          await m_RefreshDisplayAsync(FilterType.All, cancellationToken).ConfigureAwait(false);
+          await m_RefreshDisplayAsync(FilterTypeEnum.All, cancellationToken).ConfigureAwait(false);
         }
         catch (InvalidOperationException)
         {

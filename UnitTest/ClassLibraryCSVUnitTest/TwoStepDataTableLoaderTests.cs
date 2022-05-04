@@ -17,7 +17,7 @@ namespace CsvTools.Tests
       bool finishedCalled = false;
       bool warningCalled = false;
       bool refreshCalled = false;
-      Task RefeshFunc(FilterType filterType, CancellationToken cancellationToken) => Task.Run(() => refreshCalled =true);
+      Task RefeshFunc(FilterTypeEnum filterType, CancellationToken cancellationToken) => Task.Run(() => refreshCalled =true);
 
       using var tsde = new TwoStepDataTableLoader(dt => myDataTable = dt, () => myDataTable, RefeshFunc, null, () => beginCalled=true, (x) => finishedCalled=true);
       var csv = new CsvFile

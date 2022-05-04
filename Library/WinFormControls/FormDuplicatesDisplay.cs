@@ -90,7 +90,7 @@ namespace CsvTools
 
       detailControl.CancellationToken = m_CancellationTokenSource.Token;
       detailControl.DataTable = m_DataTable;
-      await detailControl.RefreshDisplayAsync(FilterType.All, m_CancellationTokenSource.Token);
+      await detailControl.RefreshDisplayAsync(FilterTypeEnum.All, m_CancellationTokenSource.Token);
     }
 
     private void Work(string dataColumnName, bool ignoreNull)

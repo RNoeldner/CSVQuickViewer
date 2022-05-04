@@ -104,14 +104,14 @@ namespace CsvTools
         var line = GetNextRecord(token);
 
         // get column names for some time
-        var colNames = new Dictionary<string, DataType>();
+        var colNames = new Dictionary<string, DataTypeEnum>();
         var stopwatch = new Stopwatch();
         // read additional rows to see if we have some extra columns
         while (line != null)
         {
           foreach (var keyValue in line)
             if (!colNames.ContainsKey(keyValue.Key))
-              colNames.Add(keyValue.Key, keyValue.Value?.GetType().GetDataType() ?? DataType.String);
+              colNames.Add(keyValue.Key, keyValue.Value?.GetType().GetDataType() ?? DataTypeEnum.String);
 
           if (stopwatch.ElapsedMilliseconds > 200)
             break;
@@ -318,7 +318,7 @@ namespace CsvTools
               var orgVal = Convert.ToString(CurrentValues[columnNumber]) ?? string.Empty;
               CurrentRowColumnText[columnNumber] = orgVal;
 
-              if (!string.IsNullOrEmpty(orgVal) && !col.Ignore && col.ValueFormat.DataType >= DataType.String)
+              if (!string.IsNullOrEmpty(orgVal) && !col.Ignore && col.ValueFormat.DataType >= DataTypeEnum.String)
               {
                 CurrentRowColumnText[columnNumber] =
                   TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal, columnNumber)) ?? String.Empty;

@@ -27,7 +27,7 @@ namespace CsvTools
     }
 
     public ImmutableValueFormat(
-    in DataType dataType = DataType.String,
+    in DataTypeEnum dataType = DataTypeEnum.String,
     in string dateFormat = ValueFormatExtension.cDateFormatDefault,
     in string dateSeparator = ValueFormatExtension.cDateSeparatorDefault,
     in string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
@@ -69,7 +69,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    public DataType DataType { get; }
+    public DataTypeEnum DataType { get; }
 
     /// <inheritdoc />
     public string DateFormat { get; }

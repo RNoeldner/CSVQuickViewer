@@ -33,7 +33,7 @@ namespace CsvTools.Tests
       var setting = new CsvFile(UnitTestStatic.GetTestPath("BinaryReferenceList.txt")) { HasFieldHeader = true, FieldDelimiter = "Tab" };
       setting.ColumnCollection.Add(new ImmutableColumn("Title", new ImmutableValueFormat(), 0));
       setting.ColumnCollection.Add(new ImmutableColumn("File Name",
-          new ImmutableValueFormat(DataType.Binary, readFolder: UnitTestStatic.ApplicationDirectory, writeFolder: UnitTestStatic.ApplicationDirectory, fileOutPutPlaceholder: ""), 1));
+          new ImmutableValueFormat(DataTypeEnum.Binary, readFolder: UnitTestStatic.ApplicationDirectory, writeFolder: UnitTestStatic.ApplicationDirectory, fileOutPutPlaceholder: ""), 1));
 
       var dpd = new CustomProcessDisplay();
       using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
@@ -55,8 +55,8 @@ namespace CsvTools.Tests
     {
       var setting =
         new CsvFile(UnitTestStatic.GetTestPath("AllFormats.txt")) { HasFieldHeader = true, FieldDelimiter = "Tab" };
-      setting.ColumnCollection.Add(new Column("DateTime", DataType.DateTime));
-      setting.ColumnCollection.Add(new Column("Integer", DataType.Integer));
+      setting.ColumnCollection.Add(new Column("DateTime", DataTypeEnum.DateTime));
+      setting.ColumnCollection.Add(new Column("Integer", DataTypeEnum.Integer));
       var dpd = new CustomProcessDisplay();
       using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
@@ -116,9 +116,9 @@ namespace CsvTools.Tests
       using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0, true,
         new IColumn[]
         {
-          new ImmutableColumn("DateTime", new ImmutableValueFormat(DataType.DateTime), 0, true, "", true),
-          new ImmutableColumn("Integer", new ImmutableValueFormat(DataType.Integer), 0, true, "", true)
-        }, TrimmingOption.All);
+          new ImmutableColumn("DateTime", new ImmutableValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
+          new ImmutableColumn("Integer", new ImmutableValueFormat(DataTypeEnum.Integer), 0, true, "", true)
+        }, TrimmingOptionEnum.All);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(false, reader.IsClosed);
       Assert.AreEqual(1, reader.Percent);
@@ -140,9 +140,9 @@ namespace CsvTools.Tests
       using var reader = new CsvFileReader(stream, Encoding.UTF8.CodePage, 0, true,
         new IColumn[]
         {
-          new ImmutableColumn("DateTime", new ImmutableValueFormat(DataType.DateTime), 0, true, "", true),
-          new ImmutableColumn("Integer", new ImmutableValueFormat(DataType.Integer), 0, true, "", true)
-        }, TrimmingOption.All);
+          new ImmutableColumn("DateTime", new ImmutableValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
+          new ImmutableColumn("Integer", new ImmutableValueFormat(DataTypeEnum.Integer), 0, true, "", true)
+        }, TrimmingOptionEnum.All);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(false, reader.IsClosed);
       Assert.AreEqual(1, reader.Percent);
@@ -301,7 +301,7 @@ namespace CsvTools.Tests
       {
         HasFieldHeader = false,
         ContextSensitiveQualifier = true,
-        TrimmingOption = TrimmingOption.All,
+        TrimmingOption = TrimmingOptionEnum.All,
         FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")
       };
       using var cts = CancellationTokenSource.CreateLinkedTokenSource(UnitTestStatic.Token);
@@ -358,7 +358,7 @@ namespace CsvTools.Tests
         HasFieldHeader = false,
         FieldDelimiter = ",",
         ContextSensitiveQualifier = true,
-        TrimmingOption = TrimmingOption.All,
+        TrimmingOption = TrimmingOptionEnum.All,
         FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")
       };
       var processDisplay = new CustomProcessDisplay();
@@ -400,7 +400,7 @@ namespace CsvTools.Tests
         WarnQuotes = true,
         FieldDelimiter = ",",
         ContextSensitiveQualifier = true,
-        TrimmingOption = TrimmingOption.Unquoted,
+        TrimmingOption = TrimmingOptionEnum.Unquoted,
         FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")
       };
 
@@ -493,7 +493,7 @@ Line "Test"", "22",23,"  24"
         EscapePrefix = "\\",
         FieldQualifier = "\"",
         FieldDelimiter = ",",
-        TrimmingOption = TrimmingOption.Unquoted,
+        TrimmingOption = TrimmingOptionEnum.Unquoted,
         FileName = UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt")
       };
 
@@ -524,7 +524,7 @@ Line "Test"", "22",23,"  24"
         EscapePrefix = "\\",
         FieldQualifier = "\"",
         FieldDelimiter = ",",
-        TrimmingOption = TrimmingOption.Unquoted,
+        TrimmingOption = TrimmingOptionEnum.Unquoted,
         FileName = UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt")
       };
 
@@ -557,7 +557,7 @@ Line "Test"", "22",23,"  24"
         FieldQualifier = "\""
       };
       setting.FieldDelimiter = ",";
-      setting.TrimmingOption = TrimmingOption.Unquoted;
+      setting.TrimmingOption = TrimmingOptionEnum.Unquoted;
       setting.FileName = UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt");
 
       var processDisplay = new CustomProcessDisplay();
@@ -621,7 +621,7 @@ Line "Test"", "22",23,"  24"
         CommentLine = "#",
         FieldQualifier = "\"",
         FieldDelimiter = ",",
-        TrimmingOption = TrimmingOption.Unquoted,
+        TrimmingOption = TrimmingOptionEnum.Unquoted,
         FileName = UnitTestStatic.GetTestPath("QuoteInText.txt")
       };
 
@@ -660,7 +660,7 @@ Line "Test"", "22",23,"  24"
         EscapePrefix = "\\",
         FieldQualifier = "\"",
         FieldDelimiter = ",",
-        TrimmingOption = TrimmingOption.All,
+        TrimmingOption = TrimmingOptionEnum.All,
         FileName = UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt")
       };
 
@@ -810,7 +810,7 @@ Line "Test"", "22",23,"  24"
       var setting = new CsvFile
       {
         HasFieldHeader = false,
-        TrimmingOption = TrimmingOption.None,
+        TrimmingOption = TrimmingOptionEnum.None,
         TreatLfAsSpace = false,
         FieldDelimiter = ",",
         EscapePrefix = "\\",
@@ -1268,7 +1268,7 @@ Line "Test"", "22",23,"  24"
         WarnNBSP = true,
         WarnUnknownCharacter = true,
         ContextSensitiveQualifier = false,
-        TrimmingOption = TrimmingOption.None,
+        TrimmingOption = TrimmingOptionEnum.None,
         FieldDelimiter = ",",
         FileName = UnitTestStatic.GetTestPath("SimpleDelimiterWithControlCharacters.txt"),
         CommentLine = "#"
@@ -1426,8 +1426,8 @@ Line "Test"", "22",23,"  24"
     {
       var setting = new CsvFile { HasFieldHeader = true, FieldDelimiter = ",", FileName = UnitTestStatic.GetTestPath("BasicCSV.txt") };
       setting.ColumnCollection.Add(new Column("ExamDate", @"dd/MM/yyyy"));
-      setting.ColumnCollection.Add(new Column("ID", DataType.Integer));
-      setting.ColumnCollection.Add(new Column("IsNativeLang", DataType.Boolean));
+      setting.ColumnCollection.Add(new Column("ID", DataTypeEnum.Integer));
+      setting.ColumnCollection.Add(new Column("IsNativeLang", DataTypeEnum.Boolean));
 
       var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,

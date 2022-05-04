@@ -22,7 +22,7 @@ namespace CsvTools
       bool hasFieldHeader = true,
       bool isJson = false,
       bool noDelimitedFile = false,
-      RecordDelimiterType recordDelimiterType = RecordDelimiterType.None,
+      RecordDelimiterTypeEnum recordDelimiterType = RecordDelimiterTypeEnum.None,
       in IEnumerable<IColumn>? columns = null,
       string? columnFile = ""
     )

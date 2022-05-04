@@ -71,7 +71,7 @@ namespace CsvTools
       ValueFormatMutable = new ValueFormatMutable(valueFormat);
     }
 
-    public Column(string name, DataType dataType = DataType.String)
+    public Column(string name, DataTypeEnum dataType = DataTypeEnum.String)
     {
       m_Name = name;
       ValueFormatMutable = new ValueFormatMutable { DataType = dataType };
@@ -80,7 +80,7 @@ namespace CsvTools
     public Column(string name, string dateFormat, string dateSeparator = ValueFormatExtension.cDateSeparatorDefault)
     {
       m_Name = name;
-      ValueFormatMutable = new ValueFormatMutable { DataType = DataType.DateTime, DateFormat = dateFormat, DateSeparator = dateSeparator };
+      ValueFormatMutable = new ValueFormatMutable { DataType = DataTypeEnum.DateTime, DateFormat = dateFormat, DateSeparator = dateSeparator };
     }
 
     /// <summary>
@@ -95,8 +95,8 @@ namespace CsvTools
     /// </summary>
     /// <value>The type of the data.</value>
     [XmlAttribute("Type")]
-    [DefaultValue(DataType.String)]
-    public DataType DataType
+    [DefaultValue(DataTypeEnum.String)]
+    public DataTypeEnum DataType
     {
       get => ValueFormatMutable.DataType;
       set => ValueFormatMutable.DataType = value;
@@ -119,7 +119,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    public bool DateFormatSpecified => ValueFormatMutable.DataType == DataType.DateTime;
+    public bool DateFormatSpecified => ValueFormatMutable.DataType == DataTypeEnum.DateTime;
 
     /// <summary>
     ///   Gets or sets the date separator.
@@ -139,7 +139,7 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     [XmlIgnore]
-    public bool DateSeparatorSpecified => ValueFormatMutable.DataType == DataType.DateTime;
+    public bool DateSeparatorSpecified => ValueFormatMutable.DataType == DataTypeEnum.DateTime;
 
     /// <summary>
     ///   Gets or sets the decimal separator.
@@ -173,7 +173,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    public bool FalseSpecified => ValueFormatMutable.DataType == DataType.Boolean;
+    public bool FalseSpecified => ValueFormatMutable.DataType == DataTypeEnum.Boolean;
 
     /// <summary>
     ///   Gets or sets the group separator.
@@ -205,7 +205,7 @@ namespace CsvTools
     /// <value><c>true</c> if number format is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
     public bool NumberFormatSpecified =>
-      ValueFormatMutable.DataType == DataType.Double || ValueFormatMutable.DataType == DataType.Numeric;
+      ValueFormatMutable.DataType == DataTypeEnum.Double || ValueFormatMutable.DataType == DataTypeEnum.Numeric;
 
     /// <summary>
     ///   Gets or sets the part for splitting.
@@ -224,7 +224,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-    public bool PartSpecified => ValueFormatMutable.DataType == DataType.TextPart;
+    public bool PartSpecified => ValueFormatMutable.DataType == DataTypeEnum.TextPart;
 
     /// <summary>
     ///   Gets or sets the splitter.
@@ -244,7 +244,7 @@ namespace CsvTools
     /// <remarks>Used for XML Serialization</remarks>
 
     public bool PartSplitterSpecified =>
-      ValueFormatMutable.DataType == DataType.TextPart
+      ValueFormatMutable.DataType == DataTypeEnum.TextPart
       && !ValueFormatMutable.PartSplitter.Equals(ValueFormatExtension.cPartSplitterDefault);
 
     /// <summary>
@@ -265,7 +265,7 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
 
-    public bool PartToEndSpecified => ValueFormatMutable.DataType == DataType.TextPart;
+    public bool PartToEndSpecified => ValueFormatMutable.DataType == DataTypeEnum.TextPart;
 
     /// <summary>
     ///   Gets a value indicating whether the Xml field is specified.
@@ -273,7 +273,7 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
 
-    public bool TimePartFormatSpecified => ValueFormatMutable.DataType == DataType.DateTime;
+    public bool TimePartFormatSpecified => ValueFormatMutable.DataType == DataTypeEnum.DateTime;
 
     /// <summary>
     ///   Gets a value indicating whether the Xml field is specified.
@@ -281,7 +281,7 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
 
-    public bool TimePartSpecified => ValueFormatMutable.DataType == DataType.DateTime;
+    public bool TimePartSpecified => ValueFormatMutable.DataType == DataTypeEnum.DateTime;
 
     /// <summary>
     ///   Gets or sets the time separator.
@@ -301,7 +301,7 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
 
-    public bool TimeSeparatorSpecified => ValueFormatMutable.DataType == DataType.DateTime;
+    public bool TimeSeparatorSpecified => ValueFormatMutable.DataType == DataTypeEnum.DateTime;
 
     /// <summary>
     ///   Gets or sets the representation for true.
@@ -323,7 +323,7 @@ namespace CsvTools
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
 
-    public bool TrueSpecified => ValueFormatMutable.DataType == DataType.Boolean;
+    public bool TrueSpecified => ValueFormatMutable.DataType == DataTypeEnum.Boolean;
 
     public ValueFormatMutable ValueFormatMutable { get; }
 
@@ -346,7 +346,7 @@ namespace CsvTools
     [DefaultValue(false)]
     public bool Convert
     {
-      get => m_Convert ?? ValueFormatMutable.DataType != DataType.String;
+      get => m_Convert ?? ValueFormatMutable.DataType != DataTypeEnum.String;
       set
       {
         if (m_Convert.HasValue && m_Convert.Equals(value))

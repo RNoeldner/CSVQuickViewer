@@ -68,7 +68,7 @@ namespace CsvTools
       if (valueFormat is null)
         throw new ArgumentNullException(nameof(valueFormat));
       ColumnOrdinal = columnOrdinal;
-      Convert = convert ?? valueFormat.DataType != DataType.String;
+      Convert = convert ?? valueFormat.DataType != DataTypeEnum.String;
       DestinationName = destinationName;
       Ignore = ignore;
 
