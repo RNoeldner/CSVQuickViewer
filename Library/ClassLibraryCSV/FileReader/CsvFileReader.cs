@@ -516,6 +516,7 @@ namespace CsvTools
           m_ImprovedStream,
           await m_ImprovedStream.CodePageResolve(m_CodePageId, token).ConfigureAwait(false),
           m_SkipRows);
+
         ResetPositionToStartOrOpen();
 
         m_HeaderRow = ReadNextRow(false);
