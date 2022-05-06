@@ -30,14 +30,14 @@ namespace CsvTools
   /// </summary>
   public sealed class JsonFileReader : BaseFileReaderTyped, IFileReaderWithEvents
   {
-    private IImprovedStream? m_ImprovedStream;
+    private Stream? m_ImprovedStream;
 
     private JsonTextReader? m_JsonTextReader;
 
     private StreamReader? m_StreamReader;
 
     public JsonFileReader(
-      in IImprovedStream improvedStream,
+      in Stream improvedStream,
       in IEnumerable<IColumn>? columnDefinition = null,
       long recordLimit = 0,
       bool trim = false,
@@ -185,11 +185,13 @@ namespace CsvTools
     /// <returns>A value between 0 and MaxValue</returns>
     protected override double GetRelativePosition()
     {
-      var byFile = m_ImprovedStream?.Percentage ?? 0;
+      if (m_ImprovedStream is IImprovedStream imp)
+        return imp.Percentage;
+
       if (RecordLimit > 0 && RecordLimit < long.MaxValue)
-        // you can either reach the record limit or the end of the stream, whatever is faster
-        return Math.Max((double) RecordNumber / RecordLimit, byFile);
-      return byFile;
+        // you can either reach the record limit or the end of the stream
+        return Math.Max((double) RecordNumber / RecordLimit, 50);
+      return 0;
     }
 
     /// <summary>

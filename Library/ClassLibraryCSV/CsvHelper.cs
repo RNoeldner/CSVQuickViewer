@@ -242,10 +242,10 @@ namespace CsvTools
       // since we did not properly parse the delimited text accounting for quoting (delimiter in
       // column or newline splitting columns) apply some variance to it
       return partsComment < Math.Round(parts * .9 / row) || partsComment > Math.Round(parts * 1.1 / row);
-    }
+    }    
 
     internal static async Task<int> CodePageResolve(
-      this IImprovedStream improvedStream,
+      this Stream improvedStream,
       int codePageId,
       CancellationToken cancellationToken)
     {
@@ -277,7 +277,7 @@ namespace CsvTools
     /// <param name="disallowedDelimiter">Delimiter to exclude in recognition, as they have been ruled out before</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     public static async Task<DelimitedFileDetectionResult> GetDetectionResult(
-      this IImprovedStream improvedStream,
+      this Stream improvedStream,
       string fileName,
       IProcessDisplay? processDisplay,
       bool guessJson,
@@ -630,7 +630,7 @@ namespace CsvTools
 #endif
         using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
         // Determine from file
-        detectionResult = await improvedStream.GetDetectionResult(
+        detectionResult = await (improvedStream as Stream)!.GetDetectionResult(
                fileName,
                processDisplay,
                guessJson,
@@ -667,7 +667,7 @@ namespace CsvTools
       } while (!hasFields);
 
       return detectionResult;
-    }
+    }    
 
     /// <summary>
     ///   Guesses the code page from a stream.
@@ -675,7 +675,7 @@ namespace CsvTools
     /// <param name="stream">The stream.</param>
     /// <param name="token">The token.</param>
     /// <returns></returns>
-    public static async Task<Tuple<int, bool>> GuessCodePage(this IImprovedStream stream, CancellationToken token)
+    public static async Task<Tuple<int, bool>> GuessCodePage(this Stream stream, CancellationToken token)
     {
       // Read 256 kBytes
       var buff = new byte[262144];
@@ -711,7 +711,7 @@ namespace CsvTools
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <remarks>No Error will not be thrown.</remarks>
     public static async Task<Tuple<string, bool>> GuessDelimiter(
-      this IImprovedStream improvedStream,
+      this Stream improvedStream,
       int codePageId,
       int skipRows,
       string escapeCharacter,
@@ -737,7 +737,7 @@ namespace CsvTools
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     public static async Task<string> GuessHasHeader(
-      this IImprovedStream improvedStream,
+      this Stream improvedStream,
       int codePageId,
       int skipRows,
       string commentLine,
@@ -886,7 +886,7 @@ namespace CsvTools
     }
 
     public static async Task<string> GuessLineComment(
-      this IImprovedStream improvedStream,
+      this Stream improvedStream,
       int codePageId,
       int skipRows,
       CancellationToken cancellationToken)
@@ -945,7 +945,7 @@ namespace CsvTools
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>The NewLine Combination used</returns>
     public static async Task<RecordDelimiterTypeEnum> GuessNewline(
-      this IImprovedStream improvedStream,
+      this Stream improvedStream,
       int codePageId,
       int skipRows,
       string fieldQualifier,
@@ -967,7 +967,7 @@ namespace CsvTools
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>The NewLine Combination used</returns>
     public static async Task<string?> GuessQualifier(
-      this IImprovedStream improvedStream,
+      this Stream improvedStream,
       int codePageId,
       int skipRows,
       string fieldDelimiter,
@@ -1165,7 +1165,7 @@ namespace CsvTools
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>The number of rows to skip</returns>
     public static async Task<int> GuessStartRow(
-      this IImprovedStream improvedStream,
+      this Stream improvedStream,
       int codePageID,
       string fieldDelimiter,
       string fieldQualifier,
@@ -1188,7 +1188,7 @@ namespace CsvTools
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns><c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.</returns>
     public static async Task<bool> HasUsedQualifier(
-      this IImprovedStream improvedStream,
+      this Stream improvedStream,
       int codePageId,
       int skipRows,
       string fieldDelimiter,
@@ -1239,7 +1239,7 @@ namespace CsvTools
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns><c>true</c> if json could be read from stream; otherwise, <c>false</c>.</returns>
     public static async Task<bool> IsJsonReadable(
-      this IImprovedStream impStream,
+      this Stream impStream,
       Encoding encoding,
       CancellationToken cancellationToken)
     {
@@ -1391,7 +1391,7 @@ namespace CsvTools
     }
 
     private static async Task<ImprovedTextReader> GetStreamReaderAtStart(
-      this IImprovedStream improvedStream,
+      this Stream improvedStream,
       int codePageId,
       int skipRows,
       CancellationToken cancellationToken)

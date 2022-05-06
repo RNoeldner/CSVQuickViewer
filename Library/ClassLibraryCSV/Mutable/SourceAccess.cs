@@ -150,9 +150,7 @@ namespace CsvTools
     /// <param name="isReading"><c>true</c> if used for reading</param>
     /// <param name="keyID">PGP encryption key identifier</param>
     public SourceAccess(Stream stream, FileTypeEnum type = FileTypeEnum.Stream, bool isReading = true, in long keyID = 0)
-    {
-      if (!stream.CanSeek)
-        throw new ArgumentException("Source stream must support seek to be used for SourceAccess", nameof(stream));
+    {      
       LeaveOpen = true;
       m_OpenStream = () => stream;
       FileType = type;

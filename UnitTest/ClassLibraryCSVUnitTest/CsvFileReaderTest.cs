@@ -205,7 +205,7 @@ namespace CsvTools.Tests
       {
 #pragma warning disable CS8600
 #pragma warning disable CS8625
-        using (new CsvFileReader((IImprovedStream) null))
+        using (new CsvFileReader((Stream) null))
 #pragma warning restore CS8625
 #pragma warning restore CS8600
         {

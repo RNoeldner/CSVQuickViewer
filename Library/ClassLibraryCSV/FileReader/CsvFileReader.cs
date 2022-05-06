@@ -131,7 +131,7 @@ namespace CsvTools
 
     private string[] m_HeaderRow;
 
-    private IImprovedStream? m_ImprovedStream;
+    private Stream? m_ImprovedStream;
 
     /// <summary>
     ///   Number of Records in the text file, only set if all records have been read
@@ -154,7 +154,7 @@ namespace CsvTools
     private ImprovedTextReader? m_TextReader;
 
     public CsvFileReader(
-      in IImprovedStream improvedStream,
+      in Stream stream,
       int codePageId = 650001,
       int skipRows = 0,
       bool hasFieldHeader = true,
@@ -223,7 +223,9 @@ namespace CsvTools
         string.Empty,
         processDisplay)
     {
-      m_ImprovedStream = improvedStream ?? throw new ArgumentNullException(nameof(improvedStream));
+      m_ImprovedStream = stream ?? throw new ArgumentNullException(nameof(stream));
+      if (!stream.CanSeek)
+        throw new NotSupportedException("CsvFileReader does not support non-seekable streams");
     }
 
     public CsvFileReader(
@@ -501,7 +503,6 @@ namespace CsvTools
 #else
             m_ImprovedStream.Dispose();
 #endif
-
           m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath) { IdentifierInContainer = m_IdentifierInContainer });
         }
         else
@@ -612,11 +613,13 @@ namespace CsvTools
     /// <returns>A value between 0 and MaxValue</returns>
     protected override double GetRelativePosition()
     {
-      var byFile = m_ImprovedStream?.Percentage ?? 0;
+      if (m_ImprovedStream is IImprovedStream imp)
+        return imp.Percentage;
+      
       if (RecordLimit > 0 && RecordLimit < long.MaxValue)
         // you can either reach the record limit or the end of the stream
-        return Math.Max((double) RecordNumber / RecordLimit, byFile);
-      return byFile;
+        return Math.Max((double) RecordNumber / RecordLimit, 50);
+      return 0;
     }
 
     private bool AllEmptyAndCountConsecutiveEmptyRows(IReadOnlyList<string?>? columns)

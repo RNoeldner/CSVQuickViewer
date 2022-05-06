@@ -13,6 +13,7 @@
  */
 
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,7 +59,7 @@ namespace CsvTools
     ///   Open a file for reading, it will take care of things like compression and encryption
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<SourceAccess, IImprovedStream> OpenStream = fileAccess => new ImprovedStream(fileAccess);
+    public static Func<SourceAccess, Stream> OpenStream = fileAccess => new ImprovedStream(fileAccess);
 
     private static DateTime ChangeTimeZone(
       in DateTime input,
