@@ -9,7 +9,7 @@ namespace CsvTools
   {
     private readonly ICsvFile m_FileSetting;
     private ISyntaxHighlighter m_HighLighter;
-    private IImprovedStream? m_Stream;
+    private Stream? m_Stream;
 
     public FindSkipRows() : this(new CsvFile())
     {
@@ -52,8 +52,7 @@ namespace CsvTools
       frm.Show();
       frm.Maximum = 0;
       using (var streamReader = new ImprovedTextReader(m_Stream!, m_FileSetting.CodePageId))
-      {
-        streamReader.ToBeginning();
+      {        
         m_FileSetting.SkipRows = streamReader.GuessStartRow(textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxComment.Text, frm.CancellationToken);
       }
 
