@@ -173,7 +173,7 @@ namespace CsvTools
 
       var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterTypeEnum));
       var di = (from RecordDelimiterTypeEnum item in Enum.GetValues(typeof(RecordDelimiterTypeEnum))
-                select new DisplayItem<int>((int) item, descConv.ConvertToString(item))).ToList();
+                select new DisplayItem<int>((int) item, descConv?.ConvertToString(item) ?? string.Empty)).ToList();
 
       var selValue = (int) m_CsvFile.NewLine;
       cboRecordDelimiter.SuspendLayout();
