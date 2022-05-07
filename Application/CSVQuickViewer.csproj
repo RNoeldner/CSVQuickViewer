@@ -9,7 +9,7 @@
 		<PackageIcon>Picture.png</PackageIcon>
 		<PackageIconUrl />
 		<SignAssembly>True</SignAssembly>
-		<TargetFrameworks>net472;net5.0-windows</TargetFrameworks>
+		<TargetFrameworks>net472;net6.0-windows</TargetFrameworks>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<RootNamespace>CsvTools</RootNamespace>
@@ -57,7 +57,7 @@
 		<ProjectReference Include="..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 		<ProjectReference Include="..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0-windows'">
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
 		<Reference Include="FastColoredTextBox.Core">
 			<HintPath>..\Library\DLL\FastColoredTextBox.Core.dll</HintPath>
 		</Reference>
