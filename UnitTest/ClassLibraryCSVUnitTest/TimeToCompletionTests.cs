@@ -72,7 +72,7 @@ namespace CsvTools.Tests
 			Assert.AreEqual("20:30",
 				TimeToCompletion.DisplayTimespan(TimeSpan.FromMinutes(20.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
 
-			Assert.AreEqual("", TimeToCompletion.DisplayTimespan(TimeSpan.FromSeconds(0.1), true));
+			Assert.AreEqual("", TimeToCompletion.DisplayTimespan(TimeSpan.FromSeconds(0.1)));
 		}
 	}
 }

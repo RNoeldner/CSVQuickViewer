@@ -13,7 +13,7 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
-		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+		<AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
 		<RootNamespace>CsvTools</RootNamespace>
 		<AssemblyName>CsvTools.WinFormControls</AssemblyName>
 	</PropertyGroup>

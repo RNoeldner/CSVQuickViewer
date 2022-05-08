@@ -339,7 +339,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
     private void FileDragEnter(object? sender, DragEventArgs e)
     {
-      if (e != null && e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop, false) && !WindowsAPICodePackWrapper.IsDialogOpen)
+      if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop, false) && !WindowsAPICodePackWrapper.IsDialogOpen)
         e.Effect = DragDropEffects.All;
     }
 

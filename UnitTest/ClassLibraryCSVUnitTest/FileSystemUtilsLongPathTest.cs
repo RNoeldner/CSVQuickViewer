@@ -12,11 +12,6 @@
  *
  */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace CsvTools.Tests
 {
 #if WINDOWOS

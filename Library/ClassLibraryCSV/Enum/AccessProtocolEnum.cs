@@ -12,8 +12,6 @@
  *
  */
 
-using System;
-
 namespace CsvTools
 {
   public enum AccessProtocolEnum

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using CsvTools;
 using Microsoft.VisualStudio.TestTools.UnitTesting; /*
 * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
 *
