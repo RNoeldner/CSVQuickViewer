@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
-	
+
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<UseWindowsForms>true</UseWindowsForms>
@@ -9,7 +9,7 @@
 		<PackageIcon>Picture.png</PackageIcon>
 		<PackageIconUrl />
 		<SignAssembly>True</SignAssembly>
-		<TargetFrameworks>net472;net6.0-windows</TargetFrameworks>
+		<TargetFramework>net472</TargetFramework>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<RootNamespace>CsvTools</RootNamespace>
@@ -39,6 +39,13 @@
 	<ItemGroup>
 		<Compile Include="..\Library\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
 	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
+		<ProjectReference Include="..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
+		<Reference Include="FastColoredTextBox">
+			<HintPath>..\Library\DLL\FastColoredTextBox.dll</HintPath>
+		</Reference>
+	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net472'">
 		<Reference Include="System" />
 		<Reference Include="System.ComponentModel.Composition" />
@@ -51,38 +58,12 @@
 		<Reference Include="System.Xml" />
 		<Reference Include="System.Xml.Linq" />
 		<Reference Include="WindowsBase" />
-		
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
-		<ProjectReference Include="..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
-		<Reference Include="FastColoredTextBox.Core">
-			<HintPath>..\Library\DLL\FastColoredTextBox.Core.dll</HintPath>
-		</Reference>
-		<PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-		<Reference Include="FastColoredTextBox">
-			<HintPath>..\Library\DLL\FastColoredTextBox.dll</HintPath>
-		</Reference>
 		<PackageReference Include="Costura.Fody" Version="5.7.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>compile; runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
-	<ItemGroup>
-		<None Include="LICENSE">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="Picture.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
-	  <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
+		<PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
 	</ItemGroup>
 </Project>

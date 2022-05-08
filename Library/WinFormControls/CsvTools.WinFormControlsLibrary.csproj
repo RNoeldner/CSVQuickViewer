@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 	<PropertyGroup>
 		<UseWindowsForms>true</UseWindowsForms>
-		<TargetFrameworks>net472;net6.0-windows</TargetFrameworks>
+		<TargetFramework>net472</TargetFramework>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<OutputType>Library</OutputType>
 		<Nullable>enable</Nullable>
@@ -22,7 +22,7 @@
 			<Link>Properties\SharedAssemblyInfo.cs</Link>
 		</Compile>
 	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+	<ItemGroup>
 		<Reference Include="FastColoredTextBox">
 			<HintPath>..\DLL\FastColoredTextBox.dll</HintPath>
 		</Reference>
@@ -33,22 +33,12 @@
 		<Reference Include="System.Data.DataSetExtensions" />
 		<Reference Include="System.Data" />
 		<Reference Include="System.Xml" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
-		<Reference Include="FastColoredTextBox.Core">
-			<HintPath>..\DLL\FastColoredTextBox.Core.dll</HintPath>
-		</Reference>
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4">
 		</PackageReference>
 		<PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0">
 		</PackageReference>
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0">
 		</PackageReference>
-	</ItemGroup>
-	<ItemGroup>
 		<ProjectReference Include="..\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj">
 		</ProjectReference>
 	</ItemGroup>
