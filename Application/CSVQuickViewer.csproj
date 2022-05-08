@@ -27,6 +27,7 @@
 		<PackageProjectUrl>https://sourceforge.net/projects/csvquickviewer</PackageProjectUrl>
 		<PackageTags>Comma-separated values;Delimited Text;CSV;TAB;Viewer</PackageTags>
 		<ReleaseVersion>1.4.6.499</ReleaseVersion>
+		<AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<PlatformTarget>AnyCPU</PlatformTarget>

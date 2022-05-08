@@ -67,7 +67,7 @@ namespace CsvTools.Tests
     {
       var processDisplay = new CustomProcessDisplay();
       processDisplay.Maximum = 5;
-      processDisplay.SetProcess(null, new ProgressEventArgs("Hallo", 2, false));
+      processDisplay.SetProcess(null, new ProgressEventArgs("Hallo", 2));
     }
 	}
 }

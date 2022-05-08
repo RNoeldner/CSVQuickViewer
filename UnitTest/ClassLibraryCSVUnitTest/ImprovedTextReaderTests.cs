@@ -91,7 +91,7 @@ namespace CsvTools.Tests
     {
       /// Some streams like the response stream form a web request may not be seekable      
       var nonSeekableStream = new NonSeekableStream(FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8.txt")));
-      using var impStream = new ImprovedStream(new SourceAccess(nonSeekableStream, FileTypeEnum.Stream, true));
+      using var impStream = new ImprovedStream(new SourceAccess(nonSeekableStream));
       using var test = new ImprovedTextReader(impStream);
 
       using var fs = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8.txt"));
@@ -104,7 +104,7 @@ namespace CsvTools.Tests
     public async Task ImprovedTextReaderTestNonSeekUTF8NoBOM_ReadLineAsync()
     {
       var nonSeekableStream = new NonSeekableStream(FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8NoBOM.txt")));
-      using var impStream = new ImprovedStream(new SourceAccess(nonSeekableStream, FileTypeEnum.Stream, true));
+      using var impStream = new ImprovedStream(new SourceAccess(nonSeekableStream));
       using var test = new ImprovedTextReader(impStream);
 
       using var fs = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8NoBOM.txt"));
@@ -117,7 +117,7 @@ namespace CsvTools.Tests
     {
       /// Some streams like the response stream form a web request may not be seekable
       var nonSeekableStream = new NonSeekableStream(FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8.txt")));
-      using var impStream = new ImprovedStream(new SourceAccess(nonSeekableStream, FileTypeEnum.Stream, true));
+      using var impStream = new ImprovedStream(new SourceAccess(nonSeekableStream));
       using var test = new ImprovedTextReader(impStream);
 
       using var fs = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8.txt"));
@@ -131,7 +131,7 @@ namespace CsvTools.Tests
     {
       /// Some streams like the response stream form a web request may not be seekable
       var nonSeekableStream = new NonSeekableStream(FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8NoBOM.txt")));
-      using var impStream = new ImprovedStream(new SourceAccess(nonSeekableStream, FileTypeEnum.Stream, true));
+      using var impStream = new ImprovedStream(new SourceAccess(nonSeekableStream));
       using var test = new ImprovedTextReader(impStream);
 
       using var fs = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8NoBOM.txt"));

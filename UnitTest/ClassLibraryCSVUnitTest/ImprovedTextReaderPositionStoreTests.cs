@@ -9,7 +9,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public async Task ImprovedTextReaderPositionStoreTestAsync()
     {
-      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt"), true));
+      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt")));
       using var test = new ImprovedTextReader(impStream);
       test.ToBeginning();
       var store = new ImprovedTextReaderPositionStore(test);
@@ -27,7 +27,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public async Task ImprovedTextReaderPositionStoreTestFromMiddleAsync()
     {
-      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt"), true));
+      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt")));
       using var test = new ImprovedTextReader(impStream, 65001, 1);
       test.ToBeginning();
       Assert.AreEqual(2, test.LineNumber);
