@@ -38,9 +38,6 @@ namespace CsvTools
     ///   Any type of <see cref="IFileReader" />, if the source is a DataTableWrapper though the
     ///   original passed in data table is returned, no artificial columns are added
     /// </param>
-    /// <param name="recordLimit">
-    ///   Number of records to return, the reader might already have a limit
-    /// </param>
     /// <param name="restoreErrorsFromColumn">
     ///   if the source is a persisted table, restore the error information
     /// </param>

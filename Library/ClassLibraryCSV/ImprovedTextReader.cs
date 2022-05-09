@@ -50,7 +50,7 @@ namespace CsvTools
 
       try
       {
-        Encoding.GetEncoding(codePageId);
+        _ = Encoding.GetEncoding(codePageId);
         m_CodePage = codePageId;
       }
       catch (Exception)
@@ -84,6 +84,9 @@ namespace CsvTools
     /// <value><c>true</c> if at the end of file; otherwise, <c>false</c>.</value>
     public bool EndOfStream => StreamReader.EndOfStream;
 
+    /// <summary>Closes the <see cref="ImprovedTextReader"></see> and the underlying stream, and releases any system resources associated with the reader.</summary>
+    public void Close() => TextReader.Close();
+
     public long LineNumber
     {
       get;
@@ -96,14 +99,16 @@ namespace CsvTools
     ///   Increase the position in the text, this is used in case a character that has been looked
     ///   at with <see cref="Peek" /> does not need to be read the next call of <see cref="Read" />
     /// </summary>
-    public void MoveNext() => StreamReader.Read();
+    /// <exception cref="IOException">An I/O error occurs.</exception>
+    public void MoveNext() => TextReader.Read();
 
     /// <summary>
     ///   Gets the next character but does not progress, as this can be done numerous times on the
     ///   same position
     /// </summary>
-    /// <returns></returns>
-    public int Peek() => StreamReader.Peek();
+    /// <returns>The next character from the input stream represented as an <see cref="T:System.Int32"></see> object, or -1 if no more characters are available.</returns>
+    /// <exception cref="IOException">An I/O error occurs.</exception>
+    public int Peek() => TextReader.Peek();
 
     /// <summary>
     ///   Reads the next character and progresses one further, and tracks the line number
@@ -113,7 +118,8 @@ namespace CsvTools
     ///   combination to count as two lines Make sure you "eat" the possible next char using <see
     ///   cref="Peek" /> and <see cref="MoveNext" />
     /// </remarks>
-    /// <returns></returns>
+    /// <returns>The next character from the input stream represented as an <see cref="T:System.Int32"></see> object, or -1 if no more characters are available.</returns>
+    /// <exception cref="IOException">An I/O error occurs.</exception>
     public int Read()
     {
       var character = StreamReader.Read();
@@ -128,7 +134,10 @@ namespace CsvTools
     ///   text. The ending char is not part of the returned line
     /// </summary>
     /// <remarks>CR,LF,CRLF will end the line, LFCR is not supported</remarks>
-    /// <returns>A string with the contents, or empty string if nothing was read</returns>
+    /// <returns>A task that represents the asynchronous read operation. The string contains the next line from the stream, or is null if all the characters have been read.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The number of characters in the next line is larger than <see cref="F:System.Int32.MaxValue"></see>.</exception>
+    /// <exception cref="ObjectDisposedException">The stream has been disposed.</exception>
+    /// <exception cref="InvalidOperationException">The reader is currently in use by a previous read operation.</exception>
     public async Task<string> ReadLineAsync()
     {
       LineNumber++;
@@ -172,6 +181,7 @@ namespace CsvTools
     /// <returns><c>true</c> if the stream supports seeking; otherwise, false.</returns>
     public bool CanSeek => m_Stream.CanSeek;
 
+    /// <inheritdoc cref="IDisposable"/>
     protected override void Dispose(bool disposing)
     {
       if (disposing)

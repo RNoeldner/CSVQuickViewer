@@ -36,7 +36,7 @@ namespace CsvTools.Tests
     public void GetFormatDescriptionTest()
 
     {
-      var vf = new ImmutableValueFormat(DataTypeEnum.String);
+      var vf = new ImmutableValueFormat();
       Assert.AreEqual(string.Empty, vf.GetFormatDescription());
 
       var vf2 = new ImmutableValueFormat(DataTypeEnum.TextPart, part: 4);

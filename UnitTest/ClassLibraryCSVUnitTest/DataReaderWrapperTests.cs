@@ -25,7 +25,7 @@ namespace CsvTools.Tests
         m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
         m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, process);
       await reader.OpenAsync(UnitTestStatic.Token);
-      var wrapper = new DataReaderWrapper(reader);
+      _ = new DataReaderWrapper(reader);
     }
 
     [TestMethod()]

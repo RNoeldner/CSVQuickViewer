@@ -122,7 +122,7 @@ namespace CsvTools
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">reader</exception>
-    public static IEnumerable<WriterColumn> GetColumnInformation(
+    public static IReadOnlyCollection<WriterColumn> GetColumnInformation(
       IValueFormat? generalFormat,
       IReadOnlyCollection<IColumn> columnDefinitions,
       DataTable schemaTable)

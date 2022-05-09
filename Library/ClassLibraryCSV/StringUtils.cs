@@ -130,7 +130,7 @@ namespace CsvTools
     /// <example>JoinParts(new [] {"My","","Test")=&gt; My, Test</example>
     /// <remarks>Any empty string will be ignored.</remarks>
     /// <returns>A string</returns>
-    public static string Join(this IEnumerable<string> parts, in string joinWith = ", ")
+    public static string Join(this IEnumerable<string?> parts, in string joinWith = ", ")
     {
       var sb = new StringBuilder();
       foreach (var part in parts)

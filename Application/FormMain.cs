@@ -135,7 +135,7 @@ namespace CsvTools
         Logger.Warning("Filename {filename} not found or not accessible.", fileName);
         return;
       }
-      
+
 
       // ReSharper disable once AsyncVoidLambda
       this.SafeInvoke(async () =>
@@ -157,7 +157,7 @@ namespace CsvTools
 
           if (m_FileSetting is null)
             return;
-          
+
           m_FileSetting.RootFolder = fileName.GetDirectoryName();
           m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
           m_FileSetting.DisplayStartLineNo = false;
@@ -185,7 +185,7 @@ namespace CsvTools
                                             m_FileSetting.ColumnCollection.Any(x =>
                                               x.ValueFormat.DataType != DataTypeEnum.String);
           SetFileSystemWatcher(fileName);
-          
+
           Directory.SetCurrentDirectory(m_FileSetting.RootFolder);
 
           await OpenDataReaderAsync(cancellationToken);
@@ -324,7 +324,7 @@ namespace CsvTools
     private void FileDragDrop(object? sender, DragEventArgs e)
     {
       // Set the filename
-      var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
+      var files = (string[]) (e.Data?.GetData(DataFormats.FileDrop) ?? Array.Empty<string>());
       if (files.Length <= 0) return;
       if (WindowsAPICodePackWrapper.IsDialogOpen) return;
       SaveIndividualFileSetting();
@@ -339,7 +339,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
     private void FileDragEnter(object? sender, DragEventArgs e)
     {
-      if (e.Data.GetDataPresent(DataFormats.FileDrop, false) && !WindowsAPICodePackWrapper.IsDialogOpen)
+      if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop, false) && !WindowsAPICodePackWrapper.IsDialogOpen)
         e.Effect = DragDropEffects.All;
     }
 
