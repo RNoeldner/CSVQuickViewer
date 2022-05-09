@@ -1124,8 +1124,7 @@ namespace CsvTools
         await
 #endif
         using var iStream = FunctionalDI.OpenStream(new SourceAccess(writeFile));
-        using var sr = new ImprovedTextReader(iStream, writeFile.CodePageId);
-        sr.ToBeginning();
+        using var sr = new ImprovedTextReader(iStream, writeFile.CodePageId);        
         for (var i = 0; i < writeFile.SkipRows; i++)
           headerAndSipped.AppendLine(await sr.ReadLineAsync());
       }

@@ -242,7 +242,7 @@ namespace CsvTools
       // since we did not properly parse the delimited text accounting for quoting (delimiter in
       // column or newline splitting columns) apply some variance to it
       return partsComment < Math.Round(parts * .9 / row) || partsComment > Math.Round(parts * 1.1 / row);
-    }    
+    }
 
     internal static async Task<int> CodePageResolve(
       this Stream improvedStream,
@@ -667,7 +667,7 @@ namespace CsvTools
       } while (!hasFields);
 
       return detectionResult;
-    }    
+    }
 
     /// <summary>
     ///   Guesses the code page from a stream.
@@ -722,7 +722,6 @@ namespace CsvTools
       using var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
                                                  .ConfigureAwait(false);
 
-      textReader.ToBeginning();
       return textReader.GuessDelimiter(escapeCharacter, null, cancellationToken);
     }
 
@@ -1202,7 +1201,6 @@ namespace CsvTools
       var fieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
       using var streamReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
                                                    .ConfigureAwait(false);
-      streamReader.ToBeginning();
       var isStartOfColumn = true;
       while (!streamReader.EndOfStream)
       {
@@ -1391,18 +1389,12 @@ namespace CsvTools
     }
 
     private static async Task<ImprovedTextReader> GetStreamReaderAtStart(
-      this Stream improvedStream,
+      this Stream stream,
       int codePageId,
       int skipRows,
       CancellationToken cancellationToken)
-    {
-      var textReader = new ImprovedTextReader(
-        improvedStream,
-        await improvedStream.CodePageResolve(codePageId, cancellationToken).ConfigureAwait(false),
-        skipRows);
-      textReader.ToBeginning();
-      return textReader;
-    }
+    => new ImprovedTextReader(stream, await stream.CodePageResolve(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
+
 
     /// <summary>
     ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to

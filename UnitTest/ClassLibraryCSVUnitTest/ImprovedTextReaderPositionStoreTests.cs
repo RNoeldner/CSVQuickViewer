@@ -11,7 +11,6 @@ namespace CsvTools.Tests
     {
       using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt"), true));
       using var test = new ImprovedTextReader(impStream);
-      test.ToBeginning();
       var store = new ImprovedTextReaderPositionStore(test);
       Assert.AreEqual(1, test.LineNumber);
       Assert.AreEqual(
@@ -29,7 +28,6 @@ namespace CsvTools.Tests
     {
       using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt"), true));
       using var test = new ImprovedTextReader(impStream, 65001, 1);
-      test.ToBeginning();
       Assert.AreEqual(2, test.LineNumber);
       Assert.AreEqual(
         @"GCS_004805_Osipova	023c25d3-3420-449c-a75b-0d74d29ddc38	Completed	04/02/2008 00:00:00	04/02/2008 00:00:00	04/02/2008 00:00:00",

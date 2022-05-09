@@ -80,7 +80,6 @@ namespace CsvTools.Tests
     {
       using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt")));
       using var test = new ImprovedTextReader(impStream);
-      test.ToBeginning();
       Assert.AreEqual(1, test.LineNumber);
       Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync());
       Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync());
@@ -95,7 +94,7 @@ namespace CsvTools.Tests
       using var test = new ImprovedTextReader(impStream);
 
       using var fs = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8.txt"));
-      using var sr = new StreamReader(fs, Encoding.UTF8, true, 4096, true);      
+      using var sr = new StreamReader(fs, Encoding.UTF8, true, 4096, true);
       Assert.AreEqual(sr.ReadLine(), await test.ReadLineAsync());
 
     }
@@ -144,7 +143,6 @@ namespace CsvTools.Tests
     {
       using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt")));
       using var test = new ImprovedTextReader(impStream, 12000);
-      test.ToBeginning();
       Assert.AreEqual(1, test.LineNumber);
       Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync());
       Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync());
@@ -155,7 +153,6 @@ namespace CsvTools.Tests
     {
       using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt.gz")));
       using var test = new ImprovedTextReader(impStream, 12000);
-      test.ToBeginning();
       Assert.AreEqual(1, test.LineNumber);
       Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync());
       Assert.AreEqual("1,German,20/01/2010,276,0.94,Y", await test.ReadLineAsync());
@@ -206,21 +203,19 @@ namespace CsvTools.Tests
           await fs2.WriteAsync(line2);
         }
 
-        using (var impStream = new ImprovedStream(new SourceAccess(fileName)))
-        {
-          using var test = new ImprovedTextReader(impStream, type.Item2);
-          test.ToBeginning();
+        using var impStream = new ImprovedStream(new SourceAccess(fileName));
+        using var test = new ImprovedTextReader(impStream, type.Item2);
 
-          Assert.AreEqual(1, test.LineNumber);
-          Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading Line1 {type.Item1}");
-          Assert.AreEqual(2, test.LineNumber);
-          Assert.AreEqual(line2, await test.ReadLineAsync(), $"Issue reading Line2 {type.Item1}");
+        Assert.AreEqual(1, test.LineNumber);
+        Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading Line1 {type.Item1}");
+        Assert.AreEqual(2, test.LineNumber);
+        Assert.AreEqual(line2, await test.ReadLineAsync(), $"Issue reading Line2 {type.Item1}");
 
-          test.ToBeginning();
+        test.ToBeginning();
 
-          Assert.AreEqual(1, test.LineNumber);
-          Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading after reset {type.Item1}");
-        }
+        Assert.AreEqual(1, test.LineNumber);
+        Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading after reset {type.Item1}");
+
 
         File.Delete(fileName);
       }
@@ -232,7 +227,7 @@ namespace CsvTools.Tests
       // use a file with a BOM
       using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt")));
       using var test = new ImprovedTextReader(impStream);
-      test.ToBeginning();
+
       Assert.AreEqual(1, test.LineNumber);
       Assert.AreEqual(
         "#UserID	CurriculumID	TranscriptStatus	RequestDateTime	RegistrationDateTime	CompletionDateTime",

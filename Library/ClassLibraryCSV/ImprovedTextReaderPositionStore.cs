@@ -29,28 +29,24 @@ namespace CsvTools
     ///   True if we have read all data in the reader once
     /// </summary>
     public bool AllRead() =>
-      m_ImprovedTextReader.EndOfStream && !CanStartFromBeginning()
+      m_ImprovedTextReader.EndOfStream && !CouldStartFromBeginning()
       || m_ArrivedAtEndOnce && m_ImprovedTextReader.LineNumber > m_LineStarted;
 
     /// <summary>
     ///   Determines if we could reset the position to allow processing text that had been read before
     ///   If its supported it will do so.
     /// </summary>
-    public bool CanStartFromBeginning()
+    public bool CouldStartFromBeginning()
     {
       if (m_ArrivedAtEndOnce || m_LineStarted <= 1)
         return false;
 
       m_ArrivedAtEndOnce = true;
-
-      try
-      {
-        m_ImprovedTextReader.ToBeginning();
-      }
-      catch (System.NotSupportedException)
-      {
+      if (!m_ImprovedTextReader.CanSeek)
         return false;
-      }
+
+      // Jump to start of the file
+      m_ImprovedTextReader.ToBeginning();
       return true;
     }
   }

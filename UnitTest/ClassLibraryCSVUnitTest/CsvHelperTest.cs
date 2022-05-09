@@ -139,8 +139,7 @@ namespace CsvTools.Tests
     {
       using (var stream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
       using (var reader = new ImprovedTextReader(stream))
-      {
-        reader.ToBeginning();
+      {        
         Assert.IsTrue(string.IsNullOrEmpty(await reader.GuessHasHeaderAsync("#", ',', UnitTestStatic.Token)));
       }
 
@@ -148,14 +147,12 @@ namespace CsvTools.Tests
         new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("HandlingDuplicateColumnNames.txt"))))
       using (var reader = new ImprovedTextReader(stream))
       {
-        reader.ToBeginning();
         Assert.IsFalse(string.IsNullOrEmpty(await reader.GuessHasHeaderAsync("#", ',', UnitTestStatic.Token)));
       }
 
       using (var stream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"))))
       using (var reader = new ImprovedTextReader(stream))
       {
-        reader.ToBeginning();
         Assert.IsFalse(string.IsNullOrEmpty(await reader.GuessHasHeaderAsync("", ',', UnitTestStatic.Token)));
       }
     }
