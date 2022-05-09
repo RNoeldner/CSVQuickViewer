@@ -51,12 +51,10 @@ namespace CsvTools
         //expand visible range (+- margin)
         var startLine = Math.Max(m_SkipLines, textBox.VisibleRange.Start.iLine - 20);
         var endLine = Math.Min(textBox.LinesCount - 1, textBox.VisibleRange.End.iLine + 100);
-        if (startLine < endLine)
-        {
-          var range = new FastColoredTextBoxNS.Range(textBox, 0, startLine, 0, endLine);
-          m_HighLighter?.Highlight(range);
-          m_HighLighter?.SkipRows(m_SkipLines);
-        }
+        if (startLine >= endLine) return;
+        var range = new FastColoredTextBoxNS.Range(textBox, 0, startLine, 0, endLine);
+        m_HighLighter?.Highlight(range);
+        m_HighLighter?.SkipRows(m_SkipLines);
       }
       catch (Exception ex)
       {

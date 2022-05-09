@@ -245,14 +245,14 @@ namespace CsvTools
     }
 
     internal static async Task<int> CodePageResolve(
-      this Stream improvedStream,
+      this Stream stream,
       int codePageId,
       CancellationToken cancellationToken)
     {
-      if (codePageId < 0)
+      if (codePageId <= 0)
       {
-        codePageId = (await improvedStream.GuessCodePage(cancellationToken).ConfigureAwait(false)).Item1;
-        improvedStream.Seek(0, SeekOrigin.Begin);
+        codePageId = (await stream.GuessCodePage(cancellationToken).ConfigureAwait(false)).Item1;
+        stream.Seek(0, SeekOrigin.Begin);
       }
 
       return codePageId;
@@ -261,7 +261,7 @@ namespace CsvTools
     /// <summary>
     ///   Updates the detection result from stream.
     /// </summary>
-    /// <param name="improvedStream">The improved stream.</param>
+    /// <param name="stream">The improved stream.</param>
     /// <param name="fileName"></param>
     /// <param name="processDisplay">Action to be invoked to report current activity</param>
     /// <param name="guessJson">if <c>true</c> trying to determine if file is a JSON file</param>
@@ -277,7 +277,7 @@ namespace CsvTools
     /// <param name="disallowedDelimiter">Delimiter to exclude in recognition, as they have been ruled out before</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     public static async Task<DelimitedFileDetectionResult> GetDetectionResult(
-      this Stream improvedStream,
+      this Stream stream,
       string fileName,
       IProcessDisplay? processDisplay,
       bool guessJson,
@@ -291,8 +291,8 @@ namespace CsvTools
       IEnumerable<char>? disallowedDelimiter,
       CancellationToken cancellationToken)
     {
-      if (improvedStream is null)
-        throw new ArgumentNullException(nameof(improvedStream));
+      if (stream is null)
+        throw new ArgumentNullException(nameof(stream));
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("FileName can not be empty", nameof(fileName));
 
@@ -304,9 +304,9 @@ namespace CsvTools
       {
         if (cancellationToken.IsCancellationRequested)
           return detectionResult;
-        improvedStream.Seek(0, SeekOrigin.Begin);
+        stream.Seek(0, SeekOrigin.Begin);
         processDisplay?.SetProcess("Checking Code Page", -1, true);
-        var (codePage, bom) = await improvedStream.GuessCodePage(cancellationToken).ConfigureAwait(false);
+        var (codePage, bom) = await stream.GuessCodePage(cancellationToken).ConfigureAwait(false);
         detectionResult = new DelimitedFileDetectionResult(
           detectionResult.FileName,
           detectionResult.SkipRows,
@@ -327,7 +327,7 @@ namespace CsvTools
       if (guessJson)
       {
         processDisplay?.SetProcess("Checking Json format", -1, false);
-        if (await improvedStream.IsJsonReadable(
+        if (await stream.IsJsonReadable(
               Encoding.GetEncoding(detectionResult.CodePageId),
               cancellationToken).ConfigureAwait(false))
           detectionResult = new DelimitedFileDetectionResult(
@@ -356,7 +356,7 @@ namespace CsvTools
       if (guessCommentLine)
       {
         processDisplay?.SetProcess("Checking comment line", -1, true);
-        using var streamReader = await improvedStream.GetStreamReaderAtStart(
+        using var streamReader = await stream.GetStreamReaderAtStart(
                                    detectionResult.CodePageId,
                                    detectionResult.SkipRows,
                                    cancellationToken).ConfigureAwait(false);
@@ -384,7 +384,7 @@ namespace CsvTools
       {
         if (cancellationToken.IsCancellationRequested)
           return detectionResult;
-        using var streamReader = await improvedStream.GetStreamReaderAtStart(
+        using var streamReader = await stream.GetStreamReaderAtStart(
                                    detectionResult.CodePageId,
                                    detectionResult.SkipRows,
                                    cancellationToken).ConfigureAwait(false);
@@ -411,7 +411,7 @@ namespace CsvTools
 
       if (guessQualifier || guessDelimiter || guessNewLine)
       {
-        using var textReader = await improvedStream.GetStreamReaderAtStart(
+        using var textReader = await stream.GetStreamReaderAtStart(
                                  detectionResult.CodePageId,
                                  detectionResult.SkipRows,
                                  cancellationToken).ConfigureAwait(false);
@@ -445,7 +445,7 @@ namespace CsvTools
           if (cancellationToken.IsCancellationRequested)
             return detectionResult;
           processDisplay?.SetProcess("Checking Record Delimiter", -1, false);
-          improvedStream.Seek(0, SeekOrigin.Begin);
+          stream.Seek(0, SeekOrigin.Begin);
           detectionResult = new DelimitedFileDetectionResult(
             detectionResult.FileName,
             detectionResult.SkipRows,
@@ -491,7 +491,7 @@ namespace CsvTools
       if (!string.IsNullOrEmpty(detectionResult.CommentLine) && !detectionResult.NoDelimitedFile)
       {
         processDisplay?.SetProcess("Validating comment line", -1, true);
-        using var streamReader = await improvedStream.GetStreamReaderAtStart(
+        using var streamReader = await stream.GetStreamReaderAtStart(
                                    detectionResult.CodePageId,
                                    detectionResult.SkipRows,
                                    cancellationToken).ConfigureAwait(false);
@@ -524,7 +524,7 @@ namespace CsvTools
           Logger.Information("Checking start row again because previously assumed delimiter has changed");
         if (cancellationToken.IsCancellationRequested)
           return detectionResult;
-        using var streamReader2 = await improvedStream
+        using var streamReader2 = await stream
                                         .GetStreamReaderAtStart(detectionResult.CodePageId, 0, cancellationToken)
                                         .ConfigureAwait(false);
         streamReader2.ToBeginning();
@@ -556,7 +556,7 @@ namespace CsvTools
         processDisplay?.SetProcess("Checking for Header Row", -1, false);
 
         var issue = await GuessHasHeader(
-                      improvedStream,
+                      stream,
                       detectionResult.CodePageId,
                       detectionResult.SkipRows,
                       detectionResult.CommentLine,
@@ -1232,19 +1232,16 @@ namespace CsvTools
     /// <summary>
     ///   Determines whether data in the specified stream is a JSON
     /// </summary>
-    /// <param name="impStream">The imp stream.</param>
+    /// <param name="stream">The imp stream.</param>
     /// <param name="encoding">The encoding.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns><c>true</c> if json could be read from stream; otherwise, <c>false</c>.</returns>
     public static async Task<bool> IsJsonReadable(
-      this Stream impStream,
+      this Stream stream,
       Encoding encoding,
       CancellationToken cancellationToken)
     {
-      if (!(impStream is Stream stream))
-        return false;
-
-      impStream.Seek(0, SeekOrigin.Begin);
+      stream.Seek(0, SeekOrigin.Begin);
       using var streamReader = new StreamReader(stream, encoding, true, 4096, true);
       using var jsonTextReader = new JsonTextReader(streamReader);
       jsonTextReader.CloseInput = false;

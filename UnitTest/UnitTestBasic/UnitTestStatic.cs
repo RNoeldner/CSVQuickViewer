@@ -39,7 +39,7 @@ namespace CsvTools.Tests
       FileSystemUtils.ExecutableDirectoryName(),
       "TestFiles");
 
-    public static CancellationToken Token { get; private set; }  = CancellationToken.None;
+    public static CancellationToken Token { get; private set; } = CancellationToken.None;
 
     private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 
@@ -120,7 +120,7 @@ namespace CsvTools.Tests
     private static void CheckPropertiesEqual(in object a, in object b, in IEnumerable<PropertyInfo> properties)
     {
       foreach (var prop in properties)
-        if (!prop.GetValue(a).Equals(prop.GetValue(b)))
+        if (!Equals(prop.GetValue(a), prop.GetValue(b)))
           throw new Exception($"Type: {a.GetType().FullName}\nProperty:{prop.Name}\nValue A:{prop.GetValue(a)}\nnValue B:{prop.GetValue(b)}");
     }
 
@@ -138,7 +138,7 @@ namespace CsvTools.Tests
 
         var readProps = a.GetType().GetProperties().Where(prop => prop?.GetMethod != null).ToList();
 
-        var valueProperties = readProps.Where(prop => 
+        var valueProperties = readProps.Where(prop =>
                                                       (prop.PropertyType == typeof(int)
                                                       || prop.PropertyType == typeof(long)
                                                       || prop.PropertyType == typeof(string)
@@ -464,7 +464,7 @@ namespace CsvTools.Tests
     }
 
     public static void ShowFormAndClose<T>(
-      T typed, double before=0, Action<T>? toDo = null, double after=0, CancellationToken token = default)
+      T typed, double before = 0, Action<T>? toDo = null, double after = 0, CancellationToken token = default)
       where T : Form
     {
       var frm = typed as Form;
