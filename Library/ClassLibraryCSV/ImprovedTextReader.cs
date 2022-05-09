@@ -85,7 +85,7 @@ namespace CsvTools
     public bool EndOfStream => StreamReader.EndOfStream;
 
     /// <summary>Closes the <see cref="ImprovedTextReader"></see> and the underlying stream, and releases any system resources associated with the reader.</summary>
-    public void Close() => TextReader.Close();
+    public void Close() => StreamReader.Close();
 
     public long LineNumber
     {
@@ -100,7 +100,7 @@ namespace CsvTools
     ///   at with <see cref="Peek" /> does not need to be read the next call of <see cref="Read" />
     /// </summary>
     /// <exception cref="IOException">An I/O error occurs.</exception>
-    public void MoveNext() => TextReader.Read();
+    public void MoveNext() => StreamReader.Read();
 
     /// <summary>
     ///   Gets the next character but does not progress, as this can be done numerous times on the
@@ -108,7 +108,7 @@ namespace CsvTools
     /// </summary>
     /// <returns>The next character from the input stream represented as an <see cref="T:System.Int32"></see> object, or -1 if no more characters are available.</returns>
     /// <exception cref="IOException">An I/O error occurs.</exception>
-    public int Peek() => TextReader.Peek();
+    public int Peek() => StreamReader.Peek();
 
     /// <summary>
     ///   Reads the next character and progresses one further, and tracks the line number
