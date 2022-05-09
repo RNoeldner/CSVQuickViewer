@@ -220,8 +220,7 @@ namespace CsvTools
     public async Task FilterAsync(int limit, FilterTypeEnum type, CancellationToken cancellationToken)
     {
       if (m_Filtering)
-        Cancel();
-
+        Cancel();      
       m_ColumnWithoutErrorsCache = null;
       FilterTable = m_SourceTable.Clone();
 

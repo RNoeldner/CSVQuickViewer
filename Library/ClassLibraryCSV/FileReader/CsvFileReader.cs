@@ -131,7 +131,7 @@ namespace CsvTools
 
     private string[] m_HeaderRow;
 
-    private Stream? m_ImprovedStream;
+    private Stream? m_Stream;
 
     /// <summary>
     ///   Number of Records in the text file, only set if all records have been read
@@ -223,7 +223,7 @@ namespace CsvTools
         string.Empty,
         processDisplay)
     {
-      m_ImprovedStream = stream ?? throw new ArgumentNullException(nameof(stream));
+      m_Stream = stream ?? throw new ArgumentNullException(nameof(stream));
       if (!stream.CanSeek)
         throw new NotSupportedException("CsvFileReader does not support non-seekable streams");
     }
@@ -497,32 +497,33 @@ namespace CsvTools
       {
         if (SelfOpenedStream)
         {
-          if (m_ImprovedStream != null)
+          if (m_Stream != null)
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-            await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
+            await m_Stream.DisposeAsync().ConfigureAwait(false);
 #else
-            m_ImprovedStream.Dispose();
+            m_Stream.Dispose();
 #endif
-          m_ImprovedStream = FunctionalDI.OpenStream(new SourceAccess(FullPath) { IdentifierInContainer = m_IdentifierInContainer });
+          m_Stream = FunctionalDI.OpenStream(new SourceAccess(FullPath) { IdentifierInContainer = m_IdentifierInContainer });
         }
         else
         {
-          if (m_ImprovedStream is null)
+          if (m_Stream is null)
             throw new FileReaderException("Stream for reading is not provided");
         }
 
         m_TextReader?.Dispose();
         m_TextReader = new ImprovedTextReader(
-          m_ImprovedStream,
-          await m_ImprovedStream.CodePageResolve(m_CodePageId, token).ConfigureAwait(false),
+          m_Stream,
+          await m_Stream.CodePageResolve(m_CodePageId, token).ConfigureAwait(false),
           m_SkipRows);
+
         ResetPositionToStartOrOpen();
 
         m_HeaderRow = ReadNextRow(false);
-        InitColumn(ParseFieldCount(m_HeaderRow));
-        ParseColumnName(m_HeaderRow, null, m_HasFieldHeader);
 
-        FinishOpen();
+        InitColumn(ParseFieldCount(m_HeaderRow));
+
+        base.ParseColumnName(m_HeaderRow, null, m_HasFieldHeader);
 
         // Turn off unescape warning based on WarnLineFeed
         if (!m_WarnLineFeed)
@@ -533,11 +534,14 @@ namespace CsvTools
               unescapeFormatter.RaiseWarning = false;
           }
         }
-
-        ResetPositionToFirstDataRow();
-
+                
         if (m_TryToSolveMoreColumns && m_FieldDelimiterChar != '\0')
           m_RealignColumns = new ReAlignColumns(FieldCount);
+
+        if (m_Stream.CanSeek)
+          ResetPositionToFirstDataRow();
+
+        base.FinishOpen();
       }
       catch (Exception ex)
       {
@@ -596,8 +600,8 @@ namespace CsvTools
     {
       if (disposing)
       {
-        m_ImprovedStream?.Dispose();
-        m_ImprovedStream = null;
+        m_Stream?.Dispose();
+        m_Stream = null;
 
         m_TextReader?.Dispose();
         m_TextReader = null;
@@ -613,9 +617,9 @@ namespace CsvTools
     /// <returns>A value between 0 and MaxValue</returns>
     protected override double GetRelativePosition()
     {
-      if (m_ImprovedStream is IImprovedStream imp)
+      if (m_Stream is IImprovedStream imp)
         return imp.Percentage;
-      
+
       if (RecordLimit > 0 && RecordLimit < long.MaxValue)
         // you can either reach the record limit or the end of the stream
         return Math.Max((double) RecordNumber / RecordLimit, 50);
@@ -896,6 +900,12 @@ namespace CsvTools
       m_TextReader?.MoveNext();
     }
 
+    /// <summary>
+    /// Determine the number of columns in the file
+    /// </summary>
+    /// <param name="headerRow">The Inital raeder</param>
+    /// <returns>Number of columns</returns>
+    /// <remarks>If seek is supported, it will parse a few extra rows to check if teh header and the follwing rows do result in teh same number of columns</remarks>
     private int ParseFieldCount(IReadOnlyList<string> headerRow)
     {
       if (headerRow.Count == 0 || string.IsNullOrEmpty(headerRow[0]))
@@ -908,7 +918,8 @@ namespace CsvTools
         return fields;
 
       // check if the next lines do have data in the last column
-      for (var additional = 0; !EndOfFile && additional < 10; additional++)
+      for (var additional = 0; m_Stream?.CanSeek ?? false
+                           && !EndOfFile && additional < 10; additional++)
       {
         var nextLine = ReadNextRow(false);
 
@@ -1260,7 +1271,8 @@ namespace CsvTools
     /// </summary>
     private void ResetPositionToStartOrOpen()
     {
-      m_TextReader!.ToBeginning();
+      if (m_TextReader!.CanSeek)
+        m_TextReader.ToBeginning();
 
       EndLineNumber = 1 + m_SkipRows;
       StartLineNumber = EndLineNumber;
@@ -1292,8 +1304,8 @@ namespace CsvTools
 
     protected async ValueTask DisposeAsyncCore()
     {
-      if (m_ImprovedStream != null)
-        await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
+      if (m_Stream != null)
+        await m_Stream.DisposeAsync().ConfigureAwait(false);
     }
 
 #endif

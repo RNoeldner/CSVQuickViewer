@@ -26,7 +26,6 @@ namespace CsvTools
     private readonly int m_CodePage;
     private readonly Stream m_Stream;
     private readonly int m_SkipLines;
-    private bool m_Init = true;
 
     /// <summary>
     ///   Creates an instance of the TextReader
@@ -43,10 +42,10 @@ namespace CsvTools
     /// </remarks>
 #pragma warning disable 8618
 
-    public ImprovedTextReader(in Stream? stream, int codePageId = 65001, int skipLines = 0)
+    public ImprovedTextReader(in Stream stream, int codePageId = 65001, int skipLines = 0)
 #pragma warning restore 8618
     {
-      m_Stream = stream ?? throw new ArgumentNullException(nameof(stream));
+      m_Stream = stream;
       m_SkipLines = skipLines;
 
       try
@@ -59,32 +58,31 @@ namespace CsvTools
         Logger.Warning("Codepage {0} not supported, using UTF8", codePageId);
         m_CodePage = Encoding.UTF8.CodePage;
       }
-
-      // read the BOM in any case
-      if (m_Stream.CanSeek)
+      // read the BOM if we have seek 
+      if (m_Stream.CanSeek )
       {
+        if (m_Stream.Position != 0L)
+          m_Stream.Seek(0, SeekOrigin.Begin);
         var buff = new byte[4];
         _ = m_Stream.Read(buff, 0, buff.Length);
         var intCodePageByBom = EncodingHelper.GetEncodingByByteOrderMark(buff);
-        m_Stream.Seek(0, SeekOrigin.Begin);
-        var byteOrderMark = false;
-
         if (intCodePageByBom != null)
         {
-          byteOrderMark = true;
           m_CodePage = intCodePageByBom.CodePage;
-        }
-        m_BomLength = byteOrderMark ? EncodingHelper.BOMLength(m_CodePage) : 0;
+          m_BomLength = EncodingHelper.BOMLength(m_CodePage);
+        }        
       }
 
+      StreamReader = new StreamReader(m_Stream, Encoding.GetEncoding(m_CodePage), false, 4096, true);
       ToBeginning();
+
     }
 
     /// <summary>
     ///   Gets or sets a value indicating whether the reader is at the end of the file.
     /// </summary>
     /// <value><c>true</c> if at the end of file; otherwise, <c>false</c>.</value>
-    public bool EndOfStream => TextReader.EndOfStream;
+    public bool EndOfStream => StreamReader.EndOfStream;
 
     public long LineNumber
     {
@@ -92,20 +90,20 @@ namespace CsvTools
       private set;
     }
 
-    private StreamReader TextReader { get; set; }
+    private StreamReader StreamReader { get; set; }
 
     /// <summary>
     ///   Increase the position in the text, this is used in case a character that has been looked
     ///   at with <see cref="Peek" /> does not need to be read the next call of <see cref="Read" />
     /// </summary>
-    public void MoveNext() => TextReader.Read();
+    public void MoveNext() => StreamReader.Read();
 
     /// <summary>
     ///   Gets the next character but does not progress, as this can be done numerous times on the
     ///   same position
     /// </summary>
     /// <returns></returns>
-    public int Peek() => TextReader.Peek();
+    public int Peek() => StreamReader.Peek();
 
     /// <summary>
     ///   Reads the next character and progresses one further, and tracks the line number
@@ -118,7 +116,7 @@ namespace CsvTools
     /// <returns></returns>
     public int Read()
     {
-      var character = TextReader.Read();
+      var character = StreamReader.Read();
       if (character == cLf || character == cCr)
         LineNumber++;
 
@@ -134,7 +132,7 @@ namespace CsvTools
     public async Task<string> ReadLineAsync()
     {
       LineNumber++;
-      return await TextReader.ReadLineAsync();
+      return await StreamReader.ReadLineAsync();
     }
 
     /// <summary>
@@ -144,43 +142,40 @@ namespace CsvTools
     /// </summary>
     public void ToBeginning()
     {
+      if (m_Stream.Position != 0L)
+      {
+        if (m_Stream.CanSeek)
+        {
+          m_Stream.Seek(0, SeekOrigin.Begin);
+          // eat the bom
+          if (m_BomLength > 0 && m_Stream.CanRead)
+            // ReSharper disable once MustUseReturnValue
+            m_Stream.Read(new byte[m_BomLength], 0, m_BomLength);
+          StreamReader.DiscardBufferedData();
+        }
+        else
+        {
+          throw new NotSupportedException("Stream does not allow seek, you can not return to the beginning");
+        }
+      }
+
       LineNumber = 1;
-      if (m_Stream.CanSeek)
+      for (var i = 0; i < m_SkipLines && !StreamReader.EndOfStream; i++)
       {
-        m_Stream.Seek(0, SeekOrigin.Begin);
-
-        // eat the bom
-        if (m_BomLength > 0 && m_Stream.CanRead)
-          // ReSharper disable once MustUseReturnValue
-          m_Stream.Read(new byte[m_BomLength], 0, m_BomLength);
-      }
-      else if (!m_Init)
-      {
-        throw new NotSupportedException("Stream does not allow seek, you can not return to the beginning");
-      }
-      // in case we can not seek need to reopen the stream reader
-      if (m_Init)
-      {
-        TextReader = new StreamReader(m_Stream, Encoding.GetEncoding(m_CodePage), false, 4096, true);
-        m_Init = true;
-      }
-      // discard the buffer
-      else
-      {
-        TextReader.DiscardBufferedData();
-      }
-
-      for (var i = 0; i < m_SkipLines && !TextReader.EndOfStream; i++)
-      {
-        TextReader.ReadLine();
+        StreamReader.ReadLine();
         LineNumber++;
       }
     }
+    /// <summary>
+    ///   Gets a value indicating whether the current stream supports seeking.
+    /// </summary>
+    /// <returns><c>true</c> if the stream supports seeking; otherwise, false.</returns>
+    public bool CanSeek => m_Stream.CanSeek;
 
     protected override void Dispose(bool disposing)
     {
       if (disposing)
-        TextReader.Dispose();
+        StreamReader.Dispose();
     }
   }
 }
