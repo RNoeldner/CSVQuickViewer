@@ -877,14 +877,14 @@ namespace CsvTools
     ///   Routine to open the reader, each implementation should call BeforeOpenAsync, InitColumns,
     ///   ParseColumnName and last FinishOpen
     /// </summary>
-    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
+    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public abstract Task OpenAsync(CancellationToken cancellationToken);
 
     /// <summary>
     ///   Overrides the column format from setting.
     /// </summary>
     /// <returns>true if read was successful</returns>
-    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
+    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public virtual bool Read(CancellationToken cancellationToken) => ReadAsync(cancellationToken).Wait(2000, cancellationToken);
 
     public override bool Read() => ReadAsync(CancellationToken.None).Wait(2000);

@@ -455,8 +455,6 @@ namespace CsvTools.Tests
       Assert.AreEqual("Die ist Shiny Test", "Die ist {ein} Test".ReplacePlaceholderWithText("Shiny"));
     }
 
-    private string Routine() => throw new ApplicationException();
-
     [TestMethod]
     public void NoRecordSQLTest()
     {

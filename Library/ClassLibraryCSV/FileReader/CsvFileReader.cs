@@ -903,9 +903,9 @@ namespace CsvTools
     /// <summary>
     /// Determine the number of columns in the file
     /// </summary>
-    /// <param name="headerRow">The Inital raeder</param>
+    /// <param name="headerRow">The initial header</param>
     /// <returns>Number of columns</returns>
-    /// <remarks>If seek is supported, it will parse a few extra rows to check if teh header and the follwing rows do result in teh same number of columns</remarks>
+    /// <remarks>If seek is supported, it will parse a few extra rows to check if teh header and the following rows do result in teh same number of columns</remarks>
     private int ParseFieldCount(IReadOnlyList<string> headerRow)
     {
       if (headerRow.Count == 0 || string.IsNullOrEmpty(headerRow[0]))
@@ -918,8 +918,7 @@ namespace CsvTools
         return fields;
 
       // check if the next lines do have data in the last column
-      for (var additional = 0; m_Stream?.CanSeek ?? false
-                           && !EndOfFile && additional < 10; additional++)
+      for (var additional = 0; (m_Stream?.CanSeek ?? false) && !EndOfFile && additional < 10; additional++)
       {
         var nextLine = ReadNextRow(false);
 

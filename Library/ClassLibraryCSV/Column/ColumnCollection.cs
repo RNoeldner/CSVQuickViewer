@@ -82,7 +82,8 @@ namespace CsvTools
       if (items is null) return;
       using var enumerator = items.GetEnumerator();
       while (enumerator.MoveNext())
-        Add(enumerator.Current);
+        if (enumerator.Current != null)
+          Add(enumerator.Current);
     }
 
     /// <summary>

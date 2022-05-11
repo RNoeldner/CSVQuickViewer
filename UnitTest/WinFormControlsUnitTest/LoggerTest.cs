@@ -47,7 +47,7 @@ namespace CsvTools.Tests
       Logger.Error(new Exception("This is it"));
       Logger.Error("");
 #pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
-      Logger.Error(null, null, null);
+      Logger.Error(null, null, string.Empty);
 #pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       Logger.Error("This {is} it", "was");
     }

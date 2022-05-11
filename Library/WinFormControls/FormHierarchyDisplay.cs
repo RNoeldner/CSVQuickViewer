@@ -121,7 +121,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="root">The root.</param>
     /// <param name="rootNode">The root node.</param>
-    /// <param name="process">Progress display</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     private void AddTreeDataNodeWithChild(in TreeData root, in TreeNode? rootNode, in CancellationToken cancellationToken)
     {
       root.Visited = true;
@@ -138,7 +138,7 @@ namespace CsvTools
     ///   Builds the sub nodes.
     /// </summary>
     /// <param name="parent">The parent ID.</param>
-    /// <param name="process">Progress display</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     private TreeNode[] BuildSubNodes(in TreeData parent, in CancellationToken cancellationToken)
     {

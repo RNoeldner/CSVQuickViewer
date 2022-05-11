@@ -23,7 +23,6 @@ namespace CsvTools
     private const char cLf = (char) 0x0a;
 
     private readonly int m_BomLength;
-    private readonly int m_CodePage;
     private readonly Stream m_Stream;
     private readonly int m_SkipLines;
 
@@ -45,18 +44,18 @@ namespace CsvTools
     public ImprovedTextReader(in Stream stream, int codePageId = 65001, int skipLines = 0)
 #pragma warning restore 8618
     {
+      
       m_Stream = stream;
       m_SkipLines = skipLines;
 
       try
       {
         _ = Encoding.GetEncoding(codePageId);
-        m_CodePage = codePageId;
       }
       catch (Exception)
       {
         Logger.Warning("Codepage {0} not supported, using UTF8", codePageId);
-        m_CodePage = Encoding.UTF8.CodePage;
+        codePageId = Encoding.UTF8.CodePage;
       }
       // read the BOM if we have seek 
       if (m_Stream.CanSeek )
@@ -68,12 +67,12 @@ namespace CsvTools
         var intCodePageByBom = EncodingHelper.GetEncodingByByteOrderMark(buff);
         if (intCodePageByBom != null)
         {
-          m_CodePage = intCodePageByBom.CodePage;
-          m_BomLength = EncodingHelper.BOMLength(m_CodePage);
+          codePageId = intCodePageByBom.CodePage;
+          m_BomLength = EncodingHelper.BOMLength(codePageId);
         }        
       }
 
-      StreamReader = new StreamReader(m_Stream, Encoding.GetEncoding(m_CodePage), false, 4096, true);
+      StreamReader = new StreamReader(m_Stream, Encoding.GetEncoding(codePageId), false, 4096, true);
       ToBeginning();
 
     }

@@ -15,8 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -67,7 +65,7 @@ namespace CsvTools
     ///   true to make sure a numeric value gets the lowest possible numeric type
     /// </param>
     /// <param name="treatTextAsNull">A text that should be regarded as empty</param>
-    /// <param name="cancellationToken">Cancellation support</param>
+    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A text with the changes that have been made and a list of the determined columns</returns>
     public static async Task<(IList<string>, IEnumerable<IColumn>)> FillGuessColumnFormatReaderAsyncReader(
       this IFileReader fileReader,
@@ -567,7 +565,7 @@ namespace CsvTools
     /// <param name="enoughSamples">The enough samples.</param>
     /// <param name="treatAsNull">Text that should be regarded as an empty column</param>
     /// <param name="maxChars">Examples are cut off if longer than this number of characters</param>
-    /// <param name="cancellationToken">A cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">dataReader</exception>
     /// <exception cref="ArgumentOutOfRangeException">no valid columns provided</exception>
@@ -711,7 +709,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="samples">The sample texts.</param>
     /// <param name="checkNamedDates">if set to <c>true</c> [check named dates].</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   Result of a format check, if the samples match a value type this is set, if not an example
     ///   is give what did not match
@@ -787,7 +785,7 @@ namespace CsvTools
     /// <param name="guessPercentage">True to find number between 0% and 100%</param>
     /// <param name="allowStartingZero">True if a leading zero should be considered as number</param>
     /// <param name="minSamples">Number of samples needed to be sure</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   Result of a format check, if the samples match a value type this is set, if not an example
     ///   is give what did not match
@@ -843,7 +841,7 @@ namespace CsvTools
     /// <summary>
     ///   Guesses the value format.
     /// </summary>
-    /// <param name="cancellationToken">A cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <param name="samples">The samples.</param>
     /// <param name="minRequiredSamples">The minimum required samples.</param>
     /// <param name="trueValue">The text to be regarded as <c>true</c></param>
@@ -1097,7 +1095,7 @@ namespace CsvTools
     /// <param name="addTextColumns">if set to <c>true</c> event string columns are added.</param>
     /// <param name="checkDoubleToBeInteger">if set to <c>true</c> [check double to be integer].</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
-    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
+    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A list of columns with new format that have been changed</returns>
     /// <exception cref="ArgumentNullException">processDisplay</exception>
     public static async Task<(IList<string>, IEnumerable<IColumn>)> FillGuessColumnFormatReaderAsync(
@@ -1176,7 +1174,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileSettings">The file settings.</param>
     /// <param name="all">if set to <c>true</c> event string columns are added.</param>
-    /// <param name="cancellationToken">A cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
     public static async Task FillGuessColumnFormatWriterAsync(
       this IFileSetting fileSettings,
@@ -1262,7 +1260,7 @@ namespace CsvTools
     /// <param name="timeout"></param>
     /// <param name="valueFormatGeneral">The general format for the output</param>
     /// <param name="columnDefinitions">Definition for individual columns</param>
-    /// <param name="cancellationToken">A cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     public static async Task<IEnumerable<IColumn>> GetWriterColumnInformationAsync(
       string? sqlStatement,

@@ -120,7 +120,7 @@ namespace CsvTools
     ///   Initializes the file settings.
     /// </summary>
     /// <param name="fileName"></param>
-    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
+    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     public void LoadCsvFile(string fileName, CancellationToken cancellationToken)
     {

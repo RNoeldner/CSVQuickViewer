@@ -53,7 +53,7 @@ namespace CsvTools
     /// <param name="dataGridView">The data grid view.</param>
     /// <param name="addErrorInfo">if set to <c>true</c> add error information.</param>
     /// <param name="cutLength">if set to <c>true</c> cut off long text.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public void SelectedDataIntoClipboard(
       DataGridView dataGridView,
       bool addErrorInfo,
@@ -190,7 +190,7 @@ namespace CsvTools
     /// <param name="alternatingRows">if set to <c>true</c> [alternating rows].</param>
     /// <param name="columns">The columns.</param>
     /// <param name="rows">The rows.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     private void CopyAllCellsIntoClipboard(
       bool addErrorInfo,
       bool cutLength,
@@ -279,7 +279,7 @@ namespace CsvTools
     /// <param name="columns">The columns.</param>
     /// <param name="rows">The rows.</param>
     /// <param name="selectedCells">The selected cells.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     private void CopySelectedCellsIntoClipboard(
       bool addErrorInfo,
       bool cutLength,
@@ -317,15 +317,15 @@ namespace CsvTools
 
       sbHtml.Append(m_HtmlStyle.TrOpenAlt);
       for (var col = leftCol; col <= rightCol; col++)
-        foreach (DataGridViewColumn diplayCol in columns)
-          if (diplayCol.DisplayIndex == col && diplayCol.Visible && diplayCol.HeaderText != ReaderConstants.cErrorField)
+        foreach (DataGridViewColumn displayCol in columns)
+          if (displayCol.DisplayIndex == col && displayCol.Visible && displayCol.HeaderText != ReaderConstants.cErrorField)
           {
             visibleColumns.Add(col);
-            sbHtml.Append(HtmlStyle.AddTd(m_HtmlStyle.Th, diplayCol.HeaderText));
+            sbHtml.Append(HtmlStyle.AddTd(m_HtmlStyle.Th, displayCol.HeaderText));
             if (buffer.Length > 0)
               buffer.Append('\t');
 
-            buffer.Append(EscapeTab(diplayCol.HeaderText));
+            buffer.Append(EscapeTab(displayCol.HeaderText));
             break;
           }
 

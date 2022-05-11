@@ -73,7 +73,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="minRequiredSamples">The minimum required samples.</param>
-    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
+    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><see cref="DataTypeEnum.TextToHtml"/> is to be assumed the text has HTML encoding
     /// <see cref="DataTypeEnum.TextUnescape"/> is to be assumed the text has C encoding
     ///  otherwise <see cref="DataTypeEnum.String"/>
@@ -116,7 +116,7 @@ namespace CsvTools
     /// <param name="dateSeparator">The date separator.</param>
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="culture">the culture to check (important for named Days or month)</param>
-    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
+    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
     public static CheckResult CheckDate(
     in ICollection<string> samples,
@@ -182,7 +182,7 @@ namespace CsvTools
     ///   Checks if the values are GUIDs
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
-    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
+    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as Guid, <c>false</c> otherwise.</returns>
     public static bool CheckGuid(in IEnumerable<string> samples, in CancellationToken cancellationToken)
     {
@@ -212,7 +212,7 @@ namespace CsvTools
     /// <param name="allowPercentage">Allows Percentages</param>
     /// <param name="allowStartingZero">if set to <c>true</c> [allow starting zero].</param>
     /// <param name="minSamples"></param>
-    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
+    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as numbers, <c>false</c> otherwise.</returns>
     public static CheckResult CheckNumber(
       in ICollection<string> samples,
@@ -285,7 +285,7 @@ namespace CsvTools
     ///   Only assume the number is a serial date if the resulting date is around the current date
     ///   (-80 +20 years)
     /// </param>
-    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
+    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
     public static CheckResult CheckSerialDate(in IEnumerable<string> samples, bool isCloseToNow, in CancellationToken cancellationToken)
     {
@@ -340,7 +340,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="timeSeparator">The time separator.</param>
-    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
+    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   <c>true</c> if all values can be interpreted as time and the list is not empty,
     ///   <c>false</c> otherwise.
@@ -374,7 +374,7 @@ namespace CsvTools
     /// <param name="samples">The sample values to be checked.</param>
     /// <param name="timeSeparator">The time separator.</param>
     /// <param name="serialDateTime">Allow Date Time values in serial format</param>
-    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
+    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
     public static bool CheckTimeSpan(in IEnumerable<string>? samples, in string timeSeparator, bool serialDateTime, in CancellationToken cancellationToken)
     {

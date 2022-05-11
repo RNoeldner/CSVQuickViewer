@@ -66,11 +66,11 @@ namespace CsvTools
     private void UniqueDisplay_FormClosing(object? sender, FormClosingEventArgs e) => m_CancellationTokenSource.Cancel();
 
     /// <summary>
-    ///   Handles the Load event of the HirachyDisplay control.
+    ///   Handles the Load event of the FormUniqueDisplay control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private async void UniqueDisplay_Load(object? sender, EventArgs e)
+    private async void FormUniqueDisplay_Load(object? sender, EventArgs e)
     {
       var index = 0;
       var current = 0;
@@ -111,72 +111,72 @@ namespace CsvTools
         var dataColumnID = m_DataTable.Columns[dataColumnName];
         if (dataColumnID is null)
           throw new Exception($"Column {dataColumnName} not found");
-        else
+
+        this.SafeBeginInvoke(() => Text = $@"Unique Values Display - {dataColumnName} ");
+
+        var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var intervalAction = new IntervalAction();
+
+        using var display = new FormProcessDisplay(
+          $"Processing {dataColumnName}",
+          false,
+          m_CancellationTokenSource.Token);
+        display.Maximum = m_DataRow.Length;
+        display.Show(this);
+
+        for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
         {
-          this.SafeBeginInvoke(() => Text = $@"Unique Values Display - {dataColumnName} ");
-
-          var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-          var intervalAction = new IntervalAction();
-
-          using var display = new FormProcessDisplay(
-            $"Processing {dataColumnName}",
-            false,
-            m_CancellationTokenSource.Token);
-          display.Maximum = m_DataRow.Length;
-          display.Show(this);
-
-          for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
-          {
-            if (display.CancellationToken.IsCancellationRequested)
-              return;
-            intervalAction.Invoke(row => { display.SetProcess("Getting Unique values", row, true); }, rowIndex);
-            var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString()?.Trim();
-            if (ignoreNull && string.IsNullOrEmpty(id))
-              continue;
-            if (!dictIDToRow.ContainsKey(id!))
-              dictIDToRow.Add(id!, rowIndex);
-          }
-
-          this.SafeInvoke(
-            () => Text = $@"Unique Values Display - {dataColumnName} - Rows {dictIDToRow.Count}/{m_DataRow.Length}");
-
-          m_DataTable.BeginLoadData();
-          m_DataTable.Clear();
-          display.Maximum = dictIDToRow.Count;
-
-          var counter = 0;
-          foreach (var rowIndex in dictIDToRow.Values)
-          {
-            if (display.CancellationToken.IsCancellationRequested)
-              return;
-            counter++;
-            if (counter % 100 == 0)
-              intervalAction.Invoke(c => { display.SetProcess("Importing Rows to Grid", c, true); }, counter);
-            m_DataTable.ImportRow(m_DataRow[rowIndex]);
-          }
-
-          m_DataTable.EndLoadData();
-          detailControl.CancellationToken = m_CancellationTokenSource.Token;
-          display.Maximum = 0;
-          display.SetProcess("Sorting");
-          detailControl.SafeInvoke(
-            () =>
-              {
-                try
-                {
-                  foreach (DataGridViewColumn col in detailControl.FilteredDataGridView.Columns)
-                    if (col.DataPropertyName == dataColumnName)
-                    {
-                      detailControl.FilteredDataGridView.Sort(col, ListSortDirection.Ascending);
-                      break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                  Logger.Warning(ex, "Processing Unique Sorting {exception}", ex.InnerExceptionMessages());
-                }
-              });
+          if (display.CancellationToken.IsCancellationRequested)
+            return;
+          // ReSharper disable once AccessToDisposedClosure
+          intervalAction.Invoke(row => { display.SetProcess("Getting Unique values", row, true); }, rowIndex);
+          var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
+          if (ignoreNull && string.IsNullOrEmpty(id))
+            continue;
+          if (!dictIDToRow.ContainsKey(id))
+            dictIDToRow.Add(id, rowIndex);
         }
+
+        this.SafeInvoke(
+          () => Text = $@"Unique Values Display - {dataColumnName} - Rows {dictIDToRow.Count}/{m_DataRow.Length}");
+
+        m_DataTable.BeginLoadData();
+        m_DataTable.Clear();
+        display.Maximum = dictIDToRow.Count;
+
+        var counter = 0;
+        foreach (var rowIndex in dictIDToRow.Values)
+        {
+          if (display.CancellationToken.IsCancellationRequested)
+            return;
+          counter++;
+          if (counter % 100 == 0)
+            // ReSharper disable once AccessToDisposedClosure
+            intervalAction.Invoke(c => { display.SetProcess("Importing Rows to Grid", c, true); }, counter);
+          m_DataTable.ImportRow(m_DataRow[rowIndex]);
+        }
+
+        m_DataTable.EndLoadData();
+        detailControl.CancellationToken = m_CancellationTokenSource.Token;
+        display.Maximum = 0;
+        display.SetProcess("Sorting");
+        detailControl.SafeInvoke(
+          () =>
+          {
+            try
+            {
+              foreach (DataGridViewColumn col in detailControl.FilteredDataGridView.Columns)
+                if (col.DataPropertyName == dataColumnName)
+                {
+                  detailControl.FilteredDataGridView.Sort(col, ListSortDirection.Ascending);
+                  break;
+                }
+            }
+            catch (Exception ex)
+            {
+              Logger.Warning(ex, "Processing Unique Sorting {exception}", ex.InnerExceptionMessages());
+            }
+          });
       }
       catch (Exception ex)
       {

@@ -71,8 +71,7 @@ namespace CsvTools.Tests
 
       Assert.IsTrue(readFinished);
     }
-
-    private void Test_ReadFinished(object sender, EventArgs e) => throw new NotImplementedException();
+    
 
     [TestMethod]
     public async Task AllFormatsPipeReaderAsync()
@@ -299,7 +298,7 @@ namespace CsvTools.Tests
 
       var value32 = test.GetInt32Null(inputValue, column);
       Assert.IsTrue(value32.HasValue);
-      Assert.AreEqual(17, value32!.Value);
+      Assert.AreEqual(17, value32.Value);
 
       var value64 = test.GetInt64Null(inputValue, column);
       Assert.IsTrue(value64.HasValue);
@@ -435,7 +434,7 @@ namespace CsvTools.Tests
       try
       {
         setting.FileName = @"b;dslkfg;sldfkgjs;ldfkgj;sldfkg.sdfgsfd";
-        var processDisplay = new CustomProcessDisplay();
+        
         using (var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
           setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
           setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
@@ -704,7 +703,7 @@ namespace CsvTools.Tests
         m_ValidSetting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      test.GetBoolean(1);
+      _ = test.GetBoolean(1);
     }
 
     [TestMethod]

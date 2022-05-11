@@ -145,7 +145,7 @@ namespace CsvTools
     ///   Checks if the source file is newer or has a different length, if not file will not be copied,
     /// </param>
     /// <param name="processDisplay">A process display</param>
-    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
+    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public static async Task FileCopy(
       string sourceFile,
       string destFile,

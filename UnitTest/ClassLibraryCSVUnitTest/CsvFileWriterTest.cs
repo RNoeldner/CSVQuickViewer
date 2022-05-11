@@ -23,24 +23,21 @@ namespace CsvTools.Tests
   [TestClass]
   public class CsvFileWriterTest
   {
-    private static readonly CsvFile m_ReadFile;
-
     private static readonly CsvFile m_WriteFile;
 
     static CsvFileWriterTest()
     {
-      m_ReadFile =
-        new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")) { ID = "Read", FieldDelimiter = ",", CommentLine = "#" };
+      var readFile = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")) { ID = "Read", FieldDelimiter = ",", CommentLine = "#" };
 
-      m_ReadFile.ColumnCollection.Add(new Column("ExamDate",
+      readFile.ColumnCollection.Add(new Column("ExamDate",
         new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = @"dd/MM/yyyy" }));
-      m_ReadFile.ColumnCollection.Add(new Column("Score", DataTypeEnum.Integer));
-      m_ReadFile.ColumnCollection.Add(new Column("Proficiency", DataTypeEnum.Numeric));
-      m_ReadFile.ColumnCollection.Add(new Column("IsNativeLang", DataTypeEnum.Boolean) { Ignore = true });
+      readFile.ColumnCollection.Add(new Column("Score", DataTypeEnum.Integer));
+      readFile.ColumnCollection.Add(new Column("Proficiency", DataTypeEnum.Numeric));
+      readFile.ColumnCollection.Add(new Column("IsNativeLang", DataTypeEnum.Boolean) { Ignore = true });
 
-      UnitTestStatic.MimicSQLReader.AddSetting(m_ReadFile);
+      UnitTestStatic.MimicSQLReader.AddSetting(readFile);
 
-      m_WriteFile = new CsvFile { ID = "Write", SqlStatement = m_ReadFile.ID };
+      m_WriteFile = new CsvFile { ID = "Write", SqlStatement = readFile.ID };
 
       m_WriteFile.ColumnCollection.Add(new Column("ExamDate", @"MM/dd/yyyy") { TimePart = "ExamTime" });
       m_WriteFile.ColumnCollection.Add(new Column { Name = "Proficiency", Ignore = true });

@@ -607,12 +607,12 @@ namespace CsvTools.Tests
       Assert.IsTrue(StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, 0, UnitTestStatic.Token).FoundValueFormat != null);
       Assert.AreEqual(
         DataTypeEnum.Integer,
-        StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, 1, UnitTestStatic.Token)!.FoundValueFormat!.DataType);
+        StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, 1, UnitTestStatic.Token).FoundValueFormat!.DataType);
       Assert.IsFalse(
         StringConversion.CheckNumber(new[] { "16673", "A Test" }, ".", "", false, false, 2, UnitTestStatic.Token).FoundValueFormat != null);
       Assert.AreEqual(
         DataTypeEnum.Numeric,
-        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, ".", "", false, false, 3, UnitTestStatic.Token)!.FoundValueFormat!
+        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, ".", "", false, false, 3, UnitTestStatic.Token).FoundValueFormat!
           .DataType);
     }
 
@@ -645,7 +645,6 @@ namespace CsvTools.Tests
     public void StringToBooleanTest()
     {
       Assert.IsNull(StringConversion.StringToBoolean(null, "y", "n"));
-      // Ein Werttyp, der NULL zulässt, kann NULL sein.
       Assert.IsTrue(StringConversion.StringToBoolean("y", "y", "n").Value);
       Assert.IsFalse(StringConversion.StringToBoolean("n", "y", "n").Value);
     }
