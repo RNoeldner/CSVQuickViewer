@@ -78,11 +78,11 @@ namespace CsvTools
 
     public void CopyFrom(IEnumerable<IColumn>? items)
     {
-      CheckReentrancy();
       ClearItems();
       if (items is null) return;
-      foreach (var col in items)
-        Add(col);
+      using var enumerator = items.GetEnumerator();
+      while (enumerator.MoveNext())
+        Add(enumerator.Current);
     }
 
     /// <summary>
@@ -106,9 +106,9 @@ namespace CsvTools
 
     internal int GetIndex(string colName)
     {
-      if (string.IsNullOrEmpty(colName)) 
+      if (string.IsNullOrEmpty(colName))
         return -1;
-      
+
       for (var index = 0; index < Items.Count; index++)
         if (string.Equals(Items[index].Name, colName, StringComparison.OrdinalIgnoreCase))
           return index;
@@ -129,9 +129,8 @@ namespace CsvTools
       if (index != -1)
       {
         Items.RemoveAt(index);
-        Items.Insert(index, column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
-        base.OnCollectionChanged(
-          new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
+        Items.Insert(index, column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));        
+        OnCollectionChanged( new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
       }
       else
       {

@@ -82,6 +82,9 @@
 		<None Update="TestFiles\EmptyColumns.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="TestFiles\EmptyFile.txt">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="TestFiles\EscapedCharacterAtEndOfFile.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

@@ -35,42 +35,42 @@ namespace CsvTools
 
     private ZipFile? m_ZipFile;
 
-    // ReSharper disable once NotNullMemberIsNotInitialized
+    protected Stream BaseStream { get; private set; }
 
     public ImprovedStream(in SourceAccess sourceAccess)
     {
       SourceAccess = sourceAccess;
-      BaseOpen();
+      BaseStream = SourceAccess.OpenStream();
+      OpenByFileType(SourceAccess.FileType);
     }
 
     /// <summary>
     ///   Create an improved stream based on another stream
     /// </summary>
-    /// <param name="stream">The source stream, the stream must support seek</param>
+    /// <param name="stream">The source stream</param>
     /// <param name="type"></param>
     /// <remarks>Make sure the source stream is disposed</remarks>
     // ReSharper disable once NotNullMemberIsNotInitialized
-    public ImprovedStream(in Stream stream, FileTypeEnum type = FileTypeEnum.Stream)
+    public ImprovedStream(in Stream stream, FileTypeEnum type) : this(new SourceAccess(stream, type))
     {
-      SourceAccess = new SourceAccess(stream, type);
-      BaseOpen();
     }
 
-    /// <inheritdoc cref="Stream.CanRead"/>
+    /// <inheritdoc/>
     public override bool CanRead => AccessStream!.CanRead && BaseStream!.CanRead;
 
-    /// <inheritdoc cref="Stream.CanSeek"/>
+    /// <inheritdoc/>
     public override bool CanSeek => BaseStream!.CanSeek;
 
-    /// <inheritdoc cref="Stream.CanWrite"/>
+    /// <inheritdoc/>
     public override bool CanWrite => AccessStream!.CanWrite && BaseStream!.CanWrite;
 
-    /// <inheritdoc cref="Stream.Length()"/>
+    /// <inheritdoc/>
     public override long Length => BaseStream!.Length;
 
-    public double Percentage => (double) BaseStream!.Position / BaseStream.Length;
+    /// <inheritdoc />
+    public double Percentage => BaseStream!.Length < 1 || BaseStream.Position >= BaseStream.Length ? 1d : (double) BaseStream.Position / BaseStream.Length;
 
-    /// <inheritdoc cref="Stream.Position()"/>
+    /// <inheritdoc/>
     /// <summary>
     ///   This is the position in the base stream, Access stream (e.G. gZip stream) might not
     ///   support a position
@@ -82,8 +82,6 @@ namespace CsvTools
     }
 
     protected Stream? AccessStream { get; set; }
-
-    protected Stream? BaseStream { get; private set; }
 
     /// <inheritdoc cref="Stream.Close()"/>
     /// <summary>
@@ -148,10 +146,10 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc cref="Stream.Read(byte[], int, int)"/>
+    /// <inheritdoc />
     public override int Read(byte[] buffer, int offset, int count) => AccessStream!.Read(buffer, offset, count);
 
-    /// <inheritdoc cref="Stream.ReadAsync(byte[], int, int, CancellationToken)"/>
+    /// <inheritdoc />
     public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
       AccessStream!.ReadAsync(buffer, offset, count, cancellationToken);
 
@@ -164,27 +162,27 @@ namespace CsvTools
       if (origin != SeekOrigin.Begin || offset != 0)
         throw new NotSupportedException("Seek is only allowed to be beginning of the feed");
 
-      // Reopen Completely
-      Close();
+      // Reopen Completely      
       ResetStreams();
       return 0;
     }
 
-    /// <inheritdoc cref="Stream.SetLength(long)"/>
+    /// <inheritdoc />
     public override void SetLength(long value) => AccessStream!.SetLength(value);
 
-    /// <inheritdoc cref="Stream.WriteAsync(byte[], int, int)"/>
+    /// <inheritdoc />
     public override void Write(byte[] buffer, int offset, int count) => AccessStream!.Write(buffer, offset, count);
 
-    /// <inheritdoc cref="Stream.WriteAsync(byte[], int, int, CancellationToken)"/>
+    /// <inheritdoc />
     public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
       AccessStream!.WriteAsync(buffer, offset, count, cancellationToken);
 
-    protected void BaseOpen()
+    /// <summary>
+    /// Depending on type call call other Methods to work with teh stream
+    /// </summary>
+    protected virtual void OpenByFileType(FileTypeEnum fileType)
     {
-      BaseStream = SourceAccess.OpenStream();
-
-      switch (SourceAccess.FileType)
+      switch (fileType)
       {
         case FileTypeEnum.GZip:
           OpenZGipOverBase();
@@ -204,17 +202,21 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc cref="Stream.Dispose(bool)"/>
+    private bool m_DisposedValue;
+
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
+      if (m_DisposedValue) return;
       if (!disposing) return;
 
       if (!ReferenceEquals(AccessStream, BaseStream))
-        // ReSharper disable once ConstantConditionalAccessQualifier
         AccessStream?.Dispose();
 
       if (!SourceAccess.LeaveOpen)
         BaseStream?.Dispose();
+
+      m_DisposedValue = true;
     }
 
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -244,7 +246,12 @@ namespace CsvTools
     /// <summary>
     ///   Initializes Stream that will be used for reading / writing the data (after Encryption or compression)
     /// </summary>
-    protected virtual void ResetStreams() => BaseOpen();
+    protected virtual void ResetStreams()
+    {
+      Close();
+      BaseStream = SourceAccess.OpenStream();
+      OpenByFileType(SourceAccess.FileType);
+    }
 
     private void OpenDeflateOverBase()
     {
