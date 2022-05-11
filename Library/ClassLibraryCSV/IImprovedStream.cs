@@ -19,6 +19,9 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
+  /// <summary>
+  /// IImprovedStream is an interface for a stream that has a Postion property and seek allows to jump to the beginnng even if stream is not really seekable.
+  /// </summary>
   public interface IImprovedStream : IDisposable
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     , IAsyncDisposable
@@ -50,7 +53,17 @@ namespace CsvTools
     /// <inheritdoc cref="Stream.ReadAsync(byte[], int, int, CancellationToken)"/>
     Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
-    /// <inheritdoc cref="Stream.Seek(long, SeekOrigin)"/>
+    /// <summary>
+    ///   Sets the position within the current stream. 
+    ///   IImporovedstream will allow you to seek to the beginning of a actually non seekable stream by re-opening the stream
+    /// </summary>
+    /// <param name="offset"> A byte offset relative to the origin parameter.</param>
+    /// <param name="origin">A value of type <see cref="SeekOrigin"/> indicating the reference point used to obtain
+    //     the new position.</param>
+    /// <returns>The new position within the current stream.</returns>
+    /// <exception cref="IOException">An I/O error occurs.</exception>
+    /// <exception cref="NotSupportedException">The stream does not support seeking, only allowed seek would be to the beginning Offset:0 <see cref="SeekOrigin.Begin"/>.</exception>
+    /// <exception cref="ObjectDisposedException"> Methods were called after the stream was closed.</exception>
     long Seek(long offset, SeekOrigin origin);
 
     /// <inheritdoc cref="Stream.Write(byte[], int, int)"/>

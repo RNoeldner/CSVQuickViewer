@@ -23,12 +23,11 @@ using ZipFile = ICSharpCode.SharpZipLib.Zip.ZipFile;
 
 namespace CsvTools
 {
-  /// <summary>
-  ///   A wrapper around streams to handle encryption and Compression As some of these additionally
-  ///   used stream do not support seek, sometimes seek has to be started from scratch
-  /// </summary>
   public class ImprovedStream : Stream, IImprovedStream
   {
+    /// <summary>
+    /// Buffer for Compression Streams
+    /// </summary>
     private const int cBufferSize = 8192;
 
     protected readonly SourceAccess SourceAccess;
@@ -120,7 +119,7 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc cref="Stream.CopyToAsync(Stream, int, CancellationToken)"/>
+    /// <inheritdoc />
     public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken) =>
       AccessStream!.CopyToAsync(destination, bufferSize, cancellationToken);
 
@@ -130,7 +129,7 @@ namespace CsvTools
       GC.SuppressFinalize(this);
     }
 
-    /// <inheritdoc cref="Stream.Flush()"/>
+    /// <inheritdoc />
     public override void Flush()
     {
       try
@@ -153,6 +152,7 @@ namespace CsvTools
     public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
       AccessStream!.ReadAsync(buffer, offset, count, cancellationToken);
 
+    /// <inheritdoc />    
     public override long Seek(long offset, SeekOrigin origin)
     {
       // The stream must support seeking to get or set the position
@@ -163,8 +163,11 @@ namespace CsvTools
         throw new NotSupportedException("Seek is only allowed to be beginning of the feed");
 
       // Reopen Completely      
-      ResetStreams();
-      return 0;
+      Close();
+      BaseStream = SourceAccess.OpenStream();
+      OpenByFileType(SourceAccess.FileType);
+
+      return AccessStream.Position;
     }
 
     /// <inheritdoc />
@@ -222,16 +225,15 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
     protected virtual async ValueTask DisposeAsyncCore()
     {
-      if (AccessStream !=null &&  !ReferenceEquals(AccessStream, BaseStream))
+      if (AccessStream != null &&  !ReferenceEquals(AccessStream, BaseStream))
       {
         // ReSharper disable once ConstantConditionalAccessQualifier
         await AccessStream.DisposeAsync().ConfigureAwait(false);
         AccessStream = null;
       }
-      if (BaseStream !=null && !SourceAccess.LeaveOpen)
+      if (!SourceAccess.LeaveOpen)
       {
-        await BaseStream.DisposeAsync().ConfigureAwait(false);
-        BaseStream = null;
+        await BaseStream.DisposeAsync().ConfigureAwait(false);        
       }
     }
 
@@ -242,16 +244,6 @@ namespace CsvTools
     }
 
 #endif
-
-    /// <summary>
-    ///   Initializes Stream that will be used for reading / writing the data (after Encryption or compression)
-    /// </summary>
-    protected virtual void ResetStreams()
-    {
-      Close();
-      BaseStream = SourceAccess.OpenStream();
-      OpenByFileType(SourceAccess.FileType);
-    }
 
     private void OpenDeflateOverBase()
     {

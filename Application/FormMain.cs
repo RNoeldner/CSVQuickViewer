@@ -129,13 +129,20 @@ namespace CsvTools
 
       if (string.IsNullOrEmpty(fileName))
         return;
+      
+      var fi = new FileSystemUtils.FileInfo(fileName);
 
-      if (!FileSystemUtils.FileExists(fileName))
+      if (!fi.Exists)
       {
         Logger.Warning("Filename {filename} not found or not accessible.", fileName);
         return;
       }
 
+      if (fi.Length==0)
+      {
+        Logger.Warning("File {filename} is empty.", fileName);
+        return;
+      }
 
       // ReSharper disable once AsyncVoidLambda
       this.SafeInvoke(async () =>
