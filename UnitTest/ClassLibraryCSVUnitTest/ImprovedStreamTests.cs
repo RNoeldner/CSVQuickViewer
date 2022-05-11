@@ -28,6 +28,27 @@ namespace CsvTools.Tests
       Assert.IsNotNull(res);
     }
 
+
+    [TestMethod]
+    public async System.Threading.Tasks.Task PercentageAtEnd()
+    {
+      var buffer = new byte[32000];
+      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("Warnings.txt") };
+      using var res = new ImprovedStream(new SourceAccess(setting));
+      Assert.AreEqual(0d, res.Percentage);
+      await res.ReadAsync(buffer, 0, 32000);
+      Assert.AreEqual(1d, res.Percentage);
+    }
+
+    [TestMethod]
+    public void EmptyFile()
+    {      
+      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("EmptyFile.txt") };
+      using var res = new ImprovedStream(new SourceAccess(setting));
+      Assert.AreEqual(1d, res.Percentage);
+      Assert.AreEqual(-1, res.ReadByte());
+    }
+
     [TestMethod]
     public void OpenReadTestGZipSmallRead()
     {

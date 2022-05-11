@@ -16,7 +16,7 @@ namespace CsvTools.Tests
       ICollection<IColumn> determinedColumns;
       // Not closing the stream
 
-      using var impStream = new ImprovedStream(stream);
+      using var impStream = new ImprovedStream(stream, FileTypeEnum.Stream);
       var result = await impStream.GetDetectionResult("stream", null, false, true, true, true, true, true, false, true, null, UnitTestStatic.Token);
       impStream.Seek(0, System.IO.SeekOrigin.Begin);
 

@@ -24,26 +24,48 @@ namespace CsvTools
     , IAsyncDisposable
 #endif
   {
+    /// <inheritdoc cref="Stream.CanRead"/>
     bool CanRead { get; }
 
+    /// <inheritdoc cref="Stream.CanSeek"/>
     bool CanSeek { get; }
 
+    /// <inheritdoc cref="Stream.CanWrite"/>
     bool CanWrite { get; }
 
+    /// <inheritdoc cref="Stream.Length"/>
     long Length { get; }
 
+    /// <summary>
+    /// Percentage of read source as decimal between 0.0 and 1.0
+    /// </summary>
     double Percentage { get; }
 
+    /// <inheritdoc cref="Stream.Position"/>
     long Position { get; }
 
+    /// <inheritdoc cref="Stream.Read(byte[], int, int)"/>
     int Read(byte[] buffer, int offset, int count);
 
+    /// <inheritdoc cref="Stream.ReadAsync(byte[], int, int, CancellationToken)"/>
     Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
+    /// <inheritdoc cref="Stream.Seek(long, SeekOrigin)"/>
     long Seek(long offset, SeekOrigin origin);
 
+    /// <inheritdoc cref="Stream.Write(byte[], int, int)"/>
     void Write(byte[] buffer, int offset, int count);
 
+    /// <inheritdoc cref="Stream.Flush()"/>
+    void Flush();
+
+    /// <inheritdoc cref="Stream.Close()"/>
+    void Close();
+
+    /// <inheritdoc cref="Stream.CopyToAsync(Stream, int, CancellationToken)"/>
+    Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken);
+
+    /// <inheritdoc cref="Stream.WriteAsync(byte[], int, int, CancellationToken)"/>
     Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken);
   }
 }

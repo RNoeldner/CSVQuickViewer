@@ -191,8 +191,9 @@ namespace CsvTools.Tests
       var line2 = "Another line...";
 
       foreach (var type in fn)
-      {
+      {        
         var fileName = UnitTestStatic.GetTestPath("Test_" + type.Item1 + ".txt");
+        FileSystemUtils.FileDelete(fileName);
         using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
         {
           // write the BOM
@@ -203,21 +204,21 @@ namespace CsvTools.Tests
           await fs2.WriteAsync(line2);
         }
 
-        using var impStream = new ImprovedStream(new SourceAccess(fileName));
-        using var test = new ImprovedTextReader(impStream, type.Item2);
+        using (var impStream = new ImprovedStream(new SourceAccess(fileName)))
+        {
+          using var test = new ImprovedTextReader(impStream, type.Item2);
 
-        Assert.AreEqual(1, test.LineNumber);
-        Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading Line1 {type.Item1}");
-        Assert.AreEqual(2, test.LineNumber);
-        Assert.AreEqual(line2, await test.ReadLineAsync(), $"Issue reading Line2 {type.Item1}");
+          Assert.AreEqual(1, test.LineNumber);
+          Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading Line1 {type.Item1}");
+          Assert.AreEqual(2, test.LineNumber);
+          Assert.AreEqual(line2, await test.ReadLineAsync(), $"Issue reading Line2 {type.Item1}");
 
-        test.ToBeginning();
+          test.ToBeginning();
 
-        Assert.AreEqual(1, test.LineNumber);
-        Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading after reset {type.Item1}");
-
-
-        File.Delete(fileName);
+          Assert.AreEqual(1, test.LineNumber);
+          Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading after reset {type.Item1}");
+        }
+        FileSystemUtils.FileDelete(fileName);
       }
     }
 
