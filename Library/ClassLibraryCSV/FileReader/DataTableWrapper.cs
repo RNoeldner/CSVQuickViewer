@@ -47,7 +47,7 @@ namespace CsvTools
     /// <summary>
     ///   Asynchronous Read of next record
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
     {

@@ -208,7 +208,7 @@ namespace CsvTools
     ///   The owner form, in case the owner is minimized or closed this progress will do the same
     /// </param>
     /// <param name="withLogger">if set to <c>true</c> [with logger].</param>
-    /// <param name="cancellationToken">A Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A process display, if the stetting want a process</returns>
     public static FormProcessDisplay? GetProcessDisplay(
       this IFileSetting fileSetting,
@@ -344,6 +344,7 @@ namespace CsvTools
     /// <param name="from">The current Form</param>
     /// <param name="ex">the Exception</param>
     /// <param name="additionalTitle">Title Bar information</param>
+    /// <param name="timeout">Timeout in Seconds</param>
     public static void ShowError(this Form? from, Exception ex, string? additionalTitle = "", double timeout = 60.0)
     {
       if (from != null)

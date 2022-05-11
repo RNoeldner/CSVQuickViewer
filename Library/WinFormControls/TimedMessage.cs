@@ -203,7 +203,7 @@ namespace CsvTools
 
     private void HideColumn(int colNumber, bool visible)
     {
-      var styles = m_TableLayoutPanel!.ColumnStyles;
+      var styles = m_TableLayoutPanel.ColumnStyles;
       if (visible)
       {
         styles[colNumber].SizeType = SizeType.AutoSize;
@@ -427,7 +427,7 @@ namespace CsvTools
       }
 
       // Handle & that is used for shortcuts
-      m_LabelDefault!.Text = text.Replace("&&", "￼").Replace("&", "").Replace("￼", "&");
+      m_LabelDefault.Text = text.Replace("&&", "￼").Replace("&", "").Replace("￼", "&");
     }
   }
 }

@@ -168,7 +168,7 @@ namespace CsvTools.Tests
 			try
 			{
 				UnitTestStatic.RunTaskTimeout(token => Task.Run(() =>
-					WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", null, null), token));
+					WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", string.Empty, string.Empty), token));
 			}
 			catch (COMException)
 			{

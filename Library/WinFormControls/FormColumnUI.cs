@@ -779,7 +779,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">Name of the column.</param>
     /// <param name="processDisplay">The process display.</param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     /// <exception cref="FileException">
     ///   Column {columnName} not found. or Column {columnName} not found.

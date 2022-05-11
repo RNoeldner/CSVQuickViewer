@@ -139,7 +139,7 @@ namespace CsvTools
       this.Name = "FormUniqueDisplay";
       this.Text = "Unique Values Display";
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UniqueDisplay_FormClosing);
-      this.Load += new System.EventHandler(this.UniqueDisplay_Load);
+      this.Load += new System.EventHandler(this.FormUniqueDisplay_Load);
       tableLayoutPanel1.ResumeLayout(false);
       tableLayoutPanel1.PerformLayout();
       this.ResumeLayout(false);

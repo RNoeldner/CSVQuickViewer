@@ -143,12 +143,12 @@ namespace CsvTools.Tests
                                                       || prop.PropertyType == typeof(long)
                                                       || prop.PropertyType == typeof(string)
                                                       || prop.PropertyType == typeof(bool)
-                                                      || prop.PropertyType == typeof(DateTime)) && !(ignore?.Contains(prop.Name) ?? false));
+                                                      || prop.PropertyType == typeof(DateTime)) && !(ignore?.Contains(prop.Name) ?? false)).ToList();
 
         CheckPropertiesEqual(a, b, valueProperties);
 
         foreach (var prop in readProps.Where(prop =>
-          !valueProperties.Contains(prop) && prop.PropertyType.AssemblyQualifiedName.StartsWith("CsvTools.", StringComparison.Ordinal)))
+          prop.PropertyType.AssemblyQualifiedName != null && !valueProperties.Contains(prop) && prop.PropertyType.AssemblyQualifiedName.StartsWith("CsvTools.", StringComparison.Ordinal)))
         {
           var obj1 = prop.GetValue(a);
           var obj2 = prop.GetValue(b);
@@ -159,7 +159,7 @@ namespace CsvTools.Tests
       }
       catch (Exception ex)
       {
-        throw new ApplicationException($"Comparing: {a.GetType()} with {b.GetType()}", ex);
+        throw new ApplicationException($"Comparing: {a?.GetType()} with {b?.GetType()}", ex);
       }
     }
 
@@ -422,34 +422,34 @@ namespace CsvTools.Tests
     }
 
 
-    private static void GetButtonsRecursive(Control rootControl, ICollection<Component> btns)
-    {
-      foreach (Control ctrl in rootControl.Controls)
-      {
-        switch (ctrl)
-        {
-          case Button _:
-            btns.Add(ctrl);
-            break;
-          case ToolStrip ts:
-          {
-            foreach (ToolStripItem i in ts.Items)
-            {
-              if (i is ToolStripButton)
-                btns.Add(i);
-            }
+    //private static void GetButtonsRecursive(Control rootControl, ICollection<Component> btns)
+    //{
+    //  foreach (Control ctrl in rootControl.Controls)
+    //  {
+    //    switch (ctrl)
+    //    {
+    //      case Button _:
+    //        btns.Add(ctrl);
+    //        break;
+    //      case ToolStrip ts:
+    //      {
+    //        foreach (ToolStripItem i in ts.Items)
+    //        {
+    //          if (i is ToolStripButton)
+    //            btns.Add(i);
+    //        }
 
-            break;
-          }
-          default:
-          {
-            if (ctrl.HasChildren)
-              GetButtonsRecursive(ctrl, btns);
-            break;
-          }
-        }
-      }
-    }
+    //        break;
+    //      }
+    //      default:
+    //      {
+    //        if (ctrl.HasChildren)
+    //          GetButtonsRecursive(ctrl, btns);
+    //        break;
+    //      }
+    //    }
+    //  }
+    //}
 
     [DebuggerStepThrough]
     public static void WaitSomeTime(double seconds, CancellationToken token)

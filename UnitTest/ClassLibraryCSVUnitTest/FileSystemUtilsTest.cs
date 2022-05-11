@@ -57,7 +57,7 @@ namespace CsvTools.Tests
       try
       {
         // load a unknown resource from this DLL
-        var test2 = FileSystemUtils.GetStreamReaderForFileOrResource("SampleFile2.txt");
+        _ = FileSystemUtils.GetStreamReaderForFileOrResource("SampleFile2.txt");
       }
       catch (ArgumentException)
       {
@@ -228,8 +228,6 @@ namespace CsvTools.Tests
     public void GetLatestFileOfPattern()
     {
       var root = FileSystemUtils.ExecutableDirectoryName();
-      var thisDll = System.Reflection.Assembly.GetExecutingAssembly();
-
       var res = FileSystemUtils.GetLatestFileOfPattern(root, "CsvTools.ClassLibraryCSV.*.dll");
       Assert.AreEqual(root + Path.DirectorySeparatorChar + "CsvTools.ClassLibraryCSV.UnitTest.dll", res);
     }

@@ -40,6 +40,7 @@ namespace CsvTools
     {
       SourceAccess = sourceAccess;
       BaseStream = SourceAccess.OpenStream();
+      // ReSharper disable once VirtualMemberCallInConstructor
       OpenByFileType(SourceAccess.FileType);
     }
 
@@ -54,30 +55,30 @@ namespace CsvTools
     {
     }
 
-    /// <inheritdoc/>
-    public override bool CanRead => AccessStream!.CanRead && BaseStream!.CanRead;
+    /// <inheritdoc cref="IImprovedStream" />
+    public override bool CanRead => AccessStream!.CanRead && BaseStream.CanRead;
 
-    /// <inheritdoc/>
-    public override bool CanSeek => BaseStream!.CanSeek;
+    /// <inheritdoc cref="IImprovedStream" />
+    public override bool CanSeek => BaseStream.CanSeek;
 
-    /// <inheritdoc/>
-    public override bool CanWrite => AccessStream!.CanWrite && BaseStream!.CanWrite;
+    /// <inheritdoc cref="IImprovedStream" />
+    public override bool CanWrite => AccessStream!.CanWrite && BaseStream.CanWrite;
 
-    /// <inheritdoc/>
-    public override long Length => BaseStream!.Length;
+    /// <inheritdoc cref="IImprovedStream" />
+    public override long Length => BaseStream.Length;
 
     /// <inheritdoc />
-    public double Percentage => BaseStream!.Length < 1 || BaseStream.Position >= BaseStream.Length ? 1d : (double) BaseStream.Position / BaseStream.Length;
+    public double Percentage => BaseStream.Length < 1 || BaseStream.Position >= BaseStream.Length ? 1d : (double) BaseStream.Position / BaseStream.Length;
 
-    /// <inheritdoc/>
+    /// <inheritdoc cref="IImprovedStream" />
     /// <summary>
     ///   This is the position in the base stream, Access stream (e.G. gZip stream) might not
     ///   support a position
     /// </summary>
     public override long Position
     {
-      get => BaseStream!.Position;
-      set => BaseStream!.Position = value;
+      get => BaseStream.Position;
+      set => BaseStream.Position = value;
     }
 
     protected Stream? AccessStream { get; set; }
@@ -111,7 +112,7 @@ namespace CsvTools
           }
 
         if (!SourceAccess.LeaveOpen)
-          BaseStream?.Close();
+          BaseStream.Close();
       }
       catch (Exception ex)
       {
@@ -119,7 +120,7 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IImprovedStream" />
     public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken) =>
       AccessStream!.CopyToAsync(destination, bufferSize, cancellationToken);
 
@@ -129,14 +130,14 @@ namespace CsvTools
       GC.SuppressFinalize(this);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IImprovedStream" />
     public override void Flush()
     {
       try
       {
         if (!ReferenceEquals(AccessStream, BaseStream))
           AccessStream?.Flush();
-        BaseStream?.Flush();
+        BaseStream.Flush();
       }
       catch (Exception ex)
       {
@@ -145,14 +146,14 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IImprovedStream" />
     public override int Read(byte[] buffer, int offset, int count) => AccessStream!.Read(buffer, offset, count);
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IImprovedStream" />
     public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
       AccessStream!.ReadAsync(buffer, offset, count, cancellationToken);
 
-    /// <inheritdoc />    
+    /// <inheritdoc cref="IImprovedStream" />
     public override long Seek(long offset, SeekOrigin origin)
     {
       // The stream must support seeking to get or set the position
@@ -173,10 +174,10 @@ namespace CsvTools
     /// <inheritdoc />
     public override void SetLength(long value) => AccessStream!.SetLength(value);
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IImprovedStream" />
     public override void Write(byte[] buffer, int offset, int count) => AccessStream!.Write(buffer, offset, count);
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IImprovedStream" />
     public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
       AccessStream!.WriteAsync(buffer, offset, count, cancellationToken);
 
@@ -217,7 +218,7 @@ namespace CsvTools
         AccessStream?.Dispose();
 
       if (!SourceAccess.LeaveOpen)
-        BaseStream?.Dispose();
+        BaseStream.Dispose();
 
       m_DisposedValue = true;
     }
@@ -251,14 +252,14 @@ namespace CsvTools
       {
         Logger.Debug("Deflating {filename}", SourceAccess.Identifier);
         AccessStream = new BufferedStream(
-          new DeflateStream(BaseStream!, CompressionMode.Decompress, SourceAccess.LeaveOpen),
+          new DeflateStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
       else
       {
         Logger.Debug("Compressing {filename}", SourceAccess.Identifier);
         AccessStream = new BufferedStream(
-          new DeflateStream(BaseStream!, CompressionMode.Compress, SourceAccess.LeaveOpen),
+          new DeflateStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
     }
@@ -269,14 +270,14 @@ namespace CsvTools
       {
         Logger.Debug("Decompressing from GZip {filename}", SourceAccess.Identifier);
         AccessStream = new BufferedStream(
-          new GZipStream(BaseStream!, CompressionMode.Decompress, SourceAccess.LeaveOpen),
+          new GZipStream(BaseStream, CompressionMode.Decompress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
       else
       {
         Logger.Debug("Compressing to GZip {filename}", SourceAccess.Identifier);
         AccessStream = new BufferedStream(
-          new GZipStream(BaseStream!, CompressionMode.Compress, SourceAccess.LeaveOpen),
+          new GZipStream(BaseStream, CompressionMode.Compress, SourceAccess.LeaveOpen),
           cBufferSize);
       }
     }
@@ -363,7 +364,7 @@ namespace CsvTools
           {
             File.Copy(SourceAccess.FullPath, tmpName, true);
 
-            // build a new Zip file with the contend of the old one but exlode the file we are about
+            // build a new Zip file with the contend of the old one but export the file we are about
             // to write
             using var zipFile = new ZipFile(File.OpenRead(tmpName));
             var entryEnumerator = zipFile.GetEnumerator();

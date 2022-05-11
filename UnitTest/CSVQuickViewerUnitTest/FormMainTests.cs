@@ -38,7 +38,6 @@ namespace CsvTools.Tests
     [Timeout(10000)]
     public void FormMain_AllFormatsPipe()
     {
-      var vs = new ViewSettings();
       using var frm = new FormMain(new ViewSettings());
       UnitTestStatic.ShowFormAndClose(frm, 0, frm => frm.LoadCsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), UnitTestStatic.Token), 8, UnitTestStatic.Token);
       Assert.IsNotNull(frm.DataTable);

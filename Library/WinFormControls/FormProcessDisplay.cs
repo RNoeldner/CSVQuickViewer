@@ -45,7 +45,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="windowTitle">The description / form title</param>
     /// <param name="withLoggerDisplay">True if a debug logging windows should be shown</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public FormProcessDisplay(in string? windowTitle, bool withLoggerDisplay, CancellationToken cancellationToken)
     {
       CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -226,7 +226,7 @@ namespace CsvTools
     /// <param name="sender"></param>
     /// <param name="e"></param>
     public void SetProcess(object? sender, ProgressEventArgs e) => SetProcess(e.Text, e.Value, e.Log);
-    bool m_IsClosed = false;
+    bool m_IsClosed;
 
     public new void Close()
     {
@@ -355,7 +355,7 @@ namespace CsvTools
 
     private bool m_DisposedValue; // To detect redundant calls
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="Form" />
     public new void Dispose()
     {
       Dispose(true);
@@ -378,7 +378,7 @@ namespace CsvTools
             Thread.Sleep(100);
           }
 
-          CancellationTokenSource?.Dispose();
+          CancellationTokenSource.Dispose();
           m_LoggerDisplay?.Dispose();
         }
 

@@ -122,7 +122,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="reader">A Data Reader with the data</param>
     /// <param name="output">The output.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public override async Task WriteReaderAsync(
       IFileReader reader,
       Stream output,

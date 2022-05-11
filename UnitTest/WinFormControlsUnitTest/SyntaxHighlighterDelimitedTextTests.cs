@@ -43,7 +43,7 @@ namespace CsvTools.Tests
             return;
           highlighter.Highlight(text.Range);
         };
-        ;
+        
         UnitTestStatic.ShowControl(textBox, .2, (text, frm) =>
         {
           text.Text =

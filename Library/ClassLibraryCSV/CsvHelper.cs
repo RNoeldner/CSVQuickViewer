@@ -46,7 +46,7 @@ namespace CsvTools
     /// <param name="guessCommentLine"></param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="processDisplay">The process display.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     public static async Task<DelimitedFileDetectionResultWithColumns> AnalyzeFileAsync(
       this string fileName,
@@ -189,7 +189,7 @@ namespace CsvTools
     /// <param name="textReader">The stream reader with the data</param>
     /// <param name="delimiter">The delimiter.</param>
     /// <param name="commentLine">The characters for a comment line.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>true if the comment line seems to ne ok</returns>
     public static async Task<bool> CheckLineCommentIsValidAsync(
       this ImprovedTextReader textReader,
@@ -275,7 +275,7 @@ namespace CsvTools
     /// <param name="guessNewLine">if set to <c>true</c> determine combination of new line.</param>
     /// <param name="guessCommentLine">if set <c>true</c> determine if there is a comment line</param>
     /// <param name="disallowedDelimiter">Delimiter to exclude in recognition, as they have been ruled out before</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public static async Task<DelimitedFileDetectionResult> GetDetectionResult(
       this Stream stream,
       string fileName,
@@ -603,7 +603,7 @@ namespace CsvTools
     /// </param>
     /// <param name="guessNewLine">if true, try to determine what kind of new line we do use</param>
     /// <param name="guessCommentLine"></param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
     public static async Task<DelimitedFileDetectionResult> GetDetectionResultFromFile(this string fileName,
@@ -707,7 +707,7 @@ namespace CsvTools
     /// <param name="codePageId">The code page identifier.</param>
     /// <param name="skipRows">The skip rows.</param>
     /// <param name="escapeCharacter">The escape character.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <remarks>No Error will not be thrown.</remarks>
     public static async Task<Tuple<string, bool>> GuessDelimiter(
@@ -733,7 +733,7 @@ namespace CsvTools
     /// <param name="skipRows">The skip rows.</param>
     /// <param name="commentLine">The comment line.</param>
     /// <param name="fieldDelimiter">The field delimiter.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     public static async Task<string> GuessHasHeader(
       this Stream improvedStream,
@@ -755,7 +755,7 @@ namespace CsvTools
     /// <param name="reader">The reader.</param>
     /// <param name="comment">The comment.</param>
     /// <param name="delimiterChar">The delimiter.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>Explanation on by there is no header, if empty the header was found</returns>
     public static async Task<string> GuessHasHeaderAsync(
       this ImprovedTextReader reader,
@@ -941,7 +941,7 @@ namespace CsvTools
     /// <param name="codePageId">The code page identifier.</param>
     /// <param name="skipRows">The skip rows.</param>
     /// <param name="fieldQualifier">The field qualifier.</param>
-    /// <param name="cancellationToken">A cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The NewLine Combination used</returns>
     public static async Task<RecordDelimiterTypeEnum> GuessNewline(
       this Stream improvedStream,
@@ -963,7 +963,7 @@ namespace CsvTools
     /// <param name="skipRows">The skip rows.</param>
     /// <param name="fieldDelimiter">The field delimiter.</param>
     /// <param name="escapePrefix"></param>
-    /// <param name="cancellationToken">A cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The NewLine Combination used</returns>
     public static async Task<string?> GuessQualifier(
       this Stream improvedStream,
@@ -986,7 +986,7 @@ namespace CsvTools
     /// <param name="delimiter">The delimiter.</param>
     /// <param name="quote">The quoting char</param>
     /// <param name="commentLine">The characters for a comment line.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The number of rows to skip</returns>
     /// <exception cref="ArgumentNullException">commentLine</exception>
     public static int GuessStartRow(
@@ -1161,7 +1161,7 @@ namespace CsvTools
     /// <param name="fieldDelimiter">The field delimiter character.</param>
     /// <param name="fieldQualifier">The field qualifier character.</param>
     /// <param name="commentLine">The comment line.</param>
-    /// <param name="cancellationToken">A cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The number of rows to skip</returns>
     public static async Task<int> GuessStartRow(
       this Stream improvedStream,
@@ -1184,7 +1184,7 @@ namespace CsvTools
     /// <param name="skipRows">The skip rows.</param>
     /// <param name="fieldDelimiter">The field delimiter character.</param>
     /// <param name="fieldQualifier">The field qualifier character.</param>
-    /// <param name="cancellationToken">A cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.</returns>
     public static async Task<bool> HasUsedQualifier(
       this Stream improvedStream,
@@ -1234,7 +1234,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="stream">The imp stream.</param>
     /// <param name="encoding">The encoding.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if json could be read from stream; otherwise, <c>false</c>.</returns>
     public static async Task<bool> IsJsonReadable(
       this Stream stream,
@@ -1401,7 +1401,7 @@ namespace CsvTools
     /// <param name="textReader">The StreamReader with the data</param>
     /// <param name="escapeCharacter">The escape character.</param>
     /// <param name="disallowedDelimiter">Character rules out as possible delimiters</param>
-    /// <param name="cancellationToken">A cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <exception cref="ArgumentNullException">streamReader</exception>
     /// <remarks>No Error will not be thrown.</remarks>
@@ -1646,7 +1646,7 @@ namespace CsvTools
     /// <param name="textReader">The opened TextReader</param>
     /// <param name="delimiter">The char to be used as field delimiter</param>
     /// <param name="escape">Used to escape a delimiter or quoting char</param>
-    /// <param name="cancellationToken">A cancellation token to stop a possibly long running process</param>
+    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The most likely quoting char</returns>
     /// <remarks>Any line feed ot carriage return will be regarded as field delimiter, a duplicate quoting will be regarded as single quote, an \ escaped quote will be ignored</remarks>
     private static char GuessQualifier(

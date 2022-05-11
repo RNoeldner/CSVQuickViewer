@@ -136,63 +136,54 @@ namespace CsvTools.Tests
     [Timeout(6000)]
     public void FilteredDataGridViewVarious_SetFilterMenu()
     {
+      using var data = UnitTestStatic.GetDataTable(200);
+      using var ctrl = new FilteredDataGridView();
+      UnitTestStatic.ShowControl(ctrl, 0.5d,
+        (control, form) =>
+        {
+          if (!(control is FilteredDataGridView ctrl2))
+            return;
+          ctrl2.DataSource = data;
 
-      using (var data = UnitTestStatic.GetDataTable(200))
-      using (var ctrl = new FilteredDataGridView())
-      {
-        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
-          (control, form) =>
-          {
-            if (!(control is FilteredDataGridView ctrl2))
-              return;
-            ctrl2.DataSource = data;
-
-            // Refresh all columns filters
-            for (int col = 0; col< data.Columns.Count; col++)
-              ctrl2.SetFilterMenu(col);
-          });
-      }
+          // Refresh all columns filters
+          for (int col = 0; col< data.Columns.Count; col++)
+            ctrl2.SetFilterMenu(col);
+        });
     }
 
     [TestMethod]
     [Timeout(6000)]
     public void FilteredDataGridViewVarious_HighlightText()
     {
+      using var data = UnitTestStatic.GetDataTable(200);
+      using var ctrl = new FilteredDataGridView();
+      UnitTestStatic.ShowControl(ctrl, 0.5d,
+        (control, form) =>
+        {
+          if (!(control is FilteredDataGridView ctrl2))
+            return;
+          ctrl2.DataSource = data;
 
-      using (var data = UnitTestStatic.GetDataTable(200))
-      using (var ctrl = new FilteredDataGridView())
-      {
-        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
-          (control, form) =>
-          {
-            if (!(control is FilteredDataGridView ctrl2))
-              return;
-            ctrl2.DataSource = data;
-
-            ctrl2.FrozenColumns = 1;
-            ctrl2.HighlightText = "HH";
-          });
-      }
+          ctrl2.FrozenColumns = 1;
+          ctrl2.HighlightText = "HH";
+        });
     }
 
     [TestMethod]
     [Timeout(6000)]
     public void FilteredDataGridView_RefreshUI()
     {
-
-      using (var data = UnitTestStatic.GetDataTable(200))
-      using (var ctrl = new FilteredDataGridView())
-      {
-        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
-          (control, form) =>
-          {
-            if (!(control is FilteredDataGridView ctrl2))
-              return;
-            ctrl2.DataSource = data;
-            ctrl2.SetFilterMenu(0);
-            ctrl2.RefreshUI();
-          });
-      }
+      using var data = UnitTestStatic.GetDataTable(200);
+      using var ctrl = new FilteredDataGridView();
+      UnitTestStatic.ShowControl(ctrl, 0.5d,
+        (control, form) =>
+        {
+          if (!(control is FilteredDataGridView ctrl2))
+            return;
+          ctrl2.DataSource = data;
+          ctrl2.SetFilterMenu(0);
+          ctrl2.RefreshUI();
+        });
     }
 
     [TestMethod]
@@ -202,77 +193,69 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void ApplyFiltersTest()
     {
-      using (var data = UnitTestStatic.GetDataTable(200))
-      using (var ctrl = new FilteredDataGridView())
-      {
-        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
-          (control, form) =>
-          {
-            if (!(control is FilteredDataGridView ctrl2))
-              return;
-            ctrl2.DataSource = data;
-            ctrl2.ApplyFilters();
-          });
-      }
+      using var data = UnitTestStatic.GetDataTable(200);
+      using var ctrl = new FilteredDataGridView();
+      UnitTestStatic.ShowControl(ctrl, 0.5d,
+        (control, form) =>
+        {
+          if (!(control is FilteredDataGridView ctrl2))
+            return;
+          ctrl2.DataSource = data;
+          ctrl2.ApplyFilters();
+        });
     }
 
     [TestMethod()]
     public void Filter_Test()
     {
-      using (var data = UnitTestStatic.GetDataTable(200))
-      using (var ctrl = new FilteredDataGridView())
-      {
-        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
-          (control, form) =>
-          {
-            if (!(control is FilteredDataGridView ctrl2))
-              return;
-            ctrl2.DataSource = data;
-            ctrl2.SetFilterMenu(0);
-            ctrl2.CurrentCell = ctrl2[1, 0];
-            ctrl2.FilterCurrentCell();
+      using var data = UnitTestStatic.GetDataTable(200);
+      using var ctrl = new FilteredDataGridView();
+      UnitTestStatic.ShowControl(ctrl, 0.5d,
+        (control, form) =>
+        {
+          if (!(control is FilteredDataGridView ctrl2))
+            return;
+          ctrl2.DataSource = data;
+          ctrl2.SetFilterMenu(0);
+          ctrl2.CurrentCell = ctrl2[1, 0];
+          ctrl2.FilterCurrentCell();
 
-            ctrl2.RemoveAllFilter();
-          });
-      }
+          ctrl2.RemoveAllFilter();
+        });
     }
 
     [TestMethod()]
     public void SetColumnFrozenTest()
     {
-      using (var data = UnitTestStatic.GetDataTable(200))
-      using (var ctrl = new FilteredDataGridView())
-      {
-        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
-          (control, form) =>
-          {
-            if (!(control is FilteredDataGridView ctrl2))
-              return;
-            ctrl2.DataSource = data;
-            ctrl2.SetColumnFrozen(0, true);
-          });
-      }
+      using var data = UnitTestStatic.GetDataTable(200);
+      using var ctrl = new FilteredDataGridView();
+      UnitTestStatic.ShowControl(ctrl, 0.5d,
+        (control, form) =>
+        {
+          if (!(control is FilteredDataGridView ctrl2))
+            return;
+          ctrl2.DataSource = data;
+          ctrl2.SetColumnFrozen(0, true);
+        });
     }
 
     [TestMethod()]
     public void ShowHideColumns()
     {
-      using (var data = UnitTestStatic.GetDataTable(200))
-      using (var ctrl = new FilteredDataGridView())
-      {
-        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
-          (control, form) =>
-          {
-            if (!(control is FilteredDataGridView ctrl2))
-              return;
-            ctrl2.DataSource = data;
-            ctrl2.HideAllButOne(0);
-            ctrl2.ShowAllColumns();
-            ctrl2.HideEmptyColumns();
+      using var data = UnitTestStatic.GetDataTable(200);
+      using var ctrl = new FilteredDataGridView();
+      UnitTestStatic.ShowControl(ctrl, 0.5d,
+        (control, form) =>
+        {
+          if (!(control is FilteredDataGridView ctrl2))
+            return;
+          ctrl2.DataSource = data;
+          ctrl2.HideAllButOne(0);
+          ctrl2.ShowAllColumns();
+          ctrl2.HideEmptyColumns();
 
-            ctrl2.SetColumnVisibility(new Dictionary<string, bool>() {{ data.Columns[0].ColumnName, true}, { data.Columns[1].ColumnName, false} });
-          });
-      }
+          ctrl2.SetColumnVisibility(new Dictionary<string, bool>() { { data.Columns[0].ColumnName, true }, { data.Columns[1].ColumnName, false } });
+        });
     }
 
 
@@ -280,23 +263,21 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void SetToolStripMenu()
     {
-      using (var data = UnitTestStatic.GetDataTable(200))
-      using (var ctrl = new FilteredDataGridView())
-      {
-        UnitTestStatic.ShowControl(new FilteredDataGridView(), 0.5d,
-          (control, form) =>
-          {
-            if (!(control is FilteredDataGridView ctrl2))
-              return;
-            ctrl2.DataSource = data;
+      using var data = UnitTestStatic.GetDataTable(200);
+      using var ctrl = new FilteredDataGridView();
+      UnitTestStatic.ShowControl(ctrl, 0.5d,
+        (control, form) =>
+        {
+          if (!(control is FilteredDataGridView ctrl2))
+            return;
+          ctrl2.DataSource = data;
 
-            ctrl2.SetToolStripMenu(0,0,true);
+          ctrl2.SetToolStripMenu(0, 0, true);
 
-            ctrl2.SetToolStripMenu(1, -1, true);
-          });
-      }
+          ctrl2.SetToolStripMenu(1, -1, true);
+        });
     }
-    
+
     [TestMethod()]
     public void ReStoreViewSettingTest()
     {

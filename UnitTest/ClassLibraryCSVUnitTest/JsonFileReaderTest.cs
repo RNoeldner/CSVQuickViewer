@@ -111,7 +111,7 @@ namespace CsvTools.Tests
       await jfr.OpenAsync(UnitTestStatic.Token);
       try
       {
-        jfr.GetFloat(0);
+        _ = jfr.GetFloat(0);
         Assert.Fail("No Exception thrown");
       }
       catch (FormatException)
@@ -124,7 +124,7 @@ namespace CsvTools.Tests
 
       try
       {
-        jfr.GetGuid(0);
+        _ = jfr.GetGuid(0);
         Assert.Fail("No Exception thrown");
       }
       catch (FormatException)
@@ -137,7 +137,7 @@ namespace CsvTools.Tests
 
       try
       {
-        jfr.GetInt64(0);
+        _ =jfr.GetInt64(0);
         Assert.Fail("No Exception thrown");
       }
       catch (FormatException)
@@ -150,7 +150,7 @@ namespace CsvTools.Tests
 
       try
       {
-        jfr.GetInt32(0);
+        _ = jfr.GetInt32(0);
         Assert.Fail("No Exception thrown");
       }
       catch (FormatException)
@@ -163,7 +163,7 @@ namespace CsvTools.Tests
 
       try
       {
-        jfr.GetInt16(0);
+        _ = jfr.GetInt16(0);
         Assert.Fail("No Exception thrown");
       }
       catch (FormatException)
@@ -176,7 +176,7 @@ namespace CsvTools.Tests
 
       try
       {
-        jfr.GetDateTime(0);
+        _ =jfr.GetDateTime(0);
         Assert.Fail("No Exception thrown");
       }
       catch (FormatException)
@@ -189,7 +189,7 @@ namespace CsvTools.Tests
 
       try
       {
-        jfr.GetBoolean(0);
+        _ = jfr.GetBoolean(0);
         Assert.Fail("No Exception thrown");
       }
       catch (FormatException)
@@ -234,7 +234,7 @@ namespace CsvTools.Tests
       // read each column in each row
       while (await jfr.ReadAsync(UnitTestStatic.Token))
         for (var i = 0; i < jfr.FieldCount; i++)
-          jfr.GetValue(i);
+          _ = jfr.GetValue(i);
       Assert.AreEqual(2782, jfr.RecordNumber);
     }
 
