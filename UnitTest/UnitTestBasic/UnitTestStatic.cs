@@ -14,6 +14,7 @@
 
 #nullable enable
 
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -35,6 +36,10 @@ namespace CsvTools.Tests
 {
   public static class UnitTestStatic
   {
+    private static Microsoft.VisualStudio.TestTools.UnitTesting.TestContext? m_Context;
+
+    public static void WriteToContext(this string s) => m_Context?.WriteLine(s);
+
     public static readonly string ApplicationDirectory = Path.Combine(
       FileSystemUtils.ExecutableDirectoryName(),
       "TestFiles");
@@ -163,16 +168,18 @@ namespace CsvTools.Tests
       }
     }
 
-    public static void AssemblyInitialize(CancellationToken contextToken, Action<string> unhandledException)
+    public static void AssemblyInitialize(Microsoft.VisualStudio.TestTools.UnitTesting.TestContext context)
     {
+      m_Context=context;
       MimicSql();
-      Token = contextToken;
+      Token = context.CancellationTokenSource.Token;
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
 
       AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs args)
       {
-        if (!contextToken.IsCancellationRequested)
-          unhandledException(args.ExceptionObject.ToString());
+
+        if (!Token.IsCancellationRequested)
+          WriteToContext(args.ExceptionObject.ToString());
       };
     }
 
@@ -390,7 +397,7 @@ namespace CsvTools.Tests
           catch (Exception ex)
           {
             // Ignore all NotImplementedException these are cause by compatibility setting or mocks
-            Logger.Warning(ex.ExceptionMessages());
+            WriteToContext(ex.ExceptionMessages());
           }
         }
         catch (MissingMethodException)
@@ -399,7 +406,7 @@ namespace CsvTools.Tests
         }
         catch (Exception e)
         {
-          Logger.Error(e, "Issue with {@type}", type);
+          WriteToContext($"Issue with {@type} {e.ExceptionMessages()}");
           throw;
         }
     }

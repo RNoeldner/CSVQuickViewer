@@ -8,7 +8,7 @@ namespace CsvTools.Tests
     [AssemblyInitialize]
     public static void AssemblyInitialize(TestContext context)
     {
-      UnitTestStatic.AssemblyInitialize(context.CancellationTokenSource.Token, s => context.WriteLine(s));
+      UnitTestStatic.AssemblyInitialize(context);
     }
   }
 }
