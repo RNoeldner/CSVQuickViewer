@@ -18,7 +18,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
@@ -159,7 +158,7 @@ namespace CsvTools.Tests
           var obj2 = prop.GetValue(b);
           // ignore collections
           if (!(obj1 is IEnumerable))
-            CheckAllPropertiesEqual(prop.GetValue(a), prop.GetValue(b));
+            CheckAllPropertiesEqual(obj1, obj2);
         }
       }
       catch (Exception ex)
@@ -423,7 +422,7 @@ namespace CsvTools.Tests
     {
       using var cts = CancellationTokenSource.CreateLinkedTokenSource(Token);
       using var frm = new TestForm();
-      frm.Closing += (s, e) => cts?.Cancel();
+      frm.Closing += (s, e) => cts.Cancel();
       frm.AddOneControl(ctrl, after * 6000d);
       ShowFormAndClose(frm, before, f => toDo?.Invoke(ctrl, f), after, cts.Token);
     }
