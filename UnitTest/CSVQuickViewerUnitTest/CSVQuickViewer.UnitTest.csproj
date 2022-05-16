@@ -9,6 +9,7 @@
 		<TestProjectType>UnitTest</TestProjectType>
 		<IsPackable>false</IsPackable>
 		<ReleaseVersion>1.4.6.499</ReleaseVersion>
+		<AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />

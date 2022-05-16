@@ -35,9 +35,10 @@ namespace CsvTools.Tests
 {
   public static class UnitTestStatic
   {
-    private static Microsoft.VisualStudio.TestTools.UnitTesting.TestContext? m_Context;
+    private static UnitTestLogger? TestLogger;
+    public static string LastLogMessage => TestLogger!.LastMessage;
 
-    public static void WriteToContext(this string s) => m_Context?.WriteLine(s);
+    public static void WriteToContext(this string s) => TestLogger!.Context.WriteLine(s);
 
     public static readonly string ApplicationDirectory = Path.Combine(
       FileSystemUtils.ExecutableDirectoryName(),
@@ -169,7 +170,6 @@ namespace CsvTools.Tests
 
     public static void AssemblyInitialize(Microsoft.VisualStudio.TestTools.UnitTesting.TestContext context)
     {
-      m_Context=context;
       MimicSql();
       Token = context.CancellationTokenSource.Token;
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
@@ -180,6 +180,8 @@ namespace CsvTools.Tests
         if (!Token.IsCancellationRequested)
           WriteToContext(args.ExceptionObject.ToString());
       };
+      TestLogger =  new UnitTestLogger(context);
+      Logger.LoggerInstance = TestLogger;
     }
 
     public static T ExecuteWithCulture<T>(Func<T> methodFunc, string cultureName)

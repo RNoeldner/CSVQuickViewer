@@ -8,6 +8,7 @@
 		<RootNamespace>CsvTools.Tests</RootNamespace>
 		<TestProjectType>UnitTest</TestProjectType>
 		<ReleaseVersion>1.4.6.499</ReleaseVersion>
+		<AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DefineConstants>TRACE;Windows</DefineConstants>

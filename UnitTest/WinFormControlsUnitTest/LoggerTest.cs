@@ -26,10 +26,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void UILog()
     {
-      //var jsonLogFileName = m_ApplicationDirectory + "\\Log.json";
-      //Logger.Configure(jsonLogFileName, Logger.Level.Info, m_ApplicationDirectory + "\\text.log");
 
       Logger.Debug("MyMessage1");
+      Assert.AreEqual("MyMessage1", UnitTestStatic.LastLogMessage);
       Logger.Debug("");
       Logger.Debug(null);
 
@@ -45,11 +44,10 @@ namespace CsvTools.Tests
 
       Logger.Error(new Exception("Hello World"), "MyMessage2");
       Logger.Error(new Exception("This is it"));
+      Assert.AreEqual("This is it", UnitTestStatic.LastLogMessage);
       Logger.Error("");
-#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
-      Logger.Error(null, null, string.Empty);
-#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       Logger.Error("This {is} it", "was");
+      Assert.AreEqual("This was it", UnitTestStatic.LastLogMessage);
     }
 
     private class TestLogger : ILogger
