@@ -168,7 +168,7 @@ namespace CsvTools
       BaseStream = SourceAccess.OpenStream();
       OpenByFileType(SourceAccess.FileType);
 
-      return AccessStream.Position;
+      return 0;
     }
 
     /// <inheritdoc />
