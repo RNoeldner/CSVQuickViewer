@@ -366,6 +366,18 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void TextReplaceFormatter()
+    {
+      var called = false;
+      var fmter = new TextReplaceFormatter("(l|L)", "L");
+      Assert.AreEqual("HaLLo", fmter.FormatInputText("HaLlo", s => called = true));
+      Assert.IsTrue(called);
+      called = false;
+      Assert.AreEqual("Test", fmter.FormatInputText("Test", s => called = true));
+      Assert.IsFalse(called);
+    }
+
+    [TestMethod]
     public void StringToTextPartExact()
     {
       Assert.AreEqual(null, StringConversion.StringToTextPart(null, ':', 1, false), "Value null");

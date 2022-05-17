@@ -30,24 +30,22 @@ namespace CsvTools
   /// </summary>
   public static class CsvHelper
   {
-    /// <summary>
-    ///   Analyzes a given the file asynchronously to determine proper read options
-    /// </summary>
+    /// <summary>Analyzes a given the file asynchronously to determine proper read options</summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="guessJson">if <c>true</c> trying to determine if file is a JSON file</param>
     /// <param name="guessCodePage">if <c>true</c>, try to determine the code page</param>
     /// <param name="guessDelimiter">if <c>true</c>, try to determine the delimiter</param>
     /// <param name="guessQualifier">if <c>true</c>, try to determine the qualifier for text</param>
     /// <param name="guessStartRow">if <c>true</c>, try to determine the number of skipped rows</param>
-    /// <param name="guessHasHeader">
-    ///   if true, try to determine if the file does have a header row
-    /// </param>
+    /// <param name="guessHasHeader">if true, try to determine if the file does have a header row</param>
     /// <param name="guessNewLine">if set to <c>true</c> determine combination of new line.</param>
     /// <param name="guessCommentLine"></param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="processDisplay">The process display.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns></returns>
+    /// <returns>
+    ///   <see cref="DelimitedFileDetectionResultWithColumns"/> with found information, or default if that test was not done
+    /// </returns>
     public static async Task<DelimitedFileDetectionResultWithColumns> AnalyzeFileAsync(
       this string fileName,
       bool guessJson,
@@ -183,12 +181,10 @@ namespace CsvTools
       return new DelimitedFileDetectionResultWithColumns(detectionResult, b);
     }
 
-    /// <summary>
-    ///   Checks if the comment line does make sense, or if its possibly better regarded as header row
-    /// </summary>
+    /// <summary>Checks if the comment line does make sense, or if its possibly better regarded as header row</summary>
     /// <param name="textReader">The stream reader with the data</param>
-    /// <param name="delimiter">The delimiter.</param>
     /// <param name="commentLine">The characters for a comment line.</param>
+    /// <param name="delimiter">The delimiter.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>true if the comment line seems to ne ok</returns>
     public static async Task<bool> CheckLineCommentIsValidAsync(
@@ -749,14 +745,12 @@ namespace CsvTools
       return await GuessHasHeaderAsync(reader, commentLine, fieldDelimiter.WrittenPunctuationToChar(), cancellationToken).ConfigureAwait(false);
     }
 
-    /// <summary>
-    ///   Guesses the has header from reader.
-    /// </summary>
+    /// <summary>Guesses the has header from reader.</summary>
     /// <param name="reader">The reader.</param>
     /// <param name="comment">The comment.</param>
     /// <param name="delimiterChar">The delimiter.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>Explanation on by there is no header, if empty the header was found</returns>
+    /// <returns>Explanation why there is no header, if empty the header was found</returns>
     public static async Task<string> GuessHasHeaderAsync(
       this ImprovedTextReader reader,
       string comment,
@@ -764,10 +758,11 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       var headerLine = string.Empty;
+      reader.ToBeginning();
       while (string.IsNullOrEmpty(headerLine) && !reader.EndOfStream)
       {
         cancellationToken.ThrowIfCancellationRequested();
-        headerLine = await reader.ReadLineAsync();
+        headerLine = await reader.ReadLineAsync().ConfigureAwait(false);
         if (!string.IsNullOrEmpty(comment) && headerLine.TrimStart().StartsWith(comment, StringComparison.Ordinal))
           headerLine = string.Empty;
       }
@@ -895,6 +890,11 @@ namespace CsvTools
       return await textReader.GuessLineCommentAsync(cancellationToken);
     }
 
+    /// <summary>Guesses the line comment</summary>
+    /// <param name="textReader">The text reader.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The determined comment</returns>
+    /// <exception cref="System.ArgumentNullException">textReader</exception>
     public static async Task<string> GuessLineCommentAsync(this ImprovedTextReader textReader, CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
@@ -1268,6 +1268,16 @@ namespace CsvTools
       return false;
     }
 
+    /// <summary>Counts the delimiters</summary>
+    /// <param name="textReader">The text reader.</param>
+    /// <param name="escape">The escape sequence</param>
+    /// <param name="numRows">The number of rows to read</param>
+    /// <param name="disallowedDelimiter">The disallowed delimiters</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>
+    ///   A <see cref="DelimiterCounter"/> with the information on delimiters
+    /// </returns>
+    /// <exception cref="System.ArgumentNullException">textReader</exception>
     private static DelimiterCounter GetDelimiterCounter(
       this ImprovedTextReader textReader,
       string escape,
@@ -1701,14 +1711,13 @@ namespace CsvTools
       {
         for (var index = 1; index < line.Length-2; index++)
         {
-          if (line[index] == possibleQuotes[testIndex])
-          {
-            counterTotal[testIndex]++;
-            if (line[index-1]== delimiterChar && (line[index+1] == placeHolderText || line[index+1] == possibleQuotes[testIndex] && line[index+2] != delimiterChar))
-              counterOpen[testIndex]++;
-            if (line[index-1] == placeHolderText && line[index+1]== delimiterChar)
-              counterClose[testIndex]++;
-          }
+          if (line[index] != possibleQuotes[testIndex]) 
+            continue;
+          counterTotal[testIndex]++;
+          if (line[index-1]== delimiterChar && (line[index+1] == placeHolderText || line[index+1] == possibleQuotes[testIndex] && line[index+2] != delimiterChar))
+            counterOpen[testIndex]++;
+          if (line[index-1] == placeHolderText && line[index+1]== delimiterChar)
+            counterClose[testIndex]++;
         }
       }
       var max = 0;
@@ -1723,11 +1732,11 @@ namespace CsvTools
           Logger.Information("Could not find an matching number of opening and closing quotes for {qualifier}", possibleQuotes[testIndex].GetDescription());
           continue;
         }
-        if (counterOpen[testIndex] > max)
-        {
-          max = counterOpen[testIndex];
-          res = possibleQuotes[testIndex];
-        }
+
+        if (counterOpen[testIndex] <= max) 
+          continue;
+        max = counterOpen[testIndex];
+        res = possibleQuotes[testIndex];
       }
       // if we could not find opening and closing because we has a lot of ,", take the absolute numbers 
       if (max == 0)
@@ -1736,13 +1745,10 @@ namespace CsvTools
         for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
         {
           // need at least 2 
-          if (counterTotal[testIndex] < 2)
+          if (counterTotal[testIndex] < 2 || counterTotal[testIndex] <= max)
             continue;
-          if (counterTotal[testIndex] > max)
-          {
-            max = counterTotal[testIndex];
-            res = possibleQuotes[testIndex];
-          }
+          max = counterTotal[testIndex];
+          res = possibleQuotes[testIndex];
         }
       }
 
