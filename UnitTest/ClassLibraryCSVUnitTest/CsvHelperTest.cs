@@ -155,6 +155,19 @@ namespace CsvTools.Tests
       {
         Assert.IsFalse(string.IsNullOrEmpty(await reader.GuessHasHeaderAsync("", ',', UnitTestStatic.Token)));
       }
+
+      using (var stream = new FileStream(UnitTestStatic.GetTestPath("Sessions.txt"), FileMode.Open))
+      using (var reader = new ImprovedTextReader(stream))
+      {        
+        Assert.IsTrue(string.IsNullOrEmpty(await reader.GuessHasHeaderAsync("#", '\t', UnitTestStatic.Token)));
+      }
+
+      using (var stream = new FileStream(UnitTestStatic.GetTestPath("TrimmingHeaders.txt"), FileMode.Open))
+      using (var reader = new ImprovedTextReader(stream))
+      {        
+        Assert.IsTrue((await reader.GuessHasHeaderAsync("#", ',', UnitTestStatic.Token)).Contains("very short"));
+      }
+      
     }
 
     [TestMethod]

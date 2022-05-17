@@ -58,6 +58,54 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void InternalIDFallback()
+    {
+      var setting = new CsvFile { FileName = "MyTest.txt" };
+      Assert.AreEqual("MyTest.txt", setting.InternalID);
+      setting.ID = Guid.NewGuid().ToString();
+      Assert.AreEqual(setting.ID, setting.InternalID);
+
+
+      var setting2 = new JsonFile { ID= "JsonFile", FileName = "MyTest.txt" };
+      Assert.AreEqual("JsonFile", setting2.ID);
+      Assert.AreEqual("JsonFile", setting2.InternalID);
+    }
+
+    [TestMethod]
+    public void CalculateLatestSourceTime()
+    {
+      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("BasicCSV.txt") };
+      setting.CalculateLatestSourceTime();
+
+      var setting2 = new JsonFile { ID= "JsonFile", FileName = "MyTest.txt" };
+      setting2.CalculateLatestSourceTime();
+    }
+
+    [TestMethod]
+    public void SetSqlStatementRename()
+    { 
+      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("BasicCSV.txt") };
+      setting.SetSqlStatementRename("SELECT * FROM TEST");
+      Assert.AreEqual("SELECT * FROM TEST", setting.SqlStatement);
+    }
+
+    [TestMethod]
+    public void GetDifferences()
+    {
+      var setting1 = new CsvFile { ID = "ID1", FileName = "MyTest.txt", QualifyOnlyIfNeeded=true };
+      var setting2 = new CsvFile { ID = "ID2", FileName = "MyTest2.txt", QualifyOnlyIfNeeded=false };
+      
+      setting1.ColumnCollection.Add(new ImmutableColumn("name", new ImmutableValueFormat(), 1));
+      var res = setting1.GetDifferences(setting2).Join();
+      Assert.IsNotNull(res);
+
+      Assert.IsTrue(res.Contains("ID"), "ID");
+      Assert.IsTrue(res.Contains("FileName"), "FileName");
+      Assert.IsTrue(res.Contains("QualifyOnlyIfNeeded"), "QualifyOnlyIfNeeded");
+      Assert.IsTrue(res.Contains("ColumnCollection"), "ColumnCollection");
+    }
+
+    [TestMethod]
     public void ToStringTest()
     {
       var setting = new CsvFile { ID = "TestID", FileName = "MyTest.txt" };
@@ -67,6 +115,17 @@ namespace CsvTools.Tests
       Assert.IsTrue(result.Contains(setting.FileName));
     }
 
+    [TestMethod]
+    public void NotifyPropertyChangedString()
+    {
+      var oldValue = string.Empty;
+      var setting = new CsvFile { ID = "TestID", FileName = "MyTest.txt" };
+      setting.PropertyChangedString += (sender, args) => oldValue = args.OldValue;
+      setting.FileName = "NewName.txt";
+      Assert.AreEqual("MyTest.txt", oldValue);
+    }
+
+    
     [TestMethod]
     public void Ctor()
     {

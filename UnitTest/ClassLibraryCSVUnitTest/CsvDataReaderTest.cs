@@ -302,14 +302,14 @@ namespace CsvTools.Tests
 
       var value64 = test.GetInt64Null(inputValue, column);
       Assert.IsTrue(value64.HasValue);
-      Assert.AreEqual(17, value64!.Value);
+      Assert.AreEqual(17, value64.Value);
 
-#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning disable CS8625 
       value32 = test.GetInt32Null(null, column);
       Assert.IsFalse(value32.HasValue);
 
       value64 = test.GetInt64Null(null, column);
-#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning restore CS8625 
       Assert.IsFalse(value64.HasValue);
     }
 
@@ -397,7 +397,7 @@ namespace CsvTools.Tests
         csvFile.IdentifierInContainer, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
-      test.GetDateTime(1);
+      _ = test.GetDateTime(1);
     }
 
     [TestMethod]
@@ -1552,9 +1552,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderTreatNullTextFalse()
     {
-#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning disable CS8625 
       m_ValidSetting.TreatTextAsNull = null;
-#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning restore CS8625 
       var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader, m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter,
@@ -1564,8 +1564,10 @@ namespace CsvTools.Tests
         m_ValidSetting.TreatLfAsSpace, m_ValidSetting.TreatUnknownCharacterAsSpace, m_ValidSetting.TryToSolveMoreColumns,
         m_ValidSetting.WarnDelimiterInValue, m_ValidSetting.WarnLineFeed, m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes,
         m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns, m_ValidSetting.TreatNBSPAsSpace,
-        m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows, m_ValidSetting.IdentifierInContainer,
-        processDisplay);
+#pragma warning disable CS8604
+        m_ValidSetting.TreatTextAsNull
+#pragma warning restore CS8604
+        , m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows, m_ValidSetting.IdentifierInContainer, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
