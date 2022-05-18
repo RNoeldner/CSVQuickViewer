@@ -255,7 +255,7 @@ namespace CsvTools.Tests
     public static string GetTestPath(string fileName) =>
       Path.Combine(ApplicationDirectory, fileName.TrimStart(' ', '\\', '/'));
 
-    public static void MimicSql() => FunctionalDI.SQLDataReader = MimicSQLReader.ReadDataAsync;
+    public static void MimicSql() => FunctionalDI.SqlDataReader = MimicSQLReader.ReadDataAsync;
 
     public static DataTable RandomDataTable(int records)
     {

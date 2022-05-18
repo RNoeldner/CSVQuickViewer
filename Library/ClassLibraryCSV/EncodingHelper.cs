@@ -86,17 +86,16 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets the code page by byte order mark.
-    /// </summary>
+    /// <summary>Gets the code page by byte order mark.</summary>
     /// <param name="buff">The buff.</param>
+    /// <param name="length"></param>
     /// <returns>The Code page id if, if the code page could not be identified 0</returns>
-    public static Encoding? GetEncodingByByteOrderMark(byte[]? buff)
+    public static Encoding? GetEncodingByByteOrderMark(byte[]? buff, int length)
     {
-      if (buff is null)
+      if (buff is null || length < 2)
         return null;
-
-      if (buff.Length >= 4)
+      
+      if (length >= 4)
       {
         // Start with longer chains, as UTF16_LE looks like UTF32_LE for the first 2 chars
         if (buff[0] == 0x00 && buff[1] == 0x00 && buff[2] == 0xFE && buff[3] == 0xFF)
@@ -110,11 +109,9 @@ namespace CsvTools
           return Encoding.UTF7;
       }
 
-      if (buff.Length >= 3 && buff[0] == 0xEF && buff[1] == 0xBB && buff[2] == 0xBF)
+      if (length >= 3 && buff[0] == 0xEF && buff[1] == 0xBB && buff[2] == 0xBF)
         return Encoding.UTF8;
 
-      if (buff.Length < 2)
-        return null;
       if (buff[0] == 0xFE && buff[1] == 0xFF)
         return Encoding.BigEndianUnicode;
       if (buff[0] == 0xFF && buff[1] == 0xFE)

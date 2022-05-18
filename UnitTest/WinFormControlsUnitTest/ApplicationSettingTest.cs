@@ -25,15 +25,15 @@ namespace CsvTools.Tests
 		{
 			try
 			{
-				FunctionalDI.SQLDataReader = (sql, eh, timeout, limit, token) => throw new FileWriterException("SQL Reader not specified");
+				FunctionalDI.SqlDataReader = (sql, eh, timeout, limit, token) => throw new FileWriterException("SQL Reader not specified");
 			}
 			catch (ArgumentNullException)
 			{
 				// all good
 			}
 
-			FunctionalDI.SQLDataReader = UnitTestStatic.MimicSQLReader.ReadDataAsync;
-			var readerAsync = FunctionalDI.SQLDataReader;
+			FunctionalDI.SqlDataReader = UnitTestStatic.MimicSQLReader.ReadDataAsync;
+			var readerAsync = FunctionalDI.SqlDataReader;
 			Assert.IsNotNull(readerAsync);
 		}
 

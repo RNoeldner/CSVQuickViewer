@@ -101,63 +101,63 @@ namespace CsvTools.Tests
     public void GuessCodePageBomgb18030()
     {
       byte[] test = { 132, 49, 149, 51 };
-      Assert.AreEqual(54936, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
+      Assert.AreEqual(54936, EncodingHelper.GetEncodingByByteOrderMark(test,4)!.CodePage);
     }
 
     [TestMethod]
     public void GuessCodePageBomutf16Be()
     {
       byte[] test = { 254, 255, 65, 65 };
-      Assert.AreEqual(1201, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
+      Assert.AreEqual(1201, EncodingHelper.GetEncodingByByteOrderMark(test,4)!.CodePage);
     }
 
     [TestMethod]
     public void GuessCodePageBomutf16Le()
     {
       byte[] test = { 255, 254, 65, 65 };
-      Assert.AreEqual(1200, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
+      Assert.AreEqual(1200, EncodingHelper.GetEncodingByByteOrderMark(test,4)!.CodePage);
     }
 
     [TestMethod]
     public void GuessCodePageBomutf32Be()
     {
       byte[] test = { 0, 0, 254, 255 };
-      Assert.AreEqual(12001, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
+      Assert.AreEqual(12001, EncodingHelper.GetEncodingByByteOrderMark(test,4)!.CodePage);
     }
 
     [TestMethod]
     public void GuessCodePageBomutf32Le()
     {
       byte[] test = { 255, 254, 0, 0 };
-      Assert.AreEqual(12000, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
+      Assert.AreEqual(12000, EncodingHelper.GetEncodingByByteOrderMark(test,4)!.CodePage);
     }
 
     [TestMethod]
     public void GuessCodePageBomutf7A()
     {
       byte[] test = { 43, 47, 118, 57 };
-      Assert.AreEqual(65000, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
+      Assert.AreEqual(65000, EncodingHelper.GetEncodingByByteOrderMark(test,4)!.CodePage);
     }
 
     [TestMethod]
     public void GuessCodePageBomutf7B()
     {
       byte[] test = { 43, 47, 118, 43 };
-      Assert.AreEqual(65000, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
+      Assert.AreEqual(65000, EncodingHelper.GetEncodingByByteOrderMark(test,4)!.CodePage);
     }
 
     [TestMethod]
     public void GuessCodePageBomutf7C()
     {
       byte[] test = { 43, 47, 118, 56, 45 };
-      Assert.AreEqual(65000, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
+      Assert.AreEqual(65000, EncodingHelper.GetEncodingByByteOrderMark(test,4)!.CodePage);
     }
 
     [TestMethod]
     public void GuessCodePageBomutf8()
     {
       byte[] test = { 239, 187, 191, 65 };
-      Assert.AreEqual(65001, EncodingHelper.GetEncodingByByteOrderMark(test)!.CodePage);
+      Assert.AreEqual(65001, EncodingHelper.GetEncodingByByteOrderMark(test,4)!.CodePage);
     }
   }
 }

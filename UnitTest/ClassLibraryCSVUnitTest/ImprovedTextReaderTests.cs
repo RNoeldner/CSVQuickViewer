@@ -164,26 +164,16 @@ namespace CsvTools.Tests
       // create files
       var fn = new[]
       {
-        new Tuple<string, int, byte[]>("GB18030", 54936,
-          new[] { (byte) 0x84, (byte) 0x31, (byte) 0x95, (byte) 0x33 }),
-        new Tuple<string, int, byte[]>("UTF-7_2", 65000,
-          new[] { (byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x39 }),
-        new Tuple<string, int, byte[]>("UTF-7_3", 65000,
-          new[] { (byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x2B }),
-        new Tuple<string, int, byte[]>("UTF-7_4", 65000,
-          new[] { (byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x2F }),
-        new Tuple<string, int, byte[]>("UTF-16 (BE)", 1201,
-          new[] { (byte) 0xFE, (byte) 0xFF }),
-        new Tuple<string, int, byte[]>("UTF8", 65001,
-          new[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF }),
-        new Tuple<string, int, byte[]>("UTF-16 (LE)", 1200,
-          new[] { (byte) 0xFF, (byte) 0xFE }),
-        new Tuple<string, int, byte[]>("UTF-32 (BE)", 12001,
-          new[] { (byte) 0, (byte) 0, (byte) 0xFE, (byte) 255 }),
-        new Tuple<string, int, byte[]>("UTF-32 (LE)", 12000,
-          new[] { (byte) 0xFF, (byte) 0xFE, (byte) 0, (byte) 0 }),
-        new Tuple<string, int, byte[]>("UTF-7_1", 65000,
-          new[] { (byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x38 })
+        new Tuple<string, int, byte[]>("GB18030", 54936, new[] { (byte) 0x84, (byte) 0x31, (byte) 0x95, (byte) 0x33 }),
+        new Tuple<string, int, byte[]>("UTF-7_2", 65000, new[] { (byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x39 }),
+        new Tuple<string, int, byte[]>("UTF-7_3", 65000, new[] { (byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x2B }),
+        new Tuple<string, int, byte[]>("UTF-7_4", 65000, new[] { (byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x2F }),
+        new Tuple<string, int, byte[]>("UTF-16 (BE)", 1201, new[] { (byte) 0xFE, (byte) 0xFF }),
+        new Tuple<string, int, byte[]>("UTF8", 65001, new[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF }),
+        new Tuple<string, int, byte[]>("UTF-16 (LE)", 1200, new[] { (byte) 0xFF, (byte) 0xFE }),
+        new Tuple<string, int, byte[]>("UTF-32 (BE)", 12001, new[] { (byte) 0, (byte) 0, (byte) 0xFE, (byte) 255 }),
+        new Tuple<string, int, byte[]>("UTF-32 (LE)", 12000, new[] { (byte) 0xFF, (byte) 0xFE, (byte) 0, (byte) 0 }),
+        new Tuple<string, int, byte[]>("UTF-7_1", 65000,new[] { (byte) 0x2B, (byte) 0x2F, (byte) 0x76, (byte) 0x38 })
       };
 
       //var Text = Encoding.ASCII.GetBytes("This is a test\\r\nLine2");
@@ -191,7 +181,7 @@ namespace CsvTools.Tests
       var line2 = "Another line...";
 
       foreach (var type in fn)
-      {        
+      {
         var fileName = UnitTestStatic.GetTestPath("Test_" + type.Item1 + ".txt");
         FileSystemUtils.FileDelete(fileName);
         using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
@@ -209,14 +199,14 @@ namespace CsvTools.Tests
           using var test = new ImprovedTextReader(impStream, type.Item2);
 
           Assert.AreEqual(1, test.LineNumber);
-          Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading Line1 {type.Item1}");
+          Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading Line1 '{type.Item1}'");
           Assert.AreEqual(2, test.LineNumber);
-          Assert.AreEqual(line2, await test.ReadLineAsync(), $"Issue reading Line2 {type.Item1}");
+          Assert.AreEqual(line2, await test.ReadLineAsync(), $"Issue reading Line2 '{type.Item1}'");
 
           test.ToBeginning();
 
           Assert.AreEqual(1, test.LineNumber);
-          Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading after reset {type.Item1}");
+          Assert.AreEqual(line1, await test.ReadLineAsync(), $"Issue reading after reset '{type.Item1}'");
         }
         FileSystemUtils.FileDelete(fileName);
       }
