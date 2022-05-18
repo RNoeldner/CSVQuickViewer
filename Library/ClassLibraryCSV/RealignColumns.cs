@@ -55,7 +55,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Tries to condense the columns in a way that makes sense.
+    ///   Tries to condense (combine two columns into one) in a way that makes sense.
     /// </summary>
     /// <param name="row">Array with the columns of that row</param>
     /// <param name="handleWarning">Action to be called to store a warning</param>
@@ -122,8 +122,16 @@ namespace CsvTools
                 }
               }
 
+
               if (!fromRaw)
-                columns[col - 1] += " " + columns[col];
+              {
+                if (string.IsNullOrEmpty((columns[col - 1])))
+                  columns[col - 1] = columns[col];
+                //else if (columns[col - 1].EndsWith(" "))
+                  columns[col - 1] += columns[col];
+                //else
+                //  columns[col - 1] += " " + columns[col];
+              }
               columns.RemoveAt(col);
               col--;
               handleWarning.Invoke(

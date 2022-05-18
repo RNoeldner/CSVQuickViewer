@@ -128,11 +128,11 @@ namespace CsvTools.Tests
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
 
-      Assert.IsTrue(wrapper.GetBoolean(6));
+      Assert.IsTrue(wrapper.GetBoolean(6), $"{m_Setting.FullPath} Row 1 - Column 6");
       await wrapper.ReadAsync(UnitTestStatic.Token);
       await wrapper.ReadAsync(UnitTestStatic.Token);
       await wrapper.ReadAsync(UnitTestStatic.Token);
-      Assert.IsFalse(wrapper.GetBoolean(6));
+      Assert.IsFalse(wrapper.GetBoolean(6), $"{m_Setting.FullPath} Row 4 - Column 6");
     }
 
     [TestMethod()]

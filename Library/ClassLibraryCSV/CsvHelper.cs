@@ -679,7 +679,7 @@ namespace CsvTools
       var length = await stream.ReadAsync(buff, 0, buff.Length, token).ConfigureAwait(false);
       if (length >= 2)
       {
-        var byBom = EncodingHelper.GetEncodingByByteOrderMark(buff);
+        var byBom = EncodingHelper.GetEncodingByByteOrderMark(buff,4);
         if (byBom != null)
         {
           Logger.Information("Code Page: {encoding}", EncodingHelper.GetEncodingName(byBom, true));

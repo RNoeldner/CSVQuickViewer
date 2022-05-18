@@ -197,10 +197,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSqlColumnNamesAsyncParameter()
     {
-      var backup = FunctionalDI.SQLDataReader;
+      var backup = FunctionalDI.SqlDataReader;
       try
       {
-        FunctionalDI.SQLDataReader = (sql, eh, timeout, limit, token) => throw new FileWriterException("SQL Reader not specified"); ;
+        FunctionalDI.SqlDataReader = (sql, eh, timeout, limit, token) => throw new FileWriterException("SQL Reader not specified"); ;
         await DetermineColumnFormat.GetSqlColumnNamesAsync("Nonsense SQL", 60, UnitTestStatic.Token);
 
         Assert.Fail("Expected Exception not thrown");
@@ -215,7 +215,7 @@ namespace CsvTools.Tests
       }
       finally
       {
-        FunctionalDI.SQLDataReader = backup;
+        FunctionalDI.SqlDataReader = backup;
       }
     }
 

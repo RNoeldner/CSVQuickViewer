@@ -180,7 +180,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using (var sqlReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement,
+          using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement,
                                    processDisplay, m_FileSetting.Timeout, m_FileSetting.RecordLimit, processDisplay.CancellationToken))
           {
             DataTable? data = await sqlReader.GetDataTableAsync(false,
@@ -671,9 +671,8 @@ namespace CsvTools
           await
 #endif
           // Write Setting ----- open the source that is SQL
-          using var fileReader = await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
+          using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
                                    m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProcessDisplay.CancellationToken);
-          await fileReader.OpenAsync(formProcessDisplay.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
         }
@@ -794,9 +793,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var sqlReader =
-            await FunctionalDI.SQLDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout, m_FileSetting.RecordLimit, cancellationToken);
-          await sqlReader.OpenAsync(cancellationToken);
+          using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout, m_FileSetting.RecordLimit, cancellationToken);
+          
           var colIndex = sqlReader.GetOrdinal(columnName);
           if (colIndex < 0)
             throw new FileException($"Column {columnName} not found.");

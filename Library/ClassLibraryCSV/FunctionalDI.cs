@@ -118,7 +118,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The statement for reader the data.</value>
     /// <remarks>Make sure the returned reader is open when needed</remarks>
-    public static Func<string, IProcessDisplay?, int, long, CancellationToken, Task<IFileReader>> SQLDataReader = (sql, processDisplay, commandTimeout, recordLimit, token) =>
+    public static Func<string, IProcessDisplay?, int, long, CancellationToken, Task<IFileReader>> SqlDataReader = (sql, processDisplay, commandTimeout, recordLimit, token) =>
       throw new FileWriterException("SQL Reader not specified");
 
     private static IFileReader DefaultFileReader(

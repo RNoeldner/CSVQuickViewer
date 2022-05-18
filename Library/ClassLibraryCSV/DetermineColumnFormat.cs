@@ -30,8 +30,6 @@ namespace CsvTools
   /// </summary>
   public static class DetermineColumnFormat
   {
-    private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
-
     public static IValueFormat? CommonDateFormat(in IEnumerable<IColumn>? columns)
     {
       IValueFormat? best = null;
@@ -262,7 +260,7 @@ namespace CsvTools
               if (oldValueFormat.Equals(newValueFormat, StringComparison.Ordinal))
                 continue;
               Logger.Information(
-                "{column} – Format : {format} – updated from {oldformat}",
+                "{column} – Format : {format} – updated from {old format}",
                 readerColumn.Name,
                 newValueFormat,
                 oldValueFormat);
@@ -323,7 +321,7 @@ namespace CsvTools
                 var oldVf = columnCollection[colIndexExisting].ValueFormat;
                 if (oldVf.ValueFormatEqual(checkResult.FoundValueFormat)) continue;
                 Logger.Information(
-                  "{column} – Format : {format} – updated from {oldformat}",
+                  "{column} – Format : {format} – updated from {old format}",
                   columnCollection[colIndexExisting].Name,
                   checkResult.FoundValueFormat.GetTypeAndFormatDescription(),
                   oldVf.GetTypeAndFormatDescription());
@@ -600,7 +598,7 @@ namespace CsvTools
       if (fileReader.IsClosed)
         await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
-      Logger.Debug("Getting sample values for {numcolumns} columns", samples.Keys.Count);
+      Logger.Debug("Getting sample values for {columns} columns", samples.Count);
 
       var hasWarning = false;
       // var remainingShows = 10;
@@ -1032,7 +1030,7 @@ namespace CsvTools
         checkResult.KeepBestPossibleMatch(res);
       }
       cancellationToken.ThrowIfCancellationRequested();
-      // check DataType.TextUnescape
+      
       if (!checkResult.PossibleMatch)
       {
         var res = StringConversion.CheckUnescaped(samples, minRequiredSamples, cancellationToken);
@@ -1067,24 +1065,22 @@ namespace CsvTools
     [DebuggerDisplay("SampleResult: {Values.Count} of {RecordsRead}")]
     public class SampleResult
     {
+      private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
+      /// <summary>Initializes a new instance of the <see cref="SampleResult" /> class and stores all passed in values in random order</summary>
+      /// <param name="samples">The initial set of sample values</param>
+      /// <param name="records">The number of records that have been read to obtain the values</param>
       public SampleResult(in IEnumerable<string> samples, int records)
       {
-        var source = new List<string>(samples);
-        Values = new HashSet<string>();
-        while (source.Count > 0)
-        {
-          var index = m_Random.Next(
-            0,
-            source.Count);           //pick a random item from the master list
-          Values.Add(source[index]); //place it at the end of the randomized list
-          source.RemoveAt(index);
-        }
-
+        Values  = samples.OrderBy(item => m_Random.Next()).ToArray();
         RecordsRead = records;
       }
 
+      /// <summary>Gets the records read.</summary>
+      /// <value>The number of records that have been read. this is not the number of values.</value>
       public int RecordsRead { get; }
 
+      /// <summary>Gets the values.</summary>
+      /// <value>The unique values read in random order</value>
       public ICollection<string> Values { get; }
     }
 
@@ -1172,65 +1168,49 @@ namespace CsvTools
 #if !QUICK
 
     /// <summary>
-    ///   Fills the Column Format for writer fileSettings
+    /// Fills the Column Format for writer fileSettings
     /// </summary>
     /// <param name="fileSettings">The file settings.</param>
-    /// <param name="all">if set to <c>true</c> event string columns are added.</param>
+    /// <param name="all">if set to <c>true</c> even string columns are added.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <returns></returns>
     /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
     public static async Task FillGuessColumnFormatWriterAsync(
       this IFileSetting fileSettings,
       bool all,
       CancellationToken cancellationToken)
     {
-      if (FunctionalDI.SQLDataReader is null)
-        throw new FileWriterException("No Async SQL Reader set");
-      foreach (var item in await GetColumnsSQL(fileSettings.SqlStatement, all, cancellationToken))
-      {
+      foreach (var item in await GetColumnsSql(fileSettings.SqlStatement, all, cancellationToken))
         fileSettings.ColumnCollection.Add(item);
-      }
     }
 
     /// <summary>
-    ///   Gets the Columns of a SQL statement
+    /// Gets the Columns of a SQL statement
     /// </summary>
+    /// <param name="sql">The SQL statement</param>
+    /// <param name="all">if set to <c>true</c> get text columns as well.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <returns></returns>
     /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
-    public static async Task<ICollection<IColumn>> GetColumnsSQL(
+    public static async Task<IEnumerable<IColumn>> GetColumnsSql(
       string sql, bool all, CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(sql))
         throw new FileWriterException("No SQL Statement given");
-      if (FunctionalDI.SQLDataReader is null)
+      if (FunctionalDI.SqlDataReader is null)
         throw new FileWriterException("No Async SQL Reader set");
 
-      var resultList = new List<IColumn>();
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var fileReader = await FunctionalDI.SQLDataReader(sql, null, 120, 1, cancellationToken).ConfigureAwait(false);
-      await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
+      using var fileReader = await FunctionalDI.SqlDataReader(sql, null, 120, 1, cancellationToken).ConfigureAwait(false);
+      
       // Put the information into the list
       var dataRowCollection = fileReader.GetSchemaTable()?.Rows;
-      if (dataRowCollection != null)
-      {
-        foreach (DataRow schemaRow in dataRowCollection)
-        {
-          var header = Convert.ToString(schemaRow[SchemaTableColumn.ColumnName]);
-          if (string.IsNullOrEmpty(header))
-            continue;
-          var colType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType();
+      if (dataRowCollection == null)
+        return Array.Empty<IColumn>();
 
-          if (!all && colType == DataTypeEnum.String)
-            continue;
-
-          resultList.Add(
-            new ImmutableColumn(
-              header,
-              new ImmutableValueFormat(colType),
-              (int) schemaRow[SchemaTableColumn.ColumnOrdinal]));
-        }
-      }
-      return resultList;
+      return (from DataRow schemaRow in dataRowCollection let header = Convert.ToString(schemaRow[SchemaTableColumn.ColumnName]) where !string.IsNullOrEmpty(header) let colType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType() where all || colType != DataTypeEnum.String select new ImmutableColumn(header, new ImmutableValueFormat(colType), (int) schemaRow[SchemaTableColumn.ColumnOrdinal]));
     }
 
     /// <summary>
@@ -1276,18 +1256,18 @@ namespace CsvTools
       if (sqlStatement == null)
         return new List<ImmutableColumn>();
 
-      if (FunctionalDI.SQLDataReader is null)
+      if (FunctionalDI.SqlDataReader is null)
         throw new FileWriterException("No SQL Reader set");
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var data = await FunctionalDI.SQLDataReader(
+      using var data = await FunctionalDI.SqlDataReader(
                          sqlStatement.NoRecordSQL(),
                          null,
                          timeout,
                          1,
                          cancellationToken).ConfigureAwait(false);
-      await data.OpenAsync(cancellationToken).ConfigureAwait(false);
+      
       using var dt = data.GetSchemaTable();
       if (dt is null)
         throw new FileWriterException("Could not get source schema");
@@ -1304,9 +1284,9 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var data = await FunctionalDI.SQLDataReader(sqlStatement.NoRecordSQL(), null, timeout,1, token)
+      using var data = await FunctionalDI.SqlDataReader(sqlStatement.NoRecordSQL(), null, timeout, 1, token)
                                          .ConfigureAwait(false);
-      await data.OpenAsync(token).ConfigureAwait(false);
+      
       var list = new List<string>();
       for (var index = 0; index < data.FieldCount; index++)
         list.Add(data.GetColumn(index).Name);

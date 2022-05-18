@@ -25,7 +25,6 @@ namespace CsvTools
     private readonly int m_BomLength;
     private readonly Stream m_Stream;
     private readonly int m_SkipLines;
-    private bool m_AtBeginning;
 
     /// <summary>
     ///   Creates an instance of the TextReader
@@ -63,19 +62,36 @@ namespace CsvTools
       {
         if (m_Stream.Position != 0L)
           m_Stream.Seek(0, SeekOrigin.Begin);
+
+        // Space for 4 BOM bytes 
         var buff = new byte[4];
-        _ = m_Stream.Read(buff, 0, buff.Length);
-        var intCodePageByBom = EncodingHelper.GetEncodingByByteOrderMark(buff);
-        if (intCodePageByBom != null)
+
+        // read only 2 to start
+        _ = m_Stream.Read(buff, 0, 2);
+        var intEncodingByBom = EncodingHelper.GetEncodingByByteOrderMark(buff, 2);
+        // unfortunately  Encoding.Unicode  can not be determined by only 2 bytes as UTF-32 starts with the same BOM 
+        if (intEncodingByBom is null || intEncodingByBom.Equals(Encoding.Unicode))
         {
-          codePageId = intCodePageByBom.CodePage;
-          m_BomLength = EncodingHelper.BOMLength(codePageId);
+          // read the 3th byte 
+          _ = m_Stream.Read(buff, 2, 1);
+          intEncodingByBom = EncodingHelper.GetEncodingByByteOrderMark(buff, 3);
+          if (intEncodingByBom is null || intEncodingByBom.Equals(Encoding.Unicode))
+          {
+            // read the 4th byte 
+            _ = m_Stream.Read(buff, 3, 1);
+            intEncodingByBom = EncodingHelper.GetEncodingByByteOrderMark(buff, 4);
+          }
+        }
+
+        if (intEncodingByBom != null)
+        {
+          codePageId = intEncodingByBom.CodePage;
+          m_BomLength =  EncodingHelper.BOMLength(codePageId);
         }
       }
 
       StreamReader = new StreamReader(m_Stream, Encoding.GetEncoding(codePageId), false, 4096, true);
       ToBeginning();
-
     }
 
     /// <summary>
@@ -145,33 +161,29 @@ namespace CsvTools
     /// </summary>
     public void ToBeginning()
     {
-      if (!m_AtBeginning)
+      if (m_Stream.Position != m_BomLength)
       {
-        if (m_Stream.Position != 0)
+        if (m_Stream.CanSeek)
         {
-          if (m_Stream.CanSeek)
-          {
-            m_Stream.Seek(0, SeekOrigin.Begin);
-            // eat the bom
-            if (m_BomLength > 0 && m_Stream.CanRead)
-              // ReSharper disable once MustUseReturnValue
-              m_Stream.Read(new byte[m_BomLength], 0, m_BomLength);
-            StreamReader.DiscardBufferedData();
-          }
-          else
-          {
-            throw new NotSupportedException("Stream does not allow seek, you can not return to the beginning");
-          }
+          m_Stream.Seek(0, SeekOrigin.Begin);
+          // eat the bom
+          if (m_BomLength > 0 && m_Stream.CanRead)
+            // ReSharper disable once MustUseReturnValue
+            m_Stream.Read(new byte[m_BomLength], 0, m_BomLength);
+          StreamReader.DiscardBufferedData();
         }
-
-        LineNumber = 1;
-        for (var i = 0; i < m_SkipLines && !StreamReader.EndOfStream; i++)
+        else
         {
-          StreamReader.ReadLine();
-          LineNumber++;
+          throw new NotSupportedException("Stream does not allow seek, you can not return to the beginning");
         }
       }
-      m_AtBeginning = true;
+
+      LineNumber = 1;
+      for (var i = 0; i < m_SkipLines && !StreamReader.EndOfStream; i++)
+      {
+        StreamReader.ReadLine();
+        LineNumber++;
+      }
     }
 
 
