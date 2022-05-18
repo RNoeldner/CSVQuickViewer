@@ -588,9 +588,7 @@ namespace CsvTools
         maxRecords = long.MaxValue;
 
       var samples = columns.Where(col => col > -1 && col < fileReader.FieldCount)
-                           .ToDictionary<int, int, ICollection<string>>(
-                             col => col,
-                             col => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+                           .ToDictionary<int, int, IList<string>>(col => col, col => new List<string>());
 
       if (samples.Keys.Count == 0)
         return new Dictionary<int, SampleResult>();
@@ -677,12 +675,12 @@ namespace CsvTools
               if (maxChars >0 && value.Length > maxChars)
                 value = value.Substring(0, maxChars);
 
-              // Have a max of 2000 values
-              if (samples[columnIndex].Count < maxSamples)
+              // collect the value if there are not enough samples and the text is not present yet
+              if (samples[columnIndex].Count < maxSamples && !samples[columnIndex].Contains(value, StringComparer.OrdinalIgnoreCase))
                 samples[columnIndex].Add(value);
-
+              
               if (samples[columnIndex].Count >= enoughSamples)
-                ((ICollection<int>) enough).Add(columnIndex);
+                enough.Add(columnIndex);
             }
           else
             hasWarning = false;
@@ -1030,7 +1028,7 @@ namespace CsvTools
         checkResult.KeepBestPossibleMatch(res);
       }
       cancellationToken.ThrowIfCancellationRequested();
-      
+
       if (!checkResult.PossibleMatch)
       {
         var res = StringConversion.CheckUnescaped(samples, minRequiredSamples, cancellationToken);
@@ -1066,13 +1064,20 @@ namespace CsvTools
     public class SampleResult
     {
       private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
-      /// <summary>Initializes a new instance of the <see cref="SampleResult" /> class and stores all passed in values in random order</summary>
-      /// <param name="samples">The initial set of sample values</param>
+
+      /// <summary>Initializes a new instance of the class and stores all passed in values in random order</summary>
+      /// <param name="items">The initial set of sample values</param>
       /// <param name="records">The number of records that have been read to obtain the values</param>
-      public SampleResult(in IEnumerable<string> samples, int records)
+      public SampleResult(IList<string> items, int records)
       {
-        Values  = samples.OrderBy(item => m_Random.Next()).ToArray();
         RecordsRead = records;
+
+        for (var i = 0; i < items.Count - 1; i++)
+        {
+          var pos = m_Random.Next(i, items.Count);
+          (items[i], items[pos]) = (items[pos], items[i]);
+        }
+        Values= items;
       }
 
       /// <summary>Gets the records read.</summary>
@@ -1204,7 +1209,7 @@ namespace CsvTools
       await
 #endif
       using var fileReader = await FunctionalDI.SqlDataReader(sql, null, 120, 1, cancellationToken).ConfigureAwait(false);
-      
+
       // Put the information into the list
       var dataRowCollection = fileReader.GetSchemaTable()?.Rows;
       if (dataRowCollection == null)
@@ -1267,7 +1272,7 @@ namespace CsvTools
                          timeout,
                          1,
                          cancellationToken).ConfigureAwait(false);
-      
+
       using var dt = data.GetSchemaTable();
       if (dt is null)
         throw new FileWriterException("Could not get source schema");
@@ -1286,7 +1291,7 @@ namespace CsvTools
 #endif
       using var data = await FunctionalDI.SqlDataReader(sqlStatement.NoRecordSQL(), null, timeout, 1, token)
                                          .ConfigureAwait(false);
-      
+
       var list = new List<string>();
       for (var index = 0; index < data.FieldCount; index++)
         list.Add(data.GetColumn(index).Name);
