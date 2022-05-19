@@ -6,7 +6,8 @@ namespace CsvTools.Tests
   [TestClass]
   public class ManifestDataTests
   {
-    [TestMethod, Timeout(1000)]
+    [TestMethod]
+    [Timeout(1000)]
     public void ReadManifestPropertiesTest()
     {
       var m = new ManifestData("pubname", "heading", "desc", true, "hydration", true,
@@ -25,42 +26,59 @@ namespace CsvTools.Tests
       Assert.AreEqual(1, m.Fields[0].Ordinal);
     }
 
-    [TestMethod, Timeout(1000)]
+    [TestMethod]
+    [Timeout(1000)]
     public async Task ReadManifestAsync()
     {
-      var manifest = await ManifestData.ReadManifestFileSystem(UnitTestStatic.GetTestPath("training_relation.manifest.json"));
+      var manifest =
+        await ManifestData.ReadManifestFileSystem(UnitTestStatic.GetTestPath("training_relation.manifest.json"));
       var setting = manifest.PhysicalFile() as CsvFile;
       Assert.AreEqual(false, manifest.HasFieldHeader);
 #pragma warning disable CS8602
       Assert.AreEqual(19, setting.ColumnCollection.Count());
 #pragma warning restore CS8602
-      using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
-        setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
-        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
-        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace, setting.TreatUnknownCharacterAsSpace,
-        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
-        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
+      using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
+        setting.HasFieldHeader, setting.ColumnCollection,
+        setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
+        setting.RecordLimit, setting.AllowRowCombining,
+        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
+        setting.NewLinePlaceholder,
+        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
+        setting.TreatUnknownCharacterAsSpace,
+        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
+        setting.WarnQuotes, setting.WarnUnknownCharacter,
+        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
+        setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, new StandardTimeZoneAdjust(), null);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("object_id", reader.GetColumn(0).Name);
       reader.Read();
     }
 
-    [TestMethod, Timeout(1000)]
+    [TestMethod]
+    [Timeout(1000)]
     public async Task ReadManifestZip()
     {
-      var manifest = await ManifestData.ReadManifestZip(UnitTestStatic.GetTestPath("ces_xxx_v879548171_lo_exempt_status_reason_approver_local_full.zip"));
+      var manifest =
+        await ManifestData.ReadManifestZip(
+          UnitTestStatic.GetTestPath("ces_xxx_v879548171_lo_exempt_status_reason_approver_local_full.zip"));
       var setting = manifest!.PhysicalFile() as CsvFile;
       Assert.AreEqual(false, manifest.HasFieldHeader);
 #pragma warning disable 8602
       Assert.AreEqual(3, setting.ColumnCollection.Count());
 #pragma warning restore 8602
-      using var reader = new CsvFileReader(setting!.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
-        setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
-        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
-        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace, setting.TreatUnknownCharacterAsSpace,
-        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
-        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
+      using var reader = new CsvFileReader(setting!.FullPath, setting.CodePageId, setting.SkipRows,
+        setting.HasFieldHeader, setting.ColumnCollection,
+        setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
+        setting.RecordLimit, setting.AllowRowCombining,
+        setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings, setting.DuplicateQualifierToEscape,
+        setting.NewLinePlaceholder,
+        setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
+        setting.TreatUnknownCharacterAsSpace,
+        setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
+        setting.WarnQuotes, setting.WarnUnknownCharacter,
+        setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
+        setting.ConsecutiveEmptyRows,
         setting.IdentifierInContainer, new StandardTimeZoneAdjust(), null);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("lesrlA_reason_id", reader.GetColumn(0).Name);

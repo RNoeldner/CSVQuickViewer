@@ -80,7 +80,10 @@ namespace CsvTools
     public Column(string name, string dateFormat, string dateSeparator = ValueFormatExtension.cDateSeparatorDefault)
     {
       m_Name = name;
-      ValueFormatMutable = new ValueFormatMutable { DataType = DataTypeEnum.DateTime, DateFormat = dateFormat, DateSeparator = dateSeparator };
+      ValueFormatMutable = new ValueFormatMutable
+      {
+        DataType = DataTypeEnum.DateTime, DateFormat = dateFormat, DateSeparator = dateSeparator
+      };
     }
 
     /// <summary>
@@ -511,9 +514,6 @@ namespace CsvTools
                                                   && ValueFormatMutable.ValueFormatEqual(other.ValueFormat);
     }
 
-
-
- 
 
     object ICloneable.Clone() => new Column(this);
 

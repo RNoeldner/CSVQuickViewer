@@ -110,13 +110,13 @@ namespace CsvTools
 
       return input.WrittenPunctuation() switch
       {
-        "\t"     => "Tab",
-        " "      => "Space",
+        "\t" => "Tab",
+        " " => "Space",
         "\u00A0" => "NBSP",
-        ","      => "Comma",
-        ";"      => "Semicolon",
-        "|"      => "Pipe",
-        _        => input
+        "," => "Comma",
+        ";" => "Semicolon",
+        "|" => "Pipe",
+        _ => input
       };
     }
   }

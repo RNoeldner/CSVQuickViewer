@@ -32,7 +32,7 @@ namespace CsvTools
   /// </remarks>
   public class DataReaderWrapper : DbDataReader, IFileReader
   {
-    protected readonly IFileReader? FileReader;    
+    protected readonly IFileReader? FileReader;
     public readonly ReaderMapping ReaderMapping;
     protected IDataReader DataReader;
 
@@ -47,7 +47,7 @@ namespace CsvTools
     /// <param name="addEndLine">Add artificial field End Line</param>
     /// <param name="addRecNum">Add artificial field Records Number</param>
     public DataReaderWrapper(
-      in IDataReader reader,      
+      in IDataReader reader,
       bool addErrorField = false,
       bool addStartLine = false,
       bool addEndLine = false,
@@ -56,7 +56,7 @@ namespace CsvTools
       DataReader = reader ?? throw new ArgumentNullException(nameof(reader));
       FileReader = reader as IFileReader;
       if (reader.IsClosed)
-        throw new ArgumentException("Reader must be opened");      
+        throw new ArgumentException("Reader must be opened");
       ReaderMapping = new ReaderMapping(DataReader, addStartLine, addRecNum, addEndLine, addErrorField);
       if (FileReader != null)
         FileReader.Warning += (o, e) => Warning?.Invoke(o, e);
@@ -73,7 +73,7 @@ namespace CsvTools
     /// <param name="addEndLine">Add artificial field End Line</param>
     /// <param name="addRecNum">Add artificial field Records Number</param>
     public DataReaderWrapper(
-      in IFileReader fileReader,      
+      in IFileReader fileReader,
       bool addErrorField = false,
       bool addStartLine = false,
       bool addEndLine = false,
@@ -202,7 +202,7 @@ namespace CsvTools
 
         schemaRow[1] = column.Name; // Column name
         schemaRow[4] = column.Name; // Column name
-        schemaRow[5] = col;         // Column ordinal
+        schemaRow[5] = col; // Column ordinal
 
         if (col == ReaderMapping.DataTableStartLine || col == ReaderMapping.DataTableRecNum
                                                     || col == ReaderMapping.DataTableEndLine)
@@ -244,10 +244,13 @@ namespace CsvTools
 
     public override bool IsDBNull(int ordinal)
     {
-      if (ordinal == ReaderMapping.DataTableStartLine || ordinal == ReaderMapping.DataTableEndLine || ordinal == ReaderMapping.DataTableRecNum)
+      if (ordinal == ReaderMapping.DataTableStartLine || ordinal == ReaderMapping.DataTableEndLine ||
+          ordinal == ReaderMapping.DataTableRecNum)
         return false;
 
-      return ordinal == ReaderMapping.DataTableErrorField ? !ReaderMapping.HasErrors : DataReader.IsDBNull(ReaderMapping.DataTableToReader(ordinal));
+      return ordinal == ReaderMapping.DataTableErrorField
+        ? !ReaderMapping.HasErrors
+        : DataReader.IsDBNull(ReaderMapping.DataTableToReader(ordinal));
     }
 
     public override bool NextResult() => false;
@@ -266,8 +269,8 @@ namespace CsvTools
       ReaderMapping.PrepareRead();
       // IDataReader does not support preferred ReadAsync
       var couldRead = DataReader is DbDataReader dbDataReader
-                        ? await dbDataReader.ReadAsync(cancellationToken).ConfigureAwait(false)
-                        : DataReader.Read();
+        ? await dbDataReader.ReadAsync(cancellationToken).ConfigureAwait(false)
+        : DataReader.Read();
 
       if (couldRead)
         RecordNumber++;

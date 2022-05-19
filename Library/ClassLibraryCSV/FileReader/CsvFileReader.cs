@@ -153,155 +153,49 @@ namespace CsvTools
     /// </summary>
     private ImprovedTextReader? m_TextReader;
 
-    public CsvFileReader(
-      in Stream stream,
-      int codePageId,
-      int skipRows,
-      bool hasFieldHeader,
-      in IEnumerable<IColumn>? columnDefinition,
-      in TrimmingOptionEnum trimmingOption,
-      in string fieldDelimiter,
-      in string fieldQualifier,
-      in string escapeCharacter,
-      long recordLimit,
-      bool allowRowCombining,
-      bool contextSensitiveQualifier,
-      in string commentLine,
-      int numWarning,
-      bool duplicateQualifierToEscape,
-      in string newLinePlaceholder,
-      in string delimiterPlaceholder,
-      in string quotePlaceholder,
-      bool skipDuplicateHeader,
-      bool treatLfAsSpace,
-      bool treatUnknownCharacterAsSpace,
-      bool tryToSolveMoreColumns,
-      bool warnDelimiterInValue,
-      bool warnLineFeed,
-      bool warnNbsp,
-      bool warnQuotes,
-      bool warnUnknownCharacter,
-      bool warnEmptyTailingColumns,
-      bool treatNbspAsSpace,
-      in string treatTextAsNull,
-      bool skipEmptyLines,
-      int consecutiveEmptyRowsMax,
-      in ITimeZoneAdjust timeZoneAdjust,
+    public CsvFileReader(in Stream stream, int codePageId, int skipRows,
+      bool hasFieldHeader, in IEnumerable<IColumn>? columnDefinition, in TrimmingOptionEnum trimmingOption,
+      in string fieldDelimiter, in string fieldQualifier, in string escapeCharacter,
+      long recordLimit, bool allowRowCombining, bool contextSensitiveQualifier, in string commentLine,
+      int numWarning, bool duplicateQualifierToEscape, in string newLinePlaceholder, in string delimiterPlaceholder,
+      in string quotePlaceholder, bool skipDuplicateHeader, bool treatLfAsSpace, bool treatUnknownCharacterAsSpace,
+      bool tryToSolveMoreColumns, bool warnDelimiterInValue, bool warnLineFeed, bool warnNbsp, bool warnQuotes,
+      bool warnUnknownCharacter, bool warnEmptyTailingColumns, bool treatNbspAsSpace, in string treatTextAsNull,
+      bool skipEmptyLines, int consecutiveEmptyRowsMax, in ITimeZoneAdjust timeZoneAdjust,
       in IProcessDisplay? processDisplay)
-      : this(
-        columnDefinition,
-        codePageId,
-        skipRows,
-        hasFieldHeader,
-        trimmingOption,
-        fieldDelimiter,
-        fieldQualifier,
-        escapeCharacter,
-        recordLimit,
-        allowRowCombining,
-        contextSensitiveQualifier,
-        commentLine,
-        numWarning,
-        duplicateQualifierToEscape,
-        newLinePlaceholder,
-        delimiterPlaceholder,
-        quotePlaceholder,
-        skipDuplicateHeader,
-        treatLfAsSpace,
-        treatUnknownCharacterAsSpace,
-        tryToSolveMoreColumns,
-        warnDelimiterInValue,
-        warnLineFeed,
-        warnNbsp,
-        warnQuotes,
-        warnUnknownCharacter,
-        warnEmptyTailingColumns,
-        treatNbspAsSpace,
-        treatTextAsNull,
-        skipEmptyLines,
-        consecutiveEmptyRowsMax,
+      : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
+        trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
+        contextSensitiveQualifier, commentLine, numWarning, duplicateQualifierToEscape, newLinePlaceholder,
+        delimiterPlaceholder, quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace,
+        tryToSolveMoreColumns, warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter,
+        warnEmptyTailingColumns, treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax,
         string.Empty,
-        string.Empty,
-        timeZoneAdjust,
-        processDisplay)
+        string.Empty, timeZoneAdjust, processDisplay)
     {
       m_Stream = stream ?? throw new ArgumentNullException(nameof(stream));
-      if (!stream.CanSeek)
-        throw new NotSupportedException("CsvFileReader does not support non-seekable streams");
     }
 
     public CsvFileReader(
-      in string fileName,
-      int codePageId, // Encoding.UTF8.CodePage
-      int skipRows,
-      bool hasFieldHeader,
-      in IEnumerable<IColumn>? columnDefinition,
+      in string fileName, int codePageId, int skipRows, bool hasFieldHeader, in IEnumerable<IColumn>? columnDefinition,
       in TrimmingOptionEnum trimmingOption,
-      in string fieldDelimiter,
-      in string fieldQualifier,
-      in string escapeCharacter,
-      long recordLimit,
-      bool allowRowCombining,
-      bool contextSensitiveQualifier,
-      in string commentLine,
-      int numWarning,
-      bool duplicateQualifierToEscape,
-      in string newLinePlaceholder,
-      in string delimiterPlaceholder,
+      in string fieldDelimiter, in string fieldQualifier, in string escapeCharacter, long recordLimit,
+      bool allowRowCombining, bool contextSensitiveQualifier, in string commentLine, int numWarning,
+      bool duplicateQualifierToEscape, in string newLinePlaceholder, in string delimiterPlaceholder,
       in string quotePlaceholder,
-      bool skipDuplicateHeader,
-      bool treatLfAsSpace,
-      bool treatUnknownCharacterAsSpace,
-      bool tryToSolveMoreColumns,
-      bool warnDelimiterInValue,
-      bool warnLineFeed,
-      bool warnNbsp,
-      bool warnQuotes,
-      bool warnUnknownCharacter,
-      bool warnEmptyTailingColumns,
-      bool treatNbspAsSpace,
-      in string treatTextAsNull,
-      bool skipEmptyLines,
-      int consecutiveEmptyRowsMax,
-      in string identifierInContainer,
-      in ITimeZoneAdjust timeZoneAdjust,
+      bool skipDuplicateHeader, bool treatLfAsSpace, bool treatUnknownCharacterAsSpace, bool tryToSolveMoreColumns,
+      bool warnDelimiterInValue, bool warnLineFeed, bool warnNbsp, bool warnQuotes, bool warnUnknownCharacter,
+      bool warnEmptyTailingColumns, bool treatNbspAsSpace, in string treatTextAsNull, bool skipEmptyLines,
+      int consecutiveEmptyRowsMax, in string identifierInContainer, in ITimeZoneAdjust timeZoneAdjust,
       in IProcessDisplay? processDisplay)
       : this(
-        columnDefinition,
-        codePageId,
-        skipRows,
-        hasFieldHeader,
-        trimmingOption,
-        fieldDelimiter,
-        fieldQualifier,
-        escapeCharacter,
-        recordLimit,
-        allowRowCombining,
-        contextSensitiveQualifier,
-        commentLine,
-        numWarning,
-        duplicateQualifierToEscape,
-        newLinePlaceholder,
-        delimiterPlaceholder,
-        quotePlaceholder,
-        skipDuplicateHeader,
-        treatLfAsSpace,
-        treatUnknownCharacterAsSpace,
+        columnDefinition, codePageId, skipRows, hasFieldHeader,
+        trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
+        contextSensitiveQualifier, commentLine, numWarning, duplicateQualifierToEscape, newLinePlaceholder,
+        delimiterPlaceholder, quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace,
         tryToSolveMoreColumns,
-        warnDelimiterInValue,
-        warnLineFeed,
-        warnNbsp,
-        warnQuotes,
-        warnUnknownCharacter,
-        warnEmptyTailingColumns,
-        treatNbspAsSpace,
-        treatTextAsNull,
-        skipEmptyLines,
-        consecutiveEmptyRowsMax,
-        identifierInContainer,
-        fileName,
-        timeZoneAdjust,
-        processDisplay)
+        warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
+        treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax, identifierInContainer, fileName,
+        timeZoneAdjust, processDisplay)
     {
       if (fileName is null)
         throw new ArgumentNullException(nameof(fileName));
@@ -368,7 +262,8 @@ namespace CsvTools
         throw new FileReaderException(
           "The field delimiter character is invalid, please use something else than CR, LF or Space");
 
-      if (m_EscapePrefixChar != '\0' && (m_FieldDelimiterChar == m_EscapePrefixChar || m_FieldQualifierChar == m_EscapePrefixChar))
+      if (m_EscapePrefixChar != '\0' &&
+          (m_FieldDelimiterChar == m_EscapePrefixChar || m_FieldQualifierChar == m_EscapePrefixChar))
         throw new FileReaderException(
           $"The escape character is invalid, please use something else than the field delimiter or qualifier character {m_EscapePrefixChar.GetDescription()}.");
 
@@ -439,7 +334,8 @@ namespace CsvTools
     /// <exception cref="T:System.NotImplementedException">Always returns</exception>    
     public new long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
     {
-      if (GetColumn(i).ValueFormat.DataType != DataTypeEnum.Binary || string.IsNullOrEmpty(CurrentRowColumnText[i])) return -1;
+      if (GetColumn(i).ValueFormat.DataType != DataTypeEnum.Binary ||
+          string.IsNullOrEmpty(CurrentRowColumnText[i])) return -1;
       using var fs = FileSystemUtils.OpenRead(CurrentRowColumnText[i]);
       if (fieldOffset > 0)
         fs.Seek(fieldOffset, SeekOrigin.Begin);
@@ -508,7 +404,10 @@ namespace CsvTools
 #else
             m_Stream.Dispose();
 #endif
-          m_Stream = FunctionalDI.OpenStream(new SourceAccess(FullPath) { IdentifierInContainer = m_IdentifierInContainer });
+          m_Stream = FunctionalDI.OpenStream(new SourceAccess(FullPath)
+          {
+            IdentifierInContainer = m_IdentifierInContainer
+          });
         }
         else
         {
@@ -528,17 +427,13 @@ namespace CsvTools
 
         InitColumn(ParseFieldCount(m_HeaderRow));
 
-        base.ParseColumnName(m_HeaderRow, null, m_HasFieldHeader);
+        ParseColumnName(m_HeaderRow, null, m_HasFieldHeader);
 
         // Turn off unescape warning based on WarnLineFeed
         if (!m_WarnLineFeed)
-        {
           foreach (var col in Column)
-          {
             if (col.ColumnFormatter is TextUnescapeFormatter unescapeFormatter)
               unescapeFormatter.RaiseWarning = false;
-          }
-        }
 
         if (m_TryToSolveMoreColumns && m_FieldDelimiterChar != '\0')
           m_RealignColumns = new ReAlignColumns(FieldCount);
@@ -546,7 +441,7 @@ namespace CsvTools
         if (m_Stream.CanSeek)
           ResetPositionToFirstDataRow();
 
-        base.FinishOpen();
+        FinishOpen();
       }
       catch (Exception ex)
       {
@@ -587,7 +482,8 @@ namespace CsvTools
       return false;
     }
 
-    public override Task<bool> ReadAsync(CancellationToken cancellationToken) => Task.FromResult(Read(cancellationToken));
+    public override Task<bool> ReadAsync(CancellationToken cancellationToken) =>
+      Task.FromResult(Read(cancellationToken));
 
     /// <inheritdoc />
     /// <summary>
@@ -816,17 +712,19 @@ namespace CsvTools
           // Handle replacements and warnings etc,
           var adjustedValue = HandleTextSpecials(
             CurrentRowColumnText[columnNo].ReplaceCaseInsensitive(m_NewLinePlaceholder, Environment.NewLine)
-                                          .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiterChar)
-                                          .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifierChar),
+              .ReplaceCaseInsensitive(m_DelimiterPlaceholder, m_FieldDelimiterChar)
+              .ReplaceCaseInsensitive(m_QuotePlaceholder, m_FieldQualifierChar),
             columnNo);
 
           if (adjustedValue.Length > 0)
           {
-            if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifierChar) != -1 && (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning))
+            if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifierChar) != -1 &&
+                (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning))
               HandleWarning(columnNo,
                 $"Field qualifier '{m_FieldQualifierChar.GetDescription()}' found in field".AddWarningId());
 
-            if (m_WarnDelimiterInValue && adjustedValue.IndexOf(m_FieldDelimiterChar) != -1 && (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning))
+            if (m_WarnDelimiterInValue && adjustedValue.IndexOf(m_FieldDelimiterChar) != -1 &&
+                (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning))
               HandleWarning(columnNo,
                 $"Field delimiter '{m_FieldDelimiterChar.GetDescription()}' found in field".AddWarningId());
 
@@ -933,7 +831,7 @@ namespace CsvTools
 
         // special case of missing linefeed, the line is twice as long minus 1 because of the
         // combined column in the middle
-        if (nextLine.Length == fields * 2 - 1)
+        if (nextLine.Length == (fields * 2) - 1)
           continue;
 
         while (nextLine.GetLength(0) > fields)
@@ -1032,7 +930,8 @@ namespace CsvTools
               // This is not 100% correct in case we have a misalignment of column that is corrected
               // afterwards warning for NBP need to be issues before trimming as trimming would
               // remove the char
-              if (m_WarnNbsp && columnNo < FieldCount && !GetColumn(columnNo).Ignore && (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning))
+              if (m_WarnNbsp && columnNo < FieldCount && !GetColumn(columnNo).Ignore &&
+                  (m_NumWarning < 1 || m_NumWarningsNbspChar++ < m_NumWarning))
                 HandleWarning(
                   columnNo,
                   m_TreatNbspAsSpace
@@ -1066,7 +965,7 @@ namespace CsvTools
               }
             }
 
-            if ((character == cCr && nextChar == cLf || character == cLf && nextChar == cCr) && quoted && !postData)
+            if (((character == cCr && nextChar == cLf) || (character == cLf && nextChar == cCr)) && quoted && !postData)
             {
               stringBuilder.Append(character);
               stringBuilder.Append(nextChar);
@@ -1077,7 +976,7 @@ namespace CsvTools
         }
 
         // Finished with reading the column by Delimiter or EOF
-        if (character == m_FieldDelimiterChar && !escaped && (postData || !quoted) || EndOfFile)
+        if ((character == m_FieldDelimiterChar && !escaped && (postData || !quoted)) || EndOfFile)
           break;
 
         // Finished with reading the column by Linefeed
@@ -1157,17 +1056,16 @@ namespace CsvTools
         }
 
         append:
-        if (escaped && (character == m_FieldQualifierChar || character == m_FieldDelimiterChar || character == m_EscapePrefixChar))
-        {
+        if (escaped && (character == m_FieldQualifierChar || character == m_FieldDelimiterChar ||
+                        character == m_EscapePrefixChar))
           // remove the already added escape char
           stringBuilder.Length--;
-        }
 
         // all cases covered, character must be data
         stringBuilder.Append(character);
 
         escaped = !escaped && character == m_EscapePrefixChar;
-      }// While
+      } // While
 
       var columnText = stringBuilder.ToString();
       if (columnText.IndexOf(cUnknownChar) != -1)
@@ -1182,9 +1080,9 @@ namespace CsvTools
           columnText = columnText.Replace(cUnknownChar, ' ');
       }
 
-      return m_TrimmingOption == TrimmingOptionEnum.All || !quoted && m_TrimmingOption == TrimmingOptionEnum.Unquoted
-               ? columnText.Trim()
-               : columnText;
+      return m_TrimmingOption == TrimmingOptionEnum.All || (!quoted && m_TrimmingOption == TrimmingOptionEnum.Unquoted)
+        ? columnText.Trim()
+        : columnText;
     }
 
     /// <summary>

@@ -133,7 +133,8 @@ namespace CsvTools
         DataTypeEnum.TextReplace => "Replace",
         DataTypeEnum.String => "Text",
         DataTypeEnum.Binary => "Binary (File Reference)",
-        _ => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, $"Data Type {dataType} not known in {nameof(DataTypeDisplay)}")
+        _ => throw new ArgumentOutOfRangeException(nameof(dataType), dataType,
+          $"Data Type {dataType} not known in {nameof(DataTypeDisplay)}")
       };
 
     public static string Description(this RecordDelimiterTypeEnum item)
@@ -283,11 +284,11 @@ namespace CsvTools
       const string dateSep = @"(\/|\.|-|_)?";
 
       const string hour = @"(2[0-3]|((0|1)\d))"; // 00-09 10-19 20-23
-      const string minSec = @"([0-5][0-9])";     // 00-59
+      const string minSec = @"([0-5][0-9])"; // 00-59
       const string amPm = @"((_| )?(AM|PM))?";
 
       const string year = @"((19\d{2})|(2\d{3}))"; // 1900 - 2999
-      const string month = @"(0[1-9]|1[012])";     // 01-12
+      const string month = @"(0[1-9]|1[012])"; // 01-12
       const string day = @"(0[1-9]|[12]\d|3[01])"; // 01 - 31
 
       // Replace Dates YYYYMMDD / MMDDYYYY / DDMMYYYY
@@ -306,7 +307,7 @@ namespace CsvTools
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
       return fileName.Trim('_', '-', ' ', '\t').Replace("__", "_").Replace("__", "_").Replace("--", "-")
-                     .Replace("--", "-");
+        .Replace("--", "-");
     }
 
     /// <summary>
@@ -479,8 +480,8 @@ namespace CsvTools
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
       return !regEx.IsMatch(input)
-               ? PlaceholderReplace(input, placeholder, Convert.ToString(replacement))
-               : string.Format(regEx.Replace(input, "{0$2}"), replacement);
+        ? PlaceholderReplace(input, placeholder, Convert.ToString(replacement))
+        : string.Format(regEx.Replace(input, "{0$2}"), replacement);
     }
 
     /// <summary>
@@ -575,7 +576,8 @@ namespace CsvTools
     /// <param name="old2">The old2.</param>
     /// <param name="new2">The new2.</param>
     /// <returns></returns>
-    public static string ReplaceDefaults(this string inputValue, in string? old1, in string? new1, in string? old2, in string? new2)
+    public static string ReplaceDefaults(this string inputValue, in string? old1, in string? new1, in string? old2,
+      in string? new2)
     {
       if (string.IsNullOrEmpty(inputValue))
         return string.Empty;
@@ -672,7 +674,6 @@ namespace CsvTools
     public static void SetMaximum(this IProcessDisplay? processDisplay, long maximum)
     {
       if (processDisplay is IProcessDisplayTime processDisplayTime)
-      {
         try
         {
           processDisplayTime.Maximum = maximum;
@@ -681,7 +682,6 @@ namespace CsvTools
         {
           // ignore
         }
-      }
     }
 
     /// <summary>
@@ -745,7 +745,7 @@ namespace CsvTools
     public static async Task<long> WriteAsync(
       this IFileWriter writer,
       string sqlStatement,
-      int timeout,      
+      int timeout,
       IProcessDisplay? reportProgress,
       CancellationToken cancellationToken)
     {
@@ -755,11 +755,11 @@ namespace CsvTools
       await
 #endif
       using var sqlReader = await FunctionalDI.SqlDataReader(
-                              sqlStatement,
-                              reportProgress,
-                              timeout,
-                              0,
-                              cancellationToken).ConfigureAwait(false);
+        sqlStatement,
+        reportProgress,
+        timeout,
+        0,
+        cancellationToken).ConfigureAwait(false);
       await sqlReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       return await writer.WriteAsync(sqlReader, cancellationToken).ConfigureAwait(false);
     }
@@ -912,21 +912,21 @@ namespace CsvTools
         return "\n";
 
       if (inputString.StartsWith("Unit separator", StringComparison.OrdinalIgnoreCase) || inputString.Contains("31")
-                                                                                       || inputString.Equals("␟", StringComparison.Ordinal)
-                                                                                       || inputString.Equals("US", StringComparison.OrdinalIgnoreCase))
+          || inputString.Equals("␟", StringComparison.Ordinal)
+          || inputString.Equals("US", StringComparison.OrdinalIgnoreCase))
         return "\u001F";
 
       if (inputString.StartsWith("Record separator", StringComparison.OrdinalIgnoreCase) || inputString.Contains("30")
-                                                                                         || inputString.Equals("␞", StringComparison.Ordinal)
-                                                                                         || inputString.Equals("RS", StringComparison.OrdinalIgnoreCase))
+          || inputString.Equals("␞", StringComparison.Ordinal)
+          || inputString.Equals("RS", StringComparison.OrdinalIgnoreCase))
         return "\u001E";
 
       if (inputString.StartsWith("Group separator", StringComparison.OrdinalIgnoreCase) || inputString.Contains("29")
-                                                                                        || inputString.Equals("GS", StringComparison.OrdinalIgnoreCase))
+          || inputString.Equals("GS", StringComparison.OrdinalIgnoreCase))
         return "\u001D";
 
       if (inputString.StartsWith("File separator", StringComparison.OrdinalIgnoreCase) || inputString.Contains("28")
-                                                                                       || inputString.Equals("FS", StringComparison.OrdinalIgnoreCase))
+          || inputString.Equals("FS", StringComparison.OrdinalIgnoreCase))
         return "\u001C";
 
       return inputString.Substring(0, 1);
@@ -1037,7 +1037,7 @@ namespace CsvTools
         var order = 0;
         return collection.Cast<object>().Aggregate(
           731,
-          (current, item) => current * 397 ^ item.GetHashCode() + order++);
+          (current, item) => (current * 397) ^ (item.GetHashCode() + order++));
       }
     }
 

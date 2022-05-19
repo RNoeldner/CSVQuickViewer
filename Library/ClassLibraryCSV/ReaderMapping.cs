@@ -134,7 +134,8 @@ namespace CsvTools
 
     public IReadOnlyList<ImmutableColumn> Column => m_ReaderColumnNotIgnored;
 
-    public string RowErrorInformation => ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, m_ReaderColumnsAll);
+    public string RowErrorInformation =>
+      ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, m_ReaderColumnsAll);
 
     public void PrepareRead() => m_ColumnErrorDictionary?.Clear();
 

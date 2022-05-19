@@ -39,19 +39,24 @@ namespace CsvTools
     public static Func<SourceAccess, Stream> OpenStream = fileAccess => new ImprovedStream(fileAccess);
 
 #if !QUICK
-    private static readonly IFileReaderWriterFactory m_FileReaderWriterFactory = new ClassLibraryCSVFileReaderWriterFactory(new StandardTimeZoneAdjust());
+    private static readonly IFileReaderWriterFactory m_FileReaderWriterFactory =
+      new ClassLibraryCSVFileReaderWriterFactory(new StandardTimeZoneAdjust());
 
     /// <summary>
     ///   Return a right writer for a file setting
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, IProcessDisplay?, CancellationToken, IFileWriter> GetFileWriter = (setting, processDisplay, cancellationToken) => m_FileReaderWriterFactory.GetFileWriter(setting, processDisplay, cancellationToken);
+    public static Func<IFileSetting, IProcessDisplay?, CancellationToken, IFileWriter> GetFileWriter =
+      (setting, processDisplay, cancellationToken) =>
+        m_FileReaderWriterFactory.GetFileWriter(setting, processDisplay, cancellationToken);
 
     /// <summary>
     ///   Return the right reader for a file setting
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, string?, IProcessDisplay?, CancellationToken, IFileReader> GetFileReader = (setting, timeZone, processDisplay, cancellationToken) => m_FileReaderWriterFactory.GetFileReader(setting, timeZone, processDisplay, cancellationToken);
+    public static Func<IFileSetting, string?, IProcessDisplay?, CancellationToken, IFileReader> GetFileReader =
+      (setting, timeZone, processDisplay, cancellationToken) =>
+        m_FileReaderWriterFactory.GetFileReader(setting, timeZone, processDisplay, cancellationToken);
 
 
     /// <summary>
@@ -59,8 +64,9 @@ namespace CsvTools
     /// </summary>
     /// <value>The statement for reader the data.</value>
     /// <remarks>Make sure the returned reader is open when needed</remarks>
-    public static Func<string, IProcessDisplay?, int, long, CancellationToken, Task<IFileReader>> SqlDataReader = (sql, processDisplay, commandTimeout, recordLimit, token) =>
-      throw new FileWriterException("SQL Reader not specified");
+    public static Func<string, IProcessDisplay?, int, long, CancellationToken, Task<IFileReader>> SqlDataReader =
+      (sql, processDisplay, commandTimeout, recordLimit, token) =>
+        throw new FileWriterException("SQL Reader not specified");
 
 #endif
   }

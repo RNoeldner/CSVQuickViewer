@@ -19,7 +19,7 @@ namespace CsvTools
   /// <summary>
   ///   Interface for an ProcessDisplay
   /// </summary>
-  public interface IProcessDisplay 
+  public interface IProcessDisplay
   {
     string Title { get; set; }
 

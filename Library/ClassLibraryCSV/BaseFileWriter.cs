@@ -41,7 +41,7 @@ namespace CsvTools
     private readonly Action<string>? m_ReportProgress;
     private readonly Action<long>? m_SetMaxProcess;
     private readonly IValueFormat m_ValueFormatGeneral;
-    protected readonly ITimeZoneAdjust m_TimeZoneAdjust;
+    protected readonly ITimeZoneAdjust TimeZoneAdjust;
     protected string Header;
     private DateTime m_LastNotification = DateTime.Now;
 
@@ -65,7 +65,7 @@ namespace CsvTools
       FullPath = FileSystemUtils.ResolvePattern(fullPath) ??
                  throw new ArgumentException($"Make sure path is correct {fullPath}");
       var fileName = FileSystemUtils.GetFileName(FullPath);
-      m_TimeZoneAdjust = timeZoneAdjust;
+      TimeZoneAdjust = timeZoneAdjust;
       m_PgpKeyId = pgpKeyId;
       if (header != null && header.Length > 0)
         Header = ReplacePlaceHolder(
@@ -83,7 +83,9 @@ namespace CsvTools
       else
         m_Footer = string.Empty;
 
-      m_ValueFormatGeneral = valueFormatGeneral != null ? new ImmutableValueFormat(valueFormatGeneral) : new ImmutableValueFormat();
+      m_ValueFormatGeneral = valueFormatGeneral != null
+        ? new ImmutableValueFormat(valueFormatGeneral)
+        : new ImmutableValueFormat();
       ColumnDefinition =
         columnDefinition
           ?.Select(col => col as ImmutableColumn ?? new ImmutableColumn(col)).ToList()
@@ -140,10 +142,11 @@ namespace CsvTools
       {
         var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
         if (!(schemaRow[SchemaTableColumn.ColumnName] is string colName) || colName.Length == 0)
-          colName = $"Column{colNo+1}";
+          colName = $"Column{colNo + 1}";
         var newName = StringUtils.MakeUniqueInCollection(colNames.Values, colName);
         colNames.Add(colNo, newName);
       }
+
       // Get default if we do not have the information
       generalFormat ??= new ImmutableValueFormat();
 
@@ -155,37 +158,43 @@ namespace CsvTools
         if (column is { Ignore: true })
           continue;
 
-        var valueFormat = (column?.ValueFormat is null)
+        var valueFormat = column?.ValueFormat is null
           ? new ImmutableValueFormat(
-              ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(),
-              generalFormat.DateFormat,
-              generalFormat.DateSeparator,
-              generalFormat.TimeSeparator,
-              generalFormat.NumberFormat,
-              generalFormat.GroupSeparator,
-              generalFormat.DecimalSeparator,
-              generalFormat.True,
-              generalFormat.False,
-              generalFormat.DisplayNullAs,
-              readFolder: generalFormat.ReadFolder,
-              writeFolder: generalFormat.WriteFolder,
-              fileOutPutPlaceholder: generalFormat.FileOutPutPlaceholder,
-              overwrite: generalFormat.Overwrite)
+            ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(),
+            generalFormat.DateFormat,
+            generalFormat.DateSeparator,
+            generalFormat.TimeSeparator,
+            generalFormat.NumberFormat,
+            generalFormat.GroupSeparator,
+            generalFormat.DecimalSeparator,
+            generalFormat.True,
+            generalFormat.False,
+            generalFormat.DisplayNullAs,
+            readFolder: generalFormat.ReadFolder,
+            writeFolder: generalFormat.WriteFolder,
+            fileOutPutPlaceholder: generalFormat.FileOutPutPlaceholder,
+            overwrite: generalFormat.Overwrite)
           : new ImmutableValueFormat(
-              column.ValueFormat.DataType,
-              column.ValueFormat.DateFormat,
-              column.ValueFormat.DateSeparator,
-              column.ValueFormat.TimeSeparator,
-              column.ValueFormat.NumberFormat,
-              column.ValueFormat.GroupSeparator,
-              column.ValueFormat.DecimalSeparator,
-              column.ValueFormat.True,
-              column.ValueFormat.False,
-              column.ValueFormat.DisplayNullAs,
-              readFolder: string.IsNullOrEmpty(column.ValueFormat.ReadFolder) ? generalFormat.ReadFolder : column.ValueFormat.ReadFolder,
-              writeFolder: string.IsNullOrEmpty(column.ValueFormat.WriteFolder) ? generalFormat.WriteFolder : column.ValueFormat.WriteFolder,
-              fileOutPutPlaceholder: string.IsNullOrEmpty(column.ValueFormat.FileOutPutPlaceholder) ? generalFormat.FileOutPutPlaceholder : column.ValueFormat.FileOutPutPlaceholder,
-              overwrite: column.ValueFormat.Overwrite);
+            column.ValueFormat.DataType,
+            column.ValueFormat.DateFormat,
+            column.ValueFormat.DateSeparator,
+            column.ValueFormat.TimeSeparator,
+            column.ValueFormat.NumberFormat,
+            column.ValueFormat.GroupSeparator,
+            column.ValueFormat.DecimalSeparator,
+            column.ValueFormat.True,
+            column.ValueFormat.False,
+            column.ValueFormat.DisplayNullAs,
+            readFolder: string.IsNullOrEmpty(column.ValueFormat.ReadFolder)
+              ? generalFormat.ReadFolder
+              : column.ValueFormat.ReadFolder,
+            writeFolder: string.IsNullOrEmpty(column.ValueFormat.WriteFolder)
+              ? generalFormat.WriteFolder
+              : column.ValueFormat.WriteFolder,
+            fileOutPutPlaceholder: string.IsNullOrEmpty(column.ValueFormat.FileOutPutPlaceholder)
+              ? generalFormat.FileOutPutPlaceholder
+              : column.ValueFormat.FileOutPutPlaceholder,
+            overwrite: column.ValueFormat.Overwrite);
 
         var fieldLength = Math.Max((int) schemaRow[SchemaTableColumn.ColumnSize], 0);
         switch (valueFormat)
@@ -222,7 +231,8 @@ namespace CsvTools
         if (column != null)
         {
           var tz = column.TimeZonePart;
-          if (!string.IsNullOrEmpty(tz) && !tz.TryGetConstant(out constantTimeZone) && colNames.TryGetByValue(tz, out var ordinal))
+          if (!string.IsNullOrEmpty(tz) && !tz.TryGetConstant(out constantTimeZone) &&
+              colNames.TryGetByValue(tz, out var ordinal))
             columnOrdinalTimeZoneReader = ordinal;
         }
 
@@ -347,9 +357,9 @@ namespace CsvTools
 
     protected static string ReplacePlaceHolder(string input, string fileName, string id) =>
       input.PlaceholderReplace("ID", id)
-           .PlaceholderReplace("FileName", fileName)
-           .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
-           .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
+        .PlaceholderReplace("FileName", fileName)
+        .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
+        .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
 
     /// <summary>
     ///   Calls the event handler for warnings
@@ -365,9 +375,11 @@ namespace CsvTools
     /// <param name="reader">Data Reader / Data Records in case additional columns are needed e.G. for TimeZone adjustment based off ColumnOrdinalTimeZone or GetFileName</param>
     /// <param name="dataObject">The actual data of the column</param>
     /// <param name="columnInfo">Information on ValueConversion</param>
+    /// <param name="timeZoneAdjust"></param>
     /// <param name="handleWarning"></param>
     /// <returns>Value of the .Net Data type matching the ValueFormat.DataType</returns>
-    public static object? ValueConversion(in IDataRecord? reader, in object? dataObject, WriterColumn columnInfo, in ITimeZoneAdjust timeZoneAdjust, Action<string, string>? handleWarning = null)
+    public static object? ValueConversion(in IDataRecord? reader, in object? dataObject, WriterColumn columnInfo,
+      in ITimeZoneAdjust timeZoneAdjust, Action<string, string>? handleWarning = null)
     {
       if (dataObject is null || dataObject is DBNull)
         return null;
@@ -375,7 +387,6 @@ namespace CsvTools
       // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
       switch (columnInfo.ValueFormat.DataType)
       {
-
         case DataTypeEnum.Integer:
           return Convert.ToInt64(dataObject);
 
@@ -391,7 +402,8 @@ namespace CsvTools
         case DataTypeEnum.DateTime:
           var dtm = Convert.ToDateTime(dataObject);
           if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
-            return timeZoneAdjust.AdjustTZ(dtm, timeZoneAdjust.LocalTimeZone, columnInfo.ConstantTimeZone, (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
+            return timeZoneAdjust.AdjustTZ(dtm, timeZoneAdjust.LocalTimeZone, columnInfo.ConstantTimeZone,
+              (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
 
           if (reader is null || columnInfo.ColumnOrdinalTimeZone <= -1)
             return dtm;
@@ -402,7 +414,9 @@ namespace CsvTools
             handleWarning?.Invoke(columnInfo.Name, "Time zone is empty, value not converted");
             return dtm;
           }
-          return timeZoneAdjust.AdjustTZ(dtm, timeZoneAdjust.LocalTimeZone, reader.GetString(columnInfo.ColumnOrdinalTimeZone), (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
+
+          return timeZoneAdjust.AdjustTZ(dtm, timeZoneAdjust.LocalTimeZone,
+            reader.GetString(columnInfo.ColumnOrdinalTimeZone), (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
 
         case DataTypeEnum.Guid:
           return dataObject is Guid guid ? guid : new Guid(dataObject.ToString());
@@ -428,25 +442,21 @@ namespace CsvTools
       string displayAs;
       try
       {
-        var convertedValue = ValueConversion(reader, dataObject, columnInfo, m_TimeZoneAdjust, HandleWarning);
+        var convertedValue = ValueConversion(reader, dataObject, columnInfo, TimeZoneAdjust, HandleWarning);
         if (convertedValue is null)
-        {
-          displayAs =columnInfo.ValueFormat.DisplayNullAs;
-        }
+          displayAs = columnInfo.ValueFormat.DisplayNullAs;
         else
-        {
-          displayAs =convertedValue switch
+          displayAs = convertedValue switch
           {
             long aLong => aLong.ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
-                                CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
-                                columnInfo.ValueFormat.GroupSeparator),
+              CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
+              columnInfo.ValueFormat.GroupSeparator),
             bool aBol => aBol ? columnInfo.ValueFormat.True : columnInfo.ValueFormat.False,
             double aDbl => StringConversion.DoubleToString(aDbl, columnInfo.ValueFormat),
             decimal aDec => StringConversion.DecimalToString(aDec, columnInfo.ValueFormat),
             DateTime aDTm => StringConversion.DateTimeToString(aDTm, columnInfo.ValueFormat),
-            _ => convertedValue.ToString(),
+            _ => convertedValue.ToString()
           };
-        }
       }
       catch (Exception ex)
       {

@@ -50,7 +50,6 @@ namespace CsvTools
       DelimitedFileDetectionResult result,
       in IEnumerable<IColumn>? columns = null,
       string columnFile = ""
-
     )
       : this(
         result.FileName,

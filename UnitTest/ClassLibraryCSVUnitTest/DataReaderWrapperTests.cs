@@ -8,7 +8,7 @@ namespace CsvTools.Tests
   public class DataReaderWrapperTests
   {
     private static readonly CsvFile m_Setting = UnitTestStatic.ReaderGetAllFormats();
-    private static readonly ITimeZoneAdjust m_TimeZoneAdjust = new StandardTimeZoneAdjust(); 
+    private static readonly ITimeZoneAdjust m_TimeZoneAdjust = new StandardTimeZoneAdjust();
 
     [TestMethod()]
     public async Task GetColumnIndexFromErrorColumnTest()
@@ -24,7 +24,8 @@ namespace CsvTools.Tests
         m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
         m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
         m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
-        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, process);
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        process);
       await reader.OpenAsync(UnitTestStatic.Token);
       _ = new DataReaderWrapper(reader);
     }
@@ -33,7 +34,17 @@ namespace CsvTools.Tests
     public async Task DepthTest()
     {
       var process = new CustomProcessDisplay();
-      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows, m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter, m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining, m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings, m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder, m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace, m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue, m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter, m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull, m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, process);
+      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
+        m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
+        m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
+        m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings,
+        m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder,
+        m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace,
+        m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
+        m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
+        m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        process);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       Assert.AreEqual(9, wrapper.Depth);
@@ -43,7 +54,17 @@ namespace CsvTools.Tests
     public async Task GetIntegerTest()
     {
       var process = new CustomProcessDisplay();
-      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows, m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter, m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining, m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings, m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder, m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace, m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue, m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter, m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull, m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, process);
+      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
+        m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
+        m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
+        m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings,
+        m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder,
+        m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace,
+        m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
+        m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
+        m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        process);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -56,7 +77,17 @@ namespace CsvTools.Tests
     public async Task GetNumericTest()
     {
       var process = new CustomProcessDisplay();
-      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows, m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter, m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining, m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings, m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder, m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace, m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue, m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter, m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull, m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, process);
+      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
+        m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
+        m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
+        m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings,
+        m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder,
+        m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace,
+        m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
+        m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
+        m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        process);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -71,7 +102,17 @@ namespace CsvTools.Tests
     public async Task GetGuidTest()
     {
       var process = new CustomProcessDisplay();
-      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows, m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter, m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining, m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings, m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder, m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace, m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue, m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter, m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull, m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, process);
+      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
+        m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
+        m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
+        m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings,
+        m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder,
+        m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace,
+        m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
+        m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
+        m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        process);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -84,7 +125,17 @@ namespace CsvTools.Tests
     public async Task GetDateTimeTest()
     {
       var process = new CustomProcessDisplay();
-      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows, m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter, m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining, m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings, m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder, m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace, m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue, m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter, m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull, m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, process);
+      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
+        m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
+        m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
+        m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings,
+        m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder,
+        m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace,
+        m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
+        m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
+        m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        process);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -96,7 +147,17 @@ namespace CsvTools.Tests
     public async Task GetNameTest()
     {
       var process = new CustomProcessDisplay();
-      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows, m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter, m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining, m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings, m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder, m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace, m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue, m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter, m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull, m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, process);
+      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
+        m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
+        m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
+        m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings,
+        m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder,
+        m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace,
+        m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
+        m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
+        m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        process);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -110,7 +171,17 @@ namespace CsvTools.Tests
     public async Task GetOrdinalTest()
     {
       var process = new CustomProcessDisplay();
-      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows, m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter, m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining, m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings, m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder, m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace, m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue, m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter, m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull, m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, process);
+      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
+        m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
+        m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
+        m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings,
+        m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder,
+        m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace,
+        m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
+        m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
+        m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        process);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -124,7 +195,17 @@ namespace CsvTools.Tests
     public async Task GetBooleanTest()
     {
       var process = new CustomProcessDisplay();
-      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows, m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter, m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining, m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings, m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder, m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace, m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue, m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter, m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull, m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, process);
+      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
+        m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
+        m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
+        m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings,
+        m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder,
+        m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace,
+        m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
+        m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
+        m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        process);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -140,7 +221,17 @@ namespace CsvTools.Tests
     public async Task GetFieldTypeTestAsync()
     {
       var process = new CustomProcessDisplay();
-      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows, m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter, m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining, m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings, m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder, m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace, m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue, m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter, m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull, m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, process);
+      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
+        m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
+        m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
+        m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings,
+        m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder,
+        m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace,
+        m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
+        m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
+        m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        process);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -152,7 +243,17 @@ namespace CsvTools.Tests
     public async Task MiscTest()
     {
       var process = new CustomProcessDisplay();
-      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows, m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter, m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining, m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings, m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder, m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace, m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue, m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter, m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull, m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, process);
+      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
+        m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
+        m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
+        m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings,
+        m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder,
+        m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace,
+        m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
+        m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
+        m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        process);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       Assert.IsTrue(wrapper.HasRows);
@@ -179,7 +280,17 @@ namespace CsvTools.Tests
     public async Task GetValueTest()
     {
       var process = new CustomProcessDisplay();
-      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows, m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter, m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining, m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings, m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder, m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace, m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue, m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter, m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull, m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, process);
+      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
+        m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
+        m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
+        m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings,
+        m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder,
+        m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace,
+        m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
+        m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
+        m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        process);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -192,7 +303,17 @@ namespace CsvTools.Tests
     public async Task IsDBNullTest()
     {
       var process = new CustomProcessDisplay();
-      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows, m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter, m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining, m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings, m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder, m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace, m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue, m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter, m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull, m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, process);
+      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
+        m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
+        m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
+        m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings,
+        m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder,
+        m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace,
+        m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
+        m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
+        m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        process);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
@@ -211,7 +332,17 @@ namespace CsvTools.Tests
     public async Task GetSchemaTableTest()
     {
       var process = new CustomProcessDisplay();
-      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows, m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter, m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining, m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings, m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder, m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace, m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue, m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter, m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull, m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, process);
+      using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
+        m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
+        m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
+        m_Setting.ContextSensitiveQualifier, m_Setting.CommentLine, m_Setting.NumWarnings,
+        m_Setting.DuplicateQualifierToEscape, m_Setting.NewLinePlaceholder, m_Setting.DelimiterPlaceholder,
+        m_Setting.QualifierPlaceholder, m_Setting.SkipDuplicateHeader, m_Setting.TreatLfAsSpace,
+        m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
+        m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
+        m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        process);
       await reader.OpenAsync(UnitTestStatic.Token);
       var wrapper = new DataReaderWrapper(reader);
 

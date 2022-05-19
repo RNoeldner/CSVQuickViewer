@@ -117,8 +117,8 @@ namespace CsvTools
       unchecked
       {
         var hashCode = RecordNumber.GetHashCode();
-        hashCode = hashCode * 397 ^ ProvideEvidence.GetHashCode();
-        hashCode = hashCode * 397 ^ StringComparer.OrdinalIgnoreCase.GetHashCode(Error);
+        hashCode = (hashCode * 397) ^ ProvideEvidence.GetHashCode();
+        hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(Error);
         return hashCode;
       }
     }

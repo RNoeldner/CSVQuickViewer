@@ -38,8 +38,8 @@ namespace CsvTools
         return false;
 
       if (Items.Any(
-        map => map.FileColumn.Equals(fieldMapping.FileColumn, StringComparison.OrdinalIgnoreCase)
-               && map.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase)))
+            map => map.FileColumn.Equals(fieldMapping.FileColumn, StringComparison.OrdinalIgnoreCase)
+                   && map.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase)))
         return false;
 
       Add(fieldMapping);

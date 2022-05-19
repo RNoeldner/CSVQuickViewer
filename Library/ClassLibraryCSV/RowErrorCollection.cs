@@ -59,17 +59,17 @@ namespace CsvTools
         // Go though all rows
         foreach (var errorsInColumn in m_RowErrorCollection.Values)
           // And all columns
-          foreach (var message in errorsInColumn.Values)
-          {
-            if (sb.Length > 0)
-              sb.Append(ErrorInformation.cSeparator);
-            sb.Append(message);
-          }
+        foreach (var message in errorsInColumn.Values)
+        {
+          if (sb.Length > 0)
+            sb.Append(ErrorInformation.cSeparator);
+          sb.Append(message);
+        }
 
         return Convert.ToString(sb);
       }
     }
-    
+
     public string DisplayByRecordNumber
     {
       get
@@ -114,7 +114,8 @@ namespace CsvTools
     /// <param name="args"></param>
     public void Add(object? sender, WarningEventArgs args)
     {
-      if (m_IgnoredColumns != null && m_IgnoredColumns.Contains(args.ColumnNumber) || m_RowErrorCollection.Count >= m_MaxRows)
+      if ((m_IgnoredColumns != null && m_IgnoredColumns.Contains(args.ColumnNumber)) ||
+          m_RowErrorCollection.Count >= m_MaxRows)
         return;
 
       if (!m_RowErrorCollection.TryGetValue(args.RecordNumber, out var columnErrorCollection))

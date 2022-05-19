@@ -845,7 +845,7 @@ namespace CsvTools
       other.WarningCount = WarningCount;
       other.ErrorCount = ErrorCount;
       // should be done last... but it might well be trigger later
-      other.LastChange = LastChange;  
+      other.LastChange = LastChange;
     }
 
     /// <summary>
@@ -954,46 +954,46 @@ namespace CsvTools
 
       if (!other.ID.Equals(ID, StringComparison.OrdinalIgnoreCase))
         yield return $"ID : {ID} - {other.ID}";
-      
+
       if (other.SkipRows != SkipRows)
         yield return $"SkipRows : {SkipRows} - {other.SkipRows}";
-      
+
       if (other.HasFieldHeader != HasFieldHeader)
         yield return $"HasFieldHeader : {HasFieldHeader} - {other.HasFieldHeader}";
-      
+
       if (other.RecentlyLoaded != RecentlyLoaded)
         yield return $"RecentlyLoaded : {RecentlyLoaded} - {other.RecentlyLoaded}";
-      
+
       if (other.IsEnabled != IsEnabled)
         yield return $"IsEnabled : {IsEnabled} - {other.IsEnabled}";
-      
+
       if (other.InOverview != InOverview)
         yield return $"InOverview : {InOverview} - {other.InOverview}";
-      
+
       if (other.Validate != Validate)
         yield return $"Validate : {Validate} - {other.Validate}";
-      
+
       if (other.ShowProgress != ShowProgress)
         yield return $"ShowProgress : {ShowProgress} - {other.ShowProgress}";
-      
+
       if (other.TreatNBSPAsSpace != TreatNBSPAsSpace)
         yield return $"TreatNBSPAsSpace : {TreatNBSPAsSpace} - {other.TreatNBSPAsSpace}";
-      
+
       if (other.ConsecutiveEmptyRows != ConsecutiveEmptyRows)
         yield return $"ConsecutiveEmptyRows : {ConsecutiveEmptyRows} - {other.ConsecutiveEmptyRows}";
 
       if (other.DisplayStartLineNo != DisplayStartLineNo)
         yield return $"DisplayStartLineNo : {DisplayStartLineNo} - {other.DisplayStartLineNo}";
-      
+
       if (other.DisplayEndLineNo != DisplayEndLineNo)
         yield return $"DisplayEndLineNo : {DisplayEndLineNo} - {other.DisplayEndLineNo}";
-      
+
       if (other.DisplayRecordNo != DisplayRecordNo)
         yield return $"DisplayRecordNo : {DisplayRecordNo} - {other.DisplayRecordNo}";
-      
+
       if (other.RecordLimit != RecordLimit)
         yield return $"RecordLimit : {RecordLimit} - {other.RecordLimit}";
-      
+
       if (other.SkipEmptyLines != SkipEmptyLines)
         yield return $"SkipEmptyLines : {SkipEmptyLines} - {other.SkipEmptyLines}";
 
@@ -1026,13 +1026,13 @@ namespace CsvTools
 
       if (!other.MappingCollection.Equals(MappingCollection))
         yield return $"MappingCollection different";
-      
+
       if (!other.SamplesAndErrors.Equals(SamplesAndErrors))
         yield return $"SamplesAndErrors different";
-            
+
       if (!other.Comment.Equals(Comment, StringComparison.Ordinal))
         yield return $"Comment : {Comment} - {other.Comment}";
-      
+
       if (!other.ColumnCollection.Equals(ColumnCollection))
         yield return $"ColumnCollection different";
     }

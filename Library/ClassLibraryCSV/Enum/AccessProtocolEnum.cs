@@ -15,15 +15,15 @@
 namespace CsvTools
 {
   public enum AccessProtocolEnum
-	{
-		/// <summary>
-		///   File System Copy
-		/// </summary>
-		Local = -1,
+  {
+    /// <summary>
+    ///   File System Copy
+    /// </summary>
+    Local = -1,
 
-		/// <summary>
-		///   sFTP Access
-		/// </summary>
-		Sftp = 0
-	}
+    /// <summary>
+    ///   sFTP Access
+    /// </summary>
+    Sftp = 0
+  }
 }

@@ -34,13 +34,19 @@ namespace CsvTools
       if (timeZone.Equals(cIdLocal, StringComparison.OrdinalIgnoreCase))
         return TimeZoneInfo.Local;
       else
-        return IsWindows ? TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryIanaToWindows(timeZone, out var winSrc) ? winSrc : timeZone) :
-                           TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryWindowsToIana(timeZone, out var inaraSrc) ? inaraSrc : timeZone);
+        return IsWindows
+          ? TimeZoneInfo.FindSystemTimeZoneById(
+            TZConvert.TryIanaToWindows(timeZone, out var winSrc) ? winSrc : timeZone)
+          : TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryWindowsToIana(timeZone, out var inaraSrc)
+            ? inaraSrc
+            : timeZone);
     }
 
-    public static DateTime ChangeTimeZone(in DateTime input, in string srcTimeZone, in string destTimeZone, in Action<string>? handleWarning)
+    public static DateTime ChangeTimeZone(in DateTime input, in string srcTimeZone, in string destTimeZone,
+      in Action<string>? handleWarning)
     {
-      if (string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) || destTimeZone.Equals(srcTimeZone, StringComparison.OrdinalIgnoreCase))
+      if (string.IsNullOrEmpty(srcTimeZone) || string.IsNullOrEmpty(destTimeZone) ||
+          destTimeZone.Equals(srcTimeZone, StringComparison.OrdinalIgnoreCase))
         return input;
       try
       {
@@ -54,7 +60,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    public virtual  DateTime AdjustTZ(in DateTime input, in string srcTimeZone, in string destTimeZone, in Action<string>? handleWarning) => ChangeTimeZone(input, srcTimeZone, destTimeZone, handleWarning);
-
+    public virtual DateTime AdjustTZ(in DateTime input, in string srcTimeZone, in string destTimeZone,
+      in Action<string>? handleWarning) => ChangeTimeZone(input, srcTimeZone, destTimeZone, handleWarning);
   }
 }

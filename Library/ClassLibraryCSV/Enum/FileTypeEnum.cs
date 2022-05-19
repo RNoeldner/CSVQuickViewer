@@ -14,7 +14,6 @@
 
 namespace CsvTools
 {
-
   public enum FileTypeEnum
   {
     Plain = 0,
@@ -24,5 +23,4 @@ namespace CsvTools
     Zip = 4,
     Stream = 5
   }
-
 }

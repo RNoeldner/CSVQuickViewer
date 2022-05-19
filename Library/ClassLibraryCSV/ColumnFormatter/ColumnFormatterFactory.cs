@@ -20,17 +20,20 @@ namespace CsvTools
     {
       return valueFormat.DataType switch
       {
-        DataTypeEnum.TextPart => new TextPartFormatter(valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd),
+        DataTypeEnum.TextPart => new TextPartFormatter(valueFormat.Part, valueFormat.PartSplitter,
+          valueFormat.PartToEnd),
         DataTypeEnum.TextToHtml => new TextToHtmlFormatter(),
         DataTypeEnum.TextToHtmlFull => new TextToHtmlFullFormatter(),
         DataTypeEnum.TextUnescape => new TextUnescapeFormatter(),
-        DataTypeEnum.TextReplace => new TextReplaceFormatter(valueFormat.RegexSearchPattern, valueFormat.RegexReplacement),
-        DataTypeEnum.Binary => new BinaryFormatter(columnOrdinal, valueFormat.ReadFolder, valueFormat.WriteFolder, valueFormat.FileOutPutPlaceholder, valueFormat.Overwrite),
+        DataTypeEnum.TextReplace => new TextReplaceFormatter(valueFormat.RegexSearchPattern,
+          valueFormat.RegexReplacement),
+        DataTypeEnum.Binary => new BinaryFormatter(columnOrdinal, valueFormat.ReadFolder, valueFormat.WriteFolder,
+          valueFormat.FileOutPutPlaceholder, valueFormat.Overwrite),
 #if !QUICK
         DataTypeEnum.Markdown2Html => new MarkupToHtmlFormatter(),
 
 #endif
-        _ => null,
+        _ => null
       };
     }
   }

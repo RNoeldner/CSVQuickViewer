@@ -19,33 +19,34 @@ namespace CsvTools
   /// <inheritdoc cref="CsvTools.IValueFormat" />
   public class ImmutableValueFormat : IValueFormat
   {
-
     public ImmutableValueFormat(IValueFormat valueFormat) : this(valueFormat.DataType, valueFormat.DateFormat,
-      valueFormat.DateSeparator, valueFormat.TimeSeparator, valueFormat.NumberFormat, valueFormat.GroupSeparator, valueFormat.DecimalSeparator, valueFormat.True, valueFormat.False, valueFormat.DisplayNullAs,
-      valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd, valueFormat.RegexSearchPattern, valueFormat.RegexReplacement, valueFormat.ReadFolder)
+      valueFormat.DateSeparator, valueFormat.TimeSeparator, valueFormat.NumberFormat, valueFormat.GroupSeparator,
+      valueFormat.DecimalSeparator, valueFormat.True, valueFormat.False, valueFormat.DisplayNullAs,
+      valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd, valueFormat.RegexSearchPattern,
+      valueFormat.RegexReplacement, valueFormat.ReadFolder)
     {
     }
 
     public ImmutableValueFormat(
-    in DataTypeEnum dataType = DataTypeEnum.String,
-    in string dateFormat = ValueFormatExtension.cDateFormatDefault,
-    in string dateSeparator = ValueFormatExtension.cDateSeparatorDefault,
-    in string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
-    in string numberFormat = ValueFormatExtension.cNumberFormatDefault,
-    in string groupSeparator = ValueFormatExtension.cGroupSeparatorDefault,
-    in string decimalSeparator = ValueFormatExtension.cDecimalSeparatorDefault,
-    in string asTrue = ValueFormatExtension.cTrueDefault,
-    in string asFalse = ValueFormatExtension.cFalseDefault,
-    in string displayNullAs = "",
-    int part = ValueFormatExtension.cPartDefault,
-    in string partSplitter = ValueFormatExtension.cPartSplitterDefault,
-    bool partToEnd = ValueFormatExtension.cPartToEndDefault,
-    string regexSearchPattern = "",
-    string regexReplacement = "",
-    string readFolder = "",
-    string writeFolder = "",
-    string fileOutPutPlaceholder = "",
-    bool overwrite = true)
+      in DataTypeEnum dataType = DataTypeEnum.String,
+      in string dateFormat = ValueFormatExtension.cDateFormatDefault,
+      in string dateSeparator = ValueFormatExtension.cDateSeparatorDefault,
+      in string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
+      in string numberFormat = ValueFormatExtension.cNumberFormatDefault,
+      in string groupSeparator = ValueFormatExtension.cGroupSeparatorDefault,
+      in string decimalSeparator = ValueFormatExtension.cDecimalSeparatorDefault,
+      in string asTrue = ValueFormatExtension.cTrueDefault,
+      in string asFalse = ValueFormatExtension.cFalseDefault,
+      in string displayNullAs = "",
+      int part = ValueFormatExtension.cPartDefault,
+      in string partSplitter = ValueFormatExtension.cPartSplitterDefault,
+      bool partToEnd = ValueFormatExtension.cPartToEndDefault,
+      string regexSearchPattern = "",
+      string regexReplacement = "",
+      string readFolder = "",
+      string writeFolder = "",
+      string fileOutPutPlaceholder = "",
+      bool overwrite = true)
     {
       DataType = dataType;
       DateFormat = dateFormat ?? throw new ArgumentNullException(nameof(dateFormat));
@@ -63,8 +64,8 @@ namespace CsvTools
       RegexSearchPattern = regexSearchPattern ?? throw new ArgumentNullException(nameof(regexSearchPattern));
       RegexReplacement = regexReplacement ?? throw new ArgumentNullException(nameof(regexReplacement));
       ReadFolder = readFolder ?? throw new ArgumentNullException(nameof(readFolder));
-      WriteFolder =writeFolder ?? throw new ArgumentNullException(nameof(writeFolder));
-      FileOutPutPlaceholder =fileOutPutPlaceholder ?? throw new ArgumentNullException(nameof(fileOutPutPlaceholder));
+      WriteFolder = writeFolder ?? throw new ArgumentNullException(nameof(writeFolder));
+      FileOutPutPlaceholder = fileOutPutPlaceholder ?? throw new ArgumentNullException(nameof(fileOutPutPlaceholder));
       Overwrite = overwrite;
     }
 

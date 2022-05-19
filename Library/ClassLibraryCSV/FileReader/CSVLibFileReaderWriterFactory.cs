@@ -23,17 +23,15 @@ namespace CsvTools
   {
     private readonly ITimeZoneAdjust m_TimeZoneAdjust;
 
-    public ClassLibraryCSVFileReaderWriterFactory(ITimeZoneAdjust timeZoneAdjust)
-    {
-      m_TimeZoneAdjust= timeZoneAdjust;
-    }
+    public ClassLibraryCSVFileReaderWriterFactory(ITimeZoneAdjust timeZoneAdjust) => m_TimeZoneAdjust = timeZoneAdjust;
 
     /// <inheritdoc />
-    public IFileReader GetFileReader(in IFileSetting setting, in string? timeZone, in IProcessDisplay? processDisplay, in CancellationToken cancellationToken) =>
+    public IFileReader GetFileReader(in IFileSetting setting, in string? timeZone, in IProcessDisplay? processDisplay,
+      in CancellationToken cancellationToken) =>
       setting switch
       {
         IJsonFile csv => new JsonFileReader(
-          fileName: csv.FullPath,
+          csv.FullPath,
           csv.ColumnCollection,
           csv.RecordLimit,
           csv.TrimmingOption == TrimmingOptionEnum.All,
@@ -79,10 +77,11 @@ namespace CsvTools
           processDisplay),
         _ => throw new FileReaderException($"Reader for {setting} not found")
       };
-   
+
 
     /// <inheritdoc />
-    public IFileWriter GetFileWriter(IFileSetting fileSetting, in IProcessDisplay? processDisplay, in CancellationToken cancellationToken)
+    public IFileWriter GetFileWriter(IFileSetting fileSetting, in IProcessDisplay? processDisplay,
+      in CancellationToken cancellationToken)
     {
       IFileWriter? writer = null;
 
@@ -165,6 +164,7 @@ namespace CsvTools
       return writer;
     }
 
-    public Task<IFileReader> SqlDataReader(in string sql, in IProcessDisplay? processDisplay, int commandTimeout, long recordLimit, CancellationToken cancellationToken) => throw new NotImplementedException();
+    public Task<IFileReader> SqlDataReader(in string sql, in IProcessDisplay? processDisplay, int commandTimeout,
+      long recordLimit, CancellationToken cancellationToken) => throw new NotImplementedException();
   }
 }

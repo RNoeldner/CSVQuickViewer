@@ -81,7 +81,7 @@ namespace CsvTools
         footer,
         header,
         columnDefinition,
-        fileSettingDisplay,       
+        fileSettingDisplay,
         timeZoneAdjust,
         processDisplay)
     {
@@ -133,7 +133,8 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var writer = new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192, true);
+      using var writer =
+        new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192, true);
       SetColumns(reader);
 
       if (Columns.Count == 0)
@@ -179,7 +180,7 @@ namespace CsvTools
         {
           // Number of columns might be higher than number of reader columns
           var col = reader.GetValue(columnInfo.ColumnOrdinal);
-          if (col == DBNull.Value || col is string text && string.IsNullOrEmpty(text))
+          if (col == DBNull.Value || (col is string text && string.IsNullOrEmpty(text)))
             emptyColumns++;
           else
             row.Append(TextEncodeField(col, columnInfo, false, reader, QualifyText));
@@ -227,7 +228,7 @@ namespace CsvTools
         else
           // quality any text or something containing a Qualify Char
           qualifyThis = dataType == DataTypeEnum.String || dataType == DataTypeEnum.TextToHtml
-                                                    || displayAs.IndexOfAny(m_QualifyCharArray) > -1;
+                                                        || displayAs.IndexOfAny(m_QualifyCharArray) > -1;
       }
 
       if (m_FieldDelimiter != m_FieldDelimiterEscaped)

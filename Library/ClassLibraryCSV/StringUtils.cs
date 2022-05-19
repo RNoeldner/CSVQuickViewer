@@ -30,8 +30,8 @@ namespace CsvTools
   {
     public static readonly char[] Spaces =
     {
-      ' ', '\u00A0', '\u1680', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007', '\u2008', '\u2009', '\u200A', '\u200B',
-      '\u202F', '\u205F', '\u3000', '\uFEFF'
+      ' ', '\u00A0', '\u1680', '\u2000', '\u2001', '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007',
+      '\u2008', '\u2009', '\u200A', '\u200B', '\u202F', '\u205F', '\u3000', '\uFEFF'
     };
 
     /// <summary>
@@ -88,13 +88,13 @@ namespace CsvTools
     public static string GetShortDisplay(in string? text, int length)
     {
       var withoutLineFeed = text?.Replace('\r', ' ').Replace('\n', ' ').Replace('\t', ' ').Replace("  ", " ")
-                                .Replace("  ", " ") ?? string.Empty;
+        .Replace("  ", " ") ?? string.Empty;
       if (string.IsNullOrWhiteSpace(withoutLineFeed))
         return string.Empty;
       if (length < 1 || withoutLineFeed.Length <= length)
         return withoutLineFeed;
       withoutLineFeed = withoutLineFeed.Substring(0, length - 1);
-      var spaceIndex = withoutLineFeed.LastIndexOf(" ", length - 1 - length / 8, StringComparison.Ordinal);
+      var spaceIndex = withoutLineFeed.LastIndexOf(" ", length - 1 - (length / 8), StringComparison.Ordinal);
       if (spaceIndex > 1)
         return withoutLineFeed.Substring(0, spaceIndex) + "…";
 
@@ -208,9 +208,9 @@ namespace CsvTools
       var chars = new char[original.Length];
       var count = 0;
       foreach (var c in from c in original
-                        let oc = CharUnicodeInfo.GetUnicodeCategory(c)
-                        where UnicodeCategory.Control != oc || c == '\r' || c == '\n'
-                        select c)
+               let oc = CharUnicodeInfo.GetUnicodeCategory(c)
+               where UnicodeCategory.Control != oc || c == '\r' || c == '\n'
+               select c)
         chars[count++] = c;
 
       return new string(chars, 0, count);
@@ -243,14 +243,14 @@ namespace CsvTools
       in string? filter,
       StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
     {
-      if (filter is null || filter.Length==0)
+      if (filter is null || filter.Length == 0)
         return true;
-      if (item is null || item.Length==0)
+      if (item is null || item.Length == 0)
         return false;
 
       if (filter.IndexOf('+') <= -1)
         return filter.Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                     .Any(part => item.IndexOf(part, stringComparison) != -1);
+          .Any(part => item.IndexOf(part, stringComparison) != -1);
       var parts = filter.Split(new[] { '+', ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
       if (parts.Length == 0)
         return true;
@@ -281,9 +281,9 @@ namespace CsvTools
       var chars = new char[normalizedString.Length];
       var count = 0;
       foreach (var c in from c in normalizedString
-                        let oc = CharUnicodeInfo.GetUnicodeCategory(c)
-                        where testFunction(oc)
-                        select c)
+               let oc = CharUnicodeInfo.GetUnicodeCategory(c)
+               where testFunction(oc)
+               select c)
         chars[count++] = c;
 
       return new string(chars, 0, count);
@@ -302,7 +302,7 @@ namespace CsvTools
       if (treatAsNull.Length == 0)
         return false;
       return value is null || value.Length == 0 || SplitByDelimiter(treatAsNull)
-               .Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
+        .Any(part => value.Equals(part, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -311,7 +311,7 @@ namespace CsvTools
     /// <param name="inputValue">The string to be split.</param>
     /// <returns>String array with substrings, empty elements are removed</returns>
     public static string[] SplitByDelimiter(in string? inputValue) =>
-      inputValue is null || inputValue.Length==0
+      inputValue is null || inputValue.Length == 0
         ? Array.Empty<string>()
         : inputValue.Split(m_DelimiterChar, StringSplitOptions.RemoveEmptyEntries);
 
@@ -321,7 +321,7 @@ namespace CsvTools
     /// <param name="contents">The column or table name.</param>
     /// <returns>The names as it can be placed into brackets</returns>
     public static string SqlName(this string? contents) =>
-      contents is null || contents.Length==0 ? string.Empty : contents.Replace("]", "]]");
+      contents is null || contents.Length == 0 ? string.Empty : contents.Replace("]", "]]");
 
     /// <summary>
     ///   SQLs the quote, does not include the outer quotes
@@ -329,7 +329,7 @@ namespace CsvTools
     /// <param name="contents">The contents.</param>
     /// <returns></returns>
     public static string SqlQuote(this string? contents) =>
-      contents is null || contents.Length==0 ? string.Empty : contents.Replace("'", "''");
+      contents is null || contents.Length == 0 ? string.Empty : contents.Replace("'", "''");
 
     /// <summary>
     ///   Read the value and determine if this could be a constant value (surrounded by " or ') or if its a number; if
@@ -341,12 +341,12 @@ namespace CsvTools
     public static bool TryGetConstant(this string? entry, out string result)
     {
       result = string.Empty;
-      if (entry is null || entry.Length==0)
+      if (entry is null || entry.Length == 0)
         return false;
 
       if (entry.Length > 2
-          && (entry[0] == '"' && entry.EndsWith("\"", StringComparison.Ordinal)
-           || entry[0] == '\'' && entry.EndsWith("'", StringComparison.Ordinal)))
+          && ((entry[0] == '"' && entry.EndsWith("\"", StringComparison.Ordinal))
+              || (entry[0] == '\'' && entry.EndsWith("'", StringComparison.Ordinal))))
       {
         result = entry.Substring(1, entry.Length - 2);
         return true;

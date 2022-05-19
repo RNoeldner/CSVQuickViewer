@@ -40,11 +40,9 @@ namespace CsvTools
     ///   overwrite the provided data
     /// </remarks>
 #pragma warning disable 8618
-
     public ImprovedTextReader(in Stream stream, int codePageId = 65001, int skipLines = 0)
 #pragma warning restore 8618
     {
-
       m_Stream = stream;
       m_SkipLines = skipLines;
 
@@ -57,6 +55,7 @@ namespace CsvTools
         Logger.Warning("Codepage {0} not supported, using UTF8", codePageId);
         codePageId = Encoding.UTF8.CodePage;
       }
+
       // read the BOM if we have seek 
       if (m_Stream.CanSeek)
       {
@@ -86,7 +85,7 @@ namespace CsvTools
         if (intEncodingByBom != null)
         {
           codePageId = intEncodingByBom.CodePage;
-          m_BomLength =  EncodingHelper.BOMLength(codePageId);
+          m_BomLength = EncodingHelper.BOMLength(codePageId);
         }
       }
 

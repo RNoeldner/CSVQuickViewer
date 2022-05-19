@@ -28,16 +28,19 @@ namespace CsvTools
   public static class StringConversion
   {
     internal static readonly IReadOnlyCollection<string> DateSeparators =
-      new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" }, StringComparer.Ordinal);
+      new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" },
+        StringComparer.Ordinal);
 
     internal static readonly IReadOnlyCollection<string> DecimalGroupings = new HashSet<string>(
-      new[] { CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator, ".", ",", " ", "" }, StringComparer.Ordinal);
+      new[] { CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator, ".", ",", " ", "" },
+      StringComparer.Ordinal);
 
     internal static readonly IReadOnlyCollection<string> DecimalSeparators = new HashSet<string>(
       new[] { CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "," }, StringComparer.Ordinal);
 
     // used to get rid of numeric suffixes like 12th or 3rd
-    private static readonly Lazy<Regex> m_RegExNumberSuffixEnglish = new Lazy<Regex>(() => new Regex(@"\b(\d+)\w?(?:st|nd|rd|th)\b"));
+    private static readonly Lazy<Regex> m_RegExNumberSuffixEnglish =
+      new Lazy<Regex>(() => new Regex(@"\b(\d+)\w?(?:st|nd|rd|th)\b"));
 
     /// <summary>
     ///   The possible length of a date for a given format
@@ -47,10 +50,12 @@ namespace CsvTools
 
     private static readonly string[] m_FalseValues =
     {
-      "0", "False", "No", "n", "F", "Non", "Nein", "Falsch", "無", "无", "假", "없음", "거짓", "ไม่ใช่", "เท็จ", "नहीं", "झूठी", "نہيں", "نه", "نادرست", "لا", "كاذبة",
-      "جھوٹا", "שווא", "לא", "いいえ", "Фалшиви", "Ні", "Нет", "Не", "ЛОЖЬ", "Ψευδείς", "Όχι", "Yanlış", "Viltus", "Valse", "Vale", "Väärä", "Tidak", "Sai",
-      "Palsu", "nu", "Nr", "nie", "NEPRAVDA", "nem", "Nej", "nei", "nē", "Ne", "Não", "na", "off", "le", "Klaidingas", "Không", "inactive", "aus", "Hayır", "Hamis",
-      "Foloz", "Ffug", "Faux", "Fałszywe", "Falso", "Falske", "Falska", "Falsk", "Fals", "Falošné", "Ei"
+      "0", "False", "No", "n", "F", "Non", "Nein", "Falsch", "無", "无", "假", "없음", "거짓", "ไม่ใช่", "เท็จ", "नहीं",
+      "झूठी", "نہيں", "نه", "نادرست", "لا", "كاذبة", "جھوٹا", "שווא", "לא", "いいえ", "Фалшиви", "Ні", "Нет", "Не",
+      "ЛОЖЬ", "Ψευδείς", "Όχι", "Yanlış", "Viltus", "Valse", "Vale", "Väärä", "Tidak", "Sai", "Palsu", "nu", "Nr",
+      "nie", "NEPRAVDA", "nem", "Nej", "nei", "nē", "Ne", "Não", "na", "off", "le", "Klaidingas", "Không", "inactive",
+      "aus", "Hayır", "Hamis", "Foloz", "Ffug", "Faux", "Fałszywe", "Falso", "Falske", "Falska", "Falsk", "Fals",
+      "Falošné", "Ei"
     };
 
     /// <summary>
@@ -62,10 +67,12 @@ namespace CsvTools
 
     private static readonly string[] m_TrueValues =
     {
-      "1", "-1", "True", "yes", "y", "t", "on", "Wahr", "Sì", "Si", "Ja", "active", "an", "Правда", "Да", "Вярно", "Vero", "Veritable", "Vera", "Jah", "igen", "真實", "真实", "真", "是啊",
-      "예", "사실", "อย่างแท้จริง", "ใช่", "हाँ", "सच", "نعم", "صحيح", "سچا", "درست است", "جی ہاں", "بله", "נכון", "כן", "はい", "Так", "Ναι", "Αλήθεια", "Ya",
-      "Wir", "Waar", "Vrai", "Verdadero", "Verdade", "Totta", "Tõsi", "Tiesa", "Tak", "taip", "Sim", "Sí", "Sant", "Sanna", "Sandt", "Res", "Prawdziwe",
-      "Pravda", "Patiess", "Oui", "Kyllä", "jā", "Iva", "Igaz", "Ie", "Gerçek", "Evet", "Đúng", "da", "Có", "Benar", "áno", "Ano", "Adevărat"
+      "1", "-1", "True", "yes", "y", "t", "on", "Wahr", "Sì", "Si", "Ja", "active", "an", "Правда", "Да", "Вярно",
+      "Vero", "Veritable", "Vera", "Jah", "igen", "真實", "真实", "真", "是啊", "예", "사실", "อย่างแท้จริง", "ใช่", "हाँ",
+      "सच", "نعم", "صحيح", "سچا", "درست است", "جی ہاں", "بله", "נכון", "כן", "はい", "Так", "Ναι", "Αλήθεια", "Ya",
+      "Wir", "Waar", "Vrai", "Verdadero", "Verdade", "Totta", "Tõsi", "Tiesa", "Tak", "taip", "Sim", "Sí", "Sant",
+      "Sanna", "Sandt", "Res", "Prawdziwe", "Pravda", "Patiess", "Oui", "Kyllä", "jā", "Iva", "Igaz", "Ie", "Gerçek",
+      "Evet", "Đúng", "da", "Có", "Benar", "áno", "Ano", "Adevărat"
     };
 
     /// <summary>
@@ -78,33 +85,28 @@ namespace CsvTools
     /// <see cref="DataTypeEnum.TextUnescape"/> is to be assumed the text has C encoding
     ///  otherwise <see cref="DataTypeEnum.String"/>
     /// </returns>
-    public static DataTypeEnum CheckUnescaped(in IEnumerable<string> samples, int minRequiredSamples, in CancellationToken cancellationToken)
+    public static DataTypeEnum CheckUnescaped(in IEnumerable<string> samples, int minRequiredSamples,
+      in CancellationToken cancellationToken)
     {
-      int foundUnescaped = 0;
-      int foundHtml = 0;
+      var foundUnescaped = 0;
+      var foundHtml = 0;
       foreach (var text in samples)
       {
         if (cancellationToken.IsCancellationRequested)
           break;
-        if (text.IndexOf("<br>", StringComparison.OrdinalIgnoreCase) != -1 || text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase))
-        {
+        if (text.IndexOf("<br>", StringComparison.OrdinalIgnoreCase) != -1 ||
+            text.StartsWith("<![CDATA[", StringComparison.OrdinalIgnoreCase))
           if (foundHtml++ > minRequiredSamples)
-          {
             return DataTypeEnum.TextToHtml;
-          }
-        }
-        if (text.IndexOf("\\r", StringComparison.Ordinal) != -1 || 
-            text.IndexOf("\\n", StringComparison.Ordinal) != -1 || 
-            text.IndexOf("\\t", StringComparison.Ordinal) != -1 || 
-            text.IndexOf("\\u", StringComparison.Ordinal) != -1 || 
+        if (text.IndexOf("\\r", StringComparison.Ordinal) != -1 ||
+            text.IndexOf("\\n", StringComparison.Ordinal) != -1 ||
+            text.IndexOf("\\t", StringComparison.Ordinal) != -1 ||
+            text.IndexOf("\\u", StringComparison.Ordinal) != -1 ||
             text.IndexOf("\\x", StringComparison.Ordinal) != -1)
-        {
           if (foundUnescaped++ > minRequiredSamples)
-          {
             return DataTypeEnum.TextUnescape;
-          }
-        }
       }
+
       return DataTypeEnum.String;
     }
 
@@ -119,12 +121,12 @@ namespace CsvTools
     /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
     public static CheckResult CheckDate(
-    in ICollection<string> samples,
-    in string shortDateFormat,
-    in string dateSeparator,
-    in string timeSeparator,
-    in CultureInfo culture,
-    in CancellationToken cancellationToken)
+      in ICollection<string> samples,
+      in string shortDateFormat,
+      in string dateSeparator,
+      in string timeSeparator,
+      in CultureInfo culture,
+      in CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
       if (samples.Count == 0)
@@ -238,8 +240,8 @@ namespace CsvTools
         var ret = StringToDecimal(value, decimalSeparator, thousandSeparator, allowPercentage);
         // Any number with leading 0 should not be treated as numeric this is to avoid problems with
         // 0002 etc.
-        if (!ret.HasValue || !allowStartingZero && value.StartsWith("0", StringComparison.Ordinal)
-                                                && Math.Floor(ret.Value) != 0)
+        if (!ret.HasValue || (!allowStartingZero && value.StartsWith("0", StringComparison.Ordinal)
+                                                 && Math.Floor(ret.Value) != 0))
         {
           allParsed = false;
           checkResult.ExampleNonMatch.Add(value);
@@ -287,7 +289,8 @@ namespace CsvTools
     /// </param>
     /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
-    public static CheckResult CheckSerialDate(in IEnumerable<string> samples, bool isCloseToNow, in CancellationToken cancellationToken)
+    public static CheckResult CheckSerialDate(in IEnumerable<string> samples, bool isCloseToNow,
+      in CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
 
@@ -345,7 +348,8 @@ namespace CsvTools
     ///   <c>true</c> if all values can be interpreted as time and the list is not empty,
     ///   <c>false</c> otherwise.
     /// </returns>
-    public static bool CheckTime(in IEnumerable<string>? samples, in string timeSeparator, in CancellationToken cancellationToken)
+    public static bool CheckTime(in IEnumerable<string>? samples, in string timeSeparator,
+      in CancellationToken cancellationToken)
     {
       if (samples is null)
         return false;
@@ -376,7 +380,8 @@ namespace CsvTools
     /// <param name="serialDateTime">Allow Date Time values in serial format</param>
     /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
-    public static bool CheckTimeSpan(in IEnumerable<string>? samples, in string timeSeparator, bool serialDateTime, in CancellationToken cancellationToken)
+    public static bool CheckTimeSpan(in IEnumerable<string>? samples, in string timeSeparator, bool serialDateTime,
+      in CancellationToken cancellationToken)
     {
       if (samples is null)
         return false;
@@ -579,7 +584,7 @@ namespace CsvTools
       const string allowed = " Hhmsf:";
 
       var result = format.DateFormat.Where(chr => allowed.IndexOf(chr) != -1)
-                         .Aggregate(string.Empty, (current, chr) => current + chr).Trim();
+        .Aggregate(string.Empty, (current, chr) => current + chr).Trim();
       // make them all upper case H lower case does not make sense
       while (result.Contains("h"))
         result = result.Replace("h", "H");
@@ -626,8 +631,8 @@ namespace CsvTools
     public static string DecimalToString(in decimal value, in IValueFormat format)
     {
       var valueFormat = format.NumberFormat.Length == 0
-                          ? ValueFormatExtension.cNumberFormatDefault
-                          : format.NumberFormat;
+        ? ValueFormatExtension.cNumberFormatDefault
+        : format.NumberFormat;
 
       return value.ToString(valueFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
         CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
@@ -653,14 +658,14 @@ namespace CsvTools
 
       if (IsDuration(dateTime))
         return (dateTime - m_FirstDateTime).TotalHours.ToString(
-                 (dateTime - m_FirstDateTime).TotalHours >= 100 ? "000" : "00",
-                 CultureInfo.InvariantCulture) + ":"
-                                               + (dateTime - m_FirstDateTime).Minutes.ToString(
-                                                 "00",
-                                                 CultureInfo.InvariantCulture) + ":"
-                                               + (dateTime - m_FirstDateTime).Seconds.ToString(
-                                                 "00",
-                                                 CultureInfo.InvariantCulture);
+            (dateTime - m_FirstDateTime).TotalHours >= 100 ? "000" : "00",
+            CultureInfo.InvariantCulture) + ":"
+                                          + (dateTime - m_FirstDateTime).Minutes.ToString(
+                                            "00",
+                                            CultureInfo.InvariantCulture) + ":"
+                                          + (dateTime - m_FirstDateTime).Seconds.ToString(
+                                            "00",
+                                            CultureInfo.InvariantCulture);
       return dateTime.ToString("G", culture);
     }
 
@@ -673,8 +678,8 @@ namespace CsvTools
     public static string DoubleToString(in double value, in IValueFormat format)
     {
       var valueFormat = format.NumberFormat.Length == 0
-                          ? ValueFormatExtension.cNumberFormatDefault
-                          : format.NumberFormat;
+        ? ValueFormatExtension.cNumberFormatDefault
+        : format.NumberFormat;
       return value.ToString(valueFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
         CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
         format.DecimalSeparator,
@@ -775,8 +780,8 @@ namespace CsvTools
         return new Tuple<bool, string>(true, value);
 
       return m_FalseValues.Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase))
-               ? new Tuple<bool, string>(false, value)
-               : null;
+        ? new Tuple<bool, string>(false, value)
+        : null;
     }
 
     /// <summary>
@@ -799,8 +804,9 @@ namespace CsvTools
       bool serialDateTime)
     {
       var stringDateValue = originalValue.Trim();
-      
-      var result = StringToDateTimeExact(originalValue, dateFormat, dateSeparator, timeSeparator, CultureInfo.CurrentCulture);
+
+      var result = StringToDateTimeExact(originalValue, dateFormat, dateSeparator, timeSeparator,
+        CultureInfo.CurrentCulture);
       if (result.HasValue)
         return result.Value;
 
@@ -847,9 +853,9 @@ namespace CsvTools
 
       // get rid of numeric suffixes like 12th or 3rd for dates
       if (stringDateValue.IndexOf("th ", StringComparison.OrdinalIgnoreCase) != -1
-      || stringDateValue.IndexOf("nd ", StringComparison.OrdinalIgnoreCase) != -1
-      || stringDateValue.IndexOf("st ", StringComparison.OrdinalIgnoreCase) != -1
-      || stringDateValue.IndexOf("rd ", StringComparison.OrdinalIgnoreCase) != -1)
+          || stringDateValue.IndexOf("nd ", StringComparison.OrdinalIgnoreCase) != -1
+          || stringDateValue.IndexOf("st ", StringComparison.OrdinalIgnoreCase) != -1
+          || stringDateValue.IndexOf("rd ", StringComparison.OrdinalIgnoreCase) != -1)
         stringDateValue = m_RegExNumberSuffixEnglish.Value.Replace(stringDateValue, "$1");
 
       // Quick check: If the entry is empty, or a constant string, or the length does not make
@@ -1220,7 +1226,8 @@ namespace CsvTools
       var stringDateValue = value?.Trim() ?? string.Empty;
       try
       {
-        var numberFormatProvider = new NumberFormatInfo { NegativeSign = "-", PositiveSign = "+", NumberGroupSeparator = string.Empty };
+        var numberFormatProvider =
+          new NumberFormatInfo { NegativeSign = "-", PositiveSign = "+", NumberGroupSeparator = string.Empty };
         foreach (var decimalSeparator in DecimalSeparators)
         {
           numberFormatProvider.NumberDecimalSeparator = decimalSeparator.ToString(CultureInfo.CurrentCulture);
@@ -1270,11 +1277,11 @@ namespace CsvTools
         // Use ParseExact since Parse does not work if a date separator is set but the date
         // separator is not part of the date format
         if (DateTime.TryParseExact(
-          stringDateValue,
-          dateTimeFormats,
-          dateTimeFormatInfo,
-          DateTimeStyles.NoCurrentDateDefault,
-          out var result)) return result;
+              stringDateValue,
+              dateTimeFormats,
+              dateTimeFormatInfo,
+              DateTimeStyles.NoCurrentDateDefault,
+              out var result)) return result;
 
         // try InvariantCulture
         if (culture.Name != "en-US" && !Equals(culture, CultureInfo.InvariantCulture))
@@ -1285,11 +1292,11 @@ namespace CsvTools
           dateTimeFormatInfo.AbbreviatedMonthNames = CultureInfo.InvariantCulture.DateTimeFormat.AbbreviatedMonthNames;
 
           if (DateTime.TryParseExact(
-            stringDateValue,
-            dateTimeFormats,
-            dateTimeFormatInfo,
-            DateTimeStyles.NoCurrentDateDefault,
-            out result)) return result;
+                stringDateValue,
+                dateTimeFormats,
+                dateTimeFormatInfo,
+                DateTimeStyles.NoCurrentDateDefault,
+                out result)) return result;
         }
 
         // In case a date with follwing time is passed in it would not be parsed, take the part of

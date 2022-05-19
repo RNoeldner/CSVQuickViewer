@@ -23,9 +23,9 @@ namespace CsvTools
     public ProcessDisplayTime() =>
       TimeToCompletion = new TimeToCompletion();
 
-    public event EventHandler<ProgressWithTimeEventArgs> ProgressTime = delegate {  };
+    public event EventHandler<ProgressWithTimeEventArgs> ProgressTime = delegate { };
 
-    public event EventHandler<long> SetMaximum = delegate {  };
+    public event EventHandler<long> SetMaximum = delegate { };
 
     /// <inheritdoc cref="IProcessDisplayTime.Maximum" />
     public override long Maximum
@@ -43,7 +43,8 @@ namespace CsvTools
     protected override void Handle(in object? sender, string text, long value, bool log)
     {
       base.Handle(sender, text, value, log);
-      ProgressTime.Invoke(sender, new ProgressWithTimeEventArgs(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
+      ProgressTime.Invoke(sender,
+        new ProgressWithTimeEventArgs(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
       TimeToCompletion.Value = value;
     }
   }

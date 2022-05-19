@@ -30,10 +30,10 @@ namespace CsvTools
 
     private static readonly Lazy<int[]> m_CommonCodePages = new Lazy<int[]>(
       () => new[]
-            {
-              65001, 1200, 1201, 12000, 12001, 1250, 1252, 1253, 1255, 65000, 850, 852, 437, 28591, 10029, 20127, 28597,
-              50220, 28592, 28595, 28598, 20866, 932, 54936
-            });
+      {
+        65001, 1200, 1201, 12000, 12001, 1250, 1252, 1253, 1255, 65000, 850, 852, 437, 28591, 10029, 20127, 28597,
+        50220, 28592, 28595, 28598, 20866, 932, 54936
+      });
 
     /// <summary>
     ///   Gets a collection of the most common code pages.
@@ -94,7 +94,7 @@ namespace CsvTools
     {
       if (buff is null || length < 2)
         return null;
-      
+
       if (length >= 4)
       {
         // Start with longer chains, as UTF16_LE looks like UTF32_LE for the first 2 chars

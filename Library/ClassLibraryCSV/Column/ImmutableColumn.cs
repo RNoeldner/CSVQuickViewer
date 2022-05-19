@@ -77,8 +77,8 @@ namespace CsvTools
       TimeZonePart = timeZonePart;
 
       ValueFormat = valueFormat is ImmutableValueFormat immutable
-                      ? immutable
-                      : new ImmutableValueFormat(valueFormat);
+        ? immutable
+        : new ImmutableValueFormat(valueFormat);
       ColumnFormatter = ColumnFormatterFactory.GetColumnFormatter(columnOrdinal, valueFormat);
     }
 
@@ -107,7 +107,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     public string TimeZonePart { get; }
-    
+
     public IValueFormat ValueFormat { get; }
 
     public object Clone() => new ImmutableColumn(this);
@@ -136,21 +136,20 @@ namespace CsvTools
       return Equals((ImmutableColumn) obj);
     }
 
-   
 
     public override int GetHashCode()
     {
       unchecked
       {
         var hashCode = ColumnOrdinal;
-        hashCode = hashCode * 397 ^ Convert.GetHashCode();
-        hashCode = hashCode * 397 ^ DestinationName.GetHashCode();
-        hashCode = hashCode * 397 ^ Ignore.GetHashCode();
-        hashCode = hashCode * 397 ^ Name.GetHashCode();
-        hashCode = hashCode * 397 ^ TimePart.GetHashCode();
-        hashCode = hashCode * 397 ^ TimePartFormat.GetHashCode();
-        hashCode = hashCode * 397 ^ TimeZonePart.GetHashCode();
-        hashCode = hashCode * 397 ^ ValueFormat.GetHashCode();
+        hashCode = (hashCode * 397) ^ Convert.GetHashCode();
+        hashCode = (hashCode * 397) ^ DestinationName.GetHashCode();
+        hashCode = (hashCode * 397) ^ Ignore.GetHashCode();
+        hashCode = (hashCode * 397) ^ Name.GetHashCode();
+        hashCode = (hashCode * 397) ^ TimePart.GetHashCode();
+        hashCode = (hashCode * 397) ^ TimePartFormat.GetHashCode();
+        hashCode = (hashCode * 397) ^ TimeZonePart.GetHashCode();
+        hashCode = (hashCode * 397) ^ ValueFormat.GetHashCode();
         return hashCode;
       }
     }
