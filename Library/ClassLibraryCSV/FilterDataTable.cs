@@ -84,9 +84,9 @@ namespace CsvTools
     {
       var columnsWithoutErrors = GetColumnsWithoutErrors();
       return (from DataColumn col in m_SourceTable.Columns
-              where !col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
-              where !columnsWithoutErrors.Contains(col.ColumnName)
-              select col.ColumnName).ToList();
+        where !col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
+        where !columnsWithoutErrors.Contains(col.ColumnName)
+        select col.ColumnName).ToList();
     }
 
     /// <summary>
@@ -220,7 +220,7 @@ namespace CsvTools
     public async Task FilterAsync(int limit, FilterTypeEnum type, CancellationToken cancellationToken)
     {
       if (m_Filtering)
-        Cancel();      
+        Cancel();
       m_ColumnWithoutErrorsCache = null;
       FilterTable = m_SourceTable.Clone();
 

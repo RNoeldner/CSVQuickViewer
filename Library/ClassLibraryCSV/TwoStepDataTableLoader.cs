@@ -80,7 +80,7 @@ namespace CsvTools
       }
 
       m_DataReaderWrapper = new DataReaderWrapper(
-        m_FileReader,        
+        m_FileReader,
         includeError,
         fileSetting.DisplayStartLineNo,
         fileSetting.DisplayEndLineNo,
@@ -89,7 +89,8 @@ namespace CsvTools
 
       m_ActionBegin?.Invoke();
 
-      await GetBatchByTimeSpan(durationInitial, includeError, processDisplay, m_SetDataTable, cancellationToken).ConfigureAwait(false);
+      await GetBatchByTimeSpan(durationInitial, includeError, processDisplay, m_SetDataTable, cancellationToken)
+        .ConfigureAwait(false);
 
       m_SetLoadNextBatchAsync?.Invoke((process, token) =>
         GetBatchByTimeSpan(TimeSpan.MaxValue, includeError, process, dt => m_GetDataTable().Merge(dt), token));
@@ -118,10 +119,10 @@ namespace CsvTools
       processDisplay?.SetMaximum(100);
 
       var dt = await m_DataReaderWrapper.LoadDataTable(
-                 maxDuration,
-                 restoreError,
-                 processDisplay,
-                 cancellationToken).ConfigureAwait(false);
+        maxDuration,
+        restoreError,
+        processDisplay,
+        cancellationToken).ConfigureAwait(false);
 
       // for Debuging its nice to know where it all came form
       if (!string.IsNullOrEmpty(m_ID))
@@ -136,7 +137,6 @@ namespace CsvTools
       }
 
       if (m_RefreshDisplayAsync != null)
-      {
         try
         {
           await m_RefreshDisplayAsync(FilterTypeEnum.All, cancellationToken).ConfigureAwait(false);
@@ -145,7 +145,6 @@ namespace CsvTools
         {
           // ignore
         }
-      }
 
       if (m_DataReaderWrapper.EndOfFile)
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER

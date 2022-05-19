@@ -66,7 +66,8 @@ namespace CsvTools
         if (twoBackups)
         {
           var split = SplitPath(fileName);
-          var numBackup = Directory.EnumerateFiles(split.DirectoryName.LongPathPrefix(), split.FileName + "*.bak", SearchOption.TopDirectoryOnly).Count();
+          var numBackup = Directory.EnumerateFiles(split.DirectoryName.LongPathPrefix(), split.FileName + "*.bak",
+            SearchOption.TopDirectoryOnly).Count();
           backupName = fileName + $"_V{numBackup + 1}.bak";
         }
         else
@@ -96,8 +97,8 @@ namespace CsvTools
         directory = Assembly.GetEntryAssembly()?.Location ?? string.Empty;
 
       return (directory.Length == 0
-                ? Directory.GetCurrentDirectory()
-                : Path.GetDirectoryName(directory.LongPathPrefix()))!;
+        ? Directory.GetCurrentDirectory()
+        : Path.GetDirectoryName(directory.LongPathPrefix()))!;
     }
 
 #if !QUICK
@@ -123,7 +124,7 @@ namespace CsvTools
       if (processDisplay != null)
         intervalAction = new IntervalAction();
       while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, cancellationToken)
-                                          .ConfigureAwait(false)) > 0)
+               .ConfigureAwait(false)) > 0)
       {
         cancellationToken.ThrowIfCancellationRequested();
         totalReads += bytesRead;
@@ -254,9 +255,9 @@ namespace CsvTools
       var newSet = new DateTime(0);
       string? lastFile = null;
       foreach (var fileName in Directory.EnumerateFiles(
-        folder.LongPathPrefix(),
-        searchPattern,
-        SearchOption.TopDirectoryOnly))
+                 folder.LongPathPrefix(),
+                 searchPattern,
+                 SearchOption.TopDirectoryOnly))
       {
         var fileTime = new System.IO.FileInfo(fileName).LastWriteTimeUtc;
         if (fileTime <= newSet)
@@ -405,7 +406,8 @@ namespace CsvTools
           return new StreamReader(OpenRead(fileName), true);
 
         var executingAssembly = Assembly.GetExecutingAssembly();
-        var foundName = executingAssembly.GetManifestResourceNames().FirstOrDefault(x => x.EndsWith("." + file, StringComparison.OrdinalIgnoreCase));
+        var foundName = executingAssembly.GetManifestResourceNames()
+          .FirstOrDefault(x => x.EndsWith("." + file, StringComparison.OrdinalIgnoreCase));
         // try the embedded resource
         if (foundName != null)
           // ReSharper disable once AssignNullToNotNullAttribute
@@ -413,7 +415,8 @@ namespace CsvTools
         var callingAssembly = Assembly.GetCallingAssembly();
         if (callingAssembly != executingAssembly)
         {
-          foundName = callingAssembly.GetManifestResourceNames().FirstOrDefault(x => x.EndsWith("." + file, StringComparison.OrdinalIgnoreCase));
+          foundName = callingAssembly.GetManifestResourceNames()
+            .FirstOrDefault(x => x.EndsWith("." + file, StringComparison.OrdinalIgnoreCase));
           if (foundName != null)
             // ReSharper disable once AssignNullToNotNullAttribute
             return new StreamReader(callingAssembly.GetManifestResourceStream(foundName), true);
@@ -447,8 +450,8 @@ namespace CsvTools
           path.StartsWith(cUncLongPathPrefix, StringComparison.OrdinalIgnoreCase))
         return path;
       return path.StartsWith(@"\\", StringComparison.Ordinal)
-               ? cUncLongPathPrefix + path.Substring(2)
-               : cLongPathPrefix + path;
+        ? cUncLongPathPrefix + path.Substring(2)
+        : cLongPathPrefix + path;
     }
 
     public static string RemovePrefix(this string path)
@@ -456,8 +459,8 @@ namespace CsvTools
       if (!m_IsWindows || path.StartsWith(cLongPathPrefix, StringComparison.Ordinal))
         return path.Substring(cLongPathPrefix.Length);
       return path.StartsWith(cUncLongPathPrefix, StringComparison.Ordinal)
-               ? path.Substring(cUncLongPathPrefix.Length)
-               : path;
+        ? path.Substring(cUncLongPathPrefix.Length)
+        : path;
     }
 
     public static string? ResolvePattern(string? fileName)
@@ -467,7 +470,7 @@ namespace CsvTools
 
       // Handle date Placeholders
       fileName = fileName.PlaceholderReplaceFormat("date", DateTime.Now)
-                         .PlaceholderReplaceFormat("utc", DateTime.UtcNow);
+        .PlaceholderReplaceFormat("utc", DateTime.UtcNow);
 
       // only if we have wildcards carry on
       if (fileName.IndexOfAny(new[] { '*', '?', '[', ']' }) == -1)
@@ -535,8 +538,8 @@ namespace CsvTools
         var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, bufferSize);
         if (length > 0)
           return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length - 1] == Path.DirectorySeparatorChar
-                                       ? string.Empty
-                                       : Path.DirectorySeparatorChar.ToString()) +
+                    ? string.Empty
+                    : Path.DirectorySeparatorChar.ToString()) +
                   fi.Name)
             .RemovePrefix();
       }
@@ -572,8 +575,8 @@ namespace CsvTools
       }
 
       return lastIndex != -1
-               ? new SplitResult(path.Substring(0, lastIndex).RemovePrefix(), path.Substring(lastIndex + 1))
-               : new SplitResult(string.Empty, path.RemovePrefix());
+        ? new SplitResult(path.Substring(0, lastIndex).RemovePrefix(), path.Substring(lastIndex + 1))
+        : new SplitResult(string.Empty, path.RemovePrefix());
     }
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]

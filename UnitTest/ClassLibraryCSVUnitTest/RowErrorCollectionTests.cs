@@ -20,51 +20,52 @@ using System.Threading.Tasks;
 namespace CsvTools.Tests
 {
   [TestClass]
-	public class RowErrorCollectionTests
-	{
-		[TestMethod]
-		public void RowErrorCollection() => Assert.IsNotNull(new RowErrorCollection(100));
+  public class RowErrorCollectionTests
+  {
+    [TestMethod]
+    public void RowErrorCollection() => Assert.IsNotNull(new RowErrorCollection(100));
 
-		[TestMethod]
-		public async Task HandleIgnoredColumns()
-		{
-			var coll = new RowErrorCollection(5);
+    [TestMethod]
+    public async Task HandleIgnoredColumns()
+    {
+      var coll = new RowErrorCollection(5);
 
-      using var reader = new CsvFileReader(fileName: UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0, true,
+      using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0,
+        true,
         new IColumn[]
         {
           new ImmutableColumn("DateTime", new ImmutableValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
-          new ImmutableColumn("Integer", new ImmutableValueFormat(DataTypeEnum.Integer), 0, true, "", true),
-        }, trimmingOption: TrimmingOptionEnum.Unquoted,
-fieldDelimiter: "\t",
-fieldQualifier: "\"",
-escapeCharacter: "",
-recordLimit: 0,
-allowRowCombining: false,
-contextSensitiveQualifier: false,
-commentLine: "",
-numWarning: 0,
-duplicateQualifierToEscape: true,
-newLinePlaceholder: "",
-delimiterPlaceholder: "",
-quotePlaceholder: "",
-skipDuplicateHeader: true,
-treatLfAsSpace: false,
-treatUnknownCharacterAsSpace: false,
-tryToSolveMoreColumns: true,
-warnDelimiterInValue: true,
-warnLineFeed: false,
-warnNbsp: true,
-warnQuotes: true,
-warnUnknownCharacter: true,
-warnEmptyTailingColumns: true,
-treatNbspAsSpace: false,
-treatTextAsNull: "NULL",
-identifierInContainer: null,
-skipEmptyLines: true,
-consecutiveEmptyRowsMax: 4,
-timeZoneAdjust: new StandardTimeZoneAdjust(),
-processDisplay: null);
+          new ImmutableColumn("Integer", new ImmutableValueFormat(DataTypeEnum.Integer), 0, true, "", true)
+        }, TrimmingOptionEnum.Unquoted,
+        "\t",
+        "\"",
+        "",
+        0,
+        false,
+        false,
+        "",
+        0,
+        true,
+        "",
+        "",
+        "",
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        "NULL",
+        identifierInContainer: null,
+        skipEmptyLines: true,
+        consecutiveEmptyRowsMax: 4,
+        timeZoneAdjust: new StandardTimeZoneAdjust(),
+        processDisplay: null);
       await reader.OpenAsync(CancellationToken.None);
       coll.HandleIgnoredColumns(reader);
 
@@ -73,50 +74,50 @@ processDisplay: null);
       Assert.AreEqual(0, coll.CountRows);
     }
 
-		[TestMethod]
-		public void Add()
-		{
-			var coll = new RowErrorCollection(5);
-			coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
-			Assert.AreEqual(1, coll.CountRows);
-			coll.Add(this, new WarningEventArgs(2, 1, "Message1", 101, 101, "ColName"));
-			Assert.AreEqual(2, coll.CountRows);
-			coll.Add(this, new WarningEventArgs(3, 1, "Message1", 102, 102, "ColName"));
-			Assert.AreEqual(3, coll.CountRows);
-			coll.Add(this, new WarningEventArgs(4, 1, "Message1", 103, 103, "ColName"));
-			Assert.AreEqual(4, coll.CountRows);
-			coll.Add(this, new WarningEventArgs(5, 1, "Message1", 104, 104, "ColName"));
-			Assert.AreEqual(5, coll.CountRows);
+    [TestMethod]
+    public void Add()
+    {
+      var coll = new RowErrorCollection(5);
+      coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
+      Assert.AreEqual(1, coll.CountRows);
+      coll.Add(this, new WarningEventArgs(2, 1, "Message1", 101, 101, "ColName"));
+      Assert.AreEqual(2, coll.CountRows);
+      coll.Add(this, new WarningEventArgs(3, 1, "Message1", 102, 102, "ColName"));
+      Assert.AreEqual(3, coll.CountRows);
+      coll.Add(this, new WarningEventArgs(4, 1, "Message1", 103, 103, "ColName"));
+      Assert.AreEqual(4, coll.CountRows);
+      coll.Add(this, new WarningEventArgs(5, 1, "Message1", 104, 104, "ColName"));
+      Assert.AreEqual(5, coll.CountRows);
 
-			// This should be cut off
-			coll.Add(this, new WarningEventArgs(6, 1, "Message1", 105, 105, "ColName"));
-			Assert.AreEqual(5, coll.CountRows);
-		}
+      // This should be cut off
+      coll.Add(this, new WarningEventArgs(6, 1, "Message1", 105, 105, "ColName"));
+      Assert.AreEqual(5, coll.CountRows);
+    }
 
-		[TestMethod]
-		public void Clear()
-		{
-			var coll = new RowErrorCollection(5);
-			coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
-			Assert.AreEqual(1, coll.CountRows);
-			coll.Clear();
-			Assert.AreEqual(0, coll.CountRows);
-		}
+    [TestMethod]
+    public void Clear()
+    {
+      var coll = new RowErrorCollection(5);
+      coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
+      Assert.AreEqual(1, coll.CountRows);
+      coll.Clear();
+      Assert.AreEqual(0, coll.CountRows);
+    }
 
-		[TestMethod]
-		public void TryGetValue()
-		{
-			var coll = new RowErrorCollection(5);
-			coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
-			Assert.IsTrue(coll.TryGetValue(1, out _));
-		}
+    [TestMethod]
+    public void TryGetValue()
+    {
+      var coll = new RowErrorCollection(5);
+      coll.Add(this, new WarningEventArgs(1, 1, "Message1", 100, 100, "ColName"));
+      Assert.IsTrue(coll.TryGetValue(1, out _));
+    }
 
-		[TestMethod]
-		public void DisplayByRecordNumber()
-		{
-			var coll = new RowErrorCollection(5);
-			coll.Add(this, new WarningEventArgs(425, 1, "Message1", 100, 100, "ColName"));
-			Assert.IsTrue(coll.DisplayByRecordNumber.Contains("Row 425"));
-		}
-	}
+    [TestMethod]
+    public void DisplayByRecordNumber()
+    {
+      var coll = new RowErrorCollection(5);
+      coll.Add(this, new WarningEventArgs(425, 1, "Message1", 100, 100, "ColName"));
+      Assert.IsTrue(coll.DisplayByRecordNumber.Contains("Row 425"));
+    }
+  }
 }

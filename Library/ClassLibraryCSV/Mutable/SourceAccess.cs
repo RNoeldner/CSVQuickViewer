@@ -22,7 +22,6 @@ namespace CsvTools
   /// </summary>
   public class SourceAccess
   {
-
     /// <summary>
     ///   Type of the file
     /// </summary>
@@ -149,8 +148,9 @@ namespace CsvTools
     /// <param name="type">The type of the contents in the stream</param>
     /// <param name="isReading"><c>true</c> if used for reading</param>
     /// <param name="keyID">PGP encryption key identifier</param>
-    public SourceAccess(Stream stream, FileTypeEnum type = FileTypeEnum.Stream, bool isReading = true, in long keyID = 0)
-    {      
+    public SourceAccess(Stream stream, FileTypeEnum type = FileTypeEnum.Stream, bool isReading = true,
+      in long keyID = 0)
+    {
       LeaveOpen = true;
       m_OpenStream = () => stream;
       FileType = type;
@@ -187,8 +187,8 @@ namespace CsvTools
       // in case the SourceAccess initialized with a function, the stream is only known now...
       if (Identifier.Length == 0)
         Identifier = stream is FileStream fs
-                       ? FileSystemUtils.GetShortDisplayFileName(fs.Name)
-                       : $"{stream.GetType().Name}_{FileType}";
+          ? FileSystemUtils.GetShortDisplayFileName(fs.Name)
+          : $"{stream.GetType().Name}_{FileType}";
       return stream;
     }
 

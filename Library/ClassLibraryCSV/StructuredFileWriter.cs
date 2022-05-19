@@ -82,8 +82,8 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(row))
         throw new ArgumentException($"{nameof(row)} can not be empty");
-      
-      m_CodePageId = codePageId;      
+
+      m_CodePageId = codePageId;
       m_ByteOrderMark = byteOrderMark;
       m_Row = row;
     }
@@ -104,17 +104,18 @@ namespace CsvTools
       IFileReader reader,
       Stream output,
       CancellationToken cancellationToken)
-    {      
+    {
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var writer = new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 4096, true);
+      using var writer =
+        new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 4096, true);
       SetColumns(reader);
       var numColumns = Columns.Count();
       if (numColumns == 0)
         throw new FileWriterException("No columns defined to be written.");
       const string recordEnd = "\r\n";
-      
+
       HandleWriteStart();
 
       // Header
@@ -152,7 +153,7 @@ namespace CsvTools
              && !cancellationToken.IsCancellationRequested)
       {
         NextRecord();
-        if (Records>1)
+        if (Records > 1)
           sb.Append(RecordDelimiter());
 
         // Start a new line
@@ -160,8 +161,8 @@ namespace CsvTools
         var row = withHeader;
         colNum = 0;
         foreach (var value in from columnInfo in Columns
-                              let col = reader.GetValue(columnInfo.ColumnOrdinal)
-                              select Escape(col, columnInfo, reader))
+                 let col = reader.GetValue(columnInfo.ColumnOrdinal)
+                 select Escape(col, columnInfo, reader))
         {
           row = row.Replace(placeHolderLookup1[colNum], value).Replace(placeHolderLookup2[colNum], value);
           colNum++;

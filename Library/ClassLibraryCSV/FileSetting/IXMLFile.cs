@@ -16,7 +16,7 @@ namespace CsvTools
 {
   /// <inheritdoc />
   public interface IXmlFile : IFileSettingPhysicalFile
-	{
-		string Row { get; set; }
-	}
+  {
+    string Row { get; set; }
+  }
 }

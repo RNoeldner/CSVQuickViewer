@@ -29,42 +29,42 @@ namespace CsvTools
     /// <summary>
     ///   Indicating if the value or text should be converted
     /// </summary>
-		bool Convert { get; }
+    bool Convert { get; }
 
     /// <summary>
     ///   Name of the column in the destination system
     /// </summary>
-		string DestinationName { get; }
+    string DestinationName { get; }
 
     /// <summary>
     ///   Indicating if the column should be ignored during read or write, no conversion is done if the column is ignored teh target will not show this column
     /// </summary>
-		bool Ignore { get; }
+    bool Ignore { get; }
 
     /// <summary>
     ///   Name of the column 
     /// </summary>
-		string Name { get; }
+    string Name { get; }
 
     /// <summary>
     ///   For DateTime import you can combine a date and a time column into a single datetime column, to do this specify the time column on the column for the date
     /// </summary>
-		string TimePart { get; }
+    string TimePart { get; }
 
     /// <summary>
     ///   For DateTime import you can combine a date and a time into a single datetime column, specify the format of the time here this can different from the format of the time column itself that is often ignored
     /// </summary>
-		string TimePartFormat { get; }
+    string TimePartFormat { get; }
 
     /// <summary>
     ///   For DateTime import you set a time zone, during read the value provided will be assumed to be of the timezone specified
     ///   During write the time will be converted into this time zone
     /// </summary>
-		string TimeZonePart { get; }
+    string TimeZonePart { get; }
 
     /// <summary>
     ///   Formatting option for values
     /// </summary>
-		IValueFormat ValueFormat { get; }
+    IValueFormat ValueFormat { get; }
   }
 }

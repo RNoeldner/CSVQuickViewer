@@ -51,11 +51,14 @@ namespace CsvTools
     ///   Collection of the artificial field names
     /// </summary>
     public static readonly IReadOnlyCollection<string> ArtificialFields =
-      new HashSet<string>(StringComparer.OrdinalIgnoreCase) { cRecordNumberFieldName,
-                                                              cStartLineNumberFieldName,
-                                                              cEndLineNumberFieldName,
-                                                              cErrorField,
-                                                              cPartitionField };
+      new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+      {
+        cRecordNumberFieldName,
+        cStartLineNumberFieldName,
+        cEndLineNumberFieldName,
+        cErrorField,
+        cPartitionField
+      };
 
     /// <summary>
     ///   Gets the default schema row array.
@@ -96,9 +99,7 @@ namespace CsvTools
     {
       var dataTable = new DataTable
       {
-        TableName = "SchemaTable",
-        Locale = CultureInfo.InvariantCulture,
-        MinimumCapacity = 10
+        TableName = "SchemaTable", Locale = CultureInfo.InvariantCulture, MinimumCapacity = 10
       };
 
       dataTable.Columns.Add(SchemaTableColumn.AllowDBNull, typeof(bool)).ReadOnly = true;

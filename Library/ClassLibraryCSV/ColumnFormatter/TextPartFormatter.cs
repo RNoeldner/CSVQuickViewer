@@ -23,7 +23,7 @@ namespace CsvTools
     private readonly char m_PartSplitter;
     private readonly bool m_PartToEnd;
 
-    
+
     public TextPartFormatter()
       : this(
         ValueFormatExtension.cPartDefault,

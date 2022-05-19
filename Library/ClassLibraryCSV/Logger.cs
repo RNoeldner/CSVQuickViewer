@@ -43,10 +43,8 @@ namespace CsvTools
       LoggerInstance?.LogError(message, args);
     }
 
-    public static void Error(in Exception exception, in string? message = null, params object[] args)
-    {
+    public static void Error(in Exception exception, in string? message = null, params object[] args) =>
       LoggerInstance?.LogError(exception.Demystify(), message ?? exception.ExceptionMessages(2), args);
-    }
 
     public static void Information(in string? message, params object[] args)
     {
@@ -69,9 +67,7 @@ namespace CsvTools
       LoggerInstance?.LogWarning(message, args);
     }
 
-    public static void Warning(in Exception exception, in string? message, params object[] args)
-    {
+    public static void Warning(in Exception exception, in string? message, params object[] args) =>
       LoggerInstance?.LogWarning(exception.Demystify(), message ?? string.Empty, args);
-    }
   }
 }

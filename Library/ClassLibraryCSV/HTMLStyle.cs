@@ -392,7 +392,6 @@ namespace CsvTools
     }
 
 
-
     /// <summary>
     ///   Replace special characters from an HTML text
     /// </summary>
@@ -406,7 +405,7 @@ namespace CsvTools
           && text.EndsWith("]]>", StringComparison.OrdinalIgnoreCase))
         return text.Substring(9, text.Length - 12);
       return text.HandleCrlfCombinations("<br>").Replace('\t', ' ').Replace("  ", " ")
-                 .Replace("  ", " ");
+        .Replace("  ", " ");
     }
 
     /// <summary>
@@ -521,8 +520,8 @@ namespace CsvTools
       const string source = "http://www.csvquickviewer.com/";
 
       const string markerBlock = "Version:1.0\r\n" + "StartHTML:{0,8}\r\n" + "EndHTML:{1,8}\r\n"
-                                   + "StartFragment:{2,8}\r\n" + "EndFragment:{3,8}\r\n" + "StartSelection:{2,8}\r\n"
-                                   + "EndSelection:{3,8}\r\n" + "SourceURL:{4}\r\n" + "{5}";
+                                 + "StartFragment:{2,8}\r\n" + "EndFragment:{3,8}\r\n" + "StartSelection:{2,8}\r\n"
+                                 + "EndSelection:{3,8}\r\n" + "SourceURL:{4}\r\n" + "{5}";
 
       var prefixLength = string.Format(CultureInfo.InvariantCulture, markerBlock, 0, 0, 0, 0, source, "").Length;
 

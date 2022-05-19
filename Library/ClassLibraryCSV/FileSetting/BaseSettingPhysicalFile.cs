@@ -32,7 +32,7 @@ namespace CsvTools
     private string m_FullPath = string.Empty;
     private bool m_FullPathInitialized;
     private string m_IdentifierInContainer = string.Empty;
-    private string m_PassPhrase = string.Empty;    
+    private string m_PassPhrase = string.Empty;
     private string m_RemoteFileName = string.Empty;
     private bool m_ThrowErrorIfNotExists = true;
     private bool m_ByteOrderMark = true;
@@ -271,7 +271,7 @@ namespace CsvTools
         m_ThrowErrorIfNotExists = value;
         NotifyPropertyChanged(nameof(ThrowErrorIfNotExists));
       }
-    }    
+    }
 
     [XmlAttribute]
     [DefaultValue(0)]
@@ -305,7 +305,7 @@ namespace CsvTools
       fileSettingPhysicalFile.IdentifierInContainer = IdentifierInContainer;
       fileSettingPhysicalFile.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
       fileSettingPhysicalFile.Passphrase = Passphrase;
-      fileSettingPhysicalFile.KeyID= KeyID;
+      fileSettingPhysicalFile.KeyID = KeyID;
       fileSettingPhysicalFile.DefaultValueFormatWrite.CopyFrom(DefaultValueFormatWrite);
     }
 
@@ -323,7 +323,7 @@ namespace CsvTools
       if (!(other is IFileSettingPhysicalFile fileSettingPhysicalFile))
         return base.BaseSettingsEquals(other);
       if (m_ByteOrderMark != fileSettingPhysicalFile.ByteOrderMark ||
-            m_CodePageId != fileSettingPhysicalFile.CodePageId)
+          m_CodePageId != fileSettingPhysicalFile.CodePageId)
         return false;
 
       if (!fileSettingPhysicalFile.DefaultValueFormatWrite.ValueFormatEqual(DefaultValueFormatWrite))
@@ -362,10 +362,10 @@ namespace CsvTools
     {
       if (other is IFileSettingPhysicalFile physicalFile)
       {
-        if (physicalFile.ByteOrderMark!=ByteOrderMark)
+        if (physicalFile.ByteOrderMark != ByteOrderMark)
           yield return $"ByteOrderMark: {ByteOrderMark} {physicalFile.ByteOrderMark}";
 
-        if (physicalFile.CodePageId!=CodePageId)
+        if (physicalFile.CodePageId != CodePageId)
           yield return $"CodePageId: {CodePageId} {physicalFile.CodePageId}";
 
         if (!physicalFile.ColumnFile.Equals(ColumnFile, StringComparison.OrdinalIgnoreCase))
@@ -380,10 +380,10 @@ namespace CsvTools
         if (!physicalFile.IdentifierInContainer.Equals(IdentifierInContainer, StringComparison.OrdinalIgnoreCase))
           yield return $"IdentifierInContainer: {IdentifierInContainer} {physicalFile.IdentifierInContainer}";
 
-        if (physicalFile.ThrowErrorIfNotExists!=ThrowErrorIfNotExists)
+        if (physicalFile.ThrowErrorIfNotExists != ThrowErrorIfNotExists)
           yield return $"ThrowErrorIfNotExists: {ThrowErrorIfNotExists} {physicalFile.ThrowErrorIfNotExists}";
 
-        if (physicalFile.Passphrase!=Passphrase)
+        if (physicalFile.Passphrase != Passphrase)
           yield return $"Passphrase";
 
         if (!physicalFile.KeyID.Equals(KeyID))
@@ -392,6 +392,7 @@ namespace CsvTools
         if (!physicalFile.DefaultValueFormatWrite.ValueFormatEqual(DefaultValueFormatWrite))
           yield return $"DefaultValueFormatWrite";
       }
+
       foreach (var res in base.GetDifferences(other))
         yield return res;
     }

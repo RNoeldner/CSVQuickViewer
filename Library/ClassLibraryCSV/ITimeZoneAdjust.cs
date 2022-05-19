@@ -19,6 +19,7 @@ namespace CsvTools
     /// <param name="srcTimeZone">The source timezone, the implemation  will decide which values are actually allowed</param>
     /// <param name="handleWarning">In case a conversion is not possible the information is apsssed on</param>
     /// <returns>The date time in loacl timzone</returns>
-    DateTime AdjustTZ(in DateTime input, in string srcTimeZone, in string descTimeZone, in Action<string>? handleWarning);
+    DateTime AdjustTZ(in DateTime input, in string srcTimeZone, in string descTimeZone,
+      in Action<string>? handleWarning);
   }
 }

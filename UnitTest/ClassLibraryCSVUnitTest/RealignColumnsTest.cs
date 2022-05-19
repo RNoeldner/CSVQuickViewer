@@ -11,38 +11,14 @@ namespace CsvTools.Tests
     public async Task AllFormatsPipeReaderAsync()
     {
       var processDisplay = new CustomProcessDisplay();
-      using var test = new CsvFileReader(fileName: UnitTestStatic.GetTestPath("RealignColumn.txt"),
-        hasFieldHeader: true, tryToSolveMoreColumns: true, skipEmptyLines: false, processDisplay: processDisplay
-        , codePageId: 650001,
-skipRows: 0,
-columnDefinition: null,
-trimmingOption: TrimmingOptionEnum.Unquoted,
-fieldDelimiter: "\t",
-fieldQualifier: "\"",
-escapeCharacter: "",
-recordLimit: 0,
-allowRowCombining: false,
-contextSensitiveQualifier: false,
-commentLine: "",
-numWarning: 0,
-duplicateQualifierToEscape: true,
-newLinePlaceholder: "",
-delimiterPlaceholder: "",
-quotePlaceholder: "",
-skipDuplicateHeader: true,
-treatLfAsSpace: false,
-treatUnknownCharacterAsSpace: false,
-warnDelimiterInValue: true,
-warnLineFeed: false,
-warnNbsp: true,
-warnQuotes: true,
-warnUnknownCharacter: true,
-warnEmptyTailingColumns: true,
-treatNbspAsSpace: false,
-treatTextAsNull: "NULL",
-consecutiveEmptyRowsMax: 4,
-timeZoneAdjust: new StandardTimeZoneAdjust(),
-identifierInContainer: "");
+      using var test = new CsvFileReader(UnitTestStatic.GetTestPath("RealignColumn.txt"), 650001,0,
+        true, null, TrimmingOptionEnum.Unquoted, tryToSolveMoreColumns: true, skipEmptyLines: false,
+         fieldDelimiter: "\t", fieldQualifier: "\"", escapeCharacter: "",
+        recordLimit: 0, allowRowCombining: false, contextSensitiveQualifier: false, commentLine: "", numWarning: 0,
+        duplicateQualifierToEscape: true, newLinePlaceholder: "", delimiterPlaceholder: "", quotePlaceholder: "",
+        skipDuplicateHeader: true, treatLfAsSpace: false, treatUnknownCharacterAsSpace: false, warnDelimiterInValue: true,
+        warnLineFeed: false, warnNbsp: true, warnQuotes: true, warnUnknownCharacter: true, warnEmptyTailingColumns: true,
+        treatNbspAsSpace: false, treatTextAsNull: "NULL", consecutiveEmptyRowsMax: 4, timeZoneAdjust: new StandardTimeZoneAdjust(), identifierInContainer: "", processDisplay: processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
 
       // first five rows are good.

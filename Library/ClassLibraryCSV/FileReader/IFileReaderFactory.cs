@@ -23,27 +23,33 @@ namespace CsvTools
     ///  Get an instance of a <see cref="IFileReader"/> based on the passed in IFileSetting
     /// </summary>
     /// <param name="setting">The setting the reader should read</param>
+    /// <param name="timeZone"></param>
     /// <param name="processDisplay">Used Process/Progress reporting</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>A <see cref="IFileReader"/> capable to import data</returns>
-    IFileReader GetFileReader(in IFileSetting setting, in string? timeZone, in IProcessDisplay? processDisplay, in CancellationToken cancellationToken);
+    IFileReader GetFileReader(in IFileSetting setting, in string? timeZone, in IProcessDisplay? processDisplay,
+      in CancellationToken cancellationToken);
 
     /// <summary>
     ///  Get an instance of a <see cref="IFileWriter"/> based on the passed in IFileSetting
     /// </summary>
-    /// <param name="setting">The setting the reader should read</param>
+    /// <param name="fileSetting">The setting the reader should read</param>
     /// <param name="processDisplay">Used Process/Progress reporting</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>A <see cref="IFileWriter"/> capable to export data</returns>
-    IFileWriter GetFileWriter(IFileSetting fileSetting, in IProcessDisplay? processDisplay, in CancellationToken cancellationToken);
+    IFileWriter GetFileWriter(IFileSetting fileSetting, in IProcessDisplay? processDisplay,
+      in CancellationToken cancellationToken);
 
     /// <summary>
-    ///  Get an instance of a <see cref="IFileReader"/> that does read a SQL staemnet
+    ///  Get an instance of a <see cref="IFileReader"/> that does read a SQL statement
     /// </summary>
     /// <param name="sql">SQL statement to execute</param>
     /// <param name="processDisplay">Used Process/Progress reporting</param>
     /// <param name="commandTimeout">Timeout in Seconds to process the SQL statement</param>
-    /// <param name="recordLimit">Maximum number of recodsr to be returned</param>
+    /// <param name="recordLimit">Maximum number of records to be returned</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A <see cref="IFileReader"/> capable of reading data from the attached database</returns>
-    Task<IFileReader> SqlDataReader(in string sql, in IProcessDisplay? processDisplay, int commandTimeout, long recordLimit, CancellationToken cancellationToken);
+    Task<IFileReader> SqlDataReader(in string sql, in IProcessDisplay? processDisplay, int commandTimeout,
+      long recordLimit, CancellationToken cancellationToken);
   }
 }

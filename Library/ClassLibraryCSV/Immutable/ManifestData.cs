@@ -49,8 +49,8 @@ namespace CsvTools
     {
       var posExt = fileName.LastIndexOf('.');
       var manifest = fileName.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase)
-                       ? fileName
-                       : fileName.Substring(0, posExt) + cCsvManifestExtension;
+        ? fileName
+        : fileName.Substring(0, posExt) + cCsvManifestExtension;
       if (!FileSystemUtils.FileExists(manifest))
         throw new FileNotFoundException(manifest);
 
@@ -59,12 +59,12 @@ namespace CsvTools
 
       if (FileSystemUtils.FileExists(dataFile))
         return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty)
-                 .ConfigureAwait(false);
+          .ConfigureAwait(false);
 
       dataFile = manifest.ReplaceCaseInsensitive(cCsvManifestExtension, ".txt");
       if (FileSystemUtils.FileExists(dataFile))
         return await ReadManifestFromStream(FileSystemUtils.OpenRead(manifest), dataFile, string.Empty)
-                 .ConfigureAwait(false);
+          .ConfigureAwait(false);
       throw new FileNotFoundException(dataFile);
     }
 
@@ -87,9 +87,10 @@ namespace CsvTools
             continue;
           Logger.Information("Configuration read from manifest file {filename}", entryManifest.Name);
           return await ReadManifestFromStream(archive.GetInputStream(entryManifest), fileName, entryFile.Name)
-                   .ConfigureAwait(false);
+            .ConfigureAwait(false);
         }
       }
+
       return null;
     }
 
@@ -99,7 +100,7 @@ namespace CsvTools
       string identifierInContainer)
     {
       var strContend = await new StreamReader(manifestStream, Encoding.UTF8, true, 4096, false).ReadToEndAsync()
-                         .ConfigureAwait(false);
+        .ConfigureAwait(false);
       var mani = JsonConvert.DeserializeObject<ManifestData>(strContend);
       if (mani is null)
         throw new InvalidOperationException("The manifest file could not be deserialized");
@@ -171,7 +172,7 @@ namespace CsvTools
       }
 
       return new DelimitedFileDetectionResultWithColumns(fileSettingMani, columnCollection, string.Empty
-        );
+      );
     }
 
     public class ManifestField

@@ -301,8 +301,8 @@ namespace CsvTools
         }
 
       foreach (var part in from part in errorList
-                           where part.Item2.IsWarningMessage()
-                           select part)
+               where part.Item2.IsWarningMessage()
+               select part)
       {
         if (errors.Length > 0)
           errors.Append(cSeparator);

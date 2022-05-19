@@ -46,7 +46,7 @@ namespace CsvTools
     /// <summary>
     ///   Passphrase for Decryption
     /// </summary>
-    string Passphrase { get; set; }    
+    string Passphrase { get; set; }
 
     /// <summary>
     ///   Gets the PGP encryption Key ID

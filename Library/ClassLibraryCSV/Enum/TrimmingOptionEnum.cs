@@ -18,20 +18,20 @@ namespace CsvTools
   ///   Enumeration of the different trimming options
   /// </summary>
   public enum TrimmingOptionEnum
-	{
-		/// <summary>
-		///   No Trimming
-		/// </summary>
-		None = 0,
+  {
+    /// <summary>
+    ///   No Trimming
+    /// </summary>
+    None = 0,
 
-		/// <summary>
-		///   Do trim unquoted Text
-		/// </summary>
-		Unquoted = 1,
+    /// <summary>
+    ///   Do trim unquoted Text
+    /// </summary>
+    Unquoted = 1,
 
-		/// <summary>
-		///   Do trim everything, quoted and unquoted text
-		/// </summary>
-		All = 3
-	}
+    /// <summary>
+    ///   Do trim everything, quoted and unquoted text
+    /// </summary>
+    All = 3
+  }
 }

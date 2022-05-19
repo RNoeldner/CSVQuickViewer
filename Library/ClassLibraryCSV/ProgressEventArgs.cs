@@ -16,7 +16,6 @@ using System;
 
 namespace CsvTools
 {
-
   /// <inheritdoc />
   /// <summary>
   ///   Argument for a ProgressEvent

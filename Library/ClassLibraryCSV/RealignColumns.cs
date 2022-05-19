@@ -127,10 +127,8 @@ namespace CsvTools
               {
                 if (string.IsNullOrEmpty((columns[col - 1])))
                   columns[col - 1] = columns[col];
-                //else if (columns[col - 1].EndsWith(" "))
+                else
                   columns[col - 1] += columns[col];
-                //else
-                //  columns[col - 1] += " " + columns[col];
               }
               columns.RemoveAt(col);
               col--;

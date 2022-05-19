@@ -45,7 +45,8 @@ namespace CsvTools
       bool treatNbspAsSpace,
       in ITimeZoneAdjust timeZoneAdjust,
       IProcessDisplay? processDisplay)
-      : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, processDisplay) =>
+      : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust,
+        processDisplay) =>
       m_ImprovedStream = improvedStream;
 
     public JsonFileReader(
@@ -56,8 +57,9 @@ namespace CsvTools
       string treatTextAsNull,
       bool treatNbspAsSpace,
       in ITimeZoneAdjust timeZoneAdjust,
-      IProcessDisplay? processDisplay )
-      : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, processDisplay)
+      IProcessDisplay? processDisplay)
+      : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust,
+        processDisplay)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("File can not be null or empty", nameof(fileName));
@@ -152,10 +154,7 @@ namespace CsvTools
 
     protected override void Dispose(bool disposing)
     {
-      if (disposing)
-      {
-        m_ImprovedStream?.Dispose();
-      }
+      if (disposing) m_ImprovedStream?.Dispose();
 
       m_StreamReader?.Dispose();
       (m_JsonTextReader as IDisposable)?.Dispose();
@@ -269,7 +268,7 @@ namespace CsvTools
               // in case we are in an array combine all values but separate them with linefeed
               if (inArray && keyValuePairs[key] != null)
                 keyValuePairs[key] = (Convert.ToString(keyValuePairs[key]) ?? string.Empty) + '\n'
-                                                                                            + m_JsonTextReader.Value;
+                  + m_JsonTextReader.Value;
               else
                 keyValuePairs[key] = m_JsonTextReader.Value;
               break;

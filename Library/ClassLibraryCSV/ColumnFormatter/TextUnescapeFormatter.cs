@@ -23,22 +23,22 @@ namespace CsvTools
     private static Tuple<int, int> ParseHex(in string text, int startPos)
     {
       var hex = new StringBuilder();
-      var pos = startPos+2;
+      var pos = startPos + 2;
       // up to 4 byte escape 
-      while (pos<startPos + 6 && pos< text.Length)
+      while (pos < startPos + 6 && pos < text.Length)
       {
-        if (text[pos] >= '0' && text[pos] <= '9'
-          || text[pos] >= 'A' && text[pos] <= 'F'
-          || text[pos] >= 'a' && text[pos] <= 'f')
+        if ((text[pos] >= '0' && text[pos] <= '9')
+            || (text[pos] >= 'A' && text[pos] <= 'F')
+            || (text[pos] >= 'a' && text[pos] <= 'f'))
           hex.Append(text[pos]);
         else
           break;
         pos++;
       }
 
-      if (hex.Length>0)
+      if (hex.Length > 0)
         // get the hex number         
-        if (int.TryParse(hex.ToString(), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out int charValue))
+        if (int.TryParse(hex.ToString(), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var charValue))
           return new Tuple<int, int>(pos, charValue);
 
       return new Tuple<int, int>(-1, -1);
@@ -51,41 +51,42 @@ namespace CsvTools
     public static string Unescape(in string text)
     {
       if (text is null) throw new ArgumentNullException(nameof(text));
-      if (text.IndexOf('\\') ==-1)
+      if (text.IndexOf('\\') == -1)
         return text;
 
-      var retValue = text.Replace("\\t", "\t").Replace("\\n", "\n").Replace("\\r", "\r").Replace("\\v", "\v").Replace("\\'", "\'").Replace("\\\"", "\"").Replace("\\a", "\a").Replace("\\b", "\b").Replace("\\f", "\f");
+      var retValue = text.Replace("\\t", "\t").Replace("\\n", "\n").Replace("\\r", "\r").Replace("\\v", "\v")
+        .Replace("\\'", "\'").Replace("\\\"", "\"").Replace("\\a", "\a").Replace("\\b", "\b").Replace("\\f", "\f");
 
-      int posEncoded = retValue.IndexOf("\\u", StringComparison.Ordinal);
+      var posEncoded = retValue.IndexOf("\\u", StringComparison.Ordinal);
       while (posEncoded != -1)
       {
         var (pos, charValue) = ParseHex(retValue, posEncoded);
-        if (pos!=-1)
+        if (pos != -1)
         {
-          retValue = retValue.Replace(retValue.Substring(posEncoded, pos-posEncoded), ((char) charValue).ToString());
+          retValue = retValue.Replace(retValue.Substring(posEncoded, pos - posEncoded), ((char) charValue).ToString());
           posEncoded -= 2;
         }
 
-        posEncoded = retValue.IndexOf("\\u", posEncoded+2, StringComparison.Ordinal);
+        posEncoded = retValue.IndexOf("\\u", posEncoded + 2, StringComparison.Ordinal);
       }
 
       posEncoded = retValue.IndexOf("\\x", StringComparison.Ordinal);
       while (posEncoded != -1)
       {
         var (pos, charValue) = ParseHex(retValue, posEncoded);
-        if (pos!=-1)
+        if (pos != -1)
         {
-          retValue = retValue.Replace(retValue.Substring(posEncoded, pos-posEncoded), ((char) charValue).ToString());
+          retValue = retValue.Replace(retValue.Substring(posEncoded, pos - posEncoded), ((char) charValue).ToString());
           posEncoded -= 2;
         }
 
-        posEncoded = retValue.IndexOf("\\x", posEncoded+2, StringComparison.Ordinal);
+        posEncoded = retValue.IndexOf("\\x", posEncoded + 2, StringComparison.Ordinal);
       }
 
       return retValue;
     }
 
-    public override string  FormatInputText(in string inputString, Action<string>? handleWarning)
+    public override string FormatInputText(in string inputString, Action<string>? handleWarning)
     {
       var output = Unescape(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))

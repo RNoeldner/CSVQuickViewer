@@ -41,13 +41,9 @@ namespace CsvTools
       else
         Separators = cDefaultSeparators;
       if (disallowedDelimiter != null)
-      {
         foreach (var delim in disallowedDelimiter)
-        {
           if (Separators.IndexOf(delim) != -1)
             Separators = Separators.Remove(Separators.IndexOf(delim), 1);
-        }
-      }
       SeparatorsCount = new int[Separators.Length, NumRows];
       SeparatorRows = new int[Separators.Length];
     }
@@ -60,8 +56,9 @@ namespace CsvTools
         if (SeparatorsCount[index, LastRow] == 0)
           SeparatorRows[index]++;
         ++SeparatorsCount[index, LastRow];
-        return true;        
+        return true;
       }
+
       return false;
     }
 

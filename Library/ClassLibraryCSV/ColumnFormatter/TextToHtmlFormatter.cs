@@ -17,7 +17,6 @@ using System.Data;
 
 namespace CsvTools
 {
-
   public class TextToHtmlFormatter : BaseColumnFormatter
   {
     /// <inheritdoc/>

@@ -29,8 +29,8 @@ namespace CsvTools
     ///   True if we have read all data in the reader once
     /// </summary>
     public bool AllRead() =>
-      m_ImprovedTextReader.EndOfStream && !CouldStartFromBeginning()
-      || m_ArrivedAtEndOnce && m_ImprovedTextReader.LineNumber > m_LineStarted;
+      (m_ImprovedTextReader.EndOfStream && !CouldStartFromBeginning())
+      || (m_ArrivedAtEndOnce && m_ImprovedTextReader.LineNumber > m_LineStarted);
 
     /// <summary>
     ///   Determines if we could reset the position to allow processing text that had been read before

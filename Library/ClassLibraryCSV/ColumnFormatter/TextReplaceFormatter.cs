@@ -42,6 +42,7 @@ namespace CsvTools
           handleWarning?.Invoke($"Text Replace");
         return output ?? string.Empty;
       }
+
       return inputString;
     }
   }

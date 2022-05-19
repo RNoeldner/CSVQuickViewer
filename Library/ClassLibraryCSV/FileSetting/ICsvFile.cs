@@ -28,7 +28,7 @@ namespace CsvTools
     ///   <c>true</c> if row combining is allowed; otherwise, <c>false</c>.
     /// </value>
     bool AllowRowCombining { get; set; }
-    
+
     /// <summary>
     ///   Gets or sets a value indicating whether a file is most likely not a delimited file
     /// </summary>

@@ -68,7 +68,9 @@ namespace CsvTools
     public override long Length => BaseStream.Length;
 
     /// <inheritdoc />
-    public double Percentage => BaseStream.Length < 1 || BaseStream.Position >= BaseStream.Length ? 1d : (double) BaseStream.Position / BaseStream.Length;
+    public double Percentage => BaseStream.Length < 1 || BaseStream.Position >= BaseStream.Length
+      ? 1d
+      : (double) BaseStream.Position / BaseStream.Length;
 
     /// <inheritdoc cref="IImprovedStream" />
     /// <summary>

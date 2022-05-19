@@ -44,6 +44,7 @@ namespace CsvTools
     /// <param name="trim">Trim all read text</param>
     /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
     /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
+    /// <param name="timeZoneAdjust">Class to modify date time for timezones</param>
     /// <param name="processDisplay">Process Display</param>
     protected BaseFileReaderTyped(
       in string fileName,

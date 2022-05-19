@@ -83,7 +83,7 @@ namespace CsvTools
       {
         var newEntry = new DateTimeFormatInformation(entry);
         if (MinLengthDate > newEntry.MinLength)
-          MinLengthDate= newEntry.MinLength;
+          MinLengthDate = newEntry.MinLength;
         m_DateLengthMinMax.Add(entry, newEntry);
       }
     }

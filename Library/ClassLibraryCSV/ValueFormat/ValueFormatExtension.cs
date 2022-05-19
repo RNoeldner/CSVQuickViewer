@@ -69,7 +69,8 @@ namespace CsvTools
           one.GroupSeparator),
         DataTypeEnum.TextPart => $"{one.Part}" + (one.PartToEnd ? " To End" : string.Empty),
         DataTypeEnum.Binary => $"Read file from {one.ReadFolder}",
-        DataTypeEnum.TextReplace => $"Replace {StringUtils.GetShortDisplay( one.RegexSearchPattern,10)} with {StringUtils.GetShortDisplay(one.RegexReplacement, 10)}",
+        DataTypeEnum.TextReplace =>
+          $"Replace {StringUtils.GetShortDisplay(one.RegexSearchPattern, 10)} with {StringUtils.GetShortDisplay(one.RegexReplacement, 10)}",
         _ => string.Empty
       };
 
@@ -111,7 +112,7 @@ namespace CsvTools
       // if one is integer but we expect numeric or vice versa, assume its OK, one of the sides does
       // not have a decimal separator
       if ((other.DataType == DataTypeEnum.Numeric || other.DataType == DataTypeEnum.Double
-                                              || other.DataType == DataTypeEnum.Integer)
+                                                  || other.DataType == DataTypeEnum.Integer)
           && one.DataType == DataTypeEnum.Integer)
         return true;
 
@@ -119,17 +120,17 @@ namespace CsvTools
       switch (other.DataType)
       {
         case DataTypeEnum.Integer when one.DataType == DataTypeEnum.Numeric || one.DataType == DataTypeEnum.Double
-                                                                    || one.DataType == DataTypeEnum.Integer:
+                                                                            || one.DataType == DataTypeEnum.Integer:
           return true;
         // if we have dates, check the formats
         case DataTypeEnum.DateTime when one.DataType == DataTypeEnum.DateTime:
           return other.DateFormat.Equals(one.DateFormat, StringComparison.Ordinal)
                  && (one.DateFormat.IndexOf('/') == -1 || other.DateSeparator.Equals(
-                       one.DateSeparator,
-                       StringComparison.Ordinal)) && (one.DateFormat.IndexOf(':') == -1
-                                                      || other.TimeSeparator.Equals(
-                                                        one.TimeSeparator,
-                                                        StringComparison.Ordinal));
+                   one.DateSeparator,
+                   StringComparison.Ordinal)) && (one.DateFormat.IndexOf(':') == -1
+                                                  || other.TimeSeparator.Equals(
+                                                    one.TimeSeparator,
+                                                    StringComparison.Ordinal));
       }
 
       // if we have decimals, check the formats
@@ -156,24 +157,27 @@ namespace CsvTools
       {
         DataTypeEnum.Integer => string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal),
         DataTypeEnum.Numeric => string.Equals(other.GroupSeparator, one.GroupSeparator, StringComparison.Ordinal)
-                            && string.Equals(other.DecimalSeparator, one.DecimalSeparator, StringComparison.Ordinal)
-                            && string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal),
-        DataTypeEnum.Double => other.GroupSeparator == one.GroupSeparator && other.DecimalSeparator == one.DecimalSeparator
-                                                                      && string.Equals(
-                                                                        other.NumberFormat,
-                                                                        one.NumberFormat,
-                                                                        StringComparison.Ordinal),
+                                && string.Equals(other.DecimalSeparator, one.DecimalSeparator, StringComparison.Ordinal)
+                                && string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal),
+        DataTypeEnum.Double => other.GroupSeparator == one.GroupSeparator && other.DecimalSeparator ==
+                                                                          one.DecimalSeparator
+                                                                          && string.Equals(
+                                                                            other.NumberFormat,
+                                                                            one.NumberFormat,
+                                                                            StringComparison.Ordinal),
         DataTypeEnum.DateTime => string.Equals(other.DateFormat, one.DateFormat, StringComparison.Ordinal)
-                             && string.Equals(other.DateSeparator, one.DateSeparator, StringComparison.Ordinal)
-                             && string.Equals(other.TimeSeparator, one.TimeSeparator, StringComparison.Ordinal),
+                                 && string.Equals(other.DateSeparator, one.DateSeparator, StringComparison.Ordinal)
+                                 && string.Equals(other.TimeSeparator, one.TimeSeparator, StringComparison.Ordinal),
         DataTypeEnum.Boolean => string.Equals(other.False, one.False, StringComparison.OrdinalIgnoreCase)
-                            && string.Equals(other.True, one.True, StringComparison.OrdinalIgnoreCase),
+                                && string.Equals(other.True, one.True, StringComparison.OrdinalIgnoreCase),
 
-        DataTypeEnum.TextReplace => string.Equals(other.RegexSearchPattern, one.RegexSearchPattern, StringComparison.Ordinal)
-                             && string.Equals(other.RegexReplacement, one.RegexReplacement, StringComparison.Ordinal),
+        DataTypeEnum.TextReplace => string.Equals(other.RegexSearchPattern, one.RegexSearchPattern,
+                                      StringComparison.Ordinal)
+                                    && string.Equals(other.RegexReplacement, one.RegexReplacement,
+                                      StringComparison.Ordinal),
         DataTypeEnum.Binary => string.Equals(other.ReadFolder, one.ReadFolder),
         DataTypeEnum.TextPart => string.Equals(other.PartSplitter, one.PartSplitter, StringComparison.Ordinal)
-                             && other.Part == one.Part && other.PartToEnd == one.PartToEnd,
+                                 && other.Part == one.Part && other.PartToEnd == one.PartToEnd,
         _ => string.Equals(other.DateFormat, one.DateFormat, StringComparison.Ordinal)
              && string.Equals(other.DateSeparator, one.DateSeparator, StringComparison.Ordinal)
              && string.Equals(other.TimeSeparator, one.TimeSeparator, StringComparison.Ordinal)

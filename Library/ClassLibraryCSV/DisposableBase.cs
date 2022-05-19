@@ -18,7 +18,6 @@ namespace CsvTools
 {
   /// <inheritdoc />
 #pragma warning disable S3881 // "IDisposable" should be implemented correctly
-
   public abstract class DisposableBase : IDisposable
 #pragma warning restore S3881 // "IDisposable" should be implemented correctly
   {
@@ -40,15 +39,12 @@ namespace CsvTools
     public void Dispose()
     {
       if (!m_DisposedValue)
-        Dispose(disposing: true);
+        Dispose(true);
       m_DisposedValue = true;
       GC.SuppressFinalize(this);
     }
 
     /// <inheritdoc />
-    ~DisposableBase()
-    {
-      Dispose(disposing: false);
-    }
+    ~DisposableBase() => Dispose(false);
   }
 }

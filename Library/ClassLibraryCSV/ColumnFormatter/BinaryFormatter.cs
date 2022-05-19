@@ -26,7 +26,8 @@ namespace CsvTools
     private readonly string m_RootFolderRead;
     private readonly string m_RootFolderWrite;
 
-    public BinaryFormatter(int columnOrdinal = -1, string? rootFolderRead = null, string? rootFolderWrite = null, string? fileOutPutPlaceholder = null, bool overwrite = true)
+    public BinaryFormatter(int columnOrdinal = -1, string? rootFolderRead = null, string? rootFolderWrite = null,
+      string? fileOutPutPlaceholder = null, bool overwrite = true)
     {
       m_ColumnOrdinal = columnOrdinal;
       m_RootFolderRead = rootFolderRead ?? string.Empty;
@@ -35,11 +36,14 @@ namespace CsvTools
       m_Overwrite = overwrite;
     }
 
-    public static string CombineNameAndContent(in string fileName, in byte[] content) => $"{fileName}\0{Convert.ToBase64String(content)}";
+    public static string CombineNameAndContent(in string fileName, in byte[] content) =>
+      $"{fileName}\0{Convert.ToBase64String(content)}";
 
-    private static byte[] GetContentFromNameAndContent(in string contentsWithFileName) => Convert.FromBase64String(contentsWithFileName.Substring(contentsWithFileName.IndexOf('\0')+1));
+    private static byte[] GetContentFromNameAndContent(in string contentsWithFileName) =>
+      Convert.FromBase64String(contentsWithFileName.Substring(contentsWithFileName.IndexOf('\0') + 1));
 
-    public static string GetNameFromNameAndContent(in string contentsWithFileName) => contentsWithFileName.Substring(0, contentsWithFileName.IndexOf('\0'));
+    public static string GetNameFromNameAndContent(in string contentsWithFileName) =>
+      contentsWithFileName.Substring(0, contentsWithFileName.IndexOf('\0'));
 
     /// <inheritdoc/>
     public override string FormatInputText(in string inputString, Action<string>? handleWarning)
@@ -52,7 +56,8 @@ namespace CsvTools
           handleWarning?.Invoke($"File {inputString} not found");
         return string.Empty;
       }
-      if (fi.Length>256000)
+
+      if (fi.Length > 256000)
       {
         if (RaiseWarning)
           handleWarning?.Invoke($"File {inputString} too large {fi.Length:N0} > {256000:N0}");
@@ -72,9 +77,8 @@ namespace CsvTools
           fileName = GetNameFromNameAndContent(dataRow.GetString(m_ColumnOrdinal));
 
         else
-        {          
           // The fileNamePattern could contain placeholders that will be replaced with the value of another column
-          for (int colOrdinal = 0; colOrdinal < dataRow.FieldCount; colOrdinal++)
+          for (var colOrdinal = 0; colOrdinal < dataRow.FieldCount; colOrdinal++)
           {
             if (colOrdinal == m_ColumnOrdinal)
             {
@@ -92,7 +96,6 @@ namespace CsvTools
             fileName = fileName.PlaceholderReplace(dataRow.GetName(colOrdinal),
               dataRow.IsDBNull(colOrdinal) ? string.Empty : dataRow.GetValue(colOrdinal).ToString());
           }
-        }
       }
 
       // Need to make sure the resulting filename does not contain invalid characters 

@@ -130,8 +130,10 @@ namespace CsvTools
       if (index != -1)
       {
         Items.RemoveAt(index);
-        Items.Insert(index, column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));        
-        OnCollectionChanged( new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Reset));
+        Items.Insert(index, column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
+        OnCollectionChanged(
+          new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized
+            .NotifyCollectionChangedAction.Reset));
       }
       else
       {

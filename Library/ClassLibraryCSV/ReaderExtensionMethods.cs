@@ -66,7 +66,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Token to cancel the long running async method</param>
     /// <returns></returns>
     public static async Task<DataTable?> GetDataTableAsync(
-      this IFileReader reader,      
+      this IFileReader reader,
       bool restoreErrorsFromColumn,
       bool addStartLine,
       bool includeRecordNo,
@@ -77,21 +77,21 @@ namespace CsvTools
     {
       if (reader is DataTableWrapper dtw)
         return dtw.DataTable;
-      
+
       if (reader.IsClosed)
         await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var wrapper = new DataReaderWrapper(
-        reader,        
+        reader,
         includeErrorField,
         addStartLine,
         includeEndLineNo,
         includeRecordNo);
-      
+
       return await LoadDataTable(wrapper, TimeSpan.MaxValue, restoreErrorsFromColumn, progress, cancellationToken)
-               .ConfigureAwait(false);
+        .ConfigureAwait(false);
     }
 
     public static async Task<ICollection<string>> GetEmptyColumnHeaderAsync(
@@ -137,7 +137,7 @@ namespace CsvTools
         var watch = Stopwatch.StartNew();
         while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 90)
                                                           && await wrapper.ReadAsync(cancellationToken)
-                                                                          .ConfigureAwait(false))
+                                                            .ConfigureAwait(false))
         {
           var dataRow = dataTable.NewRow();
           dataTable.Rows.Add(dataRow);
@@ -162,7 +162,7 @@ namespace CsvTools
           if (wrapper.ReaderMapping.HasErrors)
             wrapper.ReaderMapping.SetDataRowErrors(dataRow);
         }
-      }      
+      }
       finally
       {
         intervalAction?.Invoke(processDisplay, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent, false);

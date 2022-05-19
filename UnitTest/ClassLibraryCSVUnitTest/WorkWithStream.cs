@@ -17,17 +17,19 @@ namespace CsvTools.Tests
       // Not closing the stream
 
       using var impStream = new ImprovedStream(stream, FileTypeEnum.Stream);
-      var result = await impStream.GetDetectionResult("stream", null, false, true, true, true, true, true, false, true, null, UnitTestStatic.Token);
+      var result = await impStream.GetDetectionResult("stream", null, false, true, true, true, true, true, false, true,
+        null, UnitTestStatic.Token);
       impStream.Seek(0, System.IO.SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-        new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
-        result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
-        string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,new StandardTimeZoneAdjust(), null))
+               new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+               result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+               string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
+               new StandardTimeZoneAdjust(), null))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(new FillGuessSettings(),
-                                new ColumnCollection(), false, true, "null", UnitTestStatic.Token);
+          new ColumnCollection(), false, true, "null", UnitTestStatic.Token);
         determinedColumns = columns.ToList();
         Assert.AreEqual(6, determinedColumns.Count(), "Recognized columns");
         Assert.AreEqual(6, info.Count, "Information Lines");
@@ -36,9 +38,10 @@ namespace CsvTools.Tests
       impStream.Seek(0, SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-        determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
-        result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
-        string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0, new StandardTimeZoneAdjust(), null))
+               determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+               result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+               string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
+               new StandardTimeZoneAdjust(), null))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         Assert.AreEqual(6, reader.FieldCount);
@@ -53,18 +56,20 @@ namespace CsvTools.Tests
       // Not closing the stream
       using var impStream = new ImprovedStream(stream, FileTypeEnum.GZip);
       var process = new CustomProcessDisplay();
-      var result = await impStream.GetDetectionResult("steam", process, false, true, true, true, true, true, false, false, null, UnitTestStatic.Token);
+      var result = await impStream.GetDetectionResult("steam", process, false, true, true, true, true, true, false,
+        false, null, UnitTestStatic.Token);
 
       impStream.Seek(0, System.IO.SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-        new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
-        result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
-        string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0, new StandardTimeZoneAdjust(), null))
+               new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+               result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+               string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
+               new StandardTimeZoneAdjust(), null))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(new FillGuessSettings(),
-                                new ColumnCollection(), false, true, "null", UnitTestStatic.Token);
+          new ColumnCollection(), false, true, "null", UnitTestStatic.Token);
         determinedColumns = columns.ToList();
         Assert.AreEqual(6, determinedColumns.Count(), "Recognized columns");
         Assert.AreEqual(6, info.Count, "Information Lines");
@@ -73,9 +78,10 @@ namespace CsvTools.Tests
       impStream.Seek(0, System.IO.SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
-        determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
-        result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
-        string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0, new StandardTimeZoneAdjust(), null))
+               determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
+               result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
+               string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
+               new StandardTimeZoneAdjust(), null))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         Assert.AreEqual(6, reader.FieldCount);

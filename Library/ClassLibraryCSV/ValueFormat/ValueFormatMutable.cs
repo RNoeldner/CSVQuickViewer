@@ -97,7 +97,8 @@ namespace CsvTools
       m_DateSeparator = (dateSeparator ?? throw new ArgumentNullException(nameof(dateSeparator))).WrittenPunctuation();
       m_DecimalSeparator = (decimalSeparator ?? throw new ArgumentNullException(nameof(decimalSeparator)))
         .WrittenPunctuation();
-      m_GroupSeparator = (groupSeparator ?? throw new ArgumentNullException(nameof(groupSeparator))).WrittenPunctuation();
+      m_GroupSeparator =
+        (groupSeparator ?? throw new ArgumentNullException(nameof(groupSeparator))).WrittenPunctuation();
       m_DisplayNullAs = displayNullAs ?? throw new ArgumentNullException(nameof(displayNullAs));
       m_False = asFalse ?? throw new ArgumentNullException(nameof(asFalse));
       m_NumberFormat = numberFormat ?? throw new ArgumentNullException(nameof(numberFormat));
@@ -114,9 +115,12 @@ namespace CsvTools
       m_Overwrite = overwrite;
     }
 
-    public ValueFormatMutable(IValueFormat other) : this(other.DataType, other.DateFormat, other.DateSeparator, other.TimeSeparator, other.NumberFormat,
+    public ValueFormatMutable(IValueFormat other) : this(other.DataType, other.DateFormat, other.DateSeparator,
+      other.TimeSeparator, other.NumberFormat,
       other.GroupSeparator, other.DecimalSeparator,
-      other.True, other.False, other.DisplayNullAs, other.Part, other.PartSplitter, other.PartToEnd, other.RegexSearchPattern, other.RegexReplacement, other.ReadFolder, other.WriteFolder, other.FileOutPutPlaceholder, other.Overwrite)
+      other.True, other.False, other.DisplayNullAs, other.Part, other.PartSplitter, other.PartToEnd,
+      other.RegexSearchPattern, other.RegexReplacement, other.ReadFolder, other.WriteFolder,
+      other.FileOutPutPlaceholder, other.Overwrite)
 
     {
     }
@@ -127,22 +131,28 @@ namespace CsvTools
     /// </summary>
 
     public bool Specified => !(DataType == DataTypeEnum.String && DateFormat == ValueFormatExtension.cDateFormatDefault
-                                                           && DateSeparator == ValueFormatExtension.cDateSeparatorDefault
-                                                           && TimeSeparator == ValueFormatExtension.cTimeSeparatorDefault
-                                                           && NumberFormat == ValueFormatExtension.cNumberFormatDefault
-                                                           && DecimalSeparator == ValueFormatExtension.cDecimalSeparatorDefault
-                                                           && GroupSeparator == ValueFormatExtension.cGroupSeparatorDefault
-                                                           && True == ValueFormatExtension.cTrueDefault
-                                                           && False == ValueFormatExtension.cFalseDefault
-                                                           && Part == ValueFormatExtension.cPartDefault
-                                                           && PartSplitter == ValueFormatExtension.cPartSplitterDefault
-                                                           && PartToEnd == ValueFormatExtension.cPartToEndDefault
-                                                           && RegexSearchPattern == string.Empty
-                                                           && RegexReplacement == string.Empty
-                                                           && ReadFolder == string.Empty
-                                                           && WriteFolder == string.Empty
-                                                           && FileOutPutPlaceholder == string.Empty
-                                                           && DisplayNullAs == string.Empty);
+                                                               && DateSeparator == ValueFormatExtension
+                                                                 .cDateSeparatorDefault
+                                                               && TimeSeparator == ValueFormatExtension
+                                                                 .cTimeSeparatorDefault
+                                                               && NumberFormat == ValueFormatExtension
+                                                                 .cNumberFormatDefault
+                                                               && DecimalSeparator == ValueFormatExtension
+                                                                 .cDecimalSeparatorDefault
+                                                               && GroupSeparator == ValueFormatExtension
+                                                                 .cGroupSeparatorDefault
+                                                               && True == ValueFormatExtension.cTrueDefault
+                                                               && False == ValueFormatExtension.cFalseDefault
+                                                               && Part == ValueFormatExtension.cPartDefault
+                                                               && PartSplitter == ValueFormatExtension
+                                                                 .cPartSplitterDefault
+                                                               && PartToEnd == ValueFormatExtension.cPartToEndDefault
+                                                               && RegexSearchPattern == string.Empty
+                                                               && RegexReplacement == string.Empty
+                                                               && ReadFolder == string.Empty
+                                                               && WriteFolder == string.Empty
+                                                               && FileOutPutPlaceholder == string.Empty
+                                                               && DisplayNullAs == string.Empty);
 
     /// <inheritdoc />
     /// <summary>
@@ -466,6 +476,7 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(ReadFolder));
       }
     }
+
     [XmlAttribute]
     [DefaultValue("")]
     public string WriteFolder
@@ -503,7 +514,6 @@ namespace CsvTools
       get => m_Overwrite;
       set
       {
-
         if (m_Overwrite.Equals(value))
           return;
         m_Overwrite = value;
@@ -535,7 +545,7 @@ namespace CsvTools
       PartToEnd = other.PartToEnd;
       RegexSearchPattern = other.RegexSearchPattern;
       RegexReplacement = other.RegexReplacement;
-      ReadFolder  = other.ReadFolder;
+      ReadFolder = other.ReadFolder;
       WriteFolder = other.WriteFolder;
       Overwrite = other.Overwrite;
       FileOutPutPlaceholder = other.FileOutPutPlaceholder;
