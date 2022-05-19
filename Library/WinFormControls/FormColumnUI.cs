@@ -437,8 +437,8 @@ namespace CsvTools
           if (timeZone.TryGetConstant(out var tz))
           {
             sourceDate = m_WriteSetting
-                           ? FunctionalDI.AdjustTZExport(sourceDate, tz, null)
-                           : FunctionalDI.AdjustTZImport(sourceDate, tz, null);
+                           ? StandardTimeZoneAdjust.ChangeTimeZone(sourceDate, TimeZoneInfo.Local.Id, tz, null)
+                           : StandardTimeZoneAdjust.ChangeTimeZone(sourceDate, tz, TimeZoneInfo.Local.Id, null);
           }
           else
           {

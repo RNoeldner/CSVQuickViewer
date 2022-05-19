@@ -38,24 +38,26 @@ namespace CsvTools
 
     public JsonFileReader(
       in Stream improvedStream,
-      in IEnumerable<IColumn>? columnDefinition = null,
-      long recordLimit = 0,
-      bool trim = false,
-      in string treatTextAsNull = "",
-      bool treatNbspAsSpace = false,
-      IProcessDisplay? processDisplay = null)
-      : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, processDisplay) =>
+      in IEnumerable<IColumn>? columnDefinition,
+      long recordLimit,
+      bool trim,
+      in string treatTextAsNull,
+      bool treatNbspAsSpace,
+      in ITimeZoneAdjust timeZoneAdjust,
+      IProcessDisplay? processDisplay)
+      : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, processDisplay) =>
       m_ImprovedStream = improvedStream;
 
     public JsonFileReader(
       in string fileName,
-      in IEnumerable<IColumn>? columnDefinition = null,
-      long recordLimit = 0,
-      bool trim = false,
-      string treatTextAsNull = "",
-      bool treatNbspAsSpace = false,
-      IProcessDisplay? processDisplay = null)
-      : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, processDisplay)
+      in IEnumerable<IColumn>? columnDefinition,
+      long recordLimit,
+      bool trim,
+      string treatTextAsNull,
+      bool treatNbspAsSpace,
+      in ITimeZoneAdjust timeZoneAdjust,
+      IProcessDisplay? processDisplay )
+      : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, processDisplay)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("File can not be null or empty", nameof(fileName));

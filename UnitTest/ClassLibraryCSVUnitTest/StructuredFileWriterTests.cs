@@ -73,6 +73,7 @@ namespace CsvTools.Tests
         fileSetting.ColumnCollection,
         "Test",
         fileSetting.Row,
+        new StandardTimeZoneAdjust(),
         processDisplay);
 
       var result = await writer.WriteAsync(
@@ -121,6 +122,7 @@ namespace CsvTools.Tests
         fileSetting.ColumnCollection,
         "Test",
         fileSetting.Row,
+        new StandardTimeZoneAdjust(),
         processDisplay);
       await writer.WriteAsync(fileSetting.SqlStatement, fileSetting.Timeout, processDisplay, UnitTestStatic.Token);
     }

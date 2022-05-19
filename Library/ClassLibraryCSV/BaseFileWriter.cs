@@ -41,6 +41,7 @@ namespace CsvTools
     private readonly Action<string>? m_ReportProgress;
     private readonly Action<long>? m_SetMaxProcess;
     private readonly IValueFormat m_ValueFormatGeneral;
+    protected readonly ITimeZoneAdjust m_TimeZoneAdjust;
     protected string Header;
     private DateTime m_LastNotification = DateTime.Now;
 
@@ -55,6 +56,7 @@ namespace CsvTools
       in string? header,
       in IEnumerable<IColumn>? columnDefinition,
       in string fileSettingDisplay,
+      in ITimeZoneAdjust timeZoneAdjust,
       IProcessDisplay? processDisplay)
     {
       if (string.IsNullOrEmpty(fullPath))
@@ -63,7 +65,7 @@ namespace CsvTools
       FullPath = FileSystemUtils.ResolvePattern(fullPath) ??
                  throw new ArgumentException($"Make sure path is correct {fullPath}");
       var fileName = FileSystemUtils.GetFileName(FullPath);
-
+      m_TimeZoneAdjust = timeZoneAdjust;
       m_PgpKeyId = pgpKeyId;
       if (header != null && header.Length > 0)
         Header = ReplacePlaceHolder(
@@ -365,7 +367,7 @@ namespace CsvTools
     /// <param name="columnInfo">Information on ValueConversion</param>
     /// <param name="handleWarning"></param>
     /// <returns>Value of the .Net Data type matching the ValueFormat.DataType</returns>
-    public static object? ValueConversion(in IDataRecord? reader, in object? dataObject, WriterColumn columnInfo, Action<string, string>? handleWarning = null)
+    public static object? ValueConversion(in IDataRecord? reader, in object? dataObject, WriterColumn columnInfo, in ITimeZoneAdjust timeZoneAdjust, Action<string, string>? handleWarning = null)
     {
       if (dataObject is null || dataObject is DBNull)
         return null;
@@ -389,7 +391,7 @@ namespace CsvTools
         case DataTypeEnum.DateTime:
           var dtm = Convert.ToDateTime(dataObject);
           if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
-            return FunctionalDI.AdjustTZExport(dtm, columnInfo.ConstantTimeZone, (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
+            return timeZoneAdjust.AdjustTZ(dtm, timeZoneAdjust.LocalTimeZone, columnInfo.ConstantTimeZone, (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
 
           if (reader is null || columnInfo.ColumnOrdinalTimeZone <= -1)
             return dtm;
@@ -400,7 +402,7 @@ namespace CsvTools
             handleWarning?.Invoke(columnInfo.Name, "Time zone is empty, value not converted");
             return dtm;
           }
-          return FunctionalDI.AdjustTZExport(dtm, reader.GetString(columnInfo.ColumnOrdinalTimeZone), (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
+          return timeZoneAdjust.AdjustTZ(dtm, timeZoneAdjust.LocalTimeZone, reader.GetString(columnInfo.ColumnOrdinalTimeZone), (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
 
         case DataTypeEnum.Guid:
           return dataObject is Guid guid ? guid : new Guid(dataObject.ToString());
@@ -426,7 +428,7 @@ namespace CsvTools
       string displayAs;
       try
       {
-        var convertedValue = ValueConversion(reader, dataObject, columnInfo, HandleWarning);
+        var convertedValue = ValueConversion(reader, dataObject, columnInfo, m_TimeZoneAdjust, HandleWarning);
         if (convertedValue is null)
         {
           displayAs =columnInfo.ValueFormat.DisplayNullAs;

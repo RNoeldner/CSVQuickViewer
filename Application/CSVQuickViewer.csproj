@@ -41,6 +41,9 @@
 		<Compile Include="..\Library\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
 	</ItemGroup>
 	<ItemGroup>
+	  <PackageReference Include="Autofac" Version="6.3.0" />
+	</ItemGroup>
+	<ItemGroup>
 		<ProjectReference Include="..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 		<ProjectReference Include="..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
 		<Reference Include="FastColoredTextBox">

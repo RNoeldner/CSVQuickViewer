@@ -40,6 +40,7 @@ namespace CsvTools
       in IEnumerable<IColumn>? columnDefinition = null,
       in string fileSettingDisplay = "",
       in string row = "",
+      in ITimeZoneAdjust? timeZoneAdjust = null,
       in IProcessDisplay? processDisplay = null)
       : base(
         id,
@@ -54,6 +55,7 @@ namespace CsvTools
         columnDefinition,
         fileSettingDisplay,
         row,
+        timeZoneAdjust ?? new StandardTimeZoneAdjust(),
         processDisplay)
     {
     }

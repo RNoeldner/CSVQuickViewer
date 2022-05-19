@@ -80,6 +80,7 @@ namespace CsvTools
     private bool m_IsFinished;
 
     protected bool SelfOpenedStream;
+    protected readonly ITimeZoneAdjust m_TimeZoneAdjust;
 
     /// <inheritdoc />
     /// <summary>
@@ -93,8 +94,10 @@ namespace CsvTools
       in string fileName,
       in IEnumerable<IColumn>? columnDefinition,
       long recordLimit,
+      in ITimeZoneAdjust timeZoneAdjust,
       in IProcessDisplay? processDisplay)
     {
+      m_TimeZoneAdjust= timeZoneAdjust;
       m_ColumnDefinition =
         columnDefinition
           ?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList()
@@ -1399,16 +1402,13 @@ namespace CsvTools
 
     private DateTime AdjustTz(DateTime input, IColumn column)
     {
-      if (m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal && m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
-        return FunctionalDI.AdjustTZImport(
-          input,
-          GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]),
-          (message) => HandleWarning(column.ColumnOrdinal, message));
+      if (!column.TimeZonePart.TryGetConstant(out var timeZone))
+      {
+        if (m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal && m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
+          timeZone= GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]);
+      }
 
-      return column.TimeZonePart.TryGetConstant(out var timeZone)
-               ? FunctionalDI.AdjustTZImport(input, timeZone,
-                 (message) => HandleWarning(column.ColumnOrdinal, message))
-               : input;
+      return m_TimeZoneAdjust.AdjustTZ(input, timeZone, m_TimeZoneAdjust.LocalTimeZone, (message) => HandleWarning(column.ColumnOrdinal, message));
     }
 
     private bool? GetBooleanNull(string inputValue, IColumn column)

@@ -26,6 +26,9 @@
 		<DefineConstants>TRACE;QUICK</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
+		<Compile Include="..\ClassLibraryCSV\ITimeZoneAdjust.cs" Link="ITimeZoneAdjust.cs" />
+		<Compile Include="..\ClassLibraryCSV\StandardTimeZoneAdjust.cs" Link="StandardTimeZoneAdjust.cs" />
+		
 		<Compile Include="..\ClassLibraryCSV\Enum\FileTypeEnum.cs" Link="Enum\FileTypeEnum.cs" />
 		<Compile Include="..\ClassLibraryCSV\Enum\DataTypeEnum.cs" Link="Enum\DataTypeEnum.cs" />
 		<Compile Include="..\ClassLibraryCSV\Enum\TrimmingOptionEnum.cs" Link="Enum\TrimmingOptionEnum.cs" />

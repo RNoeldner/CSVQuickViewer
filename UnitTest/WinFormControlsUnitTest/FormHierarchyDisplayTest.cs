@@ -145,7 +145,7 @@ namespace CsvTools.Tests
         cvsSetting.SkipDuplicateHeader, cvsSetting.TreatLfAsSpace, cvsSetting.TreatUnknownCharacterAsSpace, cvsSetting.TryToSolveMoreColumns,
         cvsSetting.WarnDelimiterInValue, cvsSetting.WarnLineFeed, cvsSetting.WarnNBSP, cvsSetting.WarnQuotes, cvsSetting.WarnUnknownCharacter,
         cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull, cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows,
-        cvsSetting.IdentifierInContainer, processDisplay);
+        cvsSetting.IdentifierInContainer, new StandardTimeZoneAdjust(), processDisplay);
       var dt = await csvDataReader.GetDataTableAsync(false, true, false, false, false, null,
                  processDisplay.CancellationToken);
 
