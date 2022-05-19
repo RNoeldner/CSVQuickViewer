@@ -1357,7 +1357,7 @@ namespace CsvTools
       IProcessDisplay? processDisplay)
     {
       if (detectionResult.IsJson)
-        return new JsonFileReader(fileName, null, 1000, processDisplay: processDisplay);
+        return new JsonFileReader(fileName, null, 1000, false, string.Empty, false, new StandardTimeZoneAdjust(), processDisplay );
       return new CsvFileReader(
         fileName,
         detectionResult.CodePageId,
@@ -1392,6 +1392,7 @@ namespace CsvTools
         true,
         4,
         "",
+        new StandardTimeZoneAdjust(),
         processDisplay);
     }
 

@@ -37,7 +37,40 @@ namespace CsvTools.Tests
     {
       var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        fieldDelimiter: ",", commentLine: "#", processDisplay: processDisplay);
+         codePageId: 650001,
+skipRows: 0,
+hasFieldHeader: true,
+columnDefinition: null,
+trimmingOption: TrimmingOptionEnum.Unquoted,
+fieldDelimiter: ",",
+fieldQualifier: "\"",
+escapeCharacter: "",
+recordLimit: 0,
+allowRowCombining: false,
+contextSensitiveQualifier: false,
+commentLine: "#",
+numWarning: 0,
+duplicateQualifierToEscape: true,
+newLinePlaceholder: "",
+delimiterPlaceholder: "",
+quotePlaceholder: "",
+skipDuplicateHeader: true,
+treatLfAsSpace: false,
+treatUnknownCharacterAsSpace: false,
+tryToSolveMoreColumns: true,
+warnDelimiterInValue: true,
+warnLineFeed: false,
+warnNbsp: true,
+warnQuotes: true,
+warnUnknownCharacter: true,
+warnEmptyTailingColumns: true,
+treatNbspAsSpace: false,
+treatTextAsNull: "NULL",
+skipEmptyLines: true,
+consecutiveEmptyRowsMax: 4,
+identifierInContainer: "",
+timeZoneAdjust: new StandardTimeZoneAdjust(),
+processDisplay: processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.GetColumnsOfReader().Count());
     }
@@ -54,7 +87,7 @@ namespace CsvTools.Tests
         m_ValidSetting.TreatUnknownCharacterAsSpace, m_ValidSetting.TryToSolveMoreColumns, m_ValidSetting.WarnDelimiterInValue, m_ValidSetting.WarnLineFeed,
         m_ValidSetting.WarnNBSP, m_ValidSetting.WarnQuotes, m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows,
-        m_ValidSetting.IdentifierInContainer, processDisplay);
+        m_ValidSetting.IdentifierInContainer, new StandardTimeZoneAdjust(), processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
       var result = await test.GetEmptyColumnHeaderAsync(UnitTestStatic.Token);
       Assert.AreEqual(0, result.Count);
@@ -71,7 +104,7 @@ namespace CsvTools.Tests
         test2.CommentLine, test2.NumWarnings, test2.DuplicateQualifierToEscape, test2.NewLinePlaceholder, test2.DelimiterPlaceholder,
         test2.QualifierPlaceholder, test2.SkipDuplicateHeader, test2.TreatLfAsSpace, test2.TreatUnknownCharacterAsSpace, test2.TryToSolveMoreColumns,
         test2.WarnDelimiterInValue, test2.WarnLineFeed, test2.WarnNBSP, test2.WarnQuotes, test2.WarnUnknownCharacter, test2.WarnEmptyTailingColumns,
-        test2.TreatNBSPAsSpace, test2.TreatTextAsNull, test2.SkipEmptyLines, test2.ConsecutiveEmptyRows, test2.IdentifierInContainer, processDisplay);
+        test2.TreatNBSPAsSpace, test2.TreatTextAsNull, test2.SkipEmptyLines, test2.ConsecutiveEmptyRows, test2.IdentifierInContainer, new StandardTimeZoneAdjust(), processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
 
       var dt = await test.GetDataTableAsync(false, false, false, false, false, null,
@@ -90,7 +123,7 @@ namespace CsvTools.Tests
         test3.CommentLine, test3.NumWarnings, test3.DuplicateQualifierToEscape, test3.NewLinePlaceholder, test3.DelimiterPlaceholder,
         test3.QualifierPlaceholder, test3.SkipDuplicateHeader, test3.TreatLfAsSpace, test3.TreatUnknownCharacterAsSpace, test3.TryToSolveMoreColumns,
         test3.WarnDelimiterInValue, test3.WarnLineFeed, test3.WarnNBSP, test3.WarnQuotes, test3.WarnUnknownCharacter, test3.WarnEmptyTailingColumns,
-        test3.TreatNBSPAsSpace, test3.TreatTextAsNull, test3.SkipEmptyLines, test3.ConsecutiveEmptyRows, test3.IdentifierInContainer, processDisplay);
+        test3.TreatNBSPAsSpace, test3.TreatTextAsNull, test3.SkipEmptyLines, test3.ConsecutiveEmptyRows, test3.IdentifierInContainer, new StandardTimeZoneAdjust(), processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
 
       using var dt = await test.GetDataTableAsync(true, true, true, true, true, null,

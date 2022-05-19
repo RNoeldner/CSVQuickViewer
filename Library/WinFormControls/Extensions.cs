@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -29,6 +30,8 @@ namespace CsvTools
   /// </summary>
   public static class Extensions
   {
+    public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
     public static void RunWithHourglass(this ToolStripItem item, Action action, Form? frm)
     {
       if (item is null)
@@ -141,7 +144,7 @@ namespace CsvTools
     {
       if (action is null)
         throw new ArgumentNullException(nameof(action));
-      if (!FunctionalDI.IsWindows)
+      if (!IsWindows)
       {
         action.Invoke();
         return;

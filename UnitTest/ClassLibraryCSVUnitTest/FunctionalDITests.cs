@@ -51,11 +51,11 @@ namespace CsvTools.Tests
       Assert.AreEqual(srcTime, test2);
 #endif
 #pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
-      var test3 = FunctionalDI.AdjustTZImport(srcTime, null, null);
+      var test3 = StandardTimeZoneAdjust.ChangeTimeZone(srcTime, null, TimeZoneInfo.Local.Id, null);
 #pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
       Assert.AreEqual(srcTime, test3);
 
-      var test4 = FunctionalDI.AdjustTZImport(srcTime, TimeZoneInfo.Local.Id, null);
+      var test4 = StandardTimeZoneAdjust.ChangeTimeZone(srcTime, TimeZoneInfo.Local.Id, TimeZoneInfo.Local.Id, null);
       Assert.AreEqual(srcTime, test4);
     }
   }

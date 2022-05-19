@@ -52,8 +52,9 @@ namespace CsvTools
       bool trim,
       in string treatTextAsNull,
       bool treatNbspAsSpace,
+      in ITimeZoneAdjust timeZoneAdjust,
       in IProcessDisplay? processDisplay)
-      : base(fileName, columnDefinition, recordLimit, processDisplay)
+      : base(fileName, columnDefinition, recordLimit, timeZoneAdjust, processDisplay)
     {
       m_TreatNbspAsSpace = treatNbspAsSpace;
       m_Trim = trim;

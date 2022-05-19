@@ -449,7 +449,7 @@ namespace CsvTools.Tests
         test.TreatUnknownCharacterAsSpace, test.TryToSolveMoreColumns,
         test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, test.WarnUnknownCharacter, test.WarnEmptyTailingColumns,
         test.TreatNBSPAsSpace, test.TreatTextAsNull,
-        test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer, processDisplay);
+        test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer, new StandardTimeZoneAdjust(), processDisplay);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("RecordNumber", reader.GetName(0));
       await reader.ReadAsync(UnitTestStatic.Token);

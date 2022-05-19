@@ -19,10 +19,12 @@ namespace CsvTools
 {
   internal static class Program
   {
+
     static Program()
     {
       try
       {
+   
 #if NET5_0_OR_GREATER
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 #endif
@@ -43,8 +45,10 @@ namespace CsvTools
     [STAThread]
     private static void Main(string[] args)
     {
+
       Application.ThreadException += (s, e) => UnhandledException(e.Exception);
       AppDomain.CurrentDomain.UnhandledException += (s, e) => UnhandledException((Exception) e.ExceptionObject);
+    
       var fileName = string.Empty;
 #if NET5_0_OR_GREATER
       Application.SetHighDpiMode(HighDpiMode.SystemAware);
@@ -66,14 +70,13 @@ namespace CsvTools
 
       var frm = new FormMain(viewSettings);
       frm.Show();
-#pragma warning disable 4014
+
       if (string.IsNullOrEmpty(fileName))
         frm.SelectFile("No startup file provided, opening dialog");
       else if (!FileSystemUtils.FileExists(fileName))
         frm.SelectFile($"File '{fileName}' not found, opening dialog");
       else
         frm.LoadCsvFile(FileSystemUtils.GetFullPath(fileName), frm.CancellationToken);
-#pragma warning restore 4014
       Application.Run(frm);
     }
 

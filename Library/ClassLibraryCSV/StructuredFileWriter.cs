@@ -64,6 +64,7 @@ namespace CsvTools
       in IEnumerable<IColumn>? columnDefinition,
       in string fileSettingDisplay,
       in string row,
+      in ITimeZoneAdjust timeZoneAdjust,
       in IProcessDisplay? processDisplay)
       : base(
         id,
@@ -76,6 +77,7 @@ namespace CsvTools
         header,
         columnDefinition,
         fileSettingDisplay,
+        timeZoneAdjust,
         processDisplay)
     {
       if (string.IsNullOrEmpty(row))

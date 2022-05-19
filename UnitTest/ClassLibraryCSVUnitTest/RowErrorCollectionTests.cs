@@ -30,12 +30,41 @@ namespace CsvTools.Tests
 		{
 			var coll = new RowErrorCollection(5);
 
-      using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0, true,
+      using var reader = new CsvFileReader(fileName: UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0, true,
         new IColumn[]
         {
           new ImmutableColumn("DateTime", new ImmutableValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
           new ImmutableColumn("Integer", new ImmutableValueFormat(DataTypeEnum.Integer), 0, true, "", true),
-        });
+        }, trimmingOption: TrimmingOptionEnum.Unquoted,
+fieldDelimiter: "\t",
+fieldQualifier: "\"",
+escapeCharacter: "",
+recordLimit: 0,
+allowRowCombining: false,
+contextSensitiveQualifier: false,
+commentLine: "",
+numWarning: 0,
+duplicateQualifierToEscape: true,
+newLinePlaceholder: "",
+delimiterPlaceholder: "",
+quotePlaceholder: "",
+skipDuplicateHeader: true,
+treatLfAsSpace: false,
+treatUnknownCharacterAsSpace: false,
+tryToSolveMoreColumns: true,
+warnDelimiterInValue: true,
+warnLineFeed: false,
+warnNbsp: true,
+warnQuotes: true,
+warnUnknownCharacter: true,
+warnEmptyTailingColumns: true,
+treatNbspAsSpace: false,
+treatTextAsNull: "NULL",
+identifierInContainer: null,
+skipEmptyLines: true,
+consecutiveEmptyRowsMax: 4,
+timeZoneAdjust: new StandardTimeZoneAdjust(),
+processDisplay: null);
       await reader.OpenAsync(CancellationToken.None);
       coll.HandleIgnoredColumns(reader);
 
