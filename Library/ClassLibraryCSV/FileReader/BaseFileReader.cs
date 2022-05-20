@@ -79,8 +79,9 @@ namespace CsvTools
     /// </summary>
     private bool m_IsFinished;
 
+    protected readonly string m_DestTimeZone;
     protected bool SelfOpenedStream;
-    protected readonly ITimeZoneAdjust TimeZoneAdjust;
+    protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
 
     /// <inheritdoc />
     /// <summary>
@@ -90,32 +91,34 @@ namespace CsvTools
     /// <param name="columnDefinition">List of column definitions</param>
     /// <param name="recordLimit">Number of records that should be read</param>
     /// <param name="timeZoneAdjust">Class to modify date time for timezones</param>
+    /// <param name="destTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
     /// <param name="processDisplay">Reporting progress information</param>
     protected BaseFileReader(
       in string fileName,
       in IEnumerable<IColumn>? columnDefinition,
       long recordLimit,
-      in ITimeZoneAdjust timeZoneAdjust,
+      in TimeZoneChangeDelegate timeZoneAdjust,
+      in string destTimeZone,
       in IProcessDisplay? processDisplay)
     {
       TimeZoneAdjust = timeZoneAdjust;
+      m_DestTimeZone =destTimeZone;
       m_ColumnDefinition =
-        columnDefinition
-          ?.Select(col => col is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(col)).ToList()
-        ?? new List<ImmutableColumn>();
+      columnDefinition
+        ?.Select(col => col as ImmutableColumn ?? new ImmutableColumn(col)).ToArray()
+      ?? Array.Empty<ImmutableColumn>();
       RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       FullPath = fileName;
       SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
       FileName = FileSystemUtils.GetFileName(fileName);
 
-      if (processDisplay == null) return;
-
+      if (processDisplay == null) 
+        return;
       ReportProgress = processDisplay;
-      if (processDisplay is IProcessDisplayTime processDisplayTime)
-      {
-        SetMaxProcess = (sender, l) => processDisplayTime.Maximum = l;
-        SetMaxProcess(this, 0);
-      }
+      if (!(processDisplay is IProcessDisplayTime processDisplayTime)) 
+        return;
+      SetMaxProcess = (sender, l) => processDisplayTime.Maximum = l;
+      SetMaxProcess(this, 0);
     }
 
     /// <inheritdoc />
@@ -227,9 +230,9 @@ namespace CsvTools
     /// <param name="warnings">A <see cref="ColumnErrorDictionary" /> to store possible warnings</param>
     /// <returns></returns>
     internal static Tuple<IReadOnlyCollection<string>, int> AdjustColumnName(
-      IEnumerable<string> columns,
+      in IEnumerable<string> columns,
       int fieldCount,
-      ColumnErrorDictionary? warnings)
+      in ColumnErrorDictionary? warnings)
     {
       var issuesCounter = 0;
       var previousColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -350,7 +353,8 @@ namespace CsvTools
     public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
     {
       var fn = GetString(ordinal);
-      if (GetColumn(ordinal).ValueFormat.DataType != DataTypeEnum.Binary || string.IsNullOrEmpty(fn)) return -1;
+      if (GetColumn(ordinal).ValueFormat.DataType != DataTypeEnum.Binary || string.IsNullOrEmpty(fn))
+        return -1;
 
       using var filestream = FileSystemUtils.OpenRead(CurrentRowColumnText[ordinal]);
       if (dataOffset > 0) filestream.Seek(dataOffset, SeekOrigin.Begin);
@@ -558,8 +562,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputValue">The input.</param>
     /// <param name="column">The column.</param>
-    /// <returns>a nullabla integer</returns>
-    public int? GetInt32Null(string inputValue, IColumn column)
+    /// <returns>a nullable integer</returns>
+    public int? GetInt32Null(in string inputValue, in IColumn column)
     {
       var ret = StringConversion.StringToInt32(
         inputValue,
@@ -596,7 +600,7 @@ namespace CsvTools
     /// <param name="inputValue">The input.</param>
     /// <param name="column">The column.</param>
     /// <returns></returns>
-    public long? GetInt64Null(string inputValue, IColumn column)
+    public long? GetInt64Null(in string inputValue, in IColumn column)
     {
       var ret = StringConversion.StringToInt64(
         inputValue,
@@ -700,7 +704,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     /// <summary>
-    ///   Gets the value of a column, any interger will be returned a long integer no matter if 32 or 64 bit
+    ///   Gets the value of a column, any integer will be returned a long integer no matter if 32 or 64 bit
     /// </summary>
     /// <param name="ordinal">The column number.</param>
     /// <returns>The value of the specific field</returns>
@@ -748,7 +752,8 @@ namespace CsvTools
       var maxFld = values.Length;
       if (maxFld > FieldCount) maxFld = FieldCount;
 
-      for (var col = 0; col < maxFld; col++) values[col] = GetValue(col);
+      for (var col = 0; col < maxFld; col++)
+        values[col] = GetValue(col);
 
       return FieldCount;
     }
@@ -840,7 +845,7 @@ namespace CsvTools
     protected static string TreatNbspAsNullTrim(
       string inputString,
       bool treatNbspAsSpace,
-      string treatTextAsNull,
+      in string treatTextAsNull,
       bool trim)
     {
       if (inputString.Length > 0)
@@ -888,7 +893,7 @@ namespace CsvTools
     ///   The Boolean, if conversion is not successful: <c>NULL</c> the event handler for warnings
     ///   is called
     /// </returns>
-    protected bool? GetBooleanNull(string inputBoolean, int ordinal) =>
+    protected bool? GetBooleanNull(in string inputBoolean, int ordinal) =>
       GetBooleanNull(inputBoolean, GetColumn(ordinal));
 
     /// <summary>
@@ -903,11 +908,11 @@ namespace CsvTools
     /// <param name="serialDateTime">if <c>true</c> parse dates represented as numbers</param>
     /// <returns></returns>
     protected DateTime? GetDateTimeNull(
-      object? inputDate,
-      string strInputDate,
-      object? inputTime,
-      string strInputTime,
-      IColumn column,
+      in object? inputDate,
+      in string strInputDate,
+      in object? inputTime,
+      in string strInputTime,
+      in IColumn column,
       bool serialDateTime)
     {
       var dateTime = StringConversion.CombineObjectsToDateTime(
@@ -971,7 +976,7 @@ namespace CsvTools
     ///   The decimal value if conversion is not successful: <c>NULL</c> the event handler for
     ///   warnings is called
     /// </returns>
-    protected decimal? GetDecimalNull(string inputValue, int ordinal)
+    protected decimal? GetDecimalNull(in string inputValue, int ordinal)
     {
       var column = GetColumn(ordinal);
       var decimalValue = StringConversion.StringToDecimal(
@@ -994,7 +999,7 @@ namespace CsvTools
     ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
     ///   handler for warnings is called
     /// </returns>
-    protected double? GetDoubleNull(string inputValue, int ordinal)
+    protected double? GetDoubleNull(in string inputValue, int ordinal)
     {
       var decimalValue = GetDecimalNull(inputValue, ordinal);
       if (decimalValue.HasValue) return decimal.ToDouble(decimalValue.Value);
@@ -1009,7 +1014,7 @@ namespace CsvTools
     /// <param name="inputValue">The input.</param>
     /// <param name="ordinal">The column number.</param>
     /// <returns></returns>
-    protected Guid? GetGuidNull(string inputValue, int ordinal)
+    protected Guid? GetGuidNull(in string inputValue, int ordinal)
     {
       if (string.IsNullOrEmpty(inputValue)) return null;
 
@@ -1044,7 +1049,7 @@ namespace CsvTools
         ? string.Empty
         : CurrentRowColumnText[AssociatedTimeCol[i]];
 
-    protected WarningEventArgs GetWarningEventArgs(int ordinal, string message) =>
+    protected WarningEventArgs GetWarningEventArgs(int ordinal, in string message) =>
       new WarningEventArgs(
         RecordNumber,
         ordinal,
@@ -1102,7 +1107,7 @@ namespace CsvTools
     /// <param name="inputString">The input string.</param>
     /// <param name="ordinal">The column number</param>
     /// <returns>The proper encoded or cut text as returned for the column</returns>
-    protected string HandleTextSpecials(string? inputString, int ordinal)
+    protected string HandleTextSpecials(in string? inputString, int ordinal)
     {
       if (inputString is null || inputString.Length == 0 || ordinal >= FieldCount)
         return inputString ?? string.Empty;
@@ -1147,8 +1152,8 @@ namespace CsvTools
     /// <param name="dataType">Type of the data.</param>
     /// <param name="hasFieldHeader">if set to <c>true</c> [has field header].</param>
     protected void ParseColumnName(
-      IEnumerable<string> headerRow,
-      IEnumerable<DataTypeEnum>? dataType = null,
+      in IEnumerable<string> headerRow,
+      in IEnumerable<DataTypeEnum>? dataType = null,
       bool hasFieldHeader = true)
     {
       var issues = new ColumnErrorDictionary();
@@ -1252,7 +1257,7 @@ namespace CsvTools
     /// </summary>
     public event EventHandler<RetryEventArgs>? OnAskRetry;
 
-    protected bool ShouldRetry(Exception ex, CancellationToken token)
+    protected bool ShouldRetry(in Exception ex, CancellationToken token)
     {
       if (token.IsCancellationRequested) return false;
 
@@ -1266,7 +1271,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="ordinal">The column.</param>
     /// <param name="message">The message.</param>
-    protected FormatException WarnAddFormatException(int ordinal, string message)
+    protected FormatException WarnAddFormatException(int ordinal, in string message)
     {
       HandleError(ordinal, message);
       return new FormatException(message);
@@ -1280,17 +1285,18 @@ namespace CsvTools
     /// <returns>A string with the column name</returns>
     private static string GetDefaultName(int ordinal) => $"Column{ordinal + 1}";
 
-    private DateTime AdjustTz(DateTime input, IColumn column)
+    private DateTime AdjustTz(in DateTime input, IColumn column)
     {
-      if (!column.TimeZonePart.TryGetConstant(out var timeZone))
-        if (m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal && m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
-          timeZone = GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]);
+      // get the time zone either from constant or from other column
+      if (!column.TimeZonePart.TryGetConstant(out var timeZone) &&
+          m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal && m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
+        timeZone = GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]);
 
-      return TimeZoneAdjust.AdjustTZ(input, timeZone, TimeZoneAdjust.LocalTimeZone,
+      return TimeZoneAdjust(input, timeZone, m_DestTimeZone,
         (message) => HandleWarning(column.ColumnOrdinal, message));
     }
 
-    private bool? GetBooleanNull(string inputValue, IColumn column)
+    private bool? GetBooleanNull(in string inputValue, in IColumn column)
     {
       var boolValue = StringConversion.StringToBoolean(inputValue, column.ValueFormat.True, column.ValueFormat.False);
       if (boolValue.HasValue) return boolValue.Value;
@@ -1308,7 +1314,7 @@ namespace CsvTools
     ///   The parsed value if conversion is not successful: <c>NULL</c> is returned and the event
     ///   handler for warnings is called
     /// </returns>
-    private short GetInt16(string value, int ordinal)
+    private short GetInt16(in string value, int ordinal)
     {
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
       var column = GetColumn(ordinal);
@@ -1329,7 +1335,7 @@ namespace CsvTools
     /// <param name="inputDate">The input date.</param>
     /// <param name="inputTime">The input time.</param>
     /// <param name="ordinal">The column.</param>
-    private void HandleDateError(in string inputDate, string inputTime, int ordinal)
+    private void HandleDateError(in string inputDate, in string inputTime, int ordinal)
     {
       Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
       var column = GetColumn(ordinal);

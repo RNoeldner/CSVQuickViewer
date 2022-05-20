@@ -44,7 +44,7 @@ namespace CsvTools
     /// <param name="processDisplay">The process display.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
-    ///   <see cref="DelimitedFileDetectionResultWithColumns"/> with found information, or default if that test was not done
+    ///   <see cref="DelimitedFileDetectionResultWithColumns" /> with found information, or default if that test was not done
     /// </returns>
     public static async Task<DelimitedFileDetectionResultWithColumns> AnalyzeFileAsync(
       this string fileName,
@@ -908,7 +908,7 @@ namespace CsvTools
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
       const int maxRows = 50;
       var lastRow = 0;
-      Dictionary<string, int> starts =
+      var starts =
         new[] { "##", "//", "\\\\", "''", "#", "/", "\\", "'" }.ToDictionary(test => test, test => 0);
 
       textReader.ToBeginning();
@@ -1283,7 +1283,7 @@ namespace CsvTools
     /// <param name="disallowedDelimiter">The disallowed delimiters</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>
-    ///   A <see cref="DelimiterCounter"/> with the information on delimiters
+    ///   A <see cref="DelimiterCounter" /> with the information on delimiters
     /// </returns>
     /// <exception cref="System.ArgumentNullException">textReader</exception>
     private static DelimiterCounter GetDelimiterCounter(
@@ -1363,44 +1363,15 @@ namespace CsvTools
       IProcessDisplay? processDisplay)
     {
       if (detectionResult.IsJson)
-        return new JsonFileReader(fileName, null, 1000, false, string.Empty, false, new StandardTimeZoneAdjust(),
-          processDisplay);
+        return new JsonFileReader(fileName, null, 1000, false, string.Empty, false,
+          StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, processDisplay);
       return new CsvFileReader(
-        fileName,
-        detectionResult.CodePageId,
+        fileName, detectionResult.CodePageId,
         !detectionResult.HasFieldHeader && detectionResult.SkipRows == 0 ? 1 : detectionResult.SkipRows,
-        detectionResult.HasFieldHeader,
-        null,
-        TrimmingOptionEnum.Unquoted,
-        detectionResult.FieldDelimiter,
-        detectionResult.FieldQualifier,
-        detectionResult.EscapePrefix,
-        0L,
-        false,
-        false,
-        detectionResult.CommentLine,
-        0,
-        true,
-        "",
-        "",
-        "",
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        "NULL",
-        true,
-        4,
-        "",
-        new StandardTimeZoneAdjust(),
-        processDisplay);
+        detectionResult.HasFieldHeader, null, TrimmingOptionEnum.Unquoted, detectionResult.FieldDelimiter,
+        detectionResult.FieldQualifier, detectionResult.EscapePrefix, 0L, false, false, detectionResult.CommentLine, 0,
+        true, "", "", "", true, false, false, false, false,
+        false, false, false, false, true, false, "NULL", true, 4, "", StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, processDisplay);
     }
 
     private static async Task<ImprovedTextReader> GetStreamReaderAtStart(
@@ -1660,14 +1631,18 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Try to determine quote character, by looking at the file and doing a quick analysis
+    ///   Try to determine quote character, by looking at the file and doing a quick analysis
     /// </summary>
     /// <param name="textReader">The opened TextReader</param>
     /// <param name="delimiter">The char to be used as field delimiter</param>
     /// <param name="escape">Used to escape a delimiter or quoting char</param>
-    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// ///
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The most likely quoting char</returns>
-    /// <remarks>Any line feed ot carriage return will be regarded as field delimiter, a duplicate quoting will be regarded as single quote, an \ escaped quote will be ignored</remarks>
+    /// <remarks>
+    ///   Any line feed ot carriage return will be regarded as field delimiter, a duplicate quoting will be regarded as
+    ///   single quote, an \ escaped quote will be ignored
+    /// </remarks>
     private static char GuessQualifier(
       this ImprovedTextReader textReader,
       string delimiter,

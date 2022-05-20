@@ -61,11 +61,10 @@ namespace CsvTools.Tests
         true,
         false,
         "NULL",
-        identifierInContainer: null,
         skipEmptyLines: true,
         consecutiveEmptyRowsMax: 4,
-        timeZoneAdjust: new StandardTimeZoneAdjust(),
-        processDisplay: null);
+        identifierInContainer: string.Empty,
+        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id, processDisplay: null);
       await reader.OpenAsync(CancellationToken.None);
       coll.HandleIgnoredColumns(reader);
 

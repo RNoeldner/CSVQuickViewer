@@ -43,22 +43,23 @@ namespace CsvTools
       bool trim,
       in string treatTextAsNull,
       bool treatNbspAsSpace,
-      in ITimeZoneAdjust timeZoneAdjust,
+      in TimeZoneChangeDelegate timeZoneAdjust,
+      string destTimeZone,
       IProcessDisplay? processDisplay)
-      : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust,
+      : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone,
         processDisplay) =>
       m_ImprovedStream = improvedStream;
 
-    public JsonFileReader(
-      in string fileName,
+    public JsonFileReader(in string fileName,
       in IEnumerable<IColumn>? columnDefinition,
       long recordLimit,
       bool trim,
       string treatTextAsNull,
       bool treatNbspAsSpace,
-      in ITimeZoneAdjust timeZoneAdjust,
+      in TimeZoneChangeDelegate timeZoneAdjust,
+      string destTimeZone,
       IProcessDisplay? processDisplay)
-      : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust,
+      : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone,
         processDisplay)
     {
       if (string.IsNullOrEmpty(fileName))

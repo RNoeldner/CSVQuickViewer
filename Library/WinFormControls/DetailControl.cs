@@ -125,7 +125,7 @@ namespace CsvTools
       m_ToolStripComboBoxFilterType.DropDownHeight = 90;
       m_ToolStripComboBoxFilterType.DropDownWidth = 130;
       m_ToolStripComboBoxFilterType.IntegralHeight = false;
-      m_ToolStripComboBoxFilterType.Items.AddRange(new[] { "All Records", "Error or Warning", "Only Errors", "Only Warning", "No Error or Warning" });
+      m_ToolStripComboBoxFilterType.Items.AddRange(new object[] { "All Records", "Error or Warning", "Only Errors", "Only Warning", "No Error or Warning" });
       m_ToolStripComboBoxFilterType.Size = new Size(150, 28);
       // m_ToolStripButtonUniqueValues
       m_ToolStripButtonUniqueValues.Image = resources.GetObject("m_ToolStripButtonUniqueValues.Image") as Image;
@@ -786,7 +786,7 @@ namespace CsvTools
       m_SearchCellsDirty = true;
       if (!m_Search.Visible)
         return;
-      if (m_CurrentSearch != null && m_CurrentSearch.IsRunning)
+      if (m_CurrentSearch is { IsRunning: true })
         m_CurrentSearch.Cancel();
       m_Search.Results = 0;
       m_Search.Hide();
@@ -1139,7 +1139,7 @@ namespace CsvTools
           writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.KeyID, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
           headerAndSipped.ToString(), writeFile.Footer, string.Empty, writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar,
           writeFile.EscapePrefixChar,
-          writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, new StandardTimeZoneAdjust(),
+          writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id,
           processDisplay);
 
 #if NET5_0_OR_GREATER

@@ -51,8 +51,7 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="StructuredFileWriter" /> class.
     /// </summary>
-    protected StructuredFileWriter(
-      in string id,
+    protected StructuredFileWriter(in string id,
       in string fullPath,
       in long pgpKeyId,
       bool unencrypted,
@@ -64,7 +63,8 @@ namespace CsvTools
       in IEnumerable<IColumn>? columnDefinition,
       in string fileSettingDisplay,
       in string row,
-      in ITimeZoneAdjust timeZoneAdjust,
+      in TimeZoneChangeDelegate timeZoneAdjust,
+      in string sourceTimeZone,
       in IProcessDisplay? processDisplay)
       : base(
         id,
@@ -78,6 +78,7 @@ namespace CsvTools
         columnDefinition,
         fileSettingDisplay,
         timeZoneAdjust,
+        sourceTimeZone,
         processDisplay)
     {
       if (string.IsNullOrEmpty(row))

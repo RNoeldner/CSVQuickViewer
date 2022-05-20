@@ -20,7 +20,7 @@ namespace CsvTools.Tests
         setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
         setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace,
         setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer,
-        new StandardTimeZoneAdjust(), process);
+        StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, process);
       await reader.OpenAsync(UnitTestStatic.Token);
       await reader.ReadAsync();
 

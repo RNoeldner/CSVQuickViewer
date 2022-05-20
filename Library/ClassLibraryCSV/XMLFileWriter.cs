@@ -26,36 +26,26 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="XmlFileWriter" /> class.
     /// </summary>
-    public XmlFileWriter(
-      in string id,
+    public XmlFileWriter(in string id,
       in string fullPath,
-      long pgpKeyId = 0,
-      bool unencrypted = false,
-      in string? identifierInContainer = null,
-      in string? footer = null,
-      in string? header = null,
-      int codePageId = 65001,
-      bool byteOrderMark = true,
-      in IEnumerable<IColumn>? columnDefinition = null,
-      in string fileSettingDisplay = "",
-      in string row = "",
-      in ITimeZoneAdjust? timeZoneAdjust = null,
-      in IProcessDisplay? processDisplay = null)
+      long pgpKeyId,
+      bool unencrypted,
+      string? identifierInContainer,
+      string? footer,
+      string? header,
+      int codePageId,
+      bool byteOrderMark,
+      IEnumerable<IColumn>? columnDefinition,
+      string fileSettingDisplay,
+      string row,
+      TimeZoneChangeDelegate timeZoneAdjust,
+      string sourceTimeZone,
+      IProcessDisplay? processDisplay)
       : base(
-        id,
-        fullPath,
-        pgpKeyId,
-        unencrypted,
-        identifierInContainer,
-        footer,
-        header,
-        codePageId,
-        byteOrderMark,
-        columnDefinition,
-        fileSettingDisplay,
-        row,
-        timeZoneAdjust ?? new StandardTimeZoneAdjust(),
-        processDisplay)
+        id, fullPath, pgpKeyId, unencrypted,
+        identifierInContainer, footer, header, codePageId,
+        byteOrderMark, columnDefinition, fileSettingDisplay, row, 
+        timeZoneAdjust, sourceTimeZone, processDisplay)
 
     {
     }

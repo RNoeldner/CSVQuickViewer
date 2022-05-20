@@ -21,9 +21,9 @@ namespace CsvTools
 {
   public class ClassLibraryCSVFileReaderWriterFactory : IFileReaderWriterFactory
   {
-    private readonly ITimeZoneAdjust m_TimeZoneAdjust;
+    private readonly TimeZoneChangeDelegate m_TimeZoneAdjust;
 
-    public ClassLibraryCSVFileReaderWriterFactory(ITimeZoneAdjust timeZoneAdjust) => m_TimeZoneAdjust = timeZoneAdjust;
+    public ClassLibraryCSVFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust) => m_TimeZoneAdjust = timeZoneAdjust;
 
     /// <inheritdoc />
     public IFileReader GetFileReader(in IFileSetting setting, in string? timeZone, in IProcessDisplay? processDisplay,
@@ -37,7 +37,7 @@ namespace CsvTools
           csv.TrimmingOption == TrimmingOptionEnum.All,
           csv.TreatTextAsNull,
           csv.TreatNBSPAsSpace,
-          m_TimeZoneAdjust,
+          m_TimeZoneAdjust, timeZone ?? TimeZoneInfo.Local.Id ,
           processDisplay),
         ICsvFile csv => new CsvFileReader(
           csv.FullPath,
@@ -73,7 +73,7 @@ namespace CsvTools
           csv.SkipEmptyLines,
           csv.ConsecutiveEmptyRows,
           csv.IdentifierInContainer,
-          m_TimeZoneAdjust,
+          m_TimeZoneAdjust, timeZone ?? TimeZoneInfo.Local.Id,
           processDisplay),
         _ => throw new FileReaderException($"Reader for {setting} not found")
       };
@@ -111,7 +111,7 @@ namespace CsvTools
             csv.QualifierPlaceholder,
             csv.QualifyAlways,
             csv.QualifyOnlyIfNeeded,
-            m_TimeZoneAdjust,
+            m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
             processDisplay);
           break;
 
@@ -129,7 +129,7 @@ namespace CsvTools
             jsonFile.ColumnCollection,
             Convert.ToString(jsonFile),
             jsonFile.Row,
-            m_TimeZoneAdjust,
+            m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
             processDisplay);
           break;
 
@@ -147,7 +147,7 @@ namespace CsvTools
             xmlFile.ColumnCollection,
             Convert.ToString(xmlFile),
             xmlFile.Row,
-            m_TimeZoneAdjust,
+            m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
             processDisplay);
           break;
       }
