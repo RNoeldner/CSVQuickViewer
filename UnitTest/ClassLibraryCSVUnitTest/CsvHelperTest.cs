@@ -198,6 +198,16 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public async Task GuessHeaderStrangeHeaders()
+    {
+      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("StrangeHeaders.txt")));
+      var result = await improvedStream.GuessHasHeader(1200, 0, "", ",", UnitTestStatic.Token);
+      Assert.IsNotNull(result);
+      Assert.IsFalse(string.IsNullOrEmpty(result));
+    }
+
+
+    [TestMethod]
     public async Task GuessHeaderAllFormatsAsync()
     {
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormats.txt")));
@@ -449,7 +459,7 @@ namespace CsvTools.Tests
         test.TreatUnknownCharacterAsSpace, test.TryToSolveMoreColumns,
         test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, test.WarnUnknownCharacter, test.WarnEmptyTailingColumns,
         test.TreatNBSPAsSpace, test.TreatTextAsNull,
-        test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer, new StandardTimeZoneAdjust(), processDisplay);
+        test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, processDisplay);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("RecordNumber", reader.GetName(0));
       await reader.ReadAsync(UnitTestStatic.Token);

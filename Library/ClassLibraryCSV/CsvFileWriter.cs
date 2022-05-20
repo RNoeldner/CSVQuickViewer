@@ -46,8 +46,7 @@ namespace CsvTools
     private readonly char[] m_QualifyCharArray;
     private readonly bool m_QualifyOnlyIfNeeded;
 
-    public CsvFileWriter(
-      in string id,
+    public CsvFileWriter(in string id,
       in string fullPath,
       bool hasFieldHeader,
       in IValueFormat? valueFormat,
@@ -69,7 +68,8 @@ namespace CsvTools
       in string qualifierPlaceholder,
       bool qualifyAlways,
       bool qualifyOnlyIfNeeded,
-      in ITimeZoneAdjust timeZoneAdjust,
+      in TimeZoneChangeDelegate timeZoneAdjust,
+      string sourceTimeZone,
       IProcessDisplay? processDisplay)
       : base(
         id,
@@ -83,6 +83,7 @@ namespace CsvTools
         columnDefinition,
         fileSettingDisplay,
         timeZoneAdjust,
+        sourceTimeZone,
         processDisplay)
     {
       m_CodePageId = codePageId;

@@ -42,9 +42,7 @@ namespace CsvTools
     /// <returns>Number of records written; -1 if there is no source</returns>
     Task<long> WriteAsync(IFileReader? source, CancellationToken token);
 
-    /// <summary>
-    ///   Writes data to the stream reading from the source
-    /// </summary>
+    /// <summary>Writes data to the stream reading from the source</summary>
     /// <param name="reader">The data that should be read</param>
     /// <param name="output">The Stream to write to</param>
     /// <param name="cancellationToken">A cancellation token to stop a long running process</param>

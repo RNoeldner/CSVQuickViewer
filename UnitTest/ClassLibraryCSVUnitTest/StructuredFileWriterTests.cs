@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
@@ -73,7 +74,7 @@ namespace CsvTools.Tests
         fileSetting.ColumnCollection,
         "Test",
         fileSetting.Row,
-        new StandardTimeZoneAdjust(),
+        StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id,
         processDisplay);
 
       var result = await writer.WriteAsync(
@@ -122,7 +123,7 @@ namespace CsvTools.Tests
         fileSetting.ColumnCollection,
         "Test",
         fileSetting.Row,
-        new StandardTimeZoneAdjust(),
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id,
         processDisplay);
       await writer.WriteAsync(fileSetting.SqlStatement, fileSetting.Timeout, processDisplay, UnitTestStatic.Token);
     }

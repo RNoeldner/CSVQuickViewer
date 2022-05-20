@@ -88,7 +88,7 @@ namespace CsvTools.Tests
                setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes,
                setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace,
                setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
-               setting.IdentifierInContainer, new StandardTimeZoneAdjust(), null))
+               setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, null))
       {
         var dt = await reader.GetDataTableAsync(false, setting.DisplayStartLineNo, setting.DisplayRecordNo,
           setting.DisplayEndLineNo, false, null, UnitTestStatic.Token);
@@ -132,7 +132,6 @@ namespace CsvTools.Tests
       var setting = new CsvFile { ID = "ID122", FieldDelimiter = "," };
       try
       {
-        var processDisplay = new CustomProcessDisplay();
         await DetermineColumnFormat.GetWriterColumnInformationAsync("setting.SqlStatement", 60,
           setting.DefaultValueFormatWrite, setting.ColumnCollection,
           UnitTestStatic.Token);
@@ -204,7 +203,7 @@ namespace CsvTools.Tests
       {
         FunctionalDI.SqlDataReader = (sql, eh, timeout, limit, token) =>
           throw new FileWriterException("SQL Reader not specified");
-        ;
+        
         await DetermineColumnFormat.GetSqlColumnNamesAsync("Nonsense SQL", 60, UnitTestStatic.Token);
 
         Assert.Fail("Expected Exception not thrown");
@@ -286,7 +285,7 @@ namespace CsvTools.Tests
                setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
                setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull,
                setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer,
-               new StandardTimeZoneAdjust(), null))
+               StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, null))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         UnitTestStatic.MimicSQLReader.AddSetting(setting.ID,
@@ -315,7 +314,6 @@ namespace CsvTools.Tests
         dt.Rows.Add(row);
       }
 
-      var processDisplay = new CustomProcessDisplay();
       using var reader = new DataTableWrapper(dt);
       // Move the reader to a late record
       for (var i = 0; i < dt.Rows.Count / 2; i++)
@@ -343,7 +341,6 @@ namespace CsvTools.Tests
         dt.Rows.Add(row);
       }
 
-      var processDisplay = new CustomProcessDisplay();
       using var reader = new DataTableWrapper(dt);
       var treatAsNull = string.Empty;
       var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] { 0, 1 }, 20,
@@ -369,7 +366,6 @@ namespace CsvTools.Tests
         dt.Rows.Add(row);
       }
 
-      var processDisplay = new CustomProcessDisplay();
       using var reader = new DataTableWrapper(dt);
       var treatAsNull = string.Empty;
       var res = await DetermineColumnFormat.GetSampleValuesAsync(reader, 0, new[] { 0 }, 20,
@@ -382,7 +378,7 @@ namespace CsvTools.Tests
     public async Task DetermineColumnFormatGetSampleValuesNoColumns()
     {
       using var dt = new DataTable();
-      var processDisplay = new CustomProcessDisplay();
+      
       using var reader = new DataTableWrapper(dt);
       var temp = await DetermineColumnFormat
         .GetSampleValuesAsync(reader, 0, new[] { 0 }, 20, string.Empty, 40,
@@ -749,7 +745,7 @@ namespace CsvTools.Tests
         setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows, setting.IdentifierInContainer,
-        new StandardTimeZoneAdjust(), processDisplay);
+        StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
       var samples = await DetermineColumnFormat.GetSampleValuesAsync(test, 1000, new[] { 0 }, 20,
         "NULL", 40, UnitTestStatic.Token);
@@ -772,7 +768,7 @@ namespace CsvTools.Tests
         setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue,
         setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-        setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, new StandardTimeZoneAdjust(), processDisplay);
+        setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
 
       var temp = await DetermineColumnFormat

@@ -7,7 +7,7 @@ namespace CsvTools.Tests
   public class PagedFileReaderTest
   {
     private readonly CsvFile m_Setting = UnitTestStatic.ReaderGetAllFormats();
-    private static readonly ITimeZoneAdjust m_TimeZoneAdjust = new StandardTimeZoneAdjust();
+    private static readonly TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
 
     [TestMethod()]
     public async Task MoveToLastPageFirstPageAsync()
@@ -25,7 +25,7 @@ namespace CsvTools.Tests
         m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
         m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
         m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
-        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
         process);
       var test = new PagedFileReader(reader, pageSize, UnitTestStatic.Token);
       await test.OpenAsync(true, true, true, true);
@@ -53,7 +53,7 @@ namespace CsvTools.Tests
         m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
         m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
         m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
-        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
         process);
       var test = new PagedFileReader(reader, pageSize, UnitTestStatic.Token);
       await test.OpenAsync(true, true, true, true);
@@ -81,7 +81,7 @@ namespace CsvTools.Tests
         m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
         m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
         m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
-        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
         process);
       var test = new PagedFileReader(reader, pageSize, UnitTestStatic.Token);
       await test.OpenAsync(true, true, true, true);
@@ -106,7 +106,7 @@ namespace CsvTools.Tests
         m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
         m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
         m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
-        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust,
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
         process);
       var test = new PagedFileReader(reader, 20, UnitTestStatic.Token);
       await test.OpenAsync(true, true, true, true);

@@ -41,8 +41,9 @@ namespace CsvTools
     private readonly Action<string>? m_ReportProgress;
     private readonly Action<long>? m_SetMaxProcess;
     private readonly IValueFormat m_ValueFormatGeneral;
-    protected readonly ITimeZoneAdjust TimeZoneAdjust;
+    protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
     protected string Header;
+    protected string m_SourceTimeZone;
     private DateTime m_LastNotification = DateTime.Now;
 
     protected BaseFileWriter(
@@ -56,12 +57,13 @@ namespace CsvTools
       in string? header,
       in IEnumerable<IColumn>? columnDefinition,
       in string fileSettingDisplay,
-      in ITimeZoneAdjust timeZoneAdjust,
+      in TimeZoneChangeDelegate timeZoneAdjust,
+      in string sourceTimeZone,
       IProcessDisplay? processDisplay)
     {
       if (string.IsNullOrEmpty(fullPath))
         throw new ArgumentException($"{nameof(fullPath)} can not be empty");
-
+      m_SourceTimeZone = sourceTimeZone;
       FullPath = FileSystemUtils.ResolvePattern(fullPath) ??
                  throw new ArgumentException($"Make sure path is correct {fullPath}");
       var fileName = FileSystemUtils.GetFileName(FullPath);
@@ -369,17 +371,16 @@ namespace CsvTools
     protected void HandleWarning(string columnName, string message) =>
       Warning?.Invoke(this, new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
 
-    /// <summary>
-    /// Value conversion of a FileWriter
-    /// </summary>
+    /// <summary>Value conversion of a FileWriter</summary>
     /// <param name="reader">Data Reader / Data Records in case additional columns are needed e.G. for TimeZone adjustment based off ColumnOrdinalTimeZone or GetFileName</param>
     /// <param name="dataObject">The actual data of the column</param>
     /// <param name="columnInfo">Information on ValueConversion</param>
-    /// <param name="timeZoneAdjust"></param>
-    /// <param name="handleWarning"></param>
+    /// <param name="timeZoneAdjust">Class that does provide means to convert between timezones</param>
+    /// <param name="sourceTimeZone">The assumed source timezone of date time columns</param>
+    /// <param name="handleWarning">Method to pass on warnings</param>
     /// <returns>Value of the .Net Data type matching the ValueFormat.DataType</returns>
     public static object? ValueConversion(in IDataRecord? reader, in object? dataObject, WriterColumn columnInfo,
-      in ITimeZoneAdjust timeZoneAdjust, Action<string, string>? handleWarning = null)
+      in TimeZoneChangeDelegate timeZoneAdjust, string sourceTimeZone, Action<string, string>? handleWarning = null)
     {
       if (dataObject is null || dataObject is DBNull)
         return null;
@@ -402,7 +403,7 @@ namespace CsvTools
         case DataTypeEnum.DateTime:
           var dtm = Convert.ToDateTime(dataObject);
           if (!string.IsNullOrEmpty(columnInfo.ConstantTimeZone))
-            return timeZoneAdjust.AdjustTZ(dtm, timeZoneAdjust.LocalTimeZone, columnInfo.ConstantTimeZone,
+            return timeZoneAdjust(dtm, sourceTimeZone, columnInfo.ConstantTimeZone,
               (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
 
           if (reader is null || columnInfo.ColumnOrdinalTimeZone <= -1)
@@ -415,7 +416,7 @@ namespace CsvTools
             return dtm;
           }
 
-          return timeZoneAdjust.AdjustTZ(dtm, timeZoneAdjust.LocalTimeZone,
+          return timeZoneAdjust(dtm, sourceTimeZone,
             reader.GetString(columnInfo.ColumnOrdinalTimeZone), (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
 
         case DataTypeEnum.Guid:
@@ -442,7 +443,7 @@ namespace CsvTools
       string displayAs;
       try
       {
-        var convertedValue = ValueConversion(reader, dataObject, columnInfo, TimeZoneAdjust, HandleWarning);
+        var convertedValue = ValueConversion(reader, dataObject, columnInfo, TimeZoneAdjust, m_SourceTimeZone, HandleWarning);
         if (convertedValue is null)
           displayAs = columnInfo.ValueFormat.DisplayNullAs;
         else

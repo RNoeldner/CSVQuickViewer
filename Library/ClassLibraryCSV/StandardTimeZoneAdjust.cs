@@ -19,22 +19,19 @@ using TimeZoneConverter;
 namespace CsvTools
 {
   /// <summary>
-  /// Impemantion of <see cref="ITimeZoneAdjust"/> that uses the .NET  <see cref="TimeZoneInfo" /> and NuGet package TimeZoneConverter to be able to work on Iana or Windows TimeZone
+  /// Impemantion of <see cref="TimeZoneChangeDelegate"/> that uses the .NET  <see cref="TimeZoneInfo" /> and NuGet package TimeZoneConverter to be able to work on Iana or Windows TimeZone
   /// </summary>
-  public class StandardTimeZoneAdjust : ITimeZoneAdjust
+  public static class StandardTimeZoneAdjust 
   {
     public const string cIdLocal = "(local)";
-    private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
-    /// <inheritdoc />
-    public virtual string LocalTimeZone { get; set; } = TimeZoneInfo.Local.Id;
-
+    private static readonly bool m_IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    
     private static TimeZoneInfo FindTimeZoneInfo(string timeZone)
     {
       if (timeZone.Equals(cIdLocal, StringComparison.OrdinalIgnoreCase))
         return TimeZoneInfo.Local;
       else
-        return IsWindows
+        return m_IsWindows
           ? TimeZoneInfo.FindSystemTimeZoneById(
             TZConvert.TryIanaToWindows(timeZone, out var winSrc) ? winSrc : timeZone)
           : TimeZoneInfo.FindSystemTimeZoneById(TZConvert.TryWindowsToIana(timeZone, out var inaraSrc)
@@ -58,9 +55,5 @@ namespace CsvTools
         return input;
       }
     }
-
-    /// <inheritdoc />
-    public virtual DateTime AdjustTZ(in DateTime input, in string srcTimeZone, in string destTimeZone,
-      in Action<string>? handleWarning) => ChangeTimeZone(input, srcTimeZone, destTimeZone, handleWarning);
   }
 }

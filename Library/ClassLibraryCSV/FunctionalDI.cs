@@ -40,7 +40,7 @@ namespace CsvTools
 
 #if !QUICK
     private static readonly IFileReaderWriterFactory m_FileReaderWriterFactory =
-      new ClassLibraryCSVFileReaderWriterFactory(new StandardTimeZoneAdjust());
+      new ClassLibraryCSVFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone);
 
     /// <summary>
     ///   Return a right writer for a file setting

@@ -45,6 +45,7 @@ namespace CsvTools
     /// <param name="treatTextAsNull">Value to be replaced with NULL in Text</param>
     /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
     /// <param name="timeZoneAdjust">Class to modify date time for timezones</param>
+    /// <param name="destTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
     /// <param name="processDisplay">Process Display</param>
     protected BaseFileReaderTyped(
       in string fileName,
@@ -53,9 +54,10 @@ namespace CsvTools
       bool trim,
       in string treatTextAsNull,
       bool treatNbspAsSpace,
-      in ITimeZoneAdjust timeZoneAdjust,
+      in TimeZoneChangeDelegate timeZoneAdjust,
+      in string destTimeZone,
       in IProcessDisplay? processDisplay)
-      : base(fileName, columnDefinition, recordLimit, timeZoneAdjust, processDisplay)
+      : base(fileName, columnDefinition, recordLimit, timeZoneAdjust,destTimeZone, processDisplay)
     {
       m_TreatNbspAsSpace = treatNbspAsSpace;
       m_Trim = trim;

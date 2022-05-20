@@ -185,6 +185,9 @@
 		<None Update="TestFiles\SkippingEmptyRowsWithDelimiter.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="TestFiles\StrangeHeaders.txt">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="TestFiles\TestFile.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

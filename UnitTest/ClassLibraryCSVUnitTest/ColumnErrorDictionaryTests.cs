@@ -19,7 +19,7 @@ namespace CsvTools.Tests
         setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace, setting.TreatUnknownCharacterAsSpace,
         setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, new StandardTimeZoneAdjust(), processDisplay);
+        setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, processDisplay);
       await reader.OpenAsync(UnitTestStatic.Token);
       var test1 = new ColumnErrorDictionary(reader);
       Assert.IsNotNull(test1);

@@ -12,13 +12,13 @@ namespace CsvTools.Tests
     {
       var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("RealignColumn.txt"), 650001,0,
-        true, null, TrimmingOptionEnum.Unquoted, tryToSolveMoreColumns: true, skipEmptyLines: false,
+        true, null, TrimmingOptionEnum.Unquoted,
          fieldDelimiter: "\t", fieldQualifier: "\"", escapeCharacter: "",
         recordLimit: 0, allowRowCombining: false, contextSensitiveQualifier: false, commentLine: "", numWarning: 0,
         duplicateQualifierToEscape: true, newLinePlaceholder: "", delimiterPlaceholder: "", quotePlaceholder: "",
-        skipDuplicateHeader: true, treatLfAsSpace: false, treatUnknownCharacterAsSpace: false, warnDelimiterInValue: true,
-        warnLineFeed: false, warnNbsp: true, warnQuotes: true, warnUnknownCharacter: true, warnEmptyTailingColumns: true,
-        treatNbspAsSpace: false, treatTextAsNull: "NULL", consecutiveEmptyRowsMax: 4, timeZoneAdjust: new StandardTimeZoneAdjust(), identifierInContainer: "", processDisplay: processDisplay);
+        skipDuplicateHeader: true, treatLfAsSpace: false, treatUnknownCharacterAsSpace: false, tryToSolveMoreColumns: true,
+        warnDelimiterInValue: true, warnLineFeed: false, warnNbsp: true, warnQuotes: true, warnUnknownCharacter: true,
+        warnEmptyTailingColumns: true, treatNbspAsSpace: false, treatTextAsNull: "NULL", skipEmptyLines: false, consecutiveEmptyRowsMax: 4, identifierInContainer: "", timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id, processDisplay: processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
 
       // first five rows are good.

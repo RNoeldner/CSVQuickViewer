@@ -161,7 +161,8 @@ namespace CsvTools
       in string quotePlaceholder, bool skipDuplicateHeader, bool treatLfAsSpace, bool treatUnknownCharacterAsSpace,
       bool tryToSolveMoreColumns, bool warnDelimiterInValue, bool warnLineFeed, bool warnNbsp, bool warnQuotes,
       bool warnUnknownCharacter, bool warnEmptyTailingColumns, bool treatNbspAsSpace, in string treatTextAsNull,
-      bool skipEmptyLines, int consecutiveEmptyRowsMax, in ITimeZoneAdjust timeZoneAdjust,
+      bool skipEmptyLines, int consecutiveEmptyRowsMax, in TimeZoneChangeDelegate timeZoneAdjust,
+      in string destTimeZone,
       in IProcessDisplay? processDisplay)
       : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
         trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
@@ -170,13 +171,13 @@ namespace CsvTools
         tryToSolveMoreColumns, warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter,
         warnEmptyTailingColumns, treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax,
         string.Empty,
-        string.Empty, timeZoneAdjust, processDisplay)
+        string.Empty, timeZoneAdjust, destTimeZone, processDisplay)
     {
       m_Stream = stream ?? throw new ArgumentNullException(nameof(stream));
     }
 
-    public CsvFileReader(
-      in string fileName, int codePageId, int skipRows, bool hasFieldHeader, in IEnumerable<IColumn>? columnDefinition,
+    public CsvFileReader(in string fileName, int codePageId, int skipRows, bool hasFieldHeader,
+      in IEnumerable<IColumn>? columnDefinition,
       in TrimmingOptionEnum trimmingOption,
       in string fieldDelimiter, in string fieldQualifier, in string escapeCharacter, long recordLimit,
       bool allowRowCombining, bool contextSensitiveQualifier, in string commentLine, int numWarning,
@@ -185,8 +186,8 @@ namespace CsvTools
       bool skipDuplicateHeader, bool treatLfAsSpace, bool treatUnknownCharacterAsSpace, bool tryToSolveMoreColumns,
       bool warnDelimiterInValue, bool warnLineFeed, bool warnNbsp, bool warnQuotes, bool warnUnknownCharacter,
       bool warnEmptyTailingColumns, bool treatNbspAsSpace, in string treatTextAsNull, bool skipEmptyLines,
-      int consecutiveEmptyRowsMax, in string identifierInContainer, in ITimeZoneAdjust timeZoneAdjust,
-      in IProcessDisplay? processDisplay)
+      int consecutiveEmptyRowsMax, in string identifierInContainer, in TimeZoneChangeDelegate timeZoneAdjust,
+      string destTimeZone, in IProcessDisplay? processDisplay)
       : this(
         columnDefinition, codePageId, skipRows, hasFieldHeader,
         trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
@@ -195,7 +196,7 @@ namespace CsvTools
         tryToSolveMoreColumns,
         warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
         treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax, identifierInContainer, fileName,
-        timeZoneAdjust, processDisplay)
+        timeZoneAdjust, destTimeZone, processDisplay)
     {
       if (fileName is null)
         throw new ArgumentNullException(nameof(fileName));
@@ -207,24 +208,23 @@ namespace CsvTools
           fileName);
     }
 
-    private CsvFileReader(
-      IEnumerable<IColumn>? columnDefinition,
+    private CsvFileReader(IEnumerable<IColumn>? columnDefinition,
       int codePageId,
       int skipRows,
       bool hasFieldHeader,
       TrimmingOptionEnum trimmingOption,
-      string fieldDelimiter,
-      string fieldQualifier,
-      string escapePrefix,
+      in string fieldDelimiter,
+      in string fieldQualifier,
+      in string escapePrefix,
       long recordLimit,
       bool allowRowCombining,
       bool contextSensitiveQualifier,
-      string commentLine,
+      in string commentLine,
       int numWarning,
       bool duplicateQualifierToEscape,
-      string newLinePlaceholder,
-      string delimiterPlaceholder,
-      string quotePlaceholder,
+      in string newLinePlaceholder,
+      in string delimiterPlaceholder,
+      in string quotePlaceholder,
       bool skipDuplicateHeader,
       bool treatLfAsSpace,
       bool treatUnknownCharacterAsSpace,
@@ -236,14 +236,15 @@ namespace CsvTools
       bool warnUnknownCharacter,
       bool warnEmptyTailingColumns,
       bool treatNbspAsSpace,
-      string treatTextAsNull,
+      in string treatTextAsNull,
       bool skipEmptyLines,
       int consecutiveEmptyRowsMax,
-      string identifierInContainer,
-      string fileName,
-      ITimeZoneAdjust timeZoneAdjust,
-      IProcessDisplay? processDisplay)
-      : base(fileName, columnDefinition, recordLimit, timeZoneAdjust, processDisplay)
+      in string identifierInContainer,
+      in string fileName,
+      in TimeZoneChangeDelegate timeZoneAdjust,
+      in string destTimeZone,
+      in IProcessDisplay? processDisplay)
+      : base(fileName, columnDefinition, recordLimit, timeZoneAdjust, destTimeZone, processDisplay)
     {
       SelfOpenedStream = !string.IsNullOrEmpty(fileName);
       m_HeaderRow = Array.Empty<string>();

@@ -27,20 +27,20 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.JsonFileWriter" /> class.
     /// </summary>
-    public JsonFileWriter(
-      in string id,
+    public JsonFileWriter(in string id,
       in string fullPath,
-      long pgpKeyId = 0,
-      bool unencrypted = false,
-      in string? identifierInContainer = null,
-      in string? footer = null,
-      in string? header = null,
-      int codePageId = 65001,
-      bool byteOrderMark = true,
-      in IEnumerable<IColumn>? columnDefinition = null,
-      in string fileSettingDisplay = "",
-      in string row = "",
-      in ITimeZoneAdjust? timeZoneAdjust = null,
+      long pgpKeyId,
+      bool unencrypted,
+      in string? identifierInContainer,
+      in string? footer,
+      in string? header,
+      int codePageId,
+      bool byteOrderMark,
+      in IEnumerable<IColumn>? columnDefinition,
+      in string fileSettingDisplay,
+      in string row,
+      in TimeZoneChangeDelegate? timeZoneAdjust,
+      in string sourceTimeZone,
       in IProcessDisplay? processDisplay = null)
       : base(
         id,
@@ -55,7 +55,8 @@ namespace CsvTools
         columnDefinition,
         fileSettingDisplay,
         row,
-        timeZoneAdjust ?? new StandardTimeZoneAdjust(),
+        timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone, 
+        sourceTimeZone,
         processDisplay)
     {
     }
