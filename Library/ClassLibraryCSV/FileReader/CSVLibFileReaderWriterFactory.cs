@@ -26,7 +26,7 @@ namespace CsvTools
     public ClassLibraryCSVFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust) => m_TimeZoneAdjust = timeZoneAdjust;
 
     /// <inheritdoc />
-    public IFileReader GetFileReader(in IFileSetting setting, in string? timeZone, in IProcessDisplay? processDisplay,
+    public IFileReader GetFileReader(in IFileSetting setting, in IProcessDisplay? processDisplay,
       in CancellationToken cancellationToken) =>
       setting switch
       {
@@ -37,7 +37,7 @@ namespace CsvTools
           csv.TrimmingOption == TrimmingOptionEnum.All,
           csv.TreatTextAsNull,
           csv.TreatNBSPAsSpace,
-          m_TimeZoneAdjust, timeZone ?? TimeZoneInfo.Local.Id ,
+          m_TimeZoneAdjust, TimeZoneInfo.Local.Id,
           processDisplay),
         ICsvFile csv => new CsvFileReader(
           csv.FullPath,
@@ -73,7 +73,7 @@ namespace CsvTools
           csv.SkipEmptyLines,
           csv.ConsecutiveEmptyRows,
           csv.IdentifierInContainer,
-          m_TimeZoneAdjust, timeZone ?? TimeZoneInfo.Local.Id,
+          m_TimeZoneAdjust, TimeZoneInfo.Local.Id,
           processDisplay),
         _ => throw new FileReaderException($"Reader for {setting} not found")
       };

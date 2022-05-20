@@ -54,9 +54,9 @@ namespace CsvTools
     ///   Return the right reader for a file setting
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, string?, IProcessDisplay?, CancellationToken, IFileReader> GetFileReader =
-      (setting, timeZone, processDisplay, cancellationToken) =>
-        m_FileReaderWriterFactory.GetFileReader(setting, timeZone, processDisplay, cancellationToken);
+    public static Func<IFileSetting, IProcessDisplay?, CancellationToken, IFileReader> GetFileReader =
+      (setting, processDisplay, cancellationToken) =>
+        m_FileReaderWriterFactory.GetFileReader(setting, processDisplay, cancellationToken);
 
 
     /// <summary>

@@ -11,7 +11,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt") };
       using var test =
-        FunctionalDI.GetFileReader(setting, null, new CustomProcessDisplay(), UnitTestStatic.Token);
+        FunctionalDI.GetFileReader(setting, new CustomProcessDisplay(), UnitTestStatic.Token);
       Assert.IsInstanceOfType(test, typeof(CsvFileReader));
     }
 
@@ -20,7 +20,7 @@ namespace CsvTools.Tests
     {
       var setting = new JsonFile { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt") };
       using var test2 =
-        FunctionalDI.GetFileReader(setting, null, new CustomProcessDisplay(), UnitTestStatic.Token);
+        FunctionalDI.GetFileReader(setting, new CustomProcessDisplay(), UnitTestStatic.Token);
       Assert.IsInstanceOfType(test2, typeof(JsonFileReader));
     }
 
