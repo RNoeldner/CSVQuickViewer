@@ -1144,7 +1144,7 @@ namespace CsvTools
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, string.Empty, null, cancellationToken);
+      using var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, cancellationToken);
       await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       return await FillGuessColumnFormatReaderAsyncReader(
         fileReader,

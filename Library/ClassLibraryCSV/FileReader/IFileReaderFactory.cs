@@ -27,7 +27,7 @@ namespace CsvTools
     /// <param name="processDisplay">Used Process/Progress reporting</param>
     /// <param name="cancellationToken"></param>
     /// <returns>A <see cref="IFileReader"/> capable to import data</returns>
-    IFileReader GetFileReader(in IFileSetting setting, in string? timeZone, in IProcessDisplay? processDisplay,
+    IFileReader GetFileReader(in IFileSetting setting, in IProcessDisplay? processDisplay,
       in CancellationToken cancellationToken);
 
     /// <summary>

@@ -660,7 +660,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, null, null, formProcessDisplay.CancellationToken);
+          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, formProcessDisplay, formProcessDisplay.CancellationToken);
           await fileReader.OpenAsync(formProcessDisplay.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
@@ -829,7 +829,7 @@ namespace CsvTools
         await
 #endif
         // ReSharper disable once ConvertToUsingDeclaration
-        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, processDisplay, cancellationToken))
+        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, processDisplay, cancellationToken))
         {
           await fileReader.OpenAsync(cancellationToken);
           var colIndex = fileReader.GetOrdinal(columnName);

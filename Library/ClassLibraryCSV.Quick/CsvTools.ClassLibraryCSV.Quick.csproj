@@ -25,8 +25,7 @@
 		<PlatformTarget>AnyCPU</PlatformTarget>
 		<DefineConstants>TRACE;QUICK</DefineConstants>
 	</PropertyGroup>
-	<ItemGroup>
-		<Compile Include="..\ClassLibraryCSV\ITimeZoneAdjust.cs" Link="ITimeZoneAdjust.cs" />
+	<ItemGroup>		
 		<Compile Include="..\ClassLibraryCSV\StandardTimeZoneAdjust.cs" Link="StandardTimeZoneAdjust.cs" />
 		
 		<Compile Include="..\ClassLibraryCSV\Enum\FileTypeEnum.cs" Link="Enum\FileTypeEnum.cs" />

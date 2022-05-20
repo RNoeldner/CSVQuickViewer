@@ -211,7 +211,7 @@ namespace CsvTools.Tests
     {
       m_CsvFile.FileName = UnitTestStatic.GetTestPath("BasicCSV.txt");
       var processDisplay = new CustomProcessDisplay();
-      using var res = FunctionalDI.GetFileReader(m_CsvFile, TimeZoneInfo.Local.Id, processDisplay, UnitTestStatic.Token);
+      using var res = FunctionalDI.GetFileReader(m_CsvFile, processDisplay, UnitTestStatic.Token);
       Assert.IsInstanceOfType(res, typeof(IFileReader));
     }
 

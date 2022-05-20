@@ -61,8 +61,7 @@ namespace CsvTools.Tests
     {
       try
       {
-        using var dummy = FunctionalDI.GetFileReader(m_JsonFile, TimeZoneInfo.Local.Id,
-          new CustomProcessDisplay(), UnitTestStatic.Token);
+        using var dummy = FunctionalDI.GetFileReader(m_JsonFile, new CustomProcessDisplay(), UnitTestStatic.Token);
         Assert.Fail("Should throw error");
       }
       catch (NotImplementedException)
