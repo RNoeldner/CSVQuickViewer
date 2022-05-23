@@ -3,12 +3,11 @@
 		<TargetFramework>net472</TargetFramework>
 		<UseWindowsForms>true</UseWindowsForms>
 		<LangVersion>8.0</LangVersion>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
 		<RootNamespace>CsvTools.Tests</RootNamespace>
 		<TestProjectType>UnitTest</TestProjectType>
 		<ReleaseVersion>1.4.6.499</ReleaseVersion>
-		<AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DefineConstants>TRACE;Windows</DefineConstants>
@@ -16,6 +15,9 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DefineConstants>Windows</DefineConstants>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Compile Remove="WinAppLoggingTests.cs" />
+	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
 		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />

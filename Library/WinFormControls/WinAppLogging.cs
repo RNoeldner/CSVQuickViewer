@@ -89,33 +89,23 @@ namespace CsvTools
       {
         m_FormatProvider = formatProvider;
       }
-      
+      /// <inheritdoc cref="ILogEventSink"/>
       public void Emit(LogEvent logEvent)
       {
         if (AdditionalLoggers.Count <= 0) return;
-        LogLevel level;
-        switch (logEvent.Level)
+        var level = logEvent.Level switch
         {
-          case LogEventLevel.Verbose:
-          case LogEventLevel.Debug:
-            level = LogLevel.Debug;
-            break;
-
-          case LogEventLevel.Information:
-            level = LogLevel.Information;
-            break;
-
-          case LogEventLevel.Warning:
-            level = LogLevel.Warning;
-            break;
-
-          default:
-            level =  LogLevel.Error;
-            break;
-        }
+          LogEventLevel.Verbose => LogLevel.Debug,
+          LogEventLevel.Debug => LogLevel.Debug,
+          LogEventLevel.Warning => LogLevel.Warning,
+          LogEventLevel.Error => LogLevel.Error,
+          LogEventLevel.Fatal => LogLevel.Critical,
+          LogEventLevel.Information => LogLevel.Information,
+          _ => LogLevel.Information
+        };
 
         foreach (var logger in AdditionalLoggers)
-          logger.Log(level, logEvent.RenderMessage(m_FormatProvider), level);
+          logger.Log(level, logEvent.RenderMessage(formatProvider: m_FormatProvider));
       }
     }
   }

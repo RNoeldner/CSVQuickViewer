@@ -38,7 +38,9 @@ namespace CsvTools.Tests
     private static UnitTestLogger? TestLogger;
     public static string LastLogMessage => TestLogger!.LastMessage;
 
+#pragma warning disable CS8602
     public static void WriteToContext(this string s) => TestLogger!.Context.WriteLine(s);
+#pragma warning restore CS8602
 
     public static readonly string ApplicationDirectory = Path.Combine(
       FileSystemUtils.ExecutableDirectoryName(),
@@ -192,9 +194,9 @@ namespace CsvTools.Tests
       thread.Start();
       thread.Join();
 
-#pragma warning disable CS8603 // Mögliche Nullverweisrückgabe.
+#pragma warning disable CS8603 
       return result;
-#pragma warning restore CS8603 // Mögliche Nullverweisrückgabe.
+#pragma warning restore CS8603 
     }
 
     public static DataTable GetDataTable(int numRecords = 100, bool addError = true)

@@ -8,10 +8,10 @@ namespace CsvTools
 {
   public class UnitTestLogger : ILogger
   {
-    public readonly TestContext Context;
+    public readonly TestContext? Context;
     public string LastMessage;
 
-    public UnitTestLogger(TestContext context)
+    public UnitTestLogger(TestContext? context)
     {
       Context = context;
       LastMessage = string.Empty;
@@ -20,7 +20,7 @@ namespace CsvTools
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
       LastMessage = formatter.Invoke(state, exception);
-      Context.WriteLine($"{logLevel} - {LastMessage}");
+      Context?.WriteLine($"{logLevel} - {LastMessage}");
     }
 
     public bool IsEnabled(LogLevel logLevel) => logLevel > LogLevel.Debug;
