@@ -13,12 +13,24 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public sealed class FormMainTests
   {
+    [TestMethod]
+    [Timeout(10000)]
+    public void ProgramMain()
+    {
+      var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+      Task.Run( ()=>Program.Main(Array.Empty<string>()), tcs.Token);
+    }
+      
+    
     [TestMethod]
     [Timeout(10000)]
     public void FormMain_BasicCSV()

@@ -17,7 +17,7 @@ using System.Windows.Forms;
 
 namespace CsvTools
 {
-  internal static class Program
+  public static class Program
   {
 
     static Program()
@@ -43,7 +43,7 @@ namespace CsvTools
 #endif
 
     [STAThread]
-    private static void Main(string[] args)
+    public static void Main(string[] args)
     {
 
       Application.ThreadException += (s, e) => UnhandledException(e.Exception);
@@ -86,16 +86,13 @@ namespace CsvTools
     /// <param name="ex">The exception.</param>
     private static void UnhandledException(Exception ex)
     {
-      // Most likely disposing something which is still being used by a different thread its very
-      // hard to track down as the stack frame is not useful, in 99% its updating progress or UI
-      if (ex is ObjectDisposedException && ex.HResult == -2146232798)
+      switch (ex)
       {
-        return;
-      }
-
-      if (ex is InvalidOperationException && ex.HResult == -2146233079)
-      {
-        return;
+        // Most likely disposing something which is still being used by a different thread its very
+        // hard to track down as the stack frame is not useful, in 99% its updating progress or UI
+        case ObjectDisposedException _ when ex.HResult == -2146232798:
+        case InvalidOperationException _ when ex.HResult == -2146233079:
+          return;
       }
 
       Logger.Error(ex, "Not handled Exception");
