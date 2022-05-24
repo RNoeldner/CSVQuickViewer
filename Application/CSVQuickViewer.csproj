@@ -27,7 +27,7 @@
 		<PackageProjectUrl>https://sourceforge.net/projects/csvquickviewer</PackageProjectUrl>
 		<PackageTags>Comma-separated values;Delimited Text;CSV;TAB;Viewer</PackageTags>
 		<ReleaseVersion>1.4.6.499</ReleaseVersion>
-		<AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
+		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<PlatformTarget>AnyCPU</PlatformTarget>
@@ -39,9 +39,6 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="..\Library\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
-	</ItemGroup>
-	<ItemGroup>
-	  <PackageReference Include="Autofac" Version="6.3.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
