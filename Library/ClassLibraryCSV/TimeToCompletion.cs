@@ -170,8 +170,10 @@ namespace CsvTools
       if (value.TotalMinutes < 1)
         return $"{value:%s} sec";
       if (value.TotalHours < 1)
-        return $"{value:mm\\:ss}";
-      return value.TotalHours < 24 ? $"{value:hh\\:mm} hour" : $"{value} days";
+        return $"{value:m\\:ss} min";
+      if (value.TotalHours < 24)
+        return $"{value:h\\:mm} hrs";
+      return $"{value.TotalDays:F1} days";
     }
 
     private struct ProgressOverTime

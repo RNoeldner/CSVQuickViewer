@@ -37,9 +37,17 @@ namespace CsvTools
 
     protected virtual void Handle(in object? sender, string text, long value, bool log)
     {
-      if (log)
-        Logger.Information(text);
-      Progress?.Invoke(sender, new ProgressEventArgs(text, value, log));
+      try
+      {
+        if (log)
+          Logger.Information(text);
+        Progress?.Invoke(sender, new ProgressEventArgs(text, value, log));
+      }
+      catch 
+      {
+        // ignore all errors in process dispay
+      }
+      
     }
   }
 }
