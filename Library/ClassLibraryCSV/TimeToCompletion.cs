@@ -24,32 +24,28 @@ namespace CsvTools
   /// </summary>
   public class TimeToCompletion
   {
+    public static readonly TimeSpan Max = TimeSpan.FromDays(2);
     private readonly long m_MaximumTicks;
-
     private readonly byte m_MinimumData;
 
     private readonly Queue<ProgressOverTime> m_Queue;
-
-    private readonly Stopwatch m_Stopwatch = new Stopwatch();
-
+    private readonly Stopwatch m_Stopwatch;
     private ProgressOverTime m_FirstItem;
-
     private ProgressOverTime m_LastItem;
-
     private long m_TargetValue;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="TimeToCompletion" /> class.
     /// </summary>
     /// <param name="targetValue">The target value / maximum that would match 100%</param>
-    /// <param name="minimumData">The number of entries before a estimation is done.</param>
-    /// <param name="storedSeconds">The number of seconds to remember for estimation.</param>
-    public TimeToCompletion(long targetValue = -1, byte minimumData = 5, double storedSeconds = 60.0)
+    /// <param name="minimumData">The number of entries to keep no matter how old the entry is.</param>
+    /// <param name="storedSeconds">The number of seconds to remember for estimation purpose.</param>
+    public TimeToCompletion(long targetValue = -1, byte minimumData = 10, double storedSeconds = 10.0)
     {
       m_MinimumData = minimumData;
       m_MaximumTicks = (long) (storedSeconds * Stopwatch.Frequency);
-      m_Queue = new Queue<ProgressOverTime>(minimumData * 2);
-
+      m_Queue = new Queue<ProgressOverTime>();
+      m_Stopwatch = new Stopwatch();      
       m_LastItem.Value = 0;
       TargetValue = targetValue;
     }
@@ -58,7 +54,7 @@ namespace CsvTools
     ///   Gets the estimated time remaining to complete
     /// </summary>
     /// <value>The estimated time remaining.</value>
-    public TimeSpan EstimatedTimeRemaining { get; private set; } = TimeSpan.MaxValue;
+    public TimeSpan EstimatedTimeRemaining { get; private set; } = Max;
 
     public string EstimatedTimeRemainingDisplay => DisplayTimespan(EstimatedTimeRemaining);
 
@@ -70,7 +66,7 @@ namespace CsvTools
     {
       get
       {
-        if (EstimatedTimeRemaining == TimeSpan.MaxValue)
+        if (EstimatedTimeRemaining >= Max)
           return string.Empty;
         return " - " + EstimatedTimeRemainingDisplay;
       }
@@ -95,14 +91,9 @@ namespace CsvTools
       set
       {
         var newVal = value > 1 ? value : 1;
-
         m_TargetValue = newVal;
         m_Queue.Clear();
-
-        m_Stopwatch.Reset();
-        m_Stopwatch.Start();
-
-        Value = 0;
+        EstimatedTimeRemaining = Max;
       }
     }
 
@@ -121,7 +112,8 @@ namespace CsvTools
         // beginning again (possibly reuse of the object)
         if (value < m_LastItem.Value)
           m_Queue.Clear();
-
+        if (m_Queue.Count == 0)
+          m_Stopwatch.Restart();
         // Remove old items
         var expired = m_Stopwatch.ElapsedTicks - m_MaximumTicks;
         while (m_Queue.Count > m_MinimumData && m_Queue.Peek().Tick < expired)
@@ -137,19 +129,18 @@ namespace CsvTools
         Percent = Math.Round((double) value / m_TargetValue * 100.0, 1, MidpointRounding.AwayFromZero);
 
         // Make sure we have enough items to estimate
-
         if (m_Queue.Count < 2 || m_FirstItem.Value == m_LastItem.Value)
         {
-          EstimatedTimeRemaining = TimeSpan.MaxValue;
+          EstimatedTimeRemaining = Max;
         }
         else
         {
           var finishedInTicks = (m_TargetValue - m_LastItem.Value) * (double) (m_LastItem.Tick - m_FirstItem.Tick)
                                 / (m_LastItem.Value - m_FirstItem.Value);
-          // Calculate the estimated finished time but add 5%
+          // Calculate the estimated finished time
           EstimatedTimeRemaining = finishedInTicks / Stopwatch.Frequency > .9
-            ? TimeSpan.FromSeconds(finishedInTicks / Stopwatch.Frequency * 1.05)
-            : TimeSpan.MaxValue;
+            ? TimeSpan.FromSeconds(finishedInTicks / Stopwatch.Frequency)
+            : Max;
         }
       }
       get => m_LastItem.Value;
@@ -163,7 +154,7 @@ namespace CsvTools
     /// <returns></returns>
     public static string DisplayTimespan(TimeSpan value, bool cut2Sec = true)
     {
-      if (value == TimeSpan.MaxValue || (cut2Sec && value.TotalSeconds < 2))
+      if (value == Max || (cut2Sec && value.TotalSeconds < 2) || value.TotalDays > 2)
         return string.Empty;
       if (value.TotalSeconds < 2 && !cut2Sec)
         return $"{value:s\\.ff} sec";
