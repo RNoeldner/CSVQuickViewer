@@ -93,7 +93,7 @@ namespace CsvTools
         .ConfigureAwait(false);
 
       m_SetLoadNextBatchAsync?.Invoke((process, token) =>
-        GetBatchByTimeSpan(TimeSpan.MaxValue, includeError, process, dt => m_GetDataTable().Merge(dt), token));
+        GetBatchByTimeSpan(TimeSpan.FromMinutes(60), includeError, process, dt => m_GetDataTable().Merge(dt), token));
 
       m_ActionFinished?.Invoke(m_DataReaderWrapper);
     }

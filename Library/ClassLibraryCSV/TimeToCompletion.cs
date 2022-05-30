@@ -21,6 +21,7 @@ namespace CsvTools
 {
   /// <summary>
   ///   Calculates the "Estimated Time of Completion" based on a rolling average of progress over time.
+  ///   This is not thread safe, each thread should have its own TimeToCompletion.
   /// </summary>
   public class TimeToCompletion
   {
@@ -170,7 +171,6 @@ namespace CsvTools
     private struct ProgressOverTime
     {
       public long Tick;
-
       public long Value;
     }
   }
