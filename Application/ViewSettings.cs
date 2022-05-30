@@ -152,7 +152,7 @@ namespace CsvTools
           Duration.Second => TimeSpan.FromSeconds(1),
           Duration.TwoSecond => TimeSpan.FromSeconds(2),
           Duration.TenSecond => TimeSpan.FromSeconds(10),
-          _ => TimeSpan.MaxValue,
+          _ => TimeSpan.FromMinutes(60),
         };
       }
     }

@@ -90,7 +90,7 @@ namespace CsvTools
         includeEndLineNo,
         includeRecordNo);
 
-      return await LoadDataTable(wrapper, TimeSpan.MaxValue, restoreErrorsFromColumn, progress, cancellationToken)
+      return await LoadDataTable(wrapper, TimeSpan.FromMinutes(60), restoreErrorsFromColumn, progress, cancellationToken)
         .ConfigureAwait(false);
     }
 
