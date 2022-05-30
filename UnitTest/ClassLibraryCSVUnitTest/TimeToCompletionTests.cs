@@ -63,16 +63,30 @@ namespace CsvTools.Tests
 		[Timeout(20000)]
 		public void DisplayTimespan()
 		{
-			Assert.AreEqual("0.10 sec",
+      Assert.AreEqual("2.5 days",
+        TimeToCompletion.DisplayTimespan(TimeSpan.FromDays(2.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
+
+      Assert.AreEqual("0.10 sec",
 			TimeToCompletion.DisplayTimespan(TimeSpan.FromSeconds(0.1), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
 
 			Assert.AreEqual("20 sec",
 				TimeToCompletion.DisplayTimespan(TimeSpan.FromSeconds(20), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
 
-			Assert.AreEqual("20:30",
+			Assert.AreEqual("20:30 min",
 				TimeToCompletion.DisplayTimespan(TimeSpan.FromMinutes(20.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
 
-			Assert.AreEqual("", TimeToCompletion.DisplayTimespan(TimeSpan.FromSeconds(0.1)));
-		}
+      Assert.AreEqual("2:30 min",
+        TimeToCompletion.DisplayTimespan(TimeSpan.FromMinutes(2.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
+
+      Assert.AreEqual("2:30 hrs",
+        TimeToCompletion.DisplayTimespan(TimeSpan.FromHours(2.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
+
+      Assert.AreEqual("11:30 hrs",
+        TimeToCompletion.DisplayTimespan(TimeSpan.FromHours(11.5), false).ReplaceDefaults(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".", "", ""));
+
+      Assert.AreEqual("", TimeToCompletion.DisplayTimespan(TimeSpan.FromSeconds(0.1)));
+
+     
+    }
 	}
 }

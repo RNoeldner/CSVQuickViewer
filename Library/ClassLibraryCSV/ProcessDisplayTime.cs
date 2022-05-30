@@ -41,11 +41,19 @@ namespace CsvTools
     public TimeToCompletion TimeToCompletion { get; }
 
     protected override void Handle(in object? sender, string text, long value, bool log)
-    {
+    {      
       base.Handle(sender, text, value, log);
-      ProgressTime.Invoke(sender,
-        new ProgressWithTimeEventArgs(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
       TimeToCompletion.Value = value;
+      try
+      {
+        ProgressTime.Invoke(sender,
+          new ProgressWithTimeEventArgs(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
+      }
+      catch
+      {
+        // ignore
+      }
+      
     }
   }
 }
