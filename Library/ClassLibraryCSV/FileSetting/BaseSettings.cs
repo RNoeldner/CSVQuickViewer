@@ -19,6 +19,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -96,6 +97,8 @@ namespace CsvTools
     private long m_WarningCount;
     private int m_Order = 100;
     private string m_Comment = string.Empty;
+    private int m_Status = 0;
+    private readonly ReaderWriterLockSlim m_LockStatus = new ReaderWriterLockSlim();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
@@ -113,6 +116,33 @@ namespace CsvTools
         if (e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Add)
           NotifyPropertyChanged(nameof(MappingCollection));
       };
+    }
+    
+
+    [XmlIgnore]
+    /// <inheritdoc/>
+    public int Status
+    {
+      get
+      {
+        try
+        {
+          m_LockStatus.EnterReadLock();
+          return m_Status;
+        }
+        finally
+        {
+          m_LockStatus.ExitReadLock();
+        }
+      }
+      set
+      {
+        if (value.Equals(Status))
+          return;
+        m_LockStatus.EnterWriteLock();
+        m_Status=value;
+        m_LockStatus.ExitWriteLock();
+      }
     }
 
     /// <summary>

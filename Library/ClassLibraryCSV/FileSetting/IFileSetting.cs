@@ -22,8 +22,17 @@ namespace CsvTools
   /// <summary>
   ///   Interface for a FileSetting
   /// </summary>
-  public interface IFileSetting : INotifyPropertyChanged, ICloneable, IEquatable<IFileSetting>
+  public interface IFileSetting : INotifyPropertyChanged, ICloneable, IEquatable<IFileSetting>  
   {
+    /// <summary>
+    /// Status of long ruuning processing on the FileSettings
+    /// 0 - Nothing
+    /// 1 - Loading
+    /// 2 - Getting Validation Result
+    /// 3 - Waiting for Load
+    /// </summary>
+    int Status { get; set; }
+
     /// <summary>
     ///   Gets or sets the column formats
     /// </summary>
