@@ -27,9 +27,9 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.IntervalAction" /> class.
     /// </summary>
-    /// <remarks>If no notification period is set 1/3 a second is assumed</remarks>
+    /// <remarks>If no notification period is set 1/4 a second is assumed</remarks>
     public IntervalAction()
-      : this(1 / 3d)
+      : this(.25d)
     {
     }
 
