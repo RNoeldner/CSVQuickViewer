@@ -88,9 +88,8 @@ namespace CsvTools.Tests
         test.Value = counter;
         await Task.Delay(200, UnitTestStatic.Token);
       }
-
-      Assert.IsTrue(test.EstimatedTimeRemaining.TotalSeconds > 0.0);
-      Assert.IsTrue(test.EstimatedTimeRemaining.TotalSeconds < 20.0);
+      var totalSec = test.EstimatedTimeRemaining.TotalSeconds;
+      Assert.IsTrue(totalSec > 10.0 && totalSec < 22.0, $"10 < {totalSec} < 22");      
       Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplaySeparator);
       Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplay);
     }

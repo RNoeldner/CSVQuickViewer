@@ -14,25 +14,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
+
 
 namespace CsvTools
 {
   /// <summary>
   ///   Calculates the "Estimated Time of Completion" based on a rolling average of progress over time.
   ///   This is not thread safe, each thread should have its own TimeToCompletion.
+  ///   Based on velocity of last 5 seconds the remaining time is calculated, the Percentage is based on real values though
   /// </summary>
   public class TimeToCompletion
   {
     public static readonly TimeSpan Max = TimeSpan.FromDays(2);
-    private readonly long m_MaximumTicks;
+    private readonly TimeSpan m_MaximumAge;
     private readonly byte m_MinimumData;
-
-    private readonly Queue<ProgressOverTime> m_Queue;
-    private readonly Stopwatch m_Stopwatch;
-    private ProgressOverTime m_FirstItem;
-    private ProgressOverTime m_LastItem;
+    private readonly Queue<ValueOverTime> m_Queue;
+    private ValueOverTime m_LastItem;
     private long m_TargetValue;
 
     /// <summary>
@@ -41,13 +38,11 @@ namespace CsvTools
     /// <param name="targetValue">The target value / maximum that would match 100%</param>
     /// <param name="minimumData">The number of entries to keep no matter how old the entry is.</param>
     /// <param name="storedSeconds">The number of seconds to remember for estimation purpose.</param>
-    public TimeToCompletion(long targetValue = -1, byte minimumData = 10, double storedSeconds = 10.0)
+    public TimeToCompletion(long targetValue = -1, byte minimumData = 10, double storedSeconds = 15.0)
     {
       m_MinimumData = minimumData;
-      m_MaximumTicks = (long) (storedSeconds * Stopwatch.Frequency);
-      m_Queue = new Queue<ProgressOverTime>();
-      m_Stopwatch = new Stopwatch();      
-      m_LastItem.Value = 0;
+      m_MaximumAge = TimeSpan.FromSeconds(storedSeconds);
+      m_Queue = new Queue<ValueOverTime>();
       TargetValue = targetValue;
     }
 
@@ -74,13 +69,21 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the current percentage
+    ///   Gets the current percentage based on the really reported values
     /// </summary>
     /// <value>Percent (usually between 0 and 1)</value>
     public double Percent { get; private set; }
 
-    public string PercentDisplay =>
-      string.Format(CultureInfo.CurrentCulture, Percent < 10 ? "{0:F1}%" : "{0:F0}%", Percent);
+    /// <summary>
+    ///   Gets the estimated percentage assuming a steady progress
+    /// </summary>
+    /// <value>Percent (usually between 0 and 1)</value>
+    public double EstimatedPercent { get; private set; }
+
+    public string PercentDisplay => Percent < 10 ? $"{Percent:F1}%" : $"{Percent:F0}%";
+
+
+    public string EstimatedPercentDisplay => EstimatedPercent < 10 ? "{EstimatedPercent:F1}%" : $"{EstimatedPercent:F0}%";
 
     /// <summary>
     ///   Gets or sets the target value / maximum that would match 100%.
@@ -91,10 +94,41 @@ namespace CsvTools
       get => m_TargetValue;
       set
       {
-        var newVal = value > 1 ? value : 1;
-        m_TargetValue = newVal;
-        m_Queue.Clear();
+        m_TargetValue = value > 1 ? value : 1;
+        UpdateEstimates();
+      }
+    }
+
+    private void UpdateEstimates()
+    {
+      // Make sure we have at least to entries to estimate
+      if (m_Queue.Count < 2)
+      {
         EstimatedTimeRemaining = Max;
+      }
+      else
+      {
+        // remove itmes from queue if not needed
+        var expireBefore = DateTime.UtcNow - m_MaximumAge;
+        var firstItem = m_Queue.Peek();
+        while (m_Queue.Count > m_MinimumData && firstItem.DateTime < expireBefore)
+          firstItem = m_Queue.Dequeue();
+
+        // Percentage based on reported value
+        Percent = Math.Round((double) m_LastItem.Value / m_TargetValue * 100.0, 1, MidpointRounding.AwayFromZero);
+
+        // calcluate the velociy based on firts and last value
+        var velocityBySecond = (m_LastItem.Value - firstItem.Value) / (m_LastItem.DateTime - firstItem.DateTime).TotalSeconds;
+        // estime current value based on last value and velocity
+        var estimatedCurrentValue = m_LastItem.Value + (velocityBySecond * (DateTime.UtcNow - m_LastItem.DateTime).TotalSeconds);
+        // assume estimate remaining time on assumed remaining values and velotiy
+        var finishedInSec = (m_TargetValue - estimatedCurrentValue) / velocityBySecond;
+
+        // Percentage based on estimated value
+        EstimatedPercent = Math.Round((double) estimatedCurrentValue / m_TargetValue * 100.0, 1, MidpointRounding.AwayFromZero);
+
+        // Calculate the estimated finished time
+        EstimatedTimeRemaining = ((finishedInSec > .9) && (finishedInSec < Max.TotalSeconds)) ? TimeSpan.FromSeconds(finishedInSec) : Max;
       }
     }
 
@@ -113,36 +147,16 @@ namespace CsvTools
         // beginning again (possibly reuse of the object)
         if (value < m_LastItem.Value)
           m_Queue.Clear();
-        if (m_Queue.Count == 0)
-          m_Stopwatch.Restart();
-        // Remove old items
-        var expired = m_Stopwatch.ElapsedTicks - m_MaximumTicks;
-        while (m_Queue.Count > m_MinimumData && m_Queue.Peek().Tick < expired)
-          m_FirstItem = m_Queue.Dequeue();
 
-        // Queue this item
-        m_LastItem.Tick = m_Stopwatch.ElapsedTicks;
+        var timeSineLastLog = (DateTime.UtcNow  - m_LastItem.DateTime);
+        m_LastItem.DateTime = DateTime.UtcNow;
         m_LastItem.Value = value;
-        m_Queue.Enqueue(m_LastItem);
-        if (m_Queue.Count == 1)
-          m_FirstItem = m_LastItem;
 
-        Percent = Math.Round((double) value / m_TargetValue * 100.0, 1, MidpointRounding.AwayFromZero);
-
-        // Make sure we have enough items to estimate
-        if (m_Queue.Count < 2 || m_FirstItem.Value == m_LastItem.Value)
-        {
-          EstimatedTimeRemaining = Max;
-        }
-        else
-        {
-          var finishedInTicks = (m_TargetValue - m_LastItem.Value) * (double) (m_LastItem.Tick - m_FirstItem.Tick)
-                                / (m_LastItem.Value - m_FirstItem.Value);
-          // Calculate the estimated finished time
-          EstimatedTimeRemaining = finishedInTicks / Stopwatch.Frequency > .9
-            ? TimeSpan.FromSeconds(finishedInTicks / Stopwatch.Frequency)
-            : Max;
-        }
+        // Do not queue very rapidly changing values so queue does not get too large
+        // we want to sick withoughly 1/2 second
+        if (m_Queue.Count < 2 ||  timeSineLastLog.TotalSeconds >= .5)
+          m_Queue.Enqueue(m_LastItem);
+        UpdateEstimates();
       }
       get => m_LastItem.Value;
     }
@@ -168,9 +182,9 @@ namespace CsvTools
       return $"{value.TotalDays:F1} days";
     }
 
-    private struct ProgressOverTime
+    private struct ValueOverTime
     {
-      public long Tick;
+      public DateTime DateTime;
       public long Value;
     }
   }
