@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+using System;
 
 namespace CsvTools
 {
@@ -14,13 +14,18 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      m_Stream?.Dispose();
-      m_Stream = null;
-      m_MemoryStream?.Dispose();
-      m_MemoryStream = null;
-      if (disposing && (components != null))
+            
+      if (disposing)
       {
-        components.Dispose();
+        m_Stream?.Dispose();
+        m_Stream = null;
+
+        m_MemoryStream?.Dispose();
+        m_MemoryStream = null;
+
+        if (m_HighLighter is IDisposable disposable)
+          disposable.Dispose();
+        components?.Dispose();
       }
       base.Dispose(disposing);
     }
