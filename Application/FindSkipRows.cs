@@ -7,9 +7,9 @@ namespace CsvTools
 {
   public partial class FindSkipRows : ResizeForm
   {
-    private readonly ICsvFile m_FileSetting;
-    private ISyntaxHighlighter m_HighLighter;
-    private Stream? m_Stream;
+    private readonly ICsvFile m_CsvFile;
+    private SyntaxHighlighterDelimitedText m_HighLighter;
+    private readonly Stream m_Stream;
 
     public FindSkipRows() : this(new CsvFile())
     {
@@ -18,11 +18,11 @@ namespace CsvTools
     public FindSkipRows(ICsvFile csvFile)
     {
       InitializeComponent();
-      m_FileSetting = csvFile;
-      fileSettingBindingSource.DataSource = csvFile;
+      m_CsvFile = csvFile ?? throw new ArgumentNullException(nameof(csvFile));
+      bindingSourceCsvFile.DataSource = csvFile;
 
       m_Stream = new ImprovedStream(new SourceAccess(csvFile));
-      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_FileSetting.EscapePrefixChar.ToStringHandle0(),
+      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_CsvFile.EscapePrefixChar.ToStringHandle0(),
         textBoxComment.Text);
     }
 
@@ -51,18 +51,19 @@ namespace CsvTools
       using var frm = new FormProcessDisplay("Check", true, CancellationToken.None);
       frm.Show();
       frm.Maximum = 0;
-      using (var streamReader = new ImprovedTextReader(m_Stream!, m_FileSetting.CodePageId))
+      using (var streamReader = new ImprovedTextReader(m_Stream!, m_CsvFile.CodePageId))
       {        
-        m_FileSetting.SkipRows = streamReader.GuessStartRow(textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxComment.Text, frm.CancellationToken);
+        m_CsvFile.SkipRows = streamReader.GuessStartRow(textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxComment.Text, frm.CancellationToken);
       }
 
-      HighlightVisibleRange(m_FileSetting.SkipRows);
+      HighlightVisibleRange(m_CsvFile.SkipRows);
     }
 
     private void DifferentSyntaxHighlighter(object? sender, EventArgs e)
     {
-      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_FileSetting.EscapePrefix, textBoxComment.Text);
-      HighlightVisibleRange(m_FileSetting.SkipRows);
+      m_HighLighter.Dispose();
+      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_CsvFile.EscapePrefix, textBoxComment.Text);
+      HighlightVisibleRange(m_CsvFile.SkipRows);
     }
 
     private void NumericUpDownSkipRows_ValueChanged(object? sender, EventArgs e)
@@ -73,12 +74,12 @@ namespace CsvTools
     private void FindSkipRows_Load(object? sender, EventArgs e)
     {
       textBox.OpenBindingStream(m_Stream as Stream,
-        Encoding.GetEncoding(m_FileSetting.CodePageId, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
+        Encoding.GetEncoding(m_CsvFile.CodePageId, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
     }
 
     private void TextBox_VisibleRangeChangedDelayed(object? sender, EventArgs e)
     {
-      HighlightVisibleRange(m_FileSetting.SkipRows);
+      HighlightVisibleRange(m_CsvFile.SkipRows);
     }
   }
 }

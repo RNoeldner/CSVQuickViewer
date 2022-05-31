@@ -40,7 +40,7 @@ namespace CsvTools
     {
       m_FullPath = fullPath ?? throw new ArgumentNullException(nameof(fullPath));
       InitializeComponent();
-      m_IsFile =isFile;
+      m_IsFile = isFile;
       base.Text = m_IsFile ? FileSystemUtils.GetShortDisplayFileName(m_FullPath) : string.Empty;
     }
 
@@ -122,14 +122,16 @@ namespace CsvTools
     public void OpenFile(bool json, string qualifier, string delimiter, string escape, int codePage, int skipLines,
                          string comment)
     {
+      if (m_HighLighter is IDisposable disposable)
+        disposable.Dispose();
+
       if (json)
-      {
+      {        
         m_HighLighter = new SyntaxHighlighterJson(textBox);
         textBox.ContextMenuStrip = contextMenuJson;
       }
       else
-        m_HighLighter =
-          new SyntaxHighlighterDelimitedText(textBox, qualifier, delimiter, escape, comment);
+        m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, qualifier, delimiter, escape, comment);
 
       if (!m_IsFile)
       {

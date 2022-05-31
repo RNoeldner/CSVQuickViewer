@@ -211,9 +211,12 @@ namespace CsvTools
         if (m_EscapePrefix.Equals(newVal, StringComparison.Ordinal))
           return;
         m_EscapePrefixChar = newVal.WrittenPunctuationToChar();
-        m_EscapePrefix = newVal;
-        NotifyPropertyChanged(nameof(EscapePrefix));
-        NotifyPropertyChanged(nameof(EscapePrefixChar));
+        if (m_EscapePrefixChar != 0)
+        {
+          m_EscapePrefix = newVal;
+          NotifyPropertyChanged(nameof(EscapePrefix));
+          NotifyPropertyChanged(nameof(EscapePrefixChar));
+        }
       }
     }
 
@@ -232,9 +235,12 @@ namespace CsvTools
         if (m_FieldDelimiter.Equals(newVal, StringComparison.Ordinal))
           return;
         m_FieldDelimiterChar = newVal.WrittenPunctuationToChar();
-        m_FieldDelimiter = newVal;
-        NotifyPropertyChanged(nameof(FieldDelimiter));
-        NotifyPropertyChanged(nameof(FieldDelimiterChar));
+        if (m_FieldDelimiterChar != 0)
+        {
+          m_FieldDelimiter = newVal;
+          NotifyPropertyChanged(nameof(FieldDelimiter));
+          NotifyPropertyChanged(nameof(FieldDelimiterChar));
+        }
       }
     }
 
@@ -257,9 +263,12 @@ namespace CsvTools
         if (m_FieldQualifier.Equals(newVal, StringComparison.Ordinal))
           return;
         m_FieldQualifierChar = newVal.WrittenPunctuationToChar();
-        m_FieldQualifier = newVal;
-        NotifyPropertyChanged(nameof(FieldQualifier));
-        NotifyPropertyChanged(nameof(m_FieldQualifierChar));
+        if (m_FieldQualifierChar != 0)
+        {
+          m_FieldQualifier = newVal;
+          NotifyPropertyChanged(nameof(FieldQualifier));
+          NotifyPropertyChanged(nameof(m_FieldQualifierChar));
+        }
       }
     }
 
