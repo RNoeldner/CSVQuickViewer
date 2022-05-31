@@ -40,21 +40,12 @@ namespace CsvTools
       while (reader.NodeType != System.Xml.XmlNodeType.EndElement)
       {
         reader.ReadStartElement("item");
-
-        //reader.ReadStartElement("key");
         var key = (TKey) keySerializer.Deserialize(reader);
-        //reader.ReadEndElement();
-
-        //reader.ReadStartElement("value");
         var value = (TValue) valueSerializer.Deserialize(reader);
-        //reader.ReadEndElement();
-
         Add(key, value);
-
         reader.ReadEndElement();
         reader.MoveToContent();
       }
-
       reader.ReadEndElement();
     }
 
@@ -66,16 +57,8 @@ namespace CsvTools
       foreach (var key in Keys)
       {
         writer.WriteStartElement("item");
-
-        //writer.WriteStartElement("key");
         keySerializer.Serialize(writer, key);
-        //writer.WriteEndElement();
-
-        //writer.WriteStartElement("value");
-        var value = this[key];
-        valueSerializer.Serialize(writer, value);
-        //writer.WriteEndElement();
-
+        valueSerializer.Serialize(writer, this[key]);
         writer.WriteEndElement();
       }
     }
