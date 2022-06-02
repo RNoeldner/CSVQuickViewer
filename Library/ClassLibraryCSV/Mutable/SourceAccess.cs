@@ -57,7 +57,7 @@ namespace CsvTools
     /// <summary>
     ///   Property used for informational purpose
     /// </summary>
-    public string Identifier;
+    public string Identifier { get; private set; }
 
     /// <summary>
     ///   Location or identifier in the container
