@@ -27,6 +27,128 @@ namespace CsvTools.Tests
   [TestClass]
   public class DetermineColumnFormatTest
   {
+     [TestMethod()]
+    public void CommonDateFormatTest()
+    {
+      var list = new List<IColumn>();
+      Assert.IsNull(DetermineColumnFormat.CommonDateFormat(list));
+      list.Add(new ImmutableColumn("Text1", new ImmutableValueFormat(), 3, false, "", true));
+      list.Add(new ImmutableColumn("Date1", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 1, true));
+      Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
+
+      list.Add(new ImmutableColumn("Date2", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 2, true, "", true));
+      list.Add(new ImmutableColumn("Date3", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true, "", true));
+      Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
+
+      list.Add(new ImmutableColumn("Date4", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true));
+      list.Add(new ImmutableColumn("Date5", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true));
+      Assert.AreEqual("MM/dd/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
+
+      list.Add(new ImmutableColumn("Date6", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 4, false));
+      list.Add(new ImmutableColumn("Date7", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 4, false));
+      Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
+    }
+
+    [TestMethod()]
+    public void FillGuessColumnFormatReaderAsyncReaderTest()
+    {
+
+    }
+
+    [TestMethod()]
+    public void GetSampleValuesAsyncTest()
+    {
+
+    }
+
+    [TestMethod()]
+    public void GuessDateTimeTest()
+    {
+      var list = new List<string>();
+      try
+      {
+        Assert.IsNull(DetermineColumnFormat.GuessDateTime(list, true, UnitTestStatic.Token).FoundValueFormat);
+      }
+      catch (ArgumentException)
+      {
+        // fine passing an empty list can raise an error
+      }
+
+      list.Add("09/09/2020");
+      list.Add("10/10/2020");
+      list.Add("11/11/2020");
+      var df = DetermineColumnFormat.GuessDateTime(list, true, UnitTestStatic.Token).FoundValueFormat!.DateFormat;
+      Assert.IsTrue(df == "MM/dd/yyyy" | df == "dd/MM/yyyy");
+      list.Add("24/12/2020");
+      Assert.IsTrue(new ImmutableValueFormat(DataTypeEnum.DateTime, "dd/MM/yyyy").ValueFormatEqual(DetermineColumnFormat.GuessDateTime(list, true, UnitTestStatic.Token).FoundValueFormat));
+    }
+
+    [TestMethod()]
+    public void GuessNumericTest()
+    {
+      var list = new List<string>();
+      try
+      {
+        Assert.IsNull(DetermineColumnFormat.GuessNumeric(list, true, true, 2, UnitTestStatic.Token).FoundValueFormat);
+      }
+      catch (ArgumentException)
+      {
+        // fine passing an empty list can raise an error
+      }
+    }
+
+    [TestMethod()]
+    public void GuessValueFormatTest()
+    {
+      var list = new List<string>();
+      try
+      {
+        Assert.IsNull(DetermineColumnFormat.GuessValueFormat(list, 2, "true", "false",
+          true, true, true, true, true, true, true, new ImmutableValueFormat(DataTypeEnum.DateTime), UnitTestStatic.Token).FoundValueFormat);
+      }
+      catch (ArgumentException)
+      {
+        // fine passing an empty list can raise an error
+      }
+    }
+
+    [TestMethod()]
+    public void FillGuessColumnFormatReaderAsyncTest()
+    {
+
+    }
+
+    [TestMethod()]
+    public void GetSettingForReadTest()
+    {
+
+    }
+
+    [TestMethod()]
+    public void FillGuessColumnFormatWriterAsyncTest()
+    {
+
+    }
+
+  
+    [TestMethod()]
+    public void GetAllPossibleFormatsTest()
+    {
+
+    }
+
+    [TestMethod()]
+    public void GetWriterColumnInformationAsyncTest()
+    {
+
+    }
+
+    [TestMethod()]
+    public void GetSqlColumnNamesAsyncTest()
+    {
+
+    }
+
     [TestMethod]
     [Timeout(2000)]
     public async Task TestJson()
@@ -96,22 +218,17 @@ namespace CsvTools.Tests
           dt!);
       }
 
-      var res1 = await DetermineColumnFormat.GetWriterColumnInformationAsync(setting.SqlStatement, setting.Timeout,
+      var res1 = await setting.SqlStatement.GetWriterColumnInformationAsync(setting.Timeout,
         setting.DefaultValueFormatWrite, setting.ColumnCollection,
         UnitTestStatic.Token);
       Assert.AreEqual(6, res1.Count());
-      setting.SqlStatement = string.Empty;
-
-      var res2 = await DetermineColumnFormat.GetSqlColumnNamesAsync(setting.SqlStatement, setting.Timeout,
-        UnitTestStatic.Token);
-      Assert.AreEqual(0, res2.Count());
     }
 
     [TestMethod]
     public async Task GetSampleValuesAsync()
     {
       using var dataTable = UnitTestStatic.GetDataTable(150, false);
-      var processDisplay = new CustomProcessDisplay();
+      
       using var reader = new DataTableWrapper(dataTable);
       var res = await DetermineColumnFormat
         .GetSampleValuesAsync(reader, 100, new[] { 0, 1 }, 20, string.Empty, 80, UnitTestStatic.Token)
@@ -132,7 +249,7 @@ namespace CsvTools.Tests
       var setting = new CsvFile { ID = "ID122", FieldDelimiter = "," };
       try
       {
-        await DetermineColumnFormat.GetWriterColumnInformationAsync("setting.SqlStatement", 60,
+        await "setting.SqlStatement".GetWriterColumnInformationAsync(60,
           setting.DefaultValueFormatWrite, setting.ColumnCollection,
           UnitTestStatic.Token);
 
@@ -158,16 +275,16 @@ namespace CsvTools.Tests
         DetectGuid = true,
         IgnoreIdColumns = true
       };
-      var noInformation = new ColumnCollection();
+
       var (information, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
-        noInformation, false, true, "<NULL>", UnitTestStatic.Token);
+        new ColumnCollection(), false, true, "<NULL>", UnitTestStatic.Token);
 
       Assert.AreEqual(7, columns.Count(), "Recognized columns");
       Assert.AreEqual(8, information.Count, "Information Lines");
 
       // with Text columns
       var (information2, columns2) = await reader.FillGuessColumnFormatReaderAsyncReader(fillGuessSettings,
-        noInformation, true, true, "<NULL>", UnitTestStatic.Token);
+        new ColumnCollection(), true, true, "<NULL>", UnitTestStatic.Token);
       Assert.AreEqual(11, columns2.Count());
       // Added 4 text columns,
       Assert.AreEqual(11, information2.Count);
@@ -180,7 +297,7 @@ namespace CsvTools.Tests
       {
         // ReSharper disable once AssignNullToNotNullAttribute
 
-        await DetermineColumnFormat.GetWriterColumnInformationAsync("Nonsense SQL", 60, null, new List<IColumn>(),
+        await "Nonsense SQL".GetWriterColumnInformationAsync(60, null, new List<IColumn>(),
           UnitTestStatic.Token);
 
         Assert.Fail("Expected Exception not thrown");
@@ -195,35 +312,10 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod]
-    public async Task GetSqlColumnNamesAsyncParameter()
-    {
-      var backup = FunctionalDI.SqlDataReader;
-      try
-      {
-        FunctionalDI.SqlDataReader = (sql, eh, timeout, limit, token) =>
-          throw new FileWriterException("SQL Reader not specified");
-        
-        await DetermineColumnFormat.GetSqlColumnNamesAsync("Nonsense SQL", 60, UnitTestStatic.Token);
-
-        Assert.Fail("Expected Exception not thrown");
-      }
-      catch (FileWriterException)
-      {
-        // add good
-      }
-      catch (Exception ex)
-      {
-        Assert.Fail("Wrong Exception Type: " + ex.GetType());
-      }
-      finally
-      {
-        FunctionalDI.SqlDataReader = backup;
-      }
-    }
+ 
 
     [TestMethod]
-    public void GetAllPossibleFormatsTest()
+    public void GetAllPossibleFormatsTest2()
     {
       var res1 = DetermineColumnFormat.GetAllPossibleFormats("1/1/2020");
       Assert.AreEqual(2, res1.Count());
@@ -295,7 +387,7 @@ namespace CsvTools.Tests
 
       var writer = new CsvFile { SqlStatement = setting.ID };
 
-      await writer.FillGuessColumnFormatWriterAsync(true, UnitTestStatic.Token);
+      await writer.FillGuessColumnFormatWriterAsync( UnitTestStatic.Token);
       Assert.AreEqual(6, writer.ColumnCollection.Count);
     }
 
@@ -406,9 +498,9 @@ namespace CsvTools.Tests
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(true, false, fillGuessSettings, UnitTestStatic.Token);
 
-      Assert.AreEqual(DataTypeEnum.Integer, detected.First(x => x.Name == "ID")?.ValueFormat?.DataType);
-      Assert.AreEqual(DataTypeEnum.DateTime, detected.First(x => x.Name == "ExamDate")?.ValueFormat?.DataType);
-      Assert.AreEqual(DataTypeEnum.Boolean, detected.First(x => x.Name == "IsNativeLang")?.ValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.Integer, detected.First(x => x.Name == "ID").ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, detected.First(x => x.Name == "ExamDate").ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.Boolean, detected.First(x => x.Name == "IsNativeLang").ValueFormat.DataType);
     }
 
     [TestMethod]
@@ -465,9 +557,9 @@ namespace CsvTools.Tests
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
       var col = new ColumnCollection(detected);
-      Assert.AreEqual(DataTypeEnum.Integer, col.Get("ID")?.ValueFormat?.DataType);
-      Assert.AreEqual(DataTypeEnum.DateTime, col.Get("ExamDate")?.ValueFormat?.DataType);
-      Assert.AreEqual(DataTypeEnum.Boolean, col.Get("IsNativeLang")?.ValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.Integer, col.Get("ID")!.ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, col.Get("ExamDate")!.ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.Boolean, col.Get("IsNativeLang")!.ValueFormat.DataType);
     }
 
     [TestMethod]
@@ -500,15 +592,15 @@ namespace CsvTools.Tests
 
       Assert.AreEqual(
         DataTypeEnum.Numeric,
-        col.Get(@"Betrag Brutto (2 Nachkommastellen)")?.ValueFormat?.DataType,
+        col.Get(@"Betrag Brutto (2 Nachkommastellen)")?.ValueFormat.DataType,
         "Is Numeric");
 
       Assert.AreEqual(
         ",",
-        col.Get(@"Betrag Brutto (2 Nachkommastellen)")?.ValueFormat?.DecimalSeparator,
+        col.Get(@"Betrag Brutto (2 Nachkommastellen)")?.ValueFormat.DecimalSeparator,
         "Decimal Separator found");
 
-      Assert.AreEqual(DataTypeEnum.DateTime, col.Get(@"Erstelldatum Rechnung")?.ValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, col.Get(@"Erstelldatum Rechnung")?.ValueFormat.DataType);
     }
 
     [TestMethod]
@@ -533,8 +625,8 @@ namespace CsvTools.Tests
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
       var col = new ColumnCollection(detected);
       Assert.IsTrue(col.Get("ID") == null || col.Get("ID")?.Convert == false);
-      Assert.AreEqual(DataTypeEnum.DateTime, col.Get("ExamDate")?.ValueFormat?.DataType);
-      Assert.AreEqual(DataTypeEnum.Boolean, col.Get("IsNativeLang")?.ValueFormat?.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, col.Get("ExamDate")?.ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.Boolean, col.Get("IsNativeLang")?.ValueFormat.DataType);
     }
 
     [TestMethod]
@@ -608,7 +700,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task GetSampleValuesAsyncTest()
+    public async Task GetSampleValuesAsyncTest2()
     {
       using var dt = UnitTestStatic.GetDataTable(1000);
 

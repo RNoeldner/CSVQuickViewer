@@ -44,18 +44,18 @@ namespace CsvTools.Tests
 
       var sb = new StringBuilder("{");
       var processDisplay = new CustomProcessDisplay();
-      var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(
-                   fileSetting.SqlStatement,
-                   fileSetting.Timeout,
-                   UnitTestStatic.Token);
+
+      
+      var cols = await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout,
+        UnitTestStatic.Token);
       fileSetting.Header = "{\"rowset\":[\n";
 
       // { "firstName":"John", "lastName":"Doe"},
       foreach (var col in cols)
         sb.AppendFormat(
           "\"{0}\":\"{1}\", ",
-          HtmlStyle.JsonElementName(col),
-          string.Format(CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
+          HtmlStyle.JsonElementName(col.Name),
+          string.Format(CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col.Name));
 
       if (sb.Length > 1)
         sb.Length -= 2;
@@ -86,15 +86,13 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task StructuredFileWriterXMLEncodeTest()
+    public async Task StructuredFileWriterXmlEncodeTest()
     {
       var fileSetting = new XmlFile { ID = "Write", FileName = "StructuredFileOutputXML.txt", SqlStatement = cReadID, InOverview = true };
       var sb = new StringBuilder();
       var processDisplay = new CustomProcessDisplay();
-      var cols = await DetermineColumnFormat.GetSqlColumnNamesAsync(
-                   fileSetting.SqlStatement,
-                   fileSetting.Timeout,
-                   UnitTestStatic.Token);
+      var cols =  await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout, UnitTestStatic.Token);
+
       sb.AppendLine("<?xml version=\"1.0\"?>\n");
       sb.AppendLine("<rowset>");
       fileSetting.Header = sb.ToString();
@@ -103,8 +101,8 @@ namespace CsvTools.Tests
       foreach (var col in cols)
         sb.AppendFormat(
           "    <{0}>{1}</{0}>\n",
-          HtmlStyle.XmlElementName(col),
-          string.Format(CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col));
+          HtmlStyle.XmlElementName(col.Name),
+          string.Format(CultureInfo.InvariantCulture, StructuredFileWriter.cFieldPlaceholderByName, col.Name));
 
       sb.AppendLine("  </row>");
       fileSetting.Row = sb.ToString();
