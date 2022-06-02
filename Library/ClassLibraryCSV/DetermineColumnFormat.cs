@@ -15,8 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -36,19 +34,24 @@ namespace CsvTools
       if (columns is null) return null;
       var counterByFormat = new Dictionary<IValueFormat, int>();
       var maxValue = int.MinValue;
-      foreach (var newColumn in columns)
+      foreach (var column in columns)
       {
-        if (newColumn?.ValueFormat is null || newColumn.ValueFormat.DataType != DataTypeEnum.DateTime)
+        if (column?.ValueFormat is null || column.ValueFormat.DataType != DataTypeEnum.DateTime  || column.Ignore)
           continue;
-        var vf = newColumn.ValueFormat;
-        if (!counterByFormat.ContainsKey(vf))
-          counterByFormat.Add(vf, 0);
 
-        if (++counterByFormat[vf] <= maxValue) continue;
-        maxValue = counterByFormat[vf];
-        best = vf;
+        var found = counterByFormat.Keys.FirstOrDefault(x => x.ValueFormatEqual(column.ValueFormat));
+        if (found is null)
+        {
+          found = column.ValueFormat;
+          counterByFormat.Add(found, 0);
+        }
+        counterByFormat[found]++;
+        if (counterByFormat[found] <= maxValue)
+          continue;
+
+        maxValue = counterByFormat[found];
+        best = found;
       }
-
       return best;
     }
 
@@ -67,7 +70,7 @@ namespace CsvTools
     /// <param name="treatTextAsNull">A text that should be regarded as empty</param>
     /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A text with the changes that have been made and a list of the determined columns</returns>
-    public static async Task<(IList<string>, IEnumerable<IColumn>)> FillGuessColumnFormatReaderAsyncReader(
+    public static async Task<(IList<string>, IReadOnlyCollection<IColumn>)> FillGuessColumnFormatReaderAsyncReader(
       this IFileReader fileReader,
       FillGuessSettings fillGuessSettings,
       IEnumerable<IColumn>? columnCollectionInput,
@@ -88,16 +91,16 @@ namespace CsvTools
                                                                           && !fillGuessSettings.DetectGuid
                                                                           && !fillGuessSettings.DetectPercentage
                                                                           && !fillGuessSettings.SerialDateTime))
-        return (Array.Empty<string>(), columnCollectionInput);
+        return (Array.Empty<string>(), new List<IColumn>(columnCollectionInput));
 
       if (fileReader.FieldCount == 0)
-        return (Array.Empty<string>(), columnCollectionInput);
+        return (Array.Empty<string>(), new List<IColumn>(columnCollectionInput));
 
       if (fileReader.EndOfFile)
         fileReader.ResetPositionToFirstDataRow();
 
       if (fileReader.EndOfFile) // still end of file
-        return (Array.Empty<string>(), columnCollectionInput);
+        return (Array.Empty<string>(), new List<IColumn>(columnCollectionInput));
 
       var result = new List<string>();
 
@@ -543,13 +546,13 @@ namespace CsvTools
 
       var existing = new Collection<IColumn>();
       foreach (var colName in columnNamesInFile)
-      foreach (var col in columnCollection)
-      {
-        if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
-          continue;
-        existing.Add(col);
-        break;
-      }
+        foreach (var col in columnCollection)
+        {
+          if (!col.Name.Equals(colName, StringComparison.OrdinalIgnoreCase))
+            continue;
+          existing.Add(col);
+          break;
+        }
 
       // 2nd columns defined but not in list
       foreach (var col in columnCollection)
@@ -752,13 +755,13 @@ namespace CsvTools
           {
             possibleDateSeparators = new List<string>();
             foreach (var sep in StringConversion.DateSeparators)
-            foreach (var entry in samples)
-            {
-              cancellationToken.ThrowIfCancellationRequested();
-              if (entry.IndexOf(sep, StringComparison.Ordinal) == -1) continue;
-              possibleDateSeparators.Add(sep);
-              break;
-            }
+              foreach (var entry in samples)
+              {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (entry.IndexOf(sep, StringComparison.Ordinal) == -1) continue;
+                possibleDateSeparators.Add(sep);
+                break;
+              }
           }
 
           foreach (var sep in possibleDateSeparators)
@@ -826,24 +829,24 @@ namespace CsvTools
 
       foreach (var thousandSeparator in possibleGrouping)
         // Try Numbers: Int and Decimal
-      foreach (var decimalSeparator in possibleDecimal)
-      {
-        if (cancellationToken.IsCancellationRequested)
-          return checkResult;
-        if (decimalSeparator.Equals(thousandSeparator))
-          continue;
-        var res = StringConversion.CheckNumber(
-          samples,
-          decimalSeparator,
-          thousandSeparator,
-          guessPercentage,
-          allowStartingZero,
-          minSamples, cancellationToken);
-        if (res.FoundValueFormat != null)
-          return res;
+        foreach (var decimalSeparator in possibleDecimal)
+        {
+          if (cancellationToken.IsCancellationRequested)
+            return checkResult;
+          if (decimalSeparator.Equals(thousandSeparator))
+            continue;
+          var res = StringConversion.CheckNumber(
+            samples,
+            decimalSeparator,
+            thousandSeparator,
+            guessPercentage,
+            allowStartingZero,
+            minSamples, cancellationToken);
+          if (res.FoundValueFormat != null)
+            return res;
 
-        checkResult.KeepBestPossibleMatch(res);
-      }
+          checkResult.KeepBestPossibleMatch(res);
+        }
 
       return checkResult;
     }
@@ -1115,7 +1118,7 @@ namespace CsvTools
     /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A list of columns with new format that have been changed</returns>
     /// <exception cref="ArgumentNullException">processDisplay</exception>
-    public static async Task<(IList<string>, IEnumerable<IColumn>)> FillGuessColumnFormatReaderAsync(
+    public static async Task<(IList<string>, IReadOnlyCollection<IColumn>)> FillGuessColumnFormatReaderAsync(
       this IFileSetting fileSetting,
       bool addTextColumns,
       bool checkDoubleToBeInteger,
@@ -1181,64 +1184,7 @@ namespace CsvTools
 
       return fileSettingCopy;
     }
-
 #endif
-
-#if !QUICK
-
-    /// <summary>
-    /// Fills the Column Format for writer fileSettings
-    /// </summary>
-    /// <param name="fileSettings">The file settings.</param>
-    /// <param name="all">if set to <c>true</c> even string columns are added.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns></returns>
-    /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
-    public static async Task FillGuessColumnFormatWriterAsync(
-      this IFileSetting fileSettings,
-      bool all,
-      CancellationToken cancellationToken)
-    {
-      foreach (var item in await GetColumnsSql(fileSettings.SqlStatement, all, cancellationToken))
-        fileSettings.ColumnCollection.Add(item);
-    }
-
-    /// <summary>
-    /// Gets the Columns of a SQL statement
-    /// </summary>
-    /// <param name="sql">The SQL statement</param>
-    /// <param name="all">if set to <c>true</c> get text columns as well.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns></returns>
-    /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
-    public static async Task<IEnumerable<IColumn>> GetColumnsSql(
-      string sql, bool all, CancellationToken cancellationToken)
-    {
-      if (string.IsNullOrEmpty(sql))
-        throw new FileWriterException("No SQL Statement given");
-      if (FunctionalDI.SqlDataReader is null)
-        throw new FileWriterException("No Async SQL Reader set");
-
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-      await
-#endif
-      using var fileReader =
-        await FunctionalDI.SqlDataReader(sql, null, 120, 1, cancellationToken).ConfigureAwait(false);
-
-      // Put the information into the list
-      var dataRowCollection = fileReader.GetSchemaTable()?.Rows;
-      if (dataRowCollection == null)
-        return Array.Empty<IColumn>();
-
-      return from DataRow schemaRow in dataRowCollection
-        let header = Convert.ToString(schemaRow[SchemaTableColumn.ColumnName])
-        where !string.IsNullOrEmpty(header)
-        let colType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType()
-        where all || colType != DataTypeEnum.String
-        select new ImmutableColumn(header, new ImmutableValueFormat(colType),
-          (int) schemaRow[SchemaTableColumn.ColumnOrdinal]);
-    }
-
     /// <summary>
     ///   Gets all possible formats based on the provided value
     /// </summary>
@@ -1258,68 +1204,5 @@ namespace CsvTools
         yield return new ImmutableValueFormat(DataTypeEnum.DateTime, fmt, sep);
     }
 
-#endif
-
-#if !QUICK
-
-    /// <summary>
-    ///   Gets the writer source columns.
-    /// </summary>
-    /// <param name="sqlStatement"></param>
-    /// <param name="timeout"></param>
-    /// <param name="valueFormatGeneral">The general format for the output</param>
-    /// <param name="columnDefinitions">Definition for individual columns</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns></returns>
-    public static async Task<IEnumerable<IColumn>> GetWriterColumnInformationAsync(
-      string? sqlStatement,
-      int timeout,
-      IValueFormat valueFormatGeneral,
-      IReadOnlyCollection<IColumn> columnDefinitions,
-      CancellationToken cancellationToken)
-    {
-      if (valueFormatGeneral is null) throw new ArgumentNullException(nameof(valueFormatGeneral));
-      if (columnDefinitions is null) throw new ArgumentNullException(nameof(columnDefinitions));
-      if (sqlStatement == null)
-        return new List<ImmutableColumn>();
-
-      if (FunctionalDI.SqlDataReader is null)
-        throw new FileWriterException("No SQL Reader set");
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-      await
-#endif
-      using var data = await FunctionalDI.SqlDataReader(
-        sqlStatement.NoRecordSQL(),
-        null,
-        timeout,
-        1,
-        cancellationToken).ConfigureAwait(false);
-
-      using var dt = data.GetSchemaTable();
-      if (dt is null)
-        throw new FileWriterException("Could not get source schema");
-      return BaseFileWriter.GetColumnInformation(valueFormatGeneral, columnDefinitions, dt);
-    }
-
-    public static async Task<IEnumerable<string>> GetSqlColumnNamesAsync(
-      string? sqlStatement,
-      int timeout,
-      CancellationToken token)
-    {
-      if (sqlStatement == null || sqlStatement.TrimEnd().Length == 0)
-        return new List<string>();
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-      await
-#endif
-      using var data = await FunctionalDI.SqlDataReader(sqlStatement.NoRecordSQL(), null, timeout, 1, token)
-        .ConfigureAwait(false);
-
-      var list = new List<string>();
-      for (var index = 0; index < data.FieldCount; index++)
-        list.Add(data.GetColumn(index).Name);
-      return list;
-    }
-
-#endif
   }
 }

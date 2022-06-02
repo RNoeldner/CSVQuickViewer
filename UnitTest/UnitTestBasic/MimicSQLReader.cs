@@ -34,6 +34,16 @@ namespace CsvTools.Tests
         m_ReadSetting.Add(setting, null);
     }
 
+    public void RemoveSetting(IFileSetting setting)
+    {
+      m_ReadSetting[setting]?.Dispose();
+      m_ReadSetting.Remove(setting);
+    }
+
+    public void RemoveSetting(string name)
+        => RemoveSetting(m_ReadSetting.First(x => x.Key.ID.Equals(name)).Key);
+
+
     public void AddSetting(string name, DataTable dt)
     {
       if (dt == null) throw new ArgumentNullException(nameof(dt));
