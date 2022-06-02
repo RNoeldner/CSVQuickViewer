@@ -21,11 +21,11 @@ using System.Threading.Tasks;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class CsvFileWriterTest
+  public class CsvFileWriterTests
   {
     private static readonly CsvFile m_WriteFile;
 
-    static CsvFileWriterTest()
+    static CsvFileWriterTests()
     {
       var readFile = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")) { ID = "Read", FieldDelimiter = ",", CommentLine = "#" };
 
@@ -68,7 +68,7 @@ namespace CsvTools.Tests
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
         writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id,
         pd);
-
+      FunctionalDI.SqlDataReader = UnitTestStatic.MimicSQLReader.ReadDataAsync;
       var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
       Assert.AreEqual(1065, res, "Records");
@@ -89,8 +89,14 @@ namespace CsvTools.Tests
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
         writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id,
         pd);
+      
+      FunctionalDI.SqlDataReader = UnitTestStatic.MimicSQLReader.ReadDataAsync;
 
-      var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
+      using var sqlReader = await FunctionalDI.SqlDataReader(
+        writeFile.SqlStatement, null, 360, 0, pd.CancellationToken).ConfigureAwait(false);
+      await sqlReader.OpenAsync(pd.CancellationToken).ConfigureAwait(false);
+
+      var res = await writer.WriteAsync(sqlReader, pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
       Assert.AreEqual(7, res);
     }
@@ -120,7 +126,7 @@ namespace CsvTools.Tests
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
         writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id,
         pd);
-
+      FunctionalDI.SqlDataReader = UnitTestStatic.MimicSQLReader.ReadDataAsync;
       var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
       Assert.AreEqual(1065, res, "Records");
@@ -182,9 +188,9 @@ namespace CsvTools.Tests
           writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id,
           processDisplay);
         writer.Warning += (sender, e) => { count++; };
+        FunctionalDI.SqlDataReader = UnitTestStatic.MimicSQLReader.ReadDataAsync;
         using (var reader = new DataTableWrapper(dataTable))
         {
-          // await reader.OpenAsync(UnitTestStatic.Token);
           Assert.AreEqual(100, await writer.WriteAsync(reader, UnitTestStatic.Token), "Records");
         }
 
@@ -223,6 +229,7 @@ namespace CsvTools.Tests
             writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways,
             writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, processDisplay);
           using var reader = new DataTableWrapper(dataTable);
+          FunctionalDI.SqlDataReader = UnitTestStatic.MimicSQLReader.ReadDataAsync;
           await writer.WriteAsync(reader, UnitTestStatic.Token);
 
           Assert.Fail("Exception not thrown");
@@ -252,7 +259,7 @@ namespace CsvTools.Tests
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
         writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id,
         processDisplay);
-
+      FunctionalDI.SqlDataReader = UnitTestStatic.MimicSQLReader.ReadDataAsync;
       var res = await writer.WriteAsync(m_WriteFile.SqlStatement, 360, null, UnitTestStatic.Token);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
       Assert.AreEqual(7, res);

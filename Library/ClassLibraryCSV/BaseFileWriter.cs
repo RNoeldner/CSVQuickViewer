@@ -238,6 +238,7 @@ namespace CsvTools
             columnOrdinalTimeZoneReader = ordinal;
         }
 
+        // this is problematic, we need to apply timezone mapping here and on date
         var ci = new WriterColumn(
           colNames[colNo],
           colNo,
@@ -245,6 +246,7 @@ namespace CsvTools
           fieldLength,
           constantTimeZone,
           columnOrdinalTimeZoneReader);
+
         result.Add(ci);
 
         // add an extra column for the time, reading columns they get combined, writing them they
