@@ -625,8 +625,6 @@ namespace CsvTools
       if (!(obj is ProcessInformation processInformation))
         return;
       processInformation.IsRunning = true;
-      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
       try
       {
         if (string.IsNullOrEmpty(processInformation.SearchText))
@@ -635,21 +633,21 @@ namespace CsvTools
         // Do not search for an text shorter than 2 if we have a lot of data
         if (processInformation.SearchText.Length < 2 && m_SearchCells.Count() > 10000)
           return;
+        Extensions.InvokeWithHourglass(() =>  {
+         foreach (var cell in m_SearchCells)
+         {
+           if (processInformation.CancellationTokenSource?.IsCancellationRequested ?? false)
+             return;
 
-        foreach (var cell in m_SearchCells)
-        {
-          if (processInformation.CancellationTokenSource?.IsCancellationRequested ?? false)
-            return;
-
-          if (cell.Key.IndexOf(processInformation.SearchText, StringComparison.OrdinalIgnoreCase) <= -1)
-            continue;
-          processInformation.FoundResultEvent?.Invoke(this, new FoundEventArgs(processInformation.Found, cell.Value));
-          processInformation.Found++;
-        }
+           if (cell.Key.IndexOf(processInformation.SearchText, StringComparison.OrdinalIgnoreCase) <= -1)
+             continue;
+           processInformation.FoundResultEvent?.Invoke(this, new FoundEventArgs(processInformation.Found, cell.Value));
+           processInformation.Found++;
+         }
+       });
       }
       finally
       {
-        Cursor.Current = oldCursor;
         processInformation.IsRunning = false;
         processInformation.SearchCompleteEvent?.Invoke(this, processInformation.SearchEventArgs);
       }
@@ -917,9 +915,8 @@ namespace CsvTools
     {
       if (!m_SearchCellsDirty)
         return;
-      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-      try
+
+      Extensions.InvokeWithHourglass(() =>
       {
         m_SearchCells.Clear();
         var visible = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
@@ -938,13 +935,8 @@ namespace CsvTools
                 m_SearchCells.Add(new KeyValuePair<string, DataGridViewCell>(formatted, cell));
             }
         }
-
         m_SearchCellsDirty = false;
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
+      });
     }
 
     private void ResultFound(object? sender, FoundEventArgs args)
