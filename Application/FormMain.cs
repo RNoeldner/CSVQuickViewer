@@ -129,7 +129,7 @@ namespace CsvTools
 
       if (string.IsNullOrEmpty(fileName))
         return;
-      
+
       var fi = new FileSystemUtils.FileInfo(fileName);
 
       if (!fi.Exists)
@@ -464,63 +464,64 @@ namespace CsvTools
       // Stop Property changed events for the time this is processed we might store data in the FileSetting
       DetachPropertyChanged(m_FileSetting);
 
-      var oldCursor = Equals(Cursor.Current, Cursors.WaitCursor) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
 
       try
       {
-        var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
-
-        this.SafeInvoke(() =>
+        await Extensions.InvokeWithHourglassAsync(async () =>
         {
-          ShowTextPanel(true);
-          detailControl.FileSetting = m_FileSetting;
-          detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
-          detailControl.CancellationToken = cancellationToken;
-          detailControl.ShowInfoButtons = false;
-        });
+          var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
 
-        using (var processDisplay = new FormProcessDisplay(fileNameShort, false, cancellationToken))
-        {
-          processDisplay.Show();
-          processDisplay.SetProcess("Reading data...", -1, false);
-          processDisplay.Maximum = 100;
-
-          await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.DurationTimeSpan, processDisplay,
-            AddWarning, processDisplay.CancellationToken);
-        }
-
-        if (cancellationToken.IsCancellationRequested)
-          return;
-
-        foreach (var columnName in detailControl.DataTable.GetRealColumns())
-        {
-          if (m_FileSetting.ColumnCollection.Get(columnName) is null)
-            m_FileSetting.ColumnCollection.Add(new Column { Name = columnName });
-        }
-
-        // Set Functional DI routines to constants
-        // The reader is used when data is stored through the detailControl
-        FunctionalDI.SqlDataReader = async (settingName, message, timeout, limit, token) =>
-          await Task.FromResult(new DataTableWrapper(detailControl.DataTable));
-
-        // Load View Settings from file
-        if (FileSystemUtils.FileExists(m_FileSetting.ColumnFile))
-        {
-          Logger.Information("Restoring view and filter setting {filename}...", m_FileSetting.ColumnFile);
-          detailControl.ReStoreViewSetting(m_FileSetting.ColumnFile);
-        }
-        else
-        {
-          var index = m_FileSetting.FileName.LastIndexOf('.');
-          var fn = (index == -1 ? m_FileSetting.FileName : m_FileSetting.FileName.Substring(0, index)) + ".col";
-          var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
-          if (FileSystemUtils.FileExists(fnView))
+          this.SafeInvoke(() =>
           {
-            Logger.Information("Restoring view and filter setting {filename}...", fn);
-            detailControl.ReStoreViewSetting(fnView);
+            ShowTextPanel(true);
+            detailControl.FileSetting = m_FileSetting;
+            detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
+            detailControl.CancellationToken = cancellationToken;
+            detailControl.ShowInfoButtons = false;
+          });
+
+          using (var processDisplay = new FormProcessDisplay(fileNameShort, false, cancellationToken))
+          {
+            processDisplay.Show();
+            processDisplay.SetProcess("Reading data...", -1, false);
+            processDisplay.Maximum = 100;
+
+            await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.DurationTimeSpan, processDisplay,
+              AddWarning, processDisplay.CancellationToken);
           }
-        }
+
+          if (cancellationToken.IsCancellationRequested)
+            return;
+
+          foreach (var columnName in detailControl.DataTable.GetRealColumns())
+          {
+            if (m_FileSetting.ColumnCollection.Get(columnName) is null)
+              m_FileSetting.ColumnCollection.Add(new Column { Name = columnName });
+          }
+
+          // Set Functional DI routines to constants
+          // The reader is used when data is stored through the detailControl
+          FunctionalDI.SqlDataReader = async (settingName, message, timeout, limit, token) =>
+            await Task.FromResult(new DataTableWrapper(detailControl.DataTable));
+
+          // Load View Settings from file
+          if (FileSystemUtils.FileExists(m_FileSetting.ColumnFile))
+          {
+            Logger.Information("Restoring view and filter setting {filename}...", m_FileSetting.ColumnFile);
+            detailControl.ReStoreViewSetting(m_FileSetting.ColumnFile);
+          }
+          else
+          {
+            var index = m_FileSetting.FileName.LastIndexOf('.');
+            var fn = (index == -1 ? m_FileSetting.FileName : m_FileSetting.FileName.Substring(0, index)) + ".col";
+            var fnView = Path.Combine(m_FileSetting.FileName.GetDirectoryName(), fn);
+            if (FileSystemUtils.FileExists(fnView))
+            {
+              Logger.Information("Restoring view and filter setting {filename}...", fn);
+              detailControl.ReStoreViewSetting(fnView);
+            }
+          }
+        });
       }
       catch (Exception)
       {
@@ -537,7 +538,6 @@ namespace CsvTools
           this.SafeInvoke(() => ShowTextPanel(false));
 
           detailControl.ShowInfoButtons = true;
-          Cursor.Current = oldCursor;
 
           m_ConfigChanged = false;
           m_FileChanged = false;

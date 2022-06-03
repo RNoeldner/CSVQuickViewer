@@ -38,13 +38,14 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(item));
       if (action is null)
         throw new ArgumentNullException(nameof(action));
-      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
       try
       {
         item.Enabled = false;
-
-        action.Invoke();
+        action.InvokeWithHourglass();
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
       }
       catch (Exception ex)
       {
@@ -52,8 +53,7 @@ namespace CsvTools
       }
       finally
       {
-        item.Enabled = true;
-        Cursor.Current = oldCursor;
+        item.Enabled = true;        
       }
     }
 
@@ -63,12 +63,14 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(control));
       if (action is null)
         throw new ArgumentNullException(nameof(action));
-      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
       try
       {
         control.Enabled = false;
-        action.Invoke();
+        action.InvokeWithHourglass();
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
       }
       catch (Exception ex)
       {
@@ -78,6 +80,37 @@ namespace CsvTools
       finally
       {
         control.Enabled = true;
+      }
+    }
+
+    public static void InvokeWithHourglass(this Action action)
+    {
+      if (action is null)
+        throw new ArgumentNullException(nameof(action));
+      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+      try
+      {
+        action.Invoke();
+      }
+      finally
+      {
+        Cursor.Current = oldCursor;
+      }
+    }
+
+    public static async Task InvokeWithHourglassAsync(this Func<Task> action)
+    {
+      if (action is null)
+        throw new ArgumentNullException(nameof(action));
+      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+      try
+      {
+        await action.Invoke();
+      }
+      finally
+      {
         Cursor.Current = oldCursor;
       }
     }
@@ -86,14 +119,15 @@ namespace CsvTools
     {
       if (item is null)
         throw new ArgumentNullException(nameof(item));
-      if (action is null)
-        throw new ArgumentNullException(nameof(action));
-      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
+
       try
       {
         item.Enabled = false;
-        await action.Invoke();
+        await action.InvokeWithHourglassAsync();
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
       }
       catch (Exception ex)
       {
@@ -102,7 +136,6 @@ namespace CsvTools
       finally
       {
         item.Enabled = true;
-        Cursor.Current = oldCursor;
       }
     }
 
@@ -112,12 +145,14 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(control));
       if (action is null)
         throw new ArgumentNullException(nameof(action));
-      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
       try
       {
         control.SafeInvoke(() => control.Enabled = false);
-        await action.Invoke();
+        await action.InvokeWithHourglassAsync();        
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
       }
       catch (Exception ex)
       {
@@ -125,9 +160,8 @@ namespace CsvTools
         frm?.ShowError(ex);
       }
       finally
-      {
-        Cursor.Current = oldCursor;
-        control.SafeInvoke(() => control.Enabled = true);        
+      {        
+        control.SafeInvoke(() => control.Enabled = true);
       }
     }
 
@@ -151,7 +185,7 @@ namespace CsvTools
       }
       try
       {
-        
+
         if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
           action.Invoke();
         else
