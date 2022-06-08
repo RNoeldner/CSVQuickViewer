@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="120.53313mm"
+   height="21.050287mm"
+   viewBox="0 0 120.53316 21.050287"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
+   sodipodi:docname="drawing.svg">
+	<defs
+	   id="defs2" />
+	<sodipodi:namedview
+	   id="base"
+	   pagecolor="#ffffff"
+	   bordercolor="#666666"
+	   borderopacity="1.0"
+	   inkscape:pageopacity="1"
+	   inkscape:pageshadow="2"
+	   inkscape:zoom="2.8"
+	   inkscape:cx="265.85058"
+	   inkscape:cy="84.751846"
+	   inkscape:document-units="mm"
+	   inkscape:current-layer="layer1"
+	   inkscape:document-rotation="0"
+	   showgrid="false"
+	   inkscape:pagecheckerboard="false"
+	   fit-margin-top="1.2"
+	   fit-margin-right="1.2"
+	   fit-margin-left="1.2"
+	   fit-margin-bottom="1.2"
+	   inkscape:window-width="2560"
+	   inkscape:window-height="1377"
+	   inkscape:window-x="1912"
+	   inkscape:window-y="-8"
+	   inkscape:window-maximized="1"
+	   lock-margins="true" />
+	<metadata
+	   id="metadata5">
+		<rdf:RDF>
+			<cc:Work
+			   rdf:about="">
+				<dc:format>image/svg+xml</dc:format>
+				<dc:type
+				   rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+				<dc:title></dc:title>
+			</cc:Work>
+		</rdf:RDF>
+	</metadata>
+	<g
+	   inkscape:label="Layer 1"
+	   inkscape:groupmode="layer"
+	   id="layer1"
+	   transform="translate(-20.785739,-23.9434)">
+		<rect
+		   style="fill:#ff00ff;stroke-width:0.264583"
+		   id="rect839"
+		   width="1.0690781"
+		   height="0.26726952"
+		   x="119.00457"
+		   y="33.637447" />
+		<rect
+		   style="fill:#800080;stroke-width:0.264583"
+		   id="rect841"
+		   width="118.13313"
+		   height="18.650288"
+		   x="21.985739"
+		   y="25.1434" />
+		<rect
+		   style="fill:#800080;stroke-width:0.264583"
+		   id="rect843"
+		   width="0.37797621"
+		   height="0.1889881"
+		   x="63.37413"
+		   y="29.887804" />
+		<text
+		   xml:space="preserve"
+		   style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+		   x="33.267258"
+		   y="37.473518"
+		   id="text847"><tspan
+ sodipodi:role="line"
+ id="tspan845"
+ x="33.267258"
+ y="37.473518"
+ style="fill:#f2f2f2;stroke-width:0.264583">CSV Quick Viewer</tspan></text>
+	</g>
+</svg>
