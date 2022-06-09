@@ -169,8 +169,6 @@ namespace CsvTools
     private void BuildTreeData(in string parentCol, in string idCol, in string? display1, in string? display2,
                                IProcessDisplay process, in CancellationToken cancellationToken)
     {
-      var intervalAction = new IntervalAction();
-
       var dataColumnParent = m_DataTable.Columns[parentCol];
       if (dataColumnParent is null)
         throw new ArgumentException($"Could not find column {parentCol}");
@@ -193,12 +191,12 @@ namespace CsvTools
       if (process is IProcessDisplayTime processDisplayTime)
         max = processDisplayTime.Maximum;
       var counter = 0;
+      var intervalAction = new IntervalAction();
       foreach (var dataRow in m_DataRow)
       {
         cancellationToken.ThrowIfCancellationRequested();
-        intervalAction.Invoke(
-          (count, m) => process.SetProcess($"Parent found {count}/{m} ", count, false),
-          counter++, max);
+        counter++;
+        intervalAction.Invoke(process, $"Parent found {counter}/{max} ", counter, false);
         var id = dataRow[dataColumnID.Ordinal].ToString();
         if (id is null || id.Length == 0)
           continue;
@@ -238,9 +236,8 @@ namespace CsvTools
         foreach (var parentID in additionalRootNodes)
         {
           cancellationToken.ThrowIfCancellationRequested();
-          intervalAction.Invoke(
-            (count, m) => process.SetProcess($"Parent not found (Step 1) {count}/{m} ", count, false),
-            counter++, max);
+          counter++;
+          intervalAction.Invoke(process, $"Parent not found (Step 1) {counter}/{max} ", counter, false);
           var childData = new TreeData(parentID, $"{parentID}", rootDataParentNotFound.ID);
           treeDataDictionary.Add(parentID, childData);
         }
@@ -252,9 +249,8 @@ namespace CsvTools
       foreach (var child in treeDataDictionary.Values)
       {
         cancellationToken.ThrowIfCancellationRequested();
-        intervalAction.Invoke(
-          (count, m) => process.SetProcess($"Parent not found (Step 2) {count}/{m} ", count, false),
-          counter++, max);
+        counter++;
+        intervalAction.Invoke(process, $"Parent not found (Step 2) {counter}/{max} ", counter, false);
         if (string.IsNullOrEmpty(child.ParentID) && child.ID != rootDataParentFound.ID
                                                  && child.ID != rootDataParentNotFound.ID)
           child.ParentID = rootDataParentFound.ID;
@@ -268,9 +264,9 @@ namespace CsvTools
       foreach (var child in treeDataDictionary.Values)
       {
         cancellationToken.ThrowIfCancellationRequested();
-        intervalAction.Invoke(
-          (count, m) => process.SetProcess($"Set children {count}/{m} ", count, false),
-          counter++, max);
+        counter++;
+        intervalAction.Invoke(process, $"Set children {counter}/{max} ", counter, false);
+
         if (!string.IsNullOrEmpty(child.ParentID))
           treeDataDictionary[child.ParentID].Children.Add(child);
       }

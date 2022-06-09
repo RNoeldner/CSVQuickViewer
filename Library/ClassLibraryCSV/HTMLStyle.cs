@@ -391,7 +391,6 @@ namespace CsvTools
       return text;
     }
 
-
     /// <summary>
     ///   Replace special characters from an HTML text
     /// </summary>

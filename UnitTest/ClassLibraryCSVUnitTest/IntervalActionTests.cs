@@ -13,7 +13,8 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading;
+using System;
+using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
@@ -21,114 +22,41 @@ namespace CsvTools.Tests
   public class IntervalActionTests
   {
     [TestMethod]
-    public void InvokeTest()
-    {
-      var intervalAction = new IntervalAction();
-      var called = 0;
-      // First Call ok
-      intervalAction.Invoke(() => called++);
-      Assert.AreEqual(1, called);
-      // First Call This time its not called because time was not sufficient
-      intervalAction.Invoke(() => called++);
-      Assert.AreEqual(1, called);
-    }
-
-    [TestMethod]
-    [Timeout(2000)]
-    public void InvokeTest2()
-    {
-      var intervalAction = new IntervalAction(.01);
-      var called = 0;
-      // First Call ok
-      intervalAction.Invoke(() => called++);
-      Assert.AreEqual(1, called);
-      Thread.Sleep(110);
-      // First Call This time its not called because time was not sufficient
-      intervalAction.Invoke(() => called++);
-      Assert.AreEqual(2, called);
-    }
-
-    [TestMethod]
     public void Defaults()
     {
       var test = new IntervalAction();
-      Assert.IsTrue(test.NotifyAfterSeconds > 0);
-      Assert.IsTrue(test.NotifyAfterSeconds < 1);
+      Assert.IsTrue(test.NotifyAfterSeconds > 0 && test.NotifyAfterSeconds < 1);
+
+      var test2 = IntervalAction.ForProcessDisplay(null);
+      Assert.IsNull(test2);
+
+      var test3 = IntervalAction.ForProcessDisplay(new CustomProcessDisplay());
+      Assert.IsNotNull(test3);
     }
 
     [TestMethod]
-    public void Invoke()
+    public async Task InvokeAsync()
     {
-      var test = new IntervalAction();
-      var called = false;
-      test.Invoke(() => called = true);
-      Assert.IsTrue(called);
-      called = false;
-      test.Invoke(() => called = true);
-      Assert.IsFalse(called);
-    }
+      long setValue = -1;
+      var called = 0;
+      var intervalAction = new IntervalAction();
+      // first call shoudl always go through
+      intervalAction.Invoke(() => { setValue = 666; called++; });
+      Assert.AreEqual(666L, setValue);
+      Assert.AreEqual(1, called);
 
-    [TestMethod]
-    public void InvokeLong()
-    {
-      var test = new IntervalAction();
-      long called = -1;
-      test.Invoke(delegate (long l) { called = l; }, 666);
-      Assert.AreEqual(666L, called);
-      test.Invoke(delegate (long l) { called = l; }, 669);
-      Assert.AreNotEqual(669L, called);
-    }
+      // rapid call should be swallowed
+      intervalAction.Invoke(() => { setValue = 669; called++; });
+      Assert.AreEqual(666L, setValue);
+      Assert.AreEqual(1, called);
 
-    [TestMethod]
-    public void InvokeLong2()
-    {
-      var test = new IntervalAction();
-      long called = -1;
-      test.Invoke((l1, l2) => { called = l1; }, 666, 111);
-      Assert.AreEqual(666L, called);
-    }
+      // wait for some time
+      await Task.Delay(TimeSpan.FromSeconds(intervalAction.NotifyAfterSeconds).Milliseconds + 100);
 
-    [TestMethod]
-    public void InvokeLong3()
-    {
-      var test = new IntervalAction();
-      long called = -1;
-      test.Invoke((l1, l2, l3) => { called = l1; }, 666, 111, 1111);
-      Assert.AreEqual(666L, called);
-    }
-
-    [TestMethod]
-    public void InvokeLongText()
-    {
-      var test = new IntervalAction();
-      long called = -1;
-      test.Invoke((l1, s) => { called = l1; }, 666, "111");
-      Assert.AreEqual(666L, called);
-    }
-
-    [TestMethod]
-    public void InvokeStringLong()
-    {
-      var test = new IntervalAction();
-      long called = -1;
-      var calledS = string.Empty;
-      var calledB = false;
-      test.Invoke((s, l, arg3) =>
-      {
-        called = l;
-        calledS = s;
-        calledB = arg3;
-      }, "Hello", -10, true);
-      Assert.AreEqual(-10L, called);
-      Assert.AreEqual("Hello", calledS);
-      Assert.AreEqual(true, calledB);
-      test.Invoke((s, l, arg3) =>
-      {
-        called = l;
-        calledS = s;
-        calledB = arg3;
-      }, "World", -20, true);
-      Assert.AreNotEqual("World", calledS);
+      // now the value should be set
+      intervalAction.Invoke(() => { setValue = 669; called++; });
+      Assert.AreEqual(669L, setValue);
+      Assert.AreEqual(2, called);
     }
   }
 }

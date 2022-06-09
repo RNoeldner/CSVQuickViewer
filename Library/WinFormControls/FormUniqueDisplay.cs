@@ -115,21 +115,19 @@ namespace CsvTools
         this.SafeBeginInvoke(() => Text = $@"Unique Values Display - {dataColumnName} ");
 
         var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        var intervalAction = new IntervalAction();
 
-        using var display = new FormProcessDisplay(
-          $"Processing {dataColumnName}",
-          false,
-          m_CancellationTokenSource.Token);
-        display.Maximum = m_DataRow.Length;
+        using var display = new FormProcessDisplay($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token)
+        {
+          Maximum = m_DataRow.Length
+        };
         display.Show(this);
-
+        var intervalAction = new IntervalAction();
         for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
         {
           if (display.CancellationToken.IsCancellationRequested)
             return;
           // ReSharper disable once AccessToDisposedClosure
-          intervalAction.Invoke(row => { display.SetProcess("Getting Unique values", row, true); }, rowIndex);
+          intervalAction.Invoke(display, "Getting Unique values", rowIndex, true);
           var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
           if (ignoreNull && string.IsNullOrEmpty(id))
             continue;
@@ -149,10 +147,8 @@ namespace CsvTools
         {
           if (display.CancellationToken.IsCancellationRequested)
             return;
-          counter++;
-          if (counter % 100 == 0)
-            // ReSharper disable once AccessToDisposedClosure
-            intervalAction.Invoke(c => { display.SetProcess("Importing Rows to Grid", c, true); }, counter);
+          if (counter++ % 100 == 0)
+            intervalAction.Invoke(display, "Importing Rows to Grid", counter, true);
           m_DataTable.ImportRow(m_DataRow[rowIndex]);
         }
 

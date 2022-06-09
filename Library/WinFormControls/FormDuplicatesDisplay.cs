@@ -119,19 +119,16 @@ namespace CsvTools
           return;
         this.SafeInvoke(() => Text = $@"Duplicate Display - {dataColumnName}");
 
-        var intervalAction = new IntervalAction();
-        using var display = new FormProcessDisplay(
-          $"Processing {dataColumnName}",
-          false,
-          m_CancellationTokenSource.Token);
-        display.Maximum = m_DataRow.Length;
+        using var display = new FormProcessDisplay($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token)
+        { Maximum = m_DataRow.Length };
         display.Show(this);
+        var intervalAction = new IntervalAction();
         for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
         {
           if (display.CancellationToken.IsCancellationRequested)
             return;
           // ReSharper disable once AccessToDisposedClosure
-          intervalAction.Invoke(row => display.SetProcess("Getting duplicate values", row, false), rowIndex);
+          intervalAction.Invoke(display, "Getting duplicate values", rowIndex, false);
 
           var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString()?.Trim();
 
@@ -169,7 +166,8 @@ namespace CsvTools
         {
           if (display.CancellationToken.IsCancellationRequested)
             return;
-          intervalAction.Invoke(row => display.SetProcess("Importing Rows to Grid", row, false), counter++);
+          counter++;
+          intervalAction.Invoke(display, "Importing Rows to Grid", counter, false);
           m_DataTable.ImportRow(m_DataRow[rowIndex]);
         }
 
