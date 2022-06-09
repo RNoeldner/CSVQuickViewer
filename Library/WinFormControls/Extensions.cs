@@ -15,7 +15,6 @@
 #nullable enable
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -31,181 +30,6 @@ namespace CsvTools
   public static class Extensions
   {
     public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
-    public static void RunWithHourglass(this ToolStripItem item, Action action, Form? frm)
-    {
-      if (item is null)
-        throw new ArgumentNullException(nameof(item));
-      if (action is null)
-        throw new ArgumentNullException(nameof(action));
-      try
-      {
-        item.Enabled = false;
-        action.InvokeWithHourglass();
-      }
-      catch (ObjectDisposedException)
-      {
-        // ignore
-      }
-      catch (Exception ex)
-      {
-        frm?.ShowError(ex);
-      }
-      finally
-      {
-        item.Enabled = true;        
-      }
-    }
-
-    public static void RunWithHourglass(this Control control, Action action)
-    {
-      if (control is null)
-        throw new ArgumentNullException(nameof(control));
-      if (action is null)
-        throw new ArgumentNullException(nameof(action));
-      try
-      {
-        control.Enabled = false;
-        action.InvokeWithHourglass();
-      }
-      catch (ObjectDisposedException)
-      {
-        // ignore
-      }
-      catch (Exception ex)
-      {
-        var frm = control.FindForm();
-        frm?.ShowError(ex);
-      }
-      finally
-      {
-        control.Enabled = true;
-      }
-    }
-
-    public static void InvokeWithHourglass(this Action action)
-    {
-      if (action is null)
-        throw new ArgumentNullException(nameof(action));
-      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-      try
-      {
-        action.Invoke();
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
-    }
-
-    public static async Task InvokeWithHourglassAsync(this Func<Task> action)
-    {
-      if (action is null)
-        throw new ArgumentNullException(nameof(action));
-      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
-      Cursor.Current = Cursors.WaitCursor;
-      try
-      {
-        await action.Invoke();
-      }
-      finally
-      {
-        Cursor.Current = oldCursor;
-      }
-    }
-
-    public static async Task RunWithHourglassAsync(this ToolStripItem item, Func<Task> action, Form? frm)
-    {
-      if (item is null)
-        throw new ArgumentNullException(nameof(item));
-
-      try
-      {
-        item.Enabled = false;
-        await action.InvokeWithHourglassAsync();
-      }
-      catch (ObjectDisposedException)
-      {
-        // ignore
-      }
-      catch (Exception ex)
-      {
-        frm?.ShowError(ex);
-      }
-      finally
-      {
-        item.Enabled = true;
-      }
-    }
-
-    public static async Task RunWithHourglassAsync(this Control control, Func<Task> action)
-    {
-      if (control is null)
-        throw new ArgumentNullException(nameof(control));
-      if (action is null)
-        throw new ArgumentNullException(nameof(action));
-      try
-      {
-        control.SafeInvoke(() => control.Enabled = false);
-        await action.InvokeWithHourglassAsync();        
-      }
-      catch (ObjectDisposedException)
-      {
-        // ignore
-      }
-      catch (Exception ex)
-      {
-        var frm = control.FindForm();
-        frm?.ShowError(ex);
-      }
-      finally
-      {        
-        control.SafeInvoke(() => control.Enabled = true);
-      }
-    }
-
-    public static void SetClipboard(this DataObject dataObject, int timeoutMilliseconds = 120000)
-      => RunStaThread(() =>
-      {
-        Clipboard.Clear();
-        Clipboard.SetDataObject(dataObject, false, 5, 200);
-      }, timeoutMilliseconds);
-
-    public static void SetClipboard(this string text) => RunStaThread(() => Clipboard.SetText(text));
-
-    public static void RunStaThread(this Action action, int timeoutMilliseconds = 20000)
-    {
-      if (action is null)
-        throw new ArgumentNullException(nameof(action));
-      if (!IsWindows)
-      {
-        action.Invoke();
-        return;
-      }
-      try
-      {
-
-        if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
-          action.Invoke();
-        else
-        {
-          var runThread = new Thread(action.Invoke);
-
-          runThread.SetApartmentState(ApartmentState.STA);
-
-          runThread.Start();
-          if (timeoutMilliseconds > 0)
-            runThread.Join(timeoutMilliseconds);
-          else
-            runThread.Join();
-        }
-      }
-      catch (Exception e)
-      {
-        Logger.Error(e);
-      }
-    }
 
     /// <summary>
     ///   Handles a CTRL-A select all in the form.
@@ -260,9 +84,40 @@ namespace CsvTools
       return processDisplay;
     }
 
-
     public static Binding? GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>()
                                                                     .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
+
+    public static void InvokeWithHourglass(this Action action)
+    {
+      if (action is null)
+        throw new ArgumentNullException(nameof(action));
+      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+      try
+      {
+        action.Invoke();
+      }
+      finally
+      {
+        Cursor.Current = oldCursor;
+      }
+    }
+
+    public static async Task InvokeWithHourglassAsync(this Func<Task> action)
+    {
+      if (action is null)
+        throw new ArgumentNullException(nameof(action));
+      var oldCursor = Cursors.WaitCursor.Equals(Cursor.Current) ? Cursors.WaitCursor : Cursors.Default;
+      Cursor.Current = Cursors.WaitCursor;
+      try
+      {
+        await action.Invoke();
+      }
+      finally
+      {
+        Cursor.Current = oldCursor;
+      }
+    }
 
     public static void LoadWindowState(
       this Form form,
@@ -323,6 +178,139 @@ namespace CsvTools
       }
     }
 
+    public static void RunStaThread(this Action action, int timeoutMilliseconds = 20000)
+    {
+      if (action is null)
+        throw new ArgumentNullException(nameof(action));
+      if (!IsWindows)
+      {
+        action.Invoke();
+        return;
+      }
+      try
+      {
+        if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+          action.Invoke();
+        else
+        {
+          var runThread = new Thread(action.Invoke);
+
+          runThread.SetApartmentState(ApartmentState.STA);
+
+          runThread.Start();
+          if (timeoutMilliseconds > 0)
+            runThread.Join(timeoutMilliseconds);
+          else
+            runThread.Join();
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error(e);
+      }
+    }
+
+    public static void RunWithHourglass(this ToolStripItem item, Action action, Form? frm)
+    {
+      if (item is null)
+        throw new ArgumentNullException(nameof(item));
+      if (action is null)
+        throw new ArgumentNullException(nameof(action));
+      try
+      {
+        item.Enabled = false;
+        action.InvokeWithHourglass();
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
+      }
+      catch (Exception ex)
+      {
+        frm?.ShowError(ex);
+      }
+      finally
+      {
+        item.Enabled = true;
+      }
+    }
+
+    public static void RunWithHourglass(this Control control, Action action)
+    {
+      if (control is null)
+        throw new ArgumentNullException(nameof(control));
+      if (action is null)
+        throw new ArgumentNullException(nameof(action));
+      try
+      {
+        control.Enabled = false;
+        action.InvokeWithHourglass();
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
+      }
+      catch (Exception ex)
+      {
+        var frm = control.FindForm();
+        frm?.ShowError(ex);
+      }
+      finally
+      {
+        control.Enabled = true;
+      }
+    }
+
+    public static async Task RunWithHourglassAsync(this ToolStripItem item, Func<Task> action, Form? frm)
+    {
+      if (item is null)
+        throw new ArgumentNullException(nameof(item));
+
+      try
+      {
+        item.Enabled = false;
+        await action.InvokeWithHourglassAsync();
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
+      }
+      catch (Exception ex)
+      {
+        frm?.ShowError(ex);
+      }
+      finally
+      {
+        item.Enabled = true;
+      }
+    }
+
+    public static async Task RunWithHourglassAsync(this Control control, Func<Task> action)
+    {
+      if (control is null)
+        throw new ArgumentNullException(nameof(control));
+      if (action is null)
+        throw new ArgumentNullException(nameof(action));
+      try
+      {
+        control.SafeInvoke(() => control.Enabled = false);
+        await action.InvokeWithHourglassAsync();
+      }
+      catch (ObjectDisposedException)
+      {
+        // ignore
+      }
+      catch (Exception ex)
+      {
+        var frm = control.FindForm();
+        frm?.ShowError(ex);
+      }
+      finally
+      {
+        control.SafeInvoke(() => control.Enabled = true);
+      }
+    }
+
     /// <summary>
     ///   Extensions Methods to Simplify WinForms Thread Invoking, start the action synchrony
     /// </summary>
@@ -375,6 +363,15 @@ namespace CsvTools
         action();
     }
 
+    public static void SetClipboard(this DataObject dataObject, int timeoutMilliseconds = 120000)
+                  => RunStaThread(() =>
+      {
+        Clipboard.Clear();
+        Clipboard.SetDataObject(dataObject, false, 5, 200);
+      }, timeoutMilliseconds);
+
+    public static void SetClipboard(this string text) => RunStaThread(() => Clipboard.SetText(text));
+
     /// <summary>
     ///   Show error information to a user, and logs the message
     /// </summary>
@@ -425,37 +422,6 @@ namespace CsvTools
         CustomInt = customInt,
         CustomText = customText
       };
-    }
-
-    /// <summary>
-    ///   Updates the list view column format.
-    /// </summary>
-    /// <param name="columnFormat">The column format.</param>
-    /// <param name="listView">The list view.</param>
-    public static void UpdateListViewColumnFormat(this ListView? listView, ICollection<IColumn> columnFormat)
-    {
-      if (listView is null || listView.IsDisposed)
-        return;
-      if (listView.InvokeRequired)
-      {
-        listView.Invoke((MethodInvoker) delegate { listView.UpdateListViewColumnFormat(columnFormat); });
-      }
-      else
-      {
-        var oldSelItem = listView.SelectedItems;
-        listView.BeginUpdate();
-        listView.Items.Clear();
-
-        foreach (var format in columnFormat)
-        {
-          var ni = listView.Items.Add(format.Name);
-          if (oldSelItem.Count > 0)
-            ni.Selected |= format.Name == oldSelItem[0].Text;
-          ni.SubItems.Add(format.GetTypeAndFormatDescription());
-        }
-
-        listView.EndUpdate();
-      }
     }
 
     /// <summary>

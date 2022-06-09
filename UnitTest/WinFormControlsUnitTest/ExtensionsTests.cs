@@ -47,74 +47,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(2000)]
-    public void UpdateListViewColumnFormatTest()
-    {
-      using var lv = new ListView();
-      var colFmt = new List<IColumn>();
-      {
-        var item = lv.Items.Add("Test");
-        item.Selected = true;
-      }
-      lv.UpdateListViewColumnFormat(colFmt);
-      Assert.AreEqual(0, lv.Items.Count);
-
-      {
-        lv.Items.Add("Test1");
-        var item = lv.Items.Add("Test");
-        item.Selected = true;
-      }
-
-      colFmt.Add(new Column { Name = "Test" });
-      lv.UpdateListViewColumnFormat(colFmt);
-    }
-
-    [TestMethod]
-    [Timeout(2000)]
-    public async Task RunWithHourglassAsyncTest()
-    {
-      using var ctrl = new ToolStripButton();
-      var done = false;
-      await ctrl.RunWithHourglassAsync(async () => await Task.Run(() => done = true), null);
-      Assert.IsTrue(done);
-    }
-
-    [TestMethod]
-    [Timeout(2000)]
-    public void RunWithHourglassTest()
-    {
-      using var ctrl = new ToolStripButton();
-      var done = false;
-      ctrl.RunWithHourglass(() => done = true, null);
-      Assert.IsTrue(done);
-    }
-
-    [TestMethod]
-    [Timeout(4000)]
-    public void ShowError()
-    {
-      using var frm = new Form();
-      frm.Text = "Testing...";
-      frm.Show();
-      frm.ShowError(new Exception(), "Text", 1.0);
-    }
-
-    [TestMethod]
-    [Timeout(2000)]
-    public void WriteBindingTest()
-    {
-      var obj = new DisplayItem<string>("15", "Text");
-      using var bindingSource = new BindingSource { DataSource = obj };
-      var bind = new Binding("Text", bindingSource, "ID", true);
-      using var textBoxBox = new TextBox();
-      textBoxBox.DataBindings.Add(bind);
-      textBoxBox.Text = "12";
-
-      Assert.AreEqual(bind, textBoxBox.GetTextBinding());
-      textBoxBox.WriteBinding();
-    }
-
-    [TestMethod]
     [Timeout(3000)]
     public void GetProcessDisplayTest()
     {
@@ -163,6 +95,36 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(2000)]
+    public async Task RunWithHourglassAsyncTest()
+    {
+      using var ctrl = new ToolStripButton();
+      var done = false;
+      await ctrl.RunWithHourglassAsync(async () => await Task.Run(() => done = true), null);
+      Assert.IsTrue(done);
+    }
+
+    [TestMethod]
+    [Timeout(2000)]
+    public void RunWithHourglassTest()
+    {
+      using var ctrl = new ToolStripButton();
+      var done = false;
+      ctrl.RunWithHourglass(() => done = true, null);
+      Assert.IsTrue(done);
+    }
+
+    [TestMethod]
+    [Timeout(4000)]
+    public void ShowError()
+    {
+      using var frm = new Form();
+      frm.Text = "Testing...";
+      frm.Show();
+      frm.ShowError(new Exception(), "Text", 1.0);
+    }
+
+    [TestMethod]
+    [Timeout(2000)]
     public void StoreWindowStateTest()
     {
       using var value = new FormProcessDisplay();
@@ -179,6 +141,21 @@ namespace CsvTools.Tests
       Assert.AreEqual("World", state2.CustomText, "CustomText");
       //Assert.AreEqual(state1.Left, state2.Left, "Left");
       Assert.AreEqual(state1.Width, state2.Width, "Width");
+    }
+
+    [TestMethod]
+    [Timeout(2000)]
+    public void WriteBindingTest()
+    {
+      var obj = new DisplayItem<string>("15", "Text");
+      using var bindingSource = new BindingSource { DataSource = obj };
+      var bind = new Binding("Text", bindingSource, "ID", true);
+      using var textBoxBox = new TextBox();
+      textBoxBox.DataBindings.Add(bind);
+      textBoxBox.Text = "12";
+
+      Assert.AreEqual(bind, textBoxBox.GetTextBinding());
+      textBoxBox.WriteBinding();
     }
   }
 }

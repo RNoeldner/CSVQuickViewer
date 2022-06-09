@@ -54,7 +54,13 @@ namespace CsvTools.Tests
       m_Timer.Interval = totalMilliseconds;
       m_Timer.Enabled = true;
       m_Timer.Start();
-      m_Timer.Elapsed += (sender, args) => Close();
+      m_Timer.Elapsed += (sender, args) =>
+      {
+        if (InvokeRequired)
+          BeginInvoke((MethodInvoker) delegate { Close(); });
+        else
+          Close();
+      };
       Show();
     }
 

@@ -144,9 +144,6 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cCommentLineDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string CommentLine
     {
       get => m_CommentLine;
@@ -163,9 +160,6 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cDelimiterPlaceholderDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string DelimiterPlaceholder
     {
       get => m_DelimiterPlaceholder;
@@ -199,9 +193,6 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cEscapePrefixDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string EscapePrefix
     {
       get => m_EscapePrefix;
@@ -211,21 +202,15 @@ namespace CsvTools
         if (m_EscapePrefix.Equals(newVal, StringComparison.Ordinal))
           return;
         m_EscapePrefixChar = newVal.WrittenPunctuationToChar();
-        if (m_EscapePrefixChar != 0)
-        {
-          m_EscapePrefix = newVal;
-          NotifyPropertyChanged(nameof(EscapePrefix));
-          NotifyPropertyChanged(nameof(EscapePrefixChar));
-        }
+        m_EscapePrefix = newVal;
+        NotifyPropertyChanged(nameof(EscapePrefix));
+        NotifyPropertyChanged(nameof(EscapePrefixChar));
       }
     }
 
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cFieldDelimiterDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string FieldDelimiter
     {
       get => m_FieldDelimiter;
@@ -235,12 +220,9 @@ namespace CsvTools
         if (m_FieldDelimiter.Equals(newVal, StringComparison.Ordinal))
           return;
         m_FieldDelimiterChar = newVal.WrittenPunctuationToChar();
-        if (m_FieldDelimiterChar != 0)
-        {
-          m_FieldDelimiter = newVal;
-          NotifyPropertyChanged(nameof(FieldDelimiter));
-          NotifyPropertyChanged(nameof(FieldDelimiterChar));
-        }
+        m_FieldDelimiter = newVal;
+        NotifyPropertyChanged(nameof(FieldDelimiter));
+        NotifyPropertyChanged(nameof(FieldDelimiterChar));
       }
     }
 
@@ -251,9 +233,6 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cFieldQualifierDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string FieldQualifier
     {
       get => m_FieldQualifier;
@@ -263,12 +242,9 @@ namespace CsvTools
         if (m_FieldQualifier.Equals(newVal, StringComparison.Ordinal))
           return;
         m_FieldQualifierChar = newVal.WrittenPunctuationToChar();
-        if (m_FieldQualifierChar != 0)
-        {
-          m_FieldQualifier = newVal;
-          NotifyPropertyChanged(nameof(FieldQualifier));
-          NotifyPropertyChanged(nameof(m_FieldQualifierChar));
-        }
+        m_FieldQualifier = newVal;
+        NotifyPropertyChanged(nameof(FieldQualifier));
+        NotifyPropertyChanged(nameof(m_FieldQualifierChar));
       }
     }
 
@@ -300,9 +276,6 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cNewLinePlaceholderDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string NewLinePlaceholder
     {
       get => m_NewLinePlaceholder;
@@ -354,9 +327,6 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cQuotePlaceholderDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string QualifierPlaceholder
     {
       get => m_QualifierPlaceholder;
@@ -384,7 +354,6 @@ namespace CsvTools
         NotifyPropertyChanged(nameof(AllowRowCombining));
       }
     }
-
 
     /// <inheritdoc />
     [XmlIgnore]
@@ -747,176 +716,5 @@ namespace CsvTools
       foreach (var res in base.GetDifferences(other))
         yield return res;
     }
-
-    #region backwardscompatibility
-
-    [XmlElement]
-    [DefaultValue(null)]
-#pragma warning disable CS0618 // Type or member is obsolete
-    public FileFormatStore? FileFormat
-#pragma warning restore CS0618 // Type or member is obsolete
-    {
-      get;
-      set;
-    }
-
-    [Obsolete("Only used for backwards compatibility of Serialization")]
-    public virtual void OverwriteFromFileFormatStore()
-    {
-      if (FileFormat is null)
-        return;
-
-      ContextSensitiveQualifier = FileFormat.AlternateQuoting;
-      DuplicateQualifierToEscape = FileFormat.DuplicateQuotingToEscape;
-      CommentLine = FileFormat.CommentLine;
-      DelimiterPlaceholder = FileFormat.DelimiterPlaceholder;
-      EscapePrefix = FileFormat.EscapeCharacter;
-      FieldDelimiter = FileFormat.FieldDelimiter;
-      FieldQualifier = FileFormat.FieldQualifier;
-      NewLine = FileFormat.NewLine;
-      NewLinePlaceholder = FileFormat.NewLinePlaceholder;
-      QualifyAlways = FileFormat.QualifyAlways;
-      QualifyOnlyIfNeeded = FileFormat.QualifyOnlyIfNeeded;
-      QualifierPlaceholder = FileFormat.QuotePlaceholder;
-
-      FileFormat = null;
-    }
-
-    [Obsolete("Only used for backwards compatibility of Serialization")]
-    [Serializable]
-    public class FileFormatStore
-    {
-      /// <summary>
-      ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
-      /// </summary>
-      /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
-      [XmlAttribute]
-      [DefaultValue(cContextSensitiveQualifierDefault)]
-      public bool AlternateQuoting
-      {
-        get;
-        set;
-      } = cContextSensitiveQualifierDefault;
-
-      /// <summary>
-      ///   Gets or sets the text to indicate that the line is comment line and not contain data. If a
-      ///   line starts with the given text, it is ignored in the data grid.
-      /// </summary>
-      /// <value>The startup comment line.</value>
-      [XmlAttribute]
-      [DefaultValue(cCommentLineDefault)]
-
-      public string CommentLine
-      {
-        get;
-        set;
-      } = cCommentLineDefault;
-
-      /// <summary>
-      ///   Gets or sets the delimiter placeholder.
-      /// </summary>
-      /// <value>The delimiter placeholder.</value>
-      [XmlAttribute]
-      [DefaultValue(cDelimiterPlaceholderDefault)]
-      public string DelimiterPlaceholder
-      {
-        get;
-        set;
-      } = cDelimiterPlaceholderDefault;
-
-      /// <summary>
-      ///   Gets or sets a value indicating whether the byte order mark should be written in Unicode files.
-      /// </summary>
-      /// <value><c>true</c> write byte order mark; otherwise, <c>false</c>.</value>
-      [XmlAttribute]
-      [DefaultValue(cDuplicateQualifierToEscapeDefault)]
-      public bool DuplicateQuotingToEscape
-      {
-        get;
-        set;
-      } = cDuplicateQualifierToEscapeDefault;
-
-      /// <summary>
-      ///   Gets or sets the escape character.
-      /// </summary>
-      /// <value>The escape character.</value>
-      [XmlAttribute]
-      [DefaultValue(cEscapePrefixDefault)]
-      public string EscapeCharacter
-      {
-        get;
-        set;
-      } = cEscapePrefixDefault;
-
-      /// <summary>
-      ///   Gets or sets the field delimiter.
-      /// </summary>
-      /// <value>The field delimiter.</value>
-      [XmlAttribute]
-      [DefaultValue(cFieldDelimiterDefault)]
-      public string FieldDelimiter
-      {
-        get;
-        set;
-      } = cFieldDelimiterDefault;
-
-      /// <summary>
-      ///   Gets or sets the field qualifier.
-      /// </summary>
-      /// <value>The field qualifier.</value>
-      [XmlAttribute]
-      [DefaultValue(cFieldQualifierDefault)]
-      public string FieldQualifier
-      {
-        get;
-        set;
-      } = cFieldQualifierDefault;
-
-      /// <summary>
-      ///   Gets or sets the newline.
-      /// </summary>
-      /// <value>The newline.</value>
-      [XmlAttribute]
-      [DefaultValue(cNewLineDefault)]
-      public RecordDelimiterTypeEnum NewLine
-      {
-        get;
-        set;
-      } = cNewLineDefault;
-
-      [XmlAttribute]
-      [DefaultValue(cNewLinePlaceholderDefault)]
-      public string NewLinePlaceholder
-      {
-        get;
-        set;
-      } = cNewLinePlaceholderDefault;
-
-      [XmlAttribute]
-      [DefaultValue(cQualifyAlwaysDefault)]
-      public bool QualifyAlways
-      {
-        get;
-        set;
-      } = cQualifyAlwaysDefault;
-
-      [XmlAttribute]
-      [DefaultValue(cQualifyOnlyIfNeededDefault)]
-      public bool QualifyOnlyIfNeeded
-      {
-        get;
-        set;
-      } = cQualifyOnlyIfNeededDefault;
-
-      [XmlAttribute]
-      [DefaultValue(cQuotePlaceholderDefault)]
-      public string QuotePlaceholder
-      {
-        get;
-        set;
-      } = cQuotePlaceholderDefault;
-    }
-
-    #endregion
   }
 }
