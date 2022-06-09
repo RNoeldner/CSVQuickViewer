@@ -15,6 +15,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace CsvTools
@@ -46,13 +47,9 @@ namespace CsvTools
     /// <returns></returns>
     public static CsvFile LoadCsvFile(in string fileName)
     {
-      var serial = FileSystemUtils.ReadAllText(fileName);
-      using TextReader reader = new StringReader(serial);
-      var res = (CsvFile) m_SerializerCurrentCsvFile.Value.Deserialize(reader);
-#pragma warning disable 618
-      res.OverwriteFromFileFormatStore();
-#pragma warning restore 618
-      return res;
+      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
+      using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
+      return (CsvFile) m_SerializerCurrentCsvFile.Value.Deserialize(reader);
     }
 
     /// <summary>
