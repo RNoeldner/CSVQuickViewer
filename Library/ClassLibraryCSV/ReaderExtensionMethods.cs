@@ -129,7 +129,7 @@ namespace CsvTools
       var dataTable = GetEmptyDataTable(wrapper);
       if (wrapper.EndOfFile) return dataTable;
 
-      var intervalAction = processDisplay != null ? new IntervalAction() : null;
+      var intervalAction = IntervalAction.ForProcessDisplay(processDisplay);
       try
       {
         var errorColumn = restoreErrorsFromColumn ? dataTable.Columns[ReaderConstants.cErrorField] : null;
@@ -154,7 +154,7 @@ namespace CsvTools
           // This gets the errors from the column #Error that has been filled by the reader
           if (errorColumn != null)
             dataRow.SetErrorInformation(dataRow[errorColumn].ToString());
-          intervalAction?.Invoke(processDisplay, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent, false);
+          intervalAction?.Invoke(processDisplay!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent, false);
 
           // This gets the errors from the fileReader
           if (cancellationToken.IsCancellationRequested)
@@ -165,7 +165,7 @@ namespace CsvTools
       }
       finally
       {
-        intervalAction?.Invoke(processDisplay, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent, false);
+        intervalAction?.Invoke(processDisplay!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent, false);
       }
 
       return dataTable;

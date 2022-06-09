@@ -38,8 +38,8 @@ namespace CsvTools
     /// <summary>
     ///   Sets the process display
     /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="value">The current progress</param>
+    /// <param name="text">The text to display.</param>
+    /// <param name="value">The current progress value</param>
     /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
     void SetProcess(string text, long value, bool log);
   }
