@@ -37,7 +37,7 @@ namespace CsvTools
     [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("processDisplay")]
 #endif
 
-    public static IntervalAction? ForProcessDisplay(IProcessDisplay? processDisplay) => (processDisplay is null) ? null : new IntervalAction();
+    public static IntervalAction? ForProcessDisplay(IProcessDisplay? processDisplay) => processDisplay is null ? null : new IntervalAction();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="IntervalAction" /> class.
@@ -71,7 +71,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Invoke ProcessDisplay on given intervall
+    ///   Invoke ProcessDisplay on given interval
     /// </summary>
     /// <param name="processDisplay">The process display</param>
     /// <param name="text">The text to display.</param>

@@ -183,17 +183,16 @@ namespace CsvTools
           using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement,
                                    processDisplay, m_FileSetting.Timeout, m_FileSetting.RecordLimit, processDisplay.CancellationToken))
           {
-            DataTable? data = await sqlReader.GetDataTableAsync(false,
-                                m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
-                                null,
-                                processDisplay.CancellationToken);
+            var data = await sqlReader.GetDataTableAsync(TimeSpan.FromSeconds(60),
+                                false,
+                                m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false, null, processDisplay.CancellationToken);
             var found = new Column();
-            var column = data?.Columns[columnName];
+            var column = data.Columns[columnName];
             if (column is null)
             {
               if (hasRetried)
                 throw new FileReaderException($"The file does not seem to contain the column {columnName}.");
-              var columns = (from DataColumn col in data!.Columns select col.ColumnName).ToList();
+              var columns = (from DataColumn col in data.Columns select col.ColumnName).ToList();
               UpdateColumnList(columns);
               hasRetried = true;
               goto retry;
@@ -1054,10 +1053,9 @@ namespace CsvTools
       if (allColumns.Count > 0)
       {
         var columnsConf = allColumns.ToArray();
-        var columnsTp = allColumns.ToArray();
         comboBoxColumnName.Items.AddRange(columnsConf);
-        comboBoxTimePart.Items.AddRange(columnsTp);
-        comboBoxTimeZone.Items.AddRange(columnsTp);
+        comboBoxTimePart.Items.AddRange(columnsConf);
+        comboBoxTimeZone.Items.AddRange(columnsConf);
         if (string.IsNullOrEmpty(m_ColumnEdit.Name))
           m_ColumnEdit.Name = columnsConf[0];
       }

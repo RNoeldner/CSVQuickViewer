@@ -13,6 +13,7 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
@@ -122,11 +123,12 @@ namespace CsvTools.Tests
         test2.WarnEmptyTailingColumns,
         test2.TreatNBSPAsSpace, test2.TreatTextAsNull, test2.SkipEmptyLines, test2.ConsecutiveEmptyRows,
         test2.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, processDisplay);
+      
       await test.OpenAsync(UnitTestStatic.Token);
 
-      var dt = await test.GetDataTableAsync(false, false, false, false, false, null,
-        UnitTestStatic.Token);
-      Assert.AreEqual(test2.RecordLimit, dt!.Rows.Count);
+      var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
+        false, false, false, false, null, UnitTestStatic.Token);
+      Assert.AreEqual(test2.RecordLimit, dt.Rows.Count);
     }
 
     [TestMethod]
@@ -149,11 +151,11 @@ namespace CsvTools.Tests
         test3.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
 
-      using var dt = await test.GetDataTableAsync(true, true, true, true, true, null,
-        UnitTestStatic.Token);
+      using var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), true,
+        true, true, true, true, null, UnitTestStatic.Token);
       // 10 columns 1 ignored one added for Start line one for Error Field one for Record No one for
       // Line end
-      Assert.AreEqual(10 - 1 + 4, dt!.Columns.Count);
+      Assert.AreEqual(10 - 1 + 4, dt.Columns.Count);
       Assert.AreEqual(19, dt.Rows.Count);
     }
   }

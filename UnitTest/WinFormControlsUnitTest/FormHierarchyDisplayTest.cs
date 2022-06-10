@@ -1,4 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -9,55 +11,55 @@ namespace CsvTools.Tests
   {
     [TestMethod]
     [Timeout(5000)]
+    [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
     public void MultiselectTreeViewRegular()
     {
-      using (var treeView = new MultiselectTreeView())
+      using var treeView = new MultiselectTreeView();
+      treeView.HtmlStyle = UnitTestStatic.HtmlStyle;
+      Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
+
+      var treeNode = new TreeNode("Test") { Tag = "test" };
+      treeView.Nodes.Add(treeNode);
+
+      var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
+      treeNode.Nodes.Add(treeNode2);
+
+      var treeNode3 = new TreeNode("Test3") { Tag = "test3" };
+      treeNode.Nodes.Add(treeNode3);
+
+      var treeNode3A = new TreeNode("Test3a") { Tag = "test3" };
+      treeNode3.Nodes.Add(treeNode3A);
+      var treeNode3B = new TreeNode("Test3b") { Tag = "test3" };
+      treeNode3.Nodes.Add(treeNode3B);
+
+      var firedAfter = false;
+      var firedBefore = false;
+      treeView.AfterSelect += (s, args) => { firedAfter = true; };
+      treeView.BeforeSelect += (s, args) => { firedBefore = true; };
+
+      UnitTestStatic.ShowControl(treeView, .2, (control, form) =>
       {
-        treeView.HtmlStyle = UnitTestStatic.HtmlStyle;
-        Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
+        if (!(control is { } text))
+          return;
 
-        var treeNode = new TreeNode("Test") { Tag = "test" };
-        treeView.Nodes.Add(treeNode);
-
-        var treeNode2 = new TreeNode("Test2") { Tag = "test2" };
-        treeNode.Nodes.Add(treeNode2);
-
-        var treeNode3 = new TreeNode("Test3") { Tag = "test3" };
-        treeNode.Nodes.Add(treeNode3);
-
-        var treeNode3A = new TreeNode("Test3a") { Tag = "test3" };
-        treeNode3.Nodes.Add(treeNode3A);
-        var treeNode3B = new TreeNode("Test3b") { Tag = "test3" };
-        treeNode3.Nodes.Add(treeNode3B);
-
-        var firedAfter = false;
-        var firedBefore = false;
-        treeView.AfterSelect += (s, args) => { firedAfter = true; };
-        treeView.BeforeSelect += (s, args) => { firedBefore = true; };
-
-        UnitTestStatic.ShowControl(treeView, .2, (control, form) =>
-        {
-          if (!(control is MultiselectTreeView text))
-            return;
-
-          text.PressKey(Keys.Control | Keys.A);
-          text.PressKey(Keys.Control | Keys.C);
-          Application.DoEvents();
-          treeView.SelectedNode = treeNode2;
-          treeView.SelectAll();
-          Application.DoEvents();
-          var result = treeView.SelectedToClipboard();
-          Assert.IsTrue(result.Contains(treeNode.Text));
-          Assert.IsTrue(result.Contains(treeNode2.Text));
-          Assert.IsTrue(result.Contains(treeNode3.Text));
-        });
-        Assert.IsTrue(firedAfter);
-        Assert.IsTrue(firedBefore);
-      }
+        text.PressKey(Keys.Control | Keys.A);
+        text.PressKey(Keys.Control | Keys.C);
+        Application.DoEvents();
+        treeView.SelectedNode = treeNode2;
+        treeView.SelectAll();
+        Application.DoEvents();
+        var result = treeView.SelectedToClipboard();
+        Assert.IsTrue(result.Contains(treeNode.Text));
+        Assert.IsTrue(result.Contains(treeNode2.Text));
+        Assert.IsTrue(result.Contains(treeNode3.Text));
+      });
+      Assert.IsTrue(firedAfter);
+      Assert.IsTrue(firedBefore);
     }
 
     [TestMethod]
     [Timeout(5000)]
+    [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
     public void MultiselectTreeViewTreeData()
     {
       using var treeView = new MultiselectTreeView();
@@ -117,16 +119,14 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public void FormHierarchyDisplay()
     {
-      using (var dataTable = UnitTestStatic.GetDataTable(60))
-      using (var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), UnitTestStatic.HtmlStyle))
+      using var dataTable = UnitTestStatic.GetDataTable(60);
+      using var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), UnitTestStatic.HtmlStyle);
+      UnitTestStatic.ShowFormAndClose(form, 0.1, (frm) =>
       {
-        UnitTestStatic.ShowFormAndClose(form, 0.1, (frm) =>
-        {
-          if (!(frm is { } hd))
-            return;
-          hd.BuildTree("int", "ID");
-        });
-      }
+        if (!(frm is { } hd))
+          return;
+        hd.BuildTree("int", "ID");
+      });
     }
 
     [TestMethod]
@@ -146,8 +146,8 @@ namespace CsvTools.Tests
         cvsSetting.WarnDelimiterInValue, cvsSetting.WarnLineFeed, cvsSetting.WarnNBSP, cvsSetting.WarnQuotes, cvsSetting.WarnUnknownCharacter,
         cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull, cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows,
         cvsSetting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, processDisplay);
-      var dt = await csvDataReader.GetDataTableAsync(false, true, false, false, false, null,
-                 processDisplay.CancellationToken);
+      var dt = await csvDataReader.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
+                 true, false, false, false, null, processDisplay.CancellationToken);
 
       using var form = new FormHierarchyDisplay(dt!, dataTable.Select(), UnitTestStatic.HtmlStyle);
       UnitTestStatic.ShowFormAndClose(form, .1, (frm) =>

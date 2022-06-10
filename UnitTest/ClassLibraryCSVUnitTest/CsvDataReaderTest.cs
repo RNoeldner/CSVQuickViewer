@@ -2241,11 +2241,10 @@ namespace CsvTools.Tests
         m_ValidSetting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
 
-#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
-      using var dt = await test.GetDataTableAsync(false, false, false, false, false, null,
-#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
-        UnitTestStatic.Token);
-      Assert.AreEqual(5, dt!.Rows.Count);
+
+      using var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
+        false, false, false, false, null, UnitTestStatic.Token);
+      Assert.AreEqual(5, dt.Rows.Count);
     }
 
     [TestMethod]
@@ -2270,8 +2269,8 @@ namespace CsvTools.Tests
         m_ValidSetting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
       await test.OpenAsync(UnitTestStatic.Token);
 
-      using var dt = await test.GetDataTableAsync(true, true, false, false, true, null,
-        UnitTestStatic.Token);
+      using var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), true,
+        true, false, false, true, null, UnitTestStatic.Token);
       Assert.AreEqual(5, dt!.Rows.Count);
     }
 
