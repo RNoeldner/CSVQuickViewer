@@ -101,11 +101,11 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (disposing)
-      {
-        m_FileReader?.Dispose();
-        m_FileReader = null;
-      }
+      if (!disposing)
+        return;
+      m_DataReaderWrapper?.Dispose();
+      m_FileReader?.Dispose();
+      m_FileReader = null;
     }
 
     private async Task GetBatchByTimeSpan(
@@ -118,13 +118,13 @@ namespace CsvTools
         return;
       processDisplay?.SetMaximum(100);
 
-      var dt = await m_DataReaderWrapper.LoadDataTable(
+      var dt = await m_DataReaderWrapper.GetDataTableAsync(
         maxDuration,
         restoreError,
         processDisplay,
         cancellationToken).ConfigureAwait(false);
 
-      // for Debuging its nice to know where it all came form
+      // for Debugging its nice to know where it all came form
       if (!string.IsNullOrEmpty(m_ID))
         dt.TableName = m_ID;
       try

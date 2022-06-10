@@ -15,8 +15,8 @@ namespace CsvTools.Tests
     {
       var processDisplay = new CustomProcessDisplay();
       using var test = new DataTableWrapper(m_DataTable);
-      var dt = await test.GetDataTableAsync(false, true, false, false, false, null,
-        UnitTestStatic.Token);
+      var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
+        true, false, false, false, null, UnitTestStatic.Token);
       Assert.AreEqual(m_DataTable, dt);
     }
 
@@ -26,9 +26,9 @@ namespace CsvTools.Tests
       try
       {
         // ReSharper disable once AssignNullToNotNullAttribute
-#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning disable CS8625
         using (new DataTableWrapper(null))
-#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning restore CS8625
         {
         }
       }
@@ -47,7 +47,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetDataTypeNameTest()
     {
-      var processDisplay = new CustomProcessDisplay();
       using var test = new DataTableWrapper(m_DataTable);
       // await test.OpenAsync(UnitTestStatic.Token);
       var typeName = test.GetDataTypeName(0);
@@ -58,7 +57,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetFieldTypeTest()
     {
-      var processDisplay = new CustomProcessDisplay();
       using var test = new DataTableWrapper(m_DataTable);
       //await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.Integer.GetNetType(), test.GetFieldType(0));
@@ -67,7 +65,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetNameTest()
     {
-      var processDisplay = new CustomProcessDisplay();
       using var test = new DataTableWrapper(m_DataTable);
       //await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("ID", test.GetName(0));
@@ -76,7 +73,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetOrdinalTest()
     {
-      var processDisplay = new CustomProcessDisplay();
       using var test = new DataTableWrapper(m_DataTable);
       //await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(2, test.GetOrdinal("ColText1"));
@@ -85,7 +81,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ReadAsyncTest()
     {
-      var processDisplay = new CustomProcessDisplay();
       using var test = new DataTableWrapper(m_DataTable);
       //await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -94,7 +89,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ReadTestAsync()
     {
-      var processDisplay = new CustomProcessDisplay();
       using var test = new DataTableWrapper(m_DataTable);
       //await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));

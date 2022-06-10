@@ -212,10 +212,8 @@ namespace CsvTools.Tests
                setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
                setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, null))
       {
-        var dt = await reader.GetDataTableAsync(false, setting.DisplayStartLineNo, setting.DisplayRecordNo,
-          setting.DisplayEndLineNo, false, null, UnitTestStatic.Token);
-        UnitTestStatic.MimicSQLReader.AddSetting(setting.ID,
-          dt!);
+        var dt = await reader.GetDataTableAsync(TimeSpan.FromSeconds(30), false, setting.DisplayStartLineNo, setting.DisplayRecordNo, setting.DisplayEndLineNo, false, null, UnitTestStatic.Token);
+        UnitTestStatic.MimicSQLReader.AddSetting(setting.ID, dt);
       }
 
       var res1 = await setting.SqlStatement.GetWriterColumnInformationAsync(setting.Timeout,
@@ -381,8 +379,7 @@ namespace CsvTools.Tests
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         UnitTestStatic.MimicSQLReader.AddSetting(setting.ID,
-          (await reader.GetDataTableAsync(false, setting.DisplayStartLineNo, setting.DisplayRecordNo,
-            setting.DisplayEndLineNo, false, null, UnitTestStatic.Token))!);
+          (await reader.GetDataTableAsync(TimeSpan.FromSeconds(30), false, setting.DisplayStartLineNo, setting.DisplayRecordNo, setting.DisplayEndLineNo, false, null, UnitTestStatic.Token))!);
       }
 
       var writer = new CsvFile { SqlStatement = setting.ID };

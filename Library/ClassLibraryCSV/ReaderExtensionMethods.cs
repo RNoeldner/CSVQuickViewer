@@ -38,35 +38,37 @@ namespace CsvTools
     ///   Any type of <see cref="IFileReader" />, if the source is a DataTableWrapper though the
     ///   original passed in data table is returned, no artificial columns are added
     /// </param>
+    /// <param name="maxDuration"></param>
     /// <param name="restoreErrorsFromColumn">
     ///   if the source is a persisted table, restore the error information
     /// </param>
     /// <param name="addStartLine">
     ///   if <c>true</c> add a column for the start line: <see
-    ///   cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line based reader like
+    ///                                                     cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line based reader like
     ///   delimited text
     /// </param>
     /// <param name="includeRecordNo">
     ///   if <c>true</c> add a column for the records number: <see
-    ///   cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning
+    ///                                                         cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning
     ///   it will it will not start with 1)
     /// </param>
     /// <param name="includeEndLineNo">
     ///   if <c>true</c> add a column for the end line: <see
-    ///   cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line based reader like
+    ///                                                   cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line based reader like
     ///   delimited text where a record can span multiple lines
     /// </param>
     /// <param name="includeErrorField">
     ///   if <c>true</c> add a column with error information: <see
-    ///   cref="ReaderConstants.cErrorField" />
+    ///                                                         cref="ReaderConstants.cErrorField" />
     /// </param>
     /// <param name="progress">
     ///   Used to pass on progress information with number of records and percentage
     /// </param>
     /// <param name="cancellationToken">Token to cancel the long running async method</param>
-    /// <returns></returns>
-    public static async Task<DataTable?> GetDataTableAsync(
-      this IFileReader reader,
+    /// <returns>A Data Table with all records from the reader</returns>
+    /// <remarks>In case the reader was not opened before it will be opened automatically</remarks>
+    public static async Task<DataTable> GetDataTableAsync(this IFileReader reader,
+      TimeSpan maxDuration,
       bool restoreErrorsFromColumn,
       bool addStartLine,
       bool includeRecordNo,
@@ -80,6 +82,7 @@ namespace CsvTools
 
       if (reader.IsClosed)
         await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
+
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
       await
 #endif
@@ -90,7 +93,7 @@ namespace CsvTools
         includeEndLineNo,
         includeRecordNo);
 
-      return await LoadDataTable(wrapper, TimeSpan.FromMinutes(60), restoreErrorsFromColumn, progress, cancellationToken)
+      return await GetDataTableAsync(wrapper, maxDuration, restoreErrorsFromColumn, progress, cancellationToken)
         .ConfigureAwait(false);
     }
 
@@ -119,15 +122,19 @@ namespace CsvTools
       return emptyColumns;
     }
 
-    public static async Task<DataTable> LoadDataTable(
+    public static async Task<DataTable> GetDataTableAsync(
       this DataReaderWrapper wrapper,
       TimeSpan maxDuration,
       bool restoreErrorsFromColumn,
       IProcessDisplay? processDisplay,
       CancellationToken cancellationToken)
     {
-      var dataTable = GetEmptyDataTable(wrapper);
-      if (wrapper.EndOfFile) return dataTable;
+      var dataTable = new DataTable { Locale = CultureInfo.CurrentCulture, CaseSensitive = false };
+      for (var colIndex = 0; colIndex < wrapper.FieldCount; colIndex++)
+        dataTable.Columns.Add(new DataColumn(wrapper.GetName(colIndex), wrapper.GetFieldType(colIndex)));
+
+      if (wrapper.EndOfFile)
+        return dataTable;
 
       var intervalAction = IntervalAction.ForProcessDisplay(processDisplay);
       try
@@ -157,8 +164,6 @@ namespace CsvTools
           intervalAction?.Invoke(processDisplay!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent, false);
 
           // This gets the errors from the fileReader
-          if (cancellationToken.IsCancellationRequested)
-            break;
           if (wrapper.ReaderMapping.HasErrors)
             wrapper.ReaderMapping.SetDataRowErrors(dataRow);
         }
@@ -167,17 +172,6 @@ namespace CsvTools
       {
         intervalAction?.Invoke(processDisplay!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent, false);
       }
-
-      return dataTable;
-    }
-
-    public static DataTable GetEmptyDataTable(this IDataRecord reader)
-    {
-      // Special handling for DataTableWrapper, no need to build something
-      var dataTable = new DataTable { Locale = CultureInfo.CurrentCulture, CaseSensitive = false };
-
-      for (var colIndex = 0; colIndex < reader.FieldCount; colIndex++)
-        dataTable.Columns.Add(new DataColumn(reader.GetName(colIndex), reader.GetFieldType(colIndex)));
       return dataTable;
     }
   }

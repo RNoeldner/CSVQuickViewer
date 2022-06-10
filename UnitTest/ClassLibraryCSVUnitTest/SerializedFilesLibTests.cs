@@ -44,12 +44,6 @@ namespace CsvTools.Tests
       FileSystemUtils.FileDelete(m_FileName + ".bak");
     }
 
-    [TestMethod]
-    public void LoadCsvFileTestBackwardsCompatible()
-    {
-      var test = SerializedFilesLib.LoadCsvFile(UnitTestStatic.GetTestPath("Read.setting"));
-      Assert.AreEqual("##", test.CommentLine);
-    }
 
     [TestMethod]
     public void SaveAndLoadCsvFileTest()
