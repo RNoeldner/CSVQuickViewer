@@ -67,6 +67,8 @@
 		<Compile Include="..\ClassLibraryCSV\CsvHelper.cs" Link="CsvHelper.cs" />
 		<Compile Include="..\ClassLibraryCSV\IProcessDisplay.cs" Link="IProcessDisplay.cs" />
 		<Compile Include="..\ClassLibraryCSV\IProcessDisplayTime.cs" Link="IProcessDisplayTime.cs" />
+		<Compile Include="..\ClassLibraryCSV\CustomProcessDisplay.cs" Link="CustomProcessDisplay.cs" />
+		<Compile Include="..\ClassLibraryCSV\ProcessDisplayTime.cs" Link="ProcessDisplayTime.cs" />
 		
 		
 		<Compile Include="..\ClassLibraryCSV\ReAlignColumns.cs" Link="ReAlignColumns.cs" />
