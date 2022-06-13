@@ -1,28 +1,32 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Maui.MainPage">
-			 
+             x:Class="Maui.MainPage"
+             xmlns:maui="clr-namespace:Maui"
+             >
+    <ContentPage.BindingContext>
+        <maui:MainPageViewModel x:Name="ViewModel" />
+    </ContentPage.BindingContext>
     <ScrollView>
         <VerticalStackLayout 
             Spacing="25" 
             Padding="30,0" 
             VerticalOptions="Center">
 
-            <Image
-                Source="dotnet_bot.png"
-                SemanticProperties.Description="CSV Quick Viewer"
-                HeightRequest="200"
+            <Button 
+                Text="CSV Quick Viewer"
+                FontSize="48"
                 HorizontalOptions="Center" />
                 
 
             <Button 
                 x:Name="OpenFile"
-                Text="Open File"
+                Text="{Binding SelectedFile}"
                 SemanticProperties.Hint="Open file for display"
-                Clicked="OpenFile_ClickedAsync"                  
+                Command="{Binding ConnectCommand}"
                 HorizontalOptions="Center" />
-
+            <ActivityIndicator IsRunning="{Binding IsBusy}"/>
+            <Label Text="{Binding ProgressInfo}" IsVisible="{Binding IsBusy}" HorizontalOptions="Center" ></Label>
         </VerticalStackLayout>
     </ScrollView>
  

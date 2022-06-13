@@ -59,4 +59,26 @@
 	  <ProjectReference Include="..\..\Library\ClassLibraryCSV.Quick\CsvTools.ClassLibraryCSV.Quick.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Compile Update="DataGrid.xaml.cs">
+	    <DependentUpon>DataGrid.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Settings.xaml.cs">
+	    <DependentUpon>Settings.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="DataGrid.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Settings.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="View\" />
+	</ItemGroup>
+
 </Project>
