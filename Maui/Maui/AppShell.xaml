@@ -4,18 +4,15 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Maui"
-    FlyoutBehavior="Flyout">
+    FlyoutBehavior="Disabled">
 
     <ShellContent
         Title="Select File"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        ContentTemplate="{DataTemplate local:MainPage}"/>
     <ShellContent
         Title="Data"
-        ContentTemplate="{DataTemplate local:DataGrid}"
-        Route="DataGrid" />
+        ContentTemplate="{DataTemplate local:DataGrid}"/>
     <ShellContent
         Title="Settings"
-        ContentTemplate="{DataTemplate local:Settings}"
-        Route="Settings" />
+        ContentTemplate="{DataTemplate local:Settings}"/>
 </Shell>

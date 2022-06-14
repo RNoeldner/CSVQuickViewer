@@ -27,14 +27,14 @@ namespace CsvTools.Tests
         m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
         m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
         process);
-      var test = new PagedFileReader(reader, pageSize, UnitTestStatic.Token);
-      await test.OpenAsync(true, true, true, true);
+      var test = new PagedFileReader(reader, pageSize);
+      await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);
 
-      await test.MoveToLastPageAsync();
+      await test.MoveToLastPageAsync(UnitTestStatic.Token);
       Assert.AreEqual((numRec / pageSize) + 1, test.PageIndex);
       Assert.AreEqual(numRec % pageSize, test.Count);
 
-      await test.MoveToFirstPageAsync();
+      await test.MoveToFirstPageAsync(UnitTestStatic.Token);
       Assert.AreEqual(pageSize, test.Count);
     }
 
@@ -55,13 +55,13 @@ namespace CsvTools.Tests
         m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
         m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
         process);
-      var test = new PagedFileReader(reader, pageSize, UnitTestStatic.Token);
-      await test.OpenAsync(true, true, true, true);
+      var test = new PagedFileReader(reader, pageSize);
+      await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);
       Assert.AreEqual(pageSize, test.Count);
 
       var collectionChangedCalled = false;
       test.CollectionChanged += (o, s) => { collectionChangedCalled = true; };
-      await test.MoveToNextPageAsync();
+      await test.MoveToNextPageAsync(UnitTestStatic.Token);
       Assert.IsTrue(collectionChangedCalled);
       Assert.AreEqual(pageSize, test.Count);
     }
@@ -83,13 +83,13 @@ namespace CsvTools.Tests
         m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
         m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
         process);
-      var test = new PagedFileReader(reader, pageSize, UnitTestStatic.Token);
-      await test.OpenAsync(true, true, true, true);
+      var test = new PagedFileReader(reader, pageSize);
+      await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);
       Assert.AreEqual(pageSize, test.Count);
 
-      await test.MoveToNextPageAsync();
+      await test.MoveToNextPageAsync(UnitTestStatic.Token);
       Assert.AreEqual(pageSize, test.Count);
-      await test.MoveToPreviousPageAsync();
+      await test.MoveToPreviousPageAsync(UnitTestStatic.Token);
       Assert.AreEqual(pageSize, test.Count);
     }
 
@@ -108,8 +108,8 @@ namespace CsvTools.Tests
         m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
         m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
         process);
-      var test = new PagedFileReader(reader, 20, UnitTestStatic.Token);
-      await test.OpenAsync(true, true, true, true);
+      var test = new PagedFileReader(reader, 20);
+      await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);
       Assert.AreEqual(20, test.Count);
 
       // get the value in row 1 for the property TZ
