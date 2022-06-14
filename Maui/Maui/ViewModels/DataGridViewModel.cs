@@ -8,7 +8,12 @@ namespace Maui
   public class DataGridViewModel : BaseViewModel, IQueryAttributable
   {
     private string m_FileName = string.Empty;
-    [CanBeNull] private DelimitedFileDetectionResult detectionResult = null;
+    [CanBeNull] private DelimitedFileDetectionResult m_DetectionResult = null;
+    [CanBeNull] private PagedFileReader m_FileReader;
+
+    public IList<DynamicDataRecord> Items => m_FileReader!;
+    public DelimitedFileDetectionResult Detection => m_DetectionResult;
+
     public string FileName
     {
       get => m_FileName;
@@ -17,7 +22,7 @@ namespace Maui
 
     public async Task OpenAsync()
     {
-      if (this.detectionResult is null)
+      if (m_DetectionResult is null)
       {
         var cpv = new CustomProcessDisplay();
         cpv.Progress += (o, p) =>
@@ -25,26 +30,26 @@ namespace Maui
           var toast = Toast.Make(p.Text, ToastDuration.Short, 14);
           toast.Show(CancellationTokenSource.Token);
         };
-        detectionResult = await FileName.GetDetectionResultFromFile(cpv, false, true, true, true, true, true, false,
+        m_DetectionResult = await FileName.GetDetectionResultFromFile(cpv, false, true, true, true, true, true, false,
           true, CancellationTokenSource.Token);
       }
+      m_FileReader = new PagedFileReader(CsvHelper.GetReaderFromDetectionResult(FileName, m_DetectionResult, null), 20);
+      await m_FileReader.OpenAsync(false, false, false, false, CancellationTokenSource.Token);
 
-      var m_Reader = CsvHelper.GetReaderFromDetectionResult(FileName, detectionResult, null);
-      await m_Reader.OpenAsync(CancellationTokenSource.Token);
     }
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-      if (!query.ContainsKey("FileName")) 
+      if (!query.ContainsKey("FileName"))
         return;
-      
+
       var fn = query["FileName"] as string;
-      if (string.IsNullOrEmpty(fn)) 
+      if (string.IsNullOrEmpty(fn))
         return;
-      
+
       FileName = fn;
       if (query.ContainsKey("DetectionResult"))
-        detectionResult = query["DetectionResult"] as DelimitedFileDetectionResult;
+        m_DetectionResult = (DelimitedFileDetectionResult) query["DetectionResult"];
     }
   }
 }

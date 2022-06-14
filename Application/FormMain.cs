@@ -155,11 +155,12 @@ namespace CsvTools
           {
             formProcessDisplay.Maximum = 0;
             formProcessDisplay.Show(this);
+            formProcessDisplay.SetProcess("Determine file format",0, false);
             m_FileSetting = (await fileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
                                m_ViewSettings.GuessCodePage,
                                m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
                                m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-                               m_ViewSettings.FillGuessSettings, formProcessDisplay, formProcessDisplay.CancellationToken)).PhysicalFile();
+                               m_ViewSettings.FillGuessSettings, formProcessDisplay.CancellationToken)).PhysicalFile();
           }
 
           if (m_FileSetting is null)

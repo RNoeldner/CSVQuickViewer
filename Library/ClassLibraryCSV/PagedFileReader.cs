@@ -17,37 +17,83 @@ namespace CsvTools
     private readonly IFileReader m_FileReader;
     private readonly List<ICollection<DynamicDataRecord>> m_PagedDataCache;
     private readonly int m_PageSize;
-    private readonly CancellationToken m_Token;
     private DataReaderWrapper? m_DataReaderWrapper;
 
-    public PagedFileReader(in IFileReader fileReader, int pageSize, CancellationToken token)
+    public PagedFileReader(in IFileReader fileReader, int pageSize)
     {
       m_FileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
-      m_Token = token;
       m_PageSize = pageSize;
       m_PagedDataCache = new List<ICollection<DynamicDataRecord>>();
     }
 
     /// <summary>
-    ///   First page has number 1
+    /// Occurs when the collection changes.
     /// </summary>
-    public int PageIndex { get; set; }
-
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
+    /// <summary>
+    ///   First page has number 1
+    /// </summary>
+    public int PageIndex { get; private set; }
+
+    /// <summary>
+    /// Closes this instance.
+    /// </summary>
     public void Close()
     {
       m_PagedDataCache.Clear();
       m_DataReaderWrapper?.Close();
     }
 
-    public async Task MoveToFirstPageAsync() => await MoveToPageAsync(1).ConfigureAwait(false);
+    /// <summary>
+    /// Moves to first page asynchronous.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    public async Task MoveToFirstPageAsync(CancellationToken cancellationToken) => await MoveToPageAsync(1, cancellationToken).ConfigureAwait(false);
 
-    public async Task MoveToLastPageAsync() => await MoveToPageAsync(int.MaxValue).ConfigureAwait(false);
+    /// <summary>
+    /// Moves to last page asynchronous.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    public async Task MoveToLastPageAsync(CancellationToken cancellationToken) => await MoveToPageAsync(int.MaxValue, cancellationToken).ConfigureAwait(false);
 
-    public async Task MoveToNextPageAsync() => await MoveToPageAsync(PageIndex + 1).ConfigureAwait(false);
+    /// <summary>
+    /// Moves to next page asynchronous.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    public async Task MoveToNextPageAsync(CancellationToken cancellationToken) => await MoveToPageAsync(PageIndex + 1, cancellationToken).ConfigureAwait(false);
 
-    public async Task MoveToPageAsync(int pageIndex)
+    /// <summary>
+    /// Moves to previous page asynchronous.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    public async Task MoveToPreviousPageAsync(CancellationToken cancellationToken) => await MoveToPageAsync(PageIndex - 1, cancellationToken).ConfigureAwait(false);
+
+    /// <summary>
+    /// Opens the file reader and reads the first page
+    /// </summary>
+    /// <param name="addErrorField">Add artificial field Error</param>
+    /// <param name="addStartLine">Add artificial field Start Line</param>
+    /// <param name="addEndLine">Add artificial field End Line</param>
+    /// <param name="addRecNum">Add artificial field Records Number</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    public async Task OpenAsync(
+      bool addErrorField, bool addStartLine,
+      bool addEndLine, bool addRecNum, 
+      CancellationToken cancellationToken)
+    {
+      await m_FileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
+      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, addErrorField, addStartLine, addEndLine, addRecNum);
+      await MoveToPageAsync(1, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Moves to page asynchronous.
+    /// </summary>
+    /// <param name="pageIndex">Index of the page.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <exception cref="CsvTools.FileReaderOpenException"></exception>
+    private async Task MoveToPageAsync(int pageIndex, CancellationToken cancellationToken )
     {
       if (m_DataReaderWrapper is null)
         throw new FileReaderOpenException();
@@ -56,8 +102,8 @@ namespace CsvTools
 
       var curPage = 1;
       if (m_PagedDataCache.Count < pageIndex)
-        while (!m_Token.IsCancellationRequested && m_DataReaderWrapper.RecordNumber < (long) pageIndex * m_PageSize
-                                                && await m_DataReaderWrapper.ReadAsync(m_Token).ConfigureAwait(false))
+        while (!cancellationToken.IsCancellationRequested && m_DataReaderWrapper.RecordNumber < (long) pageIndex * m_PageSize
+                                                && await m_DataReaderWrapper.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
           curPage = (int) ((m_DataReaderWrapper.RecordNumber - 1) / m_PageSize) + 1;
 
@@ -75,26 +121,6 @@ namespace CsvTools
       foreach (var item in m_PagedDataCache[curPage - 1])
         Add(item);
       CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-    }
-
-    public async Task MoveToPreviousPageAsync() => await MoveToPageAsync(PageIndex - 1).ConfigureAwait(false);
-
-    /// <summary>
-    ///   Opens the file reader and reads the first page
-    /// </summary>
-    /// <param name="addErrorField">Add artificial field Error</param>
-    /// <param name="addStartLine">Add artificial field Start Line</param>
-    /// <param name="addEndLine">Add artificial field End Line</param>
-    /// <param name="addRecNum">Add artificial field Records Number</param>
-    public async Task OpenAsync(
-      bool addErrorField = false,
-      bool addStartLine = false,
-      bool addEndLine = false,
-      bool addRecNum = false)
-    {
-      await m_FileReader.OpenAsync(m_Token).ConfigureAwait(false);
-      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, addErrorField, addStartLine, addEndLine, addRecNum);
-      await MoveToPageAsync(1).ConfigureAwait(false);
     }
   }
 }

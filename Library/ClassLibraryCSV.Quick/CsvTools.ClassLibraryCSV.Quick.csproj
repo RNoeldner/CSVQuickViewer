@@ -69,7 +69,11 @@
 		<Compile Include="..\ClassLibraryCSV\IProcessDisplayTime.cs" Link="IProcessDisplayTime.cs" />
 		<Compile Include="..\ClassLibraryCSV\CustomProcessDisplay.cs" Link="CustomProcessDisplay.cs" />
 		<Compile Include="..\ClassLibraryCSV\ProcessDisplayTime.cs" Link="ProcessDisplayTime.cs" />
-		
+		<Compile Include="..\ClassLibraryCSV\PagedFileReader.cs" Link="PagedFileReader.cs" />
+		<Compile Include="..\ClassLibraryCSV\DynamicDataRecord.cs" Link="DynamicDataRecord.cs" />
+		<Compile Include="..\ClassLibraryCSV\FileReader\DataReaderWrapper.cs" Link="FileReader\DataReaderWrapper.cs" />
+		<Compile Include="..\ClassLibraryCSV\ReaderMapping.cs" Link="ReaderMapping.cs" />
+
 		
 		<Compile Include="..\ClassLibraryCSV\ReAlignColumns.cs" Link="ReAlignColumns.cs" />
 		<Compile Include="..\ClassLibraryCSV\TimeToCompletion.cs" Link="TimeToCompletion.cs" />
