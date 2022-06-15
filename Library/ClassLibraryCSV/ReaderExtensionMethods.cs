@@ -38,28 +38,31 @@ namespace CsvTools
     ///   Any type of <see cref="IFileReader" />, if the source is a DataTableWrapper though the
     ///   original passed in data table is returned, no artificial columns are added
     /// </param>
-    /// <param name="maxDuration"></param>
+    /// <param name="maxDuration">
+    ///   Timeout duration for reading data, if the reader is slow or it has many rows make sure the
+    ///   timespan is big enough, otherwise teh result is cut off
+    /// </param>
     /// <param name="restoreErrorsFromColumn">
     ///   if the source is a persisted table, restore the error information
     /// </param>
     /// <param name="addStartLine">
     ///   if <c>true</c> add a column for the start line: <see
-    ///                                                     cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line based reader like
+    ///   cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line based reader like
     ///   delimited text
     /// </param>
     /// <param name="includeRecordNo">
     ///   if <c>true</c> add a column for the records number: <see
-    ///                                                         cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning
+    ///   cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning
     ///   it will it will not start with 1)
     /// </param>
     /// <param name="includeEndLineNo">
     ///   if <c>true</c> add a column for the end line: <see
-    ///                                                   cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line based reader like
+    ///   cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line based reader like
     ///   delimited text where a record can span multiple lines
     /// </param>
     /// <param name="includeErrorField">
     ///   if <c>true</c> add a column with error information: <see
-    ///                                                         cref="ReaderConstants.cErrorField" />
+    ///   cref="ReaderConstants.cErrorField" />
     /// </param>
     /// <param name="progress">
     ///   Used to pass on progress information with number of records and percentage

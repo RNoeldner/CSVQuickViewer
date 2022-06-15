@@ -332,7 +332,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    /// <exception cref="T:System.NotImplementedException">Always returns</exception>    
+    /// <exception cref="T:System.NotImplementedException">Always returns</exception>
     public new long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
     {
       if (GetColumn(i).ValueFormat.DataType != DataTypeEnum.Binary ||
@@ -439,7 +439,7 @@ namespace CsvTools
         if (m_TryToSolveMoreColumns && m_FieldDelimiterChar != '\0')
           m_RealignColumns = new ReAlignColumns(FieldCount);
 
-        if (m_Stream.CanSeek)
+        if (m_TextReader.CanSeek)
           ResetPositionToFirstDataRow();
 
         FinishOpen();
@@ -805,11 +805,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Determine the number of columns in the file
+    ///   Determine the number of columns in the file
     /// </summary>
     /// <param name="headerRow">The initial header</param>
     /// <returns>Number of columns</returns>
-    /// <remarks>If seek is supported, it will parse a few extra rows to check if teh header and the following rows do result in teh same number of columns</remarks>
+    /// <remarks>
+    ///   If seek is supported, it will parse a few extra rows to check if teh header and the
+    ///   following rows do result in teh same number of columns
+    /// </remarks>
     private int ParseFieldCount(IReadOnlyList<string> headerRow)
     {
       if (headerRow.Count == 0 || string.IsNullOrEmpty(headerRow[0]))
@@ -822,7 +825,7 @@ namespace CsvTools
         return fields;
 
       // check if the next lines do have data in the last column
-      for (var additional = 0; (m_Stream?.CanSeek ?? false) && !EndOfFile && additional < 10; additional++)
+      for (var additional = 0; (m_TextReader?.CanSeek ?? false) && !EndOfFile && additional < 10; additional++)
       {
         var nextLine = ReadNextRow(false);
 
@@ -1197,6 +1200,7 @@ namespace CsvTools
     }
 
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+
     public new async ValueTask DisposeAsync()
     {
       await DisposeAsyncCore();
