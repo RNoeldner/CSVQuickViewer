@@ -30,10 +30,10 @@ namespace Maui
           var toast = Toast.Make(p.Text, ToastDuration.Short, 14);
           toast.Show(CancellationTokenSource.Token);
         };
-        m_DetectionResult = await FileName.GetDetectionResultFromFile(cpv, false, true, true, true, true, true, false,
+        m_DetectionResult = await FileName.GetDetectionResultFromFile(false, true, true, true, true, true, false,
           true, CancellationTokenSource.Token);
       }
-      m_FileReader = new PagedFileReader(CsvHelper.GetReaderFromDetectionResult(FileName, m_DetectionResult, null), 20);
+      m_FileReader = new PagedFileReader(CsvHelper.GetReaderFromDetectionResult(FileName, m_DetectionResult), 20);
       await m_FileReader.OpenAsync(false, false, false, false, CancellationTokenSource.Token);
 
     }
