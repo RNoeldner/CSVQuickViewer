@@ -125,5 +125,34 @@ namespace CsvTools
 
     /// <inheritdoc />
     public bool Overwrite { get; }
+
+    public override bool Equals(object? obj)  => ValueFormatExtension.ValueFormatEqual(this, obj as IValueFormat);
+    
+    public override int GetHashCode()
+    {
+      unchecked
+      {
+        var hashCode = (int)DataType;
+        hashCode = (hashCode * 397) ^ DateFormat.GetHashCode();
+        hashCode = (hashCode * 397) ^ DateSeparator.GetHashCode();
+        hashCode = (hashCode * 397) ^ DecimalSeparator.GetHashCode();
+        hashCode = (hashCode * 397) ^ DisplayNullAs.GetHashCode();
+        hashCode = (hashCode * 397) ^ False.GetHashCode();
+        hashCode = (hashCode * 397) ^ GroupSeparator.GetHashCode();
+        hashCode = (hashCode * 397) ^ NumberFormat.GetHashCode();
+        hashCode = (hashCode * 397) ^ Part;
+        hashCode = (hashCode * 397) ^ PartSplitter.GetHashCode();
+        hashCode = (hashCode * 397) ^ PartToEnd.GetHashCode();
+        hashCode = (hashCode * 397) ^ TimeSeparator.GetHashCode();
+        hashCode = (hashCode * 397) ^ True.GetHashCode();
+        hashCode = (hashCode * 397) ^ RegexSearchPattern.GetHashCode();
+        hashCode = (hashCode * 397) ^ RegexReplacement.GetHashCode();
+        hashCode = (hashCode * 397) ^ ReadFolder.GetHashCode();
+        hashCode = (hashCode * 397) ^ WriteFolder.GetHashCode();
+        hashCode = (hashCode * 397) ^ FileOutPutPlaceholder.GetHashCode();
+        hashCode = (hashCode * 397) ^ Overwrite.GetHashCode();
+        return hashCode;
+      }
+    }
   }
 }

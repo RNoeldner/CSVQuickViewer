@@ -52,11 +52,11 @@ namespace Maui
           PickerTitle="Delimited Text Files",
           FileTypes=  new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
           {
-            { DevicePlatform.iOS, new[] { "public.my.comic.extension" } },
-            { DevicePlatform.Android, new[] { "text/csv", "text/plain" } },
-            { DevicePlatform.WinUI, new[] { "csv", "tab" , "txt"} },
+            { DevicePlatform.iOS, new[] { "public.text",  "UTType.Text"  } },
+            { DevicePlatform.Android, new[] { "text/csv", "text/plain", "application/x-gzip" } },
+            { DevicePlatform.WinUI, new[] { "csv", "tab" , "txt", "gz"} },
             { DevicePlatform.Tizen, new[] { "*/*" } },
-            { DevicePlatform.macOS, new[] { "csv", "tab" , "txt"} } })
+            { DevicePlatform.macOS, new[] { "csv", "tab" , "txt", "gz"} } })
         };
         var result = await FilePicker.Default.PickAsync(options);
 
@@ -77,7 +77,7 @@ namespace Maui
                 toast.Show(CancellationTokenSource.Token);
               */
             };
-            DetectionResult = await result.FullPath.GetDetectionResultFromFile(cpv, false, true, true, true, true, true, false, true, CancellationTokenSource.Token);
+            DetectionResult = await result.FullPath.GetDetectionResultFromFile(false, true, true, true, true, true, false, true, CancellationTokenSource.Token);
 
             await Shell.Current.GoToAsync("showfile?FileName=" + result.FullPath, new Dictionary<string, object> { { "DetectionResult", DetectionResult } });
           }

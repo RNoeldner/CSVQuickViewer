@@ -3,48 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Maui.DataGrid"
              xmlns:maui="clr-namespace:Maui"
+             xmlns:dxg="clr-namespace:DevExpress.Maui.DataGrid;assembly=DevExpress.Maui.DataGrid"
              Title="Data Grid">
-
     <StackLayout >
-        <StackLayout Orientation="Horizontal">
-            <Label Text="Field Header"/>
-            <Label Text="{Binding Result.HasFieldHeader}" />
-        </StackLayout>
-        <StackLayout Orientation="Horizontal">
-            <Label Text="Skip Rows"/>
-            <Label Text="{Binding Result.SkipRows}" />
-        </StackLayout>
-        <StackLayout Orientation="Horizontal">
-            <Label Text="Delimiter"/>
-            <Label Text="{Binding Result.FieldDelimiter}" />
-        </StackLayout>
-        <StackLayout Orientation="Horizontal">
-            <Label Text="Quote"/>
-            <Label Text="{Binding Result.FieldQualifier}" />
-        </StackLayout>
-        <StackLayout Orientation="Horizontal">
-            <Label Text="Comment"/>
-            <Label Text="{Binding Result.CommentLine}" />
-        </StackLayout>
-        <StackLayout Orientation="Horizontal">
-            <Label Text="BOM"/>
-            <Label Text="{Binding Result.ByteOrderMark}" />
-        </StackLayout>
-        <StackLayout Orientation="Horizontal">
-            <Label Text="Code Page"/>
-            <Label Text="{Binding Result.CodePageId}" />
-        </StackLayout>
-        <ListView  ItemsSource="{Binding Items}" Header="{Binding FileName}" SeparatorColor="Blue">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <ViewCell>
-                        <Grid Padding="2">
-
-                        </Grid>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <dxg:DataGridView ItemsSource="{Binding Items}">
+        </dxg:DataGridView>
     </StackLayout>
-
 </ContentPage>

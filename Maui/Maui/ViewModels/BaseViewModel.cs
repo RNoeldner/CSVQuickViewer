@@ -60,7 +60,7 @@ namespace Maui
       return true;
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    [CanBeNull] public event PropertyChangedEventHandler PropertyChanged;
 
     [NotifyPropertyChangedInvocator]
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
