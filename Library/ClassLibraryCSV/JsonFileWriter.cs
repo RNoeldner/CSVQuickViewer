@@ -23,6 +23,8 @@ namespace CsvTools
   /// </summary>
   public class JsonFileWriter : StructuredFileWriter
   {
+    private readonly bool m_EmptyAsNull;
+
     /// <inheritdoc />
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.JsonFileWriter" /> class.
@@ -34,14 +36,14 @@ namespace CsvTools
       in string? identifierInContainer,
       in string? footer,
       in string? header,
+      bool emptyAsNull,
       int codePageId,
       bool byteOrderMark,
       in IEnumerable<IColumn>? columnDefinition,
       in string fileSettingDisplay,
       in string row,
       in TimeZoneChangeDelegate? timeZoneAdjust,
-      in string sourceTimeZone,
-      in IProcessDisplay? processDisplay = null)
+      in string sourceTimeZone, in IProcessDisplay? processDisplay = null)
       : base(
         id,
         fullPath,
@@ -55,17 +57,23 @@ namespace CsvTools
         columnDefinition,
         fileSettingDisplay,
         row,
-        timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone, 
+        timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone,
         sourceTimeZone,
         processDisplay)
     {
+      m_EmptyAsNull = emptyAsNull;
     }
 
     protected override string RecordDelimiter() => ",";
 
     protected override string ElementName(string input) => HtmlStyle.JsonElementName(input);
 
-    protected override string Escape(object input, in WriterColumn columnInfo, in IFileReader reader) =>
-      JsonConvert.ToString(input);
+    protected override string Escape(object input, in WriterColumn columnInfo, in IFileReader reader)
+    {
+      if (m_EmptyAsNull && (input is null || input == System.DBNull.Value || (input is string strInput &&  string.IsNullOrEmpty(strInput))))
+        return JsonConvert.Null;
+
+      return JsonConvert.ToString(input);
+    }
   }
 }

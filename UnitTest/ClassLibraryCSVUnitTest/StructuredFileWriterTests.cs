@@ -45,7 +45,6 @@ namespace CsvTools.Tests
       var sb = new StringBuilder("{");
       var processDisplay = new CustomProcessDisplay();
 
-      
       var cols = await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout,
         UnitTestStatic.Token);
       fileSetting.Header = "{\"rowset\":[\n";
@@ -69,12 +68,13 @@ namespace CsvTools.Tests
         fileSetting.IdentifierInContainer,
         fileSetting.Footer,
         fileSetting.Header,
+        fileSetting.EmptyAsNull,
         fileSetting.CodePageId,
         fileSetting.ByteOrderMark,
         fileSetting.ColumnCollection,
         "Test",
         fileSetting.Row,
-        StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id,
+StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id,
         processDisplay);
 
       var result = await writer.WriteAsync(
@@ -91,7 +91,7 @@ namespace CsvTools.Tests
       var fileSetting = new XmlFile { ID = "Write", FileName = "StructuredFileOutputXML.txt", SqlStatement = cReadID, InOverview = true };
       var sb = new StringBuilder();
       var processDisplay = new CustomProcessDisplay();
-      var cols =  await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout, UnitTestStatic.Token);
+      var cols = await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout, UnitTestStatic.Token);
 
       sb.AppendLine("<?xml version=\"1.0\"?>\n");
       sb.AppendLine("<rowset>");

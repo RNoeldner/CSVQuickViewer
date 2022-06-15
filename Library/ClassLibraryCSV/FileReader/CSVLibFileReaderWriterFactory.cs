@@ -12,7 +12,6 @@
  *
  */
 
-
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -78,7 +77,6 @@ namespace CsvTools
         _ => throw new FileReaderException($"Reader for {setting} not found")
       };
 
-
     /// <inheritdoc />
     public IFileWriter GetFileWriter(IFileSetting fileSetting, in IProcessDisplay? processDisplay,
       in CancellationToken cancellationToken)
@@ -124,12 +122,13 @@ namespace CsvTools
             jsonFile.IdentifierInContainer,
             jsonFile.Footer,
             jsonFile.Header,
+            jsonFile.EmptyAsNull,
             jsonFile.CodePageId,
             jsonFile.ByteOrderMark,
             jsonFile.ColumnCollection,
             Convert.ToString(jsonFile),
             jsonFile.Row,
-            m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
+m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
             processDisplay);
           break;
 

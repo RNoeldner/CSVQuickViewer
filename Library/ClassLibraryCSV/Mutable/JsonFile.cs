@@ -13,6 +13,8 @@
  */
 
 using System;
+using System.ComponentModel;
+using System.Xml.Serialization;
 
 namespace CsvTools
 {
@@ -23,6 +25,21 @@ namespace CsvTools
   [Serializable]
   public class JsonFile : StructuredFile, IJsonFile
   {
+    private bool m_EmptyAsNull;
+
+    [XmlElement]
+    [DefaultValue("")]
+    public bool EmptyAsNull
+    {
+      get => m_EmptyAsNull; set
+      {
+        if (m_EmptyAsNull.Equals(value))
+          return;
+        m_EmptyAsNull = value;
+        NotifyPropertyChanged(nameof(EmptyAsNull));
+      }
+    }
+
     /// <inheritdoc />
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.StructuredFile" /> class.
@@ -46,7 +63,16 @@ namespace CsvTools
       return other;
     }
 
+    public override void CopyTo(IFileSetting other)
+    {
+      base.CopyTo(other);
+      if (!(other is IJsonFile otherJson))
+        return;
+
+      otherJson.EmptyAsNull = EmptyAsNull;
+    }
+
     public override bool Equals(IFileSetting? other) =>
-      other is IJsonFile json && BaseSettingsEquals(json as StructuredFile);
+      other is IJsonFile json && BaseSettingsEquals(json as StructuredFile) && json.EmptyAsNull == EmptyAsNull;
   }
 }

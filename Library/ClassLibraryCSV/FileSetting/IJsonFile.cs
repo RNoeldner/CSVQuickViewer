@@ -16,6 +16,14 @@ namespace CsvTools
 {
   public interface IJsonFile : IFileSettingPhysicalFile
   {
+    /// <summary>
+    ///   Template for a single data row, with fixed text and placeholders for the values
+    /// </summary>
     string Row { get; set; }
+
+    /// <summary>
+    ///   If values is empty or null geenerate it as null instead of producing an empty string
+    /// </summary>
+    bool EmptyAsNull { get; set; }
   }
 }

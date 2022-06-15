@@ -40,9 +40,6 @@ namespace CsvTools
     /// </summary>
     [XmlElement]
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public string Row
     {
       get => m_Row;
@@ -62,8 +59,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="other">An object to compare with this object.</param>
     /// <returns>
-    ///   <see langword="true" /> if the current object is equal to the <paramref name="other"
-    ///   /> parameter; otherwise, <see langword="false" />.
+    ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
+    ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
     public bool BaseSettingsEquals(in StructuredFile? other)
     {
