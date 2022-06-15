@@ -39,10 +39,7 @@ namespace CsvTools
     ///   first few bytes of the source stream to look at a possible existing BOM if found, it will
     ///   overwrite the provided data
     /// </remarks>
-#pragma warning disable 8618
-
     public ImprovedTextReader(in Stream stream, int codePageId = 65001, int skipLines = 0)
-#pragma warning restore 8618
     {
       m_Stream = stream;
       m_SkipLines = skipLines;
@@ -92,7 +89,10 @@ namespace CsvTools
       }
 
       StreamReader = new StreamReader(m_Stream, Encoding.GetEncoding(codePageId), false, 4096, true);
-      ToBeginning();
+      if (m_Stream.CanSeek)
+        ToBeginning();
+      else
+        AdjustStartLine();
     }
 
     /// <summary>
@@ -188,7 +188,10 @@ namespace CsvTools
     /// </summary>
     public void ToBeginning()
     {
-      if (m_Stream.CanSeek && m_Stream.Position != m_BomLength)
+      if (!m_Stream.CanSeek)
+        throw new NotSupportedException("Stream does not allow seek, you can not return to the beginning");
+
+      if (m_Stream.Position != m_BomLength)
       {
         m_Stream.Seek(0, SeekOrigin.Begin);
         // eat the bom
@@ -198,8 +201,13 @@ namespace CsvTools
         StreamReader.DiscardBufferedData();
       }
 
+      AdjustStartLine();
+    }
+
+    private void AdjustStartLine()
+    {
       LineNumber = 1;
-      for (var i = 0; i < m_SkipLines && !StreamReader.EndOfStream; i++)
+      for (var i = 0; i<m_SkipLines && !StreamReader.EndOfStream; i++)
       {
         StreamReader.ReadLine();
         LineNumber++;
