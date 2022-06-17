@@ -468,6 +468,13 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
+    public override Task<bool> ReadAsync(CancellationToken cancellationToken) => Task.FromResult(Read(cancellationToken));
+
+    /// <inheritdoc />
+    public override bool Read(CancellationToken token) => !token.IsCancellationRequested && Read();
+
+    /// <inheritdoc />
     public override bool Read()
     {
       if (!EndOfFile)
@@ -485,13 +492,7 @@ namespace CsvTools
       return false;
     }
 
-    public override Task<bool> ReadAsync(CancellationToken cancellationToken) =>
-      Task.FromResult(Read(cancellationToken));
-
     /// <inheritdoc />
-    /// <summary>
-    ///   Resets the position and buffer to the header in case the file has a header
-    /// </summary>
     public new void ResetPositionToFirstDataRow()
     {
       ResetPositionToStartOrOpen();

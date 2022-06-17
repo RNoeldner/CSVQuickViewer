@@ -91,7 +91,9 @@ namespace CsvTools
     /// <param name="columnDefinition">List of column definitions</param>
     /// <param name="recordLimit">Number of records that should be read</param>
     /// <param name="timeZoneAdjust">Class to modify date time for timezones</param>
-    /// <param name="destTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
+    /// <param name="destTimeZone">
+    ///   Name of the time zone datetime values that have a source time zone should be converted to
+    /// </param>
     /// <param name="processDisplay">Reporting progress information</param>
     protected BaseFileReader(
       in string fileName,
@@ -112,10 +114,10 @@ namespace CsvTools
       SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
       FileName = FileSystemUtils.GetFileName(fileName);
 
-      if (processDisplay == null) 
+      if (processDisplay == null)
         return;
       ReportProgress = processDisplay;
-      if (!(processDisplay is IProcessDisplayTime processDisplayTime)) 
+      if (!(processDisplay is IProcessDisplayTime processDisplayTime))
         return;
       SetMaxProcess = (sender, l) => processDisplayTime.Maximum = l;
       SetMaxProcess(this, 0);
@@ -704,7 +706,8 @@ namespace CsvTools
 
     /// <inheritdoc />
     /// <summary>
-    ///   Gets the value of a column, any integer will be returned a long integer no matter if 32 or 64 bit
+    ///   Gets the value of a column, any integer will be returned a long integer no matter if 32 or
+    ///   64 bit
     /// </summary>
     /// <param name="ordinal">The column number.</param>
     /// <returns>The value of the specific field</returns>
@@ -811,14 +814,16 @@ namespace CsvTools
     ///   Routine to open the reader, each implementation should call BeforeOpenAsync, InitColumns,
     ///   ParseColumnName and last FinishOpen
     /// </summary>
-    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// ///
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public abstract Task OpenAsync(CancellationToken cancellationToken);
 
     /// <summary>
     ///   Overrides the column format from setting.
     /// </summary>
     /// <returns>true if read was successful</returns>
-    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// ///
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public virtual bool Read(CancellationToken cancellationToken) =>
       ReadAsync(cancellationToken).Wait(2000, cancellationToken);
 
