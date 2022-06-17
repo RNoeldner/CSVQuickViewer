@@ -12,6 +12,7 @@
  *
  */
 
+using System;
 using System.Collections.Generic;
 using System.Security;
 
@@ -52,8 +53,12 @@ namespace CsvTools
 
     protected override string ElementName(string input) => HtmlStyle.XmlElementName(input);
 
-    protected override string Escape(object input, in WriterColumn columnInfo, in IFileReader reader) =>
-      SecurityElement.Escape(TextEncodeField(input, columnInfo, reader)) ?? string.Empty;
+    protected override string Escape(object? input, in WriterColumn columnInfo, in IFileReader reader)
+    {
+      if (input is null || input == DBNull.Value)
+        return string.Empty;
+      return SecurityElement.Escape(TextEncodeField(input, columnInfo, reader));
+    }
 
     protected override string RecordDelimiter() => "";
   }

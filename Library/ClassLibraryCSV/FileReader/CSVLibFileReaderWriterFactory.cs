@@ -128,7 +128,7 @@ namespace CsvTools
             jsonFile.ColumnCollection,
             Convert.ToString(jsonFile),
             jsonFile.Row,
-m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
+            m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
             processDisplay);
           break;
 

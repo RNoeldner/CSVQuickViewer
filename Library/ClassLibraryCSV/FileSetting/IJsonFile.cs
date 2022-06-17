@@ -22,7 +22,7 @@ namespace CsvTools
     string Row { get; set; }
 
     /// <summary>
-    ///   If values is empty or null geenerate it as null instead of producing an empty string
+    ///   If values is empty or null generate it as null instead of producing an empty string
     /// </summary>
     bool EmptyAsNull { get; set; }
   }

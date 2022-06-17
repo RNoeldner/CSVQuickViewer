@@ -17,6 +17,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Application\CSVQuickViewer.csproj" />
+		<ProjectReference Include="..\..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 		<ProjectReference Include="..\UnitTestBasic\CsvTools.UnitTestBasic.csproj" />
 	</ItemGroup>
 	<ItemGroup>

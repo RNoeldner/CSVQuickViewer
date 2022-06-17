@@ -68,12 +68,12 @@ namespace CsvTools
 
     protected override string ElementName(string input) => HtmlStyle.JsonElementName(input);
 
-    protected override string Escape(object input, in WriterColumn columnInfo, in IFileReader reader)
+    protected override string Escape(object? input, in WriterColumn columnInfo, in IFileReader reader)
     {
-      if (m_EmptyAsNull && (input is null || input == System.DBNull.Value || (input is string strInput &&  string.IsNullOrEmpty(strInput))))
-        return JsonConvert.Null;
+      if (columnInfo.ValueFormat.DataType == DataTypeEnum.String &&  string.IsNullOrEmpty(input?.ToString()))
+        return m_EmptyAsNull ? JsonConvert.Null : "\"\"";
 
-      return JsonConvert.ToString(input);
+      return JsonConvert.ToString(TextEncodeField(input, columnInfo, reader));
     }
   }
 }

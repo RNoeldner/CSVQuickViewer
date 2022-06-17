@@ -1,10 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CsvTools;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
@@ -14,7 +8,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void ImmutableColumnTest()
     {
-      var ic = new ImmutableColumn("Name", new ImmutableValueFormat(DataTypeEnum.Integer), 0,false, "",true, "", "","");
+      var ic = new ImmutableColumn("Name", new ImmutableValueFormat(DataTypeEnum.Integer), 0,false, "",true);
       Assert.AreEqual("Name", ic.Name);
       Assert.AreEqual(DataTypeEnum.Integer, ic.ValueFormat.DataType);
     }
@@ -22,7 +16,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void ImmutableColumnTest1()
     {
-      var ic = new ImmutableColumn("Name", new ImmutableValueFormat(DataTypeEnum.Integer), 0,false, "",true, "", "","");
+      var ic = new ImmutableColumn("Name", new ImmutableValueFormat(DataTypeEnum.Integer), 0,false, "",true);
       var ic2 = new ImmutableColumn(ic);
       Assert.AreEqual("Name", ic2.Name);
       Assert.AreEqual(DataTypeEnum.Integer, ic2.ValueFormat.DataType);

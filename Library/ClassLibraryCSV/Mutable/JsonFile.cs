@@ -25,10 +25,10 @@ namespace CsvTools
   [Serializable]
   public class JsonFile : StructuredFile, IJsonFile
   {
-    private bool m_EmptyAsNull;
+    private bool m_EmptyAsNull = true;
 
     [XmlElement]
-    [DefaultValue("")]
+    [DefaultValue(true)]
     public bool EmptyAsNull
     {
       get => m_EmptyAsNull; set

@@ -106,7 +106,7 @@ namespace CsvTools
       try
       {
         ResetPositionToStartOrOpen();
-        var line = GetNextRecord(token);
+        var line = await GetNextRecordAsync(token).ConfigureAwait(false);
 
         // get column names for some time
         var colNames = new Dictionary<string, DataTypeEnum>();
@@ -120,7 +120,7 @@ namespace CsvTools
 
           if (stopwatch.ElapsedMilliseconds > 200)
             break;
-          line = GetNextRecord(token);
+          line = await GetNextRecordAsync(token).ConfigureAwait(false);
         }
 
         InitColumn(colNames.Count);
@@ -148,9 +148,6 @@ namespace CsvTools
       }
     }
 
-    public override Task<bool> ReadAsync(CancellationToken cancellationToken) =>
-      Task.FromResult(Read(cancellationToken));
-
     public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();
 
     protected override void Dispose(bool disposing)
@@ -163,11 +160,11 @@ namespace CsvTools
       m_ImprovedStream = null;
     }
 
-    public override bool Read(CancellationToken token)
+    public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
     {
-      if (!EndOfFile && !token.IsCancellationRequested)
+      if (!EndOfFile && !cancellationToken.IsCancellationRequested)
       {
-        var couldRead = GetNextRecord(token) != null;
+        var couldRead = (await GetNextRecordAsync(cancellationToken).ConfigureAwait(false)).Count>0;
         if (couldRead) RecordNumber++;
         InfoDisplay(couldRead);
 
@@ -201,7 +198,7 @@ namespace CsvTools
     ///   the structure of the Json file
     /// </summary>
     /// <returns>A collection with name and value of the properties</returns>
-    private ICollection<KeyValuePair<string, object?>>? GetNextRecord(CancellationToken token)
+    private async Task<ICollection<KeyValuePair<string, object?>>> GetNextRecordAsync(CancellationToken token)
     {
       if (m_JsonTextReader is null)
         throw new FileReaderOpenException();
@@ -212,8 +209,8 @@ namespace CsvTools
         while (m_JsonTextReader.TokenType != JsonToken.StartObject
                // && m_JsonTextReader.TokenType != JsonToken.PropertyName
                && m_JsonTextReader.TokenType != JsonToken.StartArray)
-          if (!m_JsonTextReader.Read())
-            return null;
+          if (!await m_JsonTextReader.ReadAsync(token).ConfigureAwait(false))
+            return Array.Empty<KeyValuePair<string, object?>>();
 
         // sore the parent Property Name in parentKey
         var startKey = string.Empty;
@@ -298,7 +295,7 @@ namespace CsvTools
           }
 
           token.ThrowIfCancellationRequested();
-        } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey) && m_JsonTextReader.Read());
+        } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey) && await m_JsonTextReader.ReadAsync(token));
 
         EndLineNumber = m_JsonTextReader.LineNumber;
 
@@ -350,7 +347,7 @@ namespace CsvTools
         // A serious error will be logged and its assume the file is ended
         HandleError(-1, ex.Message);
         EndOfFile = true;
-        return null;
+        return  Array.Empty<KeyValuePair<string, object?>>();
       }
     }
 
