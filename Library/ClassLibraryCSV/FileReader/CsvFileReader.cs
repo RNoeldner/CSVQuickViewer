@@ -432,7 +432,7 @@ namespace CsvTools
 
         ParseColumnName(m_HeaderRow, null, m_HasFieldHeader);
 
-        // Turn off unescape warning based on WarnLineFeed
+        // Turn off unescaped warning based on WarnLineFeed
         if (!m_WarnLineFeed)
           foreach (var col in Column)
             if (col.ColumnFormatter is TextUnescapeFormatter unescapeFormatter)
@@ -511,8 +511,6 @@ namespace CsvTools
         m_TextReader = null;
       }
     }
-
-    public override Task<bool> Read(CancellationToken token) => !token.IsCancellationRequested && Read();
 
     /// <inheritdoc />
     /// <summary>
