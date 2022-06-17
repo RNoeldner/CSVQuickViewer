@@ -111,6 +111,7 @@ namespace CsvTools
         // get column names for some time
         var colNames = new Dictionary<string, DataTypeEnum>();
         var stopwatch = new Stopwatch();
+        stopwatch.Start();
         // read additional rows to see if we have some extra columns
         while (line != null)
         {
@@ -118,7 +119,7 @@ namespace CsvTools
             if (!colNames.ContainsKey(keyValue.Key))
               colNames.Add(keyValue.Key, keyValue.Value?.GetType().GetDataType() ?? DataTypeEnum.String);
 
-          if (stopwatch.ElapsedMilliseconds > 200)
+          if (stopwatch.ElapsedMilliseconds > 1000)
             break;
           line = await GetNextRecordAsync(token).ConfigureAwait(false);
         }
@@ -295,7 +296,7 @@ namespace CsvTools
           }
 
           token.ThrowIfCancellationRequested();
-        } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey) && await m_JsonTextReader.ReadAsync(token));
+        } while (!(m_JsonTextReader.TokenType == JsonToken.EndObject && startKey == endKey) && await m_JsonTextReader.ReadAsync(token).ConfigureAwait(false));
 
         EndLineNumber = m_JsonTextReader.LineNumber;
 

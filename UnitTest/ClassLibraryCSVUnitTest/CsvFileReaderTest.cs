@@ -1142,7 +1142,6 @@ Line "Test"", "22",23,"  24"
         skipEmptyLines: true,
         consecutiveEmptyRowsMax: 4,
         identifierInContainer: "", timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id, processDisplay: null);
-      ;
       Assert.IsFalse(test.NextResult());
       Assert.IsFalse(await test.NextResultAsync());
 
@@ -1652,7 +1651,7 @@ Line "Test"", "22",23,"  24"
           // lock file for reading
           reader.OnAskRetry += (sender, args) =>
           {
-            stream.Close();
+            stream?.Close();
             called = true;
             args.Retry = false;
           };
