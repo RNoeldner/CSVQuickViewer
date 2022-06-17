@@ -373,6 +373,8 @@ namespace CsvTools
 
       var value = CurrentRowColumnText[ordinal];
       var column = Column[ordinal];
+      if (column.Ignore)
+        return DBNull.Value;
       object? ret = column.ValueFormat.DataType switch
       {
         DataTypeEnum.DateTime => GetDateTimeNull(null, value, null, GetTimeValue(ordinal), column, true),
@@ -510,7 +512,7 @@ namespace CsvTools
       }
     }
 
-    public override bool Read(CancellationToken token) => !token.IsCancellationRequested && Read();
+    public override Task<bool> Read(CancellationToken token) => !token.IsCancellationRequested && Read();
 
     /// <inheritdoc />
     /// <summary>

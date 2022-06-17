@@ -12,6 +12,8 @@
  *
  */
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -524,26 +526,26 @@ namespace CsvTools
 
       var date = StringToDateTime(datePart, dateFormat, dateSeparator, timeSeparator, serialDateTime);
 
-      // we have no date check if we have a time
-      if (date is null)
+      switch (date)
       {
-        var timeP = StringToTimeSpan(timePart, timeSeparator, serialDateTime);
-        // no date and no time, nothing to do
-        if (timeP is null)
-          return null;
-        return m_FirstDateTime.Add(timeP.Value);
+        // we have no date check if we have a time
+        case null:
+        {
+          var timeP = StringToTimeSpan(timePart, timeSeparator, serialDateTime);
+          // no date and no time, nothing to do
+          if (timeP is null)
+            return null;
+          return m_FirstDateTime.Add(timeP.Value);
+        }
+        // In case a value is read that just is a time, need to adjust c# and Excel behavior the
+        // application assumes all dates on cFirstDatetime is a time only
+        case { Year: 1, Month: 1 } when string.IsNullOrWhiteSpace(timePart):
+          return GetTimeFromTicks(date.Value.Ticks);
       }
-
-      // In case a value is read that just is a time, need to adjust c# and Excel behavior the
-      // application assumes all dates on cFirstDatetime is a time only
-      if (date is { Year: 1, Month: 1 } && string.IsNullOrWhiteSpace(timePart))
-        return GetTimeFromTicks(date.Value.Ticks);
 
       // get the time to add to the date
       var time = StringToTimeSpan(timePart, timeSeparator, serialDateTime);
-      if (time is null)
-        return date;
-      return date.Value.Add(time.Value);
+      return time is null ? date : date.Value.Add(time.Value);
     }
 
     /// <summary>
@@ -1005,6 +1007,23 @@ namespace CsvTools
       }
     }
 
+
+    /// <summary>
+    /// Deserializes the text as Json Object
+    /// </summary>
+    /// <param name="content">The Json content as text</param>
+    /// <returns>A <see cref="JObject"/> when teh text could be parsed</returns>
+    /// <exception cref="JsonException">$"Returned content xxx could not be read as Json</exception>
+    public static JContainer DeserializeJson(this string content)
+    {
+      //string errors = String.Empty;
+      //var setting = new JsonSerializerSettings();
+      //setting.Error += (sender, args) => errors += args.ToString();
+      if (JsonConvert.DeserializeObject(content) is JContainer jsonData)
+        return jsonData;
+      throw new JsonException($"Returned content '{content.Substring(0, 150)}' could not be read as Json");
+    }
+
     /// <summary>
     ///   Parses a strings to an int.
     /// </summary>
@@ -1299,7 +1318,7 @@ namespace CsvTools
                 out result)) return result;
         }
 
-        // In case a date with follwing time is passed in it would not be parsed, take the part of
+        // In case a date with following time is passed in it would not be parsed, take the part of
         // before the space and try again
         var lastSpace = stringDateValue.LastIndexOf(' ');
 

@@ -6,7 +6,7 @@
              xmlns:dxg="clr-namespace:DevExpress.Maui.DataGrid;assembly=DevExpress.Maui.DataGrid"
              Title="Data Grid">
     <StackLayout >
-        <dxg:DataGridView ItemsSource="{Binding Items}">
-        </dxg:DataGridView>
+        <!--<dxg:DataGridView ItemsSource="{Binding Items}">
+        </dxg:DataGridView>-->
     </StackLayout>
 </ContentPage>

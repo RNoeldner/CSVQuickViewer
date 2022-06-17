@@ -43,7 +43,7 @@ namespace CsvTools
     private readonly IValueFormat m_ValueFormatGeneral;
     protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
     protected string Header;
-    protected string m_SourceTimeZone;
+    protected readonly string SourceTimeZone;
     private DateTime m_LastNotification = DateTime.Now;
 
     protected BaseFileWriter(
@@ -63,7 +63,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(fullPath))
         throw new ArgumentException($"{nameof(fullPath)} can not be empty");
-      m_SourceTimeZone = sourceTimeZone;
+      SourceTimeZone = sourceTimeZone;
       FullPath = FileSystemUtils.ResolvePattern(fullPath) ??
                  throw new ArgumentException($"Make sure path is correct {fullPath}");
       var fileName = FileSystemUtils.GetFileName(FullPath);
@@ -444,7 +444,7 @@ namespace CsvTools
       string displayAs;
       try
       {
-        var convertedValue = ValueConversion(reader, dataObject, columnInfo, TimeZoneAdjust, m_SourceTimeZone, HandleWarning);
+        var convertedValue = ValueConversion(reader, dataObject, columnInfo, TimeZoneAdjust, SourceTimeZone, HandleWarning);
         if (convertedValue is null)
           displayAs = columnInfo.ValueFormat.DisplayNullAs;
         else

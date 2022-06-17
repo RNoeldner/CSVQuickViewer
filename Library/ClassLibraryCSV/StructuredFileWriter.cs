@@ -93,7 +93,7 @@ namespace CsvTools
 
     protected abstract string RecordDelimiter();
 
-    protected abstract string Escape(object input, in WriterColumn columnInfo, in IFileReader reader);
+    protected abstract string Escape(object? input, in WriterColumn columnInfo, in IFileReader reader);
 
     /// <summary>
     ///   Writes the specified file reading from the given reader
@@ -161,10 +161,9 @@ namespace CsvTools
         sb.Append(recordEnd);
         var row = withHeader;
         colNum = 0;
-        foreach (var value in from columnInfo in Columns
-                 let col = reader.GetValue(columnInfo.ColumnOrdinal)
-                 select Escape(col, columnInfo, reader))
+        foreach (var columnInfo in Columns)
         {
+          string value = Escape(reader.GetValue(columnInfo.ColumnOrdinal), columnInfo, reader);
           row = row.Replace(placeHolderLookup1[colNum], value).Replace(placeHolderLookup2[colNum], value);
           colNum++;
         }
@@ -184,6 +183,20 @@ namespace CsvTools
         await writer.WriteAsync(Footer()).ConfigureAwait(false);
 
       await writer.FlushAsync().ConfigureAwait(false);
+    }
+
+    public static string GetJsonRow(IEnumerable<IColumn> cols)
+    {
+      var sb = new StringBuilder("{");
+      // { "firstName":"John", "lastName":"Doe"},
+      foreach (var col in cols)
+        sb.AppendFormat("\"{0}\":{1},\n", HtmlStyle.JsonElementName(col.Name),
+          string.Format(StructuredFileWriter.cFieldPlaceholderByName, col.Name));
+      if (sb.Length > 1)
+        sb.Length -= 2;
+      sb.AppendLine("}");
+
+      return sb.ToString();
     }
   }
 }

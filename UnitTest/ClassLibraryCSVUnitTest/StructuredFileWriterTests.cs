@@ -74,7 +74,7 @@ namespace CsvTools.Tests
         fileSetting.ColumnCollection,
         "Test",
         fileSetting.Row,
-StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id,
+        StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id,
         processDisplay);
 
       var result = await writer.WriteAsync(
