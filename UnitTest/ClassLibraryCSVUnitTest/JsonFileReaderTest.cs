@@ -42,6 +42,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(10000)]
     public async Task OpenLogAsync()
     {
       var setting = new JsonFile(UnitTestStatic.GetTestPath("LogFile.json"));
@@ -61,6 +62,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(10000)]
     public async Task ReadJSonEmp_VariousTypedData()
     {
       var setting = new JsonFile(UnitTestStatic.GetTestPath("Emp.json"));
@@ -79,6 +81,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(10000)]
     public async Task NotSupportedAsync()
     {
       var setting = new JsonFile(UnitTestStatic.GetTestPath("Emp.json"));
@@ -106,6 +109,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(10000)]
     public async Task ReadJSonTypes()
     {
       var dpd = new CustomProcessDisplay();
@@ -241,6 +245,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(10000)]
     public async Task ReadJSon1Async()
     {
       var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason1.json"));
@@ -258,6 +263,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(10000)]
     public async Task ReadJSon1TypedAsync()
     {
       var setting =
@@ -280,6 +286,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(10000)]
     public async Task ReadJSon2Async()
     {
       var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason2.json"));
@@ -300,6 +307,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(10000)]
     public async Task ReadJSon3Async()
     {
       var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason3.json"));
@@ -321,6 +329,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    [Timeout(10000)]
     public async Task ReadJSon4Async()
     {
       var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason4.json"));
