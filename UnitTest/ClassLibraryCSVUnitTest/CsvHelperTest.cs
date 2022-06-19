@@ -34,6 +34,17 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public async Task AnalyzeFileAsyncZip()
+    {
+      var processDisplay = new CustomProcessDisplay();
+      var tuple = await UnitTestStatic.GetTestPath("AllFormatsPipe.zip").AnalyzeFileAsync(false, true, true,
+        true, true, true, true, true, new FillGuessSettings(), UnitTestStatic.Token);
+
+      Assert.IsNotNull(tuple);
+      Assert.AreEqual("Pipe", tuple.FieldDelimiter);
+    }
+
+    [TestMethod]
     public async Task NewCsvFileGuessAllSmallFile()
     {
       var display = new CustomProcessDisplay();
