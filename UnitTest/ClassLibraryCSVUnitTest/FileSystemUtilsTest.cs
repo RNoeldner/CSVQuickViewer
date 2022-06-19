@@ -15,6 +15,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,106 +25,21 @@ namespace CsvTools.Tests
   public class FileSystemUtilsTest
   {
     [TestMethod]
-    public void UtilsCreate()
+    public void Create()
     {
-      var fn = UnitTestStatic.GetTestPath("out1.txt");
-      using (var result = FileSystemUtils.Create(fn, 512, FileOptions.Asynchronous))
+      var fn = UnitTestStatic.GetTestPath("Test2.dat");
+      if (File.Exists(fn))
+        File.Delete(fn);
+
+      using (var stream = FileSystemUtils.Create(fn, 32000, FileOptions.Asynchronous))
       {
-        Assert.IsNotNull(result);
-        result.Close();
+        Assert.AreEqual(true, stream.CanWrite);
+        stream.WriteByte(10);
+        stream.Close();
       }
-      FileSystemUtils.FileDelete(fn);
-    }
 
-    [TestMethod]
-    public void UtilsCreateText()
-    {
-      var fn = UnitTestStatic.GetTestPath("out2.txt");
-      using (var result = FileSystemUtils.CreateText(fn))
-      {
-        Assert.IsNotNull(result);
-        result.Close();
-      }
-      FileSystemUtils.FileDelete(fn);
-    }
-
-    [TestMethod]
-    public void GetStreamReaderForFileOrResource()
-    {
-      // load a known resource from the DLL
-      var test1 = FileSystemUtils.GetStreamReaderForFileOrResource("DateTimeFormats.txt");
-      Assert.IsNotNull(test1);
-
-      try
-      {
-        // load a unknown resource from this DLL
-        _ = FileSystemUtils.GetStreamReaderForFileOrResource("SampleFile2.txt");
-      }
-      catch (ArgumentException)
-      {
-      }
-      catch (Exception ex)
-      {
-        Assert.Fail("Wrong Exception Type: " + ex.GetType());
-      }
-    }
-
-    [TestMethod]
-    [Ignore("PathTooLongException when compiled in .net standard")]
-    public void FileInfo()
-    {
-      var testFile = GetLongFileName("InfoTest.txt", false);
-
-      var test = new FileSystemUtils.FileInfo(testFile);
-      Assert.AreEqual(testFile, test.Name);
-
-      var testFile2 = GetLongFileName("InfoTest2.txt", true);
-      var test2 = new FileSystemUtils.FileInfo(testFile2);
-      Assert.IsTrue(test2.Exists);
-      FileSystemUtils.FileDelete(testFile2);
-
-      var date = new DateTime(2020, 10, 17, 17, 23, 44);
-      var test3 = new FileSystemUtils.FileInfo(testFile, 643788L, date);
-      Assert.AreEqual(643788L, test3.Length);
-      Assert.AreEqual(date, test3.LastWriteTimeUtc);
-    }
-
-    [TestMethod]
-    public async Task FileCopy()
-    {
-      var dest = UnitTestStatic.GetTestPath("xyz.txt");
-      try
-      {
-        var processDisplay = new CustomProcessDisplay();
-        processDisplay.Maximum = -100;
-
-        Assert.IsFalse(FileSystemUtils.FileExists(dest));
-        await FileSystemUtils.FileCopy(UnitTestStatic.GetTestPath("AllFormats.txt"), dest, false,
-          processDisplay, UnitTestStatic.Token);
-        Assert.IsTrue(FileSystemUtils.FileExists(dest));
-        Assert.AreEqual(-100, processDisplay.Maximum);
-
-        // Copy again, the old file should be overwritten
-        await FileSystemUtils.FileCopy(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), dest, true,
-          processDisplay, UnitTestStatic.Token);
-        Assert.IsTrue(FileSystemUtils.FileExists(dest));
-        Assert.AreEqual(new FileInfo(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")).Length,
-          new FileInfo(dest).Length);
-      }
-      finally
-      {
-        FileSystemUtils.FileDelete(dest);
-      }
-    }
-
-    [TestMethod]
-    public void RemovePrefix()
-    {
-      Assert.AreEqual("Test", "Test".RemovePrefix());
-      Assert.AreEqual("", "".RemovePrefix());
-
-      var fn = GetLongFileName("CsvDataReaderUnitTestReadFiles.txt", false);
-      Assert.AreEqual(fn, fn.LongPathPrefix().RemovePrefix());
+      Assert.IsTrue(File.Exists(fn));
+      File.Delete(fn);
     }
 
     [TestMethod]
@@ -148,6 +64,255 @@ namespace CsvTools.Tests
       Assert.AreEqual(Path.GetFullPath($".{Path.DirectorySeparatorChar}Test"), $".{Path.DirectorySeparatorChar}Test".GetDirectoryName());
     }
 
+    [TestMethod]
+    public async Task FileCopy()
+    {
+      var dest = UnitTestStatic.GetTestPath("xyz.txt");
+      try
+      {
+        var processDisplay = new CustomProcessDisplay { Maximum = -100 };
+
+        Assert.IsFalse(FileSystemUtils.FileExists(dest));
+        await FileSystemUtils.FileCopy(UnitTestStatic.GetTestPath("AllFormats.txt"), dest, false,
+          processDisplay, UnitTestStatic.Token);
+        Assert.IsTrue(FileSystemUtils.FileExists(dest));
+        Assert.AreEqual(-100, processDisplay.Maximum);
+
+        // Copy again, the old file should be overwritten
+        await FileSystemUtils.FileCopy(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), dest, true,
+          processDisplay, UnitTestStatic.Token);
+        Assert.IsTrue(FileSystemUtils.FileExists(dest));
+        Assert.AreEqual(new FileInfo(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")).Length,
+          new FileInfo(dest).Length);
+      }
+      finally
+      {
+        FileSystemUtils.FileDelete(dest);
+      }
+    }
+
+    [TestMethod]
+    [Ignore("PathTooLongException when compiled in .net standard")]
+    public void FileInfo()
+    {
+      var testFile = GetLongFileName("InfoTest.txt", false);
+
+      var test = new FileSystemUtils.FileInfo(testFile);
+      Assert.AreEqual(testFile, test.Name);
+
+      var testFile2 = GetLongFileName("InfoTest2.txt", true);
+      var test2 = new FileSystemUtils.FileInfo(testFile2);
+      Assert.IsTrue(test2.Exists);
+      FileSystemUtils.FileDelete(testFile2);
+
+      var date = new DateTime(2020, 10, 17, 17, 23, 44);
+      var test3 = new FileSystemUtils.FileInfo(testFile, 643788L, date);
+      Assert.AreEqual(643788L, test3.Length);
+      Assert.AreEqual(date, test3.LastWriteTimeUtc);
+    }
+
+    [TestMethod]
+    public void GetLatestFileOfPattern()
+    {
+      var root = FileSystemUtils.ExecutableDirectoryName();
+      var res = FileSystemUtils.GetLatestFileOfPattern(root, "CsvTools.ClassLibraryCSV.*.dll");
+      Assert.AreEqual(root + Path.DirectorySeparatorChar + "CsvTools.ClassLibraryCSV.UnitTest.dll", res);
+    }
+
+    [TestMethod]
+    public void GetRelativeFolder()
+    {
+      var root = FileSystemUtils.ExecutableDirectoryName();
+      Assert.AreEqual($"TestFiles{Path.DirectorySeparatorChar}SubFolder{Path.DirectorySeparatorChar}", (root + Path.DirectorySeparatorChar + $"TestFiles{Path.DirectorySeparatorChar}SubFolder").GetRelativeFolder(root));
+      Assert.AreEqual($"TestFiles{Path.DirectorySeparatorChar}SubFolder{Path.DirectorySeparatorChar}", (root + Path.DirectorySeparatorChar + $"TestFiles{Path.DirectorySeparatorChar}SubFolder{Path.DirectorySeparatorChar}").GetRelativeFolder(root));
+      // Assert.AreEqual("Debug\\TestFiles\\SubFolder\\", (root +
+      // "\\TestFiles\\SubFolder").GetRelativeFolder(root +"\\.."));
+      Assert.AreEqual($"..{Path.DirectorySeparatorChar}Debug{Path.DirectorySeparatorChar}TestFiles{Path.DirectorySeparatorChar}SubFolder{Path.DirectorySeparatorChar}",
+        (root + Path.DirectorySeparatorChar + $"..{Path.DirectorySeparatorChar}Debug{Path.DirectorySeparatorChar}TestFiles{Path.DirectorySeparatorChar}SubFolder").GetRelativeFolder(root));
+    }
+
+    [TestMethod]
+    public void GetRelativePath()
+    {
+      var root = FileSystemUtils.ExecutableDirectoryName();
+      Assert.AreEqual($"TestFiles{Path.DirectorySeparatorChar}BasicCSV.txt", (root + Path.DirectorySeparatorChar + $"TestFiles{Path.DirectorySeparatorChar}BasicCSV.txt").GetRelativePath(root));
+    }
+
+    [TestMethod]
+    public void GetShortestPathRel()
+    {
+      var path = $"..{Path.DirectorySeparatorChar}CsvHelperTest.cs";
+      Assert.AreEqual(path, path.GetShortestPath("."), "Can not be shorter");
+    }
+
+    [TestMethod]
+    public void GetStreamReaderForFileOrResource()
+    {
+      // load a known resource from the DLL
+      var test1 = FileSystemUtils.GetStreamReaderForFileOrResource("DateTimeFormats.txt");
+      Assert.IsNotNull(test1);
+
+      try
+      {
+        // load a unknown resource from this DLL
+        _ = FileSystemUtils.GetStreamReaderForFileOrResource("SampleFile2.txt");
+      }
+      catch (ArgumentException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail("Wrong Exception Type: " + ex.GetType());
+      }
+    }
+
+    [TestMethod]
+    public void GroupFromFileNameInMain()
+    {
+      var setting2 = new CsvFile($"..{Path.DirectorySeparatorChar}TestFile.csv") { RootFolder = UnitTestStatic.ApplicationDirectory };
+      var dn = FileSystemUtils.SplitPath(setting2.FullPath).DirectoryName;
+
+      Assert.AreEqual($"..{Path.DirectorySeparatorChar}", dn.GetRelativeFolder(UnitTestStatic.ApplicationDirectory));
+    }
+
+    [TestMethod]
+    public void LongFileName()
+    {
+      Assert.AreEqual("", "".LongFileName());
+      Assert.AreEqual("Test.txt", "Test.txt".LongFileName());
+      var fn = UnitTestStatic.GetTestPath("This is a very lOng filename.txt");
+      Assert.IsTrue(fn.ShortFileName().LongFileName().EndsWith("This is a very lOng filename.txt"));
+    }
+
+    [TestMethod]
+    public void RemovePrefix()
+    {
+      Assert.AreEqual("Test", "Test".RemovePrefix());
+      Assert.AreEqual("", "".RemovePrefix());
+
+      var fn = GetLongFileName("CsvDataReaderUnitTestReadFiles.txt", false);
+      Assert.AreEqual(fn, fn.LongPathPrefix().RemovePrefix());
+    }
+
+    [TestMethod]
+    public void ResolvePattern()
+    {
+      var fileName1 = UnitTestStatic.GetTestPath("ResolvePattern_a.txt");
+      var fileName2 = UnitTestStatic.GetTestPath("ResolvePattern_b.txt");
+      try
+      {
+        FileSystemUtils.FileDelete(fileName1);
+        FileSystemUtils.FileDelete(fileName2);
+
+        FileSystemUtils.WriteAllText(fileName1, "Hello World\n");
+        Thread.Sleep(500);
+        FileSystemUtils.WriteAllText(fileName2, "Another File\n");
+
+        var res = FileSystemUtils.ResolvePattern(Path.Combine(fileName1.GetDirectoryName(), "ResolvePattern_*.txt"));
+        Assert.AreEqual(fileName2, res);
+      }
+      finally
+      {
+        FileSystemUtils.FileDelete(fileName1);
+        FileSystemUtils.FileDelete(fileName2);
+      }
+    }
+
+    [TestMethod]
+    public void ShortFileName()
+    {
+      Assert.AreEqual("", "".ShortFileName());
+      Assert.AreNotEqual("Test.txt".GetAbsolutePath("."), "Test.txt".ShortFileName());
+      var fn = UnitTestStatic.GetTestPath(".");
+      Assert.IsTrue(fn.ShortFileName().Contains("CSVQUI~"));
+    }
+
+    [TestMethod]
+    public void SplitPath()
+    {
+      var split = FileSystemUtils.SplitPath(Path.Combine("C:", "MyTest", "Test.dat"));
+      Assert.IsTrue(split.DirectoryName.Contains("MyTest"));
+      Assert.AreEqual("Test.dat", split.FileName);
+      Assert.AreEqual("Test", split.FileNameWithoutExtension);
+      Assert.AreEqual(".dat", split.Extension);
+    }
+
+    [TestMethod]
+    public void SplitPath_NoDirectory()
+    {
+      var dn = FileSystemUtils.SplitPath("FileName.Ext");
+      Assert.AreEqual("FileName.Ext", dn.FileName);
+      Assert.IsTrue(string.IsNullOrEmpty(dn.DirectoryName));
+    }
+
+    [TestMethod]
+    public void TestGetAbsolutePath()
+    {
+      var root = FileSystemUtils.ExecutableDirectoryName();
+      Directory.SetCurrentDirectory(root);
+      Assert.AreEqual(root + Path.DirectorySeparatorChar + "TestFile.docx", "TestFile.docx".GetAbsolutePath(""));
+      Assert.AreEqual(root + Path.DirectorySeparatorChar + "TestFile.docx", "TestFile.docx".GetAbsolutePath("."));
+      Assert.AreEqual(root + Path.DirectorySeparatorChar + "TestFile.docx", ("."+  Path.DirectorySeparatorChar + "TestFile.docx").GetAbsolutePath(""));
+      Assert.AreEqual(root + Path.DirectorySeparatorChar + "TestFile.docx", ("." +  Path.DirectorySeparatorChar + "TestFile.docx").GetAbsolutePath("."));
+#if Windows
+      Assert.AreEqual("C:\\TestFile.docx", "C:\\TestFile.docx".GetAbsolutePath("."));
+      Assert.AreEqual("C:\\TestFile.docx", "C:\\TestFile.docx".GetAbsolutePath(""));
+#endif
+    }
+
+    [TestMethod]
+    [Ignore("PathTooLongException when compiled in .net standard")]
+    public void TestMethodsOnLongPath()
+    {
+      Directory.SetCurrentDirectory(UnitTestStatic.ApplicationDirectory);
+      var relPath = ".";
+      var directory = UnitTestStatic.ApplicationDirectory;
+      while (directory.Length < 260)
+      {
+        relPath += Path.DirectorySeparatorChar + "This is a subfolder";
+        directory += Path.DirectorySeparatorChar + "This is a subfolder";
+        FileSystemUtils.CreateDirectory(directory);
+      }
+
+      for (var counter = 0; counter < 10; counter++)
+      {
+        using var stream = FileSystemUtils.CreateText(directory + Path.DirectorySeparatorChar + $"File{counter:000}.txt");
+        stream.WriteLine($"Small Test {counter:000}");
+      }
+
+      var fn1 = FileSystemUtils.ResolvePattern(directory + Path.DirectorySeparatorChar + "File*.txt");
+      Assert.IsNotNull(fn1);
+
+      var fn2 = FileSystemUtils.ResolvePattern(relPath + Path.DirectorySeparatorChar + "File*.txt");
+      Assert.AreEqual(fn1, fn2);
+
+      // cleanup
+      for (var counter = 0; counter < 10; counter++) FileSystemUtils.FileDelete(directory + Path.DirectorySeparatorChar + $"File{counter:000}.txt");
+    }
+
+    [TestMethod]
+    public void UtilsCreate()
+    {
+      var fn = UnitTestStatic.GetTestPath("out1.txt");
+      using (var result = FileSystemUtils.Create(fn, 512, FileOptions.Asynchronous))
+      {
+        Assert.IsNotNull(result);
+        result.Close();
+      }
+      FileSystemUtils.FileDelete(fn);
+    }
+
+    [TestMethod]
+    public void UtilsCreateText()
+    {
+      var fn = UnitTestStatic.GetTestPath("out2.txt");
+      using (var result = FileSystemUtils.CreateText(fn))
+      {
+        Assert.IsNotNull(result);
+        result.Close();
+      }
+      FileSystemUtils.FileDelete(fn);
+    }
 #if Windows
 
     [TestMethod]
@@ -181,132 +346,12 @@ namespace CsvTools.Tests
     }
 
 #endif
-
-    [TestMethod]
-    public void GetShortestPathRel()
-    {
-      var path = $"..{Path.DirectorySeparatorChar}CsvHelperTest.cs";
-      Assert.AreEqual(path, path.GetShortestPath("."), "Can not be shorter");
-    }
-
-    [TestMethod]
-    public void GetRelativePath()
-    {
-      var root = FileSystemUtils.ExecutableDirectoryName();
-      Assert.AreEqual($"TestFiles{Path.DirectorySeparatorChar}BasicCSV.txt", (root + Path.DirectorySeparatorChar + $"TestFiles{Path.DirectorySeparatorChar}BasicCSV.txt").GetRelativePath(root));
-    }
-
-    [TestMethod]
-    public void GroupFromFileNameInMain()
-    {
-      var setting2 = new CsvFile($"..{Path.DirectorySeparatorChar}TestFile.csv") { RootFolder = UnitTestStatic.ApplicationDirectory };
-      var dn = FileSystemUtils.SplitPath(setting2.FullPath).DirectoryName;
-
-      Assert.AreEqual($"..{Path.DirectorySeparatorChar}", dn.GetRelativeFolder(UnitTestStatic.ApplicationDirectory));
-    }
-
-    [TestMethod]
-    public void GetRelativeFolder()
-    {
-      var root = FileSystemUtils.ExecutableDirectoryName();
-      Assert.AreEqual($"TestFiles{Path.DirectorySeparatorChar}SubFolder{Path.DirectorySeparatorChar}", (root + Path.DirectorySeparatorChar + $"TestFiles{Path.DirectorySeparatorChar}SubFolder").GetRelativeFolder(root));
-      Assert.AreEqual($"TestFiles{Path.DirectorySeparatorChar}SubFolder{Path.DirectorySeparatorChar}", (root + Path.DirectorySeparatorChar + $"TestFiles{Path.DirectorySeparatorChar}SubFolder{Path.DirectorySeparatorChar}").GetRelativeFolder(root));
-      // Assert.AreEqual("Debug\\TestFiles\\SubFolder\\", (root +
-      // "\\TestFiles\\SubFolder").GetRelativeFolder(root +"\\.."));
-      Assert.AreEqual($"..{Path.DirectorySeparatorChar}Debug{Path.DirectorySeparatorChar}TestFiles{Path.DirectorySeparatorChar}SubFolder{Path.DirectorySeparatorChar}",
-        (root + Path.DirectorySeparatorChar + $"..{Path.DirectorySeparatorChar}Debug{Path.DirectorySeparatorChar}TestFiles{Path.DirectorySeparatorChar}SubFolder").GetRelativeFolder(root));
-    }
-
 #if Windows
 
     [TestMethod]
     public void SafePath() => Assert.AreEqual($"Test$Files{Path.DirectorySeparatorChar}Basic$CSV.txt", $"Test|Files{Path.DirectorySeparatorChar}Basic<CSV.txt".SafePath("$"));
 
 #endif
-
-    [TestMethod]
-    public void GetLatestFileOfPattern()
-    {
-      var root = FileSystemUtils.ExecutableDirectoryName();
-      var res = FileSystemUtils.GetLatestFileOfPattern(root, "CsvTools.ClassLibraryCSV.*.dll");
-      Assert.AreEqual(root + Path.DirectorySeparatorChar + "CsvTools.ClassLibraryCSV.UnitTest.dll", res);
-    }
-
-    [TestMethod]
-    public void ResolvePattern()
-    {
-      var fileName1 = UnitTestStatic.GetTestPath("ResolvePattern_a.txt");
-      var fileName2 = UnitTestStatic.GetTestPath("ResolvePattern_b.txt");
-      try
-      {
-        FileSystemUtils.FileDelete(fileName1);
-        FileSystemUtils.FileDelete(fileName2);
-
-        FileSystemUtils.WriteAllText(fileName1, "Hello World\n");
-        Thread.Sleep(500);
-        FileSystemUtils.WriteAllText(fileName2, "Another File\n");
-
-        var res = FileSystemUtils.ResolvePattern(Path.Combine(fileName1.GetDirectoryName(), "ResolvePattern_*.txt"));
-        Assert.AreEqual(fileName2, res);
-      }
-      finally
-      {
-        FileSystemUtils.FileDelete(fileName1);
-        FileSystemUtils.FileDelete(fileName2);
-      }
-    }
-
-    [TestMethod]
-    public void TestGetAbsolutePath()
-    {
-      var root = FileSystemUtils.ExecutableDirectoryName();
-      Directory.SetCurrentDirectory(root);
-      Assert.AreEqual(root + Path.DirectorySeparatorChar + "TestFile.docx", "TestFile.docx".GetAbsolutePath(""));
-      Assert.AreEqual(root + Path.DirectorySeparatorChar + "TestFile.docx", "TestFile.docx".GetAbsolutePath("."));
-      Assert.AreEqual(root + Path.DirectorySeparatorChar + "TestFile.docx", ("."+  Path.DirectorySeparatorChar + "TestFile.docx").GetAbsolutePath(""));
-      Assert.AreEqual(root + Path.DirectorySeparatorChar + "TestFile.docx", ("." +  Path.DirectorySeparatorChar + "TestFile.docx").GetAbsolutePath("."));
-#if Windows
-      Assert.AreEqual("C:\\TestFile.docx", "C:\\TestFile.docx".GetAbsolutePath("."));
-      Assert.AreEqual("C:\\TestFile.docx", "C:\\TestFile.docx".GetAbsolutePath(""));
-#endif
-    }
-
-    [TestMethod]
-    public void SplitPath()
-    {
-      var split = FileSystemUtils.SplitPath(Path.Combine("C:", "MyTest", "Test.dat"));
-      Assert.IsTrue(split.DirectoryName.Contains("MyTest"));
-      Assert.AreEqual("Test.dat", split.FileName);
-      Assert.AreEqual("Test", split.FileNameWithoutExtension);
-      Assert.AreEqual(".dat", split.Extension);
-    }
-
-    [TestMethod]
-    public void SplitPath_NoDirectory()
-    {
-      var dn = FileSystemUtils.SplitPath("FileName.Ext");
-      Assert.AreEqual("FileName.Ext", dn.FileName);
-      Assert.IsTrue(string.IsNullOrEmpty(dn.DirectoryName));
-    }
-
-    [TestMethod]
-    public void Create()
-    {
-      var fn = UnitTestStatic.GetTestPath("Test2.dat");
-      if (File.Exists(fn))
-        File.Delete(fn);
-
-      using (var stream = FileSystemUtils.Create(fn, 32000, FileOptions.Asynchronous))
-      {
-        Assert.AreEqual(true, stream.CanWrite);
-        stream.WriteByte(10);
-        stream.Close();
-      }
-
-      Assert.IsTrue(File.Exists(fn));
-      File.Delete(fn);
-    }
-
     [TestMethod]
     public void WriteAllText()
     {
@@ -317,6 +362,17 @@ namespace CsvTools.Tests
       Assert.IsTrue(File.Exists(fn));
       File.Delete(fn);
     }
+    [TestMethod]
+    public void WriteAllText2()
+    {
+      var text= "Contens\nSecondLine";
+      var fileName1 = UnitTestStatic.GetTestPath("TestFile4.txt");
+      FileSystemUtils.FileDelete(fileName1);
+      FileSystemUtils.WriteAllText(fileName1, text, Encoding.UTF8);
+      Assert.IsTrue(File.Exists(fileName1));
+      Assert.AreEqual(text,FileSystemUtils.ReadAllText(fileName1));
+      FileSystemUtils.FileDelete(fileName1);
+    } 
 
     private string GetLongFileName(string fn, bool create)
     {
@@ -339,36 +395,6 @@ namespace CsvTools.Tests
       }
 
       return directory + fn;
-    }
-
-    [TestMethod]
-    [Ignore("PathTooLongException when compiled in .net standard")]
-    public void TestMethodsOnLongPath()
-    {
-      Directory.SetCurrentDirectory(UnitTestStatic.ApplicationDirectory);
-      var relPath = ".";
-      var directory = UnitTestStatic.ApplicationDirectory;
-      while (directory.Length < 260)
-      {
-        relPath += Path.DirectorySeparatorChar + "This is a subfolder";
-        directory += Path.DirectorySeparatorChar + "This is a subfolder";
-        FileSystemUtils.CreateDirectory(directory);
-      }
-
-      for (var counter = 0; counter < 10; counter++)
-      {
-        using var stream = FileSystemUtils.CreateText(directory + Path.DirectorySeparatorChar + $"File{counter:000}.txt");
-        stream.WriteLine($"Small Test {counter:000}");
-      }
-
-      var fn1 = FileSystemUtils.ResolvePattern(directory + Path.DirectorySeparatorChar + "File*.txt");
-      Assert.IsNotNull(fn1);
-
-      var fn2 = FileSystemUtils.ResolvePattern(relPath + Path.DirectorySeparatorChar + "File*.txt");
-      Assert.AreEqual(fn1, fn2);
-
-      // cleanup
-      for (var counter = 0; counter < 10; counter++) FileSystemUtils.FileDelete(directory + Path.DirectorySeparatorChar + $"File{counter:000}.txt");
     }
   }
 }

@@ -97,7 +97,7 @@ namespace CsvTools
     private long m_WarningCount;
     private int m_Order = 100;
     private string m_Comment = string.Empty;
-    private int m_Status = 0;
+    private int m_Status;
     private readonly ReaderWriterLockSlim m_LockStatus = new ReaderWriterLockSlim();
 
     /// <summary>
@@ -119,8 +119,8 @@ namespace CsvTools
     }
     
 
-    [XmlIgnore]
     /// <inheritdoc/>
+    [XmlIgnore]
     public int Status
     {
       get
@@ -417,6 +417,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(100)]
     public virtual int Order
@@ -431,6 +432,7 @@ namespace CsvTools
       }
     }
 
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue("")]
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -444,11 +446,12 @@ namespace CsvTools
         var newVal = value ?? string.Empty;
         if (m_Comment.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_Id = newVal;
+        m_Comment = newVal;
         NotifyPropertyChanged(nameof(Comment));
       }
     }
 
+    
     /// <inheritdoc />
     [XmlIgnore]
     public virtual string InternalID => ID;
