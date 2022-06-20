@@ -105,11 +105,14 @@ namespace CsvTools
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
       MessageBoxIcon icon = MessageBoxIcon.None,
       MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1,
-      double timeout = 4.0)
+      double timeout = 4.0,
+      string? button1Text = null,
+      string? button2Text = null,
+      string? button3Text = null)
     {
       using var tm = new TimedMessage();
       tm.Size = new Size(600, 450);
-      return tm.ShowDialog(message, title, buttons, icon, defaultButton, timeout, null, null, null);
+      return tm.ShowDialog(message, title, buttons, icon, defaultButton, timeout, button1Text, button2Text, button3Text);
     }
   }
 }
