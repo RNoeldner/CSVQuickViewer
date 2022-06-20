@@ -100,6 +100,67 @@ namespace CsvTools
         .ConfigureAwait(false);
     }
 
+    /// <summary>
+    ///   Stores all rows from te reader into a DataTable, form the current position of the reader onwards.
+    /// </summary>
+    /// <param name="reader">
+    ///   Any type of <see cref="IFileReader" />, if the source is a DataTableWrapper though the
+    ///   original passed in data table is returned, no artificial columns are added
+    /// </param>
+    /// <param name="maxDuration">
+    ///   Timeout duration for reading data, if the reader is slow or it has many rows make sure the
+    ///   timespan is big enough, otherwise teh result is cut off
+    /// </param>
+    /// <param name="restoreErrorsFromColumn">
+    ///   if the source is a persisted table, restore the error information
+    /// </param>
+    /// <param name="addStartLine">
+    ///   if <c>true</c> add a column for the start line: <see
+    ///   cref="ReaderConstants.cStartLineNumberFieldName" /> useful for line based reader like
+    ///   delimited text
+    /// </param>
+    /// <param name="includeRecordNo">
+    ///   if <c>true</c> add a column for the records number: <see
+    ///   cref="ReaderConstants.cRecordNumberFieldName" /> (if the reader was not at the beginning
+    ///   it will it will not start with 1)
+    /// </param>
+    /// <param name="includeEndLineNo">
+    ///   if <c>true</c> add a column for the end line: <see
+    ///   cref="ReaderConstants.cEndLineNumberFieldName" /> useful for line based reader like
+    ///   delimited text where a record can span multiple lines
+    /// </param>
+    /// <param name="includeErrorField">
+    ///   if <c>true</c> add a column with error information: <see
+    ///   cref="ReaderConstants.cErrorField" />
+    /// </param>
+    /// <param name="progress">
+    ///   Used to pass on progress information with number of records and percentage
+    /// </param>
+    /// <param name="cancellationToken">Token to cancel the long running async method</param>
+    /// <returns>A Data Table with all records from the reader</returns>
+    /// <remarks>In case the reader was not opened before it will be opened automatically</remarks>
+    public static DataTable GetDataTable(this IFileReader reader,
+      TimeSpan maxDuration,
+      bool restoreErrorsFromColumn,
+      bool addStartLine,
+      bool includeRecordNo,
+      bool includeEndLineNo,
+      bool includeErrorField,
+      CancellationToken cancellationToken)
+    {
+      if (reader is DataTableWrapper dtw)
+        return dtw.DataTable;
+
+      using var wrapper = new DataReaderWrapper(
+        reader,
+        includeErrorField,
+        addStartLine,
+        includeEndLineNo,
+        includeRecordNo);
+
+      return GetDataTable(wrapper, maxDuration, restoreErrorsFromColumn, cancellationToken);
+    }
+
     public static async Task<ICollection<string>> GetEmptyColumnHeaderAsync(
       this IFileReader fileReader,
       CancellationToken cancellationToken)
@@ -175,6 +236,57 @@ namespace CsvTools
       {
         intervalAction?.Invoke(processDisplay!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent, false);
       }
+      return dataTable;
+    }
+
+    /// <summary>
+    ///   Laods the data from a wrapper into a DataTable
+    /// </summary>
+    /// <param name="wrapper"></param>
+    /// <param name="maxDuration"></param>
+    /// <param name="restoreErrorsFromColumn"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public static DataTable GetDataTable(
+     this DataReaderWrapper wrapper,
+     TimeSpan maxDuration,
+     bool restoreErrorsFromColumn,
+     CancellationToken cancellationToken)
+    {
+      var dataTable = new DataTable { Locale = CultureInfo.CurrentCulture, CaseSensitive = false };
+      for (var colIndex = 0; colIndex < wrapper.FieldCount; colIndex++)
+        dataTable.Columns.Add(new DataColumn(wrapper.GetName(colIndex), wrapper.GetFieldType(colIndex)));
+
+      if (wrapper.EndOfFile)
+        return dataTable;
+
+      var errorColumn = restoreErrorsFromColumn ? dataTable.Columns[ReaderConstants.cErrorField] : null;
+
+      var watch = Stopwatch.StartNew();
+      while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 90)
+                                                        && wrapper.Read())
+      {
+        var dataRow = dataTable.NewRow();
+        dataTable.Rows.Add(dataRow);
+        for (var i = 0; i < wrapper.FieldCount; i++)
+          try
+          {
+            dataRow[i] = wrapper.GetValue(i);
+          }
+          catch (Exception ex)
+          {
+            dataRow.SetColumnError(i, ex.Message);
+          }
+
+        // This gets the errors from the column #Error that has been filled by the reader
+        if (errorColumn != null)
+          dataRow.SetErrorInformation(dataRow[errorColumn].ToString());
+
+        // This gets the errors from the fileReader
+        if (wrapper.ReaderMapping.HasErrors)
+          wrapper.ReaderMapping.SetDataRowErrors(dataRow);
+      }
+
       return dataTable;
     }
   }

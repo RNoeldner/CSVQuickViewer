@@ -869,10 +869,28 @@ namespace CsvTools
     /// <returns>The next char</returns>
     private char Peek()
     {
-      var res = m_TextReader?.Peek() ?? -1;
-      if (res != -1) return (char) res;
+      var res = m_TextReader!.Peek();
+      if (res != -1)
+        return (char) res;
       EndOfFile = true;
 
+      // return a linefeed to determine the end of a line
+      return cLf;
+    }
+
+    private char ReadChar()
+    {
+      if (m_RealignColumns != null)
+      {
+        var character = Peek();
+        m_RecordSource.Append(character);
+        m_TextReader!.MoveNext();
+        return character;
+      }
+      var res = m_TextReader!.Read();
+      if (res != -1)
+        return (char) res;
+      EndOfFile = true;
       // return a linefeed to determine the end of a line
       return cLf;
     }
@@ -903,9 +921,8 @@ namespace CsvTools
       var escaped = false;
       while (!EndOfFile)
       {
-        // Increase position
-        var character = Peek();
-        MoveNext(character);
+        // Read a character
+        var character = ReadChar();
 
         // in case we have a single LF
         if (!postData && m_TreatLfAsSpace && character == cLf && quoted)

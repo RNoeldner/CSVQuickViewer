@@ -67,7 +67,7 @@ namespace CsvTools
     ///   Constructor for a DataReaderWrapper, this wrapper adds artificial fields like Error, start
     ///   and end Line or record number
     /// </summary>
-    /// <param name="fileReader"><see cref="T:CsvTools.IFileReader" /></param>    
+    /// <param name="fileReader"><see cref="T:CsvTools.IFileReader" /></param>
     /// <param name="addErrorField">Add artificial field Error</param>
     /// <param name="addStartLine">Add artificial field Start Line</param>
     /// <param name="addEndLine">Add artificial field End Line</param>
@@ -120,6 +120,7 @@ namespace CsvTools
     public override void Close() => DataReader.Close();
 
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+
     public override async Task CloseAsync()
     {
       if (DataReader is DbDataReader dbDataReader)
@@ -127,6 +128,7 @@ namespace CsvTools
       else
         DataReader.Close();
     }
+
 #endif
 
     public override bool GetBoolean(int ordinal) => DataReader.GetBoolean(ReaderMapping.DataTableToReader(ordinal));
