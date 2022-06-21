@@ -64,16 +64,27 @@ namespace CsvTools
       }
     }
 
+    private bool m_Disposed = false;
+
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-      if (disposing)
+      if (m_Disposed)
+        return;
+      try
       {
-        components?.Dispose();
-        m_WebBrowser?.Dispose();
-      }
+        if (disposing)
+        {
+          components?.Dispose();
+          m_WebBrowser?.Dispose();
+        }
 
-      base.Dispose(disposing);
+        base.Dispose(disposing);
+      }
+      finally
+      {
+        m_Disposed =true;
+      }
     }
 
     public DialogResult ShowDialog(
