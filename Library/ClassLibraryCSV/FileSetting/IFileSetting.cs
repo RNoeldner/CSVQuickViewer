@@ -18,14 +18,13 @@ using System.ComponentModel;
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="System.ComponentModel.INotifyPropertyChanged" />
   /// <summary>
   ///   Interface for a FileSetting
   /// </summary>
-  public interface IFileSetting : INotifyPropertyChanged, ICloneable, IEquatable<IFileSetting>  
+  public interface IFileSetting : INotifyPropertyChanged, ICloneable, IEquatable<IFileSetting>
   {
     /// <summary>
-    /// Status of long ruuning processing on the FileSettings
+    /// Status of long running processing on the FileSettings
     /// 0 - Nothing
     /// 1 - Loading
     /// 2 - Getting Validation Result
@@ -213,7 +212,7 @@ namespace CsvTools
     ///   A setting A using setting B that is dependent on C1 and C2 both dependent on D-&gt; A is
     ///   {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}
     /// </example>
-    IReadOnlyCollection<IFileSetting>? SourceFileSettings { get; set; }
+    IReadOnlyCollection<IFileSetting> SourceFileSettings { get; set; }
 
     /// <summary>
     ///   Gets or sets the SQL statement.
@@ -268,7 +267,7 @@ namespace CsvTools
     /// <summary>
     ///   Occurs when a string value property changed providing information on old and new value
     /// </summary>
-    event EventHandler<PropertyChangedEventArgs<string>>? PropertyChangedString;
+    event EventHandler<PropertyChangedStringEventArgs>? PropertyChangedString;
 
     /// <summary>
     ///   Examine the source and determine LatestSource

@@ -35,7 +35,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void FormColumnUI_Boolean()
     {
-      var col = new Column("MyTest", DataTypeEnum.Boolean) { True = "YO", False = "NOPE" };
+      var col = new Column("MyTest", new ImmutableValueFormat(DataTypeEnum.Boolean, asTrue:"YO", asFalse:  "NOPE"));
       using var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
         UnitTestStatic.HtmlStyle);
       UnitTestStatic.ShowFormAndClose(frm);
@@ -45,7 +45,7 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public void FormColumnUI_DateTime()
     {
-      var col = new Column("MyTest", DataTypeEnum.DateTime) { DateFormat = "dd/MM/yyyy", DateSeparator = ".", TimeSeparator = ":" };
+      var col = new Column("MyTest", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat : "dd/MM/yyyy", dateSeparator : ".", timeSeparator : ":" ));
 
       var df = new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = "dd/MMM/yyy", DateSeparator = "-", TimeSeparator = "#" };
       using (var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
@@ -88,7 +88,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void FormColumnUI_Numeric()
     {
-      var col = new Column("MyTest", DataTypeEnum.Numeric) { DecimalSeparator = ".", GroupSeparator = ",", NumberFormat = "0.00" };
+      var col = new Column("MyTest", new ImmutableValueFormat(DataTypeEnum.Numeric, decimalSeparator : ".", groupSeparator : ",", numberFormat : "0.00"));
 
       using var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
         UnitTestStatic.HtmlStyle);
@@ -124,7 +124,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void FormColumnUI_TextPart()
     {
-      var col = new Column("MyTest", DataTypeEnum.TextPart) { PartSplitter = ":", Part = 2, PartToEnd = true };
+      var col = new Column("MyTest", new ImmutableValueFormat(DataTypeEnum.TextPart, partSplitter : ":", part : 2, partToEnd : true));
       using var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
         UnitTestStatic.HtmlStyle);
       UnitTestStatic.ShowFormAndClose(frm, .1, f => f.SetPartLabels(":", 2, true));

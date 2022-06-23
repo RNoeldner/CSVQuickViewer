@@ -15,7 +15,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Reflection;
 using System.Xml.Serialization;
 
 namespace CsvTools
@@ -26,7 +25,7 @@ namespace CsvTools
   ///   properties, it needs to be defined here
   /// </summary>
   [Serializable]
-  public sealed class SampleAndErrorsInformation : INotifyPropertyChanged, ICloneable
+  public sealed class SampleAndErrorsInformation : NotifyPropertyChangedBase, ICloneable
   {
     private ObservableCollection<SampleRecordEntry> m_Errors = new ObservableCollection<SampleRecordEntry>();
 
@@ -43,11 +42,8 @@ namespace CsvTools
       get => m_Errors;
       set
       {
-        if (m_Errors.CollectionEqualWithOrder(value))
-          return;
-        m_Errors = value;
-        if (m_NumErrors > 0 && Errors.Count > m_NumErrors)
-          NumErrors = Errors.Count;
+        if (SetObservableCollection(ref m_Errors, value))
+          SetField(ref m_NumErrors, Errors.Count, nameof(NumErrors));
       }
     }
 
@@ -69,16 +65,7 @@ namespace CsvTools
           m_NumErrors = Errors.Count;
         return m_NumErrors;
       }
-      set
-      {
-        // can not be smaller than the number of named errors
-        if (Errors.Count > 0 && value < Errors.Count)
-          value = Errors.Count;
-        if (m_NumErrors == value)
-          return;
-        m_NumErrors = value;
-        NotifyPropertyChanged(nameof(NumErrors));
-      }
+      set => SetField(ref m_NumErrors, Errors.Count > 0 && value < Errors.Count ? Errors.Count : value);
     }
 
     /// <summary>
@@ -88,12 +75,8 @@ namespace CsvTools
     public ObservableCollection<SampleRecordEntry> Samples
     {
       get => m_Samples;
-      set
-      {
-        if (m_Samples.CollectionEqualWithOrder(value))
-          return;
-        m_Samples = value;
-      }
+      set => SetObservableCollection(ref m_Samples, value);
+
     }
 
     public bool SamplesSpecified => Samples.Count > 0;
@@ -105,9 +88,6 @@ namespace CsvTools
       CopyTo(other);
       return other;
     }
-
-    /// <inheritdoc />
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     ///   Copies all properties to the other instance
@@ -136,23 +116,5 @@ namespace CsvTools
                                           && Errors.CollectionEqualWithOrder(other.Errors);
     }
 
-    /// <summary>
-    ///   Notifies the completed property changed
-    /// </summary>
-    /// <param name="info">The info.</param>
-    public void NotifyPropertyChanged(string info)
-    {
-      if (PropertyChanged is null)
-        return;
-      try
-      {
-        // ReSharper disable once PolymorphicFieldLikeEventInvocation
-        PropertyChanged(this, new PropertyChangedEventArgs(info));
-      }
-      catch (TargetInvocationException)
-      {
-        // ignored
-      }
-    }
   }
 }

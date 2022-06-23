@@ -110,6 +110,7 @@
 		
 		<Compile Include="..\ClassLibraryCSV\Mutable\FillGuessSettings.cs" Link="FillGuessSettings.cs" />
 		<Compile Include="..\ClassLibraryCSV\Mutable\DelimiterCounter.cs" Link="DelimiterCounter.cs" />
+		<Compile Include="..\ClassLibraryCSV\Mutable\NotifyPropertyChangedBase.cs" Link="NotifyPropertyChangedBase.cs" />
 		<Compile Include="..\ClassLibraryCSV\ImprovedStream.cs" Link="ImprovedStream.cs" />
 		<Compile Include="..\ClassLibraryCSV\Column\ImmutableColumn.cs" Link="Column\ImmutableColumn.cs" />
 		

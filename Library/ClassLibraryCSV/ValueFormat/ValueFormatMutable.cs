@@ -23,7 +23,7 @@ namespace CsvTools
   ///   Setting for a value format
   /// </summary>
   [Serializable]
-  public sealed class ValueFormatMutable : IValueFormat, INotifyPropertyChanged
+  public sealed class ValueFormatMutable : NotifyPropertyChangedBase, IValueFormat
   {
     private DataTypeEnum m_DataType;
     private string m_DateFormat;
@@ -154,11 +154,6 @@ namespace CsvTools
                                                                && FileOutPutPlaceholder == string.Empty
                                                                && DisplayNullAs == string.Empty);
 
-    /// <inheritdoc />
-    /// <summary>
-    ///   Occurs when a property value changes.
-    /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <inheritdoc />    
     [XmlAttribute]
@@ -166,13 +161,7 @@ namespace CsvTools
     public DataTypeEnum DataType
     {
       get => m_DataType;
-      set
-      {
-        if (m_DataType.Equals(value))
-          return;
-        m_DataType = value;
-        NotifyPropertyChanged(nameof(DataType));
-      }
+      set => SetField(ref m_DataType, value);
     }
 
     /// <inheritdoc />    
@@ -184,14 +173,7 @@ namespace CsvTools
     public string DateFormat
     {
       get => m_DateFormat;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_DateFormat.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_DateFormat = newVal;
-        NotifyPropertyChanged(nameof(DateFormat));
-      }
+      set => SetString(ref m_DateFormat, value, StringComparison.Ordinal);
     }
 
     /// <inheritdoc />
@@ -203,15 +185,7 @@ namespace CsvTools
     public string DateSeparator
     {
       get => m_DateSeparator;
-      set
-      {
-        // Translate written punctuation into a character
-        var newVal = (value ?? string.Empty).WrittenPunctuation();
-        if (m_DateSeparator.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_DateSeparator = newVal;
-        NotifyPropertyChanged(nameof(DateSeparator));
-      }
+      set => SetString(ref m_DateSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
     }
 
     /// <inheritdoc />    
@@ -225,20 +199,10 @@ namespace CsvTools
       get => m_DecimalSeparator;
       set
       {
-        // Translate written punctuation into a character
-        var newValDecimal = (value ?? string.Empty).WrittenPunctuation();
-        if (m_DecimalSeparator.Equals(newValDecimal))
-          return;
-
-        var newValGroup = m_GroupSeparator;
-        if (newValGroup.Equals(newValDecimal))
-        {
-          m_GroupSeparator = "";
-          NotifyPropertyChanged(nameof(GroupSeparator));
-        }
-
-        m_DecimalSeparator = newValDecimal;
-        NotifyPropertyChanged(nameof(DecimalSeparator));
+        if (!SetString(ref m_DecimalSeparator, (value ?? string.Empty).WrittenPunctuation(),
+              StringComparison.Ordinal)) return;
+        if (m_GroupSeparator.Equals(m_DecimalSeparator))
+          SetString(ref m_GroupSeparator, "", StringComparison.Ordinal, false, nameof(GroupSeparator));
       }
     }
 
@@ -251,15 +215,7 @@ namespace CsvTools
     public string DisplayNullAs
     {
       get => m_DisplayNullAs;
-
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_DisplayNullAs.Equals(newVal))
-          return;
-        m_DisplayNullAs = newVal;
-        NotifyPropertyChanged(nameof(DisplayNullAs));
-      }
+      set => SetString(ref m_DisplayNullAs, value, StringComparison.Ordinal);
     }
 
     /// <inheritdoc />    
@@ -271,14 +227,7 @@ namespace CsvTools
     public string False
     {
       get => m_False;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_False.Equals(newVal, StringComparison.OrdinalIgnoreCase))
-          return;
-        m_False = newVal;
-        NotifyPropertyChanged(nameof(False));
-      }
+      set => SetString(ref m_False, value, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <inheritdoc />
@@ -292,19 +241,12 @@ namespace CsvTools
       get => m_GroupSeparator;
       set
       {
-        var newValGroup = (value ?? string.Empty).WrittenPunctuation();
-        if (m_GroupSeparator.Equals(newValGroup))
-          return;
-        // If we set the GroupSeparator to be the decimal separator, do not save
-        var newValDecimal = m_DecimalSeparator;
-        if (newValGroup.Equals(newValDecimal))
+        var oldGroup = m_GroupSeparator;
+        if (SetString(ref m_GroupSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal))
         {
-          m_DecimalSeparator = m_GroupSeparator;
-          NotifyPropertyChanged(nameof(DecimalSeparator));
+          if (m_DecimalSeparator.Equals(m_DecimalSeparator))
+            SetString(ref m_DecimalSeparator, oldGroup, StringComparison.Ordinal, false, nameof(DecimalSeparator));
         }
-
-        m_GroupSeparator = newValGroup;
-        NotifyPropertyChanged(nameof(GroupSeparator));
       }
     }
 
@@ -321,14 +263,7 @@ namespace CsvTools
     public string NumberFormat
     {
       get => m_NumberFormat;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_NumberFormat.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_NumberFormat = newVal;
-        NotifyPropertyChanged(nameof(NumberFormat));
-      }
+      set => SetString(ref m_NumberFormat, value, StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -336,13 +271,7 @@ namespace CsvTools
     public int Part
     {
       get => m_Part;
-      set
-      {
-        if (m_Part == value)
-          return;
-        m_Part = value;
-        NotifyPropertyChanged(nameof(Part));
-      }
+      set => SetField(ref m_Part, value);
     }
 
 #if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
@@ -354,14 +283,7 @@ namespace CsvTools
     public string PartSplitter
     {
       get => m_PartSplitter;
-      set
-      {
-        var newVal = (value ?? string.Empty).WrittenPunctuation();
-        if (m_PartSplitter.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_PartSplitter = newVal;
-        NotifyPropertyChanged(nameof(PartSplitter));
-      }
+      set => SetString(ref m_PartSplitter, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -369,13 +291,7 @@ namespace CsvTools
     public bool PartToEnd
     {
       get => m_PartToEnd;
-      set
-      {
-        if (m_PartToEnd.Equals(value))
-          return;
-        m_PartToEnd = value;
-        NotifyPropertyChanged(nameof(PartToEnd));
-      }
+      set => SetField(ref m_PartToEnd, value);
     }
 
     /// <inheritdoc />
@@ -391,14 +307,7 @@ namespace CsvTools
     public string TimeSeparator
     {
       get => m_TimeSeparator;
-      set
-      {
-        var newVal = (value ?? string.Empty).WrittenPunctuation();
-        if (m_TimeSeparator.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_TimeSeparator = newVal;
-        NotifyPropertyChanged(nameof(TimeSeparator));
-      }
+      set => SetString(ref m_TimeSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
     }
 
     /// <inheritdoc />
@@ -414,14 +323,7 @@ namespace CsvTools
     public string True
     {
       get => m_True;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_True.Equals(newVal, StringComparison.OrdinalIgnoreCase))
-          return;
-        m_True = newVal;
-        NotifyPropertyChanged(nameof(True));
-      }
+      set => SetString(ref m_True, value, StringComparison.InvariantCulture);
     }
 
 
@@ -434,14 +336,7 @@ namespace CsvTools
     public string RegexSearchPattern
     {
       get => m_RegexSearchPattern;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_RegexSearchPattern.Equals(newVal, StringComparison.OrdinalIgnoreCase))
-          return;
-        m_RegexSearchPattern = newVal;
-        NotifyPropertyChanged(nameof(RegexSearchPattern));
-      }
+      set => SetString(ref m_RegexSearchPattern, value, StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -452,14 +347,7 @@ namespace CsvTools
     public string RegexReplacement
     {
       get => m_RegexReplacement;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_RegexReplacement.Equals(newVal, StringComparison.OrdinalIgnoreCase))
-          return;
-        m_RegexReplacement = newVal;
-        NotifyPropertyChanged(nameof(RegexReplacement));
-      }
+      set => SetString(ref m_RegexReplacement, value, StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -467,14 +355,7 @@ namespace CsvTools
     public string ReadFolder
     {
       get => m_ReadFolder;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_ReadFolder.Equals(newVal))
-          return;
-        m_ReadFolder = newVal;
-        NotifyPropertyChanged(nameof(ReadFolder));
-      }
+      set => SetString(ref m_ReadFolder, value, StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -482,14 +363,7 @@ namespace CsvTools
     public string WriteFolder
     {
       get => m_WriteFolder;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_WriteFolder.Equals(newVal))
-          return;
-        m_WriteFolder = newVal;
-        NotifyPropertyChanged(nameof(WriteFolder));
-      }
+      set => SetString(ref m_WriteFolder, value, StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -497,14 +371,7 @@ namespace CsvTools
     public string FileOutPutPlaceholder
     {
       get => m_FileOutPutPlaceholder;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_FileOutPutPlaceholder.Equals(newVal))
-          return;
-        m_FileOutPutPlaceholder = newVal;
-        NotifyPropertyChanged(nameof(FileOutPutPlaceholder));
-      }
+      set => SetString(ref m_FileOutPutPlaceholder, value, StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -512,13 +379,7 @@ namespace CsvTools
     public bool Overwrite
     {
       get => m_Overwrite;
-      set
-      {
-        if (m_Overwrite.Equals(value))
-          return;
-        m_Overwrite = value;
-        NotifyPropertyChanged(nameof(Overwrite));
-      }
+      set => SetField(ref m_Overwrite, value);
     }
 
     /// <summary>
@@ -550,11 +411,5 @@ namespace CsvTools
       Overwrite = other.Overwrite;
       FileOutPutPlaceholder = other.FileOutPutPlaceholder;
     }
-
-    /// <summary>
-    ///   Notifies the property changed.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    public void NotifyPropertyChanged(string info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
   }
 }

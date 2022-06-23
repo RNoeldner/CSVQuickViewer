@@ -40,7 +40,9 @@ namespace CsvTools.Tests
 			Assert.AreEqual(0, test.Samples.Count);
 			test.Errors = new ObservableCollection<SampleRecordEntry>
 			{
-				new SampleRecordEntry(1, true), new SampleRecordEntry(2, true), new SampleRecordEntry(3, true)
+				new SampleRecordEntry(1, true), 
+                new SampleRecordEntry(2, true), 
+                new SampleRecordEntry(3, true)
 			};
 			Assert.AreEqual(3, test.NumErrors);
 			Assert.AreEqual(0, test.Samples.Count);
