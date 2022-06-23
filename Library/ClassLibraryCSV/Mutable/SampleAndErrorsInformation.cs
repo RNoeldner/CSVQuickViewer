@@ -42,7 +42,7 @@ namespace CsvTools
       get => m_Errors;
       set
       {
-        if (SetObservableCollection(ref m_Errors, value))
+        if (SetCollection(m_Errors, value))
           SetField(ref m_NumErrors, Errors.Count, nameof(NumErrors));
       }
     }
@@ -75,7 +75,7 @@ namespace CsvTools
     public ObservableCollection<SampleRecordEntry> Samples
     {
       get => m_Samples;
-      set => SetObservableCollection(ref m_Samples, value);
+      set => SetCollection(m_Samples, value);
 
     }
 

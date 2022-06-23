@@ -84,7 +84,7 @@ namespace CsvTools
     /// <param name="withOrder">if <c>true</c> the order of the collections is important and will indicate a change</param>
     /// <param name="propertyName">Name of the property.</param>
     /// <returns><c>true></c> if the value was changed</returns>
-    protected bool SetCollection<T>(ref ICollection<T> field, in IEnumerable<T>? value, bool withOrder = true, [CallerMemberName] string propertyName = "") where T : IEquatable<T>
+    protected bool SetCollection<T>(ICollection<T> field, in IEnumerable<T>? value, bool withOrder = true, [CallerMemberName] string propertyName = "") where T : IEquatable<T>
     {
       if (withOrder && field.CollectionEqualWithOrder(value))
         return false;
@@ -130,7 +130,7 @@ namespace CsvTools
     /// <param name="withOrder">if <c>true</c> the order of the collections is important and will indicate a change</param>
     /// <param name="propertyName">Name of the property.</param>
     /// <returns><c>true></c> if the value was changed</returns>
-    protected bool SetObservableCollection<T>(ref ObservableCollection<T> field, in IEnumerable<T>? value, bool withOrder = true, [CallerMemberName] string propertyName = "") where T : IEquatable<T>
+    protected bool SetCollection<T>(ObservableCollection<T> field, in IEnumerable<T>? value, bool withOrder = true, [CallerMemberName] string propertyName = "") where T : IEquatable<T>
     {
       if (withOrder && field.CollectionEqualWithOrder(value))
         return false;
@@ -161,7 +161,7 @@ namespace CsvTools
     /// <param name="notifyChange">If <c>true</c> the <see cref="PropertyChangedString"/> event is raised before the data is updated</param>
     /// <param name="propertyName">Name of the property.</param>
     /// <returns><c>true></c> if the value was changed</returns>
-    protected bool SetString(ref string field, in string? value, StringComparison comparison, bool notifyChange = false, [CallerMemberName] string propertyName = "")
+    protected bool SetField(ref string field, in string? value, StringComparison comparison, bool notifyChange = false, [CallerMemberName] string propertyName = "")
     {
       var newValue = value ?? string.Empty;
       if (field.Equals(newValue, comparison))

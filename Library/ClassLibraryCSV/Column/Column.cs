@@ -375,7 +375,7 @@ namespace CsvTools
     public string DestinationName
     {
       get => m_DestinationName;
-      set => SetString(ref m_DestinationName, value, StringComparison.Ordinal);
+      set => SetField(ref m_DestinationName, value, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -398,7 +398,7 @@ namespace CsvTools
     public string Name
     {
       get => m_Name;
-      set => SetString(ref m_Name, value, StringComparison.Ordinal, true);
+      set => SetField(ref m_Name, value, StringComparison.Ordinal, true);
     }
 
     /// <summary>
@@ -410,7 +410,7 @@ namespace CsvTools
     public string TimePart
     {
       get => m_TimePart;
-      set => SetString(ref m_TimePart, value, StringComparison.Ordinal);
+      set => SetField(ref m_TimePart, value, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -422,7 +422,7 @@ namespace CsvTools
     public string TimePartFormat
     {
       get => m_TimePartFormat;
-      set => SetString(ref m_TimePartFormat, value, StringComparison.Ordinal);
+      set => SetField(ref m_TimePartFormat, value, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -434,7 +434,7 @@ namespace CsvTools
     public string TimeZonePart
     {
       get => m_TimeZonePart;
-      set => SetString(ref m_TimeZonePart, value, StringComparison.Ordinal);
+      set => SetField(ref m_TimeZonePart, value, StringComparison.Ordinal);
     }
 
     /// <summary>

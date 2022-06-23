@@ -173,7 +173,7 @@ namespace CsvTools
     public string DateFormat
     {
       get => m_DateFormat;
-      set => SetString(ref m_DateFormat, value, StringComparison.Ordinal);
+      set => SetField(ref m_DateFormat, value, StringComparison.Ordinal);
     }
 
     /// <inheritdoc />
@@ -185,7 +185,7 @@ namespace CsvTools
     public string DateSeparator
     {
       get => m_DateSeparator;
-      set => SetString(ref m_DateSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
+      set => SetField(ref m_DateSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
     }
 
     /// <inheritdoc />    
@@ -199,10 +199,10 @@ namespace CsvTools
       get => m_DecimalSeparator;
       set
       {
-        if (!SetString(ref m_DecimalSeparator, (value ?? string.Empty).WrittenPunctuation(),
+        if (!SetField(ref m_DecimalSeparator, (value ?? string.Empty).WrittenPunctuation(),
               StringComparison.Ordinal)) return;
         if (m_GroupSeparator.Equals(m_DecimalSeparator))
-          SetString(ref m_GroupSeparator, "", StringComparison.Ordinal, false, nameof(GroupSeparator));
+          SetField(ref m_GroupSeparator, "", StringComparison.Ordinal, false, nameof(GroupSeparator));
       }
     }
 
@@ -215,7 +215,7 @@ namespace CsvTools
     public string DisplayNullAs
     {
       get => m_DisplayNullAs;
-      set => SetString(ref m_DisplayNullAs, value, StringComparison.Ordinal);
+      set => SetField(ref m_DisplayNullAs, value, StringComparison.Ordinal);
     }
 
     /// <inheritdoc />    
@@ -227,7 +227,7 @@ namespace CsvTools
     public string False
     {
       get => m_False;
-      set => SetString(ref m_False, value, StringComparison.OrdinalIgnoreCase);
+      set => SetField(ref m_False, value, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <inheritdoc />
@@ -242,10 +242,10 @@ namespace CsvTools
       set
       {
         var oldGroup = m_GroupSeparator;
-        if (SetString(ref m_GroupSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal))
+        if (SetField(ref m_GroupSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal))
         {
           if (m_DecimalSeparator.Equals(m_DecimalSeparator))
-            SetString(ref m_DecimalSeparator, oldGroup, StringComparison.Ordinal, false, nameof(DecimalSeparator));
+            SetField(ref m_DecimalSeparator, oldGroup, StringComparison.Ordinal, false, nameof(DecimalSeparator));
         }
       }
     }
@@ -263,7 +263,7 @@ namespace CsvTools
     public string NumberFormat
     {
       get => m_NumberFormat;
-      set => SetString(ref m_NumberFormat, value, StringComparison.Ordinal);
+      set => SetField(ref m_NumberFormat, value, StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -283,7 +283,7 @@ namespace CsvTools
     public string PartSplitter
     {
       get => m_PartSplitter;
-      set => SetString(ref m_PartSplitter, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
+      set => SetField(ref m_PartSplitter, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -307,7 +307,7 @@ namespace CsvTools
     public string TimeSeparator
     {
       get => m_TimeSeparator;
-      set => SetString(ref m_TimeSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
+      set => SetField(ref m_TimeSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
     }
 
     /// <inheritdoc />
@@ -323,7 +323,7 @@ namespace CsvTools
     public string True
     {
       get => m_True;
-      set => SetString(ref m_True, value, StringComparison.InvariantCulture);
+      set => SetField(ref m_True, value, StringComparison.InvariantCulture);
     }
 
 
@@ -336,7 +336,7 @@ namespace CsvTools
     public string RegexSearchPattern
     {
       get => m_RegexSearchPattern;
-      set => SetString(ref m_RegexSearchPattern, value, StringComparison.Ordinal);
+      set => SetField(ref m_RegexSearchPattern, value, StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -347,7 +347,7 @@ namespace CsvTools
     public string RegexReplacement
     {
       get => m_RegexReplacement;
-      set => SetString(ref m_RegexReplacement, value, StringComparison.Ordinal);
+      set => SetField(ref m_RegexReplacement, value, StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -355,7 +355,7 @@ namespace CsvTools
     public string ReadFolder
     {
       get => m_ReadFolder;
-      set => SetString(ref m_ReadFolder, value, StringComparison.Ordinal);
+      set => SetField(ref m_ReadFolder, value, StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -363,7 +363,7 @@ namespace CsvTools
     public string WriteFolder
     {
       get => m_WriteFolder;
-      set => SetString(ref m_WriteFolder, value, StringComparison.Ordinal);
+      set => SetField(ref m_WriteFolder, value, StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -371,7 +371,7 @@ namespace CsvTools
     public string FileOutPutPlaceholder
     {
       get => m_FileOutPutPlaceholder;
-      set => SetString(ref m_FileOutPutPlaceholder, value, StringComparison.Ordinal);
+      set => SetField(ref m_FileOutPutPlaceholder, value, StringComparison.Ordinal);
     }
 
     [XmlAttribute]

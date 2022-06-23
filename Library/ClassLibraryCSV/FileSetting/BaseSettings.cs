@@ -341,7 +341,7 @@ namespace CsvTools
       set
       {
 
-        if (SetString(ref m_Id, value, StringComparison.Ordinal, true))
+        if (SetField(ref m_Id, value, StringComparison.Ordinal, true))
           // TODO: Check if we need to raise NotifyPropertyChangedString for InternalID
           NotifyPropertyChanged(nameof(InternalID));
       }
@@ -374,7 +374,7 @@ namespace CsvTools
     public virtual string Comment
     {
       get => m_Comment;
-      set => SetString(ref m_Comment, value, StringComparison.Ordinal);
+      set => SetField(ref m_Comment, value, StringComparison.Ordinal);
     }
 
 
@@ -515,7 +515,7 @@ namespace CsvTools
       get => m_SqlStatement;
       set
       {
-        if (SetString(ref m_SqlStatement, (value ?? string.Empty).NoControlCharacters().HandleCrlfCombinations(),
+        if (SetField(ref m_SqlStatement, (value ?? string.Empty).NoControlCharacters().HandleCrlfCombinations(),
               StringComparison.Ordinal, true))
         {
           // Need to assume we have new sources, it has to be recalculated
@@ -536,7 +536,7 @@ namespace CsvTools
     public virtual string TemplateName
     {
       get => m_TemplateName;
-      set => SetString(ref m_TemplateName, value, StringComparison.Ordinal);
+      set => SetField(ref m_TemplateName, value, StringComparison.Ordinal);
     }
 
     /// <inheritdoc />
@@ -566,7 +566,7 @@ namespace CsvTools
     public virtual string TreatTextAsNull
     {
       get => m_TreatTextAsNull;
-      set => SetString(ref m_TreatTextAsNull, value, StringComparison.Ordinal);
+      set => SetField(ref m_TreatTextAsNull, value, StringComparison.Ordinal);
     }
 
     /// <inheritdoc />
