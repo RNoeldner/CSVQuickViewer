@@ -428,8 +428,10 @@ namespace CsvTools.Tests
       
       test.SourceFileSettings = new[] { test1, test2 }; 
       Assert.AreEqual(2, test.SourceFileSettings.Count);
+#pragma warning disable CS8625
       test.SourceFileSettings = null; 
-      Assert.AreEqual(2, test.SourceFileSettings.Count);
+#pragma warning restore CS8625
+      Assert.AreEqual(0, test.SourceFileSettings!.Count);
     }
     [TestMethod]
     public void SqlStatementCData()

@@ -23,7 +23,7 @@ namespace CsvTools
   ///   Column information like name, Type, Format etc.
   /// </summary>
   [Serializable]
-  public sealed class Column : IColumn, INotifyPropertyChanged
+  public sealed class Column : NotifyPropertyChangedBase, IColumn
   {
     private bool? m_Convert;
     private string m_DestinationName = string.Empty;
@@ -98,6 +98,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The type of the data.</value>
     [XmlAttribute("Type")]
+    [Obsolete("Use ValueFormat instead")]
     [DefaultValue(DataTypeEnum.String)]
     public DataTypeEnum DataType
     {
@@ -110,6 +111,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The date format.</value>
     [XmlAttribute]
+    [Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
     public string DateFormat
     {
@@ -129,6 +131,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The date separator.</value>
     [XmlAttribute]
+    [Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
     public string DateSeparator
     {
@@ -149,6 +152,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The decimal separator.</value>
     [XmlAttribute]
+    [Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
     public string DecimalSeparator
     {
@@ -156,6 +160,7 @@ namespace CsvTools
       set => ValueFormatMutable.DecimalSeparator = value;
     }
 
+    [XmlIgnore]
     public bool DestinationNameSpecified => !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
@@ -163,6 +168,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The false.</value>
     [XmlAttribute]
+    [Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cFalseDefault)]
     public string False
     {
@@ -183,6 +189,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The group separator.</value>
     [XmlAttribute]
+    [Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
     public string GroupSeparator
     {
@@ -195,6 +202,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The number format.</value>
     [XmlAttribute]
+    [Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
     public string NumberFormat
     {
@@ -215,6 +223,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The part starting with 1</value>
     [XmlAttribute]
+    [Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cPartDefault)]
     public int Part
     {
@@ -233,7 +242,9 @@ namespace CsvTools
     ///   Gets or sets the splitter.
     /// </summary>
     /// <value>The splitter.</value>
+    [XmlElement]
     [DefaultValue(ValueFormatExtension.cPartSplitterDefault)]
+    [Obsolete("Use ValueFormat instead")]
     public string PartSplitter
     {
       get => ValueFormatMutable.PartSplitter;
@@ -255,6 +266,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The part starting with 1</value>
     [XmlAttribute]
+    [Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cPartToEndDefault)]
     public bool PartToEnd
     {
@@ -291,6 +303,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The time separator.</value>
     [XmlAttribute]
+    [Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
     public string TimeSeparator
     {
@@ -311,12 +324,12 @@ namespace CsvTools
     /// </summary>
     /// <value>The true.</value>
     [XmlAttribute]
+    [Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cTrueDefault)]
     public string True
     {
       // Identifiers should not match keywords
       get => ValueFormatMutable.True;
-
       set => ValueFormatMutable.True = value;
     }
 
@@ -350,13 +363,7 @@ namespace CsvTools
     public bool Convert
     {
       get => m_Convert ?? ValueFormatMutable.DataType != DataTypeEnum.String;
-      set
-      {
-        if (m_Convert.HasValue && m_Convert.Equals(value))
-          return;
-        m_Convert = value;
-        NotifyPropertyChanged(nameof(Convert));
-      }
+      set => SetField(ref m_Convert, value);
     }
 
     /// <summary>
@@ -368,13 +375,7 @@ namespace CsvTools
     public string DestinationName
     {
       get => m_DestinationName;
-      set
-      {
-        if (m_DestinationName.Equals(value, StringComparison.Ordinal))
-          return;
-        m_DestinationName = value;
-        NotifyPropertyChanged(nameof(DestinationName));
-      }
+      set => SetString(ref m_DestinationName, value, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -386,14 +387,7 @@ namespace CsvTools
     public bool Ignore
     {
       get => m_Ignore;
-
-      set
-      {
-        if (m_Ignore.Equals(value))
-          return;
-        m_Ignore = value;
-        NotifyPropertyChanged(nameof(Ignore));
-      }
+      set => SetField(ref m_Ignore, value);
     }
 
     /// <summary>
@@ -404,13 +398,7 @@ namespace CsvTools
     public string Name
     {
       get => m_Name;
-      set
-      {
-        if (m_Name.Equals(value, StringComparison.Ordinal))
-          return;
-        m_Name = value;
-        NotifyPropertyChanged(nameof(Name));
-      }
+      set => SetString(ref m_Name, value, StringComparison.Ordinal, true);
     }
 
     /// <summary>
@@ -422,14 +410,7 @@ namespace CsvTools
     public string TimePart
     {
       get => m_TimePart;
-
-      set
-      {
-        if (m_TimePart.Equals(value, StringComparison.Ordinal))
-          return;
-        m_TimePart = value;
-        NotifyPropertyChanged(nameof(TimePart));
-      }
+      set => SetString(ref m_TimePart, value, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -441,13 +422,7 @@ namespace CsvTools
     public string TimePartFormat
     {
       get => m_TimePartFormat;
-      set
-      {
-        if (m_TimePartFormat.Equals(value, StringComparison.Ordinal))
-          return;
-        m_TimePartFormat = value;
-        NotifyPropertyChanged(nameof(TimePartFormat));
-      }
+      set => SetString(ref m_TimePartFormat, value, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -459,14 +434,7 @@ namespace CsvTools
     public string TimeZonePart
     {
       get => m_TimeZonePart;
-
-      set
-      {
-        if (m_TimeZonePart.Equals(value, StringComparison.Ordinal))
-          return;
-        m_TimeZonePart = value;
-        NotifyPropertyChanged(nameof(TimeZonePart));
-      }
+      set => SetString(ref m_TimeZonePart, value, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -517,9 +485,6 @@ namespace CsvTools
 
     object ICloneable.Clone() => new Column(this);
 
-    /// <inheritdoc />
-    public event PropertyChangedEventHandler? PropertyChanged;
-
     /// <summary>
     ///   Clones this instance into a new instance of the same type
     /// </summary>
@@ -549,13 +514,6 @@ namespace CsvTools
       if (m_Convert.HasValue)
         other.Convert = m_Convert.Value;
     }
-
-    /// <summary>
-    ///   Notifies the property changed.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    public void NotifyPropertyChanged(string info) =>
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
     /// <summary>
     ///   Returns a <see cref="string" /> that represents this instance.

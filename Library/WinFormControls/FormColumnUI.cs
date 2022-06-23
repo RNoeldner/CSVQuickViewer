@@ -718,8 +718,8 @@ namespace CsvTools
         groupBoxDate.Visible = selType == DataTypeEnum.DateTime;
         if (groupBoxDate.Visible)
         {
-          if (string.IsNullOrEmpty(m_ColumnEdit.DateFormat))
-            m_ColumnEdit.DateFormat = ValueFormatExtension.cDateFormatDefault;
+          if (string.IsNullOrEmpty(m_ColumnEdit.ValueFormat.DateFormat))
+            m_ColumnEdit.ValueFormatMutable.DateFormat = ValueFormatExtension.cDateFormatDefault;
           DateFormatChanged(sender, EventArgs.Empty);
         }
 
@@ -728,8 +728,8 @@ namespace CsvTools
         groupBoxRegExReplace.Visible = selType == DataTypeEnum.TextReplace;
 
         groupBoxBinary.Visible = selType == DataTypeEnum.Binary;
-        if (groupBoxBinary.Visible && m_ColumnEdit.DateFormat == ValueFormatExtension.cDateFormatDefault)
-          m_ColumnEdit.DateFormat = string.Empty;
+        if (groupBoxBinary.Visible && m_ColumnEdit.ValueFormat.DateFormat == ValueFormatExtension.cDateFormatDefault)
+          m_ColumnEdit.ValueFormatMutable.DateFormat = string.Empty;
 
         if (groupBoxSplit.Visible)
           SetSamplePart(sender, EventArgs.Empty);

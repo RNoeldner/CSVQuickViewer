@@ -23,7 +23,7 @@ namespace CsvTools
   ///   Settings how the typed values should be determined
   /// </summary>
   [Serializable]
-  public sealed class FillGuessSettings : INotifyPropertyChanged, ICloneable, IEquatable<FillGuessSettings>
+  public sealed class FillGuessSettings : NotifyPropertyChangedBase, ICloneable, IEquatable<FillGuessSettings>
   {
     private long m_CheckedRecords = 30000;
 
@@ -61,14 +61,7 @@ namespace CsvTools
     public long CheckedRecords
     {
       get => m_CheckedRecords;
-
-      set
-      {
-        if (m_CheckedRecords == value)
-          return;
-        m_CheckedRecords = value;
-        NotifyPropertyChanged(nameof(CheckedRecords));
-      }
+      set => SetField(ref m_CheckedRecords, value);
     }
 
     /// <summary>
@@ -79,14 +72,7 @@ namespace CsvTools
     public bool CheckNamedDates
     {
       get => m_CheckNamedDates;
-
-      set
-      {
-        if (m_CheckNamedDates == value)
-          return;
-        m_CheckNamedDates = value;
-        NotifyPropertyChanged(nameof(CheckNamedDates));
-      }
+      set => SetField(ref m_CheckNamedDates, value);
     }
 
     [DefaultValue(true)]
@@ -94,13 +80,7 @@ namespace CsvTools
     public bool Enabled
     {
       get => m_Enabled;
-      set
-      {
-        if (m_Enabled == value)
-          return;
-        m_Enabled = value;
-        NotifyPropertyChanged(nameof(Enabled));
-      }
+      set => SetField(ref m_Enabled, value);
     }
 
     /// <summary>
@@ -118,14 +98,7 @@ namespace CsvTools
     public bool DetectNumbers
     {
       get => m_DetectNumbers;
-
-      set
-      {
-        if (m_DetectNumbers == value)
-          return;
-        m_DetectNumbers = value;
-        NotifyPropertyChanged(nameof(DetectNumbers));
-      }
+      set => SetField(ref m_DetectNumbers, value);
     }
 
     /// <summary>
@@ -136,14 +109,7 @@ namespace CsvTools
     public bool DetectPercentage
     {
       get => m_DetectPercentage;
-
-      set
-      {
-        if (m_DetectPercentage == value)
-          return;
-        m_DetectPercentage = value;
-        NotifyPropertyChanged(nameof(DetectPercentage));
-      }
+      set => SetField(ref m_DetectPercentage, value);
     }
 
     /// <summary>
@@ -154,14 +120,7 @@ namespace CsvTools
     public bool DetectBoolean
     {
       get => m_DetectBoolean;
-
-      set
-      {
-        if (m_DetectBoolean == value)
-          return;
-        m_DetectBoolean = value;
-        NotifyPropertyChanged(nameof(DetectBoolean));
-      }
+      set => SetField(ref m_DetectBoolean, value);
     }
 
     /// <summary>
@@ -178,7 +137,7 @@ namespace CsvTools
         if (m_DetectDateTime == value)
           return;
         m_DetectDateTime = value;
-        NotifyPropertyChanged(nameof(DetectDateTime));
+        NotifyPropertyChanged();
       }
     }
 
@@ -196,7 +155,7 @@ namespace CsvTools
         if (m_DetectGuid == value)
           return;
         m_DetectGuid = value;
-        NotifyPropertyChanged(nameof(DetectGuid));
+        NotifyPropertyChanged();
       }
     }
 
@@ -217,7 +176,7 @@ namespace CsvTools
         if (m_FalseValue.Equals(newVal, StringComparison.Ordinal))
           return;
         m_FalseValue = newVal;
-        NotifyPropertyChanged(nameof(FalseValue));
+        NotifyPropertyChanged();
       }
     }
 
@@ -234,7 +193,7 @@ namespace CsvTools
         if (m_IgnoreIdColumns == value)
           return;
         m_IgnoreIdColumns = value;
-        NotifyPropertyChanged(nameof(IgnoreIdColumns));
+        NotifyPropertyChanged();
       }
     }
 
@@ -252,7 +211,7 @@ namespace CsvTools
         if (m_MinSamples == value || value <= 0 || value >= m_SampleValues)
           return;
         m_MinSamples = value;
-        NotifyPropertyChanged(nameof(MinSamples));
+        NotifyPropertyChanged();
       }
     }
 
@@ -270,7 +229,7 @@ namespace CsvTools
         if (m_SampleValues == value || value <= 0 || value <= m_MinSamples)
           return;
         m_SampleValues = value;
-        NotifyPropertyChanged(nameof(SampleValues));
+        NotifyPropertyChanged();
       }
     }
 
@@ -288,7 +247,7 @@ namespace CsvTools
         if (m_SerialDateTime == value)
           return;
         m_SerialDateTime = value;
-        NotifyPropertyChanged(nameof(SerialDateTime));
+        NotifyPropertyChanged();
       }
     }
 
@@ -309,7 +268,7 @@ namespace CsvTools
         if (m_TrueValue.Equals(newVal, StringComparison.Ordinal))
           return;
         m_TrueValue = newVal;
-        NotifyPropertyChanged(nameof(TrueValue));
+        NotifyPropertyChanged();
       }
     }
 
@@ -340,8 +299,6 @@ namespace CsvTools
                                       && string.Equals(TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <inheritdoc />
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     ///   Copy all properties to another instance of FillGuessSettings
@@ -364,12 +321,5 @@ namespace CsvTools
       other.SerialDateTime = SerialDateTime;
       other.TrueValue = TrueValue;
     }
-
-    /// <summary>
-    ///   Notifies the property changed.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    public void NotifyPropertyChanged(string info) =>
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
   }
 }

@@ -154,14 +154,14 @@ namespace CsvTools.Tests
     public void ValueFormatCheckDefaults()
     {
       var test = new ValueFormatMutable();
-      Assert.AreEqual(test.DateFormat, "MM/dd/yyyy", "DateFormat");
-      Assert.AreEqual(test.DateSeparator, "/", "DateSeparator");
-      Assert.AreEqual(test.DecimalSeparator, ".", "DecimalSeparator");
-      Assert.AreEqual(test.False, "False", "False");
-      Assert.AreEqual(test.GroupSeparator, string.Empty, "GroupSeparator");
-      Assert.AreEqual(test.NumberFormat, "0.#####", "NumberFormat");
-      Assert.AreEqual(test.TimeSeparator, ":", "TimeSeparator");
-      Assert.AreEqual(test.True, "True", "True");
+      Assert.AreEqual("MM/dd/yyyy", test.DateFormat, "DateFormat");
+      Assert.AreEqual("/", test.DateSeparator, "DateSeparator");
+      Assert.AreEqual(".", test.DecimalSeparator,  "DecimalSeparator");
+      Assert.AreEqual("False", test.False,  "False");
+      Assert.AreEqual(string.Empty, test.GroupSeparator,  "GroupSeparator");
+      Assert.AreEqual("0.#####", test.NumberFormat,  "NumberFormat");
+      Assert.AreEqual(":", test.TimeSeparator, "TimeSeparator");
+      Assert.AreEqual("True", test.True, "True");
     }
 
     [TestMethod]
@@ -181,14 +181,15 @@ namespace CsvTools.Tests
       var target = new ValueFormatMutable();
       target.CopyFrom(m_ValueFormatMutableGerman);
 
-      Assert.AreEqual(target.DateFormat, "dd/MM/yyyy");
-      Assert.AreEqual(target.DateSeparator, ".");
-      Assert.AreEqual(target.DecimalSeparator, ",");
-      Assert.AreEqual(target.False, "Falsch");
-      Assert.AreEqual(target.GroupSeparator, ".");
-      Assert.AreEqual(target.NumberFormat, "0.##");
-      Assert.AreEqual(target.TimeSeparator, "-");
-      Assert.AreEqual(target.True, "Wahr");
+      Assert.AreEqual(m_ValueFormatMutableGerman.DateFormat, target.DateFormat );
+      Assert.AreEqual(m_ValueFormatMutableGerman.DateSeparator, target.DateSeparator );
+      Assert.AreEqual(m_ValueFormatMutableGerman.DecimalSeparator , target.DecimalSeparator, "DecimalSeparator" );
+      Assert.AreEqual(m_ValueFormatMutableGerman.GroupSeparator, target.GroupSeparator,"GroupSeparator");
+      Assert.AreEqual(m_ValueFormatMutableGerman.False, target.False,"False" );
+      
+      Assert.AreEqual(m_ValueFormatMutableGerman.NumberFormat, target.NumberFormat, "NumberFormat");
+      Assert.AreEqual(m_ValueFormatMutableGerman.TimeSeparator,target.TimeSeparator, "TimeSeparator");
+      Assert.AreEqual(m_ValueFormatMutableGerman.True, target.True, "True");
     }
 
     [TestMethod]
