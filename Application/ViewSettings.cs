@@ -14,7 +14,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Reflection;
 using System.Xml.Serialization;
 
 namespace CsvTools
@@ -24,7 +23,7 @@ namespace CsvTools
   ///   Class containing the all configuration, used in serialization to store the settings
   /// </summary>
   [Serializable]
-  public class ViewSettings : INotifyPropertyChanged
+  public class ViewSettings : NotifyPropertyChangedBase
   {
     private bool m_AllowJson = true;
     private bool m_DetectFileChanges = true;
@@ -41,8 +40,6 @@ namespace CsvTools
     private bool m_StoreSettingsByFile;
     private bool m_DisplayStartLineNo = true;
     private bool m_DisplayRecordNo;
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     public enum Duration
     {
@@ -62,14 +59,7 @@ namespace CsvTools
     public virtual bool DisplayRecordNo
     {
       get => m_DisplayRecordNo;
-
-      set
-      {
-        if (m_DisplayRecordNo.Equals(value))
-          return;
-        m_DisplayRecordNo = value;
-        NotifyPropertyChanged(nameof(DisplayRecordNo));
-      }
+      set => SetField(ref m_DisplayRecordNo, value);
     }
 
     [XmlElement]
@@ -77,15 +67,8 @@ namespace CsvTools
     public virtual bool DisplayStartLineNo
     {
       get => m_DisplayStartLineNo;
-
-      set
-      {
-        if (m_DisplayStartLineNo.Equals(value))
-          return;
-        m_DisplayStartLineNo = value;
-        NotifyPropertyChanged(nameof(DisplayStartLineNo));
-      }
-    }    
+      set => SetField(ref m_DisplayStartLineNo, value);
+    }
 
     [XmlElement]
     public WindowState WindowPosition
@@ -94,37 +77,13 @@ namespace CsvTools
       set;
     } = new WindowState();
 
-    /// <summary>
-    ///   Notifies the completed property changed.
-    /// </summary>
-    /// <param name="info">The property name.</param>
-    protected void NotifyPropertyChanged(string info)
-    {
-      if (PropertyChanged is null)
-        return;
-      try
-      {
-        // ReSharper disable once PolymorphicFieldLikeEventInvocation
-        PropertyChanged(this, new PropertyChangedEventArgs(info));
-      }
-      catch (TargetInvocationException)
-      {
-        // Ignore
-      }
-    }
 
     [XmlAttribute]
     [DefaultValue(true)]
     public bool AllowJson
     {
       get => m_AllowJson;
-      set
-      {
-        if (m_AllowJson == value)
-          return;
-        m_AllowJson = value;
-        NotifyPropertyChanged(nameof(AllowJson));
-      }
+      set => SetField(ref m_AllowJson, value);
     }
 
     [XmlAttribute]
@@ -132,13 +91,7 @@ namespace CsvTools
     public bool DetectFileChanges
     {
       get => m_DetectFileChanges;
-      set
-      {
-        if (m_DetectFileChanges == value)
-          return;
-        m_DetectFileChanges = value;
-        NotifyPropertyChanged(nameof(DetectFileChanges));
-      }
+      set => SetField(ref m_DetectFileChanges, value);
     }
 
     [XmlIgnore]
@@ -168,15 +121,7 @@ namespace CsvTools
     public virtual FillGuessSettings FillGuessSettings
     {
       get => m_FillGuessSettings;
-      set
-      {
-        // ReSharper disable once ConstantNullCoalescingCondition
-        var newVal = value ?? new FillGuessSettings();
-        if (ReferenceEquals(m_FillGuessSettings, newVal))
-          return;
-        m_FillGuessSettings = newVal;
-        NotifyPropertyChanged(nameof(FillGuessSettings));
-      }
+      set => SetField(ref m_FillGuessSettings, value);
     }
 
     /// <summary>
@@ -191,13 +136,7 @@ namespace CsvTools
     public bool GuessCodePage
     {
       get => m_GuessCodePage;
-      set
-      {
-        if (m_GuessCodePage == value)
-          return;
-        m_GuessCodePage = value;
-        NotifyPropertyChanged(nameof(GuessCodePage));
-      }
+      set => SetField(ref m_GuessCodePage, value);
     }
 
     [XmlAttribute]
@@ -205,14 +144,7 @@ namespace CsvTools
     public bool GuessDelimiter
     {
       get => m_GuessDelimiter;
-
-      set
-      {
-        if (m_GuessDelimiter == value)
-          return;
-        m_GuessDelimiter = value;
-        NotifyPropertyChanged(nameof(GuessDelimiter));
-      }
+      set => SetField(ref m_GuessDelimiter, value);
     }
 
     [XmlAttribute]
@@ -220,13 +152,7 @@ namespace CsvTools
     public bool GuessHasHeader
     {
       get => m_GuessHasHeader;
-      set
-      {
-        if (m_GuessHasHeader == value)
-          return;
-        m_GuessHasHeader = value;
-        NotifyPropertyChanged(nameof(GuessHasHeader));
-      }
+      set => SetField(ref m_GuessHasHeader, value);
     }
 
     [XmlAttribute]
@@ -234,14 +160,7 @@ namespace CsvTools
     public bool GuessNewLine
     {
       get => m_GuessNewLine;
-
-      set
-      {
-        if (m_GuessNewLine == value)
-          return;
-        m_GuessNewLine = value;
-        NotifyPropertyChanged(nameof(GuessNewLine));
-      }
+      set => SetField(ref m_GuessNewLine, value);
     }
 
     [XmlAttribute]
@@ -249,14 +168,7 @@ namespace CsvTools
     public bool GuessComment
     {
       get => m_GuessComment;
-
-      set
-      {
-        if (m_GuessComment == value)
-          return;
-        m_GuessComment = value;
-        NotifyPropertyChanged(nameof(GuessComment));
-      }
+      set => SetField(ref m_GuessComment, value);
     }
 
     [XmlAttribute]
@@ -264,13 +176,7 @@ namespace CsvTools
     public bool GuessQualifier
     {
       get => m_GuessQualifier;
-      set
-      {
-        if (m_GuessQualifier == value)
-          return;
-        m_GuessQualifier = value;
-        NotifyPropertyChanged(nameof(GuessQualifier));
-      }
+      set => SetField(ref m_GuessQualifier, value);
     }
 
     [XmlAttribute]
@@ -278,13 +184,7 @@ namespace CsvTools
     public bool GuessStartRow
     {
       get => m_GuessStartRow;
-      set
-      {
-        if (m_GuessStartRow == value)
-          return;
-        m_GuessStartRow = value;
-        NotifyPropertyChanged(nameof(GuessStartRow));
-      }
+      set => SetField(ref m_GuessStartRow, value);
     }
 
     [XmlIgnore] public HtmlStyle HtmlStyle => m_HtmlStyle;
@@ -302,13 +202,7 @@ namespace CsvTools
     public bool MenuDown
     {
       get => m_MenuDown;
-      set
-      {
-        if (m_MenuDown == value)
-          return;
-        m_MenuDown = value;
-        NotifyPropertyChanged(nameof(MenuDown));
-      }
+      set => SetField(ref m_MenuDown, value);
     }
 
     [XmlAttribute]
@@ -316,13 +210,7 @@ namespace CsvTools
     public bool StoreSettingsByFile
     {
       get => m_StoreSettingsByFile;
-      set
-      {
-        if (m_StoreSettingsByFile == value)
-          return;
-        m_StoreSettingsByFile = value;
-        NotifyPropertyChanged(nameof(StoreSettingsByFile));
-      }
+      set => SetField(ref m_StoreSettingsByFile, value);
     }
 
     [XmlElement(ElementName = "HTMLStyle")]
@@ -338,8 +226,7 @@ namespace CsvTools
         var newVal = value ?? HtmlStyle.cStyle;
         if (m_HtmlStyle.Style.Equals(newVal))
           return;
-        m_HtmlStyle = new HtmlStyle(newVal);
-        NotifyPropertyChanged(nameof(Style));
+        SetField(ref m_HtmlStyle, new HtmlStyle(newVal));
       }
     }
   }
