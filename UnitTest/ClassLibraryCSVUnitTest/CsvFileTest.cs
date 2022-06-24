@@ -376,7 +376,7 @@ namespace CsvTools.Tests
 
       Assert.IsFalse(m_CsvFile.WarnUnknownCharacter, "WarnUnknownCharacter");
     }
-    
+
     [TestMethod]
     public void InternalIDFallback()
     {
@@ -385,7 +385,6 @@ namespace CsvTools.Tests
       setting.ID = Guid.NewGuid().ToString();
       Assert.AreEqual(setting.ID, setting.InternalID);
       Assert.AreEqual(setting.ID, ((BaseSettings) setting).InternalID);
-
 
       var setting2 = new JsonFile { ID= "JsonFile", FileName = "MyTest.txt" };
       Assert.AreEqual("JsonFile", setting2.ID);
@@ -425,14 +424,15 @@ namespace CsvTools.Tests
       var test = new CsvFile();
       var test1 = new CsvFile();
       var test2 = new CsvFile();
-      
-      test.SourceFileSettings = new[] { test1, test2 }; 
+
+      test.SourceFileSettings = new[] { test1, test2 };
       Assert.AreEqual(2, test.SourceFileSettings.Count);
 #pragma warning disable CS8625
-      test.SourceFileSettings = null; 
+      test.SourceFileSettings = null;
 #pragma warning restore CS8625
       Assert.AreEqual(0, test.SourceFileSettings!.Count);
     }
+
     [TestMethod]
     public void SqlStatementCData()
     {

@@ -59,9 +59,6 @@ namespace CsvTools
     /// <value>The name of the file.</value>
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string ColumnFile
     {
       get => m_ColumnFile;
@@ -75,22 +72,10 @@ namespace CsvTools
     /// <value>The name of the file.</value>
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string FileName
     {
       get => m_FileName;
-      set
-      {
-        var newVal = FileNameFix(value);
-        if (m_FileName.Equals(newVal, StringComparison.Ordinal))
-          return;
-        var oldValue = m_FileName;
-        m_FileName = newVal;
-        NotifyPropertyChanged(nameof(FileName));
-        NotifyPropertyChangedString(nameof(FileName), oldValue, newVal);
-      }
+      set => SetField(ref m_FileName, FileNameFix(value), StringComparison.Ordinal, true);
     }
 
     /// <inheritdoc />
@@ -103,14 +88,7 @@ namespace CsvTools
     public virtual long FileSize
     {
       get => m_FileSize;
-
-      set
-      {
-        if (value == m_FileSize)
-          return;
-        m_FileSize = value;
-        NotifyPropertyChanged(nameof(FileSize));
-      }
+      set => SetField(ref m_FileSize, value);
     }
 
     /// <inheritdoc />
@@ -119,13 +97,7 @@ namespace CsvTools
     public virtual bool ByteOrderMark
     {
       get => m_ByteOrderMark;
-      set
-      {
-        if (m_ByteOrderMark.Equals(value))
-          return;
-        m_ByteOrderMark = value;
-        NotifyPropertyChanged(nameof(ByteOrderMark));
-      }
+      set => SetField(ref m_ByteOrderMark, value);
     }
 
     /// <inheritdoc />
@@ -134,13 +106,7 @@ namespace CsvTools
     public virtual int CodePageId
     {
       get => m_CodePageId;
-      set
-      {
-        if (m_CodePageId.Equals(value))
-          return;
-        m_CodePageId = value;
-        NotifyPropertyChanged(nameof(CodePageId));
-      }
+      set => SetField(ref m_CodePageId, value);
     }
 
     /// <summary>
@@ -148,9 +114,6 @@ namespace CsvTools
     /// </summary>
     /// <value>The value format.</value>
     [XmlElement]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual ValueFormatMutable DefaultValueFormatWrite
     {
       get => m_DefaultValueFormatWrite;
@@ -160,7 +123,7 @@ namespace CsvTools
         if (m_DefaultValueFormatWrite.ValueFormatEqual(newVal))
           return;
         m_DefaultValueFormatWrite.CopyFrom(newVal);
-        NotifyPropertyChanged(nameof(DefaultValueFormatWrite));
+        NotifyPropertyChanged();
       }
     }
 
@@ -187,21 +150,10 @@ namespace CsvTools
     /// <value>The name of the file.</value>
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string IdentifierInContainer
     {
       get => m_IdentifierInContainer;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_IdentifierInContainer.Equals(newVal, StringComparison.Ordinal))
-          return;
-
-        m_IdentifierInContainer = newVal;
-        NotifyPropertyChanged(nameof(IdentifierInContainer));
-      }
+      set => SetField(ref m_IdentifierInContainer, value, StringComparison.Ordinal);
     }
 
     /// <inheritdoc />
@@ -211,20 +163,16 @@ namespace CsvTools
     [XmlIgnore]
     public override string InternalID => string.IsNullOrEmpty(ID) ? FileName : ID;
 
-
     /// <inheritdoc />
     /// <summary>
     ///   PassPhrase for Decryption, will not be stored
     /// </summary>
     [XmlIgnore]
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string Passphrase
     {
       get => m_PassPhrase;
-      set => m_PassPhrase = (value ?? string.Empty).Trim();
+      set => SetField(ref m_PassPhrase, value, StringComparison.Ordinal);
     }
 
     /// <inheritdoc />
@@ -234,21 +182,10 @@ namespace CsvTools
     /// <value>The name of the file.</value>
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string RemoteFileName
     {
       get => m_RemoteFileName;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_RemoteFileName.Equals(newVal, StringComparison.Ordinal))
-          return;
-
-        m_RemoteFileName = newVal;
-        NotifyPropertyChanged(nameof(RemoteFileName));
-      }
+      set => SetField(ref m_RemoteFileName, value, StringComparison.Ordinal);
     }
 
     [XmlIgnore] [DefaultValue("")] public string RootFolder { get; set; } = string.Empty;
@@ -263,14 +200,7 @@ namespace CsvTools
     public virtual bool ThrowErrorIfNotExists
     {
       get => m_ThrowErrorIfNotExists;
-
-      set
-      {
-        if (m_ThrowErrorIfNotExists.Equals(value))
-          return;
-        m_ThrowErrorIfNotExists = value;
-        NotifyPropertyChanged(nameof(ThrowErrorIfNotExists));
-      }
+      set => SetField(ref m_ThrowErrorIfNotExists, value);
     }
 
     [XmlAttribute]
@@ -278,13 +208,7 @@ namespace CsvTools
     public long KeyID
     {
       get => m_KeyID;
-      set
-      {
-        if (m_KeyID.Equals(value))
-          return;
-        m_KeyID = value;
-        NotifyPropertyChanged(nameof(KeyID));
-      }
+      set => SetField(ref m_KeyID, value);
     }
 
     public void ResetFullPath() => m_FullPathInitialized = false;
