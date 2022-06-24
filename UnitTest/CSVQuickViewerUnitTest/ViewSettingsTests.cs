@@ -18,7 +18,7 @@ namespace CsvTools.Tests
       var test1FillGuessSettings = new FillGuessSettings { CheckNamedDates = true };
       test1.FillGuessSettings = test1FillGuessSettings;
 
-      Assert.AreEqual(test1FillGuessSettings, test1.FillGuessSettings);
+      Assert.IsTrue(test1FillGuessSettings.Equals(test1.FillGuessSettings));
     }
   }
 }

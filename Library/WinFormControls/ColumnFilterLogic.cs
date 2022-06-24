@@ -17,7 +17,6 @@ namespace CsvTools
 {
   using System;
   using System.Collections.Generic;
-  using System.ComponentModel;
   using System.Diagnostics;
   using System.Globalization;
   using System.Text;
@@ -26,7 +25,7 @@ namespace CsvTools
   ///   DataGridViewColumnFilter based on operations and values
   /// </summary>
   [DebuggerDisplay("ColumnFilterLogic({m_FilterExpressionOperator}, {m_FilterExpressionValue}, {Active})")]
-  public class ColumnFilterLogic : INotifyPropertyChanged
+  public sealed class ColumnFilterLogic : NotifyPropertyChangedBase
   {
     /// <summary>
     ///   begins
@@ -138,10 +137,6 @@ namespace CsvTools
     /// </summary>
     public event EventHandler? ColumnFilterApply;
 
-    /// <summary>
-    ///   Occurs when a property value changes.
-    /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     public static string OperatorIsNull => cOperatorIsNull;
 
@@ -149,15 +144,13 @@ namespace CsvTools
     ///   Gets a value indicating whether this <see cref="DataGridViewColumnFilterControl" /> is active.
     /// </summary>
     /// <value><c>true</c> if active; otherwise, <c>false</c>.</value>
-    public virtual bool Active
+    public bool Active
     {
       get => m_Active;
       set
       {
-        m_Active = value;
-
         // If set active from the outside, make sure the Expression is correct
-        if (m_Active)
+        if (SetField(ref m_Active, value) && m_Active)
           m_Active = BuildFilterExpression();
       }
     }
@@ -166,15 +159,15 @@ namespace CsvTools
     ///   Gets the type of the column data.
     /// </summary>
     /// <value>The type of the column data.</value>
-    public virtual Type ColumnDataType => m_ColumnDataType;
+    public Type ColumnDataType => m_ColumnDataType;
 
     public string DataPropertyName
     {
       get => m_DataPropertyName;
       private set
       {
-        m_DataPropertyName = value ?? string.Empty;
-
+        if (!SetField(ref m_DataPropertyName, value))
+          return;
         // Un-escape the name in case its escaped
         if (m_DataPropertyName.StartsWith("[", StringComparison.Ordinal)
             && m_DataPropertyName.EndsWith("]", StringComparison.Ordinal))
@@ -183,7 +176,7 @@ namespace CsvTools
             .Replace(@"\\", @"\");
         }
 
-        m_DataPropertyNameEscape = $"[{m_DataPropertyName.SqlName()}]";
+        m_DataPropertyNameEscape=$"[{m_DataPropertyName.SqlName()}]";
       }
     }
 
@@ -191,7 +184,7 @@ namespace CsvTools
     ///   Gets the filter expression.
     /// </summary>
     /// <value>The filter expression.</value>
-    public virtual string FilterExpression
+    public string FilterExpression
     {
       get
       {
@@ -204,16 +197,13 @@ namespace CsvTools
     ///   Gets or sets the operator, setting the operator will build the filter
     /// </summary>
     /// <value>The operator.</value>
-    public virtual string Operator
+    public string Operator
     {
       get => m_Operator;
       set
       {
-        var newVal = value ?? string.Empty;
-        if (m_Operator.Equals(newVal, StringComparison.Ordinal)) return;
-        m_Operator = newVal;
-        FilterChanged();
-        NotifyPropertyChanged(nameof(Operator));
+        if (SetField(ref m_Operator, value, StringComparison.Ordinal))
+          FilterChanged();
       }
     }
 
@@ -221,33 +211,20 @@ namespace CsvTools
     ///   Gets or sets the value date time.
     /// </summary>
     /// <value>The value date time1.</value>
-    public virtual DateTime ValueDateTime
+    public DateTime ValueDateTime
     {
       get => m_ValueDateTime;
-      set
-      {
-        if (m_ValueDateTime.Equals(value))
-          return;
-        m_ValueDateTime = value;
-        NotifyPropertyChanged(nameof(ValueDateTime));
-      }
+      set => SetField(ref m_ValueDateTime, value);
     }
 
     /// <summary>
     ///   Gets or sets the value text.
     /// </summary>
     /// <value>The value text.</value>
-    public virtual string ValueText
+    public string ValueText
     {
       get => m_ValueText;
-      set
-      {
-        var newVal = (value ?? string.Empty).Trim();
-        if (m_ValueText.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_ValueText = newVal;
-        NotifyPropertyChanged(nameof(ValueText));
-      }
+      set => SetField(ref m_ValueText, value, StringComparison.Ordinal);
     }
 
     public ValueClusterCollection ValueClusterCollection { get; } = new ValueClusterCollection(50);
@@ -286,32 +263,26 @@ namespace CsvTools
     /// <summary>
     ///   Applies the filter.
     /// </summary>
-    public virtual void ApplyFilter() => ColumnFilterApply?.Invoke(this, EventArgs.Empty);
+    public void ApplyFilter() => ColumnFilterApply?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
     ///   Builds the SQL command.
     /// </summary>
     /// <param name="valueText">The value text.</param>
     /// <returns></returns>
-    public virtual string BuildSQLCommand(string valueText)
+    public string BuildSqlCommand(string valueText)
     {
       if (valueText == OperatorIsNull)
         return string.Format(CultureInfo.InvariantCulture, "({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
       return string.Format(CultureInfo.InvariantCulture, "{0} = {1}", m_DataPropertyNameEscape, FormatValue(valueText, m_ColumnDataType));
     }
 
-    /// <summary>
-    ///   Notifies the property changed.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    protected virtual void NotifyPropertyChanged(string info) =>
-      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
 
     /// <summary>
     ///   Set the Filter to a value
     /// </summary>
     /// <param name="value">The typed value</param>
-    public virtual void SetFilter(object value)
+    public void SetFilter(object value)
     {
       if (string.IsNullOrEmpty(Convert.ToString(value)))
       {
