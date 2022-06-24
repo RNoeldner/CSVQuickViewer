@@ -372,15 +372,20 @@ namespace CsvTools
     protected void HandleWarning(string columnName, string message) =>
       Warning?.Invoke(this, new WarningEventArgs(Records, 0, message.AddWarningId(), 0, 0, columnName));
 
-    /// <summary>Value conversion of a FileWriter</summary>
-    /// <param name="reader">Data Reader / Data Records in case additional columns are needed e.G. for TimeZone adjustment based off ColumnOrdinalTimeZone or GetFileName</param>
+    /// <summary>
+    ///   Value conversion of a FileWriter
+    /// </summary>
+    /// <param name="reader">
+    ///   Data Reader / Data Records in case additional columns are needed e.G. for TimeZone
+    ///   adjustment based off ColumnOrdinalTimeZone or GetFileName
+    /// </param>
     /// <param name="dataObject">The actual data of the column</param>
     /// <param name="columnInfo">Information on ValueConversion</param>
     /// <param name="timeZoneAdjust">Class that does provide means to convert between timezones</param>
     /// <param name="sourceTimeZone">The assumed source timezone of date time columns</param>
     /// <param name="handleWarning">Method to pass on warnings</param>
     /// <returns>Value of the .Net Data type matching the ValueFormat.DataType</returns>
-    public static object? ValueConversion(in IDataRecord? reader, in object? dataObject, WriterColumn columnInfo,
+    public static object ValueConversion(in IDataRecord? reader, in object? dataObject, WriterColumn columnInfo,
       in TimeZoneChangeDelegate timeZoneAdjust, string sourceTimeZone, Action<string, string>? handleWarning = null)
     {
       if (dataObject is null || dataObject is DBNull)
@@ -445,7 +450,7 @@ namespace CsvTools
       try
       {
         var convertedValue = ValueConversion(reader, dataObject, columnInfo, TimeZoneAdjust, SourceTimeZone, HandleWarning);
-        if (convertedValue is null)
+        if (convertedValue == DBNull.Value)
           displayAs = columnInfo.ValueFormat.DisplayNullAs;
         else
           displayAs = convertedValue switch
