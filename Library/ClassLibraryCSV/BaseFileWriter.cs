@@ -384,7 +384,7 @@ namespace CsvTools
       in TimeZoneChangeDelegate timeZoneAdjust, string sourceTimeZone, Action<string, string>? handleWarning = null)
     {
       if (dataObject is null || dataObject is DBNull)
-        return null;
+        return DBNull.Value;
 
       // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
       switch (columnInfo.ValueFormat.DataType)
