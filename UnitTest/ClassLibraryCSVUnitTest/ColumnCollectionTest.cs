@@ -22,9 +22,9 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning disable CS8625 
         test.Add(null);
-#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning restore CS8625 
       }
       catch (ArgumentException)
       {
@@ -41,11 +41,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void TestOrder()
     {
-      var test = new ColumnCollection(new[]
+      var test = new ColumnCollection
       {
         new ImmutableColumn("ColA", new ImmutableValueFormat(), 1), new ImmutableColumn("ColB", new ImmutableValueFormat(), 2),
         new ImmutableColumn("ColC", new ImmutableValueFormat(), 3)
-      });
+      };
       Assert.AreEqual(3, test.Count);
 
       int oldColOrd = 0;
@@ -59,11 +59,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Replace()
     {
-      var test = new ColumnCollection(new[]
+      var test = new ColumnCollection
       {
         new ImmutableColumn("ColA", new ImmutableValueFormat(), 1), new ImmutableColumn("ColB", new ImmutableValueFormat(), 2),
         new ImmutableColumn("ColC", new ImmutableValueFormat(), 3)
-      });
+      };
       var colBnew = new ImmutableColumn("ColB", new ImmutableValueFormat(DataTypeEnum.Boolean), 2);
       test.Replace(colBnew);
       var colB = test.Get("ColB");

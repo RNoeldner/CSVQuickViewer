@@ -523,7 +523,8 @@ namespace CsvTools.Tests
 
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, UnitTestStatic.Token);
-      var col = new ColumnCollection(detected);
+      var col = new ColumnCollection();
+      col.AddRangeClone(detected);
 
       Assert.AreEqual("Start Date", col[0].Name, "Column 1 Start date");
       Assert.AreEqual("Start Time", col[1].Name, "Column 2 Start Time");
@@ -553,7 +554,8 @@ namespace CsvTools.Tests
 
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
-      var col = new ColumnCollection(detected);
+      var col = new ColumnCollection();
+      col.AddRangeClone(detected);
       Assert.AreEqual(DataTypeEnum.Integer, col.Get("ID")!.ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.DateTime, col.Get("ExamDate")!.ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.Boolean, col.Get("IsNativeLang")!.ValueFormat.DataType);
@@ -584,7 +586,8 @@ namespace CsvTools.Tests
 
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
-      var col = new ColumnCollection(detected);
+      var col = new ColumnCollection();
+      col.AddRangeClone(detected);
       Assert.IsNotNull(col.Get(@"Betrag Brutto (2 Nachkommastellen)"), "Data Type recognized");
 
       Assert.AreEqual(
@@ -620,7 +623,8 @@ namespace CsvTools.Tests
       };
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
-      var col = new ColumnCollection(detected);
+      var col = new ColumnCollection();
+      col.AddRangeClone(detected);
       Assert.IsTrue(col.Get("ID") == null || col.Get("ID")?.Convert == false);
       Assert.AreEqual(DataTypeEnum.DateTime, col.Get("ExamDate")?.ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.Boolean, col.Get("IsNativeLang")?.ValueFormat.DataType);
@@ -640,7 +644,8 @@ namespace CsvTools.Tests
 
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(true, true, fillGuessSettings, UnitTestStatic.Token);
-      var col = new ColumnCollection(detected);
+      var col = new ColumnCollection();
+      col.AddRangeClone(detected);
       Assert.AreEqual(10, col.Count);
       Assert.AreEqual(DataTypeEnum.DateTime, col[0].ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.Integer, col[1].ValueFormat.DataType);

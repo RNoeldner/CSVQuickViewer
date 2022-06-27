@@ -1,5 +1,5 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 
 namespace CsvTools
 {
@@ -11,6 +11,7 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the class.
     /// </summary>
+    [DebuggerStepThrough]
     public PropertyChangedStringEventArgs(string propertyName, string? oldValue, string? newValue) : base(propertyName)
     {
       OldValue = oldValue ?? string.Empty;

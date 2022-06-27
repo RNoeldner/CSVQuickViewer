@@ -27,13 +27,6 @@ namespace CsvTools
     {
     }
 
-    /// <summary>
-    ///   Constructor for ColumnCollection
-    /// </summary>
-    /// <param name="items">Columns to initialize the new instance with</param>
-    public ColumnCollection(IEnumerable<IColumn> items) : base(items)
-    { }
-
     /// <inheritdoc />
     /// <summary>
     ///   Clones this instance into a new instance of the same type
@@ -41,7 +34,9 @@ namespace CsvTools
     /// <returns></returns>
     public object Clone()
     {
-      return new ColumnCollection(Items);
+      var ret = new ColumnCollection();
+      ret.AddRangeClone(Items);
+      return ret;
     }
 
     /// <inheritdoc />
@@ -67,6 +62,23 @@ namespace CsvTools
       var index = GetIndex(column.Name);
       if (index != -1) return;
       base.Add(column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
+    }
+
+    /// <summary>
+    /// Adds the a number of columns, makes sure no column is added twice
+    /// </summary>
+    /// <param name="columns">The columns to add</param>
+    public void AddRange(IEnumerable<IColumn> columns)
+    {
+      foreach (var column in columns)
+      {
+        if (column is null)
+          continue;
+        var index = GetIndex(column.Name);
+        if (index != -1) return;
+        base.Add(column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
+
+      }
     }
 
     /// <summary>
