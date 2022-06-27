@@ -27,11 +27,17 @@ namespace CsvTools
   [Serializable]
   public sealed class SampleAndErrorsInformation : NotifyPropertyChangedBase, ICloneable
   {
-    private ObservableCollection<SampleRecordEntry> m_Errors = new ObservableCollection<SampleRecordEntry>();
+    private ObservableCollectionWithItemChange<SampleRecordEntry> m_Errors = new ObservableCollectionWithItemChange<SampleRecordEntry>();
 
     private int m_NumErrors = -1;
 
-    private ObservableCollection<SampleRecordEntry> m_Samples = new ObservableCollection<SampleRecordEntry>();
+    private ObservableCollectionWithItemChange<SampleRecordEntry> m_Samples = new ObservableCollectionWithItemChange<SampleRecordEntry>();
+
+    public SampleAndErrorsInformation()
+    {
+      m_Errors.CollectionItemPropertyChanged += (o, s) => NotifyPropertyChanged(nameof(Errors));
+      m_Samples.CollectionItemPropertyChanged += (o, s) => NotifyPropertyChanged(nameof(Samples));
+    }
 
     /// <summary>
     ///   Gets or sets information on the errors.
@@ -76,7 +82,6 @@ namespace CsvTools
     {
       get => m_Samples;
       set => SetCollection(m_Samples, value);
-
     }
 
     public bool SamplesSpecified => Samples.Count > 0;
@@ -115,6 +120,5 @@ namespace CsvTools
       return other.NumErrors == NumErrors && Samples.CollectionEqualWithOrder(other.Samples)
                                           && Errors.CollectionEqualWithOrder(other.Errors);
     }
-
   }
 }

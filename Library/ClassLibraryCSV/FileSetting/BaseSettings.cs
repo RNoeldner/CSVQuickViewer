@@ -27,7 +27,9 @@ namespace CsvTools
 {
   /// <inheritdoc cref="IFileSetting" />
   /// <summary>
-  ///   Abstract calls containing the basic setting for an IFileSetting if contains <see cref="P:CsvTools.BaseSettings.ColumnCollection" /> , <see cref="P:CsvTools.BaseSettings.MappingCollection" /> /&gt;
+  ///   Abstract calls containing the basic setting for an IFileSetting if contains <see
+  ///   cref="P:CsvTools.BaseSettings.ColumnCollection" /> , <see
+  ///   cref="P:CsvTools.BaseSettings.MappingCollection" /> /&gt;
   /// </summary>
   [DebuggerDisplay("Settings: {ID} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettings : NotifyPropertyChangedBase, IFileSetting
@@ -110,15 +112,17 @@ namespace CsvTools
         if (e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Add)
           NotifyPropertyChanged(nameof(ColumnCollection));
       };
+      ColumnCollection.CollectionItemPropertyChanged += (sender, e) => NotifyPropertyChanged(nameof(ColumnCollection));
+
       MappingCollection.CollectionChanged += (sender, e) =>
       {
         if (e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Add)
           NotifyPropertyChanged(nameof(MappingCollection));
       };
+      MappingCollection.CollectionItemPropertyChanged += (sender, e) => NotifyPropertyChanged(nameof(MappingCollection));
     }
 
-
-    /// <inheritdoc/>
+    /// <inheritdoc />
     [XmlIgnore]
     public int Status
     {
@@ -285,9 +289,6 @@ namespace CsvTools
 
     /// <inheritdoc />
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string Footer
     {
       get => m_Footer;
@@ -312,9 +313,6 @@ namespace CsvTools
 
     /// <inheritdoc />
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string Header
     {
       get => m_Header;
@@ -328,19 +326,14 @@ namespace CsvTools
       }
     }
 
-
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string ID
     {
       get => m_Id;
       set
       {
-
         if (SetField(ref m_Id, value, StringComparison.Ordinal, true))
           // TODO: Check if we need to raise NotifyPropertyChangedString for InternalID
           NotifyPropertyChanged(nameof(InternalID));
@@ -368,15 +361,11 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string Comment
     {
       get => m_Comment;
       set => SetField(ref m_Comment, value, StringComparison.Ordinal);
     }
-
 
     /// <inheritdoc />
     [XmlIgnore]
@@ -486,9 +475,6 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlIgnore]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public IReadOnlyCollection<IFileSetting> SourceFileSettings
     {
       get => m_SourceFileSettings;
@@ -507,9 +493,6 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlIgnore]
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string SqlStatement
     {
       get => m_SqlStatement;
@@ -530,9 +513,6 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlElement]
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string TemplateName
     {
       get => m_TemplateName;
@@ -560,9 +540,6 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cTreatTextAsNull)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public virtual string TreatTextAsNull
     {
       get => m_TreatTextAsNull;
@@ -603,7 +580,6 @@ namespace CsvTools
       get;
       set;
     } = DateTime.UtcNow;
-
 
     /// <inheritdoc />
     public virtual void CalculateLatestSourceTime() => LatestSourceTimeUtc = ProcessTimeUtc;
@@ -754,7 +730,6 @@ namespace CsvTools
       LastChange = DateTime.UtcNow;
       base.NotifyPropertyChanged(name);
     }
-
 
     /// <inheritdoc />
     public virtual IEnumerable<string> GetDifferences(IFileSetting other)

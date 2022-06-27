@@ -14,12 +14,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace CsvTools
 {
-  public sealed class MappingCollection : ObservableCollection<Mapping>, ICloneable, IEquatable<MappingCollection>
+  public sealed class MappingCollection : ObservableCollectionWithItemChange<Mapping>, ICloneable, IEquatable<MappingCollection>
   {
     /// <inheritdoc />
     public object Clone()

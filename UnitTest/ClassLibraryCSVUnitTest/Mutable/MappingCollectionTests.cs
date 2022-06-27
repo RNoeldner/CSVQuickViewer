@@ -16,7 +16,7 @@ namespace CsvTools.Tests
     {
       var mc = new MappingCollection();
       mc.AddIfNew(new Mapping("fc1", "tf1"));
-      var mc2= (MappingCollection) mc.Clone();
+      var mc2 = (MappingCollection) mc.Clone();
       Assert.AreEqual(1, mc2.Count());
       mc.AddIfNew(new Mapping("fc2", "tf2"));
       Assert.AreEqual(1, mc2.Count());

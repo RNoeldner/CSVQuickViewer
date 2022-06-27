@@ -57,12 +57,13 @@
 		<Compile Include="..\ClassLibraryCSV\BaseFileWriter.cs" Link="BaseFileWriter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ClassLibraryCsvExtensionMethods.cs" Link="ClassLibraryCsvExtensionMethods.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnExtension.cs" Link="ColumnExtension.cs" />
-
+		<Compile Include="..\ClassLibraryCSV\ObservableCollectionWithItemChange.cs" Link="ObservableCollectionWithItemChange.cs" />
+		
 		<Compile Include="..\ClassLibraryCSV\Exceptions\FileReaderOpenException.cs" Link="Exceptions\FileReaderOpenException.cs" />
 		<Compile Include="..\ClassLibraryCSV\Exceptions\FileReaderException.cs" Link="Exceptions\FileReaderException.cs" />
 		<Compile Include="..\ClassLibraryCSV\Exceptions\FileWriterException.cs" Link="Exceptions\FileWriterException.cs" />
 
-		
+
 		<Compile Include="..\ClassLibraryCSV\CsvFileWriter.cs" Link="CsvFileWriter.cs" />
 		<Compile Include="..\ClassLibraryCSV\CsvHelper.cs" Link="CsvHelper.cs" />
 		<Compile Include="..\ClassLibraryCSV\IProcessDisplay.cs" Link="IProcessDisplay.cs" />
