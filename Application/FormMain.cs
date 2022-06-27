@@ -689,7 +689,7 @@ namespace CsvTools
         if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataTypeEnum.String))
         {
           Logger.Information("Showing columns as text");
-          m_StoreColumns = new ColumnCollection(m_FileSetting.ColumnCollection);
+          m_StoreColumns= (ColumnCollection) m_FileSetting.ColumnCollection.Clone();
           m_FileSetting.ColumnCollection.Clear();
           // restore header names
           foreach (var col in m_StoreColumns)

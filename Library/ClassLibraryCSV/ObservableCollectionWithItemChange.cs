@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 
@@ -23,27 +24,12 @@ namespace CsvTools
   public class ObservableCollectionWithItemChange<T> : ObservableCollection<T> where T : ICloneable
   {
     /// <summary>
-    ///   Event to be raised on Collection Level if properties of a item in the collection chnages
+    ///   Event to be raised on Collection Level if properties of a item in the collection changes
     /// </summary>
     public event PropertyChangedEventHandler? CollectionItemPropertyChanged;
 
-    public ObservableCollectionWithItemChange()
-    {
-      CollectionChanged += ObservableCollectionWithItemChange_CollectionChanged;
-    }
 
-    public ObservableCollectionWithItemChange(IEnumerable<T> items) : base()
-    {
-      AddRange(items);
-    }
-
-    private void InitItemPropertyChanged()
-    {
-      foreach (var item in Items.OfType<INotifyPropertyChanged>())
-        item.PropertyChanged -= CollectionItemPropertyChanged;
-    }
-
-    private void ObservableCollectionWithItemChange_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    private void ObservableCollectionWithItemChange_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
       if (CollectionItemPropertyChanged is null)
         return;
@@ -54,24 +40,34 @@ namespace CsvTools
 
       if (e.NewItems != null)
         foreach (var newItem in e.NewItems.OfType<INotifyPropertyChanged>())
-          newItem.PropertyChanged -= CollectionItemPropertyChanged;
+          newItem.PropertyChanged += CollectionItemPropertyChanged;
     }
 
-    public void AddRange(IEnumerable<T>? items)
+    public void AddRangeClone(IEnumerable<T>? items)
     {
       if (items is null)
         return;
 
-      // now we do not want to set them one by one
+      // Do set PropertyChanged one by one but do this in one go
       CollectionChanged -= ObservableCollectionWithItemChange_CollectionChanged;
+      try
+      {
+        using var enumerator = items.GetEnumerator();
+        while (enumerator.MoveNext())
+          if (enumerator.Current != null)
+          {
+            var item = (T) enumerator.Current.Clone();
+            if (item is INotifyPropertyChanged notifyPropertyChanged)
+              notifyPropertyChanged.PropertyChanged += CollectionItemPropertyChanged;
+            Add(item);
+          }
+      }
+      finally
+      {
+        // From now on default behaviour
+        CollectionChanged += ObservableCollectionWithItemChange_CollectionChanged;
+      }
 
-      using var enumerator = items.GetEnumerator();
-      while (enumerator.MoveNext())
-        if (enumerator.Current != null)
-          Add((T) enumerator.Current.Clone());
-
-      InitItemPropertyChanged();
-      CollectionChanged += ObservableCollectionWithItemChange_CollectionChanged;
     }
 
     /// <summary>

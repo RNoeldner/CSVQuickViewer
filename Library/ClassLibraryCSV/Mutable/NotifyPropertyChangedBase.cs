@@ -40,15 +40,12 @@ namespace CsvTools
     /// </summary>
     /// <param name="propertyName">The property name.</param>
     /// <param name="oldValue">The old value.</param>
-    /// <param name="newVal">The new value.</param>
+    /// <param name="newValue">The new value.</param>
     protected void NotifyPropertyChangedString(in string propertyName, in string oldValue, in string newValue)
     {
-      if (PropertyChangedString is null)
-        return;
       try
       {
-        // ReSharper disable once PolymorphicFieldLikeEventInvocation
-        PropertyChangedString(this, new PropertyChangedStringEventArgs(propertyName, oldValue, newValue));
+        PropertyChangedString?.Invoke(this, new PropertyChangedStringEventArgs(propertyName, oldValue, newValue));
       }
       catch (TargetInvocationException)
       {
@@ -126,7 +123,7 @@ namespace CsvTools
       var newValue = value ?? string.Empty;
       if (field.Equals(newValue, comparison))
         return false;
-      if (notifyChange)
+      if (notifyChange && PropertyChangedString != null)
       {
         var oldValue = field;
         field = newValue;
