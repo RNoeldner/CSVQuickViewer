@@ -226,7 +226,8 @@ namespace CsvTools
     /// <param name="sender"></param>
     /// <param name="e"></param>
     public void SetProcess(object? sender, ProgressEventArgs e) => SetProcess(e.Text, e.Value, e.Log);
-    bool m_IsClosed;
+
+    private bool m_IsClosed;
 
     public new void Close()
     {
@@ -240,8 +241,8 @@ namespace CsvTools
       }
       catch (ObjectDisposedException)
       {
-        // 
-      }      
+
+      }
     }
 
     /// <summary>
@@ -256,7 +257,7 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      this.m_ProgressBar = new ProgressBar();
+      this.m_ProgressBar = new System.Windows.Forms.ProgressBar();
       this.m_LabelText = new System.Windows.Forms.Label();
       this.m_LabelEtl = new System.Windows.Forms.Label();
       this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -267,7 +268,7 @@ namespace CsvTools
       this.m_ProgressBar.Location = new System.Drawing.Point(4, 37);
       this.m_ProgressBar.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.m_ProgressBar.Name = "m_ProgressBar";
-      this.m_ProgressBar.Size = new System.Drawing.Size(354, 16);
+      this.m_ProgressBar.Size = new System.Drawing.Size(435, 16);
       this.m_ProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
       this.m_ProgressBar.TabIndex = 0;
       // m_LabelText
@@ -305,13 +306,13 @@ namespace CsvTools
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.m_TableLayoutPanel.Size = new System.Drawing.Size(362, 86);
+      this.m_TableLayoutPanel.Size = new System.Drawing.Size(443, 86);
       this.m_TableLayoutPanel.TabIndex = 8;
       // FormProcessDisplay
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.SystemColors.Control;
-      this.ClientSize = new System.Drawing.Size(362, 86);
+      this.ClientSize = new System.Drawing.Size(443, 86);
       this.Controls.Add(this.m_TableLayoutPanel);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
@@ -351,7 +352,7 @@ namespace CsvTools
       }
     }
 
-#region IDisposable Support
+    #region IDisposable Support
 
     private bool m_DisposedValue; // To detect redundant calls
 
@@ -390,6 +391,6 @@ namespace CsvTools
       }
     }
 
-#endregion IDisposable Support
+    #endregion IDisposable Support
   }
 }

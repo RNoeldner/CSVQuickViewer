@@ -17,12 +17,12 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  ///  Interface to describe a column during read and write
+  ///   Interface to describe a column during read and write
   /// </summary>
   public interface IColumn : ICloneable, IEquatable<IColumn>
   {
     /// <summary>
-    ///   Gets the column ordinal 
+    ///   Gets the column ordinal
     /// </summary>
     int ColumnOrdinal { get; }
 
@@ -37,28 +37,32 @@ namespace CsvTools
     string DestinationName { get; }
 
     /// <summary>
-    ///   Indicating if the column should be ignored during read or write, no conversion is done if the column is ignored teh target will not show this column
+    ///   Indicating if the column should be ignored during read or write, no conversion is done if
+    ///   the column is ignored teh target will not show this column
     /// </summary>
     bool Ignore { get; }
 
     /// <summary>
-    ///   Name of the column 
+    ///   Name of the column
     /// </summary>
     string Name { get; }
 
     /// <summary>
-    ///   For DateTime import you can combine a date and a time column into a single datetime column, to do this specify the time column on the column for the date
+    ///   For DateTime import you can combine a date and a time column into a single datetime
+    ///   column, to do this specify the time column on the column for the date
     /// </summary>
     string TimePart { get; }
 
     /// <summary>
-    ///   For DateTime import you can combine a date and a time into a single datetime column, specify the format of the time here this can different from the format of the time column itself that is often ignored
+    ///   For DateTime import you can combine a date and a time into a single datetime column,
+    ///   specify the format of the time here this can different from the format of the time column
+    ///   itself that is often ignored
     /// </summary>
     string TimePartFormat { get; }
 
     /// <summary>
-    ///   For DateTime import you set a time zone, during read the value provided will be assumed to be of the timezone specified
-    ///   During write the time will be converted into this time zone
+    ///   For DateTime import you set a time zone, during read the value provided will be assumed to
+    ///   be of the timezone specified During write the time will be converted into this time zone
     /// </summary>
     string TimeZonePart { get; }
 

@@ -14,11 +14,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace CsvTools
 {
-  public sealed class ColumnCollection : ObservableCollection<IColumn>, ICloneable, IEquatable<ColumnCollection>
+  public sealed class ColumnCollection : ObservableCollectionWithItemChange<IColumn>, ICloneable, IEquatable<ColumnCollection>
   {
     /// <inheritdoc />
     /// <summary>
@@ -29,15 +28,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Constructor for ColumnCollection
+    ///   Constructor for ColumnCollection
     /// </summary>
     /// <param name="items">Columns to initialize the new instance with</param>
-    public ColumnCollection(IEnumerable<IColumn>? items)
-    {
-      if (items is null) return;
-      foreach (var col in items)
-        Add(col);
-    }
+    public ColumnCollection(IEnumerable<IColumn> items) : base(items)
+    { }
 
     /// <inheritdoc />
     /// <summary>
@@ -46,9 +41,7 @@ namespace CsvTools
     /// <returns></returns>
     public object Clone()
     {
-      var newColumnCollection = new ColumnCollection();
-      CopyTo(newColumnCollection);
-      return newColumnCollection;
+      return new ColumnCollection(Items);
     }
 
     /// <inheritdoc />
@@ -74,16 +67,6 @@ namespace CsvTools
       var index = GetIndex(column.Name);
       if (index != -1) return;
       base.Add(column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
-    }
-
-    public void CopyFrom(IEnumerable<IColumn>? items)
-    {
-      ClearItems();
-      if (items is null) return;
-      using var enumerator = items.GetEnumerator();
-      while (enumerator.MoveNext())
-        if (enumerator.Current != null)
-          Add(enumerator.Current);
     }
 
     /// <summary>

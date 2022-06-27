@@ -24,11 +24,8 @@ namespace CsvTools
   public interface IFileSetting : INotifyPropertyChanged, ICloneable, IEquatable<IFileSetting>
   {
     /// <summary>
-    /// Status of long running processing on the FileSettings
-    /// 0 - Nothing
-    /// 1 - Loading
-    /// 2 - Getting Validation Result
-    /// 3 - Waiting for Load
+    ///   Status of long running processing on the FileSettings 0 - Nothing 1 - Loading 2 - Getting
+    ///   Validation Result 3 - Waiting for Load
     /// </summary>
     int Status { get; set; }
 
@@ -92,7 +89,8 @@ namespace CsvTools
     string ID { get; set; }
 
     /// <summary>
-    ///   Gets the time of the last change in the setting, this is not used for equality but its copied over.
+    ///   Gets the time of the last change in the setting, this is not used for equality but its
+    ///   copied over.
     /// </summary>
     /// <value>Time of last change in UTC</value>
     DateTime LastChange { get; set; }
@@ -106,12 +104,12 @@ namespace CsvTools
     bool InOverview { get; set; }
 
     /// <summary>
-    ///   Gets or sets a value indicating the display order of the setting 
+    ///   Gets or sets a value indicating the display order of the setting
     /// </summary>
     int Order { get; set; }
 
     /// <summary>
-    ///   Gets or sets a comment text for the setting 
+    ///   Gets or sets a comment text for the setting
     /// </summary>
     string Comment { get; set; }
 
@@ -126,10 +124,10 @@ namespace CsvTools
     /// <value><c>true</c> if this instance is enabled; otherwise, <c>false</c>.</value>
     bool IsEnabled { get; set; }
 
-    /// <summary>    
-    /// When a file is encrypted the not encrypted version temporary file is removed 
-    /// When data is sent into a steam the data can not be access
-    /// Set to <c>true</c> a readable file is not removed / is created    
+    /// <summary>
+    ///   When a file is encrypted the not encrypted version temporary file is removed When data is
+    ///   sent into a steam the data can not be access Set to <c>true</c> a readable file is not
+    ///   removed / is created
     /// </summary>
     bool KeepUnencrypted { get; set; }
 
@@ -159,9 +157,9 @@ namespace CsvTools
 
     /// <summary>
     ///   As the data is loaded and not further validation is done this will be set to true Once
-    ///   validation is happening and validation errors are stored this is false again.
-    ///   This is stored on FileSetting level even as it actually is used for determine th freshness
-    ///   of a loaded data in the validator, but there is not suitable data structure
+    ///   validation is happening and validation errors are stored this is false again. This is
+    ///   stored on FileSetting level even as it actually is used for determine th freshness of a
+    ///   loaded data in the validator, but there is not suitable data structure
     /// </summary>
     bool RecentlyLoaded { get; set; }
 
@@ -172,8 +170,8 @@ namespace CsvTools
     long RecordLimit { get; set; }
 
     /// <summary>
-    ///   Storage for Sample and error records, used in the validator only, TODO: move to other library or wait for Extension
-    ///   of Classes
+    ///   Storage for Sample and error records, used in the validator only, TODO: move to other
+    ///   library or wait for Extension of Classes
     /// </summary>
     SampleAndErrorsInformation SamplesAndErrors { get; }
 
@@ -275,14 +273,13 @@ namespace CsvTools
     void CalculateLatestSourceTime();
 
     /// <summary>
-    /// Copy settings between two file settings
+    ///   Copy settings between two file settings
     /// </summary>
     /// <param name="other"></param>
     void CopyTo(IFileSetting other);
 
-
     /// <summary>
-    /// Get a description of differences between two file settings, ideally they should be of same type
+    ///   Get a description of differences between two file settings, ideally they should be of same type
     /// </summary>
     /// <param name="other"></param>
     /// <returns>List of differences as string</returns>

@@ -120,7 +120,8 @@ namespace CsvTools
     ///   Initializes the file settings.
     /// </summary>
     /// <param name="fileName"></param>
-    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// ///
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     public void LoadCsvFile(string fileName, CancellationToken cancellationToken)
     {
@@ -155,7 +156,7 @@ namespace CsvTools
           {
             formProcessDisplay.Maximum = 0;
             formProcessDisplay.Show(this);
-            formProcessDisplay.SetProcess("Determine file format",0, false);
+            formProcessDisplay.SetProcess("Determine file format", 0, false);
             m_FileSetting = (await fileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
                                m_ViewSettings.GuessCodePage,
                                m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
@@ -465,7 +466,6 @@ namespace CsvTools
       // Stop Property changed events for the time this is processed we might store data in the FileSetting
       DetachPropertyChanged(m_FileSetting);
 
-
       try
       {
         await Extensions.InvokeWithHourglassAsync(async () =>
@@ -500,8 +500,8 @@ namespace CsvTools
               m_FileSetting.ColumnCollection.Add(new Column { Name = columnName });
           }
 
-          // Set Functional DI routines to constants
-          // The reader is used when data is stored through the detailControl
+          // Set Functional DI routines to constants The reader is used when data is stored through
+          // the detailControl
           FunctionalDI.SqlDataReader = async (settingName, message, timeout, limit, token) =>
             await Task.FromResult(new DataTableWrapper(detailControl.DataTable));
 
