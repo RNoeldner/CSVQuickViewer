@@ -106,15 +106,15 @@ namespace CsvTools.Tests
     {
       var test = new CsvFile();
       var fm1 = new Mapping("Source1", "Destination1");
-      Assert.IsFalse(test.MappingCollection.AddIfNew(null));
 
-      Assert.IsTrue(test.MappingCollection.AddIfNew(fm1));
-      Assert.IsFalse(test.MappingCollection.AddIfNew(fm1));
+      test.MappingCollection.Add(fm1);
+      Assert.AreEqual(1, test.MappingCollection.Count);
 
+      test.MappingCollection.Add(fm1);
       Assert.AreEqual(1, test.MappingCollection.Count);
 
       var res = test.MappingCollection.GetByColumn("Source1");
-      Assert.AreEqual(fm1, res.First());
+      Assert.IsTrue(fm1.Equals(res.First()));
 
       test.MappingCollection.RemoveColumn("Source");
       Assert.AreEqual(1, test.MappingCollection.Count);
@@ -129,8 +129,8 @@ namespace CsvTools.Tests
       var test = new CsvFile();
       var fm1 = new Mapping("Source", "Destination1");
       var fm2 = new Mapping("Source", "Destination2");
-      test.MappingCollection.AddIfNew(fm1);
-      test.MappingCollection.AddIfNew(fm2);
+      test.MappingCollection.Add(fm1);
+      test.MappingCollection.Add(fm2);
 
       Assert.AreEqual("Destination1", test.MappingCollection.First().TemplateField);
       Assert.AreEqual("Destination2", test.MappingCollection.Last().TemplateField);
@@ -141,8 +141,8 @@ namespace CsvTools.Tests
     {
       var test = new CsvFile();
       var fm1 = new Mapping("Source", "Destination1");
-      test.MappingCollection.AddIfNew(fm1);
-      Assert.AreEqual(fm1, test.MappingCollection.First());
+      test.MappingCollection.Add(fm1);
+      Assert.IsTrue(fm1.Equals(test.MappingCollection.First()));
     }
 
     [TestMethod]
@@ -151,10 +151,10 @@ namespace CsvTools.Tests
       var test = new CsvFile();
       var fm1 = new Mapping("Source", "Destination1");
       var fm2 = new Mapping("Source2", "Destination2");
-      test.MappingCollection.AddIfNew(fm1);
-      Assert.AreEqual(fm1, test.MappingCollection.First());
-      test.MappingCollection.AddIfNew(fm2);
-      Assert.AreEqual(fm2, test.MappingCollection.Last());
+      test.MappingCollection.Add(fm1);
+      Assert.IsTrue(fm1.Equals(test.MappingCollection.First()));
+      test.MappingCollection.Add(fm2);
+      Assert.IsTrue(fm2.Equals(test.MappingCollection.Last()));
     }
 
     [TestMethod]

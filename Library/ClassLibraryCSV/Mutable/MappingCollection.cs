@@ -18,38 +18,14 @@ using System.Linq;
 
 namespace CsvTools
 {
-  public sealed class MappingCollection : ObservableCollectionWithItemChange<Mapping>, ICloneable, IEquatable<MappingCollection>
+  public sealed class MappingCollection : ObservableCollectionWithItemChange<Mapping>
   {
     /// <inheritdoc />
-    public object Clone()
+    protected override bool Present(Mapping search)
     {
-      var newMappingCollection = new MappingCollection();
-      CopyTo(newMappingCollection);
-      return newMappingCollection;
+      return Items.Any(map => map.FileColumn.Equals(search.FileColumn, StringComparison.OrdinalIgnoreCase)
+                   && map.TemplateField.Equals(search.TemplateField, StringComparison.OrdinalIgnoreCase));
     }
-
-    /// <inheritdoc />
-    public bool Equals(MappingCollection? other) => Items.CollectionEqual(other);
-
-    public bool AddIfNew(Mapping? fieldMapping)
-    {
-      if (fieldMapping is null)
-        return false;
-
-      if (Items.Any(
-            map => map.FileColumn.Equals(fieldMapping.FileColumn, StringComparison.OrdinalIgnoreCase)
-                   && map.TemplateField.Equals(fieldMapping.TemplateField, StringComparison.OrdinalIgnoreCase)))
-        return false;
-
-      Add(fieldMapping);
-      return true;
-    }
-
-    /// <summary>
-    ///   Copies all properties to the other instance
-    /// </summary>
-    /// <param name="other">The other instance</param>
-    public void CopyTo(MappingCollection other) => Items.CollectionCopy(other);
 
     public IEnumerable<Mapping> GetByColumn(string columnName) =>
       Items.Where(mapping => mapping.FileColumn.Equals(columnName, StringComparison.OrdinalIgnoreCase));

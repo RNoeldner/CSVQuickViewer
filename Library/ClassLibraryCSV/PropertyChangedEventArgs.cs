@@ -12,8 +12,6 @@
  *
  */
 
-using System;
-
 namespace CsvTools
 {
   /// <inheritdoc />
@@ -21,18 +19,16 @@ namespace CsvTools
   ///   Property Changed Event Argument providing information of old and new value
   /// </summary>
   /// <typeparam name="T"></typeparam>
-  public class PropertyChangedEventArgs<T> : EventArgs
+  public class PropertyChangedEventArgs<T> : System.ComponentModel.PropertyChangedEventArgs
   {
-    /// <inheritdoc />
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.PropertyChangedEventArgs`1" /> class.
     /// </summary>
     /// <param name="propertyName">Name of the property.</param>
     /// <param name="oldValue">The old value.</param>
     /// <param name="newValue">The new value.</param>
-    public PropertyChangedEventArgs(in string propertyName, T oldValue, T newValue)
+    public PropertyChangedEventArgs(in string propertyName, T oldValue, T newValue) : base(propertyName)
     {
-      PropertyName = propertyName;
       OldValue = oldValue;
       NewValue = newValue;
     }
@@ -48,11 +44,5 @@ namespace CsvTools
     /// </summary>
     /// <value>The old value.</value>
     public T OldValue { get; set; }
-
-    /// <summary>
-    ///   Gets or sets the name of the property.
-    /// </summary>
-    /// <value>The name of the property.</value>
-    public string PropertyName { get; }
   }
 }

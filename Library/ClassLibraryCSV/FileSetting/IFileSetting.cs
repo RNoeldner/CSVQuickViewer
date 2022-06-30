@@ -21,7 +21,7 @@ namespace CsvTools
   /// <summary>
   ///   Interface for a FileSetting
   /// </summary>
-  public interface IFileSetting : INotifyPropertyChanged, ICloneable, IEquatable<IFileSetting>
+  public interface IFileSetting : INotifyPropertyChanged, IWithCopyTo<IFileSetting>
   {
     /// <summary>
     ///   Status of long running processing on the FileSettings 0 - Nothing 1 - Loading 2 - Getting
@@ -265,18 +265,12 @@ namespace CsvTools
     /// <summary>
     ///   Occurs when a string value property changed providing information on old and new value
     /// </summary>
-    event EventHandler<PropertyChangedStringEventArgs>? PropertyChangedString;
+    event EventHandler<PropertyChangedEventArgs<string>>? PropertyChangedString;
 
     /// <summary>
     ///   Examine the source and determine LatestSource
     /// </summary>
     void CalculateLatestSourceTime();
-
-    /// <summary>
-    ///   Copy settings between two file settings
-    /// </summary>
-    /// <param name="other"></param>
-    void CopyTo(IFileSetting other);
 
     /// <summary>
     ///   Get a description of differences between two file settings, ideally they should be of same type

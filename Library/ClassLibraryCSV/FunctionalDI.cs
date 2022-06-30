@@ -39,6 +39,7 @@ namespace CsvTools
     public static Func<SourceAccess, Stream> OpenStream = fileAccess => new ImprovedStream(fileAccess);
 
 #if !QUICK
+
     private static readonly IFileReaderWriterFactory m_FileReaderWriterFactory =
       new ClassLibraryCSVFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone);
 
@@ -57,7 +58,6 @@ namespace CsvTools
     public static Func<IFileSetting, IProcessDisplay?, CancellationToken, IFileReader> GetFileReader =
       (setting, processDisplay, cancellationToken) =>
         m_FileReaderWriterFactory.GetFileReader(setting, processDisplay, cancellationToken);
-
 
     /// <summary>
     ///   Gets or sets a data reader

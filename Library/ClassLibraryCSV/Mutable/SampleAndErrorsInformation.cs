@@ -13,25 +13,21 @@
  */
 
 using System;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Xml.Serialization;
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="System.ICloneable" />
   /// <summary>
   ///   This class is only used by the Validator but since we can not extend classes with new
   ///   properties, it needs to be defined here
   /// </summary>
   [Serializable]
-  public sealed class SampleAndErrorsInformation : NotifyPropertyChangedBase, ICloneable
+  public sealed class SampleAndErrorsInformation : NotifyPropertyChangedBase, IWithCopyTo<SampleAndErrorsInformation>
   {
-    private ObservableCollectionWithItemChange<SampleRecordEntry> m_Errors = new ObservableCollectionWithItemChange<SampleRecordEntry>();
-
+    private readonly ObservableCollectionWithItemChange<SampleRecordEntry> m_Errors = new ObservableCollectionWithItemChange<SampleRecordEntry>();
     private int m_NumErrors = -1;
-
-    private ObservableCollectionWithItemChange<SampleRecordEntry> m_Samples = new ObservableCollectionWithItemChange<SampleRecordEntry>();
+    private readonly ObservableCollectionWithItemChange<SampleRecordEntry> m_Samples = new ObservableCollectionWithItemChange<SampleRecordEntry>();
 
     public SampleAndErrorsInformation()
     {
@@ -43,14 +39,9 @@ namespace CsvTools
     ///   Gets or sets information on the errors.
     /// </summary>
     /// <value>The errors.</value>
-    public ObservableCollection<SampleRecordEntry> Errors
+    public ObservableCollectionWithItemChange<SampleRecordEntry> Errors
     {
       get => m_Errors;
-      set
-      {
-        if (SetCollection(m_Errors, value))
-          SetField(ref m_NumErrors, Errors.Count, nameof(NumErrors));
-      }
     }
 
     public bool ErrorsSpecified => Errors.Count > 0;
@@ -68,7 +59,7 @@ namespace CsvTools
       get
       {
         if (m_NumErrors == -1 && Errors.Count > 0)
-          m_NumErrors = Errors.Count;
+          return Errors.Count;
         return m_NumErrors;
       }
       set => SetField(ref m_NumErrors, Errors.Count > 0 && value < Errors.Count ? Errors.Count : value);
@@ -78,10 +69,9 @@ namespace CsvTools
     ///   Gets or sets information on the samples.
     /// </summary>
     /// <value>The samples.</value>
-    public ObservableCollection<SampleRecordEntry> Samples
+    public ObservableCollectionWithItemChange<SampleRecordEntry> Samples
     {
       get => m_Samples;
-      set => SetCollection(m_Samples, value);
     }
 
     public bool SamplesSpecified => Samples.Count > 0;
@@ -100,9 +90,11 @@ namespace CsvTools
     /// <param name="other">The other instance</param>
     public void CopyTo(SampleAndErrorsInformation other)
     {
-      Samples.CollectionCopy(other.Samples);
-      Errors.CollectionCopy(other.Errors);
-      other.NumErrors = m_NumErrors;
+      other.Samples.Clear();
+      other.Samples.AddRange(Samples);
+      other.Errors.Clear();
+      other.Errors.AddRange(Errors);
+      other.m_NumErrors = m_NumErrors;
     }
 
     /// <summary>
@@ -117,8 +109,9 @@ namespace CsvTools
       if (ReferenceEquals(this, other))
         return true;
 
-      return other.NumErrors == NumErrors && Samples.CollectionEqualWithOrder(other.Samples)
-                                          && Errors.CollectionEqualWithOrder(other.Errors);
+      return m_NumErrors  == other.m_NumErrors
+            && Samples.Equals(other.Samples)
+            && Errors.Equals(other.Errors);
     }
   }
 }

@@ -1003,7 +1003,6 @@ namespace CsvTools
     /// <param name="other">The other collection.</param>
     /// <returns></returns>
     public static bool CollectionEqualWithOrder<T>(this IEnumerable<T> self, in IEnumerable<T>? other)
-      where T : IEquatable<T>
     {
       if (self is null)
         throw new ArgumentNullException(nameof(self));
@@ -1020,6 +1019,8 @@ namespace CsvTools
       // use Enumerators to compare the two collections
       using var selfEnum = self.GetEnumerator();
       using var otherEnum = other.GetEnumerator();
+      IEqualityComparer<T> comparer = EqualityComparer<T>.Default;
+
       while (true)
       {
         // move to the next item
@@ -1029,7 +1030,7 @@ namespace CsvTools
           return true;
         if (!s || !o)
           return false;
-        if (selfEnum.Current is null || otherEnum.Current is null || !selfEnum.Current.Equals(otherEnum.Current))
+        if (selfEnum.Current is null || otherEnum.Current is null || !comparer.Equals(selfEnum.Current, otherEnum.Current))
           return false;
       }
     }

@@ -625,8 +625,9 @@ namespace CsvTools
     {
       if (other == null)
         return;
+      other.MappingCollection.Clear();
+      other.MappingCollection.AddRange(MappingCollection);
 
-      MappingCollection.CopyTo(other.MappingCollection);
       other.ConsecutiveEmptyRows = ConsecutiveEmptyRows;
       other.TrimmingOption = TrimmingOption;
       other.TemplateName = TemplateName;
@@ -646,7 +647,9 @@ namespace CsvTools
       other.SkipDuplicateHeader = SkipDuplicateHeader;
 
       other.TreatNBSPAsSpace = TreatNBSPAsSpace;
-      ColumnCollection.CopyTo(other.ColumnCollection);
+      other.ColumnCollection.Clear();
+      other.ColumnCollection.AddRange(ColumnCollection);
+
       other.SqlStatement = SqlStatement;
       other.InOverview = InOverview;
       other.Timeout = Timeout;
