@@ -58,6 +58,8 @@
 		<Compile Include="..\ClassLibraryCSV\ClassLibraryCsvExtensionMethods.cs" Link="ClassLibraryCsvExtensionMethods.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnExtension.cs" Link="ColumnExtension.cs" />
 		<Compile Include="..\ClassLibraryCSV\ObservableCollectionWithItemChange.cs" Link="ObservableCollectionWithItemChange.cs" />
+		<Compile Include="..\ClassLibraryCSV\IWithCopyTo.cs" Link="IWithCopyTo.cs" />
+		<Compile Include="..\ClassLibraryCSV\INotifyPropertyChangedString.cs" Link="INotifyPropertyChangedString.cs" />
 		
 		<Compile Include="..\ClassLibraryCSV\Exceptions\FileReaderOpenException.cs" Link="Exceptions\FileReaderOpenException.cs" />
 		<Compile Include="..\ClassLibraryCSV\Exceptions\FileReaderException.cs" Link="Exceptions\FileReaderException.cs" />
@@ -111,8 +113,8 @@
 		
 		<Compile Include="..\ClassLibraryCSV\Mutable\FillGuessSettings.cs" Link="FillGuessSettings.cs" />
 		<Compile Include="..\ClassLibraryCSV\Mutable\DelimiterCounter.cs" Link="DelimiterCounter.cs" />
-		<Compile Include="..\ClassLibraryCSV\Mutable\NotifyPropertyChangedBase.cs" Link="NotifyPropertyChangedBase.cs" />
-		<Compile Include="..\ClassLibraryCSV\PropertyChangedStringEventArgs.cs" Link="PropertyChangedStringEventArgs.cs" />
+		<Compile Include="..\ClassLibraryCSV\NotifyPropertyChangedBase.cs" Link="NotifyPropertyChangedBase.cs" />
+		<Compile Include="..\ClassLibraryCSV\PropertyChangedEventArgs.cs" Link="PropertyChangedEventArgs.cs" />
 		<Compile Include="..\ClassLibraryCSV\ImprovedStream.cs" Link="ImprovedStream.cs" />
 		<Compile Include="..\ClassLibraryCSV\Column\ImmutableColumn.cs" Link="Column\ImmutableColumn.cs" />
 		

@@ -43,7 +43,6 @@ namespace CsvTools.Tests
     public void RemoveSetting(string name)
         => RemoveSetting(m_ReadSetting.First(x => x.Key.ID.Equals(name)).Key);
 
-
     public void AddSetting(string name, DataTable dt)
     {
       if (dt == null) throw new ArgumentNullException(nameof(dt));

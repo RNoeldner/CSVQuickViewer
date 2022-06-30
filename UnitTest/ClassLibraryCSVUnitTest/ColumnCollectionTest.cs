@@ -22,9 +22,9 @@ namespace CsvTools.Tests
       var exception = false;
       try
       {
-#pragma warning disable CS8625 
+#pragma warning disable CS8625
         test.Add(null);
-#pragma warning restore CS8625 
+#pragma warning restore CS8625
       }
       catch (ArgumentException)
       {
@@ -95,19 +95,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void Clone()
-    {
-      var test1 = new ColumnCollection();
-      test1.Add(new Column("Test1"));
-      test1.Add(new Column("Test2"));
-      test1.Add(new Column("Test3"));
-
-      var test2 = (ColumnCollection) test1.Clone();
-
-      Assert.IsTrue(test2.Equals(test1));
-    }
-
-    [TestMethod]
     public void CopyTo()
     {
       var test1 = new ColumnCollection
@@ -117,7 +104,7 @@ namespace CsvTools.Tests
         new Column("Test3")
       };
       var test2 = new ColumnCollection();
-      test1.CopyTo(test2);
+      test2.AddRange(test1);
 
       Assert.IsTrue(test2.Equals(test1));
     }

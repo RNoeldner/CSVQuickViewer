@@ -4,6 +4,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,6 +12,29 @@ namespace CsvTools
 {
   public static class ReaderExtensionMethods
   {
+    public static string GetCombinedKey(this IDataReader dataReader, ICollection<int>? columns, char combineWith, Action<int>? trimming = null)
+    {
+      if (columns is null || columns.Count == 0)
+        return string.Empty;
+
+      var stringBuilder = new StringBuilder();
+      foreach (var columnNo in columns)
+      {
+        if (!dataReader.IsDBNull(columnNo))
+        {
+          var currentValue = dataReader.GetValue(columnNo).ToString().Replace(combineWith, (char) 0);
+          var trimmed = currentValue.Trim();
+          if (trimmed.Length != currentValue.Length)
+            trimming?.Invoke(columnNo);
+
+          stringBuilder.Append(trimmed);
+        }
+        stringBuilder.Append(combineWith);
+      }
+
+      return stringBuilder.ToString();
+    }
+
     /// <summary>
     ///   Gets all not ignored columns from the reader, an ignored column is present in as columns
     ///   but should not be regarded

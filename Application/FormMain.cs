@@ -43,7 +43,7 @@ namespace CsvTools
     private IFileSettingPhysicalFile? m_FileSetting;
 
     private FormCsvTextDisplay? m_SourceDisplay;
-    private ICollection<IColumn>? m_StoreColumns;
+    private IList<IColumn>? m_StoreColumns;
     private int m_WarningCount;
     private int m_WarningMax = 100;
 
@@ -685,32 +685,35 @@ namespace CsvTools
 
         var store = ViewSetting.StoreViewSetting(detailControl.FilteredDataGridView,
           Array.Empty<ToolStripDataGridViewColumnFilter?>());
+
         // Assume data type is not recognize
         if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataTypeEnum.String))
         {
           Logger.Information("Showing columns as text");
-          m_StoreColumns= (ColumnCollection) m_FileSetting.ColumnCollection.Clone();
+          m_StoreColumns= new List<IColumn>(m_FileSetting.ColumnCollection);
+
+          // restore header names only
           m_FileSetting.ColumnCollection.Clear();
-          // restore header names
-          foreach (var col in m_StoreColumns)
-          {
-            m_FileSetting.ColumnCollection.Add(new Column(col.Name) { ColumnOrdinal = col.ColumnOrdinal });
-          }
+          m_FileSetting.ColumnCollection.AddRange(m_StoreColumns.Select(col => new Column(col.Name) { ColumnOrdinal = col.ColumnOrdinal }));
 
           m_ToolStripButtonAsText.Text = "As Values";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;
           m_ConfigChanged = true;
         }
-        else
+        else if (m_StoreColumns != null)
         {
           Logger.Information("Showing columns as values");
           m_ToolStripButtonAsText.Text = "As Text";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsText;
-          m_StoreColumns?.CollectionCopy(m_FileSetting.ColumnCollection);
+
+          m_FileSetting.ColumnCollection.Clear();
+          m_FileSetting.ColumnCollection.AddRange(m_StoreColumns);
+
           m_ConfigChanged = true;
         }
 
-        await OpenDataReaderAsync(m_CancellationTokenSource.Token);
+        if (m_ConfigChanged)
+          await OpenDataReaderAsync(m_CancellationTokenSource.Token);
 
         ViewSetting.ReStoreViewSetting(
           store,

@@ -17,37 +17,16 @@ using System.Collections.Generic;
 
 namespace CsvTools
 {
-  public sealed class ColumnCollection : ObservableCollectionWithItemChange<IColumn>, ICloneable, IEquatable<ColumnCollection>
+  public sealed class ColumnCollection : ObservableCollectionWithItemChange<IColumn>
   {
     /// <inheritdoc />
-    /// <summary>
-    ///   Needed for XML Serialization
-    /// </summary>
-    public ColumnCollection()
+    protected override bool Present(IColumn search)
     {
+      foreach (var item in Items)
+        if (item.Name.Equals(search.Name, StringComparison.OrdinalIgnoreCase))
+          return true;
+      return false;
     }
-
-    /// <inheritdoc />
-    /// <summary>
-    ///   Clones this instance into a new instance of the same type
-    /// </summary>
-    /// <returns></returns>
-    public object Clone()
-    {
-      var ret = new ColumnCollection();
-      ret.AddRangeClone(Items);
-      return ret;
-    }
-
-    /// <inheritdoc />
-    /// <summary>
-    ///   Indicates whether the current object is equal to another object of the same type.
-    /// </summary>
-    /// <param name="other">An object to compare with this object.</param>
-    /// <returns>
-    ///   true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
-    /// </returns>
-    public bool Equals(ColumnCollection? other) => Items.CollectionEqual(other);
 
     /// <summary>
     ///   Adds the <see cref="IColumn" /> to the column list if it does not exist yet
@@ -59,33 +38,27 @@ namespace CsvTools
       if (column is null)
         throw new ArgumentNullException(nameof(column));
 
-      var index = GetIndex(column.Name);
-      if (index != -1) return;
       base.Add(column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
     }
 
     /// <summary>
-    /// Adds the a number of columns, makes sure no column is added twice
+    ///   Adds the a number of columns, makes sure no column is added twice
     /// </summary>
     /// <param name="columns">The columns to add</param>
-    public void AddRange(IEnumerable<IColumn> columns)
+    public override void AddRange(IEnumerable<IColumn> columns)
     {
+      var list = new List<ImmutableColumn>();
       foreach (var column in columns)
       {
         if (column is null)
           continue;
         var index = GetIndex(column.Name);
         if (index != -1) return;
-        base.Add(column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
-
+        list.Add(column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
       }
+      if (list.Count >0)
+        base.AddRange(list);
     }
-
-    /// <summary>
-    ///   Copies all properties to the other instance
-    /// </summary>
-    /// <param name="other">The other instance</param>
-    public void CopyTo(ColumnCollection other) => Items.CollectionCopy(other);
 
     /// <summary>
     ///   Gets the <see cref="CsvTools.IColumn" /> with the specified field name.

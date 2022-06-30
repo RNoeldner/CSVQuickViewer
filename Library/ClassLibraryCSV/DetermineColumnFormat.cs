@@ -68,7 +68,8 @@ namespace CsvTools
     ///   true to make sure a numeric value gets the lowest possible numeric type
     /// </param>
     /// <param name="treatTextAsNull">A text that should be regarded as empty</param>
-    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// ///
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A text with the changes that have been made and a list of the determined columns</returns>
     public static async Task<(IList<string>, IReadOnlyCollection<IColumn>)> FillGuessColumnFormatReaderAsyncReader(
       this IFileReader fileReader,
@@ -661,8 +662,8 @@ namespace CsvTools
             if (!fileReader.SupportsReset)
               break;
             fileReader.ResetPositionToFirstDataRow();
-            // uif we started at the beginning and we are now back, exist
-            // if we started and we can not read a line exist as well.
+            // uif we started at the beginning and we are now back, exist if we started and we can
+            // not read a line exist as well.
             if (startRecordNumber == 0 || !await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false))
               break;
           }
@@ -685,7 +686,7 @@ namespace CsvTools
               if (StringUtils.ShouldBeTreatedAsNull(value, treatAsNull))
                 continue;
 
-              // cut of 
+              // cut of
               if (maxChars > 0 && value.Length > maxChars)
                 value = value.Substring(0, maxChars);
 
@@ -1081,7 +1082,9 @@ namespace CsvTools
     {
       private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 
-      /// <summary>Initializes a new instance of the class and stores all passed in values in random order</summary>
+      /// <summary>
+      ///   Initializes a new instance of the class and stores all passed in values in random order
+      /// </summary>
       /// <param name="items">The initial set of sample values</param>
       /// <param name="records">The number of records that have been read to obtain the values</param>
       public SampleResult(IList<string> items, int records)
@@ -1097,11 +1100,15 @@ namespace CsvTools
         Values = items;
       }
 
-      /// <summary>Gets the records read.</summary>
+      /// <summary>
+      ///   Gets the records read.
+      /// </summary>
       /// <value>The number of records that have been read. this is not the number of values.</value>
       public int RecordsRead { get; }
 
-      /// <summary>Gets the values.</summary>
+      /// <summary>
+      ///   Gets the values.
+      /// </summary>
       /// <value>The unique values read in random order</value>
       public ICollection<string> Values { get; }
     }
@@ -1115,7 +1122,8 @@ namespace CsvTools
     /// <param name="addTextColumns">if set to <c>true</c> event string columns are added.</param>
     /// <param name="checkDoubleToBeInteger">if set to <c>true</c> [check double to be integer].</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
-    /// /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// ///
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A list of columns with new format that have been changed</returns>
     /// <exception cref="ArgumentNullException">processDisplay</exception>
     public static async Task<(IList<string>, IReadOnlyCollection<IColumn>)> FillGuessColumnFormatReaderAsync(
@@ -1184,7 +1192,9 @@ namespace CsvTools
 
       return fileSettingCopy;
     }
+
 #endif
+
     /// <summary>
     ///   Gets all possible formats based on the provided value
     /// </summary>
@@ -1197,12 +1207,11 @@ namespace CsvTools
 
       // Standard Date Time formats
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(value.Length, true))
-      foreach (var sep in StringConversion.DateSeparators.Where(
-                 sep => StringConversion
-                   .StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture)
-                   .HasValue))
-        yield return new ImmutableValueFormat(DataTypeEnum.DateTime, fmt, sep);
+        foreach (var sep in StringConversion.DateSeparators.Where(
+                   sep => StringConversion
+                     .StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture)
+                     .HasValue))
+          yield return new ImmutableValueFormat(DataTypeEnum.DateTime, fmt, sep);
     }
-
   }
 }
