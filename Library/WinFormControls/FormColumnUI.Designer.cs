@@ -87,12 +87,12 @@ namespace CsvTools
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
       this.buttonDisplayValues = new System.Windows.Forms.Button();
       this.textBoxRegexSearchPattern = new System.Windows.Forms.TextBox();
-      this.tableLayoutPanelForm = new System.Windows.Forms.TableLayoutPanel();
-      this.groupBoxBinary = new System.Windows.Forms.GroupBox();
-      this.checkBoxOverwrite = new System.Windows.Forms.CheckBox();
       this.textBoxReadFolder = new System.Windows.Forms.TextBox();
       this.textBoxWriteFolder = new System.Windows.Forms.TextBox();
       this.textBoxPattern = new System.Windows.Forms.TextBox();
+      this.tableLayoutPanelForm = new System.Windows.Forms.TableLayoutPanel();
+      this.groupBoxBinary = new System.Windows.Forms.GroupBox();
+      this.checkBoxOverwrite = new System.Windows.Forms.CheckBox();
       this.groupBoxSplit = new System.Windows.Forms.GroupBox();
       this.numericUpDownPart = new System.Windows.Forms.NumericUpDown();
       this.labelSamplePart = new System.Windows.Forms.Label();
@@ -654,7 +654,6 @@ namespace CsvTools
       this.buttonCancel.AutoSize = true;
       this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.buttonCancel.Location = new System.Drawing.Point(417, 3);
-      this.buttonCancel.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       this.buttonCancel.Name = "buttonCancel";
       this.buttonCancel.Size = new System.Drawing.Size(83, 23);
       this.buttonCancel.TabIndex = 4;
@@ -688,7 +687,6 @@ namespace CsvTools
       this.buttonGuess.AutoSize = true;
       this.buttonGuess.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       this.buttonGuess.Location = new System.Drawing.Point(110, 3);
-      this.buttonGuess.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       this.buttonGuess.Name = "buttonGuess";
       this.buttonGuess.Size = new System.Drawing.Size(103, 23);
       this.buttonGuess.TabIndex = 2;
@@ -703,7 +701,7 @@ namespace CsvTools
       this.checkBoxIgnore.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.columnBindingSource, "Ignore", true));
       this.checkBoxIgnore.Location = new System.Drawing.Point(325, 25);
       this.checkBoxIgnore.Name = "checkBoxIgnore";
-      this.checkBoxIgnore.Size = new System.Drawing.Size(69, 16);
+      this.checkBoxIgnore.Size = new System.Drawing.Size(69, 20);
       this.checkBoxIgnore.TabIndex = 3;
       this.checkBoxIgnore.Text = "&Ignore";
       this.checkBoxIgnore.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
@@ -751,7 +749,6 @@ namespace CsvTools
       this.buttonDisplayValues.AutoSize = true;
       this.buttonDisplayValues.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       this.buttonDisplayValues.Location = new System.Drawing.Point(2, 3);
-      this.buttonDisplayValues.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       this.buttonDisplayValues.Name = "buttonDisplayValues";
       this.buttonDisplayValues.Size = new System.Drawing.Size(104, 23);
       this.buttonDisplayValues.TabIndex = 1;
@@ -778,6 +775,35 @@ namespace CsvTools
       this.toolTip.SetToolTip(this.textBoxRegexSearchPattern, "Regex Pattern to look for");
       this.textBoxRegexSearchPattern.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxRegexSearchPattern_Validating);
       // 
+      // textBoxReadFolder
+      // 
+      this.textBoxReadFolder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "ReadFolder", true));
+      this.textBoxReadFolder.Location = new System.Drawing.Point(112, 18);
+      this.textBoxReadFolder.Name = "textBoxReadFolder";
+      this.textBoxReadFolder.Size = new System.Drawing.Size(238, 20);
+      this.textBoxReadFolder.TabIndex = 6;
+      this.toolTip.SetToolTip(this.textBoxReadFolder, "Folder to look for the files during the import");
+      // 
+      // textBoxWriteFolder
+      // 
+      this.textBoxWriteFolder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "WriteFolder", true));
+      this.textBoxWriteFolder.Location = new System.Drawing.Point(112, 44);
+      this.textBoxWriteFolder.Name = "textBoxWriteFolder";
+      this.textBoxWriteFolder.Size = new System.Drawing.Size(238, 20);
+      this.textBoxWriteFolder.TabIndex = 4;
+      this.toolTip.SetToolTip(this.textBoxWriteFolder, "As the data is written the files is sotored in this folder");
+      // 
+      // textBoxPattern
+      // 
+      this.textBoxPattern.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "FileOutPutPlaceholder", true));
+      this.textBoxPattern.Location = new System.Drawing.Point(113, 70);
+      this.textBoxPattern.Name = "textBoxPattern";
+      this.textBoxPattern.Size = new System.Drawing.Size(237, 20);
+      this.textBoxPattern.TabIndex = 2;
+      this.toolTip.SetToolTip(this.textBoxPattern, "Pattern for the file during write. if left empty the original file name is used, " +
+        "you can use placeholders if data from other columns should be used to get a file" +
+        "name. E.G. {UserID}.docx");
+      // 
       // tableLayoutPanelForm
       // 
       this.tableLayoutPanelForm.AutoSize = true;
@@ -795,7 +821,7 @@ namespace CsvTools
       this.tableLayoutPanelForm.Controls.Add(this.groupBoxDate, 0, 0);
       this.tableLayoutPanelForm.Controls.Add(this.groupBoxRegExReplace, 0, 5);
       this.tableLayoutPanelForm.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.tableLayoutPanelForm.Location = new System.Drawing.Point(0, 46);
+      this.tableLayoutPanelForm.Location = new System.Drawing.Point(0, 48);
       this.tableLayoutPanelForm.Name = "tableLayoutPanelForm";
       this.tableLayoutPanelForm.RowCount = 6;
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -804,7 +830,7 @@ namespace CsvTools
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelForm.Size = new System.Drawing.Size(503, 318);
+      this.tableLayoutPanelForm.Size = new System.Drawing.Size(503, 316);
       this.tableLayoutPanelForm.TabIndex = 5;
       // 
       // groupBoxBinary
@@ -836,35 +862,6 @@ namespace CsvTools
       this.checkBoxOverwrite.TabIndex = 7;
       this.checkBoxOverwrite.Text = "Overwrite";
       this.checkBoxOverwrite.UseVisualStyleBackColor = true;
-      // 
-      // textBoxReadFolder
-      // 
-      this.textBoxReadFolder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "ReadFolder", true));
-      this.textBoxReadFolder.Location = new System.Drawing.Point(112, 18);
-      this.textBoxReadFolder.Name = "textBoxReadFolder";
-      this.textBoxReadFolder.Size = new System.Drawing.Size(238, 20);
-      this.textBoxReadFolder.TabIndex = 6;
-      this.toolTip.SetToolTip(this.textBoxReadFolder, "Folder to look for the files during the import");
-      // 
-      // textBoxWriteFolder
-      // 
-      this.textBoxWriteFolder.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "WriteFolder", true));
-      this.textBoxWriteFolder.Location = new System.Drawing.Point(112, 44);
-      this.textBoxWriteFolder.Name = "textBoxWriteFolder";
-      this.textBoxWriteFolder.Size = new System.Drawing.Size(238, 20);
-      this.textBoxWriteFolder.TabIndex = 4;
-      this.toolTip.SetToolTip(this.textBoxWriteFolder, "As the data is written the files is sotored in this folder");
-      // 
-      // textBoxPattern
-      // 
-      this.textBoxPattern.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "FileOutPutPlaceholder", true));
-      this.textBoxPattern.Location = new System.Drawing.Point(113, 70);
-      this.textBoxPattern.Name = "textBoxPattern";
-      this.textBoxPattern.Size = new System.Drawing.Size(237, 20);
-      this.textBoxPattern.TabIndex = 2;
-      this.toolTip.SetToolTip(this.textBoxPattern, "Pattern for the file during write. if left empty the original file name is used, " +
-        "you can use placeholders if data from other columns should be used to get a file" +
-        "name. E.G. {UserID}.docx");
       // 
       // groupBoxSplit
       // 
@@ -1156,7 +1153,6 @@ namespace CsvTools
       this.buttonOK.AutoSize = true;
       this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
       this.buttonOK.Location = new System.Drawing.Point(330, 3);
-      this.buttonOK.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       this.buttonOK.Name = "buttonOK";
       this.buttonOK.Size = new System.Drawing.Size(83, 23);
       this.buttonOK.TabIndex = 3;
@@ -1176,7 +1172,7 @@ namespace CsvTools
       this.panelTop.Location = new System.Drawing.Point(0, 0);
       this.panelTop.Margin = new System.Windows.Forms.Padding(2);
       this.panelTop.Name = "panelTop";
-      this.panelTop.Size = new System.Drawing.Size(503, 46);
+      this.panelTop.Size = new System.Drawing.Size(503, 48);
       this.panelTop.TabIndex = 6;
       // 
       // panelBottom
@@ -1194,10 +1190,8 @@ namespace CsvTools
       // 
       // FormColumnUI
       // 
-      this.AcceptButton = this.buttonOK;
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.CancelButton = this.buttonCancel;
       this.ClientSize = new System.Drawing.Size(503, 364);
       this.Controls.Add(this.panelBottom);
       this.Controls.Add(this.tableLayoutPanelForm);
