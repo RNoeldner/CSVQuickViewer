@@ -197,17 +197,17 @@ namespace CsvTools.Tests
     {
       var target = new ValueFormatMutable();
       var target2 = new ValueFormatMutable();
-      Assert.IsTrue(target2.ValueFormatEqual(target));
+      Assert.IsTrue(target2.Equals(target));
     }
 
     [TestMethod]
     public void ValueFormatNotEquals()
     {
       var target = new ValueFormatMutable();
-      Assert.IsFalse(m_ValueFormatMutableGerman.ValueFormatEqual(target));
+      Assert.IsFalse(m_ValueFormatMutableGerman.Equals(target));
     }
 
     [TestMethod]
-    public void ValueFormatNotEqualsNull() => Assert.IsFalse(m_ValueFormatMutableGerman.ValueFormatEqual(null));
+    public void ValueFormatNotEqualsNull() => Assert.IsFalse(m_ValueFormatMutableGerman.Equals(null));
   }
 }

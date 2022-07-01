@@ -17,13 +17,13 @@ using System;
 namespace CsvTools
 {
   /// <inheritdoc cref="CsvTools.IValueFormat" />
-  public class ImmutableValueFormat : IValueFormat
+  public class ImmutableValueFormat : IValueFormat, IEquatable<ImmutableValueFormat>
   {
     public ImmutableValueFormat(IValueFormat valueFormat) : this(valueFormat.DataType, valueFormat.DateFormat,
       valueFormat.DateSeparator, valueFormat.TimeSeparator, valueFormat.NumberFormat, valueFormat.GroupSeparator,
       valueFormat.DecimalSeparator, valueFormat.True, valueFormat.False, valueFormat.DisplayNullAs,
       valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd, valueFormat.RegexSearchPattern,
-      valueFormat.RegexReplacement, valueFormat.ReadFolder)
+      valueFormat.RegexReplacement, valueFormat.ReadFolder, valueFormat.WriteFolder, valueFormat.FileOutPutPlaceholder, valueFormat.Overwrite)
     {
     }
 
@@ -126,13 +126,12 @@ namespace CsvTools
     /// <inheritdoc />
     public bool Overwrite { get; }
 
-    public override bool Equals(object? obj)  => ValueFormatExtension.ValueFormatEqual(this, obj as IValueFormat);
-    
+    /// <inheritdoc />
     public override int GetHashCode()
     {
       unchecked
       {
-        var hashCode = (int)DataType;
+        var hashCode = (int) DataType;
         hashCode = (hashCode * 397) ^ DateFormat.GetHashCode();
         hashCode = (hashCode * 397) ^ DateSeparator.GetHashCode();
         hashCode = (hashCode * 397) ^ DecimalSeparator.GetHashCode();
@@ -154,5 +153,14 @@ namespace CsvTools
         return hashCode;
       }
     }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj) => this.ValueFormatEqual(obj as IValueFormat);
+
+    /// <inheritdoc cref="IEquatable{T}" />
+    public bool Equals(ImmutableValueFormat? other) => this.ValueFormatEqual(other);
+
+    /// <inheritdoc cref="IEquatable{T}" />
+    public bool Equals(IValueFormat other) => this.ValueFormatEqual(other);
   }
 }

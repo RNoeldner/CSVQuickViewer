@@ -120,7 +120,7 @@ namespace CsvTools
       set
       {
         var newVal = value ?? new ValueFormatMutable();
-        if (m_DefaultValueFormatWrite.ValueFormatEqual(newVal))
+        if (m_DefaultValueFormatWrite.Equals(newVal))
           return;
         m_DefaultValueFormatWrite.CopyFrom(newVal);
         NotifyPropertyChanged();
@@ -250,7 +250,7 @@ namespace CsvTools
           m_CodePageId != fileSettingPhysicalFile.CodePageId)
         return false;
 
-      if (!fileSettingPhysicalFile.DefaultValueFormatWrite.ValueFormatEqual(DefaultValueFormatWrite))
+      if (!fileSettingPhysicalFile.DefaultValueFormatWrite.Equals(DefaultValueFormatWrite))
         return false;
 
       if (!string.Equals(fileSettingPhysicalFile.FileName, FileName, StringComparison.OrdinalIgnoreCase))
@@ -313,7 +313,7 @@ namespace CsvTools
         if (!physicalFile.KeyID.Equals(KeyID))
           yield return $"KeyID: {KeyID} {physicalFile.KeyID}";
 
-        if (!physicalFile.DefaultValueFormatWrite.ValueFormatEqual(DefaultValueFormatWrite))
+        if (!physicalFile.DefaultValueFormatWrite.Equals(DefaultValueFormatWrite))
           yield return $"DefaultValueFormatWrite";
       }
 

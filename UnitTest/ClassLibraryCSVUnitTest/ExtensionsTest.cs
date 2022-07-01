@@ -306,23 +306,6 @@ namespace CsvTools.Tests
       Assert.IsFalse("MyFile.txt".AssumeZip());
     }
 
-    [TestMethod]
-    public void CollectionCopy()
-    {
-      var col1 = new ColumnCollection();
-      var col2 = new ColumnCollection();
-      col1.CollectionCopy(col2);
-      Assert.AreEqual(0, col2.Count);
-
-      col2.Add(new Column());
-      Assert.AreEqual(1, col2.Count);
-      col1.CollectionCopy(col2);
-      Assert.AreEqual(0, col2.Count);
-
-      col1.Add(new Column { Name = "ID" });
-      col1.CollectionCopy(col2);
-      Assert.AreEqual(1, col2.Count);
-    }
 
     [TestMethod]
     public void CollectionCopyStructTest()

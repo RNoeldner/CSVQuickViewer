@@ -13,7 +13,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 
 namespace CsvTools
 {
@@ -21,7 +20,7 @@ namespace CsvTools
   /// <summary>
   ///   Column information like name, Type, Format etc.
   /// </summary>
-  public class ImmutableColumn : IColumn, IEqualityComparer<ImmutableColumn>
+  public class ImmutableColumn : IColumn
   {
     public const string cDefaultTimePartFormat = "HH:mm:ss";
 

@@ -82,7 +82,9 @@ namespace CsvTools
       m_Name = name;
       ValueFormatMutable = new ValueFormatMutable
       {
-        DataType = DataTypeEnum.DateTime, DateFormat = dateFormat, DateSeparator = dateSeparator
+        DataType = DataTypeEnum.DateTime,
+        DateFormat = dateFormat,
+        DateSeparator = dateSeparator
       };
     }
 
@@ -480,20 +482,6 @@ namespace CsvTools
                                                     StringComparison.OrdinalIgnoreCase)
                                                   && Convert == other.Convert
                                                   && ValueFormatMutable.ValueFormatEqual(other.ValueFormat);
-    }
-
-
-    object ICloneable.Clone() => new Column(this);
-
-    /// <summary>
-    ///   Clones this instance into a new instance of the same type
-    /// </summary>
-    /// <returns></returns>
-    public Column Clone()
-    {
-      var other = new Column();
-      CopyTo(other);
-      return other;
     }
 
     /// <summary>

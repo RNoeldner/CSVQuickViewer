@@ -21,25 +21,15 @@ namespace CsvTools
   public static class ValueFormatExtension
   {
     public const string cDateFormatDefault = "MM/dd/yyyy";
-
     public const string cDateSeparatorDefault = "/";
-
     public const string cDecimalSeparatorDefault = ".";
-
     public const string cFalseDefault = "False";
-
     public const string cGroupSeparatorDefault = "";
-
     public const string cNumberFormatDefault = "0.#####";
-
     public const int cPartDefault = 2;
-
     public const string cPartSplitterDefault = ":";
-
     public const bool cPartToEndDefault = true;
-
     public const string cTimeSeparatorDefault = ":";
-
     public const string cTrueDefault = "True";
 
     /// <summary>
@@ -143,54 +133,36 @@ namespace CsvTools
       return false;
     }
 
+    /// <summary>
+    /// Checks if two value formats are equal
+    /// </summary>
+    /// <param name="one">The one.</param>
+    /// <param name="other">The other.</param>
+    /// <returns></returns>
     public static bool ValueFormatEqual(this IValueFormat one, IValueFormat? other)
     {
-      if (other is null)
-        return false;
-      if (ReferenceEquals(one, other))
-        return true;
+      if (other is null) return false;
+      if (ReferenceEquals(one, other)) return true;
+      return one.DataType == other.DataType
+             && one.DateFormat == other.DateFormat
+             && one.DateSeparator == other.DateSeparator
+             && one.DecimalSeparator == other.DecimalSeparator
+             && one.DisplayNullAs == other.DisplayNullAs
+             && one.False == other.False
+             && one.GroupSeparator == other.GroupSeparator
+             && one.NumberFormat == other.NumberFormat
+             && one.Part == other.Part
+             && one.PartSplitter == other.PartSplitter
+             && one.PartToEnd == other.PartToEnd
+             && one.TimeSeparator == other.TimeSeparator
+             && one.True == other.True
+             && one.RegexSearchPattern == other.RegexSearchPattern
+             && one.RegexReplacement == other.RegexReplacement
+             && one.ReadFolder == other.ReadFolder
+             && one.WriteFolder == other.WriteFolder
+             && one.FileOutPutPlaceholder == other.FileOutPutPlaceholder
+             && one.Overwrite == other.Overwrite;
 
-      if (other.DataType != one.DataType || !other.DisplayNullAs.Equals(one.DisplayNullAs, StringComparison.Ordinal))
-        return false;
-
-      return one.DataType switch
-      {
-        DataTypeEnum.Integer => string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal),
-        DataTypeEnum.Numeric => string.Equals(other.GroupSeparator, one.GroupSeparator, StringComparison.Ordinal)
-                                && string.Equals(other.DecimalSeparator, one.DecimalSeparator, StringComparison.Ordinal)
-                                && string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal),
-        DataTypeEnum.Double => other.GroupSeparator == one.GroupSeparator && other.DecimalSeparator ==
-                                                                          one.DecimalSeparator
-                                                                          && string.Equals(
-                                                                            other.NumberFormat,
-                                                                            one.NumberFormat,
-                                                                            StringComparison.Ordinal),
-        DataTypeEnum.DateTime => string.Equals(other.DateFormat, one.DateFormat, StringComparison.Ordinal)
-                                 && string.Equals(other.DateSeparator, one.DateSeparator, StringComparison.Ordinal)
-                                 && string.Equals(other.TimeSeparator, one.TimeSeparator, StringComparison.Ordinal),
-        DataTypeEnum.Boolean => string.Equals(other.False, one.False, StringComparison.OrdinalIgnoreCase)
-                                && string.Equals(other.True, one.True, StringComparison.OrdinalIgnoreCase),
-
-        DataTypeEnum.TextReplace => string.Equals(other.RegexSearchPattern, one.RegexSearchPattern,
-                                      StringComparison.Ordinal)
-                                    && string.Equals(other.RegexReplacement, one.RegexReplacement,
-                                      StringComparison.Ordinal),
-        DataTypeEnum.Binary => string.Equals(other.ReadFolder, one.ReadFolder),
-        DataTypeEnum.TextPart => string.Equals(other.PartSplitter, one.PartSplitter, StringComparison.Ordinal)
-                                 && other.Part == one.Part && other.PartToEnd == one.PartToEnd,
-        _ => string.Equals(other.DateFormat, one.DateFormat, StringComparison.Ordinal)
-             && string.Equals(other.DateSeparator, one.DateSeparator, StringComparison.Ordinal)
-             && string.Equals(other.TimeSeparator, one.TimeSeparator, StringComparison.Ordinal)
-             && string.Equals(other.False, one.False, StringComparison.OrdinalIgnoreCase)
-             && string.Equals(other.True, one.True, StringComparison.OrdinalIgnoreCase)
-             && string.Equals(other.GroupSeparator, one.GroupSeparator, StringComparison.Ordinal)
-             && string.Equals(other.DecimalSeparator, one.DecimalSeparator, StringComparison.Ordinal)
-             && string.Equals(other.NumberFormat, one.NumberFormat, StringComparison.Ordinal)
-             && string.Equals(other.RegexSearchPattern, one.RegexSearchPattern, StringComparison.Ordinal)
-             && string.Equals(other.RegexReplacement, one.RegexReplacement, StringComparison.Ordinal)
-             && string.Equals(other.PartSplitter, one.PartSplitter, StringComparison.Ordinal) && other.Part == one.Part
-             && other.PartToEnd == one.PartToEnd
-      };
     }
   }
 }
