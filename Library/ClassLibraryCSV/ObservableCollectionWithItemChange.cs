@@ -27,11 +27,6 @@ namespace CsvTools
   public class ObservableCollectionWithItemChange<T> : ObservableCollection<T>
   {
     /// <summary>
-    ///   Event to be raised on Collection Level if properties of a item in the collection changes
-    /// </summary>
-    public event PropertyChangedEventHandler? CollectionItemPropertyChanged;
-
-    /// <summary>
     ///   Additional EventHandlers for an implementation needing information ona a changed item
     /// </summary>
     public PropertyChangedEventHandler? ItemPropertyChanged;
@@ -41,48 +36,16 @@ namespace CsvTools
     /// </summary>
     public EventHandler<PropertyChangedEventArgs<string>>? ItemPropertyChangedString;
 
-    
-    public ObservableCollectionWithItemChange(PropertyChangedEventHandler? itemPropertyChanged = null, EventHandler<PropertyChangedEventArgs<string>>? itemPropertyChangedString = null)
-    {
-      ItemPropertyChangedString = itemPropertyChangedString;
-      ItemPropertyChanged = itemPropertyChanged;
-      CollectionChanged +=  RemovePropertyChanged;
-    }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObservableCollectionWithItemChange{T}"/> class.
+    /// </summary>
+    // ReSharper disable once VirtualMemberCallInConstructor
+    public ObservableCollectionWithItemChange() => CollectionChanged +=  RemovePropertyChanged;
 
     /// <summary>
-    ///   Function to determine if an item is present in the collection
+    ///   Event to be raised on Collection Level if properties of a item in the collection changes
     /// </summary>
-    /// <param name="search">the item to check if it present</param>
-    /// <returns>
-    ///   <see langword="true" /> if the collection does contain the item already; otherwise,
-    ///   <see langword="false" />.
-    /// </returns>
-    protected  virtual bool Present(T search) => Items.Contains(search);
-
-    /// <summary>
-    ///   As Items are added or removed Property Change is registered When the item is changed
-    ///   later on CollectionItemPropertyChanged is triggered
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e">The event args with old and new items</param>
-    private void RemovePropertyChanged(object sender, NotifyCollectionChangedEventArgs e)
-    {
-      if (e.OldItems == null) 
-        return;
-      foreach (var item in e.OldItems)
-      {
-        if (item is INotifyPropertyChanged notifyPropertyChanged)
-        {
-          if (CollectionItemPropertyChanged != null)
-            notifyPropertyChanged.PropertyChanged -= CollectionItemPropertyChanged;
-          if (ItemPropertyChanged!=null)
-            notifyPropertyChanged.PropertyChanged -= ItemPropertyChanged;
-        }
-        if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
-          notifyPropertyChangedString.PropertyChangedString -= ItemPropertyChangedString;
-      }
-    }
-
+    public event PropertyChangedEventHandler? CollectionItemPropertyChanged;
     /// <summary>
     /// Adds the specified item to the collection and makes sure the item is not already present, if the item does support <see cref="INotifyPropertyChanged"/> <see cref="CollectionItemPropertyChanged"/>, <see cref="ItemPropertyChanged"/> and <see cref="ItemPropertyChangedString"/> will be registered to pass the event to the implementing class
     /// </summary>
@@ -93,7 +56,7 @@ namespace CsvTools
     {
       if (item is ICloneable src)
         item = (T) src.Clone();
-      if (Present(item)) 
+      if (Present(item))
         return false;
 
       // Set Property changed Event Handlers if possible
@@ -168,5 +131,39 @@ namespace CsvTools
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
     /// </returns>
     public override int GetHashCode() => EqualityComparer<IList<T>>.Default.GetHashCode(Items);
+
+    /// <summary>
+    ///   Function to determine if an item is present in the collection
+    /// </summary>
+    /// <param name="search">the item to check if it present</param>
+    /// <returns>
+    ///   <see langword="true" /> if the collection does contain the item already; otherwise,
+    ///   <see langword="false" />.
+    /// </returns>
+    protected virtual bool Present(T search) => Items.Contains(search);
+
+    /// <summary>
+    ///   As Items are added or removed Property Change is registered When the item is changed
+    ///   later on CollectionItemPropertyChanged is triggered
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e">The event args with old and new items</param>
+    private void RemovePropertyChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+      if (e.OldItems == null) 
+        return;
+      foreach (var item in e.OldItems)
+      {
+        if (item is INotifyPropertyChanged notifyPropertyChanged)
+        {
+          if (CollectionItemPropertyChanged != null)
+            notifyPropertyChanged.PropertyChanged -= CollectionItemPropertyChanged;
+          if (ItemPropertyChanged!=null)
+            notifyPropertyChanged.PropertyChanged -= ItemPropertyChanged;
+        }
+        if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
+          notifyPropertyChangedString.PropertyChangedString -= ItemPropertyChangedString;
+      }
+    }
   }
 }

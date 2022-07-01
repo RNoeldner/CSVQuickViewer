@@ -22,11 +22,6 @@ namespace CsvTools
   /// </summary>
   public sealed class ColumnCollection : ObservableCollectionWithItemChange<IColumn>
   {
-    /// <inheritdoc />
-    protected override bool Present(IColumn search)
-      => GetIndex(search.Name)!=-1;
-      
-
     /// <summary>
     ///   Adds the <see cref="IColumn" /> as <see cref="ImmutableColumn"/>
     /// </summary>
@@ -37,9 +32,9 @@ namespace CsvTools
       if (column is null)
         throw new ArgumentNullException(nameof(column));
 
-      base.Add(column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
+      base.Add(column as ImmutableColumn ?? new ImmutableColumn(column));
     }
-    
+
     /// <summary>
     ///   Gets the <see cref="CsvTools.IColumn" /> with the specified field name.
     /// </summary>
@@ -51,18 +46,6 @@ namespace CsvTools
       if (fieldName is null) return null;
       var index = GetIndex(fieldName);
       return index == -1 ? null : Items[index];
-    }
-
-    internal int GetIndex(string colName)
-    {
-      if (string.IsNullOrEmpty(colName))
-        return -1;
-
-      for (var index = 0; index < Items.Count; index++)
-        if (string.Equals(Items[index].Name, colName, StringComparison.OrdinalIgnoreCase))
-          return index;
-
-      return -1;
     }
 
     /// <summary>
@@ -88,5 +71,21 @@ namespace CsvTools
         Add(column);
       }
     }
+
+    internal int GetIndex(string colName)
+    {
+      if (string.IsNullOrEmpty(colName))
+        return -1;
+
+      for (var index = 0; index < Items.Count; index++)
+        if (string.Equals(Items[index].Name, colName, StringComparison.OrdinalIgnoreCase))
+          return index;
+
+      return -1;
+    }
+
+    /// <inheritdoc />
+    protected override bool Present(IColumn search)
+      => GetIndex(search.Name)!=-1;
   }
 }
