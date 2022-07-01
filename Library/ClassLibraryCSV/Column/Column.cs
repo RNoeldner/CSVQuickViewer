@@ -50,6 +50,7 @@ namespace CsvTools
       m_TimeZonePart = source.TimeZonePart;
 
       ValueFormatMutable = new ValueFormatMutable(source.ValueFormat);
+      ValueFormatMutable.PropertyChanged += (s, e) => NotifyPropertyChanged(nameof(ValueFormatMutable));
     }
 
     public Column(IColumn source, IValueFormat format)
@@ -122,13 +123,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    public bool DateFormatSpecified => ValueFormatMutable.DataType == DataTypeEnum.DateTime;
-
-    /// <summary>
     ///   Gets or sets the date separator.
     /// </summary>
     /// <value>The date separator.</value>
@@ -140,14 +134,6 @@ namespace CsvTools
       get => ValueFormatMutable.DateSeparator;
       set => ValueFormatMutable.DateSeparator = value;
     }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public bool DateSeparatorSpecified => ValueFormatMutable.DataType == DataTypeEnum.DateTime;
 
     /// <summary>
     ///   Gets or sets the decimal separator.
@@ -179,13 +165,7 @@ namespace CsvTools
       set => ValueFormatMutable.False = value;
     }
 
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    public bool FalseSpecified => ValueFormatMutable.DataType == DataTypeEnum.Boolean;
-
+    
     /// <summary>
     ///   Gets or sets the group separator.
     /// </summary>
@@ -213,14 +193,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if number format is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    public bool NumberFormatSpecified =>
-      ValueFormatMutable.DataType == DataTypeEnum.Double || ValueFormatMutable.DataType == DataTypeEnum.Numeric;
-
-    /// <summary>
     ///   Gets or sets the part for splitting.
     /// </summary>
     /// <value>The part starting with 1</value>
@@ -232,14 +204,7 @@ namespace CsvTools
       get => ValueFormatMutable.Part;
       set => ValueFormatMutable.Part = value;
     }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    public bool PartSpecified => ValueFormatMutable.DataType == DataTypeEnum.TextPart;
-
+    
     /// <summary>
     ///   Gets or sets the splitter.
     /// </summary>
@@ -253,15 +218,6 @@ namespace CsvTools
       set => ValueFormatMutable.PartSplitter = value;
     }
 
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-
-    public bool PartSplitterSpecified =>
-      ValueFormatMutable.DataType == DataTypeEnum.TextPart
-      && !ValueFormatMutable.PartSplitter.Equals(ValueFormatExtension.cPartSplitterDefault);
 
     /// <summary>
     ///   Gets or sets the part for splitting.
@@ -275,14 +231,6 @@ namespace CsvTools
       get => ValueFormatMutable.PartToEnd;
       set => ValueFormatMutable.PartToEnd = value;
     }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-
-    public bool PartToEndSpecified => ValueFormatMutable.DataType == DataTypeEnum.TextPart;
 
     /// <summary>
     ///   Gets a value indicating whether the Xml field is specified.
@@ -312,14 +260,7 @@ namespace CsvTools
       get => ValueFormatMutable.TimeSeparator;
       set => ValueFormatMutable.TimeSeparator = value;
     }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-
-    public bool TimeSeparatorSpecified => ValueFormatMutable.DataType == DataTypeEnum.DateTime;
+    
 
     /// <summary>
     ///   Gets or sets the representation for true.
@@ -334,14 +275,6 @@ namespace CsvTools
       get => ValueFormatMutable.True;
       set => ValueFormatMutable.True = value;
     }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-
-    public bool TrueSpecified => ValueFormatMutable.DataType == DataTypeEnum.Boolean;
 
     public ValueFormatMutable ValueFormatMutable { get; }
 
