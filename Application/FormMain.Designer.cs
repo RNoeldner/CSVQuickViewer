@@ -28,7 +28,7 @@ namespace CsvTools
       }
       Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
       Microsoft.Win32.SystemEvents.PowerModeChanged -= SystemEvents_PowerModeChanged;
-      base.Dispose(disposing);
+      this.SafeInvoke(()=>base.Dispose(disposing));
     }
 
 

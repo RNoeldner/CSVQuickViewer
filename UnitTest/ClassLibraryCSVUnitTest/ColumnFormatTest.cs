@@ -14,6 +14,8 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace CsvTools.Tests
 {
@@ -22,7 +24,23 @@ namespace CsvTools.Tests
 	{
 		private readonly Column m_Column = new Column();
 
-		[TestMethod]
+    [TestMethod]
+    public void Column_Ctor()
+    {
+      var target1 = new Column("Name");
+      Assert.IsNotNull(target1);
+      var target2 = new Column("Name2", DataTypeEnum.DateTime);
+      Assert.AreEqual("Name2", target2.Name);
+      var target3 = new Column("Name3", (IValueFormat) new ImmutableValueFormat());
+      Assert.AreEqual("Name3", target3.Name);
+      var target4 = new Column("Name4","DF", "/");
+      Assert.AreEqual("Name4", target4.Name);
+      var target5 = new Column(target3, new ImmutableValueFormat(DataTypeEnum.DateTime));
+      Assert.AreEqual("Name3", target5.Name);
+      Assert.AreEqual(DataTypeEnum.DateTime, target5.ValueFormat.DataType);
+    }
+
+    [TestMethod]
 		public void ColumnDetermineDataTypeFromType()
 		{
 			var s = "Test";
@@ -48,6 +66,64 @@ namespace CsvTools.Tests
 			Assert.AreEqual(DataTypeEnum.Boolean, true.GetType().GetDataType());
 			Assert.AreEqual(DataTypeEnum.Guid, g.GetType().GetDataType());
 		}
+    
+    [TestMethod]
+    public void ColumnProperties()
+    {
+        var target = new Column("Name", DataTypeEnum.Guid);
+        target.DataType = DataTypeEnum.Boolean;
+        Assert.AreEqual(DataTypeEnum.Boolean, target.DataType);
+        target.DateFormat = "xxx";
+        Assert.AreEqual("xxx", target.DateFormat);
+        target.DateSeparator = "-";
+        Assert.AreEqual("-", target.DateSeparator);
+        target.DecimalSeparator = "_";
+        Assert.AreEqual("_", target.DecimalSeparator);
+        target.False = "nö";
+        Assert.AreEqual("nö", target.False);
+        target.GroupSeparator = "'";
+        Assert.AreEqual("'", target.GroupSeparator);
+        target.TimeSeparator = "?";
+        Assert.AreEqual("?", target.TimeSeparator);
+        target.NumberFormat = "yyy";
+        Assert.AreEqual("yyy", target.NumberFormat);
+        target.PartSplitter = "|";
+        Assert.AreEqual("|", target.PartSplitter);
+        target.PartToEnd = false;
+        Assert.AreEqual(false, target.PartToEnd);
+        target.Part = 17;
+        Assert.AreEqual(17, target.Part);
+        target.True = "Yo";
+        Assert.AreEqual("Yo", target.True);
+        target.ColumnOrdinal= 13;
+        Assert.AreEqual(13, target.ColumnOrdinal);
+        target.Convert= false;
+        Assert.AreEqual(false, target.Convert);
+        target.DestinationName= "->";
+        Assert.AreEqual("->", target.DestinationName);
+        target.Name= "Näme";
+        Assert.AreEqual("Näme", target.Name);
+        var test2 = new Column(target);
+        Assert.AreEqual("Näme", test2.Name);
+        var keySerializer = new XmlSerializer(typeof(Column));
+    }
+
+    
+    [TestMethod]
+    public void ColumnSerialize()
+    {
+      var target = new Column("Näme", new ImmutableValueFormat(DataTypeEnum.DateTime, "XXX","-", "?", "xx","_","=","Yo","Nö","<N>", 3,"|", false,"pat","erp","read","Wr","ou",false))
+      {
+        DestinationName = "->",
+        ColumnOrdinal = 13,
+        Convert = true
+      };
+      var serializer = new XmlSerializer(typeof(Column));
+      using var stringWriter = new StringWriter();
+      serializer.Serialize(stringWriter, target);
+      var result = stringWriter.ToString();
+      Assert.IsFalse(string.IsNullOrEmpty(result));
+    }
 
 		[TestMethod]
 		public void ColumnEquals()
