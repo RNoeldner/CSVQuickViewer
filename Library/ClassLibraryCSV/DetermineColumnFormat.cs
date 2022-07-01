@@ -39,7 +39,7 @@ namespace CsvTools
         if (column?.ValueFormat is null || column.ValueFormat.DataType != DataTypeEnum.DateTime  || column.Ignore)
           continue;
 
-        var found = counterByFormat.Keys.FirstOrDefault(x => x.ValueFormatEqual(column.ValueFormat));
+        var found = counterByFormat.Keys.FirstOrDefault(x => x.Equals(column.ValueFormat));
         if (found is null)
         {
           found = column.ValueFormat;
@@ -252,14 +252,14 @@ namespace CsvTools
               {
                 // if he date format does not match the last found date format reset the assumed
                 // correct format
-                if (!othersValueFormatDate.ValueFormatEqual(checkResult.FoundValueFormat))
+                if (!othersValueFormatDate.Equals(checkResult.FoundValueFormat))
                   othersValueFormatDate = null;
               }
             }
 
             var oldValueFormat = columnCollection[colIndexCurrent].GetTypeAndFormatDescription();
 
-            if (checkResult.FoundValueFormat.ValueFormatEqual(columnCollection[colIndexCurrent].ValueFormat))
+            if (checkResult.FoundValueFormat.Equals(columnCollection[colIndexCurrent].ValueFormat))
             {
               Logger.Information("{column} – Format : {format} – not changed", readerColumn.Name, oldValueFormat);
             }
@@ -328,7 +328,7 @@ namespace CsvTools
               if (colIndexExisting != -1)
               {
                 var oldVf = columnCollection[colIndexExisting].ValueFormat;
-                if (oldVf.ValueFormatEqual(checkResult.FoundValueFormat)) continue;
+                if (oldVf.Equals(checkResult.FoundValueFormat)) continue;
                 Logger.Information(
                   "{column} – Format : {format} – updated from {old format}",
                   columnCollection[colIndexExisting].Name,

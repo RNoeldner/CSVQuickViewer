@@ -23,7 +23,7 @@ namespace CsvTools
   ///   Setting for a value format
   /// </summary>
   [Serializable]
-  public sealed class ValueFormatMutable : NotifyPropertyChangedBase, IValueFormat
+  public sealed class ValueFormatMutable : NotifyPropertyChangedBase, IValueFormat, IEquatable<ValueFormatMutable>
   {
     private DataTypeEnum m_DataType;
     private string m_DateFormat;
@@ -45,7 +45,11 @@ namespace CsvTools
     private string m_FileOutPutPlaceholder;
     private bool m_Overwrite;
 
+    public static IValueFormat Default = new ValueFormatMutable();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ValueFormatMutable"/> class.
+    /// </summary>
     public ValueFormatMutable() : this(
       DataTypeEnum.String,
       ValueFormatExtension.cDateFormatDefault,
@@ -69,6 +73,73 @@ namespace CsvTools
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ValueFormatMutable"/> class.
+    /// </summary>
+    /// <param name="other">IValueFormat with the information to copy from</param>
+    public ValueFormatMutable(IValueFormat other) : this(other.DataType, other.DateFormat, other.DateSeparator,
+      other.TimeSeparator, other.NumberFormat,
+      other.GroupSeparator, other.DecimalSeparator,
+      other.True, other.False, other.DisplayNullAs, other.Part, other.PartSplitter, other.PartToEnd,
+      other.RegexSearchPattern, other.RegexReplacement, other.ReadFolder, other.WriteFolder,
+      other.FileOutPutPlaceholder, other.Overwrite)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ValueFormatMutable"/> class.
+    /// </summary>
+    /// <param name="dataType">Type of the data.</param>
+    /// <param name="dateFormat">The date format.</param>
+    /// <param name="dateSeparator">The date separator (usually /).</param>
+    /// <param name="timeSeparator">The time separator.</param>
+    /// <param name="numberFormat">The number format.</param>
+    /// <param name="groupSeparator">The group separator.</param>
+    /// <param name="decimalSeparator">The decimal separator.</param>
+    /// <param name="asTrue">Text to be regarded as true.</param>
+    /// <param name="asFalse">Text to be regarded as false.</param>
+    /// <param name="displayNullAs">While writing display a null values as this</param>
+    /// <param name="part">The part number in case of splitting.</param>
+    /// <param name="partSplitter">The part splitter.</param>
+    /// <param name="partToEnd">if set to <c>true</c> the part will contain everything from the start of the part to the end.</param>
+    /// <param name="regexSearchPattern">The regex search pattern.</param>
+    /// <param name="regexReplacement">The regex replacement.</param>
+    /// <param name="readFolder">The read folder.</param>
+    /// <param name="writeFolder">The write folder.</param>
+    /// <param name="fileOutPutPlaceholder">The file out put placeholder.</param>
+    /// <param name="overwrite">if set to <c>true</c> we should overwrite.</param>
+    /// <exception cref="CsvTools.FileReaderException">Decimal and Group separator must be different</exception>
+    /// <exception cref="System.ArgumentNullException">
+    /// dateFormat
+    /// or
+    /// dateSeparator
+    /// or
+    /// decimalSeparator
+    /// or
+    /// groupSeparator
+    /// or
+    /// displayNullAs
+    /// or
+    /// asFalse
+    /// or
+    /// numberFormat
+    /// or
+    /// timeSeparator
+    /// or
+    /// asTrue
+    /// or
+    /// partSplitter
+    /// or
+    /// regexSearchPattern
+    /// or
+    /// regexReplacement
+    /// or
+    /// readFolder
+    /// or
+    /// writeFolder
+    /// or
+    /// fileOutPutPlaceholder
+    /// </exception>
     public ValueFormatMutable(
       in DataTypeEnum dataType,
       in string dateFormat,
@@ -115,45 +186,13 @@ namespace CsvTools
       m_Overwrite = overwrite;
     }
 
-    public ValueFormatMutable(IValueFormat other) : this(other.DataType, other.DateFormat, other.DateSeparator,
-      other.TimeSeparator, other.NumberFormat,
-      other.GroupSeparator, other.DecimalSeparator,
-      other.True, other.False, other.DisplayNullAs, other.Part, other.PartSplitter, other.PartToEnd,
-      other.RegexSearchPattern, other.RegexReplacement, other.ReadFolder, other.WriteFolder,
-      other.FileOutPutPlaceholder, other.Overwrite)
-
-    {
-    }
 
     /// <summary>
     ///   Determines if anything is different to the default values, commonly used for
-    ///   serialisation, avoiding empty elements
+    ///   serialization, avoiding empty elements
     /// </summary>
 
-    public bool Specified => !(DataType == DataTypeEnum.String && DateFormat == ValueFormatExtension.cDateFormatDefault
-                                                               && DateSeparator == ValueFormatExtension
-                                                                 .cDateSeparatorDefault
-                                                               && TimeSeparator == ValueFormatExtension
-                                                                 .cTimeSeparatorDefault
-                                                               && NumberFormat == ValueFormatExtension
-                                                                 .cNumberFormatDefault
-                                                               && DecimalSeparator == ValueFormatExtension
-                                                                 .cDecimalSeparatorDefault
-                                                               && GroupSeparator == ValueFormatExtension
-                                                                 .cGroupSeparatorDefault
-                                                               && True == ValueFormatExtension.cTrueDefault
-                                                               && False == ValueFormatExtension.cFalseDefault
-                                                               && Part == ValueFormatExtension.cPartDefault
-                                                               && PartSplitter == ValueFormatExtension
-                                                                 .cPartSplitterDefault
-                                                               && PartToEnd == ValueFormatExtension.cPartToEndDefault
-                                                               && RegexSearchPattern == string.Empty
-                                                               && RegexReplacement == string.Empty
-                                                               && ReadFolder == string.Empty
-                                                               && WriteFolder == string.Empty
-                                                               && FileOutPutPlaceholder == string.Empty
-                                                               && DisplayNullAs == string.Empty);
-
+    public bool Specified => Default.Equals(this);
 
     /// <inheritdoc />    
     [XmlAttribute]
@@ -411,5 +450,14 @@ namespace CsvTools
       Overwrite = other.Overwrite;
       FileOutPutPlaceholder = other.FileOutPutPlaceholder;
     }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj) => this.ValueFormatEqual(obj as IValueFormat);
+
+    /// <inheritdoc cref="IEquatable{T}" />
+    public bool Equals(ValueFormatMutable other) => this.ValueFormatEqual(other);
+
+    /// <inheritdoc cref="IEquatable{T}" />
+    public bool Equals(IValueFormat other) => this.ValueFormatEqual(other);
   }
 }

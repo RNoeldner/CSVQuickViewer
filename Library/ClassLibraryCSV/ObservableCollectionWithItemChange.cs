@@ -17,88 +17,104 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
 
 namespace CsvTools
 {
   /// <summary>
-  ///   Observavle collection with unique items
+  ///   Observable collection with unique items
   /// </summary>
   /// <typeparam name="T"></typeparam>
   public class ObservableCollectionWithItemChange<T> : ObservableCollection<T>
   {
-    public ObservableCollectionWithItemChange()
-    {
-      CollectionChanged +=  RemovePropertyChanged;
-    }
-
     /// <summary>
     ///   Event to be raised on Collection Level if properties of a item in the collection changes
     /// </summary>
     public event PropertyChangedEventHandler? CollectionItemPropertyChanged;
 
     /// <summary>
-    ///   Additional EventHandlers for an implementaion needing information ona a changed item
+    ///   Additional EventHandlers for an implementation needing information ona a changed item
     /// </summary>
     public PropertyChangedEventHandler? ItemPropertyChanged;
 
     /// <summary>
-    ///   Additional EventHandlers for an implementaion needing information ona a changed item
+    ///   Additional EventHandlers for an implementation needing information ona a changed item
     /// </summary>
     public EventHandler<PropertyChangedEventArgs<string>>? ItemPropertyChangedString;
 
-    /// <summary>
-    ///   By default simply look at the items
-    /// </summary>
-    /// <param name="search">the item to check if it present</param>
-    /// <returns></returns>
-    protected virtual bool Present(T search) => Items.Contains(search);
+    
+    public ObservableCollectionWithItemChange(PropertyChangedEventHandler? itemPropertyChanged = null, EventHandler<PropertyChangedEventArgs<string>>? itemPropertyChangedString = null)
+    {
+      ItemPropertyChangedString = itemPropertyChangedString;
+      ItemPropertyChanged = itemPropertyChanged;
+      CollectionChanged +=  RemovePropertyChanged;
+    }
 
     /// <summary>
-    ///   As Items are added or removed Property Chanage is registered When the item is chnaged
+    ///   Function to determine if an item is present in the collection
+    /// </summary>
+    /// <param name="search">the item to check if it present</param>
+    /// <returns>
+    ///   <see langword="true" /> if the collection does contain the item already; otherwise,
+    ///   <see langword="false" />.
+    /// </returns>
+    protected  virtual bool Present(T search) => Items.Contains(search);
+
+    /// <summary>
+    ///   As Items are added or removed Property Change is registered When the item is changed
     ///   later on CollectionItemPropertyChanged is triggered
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e">The event args with old and new items</param>
     private void RemovePropertyChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-      if (e.OldItems != null)
-        foreach (var oldItem in e.OldItems.OfType<INotifyPropertyChanged>())
-        {
-          if (CollectionItemPropertyChanged is null)
-            oldItem.PropertyChanged -= CollectionItemPropertyChanged;
-          if (ItemPropertyChanged!=null)
-            oldItem.PropertyChanged -= ItemPropertyChanged;
-          if (ItemPropertyChangedString != null && oldItem is INotifyPropertyChangedString changedBase)
-            changedBase.PropertyChangedString -= ItemPropertyChangedString;
-        }
-    }
-
-    public virtual new bool Add(T item)
-    {
-      if (item is ICloneable src)
-        item = (T) src.Clone();
-      if (!Present(item))
+      if (e.OldItems == null) 
+        return;
+      foreach (var item in e.OldItems)
       {
         if (item is INotifyPropertyChanged notifyPropertyChanged)
         {
           if (CollectionItemPropertyChanged != null)
-            notifyPropertyChanged.PropertyChanged += CollectionItemPropertyChanged;
+            notifyPropertyChanged.PropertyChanged -= CollectionItemPropertyChanged;
           if (ItemPropertyChanged!=null)
-            notifyPropertyChanged.PropertyChanged += ItemPropertyChanged;
+            notifyPropertyChanged.PropertyChanged -= ItemPropertyChanged;
         }
         if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
-          notifyPropertyChangedString.PropertyChangedString += ItemPropertyChangedString;
-        base.Add(item);
-        return true;
+          notifyPropertyChangedString.PropertyChangedString -= ItemPropertyChangedString;
       }
-      return false;
     }
 
     /// <summary>
-    ///   A slightly faster method to add a number of items in one go, tthe passed in items will be cloned
+    /// Adds the specified item to the collection and makes sure the item is not already present, if the item does support <see cref="INotifyPropertyChanged"/> <see cref="CollectionItemPropertyChanged"/>, <see cref="ItemPropertyChanged"/> and <see cref="ItemPropertyChangedString"/> will be registered to pass the event to the implementing class
     /// </summary>
-    /// <param name="items"></param>
+    /// <param name="item">The item to add</param>
+    /// <remarks>In case the the item is cloneable <see cref="ICloneable"/> a value copy will be made. In this case any change to teh passed in item would not be reflected in the collection</remarks>
+    /// <returns><see langword="true" /> if it was added, otherwise the item was not added to the collection</returns>
+    public new bool Add(T item)
+    {
+      if (item is ICloneable src)
+        item = (T) src.Clone();
+      if (Present(item)) 
+        return false;
+
+      // Set Property changed Event Handlers if possible
+      if (item is INotifyPropertyChanged notifyPropertyChanged)
+      {
+        if (CollectionItemPropertyChanged != null)
+          notifyPropertyChanged.PropertyChanged += CollectionItemPropertyChanged;
+        if (ItemPropertyChanged!=null)
+          notifyPropertyChanged.PropertyChanged += ItemPropertyChanged;
+      }
+      if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
+        notifyPropertyChangedString.PropertyChangedString += ItemPropertyChangedString;
+
+      base.Add(item);
+      return true;
+    }
+
+    /// <summary>
+    ///   A slightly faster method to add a number of items in one go
+    /// </summary>
+    /// <param name="items">Some items to add</param>
     public virtual void AddRange(IEnumerable<T> items)
     {
       // Do set PropertyChanged one by one but do this in one go
@@ -128,14 +144,14 @@ namespace CsvTools
     public override bool Equals(object? obj) => Equals(obj as ICollection<T>);
 
     /// <summary>
-    ///   Determines whether the other colection is equal to the current collection.
+    ///   Determines whether the other collection is equal to the current collection.
     /// </summary>
     /// <param name="other">the collection</param>
     /// <returns>
     ///   <see langword="true" /> if the collection is equal to the current collection; otherwise,
     ///   <see langword="false" />.
     /// </returns>
-    public virtual bool Equals(ICollection<T>? other)
+    public bool Equals(ICollection<T>? other)
     {
       if (other is null)
         return false;
@@ -145,6 +161,12 @@ namespace CsvTools
       return this.CollectionEqualWithOrder(other);
     }
 
+    /// <summary>
+    /// Returns a hash code for this instance. Build from all items in the collection
+    /// </summary>
+    /// <returns>
+    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+    /// </returns>
     public override int GetHashCode() => EqualityComparer<IList<T>>.Default.GetHashCode(Items);
   }
 }

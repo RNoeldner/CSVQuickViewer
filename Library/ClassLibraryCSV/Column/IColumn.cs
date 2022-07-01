@@ -19,7 +19,7 @@ namespace CsvTools
   /// <summary>
   ///   Interface to describe a column during read and write
   /// </summary>
-  public interface IColumn : ICloneable, IEquatable<IColumn>
+  public interface IColumn : IEquatable<IColumn>
   {
     /// <summary>
     ///   Gets the column ordinal

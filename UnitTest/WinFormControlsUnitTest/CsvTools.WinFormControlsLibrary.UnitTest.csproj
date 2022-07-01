@@ -3,11 +3,10 @@
 		<TargetFramework>net472</TargetFramework>
 		<UseWindowsForms>true</UseWindowsForms>
 		<LangVersion>8.0</LangVersion>
-		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-		<GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<RootNamespace>CsvTools.Tests</RootNamespace>
 		<TestProjectType>UnitTest</TestProjectType>
-		<ReleaseVersion>1.4.6.499</ReleaseVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DefineConstants>TRACE;Windows</DefineConstants>

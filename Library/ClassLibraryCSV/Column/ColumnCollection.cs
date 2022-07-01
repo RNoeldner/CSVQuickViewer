@@ -13,23 +13,22 @@
  */
 
 using System;
-using System.Collections.Generic;
+
 
 namespace CsvTools
 {
+  /// <summary>
+  /// Collection of Columns
+  /// </summary>
   public sealed class ColumnCollection : ObservableCollectionWithItemChange<IColumn>
   {
     /// <inheritdoc />
     protected override bool Present(IColumn search)
-    {
-      foreach (var item in Items)
-        if (item.Name.Equals(search.Name, StringComparison.OrdinalIgnoreCase))
-          return true;
-      return false;
-    }
+      => GetIndex(search.Name)!=-1;
+      
 
     /// <summary>
-    ///   Adds the <see cref="IColumn" /> to the column list if it does not exist yet
+    ///   Adds the <see cref="IColumn" /> as <see cref="ImmutableColumn"/>
     /// </summary>
     /// <remarks>If the column name already exist it does nothing</remarks>
     /// <param name="column">The column format.</param>
@@ -40,26 +39,7 @@ namespace CsvTools
 
       base.Add(column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
     }
-
-    /// <summary>
-    ///   Adds the a number of columns, makes sure no column is added twice
-    /// </summary>
-    /// <param name="columns">The columns to add</param>
-    public override void AddRange(IEnumerable<IColumn> columns)
-    {
-      var list = new List<ImmutableColumn>();
-      foreach (var column in columns)
-      {
-        if (column is null)
-          continue;
-        var index = GetIndex(column.Name);
-        if (index != -1) return;
-        list.Add(column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
-      }
-      if (list.Count >0)
-        base.AddRange(list);
-    }
-
+    
     /// <summary>
     ///   Gets the <see cref="CsvTools.IColumn" /> with the specified field name.
     /// </summary>

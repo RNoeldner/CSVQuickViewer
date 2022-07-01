@@ -12,9 +12,11 @@
  *
  */
 
+using System;
+
 namespace CsvTools
 {
-  public interface IValueFormat
+  public interface IValueFormat : IEquatable<IValueFormat>
   {
     /// <summary>
     ///   Gets or sets the type of the data.
