@@ -70,7 +70,6 @@ namespace CsvTools
       m_ImgFilterIndicator = (resources.GetObject("toolStripMenuItem2.Image") as Image) ?? throw new InvalidOperationException("Resource not found");
 
       DataError += FilteredDataGridView_DataError;
-      toolStripTextBoxColFilter.TextChanged += (o, a) => { timerColumsFilterText.Stop(); timerColumsFilterText.Start(); };
       toolStripMenuItemColumnVisibility.ItemCheck += CheckedListBox_ItemCheck;
       if (contextMenuStripHeader.LayoutSettings is TableLayoutSettings tableLayoutSettings)
         tableLayoutSettings.ColumnCount = 3;
@@ -101,7 +100,7 @@ namespace CsvTools
       contextMenuStripFilter.KeyPress += ContextMenuStripFilter_KeyPress;
       SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
 
-      FontChanged += (s, e) =>
+      FontChanged += (_, _) =>
       {
         AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
         AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
@@ -444,7 +443,7 @@ namespace CsvTools
       {
         var newMenuItem =
           new ToolStripMenuItem(StringUtils.GetShortDisplay(item.Display, 40)) { Tag = item, Checked = item.Active, CheckOnClick = true };
-        newMenuItem.CheckStateChanged += delegate (object? menuItem, EventArgs args)
+        newMenuItem.CheckStateChanged += delegate (object? menuItem, EventArgs _)
         {
           if (!(menuItem is ToolStripMenuItem sendItem))
             return;
@@ -630,9 +629,9 @@ namespace CsvTools
         {
           if (dataRow[col] != DBNull.Value)
           {
-            if (dataRow[col].ToString()?.Length > 80)
+            if (dataRow[col].ToString().Length > 80)
               return 350;
-            if (dataRow[col].ToString()?.Length > 15)
+            if (dataRow[col].ToString().Length > 15)
               return 225;
           }
 
@@ -929,7 +928,7 @@ namespace CsvTools
     {
       if (m_FileSetting is null || colIndex < 0 || colIndex > m_FileSetting.ColumnCollection.Count)
         return null;
-
+      //TODO: Why not m_FileSetting.ColumnCollection[index]
       return m_FileSetting.ColumnCollection.Get(Columns[colIndex].DataPropertyName);
     }
 

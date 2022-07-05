@@ -52,6 +52,10 @@ namespace CsvTools
     {
     }
 
+    public ImmutableColumn(in string name) : this(name, new ImmutableValueFormat(), -1)
+    {
+    }
+
     public ImmutableColumn(
       in string name,
       in IValueFormat valueFormat,
@@ -154,5 +158,13 @@ namespace CsvTools
     }
 
     public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
+
+    /// <summary>
+    /// Identifier in collections, similar to a hashcode based on a  properties that should be unique in a collection
+    /// </summary>
+    /// <remarks>
+    /// In case a required property is not set, this should raise an error
+    /// </remarks>
+    public int CollectionIdentifier { get => Name.ToUpperInvariant().GetHashCode(); }
   }
 }

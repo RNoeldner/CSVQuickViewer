@@ -19,7 +19,7 @@ namespace CsvTools
   /// <summary>
   ///   Interface to describe a column during read and write
   /// </summary>
-  public interface IColumn : IEquatable<IColumn>
+  public interface IColumn : IEquatable<IColumn>, ICollectionIdentity
   {
     /// <summary>
     ///   Gets the column ordinal
@@ -70,5 +70,6 @@ namespace CsvTools
     ///   Formatting option for values
     /// </summary>
     IValueFormat ValueFormat { get; }
+
   }
 }

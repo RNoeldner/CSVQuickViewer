@@ -60,6 +60,9 @@
 		<Compile Include="..\ClassLibraryCSV\ObservableCollectionWithItemChange.cs" Link="ObservableCollectionWithItemChange.cs" />
 		<Compile Include="..\ClassLibraryCSV\IWithCopyTo.cs" Link="IWithCopyTo.cs" />
 		<Compile Include="..\ClassLibraryCSV\INotifyPropertyChangedString.cs" Link="INotifyPropertyChangedString.cs" />
+		<Compile Include="..\ClassLibraryCSV\ICollectionIdentity.cs" Link="ICollectionIdentity.cs" />
+		
+
 		
 		<Compile Include="..\ClassLibraryCSV\Exceptions\FileReaderOpenException.cs" Link="Exceptions\FileReaderOpenException.cs" />
 		<Compile Include="..\ClassLibraryCSV\Exceptions\FileReaderException.cs" Link="Exceptions\FileReaderException.cs" />

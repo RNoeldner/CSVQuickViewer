@@ -24,8 +24,9 @@ namespace CsvTools
   ///   Observable collection with unique items
   /// </summary>
   /// <typeparam name="T"></typeparam>
-  public class ObservableCollectionWithItemChange<T> : ObservableCollection<T>
+  public class ObservableCollectionWithItemChange<T> : ObservableCollection<T> where T : ICollectionIdentity
   {
+
     /// <summary>
     ///   Additional EventHandlers for an implementation needing information ona a changed item
     /// </summary>
@@ -46,17 +47,20 @@ namespace CsvTools
     ///   Event to be raised on Collection Level if properties of a item in the collection changes
     /// </summary>
     public event PropertyChangedEventHandler? CollectionItemPropertyChanged;
+
     /// <summary>
-    /// Adds the specified item to the collection and makes sure the item is not already present, if the item does support <see cref="INotifyPropertyChanged"/> <see cref="CollectionItemPropertyChanged"/>, <see cref="ItemPropertyChanged"/> and <see cref="ItemPropertyChangedString"/> will be registered to pass the event to the implementing class
+    /// Adds the specified item to the collection and makes sure the item is not already present,
+    /// if the item does support <see cref="INotifyPropertyChanged"/> <see cref="CollectionItemPropertyChanged"/>,
+    /// <see cref="ItemPropertyChanged"/> or <see cref="ItemPropertyChangedString"/> will be registered  to pass the event to the implementing class
     /// </summary>
-    /// <param name="item">The item to add</param>
-    /// <remarks>In case the the item is cloneable <see cref="ICloneable"/> a value copy will be made. In this case any change to teh passed in item would not be reflected in the collection</remarks>
+    /// <param name="item">The item to add, the calling routine should make sure the item does have eth properties set to determine presence</param>
+    /// <remarks>In case the the item is cloneable <see cref="ICloneable"/> a value copy will be made. In this case any change to the passed in item would not be reflected in the collection</remarks>
     /// <returns><see langword="true" /> if it was added, otherwise the item was not added to the collection</returns>
     public new bool Add(T item)
     {
       if (item is ICloneable src)
         item = (T) src.Clone();
-      if (Present(item))
+      if (IndexOf(item)!=-1)
         return false;
 
       // Set Property changed Event Handlers if possible
@@ -80,7 +84,7 @@ namespace CsvTools
     /// <param name="items">Some items to add</param>
     public virtual void AddRange(IEnumerable<T> items)
     {
-      // Do set PropertyChanged one by one but do this in one go
+      // Only adding no need to raise CollectionChanged that does handle removal
       CollectionChanged -= RemovePropertyChanged;
       try
       {
@@ -132,15 +136,22 @@ namespace CsvTools
     /// </returns>
     public override int GetHashCode() => EqualityComparer<IList<T>>.Default.GetHashCode(Items);
 
+    /// <inheritdoc cref="IList{T}"/>
+    public new int IndexOf(T search)
+    => GetIndexByIdentifier(search.CollectionIdentifier);
+
     /// <summary>
-    ///   Function to determine if an item is present in the collection
+    /// Gets the index of a collection item by the CollectionIdentifier
     /// </summary>
-    /// <param name="search">the item to check if it present</param>
-    /// <returns>
-    ///   <see langword="true" /> if the collection does contain the item already; otherwise,
-    ///   <see langword="false" />.
-    /// </returns>
-    protected virtual bool Present(T search) => Items.Contains(search);
+    /// <param name="searchID">The identifier in teh collection.</param>
+    /// <returns>-1 if not found, the index otherwise</returns>
+    protected int GetIndexByIdentifier(int searchID)
+    {
+      for (var index = 0; index < Items.Count; index++)
+        if (Items[index].CollectionIdentifier == searchID)
+          return index;
+      return -1;
+    }
 
     /// <summary>
     ///   As Items are added or removed Property Change is registered When the item is changed
@@ -150,7 +161,7 @@ namespace CsvTools
     /// <param name="e">The event args with old and new items</param>
     private void RemovePropertyChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-      if (e.OldItems == null) 
+      if (e.OldItems == null)
         return;
       foreach (var item in e.OldItems)
       {

@@ -21,7 +21,7 @@ namespace CsvTools
   /// <summary>
   ///   Interface for a FileSetting
   /// </summary>
-  public interface IFileSetting : INotifyPropertyChanged, IWithCopyTo<IFileSetting>
+  public interface IFileSetting : INotifyPropertyChanged, INotifyPropertyChangedString,  IWithCopyTo<IFileSetting>, ICollectionIdentity
   {
     /// <summary>
     ///   Status of long running processing on the FileSettings 0 - Nothing 1 - Loading 2 - Getting

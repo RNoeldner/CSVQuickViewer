@@ -409,7 +409,7 @@ namespace CsvTools.Tests
       bool propertyChanged = false;
 
       setting.PropertyChanged += (o, s) => propertyChanged = true;
-      setting.SetSqlStatementRename("Hello");
+      setting.SqlStatement = "Hello";
       Assert.AreEqual("Hello", setting.SqlStatement);
       Assert.IsFalse(propertyChanged);
       setting.SqlStatement = "Hello";

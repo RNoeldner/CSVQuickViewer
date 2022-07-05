@@ -150,7 +150,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Workaround to serialize
+    ///   Workaround to serialize, the ColumnCollection
     /// </summary>
     /// <value>The column options</value>
     [XmlElement]
@@ -168,8 +168,7 @@ namespace CsvTools
         ColumnCollection.Clear();
         // ReSharper disable once ConditionIsAlwaysTrueOrFalse
         if (value == null) return;
-        foreach (var col in value)
-          ColumnCollection.Add(col);
+        ColumnCollection.AddRange(value);
       }
     }
 
@@ -245,7 +244,8 @@ namespace CsvTools
 
     public bool SqlStatementCDataSpecified => !string.IsNullOrEmpty(SqlStatement);
 
-    [XmlIgnore] public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
+    [XmlIgnore] 
+    public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
     /// <inheritdoc />
     [XmlAttribute]
@@ -275,8 +275,10 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlAttribute]
     [DefaultValue(0)]
+
     public virtual long ErrorCount
     {
       get => m_ErrorCount;
@@ -284,6 +286,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlElement]
     public SampleAndErrorsInformation SamplesAndErrors { get; set; } = new SampleAndErrorsInformation();
 
@@ -341,6 +344,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlAttribute(AttributeName = "IsCritical")]
     [DefaultValue(false)]
     public virtual bool InOverview
@@ -350,6 +354,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlAttribute]
     [DefaultValue(100)]
     public virtual int Order
@@ -359,6 +364,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlAttribute]
     [DefaultValue("")]
     public virtual string Comment
@@ -368,10 +374,12 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlIgnore]
     public virtual string InternalID => ID;
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlAttribute]
     [DefaultValue(true)]
     public virtual bool IsEnabled
@@ -381,6 +389,7 @@ namespace CsvTools
       set => SetField(ref m_IsEnabled, value);
     }
 
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
     public bool KeepUnencrypted
@@ -390,6 +399,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlIgnore]
     public DateTime LatestSourceTimeUtc
     {
@@ -404,10 +414,12 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlElement("Mapping")]
     public MappingCollection MappingCollection { get; } = new MappingCollection();
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlAttribute]
     [DefaultValue(0)]
     public virtual long NumRecords
@@ -425,6 +437,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlIgnore]
     [DefaultValue(false)]
     public virtual bool RecentlyLoaded { get; set; }
@@ -439,6 +452,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlAttribute]
     [DefaultValue(true)]
     public virtual bool ShowProgress
@@ -474,6 +488,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlIgnore]
     public IReadOnlyCollection<IFileSetting> SourceFileSettings
     {
@@ -491,6 +506,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlIgnore]
     [DefaultValue("")]
     public virtual string SqlStatement
@@ -498,19 +514,18 @@ namespace CsvTools
       get => m_SqlStatement;
       set
       {
-        if (SetField(ref m_SqlStatement, (value ?? string.Empty).NoControlCharacters().HandleCrlfCombinations(),
-              StringComparison.Ordinal, true))
-        {
-          // Need to assume we have new sources, it has to be recalculated
-          SourceFileSettings = Array.Empty<IFileSetting>();
-          // Reset the process time as well
-          ProcessTimeUtc = ZeroTime;
-          LatestSourceTimeUtc = ZeroTime;
-        }
+        if (!SetField(ref m_SqlStatement, (value ?? string.Empty).NoControlCharacters().HandleCrlfCombinations(),
+              StringComparison.Ordinal, true)) return;
+        // Need to assume we have new sources, it has to be recalculated
+        SourceFileSettings = Array.Empty<IFileSetting>();
+        // Reset the process time as well
+        ProcessTimeUtc = ZeroTime;
+        LatestSourceTimeUtc = ZeroTime;
       }
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlElement]
     [DefaultValue("")]
     public virtual string TemplateName
@@ -520,6 +535,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlAttribute]
     [DefaultValue(90)]
     public virtual int Timeout
@@ -556,6 +572,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlAttribute(AttributeName = "IsImported")]
     [DefaultValue(true)]
     public virtual bool Validate
@@ -565,6 +582,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlAttribute]
     [DefaultValue(0)]
     public virtual long WarningCount
@@ -582,6 +600,7 @@ namespace CsvTools
     } = DateTime.UtcNow;
 
     /// <inheritdoc />
+    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     public virtual void CalculateLatestSourceTime() => LatestSourceTimeUtc = ProcessTimeUtc;
 
     /// <inheritdoc />
@@ -592,16 +611,6 @@ namespace CsvTools
 
     /// <inheritdoc />
     public abstract bool Equals(IFileSetting? other);
-
-    /// <summary>
-    ///   Sets the SQL statement rename.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    public void SetSqlStatementRename(string? value)
-    {
-      var newVal = (value ?? string.Empty).NoControlCharacters();
-      m_SqlStatement = newVal;
-    }
 
     /// <summary>
     ///   Converts to string.
@@ -824,5 +833,7 @@ namespace CsvTools
       if (!other.ColumnCollection.Equals(ColumnCollection))
         yield return "ColumnCollection different";
     }
+
+    public int CollectionIdentifier { get => InternalID.ToUpperInvariant().GetHashCode(); }
   }
 }

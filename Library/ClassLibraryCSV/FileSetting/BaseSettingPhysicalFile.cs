@@ -25,7 +25,7 @@ namespace CsvTools
   [DebuggerDisplay("File: {ID} {m_FileName} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
   {
-    private readonly ValueFormatMutable m_DefaultValueFormatWrite = new ValueFormatMutable();
+    private readonly ValueFormatMutable m_DefaultValueFormatWrite = ValueFormatMutable.Default;
     private string m_ColumnFile = string.Empty;
     private string m_FileName;
     private long m_FileSize;
@@ -41,14 +41,7 @@ namespace CsvTools
 
     protected BaseSettingPhysicalFile(string fileName) => m_FileName = FileNameFix(fileName);
 
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [XmlIgnore]
-    public virtual bool DefaultValueFormatWriteSpecified => m_DefaultValueFormatWrite.Specified;
-
+    
     public override void CalculateLatestSourceTime() =>
       LatestSourceTimeUtc = new FileSystemUtils.FileInfo(FileSystemUtils.ResolvePattern(FullPath)).LastWriteTimeUtc;
 
@@ -119,13 +112,15 @@ namespace CsvTools
       get => m_DefaultValueFormatWrite;
       set
       {
-        var newVal = value ?? new ValueFormatMutable();
+        var newVal = value ?? ValueFormatMutable.Default;
         if (m_DefaultValueFormatWrite.Equals(newVal))
           return;
         m_DefaultValueFormatWrite.CopyFrom(newVal);
         NotifyPropertyChanged();
       }
     }
+
+    [XmlIgnore] public bool DefaultValueFormatWriteSpecified => !m_DefaultValueFormatWrite.Equals(ValueFormatMutable.Default);
 
     [XmlIgnore]
     public virtual string FullPath

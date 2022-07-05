@@ -101,11 +101,11 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Overwrite properties of a class with the propertis of another callss, allowing usage of
-    ///   readonly fields beeing set
+    ///   Overwrite properties of a class with the properties of another class, allowing usage of
+    ///   readonly fields being set
     /// </summary>
     /// <param name="field">The field to be overwritten</param>
-    /// <param name="value">the callss with the new values, supporting a copy to</param>
+    /// <param name="value">the class with the new values, supporting a copy to</param>
     /// <param name="propertyName">The name of the property</param>
     /// <returns><c>true</c> if the value was changed</returns>
     protected bool CopyTo<T>(T field, in IWithCopyTo<T> value, [CallerMemberName] string propertyName = "")

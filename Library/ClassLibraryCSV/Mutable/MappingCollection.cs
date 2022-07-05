@@ -20,13 +20,6 @@ namespace CsvTools
 {
   public sealed class MappingCollection : ObservableCollectionWithItemChange<Mapping>
   {
-    /// <inheritdoc />
-    protected override bool Present(Mapping search)
-    {
-      return Items.Any(map => map.FileColumn.Equals(search.FileColumn, StringComparison.OrdinalIgnoreCase)
-                   && map.TemplateField.Equals(search.TemplateField, StringComparison.OrdinalIgnoreCase));
-    }
-
     public IEnumerable<Mapping> GetByColumn(string columnName) =>
       Items.Where(mapping => mapping.FileColumn.Equals(columnName, StringComparison.OrdinalIgnoreCase));
 

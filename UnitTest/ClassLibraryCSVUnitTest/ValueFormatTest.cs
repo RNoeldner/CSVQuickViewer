@@ -207,7 +207,5 @@ namespace CsvTools.Tests
       Assert.IsFalse(m_ValueFormatMutableGerman.Equals(target));
     }
 
-    [TestMethod]
-    public void ValueFormatNotEqualsNull() => Assert.IsFalse(m_ValueFormatMutableGerman.Equals(null));
   }
 }
