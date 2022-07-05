@@ -131,7 +131,7 @@ namespace CsvTools
           Logger.Information("{column} – ID columns ignored", readerColumn.Name);
           result.Add($"{readerColumn.Name} – ID columns ignored");
 
-          if (!addTextColumns || columnCollection.Get(readerColumn.Name) != null) continue;
+          if (!addTextColumns || columnCollection.IndexOf(readerColumn) != -1) continue;
           columnCollection.Add(readerColumn);
           continue;
         }
@@ -236,7 +236,7 @@ namespace CsvTools
           // if nothing is found take what was configured before, as the reader could possibly
           // provide typed data (Json, Excel...)
           checkResult.FoundValueFormat ??= readerColumn.ValueFormat;
-          var colIndexCurrent = columnCollection.GetIndex(readerColumn.Name);
+          var colIndexCurrent = columnCollection.IndexOf(readerColumn);
           // if we have a mapping to a template that expects a integer and we only have integers but
           // not enough
           if (colIndexCurrent != -1)
@@ -323,7 +323,7 @@ namespace CsvTools
               cancellationToken);
             if (checkResult.FoundValueFormat != null && checkResult.FoundValueFormat.DataType != DataTypeEnum.Double)
             {
-              var colIndexExisting = columnCollection.GetIndex(readerColumn.Name);
+              var colIndexExisting = columnCollection.IndexOf(readerColumn);
 
               if (colIndexExisting != -1)
               {
@@ -355,7 +355,7 @@ namespace CsvTools
         {
           cancellationToken.ThrowIfCancellationRequested();
           var readerColumn = fileReader.GetColumn(colIndex);
-          var colIndexSetting = columnCollection.GetIndex(readerColumn.Name);
+          var colIndexSetting = columnCollection.IndexOf(readerColumn);
           if (colIndexSetting == -1) continue;
           var columnFormat = columnCollection[colIndexSetting].ValueFormat;
 
@@ -393,7 +393,7 @@ namespace CsvTools
           for (var colTime = 0; colTime < fileReader.FieldCount; colTime++)
           {
             var columnTime = fileReader.GetColumn(colTime);
-            var settingTime = columnCollection.Get(columnTime.Name);
+            var settingTime = columnCollection[columnCollection.IndexOf(columnTime)];
             if (settingTime is null) continue;
             var timeFormat = settingTime.ValueFormat;
             if (timeFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
@@ -431,7 +431,7 @@ namespace CsvTools
         {
           cancellationToken.ThrowIfCancellationRequested();
           var readerColumn = fileReader.GetColumn(colIndex);
-          var colIndexSetting = columnCollection.GetIndex(readerColumn.Name);
+          var colIndexSetting = columnCollection.IndexOf(readerColumn);
 
           if (colIndexSetting == -1) continue;
           var columnFormat = columnCollection[colIndexSetting].ValueFormat;

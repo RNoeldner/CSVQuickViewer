@@ -25,7 +25,7 @@ namespace CsvTools
   /// </summary>
   [DebuggerDisplay("Mapping(File/Source: {FileColumn} -> Template/Destination {TemplateField})")]
   [Serializable]
-  public sealed class Mapping : IEquatable<Mapping>, ICloneable
+  public sealed class Mapping : IEquatable<Mapping>, ICloneable, ICollectionIdentity
   {
     public Mapping()
       : this(string.Empty, string.Empty)
@@ -94,6 +94,12 @@ namespace CsvTools
              && Update == other.Update
              && string.Equals(FileColumn, other.FileColumn, StringComparison.OrdinalIgnoreCase)
              && string.Equals(TemplateField, other.TemplateField, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <inheritdoc />
+    public int CollectionIdentifier
+    {
+      get => FileColumn.ToUpperInvariant().GetHashCode() + TemplateField.ToUpperInvariant().GetHashCode();
     }
   }
 }

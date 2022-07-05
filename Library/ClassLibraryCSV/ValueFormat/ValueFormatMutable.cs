@@ -23,7 +23,7 @@ namespace CsvTools
   ///   Setting for a value format
   /// </summary>
   [Serializable]
-  public sealed class ValueFormatMutable : NotifyPropertyChangedBase, IValueFormat, IEquatable<ValueFormatMutable>
+  public sealed class ValueFormatMutable : NotifyPropertyChangedBase, IValueFormat, IWithCopyTo<ValueFormatMutable>
   {
     private DataTypeEnum m_DataType;
     private string m_DateFormat;
@@ -45,7 +45,7 @@ namespace CsvTools
     private string m_FileOutPutPlaceholder;
     private bool m_Overwrite;
 
-    public static IValueFormat Default = new ValueFormatMutable();
+    public static ValueFormatMutable Default = new ValueFormatMutable();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ValueFormatMutable"/> class.
@@ -185,14 +185,6 @@ namespace CsvTools
       m_FileOutPutPlaceholder = fileOutPutPlaceholder ?? throw new ArgumentNullException(nameof(fileOutPutPlaceholder));
       m_Overwrite = overwrite;
     }
-
-
-    /// <summary>
-    ///   Determines if anything is different to the default values, commonly used for
-    ///   serialization, avoiding empty elements
-    /// </summary>
-
-    public bool Specified => Default.Equals(this);
 
     /// <inheritdoc />    
     [XmlAttribute]
@@ -452,7 +444,13 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+    public void CopyTo(ValueFormatMutable other) => other.CopyFrom(this);
+
+    /// <inheritdoc />
     public override bool Equals(object? obj) => this.ValueFormatEqual(obj as IValueFormat);
+
+    /// <inheritdoc />
+    public object Clone() => new ValueFormatMutable(this);
 
     /// <inheritdoc cref="IEquatable{T}" />
     public bool Equals(ValueFormatMutable other) => this.ValueFormatEqual(other);

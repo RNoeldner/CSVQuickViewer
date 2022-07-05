@@ -25,7 +25,7 @@ namespace CsvTools
   [Serializable]
   public sealed class Column : NotifyPropertyChangedBase, IColumn
   {
-    private bool? m_Convert;
+    private bool m_Convert = true;
     private string m_DestinationName = string.Empty;
     private bool m_Ignore;
     private string m_Name;
@@ -50,7 +50,14 @@ namespace CsvTools
       m_TimeZonePart = source.TimeZonePart;
 
       ValueFormatMutable = new ValueFormatMutable(source.ValueFormat);
-      ValueFormatMutable.PropertyChanged += (s, e) => NotifyPropertyChanged(nameof(ValueFormatMutable));
+      ValueFormatMutable.PropertyChanged += (sender, args) =>
+      {
+        NotifyPropertyChanged(nameof(ValueFormatMutable));
+
+        // If the value types changes to to something else but string, assume we need to convert
+        if (args.PropertyName.Equals(nameof(IValueFormat.DataType)) && sender is IValueFormat valueFormat)
+          Convert = valueFormat.DataType != DataTypeEnum.String;
+      };
     }
 
     public Column(IColumn source, IValueFormat format)
@@ -88,13 +95,6 @@ namespace CsvTools
         DateSeparator = dateSeparator
       };
     }
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    public bool ConvertSpecified => m_Convert.HasValue;
 
     /// <summary>
     ///   Gets or sets the type of the data.
@@ -148,8 +148,6 @@ namespace CsvTools
       set => ValueFormatMutable.DecimalSeparator = value;
     }
 
-    [XmlIgnore]
-    public bool DestinationNameSpecified => !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///   Gets or sets the representation for false.
@@ -233,22 +231,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-
-    public bool TimePartFormatSpecified => ValueFormatMutable.DataType == DataTypeEnum.DateTime;
-
-    /// <summary>
-    ///   Gets a value indicating whether the Xml field is specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-
-    public bool TimePartSpecified => ValueFormatMutable.DataType == DataTypeEnum.DateTime;
-
-    /// <summary>
     ///   Gets or sets the time separator.
     /// </summary>
     /// <value>The time separator.</value>
@@ -261,7 +243,6 @@ namespace CsvTools
       set => ValueFormatMutable.TimeSeparator = value;
     }
     
-
     /// <summary>
     ///   Gets or sets the representation for true.
     /// </summary>
@@ -294,10 +275,10 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if the column should be convert; otherwise, <c>false</c>.</value>
     [XmlAttribute]
-    [DefaultValue(false)]
+    [DefaultValue(true)]
     public bool Convert
     {
-      get => m_Convert ?? ValueFormatMutable.DataType != DataTypeEnum.String;
+      get => m_Convert;
       set => SetField(ref m_Convert, value);
     }
 
@@ -312,6 +293,10 @@ namespace CsvTools
       get => m_DestinationName;
       set => SetField(ref m_DestinationName, value, StringComparison.Ordinal);
     }
+    
+    [XmlIgnore]
+    public bool DestinationNameSpecified => !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
+
 
     /// <summary>
     ///   Gets or sets a value indicating whether the column should be ignore reading a file
@@ -396,25 +381,13 @@ namespace CsvTools
         return true;
 
       return ColumnOrdinal == other.ColumnOrdinal && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
-                                                  && string.Equals(
-                                                    DestinationName,
-                                                    other.DestinationName,
-                                                    StringComparison.OrdinalIgnoreCase)
+                                                  && string.Equals(DestinationName, other.DestinationName, StringComparison.OrdinalIgnoreCase)
                                                   && Ignore == other.Ignore
-                                                  && string.Equals(
-                                                    TimePart,
-                                                    other.TimePart,
-                                                    StringComparison.OrdinalIgnoreCase)
-                                                  && string.Equals(
-                                                    TimePartFormat,
-                                                    other.TimePartFormat,
-                                                    StringComparison.Ordinal)
-                                                  && string.Equals(
-                                                    TimeZonePart,
-                                                    other.TimeZonePart,
-                                                    StringComparison.OrdinalIgnoreCase)
+                                                  && string.Equals(TimePart, other.TimePart, StringComparison.OrdinalIgnoreCase)
+                                                  && string.Equals(TimePartFormat, other.TimePartFormat, StringComparison.Ordinal)
+                                                  && string.Equals(TimeZonePart, other.TimeZonePart, StringComparison.OrdinalIgnoreCase)
                                                   && Convert == other.Convert
-                                                  && ValueFormatMutable.ValueFormatEqual(other.ValueFormat);
+                                                  && ValueFormatMutable.Equals(other.ValueFormat);
     }
 
     /// <summary>
@@ -424,16 +397,13 @@ namespace CsvTools
     public void CopyTo(Column other)
     {
       other.ValueFormatMutable.CopyFrom(ValueFormatMutable);
-
       other.TimePartFormat = m_TimePartFormat;
       other.TimePart = m_TimePart;
       other.TimeZonePart = m_TimeZonePart;
       other.ColumnOrdinal = ColumnOrdinal;
       other.Name = m_Name;
       other.Ignore = m_Ignore;
-
-      if (m_Convert.HasValue)
-        other.Convert = m_Convert.Value;
+      other.Convert = m_Convert;
     }
 
     /// <summary>
@@ -441,5 +411,13 @@ namespace CsvTools
     /// </summary>
     /// <returns>A <see cref="string" /> that represents this instance.</returns>
     public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
+
+    /// <summary>
+    /// Identifier in collections, similar to a hashcode based on a  properties that should be unique in a collection
+    /// </summary>
+    /// <remarks>
+    /// In case a required property is not set, this should raise an error
+    /// </remarks>
+    public int CollectionIdentifier { get => Name.ToUpperInvariant().GetHashCode(); }
   }
 }

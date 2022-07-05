@@ -26,6 +26,7 @@ namespace CsvTools
   public sealed class SampleAndErrorsInformation : NotifyPropertyChangedBase, IWithCopyTo<SampleAndErrorsInformation>
   {
     private readonly ObservableCollectionWithItemChange<SampleRecordEntry> m_Errors = new ObservableCollectionWithItemChange<SampleRecordEntry>();
+
     private int m_NumErrors = -1;
     private readonly ObservableCollectionWithItemChange<SampleRecordEntry> m_Samples = new ObservableCollectionWithItemChange<SampleRecordEntry>();
 

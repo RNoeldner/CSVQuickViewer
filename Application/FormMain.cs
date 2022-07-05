@@ -494,11 +494,7 @@ namespace CsvTools
           if (cancellationToken.IsCancellationRequested)
             return;
 
-          foreach (var columnName in detailControl.DataTable.GetRealColumns())
-          {
-            if (m_FileSetting.ColumnCollection.Get(columnName) is null)
-              m_FileSetting.ColumnCollection.Add(new Column { Name = columnName });
-          }
+          m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealDataColumns().Select(x=> x.ToIColumn()));
 
           // Set Functional DI routines to constants The reader is used when data is stored through
           // the detailControl

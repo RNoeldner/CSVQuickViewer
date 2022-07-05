@@ -17,7 +17,7 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  ///   Interface to show taht a calls supports copy to
+  ///   Interface to show that a calls supports copy to, along with Equals and Clone
   /// </summary>
   /// <typeparam name="T"></typeparam>
   public interface IWithCopyTo<T> : IEquatable<T>, ICloneable

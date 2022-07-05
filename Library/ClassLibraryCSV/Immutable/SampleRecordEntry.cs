@@ -19,7 +19,7 @@ using System.Xml.Serialization;
 namespace CsvTools
 {
   [Serializable]
-  public sealed class SampleRecordEntry : IEquatable<SampleRecordEntry>, ICloneable
+  public sealed class SampleRecordEntry : IEquatable<SampleRecordEntry>, ICloneable, ICollectionIdentity
   {
     public SampleRecordEntry()
       : this(0, true, string.Empty)
@@ -91,11 +91,9 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return RecordNumber == other.RecordNumber && ProvideEvidence == other.ProvideEvidence
-                                                && string.Equals(
-                                                  Error,
-                                                  other.Error,
-                                                  StringComparison.OrdinalIgnoreCase);
+      return RecordNumber == other.RecordNumber 
+                          && ProvideEvidence == other.ProvideEvidence
+                          && string.Equals(Error, other.Error, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -122,5 +120,7 @@ namespace CsvTools
         return hashCode;
       }
     }
+
+    public int CollectionIdentifier { get => RecordNumber.GetHashCode(); }
   }
 }

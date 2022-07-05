@@ -68,7 +68,7 @@ namespace CsvTools.Tests
 		}
     
     [TestMethod]
-    public void ColumnProperties()
+    public void ColumnPropertiesObsolete()
     {
         var target = new Column("Name", DataTypeEnum.Guid);
         target.DataType = DataTypeEnum.Boolean;
@@ -95,17 +95,23 @@ namespace CsvTools.Tests
         Assert.AreEqual(17, target.Part);
         target.True = "Yo";
         Assert.AreEqual("Yo", target.True);
-        target.ColumnOrdinal= 13;
-        Assert.AreEqual(13, target.ColumnOrdinal);
-        target.Convert= false;
-        Assert.AreEqual(false, target.Convert);
-        target.DestinationName= "->";
-        Assert.AreEqual("->", target.DestinationName);
-        target.Name= "Näme";
-        Assert.AreEqual("Näme", target.Name);
-        var test2 = new Column(target);
-        Assert.AreEqual("Näme", test2.Name);
-        var keySerializer = new XmlSerializer(typeof(Column));
+    }
+
+    [TestMethod]
+    public void ColumnProperties()
+    {
+      var target = new Column("Name", DataTypeEnum.Guid);
+      target.ColumnOrdinal= 13;
+      Assert.AreEqual(13, target.ColumnOrdinal);
+      target.Convert= false;
+      Assert.AreEqual(false, target.Convert);
+      target.DestinationName= "->";
+      Assert.AreEqual("->", target.DestinationName);
+      target.Name= "Näme";
+      Assert.AreEqual("Näme", target.Name);
+      var test2 = new Column(target);
+      Assert.AreEqual("Näme", test2.Name);
+      var keySerializer = new XmlSerializer(typeof(Column));
     }
 
     

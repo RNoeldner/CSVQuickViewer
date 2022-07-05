@@ -14,11 +14,10 @@
 
 using System;
 
-
 namespace CsvTools
 {
   /// <summary>
-  /// Collection of Columns
+  /// Collection of Columns, this class is not serializable
   /// </summary>
   public sealed class ColumnCollection : ObservableCollectionWithItemChange<IColumn>
   {
@@ -29,8 +28,10 @@ namespace CsvTools
     /// <param name="column">The column format.</param>
     public new void Add(IColumn column)
     {
-      if (column is null)
-        throw new ArgumentNullException(nameof(column));
+      // Store ImmutableColumns only since Immutable column is not ICloneable
+      // Add will not create a copy.
+      if (string.IsNullOrEmpty(column.Name))
+        throw new ArgumentException("The name of a column can not be empty in the collection", nameof(column));
 
       base.Add(column as ImmutableColumn ?? new ImmutableColumn(column));
     }
@@ -44,10 +45,10 @@ namespace CsvTools
     public IColumn? Get(string? fieldName)
     {
       if (fieldName is null) return null;
-      var index = GetIndex(fieldName);
+      var index = IndexOf(new ImmutableColumn(fieldName));
       return index == -1 ? null : Items[index];
     }
-
+    
     /// <summary>
     ///   Replaces an existing column of the same name, if it does not exist it adds the column
     /// </summary>
@@ -57,7 +58,7 @@ namespace CsvTools
       if (column is null)
         throw new ArgumentNullException(nameof(column));
 
-      var index = GetIndex(column.Name);
+      var index = IndexOf(column);
       if (index != -1)
       {
         Items.RemoveAt(index);
@@ -71,21 +72,5 @@ namespace CsvTools
         Add(column);
       }
     }
-
-    internal int GetIndex(string colName)
-    {
-      if (string.IsNullOrEmpty(colName))
-        return -1;
-
-      for (var index = 0; index < Items.Count; index++)
-        if (string.Equals(Items[index].Name, colName, StringComparison.OrdinalIgnoreCase))
-          return index;
-
-      return -1;
-    }
-
-    /// <inheritdoc />
-    protected override bool Present(IColumn search)
-      => GetIndex(search.Name)!=-1;
   }
 }
