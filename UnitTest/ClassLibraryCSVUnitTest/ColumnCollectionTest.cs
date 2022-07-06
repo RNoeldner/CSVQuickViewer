@@ -17,7 +17,7 @@ namespace CsvTools.Tests
       var item2 = new ImmutableColumn("Test", new ImmutableValueFormat(), 0);
       test.Add(item2);
       Assert.AreEqual(1, test.Count);
-      test.Add(new Column());
+      test.Add(new Column("New"));
 
       var exception = false;
       try
@@ -77,22 +77,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod]
-    public void Get()
-    {
-      var test = new ColumnCollection();
-      var item1 = new Column("Test");
-      test.Add(item1);
-      Assert.AreEqual(1, test.Count);
-      var item2 = new Column("Test2");
-      test.Add(item2);
-      Assert.IsTrue(item1.Equals(test.Get("Test")));
-      Assert.IsTrue(item1.Equals(test.Get("TEST")));
-      Assert.IsTrue(item2.Equals(test.Get("tEst2")));
-
-      Assert.IsNull(test.Get(""));
-      Assert.IsNull(test.Get(null));
-    }
+ 
 
     [TestMethod]
     public void CopyTo()

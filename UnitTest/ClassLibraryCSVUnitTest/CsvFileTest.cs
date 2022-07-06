@@ -402,23 +402,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void SetSqlStatementRename()
-    {
-      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("BasicCSV.txt") };
-
-      bool propertyChanged = false;
-
-      setting.PropertyChanged += (o, s) => propertyChanged = true;
-      setting.SqlStatement = "Hello";
-      Assert.AreEqual("Hello", setting.SqlStatement);
-      Assert.IsFalse(propertyChanged);
-      setting.SqlStatement = "Hello";
-      Assert.IsFalse(propertyChanged);
-      setting.SqlStatement = "Hell2";
-      Assert.IsTrue(propertyChanged);
-    }
-
-    [TestMethod]
     public void SourceFileSettings()
     {
       var test = new CsvFile();

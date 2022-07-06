@@ -78,7 +78,7 @@ namespace CsvTools.Tests
       var df = DetermineColumnFormat.GuessDateTime(list, true, UnitTestStatic.Token).FoundValueFormat!.DateFormat;
       Assert.IsTrue(df == "MM/dd/yyyy" | df == "dd/MM/yyyy");
       list.Add("24/12/2020");
-      Assert.IsTrue(new ImmutableValueFormat(DataTypeEnum.DateTime, "dd/MM/yyyy").Equals(DetermineColumnFormat.GuessDateTime(list, true, UnitTestStatic.Token).FoundValueFormat));
+      Assert.IsTrue(new ImmutableValueFormat(DataTypeEnum.DateTime, "dd/MM/yyyy").Equals(DetermineColumnFormat.GuessDateTime(list, true, UnitTestStatic.Token).FoundValueFormat!));
     }
 
     [TestMethod()]
@@ -514,6 +514,7 @@ namespace CsvTools.Tests
 
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, UnitTestStatic.Token);
+      Assert.AreEqual(4, detected.Count);
       var col = new ColumnCollection();
       col.AddRange(detected);
 
