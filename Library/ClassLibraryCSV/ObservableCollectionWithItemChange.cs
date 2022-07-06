@@ -15,7 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 
 namespace CsvTools
@@ -35,12 +34,6 @@ namespace CsvTools
     ///   Additional EventHandlers for an implementation needing information ona a changed item
     /// </summary>
     public EventHandler<PropertyChangedEventArgs<string>>? ItemPropertyChangedString;
-
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="ObservableCollectionWithItemChange{T}" /> class.
-    /// </summary>
-    // ReSharper disable once VirtualMemberCallInConstructor
-    public ObservableCollectionWithItemChange() => CollectionChanged +=  RemovePropertyChanged;
 
     /// <summary>
     ///   Event to be raised on Collection Level if properties of a item in the collection changes
@@ -82,12 +75,11 @@ namespace CsvTools
       }
       if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
         notifyPropertyChangedString.PropertyChangedString += ItemPropertyChangedString;
-      CollectionChanged -= RemovePropertyChanged;
       base.Add(item);
-      CollectionChanged += RemovePropertyChanged;
       return true;
     }
 
+    /// <inheritdoc />
     public new void Insert(int index, T item)
     {
       if (item is ICloneable src)
@@ -103,8 +95,34 @@ namespace CsvTools
       }
       if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
         notifyPropertyChangedString.PropertyChangedString += ItemPropertyChangedString;
-
       base.Insert(index, item);
+    }
+
+    /// <inheritdoc />
+    public new void Remove(T item)
+    {
+      var index = IndexOf(item);
+      if (index==-1)
+        return;
+      RemoveAt(index);
+    }
+
+    /// <inheritdoc />
+    public new void RemoveAt(int index)
+    {
+      var item = Items[index];
+      base.RemoveAt(index);
+      if (item is INotifyPropertyChanged notifyPropertyChanged)
+      {
+        if (CollectionItemPropertyChanged != null)
+
+          notifyPropertyChanged.PropertyChanged -= CollectionItemPropertyChanged;
+        if (ItemPropertyChanged!=null)
+          notifyPropertyChanged.PropertyChanged -= ItemPropertyChanged;
+      }
+
+      if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
+        notifyPropertyChangedString.PropertyChangedString -= ItemPropertyChangedString;
     }
 
     /// <summary>
@@ -113,22 +131,12 @@ namespace CsvTools
     /// <param name="items">Some items to add</param>
     public virtual void AddRange(IEnumerable<T> items)
     {
-      // Only adding no need to raise CollectionChanged that does handle removal
-      CollectionChanged -= RemovePropertyChanged;
-      try
-      {
-        using var enumerator = items.GetEnumerator();
-        while (enumerator.MoveNext())
-          if (enumerator.Current != null)
-            Add(enumerator.Current);
-      }
-      finally
-      {
-        // From now on default behaviour
-        CollectionChanged += RemovePropertyChanged;
-      }
+      using var enumerator = items.GetEnumerator();
+      while (enumerator.MoveNext())
+        if (enumerator.Current != null)
+          Add(enumerator.Current);
     }
-    
+
     /// <summary>
     ///   Determines whether the specified object is equal to the current object.
     /// </summary>
@@ -181,30 +189,6 @@ namespace CsvTools
         if (Items[index].CollectionIdentifier == searchID)
           return index;
       return -1;
-    }
-
-    /// <summary>
-    ///   As Items are added or removed Property Change is registered When the item is changed later
-    ///   on CollectionItemPropertyChanged is triggered
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e">The event args with old and new items</param>
-    private void RemovePropertyChanged(object sender, NotifyCollectionChangedEventArgs e)
-    {
-      if (e.OldItems == null)
-        return;
-      foreach (var item in e.OldItems)
-      {
-        if (item is INotifyPropertyChanged notifyPropertyChanged)
-        {
-          if (CollectionItemPropertyChanged != null)
-            notifyPropertyChanged.PropertyChanged -= CollectionItemPropertyChanged;
-          if (ItemPropertyChanged!=null)
-            notifyPropertyChanged.PropertyChanged -= ItemPropertyChanged;
-        }
-        if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
-          notifyPropertyChangedString.PropertyChangedString -= ItemPropertyChangedString;
-      }
     }
   }
 }
