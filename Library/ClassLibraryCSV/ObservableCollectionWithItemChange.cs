@@ -26,7 +26,6 @@ namespace CsvTools
   /// <typeparam name="T"></typeparam>
   public class ObservableCollectionWithItemChange<T> : ObservableCollection<T> where T : ICollectionIdentity
   {
-
     /// <summary>
     ///   Additional EventHandlers for an implementation needing information ona a changed item
     /// </summary>
@@ -38,7 +37,7 @@ namespace CsvTools
     public EventHandler<PropertyChangedEventArgs<string>>? ItemPropertyChangedString;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ObservableCollectionWithItemChange{T}"/> class.
+    ///   Initializes a new instance of the <see cref="ObservableCollectionWithItemChange{T}" /> class.
     /// </summary>
     // ReSharper disable once VirtualMemberCallInConstructor
     public ObservableCollectionWithItemChange() => CollectionChanged +=  RemovePropertyChanged;
@@ -49,13 +48,23 @@ namespace CsvTools
     public event PropertyChangedEventHandler? CollectionItemPropertyChanged;
 
     /// <summary>
-    /// Adds the specified item to the collection and makes sure the item is not already present,
-    /// if the item does support <see cref="INotifyPropertyChanged"/> <see cref="CollectionItemPropertyChanged"/>,
-    /// <see cref="ItemPropertyChanged"/> or <see cref="ItemPropertyChangedString"/> will be registered  to pass the event to the implementing class
+    ///   Adds the specified item to the collection and makes sure the item is not already present,
+    ///   if the item does support <see cref="INotifyPropertyChanged" /><see
+    ///   cref="CollectionItemPropertyChanged" />, <see cref="ItemPropertyChanged" /> or <see
+    ///   cref="ItemPropertyChangedString" /> will be registered to pass the event to the
+    ///   implementing class
     /// </summary>
-    /// <param name="item">The item to add, the calling routine should make sure the item does have eth properties set to determine presence</param>
-    /// <remarks>In case the the item is cloneable <see cref="ICloneable"/> a value copy will be made. In this case any change to the passed in item would not be reflected in the collection</remarks>
-    /// <returns><see langword="true" /> if it was added, otherwise the item was not added to the collection</returns>
+    /// <param name="item">
+    ///   The item to add, the calling routine should make sure the item does have eth properties
+    ///   set to determine presence
+    /// </param>
+    /// <remarks>
+    ///   In case the the item is cloneable <see cref="ICloneable" /> a value copy will be made. In
+    ///   this case any change to the passed in item would not be reflected in the collection
+    /// </remarks>
+    /// <returns>
+    ///   <see langword="true" /> if it was added, otherwise the item was not added to the collection
+    /// </returns>
     public new bool Add(T item)
     {
       if (item is ICloneable src)
@@ -76,6 +85,25 @@ namespace CsvTools
 
       base.Add(item);
       return true;
+    }
+
+    public new void Insert(int index, T item)
+    {
+      if (item is ICloneable src)
+        item = (T) src.Clone();
+      if (IndexOf(item)!=-1)
+        return;
+      if (item is INotifyPropertyChanged notifyPropertyChanged)
+      {
+        if (CollectionItemPropertyChanged != null)
+          notifyPropertyChanged.PropertyChanged += CollectionItemPropertyChanged;
+        if (ItemPropertyChanged!=null)
+          notifyPropertyChanged.PropertyChanged += ItemPropertyChanged;
+      }
+      if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
+        notifyPropertyChangedString.PropertyChangedString += ItemPropertyChangedString;
+
+      base.Insert(index, item);
     }
 
     /// <summary>
@@ -129,19 +157,20 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Returns a hash code for this instance. Build from all items in the collection
+    ///   Returns a hash code for this instance. Build from all items in the collection
     /// </summary>
     /// <returns>
-    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+    ///   A hash code for this instance, suitable for use in hashing algorithms and data structures
+    ///   like a hash table.
     /// </returns>
     public override int GetHashCode() => EqualityComparer<IList<T>>.Default.GetHashCode(Items);
 
-    /// <inheritdoc cref="IList{T}"/>
+    /// <inheritdoc cref="IList{T}" />
     public new int IndexOf(T search)
     => GetIndexByIdentifier(search.CollectionIdentifier);
 
     /// <summary>
-    /// Gets the index of a collection item by the CollectionIdentifier
+    ///   Gets the index of a collection item by the CollectionIdentifier
     /// </summary>
     /// <param name="searchID">The identifier in teh collection.</param>
     /// <returns>-1 if not found, the index otherwise</returns>
@@ -154,8 +183,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   As Items are added or removed Property Change is registered When the item is changed
-    ///   later on CollectionItemPropertyChanged is triggered
+    ///   As Items are added or removed Property Change is registered When the item is changed later
+    ///   on CollectionItemPropertyChanged is triggered
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e">The event args with old and new items</param>

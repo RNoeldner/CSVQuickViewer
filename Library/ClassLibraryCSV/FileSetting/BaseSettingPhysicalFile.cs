@@ -25,7 +25,7 @@ namespace CsvTools
   [DebuggerDisplay("File: {ID} {m_FileName} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
   {
-    private readonly ValueFormatMutable m_DefaultValueFormatWrite = ValueFormatMutable.Default;
+    private readonly ValueFormatMutable m_DefaultValueFormatWrite = new ValueFormatMutable();
     private string m_ColumnFile = string.Empty;
     private string m_FileName;
     private long m_FileSize;
@@ -41,7 +41,6 @@ namespace CsvTools
 
     protected BaseSettingPhysicalFile(string fileName) => m_FileName = FileNameFix(fileName);
 
-    
     public override void CalculateLatestSourceTime() =>
       LatestSourceTimeUtc = new FileSystemUtils.FileInfo(FileSystemUtils.ResolvePattern(FullPath)).LastWriteTimeUtc;
 
@@ -68,7 +67,12 @@ namespace CsvTools
     public virtual string FileName
     {
       get => m_FileName;
-      set => SetField(ref m_FileName, FileNameFix(value), StringComparison.Ordinal, true);
+      set
+      {
+        if (SetField(ref m_FileName, value, StringComparison.Ordinal, true))
+          if (string.IsNullOrEmpty(ID))
+            NotifyPropertyChanged(nameof(InternalID));
+      }
     }
 
     /// <inheritdoc />
@@ -110,17 +114,11 @@ namespace CsvTools
     public virtual ValueFormatMutable DefaultValueFormatWrite
     {
       get => m_DefaultValueFormatWrite;
-      set
-      {
-        var newVal = value ?? ValueFormatMutable.Default;
-        if (m_DefaultValueFormatWrite.Equals(newVal))
-          return;
-        m_DefaultValueFormatWrite.CopyFrom(newVal);
-        NotifyPropertyChanged();
-      }
+      set => CopyTo(m_DefaultValueFormatWrite, value ?? new ValueFormatMutable());
     }
 
-    [XmlIgnore] public bool DefaultValueFormatWriteSpecified => !m_DefaultValueFormatWrite.Equals(ValueFormatMutable.Default);
+    [XmlIgnore]
+    public bool DefaultValueFormatWriteSpecified => !m_DefaultValueFormatWrite.Equals(ValueFormatMutable.Default);
 
     [XmlIgnore]
     public virtual string FullPath
