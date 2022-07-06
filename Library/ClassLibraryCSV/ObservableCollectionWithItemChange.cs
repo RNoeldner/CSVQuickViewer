@@ -82,8 +82,9 @@ namespace CsvTools
       }
       if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
         notifyPropertyChangedString.PropertyChangedString += ItemPropertyChangedString;
-
+      CollectionChanged -= RemovePropertyChanged;
       base.Add(item);
+      CollectionChanged += RemovePropertyChanged;
       return true;
     }
 
@@ -127,7 +128,7 @@ namespace CsvTools
         CollectionChanged += RemovePropertyChanged;
       }
     }
-
+    
     /// <summary>
     ///   Determines whether the specified object is equal to the current object.
     /// </summary>

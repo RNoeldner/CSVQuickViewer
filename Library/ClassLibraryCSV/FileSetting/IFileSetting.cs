@@ -261,12 +261,7 @@ namespace CsvTools
     ///   Gets or sets the number records with warnings
     /// </summary>
     long WarningCount { get; set; }
-
-    /// <summary>
-    ///   Occurs when a string value property changed providing information on old and new value
-    /// </summary>
-    event EventHandler<PropertyChangedEventArgs<string>>? PropertyChangedString;
-
+    
     /// <summary>
     ///   Examine the source and determine LatestSource
     /// </summary>
