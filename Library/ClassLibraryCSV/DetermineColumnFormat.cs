@@ -321,28 +321,27 @@ namespace CsvTools
               true,
               fillGuessSettings.MinSamples,
               cancellationToken);
-            if (checkResult.FoundValueFormat != null && checkResult.FoundValueFormat.DataType != DataTypeEnum.Double)
-            {
-              var colIndexExisting = columnCollection.IndexOf(readerColumn);
+            if (checkResult.FoundValueFormat == null ||
+                checkResult.FoundValueFormat.DataType == DataTypeEnum.Double) continue;
+            var colIndexExisting = columnCollection.IndexOf(readerColumn);
 
-              if (colIndexExisting != -1)
-              {
-                var oldVf = columnCollection[colIndexExisting].ValueFormat;
-                if (oldVf.Equals(checkResult.FoundValueFormat)) continue;
-                Logger.Information(
-                  "{column} – Format : {format} – updated from {old format}",
-                  columnCollection[colIndexExisting].Name,
-                  checkResult.FoundValueFormat.GetTypeAndFormatDescription(),
-                  oldVf.GetTypeAndFormatDescription());
-                result.Add(
-                  $"{columnCollection[colIndexExisting].Name} – Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()} – updated from {oldVf.GetTypeAndFormatDescription()}");
-                columnCollection.Replace(
-                  new ImmutableColumn(columnCollection[colIndexExisting], checkResult.FoundValueFormat));
-              }
-              else
-              {
-                columnCollection.Add(new ImmutableColumn(readerColumn, checkResult.FoundValueFormat));
-              }
+            if (colIndexExisting != -1)
+            {
+              var oldVf = columnCollection[colIndexExisting].ValueFormat;
+              if (oldVf.Equals(checkResult.FoundValueFormat)) continue;
+              Logger.Information(
+                "{column} – Format : {format} – updated from {old format}",
+                columnCollection[colIndexExisting].Name,
+                checkResult.FoundValueFormat.GetTypeAndFormatDescription(),
+                oldVf.GetTypeAndFormatDescription());
+              result.Add(
+                $"{columnCollection[colIndexExisting].Name} – Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()} – updated from {oldVf.GetTypeAndFormatDescription()}");
+              columnCollection.Replace(
+                new ImmutableColumn(columnCollection[colIndexExisting], checkResult.FoundValueFormat));
+            }
+            else
+            {
+              columnCollection.Add(new ImmutableColumn(readerColumn, checkResult.FoundValueFormat));
             }
           }
         }
@@ -393,15 +392,12 @@ namespace CsvTools
           for (var colTime = 0; colTime < fileReader.FieldCount; colTime++)
           {
             var columnTime = fileReader.GetColumn(colTime);
-            var settingTime = columnCollection[columnCollection.IndexOf(columnTime)];
-            if (settingTime is null) continue;
-            var timeFormat = settingTime.ValueFormat;
+            var colTimeIndex = columnCollection.IndexOf(columnTime);
+            if (colTimeIndex == -1) continue;
+            var timeFormat = columnCollection[colTimeIndex].ValueFormat;
             if (timeFormat.DataType != DataTypeEnum.DateTime || !string.IsNullOrEmpty(readerColumn.TimePart)
                                                              || timeFormat.DateFormat.IndexOfAny(new[]
-                                                             {
-                                                               '/', 'y', 'M', 'd'
-                                                             })
-                                                             != -1)
+                                                             { '/', 'y', 'M', 'd' }) != -1)
               continue;
             // We now have a time column, checked if the names somehow make sense
             if (!readerColumn.Name.NoSpecials().ToUpperInvariant().Replace("DATE", string.Empty).Equals(
