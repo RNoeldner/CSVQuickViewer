@@ -30,25 +30,12 @@ namespace CsvTools
     {
       // Store ImmutableColumns only since Immutable column is not ICloneable
       // Add will not create a copy.
-      if (string.IsNullOrEmpty(column.Name))
+      if (column is null ||string.IsNullOrEmpty(column.Name))
         throw new ArgumentException("The name of a column can not be empty in the collection", nameof(column));
 
       base.Add(column as ImmutableColumn ?? new ImmutableColumn(column));
     }
 
-    /// <summary>
-    ///   Gets the <see cref="CsvTools.IColumn" /> with the specified field name.
-    /// </summary>
-    /// <param name="fieldName"></param>
-    /// <returns></returns>
-    /// <value>The column format found by the given name, <c>NULL</c> otherwise</value>
-    public IColumn? Get(string? fieldName)
-    {
-      if (fieldName is null) return null;
-      var index = IndexOf(new ImmutableColumn(fieldName));
-      return index == -1 ? null : Items[index];
-    }
-    
     /// <summary>
     ///   Replaces an existing column of the same name, if it does not exist it adds the column
     /// </summary>

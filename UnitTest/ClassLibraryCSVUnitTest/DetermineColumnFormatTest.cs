@@ -514,6 +514,7 @@ namespace CsvTools.Tests
 
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, UnitTestStatic.Token);
+      Assert.AreEqual(4, detected.Count);
       var col = new ColumnCollection();
       col.AddRange(detected);
 
