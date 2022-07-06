@@ -69,8 +69,20 @@ namespace CsvTools
         if (twoBackups)
         {
           var split = SplitPath(fileName);
-          var numBackup = Directory.EnumerateFiles(split.DirectoryName.LongPathPrefix(), split.FileName + "*.bak",
-            SearchOption.TopDirectoryOnly).Count();
+          var names = Directory.EnumerateFiles(split.DirectoryName.LongPathPrefix(), split.FileName + "*.bak",
+            SearchOption.TopDirectoryOnly);
+          var numBackup = 1;
+          foreach (var name in names)
+          {
+            var psStart = name.LastIndexOf('V');
+            var psEnd = name.LastIndexOf('.');
+            if (psStart != -1 && psEnd <= psStart + 5)
+            {
+              if (int.TryParse(name.Substring(psStart+1, psEnd-psStart-1), out var num))
+                if (num> numBackup)
+                  numBackup= num;
+            }
+          }
           backupName = fileName + $"_V{numBackup + 1}.bak";
         }
         else

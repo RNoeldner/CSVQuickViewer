@@ -45,36 +45,17 @@ namespace CsvTools
     private string m_FileOutPutPlaceholder;
     private bool m_Overwrite;
 
-    public static ValueFormatMutable Default = new ValueFormatMutable();
+    public static IValueFormat Default = new ImmutableValueFormat();
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ValueFormatMutable"/> class.
+    ///   Initializes a new instance of the <see cref="ValueFormatMutable" /> class.
     /// </summary>
-    public ValueFormatMutable() : this(
-      DataTypeEnum.String,
-      ValueFormatExtension.cDateFormatDefault,
-      ValueFormatExtension.cDateSeparatorDefault,
-      ValueFormatExtension.cTimeSeparatorDefault,
-      ValueFormatExtension.cNumberFormatDefault,
-      ValueFormatExtension.cGroupSeparatorDefault,
-      ValueFormatExtension.cDecimalSeparatorDefault,
-      ValueFormatExtension.cTrueDefault,
-      ValueFormatExtension.cFalseDefault,
-      string.Empty,
-      ValueFormatExtension.cPartDefault,
-      ValueFormatExtension.cPartSplitterDefault,
-      ValueFormatExtension.cPartToEndDefault,
-      string.Empty,
-      string.Empty,
-      string.Empty,
-      string.Empty,
-      string.Empty,
-      true)
+    public ValueFormatMutable() : this(Default)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ValueFormatMutable"/> class.
+    ///   Initializes a new instance of the <see cref="ValueFormatMutable" /> class.
     /// </summary>
     /// <param name="other">IValueFormat with the information to copy from</param>
     public ValueFormatMutable(IValueFormat other) : this(other.DataType, other.DateFormat, other.DateSeparator,
@@ -87,7 +68,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ValueFormatMutable"/> class.
+    ///   Initializes a new instance of the <see cref="ValueFormatMutable" /> class.
     /// </summary>
     /// <param name="dataType">Type of the data.</param>
     /// <param name="dateFormat">The date format.</param>
@@ -101,44 +82,22 @@ namespace CsvTools
     /// <param name="displayNullAs">While writing display a null values as this</param>
     /// <param name="part">The part number in case of splitting.</param>
     /// <param name="partSplitter">The part splitter.</param>
-    /// <param name="partToEnd">if set to <c>true</c> the part will contain everything from the start of the part to the end.</param>
+    /// <param name="partToEnd">
+    ///   if set to <c>true</c> the part will contain everything from the start of the part to the end.
+    /// </param>
     /// <param name="regexSearchPattern">The regex search pattern.</param>
     /// <param name="regexReplacement">The regex replacement.</param>
     /// <param name="readFolder">The read folder.</param>
     /// <param name="writeFolder">The write folder.</param>
     /// <param name="fileOutPutPlaceholder">The file out put placeholder.</param>
     /// <param name="overwrite">if set to <c>true</c> we should overwrite.</param>
-    /// <exception cref="CsvTools.FileReaderException">Decimal and Group separator must be different</exception>
+    /// <exception cref="CsvTools.FileReaderException">
+    ///   Decimal and Group separator must be different
+    /// </exception>
     /// <exception cref="System.ArgumentNullException">
-    /// dateFormat
-    /// or
-    /// dateSeparator
-    /// or
-    /// decimalSeparator
-    /// or
-    /// groupSeparator
-    /// or
-    /// displayNullAs
-    /// or
-    /// asFalse
-    /// or
-    /// numberFormat
-    /// or
-    /// timeSeparator
-    /// or
-    /// asTrue
-    /// or
-    /// partSplitter
-    /// or
-    /// regexSearchPattern
-    /// or
-    /// regexReplacement
-    /// or
-    /// readFolder
-    /// or
-    /// writeFolder
-    /// or
-    /// fileOutPutPlaceholder
+    ///   dateFormat or dateSeparator or decimalSeparator or groupSeparator or displayNullAs or
+    ///   asFalse or numberFormat or timeSeparator or asTrue or partSplitter or regexSearchPattern
+    ///   or regexReplacement or readFolder or writeFolder or fileOutPutPlaceholder
     /// </exception>
     public ValueFormatMutable(
       in DataTypeEnum dataType,
@@ -186,7 +145,7 @@ namespace CsvTools
       m_Overwrite = overwrite;
     }
 
-    /// <inheritdoc />    
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(DataTypeEnum.String)]
     public DataTypeEnum DataType
@@ -195,12 +154,9 @@ namespace CsvTools
       set => SetField(ref m_DataType, value);
     }
 
-    /// <inheritdoc />    
+    /// <inheritdoc />
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public string DateFormat
     {
       get => m_DateFormat;
@@ -210,21 +166,15 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public string DateSeparator
     {
       get => m_DateSeparator;
       set => SetField(ref m_DateSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
     }
 
-    /// <inheritdoc />    
+    /// <inheritdoc />
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public string DecimalSeparator
     {
       get => m_DecimalSeparator;
@@ -237,24 +187,18 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc />    
+    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public string DisplayNullAs
     {
       get => m_DisplayNullAs;
       set => SetField(ref m_DisplayNullAs, value, StringComparison.Ordinal);
     }
 
-    /// <inheritdoc />    
+    /// <inheritdoc />
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cFalseDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public string False
     {
       get => m_False;
@@ -264,9 +208,6 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public string GroupSeparator
     {
       get => m_GroupSeparator;
@@ -288,9 +229,6 @@ namespace CsvTools
     /// <value>The number format.</value>
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public string NumberFormat
     {
       get => m_NumberFormat;
@@ -332,9 +270,6 @@ namespace CsvTools
     /// <value>The time separator.</value>
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public string TimeSeparator
     {
       get => m_TimeSeparator;
@@ -348,22 +283,14 @@ namespace CsvTools
     /// <value>The true.</value>
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cTrueDefault)]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public string True
     {
       get => m_True;
       set => SetField(ref m_True, value, StringComparison.InvariantCulture);
     }
 
-
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
-
     public string RegexSearchPattern
     {
       get => m_RegexSearchPattern;
@@ -372,9 +299,6 @@ namespace CsvTools
 
     [XmlAttribute]
     [DefaultValue("")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
     public string RegexReplacement
     {
       get => m_RegexReplacement;

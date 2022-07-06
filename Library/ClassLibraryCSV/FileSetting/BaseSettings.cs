@@ -28,8 +28,8 @@ namespace CsvTools
   /// <inheritdoc cref="IFileSetting" />
   /// <summary>
   ///   Abstract calls containing the basic setting for an IFileSetting if contains <see
-  ///   cref="P:CsvTools.BaseSettings.ColumnCollection" /> , <see
-  ///   cref="P:CsvTools.BaseSettings.MappingCollection" /> /&gt;
+  ///   cref="P:CsvTools.BaseSettings.ColumnCollection" /> and <see
+  ///   cref="P:CsvTools.BaseSettings.MappingCollection" />
   /// </summary>
   [DebuggerDisplay("Settings: {ID} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettings : NotifyPropertyChangedBase, IFileSetting
@@ -244,7 +244,7 @@ namespace CsvTools
 
     public bool SqlStatementCDataSpecified => !string.IsNullOrEmpty(SqlStatement);
 
-    [XmlIgnore] 
+    [XmlIgnore]
     public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
     /// <inheritdoc />
@@ -278,7 +278,6 @@ namespace CsvTools
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlAttribute]
     [DefaultValue(0)]
-
     public virtual long ErrorCount
     {
       get => m_ErrorCount;
@@ -338,7 +337,6 @@ namespace CsvTools
       set
       {
         if (SetField(ref m_Id, value, StringComparison.Ordinal, true))
-          // TODO: Check if we need to raise NotifyPropertyChangedString for InternalID
           NotifyPropertyChanged(nameof(InternalID));
       }
     }
