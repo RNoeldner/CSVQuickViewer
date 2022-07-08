@@ -25,10 +25,10 @@ namespace CsvTools
   [Serializable]
   public sealed class SampleAndErrorsInformation : NotifyPropertyChangedBase, IWithCopyTo<SampleAndErrorsInformation>
   {
-    private readonly ObservableCollectionWithItemChange<SampleRecordEntry> m_Errors = new ObservableCollectionWithItemChange<SampleRecordEntry>();
+    private readonly UniqueObservableCollection<SampleRecordEntry> m_Errors = new UniqueObservableCollection<SampleRecordEntry>();
 
     private int m_NumErrors = -1;
-    private readonly ObservableCollectionWithItemChange<SampleRecordEntry> m_Samples = new ObservableCollectionWithItemChange<SampleRecordEntry>();
+    private readonly UniqueObservableCollection<SampleRecordEntry> m_Samples = new UniqueObservableCollection<SampleRecordEntry>();
 
     public SampleAndErrorsInformation()
     {
@@ -40,7 +40,7 @@ namespace CsvTools
     ///   Gets or sets information on the errors.
     /// </summary>
     /// <value>The errors.</value>
-    public ObservableCollectionWithItemChange<SampleRecordEntry> Errors
+    public UniqueObservableCollection<SampleRecordEntry> Errors
     {
       get => m_Errors;
     }
@@ -70,7 +70,7 @@ namespace CsvTools
     ///   Gets or sets information on the samples.
     /// </summary>
     /// <value>The samples.</value>
-    public ObservableCollectionWithItemChange<SampleRecordEntry> Samples
+    public UniqueObservableCollection<SampleRecordEntry> Samples
     {
       get => m_Samples;
     }

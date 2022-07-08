@@ -18,7 +18,7 @@ using System.Linq;
 
 namespace CsvTools
 {
-  public sealed class MappingCollection : ObservableCollectionWithItemChange<Mapping>
+  public sealed class MappingCollection : UniqueObservableCollection<Mapping>
   {
     public IEnumerable<Mapping> GetByColumn(string columnName) =>
       Items.Where(mapping => mapping.FileColumn.Equals(columnName, StringComparison.OrdinalIgnoreCase));

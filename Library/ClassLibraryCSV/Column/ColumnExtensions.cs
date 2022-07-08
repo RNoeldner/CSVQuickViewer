@@ -12,7 +12,6 @@
  *
  */
 
-using System.Collections.ObjectModel;
 using System.Data;
 
 
@@ -25,22 +24,6 @@ namespace CsvTools
     {
       return new ImmutableColumn(dataColumn.ColumnName, new ImmutableValueFormat(dataColumn.DataType.GetDataType()),
         dataColumn.Ordinal);
-    }
-
-
-    /// <summary>
-    ///   Gets the <see cref="CsvTools.IColumn" /> with the specified field name.
-    /// </summary>
-    /// <param name="collection">The collection of Columns</param>
-    /// <param name="fieldName"></param>
-    /// <returns></returns>
-    /// <value>The column format found by the given name, <c>NULL</c> otherwise</value>
-    public static IColumn? Get(this Collection<IColumn> collection, string? fieldName)
-    {
-      if (fieldName is null || fieldName.Length==0) 
-        return null;
-      var index = collection.IndexOf(new ImmutableColumn(fieldName));
-      return index == -1 ? null : collection[index];
     }
   }
 }

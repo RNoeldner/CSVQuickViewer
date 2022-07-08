@@ -174,7 +174,7 @@ namespace CsvTools
     /// <param name="previousColumns">A collection of already used names, these will not be changed</param>
     /// <param name="nameToAdd">The default name</param>
     /// <returns>The unique name</returns>
-    public static string MakeUniqueInCollection(in ICollection<string> previousColumns, in string nameToAdd)
+    public static string MakeUniqueInCollection(this ICollection<string> previousColumns, in string nameToAdd)
     {
       if (nameToAdd is null)
         throw new ArgumentNullException(nameof(nameToAdd));
@@ -208,9 +208,9 @@ namespace CsvTools
       var chars = new char[original.Length];
       var count = 0;
       foreach (var c in from c in original
-               let oc = CharUnicodeInfo.GetUnicodeCategory(c)
-               where UnicodeCategory.Control != oc || c == '\r' || c == '\n'
-               select c)
+                        let oc = CharUnicodeInfo.GetUnicodeCategory(c)
+                        where UnicodeCategory.Control != oc || c == '\r' || c == '\n'
+                        select c)
         chars[count++] = c;
 
       return new string(chars, 0, count);
@@ -281,9 +281,9 @@ namespace CsvTools
       var chars = new char[normalizedString.Length];
       var count = 0;
       foreach (var c in from c in normalizedString
-               let oc = CharUnicodeInfo.GetUnicodeCategory(c)
-               where testFunction(oc)
-               select c)
+                        let oc = CharUnicodeInfo.GetUnicodeCategory(c)
+                        where testFunction(oc)
+                        select c)
         chars[count++] = c;
 
       return new string(chars, 0, count);
@@ -332,8 +332,8 @@ namespace CsvTools
       contents is null || contents.Length == 0 ? string.Empty : contents.Replace("'", "''");
 
     /// <summary>
-    ///   Read the value and determine if this could be a constant value (surrounded by " or ') or if its a number; if
-    ///   not its assume is a reference to another field
+    ///   Read the value and determine if this could be a constant value (surrounded by " or ') or
+    ///   if its a number; if not its assume is a reference to another field
     /// </summary>
     /// <param name="entry">A text that refers to another column or is possibly a constant</param>
     /// <param name="result">The constant value without the " or '</param>

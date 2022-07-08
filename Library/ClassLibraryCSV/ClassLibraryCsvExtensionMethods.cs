@@ -35,6 +35,14 @@ namespace CsvTools
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
+
+    public static int IdentifierHash(this string name)
+      => name.ToUpperInvariant().GetHashCode();
+
+    public static int IdentifierHash(this string name, in string name2)
+      => name.ToUpperInvariant().GetHashCode() + name2.ToUpperInvariant().GetHashCode();
+
+
     public static bool AssumeDeflate(this string fileName) =>
       fileName.EndsWith(".cmp", StringComparison.OrdinalIgnoreCase)
       || fileName.EndsWith(".dfl", StringComparison.OrdinalIgnoreCase);

@@ -45,7 +45,7 @@ namespace CsvTools.Tests
 
       var map = new Mapping("Column", "Field");
       csv.MappingCollection.Add(map);
-      Assert.AreEqual(map, csv.MappingCollection.GetByField("Field"));
+      Assert.IsTrue(map.Equals(csv.MappingCollection.GetByField("Field")));
     }
   }
 }
