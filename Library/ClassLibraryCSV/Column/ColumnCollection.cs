@@ -17,19 +17,18 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  /// Collection of Columns, this class is not serializable
+  ///   Collection of Columns, this class is not serializable
   /// </summary>
-  public sealed class ColumnCollection : ObservableCollectionWithItemChange<IColumn>
+  public sealed class ColumnCollection : UniqueObservableCollection<IColumn>
   {
     /// <summary>
-    ///   Adds the <see cref="IColumn" /> as <see cref="ImmutableColumn"/>
+    ///   Adds the <see cref="IColumn" /> as <see cref="ImmutableColumn" />
     /// </summary>
     /// <remarks>If the column name already exist it does nothing</remarks>
     /// <param name="column">The column format.</param>
     public new void Add(IColumn column)
     {
-      // Store ImmutableColumns only since Immutable column is not ICloneable
-      // Add will not create a copy.
+      // Store ImmutableColumns only since Immutable column is not ICloneable Add will not create a copy.
       if (column is null ||string.IsNullOrEmpty(column.Name))
         throw new ArgumentException("The name of a column can not be empty in the collection", nameof(column));
 
@@ -49,7 +48,7 @@ namespace CsvTools
       if (index != -1)
       {
         Items.RemoveAt(index);
-        Items.Insert(index, column is ImmutableColumn immutableColumn ? immutableColumn : new ImmutableColumn(column));
+        Items.Insert(index, column as ImmutableColumn ?? new ImmutableColumn(column));
         OnCollectionChanged(
           new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized
             .NotifyCollectionChangedAction.Reset));
@@ -59,5 +58,19 @@ namespace CsvTools
         Add(column);
       }
     }
+
+    /// <summary>
+    /// Gets the specified column by its name.
+    /// </summary>
+    /// <param name="columnName">Name of the column.</param>
+    /// <returns><c>null</c> if the column is not found, otherwise the column with that name</returns>
+    public IColumn? Get(string? columnName)
+    {
+      if (columnName is null || columnName.Length == 0)
+        return null;
+      var index = GetIndexByIdentifier(columnName.IdentifierHash());
+      return index == -1 ? null : Items[index];
+    }
+
   }
 }

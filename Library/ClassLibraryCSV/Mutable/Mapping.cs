@@ -99,7 +99,7 @@ namespace CsvTools
     /// <inheritdoc />
     public int CollectionIdentifier
     {
-      get => FileColumn.ToUpperInvariant().GetHashCode() + TemplateField.ToUpperInvariant().GetHashCode();
+      get => FileColumn.IdentifierHash(TemplateField);
     }
   }
 }

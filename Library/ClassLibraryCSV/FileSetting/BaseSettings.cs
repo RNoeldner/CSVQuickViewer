@@ -832,6 +832,6 @@ namespace CsvTools
         yield return "ColumnCollection different";
     }
 
-    public int CollectionIdentifier { get => InternalID.ToUpperInvariant().GetHashCode(); }
+    public int CollectionIdentifier => InternalID.IdentifierHash();
   }
 }

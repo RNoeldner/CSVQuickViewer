@@ -178,8 +178,8 @@ namespace CsvTools.Tests
       var test = new CsvFile();
       test.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
       {
-        Assert.AreEqual("FileName", e.PropertyName);
-        numCalled++;
+        if (e.PropertyName == nameof(IFileSettingPhysicalFile.FileName))
+          numCalled++;
       };
       test.FileName = "new";
       Assert.AreEqual(numCalled, 1);

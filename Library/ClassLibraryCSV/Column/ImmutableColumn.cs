@@ -119,12 +119,13 @@ namespace CsvTools
     {
       if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
-      return ColumnOrdinal == other.ColumnOrdinal && Convert == other.Convert
-                                                  && DestinationName == other.DestinationName && Ignore == other.Ignore
-                                                  && Name == other.Name && TimePart == other.TimePart
-                                                  && TimePartFormat == other.TimePartFormat
-                                                  && TimeZonePart == other.TimeZonePart
-                                                  && ValueFormat.ValueFormatEqual(other.ValueFormat);
+      return ColumnOrdinal == other.ColumnOrdinal 
+             && Convert == other.Convert
+             && DestinationName == other.DestinationName && Ignore == other.Ignore
+             && Name == other.Name && TimePart == other.TimePart
+             && TimePartFormat == other.TimePartFormat
+             && TimeZonePart == other.TimeZonePart
+             && ValueFormat.ValueFormatEqual(other.ValueFormat);
     }
 
     public bool Equals(ImmutableColumn x, ImmutableColumn y) => x.Equals(y);
@@ -159,12 +160,13 @@ namespace CsvTools
 
     public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
 
+    
     /// <summary>
     /// Identifier in collections, similar to a hashcode based on a  properties that should be unique in a collection
     /// </summary>
     /// <remarks>
     /// In case a required property is not set, this should raise an error
     /// </remarks>
-    public int CollectionIdentifier { get => Name.ToUpperInvariant().GetHashCode(); }
+    public int CollectionIdentifier { get => Name.IdentifierHash(); }
   }
 }

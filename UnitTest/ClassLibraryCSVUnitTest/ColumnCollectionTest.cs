@@ -68,7 +68,7 @@ namespace CsvTools.Tests
       test.Replace(colBnew);
       var colB = test.Get("ColB");
       Assert.AreEqual(3, test.Count);
-      Assert.AreEqual(colB, (IColumn) colBnew);
+      Assert.IsTrue(colB.Equals((IColumn) colBnew));
       int oldColOrd = 0;
       foreach (var col in test)
       {
