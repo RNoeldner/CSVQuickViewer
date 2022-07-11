@@ -97,9 +97,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    public int CollectionIdentifier
-    {
-      get => FileColumn.IdentifierHash(TemplateField);
-    }
+    /// <remarks>Combined Column and Field</remarks>
+    public int CollectionIdentifier => FileColumn.IdentifierHash(TemplateField);
   }
 }

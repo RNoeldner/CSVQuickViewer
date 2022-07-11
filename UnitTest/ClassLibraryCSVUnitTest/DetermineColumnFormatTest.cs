@@ -550,9 +550,9 @@ namespace CsvTools.Tests
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
       var col = new ColumnCollection();
       col.AddRange(detected);
-      Assert.AreEqual(DataTypeEnum.Integer, col.Get("ID")!.ValueFormat.DataType);
-      Assert.AreEqual(DataTypeEnum.DateTime, col.Get("ExamDate")!.ValueFormat.DataType);
-      Assert.AreEqual(DataTypeEnum.Boolean, col.Get("IsNativeLang")!.ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.Integer, col.GetByName("ID")!.ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, col.GetByName("ExamDate")!.ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.Boolean, col.GetByName("IsNativeLang")!.ValueFormat.DataType);
     }
 
     [TestMethod]
@@ -582,19 +582,19 @@ namespace CsvTools.Tests
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
       var col = new ColumnCollection();
       col.AddRange(detected);
-      Assert.IsNotNull(col.Get(@"Betrag Brutto (2 Nachkommastellen)"), "Data Type recognized");
+      Assert.IsNotNull(col.GetByName(@"Betrag Brutto (2 Nachkommastellen)"), "Data Type recognized");
 
       Assert.AreEqual(
         DataTypeEnum.Numeric,
-        col.Get(@"Betrag Brutto (2 Nachkommastellen)")?.ValueFormat.DataType,
+        col.GetByName(@"Betrag Brutto (2 Nachkommastellen)")?.ValueFormat.DataType,
         "Is Numeric");
 
       Assert.AreEqual(
         ",",
-        col.Get(@"Betrag Brutto (2 Nachkommastellen)")?.ValueFormat.DecimalSeparator,
+        col.GetByName(@"Betrag Brutto (2 Nachkommastellen)")?.ValueFormat.DecimalSeparator,
         "Decimal Separator found");
 
-      Assert.AreEqual(DataTypeEnum.DateTime, col.Get(@"Erstelldatum Rechnung")?.ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.DateTime, col.GetByName(@"Erstelldatum Rechnung")?.ValueFormat.DataType);
     }
 
     [TestMethod]
@@ -621,9 +621,9 @@ namespace CsvTools.Tests
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
       var col = new ColumnCollection();
       col.AddRange(detected);
-      Assert.IsTrue(col.Get("ID") == null || col.Get("ID")?.Convert == false);
-      Assert.AreEqual(DataTypeEnum.DateTime, col.Get("ExamDate")?.ValueFormat.DataType);
-      Assert.AreEqual(DataTypeEnum.Boolean, col.Get("IsNativeLang")?.ValueFormat.DataType);
+      Assert.IsTrue(col.GetByName("ID") == null || col.GetByName("ID")?.Convert == false);
+      Assert.AreEqual(DataTypeEnum.DateTime, col.GetByName("ExamDate")?.ValueFormat.DataType);
+      Assert.AreEqual(DataTypeEnum.Boolean, col.GetByName("IsNativeLang")?.ValueFormat.DataType);
     }
 
     [TestMethod]
