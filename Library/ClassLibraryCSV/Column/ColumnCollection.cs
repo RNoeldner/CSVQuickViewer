@@ -64,7 +64,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">Name of the column.</param>
     /// <returns><c>null</c> if the column is not found, otherwise the column with that name</returns>
-    public IColumn? Get(string? columnName)
+    public IColumn? GetByName(string? columnName)
     {
       if (columnName is null || columnName.Length == 0)
         return null;

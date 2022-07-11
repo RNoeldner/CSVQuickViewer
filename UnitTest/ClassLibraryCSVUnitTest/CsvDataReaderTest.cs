@@ -436,13 +436,13 @@ namespace CsvTools.Tests
       var target = new CsvFile();
       m_ValidSetting.CopyTo(target);
 
-      Assert.IsNotNull(target.ColumnCollection.Get("Score"));
-      var cf = target.ColumnCollection.Get("Score");
+      Assert.IsNotNull(target.ColumnCollection.GetByName("Score"));
+      var cf = target.ColumnCollection.GetByName("Score");
       Assert.AreEqual(cf?.Name, "Score");
 
       // Remove the one filed
-      target.ColumnCollection.Remove(target.ColumnCollection.Get("Score")!);
-      Assert.IsNull(target.ColumnCollection.Get("Score"));
+      target.ColumnCollection.Remove(target.ColumnCollection.GetByName("Score")!);
+      Assert.IsNull(target.ColumnCollection.GetByName("Score"));
     }
 
     [TestMethod]
