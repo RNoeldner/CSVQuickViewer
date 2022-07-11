@@ -167,6 +167,6 @@ namespace CsvTools
     /// <remarks>
     /// In case a required property is not set, this should raise an error
     /// </remarks>
-    public int CollectionIdentifier { get => Name.IdentifierHash(); }
+    public int CollectionIdentifier => Name.IdentifierHash(); 
   }
 }
