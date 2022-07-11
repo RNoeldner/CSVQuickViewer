@@ -929,7 +929,7 @@ namespace CsvTools
       if (m_FileSetting is null || colIndex < 0 || colIndex > m_FileSetting.ColumnCollection.Count)
         return null;
       //TODO: Why not m_FileSetting.ColumnCollection[index]
-      return m_FileSetting.ColumnCollection.Get(Columns[colIndex].DataPropertyName);
+      return m_FileSetting.ColumnCollection.GetByName(Columns[colIndex].DataPropertyName);
     }
 
     /// <summary>
