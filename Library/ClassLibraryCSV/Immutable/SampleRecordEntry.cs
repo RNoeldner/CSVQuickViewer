@@ -121,6 +121,6 @@ namespace CsvTools
       }
     }
 
-    public int CollectionIdentifier { get => RecordNumber.GetHashCode(); }
+    public int CollectionIdentifier => RecordNumber.GetHashCode(); 
   }
 }

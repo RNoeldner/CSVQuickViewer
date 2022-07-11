@@ -134,8 +134,8 @@ namespace CsvTools
       base.Insert(index, item);
     }
 
-    /// <inheritdoc />
-    public new void Remove(T item)
+    /// <inheritdoc cref="ICollection{T}" />
+    public new virtual void Remove(T item)
     {
       var index = IndexOf(item);
       if (index==-1)
@@ -143,8 +143,8 @@ namespace CsvTools
       RemoveAt(index);
     }
 
-    /// <inheritdoc />
-    public new void RemoveAt(int index)
+    /// <inheritdoc cref="ICollection{T}"/>
+    public new virtual void RemoveAt(int index)
     {
       var item = Items[index];
       base.RemoveAt(index);
@@ -208,7 +208,13 @@ namespace CsvTools
     ///   A hash code for this instance, suitable for use in hashing algorithms and data structures
     ///   like a hash table.
     /// </returns>
-    public override int GetHashCode() => EqualityComparer<IList<T>>.Default.GetHashCode(Items);
+    //public override int GetHashCode()
+    //{
+    //  var res = 0;
+    //  for (var index = 0; index < Items.Count; index++)
+    //    res ^= Items[index].CollectionIdentifier;
+    //  return res;
+    //}
 
     /// <inheritdoc cref="IList{T}" />
     public new int IndexOf(T search)
