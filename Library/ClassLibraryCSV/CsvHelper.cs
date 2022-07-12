@@ -620,7 +620,7 @@ namespace CsvTools
 #endif
         using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
         // Determine from file
-        detectionResult = await (improvedStream as Stream)!.GetDetectionResult(
+        detectionResult = await improvedStream!.GetDetectionResult(
           fileName,
           guessJson,
           guessCodePage,
