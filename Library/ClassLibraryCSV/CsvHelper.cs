@@ -1712,25 +1712,10 @@ namespace CsvTools
 
         if (c == '\r' || c == '\n')
           c = delimiterChar;
-        if (c == delimiterChar && last != delimiterChar)
-        {
-          filter.Append(delimiterChar);
-        }
-        else if (c == possibleQuotes[0])
-        {
-          filter.Append(possibleQuotes[0]);
-        }
-        else if (c == possibleQuotes[1])
-        {
-          filter.Append(possibleQuotes[1]);
-        }
-        else
-        {
+        if (c != delimiterChar && c != possibleQuotes[0] && c != possibleQuotes[1])
           c = placeHolderText;
-          if (last != placeHolderText)
-            filter.Append(placeHolderText);
-        }
-
+        if (last != c || c == possibleQuotes[0] || c == possibleQuotes[1])
+          filter.Append((char) c);
         last = c;
       }
 
