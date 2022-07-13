@@ -9,7 +9,7 @@
 		<PackageIcon>Picture.png</PackageIcon>
 		<PackageIconUrl />
 		<SignAssembly>True</SignAssembly>
-		<TargetFramework>net472</TargetFramework>
+		<TargetFrameworks>net472;net6.0-windows</TargetFrameworks>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<RootNamespace>CsvTools</RootNamespace>

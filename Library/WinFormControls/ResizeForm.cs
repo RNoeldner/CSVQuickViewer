@@ -12,19 +12,14 @@ namespace CsvTools
     public ResizeForm()
     {
       SuspendLayout();
-      ClientSize = new Size(282, 253);
+      ClientSize = new Size(400, 300);
       Icon = new ComponentResourceManager(typeof(ResizeForm)).GetObject("$this.Icon") as Icon;
       ResumeLayout(false);
 
       try
       {
-#if !NETCOREAPP3_1
-        // 6.2 and 6.3 is Windows 8 / Windows Server 2012
-        if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
-          SetFonts(this, SystemFonts.DialogFont);
-#endif
-
         MouseWheel += FormMouseWheel;
+        SetZoom();
       }
       catch (Exception)
       {
@@ -32,38 +27,52 @@ namespace CsvTools
       }
     }
 
-    private void FormMouseWheel(object? sender, MouseEventArgs e)
+    private static float m_FontSize = SystemFonts.DefaultFont.Size;
+
+    public static float FontSize
     {
-      if (e.Delta > 0)
-        if (Font.Size < 11)
-          SetFonts(this, new Font(Font.FontFamily, Font.Size + 1, Font.Style));
+      get => m_FontSize;
+      set
+      {
+        if (value is > 2 and < 14)
+          m_FontSize = value;
         else
           Console.Beep();
+      }
+    }
 
-      if (e.Delta >= 0) return;
-      if (Font.Size > 4)
-        SetFonts(this, new Font(Font.FontFamily, Font.Size - 1, Font.Style));
-      else
-        Console.Beep();
+    private void SetZoom() => SetFonts(this, new Font(SystemFonts.DialogFont.FontFamily, m_FontSize, FontStyle.Regular));
+    
+
+    private void FormMouseWheel(object? sender, MouseEventArgs e)
+    {
+      if (ModifierKeys != Keys.Control)
+        return;
+      if (e.Delta > 0)
+        FontSize += 0.5F;
+      else if (e.Delta < 0)
+        FontSize -= 0.5F;
+      SetZoom();
+
     }
 
     /// <summary>
     ///   Recursively change the font of all controls, needed on Windows 8 / 2012
     /// </summary>
     /// <param name="container">A container control like a form or panel</param>
-    /// <param name="font"></param>
+    /// <param name="font">The font with size to use</param>
     public static void SetFonts(Control container, Font font)
     {
-      if (!Equals(container.Font, font)) container.Font = font;
+      if (!Equals(container.Font, font)) 
+        container.Font = font;
 
       foreach (Control ctrl in container.Controls)
         if (ctrl is ContainerControl cc)
-        {
           SetFonts(cc, font);
-        }
         else
         {
-          if (Equals(ctrl.Font, font)) continue;
+          if (Equals(ctrl.Font, font)) 
+            continue;
           ctrl.Font = font;
         }
     }

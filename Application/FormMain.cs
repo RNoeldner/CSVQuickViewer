@@ -162,6 +162,8 @@ namespace CsvTools
                                m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
                                m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
                                m_ViewSettings.FillGuessSettings, formProcessDisplay.CancellationToken)).PhysicalFile();
+
+            formProcessDisplay.Close();
           }
 
           if (m_FileSetting is null)
@@ -173,7 +175,6 @@ namespace CsvTools
           m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
 
           // update the UI
-
           var display = fileName;
           if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
             display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
@@ -188,7 +189,7 @@ namespace CsvTools
 
           title.Append(" - ");
           title.Append(AssemblyTitle);
-          Text = title.ToString();
+          this.SafeInvokeNoHandleNeeded(()=>Text = title.ToString());
 
           m_ToolStripButtonAsText.Visible = m_FileSetting is ICsvFile &&
                                             m_FileSetting.ColumnCollection.Any(x =>
