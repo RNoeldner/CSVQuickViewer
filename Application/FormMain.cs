@@ -171,7 +171,7 @@ namespace CsvTools
 
           m_FileSetting.RootFolder = fileName.GetDirectoryName();
           m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
-          m_FileSetting.DisplayStartLineNo = false;
+          m_FileSetting.DisplayEndLineNo = false;
           m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
 
           // update the UI
@@ -587,6 +587,9 @@ namespace CsvTools
         using var frm = new FormEditSettings(m_ViewSettings, (ICsvFile) m_FileSetting);
         frm.ShowDialog(MdiParent);
         m_ViewSettings.SaveViewSettings();
+        m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
+        m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
+
         detailControl.MenuDown = m_ViewSettings.MenuDown;
 
         SetFileSystemWatcher(m_FileSetting.FileName);
