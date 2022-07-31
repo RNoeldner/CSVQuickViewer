@@ -96,7 +96,7 @@ namespace CsvTools
 
         BuildTreeData(parent, id, display1, display2, formProcessDisplay, formProcessDisplay.CancellationToken);
         formProcessDisplay.Maximum = 0;
-        ShowTree(formProcessDisplay, formProcessDisplay.CancellationToken);
+        ShowTree(formProcessDisplay.CancellationToken);
       });
     }
 
@@ -566,7 +566,7 @@ namespace CsvTools
     /// <summary>
     ///   Shows the tree.
     /// </summary>
-    private void ShowTree(IProcessDisplay process, CancellationToken cancellationToken)
+    private void ShowTree(CancellationToken cancellationToken)
     {
       if (m_TreeView is null)
         return;
@@ -577,7 +577,7 @@ namespace CsvTools
 
         foreach (var treeData in m_TreeData)
           treeData.Visited = false;
-        process.SetProcess("Adding Tree with children", -1);
+        Logger.Information("Adding Tree with children");
         foreach (var treeData in m_TreeData)
         {
           cancellationToken.ThrowIfCancellationRequested();
@@ -586,7 +586,7 @@ namespace CsvTools
             AddTreeDataNodeWithChild(treeData, null, cancellationToken);
         }
 
-        process.SetProcess("Finding Cycles in Hierarchy", -1);
+        Logger.Information("Finding Cycles in Hierarchy");
         var hasCycles = false;
         foreach (var treeData in m_TreeData)
         {
@@ -602,7 +602,7 @@ namespace CsvTools
         if (!hasCycles)
           return;
 
-        process.SetProcess("Adding Cycles", -1);
+        Logger.Information("Adding Cycles");
         var rootNode = new TreeNode("Cycles in Hierarchy");
         m_TreeView.Nodes.Add(rootNode);
 

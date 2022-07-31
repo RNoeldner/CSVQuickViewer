@@ -79,7 +79,7 @@ namespace CsvTools
 
     private int m_SkipRows;
 
-    private IReadOnlyCollection<IFileSetting> m_SourceFileSettings = Array.Empty<IFileSetting>();
+    private IReadOnlyCollection<IFileSetting>? m_SourceFileSettings;
 
     private string m_SqlStatement = string.Empty;
 
@@ -488,18 +488,19 @@ namespace CsvTools
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlIgnore]
-    public IReadOnlyCollection<IFileSetting> SourceFileSettings
+    public IReadOnlyCollection<IFileSetting>? SourceFileSettings
     {
       get => m_SourceFileSettings;
       set
       {
-        if (m_SourceFileSettings.Count==0 && value is null) return;
-        if (value != null && value.CollectionEqual(m_SourceFileSettings)) return;
-        // do not notify if we change from null to an empty list
-        var notify = value?.Count() > 0 || m_SourceFileSettings.Count != 0;
-        m_SourceFileSettings = value ?? Array.Empty<IFileSetting>();
-        if (notify)
-          NotifyPropertyChanged();
+        var target = value ?? Array.Empty<IFileSetting>();
+        var notify = target.CollectionEqual(m_SourceFileSettings);
+
+        if (!notify) 
+          return;
+        
+        m_SourceFileSettings = target;
+        NotifyPropertyChanged();
       }
     }
 
@@ -515,7 +516,7 @@ namespace CsvTools
         if (!SetField(ref m_SqlStatement, (value ?? string.Empty).NoControlCharacters().HandleCrlfCombinations(),
               StringComparison.Ordinal, true)) return;
         // Need to assume we have new sources, it has to be recalculated
-        SourceFileSettings = Array.Empty<IFileSetting>();
+        SourceFileSettings = null;
         // Reset the process time as well
         ProcessTimeUtc = ZeroTime;
         LatestSourceTimeUtc = ZeroTime;

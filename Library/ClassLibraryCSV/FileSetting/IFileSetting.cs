@@ -210,7 +210,7 @@ namespace CsvTools
     ///   A setting A using setting B that is dependent on C1 and C2 both dependent on D-&gt; A is
     ///   {B,C1,C2,D}. B is {C1,C2,D}, C1 is {D} C2 is {D}
     /// </example>
-    IReadOnlyCollection<IFileSetting> SourceFileSettings { get; set; }
+    IReadOnlyCollection<IFileSetting>? SourceFileSettings { get; set; }
 
     /// <summary>
     ///   Gets or sets the SQL statement.
