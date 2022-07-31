@@ -1091,7 +1091,7 @@ namespace CsvTools
     ///   Shows the process.
     /// </summary>
     /// <param name="text">The text.</param>
-    protected void HandleShowProgress(string text) => ReportProgress?.SetProcess(text, 0);
+    protected void HandleShowProgress(string text) => Logger.Information(text);
 
     /// <summary>
     ///   Shows the process twice a second

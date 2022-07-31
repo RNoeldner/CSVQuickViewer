@@ -38,7 +38,6 @@ namespace CsvTools
     private readonly long m_PgpKeyId;
     private readonly string m_IdentifierInContainer;
     private readonly bool m_KeepUnencrypted;
-    private readonly Action<string>? m_ReportProgress;
     private readonly Action<long>? m_SetMaxProcess;
     private readonly IValueFormat m_ValueFormatGeneral;
     protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
@@ -97,10 +96,7 @@ namespace CsvTools
       m_KeepUnencrypted = unencrypted;
       m_IdentifierInContainer = identifierInContainer ?? string.Empty;
 
-      Logger.Debug("Created Writer for {filesetting}", FileSettingDisplay);
-      if (processDisplay is null) return;
-      m_ReportProgress = t => processDisplay.SetProcess(t, 0);
-
+      Logger.Information("Created Writer for {filesetting}", FileSettingDisplay);
       if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
       processDisplayTime.Maximum = 0;
       m_SetMaxProcess = l => processDisplayTime.Maximum = l;
@@ -328,11 +324,7 @@ namespace CsvTools
     protected void HandleError(string columnName, string message) =>
       Warning?.Invoke(this, new WarningEventArgs(Records, 0, message, 0, 0, columnName));
 
-    protected void HandleProgress(string text)
-    {
-      m_ReportProgress?.Invoke(text);
-      Logger.Information(text);
-    } 
+    protected void HandleProgress(string text) => Logger.Information(text);
 
     protected virtual void HandleWriteStart() => Records = 0;
 
