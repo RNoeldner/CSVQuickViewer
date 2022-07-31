@@ -196,7 +196,7 @@ namespace CsvTools
       {
         cancellationToken.ThrowIfCancellationRequested();
         counter++;
-        intervalAction.Invoke(process, $"Parent found {counter}/{max} ", counter, false);
+        intervalAction.Invoke(process, $"Parent found {counter}/{max} ", counter);
         var id = dataRow[dataColumnID.Ordinal].ToString();
         if (id is null || id.Length == 0)
           continue;
@@ -237,7 +237,7 @@ namespace CsvTools
         {
           cancellationToken.ThrowIfCancellationRequested();
           counter++;
-          intervalAction.Invoke(process, $"Parent not found (Step 1) {counter}/{max} ", counter, false);
+          intervalAction.Invoke(process, $"Parent not found (Step 1) {counter}/{max} ", counter);
           var childData = new TreeData(parentID, $"{parentID}", rootDataParentNotFound.ID);
           treeDataDictionary.Add(parentID, childData);
         }
@@ -250,7 +250,7 @@ namespace CsvTools
       {
         cancellationToken.ThrowIfCancellationRequested();
         counter++;
-        intervalAction.Invoke(process, $"Parent not found (Step 2) {counter}/{max} ", counter, false);
+        intervalAction.Invoke(process, $"Parent not found (Step 2) {counter}/{max} ", counter);
         if (string.IsNullOrEmpty(child.ParentID) && child.ID != rootDataParentFound.ID
                                                  && child.ID != rootDataParentNotFound.ID)
           child.ParentID = rootDataParentFound.ID;
@@ -265,7 +265,7 @@ namespace CsvTools
       {
         cancellationToken.ThrowIfCancellationRequested();
         counter++;
-        intervalAction.Invoke(process, $"Set children {counter}/{max} ", counter, false);
+        intervalAction.Invoke(process, $"Set children {counter}/{max} ", counter);
 
         if (!string.IsNullOrEmpty(child.ParentID))
           treeDataDictionary[child.ParentID].Children.Add(child);
@@ -577,7 +577,7 @@ namespace CsvTools
 
         foreach (var treeData in m_TreeData)
           treeData.Visited = false;
-        process.SetProcess("Adding Tree with children", -1, false);
+        process.SetProcess("Adding Tree with children", -1);
         foreach (var treeData in m_TreeData)
         {
           cancellationToken.ThrowIfCancellationRequested();
@@ -586,7 +586,7 @@ namespace CsvTools
             AddTreeDataNodeWithChild(treeData, null, cancellationToken);
         }
 
-        process.SetProcess("Finding Cycles in Hierarchy", -1, true);
+        process.SetProcess("Finding Cycles in Hierarchy", -1);
         var hasCycles = false;
         foreach (var treeData in m_TreeData)
         {
@@ -602,7 +602,7 @@ namespace CsvTools
         if (!hasCycles)
           return;
 
-        process.SetProcess("Adding Cycles", -1, false);
+        process.SetProcess("Adding Cycles", -1);
         var rootNode = new TreeNode("Cycles in Hierarchy");
         m_TreeView.Nodes.Add(rootNode);
 

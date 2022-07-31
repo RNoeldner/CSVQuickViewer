@@ -41,6 +41,9 @@
 		<Compile Include="..\Library\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
 	</ItemGroup>
 	<ItemGroup>
+	  <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+	</ItemGroup>
+	<ItemGroup>
 		<ProjectReference Include="..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 		<ProjectReference Include="..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
 		<Reference Include="FastColoredTextBox">
@@ -65,6 +68,6 @@
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
-		<PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
+		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
 	</ItemGroup>
 </Project>

@@ -127,7 +127,8 @@ namespace CsvTools
           if (display.CancellationToken.IsCancellationRequested)
             return;
           // ReSharper disable once AccessToDisposedClosure
-          intervalAction.Invoke(display, "Getting Unique values", rowIndex, true);
+          intervalAction.Invoke(display, "Getting Unique values", rowIndex);
+          Logger.Information("Getting Unique values");
           var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
           if (ignoreNull && string.IsNullOrEmpty(id))
             continue;
@@ -148,7 +149,7 @@ namespace CsvTools
           if (display.CancellationToken.IsCancellationRequested)
             return;
           if (counter++ % 100 == 0)
-            intervalAction.Invoke(display, "Importing Rows to Grid", counter, true);
+            intervalAction.Invoke(display, "Importing Rows to Grid", counter);
           m_DataTable.ImportRow(m_DataRow[rowIndex]);
         }
 

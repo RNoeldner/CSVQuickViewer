@@ -101,7 +101,7 @@ namespace CsvTools
 
     public static DialogResult ShowBig(
       string message,
-      string title,
+      string? title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
       MessageBoxIcon icon = MessageBoxIcon.None,
       MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1,

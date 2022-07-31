@@ -157,9 +157,6 @@ namespace CsvTools
     ///   if <c>true</c> add a column with error information: <see
     ///   cref="ReaderConstants.cErrorField" />
     /// </param>
-    /// <param name="progress">
-    ///   Used to pass on progress information with number of records and percentage
-    /// </param>
     /// <param name="cancellationToken">Token to cancel the long running async method</param>
     /// <returns>A Data Table with all records from the reader</returns>
     /// <remarks>In case the reader was not opened before it will be opened automatically</remarks>
@@ -249,7 +246,7 @@ namespace CsvTools
           // This gets the errors from the column #Error that has been filled by the reader
           if (errorColumn != null)
             dataRow.SetErrorInformation(dataRow[errorColumn].ToString());
-          intervalAction?.Invoke(processDisplay!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent, false);
+          intervalAction?.Invoke(processDisplay!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
 
           // This gets the errors from the fileReader
           if (wrapper.ReaderMapping.HasErrors)
@@ -258,7 +255,7 @@ namespace CsvTools
       }
       finally
       {
-        intervalAction?.Invoke(processDisplay!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent, false);
+        intervalAction?.Invoke(processDisplay!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
       }
       return dataTable;
     }

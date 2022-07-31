@@ -143,7 +143,7 @@ namespace CsvTools
         totalReads += bytesRead;
         await toStream.WriteAsync(bytes, 0, bytesRead, cancellationToken).ConfigureAwait(false);
 #pragma warning disable CS8604 // Possible null reference argument.
-        intervalAction?.Invoke(processDisplay, "Copy data", totalReads, false);
+        intervalAction?.Invoke(processDisplay, "Copy data", totalReads);
 #pragma warning restore CS8604 // Possible null reference argument.
       }
 

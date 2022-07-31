@@ -14,6 +14,7 @@
 
 #nullable enable
 
+using Microsoft.Extensions.Logging;
 using System;
 using System.Drawing;
 using System.Text;
@@ -25,15 +26,15 @@ namespace CsvTools
   /// <summary>
   ///   A Po pup Form to display progress information
   /// </summary>
-  public sealed class FormProcessDisplay : ResizeForm, IProcessDisplayTime
+  public sealed class FormProcessDisplay : ResizeForm, IProcessDisplayTime, ILogger
   {
     private readonly LoggerDisplay? m_LoggerDisplay;
-    private readonly ProcessDisplayTime m_ProcessDisplay;
-    private Label? m_LabelEtl;
-    private Label? m_LabelText;
-    private ProgressBar m_ProgressBar = new ProgressBar();
-    private TableLayoutPanel m_TableLayoutPanel;
-    private string m_Title;
+    private readonly ProcessDisplayTime m_ProcessDisplay = new ProcessDisplayTime();
+    private readonly Label m_LabelEtl = new Label();
+    private readonly Label m_LabelText = new Label();
+    private readonly ProgressBar m_ProgressBar = new ProgressBar();
+    private readonly TableLayoutPanel m_TableLayoutPanel = new TableLayoutPanel();
+    private long m_CurrentValue = -1;
 
     public FormProcessDisplay(in string windowTitle)
       : this(windowTitle, true, CancellationToken.None)
@@ -49,15 +50,15 @@ namespace CsvTools
     public FormProcessDisplay(in string? windowTitle, bool withLoggerDisplay, CancellationToken cancellationToken)
     {
       CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-      m_ProcessDisplay = new ProcessDisplayTime();
       InitializeComponent();
 
-      m_Title = windowTitle ?? string.Empty;
-      base.Text = m_Title;
+      Text = windowTitle ?? string.Empty;
 
       Maximum = 0;
+      WinAppLogging.AddLog(this);
+
       SuspendLayout();
-      m_TableLayoutPanel!.SuspendLayout();
+      m_TableLayoutPanel.SuspendLayout();
       if (withLoggerDisplay)
       {
         Height += 100;
@@ -66,7 +67,6 @@ namespace CsvTools
         m_TableLayoutPanel.Controls.Add(m_LoggerDisplay, 0, 3);
         m_LoggerDisplay.Dock = DockStyle.Fill;
       }
-
       m_TableLayoutPanel.ResumeLayout(false);
       m_TableLayoutPanel.PerformLayout();
       ResumeLayout(false);
@@ -107,22 +107,16 @@ namespace CsvTools
 
     public TimeToCompletion TimeToCompletion => m_ProcessDisplay.TimeToCompletion;
 
-    public event EventHandler<ProgressWithTimeEventArgs>? ProgressTime
+    public Action<ProgressWithTimeEventArgs> ProgressTime
     {
-      add => m_ProcessDisplay.ProgressTime += value;
-      remove => m_ProcessDisplay.ProgressTime -= value;
+      get => m_ProcessDisplay.ProgressTime;
+      set => m_ProcessDisplay.ProgressTime = value;
     }
 
-    public event EventHandler<long>? SetMaximum
+    public Action<ProgressEventArgs> Progress
     {
-      add => m_ProcessDisplay.SetMaximum += value;
-      remove => m_ProcessDisplay.SetMaximum -= value;
-    }
-
-    public event EventHandler<ProgressEventArgs>? Progress
-    {
-      add => m_ProcessDisplay.Progress += value;
-      remove => m_ProcessDisplay.Progress -= value;
+      get => m_ProcessDisplay.Progress;
+      set => m_ProcessDisplay.Progress = value;
     }
 
     /// <summary>
@@ -135,37 +129,21 @@ namespace CsvTools
       set
       {
         m_ProcessDisplay.Maximum = value;
-        if (value > 1)
-        {
-          m_ProgressBar.SafeInvoke(
-            () =>
+        m_ProgressBar.SafeBeginInvoke(
+          () =>
+          {
+            if (value > 1)
             {
               m_ProgressBar.Maximum = value.ToInt();
               m_ProgressBar.Style = ProgressBarStyle.Continuous;
-            });
-        }
-        else
-        {
-          m_ProgressBar.SafeInvoke(() =>
-          {
-            m_ProgressBar.Maximum = 0;
-            m_LabelEtl!.Text = string.Empty;
-            m_ProgressBar.Style = ProgressBarStyle.Marquee;
+            }
+            else
+            {
+              m_ProgressBar.Maximum = 0;
+              m_LabelEtl.Text = string.Empty;
+              m_ProgressBar.Style = ProgressBarStyle.Marquee;
+            }
           });
-        }
-      }
-    }
-
-    public string Title
-    {
-      get => m_Title;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (newVal.Equals(m_Title, StringComparison.Ordinal))
-          return;
-        m_Title = newVal;
-        this.SafeInvoke(() => { Text = m_Title; });
       }
     }
 
@@ -174,26 +152,26 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">The text.</param>
     /// <param name="value">The value.</param>
-    /// <param name="log"></param>
-    public void SetProcess(string text, long value, bool log)
+    public void SetProcess(string text, long value)
     {
       // if cancellation is requested do nothing
       if (CancellationToken.IsCancellationRequested)
         return;
-      m_ProcessDisplay.SetProcess(text, value, log);
+      m_CurrentValue = value;
+      m_ProcessDisplay.SetProcess(text, value);
       WindowsAPICodePackWrapper.SetProgressValue(m_ProcessDisplay.TimeToCompletion.Percent);
 
       // This might cause an issue
-      m_LabelText!.SafeInvoke(
+      m_LabelText.SafeBeginInvoke(
         () =>
         {
           if (!Visible)
             Show();
-          m_LabelText!.Text = text;
+          m_LabelText.Text = text;
 
           if (value <= 0 || Maximum <= 1)
           {
-            m_LabelEtl!.Text = string.Empty;
+            m_LabelEtl.Text = string.Empty;
             m_ProgressBar.Style = ProgressBarStyle.Marquee;
           }
           else
@@ -212,7 +190,7 @@ namespace CsvTools
               sb.Append(t1);
             }
 
-            m_LabelEtl!.Text = sb.ToString();
+            m_LabelEtl.Text = sb.ToString();
           }
 
           m_LabelEtl.Refresh();
@@ -220,12 +198,6 @@ namespace CsvTools
         });
     }
 
-    /// <summary>
-    ///   Set the progress used by Events
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    public void SetProcess(object? sender, ProgressEventArgs e) => SetProcess(e.Text, e.Value, e.Log);
 
     private bool m_IsClosed;
 
@@ -241,7 +213,7 @@ namespace CsvTools
       }
       catch (ObjectDisposedException)
       {
-
+        // ignore this
       }
     }
 
@@ -249,7 +221,7 @@ namespace CsvTools
     ///   Sets the process.
     /// </summary>
     /// <param name="text">The text.</param>
-    public void SetProcess(string text) => SetProcess(text, -1, true);
+    public void SetProcess(string text) => Logger.Information(text);
 
     /// <summary>
     ///   Required method for Designer support - do not modify the contents of this method with the
@@ -257,10 +229,6 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      this.m_ProgressBar = new System.Windows.Forms.ProgressBar();
-      this.m_LabelText = new System.Windows.Forms.Label();
-      this.m_LabelEtl = new System.Windows.Forms.Label();
-      this.m_TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
       this.m_TableLayoutPanel.SuspendLayout();
       this.SuspendLayout();
       // m_ProgressBar
@@ -351,7 +319,6 @@ namespace CsvTools
         //Ignore
       }
     }
-
     #region IDisposable Support
 
     private bool m_DisposedValue; // To detect redundant calls
@@ -392,5 +359,24 @@ namespace CsvTools
     }
 
     #endregion IDisposable Support
+
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    {
+      if (!IsEnabled(logLevel))
+        return;
+      var text = formatter(state, exception);
+      if (string.IsNullOrEmpty(text))
+        return;
+      SetProcess(text, m_CurrentValue);
+    }
+
+
+    public IDisposable BeginScope<TState>(TState state) => default!;
+
+    public bool IsEnabled(LogLevel logLevel) => logLevel >= LogLevel.Information;
+
+    public void Report(ProgressEventArgs value) => SetProcess(value.Text, value.Value);
+
+    public void Report(ProgressWithTimeEventArgs value) => SetProcess(value.Text, value.Value);
   }
 }

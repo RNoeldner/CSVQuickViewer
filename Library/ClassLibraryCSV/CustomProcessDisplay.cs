@@ -18,36 +18,22 @@ using System.Diagnostics;
 namespace CsvTools
 {
   [DebuggerStepThrough]
-  public class CustomProcessDisplay : IProcessDisplay
+  public class CustomProcessDisplay : Progress<ProgressEventArgs>, IProcessDisplay
   {
-    public virtual long Maximum { get; set; } = -1;
+    
+    public Action<ProgressEventArgs> Progress { get; set; } = delegate {  };
 
-    public event EventHandler<ProgressEventArgs>? Progress;
-
-    public virtual string Title { get; set; } = string.Empty;
-
-    public virtual void SetProcess(object? sender, ProgressEventArgs e)
+    public virtual void SetProcess(string text, long value)
     {
-      if (Progress == null)
-        return;
-      Handle(sender, e.Text, e.Value, e.Log);
-    }
-
-    public void SetProcess(string text, long value, bool log) => Handle(this, text, value, log);
-
-    protected virtual void Handle(in object? sender, string text, long value, bool log)
-    {
+      base.OnReport(new ProgressEventArgs(text, value));
       try
       {
-        if (log)
-          Logger.Information(text);
-        Progress?.Invoke(sender, new ProgressEventArgs(text, value, log));
+        Progress?.Invoke(new ProgressEventArgs(text, value));
       }
-      catch 
+      catch
       {
-        // ignore all errors in process dispay
+        // ignore all errors in process display
       }
-      
     }
   }
 }

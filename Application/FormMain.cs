@@ -12,7 +12,6 @@
  *
  */
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -156,7 +155,7 @@ namespace CsvTools
           {
             formProcessDisplay.Maximum = 0;
             formProcessDisplay.Show(this);
-            formProcessDisplay.SetProcess("Determine file format", 0, false);
+            formProcessDisplay.SetProcess("Determine file format", 0);
             m_FileSetting = (await fileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
                                m_ViewSettings.GuessCodePage,
                                m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
@@ -211,7 +210,7 @@ namespace CsvTools
     {
       try
       {
-        loggerDisplay.LogInformation(message);
+        Logger.Information(message);
         var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
                         + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
 
@@ -485,7 +484,7 @@ namespace CsvTools
           using (var processDisplay = new FormProcessDisplay(fileNameShort, false, cancellationToken))
           {
             processDisplay.Show();
-            processDisplay.SetProcess("Reading data...", -1, false);
+            processDisplay.SetProcess("Reading data...", -1);
             processDisplay.Maximum = 100;
 
             await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.DurationTimeSpan, processDisplay,
@@ -613,7 +612,7 @@ namespace CsvTools
         using var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token);
         proc.Show(this);
         proc.Maximum = 0;
-        proc.SetProcess("Reading source and applying color coding", 0, false);
+        proc.SetProcess("Reading source and applying color coding", 0);
         if (m_FileSetting is ICsvFile csv)
           m_SourceDisplay.OpenFile(false, csv.FieldQualifier, csv.FieldDelimiter, csv.EscapePrefix, csv.CodePageId, m_FileSetting.SkipRows, csv.CommentLine);
         else

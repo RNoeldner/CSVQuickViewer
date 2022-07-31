@@ -236,10 +236,10 @@ namespace CsvTools.Tests
       var testValue = string.Empty;
 
       var customProcess = new CustomProcessDisplay();
-      customProcess.Progress += (sender, args) => testValue = args.Text;
+      customProcess.Progress += args => testValue = args.Text;
       // Logger.UILog = (s, level) => testValue2 = s;
 
-      customProcess.SetProcess("Test", 1, false);
+      customProcess.SetProcess("Test", 1);
 
       // can not check if log was sent
       Assert.AreEqual("Test", testValue);

@@ -56,7 +56,7 @@ namespace CsvTools.Tests
     {
       if (m_ReadSetting.Count == 0)
       {
-        message?.SetProcess(null, new ProgressEventArgs($"{settingName} not found"));
+        message?.SetProcess($"{settingName} not found",0);
         throw new ApplicationException($"{settingName} not found");
       }
 

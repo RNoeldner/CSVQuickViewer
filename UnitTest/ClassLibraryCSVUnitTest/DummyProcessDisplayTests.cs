@@ -24,8 +24,8 @@ namespace CsvTools.Tests
 		{
 			var called = false;
       var processDisplay = new CustomProcessDisplay();
-      processDisplay.Progress += (sender, args) => { called = true; };
-      processDisplay.SetProcess("Test", -1, true);
+      processDisplay.Progress += (_) => { called = true; };
+      processDisplay.SetProcess("Test", -1);
       Assert.IsTrue(called);
     }
 
@@ -33,41 +33,23 @@ namespace CsvTools.Tests
 		public void DummyProcessDisplayTest()
     {
       var processDisplay = new CustomProcessDisplay();
-      processDisplay.SetProcess("Test", -1, true);
+      processDisplay.SetProcess("Test", -1);
     }
 
-		[TestMethod]
-		public void SetMaximum()
-    {
-      var processDisplay = new CustomProcessDisplay();
-      processDisplay.Maximum = 666;
-      Assert.AreEqual(666, processDisplay.Maximum);
-
-      processDisplay.Maximum = -1;
-      Assert.AreEqual(-1, processDisplay.Maximum);
-    }
 
 		[TestMethod]
 		public void SetProcessTest()
     {
       var processDisplay = new CustomProcessDisplay();
-      processDisplay.SetProcess("Test", -1, true);
+      processDisplay.SetProcess("Test", -1);
     }
 
 		[TestMethod]
 		public void SetProcessTest1()
     {
-      var processDisplay = new CustomProcessDisplay();
-      processDisplay.Maximum = 5;
-      processDisplay.SetProcess("Test", 100, true);
+      var processDisplay = new CustomProcessDisplay( );
+      processDisplay.SetProcess("Test", 100);
     }
-
-		[TestMethod]
-		public void SetProcessTest2()
-    {
-      var processDisplay = new CustomProcessDisplay();
-      processDisplay.Maximum = 5;
-      processDisplay.SetProcess(null, new ProgressEventArgs("Hallo", 2));
-    }
+    
 	}
 }

@@ -47,13 +47,13 @@ namespace CsvTools.Tests
         frm.Show();
         frm.Maximum = 100;
         var sentTime = new TimeSpan(0);
-        frm.ProgressTime += (sender, time) => { sentTime = time.EstimatedTimeRemaining; };
+        frm.ProgressTime += (time) => { sentTime = time.EstimatedTimeRemaining; };
         var end = 50;
         var step = 5;
         var wait = .1;
         for (var c = 0; c < end && !frm.CancellationToken.IsCancellationRequested; c += step)
         {
-          frm.SetProcess($"This is a text\nLine {c}", c, true);
+          frm.SetProcess($"This is a text\nLine {c}", c);
           UnitTestStatic.WaitSomeTime(wait, UnitTestStatic.Token);
         }
 
@@ -72,7 +72,7 @@ namespace CsvTools.Tests
         frm.Maximum = 0;
         for (var c = 0; c < 100 && !frm.CancellationToken.IsCancellationRequested; c += 5)
         {
-          frm.SetProcess($"This is a text\nLine {c}", c, true);
+          frm.SetProcess($"This is a text\nLine {c}", c);
           UnitTestStatic.WaitSomeTime(.1, frm.CancellationToken);
         }
 
@@ -87,7 +87,7 @@ namespace CsvTools.Tests
         frm.Maximum = 100;
         for (var c = 0; c < 102 && !frm.CancellationToken.IsCancellationRequested; c += 4)
         {
-          frm.SetProcess($"This is a text\nLine {c}", c, true);
+          frm.SetProcess($"This is a text\nLine {c}", c);
           UnitTestStatic.WaitSomeTime(.1, frm.CancellationToken);
         }
 
@@ -113,7 +113,7 @@ namespace CsvTools.Tests
       {
         using (var frm = new FormProcessDisplay("Title", false, tokenSrc.Token))
         {
-          Assert.AreEqual("Title", frm.Title);
+          Assert.AreEqual("Title", frm.Text);
           Assert.AreEqual(false, frm.CancellationToken.IsCancellationRequested);
           tokenSrc.Cancel();
           Assert.AreEqual(true, frm.CancellationToken.IsCancellationRequested);
@@ -150,33 +150,19 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(2000)]
-    public void SetProcessTest1()
-    {
-      using (var frm = new FormProcessDisplay())
-      {
-        frm.Maximum = -1;
-        frm.Show();
-        frm.SetProcess(this, new ProgressEventArgs("Hello", 10));
-      }
-    }
-
-    [TestMethod]
-    [Timeout(2000)]
     public void SetProcessTest2()
     {
-      using (var frm = new FormProcessDisplay())
-      {
-        frm.Maximum = 80;
+      using var frm = new FormProcessDisplay();
+      frm.Maximum = 80;
 
-        frm.Show();
-        long called = 10;
+      frm.Show();
+      long called = 10;
 
-        frm.Progress += delegate(object sender, ProgressEventArgs e) { called = e.Value; };
+      frm.Progress += delegate(ProgressEventArgs e) { called = e.Value; };
 
-        frm.SetProcess("Help", 20, true);
+      frm.SetProcess("Help", 20);
 
-        Assert.AreEqual(20, called);
-      }
+      Assert.AreEqual(20, called);
     }
   }
 }
