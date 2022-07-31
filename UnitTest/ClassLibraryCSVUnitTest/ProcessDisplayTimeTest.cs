@@ -15,7 +15,7 @@ namespace CsvTools.Tests
 
 			for (long counter = 1; counter <= 20; counter++)
 			{
-				test.SetProcess(counter.ToString(), counter, true);
+				test.SetProcess(counter.ToString(), counter);
 				Thread.Sleep(100);
 			}
 
@@ -33,10 +33,6 @@ namespace CsvTools.Tests
 			test.Maximum = 100;
 			Assert.AreEqual(100, test.Maximum);
 
-			test.Title = "Hello";
-			Assert.AreEqual("Hello", test.Title);
-			test.Title = "";
-			Assert.AreEqual("", test.Title);
 		}
 	}
 }

@@ -17,18 +17,13 @@ using System.Threading;
 
 namespace CsvTools.Tests
 {
-  public class MockProcessDisplay : IProcessDisplay
+  public class MockProcessDisplay : CustomProcessDisplay
   {
     private bool m_Disposed;
     private bool m_Visible = true;
     public string Text = string.Empty;
 
-    public long Maximum { get; set; }
-    public virtual string Title { get; set; } = string.Empty;
-
     public CancellationToken CancellationToken => UnitTestStatic.Token;
-
-    public event EventHandler<ProgressEventArgs>? Progress;
 
     public virtual void Dispose()
     {
@@ -39,16 +34,10 @@ namespace CsvTools.Tests
       }
     }
 
-    public void SetProcess(string text, long value = -1, bool log = false)
+    public override void SetProcess(string text, long value = -1)
     {
       Text = text;
-      Progress?.Invoke(this, new ProgressEventArgs(text));
-    }
-
-    public void SetProcess(object? sender, ProgressEventArgs e)
-    {
-      Text = e.Text ?? string.Empty;
-      Progress?.Invoke(sender, e);
+      base.SetProcess(text,value);
     }
 
     public void Cancel()
@@ -64,6 +53,5 @@ namespace CsvTools.Tests
       ProgressStopEvent?.Invoke(this, null);
     }
 
-    public void Report(ProgressEventArgs value) => Progress?.Invoke(this, value);
   }
 }

@@ -82,6 +82,10 @@ namespace CsvTools.Tests
       {
         hadIssues = true;
       }
+      catch (System.IO.FileNotFoundException)
+      {
+        hadIssues = true;
+      }
 
       var logAction = new TestLogger();
       WinAppLogging.AddLog(logAction);

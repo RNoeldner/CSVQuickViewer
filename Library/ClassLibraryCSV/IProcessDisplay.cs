@@ -18,29 +18,19 @@ namespace CsvTools
 {
   /// <summary>
   ///   Interface for an ProcessDisplay
-  /// </summary>
-  public interface IProcessDisplay
+  /// </summary> 
+  public interface IProcessDisplay : IProgress<ProgressEventArgs>
   {
-    string Title { get; set; }
-
     /// <summary>
     ///   Event handler called as progress should be displayed
     /// </summary>
-    event EventHandler<ProgressEventArgs>? Progress;
-
-    /// <summary>
-    ///   Event to be called if the display should be updated
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    void SetProcess(object? sender, ProgressEventArgs e);
+    Action<ProgressEventArgs> Progress { get; set; }
 
     /// <summary>
     ///   Sets the process display
     /// </summary>
     /// <param name="text">The text to display.</param>
     /// <param name="value">The current progress value</param>
-    /// <param name="log"><c>True</c> if progress should be logged, <c>false</c> otherwise.</param>
-    void SetProcess(string text, long value, bool log);
+    void SetProcess(string text, long value);
   }
 }

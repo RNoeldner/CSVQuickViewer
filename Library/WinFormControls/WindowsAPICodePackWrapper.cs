@@ -23,7 +23,7 @@ namespace CsvTools
 
       try
       {
-        if (percent> 0 && percent<=1)
+        if (percent is > 0 and <= 1)
         {
           TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
           TaskbarManager.Instance.SetProgressValue((percent * 1000d).ToInt(), 1000);

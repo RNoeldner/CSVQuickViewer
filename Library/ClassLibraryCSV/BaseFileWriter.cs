@@ -99,7 +99,8 @@ namespace CsvTools
 
       Logger.Debug("Created Writer for {filesetting}", FileSettingDisplay);
       if (processDisplay is null) return;
-      m_ReportProgress = t => processDisplay.SetProcess(t, 0, true);
+      m_ReportProgress = t => processDisplay.SetProcess(t, 0);
+
       if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
       processDisplayTime.Maximum = 0;
       m_SetMaxProcess = l => processDisplayTime.Maximum = l;
@@ -327,7 +328,11 @@ namespace CsvTools
     protected void HandleError(string columnName, string message) =>
       Warning?.Invoke(this, new WarningEventArgs(Records, 0, message, 0, 0, columnName));
 
-    protected void HandleProgress(string text) => m_ReportProgress?.Invoke(text);
+    protected void HandleProgress(string text)
+    {
+      m_ReportProgress?.Invoke(text);
+      Logger.Information(text);
+    } 
 
     protected virtual void HandleWriteStart() => Records = 0;
 

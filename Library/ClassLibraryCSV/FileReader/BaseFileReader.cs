@@ -1084,14 +1084,14 @@ namespace CsvTools
     protected virtual void HandleShowProgress(in string text, long recordNumber, double progress)
     {
       var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
-      ReportProgress?.SetProcess($"{text}{rec}", (progress * cMaxValue).ToInt64(), false);
+      ReportProgress?.SetProcess($"{text}{rec}", (progress * cMaxValue).ToInt64());
     }
 
     /// <summary>
     ///   Shows the process.
     /// </summary>
     /// <param name="text">The text.</param>
-    protected void HandleShowProgress(string text) => ReportProgress?.SetProcess(text, 0, false);
+    protected void HandleShowProgress(string text) => ReportProgress?.SetProcess(text, 0);
 
     /// <summary>
     ///   Shows the process twice a second
