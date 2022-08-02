@@ -41,7 +41,7 @@ namespace CsvTools.Tests
         FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiersDoubleQuote.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -54,7 +54,7 @@ namespace CsvTools.Tests
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual("This is a \"Test\" of doubled quoted Text", test.GetString(1),
@@ -78,7 +78,7 @@ namespace CsvTools.Tests
         TrimmingOption = TrimmingOptionEnum.All,
         FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")
       };
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -91,7 +91,7 @@ namespace CsvTools.Tests
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual("a", test.GetString(0), "Start of file with quote");
@@ -127,7 +127,7 @@ namespace CsvTools.Tests
         FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -140,7 +140,7 @@ namespace CsvTools.Tests
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       var warningList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
       warningList.HandleIgnoredColumns(test);
@@ -182,7 +182,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -195,7 +195,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual("a\"", test.GetString(0), @"a\""");
@@ -232,7 +232,7 @@ Line "Test"", "22",23,"  24"
       setting.TrimmingOption = TrimmingOptionEnum.Unquoted;
       setting.FileName = UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt");
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -245,7 +245,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
@@ -303,7 +303,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("QuoteInText.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -316,7 +316,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
 
@@ -348,7 +348,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -361,7 +361,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
 
@@ -419,7 +419,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")
       };
       using var cts = CancellationTokenSource.CreateLinkedTokenSource(UnitTestStatic.Token);
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -432,7 +432,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(cts.Token);
       cts.Cancel();
       Assert.IsFalse(await test.ReadAsync(cts.Token));
@@ -448,7 +448,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("CSVTestEmpty.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -461,7 +461,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(0, test.FieldCount);
       Assert.IsFalse(await test.ReadAsync(UnitTestStatic.Token));
@@ -477,7 +477,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -490,7 +490,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -521,7 +521,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfFile.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -534,7 +534,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(6, test.FieldCount);
@@ -565,7 +565,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -578,7 +578,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount, "FieldCount");
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -602,7 +602,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -615,7 +615,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(6, test.FieldCount);
@@ -641,7 +641,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("EscapeWithoutTextQualifier.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -654,7 +654,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -684,7 +684,7 @@ Line "Test"", "22",23,"  24"
       setting.ColumnCollection.Add(new Column("ID", DataTypeEnum.Integer));
       setting.ColumnCollection.Add(new Column("IsNativeLang", DataTypeEnum.Boolean));
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -697,7 +697,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -722,7 +722,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("HandlingDuplicateColumnNames.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -735,7 +735,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       var message = string.Empty;
       test.Warning += delegate (object sender, WarningEventArgs args) { message = args.Message; };
       await test.OpenAsync(UnitTestStatic.Token);
@@ -779,7 +779,7 @@ Line "Test"", "22",23,"  24"
           true,
           consecutiveEmptyRowsMax: 4,
           identifierInContainer: String.Empty,
-          timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id, processDisplay: null);
+          timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id);
       }
       catch (ArgumentException)
       {
@@ -824,8 +824,7 @@ Line "Test"", "22",23,"  24"
                  true,
                  4,
                  null,
-                 StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id,
-                 null))
+                 StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id))
 #pragma warning restore CS8625
         {
         }
@@ -871,7 +870,7 @@ Line "Test"", "22",23,"  24"
                  skipEmptyLines: true,
                  consecutiveEmptyRowsMax: 4,
                  identifierInContainer: String.Empty,
-                 timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id, processDisplay: null))
+                 timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id))
         {
         }
       }
@@ -918,8 +917,7 @@ Line "Test"", "22",23,"  24"
                  "NULL",
                  true,
                  4,
-                 StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id,
-                 null))
+                 StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
 #pragma warning restore CS8625
 #pragma warning restore CS8600
         {
@@ -944,7 +942,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("LastRowWithRowDelimiter.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -957,7 +955,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
 
@@ -980,7 +978,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("LastRowWithRowDelimiter.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -993,7 +991,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(6, test.FieldCount);
@@ -1015,7 +1013,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("LongHeaders.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1028,7 +1026,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       var warningsList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
 
@@ -1062,7 +1060,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("MoreColumnsThanHeaders.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1075,7 +1073,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       var warningList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
 
@@ -1141,7 +1139,7 @@ Line "Test"", "22",23,"  24"
         treatTextAsNull: "NULL",
         skipEmptyLines: true,
         consecutiveEmptyRowsMax: 4,
-        identifierInContainer: "", timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id, processDisplay: null);
+        identifierInContainer: "", timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id);
       Assert.IsFalse(test.NextResult());
       Assert.IsFalse(await test.NextResultAsync());
 
@@ -1161,7 +1159,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("TextQualifierDataPastClosingQuote.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1174,7 +1172,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token), "ReadAsync1");
@@ -1210,7 +1208,6 @@ Line "Test"", "22",23,"  24"
         new ImmutableValueFormat(DataTypeEnum.Binary, readFolder: UnitTestStatic.ApplicationDirectory,
           writeFolder: UnitTestStatic.ApplicationDirectory, fileOutPutPlaceholder: ""), 1));
 
-      var dpd = new CustomProcessDisplay();
       using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
         setting.HasFieldHeader, setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1223,7 +1220,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, dpd);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(false, reader.IsClosed);
       Assert.IsTrue(reader.Read());
@@ -1268,7 +1265,7 @@ Line "Test"", "22",23,"  24"
         skipEmptyLines: true,
         consecutiveEmptyRowsMax: 4,
         identifierInContainer: String.Empty,
-        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id, processDisplay: null);
+        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(false, reader.IsClosed);
       Assert.AreEqual(1, reader.Percent);
@@ -1290,7 +1287,7 @@ Line "Test"", "22",23,"  24"
         new CsvFile(UnitTestStatic.GetTestPath("AllFormats.txt")) { HasFieldHeader = true, FieldDelimiter = "Tab" };
       setting.ColumnCollection.Add(new Column("DateTime", DataTypeEnum.DateTime));
       setting.ColumnCollection.Add(new Column("Integer", DataTypeEnum.Integer));
-      var dpd = new CustomProcessDisplay();
+      
       using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
         setting.HasFieldHeader, setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1303,7 +1300,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, dpd);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(false, reader.IsClosed);
 
@@ -1359,8 +1356,7 @@ Line "Test"", "22",23,"  24"
         "NULL",
         true,
         4,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id,
-        null);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(false, reader.IsClosed);
       Assert.AreEqual(1, reader.Percent);
@@ -1388,7 +1384,7 @@ Line "Test"", "22",23,"  24"
         NewLinePlaceholder = @"<\r>",
         FileName = UnitTestStatic.GetTestPath("Placeholder.txt")
       };
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1401,7 +1397,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
 
@@ -1436,7 +1432,7 @@ Line "Test"", "22",23,"  24"
                setting.WarnUnknownCharacter,
                setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull,
                setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
-               setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay))
+               setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id))
       {
         await test.OpenAsync(UnitTestStatic.Token);
 
@@ -1466,7 +1462,7 @@ Line "Test"", "22",23,"  24"
       });
 
       // all will be converted to TimeZoneInfo.Local, but we concert then to UTC
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1479,7 +1475,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       var cultureInfo = new CultureInfo("en-US");
@@ -1512,7 +1508,7 @@ Line "Test"", "22",23,"  24"
       setting.ColumnCollection.Add(
         new Column("Start Date", "MM/dd/yyyy") { TimePart = "Start Time", TimePartFormat = "HH:mm:ss" });
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1525,7 +1521,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       var cultureInfo = new CultureInfo("en-US");
@@ -1548,7 +1544,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("ReadingInHeaderAfterComments.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1561,7 +1557,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(6, test.FieldCount);
@@ -1581,7 +1577,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("RowWithoutColumnDelimiter.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1594,7 +1590,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(1, test.FieldCount);
       Assert.AreEqual("abcdef", test.GetName(0));
@@ -1646,8 +1642,7 @@ Line "Test"", "22",23,"  24"
             "NULL",
             true,
             4,
-            StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id,
-            null);
+            StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
           // lock file for reading
           reader.OnAskRetry += (sender, args) =>
           {
@@ -1680,7 +1675,7 @@ Line "Test"", "22",23,"  24"
         WarnUnknownCharacter = true
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1693,7 +1688,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       var warningList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
@@ -1747,7 +1742,7 @@ Line "Test"", "22",23,"  24"
         CommentLine = "#"
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1760,7 +1755,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       var warningList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
@@ -1803,7 +1798,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("BasicCSV.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1816,7 +1811,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(0, test.FieldCount);
     }
@@ -1831,7 +1826,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("SkippingComments.txt"),
         CommentLine = "#"
       };
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1844,7 +1839,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -1894,7 +1889,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("SkippingEmptyRowsWithDelimiter.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1907,7 +1902,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount, "FieldCount");
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -1940,7 +1935,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("BasicCSV.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1953,7 +1948,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       // Start at line 2
@@ -1987,7 +1982,7 @@ Line "Test"", "22",23,"  24"
         FieldDelimiter = ",",
         FileName = UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt")
       };
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -2000,7 +1995,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token), "Read() 1");
@@ -2024,7 +2019,7 @@ Line "Test"", "22",23,"  24"
         FieldDelimiter = ",",
         FileName = UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt")
       };
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -2037,7 +2032,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -2068,7 +2063,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -2081,7 +2076,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
@@ -2113,7 +2108,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -2126,7 +2121,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       var message = string.Empty;
       test.Warning += delegate (object sender, WarningEventArgs args) { message = args.Message; };
@@ -2147,7 +2142,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("TextQualifierBeginningAndEnd.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -2160,7 +2155,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(5, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -2196,7 +2191,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("TextQualifierDataPastClosingQuote.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -2209,7 +2204,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -2242,7 +2237,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("TextQualifierNotClosedAtEnd.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -2255,7 +2250,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -2305,7 +2300,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("TextQualifiers.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -2318,7 +2313,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -2350,7 +2345,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("TextQualifiersWithDelimiters.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -2363,7 +2358,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       var warningList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
@@ -2416,7 +2411,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("TrimmingHeaders.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -2429,7 +2424,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       var warningList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
@@ -2455,7 +2450,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("UnicodeUTF16BE.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -2468,7 +2463,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(4, test.FieldCount);
@@ -2517,7 +2512,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("UnicodeUTF16LE.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -2530,7 +2525,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(4, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -2574,7 +2569,7 @@ Line "Test"", "22",23,"  24"
         FileName = UnitTestStatic.GetTestPath("UnicodeUTF8.txt")
       };
 
-      var processDisplay = new CustomProcessDisplay();
+      
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -2587,7 +2582,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, processDisplay);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(Encoding.UTF8, setting.CurrentEncoding);
       Assert.AreEqual(4, test.FieldCount);

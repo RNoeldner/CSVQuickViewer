@@ -461,7 +461,6 @@ namespace CsvTools.Tests
       test.FieldDelimiter = "|";
       test.FieldQualifier = "\"";
 
-      var processDisplay = new CustomProcessDisplay();
       using var reader = new CsvFileReader(test.FullPath, test.CodePageId, test.SkipRows, test.HasFieldHeader, test.ColumnCollection, test.TrimmingOption,
         test.FieldDelimiter,
         test.FieldQualifier, test.EscapePrefix, test.RecordLimit, test.AllowRowCombining, test.ContextSensitiveQualifier, test.CommentLine, test.NumWarnings,
@@ -470,7 +469,7 @@ namespace CsvTools.Tests
         test.TreatUnknownCharacterAsSpace, test.TryToSolveMoreColumns,
         test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, test.WarnUnknownCharacter, test.WarnEmptyTailingColumns,
         test.TreatNBSPAsSpace, test.TreatTextAsNull,
-        test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, processDisplay);
+        test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("RecordNumber", reader.GetName(0));
       await reader.ReadAsync(UnitTestStatic.Token);

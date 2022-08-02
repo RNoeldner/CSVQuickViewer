@@ -680,7 +680,7 @@ namespace CsvTools
         detectionResult.HasFieldHeader, null, TrimmingOptionEnum.Unquoted, detectionResult.FieldDelimiter,
         detectionResult.FieldQualifier, detectionResult.EscapePrefix, 0L, false, false, detectionResult.CommentLine, 0,
         true, "", "", "", true, false, false, false, false,
-        false, false, false, false, true, false, "NULL", true, 4, "", StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, processDisplay);
+        false, false, false, false, true, false, "NULL", true, 4, "", StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
     }
 
     /// <summary>

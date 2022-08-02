@@ -10,7 +10,7 @@ namespace CsvTools.Tests
     public async Task GetDynamicMemberNames()
     {
       var setting = UnitTestStatic.ReaderGetAllFormats();
-      var process = new CustomProcessDisplay();
+      
       using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
         setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter,
         setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
@@ -20,7 +20,7 @@ namespace CsvTools.Tests
         setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP,
         setting.WarnQuotes, setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace,
         setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer,
-        StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, process);
+        StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
       await reader.ReadAsync();
 

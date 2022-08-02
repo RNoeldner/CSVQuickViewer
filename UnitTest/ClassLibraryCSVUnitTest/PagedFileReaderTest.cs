@@ -25,8 +25,7 @@ namespace CsvTools.Tests
         m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
         m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
         m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
-        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
-        process);
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       var test = new PagedFileReader(reader, pageSize);
       await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);
 
@@ -53,8 +52,7 @@ namespace CsvTools.Tests
         m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
         m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
         m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
-        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
-        process);
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       var test = new PagedFileReader(reader, pageSize);
       await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);
       Assert.AreEqual(pageSize, test.Count);
@@ -81,8 +79,7 @@ namespace CsvTools.Tests
         m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
         m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
         m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
-        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
-        process);
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       var test = new PagedFileReader(reader, pageSize);
       await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);
       Assert.AreEqual(pageSize, test.Count);
@@ -106,8 +103,7 @@ namespace CsvTools.Tests
         m_Setting.TreatUnknownCharacterAsSpace, m_Setting.TryToSolveMoreColumns, m_Setting.WarnDelimiterInValue,
         m_Setting.WarnLineFeed, m_Setting.WarnNBSP, m_Setting.WarnQuotes, m_Setting.WarnUnknownCharacter,
         m_Setting.WarnEmptyTailingColumns, m_Setting.TreatNBSPAsSpace, m_Setting.TreatTextAsNull,
-        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
-        process);
+        m_Setting.SkipEmptyLines, m_Setting.ConsecutiveEmptyRows, m_Setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
       var test = new PagedFileReader(reader, 20);
       await test.OpenAsync(true, true, true, true, UnitTestStatic.Token);
       Assert.AreEqual(20, test.Count);

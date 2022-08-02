@@ -32,7 +32,7 @@ namespace CsvTools.Tests
         true, "", "", "", true,
         false, false, true, true, false,
         true, true, true, true, false, treatTextAsNull: "NULL", skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
-        identifierInContainer: String.Empty, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id, processDisplay: customProcess);
+        identifierInContainer: String.Empty, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
 
       var row = StructuredFileWriter.GetJsonRow(reader.GetColumnsOfReader());
@@ -72,7 +72,7 @@ namespace CsvTools.Tests
         true, "", "", "", true,
         false, false, true, true, false,
         true, true, true, true, false, treatTextAsNull: "NULL", skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
-        identifierInContainer: String.Empty, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id, processDisplay: null);
+        identifierInContainer: String.Empty, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
 
       var row = StructuredFileWriter.GetJsonRow(reader.GetColumnsOfReader());

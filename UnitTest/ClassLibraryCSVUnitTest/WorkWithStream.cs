@@ -26,7 +26,7 @@ namespace CsvTools.Tests
                new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
                result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
                string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, null))
+               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(new FillGuessSettings(),
@@ -42,7 +42,7 @@ namespace CsvTools.Tests
                determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
                result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
                string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, null))
+               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         Assert.AreEqual(6, reader.FieldCount);
@@ -66,7 +66,7 @@ namespace CsvTools.Tests
                new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
                result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
                string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, null))
+               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(new FillGuessSettings(),
@@ -82,7 +82,7 @@ namespace CsvTools.Tests
                determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
                result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
                string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, null))
+               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         Assert.AreEqual(6, reader.FieldCount);

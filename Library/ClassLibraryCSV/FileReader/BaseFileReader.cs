@@ -36,7 +36,7 @@ namespace CsvTools
     /// <summary>
     ///   The maximum value
     /// </summary>
-    protected const int cMaxValue = 10000;
+    public const int cMaxProgress = 10000;
 
     private readonly IReadOnlyCollection<ImmutableColumn> m_ColumnDefinition;
 
@@ -44,9 +44,7 @@ namespace CsvTools
 
     protected readonly long RecordLimit;
 
-    protected readonly IProcessDisplay? ReportProgress;
-
-    protected readonly EventHandler<long>? SetMaxProcess;
+    public IProgress<ProgressEventArgs>? ReportProgress { protected get; set; }
 
     /// <summary>
     ///   An array of associated col
@@ -79,7 +77,7 @@ namespace CsvTools
     /// </summary>
     private bool m_IsFinished;
 
-    protected readonly string m_DestTimeZone;
+    protected readonly string DestTimeZone;
     protected bool SelfOpenedStream;
     protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
 
@@ -94,17 +92,14 @@ namespace CsvTools
     /// <param name="destTimeZone">
     ///   Name of the time zone datetime values that have a source time zone should be converted to
     /// </param>
-    /// <param name="processDisplay">Reporting progress information</param>
-    protected BaseFileReader(
-      in string fileName,
+    protected BaseFileReader(in string fileName,
       in IEnumerable<IColumn>? columnDefinition,
       long recordLimit,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      in string destTimeZone,
-      in IProcessDisplay? processDisplay)
+      in string destTimeZone)
     {
       TimeZoneAdjust = timeZoneAdjust;
-      m_DestTimeZone =destTimeZone;
+      DestTimeZone =destTimeZone;
       m_ColumnDefinition =
       columnDefinition
         ?.Select(col => col as ImmutableColumn ?? new ImmutableColumn(col)).ToArray()
@@ -113,14 +108,6 @@ namespace CsvTools
       FullPath = fileName;
       SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
       FileName = FileSystemUtils.GetFileName(fileName);
-
-      if (processDisplay == null)
-        return;
-      ReportProgress = processDisplay;
-      if (!(processDisplay is IProcessDisplayTime processDisplayTime))
-        return;
-      SetMaxProcess = (sender, l) => processDisplayTime.Maximum = l;
-      SetMaxProcess(this, 0);
     }
 
     /// <inheritdoc />
@@ -269,7 +256,7 @@ namespace CsvTools
                   .AddWarningId());
             }
 
-            var newName = StringUtils.MakeUniqueInCollection(previousColumns, resultingName);
+            var newName = previousColumns.MakeUniqueInCollection(resultingName);
             if (newName != resultingName)
             {
               warnings?.Add(counter, $"Column title '{resultingName}' exists more than once replaced with {newName}");
@@ -340,10 +327,10 @@ namespace CsvTools
 
     /// <inheritdoc />
     /// <summary>
-    ///   Reads a stream of bytes from the specified column offset into the buffer as an array,
+    ///   Reads a stream of bytes from the file specified by the value in the specified column into the buffer as an array,
     ///   starting at the given buffer offset.
     /// </summary>
-    /// <param name="ordinal">The zero-based column ordinal.</param>
+    /// <param name="ordinal">The zero-based column ordinal containing the filename.</param>
     /// <param name="dataOffset">The index within the field from which to start the read operation.</param>
     /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
     /// <param name="bufferOffset">
@@ -358,10 +345,11 @@ namespace CsvTools
       if (GetColumn(ordinal).ValueFormat.DataType != DataTypeEnum.Binary || string.IsNullOrEmpty(fn))
         return -1;
 
-      using var filestream = FileSystemUtils.OpenRead(CurrentRowColumnText[ordinal]);
-      if (dataOffset > 0) filestream.Seek(dataOffset, SeekOrigin.Begin);
+      using var fileStream = FileSystemUtils.OpenRead(fn);
+      if (dataOffset > 0) 
+        fileStream.Seek(dataOffset, SeekOrigin.Begin);
 
-      return filestream.Read(buffer, bufferOffset, length);
+      return fileStream.Read(buffer, bufferOffset, length);
     }
 
     /// <inheritdoc cref="IFileReader" />
@@ -872,10 +860,9 @@ namespace CsvTools
     /// </summary>
     protected async Task BeforeOpenAsync(string message)
     {
-      SetMaxProcess?.Invoke(this, 0);
-      HandleShowProgress(message);
-
-      if (m_OnOpenAsync != null) await m_OnOpenAsync.Invoke().ConfigureAwait(false);
+      Logger.Information(message);
+      if (m_OnOpenAsync != null) 
+        await m_OnOpenAsync.Invoke().ConfigureAwait(false);
     }
 
     /// <summary>
@@ -886,7 +873,6 @@ namespace CsvTools
       m_IsFinished = false;
       EndOfFile = false;
       OpenFinished?.Invoke(this, Column);
-      SetMaxProcess?.Invoke(this, cMaxValue);
     }
 
     /// <summary>
@@ -1071,7 +1057,7 @@ namespace CsvTools
       if (m_IsFinished) return;
 
       m_IsFinished = true;
-      HandleShowProgress("Finished Reading from source", RecordNumber, cMaxValue);
+      HandleShowProgress("Finished Reading from source", RecordNumber, cMaxProgress);
       ReadFinished?.Invoke(this, EventArgs.Empty);
     }
 
@@ -1082,11 +1068,8 @@ namespace CsvTools
     /// <param name="recordNumber">The record number.</param>
     /// <param name="progress">The progress (a value between 0 and MaxValue)</param>
     protected virtual void HandleShowProgress(in string text, long recordNumber, double progress)
-    {
-      var rec = recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty;
-      ReportProgress?.SetProcess($"{text}{rec}", (progress * cMaxValue).ToInt64());
-    }
-
+    => ReportProgress?.Report(new ProgressEventArgs($"{text}{(recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty)}", (progress * cMaxProgress).ToInt64()));
+    
     /// <summary>
     ///   Shows the process.
     /// </summary>
@@ -1297,7 +1280,7 @@ namespace CsvTools
           m_AssociatedTimeZoneCol.Length > column.ColumnOrdinal && m_AssociatedTimeZoneCol[column.ColumnOrdinal] > -1)
         timeZone = GetString(m_AssociatedTimeZoneCol[column.ColumnOrdinal]);
 
-      return TimeZoneAdjust(input, timeZone, m_DestTimeZone,
+      return TimeZoneAdjust(input, timeZone, DestTimeZone,
         (message) => HandleWarning(column.ColumnOrdinal, message));
     }
 
