@@ -44,86 +44,31 @@ namespace CsvTools
           TimeZoneInfo.Local.Id),
         _ => throw new FileReaderException($"Reader for {setting} not found")
       };
-
-      processDisplay.SetMaximum(BaseFileReader.cMaxProgress);
-      retReader.ReportProgress = processDisplay;
-      
+      retReader.AttachProcessDisplay(processDisplay);
       return retReader;
     }
 
     /// <inheritdoc />
-    public IFileWriter GetFileWriter(IFileSetting fileSetting, in IProcessDisplay? processDisplay,
-      in CancellationToken cancellationToken)
+    public IFileWriter GetFileWriter(IFileSetting fileSetting, in IProcessDisplay? processDisplay, in CancellationToken cancellationToken)
     {
-      IFileWriter? writer = null;
-
-      switch (fileSetting)
+      IFileWriter? writer = fileSetting switch
       {
-        case ICsvFile csv:
-          writer = new CsvFileWriter(
-            csv.ID,
-            csv.FullPath,
-            csv.HasFieldHeader,
-            csv.DefaultValueFormatWrite,
-            csv.CodePageId,
-            csv.ByteOrderMark,
-            csv.ColumnCollection,
-            csv.KeyID,
-            csv.KeepUnencrypted,
-            csv.IdentifierInContainer,
-            csv.Header,
-            csv.Footer,
-            csv.ToString(),
-            csv.NewLine,
-            csv.FieldDelimiterChar,
-            csv.FieldQualifierChar,
-            csv.EscapePrefixChar,
-            csv.NewLinePlaceholder,
-            csv.DelimiterPlaceholder,
-            csv.QualifierPlaceholder,
-            csv.QualifyAlways,
-            csv.QualifyOnlyIfNeeded,
-            m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
-            processDisplay);
-          break;
-
-        case IJsonFile jsonFile:
-          writer = new JsonFileWriter(
-            fileSetting.ID,
-            jsonFile.FullPath,
-            jsonFile.KeyID,
-            jsonFile.KeepUnencrypted,
-            jsonFile.IdentifierInContainer,
-            jsonFile.Footer,
-            jsonFile.Header,
-            jsonFile.EmptyAsNull,
-            jsonFile.CodePageId,
-            jsonFile.ByteOrderMark,
-            jsonFile.ColumnCollection,
-            Convert.ToString(jsonFile),
-            jsonFile.Row,
-            m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
-            processDisplay);
-          break;
-
-        case IXmlFile xmlFile:
-          writer = new XmlFileWriter(
-            xmlFile.ID,
-            xmlFile.FullPath,
-            xmlFile.KeyID,
-            xmlFile.KeepUnencrypted,
-            xmlFile.IdentifierInContainer,
-            xmlFile.Footer,
-            xmlFile.Header,
-            xmlFile.CodePageId,
-            xmlFile.ByteOrderMark,
-            xmlFile.ColumnCollection,
-            Convert.ToString(xmlFile),
-            xmlFile.Row,
-            m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id,
-            processDisplay);
-          break;
-      }
+        ICsvFile csv => new CsvFileWriter(csv.ID, csv.FullPath, csv.HasFieldHeader, csv.DefaultValueFormatWrite,
+          csv.CodePageId, csv.ByteOrderMark, csv.ColumnCollection, csv.KeyID, csv.KeepUnencrypted,
+          csv.IdentifierInContainer, csv.Header, csv.Footer, csv.ToString(), csv.NewLine, csv.FieldDelimiterChar,
+          csv.FieldQualifierChar, csv.EscapePrefixChar, csv.NewLinePlaceholder, csv.DelimiterPlaceholder,
+          csv.QualifierPlaceholder, csv.QualifyAlways, csv.QualifyOnlyIfNeeded, m_TimeZoneAdjust,
+          TimeZoneInfo.Local.Id),
+        IJsonFile jsonFile => new JsonFileWriter(fileSetting.ID, jsonFile.FullPath, jsonFile.KeyID,
+          jsonFile.KeepUnencrypted, jsonFile.IdentifierInContainer, jsonFile.Footer, jsonFile.Header,
+          jsonFile.EmptyAsNull, jsonFile.CodePageId, jsonFile.ByteOrderMark, jsonFile.ColumnCollection,
+          Convert.ToString(jsonFile), jsonFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id),
+        IXmlFile xmlFile => new XmlFileWriter(xmlFile.ID, xmlFile.FullPath, xmlFile.KeyID, xmlFile.KeepUnencrypted,
+          xmlFile.IdentifierInContainer, xmlFile.Footer, xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark,
+          xmlFile.ColumnCollection, Convert.ToString(xmlFile), xmlFile.Row, m_TimeZoneAdjust,
+          TimeZoneInfo.Local.Id),
+        _ => null
+      };
 
       if (writer is null)
         throw new FileWriterException($"Writer for {fileSetting} not found");

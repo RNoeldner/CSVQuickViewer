@@ -1023,11 +1023,11 @@ namespace CsvTools
     /// <summary>
     ///   Gets the relative position.
     /// </summary>
-    /// <returns>A value between 0 and MaxValue</returns>
+    /// <returns>A value between 0 and 1</returns>
     /// <summary>
     ///   Gets the relative position.
     /// </summary>
-    /// <returns>A value between 0 and MaxValue</returns>
+    /// <returns>A value between 0 and 1 for 0% to 100%</returns>
     protected abstract double GetRelativePosition();
 
     /// <summary>
@@ -1057,7 +1057,7 @@ namespace CsvTools
       if (m_IsFinished) return;
 
       m_IsFinished = true;
-      HandleShowProgress("Finished Reading from source", RecordNumber, cMaxProgress);
+      HandleShowProgress("Finished reading", 1);
       ReadFinished?.Invoke(this, EventArgs.Empty);
     }
 
@@ -1065,11 +1065,13 @@ namespace CsvTools
     ///   Shows the process.
     /// </summary>
     /// <param name="text">Leading Text</param>
-    /// <param name="recordNumber">The record number.</param>
-    /// <param name="progress">The progress (a value between 0 and MaxValue)</param>
-    protected virtual void HandleShowProgress(in string text, long recordNumber, double progress)
-    => ReportProgress?.Report(new ProgressEventArgs($"{text}{(recordNumber > 1 ? $"\nRecord {recordNumber:N0}" : string.Empty)}", (progress * cMaxProgress).ToInt64()));
-    
+    /// <param name="percent">Value between 0 and 1 representing the relative position</param>
+    protected virtual void HandleShowProgress(in string text, double percent)
+    {
+      Logger.Information("{message} {record:N0}", text, RecordNumber);
+      ReportProgress?.Report(new ProgressEventArgs(text, (percent * cMaxProgress).ToInt64()));
+    }
+
     /// <summary>
     ///   Shows the process.
     /// </summary>
@@ -1080,12 +1082,8 @@ namespace CsvTools
     ///   Shows the process twice a second
     /// </summary>
     /// <param name="text">Leading Text</param>
-    /// <param name="recordNumber">The record number.</param>
-    protected void HandleShowProgressPeriodic(string text, long recordNumber)
-    {
-      if (ReportProgress != null)
-        m_IntervalAction.Invoke(() => HandleShowProgress(text, recordNumber, GetRelativePosition()));
-    }
+    protected void HandleShowProgressPeriodic(string text)
+        => m_IntervalAction.Invoke(() => HandleShowProgress(text, GetRelativePosition()));
 
     /// <summary>
     ///   Does handle TextToHML, TextToHtmlFull, TextPart and TreatNBSPAsSpace and does update the
@@ -1113,7 +1111,7 @@ namespace CsvTools
       if (!hasReadRow)
         HandleReadFinished();
       else
-        HandleShowProgressPeriodic("Reading", RecordNumber);
+        HandleShowProgressPeriodic("Reading");
     }
 
     protected virtual void InitColumn(int fieldCount)
