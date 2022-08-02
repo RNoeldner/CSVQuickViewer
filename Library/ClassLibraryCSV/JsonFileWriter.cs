@@ -43,7 +43,7 @@ namespace CsvTools
       in string fileSettingDisplay,
       in string row,
       in TimeZoneChangeDelegate? timeZoneAdjust,
-      in string sourceTimeZone, in IProcessDisplay? processDisplay = null)
+      in string sourceTimeZone)
       : base(
         id,
         fullPath,
@@ -58,8 +58,7 @@ namespace CsvTools
         fileSettingDisplay,
         row,
         timeZoneAdjust ?? StandardTimeZoneAdjust.ChangeTimeZone,
-        sourceTimeZone,
-        processDisplay)
+        sourceTimeZone)
     {
       m_EmptyAsNull = emptyAsNull;
     }

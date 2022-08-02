@@ -515,7 +515,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets the relative position.
     /// </summary>
-    /// <returns>A value between 0 and MaxValue</returns>
+    /// <returns>A value between 0 and 1</returns>
     protected override double GetRelativePosition()
     {
       if (m_Stream is IImprovedStream imp)

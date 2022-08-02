@@ -74,8 +74,7 @@ namespace CsvTools.Tests
         fileSetting.ColumnCollection,
         "Test",
         fileSetting.Row,
-        StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id,
-        processDisplay);
+        StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
 
       var result = await writer.WriteAsync(
                      fileSetting.SqlStatement,
@@ -121,8 +120,7 @@ namespace CsvTools.Tests
         fileSetting.ColumnCollection,
         "Test",
         fileSetting.Row,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id,
-        processDisplay);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       await writer.WriteAsync(fileSetting.SqlStatement, fileSetting.Timeout, processDisplay, UnitTestStatic.Token);
     }
   }

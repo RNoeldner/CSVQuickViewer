@@ -69,8 +69,7 @@ namespace CsvTools
       bool qualifyAlways,
       bool qualifyOnlyIfNeeded,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      string sourceTimeZone,
-      IProcessDisplay? processDisplay)
+      string sourceTimeZone)
       : base(
         id,
         fullPath,
@@ -83,8 +82,7 @@ namespace CsvTools
         columnDefinition,
         fileSettingDisplay,
         timeZoneAdjust,
-        sourceTimeZone,
-        processDisplay)
+        sourceTimeZone)
     {
       m_CodePageId = codePageId;
       m_ColumnHeader = hasFieldHeader;
@@ -259,7 +257,7 @@ namespace CsvTools
       {
         if (dataObject is null)
           throw new ArgumentNullException(nameof(dataObject));
-        displayAs = Convert.ToString(dataObject) ?? string.Empty;
+        displayAs = Convert.ToString(dataObject);
       }
       else
       {

@@ -131,7 +131,7 @@ namespace CsvTools
     /// Sets the progress reporting action.
     /// </summary>
     /// <value>
-    /// The report progress accepting <see cref="ProgressEventArgs"/> the value will be between and <see cref="BaseFileReader.cMaxProgress"/>
+    /// The value will be between 0 and 1 representing the relative position in the source, some IFile Readers do not support this
     /// </value>
     IProgress<ProgressEventArgs>? ReportProgress { set; }
   }

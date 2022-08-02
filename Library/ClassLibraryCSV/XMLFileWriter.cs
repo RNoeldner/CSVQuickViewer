@@ -40,13 +40,12 @@ namespace CsvTools
       string fileSettingDisplay,
       string row,
       TimeZoneChangeDelegate timeZoneAdjust,
-      string sourceTimeZone,
-      IProcessDisplay? processDisplay)
+      string sourceTimeZone)
       : base(
         id, fullPath, pgpKeyId, unencrypted,
         identifierInContainer, footer, header, codePageId,
         byteOrderMark, columnDefinition, fileSettingDisplay, row, 
-        timeZoneAdjust, sourceTimeZone, processDisplay)
+        timeZoneAdjust, sourceTimeZone)
 
     {
     }

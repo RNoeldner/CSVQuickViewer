@@ -64,8 +64,7 @@ namespace CsvTools
       in string fileSettingDisplay,
       in string row,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone,
-      in IProcessDisplay? processDisplay)
+      in string sourceTimeZone)
       : base(
         id,
         fullPath,
@@ -78,8 +77,7 @@ namespace CsvTools
         columnDefinition,
         fileSettingDisplay,
         timeZoneAdjust,
-        sourceTimeZone,
-        processDisplay)
+        sourceTimeZone)
     {
       if (string.IsNullOrEmpty(row))
         throw new ArgumentException($"{nameof(row)} can not be empty");

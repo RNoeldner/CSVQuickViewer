@@ -663,7 +663,7 @@ namespace CsvTools
       if (template.IndexOf('{') == -1)
         return template;
 
-      // get all placeholders in backet
+      // get all placeholders in brackets
       var rgx = new Regex(@"\{[^\}]+\}");
 
       var placeholder = new Dictionary<string, string>();
@@ -682,17 +682,24 @@ namespace CsvTools
       return template.Replace("  ", " ");
     }
 
+    public static void AttachProcessDisplay(this IFileReader fileReader, IProcessDisplay? processDisplay)
+    {
+      if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
+      processDisplayTime.Maximum = BaseFileReader.cMaxProgress;
+      fileReader.ReportProgress = processDisplayTime;
+    }
+
     public static void SetMaximum(this IProcessDisplay? processDisplay, long maximum)
     {
-      if (processDisplay is IProcessDisplayTime processDisplayTime)
-        try
-        {
-          processDisplayTime.Maximum = maximum;
-        }
-        catch (InvalidOperationException)
-        {
-          // ignore
-        }
+      if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
+      try
+      {
+        processDisplayTime.Maximum = maximum;
+      }
+      catch (InvalidOperationException)
+      {
+        // ignore
+      }
     }
 
     /// <summary>

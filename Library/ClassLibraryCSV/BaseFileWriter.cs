@@ -38,7 +38,6 @@ namespace CsvTools
     private readonly long m_PgpKeyId;
     private readonly string m_IdentifierInContainer;
     private readonly bool m_KeepUnencrypted;
-    private readonly Action<long>? m_SetMaxProcess;
     private readonly IValueFormat m_ValueFormatGeneral;
     protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
     protected string Header;
@@ -57,8 +56,7 @@ namespace CsvTools
       in IEnumerable<IColumn>? columnDefinition,
       in string fileSettingDisplay,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      in string sourceTimeZone,
-      IProcessDisplay? processDisplay)
+      in string sourceTimeZone)
     {
       if (string.IsNullOrEmpty(fullPath))
         throw new ArgumentException($"{nameof(fullPath)} can not be empty");
@@ -97,9 +95,6 @@ namespace CsvTools
       m_IdentifierInContainer = identifierInContainer ?? string.Empty;
 
       Logger.Information("Created Writer for {filesetting}", FileSettingDisplay);
-      if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
-      processDisplayTime.Maximum = 0;
-      m_SetMaxProcess = l => processDisplayTime.Maximum = l;
     }
 
     public long Records { get; protected set; }
@@ -142,7 +137,7 @@ namespace CsvTools
         var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
         if (!(schemaRow[SchemaTableColumn.ColumnName] is string colName) || colName.Length == 0)
           colName = $"Column{colNo + 1}";
-        var newName = StringUtils.MakeUniqueInCollection(colNames.Values, colName);
+        var newName = colNames.Values.MakeUniqueInCollection(colName);
         colNames.Add(colNo, newName);
       }
 
@@ -279,8 +274,6 @@ namespace CsvTools
       if (reader is null)
         return -1;
       HandleWriteStart();
-
-      m_SetMaxProcess?.Invoke(-1);
 
       try
       {
