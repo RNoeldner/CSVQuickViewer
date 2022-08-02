@@ -44,10 +44,8 @@ namespace CsvTools
       in string treatTextAsNull,
       bool treatNbspAsSpace,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      string destTimeZone,
-      IProcessDisplay? processDisplay)
-      : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone,
-        processDisplay) =>
+      string destTimeZone)
+      : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone) =>
       m_ImprovedStream = improvedStream;
 
     public JsonFileReader(in string fileName,
@@ -59,8 +57,7 @@ namespace CsvTools
       in TimeZoneChangeDelegate timeZoneAdjust,
       string destTimeZone,
       IProcessDisplay? processDisplay)
-      : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone,
-        processDisplay)
+      : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone)
     {
       if (string.IsNullOrEmpty(fileName))
         throw new ArgumentException("File can not be null or empty", nameof(fileName));

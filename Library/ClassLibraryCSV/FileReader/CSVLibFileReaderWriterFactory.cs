@@ -26,56 +26,30 @@ namespace CsvTools
 
     /// <inheritdoc />
     public IFileReader GetFileReader(in IFileSetting setting, in IProcessDisplay? processDisplay,
-      in CancellationToken cancellationToken) =>
-      setting switch
+      in CancellationToken cancellationToken)
+    {
+      IFileReader retReader = setting switch
       {
-        IJsonFile csv => new JsonFileReader(
-          csv.FullPath,
-          csv.ColumnCollection,
-          csv.RecordLimit,
-          csv.TrimmingOption == TrimmingOptionEnum.All,
-          csv.TreatTextAsNull,
-          csv.TreatNBSPAsSpace,
-          m_TimeZoneAdjust, TimeZoneInfo.Local.Id,
-          processDisplay),
-        ICsvFile csv => new CsvFileReader(
-          csv.FullPath,
-          csv.CodePageId,
-          csv.SkipRows,
-          csv.HasFieldHeader,
-          csv.ColumnCollection,
-          csv.TrimmingOption,
-          csv.FieldDelimiter,
-          csv.FieldQualifier,
-          csv.EscapePrefix,
-          csv.RecordLimit,
-          csv.AllowRowCombining,
-          csv.ContextSensitiveQualifier,
-          csv.CommentLine,
-          csv.NumWarnings,
-          csv.DuplicateQualifierToEscape,
-          csv.NewLinePlaceholder,
-          csv.DelimiterPlaceholder,
-          csv.QualifierPlaceholder,
-          csv.SkipDuplicateHeader,
-          csv.TreatLfAsSpace,
-          csv.TreatUnknownCharacterAsSpace,
-          csv.TryToSolveMoreColumns,
-          csv.WarnDelimiterInValue,
-          csv.WarnLineFeed,
-          csv.WarnNBSP,
-          csv.WarnQuotes,
-          csv.WarnUnknownCharacter,
-          csv.WarnEmptyTailingColumns,
-          csv.TreatNBSPAsSpace,
-          csv.TreatTextAsNull,
-          csv.SkipEmptyLines,
-          csv.ConsecutiveEmptyRows,
-          csv.IdentifierInContainer,
-          m_TimeZoneAdjust, TimeZoneInfo.Local.Id,
-          processDisplay),
+        IJsonFile csv1 => new JsonFileReader(csv1.FullPath, csv1.ColumnCollection, csv1.RecordLimit,
+          csv1.TrimmingOption == TrimmingOptionEnum.All, csv1.TreatTextAsNull, csv1.TreatNBSPAsSpace, m_TimeZoneAdjust,
+          TimeZoneInfo.Local.Id, processDisplay),
+        ICsvFile csv2 => new CsvFileReader(csv2.FullPath, csv2.CodePageId, csv2.SkipRows, csv2.HasFieldHeader,
+          csv2.ColumnCollection, csv2.TrimmingOption, csv2.FieldDelimiter, csv2.FieldQualifier, csv2.EscapePrefix,
+          csv2.RecordLimit, csv2.AllowRowCombining, csv2.ContextSensitiveQualifier, csv2.CommentLine, csv2.NumWarnings,
+          csv2.DuplicateQualifierToEscape, csv2.NewLinePlaceholder, csv2.DelimiterPlaceholder,
+          csv2.QualifierPlaceholder, csv2.SkipDuplicateHeader, csv2.TreatLfAsSpace, csv2.TreatUnknownCharacterAsSpace,
+          csv2.TryToSolveMoreColumns, csv2.WarnDelimiterInValue, csv2.WarnLineFeed, csv2.WarnNBSP, csv2.WarnQuotes,
+          csv2.WarnUnknownCharacter, csv2.WarnEmptyTailingColumns, csv2.TreatNBSPAsSpace, csv2.TreatTextAsNull,
+          csv2.SkipEmptyLines, csv2.ConsecutiveEmptyRows, csv2.IdentifierInContainer, m_TimeZoneAdjust,
+          TimeZoneInfo.Local.Id),
         _ => throw new FileReaderException($"Reader for {setting} not found")
       };
+
+      processDisplay.SetMaximum(BaseFileReader.cMaxProgress);
+      retReader.ReportProgress = processDisplay;
+      
+      return retReader;
+    }
 
     /// <inheritdoc />
     public IFileWriter GetFileWriter(IFileSetting fileSetting, in IProcessDisplay? processDisplay,

@@ -62,6 +62,15 @@ namespace CsvTools
         FileReader.Warning += (o, e) => Warning?.Invoke(o, e);
     }
 
+    public IProgress<ProgressEventArgs>? ReportProgress
+    {
+      set
+      {
+        if (FileReader!=null)
+          FileReader.ReportProgress = value;
+      }
+    }
+
     /// <inheritdoc />
     /// <summary>
     ///   Constructor for a DataReaderWrapper, this wrapper adds artificial fields like Error, start

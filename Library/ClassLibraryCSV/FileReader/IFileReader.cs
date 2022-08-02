@@ -126,5 +126,13 @@ namespace CsvTools
     ///   Resets the position and buffer to the first data row (handing headers, and skipped rows)
     /// </summary>
     void ResetPositionToFirstDataRow();
+
+    /// <summary>
+    /// Sets the progress reporting action.
+    /// </summary>
+    /// <value>
+    /// The report progress accepting <see cref="ProgressEventArgs"/> the value will be between and <see cref="BaseFileReader.cMaxProgress"/>
+    /// </value>
+    IProgress<ProgressEventArgs>? ReportProgress { set; }
   }
 }

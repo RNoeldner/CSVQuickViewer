@@ -46,7 +46,6 @@ namespace CsvTools
     /// <param name="treatNbspAsSpace">nbsp in text will be replaced with Space</param>
     /// <param name="timeZoneAdjust">Class to modify date time for timezones</param>
     /// <param name="destTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
-    /// <param name="processDisplay">Process Display</param>
     protected BaseFileReaderTyped(
       in string fileName,
       in IEnumerable<IColumn>? columnDefinition,
@@ -55,9 +54,8 @@ namespace CsvTools
       in string treatTextAsNull,
       bool treatNbspAsSpace,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      in string destTimeZone,
-      in IProcessDisplay? processDisplay)
-      : base(fileName, columnDefinition, recordLimit, timeZoneAdjust,destTimeZone, processDisplay)
+      in string destTimeZone)
+      : base(fileName, columnDefinition, recordLimit, timeZoneAdjust,destTimeZone)
     {
       m_TreatNbspAsSpace = treatNbspAsSpace;
       m_Trim = trim;

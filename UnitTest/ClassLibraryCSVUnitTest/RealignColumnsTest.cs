@@ -18,7 +18,7 @@ namespace CsvTools.Tests
         duplicateQualifierToEscape: true, newLinePlaceholder: "", delimiterPlaceholder: "", quotePlaceholder: "",
         skipDuplicateHeader: true, treatLfAsSpace: false, treatUnknownCharacterAsSpace: false, tryToSolveMoreColumns: true,
         warnDelimiterInValue: true, warnLineFeed: false, warnNbsp: true, warnQuotes: true, warnUnknownCharacter: true,
-        warnEmptyTailingColumns: true, treatNbspAsSpace: false, treatTextAsNull: "NULL", skipEmptyLines: false, consecutiveEmptyRowsMax: 4, identifierInContainer: "", timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id, processDisplay: processDisplay);
+        warnEmptyTailingColumns: true, treatNbspAsSpace: false, treatTextAsNull: "NULL", skipEmptyLines: false, consecutiveEmptyRowsMax: 4, identifierInContainer: "", timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
 
       // first five rows are good.
