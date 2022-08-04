@@ -1072,12 +1072,7 @@ namespace CsvTools
       ReportProgress?.Report(new ProgressInfo(text, (percent * cMaxProgress).ToInt64()));
     }
 
-    /// <summary>
-    ///   Shows the process.
-    /// </summary>
-    /// <param name="text">The text.</param>
-    protected void HandleShowProgress(string text) => Logger.Information(text);
-
+    
     /// <summary>
     ///   Shows the process twice a second
     /// </summary>

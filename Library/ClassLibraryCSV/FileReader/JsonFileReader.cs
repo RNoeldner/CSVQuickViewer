@@ -139,10 +139,6 @@ namespace CsvTools
         HandleReadFinished();
         throw appEx;
       }
-      finally
-      {
-        HandleShowProgress("");
-      }
     }
 
     public override void ResetPositionToFirstDataRow() => ResetPositionToStartOrOpen();

@@ -460,10 +460,6 @@ namespace CsvTools
         HandleReadFinished();
         throw appEx;
       }
-      finally
-      {
-        HandleShowProgress(string.Empty);
-      }
     }
 
     /// <inheritdoc cref="BaseFileReader" />
