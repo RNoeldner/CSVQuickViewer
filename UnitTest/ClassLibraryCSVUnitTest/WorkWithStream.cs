@@ -56,7 +56,7 @@ namespace CsvTools.Tests
       ICollection<IColumn> determinedColumns;
       // Not closing the stream
       using var impStream = new ImprovedStream(stream, FileTypeEnum.GZip);
-      var process = new CustomProcessDisplay();
+      var process = new Progress<ProgressInfo>();
       var result = await impStream.GetDetectionResult("steam", false, true, true, true, true, true, false,
         false, null, UnitTestStatic.Token);
 

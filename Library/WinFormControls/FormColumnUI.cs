@@ -783,7 +783,7 @@ namespace CsvTools
     ///   Column {columnName} not found. or Column {columnName} not found.
     /// </exception>
     private async Task<DetermineColumnFormat.SampleResult> GetSampleValuesAsync(string columnName,
-                                                                                IProcessDisplay? processDisplay, CancellationToken cancellationToken)
+                                                                                IProgress<ProgressInfo>? processDisplay, CancellationToken cancellationToken)
     {
       try
       {

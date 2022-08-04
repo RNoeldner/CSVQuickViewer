@@ -15,7 +15,7 @@ namespace CsvTools.Tests
 
 			for (long counter = 1; counter <= 20; counter++)
 			{
-				test.SetProcess(counter.ToString(), counter);
+				test.Report(new ProgressInfo(counter.ToString(), counter));
 				Thread.Sleep(100);
 			}
 

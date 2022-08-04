@@ -15,7 +15,7 @@ namespace CsvTools
     private readonly Func<DataTable> m_GetDataTable;
     private readonly Func<FilterTypeEnum, CancellationToken, Task>? m_RefreshDisplayAsync;
     private readonly Action<DataTable> m_SetDataTable;
-    private readonly Action<Func<IProcessDisplay?, CancellationToken, Task>>? m_SetLoadNextBatchAsync;
+    private readonly Action<Func<IProgress<ProgressInfo>?, CancellationToken, Task>>? m_SetLoadNextBatchAsync;
     private DataReaderWrapper? m_DataReaderWrapper;
     private IFileReader? m_FileReader;
     private string m_ID = string.Empty;
@@ -24,7 +24,7 @@ namespace CsvTools
       in Action<DataTable> actionSetDataTable,
       in Func<DataTable> getDataTable,
       in Func<FilterTypeEnum, CancellationToken, Task>? setRefreshDisplayAsync,
-      in Action<Func<IProcessDisplay?, CancellationToken, Task>>? loadNextBatchAsync,
+      in Action<Func<IProgress<ProgressInfo>?, CancellationToken, Task>>? loadNextBatchAsync,
       in Action? actionBegin,
       in Action<DataReaderWrapper>? actionFinished)
     {
@@ -48,13 +48,22 @@ namespace CsvTools
       // Suppress finalization.
       GC.SuppressFinalize(this);
     }
-#endif
-
+#endif    
+    /// <summary>
+    /// Starts the load of data from a file setting into the data table from m_GetDataTable
+    /// </summary>
+    /// <param name="fileSetting">The file setting.</param>
+    /// <param name="includeError">if set to <c>true</c> include error column.</param>
+    /// <param name="durationInitial">The duration for the initial initial.</param>
+    /// <param name="processDisplay">The process display.</param>
+    /// <param name="addWarning">Add warnings.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <exception cref="CsvTools.FileReaderException">Could not get reader for {fileSetting}</exception>
     public async Task StartAsync(
       IFileSetting fileSetting,
       bool includeError,
       TimeSpan durationInitial,
-      IProcessDisplay? processDisplay,
+      IProgress<ProgressInfo>? processDisplay,
       EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
     {
       m_ID = fileSetting.ID;
@@ -111,13 +120,12 @@ namespace CsvTools
     private async Task GetBatchByTimeSpan(
       TimeSpan maxDuration,
       bool restoreError,
-      IProcessDisplay? processDisplay,
+      IProgress<ProgressInfo>? processDisplay,
       Action<DataTable> action, CancellationToken cancellationToken)
     {
       if (m_DataReaderWrapper is null)
         return;
-      processDisplay?.SetMaximum(100);
-
+      
       var dt = await m_DataReaderWrapper.GetDataTableAsync(
         maxDuration,
         restoreError,

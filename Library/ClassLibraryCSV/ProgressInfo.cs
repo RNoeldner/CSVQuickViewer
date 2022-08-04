@@ -12,28 +12,31 @@
  *
  */
 
-using System;
-using System.Diagnostics;
-
 namespace CsvTools
 {
-  [DebuggerStepThrough]
-  public class CustomProcessDisplay : Progress<ProgressEventArgs>, IProcessDisplay
+  public class ProgressInfo
   {
-    
-    public Action<ProgressEventArgs> Progress { get; set; } = delegate {  };
-
-    public virtual void SetProcess(string text, long value)
+    /// <summary>
+    ///   Initializes a new instance of the <see cref="T:CsvTools.ProgressInfo" /> class.
+    /// </summary>
+    /// <param name="text">The informational text.</param>
+    /// <param name="value">The progress value.</param>
+    public ProgressInfo(in string text, long value = -1)
     {
-      base.OnReport(new ProgressEventArgs(text, value));
-      try
-      {
-        Progress?.Invoke(new ProgressEventArgs(text, value));
-      }
-      catch
-      {
-        // ignore all errors in process display
-      }
+      Text = text;
+      Value = value;
     }
+
+    /// <summary>
+    ///   Gets the text.
+    /// </summary>
+    /// <value>The text.</value>
+    public string Text { get; }
+
+    /// <summary>
+    ///   Gets the value.
+    /// </summary>
+    /// <value>The value.</value>
+    public long Value { get; }
   }
 }

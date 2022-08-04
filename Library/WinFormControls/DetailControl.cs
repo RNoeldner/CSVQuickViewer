@@ -311,7 +311,7 @@ namespace CsvTools
     public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored;
 
     public EventHandler<IFileSettingPhysicalFile>? FileStored;
-    public Func<IProcessDisplay, CancellationToken, Task>? LoadNextBatchAsync { get; set; }
+    public Func<IProgress<ProgressInfo>, CancellationToken, Task>? LoadNextBatchAsync { get; set; }
     private DataColumnCollection Columns => m_DataTable.Columns;
     public ToolStripButton ToolStripButtonNext { get; set; }
 
@@ -1131,8 +1131,7 @@ namespace CsvTools
           writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.KeyID, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
           headerAndSipped.ToString(), writeFile.Footer, string.Empty, writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar,
           writeFile.EscapePrefixChar,
-          writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id,
-          processDisplay);
+          writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
 
 #if NET5_0_OR_GREATER
         await

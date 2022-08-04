@@ -13,6 +13,7 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Data;
 using System.Globalization;
 using System.IO;
@@ -150,7 +151,6 @@ namespace CsvTools.Tests
       }
 
       var writeFile = new CsvFile { ID = "Test.txt", FileName = UnitTestStatic.GetTestPath("Test.txt"), SqlStatement = "Hello" };
-      var processDisplay = new CustomProcessDisplay();
 
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.KeyID, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
@@ -182,7 +182,7 @@ namespace CsvTools.Tests
       writeFile.Header = "##This is a header for {FileName}";
       writeFile.Footer = "##This is a Footer\r\n{Records} in file";
       var count = 0;
-      var processDisplay = new CustomProcessDisplay();
+      var processDisplay = new Progress<ProgressInfo>();
       {
         var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
           writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
@@ -222,7 +222,7 @@ namespace CsvTools.Tests
         await file.WriteLineAsync("Hello");
         try
         {
-          var processDisplay = new CustomProcessDisplay();
+          var processDisplay = new Progress<ProgressInfo>();
 
           var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
             writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,

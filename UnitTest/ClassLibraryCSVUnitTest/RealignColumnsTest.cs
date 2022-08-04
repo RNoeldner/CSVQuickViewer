@@ -10,7 +10,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task AllFormatsPipeReaderAsync()
     {
-      var processDisplay = new CustomProcessDisplay();
       using var test = new CsvFileReader(UnitTestStatic.GetTestPath("RealignColumn.txt"), 650001,0,
         true, null, TrimmingOptionEnum.Unquoted,
          fieldDelimiter: "\t", fieldQualifier: "\"", escapeCharacter: "",

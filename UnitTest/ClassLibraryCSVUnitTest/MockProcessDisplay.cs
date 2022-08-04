@@ -17,7 +17,7 @@ using System.Threading;
 
 namespace CsvTools.Tests
 {
-  public class MockProcessDisplay : CustomProcessDisplay
+  public class MockProcessDisplay : Progress<ProgressInfo>
   {
     private bool m_Disposed;
     private bool m_Visible = true;
@@ -32,12 +32,6 @@ namespace CsvTools.Tests
         m_Visible = true;
         m_Disposed = true;
       }
-    }
-
-    public override void SetProcess(string text, long value = -1)
-    {
-      Text = text;
-      base.SetProcess(text,value);
     }
 
     public void Cancel()

@@ -18,38 +18,24 @@ using System.Diagnostics;
 namespace CsvTools
 {
   [DebuggerStepThrough]
-  public sealed class ProcessDisplayTime : CustomProcessDisplay, IProcessDisplayTime
+  public sealed class ProcessDisplayTime : Progress<ProgressInfo>, IProcessDisplayTime
   {
     public ProcessDisplayTime() =>
       TimeToCompletion = new TimeToCompletion();
-
-    public Action<ProgressWithTimeEventArgs> ProgressTime { get; set; }= delegate  { };
 
     /// <inheritdoc cref="IProcessDisplayTime.Maximum" />
     public long Maximum
     {
       get => TimeToCompletion.TargetValue;
-      set
-      {
-        TimeToCompletion.TargetValue = value > 1 ? value : 1;
-      }
+      set => TimeToCompletion.TargetValue = value > 1 ? value : 1;
     }
 
     public TimeToCompletion TimeToCompletion { get; }
 
-    public override void SetProcess(string text, long value)
+    public void Report(ProgressInfo  args)
     {
-      base.SetProcess(text, value);
-
-      TimeToCompletion.Value = value;
-      try
-      {
-        ProgressTime.Invoke(new ProgressWithTimeEventArgs(text, value, TimeToCompletion.EstimatedTimeRemaining, TimeToCompletion.Percent));
-      }
-      catch
-      {
-        // ignore
-      }
+      TimeToCompletion.Value = args.Value;
+      OnReport(args);
     }
   }
 }

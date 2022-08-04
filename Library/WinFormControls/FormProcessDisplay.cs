@@ -36,6 +36,13 @@ namespace CsvTools
     private readonly TableLayoutPanel m_TableLayoutPanel = new TableLayoutPanel();
     private long m_CurrentValue = -1;
 
+    /// <summary>Raised for each reported progress value.</summary>
+    /// <remarks>
+    /// Handlers registered with this event will be invoked on the 
+    /// <see cref="System.Threading.SynchronizationContext"/> captured when the instance was constructed.
+    /// </remarks>
+    public event EventHandler<ProgressInfo> ProgressChanged;
+
     public FormProcessDisplay(in string windowTitle)
       : this(windowTitle, true, CancellationToken.None)
     {
@@ -107,17 +114,6 @@ namespace CsvTools
 
     public TimeToCompletion TimeToCompletion => m_ProcessDisplay.TimeToCompletion;
 
-    public Action<ProgressWithTimeEventArgs> ProgressTime
-    {
-      get => m_ProcessDisplay.ProgressTime;
-      set => m_ProcessDisplay.ProgressTime = value;
-    }
-
-    public Action<ProgressEventArgs> Progress
-    {
-      get => m_ProcessDisplay.Progress;
-      set => m_ProcessDisplay.Progress = value;
-    }
 
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
@@ -148,18 +144,19 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Sets the process.
+    /// Sets the process values in the UI
     /// </summary>
-    /// <param name="text">The text.</param>
-    /// <param name="value">The value.</param>
-    public void SetProcess(string text, long value)
+    /// <param name="args">The <see cref="ProgressInfo"/> instance containing the event data.</param>
+    private void SetProcess(in ProgressInfo args)
     {
       // if cancellation is requested do nothing
       if (CancellationToken.IsCancellationRequested)
         return;
-      m_CurrentValue = value;
-      m_ProcessDisplay.SetProcess(text, value);
+      m_CurrentValue = args.Value;
+      var text = args.Text;
+      m_ProcessDisplay.Report(args);
       WindowsAPICodePackWrapper.SetProgressValue(m_ProcessDisplay.TimeToCompletion.Percent);
+      ProgressChanged?.Invoke(this, args);
 
       // This might cause an issue
       m_LabelText.SafeBeginInvoke(
@@ -169,7 +166,7 @@ namespace CsvTools
             Show();
           m_LabelText.Text = text;
 
-          if (value <= 0 || Maximum <= 1)
+          if (m_CurrentValue <= 0 || Maximum <= 1)
           {
             m_LabelEtl.Text = string.Empty;
             m_ProgressBar.Style = ProgressBarStyle.Marquee;
@@ -367,7 +364,7 @@ namespace CsvTools
       var text = formatter(state, exception);
       if (string.IsNullOrEmpty(text))
         return;
-      SetProcess(text, m_CurrentValue);
+      SetProcess(new ProgressInfo(text, m_CurrentValue));
     }
 
 
@@ -375,8 +372,7 @@ namespace CsvTools
 
     public bool IsEnabled(LogLevel logLevel) => logLevel >= LogLevel.Information;
 
-    public void Report(ProgressEventArgs value) => SetProcess(value.Text, value.Value);
-
-    public void Report(ProgressWithTimeEventArgs value) => SetProcess(value.Text, value.Value);
+    public void Report(ProgressInfo value) => SetProcess(value);
+    
   }
 }

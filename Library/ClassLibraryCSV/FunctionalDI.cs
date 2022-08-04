@@ -47,7 +47,7 @@ namespace CsvTools
     ///   Return a right writer for a file setting
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, IProcessDisplay?, CancellationToken, IFileWriter> GetFileWriter =
+    public static Func<IFileSetting, IProgress<ProgressInfo>?, CancellationToken, IFileWriter> GetFileWriter =
       (setting, processDisplay, cancellationToken) =>
         m_FileReaderWriterFactory.GetFileWriter(setting, processDisplay, cancellationToken);
 
@@ -55,7 +55,7 @@ namespace CsvTools
     ///   Return the right reader for a file setting
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, IProcessDisplay?, CancellationToken, IFileReader> GetFileReader =
+    public static Func<IFileSetting, IProgress<ProgressInfo>?, CancellationToken, IFileReader> GetFileReader =
       (setting, processDisplay, cancellationToken) =>
         m_FileReaderWriterFactory.GetFileReader(setting, processDisplay, cancellationToken);
 
@@ -64,7 +64,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The statement for reader the data.</value>
     /// <remarks>Make sure the returned reader is open when needed</remarks>
-    public static Func<string, IProcessDisplay?, int, long, CancellationToken, Task<IFileReader>> SqlDataReader =
+    public static Func<string, IProgress<ProgressInfo>?, int, long, CancellationToken, Task<IFileReader>> SqlDataReader =
       (sql, processDisplay, commandTimeout, recordLimit, token) =>
         throw new FileWriterException("SQL Reader not specified");
 

@@ -117,15 +117,15 @@ namespace CsvTools
         // Percentage based on reported value
         Percent = Math.Round((double) m_LastItem.Value / m_TargetValue * 100.0, 1, MidpointRounding.AwayFromZero);
 
-        // calcluate the velociy based on firts and last value
+        // calculate the velocity based on first and last value
         var velocityBySecond = (m_LastItem.Value - firstItem.Value) / (m_LastItem.DateTime - firstItem.DateTime).TotalSeconds;
-        // estime current value based on last value and velocity
+        // estimate current value based on last value and velocity
         var estimatedCurrentValue = m_LastItem.Value + (velocityBySecond * (DateTime.UtcNow - m_LastItem.DateTime).TotalSeconds);
-        // assume estimate remaining time on assumed remaining values and velotiy
+        // assume estimate remaining time on assumed remaining values and velocity
         var finishedInSec = (m_TargetValue - estimatedCurrentValue) / velocityBySecond;
 
         // Percentage based on estimated value
-        EstimatedPercent = Math.Round((double) estimatedCurrentValue / m_TargetValue * 100.0, 1, MidpointRounding.AwayFromZero);
+        EstimatedPercent = Math.Round(estimatedCurrentValue / m_TargetValue * 100.0, 1, MidpointRounding.AwayFromZero);
 
         // Calculate the estimated finished time
         EstimatedTimeRemaining = ((finishedInSec > .9) && (finishedInSec < Max.TotalSeconds)) ? TimeSpan.FromSeconds(finishedInSec) : Max;
@@ -153,7 +153,7 @@ namespace CsvTools
         m_LastItem.Value = value;
 
         // Do not queue very rapidly changing values so queue does not get too large
-        // we want to sick withoughly 1/2 second
+        // we want to sick with roughly 1/2 second
         if (m_Queue.Count < 2 ||  timeSineLastLog.TotalSeconds >= .5)
           m_Queue.Enqueue(m_LastItem);
         UpdateEstimates();

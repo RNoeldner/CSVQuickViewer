@@ -47,13 +47,13 @@ namespace CsvTools.Tests
         frm.Show();
         frm.Maximum = 100;
         var sentTime = new TimeSpan(0);
-        frm.ProgressTime += (time) => { sentTime = time.EstimatedTimeRemaining; };
+        frm.ProgressChanged += (obj, time) => { sentTime = (obj as IProcessDisplayTime).TimeToCompletion.EstimatedTimeRemaining; };
         var end = 50;
         var step = 5;
         var wait = .1;
         for (var c = 0; c < end && !frm.CancellationToken.IsCancellationRequested; c += step)
         {
-          frm.SetProcess($"This is a text\nLine {c}", c);
+          frm.Report(new ProgressInfo($"This is a text\nLine {c}", c));
           UnitTestStatic.WaitSomeTime(wait, UnitTestStatic.Token);
         }
 
@@ -72,7 +72,7 @@ namespace CsvTools.Tests
         frm.Maximum = 0;
         for (var c = 0; c < 100 && !frm.CancellationToken.IsCancellationRequested; c += 5)
         {
-          frm.SetProcess($"This is a text\nLine {c}", c);
+          frm.Report(new ProgressInfo($"This is a text\nLine {c}", c));
           UnitTestStatic.WaitSomeTime(.1, frm.CancellationToken);
         }
 
@@ -87,7 +87,7 @@ namespace CsvTools.Tests
         frm.Maximum = 100;
         for (var c = 0; c < 102 && !frm.CancellationToken.IsCancellationRequested; c += 4)
         {
-          frm.SetProcess($"This is a text\nLine {c}", c);
+          frm.Report(new ProgressInfo($"This is a text\nLine {c}", c));
           UnitTestStatic.WaitSomeTime(.1, frm.CancellationToken);
         }
 
@@ -158,9 +158,9 @@ namespace CsvTools.Tests
       frm.Show();
       long called = 10;
 
-      frm.Progress += delegate(ProgressEventArgs e) { called = e.Value; };
+      frm.ProgressChanged += (obj, e) => { called = e.Value; };
 
-      frm.SetProcess("Help", 20);
+      frm.Report(new ProgressInfo("Help", 20));
 
       Assert.AreEqual(20, called);
     }

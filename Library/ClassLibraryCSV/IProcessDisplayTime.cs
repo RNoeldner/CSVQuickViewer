@@ -19,10 +19,8 @@ namespace CsvTools
   /// <summary>
   ///   Interface for an ProcessDisplay
   /// </summary>
-  public interface IProcessDisplayTime : IProcessDisplay 
+  public interface IProcessDisplayTime : IProgress<ProgressInfo>
   {
-    Action<ProgressWithTimeEventArgs> ProgressTime { get; set; }
-
     /// <summary>
     ///   Gets or sets the maximum value for the Progress
     /// </summary>
@@ -31,6 +29,15 @@ namespace CsvTools
     /// </value>
     long Maximum { get; set; }
 
+    /// <summary>
+    /// Time to completion, calculated on velocity Maxvalue and current value
+    /// </summary>
+    /// <value>
+    /// The time to completion.
+    /// </value>
     TimeToCompletion TimeToCompletion { get; }
+
+    /// <summary>Raised for each reported progress value.</summary>
+    public event EventHandler<ProgressInfo> ProgressChanged;
   }
 }

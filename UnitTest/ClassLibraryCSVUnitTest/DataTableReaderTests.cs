@@ -13,7 +13,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsyncTest1Async()
     {
-      var processDisplay = new CustomProcessDisplay();
       using var test = new DataTableWrapper(m_DataTable);
       var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
         true, false, false, false, null, UnitTestStatic.Token);

@@ -44,7 +44,7 @@ namespace CsvTools
 
     protected readonly long RecordLimit;
 
-    public IProgress<ProgressEventArgs>? ReportProgress { protected get; set; }
+    public IProgress<ProgressInfo>? ReportProgress { protected get; set; }
 
     /// <summary>
     ///   An array of associated col
@@ -1069,7 +1069,7 @@ namespace CsvTools
     protected virtual void HandleShowProgress(in string text, double percent)
     {
       Logger.Information("{message} {record:N0}", text, RecordNumber);
-      ReportProgress?.Report(new ProgressEventArgs(text, (percent * cMaxProgress).ToInt64()));
+      ReportProgress?.Report(new ProgressInfo(text, (percent * cMaxProgress).ToInt64()));
     }
 
     /// <summary>

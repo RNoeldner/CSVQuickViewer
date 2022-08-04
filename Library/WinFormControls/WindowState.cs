@@ -55,7 +55,7 @@ namespace CsvTools
     [DefaultValue("")]
     public string CustomText = string.Empty;
 
-    public bool Equals(WindowState x, WindowState y)
+    public bool Equals(WindowState? x, WindowState? y)
     {
       if (ReferenceEquals(x, y)) return true;
       if (ReferenceEquals(x, null)) return false;

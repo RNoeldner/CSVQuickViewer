@@ -121,7 +121,7 @@ namespace CsvTools
     public static async Task StreamCopy(
       Stream fromStream,
       Stream toStream,
-      IProcessDisplay? processDisplay,
+      IProgress<ProgressInfo>? processDisplay,
       CancellationToken cancellationToken)
     {
       var bytes = new byte[81920];
@@ -165,7 +165,7 @@ namespace CsvTools
       string sourceFile,
       string destFile,
       bool onlyChanged,
-      IProcessDisplay? processDisplay,
+      IProgress<ProgressInfo>? processDisplay,
       CancellationToken cancellationToken)
     {
       if (onlyChanged)

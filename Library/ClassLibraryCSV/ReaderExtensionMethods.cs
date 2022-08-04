@@ -101,7 +101,7 @@ namespace CsvTools
       bool includeRecordNo,
       bool includeEndLineNo,
       bool includeErrorField,
-      IProcessDisplay? progress,
+      IProgress<ProgressInfo>? progress,
       CancellationToken cancellationToken)
     {
       if (reader is DataTableWrapper dtw)
@@ -211,7 +211,7 @@ namespace CsvTools
       this DataReaderWrapper wrapper,
       TimeSpan maxDuration,
       bool restoreErrorsFromColumn,
-      IProcessDisplay? processDisplay,
+      IProgress<ProgressInfo>? processDisplay,
       CancellationToken cancellationToken)
     {
       var dataTable = new DataTable { Locale = CultureInfo.CurrentCulture, CaseSensitive = false };
@@ -227,7 +227,7 @@ namespace CsvTools
         var errorColumn = restoreErrorsFromColumn ? dataTable.Columns[ReaderConstants.cErrorField] : null;
 
         var watch = Stopwatch.StartNew();
-        while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 90)
+        while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 95)
                                                           && await wrapper.ReadAsync(cancellationToken)
                                                             .ConfigureAwait(false))
         {
@@ -261,13 +261,13 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Laods the data from a wrapper into a DataTable
+    ///   Loads the data from a wrapper into a DataTable, limited by time span
     /// </summary>
-    /// <param name="wrapper"></param>
-    /// <param name="maxDuration"></param>
-    /// <param name="restoreErrorsFromColumn"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <param name="wrapper">a DataReaderWrapper that helps with the mapping</param>
+    /// <param name="maxDuration">The timespan to stop reading</param>
+    /// <param name="restoreErrorsFromColumn">Set <c>true</c> if errors in the error column should be restored as column or row errors</param>
+    /// <param name="cancellationToken">Token to cancel the long running async method</param>
+    /// <returns>A data table with the rows and columns from the reader</returns>
     public static DataTable GetDataTable(
      this DataReaderWrapper wrapper,
      TimeSpan maxDuration,
@@ -284,8 +284,7 @@ namespace CsvTools
       var errorColumn = restoreErrorsFromColumn ? dataTable.Columns[ReaderConstants.cErrorField] : null;
 
       var watch = Stopwatch.StartNew();
-      while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 90)
-                                                        && wrapper.Read())
+      while (!cancellationToken.IsCancellationRequested && watch.Elapsed < maxDuration && wrapper.Read())
       {
         var dataRow = dataTable.NewRow();
         dataTable.Rows.Add(dataRow);
