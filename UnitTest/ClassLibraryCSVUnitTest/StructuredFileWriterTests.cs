@@ -43,7 +43,7 @@ namespace CsvTools.Tests
       var fileSetting = new JsonFile { ID = "Write", FileName = "StructuredFileOutputJSON.txt", SqlStatement = cReadID, InOverview = true };
 
       var sb = new StringBuilder("{");
-      var processDisplay = new CustomProcessDisplay();
+      var processDisplay = new Progress<ProgressInfo>();
 
       var cols = await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout,
         UnitTestStatic.Token);
@@ -89,7 +89,7 @@ namespace CsvTools.Tests
     {
       var fileSetting = new XmlFile { ID = "Write", FileName = "StructuredFileOutputXML.txt", SqlStatement = cReadID, InOverview = true };
       var sb = new StringBuilder();
-      var processDisplay = new CustomProcessDisplay();
+      var processDisplay = new Progress<ProgressInfo>();
       var cols = await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout, UnitTestStatic.Token);
 
       sb.AppendLine("<?xml version=\"1.0\"?>\n");

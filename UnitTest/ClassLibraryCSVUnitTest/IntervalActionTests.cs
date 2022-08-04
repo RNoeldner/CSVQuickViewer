@@ -30,7 +30,7 @@ namespace CsvTools.Tests
       var test2 = IntervalAction.ForProcessDisplay(null);
       Assert.IsNull(test2);
 
-      var test3 = IntervalAction.ForProcessDisplay(new CustomProcessDisplay());
+      var test3 = IntervalAction.ForProcessDisplay(new Progress<ProgressInfo>());
       Assert.IsNotNull(test3);
     }
 
@@ -40,7 +40,7 @@ namespace CsvTools.Tests
       long setValue = -1;
       var called = 0;
       var intervalAction = new IntervalAction();
-      // first call shoudl always go through
+      // first call should always go through
       intervalAction.Invoke(() => { setValue = 666; called++; });
       Assert.AreEqual(666L, setValue);
       Assert.AreEqual(1, called);

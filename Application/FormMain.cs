@@ -155,7 +155,7 @@ namespace CsvTools
           {
             formProcessDisplay.Maximum = 0;
             formProcessDisplay.Show(this);
-            formProcessDisplay.SetProcess("Determine file format", 0);
+            Logger.Information("Determine file format");
             m_FileSetting = (await fileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
                                m_ViewSettings.GuessCodePage,
                                m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
@@ -484,7 +484,7 @@ namespace CsvTools
           using (var processDisplay = new FormProcessDisplay(fileNameShort, false, cancellationToken))
           {
             processDisplay.Show();
-            processDisplay.SetProcess("Reading data...", -1);
+            Logger.Information("Reading data...");
             processDisplay.Maximum = 100;
 
             await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.DurationTimeSpan, processDisplay,
@@ -612,7 +612,7 @@ namespace CsvTools
         using var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token);
         proc.Show(this);
         proc.Maximum = 0;
-        proc.SetProcess("Reading source and applying color coding", 0);
+        proc.Report(new ProgressInfo("Reading source and applying color coding", 0));
         if (m_FileSetting is ICsvFile csv)
           m_SourceDisplay.OpenFile(false, csv.FieldQualifier, csv.FieldDelimiter, csv.EscapePrefix, csv.CodePageId, m_FileSetting.SkipRows, csv.CommentLine);
         else

@@ -230,20 +230,6 @@ namespace CsvTools.Tests
     public void ReplaceCaseInsensitiveShorter() =>
       Assert.AreEqual("Text1|Text2", "Text1{0}Text2".ReplaceCaseInsensitive("{0}", "|"));
 
-    [TestMethod()]
-    public void GetLogInfoMessageTest()
-    {
-      var testValue = string.Empty;
-
-      var customProcess = new CustomProcessDisplay();
-      customProcess.Progress += args => testValue = args.Text;
-      // Logger.UILog = (s, level) => testValue2 = s;
-
-      customProcess.SetProcess("Test", 1);
-
-      // can not check if log was sent
-      Assert.AreEqual("Test", testValue);
-    }
 
     [TestMethod]
     public void GetRealDataColumnsTest()

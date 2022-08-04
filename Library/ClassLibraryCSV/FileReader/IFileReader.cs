@@ -133,6 +133,6 @@ namespace CsvTools
     /// <value>
     /// The value will be between 0 and 1 representing the relative position in the source, some IFile Readers do not support this
     /// </value>
-    IProgress<ProgressEventArgs>? ReportProgress { set; }
+    IProgress<ProgressInfo>? ReportProgress { set; }
   }
 }

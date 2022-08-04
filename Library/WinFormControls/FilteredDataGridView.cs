@@ -506,13 +506,13 @@ namespace CsvTools
           toolStripMenuItemSortAscending.Text = columnIndex > -1
                                                   ? string.Format(
                                                     CultureInfo.CurrentCulture,
-                                                    toolStripMenuItemSortAscending.Tag.ToString() ?? string.Empty,
+                                                    toolStripMenuItemSortAscending.Tag.ToString(),
                                                     Columns[columnIndex].DataPropertyName)
                                                   : "Sort ascending";
           toolStripMenuItemSortDescending.Text = columnIndex > -1
                                                    ? string.Format(
                                                      CultureInfo.CurrentCulture,
-                                                     toolStripMenuItemSortDescending.Tag.ToString() ?? string.Empty,
+                                                     toolStripMenuItemSortDescending.Tag.ToString(),
                                                      Columns[columnIndex].DataPropertyName)
                                                    : "Sort descending";
           var columnFormat = GetColumnFormat(columnIndex);
@@ -627,12 +627,15 @@ namespace CsvTools
         var remain = 30;
         foreach (DataRow dataRow in rowCollection)
         {
-          if (dataRow[col] != DBNull.Value)
+          if (dataRow[col] !=  null && dataRow[col] != DBNull.Value)
           {
-            if (dataRow[col].ToString().Length > 80)
-              return 350;
-            if (dataRow[col].ToString().Length > 15)
-              return 225;
+            switch (dataRow[col].ToString().Length)
+            {
+              case > 80:
+                return 350;
+              case > 15:
+                return 225;
+            }
           }
 
           if (remain-- < 0)
@@ -659,8 +662,8 @@ namespace CsvTools
       // in case the row is not bigger than normal check if it would need to be higher
       if (row.Height != m_DefRowHeight) return m_DefRowHeight;
       if (checkedColumns.Any(
-        column => row.Cells[column.Index].Value != null
-                  && row.Cells[column.Index].Value.ToString()?.IndexOf('\n') != -1))
+        column => row.Cells[column.Index].Value != null && row.Cells[column.Index].Value != DBNull.Value
+                  && row.Cells[column.Index].Value.ToString().IndexOf('\n') != -1))
         return m_DefRowHeight * 2;
 
       return m_DefRowHeight;
@@ -890,7 +893,7 @@ namespace CsvTools
         foreach (DataRow row in DataView.Table.Rows)
         {
           var cellValue = row[col];
-          if (cellValue is null || cellValue.ToString()?.IndexOf('\n') == -1)
+          if (cellValue is null || cellValue.ToString().IndexOf('\n') == -1)
             continue;
           newColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
           break;
@@ -1299,7 +1302,7 @@ namespace CsvTools
       {
         toolStripMenuItemLoadCol.Enabled = false;
         var fileName = WindowsAPICodePackWrapper.Open(
-          m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() ?? string.Empty : ".", "Load Column Setting",
+          m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Load Column Setting",
           "Column Config|*.col;*.conf|All files|*.*", DefFileNameColSetting(m_FileSetting, ".col"));
         if (fileName!=null)
           ReStoreViewSetting(fileName);
@@ -1322,7 +1325,7 @@ namespace CsvTools
       {
         toolStripMenuItemSaveCol.Enabled = false;
         // Select Path
-        var fileName = WindowsAPICodePackWrapper.Save(m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() ?? string.Empty : ".", "Save Column Setting",
+        var fileName = WindowsAPICodePackWrapper.Save(m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
           "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
 
         if (!string.IsNullOrEmpty(fileName))

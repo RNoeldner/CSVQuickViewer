@@ -35,6 +35,12 @@ namespace CsvTools
 
     public override bool EndOfFile => RecordNumber >= DataTable.Rows.Count;
 
+    /// <summary>
+    /// Gets the percentage of teh processed records in the data table
+    /// </summary>
+    /// <value>
+    /// The percent as value between 0 and 100
+    /// </value>
     public override int Percent => RecordNumber <= 0 ? 0 : (int) (RecordNumber / (double) DataTable.Rows.Count * 100d);
 
     public override bool SupportsReset => true;

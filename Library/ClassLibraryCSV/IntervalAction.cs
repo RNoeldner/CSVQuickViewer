@@ -37,7 +37,7 @@ namespace CsvTools
     [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("processDisplay")]
 #endif
 
-    public static IntervalAction? ForProcessDisplay(IProcessDisplay? processDisplay) => processDisplay is null ? null : new IntervalAction();
+    public static IntervalAction? ForProcessDisplay(IProgress<ProgressInfo> ? processDisplay) => processDisplay is null ? null : new IntervalAction();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="IntervalAction" /> class.
@@ -53,9 +53,11 @@ namespace CsvTools
     /// <param name="action">the action to invoke</param>
     public void Invoke(in Action action)
     {
-      if (action is null || (DateTime.Now - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
+      // do nothing if the timespan between invokes is not reached
+      if ((DateTime.UtcNow - m_LastNotification).TotalSeconds < NotifyAfterSeconds)
         return;
-      m_LastNotification = DateTime.Now;
+
+      m_LastNotification = DateTime.UtcNow;
       try
       {
         action.Invoke();
@@ -76,6 +78,6 @@ namespace CsvTools
     /// <param name="processDisplay">The process display</param>
     /// <param name="text">The text to display.</param>
     /// <param name="value">The current progress value</param>
-    public void Invoke(IProcessDisplay processDisplay, string text, long value) => Invoke(() => processDisplay.SetProcess(text, value));
+    public void Invoke(IProgress<ProgressInfo> processDisplay, string text, long value) => Invoke(() => processDisplay.Report(new ProgressInfo(text, value)));
   }
 }

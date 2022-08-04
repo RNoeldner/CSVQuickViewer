@@ -25,14 +25,14 @@ namespace CsvTools
     public ClassLibraryCSVFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust) => m_TimeZoneAdjust = timeZoneAdjust;
 
     /// <inheritdoc />
-    public IFileReader GetFileReader(in IFileSetting setting, in IProcessDisplay? processDisplay,
+    public IFileReader GetFileReader(in IFileSetting setting, in IProgress<ProgressInfo>? processDisplay,
       in CancellationToken cancellationToken)
     {
       IFileReader retReader = setting switch
       {
         IJsonFile csv1 => new JsonFileReader(csv1.FullPath, csv1.ColumnCollection, csv1.RecordLimit,
           csv1.TrimmingOption == TrimmingOptionEnum.All, csv1.TreatTextAsNull, csv1.TreatNBSPAsSpace, m_TimeZoneAdjust,
-          TimeZoneInfo.Local.Id, processDisplay),
+          TimeZoneInfo.Local.Id),
         ICsvFile csv2 => new CsvFileReader(csv2.FullPath, csv2.CodePageId, csv2.SkipRows, csv2.HasFieldHeader,
           csv2.ColumnCollection, csv2.TrimmingOption, csv2.FieldDelimiter, csv2.FieldQualifier, csv2.EscapePrefix,
           csv2.RecordLimit, csv2.AllowRowCombining, csv2.ContextSensitiveQualifier, csv2.CommentLine, csv2.NumWarnings,
@@ -49,7 +49,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    public IFileWriter GetFileWriter(IFileSetting fileSetting, in IProcessDisplay? processDisplay, in CancellationToken cancellationToken)
+    public IFileWriter GetFileWriter(IFileSetting fileSetting, in IProgress<ProgressInfo>? processDisplay, in CancellationToken cancellationToken)
     {
       IFileWriter? writer = fileSetting switch
       {
@@ -82,7 +82,7 @@ namespace CsvTools
       return writer;
     }
 
-    public Task<IFileReader> SqlDataReader(in string sql, in IProcessDisplay? processDisplay, int commandTimeout,
+    public Task<IFileReader> SqlDataReader(in string sql, in IProgress<ProgressInfo>? processDisplay, int commandTimeout,
       long recordLimit, CancellationToken cancellationToken) => throw new NotImplementedException();
   }
 }

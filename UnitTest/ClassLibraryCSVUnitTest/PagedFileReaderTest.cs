@@ -15,7 +15,6 @@ namespace CsvTools.Tests
       const int pageSize = 20;
       const int numRec = 1065;
       // 1065 / 17
-      var process = new CustomProcessDisplay();
       using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
         m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
         m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
@@ -42,7 +41,6 @@ namespace CsvTools.Tests
     {
       const int pageSize = 20;
       // 1065 / 17
-      var process = new CustomProcessDisplay();
       using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
         m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
         m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
@@ -69,7 +67,6 @@ namespace CsvTools.Tests
     {
       const int pageSize = 33;
       // 1065 / 17
-      var process = new CustomProcessDisplay();
       using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
         m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
         m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,
@@ -93,7 +90,6 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task PagedFileReaderOpen()
     {
-      var process = new CustomProcessDisplay();
       using var reader = new CsvFileReader(m_Setting.FullPath, m_Setting.CodePageId, m_Setting.SkipRows,
         m_Setting.HasFieldHeader, m_Setting.ColumnCollection, m_Setting.TrimmingOption, m_Setting.FieldDelimiter,
         m_Setting.FieldQualifier, m_Setting.EscapePrefix, m_Setting.RecordLimit, m_Setting.AllowRowCombining,

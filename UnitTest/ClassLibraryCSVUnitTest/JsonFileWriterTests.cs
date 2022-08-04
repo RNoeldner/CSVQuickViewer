@@ -18,7 +18,7 @@ namespace CsvTools.Tests
       var fileName = UnitTestStatic.GetTestPath("abc1.json");
 
       FileSystemUtils.FileDelete(fileName);
-      var customProcess = new CustomProcessDisplay();
+      var customProcess = new Progress<ProgressInfo>();
 
       // source data
       using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0,

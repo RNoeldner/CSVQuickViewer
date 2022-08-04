@@ -70,7 +70,7 @@ namespace CsvTools.Tests
       var dest = UnitTestStatic.GetTestPath("xyz.txt");
       try
       {
-        var processDisplay = new CustomProcessDisplay( );
+        var processDisplay = new Progress<ProgressInfo>( );
 
         Assert.IsFalse(FileSystemUtils.FileExists(dest));
         await FileSystemUtils.FileCopy(UnitTestStatic.GetTestPath("AllFormats.txt"), dest, false,

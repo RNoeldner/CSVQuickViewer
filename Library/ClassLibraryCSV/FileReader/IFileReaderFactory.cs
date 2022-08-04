@@ -12,6 +12,7 @@
  *
  */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,7 +27,7 @@ namespace CsvTools
     /// <param name="processDisplay">Used Process/Progress reporting</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A <see cref="IFileReader"/> capable to import data</returns>
-    IFileReader GetFileReader(in IFileSetting setting, in IProcessDisplay? processDisplay,
+    IFileReader GetFileReader(in IFileSetting setting, in IProgress<ProgressInfo>? processDisplay,
       in CancellationToken cancellationToken);
 
     /// <summary>
@@ -36,7 +37,7 @@ namespace CsvTools
     /// <param name="processDisplay">Used Process/Progress reporting</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A <see cref="IFileWriter"/> capable to export data</returns>
-    IFileWriter GetFileWriter(IFileSetting fileSetting, in IProcessDisplay? processDisplay,
+    IFileWriter GetFileWriter(IFileSetting fileSetting, in IProgress<ProgressInfo>? processDisplay,
       in CancellationToken cancellationToken);
 
     /// <summary>
@@ -48,7 +49,7 @@ namespace CsvTools
     /// <param name="recordLimit">Maximum number of records to be returned</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A <see cref="IFileReader"/> capable of reading data from the attached database</returns>
-    Task<IFileReader> SqlDataReader(in string sql, in IProcessDisplay? processDisplay, int commandTimeout,
+    Task<IFileReader> SqlDataReader(in string sql, in IProgress<ProgressInfo>? processDisplay, int commandTimeout,
       long recordLimit, CancellationToken cancellationToken);
   }
 }

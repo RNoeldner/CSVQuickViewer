@@ -61,7 +61,7 @@ namespace CsvTools.Tests
     {
       try
       {
-        using var dummy = FunctionalDI.GetFileReader(m_JsonFile, new CustomProcessDisplay(), UnitTestStatic.Token);
+        using var dummy = FunctionalDI.GetFileReader(m_JsonFile, new Progress<ProgressInfo>(), UnitTestStatic.Token);
         Assert.Fail("Should throw error");
       }
       catch (NotImplementedException)
@@ -76,7 +76,7 @@ namespace CsvTools.Tests
     public void GetFileWriter()
     {
       var jsonFile = new JsonFile("SomeFileName.json") { Row = "{0}" };
-      var processDisplay = new CustomProcessDisplay();
+      var processDisplay = new Progress<ProgressInfo>();
       m_JsonFile.SqlStatement = "dummy";
       var res = FunctionalDI.GetFileWriter(jsonFile, processDisplay, UnitTestStatic.Token);
       Assert.IsInstanceOfType(res, typeof(IFileWriter));

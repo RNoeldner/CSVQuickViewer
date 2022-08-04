@@ -669,11 +669,9 @@ namespace CsvTools
     public static IFileReader GetReaderFromDetectionResult(string fileName,
       DelimitedFileDetectionResult detectionResult)
     {
-      var processDisplay = new CustomProcessDisplay();
-
       if (detectionResult.IsJson)
         return new JsonFileReader(fileName, null, 1000, false, string.Empty, false,
-          StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, processDisplay);
+          StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       return new CsvFileReader(
         fileName, detectionResult.CodePageId,
         !detectionResult.HasFieldHeader && detectionResult.SkipRows == 0 ? 1 : detectionResult.SkipRows,

@@ -71,9 +71,7 @@
 
 		<Compile Include="..\ClassLibraryCSV\CsvFileWriter.cs" Link="CsvFileWriter.cs" />
 		<Compile Include="..\ClassLibraryCSV\CsvHelper.cs" Link="CsvHelper.cs" />
-		<Compile Include="..\ClassLibraryCSV\IProcessDisplay.cs" Link="IProcessDisplay.cs" />
 		<Compile Include="..\ClassLibraryCSV\IProcessDisplayTime.cs" Link="IProcessDisplayTime.cs" />
-		<Compile Include="..\ClassLibraryCSV\CustomProcessDisplay.cs" Link="CustomProcessDisplay.cs" />
 		<Compile Include="..\ClassLibraryCSV\ProcessDisplayTime.cs" Link="ProcessDisplayTime.cs" />
 		<Compile Include="..\ClassLibraryCSV\PagedFileReader.cs" Link="PagedFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\DynamicDataRecord.cs" Link="DynamicDataRecord.cs" />
@@ -83,8 +81,7 @@
 		
 		<Compile Include="..\ClassLibraryCSV\ReAlignColumns.cs" Link="ReAlignColumns.cs" />
 		<Compile Include="..\ClassLibraryCSV\TimeToCompletion.cs" Link="TimeToCompletion.cs" />
-		<Compile Include="..\ClassLibraryCSV\ProgressEventArgs.cs" Link="ProgressEventArgs.cs" />
-		<Compile Include="..\ClassLibraryCSV\ProgressWithTimeEventArgs.cs" Link="ProgressWithTimeEventArgs.cs" />
+		<Compile Include="..\ClassLibraryCSV\ProgressInfo.cs" Link="ProgressInfo.cs" />
 		<Compile Include="..\ClassLibraryCSV\IImprovedStream.cs" Link="IImprovedStream.cs" />
 		<Compile Include="..\ClassLibraryCSV\Logger.cs" Link="Logger.cs" />
 		

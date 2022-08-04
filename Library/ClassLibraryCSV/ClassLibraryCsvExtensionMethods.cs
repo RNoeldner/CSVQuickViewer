@@ -682,14 +682,14 @@ namespace CsvTools
       return template.Replace("  ", " ");
     }
 
-    public static void AttachProcessDisplay(this IFileReader fileReader, IProcessDisplay? processDisplay)
+    public static void AttachProcessDisplay(this IFileReader fileReader, IProgress<ProgressInfo>? processDisplay)
     {
       if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
       processDisplayTime.Maximum = BaseFileReader.cMaxProgress;
       fileReader.ReportProgress = processDisplayTime;
     }
 
-    public static void SetMaximum(this IProcessDisplay? processDisplay, long maximum)
+    public static void SetMaximum(this IProgress<ProgressInfo>? processDisplay, long maximum)
     {
       if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
       try
@@ -770,7 +770,7 @@ namespace CsvTools
       this IFileWriter writer,
       string sqlStatement,
       int timeout,
-      IProcessDisplay? reportProgress,
+      IProgress<ProgressInfo>? reportProgress,
       CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(sqlStatement))

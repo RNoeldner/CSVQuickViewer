@@ -80,7 +80,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetEmptyColumnHeaderAsyncTest()
     {
-      var processDisplay = new CustomProcessDisplay();
+      var processDisplay = new Progress<ProgressInfo>();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter,
@@ -106,7 +106,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync2()
     {
-      var processDisplay = new CustomProcessDisplay();
+      var processDisplay = new Progress<ProgressInfo>();
       var test2 = (CsvFile) m_ValidSetting.Clone();
       test2.RecordLimit = 4;
       using var test = new CsvFileReader(test2.FullPath, test2.CodePageId, test2.SkipRows, test2.HasFieldHeader,
@@ -132,7 +132,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync3()
     {
-      var processDisplay = new CustomProcessDisplay();
+      var processDisplay = new Progress<ProgressInfo>();
       var test3 = new CsvFile(UnitTestStatic.GetTestPath("WithEoFChar.txt")) { FieldDelimiter = "Tab" };
       test3.ColumnCollection.Add(new Column("Memo") { Ignore = true });
       using var test = new CsvFileReader(test3.FullPath, test3.CodePageId, test3.SkipRows, test3.HasFieldHeader,

@@ -55,8 +55,7 @@ namespace CsvTools
       string treatTextAsNull,
       bool treatNbspAsSpace,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      string destTimeZone,
-      IProcessDisplay? processDisplay)
+      string destTimeZone)
       : base(fileName, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone)
     {
       if (string.IsNullOrEmpty(fileName))

@@ -13,6 +13,7 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task AnalyzeFileAsyncOtherDelimiter()
     {
-      var processDisplay = new CustomProcessDisplay();
+      var processDisplay = new Progress<ProgressInfo>();
       var tuple = await UnitTestStatic.GetTestPath("MultipleDelimiter.txt").AnalyzeFileAsync(false, true, true,
                     true, true, true, true, true, new FillGuessSettings(), UnitTestStatic.Token);
 
@@ -36,7 +37,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task AnalyzeFileAsyncZip()
     {
-      var processDisplay = new CustomProcessDisplay();
+      var processDisplay = new Progress<ProgressInfo>();
       var tuple = await UnitTestStatic.GetTestPath("AllFormatsPipe.zip").AnalyzeFileAsync(false, true, true,
         true, true, true, true, true, new FillGuessSettings(), UnitTestStatic.Token);
 
@@ -47,8 +48,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task NewCsvFileGuessAllSmallFile()
     {
-      var display = new CustomProcessDisplay();
-
       var det = await UnitTestStatic.GetTestPath("employee.txt").GetDetectionResultFromFile(true, true, true, true, true, true, true, true, UnitTestStatic.Token);
       //TODO: check if this is Environment dependent, looks like windows has CRLF and Mac as LF
       Assert.AreEqual(RecordDelimiterTypeEnum.Crlf, det.NewLine);
@@ -57,7 +56,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetCsvFileSettingAsync()
     {
-      var processDisplay = new CustomProcessDisplay();
       var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt").AnalyzeFileAsync(true, true, true,
                     true, true, true, true, true, new FillGuessSettings(), UnitTestStatic.Token);
       Assert.IsNotNull(tuple);
@@ -67,7 +65,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetCsvFileSettingFromExtensionAsync()
     {
-      var processDisplay = new CustomProcessDisplay();
       var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt" + CsvFile.cCsvSettingExtension).AnalyzeFileAsync(true, true, true,
                     true, true, true, true, true, new FillGuessSettings(), UnitTestStatic.Token);
       Assert.IsNotNull(tuple);
@@ -191,7 +188,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetCsvFileSetting()
     {
-      var process = new CustomProcessDisplay();
+      var process = new Progress<ProgressInfo>();
       var result = await UnitTestStatic.GetTestPath("BasicCSV.txt").AnalyzeFileAsync(true, true, true, true, true, true, false, true,
                      new FillGuessSettings(), UnitTestStatic.Token);
       Assert.IsNotNull(result);
@@ -403,7 +400,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task NewCsvFileGuessAllHeadingsAsync()
     {
-      var display = new CustomProcessDisplay();
       var det = await UnitTestStatic.GetTestPath("BasicCSV.txt").GetDetectionResultFromFile(false, true, true, true, true, true, true, true, UnitTestStatic.Token);
       Assert.AreEqual(0, det.SkipRows);
       Assert.AreEqual(",".WrittenPunctuationToChar(), det.FieldDelimiter.WrittenPunctuationToChar());
@@ -413,7 +409,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task NewCsvFileGuessAllTestEmptyAsync()
     {
-      var display = new CustomProcessDisplay();
       var det = await UnitTestStatic.GetTestPath("CSVTestEmpty.txt").GetDetectionResultFromFile(false, true, true, true, true, true, true, true, UnitTestStatic.Token);
       Assert.AreEqual(0, det.SkipRows);
     }
@@ -442,7 +437,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task RefreshCsvFileAsync()
     {
-      var processDisplay = new CustomProcessDisplay();
       var det = await UnitTestStatic.GetTestPath("BasicCSV.txt").GetDetectionResultFromFile(false, true, true, true, true, true, true, true, UnitTestStatic.Token);
       Assert.AreEqual(1200, det.CodePageId);
       Assert.AreEqual(",".WrittenPunctuationToChar(), det.FieldDelimiter.WrittenPunctuationToChar());
