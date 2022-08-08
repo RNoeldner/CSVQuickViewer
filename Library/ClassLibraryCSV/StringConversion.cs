@@ -983,7 +983,7 @@ namespace CsvTools
 
       return null;
     }
-
+ 
     /// <summary>
     ///   Returns the duration on days for string value.
     /// </summary>

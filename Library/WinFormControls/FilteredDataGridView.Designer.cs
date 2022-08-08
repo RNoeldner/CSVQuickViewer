@@ -369,7 +369,7 @@ namespace CsvTools
 			// timerColumsFilterText
 			// 
 			this.timerColumsFilterText.Interval = 400;
-			this.timerColumsFilterText.Tick += new System.EventHandler(this.TimerColumsFilterText_Tick);
+			this.timerColumsFilterText.Tick += new System.EventHandler(this.TimerColumnsFilterText_Tick);
 			// 
 			// toolStripMenuItemColumnVisibility
 			// 

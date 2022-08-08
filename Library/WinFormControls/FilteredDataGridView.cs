@@ -36,18 +36,13 @@ namespace CsvTools
   {
     private static int m_DefRowHeight = -1;
     private static Image? m_ImgFilterIndicator;
-    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
-    private readonly List<ToolStripDataGridViewColumnFilter?> m_Filter = new List<ToolStripDataGridViewColumnFilter?>();
+    private readonly CancellationTokenSource m_CancellationTokenSource;
+    private readonly List<ToolStripDataGridViewColumnFilter?> m_Filter;
 
     private BindingSource? m_BindingSource;
 
     private bool m_DisposedValue;
     private IFileSetting? m_FileSetting;
-
-    /// <summary>
-    ///   Any Text entered here will be highlighted Filer
-    /// </summary>
-    private string m_HighlightText = string.Empty;
 
     private int m_MenuItemColumnIndex;
 
@@ -61,7 +56,8 @@ namespace CsvTools
     public FilteredDataGridView()
     {
       InitializeComponent();
-
+      m_CancellationTokenSource = new CancellationTokenSource();
+      m_Filter = new List<ToolStripDataGridViewColumnFilter?>();
       //Workaround as Text on Windows 8 is too small
       if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
         Paint += FilteredDataGridView_Paint;
@@ -192,10 +188,7 @@ namespace CsvTools
     ///   Sets the text that should be highlighted
     /// </summary>
     /// <value>The highlight text.</value>
-    public string HighlightText
-    {
-      set => m_HighlightText = value ?? string.Empty;
-    }
+    public string HighlightText { get; set; } = string.Empty;
 
     /// <summary>
     ///   Gets or sets the HTML style.
@@ -396,7 +389,7 @@ namespace CsvTools
       if (m_Filter[columnIndex] is null)
         GetColumnFilter(columnIndex);
 
-      while (!(contextMenuStripFilter.Items[0] is ToolStripSeparator))
+      while (contextMenuStripFilter.Items[0] is not ToolStripSeparator)
         contextMenuStripFilter.Items.RemoveAt(0);
 
       contextMenuStripFilter.Items.Insert(0, GetColumnFilter(columnIndex));
@@ -445,7 +438,7 @@ namespace CsvTools
           new ToolStripMenuItem(StringUtils.GetShortDisplay(item.Display, 40)) { Tag = item, Checked = item.Active, CheckOnClick = true };
         newMenuItem.CheckStateChanged += delegate (object? menuItem, EventArgs _)
         {
-          if (!(menuItem is ToolStripMenuItem sendItem))
+          if (menuItem is not ToolStripMenuItem sendItem)
             return;
           if (sendItem.Tag is ValueCluster itemVc)
             itemVc.Active = sendItem.Checked;
@@ -931,8 +924,9 @@ namespace CsvTools
     {
       if (m_FileSetting is null || colIndex < 0 || colIndex > m_FileSetting.ColumnCollection.Count)
         return null;
-      //TODO: Why not m_FileSetting.ColumnCollection[index]
-      return m_FileSetting.ColumnCollection.GetByName(Columns[colIndex].DataPropertyName);
+
+      return m_FileSetting.ColumnCollection
+        [colIndex]; // old way : m_FileSetting.ColumnCollection.GetByName(Columns[colIndex].DataPropertyName);
     }
 
     /// <summary>
@@ -968,8 +962,8 @@ namespace CsvTools
 
       var nbspIndex = val.IndexOf((char) 0xA0);
       var linefeedIndex = val.IndexOf('\n');
-      var highlightIndex = m_HighlightText.Length > 0
-                             ? val.IndexOf(m_HighlightText, StringComparison.InvariantCultureIgnoreCase)
+      var highlightIndex = HighlightText.Length > 0
+                             ? val.IndexOf(HighlightText, StringComparison.InvariantCultureIgnoreCase)
                              : -1;
 
       if (nbspIndex == -1 && highlightIndex == -1)
@@ -1014,7 +1008,7 @@ namespace CsvTools
         }
       }
 
-      if (m_HighlightText.Length > 0
+      if (HighlightText.Length > 0
           && (e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft
               || e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleRight) && highlightIndex >= 0)
         using (var hlBrush = new SolidBrush(Color.MediumSpringGreen))
@@ -1025,7 +1019,7 @@ namespace CsvTools
             hlRect.Y = e.CellBounds.Y + 2;
             var highlight = TextRenderer.MeasureText(
               e.Graphics,
-              val.Substring(highlightIndex, m_HighlightText.Length),
+              val.Substring(highlightIndex, HighlightText.Length),
               e.CellStyle.Font,
               e.CellBounds.Size);
             hlRect.Height = highlight.Height + 2;
@@ -1045,7 +1039,7 @@ namespace CsvTools
             }
             else
             {
-              var after = val.Substring(highlightIndex + m_HighlightText.Length);
+              var after = val.Substring(highlightIndex + HighlightText.Length);
               if (after.Length > 0)
                 hlRect.X = ((e.CellBounds.X + e.CellBounds.Width)
                             - TextRenderer.MeasureText(e.Graphics, after, e.CellStyle.Font,
@@ -1057,8 +1051,8 @@ namespace CsvTools
 
             e.Graphics.FillRectangle(hlBrush, hlRect);
             highlightIndex = val.IndexOf(
-              m_HighlightText,
-              highlightIndex + m_HighlightText.Length,
+              HighlightText,
+              highlightIndex + HighlightText.Length,
               StringComparison.InvariantCultureIgnoreCase);
           }
         }
@@ -1092,7 +1086,7 @@ namespace CsvTools
       var dataMember = DataMember;
       var maxIteration = 5;
 
-      while (!(dataSource is DataView) && maxIteration > 0)
+      while (dataSource is not System.Data.DataView && maxIteration > 0)
       {
         if (dataSource is BindingSource bs)
         {
@@ -1328,16 +1322,18 @@ namespace CsvTools
         var fileName = WindowsAPICodePackWrapper.Save(m_FileSetting is IFileSettingPhysicalFile phy ? phy.FullPath.GetDirectoryName() : ".", "Save Column Setting",
           "Column Config|*.col;*.conf|All files|*.*", ".col", false, DefFileNameColSetting(m_FileSetting, ".col"));
 
-        if (!string.IsNullOrEmpty(fileName))
-          using (var stream = new ImprovedStream(new SourceAccess(fileName!, false)))
-          using (var writer = new StreamWriter(stream, Encoding.UTF8, 1024))
-          {
-            await writer.WriteAsync(ViewSetting.StoreViewSetting(this, m_Filter));
-            await writer.FlushAsync();
+        if (fileName is null || fileName.Length==0)
+          return;
+#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+      await
+#endif
+        using var stream = new ImprovedStream(new SourceAccess(fileName, false));
+        using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
+        await writer.WriteAsync(ViewSetting.StoreViewSetting(this, m_Filter));
+        await writer.FlushAsync();
 
-            if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
-              basePhysical.ColumnFile = fileName!;
-          }
+        if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
+          basePhysical.ColumnFile = fileName;
       }
       catch (Exception ex)
       {
@@ -1378,7 +1374,7 @@ namespace CsvTools
 
     private void ToolStripMenuItemSortRemove_Click(object? sender, EventArgs e) => DataView!.Sort = string.Empty;
 
-    private void TimerColumsFilterText_Tick(object? sender, EventArgs e)
+    private void TimerColumnsFilterText_Tick(object? sender, EventArgs e)
     {
       timerColumsFilterText.Stop();
       if (toolStripTextBoxColFilter.Text.Length <= 1) return;
