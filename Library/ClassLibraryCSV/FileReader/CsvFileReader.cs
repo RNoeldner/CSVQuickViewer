@@ -517,10 +517,7 @@ namespace CsvTools
       if (m_Stream is IImprovedStream imp)
         return imp.Percentage;
 
-      if (RecordLimit > 0 && RecordLimit < long.MaxValue)
-        // you can either reach the record limit or the end of the stream
-        return Math.Max((double) RecordNumber / RecordLimit, 50);
-      return 0;
+      return base.GetRelativePosition();
     }
 
     private bool AllEmptyAndCountConsecutiveEmptyRows(IReadOnlyList<string?>? columns)

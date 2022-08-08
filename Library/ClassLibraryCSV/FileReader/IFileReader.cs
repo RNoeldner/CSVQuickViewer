@@ -128,11 +128,8 @@ namespace CsvTools
     void ResetPositionToFirstDataRow();
 
     /// <summary>
-    /// Sets the progress reporting action.
+    ///   Sets the progress reporting action <see cref="ProgressInfo.Value"/> will be between 0 and 10000/>
     /// </summary>
-    /// <value>
-    /// The value will be between 0 and 1 representing the relative position in the source, some IFile Readers do not support this
-    /// </value>
-    IProgress<ProgressInfo>? ReportProgress { set; }
+    IProgress<ProgressInfo> ReportProgress { set; }
   }
 }

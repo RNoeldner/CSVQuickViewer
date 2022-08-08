@@ -36,15 +36,24 @@ namespace CsvTools
     /// <summary>
     ///   The maximum value
     /// </summary>
-    public const int cMaxProgress = 10000;
+    private const int cMaxProgress = 10000;
 
     private readonly IReadOnlyCollection<ImmutableColumn> m_ColumnDefinition;
 
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
 
-    protected readonly long RecordLimit;
+    protected long RecordLimit;
+    
+    protected IProgress<ProgressInfo>? m_ReportProgress;
 
-    public IProgress<ProgressInfo>? ReportProgress { protected get; set; }
+    public IProgress<ProgressInfo> ReportProgress
+    {
+      set
+      {
+        value.SetMaximum(cMaxProgress);
+        m_ReportProgress = value;
+      }
+    }
 
     /// <summary>
     ///   An array of associated col
@@ -1028,14 +1037,19 @@ namespace CsvTools
     ///   Gets the relative position.
     /// </summary>
     /// <returns>A value between 0 and 1 for 0% to 100%</returns>
-    protected abstract double GetRelativePosition();
+    protected virtual double GetRelativePosition()
+    {
+      if (RecordLimit > 0 && RecordLimit < long.MaxValue)
+        return (double) RecordNumber / RecordLimit;
+      return 0;
+    }
 
     /// <summary>
     ///   Gets the associated value.
     /// </summary>
     /// <param name="i">The i.</param>
     /// <returns></returns>
-    protected string GetTimeValue(int i) =>
+    protected virtual string GetTimeValue(int i) =>
       AssociatedTimeCol[i] == -1 || AssociatedTimeCol[i] >= CurrentRowColumnText.Length
         ? string.Empty
         : CurrentRowColumnText[AssociatedTimeCol[i]];
@@ -1052,7 +1066,7 @@ namespace CsvTools
     /// <summary>
     ///   Handles the Event if reading the file is completed
     /// </summary>
-    protected void HandleReadFinished()
+    protected virtual void HandleReadFinished()
     {
       if (m_IsFinished) return;
 
@@ -1069,7 +1083,7 @@ namespace CsvTools
     protected virtual void HandleShowProgress(in string text, double percent)
     {
       Logger.Information("{message} {record:N0}", text, RecordNumber);
-      ReportProgress?.Report(new ProgressInfo(text, (percent * cMaxProgress).ToInt64()));
+      m_ReportProgress?.Report(new ProgressInfo(text, (percent * cMaxProgress).ToInt64()));
     }
 
     
@@ -1077,7 +1091,7 @@ namespace CsvTools
     ///   Shows the process twice a second
     /// </summary>
     /// <param name="text">Leading Text</param>
-    protected void HandleShowProgressPeriodic(string text)
+    protected virtual void HandleShowProgressPeriodic(string text)
         => m_IntervalAction.Invoke(() => HandleShowProgress(text, GetRelativePosition()));
 
     /// <summary>
@@ -1088,7 +1102,7 @@ namespace CsvTools
     /// <param name="inputString">The input string.</param>
     /// <param name="ordinal">The column number</param>
     /// <returns>The proper encoded or cut text as returned for the column</returns>
-    protected string HandleTextSpecials(in string? inputString, int ordinal)
+    protected virtual string HandleTextSpecials(in string? inputString, int ordinal)
     {
       if (inputString is null || inputString.Length == 0 || ordinal >= FieldCount)
         return inputString ?? string.Empty;
@@ -1101,7 +1115,7 @@ namespace CsvTools
     ///   Displays progress, is called after <see langword="abstract" /> row has been read
     /// </summary>
     /// <param name="hasReadRow"><c>true</c> if a row has been read</param>
-    protected void InfoDisplay(bool hasReadRow)
+    protected virtual void InfoDisplay(bool hasReadRow)
     {
       if (!hasReadRow)
         HandleReadFinished();
@@ -1132,7 +1146,7 @@ namespace CsvTools
     /// <param name="headerRow">The header row.</param>
     /// <param name="dataType">Type of the data.</param>
     /// <param name="hasFieldHeader">if set to <c>true</c> [has field header].</param>
-    protected void ParseColumnName(
+    protected virtual void ParseColumnName(
       in IEnumerable<string> headerRow,
       in IEnumerable<DataTypeEnum>? dataType = null,
       bool hasFieldHeader = true)
@@ -1238,7 +1252,7 @@ namespace CsvTools
     /// </summary>
     public event EventHandler<RetryEventArgs>? OnAskRetry;
 
-    protected bool ShouldRetry(in Exception ex, CancellationToken token)
+    protected virtual bool ShouldRetry(in Exception ex, CancellationToken token)
     {
       if (token.IsCancellationRequested) return false;
 
@@ -1252,7 +1266,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="ordinal">The column.</param>
     /// <param name="message">The message.</param>
-    protected FormatException WarnAddFormatException(int ordinal, in string message)
+    protected virtual FormatException WarnAddFormatException(int ordinal, in string message)
     {
       HandleError(ordinal, message);
       return new FormatException(message);

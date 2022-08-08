@@ -682,13 +682,6 @@ namespace CsvTools
       return template.Replace("  ", " ");
     }
 
-    public static void AttachProcessDisplay(this IFileReader fileReader, IProgress<ProgressInfo>? processDisplay)
-    {
-      if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
-      processDisplayTime.Maximum = BaseFileReader.cMaxProgress;
-      fileReader.ReportProgress = processDisplayTime;
-    }
-
     public static void SetMaximum(this IProgress<ProgressInfo>? processDisplay, long maximum)
     {
       if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;

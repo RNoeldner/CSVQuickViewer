@@ -44,7 +44,8 @@ namespace CsvTools
           TimeZoneInfo.Local.Id),
         _ => throw new FileReaderException($"Reader for {setting} not found")
       };
-      retReader.AttachProcessDisplay(processDisplay);
+      if (processDisplay != null)
+        retReader.ReportProgress=processDisplay;
       return retReader;
     }
 
