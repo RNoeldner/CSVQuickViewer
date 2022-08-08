@@ -93,8 +93,6 @@ namespace CsvTools
       FileSettingDisplay = fileSettingDisplay;
       m_KeepUnencrypted = unencrypted;
       m_IdentifierInContainer = identifierInContainer ?? string.Empty;
-
-      Logger.Information("Created Writer for {filesetting}", FileSettingDisplay);
     }
 
     public long Records { get; protected set; }

@@ -95,7 +95,7 @@ namespace CsvTools
 
     public override async Task OpenAsync(CancellationToken token)
     {
-      Logger.Information("Opening JSON file {filename}", FileName);
+      HandleShowProgress($"Opening JSON file {FileName}", 0);
       await BeforeOpenAsync($"Opening JSON file {FileSystemUtils.GetShortDisplayFileName(FileName)}")
         .ConfigureAwait(false);
       Retry:
@@ -255,8 +255,8 @@ namespace CsvTools
 
               // in case we are in an array combine all values but separate them with linefeed
               if (inArray && keyValuePairs[key] != null)
-                keyValuePairs[key] = (Convert.ToString(keyValuePairs[key]) ?? string.Empty) + '\n'
-                  + m_JsonTextReader.Value;
+                keyValuePairs[key] = (Convert.ToString(keyValuePairs[key])) + '\n'
+                                                                            + m_JsonTextReader.Value;
               else
                 keyValuePairs[key] = m_JsonTextReader.Value;
               break;
@@ -306,13 +306,13 @@ namespace CsvTools
             }
             else
             {
-              var orgVal = Convert.ToString(CurrentValues[columnNumber]) ?? string.Empty;
+              var orgVal = Convert.ToString(CurrentValues[columnNumber]);
               CurrentRowColumnText[columnNumber] = orgVal;
 
               if (!string.IsNullOrEmpty(orgVal) && !col.Ignore && col.ValueFormat.DataType >= DataTypeEnum.String)
               {
                 CurrentRowColumnText[columnNumber] =
-                  TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal, columnNumber)) ?? String.Empty;
+                  TreatNbspTestAsNullTrim(HandleTextSpecials(orgVal, columnNumber));
                 CurrentValues[columnNumber] = CurrentRowColumnText[columnNumber];
               }
             }
@@ -362,7 +362,7 @@ namespace CsvTools
       // in case we can not seek need to reopen the stream reader
       m_StreamReader?.Close();
       m_StreamReader = new StreamReader(
-        m_ImprovedStream as Stream ?? throw new InvalidOperationException(),
+        m_ImprovedStream ?? throw new InvalidOperationException(),
         Encoding.UTF8,
         true,
         4096,
