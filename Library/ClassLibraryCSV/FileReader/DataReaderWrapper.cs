@@ -62,7 +62,7 @@ namespace CsvTools
         FileReader.Warning += (o, e) => Warning?.Invoke(o, e);
     }
 
-    public IProgress<ProgressInfo>? ReportProgress
+    public IProgress<ProgressInfo> ReportProgress
     {
       set
       {

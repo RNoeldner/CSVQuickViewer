@@ -215,7 +215,8 @@ namespace CsvTools.Tests
     {
       var dpd = new Progress<ProgressInfo>();
       using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Emp.json"), null, 0, false, string.Empty, false, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
-      jfr.AttachProcessDisplay(dpd);
+      jfr.ReportProgress=dpd;
+
       await jfr.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(110, jfr.FieldCount);
       await jfr.ReadAsync(UnitTestStatic.Token);
