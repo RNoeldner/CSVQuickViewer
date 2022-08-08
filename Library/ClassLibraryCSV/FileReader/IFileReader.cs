@@ -46,12 +46,6 @@ namespace CsvTools
     bool EndOfFile { get; }
 
     /// <summary>
-    ///   Occurs before the initial open. Can be used to prepare the data like download it from a
-    ///   remote location
-    /// </summary>
-    void SetOnOpen(Func<Task> value);
-
-    /// <summary>
     ///   Value between 0 and 100 to show the progress of the reader, not all readers do support
     ///   this, readers based on streams usually return the relative position in that stream.
     /// </summary>
