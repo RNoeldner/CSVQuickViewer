@@ -44,7 +44,7 @@ namespace CsvTools
 
     protected long RecordLimit;
     
-    protected IProgress<ProgressInfo>? m_ReportProgress;
+    private IProgress<ProgressInfo>? m_ReportProgress;
 
     public IProgress<ProgressInfo> ReportProgress
     {
@@ -148,14 +148,7 @@ namespace CsvTools
 
     public override bool HasRows => !EndOfFile;
 
-    public void SetNotifyAfterSeconds(double value) => m_IntervalAction.NotifyAfterSeconds = value;
-
-    private Func<Task>? m_OnOpenAsync;
-
-    /// <summary>
-    ///   Occurs before the file is opened
-    /// </summary>
-    public void SetOnOpen(Func<Task>? value) => m_OnOpenAsync = value;
+    public Func<Task>? OnOpenAsync { private get; set; }
 
     /// <summary>
     ///   Gets the percentage as value between 0 and 100
@@ -870,8 +863,8 @@ namespace CsvTools
     protected async Task BeforeOpenAsync(string message)
     {
       HandleShowProgress(message,0);
-      if (m_OnOpenAsync != null) 
-        await m_OnOpenAsync.Invoke().ConfigureAwait(false);
+      if (OnOpenAsync != null) 
+        await OnOpenAsync.Invoke().ConfigureAwait(false);
     }
 
     /// <summary>

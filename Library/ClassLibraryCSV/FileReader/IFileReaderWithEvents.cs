@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -39,5 +40,12 @@ namespace CsvTools
     ///   Event to be raised once the reader is finished reading the file
     /// </summary>
     event EventHandler? ReadFinished;
+
+
+    /// <summary>
+    ///   Occurs before the initial open. Can be used to prepare the data like download it from a
+    ///   remote location
+    /// </summary>
+    Func<Task>? OnOpenAsync { set; }
   }
 }
