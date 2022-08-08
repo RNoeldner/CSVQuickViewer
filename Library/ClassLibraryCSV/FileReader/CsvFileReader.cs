@@ -400,7 +400,7 @@ namespace CsvTools
         if (SelfOpenedStream)
         {
           if (m_Stream != null)
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
             await m_Stream.DisposeAsync().ConfigureAwait(false);
 #else
             m_Stream.Dispose();
@@ -1208,7 +1208,7 @@ namespace CsvTools
       HandleWarning(column, "Linefeed found in field".AddWarningId());
     }
 
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
 
     public new async ValueTask DisposeAsync()
     {

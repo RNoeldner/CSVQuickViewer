@@ -1148,7 +1148,7 @@ namespace CsvTools
       // Open the file setting but change a few settings
       var fileSettingCopy = GetSettingForRead(fileSetting);
 
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, null, cancellationToken);

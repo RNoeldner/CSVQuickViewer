@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace CsvTools
 {
   public class TwoStepDataTableLoader : DisposableBase
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
                                         , IAsyncDisposable
 #endif
   {
@@ -36,7 +36,7 @@ namespace CsvTools
       m_ActionBegin = actionBegin;
     }
 
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
     public async ValueTask DisposeAsync()
     {
       if (m_FileReader != null)
@@ -155,7 +155,7 @@ namespace CsvTools
         }
 
       if (m_DataReaderWrapper.EndOfFile)
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
           await DisposeAsync();
 #else
         Dispose();

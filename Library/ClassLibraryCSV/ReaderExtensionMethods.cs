@@ -110,7 +110,7 @@ namespace CsvTools
       if (reader.IsClosed)
         await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var wrapper = new DataReaderWrapper(

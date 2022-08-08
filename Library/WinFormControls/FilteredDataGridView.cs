@@ -1324,7 +1324,7 @@ namespace CsvTools
 
         if (fileName is null || fileName.Length==0)
           return;
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
       await
 #endif
         using var stream = new ImprovedStream(new SourceAccess(fileName, false));

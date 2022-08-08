@@ -33,7 +33,7 @@ namespace CsvTools
     {
     }
 
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
     [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("processDisplay")]
 #endif
 
