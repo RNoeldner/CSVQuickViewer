@@ -129,7 +129,7 @@ namespace CsvTools
       Stream output,
       CancellationToken cancellationToken)
     {
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var writer =

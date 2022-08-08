@@ -128,7 +128,7 @@ namespace CsvTools
 
     public override void Close() => DataReader.Close();
 
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
 
     public override async Task CloseAsync()
     {

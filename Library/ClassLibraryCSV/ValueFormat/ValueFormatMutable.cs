@@ -243,7 +243,7 @@ namespace CsvTools
       set => SetField(ref m_Part, value);
     }
 
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
 

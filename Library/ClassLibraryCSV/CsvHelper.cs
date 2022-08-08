@@ -162,7 +162,7 @@ namespace CsvTools
         cancellationToken).ConfigureAwait(false);
 
       Logger.Information("Determining column format by reading samples");
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var reader = GetReaderFromDetectionResult(fileName2, detectionResult);
@@ -615,7 +615,7 @@ namespace CsvTools
       {
 
         Logger.Information("Opening file");
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
         await
 #endif
         using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
@@ -639,7 +639,7 @@ namespace CsvTools
         if (!detectionResult.IsJson && disallowedDelimiter.Count < 3)
         {
           Logger.Information("Reading to check field delimiter", checks+1, true);
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
           await
 #endif
           using var reader = GetReaderFromDetectionResult(fileName, detectionResult);

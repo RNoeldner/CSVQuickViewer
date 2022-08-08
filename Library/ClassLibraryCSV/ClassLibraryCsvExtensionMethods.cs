@@ -768,7 +768,7 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(sqlStatement))
         return 0;
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var sqlReader = await FunctionalDI.SqlDataReader(

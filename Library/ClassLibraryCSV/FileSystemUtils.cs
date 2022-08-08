@@ -179,11 +179,11 @@ namespace CsvTools
 
       if (FileExists(sourceFile))
         FileDelete(destFile);
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var fromStream = OpenRead(sourceFile);
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var toStream = OpenWrite(destFile);

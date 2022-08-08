@@ -115,7 +115,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The fill guess settings.</value>
     [XmlElement]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public virtual FillGuessSettings FillGuessSettings
@@ -214,7 +214,7 @@ namespace CsvTools
     }
 
     [XmlElement(ElementName = "HTMLStyle")]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public string Style

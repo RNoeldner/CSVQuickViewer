@@ -164,7 +164,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue("False")]
     [XmlElement]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public string FalseValue
@@ -256,7 +256,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue("True")]
     [XmlElement]
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public string TrueValue

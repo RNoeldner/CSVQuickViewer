@@ -379,7 +379,7 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(m_StreamReader) { SupportMultipleContent = true };
     }
 
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
     public new async ValueTask DisposeAsync()
     {
       await DisposeAsyncCore();

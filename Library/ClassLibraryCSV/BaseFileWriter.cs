@@ -284,7 +284,7 @@ namespace CsvTools
           keepEncrypted: m_KeepUnencrypted);
         if (!string.IsNullOrEmpty(m_IdentifierInContainer))
           sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
         await
 #endif
         using var stream = FunctionalDI.OpenStream(sourceAccess);

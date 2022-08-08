@@ -225,7 +225,7 @@ namespace CsvTools
       m_DisposedValue = true;
     }
 
-#if NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER
     protected virtual async ValueTask DisposeAsyncCore()
     {
       if (AccessStream != null &&  !ReferenceEquals(AccessStream, BaseStream))
