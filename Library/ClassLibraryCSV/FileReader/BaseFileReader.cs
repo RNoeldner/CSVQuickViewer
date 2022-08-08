@@ -869,7 +869,7 @@ namespace CsvTools
     /// </summary>
     protected async Task BeforeOpenAsync(string message)
     {
-      Logger.Information(message);
+      HandleShowProgress(message,0);
       if (m_OnOpenAsync != null) 
         await m_OnOpenAsync.Invoke().ConfigureAwait(false);
     }
@@ -1080,13 +1080,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="text">Leading Text</param>
     /// <param name="percent">Value between 0 and 1 representing the relative position</param>
-    protected virtual void HandleShowProgress(in string text, double percent)
-    {
-      Logger.Information("{message} {record:N0}", text, RecordNumber);
-      m_ReportProgress?.Report(new ProgressInfo(text, (percent * cMaxProgress).ToInt64()));
-    }
+    protected virtual void HandleShowProgress(in string text, double percent) => m_ReportProgress?.Report(new ProgressInfo(text, (percent * cMaxProgress).ToInt64()));
 
-    
+
     /// <summary>
     ///   Shows the process twice a second
     /// </summary>
