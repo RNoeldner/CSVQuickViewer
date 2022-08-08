@@ -85,7 +85,6 @@ namespace CsvTools.Tests
     {
       var setting = new JsonFile(UnitTestStatic.GetTestPath("Emp.json"));
 
-      var dpd = new Progress<ProgressInfo>();
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await jfr.OpenAsync(UnitTestStatic.Token);
