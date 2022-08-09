@@ -31,7 +31,7 @@ namespace CsvTools
     private static readonly Lazy<int[]> m_CommonCodePages = new Lazy<int[]>(
       () => new[]
       {
-        65001, 1200, 1201, 12000, 12001, 1250, 1252, 1253, 1255, 65000, 850, 852, 437, 28591, 10029, 20127, 28597,
+        Encoding.UTF8.CodePage, 1200, 1201, 12000, 12001, 1250, 1252, 1253, 1255,  850, 852, 437, 28591, 10029, 20127, 28597,
         50220, 28592, 28595, 28598, 20866, 932, 54936
       });
 
@@ -47,7 +47,7 @@ namespace CsvTools
       // ReSharper disable once ConvertIfStatementToSwitchStatement
       if (codePage == Encoding.UTF8.CodePage)
         return 3;
-      if (codePage == Encoding.UTF7.CodePage || codePage == 12000 || codePage == 12001 || codePage == 54936)
+      if (codePage == 12000 || codePage == 12001 || codePage == 54936)
         return 4;
       if (codePage == Encoding.Unicode.CodePage || codePage == Encoding.BigEndianUnicode.CodePage)
         return 2;
