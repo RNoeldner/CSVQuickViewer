@@ -26,7 +26,7 @@ namespace CsvTools.Tests
 		{
 			Assert.IsTrue(EncodingHelper.CommonCodePages.Contains(1252), "Windows");
 			Assert.IsTrue(EncodingHelper.CommonCodePages.Contains(1200), "UTF-16");
-			Assert.IsTrue(EncodingHelper.CommonCodePages.Contains(65000), "UTF-8");
+			Assert.IsTrue(EncodingHelper.CommonCodePages.Contains(Encoding.UTF8.CodePage), "UTF-8");
 		}
 
 		[TestMethod]
