@@ -14,19 +14,21 @@
 
 using System;
 using System.Threading;
-using System.Threading.Tasks;
+
 
 namespace CsvTools
 {
-  public class ClassLibraryCSVFileReaderWriterFactory : IFileReaderWriterFactory
+  /// <inheritdoc />
+  public class ClassLibraryCsvFileReaderWriterFactory : IFileReaderWriterFactory
   {
     private readonly TimeZoneChangeDelegate m_TimeZoneAdjust;
 
-    public ClassLibraryCSVFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust) => m_TimeZoneAdjust = timeZoneAdjust;
+    /// <summary>Initializes a new instance of the <see cref="ClassLibraryCsvFileReaderWriterFactory" /> class.</summary>
+    /// <param name="timeZoneAdjust">The routine to do time zone adjustments</param>
+    public ClassLibraryCsvFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust) => m_TimeZoneAdjust = timeZoneAdjust;
 
     /// <inheritdoc />
-    public IFileReader GetFileReader(in IFileSetting setting, in IProgress<ProgressInfo>? processDisplay,
-      in CancellationToken cancellationToken)
+    public IFileReader GetFileReader(IFileSetting setting, CancellationToken cancellationToken)
     {
       IFileReader retReader = setting switch
       {
@@ -44,13 +46,11 @@ namespace CsvTools
           TimeZoneInfo.Local.Id),
         _ => throw new FileReaderException($"Reader for {setting} not found")
       };
-      if (processDisplay != null)
-        retReader.ReportProgress=processDisplay;
       return retReader;
     }
 
     /// <inheritdoc />
-    public IFileWriter GetFileWriter(IFileSetting fileSetting, in IProgress<ProgressInfo>? processDisplay, in CancellationToken cancellationToken)
+    public IFileWriter GetFileWriter(IFileSetting fileSetting, CancellationToken cancellationToken)
     {
       IFileWriter? writer = fileSetting switch
       {
@@ -82,8 +82,5 @@ namespace CsvTools
       };
       return writer;
     }
-
-    public Task<IFileReader> SqlDataReader(in string sql, in IProgress<ProgressInfo>? processDisplay, int commandTimeout,
-      long recordLimit, CancellationToken cancellationToken) => throw new NotImplementedException();
   }
 }

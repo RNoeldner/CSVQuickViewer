@@ -359,9 +359,9 @@ namespace CsvTools.Tests
     {
       var called = false;
       var fmter = new TextPartFormatter(2, ":", false);
-      Assert.AreEqual("Hallo", fmter.FormatInputText("Test:Hallo", s => called = true));
+      Assert.AreEqual("Hallo", fmter.FormatInputText("Test:Hallo", _ => called = true));
       Assert.IsFalse(called);
-      Assert.AreEqual("", fmter.FormatInputText("Test", s => called = true));
+      Assert.AreEqual("", fmter.FormatInputText("Test", _ => called = true));
       Assert.IsTrue(called);
     }
 
@@ -370,10 +370,10 @@ namespace CsvTools.Tests
     {
       var called = false;
       var fmter = new TextReplaceFormatter("(l|L)", "L");
-      Assert.AreEqual("HaLLo", fmter.FormatInputText("HaLlo", s => called = true));
+      Assert.AreEqual("HaLLo", fmter.FormatInputText("HaLlo", _ => called = true));
       Assert.IsTrue(called);
       called = false;
-      Assert.AreEqual("Test", fmter.FormatInputText("Test", s => called = true));
+      Assert.AreEqual("Test", fmter.FormatInputText("Test", _ => called = true));
       Assert.IsFalse(called);
     }
 

@@ -20,7 +20,7 @@ namespace CsvTools.Tests
       using var impStream = new ImprovedStream(stream, FileTypeEnum.Stream);
       var result = await impStream.GetDetectionResult("stream", false, true, true, true, true, true, false, true,
         null, UnitTestStatic.Token);
-      impStream.Seek(0, System.IO.SeekOrigin.Begin);
+      impStream.Seek(0, SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
                new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
@@ -56,11 +56,10 @@ namespace CsvTools.Tests
       ICollection<IColumn> determinedColumns;
       // Not closing the stream
       using var impStream = new ImprovedStream(stream, FileTypeEnum.GZip);
-      var process = new Progress<ProgressInfo>();
       var result = await impStream.GetDetectionResult("steam", false, true, true, true, true, true, false,
         false, null, UnitTestStatic.Token);
 
-      impStream.Seek(0, System.IO.SeekOrigin.Begin);
+      impStream.Seek(0, SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
                new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
@@ -76,7 +75,7 @@ namespace CsvTools.Tests
         Assert.AreEqual(6, info.Count, "Information Lines");
       }
 
-      impStream.Seek(0, System.IO.SeekOrigin.Begin);
+      impStream.Seek(0, SeekOrigin.Begin);
 
       using (var reader = new CsvFileReader(impStream, result.CodePageId, result.SkipRows, result.HasFieldHeader,
                determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,

@@ -13,7 +13,6 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.ComponentModel;
 
 namespace CsvTools.Tests
 {
@@ -140,7 +139,7 @@ namespace CsvTools.Tests
     {
       var numCalled = 0;
       var test = new CsvFile();
-      test.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
+      test.PropertyChanged += (_, e) =>
       {
         Assert.AreEqual(nameof(CsvFile.QualifierPlaceholder), e.PropertyName, true);
         numCalled++;

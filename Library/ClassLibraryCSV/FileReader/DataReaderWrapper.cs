@@ -62,6 +62,7 @@ namespace CsvTools
         FileReader.Warning += (o, e) => Warning?.Invoke(o, e);
     }
 
+    /// <inheritdoc />
     public IProgress<ProgressInfo> ReportProgress
     {
       set
@@ -90,46 +91,54 @@ namespace CsvTools
     {
     }
 
-    private Func<Task>? m_OnOpenAsync;
 
+    /// <inheritdoc />
     public override bool HasRows => !DataReader.IsClosed;
 
     /// <inheritdoc />
-    /// <summary>
-    ///   Event handler called if a warning or error occurred
-    /// </summary>
     public event EventHandler<WarningEventArgs>? Warning;
 
+    /// <inheritdoc />
     public override int Depth => FieldCount;
 
+    /// <inheritdoc />
     public long EndLineNumber => FileReader?.EndLineNumber ?? RecordNumber;
 
+    /// <inheritdoc />
     public virtual bool EndOfFile => FileReader?.EndOfFile ?? DataReader.IsClosed;
 
+    /// <inheritdoc />
     public override int FieldCount => ReaderMapping.Column.Count;
 
+    /// <inheritdoc />
     public override bool IsClosed => DataReader.IsClosed;
 
+    /// <inheritdoc />
     public virtual int Percent => FileReader?.Percent ?? 50;
 
+    /// <inheritdoc />
     public long RecordNumber { get; protected set; }
 
+    /// <inheritdoc />
     public override int RecordsAffected => RecordNumber.ToInt();
 
+    /// <inheritdoc />
     public long StartLineNumber => FileReader?.StartLineNumber ?? RecordNumber;
 
-    public virtual void SetOnOpen(Func<Task>? value) => m_OnOpenAsync = value;
-
+    /// <inheritdoc />
     public virtual bool SupportsReset => !(FileReader is null);
 
+    /// <inheritdoc />
     public override object this[int ordinal] => GetValue(ordinal);
 
+    /// <inheritdoc />
     public override object this[string name] => GetValue(GetOrdinal(name));
 
+    /// <inheritdoc />
     public override void Close() => DataReader.Close();
 
 #if NETSTANDARD2_1_OR_GREATER
-
+    /// <inheritdoc />
     public override async Task CloseAsync()
     {
       if (DataReader is DbDataReader dbDataReader)
@@ -139,40 +148,40 @@ namespace CsvTools
     }
 
 #endif
-
+    /// <inheritdoc />
     public override bool GetBoolean(int ordinal) => DataReader.GetBoolean(ReaderMapping.DataTableToReader(ordinal));
-
+    /// <inheritdoc />
     public override byte GetByte(int ordinal) => DataReader.GetByte(ReaderMapping.DataTableToReader(ordinal));
-
+    /// <inheritdoc />
     public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length) =>
       DataReader.GetBytes(ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
-
+    /// <inheritdoc />
     public override char GetChar(int ordinal) => DataReader.GetChar(ReaderMapping.DataTableToReader(ordinal));
-
+    /// <inheritdoc />
     public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) =>
       DataReader.GetChars(ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
-
+    /// <inheritdoc />
     public new IDataReader? GetData(int i) => DataReader.GetData(i);
-
+    /// <inheritdoc />
     public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
-
+    /// <inheritdoc />
     public override DateTime GetDateTime(int ordinal) =>
       DataReader.GetDateTime(ReaderMapping.DataTableToReader(ordinal));
-
+    /// <inheritdoc />
     public override decimal GetDecimal(int ordinal) => DataReader.GetDecimal(ReaderMapping.DataTableToReader(ordinal));
-
+    /// <inheritdoc />
     public override double GetDouble(int ordinal) => DataReader.GetDouble(ReaderMapping.DataTableToReader(ordinal));
-
+    /// <inheritdoc />
     public override Type GetFieldType(int ordinal) => ReaderMapping.Column[ordinal].ValueFormat.DataType.GetNetType();
-
+    /// <inheritdoc />
     public override float GetFloat(int ordinal) => DataReader.GetFloat(ReaderMapping.DataTableToReader(ordinal));
-
+    /// <inheritdoc />
     public override Guid GetGuid(int ordinal) => DataReader.GetGuid(ReaderMapping.DataTableToReader(ordinal));
-
+    /// <inheritdoc />
     public override short GetInt16(int ordinal) => DataReader.GetInt16(ReaderMapping.DataTableToReader(ordinal));
-
+    /// <inheritdoc />
     public override int GetInt32(int ordinal) => DataReader.GetInt32(ReaderMapping.DataTableToReader(ordinal));
-
+    /// <inheritdoc />
     public override long GetInt64(int ordinal)
     {
       if (ordinal == ReaderMapping.DataTableStartLine)
@@ -184,9 +193,9 @@ namespace CsvTools
 
       return DataReader.GetInt64(ReaderMapping.DataTableToReader(ordinal));
     }
-
+    /// <inheritdoc />
     public override string GetName(int ordinal) => ReaderMapping.Column[ordinal].Name;
-
+    /// <inheritdoc />
     public override int GetOrdinal(string name)
     {
       if (string.IsNullOrEmpty(name))
@@ -201,7 +210,7 @@ namespace CsvTools
 
       return -1;
     }
-
+    /// <inheritdoc />
     public override DataTable GetSchemaTable()
     {
       var dataTable = ReaderConstants.GetEmptySchemaTable();
@@ -234,9 +243,9 @@ namespace CsvTools
 
       return dataTable;
     }
-
+    /// <inheritdoc />
     public override string GetString(int ordinal) => Convert.ToString(GetValue(ordinal));
-
+    /// <inheritdoc />
     public override object GetValue(int ordinal)
     {
       if (ordinal == ReaderMapping.DataTableStartLine)
@@ -250,9 +259,9 @@ namespace CsvTools
 
       return DataReader.GetValue(ReaderMapping.DataTableToReader(ordinal));
     }
-
+    /// <inheritdoc />
     public override int GetValues(object[] values) => DataReader.GetValues(values);
-
+    /// <inheritdoc />
     public override bool IsDBNull(int ordinal)
     {
       if (ordinal == ReaderMapping.DataTableStartLine || ordinal == ReaderMapping.DataTableEndLine ||
@@ -264,8 +273,10 @@ namespace CsvTools
         : DataReader.IsDBNull(ReaderMapping.DataTableToReader(ordinal));
     }
 
+    /// <inheritdoc cref="IFileReader" />
     public override bool NextResult() => false;
 
+    /// <inheritdoc cref="IFileReader" />
     public override bool Read()
     {
       ReaderMapping.PrepareRead();
@@ -274,7 +285,7 @@ namespace CsvTools
         RecordNumber++;
       return couldRead;
     }
-
+    /// <inheritdoc cref="IFileReader" />
     public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
     {
       ReaderMapping.PrepareRead();
@@ -287,26 +298,22 @@ namespace CsvTools
         RecordNumber++;
       return couldRead;
     }
-
+    /// <inheritdoc />
     public virtual IColumn GetColumn(int column) => ReaderMapping.Column[column];
 
-    //Nothing needs to be done for this instance
-
+    /// <inheritdoc />
     [Obsolete("No need to open a DataReaderWrapper")]
-    public virtual async Task OpenAsync(CancellationToken token)
-    {
-      if (m_OnOpenAsync != null)
-        await m_OnOpenAsync.Invoke().ConfigureAwait(false);
-    }
+    public Task OpenAsync(CancellationToken token) => Task.CompletedTask;
 
+    /// <inheritdoc />
     public virtual void ResetPositionToFirstDataRow()
     {
       FileReader?.ResetPositionToFirstDataRow();
       RecordNumber = 0;
     }
-
+    /// <inheritdoc />
     public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
-
+    /// <inheritdoc />
     public byte[] GetFile(int ordinal) => FileReader?.GetFile(ordinal) ?? Array.Empty<byte>();
   }
 }

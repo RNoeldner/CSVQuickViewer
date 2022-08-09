@@ -56,7 +56,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(pageSize, test.Count);
 
       var collectionChangedCalled = false;
-      test.CollectionChanged += (o, s) => { collectionChangedCalled = true; };
+      test.CollectionChanged += (_, _) => { collectionChangedCalled = true; };
       await test.MoveToNextPageAsync(UnitTestStatic.Token);
       Assert.IsTrue(collectionChangedCalled);
       Assert.AreEqual(pageSize, test.Count);
@@ -105,7 +105,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(20, test.Count);
 
       // get the value in row 1 for the property TZ
-      dynamic testValue = test[0];
       // Assert.AreEqual("CET", testValue.TZ);
 
       test.Close();

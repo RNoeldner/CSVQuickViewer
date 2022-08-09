@@ -48,7 +48,7 @@ namespace CsvTools.Tests
       var raw = values[0] + values[1] + "|" + values[2] + "|" + values[3] + "|" + values[4] + "|" + values[5] + "|" +
                 values[6] + "|" + values[7] + "|" + values[8] + "|" + values[9]; 
       string warning = string.Empty;
-      var res = test.RealignColumn(values2, (i, s) => { warning = s;}, raw);
+      var res = test.RealignColumn(values2, (_, s) => { warning = s;}, raw);
       Assert.AreEqual(dt.Columns.Count, res.Length);
       // the column should be moved
       Assert.AreEqual(Convert.ToString(rowT[1]), res[1]);
@@ -88,7 +88,7 @@ namespace CsvTools.Tests
       var raw = values[0] + values[1] + "|" + values[2] + "|" + values[3] + "|" + values[4] + "|" + values[5] + "|" +
                 values[6] + "|" + values[7] + "|" + values[8] + "|" + values[9]; 
       string warning = string.Empty;
-      var res = test.RealignColumn(values2, (i, s) => { warning = s;}, raw);
+      var res = test.RealignColumn(values2, (_, s) => { warning = s;}, raw);
       Assert.AreEqual(dt.Columns.Count, res.Length);
 
       // the column should be moved

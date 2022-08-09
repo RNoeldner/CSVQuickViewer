@@ -52,15 +52,15 @@ namespace CsvTools.Tests
         await Task.Delay(speed2, UnitTestStatic.Token);        
       }
       estimate = test.EstimatedTimeRemaining.TotalSeconds;
-      // now we have descreased the speed
+      // now we have decreased the speed
       // I now have 100 values in 2.5+5 + time for the processing seconds,
-      // this means we should have 2.5-5 seconds for the rest of 50 depedning on how the speed is picked up 
-      Assert.IsTrue(4.0 < estimate && estimate < 6.0, $"Should have 5 seconds for the rest {point1}\nExact Value: {test.EstimatedTimeRemaining.TotalSeconds }");           
+      // this means we should have 2.5-5 seconds for the rest of 50 depending on how the speed is picked up 
+      Assert.IsTrue(estimate is > 4.0 and < 6.0, $"Should have 5 seconds for the rest {point1}\nExact Value: {test.EstimatedTimeRemaining.TotalSeconds }");           
     }
 
     [TestMethod]
     [Timeout(20000)]
-    public async System.Threading.Tasks.Task TimeToCompletionTestAsync()
+    public async Task TimeToCompletionTestAsync()
     {
       var test = new TimeToCompletion();
       Assert.IsNotNull(test);
@@ -89,7 +89,7 @@ namespace CsvTools.Tests
         await Task.Delay(200, UnitTestStatic.Token);
       }
       var totalSec = test.EstimatedTimeRemaining.TotalSeconds;
-      Assert.IsTrue(totalSec > 10.0 && totalSec < 22.0, $"10 < {totalSec} < 22");      
+      Assert.IsTrue(totalSec is > 10.0 and < 22.0, $"10 < {totalSec} < 22");      
       Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplaySeparator);
       Assert.AreNotEqual(string.Empty, test.EstimatedTimeRemainingDisplay);
     }

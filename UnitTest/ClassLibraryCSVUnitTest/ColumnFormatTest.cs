@@ -33,7 +33,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("Name2", target2.Name);
       var target3 = new Column("Name3", (IValueFormat) new ImmutableValueFormat());
       Assert.AreEqual("Name3", target3.Name);
-      var target4 = new Column("Name4","DF", "/");
+      var target4 = new Column("Name4","DF");
       Assert.AreEqual("Name4", target4.Name);
       var target5 = new Column(target3, new ImmutableValueFormat(DataTypeEnum.DateTime));
       Assert.AreEqual("Name3", target5.Name);
@@ -111,7 +111,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("Näme", target.Name);
       var test2 = new Column(target);
       Assert.AreEqual("Näme", test2.Name);
-      var keySerializer = new XmlSerializer(typeof(Column));
+      new XmlSerializer(typeof(Column));
     }
 
     

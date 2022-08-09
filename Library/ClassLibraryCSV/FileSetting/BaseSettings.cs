@@ -493,13 +493,7 @@ namespace CsvTools
       get => m_SourceFileSettings;
       set
       {
-        var target = value ?? Array.Empty<IFileSetting>();
-        var notify = target.CollectionEqual(m_SourceFileSettings);
-
-        if (!notify) 
-          return;
-        
-        m_SourceFileSettings = target;
+        m_SourceFileSettings = value;
         NotifyPropertyChanged();
       }
     }

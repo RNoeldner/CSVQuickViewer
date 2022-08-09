@@ -54,7 +54,7 @@ namespace CsvTools.Tests
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual("This is a \"Test\" of doubled quoted Text", test.GetString(1),
@@ -91,7 +91,7 @@ namespace CsvTools.Tests
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual("a", test.GetString(0), "Start of file with quote");
@@ -140,7 +140,7 @@ namespace CsvTools.Tests
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       var warningList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
       warningList.HandleIgnoredColumns(test);
@@ -195,7 +195,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.AreEqual("a\"", test.GetString(0), @"a\""");
@@ -245,7 +245,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.AreEqual(1U, test.StartLineNumber, "LineNumber");
@@ -316,7 +316,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
 
@@ -361,7 +361,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
 
@@ -432,7 +432,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(cts.Token);
       cts.Cancel();
       Assert.IsFalse(await test.ReadAsync(cts.Token));
@@ -461,7 +461,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(0, test.FieldCount);
       Assert.IsFalse(await test.ReadAsync(UnitTestStatic.Token));
@@ -490,7 +490,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -534,7 +534,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(6, test.FieldCount);
@@ -578,7 +578,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount, "FieldCount");
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -615,7 +615,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(6, test.FieldCount);
@@ -654,7 +654,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -697,7 +697,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -735,9 +735,9 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       var message = string.Empty;
-      test.Warning += delegate (object sender, WarningEventArgs args) { message = args.Message; };
+      test.Warning += delegate (object _, WarningEventArgs args) { message = args.Message; };
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(message.Contains("exists more than once"));
     }
@@ -779,7 +779,7 @@ Line "Test"", "22",23,"  24"
           true,
           consecutiveEmptyRowsMax: 4,
           identifierInContainer: String.Empty,
-          timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id);
+          timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: TimeZoneInfo.Local.Id);
       }
       catch (ArgumentException)
       {
@@ -824,7 +824,7 @@ Line "Test"", "22",23,"  24"
                  true,
                  4,
                  null,
-                 StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id))
+                 StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
 #pragma warning restore CS8625
         {
         }
@@ -870,7 +870,7 @@ Line "Test"", "22",23,"  24"
                  skipEmptyLines: true,
                  consecutiveEmptyRowsMax: 4,
                  identifierInContainer: String.Empty,
-                 timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id))
+                 timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: TimeZoneInfo.Local.Id))
         {
         }
       }
@@ -955,7 +955,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
 
@@ -991,7 +991,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(6, test.FieldCount);
@@ -1026,7 +1026,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       var warningsList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
 
@@ -1073,7 +1073,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       var warningList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
 
@@ -1139,7 +1139,7 @@ Line "Test"", "22",23,"  24"
         treatTextAsNull: "NULL",
         skipEmptyLines: true,
         consecutiveEmptyRowsMax: 4,
-        identifierInContainer: "", timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id);
+        identifierInContainer: "", timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: TimeZoneInfo.Local.Id);
       Assert.IsFalse(test.NextResult());
       Assert.IsFalse(await test.NextResultAsync());
 
@@ -1172,7 +1172,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token), "ReadAsync1");
@@ -1220,7 +1220,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(false, reader.IsClosed);
       Assert.IsTrue(reader.Read());
@@ -1265,7 +1265,7 @@ Line "Test"", "22",23,"  24"
         skipEmptyLines: true,
         consecutiveEmptyRowsMax: 4,
         identifierInContainer: String.Empty,
-        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id);
+        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(false, reader.IsClosed);
       Assert.AreEqual(1, reader.Percent);
@@ -1300,7 +1300,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(false, reader.IsClosed);
 
@@ -1397,7 +1397,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
 
@@ -1432,7 +1432,7 @@ Line "Test"", "22",23,"  24"
                setting.WarnUnknownCharacter,
                setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull,
                setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
-               setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id))
+               setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id))
       {
         await test.OpenAsync(UnitTestStatic.Token);
 
@@ -1475,7 +1475,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       var cultureInfo = new CultureInfo("en-US");
@@ -1521,7 +1521,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       var cultureInfo = new CultureInfo("en-US");
@@ -1557,7 +1557,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(6, test.FieldCount);
@@ -1590,7 +1590,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(1, test.FieldCount);
       Assert.AreEqual("abcdef", test.GetName(0));
@@ -1644,7 +1644,7 @@ Line "Test"", "22",23,"  24"
             4,
             StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
           // lock file for reading
-          reader.OnAskRetry += (sender, args) =>
+          reader.OnAskRetry += (_, args) =>
           {
             stream?.Close();
             called = true;
@@ -1688,7 +1688,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       var warningList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
@@ -1755,7 +1755,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       var warningList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
@@ -1811,7 +1811,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(0, test.FieldCount);
     }
@@ -1839,7 +1839,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -1902,7 +1902,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount, "FieldCount");
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -1948,7 +1948,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       // Start at line 2
@@ -1995,7 +1995,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token), "Read() 1");
@@ -2032,7 +2032,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -2076,12 +2076,12 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       var message = string.Empty;
-      test.Warning += delegate (object sender, WarningEventArgs args) { message = args.Message; };
+      test.Warning += delegate (object _, WarningEventArgs args) { message = args.Message; };
       await test.ReadAsync(UnitTestStatic.Token);
       Assert.IsTrue(message.Contains("occurrence") && message.Contains("?"));
     }
@@ -2121,10 +2121,10 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       var message = string.Empty;
-      test.Warning += delegate (object sender, WarningEventArgs args) { message = args.Message; };
+      test.Warning += delegate (object _, WarningEventArgs args) { message = args.Message; };
       await test.ReadAsync(UnitTestStatic.Token);
       await test.ReadAsync(UnitTestStatic.Token);
       Assert.IsTrue(message.Contains("Linefeed"));
@@ -2155,7 +2155,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(5, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -2204,7 +2204,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -2250,7 +2250,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -2313,7 +2313,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -2358,7 +2358,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       var warningList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
@@ -2424,7 +2424,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       var warningList = new RowErrorCollection(test);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.FieldCount);
@@ -2463,7 +2463,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
 
       Assert.AreEqual(4, test.FieldCount);
@@ -2525,7 +2525,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(4, test.FieldCount);
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
@@ -2582,7 +2582,7 @@ Line "Test"", "22",23,"  24"
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(Encoding.UTF8, setting.CurrentEncoding);
       Assert.AreEqual(4, test.FieldCount);

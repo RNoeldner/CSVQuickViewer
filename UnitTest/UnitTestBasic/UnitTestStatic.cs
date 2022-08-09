@@ -38,6 +38,7 @@ namespace CsvTools.Tests
     private static UnitTestLogger? TestLogger;
     public static string LastLogMessage => TestLogger!.LastMessage;
 
+
 #pragma warning disable CS8602
     public static void WriteToContext(this string s) => TestLogger!.Context.WriteLine(s);
 #pragma warning restore CS8602

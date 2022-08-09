@@ -13,29 +13,13 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class ApplicationSettingTest
   {
-    [TestMethod]
-    public void SQLDataReaderText()
-    {
-      try
-      {
-        FunctionalDI.SqlDataReader = (sql, eh, timeout, limit, token) => throw new FileWriterException("SQL Reader not specified");
-      }
-      catch (ArgumentNullException)
-      {
-        // all good
-      }
-
-      UnitTestStatic.MimicSql();
-      Assert.IsNotNull(FunctionalDI.SqlDataReader);
-    }
-
+    
     [TestMethod]
     public void GetMappingByFieldTest()
     {

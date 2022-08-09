@@ -69,7 +69,7 @@ namespace CsvTools.Tests
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
-        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       UnitTestStatic.MimicSql();
 
       var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
@@ -90,12 +90,12 @@ namespace CsvTools.Tests
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
-        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
 
       UnitTestStatic.MimicSql();
 
       using var sqlReader = await FunctionalDI.SqlDataReader(
-        writeFile.SqlStatement, null, 360, 0, pd.CancellationToken).ConfigureAwait(false);
+        writeFile.SqlStatement, 360, 0, pd.CancellationToken).ConfigureAwait(false);
       await sqlReader.OpenAsync(pd.CancellationToken).ConfigureAwait(false);
 
       var res = await writer.WriteAsync(sqlReader, pd.CancellationToken);
@@ -129,7 +129,7 @@ namespace CsvTools.Tests
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
-        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       UnitTestStatic.MimicSql();
       var res = await writer.WriteAsync(writeFile.SqlStatement, 360, null, pd.CancellationToken);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
@@ -155,7 +155,7 @@ namespace CsvTools.Tests
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.KeyID, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
-        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       using var reader = new DataTableWrapper(dataTable);
       // await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(100, await writer.WriteAsync(reader, UnitTestStatic.Token));
@@ -182,13 +182,12 @@ namespace CsvTools.Tests
       writeFile.Header = "##This is a header for {FileName}";
       writeFile.Footer = "##This is a Footer\r\n{Records} in file";
       var count = 0;
-      var processDisplay = new Progress<ProgressInfo>();
       {
         var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
           writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
           writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
-          writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
-        writer.Warning += (sender, e) => { count++; };
+          writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        writer.Warning += (_, _) => { count++; };
         UnitTestStatic.MimicSql();
         using (var reader = new DataTableWrapper(dataTable))
         {
@@ -222,13 +221,12 @@ namespace CsvTools.Tests
         await file.WriteLineAsync("Hello");
         try
         {
-          var processDisplay = new Progress<ProgressInfo>();
-
+          
           var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
             writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
             writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
             writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways,
-            writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+            writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
           using var reader = new DataTableWrapper(dataTable);
           UnitTestStatic.MimicSql();
           await writer.WriteAsync(reader, UnitTestStatic.Token);
@@ -248,8 +246,6 @@ namespace CsvTools.Tests
     [TestMethod, Timeout(1000)]
     public async Task WriteGZipAsync()
     {
-      var processDisplay = new MockProcessDisplay();
-
       var writeFile = (CsvFile) m_WriteFile.Clone();
       writeFile.FileName = UnitTestStatic.GetTestPath("BasicCSVOut.txt.gz");
       FileSystemUtils.FileDelete(writeFile.FileName);
@@ -258,7 +254,7 @@ namespace CsvTools.Tests
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
-        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       UnitTestStatic.MimicSql();
       var res = await writer.WriteAsync(m_WriteFile.SqlStatement, 360, null, UnitTestStatic.Token);
       Assert.IsTrue(FileSystemUtils.FileExists(writeFile.FileName));
