@@ -34,7 +34,6 @@ namespace CsvTools
     private readonly Label m_LabelText = new Label();
     private readonly ProgressBar m_ProgressBar = new ProgressBar();
     private readonly TableLayoutPanel m_TableLayoutPanel = new TableLayoutPanel();
-    private long m_CurrentValue = -1;
 
     /// <summary>Raised for each reported progress value.</summary>
     /// <remarks>
@@ -62,7 +61,7 @@ namespace CsvTools
       Text = windowTitle ?? string.Empty;
 
       Maximum = 0;
-      WinAppLogging.AddLog(this);
+
 
       SuspendLayout();
       m_TableLayoutPanel.SuspendLayout();
@@ -73,6 +72,10 @@ namespace CsvTools
         m_LoggerDisplay = new LoggerDisplay { Dock = DockStyle.Fill, Multiline = true, TabIndex = 8 };
         m_TableLayoutPanel.Controls.Add(m_LoggerDisplay, 0, 3);
         m_LoggerDisplay.Dock = DockStyle.Fill;
+      }
+      else
+      {
+        WinAppLogging.AddLog(this);
       }
       m_TableLayoutPanel.ResumeLayout(false);
       m_TableLayoutPanel.PerformLayout();
@@ -152,7 +155,7 @@ namespace CsvTools
       // if cancellation is requested do nothing
       if (CancellationToken.IsCancellationRequested)
         return;
-      m_CurrentValue = args.Value;
+      var value = args.Value;
       var text = args.Text;
       m_ProcessDisplay.Report(args);
       WindowsAPICodePackWrapper.SetProgressValue(m_ProcessDisplay.TimeToCompletion.Percent);
@@ -166,7 +169,7 @@ namespace CsvTools
             Show();
           m_LabelText.Text = text;
 
-          if (m_CurrentValue <= 0 || Maximum <= 1)
+          if (value <= 0 || Maximum <= 1)
           {
             m_LabelEtl.Text = string.Empty;
             m_ProgressBar.Style = ProgressBarStyle.Marquee;
@@ -364,7 +367,7 @@ namespace CsvTools
       var text = formatter(state, exception);
       if (string.IsNullOrEmpty(text))
         return;
-      SetProcess(new ProgressInfo(text, m_CurrentValue));
+      SetProcess(new ProgressInfo(text));
     }
 
 
@@ -373,6 +376,6 @@ namespace CsvTools
     public bool IsEnabled(LogLevel logLevel) => logLevel >= LogLevel.Information;
 
     public void Report(ProgressInfo value) => SetProcess(value);
-    
+
   }
 }
