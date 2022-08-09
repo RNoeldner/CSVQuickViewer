@@ -140,9 +140,9 @@ namespace CsvTools.Tests
     {
       var called = false;
       var fmter = new TextToHtmlFormatter();
-      Assert.AreEqual("Hello", fmter.FormatInputText("Hello", s => called = true));
+      Assert.AreEqual("Hello", fmter.FormatInputText("Hello", _ => called = true));
       Assert.IsFalse(called);
-      Assert.AreEqual("Hello World", fmter.FormatInputText("Hello\tWorld", s => called = true));
+      Assert.AreEqual("Hello World", fmter.FormatInputText("Hello\tWorld", _ => called = true));
       Assert.IsTrue(called);
     }
 
@@ -151,9 +151,9 @@ namespace CsvTools.Tests
     {
       var called = false;
       var fmter = new TextToHtmlFullFormatter();
-      Assert.AreEqual("Hello", fmter.FormatInputText("Hello", s => called = true));
+      Assert.AreEqual("Hello", fmter.FormatInputText("Hello", _ => called = true));
       Assert.IsFalse(called);
-      Assert.AreEqual("&lt;&gt;", fmter.FormatInputText("<>", s => called = true));
+      Assert.AreEqual("&lt;&gt;", fmter.FormatInputText("<>", _ => called = true));
       Assert.IsTrue(called);
     }
 
@@ -162,9 +162,9 @@ namespace CsvTools.Tests
     {
       var called = false;
       var fmter = new TextUnescapeFormatter();
-      Assert.AreEqual("Hello", fmter.FormatInputText("Hello", s => called = true));
+      Assert.AreEqual("Hello", fmter.FormatInputText("Hello", _ => called = true));
       Assert.IsFalse(called);
-      Assert.AreEqual("\n\x0020\r", fmter.FormatInputText(@"\n\x0020\r", s => called = true));
+      Assert.AreEqual("\n\x0020\r", fmter.FormatInputText(@"\n\x0020\r", _ => called = true));
       Assert.IsTrue(called);
     }
 

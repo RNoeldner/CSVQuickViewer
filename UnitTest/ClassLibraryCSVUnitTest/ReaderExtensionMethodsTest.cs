@@ -72,7 +72,7 @@ namespace CsvTools.Tests
         true,
         4,
         "",
-        StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.GetColumnsOfReader().Count());
     }
@@ -80,7 +80,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetEmptyColumnHeaderAsyncTest()
     {
-      var processDisplay = new Progress<ProgressInfo>();
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
         m_ValidSetting.HasFieldHeader,
         m_ValidSetting.ColumnCollection, m_ValidSetting.TrimmingOption, m_ValidSetting.FieldDelimiter,
@@ -97,7 +96,7 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines,
         m_ValidSetting.ConsecutiveEmptyRows,
-        m_ValidSetting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        m_ValidSetting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       var result = await test.GetEmptyColumnHeaderAsync(UnitTestStatic.Token);
       Assert.AreEqual(0, result.Count);
@@ -106,7 +105,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync2()
     {
-      var processDisplay = new Progress<ProgressInfo>();
       var test2 = (CsvFile) m_ValidSetting.Clone();
       test2.RecordLimit = 4;
       using var test = new CsvFileReader(test2.FullPath, test2.CodePageId, test2.SkipRows, test2.HasFieldHeader,
@@ -120,7 +118,7 @@ namespace CsvTools.Tests
         test2.WarnDelimiterInValue, test2.WarnLineFeed, test2.WarnNBSP, test2.WarnQuotes, test2.WarnUnknownCharacter,
         test2.WarnEmptyTailingColumns,
         test2.TreatNBSPAsSpace, test2.TreatTextAsNull, test2.SkipEmptyLines, test2.ConsecutiveEmptyRows,
-        test2.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        test2.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       
       await test.OpenAsync(UnitTestStatic.Token);
 
@@ -132,7 +130,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync3()
     {
-      var processDisplay = new Progress<ProgressInfo>();
       var test3 = new CsvFile(UnitTestStatic.GetTestPath("WithEoFChar.txt")) { FieldDelimiter = "Tab" };
       test3.ColumnCollection.Add(new Column("Memo") { Ignore = true });
       using var test = new CsvFileReader(test3.FullPath, test3.CodePageId, test3.SkipRows, test3.HasFieldHeader,
@@ -146,7 +143,7 @@ namespace CsvTools.Tests
         test3.WarnDelimiterInValue, test3.WarnLineFeed, test3.WarnNBSP, test3.WarnQuotes, test3.WarnUnknownCharacter,
         test3.WarnEmptyTailingColumns,
         test3.TreatNBSPAsSpace, test3.TreatTextAsNull, test3.SkipEmptyLines, test3.ConsecutiveEmptyRows,
-        test3.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        test3.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
 
       using var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), true,

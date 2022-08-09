@@ -180,9 +180,9 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement,
-                                   processDisplay, m_FileSetting.Timeout, m_FileSetting.RecordLimit, processDisplay.CancellationToken))
+          using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout, m_FileSetting.RecordLimit, processDisplay.CancellationToken))
           {
+            sqlReader.ReportProgress = processDisplay;
             var data = await sqlReader.GetDataTableAsync(TimeSpan.FromSeconds(60),
                                 false,
                                 m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false, null, processDisplay.CancellationToken);
@@ -659,7 +659,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, formProcessDisplay, formProcessDisplay.CancellationToken);
+          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting,  formProcessDisplay.CancellationToken);
+          fileReader.ReportProgress = formProcessDisplay;
           await fileReader.OpenAsync(formProcessDisplay.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
@@ -670,8 +671,7 @@ namespace CsvTools
           await
 #endif
           // Write Setting ----- open the source that is SQL
-          using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), null,
-                                   m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProcessDisplay.CancellationToken);
+          using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProcessDisplay.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
         }
@@ -792,8 +792,9 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, processDisplay, m_FileSetting.Timeout, m_FileSetting.RecordLimit, cancellationToken);
-          
+          using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement,  m_FileSetting.Timeout, m_FileSetting.RecordLimit, cancellationToken);
+          if (processDisplay != null)
+            sqlReader.ReportProgress = processDisplay;
           var colIndex = sqlReader.GetOrdinal(columnName);
           if (colIndex < 0)
             throw new FileException($"Column {columnName} not found.");
@@ -828,8 +829,11 @@ namespace CsvTools
         await
 #endif
         // ReSharper disable once ConvertToUsingDeclaration
-        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, processDisplay, cancellationToken))
+        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, cancellationToken))
         {
+          if (processDisplay != null)
+            fileReader.ReportProgress = processDisplay;
+
           await fileReader.OpenAsync(cancellationToken);
           var colIndex = fileReader.GetOrdinal(columnName);
           if (colIndex < 0)

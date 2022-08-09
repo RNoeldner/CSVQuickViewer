@@ -49,6 +49,14 @@ namespace CsvTools
         domainUpDownLimit.SelectedIndex = 1;
       else
         domainUpDownLimit.SelectedIndex = 0;
+      toolTip.SetToolTip(checkBoxAllowRowCombining,
+        @"Try to combine rows, it can happen if the column does contain a linefeed and is not properly quoted. 
+That column content is moved to the next line.
+Note: This does not work if it the issue is in the last column. The extra text of the columns flows into the next row, it cannot be recognized at the time the record is read. As the parser is working as a stream and can not go back it cannot be rectified. 
+This is a very risky option, in some cases rows might be lost.");
+
+      toolTip.SetToolTip(checkBoxTryToSolveMoreColumns, @"Try to realign columns in case the file is not quoted, and an extra delimiter has caused additional columns.
+Re-Aligning works best if columns and their order are easily identifiable, if the columns are very similar e.g., all are text, or all are empty there is a high chance the realignment does fail.");
     }
 
     private void BtnOpenFile_Click(object? sender, EventArgs e)

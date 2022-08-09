@@ -303,7 +303,7 @@ namespace CsvTools
       m_ToolStripItems.Add(m_ToolStripButtonColumnLength);
       m_ToolStripItems.Add(m_ToolStripButtonStore);
 
-      m_ToolStripItems.CollectionChanged += (sender, e) => MoveMenu();
+      m_ToolStripItems.CollectionChanged += (_, _) => MoveMenu();
       MoveMenu();
     }
 
@@ -672,7 +672,7 @@ namespace CsvTools
           new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible, HtmlStyle) { Icon = ParentForm?.Icon };
         m_FormShowMaxLength.Show(ParentForm);
 
-        m_FormShowMaxLength.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
+        m_FormShowMaxLength.FormClosed += (_, _) => this.SafeInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
       }, ParentForm);
       m_ToolStripButtonColumnLength.Enabled = false;
     }
@@ -700,7 +700,7 @@ namespace CsvTools
               Icon = ParentForm?.Icon
             };
           m_FormDuplicatesDisplay.Show(ParentForm);
-          m_FormDuplicatesDisplay.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
+          m_FormDuplicatesDisplay.FormClosed += (_, _) => this.SafeInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
         }
         catch (Exception ex)
         {
@@ -725,7 +725,7 @@ namespace CsvTools
           m_HierarchyDisplay =
             new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter), HtmlStyle) { Icon = ParentForm?.Icon };
           m_HierarchyDisplay.Show(ParentForm);
-          m_HierarchyDisplay.FormClosed += (ob, ar) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
+          m_HierarchyDisplay.FormClosed += (_, _) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
         }
         catch (Exception ex)
         {
@@ -1131,7 +1131,7 @@ namespace CsvTools
           writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.KeyID, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
           headerAndSipped.ToString(), writeFile.Footer, string.Empty, writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar,
           writeFile.EscapePrefixChar,
-          writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+          writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
 
 #if NET5_0_OR_GREATER
         await

@@ -48,7 +48,9 @@ namespace CsvTools.Tests
       dc.OnlyShowErrors = true;
       dc.MoveMenu();
       var dcl = new DetailControlLoader(dc);
+      Assert.IsNotNull(dcl);
       dc.Show();
+
     }
 
 

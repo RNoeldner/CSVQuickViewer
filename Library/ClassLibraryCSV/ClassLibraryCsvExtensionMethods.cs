@@ -773,10 +773,11 @@ namespace CsvTools
 #endif
       using var sqlReader = await FunctionalDI.SqlDataReader(
         sqlStatement,
-        reportProgress,
         timeout,
         0,
         cancellationToken).ConfigureAwait(false);
+      if (reportProgress != null)
+        sqlReader.ReportProgress = reportProgress;
       await sqlReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       return await writer.WriteAsync(sqlReader, cancellationToken).ConfigureAwait(false);
     }

@@ -31,45 +31,33 @@ namespace CsvTools
 
     public DataTable DataTable { get; }
 
+    /// <inheritdoc />
     public override int RecordsAffected => DataTable.Rows.Count;
 
+    /// <inheritdoc />
     public override bool EndOfFile => RecordNumber >= DataTable.Rows.Count;
 
-    /// <summary>
-    /// Gets the percentage of teh processed records in the data table
-    /// </summary>
-    /// <value>
-    /// The percent as value between 0 and 100
-    /// </value>
+    /// <inheritdoc />
     public override int Percent => RecordNumber <= 0 ? 0 : (int) (RecordNumber / (double) DataTable.Rows.Count * 100d);
 
+    /// <inheritdoc />
     public override bool SupportsReset => true;
 
+    /// <inheritdoc cref="IFileReader" />
     public new IColumn GetColumn(int column) => ReaderMapping.Column[column];
 
+    /// <inheritdoc cref="IFileReader" />
     [Obsolete("No need to open a DataTableWrapper, the DataTable is in memory")]
-    public override Task OpenAsync(CancellationToken token) => Task.CompletedTask;
-    
-    /// <summary>
-    ///   Asynchronous Read of next record
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns></returns>
+    public new Task OpenAsync(CancellationToken token) => Task.CompletedTask;
+
+    /// <inheritdoc />
     public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
     {
-      if (!cancellationToken.IsCancellationRequested && !EndOfFile)
-      {
-        var couldRead = await base.ReadAsync(cancellationToken).ConfigureAwait(false);
-        if (couldRead)
-          return true;
-      }
-
-      return false;
+      if (cancellationToken.IsCancellationRequested || EndOfFile) return false;
+      return await base.ReadAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    /// <summary>
-    ///   Resets the position and buffer to the first data row (handing headers, and skipped rows)
-    /// </summary>
+    /// <inheritdoc />
     public override void ResetPositionToFirstDataRow()
     {
       Close();

@@ -38,13 +38,14 @@ namespace CsvTools
     {
       if (string.IsNullOrEmpty(sql))
         throw new FileWriterException("No SQL Statement given");
-      if (FunctionalDI.SqlDataReader is null)
+      Func<string, int, long, CancellationToken, Task<IFileReader>> sqlDataReader = FunctionalDI.SqlDataReader;
+      if (sqlDataReader is null)
         throw new FileWriterException("No Async SQL Reader set");
 
 #if NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var fileReader = await FunctionalDI.SqlDataReader(sql.NoRecordSQL(), null, timeout, 1, cancellationToken).ConfigureAwait(false);
+      using var fileReader = await sqlDataReader(sql.NoRecordSQL(), timeout, 1, cancellationToken).ConfigureAwait(false);
 
       // Put the information into the list
       var res = new List<IColumn>();
@@ -80,14 +81,14 @@ namespace CsvTools
       if (sqlStatement == null)
         return new List<ImmutableColumn>();
 
-      if (FunctionalDI.SqlDataReader is null)
+      Func<string, int, long, CancellationToken, Task<IFileReader>> sqlDataReader = FunctionalDI.SqlDataReader;
+      if (sqlDataReader is null)
         throw new FileWriterException("No SQL Reader set");
 #if NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var data = await FunctionalDI.SqlDataReader(
+      using var data = await sqlDataReader(
         sqlStatement.NoRecordSQL(),
-        null,
         timeout,
         1,
         cancellationToken).ConfigureAwait(false);

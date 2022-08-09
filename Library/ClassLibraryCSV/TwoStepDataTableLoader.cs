@@ -67,7 +67,9 @@ namespace CsvTools
       EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
     {
       m_ID = fileSetting.ID;
-      m_FileReader = FunctionalDI.GetFileReader(fileSetting, processDisplay, cancellationToken);
+      m_FileReader = FunctionalDI.GetFileReader(fileSetting, cancellationToken);
+      if (processDisplay != null)
+        m_FileReader.ReportProgress = processDisplay;
       if (m_FileReader is null)
         throw new FileReaderException($"Could not get reader for {fileSetting}");
 

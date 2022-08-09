@@ -26,7 +26,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task AnalyzeFileAsyncOtherDelimiter()
     {
-      var processDisplay = new Progress<ProgressInfo>();
       var tuple = await UnitTestStatic.GetTestPath("MultipleDelimiter.txt").AnalyzeFileAsync(false, true, true,
                     true, true, true, true, true, new FillGuessSettings(), UnitTestStatic.Token);
 
@@ -37,7 +36,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task AnalyzeFileAsyncZip()
     {
-      var processDisplay = new Progress<ProgressInfo>();
       var tuple = await UnitTestStatic.GetTestPath("AllFormatsPipe.zip").AnalyzeFileAsync(false, true, true,
         true, true, true, true, true, new FillGuessSettings(), UnitTestStatic.Token);
 
@@ -188,7 +186,6 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetCsvFileSetting()
     {
-      var process = new Progress<ProgressInfo>();
       var result = await UnitTestStatic.GetTestPath("BasicCSV.txt").AnalyzeFileAsync(true, true, true, true, true, true, false, true,
                      new FillGuessSettings(), UnitTestStatic.Token);
       Assert.IsNotNull(result);
@@ -241,8 +238,8 @@ namespace CsvTools.Tests
       var result = await improvedStream.GuessHasHeader(65001, 0, "#", ",", UnitTestStatic.Token);
       Assert.IsNotNull(result);
       Assert.IsFalse(string.IsNullOrEmpty(result));
-      Assert.IsTrue(result.StartsWith("Headers", System.StringComparison.OrdinalIgnoreCase));
-      Assert.IsTrue(result.EndsWith("very short", System.StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(result.StartsWith("Headers", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(result.EndsWith("very short", StringComparison.OrdinalIgnoreCase));
     }
 
     [TestMethod]
@@ -463,7 +460,7 @@ namespace CsvTools.Tests
         test.TreatUnknownCharacterAsSpace, test.TryToSolveMoreColumns,
         test.WarnDelimiterInValue, test.WarnLineFeed, test.WarnNBSP, test.WarnQuotes, test.WarnUnknownCharacter, test.WarnEmptyTailingColumns,
         test.TreatNBSPAsSpace, test.TreatTextAsNull,
-        test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("RecordNumber", reader.GetName(0));
       await reader.ReadAsync(UnitTestStatic.Token);

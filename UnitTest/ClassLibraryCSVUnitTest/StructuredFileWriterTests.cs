@@ -1,9 +1,3 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Globalization;
-using System.Text;
-using System.Threading.Tasks;
-
 /*
 
 * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
@@ -18,6 +12,12 @@ using System.Threading.Tasks;
 * If not, see http://www.gnu.org/licenses/ .
 *
 */
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Globalization;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
@@ -74,7 +74,7 @@ namespace CsvTools.Tests
         fileSetting.ColumnCollection,
         "Test",
         fileSetting.Row,
-        StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
 
       var result = await writer.WriteAsync(
                      fileSetting.SqlStatement,

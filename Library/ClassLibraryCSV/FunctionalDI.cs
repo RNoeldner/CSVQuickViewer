@@ -41,32 +41,33 @@ namespace CsvTools
 #if !QUICK
 
     private static readonly IFileReaderWriterFactory m_FileReaderWriterFactory =
-      new ClassLibraryCSVFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone);
+      new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone);
 
     /// <summary>
     ///   Return a right writer for a file setting
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, IProgress<ProgressInfo>?, CancellationToken, IFileWriter> GetFileWriter =
-      (setting, processDisplay, cancellationToken) =>
-        m_FileReaderWriterFactory.GetFileWriter(setting, processDisplay, cancellationToken);
+    public static Func<IFileSetting, CancellationToken, IFileWriter> GetFileWriter =
+      (setting, cancellationToken) =>
+        m_FileReaderWriterFactory.GetFileWriter(setting, cancellationToken);
 
     /// <summary>
     ///   Return the right reader for a file setting
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, IProgress<ProgressInfo>?, CancellationToken, IFileReader> GetFileReader =
-      (setting, processDisplay, cancellationToken) =>
-        m_FileReaderWriterFactory.GetFileReader(setting, processDisplay, cancellationToken);
+    public static Func<IFileSetting,  CancellationToken, IFileReader> GetFileReader =
+      (setting, cancellationToken) =>
+        m_FileReaderWriterFactory.GetFileReader(setting, cancellationToken);
 
     /// <summary>
     ///   Gets or sets a data reader
     /// </summary>
     /// <value>The statement for reader the data.</value>
     /// <remarks>Make sure the returned reader is open when needed</remarks>
-    public static Func<string, IProgress<ProgressInfo>?, int, long, CancellationToken, Task<IFileReader>> SqlDataReader =
-      (sql, processDisplay, commandTimeout, recordLimit, token) =>
+    public static Func<string, int, long, CancellationToken, Task<IFileReader>> SqlDataReader =
+      (sql, commandTimeout, recordLimit, token) =>
         throw new FileWriterException("SQL Reader not specified");
+
 
 #endif
   }

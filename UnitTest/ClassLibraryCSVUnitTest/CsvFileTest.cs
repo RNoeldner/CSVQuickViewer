@@ -14,7 +14,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -176,7 +175,7 @@ namespace CsvTools.Tests
     {
       var numCalled = 0;
       var test = new CsvFile();
-      test.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
+      test.PropertyChanged += (_, e) =>
       {
         if (e.PropertyName == nameof(IFileSettingPhysicalFile.FileName))
           numCalled++;
@@ -258,16 +257,14 @@ namespace CsvTools.Tests
     public void GetFileReader()
     {
       m_CsvFile.FileName = UnitTestStatic.GetTestPath("BasicCSV.txt");
-      var processDisplay = new Progress<ProgressInfo>();
-      using var res = FunctionalDI.GetFileReader(m_CsvFile, processDisplay, UnitTestStatic.Token);
+      using var res = FunctionalDI.GetFileReader(m_CsvFile, UnitTestStatic.Token);
       Assert.IsInstanceOfType(res, typeof(IFileReader));
     }
 
     [TestMethod]
     public void GetFileWriter()
     {
-      var processDisplay = new Progress<ProgressInfo>();
-      var res = FunctionalDI.GetFileWriter(m_CsvFile, processDisplay, UnitTestStatic.Token);
+      var res = FunctionalDI.GetFileWriter(m_CsvFile, UnitTestStatic.Token);
       Assert.IsInstanceOfType(res, typeof(IFileWriter));
     }
 
@@ -396,7 +393,7 @@ namespace CsvTools.Tests
     {
       var oldValue = string.Empty;
       var setting = new CsvFile { ID = "TestID", FileName = "MyTest.txt" };
-      setting.PropertyChangedString += (sender, args) => oldValue = args.OldValue;
+      setting.PropertyChangedString += (_, args) => oldValue = args.OldValue;
       setting.FileName = "NewName.txt";
       Assert.AreEqual("MyTest.txt", oldValue);
     }
@@ -413,7 +410,7 @@ namespace CsvTools.Tests
 #pragma warning disable CS8625
       test.SourceFileSettings = null;
 #pragma warning restore CS8625
-      Assert.AreEqual(0, test.SourceFileSettings!.Count);
+      Assert.AreEqual(0, test.SourceFileSettings?.Count ?? 0);
     }
 
     [TestMethod]

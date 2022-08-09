@@ -77,7 +77,7 @@ namespace CsvTools
     IColumn GetColumn(int column);
 
     /// <summary>
-    ///   Advances the data reader to the next result, when reading the results of batch SQL statements.
+    ///   Advances the data reader to the next result, when reading the results of batch SQL statements. This is usually not supported by IFileReader
     /// </summary>
     /// <returns>
     ///   <see langword="true" /> if there are more results; otherwise, <see langword="false" />.

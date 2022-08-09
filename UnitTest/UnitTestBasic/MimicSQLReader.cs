@@ -52,7 +52,7 @@ namespace CsvTools.Tests
         m_ReadSetting.Add(new CsvFile(name) { ID = name }, dt);
     }
 
-    public async Task<IFileReader> ReadDataAsync(string settingName, IProgress<ProgressInfo>? message, int timeout, long limit, CancellationToken token)
+    public async Task<IFileReader> ReadDataAsync(string settingName, int timeout, long limit, CancellationToken token)
     {
       if (m_ReadSetting.Count == 0)
       {
@@ -66,7 +66,7 @@ namespace CsvTools.Tests
 
       var reader = setting.Value != null
         ? new DataTableWrapper(setting.Value)
-        : FunctionalDI.GetFileReader(setting.Key, new Progress<ProgressInfo>(), UnitTestStatic.Token);
+        : FunctionalDI.GetFileReader(setting.Key, UnitTestStatic.Token);
       await reader.OpenAsync(token).ConfigureAwait(false);
       return reader;
     }

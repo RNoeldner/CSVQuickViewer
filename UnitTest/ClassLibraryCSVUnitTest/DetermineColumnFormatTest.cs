@@ -201,7 +201,7 @@ namespace CsvTools.Tests
                setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes,
                setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace,
                setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
-               setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id))
+               setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
       {
         var dt = await reader.GetDataTableAsync(TimeSpan.FromSeconds(30), false, setting.DisplayStartLineNo, setting.DisplayRecordNo, setting.DisplayEndLineNo, false, null, UnitTestStatic.Token);
         UnitTestStatic.MimicSQLReader.AddSetting(setting.ID, dt);
@@ -364,11 +364,11 @@ namespace CsvTools.Tests
                setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
                setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull,
                setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer,
-               StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id))
+               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         UnitTestStatic.MimicSQLReader.AddSetting(setting.ID,
-          (await reader.GetDataTableAsync(TimeSpan.FromSeconds(30), false, setting.DisplayStartLineNo, setting.DisplayRecordNo, setting.DisplayEndLineNo, false, null, UnitTestStatic.Token))!);
+          (await reader.GetDataTableAsync(TimeSpan.FromSeconds(30), false, setting.DisplayStartLineNo, setting.DisplayRecordNo, setting.DisplayEndLineNo, false, null, UnitTestStatic.Token)));
       }
 
       var writer = new CsvFile { SqlStatement = setting.ID };
@@ -835,7 +835,7 @@ namespace CsvTools.Tests
         setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows, setting.IdentifierInContainer,
-        StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
       var samples = await DetermineColumnFormat.GetSampleValuesAsync(test, 1000, new[] { 0 }, 20,
         "NULL", 40, UnitTestStatic.Token);
@@ -857,7 +857,7 @@ namespace CsvTools.Tests
         setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue,
         setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-        setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
 
       var temp = await DetermineColumnFormat
