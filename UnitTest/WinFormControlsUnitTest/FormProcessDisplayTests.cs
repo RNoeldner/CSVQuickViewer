@@ -20,40 +20,40 @@ using System.Threading;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class FormProcessDisplayTests
+  public class FormProgressTests
   {
     [TestMethod]
     [Timeout(3000)]
     public void FormProcessCancel()
     {
-      using (var frm = new FormProcessDisplay("Test Logger", true, UnitTestStatic.Token))
+      using (var formProgress = new FormProgress("Test Logger", true, UnitTestStatic.Token))
       {
-        frm.ShowInTaskbar = true;
-        frm.Show();
+        formProgress.ShowInTaskbar = true;
+        formProgress.Show();
         UnitTestStatic.WaitSomeTime(.2, UnitTestStatic.Token);
-        frm.Close();
+        formProgress.Close();
       }
     }
 
     [TestMethod]
     [Timeout(20000)]
     [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
-    public void FormProcessDisplay()
+    public void Formprogress()
     {
       // Log
-      using (var frm = new FormProcessDisplay("Test Logger", true, UnitTestStatic.Token))
+      using (var formProgress = new FormProgress("Test Logger", true, UnitTestStatic.Token))
       {
-        frm.ShowInTaskbar = false;
-        frm.Show();
-        frm.Maximum = 100;
+        formProgress.ShowInTaskbar = false;
+        formProgress.Show();
+        formProgress.Maximum = 100;
         var sentTime = new TimeSpan(0);
-        frm.ProgressChanged += (obj, time) => { sentTime = (obj as IProcessDisplayTime).TimeToCompletion.EstimatedTimeRemaining; };
+        formProgress.ProgressChanged += (obj, time) => { sentTime = (obj as IProgressTime).TimeToCompletion.EstimatedTimeRemaining; };
         var end = 50;
         var step = 5;
         var wait = .1;
-        for (var c = 0; c < end && !frm.CancellationToken.IsCancellationRequested; c += step)
+        for (var c = 0; c < end && !formProgress.CancellationToken.IsCancellationRequested; c += step)
         {
-          frm.Report(new ProgressInfo($"This is a text\nLine {c}", c));
+          formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
           UnitTestStatic.WaitSomeTime(wait, UnitTestStatic.Token);
         }
 
@@ -61,26 +61,26 @@ namespace CsvTools.Tests
         Assert.IsTrue(
           (wait * (end / step)) - .5 < sentTime.TotalSeconds && sentTime.TotalSeconds < (wait * (end / step)) + .5,
           $"Estimated time should be roughly {wait * (end / step)}s but is {sentTime.TotalSeconds}");
-        frm.Close();
+        formProgress.Close();
       }
 
       // marquee
-      using (var frm = new FormProcessDisplay("Test Marquee", false, UnitTestStatic.Token))
+      using (var formProgress = new FormProgress("Test Marquee", false, UnitTestStatic.Token))
       {
-        frm.ShowInTaskbar = false;
-        frm.Show();
-        frm.Maximum = 0;
-        for (var c = 0; c < 100 && !frm.CancellationToken.IsCancellationRequested; c += 5)
+        formProgress.ShowInTaskbar = false;
+        formProgress.Show();
+        formProgress.Maximum = 0;
+        for (var c = 0; c < 100 && !formProgress.CancellationToken.IsCancellationRequested; c += 5)
         {
-          frm.Report(new ProgressInfo($"This is a text\nLine {c}", c));
-          UnitTestStatic.WaitSomeTime(.1, frm.CancellationToken);
+          formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
+          UnitTestStatic.WaitSomeTime(.1, formProgress.CancellationToken);
         }
 
-        frm.Close();
+        formProgress.Close();
       }
 
       // NoLog
-      using (var frm = new FormProcessDisplay("Test", false, UnitTestStatic.Token))
+      using (var frm = new FormProgress("Test", false, UnitTestStatic.Token))
       {
         frm.ShowInTaskbar = false;
         frm.Show();
@@ -97,26 +97,26 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(2000)]
-    public void FormProcessDisplayTest()
+    public void FormprogressTest()
     {
-      using (var value = new FormProcessDisplay())
+      using (var formProgress = new FormProgress())
       {
-        Assert.IsNotNull(value);
+        Assert.IsNotNull(formProgress);
       }
     }
 
     [TestMethod]
     [Timeout(5000)]
-    public void FormProcessDisplayTest1()
+    public void FormprogressTest1()
     {
       using (var tokenSrc = new CancellationTokenSource())
       {
-        using (var frm = new FormProcessDisplay("Title", false, tokenSrc.Token))
+        using (var formProgress = new FormProgress("Title", false, tokenSrc.Token))
         {
-          Assert.AreEqual("Title", frm.Text);
-          Assert.AreEqual(false, frm.CancellationToken.IsCancellationRequested);
+          Assert.AreEqual("Title", formProgress.Text);
+          Assert.AreEqual(false, formProgress.CancellationToken.IsCancellationRequested);
           tokenSrc.Cancel();
-          Assert.AreEqual(true, frm.CancellationToken.IsCancellationRequested);
+          Assert.AreEqual(true, formProgress.CancellationToken.IsCancellationRequested);
         }
       }
     }
@@ -127,11 +127,11 @@ namespace CsvTools.Tests
     {
       using (var tokenSrc = new CancellationTokenSource())
       {
-        using (var frm = new FormProcessDisplay("Title", true, tokenSrc.Token))
+        using (var formProgress = new FormProgress("Title", true, tokenSrc.Token))
         {
-          Assert.AreEqual(false, frm.CancellationToken.IsCancellationRequested);
-          frm.Close();
-          Assert.AreEqual(true, frm.CancellationToken.IsCancellationRequested);
+          Assert.AreEqual(false, formProgress.CancellationToken.IsCancellationRequested);
+          formProgress.Close();
+          Assert.AreEqual(true, formProgress.CancellationToken.IsCancellationRequested);
           Assert.AreEqual(false, tokenSrc.IsCancellationRequested);
         }
       }
@@ -141,10 +141,10 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void SetProcessTest()
     {
-      using (var frm = new FormProcessDisplay())
+      using (var formProgress = new FormProgress())
       {
-        frm.Show();
-        frm.SetProcess("Hello World");
+        formProgress.Show();
+        formProgress.SetProcess("Hello World");
       }
     }
 
@@ -152,15 +152,15 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void SetProcessTest2()
     {
-      using var frm = new FormProcessDisplay();
-      frm.Maximum = 80;
+      using var formProgress = new FormProgress();
+      formProgress.Maximum = 80;
 
-      frm.Show();
+      formProgress.Show();
       long called = 10;
 
-      frm.ProgressChanged += (obj, e) => { called = e.Value; };
+      formProgress.ProgressChanged += (obj, e) => { called = e.Value; };
 
-      frm.Report(new ProgressInfo("Help", 20));
+      formProgress.Report(new ProgressInfo("Help", 20));
 
       Assert.AreEqual(20, called);
     }

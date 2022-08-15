@@ -47,6 +47,10 @@ namespace CsvTools
       {
         // Ignore
       }
+      catch (ArgumentOutOfRangeException)
+      {
+        // some UI elements raise this error if the value is not valid (e.G. not in range
+      }
     }
 
     /// <summary>

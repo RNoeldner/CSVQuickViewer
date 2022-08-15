@@ -70,8 +70,11 @@ namespace CsvTools
       set
       {
         if (SetField(ref m_FileName, value, StringComparison.Ordinal, true))
+        {
+          ResetFullPath();
           if (string.IsNullOrEmpty(ID))
             NotifyPropertyChanged(nameof(InternalID));
+        }
       }
     }
 

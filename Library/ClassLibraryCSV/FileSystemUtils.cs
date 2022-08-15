@@ -121,7 +121,7 @@ namespace CsvTools
     public static async Task StreamCopy(
       Stream fromStream,
       Stream toStream,
-      IProgress<ProgressInfo>? processDisplay,
+      IProgress<ProgressInfo>? progress,
       CancellationToken cancellationToken)
     {
       var bytes = new byte[81920];
@@ -129,13 +129,13 @@ namespace CsvTools
       long totalReads = 0;
 
       long oldMax = 0;
-      if (processDisplay is IProcessDisplayTime processDisplayTime)
+      if (progress is IProgressTime progressTime)
       {
-        oldMax = processDisplayTime.Maximum;
-        processDisplayTime.Maximum = fromStream.Length;
+        oldMax = progressTime.Maximum;
+        progressTime.Maximum = fromStream.Length;
       }
 
-      var intervalAction = IntervalAction.ForProcessDisplay(processDisplay);
+      var intervalAction = IntervalAction.ForProgress(progress);
       while ((bytesRead = await fromStream.ReadAsync(bytes, 0, bytes.Length, cancellationToken)
                .ConfigureAwait(false)) > 0)
       {
@@ -143,11 +143,11 @@ namespace CsvTools
         totalReads += bytesRead;
         await toStream.WriteAsync(bytes, 0, bytesRead, cancellationToken).ConfigureAwait(false);
 #pragma warning disable CS8604 // Possible null reference argument.
-        intervalAction?.Invoke(processDisplay, "Copy data", totalReads);
+        intervalAction?.Invoke(progress, "Copy data", totalReads);
 #pragma warning restore CS8604 // Possible null reference argument.
       }
 
-      processDisplay.SetMaximum(oldMax);
+      progress.SetMaximum(oldMax);
     }
 
     /// <summary>
@@ -158,14 +158,14 @@ namespace CsvTools
     /// <param name="onlyChanged">
     ///   Checks if the source file is newer or has a different length, if not file will not be copied,
     /// </param>
-    /// <param name="processDisplay">A process display</param>
+    /// <param name="progress">A process display</param>
     /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public static async Task FileCopy(
       string sourceFile,
       string destFile,
       bool onlyChanged,
-      IProgress<ProgressInfo>? processDisplay,
+      IProgress<ProgressInfo>? progress,
       CancellationToken cancellationToken)
     {
       if (onlyChanged)
@@ -187,7 +187,7 @@ namespace CsvTools
       await
 #endif
       using var toStream = OpenWrite(destFile);
-      await StreamCopy(fromStream, toStream, processDisplay, cancellationToken);
+      await StreamCopy(fromStream, toStream, progress, cancellationToken);
     }
 
 #endif

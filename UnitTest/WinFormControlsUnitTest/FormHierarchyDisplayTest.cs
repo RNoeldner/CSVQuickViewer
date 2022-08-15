@@ -135,8 +135,8 @@ namespace CsvTools.Tests
     {
       using var dataTable = UnitTestStatic.GetDataTable(60);
       // load the csvFile FileWithHierarchy
-      using var processDisplay = new FormProcessDisplay("FileWithHierarchy");
-      processDisplay.Show();
+      using var formProgress = new FormProgress("FileWithHierarchy");
+      formProgress.Show();
       var cvsSetting = new CsvFile(UnitTestStatic.GetTestPath("FileWithHierarchy_WithCyle.txt")) { FieldDelimiter = "\t" };
       using var csvDataReader = new CsvFileReader(cvsSetting.FullPath, cvsSetting.CodePageId, cvsSetting.SkipRows, cvsSetting.HasFieldHeader,
         cvsSetting.ColumnCollection, cvsSetting.TrimmingOption, cvsSetting.FieldDelimiter, cvsSetting.FieldQualifier, cvsSetting.EscapePrefix,
@@ -147,7 +147,7 @@ namespace CsvTools.Tests
         cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull, cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows,
         cvsSetting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
       var dt = await csvDataReader.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
-                 true, false, false, false, null, processDisplay.CancellationToken);
+                 true, false, false, false, null, formProgress.CancellationToken);
 
       using var form = new FormHierarchyDisplay(dt!, dataTable.Select(), UnitTestStatic.HtmlStyle);
       UnitTestStatic.ShowFormAndClose(form, .1, (frm) =>

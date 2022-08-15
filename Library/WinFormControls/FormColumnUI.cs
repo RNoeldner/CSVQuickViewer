@@ -133,10 +133,10 @@ namespace CsvTools
 
     public async Task DisplayValues()
     {
-      using var processDisplay = new FormProcessDisplay("Display Values", true, m_CancellationTokenSource.Token);
-      processDisplay.Show(this);
-      var values = await GetSampleValuesAsync(comboBoxColumnName.Text, processDisplay, processDisplay.CancellationToken);
-      processDisplay.Hide();
+      using var formProgress = new FormProgress("Display Values", true, m_CancellationTokenSource.Token);
+      formProgress.Show(this);
+      var values = await GetSampleValuesAsync(comboBoxColumnName.Text, formProgress, formProgress.CancellationToken);
+      formProgress.Hide();
       Cursor.Current = Cursors.Default;
       if (values.Values.Count == 0)
       {
@@ -171,8 +171,8 @@ namespace CsvTools
 
       await buttonGuess.RunWithHourglassAsync(async () =>
       {
-        using var processDisplay = new FormProcessDisplay("Guess Value", true, m_CancellationTokenSource.Token);
-        processDisplay.Show();
+        using var formProgress = new FormProgress("Guess Value", true, m_CancellationTokenSource.Token);
+        formProgress.Show();
         if (m_WriteSetting)
         {
           var hasRetried = false;
@@ -180,12 +180,12 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout, m_FileSetting.RecordLimit, processDisplay.CancellationToken))
+          using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProgress.CancellationToken))
           {
-            sqlReader.ReportProgress = processDisplay;
+            sqlReader.ReportProgress = formProgress;
             var data = await sqlReader.GetDataTableAsync(TimeSpan.FromSeconds(60),
                                 false,
-                                m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false, null, processDisplay.CancellationToken);
+                                m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false, null, formProgress.CancellationToken);
             var found = new Column();
             var column = data.Columns[columnName];
             if (column is null)
@@ -202,7 +202,7 @@ namespace CsvTools
             if (found.ValueFormatMutable.DataType == DataTypeEnum.String)
               return;
             m_ColumnEdit.ValueFormatMutable.DataType = found.ValueFormatMutable.DataType;
-            processDisplay.Hide();
+            formProgress.Hide();
 
             RefreshData();
             MessageBox.Show(
@@ -214,7 +214,7 @@ namespace CsvTools
         }
         else
         {
-          var samples = await GetSampleValuesAsync(columnName, processDisplay, processDisplay.CancellationToken);
+          var samples = await GetSampleValuesAsync(columnName, formProgress, formProgress.CancellationToken);
           // shuffle samples, take some from the end and put it in the first 10 1 - 1 2 - Last 3 - 2
           // 4 - Last - 1
 
@@ -290,8 +290,8 @@ namespace CsvTools
               detectDateTime,
               detectDateTime,
               DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection),
-              processDisplay.CancellationToken);
-            processDisplay.Hide();
+              formProgress.CancellationToken);
+            formProgress.Hide();
             if (checkResult.FoundValueFormat is null)
             {
               MessageBox.ShowBigHtml(
@@ -647,9 +647,9 @@ namespace CsvTools
       columnBindingSource.DataSource = m_ColumnEdit;
       SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
 
-      using var formProcessDisplay = new FormProcessDisplay("Getting column headers", false, m_CancellationTokenSource.Token);
-      formProcessDisplay.Show();
-      formProcessDisplay.SetProcess("Getting columns from source");
+      using var formProgress = new FormProgress("Getting column headers", false, m_CancellationTokenSource.Token);
+      formProgress.Show();
+      formProgress.SetProcess("Getting columns from source");
       // Read the column headers if possible
       ICollection<string> allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       await this.RunWithHourglassAsync(async () =>
@@ -659,9 +659,9 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting,  formProcessDisplay.CancellationToken);
-          fileReader.ReportProgress = formProcessDisplay;
-          await fileReader.OpenAsync(formProcessDisplay.CancellationToken);
+          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting,  formProgress.CancellationToken);
+          fileReader.ReportProgress = formProgress;
+          await fileReader.OpenAsync(formProgress.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
         }
@@ -671,7 +671,7 @@ namespace CsvTools
           await
 #endif
           // Write Setting ----- open the source that is SQL
-          using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProcessDisplay.CancellationToken);
+          using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProgress.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
         }
@@ -776,14 +776,14 @@ namespace CsvTools
     ///   Gets the sample values.
     /// </summary>
     /// <param name="columnName">Name of the column.</param>
-    /// <param name="processDisplay">The process display.</param>
+    /// <param name="progress">Process display to pass on progress information</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     /// <exception cref="FileException">
     ///   Column {columnName} not found. or Column {columnName} not found.
     /// </exception>
     private async Task<DetermineColumnFormat.SampleResult> GetSampleValuesAsync(string columnName,
-                                                                                IProgress<ProgressInfo>? processDisplay, CancellationToken cancellationToken)
+                                                                                IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       try
       {
@@ -793,8 +793,8 @@ namespace CsvTools
           await
 #endif
           using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement,  m_FileSetting.Timeout, m_FileSetting.RecordLimit, cancellationToken);
-          if (processDisplay != null)
-            sqlReader.ReportProgress = processDisplay;
+          if (progress != null)
+            sqlReader.ReportProgress = progress;
           var colIndex = sqlReader.GetOrdinal(columnName);
           if (colIndex < 0)
             throw new FileException($"Column {columnName} not found.");
@@ -831,8 +831,8 @@ namespace CsvTools
         // ReSharper disable once ConvertToUsingDeclaration
         using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, cancellationToken))
         {
-          if (processDisplay != null)
-            fileReader.ReportProgress = processDisplay;
+          if (progress != null)
+            fileReader.ReportProgress = progress;
 
           await fileReader.OpenAsync(cancellationToken);
           var colIndex = fileReader.GetOrdinal(columnName);

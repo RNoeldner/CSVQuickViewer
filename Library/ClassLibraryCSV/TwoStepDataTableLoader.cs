@@ -55,7 +55,7 @@ namespace CsvTools
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="includeError">if set to <c>true</c> include error column.</param>
     /// <param name="durationInitial">The duration for the initial initial.</param>
-    /// <param name="processDisplay">The process display.</param>
+    /// <param name="progress">Process display to pass on progress information</param>
     /// <param name="addWarning">Add warnings.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <exception cref="CsvTools.FileReaderException">Could not get reader for {fileSetting}</exception>
@@ -63,13 +63,13 @@ namespace CsvTools
       IFileSetting fileSetting,
       bool includeError,
       TimeSpan durationInitial,
-      IProgress<ProgressInfo>? processDisplay,
+      IProgress<ProgressInfo>? progress,
       EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
     {
       m_ID = fileSetting.ID;
       m_FileReader = FunctionalDI.GetFileReader(fileSetting, cancellationToken);
-      if (processDisplay != null)
-        m_FileReader.ReportProgress = processDisplay;
+      if (progress != null)
+        m_FileReader.ReportProgress = progress;
       if (m_FileReader is null)
         throw new FileReaderException($"Could not get reader for {fileSetting}");
 
@@ -100,7 +100,7 @@ namespace CsvTools
 
       m_ActionBegin?.Invoke();
 
-      await GetBatchByTimeSpan(durationInitial, includeError, processDisplay, m_SetDataTable, cancellationToken)
+      await GetBatchByTimeSpan(durationInitial, includeError, progress, m_SetDataTable, cancellationToken)
         .ConfigureAwait(false);
 
       m_SetLoadNextBatchAsync?.Invoke((process, token) =>
@@ -122,7 +122,7 @@ namespace CsvTools
     private async Task GetBatchByTimeSpan(
       TimeSpan maxDuration,
       bool restoreError,
-      IProgress<ProgressInfo>? processDisplay,
+      IProgress<ProgressInfo>? progress,
       Action<DataTable> action, CancellationToken cancellationToken)
     {
       if (m_DataReaderWrapper is null)
@@ -131,7 +131,7 @@ namespace CsvTools
       var dt = await m_DataReaderWrapper.GetDataTableAsync(
         maxDuration,
         restoreError,
-        processDisplay,
+        progress,
         cancellationToken).ConfigureAwait(false);
 
       // for Debugging its nice to know where it all came form

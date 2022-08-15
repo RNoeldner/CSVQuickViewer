@@ -48,12 +48,12 @@ namespace CsvTools
 
     private void ButtonSkipLine_Click(object? sender, EventArgs e)
     {
-      using var frm = new FormProcessDisplay("Check", true, CancellationToken.None);
-      frm.Show();
-      frm.Maximum = 0;
+      using var fromProgress = new FormProgress("Check", true, CancellationToken.None);
+      fromProgress.Show();
+      fromProgress.Maximum = 0;
       using (var streamReader = new ImprovedTextReader(m_Stream!, m_CsvFile.CodePageId))
       {        
-        m_CsvFile.SkipRows = streamReader.GuessStartRow(textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxComment.Text, frm.CancellationToken);
+        m_CsvFile.SkipRows = streamReader.GuessStartRow(textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxComment.Text, fromProgress.CancellationToken);
       }
 
       HighlightVisibleRange(m_CsvFile.SkipRows);

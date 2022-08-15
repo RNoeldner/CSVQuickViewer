@@ -1411,13 +1411,13 @@ Line "Test"", "22",23,"  24"
     }
 
     [TestMethod]
-    public async Task ProcessDisplayUpdateShowProgress()
+    public async Task progressUpdateShowProgress()
     {
       var setting = UnitTestStatic.ReaderGetAllFormats();
-      var processDisplay = new MockProcessDisplay();
+      var progress = new MockProgress();
       var stopped = false;
-      processDisplay.ProgressStopEvent += delegate { stopped = true; };
-      Assert.IsTrue(string.IsNullOrEmpty(processDisplay.Text));
+      progress.ProgressStopEvent += delegate { stopped = true; };
+      Assert.IsTrue(string.IsNullOrEmpty(progress.Text));
       using (var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
                setting.HasFieldHeader, setting.ColumnCollection,
                setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -1440,7 +1440,7 @@ Line "Test"", "22",23,"  24"
           Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       }
 
-      Assert.IsNotNull(processDisplay.Text);
+      Assert.IsNotNull(progress.Text);
       Assert.IsFalse(stopped);
     }
 

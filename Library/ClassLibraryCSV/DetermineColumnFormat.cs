@@ -1121,7 +1121,6 @@ namespace CsvTools
     /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A list of columns with new format that have been changed</returns>
-    /// <exception cref="ArgumentNullException">processDisplay</exception>
     public static async Task<(IList<string>, IReadOnlyCollection<IColumn>)> FillGuessColumnFormatReaderAsync(
       this IFileSetting fileSetting,
       bool addTextColumns,

@@ -14,7 +14,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -48,47 +47,47 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(3000)]
-    public void GetProcessDisplayTest()
+    public void GetprogressTest()
     {
       var setting = new CsvFile { FileName = "Folder\\This is a long file name that should be cut and fit into 80 chars.txt", ShowProgress = true };
-      using (var prc = setting.GetProcessDisplay(null, true, UnitTestStatic.Token))
+      using (var prc = setting.GetProgress(null, true, UnitTestStatic.Token))
       {
-        Assert.IsNotNull(prc, "GetProcessDisplay With Logger");
+        Assert.IsNotNull(prc, "Getprogress With Logger");
       }
 
-      using (var prc = setting.GetProcessDisplay(null, false, UnitTestStatic.Token))
+      using (var prc = setting.GetProgress(null, false, UnitTestStatic.Token))
       {
-        Assert.IsNotNull(prc, "GetProcessDisplay Without Logger");
+        Assert.IsNotNull(prc, "Getprogress Without Logger");
       }
 
       using var frm = new Form();
       frm.Text = "Testing...";
       frm.Show();
       var csv = new CsvFile() { ShowProgress = true };
-      Assert.IsInstanceOfType(csv.GetProcessDisplay(frm, true, UnitTestStatic.Token), typeof(FormProcessDisplay));
+      Assert.IsInstanceOfType(csv.GetProgress(frm, true, UnitTestStatic.Token), typeof(FormProgress));
       csv.ShowProgress = false;
-      Assert.IsNotInstanceOfType(csv.GetProcessDisplay(frm, true, UnitTestStatic.Token), typeof(FormProcessDisplay));
+      Assert.IsNotInstanceOfType(csv.GetProgress(frm, true, UnitTestStatic.Token), typeof(FormProgress));
     }
 
     [TestMethod]
     [Timeout(3000)]
-    public void GetProcessDisplayTestNoShow()
+    public void GetprogressTestNoShow()
     {
       var setting2 = new CsvFile { FileName = "Folder\\This is a long file name that should be cut and fit into 80 chars.txt", ShowProgress = false };
-      using var prc = setting2.GetProcessDisplay(null, false, UnitTestStatic.Token);
-      Assert.IsNull(prc, "GetProcessDisplay without UI");
+      using var prc = setting2.GetProgress(null, false, UnitTestStatic.Token);
+      Assert.IsNull(prc, "Getprogress without UI");
     }
 
     [TestMethod]
     [Timeout(2000)]
     public void LoadWindowStateTest()
     {
-      using var value = new FormProcessDisplay();
-      value.Show();
+      using var formProgress = new FormProgress();
+      formProgress.Show();
       var state = new WindowState(new Rectangle(10, 10, 200, 200), FormWindowState.Normal) { CustomInt = 27, CustomText = "Test" };
       var result1 = -1;
       var result2 = "Hello";
-      value.LoadWindowState(state, val => { result1 = val; }, val => { result2 = val; });
+      formProgress.LoadWindowState(state, val => { result1 = val; }, val => { result2 = val; });
       Assert.AreEqual(state.CustomInt, result1);
       Assert.AreEqual(state.CustomText, result2);
     }
@@ -127,15 +126,15 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void StoreWindowStateTest()
     {
-      using var value = new FormProcessDisplay();
-      value.Show();
-      var state1 = new WindowState(new Rectangle(10, 10, value.Width, value.Height),
+      using var formProgress = new FormProgress();
+      formProgress.Show();
+      var state1 = new WindowState(new Rectangle(10, 10, formProgress.Width, formProgress.Height),
         FormWindowState.Normal)
       { CustomInt = 27, CustomText = "Test" };
       var result1 = -1;
-      value.LoadWindowState(state1, val => { result1 = val; }, val => { });
+      formProgress.LoadWindowState(state1, val => { result1 = val; }, val => { });
 
-      var state2 = value.StoreWindowState(result1, "World");
+      var state2 = formProgress.StoreWindowState(result1, "World");
       // Assert.AreEqual(state1.CustomText, state2.CustomText);
       Assert.AreEqual(state1.CustomInt, state2.CustomInt, "CustomInt");
       Assert.AreEqual("World", state2.CustomText, "CustomText");

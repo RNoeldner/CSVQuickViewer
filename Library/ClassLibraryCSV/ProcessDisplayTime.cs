@@ -18,12 +18,12 @@ using System.Diagnostics;
 namespace CsvTools
 {
   [DebuggerStepThrough]
-  public sealed class ProcessDisplayTime : Progress<ProgressInfo>, IProcessDisplayTime
+  public sealed class ProgressTime : Progress<ProgressInfo>, IProgressTime
   {
-    public ProcessDisplayTime() =>
+    public ProgressTime() =>
       TimeToCompletion = new TimeToCompletion();
 
-    /// <inheritdoc cref="IProcessDisplayTime.Maximum" />
+    /// <inheritdoc cref="IProgressTime.Maximum" />
     public long Maximum
     {
       get => TimeToCompletion.TargetValue;

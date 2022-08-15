@@ -1121,10 +1121,10 @@ namespace CsvTools
           headerAndSipped.AppendLine(await sr.ReadLineAsync());
       }
 
-      using var processDisplay = new FormProcessDisplay(writeFile.ToString(), true, m_CancellationTokenSource.Token);
+      using var formProgress = new FormProgress(writeFile.ToString(), true, m_CancellationTokenSource.Token);
       try
       {
-        processDisplay.Show(ParentForm);
+        formProgress.Show(ParentForm);
 
         BeforeFileStored?.Invoke(this, writeFile);
         var writer = new CsvFileWriter(string.Empty, fileName, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
@@ -1144,7 +1144,7 @@ namespace CsvTools
                                 .OrderBy(col => col.DisplayIndex)
                                 .Select(col => col.DataPropertyName).ToArray()));
         // can not use filteredDataGridView.Columns directly
-        await writer.WriteAsync(dt, processDisplay.CancellationToken);
+        await writer.WriteAsync(dt, formProgress.CancellationToken);
       }
       catch (Exception ex)
       {
@@ -1216,10 +1216,10 @@ namespace CsvTools
         m_ToolStripLabelCount.Text = " loading...";
         try
         {
-          using var processDisplay = new FormProcessDisplay("Load more...", false, m_CancellationTokenSource.Token);
-          processDisplay.Show();
-          processDisplay.Maximum = 100;
-          await LoadNextBatchAsync(processDisplay, processDisplay.CancellationToken);
+          using var formProgress = new FormProgress("Load more...", false, m_CancellationTokenSource.Token);
+          formProgress.Show();
+          formProgress.Maximum = 100;
+          await LoadNextBatchAsync(formProgress, formProgress.CancellationToken);
         }
         finally
         {

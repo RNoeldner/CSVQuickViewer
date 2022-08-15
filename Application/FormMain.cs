@@ -151,18 +151,18 @@ namespace CsvTools
         try
         {
           DetachPropertyChanged(m_FileSetting);
-          using (var formProcessDisplay = new FormProcessDisplay("Examining file", false, cancellationToken))
+          using (var formProgress = new FormProgress("Examining file", false, cancellationToken))
           {
-            formProcessDisplay.Maximum = 0;
-            formProcessDisplay.Show(this);
+            formProgress.Maximum = 0;
+            formProgress.Show(this);
             Logger.Information("Determine file format");
             m_FileSetting = (await fileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
                                m_ViewSettings.GuessCodePage,
                                m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
                                m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-                               m_ViewSettings.FillGuessSettings, formProcessDisplay.CancellationToken)).PhysicalFile();
+                               m_ViewSettings.FillGuessSettings, formProgress.CancellationToken)).PhysicalFile();
 
-            formProcessDisplay.Close();
+            formProgress.Close();
           }
 
           if (m_FileSetting is null)
@@ -481,14 +481,14 @@ namespace CsvTools
             detailControl.ShowInfoButtons = false;
           });
 
-          using (var processDisplay = new FormProcessDisplay(fileNameShort, false, cancellationToken))
+          using (var formProgress = new FormProgress(fileNameShort, false, cancellationToken))
           {
-            processDisplay.Show();
+            formProgress.Show();
             Logger.Information("Reading data...");
-            processDisplay.Maximum = 100;
+            formProgress.Maximum = 100;
 
-            await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.DurationTimeSpan, processDisplay,
-              AddWarning, processDisplay.CancellationToken);
+            await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.DurationTimeSpan, formProgress,
+              AddWarning, formProgress.CancellationToken);
           }
 
           if (cancellationToken.IsCancellationRequested)
@@ -609,15 +609,15 @@ namespace CsvTools
         m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting.FileName, true);
         m_SourceDisplay.FormClosed += SourceDisplayClosed;
         m_SourceDisplay.Show();
-        using var proc = new FormProcessDisplay("Display Source", false, m_CancellationTokenSource.Token);
-        proc.Show(this);
-        proc.Maximum = 0;
-        proc.Report(new ProgressInfo("Reading source and applying color coding", 0));
+        using var formProgress = new FormProgress("Display Source", false, m_CancellationTokenSource.Token);
+        formProgress.Show(this);
+        formProgress.Maximum = 0;
+        formProgress.Report(new ProgressInfo("Reading source and applying color coding", 0));
         if (m_FileSetting is ICsvFile csv)
           m_SourceDisplay.OpenFile(false, csv.FieldQualifier, csv.FieldDelimiter, csv.EscapePrefix, csv.CodePageId, m_FileSetting.SkipRows, csv.CommentLine);
         else
           m_SourceDisplay.OpenFile(m_FileSetting is IJsonFile, "", "", "", 65001, m_FileSetting.SkipRows, "");
-        proc.Close();
+        formProgress.Close();
       }, this);
     }
 

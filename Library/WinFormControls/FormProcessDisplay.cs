@@ -26,10 +26,10 @@ namespace CsvTools
   /// <summary>
   ///   A Po pup Form to display progress information
   /// </summary>
-  public sealed class FormProcessDisplay : ResizeForm, IProcessDisplayTime, ILogger
+  public sealed class FormProgress : ResizeForm, IProgressTime, ILogger
   {
     private readonly LoggerDisplay? m_LoggerDisplay;
-    private readonly ProcessDisplayTime m_ProcessDisplay = new ProcessDisplayTime();
+    private readonly ProgressTime m_Progress = new ProgressTime();
     private readonly Label m_LabelEtl = new Label();
     private readonly Label m_LabelText = new Label();
     private readonly ProgressBar m_ProgressBar = new ProgressBar();
@@ -42,18 +42,18 @@ namespace CsvTools
     /// </remarks>
     public event EventHandler<ProgressInfo> ProgressChanged;
 
-    public FormProcessDisplay(in string windowTitle)
+    public FormProgress(in string windowTitle)
       : this(windowTitle, true, CancellationToken.None)
     {
     }
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FormProcessDisplay" /> class.
+    ///   Initializes a new instance of the <see cref="FormProgress" /> class.
     /// </summary>
     /// <param name="windowTitle">The description / form title</param>
     /// <param name="withLoggerDisplay">True if a debug logging windows should be shown</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    public FormProcessDisplay(in string? windowTitle, bool withLoggerDisplay, CancellationToken cancellationToken)
+    public FormProgress(in string? windowTitle, bool withLoggerDisplay, CancellationToken cancellationToken)
     {
       CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
       InitializeComponent();
@@ -83,7 +83,7 @@ namespace CsvTools
       PerformLayout();
     }
 
-    public FormProcessDisplay()
+    public FormProgress()
       : this(string.Empty, true, CancellationToken.None)
     {
     }
@@ -115,7 +115,7 @@ namespace CsvTools
     public CancellationToken CancellationToken =>
       (!m_DisposedValue) ? CancellationTokenSource.Token : new CancellationToken(true);
 
-    public TimeToCompletion TimeToCompletion => m_ProcessDisplay.TimeToCompletion;
+    public TimeToCompletion TimeToCompletion => m_Progress.TimeToCompletion;
 
 
     /// <summary>
@@ -124,10 +124,10 @@ namespace CsvTools
     /// <value>The maximum value.</value>
     public long Maximum
     {
-      get => m_ProcessDisplay.Maximum;
+      get => m_Progress.Maximum;
       set
       {
-        m_ProcessDisplay.Maximum = value;
+        m_Progress.Maximum = value;
         m_ProgressBar.SafeBeginInvoke(
           () =>
           {
@@ -157,8 +157,8 @@ namespace CsvTools
         return;
       var value = args.Value;
       var text = args.Text;
-      m_ProcessDisplay.Report(args);
-      WindowsAPICodePackWrapper.SetProgressValue(m_ProcessDisplay.TimeToCompletion.Percent);
+      m_Progress.Report(args);
+      WindowsAPICodePackWrapper.SetProgressValue(m_Progress.TimeToCompletion.Percent);
       ProgressChanged?.Invoke(this, args);
 
       // This might cause an issue
@@ -177,13 +177,13 @@ namespace CsvTools
           else
           {
             m_ProgressBar.Style = Maximum > 1 ? ProgressBarStyle.Continuous : ProgressBarStyle.Marquee;
-            m_ProgressBar.Value = m_ProcessDisplay.TimeToCompletion.Value > m_ProgressBar.Maximum
+            m_ProgressBar.Value = m_Progress.TimeToCompletion.Value > m_ProgressBar.Maximum
                                     ? m_ProgressBar.Maximum
-                                    : m_ProcessDisplay.TimeToCompletion.Value.ToInt();
+                                    : m_Progress.TimeToCompletion.Value.ToInt();
             var sb = new StringBuilder();
-            sb.Append(m_ProcessDisplay.TimeToCompletion.PercentDisplay.PadLeft(10));
+            sb.Append(m_Progress.TimeToCompletion.PercentDisplay.PadLeft(10));
 
-            var t1 = m_ProcessDisplay.TimeToCompletion.EstimatedTimeRemainingDisplay;
+            var t1 = m_Progress.TimeToCompletion.EstimatedTimeRemainingDisplay;
             if (t1.Length > 0)
             {
               sb.Append("   Estimated time remaining: ");
@@ -276,7 +276,7 @@ namespace CsvTools
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.m_TableLayoutPanel.Size = new System.Drawing.Size(443, 86);
       this.m_TableLayoutPanel.TabIndex = 8;
-      // FormProcessDisplay
+      // Formprogress
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.SystemColors.Control;
@@ -285,18 +285,18 @@ namespace CsvTools
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
       this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       this.MinimumSize = new System.Drawing.Size(378, 45);
-      this.Name = "FormProcessDisplay";
+      this.Name = "FormProgress";
       this.ShowIcon = false;
       this.ShowInTaskbar = false;
       this.Text = "Process";
       this.TopMost = true;
-      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ProcessDisplay_FormClosing);
+      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.progress_FormClosing);
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
     }
 
-    private void ProcessDisplay_FormClosing(object? sender, FormClosingEventArgs e)
+    private void progress_FormClosing(object? sender, FormClosingEventArgs e)
     {
       e.Cancel = false;
       try

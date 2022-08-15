@@ -116,18 +116,18 @@ namespace CsvTools
 
         var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-        using var display = new FormProcessDisplay($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token)
+        using var formProgress = new FormProgress($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token)
         {
           Maximum = m_DataRow.Length
         };
-        display.Show(this);
+        formProgress.Show(this);
         var intervalAction = new IntervalAction();
         for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
         {
-          if (display.CancellationToken.IsCancellationRequested)
+          if (formProgress.CancellationToken.IsCancellationRequested)
             return;
           // ReSharper disable once AccessToDisposedClosure
-          intervalAction.Invoke(display, "Getting Unique values", rowIndex);
+          intervalAction.Invoke(formProgress, "Getting Unique values", rowIndex);
           Logger.Information("Getting Unique values");
           var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
           if (ignoreNull && string.IsNullOrEmpty(id))
@@ -141,22 +141,22 @@ namespace CsvTools
 
         m_DataTable.BeginLoadData();
         m_DataTable.Clear();
-        display.Maximum = dictIDToRow.Count;
+        formProgress.Maximum = dictIDToRow.Count;
 
         var counter = 0;
         foreach (var rowIndex in dictIDToRow.Values)
         {
-          if (display.CancellationToken.IsCancellationRequested)
+          if (formProgress.CancellationToken.IsCancellationRequested)
             return;
           if (counter++ % 100 == 0)
-            intervalAction.Invoke(display, "Importing Rows to Grid", counter);
+            intervalAction.Invoke(formProgress, "Importing Rows to Grid", counter);
           m_DataTable.ImportRow(m_DataRow[rowIndex]);
         }
 
         m_DataTable.EndLoadData();
         detailControl.CancellationToken = m_CancellationTokenSource.Token;
-        display.Maximum = 0;
-        display.SetProcess("Sorting");
+        formProgress.Maximum = 0;
+        formProgress.SetProcess("Sorting");
         detailControl.SafeInvoke(
           () =>
           {

@@ -682,12 +682,12 @@ namespace CsvTools
       return template.Replace("  ", " ");
     }
 
-    public static void SetMaximum(this IProgress<ProgressInfo>? processDisplay, long maximum)
+    public static void SetMaximum(this IProgress<ProgressInfo>? progress, long maximum)
     {
-      if (!(processDisplay is IProcessDisplayTime processDisplayTime)) return;
+      if (!(progress is IProgressTime progressTime)) return;
       try
       {
-        processDisplayTime.Maximum = maximum;
+        progressTime.Maximum = maximum;
       }
       catch (InvalidOperationException)
       {

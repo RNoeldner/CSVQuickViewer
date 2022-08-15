@@ -17,7 +17,7 @@ using System.Threading;
 
 namespace CsvTools.Tests
 {
-  public class MockProcessDisplay : Progress<ProgressInfo>
+  public class MockProgress : Progress<ProgressInfo>
   {
     private bool m_Disposed;
     private bool m_Visible = true;

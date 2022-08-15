@@ -27,10 +27,10 @@ namespace CsvTools.Tests
       var test = new IntervalAction();
       Assert.IsTrue(test.NotifyAfterSeconds > 0 && test.NotifyAfterSeconds < 1);
 
-      var test2 = IntervalAction.ForProcessDisplay(null);
+      var test2 = IntervalAction.ForProgress(null);
       Assert.IsNull(test2);
 
-      var test3 = IntervalAction.ForProcessDisplay(new Progress<ProgressInfo>());
+      var test3 = IntervalAction.ForProgress(new Progress<ProgressInfo>());
       Assert.IsNotNull(test3);
     }
 
