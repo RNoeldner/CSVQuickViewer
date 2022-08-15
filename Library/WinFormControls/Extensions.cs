@@ -71,7 +71,7 @@ namespace CsvTools
     /// <param name="withLogger">if set to <c>true</c> [with logger].</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A process display, if the stetting want a process</returns>
-    public static FormProcessDisplay? GetProcessDisplay(
+    public static FormProgress? GetProgress(
       this IFileSetting fileSetting,
       Form? owner,
       bool withLogger,
@@ -79,9 +79,9 @@ namespace CsvTools
     {
       if (!fileSetting.ShowProgress)
         return null;
-      var processDisplay = new FormProcessDisplay(fileSetting.ToString(), withLogger, cancellationToken);
-      processDisplay.Show(owner);
-      return processDisplay;
+      var formProgress = new FormProgress(fileSetting.ToString(), withLogger, cancellationToken);
+      formProgress.Show(owner);
+      return formProgress;
     }
 
     public static Binding? GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>()

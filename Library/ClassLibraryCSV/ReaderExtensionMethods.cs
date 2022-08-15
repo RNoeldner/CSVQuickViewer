@@ -225,7 +225,7 @@ namespace CsvTools
       this DataReaderWrapper wrapper,
       TimeSpan maxDuration,
       bool restoreErrorsFromColumn,
-      IProgress<ProgressInfo>? processDisplay,
+      IProgress<ProgressInfo>? progress,
       CancellationToken cancellationToken)
     {
       var dataTable = new DataTable { Locale = CultureInfo.CurrentCulture, CaseSensitive = false };
@@ -235,7 +235,7 @@ namespace CsvTools
       if (wrapper.EndOfFile)
         return dataTable;
 
-      var intervalAction = IntervalAction.ForProcessDisplay(processDisplay);
+      var intervalAction = IntervalAction.ForProgress(progress);
       
       try
       {
@@ -261,7 +261,7 @@ namespace CsvTools
           // This gets the errors from the column #Error that has been filled by the reader
           if (errorColumn != null)
             dataRow.SetErrorInformation(dataRow[errorColumn].ToString());
-          intervalAction?.Invoke(processDisplay!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
+          intervalAction?.Invoke(progress!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
 
           // This gets the errors from the fileReader
           if (wrapper.ReaderMapping.HasErrors)
@@ -270,7 +270,7 @@ namespace CsvTools
       }
       finally
       {
-        processDisplay?.Report(new ProgressInfo($"Record {wrapper.RecordNumber:N0}", wrapper.Percent));
+        progress?.Report(new ProgressInfo($"Record {wrapper.RecordNumber:N0}", wrapper.Percent));
       }
       return dataTable;
     }

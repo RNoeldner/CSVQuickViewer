@@ -48,7 +48,7 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public async Task TimeZoneConversionsAsync()
     {
-      var pd = new MockProcessDisplay();
+      var pd = new MockProgress();
 
       var writeFile = (CsvFile) m_WriteFile.Clone();
       writeFile.FileName = UnitTestStatic.GetTestPath("BasicCSVOut2tzc.txt");
@@ -80,7 +80,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task Write()
     {
-      var pd = new MockProcessDisplay();
+      var pd = new MockProgress();
 
       var writeFile = (CsvFile) m_WriteFile.Clone();
       writeFile.FileName = UnitTestStatic.GetTestPath("BasicCSVOut.txt");
@@ -106,7 +106,7 @@ namespace CsvTools.Tests
     [TestMethod, Timeout(2000)]
     public async Task WriteAllFormatsAsync()
     {
-      var pd = new MockProcessDisplay();
+      var pd = new MockProgress();
 
       var writeFile = (CsvFile) m_WriteFile.Clone();
       writeFile.FileName = UnitTestStatic.GetTestPath("BasicCSVOut2.txt");

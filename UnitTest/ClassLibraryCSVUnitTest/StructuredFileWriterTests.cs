@@ -43,7 +43,7 @@ namespace CsvTools.Tests
       var fileSetting = new JsonFile { ID = "Write", FileName = "StructuredFileOutputJSON.txt", SqlStatement = cReadID, InOverview = true };
 
       var sb = new StringBuilder("{");
-      var processDisplay = new Progress<ProgressInfo>();
+      var progress = new Progress<ProgressInfo>();
 
       var cols = await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout,
         UnitTestStatic.Token);
@@ -79,7 +79,7 @@ namespace CsvTools.Tests
       var result = await writer.WriteAsync(
                      fileSetting.SqlStatement,
                      fileSetting.Timeout,
-                     processDisplay,
+                     progress,
                      UnitTestStatic.Token);
       Assert.AreEqual(7L, result);
     }
@@ -89,7 +89,7 @@ namespace CsvTools.Tests
     {
       var fileSetting = new XmlFile { ID = "Write", FileName = "StructuredFileOutputXML.txt", SqlStatement = cReadID, InOverview = true };
       var sb = new StringBuilder();
-      var processDisplay = new Progress<ProgressInfo>();
+      var progress = new Progress<ProgressInfo>();
       var cols = await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout, UnitTestStatic.Token);
 
       sb.AppendLine("<?xml version=\"1.0\"?>\n");
@@ -121,7 +121,7 @@ namespace CsvTools.Tests
         "Test",
         fileSetting.Row,
         StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
-      await writer.WriteAsync(fileSetting.SqlStatement, fileSetting.Timeout, processDisplay, UnitTestStatic.Token);
+      await writer.WriteAsync(fileSetting.SqlStatement, fileSetting.Timeout, progress, UnitTestStatic.Token);
     }
   }
 }

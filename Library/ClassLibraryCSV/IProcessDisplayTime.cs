@@ -17,9 +17,9 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  ///   Interface for an ProcessDisplay
+  ///   Interface for an progress
   /// </summary>
-  public interface IProcessDisplayTime : IProgress<ProgressInfo>
+  public interface IProgressTime : IProgress<ProgressInfo>
   {
     /// <summary>
     ///   Gets or sets the maximum value for the Progress

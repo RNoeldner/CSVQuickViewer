@@ -90,13 +90,13 @@ namespace CsvTools
     {
       this.RunWithHourglass(() =>
       {
-        using var formProcessDisplay = new FormProcessDisplay("Building Tree", false, m_CancellationTokenSource.Token);
-        formProcessDisplay.Show(this);
-        formProcessDisplay.Maximum = m_DataRow.GetLength(0) * 2;
+        using var formProgress = new FormProgress("Building Tree", false, m_CancellationTokenSource.Token);
+        formProgress.Show(this);
+        formProgress.Maximum = m_DataRow.GetLength(0) * 2;
 
-        BuildTreeData(parent, id, display1, display2, formProcessDisplay, formProcessDisplay.CancellationToken);
-        formProcessDisplay.Maximum = 0;
-        ShowTree(formProcessDisplay.CancellationToken);
+        BuildTreeData(parent, id, display1, display2, formProgress, formProgress.CancellationToken);
+        formProgress.Maximum = 0;
+        ShowTree(formProgress.CancellationToken);
       });
     }
 
@@ -188,8 +188,8 @@ namespace CsvTools
       treeDataDictionary.Add(rootDataParentFound.ID, rootDataParentFound);
 
       var max = 0L;
-      if (process is IProcessDisplayTime processDisplayTime)
-        max = processDisplayTime.Maximum;
+      if (process is IProgressTime progressTime)
+        max = progressTime.Maximum;
       var counter = 0;
       var intervalAction = new IntervalAction();
       foreach (var dataRow in m_DataRow)
@@ -315,9 +315,9 @@ namespace CsvTools
       {
         try
         {
-          using var processDisplay = new FormProcessDisplay("Searching", false, m_CancellationTokenSource.Token);
-          processDisplay.Show(this);
-          Search(m_TextBoxValue!.Text, m_TreeView.Nodes, processDisplay.CancellationToken);
+          using var formProgress = new FormProgress("Searching", false, m_CancellationTokenSource.Token);
+          formProgress.Show(this);
+          Search(m_TextBoxValue!.Text, m_TreeView.Nodes, formProgress.CancellationToken);
         }
         catch (Exception ex)
         {

@@ -119,16 +119,16 @@ namespace CsvTools
           return;
         this.SafeInvoke(() => Text = $@"Duplicate Display - {dataColumnName}");
 
-        using var display = new FormProcessDisplay($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token)
+        using var formProgress = new FormProgress($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token)
         { Maximum = m_DataRow.Length };
-        display.Show(this);
+        formProgress.Show(this);
         var intervalAction = new IntervalAction();
         for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
         {
-          if (display.CancellationToken.IsCancellationRequested)
+          if (formProgress.CancellationToken.IsCancellationRequested)
             return;
           // ReSharper disable once AccessToDisposedClosure
-          intervalAction.Invoke(display, "Getting duplicate values", rowIndex);
+          intervalAction.Invoke(formProgress, "Getting duplicate values", rowIndex);
 
           var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString()?.Trim();
 
@@ -160,20 +160,20 @@ namespace CsvTools
         m_DataTable.Clear();
         var counter = 0;
 
-        display.Maximum = duplicateList.Count;
+        formProgress.Maximum = duplicateList.Count;
 
         foreach (var rowIndex in duplicateList)
         {
-          if (display.CancellationToken.IsCancellationRequested)
+          if (formProgress.CancellationToken.IsCancellationRequested)
             return;
           counter++;
-          intervalAction.Invoke(display, "Importing Rows to Grid", counter);
+          intervalAction.Invoke(formProgress, "Importing Rows to Grid", counter);
           m_DataTable.ImportRow(m_DataRow[rowIndex]);
         }
 
         m_DataTable.EndLoadData();
-        display.Maximum = 0;
-        display.SetProcess("Sorting");
+        formProgress.Maximum = 0;
+        formProgress.SetProcess("Sorting");
 
         detailControl.SafeInvoke(
           () =>

@@ -70,17 +70,17 @@ namespace CsvTools.Tests
       var dest = UnitTestStatic.GetTestPath("xyz.txt");
       try
       {
-        var processDisplay = new Progress<ProgressInfo>( );
+        var progress = new Progress<ProgressInfo>( );
 
         Assert.IsFalse(FileSystemUtils.FileExists(dest));
         await FileSystemUtils.FileCopy(UnitTestStatic.GetTestPath("AllFormats.txt"), dest, false,
-          processDisplay, UnitTestStatic.Token);
+          progress, UnitTestStatic.Token);
         Assert.IsTrue(FileSystemUtils.FileExists(dest));
         
 
         // Copy again, the old file should be overwritten
         await FileSystemUtils.FileCopy(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), dest, true,
-          processDisplay, UnitTestStatic.Token);
+          progress, UnitTestStatic.Token);
         Assert.IsTrue(FileSystemUtils.FileExists(dest));
         Assert.AreEqual(new FileInfo(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")).Length,
           new FileInfo(dest).Length);
