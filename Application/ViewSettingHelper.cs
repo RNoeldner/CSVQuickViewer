@@ -51,7 +51,7 @@ namespace CsvTools
       m_SerializerViewSettings.Serialize(
         stringWriter,
         viewSettings,
-        SerializedFilesLib.EmptyXmlSerializerNamespaces.Value);
+        ClassLibraryCsvExtensionMethods.EmptyXmlSerializerNamespaces.Value);
       var newContens = stringWriter.ToString();
       var oldContens = FileSystemUtils.FileExists(m_SettingPath) ? File.ReadAllText(m_SettingPath.LongPathPrefix()) : string.Empty;
       if (!newContens.Equals(oldContens))
