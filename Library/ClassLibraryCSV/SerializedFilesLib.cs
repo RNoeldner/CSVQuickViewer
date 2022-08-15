@@ -16,6 +16,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace CsvTools
@@ -25,18 +26,7 @@ namespace CsvTools
   /// </summary>
   public static class SerializedFilesLib
   {
-    /// <summary>
-    ///   The a XML serialize namespace, used for all serialization
-    /// </summary>
-    public static readonly Lazy<XmlSerializerNamespaces> EmptyXmlSerializerNamespaces =
-      new Lazy<XmlSerializerNamespaces>(
-        () =>
-        {
-          var xmlSerializerNamespaces = new XmlSerializerNamespaces();
-          xmlSerializerNamespaces.Add(string.Empty, string.Empty);
-          return xmlSerializerNamespaces;
-        });
-
+  
     private static readonly Lazy<XmlSerializer> m_SerializerCurrentCsvFile =
       new Lazy<XmlSerializer>(() => new XmlSerializer(typeof(CsvFile)));
 
@@ -51,6 +41,8 @@ namespace CsvTools
       using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
       return (CsvFile) m_SerializerCurrentCsvFile.Value.Deserialize(reader);
     }
+
+    
 
     /// <summary>
     ///   Saves the setting for a physical file
@@ -79,13 +71,8 @@ namespace CsvTools
           saveSetting.ColumnCollection.Add(col);
 
       Logger.Debug("Saving setting {path}", fileName);
-      string contend;
-      using (var stringWriter = new StringWriter(CultureInfo.InvariantCulture))
-      {
-        m_SerializerCurrentCsvFile.Value.Serialize(stringWriter, saveSetting, EmptyXmlSerializerNamespaces.Value);
-        contend = stringWriter.ToString();
-      }
-
+      string contend = m_SerializerCurrentCsvFile.Value.SerializeIndented(saveSetting);
+      
       var delete = false;
       if (FileSystemUtils.FileExists(fileName))
       {

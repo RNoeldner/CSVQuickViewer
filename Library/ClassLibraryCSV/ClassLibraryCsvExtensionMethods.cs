@@ -19,22 +19,44 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace CsvTools
 {
   public delegate DateTime TimeZoneChangeDelegate(in DateTime input, in string srcTimeZone, in string destTimeZone,
     in Action<string>? handleWarning);
 
+
+
   /// <summary>
   ///   Class with extensions used in the class Library
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
+    public static readonly Lazy<XmlSerializerNamespaces> EmptyXmlSerializerNamespaces =
+      new Lazy<XmlSerializerNamespaces>(
+        () =>
+        {
+          var xmlSerializerNamespaces = new XmlSerializerNamespaces();
+          xmlSerializerNamespaces.Add(string.Empty, string.Empty);
+          return xmlSerializerNamespaces;
+        });
+
+    public static string SerializeIndented(this XmlSerializer serializer, object data)
+    {
+      using var stringWriter = new StringWriter();
+      using var textWriter = new XmlTextWriter(stringWriter);
+      textWriter.Formatting = Formatting.Indented;
+      serializer.Serialize(textWriter, data, EmptyXmlSerializerNamespaces.Value);
+      return stringWriter.ToString();
+    }
 
     public static int IdentifierHash(this string name)
       => name.ToUpperInvariant().GetHashCode();
