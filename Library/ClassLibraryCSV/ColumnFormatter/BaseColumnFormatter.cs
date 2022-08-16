@@ -8,6 +8,7 @@ namespace CsvTools
   /// </summary>
   public abstract class BaseColumnFormatter : IColumnFormatter
   {
+
     /// <inheritdoc/>
     public abstract string FormatInputText(in string inputString, Action<string>? handleWarning);
 

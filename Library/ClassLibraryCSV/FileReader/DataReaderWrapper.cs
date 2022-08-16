@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
@@ -94,6 +95,12 @@ namespace CsvTools
 
     /// <inheritdoc />
     public override bool HasRows => !DataReader.IsClosed;
+
+    public event EventHandler<RetryEventArgs>? OnAskRetry;
+    public event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
+    public event EventHandler? ReadFinished;
+
+    public Func<Task>? OnOpenAsync { get; set; }
 
     /// <inheritdoc />
     public event EventHandler<WarningEventArgs>? Warning;
@@ -285,10 +292,10 @@ namespace CsvTools
         RecordNumber++;
       return couldRead;
     }
+
     /// <inheritdoc cref="IFileReader" />
     public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
     {
-      ReaderMapping.PrepareRead();
       // IDataReader does not support preferred ReadAsync
       var couldRead = DataReader is DbDataReader dbDataReader
         ? await dbDataReader.ReadAsync(cancellationToken).ConfigureAwait(false)
@@ -296,6 +303,8 @@ namespace CsvTools
 
       if (couldRead)
         RecordNumber++;
+      if (!couldRead)
+        ReadFinished?.Invoke(this, EventArgs.Empty);
       return couldRead;
     }
     /// <inheritdoc />
@@ -303,7 +312,13 @@ namespace CsvTools
 
     /// <inheritdoc />
     [Obsolete("No need to open a DataReaderWrapper")]
-    public Task OpenAsync(CancellationToken token) => Task.CompletedTask;
+    public async Task OpenAsync(CancellationToken token)
+    {
+      if (OnOpenAsync!=null)
+        await OnOpenAsync.Invoke().ConfigureAwait(false);
+      ReaderMapping.PrepareRead();
+      OpenFinished?.Invoke(this, ReaderMapping.Column);
+    }
 
     /// <inheritdoc />
     public virtual void ResetPositionToFirstDataRow()
@@ -313,6 +328,7 @@ namespace CsvTools
     }
     /// <inheritdoc />
     public override IEnumerator GetEnumerator() => new DbEnumerator(DataReader, false);
+
     /// <inheritdoc />
     public byte[] GetFile(int ordinal) => FileReader?.GetFile(ordinal) ?? Array.Empty<byte>();
   }

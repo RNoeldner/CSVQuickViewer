@@ -24,11 +24,11 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="CsvTools.IFileReaderWithEvents" />
+  /// <inheritdoc cref="CsvTools.IFileReader" />
   /// <summary>
   ///   Json text file reader
   /// </summary>
-  public sealed class JsonFileReader : BaseFileReaderTyped, IFileReaderWithEvents
+  public sealed class JsonFileReader : BaseFileReaderTyped, IFileReader
   {
     private Stream? m_ImprovedStream;
 
