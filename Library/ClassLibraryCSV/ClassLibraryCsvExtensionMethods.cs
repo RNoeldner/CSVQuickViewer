@@ -40,7 +40,7 @@ namespace CsvTools
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
-    public static readonly Lazy<XmlSerializerNamespaces> EmptyXmlSerializerNamespaces =
+    private static readonly Lazy<XmlSerializerNamespaces> m_EmptyXmlSerializerNamespaces =
       new Lazy<XmlSerializerNamespaces>(
         () =>
         {
@@ -54,7 +54,7 @@ namespace CsvTools
       using var stringWriter = new StringWriter();
       using var textWriter = new XmlTextWriter(stringWriter);
       textWriter.Formatting = Formatting.Indented;
-      serializer.Serialize(textWriter, data, EmptyXmlSerializerNamespaces.Value);
+      serializer.Serialize(textWriter, data, m_EmptyXmlSerializerNamespaces.Value);
       return stringWriter.ToString();
     }
 

@@ -45,20 +45,13 @@ namespace CsvTools
       if (!FileSystemUtils.DirectoryExists(m_SettingFolder))
         FileSystemUtils.CreateDirectory(m_SettingFolder);
 
-      using var stringWriter = new StringWriter(CultureInfo.InvariantCulture);
-      // Remove and Restore FileName it would be serialized
-
-      m_SerializerViewSettings.Serialize(
-        stringWriter,
-        viewSettings,
-        ClassLibraryCsvExtensionMethods.EmptyXmlSerializerNamespaces.Value);
-      var newContens = stringWriter.ToString();
-      var oldContens = FileSystemUtils.FileExists(m_SettingPath) ? File.ReadAllText(m_SettingPath.LongPathPrefix()) : string.Empty;
-      if (!newContens.Equals(oldContens))
+      var newContend = m_SerializerViewSettings.SerializeIndented(viewSettings);
+      var oldContend = FileSystemUtils.FileExists(m_SettingPath) ? FileSystemUtils.ReadAllText(m_SettingPath) : string.Empty;
+      if (!newContend.Equals(oldContend))
       {
         FileSystemUtils.DeleteWithBackup(m_SettingPath, false);
         Logger.Debug("Saving defaults {path}", m_SettingPath);
-        File.WriteAllText(m_SettingPath, newContens);
+        File.WriteAllText(m_SettingPath, newContend);
       }
     }
   }
