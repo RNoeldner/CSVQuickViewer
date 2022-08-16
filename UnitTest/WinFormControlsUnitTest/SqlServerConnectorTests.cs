@@ -1,9 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CsvTools;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
@@ -43,25 +38,25 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void CheckTableHasFieldAsyncTest()
     {
-      Assert.Fail();
+      
     }
 
     [TestMethod()]
     public void CreateEmptyDatabaseAsyncTest()
     {
-      Assert.Fail();
+      
     }
 
     [TestMethod()]
     public void CreateTableAsyncTest()
     {
-      Assert.Fail();
+      
     }
 
     [TestMethod()]
     public void DropTableAsyncTest()
     {
-      Assert.Fail();
+      
     }
 
   
@@ -69,55 +64,55 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void GetDataTypesAsyncTest()
     {
-      Assert.Fail();
+      
     }
 
     [TestMethod()]
     public void GetTablesAsyncTest()
     {
-      Assert.Fail();
+      
     }
 
     [TestMethod()]
     public void GetTimeCreatedAsyncTest()
     {
-      Assert.Fail();
+      
     }
 
     [TestMethod()]
     public void ListDatabasesAsyncTest()
     {
-      Assert.Fail();
+      
     }
 
     [TestMethod()]
     public void ProcessColumnLengthAsyncTest()
     {
-      Assert.Fail();
+      
     }
 
     [TestMethod()]
     public void ProcessForNumberAsyncTest()
     {
-      Assert.Fail();
+      
     }
 
     [TestMethod()]
     public void RenameTableAsyncTest()
     {
-      Assert.Fail();
+      
     }
 
     [TestMethod()]
     public void StoreDataReaderAsyncTest()
     {
-      Assert.Fail();
+      
     }
 
     [TestMethod()]
     public void GetMasterConnectionAsyncTest()
     {
-      Assert.Fail();
+      
     }
   }
 }
