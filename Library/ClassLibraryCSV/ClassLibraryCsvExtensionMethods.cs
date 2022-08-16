@@ -33,8 +33,6 @@ namespace CsvTools
   public delegate DateTime TimeZoneChangeDelegate(in DateTime input, in string srcTimeZone, in string destTimeZone,
     in Action<string>? handleWarning);
 
-
-
   /// <summary>
   ///   Class with extensions used in the class Library
   /// </summary>
