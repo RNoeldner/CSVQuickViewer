@@ -32,6 +32,7 @@ namespace CsvTools
     private string m_TimePart = string.Empty;
     private string m_TimePartFormat = ImmutableColumn.cDefaultTimePartFormat;
     private string m_TimeZonePart = string.Empty;
+    private int m_ColumnOrdinal;
 
     public Column()
       : this(string.Empty)
@@ -101,7 +102,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The type of the data.</value>
     [XmlAttribute("Type")]
-    [Obsolete("Use ValueFormat instead")]
+    //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(DataTypeEnum.String)]
     public DataTypeEnum DataType
     {
@@ -114,7 +115,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The date format.</value>
     [XmlAttribute]
-    [Obsolete("Use ValueFormat instead")]
+    //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
     public string DateFormat
     {
@@ -127,7 +128,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The date separator.</value>
     [XmlAttribute]
-    [Obsolete("Use ValueFormat instead")]
+    //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
     public string DateSeparator
     {
@@ -140,7 +141,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The decimal separator.</value>
     [XmlAttribute]
-    [Obsolete("Use ValueFormat instead")]
+    //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
     public string DecimalSeparator
     {
@@ -154,7 +155,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The false.</value>
     [XmlAttribute]
-    [Obsolete("Use ValueFormat instead")]
+    //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cFalseDefault)]
     public string False
     {
@@ -169,7 +170,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The group separator.</value>
     [XmlAttribute]
-    [Obsolete("Use ValueFormat instead")]
+    //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
     public string GroupSeparator
     {
@@ -182,7 +183,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The number format.</value>
     [XmlAttribute]
-    [Obsolete("Use ValueFormat instead")]
+    //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
     public string NumberFormat
     {
@@ -195,7 +196,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The part starting with 1</value>
     [XmlAttribute]
-    [Obsolete("Use ValueFormat instead")]
+    //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cPartDefault)]
     public int Part
     {
@@ -209,7 +210,7 @@ namespace CsvTools
     /// <value>The splitter.</value>
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cPartSplitterDefault)]
-    [Obsolete("Use ValueFormat instead")]
+    //[Obsolete("Use ValueFormat instead")]
     public string PartSplitter
     {
       get => ValueFormatMutable.PartSplitter;
@@ -222,7 +223,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The part starting with 1</value>
     [XmlAttribute]
-    [Obsolete("Use ValueFormat instead")]
+    //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cPartToEndDefault)]
     public bool PartToEnd
     {
@@ -235,7 +236,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The time separator.</value>
     [XmlAttribute]
-    [Obsolete("Use ValueFormat instead")]
+    //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
     public string TimeSeparator
     {
@@ -248,7 +249,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The true.</value>
     [XmlAttribute]
-    [Obsolete("Use ValueFormat instead")]
+    //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cTrueDefault)]
     public string True
     {
@@ -257,7 +258,7 @@ namespace CsvTools
       set => ValueFormatMutable.True = value;
     }
 
-    public ValueFormatMutable ValueFormatMutable { get; }
+    public ValueFormatMutable ValueFormatMutable { get;  }
 
     /// <summary>
     ///   The Ordinal Position of the column
@@ -265,8 +266,8 @@ namespace CsvTools
     [XmlIgnore]
     public int ColumnOrdinal
     {
-      get;
-      set;
+      get => m_ColumnOrdinal;
+      set => SetField(ref m_ColumnOrdinal, value);
     }
 
     /// <summary>
