@@ -27,7 +27,6 @@ namespace CsvTools
       return HtmlStyle.HtmlEncodeShort(dataObject.ToString()) ?? string.Empty;
     }
 
-
     /// <inheritdoc/>
     public override string FormatInputText(in string inputString, Action<string>? handleWarning)
     {

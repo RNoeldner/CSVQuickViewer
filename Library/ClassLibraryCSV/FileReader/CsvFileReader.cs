@@ -27,7 +27,7 @@ namespace CsvTools
   /// <summary>
   ///   A data reader for CSV files
   /// </summary>
-  public class CsvFileReader : BaseFileReader, IFileReaderWithEvents
+  public class CsvFileReader : BaseFileReader, IFileReader
   {
     /// <summary>
     ///   Constant: Line has fewer columns than expected

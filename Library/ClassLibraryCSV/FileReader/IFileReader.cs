@@ -13,6 +13,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,10 +29,39 @@ namespace CsvTools
                                  , IAsyncDisposable
 #endif
   {
+    #region Events and Callbacks
+    /// <summary>
+    ///   Occurs when an open process failed, allowing the user to change the timeout or provide the
+    ///   needed file etc.
+    /// </summary>
+    event EventHandler<RetryEventArgs>? OnAskRetry;
+
+    /// <summary>
+    ///   Event to be raised once the reader is opened, the column information is now known and
+    ///   passed to the EventHandler
+    /// </summary>
+    event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
+
+    /// <summary>
+    ///   Event to be raised once the reader is finished reading the file
+    /// </summary>
+    event EventHandler? ReadFinished;
+
+
+    /// <summary>
+    ///   Occurs before the initial open. Can be used to prepare the data like download it from a
+    ///   remote location
+    /// </summary>
+    Func<Task>? OnOpenAsync { set; }
+    
+
     /// <summary>
     ///   Event handler called if a warning or error occurred
     /// </summary>
     public event EventHandler<WarningEventArgs>? Warning;
+    
+
+    #endregion
 
     /// <summary>
     ///   Gets the end line number, if reading form text file, otherwise <see cref="RecordNumber" />

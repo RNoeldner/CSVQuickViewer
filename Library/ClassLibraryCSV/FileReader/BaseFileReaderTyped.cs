@@ -36,7 +36,7 @@ namespace CsvTools
     /// <inheritdoc />
     /// <summary>
     ///   Constructor for abstract base call for <see cref="T:CsvTools.IFileReader" /> and <see
-    ///   cref="T:CsvTools.IFileReaderWithEvents" /> that does read typed values like Excel, SQl
+    ///   cref="T:CsvTools.IFileReader" /> that does read typed values like Excel, SQl
     /// </summary>
     /// <param name="fileName">Path to a physical file (if used)</param>
     /// <param name="columnDefinition">List of column definitions</param>

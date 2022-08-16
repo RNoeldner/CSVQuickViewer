@@ -92,7 +92,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     /// <summary>
-    ///   Constructor for abstract base call for <see cref="T:CsvTools.IFileReaderWithEvents" />
+    ///   Constructor for abstract base call for <see cref="T:CsvTools.IFileReader" />
     /// </summary>
     /// <param name="fileName">Path to a physical file (if used)</param>
     /// <param name="columnDefinition">List of column definitions</param>
@@ -815,9 +815,9 @@ namespace CsvTools
     /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public virtual bool Read(CancellationToken cancellationToken) =>
-      ReadAsync(cancellationToken).Wait(2000, cancellationToken);
+      ReadAsync(cancellationToken).GetAwaiter().GetResult();
 
-    public override bool Read() => ReadAsync(CancellationToken.None).Wait(2000);
+    public override bool Read() => ReadAsync(CancellationToken.None).GetAwaiter().GetResult();
 
     /// <summary>
     ///   Resets the position to first data row.

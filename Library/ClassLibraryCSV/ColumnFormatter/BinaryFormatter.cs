@@ -45,6 +45,7 @@ namespace CsvTools
     public static string GetNameFromNameAndContent(in string contentsWithFileName) =>
       contentsWithFileName.Substring(0, contentsWithFileName.IndexOf('\0'));
 
+
     /// <inheritdoc/>
     public override string FormatInputText(in string inputString, Action<string>? handleWarning)
     {

@@ -12,6 +12,12 @@
  *
  */
 
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reflection;
+
 namespace CsvTools
 {
   public static class ColumnFormatterFactory
@@ -30,7 +36,7 @@ namespace CsvTools
         DataTypeEnum.Binary => new BinaryFormatter(columnOrdinal, valueFormat.ReadFolder, valueFormat.WriteFolder,
           valueFormat.FileOutPutPlaceholder, valueFormat.Overwrite),
 #if !QUICK
-        DataTypeEnum.Markdown2Html => new MarkupToHtmlFormatter(),
+        DataTypeEnum.Markdown2Html => new Markdown2HtmlFormatter(),
 
 #endif
         _ => null

@@ -18,11 +18,11 @@ using System;
 
 namespace CsvTools
 {
-  public class MarkupToHtmlFormatter : BaseColumnFormatter
+  public class Markdown2HtmlFormatter : BaseColumnFormatter
   {
     private readonly Markdown m_Markdown;
 
-    public MarkupToHtmlFormatter() =>
+    public Markdown2HtmlFormatter() =>
       m_Markdown = new Markdown(new MarkdownOptions()
       {
         AllowEmptyLinkText = false,
@@ -32,6 +32,7 @@ namespace CsvTools
         QuoteSingleLine = false,
         AutoNewLines = true
       });
+
 
     public override string FormatInputText(in string inputString, Action<string>? handleWarning)
     {
