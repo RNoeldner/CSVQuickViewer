@@ -26,18 +26,10 @@ namespace CsvTools
     {
       try
       {
-        var loggerConfiguration = new LoggerConfiguration()
-          //.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-          .Enrich.FromLogContext()
-          .Filter.ByExcluding(logEvent => logEvent.Exception != null
-                                          && (logEvent.Exception.GetType() == typeof(OperationCanceledException) ||
-                                              logEvent.Exception.GetType() == typeof(ObjectDisposedException)))
-          .WriteTo.Sink(m_UserInterfaceSink);
 
-        // File Logger
-        var entryName = Assembly.GetEntryAssembly()?.GetName().Name ?? Assembly.GetExecutingAssembly().GetName().Name;
+        var assemblyName = Assembly.GetEntryAssembly()?.GetName().Name ?? Assembly.GetExecutingAssembly().GetName().Name;
 
-        var folder = Environment.ExpandEnvironmentVariables($"%LocalAppData%\\{entryName}\\");
+        var folder = Environment.ExpandEnvironmentVariables($"%LocalAppData%\\{assemblyName}\\");
         if (!FileSystemUtils.DirectoryExists(folder))
         {
           try
@@ -50,17 +42,28 @@ namespace CsvTools
           }
         }
 
-        loggerConfiguration = loggerConfiguration
+        var loggerConfiguration = new LoggerConfiguration()
+          //.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+          .Enrich.FromLogContext()
+          .Filter.ByExcluding(logEvent => logEvent.Exception != null
+                                          && (logEvent.Exception.GetType() == typeof(OperationCanceledException) ||
+                                              logEvent.Exception.GetType() == typeof(ObjectDisposedException)))
+          .WriteTo.Sink(m_UserInterfaceSink)
+
           // Exceptions
           .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Exception != null).WriteTo.File(
-            folder + "ExceptionLog.txt", rollingInterval: RollingInterval.Month, retainedFileCountLimit: 3, encoding: Encoding.UTF8,
-            outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff}\t{Level}\t\"{Exception:l}\"{NewLine}"), LogEventLevel.Error)
+              folder + "ExceptionLog.txt", rollingInterval: RollingInterval.Month, retainedFileCountLimit: 3,
+              encoding: Encoding.UTF8,
+              outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff}\t{Level}\t\"{Exception:l}\"{NewLine}"),
+            LogEventLevel.Error)
+
           //CSV
           .WriteTo.File(folder + "ApplicationLog.txt", rollingInterval: RollingInterval.Day, encoding: Encoding.UTF8,
-            outputTemplate: "{Timestamp:HH:mm:ss}\t{Level:w3}\t{Message:l}{NewLine}")
-          // Json
-          .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), path: folder + "ApplicationLog.json",
-            rollingInterval: RollingInterval.Day);
+            outputTemplate: "{Timestamp:HH:mm:ss}\t{Level:w3}\t{Message:l}{NewLine}");
+
+        // Json
+        // .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), path: folder + "ApplicationLog.json",
+        //  rollingInterval: RollingInterval.Day);
         // Set the general Logger
         Logger.LoggerInstance = new SerilogLoggerProvider(loggerConfiguration.CreateLogger()).CreateLogger(nameof(CsvTools));
       }
@@ -78,7 +81,7 @@ namespace CsvTools
       => m_UserInterfaceSink.AdditionalLoggers.Add(value ?? throw new ArgumentNullException(nameof(value)));
 
     [DebuggerStepThrough]
-    private class UserInterfaceSink : ILogEventSink
+    public class UserInterfaceSink : ILogEventSink
     {
       public readonly List<Microsoft.Extensions.Logging.ILogger> AdditionalLoggers = new List<Microsoft.Extensions.Logging.ILogger>();
 
@@ -89,6 +92,7 @@ namespace CsvTools
       {
         m_FormatProvider = formatProvider;
       }
+
       /// <inheritdoc cref="ILogEventSink"/>
       public void Emit(LogEvent logEvent)
       {
