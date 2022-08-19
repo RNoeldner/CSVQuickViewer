@@ -14,8 +14,10 @@
 
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Serilog.Events;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace CsvTools.Tests
@@ -68,6 +70,16 @@ namespace CsvTools.Tests
         Messages.Add(formatter(state, exception));
       }
     }
+
+    [TestMethod]
+    public void UserInterfaceSink()
+    {
+      var test = new WinAppLogging.UserInterfaceSink(CultureInfo.CurrentCulture);
+      var logAction = new TestLogger();
+      test.AdditionalLoggers.Add(logAction);
+      test.Emit(new LogEvent(DateTimeOffset.Now, LogEventLevel.Information,null, MessageTemplate.Empty,new List<LogEventProperty>() { } ));
+    }
+
 
     [TestMethod]
     public void AddLog_RemoveLog()
