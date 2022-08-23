@@ -51,7 +51,7 @@ namespace CsvTools
       using var fromProgress = new FormProgress("Check", true, CancellationToken.None);
       fromProgress.Show();
       fromProgress.Maximum = 0;
-      using (var streamReader = new ImprovedTextReader(m_Stream!, m_CsvFile.CodePageId))
+      using (var streamReader = new ImprovedTextReader(m_Stream, m_CsvFile.CodePageId))
       {        
         m_CsvFile.SkipRows = streamReader.GuessStartRow(textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxComment.Text, fromProgress.CancellationToken);
       }

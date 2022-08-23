@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
  *
