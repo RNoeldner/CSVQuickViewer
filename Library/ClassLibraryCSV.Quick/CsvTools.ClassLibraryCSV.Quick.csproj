@@ -45,7 +45,6 @@
 		<Compile Include="..\ClassLibraryCSV\FileReader\CsvFileReader.cs" Link="FileReader\CsvFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\JsonFileReader.cs" Link="FileReader\JsonFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\IFileReader.cs" Link="FileReader\IFileReader.cs" />
-		<Compile Include="..\ClassLibraryCSV\FileReader\IFileReaderWithEvents.cs" Link="FileReader\IFileReaderWithEvents.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\ReaderConstants.cs" Link="FileReader\ReaderConstants.cs" />
 		
 		<Compile Include="..\ClassLibraryCSV\IColumnFormatter.cs" Link="IColumnFormatter.cs" />
@@ -134,7 +133,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Ben.Demystifier" Version="0.4.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="SharpZipLib" Version="1.3.3" />
 		<PackageReference Include="TimeZoneConverter" Version="5.0.0" />

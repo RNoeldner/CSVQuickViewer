@@ -21,6 +21,9 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
+// ReSharper disable RedundantDelegateCreation
+// ReSharper disable RedundantNameQualifier
+
 namespace CsvTools
 {
   /// <summary>
@@ -29,18 +32,18 @@ namespace CsvTools
   public sealed class FormProgress : ResizeForm, IProgressTime, ILogger
   {
     private readonly LoggerDisplay? m_LoggerDisplay;
-    private readonly ProgressTime m_Progress = new ProgressTime();
-    private readonly Label m_LabelEtl = new Label();
-    private readonly Label m_LabelText = new Label();
-    private readonly ProgressBar m_ProgressBar = new ProgressBar();
-    private readonly TableLayoutPanel m_TableLayoutPanel = new TableLayoutPanel();
+    private readonly ProgressTime m_Progress = new();
+    private readonly Label m_LabelEtl = new();
+    private readonly Label m_LabelText = new();
+    private readonly ProgressBar m_ProgressBar = new();
+    private readonly TableLayoutPanel m_TableLayoutPanel = new();
 
     /// <summary>Raised for each reported progress value.</summary>
     /// <remarks>
     /// Handlers registered with this event will be invoked on the 
     /// <see cref="System.Threading.SynchronizationContext"/> captured when the instance was constructed.
     /// </remarks>
-    public event EventHandler<ProgressInfo> ProgressChanged;
+    public event EventHandler<ProgressInfo>? ProgressChanged;
 
     public FormProgress(in string windowTitle)
       : this(windowTitle, true, CancellationToken.None)
@@ -77,6 +80,7 @@ namespace CsvTools
       {
         WinAppLogging.AddLog(this);
       }
+
       m_TableLayoutPanel.ResumeLayout(false);
       m_TableLayoutPanel.PerformLayout();
       ResumeLayout(false);
@@ -178,8 +182,8 @@ namespace CsvTools
           {
             m_ProgressBar.Style = Maximum > 1 ? ProgressBarStyle.Continuous : ProgressBarStyle.Marquee;
             m_ProgressBar.Value = m_Progress.TimeToCompletion.Value > m_ProgressBar.Maximum
-                                    ? m_ProgressBar.Maximum
-                                    : m_Progress.TimeToCompletion.Value.ToInt();
+              ? m_ProgressBar.Maximum
+              : m_Progress.TimeToCompletion.Value.ToInt();
             var sb = new StringBuilder();
             sb.Append(m_Progress.TimeToCompletion.PercentDisplay.PadLeft(10));
 
@@ -192,9 +196,6 @@ namespace CsvTools
 
             m_LabelEtl.Text = sb.ToString();
           }
-
-          m_LabelEtl.Refresh();
-          m_LabelText.Refresh();
         });
     }
 
@@ -218,10 +219,10 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Sets the process.
+    ///   Sets the text only not the progress
     /// </summary>
     /// <param name="text">The text.</param>
-    public void SetProcess(string text) => Logger.Information(text);
+    public void SetProcess(string text) => m_LabelText.SafeBeginInvoke(() => m_LabelText.Text = text);
 
     /// <summary>
     ///   Required method for Designer support - do not modify the contents of this method with the
@@ -273,7 +274,8 @@ namespace CsvTools
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
       this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.m_TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+      this.m_TableLayoutPanel.RowStyles.Add(
+        new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
       this.m_TableLayoutPanel.Size = new System.Drawing.Size(443, 86);
       this.m_TableLayoutPanel.TabIndex = 8;
       // Formprogress
@@ -290,13 +292,13 @@ namespace CsvTools
       this.ShowInTaskbar = false;
       this.Text = "Process";
       this.TopMost = true;
-      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.progress_FormClosing);
+      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Progress_FormClosing);
       this.m_TableLayoutPanel.ResumeLayout(false);
       this.m_TableLayoutPanel.PerformLayout();
       this.ResumeLayout(false);
     }
 
-    private void progress_FormClosing(object? sender, FormClosingEventArgs e)
+    private void Progress_FormClosing(object? sender, FormClosingEventArgs e)
     {
       e.Cancel = false;
       try
@@ -304,7 +306,8 @@ namespace CsvTools
         // if the form is closed by the user (UI) signal a cancellation
         if (e.CloseReason == CloseReason.UserClosing && !CancellationTokenSource.IsCancellationRequested)
         {
-          if (MessageBox.Show("Cancel running process?", "Cancel", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+          if (MessageBox.Show("Cancel running process?", "Cancel", MessageBoxButtons.YesNo, MessageBoxIcon.Question) ==
+              DialogResult.Yes)
           {
             CancellationTokenSource.Cancel();
             // Give it time to stop
@@ -319,6 +322,7 @@ namespace CsvTools
         //Ignore
       }
     }
+
     #region IDisposable Support
 
     private bool m_DisposedValue; // To detect redundant calls
@@ -360,7 +364,8 @@ namespace CsvTools
 
     #endregion IDisposable Support
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
+      Func<TState, Exception, string> formatter)
     {
       if (!IsEnabled(logLevel))
         return;
@@ -376,6 +381,5 @@ namespace CsvTools
     public bool IsEnabled(LogLevel logLevel) => logLevel >= LogLevel.Information;
 
     public void Report(ProgressInfo value) => SetProcess(value);
-
   }
 }
