@@ -24,72 +24,64 @@ namespace CsvTools.Tests
   {
     private readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 
-		[TestMethod]
-		[Timeout(3000)]
-		public async System.Threading.Tasks.Task DetailControlTestAsync()
-		{
-			using (var dt = new DataTable())
-			{
-				dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
-				dt.Columns.Add(new DataColumn { ColumnName = "Text", DataType = typeof(string) });
-				dt.Columns.Add(new DataColumn { ColumnName = "Date", DataType = typeof(DateTime) });
-				dt.Columns.Add(new DataColumn { ColumnName = "Bool", DataType = typeof(bool) });
-				for (var line = 1; line < 5000; line++)
-				{
-					var row = dt.NewRow();
-					row[0] = line;
-					row[1] = $"This is text {line / 2}";
-					row[2] = new DateTime(2001, 6, 6).AddHours(line * 3);
-					row[3] = line % 3 == 0;
-					if (m_Random.Next(1, 10) == 5)
-						row.SetColumnError(m_Random.Next(0, 3), "Error");
-					if (m_Random.Next(1, 50) == 5)
-						row.RowError = "Row Error";
-					dt.Rows.Add(row);
-				}
-
-        using (var dc = new DetailControl())
-        {
-          dc.HtmlStyle = UnitTestStatic.HtmlStyle;
-          dc.Show();
-          dc.DataTable = dt;
-          
-          await dc.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
-          dc.OnlyShowErrors = true ;
-          dc.MoveMenu();
-        }
+    [TestMethod]
+    [Timeout(3000)]
+    public async System.Threading.Tasks.Task DetailControlTestAsync()
+    {
+      using var dt = new DataTable();
+      dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
+      dt.Columns.Add(new DataColumn { ColumnName = "Text", DataType = typeof(string) });
+      dt.Columns.Add(new DataColumn { ColumnName = "Date", DataType = typeof(DateTime) });
+      dt.Columns.Add(new DataColumn { ColumnName = "Bool", DataType = typeof(bool) });
+      for (var line = 1; line < 5000; line++)
+      {
+        var row = dt.NewRow();
+        row[0] = line;
+        row[1] = $"This is text {line / 2}";
+        row[2] = new DateTime(2001, 6, 6).AddHours(line * 3);
+        row[3] = line % 3 == 0;
+        if (m_Random.Next(1, 10) == 5)
+          row.SetColumnError(m_Random.Next(0, 3), "Error");
+        if (m_Random.Next(1, 50) == 5)
+          row.RowError = "Row Error";
+        dt.Rows.Add(row);
       }
+
+      using var dc = new DetailControl();
+      dc.HtmlStyle = UnitTestStatic.HtmlStyle;
+      dc.Show();
+      dc.DataTable = dt;
+
+      await dc.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
+      dc.OnlyShowErrors = true;
+      dc.MoveMenu();
     }
 
-		[TestMethod]
-		[Timeout(3000)]
-		public async System.Threading.Tasks.Task SortTestAsync()
-		{
-			using (var dt = new DataTable())
-			{
-				dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
-				dt.Columns.Add(new DataColumn { ColumnName = "Text", DataType = typeof(string) });
-				dt.Columns.Add(new DataColumn { ColumnName = "Date", DataType = typeof(DateTime) });
-				dt.Columns.Add(new DataColumn { ColumnName = "Bool", DataType = typeof(bool) });
-				for (var line = 1; line < 5000; line++)
-				{
-					var row = dt.NewRow();
-					row[0] = m_Random.Next(1, 5000);
-					row[1] = $"This is text {line / 2}";
-					row[2] = new DateTime(2001, 6, 6).AddHours(line * 3);
-					row[3] = line % 3 == 0;
-					dt.Rows.Add(row);
-				}
-
-        using (var dc = new DetailControl())
-        {
-          dc.HtmlStyle = UnitTestStatic.HtmlStyle;
-          dc.Show();
-          dc.DataTable = dt;
-          await dc.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
-          dc.Sort("ID", ListSortDirection.Ascending);
-        }
+    [TestMethod]
+    [Timeout(3000)]
+    public async System.Threading.Tasks.Task SortTestAsync()
+    {
+      using var dt = new DataTable();
+      dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
+      dt.Columns.Add(new DataColumn { ColumnName = "Text", DataType = typeof(string) });
+      dt.Columns.Add(new DataColumn { ColumnName = "Date", DataType = typeof(DateTime) });
+      dt.Columns.Add(new DataColumn { ColumnName = "Bool", DataType = typeof(bool) });
+      for (var line = 1; line < 5000; line++)
+      {
+        var row = dt.NewRow();
+        row[0] = m_Random.Next(1, 5000);
+        row[1] = $"This is text {line / 2}";
+        row[2] = new DateTime(2001, 6, 6).AddHours(line * 3);
+        row[3] = line % 3 == 0;
+        dt.Rows.Add(row);
       }
+
+      using var dc = new DetailControl();
+      dc.HtmlStyle = UnitTestStatic.HtmlStyle;
+      dc.Show();
+      dc.DataTable = dt;
+      await dc.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
+      dc.Sort("ID", ListSortDirection.Ascending);
     }
   }
 }

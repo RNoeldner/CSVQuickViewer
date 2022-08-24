@@ -26,19 +26,17 @@ namespace CsvTools.Tests
     [Timeout(3000)]
     public void FormProcessCancel()
     {
-      using (var formProgress = new FormProgress("Test Logger", true, UnitTestStatic.Token))
-      {
-        formProgress.ShowInTaskbar = true;
-        formProgress.Show();
-        UnitTestStatic.WaitSomeTime(.2, UnitTestStatic.Token);
-        formProgress.Close();
-      }
+      using var formProgress = new FormProgress("Test Logger", true, UnitTestStatic.Token);
+      formProgress.ShowInTaskbar = true;
+      formProgress.Show();
+      UnitTestStatic.WaitSomeTime(.2, UnitTestStatic.Token);
+      formProgress.Close();
     }
 
     [TestMethod]
     [Timeout(20000)]
     [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
-    public void Formprogress()
+    public void FormProgress()
     {
       // Log
       using (var formProgress = new FormProgress("Test Logger", true, UnitTestStatic.Token))
@@ -47,7 +45,10 @@ namespace CsvTools.Tests
         formProgress.Show();
         formProgress.Maximum = 100;
         var sentTime = new TimeSpan(0);
-        formProgress.ProgressChanged += (obj, time) => { sentTime = (obj as IProgressTime).TimeToCompletion.EstimatedTimeRemaining; };
+        formProgress.ProgressChanged += (obj, time) =>
+        {
+          sentTime = ((IProgressTime) obj).TimeToCompletion.EstimatedTimeRemaining;
+        };
         var end = 50;
         var step = 5;
         var wait = .1;
@@ -99,53 +100,41 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void FormprogressTest()
     {
-      using (var formProgress = new FormProgress())
-      {
-        Assert.IsNotNull(formProgress);
-      }
+      using var formProgress = new FormProgress();
+      Assert.IsNotNull(formProgress);
     }
 
     [TestMethod]
     [Timeout(5000)]
     public void FormprogressTest1()
     {
-      using (var tokenSrc = new CancellationTokenSource())
-      {
-        using (var formProgress = new FormProgress("Title", false, tokenSrc.Token))
-        {
-          Assert.AreEqual("Title", formProgress.Text);
-          Assert.AreEqual(false, formProgress.CancellationToken.IsCancellationRequested);
-          tokenSrc.Cancel();
-          Assert.AreEqual(true, formProgress.CancellationToken.IsCancellationRequested);
-        }
-      }
+      using var tokenSrc = new CancellationTokenSource();
+      using var formProgress = new FormProgress("Title", false, tokenSrc.Token);
+      Assert.AreEqual("Title", formProgress.Text);
+      Assert.AreEqual(false, formProgress.CancellationToken.IsCancellationRequested);
+      tokenSrc.Cancel();
+      Assert.AreEqual(true, formProgress.CancellationToken.IsCancellationRequested);
     }
 
     [TestMethod]
     [Timeout(5000)]
     public void CancelTest()
     {
-      using (var tokenSrc = new CancellationTokenSource())
-      {
-        using (var formProgress = new FormProgress("Title", true, tokenSrc.Token))
-        {
-          Assert.AreEqual(false, formProgress.CancellationToken.IsCancellationRequested);
-          formProgress.Close();
-          Assert.AreEqual(true, formProgress.CancellationToken.IsCancellationRequested);
-          Assert.AreEqual(false, tokenSrc.IsCancellationRequested);
-        }
-      }
+      using var tokenSrc = new CancellationTokenSource();
+      using var formProgress = new FormProgress("Title", true, tokenSrc.Token);
+      Assert.AreEqual(false, formProgress.CancellationToken.IsCancellationRequested);
+      formProgress.Close();
+      Assert.AreEqual(true, formProgress.CancellationToken.IsCancellationRequested);
+      Assert.AreEqual(false, tokenSrc.IsCancellationRequested);
     }
 
     [TestMethod]
     [Timeout(2000)]
     public void SetProcessTest()
     {
-      using (var formProgress = new FormProgress())
-      {
-        formProgress.Show();
-        formProgress.SetProcess("Hello World");
-      }
+      using var formProgress = new FormProgress();
+      formProgress.Show();
+      formProgress.SetProcess("Hello World");
     }
 
     [TestMethod]
