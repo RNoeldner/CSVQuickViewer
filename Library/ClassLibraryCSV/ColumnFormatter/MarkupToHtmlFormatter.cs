@@ -13,6 +13,8 @@
  */
 
 #if !QUICK
+#nullable enable
+
 using HeyRed.MarkdownSharp;
 using System;
 

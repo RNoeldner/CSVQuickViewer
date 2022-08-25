@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -447,7 +448,7 @@ namespace CsvTools
       {
         if (ShouldRetry(ex, token))
         {
-          await OpenAsync(token);
+          await OpenAsync(token).ConfigureAwait(false);
           return;
         }
 

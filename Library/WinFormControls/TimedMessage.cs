@@ -64,7 +64,7 @@ namespace CsvTools
       }
     }
 
-    private bool m_Disposed = false;
+    private bool m_Disposed;
 
     /// <inheritdoc />
     protected override void Dispose(bool disposing)

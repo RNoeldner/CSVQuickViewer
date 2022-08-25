@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+#nullable enable
 
 using System;
 using System.Collections;
@@ -149,7 +150,7 @@ namespace CsvTools
     public override async Task CloseAsync()
     {
       if (DataReader is DbDataReader dbDataReader)
-        await dbDataReader.CloseAsync();
+        await dbDataReader.CloseAsync().ConfigureAwait(false);
       else
         DataReader.Close();
     }
@@ -170,7 +171,7 @@ namespace CsvTools
     /// <inheritdoc />
     public new IDataReader? GetData(int i) => DataReader.GetData(i);
     /// <inheritdoc />
-    public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal)!.Name;
+    public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
     /// <inheritdoc />
     public override DateTime GetDateTime(int ordinal) =>
       DataReader.GetDateTime(ReaderMapping.DataTableToReader(ordinal));

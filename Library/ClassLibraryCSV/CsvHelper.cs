@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+#nullable enable
 
 using Newtonsoft.Json;
 using System;
@@ -203,7 +204,7 @@ namespace CsvTools
       var partsComment = -1;
       while (row < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
-        var line = (await textReader.ReadLineAsync()).TrimStart();
+        var line = (await textReader.ReadLineAsync().ConfigureAwait(false)).TrimStart();
         if (string.IsNullOrEmpty(line))
           continue;
 
