@@ -11,7 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+#nullable enable
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Serilog.Events;
@@ -54,7 +54,9 @@ namespace CsvTools.Tests
 
     private class TestLogger : ILogger
     {
+#pragma warning disable CS8603 // Possible null reference return.
       public IDisposable BeginScope<TState>(TState state) => default;
+#pragma warning restore CS8603 // Possible null reference return.
 
       public bool IsEnabled(LogLevel logLevel) => true;
 
@@ -64,8 +66,8 @@ namespace CsvTools.Tests
         LogLevel logLevel,
         EventId eventId,
         TState state,
-        Exception exception,
-        Func<TState, Exception, string> formatter)
+        Exception? exception,
+        Func<TState, Exception?, string> formatter)
       {
         Messages.Add(formatter(state, exception));
       }
@@ -77,7 +79,7 @@ namespace CsvTools.Tests
       var test = new WinAppLogging.UserInterfaceSink(CultureInfo.CurrentCulture);
       var logAction = new TestLogger();
       test.AdditionalLoggers.Add(logAction);
-      test.Emit(new LogEvent(DateTimeOffset.Now, LogEventLevel.Information,null, MessageTemplate.Empty,new List<LogEventProperty>() { } ));
+      test.Emit(new LogEvent(DateTimeOffset.Now, LogEventLevel.Information,null, MessageTemplate.Empty,Array.Empty<LogEventProperty>()));
     }
 
 

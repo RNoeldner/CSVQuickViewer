@@ -28,7 +28,7 @@ namespace CsvTools
   /// </summary>
   public class MultiselectTreeView : TreeView
   {
-    private TreeNode m_FirstNode = new TreeNode();
+    private TreeNode m_FirstNode = new();
 
     /// <summary>
     ///   Gets or sets the HTML style.
@@ -94,9 +94,7 @@ namespace CsvTools
             if (bParent)
             {
               // swap nodes
-              var t = uppernode;
-              uppernode = bottomnode;
-              bottomnode = t;
+              (uppernode, bottomnode) = (bottomnode, uppernode);
             }
           }
 
@@ -124,9 +122,7 @@ namespace CsvTools
               if (nIndexBottom < nIndexUpper)
               {
                 // reversed?
-                var t = uppernode;
-                uppernode = bottomnode;
-                bottomnode = t;
+                (uppernode, bottomnode) = (bottomnode, uppernode);
                 nIndexUpper = uppernode.Index;
                 nIndexBottom = bottomnode.Index;
               }
@@ -245,7 +241,7 @@ namespace CsvTools
           {
             sbHtml.Append(HtmlStyle.AddTd("<td>{0}</td>", data.Tag));
             buffer.Append(data.Tag);
-            buffer.Append("\t");
+            buffer.Append('\t');
             if (text.StartsWith(data.Tag, StringComparison.Ordinal))
               text = text.Substring(data.Tag.Length).TrimStart(' ', '-');
           }
@@ -257,7 +253,7 @@ namespace CsvTools
         // Depending on Level add columns
         for (var level = minLevel; level < item.Level; level++)
         {
-          buffer.Append("\t");
+          buffer.Append('\t');
           sbHtml.Append(HtmlStyle.TdEmpty);
         }
 
@@ -268,7 +264,7 @@ namespace CsvTools
             text));
         buffer.Append(text);
         for (var level = item.Level+1; level < maxLevel; level++)
-          buffer.Append("\t");
+          buffer.Append('\t');
         // TreeData Children Count is the last column
         if (item.Tag is FormHierarchyDisplay.TreeData data2)
         {

@@ -10,6 +10,7 @@
 		<IsPackable>false</IsPackable>
 		<ReleaseVersion>1.4.6.499</ReleaseVersion>
 		<AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />

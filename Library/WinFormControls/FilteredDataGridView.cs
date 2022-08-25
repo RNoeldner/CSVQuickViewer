@@ -194,7 +194,7 @@ namespace CsvTools
     ///   Gets or sets the HTML style.
     /// </summary>
     /// <value>The HTML style.</value>
-    public HtmlStyle HtmlStyle { get; set; } = new HtmlStyle();
+    public HtmlStyle HtmlStyle { get; set; } = new();
 
     /// <summary>
     ///   The current DataView
@@ -617,10 +617,9 @@ namespace CsvTools
         return 110;
       if (col.DataType == typeof(string))
       {
-        var remain = 30;
         foreach (DataRow dataRow in rowCollection)
         {
-          if (dataRow[col] !=  null && dataRow[col] != DBNull.Value)
+          if (!dataRow.IsNull(col))
           {
             switch (dataRow[col].ToString().Length)
             {
@@ -630,12 +629,8 @@ namespace CsvTools
                 return 225;
             }
           }
-
-          if (remain-- < 0)
-            break;
         }
       }
-
       return 100;
     }
 
@@ -1011,51 +1006,51 @@ namespace CsvTools
       if (HighlightText.Length > 0
           && (e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft
               || e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleRight) && highlightIndex >= 0)
-        using (var hlBrush = new SolidBrush(Color.MediumSpringGreen))
+      {
+        using var hlBrush = new SolidBrush(Color.MediumSpringGreen);
+        var hlRect = new Rectangle();
+        while (highlightIndex >= 0 && (linefeedIndex == -1 || highlightIndex < linefeedIndex))
         {
-          var hlRect = new Rectangle();
-          while (highlightIndex >= 0 && (linefeedIndex == -1 || highlightIndex < linefeedIndex))
+          hlRect.Y = e.CellBounds.Y + 2;
+          var highlight = TextRenderer.MeasureText(
+            e.Graphics,
+            val.Substring(highlightIndex, HighlightText.Length),
+            e.CellStyle.Font,
+            e.CellBounds.Size);
+          hlRect.Height = highlight.Height + 2;
+          hlRect.Width = highlight.Width - 6;
+
+          if (e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft)
           {
-            hlRect.Y = e.CellBounds.Y + 2;
-            var highlight = TextRenderer.MeasureText(
-              e.Graphics,
-              val.Substring(highlightIndex, HighlightText.Length),
-              e.CellStyle.Font,
-              e.CellBounds.Size);
-            hlRect.Height = highlight.Height + 2;
-            hlRect.Width = highlight.Width - 6;
-
-            if (e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft)
-            {
-              var before = val.Substring(0, highlightIndex);
-              if (before.Length > 0)
-                hlRect.X = (e.CellBounds.X + TextRenderer.MeasureText(
-                              e.Graphics,
-                              before,
-                              e.CellStyle.Font,
-                              e.CellBounds.Size).Width) - 4;
-              else
-                hlRect.X = e.CellBounds.X + 2;
-            }
+            var before = val.Substring(0, highlightIndex);
+            if (before.Length > 0)
+              hlRect.X = (e.CellBounds.X + TextRenderer.MeasureText(
+                e.Graphics,
+                before,
+                e.CellStyle.Font,
+                e.CellBounds.Size).Width) - 4;
             else
-            {
-              var after = val.Substring(highlightIndex + HighlightText.Length);
-              if (after.Length > 0)
-                hlRect.X = ((e.CellBounds.X + e.CellBounds.Width)
-                            - TextRenderer.MeasureText(e.Graphics, after, e.CellStyle.Font,
-                              e.CellBounds.Size).Width
-                            - hlRect.Width) + 3;
-              else
-                hlRect.X = (e.CellBounds.X + e.CellBounds.Width) - hlRect.Width - 4;
-            }
-
-            e.Graphics.FillRectangle(hlBrush, hlRect);
-            highlightIndex = val.IndexOf(
-              HighlightText,
-              highlightIndex + HighlightText.Length,
-              StringComparison.InvariantCultureIgnoreCase);
+              hlRect.X = e.CellBounds.X + 2;
           }
+          else
+          {
+            var after = val.Substring(highlightIndex + HighlightText.Length);
+            if (after.Length > 0)
+              hlRect.X = ((e.CellBounds.X + e.CellBounds.Width)
+                          - TextRenderer.MeasureText(e.Graphics, after, e.CellStyle.Font,
+                            e.CellBounds.Size).Width
+                          - hlRect.Width) + 3;
+            else
+              hlRect.X = (e.CellBounds.X + e.CellBounds.Width) - hlRect.Width - 4;
+          }
+
+          e.Graphics.FillRectangle(hlBrush, hlRect);
+          highlightIndex = val.IndexOf(
+            HighlightText,
+            highlightIndex + HighlightText.Length,
+            StringComparison.InvariantCultureIgnoreCase);
         }
+      }
 
       // paint the content as usual
       e.PaintContent(e.CellBounds);

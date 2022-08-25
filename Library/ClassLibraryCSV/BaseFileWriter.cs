@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
  *
@@ -12,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+#nullable enable
 
 using System;
 using System.Collections.Generic;
