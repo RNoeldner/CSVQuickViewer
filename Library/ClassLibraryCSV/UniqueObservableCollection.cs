@@ -24,7 +24,9 @@ namespace CsvTools
   ///   Observable collection with unique items
   /// </summary>
   /// <typeparam name="T"></typeparam>
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class UniqueObservableCollection<T> : ObservableCollection<T> where T : ICollectionIdentity
+#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   {
     /// <summary>
     ///   Additional EventHandlers for an implementation needing information ona a changed item

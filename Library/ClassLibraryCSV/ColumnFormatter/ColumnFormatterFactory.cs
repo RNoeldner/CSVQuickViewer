@@ -12,12 +12,7 @@
  *
  */
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Reflection;
-
+#nullable enable
 namespace CsvTools
 {
   public static class ColumnFormatterFactory

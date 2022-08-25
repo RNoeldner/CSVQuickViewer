@@ -12,6 +12,7 @@
  *
  */
 
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -157,7 +158,7 @@ namespace CsvTools
       // make sure the filtering is canceled
       WaitCompeteFilter(0.2);
 
-      m_CurrentFilterCancellationTokenSource.Dispose();
+      m_CurrentFilterCancellationTokenSource?.Dispose();
       m_CurrentFilterCancellationTokenSource = null;
     }
 
@@ -226,6 +227,7 @@ namespace CsvTools
 
       m_CurrentFilterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
+      // ReSharper disable once PossibleNullReferenceException
       await Task.Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token).ConfigureAwait(false);
     }
 

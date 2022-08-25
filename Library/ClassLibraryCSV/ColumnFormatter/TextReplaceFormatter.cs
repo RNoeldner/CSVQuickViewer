@@ -39,7 +39,7 @@ namespace CsvTools
       {
         var output = m_Regex.Replace(inputString, m_Replacement);
         if (RaiseWarning && !output.Equals(inputString))
-          handleWarning?.Invoke($"Text Replace");
+          handleWarning?.Invoke("Text Replace");
         return output ?? string.Empty;
       }
 

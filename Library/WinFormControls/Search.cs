@@ -31,21 +31,21 @@ namespace CsvTools
     private readonly IContainer? components = null;
 
     // private read only System.Timers.Timer m_TimerChange = new System.Timers.Timer();
-    private Button m_BtnCancel = new Button();
+    private Button m_BtnCancel = new();
 
-    private Button m_BtnNext = new Button();
+    private Button m_BtnNext = new();
 
-    private Button m_BtnPrevious = new Button();
+    private Button m_BtnPrevious = new();
 
     private int m_CurrentResult = -1;
 
-    private Label m_LblResults = new Label();
+    private Label m_LblResults = new();
 
     private int m_Results;
 
-    private TextBox m_SearchTextBoxText = new TextBox();
+    private TextBox m_SearchTextBoxText = new();
 
-    private readonly TableLayoutPanel m_TableLayoutPanel = new TableLayoutPanel();
+    private readonly TableLayoutPanel m_TableLayoutPanel = new();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="Search" /> class.
