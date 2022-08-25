@@ -12,6 +12,7 @@
  *
  */
 
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -356,7 +357,6 @@ namespace CsvTools
         DataTypeEnum.Numeric => typeof(decimal),
         DataTypeEnum.Boolean => typeof(bool),
         DataTypeEnum.Guid => typeof(Guid),
-        DataTypeEnum.String => typeof(string),
         _ => typeof(string)
       };
 
@@ -648,6 +648,7 @@ namespace CsvTools
       var placeholder = new Dictionary<string, string>();
       var props = obj.GetType().GetProperties().Where(prop => prop.GetMethod != null).ToList();
 
+      // ReSharper disable once RedundantEnumerableCastCall
       foreach (var value in rgx.Matches(template).OfType<Match>().Select(x => x.Value))
       {
         if (string.IsNullOrEmpty(value) || placeholder.ContainsKey(value) || value.Length < 2)
@@ -688,6 +689,7 @@ namespace CsvTools
 
       var placeholder = new Dictionary<string, string>();
       var index = 0;
+      // ReSharper disable once RedundantEnumerableCastCall
       foreach (var value in rgx.Matches(template).OfType<Match>().Select(x => x.Value))
       {
         if (index >= values.Length)

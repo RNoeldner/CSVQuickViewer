@@ -170,7 +170,7 @@ namespace CsvTools
     /// <inheritdoc />
     public new IDataReader? GetData(int i) => DataReader.GetData(i);
     /// <inheritdoc />
-    public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
+    public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal)!.Name;
     /// <inheritdoc />
     public override DateTime GetDateTime(int ordinal) =>
       DataReader.GetDateTime(ReaderMapping.DataTableToReader(ordinal));

@@ -150,7 +150,7 @@ namespace CsvTools
           foreach (var row in m_DataRow)
             foreach (var col in checkCols)
             {
-              var cl = row[col.Value] == DBNull.Value ? 0 : row[col.Value].ToString().Length;
+              var cl = row[col.Value] == DBNull.Value || row[col.Value]  is null ? 0 : row[col.Value].ToString()?.Length ?? 0;
               if (cl > maxLength[col.Key]) maxLength[col.Key] = cl;
             }
 

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CsvTools
+﻿namespace CsvTools
 {
   /// <summary>
   ///   Class should support CollectionIdentifier to support uniqueness and finding in collection
