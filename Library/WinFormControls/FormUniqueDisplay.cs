@@ -24,7 +24,7 @@ namespace CsvTools
 
   public partial class FormUniqueDisplay : ResizeForm
   {
-    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
+    private readonly CancellationTokenSource m_CancellationTokenSource = new();
 
     private readonly DataRow[] m_DataRow;
 
@@ -121,17 +121,16 @@ namespace CsvTools
           Maximum = m_DataRow.Length
         };
         formProgress.Show(this);
+        Logger.Information("Getting Unique values");
         var intervalAction = new IntervalAction();
         for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
         {
           if (formProgress.CancellationToken.IsCancellationRequested)
             return;
-          // ReSharper disable once AccessToDisposedClosure
           intervalAction.Invoke(formProgress, "Getting Unique values", rowIndex);
-          Logger.Information("Getting Unique values");
-          var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
-          if (ignoreNull && string.IsNullOrEmpty(id))
+          if (ignoreNull && m_DataRow[rowIndex].IsNull(dataColumnID.Ordinal)) 
             continue;
+          var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
           if (!dictIDToRow.ContainsKey(id))
             dictIDToRow.Add(id, rowIndex);
         }
@@ -148,8 +147,8 @@ namespace CsvTools
         {
           if (formProgress.CancellationToken.IsCancellationRequested)
             return;
-          if (counter++ % 100 == 0)
-            intervalAction.Invoke(formProgress, "Importing Rows to Grid", counter);
+          counter++;
+          intervalAction.Invoke(formProgress, "Importing Rows to Grid", counter);
           m_DataTable.ImportRow(m_DataRow[rowIndex]);
         }
 
