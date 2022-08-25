@@ -5,7 +5,6 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Extensions.Logging;
-using Serilog.Formatting.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

@@ -1,3 +1,5 @@
+#nullable enable
+
 using ICSharpCode.SharpZipLib.Zip;
 using Newtonsoft.Json;
 using System;

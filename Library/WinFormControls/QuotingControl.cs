@@ -303,7 +303,7 @@ namespace CsvTools
       // 
       // m_FastColoredTextBox00
       // 
-      this.m_FastColoredTextBox00.AutoCompleteBracketsList = new char[] {
+      this.m_FastColoredTextBox00.AutoCompleteBracketsList = new[] {
         '(',
         ')',
         '{',
@@ -351,7 +351,7 @@ namespace CsvTools
       // 
       // m_FastColoredTextBox12
       // 
-      this.m_FastColoredTextBox12.AutoCompleteBracketsList = new char[] {
+      this.m_FastColoredTextBox12.AutoCompleteBracketsList = new[] {
         '(',
         ')',
         '{',
@@ -385,7 +385,7 @@ namespace CsvTools
       // 
       // m_FastColoredTextBox02
       // 
-      this.m_FastColoredTextBox02.AutoCompleteBracketsList = new char[] {
+      this.m_FastColoredTextBox02.AutoCompleteBracketsList = new[] {
         '(',
         ')',
         '{',
@@ -421,7 +421,7 @@ namespace CsvTools
       // 
       // m_FastColoredTextBox11
       // 
-      this.m_FastColoredTextBox11.AutoCompleteBracketsList = new char[] {
+      this.m_FastColoredTextBox11.AutoCompleteBracketsList = new[] {
         '(',
         ')',
         '{',
@@ -457,7 +457,7 @@ namespace CsvTools
       // 
       // m_FastColoredTextBox01
       // 
-      this.m_FastColoredTextBox01.AutoCompleteBracketsList = new char[] {
+      this.m_FastColoredTextBox01.AutoCompleteBracketsList = new[] {
         '(',
         ')',
         '{',
@@ -493,7 +493,7 @@ namespace CsvTools
       // 
       // m_FastColoredTextBox10
       // 
-      this.m_FastColoredTextBox10.AutoCompleteBracketsList = new char[] {
+      this.m_FastColoredTextBox10.AutoCompleteBracketsList = new[] {
         '(',
         ')',
         '{',
@@ -532,7 +532,7 @@ namespace CsvTools
       // 
       // m_FastColoredTextBox
       // 
-      this.m_FastColoredTextBox.AutoCompleteBracketsList = new char[] {
+      this.m_FastColoredTextBox.AutoCompleteBracketsList = new[] {
         '(',
         ')',
         '{',

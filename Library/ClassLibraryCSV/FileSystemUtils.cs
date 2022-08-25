@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -65,7 +66,7 @@ namespace CsvTools
         if (!FileExists(fileName))
           return;
 
-        var backupName = fileName + $".bak";
+        var backupName = fileName + ".bak";
         if (twoBackups)
         {
           var split = SplitPath(fileName);
@@ -187,7 +188,7 @@ namespace CsvTools
       await
 #endif
       using var toStream = OpenWrite(destFile);
-      await StreamCopy(fromStream, toStream, progress, cancellationToken);
+      await StreamCopy(fromStream, toStream, progress, cancellationToken).ConfigureAwait(false);
     }
 
 #endif

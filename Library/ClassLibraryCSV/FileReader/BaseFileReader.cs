@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+#nullable enable
 
 using System;
 using System.Collections;
@@ -285,7 +286,7 @@ namespace CsvTools
     }
 
 #if NETSTANDARD2_1_OR_GREATER
-    public new virtual async Task CloseAsync() => await Task.Run(() => base.Close());
+    public new virtual async Task CloseAsync() => await Task.Run(() => base.Close()).ConfigureAwait(false);
 #endif
 
     /// <inheritdoc />

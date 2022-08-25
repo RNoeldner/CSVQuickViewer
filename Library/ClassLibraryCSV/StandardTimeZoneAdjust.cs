@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+#nullable enable
 
 using System;
 using System.Runtime.InteropServices;
@@ -19,7 +20,7 @@ using TimeZoneConverter;
 namespace CsvTools
 {
   /// <summary>
-  /// Impemantion of <see cref="TimeZoneChangeDelegate"/> that uses the .NET  <see cref="TimeZoneInfo" /> and NuGet package TimeZoneConverter to be able to work on Iana or Windows TimeZone
+  /// Implementation of <see cref="TimeZoneChangeDelegate"/> that uses the .NET  <see cref="TimeZoneInfo" /> and NuGet package TimeZoneConverter to be able to work on Iana or Windows TimeZone
   /// </summary>
   public static class StandardTimeZoneAdjust 
   {

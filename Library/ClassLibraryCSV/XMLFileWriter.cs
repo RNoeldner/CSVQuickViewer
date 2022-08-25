@@ -11,7 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Security;
@@ -56,7 +56,7 @@ namespace CsvTools
     {
       if (input is null || input == DBNull.Value)
         return string.Empty;
-      return SecurityElement.Escape(TextEncodeField(input, columnInfo, reader));
+      return SecurityElement.Escape(TextEncodeField(input, columnInfo, reader)) ?? string.Empty;
     }
 
     protected override string RecordDelimiter() => "";

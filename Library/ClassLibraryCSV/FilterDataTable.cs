@@ -105,8 +105,7 @@ namespace CsvTools
       m_ColumnWithoutErrorsCache = new HashSet<string>();
 
       // m_ColumnWithoutErrors will not contain UniqueFields nor line number / error
-      Debug.Assert(FilterTable != null, nameof(FilterTable) + " != null");
-      foreach (DataColumn col in FilterTable!.Columns)
+      foreach (DataColumn col in FilterTable.Columns)
       {
         // Always keep the line number, error field and any uniques
         if (col.ColumnName.Equals(ReaderConstants.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase)
