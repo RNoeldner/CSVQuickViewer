@@ -79,7 +79,7 @@ namespace CsvTools
 
     /// <summary>
     ///   Adds the specified item to the collection and makes sure the item is not already present
-    ///   by chnageing teh name in a way it is unique, if the item does support <see
+    ///   by changing the name in a way it is unique, if the item does support <see
     ///   cref="INotifyPropertyChanged" /><see cref="CollectionItemPropertyChanged" />, <see
     ///   cref="ItemPropertyChanged" /> or <see cref="ItemPropertyChangedString" /> will be
     ///   registered to pass the event to the implementing class
@@ -115,7 +115,7 @@ namespace CsvTools
       Add(item);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="ObservableCollection{T}" />
     public new void Insert(int index, T item)
     {
       if (item is ICloneable src)

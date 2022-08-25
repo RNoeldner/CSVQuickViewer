@@ -43,7 +43,7 @@ namespace CsvTools
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
 
     protected long RecordLimit;
-    
+
     private IProgress<ProgressInfo>? m_ReportProgress;
 
     public IProgress<ProgressInfo> ReportProgress
@@ -348,7 +348,7 @@ namespace CsvTools
         return -1;
 
       using var fileStream = FileSystemUtils.OpenRead(fn);
-      if (dataOffset > 0) 
+      if (dataOffset > 0)
         fileStream.Seek(dataOffset, SeekOrigin.Begin);
 
       return fileStream.Read(buffer, bufferOffset, length);
@@ -843,17 +843,16 @@ namespace CsvTools
       in string treatTextAsNull,
       bool trim)
     {
-      if (inputString.Length > 0)
-      {
-        if (treatNbspAsSpace && inputString.IndexOf((char) 0xA0) != -1)
-          inputString = inputString.Replace((char) 0xA0, ' ');
+      if (inputString.Length == 0)
+        return string.Empty;
 
-        if (trim) inputString = inputString.Trim();
+      if (treatNbspAsSpace && inputString.IndexOf((char) 0xA0) != -1)
+        inputString = inputString.Replace((char) 0xA0, ' ');
 
-        if (StringUtils.ShouldBeTreatedAsNull(inputString, treatTextAsNull)) inputString = string.Empty;
-      }
+      if (trim)
+        inputString = inputString.Trim();
 
-      return inputString;
+      return StringUtils.ShouldBeTreatedAsNull(inputString, treatTextAsNull) ? string.Empty : inputString;
     }
 
     /// <summary>
@@ -862,8 +861,8 @@ namespace CsvTools
     /// </summary>
     protected async Task BeforeOpenAsync(string message)
     {
-      HandleShowProgress(message,0);
-      if (OnOpenAsync != null) 
+      HandleShowProgress(message, 0);
+      if (OnOpenAsync != null)
         await OnOpenAsync.Invoke().ConfigureAwait(false);
     }
 
