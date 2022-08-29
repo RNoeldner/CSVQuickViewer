@@ -48,6 +48,12 @@ namespace CsvTools
           return xmlSerializerNamespaces;
         });
 
+    /// <summary>
+    /// Serialize an object for formatting
+    /// </summary>
+    /// <param name="serializer">The serializer for teh passed in object</param>
+    /// <param name="data">The object to be serialized</param>
+    /// <returns>THe XML string</returns>
     public static string SerializeIndented(this XmlSerializer serializer, object data)
     {
       using var stringWriter = new StringWriter();
@@ -55,6 +61,22 @@ namespace CsvTools
       textWriter.Formatting = Formatting.Indented;
       serializer.Serialize(textWriter, data, m_EmptyXmlSerializerNamespaces.Value);
       return stringWriter.ToString();
+    }
+
+    /// <summary>
+    /// Move the field from on position in the list to another
+    /// </summary>
+    /// <param name="list">The List with the items.</param>
+    /// <param name="oldIndex">The position of the item to move from</param>
+    /// <param name="newIndex">The position of the item to move to</param>
+    [DebuggerStepThrough]
+    public static void Move<T>(this IList<T> list, int oldIndex, int newIndex) 
+    {
+      if (oldIndex== newIndex)
+        return;
+      T removedItem = list[oldIndex];
+      list.RemoveAt(oldIndex);
+      list.Insert(newIndex, removedItem);
     }
 
     public static int IdentifierHash(this string name)
@@ -373,12 +395,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable" /> containing the columns</param>
     /// <returns>A enumeration of <see cref="DataColumn" /></returns>
-    public static IEnumerable<DataColumn> GetRealDataColumns(this DataTable dataTable)
-    {
-      foreach (DataColumn col in dataTable.Columns)
-        if (!ReaderConstants.ArtificialFields.Contains(col.ColumnName))
-          yield return col;
-    }
+    public static IEnumerable<DataColumn> GetRealDataColumns(this DataTable dataTable) => 
+      dataTable.Columns.Cast<DataColumn>().Where(col => !ReaderConstants.ArtificialFields.Contains(col.ColumnName));
 
     /// <summary>
     ///   Combines all inner exceptions to one formatted string for logging.
@@ -429,7 +447,7 @@ namespace CsvTools
         _ => string.Empty
       };
 
-    public static string NoRecordSQL(this string source)
+    public static string NoRecordSql(this string source)
     {
       if (string.IsNullOrEmpty(source))
         return string.Empty;

@@ -425,15 +425,15 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void NoRecordSQLTest()
+    public void NoRecordSqlTest()
     {
-      Assert.AreEqual("", "".NoRecordSQL());
-      Assert.AreEqual("EXEC mySP", "EXEC mySP".NoRecordSQL());
+      Assert.AreEqual("", "".NoRecordSql());
+      Assert.AreEqual("EXEC mySP", "EXEC mySP".NoRecordSql());
 
-      Assert.AreEqual("SELECT Field1 FROM MyTable WHERE 1=0", "SELECT Field1 FROM MyTable".NoRecordSQL());
-      Assert.AreEqual("SELECT * FROM MyTable WHERE 1=0 AND X=1", "SELECT * FROM MyTable WHERE X=1".NoRecordSQL());
+      Assert.AreEqual("SELECT Field1 FROM MyTable WHERE 1=0", "SELECT Field1 FROM MyTable".NoRecordSql());
+      Assert.AreEqual("SELECT * FROM MyTable WHERE 1=0 AND X=1", "SELECT * FROM MyTable WHERE X=1".NoRecordSql());
       Assert.AreEqual("SELECT Field1 FROM [MyTable] WHERE 1=0",
-        "SELECT Field1 FROM [MyTable] Order By Fields2".NoRecordSQL());
+        "SELECT Field1 FROM [MyTable] Order By Fields2".NoRecordSql());
     }
   }
 }
