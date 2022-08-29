@@ -2260,7 +2260,7 @@ namespace CsvTools.Tests
 
       using var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), true,
         true, false, false, true, null, UnitTestStatic.Token);
-      Assert.AreEqual(5, dt!.Rows.Count);
+      Assert.AreEqual(5, dt.Rows.Count);
     }
 
     [TestMethod]
