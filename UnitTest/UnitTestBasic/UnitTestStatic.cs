@@ -58,15 +58,15 @@ namespace CsvTools.Tests
 
     public static Column[] ColumnsDt =
     {
-      new Column("string"),                      //0
-      new Column("int", DataTypeEnum.Integer),       //1
+      new Column("string"), //0
+      new Column("int", DataTypeEnum.Integer), //1
       new Column("DateTime", DataTypeEnum.DateTime), //2
-      new Column("bool", DataTypeEnum.Boolean),      //3
-      new Column("double", DataTypeEnum.Double),     //4
-      new Column("numeric", DataTypeEnum.Numeric),   //5
-      new Column("AllEmpty"),                    //6
-      new Column("PartEmpty"),                   //7
-      new Column("ID", DataTypeEnum.Integer)         //8
+      new Column("bool", DataTypeEnum.Boolean), //3
+      new Column("double", DataTypeEnum.Double), //4
+      new Column("numeric", DataTypeEnum.Numeric), //5
+      new Column("AllEmpty"), //6
+      new Column("PartEmpty"), //7
+      new Column("ID", DataTypeEnum.Integer) //8
     };
 
     public static HtmlStyle HtmlStyle { get; } = new HtmlStyle();
@@ -99,7 +99,7 @@ namespace CsvTools.Tests
 
       if (m_Random.NextDouble() > .4) dr[7] = GetRandomText(100);
 
-      dr[8] = recNum;     // ID
+      dr[8] = recNum; // ID
       dr[9] = recNum * 2; // #Line
 
       // Add Errors and Warnings to Columns and Rows
@@ -129,7 +129,8 @@ namespace CsvTools.Tests
     {
       foreach (var prop in properties)
         if (!Equals(prop.GetValue(a), prop.GetValue(b)))
-          throw new Exception($"Type: {a.GetType().FullName}\nProperty:{prop.Name}\nValue A:{prop.GetValue(a)}\nnValue B:{prop.GetValue(b)}");
+          throw new Exception(
+            $"Type: {a.GetType().FullName}\nProperty:{prop.Name}\nValue A:{prop.GetValue(a)}\nnValue B:{prop.GetValue(b)}");
     }
 
     public static void CheckAllPropertiesEqual(this object a, in object b, IReadOnlyCollection<string>? ignore = null)
@@ -147,16 +148,17 @@ namespace CsvTools.Tests
         var readProps = a.GetType().GetProperties().Where(prop => prop?.GetMethod != null).ToList();
 
         var valueProperties = readProps.Where(prop =>
-                                                      (prop.PropertyType == typeof(int)
-                                                      || prop.PropertyType == typeof(long)
-                                                      || prop.PropertyType == typeof(string)
-                                                      || prop.PropertyType == typeof(bool)
-                                                      || prop.PropertyType == typeof(DateTime)) && !(ignore?.Contains(prop.Name) ?? false)).ToList();
+          (prop.PropertyType == typeof(int)
+           || prop.PropertyType == typeof(long)
+           || prop.PropertyType == typeof(string)
+           || prop.PropertyType == typeof(bool)
+           || prop.PropertyType == typeof(DateTime)) && !(ignore?.Contains(prop.Name) ?? false)).ToList();
 
         CheckPropertiesEqual(a, b, valueProperties);
 
         foreach (var prop in readProps.Where(prop =>
-          prop.PropertyType.AssemblyQualifiedName != null && !valueProperties.Contains(prop) && prop.PropertyType.AssemblyQualifiedName.StartsWith("CsvTools.", StringComparison.Ordinal)))
+                   prop.PropertyType.AssemblyQualifiedName != null && !valueProperties.Contains(prop) &&
+                   prop.PropertyType.AssemblyQualifiedName.StartsWith("CsvTools.", StringComparison.Ordinal)))
         {
           var obj1 = prop.GetValue(a);
           var obj2 = prop.GetValue(b);
@@ -177,13 +179,12 @@ namespace CsvTools.Tests
       Token = context.CancellationTokenSource.Token;
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
 
-      AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs args)
+      AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs args)
       {
-
         if (!Token.IsCancellationRequested)
           WriteToContext(args.ExceptionObject.ToString());
       };
-      TestLogger =  new UnitTestLogger(context);
+      TestLogger = new UnitTestLogger(context);
       Logger.LoggerInstance = TestLogger;
     }
 
@@ -195,9 +196,9 @@ namespace CsvTools.Tests
       thread.Start();
       thread.Join();
 
-#pragma warning disable CS8603 
+#pragma warning disable CS8603
       return result;
-#pragma warning restore CS8603 
+#pragma warning restore CS8603
     }
 
     public static DataTable GetDataTable(int numRecords = 100, bool addError = true)
@@ -286,13 +287,15 @@ namespace CsvTools.Tests
 
     public static CsvFile ReaderGetAllFormats(string id = "AllFormats")
     {
-      var readFile = new CsvFile { ID = id, FileName = Path.Combine(GetTestPath("AllFormats.txt")), HasFieldHeader = true, FieldDelimiter = "TAB" };
+      var readFile = new CsvFile
+      {
+        ID = id, FileName = Path.Combine(GetTestPath("AllFormats.txt")), HasFieldHeader = true, FieldDelimiter = "TAB"
+      };
 
       readFile.ColumnCollection.Add(
         new Column("DateTime", new ValueFormatMutable { DataType = DataTypeEnum.DateTime, DateFormat = @"dd/MM/yyyy" })
         {
-          TimePart = "Time",
-          TimePartFormat = "HH:mm:ss"
+          TimePart = "Time", TimePartFormat = "HH:mm:ss"
         });
       readFile.ColumnCollection.Add(new Column("Integer", DataTypeEnum.Integer));
       readFile.ColumnCollection.Add(
@@ -302,7 +305,10 @@ namespace CsvTools.Tests
       readFile.ColumnCollection.Add(new Column("Boolean", DataTypeEnum.Boolean));
       readFile.ColumnCollection.Add(new Column("GUID", DataTypeEnum.Guid));
       readFile.ColumnCollection.Add(
-        new Column("Time", new ValueFormatMutable { DataType = DataTypeEnum.DateTime, DateFormat = "HH:mm:ss" }) { Ignore = true });
+        new Column("Time", new ValueFormatMutable { DataType = DataTypeEnum.DateTime, DateFormat = "HH:mm:ss" })
+        {
+          Ignore = true
+        });
       return readFile;
     }
 
@@ -339,8 +345,8 @@ namespace CsvTools.Tests
           var properties = type.GetProperties().Where(
             prop => prop.GetMethod != null && prop.SetMethod != null
                                            && (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(string)
-                                                                                || prop.PropertyType == typeof(bool)
-                                                                                || prop.PropertyType == typeof(DateTime))).ToArray();
+                                             || prop.PropertyType == typeof(bool)
+                                             || prop.PropertyType == typeof(DateTime))).ToArray();
           if (properties.Length == 0)
             continue;
           var start = 'a';
@@ -415,7 +421,8 @@ namespace CsvTools.Tests
         }
     }
 
-    public static void RunTaskTimeout(Func<CancellationToken, Task> toDo, double timeout = 1, CancellationToken token = default)
+    public static void RunTaskTimeout(Func<CancellationToken, Task> toDo, double timeout = 1,
+      CancellationToken token = default)
     {
       using var source = CancellationTokenSource.CreateLinkedTokenSource(token);
       Task.WhenAny(toDo.Invoke(source.Token), Task.Delay(TimeSpan.FromSeconds(timeout), source.Token));
@@ -427,7 +434,10 @@ namespace CsvTools.Tests
     {
       using var cts = CancellationTokenSource.CreateLinkedTokenSource(Token);
       using var frm = new TestForm();
-      frm.Closing += (s, e) => cts.Cancel();
+      frm.Closing += (s, e) =>
+      {
+        cts.Cancel();
+      };
       frm.AddOneControl(ctrl, after * 6000d);
       ShowFormAndClose(frm, before, f => toDo?.Invoke(ctrl, f), after, cts.Token);
     }

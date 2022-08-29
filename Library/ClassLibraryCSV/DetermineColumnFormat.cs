@@ -611,16 +611,16 @@ namespace CsvTools
       Logger.Debug("Getting sample values for {columns} columns", samples.Count);
 
       var hasWarning = false;
-      // var remainingShows = 10;
+      var remainingShows = 10;
 
       void WarningEvent(object? sender, WarningEventArgs args)
       {
         if (args.ColumnNumber != -1 && !samples.ContainsKey(args.ColumnNumber))
           return;
-        //if (remainingShows-- > 0)
-        //  Logger.Debug("Row ignored in detection: " + args.Message);
-        //if (remainingShows == 0)
-        //  Logger.Debug("No further warning shown");
+        if (remainingShows-- > 0)
+          Logger.Debug("Row ignored in detection: " + args.Message);
+        if (remainingShows == 0)
+          Logger.Debug("No further warning shown");
 
         hasWarning = true;
       }

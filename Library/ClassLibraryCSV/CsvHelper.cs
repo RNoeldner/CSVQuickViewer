@@ -301,15 +301,34 @@ namespace CsvTools
           detectionResult.NoDelimitedFile,
           detectionResult.NewLine);
       }
+      else
+      {
+        // assume its UTF8 with BOM
+        detectionResult = new DelimitedFileDetectionResult(
+          detectionResult.FileName,
+          detectionResult.SkipRows,
+          Encoding.UTF8.CodePage,
+          true,
+          detectionResult.QualifyAlways,
+          detectionResult.IdentifierInContainer,
+          detectionResult.CommentLine,
+          detectionResult.EscapePrefix,
+          detectionResult.FieldDelimiter,
+          detectionResult.FieldQualifier,
+          detectionResult.HasFieldHeader,
+          false,
+          detectionResult.NoDelimitedFile,
+          detectionResult.NewLine);
+      }
+
       if (guessJson)
       {
         if (cancellationToken.IsCancellationRequested)
           return detectionResult;
 
         Logger.Information("Checking Json format");
-        if (await stream.IsJsonReadable(
-              Encoding.GetEncoding(detectionResult.CodePageId),
-              cancellationToken).ConfigureAwait(false))
+
+        if (await stream.IsJsonReadable(Encoding.GetEncoding(detectionResult.CodePageId), cancellationToken).ConfigureAwait(false))
           detectionResult = new DelimitedFileDetectionResult(
             detectionResult.FileName,
             0,

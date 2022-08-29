@@ -20,7 +20,8 @@ namespace CsvTools
       this IFileSetting fileSettings,
       CancellationToken cancellationToken)
     {
-      var res = await fileSettings.SqlStatement.GetColumnsSqlAsync( fileSettings.Timeout, cancellationToken);
+      var res = await fileSettings.SqlStatement.GetColumnsSqlAsync(fileSettings.Timeout, cancellationToken)
+        .ConfigureAwait(false);
       foreach (var item in res)
         fileSettings.ColumnCollection.Add(item);
     }
@@ -45,7 +46,8 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var fileReader = await sqlDataReader(sql.NoRecordSQL(), timeout, 1, cancellationToken).ConfigureAwait(false);
+      using var fileReader =
+        await sqlDataReader(sql.NoRecordSql(), timeout, 1, cancellationToken).ConfigureAwait(false);
 
       // Put the information into the list
       var res = new List<IColumn>();
@@ -55,8 +57,10 @@ namespace CsvTools
         var colType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType();
         if (!(schemaRow[SchemaTableColumn.ColumnName] is string colName) || colName.Length == 0)
           colName = $"Column{colNo + 1}";
-        res.Add(new ImmutableColumn(colName, new ImmutableValueFormat(colType), (int) schemaRow[SchemaTableColumn.ColumnOrdinal]));
+        res.Add(new ImmutableColumn(colName, new ImmutableValueFormat(colType),
+          (int) schemaRow[SchemaTableColumn.ColumnOrdinal]));
       }
+
       return res;
     }
 
@@ -78,8 +82,8 @@ namespace CsvTools
     {
       if (valueFormatGeneral is null) throw new ArgumentNullException(nameof(valueFormatGeneral));
       if (columnDefinitions is null) throw new ArgumentNullException(nameof(columnDefinitions));
-      if (sqlStatement == null)
-        return new List<ImmutableColumn>();
+      if (sqlStatement.Length == 0)
+        return Array.Empty<IColumn>();
 
       Func<string, int, long, CancellationToken, Task<IFileReader>> sqlDataReader = FunctionalDI.SqlDataReader;
       if (sqlDataReader is null)
@@ -88,7 +92,7 @@ namespace CsvTools
       await
 #endif
       using var data = await sqlDataReader(
-        sqlStatement.NoRecordSQL(),
+        sqlStatement.NoRecordSql(),
         timeout,
         1,
         cancellationToken).ConfigureAwait(false);

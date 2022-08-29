@@ -180,12 +180,14 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProgress.CancellationToken))
+          using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
+                   m_FileSetting.RecordLimit, formProgress.CancellationToken))
           {
             sqlReader.ReportProgress = formProgress;
             var data = await sqlReader.GetDataTableAsync(TimeSpan.FromSeconds(60),
-                                false,
-                                m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false, null, formProgress.CancellationToken);
+              false,
+              m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
+              null, formProgress.CancellationToken);
             var found = new Column();
             var column = data.Columns[columnName];
             if (column is null)
@@ -436,8 +438,8 @@ namespace CsvTools
           if (timeZone.TryGetConstant(out var tz))
           {
             sourceDate = m_WriteSetting
-                           ? StandardTimeZoneAdjust.ChangeTimeZone(sourceDate, TimeZoneInfo.Local.Id, tz, null)
-                           : StandardTimeZoneAdjust.ChangeTimeZone(sourceDate, tz, TimeZoneInfo.Local.Id, null);
+              ? StandardTimeZoneAdjust.ChangeTimeZone(sourceDate, TimeZoneInfo.Local.Id, tz, null)
+              : StandardTimeZoneAdjust.ChangeTimeZone(sourceDate, tz, TimeZoneInfo.Local.Id, null);
           }
           else
           {
@@ -460,7 +462,10 @@ namespace CsvTools
       {
         if (string.IsNullOrEmpty(decimalSeparator))
           return;
-        var vf = new ValueFormatMutable { NumberFormat = numberFormat, GroupSeparator = numberFormat, DecimalSeparator = groupSeparator };
+        var vf = new ValueFormatMutable
+        {
+          NumberFormat = numberFormat, GroupSeparator = numberFormat, DecimalSeparator = groupSeparator
+        };
         var sample = StringConversion.DoubleToString(1234.567, vf);
 
         labelNumber.SafeInvoke(() =>
@@ -475,19 +480,21 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Information(ex, "UpdateNumericLabel {decimalSeparator} {numberFormat} {groupSeparator}", decimalSeparator, numberFormat, groupSeparator);
+        Logger.Information(ex, "UpdateNumericLabel {decimalSeparator} {numberFormat} {groupSeparator}",
+          decimalSeparator, numberFormat, groupSeparator);
       }
     }
 
-    private static void AddNotExisting(ICollection<string> list, string value, IReadOnlyCollection<string>? otherList = null)
+    private static void AddNotExisting(ICollection<string> list, string value,
+      IReadOnlyCollection<string>? otherList = null)
     {
       if (!list.Contains(value) && (otherList is null || !otherList.Contains(value)))
         list.Add(value);
     }
 
     private string BuildHtmlText(string? header, string? footer, int rows, string headerList1,
-                                 ICollection<string> values1, int col1, string? headerList2 = null, ICollection<string>? values2 = null,
-                                 int col2 = 2)
+      ICollection<string> values1, int col1, string? headerList2 = null, ICollection<string>? values2 = null,
+      int col2 = 2)
     {
       var stringBuilder = HtmlStyle.StartHtmlDoc(
         $"{System.Drawing.SystemColors.Control.R:X2}{System.Drawing.SystemColors.Control.G:X2}{System.Drawing.SystemColors.Control.B:X2}",
@@ -659,7 +666,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting,  formProgress.CancellationToken);
+          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, formProgress.CancellationToken);
           fileReader.ReportProgress = formProgress;
           await fileReader.OpenAsync(formProgress.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -671,7 +678,8 @@ namespace CsvTools
           await
 #endif
           // Write Setting ----- open the source that is SQL
-          using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSQL(), m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProgress.CancellationToken);
+          using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSql(),
+            m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProgress.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
         }
@@ -735,7 +743,8 @@ namespace CsvTools
           SetSamplePart(sender, EventArgs.Empty);
 
         // Depending on OS and scaling a different value might be needed
-        Height = tableLayoutPanelForm.Height + (SystemInformation.CaptionHeight * 175 / 100) + panelTop.Height + panelBottom.Height;
+        Height = tableLayoutPanelForm.Height + (SystemInformation.CaptionHeight * 175 / 100) + panelTop.Height +
+                 panelBottom.Height;
       }
       catch (Exception ex)
       {
@@ -758,9 +767,10 @@ namespace CsvTools
       if (string.IsNullOrEmpty(dateFormat)) return;
 
       // if changed by the check List Box, update the combobox with teh selected item 
-      if (sender== checkedListBoxDateFormats)
-        if (string.IsNullOrEmpty(comboBoxDateFormat.Text) ||  checkedListBoxDateFormats.Items.IndexOf(comboBoxDateFormat.Text) != -1)
-          comboBoxDateFormat.Text= checkedListBoxDateFormats.Text;
+      if (sender == checkedListBoxDateFormats)
+        if (string.IsNullOrEmpty(comboBoxDateFormat.Text) ||
+            checkedListBoxDateFormats.Items.IndexOf(comboBoxDateFormat.Text) != -1)
+          comboBoxDateFormat.Text = checkedListBoxDateFormats.Text;
 
       UpdateDateLabel(
         new ValueFormatMutable()
@@ -783,7 +793,7 @@ namespace CsvTools
     ///   Column {columnName} not found. or Column {columnName} not found.
     /// </exception>
     private async Task<DetermineColumnFormat.SampleResult> GetSampleValuesAsync(string columnName,
-                                                                                IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
+      IProgress<ProgressInfo>? progress, CancellationToken cancellationToken)
     {
       try
       {
@@ -792,15 +802,16 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement,  m_FileSetting.Timeout, m_FileSetting.RecordLimit, cancellationToken);
+          using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
+            m_FileSetting.RecordLimit, cancellationToken);
           if (progress != null)
             sqlReader.ReportProgress = progress;
           var colIndex = sqlReader.GetOrdinal(columnName);
           if (colIndex < 0)
             throw new FileException($"Column {columnName} not found.");
           return (await DetermineColumnFormat.GetSampleValuesAsync(sqlReader, 0, new[] { colIndex },
-                                               m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, 500, cancellationToken)
-                                             .ConfigureAwait(false)).First().Value;
+              m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, 500, cancellationToken)
+            .ConfigureAwait(false)).First().Value;
         }
 
         // must be file reader if this is reached
@@ -852,9 +863,9 @@ namespace CsvTools
           }
 
           return (await DetermineColumnFormat.GetSampleValuesAsync(fileReader, m_FillGuessSettings.CheckedRecords,
-                                               new[] { colIndex },
-                                               m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, 500, cancellationToken)
-                                             .ConfigureAwait(false)).First().Value;
+              new[] { colIndex },
+              m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, 500, cancellationToken)
+            .ConfigureAwait(false)).First().Value;
         }
       }
       catch (Exception ex)
@@ -866,7 +877,7 @@ namespace CsvTools
     }
 
     private void ListSamples(StringBuilder stringBuilder, string? headerList, ICollection<string>? values, int col,
-                             int rows)
+      int rows)
     {
       if (values is null || values.Count <= 0 || string.IsNullOrEmpty(headerList))
         return;
@@ -920,7 +931,8 @@ namespace CsvTools
     {
       SetDateFormat();
       var selValue = (int) m_ColumnEdit.ValueFormatMutable.DataType;
-      comboBoxDataType.DataSource = (from DataTypeEnum item in Enum.GetValues(typeof(DataTypeEnum)) select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
+      comboBoxDataType.DataSource = (from DataTypeEnum item in Enum.GetValues(typeof(DataTypeEnum))
+        select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
       comboBoxDataType.SelectedValue = selValue;
       ComboBoxColumnName_TextUpdate(null, EventArgs.Empty);
     }
@@ -979,7 +991,7 @@ namespace CsvTools
         formatsReg,
         (CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + " "
                                                                     + CultureInfo.CurrentCulture.DateTimeFormat
-                                                                                 .LongTimePattern).ReplaceDefaults(
+                                                                      .LongTimePattern).ReplaceDefaults(
           CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
           "/",
           CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator,
