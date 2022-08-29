@@ -15,6 +15,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
@@ -65,7 +66,7 @@ namespace CsvTools.Tests
       Assert.AreEqual((float) -12086.66, wrapper.GetFloat(2));
       Assert.AreEqual(-12086.66, wrapper.GetDouble(2));
       Assert.AreEqual((decimal) -12086.66, wrapper.GetDecimal(2));
-      Assert.AreEqual((-12086.66).ToString(), wrapper.GetString(2));
+      Assert.AreEqual((-12086.66).ToString(CultureInfo.InvariantCulture), wrapper.GetString(2));
     }
 
     [TestMethod()]
