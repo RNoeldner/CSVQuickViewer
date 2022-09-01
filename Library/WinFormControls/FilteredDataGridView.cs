@@ -120,8 +120,7 @@ namespace CsvTools
     /// </summary>
     /// <returns>The object that contains data for the <see cref="DataGridView" /> to display.</returns>
     /// <exception cref="Exception">
-    ///   An error occurred in the data source and either there is no handler for the <see
-    ///   cref="DataError" /> event or the handler has set the <see cref="Exception" /> property to
+    ///   An error occurred in the data source and either there is no handler for the event or the handler has set the <see cref="Exception" /> property to
     ///   true. The exception object can typically be cast to type <see cref="FormatException" />.
     /// </exception>
     public new object? DataSource
@@ -619,6 +618,8 @@ namespace CsvTools
       {
         foreach (DataRow dataRow in rowCollection)
         {
+          if (dataRow is null)
+            continue;
           if (!dataRow.IsNull(col))
           {
             switch (dataRow[col].ToString().Length)

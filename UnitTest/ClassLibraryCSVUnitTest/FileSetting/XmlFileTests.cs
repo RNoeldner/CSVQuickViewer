@@ -25,7 +25,7 @@ namespace CsvTools.Tests
       var x = new XmlFile("Test1.txt") { ByteOrderMark = true, CodePageId = 100} ;
       var x2 = x.Clone() as IXmlFile;
       Assert.AreEqual("Test1.txt", x2!.FileName);
-      Assert.AreEqual(100, x2!.CodePageId);
+      Assert.AreEqual(100, x2.CodePageId);
     }
 
     [TestMethod()]

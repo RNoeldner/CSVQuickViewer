@@ -75,8 +75,8 @@ namespace CsvTools
       {
         if (disposing)
         {
-          components?.Dispose();
-          m_WebBrowser?.Dispose();
+          components.Dispose();
+          m_WebBrowser.Dispose();
         }
 
         base.Dispose(disposing);
