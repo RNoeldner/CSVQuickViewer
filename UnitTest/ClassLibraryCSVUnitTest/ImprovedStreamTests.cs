@@ -34,9 +34,11 @@ namespace CsvTools.Tests
     {
       var buffer = new byte[32000];
       var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("Warnings.txt") };
+      // ReSharper disable once UseAwaitUsing
       using var res = new ImprovedStream(new SourceAccess(setting));
       Assert.AreEqual(0d, res.Percentage);
-      await res.ReadAsync(buffer, 0, 32000);
+      // ReSharper disable once MustUseReturnValue
+      await res.ReadAsync(buffer, 0, 32000).ConfigureAwait(false);
       Assert.AreEqual(1d, res.Percentage);
     }
 

@@ -12,9 +12,9 @@
  *
  */
 
+#if Windows
 namespace CsvTools.Tests
 {
-#if Windows
 	[TestClass]
 	public class FileSystemUtilsLongPathTest
 	{
@@ -189,5 +189,5 @@ namespace CsvTools.Tests
 			Assert.AreEqual(m_FileName1.Substring(m_Root.Length + 1), m_FileName1.GetShortestPath(m_Root), "GetShortestPath");
 		}
 	}
-#endif
 }
+#endif

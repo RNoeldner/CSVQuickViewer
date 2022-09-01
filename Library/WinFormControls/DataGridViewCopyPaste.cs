@@ -101,9 +101,9 @@ namespace CsvTools
     /// <returns></returns>
     private static string EscapeTab(string? contents)
     {
-      if (string.IsNullOrEmpty(contents))
+      if (contents is null || contents.Length==0)
         return string.Empty;
-      if (contents!.Contains("\t") || contents.Contains("\n") || contents.Contains("\r"))
+      if (contents.Contains("\t") || contents.Contains("\n") || contents.Contains("\r"))
         return "\"" + contents.Replace("\"", "\"\"") + "\"";
       return contents;
     }

@@ -1646,7 +1646,7 @@ Line "Test"", "22",23,"  24"
           // lock file for reading
           reader.OnAskRetry += (_, args) =>
           {
-            stream?.Close();
+            stream.Close();
             called = true;
             args.Retry = false;
           };

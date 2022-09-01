@@ -505,8 +505,8 @@ namespace CsvTools
         "  td { border: 2px solid lightgrey; padding:3px; }\r\n" +
         "</STYLE>");
 
-      if (!string.IsNullOrEmpty(header))
-        stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header!)));
+      if (header != null && header.Length>0)
+        stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header)));
 
       ListSamples(stringBuilder, headerList1, values1, col1, rows);
       ListSamples(stringBuilder, headerList2, values2, col2, rows);
