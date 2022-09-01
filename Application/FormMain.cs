@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Microsoft.Win32;
@@ -81,7 +82,8 @@ namespace CsvTools
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
       m_SettingsChangedTimerChange.AutoReset = false;
-      m_SettingsChangedTimerChange.Elapsed += async (sender, args) => await OpenDataReaderAsync(m_CancellationTokenSource.Token);
+      m_SettingsChangedTimerChange.Elapsed +=
+        async (sender, args) => await OpenDataReaderAsync(m_CancellationTokenSource.Token);
       m_SettingsChangedTimerChange.Stop();
     }
 
@@ -139,7 +141,7 @@ namespace CsvTools
         return;
       }
 
-      if (fi.Length==0)
+      if (fi.Length == 0)
       {
         Logger.Warning("File {filename} is empty.", fileName);
         return;
@@ -158,10 +160,10 @@ namespace CsvTools
             formProgress.Show(this);
             Logger.Information("Determine file format");
             m_FileSetting = (await fileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
-                               m_ViewSettings.GuessCodePage,
-                               m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
-                               m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-                               m_ViewSettings.FillGuessSettings, formProgress.CancellationToken)).PhysicalFile();
+              m_ViewSettings.GuessCodePage,
+              m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
+              m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
+              m_ViewSettings.FillGuessSettings, formProgress.CancellationToken)).PhysicalFile();
 
             formProgress.Close();
           }
@@ -189,7 +191,7 @@ namespace CsvTools
 
           title.Append(" - ");
           title.Append(AssemblyTitle);
-          this.SafeInvokeNoHandleNeeded(()=>Text = title.ToString());
+          this.SafeInvokeNoHandleNeeded(() => Text = title.ToString());
 
           m_ToolStripButtonAsText.Visible = m_FileSetting is ICsvFile &&
                                             m_FileSetting.ColumnCollection.Any(x =>
@@ -223,7 +225,7 @@ namespace CsvTools
                      + "All files (*.*)|*.*";
 
         var fileName = WindowsAPICodePackWrapper.Open(".", "File to Display", strFilter, null);
-        if (!(fileName is null || fileName.Length==0))
+        if (!(fileName is null || fileName.Length == 0))
           LoadCsvFile(fileName, m_CancellationTokenSource.Token);
       }
       catch (Exception ex)
@@ -349,7 +351,8 @@ namespace CsvTools
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
     private void FileDragEnter(object? sender, DragEventArgs e)
     {
-      if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop, false) && !WindowsAPICodePackWrapper.IsDialogOpen)
+      if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop, false) &&
+          !WindowsAPICodePackWrapper.IsDialogOpen)
         e.Effect = DragDropEffects.All;
     }
 
@@ -495,7 +498,8 @@ namespace CsvTools
           if (cancellationToken.IsCancellationRequested)
             return;
 
-          m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealDataColumns().Select(x=> x.ToIColumn()));
+          m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealDataColumns()
+            .Select(x => x.ToIColumn()));
 
           // Set Functional DI routines to constants The reader is used when data is stored through
           // the detailControl
@@ -551,8 +555,10 @@ namespace CsvTools
         {
           var fileName = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
           SerializedFilesLib.SaveSettingFile(m_FileSetting,
-            () => MessageBox.Show($"Setting {FileSystemUtils.GetShortDisplayFileName(fileName, 50)} has been changed.\nReplace with new setting? ", "Settings",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
+            () => MessageBox.Show(
+              $"Setting {FileSystemUtils.GetShortDisplayFileName(fileName, 50)} has been changed.\nReplace with new setting? ",
+              "Settings",
+              MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
         }
 
         m_ConfigChanged = false;
@@ -615,7 +621,8 @@ namespace CsvTools
         formProgress.Maximum = 0;
         formProgress.Report(new ProgressInfo("Reading source and applying color coding", 0));
         if (m_FileSetting is ICsvFile csv)
-          m_SourceDisplay.OpenFile(false, csv.FieldQualifier, csv.FieldDelimiter, csv.EscapePrefix, csv.CodePageId, m_FileSetting.SkipRows, csv.CommentLine);
+          m_SourceDisplay.OpenFile(false, csv.FieldQualifier, csv.FieldDelimiter, csv.EscapePrefix, csv.CodePageId,
+            m_FileSetting.SkipRows, csv.CommentLine);
         else
           m_SourceDisplay.OpenFile(m_FileSetting is IJsonFile, "", "", "", 65001, m_FileSetting.SkipRows, "");
         formProgress.Close();
@@ -684,17 +691,18 @@ namespace CsvTools
         detailControl.SuspendLayout();
 
         var store = ViewSetting.StoreViewSetting(detailControl.FilteredDataGridView,
-          Array.Empty<ToolStripDataGridViewColumnFilter?>());
+          Array.Empty<ToolStripDataGridViewColumnFilter>());
 
         // Assume data type is not recognize
         if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataTypeEnum.String))
         {
           Logger.Information("Showing columns as text");
-          m_StoreColumns= new List<IColumn>(m_FileSetting.ColumnCollection);
+          m_StoreColumns = new List<IColumn>(m_FileSetting.ColumnCollection);
 
           // restore header names only
           m_FileSetting.ColumnCollection.Clear();
-          m_FileSetting.ColumnCollection.AddRange(m_StoreColumns.Select(col => new Column(col.Name) { ColumnOrdinal = col.ColumnOrdinal }));
+          m_FileSetting.ColumnCollection.AddRange(m_StoreColumns.Select(col =>
+            new Column(col.Name) { ColumnOrdinal = col.ColumnOrdinal }));
 
           m_ToolStripButtonAsText.Text = "As Values";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;

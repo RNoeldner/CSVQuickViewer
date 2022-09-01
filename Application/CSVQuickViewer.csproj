@@ -41,9 +41,6 @@
 		<Compile Include="..\Library\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
-	</ItemGroup>
-	<ItemGroup>
 		<ProjectReference Include="..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 		<ProjectReference Include="..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
 		<Reference Include="FastColoredTextBox">
