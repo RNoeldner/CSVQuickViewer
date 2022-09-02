@@ -67,7 +67,7 @@ namespace CsvTools.Tests
 #pragma warning disable 8602
       Assert.AreEqual(3, setting.ColumnCollection.Count());
 #pragma warning restore 8602
-      using var reader = new CsvFileReader(setting!.FullPath, setting.CodePageId, setting.SkipRows,
+      using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
         setting.HasFieldHeader, setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
         setting.RecordLimit, setting.AllowRowCombining,

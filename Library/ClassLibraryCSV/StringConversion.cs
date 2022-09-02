@@ -11,7 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+#nullable enable
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;

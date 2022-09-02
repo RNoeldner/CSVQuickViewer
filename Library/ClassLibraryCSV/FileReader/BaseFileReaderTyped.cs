@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Globalization;
 
 namespace CsvTools
@@ -33,6 +32,25 @@ namespace CsvTools
 
     private readonly bool m_Trim;
     protected object?[] CurrentValues;
+
+
+    /// <summary>
+    /// Gets the current object stored in CurrentValues and does checks
+    /// </summary>
+    /// <param name="ordinal">The ordinal of teh column</param>
+    /// <returns></returns>
+    /// <exception cref="System.ArgumentOutOfRangeException">ordinal - Value is out of range 0-{FieldCount}</exception>
+    /// <exception cref="System.NullReferenceException">CurrentValues is not set, please open the reader before accessing data</exception>
+    protected object? GetCurrentValue(int ordinal)
+    {
+      if (ordinal < 0 || ordinal >= FieldCount)
+        throw new ArgumentOutOfRangeException(nameof(ordinal), $"Value is out of range 0-{FieldCount}");
+
+      if (CurrentValues is null || ordinal > CurrentValues.Length)
+        throw new NullReferenceException("CurrentValues is not set, please open the reader before accessing data");
+
+      return CurrentValues[ordinal];
+    }
 
     /// <inheritdoc />
     /// <summary>
@@ -56,7 +74,7 @@ namespace CsvTools
       bool treatNbspAsSpace,
       in TimeZoneChangeDelegate timeZoneAdjust,
       in string destTimeZone)
-      : base(fileName, columnDefinition, recordLimit, timeZoneAdjust,destTimeZone)
+      : base(fileName, columnDefinition, recordLimit, timeZoneAdjust, destTimeZone)
     {
       m_TreatNbspAsSpace = treatNbspAsSpace;
       m_Trim = trim;
@@ -67,9 +85,8 @@ namespace CsvTools
     /// <inheritdoc />
     public override bool GetBoolean(int ordinal)
     {
-      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
-      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
-      if (CurrentValues![ordinal] is bool b)
+      var val = GetCurrentValue(ordinal);
+      if (val is bool b)
         return b;
       EnsureTextFilled(ordinal);
       return base.GetBoolean(ordinal);
@@ -87,8 +104,7 @@ namespace CsvTools
     /// <inheritdoc />
     public override DateTime GetDateTime(int ordinal)
     {
-      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
-      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
+      var val = GetCurrentValue(ordinal);
 
       object? timePart = null;
       string? timePartText = null;
@@ -96,13 +112,13 @@ namespace CsvTools
 
       if (AssociatedTimeCol[ordinal] > -1)
       {
-        timePart = CurrentValues![AssociatedTimeCol[ordinal]];
+        timePart = GetCurrentValue(AssociatedTimeCol[ordinal]);
         EnsureTextFilled(AssociatedTimeCol[ordinal]);
         timePartText = CurrentRowColumnText[AssociatedTimeCol[ordinal]];
       }
 
       var dt = GetDateTimeNull(
-        CurrentValues![ordinal],
+          val,
         CurrentRowColumnText[ordinal],
         timePart,
         timePartText ?? string.Empty,
@@ -117,15 +133,9 @@ namespace CsvTools
     /// <inheritdoc />
     public override decimal GetDecimal(int ordinal)
     {
-      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
-      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
-
-      if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
-                                             || CurrentValues[ordinal] is float
-                                             || CurrentValues[ordinal] is short
-                                             || CurrentValues[ordinal] is int
-                                             || CurrentValues[ordinal] is long)
-        return Convert.ToDecimal(CurrentValues[ordinal], CultureInfo.CurrentCulture);
+      var val = GetCurrentValue(ordinal);
+      if (val is decimal || val is double || val is float || val is short || val is int || val is long)
+        return Convert.ToDecimal(val, CultureInfo.CurrentCulture);
       EnsureTextFilled(ordinal);
       return base.GetDecimal(ordinal);
     }
@@ -133,15 +143,9 @@ namespace CsvTools
     /// <inheritdoc />
     public override double GetDouble(int ordinal)
     {
-      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
-      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
-
-      if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
-                                             || CurrentValues[ordinal] is float
-                                             || CurrentValues[ordinal] is short
-                                             || CurrentValues[ordinal] is int
-                                             || CurrentValues[ordinal] is long)
-        return Convert.ToDouble(CurrentValues[ordinal], CultureInfo.CurrentCulture);
+      var val = GetCurrentValue(ordinal);
+      if (val is decimal || val is double || val is float || val is short || val is int || val is long)
+        return Convert.ToDouble(val, CultureInfo.CurrentCulture);
       EnsureTextFilled(ordinal);
       return base.GetDouble(ordinal);
     }
@@ -149,20 +153,15 @@ namespace CsvTools
     /// <inheritdoc />
     public override float GetFloat(int ordinal)
     {
-      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
-      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
+      var val = GetCurrentValue(ordinal);
       try
       {
-        if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
-                                               || CurrentValues[ordinal] is float
-                                               || CurrentValues[ordinal] is short
-                                               || CurrentValues[ordinal] is int
-                                               || CurrentValues[ordinal] is long)
-          return Convert.ToSingle(CurrentValues[ordinal], CultureInfo.CurrentCulture);
+        if (val is decimal || val is double || val is float || val is short || val is int || val is long)
+          return Convert.ToSingle(val, CultureInfo.CurrentCulture);
       }
       catch (Exception e)
       {
-        throw WarnAddFormatException(ordinal, $"'{CurrentValues![ordinal]}' is not a float, {e.Message}");
+        throw WarnAddFormatException(ordinal, $"'{val}' is not a float, {e.Message}");
       }
 
       EnsureTextFilled(ordinal);
@@ -172,10 +171,7 @@ namespace CsvTools
     /// <inheritdoc />
     public override Guid GetGuid(int ordinal)
     {
-      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
-      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
-
-      if (CurrentValues![ordinal] is Guid val)
+      if (GetCurrentValue(ordinal) is Guid val)
         return val;
       EnsureTextFilled(ordinal);
       return base.GetGuid(ordinal);
@@ -184,20 +180,15 @@ namespace CsvTools
     /// <inheritdoc />
     public override short GetInt16(int ordinal)
     {
-      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
-      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
+      var val = GetCurrentValue(ordinal);
       try
       {
-        if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
-                                               || CurrentValues[ordinal] is float
-                                               || CurrentValues[ordinal] is short
-                                               || CurrentValues[ordinal] is int
-                                               || CurrentValues[ordinal] is long)
-          return Convert.ToInt16(CurrentValues[ordinal], CultureInfo.CurrentCulture);
+        if (val is decimal || val is double || val is float || val is short || val is int || val is long)
+          return Convert.ToInt16(val, CultureInfo.CurrentCulture);
       }
       catch (Exception e)
       {
-        throw WarnAddFormatException(ordinal, $"'{CurrentValues![ordinal]}' is not a short, {e.Message}");
+        throw WarnAddFormatException(ordinal, $"'{val}' is not a short, {e.Message}");
       }
 
       EnsureTextFilled(ordinal);
@@ -207,21 +198,15 @@ namespace CsvTools
     /// <inheritdoc />
     public override int GetInt32(int ordinal)
     {
-      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
-      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
-
+      var val = GetCurrentValue(ordinal);
       try
       {
-        if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
-                                               || CurrentValues[ordinal] is float
-                                               || CurrentValues[ordinal] is short
-                                               || CurrentValues[ordinal] is int
-                                               || CurrentValues[ordinal] is long)
-          return Convert.ToInt32(CurrentValues[ordinal], CultureInfo.CurrentCulture);
+        if (val is decimal || val is double || val is float || val is short || val is int || val is long)
+          return Convert.ToInt32(val, CultureInfo.CurrentCulture);
       }
       catch (Exception e)
       {
-        throw WarnAddFormatException(ordinal, $"'{CurrentValues![ordinal]}' is not an integer, {e.Message}");
+        throw WarnAddFormatException(ordinal, $"'{val}' is not an integer, {e.Message}");
       }
 
       EnsureTextFilled(ordinal);
@@ -231,20 +216,15 @@ namespace CsvTools
     /// <inheritdoc />
     public override long GetInt64(int ordinal)
     {
-      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
-      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
+      var val = GetCurrentValue(ordinal);
       try
       {
-        if (CurrentValues![ordinal] is decimal || CurrentValues[ordinal] is double
-                                               || CurrentValues[ordinal] is float
-                                               || CurrentValues[ordinal] is short
-                                               || CurrentValues[ordinal] is int
-                                               || CurrentValues[ordinal] is long)
-          return Convert.ToInt64(CurrentValues[ordinal], CultureInfo.CurrentCulture);
+        if (val is decimal || val is double || val is float || val is short || val is int || val is long)
+          return Convert.ToInt64(val, CultureInfo.CurrentCulture);
       }
       catch (Exception e)
       {
-        throw WarnAddFormatException(ordinal, $"'{CurrentValues![ordinal]}' is not a long, {e.Message}");
+        throw WarnAddFormatException(ordinal, $"'{val}' is not a long, {e.Message}");
       }
 
       EnsureTextFilled(ordinal);
@@ -253,10 +233,7 @@ namespace CsvTools
 
     public override string GetString(int ordinal)
     {
-      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
-      Debug.Assert(CurrentValues != null && ordinal < CurrentValues.Length);
-
-      return Convert.ToString(CurrentValues![ordinal]) ?? string.Empty;
+      return Convert.ToString(GetCurrentValue(ordinal));
     }
 
     public override int GetValues(object[] values)
@@ -267,17 +244,16 @@ namespace CsvTools
 
     public override bool IsDBNull(int ordinal)
     {
-      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
-      if (CurrentValues.Length <= ordinal)
+      if ((ordinal < 0 && ordinal >= FieldCount) || (CurrentValues is null || CurrentValues.Length <= ordinal))
         return true;
+
       if (Column[ordinal].ValueFormat.DataType == DataTypeEnum.DateTime)
       {
         if (AssociatedTimeCol[ordinal] == -1)
           return CurrentValues[ordinal] is null || CurrentValues[ordinal] == DBNull.Value;
 
         return (CurrentValues[ordinal] is null || CurrentValues[ordinal] == DBNull.Value)
-               && (CurrentValues[AssociatedTimeCol[ordinal]] is null
-                   || CurrentValues[AssociatedTimeCol[ordinal]] == DBNull.Value);
+               && (CurrentValues[AssociatedTimeCol[ordinal]] is null || CurrentValues[AssociatedTimeCol[ordinal]] == DBNull.Value);
       }
 
       if (CurrentValues[ordinal] is null || CurrentValues[ordinal] == DBNull.Value)
@@ -301,7 +277,7 @@ namespace CsvTools
     private void EnsureTextFilled(int ordinal)
     {
       if (string.IsNullOrEmpty(CurrentRowColumnText[ordinal]))
-        CurrentRowColumnText[ordinal] = Convert.ToString(CurrentValues[ordinal]);
+        CurrentRowColumnText[ordinal] = Convert.ToString(GetCurrentValue(ordinal));
     }
   }
 }

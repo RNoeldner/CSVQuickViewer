@@ -132,11 +132,11 @@ namespace CsvTools
     }
 
     public static string StoreViewSetting(DataGridView ctrl,
-      IEnumerable<ToolStripDataGridViewColumnFilter> columnFilters) =>
+      IEnumerable<ToolStripDataGridViewColumnFilter?> columnFilters) =>
       StoreViewSetting(ctrl.Columns, columnFilters, ctrl.SortedColumn, ctrl.SortOrder);
 
     private static string StoreViewSetting(IEnumerable columns,
-      IEnumerable<ToolStripDataGridViewColumnFilter> columnFilters, DataGridViewColumn? sortedColumn,
+      IEnumerable<ToolStripDataGridViewColumnFilter?> columnFilters, DataGridViewColumn? sortedColumn,
       SortOrder sortOrder)
     {
       var vst = (from DataGridViewColumn col in columns
@@ -145,6 +145,8 @@ namespace CsvTools
       var colIndex = 0;
       foreach (var columnFilter in columnFilters)
       {
+        if (columnFilter is null)
+          continue;
         if (columnFilter.ColumnFilterLogic.Active)
         {
           var hadValueFiler = false;

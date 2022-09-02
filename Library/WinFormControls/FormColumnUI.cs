@@ -41,7 +41,7 @@ namespace CsvTools
 
     private readonly HtmlStyle m_HtmlStyle;
 
-    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
+    private readonly CancellationTokenSource m_CancellationTokenSource = new();
 
     private readonly Column m_ColumnEdit;
     private readonly IColumn? m_ColumnRef;
@@ -464,7 +464,9 @@ namespace CsvTools
           return;
         var vf = new ValueFormatMutable
         {
-          NumberFormat = numberFormat, GroupSeparator = numberFormat, DecimalSeparator = groupSeparator
+          NumberFormat = numberFormat,
+          GroupSeparator = numberFormat,
+          DecimalSeparator = groupSeparator
         };
         var sample = StringConversion.DoubleToString(1234.567, vf);
 
@@ -499,9 +501,11 @@ namespace CsvTools
       var stringBuilder = HtmlStyle.StartHtmlDoc(
         $"{System.Drawing.SystemColors.Control.R:X2}{System.Drawing.SystemColors.Control.G:X2}{System.Drawing.SystemColors.Control.B:X2}",
         "<STYLE type=\"text/css\">\r\n" +
+        // ReSharper disable once StringLiteralTypo
         "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
         "  h2 { color:DarkBlue; font-size : 12px; }\r\n" +
         "  table { border-collapse:collapse; font-size : 11px; }\r\n" +
+        // ReSharper disable once StringLiteralTypo
         "  td { border: 2px solid lightgrey; padding:3px; }\r\n" +
         "</STYLE>");
 
@@ -511,8 +515,8 @@ namespace CsvTools
       ListSamples(stringBuilder, headerList1, values1, col1, rows);
       ListSamples(stringBuilder, headerList2, values2, col2, rows);
 
-      if (!string.IsNullOrEmpty(footer))
-        stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer!)));
+      if (footer !=null && footer.Length>0)
+        stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer)));
 
       stringBuilder.AppendLine("</BODY>");
       stringBuilder.AppendLine("</HTML>");
@@ -879,11 +883,9 @@ namespace CsvTools
     private void ListSamples(StringBuilder stringBuilder, string? headerList, ICollection<string>? values, int col,
       int rows)
     {
-      if (values is null || values.Count <= 0 || string.IsNullOrEmpty(headerList))
+      if (values is null || values.Count <= 0 || headerList is null || headerList.Length==0)
         return;
-      if (!string.IsNullOrEmpty(headerList))
-        stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(headerList!)));
-
+      stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(headerList)));
       stringBuilder.AppendLine(m_HtmlStyle.TableOpen);
       var texts = values.Take(col * rows).ToArray();
       stringBuilder.AppendLine(m_HtmlStyle.TrOpen);
@@ -932,7 +934,7 @@ namespace CsvTools
       SetDateFormat();
       var selValue = (int) m_ColumnEdit.ValueFormatMutable.DataType;
       comboBoxDataType.DataSource = (from DataTypeEnum item in Enum.GetValues(typeof(DataTypeEnum))
-        select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
+                                     select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
       comboBoxDataType.SelectedValue = selValue;
       ComboBoxColumnName_TextUpdate(null, EventArgs.Empty);
     }

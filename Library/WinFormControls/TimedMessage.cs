@@ -1,5 +1,7 @@
 #nullable enable
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace CsvTools
 {
   using System;
@@ -26,14 +28,14 @@ namespace CsvTools
     private TableLayoutPanel m_TableLayoutPanel;
 
     private TextBox m_TextBox;
-    private Timer m_Timer = new Timer();
+    private Timer m_Timer = new();
     private WebBrowser m_WebBrowser;
 
-#pragma warning disable CS8618 // Ein Non-Nullable-Feld muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Erwägen Sie die Deklaration als Nullable.
+#pragma warning disable CS8618 
 
     public TimedMessage() => InitializeComponent();
 
-#pragma warning restore CS8618 // Ein Non-Nullable-Feld muss beim Beenden des Konstruktors einen Wert ungleich NULL enthalten. Erwägen Sie die Deklaration als Nullable.
+#pragma warning restore CS8618 
 
     public double Duration { get; set; } = 4.0;
 
@@ -230,6 +232,7 @@ namespace CsvTools
     ///   Required method for Designer support - do not modify the contents of this method with the
     ///   code editor.
     /// </summary>
+    [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();

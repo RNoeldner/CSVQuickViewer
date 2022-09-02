@@ -18,6 +18,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -177,8 +178,8 @@ namespace CsvTools
       if (dataColumnID is null)
         throw new ArgumentException($"Could not find column {idCol}");
 
-      var dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null : m_DataTable.Columns[display1!];
-      var dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2!];
+      var dataColumnDisplay1 = string.IsNullOrEmpty(display1) ? null : m_DataTable.Columns[display1];
+      var dataColumnDisplay2 = string.IsNullOrEmpty(display2) ? null : m_DataTable.Columns[display2];
       if (dataColumnDisplay1 == null && dataColumnDisplay2 == null)
         return;
       // Using a dictionary here to speed up lookups
@@ -355,6 +356,7 @@ namespace CsvTools
     ///   Required method for Designer support - do not modify the contents of this method with the
     ///   code editor.
     /// </summary>
+    [SuppressMessage("ReSharper", "JoinDeclarationAndInitializer")]
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();

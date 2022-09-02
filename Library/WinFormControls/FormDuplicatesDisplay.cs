@@ -27,7 +27,7 @@ namespace CsvTools
   /// </summary>
   public partial class FormDuplicatesDisplay : ResizeForm
   {
-    private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
+    private readonly CancellationTokenSource m_CancellationTokenSource = new();
 
     private readonly DataRow[] m_DataRow;
 
@@ -70,7 +70,7 @@ namespace CsvTools
       m_CancellationTokenSource.Cancel();
 
     /// <summary>
-    ///   Handles the Load event of the HirachyDisplay control.
+    ///   Handles the Load event of the Duplicate Display control.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
@@ -130,11 +130,11 @@ namespace CsvTools
           // ReSharper disable once AccessToDisposedClosure
           intervalAction.Invoke(formProgress, "Getting duplicate values", rowIndex);
 
-          var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString()?.Trim();
+          var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
 
           if (ignoreNull && string.IsNullOrEmpty(id))
             continue;
-          if (dictIDToRow.TryGetValue(id!, out var duplicateRowIndex))
+          if (dictIDToRow.TryGetValue(id, out var duplicateRowIndex))
           {
             if (!dictFirstIDStored.Contains(duplicateRowIndex))
             {

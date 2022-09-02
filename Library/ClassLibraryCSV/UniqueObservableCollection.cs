@@ -11,12 +11,11 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+#nullable enable 
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Reflection;
 
 namespace CsvTools
 {
@@ -60,12 +59,14 @@ namespace CsvTools
     /// </returns>
     public new void Add(T item)
     {
+      // ReSharper disable once SuspiciousTypeConversion.Global
       if (item is ICloneable src)
         item = (T) src.Clone();
       if (IndexOf(item)!=-1)
         return;
 
       // Set Property changed Event Handlers if possible
+      // ReSharper disable once SuspiciousTypeConversion.Global
       if (item is INotifyPropertyChanged notifyPropertyChanged)
       {
         if (CollectionItemPropertyChanged != null)
@@ -73,6 +74,7 @@ namespace CsvTools
         if (ItemPropertyChanged!=null)
           notifyPropertyChanged.PropertyChanged += ItemPropertyChanged;
       }
+      // ReSharper disable once SuspiciousTypeConversion.Global
       if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
         notifyPropertyChangedString.PropertyChangedString += ItemPropertyChangedString;
 
@@ -101,7 +103,7 @@ namespace CsvTools
     {
       if (IndexOf(item)!=-1)
       {
-        PropertyInfo property = typeof(T).GetProperty(propertyName);
+        var property = typeof(T).GetProperty(propertyName);
         if (property is null)
           throw new ArgumentException($"The property {propertyName} not found");
         if (property.PropertyType != typeof(string))
@@ -120,10 +122,12 @@ namespace CsvTools
     /// <inheritdoc cref="ObservableCollection{T}" />
     public new void Insert(int index, T item)
     {
+      // ReSharper disable once SuspiciousTypeConversion.Global
       if (item is ICloneable src)
         item = (T) src.Clone();
       if (IndexOf(item)!=-1)
         return;
+      // ReSharper disable once SuspiciousTypeConversion.Global
       if (item is INotifyPropertyChanged notifyPropertyChanged)
       {
         if (CollectionItemPropertyChanged != null)
@@ -131,6 +135,7 @@ namespace CsvTools
         if (ItemPropertyChanged!=null)
           notifyPropertyChanged.PropertyChanged += ItemPropertyChanged;
       }
+      // ReSharper disable once SuspiciousTypeConversion.Global
       if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
         notifyPropertyChangedString.PropertyChangedString += ItemPropertyChangedString;
       base.Insert(index, item);
@@ -150,6 +155,7 @@ namespace CsvTools
     {
       var item = Items[index];
       base.RemoveAt(index);
+      // ReSharper disable once SuspiciousTypeConversion.Global
       if (item is INotifyPropertyChanged notifyPropertyChanged)
       {
         if (CollectionItemPropertyChanged != null)
@@ -159,6 +165,7 @@ namespace CsvTools
           notifyPropertyChanged.PropertyChanged -= ItemPropertyChanged;
       }
 
+      // ReSharper disable once SuspiciousTypeConversion.Global
       if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
         notifyPropertyChangedString.PropertyChangedString -= ItemPropertyChangedString;
     }
@@ -167,7 +174,7 @@ namespace CsvTools
     ///   A slightly faster method to add a number of items in one go
     /// </summary>
     /// <param name="items">Some items to add</param>
-    public virtual void AddRange(IEnumerable<T> items)
+    public void AddRange(IEnumerable<T> items)
     {
       using var enumerator = items.GetEnumerator();
       while (enumerator.MoveNext())
@@ -183,7 +190,9 @@ namespace CsvTools
     ///   <see langword="true" /> if the specified object is equal to the current object; otherwise,
     ///   <see langword="false" />.
     /// </returns>
+#pragma warning disable CS0659
     public override bool Equals(object? obj) => Equals(obj as ICollection<T>);
+#pragma warning restore CS0659
 
     /// <summary>
     ///   Determines whether the other collection is equal to the current collection.
@@ -202,21 +211,6 @@ namespace CsvTools
 
       return this.CollectionEqualWithOrder(other);
     }
-
-    /// <summary>
-    ///   Returns a hash code for this instance. Build from all items in the collection
-    /// </summary>
-    /// <returns>
-    ///   A hash code for this instance, suitable for use in hashing algorithms and data structures
-    ///   like a hash table.
-    /// </returns>
-    //public override int GetHashCode()
-    //{
-    //  var res = 0;
-    //  for (var index = 0; index < Items.Count; index++)
-    //    res ^= Items[index].CollectionIdentifier;
-    //  return res;
-    //}
 
     /// <inheritdoc cref="IList{T}" />
     public new int IndexOf(T search)
