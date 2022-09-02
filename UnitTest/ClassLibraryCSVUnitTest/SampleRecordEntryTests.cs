@@ -58,7 +58,7 @@ namespace CsvTools.Tests
       Assert.IsFalse(entry1.Equals(null));
 
       entry2 = new SampleRecordEntry(10, "Error1");
-      Assert.IsFalse(entry1!.Equals(entry2));
+      Assert.IsFalse(entry1.Equals(entry2));
     }
 
     [TestMethod]

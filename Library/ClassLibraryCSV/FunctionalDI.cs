@@ -14,8 +14,10 @@
 
 using System;
 using System.IO;
+#if !QUICK
 using System.Threading;
 using System.Threading.Tasks;
+#endif
 
 namespace CsvTools
 {
@@ -30,6 +32,7 @@ namespace CsvTools
     /// <summary>
     ///   Retrieve the passphrase for a files
     /// </summary>
+    // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<string, string> GetEncryptedPassphraseForFile = s => string.Empty;
 
     /// <summary>

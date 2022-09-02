@@ -1,12 +1,14 @@
 ﻿#nullable enable
+using System;
 using System.Collections.Generic;
+// ReSharper disable NotAccessedField.Local
 
 namespace CsvTools
 {
   public class DelimitedFileDetectionResultWithColumns : DelimitedFileDetectionResult
   {
+    
     private readonly string m_ColumnFile;
-
     private readonly IEnumerable<IColumn> m_Columns;
 
     public DelimitedFileDetectionResultWithColumns(
@@ -43,7 +45,7 @@ namespace CsvTools
         noDelimitedFile,
         recordDelimiterType)
     {
-      m_Columns = columns ?? new List<IColumn>();
+      m_Columns = columns ?? Array.Empty<IColumn>();
       m_ColumnFile = columnFile ?? string.Empty;
     }
 
@@ -82,7 +84,6 @@ namespace CsvTools
       ret.ColumnFile = m_ColumnFile;
       return ret;
     }
-
 #endif
   }
 }

@@ -495,16 +495,17 @@ namespace CsvTools
           toolStripMenuItemSortAscending.Enabled = columnIndex > -1;
           toolStripMenuItemSortDescending.Enabled = columnIndex > -1;
 
+
           toolStripMenuItemSortAscending.Text = columnIndex > -1
                                                   ? string.Format(
                                                     CultureInfo.CurrentCulture,
-                                                    toolStripMenuItemSortAscending.Tag.ToString(),
+                                                    Convert.ToString(toolStripMenuItemSortAscending.Tag),
                                                     Columns[columnIndex].DataPropertyName)
                                                   : "Sort ascending";
           toolStripMenuItemSortDescending.Text = columnIndex > -1
                                                    ? string.Format(
                                                      CultureInfo.CurrentCulture,
-                                                     toolStripMenuItemSortDescending.Tag.ToString(),
+                                                     Convert.ToString(toolStripMenuItemSortDescending.Tag),
                                                      Columns[columnIndex].DataPropertyName)
                                                    : "Sort descending";
           var columnFormat = GetColumnFormat(columnIndex);
@@ -618,17 +619,15 @@ namespace CsvTools
       {
         foreach (DataRow dataRow in rowCollection)
         {
-          if (dataRow is null)
+          if (dataRow?[col] is null)
             continue;
-          if (!dataRow.IsNull(col))
+
+          switch (dataRow[col].ToString().Length)
           {
-            switch (dataRow[col].ToString().Length)
-            {
-              case > 80:
-                return 350;
-              case > 15:
-                return 225;
-            }
+            case > 80:
+              return 350;
+            case > 15:
+              return 225;
           }
         }
       }

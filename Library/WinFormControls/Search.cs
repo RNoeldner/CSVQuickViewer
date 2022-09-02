@@ -13,6 +13,8 @@
  */
 #nullable enable
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace CsvTools
 {
   using System;
@@ -142,6 +144,8 @@ namespace CsvTools
     ///   Required method for Designer support - do not modify the contents of this method with the
     ///   code editor.
     /// </summary>
+    [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+    [SuppressMessage("ReSharper", "JoinDeclarationAndInitializer")]
     private void InitializeComponent()
     {
       System.Windows.Forms.Label label1;

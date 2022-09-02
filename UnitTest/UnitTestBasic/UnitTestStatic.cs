@@ -436,6 +436,7 @@ namespace CsvTools.Tests
       using var frm = new TestForm();
       frm.Closing += (s, e) =>
       {
+        // ReSharper disable once AccessToDisposedClosure
         cts.Cancel();
       };
       frm.AddOneControl(ctrl, after * 6000d);
