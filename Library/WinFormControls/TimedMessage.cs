@@ -207,10 +207,8 @@ namespace CsvTools
       }
 
       TopLevel = true;
-
       var result = AcceptButton.DialogResult;
-      Extensions.RunStaThread(() => result = ShowDialog());
-      return result;
+      return ShowDialog();
     }
 
     private void HideColumn(int colNumber, bool visible)
@@ -462,6 +460,7 @@ namespace CsvTools
       }
 
       // Handle & that is used for shortcuts
+
       m_LabelDefault.Text = text.Replace("&&", "￼").Replace("&", "").Replace("￼", "&");
     }
   }
