@@ -371,9 +371,7 @@ namespace CsvTools
     public void CopyTo(ValueFormatMutable other) => other.CopyFrom(this);
 
     /// <inheritdoc />
-#pragma warning disable CS0659
     public override bool Equals(object? obj) => this.ValueFormatEqual(obj as IValueFormat);
-#pragma warning restore CS0659
 
     /// <inheritdoc />
     public object Clone() => new ValueFormatMutable(this);
