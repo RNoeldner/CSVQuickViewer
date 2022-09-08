@@ -745,6 +745,9 @@ namespace CsvTools
     public static bool IsTimeOnly(this in DateTime dateTime) =>
       dateTime >= m_FirstDateTime && dateTime < m_FirstDateTimeNextDay;
 
+    public static bool NoTime(this in DateTime dateTime) =>
+      (dateTime.Hour ==0 && dateTime.Minute==0 && dateTime.Millisecond==0);
+
     public static DateTime TimeOnly(this in DateTime dateTime) => m_FirstDateTime.Add(new TimeSpan(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond));
 
     /// <summary>
@@ -983,7 +986,7 @@ namespace CsvTools
 
       return null;
     }
- 
+
     /// <summary>
     ///   Returns the duration on days for string value.
     /// </summary>

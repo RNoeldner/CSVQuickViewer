@@ -222,7 +222,7 @@ namespace CsvTools
     ///   Sets the text only not the progress
     /// </summary>
     /// <param name="text">The text.</param>
-    public void SetProcess(string text) => m_LabelText.SafeBeginInvoke(() => m_LabelText.Text = text);
+    public void SetProcess(string text) => m_LabelText.SafeInvoke(() => m_LabelText.Text = text);
 
     /// <summary>
     ///   Required method for Designer support - do not modify the contents of this method with the
