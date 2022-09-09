@@ -18,7 +18,10 @@ namespace CsvTools
       }
       base.Dispose(disposing);
     }
-
+    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
+    [SuppressMessage("ReSharper", "RedundantCast")]
+    [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
+    [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
     #region Vom Komponenten-Designer generierter Code
 
     /// <summary>

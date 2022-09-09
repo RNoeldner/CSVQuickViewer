@@ -17,6 +17,7 @@
 using FastColoredTextBoxNS;
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Text.RegularExpressions;
@@ -156,6 +157,10 @@ namespace CsvTools
     /// <summary>
     ///   Initializes the component.
     /// </summary>
+    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
+    [SuppressMessage("ReSharper", "RedundantCast")]
+    [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
+    [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
