@@ -146,6 +146,9 @@ namespace CsvTools
     /// </summary>
     [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
     [SuppressMessage("ReSharper", "JoinDeclarationAndInitializer")]
+    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
+    [SuppressMessage("ReSharper", "RedundantCast")]
+    [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
     private void InitializeComponent()
     {
       System.Windows.Forms.Label label1;

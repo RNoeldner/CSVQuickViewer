@@ -29,7 +29,7 @@ namespace CsvTools
       }
       base.Dispose(disposing);
     }
-
+    
     #region
 
     /// <summary>

@@ -7,6 +7,10 @@ namespace CsvTools
 
     private System.ComponentModel.IContainer components = null;
 
+    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
+    [SuppressMessage("ReSharper", "RedundantCast")]
+    [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
+    [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
     /// <summary>
     /// Required method for Designer support - do not modify
     /// the contents of this method with the code editor.

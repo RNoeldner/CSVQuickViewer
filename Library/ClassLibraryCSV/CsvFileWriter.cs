@@ -169,6 +169,7 @@ namespace CsvTools
       {
         if (sb.Length > 32768)
         {
+          m_ReportProgress?.Report(new ProgressInfo("Writing", reader.RecordNumber));
           await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
           sb.Length = 0;
         }

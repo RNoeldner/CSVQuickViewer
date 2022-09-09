@@ -357,6 +357,10 @@ namespace CsvTools
     ///   code editor.
     /// </summary>
     [SuppressMessage("ReSharper", "JoinDeclarationAndInitializer")]
+    [SuppressMessage("ReSharper", "RedundantNameQualifier")]
+    [SuppressMessage("ReSharper", "RedundantCast")]
+    [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
+    [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();

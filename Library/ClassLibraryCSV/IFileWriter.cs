@@ -49,5 +49,10 @@ namespace CsvTools
     /// <param name="cancellationToken">A cancellation token to stop a long running process</param>
     /// <returns>Number of records written</returns>
     Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///   Sets the progress reporting action <see cref="ProgressInfo.Value"/> will be the current record that has been written/>
+    /// </summary>
+    IProgress<ProgressInfo> ReportProgress { set; }
   }
 }

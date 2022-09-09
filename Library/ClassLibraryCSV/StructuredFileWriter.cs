@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System;
@@ -148,7 +149,7 @@ namespace CsvTools
 
       withHeader = withHeader.Trim();
       var sb = new StringBuilder(
-        1024); // Assume a capacity of 1024 characters to start, data is flushed every 512 chars
+        2048); // Assume a capacity of 2048 characters to start, data is flushed every 1024 chars
       while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false)
              && !cancellationToken.IsCancellationRequested)
       {
@@ -169,7 +170,8 @@ namespace CsvTools
 
         sb.Append(row);
 
-        if (sb.Length <= 512) continue;
+        if (sb.Length <= 1024) continue;
+        m_ReportProgress?.Report(new ProgressInfo("Writing", reader.RecordNumber));
         await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
         sb.Length = 0;
       }

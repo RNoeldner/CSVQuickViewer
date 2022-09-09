@@ -44,6 +44,15 @@ namespace CsvTools
     protected string Header;
     protected readonly string SourceTimeZone;
     private DateTime m_LastNotification = DateTime.Now;
+    protected IProgress<ProgressInfo>? m_ReportProgress;
+
+    public IProgress<ProgressInfo> ReportProgress
+    {
+      set
+      {
+        m_ReportProgress = value;
+      }
+    }
 
     protected BaseFileWriter(
       in string id,
@@ -95,6 +104,10 @@ namespace CsvTools
       m_KeepUnencrypted = unencrypted;
       m_IdentifierInContainer = identifierInContainer ?? string.Empty;
     }
+
+
+    protected virtual void HandleShowProgressPeriodic(string text, long value)
+      => m_ReportProgress?.Report(new ProgressInfo(text,  value));
 
     public long Records { get; protected set; }
 
