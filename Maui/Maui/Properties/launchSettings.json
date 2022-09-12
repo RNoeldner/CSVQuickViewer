@@ -5,7 +5,8 @@
       "nativeDebugging": false
     },
     "Profile 1": {
-      "commandName": "Executable"
+      "commandName": "Executable",
+      "commandLineArgs": "c:\\Users\\rnoldner\\NonSync\\Client_Roche\\Missing metadata for eDMS Events Case 01355737\\Stage\\out\\AddEqivalency.txt"
     }
   }
 }

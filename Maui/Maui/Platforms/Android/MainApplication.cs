@@ -1,4 +1,5 @@
-﻿using Android.App;
+﻿#nullable enable
+using Android.App;
 using Android.Runtime;
 
 namespace Maui

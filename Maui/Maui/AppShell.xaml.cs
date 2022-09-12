@@ -1,4 +1,6 @@
-﻿namespace Maui
+﻿#nullable enable
+
+namespace Maui
 {
   public partial class AppShell : Shell
   {

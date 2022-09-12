@@ -1,4 +1,7 @@
-﻿using CommunityToolkit.Maui;
+﻿#nullable enable
+using CommunityToolkit.Maui;
+using Syncfusion.Maui.Core.Hosting;
+using Syncfusion.Maui.DataGrid.Hosting;
 
 namespace Maui
 {
@@ -17,6 +20,10 @@ namespace Maui
         });
       // Initialise the toolkit
       builder.UseMauiApp<App>().UseMauiCommunityToolkit();
+
+      builder.ConfigureSyncfusionCore();
+      builder.ConfigureSyncfusionDataGrid();
+
       return builder.Build();
     }
   }

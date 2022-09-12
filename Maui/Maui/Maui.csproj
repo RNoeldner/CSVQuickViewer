@@ -42,7 +42,6 @@
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
-		<MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
@@ -52,7 +51,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="CommunityToolkit.Maui" Version="1.0.0" />
+	  <AndroidResource Remove="View\**" />
+	  <Compile Remove="View\**" />
+	  <EmbeddedResource Remove="View\**" />
+	  <MauiCss Remove="View\**" />
+	  <MauiXaml Remove="View\**" />
+	  <None Remove="View\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="CommunityToolkit.Maui" Version="1.2.0" />
+	  <PackageReference Include="Syncfusion.Maui.DataGrid" Version="20.2.48" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -60,37 +69,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="DataGrid.xaml.cs">
-	    <DependentUpon>DataGrid.xaml</DependentUpon>
-	  </Compile>
 	  <Compile Update="Settings.xaml.cs">
 	    <DependentUpon>Settings.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="DataGrid.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Settings.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="View\" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
-	  <PackageReference Include="DevExpress.Maui.DataGrid">
-	    <Version>22.1.2-beta-22159</Version>
-	  </PackageReference>
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
-	  <PackageReference Include="DevExpress.Maui.DataGrid">
-	    <Version>22.1.2-beta-22159</Version>
-	  </PackageReference>
+	  <Folder Include="Resources\Images\" />
 	</ItemGroup>
 
 </Project>

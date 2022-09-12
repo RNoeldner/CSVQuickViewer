@@ -1,4 +1,5 @@
-﻿using Maui.Annotations;
+﻿#nullable enable
+using Maui.Annotations;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -10,19 +11,26 @@ namespace Maui
     protected readonly CancellationTokenSource CancellationTokenSource = new();
 
     #region Commands
+
     public ICommand CancelCommand { get; private set; }
+
     #endregion
 
-    public BaseViewModel() => CancelCommand = new Command(() => CancellationTokenSource.Cancel(), () => IsBusy && !CancellationTokenSource.IsCancellationRequested);
+    public BaseViewModel() => CancelCommand = new Command(() => CancellationTokenSource.Cancel(),
+      () => IsBusy && !CancellationTokenSource.IsCancellationRequested);
 
     #region Properties
+
     bool m_IsViewShown = false;
+
     public bool IsViewShown
     {
       get { return m_IsViewShown; }
       set { SetProperty(ref m_IsViewShown, value); }
     }
+
     bool m_IsBusy = false;
+
     public bool IsBusy
     {
       get { return m_IsBusy; }
@@ -30,26 +38,29 @@ namespace Maui
     }
 
     string m_ProgressInfo = string.Empty;
+
     public string ProgressInfo
     {
       get { return m_ProgressInfo; }
       set { SetProperty(ref m_ProgressInfo, value); }
     }
+
     #endregion
 
     #region LiveCycle
+
     public void OnDisappearing()
     {
-
     }
+
     #endregion
 
 
     #region INotifyPropertyChanged
 
     public bool SetProperty<T>(ref T backingStore, T value,
-        [CallerMemberName] string propertyName = "",
-        [CanBeNull] Action onChanged = null)
+      [CallerMemberName] string propertyName = "",
+      Action? onChanged = null)
     {
       if (EqualityComparer<T>.Default.Equals(backingStore, value))
         return false;
@@ -60,16 +71,18 @@ namespace Maui
       return true;
     }
 
-    [CanBeNull] public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     [NotifyPropertyChangedInvocator]
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
     {
       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+
     #endregion
 
     #region Dispose
+
     public void Dispose()
     {
       Dispose(true);
@@ -84,10 +97,9 @@ namespace Maui
       // Release disposable objects.
       if (disposing)
       {
-
       }
     }
-    #endregion
 
+    #endregion
   }
 }
