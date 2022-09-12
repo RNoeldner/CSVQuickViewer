@@ -3,10 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Maui.DataGrid"
              xmlns:maui="clr-namespace:Maui"
-             xmlns:dxg="clr-namespace:DevExpress.Maui.DataGrid;assembly=DevExpress.Maui.DataGrid"
-             Title="Data Grid">
-    <StackLayout >
-        <!--<dxg:DataGridView ItemsSource="{Binding Items}">
-        </dxg:DataGridView>-->
+             xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+             Title="Data Grid" Loaded="DataGrid_OnLoaded" IsBusy="True">
+
+    <ContentPage.BindingContext>
+        <maui:DataGridViewModel x:Name="ViewModel" />
+    </ContentPage.BindingContext>
+    <StackLayout><Label Text="{Binding FileName}"></Label>
+    <syncfusion:SfDataGrid x:Name="dataGrid" />
     </StackLayout>
 </ContentPage>

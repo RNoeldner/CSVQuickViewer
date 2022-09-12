@@ -17,7 +17,6 @@
                 Text="CSV Quick Viewer"
                 FontSize="48"
                 HorizontalOptions="Center" />
-                
 
             <Button 
                 x:Name="OpenFile"

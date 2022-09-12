@@ -1,4 +1,5 @@
-﻿using Foundation;
+﻿#nullable enable
+using Foundation;
 
 namespace Maui
 {

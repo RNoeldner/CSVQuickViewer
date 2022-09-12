@@ -1,4 +1,5 @@
-﻿using ObjCRuntime;
+﻿#nullable enable
+using ObjCRuntime;
 using UIKit;
 
 namespace Maui
