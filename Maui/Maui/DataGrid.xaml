@@ -4,12 +4,33 @@
              x:Class="Maui.DataGrid"
              xmlns:maui="clr-namespace:Maui"
              xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
-             Title="Data Grid" Loaded="DataGrid_OnLoaded" IsBusy="True">
+             Title="Data Grid" Loaded="DataGrid_OnLoaded">
 
     <ContentPage.BindingContext>
         <maui:DataGridViewModel x:Name="ViewModel" />
     </ContentPage.BindingContext>
-    <StackLayout><Label Text="{Binding FileName}"></Label>
-    <syncfusion:SfDataGrid x:Name="dataGrid" />
+    <StackLayout Margin="20">
+        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HorizontalOptions="Center" />
+        <Label Text="Checking column types" IsVisible="{Binding IsBusy}" HorizontalOptions="Center"/>
+        <syncfusion:SfDataGrid x:Name="dataGrid" 
+                           ItemsSource="{Binding DataTable}" 
+                           VerticalOptions="FillAndExpand" 
+                           ColumnWidthMode="FitByCell"   
+                           GridLinesVisibility="Both" 
+                           HeaderGridLinesVisibility="Both" 
+                           AutoGenerateColumnsMode="SmartReset" 
+                           AllowTriStateSorting="True" 
+                           HorizontalScrollBarVisibility="Default" 
+                           SelectionMode="None" 
+                           ShowSortNumbers="True" 
+                           HorizontalOptions="Fill">
+            <syncfusion:SfDataGrid.DefaultStyle>
+                <syncfusion:DataGridStyle HeaderRowBackground="{StaticResource Primary}" 
+                                      HeaderRowTextColor="{StaticResource White}" 
+                                      RowBackground="White" 
+                                      AlternateRowBackground="{StaticResource Secondary}"
+                                      RowTextColor="{StaticResource Black}"  />
+            </syncfusion:SfDataGrid.DefaultStyle>
+        </syncfusion:SfDataGrid>
     </StackLayout>
 </ContentPage>

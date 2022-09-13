@@ -10,13 +10,12 @@
     <ScrollView>
         <VerticalStackLayout 
             Spacing="25" 
-            Padding="30,0" 
-            VerticalOptions="Center">
+            VerticalOptions="Center" Margin="5">
 
             <Button 
                 Text="CSV Quick Viewer"
                 FontSize="48"
-                HorizontalOptions="Center" />
+                HorizontalOptions="Center"  LineBreakMode="WordWrap"/>
 
             <Button 
                 x:Name="OpenFile"
@@ -24,8 +23,9 @@
                 SemanticProperties.Hint="Open file for display"
                 Command="{Binding ConnectCommand}"
                 HorizontalOptions="Center" />
+
             <ActivityIndicator IsRunning="{Binding IsBusy}"/>
-            <Label Text="{Binding ProgressInfo}" IsVisible="{Binding IsBusy}" HorizontalOptions="Center" ></Label>
+            <Label Text="Checking file format" IsVisible="{Binding IsBusy}" HorizontalOptions="Center" ></Label>
         </VerticalStackLayout>
     </ScrollView>
  

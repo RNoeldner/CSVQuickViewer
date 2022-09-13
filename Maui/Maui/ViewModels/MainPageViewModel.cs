@@ -65,15 +65,11 @@ namespace Maui
 
           if (FileSystemUtils.FileExists(result.FullPath))
           {
+            var setting = new PreferenceViewModel();
             SelectedFile = result.FileName;
-            //var cpv = new ProgressTime();
-            //cpv.ProgressChanged += (_, p) =>
-            //{
-            //  var toast = Toast.Make(p.Text, ToastDuration.Short, 14);
-            //  toast.Show(CancellationTokenSource.Token);
-            //};
-            DetectionResult = await result.FullPath.GetDetectionResultFromFile(false, true, true, true, true, true,
-              false, true, CancellationTokenSource.Token);
+
+            DetectionResult = await result.FullPath.GetDetectionResultFromFile(false, setting.GuessCodePage, setting.GuessDelimiter, setting.GuessQualifier, setting.GuessStartRow, setting.GuessHasHeader,
+              false, setting.GuessComment, CancellationTokenSource.Token);
 
             await Shell.Current.GoToAsync("showfile?FileName=" + result.FullPath,
               new Dictionary<string, object> { { "DetectionResult", DetectionResult } });

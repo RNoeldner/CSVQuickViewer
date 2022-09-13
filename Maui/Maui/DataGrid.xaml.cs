@@ -16,6 +16,7 @@ public partial class DataGrid : ContentPage
   {
     try
     {
+      IsBusy = true;
       await ViewModel.OpenAsync();
       IsBusy = false;
       dataGrid.ItemsSource = ViewModel.DataTable;

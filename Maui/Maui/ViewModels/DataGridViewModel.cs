@@ -8,17 +8,28 @@ namespace Maui
   {
     private string m_FileName = string.Empty;
     private DelimitedFileDetectionResult? m_DetectionResult;
+    private DelimitedFileDetectionResultWithColumns? m_DetectionResultWithColumns;
+    private DataTable? m_DataTable;
 
-    private PagedFileReader? m_FileReader;
-    public IList<DynamicDataRecord> Items => m_FileReader!;
+    //private PagedFileReader? m_FileReader;
+    //public IList<DynamicDataRecord> Items => m_FileReader!;
 
     public DataTable DataTable
     {
-      get;
-      private set;
+      get => m_DataTable;
+      private set => SetProperty(ref m_DataTable, value);
     }
 
-    public DelimitedFileDetectionResult Detection => m_DetectionResult!;
+    public DelimitedFileDetectionResult Detection
+    {
+      get
+      {
+        m_DetectionResult ??= FileName.GetDetectionResultFromFile(false, true, true, true, true, true, false,
+          true, CancellationTokenSource.Token).GetAwaiter().GetResult();
+        return m_DetectionResult;
+      }
+      private set => SetProperty(ref m_DetectionResult, value);
+    }
 
     public string FileName
     {
@@ -26,30 +37,30 @@ namespace Maui
       set => SetProperty(ref m_FileName, value);
     }
 
+    private async Task<IReadOnlyCollection<IColumn>> GetColumns()
+    {
+      await using IFileReader reader = CsvHelper.GetReaderFromDetectionResult(FileName, Detection);
+
+      await reader.OpenAsync(CancellationTokenSource.Token);
+      var (_, b) = await reader.FillGuessColumnFormatReaderAsyncReader(
+        new FillGuessSettings(),
+        null,
+        false,
+        true,
+        "NULL",
+        CancellationTokenSource.Token);
+      return b;
+    }
+
     public async Task OpenAsync()
     {
-      if (m_DetectionResult is null)
+      if (!string.IsNullOrEmpty(FileName))
       {
-        //var cpv = new ProgressTime();
-        //cpv.ProgressChanged += (_, p) =>
-        //{
-        //  var toast = Toast.Make(p.Text, ToastDuration.Short, 14);
-        //  toast.Show(CancellationTokenSource.Token);
-        //};
-        m_DetectionResult = await FileName.GetDetectionResultFromFile(false, true, true, true, true, true, false,
-          true, CancellationTokenSource.Token);
-      }
-
-      using (IFileReader reader = CsvHelper.GetReaderFromDetectionResult(FileName, m_DetectionResult))
-      {
-        DataTable = reader.GetDataTable(TimeSpan.FromMinutes(2d), false, false, false, false, false,
+        var setting = new PreferenceViewModel();
+        await using IFileReader reader = CsvHelper.GetReaderFromDetectionResult(FileName, Detection, await GetColumns());
+        await reader.OpenAsync(CancellationTokenSource.Token);
+        DataTable = reader.GetDataTable(TimeSpan.FromMinutes(2d), false, setting.DisplayStartLineNo, setting.DisplayRecordNo, false, false,
           CancellationTokenSource.Token);
-      }
-
-      {
-        var fr = new PagedFileReader(CsvHelper.GetReaderFromDetectionResult(FileName, m_DetectionResult), 20);
-        await fr.OpenAsync(false, false, false, false, CancellationTokenSource.Token);
-        SetProperty(ref m_FileReader, fr, nameof(Items));
       }
     }
 
@@ -64,7 +75,7 @@ namespace Maui
 
       FileName = fn;
       if (query.ContainsKey("DetectionResult"))
-        SetProperty(ref m_DetectionResult, (DelimitedFileDetectionResult) query["DetectionResult"], nameof(Detection));
+        Detection = (DelimitedFileDetectionResult) query["DetectionResult"];
     }
   }
 }
