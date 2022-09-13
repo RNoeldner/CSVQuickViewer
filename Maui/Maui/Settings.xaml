@@ -2,10 +2,98 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Maui.Settings"
+             xmlns:maui="clr-namespace:Maui"
              Title="Settings">
-    <StackLayout>
-        <Label Text="Welcome to .NET MAUI!"
-                VerticalOptions="Center" 
-                HorizontalOptions="Center" />
-    </StackLayout>
+    <ContentPage.BindingContext>
+        <maui:PreferenceViewModel x:Name="ViewModel" />
+    </ContentPage.BindingContext>
+    <ScrollView>
+        <Grid RowDefinitions="Auto,  Auto, Auto,  Auto, Auto,  Auto, Auto,  Auto, Auto,  Auto, Auto,  Auto, Auto,  Auto, Auto,  Auto, Auto,  Auto, Auto,  Auto, Auto,  Auto, Auto,  Auto, Auto,  Auto"
+              ColumnDefinitions="*,*">
+
+            <Label Grid.Row="0" Grid.ColumnSpan="2"  Text="File Format  Detection" Padding="2,2,2,2" FontSize="18" Background="{StaticResource Primary}" TextColor="{StaticResource White}"/>
+
+            <Label Grid.Row="1" Text="CodePage" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="1"  Grid.Column="1" IsToggled="{Binding GuessCodePage}" />
+
+
+            <Label Grid.Row="2" Text="Delimiter" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="2" Grid.Column="1"  IsToggled="{Binding GuessDelimiter}" />
+
+            <Label Grid.Row="3" Text="Qualifier / Quoting" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="3" Grid.Column="1" IsToggled="{Binding GuessQualifier}" />
+
+            <Label Grid.Row="4" Text="Has Header" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="4" Grid.Column="1"  IsToggled="{Binding GuessHasHeader}" />
+
+            <Label Grid.Row="5" Text="Start Row" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="5" Grid.Column="1"  IsToggled="{Binding GuessStartRow}" />
+
+            <Label Grid.Row="6" Text="Comment Line" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="6" Grid.Column="1"  IsToggled="{Binding GuessComment}" />
+
+
+            <Label Grid.Row="7" Grid.ColumnSpan="2"  Text="Display" Padding="2,2,2,2" FontSize="18" Background="{StaticResource Primary}" TextColor="{StaticResource White}"/>
+            <Label Grid.Row="8" Text="Add Line number" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="8" Grid.Column="1" IsToggled="{Binding DisplayStartLineNo}" />
+
+            <Label Grid.Row="9"  Text="Add Record number" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="9" Grid.Column="1" IsToggled="{Binding DisplayRecordNo}" />
+
+
+            <Label Grid.Row="10" Grid.ColumnSpan="2"  Text="Column Type Recognition" Padding="2,2,2,2" FontSize="18" Background="{StaticResource Primary}" TextColor="{StaticResource White}"/>
+            <Switch Grid.Row="10" Grid.Column="1" IsToggled="{Binding EnabledFillGuess}"/>
+
+            <Label Grid.Row="11"  Text="Ignore ID Columns" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="11" Grid.Column="1" IsToggled="{Binding IgnoreIdColumns}" IsEnabled="{Binding EnabledFillGuess}"/>
+
+            <Label Grid.Row="12"  Text="Detect Boolean" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="12" Grid.Column="1" IsToggled="{Binding DetectBoolean}" IsEnabled="{Binding EnabledFillGuess}"/>
+
+            <Label Grid.Row="13"  Text="Values for True / False" VerticalOptions="Center" HorizontalOptions="End"/>
+            <HorizontalStackLayout Grid.Row="13"  Grid.Column="1" Margin="5">
+                <Entry Placeholder="True" MaxLength="20" Text="{Binding TrueValue, FallbackValue='True'}" IsEnabled="{Binding EnabledFillGuess}" IsSpellCheckEnabled="true"/>
+                <Entry Placeholder="False" MaxLength="20" Text="{Binding FalseValue, FallbackValue='False'}" IsEnabled="{Binding EnabledFillGuess}" IsSpellCheckEnabled="true"/>
+            </HorizontalStackLayout>
+
+            <Label Grid.Row="15"  Text="Detect Date and Time" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="15" Grid.Column="1" IsToggled="{Binding DetectDateTime}" IsEnabled="{Binding EnabledFillGuess}"/>
+
+            <Label Grid.Row="16"  Text="Check for Named Dates" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="16" Grid.Column="1" IsToggled="{Binding CheckNamedDates}" IsEnabled="{Binding EnabledFillGuess}"/>
+
+            <Label Grid.Row="17"  Text="Check Date Parts" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="17" Grid.Column="1" IsToggled="{Binding DateParts}" IsEnabled="{Binding EnabledFillGuess}"/>
+
+            <Label Grid.Row="18"  Text="Check Serial Dates" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="18" Grid.Column="1" IsToggled="{Binding SerialDateTime}" IsEnabled="{Binding EnabledFillGuess}"/>
+
+            <Label Grid.Row="19"  Text="Detect Numbers" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="19" Grid.Column="1" IsToggled="{Binding DetectNumbers}" IsEnabled="{Binding EnabledFillGuess}"/>
+
+            <Label Grid.Row="20"  Text="Detect Percentage" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="20" Grid.Column="1" IsToggled="{Binding DetectPercentage}" IsEnabled="{Binding EnabledFillGuess}"/>
+
+            <Label Grid.Row="21"  Text="Detect GUID" VerticalOptions="Center" HorizontalOptions="End"/>
+            <Switch Grid.Row="21" Grid.Column="1" IsToggled="{Binding DetectGuid}" IsEnabled="{Binding EnabledFillGuess}"/>
+
+            <Label Grid.Row="22"  Text="Number of Records" VerticalOptions="Center" HorizontalOptions="End"/>
+            <VerticalStackLayout Grid.Row="22" Grid.Column="1" Margin="5" >
+                <Entry Text="{Binding CheckedRecords}" MaxLength="6"  IsEnabled="{Binding EnabledFillGuess}" IsSpellCheckEnabled="False" Keyboard="Numeric"/>
+                <Slider Value="{Binding CheckedRecords}" Minimum="0" Maximum="100000" IsEnabled="{Binding EnabledFillGuess}" HorizontalOptions="Fill"/>
+            </VerticalStackLayout>
+
+            <Label Grid.Row="23"  Text="Minimum Samples" VerticalOptions="Center" HorizontalOptions="End"/>
+            <VerticalStackLayout Grid.Row="23" Grid.Column="1" Margin="5" >
+                <Entry Placeholder="0" MaxLength="3" Text="{Binding MinSamples}" IsEnabled="{Binding EnabledFillGuess}" IsSpellCheckEnabled="False"  Keyboard="Numeric"/>
+                <Slider Value="{Binding MinSamples}" Minimum="1" Maximum="{Binding SampleValues}"  IsEnabled="{Binding EnabledFillGuess}" HorizontalOptions="Fill"/>
+            </VerticalStackLayout>
+
+            <Label Grid.Row="24"  Text="Sufficient Samples" VerticalOptions="Center" HorizontalOptions="End"/>
+            <VerticalStackLayout Grid.Row="24" Grid.Column="1" Margin="5" >
+                <Entry Placeholder="0" MaxLength="3" Text="{Binding SampleValues}" IsEnabled="{Binding EnabledFillGuess}" IsSpellCheckEnabled="False"  Keyboard="Numeric"/>
+                <Slider Value="{Binding SampleValues}" Minimum="0" Maximum="500"  IsEnabled="{Binding EnabledFillGuess}" HorizontalOptions="Fill"/>
+            </VerticalStackLayout>
+        </Grid>
+    </ScrollView>
 </ContentPage>

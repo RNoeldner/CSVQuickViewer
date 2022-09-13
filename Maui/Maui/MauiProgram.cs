@@ -20,10 +20,11 @@ namespace Maui
         });
       // Initialise the toolkit
       builder.UseMauiApp<App>().UseMauiCommunityToolkit();
-
+      Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NzE1MjcyQDMyMzAyZTMyMmUzMGFGaTZnK0FmbDhhMjRZSlpGUVV0UmRoNGFwT3diRUxGZWZWM1JXcmFYRE09");
       builder.ConfigureSyncfusionCore();
       builder.ConfigureSyncfusionDataGrid();
-
+      
+      
       return builder.Build();
     }
   }
