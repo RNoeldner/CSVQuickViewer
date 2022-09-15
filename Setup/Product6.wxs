@@ -5,25 +5,25 @@
   <?define ProductVersion="!(bind.FileVersion.ExecutableID)" ?>
   <?define Manufacturer="Raphael Nöldner" ?>
   <?define Application="CSV Quick Viewer" ?>
-  <?define ApplicationShort="CSVQuickViewer.Net472" ?>
+  <?define ApplicationShort="CSVQuickViewer" ?>
   <?define CSVQuickViewer.ProjectDir= "..\Application"?>
-  <?define CSVQuickViewer.TargetPath= "$(var.CSVQuickViewer.ProjectDir)\bin\Release\net472"?>
+  <?define CSVQuickViewer.TargetPath= "$(var.CSVQuickViewer.ProjectDir)\bin\Release\net6.0-windows"?>
 
-  <Product Id="*" Name="$(var.Application) $(var.ProductVersion) .Net472" Language="1033" Version="$(var.ProductVersion)" Manufacturer="$(var.Manufacturer)"
+  <Product Id="*" Name="$(var.Application) $(var.ProductVersion)" Language="1033" Version="$(var.ProductVersion)" Manufacturer="$(var.Manufacturer)"
            UpgradeCode="342F893E-A1DB-43C6-94FE-D2FED20CDEED" Codepage="utf-8">
     <Package Id="*" InstallerVersion="310" Compressed="yes" InstallScope="perUser" InstallPrivileges="limited" />
     <WixVariable Id="WixUILicenseRtf" Value="lgpl.rtf" />
 
     <Media Id="1" Cabinet="simple.cab" EmbedCab="yes" CompressionLevel="medium" />
     <MajorUpgrade AllowDowngrades="yes" />
-    <PropertyRef Id="NETFRAMEWORK45" />
-    <Condition Message="This application requires .NET Framework 4.72">
-      <![CDATA[Installed OR NETFRAMEWORK45]]>
+    <PropertyRef Id="NETFRAMEWORK60" />
+    <Condition Message="This application requires .NET 6.0">
+      <![CDATA[Installed OR NETFRAMEWORK60]]>
     </Condition>
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="AppDataFolder">
-        <Directory Id="AppRootDirectory" Name="CSVQuickViewer">
-          <Component Id="DefaultSetting" DiskId="1" Guid="AE676798-A9E3-45F5-A9C1-E44B240F54C9">
+        <Directory Id="AppRootDirectory" Name="$(var.ApplicationShort)">
+          <Component Id="DefaultSetting" DiskId="1" Guid="DE676798-A9E3-45F5-A9C1-E44B240F54C9">
             <CreateFolder />
             <RemoveFile Id="PurgeAppFolder" Name="*.*" On="uninstall" />
             <RemoveFolder Id="RemoveAppRootDirectory" On="uninstall" />
