@@ -144,7 +144,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Warning(ex, "ImprovedStream.Flush()");
+        Logger.Error(ex, ex.Message);
         // Ignore
       }
     }
