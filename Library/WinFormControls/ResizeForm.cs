@@ -9,6 +9,7 @@ namespace CsvTools
 {
   public class ResizeForm : Form
   {
+
     public ResizeForm()
     {
       SuspendLayout();
@@ -27,7 +28,7 @@ namespace CsvTools
       }
     }
 
-    private static float m_FontSize = SystemFonts.DefaultFont.Size;
+
 
     public static float FontSize
     {
@@ -41,8 +42,11 @@ namespace CsvTools
       }
     }
 
+#pragma warning disable CA1416 // Validate platform compatibility
+    private static float m_FontSize = SystemFonts.DefaultFont.Size;
     private void SetZoom() => SetFonts(this, new Font(SystemFonts.DialogFont.FontFamily, m_FontSize, FontStyle.Regular));
-    
+#pragma warning restore CA1416 // Validate platform compatibility
+
 
     private void FormMouseWheel(object? sender, MouseEventArgs e)
     {
@@ -63,7 +67,7 @@ namespace CsvTools
     /// <param name="font">The font with size to use</param>
     public static void SetFonts(Control container, Font font)
     {
-      if (!Equals(container.Font, font)) 
+      if (!Equals(container.Font, font))
         container.Font = font;
 
       foreach (Control ctrl in container.Controls)
@@ -71,7 +75,7 @@ namespace CsvTools
           SetFonts(cc, font);
         else
         {
-          if (Equals(ctrl.Font, font)) 
+          if (Equals(ctrl.Font, font))
             continue;
           ctrl.Font = font;
         }

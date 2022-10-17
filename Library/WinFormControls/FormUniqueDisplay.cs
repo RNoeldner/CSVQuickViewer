@@ -128,9 +128,12 @@ namespace CsvTools
           if (formProgress.CancellationToken.IsCancellationRequested)
             return;
           intervalAction.Invoke(formProgress, "Getting Unique values", rowIndex);
-          if (ignoreNull && m_DataRow[rowIndex].IsNull(dataColumnID.Ordinal)) 
+          var dataRow = m_DataRow[rowIndex];          
+          if (ignoreNull && dataRow.IsNull(dataColumnID.Ordinal)) 
             continue;
-          var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+          var id = dataRow[dataColumnID.Ordinal].ToString().Trim();
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
           if (!dictIDToRow.ContainsKey(id))
             dictIDToRow.Add(id, rowIndex);
         }

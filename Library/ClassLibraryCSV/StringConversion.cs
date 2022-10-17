@@ -856,13 +856,13 @@ namespace CsvTools
     ///   would fit the length of the value.
     /// </remarks>
     public static DateTime? StringToDateTimeExact(
-      in string? originalValue,
+      in string originalValue,
       in string dateFormats,
       in string dateSeparator,
       in string timeSeparator,
       in CultureInfo culture)
     {
-      var stringDateValue = (originalValue?.Trim() ?? string.Empty).Replace("\t", " ").Replace("  ", " ");
+      var stringDateValue = originalValue.Trim().Replace("\t", " ").Replace("  ", " ");
       if (stringDateValue.Length < StandardDateTimeFormats.MinLengthDate)
         return null;
 
@@ -904,36 +904,35 @@ namespace CsvTools
     /// <param name="allowPercentage">If set to true, a % will be recognized</param>
     /// <returns>An decimal if the value could be interpreted, <c>null</c> otherwise</returns>
     public static decimal? StringToDecimal(
-      in string? value,
+      in string value,
       in string decimalSeparator,
       in string groupSeparator,
       bool allowPercentage)
     {
+      // Remove any white space
+      var stringFieldValue = value.Trim();
       // in case nothing is passed in we are already done here
-      if (value == null || value.Length == 0)
+      if (stringFieldValue.Length == 0)
         return null;
 
       var decChar = decimalSeparator.StringToChar();
       var grpChar = groupSeparator.StringToChar();
-
-      // Remove any white space
-      var stringFieldValue = value.Trim();
 
       var hadDecimalSep = false;
       var lastPos = -3;
 
       // Sanity Check: In case the decimalSeparator occurs multiple times is not a number in case
       // the thousand separator are closer then 3 characters together
-      for (var pos = 0; pos < value.Length; pos++)
+      for (var pos = 0; pos < stringFieldValue.Length; pos++)
       {
-        if (value[pos] == decChar)
+        if (stringFieldValue[pos] == decChar)
         {
           if (hadDecimalSep)
             return null;
           hadDecimalSep = true;
         }
 
-        if (grpChar != '\0' && value[pos] == grpChar)
+        if (grpChar != '\0' && stringFieldValue[pos] == grpChar)
         {
           if (pos - lastPos < 4)
             return null;
@@ -941,7 +940,7 @@ namespace CsvTools
         }
       }
 
-      if (lastPos > 0 && value.Length - lastPos != 4)
+      if (lastPos > 0 && stringFieldValue.Length - lastPos != 4)
         return null;
 
       var numberFormatProvider = new NumberFormatInfo
@@ -1043,7 +1042,7 @@ namespace CsvTools
     /// <param name="decimalSeparator">The decimal separator.</param>
     /// <param name="thousandSeparator">The thousand separator.</param>
     /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
-    public static short? StringToInt16(in string? value, in string decimalSeparator, in string thousandSeparator)
+    public static short? StringToInt16(in string value, in string decimalSeparator, in string thousandSeparator)
     {
       if (string.IsNullOrEmpty(value))
         return null;
@@ -1068,7 +1067,7 @@ namespace CsvTools
     /// <param name="decimalSeparator">The decimal separator.</param>
     /// <param name="thousandSeparator">The thousand separator.</param>
     /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
-    public static int? StringToInt32(in string? value, in string decimalSeparator, in string thousandSeparator)
+    public static int? StringToInt32(in string value, in string decimalSeparator, in string thousandSeparator)
     {
       if (string.IsNullOrEmpty(value))
         return null;
@@ -1093,7 +1092,7 @@ namespace CsvTools
     /// <param name="decimalSeparator">The decimal separator.</param>
     /// <param name="thousandSeparator">The thousand separator.</param>
     /// <returns>An int if the value could be interpreted, <c>null</c> otherwise</returns>
-    public static long? StringToInt64(in string? value, in string decimalSeparator, in string thousandSeparator)
+    public static long? StringToInt64(in string value, in string decimalSeparator, in string thousandSeparator)
     {
       if (string.IsNullOrEmpty(value))
         return null;

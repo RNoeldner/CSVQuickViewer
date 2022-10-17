@@ -496,18 +496,21 @@ namespace CsvTools
           toolStripMenuItemSortDescending.Enabled = columnIndex > -1;
 
 
+#pragma warning disable CS8604 // Possible null reference argument.
           toolStripMenuItemSortAscending.Text = columnIndex > -1
                                                   ? string.Format(
                                                     CultureInfo.CurrentCulture,
                                                     Convert.ToString(toolStripMenuItemSortAscending.Tag),
                                                     Columns[columnIndex].DataPropertyName)
                                                   : "Sort ascending";
+
           toolStripMenuItemSortDescending.Text = columnIndex > -1
                                                    ? string.Format(
                                                      CultureInfo.CurrentCulture,
                                                      Convert.ToString(toolStripMenuItemSortDescending.Tag),
                                                      Columns[columnIndex].DataPropertyName)
                                                    : "Sort descending";
+#pragma warning restore CS8604 // Possible null reference argument.
           var columnFormat = GetColumnFormat(columnIndex);
           toolStripMenuItemCF.Visible = columnFormat != null;
           toolStripSeparatorCF.Visible = columnFormat != null;
@@ -619,16 +622,20 @@ namespace CsvTools
       {
         foreach (DataRow dataRow in rowCollection)
         {
-          if (dataRow?[col] is null)
+          var value = dataRow[col];
+          if (value is null)
             continue;
-
-          switch (dataRow[col].ToString().Length)
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+          switch (value.ToString().Length)
           {
             case > 80:
               return 350;
             case > 15:
               return 225;
+            default:
+              break;
           }
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
       }
       return 100;
@@ -881,8 +888,10 @@ namespace CsvTools
         foreach (DataRow row in DataView.Table.Rows)
         {
           var cellValue = row[col];
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
           if (cellValue is null || cellValue.ToString().IndexOf('\n') == -1)
             continue;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
           newColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
           break;
         }

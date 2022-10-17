@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -55,7 +56,7 @@ namespace CsvTools.Tests
         columnFilters[1].ColumnFilterLogic.Active = true;
 
         var text = ViewSetting.StoreViewSetting(dgv, columnFilters);
-        ViewSetting.ReStoreViewSetting(text, dgv.Columns, new List<ToolStripDataGridViewColumnFilter>(),
+        ViewSetting.ReStoreViewSetting(text, dgv.Columns, Array.Empty<ToolStripDataGridViewColumnFilter>(),
           i => columnFilters[i], null);
       }
     }
