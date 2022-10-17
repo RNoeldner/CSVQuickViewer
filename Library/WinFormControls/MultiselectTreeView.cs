@@ -177,7 +177,8 @@ namespace CsvTools
     protected override void OnBeforeSelect(TreeViewCancelEventArgs e)
     {
       base.OnBeforeSelect(e);
-
+      if (e.Node== null)
+        return;
       var bControl = ModifierKeys == Keys.Control;
       var bShift = ModifierKeys == Keys.Shift;
 
