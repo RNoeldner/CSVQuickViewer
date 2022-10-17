@@ -11,10 +11,6 @@
 		<ReleaseVersion>1.4.6.499</ReleaseVersion>
 		<AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <None Remove="App.config" />
-	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
 	</ItemGroup>

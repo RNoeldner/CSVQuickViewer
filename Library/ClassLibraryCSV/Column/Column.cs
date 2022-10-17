@@ -334,7 +334,7 @@ namespace CsvTools
       get => m_TimePart;
       set => SetField(ref m_TimePart, value, StringComparison.Ordinal);
     }
-
+       
     /// <summary>
     ///   Gets or sets the name.
     /// </summary>
@@ -346,6 +346,8 @@ namespace CsvTools
       get => m_TimePartFormat;
       set => SetField(ref m_TimePartFormat, value, StringComparison.Ordinal);
     }
+
+    public bool TimePartFormatSpecified =>  ValueFormatMutable.DataType == DataTypeEnum.DateTime && m_TimePartFormat != ImmutableColumn.cDefaultTimePartFormat;
 
     /// <summary>
     ///   Gets or sets the name.
