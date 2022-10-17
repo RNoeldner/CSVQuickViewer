@@ -172,11 +172,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
       // Fill Drop down
       cboCodePage.SuspendLayout();
-
       cboCodePage.DataSource = EncodingHelper.CommonCodePages.Select(cp => new DisplayItem<int>(cp, EncodingHelper.GetEncodingName(cp, false))).ToList();
-      cboRecordDelimiter.DisplayMember = nameof(DisplayItem<int>.Display);
-      cboRecordDelimiter.ValueMember = nameof(DisplayItem<int>.ID);
-      cboRecordDelimiter.SelectedValue = m_CsvFile.CodePageId;
       cboCodePage.ResumeLayout(true);
 
       var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterTypeEnum));
