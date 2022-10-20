@@ -320,10 +320,21 @@ namespace CsvTools
     {
       if (uiElement.IsDisposed)
         return;
-      if (uiElement.InvokeRequired)
-        uiElement.BeginInvoke(action);
-      else
-        action();
+
+      try
+      {
+        if (uiElement.InvokeRequired)
+        {
+          uiElement.BeginInvoke(action);
+          return;
+        }
+      }
+      catch
+      {
+        // sometimes there is an error acessing InvokeRequired
+        // if so ignore it and try to preforma the action anyway.
+      }
+      action();
     }
 
     /// <summary>

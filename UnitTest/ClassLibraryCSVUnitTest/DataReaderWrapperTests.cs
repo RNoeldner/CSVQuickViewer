@@ -1,6 +1,6 @@
 /*
 
-* Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+* Copyright (C) 2014 Raphael Nï¿½ldner : http://csvquickviewer.com
 *
 * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
 * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -63,10 +63,10 @@ namespace CsvTools.Tests
       var wrapper = new DataReaderWrapper(reader);
       await wrapper.ReadAsync(UnitTestStatic.Token);
 
-      Assert.AreEqual((float) -12086.66, wrapper.GetFloat(2));
-      Assert.AreEqual(-12086.66, wrapper.GetDouble(2));
-      Assert.AreEqual((decimal) -12086.66, wrapper.GetDecimal(2));
-      Assert.AreEqual((-12086.66).ToString(CultureInfo.InvariantCulture), wrapper.GetString(2));
+      Assert.AreEqual((float) -12086.66, wrapper.GetFloat(2),"float");
+      Assert.AreEqual(-12086.66, wrapper.GetDouble(2),"double");
+      Assert.AreEqual((decimal) -12086.66, wrapper.GetDecimal(2) , "decimal");
+      Assert.AreEqual((-12086.66).ToString(), wrapper.GetString(2) , "string");
     }
 
     [TestMethod()]

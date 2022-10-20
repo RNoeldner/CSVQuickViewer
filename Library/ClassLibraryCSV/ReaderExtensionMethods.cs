@@ -47,7 +47,7 @@ namespace CsvTools
         stringBuilder.Append(combineWith);
       }
 
-      return stringBuilder.ToString();
+      return stringBuilder.ToString().ToUpperInvariant();
     }
 
     /// <summary>

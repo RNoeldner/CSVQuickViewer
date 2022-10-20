@@ -15,6 +15,7 @@
 #nullable enable
 
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -178,11 +179,18 @@ namespace CsvTools.Tests
       MimicSql();
       Token = context.CancellationTokenSource.Token;
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
-
+      
+      Application.ThreadException += (sender, args) =>
+      {
+        if (!Token.IsCancellationRequested)
+          WriteToContext(args.Exception.ToString());
+        Assert.Fail(args.Exception.ToString());
+      };
       AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs args)
       {
         if (!Token.IsCancellationRequested)
           WriteToContext(args.ExceptionObject.ToString());
+        Assert.Fail(args.ExceptionObject.ToString());
       };
       TestLogger = new UnitTestLogger(context);
       Logger.LoggerInstance = TestLogger;
@@ -490,6 +498,11 @@ namespace CsvTools.Tests
       where T : Form
     {
       var frm = typed as Form;
+
+      var isClosed = false;
+      frm.FormClosed += (s,o) => 
+      isClosed=true;
+
       frm.TopMost = true;
       frm.ShowInTaskbar = false;
       try
@@ -503,17 +516,18 @@ namespace CsvTools.Tests
       }
 
       frm.Focus();
-      if (before > 0)
+      if (before > 0 && !isClosed)
         WaitSomeTime(before, token);
 
-      if (toDo != null)
+      if (toDo != null  && !isClosed)
       {
         toDo.Invoke(typed);
         if (after > 0)
           WaitSomeTime(after, token);
       }
 
-      frm.Close();
+      if (!isClosed)
+        frm.Close();
     }
   }
 }
