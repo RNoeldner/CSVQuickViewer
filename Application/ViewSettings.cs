@@ -23,7 +23,7 @@ namespace CsvTools
   ///   Class containing the all configuration, used in serialization to store the settings
   /// </summary>
   [Serializable]
-  public class ViewSettings : NotifyPropertyChangedBase
+  public sealed class ViewSettings : NotifyPropertyChangedBase
   {
     private bool m_AllowJson = true;
     private bool m_DetectFileChanges = true;
@@ -56,7 +56,7 @@ namespace CsvTools
 
     [XmlElement]
     [DefaultValue(false)]
-    public virtual bool DisplayRecordNo
+    public bool DisplayRecordNo
     {
       get => m_DisplayRecordNo;
       set => SetField(ref m_DisplayRecordNo, value);
@@ -64,7 +64,7 @@ namespace CsvTools
 
     [XmlElement]
     [DefaultValue(true)]
-    public virtual bool DisplayStartLineNo
+    public bool DisplayStartLineNo
     {
       get => m_DisplayStartLineNo;
       set => SetField(ref m_DisplayStartLineNo, value);
@@ -118,7 +118,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
-    public virtual FillGuessSettings FillGuessSettings
+    public FillGuessSettings FillGuessSettings
     {
       get => m_FillGuessSettings;
       set => SetField(ref m_FillGuessSettings, value);
@@ -129,7 +129,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if [fill guess settings specified]; otherwise, <c>false</c>.</value>
     [XmlIgnore]
-    public virtual bool FillGuessSettingsSpecified => !m_FillGuessSettings.Equals(new FillGuessSettings());
+    public bool FillGuessSettingsSpecified => !m_FillGuessSettings.Equals(new FillGuessSettings());
 
     [XmlAttribute]
     [DefaultValue(true)]
