@@ -13,6 +13,7 @@
  */
 #nullable enable
 
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
@@ -105,6 +106,7 @@ namespace CsvTools
     [XmlAttribute("Type")]
     //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(DataTypeEnum.String)]
+    [JsonProperty]
     public DataTypeEnum DataType
     {
       get => ValueFormatMutable.DataType;

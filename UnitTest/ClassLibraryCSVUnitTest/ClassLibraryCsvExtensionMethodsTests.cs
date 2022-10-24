@@ -65,7 +65,7 @@ namespace CsvTools.Tests
       csv.MappingCollection.Add(new Mapping("Test", "Test"));
       var ser = new XmlSerializer(typeof(CsvFile));
 
-      var res = ser.SerializeIndented(csv);
+      var res = csv.SerializeIndentedXml(ser);
       Assert.IsTrue(res.Contains("  "));
     }
 

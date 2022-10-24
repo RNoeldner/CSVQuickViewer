@@ -15,6 +15,8 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace CsvTools
@@ -24,7 +26,6 @@ namespace CsvTools
   /// </summary>
   public static class SerializedFilesLib
   {
-  
     private static readonly Lazy<XmlSerializer> m_SerializerCurrentCsvFile =
       new Lazy<XmlSerializer>(() => new XmlSerializer(typeof(CsvFile)));
 
@@ -33,14 +34,12 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static CsvFile LoadCsvFile(in string fileName)
+    public static CsvFile LoadCsvFile(string fileName)
     {
       using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
       using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
       return (CsvFile) m_SerializerCurrentCsvFile.Value.Deserialize(reader);
     }
-
-    
 
     /// <summary>
     ///   Saves the setting for a physical file
@@ -49,7 +48,7 @@ namespace CsvTools
     /// <param name="askOverwrite">
     ///   The function to decide if we want to overwrite, usually a user prompt
     /// </param>
-    public static void SaveSettingFile(in IFileSettingPhysicalFile fileSettingPhysicalFile, Func<bool> askOverwrite)
+    public static async Task SaveSettingFileAsync(IFileSettingPhysicalFile fileSettingPhysicalFile, Func<bool> askOverwrite, CancellationToken cancellationToken)
     {
       var fileName = fileSettingPhysicalFile.FileName + CsvFile.cCsvSettingExtension;
 
@@ -69,12 +68,16 @@ namespace CsvTools
           saveSetting.ColumnCollection.Add(col);
 
       Logger.Debug("Saving setting {path}", fileName);
-      string contend = m_SerializerCurrentCsvFile.Value.SerializeIndented(saveSetting);
-      
+      string contend = saveSetting.SerializeIndentedXml(m_SerializerCurrentCsvFile.Value);
+
       var delete = false;
       if (FileSystemUtils.FileExists(fileName))
       {
-        var fileContend = FileSystemUtils.ReadAllText(fileName);
+#if NETSTANDARD2_1_OR_GREATER
+        var fileContend = await FileSystemUtils.ReadAllTextAsync(fileName, cancellationToken).ConfigureAwait(false);
+#else
+      var fileContend =FileSystemUtils.ReadAllText(fileName);
+#endif
         // Check if we have actual changes
         if (fileContend.Equals(contend, StringComparison.OrdinalIgnoreCase))
           // what we want to write and what is written does mach, exit here do not save
@@ -89,7 +92,13 @@ namespace CsvTools
 
       if (delete)
         FileSystemUtils.DeleteWithBackup(fileName, false);
-      File.WriteAllText(fileName, contend);
+
+#if NETSTANDARD2_1_OR_GREATER
+      await FileSystemUtils.WriteAllTextAsync(fileName, contend, cancellationToken).ConfigureAwait(false);
+#else
+      FileSystemUtils.WriteAllText(fileName, contend);
+#endif
+
     }
   }
 }

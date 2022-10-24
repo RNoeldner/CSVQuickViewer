@@ -13,6 +13,7 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
@@ -23,14 +24,14 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(2000)]
-    public void DeleteWithBackupTest()
+    public async Task DeleteWithBackupTestAsync()
     {
       var file = GetCsvFile();
       FileSystemUtils.DeleteWithBackup(m_FileName, false);
       Assert.IsFalse(FileSystemUtils.FileExists(m_FileName));
       Assert.IsFalse(FileSystemUtils.FileExists(m_FileName + ".bak"));
 
-      SerializedFilesLib.SaveSettingFile(file, () => false);
+      await SerializedFilesLib.SaveSettingFileAsync(file, () => false, UnitTestStatic.Token);
       Assert.IsTrue(FileSystemUtils.FileExists(m_FileName));
       FileSystemUtils.DeleteWithBackup(m_FileName, false);
       Assert.IsFalse(FileSystemUtils.FileExists(m_FileName));
@@ -46,11 +47,11 @@ namespace CsvTools.Tests
 
 
     [TestMethod]
-    public void SaveAndLoadCsvFileTest()
+    public async Task SaveAndLoadCsvFileTestAsync()
     {
       var file = GetCsvFile();
       Assert.IsFalse(FileSystemUtils.FileExists(m_FileName));
-      SerializedFilesLib.SaveSettingFile(file, () => true);
+      await SerializedFilesLib.SaveSettingFileAsync(file, () => true, UnitTestStatic.Token);
       Assert.IsTrue(FileSystemUtils.FileExists(m_FileName));
       var test = SerializedFilesLib.LoadCsvFile(m_FileName);
 
@@ -65,7 +66,7 @@ namespace CsvTools.Tests
       // FileName and ID are not serialized
       test.FileName = file.FileName;
       test.ID = file.ID;
-      file.CheckAllPropertiesEqual(test, new []{"LastChange"});
+      file.CheckAllPropertiesEqual(test, new[] { "LastChange" });
       // Test Properties that are not tested
 
       Assert.AreEqual(file.MappingCollection.Count, test.MappingCollection.Count, "FieldMapping");
@@ -73,21 +74,21 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void SaveCsvFileTest()
+    public async Task SaveCsvFileTestAsync()
     {
       var file = GetCsvFile();
       file.ByteOrderMark = false;
       Assert.IsFalse(FileSystemUtils.FileExists(m_FileName));
       var asked = false;
-      SerializedFilesLib.SaveSettingFile(file, () => true);
+      await SerializedFilesLib.SaveSettingFileAsync(file, () => true, UnitTestStatic.Token);
       file.ByteOrderMark = true;
 
       Assert.IsTrue(FileSystemUtils.FileExists(m_FileName));
-      SerializedFilesLib.SaveSettingFile(file, () =>
+      await SerializedFilesLib.SaveSettingFileAsync(file, () =>
       {
         asked = true;
         return true;
-      });
+      }, UnitTestStatic.Token);
       Assert.IsTrue(asked);
     }
 

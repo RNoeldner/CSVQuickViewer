@@ -333,13 +333,13 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
-    private void FileDragDrop(object? sender, DragEventArgs e)
+    private async void FileDragDrop(object? sender, DragEventArgs e)
     {
       // Set the filename
       var files = (string[]) (e.Data?.GetData(DataFormats.FileDrop) ?? Array.Empty<string>());
       if (files.Length <= 0) return;
       if (WindowsAPICodePackWrapper.IsDialogOpen) return;
-      SaveIndividualFileSetting();
+      await SaveIndividualFileSettingAsync();
 
       LoadCsvFile(files[0], m_CancellationTokenSource.Token);
     }
@@ -407,13 +407,13 @@ namespace CsvTools
       fileSystemWatcher.EnableRaisingEvents = false;
     }
 
-    private void FileStored(object? sender, IFileSettingPhysicalFile e)
+    private async void FileStored(object? sender, IFileSettingPhysicalFile e)
     {
       fileSystemWatcher.Changed += FileSystemWatcher_Changed;
       fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
       m_ConfigChanged = false;
       if (m_ViewSettings.StoreSettingsByFile)
-        SerializedFilesLib.SaveSettingFile(e, () => true);
+        await SerializedFilesLib.SaveSettingFileAsync(e, () => true, m_CancellationTokenSource.Token);
     }
 
     /// <summary>
@@ -434,7 +434,7 @@ namespace CsvTools
     private async void FormMain_Activated(object? sender, EventArgs e) =>
       await CheckPossibleChange();
 
-    private void FormMain_FormClosing(object? sender, FormClosingEventArgs e)
+    private async void FormMain_FormClosing(object? sender, FormClosingEventArgs e)
     {
       if (!m_CancellationTokenSource.IsCancellationRequested)
       {
@@ -449,7 +449,7 @@ namespace CsvTools
       var res = this.StoreWindowState();
       m_ViewSettings.WindowPosition = res;
       m_ViewSettings.SaveViewSettings();
-      SaveIndividualFileSetting();
+      await SaveIndividualFileSettingAsync();
     }
 
     private async void FormMain_KeyUpAsync(object? sender, KeyEventArgs e)
@@ -547,18 +547,18 @@ namespace CsvTools
       }
     }
 
-    private void SaveIndividualFileSetting()
+    private async Task SaveIndividualFileSettingAsync()
     {
       try
       {
         if (m_FileSetting != null && m_ViewSettings.StoreSettingsByFile)
         {
           var fileName = m_FileSetting.FileName + CsvFile.cCsvSettingExtension;
-          SerializedFilesLib.SaveSettingFile(m_FileSetting,
+          await SerializedFilesLib.SaveSettingFileAsync(m_FileSetting,
             () => MessageBox.Show(
               $"Setting {FileSystemUtils.GetShortDisplayFileName(fileName, 50)} has been changed.\nReplace with new setting? ",
               "Settings",
-              MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes);
+              MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes, m_CancellationTokenSource.Token);
         }
 
         m_ConfigChanged = false;

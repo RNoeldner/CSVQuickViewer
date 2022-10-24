@@ -20,13 +20,9 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-
-#if !QUICK
-
 using System.Threading;
 using System.Threading.Tasks;
 
-#endif
 
 namespace CsvTools
 {
@@ -409,6 +405,11 @@ namespace CsvTools
     public static void WriteAllText(in string fileName, in string contents) =>
       File.WriteAllText(fileName.LongPathPrefix(), contents);
 
+#if NETSTANDARD2_1_OR_GREATER
+    public static Task WriteAllTextAsync(in string fileName, in string contents, CancellationToken cancellationToken) =>
+      File.WriteAllTextAsync(fileName.LongPathPrefix(), contents, cancellationToken);
+#endif
+
     public static void WriteAllText(in string fileName, in string contents, in Encoding encoding) =>
       File.WriteAllText(fileName.LongPathPrefix(), contents, encoding);
 
@@ -573,6 +574,11 @@ namespace CsvTools
     public static StreamWriter CreateText(in string path) => File.CreateText(path.LongPathPrefix());
 
     public static string ReadAllText(in string path) => File.ReadAllText(path.LongPathPrefix());
+
+#if NETSTANDARD2_1_OR_GREATER
+    public static Task<string> ReadAllTextAsync(string path, CancellationToken cancellationToken)
+      => File.ReadAllTextAsync(path.LongPathPrefix(), cancellationToken);
+#endif
 
     public static SplitResult SplitPath(string? path)
     {
