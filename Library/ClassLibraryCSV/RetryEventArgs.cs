@@ -2,7 +2,7 @@ using System;
 
 namespace CsvTools
 {
-  public class RetryEventArgs : EventArgs
+  public sealed class RetryEventArgs : EventArgs
   {
     public RetryEventArgs(Exception ex) => Exception = ex;
 

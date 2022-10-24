@@ -22,7 +22,7 @@ namespace CsvTools
   /// <summary>
   ///   A class to write structured Json Files
   /// </summary>
-  public class JsonFileWriter : StructuredFileWriter
+  public sealed class JsonFileWriter : StructuredFileWriter
   {
     private readonly bool m_EmptyAsNull;
 

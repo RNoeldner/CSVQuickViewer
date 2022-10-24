@@ -24,7 +24,7 @@ namespace CsvTools
   ///   Setting file for Json files, its an implementation of <see cref="T:CsvTools.StructuredFile" />
   /// </summary>
   [Serializable]
-  public class JsonFile : StructuredFile, IJsonFile
+  public sealed class JsonFile : StructuredFile, IJsonFile
   {
     private bool m_EmptyAsNull = true;
 

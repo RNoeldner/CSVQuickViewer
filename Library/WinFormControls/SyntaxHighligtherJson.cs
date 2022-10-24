@@ -3,7 +3,7 @@ using FastColoredTextBoxNS;
 
 namespace CsvTools
 {
-  public class SyntaxHighlighterJson : SyntaxHighlighterBase
+  public sealed class SyntaxHighlighterJson : SyntaxHighlighterBase
   {
     private readonly Regex m_JsonKeywordRegex = new Regex(@"(?<range>""([^\\""]|\\"")*"")\s*:",
       RegexOptions.Singleline | RegexCompiledOption);

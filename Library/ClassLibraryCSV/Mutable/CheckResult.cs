@@ -21,7 +21,7 @@ namespace CsvTools
   /// <summary>
   ///   Result of a format check, if the samples match a value type this is set, if not an example is give what did not match
   /// </summary>
-  public class CheckResult
+  public sealed  class CheckResult
   {
     public ICollection<string> ExampleNonMatch { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 

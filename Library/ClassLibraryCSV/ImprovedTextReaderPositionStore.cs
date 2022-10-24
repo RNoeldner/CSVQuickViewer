@@ -4,7 +4,7 @@ namespace CsvTools
   ///   This class will make sure we go back to the beginning when starting in the middle of a
   ///   stream and we reach the end.
   /// </summary>
-  public class ImprovedTextReaderPositionStore
+  public sealed class ImprovedTextReaderPositionStore
   {
     private readonly ImprovedTextReader m_ImprovedTextReader;
 

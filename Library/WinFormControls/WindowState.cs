@@ -11,7 +11,7 @@ namespace CsvTools
   using System.Xml.Serialization;
 
   [Serializable]
-  public class WindowState : IEqualityComparer<WindowState>
+  public sealed class WindowState : IEqualityComparer<WindowState>
   {
     public WindowState()
     {

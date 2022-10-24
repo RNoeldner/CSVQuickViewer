@@ -22,7 +22,7 @@ namespace CsvTools
   /// <summary>
   ///   A class to write structured XML Files
   /// </summary>
-  public class XmlFileWriter : StructuredFileWriter
+  public sealed class XmlFileWriter : StructuredFileWriter
   {
     /// <summary>
     ///   Initializes a new instance of the <see cref="XmlFileWriter" /> class.

@@ -21,7 +21,7 @@ namespace CsvTools
   /// <summary>
   ///   Event Arguments for Finding a text in a DataGridView
   /// </summary>
-  public class FoundEventArgs : EventArgs
+  public sealed class FoundEventArgs : EventArgs
   {
     /// <summary>
     ///   Initializes a new instance of the <see cref="FoundEventArgs" /> class.

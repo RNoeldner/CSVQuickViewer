@@ -1,9 +1,7 @@
 namespace CsvTools
 {
-  public class DetailControlLoader : TwoStepDataTableLoader
+  public sealed class DetailControlLoader : TwoStepDataTableLoader
   {
-
-
     public DetailControlLoader(DetailControl detailControl) : base(
       actionSetDataTable: table => detailControl.DataTable = table,
       getDataTable: () => detailControl.DataTable,

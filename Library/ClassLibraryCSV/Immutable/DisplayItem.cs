@@ -17,7 +17,7 @@ namespace CsvTools
   /// <summary>
   ///   Display Items are used for combo boxes
   /// </summary>
-  public class DisplayItem<T>
+  public sealed class DisplayItem<T>
   {
     /// <summary>
     ///   Initializes a new instance of the DisplayItem class.

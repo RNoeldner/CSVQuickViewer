@@ -16,7 +16,7 @@ using System;
 
 namespace CsvTools
 {
-  public class DateTimeFormatInformation
+  public sealed class DateTimeFormatInformation
   {
     /// <summary>
     ///   Initializes a new instance of the <see cref="DateTimeFormatInformation" /> class.

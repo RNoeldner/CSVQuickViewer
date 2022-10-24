@@ -24,7 +24,7 @@ namespace CsvTools
   /// <summary>
   ///   ValueClusterCollection
   /// </summary>
-  public class ValueClusterCollection
+  public sealed class ValueClusterCollection
   {
     private const long cTicksPerGroup = TimeSpan.TicksPerMinute * 30;
 

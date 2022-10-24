@@ -25,7 +25,7 @@ namespace CsvTools
   ///   and trying to find a pattern, this is best when identify able columns alternate, if all rows
   ///   are long text or all empty there is no way to say which column is not aligned.
   /// </summary>
-  public class ReAlignColumns
+  public sealed class ReAlignColumns
   {
     private const int cMaxGoodRows = 40;
     private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());

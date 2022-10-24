@@ -25,7 +25,7 @@ namespace CsvTools
   /// <remarks>
   ///   In theory every aspect is configurable, in practice only the Style needs to be changed
   /// </remarks>
-  public class HtmlStyle
+  public sealed class HtmlStyle
   {
     public const string cStyle = "<STYLE type=\"text/css\">\r\n"
                                  + "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n"

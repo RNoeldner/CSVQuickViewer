@@ -18,7 +18,7 @@ using System.Globalization;
 
 namespace CsvTools
 {
-  public class DelimiterCounter
+  public sealed class DelimiterCounter
   {
     // Added INFORMATION SEPARATOR ONE to FOUR
     private const string cDefaultSeparators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
