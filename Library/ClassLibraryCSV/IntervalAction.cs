@@ -20,7 +20,7 @@ namespace CsvTools
   /// <summary>
   ///   Class to notify only after a given period of time
   /// </summary>
-  public class IntervalAction
+  public sealed class IntervalAction
   {
     private DateTime m_LastNotification = DateTime.MinValue;
 

@@ -26,7 +26,7 @@ namespace CsvTools
   /// <summary>
   ///   Class to provide HTML Copy and Past functionality to a DataGrid
   /// </summary>
-  public class DataGridViewCopyPaste
+  public sealed class DataGridViewCopyPaste
   {
     /// <summary>
     ///   The column header for error information

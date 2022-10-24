@@ -21,7 +21,7 @@ namespace CsvTools
   /// <summary>
   ///   Contains all information needed to access the input or output
   /// </summary>
-  public class SourceAccess
+  public sealed class SourceAccess
   {
     /// <summary>
     ///   Type of the file

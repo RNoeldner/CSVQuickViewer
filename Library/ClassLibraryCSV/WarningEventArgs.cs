@@ -21,7 +21,7 @@ namespace CsvTools
   /// <summary>
   ///   Argument for a WarningEvent
   /// </summary>
-  public class WarningEventArgs : EventArgs
+  public sealed class WarningEventArgs : EventArgs
   {
     /// <summary>
     ///   Initializes a new instance of the <see cref="WarningEventArgs" /> class.

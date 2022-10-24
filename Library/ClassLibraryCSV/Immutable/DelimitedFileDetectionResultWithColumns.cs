@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace CsvTools
 {
-  public class DelimitedFileDetectionResultWithColumns : DelimitedFileDetectionResult
+  public sealed class DelimitedFileDetectionResultWithColumns : DelimitedFileDetectionResult
   {
     
     private readonly string m_ColumnFile;

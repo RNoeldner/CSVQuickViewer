@@ -17,7 +17,7 @@ using System.Linq;
 
 namespace CsvTools
 {
-  public class DateTimeFormatCollection
+  public sealed class DateTimeFormatCollection
   {
     /// <summary>
     ///   A lookup for minimum and maximum length by format description

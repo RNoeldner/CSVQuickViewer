@@ -23,7 +23,7 @@ namespace CsvTools
   ///   This is not thread safe, each thread should have its own TimeToCompletion.
   ///   Based on velocity of last 5 seconds the remaining time is calculated, the Percentage is based on real values though
   /// </summary>
-  public class TimeToCompletion
+  public sealed class TimeToCompletion
   {
     public static readonly TimeSpan Max = TimeSpan.FromDays(2);
     private readonly TimeSpan m_MaximumAge;

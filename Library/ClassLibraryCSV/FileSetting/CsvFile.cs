@@ -26,7 +26,7 @@ namespace CsvTools
   ///   Setting file for CSV files, its an implementation of <see cref="T:CsvTools.BaseSettings" />
   /// </summary>
   [Serializable]
-  public class CsvFile : BaseSettingPhysicalFile, ICsvFile
+  public sealed class CsvFile : BaseSettingPhysicalFile, ICsvFile
   {
     private const bool cContextSensitiveQualifierDefault = false;
     private const bool cQualifyAlwaysDefault = false;
@@ -113,7 +113,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The current encoding.</value>
     [XmlIgnore]
-    public virtual Encoding CurrentEncoding
+    public Encoding CurrentEncoding
     {
       get => m_CurrentEncoding;
       set => m_CurrentEncoding = value;
@@ -122,7 +122,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cContextSensitiveQualifierDefault)]
-    public virtual bool ContextSensitiveQualifier
+    public bool ContextSensitiveQualifier
     {
       get => m_ContextSensitiveQualifier;
       set
@@ -145,7 +145,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cCommentLineDefault)]
-    public virtual string CommentLine
+    public string CommentLine
     {
       get => m_CommentLine;
       set
@@ -161,7 +161,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cDelimiterPlaceholderDefault)]
-    public virtual string DelimiterPlaceholder
+    public string DelimiterPlaceholder
     {
       get => m_DelimiterPlaceholder;
       set
@@ -177,7 +177,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cDuplicateQualifierToEscapeDefault)]
-    public virtual bool DuplicateQualifierToEscape
+    public bool DuplicateQualifierToEscape
     {
       get => m_DuplicateQualifierToEscape;
       set
@@ -189,12 +189,12 @@ namespace CsvTools
       }
     }
 
-    [XmlIgnore] public virtual char EscapePrefixChar => m_EscapePrefixChar;
+    [XmlIgnore] public char EscapePrefixChar => m_EscapePrefixChar;
 
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cEscapePrefixDefault)]
-    public virtual string EscapePrefix
+    public string EscapePrefix
     {
       get => m_EscapePrefix;
       set
@@ -212,7 +212,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cFieldDelimiterDefault)]
-    public virtual string FieldDelimiter
+    public string FieldDelimiter
     {
       get => m_FieldDelimiter;
       set
@@ -229,12 +229,12 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlIgnore]
-    public virtual char FieldDelimiterChar => m_FieldDelimiterChar;
+    public char FieldDelimiterChar => m_FieldDelimiterChar;
 
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cFieldQualifierDefault)]
-    public virtual string FieldQualifier
+    public string FieldQualifier
     {
       get => m_FieldQualifier;
       set
@@ -251,17 +251,17 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlIgnore]
-    public virtual char FieldQualifierChar => m_FieldQualifierChar;
+    public char FieldQualifierChar => m_FieldQualifierChar;
 
     /// <inheritdoc />
     [XmlIgnore]
     [Obsolete("Check FieldDelimiterChar instead")]
-    public virtual bool IsFixedLength => string.IsNullOrEmpty(m_FieldDelimiter);
+    public bool IsFixedLength => string.IsNullOrEmpty(m_FieldDelimiter);
 
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cNewLineDefault)]
-    public virtual RecordDelimiterTypeEnum NewLine
+    public RecordDelimiterTypeEnum NewLine
     {
       get => m_NewLine;
 
@@ -277,7 +277,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cNewLinePlaceholderDefault)]
-    public virtual string NewLinePlaceholder
+    public string NewLinePlaceholder
     {
       get => m_NewLinePlaceholder;
       set
@@ -293,7 +293,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cQualifyAlwaysDefault)]
-    public virtual bool QualifyAlways
+    public bool QualifyAlways
     {
       get => m_QualifyAlways;
       set
@@ -310,7 +310,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cQualifyOnlyIfNeededDefault)]
-    public virtual bool QualifyOnlyIfNeeded
+    public bool QualifyOnlyIfNeeded
     {
       get => m_QualifyOnlyIfNeeded;
 
@@ -328,7 +328,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(cQuotePlaceholderDefault)]
-    public virtual string QualifierPlaceholder
+    public string QualifierPlaceholder
     {
       get => m_QualifierPlaceholder;
       set
@@ -343,7 +343,7 @@ namespace CsvTools
 
     [XmlAttribute]
     [DefaultValue(false)]
-    public virtual bool AllowRowCombining
+    public bool AllowRowCombining
     {
       get => m_AllowRowCombining;
 
@@ -358,7 +358,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlIgnore]
-    public virtual bool NoDelimitedFile
+    public bool NoDelimitedFile
     {
       get => m_NoDelimitedFile;
 
@@ -374,7 +374,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlElement]
     [DefaultValue(0)]
-    public virtual int NumWarnings
+    public int NumWarnings
     {
       get => m_NumWarnings;
 
@@ -390,7 +390,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
-    public virtual bool TreatLfAsSpace
+    public bool TreatLfAsSpace
     {
       get => m_TreatLfAsSpace;
 
@@ -406,7 +406,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
-    public virtual bool TreatUnknownCharacterAsSpace
+    public bool TreatUnknownCharacterAsSpace
     {
       get => m_TreatUnknownCharacterAsSpace;
 
@@ -422,7 +422,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
-    public virtual bool TryToSolveMoreColumns
+    public bool TryToSolveMoreColumns
     {
       get => m_TryToSolveMoreColumns;
 
@@ -438,7 +438,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
-    public virtual bool WarnDelimiterInValue
+    public bool WarnDelimiterInValue
     {
       get => m_WarnDelimiterInValue;
 
@@ -454,7 +454,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute(AttributeName = "WarnEmptyTailingColumns")]
     [DefaultValue(true)]
-    public virtual bool WarnEmptyTailingColumns
+    public bool WarnEmptyTailingColumns
     {
       get => m_WarnEmptyTailingColumns;
 
@@ -470,7 +470,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
-    public virtual bool WarnLineFeed
+    public bool WarnLineFeed
     {
       get => m_WarnLineFeed;
 
@@ -486,7 +486,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(true)]
-    public virtual bool WarnNBSP
+    public bool WarnNBSP
     {
       get => m_WarnNbsp;
 
@@ -502,7 +502,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(false)]
-    public virtual bool WarnQuotes
+    public bool WarnQuotes
     {
       get => m_WarnQuotes;
 
@@ -518,7 +518,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(true)]
-    public virtual bool WarnQuotesInQuotes
+    public bool WarnQuotesInQuotes
     {
       get => m_WarnQuotesInQuotes;
 
@@ -534,7 +534,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(true)]
-    public virtual bool WarnUnknownCharacter
+    public bool WarnUnknownCharacter
     {
       get => m_WarnUnknownCharacter;
 
@@ -599,7 +599,7 @@ namespace CsvTools
     public override bool Equals(IFileSetting? other) => Equals(other as ICsvFile);
 
     /// <inheritdoc />
-    public virtual bool Equals(ICsvFile? other)
+    public bool Equals(ICsvFile? other)
     {
       if (other is null)
         return false;

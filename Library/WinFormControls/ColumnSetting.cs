@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace CsvTools
 {
-  public class ColumnSetting
+  public sealed class ColumnSetting
   {
     public ColumnSetting(string dataPropertyName, bool visible, int sorted, int displayIndex, int width)
     {

@@ -14,7 +14,7 @@
 
 namespace CsvTools
 {
-  public class ProgressInfo
+  public sealed class ProgressInfo
   {
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.ProgressInfo" /> class.

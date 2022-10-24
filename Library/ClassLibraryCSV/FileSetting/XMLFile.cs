@@ -22,7 +22,7 @@ namespace CsvTools
   ///   Setting file for XML files, its an implementation of <see cref="T:CsvTools.StructuredFile" />
   /// </summary>
   [Serializable]
-  public class XmlFile : StructuredFile, IXmlFile
+  public sealed class XmlFile : StructuredFile, IXmlFile
 
   {
     /// <inheritdoc />

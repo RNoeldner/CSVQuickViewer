@@ -20,7 +20,7 @@ using FastColoredTextBoxNS;
 
 namespace CsvTools
 {
-  public class SyntaxHighlighterDelimitedText : SyntaxHighlighterBase
+  public sealed class SyntaxHighlighterDelimitedText : SyntaxHighlighterBase
   {
     private readonly Regex? m_CommentRegex;
     private readonly Regex m_DelimiterRegex;

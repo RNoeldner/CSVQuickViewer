@@ -128,7 +128,7 @@ namespace CsvTools
     {
       if (m_DataReaderWrapper is null)
         return;
-      
+
       var dt = await m_DataReaderWrapper.GetDataTableAsync(
         maxDuration,
         restoreError,

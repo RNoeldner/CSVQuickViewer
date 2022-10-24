@@ -9,7 +9,7 @@ namespace CsvTools
   ///   Handles mapping of a data reader to a resulting data reader columns ignored will be omitted
   ///   and artificial columns for Line, record and error information is added
   /// </summary>
-  public class ReaderMapping
+  public sealed class ReaderMapping
   {
     public readonly int DataTableEndLine;
 

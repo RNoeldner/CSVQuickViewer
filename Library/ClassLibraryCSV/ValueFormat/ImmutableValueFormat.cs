@@ -18,7 +18,7 @@ using System;
 namespace CsvTools
 {
   /// <inheritdoc cref="CsvTools.IValueFormat" />
-  public class ImmutableValueFormat : IValueFormat, IEquatable<ImmutableValueFormat>
+  public sealed class ImmutableValueFormat : IValueFormat, IEquatable<ImmutableValueFormat>
   {
     public ImmutableValueFormat(IValueFormat valueFormat) : this(valueFormat.DataType, valueFormat.DateFormat,
       valueFormat.DateSeparator, valueFormat.TimeSeparator, valueFormat.NumberFormat, valueFormat.GroupSeparator,

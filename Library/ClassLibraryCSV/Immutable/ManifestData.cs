@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  public class ManifestData
+  public sealed class ManifestData
   {
     internal const string cCsvManifestExtension = ".manifest.json";
 

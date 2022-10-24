@@ -27,7 +27,7 @@ namespace CsvTools
   /// <summary>
   ///   A Class to write CSV Files
   /// </summary>
-  public class CsvFileWriter : BaseFileWriter, IFileWriter
+  public sealed class CsvFileWriter : BaseFileWriter, IFileWriter
   {
     private readonly bool m_ByteOrderMark;
     private readonly int m_CodePageId;
