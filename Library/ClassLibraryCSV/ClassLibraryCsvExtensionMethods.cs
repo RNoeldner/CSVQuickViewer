@@ -26,6 +26,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 #if !QUICK
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,18 +52,36 @@ namespace CsvTools
         });
 
     /// <summary>
-    /// Serialize an object for formatting
-    /// </summary>
-    /// <param name="serializer">The serializer for teh passed in object</param>
+    /// Serialize an object with formatting
+    /// </summary>    
     /// <param name="data">The object to be serialized</param>
-    /// <returns>THe XML string</returns>
-    public static string SerializeIndented(this XmlSerializer serializer, object data)
+    /// <param name="serializer">The serializer for the passed in object</param>
+    /// <returns>The XML string</returns>
+    public static string SerializeIndentedXml(this object data, in XmlSerializer serializer)
     {
       using var stringWriter = new StringWriter();
       using var textWriter = new XmlTextWriter(stringWriter);
-      textWriter.Formatting = Formatting.Indented;
+      textWriter.Formatting = System.Xml.Formatting.Indented;      
       serializer.Serialize(textWriter, data, m_EmptyXmlSerializerNamespaces.Value);
       return stringWriter.ToString();
+    }
+
+    /// <summary>
+    /// Serialize an object with formatting
+    /// </summary>    
+    /// <param name="data">The object to be serialized</param>
+    /// <returns>The resulting Json string</returns>
+    public static string SerializeIndentedJson(this object data)
+    {
+      return JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented,
+           new JsonSerializerSettings
+           {
+             DefaultValueHandling = DefaultValueHandling.Ignore,
+             NullValueHandling = NullValueHandling.Ignore,
+             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+             DateFormatHandling = DateFormatHandling.IsoDateFormat,
+             DateTimeZoneHandling = DateTimeZoneHandling.Utc
+           });
     }
 
     /// <summary>
@@ -72,7 +91,7 @@ namespace CsvTools
     /// <param name="oldIndex">The position of the item to move from</param>
     /// <param name="newIndex">The position of the item to move to</param>
     [DebuggerStepThrough]
-    public static void Move<T>(this IList<T> list, int oldIndex, int newIndex) 
+    public static void Move<T>(this IList<T> list, int oldIndex, int newIndex)
     {
       if (oldIndex== newIndex)
         return;
@@ -397,7 +416,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable" /> containing the columns</param>
     /// <returns>A enumeration of <see cref="DataColumn" /></returns>
-    public static IEnumerable<DataColumn> GetRealDataColumns(this DataTable dataTable) => 
+    public static IEnumerable<DataColumn> GetRealDataColumns(this DataTable dataTable) =>
       dataTable.Columns.Cast<DataColumn>().Where(col => !ReaderConstants.ArtificialFields.Contains(col.ColumnName));
 
     /// <summary>

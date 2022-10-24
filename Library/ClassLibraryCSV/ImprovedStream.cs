@@ -20,7 +20,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
-using ZipFile = ICSharpCode.SharpZipLib.Zip.ZipFile;
 
 namespace CsvTools
 {
@@ -33,7 +32,7 @@ namespace CsvTools
 
     protected readonly SourceAccess SourceAccess;
 
-    private ZipFile? m_ZipFile;
+    private ICSharpCode.SharpZipLib.Zip.ZipFile? m_ZipFile;
 
     protected Stream BaseStream { get; private set; }
 
@@ -289,7 +288,7 @@ namespace CsvTools
     {
       if (SourceAccess.Reading)
       {
-        m_ZipFile = new ZipFile(BaseStream, SourceAccess.LeaveOpen);
+        m_ZipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream, SourceAccess.LeaveOpen);
 
         if (!string.IsNullOrEmpty(SourceAccess.EncryptedPassphrase))
           m_ZipFile.Password = SourceAccess.EncryptedPassphrase;
@@ -344,7 +343,7 @@ namespace CsvTools
         var cleanName = ZipEntry.CleanName(SourceAccess.IdentifierInContainer);
         var copyOtherFiles = false;
         // Check the stream if it already contains the file; if so remove the old file
-        using (var zipFileTest = new ZipFile(BaseStream, true))
+        using (var zipFileTest = new ICSharpCode.SharpZipLib.Zip.ZipFile(BaseStream, true))
         {
           var entryEnumerator = zipFileTest.GetEnumerator();
           while (entryEnumerator.MoveNext())
@@ -369,7 +368,7 @@ namespace CsvTools
 
             // build a new Zip file with the contend of the old one but export the file we are about
             // to write
-            using var zipFile = new ZipFile(File.OpenRead(tmpName));
+            using var zipFile = new ICSharpCode.SharpZipLib.Zip.ZipFile(File.OpenRead(tmpName));
             var entryEnumerator = zipFile.GetEnumerator();
             while (entryEnumerator.MoveNext())
             {

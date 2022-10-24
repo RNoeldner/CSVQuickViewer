@@ -44,7 +44,7 @@ namespace CsvTools
       if (!FileSystemUtils.DirectoryExists(m_SettingFolder))
         FileSystemUtils.CreateDirectory(m_SettingFolder);
 
-      var newContend = m_SerializerViewSettings.SerializeIndented(viewSettings);
+      var newContend = viewSettings.SerializeIndentedXml(m_SerializerViewSettings);
       var oldContend = FileSystemUtils.FileExists(m_SettingPath) ? FileSystemUtils.ReadAllText(m_SettingPath) : string.Empty;
       if (!newContend.Equals(oldContend))
       {
