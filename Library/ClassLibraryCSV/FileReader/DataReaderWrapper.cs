@@ -309,7 +309,7 @@ namespace CsvTools
       return couldRead;
     }
     /// <inheritdoc />
-    public virtual IColumn GetColumn(int column) => ReaderMapping.Column[column];
+    public IColumn GetColumn(int column) => ReaderMapping.Column[column];
 
     /// <inheritdoc />
     [Obsolete("No need to open a DataReaderWrapper")]
