@@ -34,7 +34,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static CsvFile LoadCsvFile(string fileName)
+    public static CsvFile LoadCsvFile(in string fileName)
     {
       using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
       using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
