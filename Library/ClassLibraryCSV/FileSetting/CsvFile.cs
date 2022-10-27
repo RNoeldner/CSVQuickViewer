@@ -13,6 +13,7 @@
  */
 #nullable enable
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -51,7 +52,8 @@ namespace CsvTools
 
     private bool m_ContextSensitiveQualifier = cContextSensitiveQualifierDefault;
 
-    [NonSerialized] private Encoding m_CurrentEncoding = Encoding.UTF8;
+    [NonSerialized] 
+    private Encoding m_CurrentEncoding = Encoding.UTF8;
     private string m_DelimiterPlaceholder = cDelimiterPlaceholderDefault;
     private bool m_DuplicateQualifierToEscape = cDuplicateQualifierToEscapeDefault;
     private string m_EscapePrefix = cEscapePrefixDefault;
@@ -103,6 +105,7 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.CsvFile" /> class.
     /// </summary>
+    [Obsolete("Only needed for XML Serialization")]
     public CsvFile()
       : this(string.Empty)
     {
@@ -113,6 +116,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The current encoding.</value>
     [XmlIgnore]
+    [JsonIgnore]
     public Encoding CurrentEncoding
     {
       get => m_CurrentEncoding;
@@ -189,7 +193,9 @@ namespace CsvTools
       }
     }
 
-    [XmlIgnore] public char EscapePrefixChar => m_EscapePrefixChar;
+    [XmlIgnore] 
+    [JsonIgnore]
+    public char EscapePrefixChar => m_EscapePrefixChar;
 
     /// <inheritdoc />
     [XmlAttribute]
@@ -229,6 +235,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlIgnore]
+    [JsonIgnore]
     public char FieldDelimiterChar => m_FieldDelimiterChar;
 
     /// <inheritdoc />
@@ -251,10 +258,12 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlIgnore]
+    [JsonIgnore]
     public char FieldQualifierChar => m_FieldQualifierChar;
 
     /// <inheritdoc />
     [XmlIgnore]
+    [JsonIgnore]
     [Obsolete("Check FieldDelimiterChar instead")]
     public bool IsFixedLength => string.IsNullOrEmpty(m_FieldDelimiter);
 
@@ -358,6 +367,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlIgnore]
+    [JsonIgnore]
     public bool NoDelimitedFile
     {
       get => m_NoDelimitedFile;
@@ -550,7 +560,7 @@ namespace CsvTools
     /// <inheritdoc />
     public override object Clone()
     {
-      var other = new CsvFile();
+      var other = new CsvFile(FileName);
       CopyTo(other);
       return other;
     }
@@ -638,80 +648,80 @@ namespace CsvTools
       if (other is ICsvFile csv)
       {
         if (m_NoDelimitedFile != csv.NoDelimitedFile)
-          yield return $"NoDelimitedFile: {NoDelimitedFile} {csv.NoDelimitedFile}";
+          yield return $"{nameof(NoDelimitedFile)}: {NoDelimitedFile} {csv.NoDelimitedFile}";
 
         if (m_NumWarnings != csv.NumWarnings)
-          yield return $"NumWarnings: {NumWarnings} {csv.NumWarnings}";
+          yield return $"{nameof(NumWarnings)}: {NumWarnings} {csv.NumWarnings}";
 
         if (m_TreatUnknownCharacterAsSpace != csv.TreatUnknownCharacterAsSpace)
           yield return
             $"TreatUnknownCharacterAsSpace: {TreatUnknownCharacterAsSpace} {csv.TreatUnknownCharacterAsSpace}";
 
         if (m_WarnDelimiterInValue != csv.WarnDelimiterInValue)
-          yield return $"WarnDelimiterInValue: {WarnDelimiterInValue} {csv.WarnDelimiterInValue}";
+          yield return $"{nameof(WarnDelimiterInValue)}: {WarnDelimiterInValue} {csv.WarnDelimiterInValue}";
 
         if (m_WarnEmptyTailingColumns != csv.WarnEmptyTailingColumns)
-          yield return $"WarnEmptyTailingColumns: {WarnEmptyTailingColumns} {csv.WarnEmptyTailingColumns}";
+          yield return $"{nameof(WarnEmptyTailingColumns)}: {WarnEmptyTailingColumns} {csv.WarnEmptyTailingColumns}";
 
         if (m_WarnLineFeed != csv.WarnLineFeed)
-          yield return $"WarnLineFeed: {WarnLineFeed} {csv.WarnLineFeed}";
+          yield return $"{nameof(WarnLineFeed)}: {WarnLineFeed} {csv.WarnLineFeed}";
 
         if (m_TryToSolveMoreColumns != csv.TryToSolveMoreColumns)
-          yield return $"TryToSolveMoreColumns: {TryToSolveMoreColumns} {csv.TryToSolveMoreColumns}";
+          yield return $"{nameof(TryToSolveMoreColumns)}: {TryToSolveMoreColumns} {csv.TryToSolveMoreColumns}";
 
         if (m_AllowRowCombining != csv.AllowRowCombining)
-          yield return $"AllowRowCombining: {AllowRowCombining} {csv.AllowRowCombining}";
+          yield return $"{nameof(AllowRowCombining)}: {AllowRowCombining} {csv.AllowRowCombining}";
 
         if (m_TreatLfAsSpace != csv.TreatLfAsSpace)
-          yield return $"TreatLFAsSpace: {TreatLfAsSpace} {csv.TreatLfAsSpace}";
+          yield return $"{nameof(TreatLfAsSpace)}: {TreatLfAsSpace} {csv.TreatLfAsSpace}";
 
         if (m_WarnNbsp != csv.WarnNBSP)
-          yield return $"WarnNBSP: {WarnNBSP} {csv.WarnNBSP}";
+          yield return $"{nameof(WarnNBSP)}: {WarnNBSP} {csv.WarnNBSP}";
 
         if (m_WarnQuotesInQuotes != csv.WarnQuotesInQuotes)
-          yield return $"WarnQuotesInQuotes: {WarnQuotesInQuotes} {csv.WarnQuotesInQuotes}";
+          yield return $"{nameof(WarnQuotesInQuotes)}: {WarnQuotesInQuotes} {csv.WarnQuotesInQuotes}";
 
         if (m_WarnUnknownCharacter != csv.WarnUnknownCharacter)
-          yield return $"WarnUnknownCharacter: {WarnUnknownCharacter} {csv.WarnUnknownCharacter}";
+          yield return $"{nameof(WarnUnknownCharacter)}: {WarnUnknownCharacter} {csv.WarnUnknownCharacter}";
 
         if (m_WarnQuotes != csv.WarnQuotes)
-          yield return $"WarnQuotes: {WarnQuotes} {csv.WarnQuotes}";
+          yield return $"{nameof(WarnQuotes)}: {WarnQuotes} {csv.WarnQuotes}";
 
         if (ContextSensitiveQualifier != csv.ContextSensitiveQualifier)
-          yield return $"ContextSensitiveQualifier: {ContextSensitiveQualifier} {csv.ContextSensitiveQualifier}";
+          yield return $"{nameof(ContextSensitiveQualifier)}: {ContextSensitiveQualifier} {csv.ContextSensitiveQualifier}";
 
         if (DuplicateQualifierToEscape != csv.DuplicateQualifierToEscape)
-          yield return $"DuplicateQualifierToEscape: {DuplicateQualifierToEscape} {csv.DuplicateQualifierToEscape}";
+          yield return $"{nameof(DuplicateQualifierToEscape)}: {DuplicateQualifierToEscape} {csv.DuplicateQualifierToEscape}";
 
         if (!string.Equals(CommentLine, csv.CommentLine, StringComparison.Ordinal))
-          yield return $"CommentLine: {CommentLine} {csv.CommentLine}";
+          yield return $"{nameof(CommentLine)}: {CommentLine} {csv.CommentLine}";
 
         if (!string.Equals(DelimiterPlaceholder, csv.DelimiterPlaceholder, StringComparison.Ordinal))
-          yield return $"DelimiterPlaceholder: {DelimiterPlaceholder} {csv.DelimiterPlaceholder}";
+          yield return $"{nameof(DelimiterPlaceholder)}: {DelimiterPlaceholder} {csv.DelimiterPlaceholder}";
 
         if (EscapePrefixChar != csv.EscapePrefixChar)
-          yield return $"EscapePrefixChar: {EscapePrefixChar} {csv.EscapePrefixChar}";
+          yield return $"{nameof(EscapePrefixChar)}: {EscapePrefixChar} {csv.EscapePrefixChar}";
 
         if (FieldDelimiterChar != csv.FieldDelimiterChar)
-          yield return $"FieldDelimiterChar: {FieldDelimiterChar} {csv.FieldDelimiterChar}";
+          yield return $"{nameof(FieldDelimiterChar)}: {FieldDelimiterChar} {csv.FieldDelimiterChar}";
 
         if (FieldQualifierChar != csv.FieldQualifierChar)
-          yield return $"FieldQualifierChar: {FieldQualifierChar} {csv.FieldQualifierChar}";
+          yield return $"{nameof(FieldQualifierChar)}: {FieldQualifierChar} {csv.FieldQualifierChar}";
 
         if (!NewLine.Equals(csv.NewLine))
-          yield return $"NewLine: {NewLine} {csv.NewLine}";
+          yield return $"{nameof(NewLine)}: {NewLine} {csv.NewLine}";
 
         if (!string.Equals(NewLinePlaceholder, csv.NewLinePlaceholder, StringComparison.Ordinal))
-          yield return $"NewLinePlaceholder: {NewLinePlaceholder} {csv.NewLinePlaceholder}";
+          yield return $"{nameof(NewLinePlaceholder)}: {NewLinePlaceholder} {csv.NewLinePlaceholder}";
 
         if (QualifyAlways != csv.QualifyAlways)
-          yield return $"QualifyAlways: {QualifyAlways} {csv.QualifyAlways}";
+          yield return $"{nameof(QualifyAlways)}: {QualifyAlways} {csv.QualifyAlways}";
 
         if (QualifyOnlyIfNeeded != csv.QualifyOnlyIfNeeded)
-          yield return $"QualifyOnlyIfNeeded: {QualifyOnlyIfNeeded} {csv.QualifyOnlyIfNeeded}";
+          yield return $"{nameof(QualifyOnlyIfNeeded)}: {QualifyOnlyIfNeeded} {csv.QualifyOnlyIfNeeded}";
 
         if (!string.Equals(QualifierPlaceholder, csv.QualifierPlaceholder, StringComparison.Ordinal))
-          yield return $"QualifierPlaceholder: {QualifierPlaceholder} {csv.QualifierPlaceholder}";
+          yield return $"{nameof(QualifierPlaceholder)}: {QualifierPlaceholder} {csv.QualifierPlaceholder}";
       }
 
       foreach (var res in base.GetDifferences(other))

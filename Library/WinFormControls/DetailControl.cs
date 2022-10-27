@@ -1127,7 +1127,7 @@ namespace CsvTools
         formProgress.Show(ParentForm);
 
         BeforeFileStored?.Invoke(this, writeFile);
-        var writer = new CsvFileWriter(string.Empty, fileName, writeFile.HasFieldHeader, writeFile.DefaultValueFormatWrite, writeFile.CodePageId,
+        var writer = new CsvFileWriter(string.Empty, fileName, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
           writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.KeyID, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
           headerAndSipped.ToString(), writeFile.Footer, string.Empty, writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar,
           writeFile.EscapePrefixChar,

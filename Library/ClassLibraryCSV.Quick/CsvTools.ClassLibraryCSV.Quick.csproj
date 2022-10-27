@@ -90,6 +90,7 @@
 		<Compile Include="..\ClassLibraryCSV\Column\IColumn.cs" Link="Column\IColumn.cs" />
 		<Compile Include="..\ClassLibraryCSV\ValueFormat\IValueFormat.cs" Link="ValueFormat\IValueFormat.cs" />
 		<Compile Include="..\ClassLibraryCSV\ValueFormat\ImmutableValueFormat.cs" Link="ValueFormat\ImmutableValueFormat.cs" />
+		<Compile Include="..\ClassLibraryCSV\ValueFormat\ValueFormatMutable.cs" Link="ValueFormat\ValueFormatMutable.cs" />
 		<Compile Include="..\ClassLibraryCSV\ValueFormat\ValueFormatExtension.cs" Link="ValueFormat\ValueFormatExtension.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileSystemUtils.cs" Link="FileSystemUtils.cs" />
 		<Compile Include="..\ClassLibraryCSV\ImprovedTextReader.cs" Link="ImprovedTextReader.cs" />

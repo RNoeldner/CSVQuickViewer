@@ -22,7 +22,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void SampleRecordEntry()
     {
-      var entry = new SampleRecordEntry();
+      var entry = new SampleRecordEntry(10,true,"Error");
       Assert.AreEqual(true, entry.ProvideEvidence);
 
       var entry1 = new SampleRecordEntry(100, "Error");
@@ -34,8 +34,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(1000, entry2.RecordNumber);
       Assert.AreEqual(false, entry2.ProvideEvidence);
 
-      var entry3 = new SampleRecordEntry(2000);
-      Assert.AreEqual(2000, entry3.RecordNumber);
     }
 
     [TestMethod]

@@ -13,6 +13,7 @@
  */
 #nullable enable
 
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -33,6 +34,7 @@ namespace CsvTools
     {
     }
 
+    [JsonConstructor]
     public Mapping(string fileColumn, string templateField, bool update = false, bool attention = false)
     {
       FileColumn = fileColumn;
@@ -99,6 +101,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     /// <remarks>Combined Column and Field</remarks>
+    [JsonIgnore]
     public int CollectionIdentifier => FileColumn.IdentifierHash(TemplateField);
   }
 }

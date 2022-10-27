@@ -86,7 +86,11 @@ namespace CsvTools
     /// <value><c>true</c> if throw an error if not exists; otherwise, <c>false</c>.</value>
     bool ThrowErrorIfNotExists { get; set; }
 
-    ValueFormatMutable DefaultValueFormatWrite { get; }
+
+    /// <summary>
+    /// Valueformat to be used if no column specific ValueFormat is defined 
+    /// </summary>
+    IValueFormat ValueFormatWrite { get; set; }
 
     /// <summary>
     ///   Force the refresh of full path information, a filename with placeholders might need to

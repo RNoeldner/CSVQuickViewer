@@ -76,6 +76,7 @@ namespace CsvTools
       return JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented,
            new JsonSerializerSettings
            {
+             // TypeNameHandling = TypeNameHandling.Auto,
              DefaultValueHandling = DefaultValueHandling.Ignore,
              NullValueHandling = NullValueHandling.Ignore,
              ReferenceLoopHandling = ReferenceLoopHandling.Ignore,

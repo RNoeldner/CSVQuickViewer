@@ -13,6 +13,7 @@
  */
 #nullable enable
 
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
@@ -32,7 +33,8 @@ namespace CsvTools
     [DefaultValue(true)]
     public bool EmptyAsNull
     {
-      get => m_EmptyAsNull; set
+      get => m_EmptyAsNull; 
+      set
       {
         if (m_EmptyAsNull.Equals(value))
           return;
@@ -46,12 +48,14 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="T:CsvTools.StructuredFile" /> class.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
+    [JsonConstructor]
     public JsonFile(string fileName)
       : base(fileName)
     {
     }
 
     /// <inheritdoc />
+    [Obsolete("Only needed for XML Serialization")]
     public JsonFile()
       : this(string.Empty)
     {
@@ -59,7 +63,7 @@ namespace CsvTools
 
     public override object Clone()
     {
-      var other = new JsonFile();
+      var other = new JsonFile(FileName);
       CopyTo(other);
       return other;
     }
