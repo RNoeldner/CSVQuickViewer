@@ -208,7 +208,7 @@ namespace CsvTools.Tests
       }
 
       var res1 = await setting.SqlStatement.GetWriterColumnInformationAsync(setting.Timeout,
-        setting.DefaultValueFormatWrite, setting.ColumnCollection,
+        setting.ValueFormatWrite, setting.ColumnCollection,
         UnitTestStatic.Token);
       Assert.AreEqual(6, res1.Count());
     }
@@ -239,7 +239,7 @@ namespace CsvTools.Tests
       try
       {
         await "setting.SqlStatement".GetWriterColumnInformationAsync(60,
-          setting.DefaultValueFormatWrite, setting.ColumnCollection,
+          setting.ValueFormatWrite, setting.ColumnCollection,
           UnitTestStatic.Token);
 
         Assert.Fail("Invalid SQL should have caused error ");

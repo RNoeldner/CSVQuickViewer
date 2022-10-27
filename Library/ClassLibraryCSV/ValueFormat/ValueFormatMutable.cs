@@ -12,6 +12,7 @@
  *
  */
 #nullable enable
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
@@ -23,7 +24,7 @@ namespace CsvTools
   ///   Setting for a value format
   /// </summary>
   [Serializable]
-  public sealed class ValueFormatMutable : NotifyPropertyChangedBase, IValueFormat, IWithCopyTo<ValueFormatMutable>
+  public sealed class ValueFormatMutable : NotifyPropertyChangedBase, IValueFormat
   {
     private DataTypeEnum m_DataType;
     private string m_DateFormat;
@@ -44,16 +45,15 @@ namespace CsvTools
     private string m_WriteFolder;
     private string m_FileOutPutPlaceholder;
     private bool m_Overwrite;
+    
 
-    public static IValueFormat Default = new ImmutableValueFormat();
-
-    /// <summary>
+     /// <summary>
     ///   Initializes a new instance of the <see cref="ValueFormatMutable" /> class.
     /// </summary>
-    public ValueFormatMutable() : this(Default)
+    [Obsolete("Only needed for XML Serialization")]
+    public ValueFormatMutable() : this(ValueFormatExtension.Default)
     {
     }
-
     /// <summary>
     ///   Initializes a new instance of the <see cref="ValueFormatMutable" /> class.
     /// </summary>
@@ -99,49 +99,48 @@ namespace CsvTools
     ///   asFalse or numberFormat or timeSeparator or asTrue or partSplitter or regexSearchPattern
     ///   or regexReplacement or readFolder or writeFolder or fileOutPutPlaceholder
     /// </exception>
+    [JsonConstructor]
     public ValueFormatMutable(
-      in DataTypeEnum dataType,
-      in string dateFormat,
-      in string dateSeparator,
-      in string timeSeparator,
-      in string numberFormat,
-      in string groupSeparator,
-      in string decimalSeparator,
-      in string asTrue,
-      in string asFalse,
-      in string displayNullAs,
-      int part,
-      in string partSplitter,
-      bool partToEnd,
-      in string regexSearchPattern,
-      in string regexReplacement,
-      in string readFolder,
-      in string writeFolder,
-      in string fileOutPutPlaceholder,
-      in bool overwrite)
+      in DataTypeEnum dataType = DataTypeEnum.String,
+      in string dateFormat = ValueFormatExtension.cDateFormatDefault,
+      in string dateSeparator =ValueFormatExtension.cDateSeparatorDefault,
+      in string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
+      in string numberFormat = ValueFormatExtension.cNumberFormatDefault,
+      in string groupSeparator = ValueFormatExtension.cGroupSeparatorDefault,
+      in string decimalSeparator = ValueFormatExtension.cDecimalSeparatorDefault,
+      in string asTrue = ValueFormatExtension.cTrueDefault,
+      in string asFalse = ValueFormatExtension.cFalseDefault,
+      in string displayNullAs = "",
+      int part = ValueFormatExtension.cPartDefault,
+      in string partSplitter = ValueFormatExtension.cPartSplitterDefault,
+      bool partToEnd = ValueFormatExtension.cPartToEndDefault,
+      in string regexSearchPattern = "",
+      in string regexReplacement = "",
+      in string readFolder = "",
+      in string writeFolder = "",
+      in string fileOutPutPlaceholder = "",
+      in bool overwrite = true)
     {
       if (!string.IsNullOrEmpty(decimalSeparator) && decimalSeparator.Equals(groupSeparator))
         throw new FileReaderException("Decimal and Group separator must be different");
       m_DataType = dataType;
-      m_DateFormat = dateFormat ?? throw new ArgumentNullException(nameof(dateFormat));
-      m_DateSeparator = (dateSeparator ?? throw new ArgumentNullException(nameof(dateSeparator))).WrittenPunctuation();
-      m_DecimalSeparator = (decimalSeparator ?? throw new ArgumentNullException(nameof(decimalSeparator)))
-        .WrittenPunctuation();
-      m_GroupSeparator =
-        (groupSeparator ?? throw new ArgumentNullException(nameof(groupSeparator))).WrittenPunctuation();
-      m_DisplayNullAs = displayNullAs ?? throw new ArgumentNullException(nameof(displayNullAs));
-      m_False = asFalse ?? throw new ArgumentNullException(nameof(asFalse));
-      m_NumberFormat = numberFormat ?? throw new ArgumentNullException(nameof(numberFormat));
-      m_TimeSeparator = timeSeparator ?? throw new ArgumentNullException(nameof(timeSeparator));
-      m_True = asTrue ?? throw new ArgumentNullException(nameof(asTrue));
+      m_DateFormat = dateFormat ?? ValueFormatExtension.cDateFormatDefault;
+      m_DateSeparator = (dateSeparator ?? ValueFormatExtension.cDateSeparatorDefault).WrittenPunctuation();
+      m_DecimalSeparator = (decimalSeparator ?? ValueFormatExtension.cDecimalSeparatorDefault).WrittenPunctuation();
+      m_GroupSeparator = (groupSeparator ?? ValueFormatExtension.cGroupSeparatorDefault).WrittenPunctuation();
+      m_DisplayNullAs = displayNullAs ?? string.Empty;
+      m_False = asFalse ?? ValueFormatExtension.cFalseDefault;
+      m_NumberFormat = numberFormat ?? ValueFormatExtension.cNumberFormatDefault;
+      m_TimeSeparator = timeSeparator ?? ValueFormatExtension.cTimeSeparatorDefault;
+      m_True = asTrue ?? ValueFormatExtension.cTrueDefault;
       m_Part = part;
-      m_PartSplitter = (partSplitter ?? throw new ArgumentNullException(nameof(partSplitter))).WrittenPunctuation();
+      m_PartSplitter = (partSplitter ?? ValueFormatExtension.cPartSplitterDefault).WrittenPunctuation();
       m_PartToEnd = partToEnd;
-      m_RegexSearchPattern = regexSearchPattern ?? throw new ArgumentNullException(nameof(regexSearchPattern));
-      m_RegexReplacement = regexReplacement ?? throw new ArgumentNullException(nameof(regexReplacement));
-      m_ReadFolder = readFolder ?? throw new ArgumentNullException(nameof(readFolder));
-      m_WriteFolder = writeFolder ?? throw new ArgumentNullException(nameof(writeFolder));
-      m_FileOutPutPlaceholder = fileOutPutPlaceholder ?? throw new ArgumentNullException(nameof(fileOutPutPlaceholder));
+      m_RegexSearchPattern = regexSearchPattern ?? string.Empty;
+      m_RegexReplacement = regexReplacement ?? string.Empty;
+      m_ReadFolder = readFolder ?? string.Empty;
+      m_WriteFolder = writeFolder ?? string.Empty;
+      m_FileOutPutPlaceholder = fileOutPutPlaceholder ?? string.Empty;
       m_Overwrite = overwrite;
     }
 
@@ -381,5 +380,13 @@ namespace CsvTools
 
     /// <inheritdoc cref="IEquatable{T}" />
     public bool Equals(IValueFormat other) => this.ValueFormatEqual(other);
+
+    public void CopyTo(IValueFormat other) 
+    {
+      if (other is ValueFormatMutable mutable)
+        CopyTo(mutable);
+      else
+        throw new NotSupportedException("Can not copy properties to not mutable instance");
+    }
   }
 }

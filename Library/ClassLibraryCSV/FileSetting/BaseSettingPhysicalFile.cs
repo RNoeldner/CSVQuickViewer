@@ -13,6 +13,7 @@
  */
 #nullable enable
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -26,7 +27,7 @@ namespace CsvTools
   [DebuggerDisplay("File: {ID} {m_FileName} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
   {
-    private readonly ValueFormatMutable m_DefaultValueFormatWrite = new ValueFormatMutable();
+    private IValueFormat m_DefaultValueFormatWrite = ValueFormatExtension.Default;
     private string m_ColumnFile = string.Empty;
     private string m_FileName;
     private long m_FileSize;
@@ -114,17 +115,30 @@ namespace CsvTools
     ///   Gets or sets the value format.
     /// </summary>
     /// <value>The value format.</value>
-    [XmlElement]
-    public virtual ValueFormatMutable DefaultValueFormatWrite
+    [XmlIgnore]
+    [JsonIgnore]
+    public virtual IValueFormat ValueFormatWrite
     {
       get => m_DefaultValueFormatWrite;
-      set => CopyTo(m_DefaultValueFormatWrite, value ?? new ValueFormatMutable());
+      set => SetField(ref m_DefaultValueFormatWrite,value);
+    }
+
+    /// <summary>
+    /// Only used for Serialization
+    /// </summary>
+    [XmlElement(ElementName ="DefaultValueFormatWrite")]    
+    public virtual ValueFormatMutable ValueFormatMutable
+    {
+      get => new ValueFormatMutable(m_DefaultValueFormatWrite);
+      set => m_DefaultValueFormatWrite = value;
     }
 
     [XmlIgnore]
-    public bool DefaultValueFormatWriteSpecified => !m_DefaultValueFormatWrite.Equals(ValueFormatMutable.Default);
+    [JsonIgnore]
+    public bool ValueFormatMutableSpecified => !m_DefaultValueFormatWrite.IsDefault();
 
     [XmlIgnore]
+    [JsonIgnore]
     public virtual string FullPath
     {
       get
@@ -158,6 +172,7 @@ namespace CsvTools
     ///   The identified to find this specific instance
     /// </summary>
     [XmlIgnore]
+    [JsonIgnore]
     public override string InternalID => string.IsNullOrEmpty(ID) ? FileName : ID;
 
     /// <inheritdoc />
@@ -165,6 +180,7 @@ namespace CsvTools
     ///   PassPhrase for Decryption, will not be stored
     /// </summary>
     [XmlIgnore]
+    [JsonIgnore]
     [DefaultValue("")]
     public virtual string Passphrase
     {
@@ -185,7 +201,10 @@ namespace CsvTools
       set => SetField(ref m_RemoteFileName, value, StringComparison.Ordinal);
     }
 
-    [XmlIgnore] [DefaultValue("")] public string RootFolder { get; set; } = string.Empty;
+    [XmlIgnore]
+    [JsonIgnore]
+    [DefaultValue("")]
+    public string RootFolder { get; set; } = string.Empty;
 
     /// <inheritdoc />
     /// <summary>
@@ -227,7 +246,8 @@ namespace CsvTools
       fileSettingPhysicalFile.ThrowErrorIfNotExists = ThrowErrorIfNotExists;
       fileSettingPhysicalFile.Passphrase = Passphrase;
       fileSettingPhysicalFile.KeyID = KeyID;
-      fileSettingPhysicalFile.DefaultValueFormatWrite.CopyFrom(DefaultValueFormatWrite);
+      if (fileSettingPhysicalFile is BaseSettingPhysicalFile phy)
+         phy.ValueFormatMutable.CopyFrom(ValueFormatWrite);      
     }
 
     /// <inheritdoc />
@@ -247,7 +267,7 @@ namespace CsvTools
           m_CodePageId != fileSettingPhysicalFile.CodePageId)
         return false;
 
-      if (!fileSettingPhysicalFile.DefaultValueFormatWrite.Equals(DefaultValueFormatWrite))
+      if (!fileSettingPhysicalFile.ValueFormatWrite.Equals(ValueFormatWrite))
         return false;
 
       if (!string.Equals(fileSettingPhysicalFile.FileName, FileName, StringComparison.OrdinalIgnoreCase))
@@ -284,34 +304,34 @@ namespace CsvTools
       if (other is IFileSettingPhysicalFile physicalFile)
       {
         if (physicalFile.ByteOrderMark != ByteOrderMark)
-          yield return $"ByteOrderMark: {ByteOrderMark} {physicalFile.ByteOrderMark}";
+          yield return $"{nameof(ByteOrderMark)}: {ByteOrderMark} {physicalFile.ByteOrderMark}";
 
         if (physicalFile.CodePageId != CodePageId)
-          yield return $"CodePageId: {CodePageId} {physicalFile.CodePageId}";
+          yield return $"{nameof(CodePageId)}: {CodePageId} {physicalFile.CodePageId}";
 
         if (!physicalFile.ColumnFile.Equals(ColumnFile, StringComparison.OrdinalIgnoreCase))
-          yield return $"ColumnFile: {ColumnFile} {physicalFile.ColumnFile}";
+          yield return $"{nameof(ColumnFile)}: {ColumnFile} {physicalFile.ColumnFile}";
 
         if (!physicalFile.FileName.Equals(FileName, StringComparison.OrdinalIgnoreCase))
-          yield return $"FileName: {FileName} {physicalFile.FileName}";
+          yield return $"{nameof(FileName)}: {FileName} {physicalFile.FileName}";
 
         if (!physicalFile.RemoteFileName.Equals(RemoteFileName, StringComparison.OrdinalIgnoreCase))
-          yield return $"RemoteFileName: {RemoteFileName} {physicalFile.RemoteFileName}";
+          yield return $"{nameof(RemoteFileName)} : {RemoteFileName} {physicalFile.RemoteFileName}";
 
         if (!physicalFile.IdentifierInContainer.Equals(IdentifierInContainer, StringComparison.OrdinalIgnoreCase))
-          yield return $"IdentifierInContainer: {IdentifierInContainer} {physicalFile.IdentifierInContainer}";
+          yield return $"{nameof(IdentifierInContainer)} : {IdentifierInContainer} {physicalFile.IdentifierInContainer}";
 
         if (physicalFile.ThrowErrorIfNotExists != ThrowErrorIfNotExists)
-          yield return $"ThrowErrorIfNotExists: {ThrowErrorIfNotExists} {physicalFile.ThrowErrorIfNotExists}";
+          yield return $"{nameof(ThrowErrorIfNotExists)} : {ThrowErrorIfNotExists} {physicalFile.ThrowErrorIfNotExists}";
 
         if (physicalFile.Passphrase != Passphrase)
-          yield return $"Passphrase";
+          yield return $"{nameof(Passphrase)}";
 
         if (!physicalFile.KeyID.Equals(KeyID))
-          yield return $"KeyID: {KeyID} {physicalFile.KeyID}";
+          yield return $"{nameof(KeyID)} : {KeyID} {physicalFile.KeyID}";
 
-        if (!physicalFile.DefaultValueFormatWrite.Equals(DefaultValueFormatWrite))
-          yield return $"DefaultValueFormatWrite";
+        if (!physicalFile.ValueFormatWrite.ValueFormatEqual(ValueFormatWrite))
+          yield return $"{nameof(ValueFormatWrite)}";
       }
 
       foreach (var res in base.GetDifferences(other))

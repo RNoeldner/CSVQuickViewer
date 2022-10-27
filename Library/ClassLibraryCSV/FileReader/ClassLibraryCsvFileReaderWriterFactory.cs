@@ -55,7 +55,7 @@ namespace CsvTools
     {
       IFileWriter? writer = fileSetting switch
       {
-        ICsvFile csv => new CsvFileWriter(csv.ID, csv.FullPath, csv.HasFieldHeader, csv.DefaultValueFormatWrite,
+        ICsvFile csv => new CsvFileWriter(csv.ID, csv.FullPath, csv.HasFieldHeader, csv.ValueFormatWrite,
           csv.CodePageId, csv.ByteOrderMark, csv.ColumnCollection, csv.KeyID, csv.KeepUnencrypted,
           csv.IdentifierInContainer, csv.Header, csv.Footer, csv.ToString(), csv.NewLine, csv.FieldDelimiterChar,
           csv.FieldQualifierChar, csv.EscapePrefixChar, csv.NewLinePlaceholder, csv.DelimiterPlaceholder,

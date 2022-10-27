@@ -13,6 +13,7 @@
  */
 #nullable enable
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -125,6 +126,7 @@ namespace CsvTools
 
     /// <inheritdoc />
     [XmlIgnore]
+    [JsonIgnore]
     public int Status
     {
       get
@@ -207,7 +209,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-
+    [JsonIgnore]
     public bool FileLastWriteTimeUtcSpecified => ProcessTimeUtc != ZeroTime;
 
     /// <summary>
@@ -215,11 +217,13 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-
+    [JsonIgnore]
     public bool MappingSpecified => MappingCollection.Count > 0;
 
+    [JsonIgnore]
     public bool ProcessTimeUtcSpecified => m_ProcessTimeUtc != ZeroTime;
 
+    [JsonIgnore]
     public bool SamplesAndErrorsSpecified =>
       SamplesAndErrors.ErrorsSpecified || SamplesAndErrors.SamplesSpecified || SamplesAndErrors.NumErrors != -1;
 
@@ -227,6 +231,7 @@ namespace CsvTools
     ///   Utility calls to get or set the SQL Statement as CDataSection
     /// </summary>
     [DefaultValue("")]
+    [JsonIgnore]
     public XmlCDataSection SqlStatementCData
     {
       get
@@ -242,7 +247,7 @@ namespace CsvTools
     /// </summary>
     /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
     /// <remarks>Used for XML Serialization</remarks>
-
+    [JsonIgnore]
     public bool SqlStatementCDataSpecified => !string.IsNullOrEmpty(SqlStatement);
 
     [XmlIgnore]
@@ -375,6 +380,7 @@ namespace CsvTools
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlIgnore]
+    [JsonIgnore]
     public virtual string InternalID => ID;
 
     /// <inheritdoc />
@@ -400,6 +406,7 @@ namespace CsvTools
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlIgnore]
+    [JsonIgnore]
     public DateTime LatestSourceTimeUtc
     {
       get
@@ -438,6 +445,7 @@ namespace CsvTools
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlIgnore]
+    [JsonIgnore]
     [DefaultValue(false)]
     public virtual bool RecentlyLoaded { get; set; }
 
@@ -489,6 +497,7 @@ namespace CsvTools
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlIgnore]
+    [JsonIgnore]
     public IReadOnlyCollection<IFileSetting>? SourceFileSettings
     {
       get => m_SourceFileSettings;
@@ -744,90 +753,91 @@ namespace CsvTools
         yield return $"Type : {GetType().FullName} - {other.GetType().FullName}";
 
       if (!other.ID.Equals(ID, StringComparison.OrdinalIgnoreCase))
-        yield return $"ID : {ID} - {other.ID}";
+        yield return $"{nameof(ID)}: {ID} - {other.ID}";
 
       if (other.SkipRows != SkipRows)
-        yield return $"SkipRows : {SkipRows} - {other.SkipRows}";
+        yield return $"{nameof(SkipRows)}: {SkipRows} - {other.SkipRows}";
 
       if (other.HasFieldHeader != HasFieldHeader)
-        yield return $"HasFieldHeader : {HasFieldHeader} - {other.HasFieldHeader}";
+        yield return $"{nameof(HasFieldHeader)} : {HasFieldHeader} - {other.HasFieldHeader}";
 
       if (other.RecentlyLoaded != RecentlyLoaded)
-        yield return $"RecentlyLoaded : {RecentlyLoaded} - {other.RecentlyLoaded}";
+        yield return $"{nameof(RecentlyLoaded)} : {RecentlyLoaded} - {other.RecentlyLoaded}";
 
       if (other.IsEnabled != IsEnabled)
-        yield return $"IsEnabled : {IsEnabled} - {other.IsEnabled}";
+        yield return $"{nameof(IsEnabled)} : {IsEnabled} - {other.IsEnabled}";
 
       if (other.InOverview != InOverview)
-        yield return $"InOverview : {InOverview} - {other.InOverview}";
+        yield return $"{nameof(InOverview)} : {InOverview} - {other.InOverview}";
 
       if (other.Validate != Validate)
-        yield return $"Validate : {Validate} - {other.Validate}";
+        yield return $"{nameof(Validate)} : {Validate} - {other.Validate}";
 
       if (other.ShowProgress != ShowProgress)
-        yield return $"ShowProgress : {ShowProgress} - {other.ShowProgress}";
+        yield return $"{nameof(ShowProgress)} : {ShowProgress} - {other.ShowProgress}";
 
       if (other.TreatNBSPAsSpace != TreatNBSPAsSpace)
-        yield return $"TreatNBSPAsSpace : {TreatNBSPAsSpace} - {other.TreatNBSPAsSpace}";
+        yield return $"{nameof(TreatNBSPAsSpace)} : {TreatNBSPAsSpace} - {other.TreatNBSPAsSpace}";
 
       if (other.ConsecutiveEmptyRows != ConsecutiveEmptyRows)
-        yield return $"ConsecutiveEmptyRows : {ConsecutiveEmptyRows} - {other.ConsecutiveEmptyRows}";
+        yield return $"{nameof(ConsecutiveEmptyRows)} : {ConsecutiveEmptyRows} - {other.ConsecutiveEmptyRows}";
 
       if (other.DisplayStartLineNo != DisplayStartLineNo)
-        yield return $"DisplayStartLineNo : {DisplayStartLineNo} - {other.DisplayStartLineNo}";
+        yield return $"{nameof(DisplayStartLineNo)} : {DisplayStartLineNo} - {other.DisplayStartLineNo}";
 
       if (other.DisplayEndLineNo != DisplayEndLineNo)
-        yield return $"DisplayEndLineNo : {DisplayEndLineNo} - {other.DisplayEndLineNo}";
+        yield return $"{nameof(DisplayEndLineNo)} : {DisplayEndLineNo} - {other.DisplayEndLineNo}";
 
       if (other.DisplayRecordNo != DisplayRecordNo)
-        yield return $"DisplayRecordNo : {DisplayRecordNo} - {other.DisplayRecordNo}";
+        yield return $"{nameof(DisplayRecordNo)} : {DisplayRecordNo} - {other.DisplayRecordNo}";
 
       if (other.RecordLimit != RecordLimit)
-        yield return $"RecordLimit : {RecordLimit} - {other.RecordLimit}";
+        yield return $"{nameof(RecordLimit)} : {RecordLimit} - {other.RecordLimit}";
 
       if (other.SkipEmptyLines != SkipEmptyLines)
-        yield return $"SkipEmptyLines : {SkipEmptyLines} - {other.SkipEmptyLines}";
+        yield return $"{nameof(SkipEmptyLines)} : {SkipEmptyLines} - {other.SkipEmptyLines}";
 
       if (other.SkipDuplicateHeader != SkipDuplicateHeader)
-        yield return $"SkipDuplicateHeader : {SkipDuplicateHeader} - {other.SkipDuplicateHeader}";
+        yield return $"{nameof(SkipDuplicateHeader)} : {SkipDuplicateHeader} - {other.SkipDuplicateHeader}";
 
       if (other.Timeout != Timeout)
-        yield return $"Timeout : {Timeout} - {other.Timeout}";
+        yield return $"{nameof(Timeout)} : {Timeout} - {other.Timeout}";
 
       if (other.TreatTextAsNull != TreatTextAsNull)
-        yield return $"TreatTextAsNull : {TreatTextAsNull} - {other.TreatTextAsNull}";
+        yield return $"{nameof(TreatTextAsNull)} : {TreatTextAsNull} - {other.TreatTextAsNull}";
 
       if (!other.TreatTextAsNull.Equals(TreatTextAsNull, StringComparison.OrdinalIgnoreCase))
-        yield return $"TreatTextAsNull : {TreatTextAsNull} - {other.TreatTextAsNull}";
+        yield return $"{nameof(TreatTextAsNull)} : {TreatTextAsNull} - {other.TreatTextAsNull}";
 
       if (!other.TemplateName.Equals(TemplateName, StringComparison.Ordinal))
-        yield return $"TemplateName : {TemplateName} - {other.TemplateName}";
+        yield return $"{nameof(TemplateName)} : {TemplateName} - {other.TemplateName}";
 
       if (!other.SqlStatement.Equals(SqlStatement, StringComparison.Ordinal))
-        yield return $"SqlStatement : {SqlStatement} - {other.SqlStatement}";
+        yield return $"{nameof(SqlStatement)} : {SqlStatement} - {other.SqlStatement}";
 
       if (!other.Footer.Equals(Footer, StringComparison.Ordinal))
-        yield return $"Footer : {Footer} - {other.Footer}";
+        yield return $"{nameof(Footer)} : {Footer} - {other.Footer}";
 
       if (!other.Header.Equals(Header, StringComparison.Ordinal))
-        yield return $"Header : {Header} - {other.Header}";
+        yield return $"{nameof(Header)} : {Header} - {other.Header}";
 
       if (other.KeepUnencrypted != KeepUnencrypted)
-        yield return $"KeepUnencrypted : {KeepUnencrypted} - {other.KeepUnencrypted}";
+        yield return $"{nameof(KeepUnencrypted)} : {KeepUnencrypted} - {other.KeepUnencrypted}";
 
       if (!other.MappingCollection.Equals(MappingCollection))
-        yield return "MappingCollection different";
+        yield return $"{nameof(MappingCollection)} different";
 
       if (!other.SamplesAndErrors.Equals(SamplesAndErrors))
-        yield return $"SamplesAndErrors different";
+        yield return $"{nameof(SamplesAndErrors)} different";
 
       if (!other.Comment.Equals(Comment, StringComparison.Ordinal))
-        yield return $"Comment : {Comment} - {other.Comment}";
+        yield return $"{nameof(Comment)} : {Comment} - {other.Comment}";
 
       if (!other.ColumnCollection.Equals(ColumnCollection))
-        yield return "ColumnCollection different";
+        yield return $"{nameof(ColumnCollection)} different";
     }
 
+    [JsonIgnore]
     public int CollectionIdentifier => InternalID.IdentifierHash();
   }
 }

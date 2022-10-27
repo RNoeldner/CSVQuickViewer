@@ -13,6 +13,7 @@
  */
 #nullable enable
 
+using Newtonsoft.Json;
 using System;
 
 namespace CsvTools
@@ -30,12 +31,14 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="T:CsvTools.StructuredFile" /> class.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
+    [JsonConstructor]
     public XmlFile(string fileName)
       : base(fileName)
     {
     }
 
     /// <inheritdoc />
+    [Obsolete("Only needed for XML Serialization")]
     public XmlFile()
       : this(string.Empty)
     {
@@ -43,7 +46,7 @@ namespace CsvTools
 
     public override object Clone()
     {
-      var other = new XmlFile();
+      var other = new XmlFile(FileName);
       CopyTo(other);
       return other;
     }

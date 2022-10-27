@@ -13,6 +13,7 @@
  */
 #nullable enable
 
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
@@ -46,6 +47,7 @@ namespace CsvTools
       get => m_Errors;
     }
 
+    [JsonIgnore]
     public bool ErrorsSpecified => Errors.Count > 0;
 
     /// <summary>
@@ -76,6 +78,7 @@ namespace CsvTools
       get => m_Samples;
     }
 
+    [JsonIgnore]
     public bool SamplesSpecified => Samples.Count > 0;
 
     /// <inheritdoc />

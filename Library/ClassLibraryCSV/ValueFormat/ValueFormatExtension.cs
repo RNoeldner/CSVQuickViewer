@@ -20,6 +20,8 @@ namespace CsvTools
 {
   public static class ValueFormatExtension
   {
+    public static IValueFormat Default = new ImmutableValueFormat();
+
     public const string cDateFormatDefault = "MM/dd/yyyy";
     public const string cDateSeparatorDefault = "/";
     public const string cDecimalSeparatorDefault = ".";
@@ -133,6 +135,8 @@ namespace CsvTools
       return false;
     }
 
+    public static bool IsDefault(this IValueFormat one) => ValueFormatEqual(one, Default);
+    
     /// <summary>
     /// Checks if two value formats are equal
     /// </summary>

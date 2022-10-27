@@ -13,6 +13,7 @@
  */
 #nullable enable
 
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
@@ -22,6 +23,7 @@ namespace CsvTools
   [Serializable]
   public sealed class SampleRecordEntry : IEquatable<SampleRecordEntry>, ICloneable, ICollectionIdentity
   {
+    [Obsolete("Only needed for XML Serialization")]
     public SampleRecordEntry()
       : this(0, true, string.Empty)
     {
@@ -37,16 +39,12 @@ namespace CsvTools
     {
     }
 
+    [JsonConstructor] 
     public SampleRecordEntry(long recordNumber, bool provideEvidence, in string error)
     {
       RecordNumber = recordNumber;
       ProvideEvidence = provideEvidence;
       Error = error;
-    }
-
-    public SampleRecordEntry(long recordNumber)
-      : this(recordNumber, true, string.Empty)
-    {
     }
 
     /// <summary>
@@ -122,6 +120,7 @@ namespace CsvTools
       }
     }
 
+    [JsonIgnore]
     public int CollectionIdentifier => RecordNumber.GetHashCode(); 
   }
 }

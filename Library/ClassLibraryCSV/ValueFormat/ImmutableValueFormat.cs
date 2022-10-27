@@ -13,6 +13,7 @@
  */
 #nullable enable
 
+using Newtonsoft.Json;
 using System;
 
 namespace CsvTools
@@ -28,6 +29,7 @@ namespace CsvTools
     {
     }
 
+    [JsonConstructor]
     public ImmutableValueFormat(
       in DataTypeEnum dataType = DataTypeEnum.String,
       in string dateFormat = ValueFormatExtension.cDateFormatDefault,
@@ -163,5 +165,17 @@ namespace CsvTools
 
     /// <inheritdoc cref="IEquatable{T}" />
     public bool Equals(IValueFormat other) => this.ValueFormatEqual(other);
+
+    /// <inheritdoc />
+    public void CopyTo(IValueFormat other)
+    {
+      if (other is ValueFormatMutable mutable)
+        mutable.CopyFrom(this);
+      else
+        throw new NotSupportedException("Can not copy properties to not mutable instance");
+    }
+
+    /// <inheritdoc />
+    public object Clone() => new ImmutableValueFormat(this);
   }
 }
