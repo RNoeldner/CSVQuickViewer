@@ -1,18 +1,16 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
 
-using System.Xml.Serialization;
 
 namespace CsvTools
 {
   public static class ViewSettingHelper
   {
-    private static readonly XmlSerializer m_SerializerViewSettings = new XmlSerializer(typeof(ViewSettings));
-
     private static readonly string
       m_SettingFolder = Environment.ExpandEnvironmentVariables("%APPDATA%\\CSVQuickViewer");
 
-    private static readonly string m_SettingPath = m_SettingFolder + "\\Setting.xml";
+    private static readonly string m_SettingPath = m_SettingFolder + "\\Setting.json";
 
     public static ViewSettings LoadViewSettings()
     {
@@ -21,12 +19,8 @@ namespace CsvTools
         Logger.Debug("Loading defaults {path}", m_SettingPath);
         if (FileSystemUtils.FileExists(m_SettingPath))
         {
-          var serial = File.ReadAllText(m_SettingPath.LongPathPrefix());
-          using TextReader reader = new StringReader(serial);
-          if (m_SerializerViewSettings.Deserialize(reader) is ViewSettings viewSettings)
-          {
-            return viewSettings;
-          }
+          var text = FileSystemUtils.ReadAllText(m_SettingPath);
+          return JsonConvert.DeserializeObject<ViewSettings>(text)!;
         }
       }
       catch (Exception ex)
@@ -44,7 +38,7 @@ namespace CsvTools
       if (!FileSystemUtils.DirectoryExists(m_SettingFolder))
         FileSystemUtils.CreateDirectory(m_SettingFolder);
 
-      var newContend = viewSettings.SerializeIndentedXml(m_SerializerViewSettings);
+      var newContend = viewSettings.SerializeIndentedJson();
       var oldContend = FileSystemUtils.FileExists(m_SettingPath) ? FileSystemUtils.ReadAllText(m_SettingPath) : string.Empty;
       if (!newContend.Equals(oldContend))
       {

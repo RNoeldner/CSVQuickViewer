@@ -13,6 +13,7 @@
  */
 #nullable enable
 
+using Newtonsoft.Json;
 using System;
 
 namespace CsvTools
@@ -168,6 +169,7 @@ namespace CsvTools
     /// <remarks>
     /// In case a required property is not set, this should raise an error
     /// </remarks>
+    [JsonIgnore]
     public int CollectionIdentifier => Name.IdentifierHash(); 
   }
 }

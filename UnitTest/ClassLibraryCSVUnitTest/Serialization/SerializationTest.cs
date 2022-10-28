@@ -31,7 +31,7 @@ namespace CsvTools.Tests
       Assert.IsFalse(string.IsNullOrEmpty(testJson));
       var pos = testJson.IndexOf("Specified\":", StringComparison.OrdinalIgnoreCase);
       Assert.IsFalse(pos != -1, $"Conteins Specifed as position {pos} in \n{testJson}");
-      var testObj = JsonConvert.DeserializeObject<T>(testJson);
+      var testObj = JsonConvert.DeserializeObject<T>(testJson, ClassLibraryCsvExtensionMethods.JsonSerializerSettings.Value );
       Assert.IsNotNull(testObj);
 
       return testObj;
@@ -97,7 +97,9 @@ namespace CsvTools.Tests
       Assert.AreEqual(input.Errors.Count, output.Errors.Count);      
       Assert.AreEqual(input.Samples.Count, output.Samples.Count);      
     }
-     [TestMethod]
+
+
+    [TestMethod]
     [TestCategory("Serialization")]
     public async Task CsvFile()
     {
