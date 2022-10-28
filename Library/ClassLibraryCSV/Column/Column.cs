@@ -36,6 +36,7 @@ namespace CsvTools
     private string m_TimeZonePart = string.Empty;
     private int m_ColumnOrdinal;
 
+    [Obsolete("Only needed for XML Serialization")]
     public Column()
       : this(string.Empty)
     {
@@ -76,6 +77,7 @@ namespace CsvTools
       ValueFormatMutable = new ValueFormatMutable(format);
     }
 
+    [JsonConstructor]
     public Column(string name, IValueFormat valueFormat)
     {
       m_Name = name;
@@ -85,18 +87,13 @@ namespace CsvTools
     public Column(string name, DataTypeEnum dataType = DataTypeEnum.String)
     {
       m_Name = name;
-      ValueFormatMutable = new ValueFormatMutable { DataType = dataType };
+      ValueFormatMutable = new ValueFormatMutable(dataType);
     }
 
     public Column(string name, string dateFormat, string dateSeparator = ValueFormatExtension.cDateSeparatorDefault)
     {
       m_Name = name;
-      ValueFormatMutable = new ValueFormatMutable
-      {
-        DataType = DataTypeEnum.DateTime,
-        DateFormat = dateFormat,
-        DateSeparator = dateSeparator
-      };
+      ValueFormatMutable = new ValueFormatMutable(DataTypeEnum.DateTime, dateFormat, dateSeparator);      
     }
 
     /// <summary>
@@ -104,6 +101,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The type of the data.</value>
     [XmlAttribute("Type")]
+    [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(DataTypeEnum.String)]
     [JsonProperty]
@@ -118,6 +116,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The date format.</value>
     [XmlAttribute]
+    [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
     public string DateFormat
@@ -131,6 +130,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The date separator.</value>
     [XmlAttribute]
+    [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
     public string DateSeparator
@@ -144,6 +144,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The decimal separator.</value>
     [XmlAttribute]
+    [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
     public string DecimalSeparator
@@ -158,6 +159,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The false.</value>
     [XmlAttribute]
+    [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cFalseDefault)]
     public string False
@@ -173,6 +175,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The group separator.</value>
     [XmlAttribute]
+    [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
     public string GroupSeparator
@@ -186,6 +189,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The number format.</value>
     [XmlAttribute]
+    [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
     public string NumberFormat
@@ -199,6 +203,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The part starting with 1</value>
     [XmlAttribute]
+    [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cPartDefault)]
     public int Part
@@ -212,6 +217,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The splitter.</value>
     [XmlElement]
+    [JsonIgnore]
     [DefaultValue(ValueFormatExtension.cPartSplitterDefault)]
     //[Obsolete("Use ValueFormat instead")]
     public string PartSplitter
@@ -226,6 +232,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The part starting with 1</value>
     [XmlAttribute]
+    [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cPartToEndDefault)]
     public bool PartToEnd
@@ -239,6 +246,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The time separator.</value>
     [XmlAttribute]
+    [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
     public string TimeSeparator
@@ -252,6 +260,7 @@ namespace CsvTools
     /// </summary>
     /// <value>The true.</value>
     [XmlAttribute]
+    [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormatExtension.cTrueDefault)]
     public string True
@@ -261,6 +270,7 @@ namespace CsvTools
       set => ValueFormatMutable.True = value;
     }
 
+    [JsonIgnore]
     public ValueFormatMutable ValueFormatMutable { get;  }
 
     /// <summary>
@@ -299,6 +309,7 @@ namespace CsvTools
     }
     
     [XmlIgnore]
+    [JsonIgnore]
     public bool DestinationNameSpecified => !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
 
 
@@ -349,6 +360,7 @@ namespace CsvTools
       set => SetField(ref m_TimePartFormat, value, StringComparison.Ordinal);
     }
 
+    [JsonIgnore]
     public bool TimePartFormatSpecified =>  ValueFormatMutable.DataType == DataTypeEnum.DateTime && m_TimePartFormat != ImmutableColumn.cDefaultTimePartFormat;
 
     /// <summary>
@@ -424,6 +436,7 @@ namespace CsvTools
     /// <remarks>
     /// In case a required property is not set, this should raise an error
     /// </remarks>
+    [JsonIgnore]
     public int CollectionIdentifier => Name.IdentifierHash();
   }
 }

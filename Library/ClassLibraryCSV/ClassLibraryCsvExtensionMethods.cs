@@ -27,6 +27,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 #if !QUICK
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,6 +52,18 @@ namespace CsvTools
           return xmlSerializerNamespaces;
         });
 
+      public static readonly Lazy<JsonSerializerSettings> JsonSerializerSettings =  new Lazy<JsonSerializerSettings>(
+        () => new JsonSerializerSettings
+           {
+             TypeNameHandling = TypeNameHandling.Auto,             
+             DefaultValueHandling = DefaultValueHandling.Ignore,
+             ContractResolver = new CamelCasePropertyNamesContractResolver(),
+             NullValueHandling = NullValueHandling.Ignore,
+             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+             DateFormatHandling = DateFormatHandling.IsoDateFormat,
+             DateTimeZoneHandling = DateTimeZoneHandling.Utc
+           });
+
     /// <summary>
     /// Serialize an object with formatting
     /// </summary>    
@@ -66,24 +79,14 @@ namespace CsvTools
       return stringWriter.ToString();
     }
 
+  
+
     /// <summary>
     /// Serialize an object with formatting
     /// </summary>    
     /// <param name="data">The object to be serialized</param>
     /// <returns>The resulting Json string</returns>
-    public static string SerializeIndentedJson(this object data)
-    {
-      return JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented,
-           new JsonSerializerSettings
-           {
-             // TypeNameHandling = TypeNameHandling.Auto,
-             DefaultValueHandling = DefaultValueHandling.Ignore,
-             NullValueHandling = NullValueHandling.Ignore,
-             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-             DateFormatHandling = DateFormatHandling.IsoDateFormat,
-             DateTimeZoneHandling = DateTimeZoneHandling.Utc
-           });
-    }
+    public static string SerializeIndentedJson(this object data) => JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented, JsonSerializerSettings.Value);
 
     /// <summary>
     /// Move the field from on position in the list to another
