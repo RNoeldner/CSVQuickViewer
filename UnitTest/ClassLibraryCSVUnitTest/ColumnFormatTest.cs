@@ -31,7 +31,7 @@ namespace CsvTools.Tests
       Assert.IsNotNull(target1);
       var target2 = new Column("Name2", new ImmutableValueFormat(DataTypeEnum.DateTime));
       Assert.AreEqual("Name2", target2.Name);
-      var target3 = new Column("Name3", (IValueFormat) new ImmutableValueFormat());
+      var target3 = new Column("Name3", new ImmutableValueFormat());
       Assert.AreEqual("Name3", target3.Name);
       var target4 = new Column("Name4", "DF");
       Assert.AreEqual("Name4", target4.Name);
@@ -136,7 +136,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void ColumnGetDataType()
 		{
-      var test = new ValueFormatMutable();
+      var test = new ValueFormatMutable(DataTypeEnum.String);
 
       Assert.IsInstanceOfType(string.Empty, test.DataType.GetNetType());
       test.DataType = DataTypeEnum.DateTime;
@@ -239,7 +239,7 @@ namespace CsvTools.Tests
         dateSeparator: ".", decimalSeparator: ",", asFalse: @"Falsch", groupSeparator: ".", numberFormat: "0.##",
         timeSeparator: ":", asTrue: @"Wahr");
 
-      var ff = new CsvFile();
+      var ff = new CsvFile("Dummy");
       var col = new Column("StartDate", valueFormatGerman) { Ignore = true };
 
 			ff.ColumnCollection.Add(col);

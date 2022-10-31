@@ -44,7 +44,7 @@ namespace CsvTools.Tests
     public async Task GetColumnsSqlAsyncTest()
     {
       var setting = new CsvFile { ID="nonsese", FileName = UnitTestStatic.GetTestPath("Sessions.txt"), HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t" };
-      setting.ColumnCollection.Add(new Column("Start Date") { Ignore = true });
+      setting.ColumnCollection.Add(new ImmutableColumn("Start Date", new ImmutableValueFormat(), ignore: true));
 
       UnitTestStatic.MimicSQLReader.AddSetting(setting);
 

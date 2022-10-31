@@ -672,13 +672,14 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task GetValue()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        HasFieldHeader = true, FieldDelimiter = ",", FileName = UnitTestStatic.GetTestPath("BasicCSV.txt")
+        HasFieldHeader = true, FieldDelimiter = ","
       };
-      setting.ColumnCollection.Add(new Column("ExamDate", @"dd/MM/yyyy"));
-      setting.ColumnCollection.Add(new Column("ID", new ImmutableValueFormat(DataTypeEnum.Integer)));
-      setting.ColumnCollection.Add(new Column("IsNativeLang", new ImmutableValueFormat(DataTypeEnum.Boolean)));
+      setting.ColumnCollection.Add(new ImmutableColumn("ExamDate",
+        new ImmutableValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")));
+      setting.ColumnCollection.Add(new ImmutableColumn("ID", new ImmutableValueFormat(DataTypeEnum.Integer)));
+      setting.ColumnCollection.Add(new ImmutableColumn("IsNativeLang", new ImmutableValueFormat(DataTypeEnum.Boolean)));
 
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
@@ -1106,7 +1107,8 @@ Line "Test"", "22",23,"  24"
         hasFieldHeader: true,
         columnDefinition: new IColumn[]
         {
-          new Column("Start Date", "MM/dd/yyyy") { TimePart = "Start Time", TimePartFormat = "HH:mm:ss" }
+          new ImmutableColumn("Start Date", new ImmutableValueFormat(DataTypeEnum.DateTime, "MM/dd/yyyy"),
+            timePart: "Start Time", timePartFormat: "HH:mm:ss")
         },
         trimmingOption: TrimmingOptionEnum.Unquoted,
         fieldDelimiter: "\t",
@@ -1281,8 +1283,8 @@ Line "Test"", "22",23,"  24"
     {
       var setting =
         new CsvFile(UnitTestStatic.GetTestPath("AllFormats.txt")) { HasFieldHeader = true, FieldDelimiter = "Tab" };
-      setting.ColumnCollection.Add(new Column("DateTime", new ImmutableValueFormat(DataTypeEnum.DateTime)));
-      setting.ColumnCollection.Add(new Column("Integer", new ImmutableValueFormat(DataTypeEnum.Integer)));
+      setting.ColumnCollection.Add(new ImmutableColumn("DateTime", new ImmutableValueFormat(DataTypeEnum.DateTime)));
+      setting.ColumnCollection.Add(new ImmutableColumn("Integer", new ImmutableValueFormat(DataTypeEnum.Integer)));
 
       using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
         setting.HasFieldHeader, setting.ColumnCollection,
@@ -1443,17 +1445,13 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task ReadDateWithTimeAndTimeZoneAsync()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("Sessions.txt"))
       {
-        FileName = UnitTestStatic.GetTestPath("Sessions.txt"),
-        HasFieldHeader = true,
-        ByteOrderMark = true,
-        FieldDelimiter = "\t"
+        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
       };
-      setting.ColumnCollection.Add(new Column("Start Date", "MM/dd/yyyy")
-      {
-        TimePart = "Start Time", TimePartFormat = "HH:mm:ss", TimeZonePart = "Time Zone"
-      });
+      setting.ColumnCollection.Add(new ImmutableColumn("Start Date",
+        new ImmutableValueFormat(DataTypeEnum.DateTime, "MM/dd/yyyy"), timePart: "Start Time",
+        timePartFormat: "HH:mm:ss", timeZonePart: "Time Zone"));
 
       // all will be converted to TimeZoneInfo.Local, but we concert then to UTC
 
@@ -1492,15 +1490,13 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task ReadDateWithTimeAsync()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("Sessions.txt"))
       {
-        FileName = UnitTestStatic.GetTestPath("Sessions.txt"),
-        HasFieldHeader = true,
-        ByteOrderMark = true,
-        FieldDelimiter = "\t"
+        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
       };
       setting.ColumnCollection.Add(
-        new Column("Start Date", "MM/dd/yyyy") { TimePart = "Start Time", TimePartFormat = "HH:mm:ss" });
+        new ImmutableColumn("Start Date", new ImmutableValueFormat(DataTypeEnum.DateTime, "MM/dd/yyyy"),
+          timePart: "Start Time", timePartFormat: "HH:mm:ss"));
 
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,

@@ -27,21 +27,20 @@ namespace CsvTools.Tests
   {
     private static readonly TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
 
-    private readonly CsvFile m_ValidSetting = new CsvFile
+    private readonly CsvFile m_ValidSetting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"))
     {
-      FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), FieldDelimiter = ",", CommentLine = "#"
+      FieldDelimiter = ",", CommentLine = "#"
     };
 
     [TestInitialize]
     public void Init()
     {
-      m_ValidSetting.ColumnCollection.Add(new Column("Score", new ImmutableValueFormat(DataTypeEnum.Integer)));
-      m_ValidSetting.ColumnCollection.Add(new Column("Proficiency", new ImmutableValueFormat(DataTypeEnum.Numeric)));
-      m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang", new ImmutableValueFormat(DataTypeEnum.Boolean)));
-      var cf = new Column("ExamDate", new ImmutableValueFormat(DataTypeEnum.DateTime))
-      {
-        ValueFormatMutable = { DateFormat = @"dd/MM/yyyy" }
-      };
+      m_ValidSetting.ColumnCollection.Add(new ImmutableColumn("Score", new ImmutableValueFormat(DataTypeEnum.Integer)));
+      m_ValidSetting.ColumnCollection.Add(new ImmutableColumn("Proficiency",
+        new ImmutableValueFormat(DataTypeEnum.Numeric)));
+      m_ValidSetting.ColumnCollection.Add(new ImmutableColumn("IsNativeLang",
+        new ImmutableValueFormat(DataTypeEnum.Boolean)));
+      var cf = new ImmutableColumn("ExamDate", new ImmutableValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy"));
       m_ValidSetting.ColumnCollection.Add(cf);
     }
 
@@ -143,23 +142,26 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task IssueReaderAsync()
     {
-      var basIssues = new CsvFile
+      var basIssues = new CsvFile(UnitTestStatic.GetTestPath("BadIssues.csv"))
       {
         TreatLfAsSpace = true,
         TryToSolveMoreColumns = true,
         AllowRowCombining = true,
-        FileName = UnitTestStatic.GetTestPath("BadIssues.csv"),
         FieldDelimiter = "Tab",
         FieldQualifier = string.Empty
       };
-      basIssues.ColumnCollection.Add(new Column("effectiveDate", "yyyy/MM/dd", "-"));
-      basIssues.ColumnCollection.Add(new Column("timestamp", "yyyy/MM/ddTHH:mm:ss", "-"));
+      basIssues.ColumnCollection.Add(new ImmutableColumn("effectiveDate",
+        new ImmutableValueFormat(DataTypeEnum.DateTime, "yyyy/MM/dd", "-")));
+      basIssues.ColumnCollection.Add(new ImmutableColumn("timestamp",
+        new ImmutableValueFormat(DataTypeEnum.DateTime, "yyyy/MM/ddTHH:mm:ss", "-")));
 
-      basIssues.ColumnCollection.Add(new Column("version", new ImmutableValueFormat(DataTypeEnum.Integer)));
-      basIssues.ColumnCollection.Add(new Column("retrainingRequired", new ImmutableValueFormat(DataTypeEnum.Boolean)));
+      basIssues.ColumnCollection.Add(new ImmutableColumn("version", new ImmutableValueFormat(DataTypeEnum.Integer)));
+      basIssues.ColumnCollection.Add(new ImmutableColumn("retrainingRequired",
+        new ImmutableValueFormat(DataTypeEnum.Boolean)));
 
-      basIssues.ColumnCollection.Add(new Column("classroomTraining", new ImmutableValueFormat(DataTypeEnum.Boolean)));
-      basIssues.ColumnCollection.Add(new Column("webLink", new ImmutableValueFormat(DataTypeEnum.TextToHtml)));
+      basIssues.ColumnCollection.Add(new ImmutableColumn("classroomTraining",
+        new ImmutableValueFormat(DataTypeEnum.Boolean)));
+      basIssues.ColumnCollection.Add(new ImmutableColumn("webLink", new ImmutableValueFormat(DataTypeEnum.TextToHtml)));
 
 
       using var test = new CsvFileReader(basIssues.FullPath, basIssues.CodePageId, basIssues.SkipRows,
@@ -325,7 +327,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetInteger32And64()
     {
-      var column = new Column("test",
+      var column = new ImmutableColumn("test",
         new ImmutableValueFormat(DataTypeEnum.Integer, groupSeparator: ",", decimalSeparator: "."));
 
 
@@ -456,7 +458,7 @@ namespace CsvTools.Tests
         FileName = UnitTestStatic.GetTestPath("TestFile.txt"), CodePageId = 65001, FieldDelimiter = "tab"
       };
 
-      csvFile.ColumnCollection.Add(new Column("Title", new ImmutableValueFormat(DataTypeEnum.DateTime)));
+      csvFile.ColumnCollection.Add(new ImmutableColumn("Title", new ImmutableValueFormat(DataTypeEnum.DateTime)));
 
 
       using var test = new CsvFileReader(csvFile.FullPath, csvFile.CodePageId, csvFile.SkipRows, csvFile.HasFieldHeader,
