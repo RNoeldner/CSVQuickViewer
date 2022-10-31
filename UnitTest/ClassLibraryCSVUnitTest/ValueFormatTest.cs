@@ -20,17 +20,9 @@ namespace CsvTools.Tests
   [TestClass]
   public class ValueFormatTest
   {
-    private readonly ValueFormatMutable m_ValueFormatMutableGerman = new ValueFormatMutable()
-    {
-      DateFormat = "dd/MM/yyyy",
-      DateSeparator = ".",
-      DecimalSeparator = ",",
-      False = "Falsch",
-      GroupSeparator = ".",
-      NumberFormat = "0.##",
-      TimeSeparator = "-",
-      True = "Wahr",
-    };
+    private readonly ValueFormatMutable m_ValueFormatMutableGerman = new ValueFormatMutable(dateFormat: "dd/MM/yyyy",
+      dateSeparator: ".", decimalSeparator: ",", asFalse: "Falsch", groupSeparator: ".", numberFormat: "0.##",
+      timeSeparator: "-", asTrue: "Wahr");
 
     [TestMethod]
     public void GetFormatDescriptionTest()
@@ -48,10 +40,10 @@ namespace CsvTools.Tests
       var vf4 = new ImmutableValueFormat(DataTypeEnum.Numeric, numberFormat: "0.##");
       Assert.AreNotEqual(string.Empty, vf4.GetFormatDescription());
 
-      var a = new ValueFormatMutable { DataType = DataTypeEnum.String };
+      var a = new ValueFormatMutable(dataType: DataTypeEnum.String);
       Assert.IsTrue(string.IsNullOrEmpty(a.GetFormatDescription()));
 
-      var b = new ValueFormatMutable { DataType = DataTypeEnum.DateTime };
+      var b = new ValueFormatMutable(dataType: DataTypeEnum.DateTime);
       Assert.IsTrue(b.GetFormatDescription().Contains(ValueFormatExtension.cDateFormatDefault));
     }
 
@@ -100,7 +92,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GroupSeparator()
     {
-      var a = new ValueFormatMutable { DataType = DataTypeEnum.Numeric };
+      var a = new ValueFormatMutable(dataType: DataTypeEnum.Numeric);
       a.GroupSeparator = ",";
       a.DecimalSeparator = ".";
       Assert.AreEqual(",", a.GroupSeparator);
@@ -112,7 +104,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DecimalSeparator()
     {
-      var a = new ValueFormatMutable { DataType = DataTypeEnum.Numeric };
+      var a = new ValueFormatMutable(dataType: DataTypeEnum.Numeric);
       a.GroupSeparator = ".";
       a.DecimalSeparator = ",";
       Assert.AreEqual(",", a.DecimalSeparator);
@@ -124,9 +116,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetTypeAndFormatDescriptionTest()
     {
-      var a = new ValueFormatMutable { DataType = DataTypeEnum.String };
+      var a = new ValueFormatMutable(dataType: DataTypeEnum.String);
       Assert.AreEqual("Text", a.GetTypeAndFormatDescription());
-      var b = new ValueFormatMutable { DataType = DataTypeEnum.DateTime };
+      var b = new ValueFormatMutable(dataType: DataTypeEnum.DateTime);
       Assert.IsTrue(b.GetTypeAndFormatDescription().Contains("Date Time"));
       Assert.IsTrue(b.GetTypeAndFormatDescription().Contains("MM/dd/yyyy"));
     }
@@ -134,7 +126,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void NotifyPropertyChangedTest()
     {
-      var a = new ValueFormatMutable { DataType = DataTypeEnum.DateTime };
+      var a = new ValueFormatMutable(dataType: DataTypeEnum.DateTime);
 
       var fired = false;
       a.PropertyChanged += delegate { fired = true; };
@@ -146,7 +138,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Ctor2()
     {
-      var test2 = new ValueFormatMutable() { DataType = DataTypeEnum.Integer };
+      var test2 = new ValueFormatMutable(dataType: DataTypeEnum.Integer);
       Assert.AreEqual(DataTypeEnum.Integer, test2.DataType);
     }
 
@@ -168,7 +160,7 @@ namespace CsvTools.Tests
     public void ValueFormatCopyFrom()
     {
       var test1 = new ImmutableValueFormat(DataTypeEnum.Double, groupSeparator: ".", decimalSeparator: ",");
-      var test2 = new ValueFormatMutable() { DataType=DataTypeEnum.Boolean };
+      var test2 = new ValueFormatMutable(dataType: DataTypeEnum.Boolean);
       test2.CopyFrom(test1);
       Assert.AreEqual(DataTypeEnum.Double, test2.DataType);
       Assert.AreEqual(",", test2.DecimalSeparator);

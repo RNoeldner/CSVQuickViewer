@@ -469,9 +469,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        FieldDelimiter = ",",
-        HasFieldHeader = true
+        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), FieldDelimiter = ",", HasFieldHeader = true
       };
 
       var fillGuessSettings = new FillGuessSettings
@@ -531,9 +529,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        FieldDelimiter = ",",
-        HasFieldHeader = true
+        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), FieldDelimiter = ",", HasFieldHeader = true
       };
 
       var fillGuessSettings = new FillGuessSettings
@@ -602,9 +598,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        FieldDelimiter = ",",
-        HasFieldHeader = true
+        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), FieldDelimiter = ",", HasFieldHeader = true
       };
 
       // setting.TreatTextNullAsNull = true;
@@ -825,7 +819,7 @@ namespace CsvTools.Tests
     public async Task GetSampleValuesByColIndexAsync()
     {
       var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), HasFieldHeader = true };
-      
+
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier,
         setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier,
@@ -1133,7 +1127,7 @@ namespace CsvTools.Tests
         true,
         false,
         false,
-        new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = "MM/dd/yyyy", DateSeparator = "/" },
+        new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy", dateSeparator: "/"),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"MM/dd/yyyy", res.FoundValueFormat?.DateFormat);

@@ -240,8 +240,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetDifferences()
     {
-      var setting1 = new CsvFile { ID = "ID1", FileName = "MyTest.txt", QualifyOnlyIfNeeded=true };
-      var setting2 = new CsvFile { ID = "ID2", FileName = "MyTest2.txt", QualifyOnlyIfNeeded=false };
+      var setting1 = new CsvFile { ID = "ID1", FileName = "MyTest.txt", QualifyOnlyIfNeeded = true };
+      var setting2 = new CsvFile { ID = "ID2", FileName = "MyTest2.txt", QualifyOnlyIfNeeded = false };
 
       setting1.ColumnCollection.Add(new ImmutableColumn("name", new ImmutableValueFormat(), 1));
       var res = setting1.GetDifferences(setting2).Join();
@@ -321,8 +321,12 @@ namespace CsvTools.Tests
       Assert.AreEqual(2, m_CsvFile.MappingCollection.Count, "FieldMapping");
 
       m_CsvFile.ColumnCollection.Clear();
-      m_CsvFile.ColumnCollection.Add(new Column("ID", DataTypeEnum.Integer) { ColumnOrdinal = 1, Ignore = false, Convert = true });
-      m_CsvFile.ColumnCollection.Add(new Column { ColumnOrdinal = 2, Name = "Name" });
+      m_CsvFile.ColumnCollection.Add(
+        new Column("ID", new ImmutableValueFormat(DataTypeEnum.Integer))
+        {
+          ColumnOrdinal = 1, Ignore = false, Convert = true
+        });
+      m_CsvFile.ColumnCollection.Add(new Column("Name", columnOrdinal: 2));
 
       m_CsvFile.WarnEmptyTailingColumns = false;
       Assert.IsFalse(m_CsvFile.WarnEmptyTailingColumns, "WarnEmptyTailingColumns");

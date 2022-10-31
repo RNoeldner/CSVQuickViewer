@@ -24,7 +24,7 @@ namespace CsvTools.Tests
     public void FormColumnUI()
     {
       var csvFile = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"));
-      var col = new Column("ExamDate", DataTypeEnum.DateTime);
+      var col = new Column("ExamDate", new ImmutableValueFormat(DataTypeEnum.DateTime));
       csvFile.ColumnCollection.Add(col);
 
       using var frm = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false, UnitTestStatic.HtmlStyle);
@@ -47,9 +47,11 @@ namespace CsvTools.Tests
     {
       var col = new Column("MyTest", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat : "dd/MM/yyyy", dateSeparator : ".", timeSeparator : ":" ));
 
-      var df = new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = "dd/MMM/yyy", DateSeparator = "-", TimeSeparator = "#" };
-      using (var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
-        UnitTestStatic.HtmlStyle))
+      var df = new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MMM/yyy", dateSeparator: "-",
+        timeSeparator: "#");
+      using (var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")),
+               new FillGuessSettings(), true,
+               UnitTestStatic.HtmlStyle))
         UnitTestStatic.ShowFormAndClose(frm, .1, f => f.UpdateDateLabel(df, true, "HH:mm", "[UTC]"));
 
       using (var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")), new FillGuessSettings(), true,
@@ -66,7 +68,7 @@ namespace CsvTools.Tests
     public void FormColumnUI_DisplayValues()
     {
       var csvFile = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"));
-      var col = new Column("ExamDate", DataTypeEnum.DateTime);
+      var col = new Column("ExamDate", new ImmutableValueFormat(DataTypeEnum.DateTime));
       csvFile.ColumnCollection.Add(col);
 
       using var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestStatic.HtmlStyle);
@@ -78,7 +80,7 @@ namespace CsvTools.Tests
     public void FormColumnUI_Guess()
     {
       var csvFile = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"));
-      var col = new Column("ExamDate", DataTypeEnum.DateTime);
+      var col = new Column("ExamDate", new ImmutableValueFormat(DataTypeEnum.DateTime));
       csvFile.ColumnCollection.Add(col);
       using var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestStatic.HtmlStyle);
       UnitTestStatic.ShowFormAndClose(form, .2, async frm => await frm.Guess(), .2, UnitTestStatic.Token);
@@ -100,7 +102,7 @@ namespace CsvTools.Tests
     public void FormColumnUI_Opt1()
     {
       var csvFile = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"));
-      var col = new Column("ExamDate", DataTypeEnum.DateTime);
+      var col = new Column("ExamDate", new ImmutableValueFormat(DataTypeEnum.DateTime));
       csvFile.ColumnCollection.Add(col);
 
       using var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestStatic.HtmlStyle);
@@ -113,7 +115,7 @@ namespace CsvTools.Tests
     public void FormColumnUI_Opt2()
     {
       var csvFile = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"));
-      var col = new Column("ID", DataTypeEnum.Integer);
+      var col = new Column("ID", new ImmutableValueFormat(DataTypeEnum.Integer));
       csvFile.ColumnCollection.Add(col);
 
       using var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), false, UnitTestStatic.HtmlStyle);
@@ -135,7 +137,7 @@ namespace CsvTools.Tests
     public void FormColumnUIGetColumnHeader2()
     {
       var csvFile = new CsvFile { ID = "Csv", FileName = UnitTestStatic.GetTestPath("BasicCSV.txt") };
-      var col = new Column("Score", DataTypeEnum.Double);
+      var col = new Column("Score", new ImmutableValueFormat(DataTypeEnum.Double));
       csvFile.ColumnCollection.Add(col);
 
       using var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true, UnitTestStatic.HtmlStyle);
@@ -148,10 +150,10 @@ namespace CsvTools.Tests
     {
       var csvFile = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")) { ID = "Csv" };
 
-      csvFile.ColumnCollection.Add(new Column("ID", DataTypeEnum.Integer));
-      var col = new Column("ExamDate", DataTypeEnum.DateTime);
+      csvFile.ColumnCollection.Add(new Column("ID", new ImmutableValueFormat(DataTypeEnum.Integer)));
+      var col = new Column("ExamDate", new ImmutableValueFormat(DataTypeEnum.DateTime));
       csvFile.ColumnCollection.Add(col);
-      csvFile.ColumnCollection.Add(new Column("Score", DataTypeEnum.Double));
+      csvFile.ColumnCollection.Add(new Column("Score", new ImmutableValueFormat(DataTypeEnum.Double)));
 
       using var form = new FormColumnUI(col, false, csvFile,
         new FillGuessSettings(), true, UnitTestStatic.HtmlStyle);

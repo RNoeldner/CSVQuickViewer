@@ -60,5 +60,46 @@ namespace CsvTools
 
       return stringBuilder.ToString();
     }
+
+    public static IColumn ReplaceValueFormat(this IColumn col, in IValueFormat newFormat) =>
+      new ImmutableColumn(
+        col.Name,
+        newFormat,
+        col.ColumnOrdinal,
+        col.Convert,
+        col.DestinationName,
+        col.Ignore,
+        col.TimePart,
+        col.TimePartFormat,
+        col.TimeZonePart);
+
+    /// <summary>
+    /// Returns  an immutable column if teh source column was an immutable the very same is returned, not copy is created
+    /// </summary>
+    /// <param name="source">an IColumn with the all properties for teh new column</param>
+    /// <returns>and immutable column</returns>
+    public static ImmutableColumn ToImmutableColumn(this IColumn source) =>
+      source as ImmutableColumn ?? new ImmutableColumn(
+        source.Name,
+        source.ValueFormat,
+        source.ColumnOrdinal,
+        source.Convert,
+        source.DestinationName,
+        source.Ignore,
+        source.TimePart,
+        source.TimePartFormat,
+        source.TimeZonePart);
+
+#if !QUICK
+    /// <summary>
+    /// Returns  mutable column that is not related to the original column
+    /// </summary>
+    /// <param name="source">an IColumn with the all properties for teh new column</param>
+    /// <returns></returns>
+    public static Column ToMutableColumn(this IColumn source) =>
+      new Column(source.Name, source.ValueFormat, source.ColumnOrdinal, source.Convert,
+        source.DestinationName, source.Ignore, source.TimePart, source.TimePartFormat, source.TimeZonePart);
+#endif
+
   }
 }

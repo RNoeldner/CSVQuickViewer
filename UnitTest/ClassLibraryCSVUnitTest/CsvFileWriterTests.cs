@@ -31,17 +31,18 @@ namespace CsvTools.Tests
       var readFile = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")) { ID = "Read", FieldDelimiter = ",", CommentLine = "#" };
 
       readFile.ColumnCollection.Add(new Column("ExamDate",
-        new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = @"dd/MM/yyyy" }));
-      readFile.ColumnCollection.Add(new Column("Score", DataTypeEnum.Integer));
-      readFile.ColumnCollection.Add(new Column("Proficiency", DataTypeEnum.Numeric));
-      readFile.ColumnCollection.Add(new Column("IsNativeLang", DataTypeEnum.Boolean) { Ignore = true });
+        new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy")));
+      readFile.ColumnCollection.Add(new Column("Score", new ImmutableValueFormat(DataTypeEnum.Integer)));
+      readFile.ColumnCollection.Add(new Column("Proficiency", new ImmutableValueFormat(DataTypeEnum.Numeric)));
+      readFile.ColumnCollection.Add(
+        new Column("IsNativeLang", new ImmutableValueFormat(DataTypeEnum.Boolean)) { Ignore = true });
 
       UnitTestStatic.MimicSQLReader.AddSetting(readFile);
 
-      m_WriteFile = new CsvFile { ID = "Write", SqlStatement = readFile.ID };
+      m_WriteFile = new CsvFile("dummy") { ID = "Write", SqlStatement = readFile.ID };
 
       m_WriteFile.ColumnCollection.Add(new Column("ExamDate", @"MM/dd/yyyy") { TimePart = "ExamTime" });
-      m_WriteFile.ColumnCollection.Add(new Column { Name = "Proficiency", Ignore = true });
+      m_WriteFile.ColumnCollection.Add(new Column("Proficiency", ignore: true));
     }
 
     [TestMethod]
@@ -60,11 +61,9 @@ namespace CsvTools.Tests
       writeFile.SqlStatement = setting.ID;
       writeFile.FieldDelimiter = "|";
       writeFile.ColumnCollection.Add(
-        new Column("DateTime", new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = "yyyyMMdd" })
+        new Column("DateTime", new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "yyyyMMdd"))
         {
-          TimePartFormat = @"hh:mm",
-          TimePart = "Time",
-          TimeZonePart = "TZ"
+          TimePartFormat = @"hh:mm", TimePart = "Time", TimeZonePart = "TZ"
         });
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
@@ -118,7 +117,7 @@ namespace CsvTools.Tests
       writeFile.SqlStatement = setting.ID;
       writeFile.FieldDelimiter = "|";
 
-      var cf = new Column("DateTime", DataTypeEnum.DateTime)
+      var cf = new Column("DateTime", new ImmutableValueFormat(DataTypeEnum.DateTime))
       {
         TimePartFormat = @"hh:mm",
         TimePart = "Time",
@@ -150,7 +149,10 @@ namespace CsvTools.Tests
         dataTable.Rows.Add(row);
       }
 
-      var writeFile = new CsvFile { ID = "Test.txt", FileName = UnitTestStatic.GetTestPath("Test.txt"), SqlStatement = "Hello" };
+      var writeFile = new CsvFile
+      {
+        ID = "Test.txt", FileName = UnitTestStatic.GetTestPath("Test.txt"), SqlStatement = "Hello"
+      };
 
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.KeyID, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
@@ -177,8 +179,11 @@ namespace CsvTools.Tests
         dataTable.Rows.Add(row);
       }
 
-      var writeFile = new CsvFile { ID = "Test.txt", FileName = UnitTestStatic.GetTestPath("Test.txt"), SqlStatement = "Hello" };
-      writeFile.ColumnCollection.Add(new Column("Text", DataTypeEnum.Integer));
+      var writeFile = new CsvFile
+      {
+        ID = "Test.txt", FileName = UnitTestStatic.GetTestPath("Test.txt"), SqlStatement = "Hello"
+      };
+      writeFile.ColumnCollection.Add(new Column("Text", new ImmutableValueFormat(DataTypeEnum.Integer)));
       writeFile.Header = "##This is a header for {FileName}";
       writeFile.Footer = "##This is a Footer\r\n{Records} in file";
       var count = 0;

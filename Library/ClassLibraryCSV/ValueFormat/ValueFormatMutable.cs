@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
+// ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
 namespace CsvTools
 {
@@ -51,19 +52,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="ValueFormatMutable" /> class.
     /// </summary>
     [Obsolete("Only needed for XML Serialization")]
-    public ValueFormatMutable() : this(ValueFormatExtension.Default)
-    {
-    }
-    /// <summary>
-    ///   Initializes a new instance of the <see cref="ValueFormatMutable" /> class.
-    /// </summary>
-    /// <param name="other">IValueFormat with the information to copy from</param>
-    public ValueFormatMutable(IValueFormat other) : this(other.DataType, other.DateFormat, other.DateSeparator,
-      other.TimeSeparator, other.NumberFormat,
-      other.GroupSeparator, other.DecimalSeparator,
-      other.True, other.False, other.DisplayNullAs, other.Part, other.PartSplitter, other.PartToEnd,
-      other.RegexSearchPattern, other.RegexReplacement, other.ReadFolder, other.WriteFolder,
-      other.FileOutPutPlaceholder, other.Overwrite)
+    public ValueFormatMutable() : this(DataTypeEnum.String)
     {
     }
 
@@ -373,7 +362,7 @@ namespace CsvTools
     public override bool Equals(object? obj) => this.ValueFormatEqual(obj as IValueFormat);
 
     /// <inheritdoc />
-    public object Clone() => new ValueFormatMutable(this);
+    public object Clone() =>  this.ToMutable();
 
     /// <inheritdoc cref="IEquatable{T}" />
     public bool Equals(ValueFormatMutable other) => this.ValueFormatEqual(other);

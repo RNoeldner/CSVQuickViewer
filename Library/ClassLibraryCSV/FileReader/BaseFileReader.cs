@@ -112,7 +112,7 @@ namespace CsvTools
       DestTimeZone =destTimeZone;
       m_ColumnDefinition =
       columnDefinition
-        ?.Select(col => col as ImmutableColumn ?? new ImmutableColumn(col)).ToArray()
+        ?.Select(col => col.ToImmutableColumn()).ToArray()
       ?? Array.Empty<ImmutableColumn>();
       RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       FullPath = fileName;

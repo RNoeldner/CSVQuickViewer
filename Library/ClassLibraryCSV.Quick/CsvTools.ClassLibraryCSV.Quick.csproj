@@ -55,7 +55,6 @@
 		
 		<Compile Include="..\ClassLibraryCSV\BaseFileWriter.cs" Link="BaseFileWriter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ClassLibraryCsvExtensionMethods.cs" Link="ClassLibraryCsvExtensionMethods.cs" />
-		<Compile Include="..\ClassLibraryCSV\ColumnExtension.cs" Link="ColumnExtension.cs" />
 		<Compile Include="..\ClassLibraryCSV\UniqueObservableCollection.cs" Link="UniqueObservableCollection.cs" />
 		<Compile Include="..\ClassLibraryCSV\IWithCopyTo.cs" Link="IWithCopyTo.cs" />
 		<Compile Include="..\ClassLibraryCSV\INotifyPropertyChangedString.cs" Link="INotifyPropertyChangedString.cs" />
@@ -88,6 +87,7 @@
 		<Compile Include="..\ClassLibraryCSV\Logger.cs" Link="Logger.cs" />
 		
 		<Compile Include="..\ClassLibraryCSV\Column\IColumn.cs" Link="Column\IColumn.cs" />
+		<Compile Include="..\ClassLibraryCSV\Column\ColumnExtension.cs" Link="Column\ColumnExtension.cs" />
 		<Compile Include="..\ClassLibraryCSV\ValueFormat\IValueFormat.cs" Link="ValueFormat\IValueFormat.cs" />
 		<Compile Include="..\ClassLibraryCSV\ValueFormat\ImmutableValueFormat.cs" Link="ValueFormat\ImmutableValueFormat.cs" />
 		<Compile Include="..\ClassLibraryCSV\ValueFormat\ValueFormatMutable.cs" Link="ValueFormat\ValueFormatMutable.cs" />

@@ -29,18 +29,19 @@ namespace CsvTools.Tests
 
     private readonly CsvFile m_ValidSetting = new CsvFile
     {
-      FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-      FieldDelimiter = ",",
-      CommentLine = "#"
+      FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), FieldDelimiter = ",", CommentLine = "#"
     };
 
     [TestInitialize]
     public void Init()
     {
-      m_ValidSetting.ColumnCollection.Add(new Column("Score", DataTypeEnum.Integer));
-      m_ValidSetting.ColumnCollection.Add(new Column("Proficiency", DataTypeEnum.Numeric));
-      m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang", DataTypeEnum.Boolean));
-      var cf = new Column("ExamDate", DataTypeEnum.DateTime) { ValueFormatMutable = { DateFormat = @"dd/MM/yyyy" } };
+      m_ValidSetting.ColumnCollection.Add(new Column("Score", new ImmutableValueFormat(DataTypeEnum.Integer)));
+      m_ValidSetting.ColumnCollection.Add(new Column("Proficiency", new ImmutableValueFormat(DataTypeEnum.Numeric)));
+      m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang", new ImmutableValueFormat(DataTypeEnum.Boolean)));
+      var cf = new Column("ExamDate", new ImmutableValueFormat(DataTypeEnum.DateTime))
+      {
+        ValueFormatMutable = { DateFormat = @"dd/MM/yyyy" }
+      };
       m_ValidSetting.ColumnCollection.Add(cf);
     }
 
@@ -154,11 +155,11 @@ namespace CsvTools.Tests
       basIssues.ColumnCollection.Add(new Column("effectiveDate", "yyyy/MM/dd", "-"));
       basIssues.ColumnCollection.Add(new Column("timestamp", "yyyy/MM/ddTHH:mm:ss", "-"));
 
-      basIssues.ColumnCollection.Add(new Column("version", DataTypeEnum.Integer));
-      basIssues.ColumnCollection.Add(new Column("retrainingRequired", DataTypeEnum.Boolean));
+      basIssues.ColumnCollection.Add(new Column("version", new ImmutableValueFormat(DataTypeEnum.Integer)));
+      basIssues.ColumnCollection.Add(new Column("retrainingRequired", new ImmutableValueFormat(DataTypeEnum.Boolean)));
 
-      basIssues.ColumnCollection.Add(new Column("classroomTraining", DataTypeEnum.Boolean));
-      basIssues.ColumnCollection.Add(new Column("webLink", DataTypeEnum.TextToHtml));
+      basIssues.ColumnCollection.Add(new Column("classroomTraining", new ImmutableValueFormat(DataTypeEnum.Boolean)));
+      basIssues.ColumnCollection.Add(new Column("webLink", new ImmutableValueFormat(DataTypeEnum.TextToHtml)));
 
 
       using var test = new CsvFileReader(basIssues.FullPath, basIssues.CodePageId, basIssues.SkipRows,
@@ -324,10 +325,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetInteger32And64()
     {
-      var column = new Column
-      {
-        ValueFormatMutable = { DataType = DataTypeEnum.Integer, GroupSeparator = ",", DecimalSeparator = "." }
-      };
+      var column = new Column("test",
+        new ImmutableValueFormat(DataTypeEnum.Integer, groupSeparator: ",", decimalSeparator: "."));
 
 
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
@@ -454,12 +453,10 @@ namespace CsvTools.Tests
     {
       var csvFile = new CsvFile
       {
-        FileName = UnitTestStatic.GetTestPath("TestFile.txt"),
-        CodePageId = 65001,
-        FieldDelimiter = "tab"
+        FileName = UnitTestStatic.GetTestPath("TestFile.txt"), CodePageId = 65001, FieldDelimiter = "tab"
       };
 
-      csvFile.ColumnCollection.Add(new Column("Title", DataTypeEnum.DateTime));
+      csvFile.ColumnCollection.Add(new Column("Title", new ImmutableValueFormat(DataTypeEnum.DateTime)));
 
 
       using var test = new CsvFileReader(csvFile.FullPath, csvFile.CodePageId, csvFile.SkipRows, csvFile.HasFieldHeader,
@@ -557,8 +554,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"),
-        HasFieldHeader = true
+        FileName = UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"), HasFieldHeader = true
       };
 
 
@@ -1416,9 +1412,7 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        HasFieldHeader = false,
-        SkipRows = 1
+        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), HasFieldHeader = false, SkipRows = 1
       };
       setting.FieldQualifier = "XX";
       setting.FieldDelimiter = ",,";
