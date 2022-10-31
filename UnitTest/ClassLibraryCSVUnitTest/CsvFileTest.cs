@@ -224,7 +224,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileFormatColumnFormatAddExisting()
     {
-      var column = new Column("Name");
+      var column = new ImmutableColumn("Name", new ImmutableValueFormat());
       m_CsvFile.ColumnCollection.Add(column);
       Assert.AreEqual(2, m_CsvFile.ColumnCollection.Count);
     }
@@ -232,7 +232,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileFormatColumnFormatAddNew()
     {
-      var column = new Column("Name2");
+      var column = new ImmutableColumn("Name2", new ImmutableValueFormat());
       m_CsvFile.ColumnCollection.Add(column);
       Assert.AreEqual(3, m_CsvFile.ColumnCollection.Count);
     }
@@ -240,8 +240,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetDifferences()
     {
-      var setting1 = new CsvFile { ID = "ID1", FileName = "MyTest.txt", QualifyOnlyIfNeeded = true };
-      var setting2 = new CsvFile { ID = "ID2", FileName = "MyTest2.txt", QualifyOnlyIfNeeded = false };
+      var setting1 = new CsvFile("MyTest.txt") { ID = "ID1", QualifyOnlyIfNeeded = true };
+      var setting2 = new CsvFile("MyTest2.txt") { ID = "ID2", QualifyOnlyIfNeeded = false };
 
       setting1.ColumnCollection.Add(new ImmutableColumn("name", new ImmutableValueFormat(), 1));
       var res = setting1.GetDifferences(setting2).Join();
@@ -381,13 +381,13 @@ namespace CsvTools.Tests
     [TestMethod]
     public void InternalIDFallback()
     {
-      var setting = new CsvFile { FileName = "MyTest.txt" };
+      var setting = new CsvFile("MyTest.txt");
       Assert.AreEqual("MyTest.txt", setting.InternalID);
       setting.ID = Guid.NewGuid().ToString();
       Assert.AreEqual(setting.ID, setting.InternalID);
       Assert.AreEqual(setting.ID, ((BaseSettings) setting).InternalID);
 
-      var setting2 = new JsonFile { ID= "JsonFile", FileName = "MyTest.txt" };
+      var setting2 = new JsonFile("MyTest.txt") { ID = "JsonFile" };
       Assert.AreEqual("JsonFile", setting2.ID);
       Assert.AreEqual("JsonFile", setting2.InternalID);
     }
@@ -396,7 +396,7 @@ namespace CsvTools.Tests
     public void NotifyPropertyChangedString()
     {
       var oldValue = string.Empty;
-      var setting = new CsvFile { ID = "TestID", FileName = "MyTest.txt" };
+      var setting = new CsvFile("MyTest.txt") { ID = "TestID" };
       setting.PropertyChangedString += (_, args) => oldValue = args.OldValue;
       setting.FileName = "NewName.txt";
       Assert.AreEqual("MyTest.txt", oldValue);
@@ -405,9 +405,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void SourceFileSettings()
     {
-      var test = new CsvFile();
-      var test1 = new CsvFile();
-      var test2 = new CsvFile();
+      var test = new CsvFile("T1");
+      var test1 = new CsvFile("T1");
+      var test2 = new CsvFile("T1");
 
       test.SourceFileSettings = new[] { test1, test2 };
       Assert.AreEqual(2, test.SourceFileSettings.Count);

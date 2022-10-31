@@ -9,8 +9,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ColumnErrorDictionaryTest1Async()
     {
-      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("Sessions.txt"), HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t" };
-      setting.ColumnCollection.Add(new Column("Start Date") { Ignore = true });
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("Sessions.txt"))
+      {
+        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
+      };
+      setting.ColumnCollection.Add(new ImmutableColumn("Start Date", new ImmutableValueFormat(), ignore: true));
 
       using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,

@@ -25,20 +25,18 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetSourceColumnInformation_OverwrittenType()
     {
-      var cc = new ColumnCollection();
-      cc.Add(new Column("Test1", new ImmutableValueFormat(DataTypeEnum.Double)));
-      cc.Add(
+      var cc = new ColumnCollection
+      {
+        new ImmutableColumn("Test1", new ImmutableValueFormat(DataTypeEnum.Double)),
         new Column("Test2",
           new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"))
         {
           TimeZonePart = "\"UTC\""
-        });
-      cc.Add(
-        new Column("Test3",
-          new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"))
-        {
-          TimePart = "Test4", TimePartFormat = "HH:mm"
-        });
+        },
+        new ImmutableColumn("Test3",
+          new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"), timePart: "Test4",
+          timePartFormat: "HH:mm")
+      };
 
       var dt = new DataTable();
       dt.Columns.AddRange(new[]
@@ -49,7 +47,7 @@ namespace CsvTools.Tests
 
       using var reader = dt.CreateDataReader();
       using var dt2 = reader.GetSchemaTable();
-      var res = BaseFileWriter.GetColumnInformation(new ValueFormatMutable(), cc, dt2).ToList();
+      var res = BaseFileWriter.GetColumnInformation(new ImmutableValueFormat(), cc, dt2).ToList();
       Assert.AreEqual(4, res.Count());
 
       Assert.AreEqual(DataTypeEnum.Double, res[0].ValueFormat.DataType,
@@ -64,12 +62,12 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetSourceColumnInformation_AddedTime()
     {
-      var cc = new ColumnCollection();
-      cc.Add(new Column("Test3",
-        new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"))
+      var cc = new ColumnCollection
       {
-        TimeZonePart = "\"UTC\"", TimePart = "Col2"
-      });
+        new ImmutableColumn("Test3",
+          new ImmutableValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"),
+          timeZonePart: "\"UTC\"", timePart: "Col2")
+      };
 
       var dt = new DataTable();
       dt.Columns.AddRange(new[]
@@ -79,7 +77,7 @@ namespace CsvTools.Tests
       });
       using var reader = dt.CreateDataReader();
       using var dt2 = reader.GetSchemaTable();
-      var res = BaseFileWriter.GetColumnInformation(new ValueFormatMutable(), cc, dt2).ToList();
+      var res = BaseFileWriter.GetColumnInformation(new ImmutableValueFormat(), cc, dt2).ToList();
       Assert.AreEqual(4, res.Count());
       Assert.AreEqual(DataTypeEnum.Integer, res[0].ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.DateTime, res[2].ValueFormat.DataType);
