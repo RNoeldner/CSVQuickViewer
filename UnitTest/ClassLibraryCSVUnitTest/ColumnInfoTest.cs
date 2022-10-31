@@ -26,17 +26,18 @@ namespace CsvTools.Tests
     public void GetSourceColumnInformation_OverwrittenType()
     {
       var cc = new ColumnCollection();
-      cc.Add(new Column("Test1", DataTypeEnum.Double));
+      cc.Add(new Column("Test1", new ImmutableValueFormat(DataTypeEnum.Double)));
       cc.Add(
-        new Column("Test2", new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
+        new Column("Test2",
+          new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"))
         {
           TimeZonePart = "\"UTC\""
         });
       cc.Add(
-        new Column("Test3", new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
+        new Column("Test3",
+          new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"))
         {
-          TimePart = "Test4",
-          TimePartFormat = "HH:mm"
+          TimePart = "Test4", TimePartFormat = "HH:mm"
         });
 
       var dt = new DataTable();
@@ -64,10 +65,10 @@ namespace CsvTools.Tests
     public void GetSourceColumnInformation_AddedTime()
     {
       var cc = new ColumnCollection();
-      cc.Add(new Column("Test3", new ValueFormatMutable() { DataType = DataTypeEnum.DateTime, DateFormat = "dd/MM/yyyy HH:mm" })
+      cc.Add(new Column("Test3",
+        new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"))
       {
-        TimeZonePart = "\"UTC\"",
-        TimePart = "Col2"
+        TimeZonePart = "\"UTC\"", TimePart = "Col2"
       });
 
       var dt = new DataTable();

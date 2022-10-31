@@ -56,10 +56,7 @@ namespace CsvTools
         if (fileReader != null)
         {
           var iColumn = fileReader.GetColumn(col);
-          if (iColumn is ImmutableColumn immutableColumn)
-            column = immutableColumn;
-          else
-            column = new ImmutableColumn(iColumn);
+          column = iColumn.ToImmutableColumn();
         }
         else
         {

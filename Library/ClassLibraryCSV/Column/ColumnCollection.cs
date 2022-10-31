@@ -33,7 +33,7 @@ namespace CsvTools
       if (column is null ||string.IsNullOrEmpty(column.Name))
         throw new ArgumentException("The name of a column can not be empty in the collection", nameof(column));
 
-      base.Add(column as ImmutableColumn ?? new ImmutableColumn(column));
+      base.Add(column.ToImmutableColumn());
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ namespace CsvTools
       if (index != -1)
       {
         Items.RemoveAt(index);
-        Items.Insert(index, column as ImmutableColumn ?? new ImmutableColumn(column));
+        Items.Insert(index, column.ToImmutableColumn());
         OnCollectionChanged(
           new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized
             .NotifyCollectionChangedAction.Reset));

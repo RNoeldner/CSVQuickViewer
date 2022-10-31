@@ -98,9 +98,11 @@ namespace CsvTools.Tests
 
       file.MappingCollection.Add(new Mapping("Fld1", "FldA"));
       file.MappingCollection.Add(new Mapping("Fld2", "FldB"));
-      file.ColumnCollection.Add(new Column("ID", DataTypeEnum.Integer) { ColumnOrdinal = 1, Ignore = false });
+      file.ColumnCollection.Add(
+        new Column("ID", new ImmutableValueFormat(DataTypeEnum.Integer)) { ColumnOrdinal = 1, Ignore = false });
 #pragma warning disable CS0618
-      file.ColumnCollection.Add(new Column("Name", DataTypeEnum.TextPart) { ColumnOrdinal = 2, Part = 2 });
+      file.ColumnCollection.Add(
+        new Column("Name", new ImmutableValueFormat(DataTypeEnum.TextPart)) { ColumnOrdinal = 2, Part = 2 });
 #pragma warning restore CS0618
       return file;
     }

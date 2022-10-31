@@ -11,12 +11,15 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
+
+// ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
 namespace CsvTools
 {
@@ -27,13 +30,13 @@ namespace CsvTools
   [Serializable]
   public sealed class Column : NotifyPropertyChangedBase, IColumn
   {
-    private bool m_Convert = true;
-    private string m_DestinationName = string.Empty;
+    private bool m_Convert;
+    private string m_DestinationName;
     private bool m_Ignore;
     private string m_Name;
-    private string m_TimePart = string.Empty;
-    private string m_TimePartFormat = ImmutableColumn.cDefaultTimePartFormat;
-    private string m_TimeZonePart = string.Empty;
+    private string m_TimePart;
+    private string m_TimePartFormat;
+    private string m_TimeZonePart;
     private int m_ColumnOrdinal;
 
     [Obsolete("Only needed for XML Serialization")]
@@ -42,18 +45,20 @@ namespace CsvTools
     {
     }
 
-    public Column(IColumn source)
+    [JsonConstructor]
+    public Column(
+      in string name,
+      in IValueFormat? valueFormat = null,
+      int columnOrdinal = -1,
+      bool? convert = null,
+      in string destinationName = "",
+      bool ignore = false,
+      in string timePart = "",
+      in string timePartFormat = ImmutableColumn.cDefaultTimePartFormat,
+      in string timeZonePart = "")
     {
-      ColumnOrdinal = source.ColumnOrdinal;
-      m_Convert = source.Convert;
-      m_DestinationName = source.DestinationName;
-      m_Ignore = source.Ignore;
-      m_Name = source.Name;
-      m_TimePart = source.TimePart;
-      m_TimePartFormat = source.TimePartFormat;
-      m_TimeZonePart = source.TimeZonePart;
-
-      ValueFormatMutable = new ValueFormatMutable(source.ValueFormat);
+      m_Name = name ?? throw new ArgumentNullException(nameof(name));
+      ValueFormatMutable = valueFormat is null ? new ValueFormatMutable(DataTypeEnum.String) : valueFormat.ToMutable();
       ValueFormatMutable.PropertyChanged += (sender, args) =>
       {
         NotifyPropertyChanged(nameof(ValueFormatMutable));
@@ -62,38 +67,19 @@ namespace CsvTools
         if (args.PropertyName.Equals(nameof(IValueFormat.DataType)) && sender is IValueFormat valueFormat)
           Convert = valueFormat.DataType != DataTypeEnum.String;
       };
+      m_ColumnOrdinal = columnOrdinal;
+
+      m_DestinationName = destinationName;
+      m_Ignore = ignore;
+      m_TimePart = timePart ?? string.Empty;
+      m_TimePartFormat = timePartFormat ?? ImmutableColumn.cDefaultTimePartFormat;
+      m_TimeZonePart = timeZonePart ?? string.Empty;
+      m_Convert = convert ?? ValueFormat.DataType != DataTypeEnum.String;
     }
 
-    public Column(IColumn source, IValueFormat format)
+    public Column(string name, string dateFormat, string dateSeparator = ValueFormatExtension.cDateSeparatorDefault) :
+      this(name, new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat, dateSeparator))
     {
-      ColumnOrdinal = source.ColumnOrdinal;
-      m_Convert = source.Convert;
-      m_DestinationName = source.DestinationName;
-      m_Ignore = source.Ignore;
-      m_Name = source.Name;
-      m_TimePart = source.TimePart;
-      m_TimePartFormat = source.TimePartFormat;
-      m_TimeZonePart = source.TimeZonePart;
-      ValueFormatMutable = new ValueFormatMutable(format);
-    }
-
-    [JsonConstructor]
-    public Column(string name, IValueFormat valueFormat)
-    {
-      m_Name = name;
-      ValueFormatMutable = new ValueFormatMutable(valueFormat);
-    }
-
-    public Column(string name, DataTypeEnum dataType = DataTypeEnum.String)
-    {
-      m_Name = name;
-      ValueFormatMutable = new ValueFormatMutable(dataType);
-    }
-
-    public Column(string name, string dateFormat, string dateSeparator = ValueFormatExtension.cDateSeparatorDefault)
-    {
-      m_Name = name;
-      ValueFormatMutable = new ValueFormatMutable(DataTypeEnum.DateTime, dateFormat, dateSeparator);      
     }
 
     /// <summary>
@@ -169,7 +155,7 @@ namespace CsvTools
       set => ValueFormatMutable.False = value;
     }
 
-    
+
     /// <summary>
     ///   Gets or sets the group separator.
     /// </summary>
@@ -211,7 +197,7 @@ namespace CsvTools
       get => ValueFormatMutable.Part;
       set => ValueFormatMutable.Part = value;
     }
-    
+
     /// <summary>
     ///   Gets or sets the splitter.
     /// </summary>
@@ -254,7 +240,7 @@ namespace CsvTools
       get => ValueFormatMutable.TimeSeparator;
       set => ValueFormatMutable.TimeSeparator = value;
     }
-    
+
     /// <summary>
     ///   Gets or sets the representation for true.
     /// </summary>
@@ -270,8 +256,7 @@ namespace CsvTools
       set => ValueFormatMutable.True = value;
     }
 
-    [JsonIgnore]
-    public ValueFormatMutable ValueFormatMutable { get;  }
+    [JsonIgnore] public ValueFormatMutable ValueFormatMutable { get; }
 
     /// <summary>
     ///   The Ordinal Position of the column
@@ -307,7 +292,7 @@ namespace CsvTools
       get => m_DestinationName;
       set => SetField(ref m_DestinationName, value, StringComparison.Ordinal);
     }
-    
+
     [XmlIgnore]
     [JsonIgnore]
     public bool DestinationNameSpecified => !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
@@ -347,7 +332,7 @@ namespace CsvTools
       get => m_TimePart;
       set => SetField(ref m_TimePart, value, StringComparison.Ordinal);
     }
-       
+
     /// <summary>
     ///   Gets or sets the name.
     /// </summary>
@@ -361,7 +346,8 @@ namespace CsvTools
     }
 
     [JsonIgnore]
-    public bool TimePartFormatSpecified =>  ValueFormatMutable.DataType == DataTypeEnum.DateTime && m_TimePartFormat != ImmutableColumn.cDefaultTimePartFormat;
+    public bool TimePartFormatSpecified => ValueFormatMutable.DataType == DataTypeEnum.DateTime &&
+                                           m_TimePartFormat != ImmutableColumn.cDefaultTimePartFormat;
 
     /// <summary>
     ///   Gets or sets the name.
@@ -399,11 +385,15 @@ namespace CsvTools
         return true;
 
       return ColumnOrdinal == other.ColumnOrdinal && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
-                                                  && string.Equals(DestinationName, other.DestinationName, StringComparison.OrdinalIgnoreCase)
+                                                  && string.Equals(DestinationName, other.DestinationName,
+                                                    StringComparison.OrdinalIgnoreCase)
                                                   && Ignore == other.Ignore
-                                                  && string.Equals(TimePart, other.TimePart, StringComparison.OrdinalIgnoreCase)
-                                                  && string.Equals(TimePartFormat, other.TimePartFormat, StringComparison.Ordinal)
-                                                  && string.Equals(TimeZonePart, other.TimeZonePart, StringComparison.OrdinalIgnoreCase)
+                                                  && string.Equals(TimePart, other.TimePart,
+                                                    StringComparison.OrdinalIgnoreCase)
+                                                  && string.Equals(TimePartFormat, other.TimePartFormat,
+                                                    StringComparison.Ordinal)
+                                                  && string.Equals(TimeZonePart, other.TimeZonePart,
+                                                    StringComparison.OrdinalIgnoreCase)
                                                   && Convert == other.Convert
                                                   && ValueFormatMutable.Equals(other.ValueFormat);
     }

@@ -29,10 +29,13 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      m_ValidSetting.ColumnCollection.Add(new Column("Score", DataTypeEnum.Integer));
-      m_ValidSetting.ColumnCollection.Add(new Column("Proficiency", DataTypeEnum.Numeric));
-      m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang", DataTypeEnum.Boolean));
-      var cf = new Column("ExamDate", DataTypeEnum.DateTime) { ValueFormatMutable = { DateFormat = @"dd/MM/yyyy" } };
+      m_ValidSetting.ColumnCollection.Add(new Column("Score", new ImmutableValueFormat(DataTypeEnum.Integer)));
+      m_ValidSetting.ColumnCollection.Add(new Column("Proficiency", new ImmutableValueFormat(DataTypeEnum.Numeric)));
+      m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang", new ImmutableValueFormat(DataTypeEnum.Boolean)));
+      var cf = new Column("ExamDate", new ImmutableValueFormat(DataTypeEnum.DateTime))
+      {
+        ValueFormatMutable = { DateFormat = @"dd/MM/yyyy" }
+      };
       m_ValidSetting.ColumnCollection.Add(cf);
     }
 

@@ -12,7 +12,6 @@
  *
  */
 #nullable enable
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -275,8 +274,7 @@ namespace CsvTools
                 newValueFormat,
                 oldValueFormat);
               result.Add($"{readerColumn.Name} – Format : {newValueFormat} – updated from {oldValueFormat}");
-              columnCollection.Replace(
-                new ImmutableColumn(columnCollection[colIndexCurrent], checkResult.FoundValueFormat));
+              columnCollection.Replace(columnCollection[colIndexCurrent].ReplaceValueFormat(checkResult.FoundValueFormat));
             }
           }
           // new Column
@@ -290,7 +288,7 @@ namespace CsvTools
 
             Logger.Information("{column} – Format : {format}", readerColumn.Name, format.GetTypeAndFormatDescription());
             result.Add($"{readerColumn.Name} – Format : {format.GetTypeAndFormatDescription()}");
-            columnCollection.Add(new ImmutableColumn(readerColumn, format));
+            columnCollection.Add(readerColumn.ReplaceValueFormat(format));
 
             // Adjust or Set the common date format
             if (format.DataType == DataTypeEnum.DateTime)
@@ -338,11 +336,11 @@ namespace CsvTools
               result.Add(
                 $"{columnCollection[colIndexExisting].Name} – Format : {checkResult.FoundValueFormat.GetTypeAndFormatDescription()} – updated from {oldVf.GetTypeAndFormatDescription()}");
               columnCollection.Replace(
-                new ImmutableColumn(columnCollection[colIndexExisting], checkResult.FoundValueFormat));
+                columnCollection[colIndexExisting].ReplaceValueFormat(checkResult.FoundValueFormat));
             }
             else
             {
-              columnCollection.Add(new ImmutableColumn(readerColumn, checkResult.FoundValueFormat));
+              columnCollection.Add(readerColumn.ReplaceValueFormat(checkResult.FoundValueFormat));
             }
           }
         }
@@ -470,9 +468,7 @@ namespace CsvTools
                   cancellationToken).ConfigureAwait(false)).First().Value).Values.FirstOrDefault();
               if (firstValueNewColumn != null && (firstValueNewColumn.Length == 8 || firstValueNewColumn.Length == 5))
               {
-                columnCollection.Add(
-                  new ImmutableColumn(
-                    columnTime,
+                columnCollection.Add(columnTime.ReplaceValueFormat(
                     new ImmutableValueFormat(DataTypeEnum.DateTime,
                       firstValueNewColumn.Length == 8 ? "HH:mm:ss" : "HH:mm")));
                 Logger.Information(

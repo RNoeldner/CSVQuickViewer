@@ -12,9 +12,10 @@
  *
  */
 #nullable enable
-
 using Newtonsoft.Json;
 using System;
+
+// ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
 namespace CsvTools
 {
@@ -25,69 +26,46 @@ namespace CsvTools
   public class ImmutableColumn : IColumn
   {
     public const string cDefaultTimePartFormat = "HH:mm:ss";
-
-    public ImmutableColumn(in IColumn col)
-      : this(
-        col.Name,
-        col.ValueFormat,
-        col.ColumnOrdinal,
-        col.Convert,
-        col.DestinationName,
-        col.Ignore,
-        col.TimePart,
-        col.TimePartFormat,
-        col.TimeZonePart)
-    {
-    }
-
-    public ImmutableColumn(in IColumn col, in IValueFormat format)
-      : this(
-        col.Name,
-        format,
-        col.ColumnOrdinal,
-        col.Convert,
-        col.DestinationName,
-        col.Ignore,
-        col.TimePart,
-        col.TimePartFormat,
-        col.TimeZonePart)
-    {
-    }
-
-    public ImmutableColumn(in string name) : this(name, new ImmutableValueFormat(), -1)
-    {
-    }
+    private bool m_ColumnFormatterCreated;
+    private IColumnFormatter? m_ColumnFormatter;
 
     public ImmutableColumn(
       in string name,
       in IValueFormat valueFormat,
-      int columnOrdinal,
+      int columnOrdinal = -1,
       bool? convert = null,
       in string destinationName = "",
       bool ignore = false,
       in string timePart = "",
-      in string timePartFormat = "",
+      in string timePartFormat = cDefaultTimePartFormat,
       in string timeZonePart = "")
     {
       Name = name ?? throw new ArgumentNullException(nameof(name));
-      if (valueFormat is null)
-        throw new ArgumentNullException(nameof(valueFormat));
+      ValueFormat = valueFormat.ToImmutable();
       ColumnOrdinal = columnOrdinal;
-      Convert = convert ?? valueFormat.DataType != DataTypeEnum.String;
+
       DestinationName = destinationName;
       Ignore = ignore;
-
-      TimePart = timePart;
-      TimePartFormat = timePartFormat;
-      TimeZonePart = timeZonePart;
-
-      ValueFormat = valueFormat is ImmutableValueFormat immutable
-        ? immutable
-        : new ImmutableValueFormat(valueFormat);
-      ColumnFormatter = ColumnFormatterFactory.GetColumnFormatter(columnOrdinal, valueFormat);
+      TimePart = timePart ?? string.Empty;
+      TimePartFormat = timePartFormat ?? cDefaultTimePartFormat;
+      TimeZonePart = timeZonePart?? string.Empty;
+      Convert = convert ?? ValueFormat.DataType != DataTypeEnum.String;
     }
 
-    public IColumnFormatter? ColumnFormatter { get; }
+    /// <summary>
+    ///  Get the ColumnFormatter Class from <see cref="ColumnFormatterFactory"/>
+    ///  Only an Immutable Column does have a ColumnFormatter
+    /// </summary>
+    public IColumnFormatter? ColumnFormatter
+    {
+      get
+      {
+        if (m_ColumnFormatterCreated)
+          return m_ColumnFormatter;
+        m_ColumnFormatterCreated = true;
+        return m_ColumnFormatter = ColumnFormatterFactory.GetColumnFormatter(ColumnOrdinal, ValueFormat);
+      }
+    }
 
     /// <inheritdoc />
     public int ColumnOrdinal { get; }
@@ -115,13 +93,11 @@ namespace CsvTools
 
     public IValueFormat ValueFormat { get; }
 
-    public object Clone() => new ImmutableColumn(this);
-
     public bool Equals(IColumn? other)
     {
       if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
-      return ColumnOrdinal == other.ColumnOrdinal 
+      return ColumnOrdinal == other.ColumnOrdinal
              && Convert == other.Convert
              && DestinationName == other.DestinationName && Ignore == other.Ignore
              && Name == other.Name && TimePart == other.TimePart
@@ -132,7 +108,7 @@ namespace CsvTools
 
     public bool Equals(ImmutableColumn x, ImmutableColumn y) => x.Equals(y);
 
-    public int GetHashCode(ImmutableColumn obj) => obj.GetHashCode();
+    public int GetHashCode(ImmutableColumn obj) => GetHashCode();
 
     public override bool Equals(object? obj)
     {
@@ -162,7 +138,7 @@ namespace CsvTools
 
     public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
 
-    
+
     /// <summary>
     /// Identifier in collections, similar to a hashcode based on a  properties that should be unique in a collection
     /// </summary>
@@ -170,6 +146,6 @@ namespace CsvTools
     /// In case a required property is not set, this should raise an error
     /// </remarks>
     [JsonIgnore]
-    public int CollectionIdentifier => Name.IdentifierHash(); 
+    public int CollectionIdentifier => Name.IdentifierHash();
   }
 }

@@ -77,7 +77,7 @@ namespace CsvTools.Tests
     {
       var jsonFile = new JsonFile("SomeFileName.json") { Row = "{0}" };
       m_JsonFile.SqlStatement = "dummy";
-      var res = FunctionalDI.GetFileWriter(jsonFile,  UnitTestStatic.Token);
+      var res = FunctionalDI.GetFileWriter(jsonFile, UnitTestStatic.Token);
       Assert.IsInstanceOfType(res, typeof(IFileWriter));
     }
 
@@ -112,14 +112,18 @@ namespace CsvTools.Tests
       Assert.AreEqual(2, m_JsonFile.MappingCollection.Count, "FieldMapping");
 
       m_JsonFile.ColumnCollection.Clear();
-      m_JsonFile.ColumnCollection.Add(new Column("ID", DataTypeEnum.Integer) { ColumnOrdinal = 1, Ignore = false, Convert = true });
-      m_JsonFile.ColumnCollection.Add(new Column { ColumnOrdinal = 2, Name = "Name" });
+      m_JsonFile.ColumnCollection.Add(
+        new Column("ID", new ImmutableValueFormat(DataTypeEnum.Integer))
+        {
+          ColumnOrdinal = 1, Ignore = false, Convert = true
+        });
+      m_JsonFile.ColumnCollection.Add(new Column("Name", columnOrdinal: 2));
     }
 
     [TestMethod]
     public void StructuredFileTestCtor()
     {
-      var test = new JsonFile();
+      var test = new JsonFile("");
       Assert.IsTrue(string.IsNullOrEmpty(test.FileName));
 
       var test2 = new JsonFile("Hello");

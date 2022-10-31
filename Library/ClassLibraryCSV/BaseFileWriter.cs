@@ -97,7 +97,7 @@ namespace CsvTools
         : new ImmutableValueFormat();
       ColumnDefinition =
         columnDefinition
-          ?.Select(col => col as ImmutableColumn ?? new ImmutableColumn(col)).ToList()
+          ?.Select(col => col.ToImmutableColumn()).ToList()
         ?? new List<ImmutableColumn>();
 
       FileSettingDisplay = fileSettingDisplay;

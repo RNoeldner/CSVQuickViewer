@@ -20,7 +20,7 @@ namespace CsvTools
 {
   public static class ValueFormatExtension
   {
-    public static IValueFormat Default = new ImmutableValueFormat();
+    public static readonly IValueFormat Default = new ImmutableValueFormat();
 
     public const string cDateFormatDefault = "MM/dd/yyyy";
     public const string cDateSeparatorDefault = "/";
@@ -136,7 +136,32 @@ namespace CsvTools
     }
 
     public static bool IsDefault(this IValueFormat one) => ValueFormatEqual(one, Default);
-    
+
+    /// <summary>
+    /// Returns  an immutable ValueFormat if the source column was immutable the very same is returned, not copy is created
+    /// </summary>
+    /// <param name="source">an IValueFormat with the all properties for the new format</param>
+    /// <returns>and immutable column</returns>
+    public static ImmutableValueFormat ToImmutable(this IValueFormat source)
+    => source as ImmutableValueFormat ?? new ImmutableValueFormat(source.DataType, source.DateFormat,
+        source.DateSeparator, source.TimeSeparator, source.NumberFormat, source.GroupSeparator,
+        source.DecimalSeparator, source.True, source.False, source.DisplayNullAs,
+        source.Part, source.PartSplitter, source.PartToEnd, source.RegexSearchPattern,
+        source.RegexReplacement, source.ReadFolder, source.WriteFolder, source.FileOutPutPlaceholder, source.Overwrite);
+
+    /// <summary>
+    /// Returns  mutable ValueFormat that is not related to the original column
+    /// </summary>
+    /// <param name="source">an IValueFormat with the all properties for the new format</param>
+    /// <returns></returns>
+    public static ValueFormatMutable ToMutable(this IValueFormat source)
+    => new ValueFormatMutable(source.DataType, source.DateFormat, source.DateSeparator,
+          source.TimeSeparator, source.NumberFormat,
+          source.GroupSeparator, source.DecimalSeparator,
+          source.True, source.False, source.DisplayNullAs, source.Part, source.PartSplitter, source.PartToEnd,
+          source.RegexSearchPattern, source.RegexReplacement, source.ReadFolder, source.WriteFolder,
+          source.FileOutPutPlaceholder, source.Overwrite);
+
     /// <summary>
     /// Checks if two value formats are equal
     /// </summary>

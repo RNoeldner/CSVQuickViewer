@@ -60,14 +60,14 @@ namespace CsvTools.Tests
     public static Column[] ColumnsDt =
     {
       new Column("string"), //0
-      new Column("int", DataTypeEnum.Integer), //1
-      new Column("DateTime", DataTypeEnum.DateTime), //2
-      new Column("bool", DataTypeEnum.Boolean), //3
-      new Column("double", DataTypeEnum.Double), //4
-      new Column("numeric", DataTypeEnum.Numeric), //5
+      new Column("int", new ImmutableValueFormat(DataTypeEnum.Integer)), //1
+      new Column("DateTime", new ImmutableValueFormat(DataTypeEnum.DateTime)), //2
+      new Column("bool", new ImmutableValueFormat(DataTypeEnum.Boolean)), //3
+      new Column("double", new ImmutableValueFormat(DataTypeEnum.Double)), //4
+      new Column("numeric", new ImmutableValueFormat(DataTypeEnum.Numeric)), //5
       new Column("AllEmpty"), //6
       new Column("PartEmpty"), //7
-      new Column("ID", DataTypeEnum.Integer) //8
+      new Column("ID", new ImmutableValueFormat(DataTypeEnum.Integer)) //8
     };
 
     public static HtmlStyle HtmlStyle { get; } = new HtmlStyle();
@@ -179,7 +179,7 @@ namespace CsvTools.Tests
       MimicSql();
       Token = context.CancellationTokenSource.Token;
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
-      
+
       Application.ThreadException += (sender, args) =>
       {
         if (!Token.IsCancellationRequested)
@@ -301,19 +301,19 @@ namespace CsvTools.Tests
       };
 
       readFile.ColumnCollection.Add(
-        new Column("DateTime", new ValueFormatMutable { DataType = DataTypeEnum.DateTime, DateFormat = @"dd/MM/yyyy" })
+        new Column("DateTime", new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"))
         {
           TimePart = "Time", TimePartFormat = "HH:mm:ss"
         });
-      readFile.ColumnCollection.Add(new Column("Integer", DataTypeEnum.Integer));
+      readFile.ColumnCollection.Add(new Column("Integer", new ImmutableValueFormat(DataTypeEnum.Integer)));
       readFile.ColumnCollection.Add(
         new ImmutableColumn("Numeric", new ImmutableValueFormat(DataTypeEnum.Numeric, decimalSeparator: "."), 0));
       readFile.ColumnCollection.Add(
-        new Column("Double", new ValueFormatMutable { DataType = DataTypeEnum.Double, DecimalSeparator = "." }));
-      readFile.ColumnCollection.Add(new Column("Boolean", DataTypeEnum.Boolean));
-      readFile.ColumnCollection.Add(new Column("GUID", DataTypeEnum.Guid));
+        new Column("Double", new ValueFormatMutable(dataType: DataTypeEnum.Double, decimalSeparator: ".")));
+      readFile.ColumnCollection.Add(new Column("Boolean", new ImmutableValueFormat(DataTypeEnum.Boolean)));
+      readFile.ColumnCollection.Add(new Column("GUID", new ImmutableValueFormat(DataTypeEnum.Guid)));
       readFile.ColumnCollection.Add(
-        new Column("Time", new ValueFormatMutable { DataType = DataTypeEnum.DateTime, DateFormat = "HH:mm:ss" })
+        new Column("Time", new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"))
         {
           Ignore = true
         });
@@ -323,16 +323,16 @@ namespace CsvTools.Tests
     public static CsvFile ReaderGetBasicCSV(string id = "BasicCSV")
     {
       var readFile = new CsvFile { ID = id, CommentLine = "#", FileName = Path.Combine(GetTestPath("BasicCSV.txt")) };
-      var examDateFld = new Column("ExamDate", DataTypeEnum.DateTime);
+      var examDateFld = new Column("ExamDate", new ImmutableValueFormat(DataTypeEnum.DateTime));
       readFile.ColumnCollection.Add(examDateFld);
 
       examDateFld.ValueFormatMutable.DateFormat = @"dd/MM/yyyy";
 
-      readFile.ColumnCollection.Add(new Column("Score", DataTypeEnum.Integer));
+      readFile.ColumnCollection.Add(new Column("Score", new ImmutableValueFormat(DataTypeEnum.Integer)));
 
-      readFile.ColumnCollection.Add(new Column("Proficiency", DataTypeEnum.Numeric));
+      readFile.ColumnCollection.Add(new Column("Proficiency", new ImmutableValueFormat(DataTypeEnum.Numeric)));
 
-      readFile.ColumnCollection.Add(new Column("IsNativeLang", DataTypeEnum.Boolean));
+      readFile.ColumnCollection.Add(new Column("IsNativeLang", new ImmutableValueFormat(DataTypeEnum.Boolean)));
 
       return readFile;
     }
@@ -500,8 +500,8 @@ namespace CsvTools.Tests
       var frm = typed as Form;
 
       var isClosed = false;
-      frm.FormClosed += (s,o) => 
-      isClosed=true;
+      frm.FormClosed += (s, o) =>
+        isClosed = true;
 
       frm.TopMost = true;
       frm.ShowInTaskbar = false;

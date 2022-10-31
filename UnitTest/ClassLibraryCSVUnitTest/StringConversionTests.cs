@@ -192,7 +192,7 @@ namespace CsvTools.Tests
         new DateTime(2001, 02, 1, 07, 13, 55, 0),
         null,
         false,
-        new Column().ValueFormatMutable,
+        new ImmutableValueFormat(DataTypeEnum.String),
         out _);
       Assert.AreEqual(new DateTime(2010, 01, 1, 07, 13, 55, 0), res);
     }
@@ -272,19 +272,19 @@ namespace CsvTools.Tests
         "13/01/2010 10:11",
         StringConversion.DateTimeToString(
           new DateTime(2010, 1, 13, 10, 11, 14, 0),
-          new ValueFormatMutable { DateFormat = @"dd/MM/yyyy HH:mm" }));
+          new ValueFormatMutable(dateFormat: @"dd/MM/yyyy HH:mm")));
       // Make sure exchanging the default separators do not mess with the result
       Assert.AreEqual(
         "13:01:2010 10/11",
         StringConversion.DateTimeToString(
           new DateTime(2010, 1, 13, 10, 11, 14, 0),
-          new ValueFormatMutable { DateFormat = @"dd/MM/yyyy HH:mm", TimeSeparator = "/", DateSeparator = ":" }));
+          new ValueFormatMutable(dateFormat: @"dd/MM/yyyy HH:mm", timeSeparator: "/", dateSeparator: ":")));
       // 24 + 24 + 7 = 55 hrs
       Assert.AreEqual(
         "055:11",
         StringConversion.DateTimeToString(
           StringConversion.GetTimeFromTicks(new TimeSpan(2, 7, 11, 0).Ticks),
-          new ValueFormatMutable { DateFormat = @"HHH:mm", TimeSeparator = ":", DateSeparator = "." }));
+          new ValueFormatMutable(dateFormat: @"HHH:mm", timeSeparator: ":", dateSeparator: ".")));
     }
 
     [TestMethod]
@@ -525,7 +525,7 @@ namespace CsvTools.Tests
           null,
           null,
           true,
-          new ValueFormatMutable { DateFormat = "yyyyMMdd", DateSeparator = "", TimeSeparator = ":" },
+          new ValueFormatMutable(dateFormat: "yyyyMMdd", dateSeparator: "", timeSeparator: ":"),
           out _).HasValue);
       Assert.AreEqual(
         new DateTime(2010, 10, 10),
@@ -550,7 +550,7 @@ namespace CsvTools.Tests
           null,
           null,
           false,
-          new ValueFormatMutable { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" },
+          new ValueFormatMutable(dateFormat: "yyyy/MM/dd", dateSeparator: "/", timeSeparator: ":"),
           out _).Value);
 
       Assert.AreEqual(
@@ -572,7 +572,7 @@ namespace CsvTools.Tests
           new DateTime(new TimeSpan(8, 12, 54).Ticks),
           null,
           true,
-          new ValueFormatMutable { DateFormat = "yyyyMMdd", DateSeparator = "", TimeSeparator = ":" },
+          new ValueFormatMutable(dateFormat: "yyyyMMdd", dateSeparator: "", timeSeparator: ":"),
           out _).Value);
 
       Assert.AreEqual(
@@ -583,7 +583,7 @@ namespace CsvTools.Tests
           new DateTime(new TimeSpan(8, 12, 54).Ticks).ToOADate(),
           null,
           true,
-          new ValueFormatMutable { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" },
+          new ValueFormatMutable(dateFormat: "yyyy/MM/dd", dateSeparator: "/", timeSeparator: ":"),
           out _).Value);
 
       Assert.AreEqual(
@@ -594,7 +594,7 @@ namespace CsvTools.Tests
           new DateTime(new TimeSpan(8, 12, 54).Ticks).ToOADate(),
           null,
           true,
-          new ValueFormatMutable { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" },
+          new ValueFormatMutable(dateFormat: "yyyy/MM/dd", dateSeparator: "/", timeSeparator: ":"),
           out _).Value);
 
       // Pass in a time that is >23:59 to adjust date part
@@ -606,7 +606,7 @@ namespace CsvTools.Tests
           null,
           "29:10:00",
           false,
-          new ValueFormatMutable { DateFormat = "yyyy/MM/dd", DateSeparator = "/", TimeSeparator = ":" },
+          new ValueFormatMutable(dateFormat: "yyyy/MM/dd", dateSeparator: "/", timeSeparator: ":"),
           out var issues).Value);
       // should issue a warning
       Assert.IsTrue(issues);

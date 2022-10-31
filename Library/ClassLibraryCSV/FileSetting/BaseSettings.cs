@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Newtonsoft.Json;
@@ -121,7 +122,8 @@ namespace CsvTools
         if (e.Action == NotifyCollectionChangedAction.Remove || e.Action == NotifyCollectionChangedAction.Add)
           NotifyPropertyChanged(nameof(MappingCollection));
       };
-      MappingCollection.CollectionItemPropertyChanged += (sender, e) => NotifyPropertyChanged(nameof(MappingCollection));
+      MappingCollection.CollectionItemPropertyChanged +=
+        (sender, e) => NotifyPropertyChanged(nameof(MappingCollection));
     }
 
     /// <inheritdoc />
@@ -146,7 +148,7 @@ namespace CsvTools
         if (value.Equals(Status))
           return;
         m_LockStatus.EnterWriteLock();
-        m_Status=value;
+        m_Status = value;
         m_LockStatus.ExitWriteLock();
         NotifyPropertyChanged();
       }
@@ -157,13 +159,14 @@ namespace CsvTools
     /// </summary>
     /// <value>The column options</value>
     [XmlElement]
+    [JsonIgnore]
     public virtual Column[] Format
     {
       get
       {
         var res = new Column[ColumnCollection.Count];
         for (var index = 0; index < ColumnCollection.Count; index++)
-          res[index] = new Column(ColumnCollection[index]);
+          res[index] = ColumnCollection[index].ToMutableColumn();
         return res;
       }
       set
@@ -220,8 +223,7 @@ namespace CsvTools
     [JsonIgnore]
     public bool MappingSpecified => MappingCollection.Count > 0;
 
-    [JsonIgnore]
-    public bool ProcessTimeUtcSpecified => m_ProcessTimeUtc != ZeroTime;
+    [JsonIgnore] public bool ProcessTimeUtcSpecified => m_ProcessTimeUtc != ZeroTime;
 
     [JsonIgnore]
     public bool SamplesAndErrorsSpecified =>
@@ -250,8 +252,7 @@ namespace CsvTools
     [JsonIgnore]
     public bool SqlStatementCDataSpecified => !string.IsNullOrEmpty(SqlStatement);
 
-    [XmlIgnore]
-    public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
+    [XmlIgnore] public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
     /// <inheritdoc />
     [XmlAttribute]
@@ -837,7 +838,6 @@ namespace CsvTools
         yield return $"{nameof(ColumnCollection)} different";
     }
 
-    [JsonIgnore]
-    public int CollectionIdentifier => InternalID.IdentifierHash();
+    [JsonIgnore] public int CollectionIdentifier => InternalID.IdentifierHash();
   }
 }

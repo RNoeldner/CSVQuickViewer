@@ -126,10 +126,10 @@ namespace CsvTools
     /// <summary>
     /// Only used for Serialization
     /// </summary>
-    [XmlElement(ElementName ="DefaultValueFormatWrite")]    
+    [XmlElement(ElementName = "DefaultValueFormatWrite")]
     public virtual ValueFormatMutable ValueFormatMutable
     {
-      get => new ValueFormatMutable(m_DefaultValueFormatWrite);
+      get => m_DefaultValueFormatWrite.ToMutable();
       set => m_DefaultValueFormatWrite = value;
     }
 

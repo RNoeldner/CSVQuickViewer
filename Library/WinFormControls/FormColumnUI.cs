@@ -13,7 +13,6 @@
  */
 
 #nullable enable
-
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -69,7 +68,9 @@ namespace CsvTools
       HtmlStyle hTmlStyle)
     {
       m_ColumnRef = column;
-      m_ColumnEdit = column == null ? new Column() : new Column(column);
+      m_ColumnEdit = column == null
+        ? new Column(string.Empty)
+        : column.ToMutableColumn();
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
       m_HtmlStyle = hTmlStyle ?? throw new ArgumentNullException(nameof(hTmlStyle));
@@ -188,7 +189,6 @@ namespace CsvTools
               false,
               m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
               null, formProgress.CancellationToken);
-            var found = new Column();
             var column = data.Columns[columnName];
             if (column is null)
             {
@@ -200,10 +200,9 @@ namespace CsvTools
               goto retry;
             }
 
-            found.ValueFormatMutable.DataType = column.DataType.GetDataType();
-            if (found.ValueFormatMutable.DataType == DataTypeEnum.String)
+            if (column.DataType.GetDataType() == DataTypeEnum.String)
               return;
-            m_ColumnEdit.ValueFormatMutable.DataType = found.ValueFormatMutable.DataType;
+            m_ColumnEdit.ValueFormatMutable.DataType = column.DataType.GetDataType();
             formProgress.Hide();
 
             RefreshData();
@@ -462,12 +461,8 @@ namespace CsvTools
       {
         if (string.IsNullOrEmpty(decimalSeparator))
           return;
-        var vf = new ValueFormatMutable
-        {
-          NumberFormat = numberFormat,
-          GroupSeparator = numberFormat,
-          DecimalSeparator = groupSeparator
-        };
+        var vf = new ValueFormatMutable(numberFormat: numberFormat, groupSeparator: numberFormat,
+          decimalSeparator: groupSeparator);
         var sample = StringConversion.DoubleToString(1234.567, vf);
 
         labelNumber.SafeInvoke(() =>
@@ -509,13 +504,13 @@ namespace CsvTools
         "  td { border: 2px solid lightgrey; padding:3px; }\r\n" +
         "</STYLE>");
 
-      if (header != null && header.Length>0)
+      if (header != null && header.Length > 0)
         stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header)));
 
       ListSamples(stringBuilder, headerList1, values1, col1, rows);
       ListSamples(stringBuilder, headerList2, values2, col2, rows);
 
-      if (footer !=null && footer.Length>0)
+      if (footer != null && footer.Length > 0)
         stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer)));
 
       stringBuilder.AppendLine("</BODY>");
@@ -777,13 +772,8 @@ namespace CsvTools
           comboBoxDateFormat.Text = checkedListBoxDateFormats.Text;
 
       UpdateDateLabel(
-        new ValueFormatMutable()
-        {
-          DataType = DataTypeEnum.DateTime,
-          DateFormat = dateFormat,
-          DateSeparator = textBoxDateSeparator.Text,
-          TimeSeparator = textBoxTimeSeparator.Text
-        }, !string.IsNullOrEmpty(comboBoxTimePart.Text), comboBoxTPFormat.Text, comboBoxTimeZone.Text);
+        new ValueFormatMutable(DataTypeEnum.DateTime, dateFormat, textBoxDateSeparator.Text, textBoxTimeSeparator.Text),
+        !string.IsNullOrEmpty(comboBoxTimePart.Text), comboBoxTPFormat.Text, comboBoxTimeZone.Text);
     }
 
     /// <summary>
@@ -883,7 +873,7 @@ namespace CsvTools
     private void ListSamples(StringBuilder stringBuilder, string? headerList, ICollection<string>? values, int col,
       int rows)
     {
-      if (values is null || values.Count <= 0 || headerList is null || headerList.Length==0)
+      if (values is null || values.Count <= 0 || headerList is null || headerList.Length == 0)
         return;
       stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(headerList)));
       stringBuilder.AppendLine(m_HtmlStyle.TableOpen);
@@ -934,7 +924,7 @@ namespace CsvTools
       SetDateFormat();
       var selValue = (int) m_ColumnEdit.ValueFormatMutable.DataType;
       comboBoxDataType.DataSource = (from DataTypeEnum item in Enum.GetValues(typeof(DataTypeEnum))
-                                     select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
+        select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
       comboBoxDataType.SelectedValue = selValue;
       ComboBoxColumnName_TextUpdate(null, EventArgs.Empty);
     }

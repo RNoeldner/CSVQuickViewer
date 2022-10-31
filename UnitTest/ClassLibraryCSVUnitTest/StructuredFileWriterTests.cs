@@ -29,18 +29,25 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      var readFile = new CsvFile { ID = cReadID, FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), CommentLine = "#" };
+      var readFile = new CsvFile
+      {
+        ID = cReadID, FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), CommentLine = "#"
+      };
       readFile.ColumnCollection.Add(new Column("ExamDate", @"dd/MM/yyyy"));
-      readFile.ColumnCollection.Add(new Column("Score", DataTypeEnum.Integer));
-      readFile.ColumnCollection.Add(new Column("Proficiency", DataTypeEnum.Numeric));
-      readFile.ColumnCollection.Add(new Column("IsNativeLang", DataTypeEnum.Boolean) { Ignore = true });
+      readFile.ColumnCollection.Add(new Column("Score", new ImmutableValueFormat(DataTypeEnum.Integer)));
+      readFile.ColumnCollection.Add(new Column("Proficiency", new ImmutableValueFormat(DataTypeEnum.Numeric)));
+      readFile.ColumnCollection.Add(
+        new Column("IsNativeLang", new ImmutableValueFormat(DataTypeEnum.Boolean)) { Ignore = true });
       UnitTestStatic.MimicSQLReader.AddSetting(readFile);
     }
 
     [TestMethod]
     public async Task StructuredFileWriterJsonEncodeTestAsync()
     {
-      var fileSetting = new JsonFile { ID = "Write", FileName = "StructuredFileOutputJSON.txt", SqlStatement = cReadID, InOverview = true };
+      var fileSetting = new JsonFile
+      {
+        ID = "Write", FileName = "StructuredFileOutputJSON.txt", SqlStatement = cReadID, InOverview = true
+      };
 
       var sb = new StringBuilder("{");
       var progress = new Progress<ProgressInfo>();
@@ -87,7 +94,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task StructuredFileWriterXmlEncodeTest()
     {
-      var fileSetting = new XmlFile { ID = "Write", FileName = "StructuredFileOutputXML.txt", SqlStatement = cReadID, InOverview = true };
+      var fileSetting = new XmlFile
+      {
+        ID = "Write", FileName = "StructuredFileOutputXML.txt", SqlStatement = cReadID, InOverview = true
+      };
       var sb = new StringBuilder();
       var progress = new Progress<ProgressInfo>();
       var cols = await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout, UnitTestStatic.Token);
