@@ -52,22 +52,22 @@ namespace CsvTools.Tests
 
     private static readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 
-    public static Column[] ColumnsDt2 =
+    public static ColumnMut[] ColumnsDt2 =
     {
-      new Column("string") //0
+      new ColumnMut("string") //0
     };
 
-    public static Column[] ColumnsDt =
+    public static ColumnMut[] ColumnsDt =
     {
-      new Column("string"), //0
-      new Column("int", new ImmutableValueFormat(DataTypeEnum.Integer)), //1
-      new Column("DateTime", new ImmutableValueFormat(DataTypeEnum.DateTime)), //2
-      new Column("bool", new ImmutableValueFormat(DataTypeEnum.Boolean)), //3
-      new Column("double", new ImmutableValueFormat(DataTypeEnum.Double)), //4
-      new Column("numeric", new ImmutableValueFormat(DataTypeEnum.Numeric)), //5
-      new Column("AllEmpty"), //6
-      new Column("PartEmpty"), //7
-      new Column("ID", new ImmutableValueFormat(DataTypeEnum.Integer)) //8
+      new ColumnMut("string"), //0
+      new ColumnMut("int", new ValueFormat(DataTypeEnum.Integer)), //1
+      new ColumnMut("DateTime", new ValueFormat(DataTypeEnum.DateTime)), //2
+      new ColumnMut("bool", new ValueFormat(DataTypeEnum.Boolean)), //3
+      new ColumnMut("double", new ValueFormat(DataTypeEnum.Double)), //4
+      new ColumnMut("numeric", new ValueFormat(DataTypeEnum.Numeric)), //5
+      new ColumnMut("AllEmpty"), //6
+      new ColumnMut("PartEmpty"), //7
+      new ColumnMut("ID", new ValueFormat(DataTypeEnum.Integer)) //8
     };
 
     public static HtmlStyle HtmlStyle { get; } = new HtmlStyle();
@@ -301,19 +301,19 @@ namespace CsvTools.Tests
       };
 
       readFile.ColumnCollection.Add(
-        new Column("DateTime", new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"))
+        new ColumnMut("DateTime", new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"))
         {
           TimePart = "Time", TimePartFormat = "HH:mm:ss"
         });
-      readFile.ColumnCollection.Add(new Column("Integer", new ImmutableValueFormat(DataTypeEnum.Integer)));
+      readFile.ColumnCollection.Add(new ColumnMut("Integer", new ValueFormat(DataTypeEnum.Integer)));
       readFile.ColumnCollection.Add(
-        new ImmutableColumn("Numeric", new ImmutableValueFormat(DataTypeEnum.Numeric, decimalSeparator: "."), 0));
+        new Column("Numeric", new ValueFormat(DataTypeEnum.Numeric, decimalSeparator: "."), 0));
       readFile.ColumnCollection.Add(
-        new Column("Double", new ValueFormatMutable(dataType: DataTypeEnum.Double, decimalSeparator: ".")));
-      readFile.ColumnCollection.Add(new Column("Boolean", new ImmutableValueFormat(DataTypeEnum.Boolean)));
-      readFile.ColumnCollection.Add(new Column("GUID", new ImmutableValueFormat(DataTypeEnum.Guid)));
+        new ColumnMut("Double", new ValueFormatMut(dataType: DataTypeEnum.Double, decimalSeparator: ".")));
+      readFile.ColumnCollection.Add(new ColumnMut("Boolean", new ValueFormat(DataTypeEnum.Boolean)));
+      readFile.ColumnCollection.Add(new ColumnMut("GUID", new ValueFormat(DataTypeEnum.Guid)));
       readFile.ColumnCollection.Add(
-        new Column("Time", new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"))
+        new ColumnMut("Time", new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"))
         {
           Ignore = true
         });
@@ -323,16 +323,16 @@ namespace CsvTools.Tests
     public static CsvFile ReaderGetBasicCSV(string id = "BasicCSV")
     {
       var readFile = new CsvFile { ID = id, CommentLine = "#", FileName = Path.Combine(GetTestPath("BasicCSV.txt")) };
-      var examDateFld = new Column("ExamDate", new ImmutableValueFormat(DataTypeEnum.DateTime));
+      var examDateFld = new ColumnMut("ExamDate", new ValueFormat(DataTypeEnum.DateTime));
       readFile.ColumnCollection.Add(examDateFld);
 
-      examDateFld.ValueFormatMutable.DateFormat = @"dd/MM/yyyy";
+      examDateFld.ValueFormatMut.DateFormat = @"dd/MM/yyyy";
 
-      readFile.ColumnCollection.Add(new Column("Score", new ImmutableValueFormat(DataTypeEnum.Integer)));
+      readFile.ColumnCollection.Add(new ColumnMut("Score", new ValueFormat(DataTypeEnum.Integer)));
 
-      readFile.ColumnCollection.Add(new Column("Proficiency", new ImmutableValueFormat(DataTypeEnum.Numeric)));
+      readFile.ColumnCollection.Add(new ColumnMut("Proficiency", new ValueFormat(DataTypeEnum.Numeric)));
 
-      readFile.ColumnCollection.Add(new Column("IsNativeLang", new ImmutableValueFormat(DataTypeEnum.Boolean)));
+      readFile.ColumnCollection.Add(new ColumnMut("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean)));
 
       return readFile;
     }

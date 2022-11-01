@@ -62,7 +62,7 @@ namespace CsvTools
     }
 
     public static IColumn ReplaceValueFormat(this IColumn col, in IValueFormat newFormat) =>
-      new ImmutableColumn(
+      new Column(
         col.Name,
         newFormat,
         col.ColumnOrdinal,
@@ -78,8 +78,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="source">an IColumn with the all properties for teh new column</param>
     /// <returns>and immutable column</returns>
-    public static ImmutableColumn ToImmutableColumn(this IColumn source) =>
-      source as ImmutableColumn ?? new ImmutableColumn(
+    public static Column ToImmutableColumn(this IColumn source) =>
+      source as Column ?? new Column(
         source.Name,
         source.ValueFormat,
         source.ColumnOrdinal,
@@ -96,8 +96,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="source">an IColumn with the all properties for teh new column</param>
     /// <returns></returns>
-    public static Column ToMutableColumn(this IColumn source) =>
-      new Column(source.Name, source.ValueFormat, source.ColumnOrdinal, source.Convert,
+    public static ColumnMut ToMutableColumn(this IColumn source) =>
+      new ColumnMut(source.Name, source.ValueFormat, source.ColumnOrdinal, source.Convert,
         source.DestinationName, source.Ignore, source.TimePart, source.TimePartFormat, source.TimeZonePart);
 #endif
 

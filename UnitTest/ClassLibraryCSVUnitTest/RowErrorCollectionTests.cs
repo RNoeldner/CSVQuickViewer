@@ -34,8 +34,8 @@ namespace CsvTools.Tests
         true,
         new IColumn[]
         {
-          new ImmutableColumn("DateTime", new ImmutableValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
-          new ImmutableColumn("Integer", new ImmutableValueFormat(DataTypeEnum.Integer), 0, true, "", true)
+          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
+          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, "", true)
         }, TrimmingOptionEnum.Unquoted,
         "\t",
         "\"",

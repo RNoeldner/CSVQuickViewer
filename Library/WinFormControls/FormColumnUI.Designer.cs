@@ -257,7 +257,7 @@ namespace CsvTools
       // bindingSourceValueFormat
       // 
       this.bindingSourceValueFormat.AllowNew = false;
-      this.bindingSourceValueFormat.DataSource = typeof(CsvTools.ValueFormatMutable);
+      this.bindingSourceValueFormat.DataSource = typeof(CsvTools.ValueFormatMut);
       // 
       // comboBoxDateFormat
       // 
@@ -340,7 +340,7 @@ namespace CsvTools
       // columnBindingSource
       // 
       this.columnBindingSource.AllowNew = false;
-      this.columnBindingSource.DataSource = typeof(CsvTools.Column);
+      this.columnBindingSource.DataSource = typeof(CsvTools.ColumnMut);
       // 
       // labelTimeSep
       // 

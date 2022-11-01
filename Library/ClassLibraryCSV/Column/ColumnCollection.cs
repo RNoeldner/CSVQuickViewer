@@ -23,7 +23,7 @@ namespace CsvTools
   public sealed class ColumnCollection : UniqueObservableCollection<IColumn>
   {
     /// <summary>
-    ///   Adds the <see cref="IColumn" /> as <see cref="ImmutableColumn" />
+    ///   Adds the <see cref="IColumn" /> as <see cref="Column" />
     /// </summary>
     /// <remarks>If the column name already exist it does nothing</remarks>
     /// <param name="column">The column format.</param>

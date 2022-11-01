@@ -39,7 +39,7 @@ namespace CsvTools
     /// </summary>
     private const int cMaxProgress = 10000;
 
-    private readonly IReadOnlyCollection<ImmutableColumn> m_ColumnDefinition;
+    private readonly IReadOnlyCollection<Column> m_ColumnDefinition;
 
     private readonly IntervalAction m_IntervalAction = new IntervalAction();
 
@@ -64,7 +64,7 @@ namespace CsvTools
     /// <summary>
     ///   An array of column
     /// </summary>
-    protected ImmutableColumn[] Column = Array.Empty<ImmutableColumn>();
+    protected Column[] Column = Array.Empty<Column>();
 
     /// <summary>
     ///   An array of current row column text
@@ -113,7 +113,7 @@ namespace CsvTools
       m_ColumnDefinition =
       columnDefinition
         ?.Select(col => col.ToImmutableColumn()).ToArray()
-      ?? Array.Empty<ImmutableColumn>();
+      ?? Array.Empty<Column>();
       RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       FullPath = fileName;
       SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
@@ -1117,12 +1117,12 @@ namespace CsvTools
       m_FieldCount = fieldCount;
       CurrentRowColumnText = new string[fieldCount];
 
-      Column = new ImmutableColumn[fieldCount];
+      Column = new Column[fieldCount];
       AssociatedTimeCol = new int[fieldCount];
       m_AssociatedTimeZoneCol = new int[fieldCount];
       for (var counter = 0; counter < fieldCount; counter++)
       {
-        Column[counter] = new ImmutableColumn(GetDefaultName(counter), new ImmutableValueFormat(), counter);
+        Column[counter] = new Column(GetDefaultName(counter), new ValueFormat(), counter);
         AssociatedTimeCol[counter] = -1;
         m_AssociatedTimeZoneCol[counter] = -1;
       }
@@ -1180,11 +1180,11 @@ namespace CsvTools
       {
         var defined =
           m_ColumnDefinition.FirstOrDefault(
-            x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ?? new ImmutableColumn(
+            x => x.Name.Equals(adjustedNames[colIndex], StringComparison.OrdinalIgnoreCase)) ?? new Column(
             adjustedNames[colIndex],
-            new ImmutableValueFormat(dataTypeL[colIndex]),
+            new ValueFormat(dataTypeL[colIndex]),
             colIndex);
-        Column[colIndex] = new ImmutableColumn(
+        Column[colIndex] = new Column(
           adjustedNames[colIndex],
           defined.ValueFormat,
           colIndex,

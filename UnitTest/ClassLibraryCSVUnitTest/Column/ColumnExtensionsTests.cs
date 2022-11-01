@@ -10,10 +10,10 @@ namespace CsvTools.Tests
     public void Get()
     {
       var test = new ColumnCollection();
-      var item1 = new Column("Test");
+      var item1 = new ColumnMut("Test");
       test.Add(item1);
       Assert.AreEqual(1, test.Count);
-      var item2 = new Column("Test2");
+      var item2 = new ColumnMut("Test2");
       test.Add(item2);
       Assert.IsTrue(item1.Equals(test.GetByName("Test")), "Test found");
       Assert.IsTrue(item1.Equals(test.GetByName("TEST")), "TEST found");

@@ -44,7 +44,7 @@ namespace CsvTools.Tests
     public async Task GetColumnsSqlAsyncTest()
     {
       var setting = new CsvFile { ID="nonsese", FileName = UnitTestStatic.GetTestPath("Sessions.txt"), HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t" };
-      setting.ColumnCollection.Add(new ImmutableColumn("Start Date", new ImmutableValueFormat(), ignore: true));
+      setting.ColumnCollection.Add(new Column("Start Date", new ValueFormat(), ignore: true));
 
       UnitTestStatic.MimicSQLReader.AddSetting(setting);
 
@@ -60,7 +60,7 @@ namespace CsvTools.Tests
       var setting1 = new CsvFile { ID="Test1", FileName = UnitTestStatic.GetTestPath("Sessions.txt"), HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t" };
       UnitTestStatic.MimicSQLReader.AddSetting(setting1);
       UnitTestStatic.MimicSql();
-      var res = await setting1.ID.GetWriterColumnInformationAsync(120, new ImmutableValueFormat(), Array.Empty<IColumn>(), UnitTestStatic.Token);
+      var res = await setting1.ID.GetWriterColumnInformationAsync(120, new ValueFormat(), Array.Empty<IColumn>(), UnitTestStatic.Token);
       UnitTestStatic.MimicSQLReader.RemoveSetting(setting1);
       Assert.AreEqual(5, res.Count());
     }

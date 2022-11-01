@@ -27,14 +27,14 @@ namespace CsvTools.Tests
     {
       var cc = new ColumnCollection
       {
-        new ImmutableColumn("Test1", new ImmutableValueFormat(DataTypeEnum.Double)),
-        new Column("Test2",
-          new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"))
+        new Column("Test1", new ValueFormat(DataTypeEnum.Double)),
+        new ColumnMut("Test2",
+          new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"))
         {
           TimeZonePart = "\"UTC\""
         },
-        new ImmutableColumn("Test3",
-          new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"), timePart: "Test4",
+        new Column("Test3",
+          new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"), timePart: "Test4",
           timePartFormat: "HH:mm")
       };
 
@@ -47,7 +47,7 @@ namespace CsvTools.Tests
 
       using var reader = dt.CreateDataReader();
       using var dt2 = reader.GetSchemaTable();
-      var res = BaseFileWriter.GetColumnInformation(new ImmutableValueFormat(), cc, dt2).ToList();
+      var res = BaseFileWriter.GetColumnInformation(new ValueFormat(), cc, dt2).ToList();
       Assert.AreEqual(4, res.Count());
 
       Assert.AreEqual(DataTypeEnum.Double, res[0].ValueFormat.DataType,
@@ -64,8 +64,8 @@ namespace CsvTools.Tests
     {
       var cc = new ColumnCollection
       {
-        new ImmutableColumn("Test3",
-          new ImmutableValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"),
+        new Column("Test3",
+          new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"),
           timeZonePart: "\"UTC\"", timePart: "Col2")
       };
 
@@ -77,7 +77,7 @@ namespace CsvTools.Tests
       });
       using var reader = dt.CreateDataReader();
       using var dt2 = reader.GetSchemaTable();
-      var res = BaseFileWriter.GetColumnInformation(new ImmutableValueFormat(), cc, dt2).ToList();
+      var res = BaseFileWriter.GetColumnInformation(new ValueFormat(), cc, dt2).ToList();
       Assert.AreEqual(4, res.Count());
       Assert.AreEqual(DataTypeEnum.Integer, res[0].ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.DateTime, res[2].ValueFormat.DataType);

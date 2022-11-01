@@ -35,12 +35,12 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      m_ValidSetting.ColumnCollection.Add(new ImmutableColumn("Score", new ImmutableValueFormat(DataTypeEnum.Integer)));
-      m_ValidSetting.ColumnCollection.Add(new ImmutableColumn("Proficiency",
-        new ImmutableValueFormat(DataTypeEnum.Numeric)));
-      m_ValidSetting.ColumnCollection.Add(new ImmutableColumn("IsNativeLang",
-        new ImmutableValueFormat(DataTypeEnum.Boolean)));
-      var cf = new ImmutableColumn("ExamDate", new ImmutableValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy"));
+      m_ValidSetting.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
+      m_ValidSetting.ColumnCollection.Add(new Column("Proficiency",
+        new ValueFormat(DataTypeEnum.Numeric)));
+      m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang",
+        new ValueFormat(DataTypeEnum.Boolean)));
+      var cf = new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy"));
       m_ValidSetting.ColumnCollection.Add(cf);
     }
 
@@ -150,18 +150,18 @@ namespace CsvTools.Tests
         FieldDelimiter = "Tab",
         FieldQualifier = string.Empty
       };
-      basIssues.ColumnCollection.Add(new ImmutableColumn("effectiveDate",
-        new ImmutableValueFormat(DataTypeEnum.DateTime, "yyyy/MM/dd", "-")));
-      basIssues.ColumnCollection.Add(new ImmutableColumn("timestamp",
-        new ImmutableValueFormat(DataTypeEnum.DateTime, "yyyy/MM/ddTHH:mm:ss", "-")));
+      basIssues.ColumnCollection.Add(new Column("effectiveDate",
+        new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/dd", "-")));
+      basIssues.ColumnCollection.Add(new Column("timestamp",
+        new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/ddTHH:mm:ss", "-")));
 
-      basIssues.ColumnCollection.Add(new ImmutableColumn("version", new ImmutableValueFormat(DataTypeEnum.Integer)));
-      basIssues.ColumnCollection.Add(new ImmutableColumn("retrainingRequired",
-        new ImmutableValueFormat(DataTypeEnum.Boolean)));
+      basIssues.ColumnCollection.Add(new Column("version", new ValueFormat(DataTypeEnum.Integer)));
+      basIssues.ColumnCollection.Add(new Column("retrainingRequired",
+        new ValueFormat(DataTypeEnum.Boolean)));
 
-      basIssues.ColumnCollection.Add(new ImmutableColumn("classroomTraining",
-        new ImmutableValueFormat(DataTypeEnum.Boolean)));
-      basIssues.ColumnCollection.Add(new ImmutableColumn("webLink", new ImmutableValueFormat(DataTypeEnum.TextToHtml)));
+      basIssues.ColumnCollection.Add(new Column("classroomTraining",
+        new ValueFormat(DataTypeEnum.Boolean)));
+      basIssues.ColumnCollection.Add(new Column("webLink", new ValueFormat(DataTypeEnum.TextToHtml)));
 
 
       using var test = new CsvFileReader(basIssues.FullPath, basIssues.CodePageId, basIssues.SkipRows,
@@ -327,8 +327,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetInteger32And64()
     {
-      var column = new ImmutableColumn("test",
-        new ImmutableValueFormat(DataTypeEnum.Integer, groupSeparator: ",", decimalSeparator: "."));
+      var column = new Column("test",
+        new ValueFormat(DataTypeEnum.Integer, groupSeparator: ",", decimalSeparator: "."));
 
 
       using var test = new CsvFileReader(m_ValidSetting.FullPath, m_ValidSetting.CodePageId, m_ValidSetting.SkipRows,
@@ -458,7 +458,7 @@ namespace CsvTools.Tests
         FileName = UnitTestStatic.GetTestPath("TestFile.txt"), CodePageId = 65001, FieldDelimiter = "tab"
       };
 
-      csvFile.ColumnCollection.Add(new ImmutableColumn("Title", new ImmutableValueFormat(DataTypeEnum.DateTime)));
+      csvFile.ColumnCollection.Add(new Column("Title", new ValueFormat(DataTypeEnum.DateTime)));
 
 
       using var test = new CsvFileReader(csvFile.FullPath, csvFile.CodePageId, csvFile.SkipRows, csvFile.HasFieldHeader,

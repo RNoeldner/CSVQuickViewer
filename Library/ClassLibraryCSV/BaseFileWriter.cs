@@ -30,7 +30,7 @@ namespace CsvTools
   /// </summary>
   public abstract class BaseFileWriter
   {
-    protected readonly IReadOnlyCollection<ImmutableColumn> ColumnDefinition;
+    protected readonly IReadOnlyCollection<Column> ColumnDefinition;
 
     protected readonly List<WriterColumn> Columns = new List<WriterColumn>();
     protected readonly string FileSettingDisplay;
@@ -93,12 +93,12 @@ namespace CsvTools
         m_Footer = string.Empty;
 
       m_ValueFormatGeneral = valueFormatGeneral != null
-        ? new ImmutableValueFormat(valueFormatGeneral)
-        : new ImmutableValueFormat();
+        ? new ValueFormat(valueFormatGeneral)
+        : new ValueFormat();
       ColumnDefinition =
         columnDefinition
           ?.Select(col => col.ToImmutableColumn()).ToList()
-        ?? new List<ImmutableColumn>();
+        ?? new List<Column>();
 
       FileSettingDisplay = fileSettingDisplay;
       m_KeepUnencrypted = unencrypted;
@@ -154,7 +154,7 @@ namespace CsvTools
       }
 
       // Get default if we do not have the information
-      generalFormat ??= new ImmutableValueFormat();
+      generalFormat ??= new ValueFormat();
 
       foreach (DataRow schemaRow in schemaTable.Rows)
       {
@@ -165,7 +165,7 @@ namespace CsvTools
           continue;
 
         var valueFormat = column?.ValueFormat is null
-          ? new ImmutableValueFormat(
+          ? new ValueFormat(
             ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(),
             generalFormat.DateFormat,
             generalFormat.DateSeparator,
@@ -180,7 +180,7 @@ namespace CsvTools
             writeFolder: generalFormat.WriteFolder,
             fileOutPutPlaceholder: generalFormat.FileOutPutPlaceholder,
             overwrite: generalFormat.Overwrite)
-          : new ImmutableValueFormat(
+          : new ValueFormat(
             column.ValueFormat.DataType,
             column.ValueFormat.DateFormat,
             column.ValueFormat.DateSeparator,
@@ -268,7 +268,7 @@ namespace CsvTools
           new WriterColumn(
             column.TimePart,
             colNo,
-            new ImmutableValueFormat(
+            new ValueFormat(
               DataTypeEnum.DateTime,
               column.TimePartFormat,
               timeSeparator: column.ValueFormat?.TimeSeparator ?? ":"),

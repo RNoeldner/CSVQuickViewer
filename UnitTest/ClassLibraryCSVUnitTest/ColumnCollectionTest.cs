@@ -11,13 +11,13 @@ namespace CsvTools.Tests
     {
       var test = new ColumnCollection();
       Assert.AreEqual(0, test.Count);
-      var item1 = new Column("Test");
+      var item1 = new ColumnMut("Test");
       test.Add(item1);
       Assert.AreEqual(1, test.Count);
-      var item2 = new ImmutableColumn("Test", new ImmutableValueFormat(), 0);
+      var item2 = new Column("Test", new ValueFormat(), 0);
       test.Add(item2);
       Assert.AreEqual(1, test.Count);
-      test.Add(new Column("New"));
+      test.Add(new ColumnMut("New"));
 
       var exception = false;
       try
@@ -43,8 +43,8 @@ namespace CsvTools.Tests
     {
       var test = new ColumnCollection
       {
-        new ImmutableColumn("ColA", new ImmutableValueFormat(), 1), new ImmutableColumn("ColB", new ImmutableValueFormat(), 2),
-        new ImmutableColumn("ColC", new ImmutableValueFormat(), 3)
+        new Column("ColA", new ValueFormat(), 1), new Column("ColB", new ValueFormat(), 2),
+        new Column("ColC", new ValueFormat(), 3)
       };
       Assert.AreEqual(3, test.Count);
 
@@ -61,10 +61,10 @@ namespace CsvTools.Tests
     {
       var test = new ColumnCollection
       {
-        new ImmutableColumn("ColA", new ImmutableValueFormat(), 1), new ImmutableColumn("ColB", new ImmutableValueFormat(), 2),
-        new ImmutableColumn("ColC", new ImmutableValueFormat(), 3)
+        new Column("ColA", new ValueFormat(), 1), new Column("ColB", new ValueFormat(), 2),
+        new Column("ColC", new ValueFormat(), 3)
       };
-      var colBnew = new ImmutableColumn("ColB", new ImmutableValueFormat(DataTypeEnum.Boolean), 2);
+      var colBnew = new Column("ColB", new ValueFormat(DataTypeEnum.Boolean), 2);
       test.Replace(colBnew);
       var colB = test.GetByName("ColB");
       Assert.AreEqual(3, test.Count);
@@ -84,9 +84,9 @@ namespace CsvTools.Tests
     {
       var test1 = new ColumnCollection
       {
-        new Column("Test1"),
-        new Column("Test2"),
-        new Column("Test3")
+        new ColumnMut("Test1"),
+        new ColumnMut("Test2"),
+        new ColumnMut("Test3")
       };
       var test2 = new ColumnCollection();
       test2.AddRange(test1);

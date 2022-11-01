@@ -127,7 +127,7 @@ namespace CsvTools
     /// Only used for Serialization
     /// </summary>
     [XmlElement(ElementName = "DefaultValueFormatWrite")]
-    public virtual ValueFormatMutable ValueFormatMutable
+    public virtual ValueFormatMut ValueFormatMut
     {
       get => m_DefaultValueFormatWrite.ToMutable();
       set => m_DefaultValueFormatWrite = value;
@@ -247,7 +247,7 @@ namespace CsvTools
       fileSettingPhysicalFile.Passphrase = Passphrase;
       fileSettingPhysicalFile.KeyID = KeyID;
       if (fileSettingPhysicalFile is BaseSettingPhysicalFile phy)
-         phy.ValueFormatMutable.CopyFrom(ValueFormatWrite);      
+         phy.ValueFormatMut.CopyFrom(ValueFormatWrite);      
     }
 
     /// <inheritdoc />

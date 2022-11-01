@@ -167,7 +167,7 @@ namespace CsvTools
           // possible match
           if (positiveMatches < threshHoldPossible || checkResult.PossibleMatch) continue;
           checkResult.PossibleMatch = true;
-          checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(
+          checkResult.ValueFormatPossibleMatch = new ValueFormat(
             DataTypeEnum.DateTime,
             shortDateFormat,
             dateSeparator,
@@ -176,7 +176,7 @@ namespace CsvTools
       }
 
       if (allParsed)
-        checkResult.FoundValueFormat = new ImmutableValueFormat(
+        checkResult.FoundValueFormat = new ValueFormat(
           DataTypeEnum.DateTime,
           shortDateFormat,
           dateSeparator,
@@ -262,7 +262,7 @@ namespace CsvTools
           if (positiveMatches >= minSamples && !checkResult.PossibleMatch)
           {
             checkResult.PossibleMatch = true;
-            checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(
+            checkResult.ValueFormatPossibleMatch = new ValueFormat(
               assumeInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
               groupSeparator: thousandSeparator,
               decimalSeparator: decimalSeparator);
@@ -279,7 +279,7 @@ namespace CsvTools
       }
 
       if (allParsed)
-        checkResult.FoundValueFormat = new ImmutableValueFormat(
+        checkResult.FoundValueFormat = new ValueFormat(
           assumeInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
           groupSeparator: thousandSeparator,
           decimalSeparator: decimalSeparator);
@@ -335,13 +335,13 @@ namespace CsvTools
             positiveMatches++;
             if (positiveMatches <= 5 || checkResult.PossibleMatch) continue;
             checkResult.PossibleMatch = true;
-            checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(DataTypeEnum.DateTime, "SerialDate");
+            checkResult.ValueFormatPossibleMatch = new ValueFormat(DataTypeEnum.DateTime, "SerialDate");
           }
         }
       }
 
       if (allParsed && counter > 0)
-        checkResult.FoundValueFormat = new ImmutableValueFormat(DataTypeEnum.DateTime, "SerialDate");
+        checkResult.FoundValueFormat = new ValueFormat(DataTypeEnum.DateTime, "SerialDate");
 
       return checkResult;
     }
@@ -630,7 +630,7 @@ namespace CsvTools
       in string format,
       in string dateSeparator,
       in string timeSeparator) =>
-      DateTimeToString(dateTime, new ImmutableValueFormat(DataTypeEnum.DateTime, format, dateSeparator, timeSeparator));
+      DateTimeToString(dateTime, new ValueFormat(DataTypeEnum.DateTime, format, dateSeparator, timeSeparator));
 
     /// <summary>
     ///   Converts a decimals to string.

@@ -676,10 +676,10 @@ Line "Test"", "22",23,"  24"
       {
         HasFieldHeader = true, FieldDelimiter = ","
       };
-      setting.ColumnCollection.Add(new ImmutableColumn("ExamDate",
-        new ImmutableValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")));
-      setting.ColumnCollection.Add(new ImmutableColumn("ID", new ImmutableValueFormat(DataTypeEnum.Integer)));
-      setting.ColumnCollection.Add(new ImmutableColumn("IsNativeLang", new ImmutableValueFormat(DataTypeEnum.Boolean)));
+      setting.ColumnCollection.Add(new Column("ExamDate",
+        new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")));
+      setting.ColumnCollection.Add(new Column("ID", new ValueFormat(DataTypeEnum.Integer)));
+      setting.ColumnCollection.Add(new Column("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean)));
 
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
@@ -1107,7 +1107,7 @@ Line "Test"", "22",23,"  24"
         hasFieldHeader: true,
         columnDefinition: new IColumn[]
         {
-          new ImmutableColumn("Start Date", new ImmutableValueFormat(DataTypeEnum.DateTime, "MM/dd/yyyy"),
+          new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime, "MM/dd/yyyy"),
             timePart: "Start Time", timePartFormat: "HH:mm:ss")
         },
         trimmingOption: TrimmingOptionEnum.Unquoted,
@@ -1201,9 +1201,9 @@ Line "Test"", "22",23,"  24"
         {
           HasFieldHeader = true, FieldDelimiter = "Tab"
         };
-      setting.ColumnCollection.Add(new ImmutableColumn("Title", new ImmutableValueFormat(), 0));
-      setting.ColumnCollection.Add(new ImmutableColumn("File Name",
-        new ImmutableValueFormat(DataTypeEnum.Binary, readFolder: UnitTestStatic.ApplicationDirectory,
+      setting.ColumnCollection.Add(new Column("Title", new ValueFormat(), 0));
+      setting.ColumnCollection.Add(new Column("File Name",
+        new ValueFormat(DataTypeEnum.Binary, readFolder: UnitTestStatic.ApplicationDirectory,
           writeFolder: UnitTestStatic.ApplicationDirectory, fileOutPutPlaceholder: ""), 1));
 
       using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
@@ -1233,8 +1233,8 @@ Line "Test"", "22",23,"  24"
         true,
         new IColumn[]
         {
-          new ImmutableColumn("DateTime", new ImmutableValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
-          new ImmutableColumn("Integer", new ImmutableValueFormat(DataTypeEnum.Integer), 0, true, "", true)
+          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
+          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, "", true)
         }, TrimmingOptionEnum.All,
         "\t",
         "\"",
@@ -1283,8 +1283,8 @@ Line "Test"", "22",23,"  24"
     {
       var setting =
         new CsvFile(UnitTestStatic.GetTestPath("AllFormats.txt")) { HasFieldHeader = true, FieldDelimiter = "Tab" };
-      setting.ColumnCollection.Add(new ImmutableColumn("DateTime", new ImmutableValueFormat(DataTypeEnum.DateTime)));
-      setting.ColumnCollection.Add(new ImmutableColumn("Integer", new ImmutableValueFormat(DataTypeEnum.Integer)));
+      setting.ColumnCollection.Add(new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime)));
+      setting.ColumnCollection.Add(new Column("Integer", new ValueFormat(DataTypeEnum.Integer)));
 
       using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
         setting.HasFieldHeader, setting.ColumnCollection,
@@ -1326,8 +1326,8 @@ Line "Test"", "22",23,"  24"
       using var reader = new CsvFileReader(stream, Encoding.UTF8.CodePage, 0, true,
         new IColumn[]
         {
-          new ImmutableColumn("DateTime", new ImmutableValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
-          new ImmutableColumn("Integer", new ImmutableValueFormat(DataTypeEnum.Integer), 0, true, "", true)
+          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
+          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, "", true)
         }, TrimmingOptionEnum.All, "\t",
         "\"",
         "",
@@ -1449,8 +1449,8 @@ Line "Test"", "22",23,"  24"
       {
         HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
       };
-      setting.ColumnCollection.Add(new ImmutableColumn("Start Date",
-        new ImmutableValueFormat(DataTypeEnum.DateTime, "MM/dd/yyyy"), timePart: "Start Time",
+      setting.ColumnCollection.Add(new Column("Start Date",
+        new ValueFormat(DataTypeEnum.DateTime, "MM/dd/yyyy"), timePart: "Start Time",
         timePartFormat: "HH:mm:ss", timeZonePart: "Time Zone"));
 
       // all will be converted to TimeZoneInfo.Local, but we concert then to UTC
@@ -1495,7 +1495,7 @@ Line "Test"", "22",23,"  24"
         HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
       };
       setting.ColumnCollection.Add(
-        new ImmutableColumn("Start Date", new ImmutableValueFormat(DataTypeEnum.DateTime, "MM/dd/yyyy"),
+        new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime, "MM/dd/yyyy"),
           timePart: "Start Time", timePartFormat: "HH:mm:ss"));
 
 

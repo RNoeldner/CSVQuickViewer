@@ -33,21 +33,19 @@ namespace CsvTools
     private string m_DecimalSeparator;
     private string m_DisplayNullAs;
     private string m_False;
+    private string m_FileOutPutPlaceholder;
     private string m_GroupSeparator;
     private string m_NumberFormat;
+    private bool m_Overwrite;
     private int m_Part;
     private string m_PartSplitter;
     private bool m_PartToEnd;
+    private string m_ReadFolder;
+    private string m_RegexReplacement;
+    private string m_RegexSearchPattern;
     private string m_TimeSeparator;
     private string m_True;
-    private string m_RegexSearchPattern;
-    private string m_RegexReplacement;
-    private string m_ReadFolder;
     private string m_WriteFolder;
-    private string m_FileOutPutPlaceholder;
-    private bool m_Overwrite;
-    
-
      /// <summary>
     ///   Initializes a new instance of the <see cref="CsvTools.ValueFormatMut" /> class.
     /// </summary>
@@ -193,6 +191,14 @@ namespace CsvTools
       set => SetField(ref m_False, value, StringComparison.OrdinalIgnoreCase);
     }
 
+    [XmlAttribute]
+    [DefaultValue("")]
+    public string FileOutPutPlaceholder
+    {
+      get => m_FileOutPutPlaceholder;
+      set => SetField(ref m_FileOutPutPlaceholder, value, StringComparison.Ordinal);
+    }
+
     /// <inheritdoc />
     [XmlElement]
     [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
@@ -224,6 +230,14 @@ namespace CsvTools
     }
 
     [XmlAttribute]
+    [DefaultValue(true)]
+    public bool Overwrite
+    {
+      get => m_Overwrite;
+      set => SetField(ref m_Overwrite, value);
+    }
+
+    [XmlAttribute]
     [DefaultValue(ValueFormatExtension.cPartDefault)]
     public int Part
     {
@@ -251,6 +265,30 @@ namespace CsvTools
       set => SetField(ref m_PartToEnd, value);
     }
 
+    [XmlAttribute]
+    [DefaultValue("")]
+    public string ReadFolder
+    {
+      get => m_ReadFolder;
+      set => SetField(ref m_ReadFolder, value, StringComparison.Ordinal);
+    }
+
+    [XmlAttribute]
+    [DefaultValue("")]
+    public string RegexReplacement
+    {
+      get => m_RegexReplacement;
+      set => SetField(ref m_RegexReplacement, value, StringComparison.Ordinal);
+    }
+
+    [XmlAttribute]
+    [DefaultValue("")]
+    public string RegexSearchPattern
+    {
+      get => m_RegexSearchPattern;
+      set => SetField(ref m_RegexSearchPattern, value, StringComparison.Ordinal);
+    }
+
     /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the time separator.
@@ -276,31 +314,6 @@ namespace CsvTools
       get => m_True;
       set => SetField(ref m_True, value, StringComparison.InvariantCulture);
     }
-
-    [XmlAttribute]
-    [DefaultValue("")]
-    public string RegexSearchPattern
-    {
-      get => m_RegexSearchPattern;
-      set => SetField(ref m_RegexSearchPattern, value, StringComparison.Ordinal);
-    }
-
-    [XmlAttribute]
-    [DefaultValue("")]
-    public string RegexReplacement
-    {
-      get => m_RegexReplacement;
-      set => SetField(ref m_RegexReplacement, value, StringComparison.Ordinal);
-    }
-
-    [XmlAttribute]
-    [DefaultValue("")]
-    public string ReadFolder
-    {
-      get => m_ReadFolder;
-      set => SetField(ref m_ReadFolder, value, StringComparison.Ordinal);
-    }
-
     [XmlAttribute]
     [DefaultValue("")]
     public string WriteFolder
@@ -308,22 +321,8 @@ namespace CsvTools
       get => m_WriteFolder;
       set => SetField(ref m_WriteFolder, value, StringComparison.Ordinal);
     }
-
-    [XmlAttribute]
-    [DefaultValue("")]
-    public string FileOutPutPlaceholder
-    {
-      get => m_FileOutPutPlaceholder;
-      set => SetField(ref m_FileOutPutPlaceholder, value, StringComparison.Ordinal);
-    }
-
-    [XmlAttribute]
-    [DefaultValue(true)]
-    public bool Overwrite
-    {
-      get => m_Overwrite;
-      set => SetField(ref m_Overwrite, value);
-    }
+    /// <inheritdoc cref="IValueFormat" />
+    public object Clone() => this.ToMutable();
 
     /// <summary>
     ///   On Mutable classes prefer CopyFrom to CopyTo, overwrites the properties from the
@@ -355,27 +354,24 @@ namespace CsvTools
       FileOutPutPlaceholder = other.FileOutPutPlaceholder;
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IWithCopyTo{T}" />
     public void CopyTo(ValueFormatMut other) => other.CopyFrom(this);
 
-    /// <inheritdoc />
-    public override bool Equals(object? obj) => this.ValueFormatEqual(obj as IValueFormat);
-
-    /// <inheritdoc />
-    public object Clone() =>  this.ToMutable();
-
-    /// <inheritdoc cref="IEquatable{T}" />
-    public bool Equals(ValueFormatMut other) => this.ValueFormatEqual(other);
-
-    /// <inheritdoc cref="IEquatable{T}" />
-    public bool Equals(IValueFormat other) => this.ValueFormatEqual(other);
-
-    public void CopyTo(IValueFormat other) 
+    /// <inheritdoc cref="IWithCopyTo{T}" />
+    public void CopyTo(IValueFormat other)
     {
       if (other is ValueFormatMut mutable)
         CopyTo(mutable);
       else
         throw new NotSupportedException("Can not copy properties to not mutable instance");
     }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj) => this.ValueFormatEqual(obj as IValueFormat);
+    /// <inheritdoc cref="IEquatable{T}" />
+    public bool Equals(ValueFormatMut other) => this.ValueFormatEqual(other);
+
+    /// <inheritdoc cref="IEquatable{T}" />
+    public bool Equals(IValueFormat other) => this.ValueFormatEqual(other);
   }
 }

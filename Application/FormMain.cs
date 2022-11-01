@@ -499,8 +499,8 @@ namespace CsvTools
             return;
 
           m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealDataColumns()
-            .Select(dataColumn => new ImmutableColumn(dataColumn.ColumnName,
-              new ImmutableValueFormat(dataColumn.DataType.GetDataType()),
+            .Select(dataColumn => new Column(dataColumn.ColumnName,
+              new ValueFormat(dataColumn.DataType.GetDataType()),
               dataColumn.Ordinal)));
 
           // Set Functional DI routines to constants The reader is used when data is stored through
@@ -704,7 +704,7 @@ namespace CsvTools
           // restore header names only
           m_FileSetting.ColumnCollection.Clear();
           m_FileSetting.ColumnCollection.AddRange(m_StoreColumns.Select(col =>
-            new Column(col.Name, new ImmutableValueFormat(), columnOrdinal: col.ColumnOrdinal)));
+            new Column(col.Name, new ValueFormat(), columnOrdinal: col.ColumnOrdinal)));
 
           m_ToolStripButtonAsText.Text = "As Values";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;

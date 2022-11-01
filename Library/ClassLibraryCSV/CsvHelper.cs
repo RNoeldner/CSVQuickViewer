@@ -93,7 +93,7 @@ namespace CsvTools
         // un-ignore all ignored columns
         foreach (var col in fileSettingSer.ColumnCollection.Where(x => x.Ignore))
           columnCollection.Add(
-            new ImmutableColumn(
+            new Column(
               col.Name,
               col.ValueFormat,
               col.ColumnOrdinal,

@@ -29,12 +29,12 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      m_ValidSetting.ColumnCollection.Add(new ImmutableColumn("Score", new ImmutableValueFormat(DataTypeEnum.Integer)));
-      m_ValidSetting.ColumnCollection.Add(new ImmutableColumn("Proficiency",
-        new ImmutableValueFormat(DataTypeEnum.Numeric)));
-      m_ValidSetting.ColumnCollection.Add(new ImmutableColumn("IsNativeLang",
-        new ImmutableValueFormat(DataTypeEnum.Boolean)));
-      var cf = new ImmutableColumn("ExamDate", new ImmutableValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy"));
+      m_ValidSetting.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
+      m_ValidSetting.ColumnCollection.Add(new Column("Proficiency",
+        new ValueFormat(DataTypeEnum.Numeric)));
+      m_ValidSetting.ColumnCollection.Add(new Column("IsNativeLang",
+        new ValueFormat(DataTypeEnum.Boolean)));
+      var cf = new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy"));
       m_ValidSetting.ColumnCollection.Add(cf);
     }
 
@@ -133,7 +133,7 @@ namespace CsvTools.Tests
     public async Task GetDataTableAsync3()
     {
       var test3 = new CsvFile(UnitTestStatic.GetTestPath("WithEoFChar.txt")) { FieldDelimiter = "Tab" };
-      test3.ColumnCollection.Add(new ImmutableColumn("Memo", new ImmutableValueFormat(), ignore: true));
+      test3.ColumnCollection.Add(new Column("Memo", new ValueFormat(), ignore: true));
       using var test = new CsvFileReader(test3.FullPath, test3.CodePageId, test3.SkipRows, test3.HasFieldHeader,
         test3.ColumnCollection, test3.TrimmingOption,
         test3.FieldDelimiter, test3.FieldQualifier, test3.EscapePrefix, test3.RecordLimit, test3.AllowRowCombining,

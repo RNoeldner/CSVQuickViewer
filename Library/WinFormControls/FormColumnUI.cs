@@ -31,7 +31,7 @@ using System.Windows.Forms;
 namespace CsvTools
 {
   /// <summary>
-  ///   Windows Form UI editing a <see cref="Column" />
+  ///   Windows Form UI editing a <see cref="ColumnMut" />
   /// </summary>
   public partial class FormColumnUI : ResizeForm
   {
@@ -42,7 +42,7 @@ namespace CsvTools
 
     private readonly CancellationTokenSource m_CancellationTokenSource = new();
 
-    private readonly Column m_ColumnEdit;
+    private readonly ColumnMut m_ColumnEdit;
     private readonly IColumn? m_ColumnRef;
     private readonly IFileSetting m_FileSetting;
     private readonly FillGuessSettings m_FillGuessSettings;
@@ -69,7 +69,7 @@ namespace CsvTools
     {
       m_ColumnRef = column;
       m_ColumnEdit = column == null
-        ? new Column(string.Empty)
+        ? new ColumnMut(string.Empty)
         : column.ToMutableColumn();
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
@@ -81,7 +81,7 @@ namespace CsvTools
       // needed for TimeZone, Name or TimePart
       columnBindingSource.DataSource = m_ColumnEdit;
       // needed for Formats
-      bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormatMutable;
+      bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormatMut;
       comboBoxTPFormat.Text = m_ColumnEdit.TimePartFormat;
       comboBoxColumnName.Enabled = showIgnore;
 
@@ -202,7 +202,7 @@ namespace CsvTools
 
             if (column.DataType.GetDataType() == DataTypeEnum.String)
               return;
-            m_ColumnEdit.ValueFormatMutable.DataType = column.DataType.GetDataType();
+            m_ColumnEdit.ValueFormatMut.DataType = column.DataType.GetDataType();
             formProgress.Hide();
 
             RefreshData();
@@ -310,7 +310,7 @@ namespace CsvTools
               {
                 if (checkResult.FoundValueFormat != null)
                 {
-                  m_ColumnEdit.ValueFormatMutable.CopyFrom(checkResult.FoundValueFormat);
+                  m_ColumnEdit.ValueFormatMut.CopyFrom(checkResult.FoundValueFormat);
 
                   if (checkResult.FoundValueFormat.DataType == DataTypeEnum.DateTime)
                     AddDateFormat(checkResult.FoundValueFormat.DateFormat);
@@ -344,7 +344,7 @@ namespace CsvTools
                         MessageBoxIcon.Question) == DialogResult.Yes)
                     // use the closest match instead of Text can not use ValueFormat.CopyTo,. Column
                     // is quite specific and need it to be set,
-                    m_ColumnEdit.ValueFormatMutable.CopyFrom(checkResult.ValueFormatPossibleMatch);
+                    m_ColumnEdit.ValueFormatMut.CopyFrom(checkResult.ValueFormatPossibleMatch);
                 }
                 else
                 {
@@ -374,7 +374,7 @@ namespace CsvTools
                 }
                 else
                 {
-                  if (m_ColumnEdit.ValueFormatMutable.DataType == DataTypeEnum.String)
+                  if (m_ColumnEdit.ValueFormatMut.DataType == DataTypeEnum.String)
                   {
                     MessageBox.ShowBig(
                       displayMsg,
@@ -389,7 +389,7 @@ namespace CsvTools
                           $"Column: {columnName}",
                           MessageBoxButtons.YesNo,
                           MessageBoxIcon.Question) == DialogResult.Yes)
-                      m_ColumnEdit.ValueFormatMutable.DataType = DataTypeEnum.String;
+                      m_ColumnEdit.ValueFormatMut.DataType = DataTypeEnum.String;
                   }
                 }
               }
@@ -416,7 +416,7 @@ namespace CsvTools
       });
     }
 
-    public void UpdateDateLabel(ValueFormatMutable vf, bool hasTimePart, string timePartFormat, string timeZone)
+    public void UpdateDateLabel(ValueFormatMut vf, bool hasTimePart, string timePartFormat, string timeZone)
     {
       try
       {
@@ -461,7 +461,7 @@ namespace CsvTools
       {
         if (string.IsNullOrEmpty(decimalSeparator))
           return;
-        var vf = new ValueFormatMutable(numberFormat: numberFormat, groupSeparator: numberFormat,
+        var vf = new ValueFormatMut(numberFormat: numberFormat, groupSeparator: numberFormat,
           decimalSeparator: groupSeparator);
         var sample = StringConversion.DoubleToString(1234.567, vf);
 
@@ -562,7 +562,7 @@ namespace CsvTools
 
         Hide();
         DialogResult = DialogResult.Yes;
-        if (m_ColumnRef is Column refCol)
+        if (m_ColumnRef is ColumnMut refCol)
         {
           m_ColumnEdit.CopyTo(refCol);
         }
@@ -597,23 +597,23 @@ namespace CsvTools
         foreach (var ind in uncheck)
           checkedListBoxDateFormats.SetItemCheckState(ind, CheckState.Unchecked);
 
-        m_ColumnEdit.ValueFormatMutable.DateFormat = format;
+        m_ColumnEdit.ValueFormatMut.DateFormat = format;
       }
       else
       {
-        var parts = new List<string>(StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormatMutable.DateFormat));
+        var parts = new List<string>(StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormatMut.DateFormat));
         var isInList = parts.Contains(format);
 
         if (e.NewValue == CheckState.Checked && !isInList)
         {
           parts.Add(format);
-          m_ColumnEdit.ValueFormatMutable.DateFormat = parts.Join(";");
+          m_ColumnEdit.ValueFormatMut.DateFormat = parts.Join(";");
         }
 
         if (e.NewValue == CheckState.Checked || !isInList)
           return;
         parts.Remove(format);
-        m_ColumnEdit.ValueFormatMutable.DateFormat = parts.Join(";");
+        m_ColumnEdit.ValueFormatMut.DateFormat = parts.Join(";");
       }
     }
 
@@ -716,7 +716,7 @@ namespace CsvTools
         if (comboBoxDataType.SelectedValue is null)
           return;
         var selType = (DataTypeEnum) comboBoxDataType.SelectedValue;
-        m_ColumnEdit.ValueFormatMutable.DataType = selType;
+        m_ColumnEdit.ValueFormatMut.DataType = selType;
 
         groupBoxNumber.Visible = selType == DataTypeEnum.Numeric || selType == DataTypeEnum.Double;
         if (groupBoxNumber.Visible)
@@ -726,7 +726,7 @@ namespace CsvTools
         if (groupBoxDate.Visible)
         {
           if (string.IsNullOrEmpty(m_ColumnEdit.ValueFormat.DateFormat))
-            m_ColumnEdit.ValueFormatMutable.DateFormat = ValueFormatExtension.cDateFormatDefault;
+            m_ColumnEdit.ValueFormatMut.DateFormat = ValueFormatExtension.cDateFormatDefault;
           DateFormatChanged(sender, EventArgs.Empty);
         }
 
@@ -736,7 +736,7 @@ namespace CsvTools
 
         groupBoxBinary.Visible = selType == DataTypeEnum.Binary;
         if (groupBoxBinary.Visible && m_ColumnEdit.ValueFormat.DateFormat == ValueFormatExtension.cDateFormatDefault)
-          m_ColumnEdit.ValueFormatMutable.DateFormat = string.Empty;
+          m_ColumnEdit.ValueFormatMut.DateFormat = string.Empty;
 
         if (groupBoxSplit.Visible)
           SetSamplePart(sender, EventArgs.Empty);
@@ -772,7 +772,7 @@ namespace CsvTools
           comboBoxDateFormat.Text = checkedListBoxDateFormats.Text;
 
       UpdateDateLabel(
-        new ValueFormatMutable(DataTypeEnum.DateTime, dateFormat, textBoxDateSeparator.Text, textBoxTimeSeparator.Text),
+        new ValueFormatMut(DataTypeEnum.DateTime, dateFormat, textBoxDateSeparator.Text, textBoxTimeSeparator.Text),
         !string.IsNullOrEmpty(comboBoxTimePart.Text), comboBoxTPFormat.Text, comboBoxTimeZone.Text);
     }
 
@@ -922,7 +922,7 @@ namespace CsvTools
     private void RefreshData()
     {
       SetDateFormat();
-      var selValue = (int) m_ColumnEdit.ValueFormatMutable.DataType;
+      var selValue = (int) m_ColumnEdit.ValueFormatMut.DataType;
       comboBoxDataType.DataSource = (from DataTypeEnum item in Enum.GetValues(typeof(DataTypeEnum))
         select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
       comboBoxDataType.SelectedValue = selValue;
@@ -993,7 +993,7 @@ namespace CsvTools
       AddNotExisting(formatsReg, "MM/dd/yyyy HH:mm:ss");
       AddNotExisting(formatsReg, "dd/MM/yyyy");
       AddNotExisting(formatsReg, "yyyy/MM/dd");
-      var parts = StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormatMutable.DateFormat);
+      var parts = StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormatMut.DateFormat);
       foreach (var format in parts)
         AddNotExisting(formatsReg, format);
 
