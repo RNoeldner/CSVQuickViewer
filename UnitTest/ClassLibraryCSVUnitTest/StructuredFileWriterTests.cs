@@ -33,11 +33,11 @@ namespace CsvTools.Tests
       {
         ID = cReadID, FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), CommentLine = "#"
       };
-      readFile.ColumnCollection.Add(new Column("ExamDate", @"dd/MM/yyyy"));
-      readFile.ColumnCollection.Add(new Column("Score", new ImmutableValueFormat(DataTypeEnum.Integer)));
-      readFile.ColumnCollection.Add(new Column("Proficiency", new ImmutableValueFormat(DataTypeEnum.Numeric)));
+      readFile.ColumnCollection.Add(new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")));
+      readFile.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
+      readFile.ColumnCollection.Add(new Column("Proficiency", new ValueFormat(DataTypeEnum.Numeric)));
       readFile.ColumnCollection.Add(
-        new Column("IsNativeLang", new ImmutableValueFormat(DataTypeEnum.Boolean)) { Ignore = true });
+        new ColumnMut("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean)) { Ignore = true });
       UnitTestStatic.MimicSQLReader.AddSetting(readFile);
     }
 

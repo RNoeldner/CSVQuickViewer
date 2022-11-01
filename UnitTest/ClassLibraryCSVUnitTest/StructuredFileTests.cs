@@ -113,11 +113,11 @@ namespace CsvTools.Tests
 
       m_JsonFile.ColumnCollection.Clear();
       m_JsonFile.ColumnCollection.Add(
-        new Column("ID", new ImmutableValueFormat(DataTypeEnum.Integer))
+        new ColumnMut("ID", new ValueFormat(DataTypeEnum.Integer))
         {
           ColumnOrdinal = 1, Ignore = false, Convert = true
         });
-      m_JsonFile.ColumnCollection.Add(new Column("Name", columnOrdinal: 2));
+      m_JsonFile.ColumnCollection.Add(new ColumnMut("Name", columnOrdinal: 2));
     }
 
     [TestMethod]

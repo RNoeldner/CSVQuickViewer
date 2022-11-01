@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -160,11 +161,11 @@ namespace CsvTools
     /// <value>The column options</value>
     [XmlElement]
     [JsonIgnore]
-    public virtual Column[] Format
+    public virtual ColumnMut[] Format
     {
       get
       {
-        var res = new Column[ColumnCollection.Count];
+        var res = new ColumnMut[ColumnCollection.Count];
         for (var index = 0; index < ColumnCollection.Count; index++)
           res[index] = ColumnCollection[index].ToMutableColumn();
         return res;
@@ -174,7 +175,7 @@ namespace CsvTools
         ColumnCollection.Clear();
         // ReSharper disable once ConditionIsAlwaysTrueOrFalse
         if (value == null) return;
-        ColumnCollection.AddRange(value);
+        ColumnCollection.AddRange(value.Select(x=> x.ToImmutableColumn()));
       }
     }
 

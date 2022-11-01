@@ -22,7 +22,7 @@ namespace CsvTools
 
     private readonly BiDirectionalDictionary<int, int> m_Mapping = new BiDirectionalDictionary<int, int>();
 
-    private readonly List<ImmutableColumn> m_ReaderColumnNotIgnored = new List<ImmutableColumn>();
+    private readonly List<Column> m_ReaderColumnNotIgnored = new List<Column>();
 
     private readonly List<string> m_ReaderColumnsAll = new List<string>();
 
@@ -52,7 +52,7 @@ namespace CsvTools
       var fieldCount = 0;
       for (var col = 0; col < dataReader.FieldCount; col++)
       {
-        ImmutableColumn column;
+        Column column;
         if (fileReader != null)
         {
           var iColumn = fileReader.GetColumn(col);
@@ -60,9 +60,9 @@ namespace CsvTools
         }
         else
         {
-          column = new ImmutableColumn(
+          column = new Column(
             dataReader.GetName(col),
-            new ImmutableValueFormat(dataReader.GetFieldType(col).GetDataType()),
+            new ValueFormat(dataReader.GetFieldType(col).GetDataType()),
             col);
         }
 
@@ -78,9 +78,9 @@ namespace CsvTools
       {
         DataTableStartLine = fieldCount++;
         m_ReaderColumnNotIgnored.Add(
-          new ImmutableColumn(
+          new Column(
             ReaderConstants.cStartLineNumberFieldName,
-            new ImmutableValueFormat(DataTypeEnum.Integer),
+            new ValueFormat(DataTypeEnum.Integer),
             DataTableStartLine));
       }
       else
@@ -92,9 +92,9 @@ namespace CsvTools
       {
         DataTableRecNum = fieldCount++;
         m_ReaderColumnNotIgnored.Add(
-          new ImmutableColumn(
+          new Column(
             ReaderConstants.cRecordNumberFieldName,
-            new ImmutableValueFormat(DataTypeEnum.Integer),
+            new ValueFormat(DataTypeEnum.Integer),
             DataTableRecNum));
       }
       else
@@ -106,9 +106,9 @@ namespace CsvTools
       {
         DataTableEndLine = fieldCount++;
         m_ReaderColumnNotIgnored.Add(
-          new ImmutableColumn(
+          new Column(
             ReaderConstants.cEndLineNumberFieldName,
-            new ImmutableValueFormat(DataTypeEnum.Integer),
+            new ValueFormat(DataTypeEnum.Integer),
             DataTableEndLine));
       }
       else
@@ -120,7 +120,7 @@ namespace CsvTools
       {
         DataTableErrorField = fieldCount;
         m_ReaderColumnNotIgnored.Add(
-          new ImmutableColumn(ReaderConstants.cErrorField, new ImmutableValueFormat(), DataTableErrorField));
+          new Column(ReaderConstants.cErrorField, new ValueFormat(), DataTableErrorField));
       }
       else
       {
@@ -130,7 +130,7 @@ namespace CsvTools
 
     public bool HasErrors => !(m_ColumnErrorDictionary is null) && m_ColumnErrorDictionary.Count > 0;
 
-    public IReadOnlyList<ImmutableColumn> Column => m_ReaderColumnNotIgnored;
+    public IReadOnlyList<Column> Column => m_ReaderColumnNotIgnored;
 
     public string RowErrorInformation =>
       ErrorInformation.ReadErrorInformation(m_ColumnErrorDictionary, m_ReaderColumnsAll);

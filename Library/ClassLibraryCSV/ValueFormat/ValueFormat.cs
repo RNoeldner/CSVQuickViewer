@@ -91,10 +91,16 @@ namespace CsvTools
     public string False { get; }
 
     /// <inheritdoc />
+    public string FileOutPutPlaceholder { get; }
+
+    /// <inheritdoc />
     public string GroupSeparator { get; }
 
     /// <inheritdoc />
     public string NumberFormat { get; }
+
+    /// <inheritdoc />
+    public bool Overwrite { get; }
 
     /// <inheritdoc />
     public int Part { get; }
@@ -106,28 +112,44 @@ namespace CsvTools
     public bool PartToEnd { get; }
 
     /// <inheritdoc />
-    public string TimeSeparator { get; }
-
-    /// <inheritdoc />
-    public string True { get; }
-
-    /// <inheritdoc />
-    public string RegexSearchPattern { get; }
+    public string ReadFolder { get; }
 
     /// <inheritdoc />
     public string RegexReplacement { get; }
 
     /// <inheritdoc />
-    public string ReadFolder { get; }
+    public string RegexSearchPattern { get; }
 
+    /// <inheritdoc />
+    public string TimeSeparator { get; }
+
+    /// <inheritdoc />
+    public string True { get; }
     /// <inheritdoc />
     public string WriteFolder { get; }
+    /// <inheritdoc cref="IWithCopyTo{T}" />
+    public object Clone() => new ValueFormat(DataType, DateFormat, DateSeparator, TimeSeparator, NumberFormat,
+      GroupSeparator,
+      DecimalSeparator, True, False, DisplayNullAs, Part, PartSplitter, PartToEnd, RegexSearchPattern, RegexReplacement,
+      ReadFolder, WriteFolder, FileOutPutPlaceholder, Overwrite);
+
+    /// <inheritdoc  cref="IWithCopyTo{T}"/>
+    public void CopyTo(IValueFormat other)
+    {
+      if (other is ValueFormatMut mutable)
+        mutable.CopyFrom(this);
+      else
+        throw new NotSupportedException("Can not copy properties to not mutable instance");
+    }
 
     /// <inheritdoc />
-    public string FileOutPutPlaceholder { get; }
+    public override bool Equals(object? obj) => this.ValueFormatEqual(obj as IValueFormat);
 
-    /// <inheritdoc />
-    public bool Overwrite { get; }
+    /// <inheritdoc cref="IEquatable{T}" />
+    public bool Equals(ValueFormat? other) => this.ValueFormatEqual(other);
+
+    /// <inheritdoc cref="IEquatable{T}" />
+    public bool Equals(IValueFormat other) => this.ValueFormatEqual(other);
 
     /// <inheritdoc />
     public override int GetHashCode()
@@ -156,26 +178,5 @@ namespace CsvTools
         return hashCode;
       }
     }
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj) => this.ValueFormatEqual(obj as IValueFormat);
-
-    /// <inheritdoc cref="IEquatable{T}" />
-    public bool Equals(ValueFormat? other) => this.ValueFormatEqual(other);
-
-    /// <inheritdoc cref="IEquatable{T}" />
-    public bool Equals(IValueFormat other) => this.ValueFormatEqual(other);
-
-    /// <inheritdoc />
-    public void CopyTo(IValueFormat other)
-    {
-      if (other is ValueFormatMut mutable)
-        mutable.CopyFrom(this);
-      else
-        throw new NotSupportedException("Can not copy properties to not mutable instance");
-    }
-
-    /// <inheritdoc />
-    public object Clone() => new ValueFormat(this);
   }
 }

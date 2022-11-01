@@ -132,45 +132,45 @@ namespace CsvTools
           case "long":
           case "byte":
           case "short":
-            vf = new ImmutableValueFormat(DataTypeEnum.Integer);
+            vf = new ValueFormat(DataTypeEnum.Integer);
             break;
 
           case "decimal":
           case "single":
           case "double":
-            vf = new ImmutableValueFormat(DataTypeEnum.Numeric, decimalSeparator: ".");
+            vf = new ValueFormat(DataTypeEnum.Numeric, decimalSeparator: ".");
             break;
 
           case "uuid":
           case "guid":
-            vf = new ImmutableValueFormat(DataTypeEnum.Guid);
+            vf = new ValueFormat(DataTypeEnum.Guid);
             break;
 
           case "bit":
-            vf = new ImmutableValueFormat(DataTypeEnum.Boolean);
+            vf = new ValueFormat(DataTypeEnum.Boolean);
             break;
 
           case "date":
           case "localdate":
-            vf = new ImmutableValueFormat(DataTypeEnum.DateTime, "yyyy/MM/dd", "-");
+            vf = new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/dd", "-");
             break;
 
           case "datetime":
           case "localdatetime":
-            vf = new ImmutableValueFormat(DataTypeEnum.DateTime, "yyyy/MM/ddTHH:mm:ss.FFFFFFF", "-");
+            vf = new ValueFormat(DataTypeEnum.DateTime, "yyyy/MM/ddTHH:mm:ss.FFFFFFF", "-");
             break;
 
           case "time":
           case "localtime":
-            vf = new ImmutableValueFormat(DataTypeEnum.DateTime, "HH:mm:ss.FFFFFFF");
+            vf = new ValueFormat(DataTypeEnum.DateTime, "HH:mm:ss.FFFFFFF");
             break;
 
           default:
-            vf = new ImmutableValueFormat();
+            vf = new ValueFormat();
             break;
         }
 
-        columnCollection.Add(new ImmutableColumn(fld.PubName, vf, fld.Ordinal, destinationName: fld.PubName));
+        columnCollection.Add(new Column(fld.PubName, vf, fld.Ordinal, destinationName: fld.PubName));
       }
 
       return new DelimitedFileDetectionResultWithColumns(fileSettingMani, columnCollection, string.Empty

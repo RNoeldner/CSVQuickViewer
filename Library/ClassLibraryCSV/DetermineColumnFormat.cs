@@ -282,7 +282,7 @@ namespace CsvTools
           {
             var format =
               (checkResult.PossibleMatch ? checkResult.ValueFormatPossibleMatch : checkResult.FoundValueFormat)
-              ?? new ImmutableValueFormat();
+              ?? new ValueFormat();
 
             if (!addTextColumns && format.DataType == DataTypeEnum.String) continue;
 
@@ -369,7 +369,7 @@ namespace CsvTools
                       && colName != "TIME ZONE ID"))
                 continue;
               columnCollection.Replace(
-                new ImmutableColumn(
+                new Column(
                   columnCollection[colIndexSetting].Name,
                   columnCollection[colIndexSetting].ValueFormat,
                   columnCollection[colIndexSetting].ColumnOrdinal,
@@ -404,7 +404,7 @@ namespace CsvTools
                   StringComparison.Ordinal))
               continue;
             columnCollection.Replace(
-              new ImmutableColumn(
+              new Column(
                 columnCollection[colIndexSetting].Name,
                 columnCollection[colIndexSetting].ValueFormat,
                 columnCollection[colIndexSetting].ColumnOrdinal,
@@ -446,7 +446,7 @@ namespace CsvTools
                     StringComparison.OrdinalIgnoreCase))
             {
               columnCollection.Replace(
-                new ImmutableColumn(
+                new Column(
                   columnCollection[colIndexSetting].Name,
                   columnCollection[colIndexSetting].ValueFormat,
                   columnCollection[colIndexSetting].ColumnOrdinal,
@@ -469,7 +469,7 @@ namespace CsvTools
               if (firstValueNewColumn != null && (firstValueNewColumn.Length == 8 || firstValueNewColumn.Length == 5))
               {
                 columnCollection.Add(columnTime.ReplaceValueFormat(
-                    new ImmutableValueFormat(DataTypeEnum.DateTime,
+                    new ValueFormat(DataTypeEnum.DateTime,
                       firstValueNewColumn.Length == 8 ? "HH:mm:ss" : "HH:mm")));
                 Logger.Information(
                   "{column} – Format : {format}",
@@ -495,7 +495,7 @@ namespace CsvTools
                   StringComparison.Ordinal))
             continue;
           columnCollection.Replace(
-            new ImmutableColumn(
+            new Column(
               columnCollection[colIndexSetting].Name,
               columnCollection[colIndexSetting].ValueFormat,
               columnCollection[colIndexSetting].ColumnOrdinal,
@@ -514,7 +514,7 @@ namespace CsvTools
           if (firstValueNewColumn2 != null && (firstValueNewColumn2.Length == 8 || firstValueNewColumn2.Length == 5))
           {
             columnCollection.Replace(
-              new ImmutableColumn(
+              new Column(
                 columnCollection[colIndexSetting].Name,
                 columnCollection[colIndexSetting].ValueFormat,
                 columnCollection[colIndexSetting].ColumnOrdinal,
@@ -908,7 +908,7 @@ namespace CsvTools
 
         if (allParsed)
         {
-          checkResult.FoundValueFormat = new ImmutableValueFormat(
+          checkResult.FoundValueFormat = new ValueFormat(
             DataTypeEnum.Boolean,
             asTrue: usedTrueValue,
             asFalse: usedFalseValue);
@@ -921,7 +921,7 @@ namespace CsvTools
       // ---------------- GUID --------------------------
       if (guessGuid && StringConversion.CheckGuid(samples, cancellationToken))
       {
-        checkResult.FoundValueFormat = new ImmutableValueFormat(DataTypeEnum.Guid);
+        checkResult.FoundValueFormat = new ValueFormat(DataTypeEnum.Guid);
         return checkResult;
       }
 
@@ -943,7 +943,7 @@ namespace CsvTools
           // Only do so if more then half of the samples are string
           if (valuesWithChars < samples.Count / 2 && valuesWithChars < 10)
             continue;
-          checkResult.FoundValueFormat = new ImmutableValueFormat();
+          checkResult.FoundValueFormat = new ValueFormat();
           return checkResult;
         }
       }
@@ -1045,8 +1045,8 @@ namespace CsvTools
         if (res != DataTypeEnum.String)
         {
           checkResult.PossibleMatch = true;
-          checkResult.ValueFormatPossibleMatch = new ImmutableValueFormat(res);
-          checkResult.FoundValueFormat = new ImmutableValueFormat(res);
+          checkResult.ValueFormatPossibleMatch = new ValueFormat(res);
+          checkResult.FoundValueFormat = new ValueFormat(res);
           return checkResult;
         }
       }
@@ -1203,7 +1203,7 @@ namespace CsvTools
                    sep => StringConversion
                      .StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture)
                      .HasValue))
-          yield return new ImmutableValueFormat(DataTypeEnum.DateTime, fmt, sep);
+          yield return new ValueFormat(DataTypeEnum.DateTime, fmt, sep);
     }
   }
 }

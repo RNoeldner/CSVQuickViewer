@@ -23,13 +23,13 @@ namespace CsvTools
   /// <summary>
   ///   Column information like name, Type, Format etc.
   /// </summary>
-  public class ImmutableColumn : IColumn
+  public class Column : IColumn
   {
     public const string cDefaultTimePartFormat = "HH:mm:ss";
     private bool m_ColumnFormatterCreated;
     private IColumnFormatter? m_ColumnFormatter;
 
-    public ImmutableColumn(
+    public Column(
       in string name,
       in IValueFormat valueFormat,
       int columnOrdinal = -1,
@@ -106,16 +106,16 @@ namespace CsvTools
              && ValueFormat.ValueFormatEqual(other.ValueFormat);
     }
 
-    public bool Equals(ImmutableColumn x, ImmutableColumn y) => x.Equals(y);
+    public bool Equals(Column x, Column y) => x.Equals(y);
 
-    public int GetHashCode(ImmutableColumn obj) => GetHashCode();
+    public int GetHashCode(Column obj) => GetHashCode();
 
     public override bool Equals(object? obj)
     {
       if (obj is null) return false;
       if (ReferenceEquals(this, obj)) return true;
       if (obj.GetType() != GetType()) return false;
-      return Equals((ImmutableColumn) obj);
+      return Equals((Column) obj);
     }
 
 

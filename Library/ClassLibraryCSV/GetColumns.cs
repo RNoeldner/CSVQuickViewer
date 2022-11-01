@@ -57,7 +57,7 @@ namespace CsvTools
         var colType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType();
         if (!(schemaRow[SchemaTableColumn.ColumnName] is string colName) || colName.Length == 0)
           colName = $"Column{colNo + 1}";
-        res.Add(new ImmutableColumn(colName, new ImmutableValueFormat(colType),
+        res.Add(new Column(colName, new ValueFormat(colType),
           (int) schemaRow[SchemaTableColumn.ColumnOrdinal]));
       }
 

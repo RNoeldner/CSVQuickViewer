@@ -38,7 +38,7 @@ namespace CsvTools
     /// <summary>
     ///   The value format for a possible match
     /// </summary>
-    public ImmutableValueFormat? ValueFormatPossibleMatch { get; set; }
+    public ValueFormat? ValueFormatPossibleMatch { get; set; }
 
     /// <summary>
     ///   Combines a Sub check to an overall check

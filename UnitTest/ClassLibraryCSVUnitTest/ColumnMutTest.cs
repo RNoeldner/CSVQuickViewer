@@ -14,27 +14,26 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.IO;
-using System.Xml.Serialization;
 
 namespace CsvTools.Tests
 {
   [TestClass]
-	public class ColumnFormatTest
+	public class ColumnMutTest
 	{
-    private readonly Column m_Column = new Column("Dummy");
+    private readonly ColumnMut m_Column = new("Dummy");
 
     [TestMethod]
     public void Column_Ctor()
     {
-      var target1 = new Column("Name");
+      var target1 = new ColumnMut("Name");
       Assert.IsNotNull(target1);
-      var target2 = new Column("Name2", new ImmutableValueFormat(DataTypeEnum.DateTime));
+      
+      var target2 = new ColumnMut("Name2", new ValueFormat(DataTypeEnum.DateTime));
       Assert.AreEqual("Name2", target2.Name);
-      var target3 = new Column("Name3", new ImmutableValueFormat());
+      Assert.AreEqual(DataTypeEnum.DateTime, target2.ValueFormat.DataType);
+
+      var target3 = new ColumnMut("Name3", new ValueFormat());
       Assert.AreEqual("Name3", target3.Name);
-      var target4 = new Column("Name4", "DF");
-      Assert.AreEqual("Name4", target4.Name);
     }
 
     [TestMethod]
@@ -67,7 +66,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ColumnPropertiesObsolete()
     {
-      var target = new Column("Name", new ImmutableValueFormat(DataTypeEnum.Guid));
+      var target = new ColumnMut("Name", new ValueFormat(DataTypeEnum.Guid));
       target.DataType = DataTypeEnum.Boolean;
       Assert.AreEqual(DataTypeEnum.Boolean, target.DataType);
       target.DateFormat = "xxx";
@@ -97,7 +96,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ColumnProperties()
     {
-      var target = new Column("Name", new ImmutableValueFormat(DataTypeEnum.Guid));
+      var target = new ColumnMut("Name", new ValueFormat(DataTypeEnum.Guid));
       target.ColumnOrdinal= 13;
       Assert.AreEqual(13, target.ColumnOrdinal);
       target.Convert= false;
@@ -109,26 +108,10 @@ namespace CsvTools.Tests
     }
 
 
-    [TestMethod]
-    public void ColumnSerialize()
-    {
-      var target = new Column("Näme", new ImmutableValueFormat(DataTypeEnum.DateTime, "XXX","-", "?", "xx","_","=","Yo","Nö","<N>", 3,"|", false,"pat","erp","read","Wr","ou",false))
-      {
-        DestinationName = "->",
-        ColumnOrdinal = 13,
-        Convert = true
-      };
-      var serializer = new XmlSerializer(typeof(Column));
-      using var stringWriter = new StringWriter();
-      serializer.Serialize(stringWriter, target);
-      var result = stringWriter.ToString();
-      Assert.IsFalse(string.IsNullOrEmpty(result));
-    }
-
 		[TestMethod]
 		public void ColumnEquals()
 		{
-      var target = new Column("Test");
+      var target = new ColumnMut("Test");
       m_Column.CopyTo(target);
       Assert.IsTrue(m_Column.Equals(target));
 		}
@@ -136,7 +119,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void ColumnGetDataType()
 		{
-      var test = new ValueFormatMutable(DataTypeEnum.String);
+      var test = new ValueFormatMut(DataTypeEnum.String);
 
       Assert.IsInstanceOfType(string.Empty, test.DataType.GetNetType());
       test.DataType = DataTypeEnum.DateTime;
@@ -149,20 +132,11 @@ namespace CsvTools.Tests
 			Assert.IsInstanceOfType(decimal.MaxValue, test.DataType.GetNetType());
 		}
 
-		//[TestMethod]
-		//public void ColumnGetHashCode()
-		//{
-		//  var test1 = new Column ();
-		//  var test2 = new Column ();
-		//  Assert.AreEqual(test1.GetHashCode(), test2.GetHashCode());
-		//  Assert.AreEqual(test1.GetHashCode(), test1.GetHashCode());
-		//}
-
 		[TestMethod]
 		public void ColumnNotEquals()
 		{
-      var target1 = new Column("Hello");
-      var target2 = new Column("World");
+      var target1 = new ColumnMut("Hello");
+      var target2 = new ColumnMut("World");
       Assert.IsFalse(target1.Equals(target2));
     }
 
@@ -173,19 +147,19 @@ namespace CsvTools.Tests
 		public void ColumnPropertyChanged()
 		{
 			var numCalled = 0;
-      var test = new Column("Dummy");
+      var test = new ColumnMut("Dummy");
       test.PropertyChanged += delegate
       {
         numCalled++;
       };
-			test.ValueFormatMutable.DataType = DataTypeEnum.DateTime;
-			Assert.AreEqual(DataTypeEnum.DateTime, test.ValueFormatMutable.DataType);
+			test.ValueFormatMut.DataType = DataTypeEnum.DateTime;
+			Assert.AreEqual(DataTypeEnum.DateTime, test.ValueFormatMut.DataType);
 			Assert.IsTrue(test.Convert);
 
-			Assert.AreEqual(0, numCalled);
+			Assert.AreEqual(2, numCalled);
 
 			test.Name = "Name";
-			Assert.AreEqual(1, numCalled);
+			Assert.AreEqual(3, numCalled);
 		}
 
 		[TestMethod]
@@ -194,7 +168,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void GetDataTypeDescriptionBool()
 		{
-      var target = new Column("Test", new ImmutableValueFormat(DataTypeEnum.Boolean));
+      var target = new ColumnMut("Test", new ValueFormat(DataTypeEnum.Boolean));
       Assert.AreEqual("Boolean", target.GetTypeAndFormatDescription());
     }
 
@@ -202,7 +176,7 @@ namespace CsvTools.Tests
 		public void GetDataTypeDescriptionDateTime()
 		{
       var target =
-        new Column("Test", new ImmutableValueFormat(DataTypeEnum.DateTime))
+        new ColumnMut("Test", new ValueFormat(DataTypeEnum.DateTime))
         {
           TimePart = "TPart", TimePartFormat = "YYYYMMDD", TimeZonePart = "'UTC'"
         };
@@ -218,8 +192,8 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void GetDataTypeDescriptionDouble()
 		{
-      var target = new Column("Test",
-        new ValueFormatMutable(dataType: DataTypeEnum.Numeric, numberFormat: "00.000"));
+      var target = new ColumnMut("Test",
+        new ValueFormatMut(dataType: DataTypeEnum.Numeric, numberFormat: "00.000"));
 
       Assert.AreEqual("Money (High Precision) (00.000)", target.GetTypeAndFormatDescription());
     }
@@ -227,7 +201,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void GetDataTypeDescriptionIgnore()
 		{
-			var target = new Column("Test") { Ignore = true };
+			var target = new ColumnMut("Test") { Ignore = true };
 
 			Assert.AreEqual("Text (Ignore)", target.GetTypeAndFormatDescription());
 		}
@@ -235,30 +209,18 @@ namespace CsvTools.Tests
 		[TestInitialize]
 		public void Init()
 		{
-      var valueFormatGerman = new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy",
+      var valueFormatGerman = new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy",
         dateSeparator: ".", decimalSeparator: ",", asFalse: @"Falsch", groupSeparator: ".", numberFormat: "0.##",
         timeSeparator: ":", asTrue: @"Wahr");
 
       var ff = new CsvFile("Dummy");
-      var col = new Column("StartDate", valueFormatGerman) { Ignore = true };
+      var col = new ColumnMut("StartDate", valueFormatGerman) { Ignore = true };
 
 			ff.ColumnCollection.Add(col);
 			Assert.AreEqual("StartDate", col.Name, "Name");
-			Assert.AreEqual(DataTypeEnum.DateTime, col.ValueFormatMutable.DataType, "DataType");
+			Assert.AreEqual(DataTypeEnum.DateTime, col.ValueFormatMut.DataType, "DataType");
 			Assert.IsTrue(col.Convert, "Convert");
 			Assert.IsTrue(col.Ignore, "Ignore");
 		}
-
-		//[TestMethod]
-		//public void ColumnDetermineDataTypeFromTypeName()
-		//{
-		//  Assert.AreEqual(DataType.Integer, Column.DetermineDataTypeFromTypeName("System.Int32"));
-		//  Assert.AreEqual(DataType.Double, Column.DetermineDataTypeFromTypeName("System.Double"));
-		//  Assert.AreEqual(DataType.Numeric, Column.DetermineDataTypeFromTypeName("System.Decimal"));
-		//  Assert.AreEqual(DataType.DateTime, Column.DetermineDataTypeFromTypeName("System.DateTime"));
-		//  Assert.AreEqual(DataType.String, Column.DetermineDataTypeFromTypeName("string"));
-		//  Assert.AreEqual(DataType.Boolean, Column.DetermineDataTypeFromTypeName("System.Boolean"));
-		//  Assert.AreEqual(DataType.Guid, Column.DetermineDataTypeFromTypeName("System.Guid"));
-		//}
-	}
+  }
 }

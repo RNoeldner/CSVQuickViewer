@@ -25,6 +25,7 @@
 		<ReleaseVersion>1.4.6.499</ReleaseVersion>
 	</PropertyGroup>
 	<ItemGroup>
+		<Compile Remove="Column\ImmutableColumn.cs" />
 		<Compile Remove="CsvFileReaderAsync.cs" />
 		<Compile Remove="DataTableReaderAsync.cs" />
 		<Compile Remove="ICloneable.cs" />
@@ -35,6 +36,8 @@
 		<Compile Remove="Mutable\ColumnForDate.cs" />
 		<Compile Remove="Mutable\ColumnForNumber.cs" />
 		<Compile Remove="Mutable\ColumnForPart.cs" />
+		<Compile Remove="ValueFormat\ImmutableValueFormat.cs" />
+		<Compile Remove="ValueFormat\ValueFormatMutable.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

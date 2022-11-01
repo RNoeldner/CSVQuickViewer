@@ -20,7 +20,7 @@ namespace CsvTools
 {
   public static class ValueFormatExtension
   {
-    public static readonly IValueFormat Default = new ImmutableValueFormat();
+    public static readonly IValueFormat Default = new ValueFormat();
 
     public const string cDateFormatDefault = "MM/dd/yyyy";
     public const string cDateSeparatorDefault = "/";
@@ -142,8 +142,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="source">an IValueFormat with the all properties for the new format</param>
     /// <returns>and immutable column</returns>
-    public static ImmutableValueFormat ToImmutable(this IValueFormat source)
-    => source as ImmutableValueFormat ?? new ImmutableValueFormat(source.DataType, source.DateFormat,
+    public static ValueFormat ToImmutable(this IValueFormat source)
+    => source as ValueFormat ?? new ValueFormat(source.DataType, source.DateFormat,
         source.DateSeparator, source.TimeSeparator, source.NumberFormat, source.GroupSeparator,
         source.DecimalSeparator, source.True, source.False, source.DisplayNullAs,
         source.Part, source.PartSplitter, source.PartToEnd, source.RegexSearchPattern,
@@ -154,8 +154,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="source">an IValueFormat with the all properties for the new format</param>
     /// <returns></returns>
-    public static ValueFormatMutable ToMutable(this IValueFormat source)
-    => new ValueFormatMutable(source.DataType, source.DateFormat, source.DateSeparator,
+    public static ValueFormatMut ToMutable(this IValueFormat source)
+    => new ValueFormatMut(source.DataType, source.DateFormat, source.DateSeparator,
           source.TimeSeparator, source.NumberFormat,
           source.GroupSeparator, source.DecimalSeparator,
           source.True, source.False, source.DisplayNullAs, source.Part, source.PartSplitter, source.PartToEnd,

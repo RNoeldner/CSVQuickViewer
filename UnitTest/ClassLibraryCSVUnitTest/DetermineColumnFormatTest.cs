@@ -32,20 +32,20 @@ namespace CsvTools.Tests
     {
       var list = new List<IColumn>();
       Assert.IsNull(DetermineColumnFormat.CommonDateFormat(list));
-      list.Add(new ImmutableColumn("Text1", new ImmutableValueFormat(), 3, false, "", true));
-      list.Add(new ImmutableColumn("Date1", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 1, true));
+      list.Add(new Column("Text1", new ValueFormat(), 3, false, "", true));
+      list.Add(new Column("Date1", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 1, true));
       Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
 
-      list.Add(new ImmutableColumn("Date2", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 2, true, "", true));
-      list.Add(new ImmutableColumn("Date3", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true, "", true));
+      list.Add(new Column("Date2", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 2, true, "", true));
+      list.Add(new Column("Date3", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true, "", true));
       Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
 
-      list.Add(new ImmutableColumn("Date4", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true));
-      list.Add(new ImmutableColumn("Date5", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true));
+      list.Add(new Column("Date4", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true));
+      list.Add(new Column("Date5", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true));
       Assert.AreEqual("MM/dd/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
 
-      list.Add(new ImmutableColumn("Date6", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 4, false));
-      list.Add(new ImmutableColumn("Date7", new ImmutableValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 4, false));
+      list.Add(new Column("Date6", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 4, false));
+      list.Add(new Column("Date7", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 4, false));
       Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
     }
 
@@ -78,7 +78,7 @@ namespace CsvTools.Tests
       var df = DetermineColumnFormat.GuessDateTime(list, true, UnitTestStatic.Token).FoundValueFormat!.DateFormat;
       Assert.IsTrue(df == "MM/dd/yyyy" | df == "dd/MM/yyyy");
       list.Add("24/12/2020");
-      Assert.IsTrue(new ImmutableValueFormat(DataTypeEnum.DateTime, "dd/MM/yyyy").Equals(DetermineColumnFormat.GuessDateTime(list, true, UnitTestStatic.Token).FoundValueFormat!));
+      Assert.IsTrue(new ValueFormat(DataTypeEnum.DateTime, "dd/MM/yyyy").Equals(DetermineColumnFormat.GuessDateTime(list, true, UnitTestStatic.Token).FoundValueFormat!));
     }
 
     [TestMethod()]
@@ -102,7 +102,7 @@ namespace CsvTools.Tests
       try
       {
         Assert.IsNull(DetermineColumnFormat.GuessValueFormat(list, 2, "true", "false",
-          true, true, true, true, true, true, true, new ImmutableValueFormat(DataTypeEnum.DateTime), UnitTestStatic.Token).FoundValueFormat);
+          true, true, true, true, true, true, true, new ValueFormat(DataTypeEnum.DateTime), UnitTestStatic.Token).FoundValueFormat);
       }
       catch (ArgumentException)
       {
@@ -1127,7 +1127,7 @@ namespace CsvTools.Tests
         true,
         false,
         false,
-        new ValueFormatMutable(dataType: DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy", dateSeparator: "/"),
+        new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy", dateSeparator: "/"),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"MM/dd/yyyy", res.FoundValueFormat?.DateFormat);
