@@ -133,7 +133,7 @@ namespace CsvTools.Tests
     public async Task GetDataTableAsync3()
     {
       var test3 = new CsvFile(UnitTestStatic.GetTestPath("WithEoFChar.txt")) { FieldDelimiter = "Tab" };
-      test3.ColumnCollection.Add(new Column("Memo", new ValueFormat(), ignore: true));
+      test3.ColumnCollection.Add(new Column("Memo", ValueFormat.Empty, ignore: true));
       using var test = new CsvFileReader(test3.FullPath, test3.CodePageId, test3.SkipRows, test3.HasFieldHeader,
         test3.ColumnCollection, test3.TrimmingOption,
         test3.FieldDelimiter, test3.FieldQualifier, test3.EscapePrefix, test3.RecordLimit, test3.AllowRowCombining,

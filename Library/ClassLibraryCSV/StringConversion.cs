@@ -641,7 +641,7 @@ namespace CsvTools
     public static string DecimalToString(in decimal value, in ValueFormat format)
     {
       var valueFormat = format.NumberFormat.Length == 0
-        ? ValueFormatExtension.cNumberFormatDefault
+        ? ValueFormat.cNumberFormatDefault
         : format.NumberFormat;
 
       return value.ToString(valueFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
@@ -688,7 +688,7 @@ namespace CsvTools
     public static string DoubleToString(in double value, in ValueFormat format)
     {
       var valueFormat = format.NumberFormat.Length == 0
-        ? ValueFormatExtension.cNumberFormatDefault
+        ? ValueFormat.cNumberFormatDefault
         : format.NumberFormat;
       return value.ToString(valueFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
         CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,

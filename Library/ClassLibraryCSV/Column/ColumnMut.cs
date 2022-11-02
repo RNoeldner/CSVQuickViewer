@@ -17,18 +17,18 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="IColumn" />
   /// <summary>
   ///   Column information like name, Type, Format etc.
   /// </summary>
   [Serializable]
-  public sealed class ColumnMut : NotifyPropertyChangedBase, IColumn
+  public sealed class ColumnMut : NotifyPropertyChangedBase, IEquatable<ColumnMut>
   {
     private bool m_Convert;
     private string m_DestinationName;
@@ -45,33 +45,37 @@ namespace CsvTools
     {
     }
 
+    public ColumnMut(Column source) : this(source.Name, source.ValueFormat, source.ColumnOrdinal, source.Ignore,
+      source.Convert, source.DestinationName, source.TimePart, source.TimePartFormat, source.TimeZonePart)
+    {
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ColumnMut"/> class.
     /// </summary>
     /// <param name="name">The column name.</param>
     /// <param name="valueFormat">The format of the column.</param>
     /// <param name="columnOrdinal">The column ordinal.</param>
+    /// <param name="ignore">if set to <c>true</c> the column will be ignored.</param>
     /// <param name="convert">If Conversion is necessary, usually yes if teh format is non string.</param>
     /// <param name="destinationName">Name of the destination.</param>
-    /// <param name="ignore">if set to <c>true</c> the column will be ignored.</param>
     /// <param name="timePart">The time part for date time information provided in two columns.</param>
     /// <param name="timePartFormat">The time part format for date time information provided in two columns</param>
     /// <param name="timeZonePart">The time zone part for date time information provided in multiple columns</param>
     /// <exception cref="System.ArgumentNullException">name</exception>
     [JsonConstructor]
-    public ColumnMut(
-      in string name,
+    public ColumnMut(in string name,
       in ValueFormat? valueFormat = null,
       int columnOrdinal = -1,
+      bool ignore = false,
       bool? convert = null,
       in string destinationName = "",
-      bool ignore = false,
       in string timePart = "",
       in string timePartFormat = Column.cDefaultTimePartFormat,
       in string timeZonePart = "")
     {
       m_Name = name ?? throw new ArgumentNullException(nameof(name));
-      m_ValueFormatMut = (valueFormat ?? new ValueFormat()).ToMutable();
+      m_ValueFormatMut = new ValueFormatMut(valueFormat ?? ValueFormat.Empty);
       m_ValueFormatMut.PropertyChanged += (sender, args) =>
       {
         NotifyPropertyChanged(nameof(ValueFormatMut));
@@ -112,7 +116,7 @@ namespace CsvTools
     [XmlAttribute]
     [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
+    [DefaultValue(ValueFormat.cDateFormatDefault)]
     public string DateFormat
     {
       get => m_ValueFormatMut.DateFormat;
@@ -126,7 +130,7 @@ namespace CsvTools
     [XmlAttribute]
     [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
+    [DefaultValue(ValueFormat.cDateSeparatorDefault)]
     public string DateSeparator
     {
       get => m_ValueFormatMut.DateSeparator;
@@ -140,7 +144,7 @@ namespace CsvTools
     [XmlAttribute]
     [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
+    [DefaultValue(ValueFormat.cDecimalSeparatorDefault)]
     public string DecimalSeparator
     {
       get => m_ValueFormatMut.DecimalSeparator;
@@ -155,11 +159,12 @@ namespace CsvTools
     [XmlAttribute]
     [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormatExtension.cFalseDefault)]
+    [DefaultValue(ValueFormat.cFalseDefault)]
     public string False
     {
       // Identifiers should not match keywords
-      get => m_ValueFormatMut.False; set => m_ValueFormatMut.False = value;
+      get => m_ValueFormatMut.False;
+      set => m_ValueFormatMut.False = value;
     }
 
 
@@ -170,7 +175,7 @@ namespace CsvTools
     [XmlAttribute]
     [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
+    [DefaultValue(ValueFormat.cGroupSeparatorDefault)]
     public string GroupSeparator
     {
       get => m_ValueFormatMut.GroupSeparator;
@@ -184,7 +189,7 @@ namespace CsvTools
     [XmlAttribute]
     [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
+    [DefaultValue(ValueFormat.cNumberFormatDefault)]
     public string NumberFormat
     {
       get => m_ValueFormatMut.NumberFormat;
@@ -198,7 +203,7 @@ namespace CsvTools
     [XmlAttribute]
     [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormatExtension.cPartDefault)]
+    [DefaultValue(ValueFormat.cPartDefault)]
     public int Part
     {
       get => m_ValueFormatMut.Part;
@@ -211,7 +216,7 @@ namespace CsvTools
     /// <value>The splitter.</value>
     [XmlElement]
     [JsonIgnore]
-    [DefaultValue(ValueFormatExtension.cPartSplitterDefault)]
+    [DefaultValue(ValueFormat.cPartSplitterDefault)]
     //[Obsolete("Use ValueFormat instead")]
     public string PartSplitter
     {
@@ -227,7 +232,7 @@ namespace CsvTools
     [XmlAttribute]
     [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormatExtension.cPartToEndDefault)]
+    [DefaultValue(ValueFormat.cPartToEndDefault)]
     public bool PartToEnd
     {
       get => m_ValueFormatMut.PartToEnd;
@@ -241,7 +246,7 @@ namespace CsvTools
     [XmlAttribute]
     [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
+    [DefaultValue(ValueFormat.cTimeSeparatorDefault)]
     public string TimeSeparator
     {
       get => m_ValueFormatMut.TimeSeparator;
@@ -255,7 +260,7 @@ namespace CsvTools
     [XmlAttribute]
     [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
-    [DefaultValue(ValueFormatExtension.cTrueDefault)]
+    [DefaultValue(ValueFormat.cTrueDefault)]
     public string True
     {
       // Identifiers should not match keywords
@@ -391,7 +396,7 @@ namespace CsvTools
     ///   <see langword="true" /> if the current object is equal to the <paramref name="other" />
     ///   parameter; otherwise, <see langword="false" />.
     /// </returns>
-    public bool Equals(IColumn? other)
+    public bool Equals(ColumnMut? other)
     {
       if (other is null)
         return false;
@@ -409,7 +414,7 @@ namespace CsvTools
                                                   && string.Equals(TimeZonePart, other.TimeZonePart,
                                                     StringComparison.OrdinalIgnoreCase)
                                                   && Convert == other.Convert
-                                                  && m_ValueFormatMut.Equals(other.ValueFormat.ToMutable());
+                                                  && m_ValueFormatMut.Equals(new ValueFormatMut(other.ValueFormat));
     }
 
     /// <summary>
@@ -432,7 +437,7 @@ namespace CsvTools
     ///   Returns a <see cref="string" /> that represents this instance.
     /// </summary>
     /// <returns>A <see cref="string" /> that represents this instance.</returns>
-    public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
+    public override string ToString() => $"{Name} ({this.ToImmutableColumn().GetTypeAndFormatDescription()})";
 
     /// <summary>
     /// Identifier in collections, similar to a hashcode based on a  properties that should be unique in a collection
@@ -442,5 +447,20 @@ namespace CsvTools
     /// </remarks>
     [JsonIgnore]
     public int CollectionIdentifier => Name.IdentifierHash();
+
+
+    /// <summary>
+    /// Returns  an immutable column 
+    /// </summary>
+    /// <returns>and immutable column</returns>
+    public Column ToImmutableColumn() =>
+      new Column(
+        Name,
+        ValueFormat,
+        ColumnOrdinal,
+        Ignore,
+        Convert,
+        DestinationName,
+        TimePart, TimePartFormat, TimeZonePart);
   }
 }

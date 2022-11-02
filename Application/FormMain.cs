@@ -44,7 +44,7 @@ namespace CsvTools
     private IFileSettingPhysicalFile? m_FileSetting;
 
     private FormCsvTextDisplay? m_SourceDisplay;
-    private IList<IColumn>? m_StoreColumns;
+    private IList<Column>? m_StoreColumns;
     private int m_WarningCount;
     private int m_WarningMax = 100;
 
@@ -73,7 +73,7 @@ namespace CsvTools
       m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
       detailControl.ColumnFormatChanged += (send, column) =>
       {
-        m_FileSetting?.ColumnCollection.Replace(column);
+        m_FileSetting?.ColumnCollection.Replace(column.ToImmutableColumn());
         m_ConfigChanged = true;
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         CheckPossibleChange();
@@ -699,12 +699,12 @@ namespace CsvTools
         if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataTypeEnum.String))
         {
           Logger.Information("Showing columns as text");
-          m_StoreColumns = new List<IColumn>(m_FileSetting.ColumnCollection);
+          m_StoreColumns = new List<Column>(m_FileSetting.ColumnCollection);
 
           // restore header names only
           m_FileSetting.ColumnCollection.Clear();
           m_FileSetting.ColumnCollection.AddRange(m_StoreColumns.Select(col =>
-            new Column(col.Name, new ValueFormat(), columnOrdinal: col.ColumnOrdinal)));
+            new Column(col.Name, ValueFormat.Empty, columnOrdinal: col.ColumnOrdinal)));
 
           m_ToolStripButtonAsText.Text = "As Values";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;

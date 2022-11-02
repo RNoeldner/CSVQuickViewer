@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Newtonsoft.Json;
@@ -27,7 +28,7 @@ namespace CsvTools
   [DebuggerDisplay("File: {ID} {m_FileName} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
   {
-    private ValueFormat m_DefaultValueFormatWrite = ValueFormatExtension.Default;
+    private ValueFormat m_DefaultValueFormatWrite = ValueFormat.Empty;
     private string m_ColumnFile = string.Empty;
     private string m_FileName;
     private long m_FileSize;
@@ -116,7 +117,6 @@ namespace CsvTools
     /// </summary>
     /// <value>The value format.</value>
     [XmlIgnore]
-    [JsonIgnore]
     public virtual ValueFormat ValueFormatWrite
     {
       get => m_DefaultValueFormatWrite;
@@ -127,15 +127,14 @@ namespace CsvTools
     /// Only used for Serialization
     /// </summary>
     [XmlElement(ElementName = "DefaultValueFormatWrite")]
+    [JsonIgnore]
     public virtual ValueFormatMut ValueFormatMut
     {
-      get => m_DefaultValueFormatWrite.ToMutable();
+      get => new ValueFormatMut(m_DefaultValueFormatWrite);
       set => m_DefaultValueFormatWrite = value.ToImmutable();
     }
 
-    [XmlIgnore]
-    [JsonIgnore]
-    public bool ValueFormatMutableSpecified => !m_DefaultValueFormatWrite.IsDefault();
+    [XmlIgnore] [JsonIgnore] public bool ValueFormatMutableSpecified => !m_DefaultValueFormatWrite.IsDefault();
 
     [XmlIgnore]
     [JsonIgnore]
@@ -319,10 +318,12 @@ namespace CsvTools
           yield return $"{nameof(RemoteFileName)} : {RemoteFileName} {physicalFile.RemoteFileName}";
 
         if (!physicalFile.IdentifierInContainer.Equals(IdentifierInContainer, StringComparison.OrdinalIgnoreCase))
-          yield return $"{nameof(IdentifierInContainer)} : {IdentifierInContainer} {physicalFile.IdentifierInContainer}";
+          yield return
+            $"{nameof(IdentifierInContainer)} : {IdentifierInContainer} {physicalFile.IdentifierInContainer}";
 
         if (physicalFile.ThrowErrorIfNotExists != ThrowErrorIfNotExists)
-          yield return $"{nameof(ThrowErrorIfNotExists)} : {ThrowErrorIfNotExists} {physicalFile.ThrowErrorIfNotExists}";
+          yield return
+            $"{nameof(ThrowErrorIfNotExists)} : {ThrowErrorIfNotExists} {physicalFile.ThrowErrorIfNotExists}";
 
         if (physicalFile.Passphrase != Passphrase)
           yield return $"{nameof(Passphrase)}";

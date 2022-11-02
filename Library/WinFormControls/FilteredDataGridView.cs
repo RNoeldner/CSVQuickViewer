@@ -924,7 +924,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="colIndex">The column index.</param>
     /// <returns></returns>
-    private IColumn? GetColumnFormat(int colIndex)
+    private Column? GetColumnFormat(int colIndex)
     {
       if (m_FileSetting is null || colIndex < 0 || colIndex > m_FileSetting.ColumnCollection.Count)
         return null;
@@ -1178,7 +1178,7 @@ namespace CsvTools
       contextMenuStripFilter.Close();
     }
 
-    public EventHandler<IColumn>? ColumnFormatChanged;
+    public EventHandler<ColumnMut>? ColumnFormatChanged;
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemCF control.
@@ -1192,10 +1192,12 @@ namespace CsvTools
         return;
       if (m_FileSetting != null && FillGuessSettings != null)
       {
-        using var form = new FormColumnUI(columnFormat, false, m_FileSetting, FillGuessSettings, false, HtmlStyle);
+        using var form = new FormColumnUI(columnFormat.ToMutableColumn(), false, m_FileSetting, FillGuessSettings,
+          false, HtmlStyle);
         var result = form.ShowDialog(this);
         if (result == DialogResult.OK || result == DialogResult.Yes)
         {
+          m_FileSetting.ColumnCollection[m_MenuItemColumnIndex] = form.EditedColumn.ToImmutableColumn();
           ColumnFormatChanged?.Invoke(this, form.EditedColumn);
         }
       }

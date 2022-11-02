@@ -12,7 +12,6 @@
  *
  */
 #nullable enable
-using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
@@ -20,7 +19,6 @@ using System.Xml.Serialization;
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="CsvTools.IValueFormat" />
   /// <summary>
   ///   Setting for a value format
   /// </summary>
@@ -51,6 +49,13 @@ namespace CsvTools
     /// </summary>
     [Obsolete("Only needed for XML Serialization")]
     public ValueFormatMut() : this(DataTypeEnum.String)
+    {
+    }
+
+    public ValueFormatMut(ValueFormat source) : this(source.DataType, source.DateFormat, source.DateSeparator,
+      source.TimeSeparator, source.NumberFormat, source.GroupSeparator, source.DecimalSeparator, source.True,
+      source.False, source.DisplayNullAs, source.Part, source.PartSplitter, source.PartToEnd, source.RegexSearchPattern,
+      source.RegexReplacement, source.ReadFolder, source.WriteFolder, source.FileOutPutPlaceholder, source.Overwrite)
     {
     }
 
@@ -86,21 +91,20 @@ namespace CsvTools
     ///   asFalse or numberFormat or timeSeparator or asTrue or partSplitter or regexSearchPattern
     ///   or regexReplacement or readFolder or writeFolder or fileOutPutPlaceholder
     /// </exception>
-    [JsonConstructor]
     public ValueFormatMut(
       in DataTypeEnum dataType = DataTypeEnum.String,
-      in string dateFormat = ValueFormatExtension.cDateFormatDefault,
-      in string dateSeparator = ValueFormatExtension.cDateSeparatorDefault,
-      in string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
-      in string numberFormat = ValueFormatExtension.cNumberFormatDefault,
-      in string groupSeparator = ValueFormatExtension.cGroupSeparatorDefault,
-      in string decimalSeparator = ValueFormatExtension.cDecimalSeparatorDefault,
-      in string asTrue = ValueFormatExtension.cTrueDefault,
-      in string asFalse = ValueFormatExtension.cFalseDefault,
+      in string dateFormat = ValueFormat.cDateFormatDefault,
+      in string dateSeparator = ValueFormat.cDateSeparatorDefault,
+      in string timeSeparator = ValueFormat.cTimeSeparatorDefault,
+      in string numberFormat = ValueFormat.cNumberFormatDefault,
+      in string groupSeparator = ValueFormat.cGroupSeparatorDefault,
+      in string decimalSeparator = ValueFormat.cDecimalSeparatorDefault,
+      in string asTrue = ValueFormat.cTrueDefault,
+      in string asFalse = ValueFormat.cFalseDefault,
       in string displayNullAs = "",
-      int part = ValueFormatExtension.cPartDefault,
-      in string partSplitter = ValueFormatExtension.cPartSplitterDefault,
-      bool partToEnd = ValueFormatExtension.cPartToEndDefault,
+      int part = ValueFormat.cPartDefault,
+      in string partSplitter = ValueFormat.cPartSplitterDefault,
+      bool partToEnd = ValueFormat.cPartToEndDefault,
       in string regexSearchPattern = "",
       in string regexReplacement = "",
       in string readFolder = "",
@@ -108,20 +112,22 @@ namespace CsvTools
       in string fileOutPutPlaceholder = "",
       in bool overwrite = true)
     {
-      if (!string.IsNullOrEmpty(decimalSeparator) && decimalSeparator.Equals(groupSeparator))
+      m_DecimalSeparator = (decimalSeparator ?? ValueFormat.cDecimalSeparatorDefault).WrittenPunctuation();
+      m_GroupSeparator = (groupSeparator ?? ValueFormat.cGroupSeparatorDefault).WrittenPunctuation();
+      if (!string.IsNullOrEmpty(m_DecimalSeparator) && m_DecimalSeparator.Equals(m_GroupSeparator))
         throw new FileReaderException("Decimal and Group separator must be different");
       m_DataType = dataType;
-      m_DateFormat = dateFormat ?? ValueFormatExtension.cDateFormatDefault;
-      m_DateSeparator = (dateSeparator ?? ValueFormatExtension.cDateSeparatorDefault).WrittenPunctuation();
-      m_DecimalSeparator = (decimalSeparator ?? ValueFormatExtension.cDecimalSeparatorDefault).WrittenPunctuation();
-      m_GroupSeparator = (groupSeparator ?? ValueFormatExtension.cGroupSeparatorDefault).WrittenPunctuation();
+      m_DateFormat = dateFormat ?? ValueFormat.cDateFormatDefault;
+      m_DateSeparator = (dateSeparator ?? ValueFormat.cDateSeparatorDefault).WrittenPunctuation();
+      m_TimeSeparator = (timeSeparator ?? ValueFormat.cTimeSeparatorDefault).WrittenPunctuation(); 
+
       m_DisplayNullAs = displayNullAs ?? string.Empty;
-      m_False = asFalse ?? ValueFormatExtension.cFalseDefault;
-      m_NumberFormat = numberFormat ?? ValueFormatExtension.cNumberFormatDefault;
-      m_TimeSeparator = timeSeparator ?? ValueFormatExtension.cTimeSeparatorDefault;
-      m_True = asTrue ?? ValueFormatExtension.cTrueDefault;
+      m_NumberFormat = numberFormat ?? ValueFormat.cNumberFormatDefault;
+
+      m_True = asTrue ?? ValueFormat.cTrueDefault;
+      m_False = asFalse ?? ValueFormat.cFalseDefault;
       m_Part = part;
-      m_PartSplitter = (partSplitter ?? ValueFormatExtension.cPartSplitterDefault).WrittenPunctuation();
+      m_PartSplitter = (partSplitter ?? ValueFormat.cPartSplitterDefault).WrittenPunctuation();
       m_PartToEnd = partToEnd;
       m_RegexSearchPattern = regexSearchPattern ?? string.Empty;
       m_RegexReplacement = regexReplacement ?? string.Empty;
@@ -131,7 +137,6 @@ namespace CsvTools
       m_Overwrite = overwrite;
     }
 
-    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue(DataTypeEnum.String)]
     public DataTypeEnum DataType
@@ -140,27 +145,24 @@ namespace CsvTools
       set => SetField(ref m_DataType, value);
     }
 
-    /// <inheritdoc />
     [XmlElement]
-    [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
+    [DefaultValue(ValueFormat.cDateFormatDefault)]
     public string DateFormat
     {
       get => m_DateFormat;
       set => SetField(ref m_DateFormat, value, StringComparison.Ordinal);
     }
 
-    /// <inheritdoc />
     [XmlElement]
-    [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
+    [DefaultValue(ValueFormat.cDateSeparatorDefault)]
     public string DateSeparator
     {
       get => m_DateSeparator;
       set => SetField(ref m_DateSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
     }
 
-    /// <inheritdoc />
     [XmlElement]
-    [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
+    [DefaultValue(ValueFormat.cDecimalSeparatorDefault)]
     public string DecimalSeparator
     {
       get => m_DecimalSeparator;
@@ -173,7 +175,6 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc />
     [XmlAttribute]
     [DefaultValue("")]
     public string DisplayNullAs
@@ -182,9 +183,8 @@ namespace CsvTools
       set => SetField(ref m_DisplayNullAs, value, StringComparison.Ordinal);
     }
 
-    /// <inheritdoc />
     [XmlElement]
-    [DefaultValue(ValueFormatExtension.cFalseDefault)]
+    [DefaultValue(ValueFormat.cFalseDefault)]
     public string False
     {
       get => m_False;
@@ -199,9 +199,8 @@ namespace CsvTools
       set => SetField(ref m_FileOutPutPlaceholder, value, StringComparison.Ordinal);
     }
 
-    /// <inheritdoc />
     [XmlElement]
-    [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
+    [DefaultValue(ValueFormat.cGroupSeparatorDefault)]
     public string GroupSeparator
     {
       get => m_GroupSeparator;
@@ -216,13 +215,8 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc />
-    /// <summary>
-    ///   Gets or sets the number format.
-    /// </summary>
-    /// <value>The number format.</value>
     [XmlElement]
-    [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
+    [DefaultValue(ValueFormat.cNumberFormatDefault)]
     public string NumberFormat
     {
       get => m_NumberFormat;
@@ -238,7 +232,7 @@ namespace CsvTools
     }
 
     [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cPartDefault)]
+    [DefaultValue(ValueFormat.cPartDefault)]
     public int Part
     {
       get => m_Part;
@@ -250,7 +244,7 @@ namespace CsvTools
 #endif
 
     [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cPartSplitterDefault)]
+    [DefaultValue(ValueFormat.cPartSplitterDefault)]
     public string PartSplitter
     {
       get => m_PartSplitter;
@@ -258,7 +252,7 @@ namespace CsvTools
     }
 
     [XmlAttribute]
-    [DefaultValue(ValueFormatExtension.cPartToEndDefault)]
+    [DefaultValue(ValueFormat.cPartToEndDefault)]
     public bool PartToEnd
     {
       get => m_PartToEnd;
@@ -289,26 +283,16 @@ namespace CsvTools
       set => SetField(ref m_RegexSearchPattern, value, StringComparison.Ordinal);
     }
 
-    /// <inheritdoc />
-    /// <summary>
-    ///   Gets or sets the time separator.
-    /// </summary>
-    /// <value>The time separator.</value>
     [XmlElement]
-    [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
+    [DefaultValue(ValueFormat.cTimeSeparatorDefault)]
     public string TimeSeparator
     {
       get => m_TimeSeparator;
       set => SetField(ref m_TimeSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
     }
 
-    /// <inheritdoc />
-    /// <summary>
-    ///   Gets or sets the representation for true.
-    /// </summary>
-    /// <value>The true.</value>
     [XmlElement]
-    [DefaultValue(ValueFormatExtension.cTrueDefault)]
+    [DefaultValue(ValueFormat.cTrueDefault)]
     public string True
     {
       get => m_True;
@@ -379,5 +363,15 @@ namespace CsvTools
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is ValueFormatMut other && Equals(other);
 
+    /// <summary>
+    /// Returns  an immutable ValueFormat if the source column was immutable the very same is returned, not copy is created
+    /// </summary>
+    /// <returns>and immutable column</returns>
+    public ValueFormat ToImmutable()
+      => new ValueFormat(DataType, DateFormat,
+        DateSeparator, TimeSeparator, NumberFormat, GroupSeparator,
+        DecimalSeparator, True, False, DisplayNullAs,
+        Part, PartSplitter, PartToEnd, RegexSearchPattern,
+        RegexReplacement, ReadFolder, WriteFolder, FileOutPutPlaceholder, Overwrite);
   }
 }

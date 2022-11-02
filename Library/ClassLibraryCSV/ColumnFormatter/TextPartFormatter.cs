@@ -25,14 +25,6 @@ namespace CsvTools
     private readonly bool m_PartToEnd;
 
 
-    public TextPartFormatter()
-      : this(
-        ValueFormatExtension.cPartDefault,
-        ValueFormatExtension.cPartSplitterDefault,
-        ValueFormatExtension.cPartToEndDefault)
-    {
-    }
-
     public TextPartFormatter(int part, string partSplitter, bool partToEnd)
     {
       m_Part = part;

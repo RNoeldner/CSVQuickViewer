@@ -98,7 +98,7 @@ namespace CsvTools
     public override bool HasRows => !DataReader.IsClosed;
 
     public event EventHandler<RetryEventArgs>? OnAskRetry;
-    public event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
+    public event EventHandler<IReadOnlyCollection<Column>>? OpenFinished;
     public event EventHandler? ReadFinished;
 
     public Func<Task>? OnOpenAsync { get; set; }
@@ -309,7 +309,7 @@ namespace CsvTools
       return couldRead;
     }
     /// <inheritdoc />
-    public IColumn GetColumn(int column) => ReaderMapping.Column[column];
+    public Column GetColumn(int column) => ReaderMapping.Column[column];
 
     /// <inheritdoc />
     [Obsolete("No need to open a DataReaderWrapper")]

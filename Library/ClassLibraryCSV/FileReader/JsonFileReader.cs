@@ -39,7 +39,7 @@ namespace CsvTools
 
     public JsonFileReader(
       in Stream improvedStream,
-      in IEnumerable<IColumn>? columnDefinition,
+      in IEnumerable<Column>? columnDefinition,
       long recordLimit,
       bool trim,
       in string treatTextAsNull,
@@ -50,7 +50,7 @@ namespace CsvTools
       m_ImprovedStream = improvedStream;
 
     public JsonFileReader(in string fileName,
-      in IEnumerable<IColumn>? columnDefinition,
+      in IEnumerable<Column>? columnDefinition,
       long recordLimit,
       bool trim,
       string treatTextAsNull,

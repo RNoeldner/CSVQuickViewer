@@ -21,7 +21,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class JsonFileTests
   {
-    private readonly JsonFile m_JsonFile = new JsonFile() { Row = "{0}" };
+    private readonly JsonFile m_JsonFile = new JsonFile("") { Row = "{0}" };
 
     [TestMethod]
     public void StructuredFileClone()
@@ -113,11 +113,8 @@ namespace CsvTools.Tests
 
       m_JsonFile.ColumnCollection.Clear();
       m_JsonFile.ColumnCollection.Add(
-        new ColumnMut("ID", new ValueFormat(DataTypeEnum.Integer))
-        {
-          ColumnOrdinal = 1, Ignore = false, Convert = true
-        });
-      m_JsonFile.ColumnCollection.Add(new ColumnMut("Name", columnOrdinal: 2));
+        new Column("ID", new ValueFormat(DataTypeEnum.Integer), 1));
+      m_JsonFile.ColumnCollection.Add(new Column("Name", ValueFormat.Empty, columnOrdinal: 2));
     }
 
     [TestMethod]

@@ -30,14 +30,14 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void CommonDateFormatTest()
     {
-      var list = new List<IColumn>();
+      var list = new List<Column>();
       Assert.IsNull(DetermineColumnFormat.CommonDateFormat(list));
-      list.Add(new Column("Text1", new ValueFormat(), 3, false, "", true));
+      list.Add(new Column("Text1", ValueFormat.Empty, 3, false));
       list.Add(new Column("Date1", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 1, true));
       Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
 
-      list.Add(new Column("Date2", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 2, true, "", true));
-      list.Add(new Column("Date3", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true, "", true));
+      list.Add(new Column("Date2", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 2, true));
+      list.Add(new Column("Date3", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true));
       Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
 
       list.Add(new Column("Date4", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true));
@@ -286,7 +286,7 @@ namespace CsvTools.Tests
       {
         // ReSharper disable once AssignNullToNotNullAttribute
 
-        await "Nonsense SQL".GetWriterColumnInformationAsync(60, null, new List<IColumn>(),
+        await "Nonsense SQL".GetWriterColumnInformationAsync(60, null, new List<Column>(),
           UnitTestStatic.Token);
 
         Assert.Fail("Expected Exception not thrown");

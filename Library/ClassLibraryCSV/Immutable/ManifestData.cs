@@ -122,7 +122,7 @@ namespace CsvTools
         false,
         RecordDelimiterTypeEnum.Lf);
 
-      var columnCollection = new List<IColumn>();
+      var columnCollection = new List<Column>();
       foreach (var fld in mani.Fields)
       {
         ValueFormat vf;
@@ -166,7 +166,7 @@ namespace CsvTools
             break;
 
           default:
-            vf = new ValueFormat();
+            vf = ValueFormat.Empty;
             break;
         }
 

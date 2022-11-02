@@ -28,7 +28,7 @@ namespace CsvTools
   /// </summary>
   public static class DetermineColumnFormat
   {
-    public static ValueFormat? CommonDateFormat(in IEnumerable<IColumn>? columns)
+    public static ValueFormat? CommonDateFormat(in IEnumerable<Column>? columns)
     {
       ValueFormat? best = null;
       if (columns is null) return null;
@@ -71,10 +71,10 @@ namespace CsvTools
     /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A text with the changes that have been made and a list of the determined columns</returns>
-    public static async Task<(IList<string>, IReadOnlyCollection<IColumn>)> FillGuessColumnFormatReaderAsyncReader(
+    public static async Task<(IList<string>, IReadOnlyCollection<Column>)> FillGuessColumnFormatReaderAsyncReader(
       this IFileReader fileReader,
       FillGuessSettings fillGuessSettings,
-      IEnumerable<IColumn>? columnCollectionInput,
+      IEnumerable<Column>? columnCollectionInput,
       bool addTextColumns,
       bool checkDoubleToBeInteger,
       string treatTextAsNull,
@@ -85,23 +85,23 @@ namespace CsvTools
       if (fillGuessSettings is null)
         throw new ArgumentNullException(nameof(fillGuessSettings));
 
-      columnCollectionInput ??= Array.Empty<IColumn>();
+      columnCollectionInput ??= Array.Empty<Column>();
 
       if (!fillGuessSettings.Enabled || (!fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean
                                                                           && !fillGuessSettings.DetectDateTime
                                                                           && !fillGuessSettings.DetectGuid
                                                                           && !fillGuessSettings.DetectPercentage
                                                                           && !fillGuessSettings.SerialDateTime))
-        return (Array.Empty<string>(), new List<IColumn>(columnCollectionInput));
+        return (Array.Empty<string>(), new List<Column>(columnCollectionInput));
 
       if (fileReader.FieldCount == 0)
-        return (Array.Empty<string>(), new List<IColumn>(columnCollectionInput));
+        return (Array.Empty<string>(), new List<Column>(columnCollectionInput));
 
       if (fileReader.EndOfFile)
         fileReader.ResetPositionToFirstDataRow();
 
       if (fileReader.EndOfFile) // still end of file
-        return (Array.Empty<string>(), new List<IColumn>(columnCollectionInput));
+        return (Array.Empty<string>(), new List<Column>(columnCollectionInput));
 
       var result = new List<string>();
 
@@ -282,7 +282,7 @@ namespace CsvTools
           {
             var format =
               (checkResult.PossibleMatch ? checkResult.ValueFormatPossibleMatch : checkResult.FoundValueFormat)
-              ?? new ValueFormat();
+              ?? ValueFormat.Empty;
 
             if (!addTextColumns && format.DataType == DataTypeEnum.String) continue;
 
@@ -373,12 +373,10 @@ namespace CsvTools
                   columnCollection[colIndexSetting].Name,
                   columnCollection[colIndexSetting].ValueFormat,
                   columnCollection[colIndexSetting].ColumnOrdinal,
+                  columnCollection[colIndexSetting].Ignore,
                   columnCollection[colIndexSetting].Convert,
                   columnCollection[colIndexSetting].DestinationName,
-                  columnCollection[colIndexSetting].Ignore,
-                  columnCollection[colIndexSetting].TimePart,
-                  columnCollection[colIndexSetting].TimePartFormat,
-                  columnTimeZone.Name));
+                  columnCollection[colIndexSetting].TimePart, columnCollection[colIndexSetting].TimePartFormat, columnTimeZone.Name));
               Logger.Information("{column} – Added Time Zone : {column2}", readerColumn.Name, columnTimeZone.Name);
               result.Add($"{readerColumn.Name} – Added Time Zone : {columnTimeZone.Name}");
             }
@@ -408,12 +406,10 @@ namespace CsvTools
                 columnCollection[colIndexSetting].Name,
                 columnCollection[colIndexSetting].ValueFormat,
                 columnCollection[colIndexSetting].ColumnOrdinal,
+                columnCollection[colIndexSetting].Ignore,
                 columnCollection[colIndexSetting].Convert,
                 columnCollection[colIndexSetting].DestinationName,
-                columnCollection[colIndexSetting].Ignore,
-                columnTime.Name,
-                timeFormat.DateFormat,
-                columnCollection[colIndexSetting].TimeZonePart));
+                columnTime.Name, timeFormat.DateFormat, columnCollection[colIndexSetting].TimeZonePart));
 
             Logger.Information("{column} – Added Time Part : {column2}", readerColumn.Name, columnTime.Name);
             result.Add($"{readerColumn.Name} – Added Time Part : {columnTime.Name}");
@@ -450,12 +446,10 @@ namespace CsvTools
                   columnCollection[colIndexSetting].Name,
                   columnCollection[colIndexSetting].ValueFormat,
                   columnCollection[colIndexSetting].ColumnOrdinal,
+                  columnCollection[colIndexSetting].Ignore,
                   columnCollection[colIndexSetting].Convert,
                   columnCollection[colIndexSetting].DestinationName,
-                  columnCollection[colIndexSetting].Ignore,
-                  columnTime.Name,
-                  columnCollection[colIndexSetting].TimePartFormat,
-                  columnCollection[colIndexSetting].TimeZonePart));
+                  columnTime.Name, columnCollection[colIndexSetting].TimePartFormat, columnCollection[colIndexSetting].TimeZonePart));
 
               var firstValueNewColumn = (sampleList.Keys.Contains(colIndex + 1)
                 ? sampleList[colIndex + 1]
@@ -499,12 +493,10 @@ namespace CsvTools
               columnCollection[colIndexSetting].Name,
               columnCollection[colIndexSetting].ValueFormat,
               columnCollection[colIndexSetting].ColumnOrdinal,
+              columnCollection[colIndexSetting].Ignore,
               columnCollection[colIndexSetting].Convert,
               columnCollection[colIndexSetting].DestinationName,
-              columnCollection[colIndexSetting].Ignore,
-              readerColumnTime.Name,
-              columnCollection[colIndexSetting].TimePartFormat,
-              columnCollection[colIndexSetting].TimeZonePart));
+              readerColumnTime.Name, columnCollection[colIndexSetting].TimePartFormat, columnCollection[colIndexSetting].TimeZonePart));
 
           var firstValueNewColumn2 = (sampleList.Keys.Contains(colIndex - 1)
             ? sampleList[colIndex - 1]
@@ -518,12 +510,10 @@ namespace CsvTools
                 columnCollection[colIndexSetting].Name,
                 columnCollection[colIndexSetting].ValueFormat,
                 columnCollection[colIndexSetting].ColumnOrdinal,
+                columnCollection[colIndexSetting].Ignore,
                 columnCollection[colIndexSetting].Convert,
                 columnCollection[colIndexSetting].DestinationName,
-                columnCollection[colIndexSetting].Ignore,
-                columnCollection[colIndexSetting].TimePart,
-                firstValueNewColumn2.Length == 8 ? "HH:mm:ss" : "HH:mm",
-                columnCollection[colIndexSetting].TimeZonePart));
+                columnCollection[colIndexSetting].TimePart, firstValueNewColumn2.Length == 8 ? "HH:mm:ss" : "HH:mm", columnCollection[colIndexSetting].TimeZonePart));
 
             Logger.Information(
               "{column} – Format : {format}",
@@ -538,7 +528,7 @@ namespace CsvTools
         }
       }
 
-      var existing = new Collection<IColumn>();
+      var existing = new Collection<Column>();
       foreach (var colName in columnNamesInFile)
         foreach (var col in columnCollection)
         {
@@ -889,8 +879,8 @@ namespace CsvTools
       if (guessBoolean && samples.Count <= 2)
       {
         var allParsed = true;
-        var usedTrueValue = ValueFormatExtension.cTrueDefault;
-        var usedFalseValue = ValueFormatExtension.cFalseDefault;
+        var usedTrueValue = ValueFormat.cTrueDefault;
+        var usedFalseValue = ValueFormat.cFalseDefault;
         foreach (var value in samples)
         {
           var resultBool = StringConversion.StringToBooleanStrict(value, trueValue, falseValue);
@@ -943,7 +933,7 @@ namespace CsvTools
           // Only do so if more then half of the samples are string
           if (valuesWithChars < samples.Count / 2 && valuesWithChars < 10)
             continue;
-          checkResult.FoundValueFormat = new ValueFormat();
+          checkResult.FoundValueFormat = ValueFormat.Empty;
           return checkResult;
         }
       }
@@ -1118,7 +1108,7 @@ namespace CsvTools
     /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A list of columns with new format that have been changed</returns>
-    public static async Task<(IList<string>, IReadOnlyCollection<IColumn>)> FillGuessColumnFormatReaderAsync(
+    public static async Task<(IList<string>, IReadOnlyCollection<Column>)> FillGuessColumnFormatReaderAsync(
       this IFileSetting fileSetting,
       bool addTextColumns,
       bool checkDoubleToBeInteger,

@@ -301,38 +301,31 @@ namespace CsvTools.Tests
       };
 
       readFile.ColumnCollection.Add(
-        new ColumnMut("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"))
-        {
-          TimePart = "Time", TimePartFormat = "HH:mm:ss"
-        });
-      readFile.ColumnCollection.Add(new ColumnMut("Integer", new ValueFormat(DataTypeEnum.Integer)));
+        new Column("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"),
+          timePart: "Time", timePartFormat: "HH:mm:ss"));
+      readFile.ColumnCollection.Add(new Column("Integer", new ValueFormat(DataTypeEnum.Integer)));
       readFile.ColumnCollection.Add(
         new Column("Numeric", new ValueFormat(DataTypeEnum.Numeric, decimalSeparator: "."), 0));
       readFile.ColumnCollection.Add(
-        new ColumnMut("Double", new ValueFormat(dataType: DataTypeEnum.Double, decimalSeparator: ".")));
-      readFile.ColumnCollection.Add(new ColumnMut("Boolean", new ValueFormat(DataTypeEnum.Boolean)));
-      readFile.ColumnCollection.Add(new ColumnMut("GUID", new ValueFormat(DataTypeEnum.Guid)));
+        new Column("Double", new ValueFormat(dataType: DataTypeEnum.Double, decimalSeparator: ".")));
+      readFile.ColumnCollection.Add(new Column("Boolean", new ValueFormat(DataTypeEnum.Boolean)));
+      readFile.ColumnCollection.Add(new Column("GUID", new ValueFormat(DataTypeEnum.Guid)));
       readFile.ColumnCollection.Add(
-        new ColumnMut("Time", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"))
-        {
-          Ignore = true
-        });
+        new Column("Time", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"), ignore: true));
       return readFile;
     }
 
     public static CsvFile ReaderGetBasicCSV(string id = "BasicCSV")
     {
       var readFile = new CsvFile { ID = id, CommentLine = "#", FileName = Path.Combine(GetTestPath("BasicCSV.txt")) };
-      var examDateFld = new ColumnMut("ExamDate", new ValueFormat(DataTypeEnum.DateTime));
+      var examDateFld = new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy"));
       readFile.ColumnCollection.Add(examDateFld);
 
-      examDateFld.ValueFormatMut.DateFormat = @"dd/MM/yyyy";
+      readFile.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
 
-      readFile.ColumnCollection.Add(new ColumnMut("Score", new ValueFormat(DataTypeEnum.Integer)));
+      readFile.ColumnCollection.Add(new Column("Proficiency", new ValueFormat(DataTypeEnum.Numeric)));
 
-      readFile.ColumnCollection.Add(new ColumnMut("Proficiency", new ValueFormat(DataTypeEnum.Numeric)));
-
-      readFile.ColumnCollection.Add(new ColumnMut("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean)));
+      readFile.ColumnCollection.Add(new Column("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean)));
 
       return readFile;
     }

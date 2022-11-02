@@ -14,7 +14,7 @@ namespace CsvTools.Tests
     {
       var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("BasicCSV.txt"));
 
-      ICollection<IColumn> determinedColumns;
+      ICollection<Column> determinedColumns;
       // Not closing the stream
 
       using var impStream = new ImprovedStream(stream, FileTypeEnum.Stream);
@@ -53,7 +53,7 @@ namespace CsvTools.Tests
     public async System.Threading.Tasks.Task AnalyseStreamAsyncGZip()
     {
       using var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"));
-      ICollection<IColumn> determinedColumns;
+      ICollection<Column> determinedColumns;
       // Not closing the stream
       using var impStream = new ImprovedStream(stream, FileTypeEnum.GZip);
       var result = await impStream.GetDetectionResult("steam", false, true, true, true, true, true, false,

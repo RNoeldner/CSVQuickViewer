@@ -63,7 +63,7 @@ namespace CsvTools
       in string? identifierInContainer,
       in string? footer,
       in string? header,
-      in IEnumerable<IColumn>? columnDefinition,
+      in IEnumerable<Column>? columnDefinition,
       in string fileSettingDisplay,
       in TimeZoneChangeDelegate timeZoneAdjust,
       in string sourceTimeZone)
@@ -92,11 +92,8 @@ namespace CsvTools
       else
         m_Footer = string.Empty;
 
-      m_ValueFormatGeneral = valueFormatGeneral ?? new ValueFormat();
-      ColumnDefinition =
-        columnDefinition
-          ?.Select(col => col.ToImmutableColumn()).ToList()
-        ?? new List<Column>();
+      m_ValueFormatGeneral = valueFormatGeneral ?? ValueFormat.Empty;
+      ColumnDefinition =  columnDefinition == null ? new List<Column>() : new List<Column>(columnDefinition);
 
       FileSettingDisplay = fileSettingDisplay;
       m_KeepUnencrypted = unencrypted;
@@ -132,7 +129,7 @@ namespace CsvTools
     /// <exception cref="ArgumentNullException">reader</exception>
     public static IReadOnlyCollection<WriterColumn> GetColumnInformation(
       ValueFormat? generalFormat,
-      IReadOnlyCollection<IColumn> columnDefinitions,
+      IReadOnlyCollection<Column> columnDefinitions,
       DataTable schemaTable)
     {
       if (schemaTable is null)
@@ -152,7 +149,7 @@ namespace CsvTools
       }
 
       // Get default if we do not have the information
-      generalFormat ??= new ValueFormat();
+      generalFormat ??= ValueFormat.Empty;
 
       foreach (DataRow schemaRow in schemaTable.Rows)
       {

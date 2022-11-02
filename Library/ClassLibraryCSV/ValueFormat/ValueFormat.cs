@@ -15,27 +15,49 @@
 
 using Newtonsoft.Json;
 using System;
+using System.ComponentModel;
+using System.Globalization;
+using System.Text;
+// ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="CsvTools.IValueFormat" />
+  /// <summary>
+  ///   Setting for a value format
+  /// </summary>
   public sealed class ValueFormat : IEquatable<ValueFormat>
   {
+    public const string cDateFormatDefault = "MM/dd/yyyy";
+    public const string cDateSeparatorDefault = "/";
+    public const string cDecimalSeparatorDefault = ".";
+    public const string cFalseDefault = "False";
+    public const string cGroupSeparatorDefault = "";
+    public const string cNumberFormatDefault = "0.#####";
+    public const int cPartDefault = 2;
+    public const string cPartSplitterDefault = ":";
+    public const bool cPartToEndDefault = true;
+    public const string cTimeSeparatorDefault = ":";
+    public const string cTrueDefault = "True";
+
+    public static readonly ValueFormat Empty = new ValueFormat();
+
+    public bool IsDefault() => Equals(Empty);
+
     [JsonConstructor]
     public ValueFormat(
       in DataTypeEnum dataType = DataTypeEnum.String,
-      in string dateFormat = ValueFormatExtension.cDateFormatDefault,
-      in string dateSeparator = ValueFormatExtension.cDateSeparatorDefault,
-      in string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
-      in string numberFormat = ValueFormatExtension.cNumberFormatDefault,
-      in string groupSeparator = ValueFormatExtension.cGroupSeparatorDefault,
-      in string decimalSeparator = ValueFormatExtension.cDecimalSeparatorDefault,
-      in string asTrue = ValueFormatExtension.cTrueDefault,
-      in string asFalse = ValueFormatExtension.cFalseDefault,
+      in string dateFormat = cDateFormatDefault,
+      in string dateSeparator = cDateSeparatorDefault,
+      in string timeSeparator = cTimeSeparatorDefault,
+      in string numberFormat = cNumberFormatDefault,
+      in string groupSeparator = cGroupSeparatorDefault,
+      in string decimalSeparator = cDecimalSeparatorDefault,
+      in string asTrue = cTrueDefault,
+      in string asFalse = cFalseDefault,
       in string displayNullAs = "",
-      int part = ValueFormatExtension.cPartDefault,
-      in string partSplitter = ValueFormatExtension.cPartSplitterDefault,
-      bool partToEnd = ValueFormatExtension.cPartToEndDefault,
+      int part = cPartDefault,
+      in string partSplitter = cPartSplitterDefault,
+      bool partToEnd = cPartToEndDefault,
       string regexSearchPattern = "",
       string regexReplacement = "",
       string readFolder = "",
@@ -44,86 +66,167 @@ namespace CsvTools
       bool overwrite = true)
     {
       DataType = dataType;
-      DateFormat = dateFormat ?? throw new ArgumentNullException(nameof(dateFormat));
-      DateSeparator = dateSeparator ?? throw new ArgumentNullException(nameof(dateSeparator));
-      DecimalSeparator = decimalSeparator ?? throw new ArgumentNullException(nameof(decimalSeparator));
-      GroupSeparator = groupSeparator ?? throw new ArgumentNullException(nameof(groupSeparator));
-      DisplayNullAs = displayNullAs ?? throw new ArgumentNullException(nameof(displayNullAs));
-      False = asFalse ?? throw new ArgumentNullException(nameof(asFalse));
-      NumberFormat = numberFormat ?? throw new ArgumentNullException(nameof(numberFormat));
-      TimeSeparator = timeSeparator ?? throw new ArgumentNullException(nameof(timeSeparator));
-      True = asTrue ?? throw new ArgumentNullException(nameof(asTrue));
+
+      // Dates
+      DateFormat = dateFormat ?? cDateFormatDefault;
+      DateSeparator = dateSeparator ?? cDateSeparatorDefault;
+      TimeSeparator = timeSeparator ?? cTimeSeparatorDefault;
+
+      // Numbers
+      NumberFormat = numberFormat ?? cNumberFormatDefault;
+      DecimalSeparator = decimalSeparator ?? cDecimalSeparatorDefault;
+      GroupSeparator = groupSeparator ?? cGroupSeparatorDefault;
+
+      // Text
+      DisplayNullAs = displayNullAs ?? string.Empty;
+
+      // Boolean
+      False = asFalse ?? cFalseDefault;
+      True = asTrue ?? cTrueDefault;
+
+      // TextPart
       Part = part;
-      PartSplitter = partSplitter ?? throw new ArgumentNullException(nameof(partSplitter));
+      PartSplitter = partSplitter ?? cPartSplitterDefault;
       PartToEnd = partToEnd;
-      RegexSearchPattern = regexSearchPattern ?? throw new ArgumentNullException(nameof(regexSearchPattern));
-      RegexReplacement = regexReplacement ?? throw new ArgumentNullException(nameof(regexReplacement));
-      ReadFolder = readFolder ?? throw new ArgumentNullException(nameof(readFolder));
-      WriteFolder = writeFolder ?? throw new ArgumentNullException(nameof(writeFolder));
-      FileOutPutPlaceholder = fileOutPutPlaceholder ?? throw new ArgumentNullException(nameof(fileOutPutPlaceholder));
+
+      // Regex
+      RegexSearchPattern = regexSearchPattern ?? string.Empty;
+      RegexReplacement = regexReplacement ?? string.Empty;
+
+      // Binary writer
+      ReadFolder = readFolder ?? string.Empty;
+      WriteFolder = writeFolder ?? string.Empty;
+      FileOutPutPlaceholder = fileOutPutPlaceholder ?? string.Empty;
       Overwrite = overwrite;
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///   Gets or sets the type of the data.
+    /// </summary>
+    /// <value>The type of the data.</value>
+    [DefaultValue(DataTypeEnum.String)]
     public DataTypeEnum DataType { get; }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///   Gets or sets the date format. 
+    /// </summary>
+    /// <value>The date format.</value>
+    [DefaultValue(cDateFormatDefault)]
     public string DateFormat { get; }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///   The value will return the resulted Separator, passing in "Colon" will return ":"
+    /// </summary>
+    [DefaultValue(cDateSeparatorDefault)]
     public string DateSeparator { get; }
 
-    /// <inheritdoc />
-    public string DecimalSeparator { get; }
+    /// <summary>
+    ///   Gets or sets the time separator.
+    /// </summary>
+    /// <value>The time separator.</value>
+    [DefaultValue(cTimeSeparatorDefault)]
+    public string TimeSeparator { get; }
 
-    /// <inheritdoc />
-    public string DisplayNullAs { get; }
-
-    /// <inheritdoc />
-    public string False { get; }
-
-    /// <inheritdoc />
-    public string FileOutPutPlaceholder { get; }
-
-    /// <inheritdoc />
-    public string GroupSeparator { get; }
-
-    /// <inheritdoc />
+    /// <summary>
+    ///   Gets or sets the number format.
+    /// </summary>
+    /// <value>The number format.</value>
+    [DefaultValue(cNumberFormatDefault)]
     public string NumberFormat { get; }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///   The value will return the resulted Separator, passing in "Dot" will return "."
+    /// </summary>
+    [DefaultValue(cDecimalSeparatorDefault)]
+    public string DecimalSeparator { get; }
+
+    /// <summary>
+    ///   The value will return the resulted Separator, passing in "Dot" will return "."
+    /// </summary>
+    [DefaultValue(cGroupSeparatorDefault)]
+    public string GroupSeparator { get; }
+
+    /// <summary>
+    ///   Writing data you can specify how a NULL value should be written, commonly its empty, in
+    ///   some circumstances you might want to have n/a etc.
+    /// </summary>
+    /// <value>Text used if the value is NULL</value>
+    [DefaultValue("")]
+    public string DisplayNullAs { get; }
+
+    /// <summary>
+    ///   Gets or sets the representation for true.
+    /// </summary>
+    /// <value>The true.</value>
+    [DefaultValue(cTrueDefault)]
+    public string True { get; }
+
+    /// <summary>
+    ///   Gets or sets the representation for false.
+    /// </summary>
+    [DefaultValue(cFalseDefault)]
+    public string False { get; }
+
+    /// <summary>
+    ///   Gets or sets the part for splitting.
+    /// </summary>
+    /// <value>The part starting with 1</value>
+    [DefaultValue(cPartDefault)]
+    public int Part { get; }
+
+    /// <summary>
+    ///   Gets or sets the splitter. 
+    /// </summary>
+    /// <value>The splitter.</value>
+    [DefaultValue(cPartSplitterDefault)]
+    public string PartSplitter { get; }
+
+    /// <summary>
+    ///   Determine if a part should end with the next splitter
+    /// </summary>
+    /// <value><c>true</c> if all of the remaining text should be returned in the part</value>
+    [DefaultValue(cPartToEndDefault)]
+    public bool PartToEnd { get; }
+
+    /// <summary>
+    ///   Replace for Regex Replace
+    /// </summary>
+    [DefaultValue("")]
+    public string RegexReplacement { get; }
+
+    /// <summary>
+    ///   Search Pattern for Regex Replace
+    /// </summary>  
+    [DefaultValue("")]
+    public string RegexSearchPattern { get; }
+
+    /// <summary>
+    /// PlaceHolder for the file name placeholders are replaced with current records fields if empty the source name is used
+    /// </summary>
+    [DefaultValue("")]
+    public string FileOutPutPlaceholder { get; }
+
+    /// <summary>
+    /// Folder where the source file should be read from, used for binary reader
+    /// </summary>
+    [DefaultValue("")]
+    public string ReadFolder { get; }
+
+    /// <summary>
+    /// Folder where the source file should be written to, used for binary reader
+    /// </summary>
+    [DefaultValue("")]
+    public string WriteFolder { get; }
+
+    /// <summary>
+    /// Set to <c>true</c> if binary output file should overwrite any existing file
+    /// </summary>
+    [DefaultValue(true)]
     public bool Overwrite { get; }
 
     /// <inheritdoc />
-    public int Part { get; }
-
-    /// <inheritdoc />
-    public string PartSplitter { get; }
-
-    /// <inheritdoc />
-    public bool PartToEnd { get; }
-
-    /// <inheritdoc />
-    public string ReadFolder { get; }
-
-    /// <inheritdoc />
-    public string RegexReplacement { get; }
-
-    /// <inheritdoc />
-    public string RegexSearchPattern { get; }
-
-    /// <inheritdoc />
-    public string TimeSeparator { get; }
-
-    /// <inheritdoc />
-    public string True { get; }
-    
-    /// <inheritdoc />
-    public string WriteFolder { get; }
-
-    /// <inheritdoc />
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is ValueFormat other && Equals(other);
-    
+
     /// <inheritdoc cref="IEquatable{T}" />
     public bool Equals(ValueFormat? other)
     {
@@ -176,6 +279,104 @@ namespace CsvTools
         hashCode = (hashCode * 397) ^ Overwrite.GetHashCode();
         return hashCode;
       }
+    }
+
+    /// <summary>
+    ///   Determines whether the ValueFormats does matching and expected format
+    /// </summary>
+    /// <param name="expectedFormat">The column format to compare to</param>
+    /// <returns>
+    ///   <c>true</c> if the current format would be acceptable for the expected data type.
+    /// </returns>
+    /// <remarks>
+    ///   Is matching only looks at data type and some formats, it is assumed that we do not
+    ///   distinguish between numeric formats, it is O.K. to expect a money value but have a integer
+    /// </remarks>
+    public bool IsMatching(in ValueFormat expectedFormat)
+    {
+      if (expectedFormat.DataType == DataType)
+        return true;
+
+      // if one is integer but we expect numeric or vice versa, assume its OK, one of the sides does
+      // not have a decimal separator
+      if ((expectedFormat.DataType == DataTypeEnum.Numeric || expectedFormat.DataType == DataTypeEnum.Double || expectedFormat.DataType == DataTypeEnum.Integer)
+          && DataType == DataTypeEnum.Integer)
+        return true;
+
+      switch (expectedFormat.DataType)
+      {
+        case DataTypeEnum.Integer when DataType == DataTypeEnum.Numeric || DataType == DataTypeEnum.Double
+                                                                            || DataType == DataTypeEnum.Integer:
+          return true;
+        // if we have dates, check the formats
+        case DataTypeEnum.DateTime when DataType == DataTypeEnum.DateTime:
+          return expectedFormat.DateFormat.Equals(DateFormat, StringComparison.Ordinal)
+                 && (DateFormat.IndexOf('/') == -1 || expectedFormat.DateSeparator.Equals(
+                   DateSeparator,
+                   StringComparison.Ordinal)) && (DateFormat.IndexOf(':') == -1
+                                                  || expectedFormat.TimeSeparator.Equals(
+                                                    TimeSeparator,
+                                                    StringComparison.Ordinal));
+      }
+
+      // if we have decimals, check the formats
+      if ((expectedFormat.DataType == DataTypeEnum.Numeric || expectedFormat.DataType == DataTypeEnum.Double)
+          && (DataType == DataTypeEnum.Numeric || DataType == DataTypeEnum.Double))
+        return expectedFormat.NumberFormat.Equals(NumberFormat, StringComparison.Ordinal)
+               && expectedFormat.DecimalSeparator.Equals(DecimalSeparator)
+               && expectedFormat.GroupSeparator.Equals(GroupSeparator);
+      // For everything else assume its wrong
+      return false;
+    }
+
+    /// <summary>
+    ///   Gets the a description of the Date or Number format
+    /// </summary>
+    /// <returns></returns>
+    public string GetFormatDescription() =>
+      DataType switch
+      {
+        DataTypeEnum.Integer => NumberFormat.Replace(
+          CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
+          GroupSeparator),
+        DataTypeEnum.DateTime => DateFormat.ReplaceDefaults(
+          CultureInfo.InvariantCulture.DateTimeFormat.DateSeparator,
+          DateSeparator,
+          CultureInfo.InvariantCulture.DateTimeFormat.TimeSeparator,
+          TimeSeparator),
+        DataTypeEnum.Numeric => NumberFormat.ReplaceDefaults(
+          CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
+          DecimalSeparator,
+          CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
+          GroupSeparator),
+        DataTypeEnum.Double => NumberFormat.ReplaceDefaults(
+          CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
+          DecimalSeparator,
+          CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
+          GroupSeparator),
+        DataTypeEnum.TextPart => $"{Part}" + (PartToEnd ? " To End" : string.Empty),
+        DataTypeEnum.Binary => $"Read file from {ReadFolder}",
+        DataTypeEnum.TextReplace =>
+          $"Replace {StringUtils.GetShortDisplay(RegexSearchPattern, 10)} with {StringUtils.GetShortDisplay(RegexReplacement, 10)}",
+        _ => string.Empty
+      };
+
+    /// <summary>
+    ///   Gets the description.
+    /// </summary>
+    /// <returns></returns>
+    public string GetTypeAndFormatDescription()
+    {
+      var sbText = new StringBuilder(DataType.DataTypeDisplay());
+
+      var shortDesc = GetFormatDescription();
+      if (shortDesc.Length <= 0)
+        return sbText.ToString();
+      sbText.Append(" (");
+      sbText.Append(shortDesc);
+      sbText.Append(")");
+
+      return sbText.ToString();
     }
   }
 }

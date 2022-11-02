@@ -97,12 +97,10 @@ namespace CsvTools
               col.Name,
               col.ValueFormat,
               col.ColumnOrdinal,
+              false,
               col.Convert,
               col.DestinationName,
-              false,
-              col.TimePart,
-              col.TimePartFormat,
-              col.TimeZonePart));
+              col.TimePart, col.TimePartFormat, col.TimeZonePart));
 
         return new DelimitedFileDetectionResultWithColumns(
           fileNameFile,
@@ -688,7 +686,7 @@ namespace CsvTools
     /// <param name="columnDefinition">List of column definitions</param>
     /// <returns>Either a <see cref="JsonFileReader"/> or a <see cref="CsvFileReader"/></returns>
     public static IFileReader GetReaderFromDetectionResult(string fileName,
-      DelimitedFileDetectionResult detectionResult, in IEnumerable<IColumn>? columnDefinition = null)
+      DelimitedFileDetectionResult detectionResult, in IEnumerable<Column>? columnDefinition = null)
     {
       if (detectionResult.IsJson)
         return new JsonFileReader(fileName, columnDefinition, 0L, false, string.Empty, false,

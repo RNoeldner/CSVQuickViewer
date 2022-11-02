@@ -224,7 +224,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileFormatColumnFormatAddExisting()
     {
-      var column = new Column("Name", new ValueFormat());
+      var column = new Column("Name", ValueFormat.Empty);
       m_CsvFile.ColumnCollection.Add(column);
       Assert.AreEqual(2, m_CsvFile.ColumnCollection.Count);
     }
@@ -232,7 +232,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileFormatColumnFormatAddNew()
     {
-      var column = new Column("Name2", new ValueFormat());
+      var column = new Column("Name2", ValueFormat.Empty);
       m_CsvFile.ColumnCollection.Add(column);
       Assert.AreEqual(3, m_CsvFile.ColumnCollection.Count);
     }
@@ -243,7 +243,7 @@ namespace CsvTools.Tests
       var setting1 = new CsvFile("MyTest.txt") { ID = "ID1", QualifyOnlyIfNeeded = true };
       var setting2 = new CsvFile("MyTest2.txt") { ID = "ID2", QualifyOnlyIfNeeded = false };
 
-      setting1.ColumnCollection.Add(new Column("name", new ValueFormat(), 1));
+      setting1.ColumnCollection.Add(new Column("name", ValueFormat.Empty, 1));
       var res = setting1.GetDifferences(setting2).Join();
       Assert.IsNotNull(res);
 
@@ -322,11 +322,8 @@ namespace CsvTools.Tests
 
       m_CsvFile.ColumnCollection.Clear();
       m_CsvFile.ColumnCollection.Add(
-        new ColumnMut("ID", new ValueFormat(DataTypeEnum.Integer))
-        {
-          ColumnOrdinal = 1, Ignore = false, Convert = true
-        });
-      m_CsvFile.ColumnCollection.Add(new ColumnMut("Name", columnOrdinal: 2));
+        new Column("ID", new ValueFormat(DataTypeEnum.Integer), 1));
+      m_CsvFile.ColumnCollection.Add(new Column("Name", columnOrdinal: 2));
 
       m_CsvFile.WarnEmptyTailingColumns = false;
       Assert.IsFalse(m_CsvFile.WarnEmptyTailingColumns, "WarnEmptyTailingColumns");

@@ -7,9 +7,9 @@ namespace CsvTools
 {
   public sealed class DelimitedFileDetectionResultWithColumns : DelimitedFileDetectionResult
   {
-    
+
     private readonly string m_ColumnFile;
-    private readonly IEnumerable<IColumn> m_Columns;
+    private readonly IEnumerable<Column> m_Columns;
 
     public DelimitedFileDetectionResultWithColumns(
       in string fileName,
@@ -26,7 +26,7 @@ namespace CsvTools
       bool isJson = false,
       bool noDelimitedFile = false,
       RecordDelimiterTypeEnum recordDelimiterType = RecordDelimiterTypeEnum.None,
-      in IEnumerable<IColumn>? columns = null,
+      in IEnumerable<Column>? columns = null,
       string? columnFile = ""
     )
       : base(
@@ -45,13 +45,13 @@ namespace CsvTools
         noDelimitedFile,
         recordDelimiterType)
     {
-      m_Columns = columns ?? Array.Empty<IColumn>();
+      m_Columns = columns ?? Array.Empty<Column>();
       m_ColumnFile = columnFile ?? string.Empty;
     }
 
     public DelimitedFileDetectionResultWithColumns(
       DelimitedFileDetectionResult result,
-      in IEnumerable<IColumn>? columns = null,
+      in IEnumerable<Column>? columns = null,
       string columnFile = ""
     )
       : this(
