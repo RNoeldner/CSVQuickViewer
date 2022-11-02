@@ -301,7 +301,7 @@ namespace CsvTools.Tests
       };
 
       readFile.ColumnCollection.Add(
-        new ColumnMut("DateTime", new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"))
+        new ColumnMut("DateTime", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy"))
         {
           TimePart = "Time", TimePartFormat = "HH:mm:ss"
         });
@@ -309,11 +309,11 @@ namespace CsvTools.Tests
       readFile.ColumnCollection.Add(
         new Column("Numeric", new ValueFormat(DataTypeEnum.Numeric, decimalSeparator: "."), 0));
       readFile.ColumnCollection.Add(
-        new ColumnMut("Double", new ValueFormatMut(dataType: DataTypeEnum.Double, decimalSeparator: ".")));
+        new ColumnMut("Double", new ValueFormat(dataType: DataTypeEnum.Double, decimalSeparator: ".")));
       readFile.ColumnCollection.Add(new ColumnMut("Boolean", new ValueFormat(DataTypeEnum.Boolean)));
       readFile.ColumnCollection.Add(new ColumnMut("GUID", new ValueFormat(DataTypeEnum.Guid)));
       readFile.ColumnCollection.Add(
-        new ColumnMut("Time", new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"))
+        new ColumnMut("Time", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "HH:mm:ss"))
         {
           Ignore = true
         });

@@ -76,7 +76,7 @@ namespace CsvTools
     public static async Task<IEnumerable<IColumn>> GetWriterColumnInformationAsync(
       this string sqlStatement,
       int timeout,
-      IValueFormat valueFormatGeneral,
+      ValueFormat valueFormatGeneral,
       IReadOnlyCollection<IColumn> columnDefinitions,
       CancellationToken cancellationToken)
     {

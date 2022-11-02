@@ -44,7 +44,7 @@ namespace CsvTools
     /// <exception cref="System.ArgumentNullException">name</exception>
     public Column(
       in string name,
-      in IValueFormat valueFormat,
+      in ValueFormat valueFormat,
       int columnOrdinal = -1,
       bool? convert = null,
       in string destinationName = "",
@@ -54,7 +54,7 @@ namespace CsvTools
       in string timeZonePart = "")
     {
       Name = name ?? throw new ArgumentNullException(nameof(name));
-      ValueFormat = valueFormat.ToImmutable();
+      ValueFormat = valueFormat;
       ColumnOrdinal = columnOrdinal;
 
       DestinationName = destinationName;
@@ -113,7 +113,7 @@ namespace CsvTools
     /// <inheritdoc />
     public string TimeZonePart { get; }
 
-    public IValueFormat ValueFormat { get; }
+    public ValueFormat ValueFormat { get; }
 
     public bool Equals(IColumn? other)
     {
@@ -125,7 +125,7 @@ namespace CsvTools
              && Name == other.Name && TimePart == other.TimePart
              && TimePartFormat == other.TimePartFormat
              && TimeZonePart == other.TimeZonePart
-             && ValueFormat.ValueFormatEqual(other.ValueFormat);
+             && ValueFormat.Equals(other.ValueFormat);
     }
 
     public bool Equals(Column x, Column y) => x.Equals(y);

@@ -20,7 +20,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class ValueFormatTest
   {
-    private readonly ValueFormatMut m_ValueFormatMutGerman = new ValueFormatMut(dateFormat: "dd/MM/yyyy",
+    private readonly ValueFormat m_ValueFormatGerman = new(dateFormat: "dd/MM/yyyy",
       dateSeparator: ".", decimalSeparator: ",", asFalse: "Falsch", groupSeparator: ".", numberFormat: "0.##",
       timeSeparator: "-", asTrue: "Wahr");
 
@@ -40,10 +40,10 @@ namespace CsvTools.Tests
       var vf4 = new ValueFormat(DataTypeEnum.Numeric, numberFormat: "0.##");
       Assert.AreNotEqual(string.Empty, vf4.GetFormatDescription());
 
-      var a = new ValueFormatMut(dataType: DataTypeEnum.String);
+      var a = new ValueFormat(dataType: DataTypeEnum.String);
       Assert.IsTrue(string.IsNullOrEmpty(a.GetFormatDescription()));
 
-      var b = new ValueFormatMut(dataType: DataTypeEnum.DateTime);
+      var b = new ValueFormat(dataType: DataTypeEnum.DateTime);
       Assert.IsTrue(b.GetFormatDescription().Contains(ValueFormatExtension.cDateFormatDefault));
     }
 
@@ -92,9 +92,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GroupSeparator()
     {
-      var a = new ValueFormatMut(dataType: DataTypeEnum.Numeric);
-      a.GroupSeparator = ",";
-      a.DecimalSeparator = ".";
+      var a = new ValueFormatMut(dataType: DataTypeEnum.Numeric, groupSeparator: ",", decimalSeparator: ".");
       Assert.AreEqual(",", a.GroupSeparator);
       a.GroupSeparator = ".";
       Assert.AreEqual(".", a.GroupSeparator);
@@ -104,9 +102,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void DecimalSeparator()
     {
-      var a = new ValueFormatMut(dataType: DataTypeEnum.Numeric);
-      a.GroupSeparator = ".";
-      a.DecimalSeparator = ",";
+      var a = new ValueFormatMut(dataType: DataTypeEnum.Numeric, groupSeparator: ".", decimalSeparator: ",");
       Assert.AreEqual(",", a.DecimalSeparator);
       a.DecimalSeparator = ".";
       Assert.AreEqual(".", a.DecimalSeparator);
@@ -116,9 +112,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetTypeAndFormatDescriptionTest()
     {
-      var a = new ValueFormatMut(dataType: DataTypeEnum.String);
+      var a = new ValueFormat(dataType: DataTypeEnum.String);
       Assert.AreEqual("Text", a.GetTypeAndFormatDescription());
-      var b = new ValueFormatMut(dataType: DataTypeEnum.DateTime);
+      var b = new ValueFormat(dataType: DataTypeEnum.DateTime);
       Assert.IsTrue(b.GetTypeAndFormatDescription().Contains("Date Time"));
       Assert.IsTrue(b.GetTypeAndFormatDescription().Contains("MM/dd/yyyy"));
     }
@@ -148,10 +144,10 @@ namespace CsvTools.Tests
       var test = new ValueFormatMut();
       Assert.AreEqual("MM/dd/yyyy", test.DateFormat, "DateFormat");
       Assert.AreEqual("/", test.DateSeparator, "DateSeparator");
-      Assert.AreEqual(".", test.DecimalSeparator,  "DecimalSeparator");
-      Assert.AreEqual("False", test.False,  "False");
-      Assert.AreEqual(string.Empty, test.GroupSeparator,  "GroupSeparator");
-      Assert.AreEqual("0.#####", test.NumberFormat,  "NumberFormat");
+      Assert.AreEqual(".", test.DecimalSeparator, "DecimalSeparator");
+      Assert.AreEqual("False", test.False, "False");
+      Assert.AreEqual(string.Empty, test.GroupSeparator, "GroupSeparator");
+      Assert.AreEqual("0.#####", test.NumberFormat, "NumberFormat");
       Assert.AreEqual(":", test.TimeSeparator, "TimeSeparator");
       Assert.AreEqual("True", test.True, "True");
     }
@@ -171,17 +167,17 @@ namespace CsvTools.Tests
     public void ValueFormatCopyFrom2()
     {
       var target = new ValueFormatMut();
-      target.CopyFrom(m_ValueFormatMutGerman);
+      target.CopyFrom(m_ValueFormatGerman);
 
-      Assert.AreEqual(m_ValueFormatMutGerman.DateFormat, target.DateFormat );
-      Assert.AreEqual(m_ValueFormatMutGerman.DateSeparator, target.DateSeparator );
-      Assert.AreEqual(m_ValueFormatMutGerman.DecimalSeparator , target.DecimalSeparator, "DecimalSeparator" );
-      Assert.AreEqual(m_ValueFormatMutGerman.GroupSeparator, target.GroupSeparator,"GroupSeparator");
-      Assert.AreEqual(m_ValueFormatMutGerman.False, target.False,"False" );
-      
-      Assert.AreEqual(m_ValueFormatMutGerman.NumberFormat, target.NumberFormat, "NumberFormat");
-      Assert.AreEqual(m_ValueFormatMutGerman.TimeSeparator,target.TimeSeparator, "TimeSeparator");
-      Assert.AreEqual(m_ValueFormatMutGerman.True, target.True, "True");
+      Assert.AreEqual(m_ValueFormatGerman.DateFormat, target.DateFormat);
+      Assert.AreEqual(m_ValueFormatGerman.DateSeparator, target.DateSeparator);
+      Assert.AreEqual(m_ValueFormatGerman.DecimalSeparator, target.DecimalSeparator, "DecimalSeparator");
+      Assert.AreEqual(m_ValueFormatGerman.GroupSeparator, target.GroupSeparator, "GroupSeparator");
+      Assert.AreEqual(m_ValueFormatGerman.False, target.False, "False");
+
+      Assert.AreEqual(m_ValueFormatGerman.NumberFormat, target.NumberFormat, "NumberFormat");
+      Assert.AreEqual(m_ValueFormatGerman.TimeSeparator, target.TimeSeparator, "TimeSeparator");
+      Assert.AreEqual(m_ValueFormatGerman.True, target.True, "True");
     }
 
     [TestMethod]
@@ -196,7 +192,7 @@ namespace CsvTools.Tests
     public void ValueFormatNotEquals()
     {
       var target = new ValueFormatMut();
-      Assert.IsFalse(m_ValueFormatMutGerman.Equals(target));
+      Assert.IsFalse(m_ValueFormatGerman.Equals(target));
     }
 
   }

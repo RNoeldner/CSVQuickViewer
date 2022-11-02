@@ -20,7 +20,7 @@ namespace CsvTools
 {
   public static class ValueFormatExtension
   {
-    public static readonly IValueFormat Default = new ValueFormat();
+    public static readonly ValueFormat Default = new ValueFormat();
 
     public const string cDateFormatDefault = "MM/dd/yyyy";
     public const string cDateSeparatorDefault = "/";
@@ -38,7 +38,7 @@ namespace CsvTools
     ///   Gets the a description of the Date or Number format
     /// </summary>
     /// <returns></returns>
-    public static string GetFormatDescription(this IValueFormat one) =>
+    public static string GetFormatDescription(this ValueFormat one) =>
       one.DataType switch
       {
         DataTypeEnum.Integer => one.NumberFormat.Replace(
@@ -70,7 +70,7 @@ namespace CsvTools
     ///   Gets the description.
     /// </summary>
     /// <returns></returns>
-    public static string GetTypeAndFormatDescription(this IValueFormat one)
+    public static string GetTypeAndFormatDescription(this ValueFormat one)
     {
       var sbText = new StringBuilder(one.DataType.DataTypeDisplay());
 
@@ -84,6 +84,9 @@ namespace CsvTools
       return sbText.ToString();
     }
 
+    public static bool IsMatching(this ValueFormatMut one, ValueFormatMut other) =>
+      IsMatching(one.ToImmutable(), other.ToImmutable());
+
     /// <summary>
     ///   Determines whether the specified expected column is matching this column.
     /// </summary>
@@ -96,7 +99,7 @@ namespace CsvTools
     ///   Is matching only looks at data type and some formats, it is assumed that we do not
     ///   distinguish between numeric formats, it is O.K. to expect a money value but have a integer
     /// </remarks>
-    public static bool IsMatching(this IValueFormat one, IValueFormat other)
+    public static bool IsMatching(this ValueFormat one, ValueFormat other)
     {
       if (other.DataType == one.DataType)
         return true;
@@ -135,15 +138,15 @@ namespace CsvTools
       return false;
     }
 
-    public static bool IsDefault(this IValueFormat one) => ValueFormatEqual(one, Default);
+    public static bool IsDefault(this ValueFormat one) => one.Equals(Default);
 
     /// <summary>
     /// Returns  an immutable ValueFormat if the source column was immutable the very same is returned, not copy is created
     /// </summary>
     /// <param name="source">an IValueFormat with the all properties for the new format</param>
     /// <returns>and immutable column</returns>
-    public static ValueFormat ToImmutable(this IValueFormat source)
-    => source as ValueFormat ?? new ValueFormat(source.DataType, source.DateFormat,
+    public static ValueFormat ToImmutable(this ValueFormatMut source)
+    => new ValueFormat(source.DataType, source.DateFormat,
         source.DateSeparator, source.TimeSeparator, source.NumberFormat, source.GroupSeparator,
         source.DecimalSeparator, source.True, source.False, source.DisplayNullAs,
         source.Part, source.PartSplitter, source.PartToEnd, source.RegexSearchPattern,
@@ -154,7 +157,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="source">an IValueFormat with the all properties for the new format</param>
     /// <returns></returns>
-    public static ValueFormatMut ToMutable(this IValueFormat source)
+    public static ValueFormatMut ToMutable(this ValueFormat source)
     => new ValueFormatMut(source.DataType, source.DateFormat, source.DateSeparator,
           source.TimeSeparator, source.NumberFormat,
           source.GroupSeparator, source.DecimalSeparator,
@@ -162,36 +165,5 @@ namespace CsvTools
           source.RegexSearchPattern, source.RegexReplacement, source.ReadFolder, source.WriteFolder,
           source.FileOutPutPlaceholder, source.Overwrite);
 
-    /// <summary>
-    /// Checks if two value formats are equal
-    /// </summary>
-    /// <param name="one">The one.</param>
-    /// <param name="other">The other.</param>
-    /// <returns></returns>
-    public static bool ValueFormatEqual(this IValueFormat one, IValueFormat? other)
-    {
-      if (other is null) return false;
-      if (ReferenceEquals(one, other)) return true;
-      return one.DataType == other.DataType
-             && one.DateFormat == other.DateFormat
-             && one.DateSeparator == other.DateSeparator
-             && one.DecimalSeparator == other.DecimalSeparator
-             && one.DisplayNullAs == other.DisplayNullAs
-             && one.False == other.False
-             && one.GroupSeparator == other.GroupSeparator
-             && one.NumberFormat == other.NumberFormat
-             && one.Part == other.Part
-             && one.PartSplitter == other.PartSplitter
-             && one.PartToEnd == other.PartToEnd
-             && one.TimeSeparator == other.TimeSeparator
-             && one.True == other.True
-             && one.RegexSearchPattern == other.RegexSearchPattern
-             && one.RegexReplacement == other.RegexReplacement
-             && one.ReadFolder == other.ReadFolder
-             && one.WriteFolder == other.WriteFolder
-             && one.FileOutPutPlaceholder == other.FileOutPutPlaceholder
-             && one.Overwrite == other.Overwrite;
-
-    }
   }
 }

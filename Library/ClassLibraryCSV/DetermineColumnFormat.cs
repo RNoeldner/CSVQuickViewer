@@ -28,11 +28,11 @@ namespace CsvTools
   /// </summary>
   public static class DetermineColumnFormat
   {
-    public static IValueFormat? CommonDateFormat(in IEnumerable<IColumn>? columns)
+    public static ValueFormat? CommonDateFormat(in IEnumerable<IColumn>? columns)
     {
-      IValueFormat? best = null;
+      ValueFormat? best = null;
       if (columns is null) return null;
-      var counterByFormat = new Dictionary<IValueFormat, int>();
+      var counterByFormat = new Dictionary<ValueFormat, int>();
       var maxValue = int.MinValue;
       foreach (var column in columns)
       {
@@ -877,7 +877,7 @@ namespace CsvTools
       bool guessPercentage,
       bool serialDateTime,
       bool checkNamedDates,
-      in IValueFormat? othersValueFormatDate,
+      in ValueFormat? othersValueFormatDate,
       in CancellationToken cancellationToken)
     {
       if (samples is null || samples.Count == 0)
@@ -1193,7 +1193,7 @@ namespace CsvTools
     /// <param name="value">The value.</param>
     /// <param name="culture">The culture.</param>
     /// <returns></returns>
-    public static IEnumerable<IValueFormat> GetAllPossibleFormats(string value, CultureInfo? culture = null)
+    public static IEnumerable<ValueFormat> GetAllPossibleFormats(string value, CultureInfo? culture = null)
     {
       culture ??= CultureInfo.CurrentCulture;
 

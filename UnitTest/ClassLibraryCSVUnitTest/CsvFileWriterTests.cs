@@ -30,8 +30,7 @@ namespace CsvTools.Tests
     {
       var readFile = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")) { ID = "Read", FieldDelimiter = ",", CommentLine = "#" };
 
-      readFile.ColumnCollection.Add(new Column("ExamDate",
-        new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy")));
+      readFile.ColumnCollection.Add(new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy")));
       readFile.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
       readFile.ColumnCollection.Add(new Column("Proficiency", new ValueFormat(DataTypeEnum.Numeric)));
       readFile.ColumnCollection.Add(
@@ -63,7 +62,7 @@ namespace CsvTools.Tests
       writeFile.SqlStatement = setting.ID;
       writeFile.FieldDelimiter = "|";
       writeFile.ColumnCollection.Add(
-        new Column("DateTime", new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: "yyyyMMdd"),
+        new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "yyyyMMdd"),
           timePartFormat: @"hh:mm", timePart: "Time", timeZonePart: "TZ"));
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,

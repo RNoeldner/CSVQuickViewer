@@ -416,14 +416,16 @@ namespace CsvTools
       });
     }
 
-    public void UpdateDateLabel(ValueFormatMut vf, bool hasTimePart, string timePartFormat, string timeZone)
+    public void UpdateDateLabel(ValueFormat vf, bool hasTimePart, string timePartFormat, string timeZone)
     {
       try
       {
         var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
 
-        if (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
-          vf.DateFormat += " " + timePartFormat;
+        vf = (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
+          ? new ValueFormat(vf.DataType, vf.DateFormat + " " + timePartFormat, vf.DateSeparator,
+            vf.TimeSeparator)
+          : vf;
 
         labelSampleDisplay.SafeInvoke(() =>
         {
@@ -461,7 +463,7 @@ namespace CsvTools
       {
         if (string.IsNullOrEmpty(decimalSeparator))
           return;
-        var vf = new ValueFormatMut(numberFormat: numberFormat, groupSeparator: numberFormat,
+        var vf = new ValueFormat(numberFormat: numberFormat, groupSeparator: numberFormat,
           decimalSeparator: groupSeparator);
         var sample = StringConversion.DoubleToString(1234.567, vf);
 
@@ -771,8 +773,7 @@ namespace CsvTools
             checkedListBoxDateFormats.Items.IndexOf(comboBoxDateFormat.Text) != -1)
           comboBoxDateFormat.Text = checkedListBoxDateFormats.Text;
 
-      UpdateDateLabel(
-        new ValueFormatMut(DataTypeEnum.DateTime, dateFormat, textBoxDateSeparator.Text, textBoxTimeSeparator.Text),
+      UpdateDateLabel(new ValueFormat(DataTypeEnum.DateTime, dateFormat, textBoxDateSeparator.Text, textBoxTimeSeparator.Text),
         !string.IsNullOrEmpty(comboBoxTimePart.Text), comboBoxTPFormat.Text, comboBoxTimeZone.Text);
     }
 
@@ -924,7 +925,7 @@ namespace CsvTools
       SetDateFormat();
       var selValue = (int) m_ColumnEdit.ValueFormatMut.DataType;
       comboBoxDataType.DataSource = (from DataTypeEnum item in Enum.GetValues(typeof(DataTypeEnum))
-        select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
+                                     select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
       comboBoxDataType.SelectedValue = selValue;
       ComboBoxColumnName_TextUpdate(null, EventArgs.Empty);
     }

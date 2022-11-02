@@ -61,7 +61,7 @@ namespace CsvTools
       return stringBuilder.ToString();
     }
 
-    public static IColumn ReplaceValueFormat(this IColumn col, in IValueFormat newFormat) =>
+    public static IColumn ReplaceValueFormat(this IColumn col, in ValueFormat newFormat) =>
       new Column(
         col.Name,
         newFormat,

@@ -1127,7 +1127,7 @@ namespace CsvTools.Tests
         true,
         false,
         false,
-        new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy", dateSeparator: "/"),
+        new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy", dateSeparator: "/"),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"MM/dd/yyyy", res.FoundValueFormat?.DateFormat);

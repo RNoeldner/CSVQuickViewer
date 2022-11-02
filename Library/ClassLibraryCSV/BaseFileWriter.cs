@@ -39,7 +39,7 @@ namespace CsvTools
     private readonly long m_PgpKeyId;
     private readonly string m_IdentifierInContainer;
     private readonly bool m_KeepUnencrypted;
-    private readonly IValueFormat m_ValueFormatGeneral;
+    private readonly ValueFormat m_ValueFormatGeneral;
     protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
     protected string Header;
     protected readonly string SourceTimeZone;
@@ -57,7 +57,7 @@ namespace CsvTools
     protected BaseFileWriter(
       in string id,
       in string fullPath,
-      in IValueFormat? valueFormatGeneral,
+      in ValueFormat? valueFormatGeneral,
       long pgpKeyId,
       bool unencrypted,
       in string? identifierInContainer,
@@ -92,9 +92,7 @@ namespace CsvTools
       else
         m_Footer = string.Empty;
 
-      m_ValueFormatGeneral = valueFormatGeneral != null
-        ? new ValueFormat(valueFormatGeneral)
-        : new ValueFormat();
+      m_ValueFormatGeneral = valueFormatGeneral ?? new ValueFormat();
       ColumnDefinition =
         columnDefinition
           ?.Select(col => col.ToImmutableColumn()).ToList()
@@ -133,7 +131,7 @@ namespace CsvTools
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">reader</exception>
     public static IReadOnlyCollection<WriterColumn> GetColumnInformation(
-      IValueFormat? generalFormat,
+      ValueFormat? generalFormat,
       IReadOnlyCollection<IColumn> columnDefinitions,
       DataTable schemaTable)
     {

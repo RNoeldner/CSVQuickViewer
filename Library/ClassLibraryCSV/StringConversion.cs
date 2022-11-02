@@ -434,7 +434,7 @@ namespace CsvTools
       in object? timeColumn,
       in string timeColumnText,
       bool serialDateTime,
-      in IValueFormat valueFormat,
+      in ValueFormat valueFormat,
       out bool timeColumnIssues)
     {
       var dateValue = m_FirstDateTime;
@@ -577,9 +577,9 @@ namespace CsvTools
     ///   Converts a dates to string.
     /// </summary>
     /// <param name="dateTime">The date time.</param>
-    /// <param name="format">The <see cref="IValueFormat" />.</param>
+    /// <param name="format">The <see cref="ValueFormat" />.</param>
     /// <returns>Formatted value</returns>
-    public static string DateTimeToString(in DateTime dateTime, in IValueFormat format)
+    public static string DateTimeToString(in DateTime dateTime, in ValueFormat format)
     {
       if (!format.DateFormat.Contains("HHH"))
         return dateTime.ToString(format.DateFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
@@ -636,9 +636,9 @@ namespace CsvTools
     ///   Converts a decimals to string.
     /// </summary>
     /// <param name="value">The value.</param>
-    /// <param name="format">The <see cref="IValueFormat" />.</param>
+    /// <param name="format">The <see cref="ValueFormat" />.</param>
     /// <returns>Formatted value</returns>
-    public static string DecimalToString(in decimal value, in IValueFormat format)
+    public static string DecimalToString(in decimal value, in ValueFormat format)
     {
       var valueFormat = format.NumberFormat.Length == 0
         ? ValueFormatExtension.cNumberFormatDefault
@@ -683,9 +683,9 @@ namespace CsvTools
     ///   Converts a doubles to string.
     /// </summary>
     /// <param name="value">The value.</param>
-    /// <param name="format">The <see cref="IValueFormat" />.</param>
+    /// <param name="format">The <see cref="ValueFormat" />.</param>
     /// <returns>Formatted value</returns>
-    public static string DoubleToString(in double value, in IValueFormat format)
+    public static string DoubleToString(in double value, in ValueFormat format)
     {
       var valueFormat = format.NumberFormat.Length == 0
         ? ValueFormatExtension.cNumberFormatDefault

@@ -47,7 +47,7 @@ namespace CsvTools.Tests
     {
       var col = new ColumnMut("MyTest", new ValueFormat(DataTypeEnum.DateTime, dateFormat : "dd/MM/yyyy", dateSeparator : ".", timeSeparator : ":" ));
 
-      var df = new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MMM/yyy", dateSeparator: "-",
+      var df = new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MMM/yyy", dateSeparator: "-",
         timeSeparator: "#");
       using (var frm = new FormColumnUI(col, false, new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")),
                new FillGuessSettings(), true,
