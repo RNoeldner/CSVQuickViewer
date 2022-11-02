@@ -17,7 +17,7 @@ namespace CsvTools
 {
   public static class ColumnFormatterFactory
   {
-    public static IColumnFormatter? GetColumnFormatter(int columnOrdinal, IValueFormat valueFormat)
+    public static IColumnFormatter? GetColumnFormatter(int columnOrdinal, ValueFormat valueFormat)
     {
       return valueFormat.DataType switch
       {

@@ -193,7 +193,7 @@ namespace CsvTools.Tests
 		public void GetDataTypeDescriptionDouble()
 		{
       var target = new ColumnMut("Test",
-        new ValueFormatMut(dataType: DataTypeEnum.Numeric, numberFormat: "00.000"));
+        new ValueFormat(dataType: DataTypeEnum.Numeric, numberFormat: "00.000"));
 
       Assert.AreEqual("Money (High Precision) (00.000)", target.GetTypeAndFormatDescription());
     }
@@ -209,7 +209,7 @@ namespace CsvTools.Tests
 		[TestInitialize]
 		public void Init()
 		{
-      var valueFormatGerman = new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy",
+      var valueFormatGerman = new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy",
         dateSeparator: ".", decimalSeparator: ",", asFalse: @"Falsch", groupSeparator: ".", numberFormat: "0.##",
         timeSeparator: ":", asTrue: @"Wahr");
 

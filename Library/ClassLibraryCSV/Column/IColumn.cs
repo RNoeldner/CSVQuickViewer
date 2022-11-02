@@ -69,7 +69,7 @@ namespace CsvTools
     /// <summary>
     ///   Formatting option for values
     /// </summary>
-    IValueFormat ValueFormat { get; }
+    ValueFormat ValueFormat { get; }
 
   }
 }

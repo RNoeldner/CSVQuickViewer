@@ -88,9 +88,9 @@ namespace CsvTools
 
 
     /// <summary>
-    /// Valueformat to be used if no column specific ValueFormat is defined 
+    /// ValueFormat to be used if no column specific ValueFormat is defined 
     /// </summary>
-    IValueFormat ValueFormatWrite { get; set; }
+    ValueFormat ValueFormatWrite { get; set; }
 
     /// <summary>
     ///   Force the refresh of full path information, a filename with placeholders might need to

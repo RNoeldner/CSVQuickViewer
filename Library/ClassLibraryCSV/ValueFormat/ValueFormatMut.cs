@@ -25,7 +25,7 @@ namespace CsvTools
   ///   Setting for a value format
   /// </summary>
   [Serializable]
-  public sealed class ValueFormatMut : NotifyPropertyChangedBase, IValueFormat
+  public sealed class ValueFormatMut : NotifyPropertyChangedBase, IEquatable<ValueFormatMut>
   {
     private DataTypeEnum m_DataType;
     private string m_DateFormat;
@@ -46,7 +46,7 @@ namespace CsvTools
     private string m_TimeSeparator;
     private string m_True;
     private string m_WriteFolder;
-     /// <summary>
+    /// <summary>
     ///   Initializes a new instance of the <see cref="CsvTools.ValueFormatMut" /> class.
     /// </summary>
     [Obsolete("Only needed for XML Serialization")]
@@ -90,7 +90,7 @@ namespace CsvTools
     public ValueFormatMut(
       in DataTypeEnum dataType = DataTypeEnum.String,
       in string dateFormat = ValueFormatExtension.cDateFormatDefault,
-      in string dateSeparator =ValueFormatExtension.cDateSeparatorDefault,
+      in string dateSeparator = ValueFormatExtension.cDateSeparatorDefault,
       in string timeSeparator = ValueFormatExtension.cTimeSeparatorDefault,
       in string numberFormat = ValueFormatExtension.cNumberFormatDefault,
       in string groupSeparator = ValueFormatExtension.cGroupSeparatorDefault,
@@ -321,15 +321,13 @@ namespace CsvTools
       get => m_WriteFolder;
       set => SetField(ref m_WriteFolder, value, StringComparison.Ordinal);
     }
-    /// <inheritdoc cref="IValueFormat" />
-    public object Clone() => this.ToMutable();
 
     /// <summary>
     ///   On Mutable classes prefer CopyFrom to CopyTo, overwrites the properties from the
     ///   properties in the provided class
     /// </summary>
     /// <param name="other"></param>
-    public void CopyFrom(IValueFormat? other)
+    public void CopyFrom(ValueFormat? other)
     {
       if (other is null)
         return;
@@ -354,24 +352,32 @@ namespace CsvTools
       FileOutPutPlaceholder = other.FileOutPutPlaceholder;
     }
 
-    /// <inheritdoc cref="IWithCopyTo{T}" />
-    public void CopyTo(ValueFormatMut other) => other.CopyFrom(this);
-
-    /// <inheritdoc cref="IWithCopyTo{T}" />
-    public void CopyTo(IValueFormat other)
+    public bool Equals(ValueFormatMut? other)
     {
-      if (other is ValueFormatMut mutable)
-        CopyTo(mutable);
-      else
-        throw new NotSupportedException("Can not copy properties to not mutable instance");
+      if (other == null) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return DataType == other.DataType
+             && DateFormat == other.DateFormat
+             && DateSeparator == other.DateSeparator
+             && DecimalSeparator == other.DecimalSeparator
+             && DisplayNullAs == other.DisplayNullAs
+             && False == other.False
+             && GroupSeparator == other.GroupSeparator
+             && NumberFormat == other.NumberFormat
+             && Part == other.Part
+             && PartSplitter == other.PartSplitter
+             && PartToEnd == other.PartToEnd
+             && TimeSeparator == other.TimeSeparator
+             && True == other.True
+             && RegexSearchPattern == other.RegexSearchPattern
+             && RegexReplacement == other.RegexReplacement
+             && ReadFolder == other.ReadFolder
+             && WriteFolder == other.WriteFolder
+             && FileOutPutPlaceholder == other.FileOutPutPlaceholder
+             && Overwrite == other.Overwrite;
     }
 
-    /// <inheritdoc />
-    public override bool Equals(object? obj) => this.ValueFormatEqual(obj as IValueFormat);
-    /// <inheritdoc cref="IEquatable{T}" />
-    public bool Equals(ValueFormatMut other) => this.ValueFormatEqual(other);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is ValueFormatMut other && Equals(other);
 
-    /// <inheritdoc cref="IEquatable{T}" />
-    public bool Equals(IValueFormat other) => this.ValueFormatEqual(other);
   }
 }

@@ -50,7 +50,7 @@ namespace CsvTools
     public CsvFileWriter(in string id,
       in string fullPath,
       bool hasFieldHeader,
-      in IValueFormat? valueFormat,
+      in ValueFormat? valueFormat,
       int codePageId,
       bool byteOrderMark,
       in IEnumerable<IColumn>? columnDefinition,

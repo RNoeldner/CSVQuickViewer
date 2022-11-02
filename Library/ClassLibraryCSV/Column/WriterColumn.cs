@@ -20,7 +20,7 @@ namespace CsvTools
     public WriterColumn(
       in string name,
       int colNum,
-      in IValueFormat valueFormat,
+      in ValueFormat valueFormat,
       int fieldLength = 0,
       in string constantTimeZone = "",
       int columnOrdinalTimeZone = -1)

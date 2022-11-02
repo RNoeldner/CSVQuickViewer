@@ -27,7 +27,7 @@ namespace CsvTools
   [DebuggerDisplay("File: {ID} {m_FileName} ({ColumnCollection.Count()} Columns)")]
   public abstract class BaseSettingPhysicalFile : BaseSettings, IFileSettingPhysicalFile
   {
-    private IValueFormat m_DefaultValueFormatWrite = ValueFormatExtension.Default;
+    private ValueFormat m_DefaultValueFormatWrite = ValueFormatExtension.Default;
     private string m_ColumnFile = string.Empty;
     private string m_FileName;
     private long m_FileSize;
@@ -117,10 +117,10 @@ namespace CsvTools
     /// <value>The value format.</value>
     [XmlIgnore]
     [JsonIgnore]
-    public virtual IValueFormat ValueFormatWrite
+    public virtual ValueFormat ValueFormatWrite
     {
       get => m_DefaultValueFormatWrite;
-      set => SetField(ref m_DefaultValueFormatWrite,value);
+      set => SetField(ref m_DefaultValueFormatWrite, value);
     }
 
     /// <summary>
@@ -130,7 +130,7 @@ namespace CsvTools
     public virtual ValueFormatMut ValueFormatMut
     {
       get => m_DefaultValueFormatWrite.ToMutable();
-      set => m_DefaultValueFormatWrite = value;
+      set => m_DefaultValueFormatWrite = value.ToImmutable();
     }
 
     [XmlIgnore]
@@ -247,7 +247,7 @@ namespace CsvTools
       fileSettingPhysicalFile.Passphrase = Passphrase;
       fileSettingPhysicalFile.KeyID = KeyID;
       if (fileSettingPhysicalFile is BaseSettingPhysicalFile phy)
-         phy.ValueFormatMut.CopyFrom(ValueFormatWrite);      
+        phy.ValueFormatMut.CopyFrom(ValueFormatWrite);
     }
 
     /// <inheritdoc />
@@ -330,7 +330,7 @@ namespace CsvTools
         if (!physicalFile.KeyID.Equals(KeyID))
           yield return $"{nameof(KeyID)} : {KeyID} {physicalFile.KeyID}";
 
-        if (!physicalFile.ValueFormatWrite.ValueFormatEqual(ValueFormatWrite))
+        if (!physicalFile.ValueFormatWrite.Equals(ValueFormatWrite))
           yield return $"{nameof(ValueFormatWrite)}";
       }
 

@@ -19,16 +19,8 @@ using System;
 namespace CsvTools
 {
   /// <inheritdoc cref="CsvTools.IValueFormat" />
-  public sealed class ValueFormat : IValueFormat, IEquatable<ValueFormat>
+  public sealed class ValueFormat : IEquatable<ValueFormat>
   {
-    public ValueFormat(IValueFormat valueFormat) : this(valueFormat.DataType, valueFormat.DateFormat,
-      valueFormat.DateSeparator, valueFormat.TimeSeparator, valueFormat.NumberFormat, valueFormat.GroupSeparator,
-      valueFormat.DecimalSeparator, valueFormat.True, valueFormat.False, valueFormat.DisplayNullAs,
-      valueFormat.Part, valueFormat.PartSplitter, valueFormat.PartToEnd, valueFormat.RegexSearchPattern,
-      valueFormat.RegexReplacement, valueFormat.ReadFolder, valueFormat.WriteFolder, valueFormat.FileOutPutPlaceholder, valueFormat.Overwrite)
-    {
-    }
-
     [JsonConstructor]
     public ValueFormat(
       in DataTypeEnum dataType = DataTypeEnum.String,
@@ -125,31 +117,38 @@ namespace CsvTools
 
     /// <inheritdoc />
     public string True { get; }
+    
     /// <inheritdoc />
     public string WriteFolder { get; }
-    /// <inheritdoc cref="IWithCopyTo{T}" />
-    public object Clone() => new ValueFormat(DataType, DateFormat, DateSeparator, TimeSeparator, NumberFormat,
-      GroupSeparator,
-      DecimalSeparator, True, False, DisplayNullAs, Part, PartSplitter, PartToEnd, RegexSearchPattern, RegexReplacement,
-      ReadFolder, WriteFolder, FileOutPutPlaceholder, Overwrite);
-
-    /// <inheritdoc  cref="IWithCopyTo{T}"/>
-    public void CopyTo(IValueFormat other)
-    {
-      if (other is ValueFormatMut mutable)
-        mutable.CopyFrom(this);
-      else
-        throw new NotSupportedException("Can not copy properties to not mutable instance");
-    }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj) => this.ValueFormatEqual(obj as IValueFormat);
-
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is ValueFormat other && Equals(other);
+    
     /// <inheritdoc cref="IEquatable{T}" />
-    public bool Equals(ValueFormat? other) => this.ValueFormatEqual(other);
-
-    /// <inheritdoc cref="IEquatable{T}" />
-    public bool Equals(IValueFormat other) => this.ValueFormatEqual(other);
+    public bool Equals(ValueFormat? other)
+    {
+      if (other is null) return false;
+      if (ReferenceEquals(this, other)) return true;
+      return DataType == other.DataType
+             && DateFormat == other.DateFormat
+             && DateSeparator == other.DateSeparator
+             && DecimalSeparator == other.DecimalSeparator
+             && DisplayNullAs == other.DisplayNullAs
+             && False == other.False
+             && GroupSeparator == other.GroupSeparator
+             && NumberFormat == other.NumberFormat
+             && Part == other.Part
+             && PartSplitter == other.PartSplitter
+             && PartToEnd == other.PartToEnd
+             && TimeSeparator == other.TimeSeparator
+             && True == other.True
+             && RegexSearchPattern == other.RegexSearchPattern
+             && RegexReplacement == other.RegexReplacement
+             && ReadFolder == other.ReadFolder
+             && WriteFolder == other.WriteFolder
+             && FileOutPutPlaceholder == other.FileOutPutPlaceholder
+             && Overwrite == other.Overwrite;
+    }
 
     /// <inheritdoc />
     public override int GetHashCode()

@@ -28,7 +28,7 @@ namespace CsvTools
     /// <summary>
     ///   The found value format
     /// </summary>
-    public IValueFormat? FoundValueFormat { get; set; }
+    public ValueFormat? FoundValueFormat { get; set; }
 
     /// <summary>
     ///   The positive matches before an invalid value was found

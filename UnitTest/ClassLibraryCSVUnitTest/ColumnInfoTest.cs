@@ -29,12 +29,11 @@ namespace CsvTools.Tests
       {
         new Column("Test1", new ValueFormat(DataTypeEnum.Double)),
         new ColumnMut("Test2",
-          new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"))
+          new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"))
         {
           TimeZonePart = "\"UTC\""
         },
-        new Column("Test3",
-          new ValueFormatMut(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"), timePart: "Test4",
+        new Column("Test3", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"), timePart: "Test4",
           timePartFormat: "HH:mm")
       };
 

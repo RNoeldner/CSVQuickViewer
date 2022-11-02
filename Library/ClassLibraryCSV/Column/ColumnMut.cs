@@ -61,7 +61,7 @@ namespace CsvTools
     [JsonConstructor]
     public ColumnMut(
       in string name,
-      in IValueFormat? valueFormat = null,
+      in ValueFormat? valueFormat = null,
       int columnOrdinal = -1,
       bool? convert = null,
       in string destinationName = "",
@@ -71,13 +71,13 @@ namespace CsvTools
       in string timeZonePart = "")
     {
       m_Name = name ?? throw new ArgumentNullException(nameof(name));
-      ValueFormatMut = valueFormat is null ? new ValueFormatMut(DataTypeEnum.String) : valueFormat.ToMutable();
-      ValueFormatMut.PropertyChanged += (sender, args) =>
+      m_ValueFormatMut = (valueFormat ?? new ValueFormat()).ToMutable();
+      m_ValueFormatMut.PropertyChanged += (sender, args) =>
       {
         NotifyPropertyChanged(nameof(ValueFormatMut));
 
         // If the value types changes to to something else but string, assume we need to convert
-        if (args.PropertyName.Equals(nameof(IValueFormat.DataType)) && sender is IValueFormat valueFormat)
+        if (args.PropertyName.Equals(nameof(ValueFormat.DataType)) && sender is ValueFormatMut valueFormat)
           Convert = valueFormat.DataType != DataTypeEnum.String;
       };
       m_ColumnOrdinal = columnOrdinal;
@@ -101,8 +101,8 @@ namespace CsvTools
     [JsonProperty]
     public DataTypeEnum DataType
     {
-      get => ValueFormatMut.DataType;
-      set => ValueFormatMut.DataType = value;
+      get => m_ValueFormatMut.DataType;
+      set => m_ValueFormatMut.DataType = value;
     }
 
     /// <summary>
@@ -115,8 +115,8 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cDateFormatDefault)]
     public string DateFormat
     {
-      get => ValueFormatMut.DateFormat;
-      set => ValueFormatMut.DateFormat = value;
+      get => m_ValueFormatMut.DateFormat;
+      set => m_ValueFormatMut.DateFormat = value;
     }
 
     /// <summary>
@@ -129,8 +129,8 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cDateSeparatorDefault)]
     public string DateSeparator
     {
-      get => ValueFormatMut.DateSeparator;
-      set => ValueFormatMut.DateSeparator = value;
+      get => m_ValueFormatMut.DateSeparator;
+      set => m_ValueFormatMut.DateSeparator = value;
     }
 
     /// <summary>
@@ -143,8 +143,8 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cDecimalSeparatorDefault)]
     public string DecimalSeparator
     {
-      get => ValueFormatMut.DecimalSeparator;
-      set => ValueFormatMut.DecimalSeparator = value;
+      get => m_ValueFormatMut.DecimalSeparator;
+      set => m_ValueFormatMut.DecimalSeparator = value;
     }
 
 
@@ -159,8 +159,7 @@ namespace CsvTools
     public string False
     {
       // Identifiers should not match keywords
-      get => ValueFormatMut.False;
-      set => ValueFormatMut.False = value;
+      get => m_ValueFormatMut.False; set => m_ValueFormatMut.False = value;
     }
 
 
@@ -174,8 +173,8 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cGroupSeparatorDefault)]
     public string GroupSeparator
     {
-      get => ValueFormatMut.GroupSeparator;
-      set => ValueFormatMut.GroupSeparator = value;
+      get => m_ValueFormatMut.GroupSeparator;
+      set => m_ValueFormatMut.GroupSeparator = value;
     }
 
     /// <summary>
@@ -188,8 +187,8 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cNumberFormatDefault)]
     public string NumberFormat
     {
-      get => ValueFormatMut.NumberFormat;
-      set => ValueFormatMut.NumberFormat = value;
+      get => m_ValueFormatMut.NumberFormat;
+      set => m_ValueFormatMut.NumberFormat = value;
     }
 
     /// <summary>
@@ -202,8 +201,8 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cPartDefault)]
     public int Part
     {
-      get => ValueFormatMut.Part;
-      set => ValueFormatMut.Part = value;
+      get => m_ValueFormatMut.Part;
+      set => m_ValueFormatMut.Part = value;
     }
 
     /// <summary>
@@ -216,8 +215,8 @@ namespace CsvTools
     //[Obsolete("Use ValueFormat instead")]
     public string PartSplitter
     {
-      get => ValueFormatMut.PartSplitter;
-      set => ValueFormatMut.PartSplitter = value;
+      get => m_ValueFormatMut.PartSplitter;
+      set => m_ValueFormatMut.PartSplitter = value;
     }
 
 
@@ -231,8 +230,8 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cPartToEndDefault)]
     public bool PartToEnd
     {
-      get => ValueFormatMut.PartToEnd;
-      set => ValueFormatMut.PartToEnd = value;
+      get => m_ValueFormatMut.PartToEnd;
+      set => m_ValueFormatMut.PartToEnd = value;
     }
 
     /// <summary>
@@ -245,8 +244,8 @@ namespace CsvTools
     [DefaultValue(ValueFormatExtension.cTimeSeparatorDefault)]
     public string TimeSeparator
     {
-      get => ValueFormatMut.TimeSeparator;
-      set => ValueFormatMut.TimeSeparator = value;
+      get => m_ValueFormatMut.TimeSeparator;
+      set => m_ValueFormatMut.TimeSeparator = value;
     }
 
     /// <summary>
@@ -260,11 +259,18 @@ namespace CsvTools
     public string True
     {
       // Identifiers should not match keywords
-      get => ValueFormatMut.True;
-      set => ValueFormatMut.True = value;
+      get => m_ValueFormatMut.True;
+      set => m_ValueFormatMut.True = value;
     }
 
-    [JsonIgnore] public ValueFormatMut ValueFormatMut { get; }
+    private ValueFormatMut m_ValueFormatMut;
+
+    [JsonIgnore]
+    public ValueFormatMut ValueFormatMut
+    {
+      get => m_ValueFormatMut;
+      set => SetField(ref m_ValueFormatMut, value);
+    }
 
     /// <summary>
     ///   The Ordinal Position of the column
@@ -373,8 +379,8 @@ namespace CsvTools
     ///   Mimics to get or sets the value format.
     /// </summary>
     /// <value>The value format.</value>
+    public ValueFormat ValueFormat => m_ValueFormatMut.ToImmutable();
 
-    public IValueFormat ValueFormat => ValueFormatMut;
 
     /// <inheritdoc />
     /// <summary>
@@ -403,7 +409,7 @@ namespace CsvTools
                                                   && string.Equals(TimeZonePart, other.TimeZonePart,
                                                     StringComparison.OrdinalIgnoreCase)
                                                   && Convert == other.Convert
-                                                  && ValueFormatMut.Equals(other.ValueFormat);
+                                                  && m_ValueFormatMut.Equals(other.ValueFormat.ToMutable());
     }
 
     /// <summary>
@@ -412,7 +418,7 @@ namespace CsvTools
     /// <param name="other">The other.</param>
     public void CopyTo(ColumnMut other)
     {
-      other.ValueFormatMut.CopyFrom(ValueFormatMut);
+      other.ValueFormatMut.CopyFrom(ValueFormat);
       other.TimePartFormat = m_TimePartFormat;
       other.TimePart = m_TimePart;
       other.TimeZonePart = m_TimeZonePart;
