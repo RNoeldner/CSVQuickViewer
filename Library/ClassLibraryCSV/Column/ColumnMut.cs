@@ -17,7 +17,6 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
@@ -25,7 +24,7 @@ using System.Xml.Serialization;
 namespace CsvTools
 {
   /// <summary>
-  ///   Column information like name, Type, Format etc.
+  ///   This is a helper class to edit and to serialize into XML
   /// </summary>
   [Serializable]
   public sealed class ColumnMut : NotifyPropertyChangedBase, IEquatable<ColumnMut>

@@ -20,7 +20,7 @@ using System.Xml.Serialization;
 namespace CsvTools
 {
   /// <summary>
-  ///   Setting for a value format
+  ///   This is a helper class to edit and to serialize into XML
   /// </summary>
   [Serializable]
   public sealed class ValueFormatMut : NotifyPropertyChangedBase, IEquatable<ValueFormatMut>
@@ -119,7 +119,7 @@ namespace CsvTools
       m_DataType = dataType;
       m_DateFormat = dateFormat ?? ValueFormat.cDateFormatDefault;
       m_DateSeparator = (dateSeparator ?? ValueFormat.cDateSeparatorDefault).WrittenPunctuation();
-      m_TimeSeparator = (timeSeparator ?? ValueFormat.cTimeSeparatorDefault).WrittenPunctuation(); 
+      m_TimeSeparator = (timeSeparator ?? ValueFormat.cTimeSeparatorDefault).WrittenPunctuation();
 
       m_DisplayNullAs = displayNullAs ?? string.Empty;
       m_NumberFormat = numberFormat ?? ValueFormat.cNumberFormatDefault;

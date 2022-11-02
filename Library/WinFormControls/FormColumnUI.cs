@@ -60,7 +60,7 @@ namespace CsvTools
     /// <param name="hTmlStyle">The HTML style.</param>
     /// <exception cref="ArgumentNullException">fileSetting or fillGuessSettings NULL</exception>
     public FormColumnUI(
-      ColumnMut? column,
+      ColumnMut column,
       bool writeSetting,
       IFileSetting fileSetting,
       FillGuessSettings fillGuessSettings,
@@ -93,8 +93,6 @@ namespace CsvTools
       textBoxDisplayNullAs.Visible = writeSetting;
       checkBoxIgnore.Visible = showIgnore;
     }
-
-    public ColumnMut EditedColumn => m_ColumnEdit;
 
     public bool ShowGuess
     {

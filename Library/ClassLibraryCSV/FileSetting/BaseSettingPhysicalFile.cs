@@ -131,7 +131,7 @@ namespace CsvTools
     public virtual ValueFormatMut ValueFormatMut
     {
       get => new ValueFormatMut(m_DefaultValueFormatWrite);
-      set => m_DefaultValueFormatWrite = value.ToImmutable();
+      set => SetField(ref m_DefaultValueFormatWrite, value.ToImmutable());
     }
 
     [XmlIgnore] [JsonIgnore] public bool ValueFormatMutableSpecified => !m_DefaultValueFormatWrite.IsDefault();

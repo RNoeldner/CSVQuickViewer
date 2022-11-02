@@ -163,19 +163,13 @@ namespace CsvTools
     [JsonIgnore]
     public virtual ColumnMut[] Format
     {
-      get
-      {
-        var res = new ColumnMut[ColumnCollection.Count];
-        for (var index = 0; index < ColumnCollection.Count; index++)
-          res[index] = ColumnCollection[index].ToMutableColumn();
-        return res;
-      }
+      get => ColumnCollection.Select(x => new ColumnMut(x)).ToArray();
       set
       {
         ColumnCollection.Clear();
         // ReSharper disable once ConditionIsAlwaysTrueOrFalse
         if (value == null) return;
-        ColumnCollection.AddRange(value.Select(x=> x.ToImmutableColumn()));
+        ColumnCollection.AddRange(value.Select(x => x.ToImmutableColumn()));
       }
     }
 
