@@ -41,7 +41,7 @@ namespace CsvTools
     ///   Event to be raised once the reader is opened, the column information is now known and
     ///   passed to the EventHandler
     /// </summary>
-    event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
+    event EventHandler<IReadOnlyCollection<Column>>? OpenFinished;
 
     /// <summary>
     ///   Event to be raised once the reader is finished reading the file
@@ -104,8 +104,8 @@ namespace CsvTools
     ///   Gets the column information for a given column number
     /// </summary>
     /// <param name="column">The column number</param>
-    /// <returns>A <see cref="IColumn" /> with all information on the column</returns>
-    IColumn GetColumn(int column);
+    /// <returns>A <see cref="Column" /> with all information on the column</returns>
+    Column GetColumn(int column);
 
     /// <summary>
     ///   Advances the data reader to the next result, when reading the results of batch SQL statements. This is usually not supported by IFileReader

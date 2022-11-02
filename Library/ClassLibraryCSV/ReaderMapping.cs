@@ -55,8 +55,7 @@ namespace CsvTools
         Column column;
         if (fileReader != null)
         {
-          var iColumn = fileReader.GetColumn(col);
-          column = iColumn.ToImmutableColumn();
+          column = fileReader.GetColumn(col);
         }
         else
         {
@@ -120,7 +119,7 @@ namespace CsvTools
       {
         DataTableErrorField = fieldCount;
         m_ReaderColumnNotIgnored.Add(
-          new Column(ReaderConstants.cErrorField, new ValueFormat(), DataTableErrorField));
+          new Column(ReaderConstants.cErrorField, ValueFormat.Empty, DataTableErrorField));
       }
       else
       {

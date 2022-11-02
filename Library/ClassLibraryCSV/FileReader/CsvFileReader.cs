@@ -155,7 +155,7 @@ namespace CsvTools
     private ImprovedTextReader? m_TextReader;
 
     public CsvFileReader(in Stream stream, int codePageId, int skipRows,
-      bool hasFieldHeader, in IEnumerable<IColumn>? columnDefinition, in TrimmingOptionEnum trimmingOption,
+      bool hasFieldHeader, in IEnumerable<Column>? columnDefinition, in TrimmingOptionEnum trimmingOption,
       in string fieldDelimiter, in string fieldQualifier, in string escapeCharacter,
       long recordLimit, bool allowRowCombining, bool contextSensitiveQualifier, in string commentLine,
       int numWarning, bool duplicateQualifierToEscape, in string newLinePlaceholder, in string delimiterPlaceholder,
@@ -177,7 +177,7 @@ namespace CsvTools
     }
 
     public CsvFileReader(in string fileName, int codePageId, int skipRows, bool hasFieldHeader,
-      in IEnumerable<IColumn>? columnDefinition,
+      in IEnumerable<Column>? columnDefinition,
       in TrimmingOptionEnum trimmingOption,
       in string fieldDelimiter, in string fieldQualifier, in string escapeCharacter, long recordLimit,
       bool allowRowCombining, bool contextSensitiveQualifier, in string commentLine, int numWarning,
@@ -208,7 +208,7 @@ namespace CsvTools
           fileName);
     }
 
-    private CsvFileReader(IEnumerable<IColumn>? columnDefinition,
+    private CsvFileReader(IEnumerable<Column>? columnDefinition,
       int codePageId,
       int skipRows,
       bool hasFieldHeader,

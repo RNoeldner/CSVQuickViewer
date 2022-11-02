@@ -56,10 +56,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="reader">A file reader</param>
     /// <returns></returns>
-    public static IEnumerable<IColumn> GetColumnsOfReader(this IFileReader reader)
+    public static IEnumerable<Column> GetColumnsOfReader(this IFileReader reader)
     {
       if (reader is null) throw new ArgumentNullException(nameof(reader));
-      var retList = new List<IColumn>();
+      var retList = new List<Column>();
       for (var col = 0; col < reader.FieldCount; col++)
       {
         var column = reader.GetColumn(col);

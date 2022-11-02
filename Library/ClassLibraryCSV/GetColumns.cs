@@ -34,7 +34,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
-    public static async Task<IEnumerable<IColumn>> GetColumnsSqlAsync(this string sql, int timeout,
+    public static async Task<IEnumerable<Column>> GetColumnsSqlAsync(this string sql, int timeout,
       CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(sql))
@@ -50,7 +50,7 @@ namespace CsvTools
         await sqlDataReader(sql.NoRecordSql(), timeout, 1, cancellationToken).ConfigureAwait(false);
 
       // Put the information into the list
-      var res = new List<IColumn>();
+      var res = new List<Column>();
       foreach (DataRow schemaRow in fileReader.GetSchemaTable()!.Rows)
       {
         var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
@@ -73,17 +73,17 @@ namespace CsvTools
     /// <param name="columnDefinitions">Definition for individual columns</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
-    public static async Task<IEnumerable<IColumn>> GetWriterColumnInformationAsync(
+    public static async Task<IEnumerable<Column>> GetWriterColumnInformationAsync(
       this string sqlStatement,
       int timeout,
       ValueFormat valueFormatGeneral,
-      IReadOnlyCollection<IColumn> columnDefinitions,
+      IReadOnlyCollection<Column> columnDefinitions,
       CancellationToken cancellationToken)
     {
       if (valueFormatGeneral is null) throw new ArgumentNullException(nameof(valueFormatGeneral));
       if (columnDefinitions is null) throw new ArgumentNullException(nameof(columnDefinitions));
       if (sqlStatement.Length == 0)
-        return Array.Empty<IColumn>();
+        return Array.Empty<Column>();
 
       Func<string, int, long, CancellationToken, Task<IFileReader>> sqlDataReader = FunctionalDI.SqlDataReader;
       if (sqlDataReader is null)

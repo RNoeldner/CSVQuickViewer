@@ -36,7 +36,7 @@ namespace CsvTools
       string? header,
       int codePageId,
       bool byteOrderMark,
-      IEnumerable<IColumn>? columnDefinition,
+      IEnumerable<Column>? columnDefinition,
       string fileSettingDisplay,
       string row,
       TimeZoneChangeDelegate timeZoneAdjust,
@@ -44,7 +44,7 @@ namespace CsvTools
       : base(
         id, fullPath, pgpKeyId, unencrypted,
         identifierInContainer, footer, header, codePageId,
-        byteOrderMark, columnDefinition, fileSettingDisplay, row, 
+        byteOrderMark, columnDefinition, fileSettingDisplay, row,
         timeZoneAdjust, sourceTimeZone)
 
     {

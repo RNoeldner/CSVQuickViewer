@@ -44,7 +44,7 @@ namespace CsvTools
     public override bool SupportsReset => true;
 
     /// <inheritdoc cref="IFileReader" />
-    public new IColumn GetColumn(int column) => ReaderMapping.Column[column];
+    public new Column GetColumn(int column) => ReaderMapping.Column[column];
 
     /// <inheritdoc cref="IFileReader" />
     [Obsolete("No need to open a DataTableWrapper, the DataTable is in memory")]

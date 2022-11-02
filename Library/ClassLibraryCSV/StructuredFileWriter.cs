@@ -62,7 +62,7 @@ namespace CsvTools
       in string? header,
       int codePageId,
       bool byteOrderMark,
-      in IEnumerable<IColumn>? columnDefinition,
+      in IEnumerable<Column>? columnDefinition,
       in string fileSettingDisplay,
       in string row,
       in TimeZoneChangeDelegate timeZoneAdjust,
@@ -186,7 +186,7 @@ namespace CsvTools
       await writer.FlushAsync().ConfigureAwait(false);
     }
 
-    public static string GetJsonRow(IEnumerable<IColumn> cols)
+    public static string GetJsonRow(IEnumerable<Column> cols)
     {
       var sb = new StringBuilder("{");
       // { "firstName":"John", "lastName":"Doe"},

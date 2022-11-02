@@ -43,7 +43,7 @@ namespace CsvTools
     private readonly CancellationTokenSource m_CancellationTokenSource = new();
 
     private readonly ColumnMut m_ColumnEdit;
-    private readonly IColumn? m_ColumnRef;
+    private readonly Column m_ColumnBackup;
     private readonly IFileSetting m_FileSetting;
     private readonly FillGuessSettings m_FillGuessSettings;
 
@@ -60,17 +60,15 @@ namespace CsvTools
     /// <param name="hTmlStyle">The HTML style.</param>
     /// <exception cref="ArgumentNullException">fileSetting or fillGuessSettings NULL</exception>
     public FormColumnUI(
-      IColumn? column,
+      ColumnMut? column,
       bool writeSetting,
       IFileSetting fileSetting,
       FillGuessSettings fillGuessSettings,
       bool showIgnore,
       HtmlStyle hTmlStyle)
     {
-      m_ColumnRef = column;
-      m_ColumnEdit = column == null
-        ? new ColumnMut(string.Empty)
-        : column.ToMutableColumn();
+      m_ColumnBackup = column?.ToImmutableColumn() ?? new Column("");
+      m_ColumnEdit = column ?? new ColumnMut(string.Empty);
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
       m_HtmlStyle = hTmlStyle ?? throw new ArgumentNullException(nameof(hTmlStyle));
@@ -96,7 +94,7 @@ namespace CsvTools
       checkBoxIgnore.Visible = showIgnore;
     }
 
-    public IColumn EditedColumn => m_ColumnEdit;
+    public ColumnMut EditedColumn => m_ColumnEdit;
 
     public bool ShowGuess
     {
@@ -207,7 +205,7 @@ namespace CsvTools
 
             RefreshData();
             MessageBox.Show(
-              $"Based on DataType of the source column this is {m_ColumnEdit.GetTypeAndFormatDescription()}.\nPlease choose the desired output format",
+              $"Based on DataType of the source column this is {m_ColumnEdit.ToImmutableColumn().GetTypeAndFormatDescription()}.\nPlease choose the desired output format",
               columnName,
               MessageBoxButtons.OK,
               MessageBoxIcon.Information);
@@ -556,7 +554,7 @@ namespace CsvTools
       {
         if (!ValidateChildren())
           return;
-        if (m_ColumnEdit.Equals(m_ColumnRef))
+        if (m_ColumnEdit.Equals(m_ColumnBackup))
         {
           DialogResult = DialogResult.No;
           return;
@@ -564,10 +562,6 @@ namespace CsvTools
 
         Hide();
         DialogResult = DialogResult.Yes;
-        if (m_ColumnRef is ColumnMut refCol)
-        {
-          m_ColumnEdit.CopyTo(refCol);
-        }
       }
       catch (Exception ex)
       {
@@ -728,7 +722,7 @@ namespace CsvTools
         if (groupBoxDate.Visible)
         {
           if (string.IsNullOrEmpty(m_ColumnEdit.ValueFormat.DateFormat))
-            m_ColumnEdit.ValueFormatMut.DateFormat = ValueFormatExtension.cDateFormatDefault;
+            m_ColumnEdit.ValueFormatMut.DateFormat = ValueFormat.cDateFormatDefault;
           DateFormatChanged(sender, EventArgs.Empty);
         }
 
@@ -737,7 +731,7 @@ namespace CsvTools
         groupBoxRegExReplace.Visible = selType == DataTypeEnum.TextReplace;
 
         groupBoxBinary.Visible = selType == DataTypeEnum.Binary;
-        if (groupBoxBinary.Visible && m_ColumnEdit.ValueFormat.DateFormat == ValueFormatExtension.cDateFormatDefault)
+        if (groupBoxBinary.Visible && m_ColumnEdit.ValueFormat.DateFormat == ValueFormat.cDateFormatDefault)
           m_ColumnEdit.ValueFormatMut.DateFormat = string.Empty;
 
         if (groupBoxSplit.Visible)
@@ -773,7 +767,8 @@ namespace CsvTools
             checkedListBoxDateFormats.Items.IndexOf(comboBoxDateFormat.Text) != -1)
           comboBoxDateFormat.Text = checkedListBoxDateFormats.Text;
 
-      UpdateDateLabel(new ValueFormat(DataTypeEnum.DateTime, dateFormat, textBoxDateSeparator.Text, textBoxTimeSeparator.Text),
+      UpdateDateLabel(
+        new ValueFormat(DataTypeEnum.DateTime, dateFormat, textBoxDateSeparator.Text, textBoxTimeSeparator.Text),
         !string.IsNullOrEmpty(comboBoxTimePart.Text), comboBoxTPFormat.Text, comboBoxTimeZone.Text);
     }
 
@@ -925,7 +920,7 @@ namespace CsvTools
       SetDateFormat();
       var selValue = (int) m_ColumnEdit.ValueFormatMut.DataType;
       comboBoxDataType.DataSource = (from DataTypeEnum item in Enum.GetValues(typeof(DataTypeEnum))
-                                     select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
+        select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
       comboBoxDataType.SelectedValue = selValue;
       ComboBoxColumnName_TextUpdate(null, EventArgs.Empty);
     }

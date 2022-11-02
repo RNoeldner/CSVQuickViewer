@@ -32,10 +32,10 @@ namespace CsvTools.Tests
 
       using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0,
         true,
-        new IColumn[]
+        new Column[]
         {
-          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
-          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, "", true)
+          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0),
+          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0)
         }, TrimmingOptionEnum.Unquoted,
         "\t",
         "\"",

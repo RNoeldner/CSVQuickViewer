@@ -20,27 +20,27 @@ namespace CsvTools
   /// <summary>
   ///   Collection of Columns, this class is not serializable
   /// </summary>
-  public sealed class ColumnCollection : UniqueObservableCollection<IColumn>
+  public sealed class ColumnCollection : UniqueObservableCollection<Column>
   {
     /// <summary>
-    ///   Adds the <see cref="IColumn" /> as <see cref="Column" />
+    ///   Adds the <see cref="Column" /> 
     /// </summary>
     /// <remarks>If the column name already exist it does nothing</remarks>
     /// <param name="column">The column format.</param>
-    public new void Add(IColumn column)
+    public new void Add(Column column)
     {
       // Store ImmutableColumns only since Immutable column is not ICloneable Add will not create a copy.
       if (column is null ||string.IsNullOrEmpty(column.Name))
         throw new ArgumentException("The name of a column can not be empty in the collection", nameof(column));
 
-      base.Add(column.ToImmutableColumn());
+      base.Add(column);
     }
 
     /// <summary>
     ///   Replaces an existing column of the same name, if it does not exist it adds the column
     /// </summary>
     /// <param name="column"></param>
-    public void Replace(IColumn column)
+    public void Replace(Column column)
     {
       if (column is null)
         throw new ArgumentNullException(nameof(column));
@@ -49,7 +49,7 @@ namespace CsvTools
       if (index != -1)
       {
         Items.RemoveAt(index);
-        Items.Insert(index, column.ToImmutableColumn());
+        Items.Insert(index, column);
         OnCollectionChanged(
           new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized
             .NotifyCollectionChangedAction.Reset));
@@ -65,7 +65,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnName">Name of the column.</param>
     /// <returns><c>null</c> if the column is not found, otherwise the column with that name</returns>
-    public IColumn? GetByName(string? columnName)
+    public Column? GetByName(string? columnName)
     {
       if (columnName is null || columnName.Length == 0)
         return null;

@@ -14,16 +14,17 @@
 #nullable enable
 using Newtonsoft.Json;
 using System;
+using System.ComponentModel;
+using System.Text;
 
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="CsvTools.IColumn" />
   /// <summary>
   ///   Column information like name, Type, Format etc.
   /// </summary>
-  public class Column : IColumn
+  public class Column : IEquatable<Column>, ICollectionIdentity
   {
     public const string cDefaultTimePartFormat = "HH:mm:ss";
     private IColumnFormatter? m_ColumnFormatter;
@@ -35,34 +36,32 @@ namespace CsvTools
     /// <param name="name">The column name.</param>
     /// <param name="valueFormat">The format of the column.</param>
     /// <param name="columnOrdinal">The column ordinal.</param>
+    /// <param name="ignore">if set to <c>true</c> the column will be ignored.</param>
     /// <param name="convert">If Conversion is necessary, usually yes if teh format is non string.</param>
     /// <param name="destinationName">Name of the destination.</param>
-    /// <param name="ignore">if set to <c>true</c> the column will be ignored.</param>
     /// <param name="timePart">The time part for date time information provided in two columns.</param>
     /// <param name="timePartFormat">The time part format for date time information provided in two columns</param>
     /// <param name="timeZonePart">The time zone part for date time information provided in multiple columns</param>
     /// <exception cref="System.ArgumentNullException">name</exception>
-    public Column(
-      in string name,
-      in ValueFormat valueFormat,
+    public Column(in string name,
+      in ValueFormat? valueFormat = null,
       int columnOrdinal = -1,
+      bool ignore = false,
       bool? convert = null,
       in string destinationName = "",
-      bool ignore = false,
       in string timePart = "",
       in string timePartFormat = cDefaultTimePartFormat,
       in string timeZonePart = "")
     {
       Name = name ?? throw new ArgumentNullException(nameof(name));
-      ValueFormat = valueFormat;
+      ValueFormat = valueFormat ?? ValueFormat.Empty;
       ColumnOrdinal = columnOrdinal;
-
-      DestinationName = destinationName;
       Ignore = ignore;
+      Convert = convert ?? ValueFormat.DataType != DataTypeEnum.String;
+      DestinationName = destinationName ?? string.Empty;
       TimePart = timePart ?? string.Empty;
       TimePartFormat = timePartFormat ?? cDefaultTimePartFormat;
-      TimeZonePart = timeZonePart?? string.Empty;
-      Convert = convert ?? ValueFormat.DataType != DataTypeEnum.String;
+      TimeZonePart = timeZonePart ?? string.Empty;
     }
 
     /// <summary>
@@ -89,33 +88,65 @@ namespace CsvTools
       }
     }
 
-    /// <inheritdoc />
-    public int ColumnOrdinal { get; }
-
-    /// <inheritdoc />
-    public bool Convert { get; }
-
-    /// <inheritdoc />
-    public string DestinationName { get; }
-
-    /// <inheritdoc />
-    public bool Ignore { get; }
-
-    /// <inheritdoc />
+    /// <summary>
+    ///   Name of the column
+    /// </summary>
+    [DefaultValue("")]
     public string Name { get; }
 
-    /// <inheritdoc />
-    public string TimePart { get; }
-
-    /// <inheritdoc />
-    public string TimePartFormat { get; }
-
-    /// <inheritdoc />
-    public string TimeZonePart { get; }
-
+    /// <summary>
+    ///   Formatting option for values
+    /// </summary>
     public ValueFormat ValueFormat { get; }
 
-    public bool Equals(IColumn? other)
+    /// <summary>
+    ///   Gets the column ordinal
+    /// </summary>
+    public int ColumnOrdinal { get; }
+
+    /// <summary>
+    ///   Indicating if the column should be ignored during read or write, no conversion is done if
+    ///   the column is ignored teh target will not show this column
+    /// </summary>
+    [DefaultValue(false)]
+    public bool Ignore { get; }
+
+    /// <summary>
+    ///   Indicating if the value or text should be converted
+    /// </summary>
+    [DefaultValue(false)]
+    public bool Convert { get; }
+
+    /// <summary>
+    ///   Name of the column in the destination system
+    /// </summary>
+    [DefaultValue("")]
+    public string DestinationName { get; }
+
+    /// <summary>
+    ///   For DateTime import you can combine a date and a time column into a single datetime
+    ///   column, to do this specify the time column on the column for the date
+    /// </summary>
+    [DefaultValue("")]
+    public string TimePart { get; }
+
+    /// <summary>
+    ///   For DateTime import you can combine a date and a time into a single datetime column,
+    ///   specify the format of the time here this can different from the format of the time column
+    ///   itself that is often ignored
+    /// </summary>
+    [DefaultValue(cDefaultTimePartFormat)]
+    public string TimePartFormat { get; }
+
+
+    /// <summary>
+    ///   For DateTime import you set a time zone, during read the value provided will be assumed to
+    ///   be of the timezone specified During write the time will be converted into this time zone
+    /// </summary>
+    [DefaultValue("")]
+    public string TimeZonePart { get; }
+
+    public bool Equals(Column? other)
     {
       if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
@@ -128,17 +159,6 @@ namespace CsvTools
              && ValueFormat.Equals(other.ValueFormat);
     }
 
-    public bool Equals(Column x, Column y) => x.Equals(y);
-
-    public override bool Equals(object? obj)
-    {
-      if (obj is null) return false;
-      if (ReferenceEquals(this, obj)) return true;
-      if (obj.GetType() != GetType()) return false;
-      return Equals((Column) obj);
-    }
-
-    public int GetHashCode(Column obj) => GetHashCode();
     public override int GetHashCode()
     {
       unchecked
@@ -156,6 +176,60 @@ namespace CsvTools
       }
     }
 
-    public override string ToString() => $"{Name} ({this.GetTypeAndFormatDescription()})";
+    public override string ToString() => $"{Name} ({GetTypeAndFormatDescription()})";
+
+    public Column ReplaceValueFormat(in ValueFormat newFormat) =>
+      new Column(
+        Name,
+        newFormat,
+        ColumnOrdinal,
+        Ignore,
+        Convert,
+        DestinationName,
+        TimePart, TimePartFormat, TimeZonePart);
+
+    /// <summary>
+    ///   Gets the description.
+    /// </summary>
+    /// <returns></returns>
+    public string GetTypeAndFormatDescription(bool addTime = true)
+    {
+      var stringBuilder = new StringBuilder(ValueFormat.DataType.DataTypeDisplay());
+
+      var shortDesc = ValueFormat.GetFormatDescription();
+      if (shortDesc.Length > 0)
+      {
+        stringBuilder.Append(" (");
+        stringBuilder.Append(shortDesc);
+        stringBuilder.Append(")");
+      }
+
+      if (addTime && ValueFormat.DataType == DataTypeEnum.DateTime)
+      {
+        if (TimePart.Length > 0)
+        {
+          stringBuilder.Append(" + ");
+          stringBuilder.Append(TimePart);
+          if (TimePartFormat.Length > 0)
+          {
+            stringBuilder.Append(" (");
+            stringBuilder.Append(TimePartFormat);
+            stringBuilder.Append(")");
+          }
+        }
+
+        if (TimeZonePart.Length > 0)
+        {
+          stringBuilder.Append(" - ");
+          stringBuilder.Append(TimeZonePart);
+        }
+      }
+
+      if (Ignore)
+        stringBuilder.Append(" (Ignore)");
+
+      return stringBuilder.ToString();
+    }
+
   }
 }

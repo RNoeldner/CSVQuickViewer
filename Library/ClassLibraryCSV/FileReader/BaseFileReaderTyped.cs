@@ -67,7 +67,7 @@ namespace CsvTools
     /// <param name="destTimeZone">Name of the time zone datetime values that have a source time zone should be converted to</param>
     protected BaseFileReaderTyped(
       in string fileName,
-      in IEnumerable<IColumn>? columnDefinition,
+      in IEnumerable<Column>? columnDefinition,
       long recordLimit,
       bool trim,
       in string treatTextAsNull,

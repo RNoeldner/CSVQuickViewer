@@ -24,11 +24,9 @@ namespace CsvTools.Tests
   [TestClass()]
   public class JsonFileWriterTests
   {
-
     [TestMethod()]
     public async Task JsonFileWriterTest_EmptyAsNullFalse()
     {
-
       var fileName = UnitTestStatic.GetTestPath("abc1.json");
 
       FileSystemUtils.FileDelete(fileName);
@@ -36,16 +34,17 @@ namespace CsvTools.Tests
       // source data
       using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0,
         true,
-        new IColumn[]
+        new Column[]
         {
-          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
-          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, "", true)
+          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true),
+          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true)
         }, TrimmingOptionEnum.All, "\t", "\"", "",
         0, false, false, "", 0,
         true, "", "", "", true,
         false, false, true, true, false,
         true, true, true, true, false, treatTextAsNull: "NULL", skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
-        identifierInContainer: String.Empty, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: TimeZoneInfo.Local.Id);
+        identifierInContainer: String.Empty, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone,
+        destTimeZone: TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
 
       var row = StructuredFileWriter.GetJsonRow(reader.GetColumnsOfReader());
@@ -53,7 +52,8 @@ namespace CsvTools.Tests
 
       // writer 
       var writer = new JsonFileWriter("id", fileName, 0, false, string.Empty,
-        "]", "[", false, Encoding.UTF8.CodePage, false, Array.Empty<IColumn>(), "Test File2", row, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        "]", "[", false, Encoding.UTF8.CodePage, false, Array.Empty<Column>(), "Test File2", row,
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
 
       await writer.WriteAsync(reader, UnitTestStatic.Token);
 
@@ -68,30 +68,31 @@ namespace CsvTools.Tests
     [TestMethod()]
     public async Task JsonFileWriterTest_EmptyAsNullTrue()
     {
-
       var fileName = UnitTestStatic.GetTestPath("abc2.json");
       FileSystemUtils.FileDelete(fileName);
-      
+
       // source data
       using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0,
         true,
-        new IColumn[]
+        new Column[]
         {
-          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
-          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, "", true)
+          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true),
+          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true)
         }, TrimmingOptionEnum.All, "\t", "\"", "",
         0, false, false, "", 0,
         true, "", "", "", true,
         false, false, true, true, false,
         true, true, true, true, false, treatTextAsNull: "NULL", skipEmptyLines: true, consecutiveEmptyRowsMax: 4,
-        identifierInContainer: String.Empty, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: TimeZoneInfo.Local.Id);
+        identifierInContainer: String.Empty, timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone,
+        destTimeZone: TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
 
       var row = StructuredFileWriter.GetJsonRow(reader.GetColumnsOfReader());
 
       // writer 
       var writer = new JsonFileWriter("id", fileName, 0, false, string.Empty,
-        "]", "[", true, Encoding.UTF8.CodePage, false, Array.Empty<IColumn>(), "Test File2", row, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        "]", "[", true, Encoding.UTF8.CodePage, false, Array.Empty<Column>(), "Test File2", row,
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
 
       await writer.WriteAsync(reader, UnitTestStatic.Token);
 
@@ -111,12 +112,13 @@ namespace CsvTools.Tests
 
       using var dt = UnitTestStatic.GetDataTable(100, false);
       using var reader = new DataTableWrapper(dt);
-      
+
       var row = StructuredFileWriter.GetJsonRow(reader.GetColumnsOfReader());
 
       // writer 
       var writer = new JsonFileWriter("id", fileName, 0, false, string.Empty,
-        "]", "[", false, Encoding.UTF8.CodePage, false, null, "Test File2", row, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        "]", "[", false, Encoding.UTF8.CodePage, false, null, "Test File2", row, StandardTimeZoneAdjust.ChangeTimeZone,
+        TimeZoneInfo.Local.Id);
 
       await writer.WriteAsync(reader, UnitTestStatic.Token);
 

@@ -36,8 +36,7 @@ namespace CsvTools.Tests
       readFile.ColumnCollection.Add(new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")));
       readFile.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
       readFile.ColumnCollection.Add(new Column("Proficiency", new ValueFormat(DataTypeEnum.Numeric)));
-      readFile.ColumnCollection.Add(
-        new ColumnMut("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean)) { Ignore = true });
+      readFile.ColumnCollection.Add(new Column("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean), ignore: true));
       UnitTestStatic.MimicSQLReader.AddSetting(readFile);
     }
 
@@ -84,10 +83,10 @@ namespace CsvTools.Tests
         StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
 
       var result = await writer.WriteAsync(
-                     fileSetting.SqlStatement,
-                     fileSetting.Timeout,
-                     progress,
-                     UnitTestStatic.Token);
+        fileSetting.SqlStatement,
+        fileSetting.Timeout,
+        progress,
+        UnitTestStatic.Token);
       Assert.AreEqual(7L, result);
     }
 

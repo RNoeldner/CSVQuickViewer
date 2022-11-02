@@ -28,11 +28,8 @@ namespace CsvTools.Tests
       var cc = new ColumnCollection
       {
         new Column("Test1", new ValueFormat(DataTypeEnum.Double)),
-        new ColumnMut("Test2",
-          new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"))
-        {
-          TimeZonePart = "\"UTC\""
-        },
+        new Column("Test2", new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"),
+          timeZonePart: "\"UTC\""),
         new Column("Test3", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy HH:mm"), timePart: "Test4",
           timePartFormat: "HH:mm")
       };
@@ -46,7 +43,7 @@ namespace CsvTools.Tests
 
       using var reader = dt.CreateDataReader();
       using var dt2 = reader.GetSchemaTable();
-      var res = BaseFileWriter.GetColumnInformation(new ValueFormat(), cc, dt2).ToList();
+      var res = BaseFileWriter.GetColumnInformation(ValueFormat.Empty, cc, dt2).ToList();
       Assert.AreEqual(4, res.Count());
 
       Assert.AreEqual(DataTypeEnum.Double, res[0].ValueFormat.DataType,
@@ -76,7 +73,7 @@ namespace CsvTools.Tests
       });
       using var reader = dt.CreateDataReader();
       using var dt2 = reader.GetSchemaTable();
-      var res = BaseFileWriter.GetColumnInformation(new ValueFormat(), cc, dt2).ToList();
+      var res = BaseFileWriter.GetColumnInformation(ValueFormat.Empty, cc, dt2).ToList();
       Assert.AreEqual(4, res.Count());
       Assert.AreEqual(DataTypeEnum.Integer, res[0].ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.DateTime, res[2].ValueFormat.DataType);

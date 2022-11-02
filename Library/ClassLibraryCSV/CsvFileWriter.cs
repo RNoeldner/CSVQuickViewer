@@ -53,7 +53,7 @@ namespace CsvTools
       in ValueFormat? valueFormat,
       int codePageId,
       bool byteOrderMark,
-      in IEnumerable<IColumn>? columnDefinition,
+      in IEnumerable<Column>? columnDefinition,
       in long pgpKeyId,
       bool unencrypted,
       in string? identifierInContainer,

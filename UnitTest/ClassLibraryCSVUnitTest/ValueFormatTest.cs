@@ -28,7 +28,7 @@ namespace CsvTools.Tests
     public void GetFormatDescriptionTest()
 
     {
-      var vf = new ValueFormat();
+      var vf = ValueFormat.Empty;
       Assert.AreEqual(string.Empty, vf.GetFormatDescription());
 
       var vf2 = new ValueFormat(DataTypeEnum.TextPart, part: 4);
@@ -44,49 +44,49 @@ namespace CsvTools.Tests
       Assert.IsTrue(string.IsNullOrEmpty(a.GetFormatDescription()));
 
       var b = new ValueFormat(dataType: DataTypeEnum.DateTime);
-      Assert.IsTrue(b.GetFormatDescription().Contains(ValueFormatExtension.cDateFormatDefault));
+      Assert.IsTrue(b.GetFormatDescription().Contains(ValueFormat.cDateFormatDefault));
     }
 
     [TestMethod]
     public void IsMatching()
     {
-      var expected = new ValueFormatMut();
-      var current = new ValueFormatMut();
+      var expected = new ValueFormatMut(DataTypeEnum.Markdown2Html);
+      var current = new ValueFormatMut(DataTypeEnum.DateTime);
 
       foreach (DataTypeEnum item in Enum.GetValues(typeof(DataTypeEnum)))
       {
         expected.DataType = item;
         current.DataType = item;
-        Assert.IsTrue(current.IsMatching(expected), item.ToString());
+        Assert.IsTrue(current.ToImmutable().IsMatching(expected.ToImmutable()), item.ToString());
       }
 
       expected.DataType = DataTypeEnum.Integer;
       current.DataType = DataTypeEnum.Numeric;
-      Assert.IsTrue(current.IsMatching(expected));
+      Assert.IsTrue(current.ToImmutable().IsMatching(expected.ToImmutable()));
 
       expected.DataType = DataTypeEnum.Integer;
       current.DataType = DataTypeEnum.Double;
-      Assert.IsTrue(current.IsMatching(expected));
+      Assert.IsTrue(current.ToImmutable().IsMatching(expected.ToImmutable()));
 
       expected.DataType = DataTypeEnum.Numeric;
       current.DataType = DataTypeEnum.Double;
-      Assert.IsTrue(current.IsMatching(expected));
+      Assert.IsTrue(current.ToImmutable().IsMatching(expected.ToImmutable()));
 
       expected.DataType = DataTypeEnum.Double;
       current.DataType = DataTypeEnum.Numeric;
-      Assert.IsTrue(current.IsMatching(expected));
+      Assert.IsTrue(current.ToImmutable().IsMatching(expected.ToImmutable()));
 
       expected.DataType = DataTypeEnum.Numeric;
       current.DataType = DataTypeEnum.Integer;
-      Assert.IsTrue(current.IsMatching(expected));
+      Assert.IsTrue(current.ToImmutable().IsMatching(expected.ToImmutable()));
 
       expected.DataType = DataTypeEnum.DateTime;
       current.DataType = DataTypeEnum.DateTime;
-      Assert.IsTrue(current.IsMatching(expected));
+      Assert.IsTrue(current.ToImmutable().IsMatching(expected.ToImmutable()));
 
       expected.DataType = DataTypeEnum.DateTime;
       current.DataType = DataTypeEnum.String;
-      Assert.IsFalse(current.IsMatching(expected));
+      Assert.IsFalse(current.ToImmutable().IsMatching(expected.ToImmutable()));
     }
 
     [TestMethod]

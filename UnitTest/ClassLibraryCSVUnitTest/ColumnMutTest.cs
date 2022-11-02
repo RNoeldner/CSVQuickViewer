@@ -32,7 +32,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("Name2", target2.Name);
       Assert.AreEqual(DataTypeEnum.DateTime, target2.ValueFormat.DataType);
 
-      var target3 = new ColumnMut("Name3", new ValueFormat());
+      var target3 = new ColumnMut("Name3", ValueFormat.Empty);
       Assert.AreEqual("Name3", target3.Name);
     }
 
@@ -168,18 +168,16 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void GetDataTypeDescriptionBool()
 		{
-      var target = new ColumnMut("Test", new ValueFormat(DataTypeEnum.Boolean));
+      var target = new Column("Test", new ValueFormat(DataTypeEnum.Boolean));
       Assert.AreEqual("Boolean", target.GetTypeAndFormatDescription());
     }
 
-		[TestMethod]
-		public void GetDataTypeDescriptionDateTime()
-		{
+    [TestMethod]
+    public void GetDataTypeDescriptionDateTime()
+    {
       var target =
-        new ColumnMut("Test", new ValueFormat(DataTypeEnum.DateTime))
-        {
-          TimePart = "TPart", TimePartFormat = "YYYYMMDD", TimeZonePart = "'UTC'"
-        };
+        new Column("Test", new ValueFormat(DataTypeEnum.DateTime), timePart: "TPart", timePartFormat: "YYYYMMDD",
+          timeZonePart: "'UTC'");
       Assert.IsTrue(target.GetTypeAndFormatDescription().Contains("TPart", StringComparison.InvariantCultureIgnoreCase),
         "TimePart");
 			Assert.IsTrue(
@@ -192,7 +190,7 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void GetDataTypeDescriptionDouble()
 		{
-      var target = new ColumnMut("Test",
+      var target = new Column("Test",
         new ValueFormat(dataType: DataTypeEnum.Numeric, numberFormat: "00.000"));
 
       Assert.AreEqual("Money (High Precision) (00.000)", target.GetTypeAndFormatDescription());
@@ -201,9 +199,9 @@ namespace CsvTools.Tests
 		[TestMethod]
 		public void GetDataTypeDescriptionIgnore()
 		{
-			var target = new ColumnMut("Test") { Ignore = true };
+      var target = new Column("Test", ignore: true);
 
-			Assert.AreEqual("Text (Ignore)", target.GetTypeAndFormatDescription());
+      Assert.AreEqual("Text (Ignore)", target.GetTypeAndFormatDescription());
 		}
 
 		[TestInitialize]
@@ -214,12 +212,12 @@ namespace CsvTools.Tests
         timeSeparator: ":", asTrue: @"Wahr");
 
       var ff = new CsvFile("Dummy");
-      var col = new ColumnMut("StartDate", valueFormatGerman) { Ignore = true };
+      var col = new Column("StartDate", valueFormatGerman, ignore: true);
 
-			ff.ColumnCollection.Add(col);
+      ff.ColumnCollection.Add(col);
 			Assert.AreEqual("StartDate", col.Name, "Name");
-			Assert.AreEqual(DataTypeEnum.DateTime, col.ValueFormatMut.DataType, "DataType");
-			Assert.IsTrue(col.Convert, "Convert");
+      Assert.AreEqual(DataTypeEnum.DateTime, col.ValueFormat.DataType, "DataType");
+      Assert.IsTrue(col.Convert, "Convert");
 			Assert.IsTrue(col.Ignore, "Ignore");
 		}
   }

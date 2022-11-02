@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Newtonsoft.Json;
@@ -40,7 +41,7 @@ namespace CsvTools
       bool emptyAsNull,
       int codePageId,
       bool byteOrderMark,
-      in IEnumerable<IColumn>? columnDefinition,
+      in IEnumerable<Column>? columnDefinition,
       in string fileSettingDisplay,
       in string row,
       in TimeZoneChangeDelegate? timeZoneAdjust,
@@ -70,7 +71,7 @@ namespace CsvTools
 
     protected override string Escape(object? input, in WriterColumn columnInfo, in IFileReader reader)
     {
-      if (columnInfo.ValueFormat.DataType == DataTypeEnum.String &&  string.IsNullOrEmpty(input?.ToString()))
+      if (columnInfo.ValueFormat.DataType == DataTypeEnum.String && string.IsNullOrEmpty(input?.ToString()))
         return m_EmptyAsNull ? JsonConvert.Null : "\"\"";
 
       return JsonConvert.ToString(TextEncodeField(input, columnInfo, reader));

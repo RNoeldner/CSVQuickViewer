@@ -1105,7 +1105,7 @@ Line "Test"", "22",23,"  24"
         codePageId: 650001,
         skipRows: 0,
         hasFieldHeader: true,
-        columnDefinition: new IColumn[]
+        columnDefinition: new Column[]
         {
           new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime, "MM/dd/yyyy"),
             timePart: "Start Time", timePartFormat: "HH:mm:ss")
@@ -1201,7 +1201,7 @@ Line "Test"", "22",23,"  24"
         {
           HasFieldHeader = true, FieldDelimiter = "Tab"
         };
-      setting.ColumnCollection.Add(new Column("Title", new ValueFormat(), 0));
+      setting.ColumnCollection.Add(new Column("Title", ValueFormat.Empty, 0));
       setting.ColumnCollection.Add(new Column("File Name",
         new ValueFormat(DataTypeEnum.Binary, readFolder: UnitTestStatic.ApplicationDirectory,
           writeFolder: UnitTestStatic.ApplicationDirectory, fileOutPutPlaceholder: ""), 1));
@@ -1231,10 +1231,10 @@ Line "Test"", "22",23,"  24"
     {
       using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0,
         true,
-        new IColumn[]
+        new Column[]
         {
-          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
-          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, "", true)
+          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, true, ""),
+          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, true, "")
         }, TrimmingOptionEnum.All,
         "\t",
         "\"",
@@ -1324,10 +1324,10 @@ Line "Test"", "22",23,"  24"
     {
       using var stream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormats.txt")));
       using var reader = new CsvFileReader(stream, Encoding.UTF8.CodePage, 0, true,
-        new IColumn[]
+        new Column[]
         {
-          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, "", true),
-          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, "", true)
+          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, true),
+          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true)
         }, TrimmingOptionEnum.All, "\t",
         "\"",
         "",

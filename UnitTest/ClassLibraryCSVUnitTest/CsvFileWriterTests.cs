@@ -30,7 +30,8 @@ namespace CsvTools.Tests
     {
       var readFile = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")) { ID = "Read", FieldDelimiter = ",", CommentLine = "#" };
 
-      readFile.ColumnCollection.Add(new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy")));
+      readFile.ColumnCollection.Add(new Column("ExamDate",
+        new ValueFormat(DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy")));
       readFile.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
       readFile.ColumnCollection.Add(new Column("Proficiency", new ValueFormat(DataTypeEnum.Numeric)));
       readFile.ColumnCollection.Add(
@@ -43,7 +44,7 @@ namespace CsvTools.Tests
 
       m_WriteFile.ColumnCollection.Add(new Column("ExamDate",
         new ValueFormat(DataTypeEnum.DateTime, @"MM/dd/yyyy"), timePart: "ExamTime"));
-      m_WriteFile.ColumnCollection.Add(new Column("Proficiency", new ValueFormat(), ignore: true));
+      m_WriteFile.ColumnCollection.Add(new Column("Proficiency", ValueFormat.Empty, ignore: true));
     }
 
     [TestMethod]

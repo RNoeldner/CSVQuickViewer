@@ -13,7 +13,7 @@ namespace CsvTools.Tests
       {
         HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
       };
-      setting.ColumnCollection.Add(new Column("Start Date", new ValueFormat(), ignore: true));
+      setting.ColumnCollection.Add(new Column("Start Date", ValueFormat.Empty, ignore: true));
 
       using var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader, setting.ColumnCollection,
         setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,

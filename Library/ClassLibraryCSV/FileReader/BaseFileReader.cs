@@ -103,17 +103,14 @@ namespace CsvTools
     ///   Name of the time zone datetime values that have a source time zone should be converted to
     /// </param>
     protected BaseFileReader(in string fileName,
-      in IEnumerable<IColumn>? columnDefinition,
+      in IEnumerable<Column>? columnDefinition,
       long recordLimit,
       in TimeZoneChangeDelegate timeZoneAdjust,
       in string destTimeZone)
     {
       TimeZoneAdjust = timeZoneAdjust;
       DestTimeZone =destTimeZone;
-      m_ColumnDefinition =
-      columnDefinition
-        ?.Select(col => col.ToImmutableColumn()).ToArray()
-      ?? Array.Empty<Column>();
+      m_ColumnDefinition = columnDefinition == null ? Array.Empty<Column>() : new List<Column>(columnDefinition).ToArray();
       RecordLimit = recordLimit < 1 ? long.MaxValue : recordLimit;
       FullPath = fileName;
       SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
@@ -418,7 +415,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="ordinal">The column.</param>
     /// <returns></returns>
-    public virtual IColumn GetColumn(int ordinal) => Column[ordinal];
+    public virtual Column GetColumn(int ordinal) => Column[ordinal];
 
     /// <inheritdoc />
     /// <summary>
@@ -556,7 +553,7 @@ namespace CsvTools
     /// <param name="inputValue">The input.</param>
     /// <param name="column">The column.</param>
     /// <returns>a nullable integer</returns>
-    public int? GetInt32Null(in string inputValue, in IColumn column)
+    public int? GetInt32Null(in string inputValue, in Column column)
     {
       var ret = StringConversion.StringToInt32(
         inputValue,
@@ -593,7 +590,7 @@ namespace CsvTools
     /// <param name="inputValue">The input.</param>
     /// <param name="column">The column.</param>
     /// <returns></returns>
-    public long? GetInt64Null(in string inputValue, in IColumn column)
+    public long? GetInt64Null(in string inputValue, in Column column)
     {
       var ret = StringConversion.StringToInt64(
         inputValue,
@@ -905,7 +902,7 @@ namespace CsvTools
       in string strInputDate,
       in object? inputTime,
       in string strInputTime,
-      in IColumn column,
+      in Column column,
       bool serialDateTime)
     {
       var dateTime = StringConversion.CombineObjectsToDateTime(
@@ -1122,7 +1119,7 @@ namespace CsvTools
       m_AssociatedTimeZoneCol = new int[fieldCount];
       for (var counter = 0; counter < fieldCount; counter++)
       {
-        Column[counter] = new Column(GetDefaultName(counter), new ValueFormat(), counter);
+        Column[counter] = new Column(GetDefaultName(counter), ValueFormat.Empty, counter);
         AssociatedTimeCol[counter] = -1;
         m_AssociatedTimeZoneCol[counter] = -1;
       }
@@ -1188,12 +1185,10 @@ namespace CsvTools
           adjustedNames[colIndex],
           defined.ValueFormat,
           colIndex,
+          defined.Ignore,
           defined.Convert,
           defined.DestinationName,
-          defined.Ignore,
-          defined.TimePart,
-          defined.TimePartFormat,
-          defined.TimeZonePart);
+          defined.TimePart, defined.TimePartFormat, defined.TimeZonePart);
       }
 
       if (Column.Length == 0)
@@ -1269,7 +1264,7 @@ namespace CsvTools
     /// <returns>A string with the column name</returns>
     private static string GetDefaultName(int ordinal) => $"Column{ordinal + 1}";
 
-    private DateTime AdjustTz(in DateTime input, IColumn column)
+    private DateTime AdjustTz(in DateTime input, Column column)
     {
       // get the time zone either from constant or from other column
       if (!column.TimeZonePart.TryGetConstant(out var timeZone) &&
@@ -1280,7 +1275,7 @@ namespace CsvTools
         (message) => HandleWarning(column.ColumnOrdinal, message));
     }
 
-    private bool? GetBooleanNull(in string inputValue, in IColumn column)
+    private bool? GetBooleanNull(in string inputValue, in Column column)
     {
       var boolValue = StringConversion.StringToBoolean(inputValue, column.ValueFormat.True, column.ValueFormat.False);
       if (boolValue.HasValue) return boolValue.Value;
@@ -1338,6 +1333,6 @@ namespace CsvTools
           : $"'{inputDate}' is not a date of the format {display}");
     }
 
-    public event EventHandler<IReadOnlyCollection<IColumn>>? OpenFinished;
+    public event EventHandler<IReadOnlyCollection<Column>>? OpenFinished;
   }
 }

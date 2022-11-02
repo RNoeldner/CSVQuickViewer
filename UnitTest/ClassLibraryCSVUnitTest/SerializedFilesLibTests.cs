@@ -99,10 +99,10 @@ namespace CsvTools.Tests
       file.MappingCollection.Add(new Mapping("Fld1", "FldA"));
       file.MappingCollection.Add(new Mapping("Fld2", "FldB"));
       file.ColumnCollection.Add(
-        new ColumnMut("ID", new ValueFormat(DataTypeEnum.Integer)) { ColumnOrdinal = 1, Ignore = false });
+        new Column("ID", new ValueFormat(DataTypeEnum.Integer), 1, ignore: false));
 #pragma warning disable CS0618
       file.ColumnCollection.Add(
-        new ColumnMut("Name", new ValueFormat(DataTypeEnum.TextPart)) { ColumnOrdinal = 2, Part = 2 });
+        new Column("Name", new ValueFormat(DataTypeEnum.TextPart, part: 2), 2));
 #pragma warning restore CS0618
       return file;
     }
