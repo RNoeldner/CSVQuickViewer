@@ -43,7 +43,6 @@ namespace CsvTools
     private readonly CancellationTokenSource m_CancellationTokenSource = new();
 
     private readonly ColumnMut m_ColumnEdit;
-    private readonly Column m_ColumnBackup;
     private readonly IFileSetting m_FileSetting;
     private readonly FillGuessSettings m_FillGuessSettings;
 
@@ -67,7 +66,6 @@ namespace CsvTools
       bool showIgnore,
       HtmlStyle hTmlStyle)
     {
-      m_ColumnBackup = column?.ToImmutableColumn() ?? new Column("");
       m_ColumnEdit = column ?? new ColumnMut(string.Empty);
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
@@ -306,7 +304,7 @@ namespace CsvTools
               {
                 if (checkResult.FoundValueFormat != null)
                 {
-                  m_ColumnEdit.ValueFormatMut.CopyFrom(checkResult.FoundValueFormat);
+                  m_ColumnEdit.ValueFormatMut = new ValueFormatMut(checkResult.FoundValueFormat);
 
                   if (checkResult.FoundValueFormat.DataType == DataTypeEnum.DateTime)
                     AddDateFormat(checkResult.FoundValueFormat.DateFormat);
@@ -340,7 +338,7 @@ namespace CsvTools
                         MessageBoxIcon.Question) == DialogResult.Yes)
                     // use the closest match instead of Text can not use ValueFormat.CopyTo,. Column
                     // is quite specific and need it to be set,
-                    m_ColumnEdit.ValueFormatMut.CopyFrom(checkResult.ValueFormatPossibleMatch);
+                    m_ColumnEdit.ValueFormatMut = new ValueFormatMut(checkResult.ValueFormatPossibleMatch);
                 }
                 else
                 {
@@ -524,12 +522,6 @@ namespace CsvTools
     private void ButtonAddFormat_Click(object? sender, EventArgs e) =>
       AddDateFormat(comboBoxDateFormat.Text);
 
-    /// <summary>
-    ///   Handles the Click event of the buttonCancel control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ButtonCancelClick(object? sender, EventArgs e) => Close();
 
     private async void ButtonDisplayValues_ClickAsync(object? sender, EventArgs e) =>
       await buttonDisplayValues.RunWithHourglassAsync(async () => await DisplayValues());
@@ -540,36 +532,6 @@ namespace CsvTools
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private async void ButtonGuessClick(object? sender, EventArgs e) => await Guess();
-
-    /// <summary>
-    ///   Handles the Click event of the buttonOK control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void ButtonOkClick(object? sender, EventArgs e)
-    {
-      try
-      {
-        if (!ValidateChildren())
-          return;
-        if (m_ColumnEdit.Equals(m_ColumnBackup))
-        {
-          DialogResult = DialogResult.No;
-          return;
-        }
-
-        Hide();
-        DialogResult = DialogResult.Yes;
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex);
-      }
-      finally
-      {
-        Close();
-      }
-    }
 
     /// <summary>
     ///   Handles the ItemCheck event of the checkedListBoxDateFormats control.

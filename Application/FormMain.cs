@@ -17,6 +17,7 @@
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
 using System.IO;
@@ -71,14 +72,6 @@ namespace CsvTools
       ShowTextPanel(true);
 
       m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
-      detailControl.ColumnFormatChanged += (send, column) =>
-      {
-        m_FileSetting?.ColumnCollection.Replace(column);
-        m_ConfigChanged = true;
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-        CheckPossibleChange();
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-      };
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
       m_SettingsChangedTimerChange.AutoReset = false;
@@ -153,7 +146,7 @@ namespace CsvTools
         ShowTextPanel(true);
         try
         {
-          DetachPropertyChanged(m_FileSetting);
+          DetachPropertyChanged();
           using (var formProgress = new FormProgress("Examining file", false, cancellationToken))
           {
             formProgress.Maximum = 0;
@@ -170,6 +163,7 @@ namespace CsvTools
 
           if (m_FileSetting is null)
             return;
+
 
           m_FileSetting.RootFolder = fileName.GetDirectoryName();
           m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
@@ -199,6 +193,7 @@ namespace CsvTools
           SetFileSystemWatcher(fileName);
 
           Directory.SetCurrentDirectory(m_FileSetting.RootFolder);
+
 
           await OpenDataReaderAsync(cancellationToken);
         }
@@ -257,14 +252,16 @@ namespace CsvTools
     /// <summary>
     ///   Attaches the property changed handlers for the file Settings
     /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    private void AttachPropertyChanged(IFileSetting fileSetting)
+    private void AttachPropertyChanged()
     {
+      if (m_FileSetting != null)
+      {
+        m_FileSetting.PropertyChanged += FileSetting_PropertyChanged;
+        m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+      }
+
       try
       {
-        fileSetting.PropertyChanged += FileSetting_PropertyChanged;
-        //fileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
-
         if (!string.IsNullOrEmpty(fileSystemWatcher.Path))
           fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
       }
@@ -318,14 +315,22 @@ namespace CsvTools
     /// <summary>
     ///   Detaches the property changed handlers for the file Setting
     /// </summary>
-    /// <param name="fileSetting">The file setting.</param>
-    private void DetachPropertyChanged(IFileSetting? fileSetting)
+    private void DetachPropertyChanged()
     {
       m_SettingsChangedTimerChange.Stop();
-      fileSystemWatcher.EnableRaisingEvents = false;
 
-      if (fileSetting is null) return;
-      fileSetting.PropertyChanged -= FileSetting_PropertyChanged;
+      if (m_FileSetting is null) return;
+      m_FileSetting.PropertyChanged -= FileSetting_PropertyChanged;
+      m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
+
+      try
+      {
+        fileSystemWatcher.EnableRaisingEvents = false;
+      }
+      catch
+      {
+        Logger.Information("Disabling file system watcher failed");
+      }
     }
 
     /// <summary>
@@ -468,7 +473,7 @@ namespace CsvTools
         return;
 
       // Stop Property changed events for the time this is processed we might store data in the FileSetting
-      DetachPropertyChanged(m_FileSetting);
+      DetachPropertyChanged();
 
       try
       {
@@ -534,9 +539,6 @@ namespace CsvTools
       }
       finally
       {
-        // Re enable event watching
-        AttachPropertyChanged(m_FileSetting);
-
         if (!cancellationToken.IsCancellationRequested)
         {
           this.SafeInvoke(() => ShowTextPanel(false));
@@ -546,7 +548,16 @@ namespace CsvTools
           m_ConfigChanged = false;
           m_FileChanged = false;
         }
+
+        // Re enable event watching
+        AttachPropertyChanged();
       }
+    }
+
+    private void ColumnCollectionOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+      m_ConfigChanged = true;
+      CheckPossibleChange().GetAwaiter().GetResult();
     }
 
     private async Task SaveIndividualFileSettingAsync()
@@ -695,6 +706,7 @@ namespace CsvTools
         var store = ViewSetting.StoreViewSetting(detailControl.FilteredDataGridView,
           Array.Empty<ToolStripDataGridViewColumnFilter>());
 
+        var reload = false;
         // Assume data type is not recognize
         if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataTypeEnum.String))
         {
@@ -702,27 +714,29 @@ namespace CsvTools
           m_StoreColumns = new List<Column>(m_FileSetting.ColumnCollection);
 
           // restore header names only
+          m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
           m_FileSetting.ColumnCollection.Clear();
           m_FileSetting.ColumnCollection.AddRange(m_StoreColumns.Select(col =>
             new Column(col.Name, ValueFormat.Empty, columnOrdinal: col.ColumnOrdinal)));
+          m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
 
           m_ToolStripButtonAsText.Text = "As Values";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;
-          m_ConfigChanged = true;
+          reload = true;
         }
         else if (m_StoreColumns != null)
         {
           Logger.Information("Showing columns as values");
           m_ToolStripButtonAsText.Text = "As Text";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsText;
-
+          m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
           m_FileSetting.ColumnCollection.Clear();
           m_FileSetting.ColumnCollection.AddRange(m_StoreColumns);
-
-          m_ConfigChanged = true;
+          m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+          reload = true;
         }
 
-        if (m_ConfigChanged)
+        if (reload)
           await OpenDataReaderAsync(m_CancellationTokenSource.Token);
 
         ViewSetting.ReStoreViewSetting(
@@ -731,6 +745,7 @@ namespace CsvTools
           Array.Empty<ToolStripDataGridViewColumnFilter?>(),
           null,
           null);
+
         detailControl.ResumeLayout();
       }, this);
     }

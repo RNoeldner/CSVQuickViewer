@@ -57,7 +57,6 @@ namespace CsvTools
           m_TableLayoutPanel.Controls.Add(m_WebBrowser, 1, 0);
           m_TableLayoutPanel.SetColumnSpan(m_WebBrowser, 4);
           m_WebBrowser.AllowNavigation = false;
-          m_WebBrowser.AllowWebBrowserDrop = false;
           m_WebBrowser.IsWebBrowserContextMenuEnabled = false;
           m_WebBrowser.ScriptErrorsSuppressed = true;
           m_WebBrowser.Dock = DockStyle.Fill;

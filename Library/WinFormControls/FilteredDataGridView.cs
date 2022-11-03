@@ -640,8 +640,6 @@ namespace CsvTools
               return 350;
             case > 15:
               return 225;
-            default:
-              break;
           }
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
@@ -1189,7 +1187,6 @@ namespace CsvTools
       contextMenuStripFilter.Close();
     }
 
-    public EventHandler<Column>? ColumnFormatChanged;
 
     /// <summary>
     ///   Handles the Click event of the toolStripMenuItemCF control.
@@ -1206,12 +1203,10 @@ namespace CsvTools
         var mut = new ColumnMut(columnFormat);
         using var form = new FormColumnUI(mut, false, m_FileSetting, FillGuessSettings,
           false, HtmlStyle);
-        var result = form.ShowDialog(this);
-        if (result == DialogResult.OK || result == DialogResult.Yes)
-        {
-          m_FileSetting.ColumnCollection[m_MenuItemColumnIndex] = mut.ToImmutableColumn();
-          ColumnFormatChanged?.Invoke(this, m_FileSetting.ColumnCollection[m_MenuItemColumnIndex]);
-        }
+        if (form.ShowDialog(this) == DialogResult.Cancel)
+          return;
+
+        m_FileSetting.ColumnCollection.Replace(mut.ToImmutableColumn());
       }
     }
 
