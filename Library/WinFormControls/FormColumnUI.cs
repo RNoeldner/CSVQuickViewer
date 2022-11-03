@@ -175,8 +175,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
-                   m_FileSetting.RecordLimit, formProgress.CancellationToken))
+            using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
+                     m_FileSetting.RecordLimit, formProgress.CancellationToken))
           {
             sqlReader.ReportProgress = formProgress;
             var data = await sqlReader.GetDataTableAsync(TimeSpan.FromSeconds(60),
@@ -621,7 +621,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, formProgress.CancellationToken);
+            using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, formProgress.CancellationToken);
           fileReader.ReportProgress = formProgress;
           await fileReader.OpenAsync(formProgress.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -632,9 +632,9 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          // Write Setting ----- open the source that is SQL
-          using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSql(),
-            m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProgress.CancellationToken);
+            // Write Setting ----- open the source that is SQL
+            using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSql(),
+              m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProgress.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
         }
@@ -673,32 +673,48 @@ namespace CsvTools
           return;
         var selType = (DataTypeEnum) comboBoxDataType.SelectedValue;
         m_ColumnEdit.ValueFormatMut.DataType = selType;
+        var height = 10;
 
         groupBoxNumber.Visible = selType == DataTypeEnum.Numeric || selType == DataTypeEnum.Double;
         if (groupBoxNumber.Visible)
+        {
+          height = groupBoxNumber.Height;
           NumberFormatChanged(sender, EventArgs.Empty);
+        }
 
         groupBoxDate.Visible = selType == DataTypeEnum.DateTime;
         if (groupBoxDate.Visible)
         {
+          height = groupBoxDate.Height;
           if (string.IsNullOrEmpty(m_ColumnEdit.ValueFormat.DateFormat))
             m_ColumnEdit.ValueFormatMut.DateFormat = ValueFormat.cDateFormatDefault;
           DateFormatChanged(sender, EventArgs.Empty);
         }
 
         groupBoxBoolean.Visible = selType == DataTypeEnum.Boolean;
+        if (groupBoxBoolean.Visible)
+          height = groupBoxBoolean.Height;
         groupBoxSplit.Visible = selType == DataTypeEnum.TextPart;
+        if (groupBoxSplit.Visible)
+        {
+          height = groupBoxSplit.Height;
+          SetSamplePart(sender, EventArgs.Empty);
+        }
+
+
         groupBoxRegExReplace.Visible = selType == DataTypeEnum.TextReplace;
+        if (groupBoxRegExReplace.Visible)
+          height = groupBoxRegExReplace.Height;
 
         groupBoxBinary.Visible = selType == DataTypeEnum.Binary;
+        if (groupBoxBinary.Visible)
+          height = groupBoxBinary.Height;
+
         if (groupBoxBinary.Visible && m_ColumnEdit.ValueFormat.DateFormat == ValueFormat.cDateFormatDefault)
           m_ColumnEdit.ValueFormatMut.DateFormat = string.Empty;
-
-        if (groupBoxSplit.Visible)
-          SetSamplePart(sender, EventArgs.Empty);
-
+        flowLayoutPanel.Top = panelTop.Height;
         // Depending on OS and scaling a different value might be needed
-        Height = tableLayoutPanelForm.Height + (SystemInformation.CaptionHeight * 175 / 100) + panelTop.Height +
+        Height = height + 10 + (SystemInformation.CaptionHeight * 175 / 100) + panelTop.Height +
                  panelBottom.Height;
       }
       catch (Exception ex)
@@ -752,8 +768,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
-            m_FileSetting.RecordLimit, cancellationToken);
+            using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
+              m_FileSetting.RecordLimit, cancellationToken);
           if (progress != null)
             sqlReader.ReportProgress = progress;
           var colIndex = sqlReader.GetOrdinal(columnName);
@@ -789,8 +805,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        // ReSharper disable once ConvertToUsingDeclaration
-        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, cancellationToken))
+          // ReSharper disable once ConvertToUsingDeclaration
+          using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, cancellationToken))
         {
           if (progress != null)
             fileReader.ReportProgress = progress;
