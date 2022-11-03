@@ -141,7 +141,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ValueFormatCheckDefaults()
     {
-      var test = new ValueFormatMut();
+      var test = new ValueFormatMut(DataTypeEnum.DateTime);
       Assert.AreEqual("MM/dd/yyyy", test.DateFormat, "DateFormat");
       Assert.AreEqual("/", test.DateSeparator, "DateSeparator");
       Assert.AreEqual(".", test.DecimalSeparator, "DecimalSeparator");
@@ -152,48 +152,20 @@ namespace CsvTools.Tests
       Assert.AreEqual("True", test.True, "True");
     }
 
-    [TestMethod]
-    public void ValueFormatCopyFrom()
-    {
-      var test1 = new ValueFormat(DataTypeEnum.Double, groupSeparator: ".", decimalSeparator: ",");
-      var test2 = new ValueFormatMut(dataType: DataTypeEnum.Boolean);
-      test2.CopyFrom(test1);
-      Assert.AreEqual(DataTypeEnum.Double, test2.DataType);
-      Assert.AreEqual(",", test2.DecimalSeparator);
-      Assert.AreEqual(".", test2.GroupSeparator);
-    }
-
-    [TestMethod]
-    public void ValueFormatCopyFrom2()
-    {
-      var target = new ValueFormatMut();
-      target.CopyFrom(m_ValueFormatGerman);
-
-      Assert.AreEqual(m_ValueFormatGerman.DateFormat, target.DateFormat);
-      Assert.AreEqual(m_ValueFormatGerman.DateSeparator, target.DateSeparator);
-      Assert.AreEqual(m_ValueFormatGerman.DecimalSeparator, target.DecimalSeparator, "DecimalSeparator");
-      Assert.AreEqual(m_ValueFormatGerman.GroupSeparator, target.GroupSeparator, "GroupSeparator");
-      Assert.AreEqual(m_ValueFormatGerman.False, target.False, "False");
-
-      Assert.AreEqual(m_ValueFormatGerman.NumberFormat, target.NumberFormat, "NumberFormat");
-      Assert.AreEqual(m_ValueFormatGerman.TimeSeparator, target.TimeSeparator, "TimeSeparator");
-      Assert.AreEqual(m_ValueFormatGerman.True, target.True, "True");
-    }
 
     [TestMethod]
     public void ValueFormatEquals()
     {
-      var target = new ValueFormatMut();
-      var target2 = new ValueFormatMut();
+      var target = new ValueFormatMut(DataTypeEnum.DateTime);
+      var target2 = new ValueFormatMut(DataTypeEnum.Boolean);
       Assert.IsTrue(target2.Equals(target));
     }
 
     [TestMethod]
     public void ValueFormatNotEquals()
     {
-      var target = new ValueFormatMut();
+      var target = new ValueFormatMut(DataTypeEnum.Binary);
       Assert.IsFalse(m_ValueFormatGerman.Equals(target));
     }
-
   }
 }

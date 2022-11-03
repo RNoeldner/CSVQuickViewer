@@ -78,12 +78,6 @@ namespace CsvTools
     private bool m_ShowButtons = true;
     private bool m_ShowFilter = true;
 
-    public EventHandler<Column>? ColumnFormatChanged
-    {
-      get => FilteredDataGridView.ColumnFormatChanged;
-      set => FilteredDataGridView.ColumnFormatChanged = value;
-    }
-
     /// <inheritdoc />
     /// <summary>
     ///   Initializes a new instance of the <see cref="DetailControl" /> class.
