@@ -35,8 +35,17 @@ namespace CsvTools
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
-      System.Windows.Forms.Label labelSPattern;
+      System.Windows.Forms.Label labelGroup;
+      System.Windows.Forms.Label labelPoint;
+      System.Windows.Forms.Label labelTrue;
+      System.Windows.Forms.Label labelFalse;
+      System.Windows.Forms.Label labelSepBy;
+      System.Windows.Forms.Label labelPart;
+      System.Windows.Forms.Label label9;
+      System.Windows.Forms.Label label1;
+      System.Windows.Forms.Label label7;
       System.Windows.Forms.Label labelReplace;
+      System.Windows.Forms.Label labelSPattern;
       System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
       System.Windows.Forms.Label labelDateSep;
       System.Windows.Forms.Label labelTimeCol;
@@ -48,15 +57,6 @@ namespace CsvTools
       System.Windows.Forms.Label labelSample;
       System.Windows.Forms.Label label4;
       System.Windows.Forms.Label labelTCFormat;
-      System.Windows.Forms.Label labelPoint;
-      System.Windows.Forms.Label labelGroup;
-      System.Windows.Forms.Label labelFalse;
-      System.Windows.Forms.Label labelTrue;
-      System.Windows.Forms.Label labelPart;
-      System.Windows.Forms.Label labelSepBy;
-      System.Windows.Forms.Label label7;
-      System.Windows.Forms.Label label1;
-      System.Windows.Forms.Label label9;
       this.textBoxDateSeparator = new System.Windows.Forms.TextBox();
       this.bindingSourceValueFormat = new System.Windows.Forms.BindingSource(this.components);
       this.comboBoxDateFormat = new System.Windows.Forms.ComboBox();
@@ -86,22 +86,15 @@ namespace CsvTools
       this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
       this.toolTip = new System.Windows.Forms.ToolTip(this.components);
       this.buttonDisplayValues = new System.Windows.Forms.Button();
-      this.textBoxRegexSearchPattern = new System.Windows.Forms.TextBox();
       this.textBoxReadFolder = new System.Windows.Forms.TextBox();
       this.textBoxWriteFolder = new System.Windows.Forms.TextBox();
       this.textBoxPattern = new System.Windows.Forms.TextBox();
-      this.tableLayoutPanelForm = new System.Windows.Forms.TableLayoutPanel();
-      this.groupBoxBinary = new System.Windows.Forms.GroupBox();
-      this.checkBoxOverwrite = new System.Windows.Forms.CheckBox();
-      this.groupBoxSplit = new System.Windows.Forms.GroupBox();
-      this.numericUpDownPart = new System.Windows.Forms.NumericUpDown();
-      this.labelSamplePart = new System.Windows.Forms.Label();
-      this.checkBoxPartToEnd = new System.Windows.Forms.CheckBox();
-      this.textBoxSplit = new System.Windows.Forms.TextBox();
-      this.labelResultPart = new System.Windows.Forms.Label();
-      this.groupBoxBoolean = new System.Windows.Forms.GroupBox();
-      this.textBoxTrue = new System.Windows.Forms.TextBox();
-      this.textBoxFalse = new System.Windows.Forms.TextBox();
+      this.textBoxRegexSearchPattern = new System.Windows.Forms.TextBox();
+      this.buttonOK = new System.Windows.Forms.Button();
+      this.panelTop = new System.Windows.Forms.Panel();
+      this.panelBottom = new System.Windows.Forms.Panel();
+      this.flowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+      this.groupBoxDate = new System.Windows.Forms.GroupBox();
       this.groupBoxNumber = new System.Windows.Forms.GroupBox();
       this.linkLabel2 = new System.Windows.Forms.LinkLabel();
       this.comboBoxNumberFormat = new System.Windows.Forms.ComboBox();
@@ -111,15 +104,31 @@ namespace CsvTools
       this.textBoxDecimalSeparator = new System.Windows.Forms.TextBox();
       this.textBoxGroupSeparator = new System.Windows.Forms.TextBox();
       this.labelNumber = new System.Windows.Forms.Label();
-      this.groupBoxDate = new System.Windows.Forms.GroupBox();
+      this.groupBoxBoolean = new System.Windows.Forms.GroupBox();
+      this.textBoxTrue = new System.Windows.Forms.TextBox();
+      this.textBoxFalse = new System.Windows.Forms.TextBox();
+      this.groupBoxSplit = new System.Windows.Forms.GroupBox();
+      this.numericUpDownPart = new System.Windows.Forms.NumericUpDown();
+      this.labelSamplePart = new System.Windows.Forms.Label();
+      this.checkBoxPartToEnd = new System.Windows.Forms.CheckBox();
+      this.textBoxSplit = new System.Windows.Forms.TextBox();
+      this.labelResultPart = new System.Windows.Forms.Label();
+      this.groupBoxBinary = new System.Windows.Forms.GroupBox();
+      this.checkBoxOverwrite = new System.Windows.Forms.CheckBox();
       this.groupBoxRegExReplace = new System.Windows.Forms.GroupBox();
       this.label8 = new System.Windows.Forms.Label();
       this.textBoxRegexReplacement = new System.Windows.Forms.TextBox();
-      this.buttonOK = new System.Windows.Forms.Button();
-      this.panelTop = new System.Windows.Forms.Panel();
-      this.panelBottom = new System.Windows.Forms.Panel();
-      labelSPattern = new System.Windows.Forms.Label();
+      labelGroup = new System.Windows.Forms.Label();
+      labelPoint = new System.Windows.Forms.Label();
+      labelTrue = new System.Windows.Forms.Label();
+      labelFalse = new System.Windows.Forms.Label();
+      labelSepBy = new System.Windows.Forms.Label();
+      labelPart = new System.Windows.Forms.Label();
+      label9 = new System.Windows.Forms.Label();
+      label1 = new System.Windows.Forms.Label();
+      label7 = new System.Windows.Forms.Label();
       labelReplace = new System.Windows.Forms.Label();
+      labelSPattern = new System.Windows.Forms.Label();
       tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
       labelDateSep = new System.Windows.Forms.Label();
       labelTimeCol = new System.Windows.Forms.Label();
@@ -131,43 +140,119 @@ namespace CsvTools
       labelSample = new System.Windows.Forms.Label();
       label4 = new System.Windows.Forms.Label();
       labelTCFormat = new System.Windows.Forms.Label();
-      labelPoint = new System.Windows.Forms.Label();
-      labelGroup = new System.Windows.Forms.Label();
-      labelFalse = new System.Windows.Forms.Label();
-      labelTrue = new System.Windows.Forms.Label();
-      labelPart = new System.Windows.Forms.Label();
-      labelSepBy = new System.Windows.Forms.Label();
-      label7 = new System.Windows.Forms.Label();
-      label1 = new System.Windows.Forms.Label();
-      label9 = new System.Windows.Forms.Label();
       tableLayoutPanel2.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.bindingSourceValueFormat)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.columnBindingSource)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
-      this.tableLayoutPanelForm.SuspendLayout();
-      this.groupBoxBinary.SuspendLayout();
-      this.groupBoxSplit.SuspendLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPart)).BeginInit();
-      this.groupBoxBoolean.SuspendLayout();
-      this.groupBoxNumber.SuspendLayout();
-      this.groupBoxDate.SuspendLayout();
-      this.groupBoxRegExReplace.SuspendLayout();
       this.panelTop.SuspendLayout();
       this.panelBottom.SuspendLayout();
+      this.flowLayoutPanel.SuspendLayout();
+      this.groupBoxDate.SuspendLayout();
+      this.groupBoxNumber.SuspendLayout();
+      this.groupBoxBoolean.SuspendLayout();
+      this.groupBoxSplit.SuspendLayout();
+      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPart)).BeginInit();
+      this.groupBoxBinary.SuspendLayout();
+      this.groupBoxRegExReplace.SuspendLayout();
       this.SuspendLayout();
       // 
-      // labelSPattern
+      // labelGroup
       // 
-      labelSPattern.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+      labelGroup.AutoSize = true;
+      labelGroup.Location = new System.Drawing.Point(-1, 40);
+      labelGroup.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelGroup.Name = "labelGroup";
+      labelGroup.Size = new System.Drawing.Size(109, 13);
+      labelGroup.TabIndex = 4;
+      labelGroup.Text = "Thousand Separator:";
+      // 
+      // labelPoint
+      // 
+      labelPoint.AutoSize = true;
+      labelPoint.Location = new System.Drawing.Point(34, 60);
+      labelPoint.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelPoint.Name = "labelPoint";
+      labelPoint.Size = new System.Drawing.Size(74, 13);
+      labelPoint.TabIndex = 8;
+      labelPoint.Text = "Decimal Point:";
+      // 
+      // labelTrue
+      // 
+      labelTrue.AutoSize = true;
+      labelTrue.Location = new System.Drawing.Point(75, 14);
+      labelTrue.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelTrue.Name = "labelTrue";
+      labelTrue.Size = new System.Drawing.Size(33, 13);
+      labelTrue.TabIndex = 0;
+      labelTrue.Text = "True:";
+      labelTrue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+      // 
+      // labelFalse
+      // 
+      labelFalse.AutoSize = true;
+      labelFalse.Location = new System.Drawing.Point(69, 34);
+      labelFalse.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelFalse.Name = "labelFalse";
+      labelFalse.Size = new System.Drawing.Size(36, 13);
+      labelFalse.TabIndex = 2;
+      labelFalse.Text = "False:";
+      labelFalse.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+      // 
+      // labelSepBy
+      // 
+      labelSepBy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-      labelSPattern.AutoSize = true;
-      labelSPattern.Location = new System.Drawing.Point(27, 20);
-      labelSPattern.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      labelSPattern.Name = "labelSPattern";
-      labelSPattern.Size = new System.Drawing.Size(83, 13);
-      labelSPattern.TabIndex = 0;
-      labelSPattern.Text = "Search Pattern:";
-      labelSPattern.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+      labelSepBy.AutoSize = true;
+      labelSepBy.Location = new System.Drawing.Point(39, 15);
+      labelSepBy.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelSepBy.Name = "labelSepBy";
+      labelSepBy.Size = new System.Drawing.Size(70, 13);
+      labelSepBy.TabIndex = 0;
+      labelSepBy.Text = "Separate By:";
+      labelSepBy.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+      // 
+      // labelPart
+      // 
+      labelPart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+      labelPart.AutoSize = true;
+      labelPart.Location = new System.Drawing.Point(79, 38);
+      labelPart.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelPart.Name = "labelPart";
+      labelPart.Size = new System.Drawing.Size(31, 13);
+      labelPart.TabIndex = 3;
+      labelPart.Text = "Part:";
+      labelPart.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+      // 
+      // label9
+      // 
+      label9.AutoSize = true;
+      label9.Location = new System.Drawing.Point(38, 21);
+      label9.Margin = new System.Windows.Forms.Padding(3);
+      label9.Name = "label9";
+      label9.Size = new System.Drawing.Size(69, 13);
+      label9.TabIndex = 5;
+      label9.Text = "Read Folder:";
+      // 
+      // label1
+      // 
+      label1.AutoSize = true;
+      label1.Location = new System.Drawing.Point(39, 47);
+      label1.Margin = new System.Windows.Forms.Padding(3);
+      label1.Name = "label1";
+      label1.Size = new System.Drawing.Size(70, 13);
+      label1.TabIndex = 3;
+      label1.Text = "Write Folder:";
+      // 
+      // label7
+      // 
+      label7.AutoSize = true;
+      label7.Location = new System.Drawing.Point(23, 73);
+      label7.Margin = new System.Windows.Forms.Padding(3);
+      label7.Name = "label7";
+      label7.Size = new System.Drawing.Size(91, 13);
+      label7.TabIndex = 1;
+      label7.Text = "Pattern for write:";
       // 
       // labelReplace
       // 
@@ -181,6 +266,19 @@ namespace CsvTools
       labelReplace.TabIndex = 8;
       labelReplace.Text = "Replace:";
       labelReplace.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+      // 
+      // labelSPattern
+      // 
+      labelSPattern.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+      labelSPattern.AutoSize = true;
+      labelSPattern.Location = new System.Drawing.Point(27, 20);
+      labelSPattern.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+      labelSPattern.Name = "labelSPattern";
+      labelSPattern.Size = new System.Drawing.Size(83, 13);
+      labelSPattern.TabIndex = 0;
+      labelSPattern.Text = "Search Pattern:";
+      labelSPattern.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
       // 
       // tableLayoutPanel2
       // 
@@ -218,7 +316,6 @@ namespace CsvTools
       tableLayoutPanel2.Controls.Add(this.labelOutPutTZ, 6, 5);
       tableLayoutPanel2.Controls.Add(labelTCFormat, 4, 2);
       tableLayoutPanel2.Controls.Add(this.comboBoxTPFormat, 5, 2);
-      tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Top;
       tableLayoutPanel2.Location = new System.Drawing.Point(0, 14);
       tableLayoutPanel2.Name = "tableLayoutPanel2";
       tableLayoutPanel2.RowCount = 8;
@@ -230,7 +327,7 @@ namespace CsvTools
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel2.Size = new System.Drawing.Size(497, 273);
+      tableLayoutPanel2.Size = new System.Drawing.Size(616, 273);
       tableLayoutPanel2.TabIndex = 17;
       // 
       // labelDateSep
@@ -252,7 +349,6 @@ namespace CsvTools
       this.textBoxDateSeparator.Size = new System.Drawing.Size(28, 21);
       this.textBoxDateSeparator.TabIndex = 0;
       this.toolTip.SetToolTip(this.textBoxDateSeparator, "Separates the components of a date, that is, the year, month, and day");
-      this.textBoxDateSeparator.TextChanged += new System.EventHandler(this.DateFormatChanged);
       // 
       // bindingSourceValueFormat
       // 
@@ -268,22 +364,20 @@ namespace CsvTools
       this.comboBoxDateFormat.FormattingEnabled = true;
       this.comboBoxDateFormat.Location = new System.Drawing.Point(114, 247);
       this.comboBoxDateFormat.Name = "comboBoxDateFormat";
-      this.comboBoxDateFormat.Size = new System.Drawing.Size(152, 21);
+      this.comboBoxDateFormat.Size = new System.Drawing.Size(192, 21);
       this.comboBoxDateFormat.TabIndex = 6;
-      this.comboBoxDateFormat.TextChanged += new System.EventHandler(this.DateFormatChanged);
       // 
       // buttonAddFormat
       // 
       this.buttonAddFormat.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(this.buttonAddFormat, 2);
-      this.buttonAddFormat.Location = new System.Drawing.Point(272, 247);
+      this.buttonAddFormat.Location = new System.Drawing.Point(312, 247);
       this.buttonAddFormat.Name = "buttonAddFormat";
-      this.buttonAddFormat.Size = new System.Drawing.Size(78, 23);
+      this.buttonAddFormat.Size = new System.Drawing.Size(68, 23);
       this.buttonAddFormat.TabIndex = 7;
       this.buttonAddFormat.Text = "Add to List";
       this.toolTip.SetToolTip(this.buttonAddFormat, "Add the selected uncommon date/time format to the checked list box");
       this.buttonAddFormat.UseVisualStyleBackColor = true;
-      this.buttonAddFormat.Click += new System.EventHandler(this.ButtonAddFormat_Click);
       // 
       // labelAllowedDateFormats
       // 
@@ -304,11 +398,9 @@ namespace CsvTools
       this.checkedListBoxDateFormats.Location = new System.Drawing.Point(114, 84);
       this.checkedListBoxDateFormats.Name = "checkedListBoxDateFormats";
       tableLayoutPanel2.SetRowSpan(this.checkedListBoxDateFormats, 4);
-      this.checkedListBoxDateFormats.Size = new System.Drawing.Size(152, 157);
+      this.checkedListBoxDateFormats.Size = new System.Drawing.Size(192, 157);
       this.checkedListBoxDateFormats.TabIndex = 5;
       this.toolTip.SetToolTip(this.checkedListBoxDateFormats, "Common Date/Time formats, you can choose multiple");
-      this.checkedListBoxDateFormats.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckedListBoxDateFormats_ItemCheck);
-      this.checkedListBoxDateFormats.SelectedIndexChanged += new System.EventHandler(this.DateFormatChanged);
       // 
       // labelTimeCol
       // 
@@ -330,12 +422,10 @@ namespace CsvTools
       this.comboBoxTimePart.FormattingEnabled = true;
       this.comboBoxTimePart.Location = new System.Drawing.Point(114, 57);
       this.comboBoxTimePart.Name = "comboBoxTimePart";
-      this.comboBoxTimePart.Size = new System.Drawing.Size(152, 21);
+      this.comboBoxTimePart.Size = new System.Drawing.Size(192, 21);
       this.comboBoxTimePart.TabIndex = 1;
       this.toolTip.SetToolTip(this.comboBoxTimePart, "Combining a time column will result in a combination of the column and the select" +
         "ed time column\r\ne.G “17/Aug/2019” & “17:54” will become “17/Aug/2019 17:54”\r\n");
-      this.comboBoxTimePart.SelectedIndexChanged += new System.EventHandler(this.ComboBoxTimePart_SelectedIndexChanged);
-      this.comboBoxTimePart.TextUpdate += new System.EventHandler(this.DateFormatChanged);
       // 
       // columnBindingSource
       // 
@@ -346,7 +436,7 @@ namespace CsvTools
       // 
       labelTimeSep.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelTimeSep.AutoSize = true;
-      labelTimeSep.Location = new System.Drawing.Point(148, 7);
+      labelTimeSep.Location = new System.Drawing.Point(188, 7);
       labelTimeSep.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       labelTimeSep.Name = "labelTimeSep";
       labelTimeSep.Size = new System.Drawing.Size(84, 13);
@@ -356,7 +446,7 @@ namespace CsvTools
       // textBoxTimeSeparator
       // 
       this.textBoxTimeSeparator.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "TimeSeparator", true));
-      this.textBoxTimeSeparator.Location = new System.Drawing.Point(237, 3);
+      this.textBoxTimeSeparator.Location = new System.Drawing.Point(277, 3);
       this.textBoxTimeSeparator.Name = "textBoxTimeSeparator";
       this.textBoxTimeSeparator.Size = new System.Drawing.Size(28, 21);
       this.textBoxTimeSeparator.TabIndex = 3;
@@ -381,10 +471,8 @@ namespace CsvTools
       this.comboBoxTimeZone.FormattingEnabled = true;
       this.comboBoxTimeZone.Location = new System.Drawing.Point(114, 30);
       this.comboBoxTimeZone.Name = "comboBoxTimeZone";
-      this.comboBoxTimeZone.Size = new System.Drawing.Size(152, 21);
+      this.comboBoxTimeZone.Size = new System.Drawing.Size(192, 21);
       this.comboBoxTimeZone.TabIndex = 4;
-      this.comboBoxTimeZone.SelectedIndexChanged += new System.EventHandler(this.DateFormatChanged);
-      this.comboBoxTimeZone.TextUpdate += new System.EventHandler(this.DateFormatChanged);
       // 
       // labelLessCommon
       // 
@@ -402,21 +490,20 @@ namespace CsvTools
       linkLabelRegion.Anchor = System.Windows.Forms.AnchorStyles.Left;
       linkLabelRegion.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(linkLabelRegion, 3);
-      linkLabelRegion.Location = new System.Drawing.Point(272, 181);
+      linkLabelRegion.Location = new System.Drawing.Point(312, 181);
       linkLabelRegion.Margin = new System.Windows.Forms.Padding(3);
       linkLabelRegion.Name = "linkLabelRegion";
       linkLabelRegion.Size = new System.Drawing.Size(129, 13);
       linkLabelRegion.TabIndex = 14;
       linkLabelRegion.TabStop = true;
       linkLabelRegion.Text = "Open Region && Language";
-      linkLabelRegion.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.RegionAndLanguageLinkClicked);
       // 
       // labelDateOutput
       // 
       labelDateOutput.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       labelDateOutput.AutoSize = true;
       labelDateOutput.ForeColor = System.Drawing.SystemColors.ControlText;
-      labelDateOutput.Location = new System.Drawing.Point(272, 116);
+      labelDateOutput.Location = new System.Drawing.Point(312, 116);
       labelDateOutput.Margin = new System.Windows.Forms.Padding(3);
       labelDateOutput.Name = "labelDateOutput";
       labelDateOutput.Size = new System.Drawing.Size(45, 13);
@@ -428,7 +515,7 @@ namespace CsvTools
       labelSample.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       labelSample.AutoSize = true;
       labelSample.ForeColor = System.Drawing.SystemColors.ControlText;
-      labelSample.Location = new System.Drawing.Point(280, 100);
+      labelSample.Location = new System.Drawing.Point(320, 100);
       labelSample.Name = "labelSample";
       labelSample.Size = new System.Drawing.Size(37, 13);
       labelSample.TabIndex = 12;
@@ -439,7 +526,7 @@ namespace CsvTools
       label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       label4.AutoSize = true;
       label4.ForeColor = System.Drawing.SystemColors.ControlText;
-      label4.Location = new System.Drawing.Point(280, 84);
+      label4.Location = new System.Drawing.Point(320, 84);
       label4.Margin = new System.Windows.Forms.Padding(3);
       label4.Name = "label4";
       label4.Size = new System.Drawing.Size(37, 13);
@@ -451,7 +538,7 @@ namespace CsvTools
       this.label5.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(this.label5, 2);
       this.label5.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.label5.Location = new System.Drawing.Point(323, 84);
+      this.label5.Location = new System.Drawing.Point(363, 84);
       this.label5.Margin = new System.Windows.Forms.Padding(3);
       this.label5.Name = "label5";
       this.label5.Size = new System.Drawing.Size(145, 13);
@@ -462,7 +549,7 @@ namespace CsvTools
       // 
       this.labelSampleDisplay.AutoSize = true;
       this.labelSampleDisplay.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelSampleDisplay.Location = new System.Drawing.Point(323, 100);
+      this.labelSampleDisplay.Location = new System.Drawing.Point(363, 100);
       this.labelSampleDisplay.Name = "labelSampleDisplay";
       this.labelSampleDisplay.Size = new System.Drawing.Size(15, 13);
       this.labelSampleDisplay.TabIndex = 12;
@@ -472,7 +559,7 @@ namespace CsvTools
       // 
       this.labelDateOutputDisplay.AutoSize = true;
       this.labelDateOutputDisplay.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelDateOutputDisplay.Location = new System.Drawing.Point(323, 116);
+      this.labelDateOutputDisplay.Location = new System.Drawing.Point(363, 116);
       this.labelDateOutputDisplay.Margin = new System.Windows.Forms.Padding(3);
       this.labelDateOutputDisplay.Name = "labelDateOutputDisplay";
       this.labelDateOutputDisplay.Size = new System.Drawing.Size(15, 13);
@@ -485,7 +572,7 @@ namespace CsvTools
       this.label6.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(this.label6, 3);
       this.label6.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.label6.Location = new System.Drawing.Point(272, 34);
+      this.label6.Location = new System.Drawing.Point(312, 34);
       this.label6.Margin = new System.Windows.Forms.Padding(3);
       this.label6.Name = "label6";
       this.label6.Size = new System.Drawing.Size(188, 13);
@@ -496,7 +583,7 @@ namespace CsvTools
       // 
       this.labelInputTZ.AutoSize = true;
       this.labelInputTZ.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelInputTZ.Location = new System.Drawing.Point(411, 100);
+      this.labelInputTZ.Location = new System.Drawing.Point(491, 100);
       this.labelInputTZ.Name = "labelInputTZ";
       this.labelInputTZ.Size = new System.Drawing.Size(15, 13);
       this.labelInputTZ.TabIndex = 12;
@@ -506,7 +593,7 @@ namespace CsvTools
       // 
       this.labelOutPutTZ.AutoSize = true;
       this.labelOutPutTZ.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelOutPutTZ.Location = new System.Drawing.Point(411, 116);
+      this.labelOutPutTZ.Location = new System.Drawing.Point(491, 116);
       this.labelOutPutTZ.Margin = new System.Windows.Forms.Padding(3);
       this.labelOutPutTZ.Name = "labelOutPutTZ";
       this.labelOutPutTZ.Size = new System.Drawing.Size(15, 13);
@@ -517,7 +604,7 @@ namespace CsvTools
       // 
       labelTCFormat.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelTCFormat.AutoSize = true;
-      labelTCFormat.Location = new System.Drawing.Point(272, 61);
+      labelTCFormat.Location = new System.Drawing.Point(312, 61);
       labelTCFormat.Margin = new System.Windows.Forms.Padding(3);
       labelTCFormat.Name = "labelTCFormat";
       labelTCFormat.Size = new System.Drawing.Size(45, 13);
@@ -530,111 +617,11 @@ namespace CsvTools
       this.comboBoxTPFormat.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "TimePartFormat", true));
       this.comboBoxTPFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.comboBoxTPFormat.FormattingEnabled = true;
-      this.comboBoxTPFormat.Location = new System.Drawing.Point(323, 57);
+      this.comboBoxTPFormat.Location = new System.Drawing.Point(363, 57);
       this.comboBoxTPFormat.Name = "comboBoxTPFormat";
       this.comboBoxTPFormat.Size = new System.Drawing.Size(83, 21);
       this.comboBoxTPFormat.TabIndex = 2;
       this.toolTip.SetToolTip(this.comboBoxTPFormat, "Format of the time column");
-      this.comboBoxTPFormat.SelectedIndexChanged += new System.EventHandler(this.DateFormatChanged);
-      this.comboBoxTPFormat.TextUpdate += new System.EventHandler(this.DateFormatChanged);
-      // 
-      // labelPoint
-      // 
-      labelPoint.AutoSize = true;
-      labelPoint.Location = new System.Drawing.Point(34, 60);
-      labelPoint.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      labelPoint.Name = "labelPoint";
-      labelPoint.Size = new System.Drawing.Size(74, 13);
-      labelPoint.TabIndex = 8;
-      labelPoint.Text = "Decimal Point:";
-      // 
-      // labelGroup
-      // 
-      labelGroup.AutoSize = true;
-      labelGroup.Location = new System.Drawing.Point(-1, 40);
-      labelGroup.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      labelGroup.Name = "labelGroup";
-      labelGroup.Size = new System.Drawing.Size(109, 13);
-      labelGroup.TabIndex = 4;
-      labelGroup.Text = "Thousand Separator:";
-      // 
-      // labelFalse
-      // 
-      labelFalse.AutoSize = true;
-      labelFalse.Location = new System.Drawing.Point(69, 34);
-      labelFalse.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      labelFalse.Name = "labelFalse";
-      labelFalse.Size = new System.Drawing.Size(36, 13);
-      labelFalse.TabIndex = 2;
-      labelFalse.Text = "False:";
-      labelFalse.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-      // 
-      // labelTrue
-      // 
-      labelTrue.AutoSize = true;
-      labelTrue.Location = new System.Drawing.Point(75, 14);
-      labelTrue.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      labelTrue.Name = "labelTrue";
-      labelTrue.Size = new System.Drawing.Size(33, 13);
-      labelTrue.TabIndex = 0;
-      labelTrue.Text = "True:";
-      labelTrue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-      // 
-      // labelPart
-      // 
-      labelPart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-      labelPart.AutoSize = true;
-      labelPart.Location = new System.Drawing.Point(79, 38);
-      labelPart.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      labelPart.Name = "labelPart";
-      labelPart.Size = new System.Drawing.Size(31, 13);
-      labelPart.TabIndex = 3;
-      labelPart.Text = "Part:";
-      labelPart.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-      // 
-      // labelSepBy
-      // 
-      labelSepBy.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-      labelSepBy.AutoSize = true;
-      labelSepBy.Location = new System.Drawing.Point(39, 15);
-      labelSepBy.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-      labelSepBy.Name = "labelSepBy";
-      labelSepBy.Size = new System.Drawing.Size(70, 13);
-      labelSepBy.TabIndex = 0;
-      labelSepBy.Text = "Separate By:";
-      labelSepBy.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-      // 
-      // label7
-      // 
-      label7.AutoSize = true;
-      label7.Location = new System.Drawing.Point(23, 73);
-      label7.Margin = new System.Windows.Forms.Padding(3);
-      label7.Name = "label7";
-      label7.Size = new System.Drawing.Size(91, 13);
-      label7.TabIndex = 1;
-      label7.Text = "Pattern for write:";
-      // 
-      // label1
-      // 
-      label1.AutoSize = true;
-      label1.Location = new System.Drawing.Point(39, 47);
-      label1.Margin = new System.Windows.Forms.Padding(3);
-      label1.Name = "label1";
-      label1.Size = new System.Drawing.Size(70, 13);
-      label1.TabIndex = 3;
-      label1.Text = "Write Folder:";
-      // 
-      // label9
-      // 
-      label9.AutoSize = true;
-      label9.Location = new System.Drawing.Point(38, 21);
-      label9.Margin = new System.Windows.Forms.Padding(3);
-      label9.Name = "label9";
-      label9.Size = new System.Drawing.Size(69, 13);
-      label9.TabIndex = 5;
-      label9.Text = "Read Folder:";
       // 
       // comboBoxDataType
       // 
@@ -653,7 +640,7 @@ namespace CsvTools
       this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       this.buttonCancel.AutoSize = true;
       this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.buttonCancel.Location = new System.Drawing.Point(417, 3);
+      this.buttonCancel.Location = new System.Drawing.Point(541, 3);
       this.buttonCancel.Name = "buttonCancel";
       this.buttonCancel.Size = new System.Drawing.Size(83, 23);
       this.buttonCancel.TabIndex = 4;
@@ -663,7 +650,7 @@ namespace CsvTools
       // labelColName
       // 
       this.labelColName.AutoSize = true;
-      this.labelColName.Location = new System.Drawing.Point(3, 5);
+      this.labelColName.Location = new System.Drawing.Point(6, 6);
       this.labelColName.Margin = new System.Windows.Forms.Padding(3);
       this.labelColName.Name = "labelColName";
       this.labelColName.Size = new System.Drawing.Size(76, 13);
@@ -698,7 +685,7 @@ namespace CsvTools
       // checkBoxIgnore
       // 
       this.checkBoxIgnore.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.columnBindingSource, "Ignore", true));
-      this.checkBoxIgnore.Location = new System.Drawing.Point(325, 25);
+      this.checkBoxIgnore.Location = new System.Drawing.Point(325, 26);
       this.checkBoxIgnore.Name = "checkBoxIgnore";
       this.checkBoxIgnore.Size = new System.Drawing.Size(69, 20);
       this.checkBoxIgnore.TabIndex = 3;
@@ -722,7 +709,7 @@ namespace CsvTools
       // labelDisplayNullAs
       // 
       this.labelDisplayNullAs.AutoSize = true;
-      this.labelDisplayNullAs.Location = new System.Drawing.Point(28, 26);
+      this.labelDisplayNullAs.Location = new System.Drawing.Point(30, 29);
       this.labelDisplayNullAs.Margin = new System.Windows.Forms.Padding(3);
       this.labelDisplayNullAs.Name = "labelDisplayNullAs";
       this.labelDisplayNullAs.Size = new System.Drawing.Size(49, 13);
@@ -732,7 +719,7 @@ namespace CsvTools
       // textBoxDisplayNullAs
       // 
       this.textBoxDisplayNullAs.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "DisplayNullAs", true));
-      this.textBoxDisplayNullAs.Location = new System.Drawing.Point(83, 24);
+      this.textBoxDisplayNullAs.Location = new System.Drawing.Point(83, 26);
       this.textBoxDisplayNullAs.Name = "textBoxDisplayNullAs";
       this.textBoxDisplayNullAs.Size = new System.Drawing.Size(67, 21);
       this.textBoxDisplayNullAs.TabIndex = 9;
@@ -756,23 +743,6 @@ namespace CsvTools
         "t has possible alignment issues will be ignored\r\n");
       this.buttonDisplayValues.UseVisualStyleBackColor = true;
       this.buttonDisplayValues.Click += new System.EventHandler(this.ButtonDisplayValues_ClickAsync);
-      // 
-      // textBoxRegexSearchPattern
-      // 
-      this.textBoxRegexSearchPattern.AutoCompleteCustomSource.AddRange(new string[] {
-            "(?#href)<a(?:[^>]*?\\s+)?\\s*href\\s*=((\\\"|\')(.*)\\2)\\s*?>[^>]*?<\\/a>",
-            "(?#url)(https?:\\/\\/)[^[\\s)]*",
-            "(?#email)([\\w-]+(?:\\.[\\w-]+)*)@((?:[\\w-]+\\.)*\\w[\\w-]{0,66})",
-            "(?#file)(\\w{1}\\:{1}\\/{2})(\\w+\\/{1})+(\\w+\\.{1}\\w+){1}"});
-      this.textBoxRegexSearchPattern.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-      this.textBoxRegexSearchPattern.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      this.textBoxRegexSearchPattern.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "RegexSearchPattern", true));
-      this.textBoxRegexSearchPattern.Location = new System.Drawing.Point(113, 19);
-      this.textBoxRegexSearchPattern.Name = "textBoxRegexSearchPattern";
-      this.textBoxRegexSearchPattern.Size = new System.Drawing.Size(239, 21);
-      this.textBoxRegexSearchPattern.TabIndex = 7;
-      this.toolTip.SetToolTip(this.textBoxRegexSearchPattern, "Regex Pattern to look for");
-      this.textBoxRegexSearchPattern.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxRegexSearchPattern_Validating);
       // 
       // textBoxReadFolder
       // 
@@ -803,193 +773,94 @@ namespace CsvTools
         "you can use placeholders if data from other columns should be used to get a file" +
         "name. E.G. {UserID}.docx");
       // 
-      // tableLayoutPanelForm
+      // textBoxRegexSearchPattern
       // 
-      this.tableLayoutPanelForm.AutoSize = true;
-      this.tableLayoutPanelForm.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-      this.tableLayoutPanelForm.ColumnCount = 1;
-      this.tableLayoutPanelForm.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      this.tableLayoutPanelForm.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 13F));
-      this.tableLayoutPanelForm.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 13F));
-      this.tableLayoutPanelForm.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 13F));
-      this.tableLayoutPanelForm.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 13F));
-      this.tableLayoutPanelForm.Controls.Add(this.groupBoxBinary, 0, 4);
-      this.tableLayoutPanelForm.Controls.Add(this.groupBoxSplit, 0, 3);
-      this.tableLayoutPanelForm.Controls.Add(this.groupBoxBoolean, 0, 2);
-      this.tableLayoutPanelForm.Controls.Add(this.groupBoxNumber, 0, 1);
-      this.tableLayoutPanelForm.Controls.Add(this.groupBoxDate, 0, 0);
-      this.tableLayoutPanelForm.Controls.Add(this.groupBoxRegExReplace, 0, 5);
-      this.tableLayoutPanelForm.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.tableLayoutPanelForm.Location = new System.Drawing.Point(0, 48);
-      this.tableLayoutPanelForm.Name = "tableLayoutPanelForm";
-      this.tableLayoutPanelForm.RowCount = 6;
-      this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanelForm.Size = new System.Drawing.Size(503, 316);
-      this.tableLayoutPanelForm.TabIndex = 5;
+      this.textBoxRegexSearchPattern.AutoCompleteCustomSource.AddRange(new string[] {
+            "(?#href)<a(?:[^>]*?\\s+)?\\s*href\\s*=((\\\"|\')(.*)\\2)\\s*?>[^>]*?<\\/a>",
+            "(?#url)(https?:\\/\\/)[^[\\s)]*",
+            "(?#email)([\\w-]+(?:\\.[\\w-]+)*)@((?:[\\w-]+\\.)*\\w[\\w-]{0,66})",
+            "(?#file)(\\w{1}\\:{1}\\/{2})(\\w+\\/{1})+(\\w+\\.{1}\\w+){1}"});
+      this.textBoxRegexSearchPattern.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+      this.textBoxRegexSearchPattern.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
+      this.textBoxRegexSearchPattern.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "RegexSearchPattern", true));
+      this.textBoxRegexSearchPattern.Location = new System.Drawing.Point(113, 19);
+      this.textBoxRegexSearchPattern.Name = "textBoxRegexSearchPattern";
+      this.textBoxRegexSearchPattern.Size = new System.Drawing.Size(239, 21);
+      this.textBoxRegexSearchPattern.TabIndex = 7;
+      this.toolTip.SetToolTip(this.textBoxRegexSearchPattern, "Regex Pattern to look for");
       // 
-      // groupBoxBinary
+      // buttonOK
       // 
-      this.groupBoxBinary.AutoSize = true;
-      this.groupBoxBinary.Controls.Add(this.checkBoxOverwrite);
-      this.groupBoxBinary.Controls.Add(this.textBoxReadFolder);
-      this.groupBoxBinary.Controls.Add(label9);
-      this.groupBoxBinary.Controls.Add(this.textBoxWriteFolder);
-      this.groupBoxBinary.Controls.Add(label1);
-      this.groupBoxBinary.Controls.Add(this.textBoxPattern);
-      this.groupBoxBinary.Controls.Add(label7);
-      this.groupBoxBinary.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxBinary.Location = new System.Drawing.Point(3, 562);
-      this.groupBoxBinary.Name = "groupBoxBinary";
-      this.groupBoxBinary.Padding = new System.Windows.Forms.Padding(0);
-      this.groupBoxBinary.Size = new System.Drawing.Size(497, 108);
-      this.groupBoxBinary.TabIndex = 11;
-      this.groupBoxBinary.TabStop = false;
-      this.groupBoxBinary.Text = "Binary Data";
+      this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.buttonOK.AutoSize = true;
+      this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+      this.buttonOK.Location = new System.Drawing.Point(454, 3);
+      this.buttonOK.Name = "buttonOK";
+      this.buttonOK.Size = new System.Drawing.Size(83, 23);
+      this.buttonOK.TabIndex = 3;
+      this.buttonOK.Text = "&Ok";
+      this.buttonOK.UseVisualStyleBackColor = true;
       // 
-      // checkBoxOverwrite
+      // panelTop
       // 
-      this.checkBoxOverwrite.AutoSize = true;
-      this.checkBoxOverwrite.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceValueFormat, "Overwrite", true));
-      this.checkBoxOverwrite.Location = new System.Drawing.Point(358, 72);
-      this.checkBoxOverwrite.Name = "checkBoxOverwrite";
-      this.checkBoxOverwrite.Size = new System.Drawing.Size(74, 17);
-      this.checkBoxOverwrite.TabIndex = 7;
-      this.checkBoxOverwrite.Text = "Overwrite";
-      this.checkBoxOverwrite.UseVisualStyleBackColor = true;
+      this.panelTop.AutoSize = true;
+      this.panelTop.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+      this.panelTop.BackColor = System.Drawing.SystemColors.Control;
+      this.panelTop.Controls.Add(this.labelColName);
+      this.panelTop.Controls.Add(this.comboBoxColumnName);
+      this.panelTop.Controls.Add(this.labelDisplayNullAs);
+      this.panelTop.Controls.Add(this.comboBoxDataType);
+      this.panelTop.Controls.Add(this.textBoxDisplayNullAs);
+      this.panelTop.Controls.Add(this.checkBoxIgnore);
+      this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
+      this.panelTop.Location = new System.Drawing.Point(0, 0);
+      this.panelTop.Margin = new System.Windows.Forms.Padding(2);
+      this.panelTop.Name = "panelTop";
+      this.panelTop.Size = new System.Drawing.Size(627, 50);
+      this.panelTop.TabIndex = 6;
       // 
-      // groupBoxSplit
+      // panelBottom
       // 
-      this.groupBoxSplit.AutoSize = true;
-      this.groupBoxSplit.Controls.Add(this.numericUpDownPart);
-      this.groupBoxSplit.Controls.Add(this.labelSamplePart);
-      this.groupBoxSplit.Controls.Add(this.checkBoxPartToEnd);
-      this.groupBoxSplit.Controls.Add(labelSepBy);
-      this.groupBoxSplit.Controls.Add(labelPart);
-      this.groupBoxSplit.Controls.Add(this.textBoxSplit);
-      this.groupBoxSplit.Controls.Add(this.labelResultPart);
-      this.groupBoxSplit.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxSplit.Location = new System.Drawing.Point(3, 479);
-      this.groupBoxSplit.Name = "groupBoxSplit";
-      this.groupBoxSplit.Padding = new System.Windows.Forms.Padding(0);
-      this.groupBoxSplit.Size = new System.Drawing.Size(497, 77);
-      this.groupBoxSplit.TabIndex = 8;
-      this.groupBoxSplit.TabStop = false;
-      this.groupBoxSplit.Text = "Text Part";
+      this.panelBottom.Controls.Add(this.buttonOK);
+      this.panelBottom.Controls.Add(this.buttonCancel);
+      this.panelBottom.Controls.Add(this.buttonGuess);
+      this.panelBottom.Controls.Add(this.buttonDisplayValues);
+      this.panelBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
+      this.panelBottom.Location = new System.Drawing.Point(0, 339);
+      this.panelBottom.Margin = new System.Windows.Forms.Padding(2);
+      this.panelBottom.Name = "panelBottom";
+      this.panelBottom.Size = new System.Drawing.Size(627, 28);
+      this.panelBottom.TabIndex = 7;
       // 
-      // numericUpDownPart
+      // flowLayoutPanel
       // 
-      this.numericUpDownPart.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.bindingSourceValueFormat, "Part", true));
-      this.numericUpDownPart.Location = new System.Drawing.Point(113, 39);
-      this.numericUpDownPart.Maximum = new decimal(new int[] {
-            9,
-            0,
-            0,
-            0});
-      this.numericUpDownPart.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-      this.numericUpDownPart.Name = "numericUpDownPart";
-      this.numericUpDownPart.Size = new System.Drawing.Size(41, 21);
-      this.numericUpDownPart.TabIndex = 7;
-      this.numericUpDownPart.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-      this.numericUpDownPart.ValueChanged += new System.EventHandler(this.SetSamplePart);
+      this.flowLayoutPanel.AutoSize = true;
+      this.flowLayoutPanel.Controls.Add(this.groupBoxDate);
+      this.flowLayoutPanel.Controls.Add(this.groupBoxNumber);
+      this.flowLayoutPanel.Controls.Add(this.groupBoxBoolean);
+      this.flowLayoutPanel.Controls.Add(this.groupBoxSplit);
+      this.flowLayoutPanel.Controls.Add(this.groupBoxBinary);
+      this.flowLayoutPanel.Controls.Add(this.groupBoxRegExReplace);
+      this.flowLayoutPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+      this.flowLayoutPanel.Location = new System.Drawing.Point(0, 48);
+      this.flowLayoutPanel.Name = "flowLayoutPanel";
+      this.flowLayoutPanel.Size = new System.Drawing.Size(622, 758);
+      this.flowLayoutPanel.TabIndex = 8;
+      this.flowLayoutPanel.WrapContents = false;
       // 
-      // labelSamplePart
+      // groupBoxDate
       // 
-      this.labelSamplePart.AutoSize = true;
-      this.labelSamplePart.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelSamplePart.Location = new System.Drawing.Point(303, 16);
-      this.labelSamplePart.Name = "labelSamplePart";
-      this.labelSamplePart.Size = new System.Drawing.Size(48, 13);
-      this.labelSamplePart.TabIndex = 2;
-      this.labelSamplePart.Text = "Input: \"\"";
-      // 
-      // checkBoxPartToEnd
-      // 
-      this.checkBoxPartToEnd.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceValueFormat, "PartToEnd", true));
-      this.checkBoxPartToEnd.Location = new System.Drawing.Point(160, 38);
-      this.checkBoxPartToEnd.Name = "checkBoxPartToEnd";
-      this.checkBoxPartToEnd.Size = new System.Drawing.Size(72, 21);
-      this.checkBoxPartToEnd.TabIndex = 2;
-      this.checkBoxPartToEnd.Text = "To End";
-      this.checkBoxPartToEnd.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-      this.checkBoxPartToEnd.UseVisualStyleBackColor = false;
-      this.checkBoxPartToEnd.CheckedChanged += new System.EventHandler(this.SetSamplePart);
-      this.checkBoxPartToEnd.Validating += new System.ComponentModel.CancelEventHandler(this.PartValidating);
-      // 
-      // textBoxSplit
-      // 
-      this.textBoxSplit.AutoCompleteCustomSource.AddRange(new string[] {
-            ":",
-            ";",
-            "|"});
-      this.textBoxSplit.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "PartSplitter", true));
-      this.textBoxSplit.Location = new System.Drawing.Point(113, 16);
-      this.textBoxSplit.MaxLength = 1;
-      this.textBoxSplit.Name = "textBoxSplit";
-      this.textBoxSplit.Size = new System.Drawing.Size(25, 21);
-      this.textBoxSplit.TabIndex = 0;
-      this.textBoxSplit.Text = ":";
-      this.textBoxSplit.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-      this.textBoxSplit.TextChanged += new System.EventHandler(this.SetSamplePart);
-      this.textBoxSplit.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxSplit_Validating);
-      // 
-      // labelResultPart
-      // 
-      this.labelResultPart.AutoSize = true;
-      this.labelResultPart.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelResultPart.Location = new System.Drawing.Point(295, 39);
-      this.labelResultPart.Name = "labelResultPart";
-      this.labelResultPart.Size = new System.Drawing.Size(56, 13);
-      this.labelResultPart.TabIndex = 6;
-      this.labelResultPart.Text = "Output: \"\"";
-      // 
-      // groupBoxBoolean
-      // 
-      this.groupBoxBoolean.AutoSize = true;
-      this.groupBoxBoolean.Controls.Add(labelTrue);
-      this.groupBoxBoolean.Controls.Add(labelFalse);
-      this.groupBoxBoolean.Controls.Add(this.textBoxTrue);
-      this.groupBoxBoolean.Controls.Add(this.textBoxFalse);
-      this.groupBoxBoolean.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxBoolean.Location = new System.Drawing.Point(3, 401);
-      this.groupBoxBoolean.Name = "groupBoxBoolean";
-      this.groupBoxBoolean.Padding = new System.Windows.Forms.Padding(0);
-      this.groupBoxBoolean.Size = new System.Drawing.Size(497, 72);
-      this.groupBoxBoolean.TabIndex = 7;
-      this.groupBoxBoolean.TabStop = false;
-      this.groupBoxBoolean.Text = "Boolean";
-      // 
-      // textBoxTrue
-      // 
-      this.textBoxTrue.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "True", true));
-      this.textBoxTrue.Location = new System.Drawing.Point(113, 13);
-      this.textBoxTrue.Name = "textBoxTrue";
-      this.textBoxTrue.Size = new System.Drawing.Size(45, 21);
-      this.textBoxTrue.TabIndex = 0;
-      // 
-      // textBoxFalse
-      // 
-      this.textBoxFalse.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "False", true));
-      this.textBoxFalse.Location = new System.Drawing.Point(113, 34);
-      this.textBoxFalse.Name = "textBoxFalse";
-      this.textBoxFalse.Size = new System.Drawing.Size(45, 21);
-      this.textBoxFalse.TabIndex = 1;
+      this.groupBoxDate.Controls.Add(tableLayoutPanel2);
+      this.groupBoxDate.Location = new System.Drawing.Point(3, 3);
+      this.groupBoxDate.Name = "groupBoxDate";
+      this.groupBoxDate.Padding = new System.Windows.Forms.Padding(0);
+      this.groupBoxDate.Size = new System.Drawing.Size(616, 287);
+      this.groupBoxDate.TabIndex = 15;
+      this.groupBoxDate.TabStop = false;
+      this.groupBoxDate.Text = "Date";
       // 
       // groupBoxNumber
       // 
-      this.groupBoxNumber.AutoSize = true;
       this.groupBoxNumber.Controls.Add(this.linkLabel2);
       this.groupBoxNumber.Controls.Add(this.comboBoxNumberFormat);
       this.groupBoxNumber.Controls.Add(this.label2);
@@ -1000,14 +871,14 @@ namespace CsvTools
       this.groupBoxNumber.Controls.Add(labelPoint);
       this.groupBoxNumber.Controls.Add(this.textBoxGroupSeparator);
       this.groupBoxNumber.Controls.Add(this.labelNumber);
-      this.groupBoxNumber.Dock = System.Windows.Forms.DockStyle.Top;
       this.groupBoxNumber.Location = new System.Drawing.Point(3, 296);
       this.groupBoxNumber.Name = "groupBoxNumber";
       this.groupBoxNumber.Padding = new System.Windows.Forms.Padding(0);
-      this.groupBoxNumber.Size = new System.Drawing.Size(497, 99);
-      this.groupBoxNumber.TabIndex = 6;
+      this.groupBoxNumber.Size = new System.Drawing.Size(616, 99);
+      this.groupBoxNumber.TabIndex = 7;
       this.groupBoxNumber.TabStop = false;
       this.groupBoxNumber.Text = "Number";
+      this.groupBoxNumber.Visible = false;
       // 
       // linkLabel2
       // 
@@ -1018,7 +889,6 @@ namespace CsvTools
       this.linkLabel2.TabIndex = 3;
       this.linkLabel2.TabStop = true;
       this.linkLabel2.Text = "Region && Language";
-      this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.RegionAndLanguageLinkClicked);
       // 
       // comboBoxNumberFormat
       // 
@@ -1032,7 +902,6 @@ namespace CsvTools
       this.comboBoxNumberFormat.Name = "comboBoxNumberFormat";
       this.comboBoxNumberFormat.Size = new System.Drawing.Size(162, 21);
       this.comboBoxNumberFormat.TabIndex = 0;
-      this.comboBoxNumberFormat.TextChanged += new System.EventHandler(this.NumberFormatChanged);
       // 
       // label2
       // 
@@ -1072,8 +941,6 @@ namespace CsvTools
       this.textBoxDecimalSeparator.TabIndex = 2;
       this.textBoxDecimalSeparator.Text = ".";
       this.textBoxDecimalSeparator.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-      this.textBoxDecimalSeparator.TextChanged += new System.EventHandler(this.NumberFormatChanged);
-      this.textBoxDecimalSeparator.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxDecimalSeparator_Validating);
       // 
       // textBoxGroupSeparator
       // 
@@ -1084,7 +951,6 @@ namespace CsvTools
       this.textBoxGroupSeparator.TabIndex = 1;
       this.textBoxGroupSeparator.Text = ",";
       this.textBoxGroupSeparator.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-      this.textBoxGroupSeparator.TextChanged += new System.EventHandler(this.NumberFormatChanged);
       // 
       // labelNumber
       // 
@@ -1096,18 +962,151 @@ namespace CsvTools
       this.labelNumber.TabIndex = 6;
       this.labelNumber.Text = "Input: \"\"";
       // 
-      // groupBoxDate
+      // groupBoxBoolean
       // 
-      this.groupBoxDate.AutoSize = true;
-      this.groupBoxDate.Controls.Add(tableLayoutPanel2);
-      this.groupBoxDate.Dock = System.Windows.Forms.DockStyle.Top;
-      this.groupBoxDate.Location = new System.Drawing.Point(3, 3);
-      this.groupBoxDate.Name = "groupBoxDate";
-      this.groupBoxDate.Padding = new System.Windows.Forms.Padding(0);
-      this.groupBoxDate.Size = new System.Drawing.Size(497, 287);
-      this.groupBoxDate.TabIndex = 5;
-      this.groupBoxDate.TabStop = false;
-      this.groupBoxDate.Text = "Date";
+      this.groupBoxBoolean.Controls.Add(labelTrue);
+      this.groupBoxBoolean.Controls.Add(labelFalse);
+      this.groupBoxBoolean.Controls.Add(this.textBoxTrue);
+      this.groupBoxBoolean.Controls.Add(this.textBoxFalse);
+      this.groupBoxBoolean.Location = new System.Drawing.Point(3, 401);
+      this.groupBoxBoolean.Name = "groupBoxBoolean";
+      this.groupBoxBoolean.Padding = new System.Windows.Forms.Padding(0);
+      this.groupBoxBoolean.Size = new System.Drawing.Size(616, 72);
+      this.groupBoxBoolean.TabIndex = 8;
+      this.groupBoxBoolean.TabStop = false;
+      this.groupBoxBoolean.Text = "Boolean";
+      // 
+      // textBoxTrue
+      // 
+      this.textBoxTrue.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "True", true));
+      this.textBoxTrue.Location = new System.Drawing.Point(113, 13);
+      this.textBoxTrue.Name = "textBoxTrue";
+      this.textBoxTrue.Size = new System.Drawing.Size(45, 21);
+      this.textBoxTrue.TabIndex = 0;
+      // 
+      // textBoxFalse
+      // 
+      this.textBoxFalse.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "False", true));
+      this.textBoxFalse.Location = new System.Drawing.Point(113, 34);
+      this.textBoxFalse.Name = "textBoxFalse";
+      this.textBoxFalse.Size = new System.Drawing.Size(45, 21);
+      this.textBoxFalse.TabIndex = 1;
+      // 
+      // groupBoxSplit
+      // 
+      this.groupBoxSplit.Controls.Add(this.numericUpDownPart);
+      this.groupBoxSplit.Controls.Add(this.labelSamplePart);
+      this.groupBoxSplit.Controls.Add(this.checkBoxPartToEnd);
+      this.groupBoxSplit.Controls.Add(labelSepBy);
+      this.groupBoxSplit.Controls.Add(labelPart);
+      this.groupBoxSplit.Controls.Add(this.textBoxSplit);
+      this.groupBoxSplit.Controls.Add(this.labelResultPart);
+      this.groupBoxSplit.Location = new System.Drawing.Point(3, 479);
+      this.groupBoxSplit.Name = "groupBoxSplit";
+      this.groupBoxSplit.Padding = new System.Windows.Forms.Padding(0);
+      this.groupBoxSplit.Size = new System.Drawing.Size(616, 77);
+      this.groupBoxSplit.TabIndex = 9;
+      this.groupBoxSplit.TabStop = false;
+      this.groupBoxSplit.Text = "Text Part";
+      this.groupBoxSplit.Visible = false;
+      // 
+      // numericUpDownPart
+      // 
+      this.numericUpDownPart.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.bindingSourceValueFormat, "Part", true));
+      this.numericUpDownPart.Location = new System.Drawing.Point(113, 39);
+      this.numericUpDownPart.Maximum = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
+      this.numericUpDownPart.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+      this.numericUpDownPart.Name = "numericUpDownPart";
+      this.numericUpDownPart.Size = new System.Drawing.Size(41, 21);
+      this.numericUpDownPart.TabIndex = 7;
+      this.numericUpDownPart.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+      // 
+      // labelSamplePart
+      // 
+      this.labelSamplePart.AutoSize = true;
+      this.labelSamplePart.ForeColor = System.Drawing.SystemColors.Highlight;
+      this.labelSamplePart.Location = new System.Drawing.Point(303, 16);
+      this.labelSamplePart.Name = "labelSamplePart";
+      this.labelSamplePart.Size = new System.Drawing.Size(48, 13);
+      this.labelSamplePart.TabIndex = 2;
+      this.labelSamplePart.Text = "Input: \"\"";
+      // 
+      // checkBoxPartToEnd
+      // 
+      this.checkBoxPartToEnd.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceValueFormat, "PartToEnd", true));
+      this.checkBoxPartToEnd.Location = new System.Drawing.Point(160, 38);
+      this.checkBoxPartToEnd.Name = "checkBoxPartToEnd";
+      this.checkBoxPartToEnd.Size = new System.Drawing.Size(72, 21);
+      this.checkBoxPartToEnd.TabIndex = 2;
+      this.checkBoxPartToEnd.Text = "To End";
+      this.checkBoxPartToEnd.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+      this.checkBoxPartToEnd.UseVisualStyleBackColor = false;
+      // 
+      // textBoxSplit
+      // 
+      this.textBoxSplit.AutoCompleteCustomSource.AddRange(new string[] {
+            ":",
+            ";",
+            "|"});
+      this.textBoxSplit.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "PartSplitter", true));
+      this.textBoxSplit.Location = new System.Drawing.Point(113, 16);
+      this.textBoxSplit.MaxLength = 1;
+      this.textBoxSplit.Name = "textBoxSplit";
+      this.textBoxSplit.Size = new System.Drawing.Size(25, 21);
+      this.textBoxSplit.TabIndex = 0;
+      this.textBoxSplit.Text = ":";
+      this.textBoxSplit.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+      // 
+      // labelResultPart
+      // 
+      this.labelResultPart.AutoSize = true;
+      this.labelResultPart.ForeColor = System.Drawing.SystemColors.Highlight;
+      this.labelResultPart.Location = new System.Drawing.Point(295, 39);
+      this.labelResultPart.Name = "labelResultPart";
+      this.labelResultPart.Size = new System.Drawing.Size(56, 13);
+      this.labelResultPart.TabIndex = 6;
+      this.labelResultPart.Text = "Output: \"\"";
+      // 
+      // groupBoxBinary
+      // 
+      this.groupBoxBinary.Controls.Add(this.checkBoxOverwrite);
+      this.groupBoxBinary.Controls.Add(this.textBoxReadFolder);
+      this.groupBoxBinary.Controls.Add(label9);
+      this.groupBoxBinary.Controls.Add(this.textBoxWriteFolder);
+      this.groupBoxBinary.Controls.Add(label1);
+      this.groupBoxBinary.Controls.Add(this.textBoxPattern);
+      this.groupBoxBinary.Controls.Add(label7);
+      this.groupBoxBinary.Location = new System.Drawing.Point(3, 562);
+      this.groupBoxBinary.Name = "groupBoxBinary";
+      this.groupBoxBinary.Padding = new System.Windows.Forms.Padding(0);
+      this.groupBoxBinary.Size = new System.Drawing.Size(616, 108);
+      this.groupBoxBinary.TabIndex = 13;
+      this.groupBoxBinary.TabStop = false;
+      this.groupBoxBinary.Text = "Binary Data";
+      this.groupBoxBinary.Visible = false;
+      // 
+      // checkBoxOverwrite
+      // 
+      this.checkBoxOverwrite.AutoSize = true;
+      this.checkBoxOverwrite.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceValueFormat, "Overwrite", true));
+      this.checkBoxOverwrite.Location = new System.Drawing.Point(358, 72);
+      this.checkBoxOverwrite.Name = "checkBoxOverwrite";
+      this.checkBoxOverwrite.Size = new System.Drawing.Size(74, 17);
+      this.checkBoxOverwrite.TabIndex = 7;
+      this.checkBoxOverwrite.Text = "Overwrite";
+      this.checkBoxOverwrite.UseVisualStyleBackColor = true;
       // 
       // groupBoxRegExReplace
       // 
@@ -1117,14 +1116,14 @@ namespace CsvTools
       this.groupBoxRegExReplace.Controls.Add(labelReplace);
       this.groupBoxRegExReplace.Controls.Add(this.textBoxRegexSearchPattern);
       this.groupBoxRegExReplace.Controls.Add(labelSPattern);
-      this.groupBoxRegExReplace.Dock = System.Windows.Forms.DockStyle.Top;
       this.groupBoxRegExReplace.Location = new System.Drawing.Point(3, 676);
       this.groupBoxRegExReplace.Name = "groupBoxRegExReplace";
       this.groupBoxRegExReplace.Padding = new System.Windows.Forms.Padding(0);
-      this.groupBoxRegExReplace.Size = new System.Drawing.Size(497, 77);
-      this.groupBoxRegExReplace.TabIndex = 12;
+      this.groupBoxRegExReplace.Size = new System.Drawing.Size(616, 77);
+      this.groupBoxRegExReplace.TabIndex = 14;
       this.groupBoxRegExReplace.TabStop = false;
       this.groupBoxRegExReplace.Text = "Text Replace";
+      this.groupBoxRegExReplace.Visible = false;
       // 
       // label8
       // 
@@ -1146,53 +1145,13 @@ namespace CsvTools
       this.textBoxRegexReplacement.Size = new System.Drawing.Size(239, 21);
       this.textBoxRegexReplacement.TabIndex = 9;
       // 
-      // buttonOK
-      // 
-      this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.buttonOK.AutoSize = true;
-      this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-      this.buttonOK.Location = new System.Drawing.Point(330, 3);
-      this.buttonOK.Name = "buttonOK";
-      this.buttonOK.Size = new System.Drawing.Size(83, 23);
-      this.buttonOK.TabIndex = 3;
-      this.buttonOK.Text = "&Ok";
-      this.buttonOK.UseVisualStyleBackColor = true;
-      // 
-      // panelTop
-      // 
-      this.panelTop.Controls.Add(this.labelColName);
-      this.panelTop.Controls.Add(this.comboBoxColumnName);
-      this.panelTop.Controls.Add(this.labelDisplayNullAs);
-      this.panelTop.Controls.Add(this.comboBoxDataType);
-      this.panelTop.Controls.Add(this.textBoxDisplayNullAs);
-      this.panelTop.Controls.Add(this.checkBoxIgnore);
-      this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
-      this.panelTop.Location = new System.Drawing.Point(0, 0);
-      this.panelTop.Margin = new System.Windows.Forms.Padding(2);
-      this.panelTop.Name = "panelTop";
-      this.panelTop.Size = new System.Drawing.Size(503, 48);
-      this.panelTop.TabIndex = 6;
-      // 
-      // panelBottom
-      // 
-      this.panelBottom.Controls.Add(this.buttonOK);
-      this.panelBottom.Controls.Add(this.buttonCancel);
-      this.panelBottom.Controls.Add(this.buttonGuess);
-      this.panelBottom.Controls.Add(this.buttonDisplayValues);
-      this.panelBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-      this.panelBottom.Location = new System.Drawing.Point(0, 338);
-      this.panelBottom.Margin = new System.Windows.Forms.Padding(2);
-      this.panelBottom.Name = "panelBottom";
-      this.panelBottom.Size = new System.Drawing.Size(503, 26);
-      this.panelBottom.TabIndex = 7;
-      // 
       // FormColumnUI
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(503, 364);
+      this.ClientSize = new System.Drawing.Size(627, 367);
       this.Controls.Add(this.panelBottom);
-      this.Controls.Add(this.tableLayoutPanelForm);
+      this.Controls.Add(this.flowLayoutPanel);
       this.Controls.Add(this.panelTop);
       this.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "Name", true));
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
@@ -1210,25 +1169,25 @@ namespace CsvTools
       ((System.ComponentModel.ISupportInitialize)(this.bindingSourceValueFormat)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.columnBindingSource)).EndInit();
       ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
-      this.tableLayoutPanelForm.ResumeLayout(false);
-      this.tableLayoutPanelForm.PerformLayout();
-      this.groupBoxBinary.ResumeLayout(false);
-      this.groupBoxBinary.PerformLayout();
-      this.groupBoxSplit.ResumeLayout(false);
-      this.groupBoxSplit.PerformLayout();
-      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPart)).EndInit();
-      this.groupBoxBoolean.ResumeLayout(false);
-      this.groupBoxBoolean.PerformLayout();
-      this.groupBoxNumber.ResumeLayout(false);
-      this.groupBoxNumber.PerformLayout();
-      this.groupBoxDate.ResumeLayout(false);
-      this.groupBoxDate.PerformLayout();
-      this.groupBoxRegExReplace.ResumeLayout(false);
-      this.groupBoxRegExReplace.PerformLayout();
       this.panelTop.ResumeLayout(false);
       this.panelTop.PerformLayout();
       this.panelBottom.ResumeLayout(false);
       this.panelBottom.PerformLayout();
+      this.flowLayoutPanel.ResumeLayout(false);
+      this.flowLayoutPanel.PerformLayout();
+      this.groupBoxDate.ResumeLayout(false);
+      this.groupBoxDate.PerformLayout();
+      this.groupBoxNumber.ResumeLayout(false);
+      this.groupBoxNumber.PerformLayout();
+      this.groupBoxBoolean.ResumeLayout(false);
+      this.groupBoxBoolean.PerformLayout();
+      this.groupBoxSplit.ResumeLayout(false);
+      this.groupBoxSplit.PerformLayout();
+      ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPart)).EndInit();
+      this.groupBoxBinary.ResumeLayout(false);
+      this.groupBoxBinary.PerformLayout();
+      this.groupBoxRegExReplace.ResumeLayout(false);
+      this.groupBoxRegExReplace.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -1246,7 +1205,6 @@ namespace CsvTools
     private System.Windows.Forms.ErrorProvider errorProvider;
     private System.Windows.Forms.Label labelColName;
     private System.Windows.Forms.Label labelDisplayNullAs;
-    private System.Windows.Forms.TableLayoutPanel tableLayoutPanelForm;
     private System.Windows.Forms.TextBox textBoxColumnName;
     private System.Windows.Forms.TextBox textBoxDisplayNullAs;
     private System.Windows.Forms.ToolTip toolTip;
@@ -1255,17 +1213,8 @@ namespace CsvTools
 
     private System.Boolean m_DisposedValue;
     private System.Windows.Forms.Panel panelBottom;
-    private System.Windows.Forms.GroupBox groupBoxBinary;
-    private System.Windows.Forms.TextBox textBoxPattern;
-    private System.Windows.Forms.GroupBox groupBoxSplit;
-    private System.Windows.Forms.NumericUpDown numericUpDownPart;
-    private System.Windows.Forms.Label labelSamplePart;
-    private System.Windows.Forms.CheckBox checkBoxPartToEnd;
-    private System.Windows.Forms.TextBox textBoxSplit;
-    private System.Windows.Forms.Label labelResultPart;
-    private System.Windows.Forms.GroupBox groupBoxBoolean;
-    private System.Windows.Forms.TextBox textBoxTrue;
-    private System.Windows.Forms.TextBox textBoxFalse;
+    private System.Windows.Forms.Panel panelTop;
+    private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
     private System.Windows.Forms.GroupBox groupBoxNumber;
     private System.Windows.Forms.LinkLabel linkLabel2;
     private System.Windows.Forms.ComboBox comboBoxNumberFormat;
@@ -1275,6 +1224,24 @@ namespace CsvTools
     private System.Windows.Forms.TextBox textBoxDecimalSeparator;
     private System.Windows.Forms.TextBox textBoxGroupSeparator;
     private System.Windows.Forms.Label labelNumber;
+    private System.Windows.Forms.GroupBox groupBoxBoolean;
+    private System.Windows.Forms.TextBox textBoxTrue;
+    private System.Windows.Forms.TextBox textBoxFalse;
+    private System.Windows.Forms.GroupBox groupBoxSplit;
+    private System.Windows.Forms.NumericUpDown numericUpDownPart;
+    private System.Windows.Forms.Label labelSamplePart;
+    private System.Windows.Forms.CheckBox checkBoxPartToEnd;
+    private System.Windows.Forms.TextBox textBoxSplit;
+    private System.Windows.Forms.Label labelResultPart;
+    private System.Windows.Forms.GroupBox groupBoxBinary;
+    private System.Windows.Forms.CheckBox checkBoxOverwrite;
+    private System.Windows.Forms.TextBox textBoxReadFolder;
+    private System.Windows.Forms.TextBox textBoxWriteFolder;
+    private System.Windows.Forms.TextBox textBoxPattern;
+    private System.Windows.Forms.GroupBox groupBoxRegExReplace;
+    private System.Windows.Forms.Label label8;
+    private System.Windows.Forms.TextBox textBoxRegexReplacement;
+    private System.Windows.Forms.TextBox textBoxRegexSearchPattern;
     private System.Windows.Forms.GroupBox groupBoxDate;
     private System.Windows.Forms.TextBox textBoxDateSeparator;
     private System.Windows.Forms.ComboBox comboBoxDateFormat;
@@ -1291,13 +1258,5 @@ namespace CsvTools
     private System.Windows.Forms.Label labelInputTZ;
     private System.Windows.Forms.Label labelOutPutTZ;
     private System.Windows.Forms.ComboBox comboBoxTPFormat;
-    private System.Windows.Forms.GroupBox groupBoxRegExReplace;
-    private System.Windows.Forms.Label label8;
-    private System.Windows.Forms.TextBox textBoxRegexReplacement;
-    private System.Windows.Forms.TextBox textBoxRegexSearchPattern;
-    private System.Windows.Forms.Panel panelTop;
-    private System.Windows.Forms.TextBox textBoxReadFolder;
-    private System.Windows.Forms.TextBox textBoxWriteFolder;
-    private System.Windows.Forms.CheckBox checkBoxOverwrite;
   }
 }
