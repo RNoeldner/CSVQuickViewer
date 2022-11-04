@@ -503,9 +503,9 @@ namespace CsvTools
           if (cancellationToken.IsCancellationRequested)
             return;
 
+          // TODO: Is this needed ? Is te column collection not alread set ?
           m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealDataColumns()
-            .Select(dataColumn => new Column(dataColumn.ColumnName,
-              new ValueFormat(dataColumn.DataType.GetDataType()),
+            .Select(dataColumn => new Column(dataColumn.ColumnName, new ValueFormat(dataColumn.DataType.GetDataType()),
               dataColumn.Ordinal)));
 
           // Set Functional DI routines to constants The reader is used when data is stored through

@@ -501,13 +501,13 @@ namespace CsvTools
         "  td { border: 2px solid lightgrey; padding:3px; }\r\n" +
         "</STYLE>");
 
-      if (header != null && header.Length > 0)
+      if (header is { Length: > 0 })
         stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header)));
 
       ListSamples(stringBuilder, headerList1, values1, col1, rows);
       ListSamples(stringBuilder, headerList2, values2, col2, rows);
 
-      if (footer != null && footer.Length > 0)
+      if (footer is { Length: > 0 })
         stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer)));
 
       stringBuilder.AppendLine("</BODY>");
@@ -731,8 +731,8 @@ namespace CsvTools
     ///   Reapply formatting to the sample date
     /// </summary>
     /// <param name="sender">The sender.</param>
-    /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void DateFormatChanged(object? sender, EventArgs? e)
+    /// <param name="args">The <see cref="System.EventArgs" /> instance containing the event data.</param>
+    private void DateFormatChanged(object? sender, EventArgs args)
     {
       var dateFormat = sender == comboBoxDateFormat ? comboBoxDateFormat.Text : checkedListBoxDateFormats.Text;
 
@@ -873,7 +873,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private void NumberFormatChanged(object? sender, EventArgs? e) => UpdateNumericLabel(textBoxDecimalSeparator.Text,
+    private void NumberFormatChanged(object? sender, EventArgs e) => UpdateNumericLabel(textBoxDecimalSeparator.Text,
       comboBoxNumberFormat.Text, textBoxDecimalSeparator.Text);
 
     private void PartValidating(object? sender, CancelEventArgs e)
@@ -900,19 +900,6 @@ namespace CsvTools
         select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
       comboBoxDataType.SelectedValue = selValue;
       ComboBoxColumnName_TextUpdate(null, EventArgs.Empty);
-    }
-
-    private void RegionAndLanguageLinkClicked(object? sender, LinkLabelLinkClickedEventArgs e)
-    {
-      try
-      {
-        var cplPath = Path.Combine(Environment.SystemDirectory, "control.exe");
-        Process.Start(cplPath, "/name Microsoft.RegionAndLanguage");
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex);
-      }
     }
 
     private void SetDateFormat()
@@ -1064,6 +1051,19 @@ namespace CsvTools
       catch (Exception ex)
       {
         errorProvider.SetError(textBoxRegexSearchPattern, ex.Message);
+      }
+    }
+
+    private void RegionAndLanguageLinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    {
+      try
+      {
+        var cplPath = Path.Combine(Environment.SystemDirectory, "control.exe");
+        Process.Start(cplPath, "/name Microsoft.RegionAndLanguage");
+      }
+      catch (Exception ex)
+      {
+        this.ShowError(ex);
       }
     }
   }

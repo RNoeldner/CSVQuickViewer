@@ -168,6 +168,9 @@ namespace CsvTools
       set
       {
         ColumnCollection.Clear();
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (value == null)
+          return;
         ColumnCollection.AddRange(value.Select(x => x.ToImmutableColumn()));
       }
     }
