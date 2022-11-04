@@ -113,6 +113,13 @@ namespace CsvTools
     {
     }
 
+    public CsvFile(string fileName, string commentLine, string id) : this()
+    {
+      FileName = fileName;
+      CommentLine = commentLine;
+      ID = id;
+    }
+
     /// <summary>
     ///   Gets current encoding.
     /// </summary>
