@@ -21,9 +21,9 @@ namespace CsvTools.Tests
   [TestClass]
   public class ReaderExtensionMethodsTest
   {
-    private readonly CsvFile m_ValidSetting = new CsvFile
+    private readonly CsvFile m_ValidSetting = new(UnitTestStatic.GetTestPath("BasicCSV.txt"))
     {
-      FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), FieldDelimiter = ",", CommentLine = "#"
+      FieldDelimiter = ",", CommentLine = "#"
     };
 
     [TestInitialize]

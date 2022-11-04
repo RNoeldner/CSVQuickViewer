@@ -26,7 +26,8 @@ namespace CsvTools.Tests
       var csv = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")) { FieldDelimiter = ",", CommentLine = "#" };
 
       var proc = new Progress<ProgressInfo>();
-      await tsde.StartAsync(csv, true, true, TimeSpan.FromMilliseconds(20), proc, (_, _) => { warningCalled = true; },
+      await tsde.StartAsync(csv, true, true, TimeSpan.FromMilliseconds(20), proc,
+        (_, _) => { warningCalled = true; },
         UnitTestStatic.Token);
       Assert.IsTrue(refreshCalled);
       Assert.IsFalse(warningCalled);

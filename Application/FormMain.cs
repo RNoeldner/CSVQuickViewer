@@ -497,8 +497,7 @@ namespace CsvTools
             formProgress.Maximum = 100;
 
             await m_DetailControlLoader.StartAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,
-              formProgress,
-              AddWarning, formProgress.CancellationToken);
+              formProgress, AddWarning, formProgress.CancellationToken);
           }
 
           if (cancellationToken.IsCancellationRequested)
