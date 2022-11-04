@@ -237,10 +237,21 @@ namespace CsvTools
         return dataTable;
 
       var intervalAction = IntervalAction.ForProgress(progress);
-      
+
       try
       {
-        var errorColumn = restoreErrorsFromColumn ? dataTable.Columns[ReaderConstants.cErrorField] : null;
+        DataColumn? errorColumn = null;
+        bool onlyColumnErrors = false;
+        if (restoreErrorsFromColumn)
+        {
+          errorColumn = dataTable.Columns[ReaderConstants.cErrorField];
+
+          if (errorColumn is null)
+          {
+            errorColumn = dataTable.Columns["Errors"];
+            onlyColumnErrors = (errorColumn != null);
+          }
+        }
 
         var watch = Stopwatch.StartNew();
         while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 95)
@@ -261,7 +272,7 @@ namespace CsvTools
 
           // This gets the errors from the column #Error that has been filled by the reader
           if (errorColumn != null)
-            dataRow.SetErrorInformation(dataRow[errorColumn].ToString());
+            dataRow.SetErrorInformation(dataRow[errorColumn].ToString(), onlyColumnErrors);
           intervalAction?.Invoke(progress!, $"Record {wrapper.RecordNumber:N0}", wrapper.Percent);
 
           // This gets the errors from the fileReader

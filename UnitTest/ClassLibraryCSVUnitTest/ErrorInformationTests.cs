@@ -84,8 +84,8 @@ namespace CsvTools.Tests
       Assert.AreEqual("Warning on ColumnB", row.GetColumnError(2).WithoutWarningId());
 
       var res = errorInfo.GetErrorsAndWarnings();
-      Assert.AreEqual(4, res.Item1.Count(x => x == ErrorInformation.cSeparator) + 1);
-      Assert.AreEqual(3, res.Item2.Count(x => x == ErrorInformation.cSeparator) + 1);
+      Assert.AreEqual(4, res.Column.Count(x => x == ErrorInformation.cSeparator) + 1);
+      Assert.AreEqual(3, res.Message.Count(x => x == ErrorInformation.cSeparator) + 1);
     }
 
     [TestMethod]

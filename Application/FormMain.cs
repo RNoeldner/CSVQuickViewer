@@ -496,7 +496,8 @@ namespace CsvTools
             Logger.Information("Reading data...");
             formProgress.Maximum = 100;
 
-            await m_DetailControlLoader.StartAsync(m_FileSetting, false, m_ViewSettings.DurationTimeSpan, formProgress,
+            await m_DetailControlLoader.StartAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,
+              formProgress,
               AddWarning, formProgress.CancellationToken);
           }
 

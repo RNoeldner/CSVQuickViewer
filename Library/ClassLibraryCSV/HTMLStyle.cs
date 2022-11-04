@@ -459,15 +459,15 @@ namespace CsvTools
       var errorsAndWarnings = errorText.GetErrorsAndWarnings();
       if (string.IsNullOrEmpty(regularText))
       {
-        if (errorsAndWarnings.Item2.Length == 0 && errorsAndWarnings.Item1.Length > 0)
+        if (errorsAndWarnings.Message.Length == 0 && errorsAndWarnings.Column.Length > 0)
         {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(Error, errorsAndWarnings.Item1)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(Error, errorsAndWarnings.Column)));
           return;
         }
 
-        if (errorsAndWarnings.Item2.Length > 0 && errorsAndWarnings.Item1.Length == 0)
+        if (errorsAndWarnings.Message.Length > 0 && errorsAndWarnings.Column.Length == 0)
         {
-          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(Warning, errorsAndWarnings.Item2)));
+          sbHtml.Append(string.Format(CultureInfo.CurrentCulture, tdTemplate, AddTd(Warning, errorsAndWarnings.Message)));
           return;
         }
 
@@ -475,27 +475,27 @@ namespace CsvTools
           string.Format(
             CultureInfo.CurrentCulture,
             tdTemplate,
-            AddTd(ErrorWarning, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
+            AddTd(ErrorWarning, errorsAndWarnings.Column, errorsAndWarnings.Message)));
       }
       else
       {
-        if (errorsAndWarnings.Item2.Length == 0 && errorsAndWarnings.Item1.Length > 0)
+        if (errorsAndWarnings.Message.Length == 0 && errorsAndWarnings.Column.Length > 0)
         {
           sbHtml.Append(
             string.Format(
               CultureInfo.CurrentCulture,
               tdTemplate,
-              AddTd(ValueError, regularText, errorsAndWarnings.Item1)));
+              AddTd(ValueError, regularText, errorsAndWarnings.Column)));
           return;
         }
 
-        if (errorsAndWarnings.Item2.Length > 0 && errorsAndWarnings.Item1.Length == 0)
+        if (errorsAndWarnings.Message.Length > 0 && errorsAndWarnings.Column.Length == 0)
         {
           sbHtml.Append(
             string.Format(
               CultureInfo.CurrentCulture,
               tdTemplate,
-              AddTd(ValueWarning, regularText, errorsAndWarnings.Item2)));
+              AddTd(ValueWarning, regularText, errorsAndWarnings.Message)));
           return;
         }
 
@@ -503,7 +503,7 @@ namespace CsvTools
           string.Format(
             CultureInfo.CurrentCulture,
             tdTemplate,
-            AddTd(ValueErrorWarning, regularText, errorsAndWarnings.Item1, errorsAndWarnings.Item2)));
+            AddTd(ValueErrorWarning, regularText, errorsAndWarnings.Column, errorsAndWarnings.Message)));
       }
     }
 
