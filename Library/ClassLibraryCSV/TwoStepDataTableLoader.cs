@@ -49,12 +49,13 @@ namespace CsvTools
       // Suppress finalization.
       GC.SuppressFinalize(this);
     }
-#endif    
+#endif
     /// <summary>
     /// Starts the load of data from a file setting into the data table from m_GetDataTable
     /// </summary>
     /// <param name="fileSetting">The file setting.</param>
-    /// <param name="includeError">if set to <c>true</c> include error column.</param>
+    /// <param name="addErrorField">if set to <c>true</c> include error column.</param>
+    /// <param name="restoreError">Restore column and row errors from error columns</param>
     /// <param name="durationInitial">The duration for the initial initial.</param>
     /// <param name="progress">Process display to pass on progress information</param>
     /// <param name="addWarning">Add warnings.</param>
@@ -62,7 +63,8 @@ namespace CsvTools
     /// <exception cref="CsvTools.FileReaderException">Could not get reader for {fileSetting}</exception>
     public async Task StartAsync(
       IFileSetting fileSetting,
-      bool includeError,
+      bool addErrorField,
+      bool restoreError,
       TimeSpan durationInitial,
       IProgress<ProgressInfo>? progress,
       EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
@@ -93,7 +95,7 @@ namespace CsvTools
 
       m_DataReaderWrapper = new DataReaderWrapper(
         m_FileReader,
-        includeError,
+        addErrorField,
         fileSetting.DisplayStartLineNo,
         fileSetting.DisplayEndLineNo,
         fileSetting.DisplayRecordNo
@@ -101,11 +103,11 @@ namespace CsvTools
 
       m_ActionBegin?.Invoke();
 
-      await GetBatchByTimeSpan(durationInitial, includeError, progress, m_SetDataTable, cancellationToken)
+      await GetBatchByTimeSpan(durationInitial, restoreError, progress, m_SetDataTable, cancellationToken)
         .ConfigureAwait(false);
 
       m_SetLoadNextBatchAsync?.Invoke((process, token) =>
-        GetBatchByTimeSpan(TimeSpan.FromMinutes(60), includeError, process, dt => m_GetDataTable().Merge(dt), token));
+        GetBatchByTimeSpan(TimeSpan.FromMinutes(60), restoreError, process, dt => m_GetDataTable().Merge(dt), token));
 
       m_ActionFinished?.Invoke(m_DataReaderWrapper);
     }

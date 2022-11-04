@@ -30,9 +30,9 @@ namespace CsvTools
     ///   Char to separate two or more errors and warnings
     /// </summary>
     public const char cSeparator = '\n';
-
+    private const char cOpenField = '[';
     private const char cClosingField = ']';
-
+    private const char cAlternateColumnMessageSeparator = ':';
     /// <summary>
     ///   Char to separate two column names
     /// </summary>
@@ -66,23 +66,23 @@ namespace CsvTools
       if (errorList.Contains(newError))
         return errorList;
 
-      var sb = new StringBuilder();
+      var sb = new StringBuilder(errorList);
 
       // If the new message is considered an error put it in front, this way its easier to check if
       // there is an error
-      if (newError.IsErrorMessage() && errorList.IsWarningMessage())
-      {
-        // Put in front of previous messages, to have errors first
-        sb.Append(newError);
-        sb.Append(cSeparator);
-        sb.Append(errorList);
-      }
-      else
+      if (newError.IsWarningMessage())
       {
         // Append to previous messages
         sb.Append(errorList);
         sb.Append(cSeparator);
         sb.Append(newError);
+      }
+      else
+      {
+        // Put in front of previous messages, to have errors first
+        sb.Append(newError);
+        sb.Append(cSeparator);
+        sb.Append(errorList);
       }
 
       return sb.ToString();
@@ -114,9 +114,9 @@ namespace CsvTools
     {
       if (errorMessage is null)
         throw new ArgumentNullException(nameof(errorMessage));
-      if (string.IsNullOrEmpty(column) && errorMessage.StartsWith("[", StringComparison.Ordinal))
+      if (string.IsNullOrEmpty(column) && (errorMessage.Length==0 || errorMessage[0]==cOpenField))
         return errorMessage;
-      return $"[{column}] {errorMessage}";
+      return $"{cOpenField}{column}{cClosingField} {errorMessage}";
     }
 
     /// <summary>
@@ -126,11 +126,11 @@ namespace CsvTools
     /// <returns>A string with all error information of the DataRow</returns>
     public static string GetErrorInformation(this DataRow row)
     {
-      var list = new List<Tuple<string, string>>();
+      var list = new List<ColumnAndMessage>();
       if (!string.IsNullOrEmpty(row.RowError))
-        list.Add(new Tuple<string, string>(string.Empty, row.RowError));
+        list.Add(new ColumnAndMessage(string.Empty, row.RowError));
       list.AddRange(
-        row.GetColumnsInError().Select(col => new Tuple<string, string>(col.ColumnName, row.GetColumnError(col))));
+        row.GetColumnsInError().Select(col => new ColumnAndMessage(col.ColumnName, row.GetColumnError(col))));
       return BuildList(list);
     }
 
@@ -143,7 +143,7 @@ namespace CsvTools
     /// </remarks>
     /// <param name="errorList">A text containing different types of messages that are concatenated.</param>
     /// <returns>two strings first error second warnings</returns>
-    public static Tuple<string, string> GetErrorsAndWarnings(this string errorList)
+    public static ColumnAndMessage GetErrorsAndWarnings(this string errorList)
     {
       var sbErrors = new StringBuilder();
       var sbWaring = new StringBuilder();
@@ -152,28 +152,28 @@ namespace CsvTools
       {
         // errors are in front so if overall message is not an error there is no error
         var start = 0;
-        while (start < parts.Item2.Length)
+        while (start < parts.Message.Length)
         {
-          var end = parts.Item2.IndexOf(cSeparator, start + 1);
+          var end = parts.Message.IndexOf(cSeparator, start + 1);
           if (end == -1)
-            end = parts.Item2.Length;
+            end = parts.Message.Length;
           if (start < end)
           {
-            var part = parts.Item2.Substring(start, end - start);
+            var part = parts.Message.Substring(start, end - start);
             if (part.IsWarningMessage())
             {
               if (sbWaring.Length > 0)
                 sbWaring.Append(cSeparator);
               sbWaring.Append(
-                parts.Item1.Length == 0
+                parts.Column.Length == 0
                   ? part.WithoutWarningId()
-                  : CombineColumnAndError(parts.Item1, part.WithoutWarningId()));
+                  : CombineColumnAndError(parts.Column, part.WithoutWarningId()));
             }
             else
             {
               if (sbErrors.Length > 0)
                 sbErrors.Append(cSeparator);
-              sbErrors.Append(parts.Item1.Length == 0 ? part : CombineColumnAndError(parts.Item1, part));
+              sbErrors.Append(parts.Column.Length == 0 ? part : CombineColumnAndError(parts.Column, part));
             }
           }
 
@@ -181,9 +181,8 @@ namespace CsvTools
         }
       }
 
-      return new Tuple<string, string>(sbErrors.ToString(), sbWaring.ToString());
+      return new ColumnAndMessage(sbErrors.ToString(), sbWaring.ToString());
     }
-
     /// <summary>
     ///   String method to check if the text should be regarded as an error in an error list text
     /// </summary>
@@ -232,7 +231,7 @@ namespace CsvTools
     {
       if (columnErrors is null || columnErrors.Count == 0)
         return string.Empty;
-      var list = new List<Tuple<string, string>>();
+      var list = new List<ColumnAndMessage>();
 
       // Tried Parallel.Foreach but it was not reliable, with a few million executions some values
       // where wrong
@@ -247,7 +246,7 @@ namespace CsvTools
           if (end == -1)
             end = entry.Value.Length;
           // Add one Line for each error in the column
-          list.Add(new Tuple<string, string>(colName, entry.Value.Substring(start, end - start)));
+          list.Add(new ColumnAndMessage(colName, entry.Value.Substring(start, end - start)));
           start = end + 1;
         }
       }
@@ -260,7 +259,8 @@ namespace CsvTools
     /// </summary>
     /// <param name="row">The DataRow that will get the error information</param>
     /// <param name="errorList"></param>
-    public static void SetErrorInformation(this DataRow row, string? errorList)
+    /// <param name="onlyColumnErrors">If set true, row errors will not be set</param>
+    public static void SetErrorInformation(this DataRow row, string? errorList, bool onlyColumnErrors = false)
     {
       row.ClearErrors();
 
@@ -268,10 +268,34 @@ namespace CsvTools
         return;
 
       foreach (var parts in ParseList(errorList))
-        if (parts.Item1.Length == 0)
-          row.RowError = parts.Item2;
+        if (parts.Column.Length == 0)
+        {
+          if (!onlyColumnErrors)
+            row.RowError = parts.Message;
+        }
         else
-          SetColumnErrorInformation(row, parts);
+        {
+          var start = 0;
+          // If we have combinations of columns, e,G. Combined Keys or Less Than errors store the error
+          // in each column
+          while (start < parts.Column.Length)
+          {
+            var end = parts.Column.IndexOf(cFieldSeparator, start + 1);
+            if (end == -1)
+              end = parts.Column.Length;
+            var colName = parts.Column.Substring(start, end - start);
+            if (row.Table.Columns.Contains(colName))
+              row.SetColumnError(colName, row.GetColumnError(colName).AddMessage(parts.Message));
+            else
+            {
+              if (!onlyColumnErrors)
+                row.RowError = row.RowError.AddMessage(
+                  CombineColumnAndError(parts.Column, parts.Message));
+            }
+
+            start = end + 1;
+          }
+        }
     }
 
     /// <summary>
@@ -288,26 +312,26 @@ namespace CsvTools
     /// </summary>
     /// <param name="errorList">The error list.</param>
     /// <returns></returns>
-    private static string BuildList(in ICollection<Tuple<string, string>> errorList)
+    private static string BuildList(in IEnumerable<ColumnAndMessage> errorList)
     {
       var errors = new StringBuilder();
 
       // Errors first
-      foreach (var (column, message) in errorList)
-        if (!message.IsWarningMessage())
+      foreach (var entry in errorList)
+        if (!entry.Message.IsWarningMessage())
         {
           if (errors.Length > 0)
             errors.Append(cSeparator);
-          errors.Append(CombineColumnAndError(column, message));
+          errors.Append(CombineColumnAndError(entry.Column, entry.Message));
         }
 
       foreach (var part in from part in errorList
-               where part.Item2.IsWarningMessage()
-               select part)
+                           where part.Message.IsWarningMessage()
+                           select part)
       {
         if (errors.Length > 0)
           errors.Append(cSeparator);
-        errors.Append(CombineColumnAndError(part.Item1, part.Item2));
+        errors.Append(CombineColumnAndError(part.Column, part.Message));
       }
 
       return errors.ToString();
@@ -318,7 +342,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="errorList">The error list.</param>
     /// <returns></returns>
-    private static IEnumerable<Tuple<string, string>> ParseList(string? errorList)
+    private static IEnumerable<ColumnAndMessage> ParseList(string? errorList)
     {
       if (errorList is null || errorList.Length == 0)
         yield break;
@@ -333,48 +357,37 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Sets the column error information.
-    /// </summary>
-    /// <param name="row">The row.</param>
-    /// <param name="columnErrorInformation">The column error information.</param>
-    private static void SetColumnErrorInformation(in DataRow row, in ColumnAndMessage columnErrorInformation, bool onlyCclumnErrors)
+    public struct ColumnAndMessage
     {
-      var start = 0;
-      // If we have combinations of columns, e,G. Combined Keys or Less Than errors store the error
-      // in each column
-      while (start < columnErrorInformation.Item1.Length)
+      public readonly string Column;
+      public readonly string Message;
+
+      public ColumnAndMessage(in string column, in string message)
       {
-        var end = columnErrorInformation.Item1.IndexOf(cFieldSeparator, start + 1);
-        if (end == -1)
-          end = columnErrorInformation.Item1.Length;
-        var colName = columnErrorInformation.Item1.Substring(start, end - start);
-        if (row.Table.Columns.Contains(colName))
-          row.SetColumnError(colName, row.GetColumnError(colName).AddMessage(columnErrorInformation.Item2));
-        else
-          row.RowError = row.RowError.AddMessage(
-            CombineColumnAndError(columnErrorInformation.Item1, columnErrorInformation.Item2));
-        start = end + 1;
+        Column = column;
+        Message = message;
       }
     }
 
     /// <summary>
     ///   Splits column and error information
     /// </summary>
-    /// <param name="columnWithError">The column with error.</param>
+    /// <param name="text">The column with error.</param>
     /// <returns></returns>
-    private static Tuple<string, string> SplitColumnAndMessage(in string columnWithError)
+    private static ColumnAndMessage SplitColumnAndMessage(in string text)
     {
-      var splitter = -2;
-      if (columnWithError[0] != '[')
-        return new Tuple<string, string>(string.Empty, columnWithError.Substring(splitter + 2));
-      splitter = columnWithError.IndexOf(cClosingField);
-      if (splitter == -1)
-        splitter = -2;
+      if (text[0] == cOpenField)
+      {
+        var splitter = text.IndexOf(cClosingField);
+        return splitter == -1 ?
+          new ColumnAndMessage(string.Empty, text) :
+          new ColumnAndMessage(text.Substring(2, splitter - 1), text.Substring(splitter + 2));
+      }
 
-      return new Tuple<string, string>(
-        splitter <= 1 ? string.Empty : columnWithError.Substring(1, splitter - 1),
-        columnWithError.Substring(splitter + 2));
+      var splitterAlt = text.IndexOf(cAlternateColumnMessageSeparator);
+      return splitterAlt == -1 ?
+        new ColumnAndMessage(string.Empty, text) :
+        new ColumnAndMessage(text.Substring(0, splitterAlt), text.Substring(splitterAlt + 1).TrimStart());
     }
   }
 }
