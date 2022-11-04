@@ -244,13 +244,15 @@ namespace CsvTools
         bool onlyColumnErrors = false;
         if (restoreErrorsFromColumn)
         {
-          errorColumn = dataTable.Columns[ReaderConstants.cErrorField];
+          var cols = dataTable.Columns.OfType<DataColumn>().ToList();
+          
+          errorColumn = 
+            cols.FirstOrDefault(col => col.ColumnName.Equals(ReaderConstants.cErrorField))
+            ?? cols.FirstOrDefault(col => col.ColumnName.EndsWith("Errors", StringComparison.InvariantCultureIgnoreCase))
+            ?? cols.FirstOrDefault(col => col.ColumnName.StartsWith("Error", StringComparison.InvariantCultureIgnoreCase));
 
-          if (errorColumn is null)
-          {
-            errorColumn = dataTable.Columns["Errors"];
-            onlyColumnErrors = (errorColumn != null);
-          }
+          if (errorColumn != null)
+            onlyColumnErrors = errorColumn.ColumnName.Equals(ReaderConstants.cErrorField);
         }
 
         var watch = Stopwatch.StartNew();

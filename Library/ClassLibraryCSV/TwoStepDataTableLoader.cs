@@ -103,11 +103,13 @@ namespace CsvTools
 
       m_ActionBegin?.Invoke();
 
-      await GetBatchByTimeSpan(durationInitial, restoreError, progress, m_SetDataTable, cancellationToken)
+      await GetBatchByTimeSpan(durationInitial, restoreError, progress, m_SetDataTable,
+          cancellationToken)
         .ConfigureAwait(false);
 
       m_SetLoadNextBatchAsync?.Invoke((process, token) =>
-        GetBatchByTimeSpan(TimeSpan.FromMinutes(60), restoreError, process, dt => m_GetDataTable().Merge(dt), token));
+        GetBatchByTimeSpan(TimeSpan.FromMinutes(60), restoreError, process,
+          dt => m_GetDataTable().Merge(dt), token));
 
       m_ActionFinished?.Invoke(m_DataReaderWrapper);
     }
