@@ -38,11 +38,7 @@ namespace CsvTools.Tests
       test.Errors.Add(new SampleRecordEntry(10, error: "ErrorText"));
       Assert.AreEqual(1, test.NumErrors);
       Assert.AreEqual(0, test.Samples.Count);
-      test.Errors.AddRange(new[] {
-        new SampleRecordEntry(1),
-        new SampleRecordEntry(2),
-        new SampleRecordEntry(3)
-      });
+      test.Errors.AddRange(new[] { new SampleRecordEntry(1), new SampleRecordEntry(2), new SampleRecordEntry(3) });
       Assert.AreEqual(4, test.NumErrors);
       Assert.AreEqual(0, test.Samples.Count);
     }
