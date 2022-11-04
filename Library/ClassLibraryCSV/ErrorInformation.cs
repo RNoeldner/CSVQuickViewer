@@ -338,7 +338,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="row">The row.</param>
     /// <param name="columnErrorInformation">The column error information.</param>
-    private static void SetColumnErrorInformation(in DataRow row, in Tuple<string, string> columnErrorInformation)
+    private static void SetColumnErrorInformation(in DataRow row, in ColumnAndMessage columnErrorInformation, bool onlyCclumnErrors)
     {
       var start = 0;
       // If we have combinations of columns, e,G. Combined Keys or Less Than errors store the error
