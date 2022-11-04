@@ -27,6 +27,8 @@ using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
 
+// ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+
 namespace CsvTools
 {
   /// <inheritdoc cref="IFileSetting" />
@@ -156,9 +158,8 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Workaround to serialize, the ColumnCollection
+    ///   Workaround to serialize the ColumnCollection, only needed for XML Serialization
     /// </summary>
-    /// <value>The column options</value>
     [XmlElement]
     [JsonIgnore]
     public virtual ColumnMut[] Format
@@ -167,8 +168,6 @@ namespace CsvTools
       set
       {
         ColumnCollection.Clear();
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-        if (value == null) return;
         ColumnCollection.AddRange(value.Select(x => x.ToImmutableColumn()));
       }
     }
@@ -202,27 +201,6 @@ namespace CsvTools
       set => SetField(ref m_SetLatestSourceTimeForWrite, value);
     }
 
-    /// <summary>
-    ///   Gets a value indicating whether FileLastWriteTimeUtc is specified.
-    /// </summary>
-    /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [JsonIgnore]
-    public bool FileLastWriteTimeUtcSpecified => ProcessTimeUtc != ZeroTime;
-
-    /// <summary>
-    ///   Gets a value indicating whether field mapping specified.
-    /// </summary>
-    /// <value><c>true</c> if field mapping is specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [JsonIgnore]
-    public bool MappingSpecified => MappingCollection.Count > 0;
-
-    [JsonIgnore] public bool ProcessTimeUtcSpecified => m_ProcessTimeUtc != ZeroTime;
-
-    [JsonIgnore]
-    public bool SamplesAndErrorsSpecified =>
-      SamplesAndErrors.ErrorsSpecified || SamplesAndErrors.SamplesSpecified || SamplesAndErrors.NumErrors != -1;
 
     /// <summary>
     ///   Utility calls to get or set the SQL Statement as CDataSection
@@ -238,14 +216,6 @@ namespace CsvTools
       }
       set => m_SqlStatement = value.Value;
     }
-
-    /// <summary>
-    ///   Gets a value indicating whether SqlStatementCData is specified.
-    /// </summary>
-    /// <value><c>true</c> if specified; otherwise, <c>false</c>.</value>
-    /// <remarks>Used for XML Serialization</remarks>
-    [JsonIgnore]
-    public bool SqlStatementCDataSpecified => !string.IsNullOrEmpty(SqlStatement);
 
     [XmlIgnore] public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
@@ -302,7 +272,7 @@ namespace CsvTools
         if (m_Footer.Equals(newVal, StringComparison.Ordinal))
           return;
         m_Footer = newVal;
-        NotifyPropertyChanged(nameof(Footer));
+        NotifyPropertyChanged();
       }
     }
 
@@ -326,7 +296,7 @@ namespace CsvTools
         if (m_Header.Equals(newVal, StringComparison.Ordinal))
           return;
         m_Header = newVal;
-        NotifyPropertyChanged(nameof(Header));
+        NotifyPropertyChanged();
       }
     }
 

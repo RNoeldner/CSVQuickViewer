@@ -39,7 +39,7 @@ namespace CsvTools
         if (m_EmptyAsNull.Equals(value))
           return;
         m_EmptyAsNull = value;
-        NotifyPropertyChanged(nameof(EmptyAsNull));
+        NotifyPropertyChanged();
       }
     }
 

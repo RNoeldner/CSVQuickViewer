@@ -1200,13 +1200,12 @@ namespace CsvTools
         return;
       if (m_FileSetting != null && FillGuessSettings != null)
       {
-        var mut = new ColumnMut(columnFormat);
-        using var form = new FormColumnUI(mut, false, m_FileSetting, FillGuessSettings,
+        using var form = new FormColumnUI(columnFormat, false, m_FileSetting, FillGuessSettings,
           false, HtmlStyle);
         if (form.ShowDialog(this) == DialogResult.Cancel)
           return;
 
-        m_FileSetting.ColumnCollection.Replace(mut.ToImmutableColumn());
+        m_FileSetting.ColumnCollection.Replace(form.UpdatedColumn);
       }
     }
 

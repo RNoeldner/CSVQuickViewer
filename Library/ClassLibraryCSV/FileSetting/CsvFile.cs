@@ -20,6 +20,8 @@ using System.ComponentModel;
 using System.Text;
 using System.Xml.Serialization;
 
+// ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+
 namespace CsvTools
 {
   /// <inheritdoc cref="CsvTools.ICsvFile" />
@@ -134,7 +136,7 @@ namespace CsvTools
         if (m_ContextSensitiveQualifier.Equals(value))
           return;
         m_ContextSensitiveQualifier = value;
-        NotifyPropertyChanged(nameof(ContextSensitiveQualifier));
+        NotifyPropertyChanged();
 
         // If Alternate Qualifier is disabled, enable DuplicateQualifierToEscape automatically
         if (!m_ContextSensitiveQualifier && !DuplicateQualifierToEscape)
@@ -158,7 +160,7 @@ namespace CsvTools
         if (m_CommentLine.Equals(value, StringComparison.Ordinal))
           return;
         m_CommentLine = newVal;
-        NotifyPropertyChanged(nameof(CommentLine));
+        NotifyPropertyChanged();
       }
     }
 
@@ -174,7 +176,7 @@ namespace CsvTools
         if (m_DelimiterPlaceholder.Equals(newVal, StringComparison.Ordinal))
           return;
         m_DelimiterPlaceholder = newVal;
-        NotifyPropertyChanged(nameof(DelimiterPlaceholder));
+        NotifyPropertyChanged();
       }
     }
 
@@ -189,7 +191,7 @@ namespace CsvTools
         if (m_DuplicateQualifierToEscape.Equals(value))
           return;
         m_DuplicateQualifierToEscape = value;
-        NotifyPropertyChanged(nameof(DuplicateQualifierToEscape));
+        NotifyPropertyChanged();
       }
     }
 
@@ -210,7 +212,7 @@ namespace CsvTools
           return;
         m_EscapePrefixChar = newVal.WrittenPunctuationToChar();
         m_EscapePrefix = newVal;
-        NotifyPropertyChanged(nameof(EscapePrefix));
+        NotifyPropertyChanged();
         NotifyPropertyChanged(nameof(EscapePrefixChar));
       }
     }
@@ -228,7 +230,7 @@ namespace CsvTools
           return;
         m_FieldDelimiterChar = newVal.WrittenPunctuationToChar();
         m_FieldDelimiter = newVal;
-        NotifyPropertyChanged(nameof(FieldDelimiter));
+        NotifyPropertyChanged();
         NotifyPropertyChanged(nameof(FieldDelimiterChar));
       }
     }
@@ -251,7 +253,7 @@ namespace CsvTools
           return;
         m_FieldQualifierChar = newVal.WrittenPunctuationToChar();
         m_FieldQualifier = newVal;
-        NotifyPropertyChanged(nameof(FieldQualifier));
+        NotifyPropertyChanged();
         NotifyPropertyChanged(nameof(m_FieldQualifierChar));
       }
     }
@@ -279,7 +281,7 @@ namespace CsvTools
         if (m_NewLine.Equals(value))
           return;
         m_NewLine = value;
-        NotifyPropertyChanged(nameof(NewLine));
+        NotifyPropertyChanged();
       }
     }
 
@@ -295,7 +297,7 @@ namespace CsvTools
         if (m_NewLinePlaceholder.Equals(newVal, StringComparison.OrdinalIgnoreCase))
           return;
         m_NewLinePlaceholder = newVal;
-        NotifyPropertyChanged(nameof(NewLinePlaceholder));
+        NotifyPropertyChanged();
       }
     }
 
@@ -312,7 +314,7 @@ namespace CsvTools
         m_QualifyAlways = value;
         if (m_QualifyAlways)
           QualifyOnlyIfNeeded = false;
-        NotifyPropertyChanged(nameof(QualifyAlways));
+        NotifyPropertyChanged();
       }
     }
 
@@ -330,7 +332,7 @@ namespace CsvTools
         m_QualifyOnlyIfNeeded = value;
         if (m_QualifyOnlyIfNeeded)
           QualifyAlways = false;
-        NotifyPropertyChanged(nameof(QualifyOnlyIfNeeded));
+        NotifyPropertyChanged();
       }
     }
 
@@ -346,7 +348,7 @@ namespace CsvTools
         if (m_QualifierPlaceholder.Equals(newVal, StringComparison.Ordinal))
           return;
         m_QualifierPlaceholder = newVal;
-        NotifyPropertyChanged(nameof(QualifierPlaceholder));
+        NotifyPropertyChanged();
       }
     }
 
@@ -361,7 +363,7 @@ namespace CsvTools
         if (m_AllowRowCombining.Equals(value))
           return;
         m_AllowRowCombining = value;
-        NotifyPropertyChanged(nameof(AllowRowCombining));
+        NotifyPropertyChanged();
       }
     }
 
@@ -377,7 +379,7 @@ namespace CsvTools
         if (m_NoDelimitedFile.Equals(value))
           return;
         m_NoDelimitedFile = value;
-        NotifyPropertyChanged(nameof(NoDelimitedFile));
+        NotifyPropertyChanged();
       }
     }
 
@@ -393,7 +395,7 @@ namespace CsvTools
         if (m_NumWarnings.Equals(value))
           return;
         m_NumWarnings = value;
-        NotifyPropertyChanged(nameof(NumWarnings));
+        NotifyPropertyChanged();
       }
     }
 
@@ -409,7 +411,7 @@ namespace CsvTools
         if (m_TreatLfAsSpace.Equals(value))
           return;
         m_TreatLfAsSpace = value;
-        NotifyPropertyChanged(nameof(TreatLfAsSpace));
+        NotifyPropertyChanged();
       }
     }
 
@@ -425,7 +427,7 @@ namespace CsvTools
         if (m_TreatUnknownCharacterAsSpace.Equals(value))
           return;
         m_TreatUnknownCharacterAsSpace = value;
-        NotifyPropertyChanged(nameof(TreatUnknownCharacterAsSpace));
+        NotifyPropertyChanged();
       }
     }
 
@@ -441,7 +443,7 @@ namespace CsvTools
         if (m_TryToSolveMoreColumns.Equals(value))
           return;
         m_TryToSolveMoreColumns = value;
-        NotifyPropertyChanged(nameof(TryToSolveMoreColumns));
+        NotifyPropertyChanged();
       }
     }
 
@@ -457,7 +459,7 @@ namespace CsvTools
         if (m_WarnDelimiterInValue.Equals(value))
           return;
         m_WarnDelimiterInValue = value;
-        NotifyPropertyChanged(nameof(WarnDelimiterInValue));
+        NotifyPropertyChanged();
       }
     }
 
@@ -473,7 +475,7 @@ namespace CsvTools
         if (m_WarnEmptyTailingColumns.Equals(value))
           return;
         m_WarnEmptyTailingColumns = value;
-        NotifyPropertyChanged(nameof(WarnEmptyTailingColumns));
+        NotifyPropertyChanged();
       }
     }
 
@@ -489,7 +491,7 @@ namespace CsvTools
         if (m_WarnLineFeed.Equals(value))
           return;
         m_WarnLineFeed = value;
-        NotifyPropertyChanged(nameof(WarnLineFeed));
+        NotifyPropertyChanged();
       }
     }
 
@@ -505,7 +507,7 @@ namespace CsvTools
         if (m_WarnNbsp.Equals(value))
           return;
         m_WarnNbsp = value;
-        NotifyPropertyChanged(nameof(WarnNBSP));
+        NotifyPropertyChanged();
       }
     }
 
@@ -521,7 +523,7 @@ namespace CsvTools
         if (m_WarnQuotes.Equals(value))
           return;
         m_WarnQuotes = value;
-        NotifyPropertyChanged(nameof(WarnQuotes));
+        NotifyPropertyChanged();
       }
     }
 
@@ -537,7 +539,7 @@ namespace CsvTools
         if (m_WarnQuotesInQuotes.Equals(value))
           return;
         m_WarnQuotesInQuotes = value;
-        NotifyPropertyChanged(nameof(WarnQuotesInQuotes));
+        NotifyPropertyChanged();
       }
     }
 
@@ -553,7 +555,7 @@ namespace CsvTools
         if (m_WarnUnknownCharacter.Equals(value))
           return;
         m_WarnUnknownCharacter = value;
-        NotifyPropertyChanged(nameof(WarnUnknownCharacter));
+        NotifyPropertyChanged();
       }
     }
 

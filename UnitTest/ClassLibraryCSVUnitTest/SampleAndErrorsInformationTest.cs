@@ -35,13 +35,13 @@ namespace CsvTools.Tests
     public void AddError()
     {
       var test = new SampleAndErrorsInformation();
-      test.Errors.Add(new SampleRecordEntry(10, "ErrorText"));
+      test.Errors.Add(new SampleRecordEntry(10, error: "ErrorText"));
       Assert.AreEqual(1, test.NumErrors);
       Assert.AreEqual(0, test.Samples.Count);
       test.Errors.AddRange(new[] {
-        new SampleRecordEntry(1, true),
-        new SampleRecordEntry(2, true),
-        new SampleRecordEntry(3, true)
+        new SampleRecordEntry(1),
+        new SampleRecordEntry(2),
+        new SampleRecordEntry(3)
       });
       Assert.AreEqual(4, test.NumErrors);
       Assert.AreEqual(0, test.Samples.Count);
@@ -51,11 +51,11 @@ namespace CsvTools.Tests
     public void AddSamples()
     {
       var test = new SampleAndErrorsInformation();
-      test.Samples.Add(new SampleRecordEntry(1, true));
+      test.Samples.Add(new SampleRecordEntry(1));
       Assert.AreEqual(1, test.Samples.Count);
       test.Samples.Add(new SampleRecordEntry(20, false));
       Assert.AreEqual(2, test.Samples.Count);
-      test.Samples.AddRange(new[] { new SampleRecordEntry(1, true), new SampleRecordEntry(2, true), new SampleRecordEntry(3, true) });
+      test.Samples.AddRange(new[] { new SampleRecordEntry(1), new SampleRecordEntry(2), new SampleRecordEntry(3) });
       Assert.AreEqual(4, test.Samples.Count);
     }
 
@@ -63,9 +63,9 @@ namespace CsvTools.Tests
     public void Clone()
     {
       var test = new SampleAndErrorsInformation();
-      test.Errors.Add(new SampleRecordEntry(10, "ErrorText"));
+      test.Errors.Add(new SampleRecordEntry(10, error: "ErrorText"));
 
-      test.Samples.Add(new SampleRecordEntry(20, true));
+      test.Samples.Add(new SampleRecordEntry(20));
       test.Samples.Add(new SampleRecordEntry(20, false));
 
       var test2 = (SampleAndErrorsInformation) test.Clone();
@@ -78,9 +78,9 @@ namespace CsvTools.Tests
     public void Equals()
     {
       var test = new SampleAndErrorsInformation();
-      test.Errors.Add(new SampleRecordEntry(10, "ErrorText"));
+      test.Errors.Add(new SampleRecordEntry(10, error: "ErrorText"));
 
-      test.Samples.Add(new SampleRecordEntry(20, true));
+      test.Samples.Add(new SampleRecordEntry(20));
       test.Samples.Add(new SampleRecordEntry(20, false));
 
       var test2 = (SampleAndErrorsInformation) test.Clone();

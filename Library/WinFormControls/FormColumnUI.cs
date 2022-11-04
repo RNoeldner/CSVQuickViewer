@@ -47,6 +47,7 @@ namespace CsvTools
     private readonly FillGuessSettings m_FillGuessSettings;
 
     private readonly bool m_WriteSetting;
+    public Column UpdatedColumn => m_ColumnEdit.ToImmutableColumn();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormColumnUI" /> class.
@@ -59,14 +60,14 @@ namespace CsvTools
     /// <param name="hTmlStyle">The HTML style.</param>
     /// <exception cref="ArgumentNullException">fileSetting or fillGuessSettings NULL</exception>
     public FormColumnUI(
-      ColumnMut column,
+      Column column,
       bool writeSetting,
       IFileSetting fileSetting,
       FillGuessSettings fillGuessSettings,
       bool showIgnore,
       HtmlStyle hTmlStyle)
     {
-      m_ColumnEdit = column ?? new ColumnMut(string.Empty);
+      m_ColumnEdit = new ColumnMut(column);
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
       m_HtmlStyle = hTmlStyle ?? throw new ArgumentNullException(nameof(hTmlStyle));
@@ -175,8 +176,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-            using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
-                     m_FileSetting.RecordLimit, formProgress.CancellationToken))
+          using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
+                   m_FileSetting.RecordLimit, formProgress.CancellationToken))
           {
             sqlReader.ReportProgress = formProgress;
             var data = await sqlReader.GetDataTableAsync(TimeSpan.FromSeconds(60),
@@ -621,7 +622,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-            using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, formProgress.CancellationToken);
+          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, formProgress.CancellationToken);
           fileReader.ReportProgress = formProgress;
           await fileReader.OpenAsync(formProgress.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -632,9 +633,9 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-            // Write Setting ----- open the source that is SQL
-            using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSql(),
-              m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProgress.CancellationToken);
+          // Write Setting ----- open the source that is SQL
+          using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSql(),
+            m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProgress.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
         }
@@ -768,8 +769,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-            using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
-              m_FileSetting.RecordLimit, cancellationToken);
+          using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
+            m_FileSetting.RecordLimit, cancellationToken);
           if (progress != null)
             sqlReader.ReportProgress = progress;
           var colIndex = sqlReader.GetOrdinal(columnName);
@@ -805,8 +806,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          // ReSharper disable once ConvertToUsingDeclaration
-          using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, cancellationToken))
+        // ReSharper disable once ConvertToUsingDeclaration
+        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, cancellationToken))
         {
           if (progress != null)
             fileReader.ReportProgress = progress;

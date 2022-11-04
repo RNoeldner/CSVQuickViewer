@@ -8,7 +8,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void ImmutableColumnTest()
     {
-      var ic = new Column("Name", new ValueFormat(DataTypeEnum.Integer), 0, false);
+      var ic = new Column("Name", new ValueFormat(DataTypeEnum.Integer), 0);
       Assert.AreEqual("Name", ic.Name);
       Assert.AreEqual(DataTypeEnum.Integer, ic.ValueFormat.DataType);
     }

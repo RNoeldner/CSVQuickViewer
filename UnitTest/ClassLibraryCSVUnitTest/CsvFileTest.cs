@@ -23,23 +23,23 @@ namespace CsvTools.Tests
   [TestClass]
   public class CsvFileTest
   {
-    private readonly CsvFile m_CsvFile = new CsvFile();
+    private readonly CsvFile m_CsvFile = new("Sample.csv");
 
     [TestMethod]
     public void CalculateLatestSourceTime()
     {
-      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("BasicCSV.txt") };
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"));
       ((BaseSettings) setting).CalculateLatestSourceTime();
       setting.CalculateLatestSourceTime();
 
-      var setting2 = new JsonFile { ID= "JsonFile", FileName = "MyTest.txt" };
+      var setting2 = new JsonFile("MyTest.txt") { ID = "JsonFile" };
       setting2.CalculateLatestSourceTime();
     }
 
     [TestMethod]
     public void CheckDefaults()
     {
-      var test = new CsvFile();
+      var test = new CsvFile("Dummy");
       Assert.AreEqual(test.ByteOrderMark, true, "ByteOrderMark");
       Assert.AreEqual(test.CodePageId, 65001, "CodePageId");
       Assert.IsTrue(test.ConsecutiveEmptyRows > 1, "ConsecutiveEmptyRows");
@@ -89,7 +89,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvFileCopyTo()
     {
-      var test = new CsvFile();
+      var test = new CsvFile("Dummy");
       m_CsvFile.CopyTo(test);
       m_CsvFile.CheckAllPropertiesEqual(test);
       // Test Properties that are not tested
@@ -103,7 +103,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvFileFieldFieldMappingRemove()
     {
-      var test = new CsvFile();
+      var test = new CsvFile("Dummy");
       var fm1 = new Mapping("Source1", "Destination1");
 
       test.MappingCollection.Add(fm1);
@@ -125,7 +125,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvFileFieldMappingAddUpdate()
     {
-      var test = new CsvFile();
+      var test = new CsvFile("Dummy");
       var fm1 = new Mapping("Source", "Destination1");
       var fm2 = new Mapping("Source", "Destination2");
       test.MappingCollection.Add(fm1);
@@ -138,7 +138,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvFileFieldMappingAddUpdateAdd()
     {
-      var test = new CsvFile();
+      var test = new CsvFile("Dummy");
       var fm1 = new Mapping("Source", "Destination1");
       test.MappingCollection.Add(fm1);
       Assert.IsTrue(fm1.Equals(test.MappingCollection.First()));
@@ -147,7 +147,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvFileFieldMappingAddUpdateAdd2()
     {
-      var test = new CsvFile();
+      var test = new CsvFile("Dummy");
       var fm1 = new Mapping("Source", "Destination1");
       var fm2 = new Mapping("Source2", "Destination2");
       test.MappingCollection.Add(fm1);
@@ -159,14 +159,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvFileNotEquals()
     {
-      var test = new CsvFile();
+      var test = new CsvFile("Dummy");
       Assert.IsFalse(test.Equals(m_CsvFile));
     }
 
     [TestMethod]
     public void CsvFileNotEqualsNull()
     {
-      var test = new CsvFile();
+      var test = new CsvFile("Dummy");
       Assert.IsFalse(test.Equals(null));
     }
 
@@ -174,7 +174,7 @@ namespace CsvTools.Tests
     public void CsvFilePropertyChanged()
     {
       var numCalled = 0;
-      var test = new CsvFile();
+      var test = new CsvFile("Dummy");
       test.PropertyChanged += (_, e) =>
       {
         if (e.PropertyName == nameof(IFileSettingPhysicalFile.FileName))
@@ -187,7 +187,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Ctor()
     {
-      var test = new CsvFile();
+      var test = new CsvFile("Dummy");
       Assert.AreEqual(string.Empty, test.FileName, "Empty FileName");
       Assert.AreEqual(string.Empty, test.ID, "Empty ID");
 
@@ -204,7 +204,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(-1, m_CsvFile.SamplesAndErrors.NumErrors);
       Assert.IsFalse(m_CsvFile.SamplesAndErrors.ErrorsSpecified);
       Assert.AreEqual(0, m_CsvFile.SamplesAndErrors.Errors.Count);
-      m_CsvFile.SamplesAndErrors.Errors.Add(new SampleRecordEntry(177, "Error"));
+      m_CsvFile.SamplesAndErrors.Errors.Add(new SampleRecordEntry(177, error: "Error"));
       Assert.AreEqual(1, m_CsvFile.SamplesAndErrors.NumErrors);
       m_CsvFile.SamplesAndErrors.NumErrors = 100;
       Assert.AreEqual(100, m_CsvFile.SamplesAndErrors.NumErrors);
@@ -362,7 +362,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(1, m_CsvFile.SkipRows, "SkipRows");
       Assert.AreEqual("SqlStatement", m_CsvFile.SqlStatement, "SqlStatement");
       Assert.AreEqual("SqlStatement", m_CsvFile.SqlStatementCData.InnerText, "SqlStatementCData");
-      Assert.IsTrue(m_CsvFile.SqlStatementCDataSpecified, "SqlStatementCDataSpecified");
 
       Assert.AreEqual(5, m_CsvFile.Timeout, "Timeout");
       Assert.AreEqual("TemplateName", m_CsvFile.TemplateName, "TemplateName");
@@ -382,7 +381,6 @@ namespace CsvTools.Tests
       Assert.AreEqual("MyTest.txt", setting.InternalID);
       setting.ID = Guid.NewGuid().ToString();
       Assert.AreEqual(setting.ID, setting.InternalID);
-      Assert.AreEqual(setting.ID, ((BaseSettings) setting).InternalID);
 
       var setting2 = new JsonFile("MyTest.txt") { ID = "JsonFile" };
       Assert.AreEqual("JsonFile", setting2.ID);
@@ -408,9 +406,7 @@ namespace CsvTools.Tests
 
       test.SourceFileSettings = new[] { test1, test2 };
       Assert.AreEqual(2, test.SourceFileSettings.Count);
-#pragma warning disable CS8625
       test.SourceFileSettings = null;
-#pragma warning restore CS8625
       Assert.AreEqual(0, test.SourceFileSettings?.Count ?? 0);
     }
 
@@ -434,15 +430,14 @@ namespace CsvTools.Tests
       test.Samples.Add(new SampleRecordEntry(12, false));
       test.Samples.Add(new SampleRecordEntry(13, false));
       test.Samples.Add(new SampleRecordEntry(14, false));
-      var setting = new CsvFile { ID = "TestID", FileName = "MyTest.txt" };
-      setting.SamplesAndErrors = test;
+      var setting = new CsvFile("MyTest.txt") { ID = "TestID", SamplesAndErrors = test };
       Assert.AreEqual(3, setting.SamplesAndErrors.Samples.Count);
     }
 
     [TestMethod]
     public void ToStringTest()
     {
-      var setting = new CsvFile { ID = "TestID", FileName = "MyTest.txt" };
+      var setting = new CsvFile("MyTest.txt") { ID = "TestID" };
       var result = setting.ToString();
       Assert.IsTrue(result.Contains(setting.GetType().Name));
       Assert.IsTrue(result.Contains(setting.ID));

@@ -43,7 +43,7 @@ namespace CsvTools.Tests
 
 
       m_WriteFile.ColumnCollection.Add(new Column("ExamDate",
-        new ValueFormat(DataTypeEnum.DateTime, @"MM/dd/yyyy"), timePart: "ExamTime"));
+        new ValueFormat(DataTypeEnum.DateTime), timePart: "ExamTime"));
       m_WriteFile.ColumnCollection.Add(new Column("Proficiency", ValueFormat.Empty, ignore: true));
     }
 

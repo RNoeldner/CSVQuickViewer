@@ -25,7 +25,7 @@ namespace CsvTools.Tests
       var entry = new SampleRecordEntry(10,true,"Error");
       Assert.AreEqual(true, entry.ProvideEvidence);
 
-      var entry1 = new SampleRecordEntry(100, "Error");
+      var entry1 = new SampleRecordEntry(100, error: "Error");
       Assert.AreEqual(100, entry1.RecordNumber);
       Assert.AreEqual("Error", entry1.Error);
       Assert.AreEqual(true, entry1.ProvideEvidence);
@@ -39,7 +39,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Clone()
     {
-      var entry1 = new SampleRecordEntry(100, "Error1");
+      var entry1 = new SampleRecordEntry(100, error: "Error1");
       var entry2 = (SampleRecordEntry) entry1.Clone();
       Assert.AreEqual(100, entry2.RecordNumber);
       Assert.AreEqual("Error1", entry2.Error);
@@ -49,24 +49,24 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Equals()
     {
-      var entry1 = new SampleRecordEntry(100, "Error1");
+      var entry1 = new SampleRecordEntry(100, error: "Error1");
       var entry2 = entry1.Clone();
       Assert.IsTrue(entry1.Equals(entry2));
       Assert.IsTrue(entry2.Equals(entry1));
       Assert.IsFalse(entry1.Equals(null));
 
-      entry2 = new SampleRecordEntry(10, "Error1");
+      entry2 = new SampleRecordEntry(10, error: "Error1");
       Assert.IsFalse(entry1.Equals(entry2));
     }
 
     [TestMethod]
     public void GetHashCodeTest()
     {
-      var entry1 = new SampleRecordEntry(100, "Error1");
+      var entry1 = new SampleRecordEntry(100, error: "Error1");
       var entry2 = entry1.Clone();
       Assert.AreEqual(entry1.GetHashCode(), entry2.GetHashCode());
 
-      entry2 = new SampleRecordEntry(10, "Error1");
+      entry2 = new SampleRecordEntry(10, error: "Error1");
       Assert.AreNotEqual(entry1.GetHashCode(), entry2.GetHashCode());
     }
   }

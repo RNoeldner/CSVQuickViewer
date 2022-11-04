@@ -29,22 +29,12 @@ namespace CsvTools
     {
     }
 
-    public SampleRecordEntry(long recordNumber, in string error)
-      : this(recordNumber, true, error)
-    {
-    }
-
-    public SampleRecordEntry(long recordNumber, bool provideEvidence)
-      : this(recordNumber, provideEvidence, string.Empty)
-    {
-    }
-
-    [JsonConstructor] 
-    public SampleRecordEntry(long recordNumber, bool provideEvidence, in string error)
+    [JsonConstructor]
+    public SampleRecordEntry(long recordNumber, bool provideEvidence = true, in string error = "")
     {
       RecordNumber = recordNumber;
       ProvideEvidence = provideEvidence;
-      Error = error;
+      Error = error ?? string.Empty;
     }
 
     /// <summary>
