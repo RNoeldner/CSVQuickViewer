@@ -311,11 +311,6 @@ namespace CsvTools
       set => SetField(ref m_DestinationName, value, StringComparison.Ordinal);
     }
 
-    [XmlIgnore]
-    [JsonIgnore]
-    public bool DestinationNameSpecified => !m_DestinationName.Equals(m_Name, StringComparison.OrdinalIgnoreCase);
-
-
     /// <summary>
     ///   Gets or sets a value indicating whether the column should be ignore reading a file
     /// </summary>
@@ -362,10 +357,6 @@ namespace CsvTools
       get => m_TimePartFormat;
       set => SetField(ref m_TimePartFormat, value, StringComparison.Ordinal);
     }
-
-    [JsonIgnore]
-    public bool TimePartFormatSpecified => ValueFormatMut.DataType == DataTypeEnum.DateTime &&
-                                           m_TimePartFormat != Column.cDefaultTimePartFormat;
 
     /// <summary>
     ///   Gets or sets the name.

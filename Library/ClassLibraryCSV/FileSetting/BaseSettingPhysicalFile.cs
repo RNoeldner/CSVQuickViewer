@@ -23,6 +23,8 @@ using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 
+// ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+
 namespace CsvTools
 {
   [DebuggerDisplay("File: {ID} {m_FileName} ({ColumnCollection.Count()} Columns)")]
@@ -133,8 +135,6 @@ namespace CsvTools
       get => new ValueFormatMut(m_DefaultValueFormatWrite);
       set => SetField(ref m_DefaultValueFormatWrite, value.ToImmutable());
     }
-
-    [XmlIgnore] [JsonIgnore] public bool ValueFormatMutableSpecified => !m_DefaultValueFormatWrite.IsDefault();
 
     [XmlIgnore]
     [JsonIgnore]

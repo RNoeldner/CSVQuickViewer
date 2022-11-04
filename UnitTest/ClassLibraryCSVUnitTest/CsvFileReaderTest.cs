@@ -1107,7 +1107,7 @@ Line "Test"", "22",23,"  24"
         hasFieldHeader: true,
         columnDefinition: new Column[]
         {
-          new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime, "MM/dd/yyyy"),
+          new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime),
             timePart: "Start Time", timePartFormat: "HH:mm:ss")
         },
         trimmingOption: TrimmingOptionEnum.Unquoted,
@@ -1233,8 +1233,8 @@ Line "Test"", "22",23,"  24"
         true,
         new Column[]
         {
-          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, true, ""),
-          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, true, "")
+          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, true),
+          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, true)
         }, TrimmingOptionEnum.All,
         "\t",
         "\"",
@@ -1450,7 +1450,7 @@ Line "Test"", "22",23,"  24"
         HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
       };
       setting.ColumnCollection.Add(new Column("Start Date",
-        new ValueFormat(DataTypeEnum.DateTime, "MM/dd/yyyy"), timePart: "Start Time",
+        new ValueFormat(DataTypeEnum.DateTime), timePart: "Start Time",
         timePartFormat: "HH:mm:ss", timeZonePart: "Time Zone"));
 
       // all will be converted to TimeZoneInfo.Local, but we concert then to UTC
@@ -1495,7 +1495,7 @@ Line "Test"", "22",23,"  24"
         HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
       };
       setting.ColumnCollection.Add(
-        new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime, "MM/dd/yyyy"),
+        new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime),
           timePart: "Start Time", timePartFormat: "HH:mm:ss"));
 
 

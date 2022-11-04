@@ -192,7 +192,7 @@ namespace CsvTools.Tests
         new DateTime(2001, 02, 1, 07, 13, 55, 0),
         null,
         false,
-        new ValueFormat(DataTypeEnum.String),
+        new ValueFormat(),
         out _);
       Assert.AreEqual(new DateTime(2010, 01, 1, 07, 13, 55, 0), res);
     }

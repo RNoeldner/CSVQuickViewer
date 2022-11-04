@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml.Serialization;
 
+// ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+
 namespace CsvTools
 {
   /// <summary>
@@ -51,7 +53,7 @@ namespace CsvTools
         if (m_Row.Equals(newVal, StringComparison.Ordinal))
           return;
         m_Row = newVal;
-        NotifyPropertyChanged(nameof(Row));
+        NotifyPropertyChanged();
       }
     }
 
