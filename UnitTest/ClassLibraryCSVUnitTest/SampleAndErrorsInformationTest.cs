@@ -13,7 +13,6 @@
  */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.ObjectModel;
 
 namespace CsvTools.Tests
 {
@@ -65,7 +64,7 @@ namespace CsvTools.Tests
       test.Samples.Add(new SampleRecordEntry(20, false));
 
       var test2 = (SampleAndErrorsInformation) test.Clone();
-      Assert.IsTrue(test.Equals(test2), "EQuals");
+      Assert.IsTrue(test.Equals(test2), "Equals");
       Assert.AreEqual(test.Errors[0], test2.Errors[0]);
       Assert.AreEqual(test.Samples[0], test2.Samples[0]);
     }
