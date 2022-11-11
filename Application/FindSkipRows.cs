@@ -74,7 +74,7 @@ namespace CsvTools
 
     private void FindSkipRows_Load(object? sender, EventArgs e)
     {
-      textBox.OpenBindingStream(m_Stream as Stream,
+      textBox.OpenBindingStream(m_Stream,
         Encoding.GetEncoding(m_CsvFile.CodePageId, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
     }
 

@@ -988,7 +988,7 @@ namespace CsvTools
       checkedListBoxDateFormats.EndUpdate();
     }
 
-    private void SetSamplePart(object? sender, EventArgs? e) =>
+    private void SetSamplePart(object? sender, EventArgs e) =>
       SetPartLabels(textBoxSplit.Text, Convert.ToInt32(numericUpDownPart.Value), checkBoxPartToEnd.Checked);
 
 #if !NETFRAMEWORK

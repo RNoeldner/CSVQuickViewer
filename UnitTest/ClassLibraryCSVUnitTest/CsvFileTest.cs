@@ -29,6 +29,7 @@ namespace CsvTools.Tests
     public void CalculateLatestSourceTime()
     {
       var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"));
+      // ReSharper disable once RedundantCast
       ((BaseSettings) setting).CalculateLatestSourceTime();
       setting.CalculateLatestSourceTime();
 

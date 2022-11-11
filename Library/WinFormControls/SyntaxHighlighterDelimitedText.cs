@@ -55,6 +55,7 @@ namespace CsvTools
         m_CommentRegex = new Regex($"\\s*{comment}.*$", RegexOptions.Multiline | RegexOptions.Compiled);
     }
 
+    // ReSharper disable once RedundantNameQualifier
     public override void Highlight(FastColoredTextBoxNS.Range range)
     {
       range.ClearStyle(StyleIndex.All);
@@ -81,6 +82,7 @@ namespace CsvTools
         m_BackGround = backGround;
       }
 
+      // ReSharper disable once RedundantNameQualifier
       public override void Draw(Graphics gr, Point position, FastColoredTextBoxNS.Range range)
       {
         //get size of rectangle
@@ -115,6 +117,7 @@ namespace CsvTools
         m_BackGround = backGround;
       }
 
+      // ReSharper disable once RedundantNameQualifier
       public override void Draw(Graphics gr, Point position, FastColoredTextBoxNS.Range range)
       {
         //get size of rectangle
