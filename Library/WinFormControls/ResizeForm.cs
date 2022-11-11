@@ -9,7 +9,6 @@ namespace CsvTools
 {
   public class ResizeForm : Form
   {
-
     public ResizeForm()
     {
       SuspendLayout();
@@ -29,7 +28,6 @@ namespace CsvTools
     }
 
 
-
     public static float FontSize
     {
       get => m_FontSize;
@@ -44,7 +42,8 @@ namespace CsvTools
 
 #pragma warning disable CA1416 // Validate platform compatibility
     private static float m_FontSize = SystemFonts.DefaultFont.Size;
-    private void SetZoom() => SetFonts(this, new Font(SystemFonts.DialogFont.FontFamily, m_FontSize, FontStyle.Regular));
+    private void SetZoom() =>
+      SetFonts(this, new Font(SystemFonts.DialogFont.FontFamily, m_FontSize, FontStyle.Regular));
 #pragma warning restore CA1416 // Validate platform compatibility
 
 
@@ -57,7 +56,6 @@ namespace CsvTools
       else if (e.Delta < 0)
         FontSize -= 0.5F;
       SetZoom();
-
     }
 
     /// <summary>

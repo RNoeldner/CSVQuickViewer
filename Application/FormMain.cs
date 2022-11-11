@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -49,6 +50,11 @@ namespace CsvTools
     private int m_WarningCount;
     private int m_WarningMax = 100;
 
+    private void UpdateSize(Control ctrl)
+    {
+      ctrl.SafeInvoke(() => ctrl.Font = new Font(m_ViewSettings.Font, m_ViewSettings.FontSize));
+    }
+
     public FormMain(in ViewSettings viewSettings)
     {
       m_ViewSettings = viewSettings;
@@ -68,10 +74,20 @@ namespace CsvTools
       detailControl.HtmlStyle = m_ViewSettings.HtmlStyle;
       detailControl.MenuDown = m_ViewSettings.MenuDown;
 
+      m_ViewSettings.PropertyChanged += (sender, args) =>
+      {
+        if (args.PropertyName == nameof(ViewSettings.Font) || args.PropertyName == nameof(ViewSettings.FontSize))
+          UpdateSize(this);
+        if (args.PropertyName == nameof(ViewSettings.MenuDown))
+          detailControl.MenuDown = m_ViewSettings.MenuDown;
+      };
+
       this.LoadWindowState(m_ViewSettings.WindowPosition);
+      UpdateSize(detailControl);
       ShowTextPanel(true);
 
       m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
+
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
       m_SettingsChangedTimerChange.AutoReset = false;
@@ -608,8 +624,6 @@ namespace CsvTools
         m_ViewSettings.SaveViewSettings();
         m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
         m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
-
-        detailControl.MenuDown = m_ViewSettings.MenuDown;
 
         SetFileSystemWatcher(m_FileSetting.FileName);
 

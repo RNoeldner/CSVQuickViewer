@@ -301,6 +301,7 @@ namespace CsvTools
       m_ToolStripItems.Add(m_ToolStripButtonStore);
 
       m_ToolStripItems.CollectionChanged += (_, _) => MoveMenu();
+      FontChanged += DetailControl_FontChanged;
       MoveMenu();
     }
 
@@ -524,6 +525,7 @@ namespace CsvTools
       var target = (m_MenuDown) ? m_BindingNavigator : m_ToolStripTop;
       target.SuspendLayout();
       source.SuspendLayout();
+      target.Font = Font;
       foreach (var item in m_ToolStripItems)
       {
         item.DisplayStyle = (m_MenuDown)
@@ -546,6 +548,14 @@ namespace CsvTools
       source.ResumeLayout(true);
       target.ResumeLayout(true);
       SetButtonVisibility();
+    }
+
+    private void DetailControl_FontChanged(object sender, EventArgs e)
+    {
+      this.SafeInvoke(() =>
+      {
+        ((m_MenuDown) ? m_BindingNavigator : m_ToolStripTop).Font = this.Font;
+      });
     }
 
     /// <summary>
