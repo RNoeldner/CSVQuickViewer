@@ -16,6 +16,8 @@
 
 using System;
 using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Text;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -36,8 +38,16 @@ namespace CsvTools
     {
       m_ViewSettings = viewSettings ?? throw new ArgumentNullException(nameof(viewSettings));
       m_CsvFile = csvFile ?? throw new ArgumentNullException(nameof(csvFile));
+      m_ViewSettings.PropertyChanged += M_ViewSettings_PropertyChanged;
 
       InitializeComponent();
+
+      comboBoxFont.BeginUpdate();
+      using var col = new InstalledFontCollection();
+      foreach (FontFamily fa in col.Families)
+        comboBoxFont.Items.Add(fa.Name);
+      comboBoxFont.EndUpdate();
+      SetFont();
 
       if (m_ViewSettings.LimitDuration == ViewSettings.Duration.Unlimited)
         domainUpDownLimit.SelectedIndex = 4;
@@ -49,14 +59,27 @@ namespace CsvTools
         domainUpDownLimit.SelectedIndex = 1;
       else
         domainUpDownLimit.SelectedIndex = 0;
+
       toolTip.SetToolTip(checkBoxAllowRowCombining,
         @"Try to combine rows, it can happen if the column does contain a linefeed and is not properly quoted. 
 That column content is moved to the next line.
 Note: This does not work if it the issue is in the last column. The extra text of the columns flows into the next row, it cannot be recognized at the time the record is read. As the parser is working as a stream and can not go back it cannot be rectified. 
 This is a very risky option, in some cases rows might be lost.");
 
-      toolTip.SetToolTip(checkBoxTryToSolveMoreColumns, @"Try to realign columns in case the file is not quoted, and an extra delimiter has caused additional columns.
+      toolTip.SetToolTip(checkBoxTryToSolveMoreColumns,
+        @"Try to realign columns in case the file is not quoted, and an extra delimiter has caused additional columns.
 Re-Aligning works best if columns and their order are easily identifiable, if the columns are very similar e.g., all are text, or all are empty there is a high chance the realignment does fail.");
+    }
+
+    private void SetFont()
+    {
+      this.SafeInvoke(() => Font = new Font(m_ViewSettings.Font, m_ViewSettings.FontSize));
+    }
+
+    private void M_ViewSettings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName == nameof(ViewSettings.Font) || e.PropertyName == nameof(ViewSettings.FontSize))
+        SetFont();
     }
 
     private void BtnOpenFile_Click(object? sender, EventArgs e)
@@ -113,7 +136,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
         var res = await improvedStream.GuessDelimiter(m_CsvFile.CodePageId, m_CsvFile.SkipRows, m_CsvFile.EscapePrefix,
-                    m_CancellationTokenSource.Token);
+          m_CancellationTokenSource.Token);
         if (res.Item2)
           m_CsvFile.FieldDelimiter = res.Item1;
       });
@@ -125,8 +148,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
-        qualifier = await improvedStream.GuessQualifier(m_CsvFile.CodePageId, m_CsvFile.SkipRows, m_CsvFile.FieldDelimiter, m_CsvFile.EscapePrefix,
-                      m_CancellationTokenSource.Token);
+        qualifier = await improvedStream.GuessQualifier(m_CsvFile.CodePageId, m_CsvFile.SkipRows,
+          m_CsvFile.FieldDelimiter, m_CsvFile.EscapePrefix,
+          m_CancellationTokenSource.Token);
       });
 
       m_CsvFile.FieldQualifier = qualifier;
@@ -137,7 +161,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       await buttonSkipLine.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
-        m_CsvFile.SkipRows = await improvedStream.GuessStartRow(m_CsvFile.CodePageId, m_CsvFile.FieldDelimiter, m_CsvFile.FieldQualifier, m_CsvFile.CommentLine, m_CancellationTokenSource.Token);
+        m_CsvFile.SkipRows = await improvedStream.GuessStartRow(m_CsvFile.CodePageId, m_CsvFile.FieldDelimiter,
+          m_CsvFile.FieldQualifier, m_CsvFile.CommentLine, m_CancellationTokenSource.Token);
       });
     }
 
@@ -172,12 +197,13 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
       // Fill Drop down
       cboCodePage.SuspendLayout();
-      cboCodePage.DataSource = EncodingHelper.CommonCodePages.Select(cp => new DisplayItem<int>(cp, EncodingHelper.GetEncodingName(cp, false))).ToList();
+      cboCodePage.DataSource = EncodingHelper.CommonCodePages
+        .Select(cp => new DisplayItem<int>(cp, EncodingHelper.GetEncodingName(cp, false))).ToList();
       cboCodePage.ResumeLayout(true);
 
       var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterTypeEnum));
       var di = (from RecordDelimiterTypeEnum item in Enum.GetValues(typeof(RecordDelimiterTypeEnum))
-                select new DisplayItem<int>((int) item, descConv?.ConvertToString(item) ?? string.Empty)).ToList();
+        select new DisplayItem<int>((int) item, descConv?.ConvertToString(item) ?? string.Empty)).ToList();
 
       var selValue = (int) m_CsvFile.NewLine;
       cboRecordDelimiter.SuspendLayout();
@@ -201,8 +227,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       await buttonNewLine.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
-        cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(m_CsvFile.CodePageId, m_CsvFile.SkipRows,
-                                                   m_CsvFile.FieldQualifier, m_CancellationTokenSource.Token);
+        cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(m_CsvFile.CodePageId,
+          m_CsvFile.SkipRows,
+          m_CsvFile.FieldQualifier, m_CancellationTokenSource.Token);
       });
     }
 
@@ -255,7 +282,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
         var res = await improvedStream.GuessHasHeader(m_CsvFile.CodePageId, m_CsvFile.SkipRows, m_CsvFile.CommentLine,
-                    m_CsvFile.FieldDelimiter, m_CancellationTokenSource.Token);
+          m_CsvFile.FieldDelimiter, m_CancellationTokenSource.Token);
         m_CsvFile.HasFieldHeader = string.IsNullOrEmpty(res);
         bindingSourceViewSetting.ResetBindings(false);
         MessageBox.Show(res, "Checking headers");
@@ -273,7 +300,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       await buttonGuessLineComment.RunWithHourglassAsync(async () =>
       {
         using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
-        m_CsvFile.CommentLine = await improvedStream.GuessLineComment(m_CsvFile.CodePageId, m_CsvFile.SkipRows, m_CancellationTokenSource.Token);
+        m_CsvFile.CommentLine = await improvedStream.GuessLineComment(m_CsvFile.CodePageId, m_CsvFile.SkipRows,
+          m_CancellationTokenSource.Token);
       });
     }
   }

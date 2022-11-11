@@ -35,6 +35,8 @@ namespace CsvTools
     private bool m_GuessNewLine = true;
     private bool m_GuessQualifier = true;
     private bool m_GuessStartRow = true;
+    private string m_Font = "Tahoma";
+    private float m_FontSize = 8f;
     private HtmlStyle m_HtmlStyle = new HtmlStyle();
     private bool m_MenuDown;
     private bool m_StoreSettingsByFile;
@@ -52,6 +54,22 @@ namespace CsvTools
       [Description("2 seconds")] TwoSecond,
 
       [Description("10 seconds")] TenSecond,
+    }
+
+    [XmlElement]
+    [DefaultValue("Tahoma")]
+    public string Font
+    {
+      get => m_Font;
+      set => SetField(ref m_Font, value);
+    }
+
+    [XmlElement]
+    [DefaultValue(8f)]
+    public float FontSize
+    {
+      get => m_FontSize;
+      set => SetField(ref m_FontSize, value);
     }
 
     [XmlElement]
