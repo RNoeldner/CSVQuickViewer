@@ -170,6 +170,7 @@ namespace CsvTools
     [SuppressMessage("ReSharper", "RedundantCast")]
     [SuppressMessage("ReSharper", "RedundantDelegateCreation")]
     [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+    [SuppressMessage("ReSharper", "RedundantExplicitArrayCreation")]
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
