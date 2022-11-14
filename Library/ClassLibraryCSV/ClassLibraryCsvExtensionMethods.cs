@@ -43,6 +43,11 @@ namespace CsvTools
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
+    
+    private static readonly Lazy<Regex> m_RemoveEmpty = new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*\\[\\]\\,?"));
+    private static readonly Lazy<Regex> m_RemoveEmpty2 = new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*{},?"));
+    private static readonly Lazy<Regex> m_RemoveComma = new Lazy<Regex>(() => new Regex(",(?=\\s*})"));
+
     private static readonly Lazy<XmlSerializerNamespaces> m_EmptyXmlSerializerNamespaces =
       new Lazy<XmlSerializerNamespaces>(
         () =>
@@ -52,17 +57,17 @@ namespace CsvTools
           return xmlSerializerNamespaces;
         });
 
-      public static readonly Lazy<JsonSerializerSettings> JsonSerializerSettings =  new Lazy<JsonSerializerSettings>(
-        () => new JsonSerializerSettings
-           {
-             TypeNameHandling = TypeNameHandling.Auto,             
-             DefaultValueHandling = DefaultValueHandling.Ignore,
-             ContractResolver = new CamelCasePropertyNamesContractResolver(),
-             NullValueHandling = NullValueHandling.Ignore,
-             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-             DateFormatHandling = DateFormatHandling.IsoDateFormat,
-             DateTimeZoneHandling = DateTimeZoneHandling.Utc
-           });
+    public static readonly Lazy<JsonSerializerSettings> JsonSerializerSettings = new Lazy<JsonSerializerSettings>(
+      () => new JsonSerializerSettings
+      {
+        TypeNameHandling = TypeNameHandling.Auto,
+        DefaultValueHandling = DefaultValueHandling.Ignore,
+        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+        NullValueHandling = NullValueHandling.Ignore,
+        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        DateFormatHandling = DateFormatHandling.IsoDateFormat,
+        DateTimeZoneHandling = DateTimeZoneHandling.Utc
+      });
 
     /// <summary>
     /// Serialize an object with formatting
@@ -74,19 +79,23 @@ namespace CsvTools
     {
       using var stringWriter = new StringWriter();
       using var textWriter = new XmlTextWriter(stringWriter);
-      textWriter.Formatting = System.Xml.Formatting.Indented;      
+      textWriter.Formatting = System.Xml.Formatting.Indented;
       serializer.Serialize(textWriter, data, m_EmptyXmlSerializerNamespaces.Value);
       return stringWriter.ToString();
     }
 
-  
 
     /// <summary>
     /// Serialize an object with formatting
     /// </summary>    
     /// <param name="data">The object to be serialized</param>
     /// <returns>The resulting Json string</returns>
-    public static string SerializeIndentedJson(this object data) => JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented, JsonSerializerSettings.Value);
+    public static string SerializeIndentedJson(this object data)
+    {
+      var json = JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented, JsonSerializerSettings.Value);
+      // remove empty array or class
+      return m_RemoveComma.Value.Replace(m_RemoveEmpty2.Value.Replace(m_RemoveEmpty.Value.Replace(json, string.Empty), string.Empty), string.Empty);
+    }
 
     /// <summary>
     /// Move the field from on position in the list to another
