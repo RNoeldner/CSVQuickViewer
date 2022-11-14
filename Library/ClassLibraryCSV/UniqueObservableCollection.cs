@@ -31,7 +31,7 @@ namespace CsvTools
     ///   Additional EventHandlers for an implementation needing information ona a changed item
     /// </summary>
     public PropertyChangedEventHandler? ItemPropertyChanged;
-
+    
     /// <summary>
     ///   Additional EventHandlers for an implementation needing information ona a changed item
     /// </summary>
@@ -90,7 +90,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="item">The item to add</param>
     /// <param name="propertyName">
-    ///   Name of the property that needs to be adjusted to make the item unque
+    ///   Name of the property that needs to be adjusted to make the item unique
     /// </param>
     /// <remarks>
     ///   In case the the item is cloneable <see cref="ICloneable" /> a value copy will be made. In
