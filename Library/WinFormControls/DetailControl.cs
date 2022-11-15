@@ -1076,10 +1076,7 @@ namespace CsvTools
       });
 
 
-      this.SafeInvoke(() =>
-      {
-        m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;
-      });
+      this.SafeInvoke(() => m_ToolStripComboBoxFilterType.SelectedIndex = newIndex);
 
       m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
     }
