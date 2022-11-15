@@ -157,7 +157,7 @@ namespace CsvTools.Tests
     public void ValueFormatEquals()
     {
       var target = new ValueFormatMut(DataTypeEnum.DateTime);
-      var target2 = new ValueFormatMut(DataTypeEnum.Boolean);
+      var target2 = new ValueFormatMut(DataTypeEnum.DateTime);
       Assert.IsTrue(target2.Equals(target));
     }
 

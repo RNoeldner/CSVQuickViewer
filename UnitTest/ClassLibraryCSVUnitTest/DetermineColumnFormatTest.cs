@@ -33,15 +33,15 @@ namespace CsvTools.Tests
       var list = new List<Column>();
       Assert.IsNull(DetermineColumnFormat.CommonDateFormat(list));
       list.Add(new Column("Text1", ValueFormat.Empty, 3));
-      list.Add(new Column("Date1", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 1, true));
+      list.Add(new Column("Date1", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 1));
       Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
 
       list.Add(new Column("Date2", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 2, true));
       list.Add(new Column("Date3", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true));
       Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
 
-      list.Add(new Column("Date4", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true));
-      list.Add(new Column("Date5", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true));
+      list.Add(new Column("Date4", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, false));
+      list.Add(new Column("Date5", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, false));
       Assert.AreEqual("MM/dd/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
 
       list.Add(new Column("Date6", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 4));

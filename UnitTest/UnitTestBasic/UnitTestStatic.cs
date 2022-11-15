@@ -295,9 +295,9 @@ namespace CsvTools.Tests
 
     public static CsvFile ReaderGetAllFormats(string id = "AllFormats")
     {
-      var readFile = new CsvFile
+      var readFile = new CsvFile(Path.Combine(GetTestPath("AllFormats.txt")))
       {
-        ID = id, FileName = Path.Combine(GetTestPath("AllFormats.txt")), HasFieldHeader = true, FieldDelimiter = "TAB"
+        ID = id, HasFieldHeader = true, FieldDelimiter = "TAB"
       };
 
       readFile.ColumnCollection.Add(
@@ -317,7 +317,7 @@ namespace CsvTools.Tests
 
     public static CsvFile ReaderGetBasicCSV(string id = "BasicCSV")
     {
-      var readFile = new CsvFile { ID = id, CommentLine = "#", FileName = Path.Combine(GetTestPath("BasicCSV.txt")) };
+      var readFile = new CsvFile(Path.Combine(GetTestPath("BasicCSV.txt"))) { ID = id, CommentLine = "#" };
       var examDateFld = new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy"));
       readFile.ColumnCollection.Add(examDateFld);
 
@@ -512,7 +512,7 @@ namespace CsvTools.Tests
       if (before > 0 && !isClosed)
         WaitSomeTime(before, token);
 
-      if (toDo != null  && !isClosed)
+      if (toDo != null && !isClosed)
       {
         toDo.Invoke(typed);
         if (after > 0)

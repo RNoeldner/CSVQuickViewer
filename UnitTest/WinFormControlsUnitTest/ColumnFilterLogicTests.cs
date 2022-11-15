@@ -11,6 +11,7 @@
 * If not, see http://www.gnu.org/licenses/ .
 *
 */
+
 #nullable enable
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -75,7 +76,7 @@ namespace CsvTools.Tests
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(double), "Column1");
       string? prop = null;
-      columnFilterLogic.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
+      columnFilterLogic.PropertyChanged += delegate(object sender, PropertyChangedEventArgs e)
       {
         prop = e.PropertyName;
       };
@@ -84,8 +85,7 @@ namespace CsvTools.Tests
       Assert.AreEqual("[Column1] = 2", columnFilterLogic.BuildSqlCommand(columnFilterLogic.ValueText));
     }
 
-    [TestMethod]
-    [Timeout(1000)]
+    [TestMethod, Timeout(1000)]
     public void Active()
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(DateTime), "Column1");

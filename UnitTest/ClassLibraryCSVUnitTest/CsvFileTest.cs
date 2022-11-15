@@ -48,7 +48,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(test.DisplayStartLineNo, true, "DisplayStartLineNo");
       Assert.AreEqual(test.DisplayEndLineNo, false, "DisplayEndLineNo");
       Assert.AreEqual(test.DisplayRecordNo, false, "DisplayRecordNo");
-      Assert.AreEqual(test.FileName, string.Empty, "FileName");
+      Assert.AreEqual(test.FileName, "Dummy", "FileName");
       Assert.AreEqual(test.HasFieldHeader, true, "HasFieldHeader");
       Assert.AreEqual(test.ID, string.Empty, "ID");
       Assert.AreEqual(test.InOverview, false, "IsCritical");
@@ -189,7 +189,7 @@ namespace CsvTools.Tests
     public void Ctor()
     {
       var test = new CsvFile("Dummy");
-      Assert.AreEqual(string.Empty, test.FileName, "Empty FileName");
+      Assert.AreEqual("Dummy", test.FileName, "Empty FileName");
       Assert.AreEqual(string.Empty, test.ID, "Empty ID");
 
       var test2 = new CsvFile(m_CsvFile.FileName);
