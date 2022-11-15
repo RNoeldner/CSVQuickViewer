@@ -104,7 +104,7 @@ namespace CsvTools
     private long m_WarningCount;
     private int m_Order = 100;
     private string m_Comment = string.Empty;
-    private int m_Status;
+    private FileStettingStatus m_Status = FileStettingStatus.None;
     private readonly ReaderWriterLockSlim m_LockStatus = new ReaderWriterLockSlim();
 
     /// <summary>
@@ -132,7 +132,7 @@ namespace CsvTools
     /// <inheritdoc />
     [XmlIgnore]
     [JsonIgnore]
-    public int Status
+    public FileStettingStatus Status
     {
       get
       {

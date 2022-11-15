@@ -66,7 +66,7 @@ namespace CsvTools
       if (errorList.Contains(newError))
         return errorList;
 
-      var sb = new StringBuilder(errorList);
+      var sb = new StringBuilder(errorList.Length + newError.Length +1);
 
       // If the new message is considered an error put it in front, this way its easier to check if
       // there is an error
@@ -114,7 +114,7 @@ namespace CsvTools
     {
       if (errorMessage is null)
         throw new ArgumentNullException(nameof(errorMessage));
-      if (string.IsNullOrEmpty(column) && (errorMessage.Length==0 || errorMessage[0]==cOpenField))
+      if (string.IsNullOrEmpty(column) && errorMessage[0] == cOpenField)
         return errorMessage;
       return $"{cOpenField}{column}{cClosingField} {errorMessage}";
     }
@@ -378,10 +378,10 @@ namespace CsvTools
     {
       if (text[0] == cOpenField)
       {
-        var splitter = text.IndexOf(cClosingField);
-        return splitter == -1 ?
+        var close = text.IndexOf(cClosingField);
+        return close == -1 ?
           new ColumnAndMessage(string.Empty, text) :
-          new ColumnAndMessage(text.Substring(2, splitter - 1), text.Substring(splitter + 2));
+          new ColumnAndMessage(text.Substring(1, close - 1), text.Substring(close + 2));
       }
 
       var splitterAlt = text.IndexOf(cAlternateColumnMessageSeparator);

@@ -40,8 +40,14 @@ namespace CsvTools.Tests
       Assert.IsNotNull(test1);
       test1.Add(0, "Message");
       Assert.AreEqual("Message", test1.Display);
-      test1.Add(0, "Another Message");
-      Assert.AreEqual("Message" + ErrorInformation.cSeparator + "Another Message", test1.Display);
+
+      test1.Add(0, "Another");
+      Assert.IsTrue(test1.Display.StartsWith("Message" + ErrorInformation.cSeparator) ||
+                    test1.Display.EndsWith(ErrorInformation.cSeparator + "Message"),
+        $"Search Message :{test1.Display}");
+      Assert.IsTrue(test1.Display.StartsWith("Another" + ErrorInformation.cSeparator) ||
+                    test1.Display.EndsWith(ErrorInformation.cSeparator + "Another"),
+        $"Search Another :{test1.Display}");
     }
   }
 }

@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System;
@@ -19,16 +20,24 @@ using System.ComponentModel;
 
 namespace CsvTools
 {
+  public enum FileStettingStatus
+  {
+    None = 0,
+    Loading = 1,
+    GettingValidationResults = 2,
+    QueuedForLoad = 3
+  }
+
   /// <summary>
   ///   Interface for a FileSetting
   /// </summary>
-  public interface IFileSetting : INotifyPropertyChanged, INotifyPropertyChangedString,  IWithCopyTo<IFileSetting>, ICollectionIdentity
+  public interface IFileSetting : INotifyPropertyChanged, INotifyPropertyChangedString, IWithCopyTo<IFileSetting>,
+    ICollectionIdentity
   {
     /// <summary>
-    ///   Status of long running processing on the FileSettings 0 - Nothing 1 - Loading 2 - Getting
-    ///   Validation Result 3 - Waiting for Load
+    ///   Status of long running processing on the FileSettings, used to synchronise over independent threads
     /// </summary>
-    int Status { get; set; }
+    FileStettingStatus Status { get; set; }
 
     /// <summary>
     ///   Gets or sets the column formats
@@ -262,7 +271,7 @@ namespace CsvTools
     ///   Gets or sets the number records with warnings
     /// </summary>
     long WarningCount { get; set; }
-    
+
     /// <summary>
     ///   Examine the source and determine LatestSource
     /// </summary>
