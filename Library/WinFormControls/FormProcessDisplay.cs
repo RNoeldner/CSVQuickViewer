@@ -210,7 +210,7 @@ namespace CsvTools
       try
       {
         CancellationTokenSource.Cancel();
-        this.SafeInvoke(() => base.Close());
+        this.SafeInvoke(base.Close);
       }
       catch (ObjectDisposedException)
       {

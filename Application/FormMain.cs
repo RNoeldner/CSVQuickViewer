@@ -557,7 +557,7 @@ namespace CsvTools
       {
         if (!cancellationToken.IsCancellationRequested)
         {
-          this.SafeInvoke(() => ShowTextPanel(false));
+          this.SafeInvoke(ShowTextPanel(false));
 
           detailControl.ShowInfoButtons = true;
 
