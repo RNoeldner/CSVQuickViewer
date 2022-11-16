@@ -12,6 +12,7 @@
  *
  */
 
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Text;
@@ -26,20 +27,87 @@ namespace CsvTools
   /// </summary>
   public static class SerializedFilesLib
   {
-    private static readonly Lazy<XmlSerializer> m_SerializerCurrentCsvFile =
-      new Lazy<XmlSerializer>(() => new XmlSerializer(typeof(CsvFile)));
+    /// <summary>
+    /// Deserialize a file, looking at teh file its determined if it should be read as json or xml
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="fileName">Name of the file</param>
+    /// <returns></returns>
+    public static async Task<T> DeserializeAsync<T>(this string fileName) where T : class
+    {
+      Logger.Debug("Loading information from file {filename}", fileName);
+      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
+      using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
+
+      var text = await reader.ReadToEndAsync().ConfigureAwait(false);
+      if (text.StartsWith("<?xml "))
+        return (T) new XmlSerializer(typeof(T)).Deserialize(new StringReader(text));
+
+      return JsonConvert.DeserializeObject<T>(text,
+        ClassLibraryCsvExtensionMethods.JsonSerializerSettings.Value)!;
+    }
+
+    private static async Task<string?> GetNewContentJsonAsync(string fileName, object data)
+    {
+      string content = data.SerializeIndentedJson();
+      if (!FileSystemUtils.FileExists(fileName))
+        return content;
+
+      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
+      using var sr = new StreamReader(improvedStream, Encoding.UTF8, true);
+      if (await sr.ReadToEndAsync().ConfigureAwait(false) != content) return content;
+      Logger.Debug("No change to file {filename}", fileName);
+      return null;
+    }
+
+    /// <summary>
+    /// Serialize the class 
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="fileName"></param>
+    /// <param name="askOverwrite"></param>
+    /// <returns></returns>
+    public static async Task SerializeAsync<T>(this T data, string fileName, Func<bool>? askOverwrite = null)
+      where T : class
+    {
+      try
+      {
+        Logger.Information($"Getting content for file {FileSystemUtils.GetShortDisplayFileName(fileName)}");
+        var content = await GetNewContentJsonAsync(fileName, data).ConfigureAwait(false);
+
+        if (!string.IsNullOrEmpty(content))
+        {
+          var delete = false;
+          if (FileSystemUtils.FileExists(fileName))
+          {
+            if (askOverwrite?.Invoke() ?? true)
+              delete = true;
+            else
+              // Exit here no overwrite allowed
+              return;
+          }
+
+          Logger.Debug("Updating file {filename}", fileName);
+          Logger.Information($"Writing file {FileSystemUtils.GetShortDisplayFileName(fileName)}");
+          if (delete)
+            FileSystemUtils.DeleteWithBackup(fileName, true);
+          using var improvedStream = new ImprovedStream(new SourceAccess(fileName, false));
+          using var sr = new StreamWriter(improvedStream, Encoding.UTF8);
+          await sr.WriteAsync(content).ConfigureAwait(false);
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex, "Error writing json file {filename}", fileName);
+      }
+    }
 
     /// <summary>
     ///   Loads the CSV file.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <returns></returns>
-    public static CsvFile LoadCsvFile(in string fileName)
-    {
-      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
-      using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
-      return (CsvFile) m_SerializerCurrentCsvFile.Value.Deserialize(reader);
-    }
+    public static Task<CsvFile> LoadCsvFileAsync(in string fileName) => DeserializeAsync<CsvFile>(fileName);
 
     /// <summary>
     ///   Saves the setting for a physical file
@@ -49,7 +117,8 @@ namespace CsvTools
     ///   The function to decide if we want to overwrite, usually a user prompt
     /// </param>
     /// <param name="cancellationToken"></param>
-    public static async Task SaveSettingFileAsync(IFileSettingPhysicalFile fileSettingPhysicalFile, Func<bool> askOverwrite, CancellationToken cancellationToken)
+    public static async Task SaveSettingFileAsync(IFileSettingPhysicalFile fileSettingPhysicalFile,
+      Func<bool> askOverwrite, CancellationToken cancellationToken)
     {
       var fileName = fileSettingPhysicalFile.FileName + CsvFile.cCsvSettingExtension;
 
@@ -68,38 +137,7 @@ namespace CsvTools
                        || col.ValueFormat.DataType != DataTypeEnum.String)
           saveSetting.ColumnCollection.Add(col);
 
-      Logger.Debug("Saving setting {path}", fileName);
-      string contend = saveSetting.SerializeIndentedXml(m_SerializerCurrentCsvFile.Value);
-
-      var delete = false;
-      if (FileSystemUtils.FileExists(fileName))
-      {
-#if NETSTANDARD2_1_OR_GREATER
-        var fileContend = await FileSystemUtils.ReadAllTextAsync(fileName, cancellationToken).ConfigureAwait(false);
-#else
-      var fileContend =FileSystemUtils.ReadAllText(fileName);
-#endif
-        // Check if we have actual changes
-        if (fileContend.Equals(contend, StringComparison.OrdinalIgnoreCase))
-          // what we want to write and what is written does mach, exit here do not save
-          return;
-
-        if (askOverwrite.Invoke())
-          delete = true;
-        else
-          // Exit here no overwrite allowed
-          return;
-      }
-
-      if (delete)
-        FileSystemUtils.DeleteWithBackup(fileName, false);
-
-#if NETSTANDARD2_1_OR_GREATER
-      await FileSystemUtils.WriteAllTextAsync(fileName, contend, cancellationToken).ConfigureAwait(false);
-#else
-      FileSystemUtils.WriteAllText(fileName, contend);
-#endif
-
+      await saveSetting.SerializeAsync(fileName, askOverwrite).ConfigureAwait(false);
     }
   }
 }
