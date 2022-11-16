@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Newtonsoft.Json;
@@ -54,8 +55,7 @@ namespace CsvTools
 
     private bool m_ContextSensitiveQualifier = cContextSensitiveQualifierDefault;
 
-    [NonSerialized] 
-    private Encoding m_CurrentEncoding = Encoding.UTF8;
+    [NonSerialized] private Encoding m_CurrentEncoding = Encoding.UTF8;
     private string m_DelimiterPlaceholder = cDelimiterPlaceholderDefault;
     private bool m_DuplicateQualifierToEscape = cDuplicateQualifierToEscapeDefault;
     private string m_EscapePrefix = cEscapePrefixDefault;
@@ -202,9 +202,7 @@ namespace CsvTools
       }
     }
 
-    [XmlIgnore] 
-    [JsonIgnore]
-    public char EscapePrefixChar => m_EscapePrefixChar;
+    [XmlIgnore] [JsonIgnore] public char EscapePrefixChar => m_EscapePrefixChar;
 
     /// <inheritdoc />
     [XmlAttribute]
@@ -697,10 +695,12 @@ namespace CsvTools
           yield return $"{nameof(WarnQuotes)}: {WarnQuotes} {csv.WarnQuotes}";
 
         if (ContextSensitiveQualifier != csv.ContextSensitiveQualifier)
-          yield return $"{nameof(ContextSensitiveQualifier)}: {ContextSensitiveQualifier} {csv.ContextSensitiveQualifier}";
+          yield return
+            $"{nameof(ContextSensitiveQualifier)}: {ContextSensitiveQualifier} {csv.ContextSensitiveQualifier}";
 
         if (DuplicateQualifierToEscape != csv.DuplicateQualifierToEscape)
-          yield return $"{nameof(DuplicateQualifierToEscape)}: {DuplicateQualifierToEscape} {csv.DuplicateQualifierToEscape}";
+          yield return
+            $"{nameof(DuplicateQualifierToEscape)}: {DuplicateQualifierToEscape} {csv.DuplicateQualifierToEscape}";
 
         if (!string.Equals(CommentLine, csv.CommentLine, StringComparison.Ordinal))
           yield return $"{nameof(CommentLine)}: {CommentLine} {csv.CommentLine}";

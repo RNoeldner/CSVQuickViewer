@@ -44,8 +44,8 @@ namespace CsvTools
   public static class ClassLibraryCsvExtensionMethods
   {
     
-    private static readonly Lazy<Regex> m_RemoveEmpty = new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*\\[\\]\\,?"));
-    private static readonly Lazy<Regex> m_RemoveEmpty2 = new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*{},?"));
+    private static readonly Lazy<Regex> m_RemoveEmpty = new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*\\[\\s*\\]\\,?"));
+    private static readonly Lazy<Regex> m_RemoveEmpty2 = new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*{\\s*},?"));
     private static readonly Lazy<Regex> m_RemoveComma = new Lazy<Regex>(() => new Regex(",(?=\\s*})"));
 
     private static readonly Lazy<XmlSerializerNamespaces> m_EmptyXmlSerializerNamespaces =
@@ -75,7 +75,7 @@ namespace CsvTools
     /// <param name="data">The object to be serialized</param>
     /// <param name="serializer">The serializer for the passed in object</param>
     /// <returns>The XML string</returns>
-    public static string SerializeIndentedXml(this object data, in XmlSerializer serializer)
+    public static string SerializeIndentedXml<T>(this T data, in XmlSerializer serializer)  where T : class
     {
       using var stringWriter = new StringWriter();
       using var textWriter = new XmlTextWriter(stringWriter);
@@ -90,7 +90,7 @@ namespace CsvTools
     /// </summary>    
     /// <param name="data">The object to be serialized</param>
     /// <returns>The resulting Json string</returns>
-    public static string SerializeIndentedJson(this object data)
+    public static string SerializeIndentedJson<T>(this T data)  where T : class
     {
       var json = JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented, JsonSerializerSettings.Value);
       // remove empty array or class
@@ -104,7 +104,7 @@ namespace CsvTools
     /// <param name="oldIndex">The position of the item to move from</param>
     /// <param name="newIndex">The position of the item to move to</param>
     [DebuggerStepThrough]
-    public static void Move<T>(this IList<T> list, int oldIndex, int newIndex)
+    public static void Move<T>(this IList<T> list, int oldIndex, int newIndex) where T : notnull
     {
       if (oldIndex== newIndex)
         return;

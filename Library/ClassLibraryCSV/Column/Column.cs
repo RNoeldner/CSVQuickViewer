@@ -45,7 +45,7 @@ namespace CsvTools
     /// <exception cref="System.ArgumentNullException">name</exception>
     public Column(in string name,
       in ValueFormat? valueFormat = null,
-      int columnOrdinal = -1,
+      int columnOrdinal = 0,
       bool ignore = false,
       bool? convert = null,
       in string destinationName = "",
@@ -55,7 +55,7 @@ namespace CsvTools
     {
       Name = name ?? throw new ArgumentNullException(nameof(name));
       ValueFormat = valueFormat ?? ValueFormat.Empty;
-      ColumnOrdinal = columnOrdinal;
+      ColumnOrdinal = columnOrdinal < 0 ? 0 : columnOrdinal;
       Ignore = ignore;
       Convert = convert ?? ValueFormat.DataType != DataTypeEnum.String;
       DestinationName = destinationName ?? string.Empty;
@@ -102,6 +102,7 @@ namespace CsvTools
     /// <summary>
     ///   Gets the column ordinal
     /// </summary>
+    [DefaultValue(0)]
     public int ColumnOrdinal { get; }
 
     /// <summary>
