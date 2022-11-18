@@ -13,7 +13,7 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public void MultiselectTreeViewRegular()
     {
-      using var treeView = new MultiselectTreeView();
+      using var treeView = new MultiSelectTreeView();
       treeView.HtmlStyle = UnitTestStatic.HtmlStyle;
       Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
@@ -60,7 +60,7 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public void MultiselectTreeViewTreeData()
     {
-      using var treeView = new MultiselectTreeView();
+      using var treeView = new MultiSelectTreeView();
       treeView.HtmlStyle = UnitTestStatic.HtmlStyle;
       Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
