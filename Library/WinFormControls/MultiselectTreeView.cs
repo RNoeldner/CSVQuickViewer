@@ -26,7 +26,7 @@ namespace CsvTools
   /// <summary>
   ///   An extension of the regular TreeView
   /// </summary>
-  public class MultiselectTreeView : TreeView
+  public class MultiSelectTreeView : TreeView
   {
     private TreeNode m_FirstNode = new();
 
@@ -42,7 +42,7 @@ namespace CsvTools
     /// <value>The selected tree node.</value>
     [Browsable(false)]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    public ICollection<TreeNode> SelectedTreeNode { get; } = new HashSet<TreeNode>();
+    private ICollection<TreeNode> SelectedTreeNode { get; } = new HashSet<TreeNode>();
 
     public void PressKey(Keys keyData) => OnKeyDown(new KeyEventArgs(keyData));
 
@@ -82,26 +82,26 @@ namespace CsvTools
         {
           var myQueue = new List<TreeNode>();
 
-          var uppernode = m_FirstNode;
+          var upperNode = m_FirstNode;
 
-          var bottomnode = e.Node;
+          var bottomNode = e.Node;
 
           // case 1 : begin and end nodes are parent
           var bParent = IsParent(m_FirstNode, e.Node); // is m_firstNode parent (direct or not) of e.Node
           if (!bParent)
           {
-            bParent = IsParent(bottomnode, uppernode);
+            bParent = IsParent(bottomNode, upperNode);
             if (bParent)
             {
               // swap nodes
-              (uppernode, bottomnode) = (bottomnode, uppernode);
+              (upperNode, bottomNode) = (bottomNode, upperNode);
             }
           }
 
           if (bParent)
           {
-            var n = bottomnode;
-            while (n != uppernode.Parent)
+            var n = bottomNode;
+            while (n != upperNode.Parent)
             {
               if (!SelectedTreeNode.Contains(n)) // new node ?
                 myQueue.Add(n);
@@ -113,21 +113,21 @@ namespace CsvTools
           // case 2 : nor the begin nor the end node are descendant one another
           else
           {
-            if ((uppernode.Parent is null && bottomnode.Parent is null)
-                || (uppernode.Parent != null && uppernode.Parent.Nodes.Contains(bottomnode)))
+            if ((upperNode.Parent is null && bottomNode.Parent is null)
+                || (upperNode.Parent != null && upperNode.Parent.Nodes.Contains(bottomNode)))
             {
               // are they siblings ?
-              var nIndexUpper = uppernode.Index;
-              var nIndexBottom = bottomnode.Index;
+              var nIndexUpper = upperNode.Index;
+              var nIndexBottom = bottomNode.Index;
               if (nIndexBottom < nIndexUpper)
               {
                 // reversed?
-                (uppernode, bottomnode) = (bottomnode, uppernode);
-                nIndexUpper = uppernode.Index;
-                nIndexBottom = bottomnode.Index;
+                (upperNode, bottomNode) = (bottomNode, upperNode);
+                nIndexUpper = upperNode.Index;
+                nIndexBottom = bottomNode.Index;
               }
 
-              var n = uppernode;
+              var n = upperNode;
               while (nIndexUpper <= nIndexBottom)
               {
                 if (!SelectedTreeNode.Contains(n)) // new node ?
@@ -142,10 +142,10 @@ namespace CsvTools
             }
             else
             {
-              if (!SelectedTreeNode.Contains(uppernode))
-                myQueue.Add(uppernode);
-              if (!SelectedTreeNode.Contains(bottomnode))
-                myQueue.Add(bottomnode);
+              if (!SelectedTreeNode.Contains(upperNode))
+                myQueue.Add(upperNode);
+              if (!SelectedTreeNode.Contains(bottomNode))
+                myQueue.Add(bottomNode);
             }
           }
 

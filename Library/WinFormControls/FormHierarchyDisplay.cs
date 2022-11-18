@@ -59,7 +59,7 @@ namespace CsvTools
     private TextBox? m_TextBoxValue;
 
     private IEnumerable<TreeData> m_TreeData = new List<TreeData>();
-    private MultiselectTreeView m_TreeView = new MultiselectTreeView();
+    private MultiSelectTreeView m_TreeView = new MultiSelectTreeView();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="FormHierarchyDisplay" /> class.
@@ -374,7 +374,7 @@ namespace CsvTools
       this.m_TableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
       this.m_ComboBoxID = new System.Windows.Forms.ComboBox();
       this.m_ComboBoxParentID = new System.Windows.Forms.ComboBox();
-      this.m_TreeView = new CsvTools.MultiselectTreeView();
+      this.m_TreeView = new CsvTools.MultiSelectTreeView();
       this.m_TextBoxValue = new System.Windows.Forms.TextBox();
       this.m_ComboBoxDisplay2 = new System.Windows.Forms.ComboBox();
       this.m_ComboBoxDisplay1 = new System.Windows.Forms.ComboBox();
