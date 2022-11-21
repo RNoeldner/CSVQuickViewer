@@ -423,16 +423,8 @@ namespace CsvTools
         form.Visible = oldVis;
       }
 
-      return new WindowState
-      {
-        Left = windowPosition.Left,
-        Top = windowPosition.Top,
-        Height = windowPosition.Height,
-        Width = windowPosition.Width,
-        State = (int) windowState,
-        CustomInt = customInt,
-        CustomText = customText
-      };
+      return new WindowState(windowPosition.Left, windowPosition.Top, windowPosition.Height, windowPosition.Width,
+        windowState, customInt, customText);
     }
 
     /// <summary>

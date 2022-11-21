@@ -25,13 +25,13 @@ namespace CsvTools.Tests
   [TestClass]
   public class ControlsTests
   {
-
     [TestMethod]
     [Timeout(6000)]
     public void CsvTextDisplayShow()
     {
       using var frm = new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt"), true);
-      UnitTestStatic.ShowFormAndClose(frm, .2, (f) => f.OpenFile(false, "\"", "\t", "", 1200, 1, "##"), 0, UnitTestStatic.Token);
+      UnitTestStatic.ShowFormAndClose(frm, .2, (f) => f.OpenFile(false, "\"", "\t", "", 1200, 1, "##"), 0,
+        UnitTestStatic.Token);
     }
 
     [TestMethod]
@@ -49,7 +49,9 @@ namespace CsvTools.Tests
       Extensions.RunStaThread(() =>
       {
         using var tm = new TimedMessage();
-        var stringBuilder = HtmlStyle.StartHtmlDoc($"{SystemColors.Control.R:X2}{SystemColors.Control.G:X2}{SystemColors.Control.B:X2}", "");
+
+        var stringBuilder = UnitTestStatic.HtmlStyle.StartHtmlDoc(
+          $"{SystemColors.Control.R:X2}{SystemColors.Control.G:X2}{SystemColors.Control.B:X2}");
         stringBuilder.Append(string.Format(UnitTestStatic.HtmlStyle.H2, HtmlStyle.TextToHtmlEncode("Sample")));
         stringBuilder.Append(string.Format(UnitTestStatic.HtmlStyle.H2, HtmlStyle.TextToHtmlEncode("Sample2")));
 
@@ -75,14 +77,14 @@ namespace CsvTools.Tests
         tm.Size = new Size(600, 450);
         UnitTestStatic.ShowFormAndClose(tm, 2);
       });
-		}
+    }
 
-		[TestMethod]
-		[Timeout(10000)]
-		public void TextDisplay()
-		{
-			Extensions.RunStaThread(() =>
-			{
+    [TestMethod]
+    [Timeout(10000)]
+    public void TextDisplay()
+    {
+      Extensions.RunStaThread(() =>
+      {
         using var tm = new TimedMessage();
         tm.Message = "Found values\rLine2\nDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n" +
                      "DMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n\nNote: Text has been cut off after 15 characters";
@@ -90,12 +92,12 @@ namespace CsvTools.Tests
         tm.Size = new Size(600, 450);
         UnitTestStatic.ShowFormAndClose(tm, 2);
       });
-		}
+    }
 
-		[TestMethod]
-		[Timeout(5000)]
-		public void ResizeForm()
-		{
+    [TestMethod]
+    [Timeout(5000)]
+    public void ResizeForm()
+    {
       using var frm = new ResizeForm();
       UnitTestStatic.ShowFormAndClose(frm, .2, (from) =>
       {
@@ -103,174 +105,180 @@ namespace CsvTools.Tests
       });
     }
 
-		[TestMethod]
-		[Timeout(5000)]
-		public void QuotingControl()
-		{
+    [TestMethod]
+    [Timeout(5000)]
+    public void QuotingControl()
+    {
       using var ctrl = new QuotingControl();
       ctrl.CsvFile = new CsvFile();
       UnitTestStatic.ShowControl(ctrl);
     }
 
-		[TestMethod]
-		public void APICodePackWrapperFolder()
-		{
-			try
-			{
-				UnitTestStatic.RunTaskTimeout(token => Task.Run(() =>
-					WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"), token),1,UnitTestStatic.Token);
-			}
-			catch (COMException)
-			{
-			}
-			catch (TimeoutException)
-			{
-			}
-			catch (OperationCanceledException)
-			{
-			}
-			catch (Exception ex)
-			{
-				Assert.Fail(
-					$"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
-			}
-		}
+    [TestMethod]
+    public void APICodePackWrapperFolder()
+    {
+      try
+      {
+        UnitTestStatic.RunTaskTimeout(token => Task.Run(() =>
+            WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"), token), 1,
+          UnitTestStatic.Token);
+      }
+      catch (COMException)
+      {
+      }
+      catch (TimeoutException)
+      {
+      }
+      catch (OperationCanceledException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail(
+          $"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
+      }
+    }
 
-		[TestMethod]
-		[Timeout(2000)]
-		public void APICodePackWrapperOpen()
-		{
-			try
-			{
-				UnitTestStatic.RunTaskTimeout(token => Task.Run(() =>
-					WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null), token));
-			}
-			catch (COMException)
-			{
-			}
-			catch (TimeoutException)
-			{
-			}
-			catch (OperationCanceledException)
-			{
-			}
-			catch (Exception ex)
-			{
-				Assert.Fail(
-					$"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
-			}
-		}
+    [TestMethod]
+    [Timeout(2000)]
+    public void APICodePackWrapperOpen()
+    {
+      try
+      {
+        UnitTestStatic.RunTaskTimeout(token => Task.Run(() =>
+          WindowsAPICodePackWrapper.Open(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.cs", null), token));
+      }
+      catch (COMException)
+      {
+      }
+      catch (TimeoutException)
+      {
+      }
+      catch (OperationCanceledException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail(
+          $"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
+      }
+    }
 
-		[TestMethod]
-		[Timeout(2000)]
-		public void APICodePackWrapperSave()
-		{
-			try
-			{
-				UnitTestStatic.RunTaskTimeout(token => Task.Run(() =>
-					WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", string.Empty, string.Empty), token));
-			}
-			catch (COMException)
-			{
-			}
-			catch (TimeoutException)
-			{
-			}
-			catch (OperationCanceledException)
-			{
-			}
-			catch (Exception ex)
-			{
-				Assert.Fail(
-					$"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
-			}
-		}
+    [TestMethod]
+    [Timeout(2000)]
+    public void APICodePackWrapperSave()
+    {
+      try
+      {
+        UnitTestStatic.RunTaskTimeout(token => Task.Run(() =>
+            WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", string.Empty,
+              string.Empty),
+          token));
+      }
+      catch (COMException)
+      {
+      }
+      catch (TimeoutException)
+      {
+      }
+      catch (OperationCanceledException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail(
+          $"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
+      }
+    }
 
-		[TestMethod]
-		[Timeout(2000)]
-		public void WindowsAPICodePackWrapperFolder()
-		{
-			try
-			{
-				// Used to cancel after .2 seconds
-				UnitTestStatic.RunTaskTimeout(
-					token => Task.Run(
-						() => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); }, token));
-			}
-			catch (COMException)
-			{
-			}
-			catch (TimeoutException)
-			{
-			}
-			catch (Exception ex)
-			{
-				Assert.Fail(
-					$"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
-			}
-		}
+    [TestMethod]
+    [Timeout(2000)]
+    public void WindowsAPICodePackWrapperFolder()
+    {
+      try
+      {
+        // Used to cancel after .2 seconds
+        UnitTestStatic.RunTaskTimeout(
+          token => Task.Run(
+            () => { WindowsAPICodePackWrapper.Folder(FileSystemUtils.ExecutableDirectoryName(), "Test"); }, token));
+      }
+      catch (COMException)
+      {
+      }
+      catch (TimeoutException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail(
+          $"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
+      }
+    }
 
-		[TestMethod]
-		[Timeout(2000)]
-		public void WindowsAPICodePackWrapperSave()
-		{
-			try
-			{
-				// Used to cancel after .2 seconds
-				UnitTestStatic.RunTaskTimeout(
-					token => Task.Run(() =>
-					{
-						WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", ".pdf", false,
-							"test.pdf");
-					}, token));
-			}
-			catch (COMException)
-			{
-			}
-			catch (TimeoutException)
-			{
-			}
-			catch (Exception ex)
-			{
-				Assert.Fail(
-					$"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
-			}
-		}
+    [TestMethod]
+    [Timeout(2000)]
+    public void WindowsAPICodePackWrapperSave()
+    {
+      try
+      {
+        // Used to cancel after .2 seconds
+        UnitTestStatic.RunTaskTimeout(
+          token => Task.Run(() =>
+          {
+            WindowsAPICodePackWrapper.Save(FileSystemUtils.ExecutableDirectoryName(), "Test", "*.pdf", ".pdf", false,
+              "test.pdf");
+          }, token));
+      }
+      catch (COMException)
+      {
+      }
+      catch (TimeoutException)
+      {
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail(
+          $"Wrong exception got {ex.GetType().Name} expected OperationCanceledException : {ex.ExceptionMessages()}");
+      }
+    }
 
-		[TestMethod]
-		[Timeout(10000)]
-		public void TimedMessage()
-		{
-			Extensions.RunStaThread(() =>
-			{
-				using (var tm = new TimedMessage())
-				{
-					tm.ShowDialog("This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1,
-						2, null, null, null);
-				}
+    [TestMethod]
+    [Timeout(10000)]
+    public void TimedMessage()
+    {
+      Extensions.RunStaThread(() =>
+      {
+        using (var tm = new TimedMessage())
+        {
+          tm.ShowDialog("This is my message", "Title1", MessageBoxButtons.OK, MessageBoxIcon.Asterisk,
+            MessageBoxDefaultButton.Button1,
+            2, null, null, null);
+        }
 
-				using (var tm = new TimedMessage())
-				{
-					tm.ShowDialog("This is another message\n with a linefeed", "Title12", MessageBoxButtons.YesNo, MessageBoxIcon.Error,
-						MessageBoxDefaultButton.Button2, 2, null, null, null);
-				}
-			});
-		}
+        using (var tm = new TimedMessage())
+        {
+          tm.ShowDialog("This is another message\n with a linefeed", "Title12", MessageBoxButtons.YesNo,
+            MessageBoxIcon.Error,
+            MessageBoxDefaultButton.Button2, 2, null, null, null);
+        }
+      });
+    }
 
-		[TestMethod]
-		[Timeout(5000)]
-		public void SearchShow() => UnitTestStatic.ShowControl(new Search());
+    [TestMethod]
+    [Timeout(5000)]
+    public void SearchShow() => UnitTestStatic.ShowControl(new Search());
 
-		[TestMethod]
-		[Timeout(5000)]
-		public void FillGuessSettingEditShow() => UnitTestStatic.ShowControl(new FillGuessSettingEdit());
+    [TestMethod]
+    [Timeout(5000)]
+    public void FillGuessSettingEditShow() => UnitTestStatic.ShowControl(new FillGuessSettingEdit());
 
     [TestMethod]
     [Timeout(5000)]
     public void FormDuplicatesDisplay()
     {
       using var dataTable = UnitTestStatic.GetDataTable(60);
-      using var form = new FormDuplicatesDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, UnitTestStatic.HtmlStyle);
+      using var form = new FormDuplicatesDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName,
+        UnitTestStatic.HtmlStyle);
       UnitTestStatic.ShowFormAndClose(form);
     }
 
@@ -279,7 +287,8 @@ namespace CsvTools.Tests
     public void FormUniqueDisplay()
     {
       using var dataTable = UnitTestStatic.GetDataTable(60);
-      using var form = new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName, UnitTestStatic.HtmlStyle);
+      using var form = new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName,
+        UnitTestStatic.HtmlStyle);
       UnitTestStatic.ShowFormAndClose(form);
     }
 
@@ -288,14 +297,15 @@ namespace CsvTools.Tests
     public void FormShowMaxLength()
     {
       using var dataTable = UnitTestStatic.GetDataTable(60);
-      using var form = new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), UnitTestStatic.HtmlStyle);
+      using var form =
+        new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), UnitTestStatic.HtmlStyle);
       UnitTestStatic.ShowFormAndClose(form);
     }
 
-		[TestMethod]
-		[Timeout(5000)]
-		public void DataGridViewColumnFilterControl()
-		{
+    [TestMethod]
+    [Timeout(5000)]
+    public void DataGridViewColumnFilterControl()
+    {
       using var dataTable = UnitTestStatic.GetDataTable(60);
       var col = new DataGridViewTextBoxColumn
       {
@@ -306,5 +316,5 @@ namespace CsvTools.Tests
 
       UnitTestStatic.ShowControl(new DataGridViewColumnFilterControl(col));
     }
-	}
+  }
 }

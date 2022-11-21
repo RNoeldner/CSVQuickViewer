@@ -314,7 +314,7 @@ namespace CsvTools
     }
 
     protected string Footer() =>
-      m_Footer.PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:n0}", Records));
+      m_Footer.PlaceholderReplace("Records", string.Format(new CultureInfo("en-US"), "{0:N0}", Records));
 
     /// <summary>
     ///   Handles the error.

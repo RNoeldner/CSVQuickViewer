@@ -1,82 +1,44 @@
 #nullable enable
-
-using System.Collections.Generic;
+using Newtonsoft.Json;
+using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace CsvTools
 {
-  using System;
-  using System.ComponentModel;
-  using System.Drawing;
-  using System.Windows.Forms;
-  using System.Xml.Serialization;
-
-  [Serializable]
-  public sealed class WindowState : IEqualityComparer<WindowState>
+  public sealed class WindowState
   {
-    public WindowState()
+    public static readonly WindowState Default =
+      new(10, 10, 600, 600);
+
+    [JsonConstructor]
+    public WindowState(int left, int top, int width, int height, FormWindowState state = FormWindowState.Normal,
+      int customInt = -2147483648,
+      string customText = "")
     {
+      Left = left;
+      Top = top;
+      Width = width;
+      Height = height;
+      State = state;
+      CustomInt = customInt;
+      CustomText = customText;
     }
 
-    public WindowState(Rectangle rect, FormWindowState state)
-    {
-      Left = rect.Left;
-      Top = rect.Top;
-      Width = rect.Width;
-      Height = rect.Height;
-      State = (int) state;
-    }
+    public readonly int Left;
+    public readonly int Top;
+    public readonly int Width;
+    public readonly int Height;
 
-    [XmlAttribute]
-    public int Left;
-
-    [XmlAttribute]
-    public int Top;
-
-    [XmlAttribute]
-    public int Width;
-
-    [XmlAttribute]
-    public int Height;
-
-    [XmlAttribute]
-    public int State;
+    [DefaultValue(FormWindowState.Normal)] public readonly FormWindowState State;
 
     /// <summary>
     ///   Store form specific values like selected Tab or Splitter distance, can store any value but -1
     /// </summary>
-    [XmlAttribute]
-    [DefaultValue(int.MinValue)]
-    public int CustomInt = int.MinValue;
+    [DefaultValue(-2147483648)] public readonly int CustomInt;
 
     /// <summary>
     ///   Store form specific values like a filterText
     /// </summary>
-    [XmlAttribute]
-    [DefaultValue("")]
-    public string CustomText = string.Empty;
-
-    public bool Equals(WindowState? x, WindowState? y)
-    {
-      if (ReferenceEquals(x, y)) return true;
-      if (ReferenceEquals(x, null)) return false;
-      if (ReferenceEquals(y, null)) return false;
-      if (x.GetType() != y.GetType()) return false;
-      return x.Left == y.Left && x.Top == y.Top && x.Width == y.Width && x.Height == y.Height && x.State == y.State && x.CustomInt == y.CustomInt && x.CustomText == y.CustomText;
-    }
-
-    public int GetHashCode(WindowState obj)
-    {
-      unchecked
-      {
-        var hashCode = obj.Left;
-        hashCode = (hashCode * 397) ^ obj.Top;
-        hashCode = (hashCode * 397) ^ obj.Width;
-        hashCode = (hashCode * 397) ^ obj.Height;
-        hashCode = (hashCode * 397) ^ obj.State;
-        hashCode = (hashCode * 397) ^ obj.CustomInt;
-        hashCode = (hashCode * 397) ^ obj.CustomText.GetHashCode();
-        return hashCode;
-      }
-    }
+    [DefaultValue("")] public readonly string CustomText;
   }
 }

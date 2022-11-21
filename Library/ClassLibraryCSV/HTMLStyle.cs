@@ -13,6 +13,7 @@
  */
 #nullable enable
 
+using Newtonsoft.Json;
 using System;
 using System.Globalization;
 using System.Text;
@@ -27,32 +28,25 @@ namespace CsvTools
   /// </remarks>
   public sealed class HtmlStyle
   {
-    public const string cStyle = "<STYLE type=\"text/css\">\r\n"
-                                 + "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n"
-                                 + "  h1 { style=\"color:DarkBlue; font-size : 14px; }\r\n"
-                                 + "  h2 { style=\"color:DarkBlue; font-size : 13px; }\r\n"
-                                 + "  table { border-collapse:collapse; font-size : 11px; }\r\n"
-                                 + "  td { border: 1px solid lightgrey; padding:2px; }\r\n"
-                                 + "  td.info { mso-number-format:\\@; background: #f0f8ff; font-weight:bold;}\r\n"
-                                 + "  td.inforight { mso-number-format:\\@; text-align:right; background: #f0f8ff; font-weight:bold;}\r\n"
-                                 + "  td.value { text-align:right; color:DarkBlue; }\r\n"
-                                 + "  td.text { mso-number-format:\\@; color:black; }\r\n"
-                                 + "  tr.alt { background: #EEEEEE; }\r\n"
-                                 + "  br { mso-data-placement:same-cell; }\r\n" + "  span { background: #F7F8E0; }\r\n"
-                                 + "  span.err { color:#B40404; }\r\n" + "  span.war { color:#2E64FE; }\r\n"
-                                 + "</STYLE>";
-
-    /// <inheritdoc />
-    public HtmlStyle()
-      : this(cStyle)
-    {
-    }
-
     /// <summary>
     ///   Initializes a new instance of the <see cref="HtmlStyle" /> class.
     /// </summary>
     /// <param name="style">The style.</param>
-    public HtmlStyle(string style)
+    [JsonConstructor]
+    public HtmlStyle(string style =  "<STYLE type=\"text/css\">\r\n"
+                                     + "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n"
+                                     + "  h1 { style=\"color:DarkBlue; font-size : 14px; }\r\n"
+                                     + "  h2 { style=\"color:DarkBlue; font-size : 13px; }\r\n"
+                                     + "  table { border-collapse:collapse; font-size : 11px; }\r\n"
+                                     + "  td { border: 1px solid lightgrey; padding:2px; }\r\n"
+                                     + "  td.info { mso-number-format:\\@; background: #f0f8ff; font-weight:bold;}\r\n"
+                                     + "  td.inforight { mso-number-format:\\@; text-align:right; background: #f0f8ff; font-weight:bold;}\r\n"
+                                     + "  td.value { text-align:right; color:DarkBlue; }\r\n"
+                                     + "  td.text { mso-number-format:\\@; color:black; }\r\n"
+                                     + "  tr.alt { background: #EEEEEE; }\r\n"
+                                     + "  br { mso-data-placement:same-cell; }\r\n" + "  span { background: #F7F8E0; }\r\n"
+                                     + "  span.err { color:#B40404; }\r\n" + "  span.war { color:#2E64FE; }\r\n"
+                                     + "</STYLE>")
     {
       Style = style;
       Br = "<br>";
@@ -380,13 +374,13 @@ namespace CsvTools
       return allowed;
     }
 
-    public static StringBuilder StartHtmlDoc(string hexColor = "", string style = cStyle)
+    public StringBuilder StartHtmlDoc(string hexColor = "")
     {
       var text = new StringBuilder(500);
       text.AppendLine("<!DOCTYPE HTML public virtual \"-//W3C//DTD HTML 4.0 Transitional//EN\">");
       text.AppendLine(string.IsNullOrEmpty(hexColor) ? "<HTML>" : $"<HTML style=\"background-color: #{hexColor}\">");
       text.AppendLine("<HEAD>");
-      text.AppendLine(style);
+      text.AppendLine(Style);
       text.AppendLine("</HEAD>");
       text.AppendLine("<BODY>");
       return text;
