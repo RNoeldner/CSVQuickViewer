@@ -44,7 +44,7 @@ namespace CsvTools
   public static class ClassLibraryCsvExtensionMethods
   {
     
-    private static readonly Lazy<Regex> m_RemoveEmpty = new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*\\[\\s*\\]\\,?"));
+    private static readonly Lazy<Regex> m_RemoveEmpty = new Lazy<Regex>(() => new Regex(@"\s*""[^$][^""]+"":\s*\[\s*\]\,?"));
     private static readonly Lazy<Regex> m_RemoveEmpty2 = new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*{\\s*},?"));
     private static readonly Lazy<Regex> m_RemoveComma = new Lazy<Regex>(() => new Regex(",(?=\\s*})"));
 

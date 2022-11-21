@@ -277,9 +277,8 @@ namespace CsvTools
 
       if (guessCodePage)
       {
-        if (cancellationToken.IsCancellationRequested)
-          return detectionResult;
-
+        cancellationToken.ThrowIfCancellationRequested();
+        
         stream.Seek(0, SeekOrigin.Begin);
         Logger.Information("Checking Code Page");
         var (codePage, bom) = await stream.GuessCodePage(cancellationToken).ConfigureAwait(false);
@@ -321,8 +320,7 @@ namespace CsvTools
 
       if (guessJson)
       {
-        if (cancellationToken.IsCancellationRequested)
-          return detectionResult;
+        cancellationToken.ThrowIfCancellationRequested();
 
         Logger.Information("Checking Json format");
 
@@ -353,8 +351,7 @@ namespace CsvTools
 
       if (guessCommentLine)
       {
-        if (cancellationToken.IsCancellationRequested)
-          return detectionResult;
+        cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking comment line");
         using var streamReader = await stream.GetStreamReaderAtStart(
           detectionResult.CodePageId,
@@ -382,8 +379,7 @@ namespace CsvTools
       // from here on us the encoding to read the stream again
       if (guessStartRow && oldDelimiter != 0)
       {
-        if (cancellationToken.IsCancellationRequested)
-          return detectionResult;
+        cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking delimited text file");
         using var streamReader = await stream.GetStreamReaderAtStart(
           detectionResult.CodePageId,
@@ -420,8 +416,7 @@ namespace CsvTools
 
         if (guessDelimiter)
         {
-          if (cancellationToken.IsCancellationRequested)
-            return detectionResult;
+          cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Column Delimiter");
           var (delimiter, noDelimiter) = textReader.GuessDelimiter(
             detectionResult.EscapePrefix, disallowedDelimiter,
@@ -446,8 +441,7 @@ namespace CsvTools
 
         if (guessNewLine)
         {
-          if (cancellationToken.IsCancellationRequested)
-            return detectionResult;
+          cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Record Delimiter");
           stream.Seek(0, SeekOrigin.Begin);
           detectionResult = new DelimitedFileDetectionResult(
@@ -469,8 +463,7 @@ namespace CsvTools
 
         if (guessQualifier)
         {
-          if (cancellationToken.IsCancellationRequested)
-            return detectionResult;
+          cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Qualifier");
           var qualifier = textReader.GuessQualifier(detectionResult.FieldDelimiter, detectionResult.EscapePrefix,
             cancellationToken);
@@ -495,8 +488,7 @@ namespace CsvTools
 
       if (!string.IsNullOrEmpty(detectionResult.CommentLine) && !detectionResult.NoDelimitedFile)
       {
-        if (cancellationToken.IsCancellationRequested)
-          return detectionResult;
+        cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Validating comment line");
         using var streamReader = await stream.GetStreamReaderAtStart(
           detectionResult.CodePageId,
@@ -526,8 +518,7 @@ namespace CsvTools
 
       if (guessStartRow)
       {
-        if (cancellationToken.IsCancellationRequested)
-          return detectionResult;
+        cancellationToken.ThrowIfCancellationRequested();
         // find start row again , with possibly changed FieldDelimiter
         if (oldDelimiter != detectionResult.FieldDelimiter.StringToChar())
         {
@@ -560,8 +551,7 @@ namespace CsvTools
 
       if (guessHasHeader)
       {
-        if (cancellationToken.IsCancellationRequested)
-          return detectionResult;
+        cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking Header Row");
 
         var issue = await GuessHasHeader(
