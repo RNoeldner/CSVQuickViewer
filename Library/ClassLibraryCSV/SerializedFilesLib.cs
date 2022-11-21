@@ -137,7 +137,8 @@ namespace CsvTools
                        || col.ValueFormat.DataType != DataTypeEnum.String)
           saveSetting.ColumnCollection.Add(col);
 
-      await saveSetting.SerializeAsync(fileName, askOverwrite).ConfigureAwait(false);
+      if (!cancellationToken.IsCancellationRequested)
+        await saveSetting.SerializeAsync(fileName, askOverwrite).ConfigureAwait(false);
     }
   }
 }

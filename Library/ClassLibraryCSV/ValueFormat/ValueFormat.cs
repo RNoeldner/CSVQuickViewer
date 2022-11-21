@@ -38,34 +38,33 @@ namespace CsvTools
     public const bool cPartToEndDefault = true;
     public const string cTimeSeparatorDefault = ":";
     public const string cTrueDefault = "True";
+    public const bool cOverwriteDefault = true;
 
     public static readonly ValueFormat Empty = new ValueFormat();
 
-    public bool IsDefault() => Equals(Empty);
-
     [JsonConstructor]
     public ValueFormat(
-      in DataTypeEnum dataType = DataTypeEnum.String,
-      in string dateFormat = cDateFormatDefault,
-      in string dateSeparator = cDateSeparatorDefault,
-      in string timeSeparator = cTimeSeparatorDefault,
-      in string numberFormat = cNumberFormatDefault,
-      in string groupSeparator = cGroupSeparatorDefault,
-      in string decimalSeparator = cDecimalSeparatorDefault,
-      in string asTrue = cTrueDefault,
-      in string asFalse = cFalseDefault,
-      in string displayNullAs = "",
-      int part = cPartDefault,
-      in string partSplitter = cPartSplitterDefault,
-      bool partToEnd = cPartToEndDefault,
-      string regexSearchPattern = "",
-      string regexReplacement = "",
-      string readFolder = "",
-      string writeFolder = "",
-      string fileOutPutPlaceholder = "",
-      bool overwrite = true)
+      in DataTypeEnum? dataType = DataTypeEnum.String,
+      in string? dateFormat = cDateFormatDefault,
+      in string? dateSeparator = cDateSeparatorDefault,
+      in string? timeSeparator = cTimeSeparatorDefault,
+      in string? numberFormat = cNumberFormatDefault,
+      in string? groupSeparator = cGroupSeparatorDefault,
+      in string? decimalSeparator = cDecimalSeparatorDefault,
+      in string? asTrue = cTrueDefault,
+      in string? asFalse = cFalseDefault,
+      in string? displayNullAs = "",
+      int? part = cPartDefault,
+      in string? partSplitter = cPartSplitterDefault,
+      bool? partToEnd = cPartToEndDefault,
+      string? regexSearchPattern = "",
+      string? regexReplacement = "",
+      string? readFolder = "",
+      string? writeFolder = "",
+      string? fileOutPutPlaceholder = "",
+      bool? overwrite = cOverwriteDefault)
     {
-      DataType = dataType;
+      DataType = dataType ??  DataTypeEnum.String;
 
       // Dates
       DateFormat = dateFormat ?? cDateFormatDefault;
@@ -85,9 +84,9 @@ namespace CsvTools
       True = asTrue ?? cTrueDefault;
 
       // TextPart
-      Part = part;
+      Part = part ?? cPartDefault;
       PartSplitter = partSplitter ?? cPartSplitterDefault;
-      PartToEnd = partToEnd;
+      PartToEnd = partToEnd ?? cPartToEndDefault;
 
       // Regex
       RegexSearchPattern = regexSearchPattern ?? string.Empty;
@@ -97,7 +96,7 @@ namespace CsvTools
       ReadFolder = readFolder ?? string.Empty;
       WriteFolder = writeFolder ?? string.Empty;
       FileOutPutPlaceholder = fileOutPutPlaceholder ?? string.Empty;
-      Overwrite = overwrite;
+      Overwrite = overwrite ?? cOverwriteDefault;
     }
 
     /// <summary>
@@ -221,7 +220,7 @@ namespace CsvTools
     /// <summary>
     /// Set to <c>true</c> if binary output file should overwrite any existing file
     /// </summary>
-    [DefaultValue(true)]
+    [DefaultValue(cOverwriteDefault)]
     public bool Overwrite { get; }
 
     /// <inheritdoc />

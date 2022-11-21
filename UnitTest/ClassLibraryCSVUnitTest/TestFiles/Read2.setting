@@ -1,0 +1,29 @@
+{
+  "columnCollection": [
+    {
+      "name": "ID",
+      "valueFormat": {
+        "dataType": 0
+      },
+      "convert": true
+    },
+    {
+      "name": "Name",
+      "valueFormat": {
+        "dataType": 13
+      },
+      "convert": true
+    }
+  ],
+  "mappingCollection": [
+    {
+      "fileColumn": "Fld1",
+      "templateField": "FldA"
+    },
+    {
+      "fileColumn": "Fld2",
+      "templateField": "FldB"
+    }
+  ],
+  "lastChange": "2022-11-21T11:56:47.1795663Z"
+}

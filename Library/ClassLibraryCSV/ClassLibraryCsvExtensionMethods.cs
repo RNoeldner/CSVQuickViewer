@@ -58,15 +58,20 @@ namespace CsvTools
         });
 
     public static readonly Lazy<JsonSerializerSettings> JsonSerializerSettings = new Lazy<JsonSerializerSettings>(
-      () => new JsonSerializerSettings
+      () =>
       {
-        TypeNameHandling = TypeNameHandling.Auto,
-        DefaultValueHandling = DefaultValueHandling.Ignore,
-        ContractResolver = new CamelCasePropertyNamesContractResolver(),
-        NullValueHandling = NullValueHandling.Ignore,
-        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-        DateFormatHandling = DateFormatHandling.IsoDateFormat,
-        DateTimeZoneHandling = DateTimeZoneHandling.Utc
+        var setting = new JsonSerializerSettings
+        {
+          TypeNameHandling = TypeNameHandling.Auto,
+          DefaultValueHandling = DefaultValueHandling.Ignore,
+          ContractResolver = new CamelCasePropertyNamesContractResolver(),
+          NullValueHandling = NullValueHandling.Ignore,
+          ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+          DateFormatHandling = DateFormatHandling.IsoDateFormat,
+          DateTimeZoneHandling = DateTimeZoneHandling.Utc
+        };
+        setting.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+        return setting;
       });
 
     /// <summary>

@@ -160,6 +160,9 @@
 		<None Update="TestFiles\Quoting1Reverse.txt">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="TestFiles\Read2.setting">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="TestFiles\Read.setting">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
