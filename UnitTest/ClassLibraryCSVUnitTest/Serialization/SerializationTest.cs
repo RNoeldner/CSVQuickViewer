@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
@@ -12,16 +13,29 @@ namespace CsvTools.Tests
   [TestClass]
   public class SerializationTest
   {
+    [TestMethod]
+    public async Task CsvSettingsXml()
+    {
+      var ret = await SerializedFilesLib.DeserializeAsync<CsvFile>(UnitTestStatic.GetTestPath("Read.setting"));
+      Assert.IsNotNull(ret);
+      ret.FileName = UnitTestStatic.GetTestPath("Read3.csv");
+      await SerializedFilesLib.SaveSettingFileAsync(ret, null, CancellationToken.None);
+    }
+
+    [TestMethod]
+    public void CsvSettingsJson()
+    {
+      var ret = SerializedFilesLib.DeserializeAsync<CsvFile>(UnitTestStatic.GetTestPath("Read2.setting"));
+      Assert.IsNotNull(ret);
+    }
+
 
     [TestMethod]
     public void ColumnMut()
     {
-      var input = new ColumnMut("Näme", new ValueFormat(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat", "erp", "read", "Wr", "ou", false))
-      {
-        DestinationName = "->",
-        ColumnOrdinal = 13,
-        Convert = true
-      };
+      var input = new ColumnMut("Näme",
+        new ValueFormat(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat",
+          "erp", "read", "Wr", "ou", false)) { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
       var output = RunSerlializer(input, true, false);
       Assert.AreEqual(input.Name, output.Name);
       Assert.AreEqual(input.DestinationName, output.DestinationName);
@@ -44,12 +58,7 @@ namespace CsvTools.Tests
     [TestCategory("Serialization")]
     public async Task Mapping()
     {
-      var input = new Mapping()
-      {
-        FileColumn = "a",
-        TemplateField ="Fld2",
-        Attention = true
-      };
+      var input = new Mapping() { FileColumn = "a", TemplateField = "Fld2", Attention = true };
 
       var output = RunSerlializer(input);
       Assert.AreEqual(input.FileColumn, output.FileColumn);
@@ -116,6 +125,7 @@ namespace CsvTools.Tests
         ret = serializer.Deserialize(reader) as T;
         Assert.IsNotNull(ret);
       }
+
       if (includeJson)
       {
         var testJson = obj.SerializeIndentedJson();

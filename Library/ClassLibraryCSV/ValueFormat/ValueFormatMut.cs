@@ -110,7 +110,7 @@ namespace CsvTools
       in string readFolder = "",
       in string writeFolder = "",
       in string fileOutPutPlaceholder = "",
-      in bool overwrite = true)
+      in bool overwrite = ValueFormat.cOverwriteDefault)
     {
       m_DecimalSeparator = (decimalSeparator ?? ValueFormat.cDecimalSeparatorDefault).WrittenPunctuation();
       m_GroupSeparator = (groupSeparator ?? ValueFormat.cGroupSeparatorDefault).WrittenPunctuation();
@@ -224,7 +224,7 @@ namespace CsvTools
     }
 
     [XmlAttribute]
-    [DefaultValue(true)]
+    [DefaultValue(ValueFormat.cOverwriteDefault)]
     public bool Overwrite
     {
       get => m_Overwrite;

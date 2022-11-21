@@ -65,6 +65,23 @@ namespace CsvTools
     }
 
     /// <summary>
+    ///   Name of the column
+    /// </summary>
+    [DefaultValue("")]
+    public string Name { get; }
+    
+    /// <summary>
+    ///   Gets the column ordinal
+    /// </summary>
+    [DefaultValue(0)]
+    public int ColumnOrdinal { get; }
+
+    /// <summary>
+    ///   Formatting option for values
+    /// </summary>
+    public ValueFormat ValueFormat { get; }
+
+    /// <summary>
     /// Identifier in collections, similar to a hashcode based on a  properties that should be unique in a collection
     /// </summary>
     /// <remarks>
@@ -77,6 +94,7 @@ namespace CsvTools
     ///  Get the ColumnFormatter Class from <see cref="ColumnFormatterFactory"/>
     ///  Only an Immutable Column does have a ColumnFormatter
     /// </summary>
+    [JsonIgnore]
     public IColumnFormatter? ColumnFormatter
     {
       get
@@ -87,24 +105,7 @@ namespace CsvTools
         return m_ColumnFormatter = ColumnFormatterFactory.GetColumnFormatter(ColumnOrdinal, ValueFormat);
       }
     }
-
-    /// <summary>
-    ///   Name of the column
-    /// </summary>
-    [DefaultValue("")]
-    public string Name { get; }
-
-    /// <summary>
-    ///   Formatting option for values
-    /// </summary>
-    public ValueFormat ValueFormat { get; }
-
-    /// <summary>
-    ///   Gets the column ordinal
-    /// </summary>
-    [DefaultValue(0)]
-    public int ColumnOrdinal { get; }
-
+    
     /// <summary>
     ///   Indicating if the column should be ignored during read or write, no conversion is done if
     ///   the column is ignored teh target will not show this column
@@ -115,7 +116,7 @@ namespace CsvTools
     /// <summary>
     ///   Indicating if the value or text should be converted
     /// </summary>
-    [DefaultValue(false)]
+    [DefaultValue(true)]
     public bool Convert { get; }
 
     /// <summary>
@@ -138,7 +139,6 @@ namespace CsvTools
     /// </summary>
     [DefaultValue(cDefaultTimePartFormat)]
     public string TimePartFormat { get; }
-
 
     /// <summary>
     ///   For DateTime import you set a time zone, during read the value provided will be assumed to
