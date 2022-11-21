@@ -84,7 +84,7 @@ namespace CsvTools.Tests
     {
       using var formProgress = new FormProgress();
       formProgress.Show();
-      var state = new WindowState(new Rectangle(10, 10, 200, 200), FormWindowState.Normal) { CustomInt = 27, CustomText = "Test" };
+      var state = new WindowState(10, 10, 200, 200, FormWindowState.Normal, 27, "Test");
       var result1 = -1;
       var result2 = "Hello";
       formProgress.LoadWindowState(state, val => { result1 = val; }, val => { result2 = val; });
@@ -128,9 +128,7 @@ namespace CsvTools.Tests
     {
       using var formProgress = new FormProgress();
       formProgress.Show();
-      var state1 = new WindowState(new Rectangle(10, 10, formProgress.Width, formProgress.Height),
-        FormWindowState.Normal)
-      { CustomInt = 27, CustomText = "Test" };
+      var state1 = new WindowState(10, 10, formProgress.Width, formProgress.Height, FormWindowState.Normal, 27, "Test");
       var result1 = -1;
       formProgress.LoadWindowState(state1, val => { result1 = val; }, val => { });
 

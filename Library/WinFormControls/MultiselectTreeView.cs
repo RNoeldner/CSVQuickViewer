@@ -42,7 +42,7 @@ namespace CsvTools
     /// <value>The selected tree node.</value>
     [Browsable(false)]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-    private ICollection<TreeNode> SelectedTreeNode { get; } = new HashSet<TreeNode>();
+    public ICollection<TreeNode> SelectedTreeNode { get; } = new HashSet<TreeNode>();
 
     public void PressKey(Keys keyData) => OnKeyDown(new KeyEventArgs(keyData));
 

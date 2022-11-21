@@ -197,6 +197,7 @@ namespace CsvTools
             m_LabelEtl.Text = sb.ToString();
           }
         });
+      Application.DoEvents();
     }
 
 

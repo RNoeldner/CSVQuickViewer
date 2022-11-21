@@ -490,16 +490,14 @@ namespace CsvTools
       ICollection<string> values1, int col1, string? headerList2 = null, ICollection<string>? values2 = null,
       int col2 = 2)
     {
-      var stringBuilder = HtmlStyle.StartHtmlDoc(
-        $"{System.Drawing.SystemColors.Control.R:X2}{System.Drawing.SystemColors.Control.G:X2}{System.Drawing.SystemColors.Control.B:X2}",
-        "<STYLE type=\"text/css\">\r\n" +
-        // ReSharper disable once StringLiteralTypo
-        "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
-        "  h2 { color:DarkBlue; font-size : 12px; }\r\n" +
-        "  table { border-collapse:collapse; font-size : 11px; }\r\n" +
-        // ReSharper disable once StringLiteralTypo
-        "  td { border: 2px solid lightgrey; padding:3px; }\r\n" +
-        "</STYLE>");
+      var st = new HtmlStyle("<STYLE type=\"text/css\">\r\n" +
+                             "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n" +
+                             "  h2 { color:DarkBlue; font-size : 12px; }\r\n" +
+                             "  table { border-collapse:collapse; font-size : 11px; }\r\n" +
+                             "  td { border: 2px solid lightgrey; padding:3px; }\r\n" +
+                             "</STYLE>");
+      var stringBuilder = st.StartHtmlDoc(
+        $"{System.Drawing.SystemColors.Control.R:X2}{System.Drawing.SystemColors.Control.G:X2}{System.Drawing.SystemColors.Control.B:X2}");
 
       if (header is { Length: > 0 })
         stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header)));
