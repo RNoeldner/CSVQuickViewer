@@ -403,18 +403,14 @@ namespace CsvTools.Tests
     {
       var dt = new DataTable();
       Assert.AreEqual(0, dt.GetRealColumns().Count());
-      Assert.AreEqual(0, dt.GetRealDataColumns().Count());
 
       dt.Columns.Add(new DataColumn { ColumnName = ReaderConstants.cEndLineNumberFieldName });
       Assert.AreEqual(0, dt.GetRealColumns().Count());
-      Assert.AreEqual(0, dt.GetRealDataColumns().Count());
 
       var dataColumn = new DataColumn { ColumnName = "Test" };
       dt.Columns.Add(dataColumn);
       Assert.AreEqual(1, dt.GetRealColumns().Count());
-      Assert.AreEqual(1, dt.GetRealDataColumns().Count());
       Assert.AreEqual(dataColumn.ColumnName, dt.GetRealColumns().FirstOrDefault());
-      Assert.AreEqual(dataColumn, dt.GetRealDataColumns().FirstOrDefault());
     }
 
     [TestMethod]

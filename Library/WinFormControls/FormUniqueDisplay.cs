@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 namespace CsvTools
@@ -48,8 +49,8 @@ namespace CsvTools
     {
       if (hTmlStyle is null)
         throw new ArgumentNullException(nameof(hTmlStyle));
-      m_DataTable = dataTable??throw new ArgumentNullException(nameof(dataTable));
-      m_DataRow = dataRows??throw new ArgumentNullException(nameof(dataRows));
+      m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
+      m_DataRow = dataRows ?? throw new ArgumentNullException(nameof(dataRows));
       m_InitialColumn = initialColumn;
       InitializeComponent();
       detailControl.HtmlStyle = hTmlStyle;
@@ -63,7 +64,8 @@ namespace CsvTools
     private void ComboBoxID_SelectedIndexChanged(object? sender, EventArgs e) =>
       Work(comboBoxID.Text, checkBoxIgnoreNull.Checked);
 
-    private void UniqueDisplay_FormClosing(object? sender, FormClosingEventArgs e) => m_CancellationTokenSource.Cancel();
+    private void UniqueDisplay_FormClosing(object? sender, FormClosingEventArgs e) =>
+      m_CancellationTokenSource.Cancel();
 
     /// <summary>
     ///   Handles the Load event of the FormUniqueDisplay control.
@@ -74,12 +76,12 @@ namespace CsvTools
     {
       var index = 0;
       var current = 0;
-      foreach (var columnName in m_DataTable.GetRealColumns())
+      foreach (var column in m_DataTable.GetRealColumns())
       {
         if (!string.IsNullOrEmpty(m_InitialColumn)
-            && columnName.Equals(m_InitialColumn, StringComparison.OrdinalIgnoreCase))
+            && column.ColumnName.Equals(m_InitialColumn, StringComparison.OrdinalIgnoreCase))
           index = current;
-        comboBoxID.Items.Add(columnName);
+        comboBoxID.Items.Add(column.ColumnName);
         current++;
       }
 
@@ -101,10 +103,10 @@ namespace CsvTools
 
       this.SafeInvoke(
         () =>
-          {
-            detailControl.Visible = false;
-            detailControl.SuspendLayout();
-          });
+        {
+          detailControl.Visible = false;
+          detailControl.SuspendLayout();
+        });
       Extensions.ProcessUIElements();
       try
       {
@@ -116,10 +118,11 @@ namespace CsvTools
 
         var dictIDToRow = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-        using var formProgress = new FormProgress($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token)
-        {
-          Maximum = m_DataRow.Length
-        };
+        using var formProgress =
+          new FormProgress($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token)
+          {
+            Maximum = m_DataRow.Length
+          };
         formProgress.Show(this);
         Logger.Information("Getting Unique values");
         var intervalAction = new IntervalAction();
@@ -128,8 +131,8 @@ namespace CsvTools
           if (formProgress.CancellationToken.IsCancellationRequested)
             return;
           intervalAction.Invoke(formProgress, "Getting Unique values", rowIndex);
-          var dataRow = m_DataRow[rowIndex];          
-          if (ignoreNull && dataRow.IsNull(dataColumnID.Ordinal)) 
+          var dataRow = m_DataRow[rowIndex];
+          if (ignoreNull && dataRow.IsNull(dataColumnID.Ordinal))
             continue;
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
           var id = dataRow[dataColumnID.Ordinal].ToString().Trim();
@@ -185,10 +188,10 @@ namespace CsvTools
       {
         this.SafeInvoke(
           () =>
-            {
-              detailControl.Visible = true;
-              detailControl.ResumeLayout(true);
-            });
+          {
+            detailControl.Visible = true;
+            detailControl.ResumeLayout(true);
+          });
       }
     }
   }

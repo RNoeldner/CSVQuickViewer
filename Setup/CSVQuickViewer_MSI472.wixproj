@@ -6,8 +6,9 @@
     <ProductVersion>3.10</ProductVersion>
     <ProjectGuid>{e7a862b8-5a45-47fd-9a91-d909a08be783}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>CSVQuickViewerSetup</OutputName>
+    <OutputName>CSVQuickViewerSetup.Net472</OutputName>
     <OutputType>Package</OutputType>
+    <Name>CSVQuickViewer_MSI472</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>

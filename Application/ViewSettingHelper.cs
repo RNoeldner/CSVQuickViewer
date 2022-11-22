@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.IO;
+using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 
 namespace CsvTools
@@ -12,20 +13,15 @@ namespace CsvTools
 
     private static readonly string m_SettingPath = m_SettingFolder + "\\Setting.json";
 
-    public static ViewSettings LoadViewSettings()
+    public static async Task<ViewSettings> LoadViewSettingsAsync()
     {
       try
       {
-        Logger.Debug("Loading defaults {path}", m_SettingPath);
-        if (FileSystemUtils.FileExists(m_SettingPath))
-        {
-          var text = FileSystemUtils.ReadAllText(m_SettingPath);
-          return JsonConvert.DeserializeObject<ViewSettings>(text)!;
-        }
+        return await m_SettingPath.DeserializeAsync<ViewSettings>();
       }
       catch (Exception ex)
       {
-        Logger.Error(ex, "Loading defaults {path}", m_SettingPath);
+        Logger.Error(ex, "Loading ViewSettings {path}", m_SettingPath);
       }
 
       return new ViewSettings();
@@ -33,19 +29,11 @@ namespace CsvTools
 
     /// <summary>
     /// </summary>
-    public static void SaveViewSettings(this ViewSettings viewSettings)
+    public static async Task SaveViewSettingsAsync(this ViewSettings viewSettings)
     {
       if (!FileSystemUtils.DirectoryExists(m_SettingFolder))
         FileSystemUtils.CreateDirectory(m_SettingFolder);
-
-      var newContend = viewSettings.SerializeIndentedJson();
-      var oldContend = FileSystemUtils.FileExists(m_SettingPath) ? FileSystemUtils.ReadAllText(m_SettingPath) : string.Empty;
-      if (!newContend.Equals(oldContend))
-      {
-        FileSystemUtils.DeleteWithBackup(m_SettingPath, false);
-        Logger.Debug("Saving defaults {path}", m_SettingPath);
-        File.WriteAllText(m_SettingPath, newContend);
-      }
+      await viewSettings.SerializeAsync(m_SettingPath, null);
     }
   }
 }

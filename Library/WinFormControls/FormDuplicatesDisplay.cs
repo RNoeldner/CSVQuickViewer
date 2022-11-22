@@ -11,6 +11,8 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+// ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+
 #nullable enable
 
 namespace CsvTools
@@ -78,12 +80,12 @@ namespace CsvTools
     {
       var index = 0;
       var current = 0;
-      foreach (var columnName in m_DataTable.GetRealColumns())
+      foreach (var column in m_DataTable.GetRealColumns())
       {
         if (!string.IsNullOrEmpty(m_InitialColumn)
-            && columnName.Equals(m_InitialColumn, StringComparison.OrdinalIgnoreCase))
+            && column.ColumnName.Equals(m_InitialColumn, StringComparison.OrdinalIgnoreCase))
           index = current;
-        comboBoxID.Items.Add(columnName);
+        comboBoxID.Items.Add(column.ColumnName);
         current++;
       }
       comboBoxID.SelectedIndex = index;
