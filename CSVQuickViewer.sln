@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvTools.ClassLibraryCSV.Quick", "Library\ClassLibraryCSV.Quick\CsvTools.ClassLibraryCSV.Quick.csproj", "{454F7BBB-245A-4474-88B1-E5D27FCAFDB3}"
 EndProject
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CSVQuickViewer_MSI", "Setup\CSVQuickViewer_MSI.wixproj", "{E7A862B8-5A45-47FD-9A91-D909A08BE783}"
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CSVQuickViewer_MSI472", "Setup\CSVQuickViewer_MSI472.wixproj", "{E7A862B8-5A45-47FD-9A91-D909A08BE783}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvTools.ClassLibraryCSV.UnitTest", "UnitTest\ClassLibraryCSVUnitTest\CsvTools.ClassLibraryCSV.UnitTest.csproj", "{333C01D0-3A86-451A-AB26-73C395F83600}"
 EndProject

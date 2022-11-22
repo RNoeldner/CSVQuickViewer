@@ -36,19 +36,19 @@ namespace CsvTools.Tests
       var input = new ColumnMut("Näme",
         new ValueFormat(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat",
           "erp", "read", "Wr", "ou", false)) { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
-      var output = RunSerlializer(input, true, false);
+      var output = RunSerlialize(input, true, false);
       Assert.AreEqual(input.Name, output.Name);
       Assert.AreEqual(input.DestinationName, output.DestinationName);
     }
 
     [TestMethod]
     [TestCategory("Serialization")]
-    public async Task CsvFile()
+    public void CsvFile()
     {
       var input = new CsvFile("MyTest.txt");
       input.FieldQualifier = "'";
 
-      var output = RunSerlializer(input);
+      var output = RunSerlialize(input);
 
       Assert.AreEqual(input.FileName, output.FileName);
       Assert.AreEqual(input.FieldQualifier, output.FieldQualifier);
@@ -56,32 +56,32 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [TestCategory("Serialization")]
-    public async Task Mapping()
+    public void Mapping()
     {
       var input = new Mapping() { FileColumn = "a", TemplateField = "Fld2", Attention = true };
 
-      var output = RunSerlializer(input);
+      var output = RunSerlialize(input);
       Assert.AreEqual(input.FileColumn, output.FileColumn);
       Assert.AreEqual(input.TemplateField, output.TemplateField);
     }
 
     [TestMethod]
     [TestCategory("Serialization")]
-    public async Task MappingCollection()
+    public void MappingCollection()
     {
       var input = new MappingCollection();
 
       input.Add(new Mapping("a", "fld2", true, true));
       input.Add(new Mapping("b", "fld1", false, true));
 
-      var output = RunSerlializer(input);
+      var output = RunSerlialize(input);
 
       Assert.AreEqual(input.Count, output.Count);
     }
 
     [TestMethod]
     [TestCategory("Serialization")]
-    public async Task SampleAndErrorsInformation()
+    public void SampleAndErrorsInformation()
     {
       var input = new SampleAndErrorsInformation();
 
@@ -91,7 +91,7 @@ namespace CsvTools.Tests
       input.Samples.Add(new SampleRecordEntry(11, true, "Sample1"));
       input.Samples.Add(new SampleRecordEntry(15, false, "Sample2"));
 
-      var output = RunSerlializer(input);
+      var output = RunSerlialize(input);
 
       Assert.AreEqual(input.Errors.Count, output.Errors.Count);
       Assert.AreEqual(input.Samples.Count, output.Samples.Count);
@@ -99,17 +99,17 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [TestCategory("Serialization")]
-    public async Task ValueFormatMutable()
+    public void ValueFormatMutable()
     {
       var input = new ValueFormatMut(DataTypeEnum.Numeric, numberFormat: "x.00", decimalSeparator: ",");
 
-      var output = RunSerlializer(input, false);
+      var output = RunSerlialize(input, false);
       Assert.AreEqual(input.NumberFormat, output.NumberFormat);
       Assert.AreEqual(input.DecimalSeparator, output.DecimalSeparator);
       Assert.AreEqual(input.DateFormat, output.DateFormat);
     }
 
-    private static T RunSerlializer<T>(T obj, bool includeXml = true, bool includeJson = true) where T : class
+    private static T RunSerlialize<T>(T obj, bool includeXml = true, bool includeJson = true) where T : class
     {
       if (obj == null)
         throw new ArgumentNullException("obj");
@@ -132,7 +132,7 @@ namespace CsvTools.Tests
         Assert.IsFalse(string.IsNullOrEmpty(testJson));
         var pos = testJson.IndexOf("Specified\":", StringComparison.OrdinalIgnoreCase);
         Assert.IsFalse(pos != -1, $"Conteins Specifed as position {pos} in \n{testJson}");
-        ret = JsonConvert.DeserializeObject<T>(testJson, ClassLibraryCsvExtensionMethods.JsonSerializerSettings.Value);
+        ret = JsonConvert.DeserializeObject<T>(testJson, SerializedFilesLib.JsonSerializerSettings.Value);
         Assert.IsNotNull(ret);
       }
 

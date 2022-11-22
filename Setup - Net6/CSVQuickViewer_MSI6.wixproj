@@ -6,7 +6,7 @@
     <ProductVersion>3.10</ProductVersion>
     <ProjectGuid>{fe95a246-3f90-406b-a959-eb68be822e6b}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>CSVQuickViewerSetup</OutputName>
+    <OutputName>CSVQuickViewerSetup.Net6</OutputName>
     <OutputType>Package</OutputType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">

@@ -20,14 +20,9 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml;
-using System.Xml.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 #if !QUICK
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,65 +38,6 @@ namespace CsvTools
   /// </summary>
   public static class ClassLibraryCsvExtensionMethods
   {
-    
-    private static readonly Lazy<Regex> m_RemoveEmpty = new Lazy<Regex>(() => new Regex(@"\s*""[^$][^""]+"":\s*\[\s*\]\,?"));
-    private static readonly Lazy<Regex> m_RemoveEmpty2 = new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*{\\s*},?"));
-    private static readonly Lazy<Regex> m_RemoveComma = new Lazy<Regex>(() => new Regex(",(?=\\s*})"));
-
-    private static readonly Lazy<XmlSerializerNamespaces> m_EmptyXmlSerializerNamespaces =
-      new Lazy<XmlSerializerNamespaces>(
-        () =>
-        {
-          var xmlSerializerNamespaces = new XmlSerializerNamespaces();
-          xmlSerializerNamespaces.Add(string.Empty, string.Empty);
-          return xmlSerializerNamespaces;
-        });
-
-    public static readonly Lazy<JsonSerializerSettings> JsonSerializerSettings = new Lazy<JsonSerializerSettings>(
-      () =>
-      {
-        var setting = new JsonSerializerSettings
-        {
-          TypeNameHandling = TypeNameHandling.Auto,
-          DefaultValueHandling = DefaultValueHandling.Ignore,
-          ContractResolver = new CamelCasePropertyNamesContractResolver(),
-          NullValueHandling = NullValueHandling.Ignore,
-          ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-          DateFormatHandling = DateFormatHandling.IsoDateFormat,
-          DateTimeZoneHandling = DateTimeZoneHandling.Utc
-        };
-        setting.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
-        return setting;
-      });
-
-    /// <summary>
-    /// Serialize an object with formatting
-    /// </summary>    
-    /// <param name="data">The object to be serialized</param>
-    /// <param name="serializer">The serializer for the passed in object</param>
-    /// <returns>The XML string</returns>
-    public static string SerializeIndentedXml<T>(this T data, in XmlSerializer serializer)  where T : class
-    {
-      using var stringWriter = new StringWriter();
-      using var textWriter = new XmlTextWriter(stringWriter);
-      textWriter.Formatting = System.Xml.Formatting.Indented;
-      serializer.Serialize(textWriter, data, m_EmptyXmlSerializerNamespaces.Value);
-      return stringWriter.ToString();
-    }
-
-
-    /// <summary>
-    /// Serialize an object with formatting
-    /// </summary>    
-    /// <param name="data">The object to be serialized</param>
-    /// <returns>The resulting Json string</returns>
-    public static string SerializeIndentedJson<T>(this T data)  where T : class
-    {
-      var json = JsonConvert.SerializeObject(data, Newtonsoft.Json.Formatting.Indented, JsonSerializerSettings.Value);
-      // remove empty array or class
-      return m_RemoveComma.Value.Replace(m_RemoveEmpty2.Value.Replace(m_RemoveEmpty.Value.Replace(json, string.Empty), string.Empty), string.Empty);
-    }
-
     /// <summary>
     /// Move the field from on position in the list to another
     /// </summary>
@@ -426,16 +362,10 @@ namespace CsvTools
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable" /> containing the columns</param>
     /// <returns>A enumeration of ColumnNames</returns>
-    public static IEnumerable<string> GetRealColumns(this DataTable dataTable) =>
-      GetRealDataColumns(dataTable).Select(x => x.ColumnName);
+    public static IEnumerable<DataColumn> GetRealColumns(this DataTable dataTable) =>
+      dataTable.Columns.Cast<DataColumn>().Where(col => NoArtificialField(col.ColumnName));
 
-    /// <summary>
-    ///   Get a list of columns that are not artificial
-    /// </summary>
-    /// <param name="dataTable">The <see cref="DataTable" /> containing the columns</param>
-    /// <returns>A enumeration of <see cref="DataColumn" /></returns>
-    public static IEnumerable<DataColumn> GetRealDataColumns(this DataTable dataTable) =>
-      dataTable.Columns.Cast<DataColumn>().Where(col => !ReaderConstants.ArtificialFields.Contains(col.ColumnName));
+    public static bool NoArtificialField(this string columnName) => !ReaderConstants.ArtificialFields.Contains(columnName);
 
     /// <summary>
     ///   Combines all inner exceptions to one formatted string for logging.

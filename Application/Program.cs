@@ -66,7 +66,7 @@ namespace CsvTools
       else if (args.Length > 1)
         fileName = args.Join(" ");
 
-      var viewSettings = ViewSettingHelper.LoadViewSettings();
+      var viewSettings = ViewSettingHelper.LoadViewSettingsAsync().GetAwaiter().GetResult();
 
       var frm = new FormMain(viewSettings);
       frm.Show();

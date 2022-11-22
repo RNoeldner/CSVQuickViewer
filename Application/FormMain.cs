@@ -469,7 +469,7 @@ namespace CsvTools
 
       var res = this.StoreWindowState();
       m_ViewSettings.WindowPosition = res;
-      m_ViewSettings.SaveViewSettings();
+      await m_ViewSettings.SaveViewSettingsAsync();
       await SaveIndividualFileSettingAsync();
     }
 
@@ -519,8 +519,8 @@ namespace CsvTools
           if (cancellationToken.IsCancellationRequested)
             return;
 
-          // TODO: Is this needed ? Is te column collection not alread set ?
-          m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealDataColumns()
+          // TODO: Is this needed ? Is te column collection not already set ?
+          m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealColumns()
             .Select(dataColumn => new Column(dataColumn.ColumnName, new ValueFormat(dataColumn.DataType.GetDataType()),
               dataColumn.Ordinal)));
 
@@ -621,7 +621,7 @@ namespace CsvTools
 
         using var frm = new FormEditSettings(m_ViewSettings, (ICsvFile) m_FileSetting);
         frm.ShowDialog(MdiParent);
-        m_ViewSettings.SaveViewSettings();
+        await m_ViewSettings.SaveViewSettingsAsync();
         m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
         m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
 

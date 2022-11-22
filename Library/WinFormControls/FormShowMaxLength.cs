@@ -144,7 +144,7 @@ namespace CsvTools
         var colIndex = new Dictionary<string, int>();
         var checkCols = new Dictionary<string, int>();
 
-        foreach (var col in m_DataTable.GetRealDataColumns())
+        foreach (var col in m_DataTable.GetRealColumns())
         {
           checkCols.Add(col.ColumnName, col.Ordinal);
           maxLength.Add(col.ColumnName, -1);

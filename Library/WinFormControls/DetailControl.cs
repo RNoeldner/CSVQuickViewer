@@ -29,6 +29,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+// ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+
 namespace CsvTools
 {
   /// <inheritdoc cref="UserControl" />
@@ -550,7 +552,7 @@ namespace CsvTools
       SetButtonVisibility();
     }
 
-    private void DetailControl_FontChanged(object sender, EventArgs e)
+    private void DetailControl_FontChanged(object? sender, EventArgs e)
     {
       this.SafeInvoke(() =>
       {
@@ -1106,7 +1108,7 @@ namespace CsvTools
         return;
 
       // This will always write a delimited text file
-      ICsvFile writeFile = new CsvFile();
+      ICsvFile writeFile = new CsvFile(string.Empty);
       FileSetting?.CopyTo(writeFile);
 
       // in case the extension is changed change the delimiter accordingly
@@ -1127,7 +1129,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        using var iStream = FunctionalDI.OpenStream(new SourceAccess(writeFile));
+          using var iStream = FunctionalDI.OpenStream(new SourceAccess(writeFile));
         using var sr = new ImprovedTextReader(iStream, writeFile.CodePageId);
         for (var i = 0; i < writeFile.SkipRows; i++)
           headerAndSipped.AppendLine(await sr.ReadLineAsync());
@@ -1153,13 +1155,13 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        using var dt = new DataTableWrapper(
-          FilteredDataGridView.DataView.ToTable(false,
-            // Restrict to shown data
-            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-              .Where(col => col.Visible && !ReaderConstants.ArtificialFields.Contains(col.DataPropertyName))
-              .OrderBy(col => col.DisplayIndex)
-              .Select(col => col.DataPropertyName).ToArray()));
+          using var dt = new DataTableWrapper(
+            FilteredDataGridView.DataView.ToTable(false,
+              // Restrict to shown data
+              FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+                .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
+                .OrderBy(col => col.DisplayIndex)
+                .Select(col => col.DataPropertyName).ToArray()));
         // can not use filteredDataGridView.Columns directly
         await writer.WriteAsync(dt, formProgress.CancellationToken);
       }
