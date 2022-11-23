@@ -21,35 +21,34 @@ namespace CsvTools
   /// <summary>
   ///   Result of a format check, if the samples match a value type this is set, if not an example is give what did not match
   /// </summary>
-  public sealed  class CheckResult
+  public sealed class CheckResult
   {
-    public ICollection<string> ExampleNonMatch { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    public readonly ICollection<string> ExampleNonMatch = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     ///   The found value format
     /// </summary>
-    public ValueFormat? FoundValueFormat { get; set; }
+    public ValueFormat? FoundValueFormat;
 
     /// <summary>
     ///   The positive matches before an invalid value was found
     /// </summary>
-    public bool PossibleMatch { get; set; }
+    public bool PossibleMatch;
 
     /// <summary>
     ///   The value format for a possible match
     /// </summary>
-    public ValueFormat? ValueFormatPossibleMatch { get; set; }
+    public ValueFormat? ValueFormatPossibleMatch;
 
     /// <summary>
     ///   Combines a Sub check to an overall check
     /// </summary>
     /// <param name="subResult">The sub result.</param>
-    public void KeepBestPossibleMatch(CheckResult subResult)
+    public void KeepBestPossibleMatch(in CheckResult subResult)
     {
-      if (!subResult.PossibleMatch)
+      if (!subResult.PossibleMatch || subResult.ExampleNonMatch.Count >= ExampleNonMatch.Count)
         return;
-
-      if (PossibleMatch && subResult.ExampleNonMatch.Count >= ExampleNonMatch.Count) return;
+      
       ExampleNonMatch.Clear();
       PossibleMatch = true;
       ValueFormatPossibleMatch = subResult.ValueFormatPossibleMatch;

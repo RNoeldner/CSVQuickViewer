@@ -715,7 +715,7 @@ namespace CsvTools
     public static CheckResult GuessDateTime(
       in ICollection<string> samples,
       bool checkNamedDates,
-      CancellationToken cancellationToken)
+      in CancellationToken cancellationToken)
     {
       if (samples is null || samples.Count == 0)
         throw new ArgumentNullException(nameof(samples));
@@ -793,7 +793,7 @@ namespace CsvTools
       bool guessPercentage,
       bool allowStartingZero,
       int minSamples,
-      CancellationToken cancellationToken)
+      in CancellationToken cancellationToken)
     {
       if (samples is null || samples.Count == 0)
         throw new ArgumentNullException(nameof(samples));
@@ -856,7 +856,7 @@ namespace CsvTools
     /// </param>
     /// <exception cref="ArgumentNullException">samples is null or empty</exception>
     public static CheckResult GuessValueFormat(
-      in ICollection<string> samples,
+      ICollection<string> samples,
       int minRequiredSamples,
       in string trueValue,
       in string falseValue,

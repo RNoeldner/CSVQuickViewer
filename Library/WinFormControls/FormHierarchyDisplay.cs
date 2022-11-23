@@ -551,7 +551,7 @@ namespace CsvTools
       return false;
     }
 
-    private void Search(string text, ICollection nodes, CancellationToken token)
+    private void Search(string text, ICollection nodes, in CancellationToken token)
     {
       if (nodes is null || nodes.Count == 0)
         return;
@@ -572,7 +572,7 @@ namespace CsvTools
     /// <summary>
     ///   Shows the tree.
     /// </summary>
-    private void ShowTree(CancellationToken cancellationToken)
+    private void ShowTree(in CancellationToken cancellationToken)
     {
       if (m_TreeView is null)
         return;

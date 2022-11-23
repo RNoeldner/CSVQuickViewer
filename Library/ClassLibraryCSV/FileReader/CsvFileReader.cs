@@ -466,7 +466,7 @@ namespace CsvTools
     public override Task<bool> ReadAsync(CancellationToken cancellationToken) => Task.FromResult(Read(cancellationToken));
 
     /// <inheritdoc />
-    public override bool Read(CancellationToken token) => !token.IsCancellationRequested && Read();
+    public override bool Read(in CancellationToken token) => !token.IsCancellationRequested && Read();
 
     /// <inheritdoc cref="BaseFileReader" />
     public override bool Read()

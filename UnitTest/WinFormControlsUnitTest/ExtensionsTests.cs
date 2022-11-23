@@ -139,20 +139,5 @@ namespace CsvTools.Tests
       //Assert.AreEqual(state1.Left, state2.Left, "Left");
       Assert.AreEqual(state1.Width, state2.Width, "Width");
     }
-
-    [TestMethod]
-    [Timeout(2000)]
-    public void WriteBindingTest()
-    {
-      var obj = new DisplayItem<string>("15", "Text");
-      using var bindingSource = new BindingSource { DataSource = obj };
-      var bind = new Binding("Text", bindingSource, "ID", true);
-      using var textBoxBox = new TextBox();
-      textBoxBox.DataBindings.Add(bind);
-      textBoxBox.Text = "12";
-
-      Assert.AreEqual(bind, textBoxBox.GetTextBinding());
-      textBoxBox.WriteBinding();
-    }
   }
 }

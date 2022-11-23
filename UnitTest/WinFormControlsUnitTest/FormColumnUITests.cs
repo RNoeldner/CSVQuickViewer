@@ -112,7 +112,6 @@ namespace CsvTools.Tests
 
       using var form = new FormColumnUI(col, false, csvFile, new FillGuessSettings(), true,
         UnitTestStatic.HtmlStyle);
-      form.ShowGuess = false;
       UnitTestStatic.ShowFormAndClose(form);
     }
 

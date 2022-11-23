@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System;
@@ -26,7 +27,8 @@ namespace CsvTools
 
     /// <summary>Initializes a new instance of the <see cref="ClassLibraryCsvFileReaderWriterFactory" /> class.</summary>
     /// <param name="timeZoneAdjust">The routine to do time zone adjustments</param>
-    public ClassLibraryCsvFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust) => m_TimeZoneAdjust = timeZoneAdjust;
+    public ClassLibraryCsvFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust) =>
+      m_TimeZoneAdjust = timeZoneAdjust;
 
     /// <inheritdoc />
     public IFileReader GetFileReader(IFileSetting setting, CancellationToken cancellationToken)

@@ -812,7 +812,7 @@ namespace CsvTools
     /// <returns>true if read was successful</returns>
     /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    public virtual bool Read(CancellationToken cancellationToken) =>
+    public virtual bool Read(in CancellationToken cancellationToken) =>
       ReadAsync(cancellationToken).GetAwaiter().GetResult();
 
     public override bool Read() => ReadAsync(CancellationToken.None).GetAwaiter().GetResult();
@@ -1236,7 +1236,7 @@ namespace CsvTools
     /// </summary>
     public event EventHandler<RetryEventArgs>? OnAskRetry;
 
-    protected virtual bool ShouldRetry(in Exception ex, CancellationToken token)
+    protected bool ShouldRetry(in Exception ex, in CancellationToken token)
     {
       if (token.IsCancellationRequested) return false;
 
@@ -1250,7 +1250,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="ordinal">The column.</param>
     /// <param name="message">The message.</param>
-    protected virtual FormatException WarnAddFormatException(int ordinal, in string message)
+    protected FormatException WarnAddFormatException(int ordinal, in string message)
     {
       HandleError(ordinal, message);
       return new FormatException(message);

@@ -423,7 +423,7 @@ namespace CsvTools.Tests
     }
 
     public static void RunTaskTimeout(Func<CancellationToken, Task> toDo, double timeout = 1,
-      CancellationToken token = default)
+      in CancellationToken token = default)
     {
       using var source = CancellationTokenSource.CreateLinkedTokenSource(token);
       Task.WhenAny(toDo.Invoke(source.Token), Task.Delay(TimeSpan.FromSeconds(timeout), source.Token));
@@ -475,7 +475,7 @@ namespace CsvTools.Tests
     //}
 
     [DebuggerStepThrough]
-    public static void WaitSomeTime(double seconds, CancellationToken token)
+    public static void WaitSomeTime(double seconds, in CancellationToken token)
     {
       var sw = new Stopwatch();
       sw.Start();
@@ -487,7 +487,7 @@ namespace CsvTools.Tests
     }
 
     public static void ShowFormAndClose<T>(
-      T typed, double before = 0, Action<T>? toDo = null, double after = 0, CancellationToken token = default)
+      T typed, double before = 0, Action<T>? toDo = null, double after = 0, in CancellationToken token = default)
       where T : Form
     {
       var frm = typed as Form;
