@@ -410,7 +410,7 @@ namespace CsvTools.Tests
       var dataColumn = new DataColumn { ColumnName = "Test" };
       dt.Columns.Add(dataColumn);
       Assert.AreEqual(1, dt.GetRealColumns().Count());
-      Assert.AreEqual(dataColumn.ColumnName, dt.GetRealColumns().FirstOrDefault());
+      Assert.AreEqual(dataColumn.ColumnName, dt.GetRealColumns().First().ColumnName);
     }
 
     [TestMethod]
