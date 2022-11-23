@@ -53,7 +53,7 @@ namespace CsvTools
     private bool m_SerialDateTime = true;
 
     private string m_TrueValue = "True";
-
+    
     /// <summary>
     ///   Number of records to parse to get the sample values, default is <c>30000</c>
     /// </summary>

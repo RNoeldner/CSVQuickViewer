@@ -45,18 +45,18 @@ namespace CsvTools
     /// <exception cref="System.ArgumentNullException">name</exception>
     public Column(in string name,
       in ValueFormat? valueFormat = null,
-      int columnOrdinal = 0,
-      bool ignore = false,
+      int? columnOrdinal = 0,
+      bool? ignore = false,
       bool? convert = null,
-      in string destinationName = "",
-      in string timePart = "",
-      in string timePartFormat = cDefaultTimePartFormat,
-      in string timeZonePart = "")
+      in string? destinationName = "",
+      in string? timePart = "",
+      in string? timePartFormat = cDefaultTimePartFormat,
+      in string? timeZonePart = "")
     {
       Name = name ?? throw new ArgumentNullException(nameof(name));
       ValueFormat = valueFormat ?? ValueFormat.Empty;
-      ColumnOrdinal = columnOrdinal < 0 ? 0 : columnOrdinal;
-      Ignore = ignore;
+      ColumnOrdinal = columnOrdinal < 0 ? 0 : columnOrdinal ?? 0;
+      Ignore = ignore ?? false;
       Convert = convert ?? ValueFormat.DataType != DataTypeEnum.String;
       DestinationName = destinationName ?? string.Empty;
       TimePart = timePart ?? string.Empty;
@@ -69,7 +69,7 @@ namespace CsvTools
     /// </summary>
     [DefaultValue("")]
     public string Name { get; }
-    
+
     /// <summary>
     ///   Gets the column ordinal
     /// </summary>
@@ -105,7 +105,7 @@ namespace CsvTools
         return m_ColumnFormatter = ColumnFormatterFactory.GetColumnFormatter(ColumnOrdinal, ValueFormat);
       }
     }
-    
+
     /// <summary>
     ///   Indicating if the column should be ignored during read or write, no conversion is done if
     ///   the column is ignored teh target will not show this column

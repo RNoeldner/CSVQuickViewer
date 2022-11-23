@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Newtonsoft.Json;
@@ -35,12 +36,12 @@ namespace CsvTools
     }
 
     [JsonConstructor]
-    public Mapping(string fileColumn, string templateField, bool update = false, bool attention = false)
+    public Mapping(string? fileColumn, string? templateField, bool? update = false, bool? attention = false)
     {
-      FileColumn = fileColumn;
-      TemplateField = templateField;
-      Update = update;
-      Attention = attention;
+      FileColumn = fileColumn!;
+      TemplateField = templateField!;
+      Update = update ?? false;
+      Attention = attention ?? false;
     }
 
     /// <summary>
