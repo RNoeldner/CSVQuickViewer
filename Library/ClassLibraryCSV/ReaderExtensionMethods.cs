@@ -182,7 +182,7 @@ namespace CsvTools
       bool includeRecordNo,
       bool includeEndLineNo,
       bool includeErrorField,
-      CancellationToken cancellationToken)
+      in CancellationToken cancellationToken)
     {
       if (reader is DataTableWrapper dtw)
         return dtw.DataTable;

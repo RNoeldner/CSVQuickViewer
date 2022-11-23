@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -27,6 +28,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
+// ReSharper disable CoVariantArrayConversion
 
 namespace CsvTools
 {
@@ -93,17 +96,7 @@ namespace CsvTools
       checkBoxIgnore.Visible = showIgnore;
     }
 
-    public bool ShowGuess
-    {
-      get => buttonGuess.Visible;
-      set
-      {
-        buttonGuess.Visible = value;
-        buttonDisplayValues.Visible = value;
-      }
-    }
-
-    public void AddDateFormat(string format)
+    private void AddDateFormat(string format)
     {
       if (string.IsNullOrEmpty(format))
         return;
@@ -127,7 +120,7 @@ namespace CsvTools
       }
     }
 
-    public async Task DisplayValues()
+    private async Task DisplayValues()
     {
       using var formProgress = new FormProgress("Display Values", true, m_CancellationTokenSource.Token);
       formProgress.Show(this);
@@ -156,7 +149,7 @@ namespace CsvTools
     ///   Examine the column and guess the format
     /// </summary>
     /// <returns></returns>
-    public async Task Guess()
+    private async Task Guess()
     {
       var columnName = comboBoxColumnName.Text;
       if (string.IsNullOrEmpty(columnName))
@@ -176,8 +169,9 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
-                   m_FileSetting.RecordLimit, formProgress.CancellationToken))
+            // ReSharper disable once ConvertToUsingDeclaration
+            using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
+                     m_FileSetting.RecordLimit, formProgress.CancellationToken))
           {
             sqlReader.ReportProgress = formProgress;
             var data = await sqlReader.GetDataTableAsync(TimeSpan.FromSeconds(60),
@@ -394,7 +388,7 @@ namespace CsvTools
       });
     }
 
-    public void SetPartLabels(string textBoxSplitText, int part, bool toEnd)
+    private void SetPartLabels(string textBoxSplitText, int part, bool toEnd)
     {
       if (string.IsNullOrEmpty(textBoxSplitText))
         return;
@@ -411,7 +405,7 @@ namespace CsvTools
       });
     }
 
-    public void UpdateDateLabel(ValueFormat vf, bool hasTimePart, string timePartFormat, string timeZone)
+    private void UpdateDateLabel(ValueFormat vf, bool hasTimePart, string timePartFormat, string timeZone)
     {
       try
       {
@@ -452,7 +446,7 @@ namespace CsvTools
       }
     }
 
-    public void UpdateNumericLabel(string decimalSeparator, string numberFormat, string groupSeparator)
+    private void UpdateNumericLabel(string decimalSeparator, string numberFormat, string groupSeparator)
     {
       try
       {
@@ -486,6 +480,7 @@ namespace CsvTools
         list.Add(value);
     }
 
+    [SuppressMessage("ReSharper", "StringLiteralTypo")]
     private string BuildHtmlText(string? header, string? footer, int rows, string headerList1,
       ICollection<string> values1, int col1, string? headerList2 = null, ICollection<string>? values2 = null,
       int col2 = 2)
@@ -620,7 +615,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, formProgress.CancellationToken);
+            using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, formProgress.CancellationToken);
           fileReader.ReportProgress = formProgress;
           await fileReader.OpenAsync(formProgress.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -631,9 +626,9 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          // Write Setting ----- open the source that is SQL
-          using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSql(),
-            m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProgress.CancellationToken);
+            // Write Setting ----- open the source that is SQL
+            using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSql(),
+              m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProgress.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
         }
@@ -767,8 +762,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
-            m_FileSetting.RecordLimit, cancellationToken);
+            using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
+              m_FileSetting.RecordLimit, cancellationToken);
           if (progress != null)
             sqlReader.ReportProgress = progress;
           var colIndex = sqlReader.GetOrdinal(columnName);
@@ -804,8 +799,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        // ReSharper disable once ConvertToUsingDeclaration
-        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, cancellationToken))
+          // ReSharper disable once ConvertToUsingDeclaration
+          using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, cancellationToken))
         {
           if (progress != null)
             fileReader.ReportProgress = progress;
@@ -877,7 +872,7 @@ namespace CsvTools
     private void PartValidating(object? sender, CancelEventArgs e)
     {
       var parse = Convert.ToInt32(numericUpDownPart.Value);
-
+      errorProvider.SetError(textBoxSplit, string.IsNullOrEmpty(textBoxSplit.Text) ? "Must be provided" : "");
       if (parse == 1 && checkBoxPartToEnd.Checked)
       {
         errorProvider.SetError(numericUpDownPart, "Un-check or choose a later part.");
@@ -1009,8 +1004,6 @@ namespace CsvTools
         textBoxDecimalSeparator,
         string.IsNullOrEmpty(textBoxDecimalSeparator.Text) ? "Must be provided" : "");
 
-    private void TextBoxSplit_Validating(object? sender, CancelEventArgs e) =>
-      errorProvider.SetError(textBoxSplit, string.IsNullOrEmpty(textBoxSplit.Text) ? "Must be provided" : "");
 
     private void UpdateColumnList(ICollection<string> allColumns)
     {

@@ -75,7 +75,7 @@ namespace CsvTools
       this IFileSetting fileSetting,
       Form? owner,
       bool withLogger,
-      CancellationToken cancellationToken)
+      in CancellationToken cancellationToken)
     {
       if (!fileSetting.ShowProgress)
         return null;
@@ -85,7 +85,7 @@ namespace CsvTools
     }
 
     public static Binding? GetTextBinding(this Control ctrl) => ctrl.DataBindings.Cast<Binding>()
-                                                                    .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
+      .FirstOrDefault(bind => bind.PropertyName == "Text" || bind.PropertyName == "Value");
 
     public static void InvokeWithHourglass(this Action action)
     {
@@ -146,7 +146,7 @@ namespace CsvTools
       var top = Math.Min(screen.WorkingArea.Bottom - height, Math.Max(windowPosition.Top, screen.WorkingArea.Top));
 
       form.DesktopBounds = new Rectangle(left, top, width, height);
-      form.WindowState = (FormWindowState) windowPosition.State;
+      form.WindowState = windowPosition.State;
       if (windowPosition.CustomInt != int.MinValue)
         setCustomValue1?.Invoke(windowPosition.CustomInt);
       if (!string.IsNullOrEmpty(windowPosition.CustomText))
@@ -187,6 +187,7 @@ namespace CsvTools
         action.Invoke();
         return;
       }
+
       try
       {
         if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
@@ -331,9 +332,10 @@ namespace CsvTools
       }
       catch
       {
-        // sometimes there is an error acessing InvokeRequired
-        // if so ignore it and try to preforma the action anyway.
+        // sometimes there is an error accessing InvokeRequired
+        // if so ignore it and try to preform the action anyway.
       }
+
       action();
     }
 
@@ -358,7 +360,7 @@ namespace CsvTools
     /// <param name="action">A delegate for the action</param>
     /// <param name="timeoutTicks">Timeout to finish action, default is 1/10 of a second</param>
     public static void SafeInvokeNoHandleNeeded(this Control uiElement, Action action,
-                                                long timeoutTicks = TimeSpan.TicksPerSecond / 10)
+      long timeoutTicks = TimeSpan.TicksPerSecond / 10)
     {
       if (uiElement.IsDisposed)
         return;
@@ -375,7 +377,7 @@ namespace CsvTools
     }
 
     public static void SetClipboard(this DataObject dataObject, int timeoutMilliseconds = 120000)
-                  => RunStaThread(() =>
+      => RunStaThread(() =>
       {
         Clipboard.Clear();
         Clipboard.SetDataObject(dataObject, false, 5, 200);
@@ -407,7 +409,7 @@ namespace CsvTools
     }
 
     public static WindowState StoreWindowState(this Form form, int customInt = int.MinValue,
-                                               string customText = "")
+      string customText = "")
     {
       var windowPosition = form.DesktopBounds;
       var windowState = form.WindowState;
@@ -426,11 +428,5 @@ namespace CsvTools
       return new WindowState(windowPosition.Left, windowPosition.Top, windowPosition.Height, windowPosition.Width,
         windowState, customInt, customText);
     }
-
-    /// <summary>
-    ///   Store a bound value
-    /// </summary>
-    /// <param name="ctrl">The control</param>
-    public static void WriteBinding(this Control ctrl) => ctrl.GetTextBinding()?.WriteValue();
   }
 }
