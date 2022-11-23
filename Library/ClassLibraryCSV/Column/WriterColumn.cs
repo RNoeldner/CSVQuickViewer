@@ -15,7 +15,7 @@
 namespace CsvTools
 {
   /// <inheritdoc />
-  public class WriterColumn : Column
+  public sealed class WriterColumn : Column
   {
     public WriterColumn(
       in string name,
