@@ -149,8 +149,9 @@ namespace CsvTools
       get => m_Active;
       set
       {
+        SetField(ref m_Active, value);
         // If set active from the outside, make sure the Expression is correct
-        if (SetField(ref m_Active, value) && m_Active)
+        if (m_Active)
           m_Active = BuildFilterExpression();
       }
     }
