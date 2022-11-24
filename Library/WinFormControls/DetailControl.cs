@@ -126,30 +126,35 @@ namespace CsvTools
         "All Records", "Error or Warning", "Only Errors", "Only Warning", "No Error or Warning"
       });
       m_ToolStripComboBoxFilterType.Size = new Size(150, 28);
+      m_ToolStripComboBoxFilterType.SelectedIndex = 0;
       // m_ToolStripButtonUniqueValues
       m_ToolStripButtonUniqueValues.Image = resources.GetObject("m_ToolStripButtonUniqueValues.Image") as Image;
       m_ToolStripButtonUniqueValues.Size = new Size(126, 25);
       m_ToolStripButtonUniqueValues.Text = "Unique Values";
       m_ToolStripButtonUniqueValues.ToolTipText = "Display Unique Values";
       m_ToolStripButtonUniqueValues.Click += ButtonUniqueValues_Click;
+
       // m_ToolStripButtonColumnLength
       m_ToolStripButtonColumnLength.Image = resources.GetObject("m_ToolStripButtonColumnLength.Image") as Image;
       m_ToolStripButtonColumnLength.Size = new Size(133, 25);
-      m_ToolStripButtonColumnLength.Text = "Column Length";
-      m_ToolStripButtonColumnLength.ToolTipText = "Display Schema information including Length";
+      m_ToolStripButtonColumnLength.Text = "Columns";
+      m_ToolStripButtonColumnLength.ToolTipText = "Display Schema information";
       m_ToolStripButtonColumnLength.Click += ButtonColumnLength_Click;
+
       // m_ToolStripButtonDuplicates
       m_ToolStripButtonDuplicates.Image = resources.GetObject("m_ToolStripButtonDuplicates.Image") as Image;
       m_ToolStripButtonDuplicates.Size = new Size(103, 25);
       m_ToolStripButtonDuplicates.Text = "Duplicates";
       m_ToolStripButtonDuplicates.ToolTipText = "Display Duplicate Values";
       m_ToolStripButtonDuplicates.Click += ButtonDuplicates_Click;
+
       // m_ToolStripButtonHierarchy
       m_ToolStripButtonHierarchy.Image = resources.GetObject("m_ToolStripButtonHierarchy.Image") as Image;
       m_ToolStripButtonHierarchy.Size = new Size(96, 25);
       m_ToolStripButtonHierarchy.Text = "Hierarchy";
       m_ToolStripButtonHierarchy.ToolTipText = "Display a Hierarchy Structure";
       m_ToolStripButtonHierarchy.Click += ButtonHierarchy_Click;
+
       // m_ToolStripButtonStore
       m_ToolStripButtonStore.Image = resources.GetObject("m_ToolStripButtonStore.Image") as Image;
       m_ToolStripButtonStore.ImageTransparentColor = Color.Magenta;
@@ -157,6 +162,7 @@ namespace CsvTools
       m_ToolStripButtonStore.Text = "Write File";
       m_ToolStripButtonStore.ToolTipText = "Store the currently displayed data as delimited text file";
       m_ToolStripButtonStore.Click += ToolStripButtonStoreAsCsvAsync;
+
       // m_ToolStripContainer
       //
       //
@@ -217,7 +223,6 @@ namespace CsvTools
       m_ToolStripButtonMovePreviousItem.Text = "Move previous";
       // m_ToolStripTextBox1
       m_ToolStripTextBoxPos.AccessibleName = "Position";
-      m_ToolStripTextBoxPos.Font = new Font("Segoe UI", 9F);
       m_ToolStripTextBoxPos.Size = new Size(50, 27);
       m_ToolStripTextBoxPos.Text = "0";
       m_ToolStripTextBoxPos.ToolTipText = "Current position";
@@ -276,6 +281,7 @@ namespace CsvTools
       m_BindingNavigator.PerformLayout();
       ((ISupportInitialize) m_BindingSource).EndInit();
       ResumeLayout(false);
+
       // For some reason if its part of InitializeComponent the designer will not work
       FilteredDataGridView = new FilteredDataGridView
       {
@@ -552,10 +558,12 @@ namespace CsvTools
       SetButtonVisibility();
     }
 
+    //TODO : Is this needed
     private void DetailControl_FontChanged(object? sender, EventArgs e)
     {
       this.SafeInvoke(() =>
       {
+        FilteredDataGridView.DefaultCellStyle.Font = this.Font;
         ((m_MenuDown) ? m_BindingNavigator : m_ToolStripTop).Font = this.Font;
       });
     }
@@ -679,10 +687,9 @@ namespace CsvTools
           .Select(col => col.DataPropertyName).ToList();
         m_FormShowMaxLength?.Close();
         m_FormShowMaxLength =
-          new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible, HtmlStyle)
-          {
-            Icon = ParentForm?.Icon
-          };
+          new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible,
+            HtmlStyle);
+        ResizeForm.SetFonts(m_FormShowMaxLength, Font);
         m_FormShowMaxLength.Show(ParentForm);
 
         m_FormShowMaxLength.FormClosed += (_, _) => this.SafeInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
@@ -710,6 +717,7 @@ namespace CsvTools
           m_FormDuplicatesDisplay =
             new FormDuplicatesDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
               columnName, HtmlStyle) { Icon = ParentForm?.Icon };
+          ResizeForm.SetFonts(m_FormDuplicatesDisplay, Font);
           m_FormDuplicatesDisplay.Show(ParentForm);
           m_FormDuplicatesDisplay.FormClosed +=
             (_, _) => this.SafeInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
@@ -737,6 +745,7 @@ namespace CsvTools
           m_HierarchyDisplay =
             new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
               HtmlStyle) { Icon = ParentForm?.Icon };
+          ResizeForm.SetFonts(m_HierarchyDisplay, Font);
           m_HierarchyDisplay.Show(ParentForm);
           m_HierarchyDisplay.FormClosed += (_, _) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
         }
@@ -768,7 +777,9 @@ namespace CsvTools
           m_FormUniqueDisplay = new FormUniqueDisplay(
             m_DataTable.Clone(),
             m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-            columnName, HtmlStyle) { Icon = ParentForm?.Icon };
+            columnName, HtmlStyle);
+          ResizeForm.SetFonts(m_FormUniqueDisplay, Font);
+
           m_FormUniqueDisplay.ShowDialog(ParentForm);
         }
         catch (Exception ex)
@@ -979,6 +990,15 @@ namespace CsvTools
 
         // Extended
         m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
+
+        var hasData = m_DataTable.Rows.Count > 0;
+        m_ToolStripButtonUniqueValues.Enabled = hasData;
+        m_ToolStripButtonDuplicates.Enabled = hasData;
+        m_ToolStripButtonColumnLength.Enabled = hasData;
+        m_ToolStripButtonHierarchy.Enabled = hasData;
+        m_ToolStripButtonStore.Enabled = hasData;
+        m_ToolStripComboBoxFilterType.Enabled = hasData;
+        m_ToolStripComboBoxFilterType.Visible = hasData;
 
         if (EndOfFile?.Invoke() ?? true)
         {

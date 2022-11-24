@@ -916,8 +916,6 @@ namespace CsvTools
       if (m_Filter[columnIndex] is null)
       {
         m_Filter[columnIndex] = new ToolStripDataGridViewColumnFilter(Columns[columnIndex]);
-        if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
-          m_Filter[columnIndex]!.Control.Font = Font;
 
         // as the Operator is set the filter becomes active, revoke this
         m_Filter[columnIndex]!.ColumnFilterLogic.Active = false;
@@ -1202,6 +1200,7 @@ namespace CsvTools
       {
         using var form = new FormColumnUI(columnFormat, false, m_FileSetting, FillGuessSettings,
           false, HtmlStyle);
+        ResizeForm.SetFonts(form, Font);
         if (form.ShowDialog(this) == DialogResult.Cancel)
           return;
 

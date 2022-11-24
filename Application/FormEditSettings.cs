@@ -31,23 +31,35 @@ namespace CsvTools
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly ViewSettings m_ViewSettings;
-    private readonly ICsvFile m_CsvFile;
+    private IFileSettingPhysicalFile? m_FileSetting;
+
+    public IFileSettingPhysicalFile? FileSetting
+    {
+      get => m_FileSetting;
+      private set
+      {
+        if (value != null)
+        {
+          m_FileSetting = value;
+          if (m_FileSetting is ICsvFile csvFile)
+          {
+            bindingSourceCsvFile.DataSource = csvFile;
+            cboRecordDelimiter.SelectedValue = (int) csvFile.NewLine;
+            quotingControl.CsvFile = csvFile;
+          }
+        }
+      }
+    }
+
     private bool m_IsDisposed;
 
-    public FormEditSettings(in ViewSettings viewSettings, in ICsvFile csvFile)
+    public FormEditSettings(in ViewSettings viewSettings, in IFileSettingPhysicalFile? setting)
     {
       m_ViewSettings = viewSettings ?? throw new ArgumentNullException(nameof(viewSettings));
-      m_CsvFile = csvFile ?? throw new ArgumentNullException(nameof(csvFile));
       m_ViewSettings.PropertyChanged += M_ViewSettings_PropertyChanged;
+      m_FileSetting = setting;
 
       InitializeComponent();
-
-      comboBoxFont.BeginUpdate();
-      using var col = new InstalledFontCollection();
-      foreach (FontFamily fa in col.Families)
-        comboBoxFont.Items.Add(fa.Name);
-      comboBoxFont.EndUpdate();
-      SetFont();
 
       if (m_ViewSettings.LimitDuration == ViewSettings.Duration.Unlimited)
         domainUpDownLimit.SelectedIndex = 4;
@@ -82,7 +94,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         SetFont();
     }
 
-    private void BtnOpenFile_Click(object? sender, EventArgs e)
+    private async void BtnOpenFile_Click(object? sender, EventArgs e)
     {
       try
       {
@@ -95,7 +107,24 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
         if (newFileName is null || newFileName.Length == 0)
           return;
-        m_CsvFile.FileName = newFileName;
+
+        if (m_FileSetting == null)
+        {
+          using var formProgress = new FormProgress("Examining file", false, m_CancellationTokenSource.Token);
+          formProgress.Maximum = 0;
+          formProgress.Show(this);
+
+          FileSetting = (await newFileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
+            m_ViewSettings.GuessCodePage,
+            m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
+            m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
+            m_ViewSettings.FillGuessSettings, formProgress.CancellationToken)).PhysicalFile();
+
+          formProgress.Close();
+        }
+
+        if (m_FileSetting != null)
+          m_FileSetting.FileName = newFileName;
       }
       catch (Exception ex)
       {
@@ -120,68 +149,90 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private async void ButtonGuessCP_ClickAsync(object? sender, EventArgs e)
     {
-      await buttonGuessCP.RunWithHourglassAsync(async () =>
-      {
-        using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
-        var (codepage, bom) = await improvedStream.GuessCodePage(m_CancellationTokenSource.Token);
-        m_CsvFile.CodePageId = codepage;
-        m_CsvFile.ByteOrderMark = bom;
-      });
+      if (m_FileSetting is ICsvFile csvFile)
+        await buttonGuessCP.RunWithHourglassAsync(async () =>
+        {
+#if NET5_0_OR_GREATER
+          await
+#endif
+            using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
+          var (codepage, bom) = await improvedStream.GuessCodePage(m_CancellationTokenSource.Token);
+          csvFile.CodePageId = codepage;
+          csvFile.ByteOrderMark = bom;
+        });
       bindingSourceViewSetting.ResetBindings(false);
     }
 
     private async void ButtonGuessDelimiter_ClickAsync(object? sender, EventArgs e)
     {
-      await buttonGuessDelimiter.RunWithHourglassAsync(async () =>
-      {
-        using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
-        var res = await improvedStream.GuessDelimiter(m_CsvFile.CodePageId, m_CsvFile.SkipRows, m_CsvFile.EscapePrefix,
-          m_CancellationTokenSource.Token);
-        if (res.Item2)
-          m_CsvFile.FieldDelimiter = res.Item1;
-      });
+      if (m_FileSetting is ICsvFile csvFile)
+        await buttonGuessDelimiter.RunWithHourglassAsync(async () =>
+        {
+#if NET5_0_OR_GREATER
+          await
+#endif
+            using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
+          var res = await improvedStream.GuessDelimiter(csvFile.CodePageId, csvFile.SkipRows,
+            csvFile.EscapePrefix,
+            m_CancellationTokenSource.Token);
+          if (res.Item2)
+            csvFile.FieldDelimiter = res.Item1;
+        });
     }
 
     private async void ButtonGuessTextQualifier_Click(object? sender, EventArgs e)
     {
       var qualifier = string.Empty;
-      await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
+      if (m_FileSetting is ICsvFile csvFile)
       {
-        using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
-        qualifier = await improvedStream.GuessQualifier(m_CsvFile.CodePageId, m_CsvFile.SkipRows,
-          m_CsvFile.FieldDelimiter, m_CsvFile.EscapePrefix,
-          m_CancellationTokenSource.Token);
-      });
+        await buttonGuessTextQualifier.RunWithHourglassAsync(async () =>
+        {
+#if NET5_0_OR_GREATER
+          await
+#endif
+            using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
+          qualifier = await improvedStream.GuessQualifier(csvFile.CodePageId, csvFile.SkipRows,
+            csvFile.FieldDelimiter, csvFile.EscapePrefix,
+            m_CancellationTokenSource.Token);
+        });
 
-      m_CsvFile.FieldQualifier = qualifier;
+        csvFile.FieldQualifier = qualifier;
+      }
     }
 
     private async void ButtonSkipLine_ClickAsync(object? sender, EventArgs e)
     {
-      await buttonSkipLine.RunWithHourglassAsync(async () =>
-      {
-        using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
-        m_CsvFile.SkipRows = await improvedStream.GuessStartRow(m_CsvFile.CodePageId, m_CsvFile.FieldDelimiter,
-          m_CsvFile.FieldQualifier, m_CsvFile.CommentLine, m_CancellationTokenSource.Token);
-      });
+      if (m_FileSetting is ICsvFile csvFile)
+        await buttonSkipLine.RunWithHourglassAsync(async () =>
+        {
+#if NET5_0_OR_GREATER
+          await
+#endif
+            using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
+          csvFile.SkipRows = await improvedStream.GuessStartRow(csvFile.CodePageId, csvFile.FieldDelimiter,
+            csvFile.FieldQualifier, csvFile.CommentLine, m_CancellationTokenSource.Token);
+        });
     }
 
     private void CboCodePage_SelectedIndexChanged(object? sender, EventArgs e)
     {
-      if (cboCodePage.SelectedItem != null)
-        m_CsvFile.CodePageId = ((DisplayItem<int>) cboCodePage.SelectedItem).ID;
+      if (m_FileSetting is ICsvFile csvFile)
+        if (cboCodePage.SelectedItem != null)
+          csvFile.CodePageId = ((DisplayItem<int>) cboCodePage.SelectedItem).ID;
     }
 
     private void CboRecordDelimiter_SelectedIndexChanged(object? sender, EventArgs e)
     {
-      if (cboRecordDelimiter.SelectedItem != null)
-        m_CsvFile.NewLine = (RecordDelimiterTypeEnum) cboRecordDelimiter.SelectedValue;
+      if (m_FileSetting is ICsvFile csvFile)
+        if (cboRecordDelimiter.SelectedItem != null)
+          csvFile.NewLine = (RecordDelimiterTypeEnum) cboRecordDelimiter.SelectedValue;
     }
 
     private void CheckBoxColumnsProcess_CheckedChanged(object? sender, EventArgs e)
     {
-      if (m_CsvFile.TryToSolveMoreColumns || m_CsvFile.AllowRowCombining)
-        m_CsvFile.WarnEmptyTailingColumns = true;
+      if (m_FileSetting is ICsvFile csvFile)
+        if (csvFile.TryToSolveMoreColumns || csvFile.AllowRowCombining)
+          csvFile.WarnEmptyTailingColumns = true;
     }
 
     /// <summary>
@@ -192,10 +243,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     private void EditSettings_Load(object? sender, EventArgs e)
     {
       bindingSourceViewSetting.DataSource = m_ViewSettings;
-      bindingSourceCsvFile.DataSource = m_CsvFile;
       fillGuessSettingEdit.FillGuessSettings = m_ViewSettings.FillGuessSettings;
 
-      // Fill Drop down
       cboCodePage.SuspendLayout();
       cboCodePage.DataSource = EncodingHelper.CommonCodePages
         .Select(cp => new DisplayItem<int>(cp, EncodingHelper.GetEncodingName(cp, false))).ToList();
@@ -205,15 +254,22 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       var di = (from RecordDelimiterTypeEnum item in Enum.GetValues(typeof(RecordDelimiterTypeEnum))
         select new DisplayItem<int>((int) item, descConv?.ConvertToString(item) ?? string.Empty)).ToList();
 
-      var selValue = (int) m_CsvFile.NewLine;
+
       cboRecordDelimiter.SuspendLayout();
       cboRecordDelimiter.DataSource = di;
       cboRecordDelimiter.DisplayMember = nameof(DisplayItem<int>.Display);
       cboRecordDelimiter.ValueMember = nameof(DisplayItem<int>.ID);
-      cboRecordDelimiter.SelectedValue = selValue;
       cboRecordDelimiter.ResumeLayout(true);
 
-      quotingControl.CsvFile = m_CsvFile;
+
+      comboBoxFont.BeginUpdate();
+      using var col = new InstalledFontCollection();
+      foreach (FontFamily fa in col.Families)
+        comboBoxFont.Items.Add(fa.Name);
+      comboBoxFont.EndUpdate();
+      SetFont();
+
+      FileSetting = m_FileSetting;
     }
 
     private void FormEditSettings_FormClosing(object? sender, FormClosingEventArgs e)
@@ -224,13 +280,17 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private async void GuessNewline_Click(object? sender, EventArgs e)
     {
-      await buttonNewLine.RunWithHourglassAsync(async () =>
-      {
-        using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
-        cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(m_CsvFile.CodePageId,
-          m_CsvFile.SkipRows,
-          m_CsvFile.FieldQualifier, m_CancellationTokenSource.Token);
-      });
+      if (m_FileSetting is ICsvFile csvFile)
+        await buttonNewLine.RunWithHourglassAsync(async () =>
+        {
+#if NET5_0_OR_GREATER
+          await
+#endif
+            using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
+          cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(csvFile.CodePageId,
+            csvFile.SkipRows,
+            csvFile.FieldQualifier, m_CancellationTokenSource.Token);
+        });
     }
 
     private void TextBoxDelimiter_TextChanged(object? sender, EventArgs e)
@@ -278,31 +338,42 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private async void ButtonGuessHeader_Click(object? sender, EventArgs e)
     {
-      await buttonGuessHeader.RunWithHourglassAsync(async () =>
-      {
-        using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
-        var res = await improvedStream.GuessHasHeader(m_CsvFile.CodePageId, m_CsvFile.SkipRows, m_CsvFile.CommentLine,
-          m_CsvFile.FieldDelimiter, m_CancellationTokenSource.Token);
-        m_CsvFile.HasFieldHeader = string.IsNullOrEmpty(res);
-        bindingSourceViewSetting.ResetBindings(false);
-        MessageBox.Show(res, "Checking headers");
-      });
+      if (m_FileSetting is ICsvFile csvFile)
+        await buttonGuessHeader.RunWithHourglassAsync(async () =>
+        {
+#if NET5_0_OR_GREATER
+          await
+#endif
+            using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
+          var res = await improvedStream.GuessHasHeader(csvFile.CodePageId, csvFile.SkipRows, csvFile.CommentLine,
+            csvFile.FieldDelimiter, m_CancellationTokenSource.Token);
+          csvFile.HasFieldHeader = string.IsNullOrEmpty(res);
+          bindingSourceViewSetting.ResetBindings(false);
+          MessageBox.Show(res, "Checking headers");
+        });
     }
 
     private void ButtonInteractiveSettings_Click(object? sender, EventArgs e)
     {
-      using var frm = new FindSkipRows(m_CsvFile);
-      _ = frm.ShowDialog();
+      if (m_FileSetting is ICsvFile csvFile)
+      {
+        using var frm = new FindSkipRows(csvFile);
+        _ = frm.ShowDialog();
+      }
     }
 
     private async void ButtonGuessLineComment_Click(object? sender, EventArgs e)
     {
-      await buttonGuessLineComment.RunWithHourglassAsync(async () =>
-      {
-        using var improvedStream = new ImprovedStream(new SourceAccess(m_CsvFile));
-        m_CsvFile.CommentLine = await improvedStream.GuessLineComment(m_CsvFile.CodePageId, m_CsvFile.SkipRows,
-          m_CancellationTokenSource.Token);
-      });
+      if (m_FileSetting is ICsvFile csvFile)
+        await buttonGuessLineComment.RunWithHourglassAsync(async () =>
+        {
+#if NET5_0_OR_GREATER
+          await
+#endif
+            using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
+          csvFile.CommentLine = await improvedStream.GuessLineComment(csvFile.CodePageId, csvFile.SkipRows,
+            m_CancellationTokenSource.Token);
+        });
     }
   }
 }

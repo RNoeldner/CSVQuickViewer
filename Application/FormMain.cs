@@ -43,6 +43,7 @@ namespace CsvTools
     private readonly ViewSettings m_ViewSettings;
     private bool m_ConfigChanged;
     private bool m_FileChanged;
+    private bool m_AskOpenFile = true;
     private IFileSettingPhysicalFile? m_FileSetting;
 
     private FormCsvTextDisplay? m_SourceDisplay;
@@ -50,9 +51,14 @@ namespace CsvTools
     private int m_WarningCount;
     private int m_WarningMax = 100;
 
-    private void UpdateSize(Control ctrl)
+    private void ApplyViewSettings()
     {
-      ctrl.SafeInvoke(() => ctrl.Font = new Font(m_ViewSettings.Font, m_ViewSettings.FontSize));
+      this.SafeInvoke(action: () =>
+      {
+        var font = new Font(m_ViewSettings.Font, m_ViewSettings.FontSize);
+        SetFonts(this, new Font(m_ViewSettings.Font, m_ViewSettings.FontSize));
+        detailControl.MenuDown = m_ViewSettings.MenuDown;
+      });
     }
 
     public FormMain(in ViewSettings viewSettings)
@@ -64,30 +70,29 @@ namespace CsvTools
 
       m_DetailControlLoader = new DetailControlLoader(detailControl);
       // add the not button not visible in designer to the detail control
-      detailControl.AddToolStripItem(1, m_ToolStripButtonSettings);
-      detailControl.AddToolStripItem(1, m_ToolStripButtonLoadFile);
+      detailControl.AddToolStripItem(0, m_ToolStripButtonSettings);
+      detailControl.AddToolStripItem(0, m_ToolStripButtonLoadFile);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonSource);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
+
+      detailControl.HtmlStyle = m_ViewSettings.HtmlStyle;
+
+      this.LoadWindowState(m_ViewSettings.WindowPosition);
+      ApplyViewSettings();
+      ShowTextPanel(false);
+
+      // Handle Events
       detailControl.BeforeFileStored += BeforeFileStored;
       detailControl.FileStored += FileStored;
-      detailControl.HtmlStyle = m_ViewSettings.HtmlStyle;
-      detailControl.MenuDown = m_ViewSettings.MenuDown;
 
       m_ViewSettings.PropertyChanged += (sender, args) =>
       {
-        if (args.PropertyName == nameof(ViewSettings.Font) || args.PropertyName == nameof(ViewSettings.FontSize))
-          UpdateSize(this);
-        if (args.PropertyName == nameof(ViewSettings.MenuDown))
-          detailControl.MenuDown = m_ViewSettings.MenuDown;
+        if (args.PropertyName == nameof(ViewSettings.Font) || args.PropertyName == nameof(ViewSettings.FontSize) ||
+            args.PropertyName == nameof(ViewSettings.MenuDown))
+          ApplyViewSettings();
       };
-
-      this.LoadWindowState(m_ViewSettings.WindowPosition);
-      UpdateSize(detailControl);
-      ShowTextPanel(true);
-
       m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
-
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
       m_SettingsChangedTimerChange.AutoReset = false;
@@ -309,7 +314,8 @@ namespace CsvTools
           return;
 
         m_FileChanged = false;
-        if (MessageBox.Show(
+
+        if (!m_AskOpenFile || MessageBox.Show(
               "The displayed file has changed do you want to reload the data?",
               "File changed",
               MessageBoxButtons.YesNo,
@@ -319,6 +325,7 @@ namespace CsvTools
         else
           m_FileChanged = false;
 
+        m_AskOpenFile = true;
         if (m_FileSetting != null && !m_ViewSettings.StoreSettingsByFile)
           FileSystemUtils.FileDelete(m_FileSetting.FileName + CsvFile.cCsvSettingExtension);
       }
@@ -493,6 +500,9 @@ namespace CsvTools
 
       try
       {
+        m_ToolStripButtonSource.Enabled = true;
+        m_ToolStripButtonAsText.Enabled = true;
+
         await Extensions.InvokeWithHourglassAsync(async () =>
         {
           var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
@@ -613,22 +623,28 @@ namespace CsvTools
 
     private async void ShowSettings(object? sender, EventArgs e)
     {
-      if (m_FileSetting == null)
-        return;
       await m_ToolStripButtonSettings.RunWithHourglassAsync(async () =>
       {
         m_ToolStripButtonSettings.Enabled = false;
 
-        using var frm = new FormEditSettings(m_ViewSettings, (ICsvFile) m_FileSetting);
+        using var frm = new FormEditSettings(m_ViewSettings, m_FileSetting);
         frm.ShowDialog(MdiParent);
         await m_ViewSettings.SaveViewSettingsAsync();
-        m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
-        m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
+        if (m_FileSetting != null)
+        {
+          m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
+          m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
+          SetFileSystemWatcher(m_FileSetting.FileName);
+          if (m_FileChanged)
+            m_ConfigChanged = false;
+        }
+        else if (frm.FileSetting != null)
+        {
+          m_FileSetting = frm.FileSetting;
+          m_FileChanged = true;
+          m_AskOpenFile = false;
+        }
 
-        SetFileSystemWatcher(m_FileSetting.FileName);
-
-        if (m_FileChanged)
-          m_ConfigChanged = false;
         await CheckPossibleChange();
       }, this);
     }
@@ -641,6 +657,7 @@ namespace CsvTools
       {
         m_ToolStripButtonSource.Enabled = false;
         m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting.FileName, true);
+        SetFonts(m_SourceDisplay, Font);
         m_SourceDisplay.FormClosed += SourceDisplayClosed;
         m_SourceDisplay.Show();
         using var formProgress = new FormProgress("Display Source", false, m_CancellationTokenSource.Token);
