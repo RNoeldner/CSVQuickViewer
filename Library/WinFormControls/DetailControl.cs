@@ -319,7 +319,7 @@ namespace CsvTools
     public EventHandler<IFileSettingPhysicalFile>? FileStored;
     public Func<IProgress<ProgressInfo>, CancellationToken, Task>? LoadNextBatchAsync { get; set; }
     private DataColumnCollection Columns => m_DataTable.Columns;
-    public ToolStripButton ToolStripButtonNext { get; set; }
+    public ToolStripButton ToolStripButtonNext { get; }
 
     /// <summary>
     ///   Gets or sets the HTML style.
@@ -332,7 +332,6 @@ namespace CsvTools
     /// </summary>
     public bool MenuDown
     {
-      get => m_MenuDown;
       set
       {
         if (m_MenuDown == value) return;
@@ -349,7 +348,6 @@ namespace CsvTools
     [Category("Appearance")]
     public DataGridViewCellStyle AlternatingRowDefaultCellStyle
     {
-      get => FilteredDataGridView.AlternatingRowsDefaultCellStyle;
       set => FilteredDataGridView.AlternatingRowsDefaultCellStyle = value;
     }
 
@@ -389,7 +387,6 @@ namespace CsvTools
     [Category("Appearance")]
     public DataGridViewCellStyle DefaultCellStyle
     {
-      get => FilteredDataGridView.DefaultCellStyle;
       set => FilteredDataGridView.DefaultCellStyle = value;
     }
 
@@ -427,7 +424,6 @@ namespace CsvTools
     [DefaultValue(false)]
     public bool ReadOnly
     {
-      get => FilteredDataGridView.ReadOnly;
       set
       {
         if (FilteredDataGridView.ReadOnly == value)
@@ -448,7 +444,6 @@ namespace CsvTools
     [Category("Appearance")]
     public bool ShowFilter
     {
-      get => m_ShowFilter;
       set
       {
         if (m_ShowFilter == value)
@@ -467,7 +462,6 @@ namespace CsvTools
     [Category("Appearance")]
     public bool ShowInfoButtons
     {
-      get => m_ShowButtons;
       set
       {
         if (m_ShowButtons == value)
@@ -558,7 +552,6 @@ namespace CsvTools
       SetButtonVisibility();
     }
 
-    //TODO : Is this needed
     private void DetailControl_FontChanged(object? sender, EventArgs e)
     {
       this.SafeInvoke(() =>
@@ -1149,7 +1142,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var iStream = FunctionalDI.OpenStream(new SourceAccess(writeFile));
+        using var iStream = FunctionalDI.OpenStream(new SourceAccess(writeFile));
         using var sr = new ImprovedTextReader(iStream, writeFile.CodePageId);
         for (var i = 0; i < writeFile.SkipRows; i++)
           headerAndSipped.AppendLine(await sr.ReadLineAsync());
@@ -1175,13 +1168,13 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var dt = new DataTableWrapper(
-            FilteredDataGridView.DataView.ToTable(false,
-              // Restrict to shown data
-              FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-                .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
-                .OrderBy(col => col.DisplayIndex)
-                .Select(col => col.DataPropertyName).ToArray()));
+        using var dt = new DataTableWrapper(
+          FilteredDataGridView.DataView.ToTable(false,
+            // Restrict to shown data
+            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+              .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
+              .OrderBy(col => col.DisplayIndex)
+              .Select(col => col.DataPropertyName).ToArray()));
         // can not use filteredDataGridView.Columns directly
         await writer.WriteAsync(dt, formProgress.CancellationToken);
       }
