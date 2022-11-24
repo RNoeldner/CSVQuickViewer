@@ -71,11 +71,7 @@ namespace CsvTools
       var frm = new FormMain(viewSettings);
       frm.Show();
 
-      if (string.IsNullOrEmpty(fileName))
-        frm.SelectFile("No startup file provided, opening dialog");
-      else if (!FileSystemUtils.FileExists(fileName))
-        frm.SelectFile($"File '{fileName}' not found, opening dialog");
-      else
+      if (FileSystemUtils.FileExists(fileName))
         frm.LoadCsvFile(FileSystemUtils.GetFullPath(fileName), frm.CancellationToken);
       Application.Run(frm);
     }
