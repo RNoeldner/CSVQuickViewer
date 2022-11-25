@@ -64,8 +64,8 @@ namespace CsvTools
     private readonly ToolStripLabel m_ToolStripLabelCount = new ToolStripLabel();
     private readonly ToolStripTextBox m_ToolStripTextBoxPos = new ToolStripTextBox();
     private readonly ToolStrip m_ToolStripTop = new ToolStrip();
-    private CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
-    private ProcessInformation? m_CurrentSearch;
+    private CancellationToken m_CancellationToken = CancellationToken.None;
+    private ProcessInformation? m_CurrentSearchProcessInformation;
     private DataTable m_DataTable = new DataTable();
     private bool m_DisposedValue; // To detect redundant calls
     private FilterDataTable? m_FilterDataTable;
@@ -332,6 +332,7 @@ namespace CsvTools
     /// </summary>
     public bool MenuDown
     {
+      get => m_MenuDown;
       set
       {
         if (m_MenuDown == value) return;
@@ -348,12 +349,16 @@ namespace CsvTools
     [Category("Appearance")]
     public DataGridViewCellStyle AlternatingRowDefaultCellStyle
     {
+      get => FilteredDataGridView.AlternatingRowsDefaultCellStyle;
       set => FilteredDataGridView.AlternatingRowsDefaultCellStyle = value;
     }
 
     public CancellationToken CancellationToken
     {
-      set => m_CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(value);
+      set
+      {
+        m_CancellationToken =value;
+      } 
     }
 
     /// <summary>
@@ -373,9 +378,12 @@ namespace CsvTools
       {
         if (ReferenceEquals(m_DataTable, value))
           return;
-        m_DataTable = value ?? new DataTable();
+
+        m_DataTable.Dispose();
         m_FilterDataTable?.Dispose();
         m_FilterDataTable = null;
+
+        m_DataTable = value ?? new DataTable();
       }
     }
 
@@ -387,6 +395,7 @@ namespace CsvTools
     [Category("Appearance")]
     public DataGridViewCellStyle DefaultCellStyle
     {
+      get => FilteredDataGridView.DefaultCellStyle;
       set => FilteredDataGridView.DefaultCellStyle = value;
     }
 
@@ -595,11 +604,10 @@ namespace CsvTools
         m_FormShowMaxLength?.Dispose();
         m_FormDuplicatesDisplay?.Dispose();
         m_FormUniqueDisplay?.Dispose();
-        m_CurrentSearch?.Dispose();
+        m_CurrentSearchProcessInformation?.Dispose();
         m_DataTable.Dispose();
         m_FilterDataTable?.Dispose();
         m_HierarchyDisplay?.Dispose();
-        m_CancellationTokenSource.Dispose();
       }
 
       base.Dispose(disposing);
@@ -792,7 +800,7 @@ namespace CsvTools
           FilteredDataGridView.Refresh();
           m_Search.Results = 0;
         });
-      m_CurrentSearch?.Dispose();
+      m_CurrentSearchProcessInformation?.Dispose();
     }
 
     private void DataViewChanged(object? sender, EventArgs args)
@@ -800,8 +808,8 @@ namespace CsvTools
       m_SearchCellsDirty = true;
       if (!m_Search.Visible)
         return;
-      if (m_CurrentSearch is { IsRunning: true })
-        m_CurrentSearch.Cancel();
+      if (m_CurrentSearchProcessInformation is { IsRunning: true })
+        m_CurrentSearchProcessInformation.Cancel();
       m_Search.Results = 0;
       m_Search.Hide();
       OnSearchClear(sender, args);
@@ -868,15 +876,15 @@ namespace CsvTools
     private void OnSearchChanged(object? sender, SearchEventArgs e)
     {
       // Stop any current searches
-      if (m_CurrentSearch is { IsRunning: true })
+      if (m_CurrentSearchProcessInformation is { IsRunning: true })
       {
-        m_CurrentSearch.SearchEventArgs = e;
+        m_CurrentSearchProcessInformation.SearchEventArgs = e;
 
         // Tell the current search to carry on with a new search after its done / canceled
-        m_CurrentSearch.SearchCompleteEvent += StartSearch;
+        m_CurrentSearchProcessInformation.SearchCompleteEvent += StartSearch;
 
         // Cancel the current search
-        m_CurrentSearch.Cancel();
+        m_CurrentSearchProcessInformation.Cancel();
       }
       else
       {
@@ -923,8 +931,8 @@ namespace CsvTools
         m_ParentForm = null;
       }
 
-      if (m_CurrentSearch?.IsRunning ?? false)
-        m_CurrentSearch.Cancel();
+      if (m_CurrentSearchProcessInformation?.IsRunning ?? false)
+        m_CurrentSearchProcessInformation.Cancel();
       if (m_FilterDataTable?.Filtering ?? false)
         m_FilterDataTable.Cancel();
     }
@@ -969,7 +977,7 @@ namespace CsvTools
     }
 
     private void SearchComplete(object? sender, SearchEventArgs e) =>
-      this.SafeBeginInvoke(() => { m_Search.Results = m_CurrentSearch?.Found ?? 0; });
+      this.SafeBeginInvoke(() => { m_Search.Results = m_CurrentSearchProcessInformation?.Found ?? 0; });
 
     private void SetButtonVisibility() =>
       this.SafeBeginInvoke(() =>
@@ -1043,8 +1051,8 @@ namespace CsvTools
       var oldOrder = FilteredDataGridView.SortOrder;
 
       // Cancel the current search
-      if (m_CurrentSearch is { IsRunning: true })
-        m_CurrentSearch.Cancel();
+      if (m_CurrentSearchProcessInformation is { IsRunning: true })
+        m_CurrentSearchProcessInformation.Cancel();
 
       // Hide any showing search
       m_Search.Visible = false;
@@ -1105,13 +1113,13 @@ namespace CsvTools
       {
         SearchText = e.SearchText,
         CancellationTokenSource =
-          CancellationTokenSource.CreateLinkedTokenSource(m_CancellationTokenSource.Token)
+          CancellationTokenSource.CreateLinkedTokenSource(m_CancellationToken)
       };
 
       processInformation.FoundResultEvent += ResultFound;
       processInformation.SearchCompleteEvent += SearchComplete;
       processInformation.SearchEventArgs = e;
-      m_CurrentSearch = processInformation;
+      m_CurrentSearchProcessInformation = processInformation;
       ThreadPool.QueueUserWorkItem(BackgroundSearchThread, processInformation);
     }
 
@@ -1148,7 +1156,7 @@ namespace CsvTools
           headerAndSipped.AppendLine(await sr.ReadLineAsync());
       }
 
-      using var formProgress = new FormProgress(writeFile.ToString(), true, m_CancellationTokenSource.Token);
+      using var formProgress = new FormProgress(writeFile.ToString(), true, m_CancellationToken);
       try
       {
         formProgress.Show(ParentForm);
@@ -1229,15 +1237,15 @@ namespace CsvTools
        * No Error or Warning
       */
       if (m_ToolStripComboBoxFilterType.SelectedIndex == 0)
-        await RefreshDisplayAsync(FilterTypeEnum.All, m_CancellationTokenSource.Token);
+        await RefreshDisplayAsync(FilterTypeEnum.All, m_CancellationToken);
       if (m_ToolStripComboBoxFilterType.SelectedIndex == 1)
-        await RefreshDisplayAsync(FilterTypeEnum.ErrorsAndWarning, m_CancellationTokenSource.Token);
+        await RefreshDisplayAsync(FilterTypeEnum.ErrorsAndWarning, m_CancellationToken);
       if (m_ToolStripComboBoxFilterType.SelectedIndex == 2)
-        await RefreshDisplayAsync(FilterTypeEnum.ShowErrors, m_CancellationTokenSource.Token);
+        await RefreshDisplayAsync(FilterTypeEnum.ShowErrors, m_CancellationToken);
       if (m_ToolStripComboBoxFilterType.SelectedIndex == 3)
-        await RefreshDisplayAsync(FilterTypeEnum.ShowWarning, m_CancellationTokenSource.Token);
+        await RefreshDisplayAsync(FilterTypeEnum.ShowWarning, m_CancellationToken);
       if (m_ToolStripComboBoxFilterType.SelectedIndex == 4)
-        await RefreshDisplayAsync(FilterTypeEnum.ShowIssueFree, m_CancellationTokenSource.Token);
+        await RefreshDisplayAsync(FilterTypeEnum.ShowIssueFree, m_CancellationToken);
     }
 
     private async void ToolStripButtonNext_Click(object? sender, EventArgs e)
@@ -1249,7 +1257,7 @@ namespace CsvTools
         m_ToolStripLabelCount.Text = " loading...";
         try
         {
-          using var formProgress = new FormProgress("Load more...", false, m_CancellationTokenSource.Token);
+          using var formProgress = new FormProgress("Load more...", false, m_CancellationToken);
           formProgress.Show();
           formProgress.Maximum = 100;
           await LoadNextBatchAsync(formProgress, formProgress.CancellationToken);

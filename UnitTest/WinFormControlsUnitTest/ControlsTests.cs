@@ -110,7 +110,7 @@ namespace CsvTools.Tests
     public void QuotingControl()
     {
       using var ctrl = new QuotingControl();
-      ctrl.CsvFile = new CsvFile();
+      ctrl.CsvFile = new CsvFile("");
       UnitTestStatic.ShowControl(ctrl);
     }
 

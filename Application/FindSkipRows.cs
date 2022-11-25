@@ -12,7 +12,7 @@ namespace CsvTools
     private SyntaxHighlighterDelimitedText m_HighLighter;
     private readonly Stream m_Stream;
 
-    public FindSkipRows() : this(new CsvFile())
+    public FindSkipRows() : this(new CsvFile("Dummy.csv"))
     {
     }
 

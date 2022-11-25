@@ -55,6 +55,13 @@ namespace CsvTools
       [Description("10 seconds")] TenSecond,
     }
 
+    [DefaultValue(".")]
+    public string InitialFolder
+    {
+      get;
+      set;
+    } = ".";
+
     [DefaultValue("Tahoma")]
     public string Font
     {

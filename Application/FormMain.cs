@@ -146,15 +146,18 @@ namespace CsvTools
 
       if (string.IsNullOrEmpty(fileName))
         return;
+      var split = FileSystemUtils.SplitPath(fileName);
+
+      if (FileSystemUtils.DirectoryExists(split.DirectoryName))
+        m_ViewSettings.InitialFolder = split.DirectoryName;
 
       var fi = new FileSystemUtils.FileInfo(fileName);
-
       if (!fi.Exists)
       {
         Logger.Warning("Filename {filename} not found or not accessible.", fileName);
         return;
       }
-
+      
       if (fi.Length == 0)
       {
         Logger.Warning("File {filename} is empty.", fileName);
@@ -239,8 +242,11 @@ namespace CsvTools
         strFilter += "Json files (*.json;*.ndjson)|*.json;*.ndjson|"
                      + "Compressed files (*.gz;*.zip)|*.gz;*.zip|"
                      + "All files (*.*)|*.*";
-
-        var fileName = WindowsAPICodePackWrapper.Open(".", "File to Display", strFilter, null);
+        
+        Logger.Information("Checking existence of folder {folder}",m_ViewSettings.InitialFolder);
+        if (!FileSystemUtils.DirectoryExists(m_ViewSettings.InitialFolder))
+          m_ViewSettings.InitialFolder = ".";
+        var fileName = WindowsAPICodePackWrapper.Open(m_ViewSettings.InitialFolder, "File to Display", strFilter, null);
         if (!(fileName is null || fileName.Length == 0))
           LoadCsvFile(fileName, m_CancellationTokenSource.Token);
       }
