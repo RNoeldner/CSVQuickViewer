@@ -14,6 +14,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
@@ -23,7 +24,8 @@ namespace CsvTools.Tests
   {
     private readonly CsvFile m_ValidSetting = new(UnitTestStatic.GetTestPath("BasicCSV.txt"))
     {
-      FieldDelimiter = ",", CommentLine = "#"
+      FieldDelimiter = ",",
+      CommentLine = "#"
     };
 
     [TestInitialize]
@@ -36,6 +38,50 @@ namespace CsvTools.Tests
         new ValueFormat(DataTypeEnum.Boolean)));
       var cf = new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy"));
       m_ValidSetting.ColumnCollection.Add(cf);
+    }
+    
+    [TestMethod, Timeout(10000)]
+    public async Task GetCombinedKey()
+    {
+      var csvFile = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), 65001,
+        0,
+        true,
+        null,
+        TrimmingOptionEnum.Unquoted,
+        ",",
+        "\"",
+        "",
+        0,
+        false,
+        false,
+        "#",
+        0,
+        true,
+        "",
+        "",
+        "",
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        "NULL",
+        true,
+        4,
+        "",
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+      await csvFile.OpenAsync(UnitTestStatic.Token);
+      await csvFile.ReadAsync(UnitTestStatic.Token);
+      var trimmedCol = -1;
+      var result = csvFile.GetCombinedKey(new[] { 0, 1 }, '-', (col) => trimmedCol = col);
+      Assert.AreEqual(-1, trimmedCol);
+      Assert.AreEqual("1-GERMAN-", result);
     }
 
     [TestMethod]
