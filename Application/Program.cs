@@ -19,12 +19,10 @@ namespace CsvTools
 {
   public static class Program
   {
-
     static Program()
     {
       try
       {
-   
 #if NET5_0_OR_GREATER
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 #endif
@@ -45,10 +43,9 @@ namespace CsvTools
     [STAThread]
     public static void Main(string[] args)
     {
-
       Application.ThreadException += (s, e) => UnhandledException(e.Exception);
       AppDomain.CurrentDomain.UnhandledException += (s, e) => UnhandledException((Exception) e.ExceptionObject);
-    
+
       var fileName = string.Empty;
 #if NET5_0_OR_GREATER
       Application.SetHighDpiMode(HighDpiMode.SystemAware);

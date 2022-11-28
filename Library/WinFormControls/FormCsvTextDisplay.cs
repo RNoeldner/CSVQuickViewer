@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 using System;
 using System.IO;
@@ -120,13 +121,13 @@ namespace CsvTools
     ///   CSV File to display
     /// </summary>
     public void OpenFile(bool json, string qualifier, string delimiter, string escape, int codePage, int skipLines,
-                         string comment)
+      string comment)
     {
       if (m_HighLighter is IDisposable disposable)
         disposable.Dispose();
 
       if (json)
-      {        
+      {
         m_HighLighter = new SyntaxHighlighterJson(textBox);
         textBox.ContextMenuStrip = contextMenuJson;
       }
@@ -138,6 +139,7 @@ namespace CsvTools
         textBox.Text = m_FullPath;
         return;
       }
+
       if (!FileSystemUtils.FileExists(m_FullPath))
       {
         textBox.Text = $@"
@@ -163,7 +165,8 @@ The file '{m_FullPath}' does not exist.";
       }
     }
 
-    private void TextBox_TextChangedDelayed(object? sender, FastColoredTextBoxNS.TextChangedEventArgs e) => HighlightVisibleRange();
+    private void TextBox_TextChangedDelayed(object? sender, FastColoredTextBoxNS.TextChangedEventArgs e) =>
+      HighlightVisibleRange();
 
     private void TextBox_VisibleRangeChangedDelayed(object? sender, EventArgs e) => HighlightVisibleRange();
 

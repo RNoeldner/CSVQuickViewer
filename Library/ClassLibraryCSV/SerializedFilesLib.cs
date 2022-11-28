@@ -114,9 +114,11 @@ namespace CsvTools
       if (text.StartsWith("<?xml "))
         return (T) new XmlSerializer(typeof(T)).Deserialize(new StringReader(text));
 
-      return JsonConvert.DeserializeObject<T>(text,
-        JsonSerializerSettings.Value)!;
+      return DeserializeJsonText<T>(text);
     }
+
+    public static T DeserializeJsonText<T>(this string text) where T : class =>
+      JsonConvert.DeserializeObject<T>(text, JsonSerializerSettings.Value)!;
 
     private static async Task<string?> GetNewContentJsonAsync(string fileName, object data)
     {

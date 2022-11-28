@@ -17,7 +17,6 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Text;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -224,8 +223,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     private void CboRecordDelimiter_SelectedIndexChanged(object? sender, EventArgs e)
     {
       if (m_FileSetting is ICsvFile csvFile)
-        if (cboRecordDelimiter.SelectedItem != null)
-          csvFile.NewLine = (RecordDelimiterTypeEnum) cboRecordDelimiter.SelectedValue;
+        if (cboRecordDelimiter.SelectedValue is RecordDelimiterTypeEnum val)
+          csvFile.NewLine = val;
     }
 
     private void CheckBoxColumnsProcess_CheckedChanged(object? sender, EventArgs e)
@@ -262,11 +261,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       cboRecordDelimiter.ResumeLayout(true);
 
 
-      comboBoxFont.BeginUpdate();
-      using var col = new InstalledFontCollection();
-      foreach (FontFamily fa in col.Families)
-        comboBoxFont.Items.Add(fa.Name);
-      comboBoxFont.EndUpdate();
       SetFont();
 
       FileSetting = m_FileSetting;
@@ -374,6 +368,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           csvFile.CommentLine = await improvedStream.GuessLineComment(csvFile.CodePageId, csvFile.SkipRows,
             m_CancellationTokenSource.Token);
         });
+    }
+
+    private void selectFont_ValueChanged(object sender, EventArgs e)
+    {
+      m_ViewSettings.Font = selectFont.Font;
+      m_ViewSettings.FontSize = selectFont.FontSize;
     }
   }
 }

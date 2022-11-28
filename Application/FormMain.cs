@@ -53,10 +53,9 @@ namespace CsvTools
 
     private void ApplyViewSettings()
     {
+      ChangeFont(new Font(m_ViewSettings.Font, m_ViewSettings.FontSize));
       this.SafeInvoke(action: () =>
       {
-        var font = new Font(m_ViewSettings.Font, m_ViewSettings.FontSize);
-        SetFonts(this, new Font(m_ViewSettings.Font, m_ViewSettings.FontSize));
         detailControl.MenuDown = m_ViewSettings.MenuDown;
       });
     }
@@ -75,11 +74,10 @@ namespace CsvTools
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonSource);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
-
+      detailControl.MenuDown = m_ViewSettings.MenuDown;
       detailControl.HtmlStyle = m_ViewSettings.HtmlStyle;
-
       this.LoadWindowState(m_ViewSettings.WindowPosition);
-      ApplyViewSettings();
+
       ShowTextPanel(false);
 
       // Handle Events
@@ -157,17 +155,17 @@ namespace CsvTools
         Logger.Warning("Filename {filename} not found or not accessible.", fileName);
         return;
       }
-      
+
       if (fi.Length == 0)
       {
         Logger.Warning("File {filename} is empty.", fileName);
         return;
       }
 
+      ShowTextPanel(true);
       // ReSharper disable once AsyncVoidLambda
       this.SafeInvoke(async () =>
       {
-        ShowTextPanel(true);
         try
         {
           DetachPropertyChanged();
@@ -242,13 +240,15 @@ namespace CsvTools
         strFilter += "Json files (*.json;*.ndjson)|*.json;*.ndjson|"
                      + "Compressed files (*.gz;*.zip)|*.gz;*.zip|"
                      + "All files (*.*)|*.*";
-        
-        Logger.Information("Checking existence of folder {folder}",m_ViewSettings.InitialFolder);
+
+        Logger.Information("Checking existence of folder {folder}", m_ViewSettings.InitialFolder);
         if (!FileSystemUtils.DirectoryExists(m_ViewSettings.InitialFolder))
           m_ViewSettings.InitialFolder = ".";
         var fileName = WindowsAPICodePackWrapper.Open(m_ViewSettings.InitialFolder, "File to Display", strFilter, null);
         if (!(fileName is null || fileName.Length == 0))
+        {
           LoadCsvFile(fileName, m_CancellationTokenSource.Token);
+        }
       }
       catch (Exception ex)
       {
@@ -663,9 +663,9 @@ namespace CsvTools
       {
         m_ToolStripButtonSource.Enabled = false;
         m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting.FileName, true);
-        SetFonts(m_SourceDisplay, Font);
+        m_SourceDisplay.ChangeFont(Font);
         m_SourceDisplay.FormClosed += SourceDisplayClosed;
-        m_SourceDisplay.Show();
+        m_SourceDisplay.Show(this);
         using var formProgress = new FormProgress("Display Source", false, m_CancellationTokenSource.Token);
         formProgress.Show(this);
         formProgress.Maximum = 0;
@@ -683,9 +683,12 @@ namespace CsvTools
     {
       try
       {
-        textPanel.Visible = visible;
-        textPanel.BottomToolStripPanelVisible = visible;
-        detailControl.Visible = !visible;
+        this.SafeInvoke(() =>
+        {
+          textPanel.Visible = visible;
+          textPanel.BottomToolStripPanelVisible = visible;
+          detailControl.Visible = !visible;
+        });
       }
       catch (Exception)
       {
@@ -790,5 +793,10 @@ namespace CsvTools
     private void ToggleShowLog(object? sender, EventArgs e) => ShowTextPanel(!textPanel.Visible);
 
     private void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) => SelectFile("Open File Dialog");
+
+    private void FormMain_Load(object sender, EventArgs e)
+    {
+      ChangeFont(new Font(m_ViewSettings.Font, m_ViewSettings.FontSize));
+    }
   }
 }
