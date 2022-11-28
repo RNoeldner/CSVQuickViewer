@@ -35,7 +35,7 @@ namespace CsvTools
     private bool m_GuessQualifier = true;
     private bool m_GuessStartRow = true;
     private string m_Font = "Tahoma";
-    private float m_FontSize = 8f;
+    private float m_FontSize = 8.25f;
     private HtmlStyle m_HtmlStyle = new HtmlStyle();
     private bool m_MenuDown;
     private bool m_StoreSettingsByFile;
@@ -69,7 +69,7 @@ namespace CsvTools
       set => SetField(ref m_Font, value);
     }
 
-    [DefaultValue(8f)]
+    [DefaultValue(8.25f)]
     public float FontSize
     {
       get => m_FontSize;

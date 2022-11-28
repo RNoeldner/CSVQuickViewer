@@ -96,12 +96,12 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(5000)]
-    public void ResizeForm()
+    public void ResizeFormChangeFont()
     {
       using var frm = new ResizeForm();
       UnitTestStatic.ShowFormAndClose(frm, .2, (from) =>
       {
-        CsvTools.ResizeForm.SetFonts(from, SystemFonts.DialogFont);
+        frm.ChangeFont(SystemFonts.DialogFont);
       });
     }
 

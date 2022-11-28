@@ -278,7 +278,7 @@ namespace CsvTools
       if (guessCodePage)
       {
         cancellationToken.ThrowIfCancellationRequested();
-        
+
         stream.Seek(0, SeekOrigin.Begin);
         Logger.Information("Checking Code Page");
         var (codePage, bom) = await stream.GuessCodePage(cancellationToken).ConfigureAwait(false);
@@ -915,7 +915,7 @@ namespace CsvTools
     {
       using var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
         .ConfigureAwait(false);
-      return await textReader.GuessLineCommentAsync(cancellationToken);
+      return await textReader.GuessLineCommentAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>Guesses the line comment</summary>
@@ -1494,67 +1494,47 @@ namespace CsvTools
       else
       {
         // otherwise find the best
-        foreach (var index in validSeparatorIndex)
-          for (var row = startRow; row < dc.LastRow; row++)
-            if (dc.SeparatorsCount[index, row] > 100)
-              dc.SeparatorsCount[index, row] = 100;
-
-        double? bestScore = null;
-        var maxCount = 0;
+        
+        var sums = new Dictionary<int, Tuple<long,long>>();
 
         foreach (var index in validSeparatorIndex)
         {
-          cancellationToken.ThrowIfCancellationRequested();
+          var totalRows = (double) (dc.LastRow - startRow);  
           var sumCount = 0;
           // If there are enough rows skip the first rows, there might be a descriptive introduction
           // this can not be done in case there are not many rows
           for (var row = startRow; row < dc.LastRow; row++)
+          {
+            cancellationToken.ThrowIfCancellationRequested();
             // Cut of at 50 Columns in case one row is messed up, this should not mess up everything
             sumCount += dc.SeparatorsCount[index, row];
-
-          // If we did not find a match with variance use the absolute number of occurrences
-          if (sumCount > maxCount && !bestScore.HasValue)
-          {
-            maxCount = sumCount;
-            match = dc.Separators[index];
           }
-
           // Get the average of the rows
-          var avg = (int) Math.Round((double) sumCount / (dc.LastRow - startRow), 0, MidpointRounding.AwayFromZero);
+          var avg = (int) Math.Ceiling(sumCount / totalRows);
 
           // Only proceed if there is usually more then one occurrence and we have more then one row
           if (avg < 1 || dc.SeparatorRows[index] == 1)
             continue;
+          
 
           // First determine the variance, low value means and even distribution
-          double cutVariance = 0;
+          long variance = 0;
           for (var row = startRow; row < dc.LastRow; row++)
           {
-            var dist = dc.SeparatorsCount[index, row] - avg;
-            if (dist > 2 || dist < -2)
-              cutVariance += 8;
+            if (dc.SeparatorsCount[index, row]==avg)
+              continue;
+
+            if (dc.SeparatorsCount[index, row] > avg)
+              variance += dc.SeparatorsCount[index, row] - avg;
             else
-              switch (dist)
-              {
-                case 2:
-                case -2:
-                  cutVariance += 4;
-                  break;
-
-                case 1:
-                case -1:
-                  cutVariance++;
-                  break;
-              }
+              variance += avg - dc.SeparatorsCount[index, row];
           }
-
-          // The score is dependent on the average columns found and the regularity
-          var score = Math.Abs(avg - Math.Round(cutVariance / (dc.LastRow - startRow), 2));
-          if (bestScore.HasValue && score <= bestScore.Value)
-            continue;
-          match = dc.Separators[index];
-          bestScore = score;
+          Logger.Information("Possible Separator {sep} - Per Line: {total} Variance: {variance}", dc.Separators[index].ToString().GetDescription(), avg, variance);
+          sums.Add(index, new Tuple<long, long>(sumCount, variance));
         }
+
+        // get the best result by variance first then if equal by number of records
+        match  = dc.Separators[sums.OrderBy(x => x.Value.Item2).ThenByDescending(x => x.Value.Item1).First().Key];
       }
 
       var hasDelimiter = match != '\0';

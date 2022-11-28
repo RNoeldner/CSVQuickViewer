@@ -1200,7 +1200,7 @@ namespace CsvTools
       {
         using var form = new FormColumnUI(columnFormat, false, m_FileSetting, FillGuessSettings,
           false, HtmlStyle);
-        ResizeForm.SetFonts(form, Font);
+        form.ChangeFont(Font);
         if (form.ShowDialog(this) == DialogResult.Cancel)
           return;
 

@@ -29,6 +29,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+// ReSharper disable UnusedMember.Global
+
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
 namespace CsvTools
@@ -310,6 +312,8 @@ namespace CsvTools
 
       m_ToolStripItems.CollectionChanged += (_, _) => MoveMenu();
       FontChanged += DetailControl_FontChanged;
+      m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
+
       MoveMenu();
     }
 
@@ -357,8 +361,8 @@ namespace CsvTools
     {
       set
       {
-        m_CancellationToken =value;
-      } 
+        m_CancellationToken = value;
+      }
     }
 
     /// <summary>
@@ -1068,7 +1072,7 @@ namespace CsvTools
 
       if (ReferenceEquals(m_BindingSource.DataSource, newDt))
         return;
-      m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
+
 
       var newIndex = type switch
       {
@@ -1098,10 +1102,15 @@ namespace CsvTools
             oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
       });
 
-
-      this.SafeInvoke(() => m_ToolStripComboBoxFilterType.SelectedIndex = newIndex);
-
-      m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
+      this.SafeInvoke(() =>
+      {
+        if (m_ToolStripComboBoxFilterType.SelectedIndex == newIndex) return;
+        m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
+        m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;
+        m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
+        if (m_ToolStripComboBoxFilterType.Focused)
+          SendKeys.Send("{ESC}");
+      });
     }
 
     private void StartSearch(object? sender, SearchEventArgs e)
@@ -1123,6 +1132,7 @@ namespace CsvTools
       ThreadPool.QueueUserWorkItem(BackgroundSearchThread, processInformation);
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public async Task SafeCurrentFile(string fileName, bool adjustDelimiter)
     {
       if (FilteredDataGridView.DataView is null)
@@ -1150,7 +1160,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        using var iStream = FunctionalDI.OpenStream(new SourceAccess(writeFile));
+          using var iStream = FunctionalDI.OpenStream(new SourceAccess(writeFile));
         using var sr = new ImprovedTextReader(iStream, writeFile.CodePageId);
         for (var i = 0; i < writeFile.SkipRows; i++)
           headerAndSipped.AppendLine(await sr.ReadLineAsync());
@@ -1176,13 +1186,13 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        using var dt = new DataTableWrapper(
-          FilteredDataGridView.DataView.ToTable(false,
-            // Restrict to shown data
-            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-              .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
-              .OrderBy(col => col.DisplayIndex)
-              .Select(col => col.DataPropertyName).ToArray()));
+          using var dt = new DataTableWrapper(
+            FilteredDataGridView.DataView.ToTable(false,
+              // Restrict to shown data
+              FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+                .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
+                .OrderBy(col => col.DisplayIndex)
+                .Select(col => col.DataPropertyName).ToArray()));
         // can not use filteredDataGridView.Columns directly
         await writer.WriteAsync(dt, formProgress.CancellationToken);
       }
@@ -1246,6 +1256,8 @@ namespace CsvTools
         await RefreshDisplayAsync(FilterTypeEnum.ShowWarning, m_CancellationToken);
       if (m_ToolStripComboBoxFilterType.SelectedIndex == 4)
         await RefreshDisplayAsync(FilterTypeEnum.ShowIssueFree, m_CancellationToken);
+      if (m_ToolStripComboBoxFilterType.Focused)
+        SendKeys.Send("{ESC}");
     }
 
     private async void ToolStripButtonNext_Click(object? sender, EventArgs e)

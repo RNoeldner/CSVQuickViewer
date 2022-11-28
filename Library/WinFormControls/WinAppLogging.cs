@@ -25,8 +25,8 @@ namespace CsvTools
     {
       try
       {
-
-        var assemblyName = Assembly.GetEntryAssembly()?.GetName().Name ?? Assembly.GetExecutingAssembly().GetName().Name;
+        var assemblyName = Assembly.GetEntryAssembly()?.GetName().Name ??
+                           Assembly.GetExecutingAssembly().GetName().Name;
 
         var folder = Environment.ExpandEnvironmentVariables($"%LocalAppData%\\{assemblyName}\\");
         if (!FileSystemUtils.DirectoryExists(folder))
@@ -64,7 +64,8 @@ namespace CsvTools
         // .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), path: folder + "ApplicationLog.json",
         //  rollingInterval: RollingInterval.Day);
         // Set the general Logger
-        Logger.LoggerInstance = new SerilogLoggerProvider(loggerConfiguration.CreateLogger()).CreateLogger(nameof(CsvTools));
+        Logger.LoggerInstance =
+          new SerilogLoggerProvider(loggerConfiguration.CreateLogger()).CreateLogger(nameof(CsvTools));
       }
       catch (Exception ex)
       {
@@ -74,7 +75,7 @@ namespace CsvTools
     }
 
     public static void RemoveLog(Microsoft.Extensions.Logging.ILogger value)
-        => m_UserInterfaceSink.AdditionalLoggers.Remove(value ?? throw new ArgumentNullException(nameof(value)));
+      => m_UserInterfaceSink.AdditionalLoggers.Remove(value ?? throw new ArgumentNullException(nameof(value)));
 
     public static void AddLog(Microsoft.Extensions.Logging.ILogger value)
       => m_UserInterfaceSink.AdditionalLoggers.Add(value ?? throw new ArgumentNullException(nameof(value)));
@@ -82,7 +83,7 @@ namespace CsvTools
     [DebuggerStepThrough]
     public class UserInterfaceSink : ILogEventSink
     {
-      public readonly List<Microsoft.Extensions.Logging.ILogger> AdditionalLoggers = new List<Microsoft.Extensions.Logging.ILogger>();
+      public readonly List<Microsoft.Extensions.Logging.ILogger> AdditionalLoggers = new();
 
       // By design: Only one Action to be called you can not have two or more destinations
       private readonly IFormatProvider m_FormatProvider;

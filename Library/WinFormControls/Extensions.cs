@@ -37,9 +37,9 @@ namespace CsvTools
     /// <param name="frm">The calling form</param>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="KeyEventArgs" /> instance containing the event data.</param>
-    public static void CtrlA(this Form frm, object? sender, KeyEventArgs? e)
+    public static void CtrlA(this Form frm, object? sender, KeyEventArgs e)
     {
-      if (e is null || !e.Control || e.KeyCode.ToString() != "A")
+      if (!e.Control || e.KeyCode != Keys.A)
         return;
       var tb = sender as TextBox;
       if (sender == frm)

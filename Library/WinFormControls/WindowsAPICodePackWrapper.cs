@@ -7,7 +7,6 @@ using System.Windows.Forms;
 
 namespace CsvTools
 {
-
   public static class WindowsAPICodePackWrapper
   {
     private static bool m_CommonFileDialogSupported = CommonFileDialog.IsPlatformSupported;
@@ -67,18 +66,19 @@ namespace CsvTools
     private static void SetFilter(string filter, CommonFileDialogFilterCollection col)
     {
       var parts = filter.Split('|');
-      if (parts.Length>1)
+      if (parts.Length > 1)
       {
-        for (var part = 0; parts.Length >= part + 2; part+=2)
-          col.Add(new CommonFileDialogFilter(parts[part], parts[part+1]));
+        for (var part = 0; parts.Length >= part + 2; part += 2)
+          col.Add(new CommonFileDialogFilter(parts[part], parts[part + 1]));
       }
       else
         col.Add(new CommonFileDialogFilter(filter, filter));
     }
+
     public static bool IsDialogOpen { get; private set; }
 
     public static string? Open(string initialDirectory, string title, string filter,
-                              string? preselectFileName)
+      string? preselectFileName)
     {
       if (m_CommonFileDialogSupported)
       {
@@ -91,14 +91,16 @@ namespace CsvTools
         if (!string.IsNullOrEmpty(preselectFileName))
           commonOpenFileDialog.DefaultFileName = preselectFileName;
         commonOpenFileDialog.InitialDirectory = initialDirectory.RemovePrefix();
-        IsDialogOpen=true;
+        IsDialogOpen = true;
         try
         {
-          if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok && commonOpenFileDialog.FileAsShellObject.IsFileSystemObject)
+          if (commonOpenFileDialog.ShowDialog() == CommonFileDialogResult.Ok &&
+              commonOpenFileDialog.FileAsShellObject.IsFileSystemObject)
           {
             try
             {
-              return ((Microsoft.WindowsAPICodePack.Shell.ShellFile) commonOpenFileDialog.FileAsShellObject).Path.LongFileName();
+              return ((Microsoft.WindowsAPICodePack.Shell.ShellFile) commonOpenFileDialog.FileAsShellObject).Path
+                .LongFileName();
             }
             catch (InvalidCastException)
             {
@@ -108,7 +110,7 @@ namespace CsvTools
         }
         finally
         {
-          IsDialogOpen=false;
+          IsDialogOpen = false;
         }
       }
       else
@@ -119,7 +121,7 @@ namespace CsvTools
         openFileDialogReference.InitialDirectory = initialDirectory.RemovePrefix();
         if (!string.IsNullOrEmpty(preselectFileName))
           openFileDialogReference.FileName = preselectFileName;
-        IsDialogOpen=true;
+        IsDialogOpen = true;
         try
         {
           if (openFileDialogReference.ShowDialog() == DialogResult.OK)
@@ -127,7 +129,7 @@ namespace CsvTools
         }
         finally
         {
-          IsDialogOpen=false;
+          IsDialogOpen = false;
         }
       }
 
@@ -157,13 +159,16 @@ namespace CsvTools
           commonSaveFileDialog.DefaultFileName = preselectFileName;
           commonSaveFileDialog.DefaultExtension = defaultExt;
         }
+
         try
         {
-          IsDialogOpen=true;
-          if (commonSaveFileDialog.ShowDialog() == CommonFileDialogResult.Ok && commonSaveFileDialog.FileAsShellObject.IsFileSystemObject)
+          IsDialogOpen = true;
+          if (commonSaveFileDialog.ShowDialog() == CommonFileDialogResult.Ok &&
+              commonSaveFileDialog.FileAsShellObject.IsFileSystemObject)
             // can not use commonSaveFileDialog.FileName the extension is wrong / first extension of
             // filter is added no matter what is entered in dialog
-            return ((Microsoft.WindowsAPICodePack.Shell.ShellFile) commonSaveFileDialog.FileAsShellObject).Path.LongFileName();
+            return ((Microsoft.WindowsAPICodePack.Shell.ShellFile) commonSaveFileDialog.FileAsShellObject).Path
+              .LongFileName();
         }
         catch (Exception exception)
         {
@@ -173,7 +178,7 @@ namespace CsvTools
         }
         finally
         {
-          IsDialogOpen=false;
+          IsDialogOpen = false;
         }
       }
       else
@@ -188,7 +193,7 @@ namespace CsvTools
         saveFileDialog.InitialDirectory = initialDirectory.RemovePrefix();
         if (!string.IsNullOrEmpty(preselectFileName))
           saveFileDialog.FileName = preselectFileName;
-        IsDialogOpen=true;
+        IsDialogOpen = true;
         try
         {
           if (saveFileDialog.ShowDialog() != DialogResult.OK)
@@ -196,9 +201,8 @@ namespace CsvTools
         }
         finally
         {
-          IsDialogOpen=false;
+          IsDialogOpen = false;
         }
-
       }
 
       return null;
