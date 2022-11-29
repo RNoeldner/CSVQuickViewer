@@ -14,6 +14,7 @@
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.IO;
@@ -101,7 +102,7 @@ namespace CsvTools
     /// <typeparam name="T"></typeparam>
     /// <param name="fileName">Name of the file</param>
     /// <returns></returns>
-    public static async Task<T> DeserializeAsync<T>(this string fileName) where T : class
+    public static async Task<T> DeserializeFileAsync<T>(this string fileName) where T : class
     {
       Logger.Debug("Loading information from file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName));
 #if NETSTANDARD2_1_OR_GREATER
@@ -114,11 +115,47 @@ namespace CsvTools
       if (text.StartsWith("<?xml "))
         return (T) new XmlSerializer(typeof(T)).Deserialize(new StringReader(text));
 
-      return DeserializeJsonText<T>(text);
+      return DeserializeText<T>(text);
     }
 
-    public static T DeserializeJsonText<T>(this string text) where T : class =>
-      JsonConvert.DeserializeObject<T>(text, JsonSerializerSettings.Value)!;
+    /// <summary>
+    ///   Deserializes the text as specific type
+    /// </summary>
+    /// <param name="content">The Json content as text</param>
+    public static T DeserializeText<T>(this string content) where T : class =>
+      JsonConvert.DeserializeObject<T>(content, JsonSerializerSettings.Value)!;
+
+    /// <summary>
+    ///   Deserializes the text as Json Object
+    /// </summary>
+    /// <param name="content">The Json content as text</param>
+    /// <returns>A <see cref="JObject" /> when teh text could be parsed</returns>
+    /// <exception cref="JsonException">$"Returned content xxx could not be read as Json</exception>
+    public static JContainer DeserializeJson(this string content)
+    {
+      if (JsonConvert.DeserializeObject(content, JsonSerializerSettings.Value) is JContainer jsonData)
+        return jsonData;
+      throw new JsonException($"Content '{content.Substring(0, 150)}' could not be read as Json");
+    }
+
+    /*
+    public static JContainer DeserializeJson(this Stream stream)
+    {
+      if (stream is null)
+        throw new ArgumentNullException(nameof(stream));
+      using var sr = new StreamReader(stream);
+      using var reader = new JsonTextReader(sr);
+      var serializer = new JsonSerializer();
+      if (serializer.Deserialize(reader) is JContainer jsonData)
+        return jsonData;
+
+      if (!stream.CanSeek)
+        throw new JsonException("Stream could not be read as Json");
+      sr.DiscardBufferedData();
+      stream.Seek(0, System.IO.SeekOrigin.Begin);
+      throw new JsonException($"Stream '{sr.ReadLine()?.Substring(0, 150)}' could not be read as Json");
+    }
+    */
 
     private static async Task<string?> GetNewContentJsonAsync(string fileName, object data)
     {

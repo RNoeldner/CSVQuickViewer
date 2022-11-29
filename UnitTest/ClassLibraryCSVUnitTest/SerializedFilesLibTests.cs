@@ -53,7 +53,7 @@ namespace CsvTools.Tests
       Assert.IsFalse(FileSystemUtils.FileExists(m_FileName));
       await SerializedFilesLib.SaveSettingFileAsync(file, () => true, UnitTestStatic.Token);
       Assert.IsTrue(FileSystemUtils.FileExists(m_FileName));
-      var test = await m_FileName.DeserializeAsync<CsvFile>();
+      var test = await m_FileName.DeserializeFileAsync<CsvFile>();
 
       Assert.AreEqual(file.ColumnCollection.Count, test.ColumnCollection.Count, "ColumnCollection.Count");
 

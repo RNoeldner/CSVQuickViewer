@@ -9,7 +9,7 @@
 		<RootNamespace>CsvTools.Tests</RootNamespace>
 		<IsPackable>false</IsPackable>
 		<ReleaseVersion>1.4.6.499</ReleaseVersion>
-		<AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
+		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />

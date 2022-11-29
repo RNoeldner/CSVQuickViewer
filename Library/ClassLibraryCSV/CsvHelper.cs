@@ -83,7 +83,7 @@ namespace CsvTools
         var fileNameFile = fileNameSetting.Substring(0, fileNameSetting.Length - CsvFile.cCsvSettingExtension.Length);
 
         // we defiantly have a the extension with the name
-        var fileSettingSer = await fileNameSetting.DeserializeAsync<CsvFile>().ConfigureAwait(false);
+        var fileSettingSer = await fileNameSetting.DeserializeFileAsync<CsvFile>().ConfigureAwait(false);
         Logger.Information(
           "Configuration read from setting file {filename}",
           FileSystemUtils.GetShortDisplayFileName(fileNameSetting, 40));
