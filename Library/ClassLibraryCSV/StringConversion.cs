@@ -12,8 +12,6 @@
  *
  */
 #nullable enable
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -1017,22 +1015,6 @@ namespace CsvTools
       {
         return null;
       }
-    }
-
-    /// <summary>
-    ///   Deserializes the text as Json Object
-    /// </summary>
-    /// <param name="content">The Json content as text</param>
-    /// <returns>A <see cref="JObject" /> when teh text could be parsed</returns>
-    /// <exception cref="JsonException">$"Returned content xxx could not be read as Json</exception>
-    public static JContainer DeserializeJson(this string content)
-    {
-      //string errors = String.Empty;
-      //var setting = new JsonSerializerSettings();
-      //setting.Error += (sender, args) => errors += args.ToString();
-      if (JsonConvert.DeserializeObject(content) is JContainer jsonData)
-        return jsonData;
-      throw new JsonException($"Returned content '{content.Substring(0, 150)}' could not be read as Json");
     }
 
     /// <summary>

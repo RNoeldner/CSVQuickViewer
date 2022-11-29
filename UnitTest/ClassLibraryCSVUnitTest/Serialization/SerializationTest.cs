@@ -16,7 +16,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvSettingsXml()
     {
-      var ret = await SerializedFilesLib.DeserializeAsync<CsvFile>(UnitTestStatic.GetTestPath("Read.setting"));
+      var ret = await UnitTestStatic.GetTestPath("Read.setting").DeserializeFileAsync<CsvFile>();
       Assert.IsNotNull(ret);
       ret.FileName = UnitTestStatic.GetTestPath("Read3.csv");
       await SerializedFilesLib.SaveSettingFileAsync(ret, null, CancellationToken.None);
@@ -25,7 +25,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvSettingsJson()
     {
-      var ret = SerializedFilesLib.DeserializeAsync<CsvFile>(UnitTestStatic.GetTestPath("Read2.setting"));
+      var ret = UnitTestStatic.GetTestPath("Read2.setting").DeserializeFileAsync<CsvFile>();
       Assert.IsNotNull(ret);
     }
 
@@ -131,7 +131,7 @@ namespace CsvTools.Tests
         var testJson = obj.SerializeIndentedJson();
         Assert.IsFalse(string.IsNullOrEmpty(testJson));
         var pos = testJson.IndexOf("Specified\":", StringComparison.OrdinalIgnoreCase);
-        Assert.IsFalse(pos != -1, $"Conteins Specifed as position {pos} in \n{testJson}");
+        Assert.IsFalse(pos != -1, $"Contains Specified as position {pos} in \n{testJson}");
         ret = JsonConvert.DeserializeObject<T>(testJson, SerializedFilesLib.JsonSerializerSettings.Value);
         Assert.IsNotNull(ret);
       }

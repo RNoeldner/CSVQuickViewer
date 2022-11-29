@@ -1,8 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
-
 
 namespace CsvTools
 {
@@ -17,7 +14,7 @@ namespace CsvTools
     {
       try
       {
-        return await m_SettingPath.DeserializeAsync<ViewSettings>();
+        return await m_SettingPath.DeserializeFileAsync<ViewSettings>();
       }
       catch (Exception ex)
       {
@@ -33,7 +30,7 @@ namespace CsvTools
     {
       if (!FileSystemUtils.DirectoryExists(m_SettingFolder))
         FileSystemUtils.CreateDirectory(m_SettingFolder);
-      await viewSettings.SerializeAsync(m_SettingPath, null);
+      await viewSettings.SerializeAsync(m_SettingPath);
     }
   }
 }
