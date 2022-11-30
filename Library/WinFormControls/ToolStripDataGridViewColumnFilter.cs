@@ -12,6 +12,8 @@
  *
  */
 
+using System;
+
 namespace CsvTools
 {
   using System.Windows.Forms;
@@ -21,22 +23,17 @@ namespace CsvTools
   /// </summary>
   public class ToolStripDataGridViewColumnFilter : ToolStripControlHost
   {
-    public ToolStripDataGridViewColumnFilter() : this(new DataGridViewTextBoxColumn()
-    {
-      ValueType = typeof(int),
-      Name = "int",
-      DataPropertyName = "int"
-    })
-    {
-    }
-
     /// <summary>
     ///   Initializes a new instance of the <see cref="ToolStripDataGridViewColumnFilter" /> class.
     /// </summary>
     /// <param name="dataGridViewColumn">The data grid view column.</param>
-    public ToolStripDataGridViewColumnFilter(DataGridViewColumn dataGridViewColumn)
+    /// <param name="filterApply">EventHandler to be called if filter is applied</param>
+    public ToolStripDataGridViewColumnFilter(DataGridViewColumn dataGridViewColumn, EventHandler? filterApply = null)
       : base(new DataGridViewColumnFilterControl(dataGridViewColumn))
     {
+      ColumnFilterLogic.Active = false;
+      if (filterApply != null)
+        ColumnFilterLogic.ColumnFilterApply += filterApply;
     }
 
     /// <summary>

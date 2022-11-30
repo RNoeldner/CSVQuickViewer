@@ -203,7 +203,6 @@ namespace CsvTools.Tests
     public void EvidenceNumberOrIssues()
     {
       Assert.AreEqual(-1, m_CsvFile.SamplesAndErrors.NumErrors);
-      Assert.IsFalse(m_CsvFile.SamplesAndErrors.ErrorsSpecified);
       Assert.AreEqual(0, m_CsvFile.SamplesAndErrors.Errors.Count);
       m_CsvFile.SamplesAndErrors.Errors.Add(new SampleRecordEntry(177, error: "Error"));
       Assert.AreEqual(1, m_CsvFile.SamplesAndErrors.NumErrors);

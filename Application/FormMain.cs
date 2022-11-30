@@ -43,6 +43,7 @@ namespace CsvTools
     private readonly ViewSettings m_ViewSettings;
     private bool m_ConfigChanged;
     private bool m_FileChanged;
+    private bool m_RunDetection;
     private bool m_AskOpenFile = true;
     private IFileSettingPhysicalFile? m_FileSetting;
 
@@ -63,7 +64,6 @@ namespace CsvTools
     public FormMain(in ViewSettings viewSettings)
     {
       m_ViewSettings = viewSettings;
-
       InitializeComponent();
       Text = AssemblyTitle;
 
@@ -90,7 +90,6 @@ namespace CsvTools
             args.PropertyName == nameof(ViewSettings.MenuDown))
           ApplyViewSettings();
       };
-      m_ViewSettings.FillGuessSettings.PropertyChanged += AnyPropertyChangedReload;
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
       m_SettingsChangedTimerChange.AutoReset = false;
@@ -127,6 +126,31 @@ namespace CsvTools
         }
 
         return Path.GetFileNameWithoutExtension(assembly.Location);
+      }
+    }
+
+    private async Task RunDetection(CancellationToken cancellationToken)
+    {
+      if (m_FileSetting == null)
+        return;
+      m_RunDetection = false;
+      ShowTextPanel(true);
+      try
+      {
+        var (_, detected) = await m_FileSetting.FillGuessColumnFormatReaderAsync(true, true,
+          m_ViewSettings.FillGuessSettings,
+          cancellationToken);
+        ChangeColumnsNoEvent(detected);
+
+        m_ToolStripButtonAsText.Visible = m_FileSetting is ICsvFile &&
+                                          m_FileSetting.ColumnCollection.Any(x =>
+                                            x.ValueFormat.DataType != DataTypeEnum.String);
+
+        await OpenDataReaderAsync(cancellationToken);
+      }
+      catch (Exception ex)
+      {
+        this.ShowError(ex, "Column Detection");
       }
     }
 
@@ -267,16 +291,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   As any property is changed this will cause a reload from file
-    /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="e">
-    ///   The <see cref="PropertyChangedEventArgs" /> instance containing the event data.
-    /// </param>
-    /// <remarks>Called by ViewSettings.FillGuessSetting or Columns</remarks>
-    private void AnyPropertyChangedReload(object? sender, PropertyChangedEventArgs? e) => m_ConfigChanged = true;
-
-    /// <summary>
     ///   Attaches the property changed handlers for the file Settings
     /// </summary>
     private void AttachPropertyChanged()
@@ -312,7 +326,12 @@ namespace CsvTools
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question,
                 MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-            await OpenDataReaderAsync(m_CancellationTokenSource.Token);
+          {
+            if (m_RunDetection)
+              await RunDetection(m_CancellationTokenSource.Token);
+            else
+              await OpenDataReaderAsync(m_CancellationTokenSource.Token);
+          }
         }
 
         if (!m_FileChanged) return;
@@ -633,16 +652,17 @@ namespace CsvTools
       {
         m_ToolStripButtonSettings.Enabled = false;
 
+        var oldFillGuessSettings = (FillGuessSettings) m_ViewSettings.FillGuessSettings.Clone();
         using var frm = new FormEditSettings(m_ViewSettings, m_FileSetting);
-        frm.ShowDialog(MdiParent);
+        frm.ShowDialog(this);
         await m_ViewSettings.SaveViewSettingsAsync();
         if (m_FileSetting != null)
         {
           m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
           m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
           SetFileSystemWatcher(m_FileSetting.FileName);
-          if (m_FileChanged)
-            m_ConfigChanged = false;
+          m_RunDetection = !m_ViewSettings.FillGuessSettings.Equals(oldFillGuessSettings);
+          m_ConfigChanged = m_ConfigChanged || m_RunDetection || m_FileChanged;
         }
         else if (frm.FileSetting != null)
         {
@@ -652,6 +672,7 @@ namespace CsvTools
         }
 
         await CheckPossibleChange();
+        ApplyViewSettings();
       }, this);
     }
 
@@ -731,12 +752,20 @@ namespace CsvTools
       }
     }
 
+    private void ChangeColumnsNoEvent(IEnumerable<Column> columns)
+    {
+      if (m_FileSetting == null)
+        return;
+      m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
+      m_FileSetting.ColumnCollection.Clear();
+      m_FileSetting.ColumnCollection.AddRangeNoClone(columns);
+      m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+    }
+
     private async void ToggleDisplayAsText(object? sender, EventArgs e)
     {
       if (m_FileSetting == null)
-      {
         return;
-      }
 
       await m_ToolStripButtonAsText.RunWithHourglassAsync(async () =>
       {
@@ -754,11 +783,8 @@ namespace CsvTools
           m_StoreColumns = new List<Column>(m_FileSetting.ColumnCollection);
 
           // restore header names only
-          m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
-          m_FileSetting.ColumnCollection.Clear();
-          m_FileSetting.ColumnCollection.AddRange(m_StoreColumns.Select(col =>
+          ChangeColumnsNoEvent(m_StoreColumns.Select(col =>
             new Column(col.Name, ValueFormat.Empty, columnOrdinal: col.ColumnOrdinal)));
-          m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
 
           m_ToolStripButtonAsText.Text = "As Values";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;
@@ -769,10 +795,7 @@ namespace CsvTools
           Logger.Information("Showing columns as values");
           m_ToolStripButtonAsText.Text = "As Text";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsText;
-          m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
-          m_FileSetting.ColumnCollection.Clear();
-          m_FileSetting.ColumnCollection.AddRange(m_StoreColumns);
-          m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
+          ChangeColumnsNoEvent(m_StoreColumns);
           reload = true;
         }
 

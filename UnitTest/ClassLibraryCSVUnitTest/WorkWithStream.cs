@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+// ReSharper disable UseAwaitUsing
+
 namespace CsvTools.Tests
 {
   [TestClass]
@@ -29,7 +31,7 @@ namespace CsvTools.Tests
                StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
-        var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(new FillGuessSettings(),
+        var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(FillGuessSettings.Default,
           new ColumnCollection(), false, true, "null", UnitTestStatic.Token);
         determinedColumns = columns.ToList();
         Assert.AreEqual(6, determinedColumns.Count(), "Recognized columns");
@@ -68,7 +70,7 @@ namespace CsvTools.Tests
                StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
-        var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(new FillGuessSettings(),
+        var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(FillGuessSettings.Default,
           new ColumnCollection(), false, true, "null", UnitTestStatic.Token);
         determinedColumns = columns.ToList();
         Assert.AreEqual(6, determinedColumns.Count(), "Recognized columns");

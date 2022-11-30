@@ -64,9 +64,9 @@ namespace CsvTools
 
       if (columnName.EndsWith(" ID", StringComparison.OrdinalIgnoreCase))
         return 3;
-      if (columnName.EndsWith("ID", StringComparison.Ordinal) || columnName.EndsWith("Id", StringComparison.Ordinal))
+      if ((columnName.EndsWith("ID", StringComparison.Ordinal) || columnName.EndsWith("Id", StringComparison.Ordinal)) && 
+          !columnName.EndsWith("GUID", StringComparison.OrdinalIgnoreCase))
         return 2;
-
       return 0;
     }
 

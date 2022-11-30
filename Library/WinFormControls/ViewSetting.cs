@@ -43,10 +43,12 @@ namespace CsvTools
       var columnIndex = 0;
       foreach (var filter in columnFilters)
       {
-        if (filter is null && columns[columnIndex].DataPropertyName.Equals(dataPropertyName, StringComparison.OrdinalIgnoreCase))
+        if (filter is null && columns[columnIndex].DataPropertyName
+              .Equals(dataPropertyName, StringComparison.OrdinalIgnoreCase))
           return createFilterColumn?.Invoke(columnIndex);
         columnIndex++;
       }
+
       return null;
     }
 
@@ -61,29 +63,29 @@ namespace CsvTools
 
         var displayIndex = 0;
         foreach (var storedColumn in (vst ?? throw new InvalidOperationException()).OrderBy(x => x.DisplayIndex))
-          foreach (DataGridViewColumn col in columns)
-            if (col.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase))
-              try
-              {
-                if (col.Visible != storedColumn.Visible)
-                  col.Visible = storedColumn.Visible;
+        foreach (DataGridViewColumn col in columns)
+          if (col.DataPropertyName.Equals(storedColumn.DataPropertyName, StringComparison.OrdinalIgnoreCase))
+            try
+            {
+              if (col.Visible != storedColumn.Visible)
+                col.Visible = storedColumn.Visible;
 
-                if (col.Visible)
-                {
-                  col.Width = storedColumn.Width;
-                  if (storedColumn.Sort == 1)
-                    doSort?.Invoke(col, ListSortDirection.Ascending);
-                  if (storedColumn.Sort == 2)
-                    doSort?.Invoke(col, ListSortDirection.Descending);
-                }
-
-                col.DisplayIndex = displayIndex++;
-                break;
-              }
-              catch (Exception ex)
+              if (col.Visible)
               {
-                Logger.Information(ex, "ReStoreViewSetting {text} {col}", text, col);
+                col.Width = storedColumn.Width;
+                if (storedColumn.Sort == 1)
+                  doSort?.Invoke(col, ListSortDirection.Ascending);
+                if (storedColumn.Sort == 2)
+                  doSort?.Invoke(col, ListSortDirection.Descending);
               }
+
+              col.DisplayIndex = displayIndex++;
+              break;
+            }
+            catch (Exception ex)
+            {
+              Logger.Information(ex, "ReStoreViewSetting {text} {col}", text, col);
+            }
 
         var hasFilterSet = false;
         foreach (var storedFilterSetting in vst)
@@ -135,15 +137,15 @@ namespace CsvTools
 
     public static string StoreViewSetting(DataGridView ctrl,
       IEnumerable<ToolStripDataGridViewColumnFilter?> columnFilters) =>
-      StoreViewSetting(ctrl.Columns, columnFilters, ctrl.SortedColumn, ctrl.SortOrder);
+      StoreViewSetting(ctrl.Columns.OfType<DataGridViewColumn>(), columnFilters, ctrl.SortedColumn, ctrl.SortOrder);
 
-    private static string StoreViewSetting(IEnumerable columns,
+    private static string StoreViewSetting(IEnumerable<DataGridViewColumn> columns,
       IEnumerable<ToolStripDataGridViewColumnFilter?> columnFilters, DataGridViewColumn? sortedColumn,
       SortOrder sortOrder)
     {
-      var vst = (from DataGridViewColumn col in columns
-                 select new ColumnSetting(col.DataPropertyName, col.Visible,
-                   ReferenceEquals(col, sortedColumn) ? (int) sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
+      var vst = columns
+        .Select(col => new ColumnSetting(col.DataPropertyName, col.Visible,
+          ReferenceEquals(col, sortedColumn) ? (int) sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
       var colIndex = 0;
       foreach (var columnFilter in columnFilters)
       {

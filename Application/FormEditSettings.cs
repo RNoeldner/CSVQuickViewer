@@ -84,7 +84,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private void SetFont()
     {
-      this.SafeInvoke(() => Font = new Font(m_ViewSettings.Font, m_ViewSettings.FontSize));
+      ChangeFont(new Font(m_ViewSettings.Font, m_ViewSettings.FontSize));
     }
 
     private void M_ViewSettings_PropertyChanged(object? sender, PropertyChangedEventArgs e)

@@ -31,7 +31,7 @@ namespace CsvTools
     ///   Additional EventHandlers for an implementation needing information ona a changed item
     /// </summary>
     public PropertyChangedEventHandler? ItemPropertyChanged;
-    
+
     /// <summary>
     ///   Additional EventHandlers for an implementation needing information ona a changed item
     /// </summary>
@@ -159,7 +159,6 @@ namespace CsvTools
       if (item is INotifyPropertyChanged notifyPropertyChanged)
       {
         if (CollectionItemPropertyChanged != null)
-
           notifyPropertyChanged.PropertyChanged -= CollectionItemPropertyChanged;
         if (ItemPropertyChanged!=null)
           notifyPropertyChanged.PropertyChanged -= ItemPropertyChanged;
@@ -171,7 +170,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   A slightly faster method to add a number of items in one go
+    ///   A slightly faster method to add a number of items in one go, if the item is cloneable a copy is made
     /// </summary>
     /// <param name="items">Some items to add</param>
     public void AddRange(IEnumerable<T> items)
@@ -179,9 +178,19 @@ namespace CsvTools
       using var enumerator = items.GetEnumerator();
       while (enumerator.MoveNext())
         if (enumerator.Current != null)
-          Add(enumerator.Current);
+          if (enumerator.Current is ICloneable item)
+            Add((T) item.Clone());
+          else
+            Add(enumerator.Current);
     }
 
+    public void AddRangeNoClone(IEnumerable<T> items)
+    {
+      using var enumerator = items.GetEnumerator();
+      while (enumerator.MoveNext())
+        if (enumerator.Current != null)
+          Add(enumerator.Current);
+    }
     /// <summary>
     ///   Determines whether the specified object is equal to the current object.
     /// </summary>

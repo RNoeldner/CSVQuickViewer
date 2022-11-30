@@ -11,10 +11,12 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml.Serialization;
 
@@ -27,16 +29,31 @@ namespace CsvTools
   [Serializable]
   public sealed class SampleAndErrorsInformation : NotifyPropertyChangedBase, IWithCopyTo<SampleAndErrorsInformation>
   {
-    private readonly UniqueObservableCollection<SampleRecordEntry> m_Errors = new UniqueObservableCollection<SampleRecordEntry>();
+    private int m_NumErrors;
+    private readonly UniqueObservableCollection<SampleRecordEntry> m_Errors;
+    private readonly UniqueObservableCollection<SampleRecordEntry> m_Samples;
 
-    private int m_NumErrors = -1;
-    private readonly UniqueObservableCollection<SampleRecordEntry> m_Samples = new UniqueObservableCollection<SampleRecordEntry>();
-
-    public SampleAndErrorsInformation()
+    [Obsolete("Used for XML Serialisation")]
+    public SampleAndErrorsInformation() : this(-1, null, null)
     {
+    }
+
+    [JsonConstructor]
+    public SampleAndErrorsInformation(int? numErrors, IEnumerable<SampleRecordEntry>? errors,
+      IEnumerable<SampleRecordEntry>? samples)
+    {
+      m_NumErrors = numErrors ?? -1;
+      m_Errors = new UniqueObservableCollection<SampleRecordEntry>();
+      if (errors != null)
+        m_Errors.AddRange(errors);
       m_Errors.CollectionItemPropertyChanged += (o, s) => NotifyPropertyChanged(nameof(Errors));
+
+      m_Samples = new UniqueObservableCollection<SampleRecordEntry>();
+      if (samples != null)
+        m_Samples.AddRange(samples);
       m_Samples.CollectionItemPropertyChanged += (o, s) => NotifyPropertyChanged(nameof(Samples));
     }
+
 
     /// <summary>
     ///   Gets or sets information on the errors.
@@ -46,9 +63,6 @@ namespace CsvTools
     {
       get => m_Errors;
     }
-
-    [JsonIgnore]
-    public bool ErrorsSpecified => Errors.Count > 0;
 
     /// <summary>
     ///   Gets or sets the number of entries in Errors, you can overwrite the real number here.
@@ -78,15 +92,10 @@ namespace CsvTools
       get => m_Samples;
     }
 
-    [JsonIgnore]
-    public bool SamplesSpecified => Samples.Count > 0;
-
     /// <inheritdoc />
     public object Clone()
     {
-      var other = new SampleAndErrorsInformation();
-      CopyTo(other);
-      return other;
+      return new SampleAndErrorsInformation(NumErrors, Errors, Samples);
     }
 
     /// <summary>
@@ -114,9 +123,9 @@ namespace CsvTools
       if (ReferenceEquals(this, other))
         return true;
 
-      return m_NumErrors  == other.m_NumErrors
-            && Samples.Equals(other.Samples)
-            && Errors.Equals(other.Errors);
+      return m_NumErrors == other.m_NumErrors
+             && Samples.Equals(other.Samples)
+             && Errors.Equals(other.Errors);
     }
   }
 }
