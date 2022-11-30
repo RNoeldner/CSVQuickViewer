@@ -28,6 +28,8 @@ using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace CsvTools
 {
   /// <summary>
@@ -383,22 +385,21 @@ namespace CsvTools
     ///   Build the Column Filter the given Column
     /// </summary>
     /// <param name="columnIndex"></param>
-    public void SetFilterMenu(int columnIndex)
+    public ToolStripDataGridViewColumnFilter? SetFilterMenu(int columnIndex)
     {
       if (DataView is null)
-        return;
+        return null;
+
+      var filter = GetColumnFilter(columnIndex);
+
       contextMenuStripFilter.Close();
       contextMenuStripFilter.SuspendLayout();
-
-      if (m_Filter[columnIndex] is null)
-        GetColumnFilter(columnIndex);
-
       while (contextMenuStripFilter.Items[0] is not ToolStripSeparator)
         contextMenuStripFilter.Items.RemoveAt(0);
 
-      contextMenuStripFilter.Items.Insert(0, GetColumnFilter(columnIndex));
+      contextMenuStripFilter.Items.Insert(0, filter);
 
-      var col = GetColumnFilter(columnIndex).ValueClusterCollection;
+      var col = filter.ValueClusterCollection;
 
       var result = col.BuildValueClusters(DataView, Columns[columnIndex].ValueType, columnIndex);
       {
@@ -456,6 +457,7 @@ namespace CsvTools
       }
 
       contextMenuStripFilter.ResumeLayout(true);
+      return filter;
     }
 
     /// <summary>
@@ -491,8 +493,8 @@ namespace CsvTools
         m_MenuItemColumnIndex = columnIndex;
         if (right && columnIndex > -1)
         {
-          SetFilterMenu(columnIndex);
-          toolStripMenuItemRemoveOne.Enabled = GetColumnFilter(columnIndex).ColumnFilterLogic.Active;
+          var filter = SetFilterMenu(columnIndex);
+          toolStripMenuItemRemoveOne.Enabled = filter?.ColumnFilterLogic.Active ?? false;
         }
 
         if (right && rowIndex == -1)
@@ -502,7 +504,6 @@ namespace CsvTools
           // toolStripMenuItemFilterAdd.Enabled = columnIndex > -1;
           toolStripMenuItemSortAscending.Enabled = columnIndex > -1;
           toolStripMenuItemSortDescending.Enabled = columnIndex > -1;
-
 
 #pragma warning disable CS8604 // Possible null reference argument.
           toolStripMenuItemSortAscending.Text = columnIndex > -1
@@ -631,6 +632,7 @@ namespace CsvTools
         foreach (DataRow dataRow in rowCollection)
         {
           var value = dataRow[col];
+          // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
           if (value is null)
             continue;
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
@@ -665,7 +667,8 @@ namespace CsvTools
       if (row.Height != m_DefRowHeight) return m_DefRowHeight;
       if (checkedColumns.Any(
             column => row.Cells[column.Index].Value != null && row.Cells[column.Index].Value != DBNull.Value
-                                                            && row.Cells[column.Index].Value.ToString().IndexOf('\n') !=
+                                                            && row.Cells[column.Index].Value.ToString()!
+                                                              .IndexOf('\n') !=
                                                             -1))
         return m_DefRowHeight * 2;
 
@@ -897,6 +900,7 @@ namespace CsvTools
         {
           var cellValue = row[col];
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
+          // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
           if (cellValue is null || cellValue.ToString().IndexOf('\n') == -1)
             continue;
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
@@ -911,19 +915,8 @@ namespace CsvTools
       ColumnRemoved += FilteredDataGridView_ColumnRemoved;
     }
 
-    private ToolStripDataGridViewColumnFilter GetColumnFilter(int columnIndex)
-    {
-      if (m_Filter[columnIndex] is null)
-      {
-        m_Filter[columnIndex] = new ToolStripDataGridViewColumnFilter(Columns[columnIndex]);
-
-        // as the Operator is set the filter becomes active, revoke this
-        m_Filter[columnIndex]!.ColumnFilterLogic.Active = false;
-        m_Filter[columnIndex]!.ColumnFilterLogic.ColumnFilterApply += ToolStripMenuItemApply_Click;
-      }
-
-      return m_Filter[columnIndex]!;
-    }
+    private ToolStripDataGridViewColumnFilter GetColumnFilter(int columnIndex) => m_Filter[columnIndex] ??=
+      new ToolStripDataGridViewColumnFilter(Columns[columnIndex], ToolStripMenuItemApply_Click);
 
     /// <summary>
     ///   Gets the column format.
@@ -932,11 +925,10 @@ namespace CsvTools
     /// <returns></returns>
     private Column? GetColumnFormat(int colIndex)
     {
-      if (m_FileSetting is null || colIndex < 0 || colIndex > m_FileSetting.ColumnCollection.Count)
+      // need to map columnIndex to Column Collection
+      if (m_FileSetting is null || colIndex < 0 || colIndex > Columns.Count)
         return null;
-
-      return m_FileSetting.ColumnCollection
-        [colIndex]; // old way : m_FileSetting.ColumnCollection.GetByName(Columns[colIndex].DataPropertyName);
+      return m_FileSetting.ColumnCollection.GetByName(Columns[colIndex].DataPropertyName);
     }
 
     /// <summary>
@@ -1336,11 +1328,14 @@ namespace CsvTools
 
         if (fileName is null || fileName.Length == 0)
           return;
-#if NETSTANDARD2_1_OR_GREATER
-      await
+#if NET6_0_OR_GREATER
+        await
 #endif
-        using var stream = new ImprovedStream(new SourceAccess(fileName, false));
-        using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
+          using var stream = new ImprovedStream(new SourceAccess(fileName, false));
+#if NET6_0_OR_GREATER
+        await
+#endif
+          using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
         await writer.WriteAsync(ViewSetting.StoreViewSetting(this, m_Filter));
         await writer.FlushAsync();
 

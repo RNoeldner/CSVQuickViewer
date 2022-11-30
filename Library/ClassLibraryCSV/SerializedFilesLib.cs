@@ -108,7 +108,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER
       await
 #endif
-        using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
+      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
       using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
 
       var text = await reader.ReadToEndAsync().ConfigureAwait(false);
@@ -165,7 +165,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER
       await
 #endif
-        using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
+      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
       using var sr = new StreamReader(improvedStream, Encoding.UTF8, true);
       if (await sr.ReadToEndAsync().ConfigureAwait(false) != content) return content;
       Logger.Debug("No change to file {filename}", fileName);
@@ -179,7 +179,7 @@ namespace CsvTools
     /// <param name="fileName">The filename to store the serialization text</param>
     /// <param name="askOverwrite">Function to call if teh file does exists, if left empty the file will be overwritten</param>
     /// <returns></returns>
-    public static async Task SerializeAsync<T>(this T data, string fileName, Func<bool>? askOverwrite = null)
+    public static async Task<bool> SerializeAsync<T>(this T data, string fileName, Func<bool>? askOverwrite = null)
       where T : class
     {
       try
@@ -187,37 +187,40 @@ namespace CsvTools
         Logger.Information($"Getting content for file {FileSystemUtils.GetShortDisplayFileName(fileName)}");
         var content = await GetNewContentJsonAsync(fileName, data).ConfigureAwait(false);
 
-        if (!string.IsNullOrEmpty(content))
-        {
-          var delete = false;
-          if (FileSystemUtils.FileExists(fileName))
-          {
-            if (askOverwrite?.Invoke() ?? true)
-              delete = true;
-            else
-              // Exit here no overwrite allowed
-              return;
-          }
+        // no update
+        if (string.IsNullOrEmpty(content))
+          return false;
 
-          Logger.Debug("Updating file {filename}", fileName);
-          Logger.Information($"Writing file {FileSystemUtils.GetShortDisplayFileName(fileName)}");
-          if (delete)
-            FileSystemUtils.DeleteWithBackup(fileName, true);
-#if NETSTANDARD2_1_OR_GREATER
-          await
-#endif
-            using var improvedStream = new ImprovedStream(new SourceAccess(fileName, false));
-#if NETSTANDARD2_1_OR_GREATER
-          await
-#endif
-            using var sr = new StreamWriter(improvedStream, Encoding.UTF8);
-          await sr.WriteAsync(content).ConfigureAwait(false);
+        var delete = false;
+        if (FileSystemUtils.FileExists(fileName))
+        {
+          if (askOverwrite?.Invoke() ?? true)
+            delete = true;
+          else
+            // Exit here no overwrite allowed
+            return false;
         }
+
+        Logger.Debug("Updating file {filename}", fileName);
+        Logger.Information($"Writing file {FileSystemUtils.GetShortDisplayFileName(fileName)}");
+        if (delete)
+          FileSystemUtils.DeleteWithBackup(fileName, true);
+#if NETSTANDARD2_1_OR_GREATER
+          await
+#endif
+        using var improvedStream = new ImprovedStream(new SourceAccess(fileName, false));
+#if NETSTANDARD2_1_OR_GREATER
+          await
+#endif
+        using var sr = new StreamWriter(improvedStream, Encoding.UTF8);
+        await sr.WriteAsync(content).ConfigureAwait(false);
       }
       catch (Exception ex)
       {
         Logger.Error(ex, "Error writing json file {filename}", fileName);
       }
+
+      return true;
     }
 
     /// <summary>

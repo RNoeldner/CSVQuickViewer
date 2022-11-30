@@ -19,6 +19,8 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
+// ReSharper disable UseAwaitUsing
+
 namespace CsvTools.Tests
 {
   [TestClass]
@@ -66,7 +68,7 @@ namespace CsvTools.Tests
     public async Task AnalyzeFileAsyncOtherDelimiter()
     {
       var tuple = await UnitTestStatic.GetTestPath("MultipleDelimiter.txt").AnalyzeFileAsync(false, true, true,
-        true, true, true, true, true, new FillGuessSettings(), UnitTestStatic.Token);
+        true, true, true, true, true, FillGuessSettings.Default, UnitTestStatic.Token);
 
       Assert.IsNotNull(tuple);
       Assert.AreEqual("Pipe", tuple.FieldDelimiter);
@@ -76,7 +78,7 @@ namespace CsvTools.Tests
     public async Task AnalyzeFileAsyncZip()
     {
       var tuple = await UnitTestStatic.GetTestPath("AllFormatsPipe.zip").AnalyzeFileAsync(false, true, true,
-        true, true, true, true, true, new FillGuessSettings(), UnitTestStatic.Token);
+        true, true, true, true, true, FillGuessSettings.Default, UnitTestStatic.Token);
 
       Assert.IsNotNull(tuple);
       Assert.AreEqual("Pipe", tuple.FieldDelimiter);
@@ -95,7 +97,7 @@ namespace CsvTools.Tests
     public async Task GetCsvFileSettingAsync()
     {
       var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt").AnalyzeFileAsync(true, true, true,
-        true, true, true, true, true, new FillGuessSettings(), UnitTestStatic.Token);
+        true, true, true, true, true, FillGuessSettings.Default, UnitTestStatic.Token);
       Assert.IsNotNull(tuple);
       Assert.AreEqual(1200, tuple.CodePageId);
     }
@@ -105,7 +107,7 @@ namespace CsvTools.Tests
     {
       var tuple = await UnitTestStatic.GetTestPath("BasicCSV.txt" + CsvFile.cCsvSettingExtension).AnalyzeFileAsync(true,
         true, true,
-        true, true, true, true, true, new FillGuessSettings(), UnitTestStatic.Token);
+        true, true, true, true, true, FillGuessSettings.Default, UnitTestStatic.Token);
       Assert.IsNotNull(tuple);
       Assert.AreEqual(1200, tuple.CodePageId);
     }
@@ -237,7 +239,7 @@ namespace CsvTools.Tests
     {
       var result = await UnitTestStatic.GetTestPath("BasicCSV.txt").AnalyzeFileAsync(true, true, true, true, true, true,
         false, true,
-        new FillGuessSettings(), UnitTestStatic.Token);
+        FillGuessSettings.Default, UnitTestStatic.Token);
       Assert.IsNotNull(result);
       Assert.IsTrue(result.HasFieldHeader);
       Assert.AreEqual(1200, result.CodePageId);

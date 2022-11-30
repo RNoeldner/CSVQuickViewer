@@ -26,7 +26,7 @@ namespace CsvTools
   {
     private bool m_AllowJson = true;
     private bool m_DetectFileChanges = true;
-    private FillGuessSettings m_FillGuessSettings = new FillGuessSettings();
+    private FillGuessSettings m_FillGuessSettings = FillGuessSettings.Default;
     private bool m_GuessCodePage = true;
     private bool m_GuessComment = true;
     private bool m_GuessDelimiter = true;
@@ -94,7 +94,7 @@ namespace CsvTools
     {
       get;
       set;
-    } = new WindowState(10, 10, 600, 600, FormWindowState.Normal, 0, "");
+    } = new WindowState(10, 10, 600, 600, FormWindowState.Normal, 0);
 
 
     [DefaultValue(true)]

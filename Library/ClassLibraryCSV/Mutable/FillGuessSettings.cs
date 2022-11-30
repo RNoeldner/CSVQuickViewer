@@ -13,6 +13,7 @@
  */
 #nullable enable
 
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
@@ -26,34 +27,61 @@ namespace CsvTools
   [Serializable]
   public sealed class FillGuessSettings : NotifyPropertyChangedBase, ICloneable, IEquatable<FillGuessSettings>
   {
-    private long m_CheckedRecords = 30000;
-
-    private bool m_CheckNamedDates = true;
-
-    private bool m_DetectBoolean = true;
-
-    private bool m_DetectDateTime = true;
-
+    private long m_CheckedRecords;
+    private bool m_CheckNamedDates;
+    private bool m_DetectBoolean;
+    private bool m_DetectDateTime;
     private bool m_DetectGuid;
+    private bool m_DetectNumbers;
+    private bool m_DetectPercentage;
+    private bool m_Enabled;
+    private string m_FalseValue;
+    private bool m_IgnoreIdColumns;
+    private int m_MinSamples;
+    private int m_SampleValues;
+    private bool m_SerialDateTime;
+    private string m_TrueValue;
+    private bool m_DateParts;
 
-    private bool m_DetectNumbers = true;
 
-    private bool m_DetectPercentage = true;
+    public static FillGuessSettings Default = new FillGuessSettings(true, true, true, true, true, true,
+      false, true, true, false, 5, 150, 30000, "True", "False");
 
-    private bool m_Enabled = true;
+    [Obsolete("Used for XML Serialization")]
+    public FillGuessSettings() : this(true, true, true, true, true, true,
+      false, true, true, false, 5, 150, 30000, "True", "False")
+    { }
 
-    private string m_FalseValue = "False";
+    [JsonConstructor]
+    public FillGuessSettings(bool? enabled, bool? ignoreIdColumns, bool? detectBoolean, bool? detectDateTime,
+      bool? detectNumbers, bool? detectPercentage, bool? detectGuid, bool? checkNamedDates, bool? serialDateTime,
+      bool? dateParts, int? minSamples, int? sampleValues, long? checkedRecords, string? trueValue, string? falseValue)
+    {
+      m_Enabled = enabled ?? true;
+      m_IgnoreIdColumns = ignoreIdColumns ?? true;
+      m_DetectBoolean = detectBoolean ?? true;
+      m_DetectDateTime = detectDateTime ?? true;
+      m_DetectNumbers = detectNumbers ?? true;
+      m_DetectPercentage = detectPercentage?? true;
+      m_DetectGuid = detectGuid ?? false;
+      m_CheckNamedDates = checkNamedDates ?? true;
+      m_SerialDateTime = serialDateTime?? true;
+      m_DateParts=dateParts ?? false;
+      m_MinSamples = minSamples ?? 5;
+      m_SampleValues = sampleValues ?? 150;
+      m_CheckedRecords = checkedRecords ?? 30000;
+      m_TrueValue = trueValue ?? "True";
+      m_FalseValue = falseValue ?? "False";
+    }
 
-    private bool m_IgnoreIdColumns = true;
+    [DefaultValue(true)]
+    [XmlElement]
+    public bool Enabled
+    {
+      get => m_Enabled;
+      set => SetField(ref m_Enabled, value);
+    }
 
-    private int m_MinSamples = 5;
-
-    private int m_SampleValues = 150;
-
-    private bool m_SerialDateTime = true;
-
-    private string m_TrueValue = "True";
-    
     /// <summary>
     ///   Number of records to parse to get the sample values, default is <c>30000</c>
     /// </summary>
@@ -76,20 +104,16 @@ namespace CsvTools
       set => SetField(ref m_CheckNamedDates, value);
     }
 
-    [DefaultValue(true)]
-    [XmlElement]
-    public bool Enabled
-    {
-      get => m_Enabled;
-      set => SetField(ref m_Enabled, value);
-    }
-
     /// <summary>
-    ///   If set to <c>True</c> values are checked if they have a date part, default is <c>false</c>
+    ///   If set to <c>True</c> values are checked if they have a date part like a time or time, default is <c>false</c>
     /// </summary>
     [DefaultValue(false)]
     [XmlElement]
-    public bool DateParts { get; set; }
+    public bool DateParts
+    {
+      get => m_DateParts;
+      set => SetField(ref m_DateParts, value);
+    }
 
     /// <summary>
     ///   If set to <c>True</c> values are checked if they could be Numeric, default is <c>True</c>
@@ -132,14 +156,7 @@ namespace CsvTools
     public bool DetectDateTime
     {
       get => m_DetectDateTime;
-
-      set
-      {
-        if (m_DetectDateTime == value)
-          return;
-        m_DetectDateTime = value;
-        NotifyPropertyChanged();
-      }
+      set => SetField(ref m_DetectDateTime, value);
     }
 
     /// <summary>
@@ -150,36 +167,10 @@ namespace CsvTools
     public bool DetectGuid
     {
       get => m_DetectGuid;
-
-      set
-      {
-        if (m_DetectGuid == value)
-          return;
-        m_DetectGuid = value;
-        NotifyPropertyChanged();
-      }
+      set => SetField(ref m_DetectGuid, value);
     }
 
-    /// <summary>
-    ///   List of text to be regarded as <c>false</c>, default text is <c>"False"</c>
-    /// </summary>
-    [DefaultValue("False")]
-    [XmlElement]
-#if NETSTANDARD2_1_OR_GREATER
-    [System.Diagnostics.CodeAnalysis.AllowNull]
-#endif
-    public string FalseValue
-    {
-      get => m_FalseValue;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_FalseValue.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_FalseValue = newVal;
-        NotifyPropertyChanged();
-      }
-    }
+
 
     /// <summary>
     ///   Flag to ignore columns that seem to be Identifiers, default is <c>True</c>
@@ -189,13 +180,7 @@ namespace CsvTools
     public bool IgnoreIdColumns
     {
       get => m_IgnoreIdColumns;
-      set
-      {
-        if (m_IgnoreIdColumns == value)
-          return;
-        m_IgnoreIdColumns = value;
-        NotifyPropertyChanged();
-      }
+      set => SetField(ref m_IgnoreIdColumns, value);
     }
 
     /// <summary>
@@ -206,14 +191,7 @@ namespace CsvTools
     public int MinSamples
     {
       get => m_MinSamples;
-
-      set
-      {
-        if (m_MinSamples == value || value <= 0 || value >= m_SampleValues)
-          return;
-        m_MinSamples = value;
-        NotifyPropertyChanged();
-      }
+      set => SetField(ref m_MinSamples, value);
     }
 
     /// <summary>
@@ -224,14 +202,7 @@ namespace CsvTools
     public int SampleValues
     {
       get => m_SampleValues;
-
-      set
-      {
-        if (m_SampleValues == value || value <= 0 || value <= m_MinSamples)
-          return;
-        m_SampleValues = value;
-        NotifyPropertyChanged();
-      }
+      set => SetField(ref m_SampleValues, value);
     }
 
     /// <summary>
@@ -242,14 +213,7 @@ namespace CsvTools
     public bool SerialDateTime
     {
       get => m_SerialDateTime;
-
-      set
-      {
-        if (m_SerialDateTime == value)
-          return;
-        m_SerialDateTime = value;
-        NotifyPropertyChanged();
-      }
+      set => SetField(ref m_SerialDateTime, value);
     }
 
     /// <summary>
@@ -263,22 +227,28 @@ namespace CsvTools
     public string TrueValue
     {
       get => m_TrueValue;
-      set
-      {
-        var newVal = value ?? string.Empty;
-        if (m_TrueValue.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_TrueValue = newVal;
-        NotifyPropertyChanged();
-      }
+      set => SetField(ref m_TrueValue, value, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    ///   List of text to be regarded as <c>false</c>, default text is <c>"False"</c>
+    /// </summary>
+    [DefaultValue("False")]
+    [XmlElement]
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public string FalseValue
+    {
+      get => m_FalseValue;
+      set => SetField(ref m_FalseValue, value, StringComparison.Ordinal);
     }
 
     /// <inheritdoc />
     public object Clone()
     {
-      var other = new FillGuessSettings();
-      CopyTo(other);
-      return other;
+      return new FillGuessSettings(m_Enabled, m_IgnoreIdColumns, m_DetectBoolean, m_DetectDateTime, m_DetectNumbers, m_DetectPercentage,
+        m_DetectGuid, m_CheckNamedDates, m_SerialDateTime, m_DateParts, m_MinSamples, m_SampleValues, m_CheckedRecords, m_TrueValue, m_FalseValue);
     }
 
     /// <inheritdoc />
@@ -288,16 +258,21 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return Enabled == other.Enabled && CheckedRecords == other.CheckedRecords
-                                      && CheckNamedDates == other.CheckNamedDates && DateParts == other.DateParts
-                                      && m_DetectNumbers == other.m_DetectNumbers
-                                      && DetectPercentage == other.DetectPercentage
-                                      && m_DetectBoolean == other.m_DetectBoolean
-                                      && m_DetectDateTime == other.DetectDateTime && DetectGuid == other.DetectGuid
-                                      && string.Equals(FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase)
-                                      && IgnoreIdColumns == other.IgnoreIdColumns && MinSamples == other.MinSamples
-                                      && SampleValues == other.SampleValues && SerialDateTime == other.SerialDateTime
-                                      && string.Equals(TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase);
+      return m_Enabled == other.Enabled &&
+             m_CheckedRecords == other.CheckedRecords &&
+             m_CheckNamedDates == other.CheckNamedDates &&
+             m_DateParts == other.DateParts &&
+             m_DetectNumbers == other.DetectNumbers &&
+             m_DetectPercentage == other.DetectPercentage &&
+             m_DetectBoolean == other.DetectBoolean &&
+             m_DetectDateTime == other.DetectDateTime &&
+             m_DetectGuid == other.DetectGuid &&
+             m_IgnoreIdColumns == other.IgnoreIdColumns &&
+             m_MinSamples == other.MinSamples &&
+             m_SampleValues == other.SampleValues &&
+             m_SerialDateTime == other.SerialDateTime &&
+             string.Equals(m_FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase) &&
+             string.Equals(m_TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase);
     }
 
 
@@ -307,20 +282,21 @@ namespace CsvTools
     /// <param name="other"></param>
     public void CopyTo(FillGuessSettings other)
     {
-      other.CheckedRecords = CheckedRecords;
-      other.CheckNamedDates = CheckNamedDates;
-      other.DetectNumbers = DetectNumbers;
-      other.DetectPercentage = DetectPercentage;
-      other.DetectBoolean = DetectBoolean;
-      other.DateParts = DateParts;
-      other.DetectDateTime = DetectDateTime;
-      other.DetectGuid = DetectGuid;
-      other.FalseValue = FalseValue;
-      other.IgnoreIdColumns = IgnoreIdColumns;
-      other.MinSamples = MinSamples;
-      other.SampleValues = SampleValues;
-      other.SerialDateTime = SerialDateTime;
-      other.TrueValue = TrueValue;
+      other.Enabled = m_Enabled;
+      other.CheckedRecords = m_CheckedRecords;
+      other.CheckNamedDates = m_CheckNamedDates;
+      other.DetectNumbers = m_DetectNumbers;
+      other.DetectPercentage = m_DetectPercentage;
+      other.DetectBoolean = m_DetectBoolean;
+      other.DateParts = m_DateParts;
+      other.DetectDateTime = m_DetectDateTime;
+      other.DetectGuid = m_DetectGuid;
+      other.TrueValue = m_TrueValue;
+      other.FalseValue = m_FalseValue;
+      other.IgnoreIdColumns = m_IgnoreIdColumns;
+      other.MinSamples = m_MinSamples;
+      other.SampleValues = m_SampleValues;
+      other.SerialDateTime = m_SerialDateTime;
     }
   }
 }

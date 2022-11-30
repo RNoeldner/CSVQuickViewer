@@ -34,7 +34,12 @@ namespace CsvTools
     [Browsable(false)]
     public FillGuessSettings FillGuessSettings
     {
-      set => fillGuessSettingsBindingSource.DataSource = value ?? new FillGuessSettings();
+      set
+      {
+        fillGuessSettingsBindingSource.DataSource = value;
+        if (!value.Enabled)
+          radioButtonDisabled.Checked = true;
+      }
     }
   }
 }

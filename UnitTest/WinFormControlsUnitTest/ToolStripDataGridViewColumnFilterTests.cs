@@ -45,7 +45,10 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void ToolStripDataGridViewColumnFilterTest1()
     {
-      var test = new ToolStripDataGridViewColumnFilter();
+      var test = new ToolStripDataGridViewColumnFilter(new DataGridViewTextBoxColumn()
+      {
+        ValueType = typeof(int), Name = "int", DataPropertyName = "int"
+      });
       Assert.AreEqual(false, test.ColumnFilterLogic.Active);
     }
   }
