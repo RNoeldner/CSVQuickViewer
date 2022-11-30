@@ -16,6 +16,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Threading.Tasks;
 
+// ReSharper disable UseAwaitUsing
+
 namespace CsvTools.Tests
 {
   [TestClass]
@@ -39,16 +41,16 @@ namespace CsvTools.Tests
       Assert.AreEqual("ef21069c-3d93-4e07-878d-00e820727f65", jfr.GetString(0));
       Assert.IsTrue((new DateTime(2020, 04, 03, 20, 45, 29, DateTimeKind.Local) - (DateTime) jfr.GetValue(1))
                     .TotalSeconds < 1f);
+      jfr.Close();
     }
 
     [TestMethod]
     [Timeout(10000)]
-    public async Task OpenLogAsync()
+    public async Task OpenLogAsStream()
     {
-      var setting = new JsonFile(UnitTestStatic.GetTestPath("LogFile.json"));
-      
-      using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
-        setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
+      using var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("LogFile.json"));
+      using var jfr = new JsonFileReader(stream, Array.Empty<Column>(), 5000, false, "<nil>", true,
+        m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await jfr.OpenAsync(UnitTestStatic.Token);
       await jfr.ReadAsync(UnitTestStatic.Token);
       Assert.AreEqual("level", jfr.GetColumn(1).Name);

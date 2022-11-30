@@ -15,6 +15,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
+		<ProjectReference Include="..\..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="TestForm.cs" />

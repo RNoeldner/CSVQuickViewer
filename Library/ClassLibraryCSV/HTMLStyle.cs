@@ -15,8 +15,10 @@
 
 using Newtonsoft.Json;
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace CsvTools
 {
@@ -28,204 +30,152 @@ namespace CsvTools
   /// </remarks>
   public sealed class HtmlStyle
   {
+    public static readonly HtmlStyle Default = new HtmlStyle(cDefaultStyle);
+    private string m_Style;
+
+    private const string cDefaultStyle = "<STYLE type=\"text/css\">\r\n"
+                                         + "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n"
+                                         + "  h1 { style=\"color:DarkBlue; font-size : 14px; }\r\n"
+                                         + "  h2 { style=\"color:DarkBlue; font-size : 13px; }\r\n"
+                                         + "  table { border-collapse:collapse; font-size : 11px; }\r\n"
+                                         + "  td { border: 1px solid lightgrey; padding:2px; }\r\n"
+                                         + "  td.info { mso-number-format:\\@; background: #f0f8ff; font-weight:bold;}\r\n"
+                                         + "  td.inforight { mso-number-format:\\@; text-align:right; background: #f0f8ff; font-weight:bold;}\r\n"
+                                         + "  td.value { text-align:right; color:DarkBlue; }\r\n"
+                                         + "  td.text { mso-number-format:\\@; color:black; }\r\n"
+                                         + "  tr.alt { background: #EEEEEE; }\r\n"
+                                         + "  br { mso-data-placement:same-cell; }\r\n"
+                                         + "  span { background: #F7F8E0; }\r\n"
+                                         + "  span.err { color:#B40404; }\r\n"
+                                         + "  span.war { color:#2E64FE; }\r\n"
+                                         + "</STYLE>";
+
+    [Obsolete("Used for XML Serialization")]
+    public HtmlStyle() : this(cDefaultStyle)
+    {
+    }
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="HtmlStyle" /> class.
     /// </summary>
     /// <param name="style">The style.</param>
     [JsonConstructor]
-    public HtmlStyle(string style =  "<STYLE type=\"text/css\">\r\n"
-                                     + "  html * { font-family:'Calibri','Trebuchet MS', Arial, Helvetica, sans-serif; }\r\n"
-                                     + "  h1 { style=\"color:DarkBlue; font-size : 14px; }\r\n"
-                                     + "  h2 { style=\"color:DarkBlue; font-size : 13px; }\r\n"
-                                     + "  table { border-collapse:collapse; font-size : 11px; }\r\n"
-                                     + "  td { border: 1px solid lightgrey; padding:2px; }\r\n"
-                                     + "  td.info { mso-number-format:\\@; background: #f0f8ff; font-weight:bold;}\r\n"
-                                     + "  td.inforight { mso-number-format:\\@; text-align:right; background: #f0f8ff; font-weight:bold;}\r\n"
-                                     + "  td.value { text-align:right; color:DarkBlue; }\r\n"
-                                     + "  td.text { mso-number-format:\\@; color:black; }\r\n"
-                                     + "  tr.alt { background: #EEEEEE; }\r\n"
-                                     + "  br { mso-data-placement:same-cell; }\r\n" + "  span { background: #F7F8E0; }\r\n"
-                                     + "  span.err { color:#B40404; }\r\n" + "  span.war { color:#2E64FE; }\r\n"
-                                     + "</STYLE>")
+    public HtmlStyle(string? style)
     {
-      Style = style;
-      Br = "<br>";
-      H1 = "<h1>{0}</h1>";
-      H2 = "<h2>{0}</h2>";
-      TableOpen = "<table>\r\n";
-      TableClose = "</table>";
-      Td = "<td class='text'>{0}</td>";
-      TdEmpty = "<td/>";
-      TdNonText = "<td class='value'>{0}</td>";
-      Th = "<td class='info'>{0}</td>";
-      TrClose = "</tr>\r\n";
-      TrOpen = "<tr>\r\n";
-      TrOpenAlt = "<tr class='alt'>\r\n";
-      Error = "<span class='err'>{0}</span>";
-      ErrorWarning = "<span class='err'>{0}</span>";
-      Warning = "<span class='war'>{0}</span>";
-      ValueError = "{0}<br><span class='err'>{1}</span>";
-      ValueErrorWarning = "{0}<br><span class='err'>{1}</span><br><span class='war'>{2}</span>";
-      ValueWarning = "{0}<br><span class='war'>{1}</span>";
-    }
-
-    /// <summary>
-    ///   Gets or sets the TD template.
-    /// </summary>
-    /// <value>The TD template.</value>
-    public string Br
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the warning.
-    /// </summary>
-    /// <value>The HTML warning template</value>
-    public string Error
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the warning.
-    /// </summary>
-    /// <value>The HTML warning template</value>
-    public string ErrorWarning
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the table template.
-    /// </summary>
-    /// <value>The table template.</value>
-    public string H1
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the table template.
-    /// </summary>
-    /// <value>The table template.</value>
-    public string H2
-    {
-      get;
+      m_Style = style ?? cDefaultStyle;
     }
 
     /// <summary>
     ///   Set the overall HTML Style Sheet.
     /// </summary>
+    [DefaultValue(cDefaultStyle)]
+    [XmlElement]
     public string Style
     {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the table template.
-    /// </summary>
-    /// <value>The table template.</value>
-    public string TableClose
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the table template.
-    /// </summary>
-    /// <value>The table template.</value>
-    public string TableOpen
-    {
-      get;
+      get => m_Style;
+      set => m_Style = value;
     }
 
     /// <summary>
     ///   Gets or sets the TD template.
     /// </summary>
     /// <value>The TD template.</value>
-    public string Td
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the TD template.
-    /// </summary>
-    /// <value>The TD template.</value>
-    public string TdEmpty
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the TD template.
-    /// </summary>
-    /// <value>The TD template.</value>
-    public string TdNonText
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the TH template.
-    /// </summary>
-    /// <value>The TH template.</value>
-    public string Th
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the TR template.
-    /// </summary>
-    /// <value>The TR template.</value>
-    public string TrClose
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the TR template.
-    /// </summary>
-    /// <value>The TR template.</value>
-    public string TrOpen
-    {
-      get;
-    }
-
-    /// <summary>
-    ///   Gets or sets the TR template alternate.
-    /// </summary>
-    /// <value>The TR template alternate.</value>
-    public string TrOpenAlt
-    {
-      get;
-    }
-
-    public string ValueError
-    {
-      get;
-    }
-
-    public string ValueErrorWarning
-    {
-      get;
-    }
-
-    public string ValueWarning
-    {
-      get;
-    }
+    public static string Br => "<br>";
 
     /// <summary>
     ///   Gets or sets the warning.
     /// </summary>
     /// <value>The HTML warning template</value>
-    public string Warning
-    {
-      get;
-    }
+    public static string Error => "<span class='err'>{0}</span>";
+
+    /// <summary>
+    ///   Gets or sets the warning.
+    /// </summary>
+    /// <value>The HTML warning template</value>
+    public static string ErrorWarning => "<span class='err'>{0}</span>";
+
+    /// <summary>
+    ///   Gets or sets the table template.
+    /// </summary>
+    /// <value>The table template.</value>
+    public static string H1 => "<h1>{0}</h1>";
+
+    /// <summary>
+    ///   Gets or sets the table template.
+    /// </summary>
+    /// <value>The table template.</value>
+    public static string H2 => "<h2>{0}</h2>";
+
+    /// <summary>
+    ///   Gets or sets the table template.
+    /// </summary>
+    /// <value>The table template.</value>
+    public static string TableClose => "</table>";
+
+
+    /// <summary>
+    ///   Gets or sets the table template.
+    /// </summary>
+    /// <value>The table template.</value>
+    public static string TableOpen => "<table>\r\n";
+
+    /// <summary>
+    ///   Gets or sets the TD template.
+    /// </summary>
+    /// <value>The TD template.</value>
+    public static string Td => "<td class='text'>{0}</td>";
+
+
+    /// <summary>
+    ///   Gets or sets the TD template.
+    /// </summary>
+    /// <value>The TD template.</value>
+    public static string TdEmpty => "<td/>";
+
+
+    /// <summary>
+    ///   Gets or sets the TD template.
+    /// </summary>
+    /// <value>The TD template.</value>
+    public static string TdNonText => "<td class='value'>{0}</td>";
+
+
+    /// <summary>
+    ///   Gets or sets the TH template.
+    /// </summary>
+    /// <value>The TH template.</value>
+    public static string Th => "<td class='info'>{0}</td>";
+
+    /// <summary>
+    ///   Gets or sets the TR template.
+    /// </summary>
+    /// <value>The TR template.</value>
+    public static string TrClose => "</tr>\r\n";
+
+    /// <summary>
+    ///   Gets or sets the TR template.
+    /// </summary>
+    /// <value>The TR template.</value>
+    public static string TrOpen => "<tr>\r\n";
+
+
+    /// <summary>
+    ///   Gets or sets the TR template alternate.
+    /// </summary>
+    /// <value>The TR template alternate.</value>
+    public static string TrOpenAlt => "<tr class='alt'>\r\n";
+
+    public static string ValueError => "{0}<br><span class='err'>{1}</span>";
+
+    public static string ValueErrorWarning => "{0}<br><span class='err'>{1}</span><br><span class='war'>{2}</span>";
+
+    public static string ValueWarning => "{0}<br><span class='war'>{1}</span>";
+
+    /// <summary>
+    ///   Gets or sets the warning.
+    /// </summary>
+    /// <value>The HTML warning template</value>
+    public static string Warning => "<span class='war'>{0}</span>";
 
     /// <summary>
     ///   Adds an HTML TD, with the given contend
@@ -437,7 +387,7 @@ namespace CsvTools
     /// <param name="regularText">The regular test for the cell.</param>
     /// <param name="errorText">Additional information displayed underneath.</param>
     /// <param name="addErrorInfo">if set to <c>true</c> add the errorText.</param>
-    public void AddHtmlCell(
+    public static void AddHtmlCell(
       StringBuilder sbHtml,
       string tdTemplate,
       string regularText,

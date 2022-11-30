@@ -40,7 +40,8 @@ namespace CsvTools
     /// <param name="visibleColumns">The visible columns.</param>
     /// <param name="hTmlStyle">The h TML style.</param>
     /// <exception cref="ArgumentNullException">dataTable or dataRows or visibleColumns</exception>
-    public FormShowMaxLength(DataTable? dataTable, DataRow[] dataRows, IList<string>? visibleColumns, HtmlStyle hTmlStyle)
+    public FormShowMaxLength(in DataTable? dataTable, in DataRow[] dataRows, in IList<string>? visibleColumns,
+      in HtmlStyle hTmlStyle)
     {
       m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows ?? throw new ArgumentNullException(nameof(dataRows));

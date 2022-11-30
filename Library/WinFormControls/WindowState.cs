@@ -1,24 +1,31 @@
 #nullable enable
 using Newtonsoft.Json;
+using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace CsvTools
 {
+  [Serializable]
   public sealed class WindowState
   {
     public static readonly WindowState Default =
       new(10, 10, 600, 600);
 
+    [Obsolete("Used for XML Serialization")]
+    public WindowState() : this(10, 10, 600, 600)
+    {
+    }
+
     [JsonConstructor]
-    public WindowState(int left, int top, int width, int height, FormWindowState state = FormWindowState.Normal,
+    public WindowState(int? left, int? top, int? width, int? height, FormWindowState state = FormWindowState.Normal,
       int customInt = -2147483648,
       string customText = "")
     {
-      Left = left;
-      Top = top;
-      Width = width;
-      Height = height;
+      Left = left ?? 10;
+      Top = top ?? 10;
+      Width = width ?? 600;
+      Height = height ?? 600;
       State = state;
       CustomInt = customInt;
       CustomText = customText;

@@ -42,6 +42,21 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void StructuredFileGetDifferences()
+    {
+      var test = (JsonFile) m_JsonFile.Clone();
+      Assert.AreNotSame(m_JsonFile, test);
+      Assert.IsInstanceOfType(test, typeof(JsonFile));
+
+      var res1 = m_JsonFile.GetDifferences(test);
+      Assert.AreEqual(0, res1.Count());
+
+      test.Row = m_JsonFile.Row + "...";
+      var res2 = m_JsonFile.GetDifferences(test);
+      Assert.AreEqual(1, res2.Count());
+    }
+
+    [TestMethod]
     public void CsvFileCopyTo()
     {
       var test = new JsonFile();

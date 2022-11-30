@@ -44,18 +44,16 @@ namespace CsvTools
     private bool m_DateParts;
 
 
-    public static FillGuessSettings Default = new FillGuessSettings(true, true, true, true, true, true,
-      false, true, true, false, 5, 150, 30000, "True", "False");
+    public static FillGuessSettings Default = new FillGuessSettings(true);
 
     [Obsolete("Used for XML Serialization")]
-    public FillGuessSettings() : this(true, true, true, true, true, true,
-      false, true, true, false, 5, 150, 30000, "True", "False")
+    public FillGuessSettings() : this(true)
     { }
 
     [JsonConstructor]
-    public FillGuessSettings(bool? enabled, bool? ignoreIdColumns, bool? detectBoolean, bool? detectDateTime,
-      bool? detectNumbers, bool? detectPercentage, bool? detectGuid, bool? checkNamedDates, bool? serialDateTime,
-      bool? dateParts, int? minSamples, int? sampleValues, long? checkedRecords, string? trueValue, string? falseValue)
+    public FillGuessSettings(bool? enabled = true, bool? ignoreIdColumns = true, bool? detectBoolean = true, bool? detectDateTime = true,
+      bool? detectNumbers = true, bool? detectPercentage = true, bool? detectGuid =false, bool? checkNamedDates = true, bool? serialDateTime = true,
+      bool? dateParts = false, int? minSamples = 5, int? sampleValues = 150, long? checkedRecords = 30000, string? trueValue = "True", string? falseValue = "False")
     {
       m_Enabled = enabled ?? true;
       m_IgnoreIdColumns = ignoreIdColumns ?? true;

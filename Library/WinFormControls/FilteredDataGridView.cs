@@ -198,7 +198,7 @@ namespace CsvTools
     ///   Gets or sets the HTML style.
     /// </summary>
     /// <value>The HTML style.</value>
-    public HtmlStyle HtmlStyle { get; set; } = new();
+    public HtmlStyle HtmlStyle { get; set; } = HtmlStyle.Default;
 
     /// <summary>
     ///   The current DataView
@@ -1191,7 +1191,7 @@ namespace CsvTools
       if (m_FileSetting != null && FillGuessSettings != null)
       {
         using var form = new FormColumnUI(columnFormat, false, m_FileSetting, FillGuessSettings,
-          false, HtmlStyle);
+          false);
         form.ChangeFont(Font);
         if (form.ShowDialog(this) == DialogResult.Cancel)
           return;
@@ -1331,11 +1331,11 @@ namespace CsvTools
 #if NET6_0_OR_GREATER
         await
 #endif
-          using var stream = new ImprovedStream(new SourceAccess(fileName, false));
+        using var stream = new ImprovedStream(new SourceAccess(fileName, false));
 #if NET6_0_OR_GREATER
         await
 #endif
-          using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
+        using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
         await writer.WriteAsync(ViewSetting.StoreViewSetting(this, m_Filter));
         await writer.FlushAsync();
 

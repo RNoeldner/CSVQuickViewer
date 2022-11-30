@@ -49,7 +49,8 @@ namespace CsvTools
     /// <param name="initialColumn">The starting column</param>
     /// <param name="hTmlStyle">The HTML style.</param>
     /// <exception cref="ArgumentNullException">hTMLStyle or dataTable or dataRows</exception>
-    public FormDuplicatesDisplay(DataTable dataTable, DataRow[] dataRows, string? initialColumn, HtmlStyle hTmlStyle)
+    public FormDuplicatesDisplay(in DataTable dataTable, in DataRow[] dataRows, in string? initialColumn,
+      in HtmlStyle hTmlStyle)
     {
       if (hTmlStyle is null)
         throw new ArgumentNullException(nameof(hTmlStyle));

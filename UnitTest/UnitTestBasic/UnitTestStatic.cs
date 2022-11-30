@@ -16,11 +16,13 @@
 
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -31,6 +33,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace CsvTools.Tests
 {
@@ -38,6 +41,37 @@ namespace CsvTools.Tests
   {
     private static UnitTestLogger? TestLogger;
     public static string LastLogMessage => TestLogger!.LastMessage;
+
+
+    public static T RunSerialize<T>(T obj, bool includeXml = true, bool includeJson = true) where T : class
+    {
+      if (obj == null)
+        throw new ArgumentNullException("obj");
+
+      T ret = obj;
+
+      if (includeXml)
+      {
+        var serializer = new XmlSerializer(typeof(T));
+        var testXml = obj.SerializeIndentedXml(serializer);
+        Assert.IsFalse(string.IsNullOrEmpty(testXml));
+        using TextReader reader = new StringReader(testXml);
+        ret = serializer.Deserialize(reader) as T;
+        Assert.IsNotNull(ret);
+      }
+
+      if (includeJson)
+      {
+        var testJson = obj.SerializeIndentedJson();
+        Assert.IsFalse(string.IsNullOrEmpty(testJson));
+        var pos = testJson.IndexOf("Specified\":", StringComparison.OrdinalIgnoreCase);
+        Assert.IsFalse(pos != -1, $"Contains Specified as position {pos} in \n{testJson}");
+        ret = JsonConvert.DeserializeObject<T>(testJson, SerializedFilesLib.JsonSerializerSettings.Value);
+        Assert.IsNotNull(ret);
+      }
+
+      return ret;
+    }
 
 
 #pragma warning disable CS8602
@@ -70,7 +104,6 @@ namespace CsvTools.Tests
       new ColumnMut("ID", new ValueFormat(DataTypeEnum.Integer)) //8
     };
 
-    public static HtmlStyle HtmlStyle { get; } = new HtmlStyle();
 
     public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
 
@@ -491,7 +524,6 @@ namespace CsvTools.Tests
       where T : Form
     {
       var frm = typed as Form;
-
       var isClosed = false;
       frm.FormClosed += (s, o) =>
         isClosed = true;
@@ -507,6 +539,9 @@ namespace CsvTools.Tests
         Console.WriteLine(e);
         throw;
       }
+
+      if (frm is ResizeForm res)
+        res.ChangeFont(SystemFonts.DialogFont);
 
       frm.Focus();
       if (before > 0 && !isClosed)

@@ -34,7 +34,7 @@ namespace CsvTools
     ///   Gets or sets the HTML style.
     /// </summary>
     /// <value>The HTML style.</value>
-    public HtmlStyle? HtmlStyle { get; set; }
+    public HtmlStyle HtmlStyle { get; set; } = HtmlStyle.Default;
 
     /// <summary>
     ///   Gets or sets the selected tree node.
@@ -210,7 +210,7 @@ namespace CsvTools
 
     public string SelectedToClipboard()
     {
-      if (SelectedTreeNode.Count == 0 || HtmlStyle==null)
+      if (SelectedTreeNode.Count == 0)
         return string.Empty;
 
       var minLevel = int.MaxValue;

@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 namespace CsvTools.Tests
 {
   [TestClass]
-  public class SerializedFilesLibTests
+  public class LoadAndSaveTest
   {
     private static readonly string m_FileName = UnitTestStatic.GetTestPath("Test.csv") + CsvFile.cCsvSettingExtension;
 

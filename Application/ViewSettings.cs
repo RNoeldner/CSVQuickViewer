@@ -36,7 +36,7 @@ namespace CsvTools
     private bool m_GuessStartRow = true;
     private string m_Font = "Tahoma";
     private float m_FontSize = 8.25f;
-    private HtmlStyle m_HtmlStyle = new HtmlStyle();
+    private HtmlStyle m_HtmlStyle = HtmlStyle.Default;
     private bool m_MenuDown;
     private bool m_StoreSettingsByFile;
     private bool m_DisplayStartLineNo = true;
@@ -175,7 +175,7 @@ namespace CsvTools
       set => SetField(ref m_GuessComment, value);
     }
 
-    [DefaultValue(false)]
+    [DefaultValue(true)]
     public bool GuessQualifier
     {
       get => m_GuessQualifier;

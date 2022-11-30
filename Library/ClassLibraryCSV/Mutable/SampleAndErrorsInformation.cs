@@ -59,10 +59,7 @@ namespace CsvTools
     ///   Gets or sets information on the errors.
     /// </summary>
     /// <value>The errors.</value>
-    public UniqueObservableCollection<SampleRecordEntry> Errors
-    {
-      get => m_Errors;
-    }
+    public UniqueObservableCollection<SampleRecordEntry> Errors => m_Errors;
 
     /// <summary>
     ///   Gets or sets the number of entries in Errors, you can overwrite the real number here.
@@ -87,15 +84,12 @@ namespace CsvTools
     ///   Gets or sets information on the samples.
     /// </summary>
     /// <value>The samples.</value>
-    public UniqueObservableCollection<SampleRecordEntry> Samples
-    {
-      get => m_Samples;
-    }
+    public UniqueObservableCollection<SampleRecordEntry> Samples => m_Samples;
 
     /// <inheritdoc />
     public object Clone()
     {
-      return new SampleAndErrorsInformation(NumErrors, Errors, Samples);
+      return new SampleAndErrorsInformation(m_NumErrors, m_Errors, m_Samples);
     }
 
     /// <summary>
@@ -104,10 +98,11 @@ namespace CsvTools
     /// <param name="other">The other instance</param>
     public void CopyTo(SampleAndErrorsInformation other)
     {
-      other.Samples.Clear();
-      other.Samples.AddRange(Samples);
-      other.Errors.Clear();
-      other.Errors.AddRange(Errors);
+      other.m_Samples.Clear();
+      other.m_Samples.AddRange(m_Samples);
+      other.m_Errors.Clear();
+      other.m_Errors.AddRange(m_Errors);
+      other.m_NumErrors = m_NumErrors;
       other.m_NumErrors = m_NumErrors;
     }
 
@@ -124,8 +119,8 @@ namespace CsvTools
         return true;
 
       return m_NumErrors == other.m_NumErrors
-             && Samples.Equals(other.Samples)
-             && Errors.Equals(other.Errors);
+             && m_Samples.Equals(other.m_Samples)
+             && m_Errors.Equals(other.m_Errors);
     }
   }
 }
