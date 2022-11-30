@@ -91,9 +91,9 @@ namespace CsvTools
 
     public override IEnumerable<string> GetDifferences(IFileSetting other)
     {
-      if (other is StructuredFile csv)
-        if (Row != csv.Row)
-          yield return $"Row: {Row} {csv.Row}";
+      if (other is StructuredFile structured)
+        if (Row != structured.Row)
+          yield return $"Row: {Row} {structured.Row}";
       foreach (var res in base.GetDifferences(other))
         yield return res;
     }

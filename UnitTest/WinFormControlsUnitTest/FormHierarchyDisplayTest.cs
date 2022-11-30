@@ -14,7 +14,7 @@ namespace CsvTools.Tests
     public void MultiselectTreeViewRegular()
     {
       using var treeView = new MultiSelectTreeView();
-      treeView.HtmlStyle = UnitTestStatic.HtmlStyle;
+      treeView.HtmlStyle = HtmlStyle.Default;
       Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
       var treeNode = new TreeNode("Test") { Tag = "test" };
@@ -61,7 +61,7 @@ namespace CsvTools.Tests
     public void MultiselectTreeViewTreeData()
     {
       using var treeView = new MultiSelectTreeView();
-      treeView.HtmlStyle = UnitTestStatic.HtmlStyle;
+      treeView.HtmlStyle = HtmlStyle.Default;
       Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
       var td1 = new FormHierarchyDisplay.TreeData("1", "Test One") { Tag = "T1" };
@@ -118,7 +118,7 @@ namespace CsvTools.Tests
     public void FormHierarchyDisplay()
     {
       using var dataTable = UnitTestStatic.GetDataTable(60);
-      using var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), UnitTestStatic.HtmlStyle);
+      using var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), HtmlStyle.Default);
       UnitTestStatic.ShowFormAndClose(form, 0.1, (frm) =>
       {
         if (!(frm is { } hd))
@@ -155,7 +155,7 @@ namespace CsvTools.Tests
       var dt = await csvDataReader.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
         true, false, false, false, null, formProgress.CancellationToken);
 
-      using var form = new FormHierarchyDisplay(dt!, dataTable.Select(), UnitTestStatic.HtmlStyle);
+      using var form = new FormHierarchyDisplay(dt!, dataTable.Select(), HtmlStyle.Default);
       UnitTestStatic.ShowFormAndClose(form, .1, (frm) =>
       {
         if (!(frm is { } hd))

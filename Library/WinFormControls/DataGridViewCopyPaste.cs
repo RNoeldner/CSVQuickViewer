@@ -44,7 +44,7 @@ namespace CsvTools
     /// <param name="htmlStyle">The HTML style.</param>
     public DataGridViewCopyPaste(HtmlStyle? htmlStyle)
     {
-      m_HtmlStyle = htmlStyle ?? new HtmlStyle();
+      m_HtmlStyle = htmlStyle ?? HtmlStyle.Default;
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ namespace CsvTools
     /// <returns></returns>
     private static string EscapeTab(string? contents)
     {
-      if (contents is null || contents.Length==0)
+      if (contents is null || contents.Length == 0)
         return string.Empty;
       if (contents.Contains("\t") || contents.Contains("\n") || contents.Contains("\r"))
         return "\"" + contents.Replace("\"", "\"\"") + "\"";
@@ -137,14 +137,13 @@ namespace CsvTools
     /// <param name="appendTab">if set to <c>true</c> [append tab].</param>
     /// <param name="addErrorInfo">if set to <c>true</c> [add error info].</param>
     /// <param name="cutLength">Maximum length of the resulting text</param>
-    /// <param name="style"></param>
     private void AddCell(
       DataGridViewCell cell,
       StringBuilder stringBuilder,
       StringBuilder sbHtml,
       bool appendTab,
       bool addErrorInfo,
-      bool cutLength, HtmlStyle style)
+      bool cutLength)
     {
       var cellValue = cell.FormattedValue?.ToString() ?? string.Empty;
       if (cellValue.Length > 500 && cutLength)
@@ -153,9 +152,9 @@ namespace CsvTools
       if (appendTab)
         stringBuilder.Append('\t');
       stringBuilder.Append(EscapeTab(cellValue));
-      style.AddHtmlCell(
+      HtmlStyle.AddHtmlCell(
         sbHtml,
-        cell.ValueType == typeof(string) ? m_HtmlStyle.Td : m_HtmlStyle.TdNonText,
+        cell.ValueType == typeof(string) ? HtmlStyle.Td : HtmlStyle.TdNonText,
         cellValue,
         cell.ErrorText,
         addErrorInfo);
@@ -168,15 +167,14 @@ namespace CsvTools
     /// <param name="sbHtml">The StringBuilder for HTML.</param>
     /// <param name="errorText">The error Text</param>
     /// <param name="addErrorInfo">if set to <c>true</c> [add error info].</param>
-    /// <param name="style"></param>
-    private void AppendRowError(StringBuilder stringBuilder, StringBuilder sbHtml, string? errorText, bool addErrorInfo, HtmlStyle style)
+    private void AppendRowError(StringBuilder stringBuilder, StringBuilder sbHtml, string? errorText, bool addErrorInfo)
     {
       if (!addErrorInfo)
         return;
       if (errorText is null || errorText.Length == 0)
-        sbHtml.Append(m_HtmlStyle.TdEmpty);
+        sbHtml.Append(HtmlStyle.TdEmpty);
       else
-        style.AddHtmlCell(sbHtml, m_HtmlStyle.Td, string.Empty, errorText, true);
+        HtmlStyle.AddHtmlCell(sbHtml, HtmlStyle.Td, string.Empty, errorText, true);
 
       stringBuilder.Append('\t');
       stringBuilder.Append(EscapeTab(errorText));
@@ -200,9 +198,9 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       var buffer = new StringBuilder();
-      var sbHtml = new StringBuilder(m_HtmlStyle.TableOpen);
+      var sbHtml = new StringBuilder(HtmlStyle.TableOpen);
 
-      sbHtml.Append(m_HtmlStyle.TrOpenAlt);
+      sbHtml.Append(HtmlStyle.TrOpenAlt);
       var first = true;
 
       var visibleColumns = new SortedDictionary<int, DataGridViewColumn>();
@@ -213,10 +211,10 @@ namespace CsvTools
           visibleColumns.Add(c.DisplayIndex, c);
       var hasRowError = HasRowErrors(0, rows.Count, rows);
       foreach (var headerText in from col in visibleColumns.Values
-                                 let headerText = col.HeaderText
-                                 select headerText)
+               let headerText = col.HeaderText
+               select headerText)
       {
-        sbHtml.Append(HtmlStyle.AddTd(m_HtmlStyle.Th, headerText));
+        sbHtml.Append(HtmlStyle.AddTd(HtmlStyle.Th, headerText));
         if (!first)
           buffer.Append('\t');
         else
@@ -226,12 +224,12 @@ namespace CsvTools
 
       if (hasRowError && addErrorInfo)
       {
-        sbHtml.Append(HtmlStyle.AddTd(m_HtmlStyle.Th, cErrorInfo));
+        sbHtml.Append(HtmlStyle.AddTd(HtmlStyle.Th, cErrorInfo));
         buffer.Append('\t');
         buffer.Append(cErrorInfo);
       }
 
-      sbHtml.AppendLine(m_HtmlStyle.TrClose);
+      sbHtml.AppendLine(HtmlStyle.TrClose);
       buffer.AppendLine();
 
       var trAlternate = false;
@@ -240,7 +238,7 @@ namespace CsvTools
       {
         if (rows[row].IsNewRow)
           break;
-        sbHtml.Append(trAlternate ? m_HtmlStyle.TrOpenAlt : m_HtmlStyle.TrOpen);
+        sbHtml.Append(trAlternate ? HtmlStyle.TrOpenAlt : HtmlStyle.TrOpen);
         if (alternatingRows)
           trAlternate = !trAlternate;
         first = true;
@@ -249,12 +247,12 @@ namespace CsvTools
           if (cancellationToken.IsCancellationRequested)
             return;
           var cell = rows[row].Cells[col.Index];
-          AddCell(cell, buffer, sbHtml, !first, addErrorInfo, cutLength, m_HtmlStyle);
+          AddCell(cell, buffer, sbHtml, !first, addErrorInfo, cutLength);
           first = false;
         }
 
-        AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError, m_HtmlStyle);
-        sbHtml.AppendLine(m_HtmlStyle.TrClose);
+        AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError);
+        sbHtml.AppendLine(HtmlStyle.TrClose);
         buffer.AppendLine();
         if ((DateTime.Now - lastRefresh).TotalSeconds <= 0.2)
           continue;
@@ -262,7 +260,7 @@ namespace CsvTools
         Extensions.ProcessUIElements();
       }
 
-      sbHtml.AppendLine(m_HtmlStyle.TableClose);
+      sbHtml.AppendLine(HtmlStyle.TableClose);
 
       var dataObject = new DataObject();
       dataObject.SetData(DataFormats.Html, true, m_HtmlStyle.ConvertToHtmlFragment(sbHtml.ToString()));
@@ -293,7 +291,7 @@ namespace CsvTools
       var dataObject = new DataObject();
 
       // If there are multiple cells Add a header and a neat HTML table
-      var sbHtml = new StringBuilder(m_HtmlStyle.TableOpen);
+      var sbHtml = new StringBuilder(HtmlStyle.TableOpen);
 
       var leftCol = int.MaxValue;
       var rightCol = int.MinValue;
@@ -315,13 +313,14 @@ namespace CsvTools
       var hasRowError = HasRowErrors(topRow, bottomRow + 1, rows);
       var visibleColumns = new List<int>();
 
-      sbHtml.Append(m_HtmlStyle.TrOpenAlt);
+      sbHtml.Append(HtmlStyle.TrOpenAlt);
       for (var col = leftCol; col <= rightCol; col++)
         foreach (DataGridViewColumn displayCol in columns)
-          if (displayCol.DisplayIndex == col && displayCol.Visible && displayCol.HeaderText != ReaderConstants.cErrorField)
+          if (displayCol.DisplayIndex == col && displayCol.Visible &&
+              displayCol.HeaderText != ReaderConstants.cErrorField)
           {
             visibleColumns.Add(col);
-            sbHtml.Append(HtmlStyle.AddTd(m_HtmlStyle.Th, displayCol.HeaderText));
+            sbHtml.Append(HtmlStyle.AddTd(HtmlStyle.Th, displayCol.HeaderText));
             if (buffer.Length > 0)
               buffer.Append('\t');
 
@@ -331,12 +330,12 @@ namespace CsvTools
 
       if (hasRowError && addErrorInfo)
       {
-        sbHtml.Append(HtmlStyle.AddTd(m_HtmlStyle.Th, cErrorInfo));
+        sbHtml.Append(HtmlStyle.AddTd(HtmlStyle.Th, cErrorInfo));
         buffer.Append('\t');
         buffer.Append(cErrorInfo);
       }
 
-      sbHtml.AppendLine(m_HtmlStyle.TrClose);
+      sbHtml.AppendLine(HtmlStyle.TrClose);
       buffer.AppendLine();
 
       var trAlternate = false;
@@ -347,7 +346,7 @@ namespace CsvTools
           continue;
         if (cancellationToken.IsCancellationRequested)
           return;
-        sbHtml.Append(trAlternate ? m_HtmlStyle.TrOpenAlt : m_HtmlStyle.TrOpen);
+        sbHtml.Append(trAlternate ? HtmlStyle.TrOpenAlt : HtmlStyle.TrOpen);
         if (alternatingRows)
           trAlternate = !trAlternate;
         var written = false;
@@ -363,7 +362,7 @@ namespace CsvTools
               continue;
             if (cell.OwningColumn.DisplayIndex != col)
               continue;
-            AddCell(cell, buffer, sbHtml, col > leftCol, addErrorInfo, cutLength, m_HtmlStyle);
+            AddCell(cell, buffer, sbHtml, col > leftCol, addErrorInfo, cutLength);
             written = true;
             break;
           }
@@ -371,12 +370,12 @@ namespace CsvTools
           if (written)
             continue;
           buffer.Append('\t');
-          sbHtml.Append(m_HtmlStyle.TdEmpty);
+          sbHtml.Append(HtmlStyle.TdEmpty);
         }
 
-        AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError, m_HtmlStyle);
+        AppendRowError(buffer, sbHtml, rows[row].ErrorText, addErrorInfo && hasRowError);
 
-        sbHtml.AppendLine(m_HtmlStyle.TrClose);
+        sbHtml.AppendLine(HtmlStyle.TrClose);
         buffer.AppendLine();
         if ((DateTime.Now - lastRefresh).TotalSeconds <= 0.2)
           continue;
@@ -384,7 +383,7 @@ namespace CsvTools
         Extensions.ProcessUIElements();
       }
 
-      sbHtml.AppendLine(m_HtmlStyle.TableClose);
+      sbHtml.AppendLine(HtmlStyle.TableClose);
       dataObject.SetData(DataFormats.Html, true, m_HtmlStyle.ConvertToHtmlFragment(sbHtml.ToString()));
       dataObject.SetData(DataFormats.Text, true, buffer.ToString());
       dataObject.SetClipboard();

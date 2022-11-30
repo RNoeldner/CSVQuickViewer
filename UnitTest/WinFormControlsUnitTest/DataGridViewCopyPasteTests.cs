@@ -37,7 +37,7 @@ namespace CsvTools.Tests
         frm.Controls.Add(dgv);
         frm.Show();
         dgv.SelectAll();
-        var cp = new DataGridViewCopyPaste(UnitTestStatic.HtmlStyle);
+        var cp = new DataGridViewCopyPaste(HtmlStyle.Default);
         cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestStatic.Token);
       });
     }
@@ -61,7 +61,7 @@ namespace CsvTools.Tests
         Clipboard.Clear();
         try
         {
-          var cp = new DataGridViewCopyPaste(UnitTestStatic.HtmlStyle);
+          var cp = new DataGridViewCopyPaste(HtmlStyle.Default);
           cp.SelectedDataIntoClipboard(dgv, false, true, UnitTestStatic.Token);
 
           var dataObject = Clipboard.GetDataObject();
@@ -97,7 +97,7 @@ namespace CsvTools.Tests
               try
               {
                 Clipboard.Clear();
-                var cp = new DataGridViewCopyPaste(UnitTestStatic.HtmlStyle);
+                var cp = new DataGridViewCopyPaste(HtmlStyle.Default);
                 cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestStatic.Token);
                 var dataObject = Clipboard.GetDataObject();
                 Assert.IsNotNull(dataObject);
@@ -130,7 +130,7 @@ namespace CsvTools.Tests
         try
         {
           Clipboard.Clear();
-          var cp = new DataGridViewCopyPaste(UnitTestStatic.HtmlStyle);
+          var cp = new DataGridViewCopyPaste(HtmlStyle.Default);
           cp.SelectedDataIntoClipboard(dgv, true, false, UnitTestStatic.Token);
           var dataObject = Clipboard.GetDataObject();
           Assert.IsNotNull(dataObject);

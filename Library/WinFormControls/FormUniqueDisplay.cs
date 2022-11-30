@@ -45,7 +45,8 @@ namespace CsvTools
     /// <param name="initialColumn">The initial column to use</param>
     /// <param name="hTmlStyle">The h TML style.</param>
     /// <exception cref="ArgumentNullException">hTMLStyle or dataTable or dataRows</exception>
-    public FormUniqueDisplay(DataTable dataTable, DataRow[] dataRows, string? initialColumn, HtmlStyle hTmlStyle)
+    public FormUniqueDisplay(in DataTable dataTable, in DataRow[] dataRows, in string? initialColumn,
+      in HtmlStyle hTmlStyle)
     {
       if (hTmlStyle is null)
         throw new ArgumentNullException(nameof(hTmlStyle));

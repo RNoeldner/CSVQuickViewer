@@ -147,19 +147,17 @@ namespace CsvTools.Tests
       var setting =
         new JsonFile(UnitTestStatic.GetTestPath("Larger.json"));
 
-      var fillGuessSettings = new FillGuessSettings
-      {
-        DetectNumbers = true,
-        DetectDateTime = true,
-        DetectPercentage = true,
-        DetectBoolean = true,
-        DetectGuid = true,
-        IgnoreIdColumns = true
-      };
       Assert.AreEqual(0, setting.ColumnCollection.Count);
 
       var (_, detectedCols) =
-        await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, UnitTestStatic.Token);
+        await setting.FillGuessColumnFormatReaderAsync(false, true, new FillGuessSettings(
+          detectNumbers: true,
+          detectDateTime: true,
+          detectPercentage: true,
+          detectBoolean: true,
+          detectGuid: true,
+          ignoreIdColumns: true
+        ), UnitTestStatic.Token);
 
       var expected =
         new Dictionary<string, DataTypeEnum>
@@ -182,10 +180,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSourceColumnInformationTestAsync()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
         ID = "ID122",
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = true,
         DisplayStartLineNo = false,
         SqlStatement = "ID122",

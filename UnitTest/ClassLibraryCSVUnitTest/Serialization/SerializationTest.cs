@@ -1,10 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 #pragma warning disable CS8625
 
@@ -36,7 +32,7 @@ namespace CsvTools.Tests
       var input = new ColumnMut("Näme",
         new ValueFormat(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat",
           "erp", "read", "Wr", "ou", false)) { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
-      var output = RunSerlialize(input, true, false);
+      var output = UnitTestStatic.RunSerialize(input, true, false);
       Assert.AreEqual(input.Name, output.Name);
       Assert.AreEqual(input.DestinationName, output.DestinationName);
     }
@@ -48,7 +44,7 @@ namespace CsvTools.Tests
       var input = new CsvFile("MyTest.txt");
       input.FieldQualifier = "'";
 
-      var output = RunSerlialize(input);
+      var output = UnitTestStatic.RunSerialize(input);
 
       Assert.AreEqual(input.FileName, output.FileName);
       Assert.AreEqual(input.FieldQualifier, output.FieldQualifier);
@@ -60,7 +56,7 @@ namespace CsvTools.Tests
     {
       var input = new Mapping() { FileColumn = "a", TemplateField = "Fld2", Attention = true };
 
-      var output = RunSerlialize(input);
+      var output = UnitTestStatic.RunSerialize(input);
       Assert.AreEqual(input.FileColumn, output.FileColumn);
       Assert.AreEqual(input.TemplateField, output.TemplateField);
     }
@@ -74,7 +70,7 @@ namespace CsvTools.Tests
       input.Add(new Mapping("a", "fld2", true, true));
       input.Add(new Mapping("b", "fld1", false, true));
 
-      var output = RunSerlialize(input);
+      var output = UnitTestStatic.RunSerialize(input);
 
       Assert.AreEqual(input.Count, output.Count);
     }
@@ -83,15 +79,11 @@ namespace CsvTools.Tests
     [TestCategory("Serialization")]
     public void SampleAndErrorsInformation()
     {
-      var input = new SampleAndErrorsInformation();
+      var input = new SampleAndErrorsInformation(-1,
+        new[] { new SampleRecordEntry(10, true, "Error1"), new SampleRecordEntry(15, false, "Error2") },
+        new[] { new SampleRecordEntry(11, true, "Sample1"), new SampleRecordEntry(15, false, "Sample2") });
 
-      input.Errors.Add(new SampleRecordEntry(10, true, "Error1"));
-      input.Errors.Add(new SampleRecordEntry(15, false, "Error2"));
-
-      input.Samples.Add(new SampleRecordEntry(11, true, "Sample1"));
-      input.Samples.Add(new SampleRecordEntry(15, false, "Sample2"));
-
-      var output = RunSerlialize(input);
+      var output = UnitTestStatic.RunSerialize(input);
 
       Assert.AreEqual(input.Errors.Count, output.Errors.Count);
       Assert.AreEqual(input.Samples.Count, output.Samples.Count);
@@ -103,40 +95,10 @@ namespace CsvTools.Tests
     {
       var input = new ValueFormatMut(DataTypeEnum.Numeric, numberFormat: "x.00", decimalSeparator: ",");
 
-      var output = RunSerlialize(input, false);
+      var output = UnitTestStatic.RunSerialize(input, false);
       Assert.AreEqual(input.NumberFormat, output.NumberFormat);
       Assert.AreEqual(input.DecimalSeparator, output.DecimalSeparator);
       Assert.AreEqual(input.DateFormat, output.DateFormat);
-    }
-
-    private static T RunSerlialize<T>(T obj, bool includeXml = true, bool includeJson = true) where T : class
-    {
-      if (obj == null)
-        throw new ArgumentNullException("obj");
-
-      T ret = obj;
-
-      if (includeXml)
-      {
-        var serializer = new XmlSerializer(typeof(T));
-        var testXml = obj.SerializeIndentedXml(serializer);
-        Assert.IsFalse(string.IsNullOrEmpty(testXml));
-        using TextReader reader = new StringReader(testXml);
-        ret = serializer.Deserialize(reader) as T;
-        Assert.IsNotNull(ret);
-      }
-
-      if (includeJson)
-      {
-        var testJson = obj.SerializeIndentedJson();
-        Assert.IsFalse(string.IsNullOrEmpty(testJson));
-        var pos = testJson.IndexOf("Specified\":", StringComparison.OrdinalIgnoreCase);
-        Assert.IsFalse(pos != -1, $"Contains Specified as position {pos} in \n{testJson}");
-        ret = JsonConvert.DeserializeObject<T>(testJson, SerializedFilesLib.JsonSerializerSettings.Value);
-        Assert.IsNotNull(ret);
-      }
-
-      return ret;
     }
   }
 }

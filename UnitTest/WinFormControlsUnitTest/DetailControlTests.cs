@@ -48,7 +48,7 @@ namespace CsvTools.Tests
       }
 
       using var dc = new DetailControl();
-      dc.HtmlStyle = UnitTestStatic.HtmlStyle;
+      dc.HtmlStyle = HtmlStyle.Default;
       dc.Show();
       dc.DataTable = dt;
 
@@ -77,7 +77,7 @@ namespace CsvTools.Tests
       }
 
       using var dc = new DetailControl();
-      dc.HtmlStyle = UnitTestStatic.HtmlStyle;
+      dc.HtmlStyle = HtmlStyle.Default;
       dc.Show();
       dc.DataTable = dt;
       await dc.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);

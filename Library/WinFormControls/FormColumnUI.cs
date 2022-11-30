@@ -41,7 +41,6 @@ namespace CsvTools
     private const string cNoSampleDate =
       "The source does not contain samples without warnings in the {0:N0} records read";
 
-    private readonly HtmlStyle m_HtmlStyle;
 
     private readonly CancellationTokenSource m_CancellationTokenSource = new();
 
@@ -60,20 +59,18 @@ namespace CsvTools
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="showIgnore">if set to <c>true</c> [show ignore].</param>
-    /// <param name="hTmlStyle">The HTML style.</param>
     /// <exception cref="ArgumentNullException">fileSetting or fillGuessSettings NULL</exception>
     public FormColumnUI(
       Column column,
       bool writeSetting,
       IFileSetting fileSetting,
       FillGuessSettings fillGuessSettings,
-      bool showIgnore,
-      HtmlStyle hTmlStyle)
+      bool showIgnore)
     {
       m_ColumnEdit = new ColumnMut(column);
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
-      m_HtmlStyle = hTmlStyle ?? throw new ArgumentNullException(nameof(hTmlStyle));
+
 
       m_WriteSetting = writeSetting;
 
@@ -495,13 +492,13 @@ namespace CsvTools
         $"{System.Drawing.SystemColors.Control.R:X2}{System.Drawing.SystemColors.Control.G:X2}{System.Drawing.SystemColors.Control.B:X2}");
 
       if (header is { Length: > 0 })
-        stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header)));
+        stringBuilder.Append(string.Format(HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(header)));
 
       ListSamples(stringBuilder, headerList1, values1, col1, rows);
       ListSamples(stringBuilder, headerList2, values2, col2, rows);
 
       if (footer is { Length: > 0 })
-        stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer)));
+        stringBuilder.Append(string.Format(HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(footer)));
 
       stringBuilder.AppendLine("</BODY>");
       stringBuilder.AppendLine("</HTML>");
@@ -841,24 +838,24 @@ namespace CsvTools
     {
       if (values is null || values.Count <= 0 || headerList is null || headerList.Length == 0)
         return;
-      stringBuilder.Append(string.Format(m_HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(headerList)));
-      stringBuilder.AppendLine(m_HtmlStyle.TableOpen);
+      stringBuilder.Append(string.Format(HtmlStyle.H2, HtmlStyle.TextToHtmlEncode(headerList)));
+      stringBuilder.AppendLine(HtmlStyle.TableOpen);
       var texts = values.Take(col * rows).ToArray();
-      stringBuilder.AppendLine(m_HtmlStyle.TrOpen);
+      stringBuilder.AppendLine(HtmlStyle.TrOpen);
       for (var index = 1; index <= texts.Length; index++)
       {
         if (string.IsNullOrEmpty(texts[index - 1]))
-          stringBuilder.AppendLine(m_HtmlStyle.TdEmpty);
+          stringBuilder.AppendLine(HtmlStyle.TdEmpty);
         else
-          stringBuilder.AppendLine(string.Format(m_HtmlStyle.Td,
+          stringBuilder.AppendLine(string.Format(HtmlStyle.Td,
             HtmlStyle.TextToHtmlEncode(texts[index - 1])));
         if (index % col == 0)
-          stringBuilder.AppendLine(m_HtmlStyle.TrClose);
+          stringBuilder.AppendLine(HtmlStyle.TrClose);
       }
 
       if (texts.Length % col != 0)
-        stringBuilder.AppendLine(m_HtmlStyle.TrClose);
-      stringBuilder.AppendLine(m_HtmlStyle.TableClose);
+        stringBuilder.AppendLine(HtmlStyle.TrClose);
+      stringBuilder.AppendLine(HtmlStyle.TableClose);
     }
 
     /// <summary>
