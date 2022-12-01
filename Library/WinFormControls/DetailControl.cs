@@ -44,31 +44,31 @@ namespace CsvTools
     private readonly IContainer components = new Container();
     private readonly BindingNavigator m_BindingNavigator;
     private readonly BindingSource m_BindingSource;
-    private readonly List<DataGridViewCell> m_FoundCells = new List<DataGridViewCell>();
+    private readonly List<DataGridViewCell> m_FoundCells = new();
     private readonly Search m_Search;
 
-    private readonly List<KeyValuePair<string, DataGridViewCell>> m_SearchCells =
-      new List<KeyValuePair<string, DataGridViewCell>>();
+    private readonly List<KeyValuePair<string, DataGridViewCell>> m_SearchCells = new();
 
-    private readonly ToolStripButton m_ToolStripButtonColumnLength = new ToolStripButton();
-    private readonly ToolStripButton m_ToolStripButtonDuplicates = new ToolStripButton();
-    private readonly ToolStripButton m_ToolStripButtonHierarchy = new ToolStripButton();
-    private readonly ToolStripButton m_ToolStripButtonMoveFirstItem = new ToolStripButton();
-    private readonly ToolStripButton m_ToolStripButtonMoveLastItem = new ToolStripButton();
-    private readonly ToolStripButton m_ToolStripButtonMoveNextItem = new ToolStripButton();
-    private readonly ToolStripButton m_ToolStripButtonMovePreviousItem = new ToolStripButton();
-    private readonly ToolStripButton m_ToolStripButtonStore = new ToolStripButton();
-    private readonly ToolStripButton m_ToolStripButtonUniqueValues = new ToolStripButton();
-    private readonly ToolStripComboBox m_ToolStripComboBoxFilterType = new ToolStripComboBox();
-    private readonly ToolStripContainer m_ToolStripContainer = new ToolStripContainer();
+    private readonly ToolStripButton m_ToolStripButtonColumnLength = new();
+    private readonly ToolStripButton m_ToolStripButtonDuplicates = new();
+    private readonly ToolStripButton m_ToolStripButtonHierarchy = new();
+    private readonly ToolStripButton m_ToolStripButtonMoveFirstItem = new();
+    private readonly ToolStripButton m_ToolStripButtonMoveLastItem = new();
+    private readonly ToolStripButton m_ToolStripButtonMoveNextItem = new();
+    private readonly ToolStripButton m_ToolStripButtonMovePreviousItem = new();
+    private readonly ToolStripButton m_ToolStripButtonStore = new();
+    private readonly ToolStripButton m_ToolStripButtonUniqueValues = new();
+    private readonly ToolStripButton m_ToolStripButtonLoadRemaining = new();
+    private readonly ToolStripComboBox m_ToolStripComboBoxFilterType = new();
+    private readonly ToolStripContainer m_ToolStripContainer = new();
 
-    private readonly ObservableCollection<ToolStripItem> m_ToolStripItems = new ObservableCollection<ToolStripItem>();
-    private readonly ToolStripLabel m_ToolStripLabelCount = new ToolStripLabel();
-    private readonly ToolStripTextBox m_ToolStripTextBoxPos = new ToolStripTextBox();
-    private readonly ToolStrip m_ToolStripTop = new ToolStrip();
+    private readonly ObservableCollection<ToolStripItem> m_ToolStripItems = new();
+    private readonly ToolStripLabel m_ToolStripLabelCount = new();
+    private readonly ToolStripTextBox m_ToolStripTextBoxPos = new();
+    private readonly ToolStrip m_ToolStripTop = new();
     private CancellationToken m_CancellationToken = CancellationToken.None;
     private ProcessInformation? m_CurrentSearchProcessInformation;
-    private DataTable m_DataTable = new DataTable();
+    private DataTable m_DataTable = new();
     private bool m_DisposedValue; // To detect redundant calls
     private FilterDataTable? m_FilterDataTable;
     private FormDuplicatesDisplay? m_FormDuplicatesDisplay;
@@ -95,7 +95,6 @@ namespace CsvTools
       ComponentResourceManager resources = new ComponentResourceManager(typeof(DetailControl));
       m_BindingNavigator = new BindingNavigator(components);
       m_BindingSource = new BindingSource(components);
-      ToolStripButtonNext = new ToolStripButton();
       m_Search = new Search();
       m_ToolStripTop.SuspendLayout();
       m_ToolStripContainer.BottomToolStripPanel.SuspendLayout();
@@ -196,7 +195,8 @@ namespace CsvTools
       m_BindingNavigator.Items.AddRange(new ToolStripItem[]
       {
         m_ToolStripButtonMoveFirstItem, m_ToolStripButtonMovePreviousItem, m_ToolStripTextBoxPos,
-        m_ToolStripLabelCount, m_ToolStripButtonMoveNextItem, m_ToolStripButtonMoveLastItem, ToolStripButtonNext
+        m_ToolStripLabelCount, m_ToolStripButtonMoveNextItem, m_ToolStripButtonMoveLastItem,
+        m_ToolStripButtonLoadRemaining
       });
       m_BindingNavigator.Location = new Point(4, 0);
       m_BindingNavigator.MoveFirstItem = m_ToolStripButtonMoveFirstItem;
@@ -241,12 +241,13 @@ namespace CsvTools
       m_ToolStripButtonMoveLastItem.Size = new Size(29, 24);
       m_ToolStripButtonMoveLastItem.Text = "Move last";
       // ToolStripButtonNext
-      ToolStripButtonNext.DisplayStyle = ToolStripItemDisplayStyle.Image;
-      ToolStripButtonNext.Image = resources.GetObject("ToolStripButtonNext.Image") as Image;
-      ToolStripButtonNext.Size = new Size(29, 24);
-      ToolStripButtonNext.Text = "Load More...";
-      ToolStripButtonNext.TextImageRelation = TextImageRelation.TextBeforeImage;
-      ToolStripButtonNext.Click += ToolStripButtonNext_Click;
+      m_ToolStripButtonLoadRemaining.DisplayStyle = ToolStripItemDisplayStyle.Image;
+      m_ToolStripButtonLoadRemaining.Image = resources.GetObject("ToolStripButtonNext.Image") as Image;
+      m_ToolStripButtonLoadRemaining.Size = new Size(29, 24);
+      m_ToolStripButtonLoadRemaining.Text = "Load More...";
+      m_ToolStripButtonLoadRemaining.ToolTipText = "Not all records have been read so fra, load another set of records";
+      m_ToolStripButtonLoadRemaining.TextImageRelation = TextImageRelation.TextBeforeImage;
+      m_ToolStripButtonLoadRemaining.Click += ToolStripButtonLoadRemaining_Click;
       // m_Search
       m_Search.Anchor = AnchorStyles.Top | AnchorStyles.Right;
       m_Search.AutoSize = true;
@@ -319,11 +320,10 @@ namespace CsvTools
 
     public Func<bool>? EndOfFile { get; set; }
     public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored;
-
     public EventHandler<IFileSettingPhysicalFile>? FileStored;
     public Func<IProgress<ProgressInfo>, CancellationToken, Task>? LoadNextBatchAsync { get; set; }
     private DataColumnCollection Columns => m_DataTable.Columns;
-    public ToolStripButton ToolStripButtonNext { get; }
+
 
     /// <summary>
     ///   Gets or sets the HTML style.
@@ -992,11 +992,10 @@ namespace CsvTools
         m_ToolStripButtonColumnLength.Visible = m_ShowButtons;
         m_ToolStripButtonDuplicates.Visible = m_ShowButtons;
         m_ToolStripButtonUniqueValues.Visible = m_ShowButtons;
-
-        // Extended
+        m_ToolStripButtonStore.Visible = m_ShowButtons && (FileSetting != null);
         m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
 
-        var hasData = m_DataTable.Rows.Count > 0;
+        var hasData = !m_DataMissing && (m_DataTable.Rows.Count > 0);
         m_ToolStripButtonUniqueValues.Enabled = hasData;
         m_ToolStripButtonDuplicates.Enabled = hasData;
         m_ToolStripButtonColumnLength.Enabled = hasData;
@@ -1004,21 +1003,13 @@ namespace CsvTools
         m_ToolStripButtonStore.Enabled = hasData;
         m_ToolStripComboBoxFilterType.Enabled = hasData;
         m_ToolStripComboBoxFilterType.Visible = hasData;
+        m_ToolStripButtonMoveLastItem.Enabled = hasData;
+        FilteredDataGridView.toolStripMenuItemFilterAdd.Enabled = hasData;
 
-        if (EndOfFile?.Invoke() ?? true)
-        {
-          m_ToolStripLabelCount.ForeColor = SystemColors.ControlText;
-          m_ToolStripLabelCount.ToolTipText = "Total number of items";
-          ToolStripButtonNext.Visible = false;
-        }
-        else
-        {
-          m_ToolStripLabelCount.ForeColor = SystemColors.MenuHighlight;
-          m_ToolStripLabelCount.ToolTipText = "Total number of items (loaded so far)";
-          ToolStripButtonNext.Visible = m_ShowButtons;
-        }
-
-        m_ToolStripButtonStore.Visible = m_ShowButtons && (FileSetting != null);
+        m_ToolStripButtonLoadRemaining.Visible = m_DataMissing && m_ShowButtons;
+        m_ToolStripLabelCount.ForeColor = !m_DataMissing ? SystemColors.ControlText : SystemColors.MenuHighlight;
+        m_ToolStripLabelCount.ToolTipText =
+          !m_DataMissing ? "Total number of items" : "Total number of items (loaded so far)";
         try
         {
           m_ToolStripTop.Visible = m_ShowButtons;
@@ -1033,16 +1024,17 @@ namespace CsvTools
         }
       });
 
-    public bool DataMissing
+    private bool m_DataMissing;
 
+    public bool DataMissing
     {
       set
       {
-        this.SafeInvoke(() =>
+        if (m_DataMissing != value)
         {
-          ToolStripButtonNext.Visible = value && m_ShowButtons;
-          FilteredDataGridView.toolStripMenuItemFilterAdd.Enabled = !value;
-        });
+          m_DataMissing = value;
+          SetButtonVisibility();
+        }
       }
     }
 
@@ -1212,7 +1204,7 @@ namespace CsvTools
       {
         FileSystemUtils.SplitResult split;
 
-        if ((FileSetting is IFileSettingPhysicalFile settingPhysicalFile))
+        if (FileSetting is IFileSettingPhysicalFile settingPhysicalFile)
           split = FileSystemUtils.SplitPath(settingPhysicalFile.FullPath);
         else
           split = new FileSystemUtils.SplitResult(Directory.GetCurrentDirectory(),
@@ -1260,11 +1252,11 @@ namespace CsvTools
         SendKeys.Send("{ESC}");
     }
 
-    private async void ToolStripButtonNext_Click(object? sender, EventArgs e)
+    private async void ToolStripButtonLoadRemaining_Click(object? sender, EventArgs e)
     {
       if (LoadNextBatchAsync is null || (EndOfFile?.Invoke() ?? true))
         return;
-      await ToolStripButtonNext.RunWithHourglassAsync(async () =>
+      await m_ToolStripButtonLoadRemaining.RunWithHourglassAsync(async () =>
       {
         m_ToolStripLabelCount.Text = " loading...";
         try
@@ -1277,14 +1269,7 @@ namespace CsvTools
         finally
         {
           var eof = EndOfFile();
-          if (eof)
-          {
-            ToolStripButtonNext.Text = @"All records have been loaded";
-            m_ToolStripLabelCount.ForeColor = SystemColors.ControlText;
-            m_ToolStripLabelCount.ToolTipText = "Total number of records";
-          }
-
-          m_ToolStripLabelCount.Text = m_DataTable.Rows.Count.ToString();
+          //          m_ToolStripLabelCount.Text = m_DataTable.Rows.Count.ToString();
           DataMissing = !eof;
         }
       }, ParentForm);
@@ -1302,7 +1287,7 @@ namespace CsvTools
 
       public EventHandler<SearchEventArgs>? SearchCompleteEvent;
 
-      public SearchEventArgs SearchEventArgs = new SearchEventArgs(string.Empty);
+      public SearchEventArgs SearchEventArgs = new(string.Empty);
 
       public string SearchText = string.Empty;
 

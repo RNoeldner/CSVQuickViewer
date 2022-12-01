@@ -152,6 +152,17 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public async Task GuessDelimiterMagicWordAsync()
+    {
+      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
+        Assert.AreEqual(",", (await improvedStream.GuessDelimiter(-1, 0, string.Empty, UnitTestStatic.Token)).Item1);
+
+      using (var improvedStream =
+             FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSVMagic.txt"))))
+        Assert.AreEqual("Tab", (await improvedStream.GuessDelimiter(-1, 0, string.Empty, UnitTestStatic.Token)).Item1);
+    }
+
+    [TestMethod]
     public async Task GuessDelimiterCommaAsync()
     {
       ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")) { CodePageId = -1 };
