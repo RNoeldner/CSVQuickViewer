@@ -743,6 +743,22 @@ namespace CsvTools
       using var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
         .ConfigureAwait(false);
 
+      if (textReader.CanSeek)
+      {
+        // read the first line and check if it does contain the magic word sep=
+        var firstLine = (await textReader.ReadLineAsync().ConfigureAwait(false)).Trim().Replace(" ", "");
+        if (firstLine.StartsWith("sep=", StringComparison.OrdinalIgnoreCase) && firstLine.Length > 4)
+        {
+          var resultFl = firstLine.Substring(4);
+          if (resultFl.Equals("\\t", StringComparison.OrdinalIgnoreCase))
+            resultFl = "Tab";
+          Logger.Information("Delimiter from 'sep=' in first line: {delimiter}", resultFl);
+          return new Tuple<string, bool>(resultFl, true);
+        }
+
+        textReader.ToBeginning();
+      }
+
       return textReader.GuessDelimiter(escapeCharacter, null, cancellationToken);
     }
 
@@ -1325,7 +1341,8 @@ namespace CsvTools
       IEnumerable<char>? disallowedDelimiter,
       CancellationToken cancellationToken)
     {
-      if (textReader is null) throw new ArgumentNullException(nameof(textReader));
+      if (textReader is null)
+        throw new ArgumentNullException(nameof(textReader));
 
       var dc = new DelimiterCounter(numRows, disallowedDelimiter);
       var escapeCharacter = escape.WrittenPunctuationToChar();
@@ -1334,7 +1351,6 @@ namespace CsvTools
       var readChar = -1;
 
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
-
       while (dc.LastRow < dc.NumRows && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested)
       {
         var lastChar = readChar;
@@ -1494,12 +1510,12 @@ namespace CsvTools
       else
       {
         // otherwise find the best
-        
-        var sums = new Dictionary<int, Tuple<long,long>>();
+
+        var sums = new Dictionary<int, Tuple<long, long>>();
 
         foreach (var index in validSeparatorIndex)
         {
-          var totalRows = (double) (dc.LastRow - startRow);  
+          var totalRows = (double) (dc.LastRow - startRow);
           var sumCount = 0;
           // If there are enough rows skip the first rows, there might be a descriptive introduction
           // this can not be done in case there are not many rows
@@ -1515,7 +1531,7 @@ namespace CsvTools
           // Only proceed if there is usually more then one occurrence and we have more then one row
           if (avg < 1 || dc.SeparatorRows[index] == 1)
             continue;
-          
+
 
           // First determine the variance, low value means and even distribution
           long variance = 0;
@@ -1544,7 +1560,7 @@ namespace CsvTools
         return new Tuple<string, bool>("Tab", false);
       }
 
-      var result = match == '\t' ? "Tab" : match.ToString(CultureInfo.CurrentCulture);
+      var result = match == '\t' ? "Tab" : match.ToStringHandle0().ToString(CultureInfo.CurrentCulture);
       Logger.Information("Column Delimiter: {delimiter}", result);
       return new Tuple<string, bool>(result, true);
     }

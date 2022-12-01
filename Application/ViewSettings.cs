@@ -12,6 +12,7 @@
  *
  */
 
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
@@ -111,6 +112,7 @@ namespace CsvTools
       set => SetField(ref m_DetectFileChanges, value);
     }
 
+    [JsonIgnore]
     public TimeSpan DurationTimeSpan
     {
       get
@@ -121,7 +123,7 @@ namespace CsvTools
           Duration.Second => TimeSpan.FromSeconds(1),
           Duration.TwoSecond => TimeSpan.FromSeconds(2),
           Duration.TenSecond => TimeSpan.FromSeconds(10),
-          _ => TimeSpan.FromMinutes(60),
+          _ => TimeSpan.MaxValue
         };
       }
     }

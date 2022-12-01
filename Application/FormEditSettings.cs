@@ -60,16 +60,14 @@ namespace CsvTools
 
       InitializeComponent();
 
-      if (m_ViewSettings.LimitDuration == ViewSettings.Duration.Unlimited)
-        domainUpDownLimit.SelectedIndex = 4;
-      else if (m_ViewSettings.LimitDuration == ViewSettings.Duration.TenSecond)
-        domainUpDownLimit.SelectedIndex = 3;
-      else if (m_ViewSettings.LimitDuration == ViewSettings.Duration.TwoSecond)
-        domainUpDownLimit.SelectedIndex = 2;
-      else if (m_ViewSettings.LimitDuration == ViewSettings.Duration.Second)
-        domainUpDownLimit.SelectedIndex = 1;
-      else
-        domainUpDownLimit.SelectedIndex = 0;
+      domainUpDownLimit.SelectedIndex = m_ViewSettings.LimitDuration switch
+      {
+        ViewSettings.Duration.Unlimited => 0,
+        ViewSettings.Duration.TenSecond => 1,
+        ViewSettings.Duration.TwoSecond => 2,
+        ViewSettings.Duration.Second => 3,
+        ViewSettings.Duration.HalfSecond => 4
+      };
 
       toolTip.SetToolTip(checkBoxAllowRowCombining,
         @"Try to combine rows, it can happen if the column does contain a linefeed and is not properly quoted. 
@@ -154,7 +152,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
+            using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
           var (codepage, bom) = await improvedStream.GuessCodePage(m_CancellationTokenSource.Token);
           csvFile.CodePageId = codepage;
           csvFile.ByteOrderMark = bom;
@@ -170,7 +168,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
+            using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
           var res = await improvedStream.GuessDelimiter(csvFile.CodePageId, csvFile.SkipRows,
             csvFile.EscapePrefix,
             m_CancellationTokenSource.Token);
@@ -189,7 +187,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
+            using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
           qualifier = await improvedStream.GuessQualifier(csvFile.CodePageId, csvFile.SkipRows,
             csvFile.FieldDelimiter, csvFile.EscapePrefix,
             m_CancellationTokenSource.Token);
@@ -207,7 +205,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
+            using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
           csvFile.SkipRows = await improvedStream.GuessStartRow(csvFile.CodePageId, csvFile.FieldDelimiter,
             csvFile.FieldQualifier, csvFile.CommentLine, m_CancellationTokenSource.Token);
         });
@@ -280,7 +278,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
+            using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
           cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(csvFile.CodePageId,
             csvFile.SkipRows,
             csvFile.FieldQualifier, m_CancellationTokenSource.Token);
@@ -319,15 +317,15 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private void DomainUpDownTime_SelectedItemChanged(object? sender, EventArgs e)
     {
-      m_ViewSettings.LimitDuration = domainUpDownLimit.SelectedIndex switch
-      {
-        4 => ViewSettings.Duration.Unlimited,
-        3 => ViewSettings.Duration.TenSecond,
-        2 => ViewSettings.Duration.TwoSecond,
-        1 => ViewSettings.Duration.Second,
-        0 => ViewSettings.Duration.HalfSecond,
-        _ => m_ViewSettings.LimitDuration
-      };
+      if (domainUpDownLimit.SelectedIndex != -1)
+        m_ViewSettings.LimitDuration = domainUpDownLimit.SelectedIndex switch
+        {
+          0 => ViewSettings.Duration.Unlimited,
+          1 => ViewSettings.Duration.TenSecond,
+          2 => ViewSettings.Duration.TwoSecond,
+          3 => ViewSettings.Duration.Second,
+          4 => ViewSettings.Duration.HalfSecond
+        };
     }
 
     private async void ButtonGuessHeader_Click(object? sender, EventArgs e)
@@ -338,7 +336,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
+            using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
           var res = await improvedStream.GuessHasHeader(csvFile.CodePageId, csvFile.SkipRows, csvFile.CommentLine,
             csvFile.FieldDelimiter, m_CancellationTokenSource.Token);
           csvFile.HasFieldHeader = string.IsNullOrEmpty(res);
@@ -364,7 +362,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #if NET5_0_OR_GREATER
           await
 #endif
-          using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
+            using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
           csvFile.CommentLine = await improvedStream.GuessLineComment(csvFile.CodePageId, csvFile.SkipRows,
             m_CancellationTokenSource.Token);
         });

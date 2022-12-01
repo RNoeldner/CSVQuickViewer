@@ -40,6 +40,9 @@
 		<None Update="TestFiles\BadIssues.csv">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="TestFiles\BasicCSVMagic.txt">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="TestFiles\BasicCSV.txt">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

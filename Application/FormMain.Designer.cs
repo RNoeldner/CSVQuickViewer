@@ -124,7 +124,6 @@ namespace CsvTools
       dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
       this.detailControl.DefaultCellStyle = dataGridViewCellStyle2;
       this.detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.detailControl.EndOfFile = null;
       this.detailControl.FileSetting = null;
       this.detailControl.LoadNextBatchAsync = null;
       this.detailControl.Location = new System.Drawing.Point(0, 0);
