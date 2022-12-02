@@ -8,8 +8,15 @@ namespace CsvTools
 {
   public class ResizeForm : Form
   {
-    public ResizeForm()
+    private readonly IFontConfig? m_FontConfig;
+
+    public ResizeForm() : this(null)
     {
+    }
+
+    public ResizeForm(in IFontConfig? fontConfig)
+    {
+      m_FontConfig = fontConfig;
       SuspendLayout();
       ClientSize = new Size(400, 300);
       Icon = new ComponentResourceManager(typeof(ResizeForm)).GetObject("$this.Icon") as Icon;
@@ -20,8 +27,22 @@ namespace CsvTools
       //};
       // SetFonts(this, SystemFonts.DefaultFont);
       ResumeLayout(false);
+
+      if (m_FontConfig != null)
+      {
+        m_FontConfig.PropertyChanged += FontSettingChanged;
+        Load += (sender, args) => FontSettingChanged(sender, new PropertyChangedEventArgs(nameof(IFontConfig.Font)));
+      }
     }
 
+    private void FontSettingChanged(object? sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName == nameof(IFontConfig.Font) ||
+          e.PropertyName == nameof(IFontConfig.FontSize))
+#pragma warning disable CA1416
+        ChangeFont(new Font(m_FontConfig!.Font, m_FontConfig!.FontSize));
+#pragma warning restore CA1416
+    }
 
     public void ChangeFont(Font newFont)
     {

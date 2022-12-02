@@ -54,14 +54,13 @@ namespace CsvTools
 
     private void ApplyViewSettings()
     {
-      ChangeFont(new Font(m_ViewSettings.Font, m_ViewSettings.FontSize));
       this.SafeInvoke(action: () =>
       {
         detailControl.MenuDown = m_ViewSettings.MenuDown;
       });
     }
 
-    public FormMain(in ViewSettings viewSettings)
+    public FormMain(in ViewSettings viewSettings) : base (viewSettings) 
     {
       m_ViewSettings = viewSettings;
       InitializeComponent();
@@ -86,8 +85,7 @@ namespace CsvTools
 
       m_ViewSettings.PropertyChanged += (sender, args) =>
       {
-        if (args.PropertyName == nameof(ViewSettings.Font) || args.PropertyName == nameof(ViewSettings.FontSize) ||
-            args.PropertyName == nameof(ViewSettings.MenuDown))
+        if (args.PropertyName == nameof(ViewSettings.MenuDown))
           ApplyViewSettings();
       };
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;

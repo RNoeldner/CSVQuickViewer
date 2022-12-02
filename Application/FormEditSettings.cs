@@ -16,7 +16,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -52,10 +51,9 @@ namespace CsvTools
 
     private bool m_IsDisposed;
 
-    public FormEditSettings(in ViewSettings viewSettings, in IFileSettingPhysicalFile? setting)
+    public FormEditSettings(in ViewSettings viewSettings, in IFileSettingPhysicalFile? setting) : base(viewSettings)
     {
       m_ViewSettings = viewSettings ?? throw new ArgumentNullException(nameof(viewSettings));
-      m_ViewSettings.PropertyChanged += M_ViewSettings_PropertyChanged;
       m_FileSetting = setting;
 
       InitializeComponent();
@@ -78,17 +76,6 @@ This is a very risky option, in some cases rows might be lost.");
       toolTip.SetToolTip(checkBoxTryToSolveMoreColumns,
         @"Try to realign columns in case the file is not quoted, and an extra delimiter has caused additional columns.
 Re-Aligning works best if columns and their order are easily identifiable, if the columns are very similar e.g., all are text, or all are empty there is a high chance the realignment does fail.");
-    }
-
-    private void SetFont()
-    {
-      ChangeFont(new Font(m_ViewSettings.Font, m_ViewSettings.FontSize));
-    }
-
-    private void M_ViewSettings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-      if (e.PropertyName == nameof(ViewSettings.Font) || e.PropertyName == nameof(ViewSettings.FontSize))
-        SetFont();
     }
 
     private async void BtnOpenFile_Click(object? sender, EventArgs e)
@@ -257,9 +244,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       cboRecordDelimiter.DisplayMember = nameof(DisplayItem<int>.Display);
       cboRecordDelimiter.ValueMember = nameof(DisplayItem<int>.ID);
       cboRecordDelimiter.ResumeLayout(true);
-
-
-      SetFont();
 
       FileSetting = m_FileSetting;
     }
