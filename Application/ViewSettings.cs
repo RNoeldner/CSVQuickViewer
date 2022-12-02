@@ -19,11 +19,11 @@ using System.Windows.Forms;
 
 namespace CsvTools
 {
-  /// <inheritdoc />
+  /// <inheritdoc cref="CsvTools.NotifyPropertyChangedBase" />
   /// <summary>
   ///   Class containing the all configuration, used in serialization to store the settings
   /// </summary>
-  public sealed class ViewSettings : NotifyPropertyChangedBase
+  public sealed class ViewSettings : NotifyPropertyChangedBase, IFontConfig
   {
     private bool m_AllowJson = true;
     private bool m_DetectFileChanges = true;
