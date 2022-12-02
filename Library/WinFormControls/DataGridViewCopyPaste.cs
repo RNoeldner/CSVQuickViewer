@@ -42,7 +42,7 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="DataGridViewCopyPaste" /> class.
     /// </summary>
     /// <param name="htmlStyle">The HTML style.</param>
-    public DataGridViewCopyPaste(HtmlStyle? htmlStyle)
+    public DataGridViewCopyPaste(in HtmlStyle? htmlStyle)
     {
       m_HtmlStyle = htmlStyle ?? HtmlStyle.Default;
     }

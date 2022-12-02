@@ -24,8 +24,8 @@ namespace CsvTools
 #pragma warning restore IDE1006 // Naming Styles
   {
     public static DialogResult Show(
-      string message,
-      string? title,
+      in string message,
+      in string? title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
       MessageBoxIcon icon = MessageBoxIcon.None,
       MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1,
@@ -49,11 +49,11 @@ namespace CsvTools
     /// <returns>DialogResult.Yes or DialogResult.No</returns>
 
     public static DialogResult PersistentChoice(
-      string message,
-      string title,
+      in string message,
+      in  string title,
       PersistentChoice massChoice,
-      string button1Text = "Yes",
-      string button2Text = "No")
+      in string button1Text = "Yes",
+      in string button2Text = "No")
     {
       if (massChoice.Chosen)
         return massChoice.DialogResult;
@@ -84,8 +84,8 @@ namespace CsvTools
     }
 
     public static DialogResult ShowBigHtml(
-      string html,
-      string title,
+      in string html,
+      in string title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
       MessageBoxIcon icon = MessageBoxIcon.None,
       MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1,
@@ -100,15 +100,15 @@ namespace CsvTools
     }
 
     public static DialogResult ShowBig(
-      string message,
-      string? title,
+      in string message,
+      in  string? title,
       MessageBoxButtons buttons = MessageBoxButtons.OKCancel,
       MessageBoxIcon icon = MessageBoxIcon.None,
       MessageBoxDefaultButton defaultButton = MessageBoxDefaultButton.Button1,
       double timeout = 4.0,
-      string? button1Text = null,
-      string? button2Text = null,
-      string? button3Text = null)
+      in string? button1Text = null,
+      in string? button2Text = null,
+      in string? button3Text = null)
     {
       using var tm = new TimedMessage();
       tm.Size = new Size(600, 450);

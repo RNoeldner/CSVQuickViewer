@@ -39,7 +39,7 @@ namespace CsvTools
       }
     }
 
-    public static string? Folder(string initialDirectory, string title)
+    public static string? Folder(in string initialDirectory, in  string title)
     {
       if (m_CommonFileDialogSupported)
       {
@@ -63,7 +63,7 @@ namespace CsvTools
       return null;
     }
 
-    private static void SetFilter(string filter, CommonFileDialogFilterCollection col)
+    private static void SetFilter(in string filter, CommonFileDialogFilterCollection col)
     {
       var parts = filter.Split('|');
       if (parts.Length > 1)
@@ -77,8 +77,8 @@ namespace CsvTools
 
     public static bool IsDialogOpen { get; private set; }
 
-    public static string? Open(string initialDirectory, string title, string filter,
-      string? preselectFileName)
+    public static string? Open(in string initialDirectory, in string title,in  string filter,
+                               in string? preselectFileName)
     {
       if (m_CommonFileDialogSupported)
       {
@@ -136,13 +136,9 @@ namespace CsvTools
       return null;
     }
 
-    public static string? Save(
-      string initialDirectory,
-      string title,
-      string filter,
-      string defaultExt,
-      bool overwritePrompt = true,
-      string? preselectFileName = null)
+    public static string? Save(in string initialDirectory, in string title, in string filter,
+                               in string defaultExt, bool overwritePrompt = true, 
+                               in string? preselectFileName = null)
     {
       Retry:
       if (m_CommonFileDialogSupported)

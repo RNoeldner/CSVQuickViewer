@@ -8,7 +8,7 @@ namespace CsvTools
 {
   public sealed class ColumnSetting
   {
-    public ColumnSetting(string dataPropertyName, bool visible, int sorted, int displayIndex, int width)
+    public ColumnSetting(in string dataPropertyName, bool visible, int sorted, int displayIndex, int width)
     {
       DataPropertyName = dataPropertyName;
       Visible = visible;

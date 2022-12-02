@@ -37,7 +37,7 @@ namespace CsvTools
     /// <summary>
     ///   CTOR CsvTextDisplay
     /// </summary>
-    public FormCsvTextDisplay(string fullPath, bool isFile)
+    public FormCsvTextDisplay(in string fullPath, bool isFile)
     {
       m_FullPath = fullPath ?? throw new ArgumentNullException(nameof(fullPath));
       InitializeComponent();

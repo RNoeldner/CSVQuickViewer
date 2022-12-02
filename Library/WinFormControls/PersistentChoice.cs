@@ -10,7 +10,7 @@ namespace CsvTools
   /// </summary>
   public sealed class PersistentChoice
   {
-    public PersistentChoice(DialogResult option)
+    public PersistentChoice(in DialogResult option)
     {
       if (option != DialogResult.Yes && option != DialogResult.No)
         throw new ArgumentOutOfRangeException(nameof(option), option, @"Only Yes and No are supported");

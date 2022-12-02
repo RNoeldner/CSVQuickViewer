@@ -124,7 +124,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="columnDataType">Type of the column data.</param>
     /// <param name="dataPropertyName">Name of the data property.</param>
-    public ColumnFilterLogic(Type columnDataType, string dataPropertyName)
+    public ColumnFilterLogic(in Type columnDataType, in string dataPropertyName)
     {
       m_DataPropertyNameEscape = string.Empty;
       m_DataPropertyName = string.Empty;
@@ -230,7 +230,7 @@ namespace CsvTools
 
     public ValueClusterCollection ValueClusterCollection { get; } = new ValueClusterCollection(50);
 
-    public static object[] GetOperators(Type columnDataType)
+    public static object[] GetOperators(in Type columnDataType)
     {
       var retValues = new List<object>();
 
@@ -271,7 +271,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="valueText">The value text.</param>
     /// <returns></returns>
-    public string BuildSqlCommand(string valueText)
+    public string BuildSqlCommand(in string valueText)
     {
       if (valueText == OperatorIsNull)
         return string.Format(CultureInfo.InvariantCulture, "({0} IS NULL or {0} = '')", m_DataPropertyNameEscape);
@@ -283,7 +283,7 @@ namespace CsvTools
     ///   Set the Filter to a value
     /// </summary>
     /// <param name="value">The typed value</param>
-    public void SetFilter(object value)
+    public void SetFilter(in object value)
     {
       if (string.IsNullOrEmpty(Convert.ToString(value)))
       {
@@ -307,7 +307,7 @@ namespace CsvTools
     /// <param name="value">The value.</param>
     /// <param name="targetType">Type of the target.</param>
     /// <returns>A string with the formatted value</returns>
-    private static string FormatValue(string value, Type targetType)
+    private static string FormatValue(in string value, Type targetType)
     {
       if (string.IsNullOrEmpty(value))
         return string.Empty;
@@ -363,7 +363,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="inputValue">The input.</param>
     /// <returns></returns>
-    private static string StringEscapeLike(string inputValue)
+    private static string StringEscapeLike(in string inputValue)
     {
       if (string.IsNullOrEmpty(inputValue))
         return string.Empty;

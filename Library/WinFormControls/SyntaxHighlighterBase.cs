@@ -21,7 +21,7 @@ namespace CsvTools
   {
     protected readonly TextStyle SkipStyle = new TextStyle(Brushes.DarkGray, Brushes.LightGray, FontStyle.Regular);
 
-    public SyntaxHighlighterBase(FastColoredTextBox currentTb) : base(currentTb)
+    public SyntaxHighlighterBase(in FastColoredTextBox currentTb) : base(currentTb)
     {
     }
 

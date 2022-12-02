@@ -26,7 +26,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="searchText">Text to search</param>
     /// <param name="result">Number of the result to focus</param>
-    public SearchEventArgs(string searchText, int result = 1)
+    public SearchEventArgs(in string searchText, int result = 1)
     {
       SearchText = searchText;
       Result = result;
