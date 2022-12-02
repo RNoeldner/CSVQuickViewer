@@ -67,7 +67,7 @@ namespace CsvTools
     /// <param name="dataTable">The data table.</param>
     /// <param name="dataRows">The filter.</param>
     /// <param name="hTmlStyle">The HTML style.</param>
-    public FormHierarchyDisplay(DataTable dataTable, DataRow[] dataRows, HtmlStyle hTmlStyle)
+    public FormHierarchyDisplay(in DataTable dataTable, in DataRow[] dataRows, in HtmlStyle hTmlStyle)
     {
       m_DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
       m_DataRow = dataRows;

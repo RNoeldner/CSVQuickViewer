@@ -16,7 +16,7 @@ namespace CsvTools
 {
   public static class WinAppLogging
   {
-    private static readonly UserInterfaceSink m_UserInterfaceSink = new UserInterfaceSink(CultureInfo.CurrentCulture);
+    private static readonly UserInterfaceSink m_UserInterfaceSink = new(CultureInfo.CurrentCulture);
 
     /// <summary>
     ///   Dummy Method to make sure the Constructor is called

@@ -31,7 +31,7 @@ namespace CsvTools
     /// <param name="sort">A text used for the order</param>
     /// <param name="count">Number of records that do have this value</param>
     /// <param name="active">Flag indicating if the filter for the value is active</param>
-    public ValueCluster(string display, string condition, string? sort, int count, bool active = false)
+    public ValueCluster(in string display, in string condition, in string? sort, int count, bool active = false)
     {
       Display = display;
       SQLCondition = condition;

@@ -28,7 +28,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="cell">The cell.</param>
-    public FoundEventArgs(int index, DataGridViewCell cell)
+    public FoundEventArgs(in int index, in DataGridViewCell cell)
     {
       Index = index;
       Cell = cell;

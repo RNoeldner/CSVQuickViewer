@@ -25,9 +25,9 @@ namespace CsvTools
 {
   public static class ViewSetting
   {
-    private static ToolStripDataGridViewColumnFilter? GetFilter(string dataPropertyName,
-      ICollection<ToolStripDataGridViewColumnFilter?> columnFilters, DataGridViewColumnCollection columns,
-      Func<int, ToolStripDataGridViewColumnFilter>? createFilterColumn)
+    private static ToolStripDataGridViewColumnFilter? GetFilter(in string dataPropertyName,
+                                                                in ICollection<ToolStripDataGridViewColumnFilter?> columnFilters, in DataGridViewColumnCollection columns,
+                                                                in Func<int, ToolStripDataGridViewColumnFilter>? createFilterColumn)
     {
       // look in already existing Filters
       foreach (var columnFilter in columnFilters)

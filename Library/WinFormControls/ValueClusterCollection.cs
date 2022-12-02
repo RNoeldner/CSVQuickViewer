@@ -58,8 +58,8 @@ namespace CsvTools
     /// <param name="columnIndex">Index of the column.</param>
     /// <returns></returns>
     public BuildValueClustersResult BuildValueClusters(
-      DataView dataView,
-      Type columnType,
+      in DataView dataView,
+      in Type columnType,
       int columnIndex)
     {
       if (dataView.Table is null)
