@@ -270,3 +270,8 @@ __pycache__/
 /UnitTest/ClassLibraryCSVUnitTest/TestFiles/CSVQuickViewer_003.json
 /CSVQuickViewer.MAUI
 /Library/ClassLibraryCSV/Mutable/FileFormat.cs
+/Setup/.Net472/CSVQuickViewerPortable.Net7.zip
+/Setup/CSVQuickViewerSetup.Net7.msi
+/Setup/CSVQuickViewerSetup.Net472.msi
+/Setup/CSVQuickViewerPortable.Net7.zip
+/Setup/CSVQuickViewerPortable.Net472.zip
