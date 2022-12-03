@@ -37,7 +37,11 @@
     <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent />
+    <PostBuildEvent>COPY "!(TargetPath)" $(ProjectDir)..</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>DEL "$(ProjectDir)..\CSVQuickViewerPortable.Net7.zip"
+powershell Compress-Archive "$(SolutionDir)\Application\bin\Release\net7.0-windows\%2a.%2a" "$(ProjectDir)..\CSVQuickViewerPortable.Net7.zip"</PreBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
