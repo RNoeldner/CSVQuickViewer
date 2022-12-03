@@ -94,7 +94,6 @@ namespace CsvTools
       this.loggerDisplay.CharHeight = 14;
       this.loggerDisplay.CharWidth = 8;
       this.loggerDisplay.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.loggerDisplay.DefaultMarkerSize = 8;
       this.loggerDisplay.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
       this.loggerDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
       this.loggerDisplay.Font = new System.Drawing.Font("Courier New", 9.75F);

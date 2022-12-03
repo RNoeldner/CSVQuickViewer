@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using System;
-using System.IO;
 using System.Text;
 using System.Threading;
 
@@ -10,7 +9,7 @@ namespace CsvTools
   {
     private readonly ICsvFile m_CsvFile;
     private SyntaxHighlighterDelimitedText m_HighLighter;
-    private readonly Stream m_Stream;
+
 
     public FindSkipRows() : this(new CsvFile("Dummy.csv"))
     {
@@ -21,8 +20,10 @@ namespace CsvTools
       InitializeComponent();
       m_CsvFile = csvFile ?? throw new ArgumentNullException(nameof(csvFile));
       bindingSourceCsvFile.DataSource = csvFile;
+      var sa = new SourceAccess(csvFile);
+      if (sa.FileType != FileTypeEnum.Plain)
+        throw new NotSupportedException("Any file that is not a plain text is not supported.");
 
-      m_Stream = new ImprovedStream(new SourceAccess(csvFile));
       m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_CsvFile.EscapePrefixChar.ToStringHandle0(),
         textBoxComment.Text);
     }
@@ -52,10 +53,9 @@ namespace CsvTools
       using var fromProgress = new FormProgress("Check", true, CancellationToken.None);
       fromProgress.Show();
       fromProgress.Maximum = 0;
-      using (var streamReader = new ImprovedTextReader(m_Stream, m_CsvFile.CodePageId))
-      {        
-        m_CsvFile.SkipRows = streamReader.GuessStartRow(textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxComment.Text, fromProgress.CancellationToken);
-      }
+      using var stream = new ImprovedStream(new SourceAccess(m_CsvFile));
+      using var streamReader = new ImprovedTextReader(stream, m_CsvFile.CodePageId);
+      m_CsvFile.SkipRows = streamReader.GuessStartRow(textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxComment.Text, fromProgress.CancellationToken);
 
       HighlightVisibleRange(m_CsvFile.SkipRows);
     }
@@ -74,8 +74,7 @@ namespace CsvTools
 
     private void FindSkipRows_Load(object? sender, EventArgs e)
     {
-      textBox.OpenBindingStream(m_Stream,
-        Encoding.GetEncoding(m_CsvFile.CodePageId, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
+      textBox.OpenFile(m_CsvFile.FullPath, Encoding.GetEncoding(m_CsvFile.CodePageId, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
     }
 
     private void TextBox_VisibleRangeChangedDelayed(object? sender, EventArgs e)
