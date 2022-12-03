@@ -5,10 +5,10 @@ namespace CsvTools
 {
   public sealed class SyntaxHighlighterJson : SyntaxHighlighterBase
   {
-    private readonly Regex m_JsonKeywordRegex = new Regex(@"(?<range>""([^\\""]|\\"")*"")\s*:",
+    private readonly Regex m_JsonKeywordRegex = new(@"(?<range>""([^\\""]|\\"")*"")\s*:",
       RegexOptions.Singleline | RegexCompiledOption);
-
-    private readonly Regex m_JsonNumberRegex = new Regex(@"\b(\d+[\.]?\d*|true|false|null)\b",
+    
+    private readonly Regex m_JsonNumberRegex = new(@"\b(\d+[\.]?\d*|true|false|null)\b",
       RegexOptions.Singleline | RegexCompiledOption);
 
     private readonly Regex m_JsonStringRegex =
@@ -16,18 +16,17 @@ namespace CsvTools
 
     public SyntaxHighlighterJson(FastColoredTextBox fastColoredTextBox) : base(fastColoredTextBox)
     {
+      fastColoredTextBox.LeftBracket = '[';
+      fastColoredTextBox.RightBracket = ']';
+      fastColoredTextBox.LeftBracket2 = '{';
+      fastColoredTextBox.RightBracket2 = '}';
+      fastColoredTextBox.BracketsHighlightStrategy = BracketsHighlightStrategy.Strategy2;
+
+      fastColoredTextBox.AutoIndentCharsPatterns = @"^\s*[\w\.]+(\s\w+)?\s*(?<range>=)\s*(?<range>[^;]+);";
     }
 
     public override void Highlight(Range range)
     {
-      range.tb.LeftBracket = '[';
-      range.tb.RightBracket = ']';
-      range.tb.LeftBracket2 = '{';
-      range.tb.RightBracket2 = '}';
-      range.tb.BracketsHighlightStrategy = BracketsHighlightStrategy.Strategy2;
-
-      range.tb.AutoIndentCharsPatterns = @"^\s*[\w\.]+(\s\w+)?\s*(?<range>=)\s*(?<range>[^;]+);";
-
       //clear style of changed range
       range.ClearStyle(StyleIndex.All);
 

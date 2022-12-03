@@ -70,16 +70,16 @@ namespace CsvTools
       if (m_IsFile)
       {
         var sa = new SourceAccess(m_FullPath);
-        m_Stream = new ImprovedStream(sa);
         if (sa.FileType == FileTypeEnum.Zip || sa.FileType == FileTypeEnum.Pgp)
         {
+          m_Stream = new ImprovedStream(sa);
           var encoding = Encoding.GetEncoding(m_CodePage);
           using var textReader = new StreamReader(m_Stream, encoding, true, 4096, true);
           textBox.Text = textReader.ReadToEnd();
         }
-        else
+        else if (sa.FileType == FileTypeEnum.Plain)
         {
-          textBox.OpenBindingStream(m_Stream, Encoding.GetEncoding(m_CodePage));
+          textBox.OpenFile(m_FullPath, Encoding.GetEncoding(m_CodePage));
         }
       }
 
@@ -106,7 +106,7 @@ namespace CsvTools
         jsonWriter.WriteToken(jsonReader);
 
         m_MemoryStream.Seek(0, SeekOrigin.Begin);
-        textBox.OpenBindingStream(m_MemoryStream, encoding);
+        textBox.Text= jsonWriter.ToString();
         HighlightVisibleRange();
         prettyPrintJsonToolStripMenuItem.Checked = true;
         originalFileToolStripMenuItem.Checked = false;

@@ -16,7 +16,6 @@
       if (disposing)
       {
         components?.Dispose();
-        m_Stream.Dispose();
         m_HighLighter.Dispose();
       }
       base.Dispose(disposing);
@@ -190,7 +189,6 @@
       this.tableLayoutPanel1.SetColumnSpan(this.textBox, 5);
       this.textBox.CommentPrefix = "--";
       this.textBox.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.textBox.DefaultMarkerSize = 8;
       this.textBox.DelayedEventsInterval = 50;
       this.textBox.DelayedTextChangedInterval = 50;
       this.textBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));

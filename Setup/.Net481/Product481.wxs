@@ -56,7 +56,6 @@
             <File Id="SystemNumericsVectors" Name="System.Numerics.Vectors.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Numerics.Vectors.dll" />
             <File Id="SystemReflectionMetadata" Name="System.Reflection.Metadata.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Reflection.Metadata.dll" />
             <File Id="SystemRuntimeCompilerServicesUnsafe" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Runtime.CompilerServices.Unsafe.dll" />
-            <File Id="SystemTextEncodingCodePages" Name="System.Text.Encoding.CodePages.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Text.Encoding.CodePages.dll" />
             <File Id="SystemThreadingTasksExtensions" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.CSVQuickViewer.TargetPath)\System.Threading.Tasks.Extensions.dll" />
             <File Id="TimeZoneConverter" Name="TimeZoneConverter.dll" Source="$(var.CSVQuickViewer.TargetPath)\TimeZoneConverter.dll" />
             <File Id="UtfUnknown" Name="UtfUnknown.dll" Source="$(var.CSVQuickViewer.TargetPath)\UtfUnknown.dll" />

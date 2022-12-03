@@ -523,7 +523,9 @@ namespace CsvTools
 
       try
       {
-        m_ToolStripButtonSource.Enabled = true;
+        m_ToolStripButtonSource.Enabled = !m_FileSetting.FileName.AssumeGZip() &&
+                                          !m_FileSetting.FileName.AssumeDeflate() &&
+                                          !m_FileSetting.FileName.AssumePgp() && !m_FileSetting.FileName.AssumeZip();
         m_ToolStripButtonAsText.Enabled = true;
 
         await Extensions.InvokeWithHourglassAsync(async () =>

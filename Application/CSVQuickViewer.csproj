@@ -40,14 +40,8 @@
 		<Compile Include="..\Library\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
-	</ItemGroup>
-	<ItemGroup>
 		<ProjectReference Include="..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 		<ProjectReference Include="..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
-		<Reference Include="FastColoredTextBox">
-			<HintPath>..\Library\DLL\FastColoredTextBox.dll</HintPath>
-		</Reference>
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net481'">
 		<Reference Include="System" />
@@ -61,8 +55,12 @@
 		<Reference Include="System.Xml" />
 		<Reference Include="System.Xml.Linq" />
 		<Reference Include="WindowsBase" />
+		<PackageReference Include="FCTB" Version="2.16.24" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows' Or '$(TargetFramework)' == 'net7.0-windows'">
-		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+		<PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
+		<PackageReference Include="FastColoredTextBox-net5">
+			<Version>2.17.30.100</Version>
+		</PackageReference>
 	</ItemGroup>
 </Project>

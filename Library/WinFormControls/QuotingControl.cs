@@ -340,7 +340,6 @@ namespace CsvTools
       this.m_FastColoredTextBox00.CharHeight = 22;
       this.m_FastColoredTextBox00.CharWidth = 12;
       this.m_FastColoredTextBox00.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.m_FastColoredTextBox00.DefaultMarkerSize = 8;
       this.m_FastColoredTextBox00.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))),
         ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.m_FastColoredTextBox00.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -386,7 +385,6 @@ namespace CsvTools
       this.m_FastColoredTextBox12.CharHeight = 22;
       this.m_FastColoredTextBox12.CharWidth = 12;
       this.m_FastColoredTextBox12.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.m_FastColoredTextBox12.DefaultMarkerSize = 8;
       this.m_FastColoredTextBox12.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))),
         ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.m_FastColoredTextBox12.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -416,7 +414,6 @@ namespace CsvTools
       this.m_FastColoredTextBox02.CharHeight = 22;
       this.m_FastColoredTextBox02.CharWidth = 12;
       this.m_FastColoredTextBox02.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.m_FastColoredTextBox02.DefaultMarkerSize = 8;
       this.m_FastColoredTextBox02.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))),
         ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.m_FastColoredTextBox02.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -448,7 +445,6 @@ namespace CsvTools
       this.m_FastColoredTextBox11.CharHeight = 22;
       this.m_FastColoredTextBox11.CharWidth = 12;
       this.m_FastColoredTextBox11.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.m_FastColoredTextBox11.DefaultMarkerSize = 8;
       this.m_FastColoredTextBox11.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))),
         ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.m_FastColoredTextBox11.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -480,7 +476,6 @@ namespace CsvTools
       this.m_FastColoredTextBox01.CharHeight = 22;
       this.m_FastColoredTextBox01.CharWidth = 12;
       this.m_FastColoredTextBox01.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.m_FastColoredTextBox01.DefaultMarkerSize = 8;
       this.m_FastColoredTextBox01.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))),
         ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.m_FastColoredTextBox01.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -512,7 +507,6 @@ namespace CsvTools
       this.m_FastColoredTextBox10.CharHeight = 22;
       this.m_FastColoredTextBox10.CharWidth = 12;
       this.m_FastColoredTextBox10.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.m_FastColoredTextBox10.DefaultMarkerSize = 8;
       this.m_FastColoredTextBox10.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))),
         ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.m_FastColoredTextBox10.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -545,7 +539,6 @@ namespace CsvTools
       this.m_FastColoredTextBox.CharHeight = 22;
       this.m_FastColoredTextBox.CharWidth = 12;
       this.m_FastColoredTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.m_FastColoredTextBox.DefaultMarkerSize = 8;
       this.m_FastColoredTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))),
         ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.m_FastColoredTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
