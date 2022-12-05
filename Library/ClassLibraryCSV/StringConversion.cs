@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -48,6 +49,7 @@ namespace CsvTools
     public static readonly DateTimeFormatCollection StandardDateTimeFormats =
       new DateTimeFormatCollection("DateTimeFormats.txt");
 
+    [SuppressMessage("ReSharper", "StringLiteralTypo")] 
     private static readonly string[] m_FalseValues =
     {
       "0", "False", "No", "n", "F", "Non", "Nein", "Falsch", "無", "无", "假", "없음", "거짓", "ไม่ใช่", "เท็จ", "नहीं",
@@ -65,6 +67,7 @@ namespace CsvTools
 
     private static readonly DateTime m_FirstDateTimeNextDay = new DateTime(1899, 12, 30, 0, 0, 0, 0).AddDays(1);
 
+    [SuppressMessage("ReSharper", "StringLiteralTypo")] 
     private static readonly string[] m_TrueValues =
     {
       "1", "-1", "True", "yes", "y", "t", "on", "Wahr", "Sì", "Si", "Ja", "active", "an", "Правда", "Да", "Вярно",
@@ -217,8 +220,6 @@ namespace CsvTools
     /// <param name="thousandSeparator">The thousand separator.</param>
     /// <param name="allowPercentage">Allows Percentages</param>
     /// <param name="allowStartingZero">if set to <c>true</c> [allow starting zero].</param>
-    /// <param name="minSamples"></param>
-    /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as numbers, <c>false</c> otherwise.</returns>
     public static CheckResult CheckNumber(
@@ -227,13 +228,13 @@ namespace CsvTools
       in string thousandSeparator,
       bool allowPercentage,
       bool allowStartingZero,
-      int minSamples, in CancellationToken cancellationToken)
+      in CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
-      if (samples.Count < minSamples) return checkResult;
+      if (samples.Count == 0)
+        return checkResult;
       var allParsed = true;
       var assumeInteger = true;
-      var positiveMatches = 0;
 
       foreach (var value in samples)
       {
@@ -256,16 +257,6 @@ namespace CsvTools
         }
         else
         {
-          positiveMatches++;
-          if (positiveMatches >= minSamples && !checkResult.PossibleMatch)
-          {
-            checkResult.PossibleMatch = true;
-            checkResult.ValueFormatPossibleMatch = new ValueFormat(
-              assumeInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
-              groupSeparator: thousandSeparator,
-              decimalSeparator: decimalSeparator);
-          }
-
           // if the value contains the decimal separator or is too large to be an integer, its not
           // an integer
           if (value.IndexOf(decimalSeparator, StringComparison.Ordinal) != -1)
@@ -273,6 +264,14 @@ namespace CsvTools
           else
             assumeInteger = assumeInteger && ret.Value == Math.Truncate(ret.Value) && ret.Value <= int.MaxValue
                             && ret.Value >= int.MinValue;
+          if (!checkResult.PossibleMatch)
+          {
+            checkResult.PossibleMatch = true;
+            checkResult.ValueFormatPossibleMatch = new ValueFormat(
+              assumeInteger ? DataTypeEnum.Integer : DataTypeEnum.Numeric,
+              groupSeparator: thousandSeparator,
+              decimalSeparator: decimalSeparator);
+          }
         }
       }
 
@@ -563,7 +562,7 @@ namespace CsvTools
     ///   <c>true</c> if this could possibly be correct, <c>false</c> if the text is too short or
     ///   too long
     /// </returns>
-    public static bool DateLengthMatches(in int length, in string dateFormat)
+    public static bool DateLengthMatches(int length, in string dateFormat)
     {
       // Either the format is known then use the determined length restrictions
       if (StandardDateTimeFormats.TryGetValue(dateFormat, out var lengthMinMax))
@@ -589,6 +588,7 @@ namespace CsvTools
       var pad = 2;
 
       // only allow format that has time values
+      // ReSharper disable once StringLiteralTypo
       const string allowed = " Hhmsf:";
 
       var result = format.DateFormat.Where(chr => allowed.IndexOf(chr) != -1)

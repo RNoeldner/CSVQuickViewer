@@ -29,7 +29,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void StringToDateTime()
     {
-      Assert.AreEqual(new DateTime(2021, 5, 31, 14, 37, 0, 0, DateTimeKind.Unspecified), 
+      Assert.AreEqual(new DateTime(2021, 5, 31, 14, 37, 0, 0, DateTimeKind.Unspecified),
         StringConversion.StringToDateTime("May 31 2021 2:37PM", "MMM d yyyy h:mmtt", "/", ":", false).Value);
 
       Assert.AreEqual(new DateTime(2020, 10, 8, 16, 04, 0, 0, DateTimeKind.Unspecified),
@@ -169,12 +169,14 @@ namespace CsvTools.Tests
     public void CheckSerialDateFail() =>
       // last value is not a date
       Assert.IsNull(
-        StringConversion.CheckSerialDate(new[] { "239324", "239324.344", "4358784" }, false, UnitTestStatic.Token).FoundValueFormat);
+        StringConversion.CheckSerialDate(new[] { "239324", "239324.344", "4358784" }, false, UnitTestStatic.Token)
+          .FoundValueFormat);
 
     [TestMethod]
     public void CheckSerialDateOk() =>
       Assert.IsNotNull(
-        StringConversion.CheckSerialDate(new[] { "239324", "239324.344", "235324" }, false, UnitTestStatic.Token).FoundValueFormat);
+        StringConversion.CheckSerialDate(new[] { "239324", "239324.344", "235324" }, false, UnitTestStatic.Token)
+          .FoundValueFormat);
 
     [TestMethod]
     public void GetTimeFromTicks()
@@ -256,13 +258,15 @@ namespace CsvTools.Tests
       Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, "", UnitTestStatic.Token));
 
     [TestMethod]
-    public void CheckTimeNotOk() => Assert.IsFalse(StringConversion.CheckTime(new[] { "10:00:00", "Test", "1:00" }, ":", UnitTestStatic.Token));
+    public void CheckTimeNotOk() =>
+      Assert.IsFalse(StringConversion.CheckTime(new[] { "10:00:00", "Test", "1:00" }, ":", UnitTestStatic.Token));
 
     [TestMethod]
     public void CheckTimeNull() => Assert.IsFalse(StringConversion.CheckTime(null, "", UnitTestStatic.Token));
 
     [TestMethod]
-    public void CheckTimeOk() => Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, ":", UnitTestStatic.Token));
+    public void CheckTimeOk() =>
+      Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, ":", UnitTestStatic.Token));
 
     [TestMethod]
     public void DateTimeToStringOk()
@@ -299,13 +303,14 @@ namespace CsvTools.Tests
         // Fill Samples
         var samples = new HashSet<string>();
         for (var month = 9; month < 10; month++)
-          for (var day = 10; day < 15; day++)
-            for (var hrs = 11; hrs < 13; hrs++)
-              for (var min = 24; min < 26; min++)
-                samples.Add(new DateTime(2010, month, day, hrs, min, 10, 876, DateTimeKind.Local).ToString(fmt, culture));
+        for (var day = 10; day < 15; day++)
+        for (var hrs = 11; hrs < 13; hrs++)
+        for (var min = 24; min < 26; min++)
+          samples.Add(new DateTime(2010, month, day, hrs, min, 10, 876, DateTimeKind.Local).ToString(fmt, culture));
 
         Assert.IsNotNull(
-          StringConversion.CheckDate(samples, fmt, dateSep, ":", CultureInfo.CurrentCulture, UnitTestStatic.Token).FoundValueFormat,
+          StringConversion.CheckDate(samples, fmt, dateSep, ":", CultureInfo.CurrentCulture, UnitTestStatic.Token)
+            .FoundValueFormat,
           $"Test format {fmt}\nFirst not matching: {samples.First()}");
       }
     }
@@ -508,11 +513,14 @@ namespace CsvTools.Tests
     public void CheckGuidTest()
     {
       Assert.IsFalse(StringConversion.CheckGuid(Array.Empty<string>(), UnitTestStatic.Token));
-      Assert.IsTrue(StringConversion.CheckGuid(new[] { "{35C1536A-094A-493D-8FED-545A959E167A}" }, UnitTestStatic.Token));
-      Assert.IsFalse(StringConversion.CheckGuid(new[] { "{35C1536A-094A-493D-8FED-545A959E167A}", "A Test" }, UnitTestStatic.Token));
+      Assert.IsTrue(
+        StringConversion.CheckGuid(new[] { "{35C1536A-094A-493D-8FED-545A959E167A}" }, UnitTestStatic.Token));
+      Assert.IsFalse(StringConversion.CheckGuid(new[] { "{35C1536A-094A-493D-8FED-545A959E167A}", "A Test" },
+        UnitTestStatic.Token));
       Assert.IsTrue(
         StringConversion.CheckGuid(
-          new[] { "{35C1536A-094A-493D-8FED-545A959E167A}", "9B6E2B50-5400-4871-820C-591844B4F0D6" }, UnitTestStatic.Token));
+          new[] { "{35C1536A-094A-493D-8FED-545A959E167A}", "9B6E2B50-5400-4871-820C-591844B4F0D6" },
+          UnitTestStatic.Token));
     }
 
     [TestMethod]
@@ -615,27 +623,37 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CheckNumberTest()
     {
-      Assert.IsFalse(StringConversion.CheckNumber(Array.Empty<string>(), ".", "", false, false, 1, UnitTestStatic.Token).FoundValueFormat != null);
-      Assert.IsTrue(StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, 0, UnitTestStatic.Token).FoundValueFormat != null);
+      Assert.IsTrue(StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, UnitTestStatic.Token)
+        .FoundValueFormat != null);
       Assert.AreEqual(
         DataTypeEnum.Integer,
-        StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, 1, UnitTestStatic.Token).FoundValueFormat!.DataType);
+        StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, UnitTestStatic.Token).FoundValueFormat!
+          .DataType);
       Assert.IsFalse(
-        StringConversion.CheckNumber(new[] { "16673", "A Test" }, ".", "", false, false, 2, UnitTestStatic.Token).FoundValueFormat != null);
+        StringConversion.CheckNumber(new[] { "16673", "A Test" }, ".", "", false, false, UnitTestStatic.Token)
+          .FoundValueFormat != null);
       Assert.AreEqual(
         DataTypeEnum.Numeric,
-        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, ".", "", false, false, 3, UnitTestStatic.Token).FoundValueFormat!
+        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, ".", "", false, false, UnitTestStatic.Token)
+          .FoundValueFormat!
           .DataType);
+
+      Assert.IsFalse(StringConversion.CheckNumber(Array.Empty<string>(), ".", "", false, false, UnitTestStatic.Token)
+        .FoundValueFormat != null);
     }
 
     [TestMethod]
     public void CheckTimeSpanTest()
     {
-      Assert.IsTrue(StringConversion.CheckTimeSpan(new[] { "8:20", "10:10", "2:20 pm", "17:30" }, ":", false, UnitTestStatic.Token));
-      Assert.IsTrue(StringConversion.CheckTimeSpan(new[] { ".2", ".3", "0.25", "17:30" }, ":", true, UnitTestStatic.Token));
+      Assert.IsTrue(StringConversion.CheckTimeSpan(new[] { "8:20", "10:10", "2:20 pm", "17:30" }, ":", false,
+        UnitTestStatic.Token));
+      Assert.IsTrue(StringConversion.CheckTimeSpan(new[] { ".2", ".3", "0.25", "17:30" }, ":", true,
+        UnitTestStatic.Token));
       // 24 hours
-      Assert.IsFalse(StringConversion.CheckTimeSpan(new[] { "0.2", "26:20", "0.25", "19:30" }, ":", true, UnitTestStatic.Token));
-      Assert.IsFalse(StringConversion.CheckTimeSpan(new[] { "0.2", "2.3", "0.25", "19:30" }, ":", true, UnitTestStatic.Token));
+      Assert.IsFalse(StringConversion.CheckTimeSpan(new[] { "0.2", "26:20", "0.25", "19:30" }, ":", true,
+        UnitTestStatic.Token));
+      Assert.IsFalse(StringConversion.CheckTimeSpan(new[] { "0.2", "2.3", "0.25", "19:30" }, ":", true,
+        UnitTestStatic.Token));
     }
 
     [TestMethod]
