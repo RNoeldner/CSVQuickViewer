@@ -39,14 +39,14 @@ The application can:
 
 
 This application does use various NuGet libraries:
-[Ben.Demystifier](https://github.com/benaadams/Ben.Demystifier) - Improved display of stack trace
-[Serilog](https://serilog.net/) - Logging Platform
-[FastColoredTextBox](https://www.codeproject.com/Articles/161871/Fast-Colored-TextBox-for-syntax-highlighting-2) - Display of source file with highlighting
-[UTF.Unknown](https://github.com/CharsetDetector/UTF-unknown) replacing Ude.NetStandard  - Detect character set for files
-[Newtonsoft.Json](https://www.newtonsoft.com/json) - Support for Json files, and serialisation of configuration
-[WindowsAPICodePack](https://github.com/contre/Windows-API-Code-Pack-1.1) - Ability to use new Windows Vista functionality for file dialogs
-[Markdown](https://github.com/hey-red/Markdown) - Ability to convert Markdown to HTML Text
-[SharpZipLib](https://github.com/icsharpcode/SharpZipLib) - Compression Library, ability open compressed files on the fly
-[TimeZoneConverter](https://github.com/mattjohnsonpint/TimeZoneConverter) - Support for IANA / Windows Timezone names
-[System.Text.Encoding.CodePages] (https://dot.net/) Support for old code pages in .NET5+ like Windows-1252
-[Microsoft.Extensions.Logging.Abstractions] (https://dot.net/) Interface for abstraction of logging
+* [Ben.Demystifier](https://github.com/benaadams/Ben.Demystifier): Improved display of stack trace
+* [Serilog](https://serilog.net/): Logging Platform
+* [FastColoredTextBox](https://www.codeproject.com/Articles/161871/Fast-Colored-TextBox-for-syntax-highlighting-2): Display of source file with highlighting
+* [UTF.Unknown](https://github.com/CharsetDetector/UTF-unknown): Detect character set for files
+* [Newtonsoft.Json](https://www.newtonsoft.com/json): Support for Json files, and serialisation of configuration
+* [WindowsAPICodePack](https://github.com/contre/Windows-API-Code-Pack-1.1): Ability to use new Windows Vista functionality for file dialogs
+* [Markdown](https://github.com/hey-red/Markdown): Ability to convert Markdown to HTML Text
+* [SharpZipLib](https://github.com/icsharpcode/SharpZipLib): Compression Library, ability open compressed files on the fly
+* [TimeZoneConverter](https://github.com/mattjohnsonpint/TimeZoneConverter): Support for Unix and Windows Timezone names
+* [System.Text.Encoding.CodePages](https://dot.net/): Support for old code pages in .NET5+ like Windows-1252
+* [Microsoft.Extensions.Logging.Abstractions](https://dot.net/): Interface for abstraction of logging
