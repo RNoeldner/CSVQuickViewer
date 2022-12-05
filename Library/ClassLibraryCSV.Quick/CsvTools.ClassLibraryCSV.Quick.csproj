@@ -25,6 +25,12 @@
 		<PlatformTarget>AnyCPU</PlatformTarget>
 		<DefineConstants>TRACE;QUICK</DefineConstants>
 	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
+	  <DebugType>none</DebugType>
+	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="..\ClassLibraryCSV\StandardTimeZoneAdjust.cs" Link="StandardTimeZoneAdjust.cs" />
 

@@ -31,22 +31,26 @@ namespace CsvTools.Tests
     public void CommonDateFormatTest()
     {
       var list = new List<Column>();
-      Assert.IsNull(DetermineColumnFormat.CommonDateFormat(list));
+
+      var test1 = DetermineColumnFormat.CommonDateFormat(list, "dd.MM.yyyy");
+      Assert.AreEqual(".", test1.DateSeparator);
+      Assert.AreEqual("dd/MM/yyyy", test1.DateFormat);
+
       list.Add(new Column("Text1", ValueFormat.Empty, 3));
       list.Add(new Column("Date1", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 1));
-      Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
+      Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list, null)!.DateFormat);
 
       list.Add(new Column("Date2", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 2, true));
       list.Add(new Column("Date3", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, true));
-      Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
+      Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list, null)!.DateFormat);
 
       list.Add(new Column("Date4", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, false));
       list.Add(new Column("Date5", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy"), 3, false));
-      Assert.AreEqual("MM/dd/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
+      Assert.AreEqual("MM/dd/yyyy", DetermineColumnFormat.CommonDateFormat(list, null)!.DateFormat);
 
       list.Add(new Column("Date6", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 4));
       list.Add(new Column("Date7", new ValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy"), 4));
-      Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list)!.DateFormat);
+      Assert.AreEqual("dd/MM/yyyy", DetermineColumnFormat.CommonDateFormat(list, null)!.DateFormat);
     }
 
     [TestMethod()]
@@ -78,7 +82,8 @@ namespace CsvTools.Tests
       var df = DetermineColumnFormat.GuessDateTime(list, true, UnitTestStatic.Token).FoundValueFormat!.DateFormat;
       Assert.IsTrue(df == "MM/dd/yyyy" | df == "dd/MM/yyyy");
       list.Add("24/12/2020");
-      Assert.IsTrue(new ValueFormat(DataTypeEnum.DateTime, "dd/MM/yyyy").Equals(DetermineColumnFormat.GuessDateTime(list, true, UnitTestStatic.Token).FoundValueFormat!));
+      Assert.IsTrue(new ValueFormat(DataTypeEnum.DateTime, "dd/MM/yyyy").Equals(DetermineColumnFormat
+        .GuessDateTime(list, true, UnitTestStatic.Token).FoundValueFormat!));
     }
 
     [TestMethod()]
@@ -87,7 +92,7 @@ namespace CsvTools.Tests
       var list = new List<string>();
       try
       {
-        Assert.IsNull(DetermineColumnFormat.GuessNumeric(list, true, true, 2, UnitTestStatic.Token).FoundValueFormat);
+        Assert.IsNull(DetermineColumnFormat.GuessNumeric(list, true, true, UnitTestStatic.Token).FoundValueFormat);
       }
       catch (ArgumentException)
       {
@@ -102,7 +107,8 @@ namespace CsvTools.Tests
       try
       {
         Assert.IsNull(DetermineColumnFormat.GuessValueFormat(list, 2, "true", "false",
-          true, true, true, true, true, true, true, new ValueFormat(DataTypeEnum.DateTime), UnitTestStatic.Token).FoundValueFormat);
+            true, true, true, true, true, true, true, new ValueFormat(DataTypeEnum.DateTime), UnitTestStatic.Token)
+          .FoundValueFormat);
       }
       catch (ArgumentException)
       {
@@ -344,10 +350,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task DetermineColumnFormatFillGuessColumnFormatWriterAsync()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
         ID = "DetermineColumnFormatFillGuessColumnFormatWriter",
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
         DisplayStartLineNo = false,
         HasFieldHeader = true,
         FieldDelimiter = ","
@@ -555,25 +560,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task FillGuessColumnFormatGermanDateAndNumbersAsync()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("DateAndNumber.csv"))
       {
-        FileName = UnitTestStatic.GetTestPath("DateAndNumber.csv"),
-        HasFieldHeader = true,
-        FieldQualifier = "Quote",
-        FieldDelimiter = "Tab",
-        CodePageId = 1252
+        HasFieldHeader = true, FieldQualifier = "Quote", FieldDelimiter = "Tab", CodePageId = 1252
       };
-      var fillGuessSettings = new FillGuessSettings
-      {
-        DetectNumbers = true,
-        DetectDateTime = true,
-        DetectPercentage = true,
-        DetectBoolean = true,
-        DetectGuid = true,
-        IgnoreIdColumns = true
-      };
-
-      // setting.TreatTextNullAsNull = true;
+      var fillGuessSettings = new FillGuessSettings(true, true, true, true, true, true, true, true, true, false);
 
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
@@ -624,14 +615,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task FillGuessColumnFormatTextColumnsAsync()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("AllFormatsColon.txt"))
       {
-        FileName = UnitTestStatic.GetTestPath("AllFormatsColon.txt"),
-        HasFieldHeader = true,
-        ByteOrderMark = true,
-        FieldDelimiter = ","
+        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = ","
       };
-      var fillGuessSettings = new FillGuessSettings { IgnoreIdColumns = true };
+      var fillGuessSettings = new FillGuessSettings(ignoreIdColumns: true);
 
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(true, true, fillGuessSettings, UnitTestStatic.Token);
@@ -819,7 +807,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSampleValuesByColIndexAsync()
     {
-      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), HasFieldHeader = true };
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")) { HasFieldHeader = true };
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier,
@@ -843,7 +831,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSampleValuesFileEmptyAsync()
     {
-      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("CSVTestEmpty.txt"), HasFieldHeader = true };
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("CSVTestEmpty.txt")) { HasFieldHeader = true };
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier,
         setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier,
@@ -852,7 +840,8 @@ namespace CsvTools.Tests
         setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue,
         setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
-        setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone,
+        TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
 
       var temp = await DetermineColumnFormat
@@ -923,7 +912,7 @@ namespace CsvTools.Tests
         true,
         false,
         false,
-        null,
+        new ValueFormat(),
         UnitTestStatic.Token);
       if (res.FoundValueFormat != null)
         Assert.AreEqual(DataTypeEnum.String, res.FoundValueFormat?.DataType);
@@ -946,7 +935,7 @@ namespace CsvTools.Tests
         true,
         false,
         false,
-        null,
+        new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"dd/MM/yyyy", res.FoundValueFormat?.DateFormat);
@@ -970,7 +959,7 @@ namespace CsvTools.Tests
         true,
         false,
         false,
-        null,
+        new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"dd/MM/yyyy", res.FoundValueFormat?.DateFormat);
@@ -994,7 +983,7 @@ namespace CsvTools.Tests
         false,
         false,
         false,
-        null,
+        new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.Guid, res.FoundValueFormat?.DataType);
     }
@@ -1016,7 +1005,7 @@ namespace CsvTools.Tests
         true,
         false,
         false,
-        null,
+        new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.Integer, res.FoundValueFormat?.DataType);
     }
@@ -1060,7 +1049,7 @@ namespace CsvTools.Tests
         true,
         false,
         false,
-        null,
+        new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"MM/dd/yyyy", res.FoundValueFormat?.DateFormat);
@@ -1084,7 +1073,7 @@ namespace CsvTools.Tests
         true,
         false,
         false,
-        null,
+        new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
       Assert.AreEqual(@"yyyyMMdd", res.FoundValueFormat?.DateFormat);
@@ -1106,7 +1095,7 @@ namespace CsvTools.Tests
         true,
         false,
         false,
-        null,
+        new ValueFormat(),
         UnitTestStatic.Token);
       Assert.IsFalse(res.PossibleMatch);
     }
@@ -1189,7 +1178,7 @@ namespace CsvTools.Tests
         false,
         true,
         false,
-        null,
+        new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
     }
@@ -1211,7 +1200,7 @@ namespace CsvTools.Tests
         true,
         false,
         false,
-        null,
+        new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.Numeric, res.FoundValueFormat?.DataType);
       Assert.AreEqual(".", res.FoundValueFormat?.DecimalSeparator);
@@ -1234,7 +1223,7 @@ namespace CsvTools.Tests
         true,
         false,
         false,
-        null,
+        new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.Numeric, res.FoundValueFormat?.DataType);
       Assert.AreEqual(".", res.FoundValueFormat?.GroupSeparator);

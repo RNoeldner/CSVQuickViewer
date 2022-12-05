@@ -25,20 +25,18 @@
 		<ReleaseVersion>1.4.6.499</ReleaseVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	  <Optimize>False</Optimize>
+	  <DebugType>none</DebugType>
+	  <Optimize>True</Optimize>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
 	  <DebugType>none</DebugType>
-	  <Optimize>False</Optimize>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	  <Optimize>False</Optimize>
+	  <DebugType>none</DebugType>
+	  <Optimize>True</Optimize>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
 	  <DebugType>none</DebugType>
-	  <Optimize>False</Optimize>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Remove="Column\IColumn.cs" />

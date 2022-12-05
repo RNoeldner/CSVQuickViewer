@@ -17,10 +17,10 @@ namespace CsvTools
   /// <inheritdoc />
   public sealed class WriterColumn : Column
   {
-    public WriterColumn(
-      in string name,
-      int colNum,
+    /// <inheritdoc />
+    public WriterColumn(in string name,
       in ValueFormat valueFormat,
+      int colNum,
       int fieldLength = 0,
       in string constantTimeZone = "",
       int columnOrdinalTimeZone = -1)
@@ -45,7 +45,7 @@ namespace CsvTools
     public string ConstantTimeZone { get; }
 
     /// <summary>
-    ///   Gets or sets the length of the field.
+    ///   Gets or sets the length of the field, this is needed for writing Fixed Length Text files
     /// </summary>
     /// <value>The length of the field. 0 means unrestricted length</value>
     public int FieldLength { get; }

@@ -47,6 +47,33 @@ namespace CsvTools
     private readonly char[] m_QualifyCharArray;
     private readonly bool m_QualifyOnlyIfNeeded;
 
+    /// <summary>
+    ///   Constructor for a delimited Text / fixed length text writer
+    /// </summary>
+    /// <param name="id">Information for  Placeholder of ID</param>
+    /// <param name="fullPath">Fully qualified path of teh file to write</param>
+    /// <param name="hasFieldHeader">Determine if a header row should be created</param>
+    /// <param name="valueFormat">Fallback value format for typed values that do not have a column setup</param>
+    /// <param name="codePageId">The Code Page for encoding of characters</param>
+    /// <param name="byteOrderMark">If <c>true</c>a Byte Order Mark will be added</param>
+    /// <param name="columnDefinition">Individual definitions of columns and formats</param>
+    /// <param name="pgpKeyId">Passed on to SourceAccess allowing PGP encryption of teh written file (not implemented in all Libraries)</param>
+    /// <param name="unencrypted">If <c>true</c> teh not pgp encrypted file is kept for reference</param>
+    /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of teh file in the archive.</param>
+    /// <param name="footer">Footer to be written after all rows are written</param>
+    /// <param name="header">Header to be written before data and/or Header is written</param>
+    /// <param name="fileSettingDisplay">Info text for logging and process report</param>
+    /// <param name="newLine"><see cref="RecordDelimiterTypeEnum"/> written after each record</param>
+    /// <param name="fieldDelimiterChar">Column / Field delimiter, if empty the text will be written as fixed length</param>
+    /// <param name="fieldQualifierChar">Qualifier for columns that might contain characters that need quoting</param>
+    /// <param name="escapePrefixChar">Escape char to include otherwise protected characters </param>
+    /// <param name="newLinePlaceholder">Placeholder for a NewLine being part of a text, instead of the new line this text will be written</param>
+    /// <param name="delimiterPlaceholder">Placeholder for a delimiter being part of a text, instead of the <see cref="fieldDelimiterChar"/> this text will be written</param>
+    /// <param name="qualifierPlaceholder">Placeholder for a qualifier being part of a text, instead of the <see cref="fieldQualifierChar"/> this text will be written</param>
+    /// <param name="qualifyAlways">If set <c>true</c> each text will be quoted, even if not quoting is needed</param>
+    /// <param name="qualifyOnlyIfNeeded">If set <c>true</c> each text will be quoted only if this is required, if this is <c>true</c> <see cref="fieldQualifierChar"/> is ignored</param>
+    /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
+    /// <param name="sourceTimeZone">Identified for the timezone teh values are currently stored as</param>
     public CsvFileWriter(in string id,
       in string fullPath,
       bool hasFieldHeader,
@@ -92,6 +119,8 @@ namespace CsvTools
       m_FieldDelimiter = fieldDelimiterChar.ToStringHandle0();
       m_QualifyAlways = qualifyAlways;
       m_QualifyOnlyIfNeeded = qualifyOnlyIfNeeded;
+      if (m_QualifyOnlyIfNeeded && m_QualifyAlways)
+        m_QualifyAlways = false;
       m_NewLine = newLine.NewLineString();
       Header = Header.HandleCrlfCombinations(m_NewLine).PlaceholderReplace("Delim", m_FieldDelimiter);
       m_FieldDelimiterChar = fieldDelimiterChar;
@@ -150,6 +179,7 @@ namespace CsvTools
           sb.Append(m_NewLine);
       }
 
+      // ReSharper disable once UseIndexFromEndExpression
       var lastCol = Columns[Columns.Count - 1];
 
       if (m_ColumnHeader)
@@ -169,7 +199,7 @@ namespace CsvTools
       {
         if (sb.Length > 32768)
         {
-          m_ReportProgress?.Report(new ProgressInfo("Writing", reader.RecordNumber));
+          ReportProgress?.Report(new ProgressInfo("Writing", reader.RecordNumber));
           await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
           sb.Length = 0;
         }

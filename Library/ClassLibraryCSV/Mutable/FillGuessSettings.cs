@@ -35,12 +35,13 @@ namespace CsvTools
     private bool m_DetectNumbers;
     private bool m_DetectPercentage;
     private bool m_Enabled;
-    private string m_FalseValue;
     private bool m_IgnoreIdColumns;
     private int m_MinSamples;
     private int m_SampleValues;
     private bool m_SerialDateTime;
     private string m_TrueValue;
+    private string m_FalseValue;
+    private string m_DateFormat;
     private bool m_DateParts;
 
 
@@ -52,8 +53,8 @@ namespace CsvTools
 
     [JsonConstructor]
     public FillGuessSettings(bool? enabled = true, bool? ignoreIdColumns = true, bool? detectBoolean = true, bool? detectDateTime = true,
-      bool? detectNumbers = true, bool? detectPercentage = true, bool? detectGuid =false, bool? checkNamedDates = true, bool? serialDateTime = true,
-      bool? dateParts = false, int? minSamples = 5, int? sampleValues = 150, long? checkedRecords = 30000, string? trueValue = "True", string? falseValue = "False")
+      bool? detectNumbers = true, bool? detectPercentage = true, bool? detectGuid = false, bool? checkNamedDates = true, bool? serialDateTime = true,
+      bool? dateParts = false, int? minSamples = 5, int? sampleValues = 150, long? checkedRecords = 30000, string? trueValue = "True", string? falseValue = "False", string? dateFormat = "")
     {
       m_Enabled = enabled ?? true;
       m_IgnoreIdColumns = ignoreIdColumns ?? true;
@@ -70,6 +71,7 @@ namespace CsvTools
       m_CheckedRecords = checkedRecords ?? 30000;
       m_TrueValue = trueValue ?? "True";
       m_FalseValue = falseValue ?? "False";
+      m_DateFormat = dateFormat ?? string.Empty;
     }
 
     [DefaultValue(true)]
@@ -242,6 +244,17 @@ namespace CsvTools
       set => SetField(ref m_FalseValue, value, StringComparison.Ordinal);
     }
 
+    [DefaultValue("")]
+    [XmlElement]
+#if NETSTANDARD2_1_OR_GREATER
+    [System.Diagnostics.CodeAnalysis.AllowNull]
+#endif
+    public string DateFormat
+    {
+      get => m_DateFormat;
+      set => SetField(ref m_DateFormat, value, StringComparison.Ordinal);
+    }
+
     /// <inheritdoc />
     public object Clone()
     {
@@ -270,7 +283,8 @@ namespace CsvTools
              m_SampleValues == other.SampleValues &&
              m_SerialDateTime == other.SerialDateTime &&
              string.Equals(m_FalseValue, other.FalseValue, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(m_TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase);
+             string.Equals(m_TrueValue, other.TrueValue, StringComparison.OrdinalIgnoreCase) &&
+             string.Equals(m_DateFormat, other.DateFormat, StringComparison.Ordinal);
     }
 
 
@@ -295,6 +309,7 @@ namespace CsvTools
       other.MinSamples = m_MinSamples;
       other.SampleValues = m_SampleValues;
       other.SerialDateTime = m_SerialDateTime;
+      other.DateFormat = m_DateFormat;
     }
   }
 }

@@ -171,7 +171,7 @@ namespace CsvTools
         sb.Append(row);
 
         if (sb.Length <= 1024) continue;
-        m_ReportProgress?.Report(new ProgressInfo("Writing", reader.RecordNumber));
+        ReportProgress?.Report(new ProgressInfo("Writing", reader.RecordNumber));
         await writer.WriteAsync(sb.ToString()).ConfigureAwait(false);
         sb.Length = 0;
       }

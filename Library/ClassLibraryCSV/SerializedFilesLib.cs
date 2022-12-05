@@ -178,8 +178,10 @@ namespace CsvTools
     /// <param name="data">The class to be serialized</param>
     /// <param name="fileName">The filename to store the serialization text</param>
     /// <param name="askOverwrite">Function to call if teh file does exists, if left empty the file will be overwritten</param>
+    /// <param name="withBackup">If <c>true</c> backups are </param>
     /// <returns></returns>
-    public static async Task<bool> SerializeAsync<T>(this T data, string fileName, Func<bool>? askOverwrite = null)
+    public static async Task<bool> SerializeAsync<T>(this T data, string fileName, Func<bool>? askOverwrite = null,
+      bool withBackup = true)
       where T : class
     {
       try
@@ -202,17 +204,18 @@ namespace CsvTools
         }
 
         Logger.Debug("Updating file {filename}", fileName);
-        Logger.Information($"Writing file {FileSystemUtils.GetShortDisplayFileName(fileName)}");
         if (delete)
-          FileSystemUtils.DeleteWithBackup(fileName, true);
+          FileSystemUtils.DeleteWithBackup(fileName, withBackup);
+
+        Logger.Information($"Writing file {FileSystemUtils.GetShortDisplayFileName(fileName)}");
 #if NETSTANDARD2_1_OR_GREATER
-          await
+        await
 #endif
-        using var improvedStream = new ImprovedStream(new SourceAccess(fileName, false));
+          using var improvedStream = new ImprovedStream(new SourceAccess(fileName, false));
 #if NETSTANDARD2_1_OR_GREATER
-          await
+        await
 #endif
-        using var sr = new StreamWriter(improvedStream, Encoding.UTF8);
+          using var sr = new StreamWriter(improvedStream, Encoding.UTF8);
         await sr.WriteAsync(content).ConfigureAwait(false);
       }
       catch (Exception ex)

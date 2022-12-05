@@ -44,16 +44,29 @@ namespace CsvTools
     protected string Header;
     protected readonly string SourceTimeZone;
     private DateTime m_LastNotification = DateTime.Now;
-    protected IProgress<ProgressInfo>? m_ReportProgress;
-
-    public IProgress<ProgressInfo> ReportProgress
+    
+    public IProgress<ProgressInfo>? ReportProgress
     {
-      set
-      {
-        m_ReportProgress = value;
-      }
+      protected get;
+      set;
     }
-
+    
+    /// <summary>
+    /// Abstract implementation of all FileWriters
+    /// </summary>
+    /// <param name="id">Information for  Placeholder of ID</param>
+    /// <param name="fullPath">Fully qualified path of teh file to write</param>
+    /// <param name="valueFormatGeneral">Fallback value format for typed values that do not have a column setup</param>
+    /// <param name="pgpKeyId">Passed on to SourceAccess allowing PGP encryption of teh written file (not implemented in all Libraries)</param>
+    /// <param name="unencrypted">If <c>true</c> teh not pgp encrypted file is kept for reference</param>
+    /// <param name="identifierInContainer">In case the file is written into an archive that does support multiple files, name of teh file in the archive.</param>
+    /// <param name="footer">Footer to be written after all rows are written</param>
+    /// <param name="header">Header to be written before data and/or Header is written</param>
+    /// <param name="columnDefinition">Individual column definitions for formatting</param>
+    /// <param name="fileSettingDisplay">Info text for logging and process report</param>
+    /// <param name="timeZoneAdjust">Delegate for TimeZone Conversions</param>
+    /// <param name="sourceTimeZone">Identified for the timezone teh values are currently stored as</param>
+    /// <exception cref="ArgumentException"></exception>
     protected BaseFileWriter(
       in string id,
       in string fullPath,
@@ -101,8 +114,8 @@ namespace CsvTools
     }
 
 
-    protected virtual void HandleShowProgressPeriodic(string text, long value)
-      => m_ReportProgress?.Report(new ProgressInfo(text,  value));
+    protected void HandleShowProgressPeriodic(string text, long value)
+      => ReportProgress?.Report(new ProgressInfo(text,  value));
 
     public long Records { get; protected set; }
 
@@ -240,11 +253,10 @@ namespace CsvTools
         // this is problematic, we need to apply timezone mapping here and on date
         var ci = new WriterColumn(
           colNames[colNo],
-          colNo,
           valueFormat,
+          colNo,
           fieldLength,
-          constantTimeZone,
-          columnOrdinalTimeZoneReader);
+          constantTimeZone, columnOrdinalTimeZoneReader);
 
         result.Add(ci);
 
@@ -262,14 +274,13 @@ namespace CsvTools
         result.Add(
           new WriterColumn(
             column.TimePart,
-            colNo,
             new ValueFormat(
               DataTypeEnum.DateTime,
               column.TimePartFormat,
               timeSeparator: column.ValueFormat?.TimeSeparator ?? ":"),
+            colNo,
             column.TimePartFormat.Length,
-            constantTimeZone,
-            columnOrdinalTimeZoneReader));
+            constantTimeZone, columnOrdinalTimeZoneReader));
       }
 
       return result;

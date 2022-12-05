@@ -54,8 +54,8 @@ namespace CsvTools
     ///   Makes the backup.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
-    /// <param name="twoBackups">if set to <c>true</c> [two backups].</param>
-    public static void DeleteWithBackup(in string fileName, bool twoBackups)
+    /// <param name="multipleBackups">if set to <c>true</c> multiple backup version are kept.</param>
+    public static void DeleteWithBackup(in string fileName, bool multipleBackups)
     {
       try
       {
@@ -63,7 +63,7 @@ namespace CsvTools
           return;
 
         var backupName = fileName + ".bak";
-        if (twoBackups)
+        if (multipleBackups)
         {
           var split = SplitPath(fileName);
           var names = Directory.EnumerateFiles(split.DirectoryName.LongPathPrefix(), split.FileName + "*.bak",
