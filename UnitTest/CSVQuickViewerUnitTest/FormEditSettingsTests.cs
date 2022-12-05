@@ -9,7 +9,7 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public void FormEditSettings()
     {
-      using var frm = new FormEditSettings(new ViewSettings(), new CsvFile("Dummy1"));
+      using var frm = new FormEditSettings(new ViewSettings(), new CsvFile("Dummy1", "csv"));
       UnitTestStatic.ShowFormAndClose(frm);
     }
   }

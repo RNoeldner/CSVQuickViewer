@@ -23,7 +23,7 @@ namespace CsvTools.Tests
 
       using var tsde = new TwoStepDataTableLoader(dt => myDataTable = dt, () => myDataTable, RefreshFunc, null,
         () => beginCalled = true, (_) => finishedCalled = true);
-      var csv = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")) { FieldDelimiter = ",", CommentLine = "#" };
+      var csv = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"), "Csv") { FieldDelimiter = ",", CommentLine = "#" };
 
       var proc = new Progress<ProgressInfo>();
       await tsde.StartAsync(csv, true, true, TimeSpan.FromMilliseconds(20), proc,

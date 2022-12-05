@@ -758,7 +758,7 @@ namespace CsvTools
         return;
       m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
       m_FileSetting.ColumnCollection.Clear();
-      m_FileSetting.ColumnCollection.AddRangeNoClone(columns);
+      m_FileSetting.ColumnCollection.AddRange(columns);
       m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
     }
 

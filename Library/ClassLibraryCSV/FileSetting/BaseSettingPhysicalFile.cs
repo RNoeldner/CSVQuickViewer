@@ -44,7 +44,10 @@ namespace CsvTools
     private int m_CodePageId = 65001;
     private long m_KeyID;
 
-    protected BaseSettingPhysicalFile(string fileName) => m_FileName = FileNameFix(fileName);
+    protected BaseSettingPhysicalFile(in string fileName, in string id) : base (id)
+    {
+      m_FileName = FileNameFix(fileName);
+    }
 
     public override void CalculateLatestSourceTime() =>
       LatestSourceTimeUtc = new FileSystemUtils.FileInfo(FileSystemUtils.ResolvePattern(FullPath)).LastWriteTimeUtc;

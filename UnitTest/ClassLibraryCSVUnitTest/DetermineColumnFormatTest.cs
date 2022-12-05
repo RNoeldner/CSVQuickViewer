@@ -151,7 +151,7 @@ namespace CsvTools.Tests
     public async Task TestJson()
     {
       var setting =
-        new JsonFile(UnitTestStatic.GetTestPath("Larger.json"));
+        new JsonFile(UnitTestStatic.GetTestPath("Larger.json"),string.Empty);
 
       Assert.AreEqual(0, setting.ColumnCollection.Count);
 
@@ -186,7 +186,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSourceColumnInformationTestAsync()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"),string.Empty)
       {
         ID = "ID122",
         HasFieldHeader = true,
@@ -240,7 +240,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSourceColumnInformationTest2Async()
     {
-      var setting = new CsvFile { ID = "ID122", FieldDelimiter = "," };
+      var setting = new CsvFile (String.Empty, "CSV"){ ID = "ID122", FieldDelimiter = "," };
       try
       {
         await "setting.SqlStatement".GetWriterColumnInformationAsync(60,
@@ -322,10 +322,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task FillGuessColumnFormatReaderTestAsync()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"),"DetermineColumnFormatFillGuessColumnFormatWriter")
       {
-        ID = "DetermineColumnFormatFillGuessColumnFormatWriter",
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
         HasFieldHeader = true,
         FieldDelimiter = ","
       };
@@ -350,7 +348,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task DetermineColumnFormatFillGuessColumnFormatWriterAsync()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"),string.Empty)
       {
         ID = "DetermineColumnFormatFillGuessColumnFormatWriter",
         DisplayStartLineNo = false,
@@ -520,7 +518,7 @@ namespace CsvTools.Tests
         await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, UnitTestStatic.Token);
       Assert.AreEqual(4, detected.Count);
       var col = new ColumnCollection();
-      col.AddRange(detected);
+      col.AddRangeNoClone(detected);
 
       Assert.AreEqual("Start Date", col[0].Name, "Column 1 Start date");
       Assert.AreEqual("Start Time", col[1].Name, "Column 2 Start Time");
@@ -551,7 +549,7 @@ namespace CsvTools.Tests
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
       var col = new ColumnCollection();
-      col.AddRange(detected);
+      col.AddRangeNoClone(detected);
       Assert.AreEqual(DataTypeEnum.Integer, col.GetByName("ID")!.ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.DateTime, col.GetByName("ExamDate")!.ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.Boolean, col.GetByName("IsNativeLang")!.ValueFormat.DataType);
@@ -560,7 +558,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task FillGuessColumnFormatGermanDateAndNumbersAsync()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("DateAndNumber.csv"))
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("DateAndNumber.csv"),string.Empty)
       {
         HasFieldHeader = true, FieldQualifier = "Quote", FieldDelimiter = "Tab", CodePageId = 1252
       };
@@ -569,7 +567,7 @@ namespace CsvTools.Tests
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
       var col = new ColumnCollection();
-      col.AddRange(detected);
+      col.AddRangeNoClone(detected);
       Assert.IsNotNull(col.GetByName(@"Betrag Brutto (2 Nachkommastellen)"), "Data Type recognized");
 
       Assert.AreEqual(
@@ -606,7 +604,7 @@ namespace CsvTools.Tests
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(false, false, fillGuessSettings, UnitTestStatic.Token);
       var col = new ColumnCollection();
-      col.AddRange(detected);
+      col.AddRangeNoClone(detected);
       Assert.IsTrue(col.GetByName("ID") == null || col.GetByName("ID")?.Convert == false);
       Assert.AreEqual(DataTypeEnum.DateTime, col.GetByName("ExamDate")?.ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.Boolean, col.GetByName("IsNativeLang")?.ValueFormat.DataType);
@@ -615,7 +613,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task FillGuessColumnFormatTextColumnsAsync()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("AllFormatsColon.txt"))
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("AllFormatsColon.txt"),string.Empty)
       {
         HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = ","
       };
@@ -624,7 +622,7 @@ namespace CsvTools.Tests
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(true, true, fillGuessSettings, UnitTestStatic.Token);
       var col = new ColumnCollection();
-      col.AddRange(detected);
+      col.AddRangeNoClone(detected);
       Assert.AreEqual(10, col.Count);
       Assert.AreEqual(DataTypeEnum.DateTime, col[0].ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.Integer, col[1].ValueFormat.DataType);
@@ -807,7 +805,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSampleValuesByColIndexAsync()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt")) { HasFieldHeader = true };
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"),string.Empty) { HasFieldHeader = true };
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier,
@@ -831,7 +829,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSampleValuesFileEmptyAsync()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("CSVTestEmpty.txt")) { HasFieldHeader = true };
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("CSVTestEmpty.txt"),string.Empty) { HasFieldHeader = true };
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier,
         setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier,

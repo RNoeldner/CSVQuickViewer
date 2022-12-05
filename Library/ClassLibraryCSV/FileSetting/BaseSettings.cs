@@ -60,7 +60,7 @@ namespace CsvTools
 
     private string m_Header = string.Empty;
 
-    private string m_Id = string.Empty;
+    private string m_Id;
 
     private bool m_InOverview;
 
@@ -110,8 +110,9 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
     /// </summary>
-    protected BaseSettings()
+    protected BaseSettings(in string id)
     {
+      m_Id = id?? string.Empty;
       // adding or removing columns should cause a property changed for ColumnCollection
       ColumnCollection.CollectionChanged += (sender, e) =>
       {

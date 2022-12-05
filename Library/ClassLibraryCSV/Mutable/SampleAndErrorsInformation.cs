@@ -45,12 +45,12 @@ namespace CsvTools
       m_NumErrors = numErrors ?? -1;
       m_Errors = new UniqueObservableCollection<SampleRecordEntry>();
       if (errors != null)
-        m_Errors.AddRange(errors);
+        m_Errors.AddRangeNoClone(errors);
       m_Errors.CollectionItemPropertyChanged += (o, s) => NotifyPropertyChanged(nameof(Errors));
 
       m_Samples = new UniqueObservableCollection<SampleRecordEntry>();
       if (samples != null)
-        m_Samples.AddRange(samples);
+        m_Samples.AddRangeNoClone(samples);
       m_Samples.CollectionItemPropertyChanged += (o, s) => NotifyPropertyChanged(nameof(Samples));
     }
 

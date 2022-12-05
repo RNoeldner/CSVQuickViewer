@@ -672,7 +672,7 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task GetValue()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"), string.Empty)
       {
         HasFieldHeader = true, FieldDelimiter = ","
       };
@@ -1197,7 +1197,7 @@ Line "Test"", "22",23,"  24"
     public async Task OpenBinary()
     {
       var setting =
-        new CsvFile(UnitTestStatic.GetTestPath("BinaryReferenceList.txt"))
+        new CsvFile(UnitTestStatic.GetTestPath("BinaryReferenceList.txt"), string.Empty)
         {
           HasFieldHeader = true, FieldDelimiter = "Tab"
         };
@@ -1282,7 +1282,7 @@ Line "Test"", "22",23,"  24"
     public async Task OpenBySetting()
     {
       var setting =
-        new CsvFile(UnitTestStatic.GetTestPath("AllFormats.txt")) { HasFieldHeader = true, FieldDelimiter = "Tab" };
+        new CsvFile(UnitTestStatic.GetTestPath("AllFormats.txt"), string.Empty) { HasFieldHeader = true, FieldDelimiter = "Tab" };
       setting.ColumnCollection.Add(new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime)));
       setting.ColumnCollection.Add(new Column("Integer", new ValueFormat(DataTypeEnum.Integer)));
 
@@ -1445,7 +1445,7 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task ReadDateWithTimeAndTimeZoneAsync()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("Sessions.txt"))
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("Sessions.txt"), string.Empty)
       {
         HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
       };
@@ -1490,7 +1490,7 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task ReadDateWithTimeAsync()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("Sessions.txt"))
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("Sessions.txt"), string.Empty)
       {
         HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
       };

@@ -33,8 +33,8 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
-    protected StructuredFile(string fileName)
-      : base(fileName)
+    protected StructuredFile(in string fileName, in string id)
+      : base(fileName, id)
     {
     }
 

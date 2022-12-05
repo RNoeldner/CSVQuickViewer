@@ -169,9 +169,10 @@ namespace CsvTools
       set
       {
         if (!SetField(ref m_DecimalSeparator, (value ?? string.Empty).WrittenPunctuation(),
-              StringComparison.Ordinal)) return;
+              StringComparison.Ordinal)) 
+          return;
         if (m_GroupSeparator.Equals(m_DecimalSeparator))
-          SetField(ref m_GroupSeparator, "", StringComparison.Ordinal, false, nameof(GroupSeparator));
+          SetField(ref m_GroupSeparator, string.Empty, StringComparison.Ordinal, false, nameof(GroupSeparator));
       }
     }
 
@@ -188,7 +189,7 @@ namespace CsvTools
     public string False
     {
       get => m_False;
-      set => SetField(ref m_False, value, StringComparison.OrdinalIgnoreCase);
+      set => SetField(ref m_False, value,  StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -209,7 +210,7 @@ namespace CsvTools
         var oldGroup = m_GroupSeparator;
         if (SetField(ref m_GroupSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal))
         {
-          if (m_DecimalSeparator.Equals(m_DecimalSeparator))
+          if (m_GroupSeparator.Equals(m_DecimalSeparator))
             SetField(ref m_DecimalSeparator, oldGroup, StringComparison.Ordinal, false, nameof(DecimalSeparator));
         }
       }
@@ -296,8 +297,9 @@ namespace CsvTools
     public string True
     {
       get => m_True;
-      set => SetField(ref m_True, value, StringComparison.InvariantCulture);
+      set => SetField(ref m_True, value, StringComparison.Ordinal);
     }
+
     [XmlAttribute]
     [DefaultValue("")]
     public string WriteFolder

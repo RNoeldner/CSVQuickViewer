@@ -98,8 +98,9 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="CsvFile" /> class.
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
-    public CsvFile(string fileName)
-      : base(fileName)
+    /// <param name="id"></param>
+    public CsvFile(in string fileName, in string id)
+      : base(fileName, id)
     {
     }
 
@@ -109,15 +110,8 @@ namespace CsvTools
     /// </summary>
     [Obsolete("Only needed for XML Serialization")]
     public CsvFile()
-      : this(string.Empty)
+      : this(string.Empty, string.Empty)
     {
-    }
-
-    public CsvFile(string fileName, string commentLine, string id) : this()
-    {
-      FileName = fileName;
-      CommentLine = commentLine;
-      ID = id;
     }
 
     /// <summary>
@@ -138,21 +132,7 @@ namespace CsvTools
     public bool ContextSensitiveQualifier
     {
       get => m_ContextSensitiveQualifier;
-      set
-      {
-        if (m_ContextSensitiveQualifier.Equals(value))
-          return;
-        m_ContextSensitiveQualifier = value;
-        NotifyPropertyChanged();
-
-        // If Alternate Qualifier is disabled, enable DuplicateQualifierToEscape automatically
-        if (!m_ContextSensitiveQualifier && !DuplicateQualifierToEscape)
-          DuplicateQualifierToEscape = true;
-
-        // If Alternate Qualifier is enabled, disable DuplicateQualifierToEscape automatically
-        if (m_ContextSensitiveQualifier && DuplicateQualifierToEscape)
-          DuplicateQualifierToEscape = false;
-      }
+      set => SetField(ref m_ContextSensitiveQualifier, value);
     }
 
     /// <inheritdoc />
@@ -193,13 +173,7 @@ namespace CsvTools
     public bool DuplicateQualifierToEscape
     {
       get => m_DuplicateQualifierToEscape;
-      set
-      {
-        if (m_DuplicateQualifierToEscape.Equals(value))
-          return;
-        m_DuplicateQualifierToEscape = value;
-        NotifyPropertyChanged();
-      }
+      set => SetField(ref m_DuplicateQualifierToEscape, value);
     }
 
     [XmlIgnore] [JsonIgnore] public char EscapePrefixChar => m_EscapePrefixChar;
@@ -567,7 +541,7 @@ namespace CsvTools
     /// <inheritdoc />
     public override object Clone()
     {
-      var other = new CsvFile(FileName);
+      var other = new CsvFile(FileName,ID);
       CopyTo(other);
       return other;
     }

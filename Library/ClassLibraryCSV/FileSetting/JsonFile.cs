@@ -33,7 +33,7 @@ namespace CsvTools
     [DefaultValue(true)]
     public bool EmptyAsNull
     {
-      get => m_EmptyAsNull; 
+      get => m_EmptyAsNull;
       set
       {
         if (m_EmptyAsNull.Equals(value))
@@ -49,21 +49,21 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     [JsonConstructor]
-    public JsonFile(string fileName)
-      : base(fileName)
+    public JsonFile(in string fileName, in string id)
+      : base(fileName, id)
     {
     }
 
     /// <inheritdoc />
     [Obsolete("Only needed for XML Serialization")]
     public JsonFile()
-      : this(string.Empty)
+      : this(string.Empty, string.Empty)
     {
     }
 
     public override object Clone()
     {
-      var other = new JsonFile(FileName);
+      var other = new JsonFile(FileName, ID);
       CopyTo(other);
       return other;
     }
