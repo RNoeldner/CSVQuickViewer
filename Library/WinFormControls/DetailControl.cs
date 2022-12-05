@@ -1131,7 +1131,7 @@ namespace CsvTools
         return;
 
       // This will always write a delimited text file
-      ICsvFile writeFile = new CsvFile(string.Empty);
+      ICsvFile writeFile = new CsvFile(string.Empty, string.Empty);
       FileSetting?.CopyTo(writeFile);
 
       // in case the extension is changed change the delimiter accordingly

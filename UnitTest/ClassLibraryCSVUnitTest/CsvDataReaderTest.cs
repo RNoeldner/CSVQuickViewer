@@ -27,9 +27,10 @@ namespace CsvTools.Tests
   {
     private static readonly TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
 
-    private readonly CsvFile m_ValidSetting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"))
+    private readonly CsvFile m_ValidSetting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"), string.Empty)
     {
-      FieldDelimiter = ",", CommentLine = "#"
+      FieldDelimiter = ",",
+      CommentLine = "#"
     };
 
     [TestInitialize]
@@ -89,7 +90,7 @@ namespace CsvTools.Tests
     public async Task AllFormatsPipeReaderAsync()
     {
       var setting =
-        new CsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"))
+        new CsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), string.Empty)
         {
           HasFieldHeader = true,
           FieldDelimiter = "|",
@@ -142,7 +143,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task IssueReaderAsync()
     {
-      var basIssues = new CsvFile(UnitTestStatic.GetTestPath("BadIssues.csv"))
+      var basIssues = new CsvFile(UnitTestStatic.GetTestPath("BadIssues.csv"), "Csv")
       {
         TreatLfAsSpace = true,
         TryToSolveMoreColumns = true,
@@ -437,7 +438,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ColumnFormat()
     {
-      var target = new CsvFile();
+      var target = new CsvFile(string.Empty, string.Empty);
       m_ValidSetting.CopyTo(target);
 
       Assert.IsNotNull(target.ColumnCollection.GetByName("Score"));
@@ -453,9 +454,11 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task GetDateTimeTestAsync()
     {
-      var csvFile = new CsvFile
+      var csvFile = new CsvFile(
+      UnitTestStatic.GetTestPath("TestFile.txt"), "csv")
       {
-        FileName = UnitTestStatic.GetTestPath("TestFile.txt"), CodePageId = 65001, FieldDelimiter = "tab"
+        CodePageId = 65001,
+        FieldDelimiter = "tab"
       };
 
       csvFile.ColumnCollection.Add(new Column("Title", new ValueFormat(DataTypeEnum.DateTime)));
@@ -556,7 +559,8 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"), HasFieldHeader = true
+        FileName = UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"),
+        HasFieldHeader = true
       };
 
 
@@ -1414,7 +1418,9 @@ namespace CsvTools.Tests
     {
       var setting = new CsvFile
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), HasFieldHeader = false, SkipRows = 1
+        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
+        HasFieldHeader = false,
+        SkipRows = 1
       };
       setting.FieldQualifier = "XX";
       setting.FieldDelimiter = ",,";

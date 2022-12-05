@@ -9,7 +9,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ColumnErrorDictionaryTest1Async()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("Sessions.txt"))
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("Sessions.txt"), "csv")
       {
         HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
       };

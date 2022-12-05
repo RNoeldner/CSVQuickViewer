@@ -144,7 +144,7 @@ namespace CsvTools.Tests
 
         Assert.AreEqual("|", (await improvedStream.GuessDelimiter(-1, 0, string.Empty, UnitTestStatic.Token)).Item1);
 
-      ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("LateStartRow.txt")) { SkipRows = 10, CodePageId = 20127 };
+      ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("LateStartRow.txt"), "csv") { SkipRows = 10, CodePageId = 20127 };
       test.FieldQualifier = "\"";
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
         Assert.AreEqual("|",
@@ -165,7 +165,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessDelimiterCommaAsync()
     {
-      ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")) { CodePageId = -1 };
+      ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), "Csv") { CodePageId = -1 };
       test.EscapePrefix = "\\";
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       Assert.AreEqual(",", (await improvedStream.GuessDelimiter(-1, 0, "\\", UnitTestStatic.Token)).Item1);
@@ -174,7 +174,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessDelimiterPipeAsync()
     {
-      ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt")) { CodePageId = -1 };
+      ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"), "Csv") { CodePageId = -1 };
       test.EscapePrefix = string.Empty;
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       Assert.AreEqual("|", (await improvedStream.GuessDelimiter(-1, 0, string.Empty, UnitTestStatic.Token)).Item1);
@@ -183,7 +183,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessDelimiterQualifierAsync()
     {
-      ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("TextQualifiers.txt")) { CodePageId = -1 };
+      ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("TextQualifiers.txt"), "Csv") { CodePageId = -1 };
       test.EscapePrefix = string.Empty;
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       Assert.AreEqual(",",
@@ -194,7 +194,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessDelimiterTabAsync()
     {
-      ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("txTranscripts.txt")) { CodePageId = -1 };
+      ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("txTranscripts.txt"), "Csv") { CodePageId = -1 };
       test.EscapePrefix = "\\";
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       Assert.AreEqual("TAB",
@@ -340,7 +340,7 @@ namespace CsvTools.Tests
           file.Write("#Hello\t7th Heaven\t1d5b894b-95e6-4026-9ffe-64197e79c3d1\n");
         }
 
-        var test = new CsvFile(path) { CodePageId = 65001, FieldQualifier = "\"" };
+        var test = new CsvFile(path, "csv") { CodePageId = 65001, FieldQualifier = "\"" };
         using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
           Assert.AreEqual(RecordDelimiterTypeEnum.Lf,
             await improvedStream.GuessNewline(test.CodePageId, test.SkipRows, test.FieldQualifier,
@@ -534,7 +534,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task TestGuessStartRow1Async()
     {
-      ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("LateStartRow.txt")) { SkipRows = 10, CodePageId = 20127 };
+      ICsvFile test = new CsvFile(UnitTestStatic.GetTestPath("LateStartRow.txt"), "Csv") { SkipRows = 10, CodePageId = 20127 };
       test.FieldDelimiter = "|";
       test.FieldQualifier = "\"";
 

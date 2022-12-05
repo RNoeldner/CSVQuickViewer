@@ -24,9 +24,14 @@ namespace CsvTools.Tests
   [TestClass]
   public class GenericEqualsTest
   {
+
+  
+
     [TestMethod]
     public void RunEquals()
     {
+      
+
       var sb = new StringBuilder();
       foreach (var type in GetAllIEquatable())
         try
@@ -36,77 +41,16 @@ namespace CsvTools.Tests
           var obj1 = Activator.CreateInstance(type);
           var obj3 = Activator.CreateInstance(type);
 
-          var properties = type.GetProperties().Where(
-            prop => prop.GetMethod != null && prop.SetMethod != null
-                                           && (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long)
-                                             || prop.PropertyType == typeof(string)
-                                             || prop.PropertyType == typeof(bool)
-                                             || prop.PropertyType == typeof(DateTime)
-                                           )).ToArray();
-          if (properties.Length == 0)
+          var properties = type.GetValueTypeProperty(null);
+          if (properties.Count == 0)
             continue;
           var ignore = new List<PropertyInfo>();
-          char start = 'a';
+          
           // Set some properties that should not match the default
           foreach (var prop in properties)
-          {
-            if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(long) || prop.PropertyType == typeof(byte))
-            {
-              prop.SetValue(obj1, 13);
-              if (Convert.ToInt32(prop.GetValue(obj1)) != 13)
-                ignore.Add(prop);
-            }
-
-            if (prop.PropertyType == typeof(bool))
-            {
-              var newVal = !(bool) prop.GetValue(obj1);
-              prop.SetValue(obj1, newVal);
-              if ((bool) prop.GetValue(obj1) != newVal)
-                ignore.Add(prop);
-            }
-
-            if (prop.PropertyType == typeof(string))
-            {
-              prop.SetValue(obj1, start + "_Raphael");
-              if ((string) prop.GetValue(obj1) != start++ + "_Raphael")
-                ignore.Add(prop);
-            }
-
-            if (prop.PropertyType == typeof(decimal))
-            {
-              var newVal = 1.56m;
-              prop.SetValue(obj1, newVal);
-              if ((decimal) prop.GetValue(obj1) != newVal)
-                ignore.Add(prop);
-            }
-
-            if (prop.PropertyType == typeof(float))
-            {
-              var newVal = 31.7f;
-              prop.SetValue(obj1, newVal);
-              if ((float) prop.GetValue(obj1) != newVal)
-                ignore.Add(prop);
-            }
-
-            if (prop.PropertyType == typeof(double))
-            {
-              var newVal = 31.7d;
-              prop.SetValue(obj1, newVal);
-              if ((double) prop.GetValue(obj1) != newVal)
-                ignore.Add(prop);
-            }
-
-            if (prop.PropertyType == typeof(DateTime))
-            {
-              var newVal = new DateTime(2014, 12, 24);
-              prop.SetValue(obj1, newVal);
-              if ((DateTime) prop.GetValue(obj1) != newVal)
-                ignore.Add(prop);
-            }
-
-            prop.SetValue(obj3, prop.GetValue(obj1));
-          }
-
+            if (!prop.ChangePropertyValue(obj1))
+              ignore.Add(prop);
+          
           var methodEquals = type.GetMethod(
             "Equals",
             BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
@@ -190,7 +134,7 @@ namespace CsvTools.Tests
       }
     }
 
-    private IEnumerable<Type> GetAllIEquatable()
+    private static IEnumerable<Type> GetAllIEquatable()
     {
       return AppDomain.CurrentDomain.GetAssemblies()
         .Where(a => a.FullName.StartsWith("ClassLibraryCSV", StringComparison.Ordinal))

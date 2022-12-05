@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 
 namespace CsvTools
 {
@@ -59,14 +60,10 @@ namespace CsvTools
     /// </returns>
     public new void Add(T item)
     {
-      // ReSharper disable once SuspiciousTypeConversion.Global
-      if (item is ICloneable src)
-        item = (T) src.Clone();
       if (IndexOf(item)!=-1)
         return;
 
       // Set Property changed Event Handlers if possible
-      // ReSharper disable once SuspiciousTypeConversion.Global
       if (item is INotifyPropertyChanged notifyPropertyChanged)
       {
         if (CollectionItemPropertyChanged != null)
@@ -74,7 +71,6 @@ namespace CsvTools
         if (ItemPropertyChanged!=null)
           notifyPropertyChanged.PropertyChanged += ItemPropertyChanged;
       }
-      // ReSharper disable once SuspiciousTypeConversion.Global
       if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
         notifyPropertyChangedString.PropertyChangedString += ItemPropertyChangedString;
 
@@ -109,16 +105,11 @@ namespace CsvTools
         if (property.PropertyType != typeof(string))
           throw new ArgumentException($"The property {propertyName} must be a string value");
 
-        var otherIds = new List<string>(Items.Count);
-        foreach (var prev in Items)
-          otherIds.Add((string) property.GetValue(prev));
-
         // now make the name unique
-        property.SetValue(item, otherIds.MakeUniqueInCollection((string) property.GetValue(item)));
+        property.SetValue(item, Items.Select(prev => (string) property.GetValue(prev)).ToList().MakeUniqueInCollection((string) property.GetValue(item)));
       }
       Add(item);
     }
-
     /// <inheritdoc cref="ObservableCollection{T}" />
     public new void Insert(int index, T item)
     {
@@ -183,7 +174,10 @@ namespace CsvTools
           else
             Add(enumerator.Current);
     }
-
+    /// <summary>
+    ///   A slightly faster method to add a number of items in one go, the collection gets a reference to the passed in values
+    /// </summary>
+    /// <param name="items">Some items to add</param>
     public void AddRangeNoClone(IEnumerable<T> items)
     {
       using var enumerator = items.GetEnumerator();
@@ -191,6 +185,7 @@ namespace CsvTools
         if (enumerator.Current != null)
           Add(enumerator.Current);
     }
+
     /// <summary>
     ///   Determines whether the specified object is equal to the current object.
     /// </summary>

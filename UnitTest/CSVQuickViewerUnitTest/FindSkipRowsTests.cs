@@ -1,10 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CsvTools;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
@@ -15,7 +9,7 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public void FindSkipRows()
     {
-      var csv = new CsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"));
+      var csv = new CsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), string.Empty);
       using var frm = new FindSkipRows(csv);
       UnitTestStatic.ShowFormAndClose(frm);
     }

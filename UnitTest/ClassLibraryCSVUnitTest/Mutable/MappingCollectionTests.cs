@@ -45,9 +45,7 @@ namespace CsvTools.Tests
     {
       var mapping1 = new Mapping("fc1", "tf1");
       var mapping2 = new Mapping("fc1", "tf2");
-      var mc1 = new MappingCollection();
-      mc1.Add(mapping1);
-      mc1.Add(mapping2);
+      var mc1 = new MappingCollection { mapping1, mapping2 };
       Assert.IsTrue(mapping1.Equals(mc1.GetByColumn("fc1").First()));
     }
 
@@ -63,8 +61,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void GetColumnNameTest()
     {
-      var mc1 = new MappingCollection();
-      mc1.Add(new Mapping("fc1", "tf1"));
+      var mc1 = new MappingCollection { new Mapping("fc1", "tf1") };
       Assert.AreEqual("fc1", mc1.GetColumnName("tf1"));
     }
 

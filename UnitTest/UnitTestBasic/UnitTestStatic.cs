@@ -11,7 +11,6 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
 #nullable enable
 
 
@@ -20,6 +19,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -39,9 +39,30 @@ namespace CsvTools.Tests
 {
   public static class UnitTestStatic
   {
-    private static UnitTestLogger? TestLogger;
-    public static string LastLogMessage => TestLogger!.LastMessage;
+    private static UnitTestLogger? m_TestLogger;
+    public static string LastLogMessage => m_TestLogger!.LastMessage;
 
+
+    public static void RunSerializeAllProps<T>(T obj, in IReadOnlyCollection<string>? ignore = null) where T : class
+    {
+      foreach (var propertyInfo in obj.GetValueTypeProperty())
+      {
+        if (ignore != null && ignore.Contains(propertyInfo.Name))
+          continue;
+        try
+        {
+          if (!propertyInfo.ChangePropertyValue(obj))
+            // could not change the property
+            continue;
+          var ret = RunSerialize(obj, false, true);
+          Assert.AreEqual(propertyInfo.GetValue(obj), propertyInfo.GetValue(ret), $"Comparing changed value {propertyInfo.Name} of {obj.GetType().FullName}");
+        }
+        catch (Exception e)
+        {
+          Assert.Fail($"Could not clone, change or serialize {propertyInfo} in {obj.GetType().FullName}: \n{e.Message}");
+        }
+      }
+    }
 
     public static T RunSerialize<T>(T obj, bool includeXml = true, bool includeJson = true) where T : class
     {
@@ -56,7 +77,7 @@ namespace CsvTools.Tests
         var testXml = obj.SerializeIndentedXml(serializer);
         Assert.IsFalse(string.IsNullOrEmpty(testXml));
         using TextReader reader = new StringReader(testXml);
-        ret = serializer.Deserialize(reader) as T;
+        ret = serializer.Deserialize(reader) as T ?? throw new InvalidOperationException();
         Assert.IsNotNull(ret);
       }
 
@@ -66,7 +87,7 @@ namespace CsvTools.Tests
         Assert.IsFalse(string.IsNullOrEmpty(testJson));
         var pos = testJson.IndexOf("Specified\":", StringComparison.OrdinalIgnoreCase);
         Assert.IsFalse(pos != -1, $"Contains Specified as position {pos} in \n{testJson}");
-        ret = JsonConvert.DeserializeObject<T>(testJson, SerializedFilesLib.JsonSerializerSettings.Value);
+        ret = JsonConvert.DeserializeObject<T>(testJson, SerializedFilesLib.JsonSerializerSettings.Value) ?? throw new InvalidOperationException();
         Assert.IsNotNull(ret);
       }
 
@@ -75,7 +96,7 @@ namespace CsvTools.Tests
 
 
 #pragma warning disable CS8602
-    public static void WriteToContext(this string s) => TestLogger!.Context.WriteLine(s);
+    public static void WriteToContext(this string s) => m_TestLogger!.Context.WriteLine(s);
 #pragma warning restore CS8602
 
     public static readonly string ApplicationDirectory = Path.Combine(
@@ -103,7 +124,6 @@ namespace CsvTools.Tests
       new ColumnMut("PartEmpty"), //7
       new ColumnMut("ID", new ValueFormat(DataTypeEnum.Integer)) //8
     };
-
 
     public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
 
@@ -167,6 +187,140 @@ namespace CsvTools.Tests
             $"Type: {a.GetType().FullName}\nProperty:{prop.Name}\nValue A:{prop.GetValue(a)}\nnValue B:{prop.GetValue(b)}");
     }
 
+    public static ICollection<PropertyInfo> GetValueTypeProperty(this object myClass, IReadOnlyCollection<string>? ignore = null)
+    {
+      return myClass.GetType().GetProperties().Where(prop => !(ignore?.Contains(prop?.Name) ?? false) && prop.GetMethod != null &&
+        (prop.PropertyType == typeof(int)
+         || prop.PropertyType == typeof(long)
+         || prop.PropertyType == typeof(string)
+         || prop.PropertyType == typeof(bool)
+         || prop.PropertyType == typeof(float)
+         || prop.PropertyType == typeof(double)
+         || prop.PropertyType == typeof(Guid)
+         || prop.PropertyType == typeof(DateTime))).ToList();
+    }
+
+    public static bool ChangePropertyValue(this PropertyInfo prop, object obj1)
+    {
+      if (prop.PropertyType == typeof(byte))
+      {
+        byte newVal;
+        do
+        {
+          newVal = Convert.ToByte(m_Random.Next(0, 255));
+        } while ((byte) prop.GetValue(obj1) == newVal);
+
+        prop.SetValue(obj1, newVal);
+        return ((byte) prop.GetValue(obj1)) == newVal;
+      }
+
+      if (prop.PropertyType == typeof(int))
+      {
+        int newVal;
+        do
+        {
+          newVal = m_Random.Next(-100, 10000);
+        } while ((int) prop.GetValue(obj1) == newVal);
+
+        prop.SetValue(obj1, newVal);
+        return ((int) prop.GetValue(obj1)) == newVal;
+      }
+
+      if (prop.PropertyType == typeof(long))
+      {
+        long newVal;
+        do
+        {
+          newVal = m_Random.Next(-100, 10000);
+        } while ((long) prop.GetValue(obj1) == newVal);
+        prop.SetValue(obj1, newVal);
+
+        return ((long) prop.GetValue(obj1)) == newVal;
+      }
+      if (prop.PropertyType == typeof(long))
+      {
+        var newVal = (long) prop.GetValue(obj1) +1;
+
+        prop.SetValue(obj1, newVal);
+        return ((long) prop.GetValue(obj1)) == newVal;
+      }
+      if (prop.PropertyType == typeof(bool))
+      {
+        var newVal = !(bool) prop.GetValue(obj1);
+        prop.SetValue(obj1, newVal);
+        return ((bool) prop.GetValue(obj1)) == newVal;
+
+      }
+
+      if (prop.PropertyType == typeof(string))
+      {
+        var src = prop.GetValue(obj1) as string;
+        var newVal = "RN";
+        // ReSharper disable once ReplaceWithStringIsNullOrEmpty
+        if (src != null && src.Length>0)
+          newVal = GetRandomText(src.Length);
+        prop.SetValue(obj1, newVal);
+
+        return ((string) prop.GetValue(obj1)) == newVal;
+      }
+
+      if (prop.PropertyType == typeof(decimal))
+      {
+        decimal newVal;
+        do
+        {
+          newVal = Convert.ToDecimal(m_Random.NextDouble());
+        } while ((decimal) prop.GetValue(obj1) == newVal);
+
+        prop.SetValue(obj1, newVal);
+        return ((decimal) prop.GetValue(obj1)) == newVal;
+      }
+
+      if (prop.PropertyType == typeof(float))
+      {
+        float newVal;
+        do
+        {
+          newVal = Convert.ToSingle(m_Random.NextDouble());
+        } while (Math.Abs((float) prop.GetValue(obj1) - newVal) < .5);
+
+        prop.SetValue(obj1, newVal);
+        return Math.Abs(((float) prop.GetValue(obj1)) - newVal) < .01;
+      }
+
+      if (prop.PropertyType == typeof(double))
+      {
+        double newVal;
+        do
+        {
+          newVal = m_Random.NextDouble();
+        } while (Math.Abs((double) prop.GetValue(obj1) - newVal) < .5);
+
+        prop.SetValue(obj1, newVal);
+        return Math.Abs(((double) prop.GetValue(obj1)) - newVal) < .01;
+      }
+
+      if (prop.PropertyType == typeof(DateTime))
+      {
+        DateTime newVal;
+        do
+        {
+          newVal = new DateTime(m_Random.Next(1980, 2030), m_Random.Next(1, 12), 1).AddDays(m_Random.Next(1, 31));
+        } while ((DateTime) prop.GetValue(obj1) == newVal);
+        prop.SetValue(obj1, newVal);
+        return ((DateTime) prop.GetValue(obj1)) == newVal;
+      }
+
+      if (prop.PropertyType == typeof(Guid))
+      {
+        Guid newVal = Guid.NewGuid();
+        prop.SetValue(obj1, newVal);
+        return ((Guid) prop.GetValue(obj1)) == newVal;
+      }
+
+      return false;
+    }
+
     public static void CheckAllPropertiesEqual(this object a, in object b, IReadOnlyCollection<string>? ignore = null)
     {
       if (ReferenceEquals(a, b))
@@ -179,18 +333,10 @@ namespace CsvTools.Tests
         if (b is null)
           throw new ArgumentNullException(nameof(b));
 
-        var readProps = a.GetType().GetProperties().Where(prop => prop?.GetMethod != null).ToList();
-
-        var valueProperties = readProps.Where(prop =>
-          (prop.PropertyType == typeof(int)
-           || prop.PropertyType == typeof(long)
-           || prop.PropertyType == typeof(string)
-           || prop.PropertyType == typeof(bool)
-           || prop.PropertyType == typeof(DateTime)) && !(ignore?.Contains(prop.Name) ?? false)).ToList();
-
+        var valueProperties = a.GetValueTypeProperty(ignore);
         CheckPropertiesEqual(a, b, valueProperties);
 
-        foreach (var prop in readProps.Where(prop =>
+        foreach (var prop in valueProperties.Where(prop =>
                    prop.PropertyType.AssemblyQualifiedName != null && !valueProperties.Contains(prop) &&
                    prop.PropertyType.AssemblyQualifiedName.StartsWith("CsvTools.", StringComparison.Ordinal)))
         {
@@ -207,7 +353,7 @@ namespace CsvTools.Tests
       }
     }
 
-    public static void AssemblyInitialize(Microsoft.VisualStudio.TestTools.UnitTesting.TestContext context)
+    public static void AssemblyInitialize(TestContext context)
     {
       MimicSql();
       Token = context.CancellationTokenSource.Token;
@@ -219,14 +365,14 @@ namespace CsvTools.Tests
           WriteToContext(args.Exception.ToString());
         Assert.Fail(args.Exception.ToString());
       };
-      AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs args)
+      AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs args)
       {
         if (!Token.IsCancellationRequested)
           WriteToContext(args.ExceptionObject.ToString());
         Assert.Fail(args.ExceptionObject.ToString());
       };
-      TestLogger = new UnitTestLogger(context);
-      Logger.LoggerInstance = TestLogger;
+      m_TestLogger = new UnitTestLogger(context);
+      Logger.LoggerInstance = m_TestLogger;
     }
 
     public static T ExecuteWithCulture<T>(Func<T> methodFunc, string cultureName)
@@ -328,9 +474,10 @@ namespace CsvTools.Tests
 
     public static CsvFile ReaderGetAllFormats(string id = "AllFormats")
     {
-      var readFile = new CsvFile(Path.Combine(GetTestPath("AllFormats.txt")))
+      var readFile = new CsvFile(Path.Combine(GetTestPath("AllFormats.txt")),id)
       {
-        ID = id, HasFieldHeader = true, FieldDelimiter = "TAB"
+        HasFieldHeader = true,
+        FieldDelimiter = "TAB"
       };
 
       readFile.ColumnCollection.Add(
@@ -338,7 +485,7 @@ namespace CsvTools.Tests
           timePart: "Time", timePartFormat: "HH:mm:ss"));
       readFile.ColumnCollection.Add(new Column("Integer", new ValueFormat(DataTypeEnum.Integer)));
       readFile.ColumnCollection.Add(
-        new Column("Numeric", new ValueFormat(DataTypeEnum.Numeric, decimalSeparator: "."), 0));
+        new Column("Numeric", new ValueFormat(DataTypeEnum.Numeric, decimalSeparator: ".")));
       readFile.ColumnCollection.Add(
         new Column("Double", new ValueFormat(dataType: DataTypeEnum.Double, decimalSeparator: ".")));
       readFile.ColumnCollection.Add(new Column("Boolean", new ValueFormat(DataTypeEnum.Boolean)));
@@ -350,7 +497,7 @@ namespace CsvTools.Tests
 
     public static CsvFile ReaderGetBasicCSV(string id = "BasicCSV")
     {
-      var readFile = new CsvFile(Path.Combine(GetTestPath("BasicCSV.txt"))) { ID = id, CommentLine = "#" };
+      var readFile = new CsvFile(Path.Combine(GetTestPath("BasicCSV.txt")),id) {  CommentLine = "#" };
       var examDateFld = new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy"));
       readFile.ColumnCollection.Add(examDateFld);
 
@@ -414,7 +561,7 @@ namespace CsvTools.Tests
 
           var methodClone = type.GetMethod("Clone", BindingFlags.Public | BindingFlags.Instance);
           if (methodClone is null)
-            throw new Exception($"No clone method fornd for {type.FullName}");
+            throw new Exception($"No clone method found for {type.FullName}");
           try
           {
             var obj3 = methodClone.Invoke(obj1, null);

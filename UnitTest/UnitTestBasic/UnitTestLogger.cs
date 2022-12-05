@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
 
-namespace CsvTools
+namespace CsvTools.Tests
 {
   public class UnitTestLogger : ILogger
   {

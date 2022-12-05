@@ -23,7 +23,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetMappingByFieldTest()
     {
-      var csv = new CsvFile("Dummy.txt");
+      var csv = new CsvFile("Dummy.txt", string.Empty);
       Assert.IsNull(csv.MappingCollection.GetByField(""));
       Assert.IsNull(csv.MappingCollection.GetByField("Hello"));
 

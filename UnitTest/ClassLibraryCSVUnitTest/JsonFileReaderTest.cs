@@ -29,7 +29,7 @@ namespace CsvTools.Tests
     public async Task OpenJsonArray()
     {
       var setting =
-        new JsonFile(UnitTestStatic.GetTestPath("Larger.json.gz"));
+        new JsonFile(UnitTestStatic.GetTestPath("Larger.json.gz"),string.Empty);
       
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
@@ -67,7 +67,7 @@ namespace CsvTools.Tests
     [Timeout(10000)]
     public async Task ReadJSonEmp_VariousTypedData()
     {
-      var setting = new JsonFile(UnitTestStatic.GetTestPath("Emp.json"));
+      var setting = new JsonFile(UnitTestStatic.GetTestPath("Emp.json"),"json");
 
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
@@ -85,7 +85,7 @@ namespace CsvTools.Tests
     [Timeout(10000)]
     public async Task NotSupportedAsync()
     {
-      var setting = new JsonFile(UnitTestStatic.GetTestPath("Emp.json"));
+      var setting = new JsonFile(UnitTestStatic.GetTestPath("Emp.json"),string.Empty);
 
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
@@ -249,7 +249,7 @@ namespace CsvTools.Tests
     [Timeout(10000)]
     public async Task ReadJSon1Async()
     {
-      var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason1.json"));
+      var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason1.json"),"json");
 
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
@@ -267,7 +267,7 @@ namespace CsvTools.Tests
     public async Task ReadJSon1TypedAsync()
     {
       var setting =
-        new JsonFile(UnitTestStatic.GetTestPath("Larger.json"));
+        new JsonFile(UnitTestStatic.GetTestPath("Larger.json"),"json");
 
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
@@ -288,7 +288,7 @@ namespace CsvTools.Tests
     [Timeout(10000)]
     public async Task ReadJSon2Async()
     {
-      var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason2.json"));
+      var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason2.json"),"json");
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await jfr.OpenAsync(UnitTestStatic.Token);
@@ -308,7 +308,7 @@ namespace CsvTools.Tests
     [Timeout(10000)]
     public async Task ReadJSon3Async()
     {
-      var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason3.json"));
+      var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason3.json"), string.Empty);
 
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
@@ -329,7 +329,7 @@ namespace CsvTools.Tests
     [Timeout(10000)]
     public async Task ReadJSon4Async()
     {
-      var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason4.json"));
+      var setting = new JsonFile(UnitTestStatic.GetTestPath("Jason4.json"),"json");
 
       using var jfr = new JsonFileReader(setting.FullPath, setting.ColumnCollection, setting.RecordLimit, setting.TrimmingOption == TrimmingOptionEnum.All,
         setting.TreatTextAsNull, setting.TreatNBSPAsSpace, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);

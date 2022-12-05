@@ -94,7 +94,7 @@ namespace CsvTools.Tests
 
     private CsvFile GetCsvFile()
     {
-      var file = new CsvFile(UnitTestStatic.GetTestPath("Test.csv")) { ID = "TestFile", CommentLine = "##" };
+      var file = new CsvFile(UnitTestStatic.GetTestPath("Test.csv"), "TestFile"){ CommentLine = "##" };
 
       file.MappingCollection.Add(new Mapping("Fld1", "FldA"));
       file.MappingCollection.Add(new Mapping("Fld2", "FldB"));

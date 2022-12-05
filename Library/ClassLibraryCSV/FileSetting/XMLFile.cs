@@ -32,21 +32,21 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     [JsonConstructor]
-    public XmlFile(string fileName)
-      : base(fileName)
+    public XmlFile(in string fileName, in string id)
+      : base(fileName, id)
     {
     }
 
     /// <inheritdoc />
     [Obsolete("Only needed for XML Serialization")]
     public XmlFile()
-      : this(string.Empty)
+      : this(string.Empty, string.Empty)
     {
     }
 
     public override object Clone()
     {
-      var other = new XmlFile(FileName);
+      var other = new XmlFile(FileName, ID);
       CopyTo(other);
       return other;
     }

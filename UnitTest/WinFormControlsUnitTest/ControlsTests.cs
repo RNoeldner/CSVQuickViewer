@@ -109,7 +109,7 @@ namespace CsvTools.Tests
     public void QuotingControl()
     {
       using var ctrl = new QuotingControl();
-      ctrl.CsvFile = new CsvFile("");
+      ctrl.CsvFile = new CsvFile("","CSV");
       UnitTestStatic.ShowControl(ctrl);
     }
 
@@ -267,6 +267,14 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public void SearchShow() => UnitTestStatic.ShowControl(new Search());
 
+    [TestMethod]
+    [Timeout(4000)]
+    public void ShowSelectFont() => UnitTestStatic.ShowControl(new SelectFont());
+
+    [TestMethod]
+    [Timeout(4000)]
+    public void ShowLoggerDisplay() => UnitTestStatic.ShowControl(new LoggerDisplay());
+    
     [TestMethod]
     [Timeout(5000)]
     public void FillGuessSettingEditShow() => UnitTestStatic.ShowControl(new FillGuessSettingEdit());

@@ -11,7 +11,7 @@ namespace CsvTools
     private SyntaxHighlighterDelimitedText m_HighLighter;
 
 
-    public FindSkipRows() : this(new CsvFile("Dummy.csv"))
+    public FindSkipRows() : this(new CsvFile("Dummy.csv","csv"))
     {
     }
 
