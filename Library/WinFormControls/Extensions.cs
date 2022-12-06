@@ -15,6 +15,8 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -385,12 +387,13 @@ namespace CsvTools
 
     public static void SetClipboard(this string text) => RunStaThread(() => Clipboard.SetText(text));
 
-    public static void SetEnumDataSource<T>(this ComboBox cbo, T currentValue) where T : Enum
+    public static void SetEnumDataSource<T>(this ComboBox cbo, T currentValue, IReadOnlyCollection<T>? doNotShow = null) where T : Enum
     {
       cbo.SuspendLayout();
       var descConv = new EnumDescriptionConverter(typeof(T));
-      cbo.DataSource = (from T item in Enum.GetValues(typeof(T))
-        select new DisplayItem<T>(item, descConv?.ConvertToString(item) ?? string.Empty)).ToList();
+      cbo.DataSource = (Enum.GetValues(typeof(T)).Cast<T>()
+        .Where(item => doNotShow == null || !doNotShow.Contains(item))
+        .Select(item => new DisplayItem<T>(item, descConv?.ConvertToString(item) ?? string.Empty))).ToList();
       cbo.DisplayMember = nameof(DisplayItem<T>.Display);
       cbo.ValueMember = nameof(DisplayItem<T>.ID);
       cbo.SelectedValue = currentValue;
