@@ -385,6 +385,18 @@ namespace CsvTools
 
     public static void SetClipboard(this string text) => RunStaThread(() => Clipboard.SetText(text));
 
+    public static void SetEnumDataSource<T>(this ComboBox cbo, T currentValue) where T : Enum
+    {
+      cbo.SuspendLayout();
+      var descConv = new EnumDescriptionConverter(typeof(T));
+      cbo.DataSource = (from T item in Enum.GetValues(typeof(T))
+        select new DisplayItem<T>(item, descConv?.ConvertToString(item) ?? string.Empty)).ToList();
+      cbo.DisplayMember = nameof(DisplayItem<T>.Display);
+      cbo.ValueMember = nameof(DisplayItem<T>.ID);
+      cbo.SelectedValue = currentValue;
+      cbo.ResumeLayout();
+    }
+
     /// <summary>
     ///   Show error information to a user, and logs the message
     /// </summary>

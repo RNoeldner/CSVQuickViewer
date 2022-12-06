@@ -885,10 +885,7 @@ namespace CsvTools
     private void RefreshData()
     {
       SetDateFormat();
-      var selValue = (int) m_ColumnEdit.ValueFormatMut.DataType;
-      comboBoxDataType.DataSource = (from DataTypeEnum item in Enum.GetValues(typeof(DataTypeEnum))
-        select new DisplayItem<int>((int) item, item.DataTypeDisplay())).ToList();
-      comboBoxDataType.SelectedValue = selValue;
+      comboBoxDataType.SetEnumDataSource(m_ColumnEdit.ValueFormatMut.DataType);
       ComboBoxColumnName_TextUpdate(null, EventArgs.Empty);
     }
 

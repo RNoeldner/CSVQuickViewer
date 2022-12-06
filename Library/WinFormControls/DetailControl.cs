@@ -419,6 +419,15 @@ namespace CsvTools
     /// <summary>
     ///   A File Setting
     /// </summary>
+    public ICsvFile? WriteSetting
+    {
+      get;
+      set;
+    }
+
+    /// <summary>
+    ///   A File Setting
+    /// </summary>
     public FillGuessSettings? FillGuessSettings
     {
       set => FilteredDataGridView.FillGuessSettings = value;
@@ -1125,66 +1134,58 @@ namespace CsvTools
     }
 
     // ReSharper disable once MemberCanBePrivate.Global
-    public async Task SafeCurrentFile(string fileName, bool adjustDelimiter)
+    public async Task SafeCurrentFile(string fileName)
     {
       if (FilteredDataGridView.DataView is null)
         return;
-
-      // This will always write a delimited text file
-      ICsvFile writeFile = new CsvFile(string.Empty, string.Empty);
-      FileSetting?.CopyTo(writeFile);
-
-      // in case the extension is changed change the delimiter accordingly
-      if (adjustDelimiter)
+      if (WriteSetting == null)
       {
-        if (fileName.EndsWith("tab", StringComparison.OrdinalIgnoreCase) ||
-            fileName.EndsWith("tsv", StringComparison.OrdinalIgnoreCase))
-          writeFile.FieldDelimiter = "\t";
-
-        if (fileName.EndsWith("csv", StringComparison.OrdinalIgnoreCase))
-          writeFile.FieldDelimiter = ",";
+        WriteSetting = new CsvFile(string.Empty, string.Empty);
+        FileSetting?.CopyTo(WriteSetting);
       }
 
-      var headerAndSipped = new StringBuilder(writeFile.Header);
+      var headerAndSipped = new StringBuilder(WriteSetting.Header);
       // in case we skipped lines read them as Header so we do not loose them
-      if (writeFile.SkipRows > 0 && string.IsNullOrEmpty(writeFile.Header))
+      if (WriteSetting.SkipRows > 0 && string.IsNullOrEmpty(WriteSetting.Header))
       {
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var iStream = FunctionalDI.OpenStream(new SourceAccess(writeFile));
-        using var sr = new ImprovedTextReader(iStream, writeFile.CodePageId);
-        for (var i = 0; i < writeFile.SkipRows; i++)
+        using var iStream = FunctionalDI.OpenStream(new SourceAccess(WriteSetting));
+        using var sr = new ImprovedTextReader(iStream, WriteSetting.CodePageId);
+        for (var i = 0; i < WriteSetting.SkipRows; i++)
           headerAndSipped.AppendLine(await sr.ReadLineAsync());
       }
 
-      using var formProgress = new FormProgress(writeFile.ToString(), true, m_CancellationToken);
+      using var formProgress = new FormProgress(WriteSetting.ToString(), true, m_CancellationToken);
       try
       {
         formProgress.Show(ParentForm);
 
-        BeforeFileStored?.Invoke(this, writeFile);
-        var writer = new CsvFileWriter(string.Empty, fileName, writeFile.HasFieldHeader, writeFile.ValueFormatWrite,
-          writeFile.CodePageId,
-          writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.KeyID, writeFile.KeepUnencrypted,
-          writeFile.IdentifierInContainer,
-          headerAndSipped.ToString(), writeFile.Footer, string.Empty, writeFile.NewLine, writeFile.FieldDelimiterChar,
-          writeFile.FieldQualifierChar,
-          writeFile.EscapePrefixChar,
-          writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder,
-          writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone,
+        BeforeFileStored?.Invoke(this, WriteSetting);
+        var writer = new CsvFileWriter(FileSetting?.ID ?? string.Empty, fileName, WriteSetting.HasFieldHeader,
+          WriteSetting.ValueFormatWrite,
+          WriteSetting.CodePageId,
+          WriteSetting.ByteOrderMark, WriteSetting.ColumnCollection, WriteSetting.KeyID, WriteSetting.KeepUnencrypted,
+          WriteSetting.IdentifierInContainer,
+          headerAndSipped.ToString(), WriteSetting.Footer, string.Empty, WriteSetting.NewLine,
+          WriteSetting.FieldDelimiterChar,
+          WriteSetting.FieldQualifierChar,
+          WriteSetting.EscapePrefixChar,
+          WriteSetting.NewLinePlaceholder, WriteSetting.DelimiterPlaceholder, WriteSetting.QualifierPlaceholder,
+          WriteSetting.QualifyAlways, WriteSetting.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone,
           TimeZoneInfo.Local.Id);
 
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var dt = new DataTableWrapper(
-            FilteredDataGridView.DataView.ToTable(false,
-              // Restrict to shown data
-              FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-                .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
-                .OrderBy(col => col.DisplayIndex)
-                .Select(col => col.DataPropertyName).ToArray()));
+        using var dt = new DataTableWrapper(
+          FilteredDataGridView.DataView.ToTable(false,
+            // Restrict to shown data
+            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+              .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
+              .OrderBy(col => col.DisplayIndex)
+              .Select(col => col.DataPropertyName).ToArray()));
         // can not use filteredDataGridView.Columns directly
         await writer.WriteAsync(dt, formProgress.CancellationToken);
       }
@@ -1194,7 +1195,7 @@ namespace CsvTools
       }
       finally
       {
-        FileStored?.Invoke(this, writeFile);
+        FileStored?.Invoke(this, WriteSetting);
       }
     }
 
@@ -1219,7 +1220,7 @@ namespace CsvTools
         if (fileName is null || fileName.Length == 0)
           return;
 
-        await SafeCurrentFile(fileName, !fileName.EndsWith(split.Extension, StringComparison.OrdinalIgnoreCase));
+        await SafeCurrentFile(fileName);
       }
       catch (Exception ex)
       {

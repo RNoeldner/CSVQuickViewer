@@ -197,6 +197,11 @@ namespace CsvTools
             onlyColumnErrors = errorColumn.ColumnName.Equals(ReaderConstants.cErrorField);
         }
 
+        if (maxDuration < TimeSpan.MaxValue)
+          Logger.Information("Reading batch (Limit {durationInitial:F1}s)", maxDuration.TotalSeconds);
+        else
+          Logger.Information("Reading all data");
+        
         var watch = Stopwatch.StartNew();
         while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 95)
                                                  && await wrapper.ReadAsync(cancellationToken)

@@ -71,10 +71,11 @@ namespace CsvTools
     {
       m_ID = fileSetting.ID;
       m_FileReader = FunctionalDI.GetFileReader(fileSetting, cancellationToken);
-      if (progress != null)
-        m_FileReader.ReportProgress = progress;
       if (m_FileReader is null)
         throw new FileReaderException($"Could not get reader for {fileSetting}");
+      if (progress != null)
+        m_FileReader.ReportProgress = progress;
+
 
       RowErrorCollection? warningList = null;
       if (addWarning != null)
@@ -84,7 +85,7 @@ namespace CsvTools
         m_FileReader.Warning -= warningList.Add;
       }
 
-      Logger.Information("Reading data for display");
+
       await m_FileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
       if (addWarning != null)
@@ -103,12 +104,13 @@ namespace CsvTools
 
       m_ActionBegin?.Invoke();
 
-      await GetBatchByTimeSpan(durationInitial, restoreError, progress, m_SetDataTable,
+      // the initial progress is set on the source reader
+      await GetBatchByTimeSpan(durationInitial, restoreError, null, m_SetDataTable,
           cancellationToken)
         .ConfigureAwait(false);
 
       m_SetLoadNextBatchAsync?.Invoke((process, token) =>
-        GetBatchByTimeSpan(TimeSpan.FromMinutes(60), restoreError, process,
+        GetBatchByTimeSpan(durationInitial, restoreError, process,
           dt => m_GetDataTable().Merge(dt), token));
 
       m_ActionFinished?.Invoke(m_DataReaderWrapper);
@@ -163,7 +165,7 @@ namespace CsvTools
 
       if (m_DataReaderWrapper.EndOfFile)
 #if NETSTANDARD2_1_OR_GREATER
-          await DisposeAsync();
+        await DisposeAsync().ConfigureAwait(false);
 #else
         Dispose();
 #endif

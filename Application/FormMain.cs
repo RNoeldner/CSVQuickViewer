@@ -60,7 +60,7 @@ namespace CsvTools
       });
     }
 
-    public FormMain(in ViewSettings viewSettings) : base (viewSettings) 
+    public FormMain(in ViewSettings viewSettings) : base(viewSettings)
     {
       m_ViewSettings = viewSettings;
       InitializeComponent();
@@ -208,11 +208,12 @@ namespace CsvTools
           if (m_FileSetting is null)
             return;
 
-
           m_FileSetting.RootFolder = fileName.GetDirectoryName();
           m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
           m_FileSetting.DisplayEndLineNo = false;
           m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
+
+          m_FileSetting.CopyTo(m_ViewSettings.WriteSetting);
 
           // update the UI
           var display = fileName;
@@ -536,6 +537,7 @@ namespace CsvTools
           {
             ShowTextPanel(true);
             detailControl.FileSetting = m_FileSetting;
+            detailControl.WriteSetting = m_ViewSettings.WriteSetting;
             detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
             detailControl.CancellationToken = cancellationToken;
             detailControl.ShowInfoButtons = false;
@@ -544,7 +546,6 @@ namespace CsvTools
           using (var formProgress = new FormProgress(fileNameShort, false, cancellationToken))
           {
             formProgress.Show();
-            Logger.Information("Reading data...");
             formProgress.Maximum = 100;
 
             await m_DetailControlLoader.StartAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,
@@ -590,6 +591,7 @@ namespace CsvTools
       }
       finally
       {
+        Logger.Information("Display of data");
         if (!cancellationToken.IsCancellationRequested)
         {
           this.SafeInvoke(() => ShowTextPanel(false));

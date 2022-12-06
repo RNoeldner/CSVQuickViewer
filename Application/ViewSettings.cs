@@ -42,6 +42,7 @@ namespace CsvTools
     private bool m_StoreSettingsByFile;
     private bool m_DisplayStartLineNo = true;
     private bool m_DisplayRecordNo;
+    private readonly ICsvFile m_WriteSetting = new CsvFile(string.Empty, "Write");
 
     public enum Duration
     {
@@ -110,6 +111,12 @@ namespace CsvTools
     {
       get => m_DetectFileChanges;
       set => SetField(ref m_DetectFileChanges, value);
+    }
+
+    [JsonIgnore]
+    public ICsvFile WriteSetting
+    {
+      get => m_WriteSetting;
     }
 
     [JsonIgnore]
