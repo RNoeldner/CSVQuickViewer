@@ -1106,7 +1106,7 @@ namespace CsvTools
       if (!hasReadRow)
         HandleReadFinished();
       else
-        HandleShowProgressPeriodic("Reading");
+        HandleShowProgressPeriodic($"Record {RecordNumber:N0}");
     }
 
     protected virtual void InitColumn(int fieldCount)

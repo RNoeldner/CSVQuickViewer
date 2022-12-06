@@ -173,13 +173,9 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task BasicEscapedCharacters()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt"), "BasicEscaped")
       {
-        HasFieldHeader = false,
-        FieldDelimiter = ",",
-        CommentLine = "#",
-        EscapePrefix = "\\",
-        FileName = UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt")
+        HasFieldHeader = false, FieldDelimiter = ",", CommentLine = "#", EscapePrefix = "\\"
       };
 
 
@@ -220,7 +216,7 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task ComplexDataDelimiter()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt"), "ComplexDataDelimiter")
       {
         HasFieldHeader = false,
         FieldDelimiter = ",",
@@ -230,7 +226,6 @@ Line "Test"", "22",23,"  24"
       };
       setting.FieldDelimiter = ",";
       setting.TrimmingOption = TrimmingOptionEnum.Unquoted;
-      setting.FileName = UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt");
 
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
@@ -336,17 +331,17 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task ComplexDataDelimiterTrimQuotes()
     {
-      var setting = new CsvFile
-      {
-        HasFieldHeader = false,
-        ConsecutiveEmptyRows = 5,
-        CommentLine = "#",
-        EscapePrefix = "\\",
-        FieldQualifier = "\"",
-        FieldDelimiter = ",",
-        TrimmingOption = TrimmingOptionEnum.All,
-        FileName = UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt")
-      };
+      var setting =
+        new CsvFile(UnitTestStatic.GetTestPath("ComplexDataDelimiter.txt"), "ComplexDataDelimiterTrimQuotes")
+        {
+          HasFieldHeader = false,
+          ConsecutiveEmptyRows = 5,
+          CommentLine = "#",
+          EscapePrefix = "\\",
+          FieldQualifier = "\"",
+          FieldDelimiter = ",",
+          TrimmingOption = TrimmingOptionEnum.All
+        };
 
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
@@ -592,12 +587,9 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task EscapedCharacterAtEndOfRowDelimiterNoEscape()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt"), "csv")
       {
-        HasFieldHeader = false,
-        FieldDelimiter = ",",
-        EscapePrefix = "",
-        FileName = UnitTestStatic.GetTestPath("EscapedCharacterAtEndOfRowDelimiter.txt")
+        HasFieldHeader = false, FieldDelimiter = ",", EscapePrefix = ""
       };
 
 

@@ -31,22 +31,19 @@ namespace CsvTools
     private readonly ViewSettings m_ViewSettings;
     private IFileSettingPhysicalFile? m_FileSetting;
 
+    private void SetFileSetting(IFileSettingPhysicalFile fileSetting)
+    {
+      m_FileSetting = fileSetting;
+      if (m_FileSetting is ICsvFile csvFile)
+      {
+        bindingSourceCsvFile.DataSource = csvFile;
+        quotingControl.CsvFile = csvFile;
+      }
+    }
+
     public IFileSettingPhysicalFile? FileSetting
     {
       get => m_FileSetting;
-      private set
-      {
-        if (value != null)
-        {
-          m_FileSetting = value;
-          if (m_FileSetting is ICsvFile csvFile)
-          {
-            bindingSourceCsvFile.DataSource = csvFile;
-            cboRecordDelimiter.SelectedValue = (int) csvFile.NewLine;
-            quotingControl.CsvFile = csvFile;
-          }
-        }
-      }
     }
 
     private bool m_IsDisposed;
@@ -98,17 +95,20 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           formProgress.Maximum = 0;
           formProgress.Show(this);
 
-          FileSetting = (await newFileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
+          SetFileSetting((await newFileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
             m_ViewSettings.GuessCodePage,
             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-            m_ViewSettings.FillGuessSettings, formProgress.CancellationToken)).PhysicalFile();
+            m_ViewSettings.FillGuessSettings, formProgress.CancellationToken)).PhysicalFile());
 
           formProgress.Close();
         }
 
         if (m_FileSetting != null)
+        {
           m_FileSetting.FileName = newFileName;
+          m_FileSetting.CopyTo(m_ViewSettings.WriteSetting);
+        }
       }
       catch (Exception ex)
       {
@@ -159,8 +159,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           var res = await improvedStream.GuessDelimiter(csvFile.CodePageId, csvFile.SkipRows,
             csvFile.EscapePrefix,
             m_CancellationTokenSource.Token);
-          if (res.Item2)
-            csvFile.FieldDelimiter = res.Item1;
+          if (res.IsDetected)
+            csvFile.FieldDelimiter = res.Delimiter;
         });
     }
 
@@ -207,9 +207,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
     private void CboRecordDelimiter_SelectedIndexChanged(object? sender, EventArgs e)
     {
-      if (m_FileSetting is ICsvFile csvFile)
-        if (cboRecordDelimiter.SelectedValue is RecordDelimiterTypeEnum val)
-          csvFile.NewLine = val;
+      if (cboRecordDelimiter.SelectedValue is RecordDelimiterTypeEnum val)
+        m_ViewSettings.WriteSetting.NewLine = val;
     }
 
     private void CheckBoxColumnsProcess_CheckedChanged(object? sender, EventArgs e)
@@ -228,24 +227,24 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     {
       bindingSourceViewSetting.DataSource = m_ViewSettings;
       fillGuessSettingEdit.FillGuessSettings = m_ViewSettings.FillGuessSettings;
+      bindingSourceWrite.DataSource = m_ViewSettings.WriteSetting;
 
       cboCodePage.SuspendLayout();
-      cboCodePage.DataSource = EncodingHelper.CommonCodePages
+      cboWriteCodePage.SuspendLayout();
+      var codePages = EncodingHelper.CommonCodePages
         .Select(cp => new DisplayItem<int>(cp, EncodingHelper.GetEncodingName(cp, false))).ToList();
+      cboCodePage.DataSource = codePages;
+      cboWriteCodePage.DataSource = codePages;
       cboCodePage.ResumeLayout(true);
-
-      var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterTypeEnum));
-      var di = (from RecordDelimiterTypeEnum item in Enum.GetValues(typeof(RecordDelimiterTypeEnum))
-        select new DisplayItem<int>((int) item, descConv?.ConvertToString(item) ?? string.Empty)).ToList();
+      cboWriteCodePage.ResumeLayout(true);
 
 
       cboRecordDelimiter.SuspendLayout();
-      cboRecordDelimiter.DataSource = di;
-      cboRecordDelimiter.DisplayMember = nameof(DisplayItem<int>.Display);
-      cboRecordDelimiter.ValueMember = nameof(DisplayItem<int>.ID);
-      cboRecordDelimiter.ResumeLayout(true);
-
-      FileSetting = m_FileSetting;
+      if (m_FileSetting != null)
+        SetFileSetting(m_FileSetting);
+      cboRecordDelimiter.SetEnumDataSource(m_ViewSettings.WriteSetting.NewLine);
+      quotingControlWrite.CsvFile = m_ViewSettings.WriteSetting;
+      quotingControlWrite.IsWriteSetting = true;
     }
 
     private void FormEditSettings_FormClosing(object? sender, FormClosingEventArgs e)

@@ -377,6 +377,7 @@ namespace CsvTools
 
       var oldDelimiter = detectionResult.FieldDelimiter.WrittenPunctuationToChar();
       // from here on us the encoding to read the stream again
+      // ========== Start Row
       if (guessStartRow && oldDelimiter != 0)
       {
         cancellationToken.ThrowIfCancellationRequested();
@@ -385,13 +386,10 @@ namespace CsvTools
           detectionResult.CodePageId,
           detectionResult.SkipRows,
           cancellationToken).ConfigureAwait(false);
+
         detectionResult = new DelimitedFileDetectionResult(
           detectionResult.FileName,
-          streamReader.GuessStartRow(
-            detectionResult.FieldDelimiter,
-            detectionResult.FieldQualifier,
-            detectionResult.CommentLine,
-            cancellationToken),
+          streamReader.GuessStartRow(detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.CommentLine, cancellationToken),
           detectionResult.CodePageId,
           detectionResult.ByteOrderMark,
           detectionResult.QualifyAlways,
@@ -406,6 +404,7 @@ namespace CsvTools
           detectionResult.NewLine);
       }
 
+
       if (guessQualifier || guessDelimiter || guessNewLine)
       {
         Logger.Information("Re-Opening file");
@@ -414,27 +413,29 @@ namespace CsvTools
           detectionResult.SkipRows,
           cancellationToken).ConfigureAwait(false);
 
+        // ========== Delimiter
         if (guessDelimiter)
         {
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Column Delimiter");
-          var (delimiter, noDelimiter) = textReader.GuessDelimiter(
+          var delimiterDet = textReader.GuessDelimiter(
             detectionResult.EscapePrefix, disallowedDelimiter,
             cancellationToken);
+
           detectionResult = new DelimitedFileDetectionResult(
             detectionResult.FileName,
-            detectionResult.SkipRows,
+            delimiterDet.MagicKeyword ? detectionResult.SkipRows+1 : detectionResult.SkipRows,
             detectionResult.CodePageId,
             detectionResult.ByteOrderMark,
             detectionResult.QualifyAlways,
             detectionResult.IdentifierInContainer,
             detectionResult.CommentLine,
             detectionResult.EscapePrefix,
-            delimiter,
+            delimiterDet.Delimiter,
             detectionResult.FieldQualifier,
             detectionResult.HasFieldHeader,
             detectionResult.IsJson,
-            noDelimiter,
+            delimiterDet.IsDetected,
             detectionResult.NewLine);
         }
 
@@ -483,6 +484,30 @@ namespace CsvTools
               detectionResult.IsJson,
               detectionResult.NoDelimitedFile,
               detectionResult.NewLine);
+        }
+
+        if (guessQualifier || guessDelimiter)
+        {
+          cancellationToken.ThrowIfCancellationRequested();
+          Logger.Information("Checking Escape Char");
+          if (!textReader.IsEscapeUsed(detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.EscapePrefix, cancellationToken))
+          {
+            detectionResult = new DelimitedFileDetectionResult(
+              detectionResult.FileName,
+              detectionResult.SkipRows,
+              detectionResult.CodePageId,
+              detectionResult.ByteOrderMark,
+              detectionResult.QualifyAlways,
+              detectionResult.IdentifierInContainer,
+              detectionResult.CommentLine,
+              string.Empty,
+              detectionResult.FieldDelimiter,
+              detectionResult.FieldQualifier,
+              detectionResult.HasFieldHeader,
+              detectionResult.IsJson,
+              detectionResult.NoDelimitedFile,
+              detectionResult.NewLine);
+          }
         }
       }
 
@@ -719,6 +744,20 @@ namespace CsvTools
       return new Tuple<int, bool>(detected.CodePage, false);
     }
 
+    public struct DelimiterDetection
+    {
+      public string Delimiter;
+      public bool IsDetected;
+      public bool MagicKeyword;
+
+      public DelimiterDetection(in string delimiter, bool isDetected, bool magicKeyword)
+      {
+        Delimiter = delimiter;
+        IsDetected = isDetected;
+        MagicKeyword = magicKeyword;
+      }
+    }
+
     /// <summary>
     ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to
     ///   find the delimiter that has the least variance in the read rows, if that is not possible
@@ -731,7 +770,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <remarks>No Error will not be thrown.</remarks>
-    public static async Task<Tuple<string, bool>> GuessDelimiter(
+    public static async Task<DelimiterDetection> GuessDelimiter(
       this Stream improvedStream,
       int codePageId,
       int skipRows,
@@ -745,6 +784,7 @@ namespace CsvTools
 
       if (textReader.CanSeek)
       {
+        // TODO: as the line contains the magic word skip this line in later detections
         // read the first line and check if it does contain the magic word sep=
         var firstLine = (await textReader.ReadLineAsync().ConfigureAwait(false)).Trim().Replace(" ", "");
         if (firstLine.StartsWith("sep=", StringComparison.OrdinalIgnoreCase) && firstLine.Length > 4)
@@ -753,7 +793,7 @@ namespace CsvTools
           if (resultFl.Equals("\\t", StringComparison.OrdinalIgnoreCase))
             resultFl = "Tab";
           Logger.Information("Delimiter from 'sep=' in first line: {delimiter}", resultFl);
-          return new Tuple<string, bool>(resultFl, true);
+          return new DelimiterDetection(resultFl, true, true);
         }
 
         textReader.ToBeginning();
@@ -1457,7 +1497,7 @@ namespace CsvTools
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <exception cref="ArgumentNullException">streamReader</exception>
     /// <remarks>No Error will not be thrown.</remarks>
-    private static Tuple<string, bool> GuessDelimiter(
+    private static DelimiterDetection GuessDelimiter(
       this ImprovedTextReader textReader,
       string escapeCharacter,
       IEnumerable<char>? disallowedDelimiter,
@@ -1557,12 +1597,12 @@ namespace CsvTools
       if (!hasDelimiter)
       {
         Logger.Information("Not a delimited file");
-        return new Tuple<string, bool>("Tab", false);
+        return new DelimiterDetection("Tab", false, false);
       }
 
       var result = match == '\t' ? "Tab" : match.ToStringHandle0().ToString(CultureInfo.CurrentCulture);
       Logger.Information("Column Delimiter: {delimiter}", result);
-      return new Tuple<string, bool>(result, true);
+      return new DelimiterDetection(result, true, false);
     }
 
     private static RecordDelimiterTypeEnum GuessNewline(
@@ -1670,6 +1710,34 @@ namespace CsvTools
         res = RecordDelimiterTypeEnum.Lfcr;
       Logger.Information("Record Delimiter: {recorddelimiter}", res.Description());
       return res;
+    }
+
+    private static bool IsEscapeUsed(
+      this ImprovedTextReader textReader,
+      string delimiter,
+      string quote,
+      string escape,
+      CancellationToken cancellationToken)
+    {
+      var delimiterChar = delimiter.WrittenPunctuationToChar();
+      var quoteChar = quote.WrittenPunctuationToChar();
+      var escapeChar = escape.WrittenPunctuationToChar();
+      var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
+      var counter = 0;
+      while (!textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested && counter++< 65536)
+      {
+        var c = textReader.Read();
+        if (c == escapeChar)
+        {
+          if (!textReader.EndOfStream)
+            c = textReader.Read();
+          if (!textReader.EndOfStream)
+            c = textReader.Read();
+          if (c == delimiterChar || c == quoteChar || c == escapeChar)
+            return true;
+        }
+      }
+      return false;
     }
 
     /// <summary>
