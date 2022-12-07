@@ -44,7 +44,7 @@ namespace CsvTools
     private int m_CodePageId = 65001;
     private long m_KeyID;
 
-    protected BaseSettingPhysicalFile(in string fileName, in string id) : base (id)
+    protected BaseSettingPhysicalFile(in string fileName, in string id) : base(id)
     {
       m_FileName = FileNameFix(fileName);
     }

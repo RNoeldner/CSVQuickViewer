@@ -99,8 +99,9 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
     /// <param name="id"></param>
-    public CsvFile(in string fileName, in string id)
-      : base(fileName, id)
+    [JsonConstructor]
+    public CsvFile(in string? fileName = "", in string? id = "")
+      : base(fileName ?? string.Empty, id ?? string.Empty)
     {
     }
 
