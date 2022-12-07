@@ -1328,14 +1328,14 @@ namespace CsvTools
 
         if (fileName is null || fileName.Length == 0)
           return;
-#if NET6_0_OR_GREATER
+#if NET5_0_OR_GREATER
         await
 #endif
-        using var stream = new ImprovedStream(new SourceAccess(fileName, false));
-#if NET6_0_OR_GREATER
+          using var stream = new ImprovedStream(new SourceAccess(fileName, false));
+#if NET5_0_OR_GREATER
         await
 #endif
-        using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
+          using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
         await writer.WriteAsync(ViewSetting.StoreViewSetting(this, m_Filter));
         await writer.FlushAsync();
 
