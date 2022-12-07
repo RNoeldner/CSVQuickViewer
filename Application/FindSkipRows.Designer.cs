@@ -117,12 +117,11 @@
       // 
       // buttonSkipLine
       // 
-      this.buttonSkipLine.AutoSize = true;
       this.buttonSkipLine.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       this.buttonSkipLine.Location = new System.Drawing.Point(303, 2);
       this.buttonSkipLine.Margin = new System.Windows.Forms.Padding(2);
       this.buttonSkipLine.Name = "buttonSkipLine";
-      this.buttonSkipLine.Size = new System.Drawing.Size(97, 23);
+      this.buttonSkipLine.Size = new System.Drawing.Size(97,  25);
       this.buttonSkipLine.TabIndex = 125;
       this.buttonSkipLine.Text = "Guess Start Row";
       this.buttonSkipLine.UseVisualStyleBackColor = true;

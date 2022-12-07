@@ -370,11 +370,10 @@ namespace CsvTools
       // 
       // buttonAddFormat
       // 
-      this.buttonAddFormat.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(this.buttonAddFormat, 2);
       this.buttonAddFormat.Location = new System.Drawing.Point(312, 246);
       this.buttonAddFormat.Name = "buttonAddFormat";
-      this.buttonAddFormat.Size = new System.Drawing.Size(103, 23);
+      this.buttonAddFormat.Size = new System.Drawing.Size(103,  25);
       this.buttonAddFormat.TabIndex = 7;
       this.buttonAddFormat.Text = "Add to List";
       this.toolTip.SetToolTip(this.buttonAddFormat, "Add the selected uncommon date/time format to the checked list box");
@@ -646,11 +645,10 @@ namespace CsvTools
       // buttonCancel
       // 
       this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.buttonCancel.AutoSize = true;
       this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
       this.buttonCancel.Location = new System.Drawing.Point(541, 3);
       this.buttonCancel.Name = "buttonCancel";
-      this.buttonCancel.Size = new System.Drawing.Size(83, 23);
+      this.buttonCancel.Size = new System.Drawing.Size(83,  25);
       this.buttonCancel.TabIndex = 4;
       this.buttonCancel.Text = "&Cancel";
       this.buttonCancel.UseVisualStyleBackColor = true;
@@ -678,11 +676,10 @@ namespace CsvTools
       // 
       // buttonGuess
       // 
-      this.buttonGuess.AutoSize = true;
       this.buttonGuess.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       this.buttonGuess.Location = new System.Drawing.Point(110, 3);
       this.buttonGuess.Name = "buttonGuess";
-      this.buttonGuess.Size = new System.Drawing.Size(103, 23);
+      this.buttonGuess.Size = new System.Drawing.Size(103,  25);
       this.buttonGuess.TabIndex = 2;
       this.buttonGuess.Text = "&Guess";
       this.toolTip.SetToolTip(this.buttonGuess, "Read the content of the source and try and find a matching format\r\nNote: Any colu" +
@@ -740,11 +737,10 @@ namespace CsvTools
       // 
       // buttonDisplayValues
       // 
-      this.buttonDisplayValues.AutoSize = true;
       this.buttonDisplayValues.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
       this.buttonDisplayValues.Location = new System.Drawing.Point(2, 3);
       this.buttonDisplayValues.Name = "buttonDisplayValues";
-      this.buttonDisplayValues.Size = new System.Drawing.Size(104, 23);
+      this.buttonDisplayValues.Size = new System.Drawing.Size(104,  25);
       this.buttonDisplayValues.TabIndex = 1;
       this.buttonDisplayValues.Text = "Display &Values";
       this.toolTip.SetToolTip(this.buttonDisplayValues, "Read the content of the source and display the read values.\r\nNote: Any column tha" +
@@ -801,11 +797,10 @@ namespace CsvTools
       // buttonOK
       // 
       this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.buttonOK.AutoSize = true;
       this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
       this.buttonOK.Location = new System.Drawing.Point(454, 3);
       this.buttonOK.Name = "buttonOK";
-      this.buttonOK.Size = new System.Drawing.Size(83, 23);
+      this.buttonOK.Size = new System.Drawing.Size(83,  25);
       this.buttonOK.TabIndex = 3;
       this.buttonOK.Text = "&Ok";
       this.buttonOK.UseVisualStyleBackColor = true;
