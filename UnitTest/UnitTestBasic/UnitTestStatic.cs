@@ -474,10 +474,9 @@ namespace CsvTools.Tests
 
     public static CsvFile ReaderGetAllFormats(string id = "AllFormats")
     {
-      var readFile = new CsvFile(Path.Combine(GetTestPath("AllFormats.txt")),id)
+      var readFile = new CsvFile(id: id, fileName: Path.Combine(GetTestPath("AllFormats.txt")))
       {
-        HasFieldHeader = true,
-        FieldDelimiter = "TAB"
+        HasFieldHeader = true, FieldDelimiter = "TAB"
       };
 
       readFile.ColumnCollection.Add(
@@ -497,7 +496,7 @@ namespace CsvTools.Tests
 
     public static CsvFile ReaderGetBasicCSV(string id = "BasicCSV")
     {
-      var readFile = new CsvFile(Path.Combine(GetTestPath("BasicCSV.txt")),id) {  CommentLine = "#" };
+      var readFile = new CsvFile(id: id, fileName: Path.Combine(GetTestPath("BasicCSV.txt"))) { CommentLine = "#" };
       var examDateFld = new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy"));
       readFile.ColumnCollection.Add(examDateFld);
 

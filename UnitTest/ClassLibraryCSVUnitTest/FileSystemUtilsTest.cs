@@ -169,7 +169,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GroupFromFileNameInMain()
     {
-      var setting2 = new CsvFile($"..{Path.DirectorySeparatorChar}TestFile.csv", "csv") { RootFolder = UnitTestStatic.ApplicationDirectory };
+      var setting2 =
+        new CsvFile(id: "csv", fileName: $"..{Path.DirectorySeparatorChar}TestFile.csv")
+        {
+          RootFolder = UnitTestStatic.ApplicationDirectory
+        };
       var dn = FileSystemUtils.SplitPath(setting2.FullPath).DirectoryName;
 
       Assert.AreEqual($"..{Path.DirectorySeparatorChar}", dn.GetRelativeFolder(UnitTestStatic.ApplicationDirectory));

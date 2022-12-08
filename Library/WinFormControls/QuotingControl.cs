@@ -95,7 +95,7 @@ namespace CsvTools
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
       InitializeComponent();
-      CsvFile = new CsvFile(string.Empty, "placeholder");
+      CsvFile = new CsvFile(id: "placeholder", fileName: string.Empty);
       m_ComboBoxTrim!.SetEnumDataSource(m_CsvFile!.TrimmingOption);
     }
 

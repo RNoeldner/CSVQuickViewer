@@ -29,41 +29,19 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public async Task FillGuessColumnFormatWriterAsyncTest()
-    {
-      var setting1 = new CsvFile { ID="Test1", FileName = UnitTestStatic.GetTestPath("Sessions.txt"), HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t" };
-      UnitTestStatic.MimicSQLReader.AddSetting(setting1);
-      var setting2 = new CsvFile { ID="Test2", FileName = UnitTestStatic.GetTestPath("Sessions2.txt"), HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t", SqlStatement = "Test1" };
-      UnitTestStatic.MimicSql();
-      await setting2.FillGuessColumnFormatWriterAsync(UnitTestStatic.Token);
-      UnitTestStatic.MimicSQLReader.RemoveSetting(setting1);
-      Assert.AreEqual(5, setting2.ColumnCollection.Count);
-    }
-
-    [TestMethod()]
     public async Task GetColumnsSqlAsyncTest()
     {
-      var setting = new CsvFile { ID="nonsese", FileName = UnitTestStatic.GetTestPath("Sessions.txt"), HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t" };
+      var setting = new CsvFile("ID", UnitTestStatic.GetTestPath("Sessions.txt"))
+      {
+        HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
+      };
       setting.ColumnCollection.Add(new Column("Start Date", ValueFormat.Empty, ignore: true));
-
       UnitTestStatic.MimicSQLReader.AddSetting(setting);
 
       UnitTestStatic.MimicSql();
       var res = await setting.ID.GetColumnsSqlAsync(60, UnitTestStatic.Token);
       Assert.AreEqual(5, res.Count());
       UnitTestStatic.MimicSQLReader.RemoveSetting(setting);
-    }
-
-    [TestMethod()]
-    public async Task GetWriterColumnInformationAsyncTest()
-    {
-      var setting1 = new CsvFile { ID="Test1", FileName = UnitTestStatic.GetTestPath("Sessions.txt"), HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t" };
-      UnitTestStatic.MimicSQLReader.AddSetting(setting1);
-      UnitTestStatic.MimicSql();
-      var res = await setting1.ID.GetWriterColumnInformationAsync(120, ValueFormat.Empty, Array.Empty<Column>(),
-        UnitTestStatic.Token);
-      UnitTestStatic.MimicSQLReader.RemoveSetting(setting1);
-      Assert.AreEqual(5, res.Count());
     }
   }
 }

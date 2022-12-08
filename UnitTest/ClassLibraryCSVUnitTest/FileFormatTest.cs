@@ -19,20 +19,20 @@ namespace CsvTools.Tests
   [TestClass]
   public class FileFormatTest
   {
-    private readonly CsvFile m_FileFormat = new CsvFile();
+    private readonly CsvFile m_CsvFile = new("id");
 
     [TestMethod]
     public void CloneTest()
     {
-      var clone = m_FileFormat.Clone();
-      Assert.AreNotSame(clone, m_FileFormat);
-      m_FileFormat.CheckAllPropertiesEqual(clone);
+      var clone = m_CsvFile.Clone();
+      Assert.AreNotSame(clone, m_CsvFile);
+      m_CsvFile.CheckAllPropertiesEqual(clone);
     }
 
     [TestMethod]
     public void FileFormatCheckDefaults()
     {
-      var test = new CsvFile();
+      var test = new CsvFile("1");
       //Assert.AreEqual("#", test.CommentLine, "CommentLine");
       Assert.AreEqual(string.Empty, test.DelimiterPlaceholder, "DelimiterPlaceholder");
       Assert.AreEqual(",", test.FieldDelimiter, "FieldDelimiter");
@@ -42,103 +42,104 @@ namespace CsvTools.Tests
     [TestMethod]
     public void FileFormatCopyTo()
     {
-      var target = new CsvFile();
-      m_FileFormat.CopyTo(target);
+      var target = new CsvFile("2");
+      m_CsvFile.CopyTo(target);
       Assert.AreEqual("##", target.CommentLine, "CommentLine");
-      Assert.AreEqual("\\", m_FileFormat.EscapePrefix, "EscapeCharacter");
+      Assert.AreEqual("\\", m_CsvFile.EscapePrefix, "EscapeCharacter");
     }
 
     [TestMethod]
     public void FileFormatEscapeCharacter()
     {
-      var target = new CsvFile { EscapePrefix = "Tab" };
-      Assert.AreEqual("tab", target.EscapePrefix, true);
+      m_CsvFile.EscapePrefix = "\\";
+      Assert.AreEqual("\\", m_CsvFile.EscapePrefix);
 
-      target.EscapePrefix = "+";
-      Assert.AreEqual(target.EscapePrefix, "+", true);
+      m_CsvFile.EscapePrefix = "+";
+      Assert.AreEqual("+", m_CsvFile.EscapePrefix);
 
-      target.EscapePrefix = "";
-      Assert.AreEqual(target.EscapePrefix, "", true);
+      m_CsvFile.EscapePrefix = "";
+      Assert.AreEqual("", m_CsvFile.EscapePrefix);
     }
 
     [TestMethod]
     public void FileFormatFieldDelimiter()
     {
-      var target = new CsvFile { FieldDelimiter = "Tab" };
-      Assert.AreEqual(target.FieldDelimiter, "tab", true);
-      Assert.AreEqual(target.FieldDelimiterChar, '\t');
+      m_CsvFile.FieldDelimiter = "Tab";
+      Assert.AreEqual("tab", m_CsvFile.FieldDelimiter, true);
+      Assert.AreEqual('\t', m_CsvFile.FieldDelimiterChar);
 
-      target.FieldDelimiter = "comma";
-      Assert.AreEqual(target.FieldDelimiter, "comma", true);
-      Assert.AreEqual(target.FieldDelimiterChar, ',');
+      m_CsvFile.FieldDelimiter = "comma";
+      Assert.AreEqual("comma", m_CsvFile.FieldDelimiter, true);
+      Assert.AreEqual(',', m_CsvFile.FieldDelimiterChar);
 
-      target.FieldDelimiter = "Pipe";
-      Assert.AreEqual(target.FieldDelimiter, "Pipe", true);
-      Assert.AreEqual(target.FieldDelimiterChar, '|');
+      m_CsvFile.FieldDelimiter = "Pipe";
+      Assert.AreEqual("Pipe", m_CsvFile.FieldDelimiter, true);
+      Assert.AreEqual('|', m_CsvFile.FieldDelimiterChar);
     }
 
     [TestMethod]
     public void FileFormatFieldQualifier()
     {
-      var target = new CsvFile { FieldQualifier = "Tab" };
-      Assert.AreEqual(target.FieldQualifier, "tab", true);
-      Assert.AreEqual(target.FieldQualifierChar, '\t');
+      m_CsvFile.FieldQualifier = "Tab";
 
-      target.FieldQualifier = "+";
-      Assert.AreEqual(target.FieldQualifier, "+", true);
-      Assert.AreEqual(target.FieldQualifierChar, '+');
+      Assert.AreEqual(m_CsvFile.FieldQualifier, "tab", true);
+      Assert.AreEqual(m_CsvFile.FieldQualifierChar, '\t');
 
-      target.FieldQualifier = "";
-      Assert.AreEqual(target.FieldQualifier, "", true);
-      Assert.AreEqual(target.FieldQualifierChar, '\0');
+      m_CsvFile.FieldQualifier = "+";
+      Assert.AreEqual(m_CsvFile.FieldQualifier, "+", true);
+      Assert.AreEqual(m_CsvFile.FieldQualifierChar, '+');
+
+      m_CsvFile.FieldQualifier = "";
+      Assert.AreEqual(m_CsvFile.FieldQualifier, "", true);
+      Assert.AreEqual(m_CsvFile.FieldQualifierChar, '\0');
     }
 
     [TestInitialize]
     public void FileFormatInit()
     {
       //m_FileFormat.ColumnFormat = null;
-      m_FileFormat.CommentLine = "##";
-      m_FileFormat.DelimiterPlaceholder = "{d}";
-      m_FileFormat.EscapePrefix = "\\";
-      m_FileFormat.FieldDelimiter = "|";
-      m_FileFormat.FieldQualifier = "#";
-      m_FileFormat.EscapePrefix = "\\";
-      m_FileFormat.NewLine = RecordDelimiterTypeEnum.Lf;
-      m_FileFormat.NewLinePlaceholder = "{n}";
-      m_FileFormat.QualifyOnlyIfNeeded = false;
-      m_FileFormat.QualifyAlways = true;
-      m_FileFormat.QualifierPlaceholder = "{q}";
+      m_CsvFile.CommentLine = "##";
+      m_CsvFile.DelimiterPlaceholder = "{d}";
+      m_CsvFile.EscapePrefix = "\\";
+      m_CsvFile.FieldDelimiter = "|";
+      m_CsvFile.FieldQualifier = "#";
+      m_CsvFile.EscapePrefix = "\\";
+      m_CsvFile.NewLine = RecordDelimiterTypeEnum.Lf;
+      m_CsvFile.NewLinePlaceholder = "{n}";
+      m_CsvFile.QualifyOnlyIfNeeded = false;
+      m_CsvFile.QualifyAlways = true;
+      m_CsvFile.QualifierPlaceholder = "{q}";
 
-      Assert.IsFalse(m_FileFormat.QualifyOnlyIfNeeded, "QualifyOnlyIfNeeded");
-      Assert.IsTrue(m_FileFormat.QualifyAlways, "QualifyAlways");
-      Assert.AreEqual(RecordDelimiterTypeEnum.Lf, m_FileFormat.NewLine, "NewLine");
-      Assert.AreEqual("##", m_FileFormat.CommentLine, "CommentLine");
-      Assert.AreEqual("{d}", m_FileFormat.DelimiterPlaceholder, "DelimiterPlaceholder");
-      Assert.AreEqual("{n}", m_FileFormat.NewLinePlaceholder, "NewLinePlaceholder");
-      Assert.AreEqual("{q}", m_FileFormat.QualifierPlaceholder, "QuotePlaceholder");
-      Assert.AreEqual("|", m_FileFormat.FieldDelimiter, "FieldDelimiter");
-      Assert.AreEqual("#", m_FileFormat.FieldQualifier, "FieldQualifier");
-      Assert.AreEqual("\\", m_FileFormat.EscapePrefix, "EscapeCharacter");
+      Assert.IsFalse(m_CsvFile.QualifyOnlyIfNeeded, "QualifyOnlyIfNeeded");
+      Assert.IsTrue(m_CsvFile.QualifyAlways, "QualifyAlways");
+      Assert.AreEqual(RecordDelimiterTypeEnum.Lf, m_CsvFile.NewLine, "NewLine");
+      Assert.AreEqual("##", m_CsvFile.CommentLine, "CommentLine");
+      Assert.AreEqual("{d}", m_CsvFile.DelimiterPlaceholder, "DelimiterPlaceholder");
+      Assert.AreEqual("{n}", m_CsvFile.NewLinePlaceholder, "NewLinePlaceholder");
+      Assert.AreEqual("{q}", m_CsvFile.QualifierPlaceholder, "QuotePlaceholder");
+      Assert.AreEqual("|", m_CsvFile.FieldDelimiter, "FieldDelimiter");
+      Assert.AreEqual("#", m_CsvFile.FieldQualifier, "FieldQualifier");
+      Assert.AreEqual("\\", m_CsvFile.EscapePrefix, "EscapeCharacter");
     }
 
     [TestMethod]
     public void FileFormatNotEquals()
     {
-      var target = new CsvFile();
-      Assert.IsFalse(m_FileFormat.Equals(target));
+      var target = new CsvFile("1");
+      Assert.IsFalse(m_CsvFile.Equals(target));
     }
 
     [TestMethod]
-    public void FileFormatNotEqualsNull() => Assert.IsFalse(m_FileFormat.Equals(null));
+    public void FileFormatNotEqualsNull() => Assert.IsFalse(m_CsvFile.Equals(null));
 
     [TestMethod]
-    public void FileFormatNotEqualsSelf() => Assert.IsTrue(m_FileFormat.Equals(m_FileFormat));
+    public void FileFormatNotEqualsSelf() => Assert.IsTrue(m_CsvFile.Equals(m_CsvFile));
 
     [TestMethod]
     public void FileFormatPropertyChanged()
     {
       var numCalled = 0;
-      var test = new CsvFile();
+      var test = new CsvFile("1");
       test.PropertyChanged += (_, e) =>
       {
         Assert.AreEqual(nameof(CsvFile.QualifierPlaceholder), e.PropertyName, true);
@@ -151,14 +152,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CommentLine()
     {
-      var test = new CsvFile { CommentLine = "a comment Line" };
+      var test = new CsvFile("id2") { CommentLine = "a comment Line" };
       Assert.AreEqual("a comment Line", test.CommentLine);
     }
 
     [TestMethod]
     public void FieldDelimiter()
     {
-      var test = new CsvFile { FieldDelimiter = "Tabulator" };
+      var test = new CsvFile("id2") { FieldDelimiter = "Tabulator" };
       Assert.AreEqual("Tabulator", test.FieldDelimiter);
       Assert.AreEqual('\t', test.FieldDelimiterChar);
 

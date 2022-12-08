@@ -61,7 +61,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void SerializeIndented()
     {
-      var csv = new CsvFile("test", string.Empty) { TemplateName = "Check" };
+      var csv = new CsvFile(id: string.Empty, fileName: "test") { TemplateName = "Check" };
       csv.MappingCollection.Add(new Mapping("Test", "Test"));
       var ser = new XmlSerializer(typeof(CsvFile));
 

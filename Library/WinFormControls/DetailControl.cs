@@ -1140,7 +1140,7 @@ namespace CsvTools
         return;
       if (WriteSetting == null)
       {
-        WriteSetting = new CsvFile(string.Empty, string.Empty);
+        WriteSetting = new CsvFile(id: string.Empty, fileName: string.Empty);
         FileSetting?.CopyTo(WriteSetting);
       }
 
