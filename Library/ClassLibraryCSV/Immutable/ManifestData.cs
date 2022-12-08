@@ -29,20 +29,20 @@ namespace CsvTools
 
     [JsonConstructor]
     public ManifestData(
-      string? pubName,
-      string? heading,
-      string? desc,
+      in string? pubName,
+      in string? heading,
+      in string? desc,
       bool delta,
-      string? hydration,
-      bool hasUserDefinedFields,
-      ManifestField[]? fields)
+      in string? hydration,
+      bool? hasUserDefinedFields,
+     in ManifestField[]? fields)
     {
       PubName = pubName ?? string.Empty;
       Desc = desc ?? string.Empty;
       Heading = heading ?? string.Empty;
       Hydration = hydration ?? string.Empty;
       Fields = fields ?? Array.Empty<ManifestField>();
-      HasUserDefinedFields = hasUserDefinedFields;
+      HasUserDefinedFields = hasUserDefinedFields ?? false;
       Delta = delta;
     }
 

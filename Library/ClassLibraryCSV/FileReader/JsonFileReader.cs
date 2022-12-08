@@ -88,11 +88,7 @@ namespace CsvTools
       m_ImprovedStream = null;
     }
 
-    public new void Dispose()
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
+    public new void Dispose() => Dispose(true);
 
     public override async Task OpenAsync(CancellationToken token)
     {
@@ -383,18 +379,10 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER
     public new async ValueTask DisposeAsync()
     {
-      await DisposeAsyncCore();
-
-      Dispose(false);
-      GC.SuppressFinalize(this);
-    }
-
-    private async ValueTask DisposeAsyncCore()
-    {
       if (m_ImprovedStream != null)
         await m_ImprovedStream.DisposeAsync().ConfigureAwait(false);
+      Dispose(false);
     }
-
 #endif
   }
 }

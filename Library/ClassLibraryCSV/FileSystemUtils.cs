@@ -43,6 +43,7 @@ namespace CsvTools
     public static string FullPath(this string? fileName, in string? root) =>
       ResolvePattern(fileName.GetAbsolutePath(root)) ?? string.Empty;
 
+#if !QUICK
     public static void CreateDirectory(in string? directoryName)
     {
       if (directoryName is null || directoryName.Length == 0)
@@ -94,7 +95,7 @@ namespace CsvTools
         Logger.Information(ex, "DeleteWithBackup {fileName}", fileName);
       }
     }
-
+#endif
     public static bool DirectoryExists(in string? directoryName) =>
       !(directoryName is null || directoryName.Length == 0) && Directory.Exists(directoryName.LongPathPrefix());
 
@@ -233,27 +234,6 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Gets the name of the directory, unlike Path.GetDirectoryName is return the input in case
-    ///   the input was a directory already
-    /// </summary>
-    /// <param name="fileOrDirectory">Name of the file or directory.</param>
-    /// <returns>The folder / directory of the given file or directory</returns>
-    public static string GetDirectoryName(this string fileOrDirectory)
-    {
-      if (string.IsNullOrEmpty(fileOrDirectory))
-        return string.Empty;
-
-      if (fileOrDirectory[0] == '.')
-        fileOrDirectory = Path.GetFullPath(fileOrDirectory);
-
-      if (DirectoryExists(fileOrDirectory))
-        return fileOrDirectory;
-
-      // get the directory from under it
-      var lastIndex = fileOrDirectory.LastIndexOf(Path.DirectorySeparatorChar);
-      return lastIndex > 0 ? fileOrDirectory.Substring(0, lastIndex).RemovePrefix() : string.Empty;
-    }
 
     public static string? GetLatestFileOfPattern(string folder, in string searchPattern)
     {
@@ -382,6 +362,95 @@ namespace CsvTools
 
       return ret;
     }
+#if !QUICK
+ /// <summary>
+    ///   Gets the name of the directory, unlike Path.GetDirectoryName is return the input in case
+    ///   the input was a directory already
+    /// </summary>
+    /// <param name="fileOrDirectory">Name of the file or directory.</param>
+    /// <returns>The folder / directory of the given file or directory</returns>
+    public static string GetDirectoryName(this string fileOrDirectory)
+    {
+      if (string.IsNullOrEmpty(fileOrDirectory))
+        return string.Empty;
+
+      if (fileOrDirectory[0] == '.')
+        fileOrDirectory = Path.GetFullPath(fileOrDirectory);
+
+      if (DirectoryExists(fileOrDirectory))
+        return fileOrDirectory;
+
+      // get the directory from under it
+      var lastIndex = fileOrDirectory.LastIndexOf(Path.DirectorySeparatorChar);
+      return lastIndex > 0 ? fileOrDirectory.Substring(0, lastIndex).RemovePrefix() : string.Empty;
+    }
+    /// <summary>
+    ///   Gets filename that is usable in the file system.
+    /// </summary>
+    /// <param name="original">The original text.</param>
+    /// <param name="replaceInvalid">The replace invalid.</param>
+    /// <returns>A text that is allowed in the file system as filename</returns>
+    public static string SafePath(this string original, in string replaceInvalid = "")
+    {
+      if (string.IsNullOrEmpty(original))
+        return string.Empty;
+
+      var sb = new StringBuilder(original.Length);
+      var posFileName = original.LastIndexOf(Path.DirectorySeparatorChar);
+
+      var invalidFile = new List<char>(Path.GetInvalidFileNameChars());
+      var invalidPath = new List<char>(Path.GetInvalidPathChars());
+      for (var i = 0; i < posFileName + 1; i++)
+      {
+        var c = original[i];
+        if (!invalidPath.Contains(c))
+          sb.Append(c);
+        else
+          sb.Append(replaceInvalid);
+      }
+
+      for (var i = posFileName + 1; i < original.Length; i++)
+      {
+        var c = original[i];
+        if (!invalidFile.Contains(c))
+          sb.Append(c);
+        else
+          sb.Append(replaceInvalid);
+      }
+
+      return sb.ToString();
+    }
+
+    public static string ShortFileName(this string longPath)
+    {
+      if (!m_IsWindows || string.IsNullOrEmpty(longPath))
+        return longPath;
+      var fi = new System.IO.FileInfo(longPath);
+      const uint bufferSize = 512;
+      var shortNameBuffer = new StringBuilder((int) bufferSize);
+
+      // we might be asked to build a short path when the file does not exist yet, this would fail
+      if (fi.Exists)
+      {
+        var length = GetShortPathName(longPath, shortNameBuffer, bufferSize);
+        if (length > 0) return shortNameBuffer.ToString().RemovePrefix();
+      }
+
+      // if we have at least the directory shorten this
+      if (fi.Directory?.Exists ?? false)
+      {
+        var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, bufferSize);
+        if (length > 0)
+          return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length - 1] == Path.DirectorySeparatorChar
+                    ? string.Empty
+                    : Path.DirectorySeparatorChar.ToString()) +
+                  fi.Name)
+            .RemovePrefix();
+      }
+
+      throw new FileNotFoundException($"Could not get a short path for the file {longPath}");
+    }
+
 
     public static string GetShortestPath(this string? fileName, in string? basePath)
     {
@@ -389,29 +458,34 @@ namespace CsvTools
       var relative = fileName.GetRelativePath(basePath);
       return relative.Length < absolute.Length ? relative : absolute;
     }
-
-    public static string GetFullPath(in string path) => Path.GetFullPath(path.LongPathPrefix()).RemovePrefix();
-
-    public static FileStream OpenRead(in string fileName) => File.OpenRead(fileName.LongPathPrefix());
-
+    
     public static FileStream OpenWrite(in string fileName) => File.OpenWrite(fileName.LongPathPrefix());
 
     public static FileStream Create(in string fileName, int bufferSize, in FileOptions options) =>
       File.Create(fileName.LongPathPrefix(), bufferSize, options);
-
-    public static void WriteAllBytes(in string fileName, in byte[] contents) =>
-      File.WriteAllBytes(fileName.LongPathPrefix(), contents);
-
+      
     public static void WriteAllText(in string fileName, in string contents) =>
       File.WriteAllText(fileName.LongPathPrefix(), contents);
+
+
+    public static void WriteAllText(in string fileName, in string contents, in Encoding encoding) =>
+      File.WriteAllText(fileName.LongPathPrefix(), contents, encoding);
+
+[DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetShortPathNameW", SetLastError = true)]
+    private static extern int GetShortPathName(string pathName, StringBuilder shortName, uint cbShortName);
 
 #if NETSTANDARD2_1_OR_GREATER
     public static Task WriteAllTextAsync(in string fileName, in string contents, CancellationToken cancellationToken) =>
       File.WriteAllTextAsync(fileName.LongPathPrefix(), contents, cancellationToken);
 #endif
+#endif
 
-    public static void WriteAllText(in string fileName, in string contents, in Encoding encoding) =>
-      File.WriteAllText(fileName.LongPathPrefix(), contents, encoding);
+    public static string GetFullPath(in string path) => Path.GetFullPath(path.LongPathPrefix()).RemovePrefix();
+
+    public static FileStream OpenRead(in string fileName) => File.OpenRead(fileName.LongPathPrefix());
+
+    public static void WriteAllBytes(in string fileName, in byte[] contents) =>
+      File.WriteAllBytes(fileName.LongPathPrefix(), contents);
 
     public static StreamReader GetStreamReaderForFileOrResource(string file)
     {
@@ -496,73 +570,6 @@ namespace CsvTools
       return GetLatestFileOfPattern(split.DirectoryName, split.FileName);
     }
 
-    /// <summary>
-    ///   Gets filename that is usable in the file system.
-    /// </summary>
-    /// <param name="original">The original text.</param>
-    /// <param name="replaceInvalid">The replace invalid.</param>
-    /// <returns>A text that is allowed in the file system as filename</returns>
-    public static string SafePath(this string original, in string replaceInvalid = "")
-    {
-      if (string.IsNullOrEmpty(original))
-        return string.Empty;
-
-      var sb = new StringBuilder(original.Length);
-      var posFileName = original.LastIndexOf(Path.DirectorySeparatorChar);
-
-      var invalidFile = new List<char>(Path.GetInvalidFileNameChars());
-      var invalidPath = new List<char>(Path.GetInvalidPathChars());
-      for (var i = 0; i < posFileName + 1; i++)
-      {
-        var c = original[i];
-        if (!invalidPath.Contains(c))
-          sb.Append(c);
-        else
-          sb.Append(replaceInvalid);
-      }
-
-      for (var i = posFileName + 1; i < original.Length; i++)
-      {
-        var c = original[i];
-        if (!invalidFile.Contains(c))
-          sb.Append(c);
-        else
-          sb.Append(replaceInvalid);
-      }
-
-      return sb.ToString();
-    }
-
-    public static string ShortFileName(this string longPath)
-    {
-      if (!m_IsWindows || string.IsNullOrEmpty(longPath))
-        return longPath;
-      var fi = new System.IO.FileInfo(longPath);
-      const uint bufferSize = 512;
-      var shortNameBuffer = new StringBuilder((int) bufferSize);
-
-      // we might be asked to build a short path when the file does not exist yet, this would fail
-      if (fi.Exists)
-      {
-        var length = GetShortPathName(longPath, shortNameBuffer, bufferSize);
-        if (length > 0) return shortNameBuffer.ToString().RemovePrefix();
-      }
-
-      // if we have at least the directory shorten this
-      if (fi.Directory?.Exists ?? false)
-      {
-        var length = GetShortPathName(fi.Directory.FullName, shortNameBuffer, bufferSize);
-        if (length > 0)
-          return (shortNameBuffer + (shortNameBuffer[shortNameBuffer.Length - 1] == Path.DirectorySeparatorChar
-                    ? string.Empty
-                    : Path.DirectorySeparatorChar.ToString()) +
-                  fi.Name)
-            .RemovePrefix();
-      }
-
-      throw new FileNotFoundException($"Could not get a short path for the file {longPath}");
-    }
-
     public static string GetFileName(in string? path)
     {
       if (path is null || path.Length == 0)
@@ -602,9 +609,6 @@ namespace CsvTools
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern int GetLongPathName(string lpszShortPath, [Out] StringBuilder lpszLongPath, int cchBuffer);
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetShortPathNameW", SetLastError = true)]
-    private static extern int GetShortPathName(string pathName, StringBuilder shortName, uint cbShortName);
 
     private static string LongFileNameKernel(this string shortPath)
     {

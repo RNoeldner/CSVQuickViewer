@@ -93,7 +93,7 @@
 		<Compile Include="..\ClassLibraryCSV\Logger.cs" Link="Logger.cs" />
 
 		<Compile Include="..\ClassLibraryCSV\ValueFormat\ValueFormat.cs" Link="ValueFormat\ValueFormat.cs" />
-		<Compile Include="..\ClassLibraryCSV\ValueFormat\ValueFormatMut.cs" Link="ValueFormat\ValueFormatMut.cs" />
+		
 		<Compile Include="..\ClassLibraryCSV\FileSystemUtils.cs" Link="FileSystemUtils.cs" />
 		<Compile Include="..\ClassLibraryCSV\ImprovedTextReader.cs" Link="ImprovedTextReader.cs" />
 

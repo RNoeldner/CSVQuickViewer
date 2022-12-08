@@ -18,13 +18,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 #if !QUICK
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 #endif
@@ -416,7 +416,7 @@ namespace CsvTools
         RecordDelimiterTypeEnum.None => string.Empty,
         _ => string.Empty
       };
-
+#if !QUICK
     /// <summary>
     /// Gets the Columns of a SQL statement
     /// </summary>
@@ -474,6 +474,8 @@ namespace CsvTools
 
       return source;
     }
+
+#endif
 
     /// <summary>
     ///   Replaces a placeholders with a text. The placeholder are identified surrounding { or a
