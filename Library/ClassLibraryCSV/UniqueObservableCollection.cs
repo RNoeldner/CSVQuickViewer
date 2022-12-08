@@ -64,6 +64,7 @@ namespace CsvTools
         return;
 
       // Set Property changed Event Handlers if possible
+      // ReSharper disable once SuspiciousTypeConversion.Global
       if (item is INotifyPropertyChanged notifyPropertyChanged)
       {
         if (CollectionItemPropertyChanged != null)
@@ -71,6 +72,7 @@ namespace CsvTools
         if (ItemPropertyChanged!=null)
           notifyPropertyChanged.PropertyChanged += ItemPropertyChanged;
       }
+      // ReSharper disable once SuspiciousTypeConversion.Global
       if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
         notifyPropertyChangedString.PropertyChangedString += ItemPropertyChangedString;
 
@@ -169,6 +171,7 @@ namespace CsvTools
       using var enumerator = items.GetEnumerator();
       while (enumerator.MoveNext())
         if (enumerator.Current != null)
+          // ReSharper disable once SuspiciousTypeConversion.Global
           if (enumerator.Current is ICloneable item)
             Add((T) item.Clone());
           else

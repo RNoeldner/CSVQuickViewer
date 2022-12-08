@@ -946,7 +946,7 @@ namespace CsvTools
       // Assume dates are of the same format across the files we check if the dates we have would
       // possibly match no matter how many samples we have this time we do not care about matching
       // length Check Date will cut off time information , this is independent from minRequiredSamples
-      if (guessDateTime && othersValueFormatDate?.DataType == DataTypeEnum.DateTime && StringConversion.DateLengthMatches(firstValue.Length, othersValueFormatDate.DateFormat))
+      if (guessDateTime && othersValueFormatDate.DataType == DataTypeEnum.DateTime && StringConversion.DateLengthMatches(firstValue.Length, othersValueFormatDate.DateFormat))
       {
         var checkResultDateTime = StringConversion.CheckDate(
           samples,

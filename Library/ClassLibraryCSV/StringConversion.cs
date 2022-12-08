@@ -445,6 +445,7 @@ namespace CsvTools
       }
 
       // if we did not convert yet and we have a text use it
+      // ReSharper disable once ReplaceWithStringIsNullOrEmpty
       if (dateValue == m_FirstDateTime && dateColumnText != null && dateColumnText.Length > 0)
       {
         var val = CombineStringsToDateTime(

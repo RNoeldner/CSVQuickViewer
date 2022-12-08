@@ -244,7 +244,7 @@ namespace CsvTools
 
     public override bool IsDBNull(int ordinal)
     {
-      if ((ordinal < 0 && ordinal >= FieldCount) || (CurrentValues is null || CurrentValues.Length <= ordinal))
+      if ((ordinal < 0 && ordinal >= FieldCount) || (CurrentValues.Length <= ordinal))
         return true;
 
       if (Column[ordinal].ValueFormat.DataType == DataTypeEnum.DateTime)

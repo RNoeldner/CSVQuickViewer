@@ -27,6 +27,8 @@ namespace CsvTools
 {
   public static class ReaderExtensionMethods
   {
+
+#if !QUICK
     public static string GetCombinedKey(this IDataReader dataReader, ICollection<int>? columns, char combineWith, Action<int>? trimming = null)
     {
       if (columns is null || columns.Count == 0)
@@ -163,7 +165,7 @@ namespace CsvTools
 
       return emptyColumns;
     }
-
+#endif
     public static async Task<DataTable> GetDataTableAsync(
       this DataReaderWrapper wrapper,
       TimeSpan maxDuration,
@@ -187,8 +189,8 @@ namespace CsvTools
         if (restoreErrorsFromColumn)
         {
           var cols = dataTable.Columns.OfType<DataColumn>().ToList();
-          
-          errorColumn = 
+
+          errorColumn =
             cols.FirstOrDefault(col => col.ColumnName.Equals(ReaderConstants.cErrorField))
             ?? cols.FirstOrDefault(col => col.ColumnName.EndsWith("Errors", StringComparison.InvariantCultureIgnoreCase))
             ?? cols.FirstOrDefault(col => col.ColumnName.StartsWith("Error", StringComparison.InvariantCultureIgnoreCase));
@@ -201,7 +203,7 @@ namespace CsvTools
           Logger.Information("Reading batch (Limit {durationInitial:F1}s)", maxDuration.TotalSeconds);
         else
           Logger.Information("Reading all data");
-        
+
         var watch = Stopwatch.StartNew();
         while (!cancellationToken.IsCancellationRequested && (watch.Elapsed < maxDuration || wrapper.Percent >= 95)
                                                  && await wrapper.ReadAsync(cancellationToken)
