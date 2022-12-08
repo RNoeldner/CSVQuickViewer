@@ -49,7 +49,12 @@ namespace CsvTools.Tests
     [Timeout(3000)]
     public void GetProgressTest()
     {
-      var setting = new CsvFile("Folder\\This is a long file name that should be cut and fit into 80 chars.txt",string.Empty) { ShowProgress = true };
+      var setting =
+        new CsvFile(id: string.Empty,
+          fileName: "Folder\\This is a long file name that should be cut and fit into 80 chars.txt")
+        {
+          ShowProgress = true
+        };
       using (var prc = setting.GetProgress(null, true, UnitTestStatic.Token))
       {
         Assert.IsNotNull(prc, "Getprogress With Logger");
@@ -63,7 +68,7 @@ namespace CsvTools.Tests
       using var frm = new Form();
       frm.Text = "Testing...";
       frm.Show();
-      var csv = new CsvFile("",string.Empty) { ShowProgress = true };
+      var csv = new CsvFile(id: string.Empty, fileName: "") { ShowProgress = true };
       Assert.IsInstanceOfType(csv.GetProgress(frm, true, UnitTestStatic.Token), typeof(FormProgress));
       csv.ShowProgress = false;
       Assert.IsNotInstanceOfType(csv.GetProgress(frm, true, UnitTestStatic.Token), typeof(FormProgress));
@@ -73,7 +78,12 @@ namespace CsvTools.Tests
     [Timeout(3000)]
     public void GetprogressTestNoShow()
     {
-      var setting2 = new CsvFile("Folder\\This is a long file name that should be cut and fit into 80 chars.txt",string.Empty) {  ShowProgress = false };
+      var setting2 =
+        new CsvFile(id: string.Empty,
+          fileName: "Folder\\This is a long file name that should be cut and fit into 80 chars.txt")
+        {
+          ShowProgress = false
+        };
       using var prc = setting2.GetProgress(null, false, UnitTestStatic.Token);
       Assert.IsNull(prc, "Getprogress without UI");
     }

@@ -136,7 +136,10 @@ namespace CsvTools.Tests
       using var formProgress = new FormProgress("FileWithHierarchy");
       formProgress.Show();
       var cvsSetting =
-        new CsvFile(UnitTestStatic.GetTestPath("FileWithHierarchy_WithCyle.txt"), "Csv") { FieldDelimiter = "\t" };
+        new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("FileWithHierarchy_WithCyle.txt"))
+        {
+          FieldDelimiter = "\t"
+        };
       using var csvDataReader = new CsvFileReader(cvsSetting.FullPath, cvsSetting.CodePageId, cvsSetting.SkipRows,
         cvsSetting.HasFieldHeader,
         cvsSetting.ColumnCollection, cvsSetting.TrimmingOption, cvsSetting.FieldDelimiter, cvsSetting.FieldQualifier,

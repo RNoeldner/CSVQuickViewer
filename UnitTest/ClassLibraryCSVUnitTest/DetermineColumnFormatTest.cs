@@ -151,7 +151,7 @@ namespace CsvTools.Tests
     public async Task TestJson()
     {
       var setting =
-        new JsonFile(UnitTestStatic.GetTestPath("Larger.json"),string.Empty);
+        new JsonFile(string.Empty, UnitTestStatic.GetTestPath("Larger.json"));
 
       Assert.AreEqual(0, setting.ColumnCollection.Count);
 
@@ -183,40 +183,6 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod]
-    public async Task GetSourceColumnInformationTestAsync()
-    {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"),string.Empty)
-      {
-        ID = "ID122",
-        HasFieldHeader = true,
-        DisplayStartLineNo = false,
-        SqlStatement = "ID122",
-        FieldDelimiter = ","
-      };
-      using (var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
-               setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter,
-               setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit,
-               setting.AllowRowCombining, setting.ContextSensitiveQualifier, setting.CommentLine,
-               setting.NumWarnings, setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder,
-               setting.DelimiterPlaceholder, setting.QualifierPlaceholder, setting.SkipDuplicateHeader,
-               setting.TreatLfAsSpace, setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns,
-               setting.WarnDelimiterInValue, setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes,
-               setting.WarnUnknownCharacter, setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace,
-               setting.TreatTextAsNull, setting.SkipEmptyLines, setting.ConsecutiveEmptyRows,
-               setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
-      {
-        var dt = await reader.GetDataTableAsync(TimeSpan.FromSeconds(30), false, setting.DisplayStartLineNo,
-          setting.DisplayRecordNo, setting.DisplayEndLineNo, false, null,
-          UnitTestStatic.Token);
-        UnitTestStatic.MimicSQLReader.AddSetting(setting.ID, dt);
-      }
-
-      var res1 = await setting.SqlStatement.GetWriterColumnInformationAsync(setting.Timeout,
-        setting.ValueFormatWrite, setting.ColumnCollection,
-        UnitTestStatic.Token);
-      Assert.AreEqual(6, res1.Count());
-    }
 
     [TestMethod]
     public async Task GetSampleValuesAsync()
@@ -237,23 +203,6 @@ namespace CsvTools.Tests
       Assert.IsTrue(res.Any(x => x.DateFormat.Equals("dd/MM/yyyy") && x.DateSeparator.Equals("-")));
     }
 
-    [TestMethod]
-    public async Task GetSourceColumnInformationTest2Async()
-    {
-      var setting = new CsvFile (String.Empty, "CSV"){ ID = "ID122", FieldDelimiter = "," };
-      try
-      {
-        await "setting.SqlStatement".GetWriterColumnInformationAsync(60,
-          setting.ValueFormatWrite, setting.ColumnCollection,
-          UnitTestStatic.Token);
-
-        Assert.Fail("Invalid SQL should have caused error ");
-      }
-      catch (Exception)
-      {
-        // good
-      }
-    }
 
     [TestMethod]
     public async Task GetSourceColumnInformationTestAsync2()
@@ -284,27 +233,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(11, information2.Count);
     }
 
-    [TestMethod]
-    public async Task GetSourceColumnInformationTestAsync_Parameter()
-    {
-      try
-      {
-        // ReSharper disable once AssignNullToNotNullAttribute
-
-        await "Nonsense SQL".GetWriterColumnInformationAsync(60, null, new List<Column>(),
-          UnitTestStatic.Token);
-
-        Assert.Fail("Expected Exception not thrown");
-      }
-      catch (ArgumentNullException)
-      {
-        // add good
-      }
-      catch (Exception ex)
-      {
-        Assert.Fail("Wrong Exception Type: " + ex.GetType());
-      }
-    }
 
     [TestMethod]
     public void GetAllPossibleFormatsTest2()
@@ -322,11 +250,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task FillGuessColumnFormatReaderTestAsync()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"),"DetermineColumnFormatFillGuessColumnFormatWriter")
-      {
-        HasFieldHeader = true,
-        FieldDelimiter = ","
-      };
+      var setting =
+        new CsvFile(id: "DetermineColumnFormatFillGuessColumnFormatWriter",
+          fileName: UnitTestStatic.GetTestPath("BasicCSV.txt")) { HasFieldHeader = true, FieldDelimiter = "," };
       var fillGuessSettings = new FillGuessSettings
       {
         DetectNumbers = true,
@@ -345,41 +271,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(6, newCols2.Count());
     }
 
-    [TestMethod]
-    public async Task DetermineColumnFormatFillGuessColumnFormatWriterAsync()
-    {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"),string.Empty)
-      {
-        ID = "DetermineColumnFormatFillGuessColumnFormatWriter",
-        DisplayStartLineNo = false,
-        HasFieldHeader = true,
-        FieldDelimiter = ","
-      };
-
-      using (var reader = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
-               setting.HasFieldHeader, setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter,
-               setting.FieldQualifier, setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining,
-               setting.ContextSensitiveQualifier, setting.CommentLine, setting.NumWarnings,
-               setting.DuplicateQualifierToEscape, setting.NewLinePlaceholder, setting.DelimiterPlaceholder,
-               setting.QualifierPlaceholder, setting.SkipDuplicateHeader, setting.TreatLfAsSpace,
-               setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue,
-               setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
-               setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull,
-               setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer,
-               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
-      {
-        await reader.OpenAsync(UnitTestStatic.Token);
-        UnitTestStatic.MimicSQLReader.AddSetting(setting.ID,
-          (await reader.GetDataTableAsync(TimeSpan.FromSeconds(30), false, setting.DisplayStartLineNo,
-            setting.DisplayRecordNo, setting.DisplayEndLineNo,
-            false, null, UnitTestStatic.Token)));
-      }
-
-      var writer = new CsvFile { SqlStatement = setting.ID };
-
-      await writer.FillGuessColumnFormatWriterAsync(UnitTestStatic.Token);
-      Assert.AreEqual(6, writer.ColumnCollection.Count);
-    }
 
     [TestMethod]
     public async Task DetermineColumnFormatGetSampleRollOverAsync()
@@ -558,7 +449,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task FillGuessColumnFormatGermanDateAndNumbersAsync()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("DateAndNumber.csv"),string.Empty)
+      var setting = new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("DateAndNumber.csv"))
       {
         HasFieldHeader = true, FieldQualifier = "Quote", FieldDelimiter = "Tab", CodePageId = 1252
       };
@@ -613,7 +504,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task FillGuessColumnFormatTextColumnsAsync()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("AllFormatsColon.txt"),string.Empty)
+      var setting = new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("AllFormatsColon.txt"))
       {
         HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = ","
       };
@@ -805,7 +696,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSampleValuesByColIndexAsync()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"),string.Empty) { HasFieldHeader = true };
+      var setting =
+        new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("BasicCSV.txt")) { HasFieldHeader = true };
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier,
@@ -829,7 +721,11 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSampleValuesFileEmptyAsync()
     {
-      var setting = new CsvFile(UnitTestStatic.GetTestPath("CSVTestEmpty.txt"),string.Empty) { HasFieldHeader = true };
+      var setting =
+        new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("CSVTestEmpty.txt"))
+        {
+          HasFieldHeader = true
+        };
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
         setting.ColumnCollection, setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier,
         setting.EscapePrefix, setting.RecordLimit, setting.AllowRowCombining, setting.ContextSensitiveQualifier,

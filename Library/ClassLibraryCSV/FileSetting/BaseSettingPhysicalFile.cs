@@ -44,7 +44,7 @@ namespace CsvTools
     private int m_CodePageId = 65001;
     private long m_KeyID;
 
-    protected BaseSettingPhysicalFile(in string fileName, in string id) : base(id)
+    protected BaseSettingPhysicalFile(in string id, in string fileName) : base(id)
     {
       m_FileName = FileNameFix(fileName);
     }
@@ -78,11 +78,7 @@ namespace CsvTools
       set
       {
         if (SetField(ref m_FileName, value, StringComparison.Ordinal, true))
-        {
           ResetFullPath();
-          if (string.IsNullOrEmpty(ID))
-            NotifyPropertyChanged(nameof(InternalID));
-        }
       }
     }
 
@@ -169,13 +165,6 @@ namespace CsvTools
       set => SetField(ref m_IdentifierInContainer, value, StringComparison.Ordinal);
     }
 
-    /// <inheritdoc />
-    /// <summary>
-    ///   The identified to find this specific instance
-    /// </summary>
-    [XmlIgnore]
-    [JsonIgnore]
-    public override string InternalID => string.IsNullOrEmpty(ID) ? FileName : ID;
 
     /// <inheritdoc />
     /// <summary>

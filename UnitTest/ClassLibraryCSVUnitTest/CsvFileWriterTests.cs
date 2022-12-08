@@ -28,7 +28,11 @@ namespace CsvTools.Tests
 
     static CsvFileWriterTests()
     {
-      var readFile = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"), "Read") { FieldDelimiter = ",", CommentLine = "#" };
+      var readFile =
+        new CsvFile(id: "Read", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+        {
+          FieldDelimiter = ",", CommentLine = "#"
+        };
 
       readFile.ColumnCollection.Add(new Column("ExamDate",
         new ValueFormat(DataTypeEnum.DateTime, dateFormat: @"dd/MM/yyyy")));
@@ -39,7 +43,7 @@ namespace CsvTools.Tests
 
       UnitTestStatic.MimicSQLReader.AddSetting(readFile);
 
-      m_WriteFile = new CsvFile("dummy", "Write"){ SqlStatement = readFile.ID };
+      m_WriteFile = new CsvFile(id: "Write", fileName: "dummy") { SqlStatement = readFile.ID };
 
 
       m_WriteFile.ColumnCollection.Add(new Column("ExamDate",

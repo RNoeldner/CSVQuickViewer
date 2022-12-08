@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System;
@@ -27,15 +28,17 @@ namespace CsvTools
   /// </summary>
   public abstract class StructuredFile : BaseSettingPhysicalFile
   {
-    private string m_Row = string.Empty;
+    private string m_Row;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="StructuredFile" /> class.
     /// </summary>
+    /// <param name="id"></param>
     /// <param name="fileName">Name of the file.</param>
-    protected StructuredFile(in string fileName, in string id)
-      : base(fileName, id)
+    protected StructuredFile(in string id, in string fileName, in string row)
+      : base(id, fileName)
     {
+      m_Row = row;
     }
 
     /// <summary>

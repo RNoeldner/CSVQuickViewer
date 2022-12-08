@@ -27,11 +27,11 @@ namespace CsvTools.Tests
   {
     private static readonly TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
 
-    private readonly CsvFile m_ValidSetting = new CsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt"), string.Empty)
-    {
-      FieldDelimiter = ",",
-      CommentLine = "#"
-    };
+    private readonly CsvFile m_ValidSetting =
+      new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      {
+        FieldDelimiter = ",", CommentLine = "#"
+      };
 
     [TestInitialize]
     public void Init()
@@ -90,12 +90,9 @@ namespace CsvTools.Tests
     public async Task AllFormatsPipeReaderAsync()
     {
       var setting =
-        new CsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), string.Empty)
+        new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("AllFormatsPipe.txt"))
         {
-          HasFieldHeader = true,
-          FieldDelimiter = "|",
-          FieldQualifier = "\"",
-          SkipEmptyLines = false
+          HasFieldHeader = true, FieldDelimiter = "|", FieldQualifier = "\"", SkipEmptyLines = false
         };
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
@@ -143,7 +140,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task IssueReaderAsync()
     {
-      var basIssues = new CsvFile(UnitTestStatic.GetTestPath("BadIssues.csv"), "Csv")
+      var basIssues = new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("BadIssues.csv"))
       {
         TreatLfAsSpace = true,
         TryToSolveMoreColumns = true,
@@ -438,7 +435,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ColumnFormat()
     {
-      var target = new CsvFile(string.Empty, string.Empty);
+      var target = new CsvFile(id: string.Empty, fileName: string.Empty);
       m_ValidSetting.CopyTo(target);
 
       Assert.IsNotNull(target.ColumnCollection.GetByName("Score"));
@@ -454,11 +451,9 @@ namespace CsvTools.Tests
     [ExpectedException(typeof(FormatException))]
     public async Task GetDateTimeTestAsync()
     {
-      var csvFile = new CsvFile(
-      UnitTestStatic.GetTestPath("TestFile.txt"), "csv")
+      var csvFile = new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("TestFile.txt"))
       {
-        CodePageId = 65001,
-        FieldDelimiter = "tab"
+        CodePageId = 65001, FieldDelimiter = "tab"
       };
 
       csvFile.ColumnCollection.Add(new Column("Title", new ValueFormat(DataTypeEnum.DateTime)));

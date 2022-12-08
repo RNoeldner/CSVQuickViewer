@@ -97,11 +97,11 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="CsvFile" /> class.
     /// </summary>
-    /// <param name="fileName">Name of the file.</param>
     /// <param name="id"></param>
+    /// <param name="fileName">Name of the file.</param>
     [JsonConstructor]
-    public CsvFile(in string? fileName = "", in string? id = "")
-      : base(fileName ?? string.Empty, id ?? string.Empty)
+    public CsvFile(in string? id = "", in string? fileName = "")
+      : base(id ?? string.Empty, fileName ?? string.Empty)
     {
     }
 
@@ -111,7 +111,7 @@ namespace CsvTools
     /// </summary>
     [Obsolete("Only needed for XML Serialization")]
     public CsvFile()
-      : this(string.Empty, string.Empty)
+      : this(id: string.Empty, fileName: string.Empty)
     {
     }
 
@@ -542,7 +542,7 @@ namespace CsvTools
     /// <inheritdoc />
     public override object Clone()
     {
-      var other = new CsvFile(FileName,ID);
+      var other = new CsvFile(id: ID, fileName: FileName);
       CopyTo(other);
       return other;
     }

@@ -21,11 +21,15 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CsvSettingsProperties()
     {
-      var test = new CsvFile("Dummy","csv");
+      var test = new CsvFile(id: "csv", fileName: "Dummy");
       // Excluded are properties that are not serialized or that are calculated
-      UnitTestStatic.RunSerializeAllProps(test, new []{nameof(test.NoDelimitedFile), nameof(test.Passphrase),
-        nameof(test.RootFolder),nameof(test.LatestSourceTimeUtc),nameof(test.RecentlyLoaded),nameof(test.CollectionIdentifier),
-        nameof(test.InternalID),nameof(test.FullPath), nameof(test.IsFixedLength)});
+      UnitTestStatic.RunSerializeAllProps(test,
+        new[]
+        {
+          nameof(test.NoDelimitedFile), nameof(test.Passphrase), nameof(test.RootFolder),
+          nameof(test.LatestSourceTimeUtc), nameof(test.RecentlyLoaded), nameof(test.CollectionIdentifier),
+          nameof(test.FullPath), nameof(test.IsFixedLength)
+        });
     }
 
     [TestMethod]
@@ -69,7 +73,7 @@ namespace CsvTools.Tests
     [TestCategory("Serialization")]
     public void CsvFile()
     {
-      var input = new CsvFile("MyTest.txt", "csv");
+      var input = new CsvFile(id: "csv", fileName: "MyTest.txt");
       input.FieldQualifier = "'";
 
       var output = UnitTestStatic.RunSerialize(input);

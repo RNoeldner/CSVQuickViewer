@@ -42,7 +42,7 @@ namespace CsvTools
     private bool m_StoreSettingsByFile;
     private bool m_DisplayStartLineNo = true;
     private bool m_DisplayRecordNo;
-    private readonly ICsvFile m_WriteSetting = new CsvFile(string.Empty, "Write");
+    private readonly ICsvFile m_WriteSetting = new CsvFile(id: "Write", fileName: string.Empty);
 
     public enum Duration
     {

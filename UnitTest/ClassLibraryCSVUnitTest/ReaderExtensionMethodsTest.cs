@@ -21,10 +21,9 @@ namespace CsvTools.Tests
   [TestClass]
   public class ReaderExtensionMethodsTest
   {
-    private readonly CsvFile m_ValidSetting = new(UnitTestStatic.GetTestPath("BasicCSV.txt"), "csv")
+    private readonly CsvFile m_ValidSetting = new(id: "csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
     {
-      FieldDelimiter = ",",
-      CommentLine = "#"
+      FieldDelimiter = ",", CommentLine = "#"
     };
 
     [TestInitialize]
@@ -177,7 +176,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetDataTableAsync3()
     {
-      var test3 = new CsvFile(UnitTestStatic.GetTestPath("WithEoFChar.txt"), "csv") { FieldDelimiter = "Tab" };
+      var test3 =
+        new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("WithEoFChar.txt")) { FieldDelimiter = "Tab" };
       test3.ColumnCollection.Add(new Column("Memo", ValueFormat.Empty, ignore: true));
       using var test = new CsvFileReader(test3.FullPath, test3.CodePageId, test3.SkipRows, test3.HasFieldHeader,
         test3.ColumnCollection, test3.TrimmingOption,

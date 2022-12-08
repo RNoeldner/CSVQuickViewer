@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Newtonsoft.Json;
@@ -47,23 +48,25 @@ namespace CsvTools
     /// <summary>
     ///   Initializes a new instance of the <see cref="T:CsvTools.StructuredFile" /> class.
     /// </summary>
+    /// <param name="id"></param>
     /// <param name="fileName">Name of the file.</param>
+    /// <param name="row">Writing Json this this is the definition</param>
     [JsonConstructor]
-    public JsonFile(in string fileName, in string id)
-      : base(fileName, id)
+    public JsonFile(in string? id, in string? fileName, in string? row = "")
+      : base(id ?? string.Empty, fileName ?? string.Empty, row ?? string.Empty)
     {
     }
 
     /// <inheritdoc />
     [Obsolete("Only needed for XML Serialization")]
     public JsonFile()
-      : this(string.Empty, string.Empty)
+      : this(string.Empty, string.Empty, string.Empty)
     {
     }
 
     public override object Clone()
     {
-      var other = new JsonFile(FileName, ID);
+      var other = new JsonFile(ID, FileName, Row);
       CopyTo(other);
       return other;
     }

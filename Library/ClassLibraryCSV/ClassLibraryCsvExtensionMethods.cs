@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -415,6 +416,41 @@ namespace CsvTools
         RecordDelimiterTypeEnum.None => string.Empty,
         _ => string.Empty
       };
+
+    /// <summary>
+    /// Gets the Columns of a SQL statement
+    /// </summary>
+    /// <param name="sql">The SQL statement</param>
+    /// <param name="timeout"></param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <returns></returns>
+    /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
+    public static async Task<IEnumerable<Column>> GetColumnsSqlAsync(this string sql, int timeout,
+      CancellationToken cancellationToken)
+    {
+      if (string.IsNullOrEmpty(sql))
+        throw new FileWriterException("No SQL Statement given");
+
+#if NETSTANDARD2_1_OR_GREATER
+      await
+#endif
+      using var fileReader =
+        await FunctionalDI.SqlDataReader(NoRecordSql(sql), timeout, 1, cancellationToken).ConfigureAwait(false);
+
+      // Put the information into the list
+      var res = new List<Column>();
+      foreach (DataRow schemaRow in fileReader.GetSchemaTable()!.Rows)
+      {
+        var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
+        var colType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType();
+        if (!(schemaRow[SchemaTableColumn.ColumnName] is string colName) || colName.Length == 0)
+          colName = $"Column{colNo + 1}";
+        res.Add(new Column(colName, new ValueFormat(colType),
+          (int) schemaRow[SchemaTableColumn.ColumnOrdinal]));
+      }
+
+      return res;
+    }
 
     public static string NoRecordSql(this string source)
     {

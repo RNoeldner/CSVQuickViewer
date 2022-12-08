@@ -112,7 +112,7 @@ namespace CsvTools
     /// </summary>
     protected BaseSettings(in string id)
     {
-      m_Id = id?? string.Empty;
+      m_Id = id ?? string.Empty;
       // adding or removing columns should cause a property changed for ColumnCollection
       ColumnCollection.CollectionChanged += (sender, e) =>
       {
@@ -263,7 +263,7 @@ namespace CsvTools
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
     [XmlElement]
-    public SampleAndErrorsInformation SamplesAndErrors { get; set; } = new SampleAndErrorsInformation();
+    public SampleAndErrorsInformation SamplesAndErrors { get; set; } = new SampleAndErrorsInformation(-1);
 
     /// <inheritdoc />
     [DefaultValue("")]
@@ -312,8 +312,7 @@ namespace CsvTools
       get => m_Id;
       set
       {
-        if (SetField(ref m_Id, value, StringComparison.Ordinal, true))
-          NotifyPropertyChanged(nameof(InternalID));
+        SetField(ref m_Id, value, StringComparison.Ordinal, true);
       }
     }
 
@@ -346,12 +345,6 @@ namespace CsvTools
       get => m_Comment;
       set => SetField(ref m_Comment, value, StringComparison.Ordinal);
     }
-
-    /// <inheritdoc />
-    ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlIgnore]
-    [JsonIgnore]
-    public virtual string InternalID => ID;
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
@@ -807,6 +800,6 @@ namespace CsvTools
         yield return $"{nameof(ColumnCollection)} different";
     }
 
-    [JsonIgnore] public int CollectionIdentifier => InternalID.IdentifierHash();
+    [JsonIgnore] public int CollectionIdentifier => ID.GetHashCode();
   }
 }

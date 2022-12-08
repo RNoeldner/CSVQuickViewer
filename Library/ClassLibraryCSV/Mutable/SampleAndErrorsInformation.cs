@@ -33,14 +33,14 @@ namespace CsvTools
     private readonly UniqueObservableCollection<SampleRecordEntry> m_Errors;
     private readonly UniqueObservableCollection<SampleRecordEntry> m_Samples;
 
-    [Obsolete("Used for XML Serialisation")]
+    [Obsolete("Used for XML Serialization")]
     public SampleAndErrorsInformation() : this(-1, null, null)
     {
     }
 
     [JsonConstructor]
-    public SampleAndErrorsInformation(int? numErrors, IEnumerable<SampleRecordEntry>? errors,
-      IEnumerable<SampleRecordEntry>? samples)
+    public SampleAndErrorsInformation(int? numErrors = -1, IEnumerable<SampleRecordEntry>? errors = null,
+      IEnumerable<SampleRecordEntry>? samples = null)
     {
       m_NumErrors = numErrors ?? -1;
       m_Errors = new UniqueObservableCollection<SampleRecordEntry>();

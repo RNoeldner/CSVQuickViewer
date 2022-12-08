@@ -21,7 +21,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class JsonFileTests
   {
-    private readonly JsonFile m_JsonFile = new JsonFile("","json") { Row = "{0}" };
+    private readonly JsonFile m_JsonFile = new JsonFile("json", "", "{0}");
 
     [TestMethod]
     public void StructuredFileClone()
@@ -90,7 +90,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetFileWriter()
     {
-      var jsonFile = new JsonFile("SomeFileName.json","json") { Row = "{0}" };
+      var jsonFile = new JsonFile("json", "SomeFileName.json", "{0}");
       m_JsonFile.SqlStatement = "dummy";
       var res = FunctionalDI.GetFileWriter(jsonFile, UnitTestStatic.Token);
       Assert.IsInstanceOfType(res, typeof(IFileWriter));
@@ -135,10 +135,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void StructuredFileTestCtor()
     {
-      var test = new JsonFile("", string.Empty);
+      var test = new JsonFile(string.Empty, "");
       Assert.IsTrue(string.IsNullOrEmpty(test.FileName));
 
-      var test2 = new JsonFile("Hello", string.Empty);
+      var test2 = new JsonFile(string.Empty, "Hello");
       Assert.AreEqual("Hello", test2.FileName);
     }
   }

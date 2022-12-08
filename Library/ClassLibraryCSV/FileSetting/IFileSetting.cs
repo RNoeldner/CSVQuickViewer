@@ -115,10 +115,6 @@ namespace CsvTools
     /// </summary>
     string Comment { get; set; }
 
-    /// <summary>
-    ///   The identified to find this specific instance
-    /// </summary>
-    string InternalID { get; }
 
     /// <summary>
     ///   Gets or sets a value indicating whether this instance is enabled.
