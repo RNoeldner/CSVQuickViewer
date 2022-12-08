@@ -14,11 +14,13 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
   [TestClass]
+  [SuppressMessage("ReSharper", "UseAwaitUsing")]
   public class ReaderExtensionMethodsTest
   {
     private readonly CsvFile m_ValidSetting = new(id: "csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))

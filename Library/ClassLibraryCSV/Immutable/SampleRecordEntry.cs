@@ -11,29 +11,34 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
+#if XmlSerialization
 using System.Xml.Serialization;
+#endif
 
 namespace CsvTools
 {
   [Serializable]
   public sealed class SampleRecordEntry : IEquatable<SampleRecordEntry>, ICloneable, ICollectionIdentity
   {
-    [Obsolete("Only needed for XML Serialization")]
+#if XmlSerialization
+    [Obsolete("Only needed for XmlSerialization")]
     public SampleRecordEntry()
       : this(0, true, string.Empty)
     {
     }
+#endif
 
     [JsonConstructor]
-    public SampleRecordEntry(long recordNumber, bool provideEvidence = true, in string error = "")
+    public SampleRecordEntry(long? recordNumber, bool? provideEvidence = true, string? error = "")
     {
-      RecordNumber = recordNumber;
-      ProvideEvidence = provideEvidence;
+      RecordNumber = recordNumber ?? 0;
+      ProvideEvidence = provideEvidence ?? false;
       Error = error ?? string.Empty;
     }
 
@@ -41,24 +46,49 @@ namespace CsvTools
     ///   Gets or sets the error.
     /// </summary>
     /// <value>The error.</value>
+#if XmlSerialization
     [XmlAttribute]
+#endif
     [DefaultValue("")]
-    public string Error { get; }
+    public string Error
+    {
+      get;
+#if XmlSerialization
+      set;
+#endif
+    }
 
     /// <summary>
     ///   Gets or sets a value indicating whether [provide evidence].
     /// </summary>
     /// <value><c>true</c> if [provide evidence]; otherwise, <c>false</c>.</value>
+#if XmlSerialization
     [XmlAttribute]
+#endif
     [DefaultValue(true)]
-    public bool ProvideEvidence { get; }
+    public bool ProvideEvidence
+    {
+      get;
+#if XmlSerialization
+      set;
+#endif
+    }
 
     /// <summary>
     ///   Gets or sets the record number.
     /// </summary>
     /// <value>The record number.</value>
+#if XmlSerialization
     [XmlAttribute]
-    public long RecordNumber { get; }
+#endif
+    [DefaultValue(0)]
+    public long RecordNumber
+    {
+      get;
+#if XmlSerialization
+      set;
+#endif
+    }
 
     /// <summary>
     ///   Clones this instance into a new instance of the same type
@@ -80,9 +110,9 @@ namespace CsvTools
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return RecordNumber == other.RecordNumber 
-                          && ProvideEvidence == other.ProvideEvidence
-                          && string.Equals(Error, other.Error, StringComparison.OrdinalIgnoreCase);
+      return RecordNumber == other.RecordNumber
+             && ProvideEvidence == other.ProvideEvidence
+             && string.Equals(Error, other.Error, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -110,7 +140,6 @@ namespace CsvTools
       }
     }
 
-    [JsonIgnore]
-    public int CollectionIdentifier => RecordNumber.GetHashCode(); 
+    [JsonIgnore] public int CollectionIdentifier => RecordNumber.GetHashCode();
   }
 }

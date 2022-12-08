@@ -18,7 +18,9 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+#if XmlSerialization
 using System.Xml.Serialization;
+#endif
 
 namespace CsvTools
 {
@@ -33,14 +35,16 @@ namespace CsvTools
     private readonly UniqueObservableCollection<SampleRecordEntry> m_Errors;
     private readonly UniqueObservableCollection<SampleRecordEntry> m_Samples;
 
+#if XmlSerialization
     [Obsolete("Used for XML Serialization")]
     public SampleAndErrorsInformation() : this(-1, null, null)
     {
     }
+#endif
 
     [JsonConstructor]
-    public SampleAndErrorsInformation(int? numErrors = -1, IEnumerable<SampleRecordEntry>? errors = null,
-      IEnumerable<SampleRecordEntry>? samples = null)
+    public SampleAndErrorsInformation(int? numErrors = -1, in IEnumerable<SampleRecordEntry>? errors = null,
+      in IEnumerable<SampleRecordEntry>? samples = null)
     {
       m_NumErrors = numErrors ?? -1;
       m_Errors = new UniqueObservableCollection<SampleRecordEntry>();
@@ -67,7 +71,9 @@ namespace CsvTools
     /// <value>
     ///   The number of errors, usually matches the number of entries in <see cref="Errors" />
     /// </value>
+#if XmlSerialization
     [XmlAttribute]
+#endif
     [DefaultValue(-1)]
     public int NumErrors
     {
@@ -77,7 +83,14 @@ namespace CsvTools
           return Errors.Count;
         return m_NumErrors;
       }
-      set => SetField(ref m_NumErrors, Errors.Count > 0 && value < Errors.Count ? Errors.Count : value);
+      set
+      {
+        var newval = value < -1 ? -1 : value;
+        if (Errors.Count > 0 && value < Errors.Count)
+          newval = -1;
+
+        SetField(ref m_NumErrors, newval);
+      }
     }
 
     /// <summary>

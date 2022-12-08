@@ -7,6 +7,7 @@ using System.Windows.Forms;
 namespace CsvTools.Tests
 {
   [TestClass]
+  [SuppressMessage("ReSharper", "UseAwaitUsing")]
   public class FormHierarchyDisplayTest
   {
     [TestMethod]

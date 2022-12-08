@@ -27,34 +27,23 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
 	  <DebugType>embedded</DebugType>
 	  <Optimize>False</Optimize>
+	  <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
 	  <DebugType>none</DebugType>
 	  <Optimize>False</Optimize>
+	  <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
 	  <DebugType>embedded</DebugType>
 	  <Optimize>False</Optimize>
+	  <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
 	  <DebugType>none</DebugType>
 	  <Optimize>False</Optimize>
+	  <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
 	</PropertyGroup>
-	<ItemGroup>
-		<Compile Remove="Column\IColumn.cs" />
-		<Compile Remove="Column\ImmutableColumn.cs" />
-		<Compile Remove="CsvFileReaderAsync.cs" />
-		<Compile Remove="DataTableReaderAsync.cs" />
-		<Compile Remove="ICloneable.cs" />
-		<Compile Remove="Immutable\ImmutableColumnBase.cs" />
-		<Compile Remove="Immutable\SettingReadOnly.cs" />
-		<Compile Remove="Mutable\ColumnBase.cs" />
-		<Compile Remove="Mutable\ColumnForBoolean.cs" />
-		<Compile Remove="Mutable\ColumnForDate.cs" />
-		<Compile Remove="Mutable\ColumnForNumber.cs" />
-		<Compile Remove="Mutable\ColumnForPart.cs" />
-	</ItemGroup>
-
 	<ItemGroup>
 		<None Remove="DateTimeFormats.txt" />
 		<Compile Include="..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />

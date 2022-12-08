@@ -1,11 +1,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
   [TestClass]
-	public class ImprovedTextReaderPositionStoreTests
-	{
+  [SuppressMessage("ReSharper", "UseAwaitUsing")]
+  public class ImprovedTextReaderPositionStoreTests
+  {
 		[TestMethod]
 		public async Task ImprovedTextReaderPositionStoreTestAsync()
     {

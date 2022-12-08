@@ -43,10 +43,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task StructuredFileWriterJsonEncodeTestAsync()
     {
-      var fileSetting = new JsonFile
-      {
-        ID = "Write", FileName = "StructuredFileOutputJSON.txt", SqlStatement = cReadID, InOverview = true
-      };
+      UnitTestStatic.MimicSql();
+      var fileSetting =
+        new JsonFile("Write", "StructuredFileOutputJSON.txt") { SqlStatement = cReadID, InOverview = true };
 
       var sb = new StringBuilder("{");
       var progress = new Progress<ProgressInfo>();
@@ -90,13 +89,12 @@ namespace CsvTools.Tests
       Assert.AreEqual(7L, result);
     }
 
+#if XmlSerialization
     [TestMethod]
     public async Task StructuredFileWriterXmlEncodeTest()
     {
-      var fileSetting = new XmlFile
-      {
-        ID = "Write", FileName = "StructuredFileOutputXML.txt", SqlStatement = cReadID, InOverview = true
-      };
+      var fileSetting =
+        new XmlFile("Write", "StructuredFileOutputXML.txt") { SqlStatement = cReadID, InOverview = true };
       var sb = new StringBuilder();
       var progress = new Progress<ProgressInfo>();
       var cols = await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout, UnitTestStatic.Token);
@@ -132,5 +130,6 @@ namespace CsvTools.Tests
         StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       await writer.WriteAsync(fileSetting.SqlStatement, fileSetting.Timeout, progress, UnitTestStatic.Token);
     }
+#endif
   }
 }

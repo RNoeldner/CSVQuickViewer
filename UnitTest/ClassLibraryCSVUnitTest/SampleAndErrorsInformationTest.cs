@@ -32,13 +32,31 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
+    public void SampleRecordEntrySerialize()
+    {
+      var test = new SampleRecordEntry(10, true, "Error1");
+      var output = UnitTestStatic.RunSerialize(test, false, false);
+      Assert.AreEqual(test.RecordNumber, output.RecordNumber);
+    }
+
+    [TestMethod]
+    public void SampleAndErrorsInformationSerialize()
+    {
+      var test = new SampleAndErrorsInformation(10, new[] { new SampleRecordEntry(10, true, "Error1") },
+        new[] { new SampleRecordEntry(11), new SampleRecordEntry(12) });
+      var output = UnitTestStatic.RunSerialize(test, true, false);
+      Assert.AreEqual(test.NumErrors, output.NumErrors);
+    }
+
+    [TestMethod]
     public void AddError()
     {
       var test = new SampleAndErrorsInformation();
       test.Errors.Add(new SampleRecordEntry(10, error: "ErrorText"));
       Assert.AreEqual(1, test.NumErrors);
       Assert.AreEqual(0, test.Samples.Count);
-      test.Errors.AddRangeNoClone(new[] { new SampleRecordEntry(1), new SampleRecordEntry(2), new SampleRecordEntry(3) });
+      test.Errors.AddRangeNoClone(
+        new[] { new SampleRecordEntry(1), new SampleRecordEntry(2), new SampleRecordEntry(3) });
       Assert.AreEqual(4, test.NumErrors);
       Assert.AreEqual(0, test.Samples.Count);
     }
@@ -51,7 +69,10 @@ namespace CsvTools.Tests
       Assert.AreEqual(1, test.Samples.Count);
       test.Samples.Add(new SampleRecordEntry(20, false));
       Assert.AreEqual(2, test.Samples.Count);
-      test.Samples.AddRangeNoClone(new[] { new SampleRecordEntry(1), new SampleRecordEntry(2), new SampleRecordEntry(3) });
+      test.Samples.AddRangeNoClone(new[]
+      {
+        new SampleRecordEntry(1), new SampleRecordEntry(2), new SampleRecordEntry(3)
+      });
       Assert.AreEqual(4, test.Samples.Count);
     }
 

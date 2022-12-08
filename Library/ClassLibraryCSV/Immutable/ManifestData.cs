@@ -29,13 +29,13 @@ namespace CsvTools
 
     [JsonConstructor]
     public ManifestData(
-      in string? pubName,
-      in string? heading,
-      in string? desc,
+      string? pubName,
+      string? heading,
+      string? desc,
       bool delta,
-      in string? hydration,
+      string? hydration,
       bool? hasUserDefinedFields,
-     in ManifestField[]? fields)
+      ManifestField[]? fields)
     {
       PubName = pubName ?? string.Empty;
       Desc = desc ?? string.Empty;

@@ -24,8 +24,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+#if XmlSerialization
 using System.Xml;
 using System.Xml.Serialization;
+#endif
 
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
@@ -131,7 +133,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    [XmlIgnore]
+#if XmlSerialization
+[XmlIgnore]
+#endif
     [JsonIgnore]
     public FileStettingStatus Status
     {
@@ -161,7 +165,9 @@ namespace CsvTools
     /// <summary>
     ///   Workaround to serialize the ColumnCollection, only needed for XML Serialization
     /// </summary>
-    [XmlElement]
+#if XmlSerialization
+[XmlElement]
+#endif
     [JsonIgnore]
     public virtual ColumnMut[] Format
     {
@@ -177,7 +183,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    [XmlElement]
+#if XmlSerialization
+[XmlElement]
+#endif
     [DefaultValue(false)]
     public virtual bool DisplayRecordNo
     {
@@ -189,7 +197,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    [XmlElement]
+#if XmlSerialization
+[XmlElement]
+#endif
     [DefaultValue(true)]
     public virtual bool DisplayStartLineNo
     {
@@ -197,7 +207,9 @@ namespace CsvTools
       set => SetField(ref m_DisplayStartLineNo, value);
     }
 
-    [XmlElement]
+#if XmlSerialization
+[XmlElement]
+#endif
     [DefaultValue(false)]
     public virtual bool SetLatestSourceTimeForWrite
     {
@@ -205,7 +217,7 @@ namespace CsvTools
       set => SetField(ref m_SetLatestSourceTimeForWrite, value);
     }
 
-
+#if XmlSerialization
     /// <summary>
     ///   Utility calls to get or set the SQL Statement as CDataSection
     /// </summary>
@@ -220,11 +232,17 @@ namespace CsvTools
       }
       set => m_SqlStatement = value.Value;
     }
+#endif
 
-    [XmlIgnore] public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
+#if XmlSerialization
+[XmlIgnore]
+#endif
+    public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
     /// <inheritdoc />
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(5)]
     public virtual int ConsecutiveEmptyRows
     {
@@ -242,7 +260,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    [XmlElement]
+#if XmlSerialization
+[XmlElement]
+#endif
     [DefaultValue(false)]
     public virtual bool DisplayEndLineNo
     {
@@ -252,7 +272,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(0)]
     public virtual long ErrorCount
     {
@@ -262,7 +284,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlElement]
+#if XmlSerialization
+[XmlElement]
+#endif
     public SampleAndErrorsInformation SamplesAndErrors { get; set; } = new SampleAndErrorsInformation(-1);
 
     /// <inheritdoc />
@@ -281,7 +305,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(true)]
     public virtual bool HasFieldHeader
     {
@@ -305,7 +331,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue("")]
     public virtual string ID
     {
@@ -318,7 +346,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlAttribute(AttributeName = "IsCritical")]
+#if XmlSerialization
+[XmlAttribute(AttributeName = "IsCritical")]
+#endif
     [DefaultValue(false)]
     public virtual bool InOverview
     {
@@ -328,7 +358,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(100)]
     public virtual int Order
     {
@@ -338,7 +370,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue("")]
     public virtual string Comment
     {
@@ -348,7 +382,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(true)]
     public virtual bool IsEnabled
     {
@@ -358,7 +394,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(false)]
     public bool KeepUnencrypted
     {
@@ -368,7 +406,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlIgnore]
+#if XmlSerialization
+[XmlIgnore]
+#endif
     [JsonIgnore]
     public DateTime LatestSourceTimeUtc
     {
@@ -384,12 +424,16 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlElement("Mapping")]
+#if XmlSerialization
+[XmlElement("Mapping")]
+#endif
     public MappingCollection MappingCollection { get; } = new MappingCollection();
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(0)]
     public virtual long NumRecords
     {
@@ -398,7 +442,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     public virtual DateTime ProcessTimeUtc
     {
       get => m_ProcessTimeUtc;
@@ -407,13 +453,17 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlIgnore]
+#if XmlSerialization
+[XmlIgnore]
+#endif
     [JsonIgnore]
     [DefaultValue(false)]
     public virtual bool RecentlyLoaded { get; set; }
 
     /// <inheritdoc />
-    [XmlElement]
+#if XmlSerialization
+[XmlElement]
+#endif
     [DefaultValue(0)]
     public virtual long RecordLimit
     {
@@ -423,7 +473,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(true)]
     public virtual bool ShowProgress
     {
@@ -431,7 +483,9 @@ namespace CsvTools
       set => SetField(ref m_ShowProgress, value);
     }
 
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(false)]
     public virtual bool SkipDuplicateHeader
     {
@@ -440,7 +494,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(true)]
     public virtual bool SkipEmptyLines
     {
@@ -449,7 +505,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(0)]
     public virtual int SkipRows
     {
@@ -459,7 +517,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlIgnore]
+#if XmlSerialization
+[XmlIgnore]
+#endif
     [JsonIgnore]
     public IReadOnlyCollection<IFileSetting>? SourceFileSettings
     {
@@ -473,7 +533,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlIgnore]
+#if XmlSerialization
+[XmlIgnore]
+#endif
     [DefaultValue("")]
     public virtual string SqlStatement
     {
@@ -492,7 +554,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlElement]
+#if XmlSerialization
+[XmlElement]
+#endif
     [DefaultValue("")]
     public virtual string TemplateName
     {
@@ -502,7 +566,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(90)]
     public virtual int Timeout
     {
@@ -511,7 +577,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(false)]
     public virtual bool TreatNBSPAsSpace
     {
@@ -520,7 +588,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(cTreatTextAsNull)]
     public virtual string TreatTextAsNull
     {
@@ -529,7 +599,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(TrimmingOptionEnum.Unquoted)]
     public virtual TrimmingOptionEnum TrimmingOption
     {
@@ -539,7 +611,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlAttribute(AttributeName = "IsImported")]
+#if XmlSerialization
+[XmlAttribute(AttributeName = "IsImported")]
+#endif
     [DefaultValue(true)]
     public virtual bool Validate
     {
@@ -549,7 +623,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(0)]
     public virtual long WarningCount
     {
@@ -558,7 +634,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     public virtual DateTime LastChange
     {
       get;

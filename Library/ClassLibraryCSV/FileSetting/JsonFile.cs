@@ -17,7 +17,9 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
+#if XmlSerialization
 using System.Xml.Serialization;
+#endif
 
 namespace CsvTools
 {
@@ -30,7 +32,9 @@ namespace CsvTools
   {
     private bool m_EmptyAsNull = true;
 
+#if XmlSerialization
     [XmlElement]
+#endif
     [DefaultValue(true)]
     public bool EmptyAsNull
     {
@@ -56,13 +60,14 @@ namespace CsvTools
       : base(id ?? string.Empty, fileName ?? string.Empty, row ?? string.Empty)
     {
     }
-
+#if XmlSerialization
     /// <inheritdoc />
     [Obsolete("Only needed for XML Serialization")]
     public JsonFile()
       : this(string.Empty, string.Empty, string.Empty)
     {
     }
+#endif
 
     public override object Clone()
     {

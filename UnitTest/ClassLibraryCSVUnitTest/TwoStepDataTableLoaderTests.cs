@@ -21,6 +21,7 @@ namespace CsvTools.Tests
       Task RefreshFunc(FilterTypeEnum filterType, CancellationToken cancellationToken) =>
         Task.Run(() => refreshCalled = true, cancellationToken);
 
+      // ReSharper disable once UseAwaitUsing
       using var tsde = new TwoStepDataTableLoader(dt => myDataTable = dt, () => myDataTable, RefreshFunc, null,
         () => beginCalled = true, (_) => finishedCalled = true);
       var csv = new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))

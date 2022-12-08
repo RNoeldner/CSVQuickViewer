@@ -15,12 +15,14 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
   [TestClass()]
+  [SuppressMessage("ReSharper", "UseAwaitUsing")]
   public class DataReaderWrapperTests
   {
     private static readonly CsvFile m_Setting = UnitTestStatic.ReaderGetAllFormats();

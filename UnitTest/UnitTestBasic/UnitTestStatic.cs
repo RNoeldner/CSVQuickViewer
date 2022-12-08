@@ -19,7 +19,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -33,7 +32,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+#if XmlSerialization
+using System.Collections.Immutable;
 using System.Xml.Serialization;
+#endif
+
 
 namespace CsvTools.Tests
 {
@@ -73,12 +76,15 @@ namespace CsvTools.Tests
 
       if (includeXml)
       {
+#if XmlSerialization
         var serializer = new XmlSerializer(typeof(T));
         var testXml = obj.SerializeIndentedXml(serializer);
+
         Assert.IsFalse(string.IsNullOrEmpty(testXml));
         using TextReader reader = new StringReader(testXml);
         ret = serializer.Deserialize(reader) as T ?? throw new InvalidOperationException();
         Assert.IsNotNull(ret);
+#endif
       }
 
       if (includeJson)

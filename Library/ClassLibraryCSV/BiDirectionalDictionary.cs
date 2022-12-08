@@ -15,14 +15,22 @@
 
 using System;
 using System.Collections.Generic;
+#if XmlSerialization
 using System.Xml.Serialization;
+#endif
 
 namespace CsvTools
 {
+#if XmlSerialization
   [XmlRoot("dictionary")]
-  public class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable
+#endif
+  public class BiDirectionalDictionary<TKey, TValue> : Dictionary<TKey, TValue>
+#if XmlSerialization
+, IXmlSerializable
+#endif
     where TKey : notnull where TValue : notnull
   {
+#if XmlSerialization
     #region IXmlSerializable Members
 
     public System.Xml.Schema.XmlSchema? GetSchema() => null;
@@ -65,7 +73,7 @@ namespace CsvTools
     }
 
     #endregion
-
+#endif
 
     private readonly IDictionary<TValue, TKey> m_SecondToFirst;
 

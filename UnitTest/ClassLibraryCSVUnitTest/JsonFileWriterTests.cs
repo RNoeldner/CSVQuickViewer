@@ -16,12 +16,14 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
   [TestClass()]
+  [SuppressMessage("ReSharper", "UseAwaitUsing")]
   public class JsonFileWriterTests
   {
     [TestMethod()]

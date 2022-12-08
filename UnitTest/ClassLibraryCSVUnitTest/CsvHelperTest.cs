@@ -102,6 +102,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(1200, tuple.CodePageId);
     }
 
+#if XmlSerialization
     [TestMethod]
     public async Task GetCsvFileSettingFromExtensionAsync()
     {
@@ -111,6 +112,7 @@ namespace CsvTools.Tests
       Assert.IsNotNull(tuple);
       Assert.AreEqual(1200, tuple.CodePageId);
     }
+#endif
 
     [TestMethod]
     public async Task GuessCodePageAsync()

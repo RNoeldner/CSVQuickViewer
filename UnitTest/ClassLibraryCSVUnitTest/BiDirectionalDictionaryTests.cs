@@ -89,6 +89,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(2, key);
     }
 
+#if XmlSerialization
     [TestMethod]
     public void BiDirectionalDictionaryIXmlSerializable()
 
@@ -115,7 +116,7 @@ namespace CsvTools.Tests
       Assert.IsTrue(bi2.TryGetByValue(1, out var key));
       Assert.AreEqual(5, key);
     }
-
+#endif
     [TestMethod]
     public void BiDirectionalDictionaryGetByValue()
 

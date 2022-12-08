@@ -1331,7 +1331,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var stream = new ImprovedStream(new SourceAccess(fileName, false));
+        // ReSharper disable once UseAwaitUsing
+        using var stream = new ImprovedStream(new SourceAccess(fileName, false));
 #if NET5_0_OR_GREATER
         await
 #endif
