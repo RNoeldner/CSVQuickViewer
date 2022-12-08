@@ -63,35 +63,6 @@ namespace CsvTools.Tests
       Assert.AreEqual(DataTypeEnum.Guid, g.GetType().GetDataType());
     }
 
-    [TestMethod]
-    public void ColumnPropertiesObsolete()
-    {
-      var target = new ColumnMut("Name", new ValueFormat(DataTypeEnum.Guid));
-      target.DataType = DataTypeEnum.Boolean;
-      Assert.AreEqual(DataTypeEnum.Boolean, target.DataType);
-      target.DateFormat = "xxx";
-      Assert.AreEqual("xxx", target.DateFormat);
-      target.DateSeparator = "-";
-      Assert.AreEqual("-", target.DateSeparator);
-      target.DecimalSeparator = "_";
-      Assert.AreEqual("_", target.DecimalSeparator);
-      target.False = "nö";
-      Assert.AreEqual("nö", target.False);
-      target.GroupSeparator = "'";
-      Assert.AreEqual("'", target.GroupSeparator);
-      target.TimeSeparator = "?";
-      Assert.AreEqual("?", target.TimeSeparator);
-      target.NumberFormat = "yyy";
-      Assert.AreEqual("yyy", target.NumberFormat);
-      target.PartSplitter = "|";
-      Assert.AreEqual("|", target.PartSplitter);
-      target.PartToEnd = false;
-      Assert.AreEqual(false, target.PartToEnd);
-      target.Part = 17;
-      Assert.AreEqual(17, target.Part);
-      target.True = "Yo";
-      Assert.AreEqual("Yo", target.True);
-    }
 
     [TestMethod]
     public void ColumnProperties()

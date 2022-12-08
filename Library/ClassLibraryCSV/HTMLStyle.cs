@@ -18,7 +18,9 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Text;
+#if XmlSerialization
 using System.Xml.Serialization;
+#endif
 
 namespace CsvTools
 {
@@ -49,18 +51,19 @@ namespace CsvTools
                                          + "  span.err { color:#B40404; }\r\n"
                                          + "  span.war { color:#2E64FE; }\r\n"
                                          + "</STYLE>";
-
+#if XmlSerialization
     [Obsolete("Used for XML Serialization")]
     public HtmlStyle() : this(cDefaultStyle)
     {
     }
+#endif
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="HtmlStyle" /> class.
     /// </summary>
     /// <param name="style">The style.</param>
     [JsonConstructor]
-    public HtmlStyle(string? style)
+    public HtmlStyle(in string? style)
     {
       m_Style = style ?? cDefaultStyle;
     }
@@ -69,7 +72,9 @@ namespace CsvTools
     ///   Set the overall HTML Style Sheet.
     /// </summary>
     [DefaultValue(cDefaultStyle)]
+#if XmlSerialization
     [XmlElement]
+#endif
     public string Style
     {
       get => m_Style;

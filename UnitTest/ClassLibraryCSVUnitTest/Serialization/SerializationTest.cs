@@ -9,6 +9,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class SerializationTest
   {
+#if XmlSerialization
     [TestMethod]
     public async Task CsvSettingsXml()
     {
@@ -17,6 +18,7 @@ namespace CsvTools.Tests
       ret.FileName = UnitTestStatic.GetTestPath("Read3.csv");
       await SerializedFilesLib.SaveSettingFileAsync(ret, null, CancellationToken.None);
     }
+#endif
 
     [TestMethod]
     public void CsvSettingsProperties()
@@ -57,7 +59,8 @@ namespace CsvTools.Tests
       var input = new ColumnMut("Näme",
         new ValueFormat(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat",
           "erp", "read", "Wr", "ou", false)) { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
-      UnitTestStatic.RunSerializeAllProps(input, new []{nameof(input.True), nameof(input.False), nameof(input.CollectionIdentifier) });
+      UnitTestStatic.RunSerializeAllProps(input,
+        new[] { nameof(input.CollectionIdentifier), nameof(input.ColumnOrdinal) });
     }
 
     [TestMethod]
@@ -86,7 +89,7 @@ namespace CsvTools.Tests
     [TestCategory("Serialization")]
     public void Mapping()
     {
-      var input = new Mapping() { FileColumn = "a", TemplateField = "Fld2", Attention = true };
+      var input = new Mapping("a", "Fld2", true);
 
       var output = UnitTestStatic.RunSerialize(input);
       Assert.AreEqual(input.FileColumn, output.FileColumn);
@@ -97,10 +100,7 @@ namespace CsvTools.Tests
     [TestCategory("Serialization")]
     public void MappingCollection()
     {
-      var input = new MappingCollection();
-
-      input.Add(new Mapping("a", "fld2", true, true));
-      input.Add(new Mapping("b", "fld1", false, true));
+      var input = new MappingCollection { new Mapping("a", "fld2", true, true), new Mapping("b", "fld1", false, true) };
 
       var output = UnitTestStatic.RunSerialize(input);
 
@@ -136,10 +136,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ValueFormatMutableProperties()
     {
-      var input = new ValueFormatMut(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat",
-          "erp", "read", "Wr", "ou", false);
+      var input = new ValueFormatMut(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|",
+        false, "pat",
+        "erp", "read", "Wr", "ou", false);
       UnitTestStatic.RunSerializeAllProps(input);
     }
-
   }
 }

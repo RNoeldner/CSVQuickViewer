@@ -1,9 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
   [TestClass]
+  [SuppressMessage("ReSharper", "UseAwaitUsing")]
   public class ColumnErrorDictionaryTests
   {
     [TestMethod]

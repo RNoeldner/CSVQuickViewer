@@ -22,9 +22,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+#if XmlSerialization
 using System.Xml;
 using System.Xml.Serialization;
-
+#endif
 
 namespace CsvTools
 {
@@ -40,7 +41,7 @@ namespace CsvTools
       m_RemoveEmpty2 = new Lazy<Regex>(() => new Regex("\\s*\"[^\"]+\":\\s*{\\s*},?"));
 
     private static readonly Lazy<Regex> m_RemoveComma = new Lazy<Regex>(() => new Regex(",(?=\\s*})"));
-
+#if XmlSerialization
     private static readonly Lazy<XmlSerializerNamespaces> m_EmptyXmlSerializerNamespaces =
       new Lazy<XmlSerializerNamespaces>(
         () =>
@@ -49,7 +50,7 @@ namespace CsvTools
           xmlSerializerNamespaces.Add(string.Empty, string.Empty);
           return xmlSerializerNamespaces;
         });
-
+#endif
     public static readonly Lazy<JsonSerializerSettings> JsonSerializerSettings = new Lazy<JsonSerializerSettings>(
       () =>
       {
@@ -67,6 +68,7 @@ namespace CsvTools
         return setting;
       });
 
+#if XmlSerialization
     /// <summary>
     ///   Serialize an object with formatting
     /// </summary>
@@ -81,7 +83,7 @@ namespace CsvTools
       serializer.Serialize(textWriter, data, m_EmptyXmlSerializerNamespaces.Value);
       return stringWriter.ToString();
     }
-
+#endif
 
     /// <summary>
     ///   Serialize an object with formatting
@@ -108,13 +110,14 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
+        using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
       using var reader = new StreamReader(improvedStream, Encoding.UTF8, true);
 
       var text = await reader.ReadToEndAsync().ConfigureAwait(false);
+#if XmlSerialization
       if (text.StartsWith("<?xml "))
         return (T) new XmlSerializer(typeof(T)).Deserialize(new StringReader(text));
-
+#endif
       return DeserializeText<T>(text);
     }
 
@@ -165,7 +168,7 @@ namespace CsvTools
 #if NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
+        using var improvedStream = new ImprovedStream(new SourceAccess(fileName));
       using var sr = new StreamReader(improvedStream, Encoding.UTF8, true);
       if (await sr.ReadToEndAsync().ConfigureAwait(false) != content) return content;
       Logger.Debug("No change to file {filename}", fileName);

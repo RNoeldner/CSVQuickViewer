@@ -361,8 +361,9 @@ namespace CsvTools.Tests
       Assert.IsTrue(m_CsvFile.ShowProgress, "ShowProgress");
       Assert.AreEqual(1, m_CsvFile.SkipRows, "SkipRows");
       Assert.AreEqual("SqlStatement", m_CsvFile.SqlStatement, "SqlStatement");
+#if XmlSerialization
       Assert.AreEqual("SqlStatement", m_CsvFile.SqlStatementCData.InnerText, "SqlStatementCData");
-
+#endif
       Assert.AreEqual(5, m_CsvFile.Timeout, "Timeout");
       Assert.AreEqual("TemplateName", m_CsvFile.TemplateName, "TemplateName");
 
@@ -398,6 +399,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(0, test.SourceFileSettings?.Count ?? 0);
     }
 
+#if XmlSerialization
     [TestMethod]
     public void SqlStatementCData()
     {
@@ -408,6 +410,7 @@ namespace CsvTools.Tests
       m_CsvFile.SqlStatement = string.Empty;
       Assert.AreEqual(string.Empty, m_CsvFile.SqlStatementCData.Value);
     }
+#endif
 
     [TestMethod]
     public void SamplesAndErrors()

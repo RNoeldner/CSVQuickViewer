@@ -82,43 +82,50 @@ namespace CsvTools
           : fileName2;
         var fileNameFile = fileNameSetting.Substring(0, fileNameSetting.Length - CsvFile.cCsvSettingExtension.Length);
 
-        // we defiantly have a the extension with the name
-        var fileSettingSer = await fileNameSetting.DeserializeFileAsync<CsvFile>().ConfigureAwait(false);
-        Logger.Information(
-          "Configuration read from setting file {filename}",
-          FileSystemUtils.GetShortDisplayFileName(fileNameSetting, 40));
+        try
+        {
+          // we defiantly have a the extension with the name
+          var fileSettingSer = await fileNameSetting.DeserializeFileAsync<CsvFile>().ConfigureAwait(false);
+          Logger.Information(
+            "Configuration read from setting file {filename}",
+            FileSystemUtils.GetShortDisplayFileName(fileNameSetting, 40));
 
-        var columnCollection = new ColumnCollection();
+          var columnCollection = new ColumnCollection();
 
-        // un-ignore all ignored columns
-        foreach (var col in fileSettingSer.ColumnCollection.Where(x => x.Ignore))
-          columnCollection.Add(
-            new Column(
-              col.Name,
-              col.ValueFormat,
-              col.ColumnOrdinal,
-              false,
-              col.Convert,
-              col.DestinationName,
-              col.TimePart, col.TimePartFormat, col.TimeZonePart));
+          // un-ignore all ignored columns
+          foreach (var col in fileSettingSer.ColumnCollection.Where(x => x.Ignore))
+            columnCollection.Add(
+              new Column(
+                col.Name,
+                col.ValueFormat,
+                col.ColumnOrdinal,
+                false,
+                col.Convert,
+                col.DestinationName,
+                col.TimePart, col.TimePartFormat, col.TimeZonePart));
 
-        return new DelimitedFileDetectionResultWithColumns(
-          fileNameFile,
-          fileSettingSer.SkipRows,
-          fileSettingSer.CodePageId,
-          fileSettingSer.ByteOrderMark,
-          fileSettingSer.QualifyAlways,
-          fileSettingSer.IdentifierInContainer,
-          fileSettingSer.CommentLine,
-          fileSettingSer.EscapePrefix,
-          fileSettingSer.FieldDelimiter,
-          fileSettingSer.FieldQualifier,
-          fileSettingSer.HasFieldHeader,
-          false,
-          fileSettingSer.NoDelimitedFile,
-          fileSettingSer.NewLine,
-          columnCollection,
-          fileSettingSer is BaseSettingPhysicalFile bas ? bas.ColumnFile : string.Empty);
+          return new DelimitedFileDetectionResultWithColumns(
+            fileNameFile,
+            fileSettingSer.SkipRows,
+            fileSettingSer.CodePageId,
+            fileSettingSer.ByteOrderMark,
+            fileSettingSer.QualifyAlways,
+            fileSettingSer.IdentifierInContainer,
+            fileSettingSer.CommentLine,
+            fileSettingSer.EscapePrefix,
+            fileSettingSer.FieldDelimiter,
+            fileSettingSer.FieldQualifier,
+            fileSettingSer.HasFieldHeader,
+            false,
+            fileSettingSer.NoDelimitedFile,
+            fileSettingSer.NewLine,
+            columnCollection,
+            fileSettingSer is BaseSettingPhysicalFile bas ? bas.ColumnFile : string.Empty);
+        }
+        catch (Exception e)
+        {
+          Logger.Warning(e,"Could not parse setting file {filename}", FileSystemUtils.GetShortDisplayFileName(fileNameSetting, 40));
+        }
       }
 #endif
       if (fileName2.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))

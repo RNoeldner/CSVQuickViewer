@@ -9,29 +9,29 @@ namespace CsvTools.Tests
     [TestMethod]
     public void GetFileReaderTestCsv()
     {
-      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt") };
+      var setting = new CsvFile("csv", UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"));
       using var test =
-        FunctionalDI.GetFileReader(setting,  UnitTestStatic.Token);
+        FunctionalDI.GetFileReader(setting, UnitTestStatic.Token);
       Assert.IsInstanceOfType(test, typeof(CsvFileReader));
     }
 
     [TestMethod]
     public void GetFileReaderTestJson()
     {
-      var setting = new JsonFile { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt") };
+      var setting = new JsonFile("json", UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"));
       using var test2 =
-        FunctionalDI.GetFileReader(setting,  UnitTestStatic.Token);
+        FunctionalDI.GetFileReader(setting, UnitTestStatic.Token);
       Assert.IsInstanceOfType(test2, typeof(JsonFileReader));
     }
 
     [TestMethod]
     public void GetFileWriterTest()
     {
-      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt") };
+      var setting = new CsvFile("csv", UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"));
       var test = FunctionalDI.GetFileWriter(setting, UnitTestStatic.Token);
       Assert.IsInstanceOfType(test, typeof(CsvFileWriter));
 
-      var setting2 = new JsonFile { FileName = UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), Row = "{0}" };
+      var setting2 = new JsonFile("json", UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt"), "{0}");
       var test2 = FunctionalDI.GetFileWriter(setting2, UnitTestStatic.Token);
       Assert.IsInstanceOfType(test2, typeof(StructuredFileWriter));
     }

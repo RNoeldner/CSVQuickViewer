@@ -17,7 +17,9 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
+#if XmlSerialization
 using System.Xml.Serialization;
+#endif
 
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
@@ -37,13 +39,13 @@ namespace CsvTools
     private string m_TimePartFormat;
     private string m_TimeZonePart;
     private int m_ColumnOrdinal;
-
+#if XmlSerialization
     [Obsolete("Only needed for XML Serialization")]
     public ColumnMut()
       : this(string.Empty)
     {
     }
-
+#endif
     public ColumnMut(Column source) : this(source.Name, source.ValueFormat, source.ColumnOrdinal, source.Ignore,
       source.Convert, source.DestinationName, source.TimePart, source.TimePartFormat, source.TimeZonePart)
     {
@@ -93,6 +95,7 @@ namespace CsvTools
       m_Convert = convert ?? ValueFormat.DataType != DataTypeEnum.String;
     }
 
+#if XmlSerialization
     /// <summary>
     ///   Gets or sets the type of the data.
     /// </summary>
@@ -112,7 +115,7 @@ namespace CsvTools
     ///   Gets or sets the date format.
     /// </summary>
     /// <value>The date format.</value>
-    [XmlAttribute]
+
     [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
     [DefaultValue(ValueFormat.cDateFormatDefault)]
@@ -150,11 +153,11 @@ namespace CsvTools
       set => m_ValueFormatMut.DecimalSeparator = value;
     }
 
-
     /// <summary>
     ///   Gets or sets the representation for false.
     /// </summary>
     /// <value>The false.</value>
+
     [XmlAttribute]
     [JsonIgnore]
     //[Obsolete("Use ValueFormat instead")]
@@ -266,7 +269,7 @@ namespace CsvTools
       get => m_ValueFormatMut.True;
       set => m_ValueFormatMut.True = value;
     }
-
+#endif
     private ValueFormatMut m_ValueFormatMut;
 
     [JsonIgnore]
@@ -279,7 +282,10 @@ namespace CsvTools
     /// <summary>
     ///   The Ordinal Position of the column
     /// </summary>
+#if XmlSerialization
     [XmlIgnore]
+#endif
+    [JsonIgnore]
     public int ColumnOrdinal
     {
       get => m_ColumnOrdinal;
@@ -291,7 +297,9 @@ namespace CsvTools
     ///   to read a typed value as text
     /// </summary>
     /// <value><c>true</c> if the column should be convert; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(true)]
     public bool Convert
     {
@@ -303,7 +311,9 @@ namespace CsvTools
     ///   Gets or sets the name in a destination. This is only used for writing
     /// </summary>
     /// <value>The name of the column in the destination.</value>
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue("")]
     public string DestinationName
     {
@@ -315,7 +325,9 @@ namespace CsvTools
     ///   Gets or sets a value indicating whether the column should be ignore reading a file
     /// </summary>
     /// <value><c>true</c> if [ignore read]; otherwise, <c>false</c>.</value>
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(false)]
     public bool Ignore
     {
@@ -327,7 +339,9 @@ namespace CsvTools
     ///   Gets or sets the name.
     /// </summary>
     /// <value>The name.</value>
-    [XmlAttribute("Column")]
+#if XmlSerialization
+[XmlAttribute("Column")]
+#endif
     public string Name
     {
       get => m_Name;
@@ -338,7 +352,9 @@ namespace CsvTools
     ///   Gets or sets the name.
     /// </summary>
     /// <value>The name.</value>
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue("")]
     public string TimePart
     {
@@ -350,7 +366,9 @@ namespace CsvTools
     ///   Gets or sets the name.
     /// </summary>
     /// <value>The name.</value>
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue(Column.cDefaultTimePartFormat)]
     public string TimePartFormat
     {
@@ -362,7 +380,9 @@ namespace CsvTools
     ///   Gets or sets the name.
     /// </summary>
     /// <value>The name.</value>
-    [XmlAttribute]
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue("")]
     public string TimeZonePart
     {

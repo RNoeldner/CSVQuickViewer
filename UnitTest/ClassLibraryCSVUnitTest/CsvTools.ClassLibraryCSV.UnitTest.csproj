@@ -14,10 +14,12 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 	  <DebugType>embedded</DebugType>
+	  <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 	  <DebugType>embedded</DebugType>
+	  <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />

@@ -16,6 +16,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
@@ -23,12 +24,14 @@ using System.Threading.Tasks;
 namespace CsvTools.Tests
 {
   [TestClass]
+  [SuppressMessage("ReSharper", "UseAwaitUsing")]
+  [SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
   public class CsvDataReaderUnitTest
   {
     private static readonly TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
 
     private readonly CsvFile m_ValidSetting =
-      new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      new(id: string.Empty, fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
         FieldDelimiter = ",", CommentLine = "#"
       };
@@ -480,11 +483,10 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderImportFileEmptyNullNotExisting()
     {
-      var setting = new CsvFile();
+      var setting = new CsvFile(String.Empty, string.Empty);
 
       try
       {
-        setting.FileName = string.Empty;
         using (new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
                  setting.ColumnCollection,
                  setting.TrimmingOption, setting.FieldDelimiter, setting.FieldQualifier, setting.EscapePrefix,
@@ -552,11 +554,8 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderRecordNumberEmptyLinesAsync()
     {
-      var setting = new CsvFile
-      {
-        FileName = UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"),
-        HasFieldHeader = true
-      };
+      var setting =
+        new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt")) { HasFieldHeader = true };
 
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,
@@ -583,12 +582,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderRecordNumberEmptyLinesSkipEmptyLinesAsync()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"))
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSVEmptyLine.txt"),
-        HasFieldHeader = true,
-        SkipEmptyLines = false,
-        ConsecutiveEmptyRows = 3
+        HasFieldHeader = true, SkipEmptyLines = false, ConsecutiveEmptyRows = 3
       };
       /*
        * ID,LangCode,ExamDate,Score,Proficiency,IsNativeLang
@@ -1411,11 +1407,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderInitWarnings()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        HasFieldHeader = false,
-        SkipRows = 1
+        HasFieldHeader = false, SkipRows = 1
       };
       setting.FieldQualifier = "XX";
       setting.FieldDelimiter = ",,";
@@ -1446,12 +1440,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderInitErrorFieldDelimiterCr()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        HasFieldHeader = false,
-        SkipRows = 1,
-        FieldDelimiter = "\r"
+        HasFieldHeader = false, SkipRows = 1, FieldDelimiter = "\r"
       };
       var exception = false;
       try
@@ -1491,12 +1482,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderInitErrorFieldQualifierCr()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        HasFieldHeader = false,
-        SkipRows = 1,
-        FieldQualifier = "Carriage return"
+        HasFieldHeader = false, SkipRows = 1, FieldQualifier = "Carriage return"
       };
       var exception = false;
       try
@@ -1536,12 +1524,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderInitErrorFieldQualifierLf()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        HasFieldHeader = false,
-        SkipRows = 1,
-        FieldQualifier = "Line feed"
+        HasFieldHeader = false, SkipRows = 1, FieldQualifier = "Line feed"
       };
       var exception = false;
       try
@@ -1581,11 +1566,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderGuessCodePage()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        HasFieldHeader = true,
-        CodePageId = 0
+        HasFieldHeader = true, CodePageId = 0
       };
       setting.FieldDelimiter = ",";
       using (var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows,
@@ -1611,12 +1594,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderInitErrorFieldDelimiterLf()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        HasFieldHeader = false,
-        SkipRows = 1,
-        FieldDelimiter = "\n"
+        HasFieldHeader = false, SkipRows = 1, FieldDelimiter = "\n"
       };
       var exception = false;
       try
@@ -1655,12 +1635,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderInitErrorFieldDelimiterSpace()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile("id", UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        HasFieldHeader = false,
-        SkipRows = 1,
-        FieldDelimiter = " "
+        HasFieldHeader = false, SkipRows = 1, FieldDelimiter = " "
       };
       var exception = false;
       try
@@ -1699,12 +1676,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderInitErrorFieldQualifierIsFieldDelimiter()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        HasFieldHeader = false,
-        SkipRows = 1,
-        FieldQualifier = "\""
+        HasFieldHeader = false, SkipRows = 1, FieldQualifier = "\""
       };
       setting.FieldDelimiter = setting.FieldQualifier;
       var exception = false;
@@ -2263,12 +2237,9 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task CsvDataReaderNoHeader()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile(fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"),
-        HasFieldHeader = false,
-        SkipRows = 1,
-        FieldDelimiter = ","
+        HasFieldHeader = false, SkipRows = 1, FieldDelimiter = ","
       };
 
       using var test = new CsvFileReader(setting.FullPath, setting.CodePageId, setting.SkipRows, setting.HasFieldHeader,

@@ -8,7 +8,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void XmlFileTest()
     {
-      var x = new XmlFile();
+      var x = new XmlFile("id");
       Assert.AreEqual(string.Empty, x.FileName);
     }
 

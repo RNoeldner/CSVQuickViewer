@@ -1,10 +1,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
   [TestClass]
+  [SuppressMessage("ReSharper", "UseAwaitUsing")]
   public class RealignColumnsTest
   {
     [TestMethod]

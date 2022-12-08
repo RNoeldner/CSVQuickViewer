@@ -16,6 +16,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ using System.Threading.Tasks;
 namespace CsvTools.Tests
 {
   [TestClass]
+  [SuppressMessage("ReSharper", "UseAwaitUsing")]
   public class DetermineColumnFormatTest
   {
     [TestMethod()]
@@ -921,7 +923,7 @@ namespace CsvTools.Tests
         true,
         false,
         false,
-        null,
+        new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.Integer, res.FoundValueFormat?.DataType);
     }

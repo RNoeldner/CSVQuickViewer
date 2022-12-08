@@ -21,7 +21,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+#if XmlSerialization
 using System.Xml.Serialization;
+#endif
 
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
@@ -57,7 +59,10 @@ namespace CsvTools
     ///   Gets or sets the name of the file.
     /// </summary>
     /// <value>The name of the file.</value>
-    [XmlAttribute]
+
+#if XmlSerialization
+[XmlAttribute]
+#endif
     [DefaultValue("")]
     public virtual string ColumnFile
     {
@@ -70,7 +75,9 @@ namespace CsvTools
     ///   Gets or sets the name of the file.
     /// </summary>
     /// <value>The name of the file.</value>
+#if XmlSerialization
     [XmlAttribute]
+#endif
     [DefaultValue("")]
     public virtual string FileName
     {
@@ -87,7 +94,9 @@ namespace CsvTools
     ///   Gets or sets the date the file when it was read
     /// </summary>
     /// <value>The consecutive empty rows.</value>
+#if XmlSerialization
     [XmlAttribute]
+#endif
     [DefaultValue(0)]
     public virtual long FileSize
     {
@@ -96,7 +105,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+#if XmlSerialization
     [XmlAttribute]
+#endif
     [DefaultValue(true)]
     public virtual bool ByteOrderMark
     {
@@ -105,7 +116,9 @@ namespace CsvTools
     }
 
     /// <inheritdoc />
+#if XmlSerialization
     [XmlAttribute]
+#endif
     [DefaultValue(65001)]
     public virtual int CodePageId
     {
@@ -117,7 +130,9 @@ namespace CsvTools
     ///   Gets or sets the value format.
     /// </summary>
     /// <value>The value format.</value>
-    [XmlIgnore]
+#if XmlSerialization
+[XmlIgnore]
+#endif
     public virtual ValueFormat ValueFormatWrite
     {
       get => m_DefaultValueFormatWrite;
@@ -127,7 +142,9 @@ namespace CsvTools
     /// <summary>
     /// Only used for Serialization
     /// </summary>
-    [XmlElement(ElementName = "DefaultValueFormatWrite")]
+#if XmlSerialization
+[XmlElement(ElementName = "DefaultValueFormatWrite")]
+#endif
     [JsonIgnore]
     public virtual ValueFormatMut ValueFormatMut
     {
@@ -135,7 +152,9 @@ namespace CsvTools
       set => SetField(ref m_DefaultValueFormatWrite, value.ToImmutable());
     }
 
+#if XmlSerialization
     [XmlIgnore]
+#endif
     [JsonIgnore]
     public virtual string FullPath
     {
@@ -157,7 +176,9 @@ namespace CsvTools
     ///   Gets or sets the name of the file.
     /// </summary>
     /// <value>The name of the file.</value>
+#if XmlSerialization
     [XmlAttribute]
+#endif
     [DefaultValue("")]
     public virtual string IdentifierInContainer
     {
@@ -170,7 +191,9 @@ namespace CsvTools
     /// <summary>
     ///   PassPhrase for Decryption, will not be stored
     /// </summary>
-    [XmlIgnore]
+#if XmlSerialization
+[XmlIgnore]
+#endif
     [JsonIgnore]
     [DefaultValue("")]
     public virtual string Passphrase
@@ -184,7 +207,9 @@ namespace CsvTools
     ///   Gets or sets the name of the file.
     /// </summary>
     /// <value>The name of the file.</value>
+#if XmlSerialization
     [XmlAttribute]
+#endif
     [DefaultValue("")]
     public virtual string RemoteFileName
     {
@@ -192,17 +217,19 @@ namespace CsvTools
       set => SetField(ref m_RemoteFileName, value, StringComparison.Ordinal);
     }
 
+#if XmlSerialization
     [XmlIgnore]
-    [JsonIgnore]
-    [DefaultValue("")]
-    public string RootFolder { get; set; } = string.Empty;
+#endif
+    [JsonIgnore] [DefaultValue("")] public string RootFolder { get; set; } = string.Empty;
 
     /// <inheritdoc />
     /// <summary>
     ///   Gets or sets the name of the file.
     /// </summary>
     /// <value>The name of the file.</value>
+#if XmlSerialization
     [XmlAttribute]
+#endif
     [DefaultValue(true)]
     public virtual bool ThrowErrorIfNotExists
     {
@@ -210,7 +237,9 @@ namespace CsvTools
       set => SetField(ref m_ThrowErrorIfNotExists, value);
     }
 
+#if XmlSerialization
     [XmlAttribute]
+#endif
     [DefaultValue(0)]
     public long KeyID
     {

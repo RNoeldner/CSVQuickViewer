@@ -35,17 +35,19 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <param name="row"></param>
     [JsonConstructor]
-    public XmlFile(in string? id, in string? fileName, in string? row)
+    public XmlFile(string? id, string? fileName = "", string? row = "")
       : base(id ?? string.Empty, fileName ?? string.Empty, row ?? string.Empty)
     {
     }
 
+#if XmlSerialization
     /// <inheritdoc />
     [Obsolete("Only needed for XML Serialization")]
     public XmlFile()
       : this(string.Empty, string.Empty, string.Empty)
     {
     }
+#endif
 
     public override object Clone()
     {
