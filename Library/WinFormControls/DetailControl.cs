@@ -29,9 +29,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-// ReSharper disable UnusedMember.Global
-
-// ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
 namespace CsvTools
 {
@@ -46,6 +43,7 @@ namespace CsvTools
     private readonly BindingSource m_BindingSource;
     private readonly List<DataGridViewCell> m_FoundCells = new();
     private readonly Search m_Search;
+    private readonly System.Windows.Forms.Timer m_TimerVisibility = new();
 
     private readonly List<KeyValuePair<string, DataGridViewCell>> m_SearchCells = new();
 
@@ -81,6 +79,7 @@ namespace CsvTools
     private bool m_SearchCellsDirty = true;
     private bool m_ShowButtons = true;
     private bool m_ShowFilter = true;
+    private bool m_UpdateVisibility = true;
 
     /// <inheritdoc />
     /// <summary>
@@ -311,11 +310,12 @@ namespace CsvTools
       m_ToolStripItems.Add(m_ToolStripButtonColumnLength);
       m_ToolStripItems.Add(m_ToolStripButtonStore);
 
-      m_ToolStripItems.CollectionChanged += (_, _) => MoveMenu();
+      m_ToolStripItems.CollectionChanged += (_, _) => m_UpdateVisibility = true;
       FontChanged += DetailControl_FontChanged;
       m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
-
-      MoveMenu();
+      m_TimerVisibility.Enabled = true;
+      m_TimerVisibility.Interval = 150;
+      m_TimerVisibility.Tick += timerVisibility_Tick;
     }
 
     public Func<bool>? EndOfFile { get; set; }
@@ -323,7 +323,6 @@ namespace CsvTools
     public EventHandler<IFileSettingPhysicalFile>? FileStored;
     public Func<IProgress<ProgressInfo>, CancellationToken, Task>? LoadNextBatchAsync { get; set; }
     private DataColumnCollection Columns => m_DataTable.Columns;
-
 
     /// <summary>
     ///   Gets or sets the HTML style.
@@ -336,12 +335,13 @@ namespace CsvTools
     /// </summary>
     public bool MenuDown
     {
+      // ReSharper disable once UnusedMember.Global : Needed for Forms Designer
       get => m_MenuDown;
       set
       {
         if (m_MenuDown == value) return;
         m_MenuDown = value;
-        MoveMenu();
+        m_UpdateVisibility = true;
       }
     }
 
@@ -353,6 +353,7 @@ namespace CsvTools
     [Category("Appearance")]
     public DataGridViewCellStyle AlternatingRowDefaultCellStyle
     {
+      // ReSharper disable once UnusedMember.Global : Needed for Forms Designer
       get => FilteredDataGridView.AlternatingRowsDefaultCellStyle;
       set => FilteredDataGridView.AlternatingRowsDefaultCellStyle = value;
     }
@@ -387,6 +388,7 @@ namespace CsvTools
         m_FilterDataTable?.Dispose();
         m_FilterDataTable = null;
 
+        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         m_DataTable = value ?? new DataTable();
       }
     }
@@ -399,6 +401,7 @@ namespace CsvTools
     [Category("Appearance")]
     public DataGridViewCellStyle DefaultCellStyle
     {
+      // ReSharper disable once UnusedMember.Global
       get => FilteredDataGridView.DefaultCellStyle;
       set => FilteredDataGridView.DefaultCellStyle = value;
     }
@@ -412,7 +415,7 @@ namespace CsvTools
       set
       {
         FilteredDataGridView.FileSetting = value;
-        SetButtonVisibility();
+        m_UpdateVisibility = true;
       }
     }
 
@@ -453,7 +456,7 @@ namespace CsvTools
         FilteredDataGridView.ReadOnly = value;
         FilteredDataGridView.AllowUserToAddRows = !value;
         FilteredDataGridView.AllowUserToDeleteRows = !value;
-        SetButtonVisibility();
+        m_UpdateVisibility = true;
       }
     }
 
@@ -471,7 +474,7 @@ namespace CsvTools
         if (m_ShowFilter == value)
           return;
         m_ShowFilter = value;
-        SetButtonVisibility();
+        m_UpdateVisibility = true;
       }
     }
 
@@ -489,7 +492,7 @@ namespace CsvTools
         if (m_ShowButtons == value)
           return;
         m_ShowButtons = value;
-        SetButtonVisibility();
+        m_UpdateVisibility = true;
       }
     }
 
@@ -540,39 +543,6 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Moves the menu in the lower or upper tool-bar
-    /// </summary>
-    public void MoveMenu()
-    {
-      var source = (m_MenuDown) ? m_ToolStripTop : m_BindingNavigator;
-      var target = (m_MenuDown) ? m_BindingNavigator : m_ToolStripTop;
-      target.SuspendLayout();
-      source.SuspendLayout();
-      target.Font = Font;
-      foreach (var item in m_ToolStripItems)
-      {
-        item.DisplayStyle = (m_MenuDown)
-          ? ToolStripItemDisplayStyle.Image
-          : ToolStripItemDisplayStyle.ImageAndText;
-        if (source.Items.Contains(item))
-          source.Items.Remove(item);
-        if (target.Items.Contains(item))
-          target.Items.Remove(item);
-      }
-
-      foreach (var item in m_ToolStripItems)
-      {
-        item.DisplayStyle = (m_MenuDown)
-          ? ToolStripItemDisplayStyle.Image
-          : ToolStripItemDisplayStyle.ImageAndText;
-        target.Items.Add(item);
-      }
-
-      source.ResumeLayout(true);
-      target.ResumeLayout(true);
-      SetButtonVisibility();
-    }
 
     private void DetailControl_FontChanged(object? sender, EventArgs e)
     {
@@ -992,47 +962,6 @@ namespace CsvTools
     private void SearchComplete(object? sender, SearchEventArgs e) =>
       this.SafeBeginInvoke(() => { m_Search.Results = m_CurrentSearchProcessInformation?.Found ?? 0; });
 
-    private void SetButtonVisibility() =>
-      this.SafeBeginInvoke(() =>
-      {
-        m_ToolStripContainer.TopToolStripPanelVisible = !m_MenuDown;
-
-        // Need to set the control containing the buttons to visible Regular
-        m_ToolStripButtonColumnLength.Visible = m_ShowButtons;
-        m_ToolStripButtonDuplicates.Visible = m_ShowButtons;
-        m_ToolStripButtonUniqueValues.Visible = m_ShowButtons;
-        m_ToolStripButtonStore.Visible = m_ShowButtons && (FileSetting != null);
-        m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
-
-        var hasData = !m_DataMissing && (m_DataTable.Rows.Count > 0);
-        m_ToolStripButtonUniqueValues.Enabled = hasData;
-        m_ToolStripButtonDuplicates.Enabled = hasData;
-        m_ToolStripButtonColumnLength.Enabled = hasData;
-        m_ToolStripButtonHierarchy.Enabled = hasData;
-        m_ToolStripButtonStore.Enabled = hasData;
-        m_ToolStripComboBoxFilterType.Enabled = hasData;
-        m_ToolStripComboBoxFilterType.Visible = hasData;
-        m_ToolStripButtonMoveLastItem.Enabled = hasData;
-        FilteredDataGridView.toolStripMenuItemFilterAdd.Enabled = hasData;
-
-        m_ToolStripButtonLoadRemaining.Visible = m_DataMissing && m_ShowButtons;
-        m_ToolStripLabelCount.ForeColor = !m_DataMissing ? SystemColors.ControlText : SystemColors.MenuHighlight;
-        m_ToolStripLabelCount.ToolTipText =
-          !m_DataMissing ? "Total number of items" : "Total number of items (loaded so far)";
-        try
-        {
-          m_ToolStripTop.Visible = m_ShowButtons;
-
-          // Filter
-          m_ToolStripComboBoxFilterType.Visible = m_ShowButtons && m_ShowFilter;
-        }
-        catch (InvalidOperationException)
-        {
-          // ignore error in regards to cross thread issues, SafeBeginInvoke should have handled
-          // this though
-        }
-      });
-
     private bool m_DataMissing;
 
     public bool DataMissing
@@ -1042,7 +971,7 @@ namespace CsvTools
         if (m_DataMissing != value)
         {
           m_DataMissing = value;
-          SetButtonVisibility();
+          m_UpdateVisibility = true;
         }
       }
     }
@@ -1274,6 +1203,84 @@ namespace CsvTools
           DataMissing = !eof;
         }
       }, ParentForm);
+    }
+
+    private void timerVisibility_Tick(object sender, EventArgs? e)
+    {
+      if (!m_UpdateVisibility)
+        return;
+      // do not do this again
+      m_TimerVisibility.Enabled = false;
+      m_UpdateVisibility = false;
+      try
+      {
+        var source = (m_MenuDown) ? m_ToolStripTop : m_BindingNavigator;
+        var target = (m_MenuDown) ? m_BindingNavigator : m_ToolStripTop;
+        target.SuspendLayout();
+        source.SuspendLayout();
+        target.Font = Font;
+        foreach (var item in m_ToolStripItems)
+        {
+          item.DisplayStyle = (m_MenuDown)
+            ? ToolStripItemDisplayStyle.Image
+            : ToolStripItemDisplayStyle.ImageAndText;
+          if (source.Items.Contains(item))
+            source.Items.Remove(item);
+          if (target.Items.Contains(item))
+            target.Items.Remove(item);
+        }
+
+        foreach (var item in m_ToolStripItems)
+        {
+          item.DisplayStyle = (m_MenuDown)
+            ? ToolStripItemDisplayStyle.Image
+            : ToolStripItemDisplayStyle.ImageAndText;
+          target.Items.Add(item);
+        }
+
+        source.ResumeLayout(true);
+        target.ResumeLayout(true);
+
+        m_ToolStripContainer.TopToolStripPanelVisible = !m_MenuDown;
+
+        // Need to set the control containing the buttons to visible Regular
+        m_ToolStripButtonColumnLength.Visible = m_ShowButtons;
+        m_ToolStripButtonDuplicates.Visible = m_ShowButtons;
+        m_ToolStripButtonUniqueValues.Visible = m_ShowButtons;
+        m_ToolStripButtonStore.Visible = m_ShowButtons && (FileSetting != null);
+        m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
+
+        var hasData = !m_DataMissing && (m_DataTable.Rows.Count > 0);
+        m_ToolStripButtonUniqueValues.Enabled = hasData;
+        m_ToolStripButtonDuplicates.Enabled = hasData;
+        m_ToolStripButtonColumnLength.Enabled = hasData;
+        m_ToolStripButtonHierarchy.Enabled = hasData;
+        m_ToolStripButtonStore.Enabled = hasData;
+        m_ToolStripButtonMoveLastItem.Enabled = hasData;
+        FilteredDataGridView.toolStripMenuItemFilterAdd.Enabled = hasData;
+
+        m_ToolStripButtonLoadRemaining.Visible = m_DataMissing && m_ShowButtons;
+        m_ToolStripLabelCount.ForeColor = !m_DataMissing ? SystemColors.ControlText : SystemColors.MenuHighlight;
+        m_ToolStripLabelCount.ToolTipText =
+          !m_DataMissing ? "Total number of items" : "Total number of items (loaded so far)";
+
+        m_ToolStripTop.Visible = m_ShowButtons;
+
+        // Filter
+        m_ToolStripComboBoxFilterType.Visible = m_ShowButtons && m_ShowFilter;
+        m_ToolStripComboBoxFilterType.Enabled = hasData;
+      }
+      catch (InvalidOperationException exception)
+      {
+        Logger.Warning(exception, "Issue with updating the UI");
+        // ignore error in regards to cross thread issues, SafeBeginInvoke should have handled
+        // this though
+      }
+      finally
+      {
+        // now you could run this again
+        m_TimerVisibility.Enabled = true;
+      }
     }
 
     private sealed class ProcessInformation : DisposableBase

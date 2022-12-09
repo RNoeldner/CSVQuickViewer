@@ -27,7 +27,7 @@ namespace CsvTools
   /// </summary>
   public interface IFileReader : IDataReader
 #if NETSTANDARD2_1_OR_GREATER
-                                 , IAsyncDisposable
+, IAsyncDisposable
 #endif
   {
     #region Events and Callbacks
@@ -54,13 +54,13 @@ namespace CsvTools
     ///   remote location
     /// </summary>
     Func<Task>? OnOpenAsync { set; }
-    
+
 
     /// <summary>
     ///   Event handler called if a warning or error occurred
     /// </summary>
     public event EventHandler<WarningEventArgs>? Warning;
-    
+
 
     #endregion
 

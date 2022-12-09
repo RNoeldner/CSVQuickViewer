@@ -318,7 +318,6 @@ namespace CsvTools
         if (m_ConfigChanged)
         {
           m_ConfigChanged = false;
-          detailControl.MoveMenu();
           if (MessageBox.Show(
                 "The configuration has changed do you want to reload the data?",
                 "Configuration changed",

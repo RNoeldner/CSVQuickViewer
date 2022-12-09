@@ -11,10 +11,12 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
+
 // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
 
 namespace CsvTools
@@ -44,6 +46,7 @@ namespace CsvTools
     private string m_TimeSeparator;
     private string m_True;
     private string m_WriteFolder;
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="CsvTools.ValueFormatMut" /> class.
     /// </summary>
@@ -169,7 +172,7 @@ namespace CsvTools
       set
       {
         if (!SetField(ref m_DecimalSeparator, (value ?? string.Empty).WrittenPunctuation(),
-              StringComparison.Ordinal)) 
+              StringComparison.Ordinal))
           return;
         if (m_GroupSeparator.Equals(m_DecimalSeparator))
           SetField(ref m_GroupSeparator, string.Empty, StringComparison.Ordinal, false, nameof(GroupSeparator));
@@ -189,7 +192,7 @@ namespace CsvTools
     public string False
     {
       get => m_False;
-      set => SetField(ref m_False, value,  StringComparison.Ordinal);
+      set => SetField(ref m_False, value, StringComparison.Ordinal);
     }
 
     [XmlAttribute]
@@ -363,7 +366,8 @@ namespace CsvTools
              && Overwrite == other.Overwrite;
     }
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is ValueFormatMut other && Equals(other);
+    public override bool Equals(object? obj) =>
+      ReferenceEquals(this, obj) || obj is ValueFormatMut other && Equals(other);
 
     /// <summary>
     /// Returns  an immutable ValueFormat if the source column was immutable the very same is returned, not copy is created
