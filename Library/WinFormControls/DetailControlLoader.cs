@@ -7,8 +7,12 @@ namespace CsvTools
       getDataTable: () => detailControl.DataTable,
       setRefreshDisplayAsync: detailControl.RefreshDisplayAsync,
       loadNextBatchAsync: func => detailControl.LoadNextBatchAsync = func,
-      actionBegin: () => detailControl.DataMissing= false,
-      actionFinished: wrapper => { detailControl.EndOfFile = () => wrapper.EndOfFile; detailControl.DataMissing = !wrapper.EndOfFile; })
+      actionBegin: () => detailControl.DataMissing = true,
+      actionFinished: wrapper =>
+      {
+        detailControl.EndOfFile = () => wrapper.EndOfFile;
+        detailControl.DataMissing = !wrapper.EndOfFile;
+      })
     {
     }
   }
