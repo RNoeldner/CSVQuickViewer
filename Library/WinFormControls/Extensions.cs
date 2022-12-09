@@ -16,7 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -205,6 +204,7 @@ namespace CsvTools
             runThread.Join(timeoutMilliseconds);
           else
             runThread.Join();
+
         }
       }
       catch (Exception e)
@@ -393,7 +393,7 @@ namespace CsvTools
       var descConv = new EnumDescriptionConverter(typeof(T));
       cbo.DataSource = (Enum.GetValues(typeof(T)).Cast<T>()
         .Where(item => doNotShow == null || !doNotShow.Contains(item))
-        .Select(item => new DisplayItem<T>(item, descConv?.ConvertToString(item) ?? string.Empty))).ToList();
+        .Select(item => new DisplayItem<T>(item, descConv.ConvertToString(item) ?? string.Empty))).ToList();
       cbo.DisplayMember = nameof(DisplayItem<T>.Display);
       cbo.ValueMember = nameof(DisplayItem<T>.ID);
       cbo.SelectedValue = currentValue;

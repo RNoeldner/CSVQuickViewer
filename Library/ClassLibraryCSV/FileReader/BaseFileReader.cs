@@ -37,7 +37,7 @@ namespace CsvTools
     /// <summary>
     ///   The maximum value
     /// </summary>
-    private const int cMaxProgress = 10000;
+    public const int cMaxProgress = 10000;
 
     private readonly IReadOnlyCollection<Column> m_ColumnDefinition;
 

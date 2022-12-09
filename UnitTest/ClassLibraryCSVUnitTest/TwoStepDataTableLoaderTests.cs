@@ -13,8 +13,6 @@ namespace CsvTools.Tests
     public async Task StartAsyncTestAsync()
     {
       var myDataTable = new DataTable();
-      bool beginCalled = false;
-      bool finishedCalled = false;
       bool warningCalled = false;
       bool refreshCalled = false;
 
@@ -22,21 +20,19 @@ namespace CsvTools.Tests
         Task.Run(() => refreshCalled = true, cancellationToken);
 
       // ReSharper disable once UseAwaitUsing
-      using var tsde = new TwoStepDataTableLoader(dt => myDataTable = dt, () => myDataTable, RefreshFunc, null,
-        () => beginCalled = true, (_) => finishedCalled = true);
+      using var tsde = new SteppedDataTableLoader(dt => myDataTable = dt, RefreshFunc);
       var csv = new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
-        FieldDelimiter = ",", CommentLine = "#"
+        FieldDelimiter = ",",
+        CommentLine = "#"
       };
 
       var proc = new Progress<ProgressInfo>();
-      await tsde.StartAsync(csv, true, true, TimeSpan.FromMilliseconds(20), proc,
+      await tsde.StartAsync(csv, true, true, TimeSpan.FromMilliseconds(20), FilterTypeEnum.All, proc,
         (_, _) => { warningCalled = true; },
         UnitTestStatic.Token);
       Assert.IsTrue(refreshCalled);
       Assert.IsFalse(warningCalled);
-      Assert.IsTrue(beginCalled);
-      Assert.IsTrue(finishedCalled);
 
       Assert.AreEqual(8, myDataTable.Columns.Count());
     }

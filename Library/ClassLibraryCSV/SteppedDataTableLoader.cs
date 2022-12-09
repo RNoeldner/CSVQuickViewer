@@ -6,50 +6,33 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  public class TwoStepDataTableLoader : DisposableBase
+  public class SteppedDataTableLoader : DisposableBase
 #if NETSTANDARD2_1_OR_GREATER
                                         , IAsyncDisposable
 #endif
   {
-    private readonly Action? m_ActionBegin;
-    private readonly Action<DataReaderWrapper>? m_ActionFinished;
-    private readonly Func<DataTable> m_GetDataTable;
-    private readonly Func<FilterTypeEnum, CancellationToken, Task>? m_RefreshDisplayAsync;
+    private readonly Func<FilterTypeEnum, CancellationToken, Task> m_RefreshDisplayAsync;
     private readonly Action<DataTable> m_SetDataTable;
-    private readonly Action<Func<IProgress<ProgressInfo>?, CancellationToken, Task>>? m_SetLoadNextBatchAsync;
+
     private DataReaderWrapper? m_DataReaderWrapper;
     private IFileReader? m_FileReader;
     private string m_ID = string.Empty;
+    private bool m_RestoreError;
+    private TimeSpan m_Duration;
+    public bool EndOfFile => m_DataReaderWrapper?.EndOfFile ?? false;
 
-    public TwoStepDataTableLoader(
+    /// <summary>
+    /// A DataTable loaded that does load the data to a data table but does though in Batches
+    /// </summary>
+    /// <param name="actionSetDataTable">Action to pass on the data table</param>
+    /// <param name="setRefreshDisplayAsync">>Action to display nad filter the data table</param>
+    public SteppedDataTableLoader(
       in Action<DataTable> actionSetDataTable,
-      in Func<DataTable> getDataTable,
-      in Func<FilterTypeEnum, CancellationToken, Task>? setRefreshDisplayAsync,
-      in Action<Func<IProgress<ProgressInfo>?, CancellationToken, Task>>? loadNextBatchAsync,
-      in Action? actionBegin,
-      in Action<DataReaderWrapper>? actionFinished)
+      in Func<FilterTypeEnum, CancellationToken, Task> setRefreshDisplayAsync)
     {
-      m_SetDataTable = actionSetDataTable ?? throw new ArgumentNullException(nameof(actionSetDataTable));
-      m_GetDataTable = getDataTable ?? throw new ArgumentNullException(nameof(getDataTable));
-      m_SetLoadNextBatchAsync = loadNextBatchAsync;
+      m_SetDataTable = actionSetDataTable;
       m_RefreshDisplayAsync = setRefreshDisplayAsync;
-      m_ActionFinished = actionFinished;
-      m_ActionBegin = actionBegin;
     }
-
-#if NETSTANDARD2_1_OR_GREATER
-    public async ValueTask DisposeAsync()
-    {
-      if (m_FileReader != null)
-      {
-        await m_FileReader.DisposeAsync().ConfigureAwait(false);
-        m_FileReader = null;
-      }
-
-      // Suppress finalization.
-      GC.SuppressFinalize(this);
-    }
-#endif
     /// <summary>
     /// Starts the load of data from a file setting into the data table from m_GetDataTable
     /// </summary>
@@ -57,6 +40,7 @@ namespace CsvTools
     /// <param name="addErrorField">if set to <c>true</c> include error column.</param>
     /// <param name="restoreError">Restore column and row errors from error columns</param>
     /// <param name="durationInitial">The duration for the initial initial.</param>
+    /// <param name="filterType"></param>
     /// <param name="progress">Process display to pass on progress information</param>
     /// <param name="addWarning">Add warnings.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -66,16 +50,18 @@ namespace CsvTools
       bool addErrorField,
       bool restoreError,
       TimeSpan durationInitial,
+      FilterTypeEnum filterType,
       IProgress<ProgressInfo>? progress,
       EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
     {
       m_ID = fileSetting.ID;
       m_FileReader = FunctionalDI.GetFileReader(fileSetting, cancellationToken);
+      m_RestoreError = restoreError;
+      m_Duration = durationInitial;
       if (m_FileReader is null)
         throw new FileReaderException($"Could not get reader for {fileSetting}");
       if (progress != null)
         m_FileReader.ReportProgress = progress;
-
 
       RowErrorCollection? warningList = null;
       if (addWarning != null)
@@ -84,7 +70,6 @@ namespace CsvTools
         m_FileReader.Warning += addWarning;
         m_FileReader.Warning -= warningList.Add;
       }
-
 
       await m_FileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
@@ -102,19 +87,71 @@ namespace CsvTools
         fileSetting.DisplayRecordNo
       );
 
-      m_ActionBegin?.Invoke();
-
       // the initial progress is set on the source reader
-      await GetBatchByTimeSpan(durationInitial, restoreError, null, m_SetDataTable,
-          cancellationToken)
+      await GetNextBatch(filterType, null, cancellationToken)
         .ConfigureAwait(false);
-
-      m_SetLoadNextBatchAsync?.Invoke((process, token) =>
-        GetBatchByTimeSpan(durationInitial, restoreError, process,
-          dt => m_GetDataTable().Merge(dt), token));
-
-      m_ActionFinished?.Invoke(m_DataReaderWrapper);
     }
+
+
+
+    public async Task GetNextBatch(
+      FilterTypeEnum filterType,
+      IProgress<ProgressInfo>? progress,
+      CancellationToken cancellationToken)
+    {
+      if (m_DataReaderWrapper is null)
+        return;
+
+      var dt = await m_DataReaderWrapper.GetDataTableAsync(
+        m_Duration,
+        m_RestoreError,
+        progress,
+        cancellationToken).ConfigureAwait(false);
+
+      // for Debugging its nice to know where it all came form
+      if (!string.IsNullOrEmpty(m_ID))
+        dt.TableName = m_ID;
+      try
+      {
+        m_SetDataTable.Invoke(dt);
+      }
+      catch (InvalidOperationException ex)
+      {
+        // ignore
+        Logger.Warning(ex, "RefreshDisplayAsync");
+      }
+
+      try
+      {
+        await m_RefreshDisplayAsync(filterType, cancellationToken).ConfigureAwait(false);
+      }
+      catch (InvalidOperationException ex)
+      {
+        // ignore
+        Logger.Warning(ex, "RefreshDisplayAsync");
+      }
+
+      if (m_DataReaderWrapper.EndOfFile)
+#if NETSTANDARD2_1_OR_GREATER
+        await DisposeAsync().ConfigureAwait(false);
+#else
+        Dispose();
+#endif
+    }
+
+#if NETSTANDARD2_1_OR_GREATER
+    public async ValueTask DisposeAsync()
+    {
+      if (m_DataReaderWrapper != null)
+        await m_DataReaderWrapper.DisposeAsync().ConfigureAwait(false);
+
+      if (m_FileReader != null)
+        await m_FileReader.DisposeAsync().ConfigureAwait(false);
+
+      // Suppress finalization.
+      GC.SuppressFinalize(this);
+    }
+#endif
 
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
@@ -124,51 +161,6 @@ namespace CsvTools
       m_DataReaderWrapper?.Dispose();
       m_FileReader?.Dispose();
       m_FileReader = null;
-    }
-
-    private async Task GetBatchByTimeSpan(
-      TimeSpan maxDuration,
-      bool restoreError,
-      IProgress<ProgressInfo>? progress,
-      Action<DataTable> action, CancellationToken cancellationToken)
-    {
-      if (m_DataReaderWrapper is null)
-        return;
-
-      var dt = await m_DataReaderWrapper.GetDataTableAsync(
-        maxDuration,
-        restoreError,
-        progress,
-        cancellationToken).ConfigureAwait(false);
-
-      // for Debugging its nice to know where it all came form
-      if (!string.IsNullOrEmpty(m_ID))
-        dt.TableName = m_ID;
-      try
-      {
-        action.Invoke(dt);
-      }
-      catch (InvalidOperationException)
-      {
-        // ignore
-      }
-
-      if (m_RefreshDisplayAsync != null)
-        try
-        {
-          await m_RefreshDisplayAsync(FilterTypeEnum.All, cancellationToken).ConfigureAwait(false);
-        }
-        catch (InvalidOperationException)
-        {
-          // ignore
-        }
-
-      if (m_DataReaderWrapper.EndOfFile)
-#if NETSTANDARD2_1_OR_GREATER
-        await DisposeAsync().ConfigureAwait(false);
-#else
-        Dispose();
-#endif
     }
   }
 }
