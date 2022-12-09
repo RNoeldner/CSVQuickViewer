@@ -38,7 +38,6 @@ namespace CsvTools
   public sealed partial class FormMain : ResizeForm
   {
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
-    private readonly DetailControlLoader m_DetailControlLoader;
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
     private readonly ViewSettings m_ViewSettings;
     private bool m_ConfigChanged;
@@ -66,7 +65,7 @@ namespace CsvTools
       InitializeComponent();
       Text = AssemblyTitle;
 
-      m_DetailControlLoader = new DetailControlLoader(detailControl);
+
       // add the not button not visible in designer to the detail control
       detailControl.AddToolStripItem(0, m_ToolStripButtonSettings);
       detailControl.AddToolStripItem(0, m_ToolStripButtonLoadFile);
@@ -545,10 +544,9 @@ namespace CsvTools
           using (var formProgress = new FormProgress(fileNameShort, false, cancellationToken))
           {
             formProgress.Show();
-            formProgress.Maximum = 100;
-
-            await m_DetailControlLoader.StartAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,
-              formProgress, AddWarning, formProgress.CancellationToken);
+            
+            await detailControl.LoadSettingAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,
+              FilterTypeEnum.All, formProgress, AddWarning, formProgress.CancellationToken);
           }
 
           if (cancellationToken.IsCancellationRequested)

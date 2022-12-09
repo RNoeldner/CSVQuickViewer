@@ -53,8 +53,6 @@ namespace CsvTools.Tests
       dc.DataTable = dt;
 
       await dc.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
-      dc.OnlyShowErrors = true;
-      dc.MoveMenu();
     }
 
     [TestMethod]

@@ -22,7 +22,6 @@ namespace CsvTools
         m_CancellationTokenSource?.Dispose();
         m_SettingsChangedTimerChange?.Dispose();
         m_SourceDisplay?.Dispose();
-        m_DetailControlLoader?.Dispose();
       }
       Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
       Microsoft.Win32.SystemEvents.PowerModeChanged -= SystemEvents_PowerModeChanged;

@@ -73,13 +73,25 @@ namespace CsvTools
     private FormShowMaxLength? m_FormShowMaxLength;
     private FormUniqueDisplay? m_FormUniqueDisplay;
     private FormHierarchyDisplay? m_HierarchyDisplay;
-
     private bool m_MenuDown;
     private Form? m_ParentForm;
     private bool m_SearchCellsDirty = true;
     private bool m_ShowButtons = true;
     private bool m_ShowFilter = true;
     private bool m_UpdateVisibility = true;
+    private readonly SteppedDataTableLoader m_SteppedDataTableLoader;
+
+
+    public async Task LoadSettingAsync(
+      IFileSetting fileSetting,
+      bool addErrorField,
+      bool restoreError,
+      TimeSpan durationInitial,
+      FilterTypeEnum filterType,
+      IProgress<ProgressInfo>? progress,
+      EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken) =>
+      await m_SteppedDataTableLoader.StartAsync(fileSetting, addErrorField, restoreError,
+        durationInitial, filterType, progress, addWarning, cancellationToken);
 
     /// <inheritdoc />
     /// <summary>
@@ -315,13 +327,16 @@ namespace CsvTools
       m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
       m_TimerVisibility.Enabled = true;
       m_TimerVisibility.Interval = 150;
-      m_TimerVisibility.Tick += timerVisibility_Tick;
+      m_TimerVisibility.Tick += TimerVisibility_Tick;
+      
+      // This created a BatchLoader
+      m_SteppedDataTableLoader = new SteppedDataTableLoader(
+        dataTable => DataTable = dataTable,
+        RefreshDisplayAsync);
     }
 
-    public Func<bool>? EndOfFile { get; set; }
     public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored;
     public EventHandler<IFileSettingPhysicalFile>? FileStored;
-    public Func<IProgress<ProgressInfo>, CancellationToken, Task>? LoadNextBatchAsync { get; set; }
     private DataColumnCollection Columns => m_DataTable.Columns;
 
     /// <summary>
@@ -512,24 +527,6 @@ namespace CsvTools
       }
     }
 
-    /// <summary>
-    ///   Called when [show errors].
-    /// </summary>
-    public bool OnlyShowErrors
-    {
-      set
-      {
-        try
-        {
-          m_ToolStripComboBoxFilterType.SelectedIndex = value ? 1 : 0;
-        }
-        catch
-        {
-          // ignored
-        }
-      }
-    }
-
     public void AddToolStripItem(int index, ToolStripItem item)
     {
       if (item is null)
@@ -591,6 +588,7 @@ namespace CsvTools
         m_DataTable.Dispose();
         m_FilterDataTable?.Dispose();
         m_HierarchyDisplay?.Dispose();
+        m_SteppedDataTableLoader.Dispose();
       }
 
       base.Dispose(disposing);
@@ -700,7 +698,8 @@ namespace CsvTools
           m_FormDuplicatesDisplay?.Close();
           m_FormDuplicatesDisplay =
             new FormDuplicatesDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-              columnName, HtmlStyle) { Icon = ParentForm?.Icon };
+              columnName, HtmlStyle)
+            { Icon = ParentForm?.Icon };
           ResizeForm.SetFonts(m_FormDuplicatesDisplay, Font);
           m_FormDuplicatesDisplay.Show(ParentForm);
           m_FormDuplicatesDisplay.FormClosed +=
@@ -728,7 +727,8 @@ namespace CsvTools
           m_HierarchyDisplay?.Close();
           m_HierarchyDisplay =
             new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-              HtmlStyle) { Icon = ParentForm?.Icon };
+              HtmlStyle)
+            { Icon = ParentForm?.Icon };
           ResizeForm.SetFonts(m_HierarchyDisplay, Font);
           m_HierarchyDisplay.Show(ParentForm);
           m_HierarchyDisplay.FormClosed += (_, _) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
@@ -962,25 +962,13 @@ namespace CsvTools
     private void SearchComplete(object? sender, SearchEventArgs e) =>
       this.SafeBeginInvoke(() => { m_Search.Results = m_CurrentSearchProcessInformation?.Found ?? 0; });
 
-    private bool m_DataMissing;
-
-    public bool DataMissing
-    {
-      set
-      {
-        if (m_DataMissing != value)
-        {
-          m_DataMissing = value;
-          m_UpdateVisibility = true;
-        }
-      }
-    }
-
+    
     /// <summary>
     ///   Sets the data source.
     /// </summary>
-    public async Task RefreshDisplayAsync(FilterTypeEnum type, CancellationToken cancellationToken)
+    public async Task RefreshDisplayAsync(FilterTypeEnum filterType, CancellationToken cancellationToken)
     {
+
       var oldSortedColumn = FilteredDataGridView.SortedColumn?.DataPropertyName;
       var oldOrder = FilteredDataGridView.SortOrder;
 
@@ -992,26 +980,17 @@ namespace CsvTools
       m_Search.Visible = false;
 
       var newDt = m_DataTable;
+
       m_FilterDataTable ??= new FilterDataTable(m_DataTable);
-      if (type != FilterTypeEnum.All)
+      if (filterType != FilterTypeEnum.All)
       {
-        if (type != m_FilterDataTable.FilterType)
-          await m_FilterDataTable.FilterAsync(int.MaxValue, type, cancellationToken);
+        if (filterType != m_FilterDataTable.FilterType)
+          await m_FilterDataTable.FilterAsync(int.MaxValue, filterType, cancellationToken);
         newDt = m_FilterDataTable.FilterTable;
       }
 
       if (ReferenceEquals(m_BindingSource.DataSource, newDt))
         return;
-
-
-      var newIndex = type switch
-      {
-        FilterTypeEnum.ErrorsAndWarning => 1,
-        FilterTypeEnum.ShowErrors => 2,
-        FilterTypeEnum.ShowWarning => 3,
-        FilterTypeEnum.ShowIssueFree => 4,
-        _ => 0
-      };
 
       this.SafeInvokeNoHandleNeeded(() =>
       {
@@ -1021,7 +1000,7 @@ namespace CsvTools
         m_BindingSource.DataSource = newDt;
         FilteredDataGridView.DataSource = m_BindingSource;
 
-        FilterColumns(!type.HasFlag(FilterTypeEnum.ShowIssueFree));
+        FilterColumns(!filterType.HasFlag(FilterTypeEnum.ShowIssueFree));
 
         AutoResizeColumns(newDt);
         FilteredDataGridView.ColumnVisibilityChanged();
@@ -1032,15 +1011,27 @@ namespace CsvTools
             oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
       });
 
+
       this.SafeInvoke(() =>
       {
-        if (m_ToolStripComboBoxFilterType.SelectedIndex == newIndex) return;
+        var newIndex = filterType switch
+        {
+          FilterTypeEnum.ErrorsAndWarning => 1,
+          FilterTypeEnum.ShowErrors => 2,
+          FilterTypeEnum.ShowWarning => 3,
+          FilterTypeEnum.ShowIssueFree => 4,
+          _ => 0
+        };
+        if (m_ToolStripComboBoxFilterType.SelectedIndex == newIndex)
+          return;
         m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
         m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;
         m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
         if (m_ToolStripComboBoxFilterType.Focused)
           SendKeys.Send("{ESC}");
       });
+
+      m_UpdateVisibility = true;
     }
 
     private void StartSearch(object? sender, SearchEventArgs e)
@@ -1159,53 +1150,44 @@ namespace CsvTools
 
     public void ReStoreViewSetting(string fileName) => FilteredDataGridView.ReStoreViewSetting(fileName);
 
+
+    private FilterTypeEnum GetCurrentFilter()
+    {
+      int index = 0;
+      this.SafeInvoke(() => index = m_ToolStripComboBoxFilterType.SelectedIndex);
+      if (index == 1)
+        return FilterTypeEnum.ErrorsAndWarning;
+      if (index == 2)
+        return FilterTypeEnum.ShowErrors;
+      if (index == 3)
+        return FilterTypeEnum.ShowWarning;
+      return index == 4 ? FilterTypeEnum.ShowIssueFree : FilterTypeEnum.All;
+    }
+
     private async void ToolStripComboBoxFilterType_SelectedIndexChanged(object? sender, EventArgs e)
     {
-      /*
-       * All Records
-       * Error or Warning
-       * Only Errors
-       * Only Warning
-       * No Error or Warning
-      */
-      if (m_ToolStripComboBoxFilterType.SelectedIndex == 0)
-        await RefreshDisplayAsync(FilterTypeEnum.All, m_CancellationToken);
-      if (m_ToolStripComboBoxFilterType.SelectedIndex == 1)
-        await RefreshDisplayAsync(FilterTypeEnum.ErrorsAndWarning, m_CancellationToken);
-      if (m_ToolStripComboBoxFilterType.SelectedIndex == 2)
-        await RefreshDisplayAsync(FilterTypeEnum.ShowErrors, m_CancellationToken);
-      if (m_ToolStripComboBoxFilterType.SelectedIndex == 3)
-        await RefreshDisplayAsync(FilterTypeEnum.ShowWarning, m_CancellationToken);
-      if (m_ToolStripComboBoxFilterType.SelectedIndex == 4)
-        await RefreshDisplayAsync(FilterTypeEnum.ShowIssueFree, m_CancellationToken);
+      await RefreshDisplayAsync(GetCurrentFilter(), m_CancellationToken);
       if (m_ToolStripComboBoxFilterType.Focused)
         SendKeys.Send("{ESC}");
     }
 
     private async void ToolStripButtonLoadRemaining_Click(object? sender, EventArgs e)
     {
-      if (LoadNextBatchAsync is null || (EndOfFile?.Invoke() ?? true))
+      if (m_SteppedDataTableLoader.EndOfFile)
         return;
       await m_ToolStripButtonLoadRemaining.RunWithHourglassAsync(async () =>
       {
         m_ToolStripLabelCount.Text = " loading...";
-        try
-        {
-          using var formProgress = new FormProgress("Load more...", false, m_CancellationToken);
-          formProgress.Show();
-          formProgress.Maximum = 100;
-          await LoadNextBatchAsync(formProgress, formProgress.CancellationToken);
-        }
-        finally
-        {
-          var eof = EndOfFile();
-          //          m_ToolStripLabelCount.Text = m_DataTable.Rows.Count.ToString();
-          DataMissing = !eof;
-        }
+
+        using var formProgress = new FormProgress("Load more...", false, m_CancellationToken);
+        formProgress.Show();
+        formProgress.Maximum = BaseFileReader.cMaxProgress;
+        await m_SteppedDataTableLoader.GetNextBatch(GetCurrentFilter(), formProgress, formProgress.CancellationToken);
+
       }, ParentForm);
     }
 
-    private void timerVisibility_Tick(object sender, EventArgs? e)
+    private void TimerVisibility_Tick(object? sender, EventArgs e)
     {
       if (!m_UpdateVisibility)
         return;
@@ -1250,7 +1232,7 @@ namespace CsvTools
         m_ToolStripButtonStore.Visible = m_ShowButtons && (FileSetting != null);
         m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
 
-        var hasData = !m_DataMissing && (m_DataTable.Rows.Count > 0);
+        var hasData = m_SteppedDataTableLoader.EndOfFile && (m_DataTable.Rows.Count > 0);
         m_ToolStripButtonUniqueValues.Enabled = hasData;
         m_ToolStripButtonDuplicates.Enabled = hasData;
         m_ToolStripButtonColumnLength.Enabled = hasData;
@@ -1259,10 +1241,10 @@ namespace CsvTools
         m_ToolStripButtonMoveLastItem.Enabled = hasData;
         FilteredDataGridView.toolStripMenuItemFilterAdd.Enabled = hasData;
 
-        m_ToolStripButtonLoadRemaining.Visible = m_DataMissing && m_ShowButtons;
-        m_ToolStripLabelCount.ForeColor = !m_DataMissing ? SystemColors.ControlText : SystemColors.MenuHighlight;
+        m_ToolStripButtonLoadRemaining.Visible = !m_SteppedDataTableLoader.EndOfFile && m_ShowButtons;
+        m_ToolStripLabelCount.ForeColor = m_SteppedDataTableLoader.EndOfFile ? SystemColors.ControlText : SystemColors.MenuHighlight;
         m_ToolStripLabelCount.ToolTipText =
-          !m_DataMissing ? "Total number of items" : "Total number of items (loaded so far)";
+          m_SteppedDataTableLoader.EndOfFile ? "Total number of items" : "Total number of items (loaded so far)";
 
         m_ToolStripTop.Visible = m_ShowButtons;
 

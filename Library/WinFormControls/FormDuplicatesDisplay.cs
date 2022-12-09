@@ -133,9 +133,10 @@ namespace CsvTools
           // ReSharper disable once AccessToDisposedClosure
           intervalAction.Invoke(formProgress, "Getting duplicate values", rowIndex);
 
-          var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString().Trim();
+          var id = m_DataRow[rowIndex][dataColumnID.Ordinal].ToString()?.Trim() ?? string.Empty;
 
-          if (ignoreNull && string.IsNullOrEmpty(id))
+          // ReSharper disable once ReplaceWithStringIsNullOrEmpty
+          if (ignoreNull && id.Length==0)
             continue;
           if (dictIDToRow.TryGetValue(id, out var duplicateRowIndex))
           {
