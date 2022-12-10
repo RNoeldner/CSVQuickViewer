@@ -287,7 +287,7 @@ namespace CsvTools
 #if XmlSerialization
 [XmlElement]
 #endif
-    public SampleAndErrorsInformation SamplesAndErrors { get; set; } = new SampleAndErrorsInformation(-1);
+    public SampleAndErrorsInformation SamplesAndErrors { get; set; } = new SampleAndErrorsInformation();
 
     /// <inheritdoc />
     [DefaultValue("")]

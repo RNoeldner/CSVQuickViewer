@@ -35,35 +35,24 @@ namespace CsvTools
     private readonly UniqueObservableCollection<SampleRecordEntry> m_Errors;
     private readonly UniqueObservableCollection<SampleRecordEntry> m_Samples;
 
-#if XmlSerialization
-    [Obsolete("Used for XML Serialization")]
-    public SampleAndErrorsInformation() : this(-1, null, null)
+    [JsonConstructor]
+    public SampleAndErrorsInformation() : this(-1, Array.Empty<SampleRecordEntry>(), Array.Empty<SampleRecordEntry>())
     {
     }
-#endif
 
-    [JsonConstructor]
-    public SampleAndErrorsInformation(int? numErrors = -1, in IEnumerable<SampleRecordEntry>? errors = null,
-      in IEnumerable<SampleRecordEntry>? samples = null)
+    public SampleAndErrorsInformation(int numErrors, in IEnumerable<SampleRecordEntry> errors,
+      in IEnumerable<SampleRecordEntry> samples)
     {
-      m_NumErrors = numErrors ?? -1;
+      m_NumErrors = numErrors;
+
       m_Errors = new UniqueObservableCollection<SampleRecordEntry>();
-      if (errors != null)
-        m_Errors.AddRangeNoClone(errors);
+      m_Errors.AddRangeNoClone(errors);
       m_Errors.CollectionItemPropertyChanged += (o, s) => NotifyPropertyChanged(nameof(Errors));
 
       m_Samples = new UniqueObservableCollection<SampleRecordEntry>();
-      if (samples != null)
-        m_Samples.AddRangeNoClone(samples);
+      m_Samples.AddRangeNoClone(samples);
       m_Samples.CollectionItemPropertyChanged += (o, s) => NotifyPropertyChanged(nameof(Samples));
     }
-
-
-    /// <summary>
-    ///   Gets or sets information on the errors.
-    /// </summary>
-    /// <value>The errors.</value>
-    public UniqueObservableCollection<SampleRecordEntry> Errors => m_Errors;
 
     /// <summary>
     ///   Gets or sets the number of entries in Errors, you can overwrite the real number here.
@@ -92,6 +81,12 @@ namespace CsvTools
         SetField(ref m_NumErrors, newval);
       }
     }
+
+    /// <summary>
+    ///   Gets or sets information on the errors.
+    /// </summary>
+    /// <value>The errors.</value>
+    public UniqueObservableCollection<SampleRecordEntry> Errors => m_Errors;
 
     /// <summary>
     ///   Gets or sets information on the samples.

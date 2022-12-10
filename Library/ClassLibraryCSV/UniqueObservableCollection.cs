@@ -78,7 +78,7 @@ namespace CsvTools
 
       base.Add(item);
     }
-
+  
     /// <summary>
     ///   Adds the specified item to the collection and makes sure the item is not already present
     ///   by changing the name in a way it is unique, if the item does support <see

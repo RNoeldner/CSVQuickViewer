@@ -43,14 +43,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the error.
+    ///   Gets or sets the record number.
     /// </summary>
-    /// <value>The error.</value>
+    /// <value>The record number.</value>
 #if XmlSerialization
     [XmlAttribute]
 #endif
-    [DefaultValue("")]
-    public string Error
+    [DefaultValue(0)]
+    public long RecordNumber
     {
       get;
 #if XmlSerialization
@@ -75,14 +75,14 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets or sets the record number.
+    ///   Gets or sets the error.
     /// </summary>
-    /// <value>The record number.</value>
+    /// <value>The error.</value>
 #if XmlSerialization
     [XmlAttribute]
 #endif
-    [DefaultValue(0)]
-    public long RecordNumber
+    [DefaultValue("")]
+    public string Error
     {
       get;
 #if XmlSerialization
@@ -133,8 +133,11 @@ namespace CsvTools
     {
       unchecked
       {
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
         var hashCode = RecordNumber.GetHashCode();
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
         hashCode = (hashCode * 397) ^ ProvideEvidence.GetHashCode();
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
         hashCode = (hashCode * 397) ^ StringComparer.OrdinalIgnoreCase.GetHashCode(Error);
         return hashCode;
       }
