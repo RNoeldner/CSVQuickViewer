@@ -20,7 +20,7 @@ namespace CsvTools.Tests
         };
         dgv.Columns.Add(dgvc);
         var columnFilters = new List<ToolStripDataGridViewColumnFilter> { new ToolStripDataGridViewColumnFilter(dgvc) };
-        var text = ViewSetting.StoreViewSetting(dgv, columnFilters);
+        var text = ViewSetting.StoreViewSetting(dgv.Columns, columnFilters, dgv.SortedColumn, dgv.SortOrder);
         Assert.IsTrue(!string.IsNullOrEmpty(text));
       }
     }
@@ -55,7 +55,7 @@ namespace CsvTools.Tests
         columnFilters[1].ColumnFilterLogic.ValueText = "Halloween";
         columnFilters[1].ColumnFilterLogic.Active = true;
 
-        var text = ViewSetting.StoreViewSetting(dgv, columnFilters);
+        var text = ViewSetting.StoreViewSetting(dgv.Columns, columnFilters, dgv.SortedColumn, dgv.SortOrder);
         ViewSetting.ReStoreViewSetting(text, dgv.Columns, Array.Empty<ToolStripDataGridViewColumnFilter>(),
           i => columnFilters[i], null);
       }
@@ -72,16 +72,8 @@ namespace CsvTools.Tests
           dc.HtmlStyle = HtmlStyle.Default;
           dc.DataTable = dt;
           await dc.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
-          var columnFilters = new List<ToolStripDataGridViewColumnFilter>
-          {
-            new ToolStripDataGridViewColumnFilter(dc.FilteredDataGridView.Columns[0])
-          };
-
-          columnFilters[0].ColumnFilterLogic.Operator = "=";
-          columnFilters[0].ColumnFilterLogic.ValueText = "Halloween";
-          columnFilters[0].ColumnFilterLogic.Active = true;
-
-          var text = ViewSetting.StoreViewSetting(dc.FilteredDataGridView, columnFilters);
+          dc.SetFilter(dt.Columns[0].ColumnName, ">", "Ha");
+          var text = dc.GetViewStatus();
 
           var fn = System.IO.Path.Combine(FileSystemUtils.ExecutableDirectoryName(), "test.delete");
           FileSystemUtils.FileDelete(fn);

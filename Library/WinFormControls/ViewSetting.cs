@@ -134,15 +134,11 @@ namespace CsvTools
       }
     }
 
-    public static string StoreViewSetting(DataGridView ctrl,
-      IEnumerable<ToolStripDataGridViewColumnFilter?> columnFilters) =>
-      StoreViewSetting(ctrl.Columns.OfType<DataGridViewColumn>(), columnFilters, ctrl.SortedColumn, ctrl.SortOrder);
-
-    private static string StoreViewSetting(IEnumerable<DataGridViewColumn> columns,
+    public static string StoreViewSetting(DataGridViewColumnCollection columns,
       IEnumerable<ToolStripDataGridViewColumnFilter?> columnFilters, DataGridViewColumn? sortedColumn,
       SortOrder sortOrder)
     {
-      var vst = columns
+      var vst = columns.OfType<DataGridViewColumn>()
         .Select(col => new ColumnSetting(col.DataPropertyName, col.Visible,
           ReferenceEquals(col, sortedColumn) ? (int) sortOrder : 0, col.DisplayIndex, col.Width)).ToList();
       var colIndex = 0;
