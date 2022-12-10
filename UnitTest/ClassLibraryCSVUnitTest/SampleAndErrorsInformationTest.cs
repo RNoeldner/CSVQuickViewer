@@ -25,7 +25,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Defaults()
     {
-      var test = new SampleAndErrorsInformation(-1);
+      var test = new SampleAndErrorsInformation();
       Assert.AreEqual(-1, test.NumErrors);
       Assert.AreEqual(0, test.Errors.Count);
       Assert.AreEqual(0, test.Samples.Count);
@@ -51,7 +51,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void AddError()
     {
-      var test = new SampleAndErrorsInformation(-1);
+      var test = new SampleAndErrorsInformation();
       test.Errors.Add(new SampleRecordEntry(10, error: "ErrorText"));
       Assert.AreEqual(1, test.NumErrors);
       Assert.AreEqual(0, test.Samples.Count);
@@ -64,7 +64,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void AddSamples()
     {
-      var test = new SampleAndErrorsInformation(-1);
+      var test = new SampleAndErrorsInformation();
       test.Samples.Add(new SampleRecordEntry(1));
       Assert.AreEqual(1, test.Samples.Count);
       test.Samples.Add(new SampleRecordEntry(20, false));
@@ -79,7 +79,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Clone()
     {
-      var test = new SampleAndErrorsInformation(-1);
+      var test = new SampleAndErrorsInformation();
       test.Errors.Add(new SampleRecordEntry(10, error: "ErrorText"));
 
       test.Samples.Add(new SampleRecordEntry(20));
@@ -108,7 +108,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void Equals()
     {
-      var test = new SampleAndErrorsInformation(-1);
+      var test = new SampleAndErrorsInformation();
       test.Errors.Add(new SampleRecordEntry(10, error: "ErrorText"));
 
       test.Samples.Add(new SampleRecordEntry(20));

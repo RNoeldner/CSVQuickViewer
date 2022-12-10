@@ -60,7 +60,7 @@ namespace CsvTools.Tests
         new ValueFormat(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat",
           "erp", "read", "Wr", "ou", false)) { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
       UnitTestStatic.RunSerializeAllProps(input,
-        new[] { nameof(input.CollectionIdentifier), nameof(input.ColumnOrdinal) });
+        new[] { nameof(input.CollectionIdentifier), nameof(input.ColumnOrdinal), nameof(input.False), nameof(input.True) });
     }
 
     [TestMethod]
@@ -112,7 +112,7 @@ namespace CsvTools.Tests
     public void SampleAndErrorsInformation()
     {
       var input = new SampleAndErrorsInformation(-1,
-        new[] { new SampleRecordEntry(10, true, "Error1"), new SampleRecordEntry(15, false, "Error2") },
+        new[] { new SampleRecordEntry(10, true, "Error1"), new SampleRecordEntry(12, false, "Error2") },
         new[] { new SampleRecordEntry(11, true, "Sample1"), new SampleRecordEntry(15, false, "Sample2") });
 
       var output = UnitTestStatic.RunSerialize(input);
