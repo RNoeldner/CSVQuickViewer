@@ -29,7 +29,7 @@ namespace CsvTools
       set
       {
         if (comboBoxSize.SelectedItem is DisplayItem<float> diCurrent)
-          if (value == diCurrent.ID)
+          if (Math.Abs(value - diCurrent.ID) < .1)
             return;
         m_UIChange = false;
 
@@ -45,7 +45,7 @@ namespace CsvTools
     [Category("Data")]
     [EditorBrowsable(EditorBrowsableState.Always)]
     [DefaultValue("Tahoma")]
-    public string Font
+    public string FontName
     {
       get
       {
@@ -53,7 +53,7 @@ namespace CsvTools
       }
       set
       {
-        var newValue = string.IsNullOrEmpty(value) ? "Tahoma" : value;
+        var newValue = string.IsNullOrEmpty(value) ? SystemFonts.DefaultFont.FontFamily.Name : value;
         if (comboBoxFont.Text == newValue)
           return;
         m_UIChange = false;
@@ -66,11 +66,13 @@ namespace CsvTools
     public SelectFont()
     {
       InitializeComponent();
+      this.toolTip.SetToolTip(this.buttonDefault, $"Use system default font ({SystemFonts.DefaultFont.FontFamily.Name} - {SystemFonts.DefaultFont.Size}");
 
       comboBoxFont.BeginUpdate();
       using var col = new InstalledFontCollection();
       foreach (FontFamily fa in col.Families)
-        comboBoxFont.Items.Add(fa.Name);
+        if (fa.IsStyleAvailable(FontStyle.Regular))
+          comboBoxFont.Items.Add(fa.Name);
       comboBoxFont.EndUpdate();
 
       comboBoxSize.BeginUpdate();
@@ -84,21 +86,21 @@ namespace CsvTools
       comboBoxSize.EndUpdate();
     }
 
-    private void comboBoxFont_SelectedIndexChanged(object sender, EventArgs e)
+    private void ComboBoxFont_SelectedIndexChanged(object sender, EventArgs e)
     {
       if (m_UIChange)
         ValueChanged?.Invoke(this, e);
     }
 
-    private void comboBoxSize_SelectedIndexChanged(object sender, EventArgs e)
+    private void ComboBoxSize_SelectedIndexChanged(object sender, EventArgs e)
     {
       if (m_UIChange)
         ValueChanged?.Invoke(this, e);
     }
 
-    private void buttonDefault_Click(object sender, EventArgs e)
+    private void ButtonDefault_Click(object sender, EventArgs e)
     {
-      Font = SystemFonts.DefaultFont.FontFamily.Name;
+      FontName = SystemFonts.DefaultFont.FontFamily.Name;
       FontSize = SystemFonts.DefaultFont.Size;
       ValueChanged?.Invoke(this, e);
     }

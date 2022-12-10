@@ -28,12 +28,14 @@
     /// </summary>
     private void InitializeComponent()
     {
+            this.components = new System.ComponentModel.Container();
             this.comboBoxFont = new System.Windows.Forms.ComboBox();
             this.labelFontSize = new System.Windows.Forms.Label();
             this.labelFont = new System.Windows.Forms.Label();
             this.tableLayoutPanelFont = new System.Windows.Forms.TableLayoutPanel();
             this.comboBoxSize = new System.Windows.Forms.ComboBox();
             this.buttonDefault = new System.Windows.Forms.Button();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanelFont.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -46,7 +48,8 @@
             this.comboBoxFont.Name = "comboBoxFont";
             this.comboBoxFont.Size = new System.Drawing.Size(528, 21);
             this.comboBoxFont.TabIndex = 12;
-            this.comboBoxFont.SelectedIndexChanged += new System.EventHandler(this.comboBoxFont_SelectedIndexChanged);
+            this.toolTip.SetToolTip(this.comboBoxFont, "All avalibale fonts will be listed, Sysbol like fonts should not be used");
+            this.comboBoxFont.SelectedIndexChanged += new System.EventHandler(this.ComboBoxFont_SelectedIndexChanged);
             // 
             // labelFontSize
             // 
@@ -98,7 +101,8 @@
             this.comboBoxSize.Name = "comboBoxSize";
             this.comboBoxSize.Size = new System.Drawing.Size(528, 21);
             this.comboBoxSize.TabIndex = 16;
-            this.comboBoxSize.SelectedIndexChanged += new System.EventHandler(this.comboBoxSize_SelectedIndexChanged);
+            this.toolTip.SetToolTip(this.comboBoxSize, "Size of the font");
+            this.comboBoxSize.SelectedIndexChanged += new System.EventHandler(this.ComboBoxSize_SelectedIndexChanged);
             // 
             // buttonDefault
             // 
@@ -108,8 +112,9 @@
             this.buttonDefault.Size = new System.Drawing.Size(57, 25);
             this.buttonDefault.TabIndex = 17;
             this.buttonDefault.Text = "&Default";
+            this.toolTip.SetToolTip(this.buttonDefault, "Use system default font");
             this.buttonDefault.UseVisualStyleBackColor = true;
-            this.buttonDefault.Click += new System.EventHandler(this.buttonDefault_Click);
+            this.buttonDefault.Click += new System.EventHandler(this.ButtonDefault_Click);
             // 
             // SelectFont
             // 
@@ -132,5 +137,6 @@
     private System.Windows.Forms.TableLayoutPanel tableLayoutPanelFont;
     private System.Windows.Forms.ComboBox comboBoxSize;
     private System.Windows.Forms.Button buttonDefault;
+    private System.Windows.Forms.ToolTip toolTip;
   }
 }

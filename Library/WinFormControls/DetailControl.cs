@@ -150,7 +150,8 @@ namespace CsvTools
             if (value is DateTime dateTime)
               columnFilters[0].ColumnFilterLogic.ValueDateTime = dateTime;
             else
-              columnFilters[0].ColumnFilterLogic.ValueText = value.ToString();
+              columnFilters[0].ColumnFilterLogic.ValueText = value.ToString() ?? string.Empty;
+
             columnFilters[0].ColumnFilterLogic.Active = true;
           }
         }
@@ -356,7 +357,7 @@ namespace CsvTools
     {
       this.SafeInvoke(() =>
       {
-        FilteredDataGridView.DefaultCellStyle.Font = Font;
+        FilteredDataGridView.Font = Font;
         m_BindingNavigator.Font = Font;
         m_ToolStripTop.Font = Font;
       });
@@ -773,8 +774,6 @@ namespace CsvTools
         m_ToolStripComboBoxFilterType.SelectedIndexChanged -= ToolStripComboBoxFilterType_SelectedIndexChanged;
         m_ToolStripComboBoxFilterType.SelectedIndex = newIndex;
         m_ToolStripComboBoxFilterType.SelectedIndexChanged += ToolStripComboBoxFilterType_SelectedIndexChanged;
-        if (m_ToolStripComboBoxFilterType.Focused)
-          SendKeys.Send("{ESC}");
       });
 
       m_UpdateVisibility = true;
@@ -913,8 +912,6 @@ namespace CsvTools
     private async void ToolStripComboBoxFilterType_SelectedIndexChanged(object? sender, EventArgs e)
     {
       await RefreshDisplayAsync(GetCurrentFilter(), m_CancellationToken);
-      if (m_ToolStripComboBoxFilterType.Focused)
-        SendKeys.Send("{ESC}");
     }
 
     private async void ToolStripButtonLoadRemaining_Click(object? sender, EventArgs e)
@@ -937,6 +934,13 @@ namespace CsvTools
     {
       if (!m_UpdateVisibility)
         return;
+      if (ActiveControl == m_ToolStripContainer)
+      {
+        if (!m_ToolStripComboBoxFilterType.Focused)
+          m_ToolStripComboBoxFilterType.Focus();
+        SendKeys.Send("{ESC}");
+      }
+        
       // do not do this again
       m_TimerVisibility.Enabled = false;
       m_UpdateVisibility = false;

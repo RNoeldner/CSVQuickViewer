@@ -207,12 +207,11 @@ namespace CsvTools
           if (m_FileSetting is null)
             return;
 
-          m_FileSetting.RootFolder = fileName.GetDirectoryName();
-          m_FileSetting.DisplayStartLineNo = m_ViewSettings.DisplayStartLineNo;
-          m_FileSetting.DisplayEndLineNo = false;
-          m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
-
           m_FileSetting.CopyTo(m_ViewSettings.WriteSetting);
+
+          m_FileSetting.RootFolder = fileName.GetDirectoryName();
+          m_FileSetting.DisplayEndLineNo = false;
+          m_ViewSettings.PassOnConfiguration(m_FileSetting);
 
           // update the UI
           var display = fileName;
@@ -544,7 +543,7 @@ namespace CsvTools
           using (var formProgress = new FormProgress(fileNameShort, false, cancellationToken))
           {
             formProgress.Show();
-            
+
             await detailControl.LoadSettingAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,
               FilterTypeEnum.All, formProgress, AddWarning, formProgress.CancellationToken);
           }
@@ -801,7 +800,7 @@ namespace CsvTools
           await OpenDataReaderAsync(m_CancellationTokenSource.Token);
 
         detailControl.SetViewStatus(store);
-        
+
         detailControl.ResumeLayout();
       }, this);
     }
