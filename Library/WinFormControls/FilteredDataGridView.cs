@@ -49,6 +49,17 @@ namespace CsvTools
 
     private int m_MenuItemColumnIndex;
 
+
+    private void PassOnFontChanges(object? sender, EventArgs e)
+    {
+      this.SafeInvoke(() =>
+      {
+        DefaultCellStyle.Font = Font;
+        ColumnHeadersDefaultCellStyle.Font = Font;
+        RowHeadersDefaultCellStyle.Font = Font;
+      });
+    }
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="FilteredDataGridView" /> class.
     /// </summary>
@@ -69,7 +80,7 @@ namespace CsvTools
 
       InitializeComponent();
       CellFormatting += CellFormatDate;
-
+      FontChanged += PassOnFontChanges;
       m_Filter = new List<ToolStripDataGridViewColumnFilter?>();
       //Workaround as Text on Windows 8 is too small
       if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
@@ -691,7 +702,7 @@ namespace CsvTools
       if (row.Height != m_DefRowHeight) return m_DefRowHeight;
       if (checkedColumns.Any(
             column => row.Cells[column.Index].Value != null && row.Cells[column.Index].Value != DBNull.Value
-                                                            && row.Cells[column.Index].Value.ToString()!
+                                                            && row.Cells[column.Index].Value.ToString()
                                                               .IndexOf('\n') !=
                                                             -1))
         return m_DefRowHeight * 2;
@@ -964,8 +975,8 @@ namespace CsvTools
     /// </param>
     private void HighlightCellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
     {
-      if (e.RowIndex == -1 && e.ColumnIndex >= 0 && m_Filter[e.ColumnIndex] != null
-          && m_Filter[e.ColumnIndex]!.ColumnFilterLogic.Active)
+      if (e is { RowIndex: -1, ColumnIndex: >= 0 } && m_Filter[e.ColumnIndex] != null
+                                                   && m_Filter[e.ColumnIndex]!.ColumnFilterLogic.Active)
       {
         e.Handled = true;
         e.PaintBackground(e.CellBounds, true);

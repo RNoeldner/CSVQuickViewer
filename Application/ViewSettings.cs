@@ -35,6 +35,13 @@ namespace CsvTools
     private bool m_GuessNewLine = true;
     private bool m_GuessQualifier = true;
     private bool m_GuessStartRow = true;
+    private bool m_WarnDelimiterInValue;
+    private bool m_WarnEmptyTailingColumns = true;
+    private bool m_WarnLineFeed = true;
+    private bool m_WarnNbsp = true;
+    private bool m_WarnQuotes = true;
+    private bool m_WarnUnknownCharacter = true;
+
     private string m_Font = "Tahoma";
     private float m_FontSize = 8.25f;
     private HtmlStyle m_HtmlStyle = HtmlStyle.Default;
@@ -227,5 +234,107 @@ namespace CsvTools
       get => m_HtmlStyle;
       set => SetField(ref m_HtmlStyle, value);
     }
+
+    [DefaultValue(true)]
+    public bool WarnDelimiterInValue
+    {
+      get => m_WarnDelimiterInValue;
+
+      set
+      {
+        if (m_WarnDelimiterInValue.Equals(value))
+          return;
+        m_WarnDelimiterInValue = value;
+        NotifyPropertyChanged();
+      }
+    }
+
+    [DefaultValue(true)]
+    public bool WarnUnknownCharacter
+    {
+      get => m_WarnUnknownCharacter;
+
+      set
+      {
+        if (m_WarnUnknownCharacter.Equals(value))
+          return;
+        m_WarnUnknownCharacter = value;
+        NotifyPropertyChanged();
+      }
+    }
+
+
+    [DefaultValue(true)]
+    public bool WarnQuotes
+    {
+      get => m_WarnQuotes;
+
+      set
+      {
+        if (m_WarnQuotes.Equals(value))
+          return;
+        m_WarnQuotes = value;
+        NotifyPropertyChanged();
+      }
+    }
+
+    [DefaultValue(true)]
+    public bool WarnNBSP
+    {
+      get => m_WarnNbsp;
+
+      set
+      {
+        if (m_WarnNbsp.Equals(value))
+          return;
+        m_WarnNbsp = value;
+        NotifyPropertyChanged();
+      }
+    }
+
+    [DefaultValue(true)]
+    public bool WarnLineFeed
+    {
+      get => m_WarnLineFeed;
+
+      set
+      {
+        if (m_WarnLineFeed.Equals(value))
+          return;
+        m_WarnLineFeed = value;
+        NotifyPropertyChanged();
+      }
+    }
+
+    [DefaultValue(true)]
+    public bool WarnEmptyTailingColumns
+    {
+      get => m_WarnEmptyTailingColumns;
+
+      set
+      {
+        if (m_WarnEmptyTailingColumns.Equals(value))
+          return;
+        m_WarnEmptyTailingColumns = value;
+        NotifyPropertyChanged();
+      }
+    }
+
+    public void PassOnConfiguration(in IFileSetting fileSetting)
+    {
+      if (fileSetting is ICsvFile csvFile)
+      {
+        csvFile.WarnDelimiterInValue = WarnDelimiterInValue;
+        csvFile.WarnEmptyTailingColumns = WarnEmptyTailingColumns;
+        csvFile.WarnLineFeed = WarnLineFeed;
+        csvFile.WarnNBSP = WarnNBSP;
+        csvFile.WarnQuotes = WarnQuotes;
+        csvFile.WarnUnknownCharacter = WarnUnknownCharacter;
+      }
+
+      fileSetting.DisplayStartLineNo = DisplayStartLineNo;
+      fileSetting.DisplayRecordNo = DisplayRecordNo;
+    }
+
   }
 }

@@ -55,15 +55,6 @@ namespace CsvTools
 
       InitializeComponent();
 
-      domainUpDownLimit.SelectedIndex = m_ViewSettings.LimitDuration switch
-      {
-        ViewSettings.Duration.Unlimited => 0,
-        ViewSettings.Duration.TenSecond => 1,
-        ViewSettings.Duration.TwoSecond => 2,
-        ViewSettings.Duration.Second => 3,
-        ViewSettings.Duration.HalfSecond => 4
-      };
-
       toolTip.SetToolTip(checkBoxAllowRowCombining,
         @"Try to combine rows, it can happen if the column does contain a linefeed and is not properly quoted. 
 That column content is moved to the next line.
@@ -209,12 +200,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           csvFile.CodePageId = ((DisplayItem<int>) cboCodePage.SelectedItem).ID;
     }
 
-    private void CboRecordDelimiter_SelectedIndexChanged(object? sender, EventArgs e)
-    {
-      if (cboRecordDelimiter.SelectedValue is RecordDelimiterTypeEnum val)
-        m_ViewSettings.WriteSetting.NewLine = val;
-    }
-
     private void CheckBoxColumnsProcess_CheckedChanged(object? sender, EventArgs e)
     {
       if (m_FileSetting is ICsvFile csvFile)
@@ -246,14 +231,21 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       cboRecordDelimiter.SuspendLayout();
       if (m_FileSetting != null)
         SetFileSetting(m_FileSetting);
-      cboRecordDelimiter.SetEnumDataSource(m_ViewSettings.WriteSetting.NewLine);
+      cboRecordDelimiter.SetEnumDataSource(m_ViewSettings.WriteSetting.NewLine, new[] { RecordDelimiterTypeEnum.None });
+      comboBoxLimitDuration.SetEnumDataSource(m_ViewSettings.LimitDuration);
+
       quotingControlWrite.CsvFile = m_ViewSettings.WriteSetting;
       quotingControlWrite.IsWriteSetting = true;
+
+
     }
 
     private void FormEditSettings_FormClosing(object? sender, FormClosingEventArgs e)
     {
       m_CancellationTokenSource.Cancel();
+      if (m_FileSetting != null)
+        m_ViewSettings.PassOnConfiguration(m_FileSetting);
+      
       ValidateChildren();
     }
 
@@ -303,19 +295,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       }
     }
 
-    private void DomainUpDownTime_SelectedItemChanged(object? sender, EventArgs e)
-    {
-      if (domainUpDownLimit.SelectedIndex != -1)
-        m_ViewSettings.LimitDuration = domainUpDownLimit.SelectedIndex switch
-        {
-          0 => ViewSettings.Duration.Unlimited,
-          1 => ViewSettings.Duration.TenSecond,
-          2 => ViewSettings.Duration.TwoSecond,
-          3 => ViewSettings.Duration.Second,
-          4 => ViewSettings.Duration.HalfSecond
-        };
-    }
-
     private async void ButtonGuessHeader_Click(object? sender, EventArgs e)
     {
       if (m_FileSetting is ICsvFile csvFile)
@@ -358,9 +337,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         });
     }
 
-    private void selectFont_ValueChanged(object sender, EventArgs e)
+    private void SelectFont_ValueChanged(object sender, EventArgs e)
     {
-      m_ViewSettings.Font = selectFont.Font;
+      m_ViewSettings.Font = selectFont.FontName;
       m_ViewSettings.FontSize = selectFont.FontSize;
     }
   }
