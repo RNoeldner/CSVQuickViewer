@@ -55,11 +55,21 @@ namespace CsvTools
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
 #endif
+    private void CellFormatDate(object? sender, DataGridViewCellFormattingEventArgs e)
+    {
+      if (e.Value is not DateTime cellValue)
+        return;
+
+      e.Value = StringConversion.DisplayDateTime(cellValue, CultureInfo.CurrentCulture);
+    }
 
     public FilteredDataGridView()
     {
-      InitializeComponent();
       m_CancellationTokenSource = new CancellationTokenSource();
+
+      InitializeComponent();
+      CellFormatting += CellFormatDate;
+
       m_Filter = new List<ToolStripDataGridViewColumnFilter?>();
       //Workaround as Text on Windows 8 is too small
       if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
@@ -86,7 +96,7 @@ namespace CsvTools
       DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 
       contextMenuStripFilter.Opened += ContextMenuStripFilter_Opened;
-      contextMenuStripFilter.Closing += delegate(object? sender, ToolStripDropDownClosingEventArgs e)
+      contextMenuStripFilter.Closing += delegate (object? sender, ToolStripDropDownClosingEventArgs e)
       {
         if (e.CloseReason != ToolStripDropDownCloseReason.AppClicked
             && e.CloseReason != ToolStripDropDownCloseReason.ItemClicked
@@ -117,6 +127,10 @@ namespace CsvTools
     ///   Gets the current filter.
     /// </summary>
     /// <value>The current filter.</value>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Bindable(false)]
+    [Browsable(false)]
     public string CurrentFilter =>
       (m_BindingSource != null ? m_BindingSource?.Filter : DataView?.RowFilter) ?? string.Empty;
 
@@ -151,6 +165,10 @@ namespace CsvTools
     ///   Sets the file setting.
     /// </summary>
     /// <value>The file setting.</value>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Bindable(false)]
+    [Browsable(false)]
     public IFileSetting? FileSetting
     {
       get => m_FileSetting;
@@ -162,6 +180,10 @@ namespace CsvTools
       }
     }
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Bindable(false)]
+    [Browsable(false)]
     public FillGuessSettings? FillGuessSettings
     {
       private get;
@@ -198,6 +220,10 @@ namespace CsvTools
     ///   Gets or sets the HTML style.
     /// </summary>
     /// <value>The HTML style.</value>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Bindable(false)]
+    [Browsable(false)]
     public HtmlStyle HtmlStyle { get; set; } = HtmlStyle.Default;
 
     /// <summary>
@@ -213,11 +239,11 @@ namespace CsvTools
         {
           var filter = new StringBuilder();
           foreach (var filterLogic in from toolStripFilter in m_Filter
-                   where toolStripFilter != null
-                   select toolStripFilter.ColumnFilterLogic
+                                      where toolStripFilter != null
+                                      select toolStripFilter.ColumnFilterLogic
                    into filterLogic
-                   where filterLogic.Active && !string.IsNullOrEmpty(filterLogic.FilterExpression)
-                   select filterLogic)
+                                      where filterLogic.Active && !string.IsNullOrEmpty(filterLogic.FilterExpression)
+                                      select filterLogic)
           {
             if (filter.Length > 0)
               filter.Append("\nAND\n");
@@ -340,12 +366,8 @@ namespace CsvTools
         return;
       if (m_FileSetting is BaseSettingPhysicalFile basePhysical)
         basePhysical.ColumnFile = fileName;
-      SuspendLayout();
-      if (ViewSetting.ReStoreViewSetting(FileSystemUtils.ReadAllText(fileName), Columns, m_Filter, GetColumnFilter,
-            Sort))
-        ApplyFilters();
-      ColumnVisibilityChanged();
-      ResumeLayout(true);
+
+      SetViewStatus(FileSystemUtils.ReadAllText(fileName));
     }
 
     public void SetColumnFrozen(int colNum, bool newStatus)
@@ -354,8 +376,8 @@ namespace CsvTools
       {
         var colFirstNoFrozen =
           (from col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex)
-            where !col.Frozen
-            select col.DisplayIndex).FirstOrDefault();
+           where !col.Frozen
+           select col.DisplayIndex).FirstOrDefault();
         Columns[m_MenuItemColumnIndex].DisplayIndex = colFirstNoFrozen;
       }
 
@@ -442,9 +464,11 @@ namespace CsvTools
         var newMenuItem =
           new ToolStripMenuItem(StringUtils.GetShortDisplay(item.Display, 40))
           {
-            Tag = item, Checked = item.Active, CheckOnClick = true
+            Tag = item,
+            Checked = item.Active,
+            CheckOnClick = true
           };
-        newMenuItem.CheckStateChanged += delegate(object? menuItem, EventArgs _)
+        newMenuItem.CheckStateChanged += delegate (object? menuItem, EventArgs _)
         {
           if (menuItem is not ToolStripMenuItem sendItem)
             return;
@@ -1314,6 +1338,18 @@ namespace CsvTools
       }
     }
 
+    public string GetViewStatus => ViewSetting.StoreViewSetting(Columns, m_Filter, SortedColumn, SortOrder);
+
+    public void SetViewStatus(string newSetting)
+    {
+      SuspendLayout();
+      if (ViewSetting.ReStoreViewSetting(newSetting, Columns, m_Filter, GetColumnFilter,
+            Sort))
+        ApplyFilters();
+      ColumnVisibilityChanged();
+      ResumeLayout(true);
+    }
+
     private async void ToolStripMenuItemSaveCol_Click(object? sender, EventArgs e)
     {
       if (m_FileSetting is null)
@@ -1336,8 +1372,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
-        await writer.WriteAsync(ViewSetting.StoreViewSetting(this, m_Filter));
+        using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
+        await writer.WriteAsync(GetViewStatus);
         await writer.FlushAsync();
 
         if (m_FileSetting is BaseSettingPhysicalFile basePhysical)

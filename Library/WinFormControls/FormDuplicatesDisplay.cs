@@ -178,24 +178,7 @@ namespace CsvTools
         m_DataTable.EndLoadData();
         formProgress.Maximum = 0;
         formProgress.SetProcess("Sorting");
-
-        detailControl.SafeInvoke(
-          () =>
-          {
-            try
-            {
-              foreach (DataGridViewColumn col in detailControl.FilteredDataGridView.Columns)
-                if (col.DataPropertyName == dataColumnName)
-                {
-                  detailControl.FilteredDataGridView.Sort(col, ListSortDirection.Ascending);
-                  break;
-                }
-            }
-            catch (Exception ex)
-            {
-              Logger.Warning(ex, "Sorting duplicate list {exception}", ex.SourceExceptionMessage());
-            }
-          });
+        detailControl.Sort(dataColumnName);
       }
       finally
       {

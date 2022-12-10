@@ -39,7 +39,6 @@ namespace CsvTools
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormCsvTextDisplay));
       this.textBox = new FastColoredTextBoxNS.FastColoredTextBox();
       this.contextMenuJson = new System.Windows.Forms.ContextMenuStrip(this.components);
       this.prettyPrintJsonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();

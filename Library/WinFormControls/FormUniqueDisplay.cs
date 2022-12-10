@@ -163,23 +163,7 @@ namespace CsvTools
         detailControl.CancellationToken = m_CancellationTokenSource.Token;
         formProgress.Maximum = 0;
         formProgress.SetProcess("Sorting");
-        detailControl.SafeInvoke(
-          () =>
-          {
-            try
-            {
-              foreach (DataGridViewColumn col in detailControl.FilteredDataGridView.Columns)
-                if (col.DataPropertyName == dataColumnName)
-                {
-                  detailControl.FilteredDataGridView.Sort(col, ListSortDirection.Ascending);
-                  break;
-                }
-            }
-            catch (Exception ex)
-            {
-              Logger.Warning(ex, "Processing Unique Sorting {exception}", ex.InnerExceptionMessages());
-            }
-          });
+        detailControl.Sort(dataColumnName);
       }
       catch (Exception ex)
       {

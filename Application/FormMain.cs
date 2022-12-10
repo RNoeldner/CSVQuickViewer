@@ -771,8 +771,7 @@ namespace CsvTools
         m_ToolStripButtonAsText.Enabled = false;
         detailControl.SuspendLayout();
 
-        var store = ViewSetting.StoreViewSetting(detailControl.FilteredDataGridView,
-          Array.Empty<ToolStripDataGridViewColumnFilter>());
+        var store = detailControl.GetViewStatus();
 
         var reload = false;
         // Assume data type is not recognize
@@ -801,13 +800,8 @@ namespace CsvTools
         if (reload)
           await OpenDataReaderAsync(m_CancellationTokenSource.Token);
 
-        ViewSetting.ReStoreViewSetting(
-          store,
-          detailControl.FilteredDataGridView.Columns,
-          Array.Empty<ToolStripDataGridViewColumnFilter?>(),
-          null,
-          null);
-
+        detailControl.SetViewStatus(store);
+        
         detailControl.ResumeLayout();
       }, this);
     }
