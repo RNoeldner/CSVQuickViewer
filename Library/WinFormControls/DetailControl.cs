@@ -150,7 +150,7 @@ namespace CsvTools
             if (value is DateTime dateTime)
               columnFilters[0].ColumnFilterLogic.ValueDateTime = dateTime;
             else
-              columnFilters[0].ColumnFilterLogic.ValueText = value.ToString() ?? string.Empty;
+              columnFilters[0].ColumnFilterLogic.ValueText = value.ToString();
 
             columnFilters[0].ColumnFilterLogic.Active = true;
           }
@@ -991,10 +991,11 @@ namespace CsvTools
         toolStripButtonMoveLastItem.Enabled = hasData;
         FilteredDataGridView.toolStripMenuItemFilterAdd.Enabled = hasData;
 
-        m_ToolStripButtonLoadRemaining.Visible = hasData && m_ShowButtons;
+        m_ToolStripButtonLoadRemaining.Visible = !m_SteppedDataTableLoader.EndOfFile && (m_DataTable.Rows.Count > 0);
+        
         m_ToolStripLabelCount.ForeColor = m_SteppedDataTableLoader.EndOfFile ? SystemColors.ControlText : SystemColors.MenuHighlight;
         m_ToolStripLabelCount.ToolTipText =
-          m_SteppedDataTableLoader.EndOfFile ? "Total number of items" : "Total number of items (loaded so far)";
+          m_SteppedDataTableLoader.EndOfFile ? "Total number of records" : "Total number of records (loaded so far)";
 
         m_ToolStripTop.Visible = m_ShowButtons;
 
@@ -1004,7 +1005,7 @@ namespace CsvTools
       }
       catch (InvalidOperationException exception)
       {
-        Logger.Warning(exception, "Issue with updating the UI");
+        Logger.Warning(exception, "Issue updating the UI");
         // ignore error in regards to cross thread issues, SafeBeginInvoke should have handled
         // this though
       }
