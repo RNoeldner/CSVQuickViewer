@@ -89,7 +89,7 @@ namespace CsvTools
             this.m_BindingNavigator.MovePreviousItem = this.toolStripButtonMovePreviousItem;
             this.m_BindingNavigator.Name = "m_BindingNavigator";
             this.m_BindingNavigator.PositionItem = this.m_ToolStripTextBoxPos;
-            this.m_BindingNavigator.Size = new System.Drawing.Size(210, 27);
+            this.m_BindingNavigator.Size = new System.Drawing.Size(241, 27);
             this.m_BindingNavigator.TabIndex = 0;
             // 
             // m_ToolStripLabelCount
@@ -153,7 +153,7 @@ namespace CsvTools
             this.m_ToolStripButtonLoadRemaining.Size = new System.Drawing.Size(24, 24);
             this.m_ToolStripButtonLoadRemaining.Text = "Load More...";
             this.m_ToolStripButtonLoadRemaining.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
-            this.m_ToolStripButtonLoadRemaining.ToolTipText = "Not all records have been read so fra, load another set of records";
+            this.m_ToolStripButtonLoadRemaining.ToolTipText = "File is not read completely, load another set of records";
             this.m_ToolStripButtonLoadRemaining.Click += new System.EventHandler(this.ToolStripButtonLoadRemaining_Click);
             // 
             // FilteredDataGridView
@@ -351,6 +351,6 @@ namespace CsvTools
 
     }
 
-    protected FilteredDataGridView FilteredDataGridView;
+    private FilteredDataGridView FilteredDataGridView;
   }
 }
