@@ -29,8 +29,8 @@ namespace CsvTools.Tests
     [Timeout(6000)]
     public void CsvTextDisplayShow()
     {
-      using var frm = new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt"), true);
-      UnitTestStatic.ShowFormAndClose(frm, .2, (f) => f.OpenFile(false, "\"", "\t", "", 1200, 1, "##"), 0,
+      using var csvTextDisplay = new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt"), true);
+      UnitTestStatic.ShowFormAndClose(csvTextDisplay, .2, (frm) => frm.OpenFile(false, "\"", "\t", "", 1200, 1, "##"),
         UnitTestStatic.Token);
     }
 
@@ -98,19 +98,25 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public void ResizeFormChangeFont()
     {
-      using var frm = new ResizeForm();
-      UnitTestStatic.ShowFormAndClose(frm, .2, (from) =>
-      {
-      });
+      using var resizeForm = new ResizeForm();
+      UnitTestStatic.ShowFormAndClose(resizeForm, .2);
     }
 
     [TestMethod]
     [Timeout(5000)]
-    public void QuotingControl()
+    public void QuotingControl1()
     {
-      using var ctrl = new QuotingControl();
+      var ctrl = new QuotingControl();
       ctrl.CsvFile = new CsvFile(id: "CSV", fileName: "");
       UnitTestStatic.ShowControl(ctrl);
+    }
+
+    [TestMethod]
+    [Timeout(5000)]
+    public void QuotingControl2()
+    {
+      var ctrl = new QuotingControl();
+      UnitTestStatic.ShowControl(ctrl, 0.1, control => control.CsvFile = new CsvFile(id: "CSV", fileName: ""));
     }
 
     [TestMethod]
@@ -274,7 +280,7 @@ namespace CsvTools.Tests
     [TestMethod]
     [Timeout(4000)]
     public void ShowLoggerDisplay() => UnitTestStatic.ShowControl(new LoggerDisplay());
-    
+
     [TestMethod]
     [Timeout(5000)]
     public void FillGuessSettingEditShow() => UnitTestStatic.ShowControl(new FillGuessSettingEdit());

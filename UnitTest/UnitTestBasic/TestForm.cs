@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ * Copyright (C) 2014 Raphael Nï¿½ldner : http://csvquickviewer.com
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
@@ -13,6 +13,7 @@
  */
 
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using Timer = System.Timers.Timer;
 
@@ -20,11 +21,15 @@ namespace CsvTools.Tests
 {
   public sealed class TestForm : Form
   {
-    private readonly Timer m_Timer = new Timer();
+    private readonly CancellationTokenSource m_CancellationTokenSource;
+    private readonly Timer m_TimerAutoClose = new Timer();
+
+    public CancellationToken CancellationToken => m_CancellationTokenSource.Token;
 
     public TestForm()
     {
       SuspendLayout();
+      m_CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(UnitTestStatic.Token);
       AutoScaleDimensions = new SizeF(8F, 16F);
       AutoScaleMode = AutoScaleMode.Font;
       BackColor = SystemColors.Control;
@@ -39,10 +44,8 @@ namespace CsvTools.Tests
       ResumeLayout(false);
     }
 
-    public void AddOneControl(Control ctrl, double totalMilliseconds = 10000)
+    public void AddOneControl(Control ctrl, double autoCloseMilliseconds = 10000)
     {
-      if (ctrl == null) return;
-
       SuspendLayout();
       Text = ctrl.GetType().FullName;
       ctrl.Dock = DockStyle.Fill;
@@ -51,23 +54,38 @@ namespace CsvTools.Tests
       Controls.Add(ctrl);
       ResumeLayout(false);
 
-      m_Timer.Interval = totalMilliseconds;
-      m_Timer.Enabled = true;
-      m_Timer.Start();
-      m_Timer.Elapsed += (sender, args) =>
+      if (!(autoCloseMilliseconds > 0))
+        return;
+      m_TimerAutoClose.Interval = autoCloseMilliseconds;
+      m_TimerAutoClose.Enabled = true;
+      m_TimerAutoClose.Start();
+      m_TimerAutoClose.Elapsed += (sender, args) =>
       {
         if (InvokeRequired)
-          BeginInvoke((MethodInvoker) delegate { Close(); });
+          BeginInvoke((MethodInvoker) Close);
         else
           Close();
       };
-      Show();
     }
 
     private void TestForm_FormClosing(object sender, FormClosingEventArgs e)
     {
-      m_Timer.Stop();
-      m_Timer.Enabled = false;
+      m_TimerAutoClose.Stop();
+      m_CancellationTokenSource.Cancel();
+    }
+
+    /// <summary>
+    /// Clean up any resources being used.
+    /// </summary>
+    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+    protected override void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        m_CancellationTokenSource.Dispose();
+      }
+
+      base.Dispose(disposing);
     }
   }
 }

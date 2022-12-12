@@ -8,7 +8,7 @@ namespace CsvTools
 {
   public class SteppedDataTableLoader : DisposableBase
 #if NETSTANDARD2_1_OR_GREATER
-                                        , IAsyncDisposable
+    , IAsyncDisposable
 #endif
   {
     private readonly Func<FilterTypeEnum, CancellationToken, Task> m_RefreshDisplayAsync;
@@ -19,7 +19,7 @@ namespace CsvTools
     private string m_ID = string.Empty;
     private bool m_RestoreError;
     private TimeSpan m_Duration;
-    public bool EndOfFile => m_DataReaderWrapper?.EndOfFile ?? false;
+    public bool EndOfFile => m_DataReaderWrapper?.EndOfFile ?? true;
 
     /// <summary>
     /// A DataTable loaded that does load the data to a data table but does though in Batches
@@ -33,6 +33,7 @@ namespace CsvTools
       m_SetDataTable = actionSetDataTable;
       m_RefreshDisplayAsync = setRefreshDisplayAsync;
     }
+
     /// <summary>
     /// Starts the load of data from a file setting into the data table from m_GetDataTable
     /// </summary>
@@ -91,7 +92,6 @@ namespace CsvTools
       await GetNextBatch(filterType, null, cancellationToken)
         .ConfigureAwait(false);
     }
-
 
 
     public async Task GetNextBatch(

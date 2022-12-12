@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 
@@ -57,12 +58,14 @@ namespace CsvTools.Tests
           if (!propertyInfo.ChangePropertyValue(obj))
             // could not change the property
             continue;
-          var ret = RunSerialize(obj, false, true);
-          Assert.AreEqual(propertyInfo.GetValue(obj), propertyInfo.GetValue(ret), $"Comparing changed value {propertyInfo.Name} of {obj.GetType().FullName}");
+          var ret = RunSerialize(obj, false);
+          Assert.AreEqual(propertyInfo.GetValue(obj), propertyInfo.GetValue(ret),
+            $"Comparing changed value {propertyInfo.Name} of {obj.GetType().FullName}");
         }
         catch (Exception e)
         {
-          Assert.Fail($"Could not clone, change or serialize {propertyInfo} in {obj.GetType().FullName}: \n{e.Message}");
+          Assert.Fail(
+            $"Could not clone, change or serialize {propertyInfo} in {obj.GetType().FullName}: \n{e.Message}");
         }
       }
     }
@@ -93,7 +96,8 @@ namespace CsvTools.Tests
         Assert.IsFalse(string.IsNullOrEmpty(testJson));
         var pos = testJson.IndexOf("Specified\":", StringComparison.OrdinalIgnoreCase);
         Assert.IsFalse(pos != -1, $"Contains Specified as position {pos} in \n{testJson}");
-        ret = JsonConvert.DeserializeObject<T>(testJson, SerializedFilesLib.JsonSerializerSettings.Value) ?? throw new InvalidOperationException();
+        ret = JsonConvert.DeserializeObject<T>(testJson, SerializedFilesLib.JsonSerializerSettings.Value) ??
+              throw new InvalidOperationException();
         Assert.IsNotNull(ret);
       }
 
@@ -193,9 +197,11 @@ namespace CsvTools.Tests
             $"Type: {a.GetType().FullName}\nProperty:{prop.Name}\nValue A:{prop.GetValue(a)}\nnValue B:{prop.GetValue(b)}");
     }
 
-    public static ICollection<PropertyInfo> GetValueTypeProperty(this object myClass, IReadOnlyCollection<string>? ignore = null)
+    public static ICollection<PropertyInfo> GetValueTypeProperty(this object myClass,
+      IReadOnlyCollection<string>? ignore = null)
     {
-      return myClass.GetType().GetProperties().Where(prop => !(ignore?.Contains(prop?.Name) ?? false) && prop.GetMethod != null &&
+      return myClass.GetType().GetProperties().Where(prop =>
+        !(ignore?.Contains(prop?.Name) ?? false) && prop.GetMethod != null &&
         (prop.PropertyType == typeof(int)
          || prop.PropertyType == typeof(long)
          || prop.PropertyType == typeof(string)
@@ -239,23 +245,25 @@ namespace CsvTools.Tests
         {
           newVal = m_Random.Next(-100, 10000);
         } while ((long) prop.GetValue(obj1) == newVal);
+
         prop.SetValue(obj1, newVal);
 
         return ((long) prop.GetValue(obj1)) == newVal;
       }
+
       if (prop.PropertyType == typeof(long))
       {
-        var newVal = (long) prop.GetValue(obj1) +1;
+        var newVal = (long) prop.GetValue(obj1) + 1;
 
         prop.SetValue(obj1, newVal);
         return ((long) prop.GetValue(obj1)) == newVal;
       }
+
       if (prop.PropertyType == typeof(bool))
       {
         var newVal = !(bool) prop.GetValue(obj1);
         prop.SetValue(obj1, newVal);
         return ((bool) prop.GetValue(obj1)) == newVal;
-
       }
 
       if (prop.PropertyType == typeof(string))
@@ -263,7 +271,7 @@ namespace CsvTools.Tests
         var src = prop.GetValue(obj1) as string;
         var newVal = "RN";
         // ReSharper disable once ReplaceWithStringIsNullOrEmpty
-        if (src != null && src.Length>0)
+        if (src != null && src.Length > 0)
           newVal = GetRandomText(src.Length);
         prop.SetValue(obj1, newVal);
 
@@ -313,6 +321,7 @@ namespace CsvTools.Tests
         {
           newVal = new DateTime(m_Random.Next(1980, 2030), m_Random.Next(1, 12), 1).AddDays(m_Random.Next(1, 31));
         } while ((DateTime) prop.GetValue(obj1) == newVal);
+
         prop.SetValue(obj1, newVal);
         return ((DateTime) prop.GetValue(obj1)) == newVal;
       }
@@ -371,7 +380,7 @@ namespace CsvTools.Tests
           WriteToContext(args.Exception.ToString());
         Assert.Fail(args.Exception.ToString());
       };
-      AppDomain.CurrentDomain.UnhandledException += delegate (object sender, UnhandledExceptionEventArgs args)
+      AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs args)
       {
         if (!Token.IsCancellationRequested)
           WriteToContext(args.ExceptionObject.ToString());
@@ -615,53 +624,33 @@ namespace CsvTools.Tests
       source.Cancel();
     }
 
-    public static void ShowControl<T>(T ctrl, double before = .2, Action<T, Form>? toDo = null, double after = .2)
+    public static void ShowControl<T>(T ctrl, double waitBeforeActionSeconds = .2, Action<T>? toDo = null,
+      double closeAfterSeconds = .2)
       where T : Control
     {
-      using var cts = CancellationTokenSource.CreateLinkedTokenSource(Token);
       using var frm = new TestForm();
-      frm.Closing += (s, e) =>
-      {
-        // ReSharper disable once AccessToDisposedClosure
-        cts.Cancel();
-      };
-      frm.AddOneControl(ctrl, after * 6000d);
-      ShowFormAndClose(frm, before, f => toDo?.Invoke(ctrl, f), after, cts.Token);
+      frm.AddOneControl(ctrl, closeAfterSeconds * 1000);
+      ShowFormAndClose(frm, waitBeforeActionSeconds, f => toDo?.Invoke(ctrl),
+        frm.CancellationToken);
+      ctrl.Dispose();
     }
 
-
-    //private static void GetButtonsRecursive(Control rootControl, ICollection<Component> btns)
-    //{
-    //  foreach (Control ctrl in rootControl.Controls)
-    //  {
-    //    switch (ctrl)
-    //    {
-    //      case Button _:
-    //        btns.Add(ctrl);
-    //        break;
-    //      case ToolStrip ts:
-    //      {
-    //        foreach (ToolStripItem i in ts.Items)
-    //        {
-    //          if (i is ToolStripButton)
-    //            btns.Add(i);
-    //        }
-
-    //        break;
-    //      }
-    //      default:
-    //      {
-    //        if (ctrl.HasChildren)
-    //          GetButtonsRecursive(ctrl, btns);
-    //        break;
-    //      }
-    //    }
-    //  }
-    //}
+    public static async Task ShowControlAsync<T>(T ctrl, double waitBeforeActionSeconds, Func<T, Task> toDo,
+      double closeAfterSeconds = .2)
+      where T : Control
+    {
+      using var frm = new TestForm();
+      frm.AddOneControl(ctrl, closeAfterSeconds * 1000);
+      await ShowFormAndCloseAsync(frm, waitBeforeActionSeconds, async f => await toDo.Invoke(ctrl),
+        frm.CancellationToken);
+      ctrl.Dispose();
+    }
 
     [DebuggerStepThrough]
     public static void WaitSomeTime(double seconds, in CancellationToken token)
     {
+      if (seconds <= 0)
+        return;
       var sw = new Stopwatch();
       sw.Start();
       while (sw.Elapsed.TotalSeconds < seconds && !token.IsCancellationRequested)
@@ -672,7 +661,7 @@ namespace CsvTools.Tests
     }
 
     public static void ShowFormAndClose<T>(
-      T typed, double before = 0, Action<T>? toDo = null, double after = 0, in CancellationToken token = default)
+      T typed, double waitBeforeActionSeconds = 0, Action<T>? toDo = null, in CancellationToken token = default)
       where T : Form
     {
       var frm = typed as Form;
@@ -688,26 +677,58 @@ namespace CsvTools.Tests
       }
       catch (Exception e)
       {
-        Console.WriteLine(e);
-        throw;
+        // ignore the form might be shown already
       }
 
       if (frm is ResizeForm res)
         res.ChangeFont(SystemFonts.DialogFont);
 
-      frm.Focus();
-      if (before > 0 && !isClosed)
-        WaitSomeTime(before, token);
+      if (waitBeforeActionSeconds > 0 && !isClosed)
+        WaitSomeTime(waitBeforeActionSeconds, token);
 
-      if (toDo != null && !isClosed)
-      {
-        toDo.Invoke(typed);
-        if (after > 0)
-          WaitSomeTime(after, token);
-      }
+      if (!isClosed)
+        toDo?.Invoke(typed);
 
       if (!isClosed)
         frm.Close();
+
+      frm.Dispose();
+    }
+
+    public static async Task ShowFormAndCloseAsync<T>(
+      T frm, double waitBeforeActionSeconds = 0, Func<T, Task>? toDo = null, CancellationToken token = default)
+      where T : Form
+    {
+      var isClosed = false;
+      frm.FormClosed += (s, o) =>
+        isClosed = true;
+
+      frm.TopMost = true;
+      frm.ShowInTaskbar = false;
+      try
+      {
+        frm.Show();
+      }
+      catch (Exception e)
+      {
+        // ignore the form might be shown already
+      }
+
+      if (frm is ResizeForm res)
+        res.ChangeFont(SystemFonts.DialogFont);
+
+      // frm.Focus();
+
+      if (waitBeforeActionSeconds > 0 && !isClosed)
+        WaitSomeTime(waitBeforeActionSeconds, token);
+
+      if (toDo != null && !isClosed)
+        await toDo.Invoke(frm);
+
+      if (!isClosed)
+        frm.Close();
+
+      frm.Dispose();
     }
   }
 }

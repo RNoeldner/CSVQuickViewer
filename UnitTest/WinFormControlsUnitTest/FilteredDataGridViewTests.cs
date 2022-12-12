@@ -50,13 +50,6 @@ namespace CsvTools.Tests
 
         fdgv2.ApplyFilters();
       }
-
-      using var filteredDataGridView = new FilteredDataGridView();
-      using var frm = new Form();
-      frm.Controls.Add(filteredDataGridView);
-      frm.Show();
-      filteredDataGridView.DataSource = DataTable200;
-      filteredDataGridView.ApplyFilters();
     }
 
     [TestMethod()]
@@ -64,12 +57,10 @@ namespace CsvTools.Tests
     {
       using var ctrl = new FilteredDataGridView();
       UnitTestStatic.ShowControl(ctrl, 0.5d,
-        (control, form) =>
+        (control) =>
         {
-          if (!(control is FilteredDataGridView ctrl2))
-            return;
-          ctrl2.DataSource = DataTable200;
-          ctrl2.ApplyFilters();
+          control.DataSource = DataTable200;
+          control.ApplyFilters();
         });
     }
 
@@ -85,16 +76,14 @@ namespace CsvTools.Tests
     {
       using var ctrl = new FilteredDataGridView();
       UnitTestStatic.ShowControl(ctrl, 0.5d,
-        (control, form) =>
+        (control) =>
         {
-          if (!(control is FilteredDataGridView ctrl2))
-            return;
-          ctrl2.DataSource = DataTable200;
-          ctrl2.SetFilterMenu(0);
-          ctrl2.CurrentCell = ctrl2[1, 0];
-          ctrl2.FilterCurrentCell();
+          control.DataSource = DataTable200;
+          control.SetFilterMenu(0);
+          control.CurrentCell = control[1, 0];
+          control.FilterCurrentCell();
 
-          ctrl2.RemoveAllFilter();
+          control.RemoveAllFilter();
         });
     }
 
@@ -104,19 +93,21 @@ namespace CsvTools.Tests
     {
       using var ctrl = new FilteredDataGridView();
       UnitTestStatic.ShowControl(ctrl, 0.5d,
-        (control, form) =>
+        (control) =>
         {
-          if (!(control is FilteredDataGridView ctrl2))
-            return;
-          ctrl2.DataSource = DataTable200;
-          ctrl2.SetFilterMenu(0);
-          ctrl2.RefreshUI();
+          control.DataSource = DataTable200;
+          control.SetFilterMenu(0);
+          control.RefreshUI();
         });
     }
 
     [TestMethod]
     [Timeout(5000)]
-    public void FilteredDataGridViewShow() => UnitTestStatic.ShowControl(new FilteredDataGridView());
+    public void FilteredDataGridViewShow()
+    {
+      using var ctrl = new FilteredDataGridView();
+      UnitTestStatic.ShowControl(ctrl, closeAfterSeconds: 0.2);
+    }
 
     [TestMethod]
     public void FilteredDataGridViewTest()
@@ -131,14 +122,11 @@ namespace CsvTools.Tests
     {
       using var ctrl = new FilteredDataGridView();
       UnitTestStatic.ShowControl(ctrl, 0.5d,
-        (control, form) =>
+        (control) =>
         {
-          if (!(control is FilteredDataGridView ctrl2))
-            return;
-          ctrl2.DataSource = DataTable200;
-
-          ctrl2.FrozenColumns = 1;
-          ctrl2.HighlightText = "HH";
+          control.DataSource = DataTable200;
+          control.FrozenColumns = 1;
+          control.HighlightText = "HH";
         });
     }
 
@@ -148,15 +136,13 @@ namespace CsvTools.Tests
     {
       using var ctrl = new FilteredDataGridView();
       UnitTestStatic.ShowControl(ctrl, 0.5d,
-        (control, form) =>
+        (control) =>
         {
-          if (!(control is FilteredDataGridView ctrl2))
-            return;
-          ctrl2.DataSource = DataTable200;
+          control.DataSource = DataTable200;
 
           // Refresh all columns filters
-          for (int col = 0; col< DataTable200.Columns.Count; col++)
-            ctrl2.SetFilterMenu(col);
+          for (int col = 0; col < DataTable200.Columns.Count; col++)
+            control.SetFilterMenu(col);
         });
     }
 
@@ -210,12 +196,10 @@ namespace CsvTools.Tests
     {
       using var ctrl = new FilteredDataGridView();
       UnitTestStatic.ShowControl(ctrl, 0.5d,
-        (control, form) =>
+        (control) =>
         {
-          if (!(control is FilteredDataGridView ctrl2))
-            return;
-          ctrl2.DataSource = DataTable200;
-          ctrl2.SetColumnFrozen(0, true);
+          control.DataSource = DataTable200;
+          control.SetColumnFrozen(0, true);
         });
     }
 
@@ -224,11 +208,12 @@ namespace CsvTools.Tests
     public void SetRowHeightTest()
     {
       using var filteredDataGridView = new FilteredDataGridView();
-      filteredDataGridView.DataSource = DataTable200;
-      using var frm = new Form();
-      frm.Controls.Add(filteredDataGridView);
-      frm.Show();
-      filteredDataGridView.SetRowHeight();
+      UnitTestStatic.ShowControl(filteredDataGridView, 0.2,
+        (control) =>
+        {
+          control.DataSource = DataTable200;
+          control.SetRowHeight();
+        });
     }
 
     [TestMethod()]
@@ -236,15 +221,11 @@ namespace CsvTools.Tests
     {
       using var ctrl = new FilteredDataGridView();
       UnitTestStatic.ShowControl(ctrl, 0.5d,
-        (control, form) =>
+        (control) =>
         {
-          if (!(control is FilteredDataGridView ctrl2))
-            return;
-          ctrl2.DataSource = DataTable200;
-
-          ctrl2.SetToolStripMenu(0, 0, true);
-
-          ctrl2.SetToolStripMenu(1, -1, true);
+          control.DataSource = DataTable200;
+          control.SetToolStripMenu(0, 0, MouseButtons.Right);
+          control.SetToolStripMenu(1, -1, MouseButtons.Right);
         });
     }
 
@@ -253,16 +234,17 @@ namespace CsvTools.Tests
     {
       using var ctrl = new FilteredDataGridView();
       UnitTestStatic.ShowControl(ctrl, 0.5d,
-        (control, form) =>
+        (control) =>
         {
-          if (!(control is FilteredDataGridView ctrl2))
-            return;
-          ctrl2.DataSource = DataTable200;
-          ctrl2.HideAllButOne(0);
-          ctrl2.ShowAllColumns();
-          ctrl2.HideEmptyColumns();
+          control.DataSource = DataTable200;
+          control.HideAllButOne(0);
+          control.ShowAllColumns();
+          control.HideEmptyColumns();
 
-          ctrl2.SetColumnVisibility(new Dictionary<string, bool>() { { DataTable200.Columns[0].ColumnName, true }, { DataTable200.Columns[1].ColumnName, false } });
+          control.SetColumnVisibility(new Dictionary<string, bool>()
+          {
+            { DataTable200.Columns[0].ColumnName, true }, { DataTable200.Columns[1].ColumnName, false }
+          });
         });
     }
 
@@ -278,7 +260,7 @@ namespace CsvTools.Tests
 
         // TODO: free unmanaged resources (unmanaged objects) and override finalizer
         // TODO: set large fields to null
-        disposedValue=true;
+        disposedValue = true;
       }
     }
 

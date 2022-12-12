@@ -107,7 +107,7 @@ namespace CsvTools
       DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 
       contextMenuStripFilter.Opened += ContextMenuStripFilter_Opened;
-      contextMenuStripFilter.Closing += delegate (object? sender, ToolStripDropDownClosingEventArgs e)
+      contextMenuStripFilter.Closing += delegate(object? sender, ToolStripDropDownClosingEventArgs e)
       {
         if (e.CloseReason != ToolStripDropDownCloseReason.AppClicked
             && e.CloseReason != ToolStripDropDownCloseReason.ItemClicked
@@ -250,11 +250,11 @@ namespace CsvTools
         {
           var filter = new StringBuilder();
           foreach (var filterLogic in from toolStripFilter in m_Filter
-                                      where toolStripFilter != null
-                                      select toolStripFilter.ColumnFilterLogic
+                   where toolStripFilter != null
+                   select toolStripFilter.ColumnFilterLogic
                    into filterLogic
-                                      where filterLogic.Active && !string.IsNullOrEmpty(filterLogic.FilterExpression)
-                                      select filterLogic)
+                   where filterLogic.Active && !string.IsNullOrEmpty(filterLogic.FilterExpression)
+                   select filterLogic)
           {
             if (filter.Length > 0)
               filter.Append("\nAND\n");
@@ -387,8 +387,8 @@ namespace CsvTools
       {
         var colFirstNoFrozen =
           (from col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex)
-           where !col.Frozen
-           select col.DisplayIndex).FirstOrDefault();
+            where !col.Frozen
+            select col.DisplayIndex).FirstOrDefault();
         Columns[m_MenuItemColumnIndex].DisplayIndex = colFirstNoFrozen;
       }
 
@@ -475,11 +475,9 @@ namespace CsvTools
         var newMenuItem =
           new ToolStripMenuItem(StringUtils.GetShortDisplay(item.Display, 40))
           {
-            Tag = item,
-            Checked = item.Active,
-            CheckOnClick = true
+            Tag = item, Checked = item.Active, CheckOnClick = true
           };
-        newMenuItem.CheckStateChanged += delegate (object? menuItem, EventArgs _)
+        newMenuItem.CheckStateChanged += delegate(object? menuItem, EventArgs _)
         {
           if (menuItem is not ToolStripMenuItem sendItem)
             return;
@@ -521,18 +519,18 @@ namespace CsvTools
       }
     }
 
-    public void SetToolStripMenu(int columnIndex, int rowIndex, bool right)
+    public void SetToolStripMenu(int columnIndex, int rowIndex, MouseButtons mouseButtons)
     {
       try
       {
         m_MenuItemColumnIndex = columnIndex;
-        if (right && columnIndex > -1)
+        if (mouseButtons == MouseButtons.Right && columnIndex > -1)
         {
           var filter = SetFilterMenu(columnIndex);
           toolStripMenuItemRemoveOne.Enabled = filter?.ColumnFilterLogic.Active ?? false;
         }
 
-        if (right && rowIndex == -1)
+        if (mouseButtons == MouseButtons.Right && rowIndex == -1)
         {
           toolStripMenuItemFreeze.Text = Columns[columnIndex].Frozen ? "Unfreeze" : "Freeze";
 
@@ -565,7 +563,7 @@ namespace CsvTools
           contextMenuStripHeader.Show(Cursor.Position);
         }
 
-        if (!right || rowIndex <= -1 || columnIndex <= -1)
+        if (mouseButtons != MouseButtons.Right || rowIndex <= -1 || columnIndex <= -1)
           return;
         CurrentCell = Rows[rowIndex].Cells[columnIndex];
         contextMenuStripCell.Show(Cursor.Position);
@@ -808,7 +806,7 @@ namespace CsvTools
     ///   the event data.
     /// </param>
     private void FilteredDataGridView_CellMouseClick(object? sender, DataGridViewCellMouseEventArgs e) =>
-      SetToolStripMenu(e.ColumnIndex, e.RowIndex, e.Button == MouseButtons.Right);
+      SetToolStripMenu(e.ColumnIndex, e.RowIndex, e.Button);
 
     /// <summary>
     ///   Handles the ColumnAdded event of the FilteredDataGridView control.
@@ -1054,13 +1052,14 @@ namespace CsvTools
         var hlRect = new Rectangle();
         while (highlightIndex >= 0 && (linefeedIndex == -1 || highlightIndex < linefeedIndex))
         {
-          hlRect.Y = e.CellBounds.Y + 2;
           var highlight = TextRenderer.MeasureText(
             e.Graphics,
             val.Substring(highlightIndex, HighlightText.Length),
             e.CellStyle.Font,
             e.CellBounds.Size);
-          hlRect.Height = highlight.Height + 2;
+
+          hlRect.Y = e.CellBounds.Y + (e.CellBounds.Height - highlight.Height) / 2;
+          hlRect.Height = highlight.Height + 1;
           hlRect.Width = highlight.Width - 6;
 
           if (e.CellStyle.Alignment == DataGridViewContentAlignment.MiddleLeft)

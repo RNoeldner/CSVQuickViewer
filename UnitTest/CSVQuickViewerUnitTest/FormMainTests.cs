@@ -38,7 +38,7 @@ namespace CsvTools.Tests
       var vs = new ViewSettings { DisplayRecordNo = true, MenuDown = true };
       using var frm = new FormMain(vs);
       UnitTestStatic.ShowFormAndClose(frm, 0,
-        frm => frm.LoadCsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"), UnitTestStatic.Token), 8,
+        frm => frm.LoadCsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"), UnitTestStatic.Token),
         UnitTestStatic.Token);
       Assert.IsNotNull(frm.DataTable);
       Assert.AreEqual(7, frm.DataTable.Rows.Count);
@@ -48,13 +48,13 @@ namespace CsvTools.Tests
     [Timeout(10000)]
     public void FormMain_AllFormatsPipe()
     {
-      using var frm = new FormMain(new ViewSettings());
-      UnitTestStatic.ShowFormAndClose(frm, 0,
-        frm => frm.LoadCsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), UnitTestStatic.Token), 8,
+      using var frmMain = new FormMain(new ViewSettings());
+      UnitTestStatic.ShowFormAndClose(frmMain, 0,
+        frm => frm.LoadCsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), UnitTestStatic.Token),
         UnitTestStatic.Token);
-      Assert.IsNotNull(frm.DataTable);
+      Assert.IsNotNull(frmMain.DataTable);
       // 45 records, one of the lines has a linefeed
-      Assert.IsTrue(frm.DataTable.Rows.Count >= 46);
+      Assert.IsTrue(frmMain.DataTable.Rows.Count >= 46);
     }
   }
 }

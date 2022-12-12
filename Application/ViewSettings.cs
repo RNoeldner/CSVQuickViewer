@@ -235,7 +235,7 @@ namespace CsvTools
       set => SetField(ref m_HtmlStyle, value);
     }
 
-    [DefaultValue(true)]
+    [DefaultValue(false)]
     public bool WarnDelimiterInValue
     {
       get => m_WarnDelimiterInValue;

@@ -14,7 +14,7 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public void MultiselectTreeViewRegular()
     {
-      using var treeView = new MultiSelectTreeView();
+      var treeView = new MultiSelectTreeView();
       treeView.HtmlStyle = HtmlStyle.Default;
       Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
@@ -37,18 +37,15 @@ namespace CsvTools.Tests
       treeView.AfterSelect += (s, args) => { firedAfter = true; };
       treeView.BeforeSelect += (s, args) => { firedBefore = true; };
 
-      UnitTestStatic.ShowControl(treeView, .2, (control, form) =>
+      UnitTestStatic.ShowControl(treeView, .2, (theTreeView) =>
       {
-        if (!(control is { } text))
-          return;
-
-        text.PressKey(Keys.Control | Keys.A);
-        text.PressKey(Keys.Control | Keys.C);
+        theTreeView.PressKey(Keys.Control | Keys.A);
+        theTreeView.PressKey(Keys.Control | Keys.C);
         Application.DoEvents();
-        treeView.SelectedNode = treeNode2;
-        treeView.SelectAll();
+        theTreeView.SelectedNode = treeNode2;
+        theTreeView.SelectAll();
         Application.DoEvents();
-        var result = treeView.SelectedToClipboard();
+        var result = theTreeView.SelectedToClipboard();
         Assert.IsTrue(result.Contains(treeNode.Text));
         Assert.IsTrue(result.Contains(treeNode2.Text));
         Assert.IsTrue(result.Contains(treeNode3.Text));
@@ -61,7 +58,7 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public void MultiselectTreeViewTreeData()
     {
-      using var treeView = new MultiSelectTreeView();
+      var treeView = new MultiSelectTreeView();
       treeView.HtmlStyle = HtmlStyle.Default;
       Assert.AreEqual(0, treeView.SelectedTreeNode.Count);
 
@@ -91,19 +88,16 @@ namespace CsvTools.Tests
       treeView.AfterSelect += (s, args) => { firedAfter = true; };
       treeView.BeforeSelect += (s, args) => { firedBefore = true; };
 
-      UnitTestStatic.ShowControl(treeView, .2, (control, form) =>
+      UnitTestStatic.ShowControl(treeView, .2, (theTreeView) =>
       {
-        if (!(control is { } text))
-          return;
-
-        text.PressKey(Keys.Control | Keys.A);
-        text.PressKey(Keys.Control | Keys.C);
+        theTreeView.PressKey(Keys.Control | Keys.A);
+        theTreeView.PressKey(Keys.Control | Keys.C);
         Application.DoEvents();
-        treeView.SelectedNode = treeNode2;
-        treeView.ExpandAll();
-        treeView.SelectAll();
+        theTreeView.SelectedNode = treeNode2;
+        theTreeView.ExpandAll();
+        theTreeView.SelectAll();
         Application.DoEvents();
-        var result = treeView.SelectedToClipboard();
+        var result = theTreeView.SelectedToClipboard();
         Assert.IsTrue(result.Contains(treeNode.Text), result);
         Assert.IsTrue(result.Contains(treeNode2.Text), result);
         Assert.IsTrue(result.Contains(treeNode3.Text), result);
@@ -119,12 +113,11 @@ namespace CsvTools.Tests
     public void FormHierarchyDisplay()
     {
       using var dataTable = UnitTestStatic.GetDataTable(60);
+
       using var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), HtmlStyle.Default);
       UnitTestStatic.ShowFormAndClose(form, 0.1, (frm) =>
       {
-        if (!(frm is { } hd))
-          return;
-        hd.BuildTree("int", "ID");
+        frm.BuildTree("int", "ID");
       });
     }
 
