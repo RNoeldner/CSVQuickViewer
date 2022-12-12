@@ -18,6 +18,10 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
+// ReSharper disable IdentifierTypo
+
+// ReSharper disable StringLiteralTypo
+
 namespace CsvTools.Tests
 {
   [TestClass]
