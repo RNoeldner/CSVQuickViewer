@@ -29,12 +29,13 @@ namespace CsvTools
   /// </summary>
   public class LoggerDisplay : FastColoredTextBox, ILogger
   {
+#pragma warning disable CA1416
     private readonly TextStyle m_ErrorStyle = new TextStyle(Brushes.Red, null, FontStyle.Regular);
     private readonly TextStyle m_InfoStyle = new TextStyle(Brushes.Gray, null, FontStyle.Regular);
     private readonly TextStyle m_RegStyle = new TextStyle(Brushes.Black, null, FontStyle.Regular);
     private readonly TextStyle m_TimestampStyle = new TextStyle(Brushes.DimGray, Brushes.Lavender, FontStyle.Regular);
     private readonly TextStyle m_WarningStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
-
+#pragma warning restore CA1416
     private bool m_Disposed;
 
     private bool m_Initial = true;
@@ -68,10 +69,11 @@ namespace CsvTools
     public bool IsEnabled(LogLevel logLevel) => logLevel >= MinLevel;
 
     [DebuggerStepThrough]
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
+      Func<TState, Exception?, string> formatter)
     {
       if (!IsEnabled(logLevel))
-        return;      
+        return;
       var text = formatter(state, exception);
 
       if (string.IsNullOrWhiteSpace(text) || m_LastMessage.Equals(text, StringComparison.Ordinal)) return;

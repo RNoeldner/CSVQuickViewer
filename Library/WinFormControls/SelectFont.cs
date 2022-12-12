@@ -53,7 +53,9 @@ namespace CsvTools
       }
       set
       {
+#pragma warning disable CA1416
         var newValue = string.IsNullOrEmpty(value) ? SystemFonts.DefaultFont.FontFamily.Name : value;
+#pragma warning restore CA1416
         if (comboBoxFont.Text == newValue)
           return;
         m_UIChange = false;
@@ -66,7 +68,10 @@ namespace CsvTools
     public SelectFont()
     {
       InitializeComponent();
-      this.toolTip.SetToolTip(this.buttonDefault, $"Use system default font ({SystemFonts.DefaultFont.FontFamily.Name} - {SystemFonts.DefaultFont.Size}");
+#pragma warning disable CA1416
+      this.toolTip.SetToolTip(this.buttonDefault,
+        $"Use system default font ({SystemFonts.DefaultFont.FontFamily.Name} - {SystemFonts.DefaultFont.Size}");
+
 
       comboBoxFont.BeginUpdate();
       using var col = new InstalledFontCollection();
@@ -84,6 +89,7 @@ namespace CsvTools
       comboBoxSize.ValueMember = "ID";
       comboBoxSize.DisplayMember = "Display";
       comboBoxSize.EndUpdate();
+#pragma warning restore CA1416
     }
 
     private void ComboBoxFont_SelectedIndexChanged(object sender, EventArgs e)
@@ -100,8 +106,10 @@ namespace CsvTools
 
     private void ButtonDefault_Click(object sender, EventArgs e)
     {
+#pragma warning disable CA1416
       FontName = SystemFonts.DefaultFont.FontFamily.Name;
       FontSize = SystemFonts.DefaultFont.Size;
+#pragma warning restore CA1416
       ValueChanged?.Invoke(this, e);
     }
   }

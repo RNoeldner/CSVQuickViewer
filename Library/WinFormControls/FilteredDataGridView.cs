@@ -79,7 +79,9 @@ namespace CsvTools
       m_CancellationTokenSource = new CancellationTokenSource();
 
       InitializeComponent();
+#pragma warning disable CA1416
       CellFormatting += CellFormatDate;
+#pragma warning restore CA1416
       FontChanged += PassOnFontChanges;
       m_Filter = new List<ToolStripDataGridViewColumnFilter?>();
       //Workaround as Text on Windows 8 is too small
@@ -119,7 +121,9 @@ namespace CsvTools
           downMenu.Invalidate();
       };
       contextMenuStripFilter.KeyPress += ContextMenuStripFilter_KeyPress;
+#pragma warning disable CA1416
       SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
+#pragma warning restore CA1416
 
       FontChanged += (_, _) =>
       {
@@ -1099,7 +1103,7 @@ namespace CsvTools
       // paint the content as usual
       e.PaintContent(e.CellBounds);
     }
-#pragma warning enable CA1416
+#pragma warning restore CA1416
 
     /// <summary>
     ///   Resets the data source.
@@ -1380,12 +1384,12 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        // ReSharper disable once UseAwaitUsing
-        using var stream = new ImprovedStream(new SourceAccess(fileName, false));
+          // ReSharper disable once UseAwaitUsing
+          using var stream = new ImprovedStream(new SourceAccess(fileName, false));
 #if NET5_0_OR_GREATER
         await
 #endif
-        using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
+          using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
         await writer.WriteAsync(GetViewStatus);
         await writer.FlushAsync();
 

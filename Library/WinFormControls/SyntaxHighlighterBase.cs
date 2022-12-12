@@ -19,7 +19,9 @@ namespace CsvTools
 {
   public abstract class SyntaxHighlighterBase : SyntaxHighlighter, ISyntaxHighlighter
   {
+#pragma warning disable CA1416
     protected readonly TextStyle SkipStyle = new TextStyle(Brushes.DarkGray, Brushes.LightGray, FontStyle.Regular);
+#pragma warning restore CA1416
 
     public SyntaxHighlighterBase(in FastColoredTextBox currentTb) : base(currentTb)
     {

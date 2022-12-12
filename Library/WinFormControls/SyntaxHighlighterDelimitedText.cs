@@ -1,16 +1,17 @@
-// /*
-// * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com *
-// * This program is free software: you can redistribute it and/or modify it under the terms of the
-// GNU Lesser Public
-// * License as published by the Free Software Foundation, either version 3 of the License, or (at
-// your option) any later version. *
-// * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-// without even the implied warranty
-// * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for
-// more details. *
-// * You should have received a copy of the GNU Lesser Public License along with this program.
-// * If not, see http://www.gnu.org/licenses/ . *
-// */
+/*
+ * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License along with this program.
+ * If not, see http://www.gnu.org/licenses/ .
+ *
+ */
+
 #nullable enable
 
 using System;
@@ -25,19 +26,22 @@ namespace CsvTools
     private readonly Regex? m_CommentRegex;
     private readonly Regex m_DelimiterRegex;
     private readonly Regex? m_QuoteRegex;
+#pragma warning disable CA1416
     private readonly Style m_Space = new SyntaxHighlightStyleStyleSpace(Brushes.Blue, Brushes.AntiqueWhite);
-    private readonly Regex m_SpaceRegex = new Regex(" ", RegexOptions.Singleline | RegexOptions.Compiled);
     private readonly Style m_Tab = new SyntaxHighlightStyleTab(Pens.Blue, Brushes.AntiqueWhite);
+#pragma warning restore CA1416
+    private readonly Regex m_SpaceRegex = new Regex(" ", RegexOptions.Singleline | RegexOptions.Compiled);
     private readonly Regex m_TabRegex = new Regex("\\t", RegexOptions.Singleline | RegexOptions.Compiled);
 
-    public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, string qualifier, string delimiter, string escape, string comment) : base(textBox)
+    public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, string qualifier, string delimiter, string escape,
+      string comment) : base(textBox)
     {
-      var qualifierChar = (qualifier??string.Empty).WrittenPunctuation();
-      var delimiterChar = (delimiter??string.Empty).WrittenPunctuation();
+      var qualifierChar = (qualifier ?? string.Empty).WrittenPunctuation();
+      var delimiterChar = (delimiter ?? string.Empty).WrittenPunctuation();
       if (string.IsNullOrEmpty(delimiterChar))
-        delimiterChar= "\t";
+        delimiterChar = "\t";
 
-      var escapeChar = (escape??string.Empty).WrittenPunctuation();
+      var escapeChar = (escape ?? string.Empty).WrittenPunctuation();
 
       m_DelimiterRegex = new Regex(
         string.IsNullOrEmpty(escapeChar) ? $"\\{delimiterChar}" : $"(?<!\\{escapeChar})\\{delimiterChar}",
@@ -51,6 +55,7 @@ namespace CsvTools
             : $"\\{qualifierChar}((?:\\{escapeChar}\\{qualifierChar}|\\{qualifierChar}\\{qualifierChar}|(?:(?!\\{qualifierChar})).)*)\\{qualifierChar}",
           RegexOptions.Multiline | RegexOptions.Compiled);
       }
+
       if (!string.IsNullOrEmpty(comment))
         m_CommentRegex = new Regex($"\\s*{comment}.*$", RegexOptions.Multiline | RegexOptions.Compiled);
     }
@@ -81,7 +86,7 @@ namespace CsvTools
         m_ForeGround = foreGround;
         m_BackGround = backGround;
       }
-
+#pragma warning disable CA1416
       // ReSharper disable once RedundantNameQualifier
       public override void Draw(Graphics gr, Point position, FastColoredTextBoxNS.Range range)
       {
@@ -90,8 +95,8 @@ namespace CsvTools
         var rect = new Rectangle(position, size);
         // background
         rect.Inflate(-1, -1);
-        gr.FillRectangle(m_BackGround, rect);
 
+        gr.FillRectangle(m_BackGround, rect);
         var sizeChar = size.Width / (range.End.iChar - range.Start.iChar);
         var dotSize = new Size(Math.Min(Math.Max(sizeChar, 8), 3), Math.Min(Math.Max(size.Height, 8), 3));
 
@@ -105,7 +110,7 @@ namespace CsvTools
         }
       }
     }
-
+#pragma warning restore CA1416
     internal class SyntaxHighlightStyleTab : Style
     {
       private readonly Brush m_BackGround;
@@ -117,6 +122,7 @@ namespace CsvTools
         m_BackGround = backGround;
       }
 
+#pragma warning disable CA1416
       // ReSharper disable once RedundantNameQualifier
       public override void Draw(Graphics gr, Point position, FastColoredTextBoxNS.Range range)
       {
@@ -134,7 +140,7 @@ namespace CsvTools
           var rect2 = new Rectangle(position, new Size(sizeChar, height));
 
           // draw an arrow
-          var point2 = new Point((rect2.X + sizeChar) - 2, rect2.Y + (height / 2)-1);
+          var point2 = new Point((rect2.X + sizeChar) - 2, rect2.Y + (height / 2) - 1);
 
           gr.DrawLine(m_ForeGround, new Point(rect2.X + 1, point2.Y), point2);
           gr.DrawLine(m_ForeGround, new Point(rect2.X + (sizeChar / 2), rect2.Y + (height / 4)), point2);
@@ -154,6 +160,7 @@ namespace CsvTools
           position.X += sizeChar;
         }
       }
+#pragma warning restore CA1416
     }
   }
 }
