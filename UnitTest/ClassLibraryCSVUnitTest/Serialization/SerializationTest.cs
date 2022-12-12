@@ -30,7 +30,9 @@ namespace CsvTools.Tests
         {
           nameof(test.NoDelimitedFile), nameof(test.Passphrase), nameof(test.RootFolder),
           nameof(test.LatestSourceTimeUtc), nameof(test.RecentlyLoaded), nameof(test.CollectionIdentifier),
+#pragma warning disable CS0618
           nameof(test.FullPath), nameof(test.IsFixedLength)
+#pragma warning restore CS0618
         });
     }
 
@@ -60,7 +62,10 @@ namespace CsvTools.Tests
         new ValueFormat(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat",
           "erp", "read", "Wr", "ou", false)) { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
       UnitTestStatic.RunSerializeAllProps(input,
-        new[] { nameof(input.CollectionIdentifier), nameof(input.ColumnOrdinal), nameof(input.False), nameof(input.True) });
+        new[]
+        {
+          nameof(input.CollectionIdentifier), nameof(input.ColumnOrdinal), nameof(input.False), nameof(input.True)
+        });
     }
 
     [TestMethod]

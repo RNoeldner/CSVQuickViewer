@@ -29,10 +29,7 @@ namespace CsvTools.Tests
     [TestInitialize]
     public void Init()
     {
-      var readFile = new CsvFile
-      {
-        ID = cReadID, FileName = UnitTestStatic.GetTestPath("BasicCSV.txt"), CommentLine = "#"
-      };
+      var readFile = new CsvFile(cReadID, UnitTestStatic.GetTestPath("BasicCSV.txt")) { CommentLine = "#" };
       readFile.ColumnCollection.Add(new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")));
       readFile.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
       readFile.ColumnCollection.Add(new Column("Proficiency", new ValueFormat(DataTypeEnum.Numeric)));
@@ -52,6 +49,7 @@ namespace CsvTools.Tests
 
       var cols = await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout,
         UnitTestStatic.Token);
+      // ReSharper disable once StringLiteralTypo
       fileSetting.Header = "{\"rowset\":[\n";
 
       // { "firstName":"John", "lastName":"Doe"},
@@ -100,6 +98,7 @@ namespace CsvTools.Tests
       var cols = await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout, UnitTestStatic.Token);
 
       sb.AppendLine("<?xml version=\"1.0\"?>\n");
+      // ReSharper disable once StringLiteralTypo
       sb.AppendLine("<rowset>");
       fileSetting.Header = sb.ToString();
       sb.Clear();
@@ -112,6 +111,7 @@ namespace CsvTools.Tests
 
       sb.AppendLine("  </row>");
       fileSetting.Row = sb.ToString();
+      // ReSharper disable once StringLiteralTypo
       fileSetting.Footer = "</rowset>";
 
       var writer = new XmlFileWriter(

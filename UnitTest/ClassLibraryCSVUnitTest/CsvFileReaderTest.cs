@@ -766,6 +766,7 @@ Line "Test"", "22",23,"  24"
       try
       {
 #pragma warning disable CS8625
+        // ReSharper disable once RedundantCast
         using (new CsvFileReader((string?) null, 650001,
                  0,
                  true,
@@ -860,6 +861,7 @@ Line "Test"", "22",23,"  24"
       {
 #pragma warning disable CS8600
 #pragma warning disable CS8625
+        // ReSharper disable once RedundantCast
         using (new CsvFileReader((Stream) null, 650001,
                  0,
                  true,
@@ -1072,7 +1074,7 @@ Line "Test"", "22",23,"  24"
         codePageId: 650001,
         skipRows: 0,
         hasFieldHeader: true,
-        columnDefinition: new Column[]
+        columnDefinition: new[]
         {
           new Column("Start Date", new ValueFormat(DataTypeEnum.DateTime),
             timePart: "Start Time", timePartFormat: "HH:mm:ss")
@@ -1165,6 +1167,7 @@ Line "Test"", "22",23,"  24"
         {
           HasFieldHeader = true, FieldDelimiter = "Tab"
         };
+      // ReSharper disable once RedundantArgumentDefaultValue
       setting.ColumnCollection.Add(new Column("Title", ValueFormat.Empty, 0));
       setting.ColumnCollection.Add(new Column("File Name",
         new ValueFormat(DataTypeEnum.Binary, readFolder: UnitTestStatic.ApplicationDirectory,
@@ -1185,7 +1188,9 @@ Line "Test"", "22",23,"  24"
         setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(false, reader.IsClosed);
+#pragma warning disable CS0618
       Assert.IsTrue(reader.Read());
+#pragma warning restore CS0618
 
       Assert.IsTrue(reader.GetValue(1).ToString().StartsWith("BasicCSV.txt.gz"));
     }
@@ -1197,8 +1202,8 @@ Line "Test"", "22",23,"  24"
         true,
         new Column[]
         {
-          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, true),
-          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, true)
+          new("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, true),
+          new("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, true)
         }, TrimmingOptionEnum.All,
         "\t",
         "\"",
@@ -1232,7 +1237,9 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(false, reader.IsClosed);
       Assert.AreEqual(1, reader.Percent);
       Assert.AreEqual(10 - 2, reader.VisibleFieldCount);
+#pragma warning disable CS0618
       Assert.IsTrue(reader.Read());
+#pragma warning restore CS0618
 
       Assert.AreEqual(true, reader.HasRows);
       while (await reader.ReadAsync(UnitTestStatic.Token))
@@ -1270,7 +1277,9 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(false, reader.IsClosed);
 
       Assert.AreEqual(10, reader.VisibleFieldCount);
+#pragma warning disable CS0618
       Assert.IsTrue(reader.Read());
+#pragma warning restore CS0618
       Assert.IsTrue(reader.IsDBNull(0));
       Assert.IsFalse(await reader.IsDBNullAsync(1));
       Assert.AreEqual(-22477, reader.GetInt32(1));
@@ -1293,8 +1302,8 @@ Line "Test"", "22",23,"  24"
       using var reader = new CsvFileReader(stream, Encoding.UTF8.CodePage, 0, true,
         new Column[]
         {
-          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, true),
-          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true)
+          new("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, true),
+          new("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true)
         }, TrimmingOptionEnum.All, "\t",
         "\"",
         "",
@@ -1326,7 +1335,9 @@ Line "Test"", "22",23,"  24"
       Assert.AreEqual(false, reader.IsClosed);
       Assert.AreEqual(1, reader.Percent);
       Assert.AreEqual(10 - 2, reader.VisibleFieldCount);
+#pragma warning disable CS0618
       Assert.IsTrue(reader.Read());
+#pragma warning restore CS0618
 
       Assert.AreEqual(true, reader.HasRows);
       while (await reader.ReadAsync(UnitTestStatic.Token))
@@ -1375,7 +1386,7 @@ Line "Test"", "22",23,"  24"
     }
 
     [TestMethod]
-    public async Task progressUpdateShowProgress()
+    public async Task ProgressUpdateShowProgress()
     {
       var setting = UnitTestStatic.ReaderGetAllFormats();
       var progress = new MockProgress();
@@ -1561,7 +1572,10 @@ Line "Test"", "22",23,"  24"
       FileSystemUtils.FileDelete(fn);
       try
       {
+#pragma warning disable IDE0063
+        // ReSharper disable once ConvertToUsingDeclaration
         using (var stream = new FileStream(fn.LongPathPrefix(), FileMode.CreateNew, FileAccess.Write, FileShare.None))
+#pragma warning restore IDE0063
         {
           using var reader = new CsvFileReader(stream, Encoding.UTF8.CodePage,
             0,
@@ -1598,6 +1612,7 @@ Line "Test"", "22",23,"  24"
           // lock file for reading
           reader.OnAskRetry += (_, args) =>
           {
+            // ReSharper disable once AccessToDisposedClosure
             stream.Close();
             called = true;
             args.Retry = false;
@@ -1617,12 +1632,11 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task SimpleDelimiterWithControlCharacters()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile("ID", UnitTestStatic.GetTestPath("SimpleDelimiterWithControlCharacters.txt"))
       {
         HasFieldHeader = true,
         FieldDelimiter = ",",
         ContextSensitiveQualifier = false,
-        FileName = UnitTestStatic.GetTestPath("SimpleDelimiterWithControlCharacters.txt"),
         CommentLine = "#",
         WarnNBSP = true,
         WarnUnknownCharacter = true
@@ -1828,11 +1842,9 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task SkippingEmptyRowsWithDelimiter()
     {
-      var setting = new CsvFile
+      var setting = new CsvFile("Id", UnitTestStatic.GetTestPath("SkippingEmptyRowsWithDelimiter.txt"))
       {
-        HasFieldHeader = false,
-        FieldDelimiter = ",",
-        FileName = UnitTestStatic.GetTestPath("SkippingEmptyRowsWithDelimiter.txt")
+        HasFieldHeader = false, FieldDelimiter = ",",
       };
 
 
@@ -2203,7 +2215,7 @@ Line "Test"", "22",23,"  24"
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      Assert.IsTrue(test.StartLineNumber >= 8 && test.StartLineNumber <= 9, "LineNumber");
+      Assert.IsTrue(test.StartLineNumber is >= 8 and <= 9, "LineNumber");
       //"19 , ",20,21,22,23,"
       Assert.AreEqual("19 , ", test.GetString(0));
       Assert.AreEqual("20", test.GetString(1));
@@ -2308,7 +2320,7 @@ Line "Test"", "22",23,"  24"
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      Assert.IsTrue(test.StartLineNumber >= 8 && test.StartLineNumber <= 9, "LineNumber");
+      Assert.IsTrue(test.StartLineNumber is >= 8 and <= 9, "LineNumber");
 
       Assert.AreEqual("19 , ", test.GetString(0));
       Assert.AreEqual("20", test.GetString(1));

@@ -247,7 +247,7 @@ namespace CsvTools
       });
     }
 
-    internal void SelectFile(string message)
+    private void SelectFile(string message)
     {
       try
       {

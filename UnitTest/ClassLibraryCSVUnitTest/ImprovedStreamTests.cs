@@ -23,7 +23,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void OpenReadTestSetting()
     {
-      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("BasicCsV.txt") };
+      var setting = new CsvFile("csv", UnitTestStatic.GetTestPath("BasicCsV.txt"));
       using var res = new ImprovedStream(new SourceAccess(setting));
       Assert.IsNotNull(res);
     }
@@ -33,7 +33,7 @@ namespace CsvTools.Tests
     public async System.Threading.Tasks.Task PercentageAtEnd()
     {
       var buffer = new byte[32000];
-      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("Warnings.txt") };
+      var setting = new CsvFile("Warnings", UnitTestStatic.GetTestPath("Warnings.txt"));
       // ReSharper disable once UseAwaitUsing
       using var res = new ImprovedStream(new SourceAccess(setting));
       Assert.AreEqual(0d, res.Percentage);
@@ -44,8 +44,8 @@ namespace CsvTools.Tests
 
     [TestMethod]
     public void EmptyFile()
-    {      
-      var setting = new CsvFile { FileName = UnitTestStatic.GetTestPath("EmptyFile.txt") };
+    {
+      var setting = new CsvFile("Empty", UnitTestStatic.GetTestPath("EmptyFile.txt"));
       using var res = new ImprovedStream(new SourceAccess(setting));
       Assert.AreEqual(1d, res.Percentage);
       Assert.AreEqual(-1, res.ReadByte());
@@ -59,6 +59,7 @@ namespace CsvTools.Tests
       var result1 = new byte[2048];
       using (var reader = new BinaryReader(res))
       {
+        // ReSharper disable once MustUseReturnValue
         reader.Read(result1, 0, result1.Length);
       }
 
@@ -67,6 +68,7 @@ namespace CsvTools.Tests
       var result2 = new byte[2048];
       using (var reader = new BinaryReader(res))
       {
+        // ReSharper disable once MustUseReturnValue
         reader.Read(result2, 0, result2.Length);
       }
 
@@ -83,7 +85,7 @@ namespace CsvTools.Tests
     {
       var sourceAccess = new SourceAccess(UnitTestStatic.GetTestPath("AllFormatsPipe.zip"));
 
-      // opeing without IdentifierInContainer should return the first file entry
+      // opening without IdentifierInContainer should return the first file entry
       using (var res = new ImprovedStream(sourceAccess))
       {
         Assert.AreEqual("AllFormatsPipe.txt", sourceAccess.IdentifierInContainer);
@@ -91,6 +93,7 @@ namespace CsvTools.Tests
         var result1 = new byte[2048];
         using (var reader = new BinaryReader(res))
         {
+          // ReSharper disable once MustUseReturnValue
           reader.Read(result1, 0, result1.Length);
         }
 
@@ -99,6 +102,7 @@ namespace CsvTools.Tests
         var result2 = new byte[2048];
         using (var reader = new BinaryReader(res))
         {
+          // ReSharper disable once MustUseReturnValue
           reader.Read(result2, 0, result2.Length);
         }
 
@@ -128,6 +132,7 @@ namespace CsvTools.Tests
       // read a potion that is larger than the buffered stream
       using (var reader = new BinaryReader(res))
       {
+        // ReSharper disable once MustUseReturnValue
         reader.Read(result1, 0, result1.Length);
       }
 
@@ -136,6 +141,7 @@ namespace CsvTools.Tests
       var result2 = new byte[10000];
       using (var reader = new BinaryReader(res))
       {
+        // ReSharper disable once MustUseReturnValue
         reader.Read(result2, 0, result2.Length);
       }
 
@@ -167,7 +173,7 @@ namespace CsvTools.Tests
       if (string.IsNullOrEmpty(password))
         sourceAccess.EncryptedPassphrase = password;
       if (!string.IsNullOrEmpty(internalName))
-        sourceAccess.IdentifierInContainer=internalName;
+        sourceAccess.IdentifierInContainer = internalName;
 
       using (var improvedStream = new ImprovedStream(sourceAccess))
       {
@@ -207,7 +213,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-#pragma warning disable CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning disable CS8625
     public void OpenWriteTestGZip() => WriteFile("WriteText.gz", null, null, true);
 
     [TestMethod]
@@ -219,7 +225,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void OpenWriteTestZipPassword() => WriteFile("WriteText2.Zip", "Test", null, true);
 
-#pragma warning restore CS8625 // Ein NULL-Literal kann nicht in einen Non-Nullable-Verweistyp konvertiert werden.
+#pragma warning restore CS8625
 
     [TestMethod]
     public void OpenWriteTestZipAddUpdate()
@@ -237,6 +243,7 @@ namespace CsvTools.Tests
       {
         Assert.AreEqual(2, zipFile.Count);
       }
+
       FileSystemUtils.FileDelete(path);
     }
 
@@ -254,6 +261,7 @@ namespace CsvTools.Tests
       {
         Assert.AreEqual(2, zipFile.Count);
       }
+
       FileSystemUtils.FileDelete(path);
     }
 

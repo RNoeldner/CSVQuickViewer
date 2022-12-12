@@ -150,10 +150,7 @@ namespace CsvTools.Tests
         dataTable.Rows.Add(row);
       }
 
-      var writeFile = new CsvFile
-      {
-        ID = "Test.txt", FileName = UnitTestStatic.GetTestPath("Test.txt"), SqlStatement = "Hello"
-      };
+      var writeFile = new CsvFile("Test.txt", UnitTestStatic.GetTestPath("Test.txt")) { SqlStatement = "Hello" };
 
       var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
         writeFile.ByteOrderMark, writeFile.ColumnCollection, writeFile.KeyID, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
@@ -180,10 +177,7 @@ namespace CsvTools.Tests
         dataTable.Rows.Add(row);
       }
 
-      var writeFile = new CsvFile
-      {
-        ID = "Test.txt", FileName = UnitTestStatic.GetTestPath("Test.txt"), SqlStatement = "Hello"
-      };
+      var writeFile = new CsvFile("Test.txt", UnitTestStatic.GetTestPath("Test.txt")) { SqlStatement = "Hello" };
       writeFile.ColumnCollection.Add(new Column("Text", new ValueFormat(DataTypeEnum.Integer)));
       writeFile.Header = "##This is a header for {FileName}";
       writeFile.Footer = "##This is a Footer\r\n{Records} in file";
@@ -220,14 +214,17 @@ namespace CsvTools.Tests
         dataTable.Rows.Add(row);
       }
 
-      var writeFile = new CsvFile { ID = "Test.txt", FileName = UnitTestStatic.GetTestPath("WriteFileLocked.txt"), InOverview = false, SqlStatement = "dummy" };
+      var writeFile =
+        new CsvFile("Test.txt", UnitTestStatic.GetTestPath("WriteFileLocked.txt"))
+        {
+          InOverview = false, SqlStatement = "dummy"
+        };
       FileSystemUtils.FileDelete(writeFile.FileName);
       using (var file = new StreamWriter(writeFile.FileName))
       {
         await file.WriteLineAsync("Hello");
         try
         {
-          
           var writer = new CsvFileWriter(writeFile.ID, writeFile.FullPath, writeFile.HasFieldHeader, writeFile.ValueFormatWrite, writeFile.CodePageId,
             writeFile.ByteOrderMark, writeFile.ColumnCollection, 0, writeFile.KeepUnencrypted, writeFile.IdentifierInContainer,
             writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
