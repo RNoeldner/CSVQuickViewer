@@ -16,6 +16,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.ComponentModel;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace CsvTools.Tests
 {
@@ -23,6 +24,33 @@ namespace CsvTools.Tests
   public class DetailControlTests
   {
     private readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
+
+    [TestMethod]
+    [Timeout(10000)]
+    public async Task SearchText()
+    {
+      using var dt = UnitTestStatic.RandomDataTable(1000);
+      await UnitTestStatic.ShowControlAsync(new DetailControl(), .1, async (ctrl) =>
+      {
+        ctrl.DataTable = dt;
+        await ctrl.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
+        ctrl.SearchText("212");
+      }, 2);
+    }
+
+    [TestMethod]
+    [Timeout(3000)]
+    public async Task FilterColumn()
+    {
+      using var dt = UnitTestStatic.RandomDataTable(500);
+
+      await UnitTestStatic.ShowControlAsync(new DetailControl(), .1, async (ctrl) =>
+      {
+        ctrl.DataTable = dt;
+        await ctrl.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
+        ctrl.SetFilter(dt.Columns[2].ColumnName, ">", "Test2");
+      }, 1.5);
+    }
 
     [TestMethod]
     [Timeout(3000)]

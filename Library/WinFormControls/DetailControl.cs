@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -36,10 +35,8 @@ namespace CsvTools
   public sealed partial class DetailControl : UserControl
   {
     private readonly List<DataGridViewCell> m_FoundCells = new();
-    private readonly List<KeyValuePair<string, DataGridViewCell>> m_SearchCells = new();
     private readonly List<ToolStripItem> m_ToolStripItems = new();
     private CancellationToken m_CancellationToken = CancellationToken.None;
-    private ProcessInformation? m_CurrentSearchProcessInformation;
     private DataTable m_DataTable = new();
     private bool m_DisposedValue; // To detect redundant calls
     private FilterDataTable? m_FilterDataTable;
@@ -48,7 +45,6 @@ namespace CsvTools
     private FormUniqueDisplay? m_FormUniqueDisplay;
     private FormHierarchyDisplay? m_HierarchyDisplay;
     private bool m_MenuDown;
-    private bool m_SearchCellsDirty = true;
     private bool m_ShowButtons = true;
     private bool m_ShowFilter = true;
     private bool m_UpdateVisibility = true;
@@ -124,8 +120,19 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Search the displayed data for a specific text, and highlight the found items 
+    /// </summary>
+    /// <param name="searchText"></param>
+    public void SearchText(string searchText)
+    {
+      searchBackgroundWorker.CancelAsync();
+      searchBackgroundWorker.RunWorkerAsync(searchText);
+    }
+
     private DataGridViewColumn? GetViewColumn(string dataColumnName) =>
-      FilteredDataGridView.Columns.Cast<DataGridViewColumn>().FirstOrDefault(col => col.DataPropertyName.Equals(dataColumnName, StringComparison.OrdinalIgnoreCase));
+      FilteredDataGridView.Columns.Cast<DataGridViewColumn>().FirstOrDefault(col =>
+        col.DataPropertyName.Equals(dataColumnName, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// Set a filter on a data column
@@ -135,27 +142,31 @@ namespace CsvTools
     /// <param name="value">The value to compare to</param>
     public void SetFilter(string dataColumnName, string op, object value)
     {
-      FilteredDataGridView.SafeInvoke(
-        () =>
-        {
-          var col = GetViewColumn(dataColumnName);
-          if (col != null)
+      try
+      {
+        FilteredDataGridView.SafeInvoke(
+          () =>
           {
-            var columnFilters = new List<ToolStripDataGridViewColumnFilter>
-            {
-              new(col)
-            };
+            var col = GetViewColumn(dataColumnName);
+            if (col == null) return;
+            var columnFilters = FilteredDataGridView.SetFilterMenu(col.Index);
 
-            columnFilters[0].ColumnFilterLogic.Operator = op;
+            if (columnFilters == null) return;
+            columnFilters.ColumnFilterLogic.Operator = op;
             if (value is DateTime dateTime)
-              columnFilters[0].ColumnFilterLogic.ValueDateTime = dateTime;
+              columnFilters.ColumnFilterLogic.ValueDateTime = dateTime;
             else
-              columnFilters[0].ColumnFilterLogic.ValueText = value.ToString();
+              columnFilters.ColumnFilterLogic.ValueText = value.ToString();
+            columnFilters.ColumnFilterLogic.Active = true;
 
-            columnFilters[0].ColumnFilterLogic.Active = true;
+            FilteredDataGridView.ApplyFilters();
           }
-        }
-      );
+        );
+      }
+      catch (Exception ex)
+      {
+        Logger.Warning(ex, "Processing Filter {exception}", ex.InnerExceptionMessages());
+      }
     }
 
     public string GetViewStatus() => FilteredDataGridView.GetViewStatus;
@@ -196,7 +207,6 @@ namespace CsvTools
         m_CancellationToken = value;
       }
     }
-
 
 
     /// <summary>
@@ -375,7 +385,6 @@ namespace CsvTools
         m_FormShowMaxLength?.Dispose();
         m_FormDuplicatesDisplay?.Dispose();
         m_FormUniqueDisplay?.Dispose();
-        m_CurrentSearchProcessInformation?.Dispose();
         m_DataTable.Dispose();
         m_FilterDataTable?.Dispose();
         m_HierarchyDisplay?.Dispose();
@@ -384,7 +393,6 @@ namespace CsvTools
 
       base.Dispose(disposing);
     }
-
 
     private void AutoResizeColumns(DataTable source)
     {
@@ -395,38 +403,59 @@ namespace CsvTools
             : DataGridViewAutoSizeColumnsMode.DisplayedCells);
     }
 
-    private void BackgroundSearchThread(object? obj)
+    private void searchBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
     {
-      if (!(obj is ProcessInformation processInformation))
-        return;
-      processInformation.IsRunning = true;
-      try
-      {
-        if (string.IsNullOrEmpty(processInformation.SearchText))
-          return;
+      // Start the search
+      if (sender is not BackgroundWorker bw) return;
+      if (e.Argument is not string searchText) return;
 
-        // Do not search for an text shorter than 2 if we have a lot of data
-        if (processInformation.SearchText.Length < 2 && m_SearchCells.Count() > 10000)
-          return;
-        Extensions.InvokeWithHourglass(() =>
+      List<DataGridViewCell> found = new();
+      if (searchText.Length > 0)
+        foreach (var viewColumn in FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+                   .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)))
         {
-          foreach (var cell in m_SearchCells)
+          if (found.Count > 999)
+            break;
+          foreach (DataGridViewRow row in FilteredDataGridView.Rows)
           {
-            if (processInformation.CancellationTokenSource?.IsCancellationRequested ?? false)
+            if (bw.CancellationPending)
               return;
 
-            if (cell.Key.IndexOf(processInformation.SearchText, StringComparison.OrdinalIgnoreCase) <= -1)
+            var cell = row.Cells[viewColumn.Index];
+            if (cell.FormattedValue?.ToString().IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) == -1)
               continue;
-            processInformation.FoundResultEvent?.Invoke(this, new FoundEventArgs(processInformation.Found, cell.Value));
-            processInformation.Found++;
+
+            found.Add(cell);
+            if (found.Count > 999)
+              break;
           }
-        });
-      }
-      finally
+        }
+
+      e.Result = new Tuple<IEnumerable<DataGridViewCell>, string>(found, searchText);
+    }
+
+    private void searchBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+    {
+      m_FoundCells.Clear();
+      FilteredDataGridView.HighlightText = string.Empty;
+      if (!e.Cancelled)
       {
-        processInformation.IsRunning = false;
-        processInformation.SearchCompleteEvent?.Invoke(this, processInformation.SearchEventArgs);
+        if (e.Result is Tuple<IEnumerable<DataGridViewCell>, string> tpl)
+        {
+          foreach (var cell in tpl.Item1)
+          {
+            if (cell.Displayed)
+              FilteredDataGridView.InvalidateCell(cell);
+            m_FoundCells.Add(cell);
+          }
+
+          FilteredDataGridView.HighlightText = tpl.Item2;
+        }
+
+        m_Search.Results = m_FoundCells.Count;
       }
+
+      FilteredDataGridView.Refresh();
     }
 
     /// <summary>
@@ -474,8 +503,7 @@ namespace CsvTools
           m_FormDuplicatesDisplay?.Close();
           m_FormDuplicatesDisplay =
             new FormDuplicatesDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-              columnName, HtmlStyle)
-            { Icon = ParentForm?.Icon };
+              columnName, HtmlStyle) { Icon = ParentForm?.Icon };
           ResizeForm.SetFonts(m_FormDuplicatesDisplay, Font);
           m_FormDuplicatesDisplay.Show(ParentForm);
           m_FormDuplicatesDisplay.FormClosed +=
@@ -503,8 +531,7 @@ namespace CsvTools
           m_HierarchyDisplay?.Close();
           m_HierarchyDisplay =
             new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-              HtmlStyle)
-            { Icon = ParentForm?.Icon };
+              HtmlStyle) { Icon = ParentForm?.Icon };
           ResizeForm.SetFonts(m_HierarchyDisplay, Font);
           m_HierarchyDisplay.Show(ParentForm);
           m_HierarchyDisplay.FormClosed += (_, _) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
@@ -551,26 +578,16 @@ namespace CsvTools
 
     private void OnSearchClear(object? sender, EventArgs e)
     {
-      (this).SafeInvoke(
-        () =>
-        {
-          FilteredDataGridView.HighlightText = string.Empty;
-          m_FoundCells.Clear();
-          FilteredDataGridView.Refresh();
-          m_Search.Results = 0;
-        });
-      m_CurrentSearchProcessInformation?.Dispose();
+      // Cancel the current search
+      searchBackgroundWorker.CancelAsync();
+      m_Search.Hide();
+      FilteredDataGridView.HighlightText = string.Empty;
     }
 
     private void DataViewChanged(object? sender, EventArgs args)
     {
-      m_SearchCellsDirty = true;
       if (!m_Search.Visible)
         return;
-      if (m_CurrentSearchProcessInformation is { IsRunning: true })
-        m_CurrentSearchProcessInformation.Cancel();
-      m_Search.Results = 0;
-      m_Search.Hide();
       OnSearchClear(sender, args);
     }
 
@@ -579,7 +596,6 @@ namespace CsvTools
       if (!e.Control || e.KeyCode != Keys.F)
         return;
       m_Search.Visible = true;
-      PopulateSearchCellList();
       m_Search.Focus();
       e.Handled = true;
     }
@@ -594,10 +610,7 @@ namespace CsvTools
         foreach (DataGridViewColumn col in FilteredDataGridView.Columns)
         {
           if (!col.Visible)
-          {
             col.Visible = true;
-            m_SearchCellsDirty = true;
-          }
 
           col.MinimumWidth = 64;
         }
@@ -615,7 +628,6 @@ namespace CsvTools
                                           !(m_FilterDataTable.GetColumnsWithoutErrors()).Contains(
                                             dgCol.DataPropertyName))) continue;
         dgCol.Visible = false;
-        m_SearchCellsDirty = true;
       }
     }
 
@@ -626,21 +638,7 @@ namespace CsvTools
     /// <param name="e">The <see cref="SearchEventArgs" /> instance containing the event data.</param>
     private void OnSearchChanged(object? sender, SearchEventArgs e)
     {
-      // Stop any current searches
-      if (m_CurrentSearchProcessInformation is { IsRunning: true })
-      {
-        m_CurrentSearchProcessInformation.SearchEventArgs = e;
-
-        // Tell the current search to carry on with a new search after its done / canceled
-        m_CurrentSearchProcessInformation.SearchCompleteEvent += StartSearch;
-
-        // Cancel the current search
-        m_CurrentSearchProcessInformation.Cancel();
-      }
-      else
-      {
-        StartSearch(this, e);
-      }
+      SearchText(e.SearchText);
     }
 
     /// <summary>
@@ -650,64 +648,23 @@ namespace CsvTools
     /// <param name="e">The <see cref="SearchEventArgs" /> instance containing the event data.</param>
     private void OnSearchResultChanged(object? sender, SearchEventArgs e)
     {
-      if (e.Result <= 0 || e.Result >= m_FoundCells.Count)
+      if (e.Result < 1 || e.Result > m_FoundCells.Count)
         return;
       FilteredDataGridView.SafeInvoke(
         () =>
         {
           try
           {
+            FilteredDataGridView.HighlightText = e.SearchText;
             FilteredDataGridView.CurrentCell = m_FoundCells[e.Result - 1];
+            FilteredDataGridView.InvalidateCell(FilteredDataGridView.CurrentCell);
           }
-          catch (Exception ex)
+          catch
           {
-            Debug.WriteLine(ex.InnerExceptionMessages());
+            //  Non essential UI operation
           }
         });
-      Extensions.ProcessUIElements();
     }
-
-    private void PopulateSearchCellList()
-    {
-      if (!m_SearchCellsDirty)
-        return;
-
-      Extensions.InvokeWithHourglass(() =>
-      {
-        m_SearchCells.Clear();
-        var visible = FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-          .Where(col => col.Visible && !string.IsNullOrEmpty(col.DataPropertyName)).ToList();
-
-        foreach (DataGridViewRow row in FilteredDataGridView.Rows)
-        {
-          if (!row.Visible)
-            continue;
-          foreach (var cell in visible.Select(col => row.Cells[col.Index])
-                     .Where(cell => !string.IsNullOrEmpty(cell.FormattedValue?.ToString())))
-            if (cell.FormattedValue != null)
-            {
-              var formatted = cell.FormattedValue.ToString();
-              if (!string.IsNullOrEmpty(formatted))
-                m_SearchCells.Add(new KeyValuePair<string, DataGridViewCell>(formatted, cell));
-            }
-        }
-
-        m_SearchCellsDirty = false;
-      });
-    }
-
-    private void ResultFound(object? sender, FoundEventArgs args)
-    {
-      m_FoundCells.Add(args.Cell);
-      (this).SafeBeginInvoke(() =>
-      {
-        m_Search.Results = args.Index;
-        FilteredDataGridView.InvalidateCell(args.Cell);
-      });
-    }
-
-    private void SearchComplete(object? sender, SearchEventArgs e) =>
-      this.SafeBeginInvoke(() => { m_Search.Results = m_CurrentSearchProcessInformation?.Found ?? 0; });
 
 
     /// <summary>
@@ -715,13 +672,11 @@ namespace CsvTools
     /// </summary>
     public async Task RefreshDisplayAsync(FilterTypeEnum filterType, CancellationToken cancellationToken)
     {
-
       var oldSortedColumn = FilteredDataGridView.SortedColumn?.DataPropertyName;
       var oldOrder = FilteredDataGridView.SortOrder;
 
       // Cancel the current search
-      if (m_CurrentSearchProcessInformation is { IsRunning: true })
-        m_CurrentSearchProcessInformation.Cancel();
+      searchBackgroundWorker.CancelAsync();
 
       // Hide any showing search
       m_Search.Visible = false;
@@ -779,24 +734,6 @@ namespace CsvTools
       m_UpdateVisibility = true;
     }
 
-    private void StartSearch(object? sender, SearchEventArgs e)
-    {
-      OnSearchClear(this, EventArgs.Empty);
-      FilteredDataGridView.HighlightText = e.SearchText;
-
-      var processInformation = new ProcessInformation
-      {
-        SearchText = e.SearchText,
-        CancellationTokenSource =
-          CancellationTokenSource.CreateLinkedTokenSource(m_CancellationToken)
-      };
-
-      processInformation.FoundResultEvent += ResultFound;
-      processInformation.SearchCompleteEvent += SearchComplete;
-      processInformation.SearchEventArgs = e;
-      m_CurrentSearchProcessInformation = processInformation;
-      ThreadPool.QueueUserWorkItem(BackgroundSearchThread, processInformation);
-    }
 
     // ReSharper disable once MemberCanBePrivate.Global
     public async Task SafeCurrentFile(string fileName)
@@ -926,7 +863,6 @@ namespace CsvTools
         formProgress.Show();
         formProgress.Maximum = BaseFileReader.cMaxProgress;
         await m_SteppedDataTableLoader.GetNextBatch(GetCurrentFilter(), formProgress, formProgress.CancellationToken);
-
       }, ParentForm);
     }
 
@@ -940,7 +876,7 @@ namespace CsvTools
           m_ToolStripComboBoxFilterType.Focus();
         SendKeys.Send("{ESC}");
       }
-        
+
       // do not do this again
       m_TimerVisibility.Enabled = false;
       m_UpdateVisibility = false;
@@ -992,8 +928,9 @@ namespace CsvTools
         FilteredDataGridView.toolStripMenuItemFilterAdd.Enabled = hasData;
 
         m_ToolStripButtonLoadRemaining.Visible = !m_SteppedDataTableLoader.EndOfFile && (m_DataTable.Rows.Count > 0);
-        
-        m_ToolStripLabelCount.ForeColor = m_SteppedDataTableLoader.EndOfFile ? SystemColors.ControlText : SystemColors.MenuHighlight;
+
+        m_ToolStripLabelCount.ForeColor =
+          m_SteppedDataTableLoader.EndOfFile ? SystemColors.ControlText : SystemColors.MenuHighlight;
         m_ToolStripLabelCount.ToolTipText =
           m_SteppedDataTableLoader.EndOfFile ? "Total number of records" : "Total number of records (loaded so far)";
 
@@ -1016,28 +953,14 @@ namespace CsvTools
       }
     }
 
-    private sealed class ProcessInformation : DisposableBase
+    private void DetailControl_ParentChanged(object sender, EventArgs e)
     {
-      public CancellationTokenSource? CancellationTokenSource;
-
-      public int Found;
-
-      public EventHandler<FoundEventArgs>? FoundResultEvent;
-
-      public bool IsRunning;
-
-      public EventHandler<SearchEventArgs>? SearchCompleteEvent;
-
-      public SearchEventArgs SearchEventArgs = new(string.Empty);
-
-      public string SearchText = string.Empty;
-
-      public void Cancel() => CancellationTokenSource?.Cancel();
-
-      protected override void Dispose(bool disposing)
+      var frm = this.ParentForm;
+      if (frm != null)
       {
-        if (disposing)
-          CancellationTokenSource?.Dispose();
+        if (!frm.KeyPreview)
+          frm.KeyPreview = true;
+        frm.KeyDown += DetailControl_KeyDown;
       }
     }
   }
