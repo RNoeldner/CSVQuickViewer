@@ -124,6 +124,7 @@ namespace CsvTools
     /// Search the displayed data for a specific text, and highlight the found items 
     /// </summary>
     /// <param name="searchText"></param>
+    // ReSharper disable once MemberCanBePrivate.Global
     public void SearchText(string searchText)
     {
       searchBackgroundWorker.CancelAsync();
@@ -140,6 +141,7 @@ namespace CsvTools
     /// <param name="dataColumnName">The name of the data column</param>
     /// <param name="op">The operator for teh filter e.G. =</param>
     /// <param name="value">The value to compare to</param>
+    // ReSharper disable once UnusedMember.Global
     public void SetFilter(string dataColumnName, string op, object value)
     {
       try
@@ -956,12 +958,11 @@ namespace CsvTools
     private void DetailControl_ParentChanged(object sender, EventArgs e)
     {
       var frm = this.ParentForm;
-      if (frm != null)
-      {
-        if (!frm.KeyPreview)
-          frm.KeyPreview = true;
-        frm.KeyDown += DetailControl_KeyDown;
-      }
+      if (frm == null)
+        return;
+      if (!frm.KeyPreview)
+        frm.KeyPreview = true;
+      frm.KeyDown += DetailControl_KeyDown;
     }
   }
 }
