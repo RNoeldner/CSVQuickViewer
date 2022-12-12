@@ -971,6 +971,7 @@ namespace CsvTools
     /// <param name="e">
     ///   The <see cref="DataGridViewCellPaintingEventArgs" /> instance containing the event data.
     /// </param>
+#pragma warning disable CA1416
     private void HighlightCellPainting(object? sender, DataGridViewCellPaintingEventArgs e)
     {
       if (e is { RowIndex: -1, ColumnIndex: >= 0 } && m_Filter[e.ColumnIndex] != null
@@ -1033,6 +1034,7 @@ namespace CsvTools
           // if we are outside the bound stop
           if (hlRect.X > e.CellBounds.X + e.CellBounds.Width)
             break;
+
           e.Graphics.DrawLines(new Pen(Brushes.LightSalmon, 2),
             new[]
             {
@@ -1097,6 +1099,7 @@ namespace CsvTools
       // paint the content as usual
       e.PaintContent(e.CellBounds);
     }
+#pragma warning enable CA1416
 
     /// <summary>
     ///   Resets the data source.
