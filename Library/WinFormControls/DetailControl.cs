@@ -158,7 +158,7 @@ namespace CsvTools
             if (value is DateTime dateTime)
               columnFilters.ColumnFilterLogic.ValueDateTime = dateTime;
             else
-              columnFilters.ColumnFilterLogic.ValueText = value.ToString();
+              columnFilters.ColumnFilterLogic.ValueText = Convert.ToString(value) ?? string.Empty;
             columnFilters.ColumnFilterLogic.Active = true;
 
             FilteredDataGridView.ApplyFilters();
@@ -755,7 +755,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        using var iStream = FunctionalDI.OpenStream(new SourceAccess(WriteSetting));
+          using var iStream = FunctionalDI.OpenStream(new SourceAccess(WriteSetting));
         using var sr = new ImprovedTextReader(iStream, WriteSetting.CodePageId);
         for (var i = 0; i < WriteSetting.SkipRows; i++)
           headerAndSipped.AppendLine(await sr.ReadLineAsync());
@@ -783,13 +783,13 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        using var dt = new DataTableWrapper(
-          FilteredDataGridView.DataView.ToTable(false,
-            // Restrict to shown data
-            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-              .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
-              .OrderBy(col => col.DisplayIndex)
-              .Select(col => col.DataPropertyName).ToArray()));
+          using var dt = new DataTableWrapper(
+            FilteredDataGridView.DataView.ToTable(false,
+              // Restrict to shown data
+              FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+                .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
+                .OrderBy(col => col.DisplayIndex)
+                .Select(col => col.DataPropertyName).ToArray()));
         // can not use filteredDataGridView.Columns directly
         await writer.WriteAsync(dt, formProgress.CancellationToken);
       }

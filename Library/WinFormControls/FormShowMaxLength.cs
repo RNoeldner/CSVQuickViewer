@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 
 using System;
@@ -60,10 +61,14 @@ namespace CsvTools
     [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
     private void InitializeComponent()
     {
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 =
+        new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 =
+        new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 =
+        new System.Windows.Forms.DataGridViewCellStyle();
+      System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 =
+        new System.Windows.Forms.DataGridViewCellStyle();
       this.m_DataGridView = new CsvTools.FilteredDataGridView();
       ((System.ComponentModel.ISupportInitialize) (this.m_DataGridView)).BeginInit();
       this.SuspendLayout();
@@ -71,7 +76,8 @@ namespace CsvTools
       this.m_DataGridView.AllowUserToAddRows = false;
       this.m_DataGridView.AllowUserToDeleteRows = false;
       this.m_DataGridView.AllowUserToOrderColumns = true;
-      dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int) (((byte) (224)))), ((int) (((byte) (224)))), ((int) (((byte) (224)))));
+      dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int) (((byte) (224)))),
+        ((int) (((byte) (224)))), ((int) (((byte) (224)))));
       this.m_DataGridView.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
@@ -80,10 +86,10 @@ namespace CsvTools
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
       this.m_DataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
-      this.m_DataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+      this.m_DataGridView.ColumnHeadersHeightSizeMode =
+        System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
       dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (0)));
       dataGridViewCellStyle3.ForeColor = System.Drawing.Color.Black;
       dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -154,11 +160,13 @@ namespace CsvTools
 
         if (colIndex.Count > 0)
           foreach (var row in m_DataRow)
-            foreach (var col in checkCols)
-            {
-              var cl = row[col.Value] == DBNull.Value || row[col.Value]  is null ? 0 : row[col.Value].ToString()?.Length ?? 0;
-              if (cl > maxLength[col.Key]) maxLength[col.Key] = cl;
-            }
+          foreach (var col in checkCols)
+          {
+            var cl = row[col.Value] == DBNull.Value || row[col.Value] is null
+              ? 0
+              : row[col.Value].ToString()?.Length ?? 0;
+            if (cl > maxLength[col.Key]) maxLength[col.Key] = cl;
+          }
 
         var colNo = 1;
         foreach (var len in maxLength)
