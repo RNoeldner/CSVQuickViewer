@@ -8,7 +8,7 @@
 		<PackageIcon>Picture.png</PackageIcon>
 		<PackageIconUrl />
 		<SignAssembly>True</SignAssembly>
-		<TargetFrameworks>net472;net481;net6.0-windows;net7.0-windows</TargetFrameworks>
+		<TargetFrameworks>net472;net7.0-windows</TargetFrameworks>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<RootNamespace>CsvTools</RootNamespace>
