@@ -704,7 +704,9 @@ namespace CsvTools
       if (row.Height != m_DefRowHeight) return m_DefRowHeight;
       if (checkedColumns.Any(
             column => row.Cells[column.Index].Value != null && row.Cells[column.Index].Value != DBNull.Value
+#pragma warning disable CS8602
                                                             && row.Cells[column.Index].Value.ToString()
+#pragma warning restore CS8602
                                                               .IndexOf('\n') !=
                                                             -1))
         return m_DefRowHeight * 2;

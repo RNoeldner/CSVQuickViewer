@@ -424,7 +424,7 @@ namespace CsvTools
               return;
 
             var cell = row.Cells[viewColumn.Index];
-            if (cell.FormattedValue?.ToString().IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) == -1)
+            if (cell.FormattedValue?.ToString()?.IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) == -1)
               continue;
 
             found.Add(cell);
