@@ -35,6 +35,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="id"></param>
     /// <param name="fileName">Name of the file.</param>
+    /// <param name="row">Text with Placeholders for a row</param>
     protected StructuredFile(in string id, in string fileName, in string row)
       : base(id, fileName)
     {

@@ -14,14 +14,16 @@
 #nullable enable
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+#if !QUICK
+using System.Collections.Generic;
+using System.Text;
+#endif
 
 namespace CsvTools
 {
