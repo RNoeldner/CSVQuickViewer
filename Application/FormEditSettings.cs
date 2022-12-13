@@ -149,7 +149,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
-          var res = await improvedStream.GuessDelimiter(csvFile.CodePageId, csvFile.SkipRows,
+          var res = await improvedStream.GuessDelimiterAsync(csvFile.CodePageId, csvFile.SkipRows,
             csvFile.EscapePrefix,
             m_CancellationTokenSource.Token);
           if (res.IsDetected)
@@ -236,8 +236,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
       quotingControlWrite.CsvFile = m_ViewSettings.WriteSetting;
       quotingControlWrite.IsWriteSetting = true;
-
-
     }
 
     private void FormEditSettings_FormClosing(object? sender, FormClosingEventArgs e)
@@ -245,7 +243,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       m_CancellationTokenSource.Cancel();
       if (m_FileSetting != null)
         m_ViewSettings.PassOnConfiguration(m_FileSetting);
-      
+
       ValidateChildren();
     }
 
@@ -306,7 +304,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = new ImprovedStream(new SourceAccess(csvFile));
           var res = await improvedStream.GuessHasHeader(csvFile.CodePageId, csvFile.SkipRows, csvFile.CommentLine,
-            csvFile.FieldDelimiter, m_CancellationTokenSource.Token);
+            csvFile.FieldDelimiter, csvFile.FieldQualifier, csvFile.EscapePrefix, m_CancellationTokenSource.Token);
           csvFile.HasFieldHeader = string.IsNullOrEmpty(res);
           bindingSourceViewSetting.ResetBindings(false);
           MessageBox.Show(res, "Checking headers");
