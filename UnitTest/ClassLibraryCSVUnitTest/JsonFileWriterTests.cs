@@ -38,8 +38,8 @@ namespace CsvTools.Tests
         true,
         new Column[]
         {
-          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true),
-          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true)
+          new("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true),
+          new("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true)
         }, TrimmingOptionEnum.All, "\t", "\"", "",
         0, false, false, "", 0,
         true, "", "", "", true,
@@ -76,7 +76,7 @@ namespace CsvTools.Tests
       // source data
       using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0,
         true,
-        new Column[]
+        new[]
         {
           new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true),
           new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true)

@@ -25,6 +25,8 @@ namespace CsvTools.Tests
 
     public bool IsEnabled(LogLevel logLevel) => logLevel > LogLevel.Debug;
 
-    public IDisposable BeginScope<TState>(TState state) => NullLogger.Instance.BeginScope(state);
+#pragma warning disable CS8633
+    public IDisposable BeginScope<TState>(TState state) where TState : notnull => NullLogger.Instance.BeginScope(state);
+#pragma warning restore CS8633
   }
 }

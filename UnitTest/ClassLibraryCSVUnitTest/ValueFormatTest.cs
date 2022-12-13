@@ -165,6 +165,7 @@ namespace CsvTools.Tests
     public void ValueFormatNotEquals()
     {
       var target = new ValueFormatMut(DataTypeEnum.Binary);
+      // ReSharper disable once SuspiciousTypeConversion.Global
       Assert.IsFalse(m_ValueFormatGerman.Equals(target));
     }
   }

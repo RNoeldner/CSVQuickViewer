@@ -68,7 +68,7 @@ namespace CsvTools.Tests
       Assert.AreEqual((float) -12086.66, wrapper.GetFloat(2),"float");
       Assert.AreEqual(-12086.66, wrapper.GetDouble(2),"double");
       Assert.AreEqual((decimal) -12086.66, wrapper.GetDecimal(2) , "decimal");
-      Assert.AreEqual((-12086.66).ToString(), wrapper.GetString(2) , "string");
+      Assert.AreEqual((-12086.66).ToString(CultureInfo.CurrentCulture), wrapper.GetString(2) , "string");
     }
 
     [TestMethod()]

@@ -16,6 +16,7 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using Timer = System.Timers.Timer;
+// ReSharper disable LocalizableElement
 
 namespace CsvTools.Tests
 {

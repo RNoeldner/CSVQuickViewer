@@ -74,7 +74,7 @@ namespace CsvTools.Tests
       if (messageList.TryGetValue(1, out var ce))
       {
         Assert.AreEqual(1, ce!.Count);
-        Assert.AreEqual(messageList.Display, ce!.Display);
+        Assert.AreEqual(messageList.Display, ce.Display);
       }
     }
 

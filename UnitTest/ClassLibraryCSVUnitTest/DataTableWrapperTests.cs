@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Data;
 using System.Threading.Tasks;
+#pragma warning disable CS0618
 
 namespace CsvTools.Tests
 {

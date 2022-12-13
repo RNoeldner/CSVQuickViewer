@@ -1572,8 +1572,9 @@ namespace CsvTools
 
       if (textReader.CanSeek)
       {
+        
         // Read the first line and check if it does contain the magic word sep=
-        var firstLine = (await textReader.ReadLineAsync().ConfigureAwait(false)).Trim().Replace(" ", "");
+        var firstLine = (await textReader.ReadLineAsync().ConfigureAwait(false))?.Trim().Replace(" ", "") ?? string.Empty;
         if (firstLine.StartsWith("sep=", StringComparison.OrdinalIgnoreCase) && firstLine.Length > 4)
         {
           var resultFl = firstLine.Substring(4);

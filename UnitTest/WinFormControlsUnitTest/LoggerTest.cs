@@ -54,9 +54,11 @@ namespace CsvTools.Tests
 
     private class TestLogger : ILogger
     {
-#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable CS8603 
+#pragma warning disable CS8633
       public IDisposable BeginScope<TState>(TState state) => default;
-#pragma warning restore CS8603 // Possible null reference return.
+#pragma warning restore CS8633
+#pragma warning restore CS8603 
 
       public bool IsEnabled(LogLevel logLevel) => true;
 

@@ -284,8 +284,8 @@ namespace CsvTools.Tests
       Assert.IsTrue((new DateTime(2020, 04, 03, 18, 45, 29, 573, DateTimeKind.Utc) -
                      jfr.GetDateTime(1).ToUniversalTime()).TotalSeconds < 2);
       Assert.AreEqual((short) 0, jfr.GetInt16(5));
-      Assert.AreEqual((int) 0, jfr.GetInt32(5));
-      Assert.AreEqual((long) 0, jfr.GetInt64(5));
+      Assert.AreEqual(0, jfr.GetInt32(5));
+      Assert.AreEqual(0L, jfr.GetInt64(5));
       var val = new object[jfr.FieldCount];
       jfr.GetValues(val);
       Assert.IsNull(val[2]);

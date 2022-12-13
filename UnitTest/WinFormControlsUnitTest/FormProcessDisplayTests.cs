@@ -45,7 +45,7 @@ namespace CsvTools.Tests
         formProgress.Show();
         formProgress.Maximum = 100;
         var sentTime = new TimeSpan(0);
-        formProgress.ProgressChanged += (obj, time) =>
+        formProgress.ProgressChanged += (obj, _) =>
         {
           sentTime = ((IProgressTime) obj).TimeToCompletion.EstimatedTimeRemaining;
         };
@@ -147,7 +147,7 @@ namespace CsvTools.Tests
       formProgress.Show();
       long called = 10;
 
-      formProgress.ProgressChanged += (obj, e) => { called = e.Value; };
+      formProgress.ProgressChanged += (_, e) => { called = e.Value; };
 
       formProgress.Report(new ProgressInfo("Help", 20));
 
