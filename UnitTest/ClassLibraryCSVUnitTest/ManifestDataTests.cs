@@ -54,7 +54,9 @@ namespace CsvTools.Tests
         setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("object_id", reader.GetColumn(0).Name);
+#pragma warning disable CS0618
       reader.Read();
+#pragma warning restore CS0618
     }
 
     [TestMethod]
@@ -84,7 +86,9 @@ namespace CsvTools.Tests
         setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("lesrlA_reason_id", reader.GetColumn(0).Name);
+#pragma warning disable CS0618
       reader.Read();
+#pragma warning restore CS0618
       Assert.AreEqual("Other", reader.GetValue(1));
     }
   }

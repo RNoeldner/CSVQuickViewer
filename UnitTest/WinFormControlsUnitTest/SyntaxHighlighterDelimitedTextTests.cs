@@ -13,7 +13,7 @@ namespace CsvTools.Tests
       var textBox = new FastColoredTextBox();
 
       var highlighter = new SyntaxHighlighterDelimitedText(textBox, "\"", ",", "\\", "##");
-      textBox.TextChangedDelayed += (sender, e) =>
+      textBox.TextChangedDelayed += (sender, _) =>
       {
         if (!(sender is FastColoredTextBox text))
           return;
@@ -33,10 +33,11 @@ namespace CsvTools.Tests
     {
       var textBox = new FastColoredTextBox();
       using var highlighter = new SyntaxHighlighterJson(textBox);
-      textBox.TextChangedDelayed += (sender, e) =>
+      textBox.TextChangedDelayed += (sender, _) =>
       {
-        if (!(sender is FastColoredTextBox text))
+        if (sender is not FastColoredTextBox text)
           return;
+        // ReSharper disable once AccessToDisposedClosure
         highlighter.Highlight(text.Range);
       };
 
@@ -44,6 +45,7 @@ namespace CsvTools.Tests
       {
         text.Text =
           "{\n	\"glossary\": {\n		\"title\": \"example glossary\",\n		\"GlossDiv\": {\n			\"title\": \"S\",\n			\"GlossList\": {\n				\"GlossEntry\": {\n					\"ID\": \"SGML\",\n					\"SortAs\": \"SGML\",\n					\"GlossTerm\": \"Standard Generalized Markup Language\",\n					\"Acronym\": \"SGML\",\n					\"Abbrev\": \"ISO 8879:1986\",\n					\"GlossDef\": {\n						\"para\": \"A meta-markup language, used to create markup languages such as DocBook.\",\n						\"GlossSeeAlso\": [\n							\"GML\",\n							\"XML\"\n						]\n					},\n					\"GlossSee\": \"markup\"\n				}\n			}\n		}\n	}\n}";
+        // ReSharper disable once AccessToDisposedClosure
         highlighter.Comment(new Range(text, 0, 0, 0, 1));
       }, 2);
     }

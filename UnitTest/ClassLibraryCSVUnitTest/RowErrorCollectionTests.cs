@@ -34,7 +34,7 @@ namespace CsvTools.Tests
 
       using var reader = new CsvFileReader(UnitTestStatic.GetTestPath("AllFormats.txt"), Encoding.UTF8.CodePage, 0,
         true,
-        new Column[]
+        new[]
         {
           new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, ignore: true),
           new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 1)

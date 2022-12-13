@@ -112,6 +112,7 @@ namespace CsvTools
       }
       Add(item);
     }
+
     /// <inheritdoc cref="ObservableCollection{T}" />
     public new void Insert(int index, T item)
     {

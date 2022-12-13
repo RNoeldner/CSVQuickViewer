@@ -201,7 +201,7 @@ namespace CsvTools.Tests
       IReadOnlyCollection<string>? ignore = null)
     {
       return myClass.GetType().GetProperties().Where(prop =>
-        !(ignore?.Contains(prop?.Name) ?? false) && prop.GetMethod != null &&
+        !(ignore?.Contains(prop?.Name) ?? false) && prop?.GetMethod != null &&
         (prop.PropertyType == typeof(int)
          || prop.PropertyType == typeof(long)
          || prop.PropertyType == typeof(string)
@@ -630,7 +630,11 @@ namespace CsvTools.Tests
     {
       using var frm = new TestForm();
       frm.AddOneControl(ctrl, closeAfterSeconds * 1000);
-      ShowFormAndClose(frm, waitBeforeActionSeconds, f => toDo?.Invoke(ctrl),
+      ShowFormAndClose(frm, waitBeforeActionSeconds, f =>
+        {
+          // ReSharper disable once AccessToDisposedClosure
+          toDo?.Invoke(ctrl);
+        },
         frm.CancellationToken);
       ctrl.Dispose();
     }
@@ -675,7 +679,7 @@ namespace CsvTools.Tests
       {
         frm.Show();
       }
-      catch (Exception e)
+      catch (Exception)
       {
         // ignore the form might be shown already
       }
@@ -709,7 +713,7 @@ namespace CsvTools.Tests
       {
         frm.Show();
       }
-      catch (Exception e)
+      catch (Exception)
       {
         // ignore the form might be shown already
       }
