@@ -23,6 +23,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
 
 namespace CsvTools
 {
@@ -124,7 +126,7 @@ namespace CsvTools
         }
         catch (Exception e)
         {
-          Logger.Warning(e,"Could not parse setting file {filename}", FileSystemUtils.GetShortDisplayFileName(fileNameSetting, 40));
+          Logger.Warning(e, "Could not parse setting file {filename}", FileSystemUtils.GetShortDisplayFileName(fileNameSetting, 40));
         }
       }
 #endif
@@ -425,9 +427,9 @@ namespace CsvTools
         {
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Column Delimiter");
-          var delimiterDet = textReader.GuessDelimiter(
+          var delimiterDet = await textReader.GuessDelimiterAsync(
             detectionResult.EscapePrefix, disallowedDelimiter,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
 
           detectionResult = new DelimitedFileDetectionResult(
             detectionResult.FileName,
@@ -588,10 +590,8 @@ namespace CsvTools
 
         var issue = await GuessHasHeader(
           stream,
-          detectionResult.CodePageId,
-          detectionResult.SkipRows,
-          detectionResult.CommentLine,
-          detectionResult.FieldDelimiter,
+          detectionResult.CodePageId, detectionResult.SkipRows, detectionResult.CommentLine,
+          detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.EscapePrefix,
           cancellationToken).ConfigureAwait(false);
         if (!string.IsNullOrEmpty(issue))
           Logger.Information("Without Header Row {reason}", issue);
@@ -715,7 +715,7 @@ namespace CsvTools
           StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       return new CsvFileReader(
         fileName, detectionResult.CodePageId,
-        !detectionResult.HasFieldHeader && detectionResult.SkipRows == 0 ? 1 : detectionResult.SkipRows,
+        detectionResult is { HasFieldHeader: false, SkipRows: 0 } ? 1 : detectionResult.SkipRows,
         detectionResult.HasFieldHeader, columnDefinition, TrimmingOptionEnum.Unquoted, detectionResult.FieldDelimiter,
         detectionResult.FieldQualifier, detectionResult.EscapePrefix, 0L, false, false, detectionResult.CommentLine, 0,
         true, "", "", "", true, false, false, false, false,
@@ -753,9 +753,9 @@ namespace CsvTools
 
     public struct DelimiterDetection
     {
-      public string Delimiter;
-      public bool IsDetected;
-      public bool MagicKeyword;
+      public readonly string Delimiter;
+      public readonly bool IsDetected;
+      public readonly bool MagicKeyword;
 
       public DelimiterDetection(in string delimiter, bool isDetected, bool magicKeyword)
       {
@@ -777,7 +777,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <remarks>No Error will not be thrown.</remarks>
-    public static async Task<DelimiterDetection> GuessDelimiter(
+    public static async Task<DelimiterDetection> GuessDelimiterAsync(
       this Stream improvedStream,
       int codePageId,
       int skipRows,
@@ -789,24 +789,7 @@ namespace CsvTools
       using var textReader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
         .ConfigureAwait(false);
 
-      if (textReader.CanSeek)
-      {
-        // TODO: as the line contains the magic word skip this line in later detections
-        // read the first line and check if it does contain the magic word sep=
-        var firstLine = (await textReader.ReadLineAsync().ConfigureAwait(false)).Trim().Replace(" ", "");
-        if (firstLine.StartsWith("sep=", StringComparison.OrdinalIgnoreCase) && firstLine.Length > 4)
-        {
-          var resultFl = firstLine.Substring(4);
-          if (resultFl.Equals("\\t", StringComparison.OrdinalIgnoreCase))
-            resultFl = "Tab";
-          Logger.Information("Delimiter from 'sep=' in first line: {delimiter}", resultFl);
-          return new DelimiterDetection(resultFl, true, true);
-        }
-
-        textReader.ToBeginning();
-      }
-
-      return textReader.GuessDelimiter(escapeCharacter, null, cancellationToken);
+      return await textReader.GuessDelimiterAsync(escapeCharacter, null, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -817,33 +800,106 @@ namespace CsvTools
     /// <param name="skipRows">The skip rows.</param>
     /// <param name="commentLine">The comment line.</param>
     /// <param name="fieldDelimiter">The field delimiter.</param>
+    /// <param name="fieldQualifier">The field qualifier / quoting </param>
+    /// /// <param name="escapePrefix">Used to escape delimiter or qualifier in the column</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
-    public static async Task<string> GuessHasHeader(
-      this Stream improvedStream,
+    public static async Task<string> GuessHasHeader(this Stream improvedStream,
       int codePageId,
       int skipRows,
       string commentLine,
       string fieldDelimiter,
+      string fieldQualifier,
+      string escapePrefix,
       CancellationToken cancellationToken)
     {
       using var reader = await improvedStream.GetStreamReaderAtStart(codePageId, skipRows, cancellationToken)
         .ConfigureAwait(false);
 
-      return await GuessHasHeaderAsync(reader, commentLine, fieldDelimiter.WrittenPunctuationToChar(),
+      return await GuessHasHeaderAsync(reader, commentLine, fieldDelimiter.WrittenPunctuationToChar(), fieldQualifier.WrittenPunctuationToChar(), escapePrefix.WrittenPunctuationToChar(),
         cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Parse a single line and provide columns, this does not support line feeds 
+    /// </summary>
+    /// <param name="text">The text to check</param>
+    /// <param name="fieldDelimiter">Char too separate two columns in  he line</param>
+    /// <param name="fieldQualifier">Quote or Qualification for column to contain the delimiter</param>
+    /// <param name="escapePrefix">Used to escape delimiter or qualifier in the column</param>
+    /// <returns>A Collection of columns</returns>
+    public static ICollection<string> ParseLineText(in string text, char fieldDelimiter, char fieldQualifier, char escapePrefix)
+    {
+      var result = new List<string>();
+      if (text.Length < 2 || text.IndexOf(fieldDelimiter) == -1)
+      {
+        result.Add(text);
+        return result;
+      }
+      var stringBuilder = new StringBuilder();
+      var quoted = false;
+      var escaped = false;
+      var index = 0;
+      while (index<text.Length)
+      {
+        // Read a character
+        var character = text[index];
+        if (!escaped)
+        {
+          if (character == fieldDelimiter && !quoted)
+          {
+            result.Add(stringBuilder.ToString());
+            stringBuilder.Length = 0;
+            goto next;
+          }
+          if (character == fieldQualifier)
+          {
+            if (quoted)
+            {
+              // a "" should be regarded as " if the text is quoted
+              if (index + 1 < text.Length && text[index+1]  == fieldQualifier)
+              {
+                // double quotes within quoted string means add a quote
+                stringBuilder.Append(fieldQualifier);
+                index++;
+              }
+              else
+                quoted = false;
+            }
+            else
+              quoted = true;
+
+            goto next;
+          }
+        }
+        else
+        {
+          if (character == fieldQualifier || character == fieldDelimiter || character == escapePrefix)
+            // remove the already added escape char
+            stringBuilder.Length--;
+        }
+        stringBuilder.Append(character);
+        next:
+        escaped = !escaped && character == escapePrefix;
+        index++;
+      }
+      result.Add(stringBuilder.ToString());
+      return result;
     }
 
     /// <summary>Guesses the has header from reader.</summary>
     /// <param name="reader">The reader.</param>
     /// <param name="comment">The comment.</param>
-    /// <param name="delimiterChar">The delimiter.</param>
+    /// <param name="fieldDelimiter">The delimiter to separate columns</param>
+    /// <param name="fieldQualifier">Quoting of column to allow delimiter being part of column</param>
+    /// /// <param name="escapePrefix">Used to escape delimiter or qualifier in the column</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>Explanation why there is no header, if empty the header was found</returns>
-    public static async Task<string> GuessHasHeaderAsync(
-      this ImprovedTextReader reader,
+    public static async Task<string> GuessHasHeaderAsync(this ImprovedTextReader reader,
       string comment,
-      char delimiterChar,
+      char fieldDelimiter,
+      char fieldQualifier,
+      char escapePrefix,
       CancellationToken cancellationToken)
     {
       var headerLine = string.Empty;
@@ -862,10 +918,10 @@ namespace CsvTools
       if (headerLine.NoControlCharacters().Length < headerLine.Replace("\t", "").Length)
         return $"Control Characters in Column {headerLine}";
 
-      var headerRow = headerLine.Split(delimiterChar).Select(x => x.Trim('\"')).ToList();
+      var headers = ParseLineText(headerLine, fieldDelimiter, fieldQualifier, escapePrefix);
 
       // get the average field count looking at the header and 12 additional valid lines
-      var fieldCount = headerRow.Count;
+      var fieldCount = headers.Count;
 
       // if there is only one column the header be number of letter and might be followed by a
       // single number
@@ -884,7 +940,7 @@ namespace CsvTools
               || (!string.IsNullOrEmpty(comment) && dataLine.TrimStart().StartsWith(comment, StringComparison.Ordinal)))
             continue;
           counter++;
-          fieldCount += dataLine.Split(delimiterChar).Length;
+          fieldCount += ParseLineText(dataLine, fieldDelimiter, fieldQualifier, escapePrefix).Count;
         }
 
         var halfTheColumns = (int) Math.Ceiling(fieldCount / 2.0);
@@ -892,27 +948,27 @@ namespace CsvTools
         {
           var avgFieldCount = fieldCount / (double) counter;
           // The average should not be smaller than the columns in the initial row
-          if (avgFieldCount < headerRow.Count)
-            avgFieldCount = headerRow.Count;
+          if (avgFieldCount < headers.Count)
+            avgFieldCount = headers.Count;
           halfTheColumns = (int) Math.Ceiling(avgFieldCount / 2.0);
 
           // Columns are only one or two char, does not look descriptive
-          if (headerRow.Count(x => x.Length < 3) > halfTheColumns)
-            return $"Headers '{string.Join("', '", headerRow.Where(x => x.Length < 3))}' very short";
+          if (headers.Count(x => x.Length < 3) > halfTheColumns)
+            return $"Headers '{string.Join("', '", headers.Where(x => x.Length < 3))}' very short";
 
           // use the same routine that is used in readers to determine the names of the columns
-          var (_, numIssues) = BaseFileReader.AdjustColumnName(headerRow, (int) avgFieldCount, null);
+          var (_, numIssues) = BaseFileReader.AdjustColumnName(headers, (int) avgFieldCount, null);
 
           // looking at the warnings raised
           if (numIssues >= halfTheColumns || numIssues > 2)
             return $"{numIssues} header where empty, duplicate or too long";
         }
 
-        var numeric = headerRow.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
-        var boolHead = headerRow.Where(header => StringConversion.StringToBooleanStrict(header, "1", "0") != null)
+        var numeric = headers.Where(header => Regex.IsMatch(header, @"^\d+$")).ToList();
+        var boolHead = headers.Where(header => StringConversion.StringToBooleanStrict(header, "1", "0") != null)
           .ToList();
         // allowed char are letters, digits and a predefined list of punctuation and symbols
-        var specials = headerRow.Where(header =>
+        var specials = headers.Where(header =>
           Regex.IsMatch(header, @"[^\w\d\s\\" + Regex.Escape(@"/_*&%$[]()+-=#'<>@.!?") + "]")).ToList();
         if (numeric.Count + boolHead.Count + specials.Count >= halfTheColumns)
         {
@@ -1504,7 +1560,7 @@ namespace CsvTools
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <exception cref="ArgumentNullException">streamReader</exception>
     /// <remarks>No Error will not be thrown.</remarks>
-    private static DelimiterDetection GuessDelimiter(
+    private static async Task<DelimiterDetection> GuessDelimiterAsync(
       this ImprovedTextReader textReader,
       string escapeCharacter,
       IEnumerable<char>? disallowedDelimiter,
@@ -1513,6 +1569,22 @@ namespace CsvTools
       if (textReader is null)
         throw new ArgumentNullException(nameof(textReader));
       var match = '\0';
+
+      if (textReader.CanSeek)
+      {
+        // Read the first line and check if it does contain the magic word sep=
+        var firstLine = (await textReader.ReadLineAsync().ConfigureAwait(false)).Trim().Replace(" ", "");
+        if (firstLine.StartsWith("sep=", StringComparison.OrdinalIgnoreCase) && firstLine.Length > 4)
+        {
+          var resultFl = firstLine.Substring(4);
+          if (resultFl.Equals("\\t", StringComparison.OrdinalIgnoreCase))
+            resultFl = "Tab";
+          Logger.Information("Delimiter from 'sep=' in first line: {delimiter}", resultFl);
+          return new DelimiterDetection(resultFl, true, true);
+        }
+
+        textReader.ToBeginning();
+      }
 
       var dc = textReader.GetDelimiterCounter(escapeCharacter, 300, disallowedDelimiter, cancellationToken);
       var numberOfRows = dc.FilledRows;
@@ -1737,11 +1809,11 @@ namespace CsvTools
         if (c == escapeChar)
         {
           if (!textReader.EndOfStream)
+          {
             c = textReader.Read();
-          if (!textReader.EndOfStream)
-            c = textReader.Read();
-          if (c == delimiterChar || c == quoteChar || c == escapeChar)
-            return true;
+            if (c == delimiterChar || c == quoteChar || c == escapeChar)
+              return true;
+          }
         }
       }
       return false;
