@@ -16,7 +16,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 // ReSharper disable UnusedVariable
@@ -155,7 +154,8 @@ namespace CsvTools.Tests
       ICsvFile test =
         new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("LateStartRow.txt"))
         {
-          SkipRows = 10, CodePageId = 20127
+          SkipRows = 10,
+          CodePageId = 20127
         };
       test.FieldQualifier = "\"";
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
@@ -191,7 +191,8 @@ namespace CsvTools.Tests
     {
       ICsvFile test =
         new CsvFile(id: "Csv",
-          fileName: UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt")) { CodePageId = -1 };
+          fileName: UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"))
+        { CodePageId = -1 };
       test.EscapePrefix = string.Empty;
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       Assert.AreEqual("|",
@@ -224,46 +225,7 @@ namespace CsvTools.Tests
         .Delimiter, true);
     }
 
-    [TestMethod]
-    public async Task GuessHasHeaderAsync()
-    {
-      using (var stream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
-      using (var reader = new ImprovedTextReader(stream))
-      {
-        Assert.IsTrue(
-          string.IsNullOrEmpty(await reader.GuessHasHeaderAsync("#", ',', '\0', '\0', UnitTestStatic.Token)));
-      }
-
-      using (var stream =
-             new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("HandlingDuplicateColumnNames.txt"))))
-      using (var reader = new ImprovedTextReader(stream))
-      {
-        Assert.IsFalse(
-          string.IsNullOrEmpty(await reader.GuessHasHeaderAsync("#", ',', '\0', '\0', UnitTestStatic.Token)));
-      }
-
-      using (var stream =
-             new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"))))
-      using (var reader = new ImprovedTextReader(stream))
-      {
-        Assert.IsFalse(
-          string.IsNullOrEmpty(await reader.GuessHasHeaderAsync("", ',', '\0', '\0', UnitTestStatic.Token)));
-      }
-
-      using (var stream = new FileStream(UnitTestStatic.GetTestPath("Sessions.txt"), FileMode.Open))
-      using (var reader = new ImprovedTextReader(stream))
-      {
-        Assert.IsTrue(
-          string.IsNullOrEmpty(await reader.GuessHasHeaderAsync("#", '\t', '\0', '\0', UnitTestStatic.Token)));
-      }
-
-      using (var stream = new FileStream(UnitTestStatic.GetTestPath("TrimmingHeaders.txt"), FileMode.Open))
-      using (var reader = new ImprovedTextReader(stream))
-      {
-        Assert.IsTrue(
-          (await reader.GuessHasHeaderAsync("#", ',', '\0', '\0', UnitTestStatic.Token)).Contains("very short"));
-      }
-    }
+  
 
     [TestMethod]
     public async Task GuessJsonFileAsync()
@@ -283,90 +245,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(1200, result.CodePageId);
     }
 
-    [TestMethod]
-    public async Task GuessHeaderBasicCSV()
-    {
-      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt")));
-      var result = await improvedStream.GuessHasHeader(1200, 0, "", ",", "", "", UnitTestStatic.Token);
-      Assert.IsNotNull(result);
-      Assert.IsTrue(string.IsNullOrEmpty(result));
-    }
 
-    [TestMethod]
-    public async Task GuessHeaderStrangeHeaders()
-    {
-      using var improvedStream =
-        FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("StrangeHeaders.txt")));
-      var result = await improvedStream.GuessHasHeader(1200, 0, "", ",", "", "", UnitTestStatic.Token);
-      Assert.IsNotNull(result);
-      Assert.IsFalse(string.IsNullOrEmpty(result));
-    }
-
-
-    [TestMethod]
-    public async Task GuessHeaderAllFormatsAsync()
-    {
-      using var improvedStream =
-        FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormats.txt")));
-      var result = await improvedStream.GuessHasHeader(65001, 0, "", "\t", "", "", UnitTestStatic.Token);
-      Assert.IsNotNull(result);
-      Assert.IsTrue(string.IsNullOrEmpty(result));
-    }
-
-    [TestMethod]
-    public async Task GuessHeaderBasicEscapedCharactersAsync()
-    {
-      using var improvedStream =
-        FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicEscapedCharacters.txt")));
-      var result = await improvedStream.GuessHasHeader(65001, 0, "", ",", "", "", UnitTestStatic.Token);
-      Assert.IsNotNull(result);
-      Assert.IsFalse(string.IsNullOrEmpty(result));
-      Assert.IsTrue( result.EndsWith("very short"));
-      // if is a or 'a\' does not matter
-      Assert.IsTrue( result.Contains("'b', 'c', 'd', 'e', 'f'"));
-    }
-
-    [TestMethod]
-    public async Task GuessHeaderLongHeadersAsync()
-    {
-      using var improvedStream =
-        FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("LongHeaders.txt")));
-      var result = await improvedStream.GuessHasHeader(65001, 0, "#", ",", "\"", "", UnitTestStatic.Token);
-      Assert.IsNotNull(result);
-      Assert.IsFalse(string.IsNullOrEmpty(result));
-      Assert.IsTrue(result.StartsWith("Headers", StringComparison.OrdinalIgnoreCase));
-      Assert.IsTrue(result.EndsWith("very short", StringComparison.OrdinalIgnoreCase));
-    }
-
-
-    [TestMethod]
-    public void ParseLineText1()
-    {
-      var res = CsvHelper.ParseLineText("1,2,3,4,5,6,7,8,9", ',', '\0', '\0').ToList();
-      Assert.AreEqual(9, res.Count());
-      Assert.AreEqual("1", res[0]);
-      Assert.AreEqual("9", res[8]);
-    }
-
-    [TestMethod]
-    public void ParseLineText2()
-    {
-      var res = CsvHelper.ParseLineText("\"1\",2,3,4,5,\"6,\"\"7,8\",\"9\"", ',', '"', '\0').ToList();
-      Assert.AreEqual(7, res.Count());
-      Assert.AreEqual("1", res[0]);
-      Assert.AreEqual("6,\"7,8", res[5]);
-      Assert.AreEqual("9", res[6]);
-    }
-
-    [TestMethod]
-    public void ParseLineText3()
-    {
-      var res = CsvHelper.ParseLineText("1\\,2,3,4,5,\"6,\\\"7,8\",9", ',', '"', '\\').ToList();
-      Assert.AreEqual(6, res.Count());
-      Assert.AreEqual("1,2", res[0]);
-      Assert.AreEqual("6,\"7,8", res[4]);
-      Assert.AreEqual("9", res[5]);
-    }
 
     [TestMethod]
     public async Task GuessHeaderSkippingEmptyRowsWithDelimiterAsync()
@@ -596,7 +475,8 @@ namespace CsvTools.Tests
       ICsvFile test =
         new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("LateStartRow.txt"))
         {
-          SkipRows = 10, CodePageId = 20127
+          SkipRows = 10,
+          CodePageId = 20127
         };
       test.FieldDelimiter = "|";
       test.FieldQualifier = "\"";
