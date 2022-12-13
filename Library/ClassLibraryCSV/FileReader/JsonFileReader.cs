@@ -38,7 +38,7 @@ namespace CsvTools
     private StreamReader? m_StreamReader;
 
     public JsonFileReader(
-      in Stream improvedStream,
+      in Stream stream,
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,
       bool trim,
@@ -47,7 +47,7 @@ namespace CsvTools
       in TimeZoneChangeDelegate timeZoneAdjust,
       string destTimeZone)
       : base(string.Empty, columnDefinition, recordLimit, trim, treatTextAsNull, treatNbspAsSpace, timeZoneAdjust, destTimeZone) =>
-      m_ImprovedStream = improvedStream;
+      m_ImprovedStream = stream;
 
     public JsonFileReader(in string fileName,
       in IEnumerable<Column>? columnDefinition,
