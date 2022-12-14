@@ -85,8 +85,8 @@ namespace CsvTools
       FontChanged += PassOnFontChanges;
       m_Filter = new List<ToolStripDataGridViewColumnFilter?>();
       //Workaround as Text on Windows 8 is too small
-      if (Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor > 1)
-        Paint += FilteredDataGridView_Paint;
+      //if (Environment.OSVersion.Version is { Major: 6, Minor: > 1 })
+      //  Paint += FilteredDataGridView_Paint;
 
       var resources = new ComponentResourceManager(typeof(FilteredDataGridView));
       m_ImgFilterIndicator = (resources.GetObject("toolStripMenuItem2.Image") as Image) ??
@@ -702,11 +702,7 @@ namespace CsvTools
         m_DefRowHeight = row.Height;
       // in case the row is not bigger than normal check if it would need to be higher
       if (row.Height != m_DefRowHeight) return m_DefRowHeight;
-      if (checkedColumns.Any(
-            column => row.Cells[column.Index].Value != null && row.Cells[column.Index].Value != DBNull.Value
-                                                            && row.Cells[column.Index].Value.ToString()
-                                                              .IndexOf('\n') !=
-                                                            -1))
+      if (checkedColumns.Any(column => row.Cells[column.Index].Value?.ToString()?.IndexOf('\n') != -1))
         return m_DefRowHeight * 2;
 
       return m_DefRowHeight;
@@ -809,8 +805,18 @@ namespace CsvTools
     ///   The <see cref="System.Windows.Forms.DataGridViewCellMouseEventArgs" /> instance containing
     ///   the event data.
     /// </param>
-    private void FilteredDataGridView_CellMouseClick(object? sender, DataGridViewCellMouseEventArgs e) =>
+    private void FilteredDataGridView_CellMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
+    {
       SetToolStripMenu(e.ColumnIndex, e.RowIndex, e.Button);
+      if (e is { Button: MouseButtons.Left, RowIndex: >= 0 } && Columns[e.ColumnIndex] is DataGridViewButtonColumn)
+      {
+        var frm = new FormTextDisplay(CurrentCell?.Value?.ToString() ?? string.Empty);
+        frm.Text = $"{Columns[e.ColumnIndex].DataPropertyName} - Row {e.RowIndex + 1:D}";
+        frm.Show(this.FindForm());
+        frm.ChangeFont(this.Font);
+        components?.Add(frm);
+      }
+    }
 
     /// <summary>
     ///   Handles the ColumnAdded event of the FilteredDataGridView control.
@@ -889,8 +895,8 @@ namespace CsvTools
       e.Handled = true;
     }
 
-    private void FilteredDataGridView_Paint(object? sender, PaintEventArgs e) => m_DefRowHeight =
-      (TextRenderer.MeasureText(e.Graphics, "My Text", base.Font).Height * 120) / 100;
+    //private void FilteredDataGridView_Paint(object? sender, PaintEventArgs e) => m_DefRowHeight =
+    //  (TextRenderer.MeasureText(e.Graphics, "My Text", base.Font).Height * 120) / 100;
 
     /// <summary>
     ///   Generates the data grid view column.
@@ -917,14 +923,36 @@ namespace CsvTools
       if (DataView is null || DataView.Table is null)
         return;
 
+      var wrapColumns = new List<DataColumn>();
+      var showAsButton = new List<DataColumn>();
       foreach (DataColumn col in DataView.Table.Columns)
       {
-        DataGridViewColumn newColumn;
+        if (col.DataType != typeof(string)) continue;
+        foreach (DataRow row in DataView.Table.Rows)
+        {
+          var text = row[col].ToString();
+          if (string.IsNullOrEmpty(text))
+            continue;
+          if (text.Length > 2000)
+          {
+            showAsButton.Add(col);
+            break;
+          }
 
-        if (col.DataType == typeof(bool))
-          newColumn = new DataGridViewCheckBoxColumn();
-        else
-          newColumn = new DataGridViewTextBoxColumn();
+          if (text.IndexOf('\n') != -1)
+          {
+            wrapColumns.Add(col);
+            break;
+          }
+        }
+      }
+
+      foreach (DataColumn col in DataView.Table.Columns)
+      {
+        DataGridViewColumn newColumn =
+          col.DataType == typeof(bool) ? new DataGridViewCheckBoxColumn() :
+          showAsButton.Contains(col) ? new DataGridViewButtonColumn() { Text = "Details" } :
+          new DataGridViewTextBoxColumn();
 
         newColumn.ValueType = col.DataType;
         newColumn.Name = col.ColumnName;
@@ -933,19 +961,12 @@ namespace CsvTools
         if (oldWith.ContainsKey(col.ColumnName))
           newColumn.Width = oldWith[col.ColumnName];
 
-        foreach (DataRow row in DataView.Table.Rows)
-        {
-          var cellValue = row[col];
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-          // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-          if (cellValue is null || cellValue.ToString().IndexOf('\n') == -1)
-            continue;
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+        if (wrapColumns.Contains(col))
           newColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-          break;
-        }
 
-        newColumn.Width = GetColumnWith(col, DataView.Table.Rows);
+        newColumn.Width = oldWith.TryGetValue(col.ColumnName, out var value) ? value :
+          showAsButton.Contains(col) ? 25 : GetColumnWith(col, DataView.Table.Rows);
+
         Columns.Add(newColumn);
       }
 

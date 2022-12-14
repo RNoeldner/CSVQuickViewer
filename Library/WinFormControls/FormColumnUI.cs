@@ -120,6 +120,7 @@ namespace CsvTools
     private async Task DisplayValues()
     {
       using var formProgress = new FormProgress("Display Values", true, m_CancellationTokenSource.Token);
+      formProgress.ChangeFont(this.Font);
       formProgress.Show(this);
       var values = await GetSampleValuesAsync(comboBoxColumnName.Text, formProgress, formProgress.CancellationToken);
       formProgress.Hide();
@@ -159,6 +160,7 @@ namespace CsvTools
       {
         using var formProgress = new FormProgress("Guess Value", true, m_CancellationTokenSource.Token);
         formProgress.Show();
+        formProgress.ChangeFont(this.Font);
         if (m_WriteSetting)
         {
           var hasRetried = false;
@@ -166,10 +168,10 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          // ReSharper disable once ConvertToUsingDeclaration
-          // ReSharper disable once UseAwaitUsing
-          using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
-                   m_FileSetting.RecordLimit, formProgress.CancellationToken))
+            // ReSharper disable once ConvertToUsingDeclaration
+            // ReSharper disable once UseAwaitUsing
+            using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
+                     m_FileSetting.RecordLimit, formProgress.CancellationToken))
           {
             sqlReader.ReportProgress = formProgress;
             var data = await sqlReader.GetDataTableAsync(TimeSpan.FromSeconds(60),
@@ -603,6 +605,7 @@ namespace CsvTools
 
       using var formProgress = new FormProgress("Getting column headers", false, m_CancellationTokenSource.Token);
       formProgress.Show();
+      formProgress.ChangeFont(this.Font);
       formProgress.SetProcess("Getting columns from source");
       // Read the column headers if possible
       ICollection<string> allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -613,8 +616,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          // ReSharper disable once UseAwaitUsing
-          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, formProgress.CancellationToken);
+            // ReSharper disable once UseAwaitUsing
+            using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, formProgress.CancellationToken);
           fileReader.ReportProgress = formProgress;
           await fileReader.OpenAsync(formProgress.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
@@ -625,10 +628,10 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          // Write Setting ----- open the source that is SQL
-          // ReSharper disable once UseAwaitUsing
-          using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSql(),
-            m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProgress.CancellationToken);
+            // Write Setting ----- open the source that is SQL
+            // ReSharper disable once UseAwaitUsing
+            using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSql(),
+              m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProgress.CancellationToken);
           for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
             allColumns.Add(fileReader.GetColumn(colIndex).Name);
         }
@@ -762,9 +765,9 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-          // ReSharper disable once UseAwaitUsing
-          using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
-            m_FileSetting.RecordLimit, cancellationToken);
+            // ReSharper disable once UseAwaitUsing
+            using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
+              m_FileSetting.RecordLimit, cancellationToken);
           if (progress != null)
             sqlReader.ReportProgress = progress;
           var colIndex = sqlReader.GetOrdinal(columnName);
@@ -800,9 +803,9 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-        // ReSharper disable once ConvertToUsingDeclaration
-        // ReSharper disable once UseAwaitUsing
-        using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, cancellationToken))
+          // ReSharper disable once ConvertToUsingDeclaration
+          // ReSharper disable once UseAwaitUsing
+          using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, cancellationToken))
         {
           if (progress != null)
             fileReader.ReportProgress = progress;

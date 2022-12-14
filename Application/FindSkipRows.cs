@@ -24,7 +24,8 @@ namespace CsvTools
       if (sa.FileType != FileTypeEnum.Plain)
         throw new NotSupportedException("Any file that is not a plain text is not supported.");
 
-      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_CsvFile.EscapePrefixChar.ToStringHandle0(),
+      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text,
+        m_CsvFile.EscapePrefixChar.ToStringHandle0(),
         textBoxComment.Text);
     }
 
@@ -50,12 +51,14 @@ namespace CsvTools
 
     private void ButtonSkipLine_Click(object? sender, EventArgs e)
     {
-      using var fromProgress = new FormProgress("Check", true, CancellationToken.None);
-      fromProgress.Show();
-      fromProgress.Maximum = 0;
+      using var formProgress = new FormProgress("Check", true, CancellationToken.None);
+      formProgress.ChangeFont(this.Font);
+      formProgress.Show();
+      formProgress.Maximum = 0;
       using var stream = new ImprovedStream(new SourceAccess(m_CsvFile));
       using var streamReader = new ImprovedTextReader(stream, m_CsvFile.CodePageId);
-      m_CsvFile.SkipRows = streamReader.GuessStartRow(textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxComment.Text, fromProgress.CancellationToken);
+      m_CsvFile.SkipRows = streamReader.GuessStartRow(textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxComment.Text,
+        formProgress.CancellationToken);
 
       HighlightVisibleRange(m_CsvFile.SkipRows);
     }
@@ -63,7 +66,8 @@ namespace CsvTools
     private void DifferentSyntaxHighlighter(object? sender, EventArgs e)
     {
       m_HighLighter.Dispose();
-      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text, m_CsvFile.EscapePrefix, textBoxComment.Text);
+      m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, m_TextBoxQuote.Text, textBoxDelimiter.Text,
+        m_CsvFile.EscapePrefix, textBoxComment.Text);
       HighlightVisibleRange(m_CsvFile.SkipRows);
     }
 
@@ -74,7 +78,9 @@ namespace CsvTools
 
     private void FindSkipRows_Load(object? sender, EventArgs e)
     {
-      textBox.OpenFile(m_CsvFile.FullPath, Encoding.GetEncoding(m_CsvFile.CodePageId, new EncoderReplacementFallback("?"), new DecoderReplacementFallback("?")));
+      textBox.OpenFile(m_CsvFile.FullPath,
+        Encoding.GetEncoding(m_CsvFile.CodePageId, new EncoderReplacementFallback("?"),
+          new DecoderReplacementFallback("?")));
     }
 
     private void TextBox_VisibleRangeChangedDelayed(object? sender, EventArgs e)

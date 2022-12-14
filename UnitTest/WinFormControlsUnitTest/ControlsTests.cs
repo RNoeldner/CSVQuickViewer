@@ -96,9 +96,33 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(5000)]
-    public void ResizeFormChangeFont()
+    public void ResizeForm()
     {
       using var resizeForm = new ResizeForm();
+      UnitTestStatic.ShowFormAndClose(resizeForm, .2);
+    }
+
+    [TestMethod]
+    [Timeout(5000)]
+    public void FormTextDisplay()
+    {
+      using var resizeForm = new FormTextDisplay("This is a test text\nSpanning some\nlines ...");
+      UnitTestStatic.ShowFormAndClose(resizeForm, .2);
+    }
+
+    [TestMethod]
+    public void FormTextDisplayJson()
+    {
+      using var resizeForm = new FormTextDisplay(
+        "{\r\n  \"schema\": {\r\n    \"properties\": {\r\n      \"EmployeeIdentificationData_GUID\": {\r\n        \"format\": \"uuid\",\r\n        \"trim\": \"leftRight\",\r\n        \"caseSensitive\": false,\r\n        \"title\": \"GUID\",\r\n        \"description\": \"Unique identifier for a user. This cannot be changed\",\r\n        \"type\": \"string\"\r\n      }  }\r\n}}");
+      UnitTestStatic.ShowFormAndClose(resizeForm, .2);
+    }
+
+    [TestMethod]
+    public void FormTextDisplayXMl()
+    {
+      using var resizeForm = new FormTextDisplay(
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<edmx:Edmx Version=\"4.0\" xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\">\r\n  <edmx:DataServices>  </edmx:DataServices>\r\n</edmx:Edmx>");
       UnitTestStatic.ShowFormAndClose(resizeForm, .2);
     }
 

@@ -194,6 +194,7 @@ namespace CsvTools
           {
             formProgress.Maximum = 0;
             formProgress.Show(this);
+            formProgress.ChangeFont(this.Font);
             Logger.Information("Determine file format");
             m_FileSetting = (await fileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
               m_ViewSettings.GuessCodePage,
@@ -543,7 +544,7 @@ namespace CsvTools
           using (var formProgress = new FormProgress(fileNameShort, false, cancellationToken))
           {
             formProgress.Show();
-
+            formProgress.ChangeFont(this.Font);
             await detailControl.LoadSettingAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,
               FilterTypeEnum.All, formProgress, AddWarning, formProgress.CancellationToken);
           }
@@ -687,6 +688,7 @@ namespace CsvTools
         m_SourceDisplay.Show(this);
         using var formProgress = new FormProgress("Display Source", false, m_CancellationTokenSource.Token);
         formProgress.Show(this);
+        formProgress.ChangeFont(this.Font);
         formProgress.Maximum = 0;
         formProgress.Report(new ProgressInfo("Reading source and applying color coding", 0));
         if (m_FileSetting is ICsvFile csv)

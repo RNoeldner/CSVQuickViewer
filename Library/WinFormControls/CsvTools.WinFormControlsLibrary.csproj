@@ -67,6 +67,9 @@
 		</ProjectReference>
 	</ItemGroup>
 	<ItemGroup>
+	  <Compile Update="FormTextDisplay.cs">
+	    <SubType>Form</SubType>
+	  </Compile>
 	  <Compile Update="FormCsvTextDisplay.cs" />
 	</ItemGroup>
 	<ItemGroup>
