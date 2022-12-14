@@ -92,6 +92,7 @@ namespace CsvTools
       this.RunWithHourglass(() =>
       {
         using var formProgress = new FormProgress("Building Tree", false, m_CancellationTokenSource.Token);
+        formProgress.ChangeFont(this.Font);
         formProgress.Show(this);
         formProgress.Maximum = m_DataRow.GetLength(0) * 2;
 
@@ -123,7 +124,8 @@ namespace CsvTools
     /// <param name="root">The root.</param>
     /// <param name="rootNode">The root node.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    private void AddTreeDataNodeWithChild(in TreeData root, in TreeNode? rootNode, in CancellationToken cancellationToken)
+    private void AddTreeDataNodeWithChild(in TreeData root, in TreeNode? rootNode,
+      in CancellationToken cancellationToken)
     {
       root.Visited = true;
       var treeNode = new TreeNode(root.NodeTitle) { Tag = root };
@@ -168,7 +170,7 @@ namespace CsvTools
     ///   Builds the tree data.
     /// </summary>
     private void BuildTreeData(in string parentCol, in string idCol, in string? display1, in string? display2,
-                               IProgress<ProgressInfo> process, in CancellationToken cancellationToken)
+      IProgress<ProgressInfo> process, in CancellationToken cancellationToken)
     {
       var dataColumnParent = m_DataTable.Columns[parentCol];
       if (dataColumnParent is null)
@@ -696,8 +698,8 @@ namespace CsvTools
           if (DirectChildren <= 0)
             return Title;
           return DirectChildren == InDirectChildren
-                   ? $"{Title} - Direct {DirectChildren}"
-                   : $"{Title} - Direct {DirectChildren} - Indirect {InDirectChildren}";
+            ? $"{Title} - Direct {DirectChildren}"
+            : $"{Title} - Direct {DirectChildren} - Indirect {InDirectChildren}";
         }
       }
 
@@ -719,7 +721,7 @@ namespace CsvTools
           return 0;
 
         return root.Children.Count + root.Children.Where(child => child.Children.Count > 0)
-                                         .Sum(GetInDirectChildren);
+          .Sum(GetInDirectChildren);
       }
     }
   }

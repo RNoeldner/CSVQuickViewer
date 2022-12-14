@@ -101,11 +101,7 @@ namespace CsvTools
 
       columnCollectionInput ??= Array.Empty<Column>();
 
-      if (!fillGuessSettings.Enabled || (!fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean
-                                                                          && !fillGuessSettings.DetectDateTime
-                                                                          && !fillGuessSettings.DetectGuid
-                                                                          && !fillGuessSettings.DetectPercentage
-                                                                          && !fillGuessSettings.SerialDateTime))
+      if (!fillGuessSettings.Enabled || fillGuessSettings is { DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false, DetectPercentage: false, SerialDateTime: false })
         return (Array.Empty<string>(), new List<Column>(columnCollectionInput));
 
       if (fileReader.FieldCount == 0)
@@ -222,7 +218,7 @@ namespace CsvTools
           //else
           //{
           Logger.Information(
-            "{column} – {values} values found in {records} row. Examining format",
+            "{column} – {values} values found in {records} row.",
             readerColumn.Name,
             samples.Values.Count(),
             samples.RecordsRead);
@@ -595,8 +591,6 @@ namespace CsvTools
       if (fileReader.IsClosed)
         await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
-      Logger.Debug("Getting sample values for {columns} columns", samples.Count);
-
       var hasWarning = false;
       var remainingShows = 10;
 
@@ -613,16 +607,16 @@ namespace CsvTools
       }
 
       fileReader.Warning += WarningEvent;
+      var action = new IntervalAction(2);
+      action.Invoke(() =>
+        Logger.Information("Getting sample values"));
 
       var recordRead = 0;
       try
       {
         // could already be at EOF need to reset
-        if (fileReader.EndOfFile && fileReader.SupportsReset)
-        {
-          Logger.Debug("Resetting position to the beginning");
+        if (fileReader is { EndOfFile: true, SupportsReset: true })
           fileReader.ResetPositionToFirstDataRow();
-        }
 
         // Ready to start store the record number we are currently at, we could be in the middle of
         // the file already
@@ -631,6 +625,7 @@ namespace CsvTools
         var maxSamples = 2000;
         if (maxSamples < enoughSamples)
           maxSamples = enoughSamples;
+        var startPercent = fileReader.Percent;
 
         var enough = new List<int>();
         // Get distinct sample values until we have
@@ -640,6 +635,9 @@ namespace CsvTools
         while (recordRead < maxRecords && !cancellationToken.IsCancellationRequested
                                        && samples.Keys.Count > enough.Count)
         {
+          action.Invoke(() =>
+            Logger.Information(
+              $"Getting sample values {(fileReader.Percent < startPercent ? 100 - startPercent + fileReader.Percent : fileReader.Percent - startPercent)}%"));
           // if at the end start from the beginning
           if (!await fileReader.ReadAsync(cancellationToken).ConfigureAwait(false) && fileReader.EndOfFile)
           {
@@ -1106,11 +1104,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(fillGuessSettings));
 
       // Check if we are supposed to check something
-      if (!fillGuessSettings.Enabled || (!fillGuessSettings.DetectNumbers && !fillGuessSettings.DetectBoolean
-                                                                          && !fillGuessSettings.DetectDateTime
-                                                                          && !fillGuessSettings.DetectGuid
-                                                                          && !fillGuessSettings.DetectPercentage
-                                                                          && !fillGuessSettings.SerialDateTime))
+      if (!fillGuessSettings.Enabled || fillGuessSettings is { DetectNumbers: false, DetectBoolean: false, DetectDateTime: false, DetectGuid: false, DetectPercentage: false, SerialDateTime: false })
         return (new List<string>(), fileSetting.ColumnCollection);
 
       // in case there is no delimiter but its a delimited file, do nothing
@@ -1146,7 +1140,7 @@ namespace CsvTools
       // Make sure that if we do have a CSV file without header that we will skip the first row that
       // might contain headers, but its simply set as without headers.
       if (!(fileSettingCopy is CsvFile csv)) return fileSettingCopy;
-      if (!csv.HasFieldHeader && csv.SkipRows == 0)
+      if (csv is { HasFieldHeader: false, SkipRows: 0 })
         csv.SkipRows = 1;
       // turn off all warnings as they will cause GetSampleValues to ignore the row
       csv.TryToSolveMoreColumns = false;

@@ -424,7 +424,8 @@ namespace CsvTools
               return;
 
             var cell = row.Cells[viewColumn.Index];
-            if (cell.FormattedValue?.ToString().IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) == -1)
+            if (cell.FormattedValue?.ToString()?.IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) ==
+                -1)
               continue;
 
             found.Add(cell);
@@ -765,7 +766,7 @@ namespace CsvTools
       try
       {
         formProgress.Show(ParentForm);
-
+        formProgress.ChangeFont(this.Font);
         BeforeFileStored?.Invoke(this, WriteSetting);
         var writer = new CsvFileWriter(FileSetting?.ID ?? string.Empty, fileName, WriteSetting.HasFieldHeader,
           WriteSetting.ValueFormatWrite,

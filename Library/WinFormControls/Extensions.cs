@@ -82,6 +82,8 @@ namespace CsvTools
         return null;
       var formProgress = new FormProgress(fileSetting.ToString(), withLogger, cancellationToken);
       formProgress.Show(owner);
+      if (owner != null)
+        formProgress.ChangeFont(owner.Font);
       return formProgress;
     }
 
@@ -204,7 +206,6 @@ namespace CsvTools
             runThread.Join(timeoutMilliseconds);
           else
             runThread.Join();
-
         }
       }
       catch (Exception e)
@@ -387,7 +388,8 @@ namespace CsvTools
 
     public static void SetClipboard(this string text) => RunStaThread(() => Clipboard.SetText(text));
 
-    public static void SetEnumDataSource<T>(this ComboBox cbo, T currentValue, IReadOnlyCollection<T>? doNotShow = null) where T : Enum
+    public static void SetEnumDataSource<T>(this ComboBox cbo, T currentValue, IReadOnlyCollection<T>? doNotShow = null)
+      where T : Enum
     {
       cbo.SuspendLayout();
       var descConv = new EnumDescriptionConverter(typeof(T));

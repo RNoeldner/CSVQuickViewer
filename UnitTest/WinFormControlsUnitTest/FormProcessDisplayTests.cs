@@ -81,18 +81,18 @@ namespace CsvTools.Tests
       }
 
       // NoLog
-      using (var frm = new FormProgress("Test", false, UnitTestStatic.Token))
+      using (var formProgress = new FormProgress("Test", false, UnitTestStatic.Token))
       {
-        frm.ShowInTaskbar = false;
-        frm.Show();
-        frm.Maximum = 100;
-        for (var c = 0; c < 102 && !frm.CancellationToken.IsCancellationRequested; c += 4)
+        formProgress.ShowInTaskbar = false;
+        formProgress.Show();
+        formProgress.Maximum = 100;
+        for (var c = 0; c < 102 && !formProgress.CancellationToken.IsCancellationRequested; c += 4)
         {
-          frm.Report(new ProgressInfo($"This is a text\nLine {c}", c));
-          UnitTestStatic.WaitSomeTime(.1, frm.CancellationToken);
+          formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
+          UnitTestStatic.WaitSomeTime(.1, formProgress.CancellationToken);
         }
 
-        frm.Close();
+        formProgress.Close();
       }
     }
 
