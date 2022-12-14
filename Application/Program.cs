@@ -53,6 +53,7 @@ namespace CsvTools
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
       WinAppLogging.Init();
+      // ReSharper disable once CoVariantArrayConversion
       Logger.Debug("Application started {@args}", args);
 
       // read the command line parameter

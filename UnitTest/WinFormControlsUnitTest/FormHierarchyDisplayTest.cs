@@ -34,8 +34,8 @@ namespace CsvTools.Tests
 
       var firedAfter = false;
       var firedBefore = false;
-      treeView.AfterSelect += (s, args) => { firedAfter = true; };
-      treeView.BeforeSelect += (s, args) => { firedBefore = true; };
+      treeView.AfterSelect += (_, _) => { firedAfter = true; };
+      treeView.BeforeSelect += (_, _) => { firedBefore = true; };
 
       UnitTestStatic.ShowControl(treeView, .2, (theTreeView) =>
       {
@@ -85,8 +85,8 @@ namespace CsvTools.Tests
 
       var firedAfter = false;
       var firedBefore = false;
-      treeView.AfterSelect += (s, args) => { firedAfter = true; };
-      treeView.BeforeSelect += (s, args) => { firedBefore = true; };
+      treeView.AfterSelect += (_, _) => { firedAfter = true; };
+      treeView.BeforeSelect += (_, _) => { firedBefore = true; };
 
       UnitTestStatic.ShowControl(treeView, .2, (theTreeView) =>
       {
@@ -148,11 +148,11 @@ namespace CsvTools.Tests
         cvsSetting.WarnUnknownCharacter,
         cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull,
         cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows,
-        cvsSetting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        cvsSetting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       var dt = await csvDataReader.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
         true, false, false, false, null, formProgress.CancellationToken);
 
-      using var form = new FormHierarchyDisplay(dt!, dataTable.Select(), HtmlStyle.Default);
+      using var form = new FormHierarchyDisplay(dt, dataTable.Select(), HtmlStyle.Default);
       UnitTestStatic.ShowFormAndClose(form, .1, (frm) =>
       {
         if (!(frm is { } hd))

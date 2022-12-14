@@ -83,7 +83,7 @@ namespace CsvTools
     public virtual IFileSettingPhysicalFile PhysicalFile()
     {
       if (IsJson)
-        return new JsonFile(string.Empty, FileName,"") { IdentifierInContainer = IdentifierInContainer };
+        return new JsonFile(string.Empty, FileName) { IdentifierInContainer = IdentifierInContainer };
 
       return new CsvFile(id: string.Empty, fileName: FileName)
       {

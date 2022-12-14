@@ -366,7 +366,9 @@ namespace CsvTools
              && Overwrite == other.Overwrite;
     }
 
+#pragma warning disable CS0659
     public override bool Equals(object? obj) =>
+#pragma warning restore CS0659
       ReferenceEquals(this, obj) || obj is ValueFormatMut other && Equals(other);
 
     /// <summary>
