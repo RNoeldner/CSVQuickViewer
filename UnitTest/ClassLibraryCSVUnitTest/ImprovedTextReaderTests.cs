@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+// ReSharper disable PossibleNullReferenceException
 
 namespace CsvTools.Tests
 {
@@ -90,13 +91,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task ImprovedTextReaderTestNonSeekUTF8_ReadLineAsync()
     {
-      /// Some streams like the response stream form a web request may not be seekable      
+      
       var nonSeekableStream = new NonSeekableStream(FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8.txt")));
       using var impStream = new ImprovedStream(new SourceAccess(nonSeekableStream));
       using var test = new ImprovedTextReader(impStream);
 
       using var fs = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8.txt"));
       using var sr = new StreamReader(fs, Encoding.UTF8, true, 4096, true);
+      // ReSharper disable once MethodHasAsyncOverload
       Assert.AreEqual(sr.ReadLine(), await test.ReadLineAsync());
 
     }
@@ -116,7 +118,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ImprovedTextReaderTestNonSeekUTF8_Read()
     {
-      /// Some streams like the response stream form a web request may not be seekable
+      // Some streams like the response stream form a web request may not be seekable
       var nonSeekableStream = new NonSeekableStream(FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8.txt")));
       using var impStream = new ImprovedStream(new SourceAccess(nonSeekableStream));
       using var test = new ImprovedTextReader(impStream);
@@ -130,7 +132,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ImprovedTextReaderTestNonSeekUTF8NoBOM_Read()
     {
-      /// Some streams like the response stream form a web request may not be seekable
+      // Some streams like the response stream form a web request may not be seekable
       var nonSeekableStream = new NonSeekableStream(FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8NoBOM.txt")));
       using var impStream = new ImprovedStream(new SourceAccess(nonSeekableStream));
       using var test = new ImprovedTextReader(impStream);

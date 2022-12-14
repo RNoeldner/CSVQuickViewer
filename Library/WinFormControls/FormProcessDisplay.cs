@@ -382,7 +382,9 @@ namespace CsvTools
     }
 
 
+#pragma warning disable CS8633
     public IDisposable BeginScope<TState>(TState state) => default!;
+#pragma warning restore CS8633
 
     public bool IsEnabled(LogLevel logLevel) => logLevel >= LogLevel.Information;
 

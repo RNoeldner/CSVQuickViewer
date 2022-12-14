@@ -24,7 +24,7 @@ namespace CsvTools
       if (m_FontConfig != null)
       {
         m_FontConfig.PropertyChanged += FontSettingChanged;
-        Load += (sender, args) => FontSettingChanged(sender, new PropertyChangedEventArgs(nameof(IFontConfig.Font)));
+        Load += (sender, _) => FontSettingChanged(sender, new PropertyChangedEventArgs(nameof(IFontConfig.Font)));
       }
     }
 

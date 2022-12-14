@@ -54,7 +54,7 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(3000)]
-    public async System.Threading.Tasks.Task DetailControlTestAsync()
+    public async Task DetailControlTestAsync()
     {
       using var dt = new DataTable();
       dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
@@ -85,7 +85,7 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(3000)]
-    public async System.Threading.Tasks.Task SortTestAsync()
+    public async Task SortTestAsync()
     {
       using var dt = new DataTable();
       dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });

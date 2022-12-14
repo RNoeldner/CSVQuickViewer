@@ -14,7 +14,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -141,7 +140,7 @@ namespace CsvTools.Tests
       formProgress.Show();
       var state1 = new WindowState(10, 10, formProgress.Width, formProgress.Height, FormWindowState.Normal, 27, "Test");
       var result1 = -1;
-      formProgress.LoadWindowState(state1, val => { result1 = val; }, val => { });
+      formProgress.LoadWindowState(state1, val => { result1 = val; }, _ => { });
 
       var state2 = formProgress.StoreWindowState(result1, "World");
       // Assert.AreEqual(state1.CustomText, state2.CustomText);

@@ -38,7 +38,7 @@ namespace CsvTools.Tests
       var vs = new ViewSettings { DisplayRecordNo = true, MenuDown = true };
       using var frm = new FormMain(vs);
       UnitTestStatic.ShowFormAndClose(frm, 0,
-        frm => frm.LoadCsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"), UnitTestStatic.Token),
+        frm2 => frm2.LoadCsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"), UnitTestStatic.Token),
         UnitTestStatic.Token);
       Assert.IsNotNull(frm.DataTable);
       Assert.AreEqual(7, frm.DataTable.Rows.Count);

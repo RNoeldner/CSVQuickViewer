@@ -46,7 +46,9 @@ namespace CsvTools
     private bool m_DateParts;
 
 
-    public static FillGuessSettings Default = new FillGuessSettings(true);
+#pragma warning disable CS0618
+    public static FillGuessSettings Default = new FillGuessSettings();
+#pragma warning restore CS0618
 
 #if XmlSerialization
     [Obsolete("Used for XML Serialization")]
