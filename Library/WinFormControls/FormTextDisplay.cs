@@ -15,6 +15,7 @@
 #nullable enable
 using Newtonsoft.Json;
 using System;
+using System.ComponentModel;
 using System.Text;
 using System.Xml;
 
@@ -26,13 +27,14 @@ namespace CsvTools
   public partial class FormTextDisplay : ResizeForm
   {
     private ISyntaxHighlighter? m_HighLighter;
-    private readonly string m_Source;
     private Language m_CurrentLang;
 
     private enum Language
     {
-      None, Text, Json, Xml, HTML
+      Text, Json, Xml, HTML
     }
+
+    [Browsable(false)] [Bindable(false)] public string CurrentText => textBox.Text;
 
     private void HandleText(in Language newLang)
     {
@@ -43,47 +45,47 @@ namespace CsvTools
       {
         m_CurrentLang = newLang;
         webBrowser.Visible = newLang == Language.HTML;
-        textBox.Visible = !webBrowser.Visible;
+        textBox.Visible = newLang == Language.Text;
+        fastColoredTextBoxRO.Visible = (newLang == Language.Json || newLang == Language.Xml);
         switch (newLang)
         {
           case Language.HTML:
           {
-            webBrowser.DocumentText = m_Source.Trim('\"', '\'', ' ');
+            webBrowser.DocumentText = textBox.Text.Trim('\"', '\'', ' ');
             radioButton4.Checked = true;
             break;
           }
           case Language.Xml:
           {
             XmlDocument doc = new();
-            doc.LoadXml(m_Source.Trim('\"', '\'', ' '));
+            doc.LoadXml(textBox.Text.Trim('\"', '\'', ' '));
 
             var settings = new XmlWriterSettings { Indent = true, NewLineOnAttributes = true };
             var stringBuilder = new StringBuilder();
             using var xmlWriter = XmlWriter.Create(stringBuilder, settings);
             doc.Save(xmlWriter);
-            textBox.Text = stringBuilder.ToString();
+            fastColoredTextBoxRO.Text = stringBuilder.ToString();
             radioButton3.Checked = true;
             break;
           }
           case Language.Json:
           {
-            m_HighLighter ??= new SyntaxHighlighterJson(textBox);
-            var t = JsonConvert.DeserializeObject<object>(m_Source.Trim('\"', '\''));
-            textBox.Text = JsonConvert.SerializeObject(t, Newtonsoft.Json.Formatting.Indented);
+            m_HighLighter ??= new SyntaxHighlighterJson(fastColoredTextBoxRO);
+            var t = JsonConvert.DeserializeObject<object>(textBox.Text.Trim('\"', '\''));
+            fastColoredTextBoxRO.Text = JsonConvert.SerializeObject(t, Newtonsoft.Json.Formatting.Indented);
             radioButton2.Checked = true;
             break;
           }
           case Language.Text:
           default:
             radioButton1.Checked = true;
-            textBox.Text = m_Source;
             break;
         }
       }
       catch (Exception exception)
       {
         textBox.Text =
-          $"Error trying to parse {newLang}: {exception.Message}\n\n{m_Source.Substring(0, Math.Min(m_Source.Length - 1, 400))}";
+          $"Error trying to parse {newLang}: {exception.Message}\n\n{textBox.Text.Substring(0, Math.Min(textBox.Text.Length - 1, 400))}";
         m_CurrentLang = Language.Text;
       }
     }
@@ -94,30 +96,24 @@ namespace CsvTools
     public FormTextDisplay(in string display)
     {
       InitializeComponent();
-      m_Source = display;
+      textBox.Text = display;
     }
 
     private void HighlightVisibleRange()
     {
       try
       {
-        //expand visible range (+- margin)
         var startLine = Math.Max(0, textBox.VisibleRange.Start.iLine - 20);
         var endLine = Math.Min(textBox.LinesCount - 1, textBox.VisibleRange.End.iLine + 20);
-        var range = new FastColoredTextBoxNS.Range(textBox, 0, startLine, 0, endLine);
-        switch (m_CurrentLang)
-        {
-          case Language.Xml:
-            textBox.SyntaxHighlighter.XMLSyntaxHighlight(textBox.Range);
-            break;
-          case Language.Json:
-            m_HighLighter?.Highlight(range);
-            break;
-        }
+        var range = new FastColoredTextBoxNS.Range(fastColoredTextBoxRO, 0, startLine, 0, endLine);
+        // ReSharper disable once ConvertIfStatementToSwitchStatement
+        if (m_CurrentLang == Language.Xml)
+          textBox.SyntaxHighlighter.XMLSyntaxHighlight(range);
+        else if (m_CurrentLang == Language.Json) m_HighLighter?.Highlight(range);
       }
-      catch (Exception ex)
+      catch
       {
-        Logger.Warning(ex, "FormCsvTextDisplay.HighlightVisibleRange");
+        // ignored
       }
     }
 
@@ -152,7 +148,7 @@ namespace CsvTools
 
     private void FormTextDisplay_Shown(object sender, EventArgs e)
     {
-      var check = m_Source.Substring(0, Math.Min(m_Source.Length - 1, 50)).TrimStart('"', '\'')
+      var check = textBox.Text.Substring(0, Math.Min(textBox.Text.Length - 1, 50)).TrimStart('"', '\'')
         .Replace(" ", "")
         .Replace("\r", "")
         .Replace("\n", "");
@@ -164,8 +160,6 @@ namespace CsvTools
         HandleText(Language.HTML);
       else if (check.StartsWith("{\"", StringComparison.OrdinalIgnoreCase))
         HandleText(Language.Json);
-      else
-        HandleText(Language.Text);
     }
   }
 }

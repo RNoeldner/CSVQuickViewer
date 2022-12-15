@@ -34,8 +34,8 @@ namespace CsvTools.Tests
 
       var firedAfter = false;
       var firedBefore = false;
-      treeView.AfterSelect += (_, _) => { firedAfter = true; };
-      treeView.BeforeSelect += (_, _) => { firedBefore = true; };
+      treeView.AfterSelect += (o, a) => { firedAfter = true; };
+      treeView.BeforeSelect += (o, a) => { firedBefore = true; };
 
       UnitTestStatic.ShowControl(treeView, .2, (theTreeView) =>
       {
@@ -85,8 +85,8 @@ namespace CsvTools.Tests
 
       var firedAfter = false;
       var firedBefore = false;
-      treeView.AfterSelect += (_, _) => { firedAfter = true; };
-      treeView.BeforeSelect += (_, _) => { firedBefore = true; };
+      treeView.AfterSelect += (o, a) => { firedAfter = true; };
+      treeView.BeforeSelect += (o, a) => { firedBefore = true; };
 
       UnitTestStatic.ShowControl(treeView, .2, (theTreeView) =>
       {

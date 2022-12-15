@@ -17,6 +17,9 @@ using System;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Buffers;
 
 namespace CsvTools
 {
@@ -27,22 +30,17 @@ namespace CsvTools
   {
     private int m_CodePage;
     private readonly string m_FullPath;
-    private readonly bool m_IsFile;
     private ISyntaxHighlighter? m_HighLighter;
-    private MemoryStream? m_MemoryStream;
     private int m_SkipLines;
-    private Stream? m_Stream;
-
 
     /// <summary>
     ///   CTOR CsvTextDisplay
     /// </summary>
-    public FormCsvTextDisplay(in string fullPath, bool isFile)
+    public FormCsvTextDisplay(in string fullPath)
     {
       m_FullPath = fullPath ?? throw new ArgumentNullException(nameof(fullPath));
       InitializeComponent();
-      m_IsFile = isFile;
-      base.Text = m_IsFile ? FileSystemUtils.GetShortDisplayFileName(m_FullPath) : string.Empty;
+      base.Text = FileSystemUtils.GetShortDisplayFileName(m_FullPath);
     }
 
     private void HighlightVisibleRange()
@@ -63,65 +61,79 @@ namespace CsvTools
       }
     }
 
-    private void OriginalStream()
+    private async Task<StringBuilder> SourceText(IProgress<ProgressInfo> formProgress,
+      CancellationToken cancellationToken)
     {
-      m_MemoryStream?.Dispose();
-      m_MemoryStream = null;
-      if (m_IsFile)
+      formProgress.Report(new ProgressInfo("Opening source"));
+      var sa = new SourceAccess(m_FullPath);
+#if NET5_0_OR_GREATER
+      await
+#endif
+        using var stream = new ImprovedStream(sa);
+      using var textReader = new StreamReader(stream, Encoding.GetEncoding(m_CodePage), true, 4096, false);
       {
-        var sa = new SourceAccess(m_FullPath);
-        if (sa.FileType == FileTypeEnum.Zip || sa.FileType == FileTypeEnum.Pgp)
+        formProgress.Report(new ProgressInfo("Reading source"));
+        formProgress.SetMaximum(1000);
+        var sb = new StringBuilder();
+        char[] buffer = ArrayPool<char>.Shared.Rent(32000);
+        int len;
+        while ((len = await textReader.ReadBlockAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) != 0)
         {
-          m_Stream = new ImprovedStream(sa);
-          var encoding = Encoding.GetEncoding(m_CodePage);
-          using var textReader = new StreamReader(m_Stream, encoding, true, 4096, true);
-          textBox.Text = textReader.ReadToEnd();
+          cancellationToken.ThrowIfCancellationRequested();
+          sb.Append(buffer, 0, len);
+          formProgress.Report(new ProgressInfo($"Reading source {sb.Length:N0}",
+            // ReSharper disable once AccessToDisposedClosure
+            Convert.ToInt64(stream.Percentage * 1000)));
         }
-        else if (sa.FileType == FileTypeEnum.Plain)
-        {
-          textBox.OpenFile(m_FullPath, Encoding.GetEncoding(m_CodePage));
-        }
-      }
 
-      HighlightVisibleRange();
-      prettyPrintJsonToolStripMenuItem.Checked = false;
-      originalFileToolStripMenuItem.Checked = true;
+        formProgress.Report(new ProgressInfo($"Finished reading"));
+        formProgress.SetMaximum(0);
+        return sb;
+      }
     }
 
-    private void PrettyPrintStream()
+    private async Task OriginalStream(CancellationToken cancellationToken)
     {
-      if (m_Stream is null)
-        return;
-      try
+      await textBox.RunWithHourglassAsync(async () =>
       {
-        m_Stream.Seek(0, SeekOrigin.Begin);
-        m_MemoryStream?.Dispose();
-        m_MemoryStream = new MemoryStream();
+        using var formProgress = new FormProgress("Display Source", false, cancellationToken);
+        formProgress.ShowWithFont(this);
+        textBox.ClearUndo();
+        textBox.Text = (await SourceText(formProgress, formProgress.CancellationToken)).ToString();
+        textBox.IsChanged = false;
+        formProgress.Maximum = 0;
+        formProgress.Report(new ProgressInfo("Applying color coding"));
+        HighlightVisibleRange();
+        prettyPrintJsonToolStripMenuItem.Checked = false;
+        originalFileToolStripMenuItem.Checked = true;
+      });
+    }
 
-        var encoding = Encoding.GetEncoding(m_CodePage);
-        using var textReader = new StreamReader(m_Stream, encoding, true, 4096, true);
-        using var stringWriter = new StreamWriter(m_MemoryStream, encoding, 4096, true);
-        var jsonReader = new JsonTextReader(textReader);
-        var jsonWriter = new JsonTextWriter(stringWriter) { Formatting = Formatting.Indented };
-        jsonWriter.WriteToken(jsonReader);
-
-        m_MemoryStream.Seek(0, SeekOrigin.Begin);
-        textBox.Text= jsonWriter.ToString();
+    private void PrettyPrintStream(CancellationToken cancellationToken)
+    {
+      textBox.RunWithHourglass(() =>
+      {
+        using var formProgress = new FormProgress("Pretty Print Source", false, cancellationToken);
+        formProgress.ShowWithFont(this);
+        formProgress.Maximum = 0;
+        formProgress.Report(new ProgressInfo("Parsing Text as Json"));
+        var t = JsonConvert.DeserializeObject<object>(textBox.Text);
+        formProgress.Report(new ProgressInfo("Indenting Json"));
+        textBox.ClearUndo();
+        textBox.Text = JsonConvert.SerializeObject(t, Formatting.Indented);
+        textBox.IsChanged = false;
+        formProgress.Report(new ProgressInfo("Applying color coding"));
         HighlightVisibleRange();
         prettyPrintJsonToolStripMenuItem.Checked = true;
         originalFileToolStripMenuItem.Checked = false;
-      }
-      catch (Exception ex)
-      {
-        this.ShowError(ex, "Pretty Print");
-      }
+      });
     }
 
     /// <summary>
     ///   CSV File to display
     /// </summary>
-    public void OpenFile(bool json, string qualifier, string delimiter, string escape, int codePage, int skipLines,
-      string comment)
+    public async Task OpenFileAsync(bool json, string qualifier, string delimiter, string escape, int codePage,
+      int skipLines, string comment, CancellationToken cancellationToken)
     {
       if (m_HighLighter is IDisposable disposable)
         disposable.Dispose();
@@ -133,12 +145,6 @@ namespace CsvTools
       }
       else
         m_HighLighter = new SyntaxHighlighterDelimitedText(textBox, qualifier, delimiter, escape, comment);
-
-      if (!m_IsFile)
-      {
-        textBox.Text = m_FullPath;
-        return;
-      }
 
       if (!FileSystemUtils.FileExists(m_FullPath))
       {
@@ -152,14 +158,12 @@ The file '{m_FullPath}' does not exist.";
           m_SkipLines = !json ? skipLines : 0;
           m_CodePage = codePage;
 
-          OriginalStream();
+          await OriginalStream(cancellationToken);
         }
         catch (Exception ex)
         {
           m_HighLighter = null;
           textBox.Text = $@"Issue opening the file {m_FullPath} for display:
-
-
 {ex.Message}";
         }
       }
@@ -170,8 +174,10 @@ The file '{m_FullPath}' does not exist.";
 
     private void TextBox_VisibleRangeChangedDelayed(object? sender, EventArgs e) => HighlightVisibleRange();
 
-    private void PrettyPrintJsonToolStripMenuItem_Click(object? sender, EventArgs e) => PrettyPrintStream();
+    private void PrettyPrintJsonToolStripMenuItem_Click(object? sender, EventArgs e) =>
+      PrettyPrintStream(CancellationToken.None);
 
-    private void OriginalFileToolStripMenuItem_Click(object? sender, EventArgs e) => OriginalStream();
+    private async void OriginalFileToolStripMenuItem_Click(object? sender, EventArgs e) =>
+      await OriginalStream(CancellationToken.None);
   }
 }

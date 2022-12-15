@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -45,8 +44,6 @@ namespace CsvTools
     private bool m_RunDetection;
     private bool m_AskOpenFile = true;
     private IFileSettingPhysicalFile? m_FileSetting;
-
-    private FormCsvTextDisplay? m_SourceDisplay;
     private IList<Column>? m_StoreColumns;
     private int m_WarningCount;
     private int m_WarningMax = 100;
@@ -59,17 +56,20 @@ namespace CsvTools
       });
     }
 
+    public FormMain() : this(new ViewSettings())
+    {
+    }
+
     public FormMain(in ViewSettings viewSettings) : base(viewSettings)
     {
       m_ViewSettings = viewSettings;
       InitializeComponent();
       Text = AssemblyTitle;
 
-
       // add the not button not visible in designer to the detail control
       detailControl.AddToolStripItem(0, m_ToolStripButtonSettings);
       detailControl.AddToolStripItem(0, m_ToolStripButtonLoadFile);
-      detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonSource);
+
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
       detailControl.MenuDown = m_ViewSettings.MenuDown;
@@ -87,8 +87,10 @@ namespace CsvTools
         if (args.PropertyName == nameof(ViewSettings.MenuDown))
           ApplyViewSettings();
       };
+#pragma warning disable CA1416
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
+#pragma warning restore CA1416
       m_SettingsChangedTimerChange.AutoReset = false;
       m_SettingsChangedTimerChange.Elapsed +=
         async (sender, args) => await OpenDataReaderAsync(m_CancellationTokenSource.Token);
@@ -193,8 +195,8 @@ namespace CsvTools
           using (var formProgress = new FormProgress("Examining file", false, cancellationToken))
           {
             formProgress.Maximum = 0;
-            formProgress.Show(this);
-            formProgress.ChangeFont(this.Font);
+            formProgress.ShowWithFont(this);
+
             Logger.Information("Determine file format");
             m_FileSetting = (await fileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
               m_ViewSettings.GuessCodePage,
@@ -237,7 +239,6 @@ namespace CsvTools
           SetFileSystemWatcher(fileName);
 
           Directory.SetCurrentDirectory(m_FileSetting.RootFolder);
-
 
           await OpenDataReaderAsync(cancellationToken);
         }
@@ -522,9 +523,6 @@ namespace CsvTools
 
       try
       {
-        m_ToolStripButtonSource.Enabled = !m_FileSetting.FileName.AssumeGZip() &&
-                                          !m_FileSetting.FileName.AssumeDeflate() &&
-                                          !m_FileSetting.FileName.AssumePgp() && !m_FileSetting.FileName.AssumeZip();
         m_ToolStripButtonAsText.Enabled = true;
 
         await Extensions.InvokeWithHourglassAsync(async () =>
@@ -543,8 +541,7 @@ namespace CsvTools
 
           using (var formProgress = new FormProgress(fileNameShort, false, cancellationToken))
           {
-            formProgress.Show();
-            formProgress.ChangeFont(this.Font);
+            formProgress.ShowWithFont(this);
             await detailControl.LoadSettingAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,
               FilterTypeEnum.All, formProgress, AddWarning, formProgress.CancellationToken);
           }
@@ -675,31 +672,6 @@ namespace CsvTools
       }, this);
     }
 
-    private void ShowSourceFile(object? sender, EventArgs e)
-    {
-      if (m_SourceDisplay != null) return;
-      if (m_FileSetting is null) return;
-      m_ToolStripButtonSource!.RunWithHourglass(() =>
-      {
-        m_ToolStripButtonSource.Enabled = false;
-        m_SourceDisplay = new FormCsvTextDisplay(m_FileSetting.FileName, true);
-        m_SourceDisplay.ChangeFont(Font);
-        m_SourceDisplay.FormClosed += SourceDisplayClosed;
-        m_SourceDisplay.Show(this);
-        using var formProgress = new FormProgress("Display Source", false, m_CancellationTokenSource.Token);
-        formProgress.Show(this);
-        formProgress.ChangeFont(this.Font);
-        formProgress.Maximum = 0;
-        formProgress.Report(new ProgressInfo("Reading source and applying color coding", 0));
-        if (m_FileSetting is ICsvFile csv)
-          m_SourceDisplay.OpenFile(false, csv.FieldQualifier, csv.FieldDelimiter, csv.EscapePrefix, csv.CodePageId,
-            m_FileSetting.SkipRows, csv.CommentLine);
-        else
-          m_SourceDisplay.OpenFile(m_FileSetting is IJsonFile, "", "", "", 65001, m_FileSetting.SkipRows, "");
-        formProgress.Close();
-      }, this);
-    }
-
     private void ShowTextPanel(bool visible)
     {
       try
@@ -717,12 +689,6 @@ namespace CsvTools
       }
     }
 
-    private void SourceDisplayClosed(object? sender, FormClosedEventArgs e)
-    {
-      m_SourceDisplay?.Dispose();
-      m_SourceDisplay = null;
-      m_ToolStripButtonSource.Enabled = true;
-    }
 
 #if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -810,10 +776,5 @@ namespace CsvTools
     private void ToggleShowLog(object? sender, EventArgs e) => ShowTextPanel(!textPanel.Visible);
 
     private void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) => SelectFile("Open File Dialog");
-
-    private void FormMain_Load(object sender, EventArgs e)
-    {
-      ChangeFont(new Font(m_ViewSettings.Font, m_ViewSettings.FontSize));
-    }
   }
 }

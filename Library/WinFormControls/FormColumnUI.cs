@@ -120,8 +120,8 @@ namespace CsvTools
     private async Task DisplayValues()
     {
       using var formProgress = new FormProgress("Display Values", true, m_CancellationTokenSource.Token);
-      formProgress.ChangeFont(this.Font);
-      formProgress.Show(this);
+
+      formProgress.ShowWithFont(this);
       var values = await GetSampleValuesAsync(comboBoxColumnName.Text, formProgress, formProgress.CancellationToken);
       formProgress.Hide();
       Cursor.Current = Cursors.Default;
@@ -159,8 +159,7 @@ namespace CsvTools
       await buttonGuess.RunWithHourglassAsync(async () =>
       {
         using var formProgress = new FormProgress("Guess Value", true, m_CancellationTokenSource.Token);
-        formProgress.Show();
-        formProgress.ChangeFont(this.Font);
+        formProgress.ShowWithFont(this);
         if (m_WriteSetting)
         {
           var hasRetried = false;
@@ -604,8 +603,7 @@ namespace CsvTools
       SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
 
       using var formProgress = new FormProgress("Getting column headers", false, m_CancellationTokenSource.Token);
-      formProgress.Show();
-      formProgress.ChangeFont(this.Font);
+      formProgress.ShowWithFont(this);
       formProgress.SetProcess("Getting columns from source");
       // Read the column headers if possible
       ICollection<string> allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);

@@ -702,7 +702,7 @@ namespace CsvTools
         m_DefRowHeight = row.Height;
       // in case the row is not bigger than normal check if it would need to be higher
       if (row.Height != m_DefRowHeight) return m_DefRowHeight;
-      if (checkedColumns.Any(column => row.Cells[column.Index].Value?.ToString()?.IndexOf('\n') != -1))
+      if (checkedColumns.Any(column => row.Cells[column.Index].Value?.ToString().IndexOf('\n') != -1))
         return m_DefRowHeight * 2;
 
       return m_DefRowHeight;
@@ -808,13 +808,13 @@ namespace CsvTools
     private void FilteredDataGridView_CellMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
     {
       SetToolStripMenu(e.ColumnIndex, e.RowIndex, e.Button);
-      if (e is { Button: MouseButtons.Left, RowIndex: >= 0 } && Columns[e.ColumnIndex] is DataGridViewButtonColumn)
+      if (e is { Button: MouseButtons.Left, RowIndex: >= 0 } && Columns[e.ColumnIndex] is DataGridViewButtonColumn &&
+          CurrentCell != null)
       {
-        var frm = new FormTextDisplay(CurrentCell?.Value?.ToString() ?? string.Empty);
+        using var frm = new FormTextDisplay(CurrentCell.Value?.ToString() ?? string.Empty);
         frm.Text = $"{Columns[e.ColumnIndex].DataPropertyName} - Row {e.RowIndex + 1:D}";
-        frm.Show(this.FindForm());
-        frm.ChangeFont(this.Font);
-        components?.Add(frm);
+        frm.ShowWithFont(this, true);
+        CurrentCell.Value = frm.CurrentText;
       }
     }
 
@@ -950,9 +950,14 @@ namespace CsvTools
       foreach (DataColumn col in DataView.Table.Columns)
       {
         DataGridViewColumn newColumn =
-          col.DataType == typeof(bool) ? new DataGridViewCheckBoxColumn() :
-          showAsButton.Contains(col) ? new DataGridViewButtonColumn() { Text = "Details" } :
-          new DataGridViewTextBoxColumn();
+          col.DataType == typeof(bool)
+            ? new DataGridViewCheckBoxColumn()
+            :
+            showAsButton.Contains(col)
+              ?
+              new DataGridViewButtonColumn() { Text = "Details", UseColumnTextForButtonValue = false }
+              :
+              new DataGridViewTextBoxColumn();
 
         newColumn.ValueType = col.DataType;
         newColumn.Name = col.ColumnName;
@@ -1254,8 +1259,8 @@ namespace CsvTools
       {
         using var form = new FormColumnUI(columnFormat, false, m_FileSetting, FillGuessSettings,
           false);
-        form.ChangeFont(Font);
-        if (form.ShowDialog(this) == DialogResult.Cancel)
+
+        if (form.ShowWithFont(this, true) == DialogResult.Cancel)
           return;
 
         m_FileSetting.ColumnCollection.Replace(form.UpdatedColumn);
@@ -1405,12 +1410,12 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          // ReSharper disable once UseAwaitUsing
-          using var stream = new ImprovedStream(new SourceAccess(fileName, false));
+        // ReSharper disable once UseAwaitUsing
+        using var stream = new ImprovedStream(new SourceAccess(fileName, false));
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
+        using var writer = new StreamWriter(stream, Encoding.UTF8, 1024);
         await writer.WriteAsync(GetViewStatus);
         await writer.FlushAsync();
 

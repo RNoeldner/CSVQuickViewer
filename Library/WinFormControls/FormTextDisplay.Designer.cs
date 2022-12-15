@@ -33,18 +33,15 @@ namespace CsvTools
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormTextDisplay));
       this.textBox = new FastColoredTextBoxNS.FastColoredTextBox();
       this.radioButton1 = new System.Windows.Forms.RadioButton();
       this.radioButton2 = new System.Windows.Forms.RadioButton();
       this.radioButton3 = new System.Windows.Forms.RadioButton();
       this.radioButton4 = new System.Windows.Forms.RadioButton();
-      this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-      this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
-      this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
-      this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
       this.webBrowser = new System.Windows.Forms.WebBrowser();
+      this.fastColoredTextBoxRO = new FastColoredTextBoxNS.FastColoredTextBox();
       ((System.ComponentModel.ISupportInitialize)(this.textBox)).BeginInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBoxRO)).BeginInit();
       this.SuspendLayout();
       // 
       // textBox
@@ -72,22 +69,17 @@ namespace CsvTools
       this.textBox.DelayedTextChangedInterval = 50;
       this.textBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
       this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.textBox.Font = new System.Drawing.Font("Courier New", 11.25F);
       this.textBox.IsReplaceMode = false;
       this.textBox.Location = new System.Drawing.Point(0, 0);
       this.textBox.Margin = new System.Windows.Forms.Padding(2);
       this.textBox.Name = "textBox";
       this.textBox.Paddings = new System.Windows.Forms.Padding(0);
-      this.textBox.ReadOnly = true;
       this.textBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-      this.textBox.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("textBox.ServiceColors")));
       this.textBox.ShowFoldingLines = true;
       this.textBox.Size = new System.Drawing.Size(745, 432);
       this.textBox.TabIndex = 1;
       this.textBox.WordWrap = true;
       this.textBox.Zoom = 100;
-      this.textBox.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.TextBox_TextChangedDelayed);
-      this.textBox.VisibleRangeChangedDelayed += new System.EventHandler(this.TextBox_VisibleRangeChangedDelayed);
       // 
       // radioButton1
       // 
@@ -147,26 +139,6 @@ namespace CsvTools
       this.radioButton4.UseVisualStyleBackColor = false;
       this.radioButton4.CheckedChanged += new System.EventHandler(this.radioButton4_CheckedChanged);
       // 
-      // toolStripMenuItem1
-      // 
-      this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-      this.toolStripMenuItem1.Size = new System.Drawing.Size(32, 19);
-      // 
-      // toolStripMenuItem2
-      // 
-      this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-      this.toolStripMenuItem2.Size = new System.Drawing.Size(32, 19);
-      // 
-      // toolStripMenuItem3
-      // 
-      this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-      this.toolStripMenuItem3.Size = new System.Drawing.Size(32, 19);
-      // 
-      // toolStripMenuItem4
-      // 
-      this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-      this.toolStripMenuItem4.Size = new System.Drawing.Size(32, 19);
-      // 
       // webBrowser
       // 
       this.webBrowser.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -175,6 +147,46 @@ namespace CsvTools
       this.webBrowser.Name = "webBrowser";
       this.webBrowser.Size = new System.Drawing.Size(745, 432);
       this.webBrowser.TabIndex = 6;
+      // 
+      // fastColoredTextBoxRO
+      // 
+      this.fastColoredTextBoxRO.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
+      this.fastColoredTextBoxRO.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>.+)\r\n";
+      this.fastColoredTextBoxRO.AutoScrollMinSize = new System.Drawing.Size(0, 16);
+      this.fastColoredTextBoxRO.BackBrush = null;
+      this.fastColoredTextBoxRO.CaretColor = System.Drawing.Color.Silver;
+      this.fastColoredTextBoxRO.CharHeight = 16;
+      this.fastColoredTextBoxRO.CharWidth = 9;
+      this.fastColoredTextBoxRO.CommentPrefix = "--";
+      this.fastColoredTextBoxRO.Cursor = System.Windows.Forms.Cursors.IBeam;
+      this.fastColoredTextBoxRO.DelayedEventsInterval = 50;
+      this.fastColoredTextBoxRO.DelayedTextChangedInterval = 50;
+      this.fastColoredTextBoxRO.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+      this.fastColoredTextBoxRO.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.fastColoredTextBoxRO.IsReplaceMode = false;
+      this.fastColoredTextBoxRO.Location = new System.Drawing.Point(0, 0);
+      this.fastColoredTextBoxRO.Margin = new System.Windows.Forms.Padding(2);
+      this.fastColoredTextBoxRO.Name = "fastColoredTextBoxRO";
+      this.fastColoredTextBoxRO.Paddings = new System.Windows.Forms.Padding(0);
+      this.fastColoredTextBoxRO.ReadOnly = true;
+      this.fastColoredTextBoxRO.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+      this.fastColoredTextBoxRO.ShowFoldingLines = true;
+      this.fastColoredTextBoxRO.Size = new System.Drawing.Size(745, 432);
+      this.fastColoredTextBoxRO.TabIndex = 2;
+      this.fastColoredTextBoxRO.WordWrap = true;
+      this.fastColoredTextBoxRO.Zoom = 100;
+      this.fastColoredTextBoxRO.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.TextBox_TextChangedDelayed);
+      this.fastColoredTextBoxRO.VisibleRangeChangedDelayed += new System.EventHandler(this.TextBox_VisibleRangeChangedDelayed);
       // 
       // FormTextDisplay
       // 
@@ -185,10 +197,12 @@ namespace CsvTools
       this.Controls.Add(this.radioButton1);
       this.Controls.Add(this.textBox);
       this.Controls.Add(this.webBrowser);
+      this.Controls.Add(this.fastColoredTextBoxRO);
       this.Margin = new System.Windows.Forms.Padding(2);
       this.Name = "FormTextDisplay";
       this.Shown += new System.EventHandler(this.FormTextDisplay_Shown);
       ((System.ComponentModel.ISupportInitialize)(this.textBox)).EndInit();
+      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBoxRO)).EndInit();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -200,10 +214,7 @@ namespace CsvTools
     private System.Windows.Forms.RadioButton radioButton2;
     private System.Windows.Forms.RadioButton radioButton3;
     private System.Windows.Forms.RadioButton radioButton4;
-    private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
-    private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
-    private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem3;
-    private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
     private System.Windows.Forms.WebBrowser webBrowser;
+    private FastColoredTextBoxNS.FastColoredTextBox fastColoredTextBoxRO;
   }
 }
