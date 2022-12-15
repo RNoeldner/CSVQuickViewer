@@ -21,7 +21,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class JsonFileTests
   {
-    private readonly JsonFile m_JsonFile = new("json", "", "{0}");
+    private readonly JsonFile m_JsonFile = new JsonFile("json", "", "{0}");
 
     [TestMethod]
     public void StructuredFileClone()

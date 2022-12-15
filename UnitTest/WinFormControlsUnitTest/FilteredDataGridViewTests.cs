@@ -26,7 +26,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class FilteredDataGridViewTests : IDisposable
   {
-    private readonly DataTable DataTable200 = UnitTestStatic.GetDataTable(200);
+    private readonly DataTable DataTable200 = UnitTestStaticData.GetDataTable(200);
     private bool disposedValue;
 
     [TestMethod]
@@ -56,7 +56,7 @@ namespace CsvTools.Tests
     public void ApplyFiltersTest()
     {
       using var ctrl = new FilteredDataGridView();
-      UnitTestStatic.ShowControl(ctrl, 0.5d,
+      UnitTestStaticForms.ShowControl(ctrl, 0.5d,
         (control) =>
         {
           control.DataSource = DataTable200;
@@ -75,7 +75,7 @@ namespace CsvTools.Tests
     public void Filter_Test()
     {
       using var ctrl = new FilteredDataGridView();
-      UnitTestStatic.ShowControl(ctrl, 0.5d,
+      UnitTestStaticForms.ShowControl(ctrl, 0.5d,
         (control) =>
         {
           control.DataSource = DataTable200;
@@ -92,7 +92,7 @@ namespace CsvTools.Tests
     public void FilteredDataGridView_RefreshUI()
     {
       using var ctrl = new FilteredDataGridView();
-      UnitTestStatic.ShowControl(ctrl, 0.5d,
+      UnitTestStaticForms.ShowControl(ctrl, 0.5d,
         (control) =>
         {
           control.DataSource = DataTable200;
@@ -106,7 +106,7 @@ namespace CsvTools.Tests
     public void FilteredDataGridViewShow()
     {
       using var ctrl = new FilteredDataGridView();
-      UnitTestStatic.ShowControl(ctrl, closeAfterSeconds: 0.2);
+      UnitTestStaticForms.ShowControl(ctrl, closeAfterSeconds: 0.2);
     }
 
     [TestMethod]
@@ -121,7 +121,7 @@ namespace CsvTools.Tests
     public void FilteredDataGridViewVarious_HighlightText()
     {
       using var ctrl = new FilteredDataGridView();
-      UnitTestStatic.ShowControl(ctrl, 0.5d,
+      UnitTestStaticForms.ShowControl(ctrl, 0.5d,
         (control) =>
         {
           control.DataSource = DataTable200;
@@ -135,7 +135,7 @@ namespace CsvTools.Tests
     public void FilteredDataGridViewVarious_SetFilterMenu()
     {
       using var ctrl = new FilteredDataGridView();
-      UnitTestStatic.ShowControl(ctrl, 0.5d,
+      UnitTestStaticForms.ShowControl(ctrl, 0.5d,
         (control) =>
         {
           control.DataSource = DataTable200;
@@ -153,7 +153,7 @@ namespace CsvTools.Tests
       using var filteredDataGridView = new FilteredDataGridView();
       filteredDataGridView.DataSource = DataTable200;
       filteredDataGridView.FrozenColumns = 2;
-      UnitTestStatic.WaitSomeTime(.2, UnitTestStatic.Token);
+      UnitTestStaticForms.WaitSomeTime(.2, UnitTestStatic.Token);
     }
 
     [TestMethod]
@@ -161,7 +161,7 @@ namespace CsvTools.Tests
     public void HideEmptyColumnsTest()
     {
       using var filteredDataGridView = new FilteredDataGridView();
-      var dt = UnitTestStatic.GetDataTable();
+      var dt = UnitTestStaticData.GetDataTable();
       filteredDataGridView.DataSource = dt;
       using var frm = new Form();
       frm.Controls.Add(filteredDataGridView);
@@ -182,7 +182,7 @@ namespace CsvTools.Tests
       using var filteredDataGridView = new FilteredDataGridView();
       filteredDataGridView.DataSource = DataTable200;
       filteredDataGridView.HighlightText = "ag";
-      UnitTestStatic.WaitSomeTime(.2, UnitTestStatic.Token);
+      UnitTestStaticForms.WaitSomeTime(.2, UnitTestStatic.Token);
       Assert.AreEqual("", filteredDataGridView.CurrentFilter);
     }
 
@@ -195,7 +195,7 @@ namespace CsvTools.Tests
     public void SetColumnFrozenTest()
     {
       using var ctrl = new FilteredDataGridView();
-      UnitTestStatic.ShowControl(ctrl, 0.5d,
+      UnitTestStaticForms.ShowControl(ctrl, 0.5d,
         (control) =>
         {
           control.DataSource = DataTable200;
@@ -208,7 +208,7 @@ namespace CsvTools.Tests
     public void SetRowHeightTest()
     {
       using var filteredDataGridView = new FilteredDataGridView();
-      UnitTestStatic.ShowControl(filteredDataGridView, 0.2,
+      UnitTestStaticForms.ShowControl(filteredDataGridView, 0.2,
         (control) =>
         {
           control.DataSource = DataTable200;
@@ -220,7 +220,7 @@ namespace CsvTools.Tests
     public void SetToolStripMenu()
     {
       using var ctrl = new FilteredDataGridView();
-      UnitTestStatic.ShowControl(ctrl, 0.5d,
+      UnitTestStaticForms.ShowControl(ctrl, 0.5d,
         (control) =>
         {
           control.DataSource = DataTable200;
@@ -233,7 +233,7 @@ namespace CsvTools.Tests
     public void ShowHideColumns()
     {
       using var ctrl = new FilteredDataGridView();
-      UnitTestStatic.ShowControl(ctrl, 0.5d,
+      UnitTestStaticForms.ShowControl(ctrl, 0.5d,
         (control) =>
         {
           control.DataSource = DataTable200;

@@ -14,13 +14,16 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+// ReSharper disable StringLiteralTypo
+// ReSharper disable ArrangeObjectCreationWhenTypeEvident
+#pragma warning disable IDE0090
 
 namespace CsvTools.Tests
 {
   [TestClass]
   public class ValueFormatTest
   {
-    private readonly ValueFormat m_ValueFormatGerman = new(dateFormat: "dd/MM/yyyy",
+    private readonly ValueFormat m_ValueFormatGerman = new ValueFormat(dateFormat: "dd/MM/yyyy",
       dateSeparator: ".", decimalSeparator: ",", asFalse: "Falsch", groupSeparator: ".", numberFormat: "0.##",
       timeSeparator: "-", asTrue: "Wahr");
 

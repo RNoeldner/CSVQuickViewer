@@ -30,7 +30,7 @@ namespace CsvTools.Tests
 
     static ValueClusterCollectionTests()
     {
-      m_Data = UnitTestStatic.GetDataTable(200);
+      m_Data = UnitTestStaticData.GetDataTable(200);
       m_DataView = new DataView(m_Data, null, null, DataViewRowState.CurrentRows);
     }
 

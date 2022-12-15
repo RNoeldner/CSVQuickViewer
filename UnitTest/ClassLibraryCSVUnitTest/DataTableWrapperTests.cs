@@ -9,7 +9,7 @@ namespace CsvTools.Tests
   [TestClass]
 	public class DataTableWrapperTests
 	{
-		private readonly DataTable m_DataTable = UnitTestStatic.RandomDataTable(100);
+		private readonly DataTable m_DataTable = UnitTestStaticData.RandomDataTable(100);
 
 		[TestMethod]
 		public void DataTableWrapperOpenCloseTest()

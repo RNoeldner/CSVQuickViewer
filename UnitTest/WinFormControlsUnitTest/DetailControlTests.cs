@@ -29,8 +29,8 @@ namespace CsvTools.Tests
     [Timeout(10000)]
     public async Task SearchText()
     {
-      using var dt = UnitTestStatic.RandomDataTable(1000);
-      await UnitTestStatic.ShowControlAsync(new DetailControl(), .1, async (ctrl) =>
+      using var dt = UnitTestStaticData.RandomDataTable(1000);
+      await UnitTestStaticForms.ShowControlAsync(new DetailControl(), .1, async (ctrl) =>
       {
         ctrl.DataTable = dt;
         await ctrl.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
@@ -42,9 +42,9 @@ namespace CsvTools.Tests
     [Timeout(3000)]
     public async Task FilterColumn()
     {
-      using var dt = UnitTestStatic.RandomDataTable(500);
+      using var dt = UnitTestStaticData.RandomDataTable(500);
 
-      await UnitTestStatic.ShowControlAsync(new DetailControl(), .1, async (ctrl) =>
+      await UnitTestStaticForms.ShowControlAsync(new DetailControl(), .1, async (ctrl) =>
       {
         ctrl.DataTable = dt;
         await ctrl.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);

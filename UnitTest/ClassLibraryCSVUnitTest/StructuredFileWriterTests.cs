@@ -34,13 +34,13 @@ namespace CsvTools.Tests
       readFile.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
       readFile.ColumnCollection.Add(new Column("Proficiency", new ValueFormat(DataTypeEnum.Numeric)));
       readFile.ColumnCollection.Add(new Column("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean), ignore: true));
-      UnitTestStatic.MimicSQLReader.AddSetting(readFile);
+      UnitTestStaticData.MimicSQLReader.AddSetting(readFile);
     }
 
     [TestMethod]
     public async Task StructuredFileWriterJsonEncodeTestAsync()
     {
-      UnitTestStatic.MimicSql();
+      UnitTestStaticData.MimicSql();
       var fileSetting =
         new JsonFile("Write", "StructuredFileOutputJSON.txt") { SqlStatement = cReadID, InOverview = true };
 

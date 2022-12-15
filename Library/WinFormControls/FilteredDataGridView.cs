@@ -37,8 +37,8 @@ namespace CsvTools
   /// </summary>
   public partial class FilteredDataGridView : DataGridView
   {
-    private static int m_DefRowHeight = -1;
-    private static Image? m_ImgFilterIndicator;
+    private static int _defRowHeight = -1;
+    private readonly Image m_ImgFilterIndicator;
     private readonly CancellationTokenSource m_CancellationTokenSource;
     private readonly List<ToolStripDataGridViewColumnFilter?> m_Filter;
 
@@ -637,6 +637,10 @@ namespace CsvTools
       {
         m_DisposedValue = true;
         components?.Dispose();
+        foreach (var item in m_Filter)
+          item?.Dispose();
+
+        m_ImgFilterIndicator.Dispose();
         m_CancellationTokenSource.Dispose();
       }
 
@@ -698,14 +702,14 @@ namespace CsvTools
     {
       // Actually depend on scaling, best approach is to get the initial row.Height of the very
       // first call
-      if (m_DefRowHeight == -1)
-        m_DefRowHeight = row.Height;
+      if (_defRowHeight == -1)
+        _defRowHeight = row.Height;
       // in case the row is not bigger than normal check if it would need to be higher
-      if (row.Height != m_DefRowHeight) return m_DefRowHeight;
+      if (row.Height != _defRowHeight) return _defRowHeight;
       if (checkedColumns.Any(column => row.Cells[column.Index].Value?.ToString().IndexOf('\n') != -1))
-        return m_DefRowHeight * 2;
+        return _defRowHeight * 2;
 
-      return m_DefRowHeight;
+      return _defRowHeight;
     }
 
     /// <summary>
@@ -1015,7 +1019,7 @@ namespace CsvTools
         var offset = e.CellBounds.Width - 22;
         pt.X += offset;
         pt.Y = (e.CellBounds.Height / 2) - 4;
-        e.Graphics.DrawImageUnscaled(m_ImgFilterIndicator!, pt);
+        e.Graphics.DrawImageUnscaled(m_ImgFilterIndicator, pt);
 
         e.PaintContent(e.CellBounds);
       }

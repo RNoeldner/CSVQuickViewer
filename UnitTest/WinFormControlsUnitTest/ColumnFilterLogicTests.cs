@@ -211,7 +211,7 @@ namespace CsvTools.Tests
     {
       var columnFilterLogic = new ColumnFilterLogic(typeof(long), "intCol");
 
-      using var data = UnitTestStatic.GetDataTable(200);
+      using var data = UnitTestStaticData.GetDataTable(200);
       using var dataView = new DataView(data, null, null, DataViewRowState.CurrentRows);
       columnFilterLogic.ValueClusterCollection.BuildValueClusters(dataView, typeof(long), 1);
       var i = 0;

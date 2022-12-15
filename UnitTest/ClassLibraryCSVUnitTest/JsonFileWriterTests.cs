@@ -38,8 +38,8 @@ namespace CsvTools.Tests
         true,
         new Column[]
         {
-          new("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true),
-          new("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true)
+          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true),
+          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true)
         }, TrimmingOptionEnum.All, "\t", "\"", "",
         0, false, false, "", 0,
         true, "", "", "", true,
@@ -112,7 +112,7 @@ namespace CsvTools.Tests
       var fileName = UnitTestStatic.GetTestPath("abc3.json");
       FileSystemUtils.FileDelete(fileName);
 
-      using var dt = UnitTestStatic.GetDataTable(100, false);
+      using var dt = UnitTestStaticData.GetDataTable(100, false);
       using var reader = new DataTableWrapper(dt);
 
       var row = StructuredFileWriter.GetJsonRow(reader.GetColumnsOfReader());

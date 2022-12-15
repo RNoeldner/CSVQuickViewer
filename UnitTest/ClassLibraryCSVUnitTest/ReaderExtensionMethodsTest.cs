@@ -23,7 +23,7 @@ namespace CsvTools.Tests
   [SuppressMessage("ReSharper", "UseAwaitUsing")]
   public class ReaderExtensionMethodsTest
   {
-    private readonly CsvFile m_ValidSetting = new(id: "csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+    private readonly CsvFile m_ValidSetting = new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
     {
       FieldDelimiter = ",", CommentLine = "#"
     };

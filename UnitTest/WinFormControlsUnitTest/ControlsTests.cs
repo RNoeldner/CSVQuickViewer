@@ -29,8 +29,8 @@ namespace CsvTools.Tests
     [Timeout(6000)]
     public void CsvTextDisplayShow()
     {
-      using var csvTextDisplay = new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt"), true);
-      UnitTestStatic.ShowFormAndClose(csvTextDisplay, .2, (frm) => frm.OpenFile(false, "\"", "\t", "", 1200, 1, "##"),
+      using var csvTextDisplay = new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt"));
+      UnitTestStaticForms.ShowFormAndClose(csvTextDisplay, .2, (frm) => frm.OpenFileAsync(false, "\"", "\t", "", 1200, 1, "##", UnitTestStatic.Token),
         UnitTestStatic.Token);
     }
 
@@ -75,7 +75,7 @@ namespace CsvTools.Tests
         tm.Html = stringBuilder.ToString();
 
         tm.Size = new Size(600, 450);
-        UnitTestStatic.ShowFormAndClose(tm, 2);
+        UnitTestStaticForms.ShowFormAndClose(tm, 2);
       });
     }
 
@@ -90,7 +90,7 @@ namespace CsvTools.Tests
                      "DMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n\nNote: Text has been cut off after 15 characters";
 
         tm.Size = new Size(600, 450);
-        UnitTestStatic.ShowFormAndClose(tm, 2);
+        UnitTestStaticForms.ShowFormAndClose(tm, 2);
       });
     }
 
@@ -99,7 +99,7 @@ namespace CsvTools.Tests
     public void ResizeForm()
     {
       using var resizeForm = new ResizeForm();
-      UnitTestStatic.ShowFormAndClose(resizeForm, .2);
+      UnitTestStaticForms.ShowFormAndClose(resizeForm, .2);
     }
 
     [TestMethod]
@@ -107,7 +107,7 @@ namespace CsvTools.Tests
     public void FormTextDisplay()
     {
       using var resizeForm = new FormTextDisplay("This is a test text\nSpanning some\nlines ...");
-      UnitTestStatic.ShowFormAndClose(resizeForm, .2);
+      UnitTestStaticForms.ShowFormAndClose(resizeForm, .2);
     }
 
     [TestMethod]
@@ -115,7 +115,7 @@ namespace CsvTools.Tests
     {
       using var resizeForm = new FormTextDisplay(
         "{\r\n  \"schema\": {\r\n    \"properties\": {\r\n      \"EmployeeIdentificationData_GUID\": {\r\n        \"format\": \"uuid\",\r\n        \"trim\": \"leftRight\",\r\n        \"caseSensitive\": false,\r\n        \"title\": \"GUID\",\r\n        \"description\": \"Unique identifier for a user. This cannot be changed\",\r\n        \"type\": \"string\"\r\n      }  }\r\n}}");
-      UnitTestStatic.ShowFormAndClose(resizeForm, .2);
+      UnitTestStaticForms.ShowFormAndClose(resizeForm, .2);
     }
 
     [TestMethod]
@@ -123,7 +123,7 @@ namespace CsvTools.Tests
     {
       using var resizeForm = new FormTextDisplay(
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<edmx:Edmx Version=\"4.0\" xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\">\r\n  <edmx:DataServices>  </edmx:DataServices>\r\n</edmx:Edmx>");
-      UnitTestStatic.ShowFormAndClose(resizeForm, .2);
+      UnitTestStaticForms.ShowFormAndClose(resizeForm, .2);
     }
 
     [TestMethod]
@@ -132,7 +132,7 @@ namespace CsvTools.Tests
     {
       var ctrl = new QuotingControl();
       ctrl.CsvFile = new CsvFile(id: "CSV", fileName: "");
-      UnitTestStatic.ShowControl(ctrl);
+      UnitTestStaticForms.ShowControl(ctrl);
     }
 
     [TestMethod]
@@ -140,7 +140,7 @@ namespace CsvTools.Tests
     public void QuotingControl2()
     {
       var ctrl = new QuotingControl();
-      UnitTestStatic.ShowControl(ctrl, 0.1, control => control.CsvFile = new CsvFile(id: "CSV", fileName: ""));
+      UnitTestStaticForms.ShowControl(ctrl, 0.1, control => control.CsvFile = new CsvFile(id: "CSV", fileName: ""));
     }
 
     [TestMethod]
@@ -295,55 +295,55 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(5000)]
-    public void SearchShow() => UnitTestStatic.ShowControl(new Search());
+    public void SearchShow() => UnitTestStaticForms.ShowControl(new Search());
 
     [TestMethod]
     [Timeout(4000)]
-    public void ShowSelectFont() => UnitTestStatic.ShowControl(new SelectFont());
+    public void ShowSelectFont() => UnitTestStaticForms.ShowControl(new SelectFont());
 
     [TestMethod]
     [Timeout(4000)]
-    public void ShowLoggerDisplay() => UnitTestStatic.ShowControl(new LoggerDisplay());
+    public void ShowLoggerDisplay() => UnitTestStaticForms.ShowControl(new LoggerDisplay());
 
     [TestMethod]
     [Timeout(5000)]
-    public void FillGuessSettingEditShow() => UnitTestStatic.ShowControl(new FillGuessSettingEdit());
+    public void FillGuessSettingEditShow() => UnitTestStaticForms.ShowControl(new FillGuessSettingEdit());
 
     [TestMethod]
     [Timeout(5000)]
     public void FormDuplicatesDisplay()
     {
-      using var dataTable = UnitTestStatic.GetDataTable(60);
+      using var dataTable = UnitTestStaticData.GetDataTable(60);
       using var form = new FormDuplicatesDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName,
         HtmlStyle.Default);
-      UnitTestStatic.ShowFormAndClose(form);
+      UnitTestStaticForms.ShowFormAndClose(form);
     }
 
     [TestMethod]
     [Timeout(5000)]
     public void FormUniqueDisplay()
     {
-      using var dataTable = UnitTestStatic.GetDataTable(60);
+      using var dataTable = UnitTestStaticData.GetDataTable(60);
       using var form = new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName,
         HtmlStyle.Default);
-      UnitTestStatic.ShowFormAndClose(form);
+      UnitTestStaticForms.ShowFormAndClose(form);
     }
 
     [TestMethod]
     [Timeout(3000)]
     public void FormShowMaxLength()
     {
-      using var dataTable = UnitTestStatic.GetDataTable(60);
+      using var dataTable = UnitTestStaticData.GetDataTable(60);
       using var form =
         new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), HtmlStyle.Default);
-      UnitTestStatic.ShowFormAndClose(form);
+      UnitTestStaticForms.ShowFormAndClose(form);
     }
 
     [TestMethod]
     [Timeout(5000)]
     public void DataGridViewColumnFilterControl()
     {
-      using var dataTable = UnitTestStatic.GetDataTable(60);
+      using var dataTable = UnitTestStaticData.GetDataTable(60);
       var col = new DataGridViewTextBoxColumn
       {
         ValueType = dataTable.Columns[0].DataType,
@@ -351,7 +351,7 @@ namespace CsvTools.Tests
         DataPropertyName = dataTable.Columns[0].ColumnName
       };
 
-      UnitTestStatic.ShowControl(new DataGridViewColumnFilterControl(col));
+      UnitTestStaticForms.ShowControl(new DataGridViewColumnFilterControl(col));
     }
   }
 }

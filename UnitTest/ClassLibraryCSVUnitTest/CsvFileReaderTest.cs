@@ -1202,8 +1202,8 @@ Line "Test"", "22",23,"  24"
         true,
         new Column[]
         {
-          new("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, true),
-          new("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, true)
+          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, true),
+          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true, true)
         }, TrimmingOptionEnum.All,
         "\t",
         "\"",
@@ -1302,8 +1302,8 @@ Line "Test"", "22",23,"  24"
       using var reader = new CsvFileReader(stream, Encoding.UTF8.CodePage, 0, true,
         new Column[]
         {
-          new("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, true),
-          new("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true)
+          new Column("DateTime", new ValueFormat(DataTypeEnum.DateTime), 0, true, true),
+          new Column("Integer", new ValueFormat(DataTypeEnum.Integer), 0, true)
         }, TrimmingOptionEnum.All, "\t",
         "\"",
         "",
@@ -1388,7 +1388,7 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task ProgressUpdateShowProgress()
     {
-      var setting = UnitTestStatic.ReaderGetAllFormats();
+      var setting = UnitTestStaticData.ReaderGetAllFormats();
       var progress = new MockProgress();
       var stopped = false;
       progress.ProgressStopEvent += delegate { stopped = true; };
@@ -2215,7 +2215,7 @@ Line "Test"", "22",23,"  24"
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      Assert.IsTrue(test.StartLineNumber is >= 8 and <= 9, "LineNumber");
+      Assert.IsTrue(test.StartLineNumber >= 8 && test.StartLineNumber <= 9, "LineNumber");
       //"19 , ",20,21,22,23,"
       Assert.AreEqual("19 , ", test.GetString(0));
       Assert.AreEqual("20", test.GetString(1));
@@ -2320,7 +2320,7 @@ Line "Test"", "22",23,"  24"
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
-      Assert.IsTrue(test.StartLineNumber is >= 8 and <= 9, "LineNumber");
+      Assert.IsTrue(test.StartLineNumber >= 8 && test.StartLineNumber  <= 9, "LineNumber");
 
       Assert.AreEqual("19 , ", test.GetString(0));
       Assert.AreEqual("20", test.GetString(1));

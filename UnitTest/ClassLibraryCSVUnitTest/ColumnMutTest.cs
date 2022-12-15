@@ -20,7 +20,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class ColumnMutTest
   {
-    private readonly ColumnMut m_Column = new("Dummy");
+    private readonly ColumnMut m_Column = new ColumnMut("Dummy");
 
     [TestMethod]
     public void Column_Ctor()

@@ -37,7 +37,7 @@ namespace CsvTools.Tests
     {
       var vs = new ViewSettings { DisplayRecordNo = true, MenuDown = true };
       using var frm = new FormMain(vs);
-      UnitTestStatic.ShowFormAndClose(frm, 0,
+      UnitTestStaticForms.ShowFormAndClose(frm, 0,
         frm2 => frm2.LoadCsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"), UnitTestStatic.Token),
         UnitTestStatic.Token);
       Assert.IsNotNull(frm.DataTable);
@@ -49,7 +49,7 @@ namespace CsvTools.Tests
     public void FormMain_AllFormatsPipe()
     {
       using var frmMain = new FormMain(new ViewSettings());
-      UnitTestStatic.ShowFormAndClose(frmMain, 0,
+      UnitTestStaticForms.ShowFormAndClose(frmMain, 0,
         frm => frm.LoadCsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), UnitTestStatic.Token),
         UnitTestStatic.Token);
       Assert.IsNotNull(frmMain.DataTable);

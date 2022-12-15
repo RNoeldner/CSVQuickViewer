@@ -25,7 +25,6 @@
 		<RepositoryUrl>https://github.com/RNoeldner/CSVQuickViewer</RepositoryUrl>
 		<PackageProjectUrl>https://sourceforge.net/projects/csvquickviewer</PackageProjectUrl>
 		<PackageTags>Comma-separated values;Delimited Text;CSV;TAB;Viewer</PackageTags>
-		<ReleaseVersion>1.4.6.499</ReleaseVersion>
 		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -36,37 +35,17 @@
 		<PlatformTarget>AnyCPU</PlatformTarget>
 		<DefineConstants>TRACE;Windows</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	  <NoWarn>1701;1702;CA1406</NoWarn>
-	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net472|AnyCPU'">
 	  <DebugType>none</DebugType>
-	  <NoWarn>1701;1702;CA1406</NoWarn>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net481|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	  <NoWarn>1701;1702;CA1406</NoWarn>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net481|AnyCPU'">
-	  <DebugType>none</DebugType>
-	  <NoWarn>1701;1702;CA1406</NoWarn>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0-windows|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	  <NoWarn>1701;1702;CA1406</NoWarn>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0-windows|AnyCPU'">
-	  <DebugType>none</DebugType>
-	  <NoWarn>1701;1702;CA1406</NoWarn>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-windows|AnyCPU'">
-	  <DebugType>embedded</DebugType>
-	  <NoWarn>1701;1702;CA1406</NoWarn>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-windows|AnyCPU'">
 	  <DebugType>none</DebugType>
-	  <NoWarn>1701;1702;CA1406</NoWarn>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net472|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-windows|AnyCPU'">
+	  <DebugType>embedded</DebugType>
 	</PropertyGroup>
 	<ItemGroup>
 	  <None Remove="App.config" />
@@ -78,7 +57,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 		<ProjectReference Include="..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
-		
 		<PackageReference Include="FCTB" Version="2.16.24" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net472' Or '$(TargetFramework)' == 'net481'">

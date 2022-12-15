@@ -11,7 +11,7 @@ namespace CsvTools.Tests
     {
       var csv = new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("AllFormatsPipe.txt"));
       using var frm = new FindSkipRows(csv);
-      UnitTestStatic.ShowFormAndClose(frm);
+      UnitTestStaticForms.ShowFormAndClose(frm);
     }
     
   }

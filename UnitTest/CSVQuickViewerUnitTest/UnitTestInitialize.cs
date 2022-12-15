@@ -8,7 +8,7 @@ namespace CsvTools.Tests
     [AssemblyInitialize]
     public static void AssemblyInitialize(TestContext context)
     {
-      UnitTestStatic.AssemblyInitialize(context);
+      Logger.LoggerInstance = UnitTestStatic.SetupTestContextLogger(context);
     }
   }
 }
