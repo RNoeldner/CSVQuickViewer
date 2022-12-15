@@ -69,7 +69,8 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
       await
 #endif
-        using var stream = new ImprovedStream(sa);
+      // ReSharper disable once UseAwaitUsing
+      using var stream = new ImprovedStream(sa);
       using var textReader = new StreamReader(stream, Encoding.GetEncoding(m_CodePage), true, 4096, false);
       {
         formProgress.Report(new ProgressInfo("Reading source"));
