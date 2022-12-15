@@ -23,7 +23,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class CsvFileTest
   {
-    private readonly CsvFile m_CsvFile = new(id: string.Empty, fileName: "Sample.csv");
+    private readonly CsvFile m_CsvFile = new CsvFile(id: string.Empty, fileName: "Sample.csv");
 
     [TestMethod]
     public void CalculateLatestSourceTime()

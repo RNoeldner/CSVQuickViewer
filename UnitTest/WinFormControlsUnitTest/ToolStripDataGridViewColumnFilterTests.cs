@@ -25,7 +25,7 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public void ToolStripDataGridViewColumnFilterTest()
     {
-      using (var data = UnitTestStatic.GetDataTable(200))
+      using (var data = UnitTestStaticData.GetDataTable(200))
       using (new DataView(data, null, null, DataViewRowState.CurrentRows))
       {
         var col = new DataGridViewTextBoxColumn { ValueType = typeof(int), Name = "int", DataPropertyName = "int" };

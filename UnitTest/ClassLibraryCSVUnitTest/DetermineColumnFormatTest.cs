@@ -189,7 +189,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSampleValuesAsync()
     {
-      using var dataTable = UnitTestStatic.GetDataTable(150, false);
+      using var dataTable = UnitTestStaticData.GetDataTable(150, false);
 
       using var reader = new DataTableWrapper(dataTable);
       var res = await DetermineColumnFormat
@@ -209,7 +209,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSourceColumnInformationTestAsync2()
     {
-      using var dt = UnitTestStatic.GetDataTable();
+      using var dt = UnitTestStaticData.GetDataTable();
       using var reader = new DataTableWrapper(dt);
       var fillGuessSettings = new FillGuessSettings(true, detectNumbers: true, detectDateTime: true,
         detectPercentage: true, detectBoolean: true, detectGuid: true,
@@ -531,7 +531,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GetSampleValuesAsyncTest2()
     {
-      using var dt = UnitTestStatic.GetDataTable(1000);
+      using var dt = UnitTestStaticData.GetDataTable(1000);
 
       var reader = new DataTableWrapper(dt);
       foreach (DataColumn col in dt.Columns)

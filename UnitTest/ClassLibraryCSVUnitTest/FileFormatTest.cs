@@ -19,7 +19,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class FileFormatTest
   {
-    private readonly CsvFile m_CsvFile = new("id");
+    private readonly CsvFile m_CsvFile = new CsvFile("id");
 
     [TestMethod]
     public void CloneTest()

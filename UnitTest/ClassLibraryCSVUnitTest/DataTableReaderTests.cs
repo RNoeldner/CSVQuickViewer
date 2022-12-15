@@ -8,7 +8,7 @@ namespace CsvTools.Tests
   [TestClass]
   public class DataTableReaderTests
   {
-    private readonly DataTable m_DataTable = UnitTestStatic.RandomDataTable(100);
+    private readonly DataTable m_DataTable = UnitTestStaticData.RandomDataTable(100);
 
     [TestMethod]
     public async Task GetDataTableAsyncTest1Async()

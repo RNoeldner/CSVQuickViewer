@@ -17,7 +17,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void RealignColumnTest_Combine()
     {
-      var dt = UnitTestStatic.GetDataTable(400, false);
+      var dt = UnitTestStaticData.GetDataTable(400, false);
       var test = new ReAlignColumns(dt.Columns.Count);
       Assert.IsNotNull(test);
       var values = new string[dt.Columns.Count];
@@ -59,7 +59,7 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void RealignColumnTest_RemoveEmpty()
     {
-      var dt = UnitTestStatic.GetDataTable(400, false);
+      var dt = UnitTestStaticData.GetDataTable(400, false);
       var test = new ReAlignColumns(dt.Columns.Count);
       Assert.IsNotNull(test);
       var values = new string[dt.Columns.Count];

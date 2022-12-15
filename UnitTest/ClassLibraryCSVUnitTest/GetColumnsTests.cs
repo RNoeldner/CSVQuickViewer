@@ -12,7 +12,7 @@ namespace CsvTools.Tests
     {
       try
       {
-        FunctionalDI.SqlDataReader = (_, _, _, _) =>
+        FunctionalDI.SqlDataReader = (a, b, c, d) =>
           throw new FileWriterException("SQL Reader not specified");
         await "test".GetColumnsSqlAsync(60, UnitTestStatic.Token);
 
@@ -36,12 +36,12 @@ namespace CsvTools.Tests
         HasFieldHeader = true, ByteOrderMark = true, FieldDelimiter = "\t"
       };
       setting.ColumnCollection.Add(new Column("Start Date", ValueFormat.Empty, ignore: true));
-      UnitTestStatic.MimicSQLReader.AddSetting(setting);
+      UnitTestStaticData.MimicSQLReader.AddSetting(setting);
 
-      UnitTestStatic.MimicSql();
+      UnitTestStaticData.MimicSql();
       var res = await setting.ID.GetColumnsSqlAsync(60, UnitTestStatic.Token);
       Assert.AreEqual(5, res.Count());
-      UnitTestStatic.MimicSQLReader.RemoveSetting(setting);
+      UnitTestStaticData.MimicSQLReader.RemoveSetting(setting);
     }
   }
 }

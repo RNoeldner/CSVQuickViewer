@@ -28,7 +28,7 @@ namespace CsvTools.Tests
       csvFile.ColumnCollection.Add(col);
 
       using var frm = new FormColumnUI(col, false, csvFile, FillGuessSettings.Default, false);
-      UnitTestStatic.ShowFormAndClose(frm);
+      UnitTestStaticForms.ShowFormAndClose(frm);
     }
 
     [TestMethod]
@@ -40,7 +40,7 @@ namespace CsvTools.Tests
         FormColumnUI(col, false, new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt")),
           FillGuessSettings.Default,
           true);
-      UnitTestStatic.ShowFormAndClose(frm);
+      UnitTestStaticForms.ShowFormAndClose(frm);
     }
 
     [TestMethod]
@@ -52,7 +52,7 @@ namespace CsvTools.Tests
         new ValueFormat(DataTypeEnum.DateTime, dateFormat: "dd/MM/yyyy", dateSeparator: ".", timeSeparator: ":"));
 
       using var form = new FormColumnUI(col, false, csvFile, FillGuessSettings.Default, true);
-      UnitTestStatic.ShowFormAndClose(form);
+      UnitTestStaticForms.ShowFormAndClose(form);
     }
 
 
@@ -65,7 +65,7 @@ namespace CsvTools.Tests
       csvFile.ColumnCollection.Add(col);
 
       using var form = new FormColumnUI(col, false, csvFile, FillGuessSettings.Default, true);
-      UnitTestStatic.ShowFormAndClose(form);
+      UnitTestStaticForms.ShowFormAndClose(form);
     }
 
     [TestMethod]
@@ -77,7 +77,7 @@ namespace CsvTools.Tests
       csvFile.ColumnCollection.Add(col);
 
       using var form = new FormColumnUI(col, false, csvFile, FillGuessSettings.Default, false);
-      UnitTestStatic.ShowFormAndClose(form);
+      UnitTestStaticForms.ShowFormAndClose(form);
     }
 
     [TestMethod]
@@ -89,7 +89,7 @@ namespace CsvTools.Tests
       using var frm = new FormColumnUI(col, false,
         new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt")),
         FillGuessSettings.Default, true);
-      UnitTestStatic.ShowFormAndClose(frm, .1);
+      UnitTestStaticForms.ShowFormAndClose(frm, .1);
     }
 
     [TestMethod]
@@ -102,7 +102,7 @@ namespace CsvTools.Tests
       csvFile.ColumnCollection.Add(col);
 
       using var form = new FormColumnUI(col, false, csvFile, FillGuessSettings.Default, true);
-      UnitTestStatic.ShowFormAndClose(form);
+      UnitTestStaticForms.ShowFormAndClose(form);
     }
 
     [TestMethod]
@@ -118,7 +118,7 @@ namespace CsvTools.Tests
 
       using var form = new FormColumnUI(col, false, csvFile,
         FillGuessSettings.Default, true);
-      UnitTestStatic.ShowFormAndClose(form);
+      UnitTestStaticForms.ShowFormAndClose(form);
     }
   }
 }

@@ -16,11 +16,10 @@ namespace CsvTools.Tests
       bool warningCalled = false;
       bool refreshCalled = false;
 
-      Task RefreshFunc(FilterTypeEnum filterType, CancellationToken cancellationToken) =>
-        Task.Run(() => refreshCalled = true, cancellationToken);
+      Task RefreshFunc(CancellationToken cancellationToken) => Task.CompletedTask;
 
       // ReSharper disable once UseAwaitUsing
-      using var tsde = new SteppedDataTableLoader(dt => myDataTable = dt, RefreshFunc);
+      using var tsde = new SteppedDataTableLoader();
       var csv = new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
         FieldDelimiter = ",",
@@ -28,8 +27,8 @@ namespace CsvTools.Tests
       };
 
       var proc = new Progress<ProgressInfo>();
-      await tsde.StartAsync(csv, true, true, TimeSpan.FromMilliseconds(20), FilterTypeEnum.All, proc,
-        (_, _) => { warningCalled = true; },
+      await tsde.StartAsync(csv, dt => myDataTable = dt, RefreshFunc, true, true,
+        TimeSpan.FromMilliseconds(20), proc, (o, a) => { warningCalled = true; },
         UnitTestStatic.Token);
       Assert.IsTrue(refreshCalled);
       Assert.IsFalse(warningCalled);

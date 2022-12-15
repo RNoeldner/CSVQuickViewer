@@ -37,7 +37,7 @@ namespace CsvTools.Tests
       treeView.AfterSelect += (o, a) => { firedAfter = true; };
       treeView.BeforeSelect += (o, a) => { firedBefore = true; };
 
-      UnitTestStatic.ShowControl(treeView, .2, (theTreeView) =>
+      UnitTestStaticForms.ShowControl(treeView, .2, (theTreeView) =>
       {
         theTreeView.PressKey(Keys.Control | Keys.A);
         theTreeView.PressKey(Keys.Control | Keys.C);
@@ -88,7 +88,7 @@ namespace CsvTools.Tests
       treeView.AfterSelect += (o, a) => { firedAfter = true; };
       treeView.BeforeSelect += (o, a) => { firedBefore = true; };
 
-      UnitTestStatic.ShowControl(treeView, .2, (theTreeView) =>
+      UnitTestStaticForms.ShowControl(treeView, .2, (theTreeView) =>
       {
         theTreeView.PressKey(Keys.Control | Keys.A);
         theTreeView.PressKey(Keys.Control | Keys.C);
@@ -112,10 +112,10 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public void FormHierarchyDisplay()
     {
-      using var dataTable = UnitTestStatic.GetDataTable(60);
+      using var dataTable = UnitTestStaticData.GetDataTable(60);
 
       using var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), HtmlStyle.Default);
-      UnitTestStatic.ShowFormAndClose(form, 0.1, (frm) =>
+      UnitTestStaticForms.ShowFormAndClose(form, 0.1, (frm) =>
       {
         frm.BuildTree("int", "ID");
       });
@@ -125,7 +125,7 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public async Task FormHierarchyDisplay_DataWithCycleAsync()
     {
-      using var dataTable = UnitTestStatic.GetDataTable(60);
+      using var dataTable = UnitTestStaticData.GetDataTable(60);
       // load the csvFile FileWithHierarchy
       using var formProgress = new FormProgress("FileWithHierarchy");
       formProgress.Show();
@@ -153,7 +153,7 @@ namespace CsvTools.Tests
         true, false, false, false, null, formProgress.CancellationToken);
 
       using var form = new FormHierarchyDisplay(dt, dataTable.Select(), HtmlStyle.Default);
-      UnitTestStatic.ShowFormAndClose(form, .1, (frm) =>
+      UnitTestStaticForms.ShowFormAndClose(form, .1, (frm) =>
       {
         if (!(frm is { } hd))
           return;

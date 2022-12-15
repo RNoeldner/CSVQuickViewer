@@ -65,7 +65,7 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public async System.Threading.Tasks.Task ReStoreViewSettingDetailControlAsync()
     {
-      using (var dt = UnitTestStatic.GetDataTable())
+      using (var dt = UnitTestStaticData.GetDataTable())
       {
         using (var dc = new DetailControl())
         {

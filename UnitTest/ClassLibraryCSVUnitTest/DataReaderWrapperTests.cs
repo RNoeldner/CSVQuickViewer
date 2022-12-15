@@ -25,7 +25,7 @@ namespace CsvTools.Tests
   [SuppressMessage("ReSharper", "UseAwaitUsing")]
   public class DataReaderWrapperTests
   {
-    private static readonly CsvFile m_Setting = UnitTestStatic.ReaderGetAllFormats();
+    private static readonly CsvFile m_Setting = UnitTestStaticData.ReaderGetAllFormats();
     private static readonly TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
 
     [TestMethod()]

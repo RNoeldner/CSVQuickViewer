@@ -31,7 +31,7 @@ namespace CsvTools.Tests
       {
         using var dgv = new DataGridView();
         dgv.AutoGenerateColumns = true;
-        using var dt = UnitTestStatic.GetDataTable();
+        using var dt = UnitTestStaticData.GetDataTable();
         dgv.DataSource = dt;
         using var frm = new Form();
         frm.Controls.Add(dgv);
@@ -50,7 +50,7 @@ namespace CsvTools.Tests
       {
         using var dgv = new DataGridView();
         dgv.AutoGenerateColumns = true;
-        using var dt = UnitTestStatic.GetDataTable();
+        using var dt = UnitTestStaticData.GetDataTable();
         dgv.DataSource = dt;
         using var frm = new Form();
         frm.Controls.Add(dgv);
@@ -85,7 +85,7 @@ namespace CsvTools.Tests
         using (var dgv = new DataGridView())
         {
           dgv.AutoGenerateColumns = true;
-          using (var dt = UnitTestStatic.GetDataTable())
+          using (var dt = UnitTestStaticData.GetDataTable())
           {
             dgv.DataSource = dt;
             using (var frm = new Form())
@@ -122,7 +122,7 @@ namespace CsvTools.Tests
       {
         using var dgv = new DataGridView();
         dgv.AutoGenerateColumns = true;
-        using var dt = UnitTestStatic.GetDataTable();
+        using var dt = UnitTestStaticData.GetDataTable();
         dgv.DataSource = dt;
         using var frm = new Form();
         frm.Controls.Add(dgv);

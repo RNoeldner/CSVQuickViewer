@@ -7,31 +7,18 @@
 		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<RootNamespace>CsvTools.Tests</RootNamespace>
 		<TestProjectType>UnitTest</TestProjectType>
+		<LangVersion>8.0</LangVersion>
 		<Nullable>enable</Nullable>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DefineConstants>TRACE;Windows</DefineConstants>
-		<DebugType>embedded</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DefineConstants>Windows</DefineConstants>
-		<DebugType>embedded</DebugType>
 	</PropertyGroup>
 	<ItemGroup>
 	  <Compile Remove="WinAppLoggingTests.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
-	</ItemGroup>
-	<ItemGroup>
+		<PackageReference Include="MSTest.TestAdapter" Version="3.0.0" />
 		<ProjectReference Include="..\..\..\FileValidator\Library\ClassLibraryValidator\CsvTools.ClassLibraryValidator.csproj" />
 		<ProjectReference Include="..\..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
 		<ProjectReference Include="..\UnitTestBasic\CsvTools.UnitTestBasic.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-		<Reference Include="FastColoredTextBox">
-			<HintPath>..\..\Library\DLL\FastColoredTextBox.dll</HintPath>
-		</Reference>
+		<PackageReference Include="FCTB" Version="2.16.24" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Update="TestFiles\*.txt">

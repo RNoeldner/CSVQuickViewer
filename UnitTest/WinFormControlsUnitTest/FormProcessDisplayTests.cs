@@ -29,7 +29,7 @@ namespace CsvTools.Tests
       using var formProgress = new FormProgress("Test Logger", true, UnitTestStatic.Token);
       formProgress.ShowInTaskbar = true;
       formProgress.Show();
-      UnitTestStatic.WaitSomeTime(.2, UnitTestStatic.Token);
+      UnitTestStaticForms.WaitSomeTime(.2, UnitTestStatic.Token);
       formProgress.Close();
     }
 
@@ -55,7 +55,7 @@ namespace CsvTools.Tests
         for (var c = 0; c < end && !formProgress.CancellationToken.IsCancellationRequested; c += step)
         {
           formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
-          UnitTestStatic.WaitSomeTime(wait, UnitTestStatic.Token);
+          UnitTestStaticForms.WaitSomeTime(wait, UnitTestStatic.Token);
         }
 
         // Left should be roughly .1 * 50 = 5 seconds  
@@ -74,7 +74,7 @@ namespace CsvTools.Tests
         for (var c = 0; c < 100 && !formProgress.CancellationToken.IsCancellationRequested; c += 5)
         {
           formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
-          UnitTestStatic.WaitSomeTime(.1, formProgress.CancellationToken);
+          UnitTestStaticForms.WaitSomeTime(.1, formProgress.CancellationToken);
         }
 
         formProgress.Close();
@@ -89,7 +89,7 @@ namespace CsvTools.Tests
         for (var c = 0; c < 102 && !formProgress.CancellationToken.IsCancellationRequested; c += 4)
         {
           formProgress.Report(new ProgressInfo($"This is a text\nLine {c}", c));
-          UnitTestStatic.WaitSomeTime(.1, formProgress.CancellationToken);
+          UnitTestStaticForms.WaitSomeTime(.1, formProgress.CancellationToken);
         }
 
         formProgress.Close();

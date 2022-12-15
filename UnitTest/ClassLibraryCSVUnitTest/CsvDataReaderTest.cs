@@ -31,7 +31,7 @@ namespace CsvTools.Tests
     private static readonly TimeZoneChangeDelegate m_TimeZoneAdjust = StandardTimeZoneAdjust.ChangeTimeZone;
 
     private readonly CsvFile m_ValidSetting =
-      new(id: string.Empty, fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
+      new CsvFile(id: string.Empty, fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
       {
         FieldDelimiter = ",", CommentLine = "#"
       };
@@ -71,8 +71,8 @@ namespace CsvTools.Tests
         m_ValidSetting.TreatNBSPAsSpace,
         m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines,
         m_ValidSetting.ConsecutiveEmptyRows, m_ValidSetting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
-      test.OpenFinished += (_, _) => openFinished = true;
-      test.ReadFinished += (_, _) => readFinished = true;
+      test.OpenFinished += (o, a) => openFinished = true;
+      test.ReadFinished += (o, a) => readFinished = true;
       test.OnOpenAsync = async () => await Task.FromResult(onOpenCalled = true);
       Assert.IsFalse(openFinished);
       Assert.IsFalse(readFinished);
