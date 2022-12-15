@@ -50,16 +50,13 @@ namespace CsvTools
     private bool m_UpdateVisibility = true;
     private readonly SteppedDataTableLoader m_SteppedDataTableLoader;
 
-    public async Task LoadSettingAsync(
-      IFileSetting fileSetting,
-      bool addErrorField,
-      bool restoreError,
-      TimeSpan durationInitial,
-      FilterTypeEnum filterType,
-      IProgress<ProgressInfo>? progress,
-      EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken) =>
-      await m_SteppedDataTableLoader.StartAsync(fileSetting, addErrorField, restoreError,
-        durationInitial, filterType, progress, addWarning, cancellationToken);
+    public async Task LoadSettingAsync(IFileSetting fileSetting,
+      bool addErrorField, bool restoreError, TimeSpan durationInitial, FilterTypeEnum filterType,
+      IProgress<ProgressInfo>? progress, EventHandler<WarningEventArgs>? addWarning,
+      CancellationToken cancellationToken) =>
+      await m_SteppedDataTableLoader.StartAsync(fileSetting, dataTable => DataTable = dataTable,
+        t => RefreshDisplayAsync(filterType, t), addErrorField, restoreError,
+        durationInitial, progress, addWarning, cancellationToken);
 
     /// <inheritdoc />
     /// <summary>
@@ -74,15 +71,14 @@ namespace CsvTools
       InitializeComponent();
 
       // This created a BatchLoader
-      m_SteppedDataTableLoader = new SteppedDataTableLoader(
-        dataTable => DataTable = dataTable,
-        RefreshDisplayAsync);
+      m_SteppedDataTableLoader = new SteppedDataTableLoader();
 
       m_ToolStripItems.Add(m_ToolStripComboBoxFilterType);
       m_ToolStripItems.Add(m_ToolStripButtonUniqueValues);
       m_ToolStripItems.Add(m_ToolStripButtonDuplicates);
       m_ToolStripItems.Add(m_ToolStripButtonHierarchy);
       m_ToolStripItems.Add(m_ToolStripButtonColumnLength);
+      m_ToolStripItems.Add(m_ToolStripButtonSource);
       m_ToolStripItems.Add(m_ToolStripButtonStore);
     }
 
@@ -94,6 +90,10 @@ namespace CsvTools
     ///   Gets or sets the HTML style.
     /// </summary>
     /// <value>The HTML style.</value>
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Bindable(false)]
+    [Browsable(false)]
     public HtmlStyle HtmlStyle { get => FilteredDataGridView.HtmlStyle; set => FilteredDataGridView.HtmlStyle = value; }
 
     /// <summary>
@@ -391,6 +391,7 @@ namespace CsvTools
         m_FilterDataTable?.Dispose();
         m_HierarchyDisplay?.Dispose();
         m_SteppedDataTableLoader.Dispose();
+        m_SourceDisplay?.Dispose();
       }
 
       base.Dispose(disposing);
@@ -424,7 +425,8 @@ namespace CsvTools
               return;
 
             var cell = row.Cells[viewColumn.Index];
-            if (cell.FormattedValue?.ToString()?.IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) == -1)
+            if (cell.FormattedValue?.ToString()?.IndexOf(searchText, 0, StringComparison.CurrentCultureIgnoreCase) ==
+                -1)
               continue;
 
             found.Add(cell);
@@ -478,9 +480,7 @@ namespace CsvTools
         m_FormShowMaxLength =
           new FormShowMaxLength(m_DataTable, m_DataTable.Select(FilteredDataGridView.CurrentFilter), visible,
             HtmlStyle);
-        ResizeForm.SetFonts(m_FormShowMaxLength, Font);
-        m_FormShowMaxLength.Show(ParentForm);
-
+        m_FormShowMaxLength.ShowWithFont(this);
         m_FormShowMaxLength.FormClosed += (_, _) => this.SafeInvoke(() => m_ToolStripButtonColumnLength.Enabled = true);
       }, ParentForm);
       m_ToolStripButtonColumnLength.Enabled = false;
@@ -506,8 +506,7 @@ namespace CsvTools
           m_FormDuplicatesDisplay =
             new FormDuplicatesDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
               columnName, HtmlStyle) { Icon = ParentForm?.Icon };
-          ResizeForm.SetFonts(m_FormDuplicatesDisplay, Font);
-          m_FormDuplicatesDisplay.Show(ParentForm);
+          m_FormDuplicatesDisplay.ShowWithFont(this);
           m_FormDuplicatesDisplay.FormClosed +=
             (_, _) => this.SafeInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
         }
@@ -534,8 +533,7 @@ namespace CsvTools
           m_HierarchyDisplay =
             new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
               HtmlStyle) { Icon = ParentForm?.Icon };
-          ResizeForm.SetFonts(m_HierarchyDisplay, Font);
-          m_HierarchyDisplay.Show(ParentForm);
+          m_HierarchyDisplay.ShowWithFont(this);
           m_HierarchyDisplay.FormClosed += (_, _) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
         }
         catch (Exception ex)
@@ -567,9 +565,7 @@ namespace CsvTools
             m_DataTable.Clone(),
             m_DataTable.Select(FilteredDataGridView.CurrentFilter),
             columnName, HtmlStyle);
-          ResizeForm.SetFonts(m_FormUniqueDisplay, Font);
-
-          m_FormUniqueDisplay.ShowDialog(ParentForm);
+          m_FormUniqueDisplay.ShowWithFont(this);
         }
         catch (Exception ex)
         {
@@ -684,7 +680,6 @@ namespace CsvTools
       m_Search.Visible = false;
 
       var newDt = m_DataTable;
-
       m_FilterDataTable ??= new FilterDataTable(m_DataTable);
       if (filterType != FilterTypeEnum.All)
       {
@@ -764,8 +759,7 @@ namespace CsvTools
       using var formProgress = new FormProgress(WriteSetting.ToString(), true, m_CancellationToken);
       try
       {
-        formProgress.Show(ParentForm);
-        formProgress.ChangeFont(this.Font);
+        formProgress.ShowWithFont(this);
         BeforeFileStored?.Invoke(this, WriteSetting);
         var writer = new CsvFileWriter(FileSetting?.ID ?? string.Empty, fileName, WriteSetting.HasFieldHeader,
           WriteSetting.ValueFormatWrite,
@@ -862,9 +856,12 @@ namespace CsvTools
         m_ToolStripLabelCount.Text = " loading...";
 
         using var formProgress = new FormProgress("Load more...", false, m_CancellationToken);
-        formProgress.Show();
-        formProgress.Maximum = BaseFileReader.cMaxProgress;
-        await m_SteppedDataTableLoader.GetNextBatch(GetCurrentFilter(), formProgress, formProgress.CancellationToken);
+        formProgress.ShowWithFont(this);
+        formProgress.Maximum = 100;
+
+        await m_SteppedDataTableLoader.GetNextBatch(formProgress, TimeSpan.FromSeconds(60), true,
+          dataTable => DataTable = dataTable,
+          token => RefreshDisplayAsync(GetCurrentFilter(), token), formProgress.CancellationToken);
       }, ParentForm);
     }
 
@@ -900,6 +897,7 @@ namespace CsvTools
             target.Items.Remove(item);
         }
 
+        var hasData = m_SteppedDataTableLoader.EndOfFile && (m_DataTable.Rows.Count > 0);
         foreach (var item in m_ToolStripItems)
         {
           item.DisplayStyle = (m_MenuDown)
@@ -918,14 +916,16 @@ namespace CsvTools
         m_ToolStripButtonDuplicates.Visible = m_ShowButtons;
         m_ToolStripButtonUniqueValues.Visible = m_ShowButtons;
         m_ToolStripButtonStore.Visible = m_ShowButtons && (FileSetting != null);
+        m_ToolStripButtonSource.Visible = m_ShowButtons && (FileSetting is IFileSettingPhysicalFile);
         m_ToolStripButtonHierarchy.Visible = m_ShowButtons;
 
-        var hasData = m_SteppedDataTableLoader.EndOfFile && (m_DataTable.Rows.Count > 0);
         m_ToolStripButtonUniqueValues.Enabled = hasData;
         m_ToolStripButtonDuplicates.Enabled = hasData;
         m_ToolStripButtonColumnLength.Enabled = hasData;
         m_ToolStripButtonHierarchy.Enabled = hasData;
         m_ToolStripButtonStore.Enabled = hasData;
+        m_ToolStripButtonStore.Enabled = hasData;
+
         toolStripButtonMoveLastItem.Enabled = hasData;
         FilteredDataGridView.toolStripMenuItemFilterAdd.Enabled = hasData;
 
@@ -963,6 +963,37 @@ namespace CsvTools
       if (!frm.KeyPreview)
         frm.KeyPreview = true;
       frm.KeyDown += DetailControl_KeyDown;
+      Font = frm.Font;
+    }
+
+    private FormCsvTextDisplay? m_SourceDisplay;
+
+    private void SourceDisplayClosed(object? sender, FormClosedEventArgs e)
+    {
+      m_SourceDisplay?.Dispose();
+      m_SourceDisplay = null;
+    }
+
+    private async void DisplaySource_Click(object sender, EventArgs e)
+    {
+      if (m_SourceDisplay != null) return;
+      if (FileSetting is not IFileSettingPhysicalFile phys)
+        return;
+      await m_ToolStripButtonSource.RunWithHourglassAsync(async () =>
+      {
+        m_ToolStripButtonSource.Enabled = false;
+        m_SourceDisplay = new FormCsvTextDisplay(phys.FileName);
+        m_SourceDisplay.ShowWithFont(this);
+        m_SourceDisplay.FormClosed += SourceDisplayClosed;
+
+        if (FileSetting is ICsvFile csv)
+          await m_SourceDisplay.OpenFileAsync(false, csv.FieldQualifier, csv.FieldDelimiter, csv.EscapePrefix,
+            csv.CodePageId,
+            FileSetting.SkipRows, csv.CommentLine, m_CancellationToken);
+        else
+          await m_SourceDisplay.OpenFileAsync(FileSetting is IJsonFile, "", "", "", 65001, FileSetting.SkipRows, "",
+            m_CancellationToken);
+      }, ParentForm);
     }
   }
 }

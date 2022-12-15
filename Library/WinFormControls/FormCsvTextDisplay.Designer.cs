@@ -14,15 +14,8 @@ namespace CsvTools
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
-            
       if (disposing)
       {
-        m_Stream?.Dispose();
-        m_Stream = null;
-
-        m_MemoryStream?.Dispose();
-        m_MemoryStream = null;
-
         if (m_HighLighter is IDisposable disposable)
           disposable.Dispose();
         components?.Dispose();

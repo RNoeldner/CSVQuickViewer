@@ -35,10 +35,11 @@ namespace CsvTools.Tests
       using var highlighter = new SyntaxHighlighterJson(textBox);
       textBox.TextChangedDelayed += (sender, _) =>
       {
-        if (sender is not FastColoredTextBox text)
-          return;
-        // ReSharper disable once AccessToDisposedClosure
-        highlighter.Highlight(text.Range);
+        if (sender is FastColoredTextBox text)
+        {
+          // ReSharper disable once AccessToDisposedClosure
+          highlighter.Highlight(text.Range);
+        }
       };
 
       UnitTestStatic.ShowControl(textBox, .2, (text) =>

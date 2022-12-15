@@ -53,6 +53,7 @@ namespace CsvTools
       this.m_Search = new CsvTools.Search();
       this.m_ToolStripTop = new System.Windows.Forms.ToolStrip();
       this.m_ToolStripButtonColumnLength = new System.Windows.Forms.ToolStripButton();
+      this.m_ToolStripButtonSource = new System.Windows.Forms.ToolStripButton();
       this.m_TimerVisibility = new System.Windows.Forms.Timer(this.components);
       this.searchBackgroundWorker = new System.ComponentModel.BackgroundWorker();
       ((System.ComponentModel.ISupportInitialize)(this.m_BindingNavigator)).BeginInit();
@@ -122,6 +123,7 @@ namespace CsvTools
       // m_ToolStripTextBoxPos
       // 
       this.m_ToolStripTextBoxPos.AccessibleName = "Position";
+      this.m_ToolStripTextBoxPos.Font = new System.Drawing.Font("Segoe UI", 9F);
       this.m_ToolStripTextBoxPos.Name = "m_ToolStripTextBoxPos";
       this.m_ToolStripTextBoxPos.Size = new System.Drawing.Size(50, 27);
       this.m_ToolStripTextBoxPos.Text = "0";
@@ -169,6 +171,7 @@ namespace CsvTools
       this.FilteredDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(254)));
       dataGridViewCellStyle2.ForeColor = System.Drawing.Color.Black;
       dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -298,11 +301,12 @@ namespace CsvTools
             this.m_ToolStripButtonColumnLength,
             this.m_ToolStripButtonDuplicates,
             this.m_ToolStripButtonHierarchy,
+            this.m_ToolStripButtonSource,
             this.m_ToolStripButtonStore});
       this.m_ToolStripTop.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
       this.m_ToolStripTop.Location = new System.Drawing.Point(3, 0);
       this.m_ToolStripTop.Name = "m_ToolStripTop";
-      this.m_ToolStripTop.Size = new System.Drawing.Size(587, 27);
+      this.m_ToolStripTop.Size = new System.Drawing.Size(685, 27);
       this.m_ToolStripTop.TabIndex = 1;
       // 
       // m_ToolStripButtonColumnLength
@@ -313,6 +317,16 @@ namespace CsvTools
       this.m_ToolStripButtonColumnLength.Text = "Columns";
       this.m_ToolStripButtonColumnLength.ToolTipText = "Display Schema information";
       this.m_ToolStripButtonColumnLength.Click += new System.EventHandler(this.ButtonColumnLength_Click);
+      // 
+      // m_ToolStripButtonSource
+      // 
+      this.m_ToolStripButtonSource.Image = ((System.Drawing.Image)(resources.GetObject("m_ToolStripButtonSource.Image")));
+      this.m_ToolStripButtonSource.ImageTransparentColor = System.Drawing.Color.Magenta;
+      this.m_ToolStripButtonSource.Name = "m_ToolStripButtonSource";
+
+      this.m_ToolStripButtonSource.Size = new System.Drawing.Size(67, 24);
+      this.m_ToolStripButtonSource.Text = "Source";
+      this.m_ToolStripButtonSource.Click += new System.EventHandler(this.DisplaySource_Click);
       // 
       // m_TimerVisibility
       // 
@@ -358,5 +372,6 @@ namespace CsvTools
 
     private FilteredDataGridView FilteredDataGridView;
     private BackgroundWorker searchBackgroundWorker;
+    private ToolStripButton m_ToolStripButtonSource;
   }
 }

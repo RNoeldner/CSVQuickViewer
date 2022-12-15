@@ -192,7 +192,6 @@
       this.textBox.DelayedTextChangedInterval = 50;
       this.textBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
       this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.textBox.Font = new System.Drawing.Font("Courier New", 9F);
       this.textBox.IsReplaceMode = false;
       this.textBox.Location = new System.Drawing.Point(2, 53);
       this.textBox.Margin = new System.Windows.Forms.Padding(2);

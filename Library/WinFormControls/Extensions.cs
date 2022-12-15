@@ -32,6 +32,20 @@ namespace CsvTools
   {
     public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
+    public static DialogResult ShowWithFont(this ResizeForm newForm, in Control? ctrl, bool dialog = false)
+    {
+      var parentFrm = ctrl?.FindForm();
+      if (parentFrm is ResizeForm resizeForm)
+        newForm.FontConfig = resizeForm.FontConfig;
+      else if (ctrl != null)
+        newForm.SetFont(ctrl.Font);
+      if (dialog)
+        return newForm.ShowDialog(parentFrm);
+
+      newForm.Show(parentFrm);
+      return DialogResult.None;
+    }
+
     /// <summary>
     ///   Handles a CTRL-A select all in the form.
     /// </summary>
@@ -81,9 +95,7 @@ namespace CsvTools
       if (!fileSetting.ShowProgress)
         return null;
       var formProgress = new FormProgress(fileSetting.ToString(), withLogger, cancellationToken);
-      formProgress.Show(owner);
-      if (owner != null)
-        formProgress.ChangeFont(owner.Font);
+      formProgress.ShowWithFont(owner);
       return formProgress;
     }
 

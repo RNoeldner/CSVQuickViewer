@@ -21,7 +21,6 @@ namespace CsvTools
         components?.Dispose();
         m_CancellationTokenSource?.Dispose();
         m_SettingsChangedTimerChange?.Dispose();
-        m_SourceDisplay?.Dispose();
       }
       Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
       Microsoft.Win32.SystemEvents.PowerModeChanged -= SystemEvents_PowerModeChanged;
@@ -39,7 +38,6 @@ namespace CsvTools
     {
       this.components = new System.ComponentModel.Container();
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
       System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
       this.fileSystemWatcher = new System.IO.FileSystemWatcher();
       this.loggerDisplay = new CsvTools.LoggerDisplay();
@@ -53,7 +51,6 @@ namespace CsvTools
       this.m_ToolStripButtonAsText = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonShowLog = new System.Windows.Forms.ToolStripButton();
       this.m_ToolStripButtonSettings = new System.Windows.Forms.ToolStripButton();
-      this.m_ToolStripButtonSource = new System.Windows.Forms.ToolStripButton();
       ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher)).BeginInit();
       ((System.ComponentModel.ISupportInitialize)(this.loggerDisplay)).BeginInit();
       this.toolStripLog.SuspendLayout();
@@ -95,7 +92,6 @@ namespace CsvTools
       this.loggerDisplay.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.loggerDisplay.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
       this.loggerDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.loggerDisplay.Font = new System.Drawing.Font("Courier New", 9.75F);
       this.loggerDisplay.IsReplaceMode = false;
       this.loggerDisplay.Location = new System.Drawing.Point(0, 0);
       this.loggerDisplay.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
@@ -105,7 +101,7 @@ namespace CsvTools
       this.loggerDisplay.ReadOnly = true;
       this.loggerDisplay.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
       this.loggerDisplay.ShowLineNumbers = false;
-      this.loggerDisplay.Size = new System.Drawing.Size(724, 343);
+      this.loggerDisplay.Size = new System.Drawing.Size(621, 343);
       this.loggerDisplay.TabIndex = 2;
       this.loggerDisplay.Zoom = 100;
       // 
@@ -115,19 +111,21 @@ namespace CsvTools
       this.detailControl.AlternatingRowDefaultCellStyle = dataGridViewCellStyle1;
       dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
       dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-      dataGridViewCellStyle2.Font = new System.Drawing.Font("SimSun", 10F);
+      dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(254)));
       dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
       dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
       dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
       dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
       this.detailControl.DefaultCellStyle = dataGridViewCellStyle2;
       this.detailControl.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.detailControl.FileSetting = null;
       this.detailControl.Location = new System.Drawing.Point(0, 0);
-      this.detailControl.Margin = new System.Windows.Forms.Padding(6, 4, 6, 4);
+      this.detailControl.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
       this.detailControl.MenuDown = false;
       this.detailControl.Name = "detailControl";
-      this.detailControl.Size = new System.Drawing.Size(724, 374);
+      this.detailControl.Size = new System.Drawing.Size(621, 374);
       this.detailControl.TabIndex = 1;
+      this.detailControl.WriteSetting = null;
       // 
       // toolStripLog
       // 
@@ -175,13 +173,13 @@ namespace CsvTools
       // 
       this.textPanel.ContentPanel.Controls.Add(this.loggerDisplay);
       this.textPanel.ContentPanel.Margin = new System.Windows.Forms.Padding(2);
-      this.textPanel.ContentPanel.Size = new System.Drawing.Size(724, 343);
+      this.textPanel.ContentPanel.Size = new System.Drawing.Size(621, 343);
       this.textPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.textPanel.LeftToolStripPanelVisible = false;
       this.textPanel.Location = new System.Drawing.Point(0, 0);
-      this.textPanel.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
+      this.textPanel.Margin = new System.Windows.Forms.Padding(4);
       this.textPanel.Name = "textPanel";
-      this.textPanel.Size = new System.Drawing.Size(724, 374);
+      this.textPanel.Size = new System.Drawing.Size(621, 374);
       this.textPanel.TabIndex = 6;
       this.textPanel.Text = "toolStripContainer2";
       this.textPanel.TopToolStripPanelVisible = false;
@@ -195,11 +193,10 @@ namespace CsvTools
             this.m_ToolStripButtonLoadFile,
             this.m_ToolStripButtonAsText,
             this.m_ToolStripButtonShowLog,
-            this.m_ToolStripButtonSettings,
-            this.m_ToolStripButtonSource});
+            this.m_ToolStripButtonSettings});
       this.toolStripDataGrid.Location = new System.Drawing.Point(239, 0);
       this.toolStripDataGrid.Name = "toolStripDataGrid";
-      this.toolStripDataGrid.Size = new System.Drawing.Size(143, 31);
+      this.toolStripDataGrid.Size = new System.Drawing.Size(115, 31);
       this.toolStripDataGrid.TabIndex = 3;
       this.toolStripDataGrid.Text = "toolStrip";
       // 
@@ -244,34 +241,21 @@ namespace CsvTools
       this.m_ToolStripButtonSettings.Text = "Setting";
       this.m_ToolStripButtonSettings.Click += new System.EventHandler(this.ShowSettings);
       // 
-      // m_ToolStripButtonSource
-      // 
-      this.m_ToolStripButtonSource.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-      this.m_ToolStripButtonSource.Enabled = false;
-      this.m_ToolStripButtonSource.Image = global::CsvTools.Properties.Resources.Source;
-      this.m_ToolStripButtonSource.ImageTransparentColor = System.Drawing.Color.Magenta;
-      this.m_ToolStripButtonSource.Name = "m_ToolStripButtonSource";
-      this.m_ToolStripButtonSource.Size = new System.Drawing.Size(28, 28);
-      this.m_ToolStripButtonSource.Text = "Source";
-      this.m_ToolStripButtonSource.Click += new System.EventHandler(this.ShowSourceFile);
-      // 
       // FormMain
       // 
       this.AllowDrop = true;
-      this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(724, 374);
+      this.ClientSize = new System.Drawing.Size(621, 374);
       this.Controls.Add(this.textPanel);
       this.Controls.Add(this.detailControl);
-      this.Font = new System.Drawing.Font("SimSun", 10F);
       this.HelpButton = true;
       this.KeyPreview = true;
-      this.Margin = new System.Windows.Forms.Padding(4);
-      this.MinimumSize = new System.Drawing.Size(740, 152);
+      this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+      this.MinimumSize = new System.Drawing.Size(637, 152);
       this.Name = "FormMain";
       this.Activated += new System.EventHandler(this.FormMain_Activated);
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
-      this.Load += new System.EventHandler(this.FormMain_Load);
       this.DragDrop += new System.Windows.Forms.DragEventHandler(this.FileDragDrop);
       this.DragEnter += new System.Windows.Forms.DragEventHandler(this.FileDragEnter);
       this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyUpAsync);
@@ -301,7 +285,6 @@ namespace CsvTools
     private System.Windows.Forms.ToolStripButton m_ToolStripButtonAsText;
     private System.Windows.Forms.ToolStripButton m_ToolStripButtonShowLog;
     private System.Windows.Forms.ToolStripButton m_ToolStripButtonSettings;
-    private System.Windows.Forms.ToolStripButton m_ToolStripButtonSource;
     private System.Windows.Forms.ToolStripContainer textPanel;
     private System.Windows.Forms.ToolStripButton m_ToolStripButtonLoadFile;
     private System.Windows.Forms.ToolStripButton m_ToolStripButtonLoadFile2;

@@ -123,7 +123,7 @@ namespace CsvTools
 
         using var formProgress = new FormProgress($"Processing {dataColumnName}", false, m_CancellationTokenSource.Token)
         { Maximum = m_DataRow.Length };
-        formProgress.Show(this);
+        formProgress.ShowWithFont(this);
         var intervalAction = new IntervalAction();
         for (var rowIndex = 0; rowIndex < m_DataRow.Length; rowIndex++)
         {

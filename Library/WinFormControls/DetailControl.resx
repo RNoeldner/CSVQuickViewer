@@ -259,6 +259,17 @@
         ADE5BmwDs0EEJRhkAHK0kIzhgUMuxipICsYqSDz+zwAAbOSF2LCZc1IAAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="m_ToolStripButtonSource.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEWSURBVDhPtZO9CsIwEMfzAJ0KASFrX6JQ6ODgZBEX8TUE
+        IeA7CI518B0KfYBCp66Fbg52dXB0UOTMnUn8aP1C/MHR4/7/u6Zpwv5CHMfg+z5wzikwx5qWn1NVFXie
+        h8bWQA09Km9SFAU4jkPGMAwhSRJrxBxrKiUPei/KDUIIMkgpm6JGa6C9V6IoIkG/xSKGNYjhDmbLra0H
+        QUBe3cNYmqZUwMjz3BqJ3gFMyPll2VmWWT/14g6bggqC9ze20QQf1FZXkJ96WweMjg8D9sC7d6u7Dmj7
+        BLk6PQw4wHSxJq3xCUjbJk6WJ+iMjxSY63JzEw144tTjo9+ovff8fJCQsizfHmX0qPw15jK5rkuB+UeX
+        6XsYOwPE4Pq35DfEuwAAAABJRU5ErkJggg==
+</value>
+  </data>
   <metadata name="m_TimerVisibility.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>318, 22</value>
   </metadata>
