@@ -42,13 +42,13 @@ namespace CsvTools
     {
       if (m_CurrentLang == newLang)
         return;
-
       try
       {
-        m_CurrentLang = newLang;
-        webBrowser.Visible = newLang == Language.HTML;
-        textBox.Visible = newLang == Language.Text;
+        webBrowser.Visible = (newLang == Language.HTML);
+        textBox.Visible = (newLang == Language.Text);
         fastColoredTextBoxRO.Visible = (newLang == Language.Json || newLang == Language.Xml);
+
+        m_CurrentLang = newLang;
         switch (newLang)
         {
           case Language.HTML:
@@ -85,10 +85,12 @@ namespace CsvTools
         }
       }
       catch (Exception exception)
-      {
-        textBox.Text =
-          $"Error trying to parse {newLang}: {exception.Message}\n\n{textBox.Text.Substring(0, Math.Min(textBox.Text.Length - 1, 400))}";
-        m_CurrentLang = Language.Text;
+      {                
+        fastColoredTextBoxRO.Visible=true;
+        webBrowser.Visible=false;
+        fastColoredTextBoxRO.Text =
+          $"Error trying to parse {newLang}: {exception.Message}\n\n{textBox.Text.Substring(0, Math.Min(textBox.Text.Length - 1, 400))}";                
+
       }
     }
 
