@@ -1,25 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
 	<PropertyGroup>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
 		<ImplicitUsings>disable</ImplicitUsings>
-		<LangVersion>10.0</LangVersion>
+		<LangVersion>8.0</LangVersion>
 		<Nullable>enable</Nullable>
 		<IsPackable>false</IsPackable>
 		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
+		<RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
+		<RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
+		<GenerateAssemblyInfo>False</GenerateAssemblyInfo>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-	  <DefineConstants>$(DefineConstants)TRACE;QUICK</DefineConstants>
+		<DefineConstants>$(DefineConstants)TRACE;QUICK</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	  <DefineConstants>$(DefineConstants)TRACE;QUICK</DefineConstants>
+		<DefineConstants>$(DefineConstants)TRACE;QUICK</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Include="..\UnitTestBasic\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
-	  <Compile Include="..\UnitTestBasic\UnitTestStaticData.cs" Link="UnitTestStaticData.cs" />
+		<Compile Include="..\UnitTestBasic\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
+		<Compile Include="..\UnitTestBasic\UnitTestStaticData.cs" Link="UnitTestStaticData.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -29,7 +31,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\Library\ClassLibraryCSV.Quick\CsvTools.ClassLibraryCSV.Quick.csproj" />
+		<ProjectReference Include="..\..\Library\ClassLibraryCSV.Quick\CsvTools.ClassLibraryCSV.Quick.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="TestFiles\*.*">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 </Project>

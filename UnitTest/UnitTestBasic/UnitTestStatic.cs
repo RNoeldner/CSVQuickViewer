@@ -57,7 +57,7 @@ namespace CsvTools.Tests
 #pragma warning restore CS8618
     public static string LastLogMessage => m_TestLogger.LastMessage;
 
-    public static CancellationToken Token { get; private set; } = CancellationToken.None;
+    public static CancellationToken Token { get; set; } = CancellationToken.None;
 
     public static ILogger SetupTestContextLogger(TestContext context)
     {
