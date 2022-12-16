@@ -32,21 +32,124 @@ namespace CsvTools
     /// </summary>
     private void InitializeComponent()
     {
-      this.components = new System.ComponentModel.Container();
-      this.textBox = new FastColoredTextBoxNS.FastColoredTextBox();
-      this.radioButton1 = new System.Windows.Forms.RadioButton();
-      this.radioButton2 = new System.Windows.Forms.RadioButton();
-      this.radioButton3 = new System.Windows.Forms.RadioButton();
-      this.radioButton4 = new System.Windows.Forms.RadioButton();
-      this.webBrowser = new System.Windows.Forms.WebBrowser();
-      this.fastColoredTextBoxRO = new FastColoredTextBoxNS.FastColoredTextBox();
-      ((System.ComponentModel.ISupportInitialize)(this.textBox)).BeginInit();
-      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBoxRO)).BeginInit();
-      this.SuspendLayout();
-      // 
-      // textBox
-      // 
-      this.textBox.AutoCompleteBracketsList = new char[] {
+            this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.FlowLayoutPanel flowLayoutPanelDisplay;
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormTextDisplay));
+            this.radioButtonText = new System.Windows.Forms.RadioButton();
+            this.radioButtonJson = new System.Windows.Forms.RadioButton();
+            this.radioButtonXml = new System.Windows.Forms.RadioButton();
+            this.radioButtonHtml = new System.Windows.Forms.RadioButton();
+            this.buttonSave = new System.Windows.Forms.Button();
+            this.buttonCancel = new System.Windows.Forms.Button();
+            this.textBox = new FastColoredTextBoxNS.FastColoredTextBox();
+            this.webBrowser = new System.Windows.Forms.WebBrowser();
+            this.fastColoredTextBoxRO = new FastColoredTextBoxNS.FastColoredTextBox();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            flowLayoutPanelDisplay = new System.Windows.Forms.FlowLayoutPanel();
+            flowLayoutPanelDisplay.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.textBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBoxRO)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // flowLayoutPanelDisplay
+            // 
+            flowLayoutPanelDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            flowLayoutPanelDisplay.AutoSize = true;
+            flowLayoutPanelDisplay.Controls.Add(this.radioButtonText);
+            flowLayoutPanelDisplay.Controls.Add(this.radioButtonJson);
+            flowLayoutPanelDisplay.Controls.Add(this.radioButtonXml);
+            flowLayoutPanelDisplay.Controls.Add(this.radioButtonHtml);
+            flowLayoutPanelDisplay.Controls.Add(this.buttonSave);
+            flowLayoutPanelDisplay.Controls.Add(this.buttonCancel);
+            flowLayoutPanelDisplay.Location = new System.Drawing.Point(501, 465);
+            flowLayoutPanelDisplay.Name = "flowLayoutPanelDisplay";
+            flowLayoutPanelDisplay.Size = new System.Drawing.Size(319, 29);
+            flowLayoutPanelDisplay.TabIndex = 8;
+            // 
+            // radioButtonText
+            // 
+            this.radioButtonText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.radioButtonText.AutoSize = true;
+            this.radioButtonText.BackColor = System.Drawing.Color.Transparent;
+            this.radioButtonText.Checked = true;
+            this.radioButtonText.ForeColor = System.Drawing.SystemColors.InfoText;
+            this.radioButtonText.Location = new System.Drawing.Point(3, 9);
+            this.radioButtonText.Name = "radioButtonText";
+            this.radioButtonText.Size = new System.Drawing.Size(46, 17);
+            this.radioButtonText.TabIndex = 2;
+            this.radioButtonText.TabStop = true;
+            this.radioButtonText.Text = "&Text";
+            this.radioButtonText.UseVisualStyleBackColor = false;
+            this.radioButtonText.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
+            // 
+            // radioButtonJson
+            // 
+            this.radioButtonJson.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.radioButtonJson.AutoSize = true;
+            this.radioButtonJson.BackColor = System.Drawing.Color.Transparent;
+            this.radioButtonJson.ForeColor = System.Drawing.SystemColors.InfoText;
+            this.radioButtonJson.Location = new System.Drawing.Point(55, 9);
+            this.radioButtonJson.Name = "radioButtonJson";
+            this.radioButtonJson.Size = new System.Drawing.Size(47, 17);
+            this.radioButtonJson.TabIndex = 3;
+            this.radioButtonJson.Text = "&Json";
+            this.radioButtonJson.UseVisualStyleBackColor = false;
+            this.radioButtonJson.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
+            // 
+            // radioButtonXml
+            // 
+            this.radioButtonXml.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.radioButtonXml.AutoSize = true;
+            this.radioButtonXml.BackColor = System.Drawing.Color.Transparent;
+            this.radioButtonXml.ForeColor = System.Drawing.SystemColors.InfoText;
+            this.radioButtonXml.Location = new System.Drawing.Point(108, 9);
+            this.radioButtonXml.Name = "radioButtonXml";
+            this.radioButtonXml.Size = new System.Drawing.Size(42, 17);
+            this.radioButtonXml.TabIndex = 4;
+            this.radioButtonXml.Text = "&Xml";
+            this.radioButtonXml.UseVisualStyleBackColor = false;
+            this.radioButtonXml.CheckedChanged += new System.EventHandler(this.radioButton3_CheckedChanged);
+            // 
+            // radioButtonHtml
+            // 
+            this.radioButtonHtml.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.radioButtonHtml.AutoSize = true;
+            this.radioButtonHtml.BackColor = System.Drawing.Color.Transparent;
+            this.radioButtonHtml.ForeColor = System.Drawing.SystemColors.InfoText;
+            this.radioButtonHtml.Location = new System.Drawing.Point(156, 9);
+            this.radioButtonHtml.Name = "radioButtonHtml";
+            this.radioButtonHtml.Size = new System.Drawing.Size(46, 17);
+            this.radioButtonHtml.TabIndex = 5;
+            this.radioButtonHtml.Text = "&Html";
+            this.radioButtonHtml.UseVisualStyleBackColor = false;
+            this.radioButtonHtml.CheckedChanged += new System.EventHandler(this.radioButton4_CheckedChanged);
+            // 
+            // buttonSave
+            // 
+            this.buttonSave.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.buttonSave.Enabled = false;
+            this.buttonSave.Location = new System.Drawing.Point(208, 3);
+            this.buttonSave.Name = "buttonSave";
+            this.buttonSave.Size = new System.Drawing.Size(52, 23);
+            this.buttonSave.TabIndex = 6;
+            this.buttonSave.Text = "&Save";
+            this.buttonSave.UseVisualStyleBackColor = true;
+            this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
+            // 
+            // buttonCancel
+            // 
+            this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.buttonCancel.Location = new System.Drawing.Point(266, 3);
+            this.buttonCancel.Name = "buttonCancel";
+            this.buttonCancel.Size = new System.Drawing.Size(49, 23);
+            this.buttonCancel.TabIndex = 7;
+            this.buttonCancel.Text = "&Cancel";
+            this.buttonCancel.UseVisualStyleBackColor = true;
+            this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
+            // 
+            // textBox
+            // 
+            this.textBox.AutoCompleteBracketsList = new char[] {
         '(',
         ')',
         '{',
@@ -57,100 +160,44 @@ namespace CsvTools
         '\"',
         '\'',
         '\''};
-      this.textBox.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>.+)\r\n";
-      this.textBox.AutoScrollMinSize = new System.Drawing.Size(0, 16);
-      this.textBox.BackBrush = null;
-      this.textBox.CaretColor = System.Drawing.Color.Silver;
-      this.textBox.CharHeight = 16;
-      this.textBox.CharWidth = 9;
-      this.textBox.CommentPrefix = "--";
-      this.textBox.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.textBox.DelayedEventsInterval = 50;
-      this.textBox.DelayedTextChangedInterval = 50;
-      this.textBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-      this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.textBox.IsReplaceMode = false;
-      this.textBox.Location = new System.Drawing.Point(0, 0);
-      this.textBox.Margin = new System.Windows.Forms.Padding(2);
-      this.textBox.Name = "textBox";
-      this.textBox.Paddings = new System.Windows.Forms.Padding(0);
-      this.textBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-      this.textBox.ShowFoldingLines = true;
-      this.textBox.Size = new System.Drawing.Size(745, 432);
-      this.textBox.TabIndex = 1;
-      this.textBox.WordWrap = true;
-      this.textBox.Zoom = 100;
-      // 
-      // radioButton1
-      // 
-      this.radioButton1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.radioButton1.AutoSize = true;
-      this.radioButton1.BackColor = System.Drawing.SystemColors.Info;
-      this.radioButton1.Checked = true;
-      this.radioButton1.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.radioButton1.Location = new System.Drawing.Point(551, 413);
-      this.radioButton1.Name = "radioButton1";
-      this.radioButton1.Size = new System.Drawing.Size(46, 17);
-      this.radioButton1.TabIndex = 2;
-      this.radioButton1.TabStop = true;
-      this.radioButton1.Text = "&Text";
-      this.radioButton1.UseVisualStyleBackColor = false;
-      this.radioButton1.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
-      // 
-      // radioButton2
-      // 
-      this.radioButton2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.radioButton2.AutoSize = true;
-      this.radioButton2.BackColor = System.Drawing.SystemColors.Info;
-      this.radioButton2.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.radioButton2.Location = new System.Drawing.Point(597, 413);
-      this.radioButton2.Name = "radioButton2";
-      this.radioButton2.Size = new System.Drawing.Size(47, 17);
-      this.radioButton2.TabIndex = 3;
-      this.radioButton2.Text = "&Json";
-      this.radioButton2.UseVisualStyleBackColor = false;
-      this.radioButton2.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
-      // 
-      // radioButton3
-      // 
-      this.radioButton3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.radioButton3.AutoSize = true;
-      this.radioButton3.BackColor = System.Drawing.SystemColors.Info;
-      this.radioButton3.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.radioButton3.Location = new System.Drawing.Point(644, 413);
-      this.radioButton3.Name = "radioButton3";
-      this.radioButton3.Size = new System.Drawing.Size(42, 17);
-      this.radioButton3.TabIndex = 4;
-      this.radioButton3.Text = "&Xml";
-      this.radioButton3.UseVisualStyleBackColor = false;
-      this.radioButton3.CheckedChanged += new System.EventHandler(this.radioButton3_CheckedChanged);
-      // 
-      // radioButton4
-      // 
-      this.radioButton4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-      this.radioButton4.AutoSize = true;
-      this.radioButton4.BackColor = System.Drawing.SystemColors.Info;
-      this.radioButton4.ForeColor = System.Drawing.SystemColors.InfoText;
-      this.radioButton4.Location = new System.Drawing.Point(686, 413);
-      this.radioButton4.Name = "radioButton4";
-      this.radioButton4.Size = new System.Drawing.Size(46, 17);
-      this.radioButton4.TabIndex = 5;
-      this.radioButton4.Text = "&Html";
-      this.radioButton4.UseVisualStyleBackColor = false;
-      this.radioButton4.CheckedChanged += new System.EventHandler(this.radioButton4_CheckedChanged);
-      // 
-      // webBrowser
-      // 
-      this.webBrowser.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.webBrowser.Location = new System.Drawing.Point(0, 0);
-      this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
-      this.webBrowser.Name = "webBrowser";
-      this.webBrowser.Size = new System.Drawing.Size(745, 432);
-      this.webBrowser.TabIndex = 6;
-      // 
-      // fastColoredTextBoxRO
-      // 
-      this.fastColoredTextBoxRO.AutoCompleteBracketsList = new char[] {
+            this.textBox.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>.+)\r\n";
+            this.textBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
+            this.textBox.BackBrush = null;
+            this.textBox.CaretColor = System.Drawing.Color.Silver;
+            this.textBox.CharHeight = 14;
+            this.textBox.CharWidth = 8;
+            this.textBox.CommentPrefix = "--";
+            this.textBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.textBox.DelayedEventsInterval = 50;
+            this.textBox.DelayedTextChangedInterval = 50;
+            this.textBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBox.IsReplaceMode = false;
+            this.textBox.Location = new System.Drawing.Point(0, 0);
+            this.textBox.Margin = new System.Windows.Forms.Padding(2);
+            this.textBox.Name = "textBox";
+            this.textBox.Paddings = new System.Windows.Forms.Padding(0);
+            this.textBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.textBox.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("textBox.ServiceColors")));
+            this.textBox.ShowFoldingLines = true;
+            this.textBox.Size = new System.Drawing.Size(832, 465);
+            this.textBox.TabIndex = 1;
+            this.textBox.WordWrap = true;
+            this.textBox.Zoom = 100;
+            this.textBox.TextChanged += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.textBox_TextChanged);
+            // 
+            // webBrowser
+            // 
+            this.webBrowser.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.webBrowser.Location = new System.Drawing.Point(0, 0);
+            this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
+            this.webBrowser.Name = "webBrowser";
+            this.webBrowser.Size = new System.Drawing.Size(832, 465);
+            this.webBrowser.TabIndex = 6;
+            // 
+            // fastColoredTextBoxRO
+            // 
+            this.fastColoredTextBoxRO.AutoCompleteBracketsList = new char[] {
         '(',
         ')',
         '{',
@@ -161,60 +208,74 @@ namespace CsvTools
         '\"',
         '\'',
         '\''};
-      this.fastColoredTextBoxRO.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>.+)\r\n";
-      this.fastColoredTextBoxRO.AutoScrollMinSize = new System.Drawing.Size(0, 16);
-      this.fastColoredTextBoxRO.BackBrush = null;
-      this.fastColoredTextBoxRO.CaretColor = System.Drawing.Color.Silver;
-      this.fastColoredTextBoxRO.CharHeight = 16;
-      this.fastColoredTextBoxRO.CharWidth = 9;
-      this.fastColoredTextBoxRO.CommentPrefix = "--";
-      this.fastColoredTextBoxRO.Cursor = System.Windows.Forms.Cursors.IBeam;
-      this.fastColoredTextBoxRO.DelayedEventsInterval = 50;
-      this.fastColoredTextBoxRO.DelayedTextChangedInterval = 50;
-      this.fastColoredTextBoxRO.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-      this.fastColoredTextBoxRO.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.fastColoredTextBoxRO.IsReplaceMode = false;
-      this.fastColoredTextBoxRO.Location = new System.Drawing.Point(0, 0);
-      this.fastColoredTextBoxRO.Margin = new System.Windows.Forms.Padding(2);
-      this.fastColoredTextBoxRO.Name = "fastColoredTextBoxRO";
-      this.fastColoredTextBoxRO.Paddings = new System.Windows.Forms.Padding(0);
-      this.fastColoredTextBoxRO.ReadOnly = true;
-      this.fastColoredTextBoxRO.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-      this.fastColoredTextBoxRO.ShowFoldingLines = true;
-      this.fastColoredTextBoxRO.Size = new System.Drawing.Size(745, 432);
-      this.fastColoredTextBoxRO.TabIndex = 2;
-      this.fastColoredTextBoxRO.WordWrap = true;
-      this.fastColoredTextBoxRO.Zoom = 100;
-      this.fastColoredTextBoxRO.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.TextBox_TextChangedDelayed);
-      this.fastColoredTextBoxRO.VisibleRangeChangedDelayed += new System.EventHandler(this.TextBox_VisibleRangeChangedDelayed);
-      // 
-      // FormTextDisplay
-      // 
-      this.ClientSize = new System.Drawing.Size(745, 432);
-      this.Controls.Add(this.radioButton4);
-      this.Controls.Add(this.radioButton3);
-      this.Controls.Add(this.radioButton2);
-      this.Controls.Add(this.radioButton1);
-      this.Controls.Add(this.textBox);
-      this.Controls.Add(this.webBrowser);
-      this.Controls.Add(this.fastColoredTextBoxRO);
-      this.Margin = new System.Windows.Forms.Padding(2);
-      this.Name = "FormTextDisplay";
-      this.Shown += new System.EventHandler(this.FormTextDisplay_Shown);
-      ((System.ComponentModel.ISupportInitialize)(this.textBox)).EndInit();
-      ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBoxRO)).EndInit();
-      this.ResumeLayout(false);
-      this.PerformLayout();
+            this.fastColoredTextBoxRO.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>.+)\r\n";
+            this.fastColoredTextBoxRO.AutoScrollMinSize = new System.Drawing.Size(0, 14);
+            this.fastColoredTextBoxRO.BackBrush = null;
+            this.fastColoredTextBoxRO.CaretColor = System.Drawing.Color.Silver;
+            this.fastColoredTextBoxRO.CharHeight = 14;
+            this.fastColoredTextBoxRO.CharWidth = 8;
+            this.fastColoredTextBoxRO.CommentPrefix = "--";
+            this.fastColoredTextBoxRO.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.fastColoredTextBoxRO.DelayedEventsInterval = 50;
+            this.fastColoredTextBoxRO.DelayedTextChangedInterval = 50;
+            this.fastColoredTextBoxRO.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.fastColoredTextBoxRO.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fastColoredTextBoxRO.IsReplaceMode = false;
+            this.fastColoredTextBoxRO.Location = new System.Drawing.Point(0, 0);
+            this.fastColoredTextBoxRO.Margin = new System.Windows.Forms.Padding(2);
+            this.fastColoredTextBoxRO.Name = "fastColoredTextBoxRO";
+            this.fastColoredTextBoxRO.Paddings = new System.Windows.Forms.Padding(0);
+            this.fastColoredTextBoxRO.ReadOnly = true;
+            this.fastColoredTextBoxRO.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.fastColoredTextBoxRO.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("fastColoredTextBoxRO.ServiceColors")));
+            this.fastColoredTextBoxRO.ShowFoldingLines = true;
+            this.fastColoredTextBoxRO.Size = new System.Drawing.Size(832, 465);
+            this.fastColoredTextBoxRO.TabIndex = 2;
+            this.fastColoredTextBoxRO.WordWrap = true;
+            this.fastColoredTextBoxRO.Zoom = 100;
+            this.fastColoredTextBoxRO.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.TextBox_TextChangedDelayed);
+            this.fastColoredTextBoxRO.VisibleRangeChangedDelayed += new System.EventHandler(this.TextBox_VisibleRangeChangedDelayed);
+            // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Location = new System.Drawing.Point(0, 465);
+            this.statusStrip1.MinimumSize = new System.Drawing.Size(0, 30);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(832, 30);
+            this.statusStrip1.TabIndex = 7;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // FormTextDisplay
+            // 
+            this.ClientSize = new System.Drawing.Size(832, 495);
+            this.Controls.Add(flowLayoutPanelDisplay);
+            this.Controls.Add(this.textBox);
+            this.Controls.Add(this.webBrowser);
+            this.Controls.Add(this.fastColoredTextBoxRO);
+            this.Controls.Add(this.statusStrip1);
+            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Name = "FormTextDisplay";
+            this.TopMost = true;
+            this.Shown += new System.EventHandler(this.FormTextDisplay_Shown);
+            flowLayoutPanelDisplay.ResumeLayout(false);
+            flowLayoutPanelDisplay.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.textBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fastColoredTextBoxRO)).EndInit();
+            this.ResumeLayout(false);
+            this.PerformLayout();
 
     }
     #endregion
 
     private FastColoredTextBoxNS.FastColoredTextBox textBox;
-    private System.Windows.Forms.RadioButton radioButton1;
-    private System.Windows.Forms.RadioButton radioButton2;
-    private System.Windows.Forms.RadioButton radioButton3;
-    private System.Windows.Forms.RadioButton radioButton4;
+    private System.Windows.Forms.RadioButton radioButtonText;
+    private System.Windows.Forms.RadioButton radioButtonJson;
+    private System.Windows.Forms.RadioButton radioButtonXml;
+    private System.Windows.Forms.RadioButton radioButtonHtml;
     private System.Windows.Forms.WebBrowser webBrowser;
     private FastColoredTextBoxNS.FastColoredTextBox fastColoredTextBoxRO;
+    private System.Windows.Forms.StatusStrip statusStrip1;
+    private System.Windows.Forms.Button buttonSave;
+    private System.Windows.Forms.Button buttonCancel;
   }
 }

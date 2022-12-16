@@ -34,7 +34,7 @@ namespace CsvTools
 
     private readonly List<string> m_UniqueFieldName = new List<string>();
 
-    private HashSet<string>? m_ColumnWithoutErrorsCache;
+    private readonly Dictionary<DataColumn, FilterTypeEnum> m_Cache = new Dictionary<DataColumn, FilterTypeEnum>();
 
     private CancellationTokenSource? m_CurrentFilterCancellationTokenSource;
 
@@ -44,10 +44,11 @@ namespace CsvTools
     ///   Initializes a new instance of the <see cref="FilterDataTable" /> class.
     /// </summary>
     /// <param name="init">The initial DataTable</param>
-    public FilterDataTable(in DataTable? init)
+    public FilterDataTable(in DataTable init)
     {
       m_SourceTable = init ?? throw new ArgumentNullException(nameof(init));
-      FilterTable = m_SourceTable.Clone();
+      foreach (DataColumn col in m_SourceTable.Columns)
+        m_Cache.Add(col, FilterTypeEnum.None);
     }
 
     public bool CutAtLimit { get; private set; }
@@ -55,10 +56,10 @@ namespace CsvTools
     public bool Filtering => m_Filtering;
 
     /// <summary>
-    ///   Gets the error table.
+    ///   Gets the filtered table, need to Filter before 
     /// </summary>
     /// <value>The error table.</value>
-    public DataTable FilterTable { get; private set; }
+    public DataTable? FilterTable { get; private set; }
 
     public FilterTypeEnum FilterType { get; private set; } = FilterTypeEnum.None;
 
@@ -78,73 +79,28 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Gets the columns without errors.
+    ///   Gets the columns that do match the filter.
     /// </summary>
-    /// <value>The columns without errors.</value>
-    public IReadOnlyCollection<string> GetColumnsWithErrors()
+    public IReadOnlyCollection<string> GetColumns(FilterTypeEnum type)
     {
-      var columnsWithoutErrors = GetColumnsWithoutErrors();
-      return (from DataColumn col in m_SourceTable.Columns
-        where !col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
-        where !columnsWithoutErrors.Contains(col.ColumnName)
-        select col.ColumnName).ToList();
-    }
-
-    /// <summary>
-    ///   Gets the columns without errors.
-    /// </summary>
-    /// <value>The columns without errors.</value>
-    public IReadOnlyCollection<string> GetColumnsWithoutErrors()
-    {
-      if (m_ColumnWithoutErrorsCache != null)
-        return m_ColumnWithoutErrorsCache;
-
-      // Wait until we are actually done filtering, max 60 seconds
-      WaitCompeteFilter(60);
-
-      m_ColumnWithoutErrorsCache = new HashSet<string>();
-
-      // m_ColumnWithoutErrors will not contain UniqueFields nor line number / error
-      foreach (DataColumn col in FilterTable.Columns)
-      {
-        // Always keep the line number, error field and any uniques
-        if (col.ColumnName.Equals(ReaderConstants.cStartLineNumberFieldName, StringComparison.OrdinalIgnoreCase)
-            || col.ColumnName.Equals(ReaderConstants.cErrorField, StringComparison.OrdinalIgnoreCase)
-            || m_UniqueFieldName.Contains(col.ColumnName))
-          continue;
-
-        // Check if there are errors in this column
-        var hasErrors = false;
-        var inRowErrorDesc0 = "[" + col.ColumnName + "]";
-        var inRowErrorDesc1 = "[" + col.ColumnName + ",";
-        var inRowErrorDesc2 = "," + col.ColumnName + "]";
-        var inRowErrorDesc3 = "," + col.ColumnName + ",";
-        foreach (DataRow row in FilterTable.Rows)
-        {
-          // In case there is a column error..
-          if (row.GetColumnError(col).Length > 0)
+      var result = new HashSet<string>(
+          type switch
           {
-            hasErrors = true;
-            break;
-          }
+            FilterTypeEnum.ErrorsAndWarning =>
+              m_Cache.Where(x => x.Value.HasFlag(FilterTypeEnum.ShowErrors)  || x.Value.HasFlag(FilterTypeEnum.ShowWarning)).Select(x => x.Key.ColumnName).ToList(),
+            FilterTypeEnum.All =>
+              m_Cache.Select(x => x.Key.ColumnName).ToList(),
+            FilterTypeEnum.None =>
+              m_Cache.Select(x => x.Key.ColumnName).ToList(),
+            FilterTypeEnum.ShowIssueFree =>
+              m_Cache.Where(x => x.Value == FilterTypeEnum.None).Select(x => x.Key.ColumnName).ToList(),
+            _ =>
+              m_Cache.Where(x => x.Value.HasFlag(type)).Select(x => x.Key.ColumnName).ToList(),
+          });
 
-          if (string.IsNullOrEmpty(row.RowError))
-            continue;
-          if (!row.RowError.Contains(inRowErrorDesc0, StringComparison.OrdinalIgnoreCase)
-              && !row.RowError.Contains(inRowErrorDesc1, StringComparison.OrdinalIgnoreCase)
-              && !row.RowError.Contains(inRowErrorDesc2, StringComparison.OrdinalIgnoreCase)
-              && !row.RowError.Contains(inRowErrorDesc3, StringComparison.OrdinalIgnoreCase))
-            continue;
-
-          hasErrors = true;
-          break;
-        }
-
-        if (!hasErrors)
-          m_ColumnWithoutErrorsCache.Add(col.ColumnName);
-      }
-
-      return m_ColumnWithoutErrorsCache;
+      foreach (var fld in m_UniqueFieldName)
+        result.Add(fld);
+      return result;
     }
 
     public void Cancel()
@@ -157,55 +113,72 @@ namespace CsvTools
       // make sure the filtering is canceled
       WaitCompeteFilter(0.2);
 
-      m_CurrentFilterCancellationTokenSource?.Dispose();
+      m_CurrentFilterCancellationTokenSource.Dispose();
       m_CurrentFilterCancellationTokenSource = null;
     }
 
-    private void Filter(int limit, FilterTypeEnum type)
+    public DataTable Filter(int limit, FilterTypeEnum type, CancellationToken cancellationToken)
     {
       if (limit < 1)
         limit = int.MaxValue;
-      m_ColumnWithoutErrorsCache = null;
+
+      if (type == FilterTypeEnum.All || type == FilterTypeEnum.None && m_SourceTable.Rows.Count<=limit)
+        return m_SourceTable;
+
+      if (type == FilterType && FilterTable!=null && FilterTable.Rows.Count<=limit)
+        return FilterTable;
+
+      foreach (DataColumn col in m_SourceTable.Columns)
+        m_Cache[col] = FilterTypeEnum.None;
       m_Filtering = true;
+
+      FilterTable?.Dispose();
+      FilterTable = m_SourceTable.Clone();
       try
       {
-        var rows = 0;
-        var max = m_SourceTable.Rows.Count;
         FilterType = type;
-        for (var counter = 0; counter < max && rows < limit; counter++)
+        for (var counter = 0; counter < m_SourceTable.Rows.Count; counter++)
         {
-          var errorOrWarning = m_SourceTable.Rows[counter].GetErrorInformation();
-
-          if (type.HasFlag(FilterTypeEnum.OnlyTrueErrors) && errorOrWarning == "-")
+          cancellationToken.ThrowIfCancellationRequested();
+          var row = m_SourceTable.Rows[counter];
+          if (type.HasFlag(FilterTypeEnum.OnlyTrueErrors) && row.RowError == "-")
             continue;
 
-          var import = false;
-          if (string.IsNullOrEmpty(errorOrWarning))
+          var rowIssues = FilterTypeEnum.None;
+          if (row.RowError.Length != 0)
           {
-            if (type.HasFlag(FilterTypeEnum.ShowIssueFree))
-              import = true;
+            if (row.RowError.IsWarningMessage())
+              rowIssues |= FilterTypeEnum.ShowWarning;
+            else
+              rowIssues |= FilterTypeEnum.ShowErrors;
           }
-          else
+
+          foreach (var col in row.GetColumnsInError())
           {
-            if (errorOrWarning.IsWarningMessage())
+            if (row.GetColumnError(col).IsWarningMessage())
             {
-              if (type.HasFlag(FilterTypeEnum.ShowWarning))
-                import = true;
+              m_Cache[col] |= FilterTypeEnum.ShowWarning;
+              rowIssues |= FilterTypeEnum.ShowWarning;
             }
             else
             {
-              // is an error
-              if (type.HasFlag(FilterTypeEnum.ShowErrors))
-                import = true;
+              m_Cache[col] |= FilterTypeEnum.ShowErrors;
+              rowIssues |= FilterTypeEnum.ShowErrors;
             }
           }
 
-          if (import)
-            FilterTable.ImportRow(m_SourceTable.Rows[counter]);
-          rows++;
+          if (rowIssues.HasFlag(type) || (rowIssues == FilterTypeEnum.None && type == FilterTypeEnum.ShowIssueFree)
+                                      || rowIssues == FilterTypeEnum.ShowErrors && type == FilterTypeEnum.ErrorsAndWarning
+                                      || rowIssues == FilterTypeEnum.ShowWarning && type == FilterTypeEnum.ErrorsAndWarning)
+          {
+            // Import Row copies the data and the errors information
+            FilterTable.ImportRow(row);
+            if (FilterTable.Rows.Count >= limit)
+              break;
+          }
         }
 
-        CutAtLimit = rows >= limit;
+        CutAtLimit = FilterTable.Rows.Count >= limit;
       }
       catch (Exception ex)
       {
@@ -215,19 +188,19 @@ namespace CsvTools
       {
         m_Filtering = false;
       }
+
+      return FilterTable;
     }
 
-    public async Task FilterAsync(int limit, FilterTypeEnum type, CancellationToken cancellationToken)
+    public Task StartFilterAsync(int limit, FilterTypeEnum type, CancellationToken cancellationToken)
     {
       if (m_Filtering)
         Cancel();
-      m_ColumnWithoutErrorsCache = null;
-      FilterTable = m_SourceTable.Clone();
 
       m_CurrentFilterCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-      // ReSharper disable once PossibleNullReferenceException
-      await Task.Run(() => Filter(limit, type), m_CurrentFilterCancellationTokenSource.Token).ConfigureAwait(false);
+      // ReSharper disable once MethodSupportsCancellation
+      return Task.Run(() => Filter(limit, type, m_CurrentFilterCancellationTokenSource.Token));
     }
 
     private void WaitCompeteFilter(double timeoutInSeconds)
@@ -250,7 +223,7 @@ namespace CsvTools
       Cancel();
       if (!disposing) return;
       m_CurrentFilterCancellationTokenSource?.Dispose();
-      FilterTable.Dispose();
+      FilterTable?.Dispose();
     }
   }
 }

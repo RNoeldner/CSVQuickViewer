@@ -16,8 +16,7 @@ namespace CsvTools.Tests
       bool warningCalled = false;
       bool refreshCalled = false;
 
-      Task RefreshFunc(CancellationToken cancellationToken) => Task.CompletedTask;
-
+      
       // ReSharper disable once UseAwaitUsing
       using var tsde = new SteppedDataTableLoader();
       var csv = new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("BasicCSV.txt"))
@@ -27,7 +26,7 @@ namespace CsvTools.Tests
       };
 
       var proc = new Progress<ProgressInfo>();
-      await tsde.StartAsync(csv, dt => myDataTable = dt, RefreshFunc, true, true,
+      await tsde.StartAsync(csv, dt => myDataTable = dt, cancellationToken => { refreshCalled = true;}, true, true,
         TimeSpan.FromMilliseconds(20), proc, (o, a) => { warningCalled = true; },
         UnitTestStatic.Token);
       Assert.IsTrue(refreshCalled);

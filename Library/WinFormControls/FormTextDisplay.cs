@@ -34,7 +34,9 @@ namespace CsvTools
       Text, Json, Xml, HTML
     }
 
-    [Browsable(false)] [Bindable(false)] public string CurrentText => textBox.Text;
+    [Browsable(false)]
+    [Bindable(false)]
+    public Action<string>? SaveAction { get; set; }
 
     private void HandleText(in Language newLang)
     {
@@ -52,7 +54,7 @@ namespace CsvTools
           case Language.HTML:
           {
             webBrowser.DocumentText = textBox.Text.Trim('\"', '\'', ' ');
-            radioButton4.Checked = true;
+            radioButtonHtml.Checked = true;
             break;
           }
           case Language.Xml:
@@ -65,7 +67,7 @@ namespace CsvTools
             using var xmlWriter = XmlWriter.Create(stringBuilder, settings);
             doc.Save(xmlWriter);
             fastColoredTextBoxRO.Text = stringBuilder.ToString();
-            radioButton3.Checked = true;
+            radioButtonXml.Checked = true;
             break;
           }
           case Language.Json:
@@ -73,12 +75,12 @@ namespace CsvTools
             m_HighLighter ??= new SyntaxHighlighterJson(fastColoredTextBoxRO);
             var t = JsonConvert.DeserializeObject<object>(textBox.Text.Trim('\"', '\''));
             fastColoredTextBoxRO.Text = JsonConvert.SerializeObject(t, Newtonsoft.Json.Formatting.Indented);
-            radioButton2.Checked = true;
+            radioButtonJson.Checked = true;
             break;
           }
           case Language.Text:
           default:
-            radioButton1.Checked = true;
+            radioButtonText.Checked = true;
             break;
         }
       }
@@ -124,31 +126,31 @@ namespace CsvTools
 
     private void radioButton1_CheckedChanged(object sender, EventArgs e)
     {
-      if (radioButton1.Checked)
+      if (radioButtonText.Checked)
         HandleText(Language.Text);
     }
 
     private void radioButton2_CheckedChanged(object sender, EventArgs e)
     {
-      if (radioButton2.Checked)
+      if (radioButtonJson.Checked)
         HandleText(Language.Json);
     }
 
     private void radioButton3_CheckedChanged(object sender, EventArgs e)
     {
-      if (radioButton3.Checked)
+      if (radioButtonXml.Checked)
         HandleText(Language.Xml);
     }
 
     private void radioButton4_CheckedChanged(object sender, EventArgs e)
     {
-      if (radioButton4.Checked)
+      if (radioButtonHtml.Checked)
         HandleText(Language.HTML);
     }
 
     private void FormTextDisplay_Shown(object sender, EventArgs e)
     {
-      var check = textBox.Text.Substring(0, Math.Min(textBox.Text.Length - 1, 50)).TrimStart('"', '\'')
+      var check = textBox.Text.Substring(0, Math.Min(textBox.Text.Length, 50)).TrimStart('"', '\'')
         .Replace(" ", "")
         .Replace("\r", "")
         .Replace("\n", "");
@@ -160,6 +162,22 @@ namespace CsvTools
         HandleText(Language.HTML);
       else if (check.StartsWith("{\"", StringComparison.OrdinalIgnoreCase))
         HandleText(Language.Json);
+    }
+
+    private void buttonCancel_Click(object sender, EventArgs e)
+    {
+      this.Close();
+    }
+
+    private void buttonSave_Click(object sender, EventArgs e)
+    {
+      SaveAction?.Invoke(textBox.Text);
+      this.Close();
+    }
+
+    private void textBox_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e)
+    {
+      buttonSave.Enabled = textBox.IsChanged;
     }
   }
 }

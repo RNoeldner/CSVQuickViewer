@@ -126,7 +126,7 @@ namespace CsvTools
       Cursor.Current = Cursors.WaitCursor;
       try
       {
-        await action.Invoke();
+        await action.Invoke().ConfigureAwait(false);
       }
       finally
       {
@@ -211,7 +211,9 @@ namespace CsvTools
         {
           var runThread = new Thread(action.Invoke);
 
+#pragma warning disable CA1416
           runThread.SetApartmentState(ApartmentState.STA);
+#pragma warning restore CA1416
 
           runThread.Start();
           if (timeoutMilliseconds > 0)
@@ -225,6 +227,42 @@ namespace CsvTools
         Logger.Error(e);
       }
     }
+    
+    public static async Task RunStaThreadAsync(this Func<Task> action, int timeoutMilliseconds = 20000)
+    {
+      if (action is null)
+        throw new ArgumentNullException(nameof(action));
+      if (!IsWindows)
+      {
+        await action();
+        return;
+      }
+
+      try
+      {
+        if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+          await action.Invoke();
+        else
+        {
+          var runThread = new Thread(async ()=> await action().ConfigureAwait(false));
+
+#pragma warning disable CA1416
+          runThread.SetApartmentState(ApartmentState.STA);
+#pragma warning restore CA1416
+
+          runThread.Start();
+          if (timeoutMilliseconds > 0)
+            runThread.Join(timeoutMilliseconds);
+          else
+            runThread.Join();
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error(e);
+      }
+    }
+
 
     public static void RunWithHourglass(this ToolStripItem item, Action action, Form? frm)
     {
@@ -285,7 +323,7 @@ namespace CsvTools
       try
       {
         item.Enabled = false;
-        await action.InvokeWithHourglassAsync();
+        await action.InvokeWithHourglassAsync().ConfigureAwait(false);
       }
       catch (ObjectDisposedException)
       {
@@ -310,7 +348,7 @@ namespace CsvTools
       try
       {
         control.SafeInvoke(() => control.Enabled = false);
-        await action.InvokeWithHourglassAsync();
+        await action.InvokeWithHourglassAsync().ConfigureAwait(false);
       }
       catch (ObjectDisposedException)
       {

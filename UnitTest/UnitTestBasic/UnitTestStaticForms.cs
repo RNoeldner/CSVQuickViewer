@@ -14,26 +14,31 @@ namespace CsvTools.Tests
       double closeAfterSeconds = .2)
       where T : Control
     {
-      using var frm = new TestForm();
-      frm.AddOneControl(ctrl, closeAfterSeconds * 1000);
-      ShowFormAndClose(frm, waitBeforeActionSeconds, f =>
-        {
-          // ReSharper disable once AccessToDisposedClosure
-          toDo?.Invoke(ctrl);
-        },
-        frm.CancellationToken);
-      ctrl.Dispose();
+      
+        using var frm = new TestForm();
+        frm.AddOneControl(ctrl, closeAfterSeconds * 1000);
+        ShowFormAndClose(frm, waitBeforeActionSeconds, f =>
+          {
+            // ReSharper disable once AccessToDisposedClosure
+            toDo?.Invoke(ctrl);
+          },
+          frm.CancellationToken);
+        ctrl.Dispose();
+      
     }
 
     public static async Task ShowControlAsync<T>(T ctrl, double waitBeforeActionSeconds, Func<T, Task> toDo,
       double closeAfterSeconds = .2)
       where T : Control
     {
-      using var frm = new TestForm();
-      frm.AddOneControl(ctrl, closeAfterSeconds * 1000);
-      await ShowFormAndCloseAsync(frm, waitBeforeActionSeconds, async f => await toDo.Invoke(ctrl),
-        frm.CancellationToken);
-      ctrl.Dispose();
+      //await Extensions.RunStaThreadAsync(async () =>
+      //{
+        using var frm = new TestForm();
+        frm.AddOneControl(ctrl, closeAfterSeconds * 1000);
+        await ShowFormAndCloseAsync(frm, waitBeforeActionSeconds, async f => await toDo.Invoke(ctrl),
+          frm.CancellationToken);
+        ctrl.Dispose();
+      //});
     }
 
     public static void ShowFormAndClose<T>(
@@ -47,6 +52,7 @@ namespace CsvTools.Tests
 
       frm.TopMost = true;
       frm.ShowInTaskbar = false;
+
       try
       {
         frm.Show();
@@ -115,7 +121,7 @@ namespace CsvTools.Tests
   }
 
 
-   public sealed class TestForm : Form
+  public sealed class TestForm : Form
   {
     private readonly CancellationTokenSource m_CancellationTokenSource;
     private readonly Timer m_TimerAutoClose = new Timer();

@@ -39,7 +39,7 @@ namespace CsvTools
     private CancellationToken m_CancellationToken = CancellationToken.None;
     private DataTable m_DataTable = new();
     private bool m_DisposedValue; // To detect redundant calls
-    private FilterDataTable? m_FilterDataTable;
+    private FilterDataTable m_FilterDataTable = new FilterDataTable(new DataTable());
     private FormDuplicatesDisplay? m_FormDuplicatesDisplay;
     private FormShowMaxLength? m_FormShowMaxLength;
     private FormUniqueDisplay? m_FormUniqueDisplay;
@@ -55,7 +55,7 @@ namespace CsvTools
       IProgress<ProgressInfo>? progress, EventHandler<WarningEventArgs>? addWarning,
       CancellationToken cancellationToken) =>
       await m_SteppedDataTableLoader.StartAsync(fileSetting, dataTable => DataTable = dataTable,
-        t => RefreshDisplayAsync(filterType, t), addErrorField, restoreError,
+        t => RefreshDisplay(filterType, t), addErrorField, restoreError,
         durationInitial, progress, addWarning, cancellationToken);
 
     /// <inheritdoc />
@@ -84,8 +84,7 @@ namespace CsvTools
 
     public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored;
     public EventHandler<IFileSettingPhysicalFile>? FileStored;
-    private DataColumnCollection Columns => m_DataTable.Columns;
-
+    
     /// <summary>
     ///   Gets or sets the HTML style.
     /// </summary>
@@ -95,6 +94,12 @@ namespace CsvTools
     [Bindable(false)]
     [Browsable(false)]
     public HtmlStyle HtmlStyle { get => FilteredDataGridView.HtmlStyle; set => FilteredDataGridView.HtmlStyle = value; }
+
+
+    [Bindable(false)]
+    [Browsable(true)]
+    [DefaultValue(2000)]
+    public int ShowButtonAtLength { get => FilteredDataGridView.ShowButtonAtLength; set => FilteredDataGridView.ShowButtonAtLength = value; }
 
     /// <summary>
     /// Sort the data by this column ascending 
@@ -224,11 +229,11 @@ namespace CsvTools
           return;
 
         m_DataTable.Dispose();
-        m_FilterDataTable?.Dispose();
-        m_FilterDataTable = null;
-
+        m_FilterDataTable.Dispose();
+        
         // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         m_DataTable = value ?? new DataTable();
+        m_FilterDataTable = new FilterDataTable(m_DataTable);
       }
     }
 
@@ -343,10 +348,9 @@ namespace CsvTools
       set
       {
         // in case we do not have unique names and the table is not loaded do nothing
-        if ((value is null || !value.Any()))
+        if (value is null || !value.Any())
           return;
-        if (m_FilterDataTable != null)
-          m_FilterDataTable.UniqueFieldName = value;
+        m_FilterDataTable.UniqueFieldName = value;
       }
     }
 
@@ -388,7 +392,7 @@ namespace CsvTools
         m_FormDuplicatesDisplay?.Dispose();
         m_FormUniqueDisplay?.Dispose();
         m_DataTable.Dispose();
-        m_FilterDataTable?.Dispose();
+        m_FilterDataTable.Dispose();
         m_HierarchyDisplay?.Dispose();
         m_SteppedDataTableLoader.Dispose();
         m_SourceDisplay?.Dispose();
@@ -505,7 +509,8 @@ namespace CsvTools
           m_FormDuplicatesDisplay?.Close();
           m_FormDuplicatesDisplay =
             new FormDuplicatesDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-              columnName, HtmlStyle) { Icon = ParentForm?.Icon };
+              columnName, HtmlStyle)
+            { Icon = ParentForm?.Icon };
           m_FormDuplicatesDisplay.ShowWithFont(this);
           m_FormDuplicatesDisplay.FormClosed +=
             (_, _) => this.SafeInvoke(() => m_ToolStripButtonDuplicates.Enabled = true);
@@ -532,7 +537,8 @@ namespace CsvTools
           m_HierarchyDisplay?.Close();
           m_HierarchyDisplay =
             new FormHierarchyDisplay(m_DataTable.Clone(), m_DataTable.Select(FilteredDataGridView.CurrentFilter),
-              HtmlStyle) { Icon = ParentForm?.Icon };
+              HtmlStyle)
+            { Icon = ParentForm?.Icon };
           m_HierarchyDisplay.ShowWithFont(this);
           m_HierarchyDisplay.FormClosed += (_, _) => this.SafeInvoke(() => m_ToolStripButtonHierarchy.Enabled = true);
         }
@@ -601,32 +607,22 @@ namespace CsvTools
     /// <summary>
     ///   Filters the columns.
     /// </summary>
-    private void FilterColumns(bool onlyErrors)
+    private void FilterColumns(FilterTypeEnum filterType)
     {
-      if (!onlyErrors)
+      if (filterType == FilterTypeEnum.All || filterType== FilterTypeEnum.None)
       {
         foreach (DataGridViewColumn col in FilteredDataGridView.Columns)
         {
           if (!col.Visible)
             col.Visible = true;
-
-          col.MinimumWidth = 64;
+          // col.MinimumWidth = 64;
         }
-
         return;
       }
 
-      if (m_FilterDataTable?.FilterTable != null && m_FilterDataTable.FilterTable.Rows.Count <= 0)
-        return;
-      if (m_FilterDataTable != null && (m_FilterDataTable.GetColumnsWithoutErrors()).Count == Columns.Count)
-        return;
+      var cols = m_FilterDataTable.GetColumns(filterType);
       foreach (DataGridViewColumn dgCol in FilteredDataGridView.Columns)
-      {
-        if (m_FilterDataTable != null && (!dgCol.Visible ||
-                                          !(m_FilterDataTable.GetColumnsWithoutErrors()).Contains(
-                                            dgCol.DataPropertyName))) continue;
-        dgCol.Visible = false;
-      }
+        dgCol.Visible = cols.Contains(dgCol.DataPropertyName);
     }
 
     /// <summary>
@@ -668,7 +664,7 @@ namespace CsvTools
     /// <summary>
     ///   Sets the data source.
     /// </summary>
-    public async Task RefreshDisplayAsync(FilterTypeEnum filterType, CancellationToken cancellationToken)
+    public void RefreshDisplay(FilterTypeEnum filterType, CancellationToken cancellationToken)
     {
       var oldSortedColumn = FilteredDataGridView.SortedColumn?.DataPropertyName;
       var oldOrder = FilteredDataGridView.SortOrder;
@@ -679,14 +675,8 @@ namespace CsvTools
       // Hide any showing search
       m_Search.Visible = false;
 
-      var newDt = m_DataTable;
-      m_FilterDataTable ??= new FilterDataTable(m_DataTable);
-      if (filterType != FilterTypeEnum.All)
-      {
-        if (filterType != m_FilterDataTable.FilterType)
-          await m_FilterDataTable.FilterAsync(int.MaxValue, filterType, cancellationToken);
-        newDt = m_FilterDataTable.FilterTable;
-      }
+      
+      var newDt = m_FilterDataTable.Filter(int.MaxValue, filterType, cancellationToken);
 
       if (ReferenceEquals(m_BindingSource.DataSource, newDt))
         return;
@@ -699,7 +689,7 @@ namespace CsvTools
         m_BindingSource.DataSource = newDt;
         FilteredDataGridView.DataSource = m_BindingSource;
 
-        FilterColumns(!filterType.HasFlag(FilterTypeEnum.ShowIssueFree));
+        FilterColumns(filterType);
 
         AutoResizeColumns(newDt);
         FilteredDataGridView.ColumnVisibilityChanged();
@@ -708,11 +698,7 @@ namespace CsvTools
         if (oldOrder != SortOrder.None && !(oldSortedColumn is null || oldSortedColumn.Length == 0))
           Sort(oldSortedColumn,
             oldOrder == SortOrder.Ascending ? ListSortDirection.Ascending : ListSortDirection.Descending);
-      });
 
-
-      this.SafeInvoke(() =>
-      {
         var newIndex = filterType switch
         {
           FilterTypeEnum.ErrorsAndWarning => 1,
@@ -750,7 +736,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var iStream = FunctionalDI.OpenStream(new SourceAccess(WriteSetting));
+        using var iStream = FunctionalDI.OpenStream(new SourceAccess(WriteSetting));
         using var sr = new ImprovedTextReader(iStream, WriteSetting.CodePageId);
         for (var i = 0; i < WriteSetting.SkipRows; i++)
           headerAndSipped.AppendLine(await sr.ReadLineAsync());
@@ -777,13 +763,13 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
         await
 #endif
-          using var dt = new DataTableWrapper(
-            FilteredDataGridView.DataView.ToTable(false,
-              // Restrict to shown data
-              FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
-                .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
-                .OrderBy(col => col.DisplayIndex)
-                .Select(col => col.DataPropertyName).ToArray()));
+        using var dt = new DataTableWrapper(
+          FilteredDataGridView.DataView.ToTable(false,
+            // Restrict to shown data
+            FilteredDataGridView.Columns.Cast<DataGridViewColumn>()
+              .Where(col => col.Visible && col.DataPropertyName.NoArtificialField())
+              .OrderBy(col => col.DisplayIndex)
+              .Select(col => col.DataPropertyName).ToArray()));
         // can not use filteredDataGridView.Columns directly
         await writer.WriteAsync(dt, formProgress.CancellationToken);
       }
@@ -842,9 +828,9 @@ namespace CsvTools
       return index == 4 ? FilterTypeEnum.ShowIssueFree : FilterTypeEnum.All;
     }
 
-    private async void ToolStripComboBoxFilterType_SelectedIndexChanged(object? sender, EventArgs e)
+    private void ToolStripComboBoxFilterType_SelectedIndexChanged(object? sender, EventArgs e)
     {
-      await RefreshDisplayAsync(GetCurrentFilter(), m_CancellationToken);
+      RefreshDisplay(GetCurrentFilter(), m_CancellationToken);
     }
 
     private async void ToolStripButtonLoadRemaining_Click(object? sender, EventArgs e)
@@ -861,7 +847,7 @@ namespace CsvTools
 
         await m_SteppedDataTableLoader.GetNextBatch(formProgress, TimeSpan.FromSeconds(60), true,
           dataTable => DataTable = dataTable,
-          token => RefreshDisplayAsync(GetCurrentFilter(), token), formProgress.CancellationToken);
+          token => RefreshDisplay(GetCurrentFilter(), token), formProgress.CancellationToken);
       }, ParentForm);
     }
 

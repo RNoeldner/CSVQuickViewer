@@ -32,7 +32,7 @@ namespace CsvTools
     public async Task StartAsync(
       IFileSetting fileSetting,
       Action<DataTable> actionSetDataTable,
-      Func<CancellationToken, Task> setRefreshDisplayAsync,
+      Action<CancellationToken> setRefreshDisplayAsync,
       bool addErrorField,
       bool restoreError,
       TimeSpan durationInitial,
@@ -90,7 +90,7 @@ namespace CsvTools
       TimeSpan duration,
       bool restoreError,
       Action<DataTable> actionSetDataTable,
-      Func<CancellationToken, Task> setRefreshDisplayAsync,
+      Action<CancellationToken> setRefreshDisplayAsync,
       CancellationToken cancellationToken)
     {
       if (m_DataReaderWrapper is null)
@@ -117,7 +117,7 @@ namespace CsvTools
 
       try
       {
-        await setRefreshDisplayAsync(cancellationToken).ConfigureAwait(false);
+        setRefreshDisplayAsync(cancellationToken);
       }
       catch (InvalidOperationException ex)
       {

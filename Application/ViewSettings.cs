@@ -50,6 +50,7 @@ namespace CsvTools
     private bool m_DisplayStartLineNo = true;
     private bool m_DisplayRecordNo;
     private readonly ICsvFile m_WriteSetting = new CsvFile(id: "Write", fileName: string.Empty);
+    private int m_ShowButtonAtLength = 2000;
 
     public enum Duration
     {
@@ -239,28 +240,14 @@ namespace CsvTools
     public bool WarnDelimiterInValue
     {
       get => m_WarnDelimiterInValue;
-
-      set
-      {
-        if (m_WarnDelimiterInValue.Equals(value))
-          return;
-        m_WarnDelimiterInValue = value;
-        NotifyPropertyChanged();
-      }
+      set=> SetField(ref m_WarnDelimiterInValue, value);
     }
 
     [DefaultValue(true)]
     public bool WarnUnknownCharacter
     {
       get => m_WarnUnknownCharacter;
-
-      set
-      {
-        if (m_WarnUnknownCharacter.Equals(value))
-          return;
-        m_WarnUnknownCharacter = value;
-        NotifyPropertyChanged();
-      }
+      set=> SetField(ref m_WarnUnknownCharacter, value);
     }
 
 
@@ -268,56 +255,35 @@ namespace CsvTools
     public bool WarnQuotes
     {
       get => m_WarnQuotes;
-
-      set
-      {
-        if (m_WarnQuotes.Equals(value))
-          return;
-        m_WarnQuotes = value;
-        NotifyPropertyChanged();
-      }
+      set=> SetField(ref m_WarnQuotes, value);
     }
 
     [DefaultValue(true)]
     public bool WarnNBSP
     {
       get => m_WarnNbsp;
-
-      set
-      {
-        if (m_WarnNbsp.Equals(value))
-          return;
-        m_WarnNbsp = value;
-        NotifyPropertyChanged();
-      }
+      set=> SetField(ref m_WarnNbsp, value);
     }
 
     [DefaultValue(true)]
     public bool WarnLineFeed
     {
       get => m_WarnLineFeed;
-
-      set
-      {
-        if (m_WarnLineFeed.Equals(value))
-          return;
-        m_WarnLineFeed = value;
-        NotifyPropertyChanged();
-      }
+      set=> SetField(ref m_WarnLineFeed, value);
     }
 
     [DefaultValue(true)]
     public bool WarnEmptyTailingColumns
     {
       get => m_WarnEmptyTailingColumns;
+      set=> SetField(ref m_WarnEmptyTailingColumns, value);
+    }
 
-      set
-      {
-        if (m_WarnEmptyTailingColumns.Equals(value))
-          return;
-        m_WarnEmptyTailingColumns = value;
-        NotifyPropertyChanged();
-      }
+    [DefaultValue(2000)]
+    public int ShowButtonAtLength
+    {
+      get => m_ShowButtonAtLength;
+      set=> SetField(ref m_ShowButtonAtLength, value);
     }
 
     public void PassOnConfiguration(in IFileSetting fileSetting)
@@ -331,7 +297,6 @@ namespace CsvTools
         csvFile.WarnQuotes = WarnQuotes;
         csvFile.WarnUnknownCharacter = WarnUnknownCharacter;
       }
-
       fileSetting.DisplayStartLineNo = DisplayStartLineNo;
       fileSetting.DisplayRecordNo = DisplayRecordNo;
     }

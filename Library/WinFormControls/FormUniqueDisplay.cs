@@ -72,7 +72,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private async void FormUniqueDisplay_Load(object? sender, EventArgs e)
+    private void FormUniqueDisplay_Load(object? sender, EventArgs e)
     {
       var index = 0;
       var current = 0;
@@ -88,7 +88,7 @@ namespace CsvTools
       comboBoxID.SelectedIndex = index;
       detailControl.CancellationToken = m_CancellationTokenSource.Token;
       detailControl.DataTable = m_DataTable;
-      await detailControl.RefreshDisplayAsync(FilterTypeEnum.All, m_CancellationTokenSource.Token);
+      detailControl.RefreshDisplay(FilterTypeEnum.All, m_CancellationTokenSource.Token);
     }
 
     private void Work(string dataColumnName, bool ignoreNull)

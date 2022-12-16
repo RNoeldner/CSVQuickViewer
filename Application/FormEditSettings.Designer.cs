@@ -33,6 +33,7 @@ namespace CsvTools
             this.cboCodePage = new System.Windows.Forms.ComboBox();
             this.buttonGuessCP = new System.Windows.Forms.Button();
             this.checkBoxGuessHasHeader = new System.Windows.Forms.CheckBox();
+            this.bindingSourceViewSetting = new System.Windows.Forms.BindingSource(this.components);
             this.label3 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -75,14 +76,18 @@ namespace CsvTools
             this.textBox9 = new System.Windows.Forms.TextBox();
             this.textBox7 = new System.Windows.Forms.TextBox();
             this.cboRecordDelimiter = new System.Windows.Forms.ComboBox();
+            this.checkBoxWarnLineFeed = new System.Windows.Forms.CheckBox();
+            this.numericUpDownNumWarnings = new System.Windows.Forms.NumericUpDown();
+            this.comboBoxLimitDuration = new System.Windows.Forms.ComboBox();
+            this.numericUpDownLength = new System.Windows.Forms.NumericUpDown();
             this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
             this.tabPageBehaviour = new System.Windows.Forms.TabPage();
             this.tableLayoutPanelBehaviour = new System.Windows.Forms.TableLayoutPanel();
             this.labelPersistentSettings = new System.Windows.Forms.Label();
             this.labelByFile = new System.Windows.Forms.Label();
-            this.checkBoxWarnLineFeed = new System.Windows.Forms.CheckBox();
-            this.numericUpDownNumWarnings = new System.Windows.Forms.NumericUpDown();
             this.selectFont = new CsvTools.SelectFont();
+            this.label6 = new System.Windows.Forms.Label();
+            this.labelWarningLimit = new System.Windows.Forms.Label();
             this.tabPageFormat = new System.Windows.Forms.TabPage();
             this.fillGuessSettingEdit = new CsvTools.FillGuessSettingEdit();
             this.tabPageFile = new System.Windows.Forms.TabPage();
@@ -98,23 +103,21 @@ namespace CsvTools
             this.textBoxWriteDelim = new System.Windows.Forms.TextBox();
             this.cboWriteCodePage = new System.Windows.Forms.ComboBox();
             this.buttonNewLine = new System.Windows.Forms.Button();
-            this.comboBoxLimitDuration = new System.Windows.Forms.ComboBox();
-            this.labelWarningLimit = new System.Windows.Forms.Label();
-            this.bindingSourceViewSetting = new System.Windows.Forms.BindingSource(this.components);
             this.tableLayoutPanelFile.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceCsvFile)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceViewSetting)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceWrite)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumWarnings)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownLength)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
             this.tabPageBehaviour.SuspendLayout();
             this.tableLayoutPanelBehaviour.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumWarnings)).BeginInit();
             this.tabPageFormat.SuspendLayout();
             this.tabPageFile.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabPageWrite.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceViewSetting)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanelFile
@@ -350,6 +353,11 @@ namespace CsvTools
             this.toolTip.SetToolTip(this.checkBoxGuessHasHeader, "If checked the file is examined to determine if the first line is a header row");
             this.checkBoxGuessHasHeader.UseVisualStyleBackColor = true;
             // 
+            // bindingSourceViewSetting
+            // 
+            this.bindingSourceViewSetting.AllowNew = false;
+            this.bindingSourceViewSetting.DataSource = typeof(CsvTools.ViewSettings);
+            // 
             // label3
             // 
             this.label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
@@ -572,6 +580,7 @@ namespace CsvTools
             // 
             this.quotingControl.BackColor = System.Drawing.SystemColors.Control;
             this.tableLayoutPanelFile.SetColumnSpan(this.quotingControl, 6);
+            this.quotingControl.Dock = System.Windows.Forms.DockStyle.Top;
             this.quotingControl.Location = new System.Drawing.Point(4, 208);
             this.quotingControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.quotingControl.MinimumSize = new System.Drawing.Size(415, 0);
@@ -795,7 +804,7 @@ namespace CsvTools
             this.checkBoxWarnNBSP.AutoSize = true;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxWarnNBSP, 2);
             this.checkBoxWarnNBSP.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "WarnNBSP", true));
-            this.checkBoxWarnNBSP.Location = new System.Drawing.Point(2, 320);
+            this.checkBoxWarnNBSP.Location = new System.Drawing.Point(2, 325);
             this.checkBoxWarnNBSP.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxWarnNBSP.Name = "checkBoxWarnNBSP";
             this.checkBoxWarnNBSP.Size = new System.Drawing.Size(151, 17);
@@ -811,7 +820,7 @@ namespace CsvTools
             this.checkBoxWarnUnknowCharater.AutoSize = true;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxWarnUnknowCharater, 2);
             this.checkBoxWarnUnknowCharater.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "WarnUnknownCharacter", true));
-            this.checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(2, 299);
+            this.checkBoxWarnUnknowCharater.Location = new System.Drawing.Point(2, 304);
             this.checkBoxWarnUnknowCharater.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxWarnUnknowCharater.Name = "checkBoxWarnUnknowCharater";
             this.checkBoxWarnUnknowCharater.Size = new System.Drawing.Size(165, 17);
@@ -826,7 +835,7 @@ namespace CsvTools
             this.checkBoxWarnDelimiterInValue.AutoSize = true;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxWarnDelimiterInValue, 2);
             this.checkBoxWarnDelimiterInValue.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "WarnDelimiterInValue", true));
-            this.checkBoxWarnDelimiterInValue.Location = new System.Drawing.Point(2, 257);
+            this.checkBoxWarnDelimiterInValue.Location = new System.Drawing.Point(2, 262);
             this.checkBoxWarnDelimiterInValue.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxWarnDelimiterInValue.Name = "checkBoxWarnDelimiterInValue";
             this.checkBoxWarnDelimiterInValue.Size = new System.Drawing.Size(95, 17);
@@ -841,7 +850,7 @@ namespace CsvTools
             this.checkBoxWarnQuotes.AutoSize = true;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxWarnQuotes, 2);
             this.checkBoxWarnQuotes.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "WarnQuotes", true));
-            this.checkBoxWarnQuotes.Location = new System.Drawing.Point(2, 278);
+            this.checkBoxWarnQuotes.Location = new System.Drawing.Point(2, 283);
             this.checkBoxWarnQuotes.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxWarnQuotes.Name = "checkBoxWarnQuotes";
             this.checkBoxWarnQuotes.Size = new System.Drawing.Size(166, 17);
@@ -921,6 +930,75 @@ namespace CsvTools
         "n is accepted by the quick viewer. When saving data the value set here is used.");
             this.cboRecordDelimiter.ValueMember = "ID";
             // 
+            // checkBoxWarnLineFeed
+            // 
+            this.checkBoxWarnLineFeed.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.checkBoxWarnLineFeed.AutoSize = true;
+            this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxWarnLineFeed, 2);
+            this.checkBoxWarnLineFeed.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "WarnLineFeed", true));
+            this.checkBoxWarnLineFeed.Location = new System.Drawing.Point(2, 346);
+            this.checkBoxWarnLineFeed.Margin = new System.Windows.Forms.Padding(2);
+            this.checkBoxWarnLineFeed.Name = "checkBoxWarnLineFeed";
+            this.checkBoxWarnLineFeed.Size = new System.Drawing.Size(96, 17);
+            this.checkBoxWarnLineFeed.TabIndex = 2;
+            this.checkBoxWarnLineFeed.Text = "Warn Linefeed";
+            this.toolTip.SetToolTip(this.checkBoxWarnLineFeed, "In case a linefeed is found in the column, issue a warning. This way possible pro" +
+        "blems with other CSV readers are easily identified.");
+            this.checkBoxWarnLineFeed.UseVisualStyleBackColor = true;
+            // 
+            // numericUpDownNumWarnings
+            // 
+            this.numericUpDownNumWarnings.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.bindingSourceCsvFile, "NumWarnings", true));
+            this.numericUpDownNumWarnings.Increment = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.numericUpDownNumWarnings.Location = new System.Drawing.Point(432, 237);
+            this.numericUpDownNumWarnings.Maximum = new decimal(new int[] {
+            200,
+            0,
+            0,
+            0});
+            this.numericUpDownNumWarnings.Name = "numericUpDownNumWarnings";
+            this.numericUpDownNumWarnings.Size = new System.Drawing.Size(110, 20);
+            this.numericUpDownNumWarnings.TabIndex = 7;
+            this.numericUpDownNumWarnings.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.toolTip.SetToolTip(this.numericUpDownNumWarnings, "After the set limit is reached further warning are omitted, if set to 0 there is " +
+        "no limit.");
+            // 
+            // comboBoxLimitDuration
+            // 
+            this.comboBoxLimitDuration.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", this.bindingSourceViewSetting, "LimitDuration", true));
+            this.comboBoxLimitDuration.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxLimitDuration.FormattingEnabled = true;
+            this.comboBoxLimitDuration.Location = new System.Drawing.Point(162, 148);
+            this.comboBoxLimitDuration.Name = "comboBoxLimitDuration";
+            this.comboBoxLimitDuration.Size = new System.Drawing.Size(110, 21);
+            this.comboBoxLimitDuration.TabIndex = 4;
+            this.toolTip.SetToolTip(this.comboBoxLimitDuration, "Stop reading further records from the source after the given timespan, showing th" +
+        "e data that has been read so far");
+            // 
+            // numericUpDownLength
+            // 
+            this.numericUpDownLength.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.bindingSourceViewSetting, "ShowButtonAtLength", true));
+            this.numericUpDownLength.Increment = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.numericUpDownLength.Location = new System.Drawing.Point(162, 368);
+            this.numericUpDownLength.Maximum = new decimal(new int[] {
+            4000,
+            0,
+            0,
+            0});
+            this.numericUpDownLength.Name = "numericUpDownLength";
+            this.numericUpDownLength.Size = new System.Drawing.Size(110, 20);
+            this.numericUpDownLength.TabIndex = 7;
+            this.numericUpDownLength.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.toolTip.SetToolTip(this.numericUpDownLength, "Do not show columns with long text, but display a button to open the text");
+            // 
             // errorProvider
             // 
             this.errorProvider.ContainerControl = this;
@@ -933,7 +1011,7 @@ namespace CsvTools
             this.tabPageBehaviour.Margin = new System.Windows.Forms.Padding(2);
             this.tabPageBehaviour.Name = "tabPageBehaviour";
             this.tabPageBehaviour.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPageBehaviour.Size = new System.Drawing.Size(794, 414);
+            this.tabPageBehaviour.Size = new System.Drawing.Size(794, 416);
             this.tabPageBehaviour.TabIndex = 9;
             this.tabPageBehaviour.Text = "Behavior and Warnings";
             // 
@@ -968,13 +1046,15 @@ namespace CsvTools
             this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxWarnQuotes, 0, 14);
             this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxWarnDelimiterInValue, 0, 13);
             this.tableLayoutPanelBehaviour.Controls.Add(this.checkBoxWarnEmptyTailingColumns, 0, 12);
-            this.tableLayoutPanelBehaviour.Controls.Add(this.numericUpDownNumWarnings, 1, 18);
-            this.tableLayoutPanelBehaviour.Controls.Add(this.labelWarningLimit, 0, 18);
+            this.tableLayoutPanelBehaviour.Controls.Add(this.label6, 0, 19);
+            this.tableLayoutPanelBehaviour.Controls.Add(this.numericUpDownLength, 1, 19);
+            this.tableLayoutPanelBehaviour.Controls.Add(this.labelWarningLimit, 2, 12);
+            this.tableLayoutPanelBehaviour.Controls.Add(this.numericUpDownNumWarnings, 3, 12);
             this.tableLayoutPanelBehaviour.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanelBehaviour.Location = new System.Drawing.Point(2, 2);
             this.tableLayoutPanelBehaviour.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanelBehaviour.Name = "tableLayoutPanelBehaviour";
-            this.tableLayoutPanelBehaviour.RowCount = 19;
+            this.tableLayoutPanelBehaviour.RowCount = 20;
             this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -994,9 +1074,8 @@ namespace CsvTools
             this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanelBehaviour.Size = new System.Drawing.Size(790, 386);
+            this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanelBehaviour.Size = new System.Drawing.Size(790, 391);
             this.tableLayoutPanelBehaviour.TabIndex = 3;
             // 
             // labelPersistentSettings
@@ -1020,43 +1099,6 @@ namespace CsvTools
             this.labelByFile.TabIndex = 1;
             this.labelByFile.Text = "Read Behavior";
             // 
-            // checkBoxWarnLineFeed
-            // 
-            this.checkBoxWarnLineFeed.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.checkBoxWarnLineFeed.AutoSize = true;
-            this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxWarnLineFeed, 2);
-            this.checkBoxWarnLineFeed.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceViewSetting, "WarnLineFeed", true));
-            this.checkBoxWarnLineFeed.Location = new System.Drawing.Point(2, 341);
-            this.checkBoxWarnLineFeed.Margin = new System.Windows.Forms.Padding(2);
-            this.checkBoxWarnLineFeed.Name = "checkBoxWarnLineFeed";
-            this.checkBoxWarnLineFeed.Size = new System.Drawing.Size(96, 17);
-            this.checkBoxWarnLineFeed.TabIndex = 2;
-            this.checkBoxWarnLineFeed.Text = "Warn Linefeed";
-            this.toolTip.SetToolTip(this.checkBoxWarnLineFeed, "In case a linefeed is found in the column, issue a warning. This way possible pro" +
-        "blems with other CSV readers are easily identified.");
-            this.checkBoxWarnLineFeed.UseVisualStyleBackColor = true;
-            // 
-            // numericUpDownNumWarnings
-            // 
-            this.numericUpDownNumWarnings.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.bindingSourceCsvFile, "NumWarnings", true));
-            this.numericUpDownNumWarnings.Increment = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.numericUpDownNumWarnings.Location = new System.Drawing.Point(162, 363);
-            this.numericUpDownNumWarnings.Maximum = new decimal(new int[] {
-            200,
-            0,
-            0,
-            0});
-            this.numericUpDownNumWarnings.Name = "numericUpDownNumWarnings";
-            this.numericUpDownNumWarnings.Size = new System.Drawing.Size(110, 20);
-            this.numericUpDownNumWarnings.TabIndex = 7;
-            this.numericUpDownNumWarnings.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.toolTip.SetToolTip(this.numericUpDownNumWarnings, "After the set limit is reached further warning are omitted, if set to 0 there is " +
-        "no limit.");
-            // 
             // selectFont
             // 
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.selectFont, 2);
@@ -1071,6 +1113,28 @@ namespace CsvTools
             this.selectFont.TabIndex = 8;
             this.selectFont.ValueChanged += new System.EventHandler(this.SelectFont_ValueChanged);
             // 
+            // label6
+            // 
+            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(25, 370);
+            this.label6.Margin = new System.Windows.Forms.Padding(2, 5, 2, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(132, 13);
+            this.label6.TabIndex = 9;
+            this.label6.Text = "Button for text longer than:";
+            // 
+            // labelWarningLimit
+            // 
+            this.labelWarningLimit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.labelWarningLimit.AutoSize = true;
+            this.labelWarningLimit.Location = new System.Drawing.Point(353, 239);
+            this.labelWarningLimit.Margin = new System.Windows.Forms.Padding(2, 5, 2, 0);
+            this.labelWarningLimit.Name = "labelWarningLimit";
+            this.labelWarningLimit.Size = new System.Drawing.Size(74, 13);
+            this.labelWarningLimit.TabIndex = 9;
+            this.labelWarningLimit.Text = "Warning Limit:";
+            // 
             // tabPageFormat
             // 
             this.tabPageFormat.BackColor = System.Drawing.SystemColors.Control;
@@ -1079,7 +1143,7 @@ namespace CsvTools
             this.tabPageFormat.Margin = new System.Windows.Forms.Padding(2);
             this.tabPageFormat.Name = "tabPageFormat";
             this.tabPageFormat.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPageFormat.Size = new System.Drawing.Size(794, 414);
+            this.tabPageFormat.Size = new System.Drawing.Size(794, 416);
             this.tabPageFormat.TabIndex = 0;
             this.tabPageFormat.Text = "Detection";
             // 
@@ -1090,7 +1154,7 @@ namespace CsvTools
             this.fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(1);
             this.fillGuessSettingEdit.MinimumSize = new System.Drawing.Size(473, 195);
             this.fillGuessSettingEdit.Name = "fillGuessSettingEdit";
-            this.fillGuessSettingEdit.Size = new System.Drawing.Size(790, 410);
+            this.fillGuessSettingEdit.Size = new System.Drawing.Size(790, 412);
             this.fillGuessSettingEdit.TabIndex = 101;
             // 
             // tabPageFile
@@ -1101,7 +1165,7 @@ namespace CsvTools
             this.tabPageFile.Margin = new System.Windows.Forms.Padding(2);
             this.tabPageFile.Name = "tabPageFile";
             this.tabPageFile.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPageFile.Size = new System.Drawing.Size(794, 414);
+            this.tabPageFile.Size = new System.Drawing.Size(794, 416);
             this.tabPageFile.TabIndex = 6;
             this.tabPageFile.Text = "Read Settings";
             // 
@@ -1116,7 +1180,7 @@ namespace CsvTools
             this.tabControl.Margin = new System.Windows.Forms.Padding(2);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(802, 440);
+            this.tabControl.Size = new System.Drawing.Size(802, 442);
             this.tabControl.TabIndex = 0;
             // 
             // tabPageWrite
@@ -1126,7 +1190,7 @@ namespace CsvTools
             this.tabPageWrite.Location = new System.Drawing.Point(4, 22);
             this.tabPageWrite.Name = "tabPageWrite";
             this.tabPageWrite.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageWrite.Size = new System.Drawing.Size(794, 414);
+            this.tabPageWrite.Size = new System.Drawing.Size(794, 416);
             this.tabPageWrite.TabIndex = 10;
             this.tabPageWrite.Text = "Write Settings";
             // 
@@ -1274,39 +1338,11 @@ namespace CsvTools
             this.buttonNewLine.UseVisualStyleBackColor = true;
             this.buttonNewLine.Click += new System.EventHandler(this.GuessNewline_Click);
             // 
-            // comboBoxLimitDuration
-            // 
-            this.comboBoxLimitDuration.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", this.bindingSourceViewSetting, "LimitDuration", true));
-            this.comboBoxLimitDuration.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxLimitDuration.FormattingEnabled = true;
-            this.comboBoxLimitDuration.Location = new System.Drawing.Point(162, 148);
-            this.comboBoxLimitDuration.Name = "comboBoxLimitDuration";
-            this.comboBoxLimitDuration.Size = new System.Drawing.Size(110, 21);
-            this.comboBoxLimitDuration.TabIndex = 4;
-            this.toolTip.SetToolTip(this.comboBoxLimitDuration, "Stop reading further records from the source after the given timespan, showing th" +
-        "e data that has been read so far");
-            // 
-            // labelWarningLimit
-            // 
-            this.labelWarningLimit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.labelWarningLimit.AutoSize = true;
-            this.labelWarningLimit.Location = new System.Drawing.Point(83, 365);
-            this.labelWarningLimit.Margin = new System.Windows.Forms.Padding(2, 5, 2, 0);
-            this.labelWarningLimit.Name = "labelWarningLimit";
-            this.labelWarningLimit.Size = new System.Drawing.Size(74, 13);
-            this.labelWarningLimit.TabIndex = 9;
-            this.labelWarningLimit.Text = "Warning Limit:";
-            // 
-            // bindingSourceViewSetting
-            // 
-            this.bindingSourceViewSetting.AllowNew = false;
-            this.bindingSourceViewSetting.DataSource = typeof(CsvTools.ViewSettings);
-            // 
             // FormEditSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(802, 440);
+            this.ClientSize = new System.Drawing.Size(802, 442);
             this.Controls.Add(this.tabControl);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Margin = new System.Windows.Forms.Padding(2);
@@ -1323,14 +1359,16 @@ namespace CsvTools
             this.tableLayoutPanelFile.ResumeLayout(false);
             this.tableLayoutPanelFile.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceCsvFile)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceViewSetting)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceWrite)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumWarnings)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownLength)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
             this.tabPageBehaviour.ResumeLayout(false);
             this.tabPageBehaviour.PerformLayout();
             this.tableLayoutPanelBehaviour.ResumeLayout(false);
             this.tableLayoutPanelBehaviour.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumWarnings)).EndInit();
             this.tabPageFormat.ResumeLayout(false);
             this.tabPageFile.ResumeLayout(false);
             this.tabPageFile.PerformLayout();
@@ -1339,7 +1377,6 @@ namespace CsvTools
             this.tabPageWrite.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceViewSetting)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -1428,5 +1465,7 @@ namespace CsvTools
     private QuotingControl quotingControl;
     private System.Windows.Forms.ComboBox comboBoxLimitDuration;
     private System.Windows.Forms.Label labelWarningLimit;
+    private System.Windows.Forms.Label label6;
+    private System.Windows.Forms.NumericUpDown numericUpDownLength;
   }
 }

@@ -83,15 +83,14 @@ namespace CsvTools.Tests
     [Timeout(10000)]
     public void TextDisplay()
     {
-      Extensions.RunStaThread(() =>
-      {
+     
         using var tm = new TimedMessage();
         tm.Message = "Found values\rLine2\nDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n" +
                      "DMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n\nNote: Text has been cut off after 15 characters";
 
         tm.Size = new Size(600, 450);
         UnitTestStaticForms.ShowFormAndClose(tm, 2);
-      });
+      
     }
 
     [TestMethod]

@@ -39,7 +39,7 @@ namespace CsvTools
     private readonly CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
     private readonly Timer m_SettingsChangedTimerChange = new Timer(200);
     private readonly ViewSettings m_ViewSettings;
-    private bool m_ConfigChanged;
+    private bool m_ShouldReloadData;
     private bool m_FileChanged;
     private bool m_RunDetection;
     private bool m_AskOpenFile = true;
@@ -50,10 +50,9 @@ namespace CsvTools
 
     private void ApplyViewSettings()
     {
-      this.SafeInvoke(action: () =>
-      {
-        detailControl.MenuDown = m_ViewSettings.MenuDown;
-      });
+      detailControl.MenuDown = m_ViewSettings.MenuDown;
+      detailControl.ShowButtonAtLength = m_ViewSettings.ShowButtonAtLength;
+      detailControl.HtmlStyle = m_ViewSettings.HtmlStyle;
     }
 
     public FormMain() : this(new ViewSettings())
@@ -72,8 +71,6 @@ namespace CsvTools
 
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonAsText);
       detailControl.AddToolStripItem(int.MaxValue, m_ToolStripButtonShowLog);
-      detailControl.MenuDown = m_ViewSettings.MenuDown;
-      detailControl.HtmlStyle = m_ViewSettings.HtmlStyle;
       this.LoadWindowState(m_ViewSettings.WindowPosition);
 
       ShowTextPanel(false);
@@ -84,9 +81,12 @@ namespace CsvTools
 
       m_ViewSettings.PropertyChanged += (sender, args) =>
       {
-        if (args.PropertyName == nameof(ViewSettings.MenuDown))
+        if (args.PropertyName == nameof(ViewSettings.MenuDown) ||
+            args.PropertyName == nameof(ViewSettings.ShowButtonAtLength))
           ApplyViewSettings();
       };
+      ApplyViewSettings();
+
 #pragma warning disable CA1416
       SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
       SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
@@ -144,8 +144,6 @@ namespace CsvTools
         m_ToolStripButtonAsText.Visible = m_FileSetting is ICsvFile &&
                                           m_FileSetting.ColumnCollection.Any(x =>
                                             x.ValueFormat.DataType != DataTypeEnum.String);
-
-        await OpenDataReaderAsync(cancellationToken);
       }
       catch (Exception ex)
       {
@@ -249,11 +247,13 @@ namespace CsvTools
       });
     }
 
+    // ReSharper disable StringLiteralTypo
     private void SelectFile(string message)
     {
       try
       {
         Logger.Information(message);
+        
         var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
                         + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
 
@@ -275,7 +275,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        this.ShowError(ex, $"Select File");
+        this.ShowError(ex, "Select File");
       }
     }
 
@@ -315,9 +315,9 @@ namespace CsvTools
     {
       try
       {
-        if (m_ConfigChanged)
+        if (m_ShouldReloadData)
         {
-          m_ConfigChanged = false;
+          m_ShouldReloadData = false;
           if (MessageBox.Show(
                 "The configuration has changed do you want to reload the data?",
                 "Configuration changed",
@@ -327,8 +327,10 @@ namespace CsvTools
           {
             if (m_RunDetection)
               await RunDetection(m_CancellationTokenSource.Token);
-            else
-              await OpenDataReaderAsync(m_CancellationTokenSource.Token);
+
+            await OpenDataReaderAsync(m_CancellationTokenSource.Token);
+            // as we have reloaded assume any file change is handled as well
+            m_FileChanged = false;
           }
         }
 
@@ -354,7 +356,7 @@ namespace CsvTools
       }
       catch (Exception exception)
       {
-        Logger.Warning(exception, "Checking for changes");
+        Logger.Error(exception, "Checking reload or file change");
       }
     }
 
@@ -375,7 +377,7 @@ namespace CsvTools
       }
       catch
       {
-        Logger.Information("Disabling file system watcher failed");
+        Logger.Warning("Disabling file system watcher failed");
       }
     }
 
@@ -438,18 +440,18 @@ namespace CsvTools
           || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)
           || e.PropertyName == nameof(ICsvFile.DisplayStartLineNo)
           || e.PropertyName == nameof(ICsvFile.DisplayRecordNo)
-          || e.PropertyName == nameof(ICsvFile.WarnUnknownCharacter)
           || e.PropertyName == nameof(ICsvFile.FieldDelimiter)
           || e.PropertyName == nameof(ICsvFile.FieldQualifier)
           || e.PropertyName == nameof(ICsvFile.EscapePrefix)
           || e.PropertyName == nameof(ICsvFile.DelimiterPlaceholder)
+          || e.PropertyName == nameof(ICsvFile.NewLinePlaceholder)
           || e.PropertyName == nameof(ICsvFile.NewLinePlaceholder)
           || e.PropertyName == nameof(ICsvFile.QualifierPlaceholder)
           || e.PropertyName == nameof(ICsvFile.CommentLine)
           || e.PropertyName == nameof(ICsvFile.ContextSensitiveQualifier)
           || e.PropertyName == nameof(ICsvFile.DuplicateQualifierToEscape)
           || e.PropertyName == nameof(ICsvFile.FileName))
-        m_ConfigChanged = true;
+        m_ShouldReloadData = true;
     }
 
     private void BeforeFileStored(object? sender, IFileSettingPhysicalFile e)
@@ -462,7 +464,7 @@ namespace CsvTools
     {
       fileSystemWatcher.Changed += FileSystemWatcher_Changed;
       fileSystemWatcher.EnableRaisingEvents = m_ViewSettings.DetectFileChanges;
-      m_ConfigChanged = false;
+      m_ShouldReloadData = false;
       if (m_ViewSettings.StoreSettingsByFile)
         await SerializedFilesLib.SaveSettingFileAsync(e, () => true, m_CancellationTokenSource.Token);
     }
@@ -592,7 +594,7 @@ namespace CsvTools
 
           detailControl.ShowInfoButtons = true;
 
-          m_ConfigChanged = false;
+          m_ShouldReloadData = false;
           m_FileChanged = false;
         }
 
@@ -603,7 +605,7 @@ namespace CsvTools
 
     private void ColumnCollectionOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-      m_ConfigChanged = true;
+      m_ShouldReloadData = true;
       CheckPossibleChange().GetAwaiter().GetResult();
     }
 
@@ -621,7 +623,7 @@ namespace CsvTools
               MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes, m_CancellationTokenSource.Token);
         }
 
-        m_ConfigChanged = false;
+        m_ShouldReloadData = false;
       }
       catch (Exception ex)
       {
@@ -658,7 +660,7 @@ namespace CsvTools
           m_FileSetting.DisplayRecordNo = m_ViewSettings.DisplayRecordNo;
           SetFileSystemWatcher(m_FileSetting.FileName);
           m_RunDetection = !m_ViewSettings.FillGuessSettings.Equals(oldFillGuessSettings);
-          m_ConfigChanged = m_ConfigChanged || m_RunDetection || m_FileChanged;
+          m_ShouldReloadData = m_ShouldReloadData || m_RunDetection || m_FileChanged;
         }
         else if (frm.FileSetting != null)
         {

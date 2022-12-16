@@ -45,7 +45,7 @@ namespace CsvTools.Tests
   public static class UnitTestStatic
   {
     public static readonly string ApplicationDirectory = Path.Combine(
-      Assembly.GetExecutingAssembly().Location,
+      (new FileInfo(Assembly.GetExecutingAssembly().Location)).DirectoryName,
       "TestFiles");
 
 #pragma warning disable IDE0090
@@ -65,12 +65,12 @@ namespace CsvTools.Tests
 #pragma warning disable CS0618
       ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12;
 #pragma warning restore CS0618
-      AppDomain.CurrentDomain.UnhandledException += delegate (object _, UnhandledExceptionEventArgs args)
-      {
-        if (!Token.IsCancellationRequested)
-          WriteToContext(args.ExceptionObject.ToString()!);
-        Assert.Fail(args.ExceptionObject.ToString());
-      };
+      //AppDomain.CurrentDomain.UnhandledException += delegate (object _, UnhandledExceptionEventArgs args)
+      //{
+      //  if (!Token.IsCancellationRequested)
+      //    WriteToContext(args.ExceptionObject.ToString()!);
+      //  Assert.Fail(args.ExceptionObject.ToString());
+      //};
       m_TestLogger = new UnitTestLogger(context);
       return m_TestLogger;
     }

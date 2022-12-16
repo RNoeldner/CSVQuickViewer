@@ -30,10 +30,10 @@ namespace CsvTools.Tests
     public async Task SearchText()
     {
       using var dt = UnitTestStaticData.RandomDataTable(1000);
-      await UnitTestStaticForms.ShowControlAsync(new DetailControl(), .1, async (ctrl) =>
+      UnitTestStaticForms.ShowControl(new DetailControl(), .1, (ctrl) =>
       {
         ctrl.DataTable = dt;
-        await ctrl.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
+        ctrl.RefreshDisplay(FilterTypeEnum.All, UnitTestStatic.Token);
         ctrl.SearchText("212");
       }, 2);
     }
@@ -44,17 +44,17 @@ namespace CsvTools.Tests
     {
       using var dt = UnitTestStaticData.RandomDataTable(500);
 
-      await UnitTestStaticForms.ShowControlAsync(new DetailControl(), .1, async (ctrl) =>
+      UnitTestStaticForms.ShowControl(new DetailControl(), .1, (ctrl) =>
       {
         ctrl.DataTable = dt;
-        await ctrl.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
+        ctrl.RefreshDisplay(FilterTypeEnum.All, UnitTestStatic.Token);
         ctrl.SetFilter(dt.Columns[2].ColumnName, ">", "Test2");
       }, 1.5);
     }
 
     [TestMethod]
     [Timeout(3000)]
-    public async Task DetailControlTestAsync()
+    public void DetailControlTestAsync()
     {
       using var dt = new DataTable();
       dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
@@ -80,12 +80,12 @@ namespace CsvTools.Tests
       dc.Show();
       dc.DataTable = dt;
 
-      await dc.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
+      dc.RefreshDisplay(FilterTypeEnum.All, UnitTestStatic.Token);
     }
 
     [TestMethod]
     [Timeout(3000)]
-    public async Task SortTestAsync()
+    public void SortTestAsync()
     {
       using var dt = new DataTable();
       dt.Columns.Add(new DataColumn { ColumnName = "ID", DataType = typeof(int) });
@@ -106,7 +106,7 @@ namespace CsvTools.Tests
       dc.HtmlStyle = HtmlStyle.Default;
       dc.Show();
       dc.DataTable = dt;
-      await dc.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
+      dc.RefreshDisplay(FilterTypeEnum.All, UnitTestStatic.Token);
       dc.Sort("ID", ListSortDirection.Ascending);
     }
   }
