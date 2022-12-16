@@ -64,7 +64,7 @@ namespace CsvTools
     private async Task<StringBuilder> SourceText(IProgress<ProgressInfo> formProgress,
       CancellationToken cancellationToken)
     {
-      formProgress.Report(new ProgressInfo("Opening source"));
+      formProgress.Report(new ProgressInfo("Accessing source file"));
       var sa = new SourceAccess(m_FullPath);
 #if NET5_0_OR_GREATER
       await
@@ -72,25 +72,24 @@ namespace CsvTools
       // ReSharper disable once UseAwaitUsing
       using var stream = new ImprovedStream(sa);
       using var textReader = new StreamReader(stream, Encoding.GetEncoding(m_CodePage), true, 4096, false);
-      {
-        formProgress.Report(new ProgressInfo("Reading source"));
-        formProgress.SetMaximum(1000);
-        var sb = new StringBuilder();
-        char[] buffer = ArrayPool<char>.Shared.Rent(32000);
-        int len;
-        while ((len = await textReader.ReadBlockAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) != 0)
-        {
-          cancellationToken.ThrowIfCancellationRequested();
-          sb.Append(buffer, 0, len);
-          formProgress.Report(new ProgressInfo($"Reading source {sb.Length:N0}",
-            // ReSharper disable once AccessToDisposedClosure
-            Convert.ToInt64(stream.Percentage * 1000)));
-        }
 
-        formProgress.Report(new ProgressInfo($"Finished reading"));
-        formProgress.SetMaximum(0);
-        return sb;
+      var sb = new StringBuilder();
+      char[] buffer = ArrayPool<char>.Shared.Rent(64000);
+      int len;
+      formProgress.SetMaximum(1000);
+      while ((len = await textReader.ReadBlockAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) != 0)
+      {
+        cancellationToken.ThrowIfCancellationRequested();
+        sb.Append(buffer, 0, len);
+        formProgress.Report(new ProgressInfo($"Reading source {stream.Position:N0}",
+          // ReSharper disable once AccessToDisposedClosure
+          Convert.ToInt64(stream.Percentage * 1000)));
       }
+
+      formProgress.SetMaximum(0);
+      formProgress.Report(new ProgressInfo($"Finished reading file"));
+
+      return sb;
     }
 
     private async Task OriginalStream(CancellationToken cancellationToken)
@@ -99,8 +98,10 @@ namespace CsvTools
       {
         using var formProgress = new FormProgress("Display Source", false, cancellationToken);
         formProgress.ShowWithFont(this);
+        var sb = await SourceText(formProgress, formProgress.CancellationToken);
         textBox.ClearUndo();
-        textBox.Text = (await SourceText(formProgress, formProgress.CancellationToken)).ToString();
+        formProgress.Report(new ProgressInfo("Display of read file"));
+        textBox.Text = sb.ToString();
         textBox.IsChanged = false;
         formProgress.Maximum = 0;
         formProgress.Report(new ProgressInfo("Applying color coding"));
