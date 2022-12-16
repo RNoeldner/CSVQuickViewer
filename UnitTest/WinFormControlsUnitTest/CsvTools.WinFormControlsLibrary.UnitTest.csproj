@@ -11,19 +11,20 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Compile Remove="WinAppLoggingTests.cs" />
+		<Compile Remove="WinAppLoggingTests.cs" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Compile Include="..\UnitTestBasic\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
-	  <Compile Include="..\UnitTestBasic\UnitTestStaticData.cs" Link="UnitTestStaticData.cs" />
-	  <Compile Include="..\UnitTestBasic\UnitTestStaticForms.cs" Link="UnitTestStaticForms.cs" />
+		<Compile Include="..\UnitTestBasic\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
+		<Compile Include="..\UnitTestBasic\UnitTestStaticData.cs" Link="UnitTestStaticData.cs" />
+		<Compile Include="..\UnitTestBasic\UnitTestStaticForms.cs" Link="UnitTestStaticForms.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="MSTest.TestAdapter" Version="3.0.0" />
+		<PackageReference Include="Microsoft.CodeCoverage" Version="17.4.1" />
+		<PackageReference Include="Microsoft.UnitTestFramework.Extensions" Version="2.0.0" />
 		<PackageReference Include="MSTest.TestFramework" Version="3.0.0" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.0.0" />
 		<ProjectReference Include="..\..\..\FileValidator\Library\ClassLibraryValidator\CsvTools.ClassLibraryValidator.csproj" />
 		<ProjectReference Include="..\..\Library\WinFormControls\CsvTools.WinFormControlsLibrary.csproj" />
-		<PackageReference Include="FCTB" Version="2.16.24" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Update="TestFiles\*.txt">
