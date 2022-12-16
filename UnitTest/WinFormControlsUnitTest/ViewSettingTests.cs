@@ -63,7 +63,7 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(5000)]
-    public async System.Threading.Tasks.Task ReStoreViewSettingDetailControlAsync()
+    public void ReStoreViewSettingDetailControlAsync()
     {
       using (var dt = UnitTestStaticData.GetDataTable())
       {
@@ -71,7 +71,7 @@ namespace CsvTools.Tests
         {
           dc.HtmlStyle = HtmlStyle.Default;
           dc.DataTable = dt;
-          await dc.RefreshDisplayAsync(FilterTypeEnum.All, UnitTestStatic.Token);
+          dc.RefreshDisplay(FilterTypeEnum.All, UnitTestStatic.Token);
           dc.SetFilter(dt.Columns[0].ColumnName, ">", "Ha");
           var text = dc.GetViewStatus();
 

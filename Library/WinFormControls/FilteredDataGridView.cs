@@ -37,18 +37,16 @@ namespace CsvTools
   /// </summary>
   public partial class FilteredDataGridView : DataGridView
   {
-    private static int _defRowHeight = -1;
+    private static int m_DefRowHeight = -1;
     private readonly Image m_ImgFilterIndicator;
     private readonly CancellationTokenSource m_CancellationTokenSource;
     private readonly List<ToolStripDataGridViewColumnFilter?> m_Filter;
-
     private BindingSource? m_BindingSource;
 
     private bool m_DisposedValue;
     private IFileSetting? m_FileSetting;
-
+    private int m_ShowButtonAtLength = 2000;
     private int m_MenuItemColumnIndex;
-
 
     private void PassOnFontChanges(object? sender, EventArgs e)
     {
@@ -109,7 +107,7 @@ namespace CsvTools
       DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 
       contextMenuStripFilter.Opened += ContextMenuStripFilter_Opened;
-      contextMenuStripFilter.Closing += delegate(object? sender, ToolStripDropDownClosingEventArgs e)
+      contextMenuStripFilter.Closing += delegate (object? sender, ToolStripDropDownClosingEventArgs e)
       {
         if (e.CloseReason != ToolStripDropDownCloseReason.AppClicked
             && e.CloseReason != ToolStripDropDownCloseReason.ItemClicked
@@ -149,6 +147,24 @@ namespace CsvTools
     public string CurrentFilter =>
       (m_BindingSource != null ? m_BindingSource?.Filter : DataView?.RowFilter) ?? string.Empty;
 
+
+    [Bindable(true)]
+    [Browsable(true)]
+    [DefaultValue(2000)]
+    public int ShowButtonAtLength
+    {
+      get => m_ShowButtonAtLength;
+      set
+      {
+        var newVal = value < 0 ? 0 : value;
+
+        if (m_ShowButtonAtLength == newVal)
+          return;
+        m_ShowButtonAtLength = newVal;
+        GenerateDataGridViewColumn();
+      }
+    }
+    
     /// <summary>
     ///   Gets or sets the data source that the <see cref="DataGridView" /> is displaying data for.
     /// </summary>
@@ -254,11 +270,11 @@ namespace CsvTools
         {
           var filter = new StringBuilder();
           foreach (var filterLogic in from toolStripFilter in m_Filter
-                   where toolStripFilter != null
-                   select toolStripFilter.ColumnFilterLogic
+                                      where toolStripFilter != null
+                                      select toolStripFilter.ColumnFilterLogic
                    into filterLogic
-                   where filterLogic.Active && !string.IsNullOrEmpty(filterLogic.FilterExpression)
-                   select filterLogic)
+                                      where filterLogic.Active && !string.IsNullOrEmpty(filterLogic.FilterExpression)
+                                      select filterLogic)
           {
             if (filter.Length > 0)
               filter.Append("\nAND\n");
@@ -391,8 +407,8 @@ namespace CsvTools
       {
         var colFirstNoFrozen =
           (from col in Columns.OfType<DataGridViewColumn>().OrderBy(x => x.DisplayIndex)
-            where !col.Frozen
-            select col.DisplayIndex).FirstOrDefault();
+           where !col.Frozen
+           select col.DisplayIndex).FirstOrDefault();
         Columns[m_MenuItemColumnIndex].DisplayIndex = colFirstNoFrozen;
       }
 
@@ -479,9 +495,11 @@ namespace CsvTools
         var newMenuItem =
           new ToolStripMenuItem(StringUtils.GetShortDisplay(item.Display, 40))
           {
-            Tag = item, Checked = item.Active, CheckOnClick = true
+            Tag = item,
+            Checked = item.Active,
+            CheckOnClick = true
           };
-        newMenuItem.CheckStateChanged += delegate(object? menuItem, EventArgs _)
+        newMenuItem.CheckStateChanged += delegate (object? menuItem, EventArgs _)
         {
           if (menuItem is not ToolStripMenuItem sendItem)
             return;
@@ -639,7 +657,6 @@ namespace CsvTools
         components?.Dispose();
         foreach (var item in m_Filter)
           item?.Dispose();
-
         m_ImgFilterIndicator.Dispose();
         m_CancellationTokenSource.Dispose();
       }
@@ -702,14 +719,14 @@ namespace CsvTools
     {
       // Actually depend on scaling, best approach is to get the initial row.Height of the very
       // first call
-      if (_defRowHeight == -1)
-        _defRowHeight = row.Height;
+      if (m_DefRowHeight == -1)
+        m_DefRowHeight = row.Height;
       // in case the row is not bigger than normal check if it would need to be higher
-      if (row.Height != _defRowHeight) return _defRowHeight;
+      if (row.Height != m_DefRowHeight) return m_DefRowHeight;
       if (checkedColumns.Any(column => row.Cells[column.Index].Value?.ToString().IndexOf('\n') != -1))
-        return _defRowHeight * 2;
+        return m_DefRowHeight * 2;
 
-      return _defRowHeight;
+      return m_DefRowHeight;
     }
 
     /// <summary>
@@ -812,13 +829,21 @@ namespace CsvTools
     private void FilteredDataGridView_CellMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
     {
       SetToolStripMenu(e.ColumnIndex, e.RowIndex, e.Button);
-      if (e is { Button: MouseButtons.Left, RowIndex: >= 0 } && Columns[e.ColumnIndex] is DataGridViewButtonColumn &&
-          CurrentCell != null)
+      if (e is { Button: MouseButtons.Left, RowIndex: >= 0 } && Columns[e.ColumnIndex] is DataGridViewButtonColumn)
       {
         using var frm = new FormTextDisplay(CurrentCell.Value?.ToString() ?? string.Empty);
+
         frm.Text = $"{Columns[e.ColumnIndex].DataPropertyName} - Row {e.RowIndex + 1:D}";
+        frm.SaveAction = s =>
+        {
+          if (s.Equals(CurrentCell.Value)) 
+            return;
+          CurrentCell.Value = s;
+          CurrentCell.ErrorText = CurrentCell.ErrorText.AddMessage(
+            "Value was modified".AddWarningId());
+        };
         frm.ShowWithFont(this, true);
-        CurrentCell.Value = frm.CurrentText;
+
       }
     }
 
@@ -874,8 +899,8 @@ namespace CsvTools
     /// </param>
     private void FilteredDataGridView_ColumnWidthChanged(object? sender, DataGridViewColumnEventArgs e)
     {
-      if (e.Column.Width > Width)
-        e.Column.Width = Width;
+      if (e.Column.Width > (Width * 3) / 4)
+        e.Column.Width = (Width * 3) / 4;
     }
 
     private void FilteredDataGridView_DataError(object? sender, DataGridViewDataErrorEventArgs e)
@@ -899,87 +924,83 @@ namespace CsvTools
       e.Handled = true;
     }
 
-    //private void FilteredDataGridView_Paint(object? sender, PaintEventArgs e) => m_DefRowHeight =
-    //  (TextRenderer.MeasureText(e.Graphics, "My Text", base.Font).Height * 120) / 100;
-
     /// <summary>
     ///   Generates the data grid view column.
     /// </summary>
     private void GenerateDataGridViewColumn()
     {
-      ColumnRemoved -= FilteredDataGridView_ColumnRemoved;
-      var oldWith = new Dictionary<string, int>();
-
       // close and remove all pop ups
       CloseFilter();
 
+      var oldWith = new Dictionary<string, int>();
       foreach (DataGridViewColumn column in Columns)
         if (!oldWith.ContainsKey(column.DataPropertyName))
           oldWith.Add(column.DataPropertyName, column.Width);
 
-      // remove all columns
-      Columns.Clear();
-
-      // along with the entries in the context menu
-      toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.Clear();
-
-      // if we do not have a BoundDataView exit now
-      if (DataView is null || DataView.Table is null)
-        return;
-
-      var wrapColumns = new List<DataColumn>();
-      var showAsButton = new List<DataColumn>();
-      foreach (DataColumn col in DataView.Table.Columns)
+      ColumnRemoved -= FilteredDataGridView_ColumnRemoved;
+      try
       {
-        if (col.DataType != typeof(string)) continue;
-        foreach (DataRow row in DataView.Table.Rows)
-        {
-          var text = row[col].ToString();
-          if (string.IsNullOrEmpty(text))
-            continue;
-          if (text.Length > 2000)
-          {
-            showAsButton.Add(col);
-            break;
-          }
+        // remove all columns
+        Columns.Clear();
 
-          if (text.IndexOf('\n') != -1)
+        // along with the entries in the context menu
+        toolStripMenuItemColumnVisibility.CheckedListBoxControl.Items.Clear();
+
+        // if we do not have a BoundDataView exit now
+        if (DataView is null || DataView.Table is null)
+          return;
+
+        var wrapColumns = new List<DataColumn>();
+        var showAsButton = new List<DataColumn>();
+        foreach (DataColumn col in DataView.Table.Columns)
+        {
+          if (col.DataType != typeof(string)) continue;
+          foreach (DataRow row in DataView.Table.Rows)
           {
-            wrapColumns.Add(col);
-            break;
+            var text = row[col].ToString();
+            if (string.IsNullOrEmpty(text))
+              continue;
+            if (m_ShowButtonAtLength >0 && text.Length > m_ShowButtonAtLength)
+            {
+              showAsButton.Add(col);
+              break;
+            }
+
+            if (text.IndexOf('\n') != -1)
+            {
+              wrapColumns.Add(col);
+              break;
+            }
           }
         }
-      }
 
-      foreach (DataColumn col in DataView.Table.Columns)
+        foreach (DataColumn col in DataView.Table.Columns)
+        {
+          DataGridViewColumn newColumn =
+            col.DataType == typeof(bool)
+              ? new DataGridViewCheckBoxColumn()
+              : showAsButton.Contains(col)
+                ? new DataGridViewButtonColumn()
+                : new DataGridViewTextBoxColumn();
+
+
+          newColumn.ValueType = col.DataType;
+          newColumn.Name = col.ColumnName;
+          newColumn.DataPropertyName = col.ColumnName;
+
+          if (wrapColumns.Contains(col))
+            newColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+
+          newColumn.Width = oldWith.TryGetValue(newColumn.DataPropertyName, out var value) && !showAsButton.Contains(col) ?
+            value : showAsButton.Contains(col) ? 25 : GetColumnWith(col, DataView.Table.Rows);
+
+          Columns.Add(newColumn);
+        }
+      }
+      finally
       {
-        DataGridViewColumn newColumn =
-          col.DataType == typeof(bool)
-            ? new DataGridViewCheckBoxColumn()
-            :
-            showAsButton.Contains(col)
-              ?
-              new DataGridViewButtonColumn() { Text = "Details", UseColumnTextForButtonValue = false }
-              :
-              new DataGridViewTextBoxColumn();
-
-        newColumn.ValueType = col.DataType;
-        newColumn.Name = col.ColumnName;
-        newColumn.DataPropertyName = col.ColumnName;
-
-        if (oldWith.ContainsKey(col.ColumnName))
-          newColumn.Width = oldWith[col.ColumnName];
-
-        if (wrapColumns.Contains(col))
-          newColumn.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-
-        newColumn.Width = oldWith.TryGetValue(col.ColumnName, out var value) ? value :
-          showAsButton.Contains(col) ? 25 : GetColumnWith(col, DataView.Table.Rows);
-
-        Columns.Add(newColumn);
+        ColumnRemoved += FilteredDataGridView_ColumnRemoved;
       }
-
-      ColumnRemoved += FilteredDataGridView_ColumnRemoved;
     }
 
     private ToolStripDataGridViewColumnFilter GetColumnFilter(int columnIndex) => m_Filter[columnIndex] ??=

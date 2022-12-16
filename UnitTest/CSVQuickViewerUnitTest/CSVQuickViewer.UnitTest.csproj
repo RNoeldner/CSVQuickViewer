@@ -13,12 +13,17 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Include="..\UnitTestBasic\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
+	  <Compile Include="..\UnitTestBasic\UnitTestStaticData.cs" Link="UnitTestStaticData.cs" />
+	  <Compile Include="..\UnitTestBasic\UnitTestStaticForms.cs" Link="UnitTestStaticForms.cs" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="MSTest.TestAdapter" Version="3.0.0" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Application\CSVQuickViewer.csproj" />
 		<ProjectReference Include="..\..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
-		<ProjectReference Include="..\UnitTestBasic\CsvTools.UnitTestBasic.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Update="TestFiles\*.*">

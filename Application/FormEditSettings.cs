@@ -240,10 +240,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     private void FormEditSettings_FormClosing(object? sender, FormClosingEventArgs e)
     {
       m_CancellationTokenSource.Cancel();
+      ValidateChildren();
       if (m_FileSetting != null)
         m_ViewSettings.PassOnConfiguration(m_FileSetting);
-
-      ValidateChildren();
     }
 
     private async void GuessNewline_Click(object? sender, EventArgs e)
