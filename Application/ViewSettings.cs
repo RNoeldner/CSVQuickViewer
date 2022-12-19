@@ -19,11 +19,11 @@ using System.Windows.Forms;
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="CsvTools.NotifyPropertyChangedBase" />
+  /// <inheritdoc cref="CsvTools.ObservableObject" />
   /// <summary>
   ///   Class containing the all configuration, used in serialization to store the settings
   /// </summary>
-  public sealed class ViewSettings : NotifyPropertyChangedBase, IFontConfig
+  public sealed class ViewSettings : ObservableObject, IFontConfig
   {
     private bool m_AllowJson = true;
     private bool m_DetectFileChanges = true;
@@ -76,28 +76,28 @@ namespace CsvTools
     public string Font
     {
       get => m_Font;
-      set => SetField(ref m_Font, value);
+      set => SetProperty(ref m_Font, value);
     }
 
     [DefaultValue(8.25f)]
     public float FontSize
     {
       get => m_FontSize;
-      set => SetField(ref m_FontSize, value);
+      set => SetProperty(ref m_FontSize, value);
     }
 
     [DefaultValue(false)]
     public bool DisplayRecordNo
     {
       get => m_DisplayRecordNo;
-      set => SetField(ref m_DisplayRecordNo, value);
+      set => SetProperty(ref m_DisplayRecordNo, value);
     }
 
     [DefaultValue(true)]
     public bool DisplayStartLineNo
     {
       get => m_DisplayStartLineNo;
-      set => SetField(ref m_DisplayStartLineNo, value);
+      set => SetProperty(ref m_DisplayStartLineNo, value);
     }
 
     public WindowState WindowPosition
@@ -111,14 +111,14 @@ namespace CsvTools
     public bool AllowJson
     {
       get => m_AllowJson;
-      set => SetField(ref m_AllowJson, value);
+      set => SetProperty(ref m_AllowJson, value);
     }
 
     [DefaultValue(true)]
     public bool DetectFileChanges
     {
       get => m_DetectFileChanges;
-      set => SetField(ref m_DetectFileChanges, value);
+      set => SetProperty(ref m_DetectFileChanges, value);
     }
 
     [JsonIgnore]
@@ -153,7 +153,7 @@ namespace CsvTools
     public FillGuessSettings FillGuessSettings
     {
       get => m_FillGuessSettings;
-      set => SetField(ref m_FillGuessSettings, value);
+      set => SetProperty(ref m_FillGuessSettings, value);
     }
 
 
@@ -161,42 +161,42 @@ namespace CsvTools
     public bool GuessCodePage
     {
       get => m_GuessCodePage;
-      set => SetField(ref m_GuessCodePage, value);
+      set => SetProperty(ref m_GuessCodePage, value);
     }
 
     [DefaultValue(true)]
     public bool GuessDelimiter
     {
       get => m_GuessDelimiter;
-      set => SetField(ref m_GuessDelimiter, value);
+      set => SetProperty(ref m_GuessDelimiter, value);
     }
 
     [DefaultValue(true)]
     public bool GuessHasHeader
     {
       get => m_GuessHasHeader;
-      set => SetField(ref m_GuessHasHeader, value);
+      set => SetProperty(ref m_GuessHasHeader, value);
     }
 
     [DefaultValue(true)]
     public bool GuessNewLine
     {
       get => m_GuessNewLine;
-      set => SetField(ref m_GuessNewLine, value);
+      set => SetProperty(ref m_GuessNewLine, value);
     }
 
     [DefaultValue(true)]
     public bool GuessComment
     {
       get => m_GuessComment;
-      set => SetField(ref m_GuessComment, value);
+      set => SetProperty(ref m_GuessComment, value);
     }
 
     [DefaultValue(true)]
     public bool GuessQualifier
     {
       get => m_GuessQualifier;
-      set => SetField(ref m_GuessQualifier, value);
+      set => SetProperty(ref m_GuessQualifier, value);
     }
 
 
@@ -204,7 +204,7 @@ namespace CsvTools
     public bool GuessStartRow
     {
       get => m_GuessStartRow;
-      set => SetField(ref m_GuessStartRow, value);
+      set => SetProperty(ref m_GuessStartRow, value);
     }
 
     [DefaultValue(Duration.Second)]
@@ -219,7 +219,7 @@ namespace CsvTools
     public bool MenuDown
     {
       get => m_MenuDown;
-      set => SetField(ref m_MenuDown, value);
+      set => SetProperty(ref m_MenuDown, value);
     }
 
 
@@ -227,27 +227,27 @@ namespace CsvTools
     public bool StoreSettingsByFile
     {
       get => m_StoreSettingsByFile;
-      set => SetField(ref m_StoreSettingsByFile, value);
+      set => SetProperty(ref m_StoreSettingsByFile, value);
     }
 
     public HtmlStyle HtmlStyle
     {
       get => m_HtmlStyle;
-      set => SetField(ref m_HtmlStyle, value);
+      set => SetProperty(ref m_HtmlStyle, value);
     }
 
     [DefaultValue(false)]
     public bool WarnDelimiterInValue
     {
       get => m_WarnDelimiterInValue;
-      set=> SetField(ref m_WarnDelimiterInValue, value);
+      set=> SetProperty(ref m_WarnDelimiterInValue, value);
     }
 
     [DefaultValue(true)]
     public bool WarnUnknownCharacter
     {
       get => m_WarnUnknownCharacter;
-      set=> SetField(ref m_WarnUnknownCharacter, value);
+      set=> SetProperty(ref m_WarnUnknownCharacter, value);
     }
 
 
@@ -255,35 +255,35 @@ namespace CsvTools
     public bool WarnQuotes
     {
       get => m_WarnQuotes;
-      set=> SetField(ref m_WarnQuotes, value);
+      set=> SetProperty(ref m_WarnQuotes, value);
     }
 
     [DefaultValue(true)]
     public bool WarnNBSP
     {
       get => m_WarnNbsp;
-      set=> SetField(ref m_WarnNbsp, value);
+      set=> SetProperty(ref m_WarnNbsp, value);
     }
 
     [DefaultValue(true)]
     public bool WarnLineFeed
     {
       get => m_WarnLineFeed;
-      set=> SetField(ref m_WarnLineFeed, value);
+      set=> SetProperty(ref m_WarnLineFeed, value);
     }
 
     [DefaultValue(true)]
     public bool WarnEmptyTailingColumns
     {
       get => m_WarnEmptyTailingColumns;
-      set=> SetField(ref m_WarnEmptyTailingColumns, value);
+      set=> SetProperty(ref m_WarnEmptyTailingColumns, value);
     }
 
     [DefaultValue(2000)]
     public int ShowButtonAtLength
     {
       get => m_ShowButtonAtLength;
-      set=> SetField(ref m_ShowButtonAtLength, value);
+      set=> SetProperty(ref m_ShowButtonAtLength, value);
     }
 
     public void PassOnConfiguration(in IFileSetting fileSetting)

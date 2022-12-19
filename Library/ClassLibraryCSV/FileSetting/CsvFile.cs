@@ -141,7 +141,7 @@ namespace CsvTools
     public bool ContextSensitiveQualifier
     {
       get => m_ContextSensitiveQualifier;
-      set => SetField(ref m_ContextSensitiveQualifier, value);
+      set => SetProperty(ref m_ContextSensitiveQualifier, value);
     }
 
     /// <inheritdoc />
@@ -188,7 +188,7 @@ namespace CsvTools
     public bool DuplicateQualifierToEscape
     {
       get => m_DuplicateQualifierToEscape;
-      set => SetField(ref m_DuplicateQualifierToEscape, value);
+      set => SetProperty(ref m_DuplicateQualifierToEscape, value);
     }
 
 #if XmlSerialization

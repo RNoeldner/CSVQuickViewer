@@ -27,17 +27,7 @@ namespace CsvTools
 #pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
   public class UniqueObservableCollection<T> : ObservableCollection<T> where T : ICollectionIdentity
 #pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
-  {
-    /// <summary>
-    ///   Additional EventHandlers for an implementation needing information ona a changed item
-    /// </summary>
-    public PropertyChangedEventHandler? ItemPropertyChanged;
-
-    /// <summary>
-    ///   Additional EventHandlers for an implementation needing information ona a changed item
-    /// </summary>
-    public EventHandler<PropertyChangedEventArgs<string>>? ItemPropertyChangedString;
-
+  {    
     /// <summary>
     ///   Event to be raised on Collection Level if properties of a item in the collection changes
     /// </summary>
@@ -58,7 +48,7 @@ namespace CsvTools
     /// <returns>
     ///   <see langword="true" /> if it was added, otherwise the item was not added to the collection
     /// </returns>
-    public new void Add(T item)
+    public virtual new void Add(T item)
     {
       if (IndexOf(item)!=-1)
         return;
@@ -68,14 +58,9 @@ namespace CsvTools
       if (item is INotifyPropertyChanged notifyPropertyChanged)
       {
         if (CollectionItemPropertyChanged != null)
-          notifyPropertyChanged.PropertyChanged += CollectionItemPropertyChanged;
-        if (ItemPropertyChanged!=null)
-          notifyPropertyChanged.PropertyChanged += ItemPropertyChanged;
+          notifyPropertyChanged.PropertyChanged += CollectionItemPropertyChanged;        
       }
-      // ReSharper disable once SuspiciousTypeConversion.Global
-      if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
-        notifyPropertyChangedString.PropertyChangedString += ItemPropertyChangedString;
-
+      
       base.Add(item);
     }
   
@@ -113,6 +98,7 @@ namespace CsvTools
       Add(item);
     }
 
+    
     /// <inheritdoc cref="ObservableCollection{T}" />
     public new void Insert(int index, T item)
     {
@@ -126,12 +112,8 @@ namespace CsvTools
       {
         if (CollectionItemPropertyChanged != null)
           notifyPropertyChanged.PropertyChanged += CollectionItemPropertyChanged;
-        if (ItemPropertyChanged!=null)
-          notifyPropertyChanged.PropertyChanged += ItemPropertyChanged;
+       
       }
-      // ReSharper disable once SuspiciousTypeConversion.Global
-      if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
-        notifyPropertyChangedString.PropertyChangedString += ItemPropertyChangedString;
       base.Insert(index, item);
     }
 
@@ -153,14 +135,8 @@ namespace CsvTools
       if (item is INotifyPropertyChanged notifyPropertyChanged)
       {
         if (CollectionItemPropertyChanged != null)
-          notifyPropertyChanged.PropertyChanged -= CollectionItemPropertyChanged;
-        if (ItemPropertyChanged!=null)
-          notifyPropertyChanged.PropertyChanged -= ItemPropertyChanged;
+          notifyPropertyChanged.PropertyChanged -= CollectionItemPropertyChanged;        
       }
-
-      // ReSharper disable once SuspiciousTypeConversion.Global
-      if (ItemPropertyChangedString != null && item is INotifyPropertyChangedString notifyPropertyChangedString)
-        notifyPropertyChangedString.PropertyChangedString -= ItemPropertyChangedString;
     }
 
     /// <summary>

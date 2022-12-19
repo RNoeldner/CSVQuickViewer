@@ -29,7 +29,7 @@ namespace CsvTools
   ///   properties, it needs to be defined here
   /// </summary>
   [Serializable]
-  public sealed class SampleAndErrorsInformation : NotifyPropertyChangedBase, IWithCopyTo<SampleAndErrorsInformation>
+  public sealed class SampleAndErrorsInformation : ObservableObject, IWithCopyTo<SampleAndErrorsInformation>
   {
     private int m_NumErrors;
     private readonly UniqueObservableCollection<SampleRecordEntry> m_Errors;
@@ -78,7 +78,7 @@ namespace CsvTools
         if (Errors.Count > 0 && value < Errors.Count)
           newval = -1;
 
-        SetField(ref m_NumErrors, newval);
+        SetProperty(ref m_NumErrors, newval);
       }
     }
 

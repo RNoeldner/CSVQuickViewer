@@ -374,18 +374,7 @@ namespace CsvTools.Tests
 
       Assert.IsFalse(m_CsvFile.WarnUnknownCharacter, "WarnUnknownCharacter");
     }
-
-
-    [TestMethod]
-    public void NotifyPropertyChangedString()
-    {
-      var oldValue = string.Empty;
-      var setting = new CsvFile(id: "TestID", fileName: "MyTest.txt");
-      setting.PropertyChangedString += (_, args) => oldValue = args.OldValue;
-      setting.FileName = "NewName.txt";
-      Assert.AreEqual("MyTest.txt", oldValue);
-    }
-
+    
     [TestMethod]
     public void SourceFileSettings()
     {

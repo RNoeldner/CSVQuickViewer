@@ -23,9 +23,11 @@ namespace CsvTools
   /// <summary>
   ///   Interface for a FileSetting
   /// </summary>
-  public interface IFileSetting : INotifyPropertyChanged, INotifyPropertyChangedString, IWithCopyTo<IFileSetting>,
+  public interface IFileSetting : INotifyPropertyChanged, IWithCopyTo<IFileSetting>,
     ICollectionIdentity
   {
+    event EventHandler<PropertyChangedEventArgs<string>>? IdChanged;    
+
     /// <summary>
     ///   Status of long running processing on the FileSettings, used to synchronise over independent threads
     /// </summary>

@@ -84,7 +84,7 @@ namespace CsvTools
       get => m_FileName;
       set
       {
-        if (SetField(ref m_FileName, value, StringComparison.Ordinal, true))
+        if (SetProperty(ref m_FileName, value))
           ResetFullPath();
       }
     }
@@ -101,7 +101,7 @@ namespace CsvTools
     public virtual long FileSize
     {
       get => m_FileSize;
-      set => SetField(ref m_FileSize, value);
+      set => SetProperty(ref m_FileSize, value);
     }
 
     /// <inheritdoc />
@@ -112,7 +112,7 @@ namespace CsvTools
     public virtual bool ByteOrderMark
     {
       get => m_ByteOrderMark;
-      set => SetField(ref m_ByteOrderMark, value);
+      set => SetProperty(ref m_ByteOrderMark, value);
     }
 
     /// <inheritdoc />
@@ -123,7 +123,7 @@ namespace CsvTools
     public virtual int CodePageId
     {
       get => m_CodePageId;
-      set => SetField(ref m_CodePageId, value);
+      set => SetProperty(ref m_CodePageId, value);
     }
 
     /// <summary>
@@ -136,7 +136,7 @@ namespace CsvTools
     public virtual ValueFormat ValueFormatWrite
     {
       get => m_DefaultValueFormatWrite;
-      set => SetField(ref m_DefaultValueFormatWrite, value);
+      set => SetProperty(ref m_DefaultValueFormatWrite, value);
     }
 
     /// <summary>
@@ -149,7 +149,7 @@ namespace CsvTools
     public virtual ValueFormatMut ValueFormatMut
     {
       get => new ValueFormatMut(m_DefaultValueFormatWrite);
-      set => SetField(ref m_DefaultValueFormatWrite, value.ToImmutable());
+      set => SetProperty(ref m_DefaultValueFormatWrite, value.ToImmutable());
     }
 
 #if XmlSerialization
@@ -183,7 +183,7 @@ namespace CsvTools
     public virtual string IdentifierInContainer
     {
       get => m_IdentifierInContainer;
-      set => SetField(ref m_IdentifierInContainer, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_IdentifierInContainer, value);
     }
 
 
@@ -199,7 +199,7 @@ namespace CsvTools
     public virtual string Passphrase
     {
       get => m_PassPhrase;
-      set => SetField(ref m_PassPhrase, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_PassPhrase, value);
     }
 
     /// <inheritdoc />
@@ -214,7 +214,7 @@ namespace CsvTools
     public virtual string RemoteFileName
     {
       get => m_RemoteFileName;
-      set => SetField(ref m_RemoteFileName, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_RemoteFileName, value);
     }
 
 #if XmlSerialization
@@ -234,7 +234,7 @@ namespace CsvTools
     public virtual bool ThrowErrorIfNotExists
     {
       get => m_ThrowErrorIfNotExists;
-      set => SetField(ref m_ThrowErrorIfNotExists, value);
+      set => SetProperty(ref m_ThrowErrorIfNotExists, value);
     }
 
 #if XmlSerialization
@@ -244,7 +244,7 @@ namespace CsvTools
     public long KeyID
     {
       get => m_KeyID;
-      set => SetField(ref m_KeyID, value);
+      set => SetProperty(ref m_KeyID, value);
     }
 
     public void ResetFullPath() => m_FullPathInitialized = false;

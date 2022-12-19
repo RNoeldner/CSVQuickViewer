@@ -26,7 +26,7 @@ namespace CsvTools
   ///   Settings how the typed values should be determined
   /// </summary>
   [Serializable]
-  public sealed class FillGuessSettings : NotifyPropertyChangedBase, ICloneable, IEquatable<FillGuessSettings>
+  public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable<FillGuessSettings>
   {
     private long m_CheckedRecords;
     private bool m_CheckNamedDates;
@@ -86,7 +86,7 @@ namespace CsvTools
     public bool Enabled
     {
       get => m_Enabled;
-      set => SetField(ref m_Enabled, value);
+      set => SetProperty(ref m_Enabled, value);
     }
 
     /// <summary>
@@ -99,7 +99,7 @@ namespace CsvTools
     public long CheckedRecords
     {
       get => m_CheckedRecords;
-      set => SetField(ref m_CheckedRecords, value);
+      set => SetProperty(ref m_CheckedRecords, value);
     }
 
     /// <summary>
@@ -112,7 +112,7 @@ namespace CsvTools
     public bool CheckNamedDates
     {
       get => m_CheckNamedDates;
-      set => SetField(ref m_CheckNamedDates, value);
+      set => SetProperty(ref m_CheckNamedDates, value);
     }
 
     /// <summary>
@@ -125,7 +125,7 @@ namespace CsvTools
     public bool DateParts
     {
       get => m_DateParts;
-      set => SetField(ref m_DateParts, value);
+      set => SetProperty(ref m_DateParts, value);
     }
 
     /// <summary>
@@ -138,7 +138,7 @@ namespace CsvTools
     public bool DetectNumbers
     {
       get => m_DetectNumbers;
-      set => SetField(ref m_DetectNumbers, value);
+      set => SetProperty(ref m_DetectNumbers, value);
     }
 
     /// <summary>
@@ -151,7 +151,7 @@ namespace CsvTools
     public bool DetectPercentage
     {
       get => m_DetectPercentage;
-      set => SetField(ref m_DetectPercentage, value);
+      set => SetProperty(ref m_DetectPercentage, value);
     }
 
     /// <summary>
@@ -164,7 +164,7 @@ namespace CsvTools
     public bool DetectBoolean
     {
       get => m_DetectBoolean;
-      set => SetField(ref m_DetectBoolean, value);
+      set => SetProperty(ref m_DetectBoolean, value);
     }
 
     /// <summary>
@@ -177,7 +177,7 @@ namespace CsvTools
     public bool DetectDateTime
     {
       get => m_DetectDateTime;
-      set => SetField(ref m_DetectDateTime, value);
+      set => SetProperty(ref m_DetectDateTime, value);
     }
 
     /// <summary>
@@ -190,7 +190,7 @@ namespace CsvTools
     public bool DetectGuid
     {
       get => m_DetectGuid;
-      set => SetField(ref m_DetectGuid, value);
+      set => SetProperty(ref m_DetectGuid, value);
     }
 
 
@@ -205,7 +205,7 @@ namespace CsvTools
     public bool IgnoreIdColumns
     {
       get => m_IgnoreIdColumns;
-      set => SetField(ref m_IgnoreIdColumns, value);
+      set => SetProperty(ref m_IgnoreIdColumns, value);
     }
 
     /// <summary>
@@ -218,7 +218,7 @@ namespace CsvTools
     public int MinSamples
     {
       get => m_MinSamples;
-      set => SetField(ref m_MinSamples, value);
+      set => SetProperty(ref m_MinSamples, value);
     }
 
     /// <summary>
@@ -231,7 +231,7 @@ namespace CsvTools
     public int SampleValues
     {
       get => m_SampleValues;
-      set => SetField(ref m_SampleValues, value);
+      set => SetProperty(ref m_SampleValues, value);
     }
 
     /// <summary>
@@ -244,7 +244,7 @@ namespace CsvTools
     public bool SerialDateTime
     {
       get => m_SerialDateTime;
-      set => SetField(ref m_SerialDateTime, value);
+      set => SetProperty(ref m_SerialDateTime, value);
     }
 
     /// <summary>
@@ -260,7 +260,7 @@ namespace CsvTools
     public string TrueValue
     {
       get => m_TrueValue;
-      set => SetField(ref m_TrueValue, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_TrueValue, value);
     }
 
     /// <summary>
@@ -276,7 +276,7 @@ namespace CsvTools
     public string FalseValue
     {
       get => m_FalseValue;
-      set => SetField(ref m_FalseValue, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_FalseValue, value);
     }
 
     [DefaultValue("")]
@@ -289,7 +289,7 @@ namespace CsvTools
     public string DateFormat
     {
       get => m_DateFormat;
-      set => SetField(ref m_DateFormat, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_DateFormat, value);
     }
 
     /// <inheritdoc />
