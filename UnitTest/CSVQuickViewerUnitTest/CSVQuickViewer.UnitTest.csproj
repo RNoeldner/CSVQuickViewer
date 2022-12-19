@@ -1,16 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net472</TargetFramework>
-		<UseWindowsForms>true</UseWindowsForms>
+		<TargetFrameworks>net472</TargetFrameworks>
+		<ImplicitUsings>disable</ImplicitUsings>
 		<LangVersion>8.0</LangVersion>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<TestProjectType>UnitTest</TestProjectType>
+		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
+		<RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
+		<RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
+		<GenerateAssemblyInfo>False</GenerateAssemblyInfo>
 		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 		<RootNamespace>CsvTools.Tests</RootNamespace>
-		<TestProjectType>UnitTest</TestProjectType>
-		<IsPackable>false</IsPackable>
-		<ReleaseVersion>1.4.6.499</ReleaseVersion>
-		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
-		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="..\UnitTestBasic\UnitTestStatic.cs" Link="UnitTestStatic.cs" />
@@ -18,8 +20,7 @@
 		<Compile Include="..\UnitTestBasic\UnitTestStaticForms.cs" Link="UnitTestStaticForms.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="MSTest.TestFramework" Version="3.0.0" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.0.0" />
+		<PackageReference Include="MSTest" Version="3.0.0" />		
 		<ProjectReference Include="..\..\Application\CSVQuickViewer.csproj" />
 		<ProjectReference Include="..\..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 	</ItemGroup>

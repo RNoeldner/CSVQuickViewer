@@ -1,15 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>net472</TargetFrameworks>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<LangVersion>8.0</LangVersion>
 		<Nullable>enable</Nullable>
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
+		<TestProjectType>UnitTest</TestProjectType>
 		<AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
 		<RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
 		<RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
 		<GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+		<RootNamespace>CsvTools.Tests</RootNamespace>
 	</PropertyGroup>
 		
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -27,9 +30,6 @@
 	
 	<ItemGroup>
 		<PackageReference Include="MSTest" Version="3.0.0" />		
-	</ItemGroup>
-	
-	<ItemGroup>
 		<ProjectReference Include="..\..\Library\ClassLibraryCSV\CsvTools.ClassLibraryCSV.csproj" />
 	</ItemGroup>
 	

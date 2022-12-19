@@ -36,8 +36,7 @@ namespace CsvTools
     /// <summary>
     ///   Adds the specified item to the collection and makes sure the item is not already present,
     ///   if the item does support <see cref="INotifyPropertyChanged" /><see
-    ///   cref="CollectionItemPropertyChanged" />, <see cref="ItemPropertyChanged" /> or <see
-    ///   cref="ItemPropertyChangedString" /> will be registered to pass the event to the
+    ///   cref="CollectionItemPropertyChanged" /> will be registered to pass the event to the
     ///   implementing class
     /// </summary>
     /// <param name="item">The item to add</param>
@@ -48,7 +47,7 @@ namespace CsvTools
     /// <returns>
     ///   <see langword="true" /> if it was added, otherwise the item was not added to the collection
     /// </returns>
-    public virtual new void Add(T item)
+    public new virtual void Add(T item)
     {
       if (IndexOf(item)!=-1)
         return;
@@ -67,8 +66,7 @@ namespace CsvTools
     /// <summary>
     ///   Adds the specified item to the collection and makes sure the item is not already present
     ///   by changing the name in a way it is unique, if the item does support <see
-    ///   cref="INotifyPropertyChanged" /><see cref="CollectionItemPropertyChanged" />, <see
-    ///   cref="ItemPropertyChanged" /> or <see cref="ItemPropertyChangedString" /> will be
+    ///   cref="INotifyPropertyChanged" /> will be
     ///   registered to pass the event to the implementing class
     /// </summary>
     /// <param name="item">The item to add</param>
@@ -130,13 +128,13 @@ namespace CsvTools
     public new virtual void RemoveAt(int index)
     {
       var item = Items[index];
-      base.RemoveAt(index);
-      // ReSharper disable once SuspiciousTypeConversion.Global
+       // ReSharper disable once SuspiciousTypeConversion.Global
       if (item is INotifyPropertyChanged notifyPropertyChanged)
       {
         if (CollectionItemPropertyChanged != null)
           notifyPropertyChanged.PropertyChanged -= CollectionItemPropertyChanged;        
       }
+      base.RemoveAt(index);
     }
 
     /// <summary>
@@ -203,12 +201,12 @@ namespace CsvTools
     /// <summary>
     ///   Gets the index of a collection item by the CollectionIdentifier
     /// </summary>
-    /// <param name="searchID">The identifier in teh collection.</param>
+    /// <param name="searchId">The identifier in teh collection.</param>
     /// <returns>-1 if not found, the index otherwise</returns>
-    protected int GetIndexByIdentifier(int searchID)
+    protected int GetIndexByIdentifier(int searchId)
     {
       for (var index = 0; index < Items.Count; index++)
-        if (Items[index].CollectionIdentifier == searchID)
+        if (Items[index].CollectionIdentifier == searchId)
           return index;
       return -1;
     }
