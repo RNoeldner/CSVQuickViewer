@@ -40,7 +40,7 @@ namespace CsvTools
   ///   cref="P:CsvTools.BaseSettings.MappingCollection" />
   /// </summary>
   [DebuggerDisplay("Settings: {ID} ({ColumnCollection.Count()} Columns)")]
-  public abstract class BaseSettings : NotifyPropertyChangedBase, IFileSetting
+  public abstract class BaseSettings : ObservableObject, IFileSetting
   {
     public const string cTreatTextAsNull = "NULL";
 
@@ -109,6 +109,8 @@ namespace CsvTools
     private FileStettingStatus m_Status = FileStettingStatus.None;
     private readonly ReaderWriterLockSlim m_LockStatus = new ReaderWriterLockSlim();
 
+    public  event EventHandler<PropertyChangedEventArgs<string>>? IdChanged;
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="BaseSettings" /> class.
     /// </summary>
@@ -134,7 +136,7 @@ namespace CsvTools
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlIgnore]
+    [XmlIgnore]
 #endif
     [JsonIgnore]
     public FileStettingStatus Status
@@ -166,7 +168,7 @@ namespace CsvTools
     ///   Workaround to serialize the ColumnCollection, only needed for XML Serialization
     /// </summary>
 #if XmlSerialization
-[XmlElement]
+    [XmlElement]
 #endif
     [JsonIgnore]
     public virtual ColumnMut[] Format
@@ -184,7 +186,7 @@ namespace CsvTools
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlElement]
+    [XmlElement]
 #endif
     [DefaultValue(false)]
     public virtual bool DisplayRecordNo
@@ -192,29 +194,29 @@ namespace CsvTools
       get => m_DisplayRecordNo;
       set
       {
-        SetField(ref m_DisplayRecordNo, value);
+        SetProperty(ref m_DisplayRecordNo, value);
       }
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlElement]
+    [XmlElement]
 #endif
     [DefaultValue(true)]
     public virtual bool DisplayStartLineNo
     {
       get => m_DisplayStartLineNo;
-      set => SetField(ref m_DisplayStartLineNo, value);
+      set => SetProperty(ref m_DisplayStartLineNo, value);
     }
 
 #if XmlSerialization
-[XmlElement]
+    [XmlElement]
 #endif
     [DefaultValue(false)]
     public virtual bool SetLatestSourceTimeForWrite
     {
       get => m_SetLatestSourceTimeForWrite;
-      set => SetField(ref m_SetLatestSourceTimeForWrite, value);
+      set => SetProperty(ref m_SetLatestSourceTimeForWrite, value);
     }
 
 #if XmlSerialization
@@ -235,13 +237,13 @@ namespace CsvTools
 #endif
 
 #if XmlSerialization
-[XmlIgnore]
+    [XmlIgnore]
 #endif
     public ColumnCollection ColumnCollection { get; } = new ColumnCollection();
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(5)]
     public virtual int ConsecutiveEmptyRows
@@ -261,31 +263,31 @@ namespace CsvTools
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlElement]
+    [XmlElement]
 #endif
     [DefaultValue(false)]
     public virtual bool DisplayEndLineNo
     {
       get => m_DisplayEndLineNo;
-      set => SetField(ref m_DisplayEndLineNo, value);
+      set => SetProperty(ref m_DisplayEndLineNo, value);
     }
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(0)]
     public virtual long ErrorCount
     {
       get => m_ErrorCount;
-      set => SetField(ref m_ErrorCount, value);
+      set => SetProperty(ref m_ErrorCount, value);
     }
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlElement]
+    [XmlElement]
 #endif
     public SampleAndErrorsInformation SamplesAndErrors { get; set; } = new SampleAndErrorsInformation();
 
@@ -306,13 +308,13 @@ namespace CsvTools
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(true)]
     public virtual bool HasFieldHeader
     {
       get => m_HasFieldHeader;
-      set => SetField(ref m_HasFieldHeader, value);
+      set => SetProperty(ref m_HasFieldHeader, value);
     }
 
     /// <inheritdoc />
@@ -332,7 +334,7 @@ namespace CsvTools
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue("")]
     public virtual string ID
@@ -340,74 +342,76 @@ namespace CsvTools
       get => m_Id;
       set
       {
-        SetField(ref m_Id, value, StringComparison.Ordinal, true);
+        var oldVal = m_Id;
+        if (SetProperty(ref m_Id, value))
+          IdChanged?.Invoke(this, new PropertyChangedEventArgs<string>(nameof(ID), oldVal, m_Id));
       }
     }
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlAttribute(AttributeName = "IsCritical")]
+    [XmlAttribute(AttributeName = "IsCritical")]
 #endif
     [DefaultValue(false)]
     public virtual bool InOverview
     {
       get => m_InOverview;
-      set => SetField(ref m_InOverview, value);
+      set => SetProperty(ref m_InOverview, value);
     }
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(100)]
     public virtual int Order
     {
       get => m_Order;
-      set => SetField(ref m_Order, value);
+      set => SetProperty(ref m_Order, value);
     }
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue("")]
     public virtual string Comment
     {
       get => m_Comment;
-      set => SetField(ref m_Comment, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_Comment, value);
     }
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(true)]
     public virtual bool IsEnabled
     {
       get => m_IsEnabled;
 
-      set => SetField(ref m_IsEnabled, value);
+      set => SetProperty(ref m_IsEnabled, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(false)]
     public bool KeepUnencrypted
     {
       get => m_KeepUnencrypted;
-      set => SetField(ref m_KeepUnencrypted, value);
+      set => SetProperty(ref m_KeepUnencrypted, value);
     }
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlIgnore]
+    [XmlIgnore]
 #endif
     [JsonIgnore]
     public DateTime LatestSourceTimeUtc
@@ -419,42 +423,42 @@ namespace CsvTools
         return m_LatestSourceTimeUtc;
       }
 
-      set => SetField(ref m_LatestSourceTimeUtc, value);
+      set => SetProperty(ref m_LatestSourceTimeUtc, value);
     }
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlElement("Mapping")]
+    [XmlElement("Mapping")]
 #endif
     public MappingCollection MappingCollection { get; } = new MappingCollection();
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(0)]
     public virtual long NumRecords
     {
       get => m_NumRecords;
-      set => SetField(ref m_NumRecords, value);
+      set => SetProperty(ref m_NumRecords, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     public virtual DateTime ProcessTimeUtc
     {
       get => m_ProcessTimeUtc;
-      set => SetField(ref m_ProcessTimeUtc, value);
+      set => SetProperty(ref m_ProcessTimeUtc, value);
     }
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlIgnore]
+    [XmlIgnore]
 #endif
     [JsonIgnore]
     [DefaultValue(false)]
@@ -462,63 +466,63 @@ namespace CsvTools
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlElement]
+    [XmlElement]
 #endif
     [DefaultValue(0)]
     public virtual long RecordLimit
     {
       get => m_RecordLimit;
-      set => SetField(ref m_RecordLimit, value);
+      set => SetProperty(ref m_RecordLimit, value);
     }
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(true)]
     public virtual bool ShowProgress
     {
       get => m_ShowProgress;
-      set => SetField(ref m_ShowProgress, value);
+      set => SetProperty(ref m_ShowProgress, value);
     }
 
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(false)]
     public virtual bool SkipDuplicateHeader
     {
       get => m_SkipDuplicateHeader;
-      set => SetField(ref m_SkipDuplicateHeader, value);
+      set => SetProperty(ref m_SkipDuplicateHeader, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(true)]
     public virtual bool SkipEmptyLines
     {
       get => m_SkipEmptyLines;
-      set => SetField(ref m_SkipEmptyLines, value);
+      set => SetProperty(ref m_SkipEmptyLines, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(0)]
     public virtual int SkipRows
     {
       get => m_SkipRows;
-      set => SetField(ref m_SkipRows, value);
+      set => SetProperty(ref m_SkipRows, value);
     }
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlIgnore]
+    [XmlIgnore]
 #endif
     [JsonIgnore]
     public IReadOnlyCollection<IFileSetting>? SourceFileSettings
@@ -534,7 +538,7 @@ namespace CsvTools
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlIgnore]
+    [XmlIgnore]
 #endif
     [DefaultValue("")]
     public virtual string SqlStatement
@@ -542,8 +546,7 @@ namespace CsvTools
       get => m_SqlStatement;
       set
       {
-        if (!SetField(ref m_SqlStatement, (value ?? string.Empty).NoControlCharacters().HandleCrlfCombinations(),
-              StringComparison.Ordinal, true)) return;
+        if (!SetProperty(ref m_SqlStatement, (value ?? string.Empty).NoControlCharacters().HandleCrlfCombinations())) return;
         // Need to assume we have new sources, it has to be recalculated
         SourceFileSettings = null;
         // Reset the process time as well
@@ -555,87 +558,87 @@ namespace CsvTools
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlElement]
+    [XmlElement]
 #endif
     [DefaultValue("")]
     public virtual string TemplateName
     {
       get => m_TemplateName;
-      set => SetField(ref m_TemplateName, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_TemplateName, value);
     }
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(90)]
     public virtual int Timeout
     {
       get => m_Timeout;
-      set => SetField(ref m_Timeout, value > 0 ? value : 0);
+      set => SetProperty(ref m_Timeout, value > 0 ? value : 0);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(false)]
     public virtual bool TreatNBSPAsSpace
     {
       get => m_TreatNbspAsSpace;
-      set => SetField(ref m_TreatNbspAsSpace, value);
+      set => SetProperty(ref m_TreatNbspAsSpace, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(cTreatTextAsNull)]
     public virtual string TreatTextAsNull
     {
       get => m_TreatTextAsNull;
-      set => SetField(ref m_TreatTextAsNull, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_TreatTextAsNull, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(TrimmingOptionEnum.Unquoted)]
     public virtual TrimmingOptionEnum TrimmingOption
     {
       get => m_TrimmingOption;
-      set => SetField(ref m_TrimmingOption, value);
+      set => SetProperty(ref m_TrimmingOption, value);
     }
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlAttribute(AttributeName = "IsImported")]
+    [XmlAttribute(AttributeName = "IsImported")]
 #endif
     [DefaultValue(true)]
     public virtual bool Validate
     {
       get => m_Validate;
-      set => SetField(ref m_Validate, value);
+      set => SetProperty(ref m_Validate, value);
     }
 
     /// <inheritdoc />
     ///<remarks>TODO: This is not used for the Viewer, ideally this should be moved to other class</remarks>
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     [DefaultValue(0)]
     public virtual long WarningCount
     {
       get => m_WarningCount;
-      set => SetField(ref m_WarningCount, value);
+      set => SetProperty(ref m_WarningCount, value);
     }
 
     /// <inheritdoc />
 #if XmlSerialization
-[XmlAttribute]
+    [XmlAttribute]
 #endif
     public virtual DateTime LastChange
     {

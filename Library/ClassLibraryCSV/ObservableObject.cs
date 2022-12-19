@@ -21,15 +21,10 @@ using System.Runtime.CompilerServices;
 
 namespace CsvTools
 {
-  public abstract class NotifyPropertyChangedBase : INotifyPropertyChanged, INotifyPropertyChangedString
+  public abstract class ObservableObject : INotifyPropertyChanged
   {
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
-
-    /// <summary>
-    ///   Occurs when a string value property changed providing information on old and new value
-    /// </summary>
-    public event EventHandler<PropertyChangedEventArgs<string>>? PropertyChangedString;
 
     /// <summary>
     ///   Notifies the completed property changed through <see cref="PropertyChanged" />
@@ -55,24 +50,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Notifies on changed property strings
-    /// </summary>
-    /// <param name="propertyName">The property name.</param>
-    /// <param name="oldValue">The old value.</param>
-    /// <param name="newValue">The new value.</param>
-    protected void NotifyPropertyChangedString(in string propertyName, in string oldValue, in string newValue)
-    {
-      try
-      {
-        PropertyChangedString?.Invoke(this, new PropertyChangedEventArgs<string>(propertyName, oldValue, newValue));
-      }
-      catch (TargetInvocationException)
-      {
-        // Ignore
-      }
-    }
-
-    /// <summary>
     ///   Sets the collection of a backing store and raises <see cref="PropertyChanged" /> after the
     ///   value is changed
     /// </summary>
@@ -83,11 +60,9 @@ namespace CsvTools
     /// </param>
     /// <param name="propertyName">Name of the property.</param>
     /// <returns><c>true</c> if the value was changed</returns>
-    protected bool SetCollection<T>(ICollection<T> field, in IEnumerable<T>? value, bool withOrder = true, [CallerMemberName] string propertyName = "") where T : IEquatable<T>
+    protected bool SetCollection<T>(ICollection<T> field, in IEnumerable<T>? value, [CallerMemberName] string propertyName = "") where T : IEquatable<T>
     {
-      if (withOrder && field.CollectionEqualWithOrder(value))
-        return false;
-      if (!withOrder && field.CollectionEqual(value))
+      if (field.CollectionEqualWithOrder(value))
         return false;
 
       field.Clear();
@@ -107,13 +82,13 @@ namespace CsvTools
 
     /// <summary>
     ///   Overwrite properties of a class with the properties of another class, allowing usage of
-    ///   readonly fields being set
+    ///   readonly fields being set, the target field is not passed in as reference as we do not overwrte the field but properties in this field only 
     /// </summary>
     /// <param name="field">The field to be overwritten</param>
     /// <param name="value">the class with the new values, supporting a copy to</param>
     /// <param name="propertyName">The name of the property</param>
     /// <returns><c>true</c> if the value was changed</returns>
-    protected bool CopyTo<T>(T field, in IWithCopyTo<T> value, [CallerMemberName] string propertyName = "")
+    protected bool SetProperty<T>(T field, in T value, [CallerMemberName] string propertyName = "") where T : IWithCopyTo<T>
     {
       if (value.Equals(field))
         return false;
@@ -130,46 +105,12 @@ namespace CsvTools
     /// <param name="value">The new value.</param>
     /// <param name="propertyName">Name of the property.</param>
     /// <returns><c>true</c> if the value was changed</returns>
-    protected bool SetField<T>(ref T field, in T value, [CallerMemberName] string propertyName = "") // where T : struct
+    protected bool SetProperty<T>(ref T field, in T value, IEqualityComparer<T>? comparison = null, [CallerMemberName] string propertyName = "") // where T : struct
     {
-      if (EqualityComparer<T>.Default.Equals(field, value))
+      comparison ??= EqualityComparer<T>.Default;
+      if (comparison.Equals(field, value))
         return false;
       field = value;
-      NotifyPropertyChanged(propertyName);
-      return true;
-    }
-
-    /// <summary>
-    ///   Sets the string of a backing store and raises <see cref="PropertyChanged" /> after the
-    ///   value is changed
-    /// </summary>
-    /// <param name="field">The backing store.</param>
-    /// <param name="value">The new value.</param>
-    /// <param name="comparison">
-    ///   Specifies the culture, case, and sort rules to be used for comparison, use <see
-    ///   cref="StringComparison.OrdinalIgnoreCase" /> if not sure
-    /// </param>
-    /// <param name="notifyValues">
-    ///   If <c>true</c> the <see cref="PropertyChangedString" /> event is raised with old and new data
-    /// </param>
-    /// <param name="propertyName">Name of the property.</param>
-    /// <returns><c>true</c> if the value was changed</returns>
-    protected bool SetField(ref string field, in string? value, StringComparison comparison, bool notifyValues = false, [CallerMemberName] string propertyName = "")
-    {
-      var newValue = value ?? string.Empty;
-      if (field.Equals(newValue, comparison))
-        return false;
-      if (notifyValues && PropertyChangedString != null)
-      {
-        var oldValue = field;
-        field = newValue;
-        NotifyPropertyChangedString(propertyName, oldValue, newValue);
-      }
-      else
-      {
-        field = newValue;
-      }
-
       NotifyPropertyChanged(propertyName);
       return true;
     }

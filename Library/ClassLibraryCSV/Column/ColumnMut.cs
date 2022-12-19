@@ -29,7 +29,7 @@ namespace CsvTools
   ///   This is a helper class to edit and to serialize into XML
   /// </summary>
   [Serializable]
-  public sealed class ColumnMut : NotifyPropertyChangedBase, IEquatable<ColumnMut>
+  public sealed class ColumnMut : ObservableObject, IEquatable<ColumnMut>
   {
     private bool m_Convert;
     private string m_DestinationName;
@@ -276,7 +276,7 @@ namespace CsvTools
     public ValueFormatMut ValueFormatMut
     {
       get => m_ValueFormatMut;
-      set => SetField(ref m_ValueFormatMut, value);
+      set => SetProperty(ref m_ValueFormatMut, value);
     }
 
     /// <summary>
@@ -289,7 +289,7 @@ namespace CsvTools
     public int ColumnOrdinal
     {
       get => m_ColumnOrdinal;
-      set => SetField(ref m_ColumnOrdinal, value);
+      set => SetProperty(ref m_ColumnOrdinal, value);
     }
 
     /// <summary>
@@ -304,7 +304,7 @@ namespace CsvTools
     public bool Convert
     {
       get => m_Convert;
-      set => SetField(ref m_Convert, value);
+      set => SetProperty(ref m_Convert, value);
     }
 
     /// <summary>
@@ -318,7 +318,7 @@ namespace CsvTools
     public string DestinationName
     {
       get => m_DestinationName;
-      set => SetField(ref m_DestinationName, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_DestinationName, value);
     }
 
     /// <summary>
@@ -332,7 +332,7 @@ namespace CsvTools
     public bool Ignore
     {
       get => m_Ignore;
-      set => SetField(ref m_Ignore, value);
+      set => SetProperty(ref m_Ignore, value);
     }
 
     /// <summary>
@@ -345,7 +345,7 @@ namespace CsvTools
     public string Name
     {
       get => m_Name;
-      set => SetField(ref m_Name, value, StringComparison.Ordinal, true);
+      set => SetProperty(ref m_Name, value);
     }
 
     /// <summary>
@@ -359,7 +359,7 @@ namespace CsvTools
     public string TimePart
     {
       get => m_TimePart;
-      set => SetField(ref m_TimePart, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_TimePart, value);
     }
 
     /// <summary>
@@ -373,7 +373,7 @@ namespace CsvTools
     public string TimePartFormat
     {
       get => m_TimePartFormat;
-      set => SetField(ref m_TimePartFormat, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_TimePartFormat, value);
     }
 
     /// <summary>
@@ -387,7 +387,7 @@ namespace CsvTools
     public string TimeZonePart
     {
       get => m_TimeZonePart;
-      set => SetField(ref m_TimeZonePart, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_TimeZonePart, value);
     }
 
     /// <summary>

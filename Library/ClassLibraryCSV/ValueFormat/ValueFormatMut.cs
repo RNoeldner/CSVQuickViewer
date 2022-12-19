@@ -25,7 +25,7 @@ namespace CsvTools
   ///   This is a helper class to edit and to serialize into XML
   /// </summary>
   [Serializable]
-  public sealed class ValueFormatMut : NotifyPropertyChangedBase, IEquatable<ValueFormatMut>
+  public sealed class ValueFormatMut : ObservableObject, IEquatable<ValueFormatMut>
   {
     private DataTypeEnum m_DataType;
     private string m_DateFormat;
@@ -145,7 +145,7 @@ namespace CsvTools
     public DataTypeEnum DataType
     {
       get => m_DataType;
-      set => SetField(ref m_DataType, value);
+      set => SetProperty(ref m_DataType, value);
     }
 
     [XmlElement]
@@ -153,7 +153,7 @@ namespace CsvTools
     public string DateFormat
     {
       get => m_DateFormat;
-      set => SetField(ref m_DateFormat, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_DateFormat, value);
     }
 
     [XmlElement]
@@ -161,7 +161,7 @@ namespace CsvTools
     public string DateSeparator
     {
       get => m_DateSeparator;
-      set => SetField(ref m_DateSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
+      set => SetProperty(ref m_DateSeparator, (value ?? string.Empty).WrittenPunctuation());
     }
 
     [XmlElement]
@@ -171,11 +171,10 @@ namespace CsvTools
       get => m_DecimalSeparator;
       set
       {
-        if (!SetField(ref m_DecimalSeparator, (value ?? string.Empty).WrittenPunctuation(),
-              StringComparison.Ordinal))
+        if (!SetProperty(ref m_DecimalSeparator, (value ?? string.Empty).WrittenPunctuation()))
           return;
         if (m_GroupSeparator.Equals(m_DecimalSeparator))
-          SetField(ref m_GroupSeparator, string.Empty, StringComparison.Ordinal, false, nameof(GroupSeparator));
+          SetProperty(ref m_GroupSeparator, string.Empty, StringComparer.Ordinal, nameof(GroupSeparator));
       }
     }
 
@@ -184,7 +183,7 @@ namespace CsvTools
     public string DisplayNullAs
     {
       get => m_DisplayNullAs;
-      set => SetField(ref m_DisplayNullAs, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_DisplayNullAs, value);
     }
 
     [XmlElement]
@@ -192,7 +191,7 @@ namespace CsvTools
     public string False
     {
       get => m_False;
-      set => SetField(ref m_False, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_False, value);
     }
 
     [XmlAttribute]
@@ -200,7 +199,7 @@ namespace CsvTools
     public string FileOutPutPlaceholder
     {
       get => m_FileOutPutPlaceholder;
-      set => SetField(ref m_FileOutPutPlaceholder, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_FileOutPutPlaceholder, value);
     }
 
     [XmlElement]
@@ -211,10 +210,10 @@ namespace CsvTools
       set
       {
         var oldGroup = m_GroupSeparator;
-        if (SetField(ref m_GroupSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal))
+        if (SetProperty(ref m_GroupSeparator, (value ?? string.Empty).WrittenPunctuation()))
         {
           if (m_GroupSeparator.Equals(m_DecimalSeparator))
-            SetField(ref m_DecimalSeparator, oldGroup, StringComparison.Ordinal, false, nameof(DecimalSeparator));
+            SetProperty(ref m_DecimalSeparator, oldGroup, StringComparer.Ordinal, nameof(DecimalSeparator));
         }
       }
     }
@@ -224,7 +223,7 @@ namespace CsvTools
     public string NumberFormat
     {
       get => m_NumberFormat;
-      set => SetField(ref m_NumberFormat, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_NumberFormat, value);
     }
 
     [XmlAttribute]
@@ -232,7 +231,7 @@ namespace CsvTools
     public bool Overwrite
     {
       get => m_Overwrite;
-      set => SetField(ref m_Overwrite, value);
+      set => SetProperty(ref m_Overwrite, value);
     }
 
     [XmlAttribute]
@@ -240,7 +239,7 @@ namespace CsvTools
     public int Part
     {
       get => m_Part;
-      set => SetField(ref m_Part, value);
+      set => SetProperty(ref m_Part, value);
     }
 
 #if NETSTANDARD2_1_OR_GREATER
@@ -252,7 +251,7 @@ namespace CsvTools
     public string PartSplitter
     {
       get => m_PartSplitter;
-      set => SetField(ref m_PartSplitter, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
+      set => SetProperty(ref m_PartSplitter, (value ?? string.Empty).WrittenPunctuation());
     }
 
     [XmlAttribute]
@@ -260,7 +259,7 @@ namespace CsvTools
     public bool PartToEnd
     {
       get => m_PartToEnd;
-      set => SetField(ref m_PartToEnd, value);
+      set => SetProperty(ref m_PartToEnd, value);
     }
 
     [XmlAttribute]
@@ -268,7 +267,7 @@ namespace CsvTools
     public string ReadFolder
     {
       get => m_ReadFolder;
-      set => SetField(ref m_ReadFolder, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_ReadFolder, value);
     }
 
     [XmlAttribute]
@@ -276,7 +275,7 @@ namespace CsvTools
     public string RegexReplacement
     {
       get => m_RegexReplacement;
-      set => SetField(ref m_RegexReplacement, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_RegexReplacement, value);
     }
 
     [XmlAttribute]
@@ -284,7 +283,7 @@ namespace CsvTools
     public string RegexSearchPattern
     {
       get => m_RegexSearchPattern;
-      set => SetField(ref m_RegexSearchPattern, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_RegexSearchPattern, value);
     }
 
     [XmlElement]
@@ -292,7 +291,7 @@ namespace CsvTools
     public string TimeSeparator
     {
       get => m_TimeSeparator;
-      set => SetField(ref m_TimeSeparator, (value ?? string.Empty).WrittenPunctuation(), StringComparison.Ordinal);
+      set => SetProperty(ref m_TimeSeparator, (value ?? string.Empty).WrittenPunctuation());
     }
 
     [XmlElement]
@@ -300,7 +299,7 @@ namespace CsvTools
     public string True
     {
       get => m_True;
-      set => SetField(ref m_True, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_True, value);
     }
 
     [XmlAttribute]
@@ -308,7 +307,7 @@ namespace CsvTools
     public string WriteFolder
     {
       get => m_WriteFolder;
-      set => SetField(ref m_WriteFolder, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_WriteFolder, value);
     }
 
     /// <summary>

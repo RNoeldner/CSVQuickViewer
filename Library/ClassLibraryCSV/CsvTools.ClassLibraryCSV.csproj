@@ -46,6 +46,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 	  <Compile Remove="DelimitedTextExtensions.cs" />
+	  <Compile Remove="INotifyPropertyChangedString.cs" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Remove="DateTimeFormats.txt" />

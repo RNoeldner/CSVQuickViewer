@@ -25,7 +25,7 @@ namespace CsvTools
   ///   DataGridViewColumnFilter based on operations and values
   /// </summary>
   [DebuggerDisplay("ColumnFilterLogic({m_FilterExpressionOperator}, {m_FilterExpressionValue}, {Active})")]
-  public sealed class ColumnFilterLogic : NotifyPropertyChangedBase
+  public sealed class ColumnFilterLogic : ObservableObject
   {
     /// <summary>
     ///   begins
@@ -149,7 +149,7 @@ namespace CsvTools
       get => m_Active;
       set
       {
-        SetField(ref m_Active, value);
+        SetProperty(ref m_Active, value);
         // If set active from the outside, make sure the Expression is correct
         if (m_Active)
           m_Active = BuildFilterExpression();
@@ -167,7 +167,7 @@ namespace CsvTools
       get => m_DataPropertyName;
       private set
       {
-        if (!SetField(ref m_DataPropertyName, value))
+        if (!SetProperty(ref m_DataPropertyName, value))
           return;
         // Un-escape the name in case its escaped
         if (m_DataPropertyName.StartsWith("[", StringComparison.Ordinal)
@@ -203,7 +203,7 @@ namespace CsvTools
       get => m_Operator;
       set
       {
-        if (SetField(ref m_Operator, value, StringComparison.Ordinal))
+        if (SetProperty(ref m_Operator, value))
           FilterChanged();
       }
     }
@@ -215,7 +215,7 @@ namespace CsvTools
     public DateTime ValueDateTime
     {
       get => m_ValueDateTime;
-      set => SetField(ref m_ValueDateTime, value);
+      set => SetProperty(ref m_ValueDateTime, value);
     }
 
     /// <summary>
@@ -225,7 +225,7 @@ namespace CsvTools
     public string ValueText
     {
       get => m_ValueText;
-      set => SetField(ref m_ValueText, value, StringComparison.Ordinal);
+      set => SetProperty(ref m_ValueText, value);
     }
 
     public ValueClusterCollection ValueClusterCollection { get; } = new ValueClusterCollection(50);
