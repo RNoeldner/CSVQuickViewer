@@ -45,22 +45,11 @@
 	  <DefineConstants>$(DefineConstants)TRACE;XmlSerialization</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Compile Remove="DelimitedTextExtensions.cs" />
-	  <Compile Remove="INotifyPropertyChangedString.cs" />
+		<Compile Include="..\SharedAssemblyInfo.cs" Link="SharedAssemblyInfo.cs" />
 	</ItemGroup>
-	<ItemGroup>
-		<None Remove="DateTimeFormats.txt" />
-		<Compile Include="..\SharedAssemblyInfo.cs" Link="Properties\SharedAssemblyInfo.cs" />
-		<None Include="LICENSE">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-	</ItemGroup>
-
 	<ItemGroup>
 		<EmbeddedResource Include="DateTimeFormats.txt" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<PackageReference Include="Ben.Demystifier" Version="0.4.1" />
 		<PackageReference Include="Markdown" Version="2.2.1" />
@@ -70,17 +59,4 @@
 		<PackageReference Include="TimeZoneConverter" Version="6.0.1" />
 		<PackageReference Include="UTF.Unknown" Version="2.5.1" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Properties\" />
-	</ItemGroup>
-	<ProjectExtensions>
-		<MonoDevelop>
-			<Properties>
-				<Policies>
-					<DotNetNamingPolicy DirectoryNamespaceAssociation="None" ResourceNamePolicy="FileFormatDefault" />
-				</Policies>
-			</Properties>
-		</MonoDevelop>
-	</ProjectExtensions>
 </Project>
