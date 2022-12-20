@@ -49,7 +49,7 @@ namespace CsvTools
     public static readonly DateTimeFormatCollection StandardDateTimeFormats =
       new DateTimeFormatCollection("DateTimeFormats.txt");
 
-    [SuppressMessage("ReSharper", "StringLiteralTypo")] 
+    [SuppressMessage("ReSharper", "StringLiteralTypo")]
     private static readonly string[] m_FalseValues =
     {
       "0", "False", "No", "n", "F", "Non", "Nein", "Falsch", "無", "无", "假", "없음", "거짓", "ไม่ใช่", "เท็จ", "नहीं",
@@ -67,7 +67,7 @@ namespace CsvTools
 
     private static readonly DateTime m_FirstDateTimeNextDay = new DateTime(1899, 12, 30, 0, 0, 0, 0).AddDays(1);
 
-    [SuppressMessage("ReSharper", "StringLiteralTypo")] 
+    [SuppressMessage("ReSharper", "StringLiteralTypo")]
     private static readonly string[] m_TrueValues =
     {
       "1", "-1", "True", "yes", "y", "t", "on", "Wahr", "Sì", "Si", "Ja", "active", "an", "Правда", "Да", "Вярно",
@@ -557,19 +557,14 @@ namespace CsvTools
     /// <summary>
     ///   Check if the length of the provided string could fit to the date format
     /// </summary>
-    /// <param name="length">The length.</param>
+    /// <param name="actual">The actual valuek.</param>
     /// <param name="dateFormat">The date format.</param>
     /// <returns>
     ///   <c>true</c> if this could possibly be correct, <c>false</c> if the text is too short or
     ///   too long
     /// </returns>
-    public static bool DateLengthMatches(int length, in string dateFormat)
-    {
-      // Either the format is known then use the determined length restrictions
-      if (StandardDateTimeFormats.TryGetValue(dateFormat, out var lengthMinMax))
-        return length >= lengthMinMax.MinLength && length <= lengthMinMax.MaxLength;
-      return true;
-    }
+    public static bool DateLengthMatches(in string actual, in string dateFormat) =>
+      StandardDateTimeFormats.DateLengthMatches(actual, dateFormat);
 
     /// <summary>
     ///   Converts a dates to string.
@@ -862,7 +857,7 @@ namespace CsvTools
       in CultureInfo culture)
     {
       var stringDateValue = originalValue.Trim().Replace("\t", " ").Replace("  ", " ");
-      if (stringDateValue.Length < StandardDateTimeFormats.MinLengthDate)
+      if (stringDateValue.Length < 4)
         return null;
 
       // get rid of numeric suffixes like 12th or 3rd for dates
@@ -879,8 +874,7 @@ namespace CsvTools
 
       var matchingDateTimeFormats = new List<string>();
       foreach (var format in GetDateFormats(dateFormats))
-        if (DateLengthMatches(stringDateValue.Length, format)
-            && (format.IndexOf('/') == -1 || stringDateValue.Contains(dateSeparator)))
+        if (DateLengthMatches(stringDateValue, format) && (format.IndexOf('/') == -1 || stringDateValue.Contains(dateSeparator)))
           matchingDateTimeFormats.Add(format);
 
       if (matchingDateTimeFormats.Count == 0)
@@ -1222,7 +1216,7 @@ namespace CsvTools
           complete.Add(dateOnly);
       }
 
-      return complete.ToArray();
+      return complete;
     }
 
     private static bool IsDuration(in DateTime dateTime) =>

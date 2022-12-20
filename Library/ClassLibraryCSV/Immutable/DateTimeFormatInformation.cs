@@ -27,7 +27,7 @@ namespace CsvTools
     {
       // Handle other chars like mm':'ss' minutes' or mm\:ss\ \m\i\n\u\t\e\s
 
-      // Handle escaped with \
+      // Handle text escaped with \
       formatSpecifier = formatSpecifier.Replace("\\y", ".");
       formatSpecifier = formatSpecifier.Replace("\\M", ".");
       formatSpecifier = formatSpecifier.Replace("\\d", ".");
@@ -91,12 +91,10 @@ namespace CsvTools
     }
 
     public int MaxLength { get; private set; }
-
     public int MinLength { get; private set; }
-
     public bool NamedDate { get; }
 
-    private void SetMinMax(ref string format, string search, int minLen, int maxLen)
+    private void SetMinMax(ref string format, in string search, int minLen, int maxLen)
     {
       var pos = format.IndexOf(search, StringComparison.Ordinal);
       while (pos != -1)
