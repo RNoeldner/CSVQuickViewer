@@ -2,16 +2,28 @@
 # ---------------------------------
 # / will be substituted with / . and - during detection
 #
-# Keeping preferred / more specific format at top
-# since M/d/yyyy is a superset of MM/dd/yyyy 
-#
 # Supports "written" names in English and local language
+#
 # dddd is the long date name
 # ddd is the abbreviated date name
 # MMMM is the long month name
 # MMM is the abbreviated month name
 #
-dddd, MMMM dd, yyyy, hh:mm:ss tt‎
+#  d for day
+#  M for Month
+#  y for year
+#  H for hour 24
+#  h for hour 12
+#  tt for AM / PM
+#  m for minute
+#  s for second
+#  f for pats of seconds
+#  \ escape
+#  
+# Keeping preferred more specific format at top
+# M/d/yyyy is a superset of MM/dd/yyyy 
+#
+dddd, MMMM dd, yyyy, hh:mm:ss tt
 dddd, MMMM dd, yyyy hh:mm:ss tt
 dddd, dd MMMM, yyyy, hh:mm:ss tt
 dddd, dd MMMM, yyyy hh:mm:ss tt

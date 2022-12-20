@@ -13,7 +13,7 @@
  */
 
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 
 namespace CsvTools
 {
@@ -22,8 +22,8 @@ namespace CsvTools
     /// <summary>
     ///   A lookup for minimum and maximum length by format description
     /// </summary>
-    private readonly Dictionary<string, DateTimeFormatInformation> m_DateLengthMinMax =
-      new Dictionary<string, DateTimeFormatInformation>();
+    private readonly Dictionary<string, DateTimeFormatInformation> m_DateLengthMinMax;
+    private readonly string m_FileName;
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="DateTimeFormatCollection" /> class.
@@ -31,22 +31,34 @@ namespace CsvTools
     /// <param name="file">The file.</param>
     public DateTimeFormatCollection(string file)
     {
-      using var reader = FileSystemUtils.GetStreamReaderForFileOrResource(file);
+      m_FileName = file;
+      m_DateLengthMinMax = new Dictionary<string, DateTimeFormatInformation>();
+    }
 
+    private void Load()
+    {
+      using var reader = FileSystemUtils.GetStreamReaderForFileOrResource(m_FileName);
       while (!reader.EndOfStream)
       {
         var entry = reader.ReadLine();
         if (string.IsNullOrEmpty(entry) || entry[0] == '#')
           continue;
-        Add(entry);
+        Add(entry.Trim());
       }
+      Add(CultureInfo.CurrentCulture.DateTimeFormat.FullDateTimePattern);
+      Add(CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern);
+      Add(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
+      Add(CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern);
+      Add(CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern);
     }
 
-    /// <summary>
-    ///   Gets the Date Time Formats by format description
-    /// </summary>
-    /// <value>The keys.</value>
-    public IEnumerable<string> Keys => m_DateLengthMinMax.Keys;
+    private void Add(in string entry)
+    {
+      if (string.IsNullOrWhiteSpace(entry))
+        return;
+      if (!m_DateLengthMinMax.ContainsKey(entry))
+        m_DateLengthMinMax.Add(entry, new DateTimeFormatInformation(entry));
+    }
 
     /// <summary>
     ///   Returns Date time formats that would fit the length of the input
@@ -54,38 +66,38 @@ namespace CsvTools
     /// <param name="length">The length.</param>
     /// <param name="checkNamedDates">if set to <c>true</c> check named dates e.g. January, February</param>
     /// <returns></returns>
-    public IEnumerable<string> MatchingForLength(int length, bool checkNamedDates) =>
-      from kvFormatInformation in m_DateLengthMinMax
-      where (checkNamedDates || !kvFormatInformation.Value.NamedDate) && length >= kvFormatInformation.Value.MinLength
-                                                                      && length <= kvFormatInformation.Value.MaxLength
-      select kvFormatInformation.Key;
+    public IEnumerable<string> MatchingForLength(int length, bool checkNamedDates)
+    {
+      if (m_DateLengthMinMax.Count==0)
+        Load();
+      foreach (var item in m_DateLengthMinMax)
+      {
+        if ((checkNamedDates || !item.Value.NamedDate) && length >= item.Value.MinLength  && length <= item.Value.MaxLength)
+          yield return item.Key;
+      }
+    }
 
     /// <summary>
-    ///   Tries the get value.
+    ///   Check if the length of the provided string could fit to the date format
     /// </summary>
     /// <param name="key">The key.</param>
     /// <param name="value">The <see cref="DateTimeFormatInformation" />.</param>
     /// <returns><c>true</c> if key was found</returns>
-    public bool TryGetValue(in string key, out DateTimeFormatInformation value) =>
-      m_DateLengthMinMax.TryGetValue(key, out value);
-
-    public int MinLengthDate { get; private set; } = int.MaxValue;
-
-    /// <summary>
-    ///   Adds the specified entry.
-    /// </summary>
-    /// <param name="entry">The entry.</param>
-    private void Add(in string entry)
+    public bool DateLengthMatches(in string actual, in string dateFormat)
     {
-      if (string.IsNullOrWhiteSpace(entry))
-        return;
-      if (!m_DateLengthMinMax.ContainsKey(entry))
+      if (actual.Length<4)
+        return false;
+
+      if (m_DateLengthMinMax.Count==0)
+        Load();
+
+      if (!m_DateLengthMinMax.TryGetValue(dateFormat, out var lengthMinMax))
       {
-        var newEntry = new DateTimeFormatInformation(entry);
-        if (MinLengthDate > newEntry.MinLength)
-          MinLengthDate = newEntry.MinLength;
-        m_DateLengthMinMax.Add(entry, newEntry);
+        lengthMinMax = new DateTimeFormatInformation(dateFormat);
+        m_DateLengthMinMax.Add(dateFormat, lengthMinMax);
       }
+
+      return actual.Length >= lengthMinMax.MinLength && actual.Length <= lengthMinMax.MaxLength;
     }
   }
 }

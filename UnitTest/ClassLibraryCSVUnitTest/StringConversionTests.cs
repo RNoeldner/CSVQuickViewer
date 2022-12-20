@@ -297,8 +297,9 @@ namespace CsvTools.Tests
       var dateSep = "/";
       var culture = new CultureInfo("en-US");
 
-      // Try the date formats
-      foreach (var fmt in StringConversion.StandardDateTimeFormats.Keys)
+      var formats = new [] {"dddd, d MMMM, yyyy", "MM/dd/yyyy HH:mm", "MM/dd/yyyy HH:mm", "d/M/yy h:mm tt", "yyyy/MM/dd HH:mm"};
+      // Try a fwe date formats
+      foreach (var fmt in formats )
       {
         // Fill Samples
         var samples = new HashSet<string>();
