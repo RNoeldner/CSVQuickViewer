@@ -162,6 +162,7 @@ namespace CsvTools.Tests
 
       return dataTable;
     }
+
 #if !QUICK
     public static CsvFile ReaderGetAllFormats(string id = "AllFormats")
     {
