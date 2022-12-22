@@ -4,6 +4,7 @@
 		<ImplicitUsings>disable</ImplicitUsings>
 		<LangVersion>8.0</LangVersion>
 		<Nullable>enable</Nullable>
+		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
 		<TestProjectType>UnitTest</TestProjectType>

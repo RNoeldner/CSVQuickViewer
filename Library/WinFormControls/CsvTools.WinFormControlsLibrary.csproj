@@ -3,11 +3,13 @@
 		<UseWindowsForms>true</UseWindowsForms>
 		<TargetFrameworks>net472;net7.0-windows</TargetFrameworks>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 		<OutputType>Library</OutputType>
 		<LangVersion>8.0</LangVersion>
 		<Nullable>enable</Nullable>
 		<LangVersion>default</LangVersion>
 		<SignAssembly>True</SignAssembly>
+		<IsPublishable>False</IsPublishable>
 		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<AssemblyOriginatorKeyFile>sgKey.snk</AssemblyOriginatorKeyFile>

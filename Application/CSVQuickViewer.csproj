@@ -2,11 +2,11 @@
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<UseWindowsForms>true</UseWindowsForms>
+		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<ApplicationIcon>csv_text.ico</ApplicationIcon>
 		<Authors>Raphael Nöldner</Authors>
 		<PackageIcon>Picture.png</PackageIcon>
-		<PackageIconUrl />
 		<SignAssembly>True</SignAssembly>
 		<TargetFrameworks>net472;net7.0-windows</TargetFrameworks>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -16,7 +16,6 @@
 		<WarningsAsErrors>nullable</WarningsAsErrors>
 		<Configurations>Debug;Release</Configurations>
 		<LangVersion>8.0</LangVersion>
-		<StartupObject></StartupObject>
 		<RepositoryType>git</RepositoryType>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<IsPublishable>False</IsPublishable>
