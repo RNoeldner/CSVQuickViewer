@@ -37,6 +37,7 @@ The application can:
 
 * Ability to store the filtered data into delimited text file
 
+Donwload at: [Sourceforge](https://sourceforge.net/projects/csvquickviewer/files/latest/download)
 
 This application does use various NuGet libraries:
 * [Ben.Demystifier](https://github.com/benaadams/Ben.Demystifier): Improved display of stack trace
