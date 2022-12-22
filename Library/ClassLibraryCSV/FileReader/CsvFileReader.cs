@@ -297,8 +297,8 @@ namespace CsvTools
       m_ConsecutiveEmptyRowsMax = consecutiveEmptyRowsMax;
       m_TreatNbspAsSpace = treatNbspAsSpace;
       m_TrimmingOption = trimmingOption;
-      m_TreatTextAsNull = treatTextAsNull;
-      m_IdentifierInContainer = identifierInContainer;
+      m_TreatTextAsNull = treatTextAsNull ?? string.Empty;
+      m_IdentifierInContainer = identifierInContainer ?? string.Empty;
 
       // Either we report the issues regularly or at least log it
       if (warnEmptyTailingColumns)

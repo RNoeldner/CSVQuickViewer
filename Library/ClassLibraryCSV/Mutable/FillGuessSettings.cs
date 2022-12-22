@@ -260,7 +260,7 @@ namespace CsvTools
     public string TrueValue
     {
       get => m_TrueValue;
-      set => SetProperty(ref m_TrueValue, value);
+      set => SetProperty(ref m_TrueValue, value ?? "True");
     }
 
     /// <summary>
@@ -276,7 +276,7 @@ namespace CsvTools
     public string FalseValue
     {
       get => m_FalseValue;
-      set => SetProperty(ref m_FalseValue, value);
+      set => SetProperty(ref m_FalseValue, value ?? "False");
     }
 
     [DefaultValue("")]
@@ -289,7 +289,7 @@ namespace CsvTools
     public string DateFormat
     {
       get => m_DateFormat;
-      set => SetProperty(ref m_DateFormat, value);
+      set => SetProperty(ref m_DateFormat, value ?? string.Empty);
     }
 
     /// <inheritdoc />

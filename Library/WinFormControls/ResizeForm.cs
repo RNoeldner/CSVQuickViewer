@@ -16,7 +16,7 @@ namespace CsvTools
 
     [Browsable(false)]
     [Bindable(false)]
-    public IFontConfig FontConfig
+    public IFontConfig? FontConfig
     {
       get => m_FontConfig;
       set
@@ -24,10 +24,13 @@ namespace CsvTools
         if (m_FontConfig != null)
           m_FontConfig.PropertyChanged -= FontSettingChanged;
         m_FontConfig = value;
+        if (m_FontConfig != null)
+        {
 #pragma warning disable CA1416
-        ChangeFont(new Font(m_FontConfig.Font, m_FontConfig.FontSize));
+          ChangeFont(new Font(m_FontConfig.Font, m_FontConfig.FontSize));
 #pragma warning restore CA1416
-        m_FontConfig.PropertyChanged += FontSettingChanged;
+          m_FontConfig.PropertyChanged += FontSettingChanged;
+        }
       }
     }
 

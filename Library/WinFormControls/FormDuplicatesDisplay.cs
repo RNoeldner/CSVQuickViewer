@@ -76,7 +76,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
-    private async void DuplicatesDisplay_LoadAsync(object? sender, EventArgs e)
+    private void DuplicatesDisplay_LoadAsync(object? sender, EventArgs e)
     {
       var index = 0;
       var current = 0;

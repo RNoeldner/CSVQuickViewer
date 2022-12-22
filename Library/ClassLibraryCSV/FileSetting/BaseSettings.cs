@@ -43,66 +43,36 @@ namespace CsvTools
   public abstract class BaseSettings : ObservableObject, IFileSetting
   {
     public const string cTreatTextAsNull = "NULL";
-
     public static readonly DateTime ZeroTime = new DateTime(0, DateTimeKind.Utc);
-
     private int m_ConsecutiveEmptyRows = 5;
-
     private bool m_DisplayEndLineNo;
-
     private bool m_DisplayRecordNo;
-
     private bool m_DisplayStartLineNo = true;
-
     private long m_ErrorCount;
-
     private string m_Footer = string.Empty;
-
     private bool m_HasFieldHeader = true;
-
     private string m_Header = string.Empty;
-
     private string m_Id;
-
     private bool m_InOverview;
-
     private bool m_IsEnabled = true;
-
     private bool m_KeepUnencrypted;
-
     private DateTime m_LatestSourceTimeUtc = ZeroTime;
-
     private long m_NumRecords;
-
     private DateTime m_ProcessTimeUtc = ZeroTime;
-
     private long m_RecordLimit;
     private bool m_SetLatestSourceTimeForWrite;
-
     private bool m_ShowProgress = true;
-
     private bool m_SkipDuplicateHeader;
-
     private bool m_SkipEmptyLines = true;
-
     private int m_SkipRows;
-
     private IReadOnlyCollection<IFileSetting>? m_SourceFileSettings;
-
     private string m_SqlStatement = string.Empty;
-
     private string m_TemplateName = string.Empty;
-
     private int m_Timeout = 90;
-
     private bool m_TreatNbspAsSpace;
-
     private string m_TreatTextAsNull = cTreatTextAsNull;
-
     private TrimmingOptionEnum m_TrimmingOption = TrimmingOptionEnum.Unquoted;
-
     private bool m_Validate = true;
-
     private long m_WarningCount;
     private int m_Order = 100;
     private string m_Comment = string.Empty;
@@ -296,14 +266,7 @@ namespace CsvTools
     public virtual string Footer
     {
       get => m_Footer;
-      set
-      {
-        var newVal = (value ?? string.Empty).HandleCrlfCombinations(Environment.NewLine);
-        if (m_Footer.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_Footer = newVal;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_Footer, (value ?? string.Empty).HandleCrlfCombinations(Environment.NewLine));
     }
 
     /// <inheritdoc />
@@ -322,14 +285,7 @@ namespace CsvTools
     public virtual string Header
     {
       get => m_Header;
-      set
-      {
-        var newVal = (value ?? string.Empty).HandleCrlfCombinations(Environment.NewLine);
-        if (m_Header.Equals(newVal, StringComparison.Ordinal))
-          return;
-        m_Header = newVal;
-        NotifyPropertyChanged();
-      }
+      set => SetProperty(ref m_Header, (value ?? string.Empty).HandleCrlfCombinations(Environment.NewLine));
     }
 
     /// <inheritdoc />
@@ -343,7 +299,7 @@ namespace CsvTools
       set
       {
         var oldVal = m_Id;
-        if (SetProperty(ref m_Id, value))
+        if (SetProperty(ref m_Id, value ?? string.Empty))
           IdChanged?.Invoke(this, new PropertyChangedEventArgs<string>(nameof(ID), oldVal, m_Id));
       }
     }
@@ -381,7 +337,7 @@ namespace CsvTools
     public virtual string Comment
     {
       get => m_Comment;
-      set => SetProperty(ref m_Comment, value);
+      set => SetProperty(ref m_Comment, value ?? string.Empty);
     }
 
     /// <inheritdoc />
@@ -393,7 +349,6 @@ namespace CsvTools
     public virtual bool IsEnabled
     {
       get => m_IsEnabled;
-
       set => SetProperty(ref m_IsEnabled, value);
     }
 
@@ -564,7 +519,7 @@ namespace CsvTools
     public virtual string TemplateName
     {
       get => m_TemplateName;
-      set => SetProperty(ref m_TemplateName, value);
+      set => SetProperty(ref m_TemplateName, value ?? string.Empty);
     }
 
     /// <inheritdoc />
@@ -598,7 +553,7 @@ namespace CsvTools
     public virtual string TreatTextAsNull
     {
       get => m_TreatTextAsNull;
-      set => SetProperty(ref m_TreatTextAsNull, value);
+      set => SetProperty(ref m_TreatTextAsNull, value ?? cTreatTextAsNull);
     }
 
     /// <inheritdoc />

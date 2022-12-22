@@ -183,7 +183,7 @@ namespace CsvTools
     public virtual string IdentifierInContainer
     {
       get => m_IdentifierInContainer;
-      set => SetProperty(ref m_IdentifierInContainer, value);
+      set => SetProperty(ref m_IdentifierInContainer, value ?? string.Empty);
     }
 
 
@@ -199,7 +199,7 @@ namespace CsvTools
     public virtual string Passphrase
     {
       get => m_PassPhrase;
-      set => SetProperty(ref m_PassPhrase, value);
+      set => SetProperty(ref m_PassPhrase, value ?? string.Empty);
     }
 
     /// <inheritdoc />
@@ -214,7 +214,7 @@ namespace CsvTools
     public virtual string RemoteFileName
     {
       get => m_RemoteFileName;
-      set => SetProperty(ref m_RemoteFileName, value);
+      set => SetProperty(ref m_RemoteFileName, value ?? string.Empty);
     }
 
 #if XmlSerialization

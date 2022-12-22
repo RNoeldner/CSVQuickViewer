@@ -14,6 +14,7 @@
 
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace CsvTools
 {
@@ -70,18 +71,16 @@ namespace CsvTools
     {
       if (m_DateLengthMinMax.Count==0)
         Load();
-      foreach (var item in m_DateLengthMinMax)
-      {
-        if ((checkNamedDates || !item.Value.NamedDate) && length >= item.Value.MinLength  && length <= item.Value.MaxLength)
-          yield return item.Key;
-      }
+
+      return (m_DateLengthMinMax.Where(item => (checkNamedDates || !item.Value.NamedDate) && length >= item.Value.MinLength && length <= item.Value.MaxLength)
+                                .Select(item => item.Key)).ToList();
     }
 
     /// <summary>
     ///   Check if the length of the provided string could fit to the date format
     /// </summary>
-    /// <param name="key">The key.</param>
-    /// <param name="value">The <see cref="DateTimeFormatInformation" />.</param>
+    /// <param name="actual">The actual value.</param>
+    /// <param name="dateFormat">The date format to check.</param>
     /// <returns><c>true</c> if key was found</returns>
     public bool DateLengthMatches(in string actual, in string dateFormat)
     {

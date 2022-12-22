@@ -2016,13 +2016,10 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnDelimiterInValue, m_ValidSetting.WarnLineFeed, m_ValidSetting.WarnNBSP,
         m_ValidSetting.WarnQuotes,
         m_ValidSetting.WarnUnknownCharacter, m_ValidSetting.WarnEmptyTailingColumns, m_ValidSetting.TreatNBSPAsSpace,
-#pragma warning disable CS8604
-        m_ValidSetting.TreatTextAsNull
-#pragma warning restore CS8604
-        , m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows, m_ValidSetting.IdentifierInContainer,
+        "", m_ValidSetting.SkipEmptyLines, m_ValidSetting.ConsecutiveEmptyRows, m_ValidSetting.IdentifierInContainer,
         m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
       await test.OpenAsync(UnitTestStatic.Token);
-      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
+      Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token), "First Row");
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));
       Assert.IsTrue(await test.ReadAsync(UnitTestStatic.Token));

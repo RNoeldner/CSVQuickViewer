@@ -58,7 +58,6 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <EmbeddedResource Update="DetailControl.resx">
-	    <Generator></Generator>
 	  </EmbeddedResource>
 	</ItemGroup>
 </Project>
