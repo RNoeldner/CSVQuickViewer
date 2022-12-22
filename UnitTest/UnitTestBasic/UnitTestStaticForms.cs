@@ -10,41 +10,36 @@ namespace CsvTools.Tests
 {
   public static class UnitTestStaticForms
   {
-    public static void ShowControl<T>(T ctrl, double waitBeforeActionSeconds = .2, Action<T>? toDo = null,
-      double closeAfterSeconds = .2)
+    public static void InitThreadException()
+    {
+      Application.ThreadException += (obj, args) => args.Exception.ToString().WriteToContext();
+      AppDomain.CurrentDomain.UnhandledException += (obj, args) => args.ExceptionObject.ToString().WriteToContext();
+      Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+    }
+
+    public static void ShowControl<T>(T ctrl, double waitBeforeActionSeconds = 0, Action<T>? toDo = null,
+      double closeAfterSeconds = .5)
       where T : Control
     {
-      
-        using var frm = new TestForm();
-        frm.AddOneControl(ctrl, closeAfterSeconds * 1000);
-        ShowFormAndClose(frm, waitBeforeActionSeconds, f =>
-          {
-            // ReSharper disable once AccessToDisposedClosure
-            toDo?.Invoke(ctrl);
-          },
-          frm.CancellationToken);
-        ctrl.Dispose();
-      
+      ShowFormAndClose(new TestForm(ctrl, closeAfterSeconds * 1000), waitBeforeActionSeconds,
+        // ReSharper disable once AccessToDisposedClosure
+        f => toDo?.Invoke(ctrl));
+      ctrl.Dispose();
     }
 
     public static async Task ShowControlAsync<T>(T ctrl, double waitBeforeActionSeconds, Func<T, Task> toDo,
       double closeAfterSeconds = .2)
       where T : Control
     {
-      //await Extensions.RunStaThreadAsync(async () =>
-      //{
-        using var frm = new TestForm();
-        frm.AddOneControl(ctrl, closeAfterSeconds * 1000);
-        await ShowFormAndCloseAsync(frm, waitBeforeActionSeconds, async f => await toDo.Invoke(ctrl),
-          frm.CancellationToken);
-        ctrl.Dispose();
-      //});
+      await ShowFormAndCloseAsync(new TestForm(ctrl, closeAfterSeconds * 1000), waitBeforeActionSeconds, async f => await toDo.Invoke(ctrl));
+      ctrl.Dispose();
     }
 
-    public static void ShowFormAndClose<T>(
-      T typed, double waitBeforeActionSeconds = 0, Action<T>? toDo = null, in CancellationToken token = default)
+    public static void ShowFormAndClose<T>(T typed, double waitBeforeActionSeconds = 0, Action<T>? toDo = null, CancellationToken token = default)
       where T : Form
     {
+      if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+          $"Thread should run as STS but is {Thread.CurrentThread.GetApartmentState()}".WriteToContext();
       var frm = typed as Form;
       var isClosed = false;
       frm.FormClosed += (s, o) =>
@@ -72,16 +67,19 @@ namespace CsvTools.Tests
         frm.Close();
 
       frm.Dispose();
+
     }
 
     public static async Task ShowFormAndCloseAsync<T>(
-      T frm, double waitBeforeActionSeconds = 0, Func<T, Task>? toDo = null, CancellationToken token = default)
+      T frm, double waitBeforeActionSeconds = 0, Func<T, Task>? toDo = null)
       where T : Form
     {
+      if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
+        $"Thread should run as STS but is {Thread.CurrentThread.GetApartmentState()}".WriteToContext();
+
       var isClosed = false;
       frm.FormClosed += (s, o) =>
         isClosed = true;
-
       frm.TopMost = true;
       frm.ShowInTaskbar = false;
       try
@@ -94,14 +92,13 @@ namespace CsvTools.Tests
       }
 
       if (waitBeforeActionSeconds > 0 && !isClosed)
-        WaitSomeTime(waitBeforeActionSeconds, token);
+        WaitSomeTime(waitBeforeActionSeconds, UnitTestStatic.Token);
 
       if (toDo != null && !isClosed)
         await toDo.Invoke(frm);
 
       if (!isClosed)
         frm.Close();
-
       frm.Dispose();
     }
 
@@ -128,7 +125,7 @@ namespace CsvTools.Tests
 
     public CancellationToken CancellationToken => m_CancellationTokenSource.Token;
 
-    public TestForm()
+    public TestForm(Control? ctrl = null, double autoCloseMilliseconds = 5000)
     {
       SuspendLayout();
       m_CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(UnitTestStatic.Token);
@@ -143,17 +140,15 @@ namespace CsvTools.Tests
       Text = "TestForm";
       TopMost = true;
       FormClosing += TestForm_FormClosing;
-      ResumeLayout(false);
-    }
 
-    public void AddOneControl(Control ctrl, double autoCloseMilliseconds = 10000)
-    {
-      SuspendLayout();
-      Text = ctrl.GetType().FullName;
-      ctrl.Dock = DockStyle.Fill;
-      ctrl.Location = new Point(0, 0);
-      ctrl.Size = new Size(790, 790);
-      Controls.Add(ctrl);
+      if (ctrl != null)
+      {
+        Text = ctrl.GetType().FullName;
+        ctrl.Dock = DockStyle.Fill;
+        ctrl.Location = new Point(0, 0);
+        ctrl.Size = new Size(790, 790);
+        Controls.Add(ctrl);
+      }
       ResumeLayout(false);
 
       if (!(autoCloseMilliseconds > 0))
@@ -190,4 +185,6 @@ namespace CsvTools.Tests
       base.Dispose(disposing);
     }
   }
+
 }
+
