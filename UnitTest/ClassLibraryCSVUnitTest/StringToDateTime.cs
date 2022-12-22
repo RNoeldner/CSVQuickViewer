@@ -146,13 +146,13 @@ namespace CsvTools.Tests
     [TestMethod]
     public void ParseStringToDateTimeDifferentFormats()
     {
+      TestDate(new DateTime(1999, 01, 7), @"yyyyddmm", "", @"yyyy/dd/MM");
       TestDate(new DateTime(1999, 01, 1), @"mm\dd\yyyy", @"\", @"MM/dd/yyyy");
       TestDate(new DateTime(1999, 01, 2), @"MM/dd/yyyy", @"/", @"MM/dd/yyyy");
       TestDate(new DateTime(1999, 01, 3), "dd.mm.yyyy", ".", @"dd/MM/yyyy");
       TestDate(new DateTime(1999, 01, 4), @"dd/mm/yyyy", @"/", @"dd/MM/yyyy");
       TestDate(new DateTime(1999, 01, 5), @"yyyy-mm-dd", @"-", @"yyyy/MM/dd");
       TestDate(new DateTime(1999, 01, 6), @"yyyymmdd", "", @"yyyyMMdd");
-      TestDate(new DateTime(1999, 01, 7), @"yyyyddmm", "", @"yyyy/dd/MM");
     }
 
     /*[TestMethod]

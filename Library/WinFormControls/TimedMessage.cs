@@ -8,6 +8,7 @@ namespace CsvTools
   using System.ComponentModel;
   using System.Windows.Forms;
 
+  [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
   public class TimedMessage : ResizeForm
   {
     private IContainer components;

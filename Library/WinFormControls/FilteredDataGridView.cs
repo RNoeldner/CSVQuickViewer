@@ -657,7 +657,9 @@ namespace CsvTools
         components?.Dispose();
         foreach (var item in m_Filter)
           item?.Dispose();
+#pragma warning disable CA1416
         m_ImgFilterIndicator.Dispose();
+#pragma warning restore CA1416
         m_CancellationTokenSource.Dispose();
       }
 
@@ -723,7 +725,7 @@ namespace CsvTools
         m_DefRowHeight = row.Height;
       // in case the row is not bigger than normal check if it would need to be higher
       if (row.Height != m_DefRowHeight) return m_DefRowHeight;
-      if (checkedColumns.Any(column => row.Cells[column.Index].Value?.ToString().IndexOf('\n') != -1))
+      if (checkedColumns.Any(column => row.Cells[column.Index].Value?.ToString()?.IndexOf('\n') != -1))
         return m_DefRowHeight * 2;
 
       return m_DefRowHeight;

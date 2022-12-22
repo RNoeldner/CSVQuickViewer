@@ -11,6 +11,7 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
+
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -46,18 +47,16 @@ namespace CsvTools
     /// <summary>
     ///   The possible length of a date for a given format
     /// </summary>
-    public static readonly DateTimeFormatCollection StandardDateTimeFormats =
+    internal static readonly DateTimeFormatCollection StandardDateTimeFormats =
       new DateTimeFormatCollection("DateTimeFormats.txt");
 
     [SuppressMessage("ReSharper", "StringLiteralTypo")]
     private static readonly string[] m_FalseValues =
     {
-      "0", "False", "No", "n", "F", "Non", "Nein", "Falsch", "無", "无", "假", "없음", "거짓", "ไม่ใช่", "เท็จ", "नहीं",
-      "झूठी", "نہيں", "نه", "نادرست", "لا", "كاذبة", "جھوٹا", "שווא", "לא", "いいえ", "Фалшиви", "Ні", "Нет", "Не",
-      "ЛОЖЬ", "Ψευδείς", "Όχι", "Yanlış", "Viltus", "Valse", "Vale", "Väärä", "Tidak", "Sai", "Palsu", "nu", "Nr",
-      "nie", "NEPRAVDA", "nem", "Nej", "nei", "nē", "Ne", "Não", "na", "off", "le", "Klaidingas", "Không", "inactive",
-      "aus", "Hayır", "Hamis", "Foloz", "Ffug", "Faux", "Fałszywe", "Falso", "Falske", "Falska", "Falsk", "Fals",
-      "Falošné", "Ei"
+      "0", "False", "No", "n", "F", "Non", "Nein", "Falsch", "無", "无", "假", "없음", "거짓", "ไม่ใช่", "เท็จ", "नहीं", "झूठी", "نہيں", "نه", "نادرست", "لا",
+      "كاذبة", "جھوٹا", "שווא", "לא", "いいえ", "Фалшиви", "Ні", "Нет", "Не", "ЛОЖЬ", "Ψευδείς", "Όχι", "Yanlış", "Viltus", "Valse", "Vale", "Väärä", "Tidak",
+      "Sai", "Palsu", "nu", "Nr", "nie", "NEPRAVDA", "nem", "Nej", "nei", "nē", "Ne", "Não", "na", "off", "le", "Klaidingas", "Không", "inactive", "aus",
+      "Hayır", "Hamis", "Foloz", "Ffug", "Faux", "Fałszywe", "Falso", "Falske", "Falska", "Falsk", "Fals", "Falošné", "Ei"
     };
 
     /// <summary>
@@ -70,12 +69,11 @@ namespace CsvTools
     [SuppressMessage("ReSharper", "StringLiteralTypo")]
     private static readonly string[] m_TrueValues =
     {
-      "1", "-1", "True", "yes", "y", "t", "on", "Wahr", "Sì", "Si", "Ja", "active", "an", "Правда", "Да", "Вярно",
-      "Vero", "Veritable", "Vera", "Jah", "igen", "真實", "真实", "真", "是啊", "예", "사실", "อย่างแท้จริง", "ใช่", "हाँ",
-      "सच", "نعم", "صحيح", "سچا", "درست است", "جی ہاں", "بله", "נכון", "כן", "はい", "Так", "Ναι", "Αλήθεια", "Ya",
-      "Wir", "Waar", "Vrai", "Verdadero", "Verdade", "Totta", "Tõsi", "Tiesa", "Tak", "taip", "Sim", "Sí", "Sant",
-      "Sanna", "Sandt", "Res", "Prawdziwe", "Pravda", "Patiess", "Oui", "Kyllä", "jā", "Iva", "Igaz", "Ie", "Gerçek",
-      "Evet", "Đúng", "da", "Có", "Benar", "áno", "Ano", "Adevărat"
+      "1", "-1", "True", "yes", "y", "t", "on", "Wahr", "Sì", "Si", "Ja", "active", "an", "Правда", "Да", "Вярно", "Vero", "Veritable", "Vera", "Jah", "igen",
+      "真實", "真实", "真", "是啊", "예", "사실", "อย่างแท้จริง", "ใช่", "हाँ", "सच", "نعم", "صحيح", "سچا", "درست است", "جی ہاں", "بله", "נכון", "כן", "はい", "Так",
+      "Ναι", "Αλήθεια", "Ya", "Wir", "Waar", "Vrai", "Verdadero", "Verdade", "Totta", "Tõsi", "Tiesa", "Tak", "taip", "Sim", "Sí", "Sant", "Sanna", "Sandt",
+      "Res", "Prawdziwe", "Pravda", "Patiess", "Oui", "Kyllä", "jā", "Iva", "Igaz", "Ie", "Gerçek", "Evet", "Đúng", "da", "Có", "Benar", "áno", "Ano",
+      "Adevărat"
     };
 
     /// <summary>
@@ -90,8 +88,8 @@ namespace CsvTools
     ///   cref="DataTypeEnum.TextUnescape" /> is to be assumed the text has C encoding otherwise
     ///   <see cref="DataTypeEnum.String" />
     /// </returns>
-    public static DataTypeEnum CheckUnescaped(in IEnumerable<string> samples, int minRequiredSamples,
-      in CancellationToken cancellationToken)
+    internal static DataTypeEnum CheckUnescaped(in IEnumerable<string> samples, int minRequiredSamples,
+                                                in CancellationToken cancellationToken)
     {
       var foundUnescaped = 0;
       var foundHtml = 0;
@@ -295,7 +293,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
     public static CheckResult CheckSerialDate(in IEnumerable<string> samples, bool isCloseToNow,
-      in CancellationToken cancellationToken)
+                                              in CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
 
@@ -355,7 +353,7 @@ namespace CsvTools
     ///   <c>false</c> otherwise.
     /// </returns>
     public static bool CheckTime(in IEnumerable<string>? samples, in string timeSeparator,
-      in CancellationToken cancellationToken)
+                                 in CancellationToken cancellationToken)
     {
       if (samples is null)
         return false;
@@ -388,7 +386,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
     public static bool CheckTimeSpan(in IEnumerable<string>? samples, in string timeSeparator, bool serialDateTime,
-      in CancellationToken cancellationToken)
+                                     in CancellationToken cancellationToken)
     {
       if (samples is null)
         return false;
@@ -557,13 +555,13 @@ namespace CsvTools
     /// <summary>
     ///   Check if the length of the provided string could fit to the date format
     /// </summary>
-    /// <param name="actual">The actual valuek.</param>
+    /// <param name="actual">The actual value.</param>
     /// <param name="dateFormat">The date format.</param>
     /// <returns>
     ///   <c>true</c> if this could possibly be correct, <c>false</c> if the text is too short or
     ///   too long
     /// </returns>
-    public static bool DateLengthMatches(in string actual, in string dateFormat) =>
+    internal static bool DateLengthMatches(in string actual, in string dateFormat) =>
       StandardDateTimeFormats.DateLengthMatches(actual, dateFormat);
 
     /// <summary>
@@ -588,7 +586,7 @@ namespace CsvTools
       const string allowed = " Hhmsf:";
 
       var result = format.DateFormat.Where(chr => allowed.IndexOf(chr) != -1)
-        .Aggregate(string.Empty, (current, chr) => current + chr).Trim();
+                         .Aggregate(string.Empty, (current, chr) => current + chr).Trim();
       // make them all upper case H lower case does not make sense
       while (result.Contains("h"))
         result = result.Replace("h", "H");
@@ -635,8 +633,8 @@ namespace CsvTools
     public static string DecimalToString(in decimal value, in ValueFormat format)
     {
       var valueFormat = format.NumberFormat.Length == 0
-        ? ValueFormat.cNumberFormatDefault
-        : format.NumberFormat;
+                          ? ValueFormat.cNumberFormatDefault
+                          : format.NumberFormat;
 
       return value.ToString(valueFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
         CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
@@ -662,14 +660,14 @@ namespace CsvTools
 
       if (IsDuration(dateTime))
         return (dateTime - m_FirstDateTime).TotalHours.ToString(
-            (dateTime - m_FirstDateTime).TotalHours >= 100 ? "000" : "00",
-            CultureInfo.InvariantCulture) + ":"
-                                          + (dateTime - m_FirstDateTime).Minutes.ToString(
-                                            "00",
-                                            CultureInfo.InvariantCulture) + ":"
-                                          + (dateTime - m_FirstDateTime).Seconds.ToString(
-                                            "00",
-                                            CultureInfo.InvariantCulture);
+                 (dateTime - m_FirstDateTime).TotalHours >= 100 ? "000" : "00",
+                 CultureInfo.InvariantCulture) + ":"
+                                               + (dateTime - m_FirstDateTime).Minutes.ToString(
+                                                 "00",
+                                                 CultureInfo.InvariantCulture) + ":"
+                                               + (dateTime - m_FirstDateTime).Seconds.ToString(
+                                                 "00",
+                                                 CultureInfo.InvariantCulture);
       return dateTime.ToString("G", culture);
     }
 
@@ -682,8 +680,8 @@ namespace CsvTools
     public static string DoubleToString(in double value, in ValueFormat format)
     {
       var valueFormat = format.NumberFormat.Length == 0
-        ? ValueFormat.cNumberFormatDefault
-        : format.NumberFormat;
+                          ? ValueFormat.cNumberFormatDefault
+                          : format.NumberFormat;
       return value.ToString(valueFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
         CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
         format.DecimalSeparator,
@@ -740,9 +738,10 @@ namespace CsvTools
       dateTime >= m_FirstDateTime && dateTime < m_FirstDateTimeNextDay;
 
     public static bool NoTime(this in DateTime dateTime) =>
-      (dateTime.Hour ==0 && dateTime.Minute==0 && dateTime.Millisecond==0);
+      (dateTime.Hour == 0 && dateTime.Minute == 0 && dateTime.Millisecond == 0);
 
-    public static DateTime TimeOnly(this in DateTime dateTime) => m_FirstDateTime.Add(new TimeSpan(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond));
+    public static DateTime TimeOnly(this in DateTime dateTime) =>
+      m_FirstDateTime.Add(new TimeSpan(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond));
 
     /// <summary>
     ///   Parses a string to a boolean.
@@ -774,7 +773,7 @@ namespace CsvTools
     ///   <c>Null</c> if the value can not be identified as boolean, other wise a tuple with
     ///   <c>true</c> or <c>false</c> and the value that had been used
     /// </returns>
-    public static Tuple<bool, string>? StringToBooleanStrict(string? value, in string? trueValue, in string? falseValue)
+    internal static Tuple<bool, string>? StringToBooleanStrict(string? value, in string? trueValue, in string? falseValue)
     {
       if (value is null || value.Length == 0)
         return null;
@@ -789,8 +788,8 @@ namespace CsvTools
         return new Tuple<bool, string>(true, value);
 
       return m_FalseValues.Any(test => value.Equals(test, StringComparison.OrdinalIgnoreCase))
-        ? new Tuple<bool, string>(false, value)
-        : null;
+               ? new Tuple<bool, string>(false, value)
+               : null;
     }
 
     /// <summary>
@@ -873,7 +872,9 @@ namespace CsvTools
         return null;
 
       var matchingDateTimeFormats = new List<string>();
-      foreach (var format in GetDateFormats(dateFormats))
+      // in case we do not have a date separator but the format has one removed the separator in the format otherwise it will not match length 
+
+      foreach (var format in GetDateFormats(dateFormats, dateSeparator))
         if (DateLengthMatches(stringDateValue, format) && (format.IndexOf('/') == -1 || stringDateValue.Contains(dateSeparator)))
           matchingDateTimeFormats.Add(format);
 
@@ -938,10 +939,7 @@ namespace CsvTools
 
       var numberFormatProvider = new NumberFormatInfo
       {
-        NegativeSign = "-",
-        PositiveSign = "+",
-        NumberDecimalSeparator = decimalSeparator,
-        NumberGroupSeparator = groupSeparator
+        NegativeSign = "-", PositiveSign = "+", NumberDecimalSeparator = decimalSeparator, NumberGroupSeparator = groupSeparator
       };
 
       if (stringFieldValue.StartsWith("(", StringComparison.Ordinal)
@@ -1198,17 +1196,18 @@ namespace CsvTools
     ///   Gets the an array of date formats, splitting the given date formats text by delimiter
     /// </summary>
     /// <param name="dateFormat">The date format, possibly separated by delimiter</param>
+    /// <param name="dateSeparator">The current date separator, in case its empty, placeholder sin the format will be removed</param>
     /// <returns>An array of formats</returns>
-    private static IEnumerable<string> GetDateFormats(in string dateFormat)
+    private static IEnumerable<string> GetDateFormats(in string dateFormat, in string dateSeparator)
     {
-      var dateTimeFormats = StringUtils.SplitByDelimiter(dateFormat);
+      var dateTimeFormats =
+        StringUtils.SplitByDelimiter((dateSeparator.Length == 0 && dateFormat.IndexOf('/') != -1) ? dateFormat.Replace("/", "") : dateFormat);
 
       var complete = new List<string>(dateTimeFormats);
       foreach (var dateTimeFormat in dateTimeFormats)
       {
         // In case of a date & time format add the date only format separately
         var indexHour = dateTimeFormat.IndexOf("h", StringComparison.OrdinalIgnoreCase);
-
         // assuming there is a text before the hour that has a reasonable size take it as date
         if (indexHour <= 4) continue;
         var dateOnly = dateTimeFormat.Substring(0, indexHour - 1).Trim();
