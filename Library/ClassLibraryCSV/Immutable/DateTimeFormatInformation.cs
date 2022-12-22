@@ -16,8 +16,12 @@ using System;
 
 namespace CsvTools
 {
-  public sealed class DateTimeFormatInformation
+  public struct DateTimeFormatInformation
   {
+    public readonly int MaxLength;
+    public readonly int MinLength;
+    public readonly bool NamedDate;
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="DateTimeFormatInformation" /> class.
     /// </summary>
@@ -51,50 +55,46 @@ namespace CsvTools
       NamedDate = formatSpecifier.IndexOf("ddd", StringComparison.Ordinal) != -1
                   || formatSpecifier.IndexOf("MMM", StringComparison.Ordinal) != -1;
 
-      SetMinMax(ref formatSpecifier, "dddd", DateTimeFormatLength.MinDayLong, DateTimeFormatLength.MaxDayLong);
-      SetMinMax(ref formatSpecifier, "ddd", DateTimeFormatLength.MinDayMid, DateTimeFormatLength.MaxDayMid);
-      SetMinMax(ref formatSpecifier, "dd", 2, 2);
-      SetMinMax(ref formatSpecifier, "d", 1, 2);
+      SetMinMax(ref formatSpecifier, "dddd", DateTimeFormatLength.MinDayLong, DateTimeFormatLength.MaxDayLong, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "ddd", DateTimeFormatLength.MinDayMid, DateTimeFormatLength.MaxDayMid, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "dd", 2, 2, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "d", 1, 2, ref MinLength, ref MaxLength);
 
-      SetMinMax(ref formatSpecifier, "yyyy", 4, 4);
-      SetMinMax(ref formatSpecifier, "yy", 2, 2);
-      SetMinMax(ref formatSpecifier, "y", 1, 2);
+      SetMinMax(ref formatSpecifier, "yyyy", 4, 4, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "yy", 2, 2, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "y", 1, 2, ref MinLength, ref MaxLength);
 
-      SetMinMax(ref formatSpecifier, "HH", 2, 2);
-      SetMinMax(ref formatSpecifier, "H", 1, 2);
-      SetMinMax(ref formatSpecifier, "hh", 2, 2);
-      SetMinMax(ref formatSpecifier, "h", 1, 2);
+      SetMinMax(ref formatSpecifier, "HH", 2, 2, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "H", 1, 2, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "hh", 2, 2, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "h", 1, 2, ref MinLength, ref MaxLength);
 
-      SetMinMax(ref formatSpecifier, "mm", 2, 2);
-      SetMinMax(ref formatSpecifier, "m", 1, 2);
+      SetMinMax(ref formatSpecifier, "mm", 2, 2, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "m", 1, 2, ref MinLength, ref MaxLength);
 
-      SetMinMax(ref formatSpecifier, "MMMM", DateTimeFormatLength.MinMonthLong, DateTimeFormatLength.MaxMonthLong);
-      SetMinMax(ref formatSpecifier, "MMM", DateTimeFormatLength.MinMonthMid, DateTimeFormatLength.MaxMonthMid);
-      SetMinMax(ref formatSpecifier, "MM", 2, 2);
-      SetMinMax(ref formatSpecifier, "M", 1, 2);
+      SetMinMax(ref formatSpecifier, "MMMM", DateTimeFormatLength.MinMonthLong, DateTimeFormatLength.MaxMonthLong, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "MMM", DateTimeFormatLength.MinMonthMid, DateTimeFormatLength.MaxMonthMid, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "MM", 2, 2, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "M", 1, 2, ref MinLength, ref MaxLength);
 
-      SetMinMax(ref formatSpecifier, "F", 0, 1);
+      SetMinMax(ref formatSpecifier, "F", 0, 1, ref MinLength, ref MaxLength);
 
-      SetMinMax(ref formatSpecifier, "ss", 2, 2);
-      SetMinMax(ref formatSpecifier, "s", 1, 2);
+      SetMinMax(ref formatSpecifier, "ss", 2, 2, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "s", 1, 2, ref MinLength, ref MaxLength);
 
       // interpreted as a standard date and time format specifier
-      SetMinMax(ref formatSpecifier, "K", 0, 6);
+      SetMinMax(ref formatSpecifier, "K", 0, 6, ref MinLength, ref MaxLength);
 
       // signed offset of the local operating system's time zone from UTC,
-      SetMinMax(ref formatSpecifier, "zzz", 6, 6);
-      SetMinMax(ref formatSpecifier, "zz", 3, 3);
-      SetMinMax(ref formatSpecifier, "z", 2, 3);
+      SetMinMax(ref formatSpecifier, "zzz", 6, 6, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "zz", 3, 3, ref MinLength, ref MaxLength);
+      SetMinMax(ref formatSpecifier, "z", 2, 3, ref MinLength, ref MaxLength);
 
       // AM / PM
-      SetMinMax(ref formatSpecifier, "tt", DateTimeFormatLength.MinDesignator, DateTimeFormatLength.MaxDesignator);
+      SetMinMax(ref formatSpecifier, "tt", DateTimeFormatLength.MinDesignator, DateTimeFormatLength.MaxDesignator, ref MinLength, ref MaxLength);
     }
 
-    public int MaxLength { get; private set; }
-    public int MinLength { get; private set; }
-    public bool NamedDate { get; }
-
-    private void SetMinMax(ref string format, in string search, int minLen, int maxLen)
+    private static void SetMinMax(ref string format, in string search, int minLen, int maxLen, ref int MinLength, ref int MaxLength)
     {
       var pos = format.IndexOf(search, StringComparison.Ordinal);
       while (pos != -1)

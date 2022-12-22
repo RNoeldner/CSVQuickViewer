@@ -24,12 +24,13 @@ namespace CsvTools
   {
     static DateTimeFormatLength()
     {
+      MaxDesignator = 2;
       MaxDayLong = int.MinValue;
       MaxDayMid = int.MinValue;
-      MinDesignator = 2;
-      MaxDesignator = 2;
       MaxMonthLong = int.MinValue;
       MaxMonthMid = int.MinValue;
+
+      MinDesignator = 2;
       MinDayLong = int.MaxValue;
       MinDayMid = int.MaxValue;
       MinMonthLong = int.MaxValue;
