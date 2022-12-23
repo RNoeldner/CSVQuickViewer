@@ -709,7 +709,7 @@ namespace CsvTools
     ///   is give what did not match
     /// </returns>
     /// <exception cref="ArgumentNullException">samples</exception>
-    public static CheckResult GuessDateTime(in ICollection<string> samples,
+    public static CheckResult GuessDateTime(IReadOnlyCollection<string> samples,
       in CancellationToken cancellationToken)
     {
       if (samples is null || samples.Count == 0)
@@ -720,7 +720,31 @@ namespace CsvTools
       var length = samples.Aggregate<string, long>(0, (current, sample) => current + sample.Length);
       var commonLength = (int) (length / samples.Count);
 
-      ICollection<string>? possibleDateSeparators = null;
+
+      // loop through the samples and filter out date separators that are not part of any sample
+      var possibleDateSeparators = new List<string>();
+      int best = int.MinValue;
+      foreach (var kv in StringConversion.DateSeparators.ToDictionary(sep => sep, sep =>
+                 samples.Count(entry => entry.IndexOf(sep, StringComparison.Ordinal) != -1)).OrderByDescending(x => x.Value))
+      {
+        // only take the separators that have been found, and then only takes the ones for the most rows
+        if (kv.Value < best)
+          break;
+        // in case of a tie, take multiple
+        best = kv.Value;
+        possibleDateSeparators.Add(kv.Key);
+      }
+
+      // Ideally we should have exactly one separator
+      if (possibleDateSeparators.Count > 1)
+      {
+        // in case nothing was found matches are 0 rows, we will check all though....
+        if (best == 0)
+          Logger.Warning("No possible date separator determined");
+        else
+          Logger.Warning("Multiple possible date separators : {dateSeparators}", possibleDateSeparators);
+      }
+
       foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(commonLength))
       {
         if (cancellationToken.IsCancellationRequested)
@@ -728,21 +752,6 @@ namespace CsvTools
 
         if (fmt.IndexOf('/') != -1)
         {
-          // if we do not have determined the list of possibleDateSeparators so far do so now, but
-          // only once
-          if (possibleDateSeparators is null)
-          {
-            possibleDateSeparators = new List<string>();
-            foreach (var sep in StringConversion.DateSeparators)
-              foreach (var entry in samples)
-              {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (entry.IndexOf(sep, StringComparison.Ordinal) == -1) continue;
-                possibleDateSeparators.Add(sep);
-                break;
-              }
-          }
-
           foreach (var sep in possibleDateSeparators)
           {
             var res = StringConversion.CheckDate(samples, fmt, sep, ":", CultureInfo.CurrentCulture, cancellationToken);
@@ -784,7 +793,7 @@ namespace CsvTools
     /// </returns>
     /// <exception cref="ArgumentNullException">samples is null or empty</exception>
     public static CheckResult GuessNumeric(
-      ICollection<string> samples,
+      IReadOnlyCollection<string> samples,
       bool guessPercentage,
       bool allowStartingZero,
       in CancellationToken cancellationToken)
@@ -848,7 +857,7 @@ namespace CsvTools
     /// </param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <exception cref="ArgumentNullException">samples is null or empty</exception>
-    public static CheckResult GuessValueFormat(ICollection<string> samples,
+    public static CheckResult GuessValueFormat(IReadOnlyCollection<string> samples,
       int minRequiredSamples,
       in string trueValue,
       in string falseValue,
@@ -1029,13 +1038,14 @@ namespace CsvTools
       {
         RecordsRead = records;
 
-        for (var i = 0; i < items.Count - 1; i++)
+        // mix order of results
+        for (var i = 0; i < items.Count / 2; i++)
         {
           var pos = m_Random.Next(i, items.Count);
           (items[i], items[pos]) = (items[pos], items[i]);
         }
 
-        Values = items;
+        Values = new ReadOnlyCollection<string>(items);
       }
 
       /// <summary>
@@ -1048,7 +1058,8 @@ namespace CsvTools
       ///   Gets the values.
       /// </summary>
       /// <value>The unique values read in random order</value>
-      public ICollection<string> Values { get; }
+      public IReadOnlyCollection<string> Values { get; }
+
     }
 
 #if !QUICK

@@ -125,7 +125,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
     public static CheckResult CheckDate(
-      in ICollection<string> samples,
+      in IReadOnlyCollection<string> samples,
       in string shortDateFormat,
       in string dateSeparator,
       in string timeSeparator,
@@ -154,7 +154,7 @@ namespace CsvTools
         if (!ret.HasValue)
         {
           allParsed = false;
-          checkResult.ExampleNonMatch.Add(value);
+          checkResult.AddNonMatch(value);
           // try to get some positive matches, in case the first record is invalid
           if (counter >= 5)
             break;
@@ -221,7 +221,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if all values can be interpreted as numbers, <c>false</c> otherwise.</returns>
     public static CheckResult CheckNumber(
-      in ICollection<string> samples,
+      in IReadOnlyCollection<string> samples,
       in string decimalSeparator,
       in string thousandSeparator,
       bool allowPercentage,
@@ -248,7 +248,7 @@ namespace CsvTools
                                                  && Math.Floor(ret.Value) != 0))
         {
           allParsed = false;
-          checkResult.ExampleNonMatch.Add(value);
+          checkResult.AddNonMatch(value);
           // try to get some positive matches, in case the first record is invalid
           if (checkResult.ExampleNonMatch.Count > 2)
             break;
@@ -310,7 +310,7 @@ namespace CsvTools
         if (!ret.HasValue)
         {
           allParsed = false;
-          checkResult.ExampleNonMatch.Add(value);
+          checkResult.AddNonMatch(value);
           // try to get some positive matches, in case the first record is invalid
           if (counter >= 3)
             break;
@@ -320,7 +320,7 @@ namespace CsvTools
           if (isCloseToNow && (ret.Value.Year < DateTime.Now.Year - 80 || ret.Value.Year > DateTime.Now.Year + 20))
           {
             allParsed = false;
-            checkResult.ExampleNonMatch.Add(value);
+            checkResult.AddNonMatch(value);
             // try to get some positive matches, in case the first record is invalid
             if (counter > 3)
               break;

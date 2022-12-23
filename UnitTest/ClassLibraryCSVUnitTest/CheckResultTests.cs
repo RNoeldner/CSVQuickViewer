@@ -23,12 +23,12 @@ namespace CsvTools.Tests
 		public void CombineCheckResultTest()
 		{
 			var test1 = new CheckResult();
-			test1.ExampleNonMatch.Add("Test1");
-			test1.ExampleNonMatch.Add("Test2");
+			test1.AddNonMatch("Test1");
+			test1.AddNonMatch("Test2");
 			test1.PossibleMatch = true;
 
 			var test2 = new CheckResult();
-			test2.ExampleNonMatch.Add("Test3");
+			test2.AddNonMatch("Test3");
 			test2.PossibleMatch = true;
 
 			var test3 = new CheckResult { PossibleMatch = true };
