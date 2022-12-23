@@ -29,7 +29,6 @@ namespace CsvTools
   public sealed class FillGuessSettings : ObservableObject, ICloneable, IEquatable<FillGuessSettings>
   {
     private long m_CheckedRecords;
-    private bool m_CheckNamedDates;
     private bool m_DetectBoolean;
     private bool m_DetectDateTime;
     private bool m_DetectGuid;
@@ -52,14 +51,16 @@ namespace CsvTools
 
 #if XmlSerialization
     [Obsolete("Used for XML Serialization")]
-    public FillGuessSettings() : this(true)
+    public FillGuessSettings() : this(enabled: true)
     { }
 #endif
 
     [JsonConstructor]
-    public FillGuessSettings(bool? enabled = true, bool? ignoreIdColumns = true, bool? detectBoolean = true, bool? detectDateTime = true,
-      bool? detectNumbers = true, bool? detectPercentage = true, bool? detectGuid = false, bool? checkNamedDates = true, bool? serialDateTime = true,
-      bool? dateParts = false, int? minSamples = 5, int? sampleValues = 150, long? checkedRecords = 30000, string? trueValue = "True", string? falseValue = "False", string? dateFormat = "")
+    public FillGuessSettings(bool? enabled = true, bool? ignoreIdColumns = true, bool? detectBoolean = true,
+      bool? detectDateTime = true,
+      bool? detectNumbers = true, bool? detectPercentage = true, bool? detectGuid = false, bool? serialDateTime = true,
+      bool? dateParts = false, int? minSamples = 5, int? sampleValues = 150, long? checkedRecords = 30000,
+      string? trueValue = "True", string? falseValue = "False", string? dateFormat = "")
     {
       m_Enabled = enabled ?? true;
       m_IgnoreIdColumns = ignoreIdColumns ?? true;
@@ -68,7 +69,6 @@ namespace CsvTools
       m_DetectNumbers = detectNumbers ?? true;
       m_DetectPercentage = detectPercentage?? true;
       m_DetectGuid = detectGuid ?? false;
-      m_CheckNamedDates = checkNamedDates ?? true;
       m_SerialDateTime = serialDateTime?? true;
       m_DateParts=dateParts ?? false;
       m_MinSamples = minSamples ?? 5;
@@ -100,19 +100,6 @@ namespace CsvTools
     {
       get => m_CheckedRecords;
       set => SetProperty(ref m_CheckedRecords, value);
-    }
-
-    /// <summary>
-    ///   If set to <c>True</c> values are checked if they could be Date or Times
-    /// </summary>
-    [DefaultValue(true)]
-#if XmlSerialization
-    [XmlElement]
-#endif
-    public bool CheckNamedDates
-    {
-      get => m_CheckNamedDates;
-      set => SetProperty(ref m_CheckNamedDates, value);
     }
 
     /// <summary>
@@ -260,6 +247,7 @@ namespace CsvTools
     public string TrueValue
     {
       get => m_TrueValue;
+      // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
       set => SetProperty(ref m_TrueValue, value ?? "True");
     }
 
@@ -276,6 +264,7 @@ namespace CsvTools
     public string FalseValue
     {
       get => m_FalseValue;
+      // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
       set => SetProperty(ref m_FalseValue, value ?? "False");
     }
 
@@ -289,14 +278,15 @@ namespace CsvTools
     public string DateFormat
     {
       get => m_DateFormat;
+      // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
       set => SetProperty(ref m_DateFormat, value ?? string.Empty);
     }
 
     /// <inheritdoc />
     public object Clone()
     {
-      return new FillGuessSettings(m_Enabled, m_IgnoreIdColumns, m_DetectBoolean, m_DetectDateTime, m_DetectNumbers, m_DetectPercentage,
-        m_DetectGuid, m_CheckNamedDates, m_SerialDateTime, m_DateParts, m_MinSamples, m_SampleValues, m_CheckedRecords, m_TrueValue, m_FalseValue);
+      return new FillGuessSettings(enabled: m_Enabled, ignoreIdColumns: m_IgnoreIdColumns, detectBoolean: m_DetectBoolean, detectDateTime: m_DetectDateTime, detectNumbers: m_DetectNumbers, detectPercentage: m_DetectPercentage,
+        detectGuid: m_DetectGuid, serialDateTime: m_SerialDateTime, dateParts: m_DateParts, minSamples: m_MinSamples, sampleValues: m_SampleValues, checkedRecords: m_CheckedRecords, trueValue: m_TrueValue, falseValue: m_FalseValue);
     }
 
     /// <inheritdoc />
@@ -308,7 +298,6 @@ namespace CsvTools
         return true;
       return m_Enabled == other.Enabled &&
              m_CheckedRecords == other.CheckedRecords &&
-             m_CheckNamedDates == other.CheckNamedDates &&
              m_DateParts == other.DateParts &&
              m_DetectNumbers == other.DetectNumbers &&
              m_DetectPercentage == other.DetectPercentage &&
@@ -333,7 +322,6 @@ namespace CsvTools
     {
       other.Enabled = m_Enabled;
       other.CheckedRecords = m_CheckedRecords;
-      other.CheckNamedDates = m_CheckNamedDates;
       other.DetectNumbers = m_DetectNumbers;
       other.DetectPercentage = m_DetectPercentage;
       other.DetectBoolean = m_DetectBoolean;
