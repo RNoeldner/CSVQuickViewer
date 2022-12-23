@@ -199,18 +199,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(new DateTime(2010, 01, 1, 07, 13, 55, 0), res);
     }
 
-    [TestMethod]
-    public void CheckStringToDateTimeGermanIssue()
-    {
-      var res1 = StringConversion.StringToDateTimeExact(
-        "01/07/2008",
-        @"MM/dd/yyyy",
-        ".",
-        ":",
-        CultureInfo.CurrentCulture);
-      Assert.IsFalse(res1.HasValue);
-    }
-
+    
     [TestMethod]
     public void CheckStringToDateTimeExact()
     {

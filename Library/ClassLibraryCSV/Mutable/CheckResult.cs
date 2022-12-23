@@ -23,7 +23,8 @@ namespace CsvTools
   /// </summary>
   public sealed class CheckResult
   {
-    public readonly ICollection<string> ExampleNonMatch = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> m_ExampleNonMatch = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    public IReadOnlyCollection<string> ExampleNonMatch => m_ExampleNonMatch;
 
     /// <summary>
     ///   The found value format
@@ -41,6 +42,16 @@ namespace CsvTools
     public ValueFormat? ValueFormatPossibleMatch;
 
     /// <summary>
+    /// Add value to the list of non matches
+    /// </summary>
+    /// <param name="value"></param>
+    public void AddNonMatch(in string value)
+    {
+      if (!string.IsNullOrEmpty(value))
+        m_ExampleNonMatch.Add(value);
+    }
+
+    /// <summary>
     ///   Combines a Sub check to an overall check
     /// </summary>
     /// <param name="subResult">The sub result.</param>
@@ -48,14 +59,13 @@ namespace CsvTools
     {
       if (!subResult.PossibleMatch || subResult.ExampleNonMatch.Count >= ExampleNonMatch.Count)
         return;
-      
-      ExampleNonMatch.Clear();
+      m_ExampleNonMatch.Clear();
       PossibleMatch = true;
       ValueFormatPossibleMatch = subResult.ValueFormatPossibleMatch;
 
       foreach (var ex in subResult.ExampleNonMatch)
         if (!string.IsNullOrEmpty(ex))
-          ExampleNonMatch.Add(ex);
+          m_ExampleNonMatch.Add(ex);
     }
   }
 }

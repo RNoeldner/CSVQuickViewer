@@ -480,7 +480,7 @@ namespace CsvTools
 
     [SuppressMessage("ReSharper", "StringLiteralTypo")]
     private string BuildHtmlText(string? header, string? footer, int rows, string headerList1,
-      ICollection<string> values1, int col1, string? headerList2 = null, ICollection<string>? values2 = null,
+      IReadOnlyCollection<string> values1, int col1, string? headerList2 = null, IReadOnlyCollection<string>? values2 = null,
       int col2 = 2)
     {
       var st = new HtmlStyle("<STYLE type=\"text/css\">\r\n" +
@@ -839,7 +839,7 @@ namespace CsvTools
       return new DetermineColumnFormat.SampleResult(new List<string>(), 0);
     }
 
-    private void ListSamples(StringBuilder stringBuilder, string? headerList, ICollection<string>? values, int col,
+    private void ListSamples(StringBuilder stringBuilder, string? headerList, IReadOnlyCollection<string>? values, int col,
       int rows)
     {
       if (values is null || values.Count <= 0 || headerList is null || headerList.Length == 0)
