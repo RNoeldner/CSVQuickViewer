@@ -277,7 +277,6 @@ namespace CsvTools
               detectDateTime,
               detectNumeric,
               detectDateTime,
-              detectDateTime,
               DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection, m_FillGuessSettings.DateFormat),
               formProgress.CancellationToken);
             formProgress.Hide();
@@ -784,6 +783,7 @@ namespace CsvTools
         // that might contain headers, but its simply set as without headers.
         if (fileSettingCopy is CsvFile csv)
         {
+          // ReSharper disable once MergeIntoPattern
           if (!csv.HasFieldHeader && csv.SkipRows == 0)
             csv.SkipRows = 1;
           // turn off all warnings as they will cause GetSampleValues to ignore the row

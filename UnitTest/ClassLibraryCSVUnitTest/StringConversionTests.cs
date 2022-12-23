@@ -254,21 +254,6 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public void CheckTimeDefault() =>
-      Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, "", UnitTestStatic.Token));
-
-    [TestMethod]
-    public void CheckTimeNotOk() =>
-      Assert.IsFalse(StringConversion.CheckTime(new[] { "10:00:00", "Test", "1:00" }, ":", UnitTestStatic.Token));
-
-    [TestMethod]
-    public void CheckTimeNull() => Assert.IsFalse(StringConversion.CheckTime(null, "", UnitTestStatic.Token));
-
-    [TestMethod]
-    public void CheckTimeOk() =>
-      Assert.IsTrue(StringConversion.CheckTime(new[] { "10:00:00", "10:00", "1:00" }, ":", UnitTestStatic.Token));
-
-    [TestMethod]
     public void DateTimeToStringOk()
     {
       // Assert.AreEqual("01/01/2010", StringConversion.DateTimeToString(new DateTime(2010, 01, 1), null));
@@ -315,18 +300,6 @@ namespace CsvTools.Tests
           $"Test format {fmt}\nFirst not matching: {samples.First()}");
       }
     }
-
-    [TestMethod]
-    public void StringToDurationInDays12Hrs() =>
-      Assert.AreEqual(0.5, StringConversion.StringToDurationInDays("12:00", ":", false));
-
-    [TestMethod]
-    public void StringToDurationInDays48Hrs() =>
-      Assert.AreEqual(2, StringConversion.StringToDurationInDays("48:00", ":", false));
-
-    [TestMethod]
-    public void StringToDurationInDaysNull() =>
-      Assert.AreEqual(0, StringConversion.StringToDurationInDays(null, null, false));
 
     [TestMethod]
     public void StringToGuidInvalid() => Assert.IsNull(StringConversion.StringToGuid("Test"));
@@ -643,19 +616,6 @@ namespace CsvTools.Tests
         .FoundValueFormat != null);
     }
 
-    [TestMethod]
-    public void CheckTimeSpanTest()
-    {
-      Assert.IsTrue(StringConversion.CheckTimeSpan(new[] { "8:20", "10:10", "2:20 pm", "17:30" }, ":", false,
-        UnitTestStatic.Token));
-      Assert.IsTrue(StringConversion.CheckTimeSpan(new[] { ".2", ".3", "0.25", "17:30" }, ":", true,
-        UnitTestStatic.Token));
-      // 24 hours
-      Assert.IsFalse(StringConversion.CheckTimeSpan(new[] { "0.2", "26:20", "0.25", "19:30" }, ":", true,
-        UnitTestStatic.Token));
-      Assert.IsFalse(StringConversion.CheckTimeSpan(new[] { "0.2", "2.3", "0.25", "19:30" }, ":", true,
-        UnitTestStatic.Token));
-    }
 
     [TestMethod]
     public void CombineStringsToDateTimeTest()

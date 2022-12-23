@@ -14,16 +14,14 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 
 namespace CsvTools
 {
-  public sealed class DateTimeFormatCollection
+  public sealed class DateTimeFormatCollection : Dictionary<string, DateTimeFormatInformation>
   {
     /// <summary>
     ///   A lookup for minimum and maximum length by format description
     /// </summary>
-    private readonly Dictionary<string, DateTimeFormatInformation> m_DateLengthMinMax;
     private readonly string m_FileName;
 
     /// <summary>
@@ -33,7 +31,6 @@ namespace CsvTools
     public DateTimeFormatCollection(string file)
     {
       m_FileName = file;
-      m_DateLengthMinMax = new Dictionary<string, DateTimeFormatInformation>();
     }
 
     private void Load()
@@ -57,23 +54,28 @@ namespace CsvTools
     {
       if (string.IsNullOrWhiteSpace(entry))
         return;
-      if (!m_DateLengthMinMax.ContainsKey(entry))
-        m_DateLengthMinMax.Add(entry, new DateTimeFormatInformation(entry));
+      if (!ContainsKey(entry))
+        Add(entry, new DateTimeFormatInformation(entry));
     }
 
     /// <summary>
     ///   Returns Date time formats that would fit the length of the input
     /// </summary>
     /// <param name="length">The length.</param>
-    /// <param name="checkNamedDates">if set to <c>true</c> check named dates e.g. January, February</param>
     /// <returns></returns>
-    public IEnumerable<string> MatchingForLength(int length, bool checkNamedDates)
+    public IEnumerable<string> MatchingForLength(int length)
     {
-      if (m_DateLengthMinMax.Count==0)
+      if (Count==0)
         Load();
-
-      return (m_DateLengthMinMax.Where(item => (checkNamedDates || !item.Value.NamedDate) && length >= item.Value.MinLength && length <= item.Value.MaxLength)
-                                .Select(item => item.Key)).ToList();
+      var retList = new List<string>();
+      using var curEnum = GetEnumerator();
+      while (curEnum.MoveNext())
+      {
+        var item = curEnum.Current;
+        if (length >= item.Value.MinLength && length <= item.Value.MaxLength)
+          retList.Add(item.Key);
+      }
+      return retList;
     }
 
     /// <summary>
@@ -87,13 +89,13 @@ namespace CsvTools
       if (actual.Length<4)
         return false;
 
-      if (m_DateLengthMinMax.Count==0)
+      if (Count==0)
         Load();
 
-      if (!m_DateLengthMinMax.TryGetValue(dateFormat, out var lengthMinMax))
+      if (!TryGetValue(dateFormat, out var lengthMinMax))
       {
         lengthMinMax = new DateTimeFormatInformation(dateFormat);
-        m_DateLengthMinMax.Add(dateFormat, lengthMinMax);
+        base.Add(dateFormat, lengthMinMax);
       }
 
       return actual.Length >= lengthMinMax.MinLength && actual.Length <= lengthMinMax.MaxLength;

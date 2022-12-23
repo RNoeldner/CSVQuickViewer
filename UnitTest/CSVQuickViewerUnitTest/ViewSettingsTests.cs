@@ -15,7 +15,7 @@ namespace CsvTools.Tests
       test1.StoreSettingsByFile = true;
       Assert.IsTrue(test1.StoreSettingsByFile);
 
-      var test1FillGuessSettings = new FillGuessSettings(checkNamedDates: true);
+      var test1FillGuessSettings = new FillGuessSettings(true);
       test1.FillGuessSettings = test1FillGuessSettings;
 
       Assert.IsTrue(test1FillGuessSettings.Equals(test1.FillGuessSettings));

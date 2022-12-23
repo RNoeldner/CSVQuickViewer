@@ -342,74 +342,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Checks if the values are TimeSpans
-    /// </summary>
-    /// <param name="samples">The sample values to be checked.</param>
-    /// <param name="timeSeparator">The time separator.</param>
-    /// ///
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>
-    ///   <c>true</c> if all values can be interpreted as time and the list is not empty,
-    ///   <c>false</c> otherwise.
-    /// </returns>
-    public static bool CheckTime(in IEnumerable<string>? samples, in string timeSeparator,
-                                 in CancellationToken cancellationToken)
-    {
-      if (samples is null)
-        return false;
-
-      var allParsed = true;
-      var isEmpty = true;
-
-      foreach (var value in samples)
-      {
-        if (cancellationToken.IsCancellationRequested)
-          break;
-        isEmpty = false;
-        var ret = StringToTimeSpan(value, timeSeparator, false);
-        if (ret.HasValue)
-          continue;
-        allParsed = false;
-        break;
-      }
-
-      return allParsed && !isEmpty;
-    }
-
-    /// <summary>
-    ///   Checks if the values are times or serial dates
-    /// </summary>
-    /// <param name="samples">The sample values to be checked.</param>
-    /// <param name="timeSeparator">The time separator.</param>
-    /// <param name="serialDateTime">Allow Date Time values in serial format</param>
-    /// ///
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns><c>true</c> if all values can be interpreted as date, <c>false</c> otherwise.</returns>
-    public static bool CheckTimeSpan(in IEnumerable<string>? samples, in string timeSeparator, bool serialDateTime,
-                                     in CancellationToken cancellationToken)
-    {
-      if (samples is null)
-        return false;
-      var allParsed = true;
-      var hasValue = false;
-      foreach (var value in samples)
-      {
-        if (cancellationToken.IsCancellationRequested)
-          break;
-        var ret = StringToTimeSpan(value, timeSeparator, serialDateTime);
-        if (!ret.HasValue || ret.Value.TotalHours >= 24.0)
-        {
-          allParsed = false;
-          break;
-        }
-
-        hasValue |= ret.Value.TotalSeconds > 0;
-      }
-
-      return hasValue && allParsed;
-    }
-
-    /// <summary>
     ///   Combine date / time, the individual values could already be typed.
     /// </summary>
     /// <param name="dateColumn">The date column typed value either datetime or double</param>
@@ -553,18 +485,6 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Check if the length of the provided string could fit to the date format
-    /// </summary>
-    /// <param name="actual">The actual value.</param>
-    /// <param name="dateFormat">The date format.</param>
-    /// <returns>
-    ///   <c>true</c> if this could possibly be correct, <c>false</c> if the text is too short or
-    ///   too long
-    /// </returns>
-    internal static bool DateLengthMatches(in string actual, in string dateFormat) =>
-      StandardDateTimeFormats.DateLengthMatches(actual, dateFormat);
-
-    /// <summary>
     ///   Converts a dates to string.
     /// </summary>
     /// <param name="dateTime">The date time.</param>
@@ -655,7 +575,7 @@ namespace CsvTools
       if (IsTimeOnly(dateTime))
         return dateTime.ToString("T", culture);
 
-      if (dateTime.Hour == 0 && dateTime.Minute == 0 && dateTime.Second == 0)
+      if (dateTime.TimeOfDay.TotalSeconds<1)
         return dateTime.ToString("d", culture);
 
       if (IsDuration(dateTime))
@@ -737,11 +657,8 @@ namespace CsvTools
     public static bool IsTimeOnly(this in DateTime dateTime) =>
       dateTime >= m_FirstDateTime && dateTime < m_FirstDateTimeNextDay;
 
-    public static bool NoTime(this in DateTime dateTime) =>
-      (dateTime.Hour == 0 && dateTime.Minute == 0 && dateTime.Millisecond == 0);
-
     public static DateTime TimeOnly(this in DateTime dateTime) =>
-      m_FirstDateTime.Add(new TimeSpan(dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond));
+      m_FirstDateTime.Add(dateTime.TimeOfDay);
 
     /// <summary>
     ///   Parses a string to a boolean.
@@ -872,11 +789,20 @@ namespace CsvTools
         return null;
 
       var matchingDateTimeFormats = new List<string>();
-      // in case we do not have a date separator but the format has one removed the separator in the format otherwise it will not match length 
-
-      foreach (var format in GetDateFormats(dateFormats, dateSeparator))
-        if (DateLengthMatches(stringDateValue, format) && (format.IndexOf('/') == -1 || stringDateValue.Contains(dateSeparator)))
-          matchingDateTimeFormats.Add(format);
+      foreach (var dateTimeFormat in StringUtils.SplitByDelimiter((dateSeparator.Length == 0 && dateFormats.IndexOf('/') != -1) ? dateFormats.Replace("/", "") : dateFormats))
+      {
+        if (StandardDateTimeFormats.DateLengthMatches(stringDateValue, dateTimeFormat))
+          matchingDateTimeFormats.Add(dateTimeFormat);
+        // In case of a date & time format add the date only format separately
+        var indexHour = dateTimeFormat.IndexOf("h", StringComparison.OrdinalIgnoreCase);
+        // assuming there is a text before the hour that has a reasonable size take it as date
+        if (indexHour > 4)
+        {
+          var dateOnlyFmt = dateTimeFormat.Substring(0, indexHour - 1).Trim();
+          if (StandardDateTimeFormats.DateLengthMatches(stringDateValue, dateOnlyFmt))
+            matchingDateTimeFormats.Add(dateOnlyFmt);
+        }
+      }
 
       if (matchingDateTimeFormats.Count == 0)
         return null;
@@ -939,7 +865,10 @@ namespace CsvTools
 
       var numberFormatProvider = new NumberFormatInfo
       {
-        NegativeSign = "-", PositiveSign = "+", NumberDecimalSeparator = decimalSeparator, NumberGroupSeparator = groupSeparator
+        NegativeSign = "-",
+        PositiveSign = "+",
+        NumberDecimalSeparator = decimalSeparator,
+        NumberGroupSeparator = groupSeparator
       };
 
       if (stringFieldValue.StartsWith("(", StringComparison.Ordinal)
@@ -947,6 +876,7 @@ namespace CsvTools
         stringFieldValue = "-" + stringFieldValue.Substring(1, stringFieldValue.Length - 2).TrimStart();
 
       var percentage = false;
+      // ReSharper disable once IdentifierTypo
       var permille = false;
       if (allowPercentage && stringFieldValue.EndsWith("%", StringComparison.Ordinal))
       {
@@ -977,18 +907,6 @@ namespace CsvTools
       return null;
     }
 
-    /// <summary>
-    ///   Returns the duration on days for string value.
-    /// </summary>
-    /// <param name="originalValue">The original value.</param>
-    /// <param name="timeSeparator">The time separator.</param>
-    /// <param name="serialDateTime">Allow Date Time values ion serial format</param>
-    /// <returns></returns>
-    public static double StringToDurationInDays(in string originalValue, in string? timeSeparator, bool serialDateTime)
-    {
-      var parsed = StringToTimeSpan(originalValue, timeSeparator, serialDateTime);
-      return parsed?.TotalDays ?? 0D;
-    }
 
     /// <summary>
     ///   Parses a string to a guid
@@ -1098,6 +1016,7 @@ namespace CsvTools
     /// </returns>
     public static string? StringToTextPart(in string? value, in char splitter, int part, bool toEnd)
     {
+      // ReSharper disable once ReplaceWithStringIsNullOrEmpty
       if (value == null || value.Length == 0 || part < 1)
         return null;
 
@@ -1192,32 +1111,6 @@ namespace CsvTools
       return new TimeSpan(0, hours, min, sec);
     }
 
-    /// <summary>
-    ///   Gets the an array of date formats, splitting the given date formats text by delimiter
-    /// </summary>
-    /// <param name="dateFormat">The date format, possibly separated by delimiter</param>
-    /// <param name="dateSeparator">The current date separator, in case its empty, placeholder sin the format will be removed</param>
-    /// <returns>An array of formats</returns>
-    private static IEnumerable<string> GetDateFormats(in string dateFormat, in string dateSeparator)
-    {
-      var dateTimeFormats =
-        StringUtils.SplitByDelimiter((dateSeparator.Length == 0 && dateFormat.IndexOf('/') != -1) ? dateFormat.Replace("/", "") : dateFormat);
-
-      var complete = new List<string>(dateTimeFormats);
-      foreach (var dateTimeFormat in dateTimeFormats)
-      {
-        // In case of a date & time format add the date only format separately
-        var indexHour = dateTimeFormat.IndexOf("h", StringComparison.OrdinalIgnoreCase);
-        // assuming there is a text before the hour that has a reasonable size take it as date
-        if (indexHour <= 4) continue;
-        var dateOnly = dateTimeFormat.Substring(0, indexHour - 1).Trim();
-        if (!complete.Contains(dateOnly))
-          complete.Add(dateOnly);
-      }
-
-      return complete;
-    }
-
     private static bool IsDuration(in DateTime dateTime) =>
       dateTime >= m_FirstDateTime && dateTime < m_FirstDateTime.AddHours(240);
 
@@ -1252,7 +1145,7 @@ namespace CsvTools
     }
 
     /// <summary>
-    ///   Converts Strings to date time using the culture information
+    ///   Converts Strings to date time using the culture information.
     /// </summary>
     /// <param name="stringDateValue">The string date value make sure the text is trimmed</param>
     /// <param name="dateTimeFormats">The date time formats.</param>
@@ -1282,6 +1175,7 @@ namespace CsvTools
 
         // Use ParseExact since Parse does not work if a date separator is set but the date
         // separator is not part of the date format
+        // Still this does not work properly the separator is often not enforced, assuming if "-" is set and the date contains a "." its still parsed
         if (DateTime.TryParseExact(
               stringDateValue,
               dateTimeFormats,

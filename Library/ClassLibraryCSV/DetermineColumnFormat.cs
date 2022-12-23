@@ -235,7 +235,6 @@ namespace CsvTools
             fillGuessSettings.DetectDateTime,
             fillGuessSettings.DetectPercentage,
             fillGuessSettings.SerialDateTime,
-            fillGuessSettings.CheckNamedDates,
             othersValueFormatDate,
             cancellationToken);
 
@@ -704,16 +703,13 @@ namespace CsvTools
     ///   Guesses the date time format
     /// </summary>
     /// <param name="samples">The sample texts.</param>
-    /// <param name="checkNamedDates">if set to <c>true</c> [check named dates].</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   Result of a format check, if the samples match a value type this is set, if not an example
     ///   is give what did not match
     /// </returns>
     /// <exception cref="ArgumentNullException">samples</exception>
-    public static CheckResult GuessDateTime(
-      in ICollection<string> samples,
-      bool checkNamedDates,
+    public static CheckResult GuessDateTime(in ICollection<string> samples,
       in CancellationToken cancellationToken)
     {
       if (samples is null || samples.Count == 0)
@@ -725,7 +721,7 @@ namespace CsvTools
       var commonLength = (int) (length / samples.Count);
 
       ICollection<string>? possibleDateSeparators = null;
-      foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(commonLength, checkNamedDates))
+      foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(commonLength))
       {
         if (cancellationToken.IsCancellationRequested)
           return checkResult;
@@ -758,10 +754,11 @@ namespace CsvTools
         }
         else
         {
+          // we have no date separator in the format no need to test different separators
           var res = StringConversion.CheckDate(
             samples,
             fmt,
-            CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
+            string.Empty,
             ":",
             CultureInfo.CurrentCulture, cancellationToken);
           if (res.FoundValueFormat != null)
@@ -835,7 +832,6 @@ namespace CsvTools
     /// <summary>
     ///   Guesses the value format.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <param name="samples">The samples.</param>
     /// <param name="minRequiredSamples">The minimum required samples.</param>
     /// <param name="trueValue">The text to be regarded as <c>true</c></param>
@@ -846,14 +842,13 @@ namespace CsvTools
     /// <param name="guessDateTime">Try to determine if it is a date time</param>
     /// <param name="guessPercentage">Accept percentage values</param>
     /// <param name="serialDateTime">Allow serial Date time</param>
-    /// <param name="checkNamedDates">if set to <c>true</c> [check named dates].</param>
     /// <param name="othersValueFormatDate">
     ///   The date format found in prior columns, assuming the data format is the same in other
     ///   columns, we do not need that many samples
     /// </param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <exception cref="ArgumentNullException">samples is null or empty</exception>
-    public static CheckResult GuessValueFormat(
-      ICollection<string> samples,
+    public static CheckResult GuessValueFormat(ICollection<string> samples,
       int minRequiredSamples,
       in string trueValue,
       in string falseValue,
@@ -863,7 +858,6 @@ namespace CsvTools
       bool guessDateTime,
       bool guessPercentage,
       bool serialDateTime,
-      bool checkNamedDates,
       in ValueFormat othersValueFormatDate,
       in CancellationToken cancellationToken)
     {
@@ -914,28 +908,6 @@ namespace CsvTools
 
       cancellationToken.ThrowIfCancellationRequested();
 
-      // ---------------- Text --------------------------
-      // in case we have named dates, this is not feasible
-      if (!checkNamedDates)
-      {
-        // Trying some chars, if they are in, assume its a string
-        var valuesWithChars = 0;
-        foreach (var value in samples)
-        {
-          // Not having AM PM or T as it might be part of a date Not having E in there as might be
-          // part of a number u 1.487% o 6.264% n 2.365% i 6.286% h 7.232% s 6.327% This adds to a
-          // 30% chance for each position in the text to determine if a text a regular text,
-          if (value.IndexOfAny(new[] { 'u', 'U', 'o', 'O', 'i', 'I', 'n', 'N', 's', 'S', 'h', 'H' }) <= -1)
-            continue;
-          valuesWithChars++;
-          // Only do so if more then half of the samples are string
-          if (valuesWithChars < samples.Count / 2 && valuesWithChars < 10)
-            continue;
-          checkResult.FoundValueFormat = ValueFormat.Empty;
-          return checkResult;
-        }
-      }
-
       // ---------------- Confirm old provided format would be ok --------------------------
       // ---------------- No matter if we have enough samples 
 
@@ -944,7 +916,7 @@ namespace CsvTools
       // Assume dates are of the same format across the files we check if the dates we have would
       // possibly match no matter how many samples we have this time we do not care about matching
       // length Check Date will cut off time information , this is independent from minRequiredSamples
-      if (guessDateTime && othersValueFormatDate.DataType == DataTypeEnum.DateTime && StringConversion.DateLengthMatches(firstValue, othersValueFormatDate.DateFormat))
+      if (guessDateTime && othersValueFormatDate.DataType == DataTypeEnum.DateTime && StringConversion.StandardDateTimeFormats.DateLengthMatches(firstValue, othersValueFormatDate.DateFormat))
       {
         var checkResultDateTime = StringConversion.CheckDate(
           samples,
@@ -1003,7 +975,7 @@ namespace CsvTools
         // ---------------- Date -------------------------- Minimum length of a date is 4 characters
         if (guessDateTime && firstValue.Length > 3)
         {
-          var checkResultDateTime = GuessDateTime(samples, checkNamedDates, cancellationToken);
+          var checkResultDateTime = GuessDateTime(samples, cancellationToken);
           if (checkResultDateTime.FoundValueFormat != null)
             return checkResultDateTime;
           checkResult.KeepBestPossibleMatch(checkResultDateTime);
@@ -1157,23 +1129,5 @@ namespace CsvTools
 
 #endif
 
-    /// <summary>
-    ///   Gets all possible formats based on the provided value
-    /// </summary>
-    /// <param name="value">The value.</param>
-    /// <param name="culture">The culture.</param>
-    /// <returns></returns>
-    public static IEnumerable<ValueFormat> GetAllPossibleFormats(string value, CultureInfo? culture = null)
-    {
-      culture ??= CultureInfo.CurrentCulture;
-
-      // Standard Date Time formats
-      foreach (var fmt in StringConversion.StandardDateTimeFormats.MatchingForLength(value.Length, true))
-        foreach (var sep in StringConversion.DateSeparators.Where(
-                   sep => StringConversion
-                     .StringToDateTimeExact(value, fmt, sep, culture.DateTimeFormat.TimeSeparator, culture)
-                     .HasValue))
-          yield return new ValueFormat(DataTypeEnum.DateTime, fmt, sep);
-    }
   }
 }
