@@ -24,36 +24,28 @@ namespace CsvTools.Tests
   [TestClass]
   public sealed class StructuredFileWriterTests
   {
-    private const string cReadID = "StructuredFileWriterTests";
-
-    [TestInitialize]
-    public void Init()
-    {
-      var readFile = new CsvFile(cReadID, UnitTestStatic.GetTestPath("BasicCSV.txt")) { CommentLine = "#" };
-      readFile.ColumnCollection.Add(new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")));
-      readFile.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
-      readFile.ColumnCollection.Add(new Column("Proficiency", new ValueFormat(DataTypeEnum.Numeric)));
-      readFile.ColumnCollection.Add(new Column("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean), ignore: true));
-      UnitTestStaticData.MimicSQLReader.AddSetting(readFile);
-    }
-
     [TestMethod]
     public async Task StructuredFileWriterJsonEncodeTestAsync()
     {
-      UnitTestStaticData.MimicSql();
       var fileSetting =
-        new JsonFile("Write", "StructuredFileOutputJSON.txt") { SqlStatement = cReadID, InOverview = true };
+        new JsonFile("Write", "StructuredFileOutputJSON.txt") { InOverview = true };
 
       var sb = new StringBuilder("{");
-      var progress = new Progress<ProgressInfo>();
-
-      var cols = await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout,
-        UnitTestStatic.Token);
+      
       // ReSharper disable once StringLiteralTypo
       fileSetting.Header = "{\"rowset\":[\n";
 
       // { "firstName":"John", "lastName":"Doe"},
-      foreach (var col in cols)
+      var readFile = new CsvFile("ID", UnitTestStatic.GetTestPath("BasicCSV.txt")) { CommentLine = "#" };
+      readFile.ColumnCollection.Add(new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")));
+      readFile.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
+      readFile.ColumnCollection.Add(new Column("Proficiency", new ValueFormat(DataTypeEnum.Numeric)));
+      readFile.ColumnCollection.Add(new Column("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean), ignore: true));
+
+      using var reader = FunctionalDI.GetFileReader(readFile, UnitTestStatic.Token);
+      await reader.OpenAsync(UnitTestStatic.Token);
+
+      foreach (var col in reader.GetColumnsOfReader())
         sb.AppendFormat(
           "\"{0}\":\"{1}\", ",
           HtmlStyle.JsonElementName(col.Name),
@@ -79,23 +71,25 @@ namespace CsvTools.Tests
         fileSetting.Row,
         StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
 
-      var result = await writer.WriteAsync(
-        fileSetting.SqlStatement,
-        fileSetting.Timeout,
-        progress,
-        UnitTestStatic.Token);
+      var result = await writer.WriteAsync(reader, UnitTestStatic.Token);
       Assert.AreEqual(7L, result);
     }
 
-#if XmlSerialization
+
     [TestMethod]
     public async Task StructuredFileWriterXmlEncodeTest()
     {
-      var fileSetting =
-        new XmlFile("Write", "StructuredFileOutputXML.txt") { SqlStatement = cReadID, InOverview = true };
+      var fileSetting = new XmlFile("Write", "StructuredFileOutputXML.txt") { InOverview = true };
       var sb = new StringBuilder();
-      var progress = new Progress<ProgressInfo>();
-      var cols = await fileSetting.SqlStatement.GetColumnsSqlAsync(fileSetting.Timeout, UnitTestStatic.Token);
+      
+      var readFile = new CsvFile("ID", UnitTestStatic.GetTestPath("BasicCSV.txt")) { CommentLine = "#" };
+      readFile.ColumnCollection.Add(new Column("ExamDate", new ValueFormat(DataTypeEnum.DateTime, @"dd/MM/yyyy")));
+      readFile.ColumnCollection.Add(new Column("Score", new ValueFormat(DataTypeEnum.Integer)));
+      readFile.ColumnCollection.Add(new Column("Proficiency", new ValueFormat(DataTypeEnum.Numeric)));
+      readFile.ColumnCollection.Add(new Column("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean), ignore: true));
+
+      using var reader = FunctionalDI.GetFileReader(readFile, UnitTestStatic.Token);
+      await reader.OpenAsync(UnitTestStatic.Token);
 
       sb.AppendLine("<?xml version=\"1.0\"?>\n");
       // ReSharper disable once StringLiteralTypo
@@ -103,7 +97,7 @@ namespace CsvTools.Tests
       fileSetting.Header = sb.ToString();
       sb.Clear();
       sb.AppendLine("  <row>");
-      foreach (var col in cols)
+      foreach (var col in reader.GetColumnsOfReader())
         sb.AppendFormat(
           "    <{0}>{1}</{0}>\n",
           HtmlStyle.XmlElementName(col.Name),
@@ -128,8 +122,7 @@ namespace CsvTools.Tests
         "Test",
         fileSetting.Row,
         StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
-      await writer.WriteAsync(fileSetting.SqlStatement, fileSetting.Timeout, progress, UnitTestStatic.Token);
+      await writer.WriteAsync(reader, UnitTestStatic.Token);
     }
-#endif
   }
 }

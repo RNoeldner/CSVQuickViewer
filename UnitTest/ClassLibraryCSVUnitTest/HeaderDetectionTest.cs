@@ -14,14 +14,14 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessHasHeaderAsync()
     {
-      using (var stream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
+      using (var stream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
       using (var reader = new ImprovedTextReader(stream))
       {
         Assert.AreEqual("", await reader.GuessHasHeaderAsync("#", ',', '\0', '\0', UnitTestStatic.Token));
       }
 
       using (var stream =
-             new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("HandlingDuplicateColumnNames.txt"))))
+             FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("HandlingDuplicateColumnNames.txt"))))
       using (var reader = new ImprovedTextReader(stream))
       {
         Assert.IsFalse(
@@ -29,7 +29,7 @@ namespace CsvTools.Tests
       }
 
       using (var stream =
-             new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"))))
+             FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("DifferentColumnDelimiter.txt"))))
       using (var reader = new ImprovedTextReader(stream))
       {
         Assert.IsFalse(
@@ -61,7 +61,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task GuessHeaderBasicCSV()
+    public async Task GuessHeaderBasicCsv()
     {
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt")));
       var result = await improvedStream.GuessHasHeader(1200, 0, "", ",", "", "", UnitTestStatic.Token);
@@ -112,7 +112,7 @@ namespace CsvTools.Tests
       writer.Write("1,2,3,4,5,6,7,8,9");
       writer.Flush();
       stream.Position = 0;
-      using var reader = new ImprovedTextReader(stream, Encoding.UTF8.CodePage, 0);
+      using var reader = new ImprovedTextReader(stream, Encoding.UTF8.CodePage);
 
       var res = HeaderDetection.DelimitedRecord(reader, ',', '\0', '\0', "##").ToList();
       Assert.AreEqual(9, res.Count());
@@ -128,7 +128,7 @@ namespace CsvTools.Tests
       writer.Write("\"1\",2,3,4,5,\"6,\"\"7,8\",\"9\"");
       writer.Flush();
       stream.Position = 0;
-      using var reader = new ImprovedTextReader(stream, Encoding.UTF8.CodePage, 0);
+      using var reader = new ImprovedTextReader(stream, Encoding.UTF8.CodePage);
       var res = HeaderDetection.DelimitedRecord(reader, ',', '"', '\\', "").ToList();
       Assert.AreEqual(7, res.Count());
       Assert.AreEqual("1", res[0]);
@@ -144,7 +144,7 @@ namespace CsvTools.Tests
       writer.Write("1\\,2,3,4,5,\"6,\\\"7,8\",9");
       writer.Flush();
       stream.Position = 0;
-      using var reader = new ImprovedTextReader(stream, Encoding.UTF8.CodePage, 0);
+      using var reader = new ImprovedTextReader(stream, Encoding.UTF8.CodePage);
       var res = HeaderDetection.DelimitedRecord(reader, ',', '"', '\\', "#").ToList();
       Assert.AreEqual(6, res.Count());
       Assert.AreEqual("1,2", res[0]);
@@ -161,7 +161,7 @@ namespace CsvTools.Tests
       writer.Write("1\\,2,3,4,5,\"6,\"\"7,8\",\"9\r\nnl\"");
       writer.Flush();
       stream.Position = 0;
-      using var reader = new ImprovedTextReader(stream, Encoding.UTF8.CodePage, 0);
+      using var reader = new ImprovedTextReader(stream, Encoding.UTF8.CodePage);
       var res = HeaderDetection.DelimitedRecord(reader, ',', '"', '\\', "#").ToList();
       Assert.AreEqual(6, res.Count());
       Assert.AreEqual("1,2", res[0]);

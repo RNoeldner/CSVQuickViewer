@@ -19,15 +19,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-#if !QUICK
-using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
-#endif
 
 namespace CsvTools
 {
@@ -417,63 +413,7 @@ namespace CsvTools
         _ => string.Empty
       };
 #if !QUICK
-    /// <summary>
-    /// Gets the Columns of a SQL statement
-    /// </summary>
-    /// <param name="sql">The SQL statement</param>
-    /// <param name="timeout"></param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns></returns>
-    /// <exception cref="FileWriterException">No SQL Statement given or No SQL Reader set</exception>
-    public static async Task<IEnumerable<Column>> GetColumnsSqlAsync(this string sql, int timeout,
-      CancellationToken cancellationToken)
-    {
-      if (string.IsNullOrEmpty(sql))
-        throw new FileWriterException("No SQL Statement given");
-
-#if NETSTANDARD2_1_OR_GREATER
-      await
-#endif
-      using var fileReader =
-        await FunctionalDI.SqlDataReader(NoRecordSql(sql), timeout, 1, cancellationToken).ConfigureAwait(false);
-
-      // Put the information into the list
-      var res = new List<Column>();
-      foreach (DataRow schemaRow in fileReader.GetSchemaTable()!.Rows)
-      {
-        var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
-        var colType = ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType();
-        if (!(schemaRow[SchemaTableColumn.ColumnName] is string colName) || colName.Length == 0)
-          colName = $"Column{colNo + 1}";
-        res.Add(new Column(colName, new ValueFormat(colType),
-          (int) schemaRow[SchemaTableColumn.ColumnOrdinal]));
-      }
-
-      return res;
-    }
-
-    public static string NoRecordSql(this string source)
-    {
-      if (string.IsNullOrEmpty(source))
-        return string.Empty;
-
-      // if its not SQL or has a Where condition do nothing
-      if (!source.Contains("SELECT", StringComparison.OrdinalIgnoreCase))
-        return source;
-      var whereRegEx = new Regex("\\sWHERE\\s", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-      var matchWhere = whereRegEx.Match(source);
-      if (matchWhere.Length > 0)
-        return whereRegEx.Replace(source, " WHERE 1=0 AND ");
-      var orderRegEx = new Regex("\\sORDER\\sBY\\s", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-      var matchOrder = orderRegEx.Match(source);
-      if (matchOrder.Index < 1)
-        // Remove Order By and Add a WHERE
-        source += " WHERE 1=0";
-      else
-        source = source.Substring(0, matchOrder.Index) + " WHERE 1=0";
-
-      return source;
-    }
+    
 
 #endif
 
@@ -804,38 +744,12 @@ namespace CsvTools
 
     public static string ToStringHandle0(this char input) => input == '\0' ? string.Empty : input.ToString();
 
-#if !QUICK
-
-    public static async Task<long> WriteAsync(
-      this IFileWriter writer,
-      string sqlStatement,
-      int timeout,
-      IProgress<ProgressInfo>? reportProgress,
-      CancellationToken cancellationToken)
-    {
-      if (string.IsNullOrEmpty(sqlStatement))
-        return 0;
-#if NETSTANDARD2_1_OR_GREATER
-      await
-#endif
-      using var sqlReader = await FunctionalDI.SqlDataReader(
-        sqlStatement,
-        timeout,
-        0,
-        cancellationToken).ConfigureAwait(false);
-      if (reportProgress != null)
-        sqlReader.ReportProgress = reportProgress;
-      await sqlReader.OpenAsync(cancellationToken).ConfigureAwait(false);
-      return await writer.WriteAsync(sqlReader, cancellationToken).ConfigureAwait(false);
-    }
-
-#endif
-
     /// <summary>
     ///   Return a string resolving written punctuation
     /// </summary>
     /// <param name="inputString"></param>
     /// <returns>A string of length 1 or empty</returns>
+    [SuppressMessage("ReSharper", "StringLiteralTypo")]
     public static string WrittenPunctuation(this string inputString)
     {
       if (string.IsNullOrEmpty(inputString))

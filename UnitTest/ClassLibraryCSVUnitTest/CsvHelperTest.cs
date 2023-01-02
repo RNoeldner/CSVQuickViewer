@@ -230,7 +230,7 @@ namespace CsvTools.Tests
     [TestMethod]
     public async Task GuessJsonFileAsync()
     {
-      using var stream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("Jason1.json")));
+      using var stream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("Jason1.json")));
       Assert.IsTrue(await stream.IsJsonReadable(Encoding.UTF8, UnitTestStatic.Token));
     }
 

@@ -70,7 +70,7 @@ namespace CsvTools
       await
 #endif
       // ReSharper disable once UseAwaitUsing
-      using var stream = new ImprovedStream(sa);
+      using var stream = FunctionalDI.OpenStream(sa);
       using var textReader = new StreamReader(stream, Encoding.GetEncoding(m_CodePage), true, 4096, false);
 
       var sb = new StringBuilder();
@@ -82,8 +82,9 @@ namespace CsvTools
         cancellationToken.ThrowIfCancellationRequested();
         sb.Append(buffer, 0, len);
         formProgress.Report(new ProgressInfo($"Reading source {stream.Position:N0}",
-          // ReSharper disable once AccessToDisposedClosure
-          Convert.ToInt64(stream.Percentage * 1000)));
+        // ReSharper disable once AccessToDisposedClosure
+        (stream is IImprovedStream impStream) ? Convert.ToInt64(impStream.Percentage * 1000) : -1));
+
       }
 
       formProgress.SetMaximum(0);

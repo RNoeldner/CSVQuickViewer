@@ -16,7 +16,6 @@ using System;
 using System.IO;
 #if !QUICK
 using System.Threading;
-using System.Threading.Tasks;
 #endif
 
 namespace CsvTools
@@ -30,13 +29,16 @@ namespace CsvTools
   public static class FunctionalDI
   {
     /// <summary>
-    ///   Retrieve the passphrase for a files
+    ///   Retrieve the passphrase for a file, a passphrase store can be attached here
     /// </summary>
+    /// <note>
+    /// Currently only used in <see cref="SourceAccess"/> to gte the passphrase for a PGP encrypted file
+    /// </note>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<string, string> GetEncryptedPassphraseForFile = s => string.Empty;
 
     /// <summary>
-    ///   Open a file for reading, it will take care of things like compression and encryption
+    ///   Open a <see cref="SourceAccess"/> for reading in a stream, will take care of things like compression and encryption
     /// </summary>
     // ReSharper disable once FieldCanBeMadeReadOnly.Global
     public static Func<SourceAccess, Stream> OpenStream = fileAccess => new ImprovedStream(fileAccess);
@@ -61,15 +63,6 @@ namespace CsvTools
     public static Func<IFileSetting,  CancellationToken, IFileReader> GetFileReader =
       (setting, cancellationToken) =>
         m_FileReaderWriterFactory.GetFileReader(setting, cancellationToken);
-
-    /// <summary>
-    ///   Gets or sets a data reader
-    /// </summary>
-    /// <value>The statement for reader the data.</value>
-    /// <remarks>Make sure the returned reader is open when needed</remarks>
-    public static Func<string, int, long, CancellationToken, Task<IFileReader>> SqlDataReader =
-      (sql, commandTimeout, recordLimit, token) =>
-        throw new FileWriterException("SQL Reader not specified");
 
 
 #endif

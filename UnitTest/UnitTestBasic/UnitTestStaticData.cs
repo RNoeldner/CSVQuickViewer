@@ -17,11 +17,8 @@
 using System;
 using System.Data;
 using System.Globalization;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+
 // ReSharper disable RedundantExplicitArrayCreation
 // ReSharper disable ArrangeObjectCreationWhenTypeEvident
 
@@ -42,11 +39,9 @@ namespace CsvTools.Tests
       new ColumnMut("PartEmpty"), //7
       new ColumnMut("ID", new ValueFormat(DataTypeEnum.Integer)) //8
     };
+
     public static ColumnMut[] ColumnsDt2 = { new ColumnMut("string") };
 
-    public static MimicSQLReader MimicSQLReader { get; } = new MimicSQLReader();
-
-    public static void MimicSql() => FunctionalDI.SqlDataReader = MimicSQLReader.ReadDataAsync;
 #endif
 
     public static void AddRowToDataTable(DataTable dataTable, int recNum, bool addError)
@@ -162,14 +157,12 @@ namespace CsvTools.Tests
 
       return dataTable;
     }
-
 #if !QUICK
     public static CsvFile ReaderGetAllFormats(string id = "AllFormats")
     {
       var readFile = new CsvFile(id: id, fileName: Path.Combine(UnitTestStatic.GetTestPath("AllFormats.txt")))
       {
-        HasFieldHeader = true,
-        FieldDelimiter = "TAB"
+        HasFieldHeader = true, FieldDelimiter = "TAB"
       };
       readFile.ColumnCollection.AddRangeNoClone(
         new Column[]
@@ -189,7 +182,8 @@ namespace CsvTools.Tests
 
     public static CsvFile ReaderGetBasicCSV(string id = "BasicCSV")
     {
-      var readFile = new CsvFile(id: id, fileName: Path.Combine(UnitTestStatic.GetTestPath(("BasicCSV.txt")))) { CommentLine = "#" };
+      var readFile =
+        new CsvFile(id: id, fileName: Path.Combine(UnitTestStatic.GetTestPath(("BasicCSV.txt")))) { CommentLine = "#" };
       readFile.ColumnCollection.AddRangeNoClone(
         new Column[]
         {
@@ -200,57 +194,6 @@ namespace CsvTools.Tests
         });
       return readFile;
     }
-  }
-
-  public class MimicSQLReader
-  {
-    private readonly Dictionary<IFileSetting, DataTable?> m_ReadSetting = new Dictionary<IFileSetting, DataTable?>();
-
-    public void AddSetting(IFileSetting setting)
-    {
-      if (setting == null || string.IsNullOrEmpty(setting.ID)) throw new ArgumentNullException(nameof(setting));
-
-      if (!m_ReadSetting.Any(x => x.Key.ID.Equals(setting.ID, StringComparison.OrdinalIgnoreCase)))
-        m_ReadSetting.Add(setting, null);
-    }
-
-    public void AddSetting(string name, DataTable dt)
-    {
-      if (dt == null) throw new ArgumentNullException(nameof(dt));
-      if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-
-      if (!m_ReadSetting.Any(x => x.Key.ID.Equals(name, StringComparison.OrdinalIgnoreCase)))
-        m_ReadSetting.Add(new CsvFile(id: name, fileName: name), dt);
-    }
-
-    public async Task<IFileReader> ReadDataAsync(string settingName, int timeout, long limit, CancellationToken token)
-    {
-      if (m_ReadSetting.Count == 0)
-      {
-        Logger.Information($"{settingName} not found");
-        throw new ApplicationException($"{settingName} not found");
-      }
-
-      var setting = m_ReadSetting.Any(x => x.Key.ID == settingName)
-        ? m_ReadSetting.First(x => x.Key.ID == settingName)
-        : m_ReadSetting.First();
-
-      var reader = setting.Value != null
-        ? new DataTableWrapper(setting.Value)
-        : FunctionalDI.GetFileReader(setting.Key, token);
-      await reader.OpenAsync(token).ConfigureAwait(false);
-      return reader;
-    }
-
-    public void RemoveSetting(IFileSetting setting)
-    {
-      m_ReadSetting[setting]?.Dispose();
-      m_ReadSetting.Remove(setting);
-    }
-
-    public void RemoveSetting(string name)
-      => RemoveSetting(m_ReadSetting.First(x => x.Key.ID.Equals(name)).Key);
 #endif
   }
-
 }

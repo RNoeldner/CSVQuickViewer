@@ -17,7 +17,6 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -36,33 +35,28 @@ namespace CsvTools
   /// <summary>
   ///   Windows Form UI editing a <see cref="ColumnMut" />
   /// </summary>
-  public partial class FormColumnUI : ResizeForm
+  public partial class FormColumnUiRead : ResizeForm
   {
     private const string cNoSampleDate =
       "The source does not contain samples without warnings in the {0:N0} records read";
-
 
     private readonly CancellationTokenSource m_CancellationTokenSource = new();
 
     private readonly ColumnMut m_ColumnEdit;
     private readonly IFileSetting m_FileSetting;
     private readonly FillGuessSettings m_FillGuessSettings;
-
-    private readonly bool m_WriteSetting;
     public Column UpdatedColumn => m_ColumnEdit.ToImmutableColumn();
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref="FormColumnUI" /> class.
+    ///   Initializes a new instance of the <see cref="FormColumnUiRead" /> class.
     /// </summary>
     /// <param name="column">The column.</param>
-    /// <param name="writeSetting">if set to <c>true</c> this is for writing.</param>
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="showIgnore">if set to <c>true</c> [show ignore].</param>
     /// <exception cref="ArgumentNullException">fileSetting or fillGuessSettings NULL</exception>
-    public FormColumnUI(
+    public FormColumnUiRead(
       Column column,
-      bool writeSetting,
       IFileSetting fileSetting,
       FillGuessSettings fillGuessSettings,
       bool showIgnore)
@@ -70,9 +64,6 @@ namespace CsvTools
       m_ColumnEdit = new ColumnMut(column);
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
       m_FillGuessSettings = fillGuessSettings ?? throw new ArgumentNullException(nameof(fillGuessSettings));
-
-
-      m_WriteSetting = writeSetting;
 
       InitializeComponent();
       // needed for TimeZone, Name or TimePart
@@ -84,12 +75,8 @@ namespace CsvTools
 
       toolTip.SetToolTip(
         comboBoxTimeZone,
-        !m_WriteSetting
-          ? "Assuming the time read is based in the time zone stored in this column or a constant value and being converted to the local time zone of you system"
-          : "Converting the time in the local time zone of you system to the time zone in this column or a constant value");
+        "Assuming the time read is based in the time zone stored in this column or a constant value and being converted to the local time zone of you system");
 
-      labelDisplayNullAs.Visible = writeSetting;
-      textBoxDisplayNullAs.Visible = writeSetting;
       checkBoxIgnore.Visible = showIgnore;
     }
 
@@ -160,48 +147,6 @@ namespace CsvTools
       {
         using var formProgress = new FormProgress("Guess Value", true, m_CancellationTokenSource.Token);
         formProgress.ShowWithFont(this);
-        if (m_WriteSetting)
-        {
-          var hasRetried = false;
-          retry:
-#if NET5_0_OR_GREATER
-          await
-#endif
-            // ReSharper disable once ConvertToUsingDeclaration
-            // ReSharper disable once UseAwaitUsing
-            using (var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
-                     m_FileSetting.RecordLimit, formProgress.CancellationToken))
-          {
-            sqlReader.ReportProgress = formProgress;
-            var data = await sqlReader.GetDataTableAsync(TimeSpan.FromSeconds(60),
-              false,
-              m_FileSetting.DisplayStartLineNo, m_FileSetting.DisplayRecordNo, m_FileSetting.DisplayEndLineNo, false,
-              null, formProgress.CancellationToken);
-            var column = data.Columns[columnName];
-            if (column is null)
-            {
-              if (hasRetried)
-                throw new FileReaderException($"The file does not seem to contain the column {columnName}.");
-              var columns = (from DataColumn col in data.Columns select col.ColumnName).ToList();
-              UpdateColumnList(columns);
-              hasRetried = true;
-              goto retry;
-            }
-
-            if (column.DataType.GetDataType() == DataTypeEnum.String)
-              return;
-            m_ColumnEdit.ValueFormatMut.DataType = column.DataType.GetDataType();
-            formProgress.Hide();
-
-            RefreshData();
-            MessageBox.Show(
-              $"Based on DataType of the source column this is {m_ColumnEdit.ToImmutableColumn().GetTypeAndFormatDescription()}.\nPlease choose the desired output format",
-              columnName,
-              MessageBoxButtons.OK,
-              MessageBoxIcon.Information);
-          }
-        }
-        else
         {
           var samples = await GetSampleValuesAsync(columnName, formProgress, formProgress.CancellationToken);
           // shuffle samples, take some from the end and put it in the first 10 1 - 1 2 - Last 3 - 2
@@ -425,9 +370,7 @@ namespace CsvTools
 
           if (timeZone.TryGetConstant(out var tz))
           {
-            sourceDate = m_WriteSetting
-              ? StandardTimeZoneAdjust.ChangeTimeZone(sourceDate, TimeZoneInfo.Local.Id, tz, null)
-              : StandardTimeZoneAdjust.ChangeTimeZone(sourceDate, tz, TimeZoneInfo.Local.Id, null);
+            sourceDate = StandardTimeZoneAdjust.ChangeTimeZone(sourceDate, tz, TimeZoneInfo.Local.Id, null);
           }
           else
           {
@@ -537,17 +480,6 @@ namespace CsvTools
       var format = checkedListBoxDateFormats.Items[e.Index].ToString();
       if (string.IsNullOrEmpty(format))
         return;
-      if (m_WriteSetting)
-      {
-        var uncheck = checkedListBoxDateFormats.CheckedIndices.Cast<int>().Where(ind => ind != e.Index);
-        // disable all other check items
-
-        foreach (var ind in uncheck)
-          checkedListBoxDateFormats.SetItemCheckState(ind, CheckState.Unchecked);
-
-        m_ColumnEdit.ValueFormatMut.DateFormat = format;
-      }
-      else
       {
         var parts = new List<string>(StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormatMut.DateFormat));
         var isInList = parts.Contains(format);
@@ -595,9 +527,6 @@ namespace CsvTools
 
     private async void ColumnFormatUI_Load(object? sender, EventArgs e)
     {
-      if (m_WriteSetting)
-        labelAllowedDateFormats.Text = @"Date Format:";
-
       columnBindingSource.DataSource = m_ColumnEdit;
       SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
 
@@ -608,30 +537,15 @@ namespace CsvTools
       ICollection<string> allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       await this.RunWithHourglassAsync(async () =>
       {
-        if (!m_WriteSetting)
-        {
 #if NET5_0_OR_GREATER
-          await
+        await
 #endif
-            // ReSharper disable once UseAwaitUsing
-            using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, formProgress.CancellationToken);
-          fileReader.ReportProgress = formProgress;
-          await fileReader.OpenAsync(formProgress.CancellationToken);
-          for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-            allColumns.Add(fileReader.GetColumn(colIndex).Name);
-        }
-        else
-        {
-#if NET5_0_OR_GREATER
-          await
-#endif
-            // Write Setting ----- open the source that is SQL
-            // ReSharper disable once UseAwaitUsing
-            using var fileReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement.NoRecordSql(),
-              m_FileSetting.Timeout, m_FileSetting.RecordLimit, formProgress.CancellationToken);
-          for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-            allColumns.Add(fileReader.GetColumn(colIndex).Name);
-        }
+          // ReSharper disable once UseAwaitUsing
+          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, formProgress.CancellationToken);
+        fileReader.ReportProgress = formProgress;
+        await fileReader.OpenAsync(formProgress.CancellationToken);
+        for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+          allColumns.Add(fileReader.GetColumn(colIndex).Name);
 
         UpdateColumnList(allColumns);
       });
@@ -757,24 +671,6 @@ namespace CsvTools
     {
       try
       {
-        if (m_WriteSetting)
-        {
-#if NET5_0_OR_GREATER
-          await
-#endif
-            // ReSharper disable once UseAwaitUsing
-            using var sqlReader = await FunctionalDI.SqlDataReader(m_FileSetting.SqlStatement, m_FileSetting.Timeout,
-              m_FileSetting.RecordLimit, cancellationToken);
-          if (progress != null)
-            sqlReader.ReportProgress = progress;
-          var colIndex = sqlReader.GetOrdinal(columnName);
-          if (colIndex < 0)
-            throw new FileException($"Column {columnName} not found.");
-          return (await DetermineColumnFormat.GetSampleValuesAsync(sqlReader, 0, new[] { colIndex },
-              m_FillGuessSettings.SampleValues, m_FileSetting.TreatTextAsNull, 500, cancellationToken)
-            .ConfigureAwait(false)).First().Value;
-        }
-
         // must be file reader if this is reached
         var hasRetried = false;
 
@@ -1025,7 +921,7 @@ namespace CsvTools
           comboBoxColumnName.Items.Add(m_ColumnEdit.Name);
       }
 
-      if (!m_WriteSetting && comboBoxColumnName.Items.Count > 0)
+      if (comboBoxColumnName.Items.Count > 0)
         comboBoxColumnName.DropDownStyle = ComboBoxStyle.DropDownList;
       comboBoxColumnName.EndUpdate();
 

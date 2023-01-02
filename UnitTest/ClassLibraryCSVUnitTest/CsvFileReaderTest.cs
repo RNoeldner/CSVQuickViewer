@@ -1298,7 +1298,7 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task OpenByStream()
     {
-      using var stream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormats.txt")));
+      using var stream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormats.txt")));
       using var reader = new CsvFileReader(stream, Encoding.UTF8.CodePage, 0, true,
         new Column[]
         {
@@ -2036,7 +2036,7 @@ Line "Test"", "22",23,"  24"
     [TestMethod]
     public async Task TestStartRowAndFooter()
     {
-      using var improvedStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("LateStartRow.txt")));
+      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("LateStartRow.txt")));
       Assert.AreEqual(10, await improvedStream.GuessStartRow(20127, "|", "\"", "#", UnitTestStatic.Token));
     }
 
