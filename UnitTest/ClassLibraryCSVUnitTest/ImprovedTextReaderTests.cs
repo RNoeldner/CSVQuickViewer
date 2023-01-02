@@ -15,14 +15,14 @@ namespace CsvTools.Tests
 
     private class NonSeekableStream : Stream
     {
-      Stream m_stream;
+      readonly Stream m_Stream;
       public NonSeekableStream(Stream baseStream)
       {
-        m_stream = baseStream;
+        m_Stream = baseStream;
       }
       public override bool CanRead
       {
-        get { return m_stream.CanRead; }
+        get { return m_Stream.CanRead; }
       }
 
       public override bool CanSeek
@@ -32,12 +32,12 @@ namespace CsvTools.Tests
 
       public override bool CanWrite
       {
-        get { return m_stream.CanWrite; }
+        get { return m_Stream.CanWrite; }
       }
 
       public override void Flush()
       {
-        m_stream.Flush();
+        m_Stream.Flush();
       }
 
       public override long Length
@@ -49,7 +49,7 @@ namespace CsvTools.Tests
       {
         get
         {
-          return m_stream.Position;
+          return m_Stream.Position;
         }
         set
         {
@@ -59,7 +59,7 @@ namespace CsvTools.Tests
 
       public override int Read(byte[] buffer, int offset, int count)
       {
-        return m_stream.Read(buffer, offset, count);
+        return m_Stream.Read(buffer, offset, count);
       }
 
       public override long Seek(long offset, SeekOrigin origin)
@@ -74,14 +74,14 @@ namespace CsvTools.Tests
 
       public override void Write(byte[] buffer, int offset, int count)
       {
-        m_stream.Write(buffer, offset, count);
+        m_Stream.Write(buffer, offset, count);
       }
     }
 
     [TestMethod]
     public async Task ImprovedTextReaderTestBomAsync()
     {
-      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt")));
+      using var impStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCsV.txt")));
       using var test = new ImprovedTextReader(impStream);
       Assert.AreEqual(1, test.LineNumber);
       Assert.AreEqual("ID,LangCodeID,ExamDate,Score,Proficiency,IsNativeLang", await test.ReadLineAsync());
@@ -112,6 +112,7 @@ namespace CsvTools.Tests
 
       using var fs = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("UnicodeUTF8NoBOM.txt"));
       using var sr = new StreamReader(fs, Encoding.UTF8, true, 4096, true);
+      // ReSharper disable once MethodHasAsyncOverload
       Assert.AreEqual(sr.ReadLine(), await test.ReadLineAsync());
     }
 
@@ -198,7 +199,7 @@ namespace CsvTools.Tests
           await fs2.WriteAsync(line2);
         }
 
-        using (var impStream = new ImprovedStream(new SourceAccess(fileName)))
+        using (var impStream = FunctionalDI.OpenStream(new SourceAccess(fileName)))
         {
           using var test = new ImprovedTextReader(impStream, type.Item2);
 
@@ -220,7 +221,7 @@ namespace CsvTools.Tests
     public async Task ToBeginningTestAsync()
     {
       // use a file with a BOM
-      using var impStream = new ImprovedStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt")));
+      using var impStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("txTranscripts.txt")));
       using var test = new ImprovedTextReader(impStream);
 
       Assert.AreEqual(1, test.LineNumber);

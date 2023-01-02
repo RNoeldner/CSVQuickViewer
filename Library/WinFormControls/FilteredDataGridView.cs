@@ -835,6 +835,7 @@ namespace CsvTools
       {
         using var frm = new FormTextDisplay(CurrentCell.Value?.ToString() ?? string.Empty);
 
+        // ReSharper disable once LocalizableElement
         frm.Text = $"{Columns[e.ColumnIndex].DataPropertyName} - Row {e.RowIndex + 1:D}";
         frm.SaveAction = s =>
         {
@@ -1284,7 +1285,7 @@ namespace CsvTools
         return;
       if (m_FileSetting != null && FillGuessSettings != null)
       {
-        using var form = new FormColumnUI(columnFormat, false, m_FileSetting, FillGuessSettings,
+        using var form = new FormColumnUiRead(columnFormat, m_FileSetting, FillGuessSettings,
           false);
 
         if (form.ShowWithFont(this, true) == DialogResult.Cancel)
@@ -1438,7 +1439,7 @@ namespace CsvTools
         await
 #endif
         // ReSharper disable once UseAwaitUsing
-        using var stream = new ImprovedStream(new SourceAccess(fileName, false));
+        using var stream = FunctionalDI.OpenStream(new SourceAccess(fileName, false));
 #if NET5_0_OR_GREATER
         await
 #endif

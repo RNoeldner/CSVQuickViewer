@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Serialization;
 
 namespace CsvTools.Tests
 {
@@ -229,15 +228,6 @@ namespace CsvTools.Tests
     {
     }
 
-    [TestMethod()]
-    public void NoRecordSQLTest()
-    {
-      Assert.AreEqual("SELECT * FROM test WHERE 1=0", "SELECT * FROM test".NoRecordSql());
-      Assert.AreEqual("SELECT * FROM test WHERE 1=0", "SELECT * FROM test ORDER BY ID".NoRecordSql());
-      Assert.AreEqual("SELECT * FROM test WHERE 1=0 AND userID>10", "SELECT * FROM test WHERE userID>10".NoRecordSql());
-      Assert.AreEqual("SELECT * FROM test ORDER BY UserID WHERE 1=0 AND userID>10",
-        "SELECT * FROM test ORDER BY UserID WHERE userID>10".NoRecordSql());
-    }
 
     [TestMethod()]
     public void PlaceholderReplaceTest()

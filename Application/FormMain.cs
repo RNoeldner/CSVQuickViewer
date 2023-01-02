@@ -556,11 +556,7 @@ namespace CsvTools
             .Select(dataColumn => new Column(dataColumn.ColumnName, new ValueFormat(dataColumn.DataType.GetDataType()),
               dataColumn.Ordinal)));
 
-          // Set Functional DI routines to constants The reader is used when data is stored through
-          // the detailControl
-          FunctionalDI.SqlDataReader = async (settingName, timeout, limit, token) =>
-            await Task.FromResult(new DataTableWrapper(detailControl.DataTable));
-
+          
           // Load View Settings from file
           if (FileSystemUtils.FileExists(m_FileSetting.ColumnFile))
           {

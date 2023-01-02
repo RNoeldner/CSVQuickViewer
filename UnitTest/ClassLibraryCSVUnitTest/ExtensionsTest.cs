@@ -419,17 +419,5 @@ namespace CsvTools.Tests
       Assert.AreEqual("Die ist ein Test", "Die ist ein Test".ReplacePlaceholderWithText("Shiny"));
       Assert.AreEqual("Die ist Shiny Test", "Die ist {ein} Test".ReplacePlaceholderWithText("Shiny"));
     }
-
-    [TestMethod]
-    public void NoRecordSqlTest()
-    {
-      Assert.AreEqual("", "".NoRecordSql());
-      Assert.AreEqual("EXEC mySP", "EXEC mySP".NoRecordSql());
-
-      Assert.AreEqual("SELECT Field1 FROM MyTable WHERE 1=0", "SELECT Field1 FROM MyTable".NoRecordSql());
-      Assert.AreEqual("SELECT * FROM MyTable WHERE 1=0 AND X=1", "SELECT * FROM MyTable WHERE X=1".NoRecordSql());
-      Assert.AreEqual("SELECT Field1 FROM [MyTable] WHERE 1=0",
-        "SELECT Field1 FROM [MyTable] Order By Fields2".NoRecordSql());
-    }
   }
 }
