@@ -40,7 +40,6 @@ namespace CsvTools.Tests
       new ColumnMut("ID", new ValueFormat(DataTypeEnum.Integer)) //8
     };
 
-    public static ColumnMut[] ColumnsDt2 = { new ColumnMut("string") };
 
 #endif
 
@@ -117,22 +116,6 @@ namespace CsvTools.Tests
       dataTable.EndLoadData();
       return dataTable;
     }
-
-    public static DataTable GetDataTable2(long numRecords = 100)
-    {
-      var dataTable = new DataTable { TableName = "ArtificialTable2", Locale = new CultureInfo("en-gb") };
-      dataTable.Columns.Add("string", typeof(string));
-      for (long i = 1; i <= numRecords; i++)
-      {
-        var dr = dataTable.NewRow();
-        dr[0] = i.ToString(CultureInfo.InvariantCulture);
-        dataTable.Rows.Add(dr);
-      }
-
-      return dataTable;
-    }
-
-
 
     public static DataTable RandomDataTable(int records)
     {

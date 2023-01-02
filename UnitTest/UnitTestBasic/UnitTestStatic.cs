@@ -45,7 +45,7 @@ namespace CsvTools.Tests
   public static class UnitTestStatic
   {
     public static readonly string ApplicationDirectory = Path.Combine(
-      (new FileInfo(Assembly.GetExecutingAssembly().Location)).DirectoryName,
+      (new FileInfo(Assembly.GetExecutingAssembly().Location)).DirectoryName ?? throw new InvalidOperationException(),
       "TestFiles");
 
 #pragma warning disable IDE0090
