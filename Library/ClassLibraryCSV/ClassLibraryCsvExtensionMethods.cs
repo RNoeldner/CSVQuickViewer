@@ -17,11 +17,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -136,37 +138,17 @@ namespace CsvTools
       };
 
     /// <summary>
-    ///   User Display for a data type
+    /// Get the descriptive text for an enum value
     /// </summary>
-    /// <param name="dataType">The <see cref="DataTypeEnum" />.</param>
-    /// <returns>A text representing the dataType</returns>
-    public static string DataTypeDisplay(this DataTypeEnum dataType) =>
-      dataType switch
-      {
-        DataTypeEnum.DateTime => "Date Time",
-        DataTypeEnum.Integer => "Integer",
-        DataTypeEnum.Double => "Floating  Point (High Range)",
-        DataTypeEnum.Numeric => "Money (High Precision)",
-        DataTypeEnum.Boolean => "Boolean",
-        DataTypeEnum.Guid => "Guid",
-        DataTypeEnum.TextPart => "Text Part",
-        DataTypeEnum.TextToHtml => "Encode HTML (CData, Linefeed, List)",
-        DataTypeEnum.TextToHtmlFull => "Encode HTML ('<' -> '&lt;')",
-        DataTypeEnum.TextUnescape => "Unescape Text ('\\r' -> \u240D)",
-#if !QUICK
-        DataTypeEnum.Markdown2Html => "Markdown to HTML",
-#endif
-        DataTypeEnum.TextReplace => "Replace",
-        DataTypeEnum.String => "Text",
-        DataTypeEnum.Binary => "Binary (File Reference)",
-        _ => throw new ArgumentOutOfRangeException(nameof(dataType), dataType,
-          $"Data Type {dataType} not known in {nameof(DataTypeDisplay)}")
-      };
-
-    public static string Description(this RecordDelimiterTypeEnum item)
+    /// <param name="value">The enum value</param>
+    /// <returns>The description attribute of the value or the name</returns>
+    public static string Description(this Enum value)
     {
-      var descConv = new EnumDescriptionConverter(typeof(RecordDelimiterTypeEnum));
-      return descConv.ConvertToString(item) ?? string.Empty;
+      var fieldInfo = value.GetType().GetField(value.ToString());
+      DescriptionAttribute? attribute = null;
+      if (fieldInfo != null)
+        attribute = fieldInfo.GetCustomAttribute(typeof(DescriptionAttribute)) as DescriptionAttribute;
+      return attribute?.Description ?? value.ToString();
     }
 
     /// <summary>
@@ -413,7 +395,7 @@ namespace CsvTools
         _ => string.Empty
       };
 #if !QUICK
-    
+
 
 #endif
 

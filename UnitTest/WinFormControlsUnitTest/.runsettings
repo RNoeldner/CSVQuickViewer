@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- File name extension must be .runsettings -->
+<!-- For more information, see https://docs.microsoft.com/en-us/visualstudio/test/configure-unit-tests-by-using-a-dot-runsettings-file?view=vs-2022  -->
+
+<RunSettings>
+    <RunConfiguration>
+        <!-- See https://github.com/microsoft/vstest-docs/blob/master/docs/configure.md -->
+        <!-- 1. Test related settings -->
+        <!-- [x86] | x64: architecture of test host -->
+        <TargetPlatform>x86</TargetPlatform>
+
+        <!-- Framework35 | [Framework40] | Framework45 -->
+        <!--<TargetFrameworkVersion>Framework40</TargetFrameworkVersion>-->
+
+        <!-- Path to Test Adapters -->
+        <!--<TestAdaptersPaths>%SystemDrive%\Temp\foo;%SystemDrive%\Temp\bar</TestAdaptersPaths>-->
+        <TreatTestAdapterErrorsAsWarnings>false</TreatTestAdapterErrorsAsWarnings>
+        <!-- Path relative to solution directory -->
+        <ResultsDirectory>.\TestResults</ResultsDirectory>
+
+        <!-- 0 = As many processes as possible, limited by number of cores on machine, 1 = Sequential (1 process), 2-> Given number of processes up to limit by number of cores on machine-->
+        <MaxCpuCount>1</MaxCpuCount>
+
+        <!-- TestSessionTimeout was introduced in Visual Studio 2017 version 15.5 -->
+        <!-- Specify timeout in milliseconds. A valid value should be >= 0. If 0, timeout will be infinity-->
+        <TestSessionTimeout>10000</TestSessionTimeout>
+
+        <!-- Specify a Boolean value, which defines the exit code when no tests are discovered.-->
+        <TreatNoTestsAsError>false</TreatNoTestsAsError>
+
+        <!-- STA | MTA  default is STA for .NET Full and MTA for .NET Core-->
+        <ExecutionThreadApartmentState>STA</ExecutionThreadApartmentState>
+
+        <!-- Disables in-assembly parallel execution, applies to both MSTest and NUnit -->
+        <DisableParallelization>true</DisableParallelization>
+        <DisableAppDomain>false</DisableAppDomain>
+        <CollectSourceInformation>true</CollectSourceInformation>
+
+        <!-- Runner related configuration -->
+        <BatchSize>10</BatchSize>
+    </RunConfiguration>
+
+	<!-- MSTest adapter -->
+    <MSTest>
+        <MapInconclusiveToFailed>false</MapInconclusiveToFailed>
+        <CaptureTraceOutput>true</CaptureTraceOutput>
+        <DeleteDeploymentDirectoryAfterTestRunIsComplete>true</DeleteDeploymentDirectoryAfterTestRunIsComplete>
+        <DeploymentEnabled>true</DeploymentEnabled>
+        <DeployTestSourceDependencies>true</DeployTestSourceDependencies>
+        <MapNotRunnableToFailed>false</MapNotRunnableToFailed>
+        <EnableBaseClassTestMethodsFromOtherAssemblies>false</EnableBaseClassTestMethodsFromOtherAssemblies>
+        <TestTimeout>5000</TestTimeout>
+
+        <!-- Uncomment and update path for assembly resolution  -->
+        <!--  <AssemblyResolution>    
+                  <Directory path="D:\myfolder\bin\" includeSubDirectories="false"/>
+             </AssemblyResolution>  -->
+        <ForcedLegacyMode>false</ForcedLegacyMode>
+        <!-- 
+           <SettingsFile>a .testsettings file (require ForcedLegacyMode true) </SettingsFile>
+        -->
+    </MSTest>
+
+   
+</RunSettings>

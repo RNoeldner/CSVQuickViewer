@@ -195,7 +195,6 @@ namespace CsvTools
             formProgress.Maximum = 0;
             formProgress.ShowWithFont(this);
 
-            Logger.Information("Determine file format");
             m_FileSetting = (await fileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
               m_ViewSettings.GuessCodePage,
               m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
@@ -252,8 +251,6 @@ namespace CsvTools
     {
       try
       {
-        Logger.Information(message);
-        
         var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
                         + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
 
@@ -264,7 +261,6 @@ namespace CsvTools
                      + "Compressed files (*.gz;*.zip)|*.gz;*.zip|"
                      + "All files (*.*)|*.*";
 
-        Logger.Information("Checking existence of folder {folder}", m_ViewSettings.InitialFolder);
         if (!FileSystemUtils.DirectoryExists(m_ViewSettings.InitialFolder))
           m_ViewSettings.InitialFolder = ".";
         var fileName = WindowsAPICodePackWrapper.Open(m_ViewSettings.InitialFolder, "File to Display", strFilter, null);

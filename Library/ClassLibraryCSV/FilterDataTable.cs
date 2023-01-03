@@ -34,7 +34,7 @@ namespace CsvTools
 
     private readonly List<string> m_UniqueFieldName = new List<string>();
 
-    private readonly Dictionary<DataColumn, FilterTypeEnum> m_Cache = new Dictionary<DataColumn, FilterTypeEnum>();
+    private readonly Dictionary<DataColumn, bool> m_CacheColumns = new Dictionary<DataColumn, bool>();
 
     private CancellationTokenSource? m_CurrentFilterCancellationTokenSource;
 
@@ -48,7 +48,7 @@ namespace CsvTools
     {
       m_SourceTable = init ?? throw new ArgumentNullException(nameof(init));
       foreach (DataColumn col in m_SourceTable.Columns)
-        m_Cache.Add(col, FilterTypeEnum.None);
+        m_CacheColumns.Add(col, true);
     }
 
     public bool CutAtLimit { get; private set; }
@@ -61,7 +61,7 @@ namespace CsvTools
     /// <value>The error table.</value>
     public DataTable? FilterTable { get; private set; }
 
-    public FilterTypeEnum FilterType { get; private set; } = FilterTypeEnum.None;
+    public FilterTypeEnum FilterType { get; private set; } = FilterTypeEnum.All;
 
     /// <summary>
     ///   Sets the name of the unique field.
@@ -81,21 +81,17 @@ namespace CsvTools
     /// <summary>
     ///   Gets the columns that do match the filter.
     /// </summary>
-    public IReadOnlyCollection<string> GetColumns(FilterTypeEnum type)
+    public IReadOnlyCollection<string> GetColumns(FilterTypeEnum filterType)
     {
       var result = new HashSet<string>(
-          type switch
+        filterType switch
           {
-            FilterTypeEnum.ErrorsAndWarning =>
-              m_Cache.Where(x => x.Value.HasFlag(FilterTypeEnum.ShowErrors)  || x.Value.HasFlag(FilterTypeEnum.ShowWarning)).Select(x => x.Key.ColumnName).ToList(),
-            FilterTypeEnum.All =>
-              m_Cache.Select(x => x.Key.ColumnName).ToList(),
             FilterTypeEnum.None =>
-              m_Cache.Select(x => x.Key.ColumnName).ToList(),
-            FilterTypeEnum.ShowIssueFree =>
-              m_Cache.Where(x => x.Value == FilterTypeEnum.None).Select(x => x.Key.ColumnName).ToList(),
+              m_CacheColumns.Where(x => x.Value).Select(x => x.Key.ColumnName).ToList(),
+            FilterTypeEnum.All =>
+              m_CacheColumns.Select(x => x.Key.ColumnName).ToList(),
             _ =>
-              m_Cache.Where(x => x.Value.HasFlag(type)).Select(x => x.Key.ColumnName).ToList(),
+              m_CacheColumns.Where(x => !x.Value).Select(x => x.Key.ColumnName).ToList(),
           });
 
       foreach (var fld in m_UniqueFieldName)
@@ -111,37 +107,38 @@ namespace CsvTools
       m_CurrentFilterCancellationTokenSource.Cancel();
 
       // make sure the filtering is canceled
-      WaitCompeteFilter(0.2);
+      WaitCompeteFilter(0.1);
 
       m_CurrentFilterCancellationTokenSource.Dispose();
       m_CurrentFilterCancellationTokenSource = null;
     }
 
-    public DataTable Filter(int limit, FilterTypeEnum type, CancellationToken cancellationToken)
+    public DataTable Filter(int limit, FilterTypeEnum newFilterType, in CancellationToken cancellationToken)
     {
       if (limit < 1)
         limit = int.MaxValue;
 
-      if (type == FilterTypeEnum.All || type == FilterTypeEnum.None && m_SourceTable.Rows.Count<=limit)
+      if (newFilterType == FilterTypeEnum.All)
         return m_SourceTable;
 
-      if (type == FilterType && FilterTable!=null && FilterTable.Rows.Count<=limit)
+      if (newFilterType == FilterType && FilterTable !=null && FilterTable.Rows.Count<=limit)
         return FilterTable;
 
       foreach (DataColumn col in m_SourceTable.Columns)
-        m_Cache[col] = FilterTypeEnum.None;
+        m_CacheColumns[col] = true;
+
       m_Filtering = true;
 
       FilterTable?.Dispose();
       FilterTable = m_SourceTable.Clone();
       try
       {
-        FilterType = type;
+        FilterType = newFilterType;
         for (var counter = 0; counter < m_SourceTable.Rows.Count; counter++)
         {
           cancellationToken.ThrowIfCancellationRequested();
           var row = m_SourceTable.Rows[counter];
-          if (type.HasFlag(FilterTypeEnum.OnlyTrueErrors) && row.RowError == "-")
+          if (newFilterType.HasFlag(FilterTypeEnum.OnlyTrueErrors) && row.RowError == "-")
             continue;
 
           var rowIssues = FilterTypeEnum.None;
@@ -155,21 +152,16 @@ namespace CsvTools
 
           foreach (var col in row.GetColumnsInError())
           {
+            m_CacheColumns[col] = false;
             if (row.GetColumnError(col).IsWarningMessage())
-            {
-              m_Cache[col] |= FilterTypeEnum.ShowWarning;
               rowIssues |= FilterTypeEnum.ShowWarning;
-            }
             else
-            {
-              m_Cache[col] |= FilterTypeEnum.ShowErrors;
               rowIssues |= FilterTypeEnum.ShowErrors;
-            }
           }
-
-          if (rowIssues.HasFlag(type) || (rowIssues == FilterTypeEnum.None && type == FilterTypeEnum.ShowIssueFree)
-                                      || rowIssues == FilterTypeEnum.ShowErrors && type == FilterTypeEnum.ErrorsAndWarning
-                                      || rowIssues == FilterTypeEnum.ShowWarning && type == FilterTypeEnum.ErrorsAndWarning)
+          
+          if ((rowIssues == FilterTypeEnum.None  && newFilterType ==FilterTypeEnum.None) ||
+              (rowIssues.HasFlag(FilterTypeEnum.ShowWarning) && newFilterType.HasFlag(FilterTypeEnum.ShowWarning)) ||
+              (rowIssues.HasFlag(FilterTypeEnum.ShowErrors) && newFilterType.HasFlag(FilterTypeEnum.ShowErrors))) 
           {
             // Import Row copies the data and the errors information
             FilterTable.ImportRow(row);

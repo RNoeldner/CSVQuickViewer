@@ -166,49 +166,49 @@ namespace CsvTools
             var detectGuid = true;
             var detectNumeric = true;
             var detectDateTime = true;
-            if (comboBoxDataType.SelectedValue != null)
-            {
-              var selectedType = (DataTypeEnum) comboBoxDataType.SelectedValue;
-              if (selectedType < DataTypeEnum.String)
-              {
-                var resp = MessageBox.Show(
-                  $"Should the system restrict detection to {selectedType}?",
-                  "Selected DataType",
-                  MessageBoxButtons.YesNoCancel,
-                  MessageBoxIcon.Question);
-                if (resp == DialogResult.Cancel)
-                  return;
-                if (resp == DialogResult.Yes)
-                  switch (selectedType)
-                  {
-                    case DataTypeEnum.Integer:
-                    case DataTypeEnum.Numeric:
-                    case DataTypeEnum.Double:
-                      detectBool = false;
-                      detectDateTime = false;
-                      detectGuid = false;
-                      break;
+            //if (comboBoxDataType.SelectedValue != null)
+            //{
+            //  var selectedType = (DataTypeEnum) comboBoxDataType.SelectedValue;
+            //  if (selectedType < DataTypeEnum.String)
+            //  {
+            //    var resp = MessageBox.Show(
+            //      $"Should the system restrict detection to {selectedType}?",
+            //      "Selected DataType",
+            //      MessageBoxButtons.YesNoCancel,
+            //      MessageBoxIcon.Question);
+            //    if (resp == DialogResult.Cancel)
+            //      return;
+            //    if (resp == DialogResult.Yes)
+            //      switch (selectedType)
+            //      {
+            //        case DataTypeEnum.Integer:
+            //        case DataTypeEnum.Numeric:
+            //        case DataTypeEnum.Double:
+            //          detectBool = false;
+            //          detectDateTime = false;
+            //          detectGuid = false;
+            //          break;
 
-                    case DataTypeEnum.DateTime:
-                      detectBool = false;
-                      detectNumeric = false;
-                      detectGuid = false;
-                      break;
+            //        case DataTypeEnum.DateTime:
+            //          detectBool = false;
+            //          detectNumeric = false;
+            //          detectGuid = false;
+            //          break;
 
-                    case DataTypeEnum.Boolean:
-                      detectGuid = false;
-                      detectNumeric = false;
-                      detectDateTime = false;
-                      break;
+            //        case DataTypeEnum.Boolean:
+            //          detectGuid = false;
+            //          detectNumeric = false;
+            //          detectDateTime = false;
+            //          break;
 
-                    case DataTypeEnum.Guid:
-                      detectBool = false;
-                      detectNumeric = false;
-                      detectDateTime = false;
-                      break;
-                  }
-              }
-            }
+            //        case DataTypeEnum.Guid:
+            //          detectBool = false;
+            //          detectNumeric = false;
+            //          detectDateTime = false;
+            //          break;
+            //      }
+            //  }
+            //}
 
             // detect all (except Serial dates) and be content with 1 records if need be
             var checkResult = DetermineColumnFormat.GuessValueFormat(
@@ -242,9 +242,8 @@ namespace CsvTools
               {
                 if (checkResult.FoundValueFormat != null)
                 {
-                  m_ColumnEdit.ValueFormatMut = new ValueFormatMut(checkResult.FoundValueFormat);
-
-                  if (checkResult.FoundValueFormat.DataType == DataTypeEnum.DateTime)
+                   m_ColumnEdit.ValueFormatMut.CopyFrom(checkResult.FoundValueFormat);
+                   if (checkResult.FoundValueFormat.DataType == DataTypeEnum.DateTime)
                     AddDateFormat(checkResult.FoundValueFormat.DateFormat);
 
                   // In case possible match has the same information as FoundValueFormat, disregard
@@ -580,7 +579,7 @@ namespace CsvTools
         if (comboBoxDataType.SelectedValue is null)
           return;
         var selType = (DataTypeEnum) comboBoxDataType.SelectedValue;
-        m_ColumnEdit.ValueFormatMut.DataType = selType;
+        //m_ColumnEdit.ValueFormatMut.DataType = selType;
         var height = 10;
 
         groupBoxNumber.Visible = selType == DataTypeEnum.Numeric || selType == DataTypeEnum.Double;

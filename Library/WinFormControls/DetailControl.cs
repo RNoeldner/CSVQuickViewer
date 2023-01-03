@@ -84,7 +84,7 @@ namespace CsvTools
 
     public EventHandler<IFileSettingPhysicalFile>? BeforeFileStored;
     public EventHandler<IFileSettingPhysicalFile>? FileStored;
-    
+
     /// <summary>
     ///   Gets or sets the HTML style.
     /// </summary>
@@ -230,7 +230,7 @@ namespace CsvTools
 
         m_DataTable.Dispose();
         m_FilterDataTable.Dispose();
-        
+
         // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         m_DataTable = value ?? new DataTable();
         m_FilterDataTable = new FilterDataTable(m_DataTable);
@@ -675,7 +675,7 @@ namespace CsvTools
       // Hide any showing search
       m_Search.Visible = false;
 
-      
+
       var newDt = m_FilterDataTable.Filter(int.MaxValue, filterType, cancellationToken);
 
       if (ReferenceEquals(m_BindingSource.DataSource, newDt))
@@ -704,7 +704,7 @@ namespace CsvTools
           FilterTypeEnum.ErrorsAndWarning => 1,
           FilterTypeEnum.ShowErrors => 2,
           FilterTypeEnum.ShowWarning => 3,
-          FilterTypeEnum.ShowIssueFree => 4,
+          FilterTypeEnum.None => 4,
           _ => 0
         };
         if (m_ToolStripComboBoxFilterType.SelectedIndex == newIndex)
@@ -729,20 +729,19 @@ namespace CsvTools
         FileSetting?.CopyTo(WriteSetting);
       }
 
-      var headerAndSipped = new StringBuilder(WriteSetting.Header);
+      var skippedLines = new StringBuilder();
       // in case we skipped lines read them as Header so we do not loose them
-      if (WriteSetting.SkipRows > 0 && string.IsNullOrEmpty(WriteSetting.Header))
+      if (WriteSetting.SkipRows >0 &&  FileSetting is IFileSettingPhysicalFile physSource && physSource.SkipRows > 0)
       {
 #if NET5_0_OR_GREATER
         await
 #endif
-        using var iStream = FunctionalDI.OpenStream(new SourceAccess(WriteSetting));
-        using var sr = new ImprovedTextReader(iStream, WriteSetting.CodePageId);
-        for (var i = 0; i < WriteSetting.SkipRows; i++)
-          headerAndSipped.AppendLine(await sr.ReadLineAsync());
+          using var iStream = FunctionalDI.OpenStream(new SourceAccess(physSource.FullPath, true, "ReadSkippedRows"));
+        using var sr = new ImprovedTextReader(iStream, physSource.CodePageId);
+        for (var i = 0; i < physSource.SkipRows; i++)
+          skippedLines.AppendLine(await sr.ReadLineAsync());
       }
-
-      using var formProgress = new FormProgress(WriteSetting.ToString(), true, m_CancellationToken);
+      using var formProgress = new FormProgress("Writing file", true, m_CancellationToken);
       try
       {
         formProgress.ShowWithFont(this);
@@ -752,7 +751,7 @@ namespace CsvTools
           WriteSetting.CodePageId,
           WriteSetting.ByteOrderMark, WriteSetting.ColumnCollection, WriteSetting.KeyID, WriteSetting.KeepUnencrypted,
           WriteSetting.IdentifierInContainer,
-          headerAndSipped.ToString(), WriteSetting.Footer, string.Empty, WriteSetting.NewLine,
+          skippedLines.ToString(), WriteSetting.Footer, string.Empty, WriteSetting.NewLine,
           WriteSetting.FieldDelimiterChar,
           WriteSetting.FieldQualifierChar,
           WriteSetting.EscapePrefixChar,
@@ -825,7 +824,7 @@ namespace CsvTools
         return FilterTypeEnum.ShowErrors;
       if (index == 3)
         return FilterTypeEnum.ShowWarning;
-      return index == 4 ? FilterTypeEnum.ShowIssueFree : FilterTypeEnum.All;
+      return index == 4 ? FilterTypeEnum.None : FilterTypeEnum.All;
     }
 
     private void ToolStripComboBoxFilterType_SelectedIndexChanged(object? sender, EventArgs e)
@@ -839,6 +838,7 @@ namespace CsvTools
         return;
       await m_ToolStripButtonLoadRemaining.RunWithHourglassAsync(async () =>
       {
+        // ReSharper disable once LocalizableElement
         m_ToolStripLabelCount.Text = " loading...";
 
         using var formProgress = new FormProgress("Load more...", false, m_CancellationToken);

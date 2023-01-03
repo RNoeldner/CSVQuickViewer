@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -1380,7 +1381,7 @@ namespace CsvTools
       {
         // otherwise find the best
 
-        var sums = new Dictionary<int, Tuple<long, long>>();
+        var sums = new Dictionary<int, (long sum, long variance)>();
 
         foreach (var index in validSeparatorIndex)
         {
@@ -1414,12 +1415,19 @@ namespace CsvTools
             else
               variance += avg - dc.SeparatorsCount[index, row];
           }
-          Logger.Information("Possible Separator {sep} - Per Line: {total} Variance: {variance}", dc.Separators[index].ToString().GetDescription(), avg, variance);
-          sums.Add(index, new Tuple<long, long>(sumCount, variance));
+          
+          sums.Add(index, (sumCount, variance));
         }
 
+        if (sums.Count > 1)
+        {
+          foreach (var kv in sums)
+          {
+            Logger.Information("Multiple Possible Separator {sep} - Variance: {variance}", dc.Separators[kv.Key].ToString().GetDescription(), kv.Value.variance);   
+          }
+        }
         // get the best result by variance first then if equal by number of records
-        match  = dc.Separators[sums.OrderBy(x => x.Value.Item2).ThenByDescending(x => x.Value.Item1).First().Key];
+        match  = dc.Separators[sums.OrderBy(x => x.Value.variance).ThenByDescending(x => x.Value.sum).First().Key];
       }
 
       var hasDelimiter = match != '\0';

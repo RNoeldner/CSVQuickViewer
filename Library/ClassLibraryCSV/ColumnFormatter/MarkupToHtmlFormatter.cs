@@ -36,7 +36,7 @@ namespace CsvTools
       });
 
 
-    public override string FormatInputText(in string inputString, Action<string>? handleWarning)
+    public override string FormatInputText(in string inputString, in Action<string>? handleWarning)
     {
       var output = m_Markdown.Transform(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))

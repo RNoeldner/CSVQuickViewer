@@ -105,24 +105,19 @@ namespace CsvTools.Tests
     [Timeout(5000)]
     public void FormTextDisplay()
     {
-      using var resizeForm = new FormTextDisplay("This is a test text\nSpanning some\nlines ...");
-      UnitTestStaticForms.ShowFormAndClose(resizeForm, .2);
+      UnitTestStaticForms.OpenFormSts(() => new FormTextDisplay("This is a test text\nSpanning some\nlines ..."));
     }
 
     [TestMethod]
     public void FormTextDisplayJson()
     {
-      using var resizeForm = new FormTextDisplay(
-        "{\r\n  \"schema\": {\r\n    \"properties\": {\r\n      \"EmployeeIdentificationData_GUID\": {\r\n        \"format\": \"uuid\",\r\n        \"trim\": \"leftRight\",\r\n        \"caseSensitive\": false,\r\n        \"title\": \"GUID\",\r\n        \"description\": \"Unique identifier for a user. This cannot be changed\",\r\n        \"type\": \"string\"\r\n      }  }\r\n}}");
-      UnitTestStaticForms.ShowFormAndClose(resizeForm, .2);
+      UnitTestStaticForms.OpenFormSts(() => new FormTextDisplay("{\r\n  \"schema\": {\r\n    \"properties\": {\r\n      \"EmployeeIdentificationData_GUID\": {\r\n        \"format\": \"uuid\",\r\n        \"trim\": \"leftRight\",\r\n        \"caseSensitive\": false,\r\n        \"title\": \"GUID\",\r\n        \"description\": \"Unique identifier for a user. This cannot be changed\",\r\n        \"type\": \"string\"\r\n      }  }\r\n}}"));
     }
 
     [TestMethod]
     public void FormTextDisplayXMl()
     {
-      using var resizeForm = new FormTextDisplay(
-        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<edmx:Edmx Version=\"4.0\" xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\">\r\n  <edmx:DataServices>  </edmx:DataServices>\r\n</edmx:Edmx>");
-      UnitTestStaticForms.ShowFormAndClose(resizeForm, .2);
+      UnitTestStaticForms.OpenFormSts(() => new FormTextDisplay("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<edmx:Edmx Version=\"4.0\" xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\">\r\n  <edmx:DataServices>  </edmx:DataServices>\r\n</edmx:Edmx>"));
     }
 
     [TestMethod]
@@ -313,9 +308,11 @@ namespace CsvTools.Tests
     public void FormDuplicatesDisplay()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);
-      using var form = new FormDuplicatesDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName,
-        HtmlStyle.Default);
-      UnitTestStaticForms.ShowFormAndClose(form);
+
+      UnitTestStaticForms.OpenFormSts(() => new FormDuplicatesDisplay(dataTable, dataTable.Select(),
+        dataTable.Columns[0].ColumnName,
+        HtmlStyle.Default));
+      
     }
 
     [TestMethod]
@@ -323,9 +320,8 @@ namespace CsvTools.Tests
     public void FormUniqueDisplay()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);
-      using var form = new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName,
-        HtmlStyle.Default);
-      UnitTestStaticForms.ShowFormAndClose(form);
+      UnitTestStaticForms.OpenFormSts(() => new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName,
+        HtmlStyle.Default));
     }
 
     [TestMethod]
@@ -333,9 +329,8 @@ namespace CsvTools.Tests
     public void FormShowMaxLength()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);
-      using var form =
-        new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), HtmlStyle.Default);
-      UnitTestStaticForms.ShowFormAndClose(form);
+      UnitTestStaticForms.OpenFormSts(() =>
+        new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), HtmlStyle.Default));
     }
 
     [TestMethod]

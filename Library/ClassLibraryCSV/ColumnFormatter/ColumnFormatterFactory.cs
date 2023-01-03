@@ -17,7 +17,7 @@ namespace CsvTools
 {
   public static class ColumnFormatterFactory
   {
-    public static IColumnFormatter? GetColumnFormatter(int columnOrdinal, ValueFormat valueFormat)
+    public static IColumnFormatter? GetColumnFormatter(int columnOrdinal, in ValueFormat valueFormat)
     {
       return valueFormat.DataType switch
       {
@@ -32,7 +32,6 @@ namespace CsvTools
           valueFormat.FileOutPutPlaceholder, valueFormat.Overwrite),
 #if !QUICK
         DataTypeEnum.Markdown2Html => new Markdown2HtmlFormatter(),
-
 #endif
         _ => null
       };

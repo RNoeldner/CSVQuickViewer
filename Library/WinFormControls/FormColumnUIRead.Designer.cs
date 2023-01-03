@@ -353,6 +353,7 @@ namespace CsvTools
             // bindingSourceValueFormat
             // 
             this.bindingSourceValueFormat.AllowNew = false;
+            this.bindingSourceValueFormat.DataSource = typeof(CsvTools.ValueFormatMut);
             // 
             // comboBoxDateFormat
             // 
@@ -432,6 +433,7 @@ namespace CsvTools
             // columnBindingSource
             // 
             this.columnBindingSource.AllowNew = false;
+            this.columnBindingSource.DataSource = typeof(CsvTools.ColumnMut);
             // 
             // labelTimeSep
             // 
@@ -630,6 +632,7 @@ namespace CsvTools
             // 
             // comboBoxDataType
             // 
+            this.comboBoxDataType.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", this.bindingSourceValueFormat, "DataType", true));
             this.comboBoxDataType.DisplayMember = "Display";
             this.comboBoxDataType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxDataType.FormattingEnabled = true;
@@ -1136,7 +1139,7 @@ namespace CsvTools
             this.textBoxRegexReplacement.Size = new System.Drawing.Size(239, 20);
             this.textBoxRegexReplacement.TabIndex = 9;
             // 
-            // FormColumnUIRead
+            // FormColumnUiRead
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;

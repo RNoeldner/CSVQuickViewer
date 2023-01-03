@@ -366,7 +366,7 @@ namespace CsvTools
     /// <returns></returns>
     public string GetTypeAndFormatDescription()
     {
-      var sbText = new StringBuilder(DataType.DataTypeDisplay());
+      var sbText = new StringBuilder(DataType.Description());
 
       var shortDesc = GetFormatDescription();
       if (shortDesc.Length <= 0)
