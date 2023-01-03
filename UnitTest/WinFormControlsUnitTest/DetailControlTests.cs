@@ -27,7 +27,7 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(10000)]
-    public async Task SearchText()
+    public void SearchText()
     {
       using var dt = UnitTestStaticData.RandomDataTable(1000);
       UnitTestStaticForms.ShowControl(new DetailControl(), .1, (ctrl) =>
@@ -40,7 +40,7 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(3000)]
-    public async Task FilterColumn()
+    public void FilterColumn()
     {
       using var dt = UnitTestStaticData.RandomDataTable(500);
 

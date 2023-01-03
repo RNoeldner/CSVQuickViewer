@@ -26,47 +26,31 @@ namespace CsvTools
         m_FontConfig = value;
         if (m_FontConfig != null)
         {
-#pragma warning disable CA1416
-          ChangeFont(new Font(m_FontConfig.Font, m_FontConfig.FontSize));
-#pragma warning restore CA1416
           m_FontConfig.PropertyChanged += FontSettingChanged;
+          FontSettingChanged(value, new PropertyChangedEventArgs(nameof(IFontConfig.Font)));
         }
       }
     }
 
     public ResizeForm(in IFontConfig? fontConfig)
     {
-      m_FontConfig = fontConfig;
-      SuspendLayout();
-      ClientSize = new Size(400, 300);
-      Icon = new ComponentResourceManager(typeof(ResizeForm)).GetObject("$this.Icon") as Icon;
-      if (m_FontConfig != null)
-#pragma warning disable CA1416
-        SetFonts(this, new Font(m_FontConfig.Font, m_FontConfig.FontSize));
-#pragma warning restore CA1416
-      ResumeLayout(false);
-
-      if (m_FontConfig != null)
-        m_FontConfig.PropertyChanged += FontSettingChanged;
+      InitializeComponent();
+      FontConfig = fontConfig;
     }
 
     private void FontSettingChanged(object? sender, PropertyChangedEventArgs e)
     {
-      if (m_FontConfig != null && e.PropertyName is nameof(IFontConfig.Font) or nameof(IFontConfig.FontSize))
+      if (sender is IFontConfig config && e.PropertyName is nameof(IFontConfig.Font) or nameof(IFontConfig.FontSize))
 #pragma warning disable CA1416
-        ChangeFont(new Font(m_FontConfig.Font, m_FontConfig.FontSize));
-#pragma warning restore CA1416
-    }
-
-    public void ChangeFont(Font newFont)
-    {
-      this.SafeInvokeNoHandleNeeded(() =>
+      //this.SafeInvokeNoHandleNeeded(() =>
       {
         SuspendLayout();
-        SetFonts(this, newFont);
+        SetFonts(this, new Font(config.Font, config.FontSize));
         ResumeLayout();
         Refresh();
-      });
+      }
+      //);
+#pragma warning restore CA1416
     }
 
     public void SetFont(Font newFont) =>
@@ -84,6 +68,19 @@ namespace CsvTools
 
       foreach (Control ctrl in container.Controls)
         SetFonts(ctrl, newFont);
+    }
+
+    private void InitializeComponent()
+    {
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResizeForm));
+      this.SuspendLayout();
+      // 
+      // ResizeForm
+      // 
+      this.ClientSize = new System.Drawing.Size(514, 350);
+      this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
+      this.Name = "ResizeForm";
+      this.ResumeLayout(false);
     }
   }
 }

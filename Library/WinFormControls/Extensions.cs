@@ -230,7 +230,7 @@ namespace CsvTools
         Logger.Error(e);
       }
     }
-    
+
     public static async Task RunStaThreadAsync(this Func<Task> action, int timeoutMilliseconds = 20000)
     {
       if (action is null)
@@ -247,7 +247,7 @@ namespace CsvTools
           await action.Invoke();
         else
         {
-          var runThread = new Thread(async ()=> await action().ConfigureAwait(false));
+          var runThread = new Thread(async () => await action().ConfigureAwait(false));
 
 #pragma warning disable CA1416
           runThread.SetApartmentState(ApartmentState.STA);
@@ -260,7 +260,9 @@ namespace CsvTools
             runThread.Join();
 
           if (runThread.IsAlive)
+#pragma warning disable CA1416
             runThread.Abort();
+#pragma warning restore CA1416
         }
       }
       catch (Exception e)
@@ -448,7 +450,7 @@ namespace CsvTools
       where T : Enum
     {
       cbo.SuspendLayout();
-      
+
       cbo.DisplayMember = nameof(DisplayItem<T>.Display);
       cbo.ValueMember = nameof(DisplayItem<T>.ID);
 
