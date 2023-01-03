@@ -335,24 +335,15 @@ namespace CsvTools
     public string GetFormatDescription() =>
       DataType switch
       {
-        DataTypeEnum.Integer => NumberFormat.Replace(
-          CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
-          GroupSeparator),
         DataTypeEnum.DateTime => DateFormat.ReplaceDefaults(
-          CultureInfo.InvariantCulture.DateTimeFormat.DateSeparator,
-          DateSeparator,
-          CultureInfo.InvariantCulture.DateTimeFormat.TimeSeparator,
-          TimeSeparator),
+          CultureInfo.InvariantCulture.DateTimeFormat.DateSeparator, DateSeparator,
+          CultureInfo.InvariantCulture.DateTimeFormat.TimeSeparator, TimeSeparator),
         DataTypeEnum.Numeric => NumberFormat.ReplaceDefaults(
-          CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
-          DecimalSeparator,
-          CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
-          GroupSeparator),
+          CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, DecimalSeparator,
+          CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, GroupSeparator),
         DataTypeEnum.Double => NumberFormat.ReplaceDefaults(
-          CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
-          DecimalSeparator,
-          CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
-          GroupSeparator),
+          CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, DecimalSeparator,
+          CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, GroupSeparator),
         DataTypeEnum.TextPart => $"{Part}" + (PartToEnd ? " To End" : string.Empty),
         DataTypeEnum.Binary => $"Read file from {ReadFolder}",
         DataTypeEnum.TextReplace =>
