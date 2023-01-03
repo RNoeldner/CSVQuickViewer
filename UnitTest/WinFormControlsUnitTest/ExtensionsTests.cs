@@ -126,28 +126,36 @@ namespace CsvTools.Tests
     [Timeout(4000)]
     public void ShowError()
     {
-      using var frm = new Form();
-      frm.Text = "Testing...";
-      frm.Show();
-      frm.ShowError(new Exception(), "Text", 1.0);
+      Extensions.RunStaThread(() =>
+      {
+        using var frm = new Form();
+        frm.Text = "Testing...";
+        frm.Show();
+        frm.ShowError(new Exception(), "Text", 1.0);
+      });
     }
 
     [TestMethod]
     [Timeout(2000)]
     public void StoreWindowStateTest()
     {
-      using var formProgress = new FormProgress();
-      formProgress.Show();
-      var state1 = new WindowState(10, 10, formProgress.Width, formProgress.Height, FormWindowState.Normal, 27, "Test");
-      var result1 = -1;
-      formProgress.LoadWindowState(state1, val => { result1 = val; }, _ => { });
+      Extensions.RunStaThread(() =>
+      {
+        using var formProgress = new FormProgress();
+        formProgress.Show();
+        var state1 = new WindowState(10, 10, formProgress.Width, formProgress.Height, FormWindowState.Normal, 27, "Test");
+        var result1 = -1;
+        formProgress.LoadWindowState(state1, val => { result1 = val; }, _ => { });
 
-      var state2 = formProgress.StoreWindowState(result1, "World");
-      // Assert.AreEqual(state1.CustomText, state2.CustomText);
-      Assert.AreEqual(state1.CustomInt, state2.CustomInt, "CustomInt");
-      Assert.AreEqual("World", state2.CustomText, "CustomText");
-      //Assert.AreEqual(state1.Left, state2.Left, "Left");
-      // Assert.AreEqual(state1.Width, state2.Width, "Width");
+        var state2 = formProgress.StoreWindowState(result1, "World");
+        // Assert.AreEqual(state1.CustomText, state2.CustomText);
+        Assert.AreEqual(state1.CustomInt, state2.CustomInt, "CustomInt");
+        Assert.AreEqual("World", state2.CustomText, "CustomText");
+        //Assert.AreEqual(state1.Left, state2.Left, "Left");
+        // Assert.AreEqual(state1.Width, state2.Width, "Width");
+      });
+      
+      
     }
   }
 }

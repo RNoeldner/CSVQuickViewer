@@ -87,7 +87,7 @@ namespace CsvTools
       return retValue;
     }
 
-    public override string FormatInputText(in string inputString, Action<string>? handleWarning)
+    public override string FormatInputText(in string inputString, in Action<string>? handleWarning)
     {
       var output = Unescape(inputString);
       if (RaiseWarning && !inputString.Equals(output, StringComparison.Ordinal))

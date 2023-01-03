@@ -13,29 +13,34 @@
  */
 
 using System;
+using System.ComponentModel;
 
 namespace CsvTools
 {
   [Flags]
   public enum FilterTypeEnum
   {
+    // Display rows that have no error nor warning
+    [Description("No error or warning")]
     None = 0,
 
-    // Display rows that have no error nor warning
-    ShowIssueFree = 1,
-
     // Display rows that have a warning
-    ShowWarning = 2,
+    [Description("Only warnings")]
+    ShowWarning = 1 << 0,
 
     // Display rows that have an error
-    ShowErrors = 4,
-
-    // Display rows that have an error or a warning
-    ErrorsAndWarning = 2 + 4,
-
-    All = 1 + 2 + 4,
+    [Description("Only errors")]
+    ShowErrors = ShowWarning << 1,
 
     // A true error is an error that has proper error information, in some cases only a placeholder text is stored as the real message is not known
-    OnlyTrueErrors = 8
+    [Description("True Errors")]
+    OnlyTrueErrors = ShowErrors << 1,
+
+    // Display rows that have an error or a warning
+    [Description("Errors or warnings")]
+    ErrorsAndWarning = ShowErrors | ShowWarning,
+
+    [Description("All")]
+    All = ShowErrors | ShowWarning | OnlyTrueErrors,
   }
 }

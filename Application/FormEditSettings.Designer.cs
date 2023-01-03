@@ -33,7 +33,6 @@ namespace CsvTools
             this.cboCodePage = new System.Windows.Forms.ComboBox();
             this.buttonGuessCP = new System.Windows.Forms.Button();
             this.checkBoxGuessHasHeader = new System.Windows.Forms.CheckBox();
-            this.bindingSourceViewSetting = new System.Windows.Forms.BindingSource(this.components);
             this.label3 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -103,9 +102,10 @@ namespace CsvTools
             this.textBoxWriteDelim = new System.Windows.Forms.TextBox();
             this.cboWriteCodePage = new System.Windows.Forms.ComboBox();
             this.buttonNewLine = new System.Windows.Forms.Button();
+            this.checkBoxCopySkipped = new System.Windows.Forms.CheckBox();
+            this.bindingSourceViewSetting = new System.Windows.Forms.BindingSource(this.components);
             this.tableLayoutPanelFile.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceCsvFile)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceViewSetting)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceWrite)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumWarnings)).BeginInit();
@@ -118,6 +118,7 @@ namespace CsvTools
             this.tabControl.SuspendLayout();
             this.tabPageWrite.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceViewSetting)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanelFile
@@ -179,7 +180,7 @@ namespace CsvTools
             this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelFile.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelFile.Size = new System.Drawing.Size(790, 407);
+            this.tableLayoutPanelFile.Size = new System.Drawing.Size(728, 407);
             this.tableLayoutPanelFile.TabIndex = 0;
             // 
             // labelDelimitedFile
@@ -241,7 +242,7 @@ namespace CsvTools
             this.buttonGuessDelimiter.Location = new System.Drawing.Point(623, 89);
             this.buttonGuessDelimiter.Margin = new System.Windows.Forms.Padding(2);
             this.buttonGuessDelimiter.Name = "buttonGuessDelimiter";
-            this.buttonGuessDelimiter.Size = new System.Drawing.Size(144, 25);
+            this.buttonGuessDelimiter.Size = new System.Drawing.Size(103, 25);
             this.buttonGuessDelimiter.TabIndex = 17;
             this.buttonGuessDelimiter.Text = "Guess Delimiter";
             this.buttonGuessDelimiter.UseVisualStyleBackColor = true;
@@ -252,7 +253,7 @@ namespace CsvTools
             this.btnOpenFile.Location = new System.Drawing.Point(623, 2);
             this.btnOpenFile.Margin = new System.Windows.Forms.Padding(2);
             this.btnOpenFile.Name = "btnOpenFile";
-            this.btnOpenFile.Size = new System.Drawing.Size(144, 25);
+            this.btnOpenFile.Size = new System.Drawing.Size(103, 25);
             this.btnOpenFile.TabIndex = 3;
             this.btnOpenFile.Text = "Select File";
             this.btnOpenFile.UseVisualStyleBackColor = true;
@@ -333,7 +334,7 @@ namespace CsvTools
             this.buttonGuessCP.Location = new System.Drawing.Point(623, 60);
             this.buttonGuessCP.Margin = new System.Windows.Forms.Padding(2);
             this.buttonGuessCP.Name = "buttonGuessCP";
-            this.buttonGuessCP.Size = new System.Drawing.Size(144, 25);
+            this.buttonGuessCP.Size = new System.Drawing.Size(103, 25);
             this.buttonGuessCP.TabIndex = 11;
             this.buttonGuessCP.Text = "Guess Code Page";
             this.buttonGuessCP.UseVisualStyleBackColor = true;
@@ -352,11 +353,6 @@ namespace CsvTools
             this.checkBoxGuessHasHeader.Text = "Determine Header";
             this.toolTip.SetToolTip(this.checkBoxGuessHasHeader, "If checked the file is examined to determine if the first line is a header row");
             this.checkBoxGuessHasHeader.UseVisualStyleBackColor = true;
-            // 
-            // bindingSourceViewSetting
-            // 
-            this.bindingSourceViewSetting.AllowNew = false;
-            this.bindingSourceViewSetting.DataSource = typeof(CsvTools.ViewSettings);
             // 
             // label3
             // 
@@ -417,7 +413,7 @@ namespace CsvTools
             this.buttonSkipLine.Location = new System.Drawing.Point(623, 147);
             this.buttonSkipLine.Margin = new System.Windows.Forms.Padding(2);
             this.buttonSkipLine.Name = "buttonSkipLine";
-            this.buttonSkipLine.Size = new System.Drawing.Size(144, 25);
+            this.buttonSkipLine.Size = new System.Drawing.Size(103, 25);
             this.buttonSkipLine.TabIndex = 30;
             this.buttonSkipLine.Text = "Guess Start Row";
             this.buttonSkipLine.UseVisualStyleBackColor = true;
@@ -468,7 +464,7 @@ namespace CsvTools
             this.buttonGuessHeader.Location = new System.Drawing.Point(623, 31);
             this.buttonGuessHeader.Margin = new System.Windows.Forms.Padding(2);
             this.buttonGuessHeader.Name = "buttonGuessHeader";
-            this.buttonGuessHeader.Size = new System.Drawing.Size(144, 25);
+            this.buttonGuessHeader.Size = new System.Drawing.Size(103, 25);
             this.buttonGuessHeader.TabIndex = 6;
             this.buttonGuessHeader.Text = "Guess Header";
             this.buttonGuessHeader.UseVisualStyleBackColor = true;
@@ -524,6 +520,7 @@ namespace CsvTools
             this.numericUpDownSkipRows.Size = new System.Drawing.Size(62, 20);
             this.numericUpDownSkipRows.TabIndex = 27;
             this.toolTip.SetToolTip(this.numericUpDownSkipRows, "The number of lines that will be ignored before trying to read header and data");
+            this.numericUpDownSkipRows.ValueChanged += new System.EventHandler(this.numericUpDownSkipRows_ValueChanged);
             // 
             // buttonGuessLineComment
             // 
@@ -531,7 +528,7 @@ namespace CsvTools
             this.buttonGuessLineComment.Location = new System.Drawing.Point(623, 118);
             this.buttonGuessLineComment.Margin = new System.Windows.Forms.Padding(2);
             this.buttonGuessLineComment.Name = "buttonGuessLineComment";
-            this.buttonGuessLineComment.Size = new System.Drawing.Size(144, 25);
+            this.buttonGuessLineComment.Size = new System.Drawing.Size(103, 25);
             this.buttonGuessLineComment.TabIndex = 21;
             this.buttonGuessLineComment.Text = "Guess Line Comment";
             this.buttonGuessLineComment.UseVisualStyleBackColor = true;
@@ -557,7 +554,7 @@ namespace CsvTools
             this.buttonGuessTextQualifier.Location = new System.Drawing.Point(623, 176);
             this.buttonGuessTextQualifier.Margin = new System.Windows.Forms.Padding(2);
             this.buttonGuessTextQualifier.Name = "buttonGuessTextQualifier";
-            this.buttonGuessTextQualifier.Size = new System.Drawing.Size(144, 25);
+            this.buttonGuessTextQualifier.Size = new System.Drawing.Size(103, 25);
             this.buttonGuessTextQualifier.TabIndex = 37;
             this.buttonGuessTextQualifier.Text = "Guess Text Qualifier";
             this.buttonGuessTextQualifier.UseVisualStyleBackColor = true;
@@ -585,7 +582,7 @@ namespace CsvTools
             this.quotingControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.quotingControl.MinimumSize = new System.Drawing.Size(415, 0);
             this.quotingControl.Name = "quotingControl";
-            this.quotingControl.Size = new System.Drawing.Size(782, 194);
+            this.quotingControl.Size = new System.Drawing.Size(720, 194);
             this.quotingControl.TabIndex = 38;
             // 
             // checkBoxTreatNBSPAsSpace
@@ -593,7 +590,7 @@ namespace CsvTools
             this.checkBoxTreatNBSPAsSpace.AutoSize = true;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxTreatNBSPAsSpace, 2);
             this.checkBoxTreatNBSPAsSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceCsvFile, "TreatNBSPAsSpace", true));
-            this.checkBoxTreatNBSPAsSpace.Location = new System.Drawing.Point(341, 126);
+            this.checkBoxTreatNBSPAsSpace.Location = new System.Drawing.Point(444, 126);
             this.checkBoxTreatNBSPAsSpace.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxTreatNBSPAsSpace.Name = "checkBoxTreatNBSPAsSpace";
             this.checkBoxTreatNBSPAsSpace.Size = new System.Drawing.Size(198, 17);
@@ -607,7 +604,7 @@ namespace CsvTools
             this.checkBoxSkipEmptyLines.AutoSize = true;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxSkipEmptyLines, 2);
             this.checkBoxSkipEmptyLines.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceCsvFile, "SkipEmptyLines", true));
-            this.checkBoxSkipEmptyLines.Location = new System.Drawing.Point(341, 21);
+            this.checkBoxSkipEmptyLines.Location = new System.Drawing.Point(444, 21);
             this.checkBoxSkipEmptyLines.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxSkipEmptyLines.Name = "checkBoxSkipEmptyLines";
             this.checkBoxSkipEmptyLines.Size = new System.Drawing.Size(107, 17);
@@ -622,7 +619,7 @@ namespace CsvTools
             this.checkBoxTreatUnknowCharaterAsSpace.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxTreatUnknowCharaterAsSpace, 2);
             this.checkBoxTreatUnknowCharaterAsSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceCsvFile, "TreatUnknownCharacterAsSpace", true));
-            this.checkBoxTreatUnknowCharaterAsSpace.Location = new System.Drawing.Point(341, 105);
+            this.checkBoxTreatUnknowCharaterAsSpace.Location = new System.Drawing.Point(444, 105);
             this.checkBoxTreatUnknowCharaterAsSpace.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxTreatUnknowCharaterAsSpace.Name = "checkBoxTreatUnknowCharaterAsSpace";
             this.checkBoxTreatUnknowCharaterAsSpace.Size = new System.Drawing.Size(207, 17);
@@ -636,7 +633,7 @@ namespace CsvTools
             this.checkBoxTreatLFasSpace.AutoSize = true;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxTreatLFasSpace, 2);
             this.checkBoxTreatLFasSpace.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceCsvFile, "TreatLFAsSpace", true));
-            this.checkBoxTreatLFasSpace.Location = new System.Drawing.Point(341, 84);
+            this.checkBoxTreatLFasSpace.Location = new System.Drawing.Point(444, 84);
             this.checkBoxTreatLFasSpace.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxTreatLFasSpace.Name = "checkBoxTreatLFasSpace";
             this.checkBoxTreatLFasSpace.Size = new System.Drawing.Size(143, 17);
@@ -650,7 +647,7 @@ namespace CsvTools
             this.checkBoxTryToSolveMoreColumns.AutoSize = true;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxTryToSolveMoreColumns, 2);
             this.checkBoxTryToSolveMoreColumns.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceCsvFile, "TryToSolveMoreColumns", true));
-            this.checkBoxTryToSolveMoreColumns.Location = new System.Drawing.Point(341, 63);
+            this.checkBoxTryToSolveMoreColumns.Location = new System.Drawing.Point(444, 63);
             this.checkBoxTryToSolveMoreColumns.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxTryToSolveMoreColumns.Name = "checkBoxTryToSolveMoreColumns";
             this.checkBoxTryToSolveMoreColumns.Size = new System.Drawing.Size(426, 17);
@@ -668,7 +665,7 @@ namespace CsvTools
             this.checkBoxAllowRowCombining.AutoSize = true;
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.checkBoxAllowRowCombining, 2);
             this.checkBoxAllowRowCombining.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.bindingSourceCsvFile, "AllowRowCombining", true));
-            this.checkBoxAllowRowCombining.Location = new System.Drawing.Point(341, 42);
+            this.checkBoxAllowRowCombining.Location = new System.Drawing.Point(444, 42);
             this.checkBoxAllowRowCombining.Margin = new System.Windows.Forms.Padding(2);
             this.checkBoxAllowRowCombining.Name = "checkBoxAllowRowCombining";
             this.checkBoxAllowRowCombining.Size = new System.Drawing.Size(405, 17);
@@ -954,7 +951,7 @@ namespace CsvTools
             0,
             0,
             0});
-            this.numericUpDownNumWarnings.Location = new System.Drawing.Point(432, 237);
+            this.numericUpDownNumWarnings.Location = new System.Drawing.Point(535, 237);
             this.numericUpDownNumWarnings.Maximum = new decimal(new int[] {
             200,
             0,
@@ -1011,7 +1008,7 @@ namespace CsvTools
             this.tabPageBehaviour.Margin = new System.Windows.Forms.Padding(2);
             this.tabPageBehaviour.Name = "tabPageBehaviour";
             this.tabPageBehaviour.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPageBehaviour.Size = new System.Drawing.Size(794, 416);
+            this.tabPageBehaviour.Size = new System.Drawing.Size(732, 416);
             this.tabPageBehaviour.TabIndex = 9;
             this.tabPageBehaviour.Text = "Behavior and Warnings";
             // 
@@ -1075,7 +1072,7 @@ namespace CsvTools
             this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanelBehaviour.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanelBehaviour.Size = new System.Drawing.Size(790, 391);
+            this.tableLayoutPanelBehaviour.Size = new System.Drawing.Size(1098, 391);
             this.tableLayoutPanelBehaviour.TabIndex = 3;
             // 
             // labelPersistentSettings
@@ -1092,7 +1089,7 @@ namespace CsvTools
             // labelByFile
             // 
             this.labelByFile.AutoSize = true;
-            this.labelByFile.Location = new System.Drawing.Point(342, 0);
+            this.labelByFile.Location = new System.Drawing.Point(445, 0);
             this.labelByFile.Name = "labelByFile";
             this.labelByFile.Padding = new System.Windows.Forms.Padding(3);
             this.labelByFile.Size = new System.Drawing.Size(84, 19);
@@ -1102,14 +1099,12 @@ namespace CsvTools
             // selectFont
             // 
             this.tableLayoutPanelBehaviour.SetColumnSpan(this.selectFont, 2);
-            this.selectFont.DataBindings.Add(new System.Windows.Forms.Binding("FontSize", this.bindingSourceViewSetting, "FontSize", true));
-            this.selectFont.DataBindings.Add(new System.Windows.Forms.Binding("FontName", this.bindingSourceViewSetting, "Font", true));
             this.selectFont.Dock = System.Windows.Forms.DockStyle.Top;
             this.selectFont.FontName = "Microsoft Sans Serif";
             this.selectFont.FontSize = 9.75F;
             this.selectFont.Location = new System.Drawing.Point(3, 175);
             this.selectFont.Name = "selectFont";
-            this.selectFont.Size = new System.Drawing.Size(333, 56);
+            this.selectFont.Size = new System.Drawing.Size(436, 56);
             this.selectFont.TabIndex = 8;
             this.selectFont.ValueChanged += new System.EventHandler(this.SelectFont_ValueChanged);
             // 
@@ -1128,7 +1123,7 @@ namespace CsvTools
             // 
             this.labelWarningLimit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.labelWarningLimit.AutoSize = true;
-            this.labelWarningLimit.Location = new System.Drawing.Point(353, 239);
+            this.labelWarningLimit.Location = new System.Drawing.Point(456, 239);
             this.labelWarningLimit.Margin = new System.Windows.Forms.Padding(2, 5, 2, 0);
             this.labelWarningLimit.Name = "labelWarningLimit";
             this.labelWarningLimit.Size = new System.Drawing.Size(74, 13);
@@ -1143,7 +1138,7 @@ namespace CsvTools
             this.tabPageFormat.Margin = new System.Windows.Forms.Padding(2);
             this.tabPageFormat.Name = "tabPageFormat";
             this.tabPageFormat.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPageFormat.Size = new System.Drawing.Size(794, 416);
+            this.tabPageFormat.Size = new System.Drawing.Size(732, 416);
             this.tabPageFormat.TabIndex = 0;
             this.tabPageFormat.Text = "Detection";
             // 
@@ -1154,7 +1149,7 @@ namespace CsvTools
             this.fillGuessSettingEdit.Margin = new System.Windows.Forms.Padding(1);
             this.fillGuessSettingEdit.MinimumSize = new System.Drawing.Size(473, 195);
             this.fillGuessSettingEdit.Name = "fillGuessSettingEdit";
-            this.fillGuessSettingEdit.Size = new System.Drawing.Size(790, 412);
+            this.fillGuessSettingEdit.Size = new System.Drawing.Size(1098, 412);
             this.fillGuessSettingEdit.TabIndex = 101;
             // 
             // tabPageFile
@@ -1165,7 +1160,7 @@ namespace CsvTools
             this.tabPageFile.Margin = new System.Windows.Forms.Padding(2);
             this.tabPageFile.Name = "tabPageFile";
             this.tabPageFile.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPageFile.Size = new System.Drawing.Size(794, 416);
+            this.tabPageFile.Size = new System.Drawing.Size(732, 416);
             this.tabPageFile.TabIndex = 6;
             this.tabPageFile.Text = "Read Settings";
             // 
@@ -1180,7 +1175,7 @@ namespace CsvTools
             this.tabControl.Margin = new System.Windows.Forms.Padding(2);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(802, 442);
+            this.tabControl.Size = new System.Drawing.Size(740, 442);
             this.tabControl.TabIndex = 0;
             // 
             // tabPageWrite
@@ -1190,18 +1185,19 @@ namespace CsvTools
             this.tabPageWrite.Location = new System.Drawing.Point(4, 22);
             this.tabPageWrite.Name = "tabPageWrite";
             this.tabPageWrite.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageWrite.Size = new System.Drawing.Size(794, 416);
+            this.tabPageWrite.Size = new System.Drawing.Size(732, 416);
             this.tabPageWrite.TabIndex = 10;
             this.tabPageWrite.Text = "Write Settings";
             // 
             // tableLayoutPanel2
             // 
             this.tableLayoutPanel2.AutoSize = true;
-            this.tableLayoutPanel2.ColumnCount = 4;
+            this.tableLayoutPanel2.ColumnCount = 5;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.Controls.Add(this.quotingControlWrite, 0, 4);
             this.tableLayoutPanel2.Controls.Add(this.label11, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.label17, 2, 3);
@@ -1215,6 +1211,7 @@ namespace CsvTools
             this.tableLayoutPanel2.Controls.Add(this.cboWriteCodePage, 1, 0);
             this.tableLayoutPanel2.Controls.Add(this.checkBoxWriteBOM, 3, 0);
             this.tableLayoutPanel2.Controls.Add(this.buttonNewLine, 3, 2);
+            this.tableLayoutPanel2.Controls.Add(this.checkBoxCopySkipped, 4, 1);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(2);
@@ -1225,20 +1222,19 @@ namespace CsvTools
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(788, 416);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(726, 416);
             this.tableLayoutPanel2.TabIndex = 1;
             // 
             // quotingControlWrite
             // 
             this.quotingControlWrite.BackColor = System.Drawing.SystemColors.Control;
-            this.tableLayoutPanel2.SetColumnSpan(this.quotingControlWrite, 4);
+            this.tableLayoutPanel2.SetColumnSpan(this.quotingControlWrite, 5);
             this.quotingControlWrite.Dock = System.Windows.Forms.DockStyle.Top;
             this.quotingControlWrite.Location = new System.Drawing.Point(9, 107);
             this.quotingControlWrite.Margin = new System.Windows.Forms.Padding(9, 5, 4, 5);
             this.quotingControlWrite.MinimumSize = new System.Drawing.Size(415, 0);
             this.quotingControlWrite.Name = "quotingControlWrite";
-            this.quotingControlWrite.Size = new System.Drawing.Size(840, 304);
+            this.quotingControlWrite.Size = new System.Drawing.Size(713, 304);
             this.quotingControlWrite.TabIndex = 39;
             // 
             // label11
@@ -1338,11 +1334,30 @@ namespace CsvTools
             this.buttonNewLine.UseVisualStyleBackColor = true;
             this.buttonNewLine.Click += new System.EventHandler(this.GuessNewline_Click);
             // 
+            // checkBoxCopySkipped
+            // 
+            this.checkBoxCopySkipped.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.checkBoxCopySkipped.AutoSize = true;
+            this.checkBoxCopySkipped.Location = new System.Drawing.Point(445, 28);
+            this.checkBoxCopySkipped.Margin = new System.Windows.Forms.Padding(2);
+            this.checkBoxCopySkipped.Name = "checkBoxCopySkipped";
+            this.checkBoxCopySkipped.Size = new System.Drawing.Size(120, 17);
+            this.checkBoxCopySkipped.TabIndex = 9;
+            this.checkBoxCopySkipped.Text = "Copy Skipped Lines";
+            this.toolTip.SetToolTip(this.checkBoxCopySkipped, "If checked any skipped lines from the source will be copied to the written file");
+            this.checkBoxCopySkipped.UseVisualStyleBackColor = true;
+            this.checkBoxCopySkipped.MouseClick += new System.Windows.Forms.MouseEventHandler(this.checkBoxCopySkipped_MouseClick);
+            // 
+            // bindingSourceViewSetting
+            // 
+            this.bindingSourceViewSetting.AllowNew = false;
+            this.bindingSourceViewSetting.DataSource = typeof(CsvTools.ViewSettings);
+            // 
             // FormEditSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(802, 442);
+            this.ClientSize = new System.Drawing.Size(740, 442);
             this.Controls.Add(this.tabControl);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Margin = new System.Windows.Forms.Padding(2);
@@ -1359,7 +1374,6 @@ namespace CsvTools
             this.tableLayoutPanelFile.ResumeLayout(false);
             this.tableLayoutPanelFile.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceCsvFile)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceViewSetting)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownSkipRows)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceWrite)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNumWarnings)).EndInit();
@@ -1377,6 +1391,7 @@ namespace CsvTools
             this.tabPageWrite.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceViewSetting)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -1467,5 +1482,6 @@ namespace CsvTools
     private System.Windows.Forms.Label labelWarningLimit;
     private System.Windows.Forms.Label label6;
     private System.Windows.Forms.NumericUpDown numericUpDownLength;
+    private System.Windows.Forms.CheckBox checkBoxCopySkipped;
   }
 }

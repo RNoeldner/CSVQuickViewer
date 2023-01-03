@@ -148,10 +148,10 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void DataTypeDisplayTest()
     {
-      Assert.AreEqual("Text", DataTypeEnum.String.DataTypeDisplay());
-      Assert.AreEqual("Date Time", DataTypeEnum.DateTime.DataTypeDisplay());
+      Assert.AreEqual("Text", DataTypeEnum.String.Description());
+      Assert.AreEqual("Date Time", DataTypeEnum.DateTime.Description());
       foreach (DataTypeEnum type in Enum.GetValues(typeof(DataTypeEnum)))
-        Assert.IsNotNull(type.DataTypeDisplay());
+        Assert.IsNotNull(type.Description());
     }
 
     [TestMethod()]

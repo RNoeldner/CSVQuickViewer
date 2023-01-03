@@ -313,10 +313,10 @@ namespace CsvTools.Tests
     [TestMethod()]
     public void DataTypeDisplayTest()
     {
-      Assert.IsNotNull(DataTypeEnum.Double.DataTypeDisplay());
-      Assert.IsNotNull(DataTypeEnum.Integer.DataTypeDisplay());
-      Assert.AreEqual("Boolean", DataTypeEnum.Boolean.DataTypeDisplay());
-      Assert.AreEqual("Guid", DataTypeEnum.Guid.DataTypeDisplay());
+      Assert.IsNotNull(DataTypeEnum.Double.Description());
+      Assert.IsNotNull(DataTypeEnum.Integer.Description());
+      Assert.AreEqual("Boolean", DataTypeEnum.Boolean.Description());
+      Assert.AreEqual("Guid", DataTypeEnum.Guid.Description());
     }
 
     [TestMethod()]

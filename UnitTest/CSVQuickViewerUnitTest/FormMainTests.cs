@@ -35,26 +35,32 @@ namespace CsvTools.Tests
     [Timeout(10000)]
     public void FormMain_BasicCSV()
     {
-      var vs = new ViewSettings { DisplayRecordNo = true, MenuDown = true };
-      using var frm = new FormMain(vs);
-      UnitTestStaticForms.ShowFormAndClose(frm, 0,
-        frm2 => frm2.LoadCsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"), UnitTestStatic.Token),
-        UnitTestStatic.Token);
-      Assert.IsNotNull(frm.DataTable);
-      Assert.AreEqual(7, frm.DataTable.Rows.Count);
+      Extensions.RunStaThread(() =>
+      {
+        var vs = new ViewSettings { DisplayRecordNo = true, MenuDown = true };
+        using var frm = new FormMain(vs);
+        UnitTestStaticForms.ShowFormAndClose(frm, 0,
+          frm2 => frm2.LoadCsvFile(UnitTestStatic.GetTestPath("BasicCSV.txt.gz"), UnitTestStatic.Token),
+          UnitTestStatic.Token);
+        Assert.IsNotNull(frm.DataTable);
+        Assert.AreEqual(7, frm.DataTable.Rows.Count);
+      });
     }
 
     [TestMethod]
     [Timeout(10000)]
     public void FormMain_AllFormatsPipe()
     {
-      using var frmMain = new FormMain(new ViewSettings());
-      UnitTestStaticForms.ShowFormAndClose(frmMain, 0,
-        frm => frm.LoadCsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), UnitTestStatic.Token),
-        UnitTestStatic.Token);
-      Assert.IsNotNull(frmMain.DataTable);
-      // 45 records, one of the lines has a linefeed
-      Assert.IsTrue(frmMain.DataTable.Rows.Count >= 46);
+      Extensions.RunStaThread(() =>
+      {
+        using var frmMain = new FormMain(new ViewSettings());
+        UnitTestStaticForms.ShowFormAndClose(frmMain, 0,
+          frm => frm.LoadCsvFile(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"), UnitTestStatic.Token),
+          UnitTestStatic.Token);
+        Assert.IsNotNull(frmMain.DataTable);
+        // 45 records, one of the lines has a linefeed
+        Assert.IsTrue(frmMain.DataTable.Rows.Count >= 46);
+      });
     }
   }
 }

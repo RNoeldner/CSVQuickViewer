@@ -195,7 +195,7 @@ namespace CsvTools
     /// <returns></returns>
     public string GetTypeAndFormatDescription(bool addTime = true)
     {
-      var stringBuilder = new StringBuilder(ValueFormat.DataType.DataTypeDisplay());
+      var stringBuilder = new StringBuilder(ValueFormat.DataType.Description());
 
       var shortDesc = ValueFormat.GetFormatDescription();
       if (shortDesc.Length > 0)

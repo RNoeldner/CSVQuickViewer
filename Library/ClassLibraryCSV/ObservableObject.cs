@@ -55,9 +55,6 @@ namespace CsvTools
     /// </summary>
     /// <param name="field">The backing store.</param>
     /// <param name="value">The new collection.</param>
-    /// <param name="withOrder">
-    ///   if <c>true</c> the order of the collections is important and will indicate a change
-    /// </param>
     /// <param name="propertyName">Name of the property.</param>
     /// <returns><c>true</c> if the value was changed</returns>
     protected bool SetCollection<T>(ICollection<T> field, in IEnumerable<T>? value, [CallerMemberName] string propertyName = "") where T : IEquatable<T>

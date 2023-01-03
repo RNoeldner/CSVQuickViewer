@@ -48,7 +48,7 @@ namespace CsvTools
 
 
     /// <inheritdoc/>
-    public override string FormatInputText(in string inputString, Action<string>? handleWarning)
+    public override string FormatInputText(in string inputString, in Action<string>? handleWarning)
     {
       var fileName = inputString.FullPath(m_RootFolderRead);
       var fi = new FileSystemUtils.FileInfo(fileName);
@@ -70,7 +70,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc/>
-    public override string Write(object? contentsWithFileName, IDataRecord? dataRow, Action<string>? handleWarning)
+    public override string Write(in object? contentsWithFileName, in IDataRecord? dataRow, in Action<string>? handleWarning)
     {
       var fileName = m_FileOutPutPlaceholder;
       if (dataRow != null)

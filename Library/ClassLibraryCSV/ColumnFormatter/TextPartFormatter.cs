@@ -25,7 +25,7 @@ namespace CsvTools
     private readonly bool m_PartToEnd;
 
 
-    public TextPartFormatter(int part, string partSplitter, bool partToEnd)
+    public TextPartFormatter(int part, in string partSplitter, bool partToEnd)
     {
       m_Part = part;
       m_PartSplitter = partSplitter.StringToChar();
@@ -33,7 +33,7 @@ namespace CsvTools
     }
 
     /// <inheritdoc/>
-    public override string FormatInputText(in string inputString, Action<string>? handleWarning)
+    public override string FormatInputText(in string inputString, in Action<string>? handleWarning)
     {
       var output = StringConversion.StringToTextPart(inputString, m_PartSplitter, m_Part, m_PartToEnd);
       if (RaiseWarning && output is null)

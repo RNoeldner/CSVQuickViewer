@@ -2,8 +2,9 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+
+using Task = System.Threading.Tasks.Task;
 using Timer = System.Timers.Timer;
 
 namespace CsvTools.Tests
@@ -17,14 +18,26 @@ namespace CsvTools.Tests
       Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
     }
 
+    public static void OpenFormSts(Func<Form> createFunc)
+    {
+      Extensions.RunStaThread(() =>
+      {
+        using var frm = createFunc();
+        ShowFormAndClose(frm);
+      });
+    }
+
     public static void ShowControl<T>(T ctrl, double waitBeforeActionSeconds = 0, Action<T>? toDo = null,
       double closeAfterSeconds = .5)
       where T : Control
     {
-      ShowFormAndClose(new TestForm(ctrl, closeAfterSeconds * 1000), waitBeforeActionSeconds,
-        // ReSharper disable once AccessToDisposedClosure
-        f => toDo?.Invoke(ctrl));
-      ctrl.Dispose();
+      Extensions.RunStaThread(() =>
+      {
+        ShowFormAndClose(new TestForm(ctrl, closeAfterSeconds * 1000), waitBeforeActionSeconds,
+          // ReSharper disable once AccessToDisposedClosure
+          f => toDo?.Invoke(ctrl));
+        ctrl.Dispose();
+      });
     }
 
     public static async Task ShowControlAsync<T>(T ctrl, double waitBeforeActionSeconds, Func<T, Task> toDo,
@@ -35,71 +48,96 @@ namespace CsvTools.Tests
       ctrl.Dispose();
     }
 
-    public static void ShowFormAndClose<T>(T typed, double waitBeforeActionSeconds = 0, Action<T>? toDo = null, CancellationToken token = default)
+    public static void ShowFormAndClose<T>(T frm, double waitBeforeActionSeconds = 0, Action<T>? toDo = null, CancellationToken token = default)
       where T : Form
     {
       if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-          $"Thread should run as STS but is {Thread.CurrentThread.GetApartmentState()}".WriteToContext();
-      var frm = typed as Form;
-      var isClosed = false;
-      frm.FormClosed += (s, o) =>
-        isClosed = true;
-
-      frm.TopMost = true;
-      frm.ShowInTaskbar = false;
+        $"Thread should run as STS but is {Thread.CurrentThread.GetApartmentState()}".WriteToContext();
 
       try
       {
-        frm.Show();
+
+        var isClosed = false;
+        frm.FormClosed += (s, o) =>
+          isClosed = true;
+
+        frm.TopMost = true;
+        frm.ShowInTaskbar = false;
+
+        try
+        {
+          frm.Show();
+        }
+        catch (Exception)
+        {
+          // ignore the form might be shown already
+        }
+
+        if (waitBeforeActionSeconds > 0 && !isClosed)
+          WaitSomeTime(waitBeforeActionSeconds, token);
+
+        if (!isClosed)
+          toDo?.Invoke(frm);
+
+        if (!isClosed)
+          frm.Close();
       }
-      catch (Exception)
+      catch (Exception e)
       {
-        // ignore the form might be shown already
+        Logger.Error(e);
       }
-
-      if (waitBeforeActionSeconds > 0 && !isClosed)
-        WaitSomeTime(waitBeforeActionSeconds, token);
-
-      if (!isClosed)
-        toDo?.Invoke(typed);
-
-      if (!isClosed)
-        frm.Close();
-
-      frm.Dispose();
+      finally
+      {
+        frm.Dispose();
+      }
 
     }
 
+    public static void AsSTS(Action action, TimeSpan? span=null)
+    {
+      action.RunStaThread((span ?? TimeSpan.FromSeconds(5)).Milliseconds);
+    }
+
+    
     public static async Task ShowFormAndCloseAsync<T>(
       T frm, double waitBeforeActionSeconds = 0, Func<T, Task>? toDo = null)
       where T : Form
     {
       if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
         $"Thread should run as STS but is {Thread.CurrentThread.GetApartmentState()}".WriteToContext();
-
-      var isClosed = false;
-      frm.FormClosed += (s, o) =>
-        isClosed = true;
-      frm.TopMost = true;
-      frm.ShowInTaskbar = false;
       try
       {
-        frm.Show();
+        var isClosed = false;
+        frm.FormClosed += (s, o) =>
+          isClosed = true;
+        frm.TopMost = true;
+        frm.ShowInTaskbar = false;
+        try
+        {
+          frm.Show();
+        }
+        catch (Exception)
+        {
+          // ignore the form might be shown already
+        }
+
+        if (waitBeforeActionSeconds > 0 && !isClosed)
+          WaitSomeTime(waitBeforeActionSeconds, UnitTestStatic.Token);
+
+        if (toDo != null && !isClosed)
+          await toDo.Invoke(frm);
+
+        if (!isClosed)
+          frm.Close();
       }
-      catch (Exception)
+      catch (Exception e)
       {
-        // ignore the form might be shown already
+        Logger.Error(e);
       }
-
-      if (waitBeforeActionSeconds > 0 && !isClosed)
-        WaitSomeTime(waitBeforeActionSeconds, UnitTestStatic.Token);
-
-      if (toDo != null && !isClosed)
-        await toDo.Invoke(frm);
-
-      if (!isClosed)
-        frm.Close();
-      frm.Dispose();
+      finally
+      {
+        frm.Dispose();
+      }
     }
 
     [DebuggerStepThrough]
@@ -137,6 +175,7 @@ namespace CsvTools.Tests
       Name = "TestForm";
       ShowInTaskbar = false;
       StartPosition = FormStartPosition.CenterScreen;
+      // ReSharper disable once LocalizableElement
       Text = "TestForm";
       TopMost = true;
       FormClosing += TestForm_FormClosing;

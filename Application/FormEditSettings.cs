@@ -338,5 +338,18 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       m_ViewSettings.Font = selectFont.FontName;
       m_ViewSettings.FontSize = selectFont.FontSize;
     }
+
+    private void checkBoxCopySkipped_MouseClick(object sender, MouseEventArgs e)
+    {
+      if (!checkBoxCopySkipped.Checked)
+        m_ViewSettings.WriteSetting.SkipRows = 0;
+    }
+
+    private void numericUpDownSkipRows_ValueChanged(object sender, EventArgs e)
+    {
+      if (numericUpDownSkipRows.Value > 0)
+        checkBoxCopySkipped.Checked = true;
+      checkBoxCopySkipped.Enabled = (numericUpDownSkipRows.Value > 0);
+    }
   }
 }

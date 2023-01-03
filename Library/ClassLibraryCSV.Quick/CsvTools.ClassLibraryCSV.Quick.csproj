@@ -38,7 +38,6 @@
 		<Compile Include="..\ClassLibraryCSV\Enum\DataTypeEnum.cs" Link="Enum\DataTypeEnum.cs" />
 		<Compile Include="..\ClassLibraryCSV\Enum\TrimmingOptionEnum.cs" Link="Enum\TrimmingOptionEnum.cs" />
 		<Compile Include="..\ClassLibraryCSV\Enum\RecordDelimiterTypeEnum.cs" Link="Enum\RecordDelimiterTypeEnum.cs" />
-		<Compile Include="..\ClassLibraryCSV\Enum\EnumDescriptionConverter.cs" Link="Enum\EnumDescriptionConverter.cs" />
 
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\BinaryFormatter.cs" Link="ColumnFormatter\BinaryFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\BaseColumnFormatter.cs" Link="ColumnFormatter\BaseColumnFormatter.cs" />
