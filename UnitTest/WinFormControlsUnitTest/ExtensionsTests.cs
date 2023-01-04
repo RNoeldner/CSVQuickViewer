@@ -45,7 +45,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(3000)]
+    [Timeout(1000)]
     public void GetProgressTest()
     {
       var setting =
@@ -74,7 +74,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(3000)]
+    [Timeout(1000)]
     public void GetprogressTestNoShow()
     {
       var setting2 =
@@ -123,7 +123,7 @@ namespace CsvTools.Tests
    
 
     [TestMethod]
-    [Timeout(4000)]
+    [Timeout(1000)]
     public void ShowError()
     {
       Extensions.RunStaThread(() =>

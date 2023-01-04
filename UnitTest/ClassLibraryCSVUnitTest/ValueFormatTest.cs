@@ -38,7 +38,7 @@ namespace CsvTools.Tests
       Assert.AreNotEqual(string.Empty, vf2.GetFormatDescription());
 
       var vf3 = new ValueFormat(DataTypeEnum.Integer, numberFormat: "000");
-      Assert.AreNotEqual(string.Empty, vf3.GetFormatDescription());
+      Assert.AreEqual(string.Empty, vf3.GetFormatDescription());
 
       var vf4 = new ValueFormat(DataTypeEnum.Numeric, numberFormat: "0.##");
       Assert.AreNotEqual(string.Empty, vf4.GetFormatDescription());

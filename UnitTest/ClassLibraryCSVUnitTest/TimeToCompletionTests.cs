@@ -59,7 +59,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(20000)]
+    [Timeout(15000)]
     public async Task TimeToCompletionTestAsync()
     {
       var test = new TimeToCompletion();

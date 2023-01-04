@@ -46,7 +46,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public async Task OpenLogAsStream()
     {
       using var stream = FileSystemUtils.OpenRead(UnitTestStatic.GetTestPath("LogFile.json"));
@@ -65,7 +65,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public async Task ReadJSonEmp_VariousTypedData()
     {
       var setting = new JsonFile("json", UnitTestStatic.GetTestPath("Emp.json"));
@@ -84,7 +84,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public async Task NotSupportedAsync()
     {
       var setting = new JsonFile("id", UnitTestStatic.GetTestPath("Emp.json"), "");
@@ -112,7 +112,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public async Task ReadJSonTypes()
     {
       using var jfr = new JsonFileReader(UnitTestStatic.GetTestPath("Emp.json"), null, 0, false, string.Empty, false,
@@ -215,7 +215,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(2000)]
     public async Task ReadJSonEmpAsync()
     {
       var dpd = new Progress<ProgressInfo>();
@@ -251,7 +251,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public async Task ReadJSon1Async()
     {
       var setting = new JsonFile("json", UnitTestStatic.GetTestPath("Jason1.json"));
@@ -269,7 +269,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public async Task ReadJSon1TypedAsync()
     {
       var setting =
@@ -292,7 +292,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public async Task ReadJSon2Async()
     {
       var setting = new JsonFile("json", UnitTestStatic.GetTestPath("Jason2.json"));
@@ -313,7 +313,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public async Task ReadJSon3Async()
     {
       var setting = new JsonFile("id", UnitTestStatic.GetTestPath("Jason3.json"));
@@ -335,7 +335,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public async Task ReadJSon4Async()
     {
       var setting = new JsonFile("json", UnitTestStatic.GetTestPath("Jason4.json"));

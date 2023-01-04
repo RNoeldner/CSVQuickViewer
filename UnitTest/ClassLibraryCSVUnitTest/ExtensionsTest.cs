@@ -316,7 +316,7 @@ namespace CsvTools.Tests
       Assert.IsNotNull(DataTypeEnum.Double.Description());
       Assert.IsNotNull(DataTypeEnum.Integer.Description());
       Assert.AreEqual("Boolean", DataTypeEnum.Boolean.Description());
-      Assert.AreEqual("Guid", DataTypeEnum.Guid.Description());
+      Assert.AreEqual("GUID / UUID", DataTypeEnum.Guid.Description());
     }
 
     [TestMethod()]

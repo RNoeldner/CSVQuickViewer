@@ -6,7 +6,7 @@ namespace CsvTools.Tests
   public class FormEditSettingsTests
   {
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void FormEditSettings()
     {
       UnitTestStaticForms.OpenFormSts(() =>

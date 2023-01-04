@@ -11,7 +11,7 @@ namespace CsvTools.Tests
   public class FormHierarchyDisplayTest
   {
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void MultiselectTreeViewRegular()
     {
       var treeView = new MultiSelectTreeView();
@@ -55,7 +55,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void MultiselectTreeViewTreeData()
     {
       var treeView = new MultiSelectTreeView();
@@ -109,7 +109,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void FormHierarchyDisplay()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);
@@ -122,7 +122,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public async Task FormHierarchyDisplay_DataWithCycleAsync()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);

@@ -26,7 +26,7 @@ namespace CsvTools.Tests
     private readonly Random m_Random = new Random(Guid.NewGuid().GetHashCode());
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public void SearchText()
     {
       using var dt = UnitTestStaticData.RandomDataTable(1000);
@@ -39,7 +39,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(3000)]
+    [Timeout(1000)]
     public void FilterColumn()
     {
       using var dt = UnitTestStaticData.RandomDataTable(500);
@@ -53,7 +53,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(3000)]
+    [Timeout(1000)]
     public void DetailControlTestAsync()
     {
       using var dt = new DataTable();
@@ -84,7 +84,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(3000)]
+    [Timeout(1000)]
     public void SortTestAsync()
     {
       using var dt = new DataTable();

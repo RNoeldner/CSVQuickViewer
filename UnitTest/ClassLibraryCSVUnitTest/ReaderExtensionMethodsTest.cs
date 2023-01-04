@@ -40,7 +40,7 @@ namespace CsvTools.Tests
       m_ValidSetting.ColumnCollection.Add(cf);
     }
     
-    [TestMethod, Timeout(10000)]
+    [TestMethod, Timeout(2000)]
     public async Task GetCombinedKey()
     {
       var csvFile = new CsvFileReader(UnitTestStatic.GetTestPath("BasicCSV.txt"), 65001,

@@ -26,7 +26,7 @@ namespace CsvTools.Tests
   public class ControlsTests
   {
     [TestMethod]
-    [Timeout(6000)]
+    [Timeout(1000)]
     public void CsvTextDisplayShow()
     {
       using var csvTextDisplay = new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt"));
@@ -43,7 +43,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public void HtmlDisplay()
     {
       Extensions.RunStaThread(() =>
@@ -80,7 +80,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public void TextDisplay()
     {
      
@@ -94,7 +94,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void ResizeForm()
     {
       using var resizeForm = new ResizeForm();
@@ -102,7 +102,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void FormTextDisplay()
     {
       UnitTestStaticForms.OpenFormSts(() => new FormTextDisplay("This is a test text\nSpanning some\nlines ..."));
@@ -121,7 +121,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void QuotingControl1()
     {
       var ctrl = new QuotingControl();
@@ -130,7 +130,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void QuotingControl2()
     {
       var ctrl = new QuotingControl();
@@ -266,7 +266,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public void TimedMessage()
     {
       Extensions.RunStaThread(() =>
@@ -288,23 +288,23 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void SearchShow() => UnitTestStaticForms.ShowControl(new Search());
 
     [TestMethod]
-    [Timeout(4000)]
+    [Timeout(1000)]
     public void ShowSelectFont() => UnitTestStaticForms.ShowControl(new SelectFont());
 
     [TestMethod]
-    [Timeout(4000)]
+    [Timeout(1000)]
     public void ShowLoggerDisplay() => UnitTestStaticForms.ShowControl(new LoggerDisplay());
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void FillGuessSettingEditShow() => UnitTestStaticForms.ShowControl(new FillGuessSettingEdit());
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void FormDuplicatesDisplay()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);
@@ -316,7 +316,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void FormUniqueDisplay()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);
@@ -325,7 +325,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(3000)]
+    [Timeout(1000)]
     public void FormShowMaxLength()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);
@@ -334,7 +334,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void DataGridViewColumnFilterControl()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);

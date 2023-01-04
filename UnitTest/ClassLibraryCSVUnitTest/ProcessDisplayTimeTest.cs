@@ -8,7 +8,7 @@ namespace CsvTools.Tests
 	{
 		
 		[TestMethod]
-		[Timeout(10000)]
+		[Timeout(3000)]
 		public void MeasureTimeToCompletion()
 		{
 			var test = new ProgressTime() { Maximum = 100 };
