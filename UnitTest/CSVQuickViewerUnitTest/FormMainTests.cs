@@ -23,7 +23,7 @@ namespace CsvTools.Tests
   public sealed class FormMainTests
   {
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public void ProgramMain()
     {
       var tcs = new CancellationTokenSource(TimeSpan.FromSeconds(5));
@@ -32,7 +32,7 @@ namespace CsvTools.Tests
 
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public void FormMain_BasicCSV()
     {
       Extensions.RunStaThread(() =>
@@ -48,7 +48,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(10000)]
+    [Timeout(2000)]
     public void FormMain_AllFormatsPipe()
     {
       Extensions.RunStaThread(() =>

@@ -27,7 +27,7 @@ namespace CsvTools.Tests
   public class FilteredDataGridViewTests
   {
     
-    [TestMethod, Timeout(5000)]
+    [TestMethod, Timeout(1000)]
     public void ApplyFiltersFilteredDataGridViewTest()
     {
       using (var fdgv1 = new FilteredDataGridView())
@@ -50,7 +50,7 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod, Timeout(5000)]
+    [TestMethod, Timeout(1000)]
     public void ApplyFiltersTest()
     {
       using var ctrl = new FilteredDataGridView();
@@ -64,7 +64,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    [Timeout(6000)]
+    [Timeout(1000)]
     public void Filter_Test()
     {
       using var ctrl = new FilteredDataGridView();
@@ -82,7 +82,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(6000)]
+    [Timeout(1000)]
     public void FilteredDataGridView_RefreshUI()
     {
       using var ctrl = new FilteredDataGridView();
@@ -97,7 +97,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void FilteredDataGridViewShow()
     {
       using var ctrl = new FilteredDataGridView();
@@ -113,7 +113,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(6000)]
+    [Timeout(1000)]
     public void FilteredDataGridViewVarious_HighlightText()
     {
       using var ctrl = new FilteredDataGridView();
@@ -128,7 +128,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(6000)]
+    [Timeout(1000)]
     public void FilteredDataGridViewVarious_SetFilterMenu()
     {
       using var ctrl = new FilteredDataGridView();
@@ -147,7 +147,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(3000)]
+    [Timeout(1000)]
     public void FrozenColumns()
     {
       using var filteredDataGridView = new FilteredDataGridView();
@@ -180,7 +180,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(3000)]
+    [Timeout(1000)]
     public void HighlightText()
     {
       using var filteredDataGridView = new FilteredDataGridView();
@@ -194,7 +194,7 @@ namespace CsvTools.Tests
     }
     
     [TestMethod()]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void SetColumnFrozenTest()
     {
       using var ctrl = new FilteredDataGridView();
@@ -222,7 +222,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void SetToolStripMenu()
     {
       using var ctrl = new FilteredDataGridView();
@@ -237,7 +237,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void ShowHideColumns()
     {
       using var ctrl = new FilteredDataGridView();

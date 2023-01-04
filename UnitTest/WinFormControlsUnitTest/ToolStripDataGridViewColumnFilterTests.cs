@@ -22,7 +22,7 @@ namespace CsvTools.Tests
   public class ToolStripDataGridViewColumnFilterTests
   {
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void ToolStripDataGridViewColumnFilterTest()
     {
       using (var data = UnitTestStaticData.GetDataTable(200))

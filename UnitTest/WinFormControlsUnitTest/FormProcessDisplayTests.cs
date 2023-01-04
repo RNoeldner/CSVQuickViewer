@@ -23,7 +23,7 @@ namespace CsvTools.Tests
   public class FormProgressTests
   {
     [TestMethod]
-    [Timeout(3000)]
+    [Timeout(1000)]
     public void FormProcessCancel()
     {
       using var formProgress = new FormProgress("Test Logger", true, UnitTestStatic.Token);
@@ -105,7 +105,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void FormprogressTest1()
     {
       using var tokenSrc = new CancellationTokenSource();
@@ -117,7 +117,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void CancelTest()
     {
       using var tokenSrc = new CancellationTokenSource();

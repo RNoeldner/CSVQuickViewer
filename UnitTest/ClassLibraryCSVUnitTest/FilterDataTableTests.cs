@@ -106,7 +106,7 @@ namespace CsvTools.Tests
       Assert.AreEqual(dt.Rows.Count - err - warn, res.Rows.Count);
     }
 
-    [TestMethod, Timeout(10000)]
+    [TestMethod, Timeout(2000)]
     public void CancelTest()
     {
       var (dt, _, _)  = GetDataTable(2000);

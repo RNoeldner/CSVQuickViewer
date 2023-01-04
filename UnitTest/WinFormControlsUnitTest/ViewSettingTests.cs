@@ -62,7 +62,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void ReStoreViewSettingDetailControlAsync()
     {
       using (var dt = UnitTestStaticData.GetDataTable())

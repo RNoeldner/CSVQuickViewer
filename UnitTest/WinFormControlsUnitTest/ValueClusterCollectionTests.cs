@@ -205,7 +205,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void BuildValueClusters_double()
     {
       var test = new ValueClusterCollection(200);
@@ -215,7 +215,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void BuildValueClusters_decimal()
     {
       var test = new ValueClusterCollection(200);
@@ -223,7 +223,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(5000)]
+    [Timeout(1000)]
     public void GetActiveValueClusterTest()
     {
       var test = new ValueClusterCollection(200);
