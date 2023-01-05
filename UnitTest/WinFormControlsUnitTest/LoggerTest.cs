@@ -25,11 +25,11 @@ namespace CsvTools.Tests
   [TestClass]
   public class LoggerTest
   {
-    [TestMethod]
+    [TestMethod, Timeout(1000)]
     public void UILog()
     {
 
-      Logger.Debug("MyMessage1");
+      Logger.Information("MyMessage1");
       Assert.AreEqual("MyMessage1", UnitTestStatic.LastLogMessage);
       Logger.Debug("");
       Logger.Debug(null);
@@ -75,17 +75,19 @@ namespace CsvTools.Tests
       }
     }
 
-    [TestMethod]
+    [TestMethod, Timeout(1000)]
     public void UserInterfaceSink()
     {
       var test = new WinAppLogging.UserInterfaceSink(CultureInfo.CurrentCulture);
       var logAction = new TestLogger();
       test.AdditionalLoggers.Add(logAction);
-      test.Emit(new LogEvent(DateTimeOffset.Now, LogEventLevel.Information,null, MessageTemplate.Empty,Array.Empty<LogEventProperty>()));
+      test.Emit(new LogEvent(DateTimeOffset.Now, LogEventLevel.Information, null, MessageTemplate.Empty, Array.Empty<LogEventProperty>()));
+
+      Assert.AreEqual(1, logAction.Messages.Count);
     }
 
 
-    [TestMethod]
+    [TestMethod, Timeout(1000)]
     public void AddLog_RemoveLog()
     {
       bool hadIssues = false;
@@ -106,9 +108,11 @@ namespace CsvTools.Tests
       var logAction = new TestLogger();
       WinAppLogging.AddLog(logAction);
 
-      Logger.Debug("MyMessage1");
       Logger.Debug("");
       Logger.Debug(null);
+
+      Logger.Error("MyMessage1");
+      Logger.Information("");
 
       Logger.Warning("Hello {param1}", "World");
       Logger.Warning("");

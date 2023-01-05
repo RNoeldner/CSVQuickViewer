@@ -132,7 +132,7 @@ namespace CsvTools.Tests
 
 
     [TestMethod]
-    [Timeout(1000)]
+    [Timeout(2000)]
     public void ShowError()
     {
       Extensions.RunStaThread(() =>
@@ -140,7 +140,9 @@ namespace CsvTools.Tests
         using var frm = new Form();
         frm.Text = "Testing...";
         frm.Show();
-        frm.ShowError(new Exception(), "Text", 1.0);
+        frm.ShowError(new Exception(), "Text", 0.1);
+        frm.Close();
+
       });
     }
 

@@ -20,31 +20,20 @@ namespace CsvTools
   public class DelimitedFileDetectionResult
   {
     public readonly bool ByteOrderMark;
-
     public readonly int CodePageId;
-
     public readonly string CommentLine;
-
     public readonly string EscapePrefix;
-
     public readonly string FieldDelimiter;
-
     public readonly string FieldQualifier;
-
     public readonly string FileName;
-
     public readonly bool HasFieldHeader;
-
     public readonly string IdentifierInContainer;
-
     public readonly bool IsJson;
-
     public readonly RecordDelimiterTypeEnum NewLine;
-
     public readonly bool NoDelimitedFile;
-
+    public readonly bool QualifierInContext;
+    public readonly bool DuplicateQualifierToEscape;
     public readonly bool QualifyAlways;
-
     public readonly int SkipRows;
 
     public DelimitedFileDetectionResult(
@@ -58,6 +47,8 @@ namespace CsvTools
       string? escapePrefix = "\\",
       string? fieldDelimiter = "",
       string? fieldQualifier = "",
+      bool qualifierInContext = false,
+      bool duplicateQualifierToEscape = true,
       bool hasFieldHeader = true,
       bool isJson = false,
       bool noDelimitedFile = false,
@@ -72,6 +63,8 @@ namespace CsvTools
       EscapePrefix = GetShortDisplay(escapePrefix);
       FieldDelimiter = GetShortDisplay(fieldDelimiter);
       FieldQualifier = GetShortDisplay(fieldQualifier);
+      QualifierInContext = qualifierInContext;
+      DuplicateQualifierToEscape = duplicateQualifierToEscape;
       HasFieldHeader = hasFieldHeader;
       IsJson = isJson;
       NoDelimitedFile = noDelimitedFile;
@@ -92,6 +85,8 @@ namespace CsvTools
         EscapePrefix = GetShortDisplay(EscapePrefix),
         FieldDelimiter = GetShortDisplay(FieldDelimiter),
         FieldQualifier = GetShortDisplay(FieldQualifier),
+        ContextSensitiveQualifier = QualifierInContext,
+        DuplicateQualifierToEscape = DuplicateQualifierToEscape,
         NewLine = NewLine,
         ByteOrderMark = ByteOrderMark,
         CodePageId = CodePageId,

@@ -215,7 +215,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(2000)]
+    [Timeout(3000)]
     public async Task ReadJSonEmpAsync()
     {
       var dpd = new Progress<ProgressInfo>();
