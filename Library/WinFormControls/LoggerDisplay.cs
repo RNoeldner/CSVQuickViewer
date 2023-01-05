@@ -47,6 +47,7 @@ namespace CsvTools
       Multiline = true;
       ReadOnly = true;
       ShowLineNumbers = false;
+      AllowDrop = false;
       WinAppLogging.AddLog(this);
     }
 

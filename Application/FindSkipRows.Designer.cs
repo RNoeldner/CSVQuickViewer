@@ -30,6 +30,7 @@
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FindSkipRows));
       this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
       this.textBoxComment = new System.Windows.Forms.TextBox();
       this.bindingSourceCsvFile = new System.Windows.Forms.BindingSource(this.components);
@@ -81,7 +82,7 @@
       // 
       this.textBoxComment.Anchor = System.Windows.Forms.AnchorStyles.Left;
       this.textBoxComment.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceCsvFile, "CommentLine", true));
-      this.textBoxComment.Location = new System.Drawing.Point(232, 29);
+      this.textBoxComment.Location = new System.Drawing.Point(232, 31);
       this.textBoxComment.Margin = new System.Windows.Forms.Padding(2);
       this.textBoxComment.MinimumSize = new System.Drawing.Size(46, 4);
       this.textBoxComment.Name = "textBoxComment";
@@ -98,7 +99,7 @@
       // 
       this.label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.label2.AutoSize = true;
-      this.label2.Location = new System.Drawing.Point(151, 32);
+      this.label2.Location = new System.Drawing.Point(151, 34);
       this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
       this.label2.Name = "label2";
       this.label2.Size = new System.Drawing.Size(77, 13);
@@ -109,7 +110,7 @@
       // 
       this.m_LabelQuote.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.m_LabelQuote.AutoSize = true;
-      this.m_LabelQuote.Location = new System.Drawing.Point(10, 32);
+      this.m_LabelQuote.Location = new System.Drawing.Point(10, 34);
       this.m_LabelQuote.Name = "m_LabelQuote";
       this.m_LabelQuote.Size = new System.Drawing.Size(72, 13);
       this.m_LabelQuote.TabIndex = 127;
@@ -121,7 +122,7 @@
       this.buttonSkipLine.Location = new System.Drawing.Point(303, 2);
       this.buttonSkipLine.Margin = new System.Windows.Forms.Padding(2);
       this.buttonSkipLine.Name = "buttonSkipLine";
-      this.buttonSkipLine.Size = new System.Drawing.Size(97,  25);
+      this.buttonSkipLine.Size = new System.Drawing.Size(97, 25);
       this.buttonSkipLine.TabIndex = 125;
       this.buttonSkipLine.Text = "Guess Start Row";
       this.buttonSkipLine.UseVisualStyleBackColor = true;
@@ -131,7 +132,7 @@
       // 
       this.labelDelimiter.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.labelDelimiter.AutoSize = true;
-      this.labelDelimiter.Location = new System.Drawing.Point(178, 7);
+      this.labelDelimiter.Location = new System.Drawing.Point(178, 8);
       this.labelDelimiter.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
       this.labelDelimiter.Name = "labelDelimiter";
       this.labelDelimiter.Size = new System.Drawing.Size(50, 13);
@@ -146,7 +147,7 @@
       this.textBoxDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
       this.textBoxDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
       this.textBoxDelimiter.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceCsvFile, "FieldDelimiter", true));
-      this.textBoxDelimiter.Location = new System.Drawing.Point(232, 3);
+      this.textBoxDelimiter.Location = new System.Drawing.Point(232, 4);
       this.textBoxDelimiter.Margin = new System.Windows.Forms.Padding(2);
       this.textBoxDelimiter.MinimumSize = new System.Drawing.Size(46, 4);
       this.textBoxDelimiter.Name = "textBoxDelimiter";
@@ -158,7 +159,7 @@
       // 
       this.label5.Anchor = System.Windows.Forms.AnchorStyles.Right;
       this.label5.AutoSize = true;
-      this.label5.Location = new System.Drawing.Point(2, 7);
+      this.label5.Location = new System.Drawing.Point(2, 8);
       this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
       this.label5.Name = "label5";
       this.label5.Size = new System.Drawing.Size(81, 13);
@@ -167,6 +168,7 @@
       // 
       // textBox
       // 
+      this.textBox.AllowDrop = false;
       this.textBox.AutoCompleteBracketsList = new char[] {
         '(',
         ')',
@@ -179,27 +181,27 @@
         '\'',
         '\''};
       this.textBox.AutoIndentCharsPatterns = "\r\n^\\s*[\\w\\.]+(\\s\\w+)?\\s*(?<range>=)\\s*(?<range>.+)\r\n";
-      this.textBox.AutoScrollMinSize = new System.Drawing.Size(0, 13);
+      this.textBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
       this.textBox.AutoSize = true;
       this.textBox.BackBrush = null;
       this.textBox.CaretColor = System.Drawing.Color.Silver;
-      this.textBox.CharHeight = 13;
-      this.textBox.CharWidth = 7;
+      this.textBox.CharHeight = 14;
+      this.textBox.CharWidth = 8;
       this.tableLayoutPanel1.SetColumnSpan(this.textBox, 5);
       this.textBox.CommentPrefix = "--";
       this.textBox.Cursor = System.Windows.Forms.Cursors.IBeam;
       this.textBox.DelayedEventsInterval = 50;
       this.textBox.DelayedTextChangedInterval = 50;
       this.textBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-      this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;      
       this.textBox.IsReplaceMode = false;
-      this.textBox.Location = new System.Drawing.Point(2, 53);
+      this.textBox.Location = new System.Drawing.Point(2, 55);
       this.textBox.Margin = new System.Windows.Forms.Padding(2);
       this.textBox.Name = "textBox";
       this.textBox.Paddings = new System.Windows.Forms.Padding(0);
       this.textBox.ReadOnly = true;
       this.textBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-      this.textBox.Size = new System.Drawing.Size(609, 544);
+      this.textBox.Size = new System.Drawing.Size(609, 542);
       this.textBox.TabIndex = 126;
       this.textBox.WordWrap = true;
       this.textBox.Zoom = 100;
@@ -208,7 +210,7 @@
       // m_TextBoxQuote
       // 
       this.m_TextBoxQuote.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceCsvFile, "FieldQualifier", true));
-      this.m_TextBoxQuote.Location = new System.Drawing.Point(88, 29);
+      this.m_TextBoxQuote.Location = new System.Drawing.Point(88, 31);
       this.m_TextBoxQuote.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
       this.m_TextBoxQuote.Name = "m_TextBoxQuote";
       this.m_TextBoxQuote.Size = new System.Drawing.Size(58, 20);

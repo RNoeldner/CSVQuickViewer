@@ -45,32 +45,35 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(1000)]
+    [Timeout(2000)]
     public void GetProgressTest()
     {
-      var setting =
-        new CsvFile(id: string.Empty,
-          fileName: "Folder\\This is a long file name that should be cut and fit into 80 chars.txt")
+      Extensions.RunStaThread(() =>
+      {
+        var setting =
+          new CsvFile(id: string.Empty,
+            fileName: "Folder\\This is a long file name that should be cut and fit into 80 chars.txt")
+          {
+            ShowProgress = true
+          };
+        using (var prc = setting.GetProgress(null, true, UnitTestStatic.Token))
         {
-          ShowProgress = true
-        };
-      using (var prc = setting.GetProgress(null, true, UnitTestStatic.Token))
-      {
-        Assert.IsNotNull(prc, "Getprogress With Logger");
-      }
+          Assert.IsNotNull(prc, "Getprogress With Logger");
+        }
 
-      using (var prc = setting.GetProgress(null, false, UnitTestStatic.Token))
-      {
-        Assert.IsNotNull(prc, "Getprogress Without Logger");
-      }
+        using (var prc = setting.GetProgress(null, false, UnitTestStatic.Token))
+        {
+          Assert.IsNotNull(prc, "Getprogress Without Logger");
+        }
 
-      using var frm = new Form();
-      frm.Text = "Testing...";
-      frm.Show();
-      var csv = new CsvFile(id: string.Empty, fileName: "") { ShowProgress = true };
-      Assert.IsInstanceOfType(csv.GetProgress(frm, true, UnitTestStatic.Token), typeof(FormProgress));
-      csv.ShowProgress = false;
-      Assert.IsNotInstanceOfType(csv.GetProgress(frm, true, UnitTestStatic.Token), typeof(FormProgress));
+        using var frm = new Form();
+        frm.Text = "Testing...";
+        frm.Show();
+        var csv = new CsvFile(id: string.Empty, fileName: "") { ShowProgress = true };
+        Assert.IsInstanceOfType(csv.GetProgress(frm, true, UnitTestStatic.Token), typeof(FormProgress));
+        csv.ShowProgress = false;
+        Assert.IsNotInstanceOfType(csv.GetProgress(frm, true, UnitTestStatic.Token), typeof(FormProgress));
+      });
     }
 
     [TestMethod]
@@ -83,22 +86,28 @@ namespace CsvTools.Tests
         {
           ShowProgress = false
         };
-      using var prc = setting2.GetProgress(null, false, UnitTestStatic.Token);
-      Assert.IsNull(prc, "Getprogress without UI");
+      Extensions.RunStaThread(() =>
+      {
+        using var prc = setting2.GetProgress(null, false, UnitTestStatic.Token);
+        Assert.IsNull(prc, "Getprogress without UI");
+      });
     }
 
     [TestMethod]
     [Timeout(2000)]
     public void LoadWindowStateTest()
     {
-      using var formProgress = new FormProgress();
-      formProgress.Show();
-      var state = new WindowState(10, 10, 200, 200, FormWindowState.Normal, 27, "Test");
-      var result1 = -1;
-      var result2 = "Hello";
-      formProgress.LoadWindowState(state, val => { result1 = val; }, val => { result2 = val; });
-      Assert.AreEqual(state.CustomInt, result1);
-      Assert.AreEqual(state.CustomText, result2);
+      Extensions.RunStaThread(() =>
+      {
+        using var formProgress = new FormProgress();
+        formProgress.Show();
+        var state = new WindowState(10, 10, 200, 200, FormWindowState.Normal, 27, "Test");
+        var result1 = -1;
+        var result2 = "Hello";
+        formProgress.LoadWindowState(state, val => { result1 = val; }, val => { result2 = val; });
+        Assert.AreEqual(state.CustomInt, result1);
+        Assert.AreEqual(state.CustomText, result2);
+      });
     }
 
     [TestMethod]
@@ -120,7 +129,7 @@ namespace CsvTools.Tests
       ctrl.RunWithHourglass(() => done = true, null);
       Assert.IsTrue(done);
     }
-   
+
 
     [TestMethod]
     [Timeout(1000)]
@@ -154,8 +163,8 @@ namespace CsvTools.Tests
         //Assert.AreEqual(state1.Left, state2.Left, "Left");
         // Assert.AreEqual(state1.Width, state2.Width, "Width");
       });
-      
-      
+
+
     }
   }
 }

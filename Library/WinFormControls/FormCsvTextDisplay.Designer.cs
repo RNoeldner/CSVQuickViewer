@@ -22,7 +22,7 @@ namespace CsvTools
       }
       base.Dispose(disposing);
     }
-    
+
     #region
 
     /// <summary>
@@ -32,6 +32,7 @@ namespace CsvTools
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormCsvTextDisplay));
       this.textBox = new FastColoredTextBoxNS.FastColoredTextBox();
       this.contextMenuJson = new System.Windows.Forms.ContextMenuStrip(this.components);
       this.prettyPrintJsonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,6 +43,7 @@ namespace CsvTools
       // 
       // textBox
       // 
+      this.textBox.AllowDrop = false;
       this.textBox.AutoCompleteBracketsList = new char[] {
         '(',
         ')',
@@ -66,7 +68,6 @@ namespace CsvTools
       this.textBox.DelayedTextChangedInterval = 50;
       this.textBox.DisabledColor = System.Drawing.Color.FromArgb(((int) (((byte) (100)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))), ((int) (((byte) (180)))));
       this.textBox.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.textBox.Font = new System.Drawing.Font("Courier New", 9F);
       this.textBox.IsReplaceMode = false;
       this.textBox.Location = new System.Drawing.Point(0, 0);
       this.textBox.Margin = new System.Windows.Forms.Padding(2);
@@ -88,7 +89,7 @@ namespace CsvTools
             this.prettyPrintJsonToolStripMenuItem,
             this.originalFileToolStripMenuItem});
       this.contextMenuJson.Name = "contextMenuStrip";
-      this.contextMenuJson.Size = new System.Drawing.Size(201, 70);
+      this.contextMenuJson.Size = new System.Drawing.Size(201, 48);
       // 
       // prettyPrintJsonToolStripMenuItem
       // 
