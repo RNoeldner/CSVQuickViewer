@@ -43,22 +43,23 @@ namespace CsvTools
 
         var loggerConfiguration = new LoggerConfiguration()
           //.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+          .MinimumLevel.Information()
           .Enrich.FromLogContext()
           .Filter.ByExcluding(logEvent => logEvent.Exception != null
                                           && (logEvent.Exception.GetType() == typeof(OperationCanceledException) ||
                                               logEvent.Exception.GetType() == typeof(ObjectDisposedException)))
+          // Pass on to UI logging
           .WriteTo.Sink(m_UserInterfaceSink)
 
-          // Exceptions
-          .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Exception != null).WriteTo.File(
-              folder + "ExceptionLog.txt", rollingInterval: RollingInterval.Month, retainedFileCountLimit: 3,
-              encoding: Encoding.UTF8,
-              outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff}\t{Level}\t\"{Exception:l}\"{NewLine}"),
+          // File Exception logging
+          .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Exception != null)
+            .WriteTo.File(folder + "ExceptionLog.txt", rollingInterval: RollingInterval.Month, retainedFileCountLimit: 3, encoding: Encoding.UTF8, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff}\t{Level}\t\"{Exception:l}\"{NewLine}"),
             LogEventLevel.Error)
 
-          //CSV
+          // File REgular logging
           .WriteTo.File(folder + "ApplicationLog.txt", rollingInterval: RollingInterval.Day, encoding: Encoding.UTF8,
             outputTemplate: "{Timestamp:HH:mm:ss}\t{Level:w3}\t{Message:l}{NewLine}");
+
 
         // Json
         // .WriteTo.File(formatter: new JsonFormatter(renderMessage: true), path: folder + "ApplicationLog.json",
@@ -96,20 +97,20 @@ namespace CsvTools
       /// <inheritdoc cref="ILogEventSink"/>
       public void Emit(LogEvent logEvent)
       {
-        if (AdditionalLoggers.Count <= 0) return;
+        if (AdditionalLoggers.Count <= 0)
+          return;
         var level = logEvent.Level switch
         {
-          LogEventLevel.Verbose => LogLevel.Debug,
+          LogEventLevel.Verbose => LogLevel.Trace,
           LogEventLevel.Debug => LogLevel.Debug,
           LogEventLevel.Warning => LogLevel.Warning,
           LogEventLevel.Error => LogLevel.Error,
           LogEventLevel.Fatal => LogLevel.Critical,
-          LogEventLevel.Information => LogLevel.Information,
           _ => LogLevel.Information
         };
 
         foreach (var logger in AdditionalLoggers)
-          logger.Log(level, logEvent.RenderMessage(formatProvider: m_FormatProvider));
+          logger.Log(level, logEvent.RenderMessage(m_FormatProvider));
       }
     }
   }

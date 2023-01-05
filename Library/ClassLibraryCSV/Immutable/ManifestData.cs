@@ -130,6 +130,8 @@ namespace CsvTools
         "\\",
         ",",
         "\"",
+        true,
+        true,
         false,
         false,
         false,

@@ -353,7 +353,7 @@ namespace CsvTools
         " quote is only regarded as closing quote if it is followed by linefeed or delimi" +
         "ter");
       this.m_CheckBoxAlternateQuoting.UseVisualStyleBackColor = true;
-      this.m_CheckBoxAlternateQuoting.Visible = false;
+      this.m_CheckBoxAlternateQuoting.Visible = true;
       // 
       // m_LabelNoQuotes
       // 
