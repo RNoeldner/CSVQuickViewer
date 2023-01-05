@@ -26,82 +26,81 @@ namespace CsvTools.Tests
   [TestClass]
   public class FilteredDataGridViewTests
   {
-    
+
     [TestMethod, Timeout(1000)]
     public void ApplyFiltersFilteredDataGridViewTest()
     {
-      using (var fdgv1 = new FilteredDataGridView())
+      Extensions.RunStaThread(() =>
       {
-        fdgv1.ApplyFilters();
-      }
-
-      using (var fdgv2 = new FilteredDataGridView())
-      {
-        using (var comboBoxColumn = new DataGridViewComboBoxColumn())
+        using (var fdgv1 = new FilteredDataGridView())
         {
-          comboBoxColumn.Items.AddRange(Color.Red, Color.Yellow, Color.Green);
-          comboBoxColumn.ValueType = typeof(Color);
+          fdgv1.ApplyFilters();
         }
 
-        var boolColumn = new DataGridViewCheckBoxColumn();
-        fdgv2.Columns.Add(boolColumn);
+        using (var fdgv2 = new FilteredDataGridView())
+        {
+          using (var comboBoxColumn = new DataGridViewComboBoxColumn())
+          {
+            comboBoxColumn.Items.AddRange(Color.Red, Color.Yellow, Color.Green);
+            comboBoxColumn.ValueType = typeof(Color);
+          }
 
-        fdgv2.ApplyFilters();
-      }
+          var boolColumn = new DataGridViewCheckBoxColumn();
+          fdgv2.Columns.Add(boolColumn);
+
+          fdgv2.ApplyFilters();
+        }
+      });
     }
 
     [TestMethod, Timeout(1000)]
     public void ApplyFiltersTest()
     {
-      using var ctrl = new FilteredDataGridView();
-      using(var DataTable200 = UnitTestStaticData.GetDataTable(200))
-      UnitTestStaticForms.ShowControl(ctrl, 0.5d,
-        (control) =>
-        {
-          control.DataSource = DataTable200;
-          control.ApplyFilters();
-        });
+      using (var DataTable200 = UnitTestStaticData.GetDataTable(200))
+        UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
+          (control) =>
+          {
+            control.DataSource = DataTable200;
+            control.ApplyFilters();
+          });
     }
 
     [TestMethod()]
     [Timeout(1000)]
     public void Filter_Test()
     {
-      using var ctrl = new FilteredDataGridView();
-      using(var dataTable200 = UnitTestStaticData.GetDataTable(200))
-      UnitTestStaticForms.ShowControl(ctrl, 0.5d,
-        (control) =>
-        {
-          control.DataSource = dataTable200;
-          control.SetFilterMenu(0);
-          control.CurrentCell = control[1, 0];
-          control.FilterCurrentCell();
+      using (var dataTable200 = UnitTestStaticData.GetDataTable(200))
+        UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
+          (control) =>
+          {
+            control.DataSource = dataTable200;
+            control.SetFilterMenu(0);
+            control.CurrentCell = control[1, 0];
+            control.FilterCurrentCell();
 
-          control.RemoveAllFilter();
-        });
+            control.RemoveAllFilter();
+          });
     }
 
     [TestMethod]
     [Timeout(1000)]
     public void FilteredDataGridView_RefreshUI()
     {
-      using var ctrl = new FilteredDataGridView();
-      using(var dataTable200 = UnitTestStaticData.GetDataTable(200))
-      UnitTestStaticForms.ShowControl(ctrl, 0.5d,
-        (control) =>
-        {
-          control.DataSource = dataTable200;
-          control.SetFilterMenu(0);
-          control.RefreshUI();
-        });
+      using (var dataTable200 = UnitTestStaticData.GetDataTable(200))
+        UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
+          (control) =>
+          {
+            control.DataSource = dataTable200;
+            control.SetFilterMenu(0);
+            control.RefreshUI();
+          });
     }
 
     [TestMethod]
     [Timeout(1000)]
     public void FilteredDataGridViewShow()
     {
-      using var ctrl = new FilteredDataGridView();
-      UnitTestStaticForms.ShowControl(ctrl, closeAfterSeconds: 0.2);
+      UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), closeAfterSeconds: 0.2);
     }
 
     [TestMethod]
@@ -116,25 +115,23 @@ namespace CsvTools.Tests
     [Timeout(1000)]
     public void FilteredDataGridViewVarious_HighlightText()
     {
-      using var ctrl = new FilteredDataGridView();
-      using(var dataTable200 = UnitTestStaticData.GetDataTable(200))
-      UnitTestStaticForms.ShowControl(ctrl, 0.5d,
-        (control) =>
-        {
-          control.DataSource = dataTable200;
-          control.FrozenColumns = 1;
-          control.HighlightText = "HH";
-        });
+      using (var dataTable200 = UnitTestStaticData.GetDataTable(200))
+        UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
+          (control) =>
+          {
+            control.DataSource = dataTable200;
+            control.FrozenColumns = 1;
+            control.HighlightText = "HH";
+          });
     }
 
     [TestMethod]
     [Timeout(1000)]
     public void FilteredDataGridViewVarious_SetFilterMenu()
     {
-      using var ctrl = new FilteredDataGridView();
       using (var dataTable200 = UnitTestStaticData.GetDataTable(200))
       {
-        UnitTestStaticForms.ShowControl(ctrl, 0.5d,
+        UnitTestStaticForms.ShowControl(() => new FilteredDataGridView(), 0.5d,
           (control) =>
           {
             control.DataSource = dataTable200;
@@ -164,19 +161,22 @@ namespace CsvTools.Tests
     [Timeout(1000)]
     public void HideEmptyColumnsTest()
     {
-      using var filteredDataGridView = new FilteredDataGridView();
-      var dt = UnitTestStaticData.GetDataTable();
-      filteredDataGridView.DataSource = dt;
-      using var frm = new Form();
-      frm.Controls.Add(filteredDataGridView);
-      frm.Show();
-      var numCol = filteredDataGridView.Columns.Cast<DataGridViewColumn>().Count(col => col.Visible);
-      Assert.AreEqual(numCol, dt.Columns.Count);
-      filteredDataGridView.HideEmptyColumns();
+      Extensions.RunStaThread(() =>
+      {
+        using var filteredDataGridView = new FilteredDataGridView();
+        var dt = UnitTestStaticData.GetDataTable();
+        filteredDataGridView.DataSource = dt;
+        using var frm = new Form();
+        frm.Controls.Add(filteredDataGridView);
+        frm.Show();
+        var numCol = filteredDataGridView.Columns.Cast<DataGridViewColumn>().Count(col => col.Visible);
+        Assert.AreEqual(numCol, dt.Columns.Count);
+        filteredDataGridView.HideEmptyColumns();
 
-      numCol = filteredDataGridView.Columns.Cast<DataGridViewColumn>().Count(col => col.Visible);
+        numCol = filteredDataGridView.Columns.Cast<DataGridViewColumn>().Count(col => col.Visible);
 
-      Assert.AreEqual(numCol + 1, dt.Columns.Count);
+        Assert.AreEqual(numCol + 1, dt.Columns.Count);
+      });
     }
 
     [TestMethod]
@@ -192,7 +192,7 @@ namespace CsvTools.Tests
         Assert.AreEqual("", filteredDataGridView.CurrentFilter);
       }
     }
-    
+
     [TestMethod()]
     [Timeout(1000)]
     public void SetColumnFrozenTest()
@@ -213,12 +213,12 @@ namespace CsvTools.Tests
     {
       using var filteredDataGridView = new FilteredDataGridView();
       using (var DataTable200 = UnitTestStaticData.GetDataTable(200))
-      UnitTestStaticForms.ShowControl(filteredDataGridView, 0.2,
-        (control) =>
-        {
-          control.DataSource = DataTable200;
-          control.SetRowHeight();
-        });
+        UnitTestStaticForms.ShowControl(filteredDataGridView, 0.2,
+          (control) =>
+          {
+            control.DataSource = DataTable200;
+            control.SetRowHeight();
+          });
     }
 
     [TestMethod()]
@@ -227,13 +227,13 @@ namespace CsvTools.Tests
     {
       using var ctrl = new FilteredDataGridView();
       using (var DataTable200 = UnitTestStaticData.GetDataTable(200))
-      UnitTestStaticForms.ShowControl(ctrl, 0.5d,
-        (control) =>
-        {
-          control.DataSource = DataTable200;
-          control.SetToolStripMenu(0, 0, MouseButtons.Right);
-          control.SetToolStripMenu(1, -1, MouseButtons.Right);
-        });
+        UnitTestStaticForms.ShowControl(ctrl, 0.5d,
+          (control) =>
+          {
+            control.DataSource = DataTable200;
+            control.SetToolStripMenu(0, 0, MouseButtons.Right);
+            control.SetToolStripMenu(1, -1, MouseButtons.Right);
+          });
     }
 
     [TestMethod()]
@@ -242,19 +242,19 @@ namespace CsvTools.Tests
     {
       using var ctrl = new FilteredDataGridView();
       using (var DataTable200 = UnitTestStaticData.GetDataTable(200))
-      UnitTestStaticForms.ShowControl(ctrl, 0.5d,
-        (control) =>
-        {
-          control.DataSource = DataTable200;
-          control.HideAllButOne(0);
-          control.ShowAllColumns();
-          control.HideEmptyColumns();
-
-          control.SetColumnVisibility(new Dictionary<string, bool>()
+        UnitTestStaticForms.ShowControl(ctrl, 0.5d,
+          (control) =>
           {
+            control.DataSource = DataTable200;
+            control.HideAllButOne(0);
+            control.ShowAllColumns();
+            control.HideEmptyColumns();
+
+            control.SetColumnVisibility(new Dictionary<string, bool>()
+            {
             { DataTable200.Columns[0].ColumnName, true }, { DataTable200.Columns[1].ColumnName, false }
+            });
           });
-        });
     }
   }
 }

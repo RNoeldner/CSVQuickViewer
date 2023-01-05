@@ -291,6 +291,7 @@ namespace CsvTools
     /// <value><c>true</c> if read only; otherwise, <c>false</c>.</value>
     [Browsable(true)]
     [DefaultValue(false)]
+    [Category("Behavior")]
     public bool ReadOnly
     {
       set

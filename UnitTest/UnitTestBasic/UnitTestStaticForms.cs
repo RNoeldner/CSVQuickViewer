@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-
 using Task = System.Threading.Tasks.Task;
 using Timer = System.Timers.Timer;
 
@@ -31,22 +30,48 @@ namespace CsvTools.Tests
       double closeAfterSeconds = .5)
       where T : Control
     {
+      if (ctrl is null)
+        throw new ArgumentNullException(nameof(ctrl));
+
       Extensions.RunStaThread(() =>
       {
-        ShowFormAndClose(new TestForm(ctrl, closeAfterSeconds * 1000), waitBeforeActionSeconds,
+        using var frm = new TestForm(ctrl, closeAfterSeconds * 1000);
+        ShowFormAndClose(frm, waitBeforeActionSeconds,
           // ReSharper disable once AccessToDisposedClosure
           f => toDo?.Invoke(ctrl));
-        ctrl.Dispose();
+
       });
     }
 
-    public static async Task ShowControlAsync<T>(T ctrl, double waitBeforeActionSeconds, Func<T, Task> toDo,
-      double closeAfterSeconds = .2)
-      where T : Control
+    public static void ShowControl<T>(Func<T> createControl, double waitBeforeActionSeconds = 0, Action<T>? toDo = null,
+     double closeAfterSeconds = .5)
+     where T : Control
     {
-      await ShowFormAndCloseAsync(new TestForm(ctrl, closeAfterSeconds * 1000), waitBeforeActionSeconds, async f => await toDo.Invoke(ctrl));
-      ctrl.Dispose();
+      Extensions.RunStaThread(() =>
+      {
+        using var ctrl = createControl.Invoke();
+        if (ctrl is null)
+          throw new ArgumentNullException(nameof(ctrl));
+        using var frm = new TestForm(ctrl, closeAfterSeconds * 1000);
+        ShowFormAndClose(frm, waitBeforeActionSeconds,
+        // ReSharper disable once AccessToDisposedClosure
+          f => toDo?.Invoke(ctrl));
+      });
     }
+
+    //public static async Task ShowControlAsync<T>(Func<T> createControl, double waitBeforeActionSeconds, Func<T, Task> toDo,
+    //  double closeAfterSeconds = .2)
+    //  where T : Control
+    //{
+    //  Extensions.RunStaThreadAsync(async () =>
+    //  {
+    //    using var ctrl = createControl.Invoke();
+    //    if (ctrl is null)
+    //      throw new ArgumentNullException(nameof(ctrl));
+    //    using var frm = new TestForm(ctrl, closeAfterSeconds * 1000);
+    //    await ShowFormAndCloseAsync(frm, waitBeforeActionSeconds, async f => await toDo.Invoke(ctrl));
+    //  });
+    //}
 
     public static void ShowFormAndClose<T>(T frm, double waitBeforeActionSeconds = 0, Action<T>? toDo = null, CancellationToken token = default)
       where T : Form
@@ -93,12 +118,6 @@ namespace CsvTools.Tests
 
     }
 
-    public static void AsSTS(Action action, TimeSpan? span=null)
-    {
-      action.RunStaThread((span ?? TimeSpan.FromSeconds(5)).Milliseconds);
-    }
-
-    
     public static async Task ShowFormAndCloseAsync<T>(
       T frm, double waitBeforeActionSeconds = 0, Func<T, Task>? toDo = null)
       where T : Form
