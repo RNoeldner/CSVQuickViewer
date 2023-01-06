@@ -1091,14 +1091,11 @@ namespace CsvTools
       // in case there is no delimiter but its a delimited file, do nothing
       if (fileSetting is ICsvFile { FieldDelimiterChar: '\0' })
         return (new List<string>(), fileSetting.ColumnCollection);
-      // Open the file setting but change a few settings
-      var fileSettingCopy = GetSettingForRead(fileSetting);
-
+     
 #if NETSTANDARD2_1_OR_GREATER
       await
 #endif
-      using var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, cancellationToken);
-      await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
+      using var fileReader = await fileSetting.GetUntypedFileReaderAsync(cancellationToken);      
       return await FillGuessColumnFormatReaderAsyncReader(
         fileReader,
         fillGuessSettings,
@@ -1108,34 +1105,6 @@ namespace CsvTools
         fileSetting.TreatTextAsNull,
         cancellationToken).ConfigureAwait(false);
     }
-
-    // ReSharper disable once MemberCanBePrivate.Global
-    public static IFileSetting GetSettingForRead(this IFileSetting fileSetting)
-    {
-      if (fileSetting is null)
-        throw new ArgumentNullException(nameof(fileSetting));
-
-      // Open the file setting but change a few settings
-      var fileSettingCopy = (IFileSetting) fileSetting.Clone();
-
-      // Make sure that if we do have a CSV file without header that we will skip the first row that
-      // might contain headers, but its simply set as without headers.
-      if (!(fileSettingCopy is CsvFile csv)) return fileSettingCopy;
-      if (csv is { HasFieldHeader: false, SkipRows: 0 })
-        csv.SkipRows = 1;
-      // turn off all warnings as they will cause GetSampleValues to ignore the row
-      csv.TryToSolveMoreColumns = false;
-      csv.AllowRowCombining = false;
-      csv.WarnDelimiterInValue = false;
-      csv.WarnLineFeed = false;
-      csv.WarnQuotes = false;
-      csv.WarnUnknownCharacter = false;
-      csv.WarnNBSP = false;
-      csv.WarnQuotesInQuotes = false;
-
-      return fileSettingCopy;
-    }
-
 #endif
 
   }
