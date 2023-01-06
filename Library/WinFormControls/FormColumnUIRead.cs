@@ -48,6 +48,18 @@ namespace CsvTools
     public Column UpdatedColumn => m_ColumnEdit.ToImmutableColumn();
 
     /// <summary>
+    /// Function to get a FileReader for detection of contens, in case the data is retievend by a SQL this should be set to a diffreent function.
+    /// </summary>
+    public Func<IFileSetting, CancellationToken, Task<IFileReader>> GetReaderForDetectionAsync { private get; set; }
+    = (source, cancellationToken) => source.GetUntypedFileReaderAsync(cancellationToken);
+
+    /// <summary>
+    /// Function to get a Columns of a setting, in case the data is retievend by a SQL this should be set to a diffreent function.
+    /// </summary>
+    public Func<IFileSetting, CancellationToken, Task<IEnumerable<Column>>> GetReaderForColumnsAsync { private get; set; }
+    = (source, cancellationToken) => source.GetAllReaderColumnsAsync(cancellationToken);
+
+    /// <summary>
     ///   Initializes a new instance of the <see cref="FormColumnUiRead" /> class.
     /// </summary>
     /// <param name="column">The column.</param>
@@ -59,7 +71,8 @@ namespace CsvTools
       Column column,
       IFileSetting fileSetting,
       FillGuessSettings fillGuessSettings,
-      bool showIgnore)
+      bool showIgnore,
+      bool showWriteNull)
     {
       m_ColumnEdit = new ColumnMut(column);
       m_FileSetting = fileSetting ?? throw new ArgumentNullException(nameof(fileSetting));
@@ -71,13 +84,18 @@ namespace CsvTools
       // needed for Formats
       bindingSourceValueFormat.DataSource = m_ColumnEdit.ValueFormatMut;
       comboBoxTPFormat.Text = m_ColumnEdit.TimePartFormat;
+
       comboBoxColumnName.Enabled = showIgnore;
+      checkBoxIgnore.Visible = showIgnore;
+
+      labelDisplayNullAs.Visible = showWriteNull;
+      textBoxDisplayNullAs.Visible = showWriteNull;
 
       toolTip.SetToolTip(
         comboBoxTimeZone,
-        "Assuming the time read is based in the time zone stored in this column or a constant value and being converted to the local time zone of you system");
-
-      checkBoxIgnore.Visible = showIgnore;
+        showWriteNull
+          ? "Converting the time in the local time zone of you system to the time zone in this column or a constant value"
+          : "Assuming the time read is based in the time zone stored in this column or a constant value and being converted to the local time zone of you system");
     }
 
     private void AddDateFormat(string format)
@@ -166,49 +184,6 @@ namespace CsvTools
             var detectGuid = true;
             var detectNumeric = true;
             var detectDateTime = true;
-            //if (comboBoxDataType.SelectedValue != null)
-            //{
-            //  var selectedType = (DataTypeEnum) comboBoxDataType.SelectedValue;
-            //  if (selectedType < DataTypeEnum.String)
-            //  {
-            //    var resp = MessageBox.Show(
-            //      $"Should the system restrict detection to {selectedType}?",
-            //      "Selected DataType",
-            //      MessageBoxButtons.YesNoCancel,
-            //      MessageBoxIcon.Question);
-            //    if (resp == DialogResult.Cancel)
-            //      return;
-            //    if (resp == DialogResult.Yes)
-            //      switch (selectedType)
-            //      {
-            //        case DataTypeEnum.Integer:
-            //        case DataTypeEnum.Numeric:
-            //        case DataTypeEnum.Double:
-            //          detectBool = false;
-            //          detectDateTime = false;
-            //          detectGuid = false;
-            //          break;
-
-            //        case DataTypeEnum.DateTime:
-            //          detectBool = false;
-            //          detectNumeric = false;
-            //          detectGuid = false;
-            //          break;
-
-            //        case DataTypeEnum.Boolean:
-            //          detectGuid = false;
-            //          detectNumeric = false;
-            //          detectDateTime = false;
-            //          break;
-
-            //        case DataTypeEnum.Guid:
-            //          detectBool = false;
-            //          detectNumeric = false;
-            //          detectDateTime = false;
-            //          break;
-            //      }
-            //  }
-            //}
 
             // detect all (except Serial dates) and be content with 1 records if need be
             var checkResult = DetermineColumnFormat.GuessValueFormat(
@@ -242,8 +217,8 @@ namespace CsvTools
               {
                 if (checkResult.FoundValueFormat != null)
                 {
-                   m_ColumnEdit.ValueFormatMut.CopyFrom(checkResult.FoundValueFormat);
-                   if (checkResult.FoundValueFormat.DataType == DataTypeEnum.DateTime)
+                  m_ColumnEdit.ValueFormatMut.CopyFrom(checkResult.FoundValueFormat);
+                  if (checkResult.FoundValueFormat.DataType == DataTypeEnum.DateTime)
                     AddDateFormat(checkResult.FoundValueFormat.DateFormat);
 
                   // In case possible match has the same information as FoundValueFormat, disregard
@@ -526,26 +501,18 @@ namespace CsvTools
 
     private async void ColumnFormatUI_Load(object? sender, EventArgs e)
     {
-      columnBindingSource.DataSource = m_ColumnEdit;
-      SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
-
-      using var formProgress = new FormProgress("Getting column headers", false, m_CancellationTokenSource.Token);
-      formProgress.ShowWithFont(this);
-      formProgress.SetProcess("Getting columns from source");
-      // Read the column headers if possible
-      ICollection<string> allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       await this.RunWithHourglassAsync(async () =>
       {
-#if NET5_0_OR_GREATER
-        await
-#endif
-          // ReSharper disable once UseAwaitUsing
-          using var fileReader = FunctionalDI.GetFileReader(m_FileSetting, formProgress.CancellationToken);
-        fileReader.ReportProgress = formProgress;
-        await fileReader.OpenAsync(formProgress.CancellationToken);
-        for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
-          allColumns.Add(fileReader.GetColumn(colIndex).Name);
+        columnBindingSource.DataSource = m_ColumnEdit;
+        SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
 
+        using var formProgress = new FormProgress("Getting column headers", false, m_CancellationTokenSource.Token);
+        formProgress.ShowWithFont(this);
+        formProgress.SetProcess("Getting columns from source");
+        HashSet<string> allColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var col in await GetReaderForColumnsAsync(m_FileSetting, formProgress.CancellationToken))
+          allColumns.Add(col.Name);
         UpdateColumnList(allColumns);
       });
     }
@@ -673,37 +640,17 @@ namespace CsvTools
         // must be file reader if this is reached
         var hasRetried = false;
 
-        var fileSettingCopy = (IFileSetting) m_FileSetting.Clone();
-        // Make sure that if we do have a CSV file without header that we will skip the first row
-        // that might contain headers, but its simply set as without headers.
-        if (fileSettingCopy is CsvFile csv)
-        {
-          // ReSharper disable once MergeIntoPattern
-          if (!csv.HasFieldHeader && csv.SkipRows == 0)
-            csv.SkipRows = 1;
-          // turn off all warnings as they will cause GetSampleValues to ignore the row
-          csv.TryToSolveMoreColumns = false;
-          csv.WarnDelimiterInValue = false;
-          csv.WarnLineFeed = false;
-          csv.WarnQuotes = false;
-          csv.WarnUnknownCharacter = false;
-          csv.WarnNBSP = false;
-          csv.WarnQuotesInQuotes = false;
-        }
-
         retry:
-
 #if NET5_0_OR_GREATER
         await
 #endif
-          // ReSharper disable once ConvertToUsingDeclaration
-          // ReSharper disable once UseAwaitUsing
-          using (var fileReader = FunctionalDI.GetFileReader(fileSettingCopy, cancellationToken))
+        // ReSharper disable once ConvertToUsingDeclaration
+        // ReSharper disable once UseAwaitUsing
+        using (var fileReader = await GetReaderForDetectionAsync(m_FileSetting, cancellationToken))
         {
           if (progress != null)
             fileReader.ReportProgress = progress;
 
-          await fileReader.OpenAsync(cancellationToken);
           var colIndex = fileReader.GetOrdinal(columnName);
           if (colIndex < 0)
           {

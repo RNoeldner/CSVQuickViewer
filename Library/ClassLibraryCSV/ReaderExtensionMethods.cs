@@ -29,9 +29,63 @@ namespace CsvTools
 {
   public static class ReaderExtensionMethods
   {
-
 #if !QUICK
-    public static string GetCombinedKey(this IDataReader dataReader, ICollection<int>? columns, char combineWith, Action<int>? trimming = null)
+    /// <summary>
+    /// Gets a reader for a source that reads everything as text columns, 
+    /// e.g for usage in ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/>
+    /// </summary>
+    /// <param name="source">The initial source setting </param>
+    /// <param name="cancellationToken">Token to cancel the long running async method</param>
+    /// <returns>The IFileReader to read the data as text</returns>   
+    /// <note>Used for ColumnDetection like <see cref="DetermineColumnFormat.GetSampleValuesAsync"/></note>
+    public static async Task<IFileReader> GetUntypedFileReaderAsync(this IFileSetting source, CancellationToken cancellationToken)
+    {
+      var fileSettingCopy = (IFileSetting) source.Clone();
+      fileSettingCopy.ColumnCollection.Clear();
+
+      // Make sure that if we do have a CSV file without header that we will skip the first row
+      // that might contain headers, but its simply set as without headers.
+      if (fileSettingCopy is ICsvFile csv)
+      {
+        if (csv.HasFieldHeader || csv.SkipRows==0)
+          csv.SkipRows++;
+        // turn off all warnings as they will cause GetSampleValues to ignore the row
+        csv.TryToSolveMoreColumns = false;
+        csv.WarnDelimiterInValue = false;
+        csv.WarnLineFeed = false;
+        csv.WarnQuotes = false;
+        csv.WarnUnknownCharacter = false;
+        csv.WarnNBSP = false;
+        csv.WarnQuotesInQuotes = false;
+        csv.WarnEmptyTailingColumns= false;
+      }
+      var reader = FunctionalDI.GetFileReader(fileSettingCopy, cancellationToken);
+      await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
+      return reader;
+    }
+
+    public static async Task<IEnumerable<Column>> GetAllReaderColumnsAsync(this IFileSetting source, CancellationToken cancellationToken)
+    {
+      var res = new List<Column>();
+#if NET5_0_OR_GREATER
+          await
+#endif
+      using var fileReader = FunctionalDI.GetFileReader(source, cancellationToken);
+      await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
+      for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
+        res.Add(fileReader.GetColumn(colIndex));
+      return res;
+    }
+
+    /// <summary>
+    /// Gets a text representing all columns of a reader in a way that its compareable 
+    /// </summary>
+    /// <param name="dataReader">The dataReader / row with the columns</param>
+    /// <param name="columns">A collection of columns indexes to combine</param>
+    /// <param name="combineWith">A seperator for the columns contend</param>
+    /// <param name="trimming">The columns will be trimmed, if trimming happens, this action is to be performed</param>
+    /// <returns>An upper case text representaion</returns>
+    public static string GetCombinedKey(this IDataReader dataReader, IReadOnlyCollection<int>? columns, char combineWith, Action<int>? trimming = null)
     {
       if (columns is null || columns.Count == 0)
         return string.Empty;
