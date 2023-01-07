@@ -101,7 +101,7 @@ namespace CsvTools
       this.loggerDisplay.ReadOnly = true;
       this.loggerDisplay.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
       this.loggerDisplay.ShowLineNumbers = false;
-      this.loggerDisplay.Size = new System.Drawing.Size(621, 343);
+      this.loggerDisplay.Size = new System.Drawing.Size(900, 398);
       this.loggerDisplay.TabIndex = 2;
       this.loggerDisplay.Zoom = 100;
       // 
@@ -123,7 +123,7 @@ namespace CsvTools
       this.detailControl.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
       this.detailControl.MenuDown = false;
       this.detailControl.Name = "detailControl";
-      this.detailControl.Size = new System.Drawing.Size(621, 374);
+      this.detailControl.Size = new System.Drawing.Size(900, 429);
       this.detailControl.TabIndex = 1;
       this.detailControl.WriteSetting = null;
       // 
@@ -173,13 +173,13 @@ namespace CsvTools
       // 
       this.textPanel.ContentPanel.Controls.Add(this.loggerDisplay);
       this.textPanel.ContentPanel.Margin = new System.Windows.Forms.Padding(2);
-      this.textPanel.ContentPanel.Size = new System.Drawing.Size(621, 343);
+      this.textPanel.ContentPanel.Size = new System.Drawing.Size(900, 398);
       this.textPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.textPanel.LeftToolStripPanelVisible = false;
       this.textPanel.Location = new System.Drawing.Point(0, 0);
       this.textPanel.Margin = new System.Windows.Forms.Padding(4);
       this.textPanel.Name = "textPanel";
-      this.textPanel.Size = new System.Drawing.Size(621, 374);
+      this.textPanel.Size = new System.Drawing.Size(900, 429);
       this.textPanel.TabIndex = 6;
       this.textPanel.Text = "toolStripContainer2";
       this.textPanel.TopToolStripPanelVisible = false;
@@ -246,7 +246,7 @@ namespace CsvTools
       this.AllowDrop = true;
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(621, 374);
+      this.ClientSize = new System.Drawing.Size(900, 429);
       this.Controls.Add(this.textPanel);
       this.Controls.Add(this.detailControl);
       this.HelpButton = true;

@@ -57,8 +57,9 @@ namespace CsvTools
       var delimiterChar = delimiter.WrittenPunctuationToChar();
       var escapeChar = escape.WrittenPunctuationToChar();
       var counterTotal = new int[possibleQuotes.Length];
-      var counterOpen = new int[possibleQuotes.Length];
-      var counterClose = new int[possibleQuotes.Length];
+      var counterOpenStrict = new int[possibleQuotes.Length];
+      var counterOpenSimple = new int[possibleQuotes.Length];
+      var counterCloseStrict = new int[possibleQuotes.Length];
       const char placeHolderText = 't';
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
       var filter = new StringBuilder();
@@ -101,38 +102,53 @@ namespace CsvTools
           if (line[index] != possibleQuotes[testIndex])
             continue;
           counterTotal[testIndex]++;
-          if (line[index - 1] == delimiterChar && (line[index + 1] == placeHolderText ||
-                                                   (line[index + 1] == possibleQuotes[testIndex] &&
-                                                    line[index + 2] != delimiterChar)))
-            counterOpen[testIndex]++;
-          if (line[index - 1] == placeHolderText && line[index + 1] == delimiterChar)
-            counterClose[testIndex]++;
+          if (line[index - 1] == delimiterChar)
+          {
+            // having a delimietr before is good, but it would be even better if its followed by text
+            counterOpenSimple[testIndex]++;
+            if ((line[index + 1] == placeHolderText ||
+                (line[index + 1] == possibleQuotes[testIndex] &&
+                 line[index + 2] != delimiterChar)))
+              counterOpenStrict[testIndex]++;
+          }
+          if (line[index + 1] == delimiterChar&&line[index - 1] == possibleQuotes[testIndex])
+            counterCloseStrict[testIndex]++;
         }
 
       var max = 0;
       var res = '\0';
       for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
       {
-        if (counterOpen[testIndex] == 0)
-          continue;
-        // if we could not find a lot of the closing quotes, assume its wrong
-        if (counterClose[testIndex] * 1.5 < counterOpen[testIndex])
+        if (counterOpenStrict[testIndex] != 0 &&
+            counterOpenStrict[testIndex] > max &&
+            counterCloseStrict[testIndex] * 1.5 > counterOpenStrict[testIndex] &&
+            counterCloseStrict[testIndex] < counterOpenStrict[testIndex] *1.5)
         {
-          Logger.Information("Could not find an matching number of opening and closing quotes for {qualifier}",
-            possibleQuotes[testIndex].GetDescription());
-          continue;
+          max = counterOpenStrict[testIndex];
+          res = possibleQuotes[testIndex];
         }
+      }
 
-        if (counterOpen[testIndex] <= max)
-          continue;
-        max = counterOpen[testIndex];
-        res = possibleQuotes[testIndex];
+      // if we did not have escaped quotes assume we have quotes in our columns
+      // that makes the strict counter messy, use the simple counters
+      if (max==0 && !hasRepeatedQuotes && !hasEscapedQuotes)
+      {
+        Logger.Information("Using less accurate method to determine quoting");
+        for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
+        {
+          if (counterOpenSimple[testIndex] != 0 &&
+              counterOpenSimple[testIndex] > max)
+          {
+            max = counterOpenSimple[testIndex];
+            res = possibleQuotes[testIndex];
+          }
+        }
       }
 
       // if we could not find opening and closing because we has a lot of ,", take the absolute numbers 
       if (max == 0)
       {
-        Logger.Information("Using less accurate method to determine quoting");
+        Logger.Information("Using least accurate method to determine quoting");
         for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
         {
           // need at least 2 
