@@ -448,6 +448,13 @@ namespace CsvTools
           || e.PropertyName == nameof(ICsvFile.DuplicateQualifierToEscape)
           || e.PropertyName == nameof(ICsvFile.FileName))
         m_ShouldReloadData = true;
+
+      // if the header information is chnaged, rerun detecion,
+      // we might not come to a diffreent result but the column names are reset.
+      if (e.PropertyName == nameof(ICsvFile.HasFieldHeader))
+      {
+        m_RunDetection = true;
+      }
     }
 
     private void BeforeFileStored(object? sender, IFileSettingPhysicalFile e)
@@ -547,7 +554,7 @@ namespace CsvTools
           if (cancellationToken.IsCancellationRequested)
             return;
 
-          // TODO: Is this needed ? Is te column collection not already set ?
+          // TODO: Is this needed ? Is the column collection not already set ?
           m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealColumns()
             .Select(dataColumn => new Column(dataColumn.ColumnName, new ValueFormat(dataColumn.DataType.GetDataType()),
               dataColumn.Ordinal)));
