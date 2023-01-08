@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,7 +18,7 @@ namespace CsvTools
     /// <param name="escapePrefix"></param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The NewLine Combination used</returns>
-    public static async Task<(string quoting, bool escapedQualifier, bool duplicateQualifier)> GuessQualifier(
+    public static async Task<QuoteTestResult> GuessQualifier(
       this Stream stream,
       int codePageId,
       int skipRows,
@@ -29,8 +28,7 @@ namespace CsvTools
     {
       using var textReader = new ImprovedTextReader(stream,
         await stream.CodePageResolve(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
-      var qualifier = GuessQualifier(textReader, fieldDelimiter, escapePrefix, new[] { '"', '\'' }, cancellationToken);
-      return (qualifier.quoting != '\0' ? char.ToString(qualifier.quoting) : string.Empty, qualifier.escapedQualifier, qualifier.duplicateQualifier);
+      return GuessQualifier(textReader, fieldDelimiter, escapePrefix, new[] { '"', '\'' }, cancellationToken);
     }
 
     /// <summary>
@@ -40,141 +38,137 @@ namespace CsvTools
     /// <param name="delimiter">The char to be used as field delimiter</param>
     /// <param name="escape">Used to escape a delimiter or quoting char</param>
     /// ///
+    /// <param name="possibleQuotes">Possibles quotes to test, usually its ' and "</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The most likely quoting char</returns>
     /// <remarks>
     ///   Any line feed ot carriage return will be regarded as field delimiter, a duplicate quoting will be regarded as
     ///   single quote, an \ escaped quote will be ignored
     /// </remarks>
-    public static (char quoting, bool escapedQualifier, bool duplicateQualifier) GuessQualifier(
-      ImprovedTextReader textReader,
-      string delimiter,
-      string escape,
+    public static QuoteTestResult GuessQualifier(
+      in ImprovedTextReader textReader,
+      in string delimiter,
+      in string escape,
       char[] possibleQuotes,
-      CancellationToken cancellationToken)
+      in CancellationToken cancellationToken)
     {
       if (textReader is null) throw new ArgumentNullException(nameof(textReader));
       var delimiterChar = delimiter.WrittenPunctuationToChar();
       var escapeChar = escape.WrittenPunctuationToChar();
-      var counterTotal = new int[possibleQuotes.Length];
-      var counterOpenStrict = new int[possibleQuotes.Length];
-      var counterOpenSimple = new int[possibleQuotes.Length];
-      var counterCloseStrict = new int[possibleQuotes.Length];
+
+      var bestQuoteTestResults = new QuoteTestResult { QuoteChar = possibleQuotes[0] };
+      foreach (var t in possibleQuotes)
+      {
+        cancellationToken.ThrowIfCancellationRequested();
+        var currentQuote = GetScoreForQuote(textReader, delimiterChar, escapeChar, t, cancellationToken);
+        if (currentQuote.Score > bestQuoteTestResults.Score)
+          bestQuoteTestResults = currentQuote;
+      }
+
+      Logger.Information("Column Qualifier: {qualifier}", bestQuoteTestResults.QuoteChar.GetDescription());
+      return bestQuoteTestResults;
+    }
+
+    private static QuoteTestResult GetScoreForQuote(
+      in ImprovedTextReader textReader,
+      char delimiterChar,
+      char escapeChar,
+      char quoteChar,
+      in CancellationToken cancellationToken)
+    {
+      if (textReader is null) throw new ArgumentNullException(nameof(textReader));
+      var counterTotal = 0;
+      var counterOpenStrict = 0;
+      var counterOpenSimple = 0;
+      var counterCloseStrict = 0;
       const char placeHolderText = 't';
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
       var filter = new StringBuilder();
       var last = -1;
-      var hasEscapedQuotes = false;
-      var hasRepeatedQuotes = false;
+
+      var res = new QuoteTestResult { QuoteChar = quoteChar };
       // Read simplified text from file
       while (!textReaderPosition.AllRead() && filter.Length < 2000 && !cancellationToken.IsCancellationRequested)
       {
         var c = (char) textReader.Read();
+        // disregard spaces
+        if (c == ' ' || c== '\0')
+          continue;
+
         if (c == escapeChar)
         {
           if (!textReader.EndOfStream)
-            hasEscapedQuotes|= possibleQuotes.Contains((char) textReader.Read());
-          continue;
+            if (quoteChar == textReader.Read())
+              res.EscapedQualifier = true;
+
+          // anything escaped is regarded as text
+          c = placeHolderText;
         }
-        var isPossibleQuote = possibleQuotes.Contains(c);
-        if (!isPossibleQuote)
+        else if (c == quoteChar)
         {
-          if (c == '\r' || c == '\n')
-            c = delimiterChar;
-          else if (c != delimiterChar)
+          if (last == quoteChar)
+          {
+            res.DuplicateQualifier = true;
+            // replace the already added quote with text
+            filter.Length--;
             c = placeHolderText;
+          }
         }
-        if (last != c || isPossibleQuote)
-        {
-          hasRepeatedQuotes |= (last == c);
+        else if (c == '\r' || c == '\n')
+          c = delimiterChar;
+        else if (c != delimiterChar)
+          c = placeHolderText;
+
+        if (last != c)
           filter.Append(c);
-        }
 
         last = c;
       }
 
-      // normalize this, line should start and end with delimiter 
+      // normalize this, line should start and end with delimiter
       //  t","t","t",t,t,t't,t"t,t -> ,t","t","t",t,t,t't,t"t,t,,
       var line = delimiterChar + filter.ToString().Trim(delimiterChar) + delimiterChar + delimiterChar;
-      for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
-        for (var index = 1; index < line.Length - 2; index++)
-        {
-          if (line[index] != possibleQuotes[testIndex])
-            continue;
-          counterTotal[testIndex]++;
-          if (line[index - 1] == delimiterChar)
-          {
-            // having a delimietr before is good, but it would be even better if its followed by text
-            counterOpenSimple[testIndex]++;
-            if ((line[index + 1] == placeHolderText ||
-                (line[index + 1] == possibleQuotes[testIndex] &&
-                 line[index + 2] != delimiterChar)))
-              counterOpenStrict[testIndex]++;
-          }
-          if (line[index + 1] == delimiterChar&&line[index - 1] == possibleQuotes[testIndex])
-            counterCloseStrict[testIndex]++;
-        }
 
-      var max = 0;
-      var res = '\0';
-      for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
+      for (var index = 1; index < line.Length - 2; index++)
       {
-        if (counterOpenStrict[testIndex] != 0 &&
-            counterOpenStrict[testIndex] > max &&
-            counterCloseStrict[testIndex] * 1.5 > counterOpenStrict[testIndex] &&
-            counterCloseStrict[testIndex] < counterOpenStrict[testIndex] *1.5)
+        if (line[index] != quoteChar)
+          continue;
+        counterTotal++;
+        if (line[index - 1] == delimiterChar)
         {
-          max = counterOpenStrict[testIndex];
-          res = possibleQuotes[testIndex];
+          // having a delimiter before is good, but it would be even better if its followed by text
+          counterOpenSimple++;
+          if ((line[index + 1] == placeHolderText ||
+              (line[index + 1] == quoteChar &&
+               line[index + 2] != delimiterChar)))
+            counterOpenStrict++;
         }
+        if (line[index + 1] == delimiterChar&&line[index - 1] == quoteChar)
+          counterCloseStrict++;
       }
 
-      // if we did not have escaped quotes assume we have quotes in our columns
-      // that makes the strict counter messy, use the simple counters
-      if (max==0 && !hasRepeatedQuotes && !hasEscapedQuotes)
+      if (counterOpenStrict != 0 && counterCloseStrict * 1.5 > counterOpenStrict &&
+          counterCloseStrict < counterOpenStrict * 1.5)
       {
-        Logger.Information("Using less accurate method to determine quoting");
-        for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
-        {
-          if (counterOpenSimple[testIndex] != 0 &&
-              counterOpenSimple[testIndex] > max)
-          {
-            max = counterOpenSimple[testIndex];
-            res = possibleQuotes[testIndex];
-          }
-        }
+        res.Score = 5 * counterOpenStrict;
       }
-
-      // if we could not find opening and closing because we has a lot of ,", take the absolute numbers 
-      if (max == 0)
+      else if (!res.DuplicateQualifier && !res.DuplicateQualifier && counterOpenSimple != 0)
       {
-        Logger.Information("Using least accurate method to determine quoting");
-        for (var testIndex = 0; testIndex < possibleQuotes.Length; testIndex++)
-        {
-          // need at least 2 
-          if (counterTotal[testIndex] < 2 || counterTotal[testIndex] <= max)
-            continue;
-          max = counterTotal[testIndex];
-          res = possibleQuotes[testIndex];
-        }
-      }
-
-      if (max == 0 && counterTotal[0] == 0)
-      {
-        // if we have nothing but we did not see a " in the text at all, a quoting char does not hurt...
-        res = possibleQuotes[0];
-        Logger.Information("Column qualifier not found using: {qualifier}", res.GetDescription());
-      }
-      else if (max == 0)
-      {
-        Logger.Information("No Column Qualifier");
+        res.Score = 3 * counterOpenSimple;
       }
       else
-      {
-        Logger.Information("Column Qualifier: {qualifier}", res.GetDescription());
-      }
+        res.Score = counterTotal;
 
-      return (res, hasEscapedQuotes, hasRepeatedQuotes);
+      // if we could not find opening and closing because we has a lot of ,", take the absolute numbers
+      return res;
+    }
+
+    public struct QuoteTestResult
+    {
+      public bool DuplicateQualifier;
+      public bool EscapedQualifier;
+      public char QuoteChar;
+      public int Score;
     }
   }
 }

@@ -435,14 +435,14 @@ namespace CsvTools.Tests
     {
       using var improvedStream =
         FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("TextQualifiers.txt")));
-      Assert.AreEqual("\"", (await improvedStream.GuessQualifier(65001, 0, "\t", "\\", UnitTestStatic.Token)).quoting);
+      Assert.AreEqual("\"", (await improvedStream.GuessQualifier(65001, 0, "\t", "\\", UnitTestStatic.Token)).QuoteChar.ToString());
     }
 
     [TestMethod]
     public async Task GuessQualifier2()
     {
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("Quoting1.txt")));
-      Assert.AreEqual("\"", (await improvedStream.GuessQualifier(65001, 0, "\t", "\\", UnitTestStatic.Token)).quoting);
+      Assert.AreEqual("\"", (await improvedStream.GuessQualifier(65001, 0, "\t", "\\", UnitTestStatic.Token)).QuoteChar.ToString());
     }
 
     [TestMethod]
@@ -450,7 +450,7 @@ namespace CsvTools.Tests
     {
       using var improvedStream =
         FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("Quoting1Reverse.txt")));
-      Assert.AreEqual("'", (await improvedStream.GuessQualifier(65001, 0, "\t", "\\", UnitTestStatic.Token)).quoting);
+      Assert.AreEqual("'", (await improvedStream.GuessQualifier(65001, 0, "\t", "\\", UnitTestStatic.Token)).QuoteChar.ToString());
     }
 
     [TestMethod]

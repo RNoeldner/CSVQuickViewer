@@ -485,25 +485,25 @@ namespace CsvTools
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Qualifier");
           var qualifier = QualifierDetection.GuessQualifier(textReader, detectionResult.FieldDelimiter, detectionResult.EscapePrefix, new[] { '"', '\'' }, cancellationToken);
-          if (qualifier.quoting != '\0')
-            detectionResult = new DelimitedFileDetectionResult(
-              detectionResult.FileName,
-              detectionResult.SkipRows,
-              detectionResult.CodePageId,
-              detectionResult.ByteOrderMark,
-              detectionResult.QualifyAlways,
-              detectionResult.IdentifierInContainer,
-              detectionResult.CommentLine,
-              detectionResult.EscapePrefix,
-              detectionResult.FieldDelimiter,
-              char.ToString(qualifier.quoting),
-              // if there was no repeated quoting and no escaped quoting use context
-              !(qualifier.duplicateQualifier || qualifier.escapedQualifier),
-              qualifier.duplicateQualifier,
-              detectionResult.HasFieldHeader,
-              detectionResult.IsJson,
-              detectionResult.NoDelimitedFile,
-              detectionResult.NewLine);
+
+          detectionResult = new DelimitedFileDetectionResult(
+            detectionResult.FileName,
+            detectionResult.SkipRows,
+            detectionResult.CodePageId,
+            detectionResult.ByteOrderMark,
+            detectionResult.QualifyAlways,
+            detectionResult.IdentifierInContainer,
+            detectionResult.CommentLine,
+            detectionResult.EscapePrefix,
+            detectionResult.FieldDelimiter,
+            char.ToString(qualifier.QuoteChar),
+            // if there was no repeated quoting and no escaped quoting use context
+            !(qualifier.DuplicateQualifier || qualifier.EscapedQualifier),
+            qualifier.DuplicateQualifier,
+            detectionResult.HasFieldHeader,
+            detectionResult.IsJson,
+            detectionResult.NoDelimitedFile,
+            detectionResult.NewLine);
         }
 
         if (guessQualifier || guessDelimiter)
