@@ -170,17 +170,12 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           var res = await improvedStream.GuessQualifier(csvFile.CodePageId, csvFile.SkipRows,
             csvFile.FieldDelimiter, csvFile.EscapePrefix,
             m_CancellationTokenSource.Token);
-          if (res.quoting.Length>0)
-          {
-            csvFile.FieldQualifier = res.quoting;
-            if (res.duplicateQualifier)
-              csvFile.DuplicateQualifierToEscape = res.duplicateQualifier;
-            if (!csvFile.ContextSensitiveQualifier)
-              csvFile.ContextSensitiveQualifier = !(res.duplicateQualifier || res.escapedQualifier);
-          }
+          csvFile.FieldQualifier = res.QuoteChar.ToString();
+          if (res.DuplicateQualifier)
+            csvFile.DuplicateQualifierToEscape = res.DuplicateQualifier;
+          if (!csvFile.ContextSensitiveQualifier)
+            csvFile.ContextSensitiveQualifier = !(res.DuplicateQualifier || res.EscapedQualifier);
         });
-
-
       }
     }
 
