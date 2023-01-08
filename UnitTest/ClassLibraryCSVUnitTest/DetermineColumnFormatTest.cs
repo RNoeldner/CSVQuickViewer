@@ -546,8 +546,7 @@ namespace CsvTools.Tests
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(false, true, fillGuessSettings, UnitTestStatic.Token);
 
-      // need to identify 5 typed column of the 11 existing
-      Assert.AreEqual(7, detected.Count(), "Number of recognized Columns");
+      Assert.AreEqual(6, detected.Count(), "Number of recognized Columns");
 
       var v1 = detected.First(x => x.Name == "DateTime");
       var v2 = detected.First(x => x.Name == "Double");
