@@ -47,7 +47,7 @@ namespace CsvTools
       // that might contain headers, but its simply set as without headers.
       if (fileSettingCopy is ICsvFile csv)
       {
-        if (csv.HasFieldHeader || csv.SkipRows==0)
+        if (!csv.HasFieldHeader)
           csv.SkipRows++;
         // turn off all warnings as they will cause GetSampleValues to ignore the row
         csv.TryToSolveMoreColumns = false;
