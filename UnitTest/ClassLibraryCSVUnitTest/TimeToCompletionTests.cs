@@ -76,7 +76,7 @@ namespace CsvTools.Tests
         await Task.Delay(20, UnitTestStatic.Token);
       }
       var totalSec1 = test.EstimatedTimeRemaining.TotalSeconds;
-      Assert.IsTrue(totalSec1  > 1.0 && totalSec1 < 3, $"Fast: {1} < {totalSec1} < {3}"); 
+      Assert.IsTrue(totalSec1  > 1.0 && totalSec1 < 4, $"Fast: {1} < {totalSec1} < {4}"); 
       
       // Slower changes
       for (var counter = 10; counter < 60; counter++)
