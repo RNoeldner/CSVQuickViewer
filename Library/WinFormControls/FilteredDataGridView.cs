@@ -1409,6 +1409,9 @@ namespace CsvTools
       }
     }
 
+    /// <summary>
+    /// Get an Array of ColumnSetting serialized as Json Text
+    /// </summary>
     public string GetViewStatus => ViewSetting.StoreViewSetting(Columns, m_Filter, SortedColumn, SortOrder);
 
     public void SetViewStatus(string newSetting)
