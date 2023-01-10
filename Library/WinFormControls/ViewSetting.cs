@@ -134,7 +134,7 @@ namespace CsvTools
       }
     }
 
-    public static string StoreViewSetting(DataGridViewColumnCollection columns,
+    public static ICollection<ColumnSetting> GetViewSetting(DataGridViewColumnCollection columns,
       IEnumerable<ToolStripDataGridViewColumnFilter?> columnFilters, DataGridViewColumn? sortedColumn,
       SortOrder sortOrder)
     {
@@ -167,7 +167,14 @@ namespace CsvTools
         colIndex++;
       }
 
-      return JsonConvert.SerializeObject(vst, Formatting.None);
+      return vst;
     }
+
+    /// <summary>
+    /// Get an Array of ColumnSetting serialized as Json Text
+    /// </summary>
+    public static string StoreViewSetting(DataGridViewColumnCollection columns,
+      IEnumerable<ToolStripDataGridViewColumnFilter?> columnFilters, DataGridViewColumn? sortedColumn,
+      SortOrder sortOrder) => JsonConvert.SerializeObject(GetViewSetting(columns, columnFilters, sortedColumn, sortOrder), Formatting.None);
   }
 }

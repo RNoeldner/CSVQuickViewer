@@ -139,7 +139,7 @@ namespace CsvTools
         var (_, detected) = await m_FileSetting.FillGuessColumnFormatReaderAsync(true, true,
           m_ViewSettings.FillGuessSettings,
           cancellationToken);
-        ChangeColumnsNoEvent(detected);
+        ChangeColumnsNoEvent(false, detected);
 
         m_ToolStripButtonAsText.Visible = m_FileSetting is ICsvFile &&
                                           m_FileSetting.ColumnCollection.Any(x =>
@@ -237,6 +237,7 @@ namespace CsvTools
         cancellationToken.ThrowIfCancellationRequested();
 
         Directory.SetCurrentDirectory(m_FileSetting.RootFolder);
+        ButtonAsText(false);
 
         await OpenDataReaderAsync(cancellationToken);
       }
@@ -300,7 +301,7 @@ namespace CsvTools
 
     private async Task CheckPossibleChange()
     {
-      if (!m_ShouldReloadData && !m_FileChanged) 
+      if (!m_ShouldReloadData && !m_FileChanged)
         return;
       try
       {
@@ -711,13 +712,26 @@ namespace CsvTools
       }
     }
 
-    private void ChangeColumnsNoEvent(IEnumerable<Column> columns)
+    private void ButtonAsText(bool asText)
+    {
+      this.SafeInvoke(() =>
+      {
+        m_ToolStripButtonAsText.Text = asText ? "As Values" : "As Text";
+        m_ToolStripButtonAsText.Image = asText ? Properties.Resources.AsValue : Properties.Resources.AsText;
+      });
+    }
+
+    private void ChangeColumnsNoEvent(bool asText, IEnumerable<Column> columns)
     {
       if (m_FileSetting == null)
         return;
+
+      ButtonAsText(asText);
+
       m_FileSetting.ColumnCollection.CollectionChanged -= ColumnCollectionOnCollectionChanged;
       m_FileSetting.ColumnCollection.Clear();
-      m_FileSetting.ColumnCollection.AddRange(columns);
+      m_FileSetting.ColumnCollection.AddRange(asText ? columns.Select(col =>
+        new Column(col.Name, ValueFormat.Empty, columnOrdinal: col.ColumnOrdinal)) : columns);
       m_FileSetting.ColumnCollection.CollectionChanged += ColumnCollectionOnCollectionChanged;
     }
 
@@ -730,39 +744,31 @@ namespace CsvTools
       {
         m_ToolStripButtonAsText.Enabled = false;
         detailControl.SuspendLayout();
-
-        var store = detailControl.GetViewStatus();
+        // Current column setup
+        var columnSetting = detailControl.GetViewStatus();
 
         var reload = false;
-        // Assume data type is not recognize
+
         if (m_FileSetting.ColumnCollection.Any(x => x.ValueFormat.DataType != DataTypeEnum.String))
         {
-          Logger.Information("Showing columns as text");
           m_StoreColumns = new List<Column>(m_FileSetting.ColumnCollection);
 
           // restore header names only
-          ChangeColumnsNoEvent(m_StoreColumns.Select(col =>
-            new Column(col.Name, ValueFormat.Empty, columnOrdinal: col.ColumnOrdinal)));
-
-          // ReSharper disable once LocalizableElement
-          m_ToolStripButtonAsText.Text = "As Values";
-          m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;
+          ChangeColumnsNoEvent(true, m_StoreColumns);
           reload = true;
         }
         else if (m_StoreColumns != null)
         {
-          Logger.Information("Showing columns as values");
           // ReSharper disable once LocalizableElement
-          m_ToolStripButtonAsText.Text = "As Text";
-          m_ToolStripButtonAsText.Image = Properties.Resources.AsText;
-          ChangeColumnsNoEvent(m_StoreColumns);
+          ChangeColumnsNoEvent(false, m_StoreColumns);
           reload = true;
         }
 
         if (reload)
+        {
           await OpenDataReaderAsync(m_CancellationTokenSource.Token);
-
-        detailControl.SetViewStatus(store);
+          detailControl.SetViewStatus(columnSetting);
+        }
 
         detailControl.ResumeLayout();
       }, this);
