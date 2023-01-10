@@ -193,84 +193,30 @@ namespace CsvTools
       }
     }
 
-    public static void RunStaThread(this Action action, int timeoutMilliseconds = 20000)
+    public static void RunStaThread(Action action, int timeoutMilliseconds = 20000)
     {
-      if (action is null)
-        throw new ArgumentNullException(nameof(action));
-      if (!IsWindows)
-      {
-        action.Invoke();
-        return;
-      }
-
       try
       {
-        if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+        if (!IsWindows || Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
           action.Invoke();
-        else
-        {
-          var runThread = new Thread(action.Invoke);
+
+        var runThread = new Thread(action.Invoke);
 
 #pragma warning disable CA1416
-          runThread.SetApartmentState(ApartmentState.STA);
+        runThread.SetApartmentState(ApartmentState.STA);
 #pragma warning restore CA1416
 
-          runThread.Start();
-          if (timeoutMilliseconds > 0)
-            runThread.Join(timeoutMilliseconds);
-          else
-            runThread.Join();
-
-          if (runThread.IsAlive)
-            runThread.Abort();
-        }
+        runThread.Start();
+        if (timeoutMilliseconds > 0)
+          runThread.Join(timeoutMilliseconds);
+        else
+          runThread.Join();
       }
       catch (Exception e)
       {
         Logger.Error(e);
       }
     }
-
-    public static async Task RunStaThreadAsync(this Func<Task> action, int timeoutMilliseconds = 20000)
-    {
-      if (action is null)
-        throw new ArgumentNullException(nameof(action));
-      if (!IsWindows)
-      {
-        await action();
-        return;
-      }
-
-      try
-      {
-        if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
-          await action.Invoke();
-        else
-        {
-          var runThread = new Thread(async () => await action().ConfigureAwait(false));
-
-#pragma warning disable CA1416
-          runThread.SetApartmentState(ApartmentState.STA);
-#pragma warning restore CA1416
-
-          runThread.Start();
-          if (timeoutMilliseconds > 0)
-            runThread.Join(timeoutMilliseconds);
-          else
-            runThread.Join();
-
-          if (runThread.IsAlive)
-#pragma warning disable CA1416
-            runThread.Abort();
-#pragma warning restore CA1416
-        }
-      }
-      catch (Exception e)
-      {
-        Logger.Error(e);
-      }
-    }
-
 
     public static void RunWithHourglass(this ToolStripItem item, Action action, Form? frm)
     {

@@ -56,7 +56,7 @@ namespace CsvTools
             .WriteTo.File(folder + "ExceptionLog.txt", rollingInterval: RollingInterval.Month, retainedFileCountLimit: 3, encoding: Encoding.UTF8, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff}\t{Level}\t\"{Exception:l}\"{NewLine}"),
             LogEventLevel.Error)
 
-          // File REgular logging
+          // File Regular logging
           .WriteTo.File(folder + "ApplicationLog.txt", rollingInterval: RollingInterval.Day, encoding: Encoding.UTF8,
             outputTemplate: "{Timestamp:HH:mm:ss}\t{Level:w3}\t{Message:l}{NewLine}");
 

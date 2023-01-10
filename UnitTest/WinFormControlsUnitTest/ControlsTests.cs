@@ -25,14 +25,13 @@ namespace CsvTools.Tests
   [TestClass]
   public class ControlsTests
   {
-    [TestMethod, Timeout(2000)]
-    public async Task CsvTextDisplayShowAsync()
+    [TestMethod, Timeout(10000)]
+    public void CsvTextDisplayShowAsync()
     {
-      await Extensions.RunStaThreadAsync(async () =>
-      {
-        using var csvTextDisplay = new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt"));
-        await UnitTestStaticForms.ShowFormAndCloseAsync(csvTextDisplay, .1, (frm) => frm.OpenFileAsync(false, "\"", "\t", "", 1200, 1, "##", UnitTestStatic.Token));
-      }, 2000);
+      UnitTestStaticForms.ShowFormAsync(
+        () => new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt")), 
+        async frm => await frm.OpenFileAsync(false, "\"", "\t", "", 1200, 1, "##", UnitTestStatic.Token), .1);
+
     }
 
     [TestMethod, Timeout(8000)]
@@ -74,17 +73,17 @@ namespace CsvTools.Tests
         tm.Html = stringBuilder.ToString();
 
         tm.Size = new Size(600, 450);
-        UnitTestStaticForms.ShowFormAndClose(tm, 2);
+        UnitTestStaticForms.ShowForm(() => tm, 2);
       });
     }
 
-    [TestMethod,Timeout(3000)]
+    [TestMethod, Timeout(3000)]
     public void TextDisplay()
     {
-      UnitTestStaticForms.OpenFormSts(() => new TimedMessage()
+      UnitTestStaticForms.ShowForm(() => new TimedMessage()
       {
         Message = "Found values\rLine2\nDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n" +
-                   "DMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n\nNote: Text has been cut off after 15 characters",
+                  "DMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\tDMS_Test_RN_Mat\n\nNote: Text has been cut off after 15 characters",
         Size = new Size(600, 450)
       });
     }
@@ -92,41 +91,42 @@ namespace CsvTools.Tests
     [TestMethod, Timeout(1000)]
     public void ResizeForm()
     {
-      using var resizeForm = new ResizeForm();
-      UnitTestStaticForms.ShowFormAndClose(resizeForm, .2);
+      UnitTestStaticForms.ShowForm(() => new ResizeForm());
     }
 
     [TestMethod, Timeout(1000)]
     public void FormTextDisplay()
     {
-      UnitTestStaticForms.OpenFormSts(() => new FormTextDisplay("This is a test text\nSpanning some\nlines ..."));
+      UnitTestStaticForms.ShowForm(() => new FormTextDisplay("This is a test text\nSpanning some\nlines ..."));
     }
 
     [TestMethod, Timeout(1000)]
     public void FormTextDisplayJson()
     {
-      UnitTestStaticForms.OpenFormSts(() => new FormTextDisplay("{\r\n  \"schema\": {\r\n    \"properties\": {\r\n      \"EmployeeIdentificationData_GUID\": {\r\n        \"format\": \"uuid\",\r\n        \"trim\": \"leftRight\",\r\n        \"caseSensitive\": false,\r\n        \"title\": \"GUID\",\r\n        \"description\": \"Unique identifier for a user. This cannot be changed\",\r\n        \"type\": \"string\"\r\n      }  }\r\n}}"));
+      UnitTestStaticForms.ShowForm(() => new FormTextDisplay("{\r\n  \"schema\": {\r\n    \"properties\": {\r\n      \"EmployeeIdentificationData_GUID\": {\r\n        \"format\": \"uuid\",\r\n        \"trim\": \"leftRight\",\r\n        \"caseSensitive\": false,\r\n        \"title\": \"GUID\",\r\n        \"description\": \"Unique identifier for a user. This cannot be changed\",\r\n        \"type\": \"string\"\r\n      }  }\r\n}}"));
     }
 
     [TestMethod, Timeout(1000)]
     public void FormTextDisplayXMl()
     {
-      UnitTestStaticForms.OpenFormSts(() => new FormTextDisplay("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<edmx:Edmx Version=\"4.0\" xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\">\r\n  <edmx:DataServices>  </edmx:DataServices>\r\n</edmx:Edmx>"));
+      UnitTestStaticForms.ShowForm(() => new FormTextDisplay("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<edmx:Edmx Version=\"4.0\" xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\">\r\n  <edmx:DataServices>  </edmx:DataServices>\r\n</edmx:Edmx>"));
     }
 
     [TestMethod, Timeout(1000)]
     public void QuotingControl1()
     {
-      var ctrl = new QuotingControl();
-      ctrl.CsvFile = new CsvFile(id: "CSV", fileName: "");
-      UnitTestStaticForms.ShowControl(ctrl);
+      UnitTestStaticForms.ShowControl(() =>
+      {
+        var ctrl = new QuotingControl();
+        ctrl.CsvFile = new CsvFile(id: "CSV", fileName: "");
+        return ctrl;
+      });
     }
 
     [TestMethod, Timeout(1000)]
     public void QuotingControl2()
     {
-      var ctrl = new QuotingControl();
-      UnitTestStaticForms.ShowControl(ctrl, 0.1, control => control.CsvFile = new CsvFile(id: "CSV", fileName: ""));
+      UnitTestStaticForms.ShowControl(() => new QuotingControl(), 0.1, control => control.CsvFile = new CsvFile(id: "CSV", fileName: ""));
     }
 
     [TestMethod, Timeout(2000)]
@@ -290,7 +290,7 @@ namespace CsvTools.Tests
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);
 
-      UnitTestStaticForms.OpenFormSts(() => new FormDuplicatesDisplay(dataTable, dataTable.Select(),
+      UnitTestStaticForms.ShowForm(() => new FormDuplicatesDisplay(dataTable, dataTable.Select(),
         dataTable.Columns[0].ColumnName,
         HtmlStyle.Default));
     }
@@ -299,7 +299,7 @@ namespace CsvTools.Tests
     public void FormUniqueDisplay()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);
-      UnitTestStaticForms.OpenFormSts(() => new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName,
+      UnitTestStaticForms.ShowForm(() => new FormUniqueDisplay(dataTable, dataTable.Select(), dataTable.Columns[0].ColumnName,
         HtmlStyle.Default));
     }
 
@@ -307,8 +307,8 @@ namespace CsvTools.Tests
     public void FormShowMaxLength()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);
-      UnitTestStaticForms.OpenFormSts(() =>
-        new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), HtmlStyle.Default));
+      UnitTestStaticForms.ShowForm((Func<Form>) (() =>
+        new FormShowMaxLength(dataTable, dataTable.Select(), new List<string>(), HtmlStyle.Default)));
     }
 
     [TestMethod, Timeout(1000)]

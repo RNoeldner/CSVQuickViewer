@@ -70,7 +70,7 @@ namespace CsvTools
       frm.Show();
 
       if (FileSystemUtils.FileExists(fileName))
-        frm.LoadCsvFile(FileSystemUtils.GetFullPath(fileName), frm.CancellationToken);
+        frm.LoadCsvFileAsync(FileSystemUtils.GetFullPath(fileName), frm.CancellationToken).GetAwaiter().GetResult();
       Application.Run(frm);
     }
 

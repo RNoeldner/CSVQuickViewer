@@ -14,6 +14,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -48,24 +49,26 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void GetProgressTest()
     {
+
+      var setting =
+        new CsvFile(id: string.Empty,
+          fileName: "Folder\\This is a long file name that should be cut and fit into 80 chars.txt")
+        {
+          ShowProgress = true
+        };
+      using (var prc = setting.GetProgress(null, true, UnitTestStatic.Token))
+      {
+        Assert.IsNotNull(prc, "Getprogress With Logger");
+      }
+
+      using (var prc = setting.GetProgress(null, false, UnitTestStatic.Token))
+      {
+        Assert.IsNotNull(prc, "Getprogress Without Logger");
+      }
+
+
       Extensions.RunStaThread(() =>
       {
-        var setting =
-          new CsvFile(id: string.Empty,
-            fileName: "Folder\\This is a long file name that should be cut and fit into 80 chars.txt")
-          {
-            ShowProgress = true
-          };
-        using (var prc = setting.GetProgress(null, true, UnitTestStatic.Token))
-        {
-          Assert.IsNotNull(prc, "Getprogress With Logger");
-        }
-
-        using (var prc = setting.GetProgress(null, false, UnitTestStatic.Token))
-        {
-          Assert.IsNotNull(prc, "Getprogress Without Logger");
-        }
-
         using var frm = new Form();
         frm.Text = "Testing...";
         frm.Show();
@@ -112,11 +115,10 @@ namespace CsvTools.Tests
 
     [TestMethod]
     [Timeout(2000)]
-    public async Task RunWithHourglassAsyncTest()
+    public void RunWithHourglassAsyncTest()
     {
-      using var ctrl = new ToolStripButton();
       var done = false;
-      await ctrl.RunWithHourglassAsync(async () => await Task.Run(() => done = true), null);
+      UnitTestStaticForms.ShowControl(() => new Button(), .1, async c => await c.RunWithHourglassAsync(async () => await Task.Run(() => done = true)));
       Assert.IsTrue(done);
     }
 
@@ -135,15 +137,15 @@ namespace CsvTools.Tests
     [Timeout(2000)]
     public void ShowError()
     {
-      Extensions.RunStaThread(() =>
+      CancellationTokenSource src = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+      Task.Run(()=> Extensions.RunStaThread(() =>
       {
         using var frm = new Form();
         frm.Text = "Testing...";
         frm.Show();
-        frm.ShowError(new Exception(), "Text", 0.1);
+        frm.ShowError(new Exception("Exception Message"), "Text", 0.1);
         frm.Close();
-
-      });
+      }), src.Token);
     }
 
     [TestMethod]

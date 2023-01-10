@@ -39,6 +39,7 @@ namespace CsvTools
       IProgress<ProgressInfo>? progress,
       EventHandler<WarningEventArgs>? addWarning, CancellationToken cancellationToken)
     {
+      Logger.Debug("Starting to load data");
       m_ID = fileSetting.ID;
       m_FileReader = FunctionalDI.GetFileReader(fileSetting, cancellationToken);
       if (m_FileReader is null)
@@ -53,7 +54,7 @@ namespace CsvTools
         m_FileReader.Warning += addWarning;
         m_FileReader.Warning -= warningList.Add;
       }
-
+      Logger.Debug("Opening reader");
       await m_FileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
       if (addWarning != null)
@@ -95,7 +96,7 @@ namespace CsvTools
     {
       if (m_DataReaderWrapper is null)
         return;
-
+      Logger.Debug("Getting batch");
       var dt = await m_DataReaderWrapper.GetDataTableAsync(
         duration,
         restoreError,
@@ -107,16 +108,18 @@ namespace CsvTools
         dt.TableName = m_ID;
       try
       {
+        Logger.Debug("Setting DataTable");
         actionSetDataTable.Invoke(dt);
       }
       catch (InvalidOperationException ex)
       {
         // ignore
-        Logger.Warning(ex, "RefreshDisplayAsync");
+        Logger.Warning(ex, "SetDataTable");
       }
 
       try
       {
+        Logger.Debug("Refresh Display");
         setRefreshDisplayAsync(cancellationToken);
       }
       catch (InvalidOperationException ex)

@@ -2,8 +2,8 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Task = System.Threading.Tasks.Task;
 using Timer = System.Timers.Timer;
 
 namespace CsvTools.Tests
@@ -17,147 +17,102 @@ namespace CsvTools.Tests
       Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
     }
 
-    public static void OpenFormSts(Func<Form> createFunc)
+    public static void ShowControl<T>(Func<T> createControl, double waitBeforeActionSeconds = 0, Action<T>? toDoControl = null)
+     where T : Control
     {
-      Extensions.RunStaThread(() =>
-      {
-        using var frm = createFunc();
-        ShowFormAndClose(frm);
-      });
+      ShowForm(() => new TestForm(createControl, waitBeforeActionSeconds * 1000 + 1000), waitBeforeActionSeconds,
+        f => toDoControl?.Invoke((T) f.CreatedControl));
     }
 
-    public static void ShowControl<T>(T ctrl, double waitBeforeActionSeconds = 0, Action<T>? toDo = null,
+    public static void ShowControlAsync<T>(Func<T> createControl, Func<T, Task> toDoControl, double waitBeforeActionSeconds = 0.1,
       double closeAfterSeconds = .5)
       where T : Control
     {
-      if (ctrl is null)
-        throw new ArgumentNullException(nameof(ctrl));
-
-      Extensions.RunStaThread(() =>
-      {
-        using var frm = new TestForm(ctrl, closeAfterSeconds * 1000);
-        ShowFormAndClose(frm, waitBeforeActionSeconds,
-          // ReSharper disable once AccessToDisposedClosure
-          f => toDo?.Invoke(ctrl));
-
-      });
+      ShowFormAsync(() => new TestForm(createControl, closeAfterSeconds * 1000),
+        async f => await toDoControl.Invoke((T) f.CreatedControl), waitBeforeActionSeconds);
     }
 
-    public static void ShowControl<T>(Func<T> createControl, double waitBeforeActionSeconds = 0, Action<T>? toDo = null,
-     double closeAfterSeconds = .5)
-     where T : Control
+    public static void ShowForm<T>(Func<T> createFunc, double waitBeforeActionSeconds = 0, Action<T>? toDoForm = null)
+      where T : Form
     {
       Extensions.RunStaThread(() =>
       {
-        using var ctrl = createControl.Invoke();
-        if (ctrl is null)
-          throw new ArgumentNullException(nameof(ctrl));
-        using var frm = new TestForm(ctrl, closeAfterSeconds * 1000);
-        ShowFormAndClose(frm, waitBeforeActionSeconds,
-        // ReSharper disable once AccessToDisposedClosure
-          f => toDo?.Invoke(ctrl));
+        try
+        {
+          using T frm = createFunc();
+          var isClosed = false;
+          frm.FormClosed += (s, o) =>
+            isClosed = true;
+
+          frm.TopMost = true;
+          frm.ShowInTaskbar = false;
+
+          try
+          {
+            frm.Show();
+          }
+          catch (Exception)
+          {
+            // ignore the form might be shown already
+          }
+
+          if (waitBeforeActionSeconds > 0 && !isClosed)
+            WaitSomeTime(waitBeforeActionSeconds, CancellationToken.None);
+
+          if (!isClosed)
+            toDoForm?.Invoke(frm);
+
+          if (!isClosed)
+            frm.Close();
+        }
+        catch (Exception e)
+        {
+          Logger.Error(e);
+        }
       });
     }
 
-    //public static async Task ShowControlAsync<T>(Func<T> createControl, double waitBeforeActionSeconds, Func<T, Task> toDo,
-    //  double closeAfterSeconds = .2)
-    //  where T : Control
-    //{
-    //  Extensions.RunStaThreadAsync(async () =>
-    //  {
-    //    using var ctrl = createControl.Invoke();
-    //    if (ctrl is null)
-    //      throw new ArgumentNullException(nameof(ctrl));
-    //    using var frm = new TestForm(ctrl, closeAfterSeconds * 1000);
-    //    await ShowFormAndCloseAsync(frm, waitBeforeActionSeconds, async f => await toDo.Invoke(ctrl));
-    //  });
-    //}
-
-    public static void ShowFormAndClose<T>(T frm, double waitBeforeActionSeconds = 0, Action<T>? toDo = null, CancellationToken token = default)
+    public static void ShowFormAsync<T>(Func<T> createFunc, Func<T, Task> toDo,
+      double waitBeforeActionSeconds = 0.1)
       where T : Form
     {
-      if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-        $"Thread should run as STS but is {Thread.CurrentThread.GetApartmentState()}".WriteToContext();
-
-      try
+      Extensions.RunStaThread(async () =>
       {
-
-        var isClosed = false;
-        frm.FormClosed += (s, o) =>
-          isClosed = true;
-
-        frm.TopMost = true;
-        frm.ShowInTaskbar = false;
-
         try
         {
-          frm.Show();
+          using T frm = createFunc();
+          var isClosed = false;
+          frm.FormClosed += (s, o) =>
+            isClosed = true;
+
+          frm.TopMost = true;
+          frm.ShowInTaskbar = false;
+
+          try
+          {
+            frm.Show();
+          }
+          catch (Exception)
+          {
+            // ignore the form might be shown already
+          }
+
+          if (waitBeforeActionSeconds > 0 && !isClosed)
+            WaitSomeTime(waitBeforeActionSeconds, CancellationToken.None);
+
+          if (!isClosed)
+            await toDo.Invoke(frm);
+
+          if (!isClosed)
+            frm.Close();
         }
-        catch (Exception)
+        catch (Exception e)
         {
-          // ignore the form might be shown already
+          Logger.Error(e);
         }
-
-        if (waitBeforeActionSeconds > 0 && !isClosed)
-          WaitSomeTime(waitBeforeActionSeconds, token);
-
-        if (!isClosed)
-          toDo?.Invoke(frm);
-
-        if (!isClosed)
-          frm.Close();
-      }
-      catch (Exception e)
-      {
-        Logger.Error(e);
-      }
-      finally
-      {
-        frm.Dispose();
-      }
-
+      });
     }
 
-    public static async Task ShowFormAndCloseAsync<T>(
-      T frm, double waitBeforeActionSeconds = 0, Func<T, Task>? toDo = null)
-      where T : Form
-    {
-      if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA)
-        $"Thread should run as STS but is {Thread.CurrentThread.GetApartmentState()}".WriteToContext();
-      try
-      {
-        var isClosed = false;
-        frm.FormClosed += (s, o) =>
-          isClosed = true;
-        frm.TopMost = true;
-        frm.ShowInTaskbar = false;
-        try
-        {
-          frm.Show();
-        }
-        catch (Exception)
-        {
-          // ignore the form might be shown already
-        }
-
-        if (waitBeforeActionSeconds > 0 && !isClosed)
-          WaitSomeTime(waitBeforeActionSeconds, UnitTestStatic.Token);
-
-        if (toDo != null && !isClosed)
-          await toDo.Invoke(frm);
-
-        if (!isClosed)
-          frm.Close();
-      }
-      catch (Exception e)
-      {
-        Logger.Error(e);
-      }
-      finally
-      {
-        frm.Dispose();
-      }
-    }
 
     [DebuggerStepThrough]
     public static void WaitSomeTime(double seconds, in CancellationToken token)
@@ -177,12 +132,10 @@ namespace CsvTools.Tests
 
   public sealed class TestForm : Form
   {
+    public readonly Control CreatedControl;
     private readonly CancellationTokenSource m_CancellationTokenSource;
     private readonly Timer m_TimerAutoClose = new Timer();
-
-    public CancellationToken CancellationToken => m_CancellationTokenSource.Token;
-
-    public TestForm(Control? ctrl = null, double autoCloseMilliseconds = 5000)
+    public TestForm(Func<Control>? createControl = null, double autoCloseMilliseconds = 5000)
     {
       SuspendLayout();
       m_CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(UnitTestStatic.Token);
@@ -198,15 +151,14 @@ namespace CsvTools.Tests
       Text = "TestForm";
       TopMost = true;
       FormClosing += TestForm_FormClosing;
+      CreatedControl = createControl?.Invoke() ?? new Label();
 
-      if (ctrl != null)
-      {
-        Text = ctrl.GetType().FullName;
-        ctrl.Dock = DockStyle.Fill;
-        ctrl.Location = new Point(0, 0);
-        ctrl.Size = new Size(790, 790);
-        Controls.Add(ctrl);
-      }
+      Text = CreatedControl.GetType().FullName;
+      CreatedControl.Dock = DockStyle.Fill;
+      CreatedControl.Location = new Point(0, 0);
+      CreatedControl.Size = new Size(790, 790);
+      Controls.Add(CreatedControl);
+
       ResumeLayout(false);
 
       if (!(autoCloseMilliseconds > 0))
@@ -223,12 +175,7 @@ namespace CsvTools.Tests
       };
     }
 
-    private void TestForm_FormClosing(object sender, FormClosingEventArgs e)
-    {
-      m_TimerAutoClose.Stop();
-      m_CancellationTokenSource.Cancel();
-    }
-
+    public CancellationToken CancellationToken => m_CancellationTokenSource.Token;
     /// <summary>
     /// Clean up any resources being used.
     /// </summary>
@@ -239,8 +186,15 @@ namespace CsvTools.Tests
       {
         m_CancellationTokenSource.Dispose();
       }
-
+      if (CreatedControl is IDisposable dispControl)
+        dispControl.Dispose();
       base.Dispose(disposing);
+    }
+
+    private void TestForm_FormClosing(object sender, FormClosingEventArgs e)
+    {
+      m_TimerAutoClose.Stop();
+      m_CancellationTokenSource.Cancel();
     }
   }
 
