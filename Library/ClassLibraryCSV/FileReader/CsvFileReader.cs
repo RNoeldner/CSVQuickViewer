@@ -327,7 +327,6 @@ namespace CsvTools
     public new void Dispose()
     {
       Dispose(true);
-      GC.SuppressFinalize(this);
     }
 
     /// <inheritdoc />

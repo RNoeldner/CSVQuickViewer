@@ -44,13 +44,13 @@ namespace CsvTools
     protected string Header;
     protected readonly string SourceTimeZone;
     private DateTime m_LastNotification = DateTime.Now;
-    
+
     public IProgress<ProgressInfo>? ReportProgress
     {
       protected get;
       set;
     }
-    
+
     /// <summary>
     /// Abstract implementation of all FileWriters
     /// </summary>
@@ -81,33 +81,31 @@ namespace CsvTools
       in TimeZoneChangeDelegate timeZoneAdjust,
       in string sourceTimeZone)
     {
-      if (string.IsNullOrEmpty(fullPath))
-        throw new ArgumentException($"{nameof(fullPath)} can not be empty");
       SourceTimeZone = sourceTimeZone;
-      FullPath = FileSystemUtils.ResolvePattern(fullPath) ??
-                 throw new ArgumentException($"Make sure path is correct {fullPath}");
-      var fileName = FileSystemUtils.GetFileName(FullPath);
       TimeZoneAdjust = timeZoneAdjust;
       m_PgpKeyId = pgpKeyId;
-      if (header != null && header.Length > 0)
-        Header = ReplacePlaceHolder(
-          header,
-          fileName,
-          id);
-      else
-        Header = string.Empty;
+      Header = string.Empty;
+      m_Footer = string.Empty;
+      FullPath = fullPath ?? String.Empty;
+      if (string.IsNullOrEmpty(fullPath))
+      {
+        var fileName = FileSystemUtils.GetFileName(FileSystemUtils.ResolvePattern(fullPath));
+        if (header != null && header.Length > 0)
+          Header = ReplacePlaceHolder(
+            header,
+            fileName,
+            id);
 
-      if (footer != null && footer.Length > 0)
-        m_Footer = ReplacePlaceHolder(
-          footer,
-          fileName,
-          id);
-      else
-        m_Footer = string.Empty;
+        if (footer != null && footer.Length > 0)
+          m_Footer = ReplacePlaceHolder(
+            footer,
+            fileName,
+            id);
+
+      }
 
       m_ValueFormatGeneral = valueFormatGeneral ?? ValueFormat.Empty;
       ColumnDefinition =  columnDefinition == null ? new List<Column>() : new List<Column>(columnDefinition);
-
       FileSettingDisplay = fileSettingDisplay;
       m_KeepUnencrypted = unencrypted;
       m_IdentifierInContainer = identifierInContainer ?? string.Empty;
@@ -115,7 +113,7 @@ namespace CsvTools
 
 
     protected void HandleShowProgressPeriodic(string text, long value)
-      => ReportProgress?.Report(new ProgressInfo(text,  value));
+      => ReportProgress?.Report(new ProgressInfo(text, value));
 
     public long Records { get; protected set; }
 
@@ -295,11 +293,7 @@ namespace CsvTools
 
       try
       {
-        var sourceAccess = new SourceAccess(
-          FullPath,
-          false,
-          keyID: m_PgpKeyId,
-          keepEncrypted: m_KeepUnencrypted);
+        var sourceAccess = new SourceAccess(FullPath, false, keyID: m_PgpKeyId, keepEncrypted: m_KeepUnencrypted);
         if (!string.IsNullOrEmpty(m_IdentifierInContainer))
           sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
 #if NETSTANDARD2_1_OR_GREATER

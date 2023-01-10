@@ -158,7 +158,7 @@ namespace CsvTools
     /// ///
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
-    public void LoadCsvFile(string fileName, CancellationToken cancellationToken)
+    public async Task LoadCsvFileAsync(string fileName, CancellationToken cancellationToken)
     {
       if (IsDisposed)
         return;
@@ -184,95 +184,86 @@ namespace CsvTools
       }
 
       ShowTextPanel(true);
-      // ReSharper disable once AsyncVoidLambda
-      this.SafeInvoke(async () =>
-      {
-        try
-        {
-          DetachPropertyChanged();
-          using (var formProgress = new FormProgress("Examining file", false, cancellationToken))
-          {
-            formProgress.Maximum = 0;
-            formProgress.ShowWithFont(this);
-
-            m_FileSetting = (await fileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
-              m_ViewSettings.GuessCodePage,
-              m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
-              m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-              m_ViewSettings.FillGuessSettings, formProgress.CancellationToken)).PhysicalFile();
-
-            formProgress.Close();
-          }
-
-          if (m_FileSetting is null)
-            return;
-
-          m_FileSetting.CopyTo(m_ViewSettings.WriteSetting);
-
-          m_FileSetting.RootFolder = fileName.GetDirectoryName();
-          m_FileSetting.DisplayEndLineNo = false;
-          m_ViewSettings.PassOnConfiguration(m_FileSetting);
-
-          // update the UI
-          var display = fileName;
-          if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
-            display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
-
-          var title = new StringBuilder(FileSystemUtils.GetShortDisplayFileName(display, 50));
-          if (m_FileSetting is ICsvFile csv)
-          {
-            title.Append(" - ");
-            title.Append(EncodingHelper.GetEncodingName(csv.CodePageId, csv.ByteOrderMark));
-            m_WarningMax = csv.NumWarnings;
-          }
-
-          title.Append(" - ");
-          title.Append(AssemblyTitle);
-          this.SafeInvokeNoHandleNeeded(() => Text = title.ToString());
-
-          m_ToolStripButtonAsText.Visible = m_FileSetting is ICsvFile &&
-                                            m_FileSetting.ColumnCollection.Any(x =>
-                                              x.ValueFormat.DataType != DataTypeEnum.String);
-          SetFileSystemWatcher(fileName);
-
-          Directory.SetCurrentDirectory(m_FileSetting.RootFolder);
-
-          await OpenDataReaderAsync(cancellationToken);
-        }
-        catch (Exception ex)
-        {
-          this.ShowError(ex, $"Load File {fileName}");
-        }
-      });
-    }
-
-    // ReSharper disable StringLiteralTypo
-    private void SelectFile(string message)
-    {
+      Logger.Information("Loading {filename}", fileName);
       try
       {
-        var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
-                        + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
-
-        if (m_ViewSettings.StoreSettingsByFile)
-          strFilter += "Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension + "|";
-
-        strFilter += "Json files (*.json;*.ndjson)|*.json;*.ndjson|"
-                     + "Compressed files (*.gz;*.zip)|*.gz;*.zip|"
-                     + "All files (*.*)|*.*";
-
-        if (!FileSystemUtils.DirectoryExists(m_ViewSettings.InitialFolder))
-          m_ViewSettings.InitialFolder = ".";
-        var fileName = WindowsAPICodePackWrapper.Open(m_ViewSettings.InitialFolder, "File to Display", strFilter, null);
-        if (!(fileName is null || fileName.Length == 0))
+        DetachPropertyChanged();
+        using (var formProgress = new FormProgress("Examining file", false, cancellationToken))
         {
-          LoadCsvFile(fileName, m_CancellationTokenSource.Token);
+          formProgress.Maximum = 0;
+          formProgress.ShowWithFont(this);
+
+          var detection = await fileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
+            m_ViewSettings.GuessCodePage,
+            m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
+            m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
+            m_ViewSettings.FillGuessSettings, formProgress.CancellationToken);
+
+          m_FileSetting = detection.PhysicalFile();
+
+          formProgress.Close();
         }
+
+        if (m_FileSetting is null)
+          return;
+
+        m_FileSetting.CopyTo(m_ViewSettings.WriteSetting);
+
+        m_FileSetting.RootFolder = fileName.GetDirectoryName();
+        m_FileSetting.DisplayEndLineNo = false;
+        m_ViewSettings.PassOnConfiguration(m_FileSetting);
+
+        // update the UI
+        var display = fileName;
+        if (!string.IsNullOrEmpty(m_FileSetting.IdentifierInContainer))
+          display += Path.DirectorySeparatorChar + m_FileSetting.IdentifierInContainer;
+
+        var title = new StringBuilder(FileSystemUtils.GetShortDisplayFileName(display, 50));
+        if (m_FileSetting is ICsvFile csv)
+        {
+          title.Append(" - ");
+          title.Append(EncodingHelper.GetEncodingName(csv.CodePageId, csv.ByteOrderMark));
+          m_WarningMax = csv.NumWarnings;
+        }
+
+        title.Append(" - ");
+        title.Append(AssemblyTitle);
+        this.SafeInvokeNoHandleNeeded(() => Text = title.ToString());
+
+        m_ToolStripButtonAsText.Visible = m_FileSetting is ICsvFile &&
+                                          m_FileSetting.ColumnCollection.Any(x =>
+                                            x.ValueFormat.DataType != DataTypeEnum.String);
+        SetFileSystemWatcher(fileName);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        Directory.SetCurrentDirectory(m_FileSetting.RootFolder);
+
+        await OpenDataReaderAsync(cancellationToken);
       }
       catch (Exception ex)
       {
-        this.ShowError(ex, "Select File");
+        this.ShowError(ex, $"Load File {fileName}");
       }
+    }
+
+    // ReSharper disable StringLiteralTypo
+    private async Task SelectFile()
+    {
+      var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
+                      + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
+
+      if (m_ViewSettings.StoreSettingsByFile)
+        strFilter += "Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension + "|";
+
+      strFilter += "Json files (*.json;*.ndjson)|*.json;*.ndjson|"
+                   + "Compressed files (*.gz;*.zip)|*.gz;*.zip|"
+                   + "All files (*.*)|*.*";
+
+      if (!FileSystemUtils.DirectoryExists(m_ViewSettings.InitialFolder))
+        m_ViewSettings.InitialFolder = ".";
+      var fileName = WindowsAPICodePackWrapper.Open(m_ViewSettings.InitialFolder, "File to Display", strFilter, null);
+      if (!(fileName is null || fileName.Length == 0))
+        await LoadCsvFileAsync(fileName, m_CancellationTokenSource.Token);
     }
 
     private void AddWarning(object? sender, WarningEventArgs args)
@@ -309,6 +300,8 @@ namespace CsvTools
 
     private async Task CheckPossibleChange()
     {
+      if (!m_ShouldReloadData && !m_FileChanged) 
+        return;
       try
       {
         if (m_ShouldReloadData)
@@ -342,7 +335,7 @@ namespace CsvTools
               MessageBoxButtons.YesNo,
               MessageBoxIcon.Question,
               MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-          LoadCsvFile(m_FileSetting.FileName, m_CancellationTokenSource.Token);
+          await LoadCsvFileAsync(m_FileSetting.FileName, m_CancellationTokenSource.Token);
         else
           m_FileChanged = false;
 
@@ -384,13 +377,16 @@ namespace CsvTools
     /// <param name="e">The <see cref="DragEventArgs" /> instance containing the event data.</param>
     private async void FileDragDrop(object? sender, DragEventArgs e)
     {
-      // Set the filename
-      var files = (string[]) (e.Data?.GetData(DataFormats.FileDrop) ?? Array.Empty<string>());
-      if (files.Length <= 0) return;
-      if (WindowsAPICodePackWrapper.IsDialogOpen) return;
-      await SaveIndividualFileSettingAsync();
+      await this.RunWithHourglassAsync(async () =>
+      {
+        // Set the filename
+        var files = (string[]) (e.Data?.GetData(DataFormats.FileDrop) ?? Array.Empty<string>());
+        if (files.Length <= 0) return;
+        if (WindowsAPICodePackWrapper.IsDialogOpen) return;
+        await SaveIndividualFileSettingAsync();
 
-      LoadCsvFile(files[0], m_CancellationTokenSource.Token);
+        await LoadCsvFileAsync(files[0], m_CancellationTokenSource.Token);
+      });
     }
 
     /// <summary>
@@ -449,8 +445,8 @@ namespace CsvTools
           || e.PropertyName == nameof(ICsvFile.FileName))
         m_ShouldReloadData = true;
 
-      // if the header information is chnaged, rerun detecion,
-      // we might not come to a diffreent result but the column names are reset.
+      // if the header information is changed, rerun detection,
+      // we might not come to a different result but the column names are reset.
       if (e.PropertyName == nameof(ICsvFile.HasFieldHeader))
       {
         m_RunDetection = true;
@@ -534,7 +530,7 @@ namespace CsvTools
         {
           var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
 
-          this.SafeInvoke(() =>
+          detailControl.SafeInvoke(() =>
           {
             ShowTextPanel(true);
             detailControl.FileSetting = m_FileSetting;
@@ -543,23 +539,22 @@ namespace CsvTools
             detailControl.CancellationToken = cancellationToken;
             detailControl.ShowInfoButtons = false;
           });
-
+          Logger.Debug("Loading Batch");
           using (var formProgress = new FormProgress(fileNameShort, false, cancellationToken))
           {
             formProgress.ShowWithFont(this);
             await detailControl.LoadSettingAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,
               FilterTypeEnum.All, formProgress, AddWarning, formProgress.CancellationToken);
           }
-
-          if (cancellationToken.IsCancellationRequested)
-            return;
+          Logger.Debug("Batch Loaded");
+          cancellationToken.ThrowIfCancellationRequested();
 
           // TODO: Is this needed ? Is the column collection not already set ?
           m_FileSetting.ColumnCollection.AddRange(detailControl.DataTable.GetRealColumns()
             .Select(dataColumn => new Column(dataColumn.ColumnName, new ValueFormat(dataColumn.DataType.GetDataType()),
               dataColumn.Ordinal)));
 
-          
+
           // Load View Settings from file
           if (FileSystemUtils.FileExists(m_FileSetting.ColumnFile))
           {
@@ -578,6 +573,11 @@ namespace CsvTools
             }
           }
         });
+
+        cancellationToken.ThrowIfCancellationRequested();
+        this.SafeInvoke(() => ShowTextPanel(false));
+        detailControl.ShowInfoButtons = true;
+
       }
       catch (Exception)
       {
@@ -586,26 +586,18 @@ namespace CsvTools
       }
       finally
       {
-        Logger.Information("Display of data");
-        if (!cancellationToken.IsCancellationRequested)
-        {
-          this.SafeInvoke(() => ShowTextPanel(false));
-
-          detailControl.ShowInfoButtons = true;
-
-          m_ShouldReloadData = false;
-          m_FileChanged = false;
-        }
+        m_ShouldReloadData = false;
+        m_FileChanged = false;
 
         // Re enable event watching
         AttachPropertyChanged();
       }
     }
 
-    private void ColumnCollectionOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    private async void ColumnCollectionOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
       m_ShouldReloadData = true;
-      CheckPossibleChange().GetAwaiter().GetResult();
+      await CheckPossibleChange();
     }
 
     private async Task SaveIndividualFileSettingAsync()
@@ -752,6 +744,7 @@ namespace CsvTools
           ChangeColumnsNoEvent(m_StoreColumns.Select(col =>
             new Column(col.Name, ValueFormat.Empty, columnOrdinal: col.ColumnOrdinal)));
 
+          // ReSharper disable once LocalizableElement
           m_ToolStripButtonAsText.Text = "As Values";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsValue;
           reload = true;
@@ -759,6 +752,7 @@ namespace CsvTools
         else if (m_StoreColumns != null)
         {
           Logger.Information("Showing columns as values");
+          // ReSharper disable once LocalizableElement
           m_ToolStripButtonAsText.Text = "As Text";
           m_ToolStripButtonAsText.Image = Properties.Resources.AsText;
           ChangeColumnsNoEvent(m_StoreColumns);
@@ -776,6 +770,6 @@ namespace CsvTools
 
     private void ToggleShowLog(object? sender, EventArgs e) => ShowTextPanel(!textPanel.Visible);
 
-    private void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) => SelectFile("Open File Dialog");
+    private async void ToolStripButtonLoadFile_Click(object? sender, EventArgs e) => await m_ToolStripButtonLoadFile.RunWithHourglassAsync(async () => await SelectFile(), this);
   }
 }

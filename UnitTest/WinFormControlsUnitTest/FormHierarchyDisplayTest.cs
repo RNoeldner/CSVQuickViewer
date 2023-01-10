@@ -37,7 +37,7 @@ namespace CsvTools.Tests
       treeView.AfterSelect += (o, a) => { firedAfter = true; };
       treeView.BeforeSelect += (o, a) => { firedBefore = true; };
 
-      UnitTestStaticForms.ShowControl(treeView, .2, (theTreeView) =>
+      UnitTestStaticForms.ShowControl(() => treeView, .2, (theTreeView) =>
       {
         theTreeView.PressKey(Keys.Control | Keys.A);
         theTreeView.PressKey(Keys.Control | Keys.C);
@@ -88,7 +88,7 @@ namespace CsvTools.Tests
       treeView.AfterSelect += (o, a) => { firedAfter = true; };
       treeView.BeforeSelect += (o, a) => { firedBefore = true; };
 
-      UnitTestStaticForms.ShowControl(treeView, .2, (theTreeView) =>
+      UnitTestStaticForms.ShowControl(() => treeView, .2, (theTreeView) =>
       {
         theTreeView.PressKey(Keys.Control | Keys.A);
         theTreeView.PressKey(Keys.Control | Keys.C);
@@ -106,6 +106,7 @@ namespace CsvTools.Tests
       });
       Assert.IsTrue(firedAfter);
       Assert.IsTrue(firedBefore);
+
     }
 
     [TestMethod]
@@ -113,9 +114,7 @@ namespace CsvTools.Tests
     public void FormHierarchyDisplay()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);
-
-      using var form = new FormHierarchyDisplay(dataTable, dataTable.Select(), HtmlStyle.Default);
-      UnitTestStaticForms.ShowFormAndClose(form, 0.1, (frm) =>
+      UnitTestStaticForms.ShowForm(() => new FormHierarchyDisplay(dataTable, dataTable.Select(), HtmlStyle.Default), 0.1, (frm) =>
       {
         frm.BuildTree("int", "ID");
       });
@@ -152,8 +151,7 @@ namespace CsvTools.Tests
       var dt = await csvDataReader.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
         true, false, false, false, null, formProgress.CancellationToken);
 
-      using var form = new FormHierarchyDisplay(dt, dataTable.Select(), HtmlStyle.Default);
-      UnitTestStaticForms.ShowFormAndClose(form, .1, (frm) =>
+      UnitTestStaticForms.ShowForm(() => new FormHierarchyDisplay(dt, dataTable.Select(), HtmlStyle.Default), .1, (frm) =>
       {
         if (!(frm is { } hd))
           return;
@@ -161,7 +159,6 @@ namespace CsvTools.Tests
         hd.CloseAll();
         hd.ExpandAll();
       });
-      form.Close();
     }
   }
 }
