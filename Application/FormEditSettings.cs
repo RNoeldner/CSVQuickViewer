@@ -16,6 +16,7 @@
 
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -86,7 +87,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           formProgress.Maximum = 0;
           formProgress.ShowWithFont(this);
           SetFileSetting((await newFileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
-            m_ViewSettings.GuessCodePage,
+            m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
             m_ViewSettings.FillGuessSettings, formProgress.CancellationToken)).PhysicalFile());
@@ -190,7 +191,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
           csvFile.SkipRows = await improvedStream.GuessStartRow(csvFile.CodePageId, csvFile.FieldDelimiter,
-            csvFile.FieldQualifier, csvFile.CommentLine, m_CancellationTokenSource.Token);
+            csvFile.FieldQualifier, csvFile.EscapePrefix, csvFile.CommentLine, m_CancellationTokenSource.Token);
         });
     }
 
@@ -352,6 +353,20 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       if (numericUpDownSkipRows.Value > 0)
         checkBoxCopySkipped.Checked = true;
       checkBoxCopySkipped.Enabled = (numericUpDownSkipRows.Value > 0);
+    }
+
+    private async void buttonEscapeSequence_Click(object sender, EventArgs e)
+    {
+      if (m_FileSetting is ICsvFile csvFile)
+        await buttonEscapeSequence.RunWithHourglassAsync(async () =>
+        {
+#if NET5_0_OR_GREATER
+          await
+#endif
+          // ReSharper disable once UseAwaitUsing
+          using var stream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
+          csvFile.EscapePrefix = await stream.GuessEscapePrexfix(csvFile.CodePageId, csvFile.SkipRows, csvFile.FieldDelimiter, csvFile.FieldQualifier, m_CancellationTokenSource.Token);
+        });
     }
   }
 }

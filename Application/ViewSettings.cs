@@ -29,6 +29,7 @@ namespace CsvTools
     private bool m_DetectFileChanges = true;
     private FillGuessSettings m_FillGuessSettings = FillGuessSettings.Default;
     private bool m_GuessCodePage = true;
+    private bool m_GuessEscapePrefix = true;
     private bool m_GuessComment = true;
     private bool m_GuessDelimiter = true;
     private bool m_GuessHasHeader = true;
@@ -162,6 +163,13 @@ namespace CsvTools
     {
       get => m_GuessCodePage;
       set => SetProperty(ref m_GuessCodePage, value);
+    }
+
+    [DefaultValue(true)]
+    public bool GuessEscapePrefix
+    {
+      get => m_GuessEscapePrefix;
+      set => SetProperty(ref m_GuessEscapePrefix, value);
     }
 
     [DefaultValue(true)]

@@ -50,6 +50,7 @@ namespace CsvTools
     public static async Task<DelimitedFileDetectionResultWithColumns> AnalyzeFileAsync(this string fileName,
       bool guessJson,
       bool guessCodePage,
+      bool guessEscapePrefix,
       bool guessDelimiter,
       bool guessQualifier,
       bool guessStartRow,
@@ -162,6 +163,7 @@ namespace CsvTools
         fileName2,
         guessJson,
         guessCodePage,
+        guessEscapePrefix,
         guessDelimiter,
         guessQualifier,
         guessStartRow,
@@ -266,6 +268,7 @@ namespace CsvTools
       string fileName,
       bool guessJson,
       bool guessCodePage,
+      bool guessEscapePrefix,
       bool guessDelimiter,
       bool guessQualifier,
       bool guessStartRow,
@@ -284,6 +287,7 @@ namespace CsvTools
       if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader ||
             guessCommentLine || guessNewLine))
         return detectionResult;
+
 
       if (guessCodePage)
       {
@@ -364,13 +368,35 @@ namespace CsvTools
         return detectionResult;
       }
 
+      if (guessEscapePrefix)
+      {
+        using var textReader = new ImprovedTextReader(stream, detectionResult.CodePageId, detectionResult.SkipRows);
+        Logger.Information("Checking Escape Prefix");
+        detectionResult = new DelimitedFileDetectionResult(
+        detectionResult.FileName,
+        detectionResult.SkipRows,
+        detectionResult.CodePageId,
+        detectionResult.ByteOrderMark,
+        detectionResult.QualifyAlways,
+        detectionResult.IdentifierInContainer,
+        detectionResult.CommentLine,
+        await textReader.GuessEscapePrefixAsync(detectionResult.FieldDelimiter, detectionResult.FieldQualifier, cancellationToken),
+        detectionResult.FieldDelimiter,
+        detectionResult.FieldQualifier,
+        detectionResult.QualifierInContext,
+        detectionResult.DuplicateQualifierToEscape,
+        detectionResult.HasFieldHeader,
+        false,
+        detectionResult.NoDelimitedFile,
+        detectionResult.NewLine);
+      }
+
 
       if (guessCommentLine)
       {
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking comment line");
-        using var streamReader = new ImprovedTextReader(stream,
-          await stream.CodePageResolve(detectionResult.CodePageId, cancellationToken).ConfigureAwait(false), detectionResult.SkipRows);
+        using var textReader = new ImprovedTextReader(stream, detectionResult.CodePageId, detectionResult.SkipRows);
         detectionResult = new DelimitedFileDetectionResult(
           detectionResult.FileName,
           detectionResult.SkipRows,
@@ -378,7 +404,7 @@ namespace CsvTools
           detectionResult.ByteOrderMark,
           detectionResult.QualifyAlways,
           detectionResult.IdentifierInContainer,
-          await streamReader.GuessLineCommentAsync(cancellationToken).ConfigureAwait(false),
+          await textReader.GuessLineCommentAsync(cancellationToken).ConfigureAwait(false),
           detectionResult.EscapePrefix,
           detectionResult.FieldDelimiter,
           detectionResult.FieldQualifier,
@@ -397,13 +423,13 @@ namespace CsvTools
       if (guessStartRow && oldDelimiter != 0)
       {
         cancellationToken.ThrowIfCancellationRequested();
-        Logger.Information("Checking delimited text file");
-        using var streamReader = new ImprovedTextReader(stream,
-          await stream.CodePageResolve(detectionResult.CodePageId, cancellationToken).ConfigureAwait(false), detectionResult.SkipRows);
+
+        using var textReader = new ImprovedTextReader(stream, detectionResult.CodePageId, detectionResult.SkipRows);
+        Logger.Information("Checking start line");
 
         detectionResult = new DelimitedFileDetectionResult(
           detectionResult.FileName,
-          streamReader.GuessStartRow(detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.CommentLine, cancellationToken),
+          textReader.GuessStartRow(detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.EscapePrefix, detectionResult.CommentLine, cancellationToken),
           detectionResult.CodePageId,
           detectionResult.ByteOrderMark,
           detectionResult.QualifyAlways,
@@ -424,8 +450,7 @@ namespace CsvTools
       if (guessQualifier || guessDelimiter || guessNewLine)
       {
         Logger.Information("Re-Opening file");
-        using var textReader = new ImprovedTextReader(stream,
-          await stream.CodePageResolve(detectionResult.CodePageId, cancellationToken).ConfigureAwait(false), detectionResult.SkipRows);
+        using var textReader = new ImprovedTextReader(stream, detectionResult.CodePageId, detectionResult.SkipRows);
 
         // ========== Delimiter
         if (guessDelimiter)
@@ -484,7 +509,7 @@ namespace CsvTools
         {
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Qualifier");
-          var qualifier = QualifierDetection.GuessQualifier(textReader, detectionResult.FieldDelimiter, detectionResult.EscapePrefix, new[] { '"', '\'' }, cancellationToken);
+          var qualifier = DetectionQualifier.GuessQualifier(textReader, detectionResult.FieldDelimiter, detectionResult.EscapePrefix, new[] { '"', '\'' }, cancellationToken);
 
           detectionResult = new DelimitedFileDetectionResult(
             detectionResult.FileName,
@@ -504,32 +529,6 @@ namespace CsvTools
             detectionResult.IsJson,
             detectionResult.NoDelimitedFile,
             detectionResult.NewLine);
-        }
-
-        if (guessQualifier || guessDelimiter)
-        {
-          cancellationToken.ThrowIfCancellationRequested();
-          Logger.Information("Checking Escape Char");
-          if (!textReader.IsEscapeUsed(detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.EscapePrefix, cancellationToken))
-          {
-            detectionResult = new DelimitedFileDetectionResult(
-              detectionResult.FileName,
-              detectionResult.SkipRows,
-              detectionResult.CodePageId,
-              detectionResult.ByteOrderMark,
-              detectionResult.QualifyAlways,
-              detectionResult.IdentifierInContainer,
-              detectionResult.CommentLine,
-              string.Empty,
-              detectionResult.FieldDelimiter,
-              detectionResult.FieldQualifier,
-              detectionResult.QualifierInContext,
-              detectionResult.DuplicateQualifierToEscape,
-              detectionResult.HasFieldHeader,
-              detectionResult.IsJson,
-              detectionResult.NoDelimitedFile,
-              detectionResult.NewLine);
-          }
         }
       }
 
@@ -570,14 +569,13 @@ namespace CsvTools
         if (oldDelimiter != detectionResult.FieldDelimiter.StringToChar())
         {
           Logger.Information("Checking start row again because previously assumed delimiter has changed");
-          using var streamReader2 = new ImprovedTextReader(stream,
-            await stream.CodePageResolve(detectionResult.CodePageId, cancellationToken).ConfigureAwait(false), 0);
-          streamReader2.ToBeginning();
+          using var textReader2 = new ImprovedTextReader(stream, detectionResult.CodePageId, 0);
           detectionResult = new DelimitedFileDetectionResult(
             detectionResult.FileName,
-            streamReader2.GuessStartRow(
+            textReader2.GuessStartRow(
               detectionResult.FieldDelimiter,
               detectionResult.FieldQualifier,
+              detectionResult.EscapePrefix,
               detectionResult.CommentLine,
               cancellationToken),
             detectionResult.CodePageId,
@@ -651,7 +649,7 @@ namespace CsvTools
     /// <returns></returns>
     /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
     public static async Task<DelimitedFileDetectionResult> GetDetectionResultFromFile(this string fileName,
-      bool guessJson, bool guessCodePage,
+      bool guessJson, bool guessCodePage, bool guessEscapePrefix,
       bool guessDelimiter, bool guessQualifier,
       bool guessStartRow, bool guessHasHeader,
       bool guessNewLine, bool guessCommentLine,
@@ -678,6 +676,7 @@ namespace CsvTools
           fileName,
           guessJson,
           guessCodePage,
+          guessEscapePrefix,
           guessDelimiter,
           guessQualifier,
           guessStartRow,
@@ -819,6 +818,7 @@ namespace CsvTools
       return await textReader.GuessLineCommentAsync(cancellationToken).ConfigureAwait(false);
     }
 
+
     /// <summary>Guesses the line comment</summary>
     /// <param name="textReader">The text reader.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
@@ -827,22 +827,19 @@ namespace CsvTools
     public static async Task<string> GuessLineCommentAsync(this ImprovedTextReader textReader,
       CancellationToken cancellationToken)
     {
-      if (textReader is null) throw new ArgumentNullException(nameof(textReader));
-      const int maxRows = 50;
-      var lastRow = 0;
-      var starts =
-        new[] { "##", "//", "\\\\", "''", "#", "/", "\\", "'" }.ToDictionary(test => test, test => 0);
+      if (textReader is null)
+        throw new ArgumentNullException(nameof(textReader));
 
+      var starts =
+        new[] { "<!--", "##", "//", "\\\\", "''", "#", "/", "\\", "'" }.ToDictionary(test => test, test => 0);
+
+      // Comments are mainly at teh start of a file
       textReader.ToBeginning();
-      // Count the number of rows that start with the checked comment chars
-      while (lastRow < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
+      for (int current = 0; current<50 && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested; current++)
       {
-        cancellationToken.ThrowIfCancellationRequested();
         var line = (await textReader.ReadLineAsync().ConfigureAwait(false)).TrimStart();
         if (line.Length == 0)
           continue;
-        lastRow++;
-
         foreach (var test in starts.Keys.Where(test => line.StartsWith(test, StringComparison.Ordinal)))
         {
           starts[test]++;
@@ -899,15 +896,18 @@ namespace CsvTools
       this ImprovedTextReader textReader,
       string delimiter,
       string quote,
+      string escapePrefix,
       string commentLine,
       CancellationToken cancellationToken)
     {
-      if (textReader is null) throw new ArgumentNullException(nameof(textReader));
+      if (textReader is null)
+        throw new ArgumentNullException(nameof(textReader));
       if (commentLine is null)
         throw new ArgumentNullException(nameof(commentLine));
       const int maxRows = 50;
       var delimiterChar = delimiter.WrittenPunctuationToChar();
       var quoteChar = quote.WrittenPunctuationToChar();
+      var escapeChar = escapePrefix.WrittenPunctuationToChar();
       textReader.ToBeginning();
       var columnCount = new List<int>(maxRows);
       var rowMapping = new Dictionary<int, int>(maxRows);
@@ -915,33 +915,42 @@ namespace CsvTools
       var isComment = new bool[maxRows];
       var quoted = false;
       var firstChar = true;
-      var lastRow = 0;
+      var currentRow = 0;
       var retValue = 0;
 
-      while (lastRow < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
+      while (currentRow < maxRows && !textReader.EndOfStream && !cancellationToken.IsCancellationRequested)
       {
         var readChar = textReader.Read();
+        if (readChar==' ' || readChar == '\0')
+          continue;
 
         // Handle Commented lines
-        if (firstChar && commentLine.Length > 0 && !isComment[lastRow] && readChar == commentLine[0])
+        if (firstChar && commentLine.Length > 0 && readChar == commentLine[0])
         {
-          isComment[lastRow] = true;
+          isComment[currentRow] = true;
 
           for (var pos = 1; pos < commentLine.Length; pos++)
           {
             var nextChar = textReader.Peek();
-            if (nextChar == commentLine[pos]) continue;
-            isComment[lastRow] = false;
+            if (nextChar == commentLine[pos])
+            {
+              textReader.MoveNext();
+              continue;
+            }
+            isComment[currentRow] = false;
             break;
           }
         }
 
+        if (readChar == escapeChar && !isComment[currentRow])
+          continue;
+
         // Handle Quoting
-        if (readChar == quoteChar && !isComment[lastRow])
+        if (readChar == quoteChar && !isComment[currentRow])
         {
           if (quoted)
           {
-            if (textReader.Peek() != '"')
+            if (textReader.Peek() != quoteChar)
               quoted = false;
             else
               textReader.MoveNext();
@@ -960,7 +969,7 @@ namespace CsvTools
           case '\n':
             if (!quoted)
             {
-              lastRow++;
+              currentRow++;
               firstChar = true;
               if (textReader.Peek() == '\r')
                 textReader.MoveNext();
@@ -971,7 +980,7 @@ namespace CsvTools
           case '\r':
             if (!quoted)
             {
-              lastRow++;
+              currentRow++;
               firstChar = true;
               if (textReader.Peek() == '\n')
                 textReader.MoveNext();
@@ -980,24 +989,20 @@ namespace CsvTools
             break;
 
           default:
-            if (!isComment[lastRow] && !quoted && readChar == delimiterChar)
+            if (!isComment[currentRow] && !quoted && readChar == delimiterChar)
             {
-              colCount[lastRow]++;
+              colCount[currentRow]++;
               firstChar = true;
               continue;
             }
 
             break;
         }
-
-        // Its still the first char if its a leading space
-        if (firstChar && readChar != ' ')
-          firstChar = false;
       }
 
       cancellationToken.ThrowIfCancellationRequested();
       // remove all rows that are comment lines...
-      for (var row = 0; row < lastRow; row++)
+      for (var row = 0; row < currentRow; row++)
       {
         rowMapping[columnCount.Count] = row;
         if (!isComment[row])
@@ -1074,65 +1079,13 @@ namespace CsvTools
       int codePageID,
       string fieldDelimiter,
       string fieldQualifier,
+      string escapePrefix,
       string commentLine,
       CancellationToken cancellationToken)
     {
       using var streamReader = new ImprovedTextReader(stream,
         await stream.CodePageResolve(codePageID, cancellationToken).ConfigureAwait(false), 0);
-      return streamReader.GuessStartRow(fieldDelimiter, fieldQualifier, commentLine, cancellationToken);
-    }
-
-    /// <summary>
-    ///   Does check if quoting was actually used in the file
-    /// </summary>
-    /// <param name="stream">The improved stream.</param>
-    /// <param name="codePageId">The code page identifier.</param>
-    /// <param name="skipRows">The skip rows.</param>
-    /// <param name="fieldDelimiter">The field delimiter character.</param>
-    /// <param name="fieldQualifier">The field qualifier character.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns><c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.</returns>
-    public static async Task<bool> HasUsedQualifier(
-      this Stream stream,
-      int codePageId,
-      int skipRows,
-      string fieldDelimiter,
-      string fieldQualifier,
-      CancellationToken cancellationToken)
-    {
-      // if we do not have a quote defined it does not matter
-      if (string.IsNullOrEmpty(fieldQualifier) || cancellationToken.IsCancellationRequested)
-        return false;
-      var fieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
-      var fieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
-      using var streamReader = new ImprovedTextReader(stream,
-        await stream.CodePageResolve(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
-      var isStartOfColumn = true;
-      while (!streamReader.EndOfStream)
-      {
-        if (cancellationToken.IsCancellationRequested)
-          return false;
-        var c = (char) streamReader.Read();
-        if (c == '\r' || c == '\n' || c == fieldDelimiterChar)
-        {
-          isStartOfColumn = true;
-          continue;
-        }
-
-        // if we are not at the start of a column we can get the next char
-        if (!isStartOfColumn)
-          continue;
-        // If we are at the start of a column and this is a ", we can stop, this is a real qualifier
-        if (c == fieldQualifierChar)
-          return true;
-        // Any non whitespace will reset isStartOfColumn
-        if (c <= '\x00ff')
-          isStartOfColumn = c == ' ' || c == '\t';
-        else
-          isStartOfColumn = CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.SpaceSeparator;
-      }
-
-      return false;
+      return streamReader.GuessStartRow(fieldDelimiter, fieldQualifier, escapePrefix, commentLine, cancellationToken);
     }
 
     /// <summary>
@@ -1550,32 +1503,6 @@ namespace CsvTools
       return res;
     }
 
-    private static bool IsEscapeUsed(
-      this ImprovedTextReader textReader,
-      string delimiter,
-      string quote,
-      string escape,
-      CancellationToken cancellationToken)
-    {
-      var delimiterChar = delimiter.WrittenPunctuationToChar();
-      var quoteChar = quote.WrittenPunctuationToChar();
-      var escapeChar = escape.WrittenPunctuationToChar();
-      var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
-      var counter = 0;
-      while (!textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested && counter++< 65536)
-      {
-        var c = textReader.Read();
-        if (c == escapeChar)
-        {
-          if (!textReader.EndOfStream)
-          {
-            c = textReader.Read();
-            if (c == delimiterChar || c == quoteChar || c == escapeChar)
-              return true;
-          }
-        }
-      }
-      return false;
-    }
+
   }
 }

@@ -19,20 +19,6 @@ namespace CsvTools
 {
   public static class Program
   {
-    static Program()
-    {
-      try
-      {
-#if NET5_0_OR_GREATER
-        System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-#endif
-      }
-      catch (Exception ex)
-      {
-        UnhandledException(ex);
-      }
-    }
-
     /// <summary>
     ///   The main entry point for the application.
     /// </summary>
@@ -65,6 +51,10 @@ namespace CsvTools
         fileName = args.Join(" ");
 
       var viewSettings = ViewSettingHelper.LoadViewSettingsAsync().GetAwaiter().GetResult();
+
+#if NET5_0_OR_GREATER
+        System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+#endif
 
       var frm = new FormMain(viewSettings);
       frm.Show();

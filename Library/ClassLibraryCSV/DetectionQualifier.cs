@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -6,8 +7,61 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  public static class QualifierDetection
+  public static class DetectionQualifier
   {
+    /// <summary>
+    ///   Does check if quoting was actually used in the file
+    /// </summary>
+    /// <param name="stream">The improved stream.</param>
+    /// <param name="codePageId">The code page identifier.</param>
+    /// <param name="skipRows">The skip rows.</param>
+    /// <param name="fieldDelimiter">The field delimiter character.</param>
+    /// <param name="fieldQualifier">The field qualifier character.</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <returns><c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.</returns>
+    public static async Task<bool> HasUsedQualifier(
+      this Stream stream,
+      int codePageId,
+      int skipRows,
+      string fieldDelimiter,
+      string fieldQualifier,
+      CancellationToken cancellationToken)
+    {
+      // if we do not have a quote defined it does not matter
+      if (string.IsNullOrEmpty(fieldQualifier) || cancellationToken.IsCancellationRequested)
+        return false;
+      var fieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
+      var fieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
+      using var streamReader = new ImprovedTextReader(stream,
+        await stream.CodePageResolve(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
+      var isStartOfColumn = true;
+      while (!streamReader.EndOfStream)
+      {
+        if (cancellationToken.IsCancellationRequested)
+          return false;
+        var c = (char) streamReader.Read();
+        if (c == '\r' || c == '\n' || c == fieldDelimiterChar)
+        {
+          isStartOfColumn = true;
+          continue;
+        }
+
+        // if we are not at the start of a column we can get the next char
+        if (!isStartOfColumn)
+          continue;
+        // If we are at the start of a column and this is a ", we can stop, this is a real qualifier
+        if (c == fieldQualifierChar)
+          return true;
+        // Any non whitespace will reset isStartOfColumn
+        if (c <= '\x00ff')
+          isStartOfColumn = c == ' ' || c == '\t';
+        else
+          isStartOfColumn = CharUnicodeInfo.GetUnicodeCategory(c) == UnicodeCategory.SpaceSeparator;
+      }
+
+      return false;
+    }
+
     /// <summary>
     ///   Try to guess the new line sequence
     /// </summary>
