@@ -119,7 +119,7 @@ namespace CsvTools
           bestQuoteTestResults = currentQuote;
       }
 
-      Logger.Information("Column Qualifier: {qualifier}", bestQuoteTestResults.QuoteChar.GetDescription());
+      Logger.Information($"Column Qualifier: {bestQuoteTestResults.QuoteChar.GetDescription()}" );
       return bestQuoteTestResults;
     }
 

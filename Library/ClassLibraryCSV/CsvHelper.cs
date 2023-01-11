@@ -36,6 +36,7 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <param name="guessJson">if <c>true</c> trying to determine if file is a JSON file</param>
     /// <param name="guessCodePage">if <c>true</c>, try to determine the code page</param>
+    /// <param name="guessEscapePrefix">if <c>true</c>, try to determine the escape sequence</param>
     /// <param name="guessDelimiter">if <c>true</c>, try to determine the delimiter</param>
     /// <param name="guessQualifier">if <c>true</c>, try to determine the qualifier for text</param>
     /// <param name="guessStartRow">if <c>true</c>, try to determine the number of skipped rows</param>
@@ -254,6 +255,7 @@ namespace CsvTools
     /// <param name="fileName"></param>
     /// <param name="guessJson">if <c>true</c> trying to determine if file is a JSON file</param>
     /// <param name="guessCodePage">if <c>true</c>, try to determine the code page</param>
+    /// <param name="guessEscapePrefix">if <c>true</c>, try to determine the escape sequence</param>
     /// <param name="guessDelimiter">if <c>true</c>, try to determine the delimiter</param>
     /// <param name="guessQualifier">if <c>true</c>, try to determine the qualifier for text</param>
     /// <param name="guessStartRow">if <c>true</c>, try to determine the number of skipped rows</param>
@@ -569,7 +571,7 @@ namespace CsvTools
         if (oldDelimiter != detectionResult.FieldDelimiter.StringToChar())
         {
           Logger.Information("Checking start row again because previously assumed delimiter has changed");
-          using var textReader2 = new ImprovedTextReader(stream, detectionResult.CodePageId, 0);
+          using var textReader2 = new ImprovedTextReader(stream, detectionResult.CodePageId);
           detectionResult = new DelimitedFileDetectionResult(
             detectionResult.FileName,
             textReader2.GuessStartRow(
@@ -603,10 +605,7 @@ namespace CsvTools
         var issue = await stream.GuessHasHeader(detectionResult.CodePageId, detectionResult.SkipRows, detectionResult.CommentLine,
           detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.EscapePrefix,
           cancellationToken).ConfigureAwait(false);
-        if (!string.IsNullOrEmpty(issue))
-          Logger.Information("Without Header Row {reason}", issue);
-        else
-          Logger.Information("Has Header Row");
+        Logger.Information(!string.IsNullOrEmpty(issue) ? $"Without Header Row {issue}" : "Has Header Row");
 
         detectionResult = new DelimitedFileDetectionResult(
           detectionResult.FileName,
@@ -637,6 +636,7 @@ namespace CsvTools
     /// <param name="fileName">Name of the file.</param>
     /// <param name="guessJson">if true trying to determine if file is a JSOn file</param>
     /// <param name="guessCodePage">if true, try to determine the code page</param>
+    /// <param name="guessEscapePrefix">if <c>true</c>, try to determine the escape sequence</param>
     /// <param name="guessDelimiter">if true, try to determine the delimiter</param>
     /// <param name="guessQualifier">if true, try to determine the qualifier for text</param>
     /// <param name="guessStartRow">if true, try to determine the number of skipped rows</param>
@@ -752,7 +752,7 @@ namespace CsvTools
         var byBom = EncodingHelper.GetEncodingByByteOrderMark(buff, 4);
         if (byBom != null)
         {
-          Logger.Information("Code Page: {encoding}", EncodingHelper.GetEncodingName(byBom, true));
+          Logger.Information($"Code Page: {EncodingHelper.GetEncodingName(byBom, true)}");
           return new Tuple<int, bool>(byBom.CodePage, true);
         }
       }
@@ -760,7 +760,7 @@ namespace CsvTools
       var detected = EncodingHelper.GuessEncodingNoBom(buff);
       if (detected.Equals(Encoding.ASCII))
         detected = Encoding.UTF8;
-      Logger.Information("Code Page: {encoding}", EncodingHelper.GetEncodingName(detected, false));
+      Logger.Information($"Code Page: {EncodingHelper.GetEncodingName(detected, false)}");
       return new Tuple<int, bool>(detected.CodePage, false);
     }
 
@@ -831,7 +831,7 @@ namespace CsvTools
         throw new ArgumentNullException(nameof(textReader));
 
       var starts =
-        new[] { "<!--", "##", "//", "\\\\", "''", "#", "/", "\\", "'" }.ToDictionary(test => test, test => 0);
+        new[] { "<!--", "##", "//", "\\\\", "''", "#", "/", "\\", "'" }.ToDictionary(test => test, _ => 0);
 
       // Comments are mainly at teh start of a file
       textReader.ToBeginning();
@@ -853,7 +853,7 @@ namespace CsvTools
       if (maxCount > 0)
       {
         var check = starts.First(x => x.Value == maxCount);
-        Logger.Information("Comment Line: {comment}", check.Key);
+        Logger.Information($"Comment Line: {check.Key}");
         return check.Key;
       }
 
@@ -888,6 +888,7 @@ namespace CsvTools
     /// <param name="textReader">The stream reader with the data</param>
     /// <param name="delimiter">The delimiter.</param>
     /// <param name="quote">The quoting char</param>
+    /// <param name="escapePrefix">The escape char</param>
     /// <param name="commentLine">The characters for a comment line.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The number of rows to skip</returns>
@@ -956,10 +957,7 @@ namespace CsvTools
               textReader.MoveNext();
           }
           else
-          {
             quoted |= firstChar;
-          }
-
           continue;
         }
 
@@ -974,7 +972,6 @@ namespace CsvTools
               if (textReader.Peek() == '\r')
                 textReader.MoveNext();
             }
-
             break;
 
           case '\r':
@@ -985,7 +982,6 @@ namespace CsvTools
               if (textReader.Peek() == '\n')
                 textReader.MoveNext();
             }
-
             break;
 
           default:
@@ -993,9 +989,7 @@ namespace CsvTools
             {
               colCount[currentRow]++;
               firstChar = true;
-              continue;
             }
-
             break;
         }
       }
@@ -1060,7 +1054,7 @@ namespace CsvTools
         }
       }
 
-      Logger.Information("Start Row: {row}", retValue);
+      Logger.Information($"Start Row: {retValue}");
       return retValue;
     }
 
@@ -1071,6 +1065,7 @@ namespace CsvTools
     /// <param name="codePageID">The code page identifier.</param>
     /// <param name="fieldDelimiter">The field delimiter character.</param>
     /// <param name="fieldQualifier">The field qualifier character.</param>
+    /// <param name="escapePrefix">The escape prefix character.</param>
     /// <param name="commentLine">The comment line.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The number of rows to skip</returns>
@@ -1084,7 +1079,7 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       using var streamReader = new ImprovedTextReader(stream,
-        await stream.CodePageResolve(codePageID, cancellationToken).ConfigureAwait(false), 0);
+        await stream.CodePageResolve(codePageID, cancellationToken).ConfigureAwait(false));
       return streamReader.GuessStartRow(fieldDelimiter, fieldQualifier, escapePrefix, commentLine, cancellationToken);
     }
 
@@ -1108,13 +1103,14 @@ namespace CsvTools
       {
         if (await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
-          Logger.Information("Detected Json file");
+          // ReSharper disable once MergeIntoLogicalPattern
           if (jsonTextReader.TokenType == JsonToken.StartObject || jsonTextReader.TokenType == JsonToken.StartArray
                                                                 || jsonTextReader.TokenType
                                                                 == JsonToken.StartConstructor)
           {
             await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false);
             await jsonTextReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+            Logger.Information("Detected Json file");
             return true;
           }
         }
@@ -1284,7 +1280,7 @@ namespace CsvTools
           var resultFl = firstLine.Substring(4);
           if (resultFl.Equals("\\t", StringComparison.OrdinalIgnoreCase))
             resultFl = "Tab";
-          Logger.Information("Delimiter from 'sep=' in first line: {delimiter}", resultFl);
+          Logger.Information($"Delimiter from 'sep=' in first line: {resultFl}" );
           return new DelimiterDetection(resultFl, true, true);
         }
 
@@ -1377,7 +1373,7 @@ namespace CsvTools
         {
           foreach (var kv in sums)
           {
-            Logger.Information("Multiple Possible Separator {sep} - Variance: {variance}", dc.Separators[kv.Key].ToString().GetDescription(), kv.Value.variance);
+            Logger.Information($"Multiple Possible Separator {dc.Separators[kv.Key].ToString().GetDescription()} - Variance: {kv.Value.variance}");
           }
         }
         // get the best result by variance first then if equal by number of records
@@ -1392,7 +1388,7 @@ namespace CsvTools
       }
 
       var result = match == '\t' ? "Tab" : match.ToStringHandle0().ToString(CultureInfo.CurrentCulture);
-      Logger.Information("Column Delimiter: {delimiter}", result);
+      Logger.Information($"Column Delimiter: {result}");
       return new DelimiterDetection(result, true, false);
     }
 
@@ -1499,7 +1495,7 @@ namespace CsvTools
         res = RecordDelimiterTypeEnum.Crlf;
       else if (count[lfCr] == maxCount)
         res = RecordDelimiterTypeEnum.Lfcr;
-      Logger.Information("Record Delimiter: {recorddelimiter}", res.Description());
+      Logger.Information($"Record Delimiter: {res.Description()}");
       return res;
     }
 
