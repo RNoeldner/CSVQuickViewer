@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  public static class DetectionEscapePrexfix
+  public static class DetectionEscapePrefix
   {
     /// <summary>
     ///   Try to guess the new used Escape Sequence, by looking at 500 lines 
@@ -19,7 +19,7 @@ namespace CsvTools
     /// <param name="fieldQualifier">The quoting char</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The NewLine Combination used</returns>
-    public static async Task<string> GuessEscapePrexfix(
+    public static async Task<string> GuessEscapePrefix(
       this Stream stream,
       int codePageId,
       int skipRows,
@@ -47,12 +47,12 @@ namespace CsvTools
       if (textReader is null)
         throw new ArgumentNullException(nameof(textReader));
 
-      var dicLookfor = new Dictionary<string, char>();
+      var dicLookFor = new List<string>();
 
-      // The characters that could be an escpae, most likly its a \ 
+      // The characters that could be an escape, most likely its a \ 
       var checkedEscapeChars = new[] { '\\', '/', '?' };
 
-      // build a list of all chacaters that would indicate a sequence
+      // build a list of all characters that would indicate a sequence
       var possibleEscaped = new HashSet<char>(checkedEscapeChars);
       if (fieldDelimiter.Length>0)
         possibleEscaped.Add(fieldDelimiter.WrittenPunctuationToChar());
@@ -65,9 +65,8 @@ namespace CsvTools
       foreach (var escape in checkedEscapeChars)
       {
         counter.Add(escape, 0);
-        // Escaped chars are comments, qoutes, linefeeds or delimiters
-        foreach (var escaped in possibleEscaped)
-          dicLookfor.Add(string.Empty+ escape + escaped, escape);
+        // Escaped chars are comments, quotes, linefeed or delimiters
+        dicLookFor.AddRange(possibleEscaped.Select(escaped => string.Empty + escape + escaped));
       }
 
       // Start where we are currently but wrap around
@@ -78,60 +77,20 @@ namespace CsvTools
         // in case non of the possible escapes is in the line skip it...
         if (line.IndexOfAny(checkedEscapeChars)==-1)
           continue;
-        // look closer if its possible an escaped sequence
-        foreach (var d in dicLookfor)
-        {
-          if (line.IndexOf(d.Key, StringComparison.Ordinal)!=-1)
-            counter[d.Value]++;
-        }
+        // look closer if its possible an real escaped sequence
+        foreach (var d in dicLookFor.Where(d => line.IndexOf(d, StringComparison.Ordinal)!=-1))
+          counter[d[0]]++;
       }
 
-      var check = counter.OrderBy(x => x.Value).First();
-      if (check.Value > 0)
+      var bestScore = counter.OrderByDescending(x => x.Value).First();
+      if (bestScore.Value > 0)
       {
-        Logger.Information("Escape : {comment}", check.Key.GetDescription());
-        return check.Key.ToString();
+        Logger.Information("Escape : {comment}", bestScore.Key.GetDescription());
+        return bestScore.Key.ToString();
       }
 
       Logger.Information("No Escape found");
       return string.Empty;
     }
-
-    /// <summary>
-    /// Checks if the set scap
-    /// </summary>
-    /// <param name="textReader"></param>
-    /// <param name="delimiter"></param>
-    /// <param name="quote"></param>
-    /// <param name="escape"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    //public static bool IsEscapeUsed(
-    //  this ImprovedTextReader textReader,
-    //  string delimiter,
-    //  string quote,
-    //  string escape,
-    //  CancellationToken cancellationToken)
-    //{
-    //  var delimiterChar = delimiter.WrittenPunctuationToChar();
-    //  var quoteChar = quote.WrittenPunctuationToChar();
-    //  var escapeChar = escape.WrittenPunctuationToChar();
-    //  var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
-    //  var counter = 0;
-    //  while (!textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested && counter++< 65536)
-    //  {
-    //    var c = textReader.Read();
-    //    if (c == escapeChar)
-    //    {
-    //      if (!textReader.EndOfStream)
-    //      {
-    //        c = textReader.Read();
-    //        if (c == delimiterChar || c == quoteChar || c == escapeChar ||  c== '\n' ||  c== '\r')
-    //          return true;
-    //      }
-    //    }
-    //  }
-    //  return false;
-    //}
   }
 }
