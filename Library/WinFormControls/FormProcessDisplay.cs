@@ -312,15 +312,15 @@ namespace CsvTools
         // if the form is closed by the user (UI) signal a cancellation
         if (e.CloseReason == CloseReason.UserClosing && !CancellationTokenSource.IsCancellationRequested)
         {
-          if (MessageBox.Show("Cancel running process?", "Cancel", MessageBoxButtons.YesNo, MessageBoxIcon.Question) ==
-              DialogResult.Yes)
-          {
+          //if (MessageBox.Show("Cancel running process?", "Cancel", MessageBoxButtons.YesNo, MessageBoxIcon.Question) ==
+          //    DialogResult.Yes)
+          //{
             CancellationTokenSource.Cancel();
             // Give it time to stop
             Thread.Sleep(200);
-          }
-          else
-            e.Cancel = true;
+          //}
+          //else
+          //  e.Cancel = true;
         }
       }
       catch (ObjectDisposedException)
