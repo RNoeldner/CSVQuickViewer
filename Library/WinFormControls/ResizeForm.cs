@@ -69,7 +69,7 @@ namespace CsvTools
       foreach (Control ctrl in container.Controls)
         SetFonts(ctrl, newFont);
     }
-
+#pragma warning disable CS8600
     private void InitializeComponent()
     {
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResizeForm));
@@ -82,5 +82,6 @@ namespace CsvTools
       this.Name = "ResizeForm";
       this.ResumeLayout(false);
     }
+#pragma warning restore CS8600
   }
 }
