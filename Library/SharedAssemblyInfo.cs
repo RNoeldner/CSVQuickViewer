@@ -10,7 +10,7 @@ using System.Reflection;
 
 // Version information for an assembly consists of the following four values: Major Version Minor
 // Version Build Number Revision You can specify all the values or you can default the Build and.Json
-// Revision Numbers by using the '*' as shown below: [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.7.1.566")]
-[assembly: AssemblyFileVersion("1.7.1.566")]
-[assembly: AssemblyInformationalVersion("1.7.1.566")] // a.k.a. "Product version"
+// Revision Numbers by using the '*' as shown belokw: [assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("1.7.2.567")]
+[assembly: AssemblyFileVersion("1.7.2.567")]
+[assembly: AssemblyInformationalVersion("1.7.2.567")] // a.k.a. "Product version"

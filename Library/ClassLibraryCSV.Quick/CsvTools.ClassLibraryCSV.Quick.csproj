@@ -71,8 +71,9 @@
 
 		<Compile Include="..\ClassLibraryCSV\CsvFileWriter.cs" Link="CsvFileWriter.cs" />
 		<Compile Include="..\ClassLibraryCSV\CsvHelper.cs" Link="CsvHelper.cs" />
-		<Compile Include="..\ClassLibraryCSV\QualifierDetection.cs" Link="QualifierDetection.cs" />
-		<Compile Include="..\ClassLibraryCSV\HeaderDetection.cs" Link="HeaderDetection.cs" />
+		<Compile Include="..\ClassLibraryCSV\DetectionQualifier.cs" Link="DetectionQualifier.cs" />
+		<Compile Include="..\ClassLibraryCSV\DetectionEscapePrexfix.cs" Link="DetectionEscapePrexfix.cs" />
+		<Compile Include="..\ClassLibraryCSV\DetectionHeader.cs" Link="DetectionHeader.cs" />
 		
 		<Compile Include="..\ClassLibraryCSV\IProcessDisplayTime.cs" Link="IProcessDisplayTime.cs" />
 		<Compile Include="..\ClassLibraryCSV\ProcessDisplayTime.cs" Link="ProcessDisplayTime.cs" />

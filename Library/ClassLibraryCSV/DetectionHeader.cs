@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  public static class HeaderDetection
+  public static class DetectionHeader
   {
     /// <summary>
     ///   The carriage return character. Escape code is <c>\r</c>.
