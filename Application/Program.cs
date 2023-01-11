@@ -70,7 +70,10 @@ namespace CsvTools
       frm.Show();
 
       if (FileSystemUtils.FileExists(fileName))
-        frm.LoadCsvFileAsync(FileSystemUtils.GetFullPath(fileName), frm.CancellationToken).GetAwaiter().GetResult();
+        // Start this but do not wait for completion.
+        // Can not use await as this need async main (not supported for Windows Form executable)
+        // If using GetAwaiter().GetResult() it gets stuck when opening the progtess bar.
+        frm.LoadCsvFileAsync(FileSystemUtils.GetFullPath(fileName), frm.CancellationToken);
       Application.Run(frm);
     }
 
