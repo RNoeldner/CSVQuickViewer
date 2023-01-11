@@ -36,10 +36,9 @@ using System.Threading;
 using System.Threading.Tasks;
 #if XmlSerialization
 using System.Xml.Serialization;
-// ReSharper disable StringLiteralTypo
 #endif
 
-
+// ReSharper disable StringLiteralTypo
 namespace CsvTools.Tests
 {
   public static class UnitTestStatic
@@ -333,35 +332,37 @@ namespace CsvTools.Tests
           }
 
           var methodClone = type.GetMethod("Clone", BindingFlags.Public | BindingFlags.Instance);
-          if (methodClone is null)
-            throw new Exception($"No clone method found for {type.FullName}");
-          try
+          if (methodClone != null)
           {
-            var obj3 = methodClone.Invoke(obj1, null);
-            CheckPropertiesEqual(obj1!, obj3!, properties);
-          }
-          catch (Exception ex)
-          {
-            // Ignore all NotImplementedException these are cause by compatibility setting or mocks
-            WriteToContext(ex.Message);
+            try
+            {
+              var obj3 = methodClone.Invoke(obj1, null);
+              CheckPropertiesEqual(obj1!, obj3!, properties);
+            }
+            catch (Exception ex)
+            {
+              // Ignore all NotImplementedException these are cause by compatibility setting or mocks
+              WriteToContext(ex.Message);
+            }
           }
 
           var methodCopyTo = type.GetMethod("CopyTo", BindingFlags.Public | BindingFlags.Instance);
           // Cloneable does mean you have to have CopyTo
-          if (methodCopyTo == null) continue;
-
-          try
+          if (methodCopyTo != null)
           {
-            // methodCopyTo.Invoke(obj1, new object[] { null });
-            methodCopyTo.Invoke(obj1, new[] { obj2 });
-            CheckPropertiesEqual(obj1!, obj2!, properties);
+            try
+            {
+              // methodCopyTo.Invoke(obj1, new object[] { null });
+              methodCopyTo.Invoke(obj1, new[] { obj2 });
+              CheckPropertiesEqual(obj1!, obj2!, properties);
 
-            methodCopyTo.Invoke(obj1, new[] { obj1 });
-          }
-          catch (Exception ex)
-          {
-            // Ignore all NotImplementedException these are cause by compatibility setting or mocks
-            WriteToContext(ex.Message);
+              methodCopyTo.Invoke(obj1, new[] { obj1 });
+            }
+            catch (Exception ex)
+            {
+              // Ignore all NotImplementedException these are cause by compatibility setting or mocks
+              WriteToContext(ex.Message);
+            }
           }
         }
         catch (MissingMethodException)

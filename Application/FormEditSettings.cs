@@ -365,7 +365,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var stream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          csvFile.EscapePrefix = await stream.GuessEscapePrexfix(csvFile.CodePageId, csvFile.SkipRows, csvFile.FieldDelimiter, csvFile.FieldQualifier, m_CancellationTokenSource.Token);
+          csvFile.EscapePrefix = await stream.GuessEscapePrefix(csvFile.CodePageId, csvFile.SkipRows, csvFile.FieldDelimiter, csvFile.FieldQualifier, m_CancellationTokenSource.Token);
         });
     }
   }

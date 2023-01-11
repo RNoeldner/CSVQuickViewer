@@ -123,6 +123,7 @@ namespace CsvTools.Tests
         TimeZoneInfo.Local.Id);
 
       await writer.WriteAsync(reader, UnitTestStatic.Token);
+      Assert.IsTrue(FileSystemUtils.FileExists(fileName));
 
       var fileText = FileSystemUtils.ReadAllText(fileName);
       FileSystemUtils.FileDelete(fileName);

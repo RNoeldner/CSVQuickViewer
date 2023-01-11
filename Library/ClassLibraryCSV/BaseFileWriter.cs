@@ -84,26 +84,18 @@ namespace CsvTools
       SourceTimeZone = sourceTimeZone;
       TimeZoneAdjust = timeZoneAdjust;
       m_PgpKeyId = pgpKeyId;
-      Header = string.Empty;
-      m_Footer = string.Empty;
-      FullPath = fullPath ?? String.Empty;
-      if (string.IsNullOrEmpty(fullPath))
-      {
-        var fileName = FileSystemUtils.GetFileName(FileSystemUtils.ResolvePattern(fullPath));
-        if (header != null && header.Length > 0)
-          Header = ReplacePlaceHolder(
-            header,
-            fileName,
-            id);
 
-        if (footer != null && footer.Length > 0)
-          m_Footer = ReplacePlaceHolder(
-            footer,
-            fileName,
-            id);
+      FullPath = FileSystemUtils.ResolvePattern(fullPath) ?? string.Empty;
+      var fileName = FileSystemUtils.GetFileName(FullPath);
+      Header = ReplacePlaceHolder(
+        header,
+        fileName,
+        id);
 
-      }
-
+      m_Footer = ReplacePlaceHolder(
+        footer,
+        fileName,
+        id);
       m_ValueFormatGeneral = valueFormatGeneral ?? ValueFormat.Empty;
       ColumnDefinition =  columnDefinition == null ? new List<Column>() : new List<Column>(columnDefinition);
       FileSettingDisplay = fileSettingDisplay;
@@ -360,11 +352,11 @@ namespace CsvTools
 
     public abstract Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
 
-    protected static string ReplacePlaceHolder(string input, string fileName, string id) =>
-      input.PlaceholderReplace("ID", id)
+    private static string ReplacePlaceHolder(string? input, string fileName, string id) =>
+      input?.PlaceholderReplace("ID", id)
         .PlaceholderReplace("FileName", fileName)
         .PlaceholderReplace("CDate", string.Format(new CultureInfo("en-US"), "{0:dd-MMM-yyyy}", DateTime.Now))
-        .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now));
+        .PlaceholderReplace("CDateLong", string.Format(new CultureInfo("en-US"), "{0:MMMM dd\\, yyyy}", DateTime.Now)) ?? string.Empty;
 
     /// <summary>
     ///   Calls the event handler for warnings

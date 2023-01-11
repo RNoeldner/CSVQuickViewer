@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 // ReSharper disable UseAwaitUsing
+// ReSharper disable ConvertToUsingDeclaration
 
 namespace CsvTools.Tests
 {
@@ -114,7 +115,7 @@ namespace CsvTools.Tests
       stream.Position = 0;
       using var reader = new ImprovedTextReader(stream, Encoding.UTF8.CodePage);
 
-      var res = HeaderDetection.DelimitedRecord(reader, ',', '\0', '\0', "##").ToList();
+      var res = DetectionHeader.DelimitedRecord(reader, ',', '\0', '\0', "##").ToList();
       Assert.AreEqual(9, res.Count());
       Assert.AreEqual("1", res[0]);
       Assert.AreEqual("9", res[8]);
@@ -129,7 +130,7 @@ namespace CsvTools.Tests
       writer.Flush();
       stream.Position = 0;
       using var reader = new ImprovedTextReader(stream, Encoding.UTF8.CodePage);
-      var res = HeaderDetection.DelimitedRecord(reader, ',', '"', '\\', "").ToList();
+      var res = DetectionHeader.DelimitedRecord(reader, ',', '"', '\\', "").ToList();
       Assert.AreEqual(7, res.Count());
       Assert.AreEqual("1", res[0]);
       Assert.AreEqual("6,\"7,8", res[5]);
@@ -145,7 +146,7 @@ namespace CsvTools.Tests
       writer.Flush();
       stream.Position = 0;
       using var reader = new ImprovedTextReader(stream, Encoding.UTF8.CodePage);
-      var res = HeaderDetection.DelimitedRecord(reader, ',', '"', '\\', "#").ToList();
+      var res = DetectionHeader.DelimitedRecord(reader, ',', '"', '\\', "#").ToList();
       Assert.AreEqual(6, res.Count());
       Assert.AreEqual("1,2", res[0]);
       Assert.AreEqual("6,\"7,8", res[4]);
@@ -162,7 +163,7 @@ namespace CsvTools.Tests
       writer.Flush();
       stream.Position = 0;
       using var reader = new ImprovedTextReader(stream, Encoding.UTF8.CodePage);
-      var res = HeaderDetection.DelimitedRecord(reader, ',', '"', '\\', "#").ToList();
+      var res = DetectionHeader.DelimitedRecord(reader, ',', '"', '\\', "#").ToList();
       Assert.AreEqual(6, res.Count());
       Assert.AreEqual("1,2", res[0]);
       Assert.AreEqual("6,\"7,8", res[4]);
