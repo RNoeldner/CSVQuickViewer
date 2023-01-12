@@ -207,7 +207,6 @@
       this.textBox.Paddings = new System.Windows.Forms.Padding(0);
       this.textBox.ReadOnly = true;
       this.textBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-      this.textBox.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("textBox.ServiceColors")));
       this.textBox.Size = new System.Drawing.Size(609, 540);
       this.textBox.TabIndex = 126;
       this.textBox.WordWrap = true;
