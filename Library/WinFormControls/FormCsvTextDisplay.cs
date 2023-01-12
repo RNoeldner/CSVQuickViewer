@@ -30,7 +30,7 @@ namespace CsvTools
   {
     private int m_CodePage;
     private readonly string m_FullPath;
-    private ISyntaxHighlighter? m_HighLighter;
+    private SyntaxHighlighterBase? m_HighLighter;
     private int m_SkipLines;
 
     /// <summary>

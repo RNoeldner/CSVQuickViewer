@@ -26,7 +26,7 @@ namespace CsvTools
   /// </summary>
   public partial class FormTextDisplay : ResizeForm
   {
-    private ISyntaxHighlighter? m_HighLighter;
+    private SyntaxHighlighterBase? m_HighLighter;
     private Language m_CurrentLang;
 
     private enum Language
@@ -89,6 +89,7 @@ namespace CsvTools
         fastColoredTextBoxRO.Visible=true;
         webBrowser.Visible=false;
         fastColoredTextBoxRO.Text =
+          // ReSharper disable once LocalizableElement
           $"Error trying to parse {newLang}: {exception.Message}\n\n{textBox.Text.Substring(0, Math.Min(textBox.Text.Length - 1, 400))}";                
 
       }
