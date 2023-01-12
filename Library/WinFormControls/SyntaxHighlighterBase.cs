@@ -12,34 +12,33 @@
 // * If not, see http://www.gnu.org/licenses/ . *
 // */
 
-using FastColoredTextBoxNS;
 using System.Drawing;
 
 namespace CsvTools
 {
-  public abstract class SyntaxHighlighterBase : SyntaxHighlighter, ISyntaxHighlighter
+  public abstract class SyntaxHighlighterBase : FastColoredTextBoxNS.SyntaxHighlighter
   {
 #pragma warning disable CA1416
-    protected readonly TextStyle SkipStyle = new TextStyle(Brushes.DarkGray, Brushes.LightGray, FontStyle.Regular);
+    protected readonly FastColoredTextBoxNS.TextStyle SkipStyle = new FastColoredTextBoxNS.TextStyle(Brushes.DarkGray, Brushes.LightGray, FontStyle.Regular);
 #pragma warning restore CA1416
 
-    public SyntaxHighlighterBase(in FastColoredTextBox currentTb) : base(currentTb)
+    public SyntaxHighlighterBase(in FastColoredTextBoxNS.FastColoredTextBox currentTb) : base(currentTb)
     {
     }
 
-    public abstract void Highlight(Range range);
+    public abstract void Highlight(FastColoredTextBoxNS.Range range);
 
     public void SkipRows(int skipRows)
     {
       if (skipRows <= 0) return;
-      var range = new Range(currentTb, 0, 0, 0, skipRows);
-      range.ClearStyle(StyleIndex.All);
+      var range = new FastColoredTextBoxNS.Range(currentTb, 0, 0, 0, skipRows);
+      range.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
       range.SetStyle(SkipStyle);
     }
 
-    public virtual void Comment(Range range)
+    public virtual void Comment(FastColoredTextBoxNS.Range range)
     {
-      range.ClearStyle(StyleIndex.All);
+      range.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
       range.SetStyle(GrayStyle);
     }
   }
