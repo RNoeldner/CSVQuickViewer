@@ -119,23 +119,19 @@ namespace CsvTools
       var mani = JsonConvert.DeserializeObject<ManifestData>(strContend);
       if (mani is null)
         throw new InvalidOperationException("The manifest file could not be deserialized");
-      var fileSettingMani = new DelimitedFileDetectionResult(
-        fileName,
-        0,
-        Encoding.UTF8.CodePage,
-        false,
-        true,
-        identifierInContainer,
-        "#",
-        "\\",
-        ",",
-        "\"",
-        true,
-        true,
-        false,
-        false,
-        false,
-        RecordDelimiterTypeEnum.Lf);
+      var fileSettingMani = new DelimitedFileDetectionResult(fileName)
+      {        
+        SkipRows =0,
+        CodePageId= Encoding.UTF8.CodePage,
+        ByteOrderMark= false,
+        QualifyAlways = false,
+        IdentifierInContainer = identifierInContainer,
+        CommentLine ="#",
+        FieldDelimiter= ",",
+        NewLine=  RecordDelimiterTypeEnum.Lf,
+        QualifierInContext = false,
+        HasFieldHeader = false
+      };
 
       var columnCollection = new List<Column>();
       foreach (var fld in mani.Fields)

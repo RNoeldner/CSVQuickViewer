@@ -106,26 +106,24 @@ namespace CsvTools
                 col.Convert,
                 col.DestinationName,
                 col.TimePart, col.TimePartFormat, col.TimeZonePart));
-
-          return new DelimitedFileDetectionResultWithColumns(
-            fileNameFile,
-            fileSettingSer.SkipRows,
-            fileSettingSer.CodePageId,
-            fileSettingSer.ByteOrderMark,
-            fileSettingSer.QualifyAlways,
-            fileSettingSer.IdentifierInContainer,
-            fileSettingSer.CommentLine,
-            fileSettingSer.EscapePrefix,
-            fileSettingSer.FieldDelimiter,
-            fileSettingSer.FieldQualifier,
-            fileSettingSer.ContextSensitiveQualifier,
-            fileSettingSer.DuplicateQualifierToEscape,
-            fileSettingSer.HasFieldHeader,
-            false,
-            fileSettingSer.NoDelimitedFile,
-            fileSettingSer.NewLine,
-            columnCollection,
-            fileSettingSer is BaseSettingPhysicalFile bas ? bas.ColumnFile : string.Empty);
+          return new DelimitedFileDetectionResultWithColumns(new DelimitedFileDetectionResult(fileNameFile)
+          {
+            SkipRows = fileSettingSer.SkipRows,
+            CodePageId = fileSettingSer.CodePageId,
+            ByteOrderMark = fileSettingSer.ByteOrderMark,
+            QualifyAlways = fileSettingSer.QualifyAlways,
+            IdentifierInContainer = fileSettingSer.IdentifierInContainer,
+            CommentLine = fileSettingSer.CommentLine,
+            EscapePrefix = fileSettingSer.EscapePrefix,
+            FieldDelimiter = fileSettingSer.FieldDelimiter,
+            FieldQualifier= fileSettingSer.FieldQualifier,
+            QualifierInContext= fileSettingSer.ContextSensitiveQualifier,
+            DuplicateQualifierToEscape = fileSettingSer.DuplicateQualifierToEscape,
+            HasFieldHeader = fileSettingSer.HasFieldHeader,
+            IsJson= false,
+            NoDelimitedFile = fileSettingSer.NoDelimitedFile,
+            NewLine = fileSettingSer.NewLine
+          }, columnCollection, fileSettingSer is BaseSettingPhysicalFile bas ? bas.ColumnFile : string.Empty);
         }
         catch (Exception e)
         {
@@ -266,8 +264,8 @@ namespace CsvTools
     /// <param name="guessCommentLine">if set <c>true</c> determine if there is a comment line</param>
     /// <param name="disallowedDelimiter">Delimiter to exclude in recognition, as they have been ruled out before</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    public static async Task<DelimitedFileDetectionResult> GetDetectionResult(this Stream stream,
-      string fileName,
+    public static async Task GetDetectionResult(this Stream stream,
+      DelimitedFileDetectionResult detectionResult,
       bool guessJson,
       bool guessCodePage,
       bool guessEscapePrefix,
@@ -282,13 +280,10 @@ namespace CsvTools
     {
       if (stream is null)
         throw new ArgumentNullException(nameof(stream));
-      if (string.IsNullOrEmpty(fileName))
-        throw new ArgumentException("FileName can not be empty", nameof(fileName));
 
-      var detectionResult = new DelimitedFileDetectionResult(fileName);
       if (!(guessJson || guessCodePage || guessDelimiter || guessStartRow || guessQualifier || guessHasHeader ||
             guessCommentLine || guessNewLine))
-        return detectionResult;
+        return;
 
 
       if (guessCodePage)
@@ -298,44 +293,14 @@ namespace CsvTools
         stream.Seek(0, SeekOrigin.Begin);
         Logger.Information("Checking Code Page");
         var (codePage, bom) = await stream.GuessCodePage(cancellationToken).ConfigureAwait(false);
-        detectionResult = new DelimitedFileDetectionResult(
-          detectionResult.FileName,
-          detectionResult.SkipRows,
-          codePage,
-          bom,
-          detectionResult.QualifyAlways,
-          detectionResult.IdentifierInContainer,
-          detectionResult.CommentLine,
-          detectionResult.EscapePrefix,
-          detectionResult.FieldDelimiter,
-          detectionResult.FieldQualifier,
-          detectionResult.QualifierInContext,
-          detectionResult.DuplicateQualifierToEscape,
-          detectionResult.HasFieldHeader,
-          false,
-          detectionResult.NoDelimitedFile,
-          detectionResult.NewLine);
+        detectionResult.CodePageId = codePage;
+        detectionResult.ByteOrderMark = bom;
       }
       else
       {
         // assume its UTF8 with BOM
-        detectionResult = new DelimitedFileDetectionResult(
-          detectionResult.FileName,
-          detectionResult.SkipRows,
-          Encoding.UTF8.CodePage,
-          true,
-          detectionResult.QualifyAlways,
-          detectionResult.IdentifierInContainer,
-          detectionResult.CommentLine,
-          detectionResult.EscapePrefix,
-          detectionResult.FieldDelimiter,
-          detectionResult.FieldQualifier,
-          detectionResult.QualifierInContext,
-          detectionResult.DuplicateQualifierToEscape,
-          detectionResult.HasFieldHeader,
-          false,
-          detectionResult.NoDelimitedFile,
-          detectionResult.NewLine);
+        detectionResult.CodePageId = Encoding.UTF8.CodePage;
+        detectionResult.ByteOrderMark = true;
       }
 
       if (guessJson)
@@ -344,53 +309,20 @@ namespace CsvTools
 
         Logger.Information("Checking Json format");
 
-        if (await stream.IsJsonReadable(Encoding.GetEncoding(detectionResult.CodePageId), cancellationToken).ConfigureAwait(false))
-          detectionResult = new DelimitedFileDetectionResult(
-            detectionResult.FileName,
-            0,
-            detectionResult.CodePageId,
-            detectionResult.ByteOrderMark,
-            detectionResult.QualifyAlways,
-            detectionResult.IdentifierInContainer,
-            detectionResult.CommentLine,
-            detectionResult.EscapePrefix,
-            detectionResult.FieldDelimiter,
-            detectionResult.FieldQualifier,
-            detectionResult.QualifierInContext,
-            detectionResult.DuplicateQualifierToEscape,
-            detectionResult.HasFieldHeader,
-            true,
-            detectionResult.NoDelimitedFile,
-            detectionResult.NewLine);
+        detectionResult.IsJson = await stream.IsJsonReadable(Encoding.GetEncoding(detectionResult.CodePageId), cancellationToken).ConfigureAwait(false);
       }
 
       if (detectionResult.IsJson)
       {
         Logger.Information("Detected Json file, no further checks done");
-        return detectionResult;
+        return;
       }
 
       if (guessEscapePrefix)
       {
         using var textReader = new ImprovedTextReader(stream, detectionResult.CodePageId, detectionResult.SkipRows);
         Logger.Information("Checking Escape Prefix");
-        detectionResult = new DelimitedFileDetectionResult(
-        detectionResult.FileName,
-        detectionResult.SkipRows,
-        detectionResult.CodePageId,
-        detectionResult.ByteOrderMark,
-        detectionResult.QualifyAlways,
-        detectionResult.IdentifierInContainer,
-        detectionResult.CommentLine,
-        await textReader.GuessEscapePrefixAsync(detectionResult.FieldDelimiter, detectionResult.FieldQualifier, cancellationToken),
-        detectionResult.FieldDelimiter,
-        detectionResult.FieldQualifier,
-        detectionResult.QualifierInContext,
-        detectionResult.DuplicateQualifierToEscape,
-        detectionResult.HasFieldHeader,
-        false,
-        detectionResult.NoDelimitedFile,
-        detectionResult.NewLine);
+        detectionResult.EscapePrefix =  await textReader.GuessEscapePrefixAsync(detectionResult.FieldDelimiter, detectionResult.FieldQualifier, cancellationToken);
       }
 
 
@@ -399,23 +331,7 @@ namespace CsvTools
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking comment line");
         using var textReader = new ImprovedTextReader(stream, detectionResult.CodePageId, detectionResult.SkipRows);
-        detectionResult = new DelimitedFileDetectionResult(
-          detectionResult.FileName,
-          detectionResult.SkipRows,
-          detectionResult.CodePageId,
-          detectionResult.ByteOrderMark,
-          detectionResult.QualifyAlways,
-          detectionResult.IdentifierInContainer,
-          await textReader.GuessLineCommentAsync(cancellationToken).ConfigureAwait(false),
-          detectionResult.EscapePrefix,
-          detectionResult.FieldDelimiter,
-          detectionResult.FieldQualifier,
-          detectionResult.QualifierInContext,
-          detectionResult.DuplicateQualifierToEscape,
-          detectionResult.HasFieldHeader,
-          false,
-          detectionResult.NoDelimitedFile,
-          detectionResult.NewLine);
+        detectionResult.CommentLine =  await textReader.GuessLineCommentAsync(cancellationToken).ConfigureAwait(false);
       }
 
 
@@ -429,23 +345,7 @@ namespace CsvTools
         using var textReader = new ImprovedTextReader(stream, detectionResult.CodePageId, detectionResult.SkipRows);
         Logger.Information("Checking start line");
 
-        detectionResult = new DelimitedFileDetectionResult(
-          detectionResult.FileName,
-          textReader.GuessStartRow(detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.EscapePrefix, detectionResult.CommentLine, cancellationToken),
-          detectionResult.CodePageId,
-          detectionResult.ByteOrderMark,
-          detectionResult.QualifyAlways,
-          detectionResult.IdentifierInContainer,
-          detectionResult.CommentLine,
-          detectionResult.EscapePrefix,
-          detectionResult.FieldDelimiter,
-          detectionResult.FieldQualifier,
-          detectionResult.QualifierInContext,
-          detectionResult.DuplicateQualifierToEscape,
-          detectionResult.HasFieldHeader,
-          true,
-          detectionResult.NoDelimitedFile,
-          detectionResult.NewLine);
+        detectionResult.SkipRows = textReader.GuessStartRow(detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.EscapePrefix, detectionResult.CommentLine, cancellationToken);
       }
 
 
@@ -462,24 +362,10 @@ namespace CsvTools
           var delimiterDet = await textReader.GuessDelimiterAsync(
             detectionResult.EscapePrefix, disallowedDelimiter,
             cancellationToken).ConfigureAwait(false);
-
-          detectionResult = new DelimitedFileDetectionResult(
-            detectionResult.FileName,
-            delimiterDet.MagicKeyword ? detectionResult.SkipRows+1 : detectionResult.SkipRows,
-            detectionResult.CodePageId,
-            detectionResult.ByteOrderMark,
-            detectionResult.QualifyAlways,
-            detectionResult.IdentifierInContainer,
-            detectionResult.CommentLine,
-            detectionResult.EscapePrefix,
-            delimiterDet.Delimiter,
-            detectionResult.FieldQualifier,
-            detectionResult.QualifierInContext,
-            detectionResult.DuplicateQualifierToEscape,
-            detectionResult.HasFieldHeader,
-            detectionResult.IsJson,
-            delimiterDet.IsDetected,
-            detectionResult.NewLine);
+          if (delimiterDet.MagicKeyword)
+            detectionResult.SkipRows++;
+          detectionResult.FieldDelimiter = delimiterDet.Delimiter;
+          detectionResult.NoDelimitedFile = delimiterDet.IsDetected;
         }
 
 
@@ -488,23 +374,7 @@ namespace CsvTools
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Record Delimiter");
           stream.Seek(0, SeekOrigin.Begin);
-          detectionResult = new DelimitedFileDetectionResult(
-            detectionResult.FileName,
-            detectionResult.SkipRows,
-            detectionResult.CodePageId,
-            detectionResult.ByteOrderMark,
-            detectionResult.QualifyAlways,
-            detectionResult.IdentifierInContainer,
-            detectionResult.CommentLine,
-            detectionResult.EscapePrefix,
-            detectionResult.FieldDelimiter,
-            detectionResult.FieldQualifier,
-            detectionResult.QualifierInContext,
-            detectionResult.DuplicateQualifierToEscape,
-            detectionResult.HasFieldHeader,
-            detectionResult.IsJson,
-            detectionResult.NoDelimitedFile,
-            textReader.GuessNewline(detectionResult.FieldQualifier, cancellationToken));
+          detectionResult.NewLine = textReader.GuessNewline(detectionResult.FieldQualifier, cancellationToken);
         }
 
         if (guessQualifier)
@@ -513,24 +383,9 @@ namespace CsvTools
           Logger.Information("Checking Qualifier");
           var qualifier = DetectionQualifier.GuessQualifier(textReader, detectionResult.FieldDelimiter, detectionResult.EscapePrefix, new[] { '"', '\'' }, cancellationToken);
 
-          detectionResult = new DelimitedFileDetectionResult(
-            detectionResult.FileName,
-            detectionResult.SkipRows,
-            detectionResult.CodePageId,
-            detectionResult.ByteOrderMark,
-            detectionResult.QualifyAlways,
-            detectionResult.IdentifierInContainer,
-            detectionResult.CommentLine,
-            detectionResult.EscapePrefix,
-            detectionResult.FieldDelimiter,
-            char.ToString(qualifier.QuoteChar),
-            // if there was no repeated quoting and no escaped quoting use context
-            !(qualifier.DuplicateQualifier || qualifier.EscapedQualifier),
-            qualifier.DuplicateQualifier,
-            detectionResult.HasFieldHeader,
-            detectionResult.IsJson,
-            detectionResult.NoDelimitedFile,
-            detectionResult.NewLine);
+          detectionResult.FieldQualifier= char.ToString(qualifier.QuoteChar);
+          detectionResult.QualifierInContext= !(qualifier.DuplicateQualifier || qualifier.EscapedQualifier);
+          detectionResult.DuplicateQualifierToEscape = qualifier.DuplicateQualifier;
         }
       }
 
@@ -545,23 +400,7 @@ namespace CsvTools
               detectionResult.CommentLine,
               detectionResult.FieldDelimiter,
               cancellationToken).ConfigureAwait(false))
-          detectionResult = new DelimitedFileDetectionResult(
-            detectionResult.FileName,
-            detectionResult.SkipRows,
-            detectionResult.CodePageId,
-            detectionResult.ByteOrderMark,
-            detectionResult.QualifyAlways,
-            detectionResult.IdentifierInContainer,
-            string.Empty,
-            detectionResult.EscapePrefix,
-            detectionResult.FieldDelimiter,
-            detectionResult.FieldQualifier,
-            detectionResult.QualifierInContext,
-            detectionResult.DuplicateQualifierToEscape,
-            detectionResult.HasFieldHeader,
-            false,
-            detectionResult.NoDelimitedFile,
-            detectionResult.NewLine);
+          detectionResult.CommentLine  = string.Empty;
       }
 
       if (guessStartRow)
@@ -572,28 +411,7 @@ namespace CsvTools
         {
           Logger.Information("Checking start row again because previously assumed delimiter has changed");
           using var textReader2 = new ImprovedTextReader(stream, detectionResult.CodePageId);
-          detectionResult = new DelimitedFileDetectionResult(
-            detectionResult.FileName,
-            textReader2.GuessStartRow(
-              detectionResult.FieldDelimiter,
-              detectionResult.FieldQualifier,
-              detectionResult.EscapePrefix,
-              detectionResult.CommentLine,
-              cancellationToken),
-            detectionResult.CodePageId,
-            detectionResult.ByteOrderMark,
-            detectionResult.QualifyAlways,
-            detectionResult.IdentifierInContainer,
-            detectionResult.CommentLine,
-            detectionResult.EscapePrefix,
-            detectionResult.FieldDelimiter,
-            detectionResult.FieldQualifier,
-            detectionResult.QualifierInContext,
-            detectionResult.DuplicateQualifierToEscape,
-            detectionResult.HasFieldHeader,
-            detectionResult.IsJson,
-            detectionResult.NoDelimitedFile,
-            detectionResult.NewLine);
+          detectionResult.SkipRows = textReader2.GuessStartRow(detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.EscapePrefix, detectionResult.CommentLine, cancellationToken);
         }
       }
 
@@ -606,27 +424,8 @@ namespace CsvTools
           detectionResult.FieldDelimiter, detectionResult.FieldQualifier, detectionResult.EscapePrefix,
           cancellationToken).ConfigureAwait(false);
         Logger.Information(!string.IsNullOrEmpty(issue) ? $"Without Header Row {issue}" : "Has Header Row");
-
-        detectionResult = new DelimitedFileDetectionResult(
-          detectionResult.FileName,
-          detectionResult.SkipRows,
-          detectionResult.CodePageId,
-          detectionResult.ByteOrderMark,
-          detectionResult.QualifyAlways,
-          detectionResult.IdentifierInContainer,
-          detectionResult.CommentLine,
-          detectionResult.EscapePrefix,
-          detectionResult.FieldDelimiter,
-          detectionResult.FieldQualifier,
-          detectionResult.QualifierInContext,
-          detectionResult.DuplicateQualifierToEscape,
-          string.IsNullOrEmpty(issue),
-          detectionResult.IsJson,
-          detectionResult.NoDelimitedFile,
-          detectionResult.NewLine);
+        detectionResult.HasFieldHeader = string.IsNullOrEmpty(issue);
       }
-
-      return detectionResult;
     }
 
     /// <summary>
@@ -660,20 +459,22 @@ namespace CsvTools
 
       var disallowedDelimiter = new List<char>();
       bool hasFields;
-      DelimitedFileDetectionResult detectionResult;
       var checks = GetNumberOfChecks(guessJson, guessCodePage, guessDelimiter, guessQualifier, guessStartRow,
         guessHasHeader, guessNewLine, guessCommentLine);
+
+      var detectionResult = new DelimitedFileDetectionResult(fileName);
       do
       {
-
         Logger.Information("Opening file");
+        var sourceAccess = new SourceAccess(fileName);
 #if NETSTANDARD2_1_OR_GREATER
         await
 #endif
-        using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
+        using var improvedStream = FunctionalDI.OpenStream(sourceAccess);
+        detectionResult.IdentifierInContainer = sourceAccess.IdentifierInContainer;
         // Determine from file
-        detectionResult = await improvedStream!.GetDetectionResult(
-          fileName,
+        await improvedStream!.GetDetectionResult(
+          detectionResult,
           guessJson,
           guessCodePage,
           guessEscapePrefix,
@@ -1280,7 +1081,7 @@ namespace CsvTools
           var resultFl = firstLine.Substring(4);
           if (resultFl.Equals("\\t", StringComparison.OrdinalIgnoreCase))
             resultFl = "Tab";
-          Logger.Information($"Delimiter from 'sep=' in first line: {resultFl}" );
+          Logger.Information($"Delimiter from 'sep=' in first line: {resultFl}");
           return new DelimiterDetection(resultFl, true, true);
         }
 

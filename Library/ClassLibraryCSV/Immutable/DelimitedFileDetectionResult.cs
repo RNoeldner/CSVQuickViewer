@@ -19,57 +19,27 @@ namespace CsvTools
 {
   public class DelimitedFileDetectionResult
   {
-    public readonly bool ByteOrderMark;
-    public readonly int CodePageId;
-    public readonly string CommentLine;
-    public readonly string EscapePrefix;
-    public readonly string FieldDelimiter;
-    public readonly string FieldQualifier;
-    public readonly string FileName;
-    public readonly bool HasFieldHeader;
-    public readonly string IdentifierInContainer;
-    public readonly bool IsJson;
-    public readonly RecordDelimiterTypeEnum NewLine;
-    public readonly bool NoDelimitedFile;
-    public readonly bool QualifierInContext;
-    public readonly bool DuplicateQualifierToEscape;
-    public readonly bool QualifyAlways;
-    public readonly int SkipRows;
+    public readonly string FileName = string.Empty;
+    public int SkipRows = 0;
 
-    public DelimitedFileDetectionResult(
-      string fileName,
-      int skipRows = 0,
-      int codePageId = -1,
-      bool byteOrderMark = false,
-      bool qualifyAlways = false,
-      string? identifierInContainer = "",
-      string commentLine = "#",
-      string? escapePrefix = "\\",
-      string? fieldDelimiter = "",
-      string? fieldQualifier = "",
-      bool qualifierInContext = false,
-      bool duplicateQualifierToEscape = true,
-      bool hasFieldHeader = true,
-      bool isJson = false,
-      bool noDelimitedFile = false,
-      RecordDelimiterTypeEnum recordDelimiterType = RecordDelimiterTypeEnum.None)
+    public int CodePageId = -1;
+    public bool ByteOrderMark = false;
+    public bool QualifyAlways = false;
+    public string IdentifierInContainer = string.Empty;
+    public string CommentLine = "#";
+    public string EscapePrefix = "\\";
+    public string FieldDelimiter = ",";
+    public string FieldQualifier = "\"";
+    public bool QualifierInContext = false;
+    public bool DuplicateQualifierToEscape = true;
+    public bool HasFieldHeader = true;
+    public bool IsJson = false;
+    public bool NoDelimitedFile = false;
+    public RecordDelimiterTypeEnum NewLine = RecordDelimiterTypeEnum.None;
+
+    public DelimitedFileDetectionResult(string fileName)
     {
       FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
-      IdentifierInContainer = identifierInContainer ?? string.Empty;
-      SkipRows = skipRows < 1 ? 0 : skipRows;
-      CodePageId = codePageId < 1 ? -1 : codePageId;
-      ByteOrderMark = byteOrderMark;
-      CommentLine = commentLine;
-      EscapePrefix = GetShortDisplay(escapePrefix);
-      FieldDelimiter = GetShortDisplay(fieldDelimiter);
-      FieldQualifier = GetShortDisplay(fieldQualifier);
-      QualifierInContext = qualifierInContext;
-      DuplicateQualifierToEscape = duplicateQualifierToEscape;
-      HasFieldHeader = hasFieldHeader;
-      IsJson = isJson;
-      NoDelimitedFile = noDelimitedFile;
-      QualifyAlways = qualifyAlways;
-      NewLine = recordDelimiterType;
     }
 
 #if !QUICK
