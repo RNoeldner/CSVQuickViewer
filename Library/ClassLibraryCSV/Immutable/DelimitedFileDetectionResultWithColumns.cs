@@ -26,74 +26,30 @@ namespace CsvTools
     private readonly IEnumerable<Column> m_Columns;
 
     public DelimitedFileDetectionResultWithColumns(
-      in string fileName,
-      int skipRows = 0,
-      int codePageId = -1,
-      bool byteOrderMark = false,
-      bool qualifyAlways = false,
-      in string identifierInContainer = "",
-      in string commentLine = "#",
-      in string? escapePrefix = "\\",
-      in string? fieldDelimiter = "",
-      in string? fieldQualifier = "",
-      bool contextQualifier = false,
-      bool duplicateQualifierToEscape = true,
-      bool hasFieldHeader = true,
-      bool isJson = false,
-      bool noDelimitedFile = false,
-      RecordDelimiterTypeEnum recordDelimiterType = RecordDelimiterTypeEnum.None,
+      in DelimitedFileDetectionResult result,
       in IEnumerable<Column>? columns = null,
       string? columnFile = ""
-    )
-      : base(
-        fileName,
-        skipRows,
-        codePageId,
-        byteOrderMark,
-        qualifyAlways,
-        identifierInContainer,
-        commentLine,
-        escapePrefix,
-        fieldDelimiter,
-        fieldQualifier,
-        contextQualifier,
-        duplicateQualifierToEscape,
-        hasFieldHeader,
-        isJson,
-        noDelimitedFile,
-        recordDelimiterType)
+    ) : base(result.FileName)
     {
+      SkipRows = result.SkipRows;
+      CodePageId = result.CodePageId;
+      ByteOrderMark = result.ByteOrderMark;
+      QualifyAlways=result.QualifyAlways;
+      IdentifierInContainer=result.IdentifierInContainer;
+      CommentLine=result.CommentLine;
+      EscapePrefix=result.EscapePrefix;
+      FieldDelimiter=result.FieldDelimiter;
+      FieldQualifier=result.FieldQualifier;
+      QualifierInContext=result.QualifierInContext;
+      DuplicateQualifierToEscape=result.DuplicateQualifierToEscape;
+      HasFieldHeader=result.HasFieldHeader;
+      IsJson=result.IsJson;
+      NoDelimitedFile=result.NoDelimitedFile;
+      NewLine= result.NewLine;
       m_Columns = columns ?? Array.Empty<Column>();
       m_ColumnFile = columnFile ?? string.Empty;
     }
-
-    public DelimitedFileDetectionResultWithColumns(
-      DelimitedFileDetectionResult result,
-      in IEnumerable<Column>? columns = null,
-      string columnFile = ""
-    )
-      : this(
-        result.FileName,
-        result.SkipRows,
-        result.CodePageId,
-        result.ByteOrderMark,
-        result.QualifyAlways,
-        result.IdentifierInContainer,
-        result.CommentLine,
-        result.EscapePrefix,
-        result.FieldDelimiter,
-        result.FieldQualifier,
-        result.QualifierInContext,
-        result.DuplicateQualifierToEscape,        
-        result.HasFieldHeader,
-        result.IsJson,
-        result.NoDelimitedFile,
-        result.NewLine,
-        columns,
-        columnFile
-      )
-    {
-    }
+    
 
 #if !QUICK
     public override IFileSettingPhysicalFile PhysicalFile()

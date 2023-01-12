@@ -33,27 +33,28 @@ namespace CsvTools.Tests
     public async Task GetDetectionResult()
     {
       var stream = File.OpenRead(UnitTestStatic.GetTestPath("MultipleDelimiter.txt"));
-      var res1 = await stream.GetDetectionResult("MultipleDelimiter.txt", false, false, false, false, false, false, false,
+      var res1 = new DelimitedFileDetectionResult("MultipleDelimiter.txt");
+      await stream.GetDetectionResult(res1, false, false, false, false, false, false, false,
         false, false,
         new List<char>(), UnitTestStatic.Token);
       stream.Seek(0, SeekOrigin.Begin);
-      var res2 = await stream.GetDetectionResult("MultipleDelimiter.txt", true, false, false, false, false, false, false,
+      await stream.GetDetectionResult(res1, true, false, false, false, false, false, false,
         false, false,
         new List<char>(), UnitTestStatic.Token);
       stream.Seek(0, SeekOrigin.Begin);
-      var res3 = await stream.GetDetectionResult("MultipleDelimiter.txt", false, false, true, false, false, false, false,
+      await stream.GetDetectionResult(res1, false, false, true, false, false, false, false,
         false, false,
         new List<char>(), UnitTestStatic.Token);
       stream.Seek(0, SeekOrigin.Begin);
-      var res4 = await stream.GetDetectionResult("MultipleDelimiter.txt", false, false, false, false, false, true, true,
+      await stream.GetDetectionResult(res1, false, false, false, false, false, true, true,
         false, false,
         new List<char>(), UnitTestStatic.Token);
       stream.Seek(0, SeekOrigin.Begin);
-      var res5 = await stream.GetDetectionResult("MultipleDelimiter.txt", false, false, false, false, false, false, false,
+      await stream.GetDetectionResult(res1, false, false, false, false, false, false, false,
         true, false,
         new List<char>(), UnitTestStatic.Token);
       stream.Seek(0, SeekOrigin.Begin);
-      var res6 = await stream.GetDetectionResult("MultipleDelimiter.txt", false, true, true, true, false, true, false,
+      await stream.GetDetectionResult(res1, false, true, true, true, false, true, false,
         false, false,
         new List<char>(new[] { ':' }), UnitTestStatic.Token);
     }
@@ -464,7 +465,7 @@ namespace CsvTools.Tests
       foreach (var fileName in Directory.EnumerateFiles(UnitTestStatic.ApplicationDirectory.LongPathPrefix(),
                  "AllFor*.txt", SearchOption.TopDirectoryOnly))
       {
-        await fileName.GetDetectionResultFromFile(false,true,  true, true, true, true, true, true, true,
+        await fileName.GetDetectionResultFromFile(false, true, true, true, true, true, true, true, true,
           UnitTestStatic.Token);
       }
     }
