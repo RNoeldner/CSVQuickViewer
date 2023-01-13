@@ -12,11 +12,11 @@ namespace CsvTools
     /// <summary>
     ///   Does check if quoting was actually used in the file
     /// </summary>
-    /// <param name="stream">The improved stream.</param>
+    /// <param name="stream">The stream to read data from</param>
     /// <param name="codePageId">The code page identifier.</param>
-    /// <param name="skipRows">The skip rows.</param>
-    /// <param name="fieldDelimiter">The field delimiter character.</param>
-    /// <param name="fieldQualifier">The field qualifier character.</param>
+    /// <param name="skipRows">The number of lines at beginning to disregard</param>
+    /// <param name="fieldDelimiter">The delimiter to separate columns</param>
+    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if [has used qualifier] [the specified setting]; otherwise, <c>false</c>.</returns>
     public static async Task<bool> HasUsedQualifier(
@@ -65,11 +65,11 @@ namespace CsvTools
     /// <summary>
     ///   Try to guess the new line sequence
     /// </summary>
-    /// <param name="stream">The improved stream.</param>
+    /// <param name="stream">The stream to read data from</param>
     /// <param name="codePageId">The code page identifier.</param>
-    /// <param name="skipRows">The skip rows.</param>
-    /// <param name="fieldDelimiter">The field delimiter.</param>
-    /// <param name="escapePrefix"></param>
+    /// <param name="skipRows">The number of lines at beginning to disregard</param>
+    /// <param name="fieldDelimiter">The delimiter to separate columns</param>
+    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The NewLine Combination used</returns>
     public static async Task<QuoteTestResult> GuessQualifier(
@@ -119,7 +119,7 @@ namespace CsvTools
           bestQuoteTestResults = currentQuote;
       }
 
-      Logger.Information($"Column Qualifier: {bestQuoteTestResults.QuoteChar.GetDescription()}" );
+      Logger.Information($"Column Qualifier: {bestQuoteTestResults.QuoteChar.GetDescription()}");
       return bestQuoteTestResults;
     }
 

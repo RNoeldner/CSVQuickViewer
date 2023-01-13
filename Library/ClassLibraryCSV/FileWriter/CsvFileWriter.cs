@@ -157,9 +157,9 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public override async Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken)
     {      
-      var Columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
+      var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
 
-      if (Columns.Count == 0)
+      if (columns.Count == 0)
         throw new FileWriterException("No columns defined to be written.");
 
       HandleWriteStart();
@@ -178,11 +178,11 @@ namespace CsvTools
           sb.Append(m_NewLine);
       }
 
-      var lastCol = Columns.Last();
+      var lastCol = columns.Last();
 
       if (m_ColumnHeader)
       {
-        foreach (var columnInfo in Columns)
+        foreach (var columnInfo in columns)
         {
           sb.Append(TextEncodeField(columnInfo.Name, columnInfo, true, null, QualifyText));
           if (!m_IsFixedLength && !ReferenceEquals(columnInfo, lastCol))
@@ -205,7 +205,7 @@ namespace CsvTools
         var emptyColumns = 0;
 
         var row = new StringBuilder();
-        foreach (var columnInfo in Columns)
+        foreach (var columnInfo in columns)
         {
           // Number of columns might be higher than number of reader columns
           var col = reader.GetValue(columnInfo.ColumnOrdinal);
@@ -218,7 +218,7 @@ namespace CsvTools
             row.Append(m_FieldDelimiterChar);
         }
 
-        if (emptyColumns == Columns.Count()) break;
+        if (emptyColumns == columns.Count()) break;
         NextRecord();
         sb.Append(row);
         sb.Append(m_NewLine);

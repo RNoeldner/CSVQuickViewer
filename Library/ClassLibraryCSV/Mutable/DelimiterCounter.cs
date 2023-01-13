@@ -39,27 +39,27 @@ namespace CsvTools
       else
         Separators = cDefaultSeparators;
       if (disallowedDelimiter != null)
-        foreach (var delim in disallowedDelimiter)
-          if (Separators.IndexOf(delim) != -1)
-            Separators = Separators.Remove(Separators.IndexOf(delim), 1);
+        foreach (var delimiter in disallowedDelimiter)
+          if (Separators.IndexOf(delimiter) != -1)
+            Separators = Separators.Remove(Separators.IndexOf(delimiter), 1);
       SeparatorsCount = new int[Separators.Length, NumRows];
       SeparatorRows = new int[Separators.Length];
       SeparatorScore= new int[Separators.Length];
     }
 
-    public bool CheckChar(char readChar, char lastchar)
+    public bool CheckChar(char read, char last)
     {
-      var index = Separators.IndexOf(readChar);
+      var index = Separators.IndexOf(read);
       if (index != -1)
       {
         if (SeparatorsCount[index, LastRow] == 0)
           SeparatorRows[index]++;
 
         ++SeparatorsCount[index, LastRow];
-        // A sperator its worth more if the previous char was the quote
-        if (lastchar == m_QuoteChar)
+        // A separator its worth more if the previous char was the quote
+        if (last == m_QuoteChar)
           SeparatorScore[index] += 2;
-        else if (lastchar != readChar && lastchar!=' ' && lastchar!='\r'&& lastchar!='\n')
+        else if (last != read && last!=' ' && last!='\r'&& last!='\n')
           // its also worth something if previous char appears to be a text
           SeparatorScore[index]++;
         return true;

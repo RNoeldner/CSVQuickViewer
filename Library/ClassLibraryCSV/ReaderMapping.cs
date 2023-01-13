@@ -12,18 +12,12 @@ namespace CsvTools
   public sealed class ReaderMapping
   {
     public readonly int DataTableEndLine;
-
     public readonly int DataTableErrorField;
-
     public readonly int DataTableRecNum;
-
     public readonly int DataTableStartLine;
     private readonly ColumnErrorDictionary? m_ColumnErrorDictionary;
-
     private readonly BiDirectionalDictionary<int, int> m_Mapping = new BiDirectionalDictionary<int, int>();
-
     private readonly List<Column> m_ReaderColumnNotIgnored = new List<Column>();
-
     private readonly List<string> m_ReaderColumnsAll = new List<string>();
 
     /// <summary>

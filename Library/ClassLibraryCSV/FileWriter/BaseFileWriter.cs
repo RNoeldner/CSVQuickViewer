@@ -16,8 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -266,7 +264,7 @@ namespace CsvTools
 
       try
       {
-        var sourceAccess = new SourceAccess(FullPath, false, keyID: m_PgpKeyId, keepEncrypted: m_KeepUnencrypted);
+        var sourceAccess = new SourceAccess(FullPath, false, keyId: m_PgpKeyId, keepEncrypted: m_KeepUnencrypted);
         if (!string.IsNullOrEmpty(m_IdentifierInContainer))
           sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
 #if NETSTANDARD2_1_OR_GREATER
