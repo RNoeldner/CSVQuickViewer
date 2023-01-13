@@ -47,7 +47,7 @@ namespace CsvTools
     /// <returns>
     ///   <see cref="DelimitedFileDetectionResultWithColumns" /> with found information, or default if that test was not done
     /// </returns>
-    public static async Task<DelimitedFileDetectionResultWithColumns> AnalyzeFileAsync(this string fileName,
+    public static async Task<DetectionResult> AnalyzeFileAsync(this string fileName,
       bool guessJson,
       bool guessCodePage,
       bool guessEscapePrefix,
@@ -105,24 +105,26 @@ namespace CsvTools
                 col.Convert,
                 col.DestinationName,
                 col.TimePart, col.TimePartFormat, col.TimeZonePart));
-          return new DelimitedFileDetectionResultWithColumns(new DelimitedFileDetectionResult(fileNameFile)
+
+          return new DetectionResult(fileNameFile)
           {
             SkipRows = fileSettingSer.SkipRows,
             CodePageId = fileSettingSer.CodePageId,
-            ByteOrderMark = fileSettingSer.ByteOrderMark,
-            QualifyAlways = fileSettingSer.QualifyAlways,
+            ByteOrderMark = fileSettingSer.ByteOrderMark,            
             IdentifierInContainer = fileSettingSer.IdentifierInContainer,
             CommentLine = fileSettingSer.CommentLine,
             EscapePrefix = fileSettingSer.EscapePrefix,
             FieldDelimiter = fileSettingSer.FieldDelimiter,
             FieldQualifier= fileSettingSer.FieldQualifier,
-            QualifierInContext= fileSettingSer.ContextSensitiveQualifier,
+            ContextSensitiveQualifier= fileSettingSer.ContextSensitiveQualifier,
             DuplicateQualifierToEscape = fileSettingSer.DuplicateQualifierToEscape,
             HasFieldHeader = fileSettingSer.HasFieldHeader,
             IsJson= false,
             NoDelimitedFile = fileSettingSer.NoDelimitedFile,
-            NewLine = fileSettingSer.NewLine
-          }, columnCollection, fileSettingSer is BaseSettingPhysicalFile bas ? bas.ColumnFile : string.Empty);
+            NewLine = fileSettingSer.NewLine,
+            Columns = columnCollection,
+            ColumnFile = fileSettingSer is BaseSettingPhysicalFile bas ? bas.ColumnFile : string.Empty,
+          };
         }
         catch (Exception e)
         {
@@ -176,6 +178,7 @@ namespace CsvTools
 #endif
       using var reader = GetReaderFromDetectionResult(fileName2, detectionResult);
       await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
+      
       var (_, b) = await reader.FillGuessColumnFormatReaderAsyncReader(
         fillGuessSettings,
         null,
@@ -183,7 +186,9 @@ namespace CsvTools
         true,
         "NULL",
         cancellationToken).ConfigureAwait(false);
-      return new DelimitedFileDetectionResultWithColumns(detectionResult, b);
+      detectionResult.Columns.AddRangeNoClone(b);
+
+      return detectionResult;
     }
 
     /// <summary>Checks if the comment line does make sense, or if its possibly better regarded as header row</summary>
@@ -264,7 +269,7 @@ namespace CsvTools
     /// <param name="disallowedDelimiter">Delimiter to exclude in recognition, as they have been ruled out before</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     public static async Task GetDetectionResult(this Stream stream,
-      DelimitedFileDetectionResult detectionResult,
+      DetectionResult detectionResult,
       bool guessJson,
       bool guessCodePage,
       bool guessEscapePrefix,
@@ -358,7 +363,7 @@ namespace CsvTools
         {
           cancellationToken.ThrowIfCancellationRequested();
           Logger.Information("Checking Column Delimiter");
-          var delimiterDet = await textReader.GuessDelimiterAsync(detectionResult.FieldQualifier,detectionResult.EscapePrefix, disallowedDelimiter, cancellationToken).ConfigureAwait(false);
+          var delimiterDet = await textReader.GuessDelimiterAsync(detectionResult.FieldQualifier, detectionResult.EscapePrefix, disallowedDelimiter, cancellationToken).ConfigureAwait(false);
           if (delimiterDet.MagicKeyword)
             detectionResult.SkipRows++;
           detectionResult.FieldDelimiter = delimiterDet.Delimiter;
@@ -381,7 +386,7 @@ namespace CsvTools
           var qualifier = DetectionQualifier.GuessQualifier(textReader, detectionResult.FieldDelimiter, detectionResult.EscapePrefix, new[] { '"', '\'' }, cancellationToken);
 
           detectionResult.FieldQualifier= char.ToString(qualifier.QuoteChar);
-          detectionResult.QualifierInContext= !(qualifier.DuplicateQualifier || qualifier.EscapedQualifier);
+          detectionResult.ContextSensitiveQualifier= !(qualifier.DuplicateQualifier || qualifier.EscapedQualifier);
           detectionResult.DuplicateQualifierToEscape = qualifier.DuplicateQualifier;
         }
       }
@@ -444,7 +449,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
-    public static async Task<DelimitedFileDetectionResult> GetDetectionResultFromFile(this string fileName,
+    public static async Task<DetectionResult> GetDetectionResultFromFile(this string fileName,
       bool guessJson, bool guessCodePage, bool guessEscapePrefix,
       bool guessDelimiter, bool guessQualifier,
       bool guessStartRow, bool guessHasHeader,
@@ -459,7 +464,7 @@ namespace CsvTools
       var checks = GetNumberOfChecks(guessJson, guessCodePage, guessDelimiter, guessQualifier, guessStartRow,
         guessHasHeader, guessNewLine, guessCommentLine);
 
-      var detectionResult = new DelimitedFileDetectionResult(fileName);
+      var detectionResult = new DetectionResult(fileName);
       do
       {
         Logger.Information("Opening file");
@@ -519,7 +524,7 @@ namespace CsvTools
     /// <param name="columnDefinition">List of column definitions</param>
     /// <returns>Either a <see cref="JsonFileReader"/> or a <see cref="CsvFileReader"/></returns>
     public static IFileReader GetReaderFromDetectionResult(string fileName,
-      DelimitedFileDetectionResult detectionResult, in IEnumerable<Column>? columnDefinition = null)
+      DetectionResult detectionResult, in IEnumerable<Column>? columnDefinition = null)
     {
       if (detectionResult.IsJson)
         return new JsonFileReader(fileName, columnDefinition, 0L, false, string.Empty, false,
