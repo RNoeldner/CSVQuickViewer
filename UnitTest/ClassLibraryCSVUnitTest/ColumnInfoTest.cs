@@ -40,10 +40,8 @@ namespace CsvTools.Tests
         new DataColumn("Test1", typeof(long)), new DataColumn("Test2", typeof(string)),
         new DataColumn("Test3", typeof(DateTime))
       });
-
-      using var reader = dt.CreateDataReader();
-      using var dt2 = reader.GetSchemaTable();
-      var res = BaseFileWriter.GetColumnInformation(ValueFormat.Empty, cc, dt2).ToList();
+      using var reader = new DataTableWrapper(dt);
+      var res = BaseFileWriter.GetColumnInformation(ValueFormat.Empty, cc, reader).ToList();
       Assert.AreEqual(4, res.Count());
 
       Assert.AreEqual(DataTypeEnum.Double, res[0].ValueFormat.DataType,
@@ -71,9 +69,8 @@ namespace CsvTools.Tests
         new DataColumn("Test1", typeof(long)), new DataColumn("Test2", typeof(string)),
         new DataColumn("Test3", typeof(DateTime))
       });
-      using var reader = dt.CreateDataReader();
-      using var dt2 = reader.GetSchemaTable();
-      var res = BaseFileWriter.GetColumnInformation(ValueFormat.Empty, cc, dt2).ToList();
+      using var reader = new DataTableWrapper(dt);
+      var res = BaseFileWriter.GetColumnInformation(ValueFormat.Empty, cc, reader).ToList();
       Assert.AreEqual(4, res.Count());
       Assert.AreEqual(DataTypeEnum.Integer, res[0].ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.DateTime, res[2].ValueFormat.DataType);

@@ -29,7 +29,7 @@ namespace CsvTools.Tests
     public void CsvTextDisplayShowAsync()
     {
       UnitTestStaticForms.ShowFormAsync(
-        () => new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt")), 
+        () => new FormCsvTextDisplay(UnitTestStatic.GetTestPath("BasicCSV.txt"), null), 
         async frm => await frm.OpenFileAsync(false, "\"", "\t", "", 1200, 1, "##", UnitTestStatic.Token), .1);
 
     }

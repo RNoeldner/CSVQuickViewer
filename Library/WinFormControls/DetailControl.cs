@@ -969,7 +969,7 @@ namespace CsvTools
       await m_ToolStripButtonSource.RunWithHourglassAsync(async () =>
       {
         m_ToolStripButtonSource.Enabled = false;
-        m_SourceDisplay = new FormCsvTextDisplay(phys.FileName);
+        m_SourceDisplay = new FormCsvTextDisplay(phys.FileName, null);
         m_SourceDisplay.ShowWithFont(this);
         m_SourceDisplay.FormClosed += SourceDisplayClosed;
 

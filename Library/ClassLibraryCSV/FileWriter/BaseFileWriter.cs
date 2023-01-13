@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -31,15 +32,13 @@ namespace CsvTools
   public abstract class BaseFileWriter
   {
     protected readonly IReadOnlyCollection<Column> ColumnDefinition;
-
-    protected readonly List<WriterColumn> Columns = new List<WriterColumn>();
     protected readonly string FileSettingDisplay;
     private readonly string m_Footer;
     internal readonly string FullPath;
     private readonly long m_PgpKeyId;
     private readonly string m_IdentifierInContainer;
     private readonly bool m_KeepUnencrypted;
-    private readonly ValueFormat m_ValueFormatGeneral;
+    protected readonly ValueFormat ValueFormatGeneral;
     protected readonly TimeZoneChangeDelegate TimeZoneAdjust;
     protected string Header;
     protected readonly string SourceTimeZone;
@@ -96,7 +95,7 @@ namespace CsvTools
         footer,
         fileName,
         id);
-      m_ValueFormatGeneral = valueFormatGeneral ?? ValueFormat.Empty;
+      ValueFormatGeneral = valueFormatGeneral ?? ValueFormat.Empty;
       ColumnDefinition =  columnDefinition == null ? new List<Column>() : new List<Column>(columnDefinition);
       FileSettingDisplay = fileSettingDisplay;
       m_KeepUnencrypted = unencrypted;
@@ -130,41 +129,28 @@ namespace CsvTools
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">reader</exception>
-    public static IReadOnlyCollection<WriterColumn> GetColumnInformation(
-      ValueFormat? generalFormat,
-      IReadOnlyCollection<Column> columnDefinitions,
-      DataTable schemaTable)
+    public static IReadOnlyCollection<WriterColumn> GetColumnInformation(in ValueFormat generalFormat, in IReadOnlyCollection<Column> columnDefinitions, in IFileReader reader)
     {
-      if (schemaTable is null)
-        throw new ArgumentNullException(nameof(schemaTable));
       var result = new List<WriterColumn>();
 
-      var colNames = new BiDirectionalDictionary<int, string>();
-
-      // Make names unique and fill the dictionary
-      foreach (DataRow schemaRow in schemaTable.Rows)
+      // Make names unique 
+      var colNames = new BiDirectionalDictionary<int, string>();      
+      foreach (var col in reader.GetColumnsOfReader())
       {
-        var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
-        if (!(schemaRow[SchemaTableColumn.ColumnName] is string colName) || colName.Length == 0)
-          colName = $"Column{colNo + 1}";
-        var newName = colNames.Values.MakeUniqueInCollection(colName);
-        colNames.Add(colNo, newName);
+        var colName = col.Name;
+        if (string.IsNullOrEmpty(colName.Trim()))
+          colName = $"Column{col.ColumnOrdinal + 1}";
+        colNames.Add(col.ColumnOrdinal, colNames.Values.MakeUniqueInCollection(colName));
       }
 
-      // Get default if we do not have the information
-      generalFormat ??= ValueFormat.Empty;
-
-      foreach (DataRow schemaRow in schemaTable.Rows)
+      foreach (var col in reader.GetColumnsOfReader())
       {
-        var colNo = (int) schemaRow[SchemaTableColumn.ColumnOrdinal];
-        var column =
-          columnDefinitions.FirstOrDefault(x => x.Name.Equals(colNames[colNo], StringComparison.OrdinalIgnoreCase));
-        if (column is { Ignore: true })
-          continue;
+        var colNo = col.ColumnOrdinal;
+        var column = columnDefinitions.FirstOrDefault(x => x.Name.Equals(colNames[colNo], StringComparison.OrdinalIgnoreCase));
 
         var valueFormat = column?.ValueFormat is null
           ? new ValueFormat(
-            ((Type) schemaRow[SchemaTableColumn.DataType]).GetDataType(),
+            col.ValueFormat.DataType,
             generalFormat.DateFormat,
             generalFormat.DateSeparator,
             generalFormat.TimeSeparator,
@@ -200,7 +186,7 @@ namespace CsvTools
               : column.ValueFormat.FileOutPutPlaceholder,
             overwrite: column.ValueFormat.Overwrite);
 
-        var fieldLength = Math.Max((int) schemaRow[SchemaTableColumn.ColumnSize], 0);
+        var fieldLength = 0;
         switch (valueFormat)
         {
           case { DataType: DataTypeEnum.Integer }:
@@ -241,12 +227,7 @@ namespace CsvTools
         }
 
         // this is problematic, we need to apply timezone mapping here and on date
-        var ci = new WriterColumn(
-          colNames[colNo],
-          valueFormat,
-          colNo,
-          fieldLength,
-          constantTimeZone, columnOrdinalTimeZoneReader);
+        var ci = new WriterColumn(colNames[colNo], valueFormat, colNo, fieldLength, constantTimeZone, columnOrdinalTimeZoneReader);
 
         result.Add(ci);
 
@@ -335,21 +316,6 @@ namespace CsvTools
       HandleProgress($"Record {Records:N0}");
     }
 
-    /// <summary>
-    ///   Sets the columns by looking at the reader
-    /// </summary>
-    /// <param name="reader">The reader.</param>
-    protected void SetColumns(IFileReader reader)
-    {
-      Columns.Clear();
-      using var dt = reader.GetSchemaTable();
-      Columns.AddRange(
-        GetColumnInformation(
-          m_ValueFormatGeneral,
-          ColumnDefinition,
-          dt ?? throw new ArgumentException("GetSchemaTable did not return information for reader")));
-    }
-
     public abstract Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken);
 
     private static string ReplacePlaceHolder(string? input, string fileName, string id) =>
@@ -432,10 +398,7 @@ namespace CsvTools
       }
     }
 
-    protected string TextEncodeField(
-      object? dataObject,
-      WriterColumn columnInfo,
-      IDataReader? reader)
+    protected string TextEncodeField(object? dataObject, WriterColumn columnInfo, IDataReader? reader)
     {
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));

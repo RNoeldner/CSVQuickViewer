@@ -501,7 +501,8 @@ namespace CsvTools
       get => m_SqlStatement;
       set
       {
-        if (!SetProperty(ref m_SqlStatement, (value ?? string.Empty).NoControlCharacters().HandleCrlfCombinations())) return;
+        if (!SetProperty(ref m_SqlStatement, (value ?? string.Empty).NoControlCharacters().HandleCrlfCombinations())) 
+          return;
         // Need to assume we have new sources, it has to be recalculated
         SourceFileSettings = null;
         // Reset the process time as well

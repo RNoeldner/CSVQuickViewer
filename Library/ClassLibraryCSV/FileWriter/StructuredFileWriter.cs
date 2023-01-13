@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="CsvTools.BaseFileWriter" />
+  /// <inheritdoc cref="FileWriter.FileWriter.BaseFileWriter" />
   /// <summary>
   ///   A class to write structured Files like XML or JASON
   /// </summary>
@@ -105,16 +105,18 @@ namespace CsvTools
       IFileReader reader,
       Stream output,
       CancellationToken cancellationToken)
-    {
+    {      
+      var Columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);      
+      
+      var numColumns = Columns.Count();
+      if (numColumns == 0)
+        throw new FileWriterException("No columns defined to be written.");
+
 #if NETSTANDARD2_1_OR_GREATER
       await
 #endif
       using var writer =
         new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 4096, true);
-      SetColumns(reader);
-      var numColumns = Columns.Count();
-      if (numColumns == 0)
-        throw new FileWriterException("No columns defined to be written.");
       const string recordEnd = "\r\n";
 
       HandleWriteStart();
@@ -163,7 +165,7 @@ namespace CsvTools
         colNum = 0;
         foreach (var columnInfo in Columns)
         {
-          string value = Escape(reader.GetValue(columnInfo.ColumnOrdinal), columnInfo, reader);
+          var value = Escape(reader.GetValue(columnInfo.ColumnOrdinal), columnInfo, reader);
           row = row.Replace(placeHolderLookup1[colNum], value).Replace(placeHolderLookup2[colNum], value);
           colNum++;
         }
@@ -192,7 +194,7 @@ namespace CsvTools
       // { "firstName":"John", "lastName":"Doe"},
       foreach (var col in cols)
         sb.AppendFormat("\"{0}\":{1},\n", HtmlStyle.JsonElementName(col.Name),
-          string.Format(StructuredFileWriter.cFieldPlaceholderByName, col.Name));
+          string.Format(cFieldPlaceholderByName, col.Name));
       if (sb.Length > 1)
         sb.Length -= 2;
       sb.AppendLine("}");

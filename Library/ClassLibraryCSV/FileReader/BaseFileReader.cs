@@ -652,10 +652,11 @@ namespace CsvTools
       for (var col = 0; col < FieldCount; col++)
       {
         var column = GetColumn(col);
-
-        schemaRow[1] = column.Name; // Column name
-        schemaRow[4] = column.Name; // Column name
-        schemaRow[5] = col; // Column ordinal
+        
+        schemaRow[1] = column.Name; // BaseColumnName
+        schemaRow[4] = column.Name; // ColumnName
+        schemaRow[5] = col; // ColumnOrdinal
+        schemaRow[19] = column.Ignore;  // IsHidden        
 
         // If there is a conversion get the information
         if (column.Convert && column.ValueFormat.DataType != DataTypeEnum.String)
