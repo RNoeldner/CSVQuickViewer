@@ -17,35 +17,52 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CsvTools.Tests
 {
   [TestClass]
-	public class DelimiterCounterTests
-	{
-		[TestMethod]
-		public void DelimiterCounterTest()
-		{
-			var i = new DelimiterCounter(100, null);
+  public class DelimiterCounterTests
+  {
+    [TestMethod]
+    public void DelimiterCounterTest()
+    {
+      var i = new DelimiterCounter(100, null, '"');
       Assert.AreEqual(100, i.NumRows);
       Assert.AreEqual(0, i.FilledRows);
     }
 
     [TestMethod]
+    public void DelimiterCounterScore()
+    {
+      var i = new DelimiterCounter(100, null, '"');
+      Assert.AreEqual(1, i.NumRows);
+      
+      i.CheckChar(';', ';');
+      i.CheckChar('\t', 'x');
+      i.CheckChar(',', '"');
+
+      // there is no score if we repeat
+      Assert.AreEqual(0, i.SeparatorScore[i.Separators.IndexOf(';')]);
+      // there is a score if we follow a Text
+      Assert.AreEqual(1, i.SeparatorScore[i.Separators.IndexOf('\t')]);
+      Assert.AreEqual(2, i.SeparatorScore[i.Separators.IndexOf(',')]);
+
+    }
+    [TestMethod]
     public void DelimiterCounterDisallowTest()
     {
-      var i = new DelimiterCounter(50, new [] { '\t', '|' });
+      var i = new DelimiterCounter(50, new[] { '\t', '|' }, '"');
       Assert.AreEqual(-1, i.Separators.IndexOf('\t'));
       Assert.AreEqual(-1, i.Separators.IndexOf('|'));
       Assert.AreEqual(50, i.NumRows);
       Assert.AreEqual(0, i.FilledRows);
 
-      Assert.IsFalse(i.CheckChar('\t'));
-      Assert.IsTrue(i.CheckChar(';')); 
+      Assert.IsFalse(i.CheckChar('\t', '\0'));
+      Assert.IsTrue(i.CheckChar(';', ';'));
     }
 
     [TestMethod]
     public void DelimiterCounterCheckCharTest()
     {
-      var i = new DelimiterCounter(50, null);
-      Assert.IsFalse(i.CheckChar('a'));
-      Assert.IsTrue(i.CheckChar(';'));
+      var i = new DelimiterCounter(50, null, '"');
+      Assert.IsFalse(i.CheckChar('a', '\0'));
+      Assert.IsTrue(i.CheckChar(';', '\0'));
     }
   }
 }

@@ -144,13 +144,13 @@ namespace CsvTools.Tests
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
         Assert.AreEqual(",",
-          (await improvedStream.GuessDelimiterAsync(-1, 0, string.Empty, UnitTestStatic.Token)).Delimiter);
+          (await improvedStream.GuessDelimiterAsync(-1, 0, "\"", string.Empty, UnitTestStatic.Token)).Delimiter);
 
       using (var improvedStream =
              FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"))))
 
         Assert.AreEqual("|",
-          (await improvedStream.GuessDelimiterAsync(-1, 0, string.Empty, UnitTestStatic.Token)).Delimiter);
+          (await improvedStream.GuessDelimiterAsync(-1, 0, "\"", string.Empty, UnitTestStatic.Token)).Delimiter);
 
       ICsvFile test =
         new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("LateStartRow.txt"))
@@ -161,7 +161,7 @@ namespace CsvTools.Tests
       test.FieldQualifier = "\"";
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
         Assert.AreEqual("|",
-          (await improvedStream.GuessDelimiterAsync(20127, 10, string.Empty, UnitTestStatic.Token)).Delimiter);
+          (await improvedStream.GuessDelimiterAsync(20127, 10, "\"", string.Empty, UnitTestStatic.Token)).Delimiter);
     }
 
     [TestMethod]
@@ -169,12 +169,12 @@ namespace CsvTools.Tests
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
         Assert.AreEqual(",",
-          (await improvedStream.GuessDelimiterAsync(-1, 0, string.Empty, UnitTestStatic.Token)).Delimiter);
+          (await improvedStream.GuessDelimiterAsync(-1, 0, "\"", string.Empty, UnitTestStatic.Token)).Delimiter);
 
       using (var improvedStream =
              FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSVMagic.txt"))))
         Assert.AreEqual("Tab",
-          (await improvedStream.GuessDelimiterAsync(-1, 0, string.Empty, UnitTestStatic.Token)).Delimiter);
+          (await improvedStream.GuessDelimiterAsync(-1, 0, "\"", string.Empty, UnitTestStatic.Token)).Delimiter);
     }
 
     [TestMethod]
@@ -184,7 +184,7 @@ namespace CsvTools.Tests
         new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")) { CodePageId = -1 };
       test.EscapePrefix = "\\";
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
-      Assert.AreEqual(",", (await improvedStream.GuessDelimiterAsync(-1, 0, "\\", UnitTestStatic.Token)).Delimiter);
+      Assert.AreEqual(",", (await improvedStream.GuessDelimiterAsync(-1, 0, "\"", "\\", UnitTestStatic.Token)).Delimiter);
     }
 
     [TestMethod]
@@ -197,7 +197,7 @@ namespace CsvTools.Tests
       test.EscapePrefix = string.Empty;
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       Assert.AreEqual("|",
-        (await improvedStream.GuessDelimiterAsync(-1, 0, string.Empty, UnitTestStatic.Token)).Delimiter);
+        (await improvedStream.GuessDelimiterAsync(-1, 0, "\"", string.Empty, UnitTestStatic.Token)).Delimiter);
     }
 
     [TestMethod]
@@ -208,7 +208,7 @@ namespace CsvTools.Tests
       test.EscapePrefix = string.Empty;
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       Assert.AreEqual(",",
-        (await improvedStream.GuessDelimiterAsync(test.CodePageId, test.SkipRows, test.EscapePrefix,
+        (await improvedStream.GuessDelimiterAsync(test.CodePageId, test.SkipRows, test.FieldQualifier, test.EscapePrefix,
           UnitTestStatic.Token))
         .Delimiter);
     }
@@ -221,7 +221,7 @@ namespace CsvTools.Tests
       test.EscapePrefix = "\\";
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       Assert.AreEqual("Tab",
-        (await improvedStream.GuessDelimiterAsync(test.CodePageId, test.SkipRows, test.EscapePrefix,
+        (await improvedStream.GuessDelimiterAsync(test.CodePageId, test.SkipRows, "\"", test.EscapePrefix,
           UnitTestStatic.Token))
         .Delimiter, true);
     }
