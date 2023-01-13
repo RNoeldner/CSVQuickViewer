@@ -26,10 +26,10 @@
 		<DefineConstants>TRACE;QUICK</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
-	  <DebugType>embedded</DebugType>
+		<DebugType>embedded</DebugType>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
-	  <DebugType>none</DebugType>
+		<DebugType>none</DebugType>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="..\ClassLibraryCSV\StandardTimeZoneAdjust.cs" Link="StandardTimeZoneAdjust.cs" />
@@ -54,7 +54,7 @@
 		<Compile Include="..\ClassLibraryCSV\FileReader\DataTableWrapper.cs" Link="FileReader\DataTableWrapper.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\DataReaderWrapper.cs" Link="FileReader\DataReaderWrapper.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\ReaderExtensionMethods.cs" Link="FileReader\ReaderExtensionMethods.cs" />
-		
+
 		<Compile Include="..\ClassLibraryCSV\IColumnFormatter.cs" Link="IColumnFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextPartFormatter.cs" Link="TextPartFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextToHtmlFullFormatter.cs" Link="TextToHtmlFullFormatter.cs" />
@@ -64,10 +64,10 @@
 		<Compile Include="..\ClassLibraryCSV\FileWriter\BaseFileWriter.cs" Link="FileWriter\BaseFileWriter.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileWriter\CsvFileWriter.cs" Link="FileWriter\CsvFileWriter.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileWriter\IFileWriter.cs" Link="FileWriter\IFileWriter.cs" />
-		
+
 		<Compile Include="..\ClassLibraryCSV\ClassLibraryCsvExtensionMethods.cs" Link="ClassLibraryCsvExtensionMethods.cs" />
 		<Compile Include="..\ClassLibraryCSV\UniqueObservableCollection.cs" Link="UniqueObservableCollection.cs" />
-		<Compile Include="..\ClassLibraryCSV\IWithCopyTo.cs" Link="IWithCopyTo.cs" />		
+		<Compile Include="..\ClassLibraryCSV\IWithCopyTo.cs" Link="IWithCopyTo.cs" />
 		<Compile Include="..\ClassLibraryCSV\ICollectionIdentity.cs" Link="ICollectionIdentity.cs" />
 
 		<Compile Include="..\ClassLibraryCSV\Exceptions\FileReaderOpenException.cs" Link="Exceptions\FileReaderOpenException.cs" />
@@ -80,10 +80,10 @@
 		<Compile Include="..\ClassLibraryCSV\DetectionEscapePrexfix.cs" Link="DetectionEscapePrexfix.cs" />
 		<Compile Include="..\ClassLibraryCSV\DetectionHeader.cs" Link="DetectionHeader.cs" />
 		<Compile Include="..\ClassLibraryCSV\DetectionDelimiter.cs" Link="DetectionDelimiter.cs" />
-		
+
 		<Compile Include="..\ClassLibraryCSV\IProcessDisplayTime.cs" Link="IProcessDisplayTime.cs" />
 		<Compile Include="..\ClassLibraryCSV\ProcessDisplayTime.cs" Link="ProcessDisplayTime.cs" />
-		
+
 		<Compile Include="..\ClassLibraryCSV\ReaderMapping.cs" Link="ReaderMapping.cs" />
 
 
@@ -94,13 +94,12 @@
 		<Compile Include="..\ClassLibraryCSV\Logger.cs" Link="Logger.cs" />
 
 		<Compile Include="..\ClassLibraryCSV\ValueFormat\ValueFormat.cs" Link="ValueFormat\ValueFormat.cs" />
-		
+
 		<Compile Include="..\ClassLibraryCSV\FileSystemUtils.cs" Link="FileSystemUtils.cs" />
 		<Compile Include="..\ClassLibraryCSV\ImprovedTextReader.cs" Link="ImprovedTextReader.cs" />
 
 		<Compile Include="..\ClassLibraryCSV\ColumnErrorDictionary.cs" Link="ColumnErrorDictionary.cs" />
-		<Compile Include="..\ClassLibraryCSV\Immutable\DelimitedFileDetectionResult.cs" Link="DelimitedFileDetectionResult.cs" />
-		<Compile Include="..\ClassLibraryCSV\Immutable\DelimitedFileDetectionResultWithColumns.cs" Link="DelimitedFileDetectionResultWithColumns.cs" />
+		<Compile Include="..\ClassLibraryCSV\Immutable\DetectionResult.cs" Link="DetectionResult.cs" />
 		<Compile Include="..\ClassLibraryCSV\ErrorInformation.cs" Link="ErrorInformation.cs" />
 		<Compile Include="..\ClassLibraryCSV\StringConversion.cs" Link="StringConversion.cs" />
 		<Compile Include="..\ClassLibraryCSV\DateTimeFormatCollection.cs" Link="DateTimeFormatCollection.cs" />
@@ -114,7 +113,7 @@
 		<Compile Include="..\ClassLibraryCSV\Mutable\SourceAccess.cs" Link="Mutable\SourceAccess.cs" />
 		<Compile Include="..\ClassLibraryCSV\RetryEventArgs.cs" Link="RetryEventArgs.cs" />
 
-		
+
 		<Compile Include="..\ClassLibraryCSV\WarningEventArgs.cs" Link="WarningEventArgs.cs" />
 
 		<Compile Include="..\ClassLibraryCSV\Mutable\FillGuessSettings.cs" Link="FillGuessSettings.cs" />

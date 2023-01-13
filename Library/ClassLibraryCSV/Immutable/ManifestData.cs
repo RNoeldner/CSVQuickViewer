@@ -60,7 +60,7 @@ namespace CsvTools
 
     public string PubName { get; }
 
-    public static async Task<DelimitedFileDetectionResultWithColumns> ReadManifestFileSystem(string fileName)
+    public static async Task<DetectionResult> ReadManifestFileSystem(string fileName)
     {
       var posExt = fileName.LastIndexOf('.');
       var manifest = fileName.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase)
@@ -83,7 +83,7 @@ namespace CsvTools
       throw new FileNotFoundException(dataFile);
     }
 
-    public static async Task<DelimitedFileDetectionResultWithColumns?> ReadManifestZip(string fileName)
+    public static async Task< DetectionResult?> ReadManifestZip(string fileName)
     {
       Logger.Debug("Opening Zip file {filename}", fileName);
 
@@ -109,7 +109,7 @@ namespace CsvTools
       return null;
     }
 
-    private static async Task<DelimitedFileDetectionResultWithColumns> ReadManifestFromStream(
+    private static async Task<DetectionResult> ReadManifestFromStream(
       Stream manifestStream,
       string fileName,
       string identifierInContainer)
@@ -119,17 +119,16 @@ namespace CsvTools
       var mani = JsonConvert.DeserializeObject<ManifestData>(strContend);
       if (mani is null)
         throw new InvalidOperationException("The manifest file could not be deserialized");
-      var fileSettingMani = new DelimitedFileDetectionResult(fileName)
+      var detectionResult = new DetectionResult(fileName)
       {        
         SkipRows =0,
         CodePageId= Encoding.UTF8.CodePage,
-        ByteOrderMark= false,
-        QualifyAlways = false,
+        ByteOrderMark= false,        
         IdentifierInContainer = identifierInContainer,
         CommentLine ="#",
         FieldDelimiter= ",",
         NewLine=  RecordDelimiterTypeEnum.Lf,
-        QualifierInContext = false,
+        ContextSensitiveQualifier = false,
         HasFieldHeader = false
       };
 
@@ -181,11 +180,10 @@ namespace CsvTools
             break;
         }
 
-        columnCollection.Add(new Column(fld.PubName, vf, fld.Ordinal, destinationName: fld.PubName));
+        detectionResult.Columns.Add(new Column(fld.PubName, vf, fld.Ordinal, destinationName: fld.PubName));
       }
-
-      return new DelimitedFileDetectionResultWithColumns(fileSettingMani, columnCollection, string.Empty
-      );
+      
+      return detectionResult;
     }
 
     public class ManifestField

@@ -18,6 +18,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <SuppressSpecificWarnings>1076</SuppressSpecificWarnings>
+    <VerboseOutput>False</VerboseOutput>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Product472.wxs" />

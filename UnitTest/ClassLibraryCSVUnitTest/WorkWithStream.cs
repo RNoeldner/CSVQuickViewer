@@ -20,7 +20,7 @@ namespace CsvTools.Tests
       // Not closing the stream
 
       using var impStream = new ImprovedStream(stream, FileTypeEnum.Stream);
-      var result = new DelimitedFileDetectionResult("stream");
+      var result = new DetectionResult("stream");
       await impStream.GetDetectionResult(result, false, true, true, true, true, true, true, false, true,
         null, UnitTestStatic.Token);
       impStream.Seek(0, SeekOrigin.Begin);
@@ -59,7 +59,7 @@ namespace CsvTools.Tests
       ICollection<Column> determinedColumns;
       // Not closing the stream
       using var impStream = new ImprovedStream(stream, FileTypeEnum.GZip);
-      var result = new DelimitedFileDetectionResult("steam");
+      var result = new DetectionResult("steam");
       await impStream.GetDetectionResult(result, false, true, true, true, true, true, true, false,
        false, null, UnitTestStatic.Token);
 

@@ -12,32 +12,34 @@
  *
  */
 #nullable enable
-
 using System;
 
 namespace CsvTools
 {
-  public class DelimitedFileDetectionResult
+  /// <summary>
+  ///   Datastore to pass back information retrieved from Detection or parsing Manifest Information
+  /// </summary>
+  public class DetectionResult
   {
     public readonly string FileName = string.Empty;
     public int SkipRows = 0;
-
     public int CodePageId = -1;
     public bool ByteOrderMark = false;
-    public bool QualifyAlways = false;
     public string IdentifierInContainer = string.Empty;
     public string CommentLine = "#";
     public string EscapePrefix = "\\";
     public string FieldDelimiter = ",";
     public string FieldQualifier = "\"";
-    public bool QualifierInContext = false;
+    public bool ContextSensitiveQualifier = false;
     public bool DuplicateQualifierToEscape = true;
     public bool HasFieldHeader = true;
     public bool IsJson = false;
     public bool NoDelimitedFile = false;
     public RecordDelimiterTypeEnum NewLine = RecordDelimiterTypeEnum.None;
+    public string ColumnFile = string.Empty;
+    public ColumnCollection Columns = new ColumnCollection();
 
-    public DelimitedFileDetectionResult(string fileName)
+    public DetectionResult(string fileName)
     {
       FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
     }
@@ -45,17 +47,13 @@ namespace CsvTools
 #if !QUICK
     public virtual IFileSettingPhysicalFile PhysicalFile()
     {
-      if (IsJson)
-        return new JsonFile(string.Empty, FileName) { IdentifierInContainer = IdentifierInContainer };
-
-      return new CsvFile(id: string.Empty, fileName: FileName)
+      var ret = (IsJson) ? new JsonFile(string.Empty, FileName) { IdentifierInContainer = IdentifierInContainer } as IFileSettingPhysicalFile : new CsvFile(id: string.Empty, fileName: FileName)
       {
-        QualifyAlways = QualifyAlways,
         CommentLine = CommentLine,
         EscapePrefix = GetShortDisplay(EscapePrefix),
         FieldDelimiter = GetShortDisplay(FieldDelimiter),
         FieldQualifier = GetShortDisplay(FieldQualifier),
-        ContextSensitiveQualifier = QualifierInContext,
+        ContextSensitiveQualifier = ContextSensitiveQualifier,
         DuplicateQualifierToEscape = DuplicateQualifierToEscape,
         NewLine = NewLine,
         ByteOrderMark = ByteOrderMark,
@@ -65,9 +63,13 @@ namespace CsvTools
         IdentifierInContainer = IdentifierInContainer,
         SkipRows = SkipRows
       };
+
+      ret.ColumnCollection.AddRangeNoClone(Columns);
+      ret.ColumnFile = ColumnFile;
+
+      return ret;
     }
 
-#endif
 
     private static string GetShortDisplay(in string? input)
     {
@@ -85,5 +87,6 @@ namespace CsvTools
         _ => input
       };
     }
+#endif
   }
 }
