@@ -149,7 +149,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          var res = await improvedStream.GuessDelimiterAsync(csvFile.CodePageId, csvFile.SkipRows,
+          var res = await improvedStream.GuessDelimiterAsync(csvFile.CodePageId, csvFile.SkipRows, csvFile.FieldQualifier,
             csvFile.EscapePrefix,
             m_CancellationTokenSource.Token);
           if (res.IsDetected)

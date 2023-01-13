@@ -79,6 +79,7 @@
 		<Compile Include="..\ClassLibraryCSV\DetectionQualifier.cs" Link="DetectionQualifier.cs" />
 		<Compile Include="..\ClassLibraryCSV\DetectionEscapePrexfix.cs" Link="DetectionEscapePrexfix.cs" />
 		<Compile Include="..\ClassLibraryCSV\DetectionHeader.cs" Link="DetectionHeader.cs" />
+		<Compile Include="..\ClassLibraryCSV\DetectionDelimiter.cs" Link="DetectionDelimiter.cs" />
 		
 		<Compile Include="..\ClassLibraryCSV\IProcessDisplayTime.cs" Link="IProcessDisplayTime.cs" />
 		<Compile Include="..\ClassLibraryCSV\ProcessDisplayTime.cs" Link="ProcessDisplayTime.cs" />

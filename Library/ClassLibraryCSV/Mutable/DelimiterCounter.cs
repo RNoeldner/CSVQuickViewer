@@ -12,7 +12,6 @@
  *
  */
 #nullable enable
-
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -22,20 +21,18 @@ namespace CsvTools
   {
     // Added INFORMATION SEPARATOR ONE to FOUR
     private const string cDefaultSeparators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
-
     public readonly int NumRows;
-
     public readonly int[] SeparatorRows;
-
     public readonly string Separators;
-
     public readonly int[,] SeparatorsCount;
-
+    public readonly int[] SeparatorScore;
     public int LastRow;
+    private readonly char m_QuoteChar;
 
-    public DelimiterCounter(int numRows, IEnumerable<char>? disallowedDelimiter)
+    public DelimiterCounter(int numRows, IEnumerable<char>? disallowedDelimiter, char quoteChar)
     {
       NumRows = numRows;
+      m_QuoteChar=quoteChar;
       var listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator[0];
       if (cDefaultSeparators.IndexOf(listSeparator) == -1)
         Separators = cDefaultSeparators + listSeparator;
@@ -47,16 +44,24 @@ namespace CsvTools
             Separators = Separators.Remove(Separators.IndexOf(delim), 1);
       SeparatorsCount = new int[Separators.Length, NumRows];
       SeparatorRows = new int[Separators.Length];
+      SeparatorScore= new int[Separators.Length];
     }
 
-    public bool CheckChar(char readChar)
+    public bool CheckChar(char readChar, char lastchar)
     {
       var index = Separators.IndexOf(readChar);
       if (index != -1)
       {
         if (SeparatorsCount[index, LastRow] == 0)
           SeparatorRows[index]++;
+
         ++SeparatorsCount[index, LastRow];
+        // A sperator its worth more if the previous char was the quote
+        if (lastchar == m_QuoteChar)
+          SeparatorScore[index] += 2;
+        else if (lastchar != readChar && lastchar!=' ' && lastchar!='\r'&& lastchar!='\n')
+          // its also worth something if previous char appears to be a text
+          SeparatorScore[index]++;
         return true;
       }
 
