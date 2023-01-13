@@ -100,6 +100,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="field">The backing store.</param>
     /// <param name="value">The new value.</param>
+    /// <param name="comparison">Equality comparer</param>
     /// <param name="propertyName">Name of the property.</param>
     /// <returns><c>true</c> if the value was changed</returns>
     protected bool SetProperty<T>(ref T field, in T value, IEqualityComparer<T>? comparison = null, [CallerMemberName] string propertyName = "") // where T : struct

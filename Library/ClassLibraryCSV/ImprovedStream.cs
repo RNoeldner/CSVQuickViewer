@@ -47,7 +47,7 @@ namespace CsvTools
     /// <summary>
     ///   Create an improved stream based on another stream
     /// </summary>
-    /// <param name="stream">The source stream</param>
+    /// <param name="stream">The stream to read data from</param>
     /// <param name="type"></param>
     /// <remarks>Make sure the source stream is disposed</remarks>
     // ReSharper disable once NotNullMemberIsNotInitialized
@@ -240,7 +240,7 @@ namespace CsvTools
       }
     }
 
-    public async override ValueTask DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
       await DisposeAsyncCore();
       await base.DisposeAsync().ConfigureAwait(false);

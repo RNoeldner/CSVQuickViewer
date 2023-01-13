@@ -20,7 +20,7 @@ using TimeZoneConverter;
 namespace CsvTools
 {
   /// <summary>
-  /// Implementation of <see cref="TimeZoneChangeDelegate"/> that uses the .NET  <see cref="TimeZoneInfo" /> and NuGet package TimeZoneConverter to be able to work on Iana or Windows TimeZone
+  /// Implementation of <see cref="TimeZoneChangeDelegate"/> that uses the .NET  <see cref="TimeZoneInfo" /> and NuGet package TimeZoneConverter to be able to work on Inara or Windows TimeZone
   /// </summary>
   public static class StandardTimeZoneAdjust 
   {

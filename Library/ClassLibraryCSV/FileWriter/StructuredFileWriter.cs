@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="FileWriter.FileWriter.BaseFileWriter" />
+  /// <inheritdoc cref="BaseFileWriter" />
   /// <summary>
   ///   A class to write structured Files like XML or JASON
   /// </summary>
@@ -106,9 +106,9 @@ namespace CsvTools
       Stream output,
       CancellationToken cancellationToken)
     {      
-      var Columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);      
+      var columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);      
       
-      var numColumns = Columns.Count();
+      var numColumns = columns.Count();
       if (numColumns == 0)
         throw new FileWriterException("No columns defined to be written.");
 
@@ -137,7 +137,7 @@ namespace CsvTools
       var placeHolderLookup1 = new Dictionary<int, string>();
       var placeHolderLookup2 = new Dictionary<int, string>();
 
-      foreach (var columnName in Columns.Select(x => x.Name))
+      foreach (var columnName in columns.Select(x => x.Name))
       {
         var placeHolder = string.Format(CultureInfo.CurrentCulture, cHeaderPlaceholder, colNum);
         withHeader = withHeader.Replace(placeHolder, ElementName(columnName));
@@ -163,7 +163,7 @@ namespace CsvTools
         sb.Append(recordEnd);
         var row = withHeader;
         colNum = 0;
-        foreach (var columnInfo in Columns)
+        foreach (var columnInfo in columns)
         {
           var value = Escape(reader.GetValue(columnInfo.ColumnOrdinal), columnInfo, reader);
           row = row.Replace(placeHolderLookup1[colNum], value).Replace(placeHolderLookup2[colNum], value);

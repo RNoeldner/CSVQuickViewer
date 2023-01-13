@@ -45,7 +45,7 @@ namespace CsvTools
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
-    ///   <see cref="DelimitedFileDetectionResultWithColumns" /> with found information, or default if that test was not done
+    ///   <see cref="DetectionResult" /> with found information, or default if that test was not done
     /// </returns>
     public static async Task<DetectionResult> AnalyzeFileAsync(this string fileName,
       bool guessJson,
@@ -192,7 +192,7 @@ namespace CsvTools
     }
 
     /// <summary>Checks if the comment line does make sense, or if its possibly better regarded as header row</summary>
-    /// <param name="textReader">The stream reader with the data</param>
+    /// <param name="textReader">The text reader to read the data</param>
     /// <param name="commentLine">The characters for a comment line.</param>
     /// <param name="delimiter">The delimiter.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
@@ -253,8 +253,8 @@ namespace CsvTools
     /// <summary>
     ///   Updates the detection result from stream.
     /// </summary>
-    /// <param name="stream">The improved stream.</param>
-    /// <param name="fileName"></param>
+    /// <param name="stream">The stream to read data from</param>
+    /// <param name="detectionResult">Passed is detection result</param>
     /// <param name="guessJson">if <c>true</c> trying to determine if file is a JSON file</param>
     /// <param name="guessCodePage">if <c>true</c>, try to determine the code page</param>
     /// <param name="guessEscapePrefix">if <c>true</c>, try to determine the escape sequence</param>
@@ -541,7 +541,7 @@ namespace CsvTools
     /// <summary>
     ///   Guesses the code page from a stream.
     /// </summary>
-    /// <param name="stream">The stream.</param>
+    /// <param name="stream">The stream to read data from</param>
     /// <param name="token">The token.</param>
     /// <returns></returns>
     public static async Task<Tuple<int, bool>> GuessCodePage(this Stream stream, CancellationToken token)
@@ -580,7 +580,7 @@ namespace CsvTools
 
 
     /// <summary>Guesses the line comment</summary>
-    /// <param name="textReader">The text reader.</param>
+    /// <param name="textReader">The text reader to read the data</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The determined comment</returns>
     /// <exception cref="System.ArgumentNullException">textReader</exception>
@@ -624,10 +624,10 @@ namespace CsvTools
     /// <summary>
     ///   Try to guess the new line sequence
     /// </summary>
-    /// <param name="stream">The improved stream.</param>
+    /// <param name="stream">The stream to read data from</param>
     /// <param name="codePageId">The code page identifier.</param>
-    /// <param name="skipRows">The skip rows.</param>
-    /// <param name="fieldQualifier">The field qualifier.</param>
+    /// <param name="skipRows">The number of lines at beginning to disregard</param>
+    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The NewLine Combination used</returns>
     public static async Task<RecordDelimiterTypeEnum> GuessNewline(
@@ -645,10 +645,10 @@ namespace CsvTools
     /// <summary>
     ///   Guess the start row of a CSV file done with a rather simple csv parsing
     /// </summary>
-    /// <param name="textReader">The stream reader with the data</param>
+    /// <param name="textReader">The text reader to read the data</param>
     /// <param name="delimiter">The delimiter.</param>
     /// <param name="quote">The quoting char</param>
-    /// <param name="escapePrefix">The escape char</param>
+    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="commentLine">The characters for a comment line.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The number of rows to skip</returns>
@@ -821,17 +821,17 @@ namespace CsvTools
     /// <summary>
     ///   Determines the start row in the file
     /// </summary>
-    /// <param name="stream">The improved stream.</param>
-    /// <param name="codePageID">The code page identifier.</param>
-    /// <param name="fieldDelimiter">The field delimiter character.</param>
-    /// <param name="fieldQualifier">The field qualifier character.</param>
-    /// <param name="escapePrefix">The escape prefix character.</param>
+    /// <param name="stream">The stream to read data from</param>
+    /// <param name="codePageId">The code page identifier.</param>
+    /// <param name="fieldDelimiter">The delimiter to separate columns</param>
+    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="commentLine">The comment line.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The number of rows to skip</returns>
     public static async Task<int> GuessStartRow(
       this Stream stream,
-      int codePageID,
+      int codePageId,
       string fieldDelimiter,
       string fieldQualifier,
       string escapePrefix,
@@ -839,14 +839,14 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       using var streamReader = new ImprovedTextReader(stream,
-        await stream.CodePageResolve(codePageID, cancellationToken).ConfigureAwait(false));
+        await stream.CodePageResolve(codePageId, cancellationToken).ConfigureAwait(false));
       return streamReader.GuessStartRow(fieldDelimiter, fieldQualifier, escapePrefix, commentLine, cancellationToken);
     }
 
     /// <summary>
     ///   Determines whether data in the specified stream is a JSON
     /// </summary>
-    /// <param name="stream">The imp stream.</param>
+    /// <param name="stream">The stream to read data from</param>
     /// <param name="encoding">The encoding.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns><c>true</c> if json could be read from stream; otherwise, <c>false</c>.</returns>

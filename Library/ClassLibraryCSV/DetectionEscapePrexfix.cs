@@ -12,11 +12,11 @@ namespace CsvTools
     /// <summary>
     ///   Try to guess the new used Escape Sequence, by looking at 500 lines 
     /// </summary>
-    /// <param name="stream">The improved stream.</param>
+    /// <param name="stream">The stream to read data from</param>
     /// <param name="codePageId">The code page identifier.</param>
-    /// <param name="skipRows">The skip rows.</param>
-    /// <param name="fieldDelimiter">The field delimiter.</param>
-    /// <param name="fieldQualifier">The quoting char</param>
+    /// <param name="skipRows">The number of lines at beginning to disregard</param>
+    /// <param name="fieldDelimiter">The delimiter to separate columns</param>
+    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The NewLine Combination used</returns>
     public static async Task<string> GuessEscapePrefix(
@@ -37,8 +37,8 @@ namespace CsvTools
     ///   Try to guess the used Escape Sequence, by looking at 500 lines 
     /// </summary>
     /// <param name="textReader">The improved text reader.</param>
-    /// <param name="fieldDelimiter">The field delimiter.</param>    
-    /// <param name="fieldQualifier">The quoting char</param>
+    /// <param name="fieldDelimiter">The delimiter to separate columns</param>
+    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The Escape Prefix used</returns>    
     public static async Task<string> GuessEscapePrefixAsync(this ImprovedTextReader textReader, string fieldDelimiter, string fieldQualifier,

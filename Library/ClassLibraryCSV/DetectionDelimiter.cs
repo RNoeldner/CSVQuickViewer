@@ -15,8 +15,9 @@ namespace CsvTools
     ///   find the delimiter that has the least variance in the read rows, if that is not possible
     ///   the delimiter with the highest number of occurrences.
     /// </summary>
-    /// <param name="textReader">The StreamReader with the data</param>
-    /// <param name="escapeCharacter">The escape character.</param>
+    /// <param name="textReader">The text reader to read the data</param>
+    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="disallowedDelimiter">Character rules out as possible delimiters</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A character with the assumed delimiter for the file</returns>
@@ -171,10 +172,11 @@ namespace CsvTools
     ///   find the delimiter that has the least variance in the read rows, if that is not possible
     ///   the delimiter with the highest number of occurrences.
     /// </summary>
-    /// <param name="stream">The improved stream.</param>
+    /// <param name="stream">The stream to read data from</param>
     /// <param name="codePageId">The code page identifier.</param>
-    /// <param name="skipRows">The skip rows.</param>
-    /// <param name="escapePrefix">The escape character.</param>
+    /// <param name="skipRows">The number of lines at beginning to disregard</param>
+    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <remarks>No Error will not be thrown.</remarks>
@@ -195,8 +197,9 @@ namespace CsvTools
     }
 
     /// <summary>Counts the delimiters</summary>
-    /// <param name="textReader">The text reader.</param>
-    /// <param name="escape">The escape sequence</param>
+    /// <param name="textReader">The text reader to read the data</param>
+    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="numRows">The number of rows to read</param>
     /// <param name="disallowedDelimiter">The disallowed delimiters</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
@@ -220,12 +223,11 @@ namespace CsvTools
 
       var quoted = false;
       char readChar = '\0';
-      char lastChar = '\0';
       var firstChar = true;
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
       while (dc.LastRow < dc.NumRows && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested)
       {
-        lastChar = readChar;
+        var lastChar = readChar;
         readChar = (char) textReader.Read();
         if (lastChar == escapeCharacter)
           continue;

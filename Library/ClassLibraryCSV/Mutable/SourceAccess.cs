@@ -71,7 +71,7 @@ namespace CsvTools
     /// <param name="fileName">Name of the file</param>
     /// <param name="isReading"><c>true</c> if the files is for reading</param>
     /// <param name="id">The identifier for the file for logging etc</param>
-    /// <param name="keyID">PGP encryption key identifier</param>
+    /// <param name="keyId">PGP encryption key identifier</param>
     /// <param name="keepEncrypted">
     ///   Do not remove the not encrypted files once the encrypted one is created, needed in for
     ///   debugging in case the private key is not known and the file can not be decrypted
@@ -80,7 +80,7 @@ namespace CsvTools
       in string fileName,
       bool isReading = true,
       in string? id = null,
-      in long keyID = 0,
+      in long keyId = 0,
       bool keepEncrypted = false)
     {
       if (string.IsNullOrWhiteSpace(fileName))
@@ -95,7 +95,7 @@ namespace CsvTools
       FullPath = fileName;
       Reading = isReading;
       Identifier = id ?? FileSystemUtils.GetShortDisplayFileName(fileName, 40);
-      KeyID = keyID;
+      KeyID = keyId;
       KeepEncrypted = keepEncrypted;
       LeaveOpen = false;
       FileType = FromExtension(fileName);
@@ -148,9 +148,9 @@ namespace CsvTools
     /// <param name="stream">The source stream, it must support seek if its a read stream</param>
     /// <param name="type">The type of the contents in the stream</param>
     /// <param name="isReading"><c>true</c> if used for reading</param>
-    /// <param name="keyID">PGP encryption key identifier</param>
+    /// <param name="keyId">PGP encryption key identifier</param>
     public SourceAccess(Stream stream, FileTypeEnum type = FileTypeEnum.Stream, bool isReading = true,
-      in long keyID = 0)
+      in long keyId = 0)
     {
       LeaveOpen = true;
       m_OpenStream = () => stream;
@@ -159,7 +159,7 @@ namespace CsvTools
       FullPath = string.Empty;
       EncryptedPassphrase = string.Empty;
       IdentifierInContainer = string.Empty;
-      KeyID = keyID;
+      KeyID = keyId;
       // Overwrite in case we can get more information
       if (stream is FileStream fs)
       {
