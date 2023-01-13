@@ -51,14 +51,20 @@
 		<Compile Include="..\ClassLibraryCSV\FileReader\JsonFileReader.cs" Link="FileReader\JsonFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\IFileReader.cs" Link="FileReader\IFileReader.cs" />
 		<Compile Include="..\ClassLibraryCSV\FileReader\ReaderConstants.cs" Link="FileReader\ReaderConstants.cs" />
-
+		<Compile Include="..\ClassLibraryCSV\FileReader\DataTableWrapper.cs" Link="FileReader\DataTableWrapper.cs" />
+		<Compile Include="..\ClassLibraryCSV\FileReader\DataReaderWrapper.cs" Link="FileReader\DataReaderWrapper.cs" />
+		<Compile Include="..\ClassLibraryCSV\FileReader\ReaderExtensionMethods.cs" Link="FileReader\ReaderExtensionMethods.cs" />
+		
 		<Compile Include="..\ClassLibraryCSV\IColumnFormatter.cs" Link="IColumnFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextPartFormatter.cs" Link="TextPartFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextToHtmlFullFormatter.cs" Link="TextToHtmlFullFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextUnescapeFormatter.cs" Link="TextUnescapeFormatter.cs" />
 		<Compile Include="..\ClassLibraryCSV\ColumnFormatter\TextToHtmlFormatter.cs" Link="TextToHtmlFormatter.cs" />
 
-		<Compile Include="..\ClassLibraryCSV\BaseFileWriter.cs" Link="BaseFileWriter.cs" />
+		<Compile Include="..\ClassLibraryCSV\FileWriter\BaseFileWriter.cs" Link="FileWriter\BaseFileWriter.cs" />
+		<Compile Include="..\ClassLibraryCSV\FileWriter\CsvFileWriter.cs" Link="FileWriter\CsvFileWriter.cs" />
+		<Compile Include="..\ClassLibraryCSV\FileWriter\IFileWriter.cs" Link="FileWriter\IFileWriter.cs" />
+		
 		<Compile Include="..\ClassLibraryCSV\ClassLibraryCsvExtensionMethods.cs" Link="ClassLibraryCsvExtensionMethods.cs" />
 		<Compile Include="..\ClassLibraryCSV\UniqueObservableCollection.cs" Link="UniqueObservableCollection.cs" />
 		<Compile Include="..\ClassLibraryCSV\IWithCopyTo.cs" Link="IWithCopyTo.cs" />		
@@ -69,7 +75,6 @@
 		<Compile Include="..\ClassLibraryCSV\Exceptions\FileWriterException.cs" Link="Exceptions\FileWriterException.cs" />
 
 
-		<Compile Include="..\ClassLibraryCSV\CsvFileWriter.cs" Link="CsvFileWriter.cs" />
 		<Compile Include="..\ClassLibraryCSV\CsvHelper.cs" Link="CsvHelper.cs" />
 		<Compile Include="..\ClassLibraryCSV\DetectionQualifier.cs" Link="DetectionQualifier.cs" />
 		<Compile Include="..\ClassLibraryCSV\DetectionEscapePrexfix.cs" Link="DetectionEscapePrexfix.cs" />
@@ -77,12 +82,7 @@
 		
 		<Compile Include="..\ClassLibraryCSV\IProcessDisplayTime.cs" Link="IProcessDisplayTime.cs" />
 		<Compile Include="..\ClassLibraryCSV\ProcessDisplayTime.cs" Link="ProcessDisplayTime.cs" />
-
-		<!-- for use with datatables -->
-		<Compile Include="..\ClassLibraryCSV\ReaderExtensionMethods.cs" Link="ReaderExtensionMethods.cs" />
-		<!-- for use with datatables -->
-		<Compile Include="..\ClassLibraryCSV\FileReader\DataTableWrapper.cs" Link="FileReader\DataTableWrapper.cs" />
-		<Compile Include="..\ClassLibraryCSV\FileReader\DataReaderWrapper.cs" Link="FileReader\DataReaderWrapper.cs" />
+		
 		<Compile Include="..\ClassLibraryCSV\ReaderMapping.cs" Link="ReaderMapping.cs" />
 
 
@@ -113,7 +113,7 @@
 		<Compile Include="..\ClassLibraryCSV\Mutable\SourceAccess.cs" Link="Mutable\SourceAccess.cs" />
 		<Compile Include="..\ClassLibraryCSV\RetryEventArgs.cs" Link="RetryEventArgs.cs" />
 
-		<Compile Include="..\ClassLibraryCSV\IFileWriter.cs" Link="IFileWriter.cs" />
+		
 		<Compile Include="..\ClassLibraryCSV\WarningEventArgs.cs" Link="WarningEventArgs.cs" />
 
 		<Compile Include="..\ClassLibraryCSV\Mutable\FillGuessSettings.cs" Link="FillGuessSettings.cs" />

@@ -28,10 +28,12 @@ namespace CsvTools
     private readonly Regex? m_QuoteRegex;
 #pragma warning disable CA1416
     private readonly Style m_Space = new SyntaxHighlightStyleStyleSpace(Brushes.Blue, Brushes.AntiqueWhite);
-    private readonly Style m_Tab = new SyntaxHighlightStyleTab(Pens.Blue, Brushes.AntiqueWhite);
+    //private readonly Style m_Tab = new SyntaxHighlightStyleTab(Pens.Blue, Brushes.AntiqueWhite);
+    private readonly Style m_Tab2 = new SyntaxHighlightStyleTab(Pens.LightGray, Brushes.AntiqueWhite);
 #pragma warning restore CA1416
     private readonly Regex m_SpaceRegex = new Regex(" ", RegexOptions.Singleline | RegexOptions.Compiled);
-    private readonly Regex m_TabRegex = new Regex("\\t", RegexOptions.Singleline | RegexOptions.Compiled);
+    //private readonly Regex m_TabRegex1 = new Regex("\\t", RegexOptions.Singleline | RegexOptions.Compiled);
+    private readonly Regex m_TabRegex2 = new Regex("⇥", RegexOptions.Singleline | RegexOptions.Compiled);
 
     public SyntaxHighlighterDelimitedText(FastColoredTextBox textBox, string qualifier, string delimiter, string escape,
       string comment) : base(textBox)
@@ -73,7 +75,8 @@ namespace CsvTools
         range.SetStyle(GrayStyle, m_CommentRegex);
 
       range.SetStyle(m_Space, m_SpaceRegex);
-      range.SetStyle(m_Tab, m_TabRegex);
+     // range.SetStyle(m_Tab, m_TabRegex1);
+      range.SetStyle(m_Tab2, m_TabRegex2);
     }
 
     internal class SyntaxHighlightStyleStyleSpace : Style

@@ -17,13 +17,14 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace CsvTools
 {
-  /// <inheritdoc cref="CsvTools.IFileWriter" />
+  /// <inheritdoc cref="IFileWriter" />
   /// <summary>
   ///   A Class to write CSV Files
   /// </summary>
@@ -154,22 +155,20 @@ namespace CsvTools
     /// <param name="reader">A Data Reader with the data</param>
     /// <param name="output">The output.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    public override async Task WriteReaderAsync(
-      IFileReader reader,
-      Stream output,
-      CancellationToken cancellationToken)
-    {
-#if NETSTANDARD2_1_OR_GREATER
-      await
-#endif
-      using var writer =
-        new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192, true);
-      SetColumns(reader);
+    public override async Task WriteReaderAsync(IFileReader reader, Stream output, CancellationToken cancellationToken)
+    {      
+      var Columns = GetColumnInformation(ValueFormatGeneral, ColumnDefinition, reader);
 
       if (Columns.Count == 0)
         throw new FileWriterException("No columns defined to be written.");
 
       HandleWriteStart();
+
+#if NETSTANDARD2_1_OR_GREATER
+      await
+#endif
+      using var writer =
+        new StreamWriter(output, EncodingHelper.GetEncoding(m_CodePageId, m_ByteOrderMark), 8192, true);
 
       var sb = new StringBuilder();
       if (!string.IsNullOrEmpty(Header))
@@ -179,8 +178,7 @@ namespace CsvTools
           sb.Append(m_NewLine);
       }
 
-      // ReSharper disable once UseIndexFromEndExpression
-      var lastCol = Columns[Columns.Count - 1];
+      var lastCol = Columns.Last();
 
       if (m_ColumnHeader)
       {
@@ -211,7 +209,7 @@ namespace CsvTools
         {
           // Number of columns might be higher than number of reader columns
           var col = reader.GetValue(columnInfo.ColumnOrdinal);
-          if (col == DBNull.Value || (col is string text && string.IsNullOrEmpty(text)))
+          if (col == DBNull.Value || col is string text && string.IsNullOrEmpty(text))
             emptyColumns++;
           else
             row.Append(TextEncodeField(col, columnInfo, false, reader, QualifyText));
@@ -271,12 +269,7 @@ namespace CsvTools
       return displayAs;
     }
 
-    private string TextEncodeField(
-      object? dataObject,
-      WriterColumn columnInfo,
-      bool isHeader,
-      IDataReader? reader,
-      Func<string, DataTypeEnum, string>? handleQualify)
+    private string TextEncodeField(object? dataObject, WriterColumn columnInfo, bool isHeader, IDataReader? reader, Func<string, DataTypeEnum, string>? handleQualify)
     {
       if (columnInfo is null)
         throw new ArgumentNullException(nameof(columnInfo));

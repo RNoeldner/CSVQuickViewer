@@ -20,8 +20,9 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-#if !QUICK
 using System.Collections.Generic;
+
+#if !QUICK
 using System.Text;
 #endif
 
@@ -29,6 +30,26 @@ namespace CsvTools
 {
   public static class ReaderExtensionMethods
   {
+    /// <summary>
+    ///   Gets all not ignored columns from the reader, an ignored column is present in as columns
+    ///   but should not be regarded
+    /// </summary>
+    /// <param name="reader">A file reader</param>
+    /// <returns></returns>
+    public static IEnumerable<Column> GetColumnsOfReader(this IFileReader reader)
+    {
+      if (reader is null) throw new ArgumentNullException(nameof(reader));
+      var retList = new List<Column>();
+      for (var col = 0; col < reader.FieldCount; col++)
+      {
+        var column = reader.GetColumn(col);
+        if (!column.Ignore)
+          retList.Add(column);
+      }
+
+      return retList;
+    }
+
 #if !QUICK
     /// <summary>
     /// Gets a reader for a source that reads everything as text columns, 
@@ -108,25 +129,7 @@ namespace CsvTools
       return stringBuilder.ToString().ToUpperInvariant();
     }
 
-    /// <summary>
-    ///   Gets all not ignored columns from the reader, an ignored column is present in as columns
-    ///   but should not be regarded
-    /// </summary>
-    /// <param name="reader">A file reader</param>
-    /// <returns></returns>
-    public static IEnumerable<Column> GetColumnsOfReader(this IFileReader reader)
-    {
-      if (reader is null) throw new ArgumentNullException(nameof(reader));
-      var retList = new List<Column>();
-      for (var col = 0; col < reader.FieldCount; col++)
-      {
-        var column = reader.GetColumn(col);
-        if (!column.Ignore)
-          retList.Add(column);
-      }
 
-      return retList;
-    }
 
     /// <summary>
     ///   Stores all rows from te reader into a DataTable, form the current position of the reader onwards.
@@ -193,7 +196,7 @@ namespace CsvTools
         includeEndLineNo,
         includeRecordNo);
 
-      return await GetDataTableAsync(wrapper, maxDuration, restoreErrorsFromColumn, progress, cancellationToken)
+      return await wrapper.GetDataTableAsync(maxDuration, restoreErrorsFromColumn, progress, cancellationToken)
         .ConfigureAwait(false);
     }
 
@@ -241,7 +244,7 @@ namespace CsvTools
       try
       {
         DataColumn? errorColumn = null;
-        bool onlyColumnErrors = false;
+        var onlyColumnErrors = false;
         if (restoreErrorsFromColumn)
         {
           var cols = dataTable.Columns.OfType<DataColumn>().ToList();
