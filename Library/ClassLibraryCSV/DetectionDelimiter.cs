@@ -12,8 +12,8 @@ namespace CsvTools
   {
     /// <summary>
     ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to
-    ///   find the delimiter that has the least variance in the read rows, if that is not possible
-    ///   the delimiter with the highest number of occurrences.
+    ///   find the delimiter that has the least variance in the read rows, if they are the same it will look at 
+    ///   the positioning (Score), as a delimite is preceeded by a text or by a quote will increase teh score.
     /// </summary>
     /// <param name="textReader">The text reader to read the data</param>
     /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
@@ -93,7 +93,7 @@ namespace CsvTools
       else
       {
         // otherwise find the best
-        var sums = new Dictionary<int, (long sum, long variance)>();
+        var sums = new Dictionary<int, long>();
 
         foreach (var index in validSeparatorIndex)
         {
@@ -114,7 +114,6 @@ namespace CsvTools
           if (avg < 1 || delimiterCounter.SeparatorRows[index] == 1)
             continue;
 
-
           // First determine the variance, low value means and even distribution
           long variance = 0;
           for (var row = startRow; row < delimiterCounter.LastRow; row++)
@@ -128,7 +127,7 @@ namespace CsvTools
               variance += avg - delimiterCounter.SeparatorsCount[index, row];
           }
 
-          sums.Add(index, (sumCount, variance));
+          sums.Add(index, variance);
         }
 
         if (sums.Count > 1)
@@ -136,18 +135,20 @@ namespace CsvTools
           foreach (var kv in sums)
             Logger.Information($"Multiple Possible Separator {delimiterCounter.Separators[kv.Key].ToString().GetDescription()}");
         }
-        // get the best result by variance first then if equal by number of records
-        match  = delimiterCounter.Separators[sums.OrderBy(x => x.Value.variance).ThenByDescending(x => delimiterCounter.SeparatorScore[x.Key]).ThenByDescending(x => x.Value.sum).First().Key];
+        if (sums.Count!= 0)
+          // get the best result by variance first then if equal by number of records
+          match  =  delimiterCounter.Separators[sums
+                          .OrderBy(x => x.Value)
+                          .ThenByDescending(x => delimiterCounter.SeparatorScore[x.Key]).First().Key];
       }
 
-      var hasDelimiter = match != '\0';
-      if (!hasDelimiter)
+      if (match == '\0')
       {
         Logger.Information("Not a delimited file");
         return new DelimiterDetection("Tab", false, false);
       }
 
-      var result = match == '\t' ? "Tab" : match.ToStringHandle0().ToString(CultureInfo.CurrentCulture);
+      var result = match == '\t' ? "Tab" : match.ToString();
       Logger.Information($"Column Delimiter: {result}");
       return new DelimiterDetection(result, true, false);
     }
@@ -173,7 +174,7 @@ namespace CsvTools
     ///   the delimiter with the highest number of occurrences.
     /// </summary>
     /// <param name="stream">The stream to read data from</param>
-    /// <param name="codePageId">The code page identifier.</param>
+    /// <param name="codePageId">The code page identifier. If -1 is passed in the code page is determined dynamically</param>
     /// <param name="skipRows">The number of lines at beginning to disregard</param>
     /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
@@ -196,12 +197,13 @@ namespace CsvTools
       return await textReader.GuessDelimiterAsync(fieldQualifier, escapePrefix, null, cancellationToken).ConfigureAwait(false);
     }
 
-    /// <summary>Counts the delimiters</summary>
+    /// <summary>Counts the delimiters in DelimiterCounter</summary>
     /// <param name="textReader">The text reader to read the data</param>
     /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="numRows">The number of rows to read</param>
-    /// <param name="disallowedDelimiter">The disallowed delimiters</param>
+    /// <param name="disallowedDelimiter">You can passs in delimiters that should not be decteted, 
+    /// if you know that a delimiter is definatly not c.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   A <see cref="DelimiterCounter" /> with the information on delimiters
@@ -260,6 +262,5 @@ namespace CsvTools
       }
       return dc;
     }
-
   }
 }

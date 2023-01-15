@@ -10,6 +10,11 @@ namespace CsvTools
   public static class DetectionQualifier
   {
     /// <summary>
+    /// " and '
+    /// </summary>
+    public static string GetPossibleQualifier() => "\"'";
+
+    /// <summary>
     ///   Does check if quoting was actually used in the file
     /// </summary>
     /// <param name="stream">The stream to read data from</param>
@@ -82,7 +87,7 @@ namespace CsvTools
     {
       using var textReader = new ImprovedTextReader(stream,
         await stream.CodePageResolve(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
-      return GuessQualifier(textReader, fieldDelimiter, escapePrefix, new[] { '"', '\'' }, cancellationToken);
+      return GuessQualifier(textReader, fieldDelimiter, escapePrefix, GetPossibleQualifier().ToCharArray(), cancellationToken);
     }
 
     /// <summary>

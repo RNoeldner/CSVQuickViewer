@@ -10,7 +10,12 @@ namespace CsvTools
   public static class DetectionEscapePrefix
   {
     /// <summary>
-    ///   Try to guess the new used Escape Sequence, by looking at 500 lines 
+    /// \ / and ?
+    /// </summary>
+    public static string GetPossibleEscapePrefix() => "\\/?";
+
+    /// <summary>
+    ///   Try to guess the new used Escape Sequence, by looking at 300 lines 
     /// </summary>
     /// <param name="stream">The stream to read data from</param>
     /// <param name="codePageId">The code page identifier.</param>
@@ -30,7 +35,6 @@ namespace CsvTools
       using var textReader = new ImprovedTextReader(stream,
         await stream.CodePageResolve(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
       return await GuessEscapePrefixAsync(textReader, fieldDelimiter, fieldQualifier, cancellationToken).ConfigureAwait(false);
-
     }
 
     /// <summary>
@@ -50,15 +54,18 @@ namespace CsvTools
       var dicLookFor = new List<string>();
 
       // The characters that could be an escape, most likely its a \ 
-      var checkedEscapeChars = new[] { '\\', '/', '?' };
+      var checkedEscapeChars = GetPossibleEscapePrefix().ToCharArray();
 
       // build a list of all characters that would indicate a sequence
       var possibleEscaped = new HashSet<char>(checkedEscapeChars);
+
       if (fieldDelimiter.Length>0)
         possibleEscaped.Add(fieldDelimiter.WrittenPunctuationToChar());
       if (fieldQualifier.Length>0)
         possibleEscaped.Add(fieldQualifier.WrittenPunctuationToChar());
-      foreach (var escaped in (new[] { '#', '\'', '"', '\r', '\n', '\t', ',', ';', '|' }))
+      foreach (var escaped in DelimiterCounter.GetPossibleDelimiters())
+        possibleEscaped.Add(escaped);
+      foreach (var escaped in DetectionQualifier.GetPossibleQualifier())
         possibleEscaped.Add(escaped);
 
       var counter = new Dictionary<char, int>();
