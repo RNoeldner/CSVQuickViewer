@@ -8,6 +8,7 @@ namespace Maui
   {
     private string m_FileName = string.Empty;
     private DataTable? m_DataTable;
+    private DetectionResult m_DetectionResult = new DetectionResult("dummy");
 
     //private PagedFileReader? m_FileReader;
     //public IList<DynamicDataRecord> Items => m_FileReader!;
@@ -18,25 +19,16 @@ namespace Maui
       private set => SetProperty(ref m_DataTable, value);
     }
 
+    public DetectionResult DetectionResult
+    {
+      get => m_DetectionResult;
+      private set => SetProperty(ref m_DetectionResult, value);
+    }
+
     public string FileName
     {
       get => m_FileName;
       set => SetProperty(ref m_FileName, value);
-    }
-
-    private async Task<IReadOnlyCollection<Column>> GetColumns()
-    {
-      await using IFileReader reader = CsvHelper.GetReaderFromDetectionResult(FileName, Detection);
-
-      await reader.OpenAsync(CancellationTokenSource.Token);
-      var (_, b) = await reader.FillGuessColumnFormatReaderAsyncReader(
-        new FillGuessSettings(),
-        null,
-        false,
-        true,
-        "NULL",
-        CancellationTokenSource.Token);
-      return b;
     }
 
     public Task OpenAsync() => OpenAsync(CancellationTokenSource.Token);
@@ -46,7 +38,7 @@ namespace Maui
       if (!string.IsNullOrEmpty(FileName))
       {
         var setting = new PreferenceViewModel();
-        await using IFileReader reader = CsvHelper.GetReaderFromDetectionResult(FileName, Detection, await GetColumns());
+        await using IFileReader reader = CsvHelper.GetReaderFromDetectionResult(FileName, DetectionResult);
         await reader.OpenAsync(cancellationToken);
 
         await using var wrapper = new DataReaderWrapper(
@@ -71,10 +63,9 @@ namespace Maui
 
       FileName = fn;
       if (query.ContainsKey("DetectionResult"))
-        Detection = (DetectionResult) query["DetectionResult"];
+        DetectionResult = (DetectionResult) query["DetectionResult"];
       else
-        if (Current.DetectionResult == null)
-        await Current.GetDetectionResult(fullPath);)
+        DetectionResult = fn.GetDetectionResult(CancellationTokenSource.Token).GetAwaiter().GetResult();
     }
   }
 }

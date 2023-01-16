@@ -59,7 +59,7 @@ namespace Maui
 
         m_MinSamples = Preferences.Default.Get(nameof(MinSamples), 5);
         m_SampleValues = Preferences.Default.Get(nameof(SampleValues), 150);
-        m_CheckedRecords = Preferences.Default.Get(nameof(CheckedRecords), 10000l);
+        m_CheckedRecords = Preferences.Default.Get(nameof(CheckedRecords), (long) 10000);
       }
       catch
       {

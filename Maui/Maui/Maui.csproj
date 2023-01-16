@@ -60,6 +60,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Compile Update="Detection.xaml.cs">
+			<DependentUpon>Detection.xaml</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <PackageReference Include="CommunityToolkit.Maui" Version="1.2.0" />
 	  <PackageReference Include="Syncfusion.Maui.DataGrid" Version="20.2.48" />
 	</ItemGroup>
@@ -75,6 +81,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Detection.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Settings.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
