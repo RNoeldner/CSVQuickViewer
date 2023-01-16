@@ -2,15 +2,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Maui.MainPage"
-             xmlns:maui="clr-namespace:Maui"
-             >
+             xmlns:maui="clr-namespace:Maui"  Loaded="MainPage_OnLoaded">
     <ContentPage.BindingContext>
         <maui:MainPageViewModel x:Name="ViewModel" />
     </ContentPage.BindingContext>
     <ScrollView>
         <VerticalStackLayout 
             Spacing="25" 
-            VerticalOptions="Center" Margin="5">
+            VerticalOptions="Center" Margin="5" IsEnabled="False">
 
             <Button 
                 Text="CSV Quick Viewer"
@@ -21,12 +20,13 @@
                 x:Name="OpenFile"
                 Text="{Binding SelectedFile}"
                 SemanticProperties.Hint="Open file for display"
-                Command="{Binding ConnectCommand}"
+                Command="{Binding SelectFileCommand}"
+                IsEnabled="{Binding SelectEnabled}"
                 HorizontalOptions="Center" />
 
             <ActivityIndicator IsRunning="{Binding IsBusy}"/>
             <Label Text="Checking file format" IsVisible="{Binding IsBusy}" HorizontalOptions="Center" ></Label>
         </VerticalStackLayout>
     </ScrollView>
- 
+
 </ContentPage>

@@ -11,11 +11,12 @@ namespace Maui
     #region Constructor
     public MainPageViewModel()
     {
-      // ReSharper disable once AsyncVoidLambda
-      ConnectCommand = new Command(execute: async () => await SelectFileAsync(), () => !InProgress);
+      SelectFileCommand = new Command(execute: async () => await SelectFileAsync(), () => SelectEnabled);
     }
+
     #endregion
-    private bool InProgress { get; set; }
+    private bool m_SelectEnabled = true;
+    private bool SelectEnabled { get => m_SelectEnabled; set => base.SetProperty(ref m_SelectEnabled, value); }
 
     #region Properties
     string m_SelectedFile = "Select File";
@@ -25,25 +26,52 @@ namespace Maui
       set { SetProperty(ref m_SelectedFile, value); }
     }
 
-    private DetectionResult? m_DetectionResult;
-
-    public DetectionResult DetectionResult
-    {
-      get { return m_DetectionResult ?? new DetectionResult(m_SelectedFile); }
-      set { SetProperty(ref m_DetectionResult, value); }
-    }
-
     #endregion
 
     #region Commands
 
-    public ICommand ConnectCommand { get; set; }
+    public ICommand SelectFileCommand { get; set; }
+
+    async Task GetDetectionResult(string fullPath)
+    {
+      try
+      {
+        IsBusy = true;
+        SelectEnabled = false;
+
+        SelectedFile = FileSystemUtils.SplitPath(fullPath).FileName;
+        await Current.GetDetectionResult(fullPath);
+      }
+      catch (Exception exc)
+      {
+        await Application.Current?.MainPage?.DisplayAlert("Error", exc.Message, "OK")!;
+      }
+      finally
+      {
+        SelectEnabled = true;
+        IsBusy = false;
+      }
+    }
+
+    async Task OpenFile(string fullPath)
+    {
+      try
+      {
+        await GetDetectionResult(fullPath);
+        await Shell.Current.GoToAsync("showfile?FileName=" + fullPath,
+          new Dictionary<string, object> { { "DetectionResult", DetectionResult } });
+      }
+      catch (Exception exc)
+      {
+        await Application.Current?.MainPage?.DisplayAlert("Error", exc.Message, "OK")!;
+      }
+    }
 
     async Task SelectFileAsync()
     {
       try
       {
-        InProgress = true;
+        SelectEnabled  = false;
 
         var options = new PickOptions()
         {
@@ -59,24 +87,8 @@ namespace Maui
         };
         var result = await FilePicker.Default.PickAsync(options);
 
-        if (result != null)
-        {
-          IsBusy = true;
-
-          if (FileSystemUtils.FileExists(result.FullPath))
-          {
-            var setting = new PreferenceViewModel();
-            SelectedFile = result.FileName;
-
-            DetectionResult = await result.FullPath.GetDetectionResultFromFile(false, setting.GuessCodePage, setting.GuessEscapePrefix,
-              setting.GuessDelimiter, setting.GuessQualifier, setting.GuessStartRow, setting.GuessHasHeader,
-              false, setting.GuessComment, CancellationTokenSource.Token);
-
-            await Shell.Current.GoToAsync("showfile?FileName=" + result.FullPath,
-              new Dictionary<string, object> { { "DetectionResult", DetectionResult } });
-          }
-        }
-
+        if (result != null && FileSystemUtils.FileExists(result.FullPath))
+          await OpenFile(result.FullPath);
       }
       catch (Exception exc)
       {
@@ -84,8 +96,7 @@ namespace Maui
       }
       finally
       {
-        InProgress = false;
-        IsBusy = false;
+        SelectEnabled  = true;
       }
 
     }
