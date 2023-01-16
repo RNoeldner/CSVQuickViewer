@@ -25,11 +25,11 @@ namespace Maui
       set { SetProperty(ref m_SelectedFile, value); }
     }
 
-    private DelimitedFileDetectionResult? m_DetectionResult;
+    private DetectionResult? m_DetectionResult;
 
-    public DelimitedFileDetectionResult DetectionResult
+    public DetectionResult DetectionResult
     {
-      get { return m_DetectionResult ?? new DelimitedFileDetectionResult(m_SelectedFile); }
+      get { return m_DetectionResult ?? new DetectionResult(m_SelectedFile); }
       set { SetProperty(ref m_DetectionResult, value); }
     }
 
@@ -68,7 +68,8 @@ namespace Maui
             var setting = new PreferenceViewModel();
             SelectedFile = result.FileName;
 
-            DetectionResult = await result.FullPath.GetDetectionResultFromFile(false, setting.GuessCodePage, setting.GuessDelimiter, setting.GuessQualifier, setting.GuessStartRow, setting.GuessHasHeader,
+            DetectionResult = await result.FullPath.GetDetectionResultFromFile(false, setting.GuessCodePage, setting.GuessEscapePrefix,
+              setting.GuessDelimiter, setting.GuessQualifier, setting.GuessStartRow, setting.GuessHasHeader,
               false, setting.GuessComment, CancellationTokenSource.Token);
 
             await Shell.Current.GoToAsync("showfile?FileName=" + result.FullPath,
