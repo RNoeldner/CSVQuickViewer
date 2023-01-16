@@ -521,18 +521,17 @@ namespace CsvTools
     /// </summary>
     /// <param name="fileName">Name of the file as its not stored in the detection results</param>
     /// <param name="detectionResult">The detection result.</param>
-    /// <param name="columnDefinition">List of column definitions</param>
     /// <returns>Either a <see cref="JsonFileReader"/> or a <see cref="CsvFileReader"/></returns>
     public static IFileReader GetReaderFromDetectionResult(string fileName,
-      DetectionResult detectionResult, in IEnumerable<Column>? columnDefinition = null)
+      DetectionResult detectionResult)
     {
       if (detectionResult.IsJson)
-        return new JsonFileReader(fileName, columnDefinition, 0L, false, string.Empty, false,
+        return new JsonFileReader(fileName, detectionResult.Columns, 0L, false, string.Empty, false,
           StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       return new CsvFileReader(
         fileName, detectionResult.CodePageId,
         detectionResult is { HasFieldHeader: false, SkipRows: 0 } ? 1 : detectionResult.SkipRows,
-        detectionResult.HasFieldHeader, columnDefinition, TrimmingOptionEnum.Unquoted, detectionResult.FieldDelimiter,
+        detectionResult.HasFieldHeader, detectionResult.Columns, TrimmingOptionEnum.Unquoted, detectionResult.FieldDelimiter,
         detectionResult.FieldQualifier, detectionResult.EscapePrefix, 0L, false, false, detectionResult.CommentLine, 0,
         true, "", "", "", true, false, false, false, false,
         false, false, false, false, true, false, "NULL", true, 4, "", StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);

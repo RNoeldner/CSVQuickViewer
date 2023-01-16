@@ -4,8 +4,12 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
+
 namespace Maui
 {
+  /// <summary>
+  /// ViewModel with NotifyPropertyChanged,CancelCommand and IsBusy
+  /// </summary>
   public abstract class BaseViewModel : INotifyPropertyChanged, IDisposable
   {
     protected readonly CancellationTokenSource CancellationTokenSource = new();

@@ -16,7 +16,7 @@ namespace Maui
 
     #endregion
     private bool m_SelectEnabled = true;
-    private bool SelectEnabled { get => m_SelectEnabled; set => base.SetProperty(ref m_SelectEnabled, value); }
+    public bool SelectEnabled { get => m_SelectEnabled; set => base.SetProperty(ref m_SelectEnabled, value); }
 
     #region Properties
     string m_SelectedFile = "Select File";
@@ -32,34 +32,11 @@ namespace Maui
 
     public ICommand SelectFileCommand { get; set; }
 
-    async Task GetDetectionResult(string fullPath)
-    {
-      try
-      {
-        IsBusy = true;
-        SelectEnabled = false;
-
-        SelectedFile = FileSystemUtils.SplitPath(fullPath).FileName;
-        await Current.GetDetectionResult(fullPath);
-      }
-      catch (Exception exc)
-      {
-        await Application.Current?.MainPage?.DisplayAlert("Error", exc.Message, "OK")!;
-      }
-      finally
-      {
-        SelectEnabled = true;
-        IsBusy = false;
-      }
-    }
-
     async Task OpenFile(string fullPath)
     {
       try
       {
-        await GetDetectionResult(fullPath);
-        await Shell.Current.GoToAsync("showfile?FileName=" + fullPath,
-          new Dictionary<string, object> { { "DetectionResult", DetectionResult } });
+        await Shell.Current.GoToAsync("detect?FileName=" + fullPath);
       }
       catch (Exception exc)
       {

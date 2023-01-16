@@ -7,6 +7,7 @@ namespace Maui
     public AppShell()
     {
       InitializeComponent();
+      Routing.RegisterRoute("detect", typeof(Detection));
       Routing.RegisterRoute("showfile", typeof(DataGrid));
     }
   }
