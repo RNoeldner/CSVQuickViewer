@@ -7,8 +7,7 @@ namespace Maui
   public class DataGridViewModel : BaseViewModel, IQueryAttributable
   {
     private string m_FileName = string.Empty;
-    private DelimitedFileDetectionResult? m_DetectionResult;
-    private DelimitedFileDetectionResultWithColumns? m_DetectionResultWithColumns;
+    private DetectionResult? m_DetectionResult;
     private DataTable? m_DataTable;
 
     //private PagedFileReader? m_FileReader;
@@ -20,11 +19,12 @@ namespace Maui
       private set => SetProperty(ref m_DataTable, value);
     }
 
-    public DelimitedFileDetectionResult Detection
+    public DetectionResult Detection
     {
       get
       {
-        m_DetectionResult ??= FileName.GetDetectionResultFromFile(false, true, true, true, true, true, false,
+        m_DetectionResult ??= FileName.GetDetectionResultFromFile(false, true,
+          true, true, true, true, true, false,
           true, CancellationTokenSource.Token).GetAwaiter().GetResult();
         return m_DetectionResult;
       }
@@ -37,7 +37,7 @@ namespace Maui
       set => SetProperty(ref m_FileName, value);
     }
 
-    private async Task<IReadOnlyCollection<IColumn>> GetColumns()
+    private async Task<IReadOnlyCollection<Column>> GetColumns()
     {
       await using IFileReader reader = CsvHelper.GetReaderFromDetectionResult(FileName, Detection);
 
@@ -52,15 +52,24 @@ namespace Maui
       return b;
     }
 
-    public async Task OpenAsync()
+    public Task OpenAsync() => OpenAsync(CancellationTokenSource.Token);
+
+    public async Task OpenAsync(CancellationToken cancellationToken)
     {
       if (!string.IsNullOrEmpty(FileName))
       {
         var setting = new PreferenceViewModel();
         await using IFileReader reader = CsvHelper.GetReaderFromDetectionResult(FileName, Detection, await GetColumns());
-        await reader.OpenAsync(CancellationTokenSource.Token);
-        DataTable = reader.GetDataTable(TimeSpan.FromMinutes(2d), false, setting.DisplayStartLineNo, setting.DisplayRecordNo, false, false,
-          CancellationTokenSource.Token);
+        await reader.OpenAsync(cancellationToken);
+
+        await using var wrapper = new DataReaderWrapper(
+            reader,
+            false,
+            setting.DisplayStartLineNo,
+            false,
+            setting.DisplayRecordNo);
+
+        m_DataTable= await wrapper.GetDataTableAsync(TimeSpan.FromMinutes(2d), true, null, cancellationToken);
       }
     }
 
@@ -75,7 +84,7 @@ namespace Maui
 
       FileName = fn;
       if (query.ContainsKey("DetectionResult"))
-        Detection = (DelimitedFileDetectionResult) query["DetectionResult"];
+        Detection = (DetectionResult) query["DetectionResult"];
     }
   }
 }
