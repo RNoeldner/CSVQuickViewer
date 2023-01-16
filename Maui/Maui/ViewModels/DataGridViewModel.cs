@@ -7,7 +7,6 @@ namespace Maui
   public class DataGridViewModel : BaseViewModel, IQueryAttributable
   {
     private string m_FileName = string.Empty;
-    private DetectionResult? m_DetectionResult;
     private DataTable? m_DataTable;
 
     //private PagedFileReader? m_FileReader;
@@ -17,18 +16,6 @@ namespace Maui
     {
       get => m_DataTable;
       private set => SetProperty(ref m_DataTable, value);
-    }
-
-    public DetectionResult Detection
-    {
-      get
-      {
-        m_DetectionResult ??= FileName.GetDetectionResultFromFile(false, true,
-          true, true, true, true, true, false,
-          true, CancellationTokenSource.Token).GetAwaiter().GetResult();
-        return m_DetectionResult;
-      }
-      private set => SetProperty(ref m_DetectionResult, value);
     }
 
     public string FileName
@@ -85,6 +72,9 @@ namespace Maui
       FileName = fn;
       if (query.ContainsKey("DetectionResult"))
         Detection = (DetectionResult) query["DetectionResult"];
+      else
+        if (Current.DetectionResult == null)
+        await Current.GetDetectionResult(fullPath);)
     }
   }
 }
