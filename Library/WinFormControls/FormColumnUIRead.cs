@@ -115,6 +115,7 @@ namespace CsvTools
           checkedListBoxDateFormats.SetItemChecked(index, true);
           checkedListBoxDateFormats.TopIndex = index;
         });
+        UpdateDateLabel();
       }
       catch (Exception ex)
       {
@@ -320,27 +321,44 @@ namespace CsvTools
         labelSamplePart.Text = $@"Input: ""{sample}""";
         labelResultPart.Text = $@"Output: ""{StringConversion.StringToTextPart(sample, split, part, toEnd)}""";
       });
-    }
+    }    
 
-    private void UpdateDateLabel(ValueFormat vf, bool hasTimePart, string timePartFormat, string timeZone)
+    private void UpdateDateLabel()
     {
       try
       {
-        var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
-
-        vf = (hasTimePart && vf.DateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1)
-          ? new ValueFormat(vf.DataType, vf.DateFormat + " " + timePartFormat, vf.DateSeparator,
-            vf.TimeSeparator)
-          : vf;
-
         labelSampleDisplay.SafeInvoke(() =>
         {
+          var dateFormats = new List<string>();
+          foreach (var item in checkedListBoxDateFormats.CheckedItems)
+            dateFormats.Add(item.ToString()!);
+
+          if (dateFormats.Count==0 && checkedListBoxDateFormats.SelectedIndex!=-1)
+            dateFormats.Add(checkedListBoxDateFormats.Items[checkedListBoxDateFormats.SelectedIndex].ToString()!);
+          if (dateFormats.Count==0)
+            return;
+
+          var hasTimePart = !string.IsNullOrEmpty(comboBoxTimePart.Text);
+          var timePartFormat = comboBoxTPFormat.Text;
+          var timeZone = comboBoxTimeZone.Text;
+          var dateSeparator = textBoxDateSeparator.Text;
+          var timeSeparator = textBoxTimeSeparator.Text;
+
           comboBoxTPFormat.Enabled = hasTimePart;
 
-          toolTip.SetToolTip(textBoxDateSeparator, vf.DateSeparator.GetDescription());
-          toolTip.SetToolTip(textBoxTimeSeparator, vf.TimeSeparator.GetDescription());
+          toolTip.SetToolTip(textBoxDateSeparator, dateSeparator.GetDescription());
+          toolTip.SetToolTip(textBoxTimeSeparator, timeSeparator.GetDescription());
 
-          labelSampleDisplay.Text = StringConversion.DateTimeToString(sourceDate, vf);
+          var text = new HashSet<string>();
+
+          var sourceDate = new DateTime(2013, 4, 7, 15, 45, 50, 345, DateTimeKind.Local);
+          foreach (var dateFormat in dateFormats)
+          {
+            var fmt = (hasTimePart && dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat;
+            text.Add(StringConversion.DateTimeToString(sourceDate, (hasTimePart && dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator, timeSeparator, CultureInfo.InvariantCulture));
+            text.Add(StringConversion.DateTimeToString(sourceDate, (hasTimePart && dateFormat.IndexOfAny(new[] { 'h', 'H', 'm', 'S', 's' }) == -1) ? dateFormat + " " + timePartFormat : dateFormat, dateSeparator, timeSeparator, CultureInfo.CurrentCulture));
+          }
+          labelSampleDisplay.Text = text.Join();
 
           if (timeZone.TryGetConstant(out var tz))
           {
@@ -357,7 +375,7 @@ namespace CsvTools
       }
       catch (Exception ex)
       {
-        Logger.Information(ex, "UpdateDateLabel {format}", vf);
+        Logger.Information(ex, "UpdateDateLabel");
       }
     }
 
@@ -429,7 +447,7 @@ namespace CsvTools
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void ButtonAddFormat_Click(object? sender, EventArgs e) =>
-      AddDateFormat(comboBoxDateFormat.Text);
+      AddDateFormat(textBoxDateFormat.Text);
 
 
     private async void ButtonDisplayValues_ClickAsync(object? sender, EventArgs e) =>
@@ -562,7 +580,7 @@ namespace CsvTools
           height = groupBoxDate.Height;
           if (string.IsNullOrEmpty(m_ColumnEdit.ValueFormat.DateFormat))
             m_ColumnEdit.ValueFormatMut.DateFormat = ValueFormat.cDateFormatDefault;
-          DateFormatChanged(sender, EventArgs.Empty);
+          UpdateDateLabel();
         }
 
         groupBoxBoolean.Visible = selType == DataTypeEnum.Boolean;
@@ -607,19 +625,7 @@ namespace CsvTools
     /// <param name="args">The <see cref="System.EventArgs" /> instance containing the event data.</param>
     private void DateFormatChanged(object? sender, EventArgs args)
     {
-      var dateFormat = sender == comboBoxDateFormat ? comboBoxDateFormat.Text : checkedListBoxDateFormats.Text;
-
-      if (string.IsNullOrEmpty(dateFormat)) return;
-
-      // if changed by the check List Box, update the combobox with teh selected item 
-      if (sender == checkedListBoxDateFormats)
-        if (string.IsNullOrEmpty(comboBoxDateFormat.Text) ||
-            checkedListBoxDateFormats.Items.IndexOf(comboBoxDateFormat.Text) != -1)
-          comboBoxDateFormat.Text = checkedListBoxDateFormats.Text;
-
-      UpdateDateLabel(
-        new ValueFormat(DataTypeEnum.DateTime, dateFormat, textBoxDateSeparator.Text, textBoxTimeSeparator.Text),
-        !string.IsNullOrEmpty(comboBoxTimePart.Text), comboBoxTPFormat.Text, comboBoxTimeZone.Text);
+      UpdateDateLabel();
     }
 
     /// <summary>
@@ -739,88 +745,24 @@ namespace CsvTools
 
     private void SetDateFormat()
     {
-      var formatsTime = new List<string>();
-      AddNotExisting(
-        formatsTime,
-        CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern.ReplaceDefaults(
-          CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
-          "//",
-          CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator,
-          ":"));
-
-      AddNotExisting(
-        formatsTime,
-        CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.ReplaceDefaults(
-          CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
-          "//",
-          CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator,
-          ":"));
-
-      AddNotExisting(formatsTime, "HH:mm:ss");
-      AddNotExisting(formatsTime, "HH:mm");
-      AddNotExisting(formatsTime, "h:mm tt");
-
       comboBoxTPFormat.BeginUpdate();
       comboBoxTPFormat.Items.Clear();
-      comboBoxTPFormat.Items.AddRange(formatsTime.ToArray());
+      comboBoxTPFormat.Items.AddRange(StringConversion.CommonTimeFormats().ToArray());
       comboBoxTPFormat.EndUpdate();
-
-      var formatsReg = new List<string>();
-      var formatsExtra = new List<string>();
-      AddNotExisting(
-        formatsReg,
-        CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.ReplaceDefaults(
-          CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
-          "/",
-          CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator,
-          ":"));
-      AddNotExisting(
-        formatsReg,
-        (CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + " "
-                                                                    + CultureInfo.CurrentCulture.DateTimeFormat
-                                                                      .LongTimePattern).ReplaceDefaults(
-          CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator,
-          "/",
-          CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator,
-          ":"));
-      AddNotExisting(formatsReg, "MM/dd/yyyy");
-      AddNotExisting(formatsReg, "HH:mm:ss");
-      AddNotExisting(formatsReg, "MM/dd/yyyy HH:mm:ss");
-      AddNotExisting(formatsReg, "dd/MM/yyyy");
-      AddNotExisting(formatsReg, "yyyy/MM/dd");
-      var parts = StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormatMut.DateFormat);
-      foreach (var format in parts)
-        AddNotExisting(formatsReg, format);
-
-      AddNotExisting(formatsExtra, "M/d/yyyy", formatsReg);
-      AddNotExisting(formatsExtra, "M/d/yyyy h:mm tt", formatsReg);
-      AddNotExisting(formatsExtra, "M/d/yyyy h:mm:ss tt", formatsReg);
-      AddNotExisting(formatsExtra, "yyyyMMdd", formatsReg);
-      AddNotExisting(formatsExtra, "yyyyMMddTHH:mm:ss.FFF", formatsReg);
-      AddNotExisting(formatsExtra, "yyyy/MM/dd HH:mm:ss.FFF", formatsReg);
-      AddNotExisting(formatsExtra, "yyyy/MM/ddTHH:mm:ss", formatsReg);
-      AddNotExisting(formatsExtra, "dd/MM/yy", formatsReg);
-      AddNotExisting(formatsExtra, "d/MM/yyyy", formatsReg);
-      AddNotExisting(formatsExtra, "d/M/yy", formatsReg);
-      AddNotExisting(formatsExtra, "HH:mm:ss.FFF", formatsReg);
-
-      comboBoxDateFormat.BeginUpdate();
-      comboBoxDateFormat.Items.Clear();
-      comboBoxDateFormat.Items.AddRange(formatsExtra.ToArray());
-      comboBoxDateFormat.EndUpdate();
 
       checkedListBoxDateFormats.BeginUpdate();
       checkedListBoxDateFormats.Items.Clear();
-      checkedListBoxDateFormats.Items.AddRange(formatsReg.ToArray());
+      checkedListBoxDateFormats.Items.AddRange(StringConversion.CommonDateTimeFormats(m_ColumnEdit.ValueFormatMut.DateFormat).ToArray());
+      checkedListBoxDateFormats.EndUpdate();
+
       // Check all items in parts
+      var parts = StringUtils.SplitByDelimiter(m_ColumnEdit.ValueFormatMut.DateFormat);
       foreach (var format in parts)
       {
         var index = checkedListBoxDateFormats.Items.IndexOf(format);
         checkedListBoxDateFormats.SetItemChecked(index, true);
         checkedListBoxDateFormats.SelectedIndex = index;
       }
-
-      checkedListBoxDateFormats.EndUpdate();
     }
 
     private void SetSamplePart(object? sender, EventArgs e) =>
@@ -898,6 +840,15 @@ namespace CsvTools
       {
         this.ShowError(ex);
       }
+    }
+
+    private void checkedListBoxDateFormats_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      UpdateDateLabel();
+
+      if (string.IsNullOrEmpty(textBoxDateFormat.Text) ||
+            checkedListBoxDateFormats.Items.IndexOf(textBoxDateFormat.Text) != -1)
+        textBoxDateFormat.Text = checkedListBoxDateFormats.Text;
     }
   }
 }

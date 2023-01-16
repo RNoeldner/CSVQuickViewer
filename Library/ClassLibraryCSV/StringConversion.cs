@@ -50,6 +50,54 @@ namespace CsvTools
     internal static readonly DateTimeFormatCollection StandardDateTimeFormats =
       new DateTimeFormatCollection("DateTimeFormats.txt");
 
+    public static ICollection<string> CommonDateTimeFormats(string known)
+    {
+      var formatsTime = new HashSet<string>
+      {
+        CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern
+          .ReplaceDefaults( CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
+        (CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + " " + CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern)
+          .ReplaceDefaults( CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
+        "MM/dd/yyyy",
+        "MM/dd/yyyy HH:mm:ss",
+        "M/d/yyyy",
+        "M/d/yyyy h:mm tt",
+        "M/d/yyyy h:mm:ss tt",
+        "dd/MM/yyyy",
+        "dd/MM/yyyy HH:mm:ss",
+        "d/MM/yyyy",
+        "yyyy/MM/dd",
+        "yyyy/MM/ddTHH:mm:ss",
+        "yyyy/MM/dd HH:mm:ss.FFF",
+        "yyyyMMdd",
+        "yyyyMMddTHH:mm:ss.FFF",
+      };
+      foreach (var format in CommonTimeFormats())
+        formatsTime.Add(format);
+      // gte the existing data as well
+      var parts = StringUtils.SplitByDelimiter(known);
+      foreach (var format in parts)
+        formatsTime.Add(format);
+
+      return formatsTime;
+    }
+
+
+    public static ICollection<string> CommonTimeFormats()
+    {
+      var formatsTime = new HashSet<string>
+      {
+        CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern
+          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
+        CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern
+          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
+        "HH:mm:ss", "HH:mm", "h:mm tt","HH:mm:ss.FFF"};
+
+      return formatsTime;
+    }
+
+
+
     [SuppressMessage("ReSharper", "StringLiteralTypo")]
     private static readonly string[] m_FalseValues =
     {
@@ -484,28 +532,33 @@ namespace CsvTools
       return time is null ? date : date.Value.Add(time.Value);
     }
 
+    public static string DateTimeToString(in DateTime dateTime, in ValueFormat format) =>
+      DateTimeToString(dateTime, format.DateFormat, format.DateSeparator, format.TimeSeparator);
+
     /// <summary>
-    ///   Converts a dates to string.
+    ///   Converts a dates to string
     /// </summary>
     /// <param name="dateTime">The date time.</param>
-    /// <param name="format">The <see cref="ValueFormat" />.</param>
+    /// <param name="dateFormat">The format.</param>
+    /// <param name="dateSeparator">The date separator.</param>
+    /// <param name="timeSeparator">The time separator.</param>
     /// <returns>Formatted value</returns>
-    public static string DateTimeToString(in DateTime dateTime, in ValueFormat format)
+    public static string DateTimeToString(in DateTime dateTime, in string dateFormat, in string dateSeparator, in string timeSeparator, CultureInfo? cultureInfo = null)
     {
-      if (!format.DateFormat.Contains("HHH"))
-        return dateTime.ToString(format.DateFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
-          "/",
-          format.DateSeparator,
-          ":",
-          format.TimeSeparator);
+      if (cultureInfo==null)
+        cultureInfo = CultureInfo.InvariantCulture;
 
+      // replacing the format placehodler with constants, to be replaced back later
+      if (!dateFormat.Contains("HHH"))
+        return dateTime.ToString(dateFormat.Replace("/", "\uFFF9").Replace(":", "\uFFFA"), cultureInfo)
+               .Replace("\uFFF9", dateSeparator).Replace("\uFFFA", timeSeparator);
       var pad = 2;
 
       // only allow format that has time values
       // ReSharper disable once StringLiteralTypo
       const string allowed = " Hhmsf:";
 
-      var result = format.DateFormat.Where(chr => allowed.IndexOf(chr) != -1)
+      var result = dateFormat.Where(chr => allowed.IndexOf(chr) != -1)
                          .Aggregate(string.Empty, (current, chr) => current + chr).Trim();
       // make them all upper case H lower case does not make sense
       while (result.Contains("h"))
@@ -521,28 +574,11 @@ namespace CsvTools
         break;
       }
 
-      var strFormat = "{0:" + new string('0', pad) + "}";
+      var strFormat = "{0:" + new string('0', pad) + "}".Replace("\\", "\uFFF9").Replace(":", "\uFFFA");
       return dateTime.ToString(
-        result.Replace(
-          "HH",
-          string.Format(CultureInfo.CurrentCulture, strFormat, Math.Floor((dateTime - m_FirstDateTime).TotalHours))),
-        CultureInfo.InvariantCulture).ReplaceDefaults("/", format.DateSeparator, ":", format.TimeSeparator);
+        result.Replace("HH", string.Format(cultureInfo, strFormat, Math.Floor((dateTime - m_FirstDateTime).TotalHours))), cultureInfo)
+        .Replace("\uFFF9", dateSeparator).Replace("\uFFFA", timeSeparator);
     }
-
-    /// <summary>
-    ///   Converts a dates to string.
-    /// </summary>
-    /// <param name="dateTime">The date time.</param>
-    /// <param name="format">The format.</param>
-    /// <param name="dateSeparator">The date separator.</param>
-    /// <param name="timeSeparator">The time separator.</param>
-    /// <returns>Formatted value</returns>
-    public static string DateTimeToString(
-      in DateTime dateTime,
-      in string format,
-      in string dateSeparator,
-      in string timeSeparator) =>
-      DateTimeToString(dateTime, new ValueFormat(DataTypeEnum.DateTime, format, dateSeparator, timeSeparator));
 
     /// <summary>
     ///   Converts a decimals to string.

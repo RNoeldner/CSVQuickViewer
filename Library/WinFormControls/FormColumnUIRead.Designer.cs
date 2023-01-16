@@ -59,7 +59,6 @@ namespace CsvTools
       System.Windows.Forms.Label labelTCFormat;
       this.textBoxDateSeparator = new System.Windows.Forms.TextBox();
       this.bindingSourceValueFormat = new System.Windows.Forms.BindingSource(this.components);
-      this.comboBoxDateFormat = new System.Windows.Forms.ComboBox();
       this.buttonAddFormat = new System.Windows.Forms.Button();
       this.labelAllowedDateFormats = new System.Windows.Forms.Label();
       this.checkedListBoxDateFormats = new System.Windows.Forms.CheckedListBox();
@@ -74,6 +73,7 @@ namespace CsvTools
       this.labelInputTZ = new System.Windows.Forms.Label();
       this.labelOutPutTZ = new System.Windows.Forms.Label();
       this.comboBoxTPFormat = new System.Windows.Forms.ComboBox();
+      this.textBoxDateFormat = new System.Windows.Forms.TextBox();
       this.comboBoxDataType = new System.Windows.Forms.ComboBox();
       this.buttonCancel = new System.Windows.Forms.Button();
       this.labelColName = new System.Windows.Forms.Label();
@@ -88,8 +88,10 @@ namespace CsvTools
       this.textBoxWriteFolder = new System.Windows.Forms.TextBox();
       this.textBoxPattern = new System.Windows.Forms.TextBox();
       this.textBoxRegexSearchPattern = new System.Windows.Forms.TextBox();
+      this.textBoxDisplayNullAs = new System.Windows.Forms.TextBox();
       this.buttonOK = new System.Windows.Forms.Button();
       this.panelTop = new System.Windows.Forms.Panel();
+      this.labelDisplayNullAs = new System.Windows.Forms.Label();
       this.panelBottom = new System.Windows.Forms.Panel();
       this.flowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
       this.groupBoxDate = new System.Windows.Forms.GroupBox();
@@ -116,8 +118,6 @@ namespace CsvTools
       this.groupBoxRegExReplace = new System.Windows.Forms.GroupBox();
       this.label8 = new System.Windows.Forms.Label();
       this.textBoxRegexReplacement = new System.Windows.Forms.TextBox();
-      this.labelDisplayNullAs = new System.Windows.Forms.Label();
-      this.textBoxDisplayNullAs = new System.Windows.Forms.TextBox();
       labelGroup = new System.Windows.Forms.Label();
       labelPoint = new System.Windows.Forms.Label();
       labelTrue = new System.Windows.Forms.Label();
@@ -285,15 +285,14 @@ namespace CsvTools
       tableLayoutPanel2.AutoSize = true;
       tableLayoutPanel2.ColumnCount = 7;
       tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 35F));
+      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 38F));
+      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 95F));
+      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 38F));
       tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+      tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
       tableLayoutPanel2.Controls.Add(labelDateSep, 0, 0);
       tableLayoutPanel2.Controls.Add(this.textBoxDateSeparator, 1, 0);
-      tableLayoutPanel2.Controls.Add(this.comboBoxDateFormat, 1, 7);
       tableLayoutPanel2.Controls.Add(this.buttonAddFormat, 4, 7);
       tableLayoutPanel2.Controls.Add(this.labelAllowedDateFormats, 0, 3);
       tableLayoutPanel2.Controls.Add(this.checkedListBoxDateFormats, 1, 3);
@@ -316,6 +315,7 @@ namespace CsvTools
       tableLayoutPanel2.Controls.Add(this.labelOutPutTZ, 6, 5);
       tableLayoutPanel2.Controls.Add(labelTCFormat, 4, 2);
       tableLayoutPanel2.Controls.Add(this.comboBoxTPFormat, 5, 2);
+      tableLayoutPanel2.Controls.Add(this.textBoxDateFormat, 1, 7);
       tableLayoutPanel2.Location = new System.Drawing.Point(0, 14);
       tableLayoutPanel2.Name = "tableLayoutPanel2";
       tableLayoutPanel2.RowCount = 8;
@@ -327,7 +327,6 @@ namespace CsvTools
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
       tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-      tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
       tableLayoutPanel2.Size = new System.Drawing.Size(616, 274);
       tableLayoutPanel2.TabIndex = 17;
       // 
@@ -357,22 +356,10 @@ namespace CsvTools
       this.bindingSourceValueFormat.AllowNew = false;
       this.bindingSourceValueFormat.DataSource = typeof(CsvTools.ValueFormatMut);
       // 
-      // comboBoxDateFormat
-      // 
-      this.comboBoxDateFormat.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-      this.comboBoxDateFormat.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
-      tableLayoutPanel2.SetColumnSpan(this.comboBoxDateFormat, 3);
-      this.comboBoxDateFormat.Dock = System.Windows.Forms.DockStyle.Top;
-      this.comboBoxDateFormat.FormattingEnabled = true;
-      this.comboBoxDateFormat.Location = new System.Drawing.Point(113, 246);
-      this.comboBoxDateFormat.Name = "comboBoxDateFormat";
-      this.comboBoxDateFormat.Size = new System.Drawing.Size(193, 21);
-      this.comboBoxDateFormat.TabIndex = 6;
-      // 
       // buttonAddFormat
       // 
       tableLayoutPanel2.SetColumnSpan(this.buttonAddFormat, 2);
-      this.buttonAddFormat.Location = new System.Drawing.Point(312, 246);
+      this.buttonAddFormat.Location = new System.Drawing.Point(284, 246);
       this.buttonAddFormat.Name = "buttonAddFormat";
       this.buttonAddFormat.Size = new System.Drawing.Size(103, 25);
       this.buttonAddFormat.TabIndex = 7;
@@ -400,11 +387,11 @@ namespace CsvTools
       this.checkedListBoxDateFormats.Location = new System.Drawing.Point(113, 83);
       this.checkedListBoxDateFormats.Name = "checkedListBoxDateFormats";
       tableLayoutPanel2.SetRowSpan(this.checkedListBoxDateFormats, 4);
-      this.checkedListBoxDateFormats.Size = new System.Drawing.Size(193, 157);
+      this.checkedListBoxDateFormats.Size = new System.Drawing.Size(165, 157);
       this.checkedListBoxDateFormats.TabIndex = 5;
       this.toolTip.SetToolTip(this.checkedListBoxDateFormats, "Common Date/Time formats, you can choose multiple");
       this.checkedListBoxDateFormats.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckedListBoxDateFormats_ItemCheck);
-      this.checkedListBoxDateFormats.SelectedIndexChanged += new System.EventHandler(this.DateFormatChanged);
+      this.checkedListBoxDateFormats.SelectedIndexChanged += new System.EventHandler(this.checkedListBoxDateFormats_SelectedIndexChanged);
       // 
       // labelTimeCol
       // 
@@ -426,7 +413,7 @@ namespace CsvTools
       this.comboBoxTimePart.FormattingEnabled = true;
       this.comboBoxTimePart.Location = new System.Drawing.Point(113, 56);
       this.comboBoxTimePart.Name = "comboBoxTimePart";
-      this.comboBoxTimePart.Size = new System.Drawing.Size(193, 21);
+      this.comboBoxTimePart.Size = new System.Drawing.Size(165, 21);
       this.comboBoxTimePart.TabIndex = 1;
       this.toolTip.SetToolTip(this.comboBoxTimePart, "Combining a time column will result in a combination of the column and the select" +
         "ed time column\r\ne.G “17/Aug/2019” & “17:54” will become “17/Aug/2019 17:54”\r\n");
@@ -441,7 +428,7 @@ namespace CsvTools
       // 
       labelTimeSep.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelTimeSep.AutoSize = true;
-      labelTimeSep.Location = new System.Drawing.Point(190, 6);
+      labelTimeSep.Location = new System.Drawing.Point(159, 6);
       labelTimeSep.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       labelTimeSep.Name = "labelTimeSep";
       labelTimeSep.Size = new System.Drawing.Size(82, 13);
@@ -451,7 +438,7 @@ namespace CsvTools
       // textBoxTimeSeparator
       // 
       this.textBoxTimeSeparator.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "TimeSeparator", true));
-      this.textBoxTimeSeparator.Location = new System.Drawing.Point(277, 3);
+      this.textBoxTimeSeparator.Location = new System.Drawing.Point(246, 3);
       this.textBoxTimeSeparator.Name = "textBoxTimeSeparator";
       this.textBoxTimeSeparator.Size = new System.Drawing.Size(28, 20);
       this.textBoxTimeSeparator.TabIndex = 3;
@@ -477,7 +464,7 @@ namespace CsvTools
       this.comboBoxTimeZone.FormattingEnabled = true;
       this.comboBoxTimeZone.Location = new System.Drawing.Point(113, 29);
       this.comboBoxTimeZone.Name = "comboBoxTimeZone";
-      this.comboBoxTimeZone.Size = new System.Drawing.Size(193, 21);
+      this.comboBoxTimeZone.Size = new System.Drawing.Size(165, 21);
       this.comboBoxTimeZone.TabIndex = 4;
       this.comboBoxTimeZone.TextChanged += new System.EventHandler(this.DateFormatChanged);
       // 
@@ -497,7 +484,7 @@ namespace CsvTools
       linkLabelRegion.Anchor = System.Windows.Forms.AnchorStyles.Left;
       linkLabelRegion.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(linkLabelRegion, 3);
-      linkLabelRegion.Location = new System.Drawing.Point(312, 180);
+      linkLabelRegion.Location = new System.Drawing.Point(284, 180);
       linkLabelRegion.Margin = new System.Windows.Forms.Padding(3);
       linkLabelRegion.Name = "linkLabelRegion";
       linkLabelRegion.Size = new System.Drawing.Size(130, 13);
@@ -511,7 +498,7 @@ namespace CsvTools
       labelDateOutput.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       labelDateOutput.AutoSize = true;
       labelDateOutput.ForeColor = System.Drawing.SystemColors.ControlText;
-      labelDateOutput.Location = new System.Drawing.Point(312, 115);
+      labelDateOutput.Location = new System.Drawing.Point(284, 115);
       labelDateOutput.Margin = new System.Windows.Forms.Padding(3);
       labelDateOutput.Name = "labelDateOutput";
       labelDateOutput.Size = new System.Drawing.Size(42, 13);
@@ -523,7 +510,7 @@ namespace CsvTools
       labelSample.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       labelSample.AutoSize = true;
       labelSample.ForeColor = System.Drawing.SystemColors.ControlText;
-      labelSample.Location = new System.Drawing.Point(320, 99);
+      labelSample.Location = new System.Drawing.Point(292, 99);
       labelSample.Name = "labelSample";
       labelSample.Size = new System.Drawing.Size(34, 13);
       labelSample.TabIndex = 12;
@@ -534,7 +521,7 @@ namespace CsvTools
       label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
       label4.AutoSize = true;
       label4.ForeColor = System.Drawing.SystemColors.ControlText;
-      label4.Location = new System.Drawing.Point(317, 83);
+      label4.Location = new System.Drawing.Point(289, 83);
       label4.Margin = new System.Windows.Forms.Padding(3);
       label4.Name = "label4";
       label4.Size = new System.Drawing.Size(37, 13);
@@ -546,7 +533,7 @@ namespace CsvTools
       this.label5.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(this.label5, 2);
       this.label5.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.label5.Location = new System.Drawing.Point(360, 83);
+      this.label5.Location = new System.Drawing.Point(332, 83);
       this.label5.Margin = new System.Windows.Forms.Padding(3);
       this.label5.Name = "label5";
       this.label5.Size = new System.Drawing.Size(141, 13);
@@ -557,7 +544,7 @@ namespace CsvTools
       // 
       this.labelSampleDisplay.AutoSize = true;
       this.labelSampleDisplay.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelSampleDisplay.Location = new System.Drawing.Point(360, 99);
+      this.labelSampleDisplay.Location = new System.Drawing.Point(332, 99);
       this.labelSampleDisplay.Name = "labelSampleDisplay";
       this.labelSampleDisplay.Size = new System.Drawing.Size(17, 13);
       this.labelSampleDisplay.TabIndex = 12;
@@ -567,7 +554,7 @@ namespace CsvTools
       // 
       this.labelDateOutputDisplay.AutoSize = true;
       this.labelDateOutputDisplay.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelDateOutputDisplay.Location = new System.Drawing.Point(360, 115);
+      this.labelDateOutputDisplay.Location = new System.Drawing.Point(332, 115);
       this.labelDateOutputDisplay.Margin = new System.Windows.Forms.Padding(3);
       this.labelDateOutputDisplay.Name = "labelDateOutputDisplay";
       this.labelDateOutputDisplay.Size = new System.Drawing.Size(17, 13);
@@ -580,7 +567,7 @@ namespace CsvTools
       this.label6.AutoSize = true;
       tableLayoutPanel2.SetColumnSpan(this.label6, 3);
       this.label6.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.label6.Location = new System.Drawing.Point(312, 33);
+      this.label6.Location = new System.Drawing.Point(284, 33);
       this.label6.Margin = new System.Windows.Forms.Padding(3);
       this.label6.Name = "label6";
       this.label6.Size = new System.Drawing.Size(187, 13);
@@ -591,7 +578,7 @@ namespace CsvTools
       // 
       this.labelInputTZ.AutoSize = true;
       this.labelInputTZ.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelInputTZ.Location = new System.Drawing.Point(489, 99);
+      this.labelInputTZ.Location = new System.Drawing.Point(475, 99);
       this.labelInputTZ.Name = "labelInputTZ";
       this.labelInputTZ.Size = new System.Drawing.Size(17, 13);
       this.labelInputTZ.TabIndex = 12;
@@ -601,7 +588,7 @@ namespace CsvTools
       // 
       this.labelOutPutTZ.AutoSize = true;
       this.labelOutPutTZ.ForeColor = System.Drawing.SystemColors.Highlight;
-      this.labelOutPutTZ.Location = new System.Drawing.Point(489, 115);
+      this.labelOutPutTZ.Location = new System.Drawing.Point(475, 115);
       this.labelOutPutTZ.Margin = new System.Windows.Forms.Padding(3);
       this.labelOutPutTZ.Name = "labelOutPutTZ";
       this.labelOutPutTZ.Size = new System.Drawing.Size(17, 13);
@@ -612,7 +599,7 @@ namespace CsvTools
       // 
       labelTCFormat.Anchor = System.Windows.Forms.AnchorStyles.Right;
       labelTCFormat.AutoSize = true;
-      labelTCFormat.Location = new System.Drawing.Point(312, 60);
+      labelTCFormat.Location = new System.Drawing.Point(284, 60);
       labelTCFormat.Margin = new System.Windows.Forms.Padding(3);
       labelTCFormat.Name = "labelTCFormat";
       labelTCFormat.Size = new System.Drawing.Size(42, 13);
@@ -625,12 +612,21 @@ namespace CsvTools
       this.comboBoxTPFormat.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.columnBindingSource, "TimePartFormat", true));
       this.comboBoxTPFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this.comboBoxTPFormat.FormattingEnabled = true;
-      this.comboBoxTPFormat.Location = new System.Drawing.Point(360, 56);
+      this.comboBoxTPFormat.Location = new System.Drawing.Point(332, 56);
       this.comboBoxTPFormat.Name = "comboBoxTPFormat";
-      this.comboBoxTPFormat.Size = new System.Drawing.Size(83, 21);
+      this.comboBoxTPFormat.Size = new System.Drawing.Size(116, 21);
       this.comboBoxTPFormat.TabIndex = 2;
       this.toolTip.SetToolTip(this.comboBoxTPFormat, "Format of the time column");
       this.comboBoxTPFormat.SelectedIndexChanged += new System.EventHandler(this.ComboBoxTimePart_SelectedIndexChanged);
+      // 
+      // textBoxDateFormat
+      // 
+      tableLayoutPanel2.SetColumnSpan(this.textBoxDateFormat, 3);
+      this.textBoxDateFormat.Dock = System.Windows.Forms.DockStyle.Top;
+      this.textBoxDateFormat.Location = new System.Drawing.Point(113, 246);
+      this.textBoxDateFormat.Name = "textBoxDateFormat";
+      this.textBoxDateFormat.Size = new System.Drawing.Size(165, 20);
+      this.textBoxDateFormat.TabIndex = 17;
       // 
       // comboBoxDataType
       // 
@@ -777,6 +773,16 @@ namespace CsvTools
       this.toolTip.SetToolTip(this.textBoxRegexSearchPattern, "Regex Pattern to look for");
       this.textBoxRegexSearchPattern.Validating += new System.ComponentModel.CancelEventHandler(this.TextBoxRegexSearchPattern_Validating);
       // 
+      // textBoxDisplayNullAs
+      // 
+      this.textBoxDisplayNullAs.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "DisplayNullAs", true));
+      this.textBoxDisplayNullAs.Location = new System.Drawing.Point(325, 27);
+      this.textBoxDisplayNullAs.Name = "textBoxDisplayNullAs";
+      this.textBoxDisplayNullAs.Size = new System.Drawing.Size(93, 20);
+      this.textBoxDisplayNullAs.TabIndex = 11;
+      this.toolTip.SetToolTip(this.textBoxDisplayNullAs, "Wrting data empty field (NULL) can be an empty column or represented by this text" +
+        " \r\ne.G. <NULL>");
+      // 
       // buttonOK
       // 
       this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -805,6 +811,17 @@ namespace CsvTools
       this.panelTop.Name = "panelTop";
       this.panelTop.Size = new System.Drawing.Size(627, 50);
       this.panelTop.TabIndex = 6;
+      // 
+      // labelDisplayNullAs
+      // 
+      this.labelDisplayNullAs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+      this.labelDisplayNullAs.AutoSize = true;
+      this.labelDisplayNullAs.Location = new System.Drawing.Point(241, 30);
+      this.labelDisplayNullAs.Margin = new System.Windows.Forms.Padding(3);
+      this.labelDisplayNullAs.Name = "labelDisplayNullAs";
+      this.labelDisplayNullAs.Size = new System.Drawing.Size(80, 13);
+      this.labelDisplayNullAs.TabIndex = 12;
+      this.labelDisplayNullAs.Text = "Write NULL as:";
       // 
       // panelBottom
       // 
@@ -1143,27 +1160,6 @@ namespace CsvTools
       this.textBoxRegexReplacement.Size = new System.Drawing.Size(239, 20);
       this.textBoxRegexReplacement.TabIndex = 9;
       // 
-      // labelDisplayNullAs
-      // 
-      this.labelDisplayNullAs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-      this.labelDisplayNullAs.AutoSize = true;
-      this.labelDisplayNullAs.Location = new System.Drawing.Point(241, 30);
-      this.labelDisplayNullAs.Margin = new System.Windows.Forms.Padding(3);
-      this.labelDisplayNullAs.Name = "labelDisplayNullAs";
-      this.labelDisplayNullAs.Size = new System.Drawing.Size(80, 13);
-      this.labelDisplayNullAs.TabIndex = 12;
-      this.labelDisplayNullAs.Text = "Write NULL as:";
-      // 
-      // textBoxDisplayNullAs
-      // 
-      this.textBoxDisplayNullAs.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.bindingSourceValueFormat, "DisplayNullAs", true));
-      this.textBoxDisplayNullAs.Location = new System.Drawing.Point(325, 27);
-      this.textBoxDisplayNullAs.Name = "textBoxDisplayNullAs";
-      this.textBoxDisplayNullAs.Size = new System.Drawing.Size(93, 20);
-      this.textBoxDisplayNullAs.TabIndex = 11;
-      this.toolTip.SetToolTip(this.textBoxDisplayNullAs, "Wrting data empty field (NULL) can be an empty column or represented by this text" +
-        " \r\ne.G. <NULL>");
-      // 
       // FormColumnUiRead
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1259,7 +1255,6 @@ namespace CsvTools
     private System.Windows.Forms.TextBox textBoxRegexSearchPattern;
     private System.Windows.Forms.GroupBox groupBoxDate;
     private System.Windows.Forms.TextBox textBoxDateSeparator;
-    private System.Windows.Forms.ComboBox comboBoxDateFormat;
     private System.Windows.Forms.Button buttonAddFormat;
     private System.Windows.Forms.Label labelAllowedDateFormats;
     private System.Windows.Forms.CheckedListBox checkedListBoxDateFormats;
@@ -1276,5 +1271,6 @@ namespace CsvTools
     private System.Windows.Forms.LinkLabel linkLabel2;
     private System.Windows.Forms.Label labelDisplayNullAs;
     private System.Windows.Forms.TextBox textBoxDisplayNullAs;
+    private System.Windows.Forms.TextBox textBoxDateFormat;
   }
 }
