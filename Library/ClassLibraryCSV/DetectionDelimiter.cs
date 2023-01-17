@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -13,7 +12,7 @@ namespace CsvTools
     /// <summary>
     ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to
     ///   find the delimiter that has the least variance in the read rows, if they are the same it will look at 
-    ///   the positioning (Score), as a delimite is preceeded by a text or by a quote will increase teh score.
+    ///   the positioning (Score), as a delimiter is preceded by a text or by a quote will increase the score.
     /// </summary>
     /// <param name="textReader">The text reader to read the data</param>
     /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
@@ -202,8 +201,8 @@ namespace CsvTools
     /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="numRows">The number of rows to read</param>
-    /// <param name="disallowedDelimiter">You can passs in delimiters that should not be decteted, 
-    /// if you know that a delimiter is definatly not c.</param>
+    /// <param name="disallowedDelimiter">You can pass in delimiters that should not be detected, 
+    /// if you know that a delimiter is defiantly not suitable.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   A <see cref="DelimiterCounter" /> with the information on delimiters
@@ -224,8 +223,7 @@ namespace CsvTools
       var dc = new DelimiterCounter(numRows, disallowedDelimiter, quoteCharacter);
 
       var quoted = false;
-      char readChar = '\0';
-      var firstChar = true;
+      char readChar = ' ';
       var textReaderPosition = new ImprovedTextReaderPositionStore(textReader);
       while (dc.LastRow < dc.NumRows && !textReaderPosition.AllRead() && !cancellationToken.IsCancellationRequested)
       {
@@ -240,25 +238,18 @@ namespace CsvTools
             if (textReader.Peek() == quoteCharacter)
               textReader.MoveNext();
             else
-              quoted |= firstChar;
+              quoted = false;
           }
           else
             quoted = true;
         }
-        if (quoted)
+        if (quoted) 
           continue;
 
-        if (readChar== '\n' || readChar=='\r')
-          if (!firstChar)
-          {
-            dc.LastRow++;
-            firstChar = true;
-            continue;
-          }
-        dc.CheckChar(readChar, lastChar);
-        // Its still the first char if its a leading space
-        if (firstChar && readChar != ' ')
-          firstChar = false;
+        if (readChar == '\n' || readChar == '\r')
+          dc.LastRow++;
+        else
+          dc.CheckChar(readChar, lastChar);
       }
       return dc;
     }

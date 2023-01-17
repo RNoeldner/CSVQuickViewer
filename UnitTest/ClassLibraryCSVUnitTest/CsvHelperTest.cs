@@ -184,7 +184,8 @@ namespace CsvTools.Tests
         new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")) { CodePageId = -1 };
       test.EscapePrefix = "\\";
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
-      Assert.AreEqual(",", (await improvedStream.GuessDelimiterAsync(-1, 0, "\"", "\\", UnitTestStatic.Token)).Delimiter);
+      Assert.AreEqual(",", (await improvedStream.GuessDelimiterAsync(-1, 0, 
+        "\"", "\\", UnitTestStatic.Token)).Delimiter);
     }
 
     [TestMethod]

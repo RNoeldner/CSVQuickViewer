@@ -32,35 +32,35 @@ namespace CsvTools
     private readonly char m_FieldQualifier;
 
     /// <summary>
-    /// Get the chedked Delimiters, decided to make this non configrable as the detection process is very fast 
+    /// Get the checked Delimiters, decided to make this non configurable as the detection process is very fast 
     /// </summary>
-    /// <param name="disallowedDelimiter">You can passs in delimiters that should not be decteted, 
-    /// if you know that a delimiter is definatly not c.</param>
+    /// <param name="disallowedDelimiter">You can pass in delimiters that should not be detected, 
+    /// if you know that a delimiter is defiantly not suitable.</param>
     /// <returns>Tab, Comma, Semicolon, Various Pipes: |¦￤, Star, 
     /// Single Quote, Unicode Information Seperator 1, Unicode Information Seperator 2, Unicode Information Seperator 3, 
     /// Unicode Information Seperator 4 and whatever is defined in the current culture as ListSeparator
     /// </returns>
     public static string GetPossibleDelimiters(IEnumerable<char>? disallowedDelimiter = null)
     {
-      const string cDefaultSeparators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
-
-      var Separators = cDefaultSeparators;
+      var separators = "\t,;|¦￤*`\u001F\u001E\u001D\u001C";
       var listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator[0];
-      if (cDefaultSeparators.IndexOf(listSeparator) == -1)
-        Separators += listSeparator;
-      if (disallowedDelimiter != null)
-        foreach (var delimiter in disallowedDelimiter)
-          if (Separators.IndexOf(delimiter) != -1)
-            Separators = Separators.Remove(Separators.IndexOf(delimiter), 1);
-      return Separators;
+      if (separators.IndexOf(listSeparator) == -1)
+        separators += listSeparator;
+      if (disallowedDelimiter == null)
+        return separators;
+
+      foreach (var delimiter in disallowedDelimiter)
+        if (separators.IndexOf(delimiter) != -1)
+          separators = separators.Remove(separators.IndexOf(delimiter), 1);
+      return separators;
     }
 
     /// <summary>
     ///  Creates an instance of a delimiter counter
     /// </summary>
     /// <param name="numRows">Number of rows to expect</param>
-    /// <param name="disallowedDelimiter">You can passs in delimiters that should not be decteted, 
-    /// if you know that a delimiter is definatly not c.</param>
+    /// <param name="disallowedDelimiter">You can pass in delimiters that should not be detected, 
+    /// if you know that a delimiter is defiantly not suitable.</param>
     /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     public DelimiterCounter(int numRows, IEnumerable<char>? disallowedDelimiter, char fieldQualifier)
     {
@@ -75,28 +75,27 @@ namespace CsvTools
     /// <summary>
     /// Main method called with the current char and the last char
     /// </summary>
-    /// <param name="read">The charater to check</param>
+    /// <param name="read">The character to check</param>
     /// <param name="last">The previous char, this char allows scoring</param>
     /// <returns><c>true</c> if the char was a delimiter</returns>
     public bool CheckChar(char read, char last)
     {
       var index = Separators.IndexOf(read);
-      if (index != -1)
-      {
-        if (SeparatorsCount[index, LastRow] == 0)
-          SeparatorRows[index]++;
+      if (index == -1)
+        return false;
 
-        ++SeparatorsCount[index, LastRow];
-        // A separator its worth more if the previous char was the quote
-        if (last == m_FieldQualifier)
-          SeparatorScore[index] += 2;
-        else if (last != read && last!=' ' && last!='\r'&& last!='\n')
-          // its also worth something if previous char appears to be a text
-          SeparatorScore[index]++;
-        return true;
-      }
+      if (SeparatorsCount[index, LastRow] == 0)
+        SeparatorRows[index]++;
 
-      return false;
+      ++SeparatorsCount[index, LastRow];
+      // A separator its worth more if the previous char was the quote
+      if (last == m_FieldQualifier)
+        SeparatorScore[index] += 2;
+      else if (last != read && last!=' ' && last!='\r'&& last!='\n')
+        // its also worth something if previous char appears to be a text
+        SeparatorScore[index]++;
+
+      return true;
     }
 
     public int FilledRows

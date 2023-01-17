@@ -1,6 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading;
-using System.Threading.Tasks;
 
 #pragma warning disable CS8625
 
@@ -64,7 +62,20 @@ namespace CsvTools.Tests
       UnitTestStatic.RunSerializeAllProps(input,
         new[]
         {
-          nameof(input.CollectionIdentifier), nameof(input.ColumnOrdinal), nameof(input.False), nameof(input.True)
+          nameof(input.CollectionIdentifier), nameof(input.DecimalSeparator), nameof(input.NumberFormat),
+          nameof(input.Part), nameof(input.PartSplitter),nameof(input.PartToEnd),
+          nameof(input.ColumnOrdinal), nameof(input.False), nameof(input.True)
+        });
+
+      var input2 = new ColumnMut("Näme",
+        new ValueFormat(DataTypeEnum.TextPart, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat",
+          "erp", "read", "Wr", "ou", false)) { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
+      UnitTestStatic.RunSerializeAllProps(input2,
+        new[]
+        {
+          nameof(input.CollectionIdentifier), nameof(input.DecimalSeparator), nameof(input.NumberFormat),
+          nameof(input.DateFormat), nameof(input.DateSeparator), nameof(input.TimeSeparator), 
+          nameof(input.ColumnOrdinal), nameof(input.False), nameof(input.True)
         });
     }
 
