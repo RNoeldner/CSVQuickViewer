@@ -14,6 +14,7 @@
 #nullable enable
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -110,7 +111,7 @@ namespace CsvTools
           {
             SkipRows = fileSettingSer.SkipRows,
             CodePageId = fileSettingSer.CodePageId,
-            ByteOrderMark = fileSettingSer.ByteOrderMark,            
+            ByteOrderMark = fileSettingSer.ByteOrderMark,
             IdentifierInContainer = fileSettingSer.IdentifierInContainer,
             CommentLine = fileSettingSer.CommentLine,
             EscapePrefix = fileSettingSer.EscapePrefix,
@@ -178,7 +179,7 @@ namespace CsvTools
 #endif
       using var reader = GetReaderFromDetectionResult(fileName2, detectionResult);
       await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
-      
+
       var (_, b) = await reader.FillGuessColumnFormatReaderAsyncReader(
         fillGuessSettings,
         null,
@@ -430,6 +431,20 @@ namespace CsvTools
       }
     }
 
+#if !QUICK
+    public static async Task DetectReadCsvAsync(this ICsvFile csvFile, CancellationToken cancellationToken)
+    {
+      var det = await csvFile.FileName.GetDetectionResultFromFile(false, true, true, true, true, true, true, false, true, cancellationToken).ConfigureAwait(false);
+      csvFile.CodePageId = det.CodePageId;
+      csvFile.ByteOrderMark = det.ByteOrderMark;
+      csvFile.EscapePrefix= det.EscapePrefix;
+      csvFile.FieldDelimiter = det.FieldDelimiter;
+      csvFile.FieldQualifier = det.FieldQualifier;
+      csvFile.SkipRows = det.SkipRows;
+      csvFile.HasFieldHeader = det.HasFieldHeader;
+      csvFile.CommentLine = det.CommentLine;
+    }
+#endif
     /// <summary>
     ///   Refreshes the settings assuming the file has changed, checks CodePage, Delimiter, Start
     ///   Row and Header
