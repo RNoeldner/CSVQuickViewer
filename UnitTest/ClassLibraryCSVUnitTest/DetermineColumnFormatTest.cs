@@ -460,10 +460,10 @@ namespace CsvTools.Tests
 
       var (_, detected) =
         await setting.FillGuessColumnFormatReaderAsync(true, true, fillGuessSettings, UnitTestStatic.Token);
-      var col = new ColumnCollection();
-      col.AddRangeNoClone(detected);
-      Assert.AreEqual(10, col.Count);
-      Assert.AreEqual(DataTypeEnum.DateTime, col[0].ValueFormat.DataType);
+      Assert.AreEqual(10, detected.Count);
+      
+      var col = new List<Column>(detected);
+      Assert.AreEqual(DataTypeEnum.DateTime, col[0].ValueFormat.DataType, col[0].ToString());
       Assert.AreEqual(DataTypeEnum.Integer, col[1].ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.Numeric, col[2].ValueFormat.DataType);
       Assert.AreEqual(DataTypeEnum.String, col[4].ValueFormat.DataType);

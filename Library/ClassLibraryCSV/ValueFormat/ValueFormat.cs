@@ -103,13 +103,18 @@ namespace CsvTools
         DateSeparator = dateSeparator ?? cDateSeparatorDefault;
         TimeSeparator = timeSeparator ?? cTimeSeparatorDefault;
       }
-      else if (DataTypeEnum.Numeric.Equals(dataType))
+      else if (DataTypeEnum.Integer.Equals(dataType))
+      {
+        NumberFormat = numberFormat ?? cNumberFormatDefault;
+        GroupSeparator = groupSeparator ?? cGroupSeparatorDefault;
+      }
+      else if (DataTypeEnum.Numeric.Equals(dataType) || DataTypeEnum.Double.Equals(dataType))
       {
         // Numbers
         NumberFormat = numberFormat ?? cNumberFormatDefault;
         DecimalSeparator = decimalSeparator ?? cDecimalSeparatorDefault;
         GroupSeparator = groupSeparator ?? cGroupSeparatorDefault;
-      }      
+      }
       else if (DataTypeEnum.TextPart.Equals(dataType))
       {
         // TextPart
