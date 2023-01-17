@@ -64,29 +64,25 @@ namespace CsvTools
       string? fileOutPutPlaceholder = "",
       bool? overwrite = cOverwriteDefault)
     {
+      // Set defaults
       DataType = dataType ??  DataTypeEnum.String;
 
-      // Dates
-      DateFormat = dateFormat ?? cDateFormatDefault;
-      DateSeparator = dateSeparator ?? cDateSeparatorDefault;
-      TimeSeparator = timeSeparator ?? cTimeSeparatorDefault;
-
-      // Numbers
-      NumberFormat = numberFormat ?? cNumberFormatDefault;
-      DecimalSeparator = decimalSeparator ?? cDecimalSeparatorDefault;
-      GroupSeparator = groupSeparator ?? cGroupSeparatorDefault;
-
-      // Text
-      DisplayNullAs = displayNullAs ?? string.Empty;
+      DateFormat = cDateFormatDefault;
+      DateSeparator = cDateSeparatorDefault;
+      TimeSeparator = cTimeSeparatorDefault;
+      NumberFormat = cNumberFormatDefault;
+      DecimalSeparator = cDecimalSeparatorDefault;
+      GroupSeparator = cGroupSeparatorDefault;
 
       // Boolean
       False = asFalse ?? cFalseDefault;
       True = asTrue ?? cTrueDefault;
 
-      // TextPart
-      Part = part ?? cPartDefault;
-      PartSplitter = partSplitter ?? cPartSplitterDefault;
-      PartToEnd = partToEnd ?? cPartToEndDefault;
+      Part = cPartDefault;
+      PartSplitter = cPartSplitterDefault;
+      PartToEnd = cPartToEndDefault;
+      // Text
+      DisplayNullAs = displayNullAs ?? string.Empty;
 
       // Regex
       RegexSearchPattern = regexSearchPattern ?? string.Empty;
@@ -96,7 +92,36 @@ namespace CsvTools
       ReadFolder = readFolder ?? string.Empty;
       WriteFolder = writeFolder ?? string.Empty;
       FileOutPutPlaceholder = fileOutPutPlaceholder ?? string.Empty;
-      Overwrite = overwrite ?? cOverwriteDefault;
+      Overwrite = cOverwriteDefault;
+
+      // Depending on type set the other corresponding values
+      // Json Serializer does ignore defaults in ctor
+      if (DataTypeEnum.DateTime.Equals(dataType))
+      {
+        // Dates
+        DateFormat = dateFormat ?? cDateFormatDefault;
+        DateSeparator = dateSeparator ?? cDateSeparatorDefault;
+        TimeSeparator = timeSeparator ?? cTimeSeparatorDefault;
+      }
+      else if (DataTypeEnum.Numeric.Equals(dataType))
+      {
+        // Numbers
+        NumberFormat = numberFormat ?? cNumberFormatDefault;
+        DecimalSeparator = decimalSeparator ?? cDecimalSeparatorDefault;
+        GroupSeparator = groupSeparator ?? cGroupSeparatorDefault;
+      }      
+      else if (DataTypeEnum.TextPart.Equals(dataType))
+      {
+        // TextPart
+        Part = part ?? cPartDefault;
+        PartSplitter = partSplitter ?? cPartSplitterDefault;
+        PartToEnd = partToEnd ?? cPartToEndDefault;
+      }
+      else if (DataTypeEnum.Binary.Equals(dataType))
+      {
+        // Binary writer
+        Overwrite = overwrite ?? cOverwriteDefault;
+      }
     }
 
     /// <summary>
