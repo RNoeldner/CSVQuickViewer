@@ -89,6 +89,12 @@ namespace CsvTools
     /// <returns></returns>
     public static bool AssumeZip(this string fileName) => fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase);
 
+    public static bool AssumeDelimited(this string fileName) =>
+      fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) ||
+      fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)||
+      fileName.EndsWith(".tab", StringComparison.OrdinalIgnoreCase)||
+      fileName.EndsWith(".tsv", StringComparison.OrdinalIgnoreCase);
+
     /// <summary>
     ///   Copies all elements from one collection to the other
     /// </summary>
