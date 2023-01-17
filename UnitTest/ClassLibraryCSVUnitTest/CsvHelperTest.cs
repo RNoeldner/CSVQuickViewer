@@ -75,7 +75,7 @@ namespace CsvTools.Tests
         true, true, true, true, true, FillGuessSettings.Default, UnitTestStatic.Token);
 
       Assert.IsNotNull(tuple);
-      Assert.AreEqual("Pipe", tuple.FieldDelimiter);
+      Assert.AreEqual("|", tuple.FieldDelimiter);
     }
 
     [TestMethod]
@@ -85,7 +85,7 @@ namespace CsvTools.Tests
         true, true, true, true, true, FillGuessSettings.Default, UnitTestStatic.Token);
 
       Assert.IsNotNull(tuple);
-      Assert.AreEqual("Pipe", tuple.FieldDelimiter);
+      Assert.AreEqual("|", tuple.FieldDelimiter);
     }
 
     [TestMethod]

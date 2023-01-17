@@ -31,7 +31,7 @@ namespace CsvTools.Tests
     public void DelimiterCounterScore()
     {
       var i = new DelimiterCounter(100, null, '"');
-      Assert.AreEqual(1, i.NumRows);
+      Assert.AreEqual(100, i.NumRows);
       
       i.CheckChar(';', ';');
       i.CheckChar('\t', 'x');
