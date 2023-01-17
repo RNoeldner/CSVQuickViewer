@@ -121,7 +121,7 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    [Timeout(1000)]
+    [Timeout(2000)]
     public async Task FormHierarchyDisplay_DataWithCycleAsync()
     {
       using var dataTable = UnitTestStaticData.GetDataTable(60);

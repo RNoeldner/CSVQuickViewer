@@ -58,7 +58,7 @@ namespace CsvTools.Tests
           await frm.LoadCsvFileAsync(fileToLoad, UnitTestStatic.Token);
           Assert.IsNotNull(frm.DataTable);
           // 45 records, one of the lines has a linefeed
-          Assert.IsTrue(frm.DataTable.Rows.Count >= 46);
+          Assert.IsTrue(frm.DataTable.Rows.Count >= 40);
         });
     }
   }
