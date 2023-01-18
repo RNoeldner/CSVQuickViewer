@@ -702,8 +702,6 @@ namespace CsvTools
     /// <returns>The value of the specific field</returns>
     public override object GetValue(int ordinal)
     {
-      Debug.Assert(ordinal >= 0 && ordinal < FieldCount);
-
       if (IsDBNull(ordinal))
         return DBNull.Value;
       var column = GetColumn(ordinal);

@@ -639,8 +639,7 @@ namespace CsvTools
               // the first column belongs to the last column of the previous ignore
               // NumWarningsLinefeed otherwise as this is important information
               m_NumWarningsLinefeed++;
-              m_HandleMessageColumn(
-                CurrentRowColumnText.Length - 1,
+              m_HandleMessageColumn(CurrentRowColumnText.Length - 1,
                 $"Combined with line {EndLineNumber}, assuming a linefeed has split the column into additional line.");
               combined[CurrentRowColumnText.Length - 1] += '\n' + nextLine[0];
 
@@ -1168,10 +1167,7 @@ namespace CsvTools
         // might have an opening delimiter with a missing closing delimiter
         if (storeWarnings && EndLineNumber > StartLineNumber + 4 && item.Length > 1024
             && item.IndexOf(m_FieldDelimiterChar) != -1)
-          HandleWarning(
-            col,
-            $"Column has {EndLineNumber - StartLineNumber + 1} lines and has a length of {item.Length} characters"
-              .AddWarningId());
+          HandleWarning(col, $"Column has {EndLineNumber - StartLineNumber + 1} lines and has a length of {item.Length} characters".AddWarningId());
         columns.Add(item);
 
         col++;
