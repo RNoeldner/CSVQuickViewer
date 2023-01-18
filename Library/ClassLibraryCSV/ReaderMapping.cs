@@ -66,21 +66,8 @@ namespace CsvTools
         m_Mapping.Add(col, fieldCount++);
       }
 
-      // add fields
-      if (addStartLine && !readerColumns.Contains(ReaderConstants.cStartLineNumberFieldName))
-      {
-        DataTableStartLine = fieldCount++;
-        m_ReaderColumnNotIgnored.Add(
-          new Column(
-            ReaderConstants.cStartLineNumberFieldName,
-            new ValueFormat(DataTypeEnum.Integer),
-            DataTableStartLine));
-      }
-      else
-      {
-        DataTableStartLine = -1;
-      }
-
+      // the order of artifical fields must match the order in IDbConnector.CreateTableSQL
+    
       if (addRecNum && !readerColumns.Contains(ReaderConstants.cRecordNumberFieldName))
       {
         DataTableRecNum = fieldCount++;
@@ -111,13 +98,28 @@ namespace CsvTools
 
       if (addErrorField && !readerColumns.Contains(ReaderConstants.cErrorField))
       {
-        DataTableErrorField = fieldCount;
+        DataTableErrorField = fieldCount++;
         m_ReaderColumnNotIgnored.Add(
           new Column(ReaderConstants.cErrorField, ValueFormat.Empty, DataTableErrorField));
       }
       else
       {
         DataTableErrorField = -1;
+      }
+
+       // add fields
+      if (addStartLine && !readerColumns.Contains(ReaderConstants.cStartLineNumberFieldName))
+      {
+        DataTableStartLine = fieldCount;
+        m_ReaderColumnNotIgnored.Add(
+          new Column(
+            ReaderConstants.cStartLineNumberFieldName,
+            new ValueFormat(DataTypeEnum.Integer),
+            DataTableStartLine));
+      }
+      else
+      {
+        DataTableStartLine = -1;
       }
     }
 

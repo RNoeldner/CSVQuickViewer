@@ -74,6 +74,11 @@ namespace CsvTools
       }
     }
 
+    // Count the warning rows, one row could have multiple issue and should only be once need to
+    // track the rows
+    private HashSet<long> m_RowsWithIssue = new HashSet<long>();
+    public long NumberRowWarnings => m_RowsWithIssue.Count;
+
     /// <inheritdoc />
     /// <summary>
     ///   Constructor for a DataReaderWrapper, this wrapper adds artificial fields like Error, start
@@ -91,6 +96,8 @@ namespace CsvTools
       bool addEndLine = false,
       bool addRecNum = false) : this(fileReader as IDataReader, addErrorField, addStartLine, addEndLine, addRecNum)
     {
+      if (addErrorField)
+        fileReader.Warning += (sender, e) => m_RowsWithIssue.Add(e.RecordNumber);
     }
 
 
@@ -297,6 +304,7 @@ namespace CsvTools
     /// <inheritdoc cref="IFileReader" />
     public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
     {
+      ReaderMapping.PrepareRead();
       // IDataReader does not support preferred ReadAsync
       var couldRead = DataReader is DbDataReader dbDataReader
         ? await dbDataReader.ReadAsync(cancellationToken).ConfigureAwait(false)

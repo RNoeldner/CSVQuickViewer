@@ -63,18 +63,10 @@ namespace CsvTools
         warningList.PassWarning += addWarning;
       }
 
-      m_DataReaderWrapper = new DataReaderWrapper(
-        m_FileReader,
-        addErrorField,
-        fileSetting.DisplayStartLineNo,
-        fileSetting.DisplayEndLineNo,
-        fileSetting.DisplayRecordNo
-      );
+      m_DataReaderWrapper = new DataReaderWrapper(m_FileReader, addErrorField, fileSetting.DisplayStartLineNo, fileSetting.DisplayEndLineNo, fileSetting.DisplayRecordNo);
 
       // the initial progress is set on the source reader
-      await GetNextBatch(progress, durationInitial, restoreError, actionSetDataTable, setRefreshDisplayAsync,
-          cancellationToken)
-        .ConfigureAwait(false);
+      await GetNextBatch(progress, durationInitial, restoreError, actionSetDataTable, setRefreshDisplayAsync, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -87,21 +79,14 @@ namespace CsvTools
     /// <param name="duration">For maximum duration for the read process</param>
     /// <param name="restoreError">Restore column and row errors from error columns</param>
     public async Task GetNextBatch(
-      IProgress<ProgressInfo>? progress,
-      TimeSpan duration,
-      bool restoreError,
-      Action<DataTable> actionSetDataTable,
-      Action<CancellationToken> setRefreshDisplayAsync,
+      IProgress<ProgressInfo>? progress, TimeSpan duration, bool restoreError,
+      Action<DataTable> actionSetDataTable, Action<CancellationToken> setRefreshDisplayAsync,
       CancellationToken cancellationToken)
     {
       if (m_DataReaderWrapper is null)
         return;
       Logger.Debug("Getting batch");
-      var dt = await m_DataReaderWrapper.GetDataTableAsync(
-        duration,
-        restoreError,
-        progress,
-        cancellationToken).ConfigureAwait(false);
+      var dt = await m_DataReaderWrapper.GetDataTableAsync(duration, restoreError, progress, cancellationToken).ConfigureAwait(false);
 
       // for Debugging its nice to know where it all came form
       if (!string.IsNullOrEmpty(m_Id))

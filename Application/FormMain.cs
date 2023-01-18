@@ -251,14 +251,14 @@ namespace CsvTools
     private async Task SelectFile()
     {
       var strFilter = "Common types|*.csv;*.txt;*.tab;*.json;*.ndjson;*.gz|"
-                      + "Delimited files (*.csv;*.txt;*.tab;*.tsv;*.dat;*.log)|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
+                      + "Delimited files|*.csv;*.txt;*.tab;*.tsv;*.dat;*.log|";
 
       if (m_ViewSettings.StoreSettingsByFile)
-        strFilter += "Setting files (*" + CsvFile.cCsvSettingExtension + ")|*" + CsvFile.cCsvSettingExtension + "|";
+        strFilter += "Setting files|*" + CsvFile.cCsvSettingExtension + "|";
 
-      strFilter += "Json files (*.json;*.ndjson)|*.json;*.ndjson|"
-                   + "Compressed files (*.gz;*.zip)|*.gz;*.zip|"
-                   + "All files (*.*)|*.*";
+      strFilter += "Json files|*.json;*.ndjson|"
+                   + "Compressed files|*.gz;*.zip|"
+                   + "All files|*.*";
 
       if (!FileSystemUtils.DirectoryExists(m_ViewSettings.InitialFolder))
         m_ViewSettings.InitialFolder = ".";
