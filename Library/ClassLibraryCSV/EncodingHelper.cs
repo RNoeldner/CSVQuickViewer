@@ -195,7 +195,7 @@ namespace CsvTools
     /// </summary>
     /// <param name="buff">The buff containing the characters.</param>
     /// <returns><see cref="Encoding" /></returns>
-    public static Encoding GuessEncodingNoBom(byte[]? buff)
+    public static Encoding DetectEncodingNoBom(byte[]? buff)
     {
       if (buff is null || buff.Length < 1)
         return Encoding.UTF8;

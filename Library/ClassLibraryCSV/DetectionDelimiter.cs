@@ -22,7 +22,7 @@ namespace CsvTools
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <exception cref="ArgumentNullException">streamReader</exception>
     /// <remarks>No Error will not be thrown.</remarks>
-    public static async Task<DelimiterDetection> GuessDelimiterAsync(
+    public static async Task<DelimiterDetection> InspectDelimiterAsync(
       this ImprovedTextReader textReader,
       string fieldQualifier,
       string escapePrefix,
@@ -153,20 +153,6 @@ namespace CsvTools
     }
 
 
-    public struct DelimiterDetection
-    {
-      public readonly string Delimiter;
-      public readonly bool IsDetected;
-      public readonly bool MagicKeyword;
-
-      public DelimiterDetection(in string delimiter, bool isDetected, bool magicKeyword)
-      {
-        Delimiter = delimiter;
-        IsDetected = isDetected;
-        MagicKeyword = magicKeyword;
-      }
-    }
-
     /// <summary>
     ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to
     ///   find the delimiter that has the least variance in the read rows, if that is not possible
@@ -180,7 +166,7 @@ namespace CsvTools
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A character with the assumed delimiter for the file</returns>
     /// <remarks>No Error will not be thrown.</remarks>
-    public static async Task<DelimiterDetection> GuessDelimiterAsync(
+    public static async Task<DelimiterDetection> InspectDelimiterAsync(
       this Stream stream,
       int codePageId,
       int skipRows,
@@ -191,9 +177,9 @@ namespace CsvTools
       if (stream is null)
         throw new ArgumentNullException(nameof(stream));
       using var textReader = new ImprovedTextReader(stream,
-        await stream.CodePageResolve(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
+        await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
 
-      return await textReader.GuessDelimiterAsync(fieldQualifier, escapePrefix, null, cancellationToken).ConfigureAwait(false);
+      return await textReader.InspectDelimiterAsync(fieldQualifier, escapePrefix, null, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>Counts the delimiters in DelimiterCounter</summary>
@@ -243,7 +229,7 @@ namespace CsvTools
           else
             quoted = true;
         }
-        if (quoted) 
+        if (quoted)
           continue;
 
         if (readChar == '\n' || readChar == '\r')
@@ -252,6 +238,20 @@ namespace CsvTools
           dc.CheckChar(readChar, lastChar);
       }
       return dc;
+    }
+
+    public struct DelimiterDetection
+    {
+      public readonly string Delimiter;
+      public readonly bool IsDetected;
+      public readonly bool MagicKeyword;
+
+      public DelimiterDetection(in string delimiter, bool isDetected, bool magicKeyword)
+      {
+        Delimiter = delimiter;
+        IsDetected = isDetected;
+        MagicKeyword = magicKeyword;
+      }
     }
   }
 }

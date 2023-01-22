@@ -16,7 +16,6 @@
 
 using System;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -86,7 +85,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           using var formProgress = new FormProgress("Examining file", false, m_CancellationTokenSource.Token);
           formProgress.Maximum = 0;
           formProgress.ShowWithFont(this);
-          SetFileSetting((await newFileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
+          SetFileSetting((await newFileName.InspectFileAsync(m_ViewSettings.AllowJson,
             m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
@@ -132,7 +131,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          var (codepage, bom) = await improvedStream.GuessCodePage(m_CancellationTokenSource.Token);
+          var (codepage, bom) = await improvedStream.InspectCodePageAsync(m_CancellationTokenSource.Token);
           csvFile.CodePageId = codepage;
           csvFile.ByteOrderMark = bom;
         });
@@ -149,7 +148,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          var res = await improvedStream.GuessDelimiterAsync(csvFile.CodePageId, csvFile.SkipRows, csvFile.FieldQualifier,
+          var res = await improvedStream.InspectDelimiterAsync(csvFile.CodePageId, csvFile.SkipRows, csvFile.FieldQualifier,
             csvFile.EscapePrefix,
             m_CancellationTokenSource.Token);
           if (res.IsDetected)
@@ -168,7 +167,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          var res = await improvedStream.GuessQualifier(csvFile.CodePageId, csvFile.SkipRows,
+          var res = await improvedStream.InspectQualifierAsync(csvFile.CodePageId, csvFile.SkipRows,
             csvFile.FieldDelimiter, csvFile.EscapePrefix,
             m_CancellationTokenSource.Token);
           csvFile.FieldQualifier = res.QuoteChar.ToString();
@@ -190,7 +189,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          csvFile.SkipRows = await improvedStream.GuessStartRow(csvFile.CodePageId, csvFile.FieldDelimiter,
+          csvFile.SkipRows = await improvedStream.InspectStartRowAsync(csvFile.CodePageId, csvFile.FieldDelimiter,
             csvFile.FieldQualifier, csvFile.EscapePrefix, csvFile.CommentLine, m_CancellationTokenSource.Token);
         });
     }
@@ -258,7 +257,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          cboRecordDelimiter.SelectedValue = (int) await improvedStream.GuessNewline(csvFile.CodePageId,
+          cboRecordDelimiter.SelectedValue = (int) await improvedStream.InspectRecordDelimiterAsync(csvFile.CodePageId,
             csvFile.SkipRows,
             csvFile.FieldQualifier, m_CancellationTokenSource.Token);
         });
@@ -304,7 +303,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          var res = await improvedStream.GuessHasHeader(csvFile.CodePageId, csvFile.SkipRows, csvFile.CommentLine,
+          var res = await improvedStream.InspectHasHeaderAsync(csvFile.CodePageId, csvFile.SkipRows, csvFile.CommentLine,
             csvFile.FieldDelimiter, csvFile.FieldQualifier, csvFile.EscapePrefix, m_CancellationTokenSource.Token);
           csvFile.HasFieldHeader = string.IsNullOrEmpty(res);
           bindingSourceViewSetting.ResetBindings(false);
@@ -331,7 +330,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          csvFile.CommentLine = await improvedStream.GuessLineComment(csvFile.CodePageId, csvFile.SkipRows,
+          csvFile.CommentLine = await improvedStream.InspectLineCommentAsync(csvFile.CodePageId, csvFile.SkipRows,
             m_CancellationTokenSource.Token);
         });
     }
@@ -365,7 +364,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var stream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          csvFile.EscapePrefix = await stream.GuessEscapePrefix(csvFile.CodePageId, csvFile.SkipRows, csvFile.FieldDelimiter, csvFile.FieldQualifier, m_CancellationTokenSource.Token);
+          csvFile.EscapePrefix = await stream.InspectEscapePrefixAsync(csvFile.CodePageId, csvFile.SkipRows, csvFile.FieldDelimiter, csvFile.FieldQualifier, m_CancellationTokenSource.Token);
         });
     }
   }

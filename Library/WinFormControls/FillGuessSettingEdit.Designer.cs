@@ -113,7 +113,7 @@ namespace CsvTools
             label23.Name = "label23";
             label23.Size = new System.Drawing.Size(437, 26);
             label23.TabIndex = 10;
-            label23.Text = "Detect Date/Time values in various formats; If a format is entered the detection " +
+            label23.Text = "Detect Date/Time values in various formats; If a format is entered the inspection " +
     "of this date format will not require the minimum number of records it only has t" +
     "o be valid for all records.";
             // 
@@ -349,7 +349,7 @@ namespace CsvTools
             this.checkBox1.Size = new System.Drawing.Size(112, 17);
             this.checkBox1.TabIndex = 25;
             this.checkBox1.Text = "Ignore ID columns";
-            this.toolTip.SetToolTip(this.checkBox1, "Ignore columns format detection based on the name of the column");
+            this.toolTip.SetToolTip(this.checkBox1, "Ignore if the name of the column indicates this to be an ID");
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // checkBoxDateParts

@@ -48,10 +48,10 @@ namespace CsvTools.Tests
         .GetBytes(
           "This is a Test for Windows 1252 the encoding support mainly european countries with Æ ã è ü but has symbols as well ½ ² etc.");
 
-      Assert.AreEqual(Encoding.UTF8, EncodingHelper.GuessEncodingNoBom(null));
-      Assert.AreEqual(Encoding.ASCII, EncodingHelper.GuessEncodingNoBom(ascii));
-      Assert.AreEqual(Encoding.UTF8, EncodingHelper.GuessEncodingNoBom(utf8));
-      Assert.AreEqual(Encoding.GetEncoding(1252), EncodingHelper.GuessEncodingNoBom(win1252));
+      Assert.AreEqual(Encoding.UTF8, EncodingHelper.DetectEncodingNoBom(null));
+      Assert.AreEqual(Encoding.ASCII, EncodingHelper.DetectEncodingNoBom(ascii));
+      Assert.AreEqual(Encoding.UTF8, EncodingHelper.DetectEncodingNoBom(utf8));
+      Assert.AreEqual(Encoding.GetEncoding(1252), EncodingHelper.DetectEncodingNoBom(win1252));
     }
 
     [TestMethod]
@@ -70,7 +70,7 @@ namespace CsvTools.Tests
 
           var array = enc.GetBytes(
             "This is a Test for generic encoding adding some non english text like Jürgen Ñ Æstrid or γλώσσα or гимназии.\r\nSymbols like: ♂ ♀ ♫ ½ ░ pound x² and 10‰\r\nCurrency symbols like £,$ and ¥\r\nAsian: これは、アプリケーション ウィザードで生成される");
-          if (cp != EncodingHelper.GuessEncodingNoBom(array).CodePage)
+          if (cp != EncodingHelper.DetectEncodingNoBom(array).CodePage)
             notRecognized.Add(cp);
         }
         catch (Exception)

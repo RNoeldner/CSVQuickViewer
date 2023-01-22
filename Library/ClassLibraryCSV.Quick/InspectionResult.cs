@@ -17,11 +17,11 @@ using System;
 namespace CsvTools
 {
   /// <summary>
-  ///   Datastore to pass back information retrieved from Detection or parsing Manifest Information
+  ///   Data store to pass back information retrieved from Inspection or parsing Manifest Information
   /// </summary>
-  public class DetectionResult
+  public class InspectionResult
   {
-    public readonly string FileName = string.Empty;
+    public readonly string FileName;
     public int SkipRows = 0;
     public int CodePageId = -1;
     public bool ByteOrderMark = false;
@@ -39,7 +39,7 @@ namespace CsvTools
     public string ColumnFile = string.Empty;
     public ColumnCollection Columns = new ColumnCollection();
 
-    public DetectionResult(string fileName)
+    public InspectionResult(string fileName)
     {
       FileName = fileName ?? throw new ArgumentNullException(nameof(fileName));
     }
