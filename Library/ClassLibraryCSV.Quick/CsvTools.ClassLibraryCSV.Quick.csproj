@@ -80,6 +80,9 @@
 		<Compile Include="..\ClassLibraryCSV\DetectionEscapePrexfix.cs" Link="DetectionEscapePrexfix.cs" />
 		<Compile Include="..\ClassLibraryCSV\DetectionHeader.cs" Link="DetectionHeader.cs" />
 		<Compile Include="..\ClassLibraryCSV\DetectionDelimiter.cs" Link="DetectionDelimiter.cs" />
+		<Compile Include="..\ClassLibraryCSV\DetectionLineComment.cs" Link="DetectionLineComment.cs" />
+		<Compile Include="..\ClassLibraryCSV\DetectionRecordDelimiter.cs" Link="DetectionRecordDelimiter.cs" />
+		<Compile Include="..\ClassLibraryCSV\DetectionStartRow.cs" Link="DetectionStartRow.cs" />
 
 		<Compile Include="..\ClassLibraryCSV\IProcessDisplayTime.cs" Link="IProcessDisplayTime.cs" />
 		<Compile Include="..\ClassLibraryCSV\ProcessDisplayTime.cs" Link="ProcessDisplayTime.cs" />
@@ -99,7 +102,6 @@
 		<Compile Include="..\ClassLibraryCSV\ImprovedTextReader.cs" Link="ImprovedTextReader.cs" />
 
 		<Compile Include="..\ClassLibraryCSV\ColumnErrorDictionary.cs" Link="ColumnErrorDictionary.cs" />
-		<Compile Include="..\ClassLibraryCSV\Immutable\DetectionResult.cs" Link="DetectionResult.cs" />
 		<Compile Include="..\ClassLibraryCSV\ErrorInformation.cs" Link="ErrorInformation.cs" />
 		<Compile Include="..\ClassLibraryCSV\StringConversion.cs" Link="StringConversion.cs" />
 		<Compile Include="..\ClassLibraryCSV\DateTimeFormatCollection.cs" Link="DateTimeFormatCollection.cs" />

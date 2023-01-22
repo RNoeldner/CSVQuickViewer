@@ -56,7 +56,7 @@ namespace CsvTools
       formProgress.Maximum = 0;
       using var stream = new ImprovedStream(new SourceAccess(m_CsvFile));
       using var streamReader = new ImprovedTextReader(stream, m_CsvFile.CodePageId);
-      m_CsvFile.SkipRows = streamReader.GuessStartRow(textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxEscape.Text, textBoxComment.Text,
+      m_CsvFile.SkipRows = streamReader.InspectStartRow(textBoxDelimiter.Text, m_TextBoxQuote.Text, textBoxEscape.Text, textBoxComment.Text,
         formProgress.CancellationToken);
 
       HighlightVisibleRange(m_CsvFile.SkipRows);

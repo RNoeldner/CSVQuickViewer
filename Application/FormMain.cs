@@ -193,7 +193,7 @@ namespace CsvTools
          // formProgress.Maximum = 0;
          // formProgress.ShowWithFont(this);
 
-          var detection = await fileName.AnalyzeFileAsync(m_ViewSettings.AllowJson,
+          var detection = await fileName.InspectFileAsync(m_ViewSettings.AllowJson,
             m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,

@@ -26,13 +26,45 @@ namespace CsvTools
     public readonly int NumRows;
     public readonly int[] SeparatorRows;
     public readonly string Separators;
-    public readonly int[,] SeparatorsCount;
     public readonly int[] SeparatorScore;
+    public readonly int[,] SeparatorsCount;
     public int LastRow;
     private readonly char m_FieldQualifier;
 
     /// <summary>
-    /// Get the checked Delimiters, decided to make this non configurable as the detection process is very fast 
+    ///  Creates an instance of a delimiter counter
+    /// </summary>
+    /// <param name="numRows">Number of rows to expect</param>
+    /// <param name="disallowedDelimiter">You can pass in delimiters that should not be detected, 
+    /// if you know that a delimiter is defiantly not suitable.</param>
+    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+    public DelimiterCounter(int numRows, IEnumerable<char>? disallowedDelimiter, char fieldQualifier)
+    {
+      NumRows = numRows;
+      m_FieldQualifier = fieldQualifier;
+      Separators = GetPossibleDelimiters(disallowedDelimiter);
+      SeparatorsCount = new int[Separators.Length, NumRows];
+      SeparatorRows = new int[Separators.Length];
+      SeparatorScore= new int[Separators.Length];
+    }
+
+    public int FilledRows
+    {
+      get
+      {
+        while (LastRow > 1 && RowEmpty(LastRow - 1))
+          LastRow--;
+
+        var res = 0;
+        for (var line = 0; line < LastRow; line++)
+          if (!RowEmpty(line))
+            res++;
+        return res;
+      }
+    }
+
+    /// <summary>
+    /// Get the checked Delimiters, decided to make this non configurable as the inspection process is very fast 
     /// </summary>
     /// <param name="disallowedDelimiter">You can pass in delimiters that should not be detected, 
     /// if you know that a delimiter is defiantly not suitable.</param>
@@ -54,24 +86,6 @@ namespace CsvTools
           separators = separators.Remove(separators.IndexOf(delimiter), 1);
       return separators;
     }
-
-    /// <summary>
-    ///  Creates an instance of a delimiter counter
-    /// </summary>
-    /// <param name="numRows">Number of rows to expect</param>
-    /// <param name="disallowedDelimiter">You can pass in delimiters that should not be detected, 
-    /// if you know that a delimiter is defiantly not suitable.</param>
-    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-    public DelimiterCounter(int numRows, IEnumerable<char>? disallowedDelimiter, char fieldQualifier)
-    {
-      NumRows = numRows;
-      m_FieldQualifier = fieldQualifier;
-      Separators = GetPossibleDelimiters(disallowedDelimiter);
-      SeparatorsCount = new int[Separators.Length, NumRows];
-      SeparatorRows = new int[Separators.Length];
-      SeparatorScore= new int[Separators.Length];
-    }
-
     /// <summary>
     /// Main method called with the current char and the last char
     /// </summary>
@@ -96,21 +110,6 @@ namespace CsvTools
         SeparatorScore[index]++;
 
       return true;
-    }
-
-    public int FilledRows
-    {
-      get
-      {
-        while (LastRow > 1 && RowEmpty(LastRow - 1))
-          LastRow--;
-
-        var res = 0;
-        for (var line = 0; line < LastRow; line++)
-          if (!RowEmpty(line))
-            res++;
-        return res;
-      }
     }
 
     private bool RowEmpty(int line)

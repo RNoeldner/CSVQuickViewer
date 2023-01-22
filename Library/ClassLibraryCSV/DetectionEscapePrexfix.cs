@@ -24,7 +24,7 @@ namespace CsvTools
     /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The NewLine Combination used</returns>
-    public static async Task<string> GuessEscapePrefix(
+    public static async Task<string> InspectEscapePrefixAsync(
       this Stream stream,
       int codePageId,
       int skipRows,
@@ -33,8 +33,8 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       using var textReader = new ImprovedTextReader(stream,
-        await stream.CodePageResolve(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
-      return await GuessEscapePrefixAsync(textReader, fieldDelimiter, fieldQualifier, cancellationToken).ConfigureAwait(false);
+        await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
+      return await InspectEscapePrefixAsync(textReader, fieldDelimiter, fieldQualifier, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ namespace CsvTools
     /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The Escape Prefix used</returns>    
-    public static async Task<string> GuessEscapePrefixAsync(this ImprovedTextReader textReader, string fieldDelimiter, string fieldQualifier,
+    public static async Task<string> InspectEscapePrefixAsync(this ImprovedTextReader textReader, string fieldDelimiter, string fieldQualifier,
      CancellationToken cancellationToken)
     {
       if (textReader is null)

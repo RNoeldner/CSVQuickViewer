@@ -48,13 +48,13 @@ namespace CsvTools
     public Column UpdatedColumn => m_ColumnEdit.ToImmutableColumn();
 
     /// <summary>
-    /// Function to get a FileReader for detection of contens, in case the data is retievend by a SQL this should be set to a diffreent function.
+    /// Function to get a FileReader for inspection of contend, in case the data is retrieved by a SQL this should be set to a different function.
     /// </summary>
     public Func<IFileSetting, CancellationToken, Task<IFileReader>> GetReaderForDetectionAsync { private get; set; }
     = (source, cancellationToken) => source.GetUntypedFileReaderAsync(cancellationToken);
 
     /// <summary>
-    /// Function to get a Columns of a setting, in case the data is retievend by a SQL this should be set to a diffreent function.
+    /// Function to get a Columns of a setting, in case the data is retrieved by a SQL this should be set to a different function.
     /// </summary>
     public Func<IFileSetting, CancellationToken, Task<IEnumerable<Column>>> GetReaderForColumnsAsync { private get; set; }
     = (source, cancellationToken) => source.GetAllReaderColumnsAsync(cancellationToken);
@@ -66,6 +66,7 @@ namespace CsvTools
     /// <param name="fileSetting">The file setting.</param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
     /// <param name="showIgnore">if set to <c>true</c> [show ignore].</param>
+    /// <param name="showWriteNull"></param>
     /// <exception cref="ArgumentNullException">fileSetting or fillGuessSettings NULL</exception>
     public FormColumnUiRead(
       Column column,
@@ -331,10 +332,10 @@ namespace CsvTools
         {
           var dateFormats = new List<string>();
           foreach (var item in checkedListBoxDateFormats.CheckedItems)
-            dateFormats.Add(item.ToString()!);
+            dateFormats.Add(item.ToString());
 
           if (dateFormats.Count==0 && checkedListBoxDateFormats.SelectedIndex!=-1)
-            dateFormats.Add(checkedListBoxDateFormats.Items[checkedListBoxDateFormats.SelectedIndex].ToString()!);
+            dateFormats.Add(checkedListBoxDateFormats.Items[checkedListBoxDateFormats.SelectedIndex].ToString());
           if (dateFormats.Count==0)
             return;
 

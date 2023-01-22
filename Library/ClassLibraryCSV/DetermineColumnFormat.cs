@@ -598,7 +598,7 @@ namespace CsvTools
         if (args.ColumnNumber != -1 && !samples.ContainsKey(args.ColumnNumber))
           return;
         if (remainingShows-- > 0)
-          Logger.Debug("Row ignored in detection: " + args.Message);
+          Logger.Debug("Row ignored in inspection: " + args.Message);
         if (remainingShows == 0)
           Logger.Debug("No further warning shown");
 

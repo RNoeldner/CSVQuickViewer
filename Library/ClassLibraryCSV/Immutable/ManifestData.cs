@@ -60,7 +60,7 @@ namespace CsvTools
 
     public string PubName { get; }
 
-    public static async Task<DetectionResult> ReadManifestFileSystem(string fileName)
+    public static async Task<InspectionResult> ReadManifestFileSystem(string fileName)
     {
       var posExt = fileName.LastIndexOf('.');
       var manifest = fileName.EndsWith(cCsvManifestExtension, StringComparison.OrdinalIgnoreCase)
@@ -83,7 +83,7 @@ namespace CsvTools
       throw new FileNotFoundException(dataFile);
     }
 
-    public static async Task< DetectionResult?> ReadManifestZip(string fileName)
+    public static async Task< InspectionResult?> ReadManifestZip(string fileName)
     {
       Logger.Debug("Opening Zip file {filename}", fileName);
 
@@ -109,7 +109,7 @@ namespace CsvTools
       return null;
     }
 
-    private static async Task<DetectionResult> ReadManifestFromStream(
+    private static async Task<InspectionResult> ReadManifestFromStream(
       Stream manifestStream,
       string fileName,
       string identifierInContainer)
@@ -119,7 +119,7 @@ namespace CsvTools
       var mani = JsonConvert.DeserializeObject<ManifestData>(strContend);
       if (mani is null)
         throw new InvalidOperationException("The manifest file could not be deserialized");
-      var detectionResult = new DetectionResult(fileName)
+      var detectionResult = new InspectionResult(fileName)
       {        
         SkipRows =0,
         CodePageId= Encoding.UTF8.CodePage,
