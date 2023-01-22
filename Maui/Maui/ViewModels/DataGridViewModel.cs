@@ -8,7 +8,7 @@ namespace Maui
   {
     private string m_FileName = string.Empty;
     private DataTable? m_DataTable;
-    private DetectionResult m_DetectionResult = new DetectionResult("dummy");
+    private InspectionResult m_DetectionResult = new InspectionResult("dummy");
 
     //private PagedFileReader? m_FileReader;
     //public IList<DynamicDataRecord> Items => m_FileReader!;
@@ -19,7 +19,7 @@ namespace Maui
       private set => SetProperty(ref m_DataTable, value);
     }
 
-    public DetectionResult DetectionResult
+    public InspectionResult InspectionResult
     {
       get => m_DetectionResult;
       private set => SetProperty(ref m_DetectionResult, value);
@@ -38,7 +38,7 @@ namespace Maui
       if (!string.IsNullOrEmpty(FileName))
       {
         var setting = new PreferenceViewModel();
-        await using IFileReader reader = CsvHelper.GetReaderFromDetectionResult(FileName, DetectionResult);
+        await using IFileReader reader = InspectionResult.GetReader(FileName);
         await reader.OpenAsync(cancellationToken);
 
         await using var wrapper = new DataReaderWrapper(
@@ -62,10 +62,10 @@ namespace Maui
         return;
 
       FileName = fn;
-      if (query.ContainsKey("DetectionResult"))
-        DetectionResult = (DetectionResult) query["DetectionResult"];
+      if (query.ContainsKey("InspectionResult"))
+        InspectionResult = (InspectionResult) query["InspectionResult"];
       else
-        DetectionResult = fn.GetDetectionResult(CancellationTokenSource.Token).GetAwaiter().GetResult();
+        InspectionResult = fn.GetDetectionResult(CancellationTokenSource.Token).GetAwaiter().GetResult();
     }
   }
 }

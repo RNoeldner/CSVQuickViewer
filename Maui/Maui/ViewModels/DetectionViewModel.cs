@@ -5,10 +5,10 @@ namespace Maui
   public class DetectionViewModel : BaseViewModel, IQueryAttributable
   {
     private string m_FileName = string.Empty;
-    private DetectionResult m_DetectionResult = new DetectionResult("dummy");
+    private InspectionResult m_DetectionResult = new InspectionResult("dummy");
     private string m_Log = string.Empty;
 
-    public DetectionResult DetectionResult
+    public InspectionResult InspectionResult
     {
       get => m_DetectionResult;
       private set => SetProperty(ref m_DetectionResult, value);
@@ -35,7 +35,7 @@ namespace Maui
         {
           Log += s +"\n";
         });
-        DetectionResult = await FileName.AnalyzeFileAsync(false, preference.GuessCodePage,
+        InspectionResult = await FileName.InspectFileAsync(false, preference.GuessCodePage,
           preference.GuessEscapePrefix,
           preference.GuessDelimiter,
           preference.GuessQualifier,

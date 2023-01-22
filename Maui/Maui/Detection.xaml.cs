@@ -21,7 +21,7 @@ public partial class Detection : ContentPage
       IsBusy = false;
 
       await Shell.Current.GoToAsync("showfile?FileName=" + ViewModel.FileName,
-        new Dictionary<string, object> { { "DetectionResult", ViewModel.DetectionResult } });
+        new Dictionary<string, object> { { "InspectionResult", ViewModel.InspectionResult } });
     }
     catch (Exception exception)
     {
