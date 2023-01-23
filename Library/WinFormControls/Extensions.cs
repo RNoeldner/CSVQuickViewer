@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -44,6 +45,32 @@ namespace CsvTools
 
       newForm.Show(parentFrm);
       return DialogResult.None;
+    }
+
+    public static void OpenDefaultApplication(string pathOrUrl)
+    {
+      if (!string.IsNullOrEmpty(pathOrUrl))
+      {
+        try
+        {
+          Process.Start(pathOrUrl);
+        }
+        catch
+        {
+          // hack because of this: https://github.com/dotnet/corefx/issues/10361
+          if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+          {
+            pathOrUrl = pathOrUrl.Replace("&", "^&");
+            Process.Start(new ProcessStartInfo(pathOrUrl) { UseShellExecute = true });
+          }
+          else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+          {
+            Process.Start("open", pathOrUrl);
+          }
+          else
+            throw;
+        }
+      }
     }
 
     /// <summary>
