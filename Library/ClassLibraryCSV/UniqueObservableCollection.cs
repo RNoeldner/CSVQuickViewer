@@ -91,7 +91,11 @@ namespace CsvTools
           throw new ArgumentException($"The property {propertyName} must be a string value");
 
         // now make the name unique
-        property.SetValue(item, Items.Select(prev => (string) property.GetValue(prev)).ToList().MakeUniqueInCollection((string) property.GetValue(item)));
+#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
+#pragma warning disable CS8604 // Possible null reference argument.
+        property.SetValue(item, Items.Select(prev => property.GetValue(prev) as string).ToList().MakeUniqueInCollection(property.GetValue(item) as string));
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
       }
       Add(item);
     }

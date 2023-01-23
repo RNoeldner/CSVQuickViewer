@@ -112,7 +112,7 @@ namespace CsvTools
       if (numColumns == 0)
         throw new FileWriterException("No columns defined to be written.");
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
       using var writer =

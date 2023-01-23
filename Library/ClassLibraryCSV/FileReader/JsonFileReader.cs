@@ -303,7 +303,7 @@ namespace CsvTools
             }
             else
             {
-              var orgVal = Convert.ToString(CurrentValues[columnNumber]);
+              var orgVal = Convert.ToString(CurrentValues[columnNumber]) ?? string.Empty;
               CurrentRowColumnText[columnNumber] = orgVal;
 
               if (!string.IsNullOrEmpty(orgVal) && !col.Ignore && col.ValueFormat.DataType >= DataTypeEnum.String)
@@ -376,7 +376,7 @@ namespace CsvTools
       m_JsonTextReader = new JsonTextReader(m_StreamReader) { SupportMultipleContent = true };
     }
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     public new async ValueTask DisposeAsync()
     {
       if (m_ImprovedStream != null)

@@ -241,7 +241,7 @@ namespace CsvTools
 #if XmlSerialization
     [XmlElement]
 #endif
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public string TrueValue
@@ -258,7 +258,7 @@ namespace CsvTools
 #if XmlSerialization
     [XmlElement]
 #endif
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public string FalseValue
@@ -272,7 +272,7 @@ namespace CsvTools
 #if XmlSerialization
     [XmlElement]
 #endif
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     [System.Diagnostics.CodeAnalysis.AllowNull]
 #endif
     public string DateFormat

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace CsvTools
 {
   public class SteppedDataTableLoader : DisposableBase
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     , IAsyncDisposable
 #endif
   {
@@ -114,14 +114,14 @@ namespace CsvTools
       }
 
       if (m_DataReaderWrapper.EndOfFile)
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await DisposeAsync().ConfigureAwait(false);
 #else
         Dispose();
 #endif
     }
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     public async ValueTask DisposeAsync()
     {
       if (m_DataReaderWrapper != null)

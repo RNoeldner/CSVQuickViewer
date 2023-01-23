@@ -107,7 +107,7 @@ namespace CsvTools
     public static async Task<T> DeserializeFileAsync<T>(this string fileName) where T : class
     {
       Logger.Debug("Loading information from file {filename}", FileSystemUtils.GetShortDisplayFileName(fileName));
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
@@ -165,7 +165,7 @@ namespace CsvTools
       var content = data.SerializeIndentedJson();
       if (!FileSystemUtils.FileExists(fileName))
         return content;
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName));
@@ -211,11 +211,11 @@ namespace CsvTools
           FileSystemUtils.DeleteWithBackup(fileName, withBackup);
 
         Logger.Information($"Writing file {FileSystemUtils.GetShortDisplayFileName(fileName)}");
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif
         using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(fileName, false));
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif
         using var sr = new StreamWriter(improvedStream, Encoding.UTF8);

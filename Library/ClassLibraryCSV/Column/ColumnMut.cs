@@ -80,7 +80,8 @@ namespace CsvTools
       m_ValueFormatMut.PropertyChanged += (sender, args) =>
       {
         NotifyPropertyChanged(nameof(ValueFormatMut));
-
+        if (args.PropertyName == null)
+          return;
         // If the value types changes to to something else but string, assume we need to convert
         if (args.PropertyName.Equals(nameof(ValueFormat.DataType)) && sender is ValueFormatMut valueFormat)
           Convert = valueFormat.DataType != DataTypeEnum.String;

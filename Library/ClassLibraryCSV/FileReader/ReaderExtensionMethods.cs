@@ -116,7 +116,7 @@ namespace CsvTools
       {
         if (!dataReader.IsDBNull(columnNo))
         {
-          var currentValue = dataReader.GetValue(columnNo).ToString().Replace(combineWith, (char) 0);
+          var currentValue = dataReader.GetValue(columnNo).ToString()!.Replace(combineWith, (char) 0);
           var trimmed = currentValue.Trim();
           if (trimmed.Length != currentValue.Length)
             trimming?.Invoke(columnNo);
@@ -186,7 +186,7 @@ namespace CsvTools
       if (reader.IsClosed)
         await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
       using var wrapper = new DataReaderWrapper(

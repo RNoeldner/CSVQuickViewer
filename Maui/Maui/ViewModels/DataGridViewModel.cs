@@ -15,7 +15,7 @@ namespace Maui
 
     public DataTable DataTable
     {
-      get => m_DataTable;
+      get => m_DataTable!;
       private set => SetProperty(ref m_DataTable, value);
     }
 

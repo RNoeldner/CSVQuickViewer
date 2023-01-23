@@ -749,7 +749,7 @@ namespace CsvTools
     /// <inheritdoc />
     public virtual IEnumerable<string> GetDifferences(IFileSetting other)
     {
-      if (!other.GetType().FullName.Equals(GetType().FullName, StringComparison.OrdinalIgnoreCase))
+      if (!other.GetType().FullName!.Equals(GetType().FullName, StringComparison.OrdinalIgnoreCase))
         yield return $"Type : {GetType().FullName} - {other.GetType().FullName}";
 
       if (!other.ID.Equals(ID, StringComparison.OrdinalIgnoreCase))

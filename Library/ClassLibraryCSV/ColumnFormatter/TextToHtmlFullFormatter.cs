@@ -26,7 +26,7 @@ namespace CsvTools
     {
       if (dataObject is null)
         return string.Empty;
-      return HtmlStyle.HtmlEncode(dataObject.ToString());
+      return HtmlStyle.HtmlEncode(dataObject.ToString() ?? string.Empty);
     }
 
     /// <inheritdoc/>

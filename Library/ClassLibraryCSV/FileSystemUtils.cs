@@ -179,11 +179,11 @@ namespace CsvTools
 
       if (FileExists(sourceFile))
         FileDelete(destFile);
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
       using var fromStream = OpenRead(sourceFile);
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
       using var toStream = OpenWrite(destFile);
@@ -365,7 +365,7 @@ namespace CsvTools
       return ret;
     }
 #if !QUICK
- /// <summary>
+    /// <summary>
     ///   Gets the name of the directory, unlike Path.GetDirectoryName is return the input in case
     ///   the input was a directory already
     /// </summary>
@@ -460,12 +460,12 @@ namespace CsvTools
       var relative = fileName.GetRelativePath(basePath);
       return relative.Length < absolute.Length ? relative : absolute;
     }
-    
+
     public static FileStream OpenWrite(in string fileName) => File.OpenWrite(fileName.LongPathPrefix());
 
     public static FileStream Create(in string fileName, int bufferSize, in FileOptions options) =>
       File.Create(fileName.LongPathPrefix(), bufferSize, options);
-      
+
     public static void WriteAllText(in string fileName, in string contents) =>
       File.WriteAllText(fileName.LongPathPrefix(), contents);
 
@@ -473,10 +473,10 @@ namespace CsvTools
     public static void WriteAllText(in string fileName, in string contents, in Encoding encoding) =>
       File.WriteAllText(fileName.LongPathPrefix(), contents, encoding);
 
-[DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetShortPathNameW", SetLastError = true)]
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetShortPathNameW", SetLastError = true)]
     private static extern int GetShortPathName(string pathName, StringBuilder shortName, uint cbShortName);
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     public static Task WriteAllTextAsync(in string fileName, in string contents, CancellationToken cancellationToken) =>
       File.WriteAllTextAsync(fileName.LongPathPrefix(), contents, cancellationToken);
 #endif
@@ -498,21 +498,23 @@ namespace CsvTools
           return new StreamReader(OpenRead(fileName), true);
 
         var executingAssembly = Assembly.GetExecutingAssembly();
+        Stream? stream = null;
         var foundName = executingAssembly.GetManifestResourceNames()
           .FirstOrDefault(x => x.EndsWith("." + file, StringComparison.OrdinalIgnoreCase));
         // try the embedded resource
         if (foundName != null)
-          // ReSharper disable once AssignNullToNotNullAttribute
-          return new StreamReader(executingAssembly.GetManifestResourceStream(foundName), true);
+          stream =executingAssembly.GetManifestResourceStream(foundName);
+
         var callingAssembly = Assembly.GetCallingAssembly();
         if (callingAssembly != executingAssembly)
         {
           foundName = callingAssembly.GetManifestResourceNames()
             .FirstOrDefault(x => x.EndsWith("." + file, StringComparison.OrdinalIgnoreCase));
           if (foundName != null)
-            // ReSharper disable once AssignNullToNotNullAttribute
-            return new StreamReader(callingAssembly.GetManifestResourceStream(foundName), true);
+            stream =callingAssembly.GetManifestResourceStream(foundName);
         }
+        if (stream != null)
+          return new StreamReader(stream, true);
       }
       catch (Exception ex)
       {
@@ -584,7 +586,7 @@ namespace CsvTools
 
     public static string ReadAllText(in string path) => File.ReadAllText(path.LongPathPrefix());
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     public static Task<string> ReadAllTextAsync(string path, CancellationToken cancellationToken)
       => File.ReadAllTextAsync(path.LongPathPrefix(), cancellationToken);
 #endif

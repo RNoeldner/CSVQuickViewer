@@ -233,7 +233,7 @@ namespace CsvTools
 
     public override string GetString(int ordinal)
     {
-      return Convert.ToString(GetCurrentValue(ordinal));
+      return Convert.ToString(GetCurrentValue(ordinal)) ?? string.Empty;
     }
 
     public override int GetValues(object[] values)
@@ -277,7 +277,7 @@ namespace CsvTools
     private void EnsureTextFilled(int ordinal)
     {
       if (string.IsNullOrEmpty(CurrentRowColumnText[ordinal]))
-        CurrentRowColumnText[ordinal] = Convert.ToString(GetCurrentValue(ordinal));
+        CurrentRowColumnText[ordinal] = Convert.ToString(GetCurrentValue(ordinal)) ?? string.Empty;
     }
   }
 }

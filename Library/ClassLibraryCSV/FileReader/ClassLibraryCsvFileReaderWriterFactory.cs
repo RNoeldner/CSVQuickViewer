@@ -66,10 +66,10 @@ namespace CsvTools
         IJsonFile jsonFile => new JsonFileWriter(fileSetting.ID, jsonFile.FullPath, jsonFile.KeyID,
           jsonFile.KeepUnencrypted, jsonFile.IdentifierInContainer, jsonFile.Footer, jsonFile.Header,
           jsonFile.EmptyAsNull, jsonFile.CodePageId, jsonFile.ByteOrderMark, jsonFile.ColumnCollection,
-          Convert.ToString(jsonFile), jsonFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id),
+          jsonFile.ToString(), jsonFile.Row, m_TimeZoneAdjust, TimeZoneInfo.Local.Id),
         IXmlFile xmlFile => new XmlFileWriter(xmlFile.ID, xmlFile.FullPath, xmlFile.KeyID, xmlFile.KeepUnencrypted,
           xmlFile.IdentifierInContainer, xmlFile.Footer, xmlFile.Header, xmlFile.CodePageId, xmlFile.ByteOrderMark,
-          xmlFile.ColumnCollection, Convert.ToString(xmlFile), xmlFile.Row, m_TimeZoneAdjust,
+          xmlFile.ColumnCollection, xmlFile.ToString(), xmlFile.Row, m_TimeZoneAdjust,
           TimeZoneInfo.Local.Id),
         _ => null
       };

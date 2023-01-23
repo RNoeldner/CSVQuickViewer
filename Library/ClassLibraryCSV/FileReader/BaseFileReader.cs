@@ -282,7 +282,7 @@ namespace CsvTools
       base.Close();
     }
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     public new virtual async Task CloseAsync() => await Task.Run(() => base.Close()).ConfigureAwait(false);
 #endif
 
@@ -338,9 +338,10 @@ namespace CsvTools
     /// </param>
     /// <param name="length">The number of bytes to read.</param>
     /// <returns>The actual number of bytes read.</returns>
-    /// <exception cref="T:System.NotImplementedException"></exception>
-    public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
-    {
+    /// <exception cref="T:System.NotImplementedException"></exception>    
+    public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length)
+    {      
+      if (buffer == null) throw new ArgumentNullException(nameof(buffer));
       var fn = GetString(ordinal);
       if (GetColumn(ordinal).ValueFormat.DataType != DataTypeEnum.Binary || string.IsNullOrEmpty(fn))
         return -1;
@@ -394,10 +395,10 @@ namespace CsvTools
     ///   The index passed was outside the range of 0 through <see
     ///   cref="P:System.Data.IDataRecord.FieldCount" />.
     /// </exception>
-    public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
+    public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length)
     {
+      if (buffer == null) throw new ArgumentNullException(nameof(buffer));
       var offset = (int) dataOffset;
-
       var maxLen = CurrentRowColumnText[ordinal].Length - offset;
 
       if (maxLen > length) maxLen = length;

@@ -34,7 +34,7 @@ namespace CsvTools
     {
     }
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("progress")]
 #endif
 
