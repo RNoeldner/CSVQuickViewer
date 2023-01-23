@@ -164,7 +164,7 @@ namespace CsvTools
 
       HandleWriteStart();
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
       using var writer =
@@ -282,7 +282,7 @@ namespace CsvTools
       {
         if (dataObject is null)
           throw new ArgumentNullException(nameof(dataObject));
-        displayAs = Convert.ToString(dataObject);
+        displayAs = Convert.ToString(dataObject) ?? string.Empty;
       }
       else
       {

@@ -178,7 +178,7 @@ namespace CsvTools
     public async Task<string> ReadLineAsync()
     {
       LineNumber++;
-      return await StreamReader.ReadLineAsync().ConfigureAwait(false);
+      return await StreamReader.ReadLineAsync().ConfigureAwait(false) ?? string.Empty;
     }
 
     /// <summary>

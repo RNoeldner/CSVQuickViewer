@@ -1092,7 +1092,7 @@ namespace CsvTools
       if (fileSetting is ICsvFile { FieldDelimiterChar: '\0' })
         return (new List<string>(), fileSetting.ColumnCollection);
      
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
       await
 #endif
       using var fileReader = await fileSetting.GetUntypedFileReaderAsync(cancellationToken);      

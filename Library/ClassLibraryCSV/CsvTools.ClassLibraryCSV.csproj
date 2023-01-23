@@ -11,7 +11,7 @@
 		<OutputType>Library</OutputType>
 		<AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
 		<NeutralLanguage>en-US</NeutralLanguage>
-		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;net7.0</TargetFrameworks>
 		<SignAssembly>True</SignAssembly>
 		<LangVersion>8.0</LangVersion>
 		<Nullable>enable</Nullable>

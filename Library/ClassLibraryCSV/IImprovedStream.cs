@@ -23,7 +23,7 @@ namespace CsvTools
   /// IImprovedStream is an interface for a stream that has a Percentage property and seek allows to jump to the beginning even if stream is not really seekable.
   /// </summary>
   public interface IImprovedStream : IDisposable
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     , IAsyncDisposable
 #endif
   {

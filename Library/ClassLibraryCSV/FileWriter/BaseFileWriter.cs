@@ -132,7 +132,7 @@ namespace CsvTools
       var result = new List<WriterColumn>();
 
       // Make names unique 
-      var colNames = new BiDirectionalDictionary<int, string>();      
+      var colNames = new BiDirectionalDictionary<int, string>();
       foreach (var col in reader.GetColumnsOfReader())
       {
         var colName = col.Name;
@@ -267,7 +267,7 @@ namespace CsvTools
         var sourceAccess = new SourceAccess(FullPath, false, keyId: m_PgpKeyId, keepEncrypted: m_KeepUnencrypted);
         if (!string.IsNullOrEmpty(m_IdentifierInContainer))
           sourceAccess.IdentifierInContainer = m_IdentifierInContainer;
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         await
 #endif
         using var stream = FunctionalDI.OpenStream(sourceAccess);
@@ -384,7 +384,7 @@ namespace CsvTools
             reader.GetString(columnInfo.ColumnOrdinalTimeZone), (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
 
         case DataTypeEnum.Guid:
-          return dataObject is Guid guid ? guid : new Guid(dataObject.ToString());
+          return dataObject is Guid guid ? guid : new Guid(dataObject.ToString() ?? string.Empty);
 
         default:
 
@@ -392,7 +392,7 @@ namespace CsvTools
             return columnInfo.ColumnFormatter.Write(dataObject, reader,
               (msg) => handleWarning?.Invoke(columnInfo.Name, msg));
 
-          return Convert.ToString(dataObject);
+          return Convert.ToString(dataObject) ?? string.Empty;
       }
     }
 
@@ -408,6 +408,7 @@ namespace CsvTools
         if (convertedValue == DBNull.Value)
           displayAs = columnInfo.ValueFormat.DisplayNullAs;
         else
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
           displayAs = convertedValue switch
           {
             long aLong => aLong.ToString(columnInfo.ValueFormat.NumberFormat, CultureInfo.InvariantCulture).Replace(
@@ -419,12 +420,13 @@ namespace CsvTools
             DateTime aDTm => StringConversion.DateTimeToString(aDTm, columnInfo.ValueFormat),
             _ => convertedValue.ToString()
           };
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
       }
       catch (Exception ex)
       {
         // In case a cast did fail (eg.g trying to format as integer and providing a text, use the
         // original value
-        displayAs = Convert.ToString(dataObject);
+        displayAs = Convert.ToString(dataObject) ?? string.Empty;
         if (string.IsNullOrEmpty(displayAs))
           HandleError(columnInfo.Name, ex.Message);
         else
@@ -435,7 +437,7 @@ namespace CsvTools
                                 + ex.Message);
       }
 
-      return displayAs;
+      return displayAs ?? string.Empty;
     }
   }
 }

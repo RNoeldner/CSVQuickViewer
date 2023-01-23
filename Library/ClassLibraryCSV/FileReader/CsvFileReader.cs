@@ -331,8 +331,9 @@ namespace CsvTools
 
     /// <inheritdoc />
     /// <exception cref="T:System.NotImplementedException">Always returns</exception>
-    public new long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
+    public new long GetBytes(int i, long fieldOffset, byte[]? buffer, int bufferoffset, int length)
     {
+      if (buffer== null) throw new ArgumentNullException(nameof(buffer));
       if (GetColumn(i).ValueFormat.DataType != DataTypeEnum.Binary ||
           string.IsNullOrEmpty(CurrentRowColumnText[i])) return -1;
       using var fs = FileSystemUtils.OpenRead(CurrentRowColumnText[i]);
@@ -399,7 +400,7 @@ namespace CsvTools
         if (SelfOpenedStream)
         {
           if (m_Stream != null)
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
             await m_Stream.DisposeAsync().ConfigureAwait(false);
 #else
             m_Stream.Dispose();
@@ -1202,7 +1203,7 @@ namespace CsvTools
       HandleWarning(column, "Linefeed found in field".AddWarningId());
     }
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 
     public new async ValueTask DisposeAsync()
     {

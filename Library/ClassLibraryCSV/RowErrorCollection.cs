@@ -67,7 +67,7 @@ namespace CsvTools
           sb.Append(message);
         }
 
-        return Convert.ToString(sb);
+        return sb.ToString();
       }
     }
 
@@ -102,7 +102,7 @@ namespace CsvTools
           }
         }
 
-        return Convert.ToString(sb);
+        return sb.ToString();
       }
     }
 

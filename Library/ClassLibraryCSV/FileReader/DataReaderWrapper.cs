@@ -152,7 +152,7 @@ namespace CsvTools
     /// <inheritdoc />
     public override void Close() => DataReader.Close();
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
     /// <inheritdoc />
     public override async Task CloseAsync()
     {
@@ -168,15 +168,15 @@ namespace CsvTools
     /// <inheritdoc />
     public override byte GetByte(int ordinal) => DataReader.GetByte(ReaderMapping.DataTableToReader(ordinal));
     /// <inheritdoc />
-    public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length) =>
+    public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length) =>
       DataReader.GetBytes(ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
     /// <inheritdoc />
     public override char GetChar(int ordinal) => DataReader.GetChar(ReaderMapping.DataTableToReader(ordinal));
     /// <inheritdoc />
-    public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) =>
+    public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length) =>
       DataReader.GetChars(ReaderMapping.DataTableToReader(ordinal), dataOffset, buffer, bufferOffset, length);
     /// <inheritdoc />
-    public new IDataReader? GetData(int i) => DataReader.GetData(i);
+    public new IDataReader GetData(int i) => DataReader.GetData(i);
     /// <inheritdoc />
     public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
     /// <inheritdoc />
@@ -259,7 +259,8 @@ namespace CsvTools
       return dataTable;
     }
     /// <inheritdoc />
-    public override string GetString(int ordinal) => Convert.ToString(GetValue(ordinal));
+    public override string GetString(int ordinal) => Convert.ToString(GetValue(ordinal)) ?? string.Empty;
+
     /// <inheritdoc />
     public override object GetValue(int ordinal)
     {
@@ -272,7 +273,7 @@ namespace CsvTools
       if (ordinal == ReaderMapping.DataTableErrorField)
         return ReaderMapping.RowErrorInformation;
 
-      return DataReader.GetValue(ReaderMapping.DataTableToReader(ordinal));
+      return DataReader.GetValue(ReaderMapping.DataTableToReader(ordinal)) ?? DBNull.Value;
     }
     /// <inheritdoc />
     public override int GetValues(object[] values) => DataReader.GetValues(values);

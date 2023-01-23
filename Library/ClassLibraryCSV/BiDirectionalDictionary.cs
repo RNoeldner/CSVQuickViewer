@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 #if XmlSerialization
 using System.Xml.Serialization;
 #endif
@@ -176,6 +177,12 @@ namespace CsvTools
     /// <param name="value">the key to search for</param>
     /// <param name="key">the corresponding value</param>
     /// <returns>true if value is in the dictionary, false otherwise</returns>
-    public bool TryGetByValue(in TValue value, out TKey key) => m_SecondToFirst.TryGetValue(value, out key);
+    public bool TryGetByValue(in TValue value,
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+      [MaybeNullWhen(false)]
+#endif
+      out TKey key) => m_SecondToFirst.TryGetValue(value, out key);
+
+
   }
 }

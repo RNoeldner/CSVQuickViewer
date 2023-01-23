@@ -39,6 +39,8 @@ namespace CsvTools
     /// <value>The column format.</value>
     ColumnCollection ColumnCollection { get; }
 
+    string ToString();
+
     /// <summary>
     ///   Gets or sets the consecutive empty rows.
     /// </summary>

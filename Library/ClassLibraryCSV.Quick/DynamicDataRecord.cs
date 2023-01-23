@@ -35,11 +35,12 @@ namespace CsvTools
       m_Properties.TryGetValue(binder.Name, out result);
 
 
-    public override bool TrySetMember(SetMemberBinder binder, object value)
+    public override bool TrySetMember(SetMemberBinder binder, object? value)
     {
       try
       {
-        m_Properties[binder.Name] = value;
+        if (value != null)
+          m_Properties[binder.Name] = value;
         return true;
       }
       catch (Exception)

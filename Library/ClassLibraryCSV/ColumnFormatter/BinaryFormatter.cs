@@ -113,7 +113,7 @@ namespace CsvTools
         var fullPath = Path.Combine(m_RootFolderWrite, fileName);
         if (m_Overwrite)
           FileSystemUtils.FileDelete(fullPath);
-        FileSystemUtils.WriteAllBytes(fullPath, GetContentFromNameAndContent(contentsWithFileName.ToString()));
+        FileSystemUtils.WriteAllBytes(fullPath, GetContentFromNameAndContent(contentsWithFileName.ToString() ?? string.Empty));
       }
 
       return fileName;
