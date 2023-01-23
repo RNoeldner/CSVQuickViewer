@@ -67,7 +67,7 @@
 
 	<ItemGroup>
 	  <PackageReference Include="CommunityToolkit.Maui" Version="1.2.0" />
-	  <PackageReference Include="Syncfusion.Maui.DataGrid" Version="20.2.48" />
+	  <PackageReference Include="Syncfusion.Maui.DataGrid" Version="20.4.44" />
 	</ItemGroup>
 
 	<ItemGroup>
