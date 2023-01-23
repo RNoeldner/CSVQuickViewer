@@ -1,38 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace CsvTools
 {
   public static class DetectionStartRow
   {
-    /// <summary>
-    ///   Determines the start row in the file
-    /// </summary>
-    /// <param name="stream">The stream to read data from</param>
-    /// <param name="codePageId">The code page identifier.</param>
-    /// <param name="fieldDelimiter">The delimiter to separate columns</param>
-    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
-    /// <param name="commentLine">The comment line.</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>The number of rows to skip</returns>
-    public static async Task<int> InspectStartRowAsync(
-      this Stream stream,
-      int codePageId,
-      string fieldDelimiter,
-      string fieldQualifier,
-      string escapePrefix,
-      string commentLine,
-      CancellationToken cancellationToken)
-    {
-      using var streamReader = new ImprovedTextReader(stream,
-        await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false));
-      return streamReader.InspectStartRow(fieldDelimiter, fieldQualifier, escapePrefix, commentLine, cancellationToken);
-    }
-
     /// <summary>
     ///   Guess the start row of a CSV file done with a rather simple csv parsing
     /// </summary>

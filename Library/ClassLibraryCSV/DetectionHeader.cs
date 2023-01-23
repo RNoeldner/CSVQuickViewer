@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -77,50 +76,25 @@ namespace CsvTools
       return columns.ToArray();
     }
 
-    /// <summary>
-    ///   Guesses the has header from stream.
-    /// </summary>
-    /// <param name="stream">The stream to read data from</param>
-    /// <param name="codePageId">The code page identifier.</param>
-    /// <param name="skipRows">The number of lines at beginning to disregard</param>
-    /// <param name="commentLine">The comment line.</param>
-    /// <param name="fieldDelimiter">The delimiter to separate columns</param>
-    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns></returns>
-    public static async Task<string> InspectHasHeaderAsync(this Stream stream,
-      int codePageId,
-      int skipRows,
-      string commentLine,
-      string fieldDelimiter,
-      string fieldQualifier,
-      string escapePrefix,
-      CancellationToken cancellationToken)
-    {
-      using var reader = new ImprovedTextReader(stream,
-        await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
-
-      return await InspectHasHeaderAsync(reader, commentLine, fieldDelimiter.WrittenPunctuationToChar(), fieldQualifier.WrittenPunctuationToChar(), escapePrefix.WrittenPunctuationToChar(),
-        cancellationToken).ConfigureAwait(false);
-    }
-
     /// <summary>Guesses the has header from reader.</summary>
     /// <param name="reader">The reader.</param>
-    /// <param name="comment">The comment.</param>
     /// <param name="fieldDelimiter">The delimiter to separate columns</param>
     /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
+    /// <param name="lineComment">The lineComment.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>Explanation why there is no header, if empty the header was found</returns>
     public static async Task<string> InspectHasHeaderAsync(this ImprovedTextReader reader,
-      string comment,
-      char fieldDelimiter,
-      char fieldQualifier,
-      char escapePrefix,
+      string fieldDelimiter,
+      string fieldQualifier,
+      string escapePrefix,
+      string lineComment,
       CancellationToken cancellationToken)
     {
-      var headers = DelimitedRecord(reader, fieldDelimiter, fieldQualifier, escapePrefix, comment);
+      var fieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
+      var fieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
+      var escapePrefixChar = escapePrefix.WrittenPunctuationToChar();
+      var headers = DelimitedRecord(reader, fieldDelimiterChar, fieldQualifierChar, escapePrefixChar, lineComment);
 
       // get the average field count looking at the header and 12 additional valid lines
       var fieldCount = headers.Count;
@@ -129,7 +103,7 @@ namespace CsvTools
       // single number
       if (fieldCount < 2)
       {
-        var headerLine = await InspectHeaderLineAsync(reader, comment).ConfigureAwait(false);
+        var headerLine = await InspectHeaderLineAsync(reader, lineComment).ConfigureAwait(false);
         if (string.IsNullOrEmpty(headerLine))
           return "Empty Line";
 
@@ -144,7 +118,7 @@ namespace CsvTools
         var counter = 1;
         while (counter++ < 12 && !cancellationToken.IsCancellationRequested && !reader.EndOfStream)
         {
-          fieldCount += DelimitedRecord(reader, fieldDelimiter, fieldQualifier, escapePrefix, comment).Count;
+          fieldCount += DelimitedRecord(reader, fieldDelimiterChar, fieldQualifierChar, escapePrefixChar, lineComment).Count;
         }
 
         var halfTheColumns = (int) Math.Ceiling(fieldCount / 2.0);

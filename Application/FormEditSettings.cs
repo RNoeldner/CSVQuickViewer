@@ -148,9 +148,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          var res = await improvedStream.InspectDelimiterAsync(csvFile.CodePageId, csvFile.SkipRows, csvFile.FieldQualifier,
-            csvFile.EscapePrefix,
-            m_CancellationTokenSource.Token);
+          using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
+          var res = await textReader.InspectDelimiterAsync(csvFile.FieldQualifier, csvFile.EscapePrefix, null, m_CancellationTokenSource.Token);
           if (res.IsDetected)
             csvFile.FieldDelimiter = res.Delimiter;
         });
@@ -167,9 +166,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          var res = await improvedStream.InspectQualifierAsync(csvFile.CodePageId, csvFile.SkipRows,
-            csvFile.FieldDelimiter, csvFile.EscapePrefix,
-            m_CancellationTokenSource.Token);
+          using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
+          var res = textReader.InspectQualifier(csvFile.FieldDelimiter, csvFile.EscapePrefix, DetectionQualifier.GetPossibleQualifier().ToCharArray(), m_CancellationTokenSource.Token);
           csvFile.FieldQualifier = res.QuoteChar.ToString();
           if (res.DuplicateQualifier)
             csvFile.DuplicateQualifierToEscape = res.DuplicateQualifier;
@@ -189,8 +187,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          csvFile.SkipRows = await improvedStream.InspectStartRowAsync(csvFile.CodePageId, csvFile.FieldDelimiter,
-            csvFile.FieldQualifier, csvFile.EscapePrefix, csvFile.CommentLine, m_CancellationTokenSource.Token);
+          using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, 0, m_CancellationTokenSource.Token);
+          csvFile.SkipRows =textReader.InspectStartRow(csvFile.FieldDelimiter, csvFile.FieldQualifier, csvFile.EscapePrefix, csvFile.CommentLine, m_CancellationTokenSource.Token);
         });
     }
 
@@ -257,9 +255,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          cboRecordDelimiter.SelectedValue = (int) await improvedStream.InspectRecordDelimiterAsync(csvFile.CodePageId,
-            csvFile.SkipRows,
-            csvFile.FieldQualifier, m_CancellationTokenSource.Token);
+          using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
+          cboRecordDelimiter.SelectedValue = textReader.InspectRecordDelimiter(csvFile.FieldQualifier, m_CancellationTokenSource.Token);
         });
     }
 
@@ -303,8 +300,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          var res = await improvedStream.InspectHasHeaderAsync(csvFile.CodePageId, csvFile.SkipRows, csvFile.CommentLine,
-            csvFile.FieldDelimiter, csvFile.FieldQualifier, csvFile.EscapePrefix, m_CancellationTokenSource.Token);
+          using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
+          var res = await textReader.InspectHasHeaderAsync(csvFile.FieldDelimiter, csvFile.FieldQualifier, csvFile.EscapePrefix, csvFile.CommentLine, m_CancellationTokenSource.Token);
           csvFile.HasFieldHeader = string.IsNullOrEmpty(res);
           bindingSourceViewSetting.ResetBindings(false);
           MessageBox.Show(res, "Checking headers");
@@ -330,8 +327,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          csvFile.CommentLine = await improvedStream.InspectLineCommentAsync(csvFile.CodePageId, csvFile.SkipRows,
-            m_CancellationTokenSource.Token);
+          using var textReader = await improvedStream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
+          csvFile.CommentLine =  await textReader.InspectLineCommentAsync(m_CancellationTokenSource.Token);
         });
     }
 
@@ -364,7 +361,8 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 #endif
           // ReSharper disable once UseAwaitUsing
           using var stream = FunctionalDI.OpenStream(new SourceAccess(csvFile));
-          csvFile.EscapePrefix = await stream.InspectEscapePrefixAsync(csvFile.CodePageId, csvFile.SkipRows, csvFile.FieldDelimiter, csvFile.FieldQualifier, m_CancellationTokenSource.Token);
+          using var textReader = await stream.GetTextReaderAsync(csvFile.CodePageId, csvFile.SkipRows, m_CancellationTokenSource.Token);
+          csvFile.EscapePrefix = await textReader.InspectEscapePrefixAsync(csvFile.FieldDelimiter, csvFile.FieldQualifier, m_CancellationTokenSource.Token);
         });
     }
   }

@@ -15,29 +15,6 @@ namespace CsvTools
     public static string GetPossibleQualifier() => "\"'";
 
     /// <summary>
-    ///   Try to guess the new line sequence
-    /// </summary>
-    /// <param name="stream">The stream to read data from</param>
-    /// <param name="codePageId">The code page identifier.</param>
-    /// <param name="skipRows">The number of lines at beginning to disregard</param>
-    /// <param name="fieldDelimiter">The delimiter to separate columns</param>
-    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>The NewLine Combination used</returns>
-    public static async Task<QuoteTestResult> InspectQualifierAsync(
-      this Stream stream,
-      int codePageId,
-      int skipRows,
-      string fieldDelimiter,
-      string escapePrefix,
-      CancellationToken cancellationToken)
-    {
-      using var textReader = new ImprovedTextReader(stream,
-        await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
-      return InspectQualifier(textReader, fieldDelimiter, escapePrefix, GetPossibleQualifier().ToCharArray(), cancellationToken);
-    }
-
-    /// <summary>
     ///   Try to determine quote character, by looking at the file and doing a quick analysis
     /// </summary>
     /// <param name="textReader">The opened TextReader</param>
@@ -98,8 +75,7 @@ namespace CsvTools
         return false;
       var fieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
       var fieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
-      using var streamReader = new ImprovedTextReader(stream,
-        await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
+      using var streamReader = await stream.GetTextReaderAsync(codePageId, skipRows, cancellationToken).ConfigureAwait(false);
       var isStartOfColumn = true;
       while (!streamReader.EndOfStream)
       {

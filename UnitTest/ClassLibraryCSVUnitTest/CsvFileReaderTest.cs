@@ -2037,7 +2037,9 @@ Line "Test"", "22",23,"  24"
     public async Task TestStartRowAndFooter()
     {
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("LateStartRow.txt")));
-      Assert.AreEqual(10, await improvedStream.InspectStartRowAsync(20127, "|", "\"", string.Empty, "#", UnitTestStatic.Token));
+      string escapePrefix = string.Empty;
+      using var textReader = await improvedStream.GetTextReaderAsync(20127, 0, UnitTestStatic.Token).ConfigureAwait(false);
+      Assert.AreEqual(10,  textReader.InspectStartRow("|", "\"", escapePrefix, "#", UnitTestStatic.Token));
     }
 
     [TestMethod]
