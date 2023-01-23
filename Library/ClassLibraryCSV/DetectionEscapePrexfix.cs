@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,29 +14,6 @@ namespace CsvTools
     public static string GetPossibleEscapePrefix() => "\\/?";
 
     /// <summary>
-    ///   Try to guess the new used Escape Sequence, by looking at 300 lines 
-    /// </summary>
-    /// <param name="stream">The stream to read data from</param>
-    /// <param name="codePageId">The code page identifier.</param>
-    /// <param name="skipRows">The number of lines at beginning to disregard</param>
-    /// <param name="fieldDelimiter">The delimiter to separate columns</param>
-    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>The NewLine Combination used</returns>
-    public static async Task<string> InspectEscapePrefixAsync(
-      this Stream stream,
-      int codePageId,
-      int skipRows,
-      string fieldDelimiter,
-      string fieldQualifier,
-      CancellationToken cancellationToken)
-    {
-      using var textReader = new ImprovedTextReader(stream,
-        await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
-      return await InspectEscapePrefixAsync(textReader, fieldDelimiter, fieldQualifier, cancellationToken).ConfigureAwait(false);
-    }
-
-    /// <summary>
     ///   Try to guess the used Escape Sequence, by looking at 500 lines 
     /// </summary>
     /// <param name="textReader">The improved text reader.</param>
@@ -45,8 +21,8 @@ namespace CsvTools
     /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The Escape Prefix used</returns>    
-    public static async Task<string> InspectEscapePrefixAsync(this ImprovedTextReader textReader, string fieldDelimiter, string fieldQualifier,
-     CancellationToken cancellationToken)
+    public static async Task<string> InspectEscapePrefixAsync(this ImprovedTextReader textReader, 
+      string fieldDelimiter, string fieldQualifier, CancellationToken cancellationToken)
     {
       if (textReader is null)
         throw new ArgumentNullException(nameof(textReader));

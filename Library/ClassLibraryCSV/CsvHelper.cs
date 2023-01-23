@@ -267,7 +267,7 @@ namespace CsvTools
 
       if (guessEscapePrefix)
       {
-        using var textReader = new ImprovedTextReader(stream, inspectionResult.CodePageId, inspectionResult.SkipRows);
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
         Logger.Information("Checking Escape Prefix");
         inspectionResult.EscapePrefix =  await textReader.InspectEscapePrefixAsync(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, cancellationToken);
       }
@@ -276,7 +276,7 @@ namespace CsvTools
       {
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking comment line");
-        using var textReader = new ImprovedTextReader(stream, inspectionResult.CodePageId, inspectionResult.SkipRows);
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
         inspectionResult.CommentLine =  await textReader.InspectLineCommentAsync(cancellationToken).ConfigureAwait(false);
       }
 
@@ -287,7 +287,7 @@ namespace CsvTools
       {
         cancellationToken.ThrowIfCancellationRequested();
 
-        using var textReader = new ImprovedTextReader(stream, inspectionResult.CodePageId, inspectionResult.SkipRows);
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
         Logger.Information("Checking start line");
 
         inspectionResult.SkipRows = textReader.InspectStartRow(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, inspectionResult.CommentLine, cancellationToken);
@@ -296,7 +296,7 @@ namespace CsvTools
       if (guessQualifier || guessDelimiter || guessNewLine)
       {
         Logger.Information("Re-Opening file");
-        using var textReader = new ImprovedTextReader(stream, inspectionResult.CodePageId, inspectionResult.SkipRows);
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
 
         // ========== Delimiter
         if (guessDelimiter)
@@ -334,9 +334,8 @@ namespace CsvTools
       {
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Validating comment line");
-        using var streamReader = new ImprovedTextReader(stream,
-          await stream.InspectCodePageAsync(inspectionResult.CodePageId, cancellationToken).ConfigureAwait(false), inspectionResult.SkipRows);
-        if (!await streamReader.InspectLineCommentIsValidAsync(inspectionResult.CommentLine,
+        using var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
+        if (!await textReader.InspectLineCommentIsValidAsync(inspectionResult.CommentLine,
               inspectionResult.FieldDelimiter,
               cancellationToken).ConfigureAwait(false))
           inspectionResult.CommentLine  = string.Empty;
@@ -349,7 +348,7 @@ namespace CsvTools
         if (oldDelimiter != inspectionResult.FieldDelimiter.StringToChar())
         {
           Logger.Information("Checking start row again because previously assumed delimiter has changed");
-          using var textReader2 = new ImprovedTextReader(stream, inspectionResult.CodePageId);
+          using var textReader2 = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
           inspectionResult.SkipRows = textReader2.InspectStartRow(inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, inspectionResult.CommentLine, cancellationToken);
         }
       }
@@ -359,13 +358,29 @@ namespace CsvTools
         cancellationToken.ThrowIfCancellationRequested();
         Logger.Information("Checking Header Row");
 
-        var issue = await stream.InspectHasHeaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, inspectionResult.CommentLine,
-          inspectionResult.FieldDelimiter, inspectionResult.FieldQualifier, inspectionResult.EscapePrefix,
-          cancellationToken).ConfigureAwait(false);
+        string ret;
+        using (var textReader = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken).ConfigureAwait(false))
+        {
+          ret = await textReader.InspectHasHeaderAsync(inspectionResult.FieldDelimiter, 
+            inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, inspectionResult.CommentLine, cancellationToken).ConfigureAwait(false);
+        }
+
+        var issue = ret;
         Logger.Information(!string.IsNullOrEmpty(issue) ? $"Without Header Row {issue}" : "Has Header Row");
         inspectionResult.HasFieldHeader = string.IsNullOrEmpty(issue);
       }
     }
+
+    /// <summary>
+    /// Get a text reader form a stream, takes care of codePage and skip rows
+    /// </summary>
+    /// <param name="stream">The open read stream</param>
+    /// <param name="codePageId">The encoding code page, if 0 the cope page is inspected</param>
+    /// <param name="skipRows">The number of ros in teh beginning of the stream to skip</param>
+    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
+    /// <returns>A <see cref="ImprovedTextReader"/> that allows <see cref="ImprovedTextReaderPositionStore"/></returns>
+    public static async Task<ImprovedTextReader> GetTextReaderAsync(this Stream stream, int codePageId, int skipRows, CancellationToken cancellationToken)
+      => new ImprovedTextReader(stream, await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
 
 #if !QUICK
     public static async Task InspectReadCsvAsync(this ICsvFile csvFile, CancellationToken cancellationToken)

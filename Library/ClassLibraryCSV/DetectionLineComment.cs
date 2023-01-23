@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -67,25 +66,6 @@ namespace CsvTools
       return partsComment < Math.Round(parts * .9 / row) || partsComment > Math.Round(parts * 1.1 / row);
     }
 
-    /// <summary>
-    ///  Detect line comment character sequence
-    /// </summary>
-    /// <param name="stream"></param>
-    /// <param name="codePageId"></param>
-    /// <param name="skipRows"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    public static async Task<string> InspectLineCommentAsync(
-          this Stream stream,
-      int codePageId,
-      int skipRows,
-      CancellationToken cancellationToken)
-    {
-      using var textReader = new ImprovedTextReader(stream,
-        await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
-      return await textReader.InspectLineCommentAsync(cancellationToken).ConfigureAwait(false);
-    }
-    
     /// <summary>Guesses the line comment</summary>
     /// <param name="textReader">The text reader to read the data</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>

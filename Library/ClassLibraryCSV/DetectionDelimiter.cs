@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -152,35 +151,6 @@ namespace CsvTools
       return new DelimiterDetection(result, true, false);
     }
 
-
-    /// <summary>
-    ///   Guesses the delimiter for a files. Done with a rather simple csv parsing, and trying to
-    ///   find the delimiter that has the least variance in the read rows, if that is not possible
-    ///   the delimiter with the highest number of occurrences.
-    /// </summary>
-    /// <param name="stream">The stream to read data from</param>
-    /// <param name="codePageId">The code page identifier. If -1 is passed in the code page is determined dynamically</param>
-    /// <param name="skipRows">The number of lines at beginning to disregard</param>
-    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>A character with the assumed delimiter for the file</returns>
-    /// <remarks>No Error will not be thrown.</remarks>
-    public static async Task<DelimiterDetection> InspectDelimiterAsync(
-      this Stream stream,
-      int codePageId,
-      int skipRows,
-      string fieldQualifier,
-      string escapePrefix,
-      CancellationToken cancellationToken)
-    {
-      if (stream is null)
-        throw new ArgumentNullException(nameof(stream));
-      using var textReader = new ImprovedTextReader(stream,
-        await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
-
-      return await textReader.InspectDelimiterAsync(fieldQualifier, escapePrefix, null, cancellationToken).ConfigureAwait(false);
-    }
 
     /// <summary>Counts the delimiters in DelimiterCounter</summary>
     /// <param name="textReader">The text reader to read the data</param>

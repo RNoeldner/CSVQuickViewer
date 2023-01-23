@@ -1,8 +1,6 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace CsvTools
 {
@@ -120,23 +118,6 @@ namespace CsvTools
         res = RecordDelimiterTypeEnum.Lfcr;
       Logger.Information($"Record Delimiter: {res.Description()}");
       return res;
-    }
-
-    /// <summary>
-    ///   Determine the new line sequence from Stream
-    /// </summary>
-    /// <param name="stream">The stream to read data from</param>
-    /// <param name="codePageId">The code page identifier.</param>
-    /// <param name="skipRows">The number of lines at beginning to disregard</param>
-    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-    /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
-    /// <returns>The NewLine Combination used</returns>
-    public static async Task<RecordDelimiterTypeEnum> InspectRecordDelimiterAsync(
-      this Stream stream, int codePageId, int skipRows,
-      string fieldQualifier, CancellationToken cancellationToken)
-    {
-      using var textReader = new ImprovedTextReader(stream, await stream.InspectCodePageAsync(codePageId, cancellationToken).ConfigureAwait(false), skipRows);
-      return textReader.InspectRecordDelimiter(fieldQualifier, cancellationToken);
     }
   }
 }
