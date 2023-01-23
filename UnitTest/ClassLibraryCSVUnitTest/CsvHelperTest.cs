@@ -140,23 +140,26 @@ namespace CsvTools.Tests
     }
 
     [TestMethod]
-    public async Task GuessDelimiterAsync()
+    public async Task GuessDelimiterCommaBasicAsync()
     {
-      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
-      {
-        using var textReader = await improvedStream.GetTextReaderAsync(-1, 0, UnitTestStatic.Token);
-        Assert.AreEqual(",",(await textReader.InspectDelimiterAsync("\"", string.Empty, null, UnitTestStatic.Token)).Delimiter);
-      }
+      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt")));
+      using var textReader = await improvedStream.GetTextReaderAsync(-1, 0, UnitTestStatic.Token);
+      Assert.AreEqual(",",
+        (await textReader.InspectDelimiterAsync("\"", string.Empty, null, UnitTestStatic.Token)).Delimiter);
+    }
 
-      using (var improvedStream =
-             FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormatsPipe.txt"))))
+    [TestMethod]
+    public async Task GuessDelimiterPipeBasicAsync()
+    {
+      using var improvedStream =
+        FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("AllFormatsPipe.txt")));
+      using var textReader = await improvedStream.GetTextReaderAsync(-1, 0, UnitTestStatic.Token);
+      Assert.AreEqual("|", (await textReader.InspectDelimiterAsync("\"", string.Empty, null, UnitTestStatic.Token)).Delimiter);
+    }
 
-      {
-        string escapePrefix = string.Empty;
-        using var textReader = await improvedStream.GetTextReaderAsync(-1, 0, UnitTestStatic.Token);
-        Assert.AreEqual("|", (await textReader.InspectDelimiterAsync("\"", escapePrefix, null, UnitTestStatic.Token)).Delimiter);
-      }
-
+    [TestMethod]
+    public async Task GuessDelimiterLateStartRowAsync()
+    {
       ICsvFile test =
         new CsvFile(id: "csv", fileName: UnitTestStatic.GetTestPath("LateStartRow.txt"))
         {
@@ -164,12 +167,9 @@ namespace CsvTools.Tests
           CodePageId = 20127
         };
       test.FieldQualifier = "\"";
-      using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test)))
-      {
-        string escapePrefix = string.Empty;
-        using var textReader = await improvedStream.GetTextReaderAsync(20127, 10, UnitTestStatic.Token);
-        Assert.AreEqual("|",(await textReader.InspectDelimiterAsync("\"", escapePrefix, null, UnitTestStatic.Token)).Delimiter);
-      }
+      using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
+      using var textReader = await improvedStream.GetTextReaderAsync(20127, 10, UnitTestStatic.Token);
+      Assert.AreEqual("|",(await textReader.InspectDelimiterAsync("\"", string.Empty, null, UnitTestStatic.Token)).Delimiter);
     }
 
     [TestMethod]
@@ -177,17 +177,15 @@ namespace CsvTools.Tests
     {
       using (var improvedStream = FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSV.txt"))))
       {
-        string escapePrefix = string.Empty;
         using var textReader = await improvedStream.GetTextReaderAsync(-1, 0, UnitTestStatic.Token);
-        Assert.AreEqual(",",( await textReader.InspectDelimiterAsync("\"", escapePrefix, null, UnitTestStatic.Token)).Delimiter);
+        Assert.AreEqual(",",( await textReader.InspectDelimiterAsync("\"", string.Empty, null, UnitTestStatic.Token)).Delimiter);
       }
 
       using (var improvedStream =
              FunctionalDI.OpenStream(new SourceAccess(UnitTestStatic.GetTestPath("BasicCSVMagic.txt"))))
       {
-        string escapePrefix = string.Empty;
         using var textReader = await improvedStream.GetTextReaderAsync(-1, 0, UnitTestStatic.Token);
-        Assert.AreEqual("Tab", (await textReader.InspectDelimiterAsync("\"", escapePrefix, null, UnitTestStatic.Token)).Delimiter);
+        Assert.AreEqual("Tab", (await textReader.InspectDelimiterAsync("\"", string.Empty, null, UnitTestStatic.Token)).Delimiter);
       }
     }
 
@@ -196,7 +194,6 @@ namespace CsvTools.Tests
     {
       ICsvFile test =
         new CsvFile(id: "Csv", fileName: UnitTestStatic.GetTestPath("AlternateTextQualifiers.txt")) { CodePageId = -1 };
-      test.EscapePrefix = "\\";
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
       using var textReader = await improvedStream.GetTextReaderAsync(-1, 0, UnitTestStatic.Token);
       Assert.AreEqual(",", (await textReader.InspectDelimiterAsync("\"", "\\", null, UnitTestStatic.Token)).Delimiter);
@@ -211,10 +208,9 @@ namespace CsvTools.Tests
         { CodePageId = -1 };
       test.EscapePrefix = string.Empty;
       using var improvedStream = FunctionalDI.OpenStream(new SourceAccess(test));
-      string escapePrefix = string.Empty;
-      
+
       using var textReader = await improvedStream.GetTextReaderAsync(-1, 0, UnitTestStatic.Token);
-      Assert.AreEqual("|",(await textReader.InspectDelimiterAsync("\"", escapePrefix, null, UnitTestStatic.Token)).Delimiter);
+      Assert.AreEqual("|",(await textReader.InspectDelimiterAsync("\"", string.Empty, null, UnitTestStatic.Token)).Delimiter);
     }
 
     [TestMethod]
