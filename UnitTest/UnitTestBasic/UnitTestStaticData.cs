@@ -70,7 +70,7 @@ namespace CsvTools.Tests
       if (UnitTestStatic.Random.NextDouble() > .4) dr[7] = UnitTestStatic.GetRandomText(100);
 
       dr[8] = recNum; // ID
-      dr[9] = recNum * 2; // #Line
+
 
       // Add Errors and Warnings to Columns and Rows
       var rand = UnitTestStatic.Random.Next(0, 100);
@@ -90,7 +90,13 @@ namespace CsvTools.Tests
 
       if (rand > 80) dr.RowError = rand > 90 ? @"Row Error" : @"Row Warning".AddWarningId();
       if (addError)
-        dr[10] = dr.GetErrorInformation();
+      {
+        dr[9] = dr.GetErrorInformation();
+        dr[10] = recNum * 2; // #Line
+      }
+      else
+        dr[9] = recNum * 2; // #Line
+
 
       dataTable.Rows.Add(dr);
     }
@@ -107,10 +113,9 @@ namespace CsvTools.Tests
       dataTable.Columns.Add("AllEmpty", typeof(string));
       dataTable.Columns.Add("PartEmpty", typeof(string));
       dataTable.Columns.Add("ID", typeof(int));
-      dataTable.Columns.Add(ReaderConstants.cStartLineNumberFieldName, typeof(long));
       if (addError)
         dataTable.Columns.Add(ReaderConstants.cErrorField, typeof(string));
-
+      dataTable.Columns.Add(ReaderConstants.cStartLineNumberFieldName, typeof(long));
       dataTable.BeginLoadData();
       for (var i = 1; i <= numRecords; i++) AddRowToDataTable(dataTable, i, addError);
       dataTable.EndLoadData();
@@ -145,7 +150,8 @@ namespace CsvTools.Tests
     {
       var readFile = new CsvFile(id: id, fileName: Path.Combine(UnitTestStatic.GetTestPath("AllFormats.txt")))
       {
-        HasFieldHeader = true, FieldDelimiter = "TAB"
+        HasFieldHeader = true,
+        FieldDelimiter = "TAB"
       };
       readFile.ColumnCollection.AddRangeNoClone(
         new Column[]

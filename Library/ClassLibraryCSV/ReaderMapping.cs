@@ -66,7 +66,7 @@ namespace CsvTools
         m_Mapping.Add(col, fieldCount++);
       }
 
-      // the order of artifical fields must match the order in IDbConnector.CreateTableSQL
+      // the order of artificial fields must match the order in IDbConnector.CreateTableSQL
     
       if (addRecNum && !readerColumns.Contains(ReaderConstants.cRecordNumberFieldName))
       {

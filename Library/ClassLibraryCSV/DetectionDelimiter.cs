@@ -92,7 +92,7 @@ namespace CsvTools
       {
         // otherwise find the best
         var sums = new Dictionary<int, long>();
-
+        var intEmptyRows = 0;
         foreach (var index in validSeparatorIndex)
         {
           var totalRows = (double) (delimiterCounter.LastRow - startRow);
@@ -104,7 +104,14 @@ namespace CsvTools
             cancellationToken.ThrowIfCancellationRequested();
             // Cut of at 50 Columns in case one row is messed up, this should not mess up everything
             sumCount += delimiterCounter.SeparatorsCount[index, row];
+            if (delimiterCounter.SeparatorsCount[index, row] == 0)
+              intEmptyRows++;
           }
+
+          // if a lot rows do not have a columns disregard the delimiter
+          if (intEmptyRows  < totalRows * 2 /3)
+            continue;
+
           // Get the average of the rows
           var avg = (int) Math.Ceiling(sumCount / totalRows);
 

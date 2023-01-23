@@ -11,7 +11,7 @@ namespace CsvTools
     /// <summary>
     /// \ / and ?
     /// </summary>
-    public static string GetPossibleEscapePrefix() => "\\/?";
+    private static string GetPossibleEscapePrefix() => "\\/?";
 
     /// <summary>
     ///   Try to guess the used Escape Sequence, by looking at 500 lines 
