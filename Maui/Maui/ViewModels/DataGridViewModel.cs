@@ -38,7 +38,7 @@ namespace Maui
       if (!string.IsNullOrEmpty(FileName))
       {
         var setting = new PreferenceViewModel();
-        await using IFileReader reader = InspectionResult.GetReader(FileName);
+        using IFileReader reader = InspectionResult.GetReader(FileName);
         await reader.OpenAsync(cancellationToken);
 
         await using var wrapper = new DataReaderWrapper(
