@@ -174,10 +174,7 @@ namespace CsvTools
 
       if (!form.Visible)
         form.Show();
-
-      if (!form.Focused)
-        form.Focus();
-
+      
       form.StartPosition = FormStartPosition.Manual;
 
       var screen = Screen.FromRectangle(
