@@ -4,20 +4,34 @@ namespace CsvTools
 {
   public enum RecordDelimiterTypeEnum
   {
-    [Description("")] None,
+    None,
 
-    [Description("Line feed")] Lf,
+    [Description("Line feed (Unix)")]
+    [ShortDescription("LF")] 
+    Lf,
 
-    [Description("Carriage Return")] Cr = 2,
+    [Description("Carriage Return (rarly used)")]
+    [ShortDescription("CR")] 
+    Cr = 2,
 
-    [Description("Carriage Return / Line feed")]
+    [ShortDescription("CR LF")]
+    [Description("Carriage Return / Line feed (Windows)")]
     Crlf = 3,
 
-    [Description("Line feed / Carriage Return")]
+    [ShortDescription("LF CR")]
+    [Description("Line feed / Carriage Return (rarly used)")]
     Lfcr = 4,
 
-    [Description("Record Seperator")] Rs = 5,
+    [ShortDescription("RS")]
+    [Description("Record Seperator (QNX rarly used)")] 
+    Rs = 5,
 
-    [Description("Unit Seperator")] Us = 6
+    [ShortDescription("Us")]
+    [Description("Unit Seperator (rarly used)")] 
+    Us = 6,
+
+    [ShortDescription("NL")]
+    [Description("NewLine (IBM mainframe)")] 
+    Nl = 7
   }
 }

@@ -20,27 +20,28 @@ namespace CsvTools
   [Flags]
   public enum FilterTypeEnum
   {
-    // Display rows that have no error nor warning
-    [Description("No error or warning")]
+    [Description("Display rows that have no error nor warning")]
+    [ShortDescription("No error or warning")]
     None = 0,
 
-    // Display rows that have a warning
-    [Description("Only warnings")]
+    [Description("Display rows that have a warning")]
+    [ShortDescription("Only warnings")]
     ShowWarning = 1 << 0,
 
-    // Display rows that have an error
-    [Description("Only errors")]
+    [Description("Display rows that have an error")]
+    [ShortDescription("Only errors")]
     ShowErrors = ShowWarning << 1,
 
-    // A true error is an error that has proper error information, in some cases only a placeholder text is stored as the real message is not known
-    [Description("True Errors")]
+    [Description("A true error is an error that has proper error information, in some cases only a placeholder text is stored as the real message is not known")]
+    [ShortDescription("True Errors")]
     OnlyTrueErrors = ShowErrors << 1,
 
-    // Display rows that have an error or a warning
-    [Description("Errors or warnings")]
+    [Description("Display rows that have an error or a warning")]
+    [ShortDescription("Errors or warnings")]
     ErrorsAndWarning = ShowErrors | ShowWarning,
 
-    [Description("All")]
+    [Description("Display rows that either an error, a true error or a warning")]
+    [ShortDescription("All")]
     All = ShowErrors | ShowWarning | OnlyTrueErrors,
   }
 }

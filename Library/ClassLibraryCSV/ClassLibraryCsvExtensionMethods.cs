@@ -147,7 +147,7 @@ namespace CsvTools
     /// Get the descriptive text for an enum value
     /// </summary>
     /// <param name="value">The enum value</param>
-    /// <returns>The description attribute of the value or the name</returns>
+    /// <returns>The description attribute of the value or the name, if not set the name of the enum</returns>
     public static string Description(this Enum value)
     {
       var fieldInfo = value.GetType().GetField(value.ToString());
@@ -156,6 +156,30 @@ namespace CsvTools
         attribute = fieldInfo.GetCustomAttribute(typeof(DescriptionAttribute)) as DescriptionAttribute;
       return attribute?.Description ?? value.ToString();
     }
+
+    /// <summary>
+    /// Get the short descriptive text for an enum value
+    /// </summary>
+    /// <param name="value">The enum value</param>
+    /// <returns>The short description attribute of the value or the name, if that is not set empty string</returns>
+    public static string ShortDescription(this Enum value)
+    {
+      var fieldInfo = value.GetType().GetField(value.ToString());
+      ShortDescriptionAttribute? attribute = null;
+      if (fieldInfo != null)
+        attribute = fieldInfo.GetCustomAttribute(typeof(ShortDescriptionAttribute)) as ShortDescriptionAttribute;
+      return attribute?.ShortDescription ?? string.Empty;
+    }
+
+    /// <summary>
+    ///   Get the Display Text of an Enum, using <see cref="ShortDescription"/> and as fallback <see cref="Description"/>
+    /// </summary>
+    public static string Display(this Enum value)
+    {
+      var shortDescription = value.ShortDescription();
+      return (shortDescription.Length>0) ? shortDescription : value.Description();
+    }
+
 
     /// <summary>
     ///   Gets the message of the current exception
@@ -395,8 +419,9 @@ namespace CsvTools
         RecordDelimiterTypeEnum.Cr => "\r",
         RecordDelimiterTypeEnum.Crlf => "\r\n",
         RecordDelimiterTypeEnum.Lfcr => "\n\r",
-        RecordDelimiterTypeEnum.Rs => "▲",
+        RecordDelimiterTypeEnum.Rs => "\x1E",
         RecordDelimiterTypeEnum.Us => "▼",
+        RecordDelimiterTypeEnum.Nl => "\x15",
         RecordDelimiterTypeEnum.None => string.Empty,
         _ => string.Empty
       };
