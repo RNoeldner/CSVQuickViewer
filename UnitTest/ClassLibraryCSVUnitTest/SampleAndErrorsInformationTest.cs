@@ -43,7 +43,7 @@ namespace CsvTools.Tests
     public void SampleAndErrorsInformationSerialize()
     {
       var test = new SampleAndErrorsInformation(10, new[] { new SampleRecordEntry(10, true, "Error1") },
-        new[] { new SampleRecordEntry(11), new SampleRecordEntry(12) });
+        new[] { new SampleRecordEntry(11), new SampleRecordEntry(12) }, 2);
       var output = UnitTestStatic.RunSerialize(test, true, false);
       Assert.AreEqual(test.NumErrors, output.NumErrors);
     }
@@ -95,10 +95,10 @@ namespace CsvTools.Tests
     public void CopyTo()
     {
       var test = new SampleAndErrorsInformation(5, new[] { new SampleRecordEntry(10, error: "ErrorText") },
-        new[] { new SampleRecordEntry(20), new SampleRecordEntry(21, false) });
+        new[] { new SampleRecordEntry(20), new SampleRecordEntry(21, false) },2);
 
       var test2 = new SampleAndErrorsInformation(2, Array.Empty<SampleRecordEntry>(),
-        new[] { new SampleRecordEntry(100) });
+        new[] { new SampleRecordEntry(100) },2);
       test.CopyTo(test2);
       Assert.IsTrue(test.Equals(test2), "Equals");
       Assert.AreEqual(test.Errors[0], test2.Errors[0]);

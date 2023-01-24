@@ -32,18 +32,20 @@ namespace CsvTools
   public sealed class SampleAndErrorsInformation : ObservableObject, IWithCopyTo<SampleAndErrorsInformation>
   {
     private int m_NumErrors;
+    private int m_MinSampleRecords;
     private readonly UniqueObservableCollection<SampleRecordEntry> m_Errors;
     private readonly UniqueObservableCollection<SampleRecordEntry> m_Samples;
 
     [JsonConstructor]
-    public SampleAndErrorsInformation() : this(-1, Array.Empty<SampleRecordEntry>(), Array.Empty<SampleRecordEntry>())
+    public SampleAndErrorsInformation() : this(-1, Array.Empty<SampleRecordEntry>(), Array.Empty<SampleRecordEntry>(), 0)
     {
     }
 
     public SampleAndErrorsInformation(int numErrors, in IEnumerable<SampleRecordEntry> errors,
-      in IEnumerable<SampleRecordEntry> samples)
+      in IEnumerable<SampleRecordEntry> samples, int minSampleRecords)
     {
       m_NumErrors = numErrors;
+      m_MinSampleRecords = minSampleRecords;
 
       m_Errors = new UniqueObservableCollection<SampleRecordEntry>();
       m_Errors.AddRangeNoClone(errors);
@@ -52,6 +54,16 @@ namespace CsvTools
       m_Samples = new UniqueObservableCollection<SampleRecordEntry>();
       m_Samples.AddRangeNoClone(samples);
       m_Samples.CollectionItemPropertyChanged += (o, s) => NotifyPropertyChanged(nameof(Samples));
+    }
+
+#if XmlSerialization  
+    [XmlAttribute]
+#endif
+    [DefaultValue(0)]
+    public int MinSampleRecords
+    {
+      get => m_MinSampleRecords;
+      set => SetProperty(ref m_MinSampleRecords, value);
     }
 
     /// <summary>
@@ -97,7 +109,7 @@ namespace CsvTools
     /// <inheritdoc />
     public object Clone()
     {
-      return new SampleAndErrorsInformation(m_NumErrors, m_Errors, m_Samples);
+      return new SampleAndErrorsInformation(m_NumErrors, m_Errors, m_Samples, m_MinSampleRecords);
     }
 
     /// <summary>

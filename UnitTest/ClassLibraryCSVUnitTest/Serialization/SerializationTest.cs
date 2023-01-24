@@ -47,7 +47,8 @@ namespace CsvTools.Tests
     {
       var input = new ColumnMut("Näme",
         new ValueFormat(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat",
-          "erp", "read", "Wr", "ou", false)) { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
+          "erp", "read", "Wr", "ou", false))
+      { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
       var output = UnitTestStatic.RunSerialize(input, true, false);
       Assert.AreEqual(input.Name, output.Name);
       Assert.AreEqual(input.DestinationName, output.DestinationName);
@@ -58,7 +59,8 @@ namespace CsvTools.Tests
     {
       var input = new ColumnMut("Näme",
         new ValueFormat(DataTypeEnum.DateTime, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat",
-          "erp", "read", "Wr", "ou", false)) { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
+          "erp", "read", "Wr", "ou", false))
+      { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
       UnitTestStatic.RunSerializeAllProps(input,
         new[]
         {
@@ -69,12 +71,13 @@ namespace CsvTools.Tests
 
       var input2 = new ColumnMut("Näme",
         new ValueFormat(DataTypeEnum.TextPart, "XXX", "-", "?", "xx", "_", "=", "Yo", "Nö", "<N>", 3, "|", false, "pat",
-          "erp", "read", "Wr", "ou", false)) { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
+          "erp", "read", "Wr", "ou", false))
+      { DestinationName = "->", ColumnOrdinal = 13, Convert = true };
       UnitTestStatic.RunSerializeAllProps(input2,
         new[]
         {
           nameof(input.CollectionIdentifier), nameof(input.DecimalSeparator), nameof(input.NumberFormat),
-          nameof(input.DateFormat), nameof(input.DateSeparator), nameof(input.TimeSeparator), 
+          nameof(input.DateFormat), nameof(input.DateSeparator), nameof(input.TimeSeparator),
           nameof(input.ColumnOrdinal), nameof(input.False), nameof(input.True)
         });
     }
@@ -129,7 +132,7 @@ namespace CsvTools.Tests
     {
       var input = new SampleAndErrorsInformation(-1,
         new[] { new SampleRecordEntry(10, true, "Error1"), new SampleRecordEntry(12, false, "Error2") },
-        new[] { new SampleRecordEntry(11, true, "Sample1"), new SampleRecordEntry(15, false, "Sample2") });
+        new[] { new SampleRecordEntry(11, true, "Sample1"), new SampleRecordEntry(15, false, "Sample2") }, 1);
 
       var output = UnitTestStatic.RunSerialize(input);
 
