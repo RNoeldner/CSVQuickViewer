@@ -73,6 +73,7 @@
 		<Compile Include="..\ClassLibraryCSV\Exceptions\FileReaderOpenException.cs" Link="Exceptions\FileReaderOpenException.cs" />
 		<Compile Include="..\ClassLibraryCSV\Exceptions\FileReaderException.cs" Link="Exceptions\FileReaderException.cs" />
 		<Compile Include="..\ClassLibraryCSV\Exceptions\FileWriterException.cs" Link="Exceptions\FileWriterException.cs" />
+		<Compile Include="..\ClassLibraryCSV\ShortDescriptionAttribute.cs" Link="ShortDescriptionAttribute.cs" />
 
 
 		<Compile Include="..\ClassLibraryCSV\CsvHelper.cs" Link="CsvHelper.cs" />

@@ -30,8 +30,9 @@ namespace CsvTools
       const int lfCr = 3;
       const int recSep = 4;
       const int unitSep = 5;
+      const int nl = 5;
 
-      int[] count = { 0, 0, 0, 0, 0, 0 };
+      int[] count = { 0, 0, 0, 0, 0, 0, 0 };
 
       // \r = CR (Carriage Return) \n = LF (Line Feed)
       var fieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
@@ -59,6 +60,9 @@ namespace CsvTools
 
         switch (readChar)
         {
+          case 21:
+            count[nl]++;
+            continue;
           case 30:
             count[recSep]++;
             continue;
@@ -104,7 +108,9 @@ namespace CsvTools
         return RecordDelimiterTypeEnum.None;
 
       var res = RecordDelimiterTypeEnum.None;
-      if (count[recSep] == maxCount)
+      if (count[nl] == maxCount)
+        res = RecordDelimiterTypeEnum.Nl;
+      else if (count[recSep] == maxCount)
         res = RecordDelimiterTypeEnum.Rs;
       else if (count[unitSep] == maxCount)
         res = RecordDelimiterTypeEnum.Us;

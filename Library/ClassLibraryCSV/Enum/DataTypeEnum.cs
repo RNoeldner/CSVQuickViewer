@@ -31,12 +31,14 @@ namespace CsvTools
     ///   A "decimal" value 28-29 significant digits, used for money values
     /// </summary>
     [Description("Money (High Precision)")]
+    [ShortDescription("Numeric")]
     Numeric = 1,
 
     /// <summary>
     ///   A "Double" 15-16 significant digits, used for floating point calculation
     /// </summary>
     [Description("Floating  Point (High Range)")]
+    [ShortDescription("Double")]
     Double = 2,
 
     /// <summary>
@@ -49,13 +51,14 @@ namespace CsvTools
     /// <summary>
     ///   A boolean
     /// </summary>
-    [Description("Boolean")]
+    [Description("Boolean")]    
     Boolean = 4,
 
     /// <summary>
     ///   A system GUID
     /// </summary>
     [Description("GUID / UUID")]
+    [ShortDescription("GUID")]
     Guid = 5,
 
     /// <summary>
@@ -68,12 +71,14 @@ namespace CsvTools
     ///   A String or VarChar, but do some basic HTML encoding, "Encode HTML (Linefeed only)"
     /// </summary>
     [Description("Encode HTML (CData, Linefeed, List)")]
+    [ShortDescription("HTML Basic")]
     TextToHtml = 11,
 
     /// <summary>
     ///   A String or VarChar, but do some advanced HTML encoding, "Encode HTML"
     /// </summary>
     [Description("Encode HTML ('<' -> '&lt;')")]
+    [ShortDescription("HTML Full")]
     TextToHtmlFull = 12,
 
     /// <summary>
@@ -86,12 +91,14 @@ namespace CsvTools
     ///   Unescape c or c# escaped text to a verbatim text, e.g. \n will become a CR
     /// </summary>
     [Description("Unescape Text ('\\r' -> \u240D)")]
+    [ShortDescription("Unescape Text")]
     TextUnescape = 14,
 
     /// <summary>
     ///   Binary data usually usually stored in a file
     /// </summary>
     [Description("Binary (File Reference)")]
+    [ShortDescription("Binary")]
     Binary = 15,
 
 #if !QUICK
@@ -99,7 +106,7 @@ namespace CsvTools
     /// <summary>
     ///   Convert Markdown text to HTML
     /// </summary>
-    [Description("Markdown to HTML")]
+    [Description("Markdown to HTML")]    
     Markdown2Html = 16,
 #endif
 

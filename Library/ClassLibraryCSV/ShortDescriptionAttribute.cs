@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2014 Raphael Nöldner : http://csvquickviewer.com
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser Public
@@ -11,21 +11,20 @@
  * If not, see http://www.gnu.org/licenses/ .
  *
  */
-
+using System;
 
 namespace CsvTools
 {
-  public enum FileStettingStatus
+  /// <summary>
+  /// Attributes for enums to have a shorter desciption
+  /// </summary>
+  [AttributeUsage(AttributeTargets.All)]
+  public class ShortDescriptionAttribute : Attribute
   {
-    None = 0,
-    
-    [ShortDescription("Loading")]
-    Loading = 1,
-    
-    [ShortDescription("Getting Results")]
-    GettingValidationResults = 2,
+    public string ShortDescription { get; protected set; }
+    public ShortDescriptionAttribute() : this(string.Empty)
+    { }
 
-    [ShortDescription("Queued")]
-    QueuedForLoad = 3
+    public ShortDescriptionAttribute(string value) => ShortDescription = value;
   }
 }

@@ -429,9 +429,11 @@ namespace CsvTools
       cbo.DisplayMember = nameof(DisplayItem<T>.Display);
       cbo.ValueMember = nameof(DisplayItem<T>.ID);
 
-      cbo.DataSource = Enum.GetValues(typeof(T)).Cast<T>()
-        .Where(item => doNotShow == null || !doNotShow.Contains(item))
-        .Select(item => new DisplayItem<T>(item, item.Description())).ToList();
+      cbo.DataSource = Enum.GetValues(typeof(T))
+                           .Cast<T>()
+                           .Where(item => doNotShow == null || !doNotShow.Contains(item))
+                           .Select(item => new DisplayItem<T>(item, item.Display()))
+                           .ToList();
       cbo.SelectedValue = currentValue;
       cbo.ResumeLayout();
     }
