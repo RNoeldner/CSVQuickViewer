@@ -242,7 +242,6 @@ namespace CsvTools.Tests
           (control) =>
           {
             control.DataSource = DataTable200;
-            control.HideAllButOne(0);
             control.ShowAllColumns();
             control.HideEmptyColumns();
 
