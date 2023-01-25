@@ -1,7 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
 
 namespace CsvTools
 {
-  using System.Diagnostics.CodeAnalysis;
+  
   partial class FilteredDataGridView
   {
 
@@ -37,8 +38,7 @@ namespace CsvTools
 			this.toolStripMenuItemFilterRemove = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 			this.contextMenuStripColumns = new System.Windows.Forms.ContextMenuStrip();
-			this.toolStripMenuItemShowAllColumns = new System.Windows.Forms.ToolStripMenuItem();
-			this.toolStripMenuItemHideAllColumns = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItemShowAllColumns = new System.Windows.Forms.ToolStripMenuItem();			
 			this.toolStripMenuItemFilled = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripMenuItemLoadCol = new System.Windows.Forms.ToolStripMenuItem();
@@ -192,8 +192,7 @@ namespace CsvTools
 			// 
 			this.contextMenuStripColumns.ImageScalingSize = new System.Drawing.Size(24, 24);
 			this.contextMenuStripColumns.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItemShowAllColumns,
-            this.toolStripMenuItemHideAllColumns,
+            this.toolStripMenuItemShowAllColumns,            
             this.toolStripMenuItemFilled,
             this.toolStripSeparator5,
             this.toolStripMenuItemLoadCol,
@@ -212,14 +211,7 @@ namespace CsvTools
 			this.toolStripMenuItemShowAllColumns.Name = "toolStripMenuItemShowAllColumns";
 			this.toolStripMenuItemShowAllColumns.Size = new System.Drawing.Size(178, 22);
 			this.toolStripMenuItemShowAllColumns.Text = "Show All Columns";
-			this.toolStripMenuItemShowAllColumns.Click += new System.EventHandler(this.ToolStripMenuItemShowAllColumns_Click);
-			// 
-			// toolStripMenuItemHideAllColumns
-			// 
-			this.toolStripMenuItemHideAllColumns.Name = "toolStripMenuItemHideAllColumns";
-			this.toolStripMenuItemHideAllColumns.Size = new System.Drawing.Size(178, 22);
-			this.toolStripMenuItemHideAllColumns.Text = "Hide Other Columns";
-			this.toolStripMenuItemHideAllColumns.Click += new System.EventHandler(this.ToolStripMenuItemHideAllColumns_Click);
+			this.toolStripMenuItemShowAllColumns.Click += new System.EventHandler(this.ToolStripMenuItemShowAllColumns_Click);			
 			// 
 			// toolStripMenuItemFilled
 			// 
@@ -428,8 +420,7 @@ namespace CsvTools
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilterRemove;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilterRemoveAllFilter;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFilterThisValue;
-    private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFreeze;
-    private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemHideAllColumns;
+    private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemFreeze;    
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemHideThisColumn;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemLoadCol;
     private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemRemoveOne;

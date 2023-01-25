@@ -35,7 +35,7 @@ namespace CsvTools
   /// <summary>
   ///   A better DataGridView allowing to filter and have a nice Copy and Paste
   /// </summary>
-  public partial class FilteredDataGridView : DataGridView
+  internal partial class FilteredDataGridView : DataGridView
   {
     private static int m_DefRowHeight = -1;
     private readonly Image m_ImgFilterIndicator;
@@ -164,7 +164,7 @@ namespace CsvTools
         GenerateDataGridViewColumn();
       }
     }
-    
+
     /// <summary>
     ///   Gets or sets the data source that the <see cref="DataGridView" /> is displaying data for.
     /// </summary>
@@ -320,19 +320,6 @@ namespace CsvTools
       {
         // ignored
       }
-    }
-
-    public void HideAllButOne(int visibleIndex)
-    {
-      // keep one column visible, otherwise we have an issue with the grid being empty
-      foreach (DataGridViewColumn col in Columns)
-        if (col.Visible && col.Index != visibleIndex)
-          col.Visible = false;
-
-      if (!ColumnVisibilityChanged())
-        return;
-      SetRowHeight();
-      DataViewChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -615,15 +602,12 @@ namespace CsvTools
     internal bool ColumnVisibilityChanged()
     {
       var hasChanges = false;
-      var showHideAll = false;
+
       var showShowAll = false;
       foreach (DataGridViewColumn col in Columns)
-        if (col.Visible)
-          showHideAll = true;
-        else
+        if (!col.Visible)
           showShowAll = true;
 
-      toolStripMenuItemHideAllColumns.Enabled = showHideAll;
       toolStripMenuItemShowAllColumns.Enabled = showShowAll;
 
       toolStripMenuItemColumnVisibility.ItemCheck -= CheckedListBox_ItemCheck;
@@ -839,7 +823,7 @@ namespace CsvTools
         frm.Text = $"{Columns[e.ColumnIndex].DataPropertyName} - Row {e.RowIndex + 1:D}";
         frm.SaveAction = s =>
         {
-          if (s.Equals(CurrentCell.Value)) 
+          if (s.Equals(CurrentCell.Value))
             return;
           CurrentCell.Value = s;
           CurrentCell.ErrorText = CurrentCell.ErrorText.AddMessage(
@@ -1362,14 +1346,6 @@ namespace CsvTools
 
     private void ToolStripMenuItemFreeze_Click(object? sender, EventArgs e) =>
       SetColumnFrozen(m_MenuItemColumnIndex, !Columns[m_MenuItemColumnIndex].Frozen);
-
-    /// <summary>
-    ///   Handles the Click event of the toolStripMenuItemAllCol control.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-    private void ToolStripMenuItemHideAllColumns_Click(object? sender, EventArgs e) =>
-      HideAllButOne(m_MenuItemColumnIndex);
 
     private void ToolStripMenuItemHideThisColumn_Click(object? sender, EventArgs e)
     {
