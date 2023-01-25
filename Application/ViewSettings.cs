@@ -248,14 +248,14 @@ namespace CsvTools
     public bool WarnDelimiterInValue
     {
       get => m_WarnDelimiterInValue;
-      set=> SetProperty(ref m_WarnDelimiterInValue, value);
+      set => SetProperty(ref m_WarnDelimiterInValue, value);
     }
 
     [DefaultValue(true)]
     public bool WarnUnknownCharacter
     {
       get => m_WarnUnknownCharacter;
-      set=> SetProperty(ref m_WarnUnknownCharacter, value);
+      set => SetProperty(ref m_WarnUnknownCharacter, value);
     }
 
 
@@ -263,35 +263,60 @@ namespace CsvTools
     public bool WarnQuotes
     {
       get => m_WarnQuotes;
-      set=> SetProperty(ref m_WarnQuotes, value);
+      set => SetProperty(ref m_WarnQuotes, value);
     }
 
     [DefaultValue(true)]
     public bool WarnNBSP
     {
       get => m_WarnNbsp;
-      set=> SetProperty(ref m_WarnNbsp, value);
+      set => SetProperty(ref m_WarnNbsp, value);
     }
 
     [DefaultValue(true)]
     public bool WarnLineFeed
     {
       get => m_WarnLineFeed;
-      set=> SetProperty(ref m_WarnLineFeed, value);
+      set => SetProperty(ref m_WarnLineFeed, value);
     }
 
     [DefaultValue(true)]
     public bool WarnEmptyTailingColumns
     {
       get => m_WarnEmptyTailingColumns;
-      set=> SetProperty(ref m_WarnEmptyTailingColumns, value);
+      set => SetProperty(ref m_WarnEmptyTailingColumns, value);
     }
 
     [DefaultValue(2000)]
     public int ShowButtonAtLength
     {
       get => m_ShowButtonAtLength;
-      set=> SetProperty(ref m_ShowButtonAtLength, value);
+      set => SetProperty(ref m_ShowButtonAtLength, value);
+    }
+
+    public void DeriveWriteSetting(IFileSetting fileSetting)
+    {
+      fileSetting.CopyTo(m_WriteSetting);
+
+      // Fix No Qualifier
+      if (m_WriteSetting.FieldQualifierChar == 0)
+        m_WriteSetting.FieldQualifier = "\"";
+
+      // Fix No DuplicateQualifier
+      if (!m_WriteSetting.DuplicateQualifierToEscape && m_WriteSetting.FieldQualifierChar == '"' && m_WriteSetting.EscapePrefixChar== 0)
+        m_WriteSetting.DuplicateQualifierToEscape = true;
+
+      // Fix No Delimiter
+      if (m_WriteSetting.FieldDelimiterChar == 0)
+        m_WriteSetting.FieldDelimiter = "\t";
+
+      // NewLine depending on Environment
+      if (Environment.NewLine == "\r\n")
+        m_WriteSetting.NewLine = RecordDelimiterTypeEnum.Crlf;
+      else if (Environment.NewLine == "\n")
+        m_WriteSetting.NewLine = RecordDelimiterTypeEnum.Lf;
+      else if (Environment.NewLine == "\r")
+        m_WriteSetting.NewLine = RecordDelimiterTypeEnum.Cr;
     }
 
     public void PassOnConfiguration(in IFileSetting fileSetting)

@@ -97,7 +97,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         if (m_FileSetting != null)
         {
           m_FileSetting.FileName = newFileName;
-          m_FileSetting.CopyTo(m_ViewSettings.WriteSetting);
+          m_ViewSettings.DeriveWriteSetting(m_FileSetting);
         }
       }
       catch (Exception ex)
@@ -225,7 +225,6 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       cboWriteCodePage.DataSource = codePages;
       cboCodePage.ResumeLayout(true);
       cboWriteCodePage.ResumeLayout(true);
-
 
       cboRecordDelimiter.SuspendLayout();
       if (m_FileSetting != null)

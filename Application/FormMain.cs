@@ -207,7 +207,7 @@ namespace CsvTools
         if (m_FileSetting is null)
           return;
 
-        m_FileSetting.CopyTo(m_ViewSettings.WriteSetting);
+        m_ViewSettings.DeriveWriteSetting(m_FileSetting);
 
         m_FileSetting.RootFolder = fileName.GetDirectoryName();
         m_FileSetting.DisplayEndLineNo = false;
@@ -531,6 +531,8 @@ namespace CsvTools
         {
           var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
 
+        
+
           detailControl.SafeInvoke(() =>
           {
             ShowTextPanel(true);
@@ -538,7 +540,7 @@ namespace CsvTools
             detailControl.WriteSetting = m_ViewSettings.WriteSetting;
             detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
             detailControl.CancellationToken = cancellationToken;
-            detailControl.ShowInfoButtons = false;
+            detailControl.ShowInfoButtons = false;            
           });
           Logger.Debug("Loading Batch");
           using (var formProgress = new FormProgress(fileNameShort, false, cancellationToken))
@@ -547,6 +549,16 @@ namespace CsvTools
             await detailControl.LoadSettingAsync(m_FileSetting, false, true, m_ViewSettings.DurationTimeSpan,
               FilterTypeEnum.All, formProgress, AddWarning, formProgress.CancellationToken);
           }
+
+          var keepVisible = new List<string>();          
+          if (m_FileSetting.DisplayEndLineNo)
+            keepVisible.Add( ReaderConstants.cEndLineNumberFieldName);
+          if (m_FileSetting.DisplayStartLineNo)
+            keepVisible.Add( ReaderConstants.cStartLineNumberFieldName);
+          if (m_FileSetting.DisplayRecordNo)
+            keepVisible.Add( ReaderConstants.cRecordNumberFieldName);          
+          detailControl.UniqueFieldName = keepVisible;
+
           Logger.Debug("Batch Loaded");
           cancellationToken.ThrowIfCancellationRequested();
 
