@@ -253,10 +253,11 @@ namespace CsvTools.Tests
     }
 
     [TestMethod()]
-    public void DescriptionTest()
+    public void Description_ShortDescription_Test()
     {
       var recType = RecordDelimiterTypeEnum.Cr;
-      Assert.AreEqual("Carriage Return", recType.Description());
+      Assert.IsTrue(recType.Description().StartsWith("Carriage Return"));
+      Assert.AreEqual("CR", recType.ShortDescription());
     }
 
     [TestMethod()]

@@ -35,7 +35,7 @@ namespace CsvTools
   /// <summary>
   ///   A better DataGridView allowing to filter and have a nice Copy and Paste
   /// </summary>
-  internal partial class FilteredDataGridView : DataGridView
+  public partial class FilteredDataGridView : DataGridView
   {
     private static int m_DefRowHeight = -1;
     private readonly Image m_ImgFilterIndicator;
