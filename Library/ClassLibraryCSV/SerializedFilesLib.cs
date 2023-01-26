@@ -116,7 +116,11 @@ namespace CsvTools
       var text = await reader.ReadToEndAsync().ConfigureAwait(false);
 #if XmlSerialization
       if (text.StartsWith("<?xml "))
-        return (T) new XmlSerializer(typeof(T)).Deserialize(new StringReader(text));
+      {
+        if (new XmlSerializer(typeof(T)).Deserialize(new StringReader(text)) is T retVal)
+          return retVal;
+        throw new XmlException($"Could not deserialize {text}");
+      }
 #endif
       return DeserializeText<T>(text);
     }
