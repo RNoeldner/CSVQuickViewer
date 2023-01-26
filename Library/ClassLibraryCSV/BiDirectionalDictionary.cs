@@ -52,7 +52,7 @@ namespace CsvTools
         reader.ReadStartElement("item");
         var key = (TKey) keySerializer.Deserialize(reader);
         var value = (TValue) valueSerializer.Deserialize(reader);
-        Add(key, value);
+        Add(key!, value!);
         reader.ReadEndElement();
         reader.MoveToContent();
       }
