@@ -340,7 +340,7 @@ namespace CsvTools
     /// <returns>The actual number of bytes read.</returns>
     /// <exception cref="T:System.NotImplementedException"></exception>    
     public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length)
-    {      
+    {
       if (buffer == null) throw new ArgumentNullException(nameof(buffer));
       var fn = GetString(ordinal);
       if (GetColumn(ordinal).ValueFormat.DataType != DataTypeEnum.Binary || string.IsNullOrEmpty(fn))
@@ -653,7 +653,7 @@ namespace CsvTools
       for (var col = 0; col < FieldCount; col++)
       {
         var column = GetColumn(col);
-        
+
         schemaRow[1] = column.Name; // BaseColumnName
         schemaRow[4] = column.Name; // ColumnName
         schemaRow[5] = col; // ColumnOrdinal
@@ -938,10 +938,8 @@ namespace CsvTools
         if (dateTime.HasValue)
         {
           var display = column.ValueFormat.DateFormat.ReplaceDefaults(
-            "/",
-            column.ValueFormat.DateSeparator,
-            ":",
-            column.ValueFormat.TimeSeparator);
+            "/", column.ValueFormat.DateSeparator,
+            ":", column.ValueFormat.TimeSeparator);
           HandleWarning(
             column.ColumnOrdinal,
             strInputTime.Length > 0
@@ -1321,10 +1319,8 @@ namespace CsvTools
       if (column.Ignore)
         return;
       var display = column.ValueFormat.DateFormat.ReplaceDefaults(
-        "/",
-        column.ValueFormat.DateSeparator,
-        ":",
-        column.ValueFormat.TimeSeparator);
+        "/", column.ValueFormat.DateSeparator,
+        ":", column.ValueFormat.TimeSeparator);
 
       HandleError(
         ordinal,
