@@ -871,33 +871,28 @@ namespace CsvTools
       if (stringFieldValue.Length == 0)
         return null;
 
-      var decChar = decimalSeparator.StringToChar();
-      var grpChar = groupSeparator.StringToChar();
+      var decimalSeparatorChar = decimalSeparator.StringToChar();
+      var groupSeparatorChar = groupSeparator.StringToChar();
 
       var hadDecimalSep = false;
       var lastPos = -3;
-
       // Sanity Check: In case the decimalSeparator occurs multiple times is not a number in case
       // the thousand separator are closer then 3 characters together
       for (var pos = 0; pos < stringFieldValue.Length; pos++)
       {
-        if (stringFieldValue[pos] == decChar)
+        if (stringFieldValue[pos] == decimalSeparatorChar)
         {
           if (hadDecimalSep)
             return null;
           hadDecimalSep = true;
         }
-
-        if (grpChar != '\0' && stringFieldValue[pos] == grpChar)
+        else if (stringFieldValue[pos] == groupSeparatorChar)
         {
           if (pos - lastPos < 4)
             return null;
           lastPos = pos;
         }
       }
-
-      if (lastPos > 0 && stringFieldValue.Length - lastPos != 4)
-        return null;
 
       var numberFormatProvider = new NumberFormatInfo
       {
