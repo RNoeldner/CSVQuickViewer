@@ -55,9 +55,9 @@ namespace CsvTools
       var formatsTime = new HashSet<string>
       {
         CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern
-          .ReplaceDefaults( CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
+          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
         (CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + " " + CultureInfo.CurrentCulture.DateTimeFormat.LongTimePattern)
-          .ReplaceDefaults( CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
+          .ReplaceDefaults(CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator, ":"),
         "MM/dd/yyyy",
         "MM/dd/yyyy HH:mm:ss",
         "M/d/yyyy",
@@ -593,10 +593,8 @@ namespace CsvTools
                           : format.NumberFormat;
 
       return value.ToString(valueFormat, CultureInfo.InvariantCulture).ReplaceDefaults(
-        CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator,
-        format.DecimalSeparator,
-        CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator,
-        format.GroupSeparator);
+        CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator, format.DecimalSeparator,
+        CultureInfo.InvariantCulture.NumberFormat.NumberGroupSeparator, format.GroupSeparator);
     }
 
     /// <summary>
