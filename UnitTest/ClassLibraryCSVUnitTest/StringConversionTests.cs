@@ -108,6 +108,9 @@ namespace CsvTools.Tests
 
       Assert.IsNull(StringConversion.StringToDecimal("", ",", ".", true));
       Assert.AreEqual(5.3m, StringConversion.StringToDecimal("5,3", ",", ".", true));
+
+      Assert.AreEqual(17295.27m, StringConversion.StringToDecimal("17,295.27", ".", ",", true));
+      Assert.AreEqual(17295.27m, StringConversion.StringToDecimal("17.295,27", ",", ".", true));
       Assert.AreEqual(-17m, StringConversion.StringToDecimal("-17", ",", ".", true));
       Assert.AreEqual(-17m, StringConversion.StringToDecimal("(17)", ",", ".", true));
       Assert.AreEqual(53336.7m, StringConversion.StringToDecimal("53336,7", ",", ".", true));
