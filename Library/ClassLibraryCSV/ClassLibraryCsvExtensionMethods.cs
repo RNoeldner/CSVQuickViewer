@@ -576,6 +576,24 @@ namespace CsvTools
       return new string(chars, 0, count);
     }
 
+    public static string ReplaceDefaults(this string inputValue, in char old1, in char new1, in char old2,
+      in char new2)
+    {
+      if (inputValue.Length==0)
+        return string.Empty;
+      var result = new StringBuilder(inputValue.Length);
+      for (int i = 0; i < inputValue.Length; i++)
+      {
+        if (inputValue[i]== old1)
+          result.Append(new1);
+        else if (inputValue[i]== old2)
+          result.Append(new2);
+        else
+          result.Append(inputValue[i]);
+      }
+      return result.ToString();
+    }
+
     /// <summary>
     ///   Replaces the two string
     /// </summary>
@@ -585,14 +603,18 @@ namespace CsvTools
     /// <param name="old2">The old2.</param>
     /// <param name="new2">The new2.</param>
     /// <returns></returns>
-    public static string ReplaceDefaults(this string inputValue, in string? old1, in string? new1, in string? old2,
-      in string? new2)
+    public static string ReplaceDefaults(this string inputValue, in string old1, in string new1, in string old2,
+      in string new2)
     {
-      if (string.IsNullOrEmpty(inputValue))
+      if (inputValue.Length==0)
         return string.Empty;
+
+      if (old1.Length==1 && new1.Length==1 && old2.Length==1 && new2.Length==1)
+        return ReplaceDefaults(inputValue, old1[0], new1[0], old2[0], new2[0]);
 
       var exchange1 = !string.IsNullOrEmpty(old1) && string.Compare(old1, new1, StringComparison.Ordinal) != 0;
       var exchange2 = !string.IsNullOrEmpty(old2) && string.Compare(old2, new2, StringComparison.Ordinal) != 0;
+
       if (exchange1 && exchange2 && string.Equals(new1, old2))
       {
         inputValue = inputValue.Replace(old1!, "{\0}");
