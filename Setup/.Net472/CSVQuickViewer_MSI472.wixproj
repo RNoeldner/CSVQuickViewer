@@ -40,11 +40,12 @@
     <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>COPY /Y "!(TargetPath)" $(ProjectDir)..</PostBuildEvent>
+    <PreBuildEvent>DEL "$(ProjectDir)..\CSVQuickViewerPortable.Net472.zip"
+DEL "$(SolutionDir)\Application\bin\Release\net472\%2a.pdb"
+powershell Compress-Archive -path "$(SolutionDir)\Application\bin\Release\net472\%2a" "$(ProjectDir)..\CSVQuickViewerPortable.Net472.zip"</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>DEL "$(ProjectDir)..\CSVQuickViewerPortable.Net472.zip"
-powershell Compress-Archive "$(SolutionDir)\Application\bin\Release\net472\%2a.%2a" "$(ProjectDir)..\CSVQuickViewerPortable.Net472.zip"</PreBuildEvent>
+    <PostBuildEvent>MOVE "$(TargetPath)" "$(ProjectDir)..\CSVQuickViewerSetup.Net472.msi"</PostBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.
