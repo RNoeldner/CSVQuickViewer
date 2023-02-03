@@ -174,7 +174,7 @@ namespace CsvTools
 
       if (!form.Visible)
         form.Show();
-      
+
       form.StartPosition = FormStartPosition.Manual;
 
       var screen = Screen.FromRectangle(
@@ -299,10 +299,26 @@ namespace CsvTools
     {
       if (item is null)
         throw new ArgumentNullException(nameof(item));
-
+      var disabled = false;
       try
       {
-        item.Enabled = false;
+        if (frm!= null)
+        {          frm.SafeInvoke(() =>
+          {
+            item.Enabled = false;
+            disabled = true;
+          });
+        }
+        else
+          try
+          {
+            item.Enabled = false;
+            disabled = true;
+          }
+          catch (Exception)
+          {
+          }
+
         await action.InvokeWithHourglassAsync().ConfigureAwait(false);
       }
       catch (ObjectDisposedException)
@@ -315,7 +331,19 @@ namespace CsvTools
       }
       finally
       {
-        item.Enabled = true;
+        if (disabled)
+        {
+          if (frm != null)
+            frm.SafeInvoke(() => item.Enabled = true);
+          else
+            try
+            {
+              item.Enabled = true;
+            }
+            catch (Exception)
+            {
+            }
+        }
       }
     }
 

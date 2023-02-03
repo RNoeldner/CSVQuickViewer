@@ -190,18 +190,18 @@ namespace CsvTools
         DetachPropertyChanged();
         // using (var formProgress = new FormProgress("Examining file", false, cancellationToken))
         //{
-         // formProgress.Maximum = 0;
-         // formProgress.ShowWithFont(this);
+        // formProgress.Maximum = 0;
+        // formProgress.ShowWithFont(this);
 
-          var detection = await fileName.InspectFileAsync(m_ViewSettings.AllowJson,
-            m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
-            m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
-            m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-            m_ViewSettings.FillGuessSettings, cancellationToken);
+        var detection = await fileName.InspectFileAsync(m_ViewSettings.AllowJson,
+          m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
+          m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
+          m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
+          m_ViewSettings.FillGuessSettings, m_ViewSettings.DefaultCodePage, m_ViewSettings.DefaultByteOrderMark, cancellationToken);
 
-          m_FileSetting = detection.PhysicalFile();
+        m_FileSetting = detection.PhysicalFile();
 
-         // formProgress.Close();
+        // formProgress.Close();
         //}
 
         if (m_FileSetting is null)
@@ -531,8 +531,6 @@ namespace CsvTools
         {
           var fileNameShort = FileSystemUtils.GetShortDisplayFileName(m_FileSetting.FileName, 60);
 
-        
-
           detailControl.SafeInvoke(() =>
           {
             ShowTextPanel(true);
@@ -540,7 +538,7 @@ namespace CsvTools
             detailControl.WriteSetting = m_ViewSettings.WriteSetting;
             detailControl.FillGuessSettings = m_ViewSettings.FillGuessSettings;
             detailControl.CancellationToken = cancellationToken;
-            detailControl.ShowInfoButtons = false;            
+            detailControl.ShowInfoButtons = false;
           });
           Logger.Debug("Loading Batch");
           using (var formProgress = new FormProgress(fileNameShort, false, cancellationToken))
@@ -550,13 +548,13 @@ namespace CsvTools
               FilterTypeEnum.All, formProgress, AddWarning, formProgress.CancellationToken);
           }
 
-          var keepVisible = new List<string>();          
+          var keepVisible = new List<string>();
           if (m_FileSetting.DisplayEndLineNo)
-            keepVisible.Add( ReaderConstants.cEndLineNumberFieldName);
+            keepVisible.Add(ReaderConstants.cEndLineNumberFieldName);
           if (m_FileSetting.DisplayStartLineNo)
-            keepVisible.Add( ReaderConstants.cStartLineNumberFieldName);
+            keepVisible.Add(ReaderConstants.cStartLineNumberFieldName);
           if (m_FileSetting.DisplayRecordNo)
-            keepVisible.Add( ReaderConstants.cRecordNumberFieldName);          
+            keepVisible.Add(ReaderConstants.cRecordNumberFieldName);
           detailControl.UniqueFieldName = keepVisible;
 
           Logger.Debug("Batch Loaded");

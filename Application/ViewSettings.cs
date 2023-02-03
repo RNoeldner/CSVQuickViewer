@@ -29,6 +29,8 @@ namespace CsvTools
     private bool m_DetectFileChanges = true;
     private FillGuessSettings m_FillGuessSettings = FillGuessSettings.Default;
     private bool m_GuessCodePage = true;
+    private int m_DefaultCodePage = 65001;
+    private bool m_DefaultByteOrderMark = true;
     private bool m_GuessEscapePrefix = true;
     private bool m_GuessComment = true;
     private bool m_GuessDelimiter = true;
@@ -85,6 +87,20 @@ namespace CsvTools
     {
       get => m_FontSize;
       set => SetProperty(ref m_FontSize, value);
+    }
+
+    [DefaultValue(65001)]
+    public int DefaultCodePage
+    {
+      get => (m_GuessCodePage) ? 65001 : m_DefaultCodePage;
+      set => SetProperty(ref m_DefaultCodePage, value);
+    }
+
+    [DefaultValue(true)]
+    public bool DefaultByteOrderMark
+    {
+      get => (m_GuessCodePage) ? true : m_DefaultByteOrderMark;
+      set => SetProperty(ref m_DefaultByteOrderMark, value);
     }
 
     [DefaultValue(false)]
