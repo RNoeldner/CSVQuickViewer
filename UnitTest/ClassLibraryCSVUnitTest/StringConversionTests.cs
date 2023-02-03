@@ -102,18 +102,38 @@ namespace CsvTools.Tests
     [TestMethod]
     public void StringToDecimal()
     {
+      // allowed grouping
+      Assert.AreEqual(634678373m, StringConversion.StringToDecimal("634.678.373", ",", ".", true), "634.678.373");
+      Assert.AreEqual(634678373.4m, StringConversion.StringToDecimal("634.678.373,4", ",", ".", true), "634.678.373,4");
+      Assert.AreEqual(6678373.4m, StringConversion.StringToDecimal("6.678.373,4", ",", ".", true), "634.678.373,4");
+      
+      // Wrong distance between 1st and 2nd grouping
+      Assert.IsNull(StringConversion.StringToDecimal("63.4678.373", ",", ".", true),"63.4678.373");
+      // wrong grouping at end
+      Assert.IsNull(StringConversion.StringToDecimal("63.467.8373", ",", ".", true),"63.467.8373");
+      Assert.IsNull(StringConversion.StringToDecimal("63.467.8373,2", ",", ".", true), "63.467.8373,2");
+
       Assert.AreNotEqual(53m, StringConversion.StringToDecimal("5,3", ".", ",", true));
       Assert.AreNotEqual(53m, StringConversion.StringToDecimal("5,30", ".", ",", true));
       Assert.AreNotEqual(53m, StringConversion.StringToDecimal("5,3000", ".", ",", true));
 
       Assert.IsNull(StringConversion.StringToDecimal("", ",", ".", true));
       Assert.AreEqual(5.3m, StringConversion.StringToDecimal("5,3", ",", ".", true));
+     
 
+      
+      // Switching grouping and decimal
       Assert.AreEqual(17295.27m, StringConversion.StringToDecimal("17,295.27", ".", ",", true));
       Assert.AreEqual(17295.27m, StringConversion.StringToDecimal("17.295,27", ",", ".", true));
+
+      // negative Numbers
       Assert.AreEqual(-17m, StringConversion.StringToDecimal("-17", ",", ".", true));
       Assert.AreEqual(-17m, StringConversion.StringToDecimal("(17)", ",", ".", true));
+      // no grouping present but supported
       Assert.AreEqual(53336.7m, StringConversion.StringToDecimal("53336,7", ",", ".", true));
+      // no grouping present and but supported
+      Assert.AreEqual(53336.7m, StringConversion.StringToDecimal("53336,7", ",", "", true));
+
       Assert.AreEqual(52333m, StringConversion.StringToDecimal("52.333", ",", ".", true));
       Assert.AreEqual(2.33m, StringConversion.StringToDecimal("233%", ",", ".", true));
     }
