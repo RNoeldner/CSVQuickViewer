@@ -322,7 +322,7 @@ namespace CsvTools
         labelSamplePart.Text = $@"Input: ""{sample}""";
         labelResultPart.Text = $@"Output: ""{StringConversion.StringToTextPart(sample, split, part, toEnd)}""";
       });
-    }    
+    }
 
     private void UpdateDateLabel()
     {
@@ -332,10 +332,19 @@ namespace CsvTools
         {
           var dateFormats = new List<string>();
           foreach (var item in checkedListBoxDateFormats.CheckedItems)
-            dateFormats.Add(item.ToString());
+          {
+            var itemStr = item.ToString();
+            if (!string.IsNullOrEmpty(itemStr))
+              dateFormats.Add(itemStr);
+          }
+
 
           if (dateFormats.Count==0 && checkedListBoxDateFormats.SelectedIndex!=-1)
-            dateFormats.Add(checkedListBoxDateFormats.Items[checkedListBoxDateFormats.SelectedIndex].ToString());
+          {
+            var itemStr = checkedListBoxDateFormats.Items[checkedListBoxDateFormats.SelectedIndex].ToString();
+            if (!string.IsNullOrEmpty(itemStr))
+              dateFormats.Add(itemStr);
+          }
           if (dateFormats.Count==0)
             return;
 
