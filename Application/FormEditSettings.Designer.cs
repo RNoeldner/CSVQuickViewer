@@ -322,8 +322,7 @@ namespace CsvTools
       // cboCodePage
       // 
       this.cboCodePage.Anchor = System.Windows.Forms.AnchorStyles.Left;
-      this.tableLayoutPanelFile.SetColumnSpan(this.cboCodePage, 2);
-      this.cboCodePage.DataBindings.Add(new System.Windows.Forms.Binding("SelectedValue", this.bindingSourceCsvFile, "CodePageId", true));
+      this.tableLayoutPanelFile.SetColumnSpan(this.cboCodePage, 2);      
       this.cboCodePage.DisplayMember = "Display";
       this.cboCodePage.FormattingEnabled = true;
       this.cboCodePage.Location = new System.Drawing.Point(110, 62);
@@ -332,8 +331,7 @@ namespace CsvTools
       this.cboCodePage.Name = "cboCodePage";
       this.cboCodePage.Size = new System.Drawing.Size(221, 21);
       this.cboCodePage.TabIndex = 8;
-      this.cboCodePage.ValueMember = "ID";
-      this.cboCodePage.SelectedIndexChanged += new System.EventHandler(this.CboCodePage_SelectedIndexChanged);
+      this.cboCodePage.ValueMember = "ID";      
       // 
       // buttonGuessCP
       // 

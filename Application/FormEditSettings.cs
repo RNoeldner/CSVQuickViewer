@@ -82,6 +82,11 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
         if (m_FileSetting == null)
         {
+          if (!m_ViewSettings.GuessCodePage)
+          {
+            m_ViewSettings.DefaultCodePage = ((DisplayItem<int>) cboCodePage.SelectedItem).ID;
+            m_ViewSettings.DefaultByteOrderMark = checkBoxBOM.Checked;
+          }
           using var formProgress = new FormProgress("Examining file", false, m_CancellationTokenSource.Token);
           formProgress.Maximum = 0;
           formProgress.ShowWithFont(this);
@@ -89,7 +94,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
             m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
             m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
             m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-            m_ViewSettings.FillGuessSettings, formProgress.CancellationToken)).PhysicalFile());
+            m_ViewSettings.FillGuessSettings, m_ViewSettings.DefaultCodePage, m_ViewSettings.DefaultByteOrderMark, formProgress.CancellationToken)).PhysicalFile());
 
           formProgress.Close();
         }
@@ -192,12 +197,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
         });
     }
 
-    private void CboCodePage_SelectedIndexChanged(object? sender, EventArgs e)
-    {
-      if (m_FileSetting is ICsvFile csvFile)
-        if (cboCodePage.SelectedItem != null)
-          csvFile.CodePageId = ((DisplayItem<int>) cboCodePage.SelectedItem).ID;
-    }
+   
 
     private void CheckBoxColumnsProcess_CheckedChanged(object? sender, EventArgs e)
     {
@@ -221,6 +221,7 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       cboWriteCodePage.SuspendLayout();
       var codePages = EncodingHelper.CommonCodePages
         .Select(cp => new DisplayItem<int>(cp, EncodingHelper.GetEncodingName(cp, false))).ToList();
+      var preselect = codePages.FirstOrDefault(x=> x.ID == (m_FileSetting?.CodePageId ?? m_ViewSettings.DefaultCodePage)) ?? codePages.First();
       cboCodePage.DataSource = codePages;
       cboWriteCodePage.DataSource = codePages;
       cboCodePage.ResumeLayout(true);
@@ -228,7 +229,14 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
 
       cboRecordDelimiter.SuspendLayout();
       if (m_FileSetting != null)
-        SetFileSetting(m_FileSetting);
+      {
+        SetFileSetting(m_FileSetting);        
+      }        
+      else
+      {
+        checkBoxBOM.Checked = m_ViewSettings.DefaultByteOrderMark;
+      }            
+      cboCodePage.SelectedItem = preselect;
       cboRecordDelimiter.SetEnumDataSource(m_ViewSettings.WriteSetting.NewLine, new[] { RecordDelimiterTypeEnum.None });
       comboBoxLimitDuration.SetEnumDataSource(m_ViewSettings.LimitDuration);
 
@@ -239,6 +247,18 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
     private void FormEditSettings_FormClosing(object? sender, FormClosingEventArgs e)
     {
       m_CancellationTokenSource.Cancel();
+      int? codePageId = null;
+      if (cboCodePage.SelectedItem != null)
+         codePageId = ((DisplayItem<int>) cboCodePage.SelectedItem).ID;          
+
+      if (!m_ViewSettings.GuessCodePage)
+      {
+        if (codePageId!=null)
+        m_ViewSettings.DefaultCodePage = codePageId.Value;
+        m_ViewSettings.DefaultByteOrderMark = checkBoxBOM.Checked;
+      }
+      if (m_FileSetting is IFileSettingPhysicalFile physicalFile && codePageId!=null)
+        physicalFile.CodePageId = codePageId.Value;      
       ValidateChildren();
       if (m_FileSetting != null)
         m_ViewSettings.PassOnConfiguration(m_FileSetting);
