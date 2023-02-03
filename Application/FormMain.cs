@@ -65,6 +65,8 @@ namespace CsvTools
       InitializeComponent();
       Text = AssemblyTitle;
 
+      FunctionalDI.FileReaderWriterFactory =new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, viewSettings.FillGuessSettings);      
+
       // add the not button not visible in designer to the detail control
       detailControl.AddToolStripItem(0, m_ToolStripButtonSettings);
       detailControl.AddToolStripItem(0, m_ToolStripButtonLoadFile);

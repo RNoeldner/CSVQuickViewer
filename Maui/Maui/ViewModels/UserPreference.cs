@@ -6,6 +6,8 @@ namespace Maui
   public class PreferenceViewModel : BaseViewModel
   {
     private bool m_GuessCodePage = true;
+    private int m_DefaultCodePage = 65001;
+    private bool m_DefaultByteOrderMark = true;
     private bool m_GuessComment = true;
     private bool m_GuessDelimiter = true;
     private bool m_GuessEscapePrefix = true;
@@ -41,6 +43,8 @@ namespace Maui
         m_GuessEscapePrefix = Preferences.Default.Get(nameof(GuessEscapePrefix), true);
         m_GuessQualifier = Preferences.Default.Get(nameof(GuessQualifier), true);
         m_GuessStartRow = Preferences.Default.Get(nameof(GuessStartRow), true);
+        m_DefaultCodePage = Preferences.Default.Get(nameof(DefaultCodePage), 65001);
+        m_DefaultByteOrderMark = Preferences.Default.Get(nameof(DefaultByteOrderMark), true);
 
         m_DisplayStartLineNo = Preferences.Default.Get(nameof(DisplayStartLineNo), false);
         m_DisplayRecordNo = Preferences.Default.Get(nameof(DisplayRecordNo), false);
@@ -74,6 +78,18 @@ namespace Maui
       {
         if (SetProperty(ref m_GuessCodePage, value)) Preferences.Default.Set(nameof(GuessCodePage), m_GuessCodePage);
       }
+    }
+    
+    public int DefaultCodePage
+    {
+      get => (m_GuessCodePage) ? 65001 : m_DefaultCodePage;
+      set => SetProperty(ref m_DefaultCodePage, value);
+    }
+
+    public bool DefaultByteOrderMark
+    {
+      get => (m_GuessCodePage) ? true : m_DefaultByteOrderMark;
+      set => SetProperty(ref m_DefaultByteOrderMark, value);
     }
 
     public bool GuessComment

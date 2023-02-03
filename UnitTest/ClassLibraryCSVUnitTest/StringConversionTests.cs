@@ -103,39 +103,46 @@ namespace CsvTools.Tests
     public void StringToDecimal()
     {
       // allowed grouping
-      Assert.AreEqual(634678373m, StringConversion.StringToDecimal("634.678.373", ",", ".", true), "634.678.373");
-      Assert.AreEqual(634678373.4m, StringConversion.StringToDecimal("634.678.373,4", ",", ".", true), "634.678.373,4");
-      Assert.AreEqual(6678373.4m, StringConversion.StringToDecimal("6.678.373,4", ",", ".", true), "634.678.373,4");
+      Assert.AreEqual(634678373m, StringConversion.StringToDecimal("634.678.373", ",", ".", true, true), "634.678.373");
+      Assert.AreEqual(634678373.4m, StringConversion.StringToDecimal("634.678.373,4", ",", ".", true, true), "634.678.373,4");
+      Assert.AreEqual(6678373.4m, StringConversion.StringToDecimal("6.678.373,4", ",", ".", true, false), "634.678.373,4");
       
       // Wrong distance between 1st and 2nd grouping
-      Assert.IsNull(StringConversion.StringToDecimal("63.4678.373", ",", ".", true),"63.4678.373");
+      Assert.IsNull(StringConversion.StringToDecimal("63.4678.373", ",", ".", true, true),"63.4678.373");
       // wrong grouping at end
-      Assert.IsNull(StringConversion.StringToDecimal("63.467.8373", ",", ".", true),"63.467.8373");
-      Assert.IsNull(StringConversion.StringToDecimal("63.467.8373,2", ",", ".", true), "63.467.8373,2");
+      Assert.IsNull(StringConversion.StringToDecimal("63.467.8373", ",", ".", true, true),"63.467.8373");
+      Assert.IsNull(StringConversion.StringToDecimal("63.467.8373,2", ",", ".", true, true), "63.467.8373,2");
 
-      Assert.AreNotEqual(53m, StringConversion.StringToDecimal("5,3", ".", ",", true));
-      Assert.AreNotEqual(53m, StringConversion.StringToDecimal("5,30", ".", ",", true));
-      Assert.AreNotEqual(53m, StringConversion.StringToDecimal("5,3000", ".", ",", true));
+      Assert.AreNotEqual(53m, StringConversion.StringToDecimal("5,3", ".", ",", true, true));
+      Assert.AreNotEqual(53m, StringConversion.StringToDecimal("5,30", ".", ",", true, true));
+      Assert.AreNotEqual(53m, StringConversion.StringToDecimal("5,3000", ".", ",", true, true));
 
-      Assert.IsNull(StringConversion.StringToDecimal("", ",", ".", true));
-      Assert.AreEqual(5.3m, StringConversion.StringToDecimal("5,3", ",", ".", true));
+      Assert.IsNull(StringConversion.StringToDecimal("", ",", ".", true, true));
+      Assert.AreEqual(5.3m, StringConversion.StringToDecimal("5,3", ",", ".", true, true));
      
 
       
       // Switching grouping and decimal
-      Assert.AreEqual(17295.27m, StringConversion.StringToDecimal("17,295.27", ".", ",", true));
-      Assert.AreEqual(17295.27m, StringConversion.StringToDecimal("17.295,27", ",", ".", true));
+      Assert.AreEqual(17295.27m, StringConversion.StringToDecimal("17,295.27", ".", ",", true, true));
+      Assert.AreEqual(17295.27m, StringConversion.StringToDecimal("17.295,27", ",", ".", true, true));
 
       // negative Numbers
-      Assert.AreEqual(-17m, StringConversion.StringToDecimal("-17", ",", ".", true));
-      Assert.AreEqual(-17m, StringConversion.StringToDecimal("(17)", ",", ".", true));
+      Assert.AreEqual(-17m, StringConversion.StringToDecimal("-17", ",", ".", true, true));
+      Assert.AreEqual(-17m, StringConversion.StringToDecimal("(17)", ",", ".", true, true));
       // no grouping present but supported
-      Assert.AreEqual(53336.7m, StringConversion.StringToDecimal("53336,7", ",", ".", true));
+      Assert.AreEqual(53336.7m, StringConversion.StringToDecimal("53336,7", ",", ".", true, false));
       // no grouping present and but supported
-      Assert.AreEqual(53336.7m, StringConversion.StringToDecimal("53336,7", ",", "", true));
+      Assert.AreEqual(53336.7m, StringConversion.StringToDecimal("53336,7", ",", ".", true, false));
+      Assert.AreEqual(53336.7m, StringConversion.StringToDecimal("53336,7", ",", "", true, false));
 
-      Assert.AreEqual(52333m, StringConversion.StringToDecimal("52.333", ",", ".", true));
-      Assert.AreEqual(2.33m, StringConversion.StringToDecimal("233%", ",", ".", true));
+      Assert.AreEqual(53336.7m, StringConversion.StringToDecimal("53336,7", ",", ".", true, false));
+      Assert.AreEqual(52333m, StringConversion.StringToDecimal("52.333", ",", ".", true, false));
+      Assert.AreEqual(2.33m, StringConversion.StringToDecimal("233%", ",", ".", true, false));
+
+
+      Assert.AreEqual(14.56m, StringConversion.StringToDecimal("$14.56", ".", "", false, true));
+      Assert.AreEqual(-14.56m, StringConversion.StringToDecimal("($14.56)", ".", "", false, true));
+      Assert.AreEqual(14.56m, StringConversion.StringToDecimal("14.56 €", ".", "", false, true));
     }
 
     [TestMethod]
@@ -609,22 +616,22 @@ namespace CsvTools.Tests
     [TestMethod]
     public void CheckNumberTest()
     {
-      Assert.IsTrue(StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, UnitTestStatic.Token)
+      Assert.IsTrue(StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, false, UnitTestStatic.Token)
         .FoundValueFormat != null);
       Assert.AreEqual(
         DataTypeEnum.Integer,
-        StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, UnitTestStatic.Token).FoundValueFormat!
+        StringConversion.CheckNumber(new[] { "16673" }, ".", "", false, false, false,UnitTestStatic.Token).FoundValueFormat!
           .DataType);
       Assert.IsFalse(
-        StringConversion.CheckNumber(new[] { "16673", "A Test" }, ".", "", false, false, UnitTestStatic.Token)
+        StringConversion.CheckNumber(new[] { "16673", "A Test" }, ".", "", false, false, false,UnitTestStatic.Token)
           .FoundValueFormat != null);
       Assert.AreEqual(
         DataTypeEnum.Numeric,
-        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, ".", "", false, false, UnitTestStatic.Token)
+        StringConversion.CheckNumber(new[] { "16673", "-23", "1.4" }, ".", "", false, false, false,UnitTestStatic.Token)
           .FoundValueFormat!
           .DataType);
 
-      Assert.IsFalse(StringConversion.CheckNumber(Array.Empty<string>(), ".", "", false, false, UnitTestStatic.Token)
+      Assert.IsFalse(StringConversion.CheckNumber(Array.Empty<string>(), ".", "", false, false, false, UnitTestStatic.Token)
         .FoundValueFormat != null);
     }
 

@@ -94,7 +94,7 @@ namespace CsvTools.Tests
       var list = new List<string>();
       try
       {
-        Assert.IsNull(DetermineColumnFormat.GuessNumeric(list, true, true, UnitTestStatic.Token).FoundValueFormat);
+        Assert.IsNull(DetermineColumnFormat.GuessNumeric(list, true, true, true, UnitTestStatic.Token).FoundValueFormat);
       }
       catch (ArgumentException)
       {
@@ -109,7 +109,7 @@ namespace CsvTools.Tests
       try
       {
         Assert.IsNull(DetermineColumnFormat.GuessValueFormat(list, 2, "true", "false",
-            true, true, true, true, true, true, new ValueFormat(DataTypeEnum.DateTime), UnitTestStatic.Token)
+            true, true, true, true, true, true, true, new ValueFormat(DataTypeEnum.DateTime), UnitTestStatic.Token)
           .FoundValueFormat);
       }
       catch (ArgumentException)
@@ -584,7 +584,7 @@ namespace CsvTools.Tests
         setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows, setting.IdentifierInContainer,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, true);
       await test.OpenAsync(UnitTestStatic.Token);
       var samples = await DetermineColumnFormat.GetSampleValuesAsync(test, 1000, new[] { 0 }, 20,
         "NULL", 40, UnitTestStatic.Token);
@@ -611,7 +611,7 @@ namespace CsvTools.Tests
         setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone,
-        TimeZoneInfo.Local.Id);
+        TimeZoneInfo.Local.Id, true, true);
       await test.OpenAsync(UnitTestStatic.Token);
 
       var temp = await DetermineColumnFormat
@@ -636,7 +636,7 @@ namespace CsvTools.Tests
         true,
         true,
         true,
-        false,
+        false,false,
         null,
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.Boolean, res.FoundValueFormat?.DataType);
@@ -657,7 +657,7 @@ namespace CsvTools.Tests
         true,
         true,
         true,
-        false, 
+        false, true,
         null,
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.Boolean, res.FoundValueFormat?.DataType);
@@ -678,6 +678,7 @@ namespace CsvTools.Tests
         true,
         true,
         true,
+        false,
         false,
         new ValueFormat(),
         UnitTestStatic.Token);
@@ -700,7 +701,7 @@ namespace CsvTools.Tests
         true,
         true,
         true,
-        false,
+        false,true,
         new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
@@ -724,7 +725,7 @@ namespace CsvTools.Tests
         true,
         true,
         false,
-        
+        false,
         new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
@@ -748,7 +749,7 @@ namespace CsvTools.Tests
         false,
         false,
         false,
-        
+        false,
         new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.Guid, res.FoundValueFormat?.DataType);
@@ -770,7 +771,7 @@ namespace CsvTools.Tests
         true,
         true,
         false,
-        
+        false,
         new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.Integer, res.FoundValueFormat?.DataType);
@@ -792,6 +793,7 @@ namespace CsvTools.Tests
         true,
         true,
         false,
+        false,
         new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.Integer, res.FoundValueFormat?.DataType);
@@ -812,6 +814,7 @@ namespace CsvTools.Tests
         true,
         true,
         true,
+        false,
         false,
         new ValueFormat(),
         UnitTestStatic.Token);
@@ -836,7 +839,7 @@ namespace CsvTools.Tests
         true,
         true,
         false,
-        
+        false,
         new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
@@ -858,6 +861,7 @@ namespace CsvTools.Tests
         true,
         true,
         false,
+        false,
         new ValueFormat(),
         UnitTestStatic.Token);
       Assert.IsFalse(res.PossibleMatch);
@@ -878,6 +882,7 @@ namespace CsvTools.Tests
         true,
         true,
         true,
+        false,
         false,
         new ValueFormat(dataType: DataTypeEnum.DateTime, dateFormat: "MM/dd/yyyy", dateSeparator: "/"),
         UnitTestStatic.Token);
@@ -902,6 +907,7 @@ namespace CsvTools.Tests
           true,
           true,
           true,
+          false,
           false,
           null,
           UnitTestStatic.Token);
@@ -938,6 +944,7 @@ namespace CsvTools.Tests
         true,
         false,
         true,
+        false,
         new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.DateTime, res.FoundValueFormat?.DataType);
@@ -958,6 +965,7 @@ namespace CsvTools.Tests
         true,
         true,
         true,
+        false,
         false,
         new ValueFormat(),
         UnitTestStatic.Token);
@@ -980,7 +988,8 @@ namespace CsvTools.Tests
         true,
         true,
         true,
-        false,
+        false,        
+        true,
         new ValueFormat(),
         UnitTestStatic.Token);
       Assert.AreEqual(DataTypeEnum.Numeric, res.FoundValueFormat?.DataType);
@@ -1006,6 +1015,7 @@ namespace CsvTools.Tests
         false,
         false,
         false,
+        true,
         null,
         UnitTestStatic.Token);
       Assert.IsTrue(res.FoundValueFormat == null || res.FoundValueFormat?.DataType != DataTypeEnum.Integer);

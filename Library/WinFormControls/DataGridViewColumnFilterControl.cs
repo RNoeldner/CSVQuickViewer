@@ -172,7 +172,7 @@ namespace CsvTools
                          textBoxValue.Text,
                          CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator,
                          CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator,
-                         true) ?? StringConversion.StringToDecimal(textBoxValue.Text, ".", "", true);
+                         false, false) ?? StringConversion.StringToDecimal(textBoxValue.Text, ".", "", false, false);
           if (!nvalue.HasValue)
           {
             textBoxValue.Width = dateTimePickerValue.Width - 20;

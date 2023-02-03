@@ -66,7 +66,7 @@ namespace CsvTools.Tests
         skipEmptyLines: true,
         consecutiveEmptyRowsMax: 4,
         identifierInContainer: string.Empty,
-        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id);
+        timeZoneAdjust: StandardTimeZoneAdjust.ChangeTimeZone, destTimeZone: System.TimeZoneInfo.Local.Id, true, true);
       await reader.OpenAsync(CancellationToken.None);
       coll.HandleIgnoredColumns(reader);
 

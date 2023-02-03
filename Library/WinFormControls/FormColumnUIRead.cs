@@ -182,25 +182,22 @@ namespace CsvTools
           }
           else
           {
-            var detectBool = true;
-            var detectGuid = true;
-            var detectNumeric = true;
-            var detectDateTime = true;
 
             // detect all (except Serial dates) and be content with 1 records if need be
             var checkResult = DetermineColumnFormat.GuessValueFormat(
-              samples.Values,
-              1,
-              m_FillGuessSettings.TrueValue,
-              m_FillGuessSettings.FalseValue,
-              detectBool,
-              detectGuid,
-              detectNumeric,
-              detectDateTime,
-              detectNumeric,
-              detectDateTime,
-              DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection, m_FillGuessSettings.DateFormat),
-              formProgress.CancellationToken);
+              samples: samples.Values,
+              minRequiredSamples: 1,
+              trueValue: m_FillGuessSettings.TrueValue,
+              falseValue: m_FillGuessSettings.FalseValue,
+              guessBoolean: true,
+              guessGuid: true,
+              guessNumeric: true,
+              guessDateTime: true,
+              guessPercentage: m_FillGuessSettings.DetectPercentage,
+              serialDateTime: m_FillGuessSettings.SerialDateTime,
+              removeCurrencySymbols: m_FillGuessSettings.RemoveCurrencySymbols,
+              othersValueFormatDate: DetermineColumnFormat.CommonDateFormat(m_FileSetting.ColumnCollection, m_FillGuessSettings.DateFormat),
+              cancellationToken: formProgress.CancellationToken);
             formProgress.Hide();
             if (checkResult.FoundValueFormat is null)
             {
@@ -406,7 +403,7 @@ namespace CsvTools
 
           labelNumber.Text = $@"Input: ""{sample}""";
           labelNumberOutput.Text =
-            $@"Output: ""{StringConversion.StringToDecimal(sample, vf.DecimalSeparator, vf.GroupSeparator, false):N}""";
+            $@"Output: ""{StringConversion.StringToDecimal(sample, vf.DecimalSeparator, vf.GroupSeparator, false, false):N}""";
         });
       }
       catch (Exception ex)

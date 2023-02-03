@@ -503,7 +503,7 @@ namespace CsvTools
         inspectionResult.HasFieldHeader, inspectionResult.Columns, TrimmingOptionEnum.Unquoted, inspectionResult.FieldDelimiter,
         inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, 0L, false, false, inspectionResult.CommentLine, 0,
         true, "", "", "", true, false, false, false, false,
-        false, false, false, false, true, false, "NULL", true, 4, "", StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        false, false, false, false, true, false, "NULL", true, 4, "", StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, true);
     }
 
     /// <summary>

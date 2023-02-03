@@ -75,7 +75,7 @@ namespace CsvTools.Tests
         true,
         4,
         "",
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
       await csvFile.OpenAsync(UnitTestStatic.Token);
       await csvFile.ReadAsync(UnitTestStatic.Token);
       var trimmedCol = -1;
@@ -120,7 +120,7 @@ namespace CsvTools.Tests
         true,
         4,
         "",
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual(6, test.GetColumnsOfReader().Count());
     }
@@ -144,7 +144,7 @@ namespace CsvTools.Tests
         m_ValidSetting.WarnEmptyTailingColumns,
         m_ValidSetting.TreatNBSPAsSpace, m_ValidSetting.TreatTextAsNull, m_ValidSetting.SkipEmptyLines,
         m_ValidSetting.ConsecutiveEmptyRows,
-        m_ValidSetting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        m_ValidSetting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
       var result = await test.GetEmptyColumnHeaderAsync(UnitTestStatic.Token);
       Assert.AreEqual(0, result.Count);
@@ -166,7 +166,7 @@ namespace CsvTools.Tests
         test2.WarnDelimiterInValue, test2.WarnLineFeed, test2.WarnNBSP, test2.WarnQuotes, test2.WarnUnknownCharacter,
         test2.WarnEmptyTailingColumns,
         test2.TreatNBSPAsSpace, test2.TreatTextAsNull, test2.SkipEmptyLines, test2.ConsecutiveEmptyRows,
-        test2.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        test2.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
 
       await test.OpenAsync(UnitTestStatic.Token);
 
@@ -192,7 +192,7 @@ namespace CsvTools.Tests
         test3.WarnDelimiterInValue, test3.WarnLineFeed, test3.WarnNBSP, test3.WarnQuotes, test3.WarnUnknownCharacter,
         test3.WarnEmptyTailingColumns,
         test3.TreatNBSPAsSpace, test3.TreatTextAsNull, test3.SkipEmptyLines, test3.ConsecutiveEmptyRows,
-        test3.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        test3.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
       await test.OpenAsync(UnitTestStatic.Token);
 
       using var dt = await test.GetDataTableAsync(TimeSpan.FromSeconds(30), true,

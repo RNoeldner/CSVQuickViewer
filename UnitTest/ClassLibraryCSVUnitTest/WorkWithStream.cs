@@ -29,7 +29,7 @@ namespace CsvTools.Tests
                new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
                result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
                string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
+               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(FillGuessSettings.Default,
@@ -45,7 +45,7 @@ namespace CsvTools.Tests
                determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
                result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
                string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
+               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         Assert.AreEqual(6, reader.FieldCount);
@@ -69,7 +69,7 @@ namespace CsvTools.Tests
                new ColumnCollection(), TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
                result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
                string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
+               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         var (info, columns) = await reader.FillGuessColumnFormatReaderAsyncReader(FillGuessSettings.Default,
@@ -85,7 +85,7 @@ namespace CsvTools.Tests
                determinedColumns, TrimmingOptionEnum.Unquoted, result.FieldDelimiter, result.FieldQualifier,
                result.EscapePrefix, 0, false, false, result.CommentLine, 0, true, string.Empty, string.Empty,
                string.Empty, true, false, true, false, false, false, false, false, false, true, true, "", false, 0,
-               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id))
+               StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         Assert.AreEqual(6, reader.FieldCount);

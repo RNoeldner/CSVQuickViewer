@@ -44,27 +44,9 @@ namespace CsvTools
     public static Func<SourceAccess, Stream> OpenStream = fileAccess => new ImprovedStream(fileAccess);
 
 #if !QUICK
-
-    private static readonly IFileReaderWriterFactory m_FileReaderWriterFactory =
-      new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone);
-
-    /// <summary>
-    ///   Return a right writer for a file setting
-    /// </summary>
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting, CancellationToken, IFileWriter> GetFileWriter =
-      (setting, cancellationToken) =>
-        m_FileReaderWriterFactory.GetFileWriter(setting, cancellationToken);
-
-    /// <summary>
-    ///   Return the right reader for a file setting
-    /// </summary>
-    // ReSharper disable once FieldCanBeMadeReadOnly.Global
-    public static Func<IFileSetting,  CancellationToken, IFileReader> GetFileReader =
-      (setting, cancellationToken) =>
-        m_FileReaderWriterFactory.GetFileReader(setting, cancellationToken);
-
-
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    public static IFileReaderWriterFactory FileReaderWriterFactory { get; set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 #endif
   }
 }

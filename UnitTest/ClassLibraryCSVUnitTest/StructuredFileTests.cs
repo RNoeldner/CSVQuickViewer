@@ -76,7 +76,7 @@ namespace CsvTools.Tests
     {
       try
       {
-        using var dummy = FunctionalDI.GetFileReader(m_JsonFile, UnitTestStatic.Token);
+        using var dummy = FunctionalDI.FileReaderWriterFactory.GetFileReader(m_JsonFile, UnitTestStatic.Token);
         Assert.Fail("Should throw error");
       }
       catch (NotImplementedException)
@@ -92,7 +92,7 @@ namespace CsvTools.Tests
     {
       var jsonFile = new JsonFile("json", "SomeFileName.json", "{0}");
       m_JsonFile.SqlStatement = "dummy";
-      var res = FunctionalDI.GetFileWriter(jsonFile, UnitTestStatic.Token);
+      var res = FunctionalDI.FileReaderWriterFactory.GetFileWriter(jsonFile, UnitTestStatic.Token);
       Assert.IsInstanceOfType(res, typeof(IFileWriter));
     }
 

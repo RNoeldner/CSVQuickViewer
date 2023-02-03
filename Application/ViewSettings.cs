@@ -42,7 +42,7 @@ namespace CsvTools
     private bool m_WarnEmptyTailingColumns = true;
     private bool m_WarnLineFeed = true;
     private bool m_WarnNbsp = true;
-    private bool m_WarnQuotes = true;
+    private bool m_WarnQuotes = true;    
     private bool m_WarnUnknownCharacter = true;
 
     private string m_Font = "Tahoma";

@@ -235,6 +235,7 @@ namespace CsvTools
             fillGuessSettings.DetectDateTime,
             fillGuessSettings.DetectPercentage,
             fillGuessSettings.SerialDateTime,
+            fillGuessSettings.RemoveCurrencySymbols,
             othersValueFormatDate,
             cancellationToken);
 
@@ -315,6 +316,7 @@ namespace CsvTools
               samples.Values,
               false,
               true,
+              fillGuessSettings.RemoveCurrencySymbols,
               cancellationToken);
             if (checkResult.FoundValueFormat == null ||
                 checkResult.FoundValueFormat.DataType == DataTypeEnum.Double) continue;
@@ -794,6 +796,7 @@ namespace CsvTools
       IReadOnlyCollection<string> samples,
       bool guessPercentage,
       bool allowStartingZero,
+      bool removeCurrencySymbols,
       in CancellationToken cancellationToken)
     {
       if (samples is null || samples.Count == 0)
@@ -826,6 +829,7 @@ namespace CsvTools
             thousandSeparator,
             guessPercentage,
             allowStartingZero,
+            removeCurrencySymbols,
             cancellationToken);
           if (res.FoundValueFormat != null)
             return res;
@@ -865,6 +869,7 @@ namespace CsvTools
       bool guessDateTime,
       bool guessPercentage,
       bool serialDateTime,
+      bool removeCurrencySymbols,
       in ValueFormat othersValueFormatDate,
       in CancellationToken cancellationToken)
     {
@@ -971,7 +976,7 @@ namespace CsvTools
         // ---------------- Decimal / Integer --------------------------
         if (guessNumeric)
         {
-          var checkResultNumeric = GuessNumeric(samples, guessPercentage, false, cancellationToken);
+          var checkResultNumeric = GuessNumeric(samples, guessPercentage, false, removeCurrencySymbols, cancellationToken);
           if (checkResultNumeric.FoundValueFormat != null)
             return checkResultNumeric;
           checkResult.KeepBestPossibleMatch(checkResultNumeric);

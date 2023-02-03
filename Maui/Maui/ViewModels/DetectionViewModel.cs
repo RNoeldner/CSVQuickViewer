@@ -43,7 +43,9 @@ namespace Maui
           preference.GuessHasHeader,
           false,
           preference.GuessComment,
-          preference.GetFillGuessSettings(), CancellationTokenSource.Token);
+          preference.GetFillGuessSettings(), 
+          preference.DefaultCodePage, 
+          preference.DefaultByteOrderMark, CancellationTokenSource.Token);
       }
       finally
       {

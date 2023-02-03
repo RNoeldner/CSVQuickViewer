@@ -163,7 +163,7 @@ namespace CsvTools
       bool tryToSolveMoreColumns, bool warnDelimiterInValue, bool warnLineFeed, bool warnNbsp, bool warnQuotes,
       bool warnUnknownCharacter, bool warnEmptyTailingColumns, bool treatNbspAsSpace, in string treatTextAsNull,
       bool skipEmptyLines, int consecutiveEmptyRowsMax, in TimeZoneChangeDelegate timeZoneAdjust,
-      in string destTimeZone)
+      in string destTimeZone, bool allowPercentage, bool removeCurrency)
       : this(columnDefinition, codePageId, skipRows, hasFieldHeader,
         trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
         contextSensitiveQualifier, commentLine, numWarning, duplicateQualifierToEscape, newLinePlaceholder,
@@ -171,7 +171,7 @@ namespace CsvTools
         tryToSolveMoreColumns, warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter,
         warnEmptyTailingColumns, treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax,
         string.Empty,
-        string.Empty, timeZoneAdjust, destTimeZone)
+        string.Empty, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency)
     {
       m_Stream = stream ?? throw new ArgumentNullException(nameof(stream));
     }
@@ -187,7 +187,7 @@ namespace CsvTools
       bool warnDelimiterInValue, bool warnLineFeed, bool warnNbsp, bool warnQuotes, bool warnUnknownCharacter,
       bool warnEmptyTailingColumns, bool treatNbspAsSpace, in string treatTextAsNull, bool skipEmptyLines,
       int consecutiveEmptyRowsMax, in string identifierInContainer, in TimeZoneChangeDelegate timeZoneAdjust,
-      string destTimeZone)
+      string destTimeZone, bool allowPercentage, bool removeCurrency)
       : this(
         columnDefinition, codePageId, skipRows, hasFieldHeader,
         trimmingOption, fieldDelimiter, fieldQualifier, escapeCharacter, recordLimit, allowRowCombining,
@@ -196,7 +196,7 @@ namespace CsvTools
         tryToSolveMoreColumns,
         warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter, warnEmptyTailingColumns,
         treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax, identifierInContainer, fileName,
-        timeZoneAdjust, destTimeZone)
+        timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency)
     {
       if (fileName is null)
         throw new ArgumentNullException(nameof(fileName));
@@ -242,8 +242,10 @@ namespace CsvTools
       in string identifierInContainer,
       in string fileName,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      in string destTimeZone)
-      : base(fileName, columnDefinition, recordLimit, timeZoneAdjust, destTimeZone)
+      in string destTimeZone,
+      bool allowPercentage,
+      bool removeCurrency)
+      : base(fileName, columnDefinition, recordLimit, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency)
     {
       SelfOpenedStream = !string.IsNullOrEmpty(fileName);
       m_HeaderRow = Array.Empty<string>();

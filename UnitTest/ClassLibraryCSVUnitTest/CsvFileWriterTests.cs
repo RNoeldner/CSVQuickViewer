@@ -69,7 +69,7 @@ namespace CsvTools.Tests
         writeFile.Header, writeFile.Footer, "", writeFile.NewLine, writeFile.FieldDelimiterChar, writeFile.FieldQualifierChar, writeFile.EscapePrefixChar,
         writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       
-      using var reader = FunctionalDI.GetFileReader(setting, UnitTestStatic.Token);
+      using var reader = FunctionalDI.FileReaderWriterFactory.GetFileReader(setting, UnitTestStatic.Token);
       await reader.OpenAsync(UnitTestStatic.Token);
 
       var res = await writer.WriteAsync(reader, UnitTestStatic.Token);
@@ -119,7 +119,7 @@ namespace CsvTools.Tests
         writeFile.NewLinePlaceholder, writeFile.DelimiterPlaceholder, writeFile.QualifierPlaceholder, writeFile.QualifyAlways, writeFile.QualifyOnlyIfNeeded, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
       
 
-      using var reader = FunctionalDI.GetFileReader(setting, UnitTestStatic.Token);
+      using var reader = FunctionalDI.FileReaderWriterFactory.GetFileReader(setting, UnitTestStatic.Token);
       await reader.OpenAsync(UnitTestStatic.Token);
 
       var res = await writer.WriteAsync(reader, UnitTestStatic.Token);
