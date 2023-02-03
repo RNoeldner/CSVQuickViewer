@@ -51,7 +51,7 @@ namespace CsvTools.Tests
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, true, false);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("object_id", reader.GetColumn(0).Name);
 #pragma warning disable CS0618
@@ -83,7 +83,7 @@ namespace CsvTools.Tests
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, true, false);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("lesrlA_reason_id", reader.GetColumn(0).Name);
 #pragma warning disable CS0618

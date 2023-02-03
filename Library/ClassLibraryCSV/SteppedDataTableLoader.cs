@@ -41,7 +41,7 @@ namespace CsvTools
     {
       Logger.Debug("Starting to load data");
       m_Id = fileSetting.ID;
-      m_FileReader = FunctionalDI.GetFileReader(fileSetting, cancellationToken);
+      m_FileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSetting, cancellationToken);
       if (m_FileReader is null)
         throw new FileReaderException($"Could not get reader for {fileSetting}");
       if (progress != null)

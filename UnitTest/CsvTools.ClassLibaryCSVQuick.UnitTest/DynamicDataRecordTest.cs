@@ -19,7 +19,7 @@ namespace CsvTools.Tests
                true, false, false,
                false, false, false, false,
                false, false, "",
-               true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id))
+               true, 1, "ID", m_TimeZoneAdjust, System.TimeZoneInfo.Local.Id, true, false))
       {
         await reader.OpenAsync(UnitTestStatic.Token);
         await reader.ReadAsync();

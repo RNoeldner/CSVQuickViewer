@@ -94,7 +94,7 @@ namespace CsvTools.Tests
         setting.TreatUnknownCharacterAsSpace, setting.TryToSolveMoreColumns, setting.WarnDelimiterInValue,
         setting.WarnLineFeed, setting.WarnNBSP, setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull,
-        setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id);
+        setting.SkipEmptyLines, setting.ConsecutiveEmptyRows, setting.IdentifierInContainer, m_TimeZoneAdjust, TimeZoneInfo.Local.Id, true, false);
     }
 
     [TestMethod()]

@@ -24,11 +24,15 @@ namespace CsvTools
   public class ClassLibraryCsvFileReaderWriterFactory : IFileReaderWriterFactory
   {
     private readonly TimeZoneChangeDelegate m_TimeZoneAdjust;
+    private readonly FillGuessSettings m_FillGuessSettings;
 
     /// <summary>Initializes a new instance of the <see cref="ClassLibraryCsvFileReaderWriterFactory" /> class.</summary>
     /// <param name="timeZoneAdjust">The routine to do time zone adjustments</param>
-    public ClassLibraryCsvFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust) =>
+    public ClassLibraryCsvFileReaderWriterFactory(TimeZoneChangeDelegate timeZoneAdjust, FillGuessSettings fillGuessSettings)
+    {
       m_TimeZoneAdjust = timeZoneAdjust;
+      m_FillGuessSettings = fillGuessSettings;
+    }
 
     /// <inheritdoc />
     public IFileReader GetFileReader(IFileSetting setting, CancellationToken cancellationToken)
@@ -46,7 +50,7 @@ namespace CsvTools
           csv2.TryToSolveMoreColumns, csv2.WarnDelimiterInValue, csv2.WarnLineFeed, csv2.WarnNBSP, csv2.WarnQuotes,
           csv2.WarnUnknownCharacter, csv2.WarnEmptyTailingColumns, csv2.TreatNBSPAsSpace, csv2.TreatTextAsNull,
           csv2.SkipEmptyLines, csv2.ConsecutiveEmptyRows, csv2.IdentifierInContainer, m_TimeZoneAdjust,
-          TimeZoneInfo.Local.Id),
+          TimeZoneInfo.Local.Id, m_FillGuessSettings.DetectPercentage, m_FillGuessSettings.RemoveCurrencySymbols),
         _ => throw new FileReaderException($"Reader for {setting} not found")
       };
       return retReader;

@@ -33,6 +33,10 @@ namespace CsvTools
       new HashSet<string>(new[] { CultureInfo.CurrentCulture.DateTimeFormat.DateSeparator, "/", ".", "-" },
         StringComparer.Ordinal);
 
+    internal static readonly IReadOnlyCollection<string> CurrencySymbols =
+      new HashSet<string>(new[] { CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol, "$", "€", "£", "¥", "¢", "₨" },
+        StringComparer.Ordinal);
+
     internal static readonly IReadOnlyCollection<string> DecimalGroupings = new HashSet<string>(
       new[] { CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator, ".", ",", " ", "" },
       StringComparer.Ordinal);
@@ -274,6 +278,7 @@ namespace CsvTools
       in string thousandSeparator,
       bool allowPercentage,
       bool allowStartingZero,
+      bool removeCurrencySymbols,
       in CancellationToken cancellationToken)
     {
       var checkResult = new CheckResult();
@@ -289,7 +294,7 @@ namespace CsvTools
         if (value is null)
           continue;
 
-        var ret = StringToDecimal(value, decimalSeparator, thousandSeparator, allowPercentage);
+        var ret = StringToDecimal(value, decimalSeparator, thousandSeparator, allowPercentage, removeCurrencySymbols);
         // Any number with leading 0 should not be treated as numeric this is to avoid problems with
         // 0002 etc.
         if (!ret.HasValue || (!allowStartingZero && value.StartsWith("0", StringComparison.Ordinal)
@@ -855,13 +860,15 @@ namespace CsvTools
     /// <param name="value">The value.</param>
     /// <param name="decimalSeparator">The decimal separator. Do not pass in written punctuation</param>
     /// <param name="groupSeparator">The thousand separator. Do not pass in written punctuation</param>
-    /// <param name="allowPercentage">If set to true, a % will be recognized</param>
+    /// <param name="allowPercentage">If set to true, a % or ‰ will be recognized</param>
+    /// <param name="currencyRemoval">A list of currency smbols to remove before parsing</param>
     /// <returns>An decimal if the value could be interpreted, <c>null</c> otherwise</returns>
     public static decimal? StringToDecimal(
       in string value,
       in string decimalSeparator,
       in string groupSeparator,
-      bool allowPercentage)
+      bool allowPercentage,
+      bool currencyRemoval)
     {
       // Remove any white space
       var stringFieldValue = value.Trim();
@@ -871,7 +878,16 @@ namespace CsvTools
 
       var decimalSeparatorChar = decimalSeparator.StringToChar();
       var groupSeparatorChar = groupSeparator.StringToChar();
-      
+
+      if (currencyRemoval)
+      {
+        foreach (var currencySymbol in CurrencySymbols)
+        {
+          if (stringFieldValue.IndexOf(currencySymbol, StringComparison.OrdinalIgnoreCase) != -1)
+            stringFieldValue = stringFieldValue.Replace(currencySymbol, string.Empty).Trim();
+        }
+      }
+
       var startDecimal = stringFieldValue.Length;
       var lastPos = -3;
       // Sanity Check: In case the decimalSeparator occurs multiple times is not a number in case
@@ -879,7 +895,7 @@ namespace CsvTools
       for (var pos = 0; pos < stringFieldValue.Length; pos++)
       {
         if (stringFieldValue[pos] == decimalSeparatorChar)
-        {          
+        {
           if (startDecimal < stringFieldValue.Length)
             // Second decimal seperator
             return null;
@@ -896,7 +912,7 @@ namespace CsvTools
 
       // if we have a decimal point the group seperator has to be 3 places from the right e.g. 63.467.8373 is not ok, but 634.678.373 is
       if (lastPos > 0  && startDecimal != lastPos +4)
-         return null;
+        return null;
 
       var numberFormatProvider = new NumberFormatInfo
       {
@@ -908,7 +924,7 @@ namespace CsvTools
 
       if (stringFieldValue.StartsWith("(", StringComparison.Ordinal)
           && stringFieldValue.EndsWith(")", StringComparison.Ordinal))
-        stringFieldValue = "-" + stringFieldValue.Substring(1, stringFieldValue.Length - 2).TrimStart();
+        stringFieldValue = "-" + stringFieldValue.Substring(1, stringFieldValue.Length - 2).Trim();
 
       var percentage = false;
       // ReSharper disable once IdentifierTypo
@@ -976,7 +992,7 @@ namespace CsvTools
         return null;
       try
       {
-        var dec = StringToDecimal(value, decimalSeparator, thousandSeparator, false);
+        var dec = StringToDecimal(value, decimalSeparator, thousandSeparator, false, false);
         if (dec.HasValue)
           return Convert.ToInt16(dec.Value, CultureInfo.InvariantCulture);
       }
@@ -1001,7 +1017,7 @@ namespace CsvTools
         return null;
       try
       {
-        var dec = StringToDecimal(value, decimalSeparator, thousandSeparator, false);
+        var dec = StringToDecimal(value, decimalSeparator, thousandSeparator, false, false);
         if (dec.HasValue)
           return dec.Value.ToInt();
       }
@@ -1026,7 +1042,7 @@ namespace CsvTools
         return null;
       try
       {
-        var dec = StringToDecimal(value, decimalSeparator, thousandSeparator, false);
+        var dec = StringToDecimal(value, decimalSeparator, thousandSeparator, false, false);
         if (dec.HasValue)
           return dec.Value.ToInt64();
       }

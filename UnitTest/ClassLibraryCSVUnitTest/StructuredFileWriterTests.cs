@@ -42,7 +42,7 @@ namespace CsvTools.Tests
       readFile.ColumnCollection.Add(new Column("Proficiency", new ValueFormat(DataTypeEnum.Numeric)));
       readFile.ColumnCollection.Add(new Column("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean), ignore: true));
 
-      using var reader = FunctionalDI.GetFileReader(readFile, UnitTestStatic.Token);
+      using var reader = FunctionalDI.FileReaderWriterFactory.GetFileReader(readFile, UnitTestStatic.Token);
       await reader.OpenAsync(UnitTestStatic.Token);
 
       foreach (var col in reader.GetColumnsOfReader())
@@ -88,7 +88,7 @@ namespace CsvTools.Tests
       readFile.ColumnCollection.Add(new Column("Proficiency", new ValueFormat(DataTypeEnum.Numeric)));
       readFile.ColumnCollection.Add(new Column("IsNativeLang", new ValueFormat(DataTypeEnum.Boolean), ignore: true));
 
-      using var reader = FunctionalDI.GetFileReader(readFile, UnitTestStatic.Token);
+      using var reader = FunctionalDI.FileReaderWriterFactory.GetFileReader(readFile, UnitTestStatic.Token);
       await reader.OpenAsync(UnitTestStatic.Token);
 
       sb.AppendLine("<?xml version=\"1.0\"?>\n");

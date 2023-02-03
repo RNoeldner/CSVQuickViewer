@@ -545,7 +545,7 @@ namespace CsvTools.Tests
         test.WarnEmptyTailingColumns,
         test.TreatNBSPAsSpace, test.TreatTextAsNull,
         test.SkipEmptyLines, test.ConsecutiveEmptyRows, test.IdentifierInContainer,
-        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
       await reader.OpenAsync(UnitTestStatic.Token);
       Assert.AreEqual("RecordNumber", reader.GetName(0));
       await reader.ReadAsync(UnitTestStatic.Token);

@@ -29,7 +29,7 @@ namespace CsvTools.Tests
         setting.WarnQuotes, setting.WarnUnknownCharacter,
         setting.WarnEmptyTailingColumns, setting.TreatNBSPAsSpace, setting.TreatTextAsNull, setting.SkipEmptyLines,
         setting.ConsecutiveEmptyRows,
-        setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id);
+        setting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, System.TimeZoneInfo.Local.Id, true, false);
       await reader.OpenAsync(UnitTestStatic.Token);
       var test1 = new ColumnErrorDictionary(reader);
       Assert.IsNotNull(test1);

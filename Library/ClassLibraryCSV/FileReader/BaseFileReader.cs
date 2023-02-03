@@ -81,6 +81,9 @@ namespace CsvTools
     /// </summary>
     private int m_FieldCount;
 
+    private bool m_AllowPercentage = true;
+    private bool m_RemoveCurrency = true;
+
     /// <summary>
     ///   used to avoid reporting a fished execution twice it might be called on error before being
     ///   called once execution is done
@@ -106,7 +109,9 @@ namespace CsvTools
       in IEnumerable<Column>? columnDefinition,
       long recordLimit,
       in TimeZoneChangeDelegate timeZoneAdjust,
-      in string destTimeZone)
+      in string destTimeZone,
+      bool allowPercentage,
+      bool removeCurrency)
     {
       TimeZoneAdjust = timeZoneAdjust;
       DestTimeZone =destTimeZone;
@@ -115,6 +120,8 @@ namespace CsvTools
       FullPath = fileName;
       SelfOpenedStream = !string.IsNullOrWhiteSpace(fileName);
       FileName = FileSystemUtils.GetFileName(fileName);
+      m_AllowPercentage = allowPercentage;
+      m_RemoveCurrency =removeCurrency;
     }
 
     /// <inheritdoc />
@@ -971,7 +978,7 @@ namespace CsvTools
         inputValue,
         column.ValueFormat.DecimalSeparator,
         column.ValueFormat.GroupSeparator,
-        true);
+        m_AllowPercentage, m_RemoveCurrency);
       if (decimalValue.HasValue) return decimalValue.Value;
 
       HandleError(column.ColumnOrdinal, $"'{inputValue}' is not a decimal");

@@ -331,7 +331,8 @@ namespace CsvTools
                            value,
                            CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator,
                            CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator,
-                           true) ?? StringConversion.StringToDecimal(value, ".", "", true);
+                           false, false) ?? 
+                           StringConversion.StringToDecimal(value, ".", "", false, false);
           return string.Format(CultureInfo.InvariantCulture, "{0}", decValue);
 
         case TypeCode.Boolean:

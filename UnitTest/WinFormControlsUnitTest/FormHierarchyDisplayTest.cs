@@ -147,7 +147,7 @@ namespace CsvTools.Tests
         cvsSetting.WarnUnknownCharacter,
         cvsSetting.WarnEmptyTailingColumns, cvsSetting.TreatNBSPAsSpace, cvsSetting.TreatTextAsNull,
         cvsSetting.SkipEmptyLines, cvsSetting.ConsecutiveEmptyRows,
-        cvsSetting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id);
+        cvsSetting.IdentifierInContainer, StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, false);
       var dt = await csvDataReader.GetDataTableAsync(TimeSpan.FromSeconds(30), false,
         true, false, false, false, null, formProgress.CancellationToken);
 

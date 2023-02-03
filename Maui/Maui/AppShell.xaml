@@ -20,13 +20,11 @@
     </Shell.FlyoutHeader>
 
     <FlyoutItem Title="File"
-                Route="MainPage"
-                Icon="{OnPlatform Default='dotnet_bot.png', MacCatalyst=''}">
-    <ShellContent ContentTemplate="{DataTemplate local:MainPage}" />
+                Route="MainPage">
+        <ShellContent ContentTemplate="{DataTemplate local:MainPage}" />
     </FlyoutItem>
     <FlyoutItem Title="Settings"
-                Route="Settings"
-                Icon="{OnPlatform Default='dotnet_bot.png', MacCatalyst=''}">
+                Route="Settings"                >
         <ShellContent ContentTemplate="{DataTemplate local:Settings}" />
     </FlyoutItem>
     <!--

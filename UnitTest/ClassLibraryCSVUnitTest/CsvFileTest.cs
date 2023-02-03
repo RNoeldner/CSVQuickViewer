@@ -257,14 +257,14 @@ namespace CsvTools.Tests
     public void GetFileReader()
     {
       m_CsvFile.FileName = UnitTestStatic.GetTestPath("BasicCSV.txt");
-      using var res = FunctionalDI.GetFileReader(m_CsvFile, UnitTestStatic.Token);
+      using var res = FunctionalDI.FileReaderWriterFactory.GetFileReader(m_CsvFile, UnitTestStatic.Token);
       Assert.IsInstanceOfType(res, typeof(IFileReader));
     }
 
     [TestMethod]
     public void GetFileWriter()
     {
-      var res = FunctionalDI.GetFileWriter(m_CsvFile, UnitTestStatic.Token);
+      var res = FunctionalDI.FileReaderWriterFactory.GetFileWriter(m_CsvFile, UnitTestStatic.Token);
       Assert.IsInstanceOfType(res, typeof(IFileWriter));
     }
 

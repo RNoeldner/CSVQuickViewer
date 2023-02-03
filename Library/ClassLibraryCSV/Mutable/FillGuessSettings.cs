@@ -43,7 +43,7 @@ namespace CsvTools
     private string m_FalseValue;
     private string m_DateFormat;
     private bool m_DateParts;
-
+    private bool m_RemoveCurrencySymbols;
 
 #pragma warning disable CS0618
     public static FillGuessSettings Default = new FillGuessSettings();
@@ -60,7 +60,7 @@ namespace CsvTools
       bool? detectDateTime = true,
       bool? detectNumbers = true, bool? detectPercentage = true, bool? detectGuid = false, bool? serialDateTime = true,
       bool? dateParts = false, int? minSamples = 5, int? sampleValues = 150, long? checkedRecords = 30000,
-      string? trueValue = "True", string? falseValue = "False", string? dateFormat = "")
+      string? trueValue = "True", string? falseValue = "False", string? dateFormat = "", bool? removeCurrencySymbols = true)
     {
       m_Enabled = enabled ?? true;
       m_IgnoreIdColumns = ignoreIdColumns ?? true;
@@ -77,6 +77,7 @@ namespace CsvTools
       m_TrueValue = trueValue ?? "True";
       m_FalseValue = falseValue ?? "False";
       m_DateFormat = dateFormat ?? string.Empty;
+      m_RemoveCurrencySymbols = removeCurrencySymbols ?? true;
     }
 
     [DefaultValue(true)]
@@ -87,6 +88,16 @@ namespace CsvTools
     {
       get => m_Enabled;
       set => SetProperty(ref m_Enabled, value);
+    }
+
+    [DefaultValue(true)]
+#if XmlSerialization
+    [XmlElement]
+#endif
+    public bool RemoveCurrencySymbols
+    {
+      get => m_RemoveCurrencySymbols;
+      set => SetProperty(ref m_RemoveCurrencySymbols, value);
     }
 
     /// <summary>

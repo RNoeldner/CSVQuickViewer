@@ -80,7 +80,7 @@ namespace CsvTools
         csv.WarnQuotesInQuotes = false;
         csv.WarnEmptyTailingColumns= false;
       }
-      var reader = FunctionalDI.GetFileReader(fileSettingCopy, cancellationToken);
+      var reader = FunctionalDI.FileReaderWriterFactory.GetFileReader(fileSettingCopy, cancellationToken);
       await reader.OpenAsync(cancellationToken).ConfigureAwait(false);
       return reader;
     }
@@ -91,7 +91,7 @@ namespace CsvTools
 #if NET5_0_OR_GREATER
           await
 #endif
-      using var fileReader = FunctionalDI.GetFileReader(source, cancellationToken);
+      using var fileReader = FunctionalDI.FileReaderWriterFactory.GetFileReader(source, cancellationToken);
       await fileReader.OpenAsync(cancellationToken).ConfigureAwait(false);
       for (var colIndex = 0; colIndex < fileReader.FieldCount; colIndex++)
         res.Add(fileReader.GetColumn(colIndex));
