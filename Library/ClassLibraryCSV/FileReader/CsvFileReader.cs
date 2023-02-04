@@ -170,8 +170,7 @@ namespace CsvTools
         delimiterPlaceholder, quotePlaceholder, skipDuplicateHeader, treatLfAsSpace, treatUnknownCharacterAsSpace,
         tryToSolveMoreColumns, warnDelimiterInValue, warnLineFeed, warnNbsp, warnQuotes, warnUnknownCharacter,
         warnEmptyTailingColumns, treatNbspAsSpace, treatTextAsNull, skipEmptyLines, consecutiveEmptyRowsMax,
-        string.Empty,
-        string.Empty, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency)
+        string.Empty, string.Empty, timeZoneAdjust, destTimeZone, allowPercentage, removeCurrency)
     {
       m_Stream = stream ?? throw new ArgumentNullException(nameof(stream));
     }
@@ -249,9 +248,9 @@ namespace CsvTools
     {
       SelfOpenedStream = !string.IsNullOrEmpty(fileName);
       m_HeaderRow = Array.Empty<string>();
-      m_EscapePrefixChar = escapePrefix.WrittenPunctuationToChar();
-      m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuationToChar();
-      m_FieldQualifierChar = fieldQualifier.WrittenPunctuationToChar();
+      m_EscapePrefixChar = escapePrefix.WrittenPunctuation();
+      m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuation();
+      m_FieldQualifierChar = fieldQualifier.WrittenPunctuation();
 
       if (m_FieldDelimiterChar == '\0')
         throw new FileReaderException("All delimited text files do need a delimiter.");
@@ -267,13 +266,13 @@ namespace CsvTools
       if (m_EscapePrefixChar != '\0' &&
           (m_FieldDelimiterChar == m_EscapePrefixChar || m_FieldQualifierChar == m_EscapePrefixChar))
         throw new FileReaderException(
-          $"The escape character is invalid, please use something else than the field delimiter or qualifier character {m_EscapePrefixChar.GetDescription()}.");
+          $"The escape character is invalid, please use something else than the field delimiter or qualifier character {m_EscapePrefixChar.GetDescriptionShort()}.");
 
       m_HasQualifier = m_FieldQualifierChar != '\0';
 
       if (m_HasQualifier && m_FieldQualifierChar == m_FieldDelimiterChar)
         throw new ArgumentOutOfRangeException(
-          $"The field qualifier and the field delimiter characters of a delimited file cannot be the same character {m_FieldDelimiterChar.GetDescription()}");
+          $"The field qualifier and the field delimiter characters of a delimited file cannot be the same character {m_FieldDelimiterChar.GetDescriptionShort()}");
 
       m_AllowRowCombining = allowRowCombining;
       m_ContextSensitiveQualifier = contextSensitiveQualifier;
@@ -714,12 +713,12 @@ namespace CsvTools
             if (m_WarnQuotes && adjustedValue.IndexOf(m_FieldQualifierChar) != -1 &&
                 (m_NumWarning < 1 || m_NumWarningsQuote++ < m_NumWarning))
               HandleWarning(columnNo,
-                $"Field qualifier '{m_FieldQualifierChar.GetDescription()}' found in field".AddWarningId());
+                $"Field qualifier '{m_FieldQualifierChar.GetDescriptionShort()}' found in field".AddWarningId());
 
             if (m_WarnDelimiterInValue && adjustedValue.IndexOf(m_FieldDelimiterChar) != -1 &&
                 (m_NumWarning < 1 || m_NumWarningsDelimiter++ < m_NumWarning))
               HandleWarning(columnNo,
-                $"Field delimiter '{m_FieldDelimiterChar.GetDescription()}' found in field".AddWarningId());
+                $"Field delimiter '{m_FieldDelimiterChar.GetDescriptionShort()}' found in field".AddWarningId());
 
             if (m_WarnUnknownCharacter)
             {

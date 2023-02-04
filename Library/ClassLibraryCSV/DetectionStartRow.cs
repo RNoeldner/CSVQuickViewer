@@ -10,18 +10,18 @@ namespace CsvTools
     ///   Guess the start row of a CSV file done with a rather simple csv parsing
     /// </summary>
     /// <param name="textReader">The text reader to read the data</param>
-    /// <param name="delimiter">The delimiter.</param>
-    /// <param name="quote">The quoting char</param>
-    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
+    /// <param name="fieldDelimiterChar">The delimiter.</param>
+    /// <param name="fieldQualifierChar">The quoting char</param>
+    /// <param name="escapePrefixChar">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="commentLine">The characters for a comment line.</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>The number of rows to skip</returns>
     /// <exception cref="ArgumentNullException">commentLine</exception>
     public static int InspectStartRow(
       this ImprovedTextReader textReader,
-      string delimiter,
-      string quote,
-      string escapePrefix,
+      char fieldDelimiterChar,
+      char fieldQualifierChar,
+      char escapePrefixChar,
       string commentLine,
       CancellationToken cancellationToken)
     {
@@ -30,9 +30,7 @@ namespace CsvTools
       if (commentLine is null)
         throw new ArgumentNullException(nameof(commentLine));
       const int maxRows = 50;
-      var delimiterChar = delimiter.WrittenPunctuationToChar();
-      var quoteChar = quote.WrittenPunctuationToChar();
-      var escapeChar = escapePrefix.WrittenPunctuationToChar();
+      
       textReader.ToBeginning();
       var columnCount = new List<int>(maxRows);
       var rowMapping = new Dictionary<int, int>(maxRows);
@@ -67,15 +65,15 @@ namespace CsvTools
           }
         }
 
-        if (readChar == escapeChar && !isComment[currentRow])
+        if (readChar == escapePrefixChar && !isComment[currentRow])
           continue;
 
         // Handle Quoting
-        if (readChar == quoteChar && !isComment[currentRow])
+        if (readChar == fieldQualifierChar && !isComment[currentRow])
         {
           if (quoted)
           {
-            if (textReader.Peek() != quoteChar)
+            if (textReader.Peek() != fieldQualifierChar)
               quoted = false;
             else
               textReader.MoveNext();
@@ -109,7 +107,7 @@ namespace CsvTools
             break;
 
           default:
-            if (!isComment[currentRow] && !quoted && readChar == delimiterChar)
+            if (!isComment[currentRow] && !quoted && readChar == fieldDelimiterChar)
             {
               colCount[currentRow]++;
               firstChar = true;

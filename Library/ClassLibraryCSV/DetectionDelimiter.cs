@@ -14,8 +14,8 @@ namespace CsvTools
     ///   the positioning (Score), as a delimiter is preceded by a text or by a quote will increase the score.
     /// </summary>
     /// <param name="textReader">The text reader to read the data</param>
-    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
+    /// <param name="fieldQualifierChar">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+    /// <param name="escapePrefixChar">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="disallowedDelimiter">Character rules out as possible delimiters</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>A character with the assumed delimiter for the file</returns>
@@ -23,8 +23,8 @@ namespace CsvTools
     /// <remarks>No Error will not be thrown.</remarks>
     public static async Task<DelimiterDetection> InspectDelimiterAsync(
       this ImprovedTextReader textReader,
-      string fieldQualifier,
-      string escapePrefix,
+      char fieldQualifierChar,
+      char escapePrefixChar,
       IEnumerable<char>? disallowedDelimiter,
       CancellationToken cancellationToken)
     {
@@ -42,13 +42,13 @@ namespace CsvTools
           if (resultFl.Equals("\\t", StringComparison.OrdinalIgnoreCase))
             resultFl = "Tab";
           Logger.Information($"Delimiter from 'sep=' in first line: {resultFl}");
-          return new DelimiterDetection(resultFl, true, true);
+          return new DelimiterDetection(resultFl.WrittenPunctuation(), true, true);
         }
 
         textReader.ToBeginning();
       }
 
-      var delimiterCounter = textReader.GetDelimiterCounter(fieldQualifier, escapePrefix, 300, disallowedDelimiter, cancellationToken);
+      var delimiterCounter = textReader.GetDelimiterCounter(fieldQualifierChar, escapePrefixChar, 300, disallowedDelimiter, cancellationToken);
       var numberOfRows = delimiterCounter.FilledRows;
 
       // Limit everything to 100 columns max, the sum might get too big otherwise 100 * 100
@@ -150,19 +150,18 @@ namespace CsvTools
       if (match == '\0')
       {
         Logger.Information("Not a delimited file");
-        return new DelimiterDetection("Tab", false, false);
+        return new DelimiterDetection('\t', false, false);
       }
 
-      var result = match == '\t' ? "Tab" : match.ToString();
-      Logger.Information($"Column Delimiter: {result}");
-      return new DelimiterDetection(result, true, false);
+      Logger.Information($"Column Delimiter: {match.GetDescriptionShort()}");
+      return new DelimiterDetection(match, true, false);
     }
 
 
     /// <summary>Counts the delimiters in DelimiterCounter</summary>
     /// <param name="textReader">The text reader to read the data</param>
-    /// <param name="fieldQualifier">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
-    /// <param name="escapePrefix">The start of an escape sequence to allow delimiter or qualifier in column</param>
+    /// <param name="quoteCharacter">Qualifier / Quoting of column to allow delimiter or linefeed to be contained in column</param>
+    /// <param name="escapeCharacter">The start of an escape sequence to allow delimiter or qualifier in column</param>
     /// <param name="numRows">The number of rows to read</param>
     /// <param name="disallowedDelimiter">You can pass in delimiters that should not be detected, 
     /// if you know that a delimiter is defiantly not suitable.</param>
@@ -173,16 +172,14 @@ namespace CsvTools
     /// <exception cref="System.ArgumentNullException">textReader</exception>
     private static DelimiterCounter GetDelimiterCounter(
       this ImprovedTextReader textReader,
-      string fieldQualifier,
-      string escapePrefix,
+      char quoteCharacter,
+      char escapeCharacter,
       int numRows,
       IEnumerable<char>? disallowedDelimiter,
       CancellationToken cancellationToken)
     {
       if (textReader is null)
         throw new ArgumentNullException(nameof(textReader));
-      var escapeCharacter = escapePrefix.WrittenPunctuationToChar();
-      var quoteCharacter = fieldQualifier.WrittenPunctuationToChar();
       var dc = new DelimiterCounter(numRows, disallowedDelimiter, quoteCharacter);
 
       var quoted = false;
@@ -219,11 +216,11 @@ namespace CsvTools
 
     public struct DelimiterDetection
     {
-      public readonly string Delimiter;
+      public readonly char Delimiter;
       public readonly bool IsDetected;
       public readonly bool MagicKeyword;
 
-      public DelimiterDetection(in string delimiter, bool isDetected, bool magicKeyword)
+      public DelimiterDetection(char delimiter, bool isDetected, bool magicKeyword)
       {
         Delimiter = delimiter;
         IsDetected = isDetected;

@@ -29,8 +29,6 @@ namespace CsvTools
     private bool m_DetectFileChanges = true;
     private FillGuessSettings m_FillGuessSettings = FillGuessSettings.Default;
     private bool m_GuessCodePage = true;
-    private int m_DefaultCodePage = 65001;
-    private bool m_DefaultByteOrderMark = true;
     private bool m_GuessEscapePrefix = true;
     private bool m_GuessComment = true;
     private bool m_GuessDelimiter = true;
@@ -44,7 +42,6 @@ namespace CsvTools
     private bool m_WarnNbsp = true;
     private bool m_WarnQuotes = true;    
     private bool m_WarnUnknownCharacter = true;
-
     private string m_Font = "Tahoma";
     private float m_FontSize = 8.25f;
     private HtmlStyle m_HtmlStyle = HtmlStyle.Default;
@@ -89,19 +86,8 @@ namespace CsvTools
       set => SetProperty(ref m_FontSize, value);
     }
 
-    [DefaultValue(65001)]
-    public int DefaultCodePage
-    {
-      get => (m_GuessCodePage) ? 65001 : m_DefaultCodePage;
-      set => SetProperty(ref m_DefaultCodePage, value);
-    }
+    public InspectionResult DefaultInspectionResult { get; } = new InspectionResult();
 
-    [DefaultValue(true)]
-    public bool DefaultByteOrderMark
-    {
-      get => (m_GuessCodePage) ? true : m_DefaultByteOrderMark;
-      set => SetProperty(ref m_DefaultByteOrderMark, value);
-    }
 
     [DefaultValue(false)]
     public bool DisplayRecordNo

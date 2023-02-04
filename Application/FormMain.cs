@@ -65,7 +65,7 @@ namespace CsvTools
       InitializeComponent();
       Text = AssemblyTitle;
 
-      FunctionalDI.FileReaderWriterFactory =new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, viewSettings.FillGuessSettings);      
+      FunctionalDI.FileReaderWriterFactory = new ClassLibraryCsvFileReaderWriterFactory(StandardTimeZoneAdjust.ChangeTimeZone, viewSettings.FillGuessSettings);      
 
       // add the not button not visible in designer to the detail control
       detailControl.AddToolStripItem(0, m_ToolStripButtonSettings);
@@ -199,7 +199,7 @@ namespace CsvTools
           m_ViewSettings.GuessCodePage, m_ViewSettings.GuessEscapePrefix,
           m_ViewSettings.GuessDelimiter, m_ViewSettings.GuessQualifier, m_ViewSettings.GuessStartRow,
           m_ViewSettings.GuessHasHeader, m_ViewSettings.GuessNewLine, m_ViewSettings.GuessComment,
-          m_ViewSettings.FillGuessSettings, m_ViewSettings.DefaultCodePage, m_ViewSettings.DefaultByteOrderMark, cancellationToken);
+          m_ViewSettings.FillGuessSettings, m_ViewSettings.DefaultInspectionResult, cancellationToken);
 
         m_FileSetting = detection.PhysicalFile();
 

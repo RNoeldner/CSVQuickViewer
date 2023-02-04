@@ -16,7 +16,6 @@
 using ICSharpCode.SharpZipLib.Zip;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -83,7 +82,7 @@ namespace CsvTools
       throw new FileNotFoundException(dataFile);
     }
 
-    public static async Task< InspectionResult?> ReadManifestZip(string fileName)
+    public static async Task<InspectionResult?> ReadManifestZip(string fileName)
     {
       Logger.Debug("Opening Zip file {filename}", fileName);
 
@@ -119,20 +118,20 @@ namespace CsvTools
       var mani = JsonConvert.DeserializeObject<ManifestData>(strContend);
       if (mani is null)
         throw new InvalidOperationException("The manifest file could not be deserialized");
-      var detectionResult = new InspectionResult(fileName)
-      {        
-        SkipRows =0,
+      var detectionResult = new InspectionResult()
+      {
+        FileName =  fileName,
+        SkipRows = 0,
         CodePageId= Encoding.UTF8.CodePage,
-        ByteOrderMark= false,        
+        ByteOrderMark= false,
         IdentifierInContainer = identifierInContainer,
-        CommentLine ="#",
-        FieldDelimiter= ",",
+        CommentLine = "#",
+        FieldDelimiter= ',',
         NewLine=  RecordDelimiterTypeEnum.Lf,
         ContextSensitiveQualifier = false,
         HasFieldHeader = false
       };
 
-      var columnCollection = new List<Column>();
       foreach (var fld in mani.Fields)
       {
         ValueFormat vf;
@@ -182,7 +181,7 @@ namespace CsvTools
 
         detectionResult.Columns.Add(new Column(fld.PubName, vf, fld.Ordinal, destinationName: fld.PubName));
       }
-      
+
       return detectionResult;
     }
 

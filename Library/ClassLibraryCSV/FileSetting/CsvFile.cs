@@ -209,7 +209,7 @@ namespace CsvTools
         var newVal = (value ?? string.Empty).Trim();
         if (m_EscapePrefix.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_EscapePrefixChar = newVal.WrittenPunctuationToChar();
+        m_EscapePrefixChar = newVal.WrittenPunctuation();
         m_EscapePrefix = newVal;
         NotifyPropertyChanged();
         NotifyPropertyChanged(nameof(EscapePrefixChar));
@@ -229,7 +229,7 @@ namespace CsvTools
         var newVal = (value ?? string.Empty).Trim(StringUtils.Spaces);
         if (m_FieldDelimiter.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_FieldDelimiterChar = newVal.WrittenPunctuationToChar();
+        m_FieldDelimiterChar = newVal.WrittenPunctuation();
         m_FieldDelimiter = newVal;
         NotifyPropertyChanged();
         NotifyPropertyChanged(nameof(FieldDelimiterChar));
@@ -256,7 +256,7 @@ namespace CsvTools
         var newVal = (value ?? string.Empty).Trim();
         if (m_FieldQualifier.Equals(newVal, StringComparison.Ordinal))
           return;
-        m_FieldQualifierChar = newVal.WrittenPunctuationToChar();
+        m_FieldQualifierChar = newVal.WrittenPunctuation();
         m_FieldQualifier = newVal;
         NotifyPropertyChanged();
         NotifyPropertyChanged(nameof(m_FieldQualifierChar));

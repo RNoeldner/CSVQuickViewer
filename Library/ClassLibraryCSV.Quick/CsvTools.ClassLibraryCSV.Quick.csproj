@@ -89,6 +89,7 @@
 		<Compile Include="..\ClassLibraryCSV\ProcessDisplayTime.cs" Link="ProcessDisplayTime.cs" />
 
 		<Compile Include="..\ClassLibraryCSV\ReaderMapping.cs" Link="ReaderMapping.cs" />
+		<Compile Include="..\ClassLibraryCSV\InspectionResult.cs" Link="InspectionResult.cs" />
 
 
 		<Compile Include="..\ClassLibraryCSV\ReAlignColumns.cs" Link="ReAlignColumns.cs" />

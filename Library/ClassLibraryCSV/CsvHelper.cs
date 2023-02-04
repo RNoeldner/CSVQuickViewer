@@ -46,6 +46,7 @@ namespace CsvTools
     /// <param name="guessNewLine">if set to <c>true</c> determine combination of new line.</param>
     /// <param name="guessCommentLine"></param>
     /// <param name="fillGuessSettings">The fill guess settings.</param>
+    /// <param name="defaultInspectionResult">Default in case inspection is wanted</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns>
     ///   <see cref="InspectionResult" /> with found information, or default if that test was not done
@@ -61,7 +62,7 @@ namespace CsvTools
       bool guessNewLine,
       bool guessCommentLine,
       FillGuessSettings fillGuessSettings,
-      int defaultCodePage, bool defaultByteOrderMark,
+      InspectionResult defaultInspectionResult, 
       CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(fileName))
@@ -110,16 +111,17 @@ namespace CsvTools
                 col.DestinationName,
                 col.TimePart, col.TimePartFormat, col.TimeZonePart));
 
-          return new InspectionResult(fileNameFile)
+          return new InspectionResult()
           {
+            FileName = fileNameFile,
             SkipRows = fileSettingSer.SkipRows,
             CodePageId = fileSettingSer.CodePageId,
             ByteOrderMark = fileSettingSer.ByteOrderMark,
             IdentifierInContainer = fileSettingSer.IdentifierInContainer,
             CommentLine = fileSettingSer.CommentLine,
-            EscapePrefix = fileSettingSer.EscapePrefix,
-            FieldDelimiter = fileSettingSer.FieldDelimiter,
-            FieldQualifier= fileSettingSer.FieldQualifier,
+            EscapePrefix = fileSettingSer.EscapePrefix.WrittenPunctuation(),
+            FieldDelimiter = fileSettingSer.FieldDelimiterChar,
+            FieldQualifier= fileSettingSer.FieldQualifierChar,
             ContextSensitiveQualifier= fileSettingSer.ContextSensitiveQualifier,
             DuplicateQualifierToEscape = fileSettingSer.DuplicateQualifierToEscape,
             HasFieldHeader = fileSettingSer.HasFieldHeader,
@@ -173,7 +175,7 @@ namespace CsvTools
         guessStartRow,
         guessHasHeader,
         guessNewLine,
-        guessCommentLine,defaultCodePage, defaultByteOrderMark,
+        guessCommentLine, defaultInspectionResult, 
         cancellationToken).ConfigureAwait(false);
 
       Logger.Information("Determining column format by reading samples");
@@ -276,7 +278,7 @@ namespace CsvTools
         inspectionResult.CommentLine =  await textReader.InspectLineCommentAsync(cancellationToken).ConfigureAwait(false);
       }
 
-      var oldDelimiter = inspectionResult.FieldDelimiter.WrittenPunctuationToChar();
+      var oldDelimiter = inspectionResult.FieldDelimiter;
       // from here on us the encoding to read the stream again
       // ========== Start Row
       if (guessStartRow && oldDelimiter != 0)
@@ -320,7 +322,7 @@ namespace CsvTools
           Logger.Information("Checking Qualifier");
           var qualifier = textReader.InspectQualifier(inspectionResult.FieldDelimiter, inspectionResult.EscapePrefix, new[] { '"', '\'' }, cancellationToken);
 
-          inspectionResult.FieldQualifier= char.ToString(qualifier.QuoteChar);
+          inspectionResult.FieldQualifier= qualifier.QuoteChar;
           inspectionResult.ContextSensitiveQualifier= !(qualifier.DuplicateQualifier || qualifier.EscapedQualifier);
           inspectionResult.DuplicateQualifierToEscape = qualifier.DuplicateQualifier;
         }
@@ -341,7 +343,7 @@ namespace CsvTools
       {
         cancellationToken.ThrowIfCancellationRequested();
         // find start row again , with possibly changed FieldDelimiter
-        if (oldDelimiter != inspectionResult.FieldDelimiter.StringToChar())
+        if (oldDelimiter != inspectionResult.FieldDelimiter)
         {
           Logger.Information("Checking start row again because previously assumed delimiter has changed");
           using var textReader2 = await stream.GetTextReaderAsync(inspectionResult.CodePageId, inspectionResult.SkipRows, cancellationToken);
@@ -381,12 +383,13 @@ namespace CsvTools
 #if !QUICK
     public static async Task InspectReadCsvAsync(this ICsvFile csvFile, CancellationToken cancellationToken)
     {
-      var det = await csvFile.FileName.GetInspectionResultFromFileAsync(false, true, true, true, true, true, true, false, true, 65001, true, cancellationToken).ConfigureAwait(false);
+      var det = await csvFile.FileName.GetInspectionResultFromFileAsync(false, true, true, true, true, true, true, false, true, 
+        new InspectionResult(), cancellationToken).ConfigureAwait(false);
       csvFile.CodePageId = det.CodePageId;
       csvFile.ByteOrderMark = det.ByteOrderMark;
-      csvFile.EscapePrefix= det.EscapePrefix;
-      csvFile.FieldDelimiter = det.FieldDelimiter;
-      csvFile.FieldQualifier = det.FieldQualifier;
+      csvFile.EscapePrefix= det.EscapePrefix.ToStringHandle0();
+      csvFile.FieldDelimiter = det.FieldDelimiter.ToStringHandle0();
+      csvFile.FieldQualifier = det.FieldQualifier.ToStringHandle0();
       csvFile.SkipRows = det.SkipRows;
       csvFile.HasFieldHeader = det.HasFieldHeader;
       csvFile.CommentLine = det.CommentLine;
@@ -409,6 +412,7 @@ namespace CsvTools
     /// </param>
     /// <param name="guessNewLine">if true, try to determine what kind of new line we do use</param>
     /// <param name="guessCommentLine"></param>
+    /// <param name="inspectionResult">Default in case inspection is wanted</param>
     /// <param name="cancellationToken">Cancellation token to stop a possibly long running process</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">file name can not be empty - fileName</exception>
@@ -416,7 +420,7 @@ namespace CsvTools
       bool guessJson, bool guessCodePage, bool guessEscapePrefix,
       bool guessDelimiter, bool guessQualifier,
       bool guessStartRow, bool guessHasHeader,
-      bool guessNewLine, bool guessCommentLine, int defaultCodePage, bool defaultByteOrderMark,
+      bool guessNewLine, bool guessCommentLine, InspectionResult inspectionResult,
       CancellationToken cancellationToken)
     {
       if (string.IsNullOrEmpty(fileName))
@@ -427,13 +431,7 @@ namespace CsvTools
       var checks = GetNumberOfChecks(guessJson, guessCodePage, guessDelimiter, guessQualifier, guessStartRow,
         guessHasHeader, guessNewLine, guessCommentLine);
 
-      var inspectionResult = new InspectionResult(fileName);
-      if (!guessCodePage && defaultCodePage>0)
-      {
-        inspectionResult.CodePageId= defaultCodePage;
-        inspectionResult.ByteOrderMark = defaultByteOrderMark;
-      }
-
+      inspectionResult.FileName = fileName;
 
       do
       {
@@ -445,7 +443,7 @@ namespace CsvTools
         using var improvedStream = FunctionalDI.OpenStream(sourceAccess);
         inspectionResult.IdentifierInContainer = sourceAccess.IdentifierInContainer;
         // Determine from file
-        await improvedStream!.UpdateInspectionResultAsync(
+        await improvedStream.UpdateInspectionResultAsync(
           inspectionResult,
           guessJson,
           guessCodePage,
@@ -476,7 +474,7 @@ namespace CsvTools
               $"Found field delimiter {inspectionResult.FieldDelimiter} is not valid, checking for an alternative", checks+2,
               true);
             hasFields = false;
-            disallowedDelimiter.Add(inspectionResult.FieldDelimiter.WrittenPunctuationToChar());
+            disallowedDelimiter.Add(inspectionResult.FieldDelimiter);
             // no need to check for Json again
             guessJson = false;
           }
@@ -500,8 +498,8 @@ namespace CsvTools
       return new CsvFileReader(
         fileName, inspectionResult.CodePageId,
         inspectionResult is { HasFieldHeader: false, SkipRows: 0 } ? 1 : inspectionResult.SkipRows,
-        inspectionResult.HasFieldHeader, inspectionResult.Columns, TrimmingOptionEnum.Unquoted, inspectionResult.FieldDelimiter,
-        inspectionResult.FieldQualifier, inspectionResult.EscapePrefix, 0L, false, false, inspectionResult.CommentLine, 0,
+        inspectionResult.HasFieldHeader, inspectionResult.Columns, TrimmingOptionEnum.Unquoted, inspectionResult.FieldDelimiter.ToStringHandle0(),
+        inspectionResult.FieldQualifier.ToStringHandle0(), inspectionResult.EscapePrefix.ToStringHandle0(), 0L, false, false, inspectionResult.CommentLine, 0,
         true, "", "", "", true, false, false, false, false,
         false, false, false, false, true, false, "NULL", true, 4, "", StandardTimeZoneAdjust.ChangeTimeZone, TimeZoneInfo.Local.Id, true, true);
     }
