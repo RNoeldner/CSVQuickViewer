@@ -30,7 +30,7 @@ namespace CsvTools
     {
       if (textReader is null)
         throw new ArgumentNullException(nameof(textReader));
-      var match = '\0';
+      var match = char.MinValue;
 
       if (textReader.CanSeek)
       {
@@ -147,7 +147,7 @@ namespace CsvTools
                           .ThenByDescending(x => delimiterCounter.SeparatorScore[x.Key]).First().Key];
       }
 
-      if (match == '\0')
+      if (match == char.MinValue)
       {
         Logger.Information("Not a delimited file");
         return new DelimiterDetection('\t', false, false);

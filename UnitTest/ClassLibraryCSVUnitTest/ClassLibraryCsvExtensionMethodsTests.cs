@@ -188,7 +188,7 @@ namespace CsvTools.Tests
     {
       Assert.AreEqual("Horizontal Tab", '\t'.ToStringHandle0().GetDescription());
       Assert.AreEqual("Space", ' '.GetDescriptionShort());
-      Assert.IsTrue('\\'.GetDescriptionShort().Contains("Backslash"));
+      Assert.IsTrue("\\".GetDescription().Contains("Backslash"));
       Assert.IsTrue("'".GetDescription().Contains("\'"));
     }
 

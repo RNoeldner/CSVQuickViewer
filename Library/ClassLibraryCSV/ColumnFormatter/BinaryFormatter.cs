@@ -41,10 +41,10 @@ namespace CsvTools
       $"{fileName}\0{Convert.ToBase64String(content)}";
 
     private static byte[] GetContentFromNameAndContent(in string contentsWithFileName) =>
-      Convert.FromBase64String(contentsWithFileName.Substring(contentsWithFileName.IndexOf('\0') + 1));
+      Convert.FromBase64String(contentsWithFileName.Substring(contentsWithFileName.IndexOf(char.MinValue) + 1));
 
     public static string GetNameFromNameAndContent(in string contentsWithFileName) =>
-      contentsWithFileName.Substring(0, contentsWithFileName.IndexOf('\0'));
+      contentsWithFileName.Substring(0, contentsWithFileName.IndexOf(char.MinValue));
 
 
     /// <inheritdoc/>

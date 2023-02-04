@@ -69,7 +69,7 @@ namespace CsvTools
       CancellationToken cancellationToken)
     {
       // if we do not have a quote defined it does not matter
-      if (fieldQualifierChar == '\0' || cancellationToken.IsCancellationRequested)
+      if (fieldQualifierChar == char.MinValue || cancellationToken.IsCancellationRequested)
         return false;
       
       using var streamReader = await stream.GetTextReaderAsync(codePageId, skipRows, cancellationToken).ConfigureAwait(false);
@@ -123,7 +123,7 @@ namespace CsvTools
       {
         var c = (char) textReader.Read();
         // disregard spaces
-        if (c == ' ' || c== '\0')
+        if (c == ' ' || c== char.MinValue)
           continue;
 
         if (c == escapeChar)
