@@ -61,7 +61,7 @@ namespace CsvTools
     private string m_DelimiterPlaceholder = cDelimiterPlaceholderDefault;
     private bool m_DuplicateQualifierToEscape = cDuplicateQualifierToEscapeDefault;
     private string m_EscapePrefix = cEscapePrefixDefault;
-    private char m_EscapePrefixChar = '\0';
+    private char m_EscapePrefixChar = char.MinValue;
     private string m_FieldDelimiter = cFieldDelimiterDefault;
     private char m_FieldDelimiterChar = cFieldDelimiterDefault[0];
     private string m_FieldQualifier = cFieldQualifierDefault;

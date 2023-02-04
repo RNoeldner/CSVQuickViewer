@@ -20,7 +20,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -275,14 +274,8 @@ namespace CsvTools
       {
         '\t' => "Tab",
         ' ' => "Space",
-        '\\' => "Backslash",
         '\u00A0' => "NBSP",
-        ',' => "Comma",
-        ';' => "Semicolon",
-        ':' => "Colon",
-        '|' => "Pipe",
-        '\'' => "Apostrophe",
-        _ => input.ToString()
+        _ => input.ToStringHandle0()
       };
     }
 
@@ -634,15 +627,15 @@ namespace CsvTools
 
       if (exchange1 && exchange2 && string.Equals(new1, old2))
       {
-        inputValue = inputValue.Replace(old1!, "{\0}");
-        inputValue = inputValue.Replace(old2!, new2);
+        inputValue = inputValue.Replace(old1, "{\0}");
+        inputValue = inputValue.Replace(old2, new2);
         return inputValue.Replace("{\0}", new1);
       }
 
       if (exchange1)
-        inputValue = inputValue.Replace(old1!, new1);
+        inputValue = inputValue.Replace(old1, new1);
       if (exchange2)
-        inputValue = inputValue.Replace(old2!, new2);
+        inputValue = inputValue.Replace(old2, new2);
 
       return inputValue;
     }
@@ -749,7 +742,7 @@ namespace CsvTools
     }
 
     public static char StringToChar(this string inputString) =>
-      string.IsNullOrEmpty(inputString) ? '\0' : inputString[0];
+      string.IsNullOrEmpty(inputString) ? char.MinValue : inputString[0];
 
     public static int ToInt(this ulong value) => value > int.MaxValue ? int.MaxValue : Convert.ToInt32(value);
 
@@ -794,7 +787,8 @@ namespace CsvTools
       return Convert.ToInt64(value);
     }
 
-    public static string ToStringHandle0(this char input) => input == '\0' ? string.Empty : input.ToString();
+    public static string ToStringHandle0(this char input) => 
+      input == char.MinValue ? string.Empty : input.ToString();
 
     
     
@@ -807,7 +801,7 @@ namespace CsvTools
     public static char WrittenPunctuation(this string inputString)
     {
       if (string.IsNullOrEmpty(inputString))
-        return '\0';
+        return char.MinValue;
 
       if (inputString.Length == 1)
       {

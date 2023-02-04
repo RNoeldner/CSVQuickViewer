@@ -35,9 +35,9 @@ namespace CsvTools
       // build a list of all characters that would indicate a sequence
       var possibleEscaped = new HashSet<char>(checkedEscapeChars);
 
-      if (fieldDelimiterChar!= '\0')
+      if (fieldDelimiterChar != char.MinValue)
         possibleEscaped.Add(fieldDelimiterChar);
-      if (fieldQualifierChar!='\0')
+      if (fieldQualifierChar !=char.MinValue)
         possibleEscaped.Add(fieldQualifierChar);
       foreach (var escaped in DelimiterCounter.GetPossibleDelimiters())
         possibleEscaped.Add(escaped);
@@ -74,7 +74,7 @@ namespace CsvTools
       }
 
       Logger.Information("No Escape found");
-      return '\0';
+      return char.MinValue;
     }
   }
 }

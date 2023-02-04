@@ -262,14 +262,10 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
       {
         if (!m_ViewSettings.GuessCodePage)
           checkBoxBOM.Checked = m_ViewSettings.DefaultInspectionResult.ByteOrderMark;
-        if (!m_ViewSettings.GuessEscapePrefix)
-          textBoxEscapeRead.Text = m_ViewSettings.DefaultInspectionResult.EscapePrefix.ToStringHandle0();
 
-        if (!m_ViewSettings.GuessComment)
-          textBoxComment.Text = m_ViewSettings.DefaultInspectionResult.CommentLine;
-
-        if (!m_ViewSettings.GuessDelimiter)
-          textBoxDelimiter.Text = m_ViewSettings.DefaultInspectionResult.FieldDelimiter.ToStringHandle0();
+        textBoxEscapeRead.Text = m_ViewSettings.DefaultInspectionResult.EscapePrefix.GetDescriptionShort();
+        textBoxComment.Text = m_ViewSettings.DefaultInspectionResult.CommentLine;
+        textBoxDelimiter.Text = m_ViewSettings.DefaultInspectionResult.FieldDelimiter.GetDescriptionShort();
 
         if (!m_ViewSettings.GuessHasHeader)
           checkBoxHeader.Checked = m_ViewSettings.DefaultInspectionResult.HasFieldHeader;
@@ -281,11 +277,9 @@ Re-Aligning works best if columns and their order are easily identifiable, if th
           quotingControl.CsvFile.DuplicateQualifierToEscape =
             m_ViewSettings.DefaultInspectionResult.DuplicateQualifierToEscape;
           quotingControl.CsvFile.FieldQualifier =
-            m_ViewSettings.DefaultInspectionResult.FieldQualifier.ToStringHandle0();
+            m_ViewSettings.DefaultInspectionResult.FieldQualifier.GetDescriptionShort();
         }
-
-        if (!m_ViewSettings.GuessStartRow)
-          numericUpDownSkipRows.Value = m_ViewSettings.DefaultInspectionResult.SkipRows;
+        numericUpDownSkipRows.Value = m_ViewSettings.DefaultInspectionResult.SkipRows;
       }
       cboCodePage.SelectedItem = preselect;
       cboRecordDelimiter.SetEnumDataSource(m_ViewSettings.WriteSetting.NewLine, new[] { RecordDelimiterTypeEnum.None });

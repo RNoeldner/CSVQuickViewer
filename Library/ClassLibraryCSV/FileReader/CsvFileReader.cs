@@ -252,7 +252,7 @@ namespace CsvTools
       m_FieldDelimiterChar = fieldDelimiter.WrittenPunctuation();
       m_FieldQualifierChar = fieldQualifier.WrittenPunctuation();
 
-      if (m_FieldDelimiterChar == '\0')
+      if (m_FieldDelimiterChar == char.MinValue)
         throw new FileReaderException("All delimited text files do need a delimiter.");
 
       if (m_FieldQualifierChar == cCr || m_FieldQualifierChar == cLf)
@@ -263,12 +263,12 @@ namespace CsvTools
         throw new FileReaderException(
           "The field delimiter character is invalid, please use something else than CR, LF or Space");
 
-      if (m_EscapePrefixChar != '\0' &&
+      if (m_EscapePrefixChar != char.MinValue &&
           (m_FieldDelimiterChar == m_EscapePrefixChar || m_FieldQualifierChar == m_EscapePrefixChar))
         throw new FileReaderException(
           $"The escape character is invalid, please use something else than the field delimiter or qualifier character {m_EscapePrefixChar.GetDescriptionShort()}.");
-
-      m_HasQualifier = m_FieldQualifierChar != '\0';
+      
+      m_HasQualifier = m_FieldQualifierChar != char.MinValue;
 
       if (m_HasQualifier && m_FieldQualifierChar == m_FieldDelimiterChar)
         throw new ArgumentOutOfRangeException(
@@ -434,7 +434,7 @@ namespace CsvTools
             if (col.ColumnFormatter is TextUnescapeFormatter unescapeFormatter)
               unescapeFormatter.RaiseWarning = false;
 
-        if (m_TryToSolveMoreColumns && m_FieldDelimiterChar != '\0')
+        if (m_TryToSolveMoreColumns && m_FieldDelimiterChar != char.MinValue)
           m_RealignColumns = new ReAlignColumns(FieldCount);
 
         if (m_TextReader.CanSeek)
@@ -960,13 +960,13 @@ namespace CsvTools
           case cLf:
             EndLineNumber++;
 
-            var nextChar = '\0';
+            var nextChar = char.MinValue;
             if (!EndOfFile)
             {
               nextChar = Peek();
               if ((character != cCr || nextChar != cLf) && (character != cLf || nextChar != cCr))
               {
-                nextChar = '\0';
+                nextChar = char.MinValue;
               }
               else
               {

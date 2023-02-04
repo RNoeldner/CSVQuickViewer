@@ -1094,7 +1094,7 @@ namespace CsvTools
         return (new List<string>(), fileSetting.ColumnCollection);
 
       // in case there is no delimiter but its a delimited file, do nothing
-      if (fileSetting is ICsvFile { FieldDelimiterChar: '\0' })
+      if (fileSetting is ICsvFile { FieldDelimiterChar: char.MinValue })
         return (new List<string>(), fileSetting.ColumnCollection);
      
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
